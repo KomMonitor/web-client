@@ -1,0 +1,1 @@
+angular.module('wpsCapabilities', ['wpsCapabilitiesServiceIdentification', 'wpsCapabilitiesServiceProvider', 'wpsCapabilitiesServiceOperations']);

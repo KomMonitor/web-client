@@ -1,0 +1,264 @@
+{
+	"controls": {
+		"setupTabName": "WPS Setup",
+		"capabilitiesTabName": "Capabilities",
+		"processesTabName": "Processes",
+		"executeTabName": "Execute",
+		"getStatusTabName": "GetStatus",
+		"getResultTabName": "GetResult"
+	},
+	"wpsSetup": {
+		"header": "WPS Setup und Konfiguration",
+		"description": "Auf diesem Konfigurations-Tab können Sie grundlegende Einstellungen vornehmen. Um die Anwendung nutzen zu können, wählen Sie bitte einen Web Processing Service sowie die gewünschte Service-Version aus. Bei jeder erneuten Auswahl (WPS oder Version) wird unmittelbar ein GetCapabilities-Request abgesetzt, die Anwendung mit den erhaltenen Capabilities aktualisiert sowie die übrigen Tabs aktiviert.",
+		"changeLanguage" : "Sprache wechseln",
+		"selectWpsLanguagePlaceholder" : "Hier können Sie die Sprache ändern ...",
+		"addWpsButton": "WPS URL hinzufügen",
+		"removeWpsButton": "Ausgewählten WPS entfernen",
+		"chooseWps": "Wählen Sei einen WPS:",
+		"selectWpsPlaceholder": "WPS wählen ...",
+		"chooseVersion": "Wählen Sie die gewünschte Service-Version",
+		"capabilitiesFailed_short" : "Fehler",
+		"capabilitiesFailed_text" : "Der GetCapabilities-Request gegen den aktuell selektierten Web Processing Service war nicht erfolgreich. Bitte überprüfen Sie die Erreichbarkeit des Services und versuchen Sie es erneut.",
+		"capabilitiesSuccess_short" : "Erfolg",
+		"capabilitiesSuccess_text" : "Der GetCapabilities-Request gegen den aktuell selektierten Web Processing Service war erfolgreich.",
+		"capabilitiesFailed_errorThrown" : "Fehlermeldung: ",
+		"wpsAddServiceModal": {
+			"title": "Hinzufügen einer neuen WPS Service URL",
+			"description": "Bitte fügen Sie eine gültige Endpoint-URL, beginnend mit 'http:' oder 'https:', zu einem existierenden Web Processing Service ein.",
+			"inputText": "WPS URL",
+			"placeholder": "http://myWPS.example.org/WebProcessingService",
+			"submit": "Hinzufügen",
+			"close": "Schließen",
+			"alert_short": "Achtung",
+			"alert_unvalidUrl": "Die eingegebene URL ist nicht gültig. Bitte überprüfen Sie die URL (z.B. dürfen keine Leerzeichen enthalten sein).",
+			"success_short": "Erfolg",
+			"success_text": "Die URL wurde zur Liste der verfügbaren Services hinzugefügt."
+		}
+	},
+	"wpsCapabilities": {
+		"header": "WPS Capabilities",
+		"description": "Dieser Bereich enthält eine Übersicht mit allgemeinen Informationen über den gewählten Web Processing Service. Eine Übersicht der angebotenen Prozesse befindet sich im Tab 'Processes'.",
+		"serviceIdentification": {
+			"serviceIdentificationName": "Identifikation",
+			"serviceTypeAndVersion": "Service Typ und Version",
+			"serviceVersions": "Verfügbare Service Versionen",
+			"serviceTitle": "Titel",
+			"serviceAbstract": "Beschreibung",
+			"serviceKeywords": "Stichwörter",
+			"serviceFees": "Gebühren",
+			"serviceAccessConstraints": "Zugriffsbeschränkungen"
+		},
+		"serviceProvider": {
+			"serviceProviderName": "Anbieter",
+			"providerName": "Name",
+			"providerSite": "Webreferenz",
+			"providerIndividualName": "Kontaktperson",
+			"providerDeliveryPoint": "Lieferaddresse",
+			"providerCity": "Stadt",
+			"providerAdministrativeArea": "Verwaltungsbereich",
+			"providerPostalCode": "Postleitzahl",
+			"providerCountry": "Land",
+			"providerMailAddress": "Mail-Adresse"
+		},
+		"serviceOperations": {
+			"serviceOperationsName": "Operationen",
+			"operationGetUrl": "GET URL",
+			"operationPostUrl": "POST URL"
+		},
+		"serviceLanguages": {
+			"serviceLanguagesName": "Verfügbare Sprachen"
+		}
+	},
+	"wpsProcesses": {
+		"header": "WPS Processes",
+		"description": "Dieser Bereich enthält eine Übersicht mit Informationen über den gewählten Prozess, unterteilt in 'allgemeine Informationen' sowie dessen 'Inputs' und 'Outputs'",
+		"chooseWpsProcess" : "Verfügbare Prozesse",
+		"selectWpsProcessPlaceholder" : "Wählen Sie einen Prozess ...",
+		"generalInformation" : "Allgemeine Informationen",
+		"inputs" : "Inputs",
+		"outputs" : "Outputs",
+		"process" : {
+			"version" : "Prozess-Version",
+			"jobControlOptions" : "Verfügbare Job-Ausführungsoptionen",
+			"outputTransmission" : "Verfügbare Output-Übermittlungsoptionen",
+			"title" : "Titel",
+			"identifier" : "Eindeutige ID",
+			"description" : "Beschreibung"
+		},
+		"describeProcessFailed_short" : "Fehler",
+		"describeProcessFailed_text" : "Der DescribeProcess-Request für den aktuell selektierten Prozess war nicht erfolgreich. Bitte überprüfen Sie die Erreichbarkeit des Services und versuchen Sie es erneut.",
+		"describeProcessSuccess_short" : "Erfolg",
+		"describeProcessSuccess_text" : "Der DescribeProcess-Request für den aktuell selektierten Prozess war erfolgreich.",
+		"describeProcessFailed_errorThrown" : "Fehlermeldung: "
+	},
+	"wpsInputOutput" : {
+		"literalInputs" : "Literal Inputs",
+		"complexInputs" : "Complex Inputs",
+		"bboxInputs" : "Bounding Box Inputs",
+		"literalOutputs" : "Literal Outputs",
+		"complexOutputs" : "Complex Outputs",
+		"bboxOutputs" : "Bounding Box Outputs",
+		"title" : "Titel",
+		"identifier" : "Eindeutige ID",
+		"abstractValue" : "Beschreibung",
+		"minOccurs" : "Minimale Anzahl",
+		"maxOccurs" : "Maximale Anzahl",
+		"formats" : "Unterstützte Formate",
+		"mimeType" : "MimeType / Format",
+		"schema" : "Schema",
+		"encoding" : "Encoding",
+		"literalData" : {
+			"literalDataDomains" : "Domänenbereiche",
+			"literalDataDomain" : {
+				"allowedValues" : "Erlaubter Wertebereich",
+				"anyValue" : "beliebig",
+				"dataType" : "Datentyp",
+				"dataTypeReference" : "Datentyp Referenz",
+				"defaultValue" : "Standard Wert",
+				"unitOfMeasure" : "Einheit"
+			}
+		},
+		"boundingBoxData" : {
+			"supportedCRSs" : "Unterstützte Koordinatenreferenzsysteme",
+			"crs" : "Koordinatenreferenzsystem",
+			"dimensions" : "Dimensionen",
+			"lowerCorner" : "Untere Ecke",
+			"upperCorner" : "Obere Ecke"
+		}
+	},
+	"wpsExecute" : {
+		"header" : "WPS Execute",
+		"description" : "Hier können WPS Execute Request konfiguriert und ausgeführt werden. Für ausgewählte Formate (aktuell GeoJSON) können Inputs direkt auf der Karte gezeichnet sowie Output-Geometrien als neue Layer der Karte hinzugefügt werden.",
+		"setupInputs" : "Schritt 1: Konfiguration der Inputs",
+		"setupOutputs" : "Schritt 2: Konfiguration der Outputs",
+		"setupExecuteParameters" : "Schritt 3: Konfiguration der Execute-Parameter",
+		"performExecute" : "Execute-Request erstellen",
+		"resetButton" : "Zurücksetzen und neuen Execute-Request erstellen",
+		"executeFailed_short" : "Fehler",
+		"executeFailed_text" : "Der Execute-Request war nicht erfolgreich.",
+		"executeSuccess_short" : "Erfolg",
+		"executeSuccess_text" : "Der Execute-Request war erfolgreich.",
+		"executeFailed_errorThrown" : "Fehlermeldung: ",
+		"fetchingReferenceOutputFailed_short" : "Fehler",
+		"fetchingReferenceOutputFailed_text" : "Bei dem Versuch, den angegebenen Referenz-Output zu holen ist ein Fehler aufgetreten.",
+		"fetchingReferenceOutputSuccess_short" : "Erfolg",
+		"fetchingReferenceOutputSuccess_text" : "Der angegebene Referenz-Output konnte bezogen werden.",
+		"inputSetup" : {
+			"chooseWpsInput" : "Auswahl des zu erstellenden Inputs. Die mit 'Stern' markierten Inputs sind mandatorisch",
+			"selectWpsExecuteInputPlaceholder" : "Input-Auswahl",
+			"alreadyConfiguredInputs" : "Bereits definierte Inputs",
+			"alreadyConfiguredInputsPlaceholder" : "Liste der bereits definierten Inputs ...",
+			"literalData" : {
+				"inputHeader" : "Literal Data Input",
+				"literalInputValue" : "Literal Input Wert",
+				"literalInputValuePlaceholder" : "Geben Sie den gewünschten Wert ein ..."
+			},
+			"complexData" : {
+				"inputHeader" : "Complex Data Input",
+				"selectMimeType" : "Format / MimeType",
+				"selectMimeTypePlaceholder" : "Wählen Sie das gewünschte Format ...",
+				"encoding" : "Encoding",
+				"schema" : "Schema",
+				"asReference" : "Als Referenz (Link zu einer Ressource) ...",
+				"textAreaInput" : "Complex Payload",
+				"referenceInput" : "Link zu entsprechender Ressource",
+				"fileUploadInput" : "Hochladen einer lokalen Datei",
+				"drawingInput" : "Digitalisieren (Kartenbasierte Eingabe)",
+				"textAreaPlaceholder" : "Einfügen des Complex Payload in roher Form ...",
+				"referencePlaceholder" : "Verweis auf Complex Payload (URL) ..."
+			},
+			"createInput" : "Input erstellen",
+			"removeInput" : "Input löschen",
+			"inputTitle" : "Titel",
+			"inputIdentifier" : "Eindeutige ID",
+			"boundingBoxData" : {
+				"inputHeader" : "Bounding Box Data Input",
+				"crs" : "Koordinatenreferensystem",
+				"selectCrsPlaceholder" : "Wählen Sie das gewünschte Koordinatenreferensystem ...",
+				"lowerCorner" : "Punktdefinition für untere Ecke",
+				"upperCorner" : "Punktdefinition für obere Ecke",
+				"lowerCornerPlaceholder" : "Koordinatenstring (Beispiel: '10.0 20.0')",
+				"upperCornerPlaceholder" : "Koordinatenstring (Beispiel: '30.0 40.0')",
+				"drawingInput" : "Digitalisierung (kartenbasierte Eingabe)",
+				"cornerInput" : "Angabe der Eckpunkte"
+			}
+		},
+		"outputSetup" : {
+			"chooseWpsOutput" : "Auswahl des zu erstellenden Outputs. Die mit 'Stern' markierten Outputs sind mandatorisch",
+			"selectWpsExecuteOutputPlaceholder" : "Output-Auswahl",
+			"alreadyConfiguredOutputs" : "Bereits definierte Outputs",
+			"alreadyConfiguredOutputsPlaceholder" : "Liste der bereits definierten Outputs ...",
+			"outputFormatPlaceholder" : "Output Format ...",
+			"literalData" : {
+				"outputHeader" : "Literal Data Output"
+			},
+			"complexData" : {
+				"outputHeader" : "Complex Data Output",
+				"selectMimeType" : "Format / MimeType",
+				"selectMimeTypePlaceholder" : "Wählen Sie das gewünschte Format ...",
+				"encoding" : "Encoding",
+				"schema" : "Schema"
+			},
+			"createOutput" : "Output erstellen",
+			"removeOutput" : "Output löschen",
+			"outputTitle" : "Titel",
+			"outputIdentifier" : "Eindeutige ID",
+			"transmissionMode" : "Übertragungsart",
+			"selectTransmissionModePlaceholder" : "Wählen Sie den Übertragungsmodus ...",
+			"boundingBoxData" : {
+				"outputHeader" : "Bounding Box Data Output"
+			}
+		},
+		"parametersSetup" : {
+			"jobControlOptions" : "Ausführungsmodus",
+			"responseFormat" : "Antwortformat",
+			"jobControlOptionsPlaceholder" : "Wahl des Ausführungsmodus ...",
+			"responseFormatPlaceholder" : "Wahl des Antwortformats ..."
+		},
+		"resultDocument-wps-2-0" : {
+			"header" : "Result Dokument",
+			"jobId" : "Job ID",
+			"expirationDate" : "Ablaufdatum",
+			"output" : {
+				"literalDataType" : "Literal Output",
+				"complexDataType" : "Complex Output",
+				"boundingBoxDataType" : "Bounding Box Output",
+				"identifier" : "Output ID",
+				"value" : "Wert"
+			}
+		},
+		"statusInfoDocument-wps-2-0" : {
+			"header" : "StatusInfo Dokument",
+			"jobId" : "Job ID",
+			"status" : "Status",
+			"expirationDate" : "Ablaufdatum",
+			"estimatedCompletion" : "Geschätze Vervollständigung",
+			"nextPoll" : "Nächste Abfrage",
+			"percentCompleted" : "Prozent abgeschlossen"
+		},
+		"responseDocument-wps-1-0" : {
+			"header" : "Response Dokument",
+			"process" : "Prozess",
+			"statusLocation" : "Verweis auf Status",
+			"status" : {
+				"header" : "Status",
+				"info" : "Information",
+				"creationTime" : "Erstellungsdatum"
+			},
+			"output" : {
+				"reference" : "Referenz",
+				"href" : "Verweis auf externe Ressource",
+        		"visualizeReference" : "Hole und visualisiere Output"
+			}
+		},
+		"rawOutput" : {
+			"header" : "Raw Output"
+		}
+	},
+	"wpsGetStatus" : {
+		"refreshStatusButton" : "Status aktualisieren"
+	},
+	"wpsGetResult" : {
+		"getResultButton" : "Result Dokument holen"
+	}
+}

@@ -1,0 +1,220 @@
+/* app css stylesheet */
+/* Set height of the grid so .sidenav can be 100% (adjust if needed) */
+.row.wps-ui {
+	height: 98vh;
+	margin-top: 10px;
+	margin-right: 2px;
+}
+
+/* Set gray background color and 100% height */
+.sidenav {
+	background-color: #f1f1f1;
+	height: 100%;
+}
+
+/* On small screens, set height to 'auto' for sidenav and grid */
+@media screen and (max-width: 767px) {
+	.sidenav {
+		height: auto;
+		padding: 15px;
+	}
+	.row.content {
+		height: auto;
+	}
+}
+
+#map {
+	height: 98vh;
+}
+
+#legend{
+	position: absolute; 
+	bottom: 0;
+}
+
+.slidecontainer {
+    width: 100%; /* Width of the outside container */
+}
+
+/* The slider itself */
+.slider {
+    -webkit-appearance: none;  /* Override default CSS styles */
+    appearance: none;
+    width: 100%; /* Full-width */
+    height: 25px; /* Specified height */
+    background: #d3d3d3; /* Grey background */
+    outline: none; /* Remove outline */
+    opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
+    -webkit-transition: .2s; /* 0.2 seconds transition on hover */
+    transition: opacity .2s;
+}
+
+/* Mouse-over effects */
+.slider:hover {
+    opacity: 1; /* Fully shown on mouse-over */
+}
+
+/* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */ 
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none; /* Override default look */
+    appearance: none;
+    width: 25px; /* Set a specific slider handle width */
+    height: 25px; /* Slider handle height */
+    background: #4CAF50; /* Green background */
+    cursor: pointer; /* Cursor on hover */
+}
+
+.slider::-moz-range-thumb {
+    width: 25px; /* Set a specific slider handle width */
+    height: 25px; /* Slider handle height */
+    background: #4CAF50; /* Green background */
+    cursor: pointer; /* Cursor on hover */
+}
+
+
+
+
+
+
+
+
+
+/* openlayers */
+.ol-scale-line {
+    background: black;
+    opacity: 0.65;
+    padding: 5px;
+  }
+  
+/* setup tab*/  
+#wpsSetupContainer{
+	margin-top:25px;
+}
+
+#ChangeLanguageContainer {
+	margin-top: 25px
+}
+
+/* capabilities tab */
+#wpsCapabilitiesAccordion {
+	margin-top:25px;
+	height: auto !important;
+	max-height: 650px;
+    overflow-y: scroll;
+}
+
+/* processes tab */
+#wpsProcessesContainer {
+	margin-top: 25px;
+}
+
+#wpsProcessDescriptionAccordion {
+	margin-top:25px;
+	height: auto !important;
+	max-height: 550px;
+    overflow-y: scroll;
+}
+
+/* execute tab */
+#wpsExecuteContainer {
+	margin-top:25px;
+}
+
+#wpsExecuteAccordion {
+	height: auto !important;
+	max-height: 650px;
+    overflow-y: scroll;
+}
+
+#executeInputChoose {
+	margin-bottom:25px;
+}
+
+#executeOutputChoose {
+	margin-bottom:25px;
+}
+
+#wps-execute-result-document {
+	max-height: 650px;
+    overflow-y: scroll;
+}
+
+#wps-execute-status-info-document {
+	max-height: 650px;
+    overflow-y: scroll;
+}
+
+#wps-execute-response-document {
+	max-height: 650px;
+    overflow-y: scroll;
+}
+
+#wps-execute-raw-output{
+	max-height: 650px;
+    overflow-y: scroll;
+}
+
+hr {
+    height: 2px;
+    background-color:#ababab;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.loading-overlay {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  background-color: rgb(128,128,128); 
+  top: 0;
+  left: 0;
+  border-radius: 5px;
+  opacity: 0.8;
+  z-index: 1;
+}
+
+.loading-overlay .icon-spin {
+  font-size: 25px;
+  width: 25px;
+  height: 25px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin: -12.5px 0 0 -12.5px;
+	
+  -webkit-animation: spin 1s infinite linear;
+  -moz-animation: spin 1s infinite linear;
+  -o-animation: spin 1s infinite linear;
+  animation: spin 1s infinite linear;
+  -webkit-transform-origin: 50% 50%;
+  transform-origin:50% 50%;
+  -ms-transform-origin:50% 50%; /* IE 9 */
+}
+
+@-moz-keyframes spin {
+  from {
+    -moz-transform: rotate(0deg);
+  }
+  to {
+    -moz-transform: rotate(360deg);
+  }
+}
+
+@-webkit-keyframes spin {
+  from {
+    -webkit-transform: rotate(0deg);
+  }
+  to {
+    -webkit-transform: rotate(360deg);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

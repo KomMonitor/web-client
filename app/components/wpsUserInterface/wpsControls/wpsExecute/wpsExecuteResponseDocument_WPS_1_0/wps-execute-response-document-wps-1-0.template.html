@@ -1,0 +1,291 @@
+<div align="left" id="wps-execute-response-document">
+
+	<div align="center">
+		<h3>{{ 'wpsExecute.responseDocument-wps-1-0.header' | translate
+			}}</h3>
+	</div>
+
+	<!-- list of the important items of the response document -->
+
+	<ul class="list-group">
+
+		<li class="list-group-item">
+			<h4>{{ 'wpsExecute.responseDocument-wps-1-0.process' |
+				translate}}</h4>
+
+			<div>
+				<label>{{
+					'wpsInputOutput.title' | translate}}</label>
+				<p>{{$ctrl.wpsPropertiesServiceInstance.responseDocument_wps_1_0.process.title}}</p>
+			</div>
+
+			<div>
+				<label>{{
+					'wpsInputOutput.identifier' |
+					translate}}</label>
+				<p>{{$ctrl.wpsPropertiesServiceInstance.responseDocument_wps_1_0.process.identifier}}</p>
+			</div>
+
+		</li>
+
+		<li class="list-group-item"
+			ng-if="$ctrl.wpsPropertiesServiceInstance.responseDocument_wps_1_0.statusLocation"><label>
+				{{'wpsExecute.responseDocument-wps-1-0.statusLocation' | translate}}</label>
+			<p>{{$ctrl.wpsPropertiesServiceInstance.responseDocument_wps_1_0.statusLocation}}</p>
+		</li>
+
+		<li class="list-group-item"
+			ng-if="$ctrl.wpsPropertiesServiceInstance.responseDocument_wps_1_0.status.info">
+			<h4>{{ 'wpsExecute.responseDocument-wps-1-0.status.header' |
+				translate}}</h4>
+
+			<div>
+				<label> {{'wpsExecute.responseDocument-wps-1-0.status.info'
+					| translate}}</label>
+				<p>{{$ctrl.wpsPropertiesServiceInstance.responseDocument_wps_1_0.status.info}}</p>
+			</div>
+
+			<div
+				ng-if="$ctrl.wpsPropertiesServiceInstance.responseDocument_wps_1_0.status.creationTime">
+				<label>
+					{{'wpsExecute.responseDocument-wps-1-0.status.creationTime' |
+					translate}}</label>
+				<p>{{$ctrl.wpsPropertiesServiceInstance.responseDocument_wps_1_0.status.creationTime}}</p>
+			</div>
+
+		</li>
+
+
+		<li class="list-group-item"
+			ng-repeat="output in $ctrl.wpsPropertiesServiceInstance.responseDocument_wps_1_0.outputs">
+
+			<!-- reference output -->
+			<div ng-if="output.reference">
+				<h3>
+					{{'wpsExecute.responseDocument-wps-1-0.output.reference' |
+					translate}}</h3>
+				
+				<div>
+					<label>{{
+						'wpsInputOutput.identifier' |
+						translate}}</label>
+					<p>{{output.identifier}}</p>
+				</div>
+				
+				<div ng-if="output.title">
+					<label>{{
+						'wpsInputOutput.title' |
+						translate}}</label>
+					<p>{{output.title}}</p>
+				</div>
+				
+				<div ng-if="output.abstractValue">
+					<label>{{
+						'wpsInputOutput.abstractValue' |
+						translate}}</label>
+					<p>{{output.abstractValue}}</p>
+				</div>
+				
+				<div ng-if="output.reference.format">
+					<label>{{
+						'wpsInputOutput.mimeType' |
+						translate}}</label>
+					<p>{{output.reference.format}}</p>
+				</div>
+				
+				<div ng-if="output.reference.schema">
+					<label>{{
+						'wpsInputOutput.schema' |
+						translate}}</label>
+					<p>{{output.reference.schema}}</p>
+				</div>
+				
+				<div ng-if="output.reference.encoding">
+					<label>{{
+						'wpsInputOutput.encoding' |
+						translate}}</label>
+					<p>{{output.reference.encoding}}</p>
+				</div>
+				
+				<div>
+					<label>{{
+						'wpsExecute.responseDocument-wps-1-0.output.href' |
+						translate}}</label>
+					<p>{{output.reference.href}}</p>
+					
+					<!-- button is only visible when output is of supported geometric format -->
+					<div align="center">
+						<button type="button" class="btn btn-info"
+								ng-click="$ctrl.fetchAndVisualizeReferenceOutput(output)" 
+								ng-if="$ctrl.isGeometricFormat(output) === true">
+									{{'wpsExecute.responseDocument-wps-1-0.output.visualizeReference' | translate}}</button>
+						<p></p>
+					</div>
+				</div>
+				
+				<!-- div for execute failed messages! -->
+				<div ng-if="$ctrl.wpsFormControlServiceInstance.fetchingReferenceOutputFailed"
+					class="alert alert-danger">
+					<strong>{{'wpsExecute.executeFailed_short' | translate}}!</strong>
+					{{'wpsExecute.executeFailed_text' | translate}}
+					<p></p>
+					<p>
+						<strong>{{'wpsExecute.executeFailed_errorThrown' |
+							translate}}</strong>{{$ctrl.wpsFormControlServiceInstance.executeFailed_errorThrown}}
+					</p>
+				</div>
+				
+				<!-- div for execute success messages! -->
+				<div ng-if="$ctrl.wpsFormControlServiceInstance.fetchingReferenceOutputSuccess"
+					class="alert alert-success">
+					<strong>{{'wpsExecute.executeSuccess_short' | translate}}!</strong>
+					{{'wpsExecute.executeSuccess_text' | translate}}
+				</div>
+					
+			</div> 
+			
+			
+
+			<div ng-if="output.data">
+			
+				<!-- determine output header from type -->
+			
+				<h3 ng-if="output.data.literalData">
+					{{'wpsExecute.resultDocument-wps-2-0.output.literalDataType' |
+					translate}}</h3>
+
+				<h3 ng-if="output.data.complexData">
+					{{'wpsExecute.resultDocument-wps-2-0.output.complexDataType' |
+					translate}}</h3>
+
+				<h3 ng-if="output.data.boundingBoxData">
+					{{'wpsExecute.resultDocument-wps-2-0.output.boundingBoxDataType'
+					| translate}}</h3>
+
+				<!-- identifier -->
+
+				<div>
+					<label>{{
+						'wpsInputOutput.identifier' |
+						translate}}</label>
+					<p>{{output.identifier}}</p>
+				</div>
+				
+				<div ng-if="output.title">
+					<label>{{
+						'wpsInputOutput.title' |
+						translate}}</label>
+					<p>{{output.title}}</p>
+				</div>
+				
+				<div ng-if="output.abstractValue">
+					<label>{{
+						'wpsInputOutput.abstractValue' |
+						translate}}</label>
+					<p>{{output.abstractValue}}</p>
+				</div>
+
+				<!-- output structure depending on type -->
+
+				<!-- literal data -->
+				<div ng-if="output.data.literalData">
+					<div ng-if="output.data.literalData.dataType">
+						<label>{{
+							'wpsInputOutput.literalData.literalDataDomain.dataType' |
+							translate}}</label>
+						<p>{{output.data.literalData.dataType}}</p>
+					</div>
+
+					<div ng-if="output.data.literalData.uom">
+						<label>{{
+							'wpsInputOutput.literalData.literalDataDomain.unitOfMeasure' |
+							translate}}</label>
+						<p>{{output.data.literalData.uom}}</p>
+					</div>
+
+					<div>
+						<label>{{
+							'wpsExecute.resultDocument-wps-2-0.output.value' | translate}}</label>
+						<p>{{output.data.literalData.value}}</p>
+					</div>
+
+				</div>
+
+				<!-- complex data -->
+				<div ng-if="output.data.complexData">
+					<div ng-if="output.data.complexData.mimeType">
+						<label>{{ 'wpsInputOutput.mimeType' | translate}}</label>
+						<p>{{output.data.complexData.mimeType}}</p>
+					</div>
+
+					<div ng-if="output.data.complexData.schema">
+						<label>{{ 'wpsInputOutput.schema' | translate}}</label>
+						<p>{{output.data.complexData.schema}}</p>
+					</div>
+
+					<div ng-if="output.data.complexData.encoding">
+						<label>{{ 'wpsInputOutput.encoding' | translate}}</label>
+						<p>{{output.data.complexData.encoding}}</p>
+					</div>
+
+					<div>
+						<label>{{
+							'wpsExecute.resultDocument-wps-2-0.output.value' | translate}}</label>
+						<p>{{output.data.complexData.value}}</p>
+					</div>
+
+				</div>
+
+				<!-- boundingBox data -->
+				<div ng-if="output.data.boundingBoxData">
+					<div ng-if="output.data.boundingBoxData.crs">
+						<label>{{ 'wpsInputOutput.boundingBoxData.crs' |
+							translate}}</label>
+						<p>{{output.data.boundingBoxData.crs}}</p>
+					</div>
+
+					<div ng-if="output.data.boundingBoxData.dimensions">
+						<label>{{ 'wpsInputOutput.boundingBoxData.dimensions' |
+							translate}}</label>
+						<p>{{output.data.boundingBoxData.dimensions}}</p>
+					</div>
+
+					<div>
+						<label>{{ 'wpsInputOutput.boundingBoxData.lowerCorner' |
+							translate}}</label>
+						<p>{{output.data.boundingBoxData.lowerCorner}}</p>
+					</div>
+
+					<div>
+						<label>{{ 'wpsInputOutput.boundingBoxData.upperCorner' |
+							translate}}</label>
+						<p>{{output.data.boundingBoxData.upperCorner}}</p>
+					</div>
+
+				</div>
+
+			</div>
+
+		</li>
+
+	</ul>
+	
+	<div align="center">
+
+		<!-- button to trigger getStatusRequest! -->
+
+		<button type="button" class="btn btn-success"
+			ng-click="$ctrl.refreshStatus()" 
+			ng-if="$ctrl.wpsPropertiesServiceInstance.responseDocument_wps_1_0.statusLocation">
+			{{'wpsGetStatus.refreshStatusButton' | translate}}</button>
+
+<!-- 	button to trigger getResultRequest! only visible when result is available 
+
+		<button type="button" class="btn btn-success"
+			ng-if="($ctrl.wpsPropertiesServiceInstance.statusInfoDocument_wps_2_0.percentCompleted == 100)  || ($ctrl.wpsPropertiesServiceInstance.statusInfoDocument_wps_2_0.status == 'Succeeded')"
+			ng-click="$ctrl.getResult()">{{'wpsGetResult.getResultButton'
+			| translate}}</button>
+-->			
+	</div>
+
+</div>

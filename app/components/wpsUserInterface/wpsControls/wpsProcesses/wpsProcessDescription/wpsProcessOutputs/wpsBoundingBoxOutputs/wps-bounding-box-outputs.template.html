@@ -1,0 +1,35 @@
+<ul class="list-group" ng-repeat-start="bboxOutput in $ctrl.wpsPropertiesServiceInstance.processDescription.process.outputs | filter: $ctrl.wpsInputOutputFilterServiceInstance.hasBoundingBoxData">
+		
+	
+	<li class="list-group-item">
+		<label>{{
+			'wpsInputOutput.title' | translate}}</label>
+		<p>{{bboxOutput.title}}</p>
+	</li>
+	
+	<li class="list-group-item">
+		<label>{{
+			'wpsInputOutput.identifier' | translate}}</label>
+		<p>{{bboxOutput.identifier}}</p>
+	</li>
+	
+	<li class="list-group-item">
+		<label>{{
+			'wpsInputOutput.abstractValue' | translate}}</label>
+		<p>{{bboxOutput.abstractValue}}</p>
+	</li>
+	
+	<li class="list-group-item" ng-if="bboxOutput.boundingBoxData.formats">
+		<label>{{
+			'wpsInputOutput.formats' | translate}}</label>
+		<p>{{bboxOutput.boundingBoxData.formats}}</p>
+	</li>
+	
+	<li class="list-group-item" ng-if="bboxOutput.boundingBoxData.supportedCRSs">
+		<label>{{
+			'wpsInputOutput.boundingBoxData.supportedCRSs' | translate}}</label>
+		<p>{{bboxOutput.boundingBoxData.supportedCRSs}}</p>
+	</li>
+
+</ul>
+<div ng-repeat-end />

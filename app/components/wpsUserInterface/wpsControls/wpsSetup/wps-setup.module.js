@@ -1,0 +1,1 @@
+angular.module('wpsSetup', ['wpsProperties', 'wpsFormControl', 'wpsAddServiceModal', 'wpsChangeLanguage', 'wpsMap']);

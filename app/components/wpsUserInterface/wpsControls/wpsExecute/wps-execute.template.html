@@ -1,0 +1,53 @@
+<div>
+	<h3 class="justify" align="center">{{ 'wpsExecute.header' |
+		translate }}</h3>
+
+	<p align="center">{{ 'wpsExecute.description' | translate }}</p>
+
+	<div id="wpsExecuteContainer" align="left">
+
+		<div ng-if="$ctrl.wpsPropertiesServiceInstance.resultDocument_wps_2_0 == undefined 
+			&& $ctrl.wpsPropertiesServiceInstance.responseDocument_wps_1_0 == undefined
+			&& $ctrl.wpsPropertiesServiceInstance.statusInfoDocument_wps_2_0 == undefined
+			&& $ctrl.wpsPropertiesServiceInstance.rawOutput == undefined">
+			<wps-execute-setup-request></wps-execute-setup-request>
+		</div>
+		
+		<!-- result document WPS 2.0 -->
+		<div ng-if="$ctrl.wpsPropertiesServiceInstance.resultDocument_wps_2_0">
+			<wps-execute-result-document-wps-2></wps-execute-result-document-wps-2>
+		</div>
+		
+		<!-- status info document WPS 2.0 -->
+		<div ng-if="$ctrl.wpsPropertiesServiceInstance.statusInfoDocument_wps_2_0">
+			<wps-execute-status-info-document-wps-2></wps-execute-status-info-document-wps-2>
+		</div>
+		
+		<!-- response document WPS 1.0 -->
+		<div ng-if="$ctrl.wpsPropertiesServiceInstance.responseDocument_wps_1_0">
+			<wps-execute-response-document-wps-1></wps-execute-response-document-wps-1>
+		</div>
+		
+		<!-- raw output -->
+		<div ng-if="$ctrl.wpsPropertiesServiceInstance.rawOutput">
+			<wps-execute-raw-output></wps-execute-raw-output>
+		</div>
+	
+		
+		<!-- reset button -->
+
+
+		
+		<!-- add a horizontal line to separate the button from other form elements -->
+		<hr>
+
+		<div align="center">
+			<button type="button" class="btn btn-warning"
+				ng-click="$ctrl.wpsFormControlServiceInstance.resetExecute()">{{'wpsExecute.resetButton'
+				| translate}}</button>
+		</div>
+
+	</div>
+
+
+</div>

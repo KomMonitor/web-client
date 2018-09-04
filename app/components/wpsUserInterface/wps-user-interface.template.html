@@ -1,0 +1,22 @@
+<div class="container-fluid">
+
+	<div class="row wps-ui">
+
+		<!-- embed map component -->
+		<wps-map class="col-sm-8" style="height: 100%;"></wps-map>
+
+		<div class="col-sm-4 sidenav">
+			<!-- embed the control options  -->
+			<wps-controls></wps-controls>
+		</div>
+	</div>
+	
+	<div id="legend" class="form-group" ng-if="$ctrl.wpsPropertiesServiceInstance.selectedIndicatorLegendURL">
+	<h4 class="justify" align="center">Indikator Legende</h4>
+		
+		<div align="center">
+			<img ng-src="{{$ctrl.wpsPropertiesServiceInstance.selectedIndicatorLegendURL}}"/>
+		</div>
+	</div>
+	
+</div>

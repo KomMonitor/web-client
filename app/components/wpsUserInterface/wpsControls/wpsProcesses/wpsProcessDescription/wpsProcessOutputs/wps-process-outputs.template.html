@@ -1,0 +1,56 @@
+<div class="panel-group" id="wpsProcessInputsAccordion">
+	<div class="panel panel-default" ng-if="($ctrl.wpsPropertiesServiceInstance.processDescription.process.outputs | filter: $ctrl.wpsInputOutputFilterServiceInstance.hasLiteralData).length > 0">
+		<div class="panel-heading">
+			<h4 class="panel-title">
+				<a data-toggle="collapse"
+					data-parent="#wpsProcessOutputsAccordion"
+					href="#wpsLiteralOutputsCollapse">{{
+					'wpsInputOutput.literalOutputs' |
+					translate}}</a>
+			</h4>
+		</div>
+		<div id="wpsLiteralOutputsCollapse"
+			class="panel-collapse collapse">
+			<div class="panel-body">
+
+				<wps-literal-outputs></wps-literal-outputs>
+
+			</div>
+		</div>
+	</div>
+	<div class="panel panel-default" ng-if="($ctrl.wpsPropertiesServiceInstance.processDescription.process.outputs | filter: $ctrl.wpsInputOutputFilterServiceInstance.hasComplexData).length > 0">
+		<div class="panel-heading">
+			<h4 class="panel-title">
+				<a data-toggle="collapse"
+					data-parent="#wpsProcessOutputsAccordion"
+					href="#wpsComplexOutputsCollapse">{{
+					'wpsInputOutput.complexOutputs' | translate}}</a>
+			</h4>
+		</div>
+		<div id="wpsComplexOutputsCollapse" class="panel-collapse collapse">
+			<div class="panel-body">
+
+				<wps-complex-outputs></wps-complex-outputs>
+
+			</div>
+		</div>
+	</div>
+	<div class="panel panel-default" ng-if="($ctrl.wpsPropertiesServiceInstance.processDescription.process.outputs | filter: $ctrl.wpsInputOutputFilterServiceInstance.hasBoundingBoxData).length > 0">
+		<div class="panel-heading">
+			<h4 class="panel-title">
+				<a data-toggle="collapse"
+					data-parent="#wpsProcessOutputsAccordion"
+					href="#wpsBboxOutputsCollapse">{{
+					'wpsInputOutput.bboxOutputs' |
+					translate}}</a>
+			</h4>
+		</div>
+		<div id="wpsBboxOutputsCollapse" class="panel-collapse collapse">
+			<div class="panel-body">
+
+				<wps-bounding-box-outputs></wps-bounding-box-outputs>
+
+			</div>
+		</div>
+	</div>
+</div>

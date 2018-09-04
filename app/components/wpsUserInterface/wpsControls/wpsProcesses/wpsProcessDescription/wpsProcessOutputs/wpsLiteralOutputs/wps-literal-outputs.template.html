@@ -1,0 +1,75 @@
+<ul class="list-group" ng-repeat-start="literalOutput in $ctrl.wpsPropertiesServiceInstance.processDescription.process.outputs | filter: $ctrl.wpsInputOutputFilterServiceInstance.hasLiteralData">
+	
+	<li class="list-group-item">
+		<label>{{
+			'wpsInputOutput.title' | translate}}</label>
+		<p>{{literalOutput.title}}</p>
+	</li>
+	
+	<li class="list-group-item">
+		<label>{{
+			'wpsInputOutput.identifier' | translate}}</label>
+		<p>{{literalOutput.identifier}}</p>
+	</li>
+	
+	<li class="list-group-item">
+		<label>{{
+			'wpsInputOutput.abstractValue' | translate}}</label>
+		<p>{{literalOutput.abstractValue}}</p>
+	</li>
+	
+	<li class="list-group-item" ng-if="literalOutput.literalData.formats">
+		<label>{{
+			'wpsInputOutput.formats' | translate}}</label>
+		<p>{{literalOutput.literalData.formats}}</p>
+	</li>
+	
+	<li class="list-group-item" ng-if="literalOutput.literalData.literalDataDomains">
+		<label>{{'wpsInputOutput.literalData.literalDataDomains' | translate}}</label>
+		
+		<ul class="list-group" ng-repeat-start="literalDataDomain in literalOutput.literalData.literalDataDomains">
+
+			<!-- only shown when any value is permitted -->
+			<li class="list-group-item" ng-if="literalDataDomain.anyValue">
+				<label>{{'wpsInputOutput.literalData.literalDataDomain.allowedValues' | translate}}</label>
+				<p>{{'wpsInputOutput.literalData.literalDataDomain.anyValue' | translate}}</p>
+			</li>
+			
+			<!-- only shown when specific values are permitted -->
+			<li class="list-group-item" ng-if="literalDataDomain.allowedValues">
+				<label>{{'wpsInputOutput.literalData.literalDataDomain.allowedValues' | translate}}</label>
+				<p>{{literalDataDomain.allowedValues.values}}</p>
+			</li>
+			
+			<!-- only shown when dataType.type is set-->
+			<li class="list-group-item" ng-if="literalDataDomain.dataType.type">
+				<label>{{'wpsInputOutput.literalData.literalDataDomain.dataType' | translate}}</label>
+				<p>{{literalDataDomain.dataType.type}}</p>
+			</li>
+			
+			<!-- only shown when dataType.typereference is set-->
+			<li class="list-group-item" ng-if="literalDataDomain.dataType.reference">
+				<label>{{'wpsInputOutput.literalData.literalDataDomain.dataTypeReference' | translate}}</label>
+				<p>{{literalDataDomain.dataType.reference}}</p>
+			</li>
+			
+			<!-- only shown when defaultValue is set-->
+			<li class="list-group-item" ng-if="literalDataDomain.defaultValue">
+				<label>{{'wpsInputOutput.literalData.literalDataDomain.defaultValue' | translate}}</label>
+				<p>{{literalDataDomain.defaultValue}}</p>
+			</li>
+			
+			<!-- only shown when unitOfMeasure is set-->
+			<li class="list-group-item" ng-if="literalDataDomain.unitOfMeasure">
+				<label>{{'wpsInputOutput.literalData.literalDataDomain.unitOfMeasure' | translate}}</label>
+				<p>{{literalDataDomain.unitOfMeasure}}</p>
+			</li>
+
+		</ul>
+		<div ng-repeat-end />
+		
+		
+	</li>
+
+</ul>
+<div ng-repeat-end />

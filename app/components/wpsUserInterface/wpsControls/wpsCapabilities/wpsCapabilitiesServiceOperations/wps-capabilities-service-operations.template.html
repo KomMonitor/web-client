@@ -1,0 +1,10 @@
+<ul class="list-group">
+	<li class="list-group-item" ng-repeat="operation in $ctrl.wpsPropertiesServiceInstance.capabilities.operations">
+		<h4><b>{{operation.DCP.HTTP.name}}</b></h4>
+		<label>GET URL</label>
+	 	<p>{{operation.DCP.HTTP.get}}</p>
+	 	<label><b>POST URL</b></label>
+	 	<p>{{operation.DCP.HTTP.post}}</p>
+	</li>
+
+</ul>

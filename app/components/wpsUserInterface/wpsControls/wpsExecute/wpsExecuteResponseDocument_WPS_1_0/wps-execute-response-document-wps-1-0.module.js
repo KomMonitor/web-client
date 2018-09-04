@@ -1,0 +1,1 @@
+angular.module('wpsExecuteResponseDocumentWps1', [ 'wpsProperties']);

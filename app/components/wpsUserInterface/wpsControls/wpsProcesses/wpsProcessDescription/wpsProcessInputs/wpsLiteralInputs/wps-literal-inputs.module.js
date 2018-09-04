@@ -1,0 +1,1 @@
+angular.module('wpsLiteralInputs', ['wpsProperties', 'wpsInputOutputFilter']);

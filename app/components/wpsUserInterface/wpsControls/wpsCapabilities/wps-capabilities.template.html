@@ -1,0 +1,85 @@
+<div>
+
+<nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <label class="navbar-brand" href="#">Datenverwaltung</label>
+    </div>
+    <ul class="nav navbar-nav">
+      <li id="spatialUnitManagement" class="active"><a ng-click="$ctrl.onClickDataManagement('spatialUnits')" href="#">Raumeinheiten</a></li>
+      <li id="georesourceManagement"><a ng-click="$ctrl.onClickDataManagement('georesources')" href="#">Georessourcen</a></li>
+      <li id="indicatorManagement"><a ng-click="$ctrl.onClickDataManagement('indicators')" href="#">Indikatoren</a></li>
+    </ul>
+  </div>
+</nav>
+
+<p ng-if="$ctrl.selectedResourceType == 'spatialUnits'">Raumeinheit verwalten</p>
+
+<p ng-if="$ctrl.selectedResourceType == 'georesources'">Georesourcen verwalten</p>
+
+<p ng-if="$ctrl.selectedResourceType == 'indicators'">Indikatoren verwalten</p>
+
+<div class="panel-group" id="dataManagementAccordion">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h4 class="panel-title">
+					<a data-toggle="collapse" data-parent="#dataManagementAccordion"
+						href="#newDataCollapse">Neuen Datensatz anlegen</a>
+				</h4>
+			</div>
+			<div id="newDataCollapse" class="panel-collapse collapse">
+				<div class="panel-body">
+
+					<wps-general-process-information></wps-general-process-information>
+
+				</div>
+			</div>
+		</div>
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h4 class="panel-title">
+					<a data-toggle="collapse" data-parent="#dataManagementAccordion"
+						href="#addTimeSeriesCollapse">Datensatz fortf&uuml;hren</a>
+				</h4>
+			</div>
+			<div id="addTimeSeriesCollapse" class="panel-collapse collapse">
+				<div class="panel-body">
+
+					<wps-process-inputs></wps-process-inputs>
+
+				</div>
+			</div>
+		</div>
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h4 class="panel-title">
+					<a data-toggle="collapse" data-parent="#dataManagementAccordion"
+						href="#metadataEditCollapse">Metadaten editieren</a>
+				</h4>
+			</div>
+			<div id="metadataEditCollapse" class="panel-collapse collapse">
+				<div class="panel-body">
+
+					<wps-process-outputs></wps-process-outputs>
+
+				</div>
+			</div>
+		</div>
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h4 class="panel-title">
+					<a data-toggle="collapse" data-parent="#dataManagementAccordion"
+						href="#deleteDatasetCollaspe">Datensatz l&ouml;schen</a>
+				</h4>
+			</div>
+			<div id="deleteDatasetCollaspe" class="panel-collapse collapse">
+				<div class="panel-body">
+
+					<wps-process-outputs></wps-process-outputs>
+
+				</div>
+			</div>
+		</div>
+	</div>
+
+</div>

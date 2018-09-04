@@ -1,0 +1,85 @@
+<div class="panel-group" id="wpsExecuteAccordion">
+
+	<div class="loading-overlay ng-hide" ng-show="loadingData">
+        <span class="glyphicon glyphicon-refresh icon-spin"></span>
+    </div>
+
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h4 class="panel-title">
+				<a data-toggle="collapse" data-parent="#wpsExecuteAccordion"
+					href="#wpsConfigureInputsCollapse">{{ 'wpsExecute.setupInputs'
+					| translate }}</a>
+			</h4>
+		</div>
+		<div id="wpsConfigureInputsCollapse" class="panel-collapse collapse">
+			<div class="panel-body">
+
+				<wps-execute-setup-inputs></wps-execute-setup-inputs>
+
+			</div>
+		</div>
+	</div>
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h4 class="panel-title">
+				<a data-toggle="collapse" data-parent="#wpsExecuteAccordion"
+					href="#wpsConfigureOutputsCollapse">{{
+					'wpsExecute.setupOutputs' | translate }}</a>
+			</h4>
+		</div>
+		<div id="wpsConfigureOutputsCollapse" class="panel-collapse collapse">
+			<div class="panel-body">
+
+				<wps-execute-setup-outputs></wps-execute-setup-outputs>
+
+			</div>
+		</div>
+	</div>
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h4 class="panel-title">
+				<a data-toggle="collapse" data-parent="#wpsExecuteAccordion"
+					href="#wpsConfigureExecuteRequestParametersCollapse">{{
+					'wpsExecute.setupExecuteParameters' | translate }}</a>
+			</h4>
+		</div>
+		<div id="wpsConfigureExecuteRequestParametersCollapse"
+			class="panel-collapse collapse">
+			<div class="panel-body">
+
+				<wps-execute-setup-parameters></wps-execute-setup-parameters>
+
+			</div>
+		</div>
+	</div>
+
+	<!-- execute button -->
+
+	<div align="center">
+		<p></p>
+		<button type="button" ng-click="$ctrl.performExecuteRequest()"
+			ng-disabled="($ctrl.wpsPropertiesServiceInstance.executeRequest.inputs == undefined) || ($ctrl.wpsPropertiesServiceInstance.executeRequest.outputs == undefined)"
+			class="btn btn-success">{{'wpsExecute.performExecute' |
+			translate}}</button>
+	</div>
+</div>
+
+<!-- div for execute failed messages! -->
+<div
+	class="alert alert-danger {{$ctrl.wpsFormControlServiceInstance.executeFailed_classAttribute}}">
+	<strong>{{'wpsExecute.executeFailed_short' | translate}}!</strong>
+	{{'wpsExecute.executeFailed_text' | translate}}
+	<p></p>
+	<p>
+		<strong>{{'wpsExecute.executeFailed_errorThrown' |
+			translate}}</strong>{{$ctrl.wpsFormControlServiceInstance.executeFailed_errorThrown}}
+	</p>
+</div>
+
+<!-- div for execute success messages! -->
+<div
+	class="alert alert-success {{$ctrl.wpsFormControlServiceInstance.executeSuccess_classAttribute}}">
+	<strong>{{'wpsExecute.executeSuccess_short' | translate}}!</strong>
+	{{'wpsExecute.executeSuccess_text' | translate}}
+</div>

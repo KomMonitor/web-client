@@ -1,0 +1,51 @@
+<ul class="list-group">
+	<li class="list-group-item"><label>{{
+			'wpsCapabilities.serviceProvider.providerName' | translate}}</label>
+		<p>{{$ctrl.wpsPropertiesServiceInstance.capabilities.serviceProvider.providerName}}</p>
+	</li>
+
+	<li class="list-group-item"><label>{{
+			'wpsCapabilities.serviceProvider.providerSite' | translate}}</label>
+		<p>{{$ctrl.wpsPropertiesServiceInstance.capabilities.serviceProvider.providerSite}}</p>
+	</li>
+
+	<li class="list-group-item"><label>{{
+			'wpsCapabilities.serviceProvider.providerIndividualName' | translate}}</label>
+		<p>{{$ctrl.wpsPropertiesServiceInstance.capabilities.serviceProvider.serviceContact.individualName}}</p>
+	</li>
+
+	<li class="list-group-item"><label>{{
+			'wpsCapabilities.serviceProvider.providerDeliveryPoint' | translate}}</label>
+		<p>{{$ctrl.wpsPropertiesServiceInstance.capabilities.serviceProvider.serviceContact.contactInfo.address.deliveryPoint}}</p>
+	</li>
+
+	<li class="list-group-item"><label>{{
+			'wpsCapabilities.serviceProvider.providerCity' | translate}}</label>
+		<p>{{$ctrl.wpsPropertiesServiceInstance.capabilities.serviceProvider.serviceContact.contactInfo.address.city}}</p>
+	</li>
+
+	<li class="list-group-item"><label>{{
+			'wpsCapabilities.serviceProvider.providerAdministrativeArea' |
+			translate}}</label>
+		<p>{{$ctrl.wpsPropertiesServiceInstance.capabilities.serviceProvider.serviceContact.contactInfo.address.AdministrativeArea}}</p>
+	</li>
+	
+	<li class="list-group-item"><label>{{
+			'wpsCapabilities.serviceProvider.providerPostalCode' |
+			translate}}</label>
+		<p>{{$ctrl.wpsPropertiesServiceInstance.capabilities.serviceProvider.serviceContact.contactInfo.address.postalCode}}</p>
+	</li>
+	
+	<li class="list-group-item"><label>{{
+			'wpsCapabilities.serviceProvider.providerCountry' |
+			translate}}</label>
+		<p>{{$ctrl.wpsPropertiesServiceInstance.capabilities.serviceProvider.serviceContact.contactInfo.address.country}}</p>
+	</li>
+	
+	<li class="list-group-item"><label>{{
+			'wpsCapabilities.serviceProvider.providerMailAddress' |
+			translate}}</label>
+		<p>{{$ctrl.wpsPropertiesServiceInstance.capabilities.serviceProvider.serviceContact.contactInfo.address.electronicMailAddress}}</p>
+	</li>
+
+</ul>

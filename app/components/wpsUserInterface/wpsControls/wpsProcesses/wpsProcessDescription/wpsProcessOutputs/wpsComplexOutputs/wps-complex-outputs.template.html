@@ -1,0 +1,29 @@
+<ul class="list-group" ng-repeat-start="complexOutput in $ctrl.wpsPropertiesServiceInstance.processDescription.process.outputs | filter: $ctrl.wpsInputOutputFilterServiceInstance.hasComplexData">
+		
+	
+	<li class="list-group-item">
+		<label>{{
+			'wpsInputOutput.title' | translate}}</label>
+		<p>{{complexOutput.title}}</p>
+	</li>
+	
+	<li class="list-group-item">
+		<label>{{
+			'wpsInputOutput.identifier' | translate}}</label>
+		<p>{{complexOutput.identifier}}</p>
+	</li>
+	
+	<li class="list-group-item">
+		<label>{{
+			'wpsInputOutput.abstractValue' | translate}}</label>
+		<p>{{complexOutput.abstractValue}}</p>
+	</li>
+	
+	<li class="list-group-item" ng-if="complexOutput.complexData.formats">
+		<label>{{
+			'wpsInputOutput.formats' | translate}}</label>
+		<p>{{complexOutput.complexData.formats}}</p>
+	</li>
+
+</ul>
+<div ng-repeat-end />

@@ -1,0 +1,51 @@
+<div>
+	
+	<div class="panel-group" id="wpsProcessDescriptionAccordion">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h4 class="panel-title">
+						<a data-toggle="collapse" data-parent="#wpsProcessDescriptionAccordion"
+							href="#wpsGeneralProcessInformationCollapse">{{ 'wpsProcesses.generalInformation' | translate}}</a>
+					</h4>
+				</div>
+				<div id="wpsGeneralProcessInformationCollapse" class="panel-collapse collapse">
+					<div class="panel-body">
+					
+						<wps-general-process-information></wps-general-process-information>
+						
+					</div>
+				</div>
+			</div>
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h4 class="panel-title">
+						<a data-toggle="collapse" data-parent="#wpsProcessDescriptionAccordion"
+							href="#wpsProcessInputsCollapse">{{ 'wpsProcesses.inputs' | translate}}</a>
+					</h4>
+				</div>
+				<div id="wpsProcessInputsCollapse" class="panel-collapse collapse">
+					<div class="panel-body">
+					
+						<wps-process-inputs></wps-process-inputs>
+					
+					</div>
+				</div>
+			</div>
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h4 class="panel-title">
+						<a data-toggle="collapse" data-parent="#wpsProcessDescriptionAccordion"
+							href="#wpsProcessOutputsCollapse">{{ 'wpsProcesses.outputs' | translate}}</a>
+					</h4>
+				</div>
+				<div id="wpsProcessOutputsCollapse" class="panel-collapse collapse">
+					<div class="panel-body">
+
+						<wps-process-outputs></wps-process-outputs>
+
+					</div>
+				</div>
+			</div>
+		</div>
+
+</div>
