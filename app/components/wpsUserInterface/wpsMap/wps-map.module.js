@@ -8,6 +8,22 @@ angular.module('wpsMap').service(
 		[ 'leafletData', '$rootScope', '$http', function(leafletData, $rootScope, $http) {
 
 
+			// central map object
+			this.map;
+
+			this.initializeMap = function() {
+
+        // initialize map referring to div element with id="map"
+        this.map = L.map('map').setView([51.4386432, 7.0115552], 12);
+
+        // create OSM tile layer with correct attribution
+        var osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+        var osmAttrib='Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
+        var osm = new L.TileLayer(osmUrl, {minZoom: 1, maxZoom: 19, attribution: osmAttrib}).addTo(this.map);
+
+			}
+
+
 			this.addSpatialUnitGeoJSON = function (spatialUnitMetadataAndGeoJSON) {
 
 				$rootScope.$broadcast("addSpatialUnitAsGeoJSON",

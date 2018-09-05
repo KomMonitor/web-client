@@ -23,27 +23,31 @@ angular.module('wpsMap').component(
 
                     $scope.allDrawingToolsEnabled = false;
 
+                    this.initializeMap = function(){
+            					this.wpsMapServiceInstance.initializeMap();
+            				};
 
-					angular.extend($scope, {
-                        center: {
-                            lat: 51.4386432,
-                            lng: 7.0115552,
-                            zoom: 12
-                        },
-                        layers: {
-                            baselayers: {
-                                osm: {
-                                    name: 'OpenStreetMap',
-                                    url: 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                                    type: 'xyz'
-                                }
-                            },
-                            overlays: {
-                            }
-                        },
-                        controls: {
-                        }
-                    });
+
+					// angular.extend($scope, {
+          //               center: {
+          //                   lat: 51.4386432,
+          //                   lng: 7.0115552,
+          //                   zoom: 12
+          //               },
+          //               layers: {
+          //                   baselayers: {
+          //                       osm: {
+          //                           name: 'OpenStreetMap',
+          //                           url: 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+          //                           type: 'xyz'
+          //                       }
+          //                   },
+          //                   overlays: {
+          //                   }
+          //               },
+          //               controls: {
+          //               }
+          //           });
 
                     /**
                      * binds the popup of a clicked output
