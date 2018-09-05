@@ -140,6 +140,14 @@
 		</div>
 	</div>
 
+
+	<div style="display: inline-block">
+		<button type="button" class="btn btn-danger" ng-click="$ctrl.addGeopackage()" type="button">Add GeoPackage</button>
+	</div>
+	<div style="display: inline-block">
+		<button type="button" class="btn btn-danger" ng-click="$ctrl.addGeoJSON()" type="button">Add GeoJSON</button>
+	</div>
+
 		<div align="center" ng-if="$ctrl.wpsPropertiesServiceInstance.selectedIndicatorLegendURL">
 			<label align='left'>gewählter Indikator:</label>
 			<p>{{$ctrl.wpsPropertiesServiceInstance.selectedIndicator.name}}</p>

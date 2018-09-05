@@ -23,6 +23,13 @@ angular
 
 								this.selectedDate;
 
+								this.addGeopackage = function(){
+									this.wpsMapServiceInstance.addSpatialUnitGeopackage();
+								}
+								this.addGeoJSON = function(){
+									this.wpsMapServiceInstance.addSpatialUnitGeoJSON();
+								}
+
 								$scope.filterGeoresourcesByTopic = function() {
 								  return function( item ) {
 										if (wpsPropertiesService.selectedTopic)

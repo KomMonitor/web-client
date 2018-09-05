@@ -23,9 +23,24 @@ angular.module('wpsMap').component(
 
                     $scope.allDrawingToolsEnabled = false;
 
-                    this.initializeMap = function(){
-            					this.wpsMapServiceInstance.initializeMap();
-            				};
+                    // central map object
+              			$scope.map;
+
+              			this.initializeMap = function() {
+
+                      // initialize map referring to div element with id="map"
+                      $scope.map = L.map('map').setView([51.4386432, 7.0115552], 12);
+
+                      // create OSM tile layer with correct attribution
+                      var osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+                      var osmAttrib='Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
+                      var osm = new L.TileLayer(osmUrl, {minZoom: 1, maxZoom: 19, attribution: osmAttrib}).addTo($scope.map);
+
+              			}
+
+                    // this.initializeMap = function(){
+            				// 	this.wpsMapServiceInstance.initializeMap();
+            				// };
 
 
 					// angular.extend($scope, {
@@ -101,106 +116,167 @@ angular.module('wpsMap').component(
                         })
                     };
 
+
+                    $scope.$on("addSpatialUnitAsGeopackage", function (event) {
+
+                                  console.log('addSpatialUnitAsGeopackage was called');
+
+                                  L.geoPackageFeatureLayer([], {
+                                      geoPackageUrl: './test1234.gpkg',
+                                      layerName: 'test1234',
+                                      style: function (feature) {
+                                        return {
+                                          color: "#F00",
+                                          weight: 2,
+                                          opacity: 1
+                                        };
+                                      },
+                                      onEachFeature: onEachFeatureSpatialUnit
+                                  }).addTo($scope.map);
+
+                              });
+
+
+
+
+
+
+
+
                     $scope.$on("addSpatialUnitAsGeoJSON", function (event, spatialUnitMetadataAndGeoJSON) {
 
                                   console.log('addSpatialUnitAsGeoJSON was called');
 
-                                  if ($scope.layers.overlays[spatialUnitMetadataAndGeoJSON.spatialUnitLevel]) {
-                                      delete $scope.layers.overlays[spatialUnitMetadataAndGeoJSON.spatialUnitLevel];
+                                  // if ($scope.layers.overlays[spatialUnitMetadataAndGeoJSON.spatialUnitLevel]) {
+                                  //     delete $scope.layers.overlays[spatialUnitMetadataAndGeoJSON.spatialUnitLevel];
+                                  //
+                                  //     console.log($scope.layers.overlays);
+                                  // }
 
-                                      console.log($scope.layers.overlays);
-                                  }
+                                  L.geoJSON(spatialUnitMetadataAndGeoJSON.geoJSON, {
+                                      style: function (feature) {
+                                        return {
+                                          color: "blue",
+                                          weight: 2,
+                                          opacity: 1
+                                        };
+                                      },
+                                      onEachFeature: onEachFeatureSpatialUnit
+                                  }).addTo($scope.map);
 
-                                  var geoJSONLayer = {
-                                      name: spatialUnitMetadataAndGeoJSON.spatialUnitLevel,
-                                      type: "geoJSONShape",
-                                      data: spatialUnitMetadataAndGeoJSON.geoJSON,
-                                      visible: true,
-                                      layerOptions: {
-                                          style: {
-                                              color: '#1B4F72',
-                                              fillColor: 'blue',
-                                              weight: 2.0,
-                                              opacity: 0.6,
-                                              fillOpacity: 0.2
-                                          },
-                                          onEachFeature: onEachFeatureSpatialUnit
-                                      }
-                                  };
+                                  // var geoJSONLayer = {
+                                  //     name: spatialUnitMetadataAndGeoJSON.spatialUnitLevel,
+                                  //     type: "geoJSONShape",
+                                  //     data: spatialUnitMetadataAndGeoJSON.geoJSON,
+                                  //     visible: true,
+                                  //     layerOptions: {
+                                  //         style: {
+                                  //             color: '#1B4F72',
+                                  //             fillColor: 'blue',
+                                  //             weight: 2.0,
+                                  //             opacity: 0.6,
+                                  //             fillOpacity: 0.2
+                                  //         },
+                                  //         onEachFeature: onEachFeatureSpatialUnit
+                                  //     }
+                                  // };
 
-                                  $scope.layers.overlays[spatialUnitMetadataAndGeoJSON.spatialUnitLevel] = geoJSONLayer;
-
-                                  // refresh the layer!!! Otherwise display is not updated properly in case
-                                  // an existing overlay is updated!
-                                  $scope.layers.overlays[spatialUnitMetadataAndGeoJSON.spatialUnitLevel].doRefresh = true;
+                                  // $scope.layers.overlays[spatialUnitMetadataAndGeoJSON.spatialUnitLevel] = geoJSONLayer;
+                                  //
+                                  // // refresh the layer!!! Otherwise display is not updated properly in case
+                                  // // an existing overlay is updated!
+                                  // $scope.layers.overlays[spatialUnitMetadataAndGeoJSON.spatialUnitLevel].doRefresh = true;
                               });
 
                               $scope.$on("addGeoresourceAsGeoJSON", function (event, georesourceMetadataAndGeoJSON) {
+                                console.log('addGeoresourceAsGeoJSON was called');
 
-                                            console.log('addGeoresourceAsGeoJSON was called');
+                                L.geoJSON(georesourceMetadataAndGeoJSON.geoJSON, {
+                                    style: function (feature) {
+                                      return {
+                                        color: "red",
+                                        weight: 2,
+                                        opacity: 1
+                                      };
+                                    },
+                                    onEachFeature: onEachFeatureGeoresource
+                                }).addTo($scope.map);
 
-                                            if ($scope.layers.overlays[georesourceMetadataAndGeoJSON.datasetName]) {
-                                                delete $scope.layers.overlays[georesourceMetadataAndGeoJSON.datasetName];
 
-                                                console.log($scope.layers.overlays);
-                                            }
-
-                                            var geoJSONLayer = {
-                                                name: georesourceMetadataAndGeoJSON.datasetName,
-                                                type: "geoJSONShape",
-                                                data: georesourceMetadataAndGeoJSON.geoJSON,
-                                                visible: true,
-                                                layerOptions: {
-                                                    style: {
-                                                        color: '#1B4F72',
-                                                        fillColor: 'red',
-                                                        weight: 2.0,
-                                                        opacity: 0.6,
-                                                        fillOpacity: 0.2
-                                                    },
-                                                    onEachFeature: onEachFeatureGeoresource
-                                                }
-                                            };
-
-                                            $scope.layers.overlays[georesourceMetadataAndGeoJSON.datasetName] = geoJSONLayer;
-
-                                            // refresh the layer!!! Otherwise display is not updated properly in case
-                                            // an existing overlay is updated!
-                                            $scope.layers.overlays[georesourceMetadataAndGeoJSON.datasetName].doRefresh = true;
+                                            //
+                                            // if ($scope.layers.overlays[georesourceMetadataAndGeoJSON.datasetName]) {
+                                            //     delete $scope.layers.overlays[georesourceMetadataAndGeoJSON.datasetName];
+                                            //
+                                            //     console.log($scope.layers.overlays);
+                                            // }
+                                            //
+                                            // var geoJSONLayer = {
+                                            //     name: georesourceMetadataAndGeoJSON.datasetName,
+                                            //     type: "geoJSONShape",
+                                            //     data: georesourceMetadataAndGeoJSON.geoJSON,
+                                            //     visible: true,
+                                            //     layerOptions: {
+                                            //         style: {
+                                            //             color: '#1B4F72',
+                                            //             fillColor: 'red',
+                                            //             weight: 2.0,
+                                            //             opacity: 0.6,
+                                            //             fillOpacity: 0.2
+                                            //         },
+                                            //         onEachFeature: onEachFeatureGeoresource
+                                            //     }
+                                            // };
+                                            //
+                                            // $scope.layers.overlays[georesourceMetadataAndGeoJSON.datasetName] = geoJSONLayer;
+                                            //
+                                            // // refresh the layer!!! Otherwise display is not updated properly in case
+                                            // // an existing overlay is updated!
+                                            // $scope.layers.overlays[georesourceMetadataAndGeoJSON.datasetName].doRefresh = true;
                                         });
 
                                         $scope.$on("addIndicatorAsGeoJSON", function (event, indicatorMetadataAndGeoJSON) {
 
                                                       console.log('addIndicatorAsGeoJSON was called');
 
-                                                      if ($scope.layers.overlays[indicatorMetadataAndGeoJSON.indicatorName]) {
-                                                          delete $scope.layers.overlays[indicatorMetadataAndGeoJSON.indicatorName];
+                                                      L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
+                                                          style: function (feature) {
+                                                            return {
+                                                              color: "green",
+                                                              weight: 2,
+                                                              opacity: 1
+                                                            };
+                                                          },
+                                                          onEachFeature: onEachFeatureIndicator
+                                                      }).addTo($scope.map);
 
-                                                          console.log($scope.layers.overlays);
-                                                      }
-
-                                                      var geoJSONLayer = {
-                                                          name: indicatorMetadataAndGeoJSON.indicatorName,
-                                                          type: "geoJSONShape",
-                                                          data: indicatorMetadataAndGeoJSON.geoJSON,
-                                                          visible: true,
-                                                          layerOptions: {
-                                                              style: {
-                                                                  color: '#1B4F72',
-                                                                  fillColor: 'red',
-                                                                  weight: 2.0,
-                                                                  opacity: 0.6,
-                                                                  fillOpacity: 0.2
-                                                              },
-                                                              onEachFeature: onEachFeatureIndicator
-                                                          }
-                                                      };
-
-                                                      $scope.layers.overlays[indicatorMetadataAndGeoJSON.indicatorName] = geoJSONLayer;
-
-                                                      // refresh the layer!!! Otherwise display is not updated properly in case
-                                                      // an existing overlay is updated!
-                                                      $scope.layers.overlays[indicatorMetadataAndGeoJSON.indicatorName].doRefresh = true;
+                                                      // if ($scope.layers.overlays[indicatorMetadataAndGeoJSON.indicatorName]) {
+                                                      //     delete $scope.layers.overlays[indicatorMetadataAndGeoJSON.indicatorName];
+                                                      //
+                                                      //     console.log($scope.layers.overlays);
+                                                      // }
+                                                      //
+                                                      // var geoJSONLayer = {
+                                                      //     name: indicatorMetadataAndGeoJSON.indicatorName,
+                                                      //     type: "geoJSONShape",
+                                                      //     data: indicatorMetadataAndGeoJSON.geoJSON,
+                                                      //     visible: true,
+                                                      //     layerOptions: {
+                                                      //         style: {
+                                                      //             color: '#1B4F72',
+                                                      //             fillColor: 'red',
+                                                      //             weight: 2.0,
+                                                      //             opacity: 0.6,
+                                                      //             fillOpacity: 0.2
+                                                      //         },
+                                                      //         onEachFeature: onEachFeatureIndicator
+                                                      //     }
+                                                      // };
+                                                      //
+                                                      // $scope.layers.overlays[indicatorMetadataAndGeoJSON.indicatorName] = geoJSONLayer;
+                                                      //
+                                                      // // refresh the layer!!! Otherwise display is not updated properly in case
+                                                      // // an existing overlay is updated!
+                                                      // $scope.layers.overlays[indicatorMetadataAndGeoJSON.indicatorName].doRefresh = true;
                                                   });
 
 
