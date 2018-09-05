@@ -26,8 +26,12 @@ angular.module('wpsMap').component(
                     // central map object
               			$scope.map;
                     $scope.layerControl;
-                    $scope.overlays;
-                    $scope.baseMaps;
+                    $scope.overlays = new Array();
+                    $scope.baseMaps = new Array();
+                    $scope.baseMapLayers = new L.LayerGroup();
+                    const spatialUnitLayerGroupName = "Raumeinheiten";
+                    const georesourceLayerGroupName = "Georessourcen";
+                    const indicatorLayerGroupName = "Indikatoren";
 
               			this.initializeMap = function() {
 
@@ -38,13 +42,12 @@ angular.module('wpsMap').component(
                       var osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
                       var osmAttrib='Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
                       var osm = new L.TileLayer(osmUrl, {minZoom: 1, maxZoom: 19, attribution: osmAttrib});
+                      osm.StyledLayerControl = {
+                    		removable : false,
+                    		visible : true
+                    	};
 
-                      $scope.baseMaps = {
-                          "OpenStreeMap": osm
-                      };
-
-                      $scope.overlays = {
-                      };
+                      osm.addTo($scope.baseMapLayers);
 
                       // $scope.map = L.map('map').setView([51.4386432, 7.0115552], 12);
                       $scope.map = L.map('map', {
@@ -53,9 +56,47 @@ angular.module('wpsMap').component(
                           layers: [osm]
                       });
 
-                      $scope.layerControl = L.control.layers($scope.baseMaps, $scope.overlays);
+                      var osmBaseMapGroup = {};
+                      osmBaseMapGroup.groupName = "Basiskarten";
+                      osmBaseMapGroup.expanded = true;
+                      osmBaseMapGroup.layers = {};
+                      osmBaseMapGroup.layers["OpenStreetMap"] = osm;
 
-                      $scope.layerControl.addTo($scope.map);
+                      $scope.baseMaps.push(osmBaseMapGroup);
+
+                      // overlays
+                      var overlays = [
+                  					 {
+                  						groupName : spatialUnitLayerGroupName,
+                  						expanded  : true,
+                  						layers    : {
+                  						}
+                  					 }, {
+                  						groupName : georesourceLayerGroupName,
+                  						expanded  : true,
+                  						layers    : {
+                  						}
+                  					 }, {
+                  						groupName : indicatorLayerGroupName,
+                              expanded  : true,
+                  						layers    : {
+                  						}
+                  					 }
+                  	];
+
+                      var options = {
+                    		container_width 	: "300px",
+                    		container_maxHeight : "350px",
+                    		group_maxHeight     : "80px",
+                    		exclusive       	: false
+                    	};
+
+                      $scope.layerControl = L.Control.styledLayerControl($scope.baseMaps, $scope.overlays, options);
+	                    $scope.map.addControl($scope.layerControl);
+
+                      // $scope.layerControl = L.control.layers($scope.baseMaps, $scope.overlays);
+                      //
+                      // $scope.layerControl.addTo($scope.map);
               			}
 
                     // this.initializeMap = function(){
@@ -141,11 +182,7 @@ angular.module('wpsMap').component(
 
                                   console.log('addSpatialUnitAsGeopackage was called');
 
-                                  var layerControl = $scope.layerControl;
-
-
-
-                                  L.geoPackageFeatureLayer([], {
+                                  var layer = L.geoPackageFeatureLayer([], {
                                       geoPackageUrl: './test1234.gpkg',
                                       layerName: 'test1234',
                                       style: function (feature) {
@@ -156,16 +193,17 @@ angular.module('wpsMap').component(
                                         };
                                       },
                                       onEachFeature: onEachFeatureSpatialUnit
-                                  }).addTo($scope.map);
+                                  });
+
+                                  layer.StyledLayerControl = {
+                                		removable : true,
+                                		visible : true
+                                	};
+
+                                  $scope.layerControl.addOverlay( layer, "GeoPackage", {groupName : spatialUnitLayerGroupName} );
+
 
                               });
-
-
-
-
-
-
-
 
                     $scope.$on("addSpatialUnitAsGeoJSON", function (event, spatialUnitMetadataAndGeoJSON) {
 
@@ -177,12 +215,7 @@ angular.module('wpsMap').component(
                                   //     console.log($scope.layers.overlays);
                                   // }
 
-                                  var layerControl = $scope.layerControl;
-
-
-
-                                  L.geoJSON(spatialUnitMetadataAndGeoJSON.geoJSON, {
-                                      layerName: georesourceMetadataAndGeoJSON.spatialUnitLevel,
+                                  var layer = L.geoJSON(spatialUnitMetadataAndGeoJSON.geoJSON, {
                                       style: function (feature) {
                                         return {
                                           color: "blue",
@@ -191,7 +224,14 @@ angular.module('wpsMap').component(
                                         };
                                       },
                                       onEachFeature: onEachFeatureSpatialUnit
-                                  }).addTo($scope.map);
+                                  });
+
+                                  layer.StyledLayerControl = {
+                                		removable : true,
+                                		visible : true
+                                	};
+
+                                  $scope.layerControl.addOverlay( layer, spatialUnitMetadataAndGeoJSON.spatialUnitLevel, {groupName : spatialUnitLayerGroupName} );
 
                                   // var geoJSONLayer = {
                                   //     name: spatialUnitMetadataAndGeoJSON.spatialUnitLevel,
@@ -220,7 +260,7 @@ angular.module('wpsMap').component(
                               $scope.$on("addGeoresourceAsGeoJSON", function (event, georesourceMetadataAndGeoJSON) {
                                 console.log('addGeoresourceAsGeoJSON was called');
 
-                                L.geoJSON(georesourceMetadataAndGeoJSON.geoJSON, {
+                                var layer = L.geoJSON(georesourceMetadataAndGeoJSON.geoJSON, {
                                     style: function (feature) {
                                       return {
                                         color: "red",
@@ -229,7 +269,14 @@ angular.module('wpsMap').component(
                                       };
                                     },
                                     onEachFeature: onEachFeatureGeoresource
-                                }).addTo($scope.map);
+                                });
+
+                                layer.StyledLayerControl = {
+                                  removable : true,
+                                  visible : true
+                                };
+
+                                $scope.layerControl.addOverlay( layer, georesourceMetadataAndGeoJSON.datasetName, {groupName : georesourceLayerGroupName} );
 
 
                                             //
@@ -267,7 +314,7 @@ angular.module('wpsMap').component(
 
                                                       console.log('addIndicatorAsGeoJSON was called');
 
-                                                      L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
+                                                      var layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
                                                           style: function (feature) {
                                                             return {
                                                               color: "green",
@@ -276,7 +323,14 @@ angular.module('wpsMap').component(
                                                             };
                                                           },
                                                           onEachFeature: onEachFeatureIndicator
-                                                      }).addTo($scope.map);
+                                                      });
+
+                                                      layer.StyledLayerControl = {
+                                                        removable : true,
+                                                        visible : true
+                                                      };
+
+                                                      $scope.layerControl.addOverlay( layer, indicatorMetadataAndGeoJSON.indicatorName, {groupName : indicatorLayerGroupName} );
 
                                                       // if ($scope.layers.overlays[indicatorMetadataAndGeoJSON.indicatorName]) {
                                                       //     delete $scope.layers.overlays[indicatorMetadataAndGeoJSON.indicatorName];
