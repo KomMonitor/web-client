@@ -41,8 +41,13 @@ angular
 
 								$scope.filterIndicatorsByTopic = function() {
 								  return function( item ) {
+
+										if(item.applicableDates == undefined || item.applicableDates.length === 0)
+											return false;
+
 										if (wpsPropertiesService.selectedTopic)
-								    	return item.applicableTopics.includes(wpsPropertiesService.selectedTopic.topicName);
+												return item.applicableTopics.includes(wpsPropertiesService.selectedTopic.topicName);
+
 
 										return true;
 								  };
