@@ -25,17 +25,37 @@ angular.module('wpsMap').component(
 
                     // central map object
               			$scope.map;
+                    $scope.layerControl;
+                    $scope.overlays;
+                    $scope.baseMaps;
 
               			this.initializeMap = function() {
 
                       // initialize map referring to div element with id="map"
-                      $scope.map = L.map('map').setView([51.4386432, 7.0115552], 12);
+
 
                       // create OSM tile layer with correct attribution
                       var osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
                       var osmAttrib='Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
-                      var osm = new L.TileLayer(osmUrl, {minZoom: 1, maxZoom: 19, attribution: osmAttrib}).addTo($scope.map);
+                      var osm = new L.TileLayer(osmUrl, {minZoom: 1, maxZoom: 19, attribution: osmAttrib});
 
+                      $scope.baseMaps = {
+                          "OpenStreeMap": osm
+                      };
+
+                      $scope.overlays = {
+                      };
+
+                      // $scope.map = L.map('map').setView([51.4386432, 7.0115552], 12);
+                      $scope.map = L.map('map', {
+                          center: [51.4386432, 7.0115552],
+                          zoom: 12,
+                          layers: [osm]
+                      });
+
+                      $scope.layerControl = L.control.layers($scope.baseMaps, $scope.overlays);
+
+                      $scope.layerControl.addTo($scope.map);
               			}
 
                     // this.initializeMap = function(){
@@ -121,6 +141,10 @@ angular.module('wpsMap').component(
 
                                   console.log('addSpatialUnitAsGeopackage was called');
 
+                                  var layerControl = $scope.layerControl;
+
+
+
                                   L.geoPackageFeatureLayer([], {
                                       geoPackageUrl: './test1234.gpkg',
                                       layerName: 'test1234',
@@ -153,7 +177,12 @@ angular.module('wpsMap').component(
                                   //     console.log($scope.layers.overlays);
                                   // }
 
+                                  var layerControl = $scope.layerControl;
+
+
+
                                   L.geoJSON(spatialUnitMetadataAndGeoJSON.geoJSON, {
+                                      layerName: georesourceMetadataAndGeoJSON.spatialUnitLevel,
                                       style: function (feature) {
                                         return {
                                           color: "blue",
