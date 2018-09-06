@@ -540,6 +540,8 @@ L.Control.StyledLayerControl = L.Control.Layers.extend({
 
         obj.target.parentNode.remove();
 
+        this._update();
+
         return false;
     },
 
