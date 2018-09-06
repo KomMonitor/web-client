@@ -205,7 +205,7 @@ angular.module('wpsMap').component(
 
                               });
 
-                    $scope.$on("addSpatialUnitAsGeoJSON", function (event, spatialUnitMetadataAndGeoJSON) {
+                    $scope.$on("addSpatialUnitAsGeoJSON", function (event, spatialUnitMetadataAndGeoJSON, date) {
 
                                   console.log('addSpatialUnitAsGeoJSON was called');
 
@@ -231,7 +231,7 @@ angular.module('wpsMap').component(
                                 		visible : true
                                 	};
 
-                                  $scope.layerControl.addOverlay( layer, spatialUnitMetadataAndGeoJSON.spatialUnitLevel, {groupName : spatialUnitLayerGroupName} );
+                                  $scope.layerControl.addOverlay( layer, spatialUnitMetadataAndGeoJSON.spatialUnitLevel + "_" + date, {groupName : spatialUnitLayerGroupName} );
 
                                   // var geoJSONLayer = {
                                   //     name: spatialUnitMetadataAndGeoJSON.spatialUnitLevel,
@@ -257,7 +257,7 @@ angular.module('wpsMap').component(
                                   // $scope.layers.overlays[spatialUnitMetadataAndGeoJSON.spatialUnitLevel].doRefresh = true;
                               });
 
-                              $scope.$on("addGeoresourceAsGeoJSON", function (event, georesourceMetadataAndGeoJSON) {
+                              $scope.$on("addGeoresourceAsGeoJSON", function (event, georesourceMetadataAndGeoJSON, date) {
                                 console.log('addGeoresourceAsGeoJSON was called');
 
                                 var layer = L.geoJSON(georesourceMetadataAndGeoJSON.geoJSON, {
@@ -276,7 +276,7 @@ angular.module('wpsMap').component(
                                   visible : true
                                 };
 
-                                $scope.layerControl.addOverlay( layer, georesourceMetadataAndGeoJSON.datasetName, {groupName : georesourceLayerGroupName} );
+                                $scope.layerControl.addOverlay( layer, georesourceMetadataAndGeoJSON.datasetName + "_" + date, {groupName : georesourceLayerGroupName} );
 
 
                                             //
@@ -310,7 +310,7 @@ angular.module('wpsMap').component(
                                             // $scope.layers.overlays[georesourceMetadataAndGeoJSON.datasetName].doRefresh = true;
                                         });
 
-                                        $scope.$on("addIndicatorAsGeoJSON", function (event, indicatorMetadataAndGeoJSON) {
+                                        $scope.$on("addIndicatorAsGeoJSON", function (event, indicatorMetadataAndGeoJSON, spatialUnitName, date) {
 
                                                       console.log('addIndicatorAsGeoJSON was called');
 
@@ -330,7 +330,7 @@ angular.module('wpsMap').component(
                                                         visible : true
                                                       };
 
-                                                      $scope.layerControl.addOverlay( layer, indicatorMetadataAndGeoJSON.indicatorName, {groupName : indicatorLayerGroupName} );
+                                                      $scope.layerControl.addOverlay( layer, indicatorMetadataAndGeoJSON.indicatorName + "_" + spatialUnitName + "_" + date, {groupName : indicatorLayerGroupName} );
 
                                                       // if ($scope.layers.overlays[indicatorMetadataAndGeoJSON.indicatorName]) {
                                                       //     delete $scope.layers.overlays[indicatorMetadataAndGeoJSON.indicatorName];

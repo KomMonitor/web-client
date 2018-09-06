@@ -29,10 +29,10 @@ angular.module('wpsMap').service(
 			};
 
 
-			this.addSpatialUnitGeoJSON = function (spatialUnitMetadataAndGeoJSON) {
+			this.addSpatialUnitGeoJSON = function (spatialUnitMetadataAndGeoJSON, date) {
 
 				$rootScope.$broadcast("addSpatialUnitAsGeoJSON",
-						spatialUnitMetadataAndGeoJSON);
+						spatialUnitMetadataAndGeoJSON, date);
 			};
 
 			this.addSpatialUnitWFS = function (name, wfsUrl) {
@@ -41,16 +41,16 @@ angular.module('wpsMap').service(
 						name, wfsUrl);
 			};
 
-			this.addGeoresourceGeoJSON = function (georesourceMetadataAndGeoJSON) {
+			this.addGeoresourceGeoJSON = function (georesourceMetadataAndGeoJSON, date) {
 
 				$rootScope.$broadcast("addGeoresourceAsGeoJSON",
-						georesourceMetadataAndGeoJSON);
+						georesourceMetadataAndGeoJSON, date);
 			};
 
-			this.addIndicatorGeoJSON = function (indicatorMetadataAndGeoJSON) {
+			this.addIndicatorGeoJSON = function (indicatorMetadataAndGeoJSON, spatialUnitName, date) {
 
 				$rootScope.$broadcast("addIndicatorAsGeoJSON",
-						indicatorMetadataAndGeoJSON);
+						indicatorMetadataAndGeoJSON, spatialUnitName, date);
 			};
 
 

@@ -224,6 +224,8 @@ angular
 
 									var id = metadata.spatialUnitId;
 
+									$scope.date = this.selectedDate;
+
 									var dateComps = this.selectedDate.split("-");
 
 									var year = dateComps[0];
@@ -240,7 +242,7 @@ angular
 
 											wpsPropertiesService.selectedSpatialUnit.geoJSON = geoJSON;
 
-											wpsMapService.addSpatialUnitGeoJSON(wpsPropertiesService.selectedSpatialUnit);
+											wpsMapService.addSpatialUnitGeoJSON(wpsPropertiesService.selectedSpatialUnit, $scope.date);
 											$scope.loadingData = false;
 
 										}, function errorCallback(response) {
@@ -271,6 +273,8 @@ angular
 
 									var id = metadata.georesourceId;
 
+									$scope.date = this.selectedDate;
+
 									var dateComps = this.selectedDate.split("-");
 
 									var year = dateComps[0];
@@ -287,7 +291,7 @@ angular
 
 											wpsPropertiesService.selectedGeoresource.geoJSON = geoJSON;
 
-											wpsMapService.addGeoresourceGeoJSON(wpsPropertiesService.selectedGeoresource);
+											wpsMapService.addGeoresourceGeoJSON(wpsPropertiesService.selectedGeoresource, $scope.date);
 											$scope.loadingData = false;
 
 										}, function errorCallback(response) {
@@ -305,6 +309,9 @@ angular
 
 									var id = metadata.indicatorId;
 
+									$scope.date = this.selectedDate;
+									$scope.spatialUnitName = this.wpsPropertiesServiceInstance.selectedSpatialUnit.spatialUnitLevel;
+
 									var dateComps = this.selectedDate.split("-");
 
 									var year = dateComps[0];
@@ -321,7 +328,7 @@ angular
 
 											wpsPropertiesService.selectedIndicator.geoJSON = geoJSON;
 
-											wpsMapService.addIndicatorGeoJSON(wpsPropertiesService.selectedIndicator);
+											wpsMapService.addIndicatorGeoJSON(wpsPropertiesService.selectedIndicator, $scope.spatialUnitName, $scope.date);
 											$scope.loadingData = false;
 
 										}, function errorCallback(response) {
