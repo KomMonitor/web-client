@@ -1,23 +1,28 @@
 <div>
 
+  <br/>
+
+<p>Ressourcentyp w&auml;hlen und danach einen der unteren Dropdown-Eintr&auml;gen anklicken.</p>
+
 <nav class="navbar navbar-default">
   <div class="container-fluid">
     <div class="navbar-header">
-      <label class="navbar-brand" href="#">Datenverwaltung</label>
+      <label class="navbar-brand" href="#">Ressource</label>
     </div>
     <ul class="nav navbar-nav">
       <li id="spatialUnitManagement" class="active"><a ng-click="$ctrl.onClickDataManagement('spatialUnits')" href="#">Raumeinheiten</a></li>
       <li id="georesourceManagement"><a ng-click="$ctrl.onClickDataManagement('georesources')" href="#">Georessourcen</a></li>
       <li id="indicatorManagement"><a ng-click="$ctrl.onClickDataManagement('indicators')" href="#">Indikatoren</a></li>
+      <li id="scriptManagement"><a ng-click="$ctrl.onClickDataManagement('scripts')" href="#">Skripte</a></li>
     </ul>
   </div>
 </nav>
 
-<p ng-if="$ctrl.selectedResourceType == 'spatialUnits'">Raumeinheit verwalten</p>
+<!-- <p ng-if="$ctrl.selectedResourceType == 'spatialUnits'">Raumeinheit verwalten</p>
 
 <p ng-if="$ctrl.selectedResourceType == 'georesources'">Georesourcen verwalten</p>
 
-<p ng-if="$ctrl.selectedResourceType == 'indicators'">Indikatoren verwalten</p>
+<p ng-if="$ctrl.selectedResourceType == 'indicators'">Indikatoren verwalten</p> -->
 
 <div class="panel-group" id="dataManagementAccordion">
 		<div class="panel panel-default">
