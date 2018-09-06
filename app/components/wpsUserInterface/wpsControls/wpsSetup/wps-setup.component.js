@@ -19,6 +19,9 @@ angular
 								this.wpsMapServiceInstance = wpsMapService;
 								this.wpsFormControlServiceInstance = wpsFormControlService;
 
+								$scope.wmsUrlForSelectedIndicator;
+								$scope.wfsUrlForSelectedIndicator;
+
 								$scope.loadingData = false;
 
 								this.selectedDate;
@@ -328,6 +331,16 @@ angular
 									});
 
 								};
+
+								$scope.$on("updateIndicatorOgcServices", function (event, indicatorWmsUrl, indicatorWfsUrl) {
+
+															console.log('updateIndicatorOgcServices was called');
+
+															$scope.wmsUrlForSelectedIndicator = indicatorWmsUrl;
+															$scope.wfsUrlForSelectedIndicator = indicatorWfsUrl;
+															$scope.$apply();
+
+													});
 
 
 							} ]

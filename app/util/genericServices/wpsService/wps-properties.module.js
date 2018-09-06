@@ -55,6 +55,8 @@ angular
 					this.availableIndicators;
 
 					this.selectedIndicator;
+					this.wmsUrlForSelectedIndicator;
+					this.wfsUrlForSelectedIndicator;
 
 					this.selectedIndicatorLegendURL;
 
@@ -63,6 +65,36 @@ angular
 					this.setIndicators = function(indicatorsArray){
 						this.availableIndicators = indicatorsArray;
 					};
+
+					this.onChangeSelectedIndicator = function(){
+						// parse the WMS and WFS URL from the selected indicator
+						// for this we also have to inspect the currently seelcted spatial unit
+
+						 // e.g. the structure of OGC services within indocator metadata looks like:
+							// 		 "ogcServices": [
+			        //     {
+			        //         "spatialUnit": "Stadtteilebene",
+			        //         "wmsUrl": "http://localhost:8080/geoserver/kommonitor/VIEW_INDICATOR_0/wms?service=WMS&request=GetCapabilities",
+			        //         "wfsUrl": "http://localhost:8080/geoserver/kommonitor/VIEW_INDICATOR_0/wfs?service=WFS&request=GetCapabilities"
+			        //     }
+			        // ]
+
+							this.wmsUrlForSelectedIndicator = undefined;
+							this.wmsUrlForSelectedIndicator = undefined;
+
+							var selectedSpatialUnitName = this.selectedSpatialUnit.spatialUnitLevel;
+
+							this.selectedIndicator.ogcServices.forEach(function(ogcServiceEntry){
+								if (ogcServiceEntry.spatialUnit === selectedSpatialUnitName){
+									this.wmsUrlForSelectedIndicator = ogcServiceEntry.wmsUrl;
+									this.wfsUrlForSelectedIndicator = ogcServiceEntry.wfsUrl;
+
+									// $scope.$apply();
+									$rootScope.$broadcast("updateIndicatorOgcServices", this.wmsUrlForSelectedIndicator, this.wfsUrlForSelectedIndicator);
+									return;
+								}
+							});
+					}
 
 
 

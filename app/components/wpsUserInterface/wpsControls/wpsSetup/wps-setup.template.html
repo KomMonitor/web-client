@@ -71,8 +71,8 @@
 
 				<!-- <p></p>
 				<div> -->
-					<a class="btn btn-warning" ng-href="{{$ctrl.wpsPropertiesServiceInstance.selectedGeoresource.wmsUrl}}">als WMS</a>
-					<a class="btn btn-info" ng-href="{{$ctrl.wpsPropertiesServiceInstance.selectedGeoresource.wfsUrl}}">als WFS</a>
+					<a class="btn btn-warning" ng-href="{{$ctrl.wpsPropertiesServiceInstance.selectedSpatialUnit.wmsUrl}}">als WMS</a>
+					<a class="btn btn-info" ng-href="{{$ctrl.wpsPropertiesServiceInstance.selectedSpatialUnit.wfsUrl}}">als WFS</a>
 				<!-- </div> -->
 			</div>
 
@@ -123,7 +123,7 @@
 			<div style="display: inline-block" ng-if="$ctrl.selectedDate && $ctrl.wpsPropertiesServiceInstance.selectedSpatialUnit">
 				<select
 					ng-model="$ctrl.wpsPropertiesServiceInstance.selectedIndicator" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.wpsPropertiesServiceInstance.availableIndicators | filter:filterIndicatorsByTopic()"
-					class="form-control" required>
+					ng-change="$ctrl.wpsPropertiesServiceInstance.onChangeSelectedIndicator()" class="form-control" required>
 					<option value="" selected disabled>Indikator zur Karte hinzufügen</option>
 					<option
 						ng-repeat="indicator in $ctrl.wpsPropertiesServiceInstance.availableIndicators | filter:filterIndicatorsByTopic()"></option>
@@ -133,9 +133,10 @@
 			<div style="display: inline-block" align="center" ng-if="$ctrl.wpsPropertiesServiceInstance.selectedIndicator">
 
 				<button ng-click="$ctrl.addSelectedIndicatorToMap()" type="button" class="btn btn-success">als Kartenlayer hinzufügen</button>
-					<a class="btn btn-warning" ng-href="{{$ctrl.wpsPropertiesServiceInstance.selectedIndicator.wmsUrl}}">als WMS</a>
-					<a class="btn btn-info" ng-href="{{$ctrl.wpsPropertiesServiceInstance.selectedIndicator.wfsUrl}}">als WFS</a>
-
+					<!-- <div ng-if="$ctrl.wpsPropertiesServiceInstance.wmsUrlForSelectedIndicator && $ctrl.wpsPropertiesServiceInstance.wfsUrlForSelectedIndicator"> -->
+						<a class="btn btn-warning" ng-href="{{wmsUrlForSelectedIndicator}}">als WMS</a>
+						<a class="btn btn-info" ng-href="{{wfsUrlForSelectedIndicator}}">als WFS</a>
+					<!-- </div> -->
 			</div>
 		</div>
 	</div>
