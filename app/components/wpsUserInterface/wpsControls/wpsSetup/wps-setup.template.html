@@ -66,13 +66,13 @@
 			</div>
 
 			<div style="display: inline-block" align="center" ng-if="$ctrl.wpsPropertiesServiceInstance.selectedSpatialUnit">
-				<button align="center" ng-click="$ctrl.addSelectedSpatialUnitToMap()" type="button" class="btn btn-success">Hinzuf&uuml;gen</button>
+				<button align="center" ng-click="$ctrl.addSelectedSpatialUnitToMap()" type="button" class="btn btn-success">Kartenlayer hinzuf&uuml;gen</button>
 				<!-- <button align="center" ng-click="$ctrl.addSelectedSpatialUnitToMapAsWFS()" type="button" class="btn btn-success">als WFS hinzuf&uuml;gen</button> -->
 
 				<!-- <p></p>
 				<div> -->
-					<a class="btn btn-warning" ng-href="{{$ctrl.wpsPropertiesServiceInstance.selectedSpatialUnit.wmsUrl}}">als WMS</a>
-					<a class="btn btn-info" ng-href="{{$ctrl.wpsPropertiesServiceInstance.selectedSpatialUnit.wfsUrl}}">als WFS</a>
+					<a class="btn btn-warning" target="_blank" rel="noopener noreferrer" ng-href="{{$ctrl.wpsPropertiesServiceInstance.selectedSpatialUnit.wmsUrl}}">WMS</a>
+					<a class="btn btn-info" target="_blank" rel="noopener noreferrer" ng-href="{{$ctrl.wpsPropertiesServiceInstance.selectedSpatialUnit.wfsUrl}}">WFS</a>
 				<!-- </div> -->
 			</div>
 
@@ -101,9 +101,9 @@
 			</div>
 
 			<div style="display: inline-block" align="center" ng-if="$ctrl.wpsPropertiesServiceInstance.selectedGeoresource">
-				<button align="center"  ng-click="$ctrl.addSelectedGeoresourceToMap()" type="button" class="btn btn-success">Hinzuf&uuml;gen</button>
-					<a class="btn btn-warning" ng-href="{{$ctrl.wpsPropertiesServiceInstance.selectedGeoresource.wmsUrl}}">als WMS</a>
-					<a class="btn btn-info" ng-href="{{$ctrl.wpsPropertiesServiceInstance.selectedGeoresource.wfsUrl}}">als WFS</a>
+				<button align="center"  ng-click="$ctrl.addSelectedGeoresourceToMap()" type="button" class="btn btn-success">Kartenlayer hinzuf&uuml;gen</button>
+					<a class="btn btn-warning" target="_blank" rel="noopener noreferrer" ng-href="{{$ctrl.wpsPropertiesServiceInstance.selectedGeoresource.wmsUrl}}">WMS</a>
+					<a class="btn btn-info" target="_blank" rel="noopener noreferrer" ng-href="{{$ctrl.wpsPropertiesServiceInstance.selectedGeoresource.wfsUrl}}">WFS</a>
 			</div>
 
 		</div>
@@ -132,10 +132,10 @@
 
 			<div style="display: inline-block" align="center" ng-if="$ctrl.wpsPropertiesServiceInstance.selectedIndicator">
 
-				<button ng-click="$ctrl.addSelectedIndicatorToMap()" type="button" class="btn btn-success">als Kartenlayer hinzufügen</button>
+				<button ng-click="$ctrl.addSelectedIndicatorToMap()" type="button" class="btn btn-success">Kartenlayer hinzuf&uuml;gen</button>
 					<!-- <div ng-if="$ctrl.wpsPropertiesServiceInstance.wmsUrlForSelectedIndicator && $ctrl.wpsPropertiesServiceInstance.wfsUrlForSelectedIndicator"> -->
-						<a class="btn btn-warning" ng-href="{{wmsUrlForSelectedIndicator}}">als WMS</a>
-						<a class="btn btn-info" ng-href="{{wfsUrlForSelectedIndicator}}">als WFS</a>
+						<a class="btn btn-warning" target="_blank" rel="noopener noreferrer" ng-href="{{wmsUrlForSelectedIndicator}}">WMS</a>
+						<a class="btn btn-info" target="_blank" rel="noopener noreferrer" ng-href="{{wfsUrlForSelectedIndicator}}">WFS</a>
 					<!-- </div> -->
 			</div>
 		</div>
