@@ -420,7 +420,7 @@ L.Control.StyledLayerControl = L.Control.Layers.extend({
             groupContainer.id = 'leaflet-control-accordion-layers-' + obj.group.id;
 
             // verify if group is expanded
-            var s_expanded = obj.group.expanded ? ' checked = "true" ' : '';
+            var s_expanded = ' checked = "true" ';
 
             // verify if type is exclusive
             var s_type_exclusive = this.options.exclusive ? ' type="radio" ' : ' type="checkbox" ';
