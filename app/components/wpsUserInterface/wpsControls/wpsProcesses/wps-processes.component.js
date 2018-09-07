@@ -306,6 +306,10 @@ angular
 
 							console.log("created URL POST body for CUSTOM PROCESSING: " + processingInput);
 
+							$scope.indicatorName = this.targetIndicator.indicatorName;
+							$scope.spatialUnitName = this.targetSpatialUnit.spatialUnitLevel;
+							$scope.date = this.targetDate;
+
 									$http({
 										url: targetURL,
 										method: "POST",
@@ -439,8 +443,8 @@ angular
 
 							var geoJSON_string = JSON.stringify($scope.computedCustomizedIndicatorGeoJSON);
 
-							// filename = this.targetIndicator.indicatorName + "_" + this.targetSpatialUnit.spatialUnitLevel + "_" + this.targetDate + "_CUSTOM.geojson";
-							var fileName = "export.geojson"
+							var fileName = $scope.indicatorName + "_" + $scope.spatialUnitName + "_" + $scope.date + "_CUSTOM.geojson";
+							// var fileName = "export.geojson"
 
 							// if (!geoJSON_string.match(/^data:application\/vnd.geo+json/i)) {
 							// 	geoJSON_string = 'data:application/vnd.geo+json;charset=utf-8,' + geoJSON_string;
@@ -455,7 +459,7 @@ angular
 
 							console.log("create new Download button and append it to DOM");
 							var a = document.createElement('a');
-							a.download    = "export.geojson";
+							a.download    = fileName;
 							a.href        = data;
 							a.textContent = "Download GeoJSON";
 							a.id = "downloadComputedIndicator";
