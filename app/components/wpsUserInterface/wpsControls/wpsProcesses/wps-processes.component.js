@@ -128,7 +128,7 @@ angular
 						  return new Promise(resolve => setTimeout(resolve, ms));
 						}
 
-						var buildParameterFormHtml = async function(targetScriptMetadata){
+						var buildParameterFormHtml = function(targetScriptMetadata){
 
 							$scope.computedCustomizedIndicatorGeoJSON = undefined;
 							$scope.resetProgressBar();
@@ -153,6 +153,7 @@ angular
 							// we must iterate over all process parameters and setup form elements for each input type
 							// e.g. sliders for range values, checkboxes for boolean
 
+							var processInputFormNode = document.getElementById("processInputForm");
 
 							targetScriptMetadata.variableProcessParameters.forEach(function(parameterData){
 								// looks like:
@@ -197,12 +198,12 @@ angular
 								    default:
 								        parameterDiv.appendChild(createInputAsString(parameterData));
 								}
+
+								processInputFormNode.appendChild(parameterDiv);
 							});
 
 							// parameterNode.appendChild(parameterDiv);
 
-							var processInputFormNode = document.getElementById("processInputForm");
-							processInputFormNode.appendChild(parameterDiv);
 							//$scope.$apply();
 						};
 
@@ -226,12 +227,7 @@ angular
 
 							this.targetScriptMetadata = this.getScriptMetadataForIndicatorId(this.targetIndicator.indicatorId);
 
-							try{
-								buildParameterFormHtml(this.targetScriptMetadata);
-							}
-							catch(error){
-								console.error("Error while building ParameterFormHTML");
-							}
+							buildParameterFormHtml(this.targetScriptMetadata);
 
 						};
 
@@ -240,12 +236,9 @@ angular
 							$scope.computedCustomizedIndicatorGeoJSON = undefined;
 							$scope.resetProgressBar();
 
-							try{
-								buildParameterFormHtml(this.targetScriptMetadata);
-							}
-							catch(error){
-								console.error("Error while building ParameterFormHTML");
-							}
+
+							buildParameterFormHtml(this.targetScriptMetadata);
+
 						};
 
 
