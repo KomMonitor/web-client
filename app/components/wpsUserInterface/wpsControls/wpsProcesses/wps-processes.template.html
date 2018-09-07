@@ -60,7 +60,16 @@
 
 			  <button ng-click="$ctrl.calculateCustomIndicator()" class="btn btn-primary">individuelle Neuberechnung starten</button>
 
+			<br/>
+			<p></p>
 			<p>Laufzeit beträgt je nach Komplexität der Berechnung wenige Sekunden bis zu einigen Minuten!</p>
+
+			<div ng-show="jobInfoText || computedCustomizedIndicatorGeoJSON" class="progress">
+			  <div id="customComputationProgressBar" class="progress-bar progress-bar-info progress-bar-striped active" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">
+			    <!-- <span class="sr-only">{{progress}}% Fortschritt</span> -->
+					0% Fortschritt
+			  </div>
+			</div>
 
 			<div ng-show="jobInfoText" class="alert alert-info">
 				<p>{{jobInfoText}}</p>
@@ -73,7 +82,7 @@
 
 				<p>Berechnung erfolgreich abgeschlossen. Das Ergebnis kann entweder auf der Karte dargestellt werden oder als GeoJSON-Datei heruntergeladen werden.</p>
 
-
+				<br/>
 				<div style="display: inline-block" align="center" id="indicatorOutput">
 					<button ng-click="$ctrl.addComputedIndicatorToMap()" type="button" class="btn btn-success">auf Karte darstellen</button>
 					<!-- another button to download as GeoJSOn will be set programatically within component file -->

@@ -23,6 +23,7 @@ angular
 							console.log(this.targetDate);
 
 							$scope.computedCustomizedIndicatorGeoJSON = undefined;
+							$scope.resetProgressBar();
 
 							var date = new Date(this.targetDate);
 
@@ -130,6 +131,7 @@ angular
 						var buildParameterFormHtml = async function(targetScriptMetadata){
 
 							$scope.computedCustomizedIndicatorGeoJSON = undefined;
+							$scope.resetProgressBar();
 
 							// await sleep(1000);
 
@@ -220,6 +222,7 @@ angular
 						this.onChangeTargetIndicator = function(){
 
 							$scope.computedCustomizedIndicatorGeoJSON = undefined;
+							$scope.resetProgressBar();
 
 							this.targetScriptMetadata = this.getScriptMetadataForIndicatorId(this.targetIndicator.indicatorId);
 
@@ -235,6 +238,7 @@ angular
 						this.onChangeTargetSpatialUnit = function(){
 
 							$scope.computedCustomizedIndicatorGeoJSON = undefined;
+							$scope.resetProgressBar();
 
 							try{
 								buildParameterFormHtml(this.targetScriptMetadata);
@@ -249,6 +253,7 @@ angular
 
 							$scope.computedCustomizedIndicatorGeoJSON = undefined;
 							$scope.jobInfoText = undefined;
+							$scope.resetProgressBar();
 
 							console.log("calculateCustomIndicator called!");
 
@@ -325,7 +330,7 @@ angular
 											// get location header to achieve jobId
 											var jobId = response.headers('Location');
 
-											await sleep(500);
+											await sleep(300);
 
 											$scope.showInitialJobStatus(jobId);
 
@@ -358,6 +363,9 @@ angular
 									console.log("success callback for showInitialJobStatus");
 									$scope.jobInfoText = "Berechnung wurde gestartet und wird ausgef&uuml;hrt. Derzeitiger Status: " + response.data.status;
 
+									if(response.data.progress)
+										$scope.updateProgressBar(response.data.progress);
+
 								}, function errorCallback(response) {
 									// called asynchronously if an error occurs
 									// or server returns response with an error status.
@@ -369,7 +377,7 @@ angular
 
 						$scope.pendForResult = async function(jobId){
 
-							var sleepTimeInMS = 2000;
+							var sleepTimeInMS = 1000;
 
 							var maxTryNumber = 60;
 							var tryNumber = 0;
@@ -394,6 +402,9 @@ angular
 											$scope.stopLoop = true;
 											return;
 										}
+
+										if(response.data.progress)
+											$scope.updateProgressBar(response.data.progress);
 
 
 										if(response.data.progress === 100 || response.data.status === "succeeded"){
@@ -426,6 +437,24 @@ angular
 								await sleep(sleepTimeInMS);
 							}
 
+						};
+
+						$scope.updateProgressBar = function(progress){
+							var progressBarNode = document.getElementById("customComputationProgressBar");
+
+							progressBarNode.setAttribute("aria-valuenow", ""+progress);
+							progressBarNode.setAttribute("style", "width:"+progress+"%");
+							progressBarNode.textContent = progress + "% Fortschritt";
+							// $scope.progress = progress;
+						};
+
+						$scope.resetProgressBar = function(){
+							var progressBarNode = document.getElementById("customComputationProgressBar");
+
+							progressBarNode.setAttribute("aria-valuenow", "0");
+							progressBarNode.setAttribute("style", "width:0%");
+							progressBarNode.textContent = "0% Fortschritt";
+							// $scope.progress = 0;
 						};
 
 						this.addComputedIndicatorToMap = function(){
