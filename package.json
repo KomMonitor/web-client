@@ -44,6 +44,7 @@
   },
   "dependencies": {
     "@ngageoint/leaflet-geopackage": "^2.0.4",
+    "classybrew": "0.0.3",
     "leaflet": "^1.3.4",
     "leaflet.timeline": "^1.2.1"
   }
