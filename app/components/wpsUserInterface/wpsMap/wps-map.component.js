@@ -362,6 +362,29 @@ angular.module('wpsMap').component(
                                                       // $scope.layers.overlays[indicatorMetadataAndGeoJSON.indicatorName].doRefresh = true;
                                                   });
 
+                                                  $scope.$on("addCustomIndicatorAsGeoJSON", function (event, indicatorMetadataAndGeoJSON, spatialUnitName, date) {
+
+                                                                console.log('addCustomIndicatorAsGeoJSON was called');
+
+                                                                var layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
+                                                                    style: function (feature) {
+                                                                      return {
+                                                                        color: "green",
+                                                                        weight: 2,
+                                                                        opacity: 1
+                                                                      };
+                                                                    },
+                                                                    onEachFeature: onEachFeatureIndicator
+                                                                });
+
+                                                                layer.StyledLayerControl = {
+                                                                  removable : true,
+                                                                  visible : true
+                                                                };
+
+                                                                $scope.layerControl.addOverlay( layer, indicatorMetadataAndGeoJSON.indicatorName + "_" + spatialUnitName + "_" + date + "_CUSTOM", {groupName : indicatorLayerGroupName} );
+                                                            });
+
 
 
 

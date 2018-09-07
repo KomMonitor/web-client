@@ -16,9 +16,13 @@ angular
 						this.targetDate;
 						this.targetSpatialUnit;
 						this.targetScriptMetadata;
+						$scope.jobInfoText;
+						$scope.computedCustomizedIndicatorGeoJSON;
 
 						this.onTargetDateChange = function(){
 							console.log(this.targetDate);
+
+							$scope.computedCustomizedIndicatorGeoJSON = undefined;
 
 							var date = new Date(this.targetDate);
 
@@ -119,12 +123,28 @@ angular
 							return inputElement;
 						};
 
-						var buildParameterFormHtml = function(targetScriptMetadata){
-							var processInputFormNode = document.getElementById("processInputForm");
-							// remove old content
-							while (processInputFormNode.firstChild) {
-							  processInputFormNode.removeChild(processInputFormNode.firstChild);
+						function sleep(ms) {
+						  return new Promise(resolve => setTimeout(resolve, ms));
+						}
+
+						var buildParameterFormHtml = async function(targetScriptMetadata){
+
+							$scope.computedCustomizedIndicatorGeoJSON = undefined;
+
+							// await sleep(1000);
+
+							try{
+								var processInputFormNode = document.getElementById("processInputForm");
+								// remove old content
+								while (processInputFormNode.firstChild) {
+								  processInputFormNode.removeChild(processInputFormNode.firstChild);
+								}
 							}
+							catch(error){
+								console.error("DOM Element with ID 'processInputForm' was not found");
+							}
+
+
 
 							//example to create elements via code
 
@@ -144,7 +164,7 @@ angular
 								// 	 "description": "description"
 								//  }
 
-								var parameterNode = document.createDocumentFragment();
+								// var parameterNode = document.createDocumentFragment();
 								var parameterDiv = document.createElement("div");
 								parameterDiv.setAttribute("class", "slidecontainer");
 
@@ -177,33 +197,64 @@ angular
 								}
 							});
 
-							parameterNode.appendChild(parameterDiv);
-							processInputFormNode.appendChild(parameterNode);
+							// parameterNode.appendChild(parameterDiv);
 
+							var processInputFormNode = document.getElementById("processInputForm");
+							processInputFormNode.appendChild(parameterDiv);
 							//$scope.$apply();
 						};
 
-						var getScriptMetadataForIndicatorId = function(indicatorId){
-							wpsPropertiesService.availableProcessScripts.forEach(function(scriptElement){
-								if (scriptElement.indicatorId === indicatorId)
-									return scriptElement;
-							});
+						this.getScriptMetadataForIndicatorId = function(indicatorId){
+							var targetScriptMetadata;
+
+							for (const scriptElement of wpsPropertiesService.availableProcessScripts){
+								if (scriptElement.indicatorId === indicatorId){
+									targetScriptMetadata = scriptElement;
+									break;
+								}
+							};
+
+							return targetScriptMetadata;
 						};
 
 						this.onChangeTargetIndicator = function(){
 
-							this.targetScriptMetadata = getScriptMetadataForIndicatorId(this.targetIndicator.indicatorId);
+							$scope.computedCustomizedIndicatorGeoJSON = undefined;
 
-							this.buildParameterFormHtml(targetScriptMetadata);
+							this.targetScriptMetadata = this.getScriptMetadataForIndicatorId(this.targetIndicator.indicatorId);
+
+							try{
+								buildParameterFormHtml(this.targetScriptMetadata);
+							}
+							catch(error){
+								console.error("Error while building ParameterFormHTML");
+							}
+
+						};
+
+						this.onChangeTargetSpatialUnit = function(){
+
+							$scope.computedCustomizedIndicatorGeoJSON = undefined;
+
+							try{
+								buildParameterFormHtml(this.targetScriptMetadata);
+							}
+							catch(error){
+								console.error("Error while building ParameterFormHTML");
+							}
 						};
 
 
 						this.calculateCustomIndicator = function(){
+
+							$scope.computedCustomizedIndicatorGeoJSON = undefined;
+							$scope.jobInfoText = undefined;
+
 							console.log("calculateCustomIndicator called!");
 
 							$scope.loadingData = true;
 
-							var targetURL = "http://localhost:8086/script-engine/customizableIndicatorComputation";
+							var targetURL = "http://localhost:8086/rest/v1/script-engine/customizableIndicatorComputation";
 
 							// example request model
 
@@ -255,27 +306,30 @@ angular
 
 							console.log("created URL POST body for CUSTOM PROCESSING: " + processingInput);
 
-							var url = 'http://localhost:8085/fusslErreichbarkeitDatabaseProcessingDirectOutput';
-
-									console.log('created CUSTOM PROCESSING URL: ' + url);
-
 									$http({
-										url: url,
+										url: targetURL,
 										method: "POST",
+										headers: {
+										   'Content-Type': 'application/json'
+										 },
 										data: processingInput
-									}).then(function successCallback(response) {
+									}).then(async function successCallback(response) {
 											// this callback will be called asynchronously
 											// when the response is available
 
-											//var sldName = response.data.sldName;
+											console.log("success callback for customizable indicator comutation");
+											// get location header to achieve jobId
+											var jobId = response.headers('Location');
 
-											console.log("success callback for direct output as geojson");
+											await sleep(500);
 
-											var geoJSON_string = JSON.stringify(response.data);
+											$scope.showInitialJobStatus(jobId);
 
 											$scope.loadingData = false;
 
-											$scope.downloadGeoJSON(geoJSON_string);
+											$scope.pendForResult(jobId);
+
+											// $scope.downloadGeoJSON(geoJSON_string);
 
 										}, function errorCallback(response) {
 											// called asynchronously if an error occurs
@@ -288,9 +342,133 @@ angular
 
 						}
 
-						$scope.downloadGeoJSON = function(geoJSON_string){
+						$scope.showInitialJobStatus = function(jobId){
 
-							filename = 'export.geojson';
+							$http({
+								url: "http://localhost:8086/rest/v1/script-engine/customizableIndicatorComputation/" + jobId,
+								method: "GET"
+							}).then(function successCallback(response) {
+									// this callback will be called asynchronously
+									// when the response is available
+
+									console.log("success callback for showInitialJobStatus");
+									$scope.jobInfoText = "Berechnung wurde gestartet und wird ausgef&uuml;hrt. Derzeitiger Status: " + response.data.status;
+
+								}, function errorCallback(response) {
+									// called asynchronously if an error occurs
+									// or server returns response with an error status.
+									$scope.error = response.data.error;
+
+									$scope.loadingData = false;
+							});
+						};
+
+						$scope.pendForResult = async function(jobId){
+
+							var sleepTimeInMS = 2000;
+
+							var maxTryNumber = 60;
+							var tryNumber = 0;
+
+							while(!$scope.computedCustomizedIndicatorGeoJSON && (tryNumber < maxTryNumber)){
+
+								if($scope.stopLoop)
+									break;
+
+								$http({
+									url: "http://localhost:8086/rest/v1/script-engine/customizableIndicatorComputation/" + jobId,
+									method: "GET"
+								}).then(function successCallback(response) {
+										// this callback will be called asynchronously
+										// when the response is available
+
+										console.log("success callback for pendForResult");
+
+										if(response.data.status === "failed"){
+											$scope.error = response.data.error;
+											console.error(response.data.error);
+											$scope.stopLoop = true;
+											return;
+										}
+
+
+										if(response.data.progress === 100 || response.data.status === "succeeded"){
+											var geoJSON_base64 = response.data.result_geoJSON_base64;
+											// first decode Base64 and then parse string as JSON
+											$scope.computedCustomizedIndicatorGeoJSON = JSON.parse(atob(geoJSON_base64));
+											$scope.jobInfoText = undefined;
+
+											$scope.prepareDownloadGeoJSON();
+
+											// $scope.$apply();
+										}
+
+									}, function errorCallback(response) {
+										// called asynchronously if an error occurs
+										// or server returns response with an error status.
+										$scope.error = response.data.error;
+										console.error(response.data.error);
+										$scope.stopLoop = true;
+										$scope.loadingData = false;
+										return;
+
+
+								});
+
+								if ($scope.computedCustomizedIndicatorGeoJSON)
+									return;
+
+									tryNumber++;
+								await sleep(sleepTimeInMS);
+							}
+
+						};
+
+						this.addComputedIndicatorToMap = function(){
+							console.log("Adding customized indicator to map.");
+
+							this.targetIndicator.geoJSON = $scope.computedCustomizedIndicatorGeoJSON;
+							wpsMapService.addCustomIndicatorGeoJSON(this.targetIndicator, this.targetSpatialUnit.spatialUnitLevel, this.targetDate);
+						};
+
+						$scope.prepareDownloadGeoJSON = function(){
+
+							console.log("removing old download button if available")
+							if(document.getElementById("downloadComputedIndicator"))
+								document.getElementById("downloadComputedIndicator").remove();
+
+							var geoJSON_string = JSON.stringify($scope.computedCustomizedIndicatorGeoJSON);
+
+							// filename = this.targetIndicator.indicatorName + "_" + this.targetSpatialUnit.spatialUnitLevel + "_" + this.targetDate + "_CUSTOM.geojson";
+							var fileName = "export.geojson"
+
+							// if (!geoJSON_string.match(/^data:application\/vnd.geo+json/i)) {
+							// 	geoJSON_string = 'data:application/vnd.geo+json;charset=utf-8,' + geoJSON_string;
+							// }
+							// data = encodeURI(geoJSON_string);
+
+							var blob = new Blob([geoJSON_string], {type: "application/json"});
+							var data  = URL.createObjectURL(blob);
+							//
+							// $scope.indicatorDownloadURL = data;
+							// $scope.indicatorDownloadName = fileName;
+
+							console.log("create new Download button and append it to DOM");
+							var a = document.createElement('a');
+							a.download    = "export.geojson";
+							a.href        = data;
+							a.textContent = "Download GeoJSON";
+							a.id = "downloadComputedIndicator";
+							a.setAttribute("class", "btn btn-info");
+
+							document.getElementById('indicatorOutput').appendChild(a);
+						}
+
+						this.downloadGeoJSON = function(){
+
+							var geoJSON_string = JSON.stringify($scope.computedCustomizedIndicatorGeoJSON);
+
+							filename = this.targetIndicator.indicatorName + "_" + this.targetSpatialUnit.spatialUnitLevel + "_" + this.targetDate + "_CUSTOM.geojson";
 
 							if (!geoJSON_string.match(/^data:application\/vnd.geo+json/i)) {
 								geoJSON_string = 'data:application/vnd.geo+json;charset=utf-8,' + geoJSON_string;

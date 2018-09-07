@@ -7,7 +7,7 @@
 	<div>
 		<select
 			ng-model="$ctrl.targetIndicator" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.wpsPropertiesServiceInstance.availableIndicators | filter:{creationType:'COMPUTATION'}"
-			class="form-control" ng-change="&ctrl.onChangeTargetIndicator" required>
+			class="form-control" ng-change="$ctrl.onChangeTargetIndicator()" required>
 			<option value="" selected disabled>Indikator w&auml;hlen</option>
 			<option
 				ng-repeat="indicator in $ctrl.wpsPropertiesServiceInstance.availableIndicators | filter:{creationType:'COMPUTATION'}"></option>
@@ -19,7 +19,6 @@
 	<div ng-if="$ctrl.targetIndicator">
 		<label>Zeitschnitt w&auml;hlen, f&uuml;r den der Indikator berechnet werden soll</label>
 		<input type="date" name="date" min="2009-01-01" max="2018-10-01" value="2018-08-01" ng-model="$ctrl.targetDate" ng-init="$ctrl.targetDate = '2018-08-01'" ng-change="$ctrl.onTargetDateChange()"/>
-		<p>targetDate as info: {{$ctrl.targetDate}}</p>
 	</div>
 
 
@@ -29,7 +28,7 @@
 		<!-- simple list of available processes -->
 		<select
 			ng-model="$ctrl.targetSpatialUnit" ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in $ctrl.wpsPropertiesServiceInstance.availableSpatialUnits"
-			class="form-control" required>
+			ng-change="$ctrl.onChangeTargetSpatialUnit()" class="form-control" required>
 			<option value="" selected disabled>Raumeinheit w&auml;hlen</option>
 			<option
 				ng-repeat="spatialUnit in $ctrl.wpsPropertiesServiceInstance.availableSpatialUnits"></option>
@@ -37,7 +36,7 @@
 	</div>
 
 
-	<div ng-if="$ctrl.targetIndicator && $ctrl.targetSpatialUnit && $ctrl.targetDate" id="parameterManagement" align="center">
+	<div ng-show="$ctrl.targetIndicator && $ctrl.targetSpatialUnit && $ctrl.targetDate" id="parameterManagement" align="center">
 
 		<div class="loading-overlay ng-hide" ng-show="loadingData">
         	<span class="glyphicon glyphicon-refresh icon-spin"></span>
@@ -61,11 +60,38 @@
 
 			  <button ng-click="$ctrl.calculateCustomIndicator()" class="btn btn-primary">individuelle Neuberechnung starten</button>
 
-			<p>Laufzeit beträgt etwa 25 - 30 Sekunden! Das Ergebnis wird als GeoJSON-Dateidownload bereitgestellt.</p>
+			<p>Laufzeit beträgt je nach Komplexität der Berechnung wenige Sekunden bis zu einigen Minuten!</p>
+
+			<div ng-show="jobInfoText" class="alert alert-info">
+				<p>{{jobInfoText}}</p>
+			</div>
+
+
+			<div align="center" ng-show="computedCustomizedIndicatorGeoJSON" class="alert alert-success">
+
+				<br/>
+
+				<p>Berechnung erfolgreich abgeschlossen. Das Ergebnis kann entweder auf der Karte dargestellt werden oder als GeoJSON-Datei heruntergeladen werden.</p>
+
+
+				<div style="display: inline-block" align="center" id="indicatorOutput">
+					<button ng-click="$ctrl.addComputedIndicatorToMap()" type="button" class="btn btn-success">auf Karte darstellen</button>
+					<!-- another button to download as GeoJSOn will be set programatically within component file -->
+				</div>
+
+			</div>
 
 		</div>
 
-
+		<div ng-show="error"
+			class="alert alert-danger">
+			<strong>Fehler</strong>
+			Bei der Verarbeitung ist ein Fehler aufgetreten.
+			<p></p>
+			<p>
+				<strong>Fehlernachricht: </strong>{{error}}
+			</p>
+		</div>
 
 		<!-- div for describeProcess failed messages! -->
 		<div

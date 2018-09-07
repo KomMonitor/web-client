@@ -53,6 +53,12 @@ angular.module('wpsMap').service(
 						indicatorMetadataAndGeoJSON, spatialUnitName, date);
 			};
 
+			this.addCustomIndicatorGeoJSON = function (indicatorMetadataAndGeoJSON, spatialUnitName, date) {
+
+				$rootScope.$broadcast("addCustomIndicatorAsGeoJSON",
+						indicatorMetadataAndGeoJSON, spatialUnitName, date);
+			};
+
 
 
 
