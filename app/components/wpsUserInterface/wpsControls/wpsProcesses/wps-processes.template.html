@@ -17,13 +17,13 @@
 	<br />
 
 	<div ng-if="$ctrl.targetIndicator">
-		<label>Zeitschnitt w&auml;hlen, f&uuml;r den der Indikator berechnet werden soll</label>
+		<label>Zeitschnitt w&auml;hlen</label>
 		<input type="date" name="date" min="2009-01-01" max="2018-10-01" value="2018-08-01" ng-model="$ctrl.targetDate" ng-init="$ctrl.targetDate = '2018-08-01'" ng-change="$ctrl.onTargetDateChange()"/>
 	</div>
 
 
 	<div class="form-group" ng-if="$ctrl.targetIndicator">
-		<label for="sel1">Raumebene w&auml;hlen, f&uuml;r die der Indikator berechnet werden soll</label>
+		<label for="sel1">Raumebene w&auml;hlen</label>
 
 		<!-- simple list of available processes -->
 		<select

@@ -361,7 +361,7 @@ angular
 									// when the response is available
 
 									console.log("success callback for showInitialJobStatus");
-									$scope.jobInfoText = "Berechnung wurde gestartet und wird ausgef&uuml;hrt. Derzeitiger Status: " + response.data.status;
+									$scope.jobInfoText = "Berechnung begonnen. Siehe Fortschrittsbalken.";
 
 									if(response.data.progress)
 										$scope.updateProgressBar(response.data.progress);
