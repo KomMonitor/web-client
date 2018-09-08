@@ -115,43 +115,43 @@ angular.module('wpsMap').component(
                       $scope.infoControl.addTo($scope.map);
 
 
-                      $scope.legendControl = L.control({position: 'bottomleft'});
-
-                      $scope.legendControl.onAdd = function (map) {
-
-                          $scope.div = L.DomUtil.create('div', 'info legend');
-                          //     labels = $scope.brew.getBreaks();
-                          //     colors = $scope.brew.getColors();
-                          //
-                          // // loop through our density intervals and generate a label with a colored square for each interval
-                          // for (var i = 0; i < labels.length; i++) {
-                          //     $scope.div.innerHTML +=
-                          //         '<i style="background:' + $scope.brew.getColorInRange(labels[i] + 1) + '"></i> ' +
-                          //         labels[i] + (labels[i + 1] ? '&ndash;' + labels[i + 1] + '<br>' : '+');
-                          // }
-                          //
-                          $scope.div.innerHTML = "<h2>Test</h2>";
-                          return $scope.div;
-                      };
-
-                      $scope.legendControl.update = function (map) {
-                        $scope.div = L.DomUtil.create('div', 'info legend'),
-                            labels = $scope.brew.getBreaks();
-                            colors = $scope.brew.getColors();
-
-                        $scope.div.innerHTML = "";
-
-                        // loop through our density intervals and generate a label with a colored square for each interval
-                        for (var i = 0; i < labels.length; i++) {
-                            $scope.div.innerHTML +=
-                                '<i style="background:' + $scope.brew.getColorInRange(labels[i] + 1) + '"></i> ' +
-                                labels[i] + (labels[i + 1] ? '&ndash;' + labels[i + 1] + '<br>' : '+');
-                        }
-
-                        return $scope.div;
-                      };
-
-                      $scope.legendControl.addTo($scope.map);
+                      // $scope.legendControl = L.control({position: 'bottomleft'});
+                      //
+                      // $scope.legendControl.onAdd = function (map) {
+                      //
+                      //     $scope.div = L.DomUtil.create('div', 'info legend');
+                      //     //     labels = $scope.brew.getBreaks();
+                      //     //     colors = $scope.brew.getColors();
+                      //     //
+                      //     // // loop through our density intervals and generate a label with a colored square for each interval
+                      //     // for (var i = 0; i < labels.length; i++) {
+                      //     //     $scope.div.innerHTML +=
+                      //     //         '<i style="background:' + $scope.brew.getColorInRange(labels[i] + 1) + '"></i> ' +
+                      //     //         labels[i] + (labels[i + 1] ? '&ndash;' + labels[i + 1] + '<br>' : '+');
+                      //     // }
+                      //     //
+                      //     $scope.div.innerHTML = "<h2>Test</h2>";
+                      //     return $scope.div;
+                      // };
+                      //
+                      // $scope.legendControl.update = function (map) {
+                      //   $scope.div = L.DomUtil.create('div', 'info legend'),
+                      //       labels = $scope.brew.getBreaks();
+                      //       colors = $scope.brew.getColors();
+                      //
+                      //   $scope.div.innerHTML = "";
+                      //
+                      //   // loop through our density intervals and generate a label with a colored square for each interval
+                      //   for (var i = 0; i < labels.length; i++) {
+                      //       $scope.div.innerHTML +=
+                      //           '<i style="background:' + $scope.brew.getColorInRange(labels[i] + 1) + '"></i> ' +
+                      //           labels[i] + (labels[i + 1] ? '&ndash;' + labels[i + 1] + '<br>' : '+');
+                      //   }
+                      //
+                      //   return $scope.div;
+                      // };
+                      //
+                      // $scope.legendControl.addTo($scope.map);
 
 
                       // $scope.layerControl = L.control.layers($scope.baseMaps, $scope.overlays);
@@ -184,6 +184,35 @@ angular.module('wpsMap').component(
           //               controls: {
           //               }
           //           });
+
+                    $scope.makeLegend = function(){
+
+                      if($scope.legendControl)
+                        $scope.map.removeControl($scope.legendControl);
+
+                      $scope.legendControl = L.control({position: 'bottomleft'});
+
+                      $scope.legendControl.onAdd = function (map) {
+
+                        $scope.div = L.DomUtil.create('div', 'info legend'),
+                            labels = $scope.brew.getBreaks();
+                            colors = $scope.brew.getColors();
+
+                        $scope.div.innerHTML = "";
+
+                        // loop through our density intervals and generate a label with a colored square for each interval
+                        for (var i = 0; i < labels.length; i++) {
+                            $scope.div.innerHTML +=
+                                '<i style="background:' + $scope.brew.getColorInRange(labels[i] + 1) + '"></i> ' +
+                                labels[i] + (labels[i + 1] ? '&ndash;' + labels[i + 1] + '<br>' : '+');
+                        }
+
+                        return $scope.div;
+                      };
+
+                      $scope.legendControl.addTo($scope.map);
+
+                    }
 
                     /**
                      * binds the popup of a clicked output
@@ -438,7 +467,7 @@ angular.module('wpsMap').component(
 
                                                       $scope.layerControl.addOverlay( layer, indicatorMetadataAndGeoJSON.indicatorName + "_" + spatialUnitName + "_" + date, {groupName : indicatorLayerGroupName} );
 
-                                                      $scope.legendControl.update();
+                                                      $scope.makeLegend();
                                                       // if ($scope.layers.overlays[indicatorMetadataAndGeoJSON.indicatorName]) {
                                                       //     delete $scope.layers.overlays[indicatorMetadataAndGeoJSON.indicatorName];
                                                       //
@@ -502,7 +531,7 @@ angular.module('wpsMap').component(
 
                                                                 $scope.layerControl.addOverlay( layer, indicatorMetadataAndGeoJSON.indicatorName + "_" + spatialUnitName + "_" + date + "_CUSTOM", {groupName : indicatorLayerGroupName} );
 
-                                                                $scope.legendControl.update();
+                                                                $scope.makeLegend();
 
                                                             });
 
