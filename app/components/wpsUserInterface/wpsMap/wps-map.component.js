@@ -33,6 +33,9 @@ angular.module('wpsMap').component(
                     const georesourceLayerGroupName = "Georessourcen";
                     const indicatorLayerGroupName = "Indikatoren";
 
+                    // create classyBrew object
+                    $scope.brew = new classyBrew();
+
               			this.initializeMap = function() {
 
                       // initialize map referring to div element with id="map"
@@ -93,6 +96,63 @@ angular.module('wpsMap').component(
 
                       $scope.layerControl = L.Control.styledLayerControl($scope.baseMaps, $scope.overlays, options);
 	                    $scope.map.addControl($scope.layerControl);
+
+                      $scope.infoControl = L.control();
+
+                      $scope.infoControl.onAdd = function (map) {
+                          this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
+                          // this.update();
+                          return this._div;
+                      };
+
+                      // method that we will use to update the control based on feature properties passed
+                      $scope.infoControl.update = function (props) {
+                        this._div.innerHTML = '<h4>' + $scope.indicatorName + '</h4>' +  (props ?
+                          '<b>' + props.spatialUnitFeatureName + '</b><br />' + props[$scope.indicatorPropertyName] + ' ' + $scope.indicatorUnit
+                          : 'Hover over a state');
+                      };
+
+                      $scope.infoControl.addTo($scope.map);
+
+
+                      $scope.legendControl = L.control({position: 'bottomleft'});
+
+                      $scope.legendControl.onAdd = function (map) {
+
+                          $scope.div = L.DomUtil.create('div', 'info legend');
+                          //     labels = $scope.brew.getBreaks();
+                          //     colors = $scope.brew.getColors();
+                          //
+                          // // loop through our density intervals and generate a label with a colored square for each interval
+                          // for (var i = 0; i < labels.length; i++) {
+                          //     $scope.div.innerHTML +=
+                          //         '<i style="background:' + $scope.brew.getColorInRange(labels[i] + 1) + '"></i> ' +
+                          //         labels[i] + (labels[i + 1] ? '&ndash;' + labels[i + 1] + '<br>' : '+');
+                          // }
+                          //
+                          $scope.div.innerHTML = "<h2>Test</h2>";
+                          return $scope.div;
+                      };
+
+                      $scope.legendControl.update = function (map) {
+                        $scope.div = L.DomUtil.create('div', 'info legend'),
+                            labels = $scope.brew.getBreaks();
+                            colors = $scope.brew.getColors();
+
+                        $scope.div.innerHTML = "";
+
+                        // loop through our density intervals and generate a label with a colored square for each interval
+                        for (var i = 0; i < labels.length; i++) {
+                            $scope.div.innerHTML +=
+                                '<i style="background:' + $scope.brew.getColorInRange(labels[i] + 1) + '"></i> ' +
+                                labels[i] + (labels[i + 1] ? '&ndash;' + labels[i + 1] + '<br>' : '+');
+                        }
+
+                        return $scope.div;
+                      };
+
+                      $scope.legendControl.addTo($scope.map);
+
 
                       // $scope.layerControl = L.control.layers($scope.baseMaps, $scope.overlays);
                       //
@@ -167,6 +227,8 @@ angular.module('wpsMap').component(
                     function onEachFeatureIndicator(feature, layer) {
                         // does this feature have a property named popupContent?
                         layer.on({
+                            mouseover: highlightFeature,
+                            mouseout: resetHighlight,
                             click: function () {
 
                                 var popupContent = layer.feature.properties;
@@ -233,28 +295,6 @@ angular.module('wpsMap').component(
 
                                   $scope.layerControl.addOverlay( layer, spatialUnitMetadataAndGeoJSON.spatialUnitLevel + "_" + date, {groupName : spatialUnitLayerGroupName} );
 
-                                  // var geoJSONLayer = {
-                                  //     name: spatialUnitMetadataAndGeoJSON.spatialUnitLevel,
-                                  //     type: "geoJSONShape",
-                                  //     data: spatialUnitMetadataAndGeoJSON.geoJSON,
-                                  //     visible: true,
-                                  //     layerOptions: {
-                                  //         style: {
-                                  //             color: '#1B4F72',
-                                  //             fillColor: 'blue',
-                                  //             weight: 2.0,
-                                  //             opacity: 0.6,
-                                  //             fillOpacity: 0.2
-                                  //         },
-                                  //         onEachFeature: onEachFeatureSpatialUnit
-                                  //     }
-                                  // };
-
-                                  // $scope.layers.overlays[spatialUnitMetadataAndGeoJSON.spatialUnitLevel] = geoJSONLayer;
-                                  //
-                                  // // refresh the layer!!! Otherwise display is not updated properly in case
-                                  // // an existing overlay is updated!
-                                  // $scope.layers.overlays[spatialUnitMetadataAndGeoJSON.spatialUnitLevel].doRefresh = true;
                               });
 
                               $scope.$on("addGeoresourceAsGeoJSON", function (event, georesourceMetadataAndGeoJSON, date) {
@@ -310,20 +350,86 @@ angular.module('wpsMap').component(
                                             // $scope.layers.overlays[georesourceMetadataAndGeoJSON.datasetName].doRefresh = true;
                                         });
 
+                                        var setupBrew = function(geoJSON, propertyName, numClasses, colorCode, classifyMethod){
+                                          // pass values from your geojson object into an empty array
+                                          // see link above to view geojson used in this example
+                                          var values = [];
+                                          for (var i = 0; i < geoJSON.features.length; i++){
+                                              if (geoJSON.features[i].properties[propertyName] == null) continue;
+                                              values.push(geoJSON.features[i].properties[propertyName]);
+                                          }
+
+                                          // pass array to our classyBrew series
+                                          $scope.brew.setSeries(values);
+
+                                          // define number of classes
+                                          $scope.brew.setNumClasses(numClasses);
+
+                                          // set color ramp code
+                                          $scope.brew.setColorCode(colorCode);
+
+                                          // classify by passing in statistical method
+                                          // i.e. equal_interval, jenks, quantile
+                                          $scope.brew.classify(classifyMethod);
+                                        }
+
+                                        // style function to return
+                                        // fill color based on $scope.brew.getColorInRange() method
+                                        function style(feature) {
+                                            return {
+                                                weight: 2,
+                                                opacity: 1,
+                                                color: 'white',
+                                                dashArray: '3',
+                                                fillOpacity: 0.7,
+                                                fillColor: $scope.brew.getColorInRange(feature.properties[$scope.propertyName])
+                                            }
+                                        }
+
+                                        function highlightFeature(e) {
+                                            var layer = e.target;
+
+                                            layer.setStyle({
+                                                weight: 5,
+                                                color: '#666',
+                                                dashArray: '',
+                                                fillOpacity: 0.7
+                                            });
+
+                                            if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+                                                layer.bringToFront();
+                                            }
+                                            $scope.infoControl.update(layer.feature.properties);
+                                        }
+
+                                        function resetHighlight(e) {
+                                            $scope.geojson.resetStyle(e.target);
+                                            $scope.infoControl.update();
+                                        }
+
+                                        function zoomToFeature(e) {
+                                            map.fitBounds(e.target.getBounds());
+                                        }
+
+
+
                                         $scope.$on("addIndicatorAsGeoJSON", function (event, indicatorMetadataAndGeoJSON, spatialUnitName, date) {
 
                                                       console.log('addIndicatorAsGeoJSON was called');
 
+                                                      $scope.indicatorPropertyName = date;
+                                                      $scope.indicatorName = indicatorMetadataAndGeoJSON.indicatorName;
+                                                      $scope.indicatorUnit = indicatorMetadataAndGeoJSON.unit;
+
+                                                      setupBrew(indicatorMetadataAndGeoJSON.geoJSON, date, 5, "Blues", "equal_interval");
+                                                      $scope.propertyName = date;
+
                                                       var layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
-                                                          style: function (feature) {
-                                                            return {
-                                                              color: "green",
-                                                              weight: 2,
-                                                              opacity: 1
-                                                            };
-                                                          },
+                                                          style: style,
                                                           onEachFeature: onEachFeatureIndicator
                                                       });
+
+                                                      $scope.geojson = layer;
 
                                                       layer.StyledLayerControl = {
                                                         removable : true,
@@ -332,6 +438,7 @@ angular.module('wpsMap').component(
 
                                                       $scope.layerControl.addOverlay( layer, indicatorMetadataAndGeoJSON.indicatorName + "_" + spatialUnitName + "_" + date, {groupName : indicatorLayerGroupName} );
 
+                                                      $scope.legendControl.update();
                                                       // if ($scope.layers.overlays[indicatorMetadataAndGeoJSON.indicatorName]) {
                                                       //     delete $scope.layers.overlays[indicatorMetadataAndGeoJSON.indicatorName];
                                                       //
@@ -366,6 +473,15 @@ angular.module('wpsMap').component(
 
                                                                 console.log('addCustomIndicatorAsGeoJSON was called');
 
+                                                                console.log('addIndicatorAsGeoJSON was called');
+
+                                                                $scope.indicatorPropertyName = date;
+                                                                $scope.indicatorName = indicatorMetadataAndGeoJSON.indicatorName;
+                                                                $scope.indicatorUnit = indicatorMetadataAndGeoJSON.unit;
+
+                                                                setupBrew(indicatorMetadataAndGeoJSON.geoJSON, date, 5, "Greens", "equal_interval");
+                                                                $scope.propertyName = date;
+
                                                                 var layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
                                                                     style: function (feature) {
                                                                       return {
@@ -377,12 +493,17 @@ angular.module('wpsMap').component(
                                                                     onEachFeature: onEachFeatureIndicator
                                                                 });
 
+                                                                $scope.geojson = layer;
+
                                                                 layer.StyledLayerControl = {
                                                                   removable : true,
                                                                   visible : true
                                                                 };
 
                                                                 $scope.layerControl.addOverlay( layer, indicatorMetadataAndGeoJSON.indicatorName + "_" + spatialUnitName + "_" + date + "_CUSTOM", {groupName : indicatorLayerGroupName} );
+
+                                                                $scope.legendControl.update();
+
                                                             });
 
 

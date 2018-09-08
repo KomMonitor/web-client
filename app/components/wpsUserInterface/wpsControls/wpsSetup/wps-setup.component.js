@@ -67,7 +67,16 @@ angular
 
 									var date = new Date(this.selectedDate);
 
-									this.selectedDate = date.getFullYear() + "-" +  date.getMonth()+1 + "-" + date.getDate();
+									var month = date.getMonth()+1;
+									var day = date.getDate();
+
+									if (month < 10)
+										month = "0" + month;
+
+									if (day < 10)
+										day = "0" + day;
+
+									this.selectedDate = date.getFullYear() + "-" + month  + "-" + day;
 
 									console.log(date);
 									console.log(this.selectedDate);
