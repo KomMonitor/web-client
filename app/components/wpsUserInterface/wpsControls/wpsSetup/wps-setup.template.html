@@ -139,6 +139,31 @@
 					<!-- </div> -->
 			</div>
 		</div>
+
+
+		<div align="center" class="form-group" ng-if="$ctrl.wpsPropertiesServiceInstance.selectedIndicator">
+
+			<br/>
+
+			<input type="checkbox">Eigenen Wertmaßstab mittels Grenzwert festlegen?</input>
+
+			<div>
+
+				<label align='left'>Bewertungsmodellierung</label>
+				<p>Eigenen Wertma&szlig;stab anwenden. Durch verschieben des Grenzwertes werden die dargestellten Indikatoren-Features unmittelbar neu eingef&auml;rbt.</p>
+
+				<p></p>
+
+				<div class="slidecontainer">
+				  <input ng-model="$ctrl.wpsPropertiesServiceInstance.measureOfValue" ng-change="$ctrl.onMeasureOfValueChange()" type="range" min="0" max="100" step="1" value="51" class="slider" id="myRange">
+
+				  <p>Value: {{$ctrl.wpsPropertiesServiceInstance.measureOfValue}}</p>
+				</div>
+
+			</div>
+
+		</div>
+
 	</div>
 
 
