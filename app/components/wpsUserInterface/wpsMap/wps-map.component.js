@@ -201,9 +201,15 @@ angular.module('wpsMap').component(
                         $scope.div.innerHTML = "";
 
                         // loop through our density intervals and generate a label with a colored square for each interval
-                        for (var i = 0; i < labels.length; i++) {
+                        // for (var i = 0; i < labels.length; i++) {
+                        //     $scope.div.innerHTML +=
+                        //         '<i style="background:' + $scope.brew.getColorInRange(labels[i] + 1) + '"></i> ' +
+                        //         labels[i] + (labels[i + 1] ? '&ndash;' + labels[i + 1] + '<br>' : '+');
+                        // }
+
+                        for (var i = 0; i < colors.length; i++) {
                             $scope.div.innerHTML +=
-                                '<i style="background:' + $scope.brew.getColorInRange(labels[i] + 1) + '"></i> ' +
+                                '<i style="background:' + colors[i] + '"></i> ' +
                                 labels[i] + (labels[i + 1] ? '&ndash;' + labels[i + 1] + '<br>' : '+');
                         }
 
@@ -450,7 +456,7 @@ angular.module('wpsMap').component(
                                                       $scope.indicatorName = indicatorMetadataAndGeoJSON.indicatorName;
                                                       $scope.indicatorUnit = indicatorMetadataAndGeoJSON.unit;
 
-                                                      setupBrew(indicatorMetadataAndGeoJSON.geoJSON, date, 5, "Blues", "equal_interval");
+                                                      setupBrew(indicatorMetadataAndGeoJSON.geoJSON, date, 5, "Blues", "jenks");
                                                       $scope.propertyName = date;
 
                                                       var layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
@@ -508,17 +514,11 @@ angular.module('wpsMap').component(
                                                                 $scope.indicatorName = indicatorMetadataAndGeoJSON.indicatorName;
                                                                 $scope.indicatorUnit = indicatorMetadataAndGeoJSON.unit;
 
-                                                                setupBrew(indicatorMetadataAndGeoJSON.geoJSON, date, 5, "Greens", "equal_interval");
+                                                                setupBrew(indicatorMetadataAndGeoJSON.geoJSON, date, 5, "Greens", "jenks");
                                                                 $scope.propertyName = date;
 
                                                                 var layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
-                                                                    style: function (feature) {
-                                                                      return {
-                                                                        color: "green",
-                                                                        weight: 2,
-                                                                        opacity: 1
-                                                                      };
-                                                                    },
+                                                                    style: style,
                                                                     onEachFeature: onEachFeatureIndicator
                                                                 });
 
