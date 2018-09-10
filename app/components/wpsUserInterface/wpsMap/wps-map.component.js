@@ -586,14 +586,16 @@ angular.module('wpsMap').component(
 
                                                       if(wpsPropertiesService.isMeasureOfValueChecked){
 
-                                                        setupGtMeasureOfValueBrew(indicatorMetadataAndGeoJSON.geoJSON, date, 3, "Blues", "jenks", wpsPropertiesService.measureOfValue);
-                                                        setupGtMeasureOfValueBrew(indicatorMetadataAndGeoJSON.geoJSON, date, 3, "Purples", "jenks", wpsPropertiesService.measureOfValue);
+                                                        setupGtMeasureOfValueBrew(indicatorMetadataAndGeoJSON.geoJSON, date, 3, "Oranges", "jenks", wpsPropertiesService.measureOfValue);
+                                                        setupLtMeasureOfValueBrew(indicatorMetadataAndGeoJSON.geoJSON, date, 3, "PuRd", "jenks", wpsPropertiesService.measureOfValue);
                                                         $scope.propertyName = date;
 
                                                         layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
                                                             style: styleMeasureOfValue,
                                                             onEachFeature: onEachFeatureIndicator
                                                         });
+
+                                                        $scope.makeMeasureOfValueLegend();
 
                                                       }
                                                       else{
@@ -604,6 +606,8 @@ angular.module('wpsMap').component(
                                                             style: styleDefault,
                                                             onEachFeature: onEachFeatureIndicator
                                                         });
+
+                                                        $scope.makeDefaultLegend();
                                                       }
 
                                                       $scope.geojson = layer;
@@ -615,7 +619,7 @@ angular.module('wpsMap').component(
 
                                                       $scope.layerControl.addOverlay( layer, indicatorMetadataAndGeoJSON.indicatorName + "_" + spatialUnitName + "_" + date, {groupName : indicatorLayerGroupName} );
 
-                                                      $scope.makeDefaultLegend();
+
                                                       // if ($scope.layers.overlays[indicatorMetadataAndGeoJSON.indicatorName]) {
                                                       //     delete $scope.layers.overlays[indicatorMetadataAndGeoJSON.indicatorName];
                                                       //
@@ -684,12 +688,12 @@ angular.module('wpsMap').component(
 
                                                             $scope.$on("restyleCurrentLayer", function (event) {
 
-                                                                          if($scope.geoJSON){
-                                                                            $scope.geojson.resetStyle();
+                                                                          if($scope.geojson){
+                                                                            $scope.geojson.resetStyle($scope.geojson);
                                                                             // $scope.infoControl.update();
                                                                           }
 
-                                                                      });
+                                                            });
 
 
 

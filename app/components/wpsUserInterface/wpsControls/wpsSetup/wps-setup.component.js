@@ -372,7 +372,7 @@ angular
 
 											wpsPropertiesService.selectedIndicator.geoJSON = geoJSON;
 
-											this.updateMeasureOfValueBar();
+											$scope.updateMeasureOfValueBar($scope.date);
 
 										}, function errorCallback(response) {
 											// called asynchronously if an error occurs
@@ -381,10 +381,8 @@ angular
 									});
 								}
 
-								this.updateMeasureOfValueBar = function(){
+								$scope.updateMeasureOfValueBar = function(date){
 									var geoJSON = wpsPropertiesService.selectedIndicator.geoJSON;
-
-									var date = this.selectedDate;
 
 									var measureOfValueInput = document.getElementById("measureOfValueInput");
 
@@ -411,7 +409,7 @@ angular
 									measureOfValueInput.setAttribute("step", step);
 									measureOfValueInput.setAttribute("value", middleValue);
 
-									this.wpsPropertiesServiceInstance.measureOfValue = middleValue;
+									wpsPropertiesService.measureOfValue = middleValue;
 
 								}
 
