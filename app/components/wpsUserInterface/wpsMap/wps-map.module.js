@@ -59,6 +59,11 @@ angular.module('wpsMap').service(
 						indicatorMetadataAndGeoJSON, spatialUnitName, date);
 			};
 
+			this.restyleCurrentLayer = function () {
+
+				$rootScope.$broadcast("restyleCurrentLayer");
+			};
+
 
 
 

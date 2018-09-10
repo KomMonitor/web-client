@@ -348,6 +348,73 @@ angular
 
 								};
 
+								this.onChangeSelectedIndicator = function(){
+									var metadata = wpsPropertiesService.selectedIndicator;
+
+									var id = metadata.indicatorId;
+
+									$scope.date = this.selectedDate;
+									$scope.spatialUnitName = this.wpsPropertiesServiceInstance.selectedSpatialUnit.spatialUnitLevel;
+
+									var dateComps = this.selectedDate.split("-");
+
+									var year = dateComps[0];
+									var month = dateComps[1];
+									var day = dateComps[2];
+
+									$http({
+										url: this.wpsPropertiesServiceInstance.baseUrlToKomMonitorDataAPI + "/indicators/" + id + "/" + wpsPropertiesService.selectedSpatialUnit.spatialUnitId,
+										method: "GET"
+									}).then(function successCallback(response) {
+											// this callback will be called asynchronously
+											// when the response is available
+											var geoJSON = response.data;
+
+											wpsPropertiesService.selectedIndicator.geoJSON = geoJSON;
+
+											this.updateMeasureOfValueBar();
+
+										}, function errorCallback(response) {
+											// called asynchronously if an error occurs
+											// or server returns response with an error status.
+											$scope.loadingData = false;
+									});
+								}
+
+								this.updateMeasureOfValueBar = function(){
+									var geoJSON = wpsPropertiesService.selectedIndicator.geoJSON;
+
+									var date = this.selectedDate;
+
+									var measureOfValueInput = document.getElementById("measureOfValueInput");
+
+									// <input ng-model="$ctrl.wpsPropertiesServiceInstance.measureOfValue" ng-change="$ctrl.onMeasureOfValueChange()" type="range" min="0" max="100" step="1" value="51" class="slider" id="measureOfValueInput">
+									var sampleFeature = geoJSON.features[0];
+									var minValue = sampleFeature.properties[date];
+									var maxValue = sampleFeature.properties[date];
+									var middleValue;
+									var step;
+
+									geoJSON.features.forEach(function(feature){
+										if (feature.properties[date] > maxValue)
+											maxValue = feature.properties[date];
+
+										else if (feature.properties[date] < minValue)
+											minValue = feature.properties[date];
+									});
+
+									middleValue = (maxValue + minValue) / 2;
+									step = maxValue/geoJSON.features.length;
+
+									measureOfValueInput.setAttribute("min", minValue);
+									measureOfValueInput.setAttribute("max", maxValue);
+									measureOfValueInput.setAttribute("step", step);
+									measureOfValueInput.setAttribute("value", middleValue);
+
+									this.wpsPropertiesServiceInstance.measureOfValue = middleValue;
+
+								}
+
 								$scope.$on("updateIndicatorOgcServices", function (event, indicatorWmsUrl, indicatorWfsUrl) {
 
 															console.log('updateIndicatorOgcServices was called');
@@ -357,6 +424,11 @@ angular
 															$scope.$apply();
 
 													});
+
+
+							this.onMeasureOfValueChange = function(){
+								this.wpsMapServiceInstance.restyleCurrentLayer();
+							};
 
 
 							} ]

@@ -123,7 +123,7 @@
 			<div style="display: inline-block" ng-if="$ctrl.selectedDate && $ctrl.wpsPropertiesServiceInstance.selectedSpatialUnit">
 				<select
 					ng-model="$ctrl.wpsPropertiesServiceInstance.selectedIndicator" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.wpsPropertiesServiceInstance.availableIndicators | filter:filterIndicatorsByTopic()"
-					ng-change="$ctrl.wpsPropertiesServiceInstance.onChangeSelectedIndicator()" class="form-control" required>
+					ng-change="$ctrl.onChangeSelectedIndicator()" class="form-control" required>
 					<option value="" selected disabled>Indikator zur Karte hinzufügen</option>
 					<option
 						ng-repeat="indicator in $ctrl.wpsPropertiesServiceInstance.availableIndicators | filter:filterIndicatorsByTopic()"></option>
@@ -145,7 +145,7 @@
 
 			<br/>
 
-			<input type="checkbox">Eigenen Wertmaßstab mittels Grenzwert festlegen?</input>
+			<input id="measureOfValueCheckbox" type="checkbox" ng-model="$ctrl.wpsPropertiesServiceInstance.isMeasureOfValueChecked" ng-checked="$ctrl.wpsPropertiesServiceInstance.isMeasureOfValueChecked">Eigenen Wertmaßstab mittels Grenzwert festlegen?</input>
 
 			<div>
 
@@ -155,7 +155,7 @@
 				<p></p>
 
 				<div class="slidecontainer">
-				  <input ng-model="$ctrl.wpsPropertiesServiceInstance.measureOfValue" ng-change="$ctrl.onMeasureOfValueChange()" type="range" min="0" max="100" step="1" value="51" class="slider" id="myRange">
+				  <input ng-model="$ctrl.wpsPropertiesServiceInstance.measureOfValue" ng-change="$ctrl.onMeasureOfValueChange()" type="range" min="0" max="100" step="1" value="51" class="slider" id="measureOfValueInput">
 
 				  <p>Value: {{$ctrl.wpsPropertiesServiceInstance.measureOfValue}}</p>
 				</div>

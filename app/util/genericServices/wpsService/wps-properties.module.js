@@ -22,6 +22,9 @@ angular
 					this.wpsGeometricOutputServiceInstance = wpsGeometricOutputService;
 					this.wpsMapServiceInstance = wpsMapService;
 
+					this.isMeasureOfValueChecked = false;
+					this.tmpIndicatorGeoJSON = undefined;
+
 					this.baseUrlToKomMonitorDataAPI = "http://localhost:8085/rest/v1";
 
 					this.availableProcessScripts;
@@ -94,6 +97,8 @@ angular
 									return;
 								}
 							});
+
+						this.tmpIndicatorGeoJSON =
 					}
 
 
