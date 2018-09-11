@@ -35,15 +35,78 @@
 		<div ng-if="$ctrl.wpsPropertiesServiceInstance.selectedTopic">
 			<p>{{$ctrl.wpsPropertiesServiceInstance.selectedTopic.topicDescription}}</p>
 		</div>
+	</div>
 
+
+	<div class="form-group">
+	<h4 class="justify" align="center">Indikatoren</h4>
+
+		<label for="sel1">verf&uuml;gbare Indikatoren</label>
+
+		<div>
+			<div style="display: inline-block">
+				<select
+					ng-model="$ctrl.wpsPropertiesServiceInstance.selectedIndicator" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.wpsPropertiesServiceInstance.availableIndicators | filter:filterIndicatorsByTopic()"
+					ng-change="$ctrl.onChangeSelectedIndicator()" class="form-control" required>
+					<option value="" selected disabled>Indikator w&auml;hlen</option>
+					<option
+						ng-repeat="indicator in $ctrl.wpsPropertiesServiceInstance.availableIndicators | filter:filterIndicatorsByTopic()"></option>
+				</select>
+			</div>
+
+
+			<div>
+				<label>verf&uuml;gbare Zeitschnitte</label>
+				<input type="date" name="date" min="2009-01-01" max="2018-10-01" value="2015-01-01" ng-model="$ctrl.selectedDate" ng-init="$ctrl.selectedDate = '2015-01-01'" ng-change="$ctrl.onDateChange()"/>
+				<!-- here construct a time slider with values and labels for each date within selectedIndicator.availableDates -->
+				<div id="dateSlider" class="rangeslide"></div>
+			</div>
+
+
+
+
+
+
+
+			<div style="display: inline-block" align="center" ng-if="$ctrl.selectedDate && $ctrl.wpsPropertiesServiceInstance.selectedSpatialUnit">
+
+				<button ng-click="$ctrl.addSelectedIndicatorToMap()" type="button" class="btn btn-success">Kartenlayer hinzuf&uuml;gen</button>
+					<!-- <div ng-if="$ctrl.wpsPropertiesServiceInstance.wmsUrlForSelectedIndicator && $ctrl.wpsPropertiesServiceInstance.wfsUrlForSelectedIndicator"> -->
+						<a class="btn btn-warning" target="_blank" rel="noopener noreferrer" ng-href="{{wmsUrlForSelectedIndicator}}">WMS</a>
+						<a class="btn btn-info" target="_blank" rel="noopener noreferrer" ng-href="{{wfsUrlForSelectedIndicator}}">WFS</a>
+					<!-- </div> -->
+			</div>
+		</div>
+
+
+		<div align="center" class="form-group" ng-if="$ctrl.wpsPropertiesServiceInstance.selectedIndicator">
+
+			<br/>
+
+			<input id="measureOfValueCheckbox" type="checkbox" ng-model="$ctrl.wpsPropertiesServiceInstance.isMeasureOfValueChecked" ng-checked="$ctrl.wpsPropertiesServiceInstance.isMeasureOfValueChecked">Eigenen Wertmaßstab mittels Grenzwert festlegen?</input>
+
+			<div>
+
+				<label align='left'>Bewertungsmodellierung</label>
+				<p>Eigenen Wertma&szlig;stab anwenden. Durch verschieben des Grenzwertes werden die dargestellten Indikatoren-Features unmittelbar neu eingef&auml;rbt.</p>
+
+				<p></p>
+
+				<div class="slidecontainer">
+					<input ng-model="$ctrl.wpsPropertiesServiceInstance.measureOfValue" ng-change="$ctrl.onMeasureOfValueChange()" type="range" min="0" max="100" step="1" value="51" class="slider" id="measureOfValueInput">
+
+					<p>Value: {{$ctrl.wpsPropertiesServiceInstance.measureOfValue}}</p>
+				</div>
+
+			</div>
+
+		</div>
 
 	</div>
 
-	<div>
-		<label>Zeitschnitt w&auml;hlen</label>
-		<input type="date" name="date" min="2009-01-01" max="2018-10-01" value="2015-01-01" ng-model="$ctrl.selectedDate" ng-init="$ctrl.selectedDate = '2015-01-01'" ng-change="$ctrl.onDateChange()"/>
-		<!-- <p>Selected Date as info: {{$ctrl.selectedDate}}</p> -->
-	</div>
+
+
+
 
 	<br/>
 
@@ -111,60 +174,13 @@
 
 	<br/>
 
-	<div class="form-group">
-	<h4 class="justify" align="center">Indikatoren</h4>
-
-		<label for="sel1">Indikatoren zur Karte hinzuf&uuml;gen</label>
-
-		<p ng-if="! ($ctrl.selectedDate && $ctrl.wpsPropertiesServiceInstance.selectedSpatialUnit)">Bitte vorab Raumebene und Zeitschnitt ausw&auml;hlen</p>
-
-		<!-- simple list of available processes -->
-		<div>
-			<div style="display: inline-block" ng-if="$ctrl.selectedDate && $ctrl.wpsPropertiesServiceInstance.selectedSpatialUnit">
-				<select
-					ng-model="$ctrl.wpsPropertiesServiceInstance.selectedIndicator" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.wpsPropertiesServiceInstance.availableIndicators | filter:filterIndicatorsByTopic()"
-					ng-change="$ctrl.onChangeSelectedIndicator()" class="form-control" required>
-					<option value="" selected disabled>Indikator zur Karte hinzufügen</option>
-					<option
-						ng-repeat="indicator in $ctrl.wpsPropertiesServiceInstance.availableIndicators | filter:filterIndicatorsByTopic()"></option>
-				</select>
-			</div>
-
-			<div style="display: inline-block" align="center" ng-if="$ctrl.wpsPropertiesServiceInstance.selectedIndicator">
-
-				<button ng-click="$ctrl.addSelectedIndicatorToMap()" type="button" class="btn btn-success">Kartenlayer hinzuf&uuml;gen</button>
-					<!-- <div ng-if="$ctrl.wpsPropertiesServiceInstance.wmsUrlForSelectedIndicator && $ctrl.wpsPropertiesServiceInstance.wfsUrlForSelectedIndicator"> -->
-						<a class="btn btn-warning" target="_blank" rel="noopener noreferrer" ng-href="{{wmsUrlForSelectedIndicator}}">WMS</a>
-						<a class="btn btn-info" target="_blank" rel="noopener noreferrer" ng-href="{{wfsUrlForSelectedIndicator}}">WFS</a>
-					<!-- </div> -->
-			</div>
-		</div>
 
 
-		<div align="center" class="form-group" ng-if="$ctrl.wpsPropertiesServiceInstance.selectedIndicator">
 
-			<br/>
 
-			<input id="measureOfValueCheckbox" type="checkbox" ng-model="$ctrl.wpsPropertiesServiceInstance.isMeasureOfValueChecked" ng-checked="$ctrl.wpsPropertiesServiceInstance.isMeasureOfValueChecked">Eigenen Wertmaßstab mittels Grenzwert festlegen?</input>
 
-			<div>
 
-				<label align='left'>Bewertungsmodellierung</label>
-				<p>Eigenen Wertma&szlig;stab anwenden. Durch verschieben des Grenzwertes werden die dargestellten Indikatoren-Features unmittelbar neu eingef&auml;rbt.</p>
 
-				<p></p>
-
-				<div class="slidecontainer">
-				  <input ng-model="$ctrl.wpsPropertiesServiceInstance.measureOfValue" ng-change="$ctrl.onMeasureOfValueChange()" type="range" min="0" max="100" step="1" value="51" class="slider" id="measureOfValueInput">
-
-				  <p>Value: {{$ctrl.wpsPropertiesServiceInstance.measureOfValue}}</p>
-				</div>
-
-			</div>
-
-		</div>
-
-	</div>
 
 
 	<!-- <div style="display: inline-block">

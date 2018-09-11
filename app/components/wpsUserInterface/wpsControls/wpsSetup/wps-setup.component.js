@@ -348,7 +348,52 @@ angular
 
 								};
 
+								this.setupDateSliderForIndicator = function(){
+
+									var domNode = document.getElementById("dateSlider");
+
+									while (domNode.hasChildNodes()) {
+									  domNode.removeChild(domNode.lastChild);
+									}
+
+									var availableDates = wpsPropertiesService.selectedIndicator.applicableDates;
+
+									var timeSliderInput = [];
+
+									availableDates.forEach(function(date){
+										var dateItem = {};
+
+										dateItem.key = date;
+										dateItem.value = date;
+
+										timeSliderInput.push(dateItem);
+									});
+
+									var rangeslide5 = rangeslide("#dateSlider", {
+										data: timeSliderInput,
+										thumbWidth: 32,
+										thumbHeight: 32,
+										labelsPosition: "alternate",
+										showLabels: true,
+										startAlternateLabelsFromTop: false,
+										trackHeight: 20,
+										showTicks: true,
+										tickHeight: 30,
+										handlers: {
+											"valueChanged": [this.onChangeDateSliderItem]
+										}
+									});
+								};
+
+								this.onChangeDateSliderItem = function(dataItem, rangeslideElement){
+									$scope.selectedDate = dataItem;
+									this.selectedDate = dataItem;
+								}
+
 								this.onChangeSelectedIndicator = function(){
+
+									this.setupDateSliderForIndicator();
+
 									var metadata = wpsPropertiesService.selectedIndicator;
 
 									var id = metadata.indicatorId;
