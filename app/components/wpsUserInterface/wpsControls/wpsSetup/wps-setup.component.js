@@ -33,6 +33,12 @@ angular
 									this.wpsMapServiceInstance.addSpatialUnitGeoJSON();
 								}
 
+								$scope.$watch('filteredSpatialUnits', function(value){
+								  if ($scope.filteredSpatialUnits) {
+								    wpsPropertiesService.selectedSpatialUnit = $scope.filteredSpatialUnits[0];
+								  }
+								}, true);
+
 								$scope.filterGeoresourcesByTopic = function() {
 								  return function( item ) {
 										if (wpsPropertiesService.selectedTopic)
@@ -53,6 +59,16 @@ angular
 
 
 										return true;
+								  };
+								};
+
+								$scope.filterSpatialUnitsByIndicator = function() {
+								  return function( item ) {
+
+										var applicableSpatialUnits = wpsPropertiesService.selectedIndicator.applicableSpatialUnits;
+										var spatialUnitName = item.spatialUnitLevel;
+
+										return applicableSpatialUnits.includes(spatialUnitName);
 								  };
 								};
 
@@ -360,6 +376,9 @@ angular
 
 									var timeSliderInput = [];
 
+									$scope.selectedDate = availableDates[0];
+									this.selectedDate = availableDates[0];
+
 									availableDates.forEach(function(date){
 										var dateItem = {};
 
@@ -386,8 +405,8 @@ angular
 								};
 
 								this.onChangeDateSliderItem = function(dataItem, rangeslideElement){
-									$scope.selectedDate = dataItem;
-									this.selectedDate = dataItem;
+									$scope.selectedDate = dataItem.key;
+									this.selectedDate = dataItem.key;
 								}
 
 								this.onChangeSelectedIndicator = function(){

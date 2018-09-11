@@ -7,15 +7,15 @@
 				<span class="glyphicon glyphicon-refresh icon-spin"></span>
 		</div>
 
-	<div class="form-group">
-	<h4 class="justify" align="center">Thema und Zeitschnitt</h4>
+	<div class="form-group" align="center">
+	<h4 class="justify" align="center">Themen</h4>
 
-		<label for="sel1">Thema w&auml;hlen (optional)</label>
+		<!-- <label for="sel1">Thema w&auml;hlen (optional)</label> -->
 		<p>Die Auswahl eines Themas filtert die verf&uuml;gbaren Datens&auml;tze der Georessourcen und Indikatoren.</p>
 
 		<div>
 
-			<div style="display: inline-block">
+			<div style="display: inline-block" align="center">
 				<select
 					ng-model="$ctrl.wpsPropertiesServiceInstance.selectedTopic" ng-options="topic as topic.topicName for topic in $ctrl.wpsPropertiesServiceInstance.availableTopics"
 					class="form-control" required>
@@ -39,36 +39,44 @@
 
 
 	<div class="form-group">
-	<h4 class="justify" align="center">Indikatoren</h4>
+	<h4 class="justify" align="center">Verf&uuml;gbare Indikatoren und Raumebenen</h4>
 
-		<label for="sel1">verf&uuml;gbare Indikatoren</label>
+		<div text-align="center" align="center">
 
-		<div>
-			<div style="display: inline-block">
+			<!-- <label  for="sel1">verf&uuml;gbare Indikatoren</label> -->
+
+			<div text-align="center" align="center" style="display: inline-block">
+					<select
+						ng-model="$ctrl.wpsPropertiesServiceInstance.selectedIndicator" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.wpsPropertiesServiceInstance.availableIndicators | filter:filterIndicatorsByTopic()"
+						ng-change="$ctrl.onChangeSelectedIndicator()" class="form-control" required>
+						<option value="" selected disabled>Indikator w&auml;hlen</option>
+						<option
+							ng-repeat="indicator in $ctrl.wpsPropertiesServiceInstance.availableIndicators | filter:filterIndicatorsByTopic()"></option>
+					</select>
+			</div>
+
+			<div text-align="center" align="center" style="display: inline-block" ng-show="$ctrl.wpsPropertiesServiceInstance.selectedIndicator">
 				<select
-					ng-model="$ctrl.wpsPropertiesServiceInstance.selectedIndicator" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.wpsPropertiesServiceInstance.availableIndicators | filter:filterIndicatorsByTopic()"
-					ng-change="$ctrl.onChangeSelectedIndicator()" class="form-control" required>
-					<option value="" selected disabled>Indikator w&auml;hlen</option>
-					<option
-						ng-repeat="indicator in $ctrl.wpsPropertiesServiceInstance.availableIndicators | filter:filterIndicatorsByTopic()"></option>
+					ng-model="$ctrl.wpsPropertiesServiceInstance.selectedSpatialUnit" ng-change="$ctrl.onChangeSelectedSpatialunit" ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in filteredSpatialUnits = ($ctrl.wpsPropertiesServiceInstance.availableSpatialUnits | filter:filterSpatialUnitsByIndicator())"
+					class="form-control" required>
 				</select>
 			</div>
 
+		</div>
 
-			<div>
+		<br/>
+
+			<div align="center" ng-show="$ctrl.wpsPropertiesServiceInstance.selectedIndicator">
 				<label>verf&uuml;gbare Zeitschnitte</label>
-				<input type="date" name="date" min="2009-01-01" max="2018-10-01" value="2015-01-01" ng-model="$ctrl.selectedDate" ng-init="$ctrl.selectedDate = '2015-01-01'" ng-change="$ctrl.onDateChange()"/>
-				<!-- here construct a time slider with values and labels for each date within selectedIndicator.availableDates -->
+					<!-- here construct a time slider with values and labels for each date within selectedIndicator.applicableDates -->
 				<div id="dateSlider" class="rangeslide"></div>
 			</div>
 
+			<br/>
+			<br/>
+			<br/>
 
-
-
-
-
-
-			<div style="display: inline-block" align="center" ng-if="$ctrl.selectedDate && $ctrl.wpsPropertiesServiceInstance.selectedSpatialUnit">
+			<div align="center" ng-if="$ctrl.selectedDate && $ctrl.wpsPropertiesServiceInstance.selectedSpatialUnit">
 
 				<button ng-click="$ctrl.addSelectedIndicatorToMap()" type="button" class="btn btn-success">Kartenlayer hinzuf&uuml;gen</button>
 					<!-- <div ng-if="$ctrl.wpsPropertiesServiceInstance.wmsUrlForSelectedIndicator && $ctrl.wpsPropertiesServiceInstance.wfsUrlForSelectedIndicator"> -->
@@ -76,7 +84,6 @@
 						<a class="btn btn-info" target="_blank" rel="noopener noreferrer" ng-href="{{wfsUrlForSelectedIndicator}}">WFS</a>
 					<!-- </div> -->
 			</div>
-		</div>
 
 
 		<div align="center" class="form-group" ng-if="$ctrl.wpsPropertiesServiceInstance.selectedIndicator">
@@ -109,38 +116,6 @@
 
 
 	<br/>
-
-	<div class="form-group" ng-if="$ctrl.selectedDate">
-	<h4 class="justify" align="center">Raumeinheiten</h4>
-
-		<label for="sel1">Raumeinheiten zur Karte hinzuf&uuml;gen</label>
-
-		<div>
-
-			<!-- simple list of available processes -->
-			<div style="display: inline-block">
-				<select
-					ng-model="$ctrl.wpsPropertiesServiceInstance.selectedSpatialUnit" ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in $ctrl.wpsPropertiesServiceInstance.availableSpatialUnits"
-					class="form-control" required>
-					<option value="" selected disabled>Raumeinheit zur Karte hinzufügen</option>
-					<option
-						ng-repeat="spatialUnit in $ctrl.wpsPropertiesServiceInstance.availableSpatialUnits"></option>
-				</select>
-			</div>
-
-			<div style="display: inline-block" align="center" ng-if="$ctrl.wpsPropertiesServiceInstance.selectedSpatialUnit">
-				<button align="center" ng-click="$ctrl.addSelectedSpatialUnitToMap()" type="button" class="btn btn-success">Kartenlayer hinzuf&uuml;gen</button>
-				<!-- <button align="center" ng-click="$ctrl.addSelectedSpatialUnitToMapAsWFS()" type="button" class="btn btn-success">als WFS hinzuf&uuml;gen</button> -->
-
-				<!-- <p></p>
-				<div> -->
-					<a class="btn btn-warning" target="_blank" rel="noopener noreferrer" ng-href="{{$ctrl.wpsPropertiesServiceInstance.selectedSpatialUnit.wmsUrl}}">WMS</a>
-					<a class="btn btn-info" target="_blank" rel="noopener noreferrer" ng-href="{{$ctrl.wpsPropertiesServiceInstance.selectedSpatialUnit.wfsUrl}}">WFS</a>
-				<!-- </div> -->
-			</div>
-
-		</div>
-	</div>
 
 	<br/>
 
