@@ -101,22 +101,7 @@ angular.module('wpsMap').component(
                       $scope.layerControl = L.Control.styledLayerControl($scope.baseMaps, $scope.overlays, options);
 	                    $scope.map.addControl($scope.layerControl);
 
-                      $scope.infoControl = L.control();
 
-                      $scope.infoControl.onAdd = function (map) {
-                          this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
-                          // this.update();
-                          return this._div;
-                      };
-
-                      // method that we will use to update the control based on feature properties passed
-                      $scope.infoControl.update = function (props) {
-                        this._div.innerHTML = '<h4>' + $scope.indicatorName + '</h4>' +  (props ?
-                          '<b>' + props.spatialUnitFeatureName + '</b><br />' + props[$scope.indicatorPropertyName] + ' ' + $scope.indicatorUnit
-                          : 'Hover over a state');
-                      };
-
-                      $scope.infoControl.addTo($scope.map);
 
 
                       // $scope.legendControl = L.control({position: 'bottomleft'});
@@ -188,6 +173,37 @@ angular.module('wpsMap').component(
           //               controls: {
           //               }
           //           });
+
+                    $scope.makeInfoControl = function(){
+
+                      if($scope.infoControl)
+                        $scope.map.removeControl($scope.infoControl);
+
+                      $scope.infoControl = L.control();
+
+                      $scope.infoControl.onAdd = function (map) {
+                          this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
+
+                          this._div.innerHTML = '<h4>' + $scope.indicatorName + '</h4>'
+                          // this._div.innerHTML += '<p>' + $scope.indicatorDescription + '</p>'
+                          this._div.innerHTML += $scope.indicatorDescription
+                          this._div.innerHTML +=  '&uuml;ber ein Feature hovern'
+
+                          // this.update();
+                          return this._div;
+                      };
+
+                      // method that we will use to update the control based on feature properties passed
+                      $scope.infoControl.update = function (props) {
+                        this._div.innerHTML = '<h4>' + $scope.indicatorName + '</h4>'
+                        this._div.innerHTML += '<p>' + $scope.indicatorDescription + '</p>'
+                        this._div.innerHTML +=  (props ?
+                          '<b>' + props.spatialUnitFeatureName + '</b><br />' + props[$scope.indicatorPropertyName] + ' ' + $scope.indicatorUnit
+                          : '&uuml;ber ein Feature hovern');
+                      };
+
+                      $scope.infoControl.addTo($scope.map);
+                    }
 
                     $scope.makeDefaultLegend = function(){
 
@@ -602,6 +618,7 @@ angular.module('wpsMap').component(
 
                                                       $scope.indicatorPropertyName = date;
                                                       $scope.indicatorName = indicatorMetadataAndGeoJSON.indicatorName;
+                                                      $scope.indicatorDescription = indicatorMetadataAndGeoJSON.metadata.description;
                                                       $scope.indicatorUnit = indicatorMetadataAndGeoJSON.unit;
 
                                                       $scope.geoJSONOfCurrentLayer = indicatorMetadataAndGeoJSON.geoJSON;
@@ -619,6 +636,8 @@ angular.module('wpsMap').component(
                                                             onEachFeature: onEachFeatureIndicator
                                                         });
 
+                                                        $scope.makeInfoControl();
+
                                                         $scope.makeMeasureOfValueLegend();
 
                                                       }
@@ -632,6 +651,7 @@ angular.module('wpsMap').component(
                                                         });
 
                                                         $scope.makeDefaultLegend();
+                                                        $scope.makeInfoControl();
                                                       }
 
                                                       $scope.geojson = layer;
