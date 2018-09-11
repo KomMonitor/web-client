@@ -38,6 +38,8 @@ angular.module('wpsMap').component(
                     $scope.gtMeasureOfValueBrew = new classyBrew();
                     $scope.ltMeasureOfValueBrew = new classyBrew();
 
+                    $scope.geoJSONOfCurrentLayer;
+
               			this.initializeMap = function() {
 
                       // initialize map referring to div element with id="map"
@@ -582,12 +584,14 @@ angular.module('wpsMap').component(
                                                       $scope.indicatorName = indicatorMetadataAndGeoJSON.indicatorName;
                                                       $scope.indicatorUnit = indicatorMetadataAndGeoJSON.unit;
 
+                                                      $scope.geoJSONOfCurrentLayer = indicatorMetadataAndGeoJSON.geoJSON;
+
                                                       var layer;
 
                                                       if(wpsPropertiesService.isMeasureOfValueChecked){
 
-                                                        setupGtMeasureOfValueBrew(indicatorMetadataAndGeoJSON.geoJSON, date, 3, "Oranges", "jenks", wpsPropertiesService.measureOfValue);
-                                                        setupLtMeasureOfValueBrew(indicatorMetadataAndGeoJSON.geoJSON, date, 3, "PuRd", "jenks", wpsPropertiesService.measureOfValue);
+                                                        setupGtMeasureOfValueBrew(indicatorMetadataAndGeoJSON.geoJSON, date, 3, "Reds", "jenks", wpsPropertiesService.measureOfValue);
+                                                        setupLtMeasureOfValueBrew(indicatorMetadataAndGeoJSON.geoJSON, date, 3, "Greens", "jenks", wpsPropertiesService.measureOfValue);
                                                         $scope.propertyName = date;
 
                                                         layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
@@ -664,6 +668,8 @@ angular.module('wpsMap').component(
                                                                 $scope.indicatorName = indicatorMetadataAndGeoJSON.indicatorName;
                                                                 $scope.indicatorUnit = indicatorMetadataAndGeoJSON.unit;
 
+                                                                $scope.geoJSONOfCurrentLayer = indicatorMetadataAndGeoJSON.geoJSON;
+
                                                                 setupDefaultBrew(indicatorMetadataAndGeoJSON.geoJSON, date, 5, "Greens", "jenks");
                                                                 $scope.propertyName = date;
 
@@ -691,8 +697,13 @@ angular.module('wpsMap').component(
                                                                           if($scope.geojson){
 
                                                                             $scope.geojson.eachLayer(function(layer) {
-                                                                              
-                                                                                layer.setStyle(styleMeasureOfValue(layer.feature));
+
+                                                                              setupGtMeasureOfValueBrew($scope.geoJSONOfCurrentLayer, $scope.indicatorPropertyName, 3, "Reds", "jenks", wpsPropertiesService.measureOfValue);
+                                                                              setupLtMeasureOfValueBrew($scope.geoJSONOfCurrentLayer, $scope.indicatorPropertyName, 3, "Greens", "jenks", wpsPropertiesService.measureOfValue);
+
+                                                                              $scope.makeMeasureOfValueLegend();
+
+                                                                              layer.setStyle(styleMeasureOfValue(layer.feature));
                                                                             });
 
                                                                             // $scope.geojson.resetStyle($scope.geojson);
@@ -701,6 +712,25 @@ angular.module('wpsMap').component(
                                                                           }
 
                                                             });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
