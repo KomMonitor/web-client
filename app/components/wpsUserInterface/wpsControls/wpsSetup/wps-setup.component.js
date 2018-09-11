@@ -393,16 +393,26 @@ angular
 									var middleValue;
 									var step;
 
-									geoJSON.features.forEach(function(feature){
-										if (feature.properties[date] > maxValue)
-											maxValue = feature.properties[date];
+									var values = [];
 
-										else if (feature.properties[date] < minValue)
-											minValue = feature.properties[date];
+									geoJSON.features.forEach(function(feature){
+										// if (feature.properties[date] > maxValue)
+										// 	maxValue = feature.properties[date];
+										//
+										// else if (feature.properties[date] < minValue)
+										// 	minValue = feature.properties[date];
+
+										values.push(feature.properties[date]);
 									});
 
+									//sort ascending order
+									values.sort(function(a, b){return a-b});
+
+									minValue = values[4];
+									maxValue = values[values.length - 4];
+
 									middleValue = (maxValue + minValue) / 2;
-									step = maxValue/geoJSON.features.length;
+									step = maxValue/values.length;
 
 									measureOfValueInput.setAttribute("min", minValue);
 									measureOfValueInput.setAttribute("max", maxValue);

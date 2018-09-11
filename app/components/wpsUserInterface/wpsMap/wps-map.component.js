@@ -249,16 +249,22 @@ angular.module('wpsMap').component(
                         //         labels[i] + (labels[i + 1] ? '&ndash;' + labels[i + 1] + '<br>' : '+');
                         // }
 
-                        for (var i = 0; i < colorsGtMeasureOfValue.length; i++) {
-                            $scope.div.innerHTML +=
-                                '<i style="background:' + colorsGtMeasureOfValue[i] + '"></i> ' +
-                                labelsGtMeasureOfValue[i] + (labelsGtMeasureOfValue[i + 1] ? '&ndash;' + labelsGtMeasureOfValue[i + 1] + '<br>' : '+');
-                        }
+                        $scope.div.innerHTML += "<label>< Schwellwert</label><br/>";
 
                         for (var i = 0; i < colorsLtMeasureOfValue.length; i++) {
                             $scope.div.innerHTML +=
                                 '<i style="background:' + colorsLtMeasureOfValue[i] + '"></i> ' +
                                 labelsLtMeasureOfValue[i] + (labelsLtMeasureOfValue[i + 1] ? '&ndash;' + labelsLtMeasureOfValue[i + 1] + '<br>' : '+');
+                        }
+
+                        $scope.div.innerHTML += "<br/>";
+
+                        $scope.div.innerHTML += "<label>>= Schwellwert</label><br/>";
+
+                        for (var i = 0; i < colorsGtMeasureOfValue.length; i++) {
+                            $scope.div.innerHTML +=
+                                '<i style="background:' + colorsGtMeasureOfValue[i] + '"></i> ' +
+                                labelsGtMeasureOfValue[i] + (labelsGtMeasureOfValue[i + 1] ? '&ndash;' + labelsGtMeasureOfValue[i + 1] + '<br>' : '+');
                         }
 
                         return $scope.div;
@@ -472,6 +478,13 @@ angular.module('wpsMap').component(
                                           $scope.gtMeasureOfValueBrew.setSeries(values);
 
                                           // define number of classes
+                                          // if(values.length < numClasses){
+                                          //   if(values.length < 2)
+                                          //     $scope.gtMeasureOfValueBrew.setNumClasses(values.length);
+                                          //   else
+                                          //     $scope.gtMeasureOfValueBrew.setNumClasses(values.length);
+                                          // }
+                                          // else
                                           $scope.gtMeasureOfValueBrew.setNumClasses(numClasses);
 
                                           // set color ramp code
@@ -498,6 +511,13 @@ angular.module('wpsMap').component(
                                           $scope.ltMeasureOfValueBrew.setSeries(values);
 
                                           // define number of classes
+                                          // if(values.length < numClasses){
+                                          //   if(values.length < 2)
+                                          //     $scope.ltMeasureOfValueBrew.setNumClasses(values.length);
+                                          //   else
+                                          //     $scope.ltMeasureOfValueBrew.setNumClasses(values.length);
+                                          // }
+                                          // else
                                           $scope.ltMeasureOfValueBrew.setNumClasses(numClasses);
 
                                           // set color ramp code
