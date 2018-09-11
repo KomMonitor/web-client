@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Rangeslide.js - demo</title>
+	<meta name="author" content="your name" />
+	<meta name="description" content="" />
+	
+	<link rel="stylesheet" href="example.css" type="text/css" />
+	<link rel="stylesheet" href="../dist/rangeslide.css" type="text/css" />
+</head>
+<body>
+	<div class="sliders">
+		<div class="example">
+			<div>
+				<p>Here is basic range slider using default configuration:</p>
+			</div>
+			<div id="rangeslide1" ></div>
+		</div>
+		<div class="example">
+			<div>
+				<p>We can change thumb size and show some labels:</p>
+			</div>
+			<div id="rangeslide2" ></div>
+		</div>
+		<div class="example">
+			<div>
+				<p>Next lets show labels (with ticks) at the bottom and value indicator (on thumb by default):</p>
+			</div>
+			<div id="rangeslide3" ></div>
+		</div>
+		<div class="example">
+			<div>
+				<p>It is also possible to show labels above and change value indicator appearance and placement:</p>
+			</div>
+			<div id="rangeslide4" ></div>
+		</div>
+		<div class="example">
+			<div>
+				<p>We can even alternate labels placement (useful when it get's too crowded):</p>
+			</div>
+			<div id="rangeslide5" ></div>
+		</div>
+		<div class="example">
+			<div>
+				<p>Range slider can as well be used as toggle button - just add some side labels:</p>
+			</div>
+			<div id="rangeslide6" ></div>
+		</div>
+		<div class="example">
+			<div>
+				<p>Now let's change what is displayed in the indicator and show some markers on the track:</p>
+			</div>
+			<div id="rangeslide7" ></div>
+		</div>
+		<div class="example">
+			<div>
+				<p>And let's make them a little more fancy by showing progress on markers:</p>
+			</div>
+			<div id="rangeslide8" ></div>
+		</div>
+		<div class="example">
+			<div>
+				<p>Markers size can be altered and progress can also be idicated on the track itself:</p>
+			</div>
+			<div id="rangeslide9" ></div>
+		</div>
+		<div class="example">
+			<div>
+				<p>Last but not least we can activate auto play mode (one time or loop):</p>
+			</div>
+			<div id="rangeslide10" ></div>
+		</div>
+        <div class="example">
+			<div>
+				<p>More thumbs on one slider:</p>
+			</div>
+			<div id="rangeslide11" ></div>
+		</div>
+        <div class="example">
+			<div>
+				<p>Rangeslide operating in selection mode (click to select markers):</p>
+			</div>
+			<div id="rangeslide12" ></div>
+		</div>
+        <div class="example">
+			<div>
+				<p>Rangeslide with time data and freeslide mode:</p>
+			</div>
+			<div id="rangeslide13" ></div>
+		</div>
+	</div>
+	<div class="preview">
+		<h3 class="panel-title">Data preview:</h3>
+		<div id="presenter" class="panel-body"></div>
+	</div>
+<script src="../dist/rangeslide.js"></script>
+<script>
+	var data1 = [
+		{ key: "2016", value: "This is some sample text associated with first item." },
+		{ key: "2017", value: "This is some sample text associated with second item." },
+		{ key: "2018", value: "This is some sample text associated with third item." },
+		{ key: "2019", value: "This is some sample text associated with fourth item." },
+		{ key: "2020", value: "This is some sample text associated with fifth item." },
+		{ key: "2021", value: "This is some sample text associated with sixth item." },
+		{ key: "2022", value: "This is some sample text associated with the last item." }
+	];
+    
+    var data2 = [
+		{ key: "Date1", value: new Date(2015, 11, 5, 12, 0 ) },
+		{ key: "Date2", value: new Date(2016, 6, 6, 13, 12) },
+        { key: "Date3", value: new Date(2016, 10, 22, 4, 5) },
+        { key: "Date4", value: new Date(2017, 1, 5, 16, 55) },
+        { key: "Date5", value: new Date(2017, 3, 11, 22, 22) },
+        { key: "Date6", value: new Date(2017, 4, 7, 6, 6) },
+        { key: "Date7", value: new Date(2017, 6, 13, 11, 14) },
+	];
+	
+	var data3 = [
+		{ key: "off", value: "Turned off" },
+		{ key: "on", value: "Turned on" }
+	];
+    
+    var data4 = [
+		{ key: "Date1", value: new Date(2016, 0, 1, 0, 0 ) },
+		{ key: "Date2", value: new Date(2016, 2, 6, 13, 12) },
+        { key: "Date3", value: new Date(2016, 4, 22, 4, 5) },
+        { key: "Date4", value: new Date(2016, 7, 5, 16, 55) },
+        { key: "Date5", value: new Date(2016, 8, 11, 22, 22) },
+        { key: "Date6", value: new Date(2016, 10, 7, 6, 6) },
+        { key: "Date7", value: new Date(2016, 11, 31, 23, 59) },
+	];
+    
+    function pad(n) {
+        return n < 10 ? "0" + n : n;
+    }
+	
+	function onChange(arg) {
+		var presenter = document.getElementById("presenter");
+		presenter.innerHTML = "<b>#" + arg.key + ":</b> " + arg.value;
+		
+	}
+	
+	var rangeslide1 = rangeslide("#rangeslide1", {
+		data: data1,
+		thumbWidth: 36,
+		thumbHeight: 36,
+        dataSource: "value",
+        labelsContent: "key",
+        valueIndicatorContent: "key",
+		handlers: {
+			"valueChanged": [onChange]
+		}
+	});
+	
+	var rangeslide2 = rangeslide("#rangeslide2", {
+		data: data1,
+		showLabels: true,
+		startPosition: 3,
+		showTicks: false,
+        dataSource: "value",
+        labelsContent: "key",
+        valueIndicatorContent: "key",
+		thumbWidth: 14,
+		thumbHeight: 14,
+		handlers: {
+			"valueChanged": [onChange]
+		}
+	});
+	
+	var rangeslide3 = rangeslide("#rangeslide3", {
+		data: data1,
+		showValue: true,
+		thumbWidth: 40,
+		thumbHeight: 30,
+        dataSource: "value",
+        labelsContent: "key",
+        valueIndicatorContent: "key",
+		showLabels: true,
+		showTicks: true,
+		handlers: {
+			"valueChanged": [onChange]
+		}
+	});
+	
+	var rangeslide4 = rangeslide("#rangeslide4", {
+		data: data1,
+		labelsPosition: "above",
+		valuePosition: "below",
+		highlightSelectedLabels: true,
+		tickHeight: 10,
+        dataSource: "value",
+        labelsContent: "key",
+        valueIndicatorContent: "key",
+		showLabels: true,
+		showTicks: true,
+		showValue: true,
+		handlers: {
+			"valueChanged": [onChange]
+		}
+	});
+	
+	var rangeslide5 = rangeslide("#rangeslide5", {
+		data: data1,
+		thumbWidth: 32,
+		thumbHeight: 32,
+		labelsPosition: "alternate",
+		showLabels: true,
+		startAlternateLabelsFromTop: false,
+		trackHeight: 20,
+        dataSource: "value",
+        labelsContent: "key",
+        valueIndicatorContent: "key",
+		showTicks: true,
+		tickHeight: 30,
+		handlers: {
+			"valueChanged": [onChange]
+		}
+	});
+	var rangeslide6 = rangeslide("#rangeslide6", {
+		data: data3,
+		thumbWidth: 36,
+		thumbHeight: 36,
+		showLabels: false,
+		leftLabel: "off",
+		rightLabel: "on",
+		dataSource: "value",
+        labelsContent: "key",
+        valueIndicatorContent: "key",
+		showValue: true,
+		sideLabelsWidth: 45,
+		handlers: {
+			"valueChanged": [onChange]
+		}
+	});
+	var rangeslide7 = rangeslide("#rangeslide7", {
+		data: data1,
+		showValue: true,
+		valuePosition: "above",
+		startPosition: 5,
+		thumbWidth: 26,
+		thumbHeight: 26,
+		showLabels: false,
+		valueIndicatorWidth: 60,
+		valueIndicatorHeight: 20,
+		showTrackMarkers: true,
+        dataSource: "value",
+        labelsContent: "key",
+        valueIndicatorContent: "key",
+		handlers: {
+			"valueChanged": [onChange]
+		}
+	});
+	
+	var rangeslide8 = rangeslide("#rangeslide8", {
+		data: data1,
+		startPosition: 4,
+		showLabels: true,
+		labelsPosition: "below",
+		tickHeight: 12,
+		showTicks: true,
+		showTrackMarkers: true,
+		showTrackMarkersProgress: true,
+        dataSource: "value",
+        labelsContent: "key",
+        valueIndicatorContent: "key",
+		handlers: {
+			"valueChanged": [onChange]
+		}
+	});
+	
+	var rangeslide9 = rangeslide("#rangeslide9", {
+		data: data1,
+		startPosition: 2,
+		showLabels: true,
+		labelsPosition: "above",
+		thumbHeight: 40,
+		thumbWidth: 15,
+		trackHeight: 4,
+		showTrackMarkers: true,
+		showTrackMarkersProgress: true,
+		showTrackProgress: true,
+		markerSize: 40,
+        dataSource: "value",
+        labelsContent: "key",
+        valueIndicatorContent: "key",
+		handlers: {
+			"valueChanged": [onChange]
+		}
+	});
+	
+	var rangeslide10 = rangeslide("#rangeslide10", {
+		data: data1,
+		startPosition: 0,
+		autoPlay: true,
+		autoPlayDelay: 1000,
+		loop: true,
+		thumbHeight: 22,
+		thumbWidth: 22,
+		showTrackMarkers: true,
+		showTrackMarkersProgress: true,
+		showTrackProgress: true,
+		markerSize: 16,
+        dataSource: "value",
+        labelsContent: "key",
+        valueIndicatorContent: "key",
+		showValue: true
+	});
+    
+    var rangeslide11 = rangeslide("#rangeslide11", {
+		data: data1,
+		thumbWidth: 20,
+		thumbHeight: 36,
+        showTrackMarkers: true,
+		showTrackMarkersProgress: true,
+        showTrackProgress: true,
+        showLabels: true,
+        slideMode: "free",
+        valuePosition: "above",
+        showTicks: true,
+        valueIndicatorWidth: 60,
+		valueIndicatorHeight: 20,
+        highlightSelectedLabels: true,
+		dataSource: "key",
+        labelsContent: "key",
+        valueIndicatorContent: "key",
+		showValue: true,
+		mode: "range"
+	});
+    
+    var rangeslide12 = rangeslide("#rangeslide12", {
+		data: data1,
+		mode: "select"
+	});
+    
+    var rangeslide13 = rangeslide("#rangeslide13", {
+		data: data2,
+        markerSize: 8,
+        trackHeight: 4,
+        thumbWidth: 8,
+        thumbHeight: 16,
+        showLabels: true,
+        slideMode: "free",
+        showTooltips: true,
+        showValue: true,
+        valueIndicatorContent: function (data) {
+            return pad(data.value.getDate()) + "/" + pad(data.value.getMonth() + 1) + " " + pad(data.value.getHours()) + ":" + pad(data.value.getMinutes());
+        },
+        valueIndicatorWidth: 80,
+        valueIndicatorOffset: 16,
+        showTrackMarkers: true,
+        labelsPosition: "alternate",
+        dataSource: "value",        
+        labelsContent: function (data) {
+            return pad(data.value.getDate()) + "." + pad(data.value.getMonth() + 1) + "." + data.value.getFullYear();
+        },
+        tooltipsContent: function (data) {
+            var weekday = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+            return weekday[data.value.getDay()];
+        }
+    });
+    
+</script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+html, body {
+	margin: 20px 5%;
+	font-family: 'Open Sans', sans-serif;
+}
+.example {
+	margin-bottom: 40px;
+}
+
+.sliders {
+	width: 65%;
+	display: inline-block;
+}
+
+.preview {
+	width: 30%;
+    display: inline-block;
+    vertical-align: top;
+    margin-left: 25px;
+}
+
+#rangeslide6 {
+	width: 70px;
+}
