@@ -689,7 +689,14 @@ angular.module('wpsMap').component(
                                                             $scope.$on("restyleCurrentLayer", function (event) {
 
                                                                           if($scope.geojson){
-                                                                            $scope.geojson.resetStyle($scope.geojson);
+
+                                                                            $scope.geojson.eachLayer(function(layer) {
+                                                                              
+                                                                                layer.setStyle(styleMeasureOfValue(layer.feature));
+                                                                            });
+
+                                                                            // $scope.geojson.resetStyle($scope.geojson);
+                                                                            // $scope.geojson.setStyle();
                                                                             // $scope.infoControl.update();
                                                                           }
 
