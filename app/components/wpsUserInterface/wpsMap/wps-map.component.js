@@ -179,10 +179,10 @@ angular.module('wpsMap').component(
                       if($scope.infoControl)
                         $scope.map.removeControl($scope.infoControl);
 
-                      $scope.infoControl = L.control();
+                      $scope.infoControl = L.control({position: 'topright'});
 
                       $scope.infoControl.onAdd = function (map) {
-                          this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
+                          this._div = L.DomUtil.create('div', 'info legend'); // create a div with a class "info"
 
                           this._div.innerHTML = '<h4>' + $scope.indicatorName + '</h4>'
                           // this._div.innerHTML += '<p>' + $scope.indicatorDescription + '</p>'
@@ -210,7 +210,7 @@ angular.module('wpsMap').component(
                       if($scope.legendControl)
                         $scope.map.removeControl($scope.legendControl);
 
-                      $scope.legendControl = L.control({position: 'bottomleft'});
+                      $scope.legendControl = L.control({position: 'topright'});
 
                       $scope.legendControl.onAdd = function (map) {
 
@@ -245,7 +245,7 @@ angular.module('wpsMap').component(
                       if($scope.legendControl)
                         $scope.map.removeControl($scope.legendControl);
 
-                      $scope.legendControl = L.control({position: 'bottomleft'});
+                      $scope.legendControl = L.control({position: 'topright'});
 
                       $scope.legendControl.onAdd = function (map) {
 
@@ -637,7 +637,6 @@ angular.module('wpsMap').component(
                                                         });
 
                                                         $scope.makeInfoControl();
-
                                                         $scope.makeMeasureOfValueLegend();
 
                                                       }
@@ -649,9 +648,9 @@ angular.module('wpsMap').component(
                                                             style: styleDefault,
                                                             onEachFeature: onEachFeatureIndicator
                                                         });
-
-                                                        $scope.makeDefaultLegend();
                                                         $scope.makeInfoControl();
+                                                        $scope.makeDefaultLegend();
+
                                                       }
 
                                                       $scope.geojson = layer;
