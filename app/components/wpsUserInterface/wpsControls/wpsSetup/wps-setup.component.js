@@ -369,7 +369,7 @@ angular
 
 									var id = metadata.indicatorId;
 
-									$scope.date = this.selectedDate;
+									// $scope.date = this.selectedDate;
 									$scope.spatialUnitName = this.wpsPropertiesServiceInstance.selectedSpatialUnit.spatialUnitLevel;
 
 									var dateComps = this.selectedDate.split("-");
