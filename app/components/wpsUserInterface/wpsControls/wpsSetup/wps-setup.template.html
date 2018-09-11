@@ -57,7 +57,7 @@
 
 			<div text-align="center" align="center" style="display: inline-block" ng-show="$ctrl.wpsPropertiesServiceInstance.selectedIndicator">
 				<select
-					ng-model="$ctrl.wpsPropertiesServiceInstance.selectedSpatialUnit" ng-change="$ctrl.onChangeSelectedSpatialunit" ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in filteredSpatialUnits = ($ctrl.wpsPropertiesServiceInstance.availableSpatialUnits | filter:filterSpatialUnitsByIndicator())"
+					ng-model="$ctrl.wpsPropertiesServiceInstance.selectedSpatialUnit" ng-change="$ctrl.onChangeSelectedSpatialUnit()" ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in filteredSpatialUnits = ($ctrl.wpsPropertiesServiceInstance.availableSpatialUnits | filter:filterSpatialUnitsByIndicator())"
 					class="form-control" required>
 				</select>
 			</div>

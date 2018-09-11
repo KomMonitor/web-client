@@ -65,11 +65,31 @@ angular
 								$scope.filterSpatialUnitsByIndicator = function() {
 								  return function( item ) {
 
-										var applicableSpatialUnits = wpsPropertiesService.selectedIndicator.applicableSpatialUnits;
-										var spatialUnitName = item.spatialUnitLevel;
+										try{
+											var applicableSpatialUnits = wpsPropertiesService.selectedIndicator.applicableSpatialUnits;
+											var spatialUnitName = item.spatialUnitLevel;
 
-										return applicableSpatialUnits.includes(spatialUnitName);
+											return applicableSpatialUnits.includes(spatialUnitName);
+										}
+										catch(error){
+											return false;
+										}
 								  };
+								};
+
+								$scope.getFirstSpatialUnitForSelectedIndicator = function() {
+
+									var result = undefined;
+
+										var applicableSpatialUnits = wpsPropertiesService.selectedIndicator.applicableSpatialUnits;
+
+										for (const spatialUnitEntry of wpsPropertiesService.availableSpatialUnits){
+											if(applicableSpatialUnits.includes(spatialUnitEntry.spatialUnitLevel))
+												result = spatialUnitEntry;
+												break;
+										};
+
+										return result;
 								};
 
 								this.unsetTopic = function(){
@@ -377,6 +397,7 @@ angular
 									var timeSliderInput = [];
 
 									$scope.selectedDate = availableDates[0];
+									$scope.date = availableDates[0];
 									this.selectedDate = availableDates[0];
 
 									availableDates.forEach(function(date){
@@ -404,30 +425,17 @@ angular
 									});
 								};
 
-								this.onChangeDateSliderItem = function(dataItem, rangeslideElement){
-									$scope.selectedDate = dataItem.key;
-									this.selectedDate = dataItem.key;
-								}
+								$scope.tryUpdateMeasureOfValueBarForIndicator = function(){
+									var indicatorId = wpsPropertiesService.selectedIndicator.indicatorId;
 
-								this.onChangeSelectedIndicator = function(){
-
-									this.setupDateSliderForIndicator();
-
-									var metadata = wpsPropertiesService.selectedIndicator;
-
-									var id = metadata.indicatorId;
-
-									$scope.date = this.selectedDate;
-									$scope.spatialUnitName = this.wpsPropertiesServiceInstance.selectedSpatialUnit.spatialUnitLevel;
-
-									var dateComps = this.selectedDate.split("-");
-
-									var year = dateComps[0];
-									var month = dateComps[1];
-									var day = dateComps[2];
+									if(! ($scope.date && wpsPropertiesService.selectedSpatialUnit && indicatorId))
+										throw Error("Not all parameters have been set up yet.");
+									//
+									// $scope.selectedDate = this.selectedDate;
+									$scope.spatialUnitName = wpsPropertiesService.selectedSpatialUnit.spatialUnitLevel;
 
 									$http({
-										url: this.wpsPropertiesServiceInstance.baseUrlToKomMonitorDataAPI + "/indicators/" + id + "/" + wpsPropertiesService.selectedSpatialUnit.spatialUnitId,
+										url: wpsPropertiesService.baseUrlToKomMonitorDataAPI + "/indicators/" + indicatorId + "/" + wpsPropertiesService.selectedSpatialUnit.spatialUnitId,
 										method: "GET"
 									}).then(function successCallback(response) {
 											// this callback will be called asynchronously
@@ -443,6 +451,47 @@ angular
 											// or server returns response with an error status.
 											$scope.loadingData = false;
 									});
+								};
+
+								this.onChangeDateSliderItem = function(dataItem, rangeslideElement){
+									$scope.selectedDate = dataItem.key;
+									this.selectedDate = dataItem.key;
+									$scope.date = dataItem.key;
+
+									try{
+										$scope.tryUpdateMeasureOfValueBarForIndicator();
+									}
+									catch(error){
+										console.error(error);
+									}
+								}
+
+								this.onChangeSelectedSpatialUnit = function(){
+
+									console.log("Change spatial unit");
+
+									try{
+										$scope.tryUpdateMeasureOfValueBarForIndicator();
+									}
+									catch(error){
+										console.error(error);
+									}
+								}
+
+								this.onChangeSelectedIndicator = function(){
+
+									this.setupDateSliderForIndicator();
+
+									if(!wpsPropertiesService.selectedSpatialUnit){
+										wpsPropertiesService.selectedSpatialUnit = $scope.getFirstSpatialUnitForSelectedIndicator();
+									}
+
+									try{
+										$scope.tryUpdateMeasureOfValueBarForIndicator();
+									}
+									catch(error){
+										console.error(error);
+									}
 								}
 
 								$scope.updateMeasureOfValueBar = function(date){
