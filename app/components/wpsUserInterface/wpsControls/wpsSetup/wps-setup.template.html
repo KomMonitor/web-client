@@ -37,6 +37,7 @@
 		</div>
 	</div>
 
+	<br/>
 
 	<div class="form-group">
 	<h4 class="justify" align="center">Verf&uuml;gbare Indikatoren und Raumebenen</h4>
@@ -65,6 +66,7 @@
 		</div>
 
 		<br/>
+		<br/>
 
 			<div align="center" ng-show="$ctrl.wpsPropertiesServiceInstance.selectedIndicator">
 				<label>verf&uuml;gbare Zeitschnitte</label>
@@ -78,10 +80,10 @@
 
 			<div align="center" ng-if="$ctrl.selectedDate && $ctrl.wpsPropertiesServiceInstance.selectedSpatialUnit">
 
-				<button ng-click="$ctrl.addSelectedIndicatorToMap()" type="button" class="btn btn-success">Kartenlayer hinzuf&uuml;gen</button>
+				<button ng-click="$ctrl.addSelectedIndicatorToMap()" type="button" class="btn btn-success">Indikator als Kartenlayer hinzuf&uuml;gen</button>
 					<!-- <div ng-if="$ctrl.wpsPropertiesServiceInstance.wmsUrlForSelectedIndicator && $ctrl.wpsPropertiesServiceInstance.wfsUrlForSelectedIndicator"> -->
-						<a class="btn btn-warning" target="_blank" rel="noopener noreferrer" ng-href="{{wmsUrlForSelectedIndicator}}">WMS</a>
-						<a class="btn btn-info" target="_blank" rel="noopener noreferrer" ng-href="{{wfsUrlForSelectedIndicator}}">WFS</a>
+						<a class="btn btn-warning" target="_blank" rel="noopener noreferrer" ng-href="{{wmsUrlForSelectedIndicator}}">WMS-Export</a>
+						<a class="btn btn-info" target="_blank" rel="noopener noreferrer" ng-href="{{wfsUrlForSelectedIndicator}}">WFS-Export</a>
 					<!-- </div> -->
 			</div>
 
