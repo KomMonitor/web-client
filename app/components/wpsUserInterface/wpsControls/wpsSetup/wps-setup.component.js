@@ -40,6 +40,21 @@ angular
 								}, true);
 
 								$scope.filterGeoresourcesByTopic = function() {
+									return function( item ) {
+
+										try{
+											var referencedGeoresources = wpsPropertiesService.selectedIndicator.referencedGeoresources;
+											var georesourceId = item.datasetId;
+
+											return referencedGeoresources.includes(georesourceId);
+										}
+										catch(error){
+											return false;
+										}
+								  };
+								};
+
+								$scope.filterGeoresourcesByIndicator = function() {
 								  return function( item ) {
 										if (wpsPropertiesService.selectedTopic)
 								    	return item.applicableTopics.includes(wpsPropertiesService.selectedTopic.topicName);

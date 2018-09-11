@@ -92,7 +92,7 @@
 
 			<input id="measureOfValueCheckbox" type="checkbox" ng-model="$ctrl.wpsPropertiesServiceInstance.isMeasureOfValueChecked" ng-checked="$ctrl.wpsPropertiesServiceInstance.isMeasureOfValueChecked">Eigenen Wertmaßstab mittels Grenzwert festlegen?</input>
 
-			<div>
+			<div ng-show="$ctrl.wpsPropertiesServiceInstance.isMeasureOfValueChecked">
 
 				<label align='left'>Bewertungsmodellierung</label>
 				<p>Eigenen Wertma&szlig;stab anwenden. Durch verschieben des Grenzwertes werden die dargestellten Indikatoren-Features unmittelbar neu eingef&auml;rbt.</p>
@@ -119,8 +119,8 @@
 
 	<br/>
 
-	<div class="form-group" ng-if="$ctrl.selectedDate">
-	<h4 class="justify" align="center">Georessourcen</h4>
+	<div class="form-group" ng-if="$ctrl.wpsPropertiesServiceInstance.selectedIndicator.referencedGeoresources.length > 0">
+	<h4 class="justify" align="center">Mit Indikator verkn&uuml;pfte Geodaten</h4>
 
 		<label for="sel1">Georessourcen zur Karte hinzuf&uuml;gen</label>
 
@@ -130,11 +130,11 @@
 
 				<!-- simple list of available processes -->
 				<select
-					ng-model="$ctrl.wpsPropertiesServiceInstance.selectedGeoresource" ng-options="georesource as georesource.datasetName for georesource in $ctrl.wpsPropertiesServiceInstance.availableGeoresources | filter:filterGeoresourcesByTopic()"
+					ng-model="$ctrl.wpsPropertiesServiceInstance.selectedGeoresource"
 					class="form-control" required>
 					<option value="" selected disabled>Georessource zur Karte hinzufügen</option>
 					<option
-						ng-repeat="georesource in $ctrl.wpsPropertiesServiceInstance.availableGeoresources | filter:filterGeoresourcesByTopic()"></option>
+						ng-repeat="georesource in $ctrl.wpsPropertiesServiceInstance.availableGeoresources | filter:filterGeoresourcesByIndicator()"></option>
 				</select>
 			</div>
 
