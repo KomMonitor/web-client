@@ -40,16 +40,18 @@ angular
 								}, true);
 
 								this.onClickTheme = function(topicName){
-									this.wpsPropertiesServiceInstance.selectedTopic = topicName;
 
 									for(const topic of this.wpsPropertiesServiceInstance.availableTopics){
 										if(topic.topicName === topicName){
 											document.getElementById(topicName).setAttribute("class", "active");
+											this.wpsPropertiesServiceInstance.selectedTopic = topic;
 										}
 										else {
 											document.getElementById(topic.topicName).setAttribute("class", "");
 										}
 									};
+
+									$scope.$apply();
 								};
 
 								this.unsetTopic = function(){
@@ -80,7 +82,7 @@ angular
 								$scope.filterGeoresourcesByTopic = function() {
 								  return function( item ) {
 										if (wpsPropertiesService.selectedTopic)
-								    	return item.applicableTopics.includes(wpsPropertiesService.selectedTopic);
+								    	return item.applicableTopics.includes(wpsPropertiesService.selectedTopic.topicName);
 
 										return true;
 								  };
@@ -93,7 +95,7 @@ angular
 											return false;
 
 										if (wpsPropertiesService.selectedTopic)
-												return item.applicableTopics.includes(wpsPropertiesService.selectedTopic);
+												return item.applicableTopics.includes(wpsPropertiesService.selectedTopic.topicName);
 
 
 										return true;

@@ -26,28 +26,23 @@
 		<nav class="navbar navbar-default">
 		  <div class="container-fluid">
 		    <div class="navbar-header" align="center">
-		      <label class="navbar-brand" href="#">Themenbereiche - Auswahl filtert die angezeigten Indikatoren</label>
+		      <label class="navbar-brand" href="#">Themenfilter für Indikatoren</label>
 		    </div>
 		    <ul class="nav nav-pills nav-justified">
 		      <li ng-repeat="topic in $ctrl.wpsPropertiesServiceInstance.availableTopics" id="{{topic.topicName}}" class=""><a ng-click="$ctrl.onClickTheme(topic.topicName)" href="#">{{topic.topicName}}</a></li>
 		    </ul>
 		  </div>
-		</nav>
 
-		<div>
+			<br/>
 
 			<div align="center" ng-if="$ctrl.wpsPropertiesServiceInstance.selectedTopic">
+				<p>{{$ctrl.wpsPropertiesServiceInstance.selectedTopic.topicDescription}}</p>
+				<p/>
 				<button type="button" class="btn btn-danger" ng-click="$ctrl.unsetTopic()" type="button">Themenfilter aufheben</button>
+				<p/>
 			</div>
-
-		</div>
-
-		<div ng-if="$ctrl.wpsPropertiesServiceInstance.selectedTopic">
-			<p>{{$ctrl.wpsPropertiesServiceInstance.selectedTopic.topicDescription}}</p>
-		</div>
+		</nav>
 	</div>
-
-	<br/>
 
 	<div class="form-group">
 	<h4 class="justify" align="center">Verf&uuml;gbare Indikatoren und Raumebenen</h4>
