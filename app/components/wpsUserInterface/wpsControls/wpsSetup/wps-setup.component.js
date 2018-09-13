@@ -11,6 +11,8 @@ angular
 					controller : [
 							'wpsPropertiesService', 'wpsFormControlService', '$scope', 'wpsMapService', '$http', '$scope',
 							function WpsSetupController(wpsPropertiesService, wpsFormControlService, $scope, wpsMapService, $http, $scope) {
+
+								// var rangeslide = require("rangeslide");
 								/*
 								 * references to wpsPropertiesService and wpsFormControl instances
 								 */
@@ -427,12 +429,14 @@ angular
 									}
 
 									var availableDates = wpsPropertiesService.selectedIndicator.applicableDates;
+									var lastDateIndex = availableDates.length-1;
+									var lastDate = availableDates[lastDateIndex];
 
 									var timeSliderInput = [];
 
-									$scope.selectedDate = availableDates[0];
-									$scope.date = availableDates[0];
-									this.selectedDate = availableDates[0];
+									$scope.selectedDate = lastDate;
+									$scope.date = lastDate;
+									this.selectedDate = lastDate;
 
 									availableDates.forEach(function(date){
 										var dateItem = {};
@@ -443,7 +447,7 @@ angular
 										timeSliderInput.push(dateItem);
 									});
 
-									var rangeslide5 = rangeslide("#dateSlider", {
+									var dateSlider = rangeslide("#dateSlider", {
 										data: timeSliderInput,
 										thumbWidth: 32,
 										thumbHeight: 32,
@@ -453,11 +457,27 @@ angular
 										trackHeight: 20,
 										showTicks: true,
 										tickHeight: 30,
+										startPosition: lastDateIndex,
 										handlers: {
 											"valueChanged": [this.onChangeDateSliderItem]
 										}
 									});
+
+									dateSlider.setValue(lastDateIndex);
 								};
+
+								this.onChangeDateSliderItem = function(dataItem, rangeslideElement){
+									$scope.selectedDate = dataItem.key;
+									this.selectedDate = dataItem.key;
+									$scope.date = dataItem.key;
+
+									try{
+										$scope.tryUpdateMeasureOfValueBarForIndicator();
+									}
+									catch(error){
+										console.error(error);
+									}
+								}
 
 								$scope.tryUpdateMeasureOfValueBarForIndicator = function(){
 									var indicatorId = wpsPropertiesService.selectedIndicator.indicatorId;
@@ -486,19 +506,6 @@ angular
 											$scope.loadingData = false;
 									});
 								};
-
-								this.onChangeDateSliderItem = function(dataItem, rangeslideElement){
-									$scope.selectedDate = dataItem.key;
-									this.selectedDate = dataItem.key;
-									$scope.date = dataItem.key;
-
-									try{
-										$scope.tryUpdateMeasureOfValueBarForIndicator();
-									}
-									catch(error){
-										console.error(error);
-									}
-								}
 
 								this.onChangeSelectedSpatialUnit = function(){
 
