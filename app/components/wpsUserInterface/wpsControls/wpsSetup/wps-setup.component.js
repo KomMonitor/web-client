@@ -39,7 +39,30 @@ angular
 								  }
 								}, true);
 
-								$scope.filterGeoresourcesByTopic = function() {
+								this.onClickTheme = function(topicName){
+									this.wpsPropertiesServiceInstance.selectedTopic = topicName;
+
+									for(const topic of this.wpsPropertiesServiceInstance.availableTopics){
+										if(topic.topicName === topicName){
+											document.getElementById(topicName).setAttribute("class", "active");
+										}
+										else {
+											document.getElementById(topic.topicName).setAttribute("class", "");
+										}
+									};
+								};
+
+								this.unsetTopic = function(){
+									this.wpsPropertiesServiceInstance.selectedTopic = null;
+
+									for(const topic of this.wpsPropertiesServiceInstance.availableTopics){
+											document.getElementById(topic.topicName).setAttribute("class", "");
+									};
+
+									$scope.$apply();
+								};
+
+								$scope.filterGeoresourcesByIndicator = function() {
 									return function( item ) {
 
 										try{
@@ -54,10 +77,10 @@ angular
 								  };
 								};
 
-								$scope.filterGeoresourcesByIndicator = function() {
+								$scope.filterGeoresourcesByTopic = function() {
 								  return function( item ) {
 										if (wpsPropertiesService.selectedTopic)
-								    	return item.applicableTopics.includes(wpsPropertiesService.selectedTopic.topicName);
+								    	return item.applicableTopics.includes(wpsPropertiesService.selectedTopic);
 
 										return true;
 								  };
@@ -70,7 +93,7 @@ angular
 											return false;
 
 										if (wpsPropertiesService.selectedTopic)
-												return item.applicableTopics.includes(wpsPropertiesService.selectedTopic.topicName);
+												return item.applicableTopics.includes(wpsPropertiesService.selectedTopic);
 
 
 										return true;
@@ -105,12 +128,6 @@ angular
 										};
 
 										return result;
-								};
-
-								this.unsetTopic = function(){
-									this.wpsPropertiesServiceInstance.selectedTopic = null;
-
-									$scope.$apply();
 								};
 
 								this.onDateChange = function(){
