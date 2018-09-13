@@ -23,10 +23,13 @@
 		  </div>
 		</nav> -->
 
+		<!-- class="navbar-header" -->
+
 		<nav class="navbar navbar-default">
 		  <div class="container-fluid">
-		    <div class="navbar-header" align="center">
-		      <label class="navbar-brand" href="#">Themenfilter für Indikatoren</label>
+		    <div  align="center" text-align="center">
+		      <!-- <label class="navbar-brand" href="#" align="center" text-align="center">Themenfilter für Indikatoren</label> -->
+					<h4>Themenfilter für Indikatoren</h4>
 		    </div>
 		    <ul class="nav nav-pills nav-justified">
 		      <li ng-repeat="topic in $ctrl.wpsPropertiesServiceInstance.availableTopics" id="{{topic.topicName}}" class=""><a ng-click="$ctrl.onClickTheme(topic.topicName)" href="#">{{topic.topicName}}</a></li>
