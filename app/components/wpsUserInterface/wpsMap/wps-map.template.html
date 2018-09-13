@@ -3,4 +3,10 @@
 <!-- <leaflet center="center" defaults="defaults" controls="controls" layers="layers" geojson="geojson" width="100%" height="100%">
 </leaflet> -->
 
-<div id="map" ng-init="$ctrl.initializeMap()"></div>
+<div>
+
+  <div id="map" ng-init="$ctrl.initializeMap()"></div>
+
+  <div id="dateSlider" class="rangeslide" ng-show="$ctrl.wpsPropertiesServiceInstance.selectedIndicator"></div>
+
+</div>

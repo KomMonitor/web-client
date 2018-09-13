@@ -449,21 +449,23 @@ angular
 
 									var dateSlider = rangeslide("#dateSlider", {
 										data: timeSliderInput,
-										thumbWidth: 32,
-										thumbHeight: 32,
+										startPosition: lastDateIndex,
+										thumbWidth: 25,
+										thumbHeight: 25,
 										labelsPosition: "alternate",
 										showLabels: true,
 										startAlternateLabelsFromTop: false,
-										trackHeight: 20,
+										trackHeight: 15,
 										showTicks: true,
-										tickHeight: 30,
-										startPosition: lastDateIndex,
+										showTrackMarkers: true,
+										markerSize: 22,
+										tickHeight: 10,
 										handlers: {
 											"valueChanged": [this.onChangeDateSliderItem]
 										}
 									});
 
-									dateSlider.setValue(lastDateIndex);
+									// dateSlider.setValue(lastDateIndex);
 								};
 
 								this.onChangeDateSliderItem = function(dataItem, rangeslideElement){

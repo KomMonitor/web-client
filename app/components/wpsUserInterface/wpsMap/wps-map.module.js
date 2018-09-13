@@ -1,4 +1,4 @@
-angular.module('wpsMap', []);
+angular.module('wpsMap', ['wpsProperties']);
 /**
  * a common serviceInstance that holds all needed properties and methods for
  * interacting with a map (openlayers).

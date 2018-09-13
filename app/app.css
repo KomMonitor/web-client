@@ -25,12 +25,24 @@
 
 #map {
 	height: 98vh;
+	position: relative;
+	z-index: 1;
 }
 
 #legend{
 	position: absolute;
 	bottom: 0;
 	max-width: 200px;
+}
+
+#dateSlider{
+	position: absolute;
+  bottom: 30px;
+  margin-right: auto;
+  margin-left: auto;
+  left: 90px;
+  right: 90px;
+	z-index: 9999;
 }
 
 .slidecontainer {

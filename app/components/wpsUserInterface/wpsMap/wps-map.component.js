@@ -14,7 +14,7 @@ angular.module('wpsMap').component(
                 function MapController($rootScope, $http, $scope, $timeout, wpsMapService, wpsExecuteInputService, leafletData, wpsPropertiesService) {
 
                     this.wpsMapServiceInstance = wpsMapService;
-					this.wpsPropertiesServiceInstance = wpsPropertiesService;
+					          this.wpsPropertiesServiceInstance = wpsPropertiesService;
                     this.wpsExecuteSetupInputs = wpsExecuteInputService;
                     $scope.inputLayerCounter = 0;
 
