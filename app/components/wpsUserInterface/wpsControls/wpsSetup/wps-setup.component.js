@@ -451,7 +451,7 @@ angular
 										data: timeSliderInput,
 										startPosition: lastDateIndex,
 										thumbWidth: 25,
-										thumbHeight: 25,
+										thumbHeight: 35,
 										labelsPosition: "alternate",
 										showLabels: true,
 										startAlternateLabelsFromTop: false,
@@ -465,7 +465,7 @@ angular
 										}
 									});
 
-									// dateSlider.setValue(lastDateIndex);
+
 								};
 
 								this.onChangeDateSliderItem = function(dataItem, rangeslideElement){
