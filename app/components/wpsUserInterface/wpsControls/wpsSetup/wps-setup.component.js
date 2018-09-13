@@ -507,6 +507,31 @@ angular
 									catch(error){
 										console.error(error);
 									}
+
+										// parse the WMS and WFS URL from the selected indicator
+										// for this we also have to inspect the currently seelcted spatial unit
+
+										 // e.g. the structure of OGC services within indocator metadata looks like:
+											// 		 "ogcServices": [
+							        //     {
+							        //         "spatialUnit": "Stadtteilebene",
+							        //         "wmsUrl": "http://localhost:8080/geoserver/kommonitor/VIEW_INDICATOR_0/wms?service=WMS&request=GetCapabilities",
+							        //         "wfsUrl": "http://localhost:8080/geoserver/kommonitor/VIEW_INDICATOR_0/wfs?service=WFS&request=GetCapabilities"
+							        //     }
+							        // ]
+
+											this.wmsUrlForSelectedIndicator = undefined;
+											this.wmsUrlForSelectedIndicator = undefined;
+
+											var selectedSpatialUnitName = this.wpsPropertiesServiceInstance.selectedSpatialUnit.spatialUnitLevel;
+
+											this.wpsPropertiesServiceInstance.selectedIndicator.ogcServices.forEach(function(ogcServiceEntry){
+												if (ogcServiceEntry.spatialUnit === selectedSpatialUnitName){
+													$scope.wmsUrlForSelectedIndicator = ogcServiceEntry.wmsUrl;
+													$scope.wfsUrlForSelectedIndicator = ogcServiceEntry.wfsUrl;
+													return;
+												}
+											});
 								}
 
 								$scope.updateMeasureOfValueBar = function(date){
