@@ -525,13 +525,44 @@ angular
 
 											var selectedSpatialUnitName = this.wpsPropertiesServiceInstance.selectedSpatialUnit.spatialUnitLevel;
 
-											this.wpsPropertiesServiceInstance.selectedIndicator.ogcServices.forEach(function(ogcServiceEntry){
+											for(const ogcServiceEntry of this.wpsPropertiesServiceInstance.selectedIndicator.ogcServices){
 												if (ogcServiceEntry.spatialUnit === selectedSpatialUnitName){
 													$scope.wmsUrlForSelectedIndicator = ogcServiceEntry.wmsUrl;
 													$scope.wfsUrlForSelectedIndicator = ogcServiceEntry.wfsUrl;
-													return;
+													break;
 												}
-											});
+											};
+
+											this.prepareDownloadGeoJSON();
+								}
+
+								this.prepareDownloadGeoJSON = function(){
+
+									console.log("removing old download button if available")
+									if(document.getElementById("downloadSelectedIndicator"))
+										document.getElementById("downloadSelectedIndicator").remove();
+
+									var geoJSON_string = JSON.stringify(this.wpsPropertiesServiceInstance.selectedIndicator.geoJSON);
+
+									var fileName = this.wpsPropertiesServiceInstance.selectedIndicator.indicatorName + "_" + this.wpsPropertiesServiceInstance.selectedSpatialUnit.spatialUnitLevel + "_" + this.selectedDate + ".geojson";
+
+									var blob = new Blob([geoJSON_string], {type: "application/json"});
+									var data  = URL.createObjectURL(blob);
+									//
+									// $scope.indicatorDownloadURL = data;
+									// $scope.indicatorDownloadName = fileName;
+
+									console.log("create new Download button and append it to DOM");
+									var a = document.createElement('a');
+									a.download    = fileName;
+									a.href        = data;
+									a.textContent = "GeoJSON";
+									a.id = "downloadSelectedIndicator";
+
+									var li = document.createElement("li");
+									li.appendChild(a);
+
+									document.getElementById('exportDropdown').appendChild(li);
 								}
 
 								$scope.updateMeasureOfValueBar = function(date){

@@ -82,16 +82,16 @@
 
 				<button ng-click="$ctrl.addSelectedIndicatorToMap()" type="button" class="btn btn-success">Indikator als Kartenlayer hinzuf&uuml;gen</button>
 					<!-- <div ng-if="$ctrl.wpsPropertiesServiceInstance.wmsUrlForSelectedIndicator && $ctrl.wpsPropertiesServiceInstance.wfsUrlForSelectedIndicator"> -->
-						<a class="btn btn-warning" target="_blank" rel="noopener noreferrer" ng-href="{{wmsUrlForSelectedIndicator}}">WMS-Export</a>
-						<a class="btn btn-info" target="_blank" rel="noopener noreferrer" ng-href="{{wfsUrlForSelectedIndicator}}">WFS-Export</a>
+						<!-- <a class="btn btn-warning" target="_blank" rel="noopener noreferrer" ng-href="{{wmsUrlForSelectedIndicator}}">WMS-Export</a>
+						<a class="btn btn-info" target="_blank" rel="noopener noreferrer" ng-href="{{wfsUrlForSelectedIndicator}}">WFS-Export</a> -->
 					<!-- </div> -->
 
 					<div class="dropdown">
 					  <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Export
 					  <span class="caret"></span></button>
 					  <ul id="exportDropdown" class="dropdown-menu">
-					    <li><a class="btn btn-warning" target="_blank" rel="noopener noreferrer" ng-href="{{wmsUrlForSelectedIndicator}}">Web Map Service</a></li>
-					    <li><a class="btn btn-info" target="_blank" rel="noopener noreferrer" ng-href="{{wfsUrlForSelectedIndicator}}">Web Feature Service</a></li>
+					    <li><a  target="_blank" rel="noopener noreferrer" ng-href="{{wmsUrlForSelectedIndicator}}">Web Map Service</a></li>
+					    <li><a  target="_blank" rel="noopener noreferrer" ng-href="{{wfsUrlForSelectedIndicator}}">Web Feature Service</a></li>
 
 					  </ul>
 					</div>
