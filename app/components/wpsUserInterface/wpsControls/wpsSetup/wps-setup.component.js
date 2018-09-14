@@ -249,54 +249,46 @@ angular
 										//$scope.error = response.statusText;
 								});
 
-								this.applyMeasureOfValue = function(){
-
-									$scope.loadingData = true;
-
-									// call REST Service to add new customized SLD to GeosServer Layer that is currently selected
-									var jahrParam = 'jahr=' + wpsPropertiesService.selectedIndicator.jahr;
-									var measureOfValueParam = 'grenzwertVersorgungInProzent=' + wpsPropertiesService.measureOfValue;
-
-									var url = 'http://localhost:8085/FusslErreichbarkeitBewertungsmodellierung?' + jahrParam + '&' + measureOfValueParam;
-
-									console.log('created SLD URL: ' + url);
-
-									$http({
-										url: url,
-										method: "POST",
-										data: {}
-									}).then(function successCallback(response) {
-											// this callback will be called asynchronously
-											// when the response is available
-											var sldName = response.data.sldName;
-
-											var dataset = wpsPropertiesService.selectedIndicator;
-
-											var customLayerName = 'CUSTOM ' + dataset.name + '_bewertung_' + wpsPropertiesService.measureOfValue;
-
-											// add current Layer again, but with customized name and customized SLD
-											wpsMapService.addIndicatorLayer_withNameAndStyle(dataset, customLayerName, sldName);
-
-											$scope.loadingData = false;
-
-										}, function errorCallback(response) {
-											// called asynchronously if an error occurs
-											// or server returns response with an error status.
-											$scope.error = response.statusText;
-											$scope.loadingData = false;
-									});
-
-
-
-								}
-
-
-
-
-
-								this.isRemoveButtonDisabled = true;
-
-								$scope.loadingData = false;
+								// this.applyMeasureOfValue = function(){
+								//
+								// 	$scope.loadingData = true;
+								//
+								// 	// call REST Service to add new customized SLD to GeosServer Layer that is currently selected
+								// 	var jahrParam = 'jahr=' + wpsPropertiesService.selectedIndicator.jahr;
+								// 	var measureOfValueParam = 'grenzwertVersorgungInProzent=' + wpsPropertiesService.measureOfValue;
+								//
+								// 	var url = 'http://localhost:8085/FusslErreichbarkeitBewertungsmodellierung?' + jahrParam + '&' + measureOfValueParam;
+								//
+								// 	console.log('created SLD URL: ' + url);
+								//
+								// 	$http({
+								// 		url: url,
+								// 		method: "POST",
+								// 		data: {}
+								// 	}).then(function successCallback(response) {
+								// 			// this callback will be called asynchronously
+								// 			// when the response is available
+								// 			var sldName = response.data.sldName;
+								//
+								// 			var dataset = wpsPropertiesService.selectedIndicator;
+								//
+								// 			var customLayerName = 'CUSTOM ' + dataset.name + '_bewertung_' + wpsPropertiesService.measureOfValue;
+								//
+								// 			// add current Layer again, but with customized name and customized SLD
+								// 			wpsMapService.addIndicatorLayer_withNameAndStyle(dataset, customLayerName, sldName);
+								//
+								// 			$scope.loadingData = false;
+								//
+								// 		}, function errorCallback(response) {
+								// 			// called asynchronously if an error occurs
+								// 			// or server returns response with an error status.
+								// 			$scope.error = response.statusText;
+								// 			$scope.loadingData = false;
+								// 	});
+								//
+								//
+								//
+								// }
 
 								this.addSelectedSpatialUnitToMap = function() {
 									$scope.loadingData = true;
@@ -384,7 +376,6 @@ angular
 								};
 
 								this.addSelectedIndicatorToMap = function() {
-									$scope.loadingData = true;
 
 									// var metadata = wpsPropertiesService.selectedIndicator;
 									//
@@ -394,7 +385,6 @@ angular
 									// $scope.spatialUnitName = this.wpsPropertiesServiceInstance.selectedSpatialUnit.spatialUnitLevel;
 
 									wpsMapService.replaceIndicatorGeoJSON(this.wpsPropertiesServiceInstance.selectedIndicator, this.wpsPropertiesServiceInstance.selectedSpatialUnit.spatialUnitLevel, this.selectedDate);
-									$scope.loadingData = false;
 
 									// var dateComps = this.selectedDate.split("-");
 									//
@@ -530,6 +520,8 @@ angular
 
 								this.onChangeSelectedIndicator = async function(){
 
+									$scope.loadingData = true;
+
 									this.setupDateSliderForIndicator();
 
 									if(!wpsPropertiesService.selectedSpatialUnit){
@@ -541,6 +533,8 @@ angular
 									}
 									catch(error){
 										console.error(error);
+										$scope.loadingData = false;
+										return;
 									}
 
 										// parse the WMS and WFS URL from the selected indicator
@@ -571,6 +565,10 @@ angular
 											this.prepareDownloadGeoJSON();
 
 											this.addSelectedIndicatorToMap();
+
+											$scope.loadingData = false;
+
+											$scope.$apply();
 								}
 
 								this.prepareDownloadGeoJSON = function(){
