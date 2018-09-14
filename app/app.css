@@ -45,6 +45,13 @@
 	z-index: 9999;
 }
 
+#dateSliderForComputation{
+  margin-right: auto;
+  margin-left: auto;
+  left: 20px;
+  right: 40px;
+}
+
 div span{
 	background-color: white;
 	opacity: 0.8;

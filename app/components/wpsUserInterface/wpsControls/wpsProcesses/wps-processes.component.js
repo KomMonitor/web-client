@@ -238,6 +238,27 @@ angular
 
 							buildParameterFormHtml(this.targetScriptMetadata);
 
+							this.setupDateSliderForComputation();
+
+							if(!this.targetSpatialUnit){
+								this.targetSpatialUnit = this.getFirstSpatialUnitForSelectedIndicator();
+							}
+
+						};
+
+						this.getFirstSpatialUnitForSelectedIndicator = function() {
+
+							var result = undefined;
+
+								var applicableSpatialUnits = this.targetIndicator.applicableSpatialUnits;
+
+								for (const spatialUnitEntry of wpsPropertiesService.availableSpatialUnits){
+									if(applicableSpatialUnits.includes(spatialUnitEntry.spatialUnitLevel))
+										result = spatialUnitEntry;
+										break;
+								};
+
+								return result;
 						};
 
 						this.onChangeTargetSpatialUnit = function(){
@@ -247,8 +268,112 @@ angular
 
 
 							buildParameterFormHtml(this.targetScriptMetadata);
+							this.setupDateSliderForComputation();
 
 						};
+
+						this.fetchBaseIndicatorMetadata = function(baseIndicatorId){
+							for (const indicatorMetadata of wpsPropertiesService.availableIndicators){
+								if(indicatorMetadata.indicatorId === baseIndicatorId)
+									return indicatorMetadata;
+							}
+						}
+
+						this.fetchGeoresourceMetadata = function(georesourceId){
+							for (const georesourceMetadata of wpsPropertiesService.availableGeoresources){
+								if(georesourceMetadata.datasetId === georesourceId)
+									return georesourceMetadata;
+							}
+						}
+
+						this.appendDatesFromBaseIndicators = function(dates){
+
+							for (const baseIndicatorId of this.targetScriptMetadata.requiredIndicatorIds){
+								var baseIndicator = this.fetchBaseIndicatorMetadata(baseIndicatorId);
+								for (const date of baseIndicator.applicableDates){
+									if(!dates.includes(date))
+										dates.push(date);
+								}
+							}
+
+							return dates;
+						}
+
+						this.appendDatesFromGeoresources = function(dates){
+
+							for (const georesourceId of this.targetScriptMetadata.requiredGeoresourceIds){
+								var georesource = this.fetchGeoresourceMetadata(georesourceId);
+								for (const date of georesource.applicableDates){
+									if(!dates.includes(date))
+										dates.push(date);
+								}
+							}
+
+							return dates;
+						}
+
+						this.setupDateSliderForComputation = function(){
+							var domNode = document.getElementById("dateSliderForComputation");
+
+							while (domNode.hasChildNodes()) {
+								domNode.removeChild(domNode.lastChild);
+							}
+
+							var availableDates = new Array();
+
+							availableDates = this.appendDatesFromBaseIndicators(availableDates);
+							availableDates = this.appendDatesFromGeoresources(availableDates);
+
+							// sort ascending
+							availableDates.sort(function(a, b) {
+							  return a - b;
+							});
+
+							var lastDateIndex = availableDates.length-1;
+							var lastDate = availableDates[lastDateIndex];
+
+							var timeSliderInput = [];
+
+							$scope.targetDate = lastDate;
+							$scope.date = lastDate;
+							this.targetDate = lastDate;
+
+							availableDates.forEach(function(date){
+								var dateItem = {};
+
+								dateItem.key = date;
+								dateItem.value = date;
+
+								timeSliderInput.push(dateItem);
+							});
+
+							var dateSlider = rangeslide("#dateSliderForComputation", {
+								data: timeSliderInput,
+								startPosition: lastDateIndex,
+								thumbWidth: 15,
+								thumbHeight: 25,
+								labelsPosition: "alternate",
+								showLabels: true,
+								startAlternateLabelsFromTop: false,
+								trackHeight: 5,
+								showTicks: true,
+								showTrackMarkers: true,
+								markerSize: 12,
+								tickHeight: 0,
+								handlers: {
+									"valueChanged": [this.onChangeDateSliderItem]
+								}
+							});
+						};
+
+						this.onChangeDateSliderItem = async function(dataItem, rangeslideElement){
+
+								console.log("Change selected date");
+
+								$scope.targetDate = dataItem.key;
+								this.targetDate = dataItem.key;
+								$scope.date = dataItem.key;
+							};
 
 
 						this.calculateCustomIndicator = function(){

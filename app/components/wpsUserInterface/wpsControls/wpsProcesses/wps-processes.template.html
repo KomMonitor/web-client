@@ -1,17 +1,39 @@
-<div>
+<div align="center">
 	<h3 class="justify" align="center">Interaktive parametrisierte Neuberechnung eines Indikators</h3>
 	<div ng-if="!$ctrl.targetIndicator">
-		<p>Bitte erst einen Indikator ausw&auml;hlen, der über ein Skript berechnet werden kann.</p>
+		<p>Bitte einen Indikator ausw&auml;hlen, der über ein Skript berechnet werden kann.</p>
 	</div>
 
-	<div>
-		<select
-			ng-model="$ctrl.targetIndicator" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.wpsPropertiesServiceInstance.availableIndicators | filter:{creationType:'COMPUTATION'}"
-			class="form-control" ng-change="$ctrl.onChangeTargetIndicator()" required>
-			<option value="" selected disabled>Indikator w&auml;hlen</option>
-			<option
-				ng-repeat="indicator in $ctrl.wpsPropertiesServiceInstance.availableIndicators | filter:{creationType:'COMPUTATION'}"></option>
-		</select>
+	<div class="hiddenTable" text-align="center" align="center">
+
+		<div class="hiddenTableCell">
+
+			<div text-align="center" align="center" class="hiddenTableContent">
+				<select
+					size="5" ng-model="$ctrl.targetIndicator" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.wpsPropertiesServiceInstance.availableIndicators | filter:{creationType:'COMPUTATION'}"
+					class="form-control" ng-change="$ctrl.onChangeTargetIndicator()" required>
+					<option value="" selected disabled>-- berechenbaren Indikator w&auml;hlen --</option>
+				</select>
+			</div>
+
+		</div>
+
+
+		<div class="hiddenTableCell">
+
+			<div text-align="center" align="center" class="hiddenTableContent" ng-show="$ctrl.targetIndicator">
+				<!-- simple list of available processes -->
+				<select
+					size="5" ng-model="$ctrl.targetSpatialUnit" ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in $ctrl.wpsPropertiesServiceInstance.availableSpatialUnits"
+					ng-change="$ctrl.onChangeTargetSpatialUnit()" class="form-control" required>
+					<option value="" selected disabled>-- Raumeinheit w&auml;hlen --</option>
+					<option
+						ng-repeat="spatialUnit in $ctrl.wpsPropertiesServiceInstance.availableSpatialUnits"></option>
+				</select>
+			</div>
+
+		</div>
+
 	</div>
 
 	<br />
@@ -21,19 +43,7 @@
 		<input type="date" name="date" min="2009-01-01" max="2018-10-01" value="2015-01-01" ng-model="$ctrl.targetDate" ng-init="$ctrl.targetDate = '2015-01-01'" ng-change="$ctrl.onTargetDateChange()"/>
 	</div>
 
-
-	<div class="form-group" ng-if="$ctrl.targetIndicator">
-		<label for="sel1">Raumebene w&auml;hlen</label>
-
-		<!-- simple list of available processes -->
-		<select
-			ng-model="$ctrl.targetSpatialUnit" ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in $ctrl.wpsPropertiesServiceInstance.availableSpatialUnits"
-			ng-change="$ctrl.onChangeTargetSpatialUnit()" class="form-control" required>
-			<option value="" selected disabled>Raumeinheit w&auml;hlen</option>
-			<option
-				ng-repeat="spatialUnit in $ctrl.wpsPropertiesServiceInstance.availableSpatialUnits"></option>
-		</select>
-	</div>
+	<div id="dateSliderForComputation" class="rangeslide" ></div>
 
 
 	<div ng-show="$ctrl.targetIndicator && $ctrl.targetSpatialUnit && $ctrl.targetDate" id="parameterManagement" align="center">
