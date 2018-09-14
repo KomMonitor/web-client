@@ -146,7 +146,7 @@
 	<div class="form-group" ng-if="$ctrl.wpsPropertiesServiceInstance.selectedIndicator.referencedGeoresources.length > 0">
 	<h4 class="justify" align="center">Mit Indikator verkn&uuml;pfte Geodaten</h4>
 
-		<label for="sel1">Georessourcen zur Karte hinzuf&uuml;gen</label>
+		<label for="sel1">Mit Indikator verkn&uuml;pfte Georessourcen zur Karte hinzuf&uuml;gen</label>
 
 		<div>
 
@@ -155,8 +155,8 @@
 				<!-- simple list of available processes -->
 				<select
 					ng-model="$ctrl.wpsPropertiesServiceInstance.selectedGeoresource"
-					class="form-control" required>
-					<option value="" selected disabled>Georessource zur Karte hinzufügen</option>
+					size="4" class="form-control" required>
+					<option value="" selected disabled>-- Georessource w&auml;hlen --</option>
 					<option
 						ng-repeat="georesource in $ctrl.wpsPropertiesServiceInstance.availableGeoresources | filter:filterGeoresourcesByIndicator()"></option>
 				</select>
