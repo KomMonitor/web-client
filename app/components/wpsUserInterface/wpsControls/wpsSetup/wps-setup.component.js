@@ -25,6 +25,7 @@ angular
 								$scope.wfsUrlForSelectedIndicator;
 
 								$scope.loadingData = false;
+								$scope.changeIndicatorWasClicked = false;
 
 								this.selectedDate;
 
@@ -375,7 +376,7 @@ angular
 
 								};
 
-								this.addSelectedIndicatorToMap = function() {
+								$scope.addSelectedIndicatorToMap = function() {
 
 									// var metadata = wpsPropertiesService.selectedIndicator;
 									//
@@ -384,7 +385,7 @@ angular
 									// $scope.date = this.selectedDate;
 									// $scope.spatialUnitName = this.wpsPropertiesServiceInstance.selectedSpatialUnit.spatialUnitLevel;
 
-									wpsMapService.replaceIndicatorGeoJSON(this.wpsPropertiesServiceInstance.selectedIndicator, this.wpsPropertiesServiceInstance.selectedSpatialUnit.spatialUnitLevel, this.selectedDate);
+									wpsMapService.replaceIndicatorGeoJSON(wpsPropertiesService.selectedIndicator, wpsPropertiesService.selectedSpatialUnit.spatialUnitLevel, $scope.selectedDate);
 
 									// var dateComps = this.selectedDate.split("-");
 									//
@@ -461,16 +462,30 @@ angular
 
 								};
 
-								this.onChangeDateSliderItem = function(dataItem, rangeslideElement){
-									$scope.selectedDate = dataItem.key;
-									this.selectedDate = dataItem.key;
-									$scope.date = dataItem.key;
+								this.onChangeDateSliderItem = async function(dataItem, rangeslideElement){
 
-									try{
-										$scope.tryUpdateMeasureOfValueBarForIndicator();
-									}
-									catch(error){
-										console.error(error);
+									if(!$scope.changeIndicatorWasClicked){
+										$scope.loadingData = true;
+
+										console.log("Change selected date");
+
+										$scope.selectedDate = dataItem.key;
+										this.selectedDate = dataItem.key;
+										$scope.date = dataItem.key;
+
+										try{
+											var selectedIndicator = await $scope.tryUpdateMeasureOfValueBarForIndicator();
+										}
+										catch(error){
+											console.error(error);
+											$scope.loadingData = false;
+											return;
+										}
+
+										$scope.modifyComponentsForCurrentIndicatorTimestampAndSpatialUnit();
+
+										$scope.loadingData = false;
+										$scope.$apply();
 									}
 								}
 
@@ -506,21 +521,32 @@ angular
 									});
 								};
 
-								this.onChangeSelectedSpatialUnit = function(){
+								this.onChangeSelectedSpatialUnit = async function(){
+									if(!$scope.changeIndicatorWasClicked){
+										$scope.loadingData = true;
 
-									console.log("Change spatial unit");
+										console.log("Change spatial unit");
 
-									try{
-										$scope.tryUpdateMeasureOfValueBarForIndicator();
-									}
-									catch(error){
-										console.error(error);
+										try{
+											var selectedIndicator = await $scope.tryUpdateMeasureOfValueBarForIndicator();
+										}
+										catch(error){
+											console.error(error);
+											$scope.loadingData = false;
+											return;
+										}
+
+										$scope.modifyComponentsForCurrentIndicatorTimestampAndSpatialUnit();
+
+										$scope.loadingData = false;
+										$scope.$apply();
 									}
 								}
 
 								this.onChangeSelectedIndicator = async function(){
 
 									$scope.loadingData = true;
+									$scope.changeIndicatorWasClicked = true;
 
 									this.setupDateSliderForIndicator();
 
@@ -549,37 +575,41 @@ angular
 							        //     }
 							        // ]
 
-											this.wmsUrlForSelectedIndicator = undefined;
-											this.wmsUrlForSelectedIndicator = undefined;
-
-											var selectedSpatialUnitName = this.wpsPropertiesServiceInstance.selectedSpatialUnit.spatialUnitLevel;
-
-											for(const ogcServiceEntry of this.wpsPropertiesServiceInstance.selectedIndicator.ogcServices){
-												if (ogcServiceEntry.spatialUnit === selectedSpatialUnitName){
-													$scope.wmsUrlForSelectedIndicator = ogcServiceEntry.wmsUrl;
-													$scope.wfsUrlForSelectedIndicator = ogcServiceEntry.wfsUrl;
-													break;
-												}
-											};
-
-											this.prepareDownloadGeoJSON();
-
-											this.addSelectedIndicatorToMap();
+											$scope.modifyComponentsForCurrentIndicatorTimestampAndSpatialUnit();
 
 											$scope.loadingData = false;
-
+											$scope.changeIndicatorWasClicked = false;
 											$scope.$apply();
 								}
 
-								this.prepareDownloadGeoJSON = function(){
+								$scope.modifyComponentsForCurrentIndicatorTimestampAndSpatialUnit = function(){
+									$scope.wmsUrlForSelectedIndicator = undefined;
+									$scope.wmsUrlForSelectedIndicator = undefined;
+
+									var selectedSpatialUnitName = wpsPropertiesService.selectedSpatialUnit.spatialUnitLevel;
+
+									for(const ogcServiceEntry of wpsPropertiesService.selectedIndicator.ogcServices){
+										if (ogcServiceEntry.spatialUnit === selectedSpatialUnitName){
+											$scope.wmsUrlForSelectedIndicator = ogcServiceEntry.wmsUrl;
+											$scope.wfsUrlForSelectedIndicator = ogcServiceEntry.wfsUrl;
+											break;
+										}
+									};
+
+									$scope.prepareDownloadGeoJSON();
+
+									$scope.addSelectedIndicatorToMap();
+								}
+
+								$scope.prepareDownloadGeoJSON = function(){
 
 									console.log("removing old download button if available")
 									if(document.getElementById("downloadSelectedIndicator"))
 										document.getElementById("downloadSelectedIndicator").remove();
 
-									var geoJSON_string = JSON.stringify(this.wpsPropertiesServiceInstance.selectedIndicator.geoJSON);
+									var geoJSON_string = JSON.stringify(wpsPropertiesService.selectedIndicator.geoJSON);
 
-									var fileName = this.wpsPropertiesServiceInstance.selectedIndicator.indicatorName + "_" + this.wpsPropertiesServiceInstance.selectedSpatialUnit.spatialUnitLevel + "_" + this.selectedDate + ".geojson";
+									var fileName = wpsPropertiesService.selectedIndicator.indicatorName + "_" + wpsPropertiesService.selectedSpatialUnit.spatialUnitLevel + "_" + $scope.selectedDate + ".geojson";
 
 									var blob = new Blob([geoJSON_string], {type: "application/json"});
 									var data  = URL.createObjectURL(blob);
