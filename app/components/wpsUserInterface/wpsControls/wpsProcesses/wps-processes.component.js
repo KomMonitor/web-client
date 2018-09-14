@@ -356,10 +356,10 @@ angular
 								showLabels: true,
 								startAlternateLabelsFromTop: false,
 								trackHeight: 5,
-								showTicks: true,
+								showTicks: false,
 								showTrackMarkers: true,
 								markerSize: 12,
-								tickHeight: 0,
+								tickHeight: 5,
 								handlers: {
 									"valueChanged": [this.onChangeDateSliderItem]
 								}
