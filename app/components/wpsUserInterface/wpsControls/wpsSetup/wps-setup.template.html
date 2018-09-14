@@ -115,7 +115,7 @@
 
 			<br/>
 
-			<input id="measureOfValueCheckbox" type="checkbox" ng-model="$ctrl.wpsPropertiesServiceInstance.isMeasureOfValueChecked" ng-checked="$ctrl.wpsPropertiesServiceInstance.isMeasureOfValueChecked">Eigenen Wertmaßstab mittels Grenzwert festlegen?</input>
+			<input id="measureOfValueCheckbox" type="checkbox" ng-change="$ctrl.onChangeUseMeasureOfValue()" ng-model="$ctrl.wpsPropertiesServiceInstance.isMeasureOfValueChecked" ng-checked="$ctrl.wpsPropertiesServiceInstance.isMeasureOfValueChecked">Eigenen Wertmaßstab mittels Grenzwert festlegen?</input>
 
 			<div ng-show="$ctrl.wpsPropertiesServiceInstance.isMeasureOfValueChecked">
 

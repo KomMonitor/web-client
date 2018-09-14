@@ -582,6 +582,27 @@ angular
 											$scope.$apply();
 								}
 
+								this.onChangeUseMeasureOfValue = function(){
+									$scope.loadingData = true;
+
+									console.log("Change UseMeasureOfValue");
+
+									// try{
+									// 	var selectedIndicator = await $scope.tryUpdateMeasureOfValueBarForIndicator();
+									// }
+									// catch(error){
+									// 	console.error(error);
+									// 	$scope.loadingData = false;
+									// 	return;
+									// }
+
+									// $scope.modifyComponentsForCurrentIndicatorTimestampAndSpatialUnit();
+									$scope.addSelectedIndicatorToMap();
+
+									$scope.loadingData = false;
+									$scope.$apply();
+								}
+
 								$scope.modifyComponentsForCurrentIndicatorTimestampAndSpatialUnit = function(){
 									$scope.wmsUrlForSelectedIndicator = undefined;
 									$scope.wmsUrlForSelectedIndicator = undefined;
