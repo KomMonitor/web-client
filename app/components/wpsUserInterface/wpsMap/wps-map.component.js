@@ -38,7 +38,7 @@ angular.module('wpsMap').component(
                     $scope.gtMeasureOfValueBrew = new classyBrew();
                     $scope.ltMeasureOfValueBrew = new classyBrew();
 
-                    $scope.geoJSONOfCurrentLayer;
+                    $scope.currentIndicatorLayerOfCurrentLayer;
 
               			this.initializeMap = function() {
 
@@ -596,7 +596,7 @@ angular.module('wpsMap').component(
                                         }
 
                                         function resetHighlight(e) {
-                                            $scope.geojson.resetStyle(e.target);
+                                            $scope.currentIndicatorLayer.resetStyle(e.target);
                                             $scope.infoControl.update();
                                         }
 
@@ -621,7 +621,7 @@ angular.module('wpsMap').component(
                                                       $scope.indicatorDescription = indicatorMetadataAndGeoJSON.metadata.description;
                                                       $scope.indicatorUnit = indicatorMetadataAndGeoJSON.unit;
 
-                                                      $scope.geoJSONOfCurrentLayer = indicatorMetadataAndGeoJSON.geoJSON;
+                                                      $scope.currentIndicatorLayerOfCurrentLayer = indicatorMetadataAndGeoJSON.geoJSON;
 
                                                       var layer;
 
@@ -653,7 +653,7 @@ angular.module('wpsMap').component(
 
                                                       }
 
-                                                      $scope.geojson = layer;
+                                                      $scope.currentIndicatorLayer = layer;
 
                                                       layer.StyledLayerControl = {
                                                         removable : true,
@@ -693,6 +693,93 @@ angular.module('wpsMap').component(
                                                       // $scope.layers.overlays[indicatorMetadataAndGeoJSON.indicatorName].doRefresh = true;
                                                   });
 
+                                                  $scope.$on("replaceIndicatorAsGeoJSON", function (event, indicatorMetadataAndGeoJSON, spatialUnitName, date) {
+
+                                                                console.log('replaceIndicatorAsGeoJSON was called');
+
+                                                                console.log("Remove old indicatorLayer if exists");
+                                                                if($scope.currentIndicatorLayer)
+                                                                  $scope.layerControl.removeLayer($scope.currentIndicatorLayer);
+
+                                                                // check if measureOfValueCheckbox is checked
+
+                                                                $scope.indicatorPropertyName = date;
+                                                                $scope.indicatorName = indicatorMetadataAndGeoJSON.indicatorName;
+                                                                $scope.indicatorDescription = indicatorMetadataAndGeoJSON.metadata.description;
+                                                                $scope.indicatorUnit = indicatorMetadataAndGeoJSON.unit;
+
+                                                                $scope.currentIndicatorLayerOfCurrentLayer = indicatorMetadataAndGeoJSON.geoJSON;
+
+                                                                var layer;
+
+                                                                if(wpsPropertiesService.isMeasureOfValueChecked){
+
+                                                                  setupGtMeasureOfValueBrew(indicatorMetadataAndGeoJSON.geoJSON, date, 3, "Reds", "jenks", wpsPropertiesService.measureOfValue);
+                                                                  setupLtMeasureOfValueBrew(indicatorMetadataAndGeoJSON.geoJSON, date, 3, "Greens", "jenks", wpsPropertiesService.measureOfValue);
+                                                                  $scope.propertyName = date;
+
+                                                                  layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
+                                                                      style: styleMeasureOfValue,
+                                                                      onEachFeature: onEachFeatureIndicator
+                                                                  });
+
+                                                                  $scope.makeInfoControl();
+                                                                  $scope.makeMeasureOfValueLegend();
+
+                                                                }
+                                                                else{
+                                                                  setupDefaultBrew(indicatorMetadataAndGeoJSON.geoJSON, date, 5, "Blues", "jenks");
+                                                                  $scope.propertyName = date;
+
+                                                                  layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
+                                                                      style: styleDefault,
+                                                                      onEachFeature: onEachFeatureIndicator
+                                                                  });
+                                                                  $scope.makeInfoControl();
+                                                                  $scope.makeDefaultLegend();
+
+                                                                }
+
+                                                                $scope.currentIndicatorLayer = layer;
+
+                                                                layer.StyledLayerControl = {
+                                                                  removable : true,
+                                                                  visible : true
+                                                                };
+
+                                                                $scope.layerControl.addOverlay( layer, indicatorMetadataAndGeoJSON.indicatorName + "_" + spatialUnitName + "_" + date, {groupName : indicatorLayerGroupName} );
+
+
+                                                                // if ($scope.layers.overlays[indicatorMetadataAndGeoJSON.indicatorName]) {
+                                                                //     delete $scope.layers.overlays[indicatorMetadataAndGeoJSON.indicatorName];
+                                                                //
+                                                                //     console.log($scope.layers.overlays);
+                                                                // }
+                                                                //
+                                                                // var geoJSONLayer = {
+                                                                //     name: indicatorMetadataAndGeoJSON.indicatorName,
+                                                                //     type: "geoJSONShape",
+                                                                //     data: indicatorMetadataAndGeoJSON.geoJSON,
+                                                                //     visible: true,
+                                                                //     layerOptions: {
+                                                                //         style: {
+                                                                //             color: '#1B4F72',
+                                                                //             fillColor: 'red',
+                                                                //             weight: 2.0,
+                                                                //             opacity: 0.6,
+                                                                //             fillOpacity: 0.2
+                                                                //         },
+                                                                //         onEachFeature: onEachFeatureIndicator
+                                                                //     }
+                                                                // };
+                                                                //
+                                                                // $scope.layers.overlays[indicatorMetadataAndGeoJSON.indicatorName] = geoJSONLayer;
+                                                                //
+                                                                // // refresh the layer!!! Otherwise display is not updated properly in case
+                                                                // // an existing overlay is updated!
+                                                                // $scope.layers.overlays[indicatorMetadataAndGeoJSON.indicatorName].doRefresh = true;
+                                                            });
+
                                                   $scope.$on("addCustomIndicatorAsGeoJSON", function (event, indicatorMetadataAndGeoJSON, spatialUnitName, date) {
 
                                                                 console.log('addCustomIndicatorAsGeoJSON was called');
@@ -707,7 +794,7 @@ angular.module('wpsMap').component(
                                                                 $scope.indicatorName = indicatorMetadataAndGeoJSON.indicatorName;
                                                                 $scope.indicatorUnit = indicatorMetadataAndGeoJSON.unit;
 
-                                                                $scope.geoJSONOfCurrentLayer = indicatorMetadataAndGeoJSON.geoJSON;
+                                                                $scope.currentIndicatorLayerOfCurrentLayer = indicatorMetadataAndGeoJSON.geoJSON;
 
                                                                 setupDefaultBrew(indicatorMetadataAndGeoJSON.geoJSON, date, 5, "Greens", "jenks");
                                                                 $scope.propertyName = date;
@@ -717,7 +804,7 @@ angular.module('wpsMap').component(
                                                                     onEachFeature: onEachFeatureIndicator
                                                                 });
 
-                                                                $scope.geojson = layer;
+                                                                $scope.currentIndicatorLayer = layer;
 
                                                                 layer.StyledLayerControl = {
                                                                   removable : true,
@@ -733,20 +820,20 @@ angular.module('wpsMap').component(
 
                                                             $scope.$on("restyleCurrentLayer", function (event) {
 
-                                                                          if($scope.geojson){
+                                                                          if($scope.currentIndicatorLayer){
 
-                                                                            $scope.geojson.eachLayer(function(layer) {
+                                                                            $scope.currentIndicatorLayer.eachLayer(function(layer) {
 
-                                                                              setupGtMeasureOfValueBrew($scope.geoJSONOfCurrentLayer, $scope.indicatorPropertyName, 3, "Reds", "jenks", wpsPropertiesService.measureOfValue);
-                                                                              setupLtMeasureOfValueBrew($scope.geoJSONOfCurrentLayer, $scope.indicatorPropertyName, 3, "Greens", "jenks", wpsPropertiesService.measureOfValue);
+                                                                              setupGtMeasureOfValueBrew($scope.currentIndicatorLayerOfCurrentLayer, $scope.indicatorPropertyName, 3, "Reds", "jenks", wpsPropertiesService.measureOfValue);
+                                                                              setupLtMeasureOfValueBrew($scope.currentIndicatorLayerOfCurrentLayer, $scope.indicatorPropertyName, 3, "Greens", "jenks", wpsPropertiesService.measureOfValue);
 
                                                                               $scope.makeMeasureOfValueLegend();
 
                                                                               layer.setStyle(styleMeasureOfValue(layer.feature));
                                                                             });
 
-                                                                            // $scope.geojson.resetStyle($scope.geojson);
-                                                                            // $scope.geojson.setStyle();
+                                                                            // $scope.currentIndicatorLayer.resetStyle($scope.currentIndicatorLayer);
+                                                                            // $scope.currentIndicatorLayer.setStyle();
                                                                             // $scope.infoControl.update();
                                                                           }
 

@@ -386,37 +386,40 @@ angular
 								this.addSelectedIndicatorToMap = function() {
 									$scope.loadingData = true;
 
-									var metadata = wpsPropertiesService.selectedIndicator;
-
-									var id = metadata.indicatorId;
+									// var metadata = wpsPropertiesService.selectedIndicator;
+									//
+									// var id = metadata.indicatorId;
 
 									// $scope.date = this.selectedDate;
-									$scope.spatialUnitName = this.wpsPropertiesServiceInstance.selectedSpatialUnit.spatialUnitLevel;
+									// $scope.spatialUnitName = this.wpsPropertiesServiceInstance.selectedSpatialUnit.spatialUnitLevel;
 
-									var dateComps = this.selectedDate.split("-");
+									wpsMapService.replaceIndicatorGeoJSON(this.wpsPropertiesServiceInstance.selectedIndicator, this.wpsPropertiesServiceInstance.selectedSpatialUnit.spatialUnitLevel, this.selectedDate);
+									$scope.loadingData = false;
 
-									var year = dateComps[0];
-									var month = dateComps[1];
-									var day = dateComps[2];
-
-									$http({
-										url: this.wpsPropertiesServiceInstance.baseUrlToKomMonitorDataAPI + "/indicators/" + id + "/" + wpsPropertiesService.selectedSpatialUnit.spatialUnitId,
-										method: "GET"
-									}).then(function successCallback(response) {
-											// this callback will be called asynchronously
-											// when the response is available
-											var geoJSON = response.data;
-
-											wpsPropertiesService.selectedIndicator.geoJSON = geoJSON;
-
-											wpsMapService.addIndicatorGeoJSON(wpsPropertiesService.selectedIndicator, $scope.spatialUnitName, $scope.date);
-											$scope.loadingData = false;
-
-										}, function errorCallback(response) {
-											// called asynchronously if an error occurs
-											// or server returns response with an error status.
-											$scope.loadingData = false;
-									});
+									// var dateComps = this.selectedDate.split("-");
+									//
+									// var year = dateComps[0];
+									// var month = dateComps[1];
+									// var day = dateComps[2];
+									//
+									// $http({
+									// 	url: this.wpsPropertiesServiceInstance.baseUrlToKomMonitorDataAPI + "/indicators/" + id + "/" + wpsPropertiesService.selectedSpatialUnit.spatialUnitId,
+									// 	method: "GET"
+									// }).then(function successCallback(response) {
+									// 		// this callback will be called asynchronously
+									// 		// when the response is available
+									// 		var geoJSON = response.data;
+									//
+									// 		wpsPropertiesService.selectedIndicator.geoJSON = geoJSON;
+									//
+									// 		wpsMapService.addIndicatorGeoJSON(wpsPropertiesService.selectedIndicator, $scope.spatialUnitName, $scope.date);
+									// 		$scope.loadingData = false;
+									//
+									// 	}, function errorCallback(response) {
+									// 		// called asynchronously if an error occurs
+									// 		// or server returns response with an error status.
+									// 		$scope.loadingData = false;
+									// });
 
 								};
 
@@ -481,7 +484,7 @@ angular
 									}
 								}
 
-								$scope.tryUpdateMeasureOfValueBarForIndicator = function(){
+								$scope.tryUpdateMeasureOfValueBarForIndicator = async function(){
 									var indicatorId = wpsPropertiesService.selectedIndicator.indicatorId;
 
 									if(! ($scope.date && wpsPropertiesService.selectedSpatialUnit && indicatorId))
@@ -490,7 +493,7 @@ angular
 									// $scope.selectedDate = this.selectedDate;
 									$scope.spatialUnitName = wpsPropertiesService.selectedSpatialUnit.spatialUnitLevel;
 
-									$http({
+									return await $http({
 										url: wpsPropertiesService.baseUrlToKomMonitorDataAPI + "/indicators/" + indicatorId + "/" + wpsPropertiesService.selectedSpatialUnit.spatialUnitId,
 										method: "GET"
 									}).then(function successCallback(response) {
@@ -502,10 +505,14 @@ angular
 
 											$scope.updateMeasureOfValueBar($scope.date);
 
+											return wpsPropertiesService.selectedIndicator;
+
 										}, function errorCallback(response) {
 											// called asynchronously if an error occurs
 											// or server returns response with an error status.
 											$scope.loadingData = false;
+
+											return wpsPropertiesService.selectedIndicator;
 									});
 								};
 
@@ -521,9 +528,7 @@ angular
 									}
 								}
 
-								this.onChangeSelectedIndicator = function(){
-
-									$scope.loadingData = true;
+								this.onChangeSelectedIndicator = async function(){
 
 									this.setupDateSliderForIndicator();
 
@@ -532,7 +537,7 @@ angular
 									}
 
 									try{
-										$scope.tryUpdateMeasureOfValueBarForIndicator();
+										var selectedIndicator = await $scope.tryUpdateMeasureOfValueBarForIndicator();
 									}
 									catch(error){
 										console.error(error);
@@ -565,7 +570,7 @@ angular
 
 											this.prepareDownloadGeoJSON();
 
-											$scope.loadingData = false;
+											this.addSelectedIndicatorToMap();
 								}
 
 								this.prepareDownloadGeoJSON = function(){
