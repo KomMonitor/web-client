@@ -25,6 +25,9 @@
 
 		<!-- class="navbar-header" -->
 
+		<br/>
+		<br/>
+
 		<nav class="navbar navbar-default">
 		  <div class="container-fluid">
 		    <div  align="center" text-align="center">
@@ -47,6 +50,9 @@
 		</nav>
 	</div>
 
+	<br/>
+	<br/>
+
 	<div class="form-group">
 	<h4 class="justify" align="center">Verf&uuml;gbare Indikatoren und Raumebenen</h4>
 
@@ -58,7 +64,7 @@
 
 				<div text-align="center" align="center" class="hiddenTableContent">
 						<select
-							size="8" ng-model="$ctrl.wpsPropertiesServiceInstance.selectedIndicator" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.wpsPropertiesServiceInstance.availableIndicators | filter:filterIndicatorsByTopic()"
+							size="12" ng-model="$ctrl.wpsPropertiesServiceInstance.selectedIndicator" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.wpsPropertiesServiceInstance.availableIndicators | filter:filterIndicatorsByTopic()"
 							ng-change="$ctrl.onChangeSelectedIndicator()" class="form-control" required>
 							<option disabled selected value> -- Indikator w&auml;hlen -- </option>
 						</select>
@@ -70,7 +76,7 @@
 			<div class="hiddenTableCell">
 				<div text-align="center" align="center" class="hiddenTableContent" ng-show="$ctrl.wpsPropertiesServiceInstance.selectedIndicator">
 					<select
-						size="8" ng-model="$ctrl.wpsPropertiesServiceInstance.selectedSpatialUnit" ng-change="$ctrl.onChangeSelectedSpatialUnit()" ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in filteredSpatialUnits = ($ctrl.wpsPropertiesServiceInstance.availableSpatialUnits | filter:filterSpatialUnitsByIndicator())"
+						size="6" ng-model="$ctrl.wpsPropertiesServiceInstance.selectedSpatialUnit" ng-change="$ctrl.onChangeSelectedSpatialUnit()" ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in filteredSpatialUnits = ($ctrl.wpsPropertiesServiceInstance.availableSpatialUnits | filter:filterSpatialUnitsByIndicator())"
 						class="form-control" required>
 						<option disabled value> -- Raumebene w&auml;hlen -- </option>
 					</select>
@@ -94,21 +100,14 @@
 		</div>
 
 		<br/>
-		<br/>
 
-			<br/>
-			<br/>
-			<br/>
-
-			<div align="center" ng-show="$ctrl.selectedDate && $ctrl.wpsPropertiesServiceInstance.selectedSpatialUnit">
+			<!-- <div align="center" ng-show="$ctrl.selectedDate && $ctrl.wpsPropertiesServiceInstance.selectedSpatialUnit">
 
 				<button ng-click="$ctrl.addSelectedIndicatorToMap()" type="button" class="btn btn-success">Indikator als Kartenlayer hinzuf&uuml;gen</button>
-					<!-- <div ng-if="$ctrl.wpsPropertiesServiceInstance.wmsUrlForSelectedIndicator && $ctrl.wpsPropertiesServiceInstance.wfsUrlForSelectedIndicator"> -->
-						<!-- <a class="btn btn-warning" target="_blank" rel="noopener noreferrer" ng-href="{{wmsUrlForSelectedIndicator}}">WMS-Export</a>
-						<a class="btn btn-info" target="_blank" rel="noopener noreferrer" ng-href="{{wfsUrlForSelectedIndicator}}">WFS-Export</a> -->
-					<!-- </div> -->
 
-			</div>
+			</div> -->
+
+
 
 
 		<div align="center" class="form-group" ng-if="$ctrl.wpsPropertiesServiceInstance.selectedIndicator">

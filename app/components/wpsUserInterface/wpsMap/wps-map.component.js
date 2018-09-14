@@ -174,7 +174,7 @@ angular.module('wpsMap').component(
           //               }
           //           });
 
-                    $scope.makeInfoControl = function(){
+                    $scope.makeInfoControl = function(date){
 
                       if($scope.infoControl)
                         $scope.map.removeControl($scope.infoControl);
@@ -184,7 +184,7 @@ angular.module('wpsMap').component(
                       $scope.infoControl.onAdd = function (map) {
                           this._div = L.DomUtil.create('div', 'info legend'); // create a div with a class "info"
 
-                          this._div.innerHTML = '<h4>' + $scope.indicatorName + '</h4>';
+                          this._div.innerHTML = '<h4>' + $scope.indicatorName + ' ' + date +'</h4>';
                           // this._div.innerHTML += '<p>' + $scope.indicatorDescription + '</p>'
                           this._div.innerHTML += '<p>' + $scope.indicatorDescription + '</p>';
                           this._div.innerHTML +=  '<p>&uuml;ber ein Feature hovern</p>';
@@ -195,7 +195,7 @@ angular.module('wpsMap').component(
 
                       // method that we will use to update the control based on feature properties passed
                       $scope.infoControl.update = function (props) {
-                        this._div.innerHTML = '<h4>' + $scope.indicatorName + '</h4>';
+                        this._div.innerHTML = '<h4>' + $scope.indicatorName + ' ' + date +'</h4>';
                         this._div.innerHTML += '<p>' + $scope.indicatorDescription + '</p>';
                         this._div.innerHTML +=  (props ?
                           '<b>' + props.spatialUnitFeatureName + '</b><br />' + props[$scope.indicatorPropertyName] + ' ' + $scope.indicatorUnit
@@ -636,7 +636,7 @@ angular.module('wpsMap').component(
                                                             onEachFeature: onEachFeatureIndicator
                                                         });
 
-                                                        $scope.makeInfoControl();
+                                                        $scope.makeInfoControl(date);
                                                         $scope.makeMeasureOfValueLegend();
 
                                                       }
@@ -648,7 +648,7 @@ angular.module('wpsMap').component(
                                                             style: styleDefault,
                                                             onEachFeature: onEachFeatureIndicator
                                                         });
-                                                        $scope.makeInfoControl();
+                                                        $scope.makeInfoControl(date);
                                                         $scope.makeDefaultLegend();
 
                                                       }
@@ -723,7 +723,7 @@ angular.module('wpsMap').component(
                                                                       onEachFeature: onEachFeatureIndicator
                                                                   });
 
-                                                                  $scope.makeInfoControl();
+                                                                  $scope.makeInfoControl(date);
                                                                   $scope.makeMeasureOfValueLegend();
 
                                                                 }
@@ -735,7 +735,7 @@ angular.module('wpsMap').component(
                                                                       style: styleDefault,
                                                                       onEachFeature: onEachFeatureIndicator
                                                                   });
-                                                                  $scope.makeInfoControl();
+                                                                  $scope.makeInfoControl(date);
                                                                   $scope.makeDefaultLegend();
 
                                                                 }
