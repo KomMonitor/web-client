@@ -668,11 +668,12 @@ angular
 									//sort ascending order
 									values.sort(function(a, b){return a-b});
 
-									minValue = values[4];
-									maxValue = values[values.length - 4];
+									// plus sign turn it into a number again and removes tailing 0s
+									minValue = +values[4].toFixed(4);
+									maxValue = +values[values.length - 4].toFixed(4);
 
-									middleValue = (maxValue + minValue) / 2;
-									step = maxValue/values.length;
+									middleValue = +((maxValue + minValue) / 2).toFixed(4);
+									step = +(maxValue/values.length).toFixed(4);
 
 									measureOfValueInput.setAttribute("min", minValue);
 									measureOfValueInput.setAttribute("max", maxValue);

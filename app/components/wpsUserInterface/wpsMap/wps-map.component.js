@@ -270,7 +270,7 @@ angular.module('wpsMap').component(
                         for (var i = 0; i < colors.length; i++) {
                             $scope.div.innerHTML +=
                                 '<i style="background:' + colors[i] + '"></i> ' +
-                                labels[i] + (labels[i + 1] ? '&ndash;' + labels[i + 1] + '<br>' : '+');
+                                (+labels[i].toFixed(4)) + ((+labels[i + 1].toFixed(4)) ? '&ndash;' + (+labels[i + 1].toFixed(4)) + '<br>' : '+');
                         }
 
                         return $scope.div;
@@ -310,7 +310,7 @@ angular.module('wpsMap').component(
                         for (var i = 0; i < colorsLtMeasureOfValue.length; i++) {
                             $scope.div.innerHTML +=
                                 '<i style="background:' + colorsLtMeasureOfValue[i] + '"></i> ' +
-                                labelsLtMeasureOfValue[i] + (labelsLtMeasureOfValue[i + 1] ? '&ndash;' + labelsLtMeasureOfValue[i + 1] + '<br>' : '+');
+                                (+labelsLtMeasureOfValue[i].toFixed(4)) + ((+labelsLtMeasureOfValue[i + 1].toFixed(4)) ? '&ndash;' + (+labelsLtMeasureOfValue[i + 1].toFixed(4)) + '<br>' : '+');
                         }
 
                         $scope.div.innerHTML += "<br/>";
@@ -320,7 +320,7 @@ angular.module('wpsMap').component(
                         for (var i = 0; i < colorsGtMeasureOfValue.length; i++) {
                             $scope.div.innerHTML +=
                                 '<i style="background:' + colorsGtMeasureOfValue[i] + '"></i> ' +
-                                labelsGtMeasureOfValue[i] + (labelsGtMeasureOfValue[i + 1] ? '&ndash;' + labelsGtMeasureOfValue[i + 1] + '<br>' : '+');
+                                (+labelsGtMeasureOfValue[i].toFixed(4)) + ((+labelsGtMeasureOfValue[i + 1].toFixed(4)) ? '&ndash;' + (+labelsGtMeasureOfValue[i + 1].toFixed(4)) + '<br>' : '+');
                         }
 
                         return $scope.div;
