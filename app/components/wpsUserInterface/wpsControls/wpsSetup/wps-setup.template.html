@@ -56,20 +56,20 @@
 
 			<div text-align="center" align="center" style="display: inline-block">
 					<select
-						ng-model="$ctrl.wpsPropertiesServiceInstance.selectedIndicator" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.wpsPropertiesServiceInstance.availableIndicators | filter:filterIndicatorsByTopic()"
+						size="8" ng-model="$ctrl.wpsPropertiesServiceInstance.selectedIndicator" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.wpsPropertiesServiceInstance.availableIndicators | filter:filterIndicatorsByTopic()"
 						ng-change="$ctrl.onChangeSelectedIndicator()" class="form-control" required>
-						<option value="" selected disabled>Indikator w&auml;hlen</option>
-						<option
-							ng-repeat="indicator in $ctrl.wpsPropertiesServiceInstance.availableIndicators | filter:filterIndicatorsByTopic()"></option>
+						<option disabled selected value> -- Indikator w&auml;hlen -- </option>
 					</select>
 			</div>
 
 			<div text-align="center" align="center" style="display: inline-block" ng-show="$ctrl.wpsPropertiesServiceInstance.selectedIndicator">
 				<select
-					ng-model="$ctrl.wpsPropertiesServiceInstance.selectedSpatialUnit" ng-change="$ctrl.onChangeSelectedSpatialUnit()" ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in filteredSpatialUnits = ($ctrl.wpsPropertiesServiceInstance.availableSpatialUnits | filter:filterSpatialUnitsByIndicator())"
+					size="8" ng-model="$ctrl.wpsPropertiesServiceInstance.selectedSpatialUnit" ng-change="$ctrl.onChangeSelectedSpatialUnit()" ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in filteredSpatialUnits = ($ctrl.wpsPropertiesServiceInstance.availableSpatialUnits | filter:filterSpatialUnitsByIndicator())"
 					class="form-control" required>
+					<option disabled value> -- Raumebene w&auml;hlen -- </option>
 				</select>
 			</div>
+
 
 		</div>
 
