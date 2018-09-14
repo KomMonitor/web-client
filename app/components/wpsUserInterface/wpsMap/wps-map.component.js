@@ -40,6 +40,15 @@ angular.module('wpsMap').component(
 
                     $scope.currentIndicatorLayerOfCurrentLayer;
 
+                    $scope.customIndicatorPropertyName;
+                    $scope.customIndicatorName;
+                    $scope.customIndicatorUnit;
+
+                    $scope.currentCustomIndicatorLayerOfCurrentLayer;
+                    $scope.customPropertyName;
+
+                    $scope.currentCustomIndicatorLayer;
+
               			this.initializeMap = function() {
 
                       // initialize map referring to div element with id="map"
@@ -205,6 +214,37 @@ angular.module('wpsMap').component(
                       $scope.infoControl.addTo($scope.map);
                     }
 
+                    $scope.makeCustomInfoControl = function(date){
+
+                      if($scope.infoControl)
+                        $scope.map.removeControl($scope.infoControl);
+
+                      $scope.infoControl = L.control({position: 'topright'});
+
+                      $scope.infoControl.onAdd = function (map) {
+                          this._div = L.DomUtil.create('div', 'info legend'); // create a div with a class "info"
+
+                          this._div.innerHTML = '<h4>' + $scope.customIndicatorName + ' ' + date +'</h4>';
+                          // this._div.innerHTML += '<p>' + $scope.indicatorDescription + '</p>'
+                          this._div.innerHTML += '<p>' + $scope.customIndicatorDescription + '</p>';
+                          this._div.innerHTML +=  '<p>&uuml;ber ein Feature hovern</p>';
+
+                          // this.update();
+                          return this._div;
+                      };
+
+                      // method that we will use to update the control based on feature properties passed
+                      $scope.infoControl.update = function (props) {
+                        this._div.innerHTML = '<h4>' + $scope.customIndicatorName + ' ' + date +'</h4>';
+                        this._div.innerHTML += '<p>' + $scope.customIndicatorDescription + '</p>';
+                        this._div.innerHTML +=  (props ?
+                          '<b>' + props.spatialUnitFeatureName + '</b><br />' + props[$scope.customIndicatorPropertyName] + ' ' + $scope.customIndicatorUnit
+                          : '&uuml;ber ein Feature hovern');
+                      };
+
+                      $scope.infoControl.addTo($scope.map);
+                    }
+
                     $scope.makeDefaultLegend = function(){
 
                       if($scope.legendControl)
@@ -334,6 +374,21 @@ angular.module('wpsMap').component(
                         layer.on({
                             mouseover: highlightFeature,
                             mouseout: resetHighlight,
+                            click: function () {
+
+                                var popupContent = layer.feature.properties;
+
+                                if (popupContent)
+                                    layer.bindPopup("Indicator: " + JSON.stringify(popupContent));
+                            }
+                        })
+                    };
+
+                    function onEachFeatureCustomIndicator(feature, layer) {
+                        // does this feature have a property named popupContent?
+                        layer.on({
+                            mouseover: highlightFeature,
+                            mouseout: resetHighlightCustom,
                             click: function () {
 
                                 var popupContent = layer.feature.properties;
@@ -557,6 +612,17 @@ angular.module('wpsMap').component(
                                             }
                                         }
 
+                                        function styleCustomDefault(feature) {
+                                            return {
+                                                weight: 2,
+                                                opacity: 1,
+                                                color: 'white',
+                                                dashArray: '3',
+                                                fillOpacity: 0.7,
+                                                fillColor: $scope.defaultBrew.getColorInRange(feature.properties[$scope.customPropertyName])
+                                            }
+                                        }
+
                                         function styleMeasureOfValue (feature) {
 
                                           if(feature.properties[$scope.indicatorPropertyName] >= wpsPropertiesService.measureOfValue)
@@ -597,6 +663,11 @@ angular.module('wpsMap').component(
 
                                         function resetHighlight(e) {
                                             $scope.currentIndicatorLayer.resetStyle(e.target);
+                                            $scope.infoControl.update();
+                                        }
+
+                                        function resetHighlightCustom(e) {
+                                            $scope.currentCustomIndicatorLayer.resetStyle(e.target);
                                             $scope.infoControl.update();
                                         }
 
@@ -784,27 +855,22 @@ angular.module('wpsMap').component(
 
                                                                 console.log('addCustomIndicatorAsGeoJSON was called');
 
-                                                                // check if measureOfValueCheckbox is checked
+                                                                $scope.customIndicatorPropertyName = date;
+                                                                $scope.customIndicatorName = indicatorMetadataAndGeoJSON.indicatorName;
+                                                                $scope.customIndicatorUnit = indicatorMetadataAndGeoJSON.unit;
+                                                                $scope.customIndicatorDescription = indicatorMetadataAndGeoJSON.metadata.description;
 
-
-
-
-
-                                                                $scope.indicatorPropertyName = date;
-                                                                $scope.indicatorName = indicatorMetadataAndGeoJSON.indicatorName;
-                                                                $scope.indicatorUnit = indicatorMetadataAndGeoJSON.unit;
-
-                                                                $scope.currentIndicatorLayerOfCurrentLayer = indicatorMetadataAndGeoJSON.geoJSON;
+                                                                $scope.currentCustomIndicatorLayerOfCurrentLayer = indicatorMetadataAndGeoJSON.geoJSON;
 
                                                                 setupDefaultBrew(indicatorMetadataAndGeoJSON.geoJSON, date, 5, "Greens", "jenks");
-                                                                $scope.propertyName = date;
+                                                                $scope.customPropertyName = date;
 
                                                                 var layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
-                                                                    style: styleDefault,
-                                                                    onEachFeature: onEachFeatureIndicator
+                                                                    style: styleCustomDefault,
+                                                                    onEachFeature: onEachFeatureCustomIndicator
                                                                 });
 
-                                                                $scope.currentIndicatorLayer = layer;
+                                                                $scope.currentCustomIndicatorLayer = layer;
 
                                                                 layer.StyledLayerControl = {
                                                                   removable : true,
@@ -813,8 +879,8 @@ angular.module('wpsMap').component(
 
                                                                 $scope.layerControl.addOverlay( layer, indicatorMetadataAndGeoJSON.indicatorName + "_" + spatialUnitName + "_" + date + "_CUSTOM", {groupName : indicatorLayerGroupName} );
 
+                                                                $scope.makeCustomInfoControl(date);
                                                                 $scope.makeDefaultLegend();
-
                                                             });
 
 

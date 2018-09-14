@@ -359,7 +359,7 @@ angular
 								showTicks: false,
 								showTrackMarkers: true,
 								markerSize: 12,
-								tickHeight: 5,
+								tickHeight: 0,
 								handlers: {
 									"valueChanged": [this.onChangeDateSliderItem]
 								}
