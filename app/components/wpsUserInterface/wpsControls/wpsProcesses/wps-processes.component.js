@@ -350,8 +350,8 @@ angular
 							var dateSlider = rangeslide("#dateSliderForComputation", {
 								data: timeSliderInput,
 								startPosition: lastDateIndex,
-								thumbWidth: 15,
-								thumbHeight: 25,
+								thumbWidth: 12,
+								thumbHeight: 14,
 								labelsPosition: "alternate",
 								showLabels: true,
 								startAlternateLabelsFromTop: false,
