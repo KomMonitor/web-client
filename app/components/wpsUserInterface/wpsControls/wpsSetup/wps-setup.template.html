@@ -50,26 +50,46 @@
 	<div class="form-group">
 	<h4 class="justify" align="center">Verf&uuml;gbare Indikatoren und Raumebenen</h4>
 
-		<div text-align="center" align="center">
+		<div text-align="center" align="center" class="hiddenTable">
 
 			<!-- <label  for="sel1">verf&uuml;gbare Indikatoren</label> -->
 
-			<div text-align="center" align="center" style="display: inline-block">
+			<div class="hiddenTableCell">
+
+				<div text-align="center" align="center" class="hiddenTableContent">
+						<select
+							size="8" ng-model="$ctrl.wpsPropertiesServiceInstance.selectedIndicator" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.wpsPropertiesServiceInstance.availableIndicators | filter:filterIndicatorsByTopic()"
+							ng-change="$ctrl.onChangeSelectedIndicator()" class="form-control" required>
+							<option disabled selected value> -- Indikator w&auml;hlen -- </option>
+						</select>
+				</div>
+
+			</div>
+
+
+			<div class="hiddenTableCell">
+				<div text-align="center" align="center" class="hiddenTableContent" ng-show="$ctrl.wpsPropertiesServiceInstance.selectedIndicator">
 					<select
-						size="8" ng-model="$ctrl.wpsPropertiesServiceInstance.selectedIndicator" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.wpsPropertiesServiceInstance.availableIndicators | filter:filterIndicatorsByTopic()"
-						ng-change="$ctrl.onChangeSelectedIndicator()" class="form-control" required>
-						<option disabled selected value> -- Indikator w&auml;hlen -- </option>
+						size="8" ng-model="$ctrl.wpsPropertiesServiceInstance.selectedSpatialUnit" ng-change="$ctrl.onChangeSelectedSpatialUnit()" ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in filteredSpatialUnits = ($ctrl.wpsPropertiesServiceInstance.availableSpatialUnits | filter:filterSpatialUnitsByIndicator())"
+						class="form-control" required>
+						<option disabled value> -- Raumebene w&auml;hlen -- </option>
 					</select>
+				</div>
 			</div>
 
-			<div text-align="center" align="center" style="display: inline-block" ng-show="$ctrl.wpsPropertiesServiceInstance.selectedIndicator">
-				<select
-					size="8" ng-model="$ctrl.wpsPropertiesServiceInstance.selectedSpatialUnit" ng-change="$ctrl.onChangeSelectedSpatialUnit()" ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in filteredSpatialUnits = ($ctrl.wpsPropertiesServiceInstance.availableSpatialUnits | filter:filterSpatialUnitsByIndicator())"
-					class="form-control" required>
-					<option disabled value> -- Raumebene w&auml;hlen -- </option>
-				</select>
-			</div>
+			<div class="hiddenTableCell">
 
+				<div id="exportButtonDiv" class="dropdown hiddenTableContent" ng-show="$ctrl.wpsPropertiesServiceInstance.selectedIndicator">
+					<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Export
+					<span class="caret"></span></button>
+					<ul id="exportDropdown" class="dropdown-menu">
+						<li><a  target="_blank" rel="noopener noreferrer" ng-href="{{wmsUrlForSelectedIndicator}}">Web Map Service</a></li>
+						<li><a  target="_blank" rel="noopener noreferrer" ng-href="{{wfsUrlForSelectedIndicator}}">Web Feature Service</a></li>
+
+					</ul>
+				</div>
+
+			</div>
 
 		</div>
 
@@ -88,15 +108,6 @@
 						<a class="btn btn-info" target="_blank" rel="noopener noreferrer" ng-href="{{wfsUrlForSelectedIndicator}}">WFS-Export</a> -->
 					<!-- </div> -->
 
-					<div class="dropdown">
-					  <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Export
-					  <span class="caret"></span></button>
-					  <ul id="exportDropdown" class="dropdown-menu">
-					    <li><a  target="_blank" rel="noopener noreferrer" ng-href="{{wmsUrlForSelectedIndicator}}">Web Map Service</a></li>
-					    <li><a  target="_blank" rel="noopener noreferrer" ng-href="{{wfsUrlForSelectedIndicator}}">Web Feature Service</a></li>
-
-					  </ul>
-					</div>
 			</div>
 
 

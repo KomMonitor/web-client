@@ -45,6 +45,24 @@
 	z-index: 9999;
 }
 
+.hiddenTable {
+  display: table;
+  width: 100%;
+  height: 100%;
+}
+
+.hiddenTableCell {
+  display: table-cell;
+  vertical-align: middle;
+  text-align: center; /* the key */
+  /* background-color: #EEEEEE; */
+}
+
+.hiddenTableContent {
+  display: inline-block; /* important !! */
+  /* background-color: #00FF00; */
+}
+
 .slidecontainer {
     width: 100%; /* Width of the outside container */
 }

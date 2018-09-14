@@ -523,6 +523,8 @@ angular
 
 								this.onChangeSelectedIndicator = function(){
 
+									$scope.loadingData = true;
+
 									this.setupDateSliderForIndicator();
 
 									if(!wpsPropertiesService.selectedSpatialUnit){
@@ -562,6 +564,8 @@ angular
 											};
 
 											this.prepareDownloadGeoJSON();
+
+											$scope.loadingData = false;
 								}
 
 								this.prepareDownloadGeoJSON = function(){
