@@ -184,10 +184,10 @@ angular.module('wpsMap').component(
                       $scope.infoControl.onAdd = function (map) {
                           this._div = L.DomUtil.create('div', 'info legend'); // create a div with a class "info"
 
-                          this._div.innerHTML = '<h4>' + $scope.indicatorName + '</h4>'
+                          this._div.innerHTML = '<h4>' + $scope.indicatorName + '</h4>';
                           // this._div.innerHTML += '<p>' + $scope.indicatorDescription + '</p>'
-                          this._div.innerHTML += $scope.indicatorDescription
-                          this._div.innerHTML +=  '&uuml;ber ein Feature hovern'
+                          this._div.innerHTML += '<p>' + $scope.indicatorDescription + '</p>';
+                          this._div.innerHTML +=  '<p>&uuml;ber ein Feature hovern</p>';
 
                           // this.update();
                           return this._div;
@@ -195,8 +195,8 @@ angular.module('wpsMap').component(
 
                       // method that we will use to update the control based on feature properties passed
                       $scope.infoControl.update = function (props) {
-                        this._div.innerHTML = '<h4>' + $scope.indicatorName + '</h4>'
-                        this._div.innerHTML += '<p>' + $scope.indicatorDescription + '</p>'
+                        this._div.innerHTML = '<h4>' + $scope.indicatorName + '</h4>';
+                        this._div.innerHTML += '<p>' + $scope.indicatorDescription + '</p>';
                         this._div.innerHTML +=  (props ?
                           '<b>' + props.spatialUnitFeatureName + '</b><br />' + props[$scope.indicatorPropertyName] + ' ' + $scope.indicatorUnit
                           : '&uuml;ber ein Feature hovern');

@@ -54,7 +54,7 @@ angular
 										}
 									};
 
-									$scope.$apply();
+									// $scope.$apply();
 								};
 
 								this.unsetTopic = function(){
@@ -64,7 +64,7 @@ angular
 											document.getElementById(topic.topicName).setAttribute("class", "");
 									};
 
-									$scope.$apply();
+									// $scope.$apply();
 								};
 
 								$scope.filterGeoresourcesByIndicator = function() {
@@ -464,7 +464,7 @@ angular
 
 								this.onChangeDateSliderItem = async function(dataItem, rangeslideElement){
 
-									if(!$scope.changeIndicatorWasClicked){
+									if(!$scope.changeIndicatorWasClicked && wpsPropertiesService.selectedIndicator){
 										$scope.loadingData = true;
 
 										console.log("Change selected date");
@@ -522,7 +522,7 @@ angular
 								};
 
 								this.onChangeSelectedSpatialUnit = async function(){
-									if(!$scope.changeIndicatorWasClicked){
+									if(!$scope.changeIndicatorWasClicked && wpsPropertiesService.selectedIndicator){
 										$scope.loadingData = true;
 
 										console.log("Change spatial unit");
@@ -545,41 +545,31 @@ angular
 
 								this.onChangeSelectedIndicator = async function(){
 
-									$scope.loadingData = true;
-									$scope.changeIndicatorWasClicked = true;
+									if(wpsPropertiesService.selectedIndicator){
+										$scope.loadingData = true;
+										$scope.changeIndicatorWasClicked = true;
 
-									this.setupDateSliderForIndicator();
+										this.setupDateSliderForIndicator();
 
-									if(!wpsPropertiesService.selectedSpatialUnit){
-										wpsPropertiesService.selectedSpatialUnit = $scope.getFirstSpatialUnitForSelectedIndicator();
-									}
+										if(!wpsPropertiesService.selectedSpatialUnit){
+											wpsPropertiesService.selectedSpatialUnit = $scope.getFirstSpatialUnitForSelectedIndicator();
+										}
 
-									try{
-										var selectedIndicator = await $scope.tryUpdateMeasureOfValueBarForIndicator();
-									}
-									catch(error){
-										console.error(error);
-										$scope.loadingData = false;
-										return;
-									}
-
-										// parse the WMS and WFS URL from the selected indicator
-										// for this we also have to inspect the currently seelcted spatial unit
-
-										 // e.g. the structure of OGC services within indocator metadata looks like:
-											// 		 "ogcServices": [
-							        //     {
-							        //         "spatialUnit": "Stadtteilebene",
-							        //         "wmsUrl": "http://localhost:8080/geoserver/kommonitor/VIEW_INDICATOR_0/wms?service=WMS&request=GetCapabilities",
-							        //         "wfsUrl": "http://localhost:8080/geoserver/kommonitor/VIEW_INDICATOR_0/wfs?service=WFS&request=GetCapabilities"
-							        //     }
-							        // ]
-
-											$scope.modifyComponentsForCurrentIndicatorTimestampAndSpatialUnit();
-
+										try{
+											var selectedIndicator = await $scope.tryUpdateMeasureOfValueBarForIndicator();
+										}
+										catch(error){
+											console.error(error);
 											$scope.loadingData = false;
-											$scope.changeIndicatorWasClicked = false;
-											$scope.$apply();
+											return;
+										}
+
+												$scope.modifyComponentsForCurrentIndicatorTimestampAndSpatialUnit();
+
+												$scope.loadingData = false;
+												$scope.changeIndicatorWasClicked = false;
+												$scope.$apply();
+									}
 								}
 
 								this.onChangeUseMeasureOfValue = function(){
