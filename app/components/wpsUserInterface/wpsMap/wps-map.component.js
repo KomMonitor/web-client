@@ -60,22 +60,30 @@ angular.module('wpsMap').component(
                       var osm = new L.TileLayer(osmUrl, {minZoom: 1, maxZoom: 19, attribution: osmAttrib});
                       osm.StyledLayerControl = {
                     		removable : false,
+                    		visible : false
+                    	};
+
+                      var osm_blackWhite = L.tileLayer('http://{s}.www.toolserver.org/tiles/bw-mapnik/{z}/{x}/{y}.png', {minZoom: 1, maxZoom: 19, attribution: osmAttrib});
+                      osm_blackWhite.StyledLayerControl = {
+                    		removable : false,
                     		visible : true
                     	};
 
+                      osm_blackWhite.addTo($scope.baseMapLayers);
                       osm.addTo($scope.baseMapLayers);
 
                       // $scope.map = L.map('map').setView([51.4386432, 7.0115552], 12);
                       $scope.map = L.map('map', {
                           center: [51.4386432, 7.0115552],
                           zoom: 12,
-                          layers: [osm]
+                          layers: [osm_blackWhite]
                       });
 
                       var osmBaseMapGroup = {};
                       osmBaseMapGroup.groupName = "Basiskarten";
                       osmBaseMapGroup.expanded = true;
                       osmBaseMapGroup.layers = {};
+                      osmBaseMapGroup.layers["OpenStreetMap - Schwarz/Wei&szlig;"] = osm_blackWhite;
                       osmBaseMapGroup.layers["OpenStreetMap"] = osm;
 
                       $scope.baseMaps.push(osmBaseMapGroup);
