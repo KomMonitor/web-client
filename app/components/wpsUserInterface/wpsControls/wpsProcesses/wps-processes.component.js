@@ -105,6 +105,7 @@ angular
 							inputElement.setAttribute("min", parameterData.minParameterValueForNumericInputs);
 							inputElement.setAttribute("max", parameterData.maxParameterValueForNumericInputs);
 							inputElement.setAttribute("data-show-value", "true");
+							inputElement.setAttribute("step", "1");
 
 							return inputElement;
 						};
@@ -123,11 +124,13 @@ angular
 
 							var inputElement = document.createElement("input");
 							inputElement.setAttribute("id", parameterData.name);
-							inputElement.setAttribute("type", "number");
+							inputElement.setAttribute("type", "range");
 							inputElement.setAttribute("value", parameterData.defaultValue);
 							inputElement.value = parameterData.defaultValue;
+							inputElement.setAttribute("class", "slider");
 							inputElement.setAttribute("min", parameterData.minParameterValueForNumericInputs);
 							inputElement.setAttribute("max", parameterData.maxParameterValueForNumericInputs);
+							inputElement.setAttribute("data-show-value", "true");
 							inputElement.setAttribute("step", "0.001");
 
 							return inputElement;
@@ -191,7 +194,7 @@ angular
 
 								// create input element depending on dataType
 								// dataType can be string, boolean, integer, double
-								switch(parameterData) {
+								switch(parameterData.dataType) {
 								    case "string":
 								        parameterDiv.appendChild(createInputAsString(parameterData));
 								        break;
@@ -207,6 +210,9 @@ angular
 								    default:
 								        parameterDiv.appendChild(createInputAsString(parameterData));
 								}
+
+								// make a bit space after paramter
+								parameterDiv.appendChild(document.createElement("p"));
 
 								processInputFormNode.appendChild(parameterDiv);
 							});
@@ -322,7 +328,7 @@ angular
 							var availableDates = new Array();
 
 							availableDates = this.appendDatesFromBaseIndicators(availableDates);
-							availableDates = this.appendDatesFromGeoresources(availableDates);
+							// availableDates = this.appendDatesFromGeoresources(availableDates);
 
 							// sort ascending
 							availableDates.sort(function(a, b) {
