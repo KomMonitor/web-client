@@ -83,7 +83,7 @@ angular.module('wpsMap').component(
                       osmBaseMapGroup.groupName = "Basiskarten";
                       osmBaseMapGroup.expanded = true;
                       osmBaseMapGroup.layers = {};
-                      osmBaseMapGroup.layers["OpenStreetMap - Schwarz/Wei&szlig;"] = osm_blackWhite;
+                      osmBaseMapGroup.layers["OpenStreetMap - Graustufen"] = osm_blackWhite;
                       osmBaseMapGroup.layers["OpenStreetMap"] = osm;
 
                       $scope.baseMaps.push(osmBaseMapGroup);
