@@ -131,12 +131,12 @@ angular
 							inputElement.min = parameterData.minParameterValueForNumericInputs;
 							inputElement.max = parameterData.maxParameterValueForNumericInputs;
 							inputElement.dataShowValue = "true";
-							inputElement.step = "0.001";
+							inputElement.step = "0.01";
 
 							inputElement.ngModelVariable = parameterData.name + "Value";
 
 							// inputElement.setAttribute("ng-model", parameterData.name + "Value");
-							$scope[inputElement.ngModelVariable] = parameterData.defaultValue;
+							// $scope[inputElement.ngModelVariable] = parameterData.defaultValue;
 
 							return inputElement;
 						};
@@ -228,6 +228,8 @@ angular
 								}
 
 								$scope.processInputs.push(processInput);
+
+								$scope[processInput.inputElement.ngModelVariable] = processInput.parameterData.defaultValue;
 
 								// make a bit space after paramter
 								// parameterDiv.appendChild(document.createElement("p"));
