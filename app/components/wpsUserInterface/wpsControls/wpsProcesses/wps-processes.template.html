@@ -56,8 +56,17 @@
 		<div class="form-group">
 			<!-- <label align='left'>individuelle Neuberechung</label> -->
 
-				<div id="processInputForm">
+				<div ng-if="processInputs" id="processInputForm">
 					<!-- here the content is filled programatically -->
+
+					<div ng-repeat='input in processInputs' class="slidecontainer">
+						<label>{{input.parameterData.name}}: {{input.inputElement.ngModelVariable}}</label>
+						<p>{{input.parameterData.description}}</p>
+						<!-- <input type='{{input.type}}' value='{{ input.value }}'> -->
+						<input id="{{input.parameterData.name}}" class="{{input.inputElement.class}}" ng-model="input.inputElement.ngModelVariable" type="{{input.inputElement.type}}" value="{{input.inputElement.value}}" min="{{input.inputElement.min}}" max="{{input.inputElement.max}}" step="{{input.inputElement.step}}">
+
+						<p></p>
+					</div>
 				</div>
 
 				<br />

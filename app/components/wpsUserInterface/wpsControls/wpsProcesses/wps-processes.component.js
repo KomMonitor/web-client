@@ -122,16 +122,21 @@ angular
 
 							// <input type="number" step="0.01">
 
-							var inputElement = document.createElement("input");
-							inputElement.setAttribute("id", parameterData.name);
-							inputElement.setAttribute("type", "range");
-							inputElement.setAttribute("value", parameterData.defaultValue);
+							// var inputElement = document.createElement("input");
+							var inputElement = {};
+							inputElement.id = parameterData.name;
+							inputElement.type = "range";
 							inputElement.value = parameterData.defaultValue;
-							inputElement.setAttribute("class", "slider");
-							inputElement.setAttribute("min", parameterData.minParameterValueForNumericInputs);
-							inputElement.setAttribute("max", parameterData.maxParameterValueForNumericInputs);
-							inputElement.setAttribute("data-show-value", "true");
-							inputElement.setAttribute("step", "0.001");
+							inputElement.class = "slider";
+							inputElement.min = parameterData.minParameterValueForNumericInputs;
+							inputElement.max = parameterData.maxParameterValueForNumericInputs;
+							inputElement.dataShowValue = "true";
+							inputElement.step = "0.001";
+
+							inputElement.ngModelVariable = parameterData.name + "Value";
+
+							// inputElement.setAttribute("ng-model", parameterData.name + "Value");
+							$scope[inputElement.ngModelVariable] = parameterData.defaultValue;
 
 							return inputElement;
 						};
@@ -147,16 +152,16 @@ angular
 
 							// await sleep(1000);
 
-							try{
-								var processInputFormNode = document.getElementById("processInputForm");
-								// remove old content
-								while (processInputFormNode.firstChild) {
-								  processInputFormNode.removeChild(processInputFormNode.firstChild);
-								}
-							}
-							catch(error){
-								console.error("DOM Element with ID 'processInputForm' was not found");
-							}
+							// try{
+							// 	var processInputFormNode = document.getElementById("processInputForm");
+							// 	// remove old content
+							// 	while (processInputFormNode.firstChild) {
+							// 	  processInputFormNode.removeChild(processInputFormNode.firstChild);
+							// 	}
+							// }
+							// catch(error){
+							// 	console.error("DOM Element with ID 'processInputForm' was not found");
+							// }
 
 
 
@@ -165,7 +170,9 @@ angular
 							// we must iterate over all process parameters and setup form elements for each input type
 							// e.g. sliders for range values, checkboxes for boolean
 
-							var processInputFormNode = document.getElementById("processInputForm");
+							// var processInputFormNode = document.getElementById("processInputForm");
+
+							$scope.processInputs = [];
 
 							targetScriptMetadata.variableProcessParameters.forEach(function(parameterData){
 								// looks like:
@@ -180,46 +187,57 @@ angular
 								//  }
 
 								// var parameterNode = document.createDocumentFragment();
-								var parameterDiv = document.createElement("div");
-								parameterDiv.setAttribute("class", "slidecontainer");
 
-								var parameterLabel = document.createElement("label");
-								parameterLabel.appendChild(document.createTextNode(parameterData.name));
+								var processInput = {};
+								processInput.parameterData = parameterData;
 
-								var parameterDescription = document.createElement("p");
-								parameterDescription.appendChild(document.createTextNode(parameterData.description));
-
-								parameterDiv.appendChild(parameterLabel);
-								parameterDiv.appendChild(parameterDescription);
+								// var parameterDiv = document.createElement("div");
+								// parameterDiv.setAttribute("class", "slidecontainer");
+								//
+								// var parameterLabel = document.createElement("label");
+								// parameterLabel.appendChild(document.createTextNode(parameterData.name + ": {{" + parameterData.name + "Value}}"));
+								//
+								// var parameterDescription = document.createElement("p");
+								// parameterDescription.appendChild(document.createTextNode(parameterData.description));
+								//
+								// parameterDiv.appendChild(parameterLabel);
+								// parameterDiv.appendChild(parameterDescription);
 
 								// create input element depending on dataType
 								// dataType can be string, boolean, integer, double
 								switch(parameterData.dataType) {
 								    case "string":
-								        parameterDiv.appendChild(createInputAsString(parameterData));
+								        // parameterDiv.appendChild(createInputAsString(parameterData));
+												processInput.inputElement = createInputAsString(parameterData);
 								        break;
 								    case "boolean":
-								        parameterDiv.appendChild(createInputAsBoolean(parameterData));
+								        // parameterDiv.appendChild(createInputAsBoolean(parameterData));
+												processInput.inputElement = createInputAsBoolean(parameterData);
 								        break;
 										case "integer":
-										    parameterDiv.appendChild(createInputAsInteger(parameterData));
+										    // parameterDiv.appendChild(createInputAsInteger(parameterData));
+												processInput.inputElement = createInputAsInteger(parameterData);
 										    break;
 										case "double":
-										    parameterDiv.appendChild(createInputAsDouble(parameterData));
+										    // parameterDiv.appendChild(createInputAsDouble(parameterData));
+												processInput.inputElement = createInputAsDouble(parameterData);
 										    break;
 								    default:
-								        parameterDiv.appendChild(createInputAsString(parameterData));
+								        // parameterDiv.appendChild(createInputAsString(parameterData));
+												processInput.inputElement = createInputAsString(parameterData);
 								}
 
-								// make a bit space after paramter
-								parameterDiv.appendChild(document.createElement("p"));
+								$scope.processInputs.push(processInput);
 
-								processInputFormNode.appendChild(parameterDiv);
+								// make a bit space after paramter
+								// parameterDiv.appendChild(document.createElement("p"));
+
+								// processInputFormNode.appendChild(parameterDiv);
 							});
 
 							// parameterNode.appendChild(parameterDiv);
 
-							//$scope.$apply();
+							// $scope.$apply();
 						};
 
 						this.getScriptMetadataForIndicatorId = function(indicatorId){
