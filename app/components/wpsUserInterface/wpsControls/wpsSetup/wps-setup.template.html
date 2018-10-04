@@ -147,11 +147,11 @@
 
 				<!-- simple list of available processes -->
 				<select
-					ng-model="$ctrl.wpsPropertiesServiceInstance.selectedGeoresource"
+					ng-model="$ctrl.wpsPropertiesServiceInstance.selectedGeoresource" ng-options="georesource as georesource.datasetName for georesource in $ctrl.wpsPropertiesServiceInstance.availableGeoresources | filter:filterGeoresourcesByIndicator()"
 					size="4" class="form-control" required>
 					<option value="" selected disabled>-- Georessource w&auml;hlen --</option>
-					<option
-						ng-repeat="georesource in $ctrl.wpsPropertiesServiceInstance.availableGeoresources | filter:filterGeoresourcesByIndicator()"></option>
+					<!-- <option
+						ng-repeat="georesource as georesource.datasetName for georesource in $ctrl.wpsPropertiesServiceInstance.availableGeoresources | filter:filterGeoresourcesByIndicator()"></option> -->
 				</select>
 			</div>
 

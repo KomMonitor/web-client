@@ -72,9 +72,14 @@ angular
 
 										try{
 											var referencedGeoresources = wpsPropertiesService.selectedIndicator.referencedGeoresources;
-											var georesourceId = item.datasetId;
+											var georesourceId = item.georesourceId;
 
-											return referencedGeoresources.includes(georesourceId);
+											for (const refGeoresource of referencedGeoresources){
+												if(refGeoresource.referencedGeoresourceId === georesourceId)
+													return true;
+											};
+
+											// return referencedGeoresources.includes(georesourceId);
 										}
 										catch(error){
 											return false;
