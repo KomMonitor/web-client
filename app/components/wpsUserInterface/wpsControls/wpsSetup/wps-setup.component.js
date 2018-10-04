@@ -12,6 +12,8 @@ angular
 							'wpsPropertiesService', 'wpsFormControlService', '$scope', 'wpsMapService', '$http', '$scope',
 							function WpsSetupController(wpsPropertiesService, wpsFormControlService, $scope, wpsMapService, $http, $scope) {
 
+								const INDICATOR_DATE_PREFIX = "DATE_";
+
 								// var rangeslide = require("rangeslide");
 								/*
 								 * references to wpsPropertiesService and wpsFormControl instances
@@ -647,6 +649,9 @@ angular
 								}
 
 								$scope.updateMeasureOfValueBar = function(date){
+
+									//append date prefix to access correct property!
+									date = INDICATOR_DATE_PREFIX + date;
 									var geoJSON = wpsPropertiesService.selectedIndicator.geoJSON;
 
 									var measureOfValueInput = document.getElementById("measureOfValueInput");

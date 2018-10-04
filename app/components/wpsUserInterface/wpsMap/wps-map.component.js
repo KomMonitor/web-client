@@ -13,6 +13,8 @@ angular.module('wpsMap').component(
 				'wpsPropertiesService',
                 function MapController($rootScope, $http, $scope, $timeout, wpsMapService, wpsExecuteInputService, leafletData, wpsPropertiesService) {
 
+                    const INDICATOR_DATE_PREFIX = "DATE_";
+
                     this.wpsMapServiceInstance = wpsMapService;
 					          this.wpsPropertiesServiceInstance = wpsPropertiesService;
                     this.wpsExecuteSetupInputs = wpsExecuteInputService;
@@ -695,7 +697,7 @@ angular.module('wpsMap').component(
 
 
 
-                                                      $scope.indicatorPropertyName = date;
+                                                      $scope.indicatorPropertyName = INDICATOR_DATE_PREFIX + date;
                                                       $scope.indicatorName = indicatorMetadataAndGeoJSON.indicatorName;
                                                       $scope.indicatorDescription = indicatorMetadataAndGeoJSON.metadata.description;
                                                       $scope.indicatorUnit = indicatorMetadataAndGeoJSON.unit;
@@ -706,9 +708,9 @@ angular.module('wpsMap').component(
 
                                                       if(wpsPropertiesService.isMeasureOfValueChecked){
 
-                                                        setupGtMeasureOfValueBrew(indicatorMetadataAndGeoJSON.geoJSON, date, 3, "Reds", "jenks", wpsPropertiesService.measureOfValue);
-                                                        setupLtMeasureOfValueBrew(indicatorMetadataAndGeoJSON.geoJSON, date, 3, "Greens", "jenks", wpsPropertiesService.measureOfValue);
-                                                        $scope.propertyName = date;
+                                                        setupGtMeasureOfValueBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, 3, "Reds", "jenks", wpsPropertiesService.measureOfValue);
+                                                        setupLtMeasureOfValueBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, 3, "Greens", "jenks", wpsPropertiesService.measureOfValue);
+                                                        $scope.propertyName = INDICATOR_DATE_PREFIX + date;
 
                                                         layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
                                                             style: styleMeasureOfValue,
@@ -720,8 +722,8 @@ angular.module('wpsMap').component(
 
                                                       }
                                                       else{
-                                                        setupDefaultBrew(indicatorMetadataAndGeoJSON.geoJSON, date, 5, "Blues", "jenks");
-                                                        $scope.propertyName = date;
+                                                        setupDefaultBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, 5, "Blues", "jenks");
+                                                        $scope.propertyName = INDICATOR_DATE_PREFIX + date;
 
                                                         layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
                                                             style: styleDefault,
@@ -782,7 +784,7 @@ angular.module('wpsMap').component(
 
                                                                 // check if measureOfValueCheckbox is checked
 
-                                                                $scope.indicatorPropertyName = date;
+                                                                $scope.indicatorPropertyName = INDICATOR_DATE_PREFIX + date;
                                                                 $scope.indicatorName = indicatorMetadataAndGeoJSON.indicatorName;
                                                                 $scope.indicatorDescription = indicatorMetadataAndGeoJSON.metadata.description;
                                                                 $scope.indicatorUnit = indicatorMetadataAndGeoJSON.unit;
@@ -793,9 +795,9 @@ angular.module('wpsMap').component(
 
                                                                 if(wpsPropertiesService.isMeasureOfValueChecked){
 
-                                                                  setupGtMeasureOfValueBrew(indicatorMetadataAndGeoJSON.geoJSON, date, 3, "Reds", "jenks", wpsPropertiesService.measureOfValue);
-                                                                  setupLtMeasureOfValueBrew(indicatorMetadataAndGeoJSON.geoJSON, date, 3, "Greens", "jenks", wpsPropertiesService.measureOfValue);
-                                                                  $scope.propertyName = date;
+                                                                  setupGtMeasureOfValueBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, 3, "Reds", "jenks", wpsPropertiesService.measureOfValue);
+                                                                  setupLtMeasureOfValueBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, 3, "Greens", "jenks", wpsPropertiesService.measureOfValue);
+                                                                  $scope.propertyName = INDICATOR_DATE_PREFIX + date;
 
                                                                   layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
                                                                       style: styleMeasureOfValue,
@@ -807,8 +809,8 @@ angular.module('wpsMap').component(
 
                                                                 }
                                                                 else{
-                                                                  setupDefaultBrew(indicatorMetadataAndGeoJSON.geoJSON, date, 5, "Blues", "jenks");
-                                                                  $scope.propertyName = date;
+                                                                  setupDefaultBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, 5, "Blues", "jenks");
+                                                                  $scope.propertyName = INDICATOR_DATE_PREFIX + date;
 
                                                                   layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
                                                                       style: styleDefault,
@@ -863,15 +865,15 @@ angular.module('wpsMap').component(
 
                                                                 console.log('addCustomIndicatorAsGeoJSON was called');
 
-                                                                $scope.customIndicatorPropertyName = date;
+                                                                $scope.customIndicatorPropertyName = INDICATOR_DATE_PREFIX + date;
                                                                 $scope.customIndicatorName = indicatorMetadataAndGeoJSON.indicatorName;
                                                                 $scope.customIndicatorUnit = indicatorMetadataAndGeoJSON.unit;
                                                                 $scope.customIndicatorDescription = indicatorMetadataAndGeoJSON.metadata.description;
 
                                                                 $scope.currentCustomIndicatorLayerOfCurrentLayer = indicatorMetadataAndGeoJSON.geoJSON;
 
-                                                                setupDefaultBrew(indicatorMetadataAndGeoJSON.geoJSON, date, 5, "Greens", "jenks");
-                                                                $scope.customPropertyName = date;
+                                                                setupDefaultBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.customIndicatorPropertyName, 5, "Greens", "jenks");
+                                                                $scope.customPropertyName = INDICATOR_DATE_PREFIX + date;
 
                                                                 var layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
                                                                     style: styleCustomDefault,
