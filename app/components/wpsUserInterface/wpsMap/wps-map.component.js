@@ -722,7 +722,7 @@ angular.module('wpsMap').component(
 
                                                       }
                                                       else{
-                                                        setupDefaultBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, 5, "Blues", "jenks");
+                                                        setupDefaultBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, indicatorMetadataAndGeoJSON.defaultClassificationMapping.items.length, indicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, "jenks");
                                                         $scope.propertyName = INDICATOR_DATE_PREFIX + date;
 
                                                         layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
@@ -809,7 +809,7 @@ angular.module('wpsMap').component(
 
                                                                 }
                                                                 else{
-                                                                  setupDefaultBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, 5, "Blues", "jenks");
+                                                                  setupDefaultBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, indicatorMetadataAndGeoJSON.defaultClassificationMapping.items.length, indicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, "jenks");
                                                                   $scope.propertyName = INDICATOR_DATE_PREFIX + date;
 
                                                                   layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
@@ -872,7 +872,7 @@ angular.module('wpsMap').component(
 
                                                                 $scope.currentCustomIndicatorLayerOfCurrentLayer = indicatorMetadataAndGeoJSON.geoJSON;
 
-                                                                setupDefaultBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.customIndicatorPropertyName, 5, "Greens", "jenks");
+                                                                setupDefaultBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.customIndicatorPropertyName, indicatorMetadataAndGeoJSON.defaultClassificationMapping.items.length, indicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, "jenks");
                                                                 $scope.customPropertyName = INDICATOR_DATE_PREFIX + date;
 
                                                                 var layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
