@@ -9,8 +9,8 @@ angular
 					 * enabled tabs
 					 */
 					controller : [
-							'wpsPropertiesService', 'wpsFormControlService', '$scope', 'wpsMapService', '$http', '$scope',
-							function WpsSetupController(wpsPropertiesService, wpsFormControlService, $scope, wpsMapService, $http, $scope) {
+							'wpsPropertiesService', 'wpsFormControlService', '$scope', 'wpsMapService', '$http', '$rootScope',
+							function WpsSetupController(wpsPropertiesService, wpsFormControlService, $scope, wpsMapService, $http, $rootScope) {
 
 								const INDICATOR_DATE_PREFIX = "DATE_";
 
@@ -394,6 +394,9 @@ angular
 
 									wpsMapService.replaceIndicatorGeoJSON(wpsPropertiesService.selectedIndicator, wpsPropertiesService.selectedSpatialUnit.spatialUnitLevel, $scope.selectedDate);
 
+									$rootScope.$broadcast("updateDiagrams", wpsPropertiesService.selectedIndicator, wpsPropertiesService.selectedSpatialUnit.spatialUnitLevel, $scope.selectedDate);
+
+
 									// var dateComps = this.selectedDate.split("-");
 									//
 									// var year = dateComps[0];
@@ -573,9 +576,15 @@ angular
 
 												$scope.modifyComponentsForCurrentIndicatorTimestampAndSpatialUnit();
 
+
 												$scope.loadingData = false;
 												$scope.changeIndicatorWasClicked = false;
+
+												// $rootScope.$broadcast("updateDiagrams", wpsPropertiesService.selectedIndicator, wpsPropertiesService.selectedSpatialUnit.spatialUnitLevel, $scope.selectedDate);
+
 												$scope.$apply();
+
+
 									}
 								}
 

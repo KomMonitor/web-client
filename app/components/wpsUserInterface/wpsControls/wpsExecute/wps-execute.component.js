@@ -11,36 +11,80 @@ angular
 					controller : [
 							'wpsPropertiesService',
 							'wpsFormControlService',
+							'$scope',
 							function WpsExecuteController(wpsPropertiesService,
-									wpsFormControlService) {
+									wpsFormControlService, $scope) {
 								this.wpsPropertiesServiceInstance = wpsPropertiesService;
 								this.wpsFormControlServiceInstance = wpsFormControlService;
 
-								// based on prepared DOM, initialize echarts instance
-				        var myChart = echarts.init(document.getElementById('barDiagram'));
+								const INDICATOR_DATE_PREFIX = "DATE_";
 
-				        // specify chart configuration item and data
-				        var option = {
-				            title: {
-				                text: 'ECharts entry example'
-				            },
-				            tooltip: {},
-				            legend: {
-				                data:['Sales']
-				            },
-				            xAxis: {
-				                data: ["shirt","cardign","chiffon shirt","pants","heels","socks"]
-				            },
-				            yAxis: {},
-				            series: [{
-				                name: 'Sales',
-				                type: 'bar',
-				                data: [5, 20, 36, 10, 10, 20]
-				            }]
-				        };
+								var compareFeaturesByIndicatorValue = function(featureA, featureB) {
+								  if (featureA.properties[$scope.indicatorPropertyName] < featureB.properties[$scope.indicatorPropertyName])
+								    return -1;
+								  if (featureA.properties[$scope.indicatorPropertyName] > featureB.properties[$scope.indicatorPropertyName])
+								    return 1;
+								  return 0;
+								}
 
-				        // use configuration item and data specified to show chart
-				        myChart.setOption(option);
+								$scope.$on("updateDiagrams", function (event, indicatorMetadataAndGeoJSON, spatialUnitName, date) {
+
+									console.log("Updating diagrams!");
+									$scope.indicatorPropertyName = INDICATOR_DATE_PREFIX + date;
+
+									var featureNamesArray = new Array();
+									var indicatorValueArray = new Array();
+
+									//sort array of features
+									var features = indicatorMetadataAndGeoJSON.geoJSON.features;
+									features.sort(compareFeaturesByIndicatorValue);
+
+									for(var feature of indicatorMetadataAndGeoJSON.geoJSON.features){
+										featureNamesArray.push(feature.properties.spatialUnitFeatureName);
+										indicatorValueArray.push(feature.properties[$scope.indicatorPropertyName]);
+									}
+
+									// based on prepared DOM, initialize echarts instance
+					        var barChart = echarts.init(document.getElementById('barDiagram'));
+
+					        // specify chart configuration item and data
+									var labelOption = {
+										    normal: {
+										        show: true,
+										        position: 'insideBottom',
+										        align: 'left',
+										        verticalAlign: 'middle',
+										        rotate: 90,
+										        formatter: '{c}',
+										    }
+										};
+
+					        var option = {
+					            title: {
+					                text: 'Bar Chart'
+					            },
+					            tooltip: {},
+					            legend: {
+					                data:[indicatorMetadataAndGeoJSON.indicatorName]
+					            },
+					            xAxis: {
+													axisLabel: {
+														rotate: 90
+													},
+					                data: featureNamesArray
+					            },
+					            yAxis: {},
+					            series: [{
+					                name: indicatorMetadataAndGeoJSON.indicatorName,
+					                type: 'bar',
+					                data: indicatorValueArray
+					            }]
+					        };
+
+					        // use configuration item and data specified to show chart
+					        barChart.setOption(option);
+
+								});
 
 							} ]
 				});
