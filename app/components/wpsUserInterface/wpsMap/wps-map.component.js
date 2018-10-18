@@ -255,7 +255,7 @@ angular.module('wpsMap').component(
                       $scope.infoControl.addTo($scope.map);
                     }
 
-                    $scope.makeDefaultLegend = function(){
+                    $scope.makeDefaultLegend = function(defaultClassificationMapping){
 
                       if($scope.legendControl)
                         $scope.map.removeControl($scope.legendControl);
@@ -280,7 +280,7 @@ angular.module('wpsMap').component(
                         for (var i = 0; i < colors.length; i++) {
                             $scope.div.innerHTML +=
                                 '<i style="background:' + colors[i] + '"></i> ' +
-                                (+labels[i].toFixed(4)) + ((+labels[i + 1].toFixed(4)) ? '&ndash;' + (+labels[i + 1].toFixed(4)) + '<br>' : '+');
+                                (+labels[i].toFixed(4)) + ((+labels[i + 1].toFixed(4)) ? '&ndash;' + (+labels[i + 1].toFixed(4)) + ' &ndash;&ndash;&ndash; ' + defaultClassificationMapping.items[i].defaultCustomRating + '<br>' : '+');
                         }
 
                         return $scope.div;
@@ -730,7 +730,7 @@ angular.module('wpsMap').component(
                                                             onEachFeature: onEachFeatureIndicator
                                                         });
                                                         $scope.makeInfoControl(date);
-                                                        $scope.makeDefaultLegend();
+                                                        $scope.makeDefaultLegend(indicatorMetadataAndGeoJSON.defaultClassificationMapping);
 
                                                       }
 
@@ -817,7 +817,7 @@ angular.module('wpsMap').component(
                                                                       onEachFeature: onEachFeatureIndicator
                                                                   });
                                                                   $scope.makeInfoControl(date);
-                                                                  $scope.makeDefaultLegend();
+                                                                  $scope.makeDefaultLegend(indicatorMetadataAndGeoJSON.defaultClassificationMapping);
 
                                                                 }
 
@@ -890,7 +890,7 @@ angular.module('wpsMap').component(
                                                                 $scope.layerControl.addOverlay( layer, indicatorMetadataAndGeoJSON.indicatorName + "_" + spatialUnitName + "_" + date + "_CUSTOM", {groupName : indicatorLayerGroupName} );
 
                                                                 $scope.makeCustomInfoControl(date);
-                                                                $scope.makeDefaultLegend();
+                                                                $scope.makeDefaultLegend(indicatorMetadataAndGeoJSON.defaultClassificationMapping);
                                                             });
 
 
