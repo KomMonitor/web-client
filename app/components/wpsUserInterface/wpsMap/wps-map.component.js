@@ -786,6 +786,8 @@ angular.module('wpsMap').component(
 
                                                                 // check if measureOfValueCheckbox is checked
 
+                                                                $scope.date = date;
+
                                                                 $scope.indicatorPropertyName = INDICATOR_DATE_PREFIX + date;
                                                                 $scope.indicatorName = indicatorMetadataAndGeoJSON.indicatorName;
                                                                 $scope.indicatorDescription = indicatorMetadataAndGeoJSON.metadata.description;
@@ -868,6 +870,8 @@ angular.module('wpsMap').component(
 
                                                                 console.log('addCustomIndicatorAsGeoJSON was called');
 
+                                                                $scope.date = date;
+
                                                                 $scope.customIndicatorPropertyName = INDICATOR_DATE_PREFIX + date;
                                                                 $scope.customIndicatorName = indicatorMetadataAndGeoJSON.indicatorName;
                                                                 $scope.customIndicatorUnit = indicatorMetadataAndGeoJSON.unit;
@@ -911,7 +915,7 @@ angular.module('wpsMap').component(
                                                                               layer.setStyle(styleMeasureOfValue(layer.feature));
                                                                             });
 
-                                                                            $rootScope.$broadcast("updateDiagrams", wpsPropertiesService.selectedIndicator, wpsPropertiesService.selectedSpatialUnit.spatialUnitLevel, date, $scope.defaultBrew, $scope.gtMeasureOfValueBrew, $scope.ltMeasureOfValueBrew, wpsPropertiesService.isMeasureOfValueChecked, wpsPropertiesService.measureOfValue);
+                                                                            $rootScope.$broadcast("updateDiagrams", wpsPropertiesService.selectedIndicator, wpsPropertiesService.selectedSpatialUnit.spatialUnitLevel, $scope.date, $scope.defaultBrew, $scope.gtMeasureOfValueBrew, $scope.ltMeasureOfValueBrew, wpsPropertiesService.isMeasureOfValueChecked, wpsPropertiesService.measureOfValue);
 
 
                                                                             // $scope.currentIndicatorLayer.resetStyle($scope.currentIndicatorLayer);
