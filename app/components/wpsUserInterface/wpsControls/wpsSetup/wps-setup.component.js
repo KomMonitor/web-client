@@ -394,7 +394,7 @@ angular
 
 									wpsMapService.replaceIndicatorGeoJSON(wpsPropertiesService.selectedIndicator, wpsPropertiesService.selectedSpatialUnit.spatialUnitLevel, $scope.selectedDate);
 
-									$rootScope.$broadcast("updateDiagrams", wpsPropertiesService.selectedIndicator, wpsPropertiesService.selectedSpatialUnit.spatialUnitLevel, $scope.selectedDate);
+									// $rootScope.$broadcast("updateDiagrams", wpsPropertiesService.selectedIndicator, wpsPropertiesService.selectedSpatialUnit.spatialUnitLevel, $scope.selectedDate);
 
 
 									// var dateComps = this.selectedDate.split("-");

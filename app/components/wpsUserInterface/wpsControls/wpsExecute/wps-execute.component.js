@@ -27,7 +27,7 @@ angular
 								  return 0;
 								}
 
-								$scope.$on("updateDiagrams", function (event, indicatorMetadataAndGeoJSON, spatialUnitName, date) {
+								$scope.$on("updateDiagrams", function (event, indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, isMeasureOfValueChecked, measureOfValue) {
 
 									console.log("Updating diagrams!");
 									$scope.indicatorPropertyName = INDICATOR_DATE_PREFIX + date;
@@ -41,7 +41,31 @@ angular
 
 									for(var feature of indicatorMetadataAndGeoJSON.geoJSON.features){
 										featureNamesArray.push(feature.properties.spatialUnitFeatureName);
-										indicatorValueArray.push(feature.properties[$scope.indicatorPropertyName]);
+
+										var color;
+										if(isMeasureOfValueChecked){
+
+											if(feature.properties[$scope.indicatorPropertyName] >= measureOfValue){
+												color = gtMeasureOfValueBrew.getColorInRange(feature.properties[$scope.indicatorPropertyName]);
+											}
+											else {
+												color = ltMeasureOfValueBrew.getColorInRange(feature.properties[$scope.indicatorPropertyName]);
+											}
+
+										}
+										else{
+											color = defaultBrew.getColorInRange(feature.properties[$scope.indicatorPropertyName]);
+										}
+
+
+										var seriesItem = {
+											value: feature.properties[$scope.indicatorPropertyName],
+											itemStyle: {
+												color: color
+											}
+										};
+
+										indicatorValueArray.push(seriesItem);
 									}
 
 									// based on prepared DOM, initialize echarts instance
@@ -69,8 +93,12 @@ angular
 					            },
 					            xAxis: {
 													axisLabel: {
-														rotate: 90
+														rotate: 90,
+														interval: 0,
+														inside: true
 													},
+													z: 6,
+													zlevel: 6,
 					                data: featureNamesArray
 					            },
 					            yAxis: {},
