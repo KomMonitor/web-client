@@ -87,7 +87,15 @@ angular
 					            title: {
 					                text: 'Bar Chart'
 					            },
-					            tooltip: {},
+											tooltip: {
+									        trigger: 'axis',
+									        axisPointer: {
+									            type: 'cross',
+									            crossStyle: {
+									                color: '#999'
+									            }
+									        }
+									    },
 					            legend: {
 					                data:[indicatorMetadataAndGeoJSON.indicatorName]
 					            },
