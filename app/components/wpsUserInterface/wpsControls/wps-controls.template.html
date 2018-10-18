@@ -2,6 +2,7 @@
 	<div class="row wps-ui">
 		<ul class="nav nav-pills nav-justified">
 			<li class="active"><a data-toggle="tab" href="#setup" >Indikatoren</a></li>
+			<li><a data-toggle="tab" href="#execute" >Diagramme</a></li>
 			<li ><a data-toggle="tab" href="#processes">Indikator individuell berechnen</a></li>
 			<li class="disabled"><a data-toggle="tab" href="#">Administration</a></li>
 		</ul>
@@ -9,6 +10,9 @@
 		<div class="tab-content">
 			<div id="setup" class="tab-pane fade in active">
 				<wps-setup></wps-setup>
+			</div>
+			<div id="execute" class="tab-pane fade">
+				<wps-execute></wps-execute>
 			</div>
 			<div id="processes" class="tab-pane fade">
 				<wps-processes></wps-processes>
