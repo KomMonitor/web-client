@@ -82,59 +82,6 @@ angular
 
 									var histogramChart = echarts.init(document.getElementById('histogramDiagram'));
 
-									// var option = {
-									//     title: {
-									//         text: 'Histogram Chart',
-									//         left: 'center',
-									//         top: 20
-									//     },
-									// 		tooltip: {
-									// 				trigger: 'axis',
-									// 				axisPointer: {
-									// 						type: 'cross',
-									// 						crossStyle: {
-									// 								color: '#999'
-									// 						}
-									// 				}
-									// 		},
-									//     color: ['rgb(25, 183, 207)'],
-									//     grid: {
-									//         left: '3%',
-									//         right: '3%',
-									//         bottom: '3%',
-									//         containLabel: true
-									//     },
-									//     xAxis: [{
-									// 				name: 'Wertintervalle',
-									// 				nameLocation: 'center',
-									// 				nameGap: 15,
-									//         type: 'value',
-									//         scale: false,
-									//     }],
-									//     yAxis: [{
-									// 				name: 'Anzahl Features',
-									// 				nameGap: 24,
-									// 				nameLocation: 'center',
-									// 				nameRotate: 90,
-									//         type: 'value',
-									//     }],
-									//     series: [{
-									//         name: indicatorMetadataAndGeoJSON.indicatorName,
-									//         type: 'bar',
-									//         // barWidth: '99.3%',
-									//         label: {
-									//             normal: {
-									//                 show: true,
-									//                 position: 'insideTop',
-									//                 formatter: function(params) {
-									//                     return params.value[1];
-									//                 }
-									//             }
-									//         },
-									//         data: bins.data
-									//     }]
-									// };
-
 									var option = {
                     title: {
 											text: 'Histogram Chart',
@@ -183,12 +130,12 @@ angular
                         itemStyle: {
                             color: 'rgb(25, 183, 207)'
                         },
-                        label: {
-                            normal: {
-                                show: true,
-                                position: 'insideTop'
-                            }
-                        },
+                        // label: {
+                        //     normal: {
+                        //         show: true,
+                        //         position: 'insideTop'
+                        //     }
+                        // },
                         dimensions: ['untere Intervallgrenze', 'obere Intervallgrenze', 'Anzahl'],
                         encode: {
                             x: [0, 1],
