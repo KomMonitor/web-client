@@ -112,7 +112,7 @@ angular
 									    series: [{
 									        name: indicatorMetadataAndGeoJSON.indicatorName,
 									        type: 'bar',
-									        barWidth: '99.3%',
+									        // barWidth: '99.3%',
 									        label: {
 									            normal: {
 									                show: true,
