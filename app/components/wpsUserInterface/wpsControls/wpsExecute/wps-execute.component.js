@@ -100,7 +100,7 @@ angular
 													nameLocation: 'center',
 													nameGap: 15,
 									        type: 'value',
-									        scale: true,
+									        scale: false,
 									    }],
 									    yAxis: [{
 													name: 'Anzahl Features',
@@ -149,7 +149,9 @@ angular
 
 									var option = {
 											title: {
-													text: 'Bar Chart'
+													text: 'Bar Chart',
+													left: 'center',
+									        top: 20
 											},
 											tooltip: {
 													trigger: 'axis',
@@ -161,7 +163,7 @@ angular
 													}
 											},
 											legend: {
-													data:[indicatorMetadataAndGeoJSON.indicatorName]
+													//data:[indicatorMetadataAndGeoJSON.indicatorName]
 											},
 											xAxis: {
 													axisLabel: {
@@ -173,9 +175,14 @@ angular
 													zlevel: 6,
 													data: featureNamesArray
 											},
-											yAxis: {},
+											yAxis: {
+												name: indicatorMetadataAndGeoJSON.unit,
+												nameGap: 30,
+												nameLocation: 'center',
+												nameRotate: 90,
+											},
 											series: [{
-													name: indicatorMetadataAndGeoJSON.indicatorName,
+													// name: indicatorMetadataAndGeoJSON.indicatorName,
 													type: 'bar',
 													data: indicatorValueBarChartArray
 											}]
