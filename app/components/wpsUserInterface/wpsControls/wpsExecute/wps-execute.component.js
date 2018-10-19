@@ -33,6 +33,7 @@ angular
 									$scope.indicatorPropertyName = INDICATOR_DATE_PREFIX + date;
 
 									var featureNamesArray = new Array();
+									var indicatorValueArray = new Array();
 									var indicatorValueBarChartArray = new Array();
 
 									//sort array of features
@@ -41,6 +42,7 @@ angular
 
 									for(var feature of indicatorMetadataAndGeoJSON.geoJSON.features){
 										featureNamesArray.push(feature.properties.spatialUnitFeatureName);
+										indicatorValueArray.push(feature.properties[$scope.indicatorPropertyName]);
 
 										var color;
 										if(isMeasureOfValueChecked){
@@ -70,13 +72,61 @@ angular
 
 									updateBarChart(indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray);
 
-
+									updateHistogramChart(indicatorMetadataAndGeoJSON, indicatorValueArray);
 
 								});
 
 								//HISTOGRAM CHART FUNCTION
 								var updateHistogramChart = function(indicatorMetadataAndGeoJSON, indicatorValueArray){
-									var bins = ecStat.histogram(data);
+									var bins = ecStat.histogram(indicatorValueArray);
+
+									var histogramChart = echarts.init(document.getElementById('histogramDiagram'));
+
+									var option = {
+									    title: {
+									        text: 'Histogram Chart',
+									        left: 'center',
+									        top: 20
+									    },
+									    color: ['rgb(25, 183, 207)'],
+									    grid: {
+									        left: '3%',
+									        right: '3%',
+									        bottom: '3%',
+									        containLabel: true
+									    },
+									    xAxis: [{
+													name: 'Wertintervalle',
+													nameLocation: 'center',
+													nameGap: 15,
+									        type: 'value',
+									        scale: true,
+									    }],
+									    yAxis: [{
+													name: 'Anzahl Features',
+													nameGap: 20,
+													nameLocation: 'center',
+													nameRotate: 90,
+									        type: 'value',
+									    }],
+									    series: [{
+									        name: indicatorMetadataAndGeoJSON.indicatorName,
+									        type: 'bar',
+									        barWidth: '99.3%',
+									        label: {
+									            normal: {
+									                show: true,
+									                position: 'insideTop',
+									                formatter: function(params) {
+									                    return params.value[1];
+									                }
+									            }
+									        },
+									        data: bins.data
+									    }]
+									};
+
+									histogramChart.setOption(option);
 								};
 
 								// BAR CHART FUNCTION
