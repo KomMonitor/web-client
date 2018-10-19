@@ -91,7 +91,7 @@ angular
                     tooltip: {
 											trigger: 'axis',
 											axisPointer: {
-													type: 'cross',
+													type: 'line',
 													crossStyle: {
 															color: '#999'
 													}
