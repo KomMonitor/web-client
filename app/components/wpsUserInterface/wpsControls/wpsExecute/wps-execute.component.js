@@ -33,7 +33,7 @@ angular
 									$scope.indicatorPropertyName = INDICATOR_DATE_PREFIX + date;
 
 									var featureNamesArray = new Array();
-									var indicatorValueArray = new Array();
+									var indicatorValueBarChartArray = new Array();
 
 									//sort array of features
 									var features = indicatorMetadataAndGeoJSON.geoJSON.features;
@@ -65,41 +65,55 @@ angular
 											}
 										};
 
-										indicatorValueArray.push(seriesItem);
+										indicatorValueBarChartArray.push(seriesItem);
 									}
 
-									// based on prepared DOM, initialize echarts instance
-					        var barChart = echarts.init(document.getElementById('barDiagram'));
+									updateBarChart(indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray);
 
-					        // specify chart configuration item and data
+
+
+								});
+
+								//HISTOGRAM CHART FUNCTION
+								var updateHistogramChart = function(indicatorMetadataAndGeoJSON, indicatorValueArray){
+									var bins = ecStat.histogram(data);
+								};
+
+								// BAR CHART FUNCTION
+
+								var updateBarChart = function(indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray){
+									// based on prepared DOM, initialize echarts instance
+									var barChart = echarts.init(document.getElementById('barDiagram'));
+
+									// specify chart configuration item and data
 									var labelOption = {
-										    normal: {
-										        show: true,
-										        position: 'insideBottom',
-										        align: 'left',
-										        verticalAlign: 'middle',
-										        rotate: 90,
-										        formatter: '{c}',
-										    }
+												normal: {
+														show: true,
+														position: 'insideBottom',
+														align: 'left',
+														verticalAlign: 'middle',
+														rotate: 90,
+														formatter: '{c}',
+												}
 										};
 
-					        var option = {
-					            title: {
-					                text: 'Bar Chart'
-					            },
+									var option = {
+											title: {
+													text: 'Bar Chart'
+											},
 											tooltip: {
-									        trigger: 'axis',
-									        axisPointer: {
-									            type: 'line',
-									            crossStyle: {
-									                color: '#999'
-									            }
-									        }
-									    },
-					            legend: {
-					                data:[indicatorMetadataAndGeoJSON.indicatorName]
-					            },
-					            xAxis: {
+													trigger: 'axis',
+													axisPointer: {
+															type: 'line',
+															crossStyle: {
+																	color: '#999'
+															}
+													}
+											},
+											legend: {
+													data:[indicatorMetadataAndGeoJSON.indicatorName]
+											},
+											xAxis: {
 													axisLabel: {
 														rotate: 90,
 														interval: 0,
@@ -107,20 +121,19 @@ angular
 													},
 													z: 6,
 													zlevel: 6,
-					                data: featureNamesArray
-					            },
-					            yAxis: {},
-					            series: [{
-					                name: indicatorMetadataAndGeoJSON.indicatorName,
-					                type: 'bar',
-					                data: indicatorValueArray
-					            }]
-					        };
+													data: featureNamesArray
+											},
+											yAxis: {},
+											series: [{
+													name: indicatorMetadataAndGeoJSON.indicatorName,
+													type: 'bar',
+													data: indicatorValueBarChartArray
+											}]
+									};
 
-					        // use configuration item and data specified to show chart
-					        barChart.setOption(option);
-
-								});
+									// use configuration item and data specified to show chart
+									barChart.setOption(option);
+								};
 
 							} ]
 				});
