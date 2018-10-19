@@ -104,7 +104,7 @@ angular
 									    }],
 									    yAxis: [{
 													name: 'Anzahl Features',
-													nameGap: 20,
+													nameGap: 24,
 													nameLocation: 'center',
 													nameRotate: 90,
 									        type: 'value',
@@ -176,10 +176,6 @@ angular
 													data: featureNamesArray
 											},
 											yAxis: {
-												name: indicatorMetadataAndGeoJSON.unit,
-												nameGap: 30,
-												nameLocation: 'center',
-												nameRotate: 90,
 											},
 											series: [{
 													// name: indicatorMetadataAndGeoJSON.indicatorName,
