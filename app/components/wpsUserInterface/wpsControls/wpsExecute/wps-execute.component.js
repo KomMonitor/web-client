@@ -88,6 +88,15 @@ angular
 									        left: 'center',
 									        top: 20
 									    },
+											tooltip: {
+													trigger: 'axis',
+													axisPointer: {
+															type: 'cross',
+															crossStyle: {
+																	color: '#999'
+															}
+													}
+											},
 									    color: ['rgb(25, 183, 207)'],
 									    grid: {
 									        left: '3%',
