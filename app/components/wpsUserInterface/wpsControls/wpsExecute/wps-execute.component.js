@@ -82,67 +82,119 @@ angular
 
 									var histogramChart = echarts.init(document.getElementById('histogramDiagram'));
 
-									var option = {
+								// 	var option = {
+                //     title: {
+								// 			text: 'Histogram Chart',
+								// 			left: 'center',
+								// 			top: 20
+                //     },
+                //     tooltip: {
+								// 			trigger: 'axis',
+								// 			axisPointer: {
+								// 					type: 'cross',
+								// 					crossStyle: {
+								// 							color: '#999'
+								// 					}
+								// 			}
+								// 		},
+                //     xAxis: [{
+								// 			name: 'Wertintervalle',
+								// 			nameLocation: 'center',
+								// 			nameGap: 15,
+                //         scale: true,
+                //     }],
+                //     yAxis: {
+								// 			name: 'Anzahl Features',
+								// 			nameGap: 24,
+								// 			nameLocation: 'center',
+								// 			nameRotate: 90,
+                //     },
+                //     series: [{
+                //         type: 'custom',
+								// 				name: indicatorMetadataAndGeoJSON.indicatorName,
+                //         renderItem: function (params, api) {
+                //             var yValue = api.value(2);
+                //             var start = api.coord([api.value(0), yValue]);
+                //             var size = api.size([api.value(1) - api.value(0), yValue]);
+                //             return {
+                //                 type: 'rect',
+                //                 shape: {
+                //                     x: start[0],
+                //                     y: start[1],
+                //                     width: size[0] * 0.99,
+                //                     height: size[1]
+                //                 },
+                //                 style: api.style()
+                //             };
+                //         },
+                //         itemStyle: {
+                //             color: 'rgb(25, 183, 207)'
+                //         },
+                //         // label: {
+                //         //     normal: {
+                //         //         show: true,
+                //         //         position: 'insideTop'
+                //         //     }
+                //         // },
+                //         dimensions: ['untere Intervallgrenze', 'obere Intervallgrenze', 'Anzahl'],
+                //         encode: {
+                //             x: [0, 1],
+                //             y: 2,
+                //             tooltip: [0, 1, 2]
+                //         },
+                //         data: bins.customData
+                //     }]
+                // };
+
+								var option = {
                     title: {
-											text: 'Histogram Chart',
-											left: 'center',
-											top: 20
+                        text: 'Histogram Chart',
+                        left: 'center',
+                        top: 20
                     },
-                    tooltip: {
-											trigger: 'axis',
-											axisPointer: {
-													type: 'cross',
-													crossStyle: {
-															color: '#999'
+										tooltip: {
+													trigger: 'axis',
+													axisPointer: {
+															type: 'cross',
+															crossStyle: {
+																	color: '#999'
+															}
 													}
-											}
-										},
-                    xAxis: [{
-											name: 'Wertintervalle',
-											nameLocation: 'center',
-											nameGap: 15,
-                        scale: true,
-                    }],
-                    yAxis: {
-											name: 'Anzahl Features',
-											nameGap: 24,
-											nameLocation: 'center',
-											nameRotate: 90,
+												},
+                    color: ['rgb(25, 183, 207)'],
+                    grid: {
+                        left: '3%',
+                        right: '3%',
+                        bottom: '3%',
+                        containLabel: true
                     },
+										xAxis: [{
+												type: 'value',
+													name: 'Wertintervalle',
+													nameLocation: 'center',
+													nameGap: 15,
+		                        scale: true,
+		                    }],
+		                    yAxis: {
+													type: 'value',
+													name: 'Anzahl Features',
+													nameGap: 24,
+													nameLocation: 'center',
+													nameRotate: 90,
+		                    },
                     series: [{
-                        type: 'custom',
-												name: indicatorMetadataAndGeoJSON.indicatorName,
-                        renderItem: function (params, api) {
-                            var yValue = api.value(2);
-                            var start = api.coord([api.value(0), yValue]);
-                            var size = api.size([api.value(1) - api.value(0), yValue]);
-                            return {
-                                type: 'rect',
-                                shape: {
-                                    x: start[0],
-                                    y: start[1],
-                                    width: size[0] * 0.99,
-                                    height: size[1]
-                                },
-                                style: api.style()
-                            };
-                        },
-                        itemStyle: {
-                            color: 'rgb(25, 183, 207)'
-                        },
+                        name: 'Anzahl',
+                        type: 'bar',
                         // label: {
                         //     normal: {
                         //         show: true,
-                        //         position: 'insideTop'
+                        //         position: 'insideTop',
+                        //         formatter: function (params) {
+                        //             return params.value[1];
+                        //         }
                         //     }
                         // },
-                        dimensions: ['untere Intervallgrenze', 'obere Intervallgrenze', 'Anzahl'],
-                        encode: {
-                            x: [0, 1],
-                            y: 2,
-                            tooltip: [0, 1, 2]
-                        },
-                        data: bins.customData
+                        data: bins.data
                     }]
                 };
 
