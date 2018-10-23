@@ -362,6 +362,12 @@ angular
 
 									console.log("updateDiagramsForHoveredFeature called!");
 
+									appendSeriesToLineChart(featureProperties);
+
+									highlightFeatureInBarChart(featureProperties);
+								});
+
+								var appendSeriesToLineChart = function(featureProperties){
 									// append feature name to legend
 									$scope.lineOption.legend.data.push(featureProperties.spatialUnitFeatureName);
 
@@ -379,12 +385,54 @@ angular
 									$scope.lineOption.series.push(featureSeries);
 
 									$scope.lineChart.setOption($scope.lineOption);
-								});
+								};
+
+								var highlightFeatureInBarChart = function(featureProperties){
+									// highlight the corresponding bar diagram item
+									// get index of bar item
+									var index = -1;
+									for(var i=0; i<$scope.barOption.xAxis.data.length; i++){
+										if($scope.barOption.xAxis.data[i] === featureProperties.spatialUnitFeatureName){
+											index = i;
+											break;
+										}
+									}
+
+									if(index > -1){
+										$scope.barChart.dispatchAction({
+												type: 'highlight',
+												seriesIndex: 0,
+												dataIndex: index
+										});
+								    // tooltip
+								    $scope.barChart.dispatchAction({
+								        type: 'showTip',
+												seriesIndex: 0,
+												dataIndex: index
+								    });
+									}
+								};
 
 								$scope.$on("updateDiagramsForUnhoveredFeature", function (event, featureProperties) {
 
 									console.log("updateDiagramsForUnhoveredFeature called!");
 
+									removeSeriesFromLineChart(featureProperties);
+
+									unhighlightFeatureInBarChart(featureProperties);
+								});
+
+								var getSeriesIndexByFeatureName = function(featureName){
+									for(var index=0; index< $scope.lineOption.series.length; index++){
+										if ($scope.lineOption.series[index].name === featureName)
+											return index;
+									}
+
+									//return -1 if none was found
+									return -1;
+								};
+
+								var removeSeriesFromLineChart = function(featureProperties){
 									// remove feature from legend
 									var legendIndex = $scope.lineOption.legend.data.indexOf(featureProperties.spatialUnitFeatureName);
 									if (legendIndex > -1) {
@@ -398,16 +446,32 @@ angular
 									}
 
 									$scope.lineChart.setOption($scope.lineOption);
-								});
+								};
 
-								var getSeriesIndexByFeatureName = function(featureName){
-									for(var index=0; index< $scope.lineOption.series.length; index++){
-										if ($scope.lineOption.series[index].name === featureName)
-											return index;
+								var unhighlightFeatureInBarChart = function(featureProperties){
+									// highlight the corresponding bar diagram item
+									// get index of bar item
+									var index = -1;
+									for(var i=0; i<$scope.barOption.xAxis.data.length; i++){
+										if($scope.barOption.xAxis.data[i] === featureProperties.spatialUnitFeatureName){
+											index = i;
+											break;
+										}
 									}
 
-									//return -1 if none was found
-									return -1;
+									if(index > -1){
+										$scope.barChart.dispatchAction({
+												type: 'downplay',
+												seriesIndex: 0,
+												dataIndex: index
+										});
+								    // tooltip
+								    $scope.barChart.dispatchAction({
+								        type: 'hideTip',
+												seriesIndex: 0,
+												dataIndex: index
+								    });
+									}
 								};
 
 							} ]
