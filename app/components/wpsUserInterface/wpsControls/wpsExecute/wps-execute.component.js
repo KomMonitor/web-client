@@ -365,6 +365,7 @@ angular
 									appendSeriesToLineChart(featureProperties);
 
 									highlightFeatureInBarChart(featureProperties);
+									highlightFeatureInLineChart(featureProperties);
 								});
 
 								var appendSeriesToLineChart = function(featureProperties){
@@ -413,9 +414,24 @@ angular
 									}
 								};
 
+								var highlightFeatureInLineChart = function(featureProperties){
+									// highlight the corresponding bar diagram item
+									// get series index of series
+									var seriesIndex = getSeriesIndexByFeatureName(featureProperties.spatialUnitFeatureName);
+
+									if(seriesIndex > -1){
+										$scope.lineChart.dispatchAction({
+												type: 'highlight',
+												seriesIndex: seriesIndex
+										});
+									}
+								};
+
 								$scope.$on("updateDiagramsForUnhoveredFeature", function (event, featureProperties) {
 
 									console.log("updateDiagramsForUnhoveredFeature called!");
+
+									unhighlightFeatureInLineChart(featureProperties);
 
 									removeSeriesFromLineChart(featureProperties);
 
@@ -471,6 +487,19 @@ angular
 												seriesIndex: 0,
 												dataIndex: index
 								    });
+									}
+								};
+
+								var unhighlightFeatureInLineChart = function(featureProperties){
+									// highlight the corresponding bar diagram item
+									// get series index of series
+									var seriesIndex = getSeriesIndexByFeatureName(featureProperties.spatialUnitFeatureName);
+
+									if(seriesIndex > -1){
+										$scope.lineChart.dispatchAction({
+												type: 'downplay',
+												seriesIndex: seriesIndex
+										});
 									}
 								};
 
