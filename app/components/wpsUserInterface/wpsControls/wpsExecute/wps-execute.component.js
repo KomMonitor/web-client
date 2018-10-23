@@ -288,7 +288,7 @@ angular
 								// LINE CHART TIME SERIES FUNCTION
 								var updateLineChart = function(indicatorMetadataAndGeoJSON, indicatorTimeSeriesDatesArray, indicatorTimeSeriesAverageArray){
 									// based on prepared DOM, initialize echarts instance
-									var lineChart = echarts.init(document.getElementById('lineDiagram'));
+									$scope.lineChart = echarts.init(document.getElementById('lineDiagram'));
 
 									// // specify chart configuration item and data
 									// var labelOption = {
@@ -302,7 +302,7 @@ angular
 									// 			}
 									// 	};
 
-									var option = {
+									$scope.lineOption = {
 											title: {
 													text: 'Line Chart (Zeitreihe)',
 													left: 'center',
@@ -355,7 +355,59 @@ angular
 									};
 
 									// use configuration item and data specified to show chart
-									lineChart.setOption(option);
+									$scope.lineChart.setOption($scope.lineOption);
+								};
+
+								$scope.$on("updateDiagramsForHoveredFeature", function (event, featureProperties) {
+
+									console.log("updateDiagramsForHoveredFeature called!");
+
+									// append feature name to legend
+									$scope.lineOption.legend.data.push(featureProperties.spatialUnitFeatureName);
+
+									// create feature data series
+									var featureSeries = {};
+									featureSeries.name = featureProperties.spatialUnitFeatureName;
+									featureSeries.type = 'line';
+									featureSeries.data = new Array();
+
+									// for each date create series data entry for feature
+									for (var date of $scope.lineOption.xAxis.data){
+										featureSeries.data.push(featureProperties[INDICATOR_DATE_PREFIX + date]);
+									}
+
+									$scope.lineOption.series.push(featureSeries);
+
+									$scope.lineChart.setOption($scope.lineOption);
+								});
+
+								$scope.$on("updateDiagramsForUnhoveredFeature", function (event, featureProperties) {
+
+									console.log("updateDiagramsForUnhoveredFeature called!");
+
+									// remove feature from legend
+									var legendIndex = $scope.lineOption.legend.data.indexOf(featureProperties.spatialUnitFeatureName);
+									if (legendIndex > -1) {
+									  $scope.lineOption.legend.data.splice(legendIndex, 1);
+									}
+
+									// remove feature data series
+									var seriesIndex = getSeriesIndexByFeatureName(featureProperties.spatialUnitFeatureName);
+									if (seriesIndex > -1) {
+									  $scope.lineOption.series.splice(seriesIndex, 1);
+									}
+
+									$scope.lineChart.setOption($scope.lineOption);
+								});
+
+								var getSeriesIndexByFeatureName = function(featureName){
+									for(var index=0; index< $scope.lineOption.series.length; index++){
+										if ($scope.lineOption.series[index].name === featureName)
+											return index;
+									}
+
+									//return -1 if none was found
+									return -1;
 								};
 
 							} ]

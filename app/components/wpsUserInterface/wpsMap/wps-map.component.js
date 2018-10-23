@@ -669,11 +669,20 @@ angular.module('wpsMap').component(
                                                 layer.bringToFront();
                                             }
                                             $scope.infoControl.update(layer.feature.properties);
+
+                                            // update diagrams for hovered feature
+                                            $rootScope.$broadcast("updateDiagramsForHoveredFeature", layer.feature.properties);
+
                                         }
 
                                         function resetHighlight(e) {
-                                            $scope.currentIndicatorLayer.resetStyle(e.target);
+                                          var layer = e.target;
+
+                                            $scope.currentIndicatorLayer.resetStyle(layer);
                                             $scope.infoControl.update();
+
+                                            //update diagrams for unhoveredFeature
+                                            $rootScope.$broadcast("updateDiagramsForUnhoveredFeature", layer.feature.properties);
                                         }
 
                                         function resetHighlightCustom(e) {
