@@ -36,6 +36,16 @@ angular
 									var indicatorValueArray = new Array();
 									var indicatorValueBarChartArray = new Array();
 
+									var indicatorTimeSeriesDatesArray = indicatorMetadataAndGeoJSON.applicableDates;
+									var indicatorTimeSeriesAverageArray = new Array(indicatorTimeSeriesDatesArray.length);
+									var indicatorTimeSeriesCountArray = new Array(indicatorTimeSeriesDatesArray.length);
+
+									// initialize timeSeries arrays
+									for(var i=0; i<indicatorTimeSeriesDatesArray.length; i++){
+										indicatorTimeSeriesAverageArray[i] = 0;
+										indicatorTimeSeriesCountArray[i] = 0;
+									}
+
 									//sort array of features
 									var features = indicatorMetadataAndGeoJSON.geoJSON.features;
 									features.sort(compareFeaturesByIndicatorValue);
@@ -68,11 +78,25 @@ angular
 										};
 
 										indicatorValueBarChartArray.push(seriesItem);
+
+										// continue timeSeries arrays by adding and counting all time series values
+										for(var i=0; i<indicatorTimeSeriesDatesArray.length; i++){
+											var datePropertyName = INDICATOR_DATE_PREFIX + indicatorTimeSeriesDatesArray[i];
+											indicatorTimeSeriesAverageArray[i] += feature.properties[datePropertyName];
+											indicatorTimeSeriesCountArray[i] ++;
+										}
+									}
+
+									// finish timeSeries arrays by computing averages of all time series values
+									for(var i=0; i<indicatorTimeSeriesDatesArray.length; i++){
+										indicatorTimeSeriesAverageArray[i] = indicatorTimeSeriesAverageArray[i] / indicatorTimeSeriesCountArray[i];
 									}
 
 									updateBarChart(indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray);
 
 									updateHistogramChart(indicatorMetadataAndGeoJSON, indicatorValueArray);
+
+									updateLineChart(indicatorMetadataAndGeoJSON, indicatorTimeSeriesDatesArray, indicatorTimeSeriesAverageArray);
 
 								});
 
@@ -259,6 +283,79 @@ angular
 
 									// use configuration item and data specified to show chart
 									barChart.setOption(option);
+								};
+
+								// LINE CHART TIME SERIES FUNCTION
+								var updateLineChart = function(indicatorMetadataAndGeoJSON, indicatorTimeSeriesDatesArray, indicatorTimeSeriesAverageArray){
+									// based on prepared DOM, initialize echarts instance
+									var lineChart = echarts.init(document.getElementById('lineDiagram'));
+
+									// // specify chart configuration item and data
+									// var labelOption = {
+									// 			normal: {
+									// 					show: true,
+									// 					position: 'insideBottom',
+									// 					align: 'left',
+									// 					verticalAlign: 'middle',
+									// 					rotate: 90,
+									// 					formatter: '{c}',
+									// 			}
+									// 	};
+
+									var option = {
+											title: {
+													text: 'Line Chart (Zeitreihe)',
+													left: 'center',
+									        top: 20
+											},
+											tooltip: {
+													trigger: 'axis',
+													axisPointer: {
+															type: 'line',
+															crossStyle: {
+																	color: '#999'
+															}
+													}
+											},
+											legend: {
+													data:['Durchschnitt']
+											},
+											xAxis: {
+													// axisLabel: {
+													// 	rotate: 90,
+													// 	interval: 0,
+													// 	inside: true
+													// },
+													// z: 6,
+													// zlevel: 6,
+													type: 'category',
+													data: indicatorTimeSeriesDatesArray
+											},
+											yAxis: {
+												type: 'value'
+											},
+											series: [{
+													name: "Durchschnitt",
+													type: 'line',
+													data: indicatorTimeSeriesAverageArray,
+													lineStyle: {
+									            normal: {
+									                color: 'gray',
+									                width: 2,
+									                type: 'dashed'
+									            }
+									        },
+													itemStyle: {
+									            normal: {
+									                borderWidth: 3,
+									                color: 'gray'
+									            }
+									        }
+											}]
+									};
+
+									// use configuration item and data specified to show chart
+									lineChart.setOption(option);
 								};
 
 							} ]
