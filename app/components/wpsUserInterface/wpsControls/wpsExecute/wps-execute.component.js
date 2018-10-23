@@ -362,7 +362,9 @@ angular
 
 									console.log("updateDiagramsForHoveredFeature called!");
 
-									appendSeriesToLineChart(featureProperties);
+									if(! wpsPropertiesService.clickedIndicatorFeatureNames.includes(featureProperties.spatialUnitFeatureName)){
+										appendSeriesToLineChart(featureProperties);
+									}
 
 									highlightFeatureInBarChart(featureProperties);
 									highlightFeatureInLineChart(featureProperties);
@@ -431,11 +433,13 @@ angular
 
 									console.log("updateDiagramsForUnhoveredFeature called!");
 
-									unhighlightFeatureInLineChart(featureProperties);
+									if(! wpsPropertiesService.clickedIndicatorFeatureNames.includes(featureProperties.spatialUnitFeatureName)){
+										unhighlightFeatureInLineChart(featureProperties);
 
-									removeSeriesFromLineChart(featureProperties);
+										removeSeriesFromLineChart(featureProperties);
 
-									unhighlightFeatureInBarChart(featureProperties);
+										unhighlightFeatureInBarChart(featureProperties);
+									}
 								});
 
 								var getSeriesIndexByFeatureName = function(featureName){

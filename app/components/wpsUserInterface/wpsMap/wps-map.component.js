@@ -386,10 +386,20 @@ angular.module('wpsMap').component(
                             mouseout: resetHighlight,
                             click: function () {
 
-                                var popupContent = layer.feature.properties;
+                              // add or remove feature within a list of "clicked features"
+                              // those shall be treated specially, i.e. keep being highlighted
+                              if(! wpsPropertiesService.clickedIndicatorFeatureNames.includes(layer.feature.properties.spatialUnitFeatureName))
+                                  wpsPropertiesService.clickedIndicatorFeatureNames.push(layer.feature.properties.spatialUnitFeatureName);
+                              else{
+                                //remove from array
+                                var index = wpsPropertiesService.clickedIndicatorFeatureNames.indexOf(layer.feature.properties.spatialUnitFeatureName);
+                                wpsPropertiesService.clickedIndicatorFeatureNames.splice(index, 1);
+                              }
 
-                                if (popupContent)
-                                    layer.bindPopup("Indicator: " + JSON.stringify(popupContent));
+                                // var popupContent = layer.feature.properties;
+                                //
+                                // if (popupContent)
+                                //     layer.bindPopup("Indicator: " + JSON.stringify(popupContent));
                             }
                         })
                     };
@@ -678,8 +688,11 @@ angular.module('wpsMap').component(
                                         function resetHighlight(e) {
                                           var layer = e.target;
 
+                                          // only restyle feature when not in list of clicked features
+                                          if(! wpsPropertiesService.clickedIndicatorFeatureNames.includes(layer.feature.properties.spatialUnitFeatureName)){
                                             $scope.currentIndicatorLayer.resetStyle(layer);
-                                            $scope.infoControl.update();
+                                          }
+                                          $scope.infoControl.update();
 
                                             //update diagrams for unhoveredFeature
                                             $rootScope.$broadcast("updateDiagramsForUnhoveredFeature", layer.feature.properties);

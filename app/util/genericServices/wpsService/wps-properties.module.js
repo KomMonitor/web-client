@@ -54,6 +54,7 @@ angular
 
 
 					// INDICATORS
+					this.clickedIndicatorFeatureNames = new Array();
 
 					this.availableIndicators;
 
