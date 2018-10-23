@@ -465,7 +465,8 @@ angular
 									  $scope.lineOption.series.splice(seriesIndex, 1);
 									}
 
-									$scope.lineChart.setOption($scope.lineOption);
+									// second parameter tells echarts to not merge options with previous data. hence really remove series from graphic
+									$scope.lineChart.setOption($scope.lineOption, true);
 								};
 
 								var unhighlightFeatureInBarChart = function(featureProperties){
