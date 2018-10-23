@@ -388,12 +388,16 @@ angular.module('wpsMap').component(
 
                               // add or remove feature within a list of "clicked features"
                               // those shall be treated specially, i.e. keep being highlighted
-                              if(! wpsPropertiesService.clickedIndicatorFeatureNames.includes(layer.feature.properties.spatialUnitFeatureName))
-                                  wpsPropertiesService.clickedIndicatorFeatureNames.push(layer.feature.properties.spatialUnitFeatureName);
+                              if(! wpsPropertiesService.clickedIndicatorFeatureNames.includes(layer.feature.properties.spatialUnitFeatureName)){
+                                wpsPropertiesService.clickedIndicatorFeatureNames.push(layer.feature.properties.spatialUnitFeatureName);
+                                highlightClickedFeature(layer);
+                              }
+
                               else{
                                 //remove from array
                                 var index = wpsPropertiesService.clickedIndicatorFeatureNames.indexOf(layer.feature.properties.spatialUnitFeatureName);
                                 wpsPropertiesService.clickedIndicatorFeatureNames.splice(index, 1);
+                                resetHighlightClickedFeature(layer);
                               }
 
                                 // var popupContent = layer.feature.properties;
@@ -668,11 +672,35 @@ angular.module('wpsMap').component(
                                         function highlightFeature(e) {
                                             var layer = e.target;
 
+                                            if(wpsPropertiesService.clickedIndicatorFeatureNames.includes(layer.feature.properties.spatialUnitFeatureName)){
+                                              highlightClickedFeature(layer);
+                                              return;
+                                            }
+
                                             layer.setStyle({
                                                 weight: 5,
                                                 color: '#666',
                                                 dashArray: '',
                                                 fillOpacity: 0.7
+                                            });
+
+                                            if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+                                                layer.bringToFront();
+                                            }
+                                            $scope.infoControl.update(layer.feature.properties);
+
+                                            // update diagrams for hovered feature
+                                            $rootScope.$broadcast("updateDiagramsForHoveredFeature", layer.feature.properties);
+
+                                        }
+
+                                        function highlightClickedFeature(layer) {
+
+                                            layer.setStyle({
+                                                weight: 6,
+                                                color: '#42e5f4',
+                                                dashArray: '',
+                                                fillOpacity: 0.8
                                             });
 
                                             if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
@@ -696,6 +724,10 @@ angular.module('wpsMap').component(
 
                                             //update diagrams for unhoveredFeature
                                             $rootScope.$broadcast("updateDiagramsForUnhoveredFeature", layer.feature.properties);
+                                        }
+
+                                        function resetHighlightClickedFeature(layer) {
+                                          $scope.currentIndicatorLayer.resetStyle(layer);
                                         }
 
                                         function resetHighlightCustom(e) {
