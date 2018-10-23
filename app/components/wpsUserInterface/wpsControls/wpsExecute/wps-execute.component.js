@@ -104,9 +104,9 @@ angular
 								var updateHistogramChart = function(indicatorMetadataAndGeoJSON, indicatorValueArray){
 									var bins = ecStat.histogram(indicatorValueArray);
 
-									var histogramChart = echarts.init(document.getElementById('histogramDiagram'));
+									$scope.histogramChart = echarts.init(document.getElementById('histogramDiagram'));
 
-									var option = {
+									$scope.histogramOption = {
                     title: {
 											text: 'Histogram Chart',
 											left: 'center',
@@ -223,14 +223,14 @@ angular
                 //     }]
                 // };
 
-									histogramChart.setOption(option);
+									$scope.histogramChart.setOption($scope.histogramOption);
 								};
 
 								// BAR CHART FUNCTION
 
 								var updateBarChart = function(indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray){
 									// based on prepared DOM, initialize echarts instance
-									var barChart = echarts.init(document.getElementById('barDiagram'));
+									$scope.barChart = echarts.init(document.getElementById('barDiagram'));
 
 									// specify chart configuration item and data
 									var labelOption = {
@@ -244,7 +244,7 @@ angular
 												}
 										};
 
-									var option = {
+									$scope.barOption = {
 											title: {
 													text: 'Bar Chart',
 													left: 'center',
@@ -282,7 +282,7 @@ angular
 									};
 
 									// use configuration item and data specified to show chart
-									barChart.setOption(option);
+									$scope.barChart.setOption($scope.barOption);
 								};
 
 								// LINE CHART TIME SERIES FUNCTION
