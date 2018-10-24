@@ -108,7 +108,7 @@ angular
 
 									$scope.histogramOption = {
                     title: {
-											text: 'Histogram Chart',
+											text: 'Histogramm - Wertverteilung',
 											left: 'center',
 											top: 20
                     },
@@ -246,7 +246,7 @@ angular
 
 									$scope.barOption = {
 											title: {
-													text: 'Bar Chart',
+													text: 'Wertvergleich',
 													left: 'center',
 									        top: 20
 											},
@@ -304,7 +304,7 @@ angular
 
 									$scope.lineOption = {
 											title: {
-													text: 'Line Chart (Zeitreihe)',
+													text: 'Zeitreihe',
 													left: 'center',
 									        top: 20
 											},
