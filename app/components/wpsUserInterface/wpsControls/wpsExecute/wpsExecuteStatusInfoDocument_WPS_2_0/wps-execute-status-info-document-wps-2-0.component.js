@@ -18,6 +18,8 @@ angular
 
 								$scope.allIndicatorProperties;
 
+								$scope.date;
+
 								$scope.$on("updateDiagrams", function (event, indicatorMetadataAndGeoJSON, spatialUnitName, spatialUnitId, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, isMeasureOfValueChecked, measureOfValue) {
 
 									console.log("updating radar diagram");
@@ -29,6 +31,8 @@ angular
 								// RADAR CHART TIME SERIES FUNCTION
 								var updateRadarChart = async function(indicatorMetadataAndGeoJSON, spatialUnitName, spatialUnitId, date){
 									// based on prepared DOM, initialize echarts instance
+									$scope.date = date;
+
 									if(!$scope.radarChart)
 										$scope.radarChart = echarts.init(document.getElementById('radarDiagram'));
 
@@ -175,6 +179,114 @@ angular
 											// or server returns response with an error status.
 									});
 								}
+
+
+
+								$scope.$on("updateDiagramsForHoveredFeature", function (event, featureProperties) {
+
+									console.log("updateRadarDiagramForHoveredFeature called!");
+
+									if(! wpsPropertiesService.clickedIndicatorFeatureNames.includes(featureProperties.spatialUnitFeatureName)){
+										appendSeriesToRadarChart(featureProperties);
+									}
+
+									highlightFeatureInRadarChart(featureProperties);
+								});
+
+								var appendSeriesToRadarChart = function(featureProperties){
+									// append feature name to legend
+									$scope.radarOption.legend.data.push(featureProperties.spatialUnitFeatureName);
+
+									// create feature data series
+									var featureSeries = {};
+									featureSeries.name = featureProperties.spatialUnitFeatureName;
+									featureSeries.value = new Array();
+
+									// for each date create series data entry for feature
+									for(var i=0; i<$scope.allIndicatorProperties.length; i++){
+										// make object to hold indicatorName, max value and average value
+										var indicatorProperties = $scope.allIndicatorProperties[i];
+
+										for(var indicatorPropertyInstance of indicatorProperties){
+											if(indicatorPropertyInstance.spatialUnitFeatureName === featureProperties.spatialUnitFeatureName){
+												if(indicatorPropertyInstance[DATE_PREFIX + $scope.date] != undefined && indicatorPropertyInstance[DATE_PREFIX + $scope.date] != null){
+													featureSeries.value.push(Number(Number(indicatorPropertyInstance[DATE_PREFIX + $scope.date]).toFixed(4)));
+												}
+												break;
+											}
+										}
+									}
+
+									$scope.radarOption.series[0].data.push(featureSeries);
+
+									$scope.radarChart.setOption($scope.radarOption);
+								};
+
+								var highlightFeatureInRadarChart = function(featureProperties){
+									// highlight the corresponding bar diagram item
+									// get series index of series
+									var dataIndex = getSeriesDataIndexByFeatureName(featureProperties.spatialUnitFeatureName);
+
+									if(seriesIndex > -1){
+										$scope.radarChart.dispatchAction({
+												type: 'highlight',
+												seriesIndex: 0,
+												dataIndex: dataIndex
+										});
+									}
+								};
+
+								$scope.$on("updateDiagramsForUnhoveredFeature", function (event, featureProperties) {
+
+									console.log("updateRadarDiagramForUnhoveredFeature called!");
+
+									if(! wpsPropertiesService.clickedIndicatorFeatureNames.includes(featureProperties.spatialUnitFeatureName)){
+										unhighlightFeatureInRadarChart(featureProperties);
+
+										removeSeriesFromRadarChart(featureProperties);
+									}
+								});
+
+								var getSeriesDataIndexByFeatureName = function(featureName){
+									for(var index=0; index< $scope.radarOption.series[0].data.length; index++){
+										if ($scope.radarOption.series[0].data[index].name === featureName)
+											return index;
+									}
+
+									//return -1 if none was found
+									return -1;
+								};
+
+								var removeSeriesFromRadarChart = function(featureProperties){
+									// remove feature from legend
+									var legendIndex = $scope.radarOption.legend.data.indexOf(featureProperties.spatialUnitFeatureName);
+									if (legendIndex > -1) {
+									  $scope.radarOption.legend.data.splice(legendIndex, 1);
+									}
+
+									// remove feature data series
+									var dataIndex = getSeriesDataIndexByFeatureName(featureProperties.spatialUnitFeatureName);
+									if (dataIndex > -1) {
+									  $scope.radarOption.series[0].data.splice(dataIndex, 1);
+									}
+
+									// second parameter tells echarts to not merge options with previous data. hence really remove series from graphic
+									$scope.radarChart.setOption($scope.radarOption, true);
+								};
+
+								var unhighlightFeatureInRadarChart = function(featureProperties){
+									// highlight the corresponding bar diagram item
+									// get series index of series
+									var dataIndex = getSeriesDataIndexByFeatureName(featureProperties.spatialUnitFeatureName);
+
+									if(dataIndex > -1){
+										$scope.radarChart.dispatchAction({
+												type: 'downplay',
+												seriesIndex: 0,
+												dataIndex: dataIndex
+										});
+									}
+								};
 
 
 							} ]
