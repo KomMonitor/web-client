@@ -6,52 +6,87 @@ angular
 					templateUrl : "components/wpsUserInterface/wpsControls/wpsExecute/wpsExecuteStatusInfoDocument_WPS_2_0/wps-execute-status-info-document-wps-2-0.template.html",
 
 					controller : [
-							'wpsPropertiesService', '$scope',
+							'wpsPropertiesService', '$scope', '$http',
 							function WpsExecuteStatusInfoDocumentWps2Controller(
-									wpsPropertiesService, $scope) {
+									wpsPropertiesService, $scope, $http) {
 								/*
 								 * reference to wpsPropertiesService instances
 								 */
 								this.wpsPropertiesServiceInstance = wpsPropertiesService;
 
-								$scope.$on("updateDiagrams", function (event, indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, isMeasureOfValueChecked, measureOfValue) {
+								const DATE_PREFIX = "DATE_";
+
+								$scope.allIndicatorProperties;
+
+								$scope.$on("updateDiagrams", function (event, indicatorMetadataAndGeoJSON, spatialUnitName, spatialUnitId, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, isMeasureOfValueChecked, measureOfValue) {
 
 									console.log("updating radar diagram");
 
-									updateRadarChart(indicatorMetadataAndGeoJSON);
+									updateRadarChart(indicatorMetadataAndGeoJSON, spatialUnitName, spatialUnitId, date);
 
 								});
 
 								// RADAR CHART TIME SERIES FUNCTION
-								var updateRadarChart = function(indicatorMetadataAndGeoJSON){
+								var updateRadarChart = async function(indicatorMetadataAndGeoJSON, spatialUnitName, spatialUnitId, date){
 									// based on prepared DOM, initialize echarts instance
 									if(!$scope.radarChart)
 										$scope.radarChart = echarts.init(document.getElementById('radarDiagram'));
 
-									$scope.radarChart.hideLoading();
+									$scope.radarChart.showLoading();
 
-									// // specify chart configuration item and data
-									// var labelOption = {
-									// 			normal: {
-									// 					show: true,
-									// 					position: 'insideBottom',
-									// 					align: 'left',
-									// 					verticalAlign: 'middle',
-									// 					rotate: 90,
-									// 					formatter: '{c}',
-									// 			}
-									// 	};
+									var indicatorArrayForRadarChart = new Array();
+									var defaultSeriesValueArray = new Array();
+
+									// fetch properties of all indicators for targetSpatialunit and date
+									try{
+										$scope.allIndicatorProperties = await fetchAllIndicatorProperties(spatialUnitId, date);
+									}
+									catch(error){
+										throw error;
+									}
+
+									// iterate over all indicator properties
+									var indicatorNames = new Array();
+									for (var indicatorMetadata of wpsPropertiesService.availableIndicators){
+										indicatorNames.push(indicatorMetadata.indicatorName);
+									}
+
+									for(var i=0; i<$scope.allIndicatorProperties.length; i++){
+										// make object to hold indicatorName, max value and average value
+										var indicatorProperties = $scope.allIndicatorProperties[i];
+										var maxValue = 0;
+										var valueSum = 0;
+
+										for(var indicatorPropertyInstance of indicatorProperties){
+											valueSum += Number(indicatorPropertyInstance[DATE_PREFIX + date]);
+
+											if(Number(indicatorPropertyInstance[DATE_PREFIX + date]) > maxValue)
+												maxValue = Number(indicatorPropertyInstance[DATE_PREFIX + date]);
+										}
+
+										// IT MIGHT HAPPEN THAT AN INDICATOR IS INSPECTED THAT DOES NOT SUPPORT THE DATE
+										// HENCE ONLY ADD VALUES TO DEFAULT IF THEY SHOW MEANINGFUL VALUES
+										if(maxValue > 0 && valueSum > 0){
+											indicatorArrayForRadarChart.push({
+												name: indicatorNames[i],
+												max: maxValue
+											});
+
+											defaultSeriesValueArray.push(Number(valueSum/indicatorProperties.length));
+										}
+
+									}
 
 									$scope.radarOption = {
 											title: {
-													text: 'Indikatoren im Vergleich',
+													text: 'Indikatoren im Vergleich - ' + spatialUnitName + ' - ' + date,
 													left: 'left',
 									        top: 15
 											},
 											tooltip: {
 											},
 											legend: {
-													data: ['预算分配（Allocated Budget）', '实际开销（Actual Spending）']
+													data: ['Durchschnitt']
 											},
 											radar: {
 									        // shape: 'circle',
@@ -63,35 +98,83 @@ angular
 									                padding: [3, 5]
 									           }
 									        },
-									        indicator: [
-									           { name: '销售（sales）', max: 6500},
-									           { name: '管理（Administration）', max: 16000},
-									           { name: '信息技术（Information Techology）', max: 30000},
-									           { name: '客服（Customer Support）', max: 38000},
-									           { name: '研发（Development）', max: 52000},
-									           { name: '市场（Marketing）', max: 25000}
-									        ]
+									        indicator: indicatorArrayForRadarChart
 									    },
 											series: [{
-									        name: '预算 vs 开销（Budget vs spending）',
+									        name: 'Indikatorvergleich',
 									        type: 'radar',
 									        // areaStyle: {normal: {}},
+													itemStyle: {
+							                emphasis: {
+							                    lineStyle: {
+							                        width: 4
+							                    }
+							                }
+							            },
 									        data : [
 									            {
-									                value : [4300, 10000, 28000, 35000, 50000, 19000],
-									                name : '预算分配（Allocated Budget）'
-									            },
-									             {
-									                value : [5000, 14000, 28000, 31000, 42000, 21000],
-									                name : '实际开销（Actual Spending）'
+									                value : defaultSeriesValueArray,
+									                name : 'Durchschnitt',
+																	lineStyle: {
+							                        normal: {
+																					color: 'gray',
+							                            type: 'dashed'
+							                        }
+							                    },
+																	itemStyle: {
+													            normal: {
+													                borderWidth: 3,
+													                color: 'gray'
+													            }
+													        }
 									            }
 									        ]
 									    }]
 									};
 
+									$scope.radarChart.hideLoading();
+
 									// use configuration item and data specified to show chart
 									$scope.radarChart.setOption($scope.radarOption);
 								};
+
+								var fetchAllIndicatorProperties = async function(spatialUnitId, date){
+									var allIndicatorProperties = new Array();
+
+									var dateComps = date.split("-");
+
+									var year = dateComps[0];
+									var month = dateComps[1];
+									var day = dateComps[2];
+
+									for (var indicatorMetadata of wpsPropertiesService.availableIndicators){
+
+										try{
+											var indicatorProperties = await fetchIndicatorProperties(indicatorMetadata, spatialUnitId, year, month, day);
+											allIndicatorProperties.push(indicatorProperties);
+										}
+										catch(error){
+							        throw error;
+							      }
+									}
+
+									return allIndicatorProperties;
+								};
+
+								var fetchIndicatorProperties = function(indicatorMetadata, spatialUnitId, year, month, day){
+									return $http({
+										url: wpsPropertiesService.baseUrlToKomMonitorDataAPI + "/indicators/" + indicatorMetadata.indicatorId + "/" + spatialUnitId + "/" + year + "/" + month + "/" + day + "/without-geometry",
+										method: "GET"
+									}).then(function successCallback(response) {
+											// this callback will be called asynchronously
+											// when the response is available
+											return response.data;
+
+										}, function errorCallback(response) {
+											// called asynchronously if an error occurs
+											// or server returns response with an error status.
+									});
+								}
 
 
 							} ]
