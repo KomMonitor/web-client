@@ -58,7 +58,10 @@ angular
 									for(var i=0; i<$scope.allIndicatorProperties.length; i++){
 										// make object to hold indicatorName, max value and average value
 										var indicatorProperties = $scope.allIndicatorProperties[i];
-										var maxValue = 0;
+
+										var sample = indicatorProperties[0];
+										var maxValue = sample[DATE_PREFIX + date];
+										var minValue = sample[DATE_PREFIX + date];
 										var valueSum = 0;
 
 										for(var indicatorPropertyInstance of indicatorProperties){
@@ -66,6 +69,9 @@ angular
 
 											if(Number(indicatorPropertyInstance[DATE_PREFIX + date]) > maxValue)
 												maxValue = Number(Number(indicatorPropertyInstance[DATE_PREFIX + date]).toFixed(4));
+
+											if(Number(indicatorPropertyInstance[DATE_PREFIX + date]) < minValue)
+												minValue = Number(Number(indicatorPropertyInstance[DATE_PREFIX + date]).toFixed(4));
 										}
 
 										// IT MIGHT HAPPEN THAT AN INDICATOR IS INSPECTED THAT DOES NOT SUPPORT THE DATE
@@ -73,7 +79,8 @@ angular
 										if(maxValue > 0 && valueSum > 0){
 											indicatorArrayForRadarChart.push({
 												name: indicatorNames[i],
-												max: maxValue
+												max: maxValue,
+												min: minValue
 											});
 
 											defaultSeriesValueArray.push(Number(Number(valueSum/indicatorProperties.length).toFixed(4)));
@@ -107,11 +114,12 @@ angular
 											series: [{
 									        name: 'Indikatorvergleich',
 									        type: 'radar',
+													symbolSize: 6,
 									        // areaStyle: {normal: {}},
 													itemStyle: {
 							                emphasis: {
 							                    lineStyle: {
-							                        width: 4
+							                        width: 6
 							                    }
 							                }
 							            },
@@ -122,13 +130,14 @@ angular
 																	lineStyle: {
 							                        normal: {
 																					color: 'gray',
-							                            type: 'dashed'
+							                            type: 'dashed',
+																					width: 4
 							                        }
 							                    },
 																	itemStyle: {
 													            normal: {
 													                borderWidth: 3,
-													                color: 'gray'
+													                color: 'gray',
 													            }
 													        }
 									            }
@@ -201,6 +210,11 @@ angular
 									var featureSeries = {};
 									featureSeries.name = featureProperties.spatialUnitFeatureName;
 									featureSeries.value = new Array();
+									featureSeries.lineStyle = {
+											normal: {
+													width: 4
+											}
+									};
 
 									// for each date create series data entry for feature
 									for(var i=0; i<$scope.allIndicatorProperties.length; i++){
