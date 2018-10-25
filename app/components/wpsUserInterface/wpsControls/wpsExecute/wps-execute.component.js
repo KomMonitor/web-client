@@ -27,9 +27,30 @@ angular
 								  return 0;
 								}
 
+								var showLoadingIcons = function(){
+
+									console.log("Show spiining loading icons on diagrams");
+									if($scope.histogramChart)
+										$scope.histogramChart.showLoading();
+
+									if($scope.barChart)
+										$scope.barChart.showLoading();
+
+									if($scope.lineChart)
+										$scope.lineChart.showLoading();
+								};
+
 								$scope.$on("updateDiagrams", function (event, indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, isMeasureOfValueChecked, measureOfValue) {
 
 									console.log("Updating diagrams!");
+
+									showLoadingIcons();
+
+									if (indicatorMetadataAndGeoJSON.geoJSON.features.length > 75){
+										console.log("Number of features too big (more than 75). Thus no diagrams will be updated");
+										return;
+									}
+
 									$scope.indicatorPropertyName = INDICATOR_DATE_PREFIX + date;
 
 									var featureNamesArray = new Array();
@@ -104,7 +125,10 @@ angular
 								var updateHistogramChart = function(indicatorMetadataAndGeoJSON, indicatorValueArray){
 									var bins = ecStat.histogram(indicatorValueArray);
 
-									$scope.histogramChart = echarts.init(document.getElementById('histogramDiagram'));
+									if(!$scope.histogramChart)
+										$scope.histogramChart = echarts.init(document.getElementById('histogramDiagram'));
+
+									$scope.histogramChart.hideLoading();
 
 									$scope.histogramOption = {
                     title: {
@@ -230,7 +254,10 @@ angular
 
 								var updateBarChart = function(indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray){
 									// based on prepared DOM, initialize echarts instance
-									$scope.barChart = echarts.init(document.getElementById('barDiagram'));
+									if(!$scope.barChart)
+										$scope.barChart = echarts.init(document.getElementById('barDiagram'));
+
+									$scope.barChart.hideLoading();
 
 									// specify chart configuration item and data
 									var labelOption = {
@@ -288,7 +315,10 @@ angular
 								// LINE CHART TIME SERIES FUNCTION
 								var updateLineChart = function(indicatorMetadataAndGeoJSON, indicatorTimeSeriesDatesArray, indicatorTimeSeriesAverageArray){
 									// based on prepared DOM, initialize echarts instance
-									$scope.lineChart = echarts.init(document.getElementById('lineDiagram'));
+									if(!$scope.lineChart)
+										$scope.lineChart = echarts.init(document.getElementById('lineDiagram'));
+
+									$scope.lineChart.hideLoading();
 
 									// // specify chart configuration item and data
 									// var labelOption = {
