@@ -134,7 +134,7 @@ angular
                     title: {
 											text: 'Histogramm - Wertverteilung',
 											left: 'center',
-											top: 20
+											top: 15
                     },
                     tooltip: {
 											trigger: 'axis',
@@ -275,7 +275,7 @@ angular
 											title: {
 													text: 'Wertvergleich',
 													left: 'center',
-									        top: 20
+									        top: 15
 											},
 											tooltip: {
 													trigger: 'axis',
@@ -336,7 +336,7 @@ angular
 											title: {
 													text: 'Zeitreihe',
 													left: 'center',
-									        top: 20
+									        top: 15
 											},
 											tooltip: {
 													trigger: 'axis',
@@ -387,6 +387,9 @@ angular
 									// use configuration item and data specified to show chart
 									$scope.lineChart.setOption($scope.lineOption);
 								};
+
+
+								
 
 								$scope.$on("updateDiagramsForHoveredFeature", function (event, featureProperties) {
 
