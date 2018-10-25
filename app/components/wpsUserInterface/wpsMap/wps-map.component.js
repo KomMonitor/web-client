@@ -763,7 +763,7 @@ angular.module('wpsMap').component(
                                                       if(wpsPropertiesService.isMeasureOfValueChecked){
 
                                                         setupGtMeasureOfValueBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, 3, "YlOrBr", "jenks", wpsPropertiesService.measureOfValue);
-                                                        setupLtMeasureOfValueBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, 3, "PuBu", "jenks", wpsPropertiesService.measureOfValue);
+                                                        setupLtMeasureOfValueBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, 3, "Purples", "jenks", wpsPropertiesService.measureOfValue);
                                                         $scope.propertyName = INDICATOR_DATE_PREFIX + date;
 
                                                         layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
@@ -854,7 +854,7 @@ angular.module('wpsMap').component(
                                                                 if(wpsPropertiesService.isMeasureOfValueChecked){
 
                                                                   setupGtMeasureOfValueBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, 3, "YlOrBr", "jenks", wpsPropertiesService.measureOfValue);
-                                                                  setupLtMeasureOfValueBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, 3, "PuBu", "jenks", wpsPropertiesService.measureOfValue);
+                                                                  setupLtMeasureOfValueBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, 3, "Purples", "jenks", wpsPropertiesService.measureOfValue);
                                                                   $scope.propertyName = INDICATOR_DATE_PREFIX + date;
 
                                                                   layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
@@ -962,7 +962,7 @@ angular.module('wpsMap').component(
                                                                             $scope.currentIndicatorLayer.eachLayer(function(layer) {
 
                                                                               setupGtMeasureOfValueBrew($scope.currentIndicatorLayerOfCurrentLayer, $scope.indicatorPropertyName, 3, "YlOrBr", "jenks", wpsPropertiesService.measureOfValue);
-                                                                              setupLtMeasureOfValueBrew($scope.currentIndicatorLayerOfCurrentLayer, $scope.indicatorPropertyName, 3, "PuBu", "jenks", wpsPropertiesService.measureOfValue);
+                                                                              setupLtMeasureOfValueBrew($scope.currentIndicatorLayerOfCurrentLayer, $scope.indicatorPropertyName, 3, "Purples", "jenks", wpsPropertiesService.measureOfValue);
 
                                                                               $scope.makeMeasureOfValueLegend();
 
