@@ -61,7 +61,7 @@ angular
 											valueSum += Number(indicatorPropertyInstance[DATE_PREFIX + date]);
 
 											if(Number(indicatorPropertyInstance[DATE_PREFIX + date]) > maxValue)
-												maxValue = Number(indicatorPropertyInstance[DATE_PREFIX + date]);
+												maxValue = Number(Number(indicatorPropertyInstance[DATE_PREFIX + date]).toFixed(4));
 										}
 
 										// IT MIGHT HAPPEN THAT AN INDICATOR IS INSPECTED THAT DOES NOT SUPPORT THE DATE
@@ -72,7 +72,7 @@ angular
 												max: maxValue
 											});
 
-											defaultSeriesValueArray.push(Number(valueSum/indicatorProperties.length));
+											defaultSeriesValueArray.push(Number(Number(valueSum/indicatorProperties.length).toFixed(4)));
 										}
 
 									}
@@ -80,7 +80,7 @@ angular
 									$scope.radarOption = {
 											title: {
 													text: 'Indikatoren im Vergleich - ' + spatialUnitName + ' - ' + date,
-													left: 'left',
+													left: 'center',
 									        top: 15
 											},
 											tooltip: {
