@@ -32,7 +32,6 @@ angular
 
 								var showLoadingIcons = function(){
 
-									console.log("Show spiining loading icons on diagrams");
 									if($scope.histogramChart)
 										$scope.histogramChart.showLoading();
 
