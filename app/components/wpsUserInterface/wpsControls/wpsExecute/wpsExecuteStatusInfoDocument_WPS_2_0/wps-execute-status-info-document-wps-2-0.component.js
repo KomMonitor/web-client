@@ -208,7 +208,8 @@ angular
 									featureSeries.value = new Array();
 									featureSeries.emphasis = {
 											lineStyle: {
-													width: 6
+													width: 6,
+													type: 'dotted'
 											}
 									};
 									featureSeries.lineStyle = {
