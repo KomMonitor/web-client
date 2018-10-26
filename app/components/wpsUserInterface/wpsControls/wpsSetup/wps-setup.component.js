@@ -603,7 +603,9 @@ angular
 									// }
 
 									// $scope.modifyComponentsForCurrentIndicatorTimestampAndSpatialUnit();
-									$scope.addSelectedIndicatorToMap();
+								//	$scope.addSelectedIndicatorToMap();
+
+									this.wpsMapServiceInstance.restyleCurrentLayer();
 
 									$scope.loadingData = false;
 									//$scope.$apply();

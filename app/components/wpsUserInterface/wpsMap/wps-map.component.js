@@ -805,7 +805,9 @@ angular.module('wpsMap').component(
 
                                                       $scope.layerControl.addOverlay( layer, indicatorMetadataAndGeoJSON.indicatorName + "_" + spatialUnitName + "_" + date, {groupName : indicatorLayerGroupName} );
 
-                                                      $rootScope.$broadcast("updateDiagrams", wpsPropertiesService.selectedIndicator, wpsPropertiesService.selectedSpatialUnit.spatialUnitLevel, wpsPropertiesService.selectedSpatialUnit.spatialUnitId, date, $scope.defaultBrew, $scope.gtMeasureOfValueBrew, $scope.ltMeasureOfValueBrew, wpsPropertiesService.isMeasureOfValueChecked, wpsPropertiesService.measureOfValue);
+                                                      var justRestyling = false;
+
+                                                      $rootScope.$broadcast("updateDiagrams", wpsPropertiesService.selectedIndicator, wpsPropertiesService.selectedSpatialUnit.spatialUnitLevel, wpsPropertiesService.selectedSpatialUnit.spatialUnitId, date, $scope.defaultBrew, $scope.gtMeasureOfValueBrew, $scope.ltMeasureOfValueBrew, wpsPropertiesService.isMeasureOfValueChecked, wpsPropertiesService.measureOfValue, justRestyling);
 
 
                                                       // if ($scope.layers.overlays[indicatorMetadataAndGeoJSON.indicatorName]) {
@@ -896,7 +898,9 @@ angular.module('wpsMap').component(
 
                                                                 $scope.layerControl.addOverlay( layer, indicatorMetadataAndGeoJSON.indicatorName + "_" + spatialUnitName + "_" + date, {groupName : indicatorLayerGroupName} );
 
-                                                                $rootScope.$broadcast("updateDiagrams", wpsPropertiesService.selectedIndicator, wpsPropertiesService.selectedSpatialUnit.spatialUnitLevel, wpsPropertiesService.selectedSpatialUnit.spatialUnitId, date, $scope.defaultBrew, $scope.gtMeasureOfValueBrew, $scope.ltMeasureOfValueBrew, wpsPropertiesService.isMeasureOfValueChecked, wpsPropertiesService.measureOfValue);
+                                                                var justRestyling = false;
+
+                                                                $rootScope.$broadcast("updateDiagrams", wpsPropertiesService.selectedIndicator, wpsPropertiesService.selectedSpatialUnit.spatialUnitLevel, wpsPropertiesService.selectedSpatialUnit.spatialUnitId, date, $scope.defaultBrew, $scope.gtMeasureOfValueBrew, $scope.ltMeasureOfValueBrew, wpsPropertiesService.isMeasureOfValueChecked, wpsPropertiesService.measureOfValue, justRestyling);
 
                                                                 // if ($scope.layers.overlays[indicatorMetadataAndGeoJSON.indicatorName]) {
                                                                 //     delete $scope.layers.overlays[indicatorMetadataAndGeoJSON.indicatorName];
@@ -967,17 +971,30 @@ angular.module('wpsMap').component(
 
                                                                           if($scope.currentIndicatorLayer){
 
-                                                                            $scope.currentIndicatorLayer.eachLayer(function(layer) {
+                                                                            if(wpsPropertiesService.isMeasureOfValueChecked){
+                                                                              $scope.currentIndicatorLayer.eachLayer(function(layer) {
 
-                                                                              setupGtMeasureOfValueBrew($scope.currentIndicatorLayerOfCurrentLayer, $scope.indicatorPropertyName, 3, "YlOrBr", "jenks", wpsPropertiesService.measureOfValue);
-                                                                              setupLtMeasureOfValueBrew($scope.currentIndicatorLayerOfCurrentLayer, $scope.indicatorPropertyName, 3, "Purples", "jenks", wpsPropertiesService.measureOfValue);
+                                                                                setupGtMeasureOfValueBrew($scope.currentIndicatorLayerOfCurrentLayer, $scope.indicatorPropertyName, 3, "YlOrBr", "jenks", wpsPropertiesService.measureOfValue);
+                                                                                setupLtMeasureOfValueBrew($scope.currentIndicatorLayerOfCurrentLayer, $scope.indicatorPropertyName, 3, "Purples", "jenks", wpsPropertiesService.measureOfValue);
 
-                                                                              $scope.makeMeasureOfValueLegend();
+                                                                                $scope.makeMeasureOfValueLegend();
 
-                                                                              layer.setStyle(styleMeasureOfValue(layer.feature));
-                                                                            });
+                                                                                layer.setStyle(styleMeasureOfValue(layer.feature));
+                                                                              });
+                                                                            }
+                                                                            else{
+                                                                              $scope.currentIndicatorLayer.eachLayer(function(layer) {
+                                                                                setupDefaultBrew($scope.currentIndicatorLayerOfCurrentLayer, $scope.indicatorPropertyName, wpsPropertiesService.selectedIndicator.defaultClassificationMapping.items.length, wpsPropertiesService.selectedIndicator.defaultClassificationMapping.colorBrewerSchemeName, "jenks");
 
-                                                                            $rootScope.$broadcast("updateDiagrams", wpsPropertiesService.selectedIndicator, wpsPropertiesService.selectedSpatialUnit.spatialUnitLevel, wpsPropertiesService.selectedSpatialUnit.spatialUnitId, $scope.date, $scope.defaultBrew, $scope.gtMeasureOfValueBrew, $scope.ltMeasureOfValueBrew, wpsPropertiesService.isMeasureOfValueChecked, wpsPropertiesService.measureOfValue);
+                                                                                $scope.makeDefaultLegend(wpsPropertiesService.selectedIndicator.defaultClassificationMapping);
+
+                                                                                layer.setStyle(styleDefault(layer.feature));
+                                                                              });
+                                                                            }
+
+                                                                            var justRestyling = true;
+
+                                                                            $rootScope.$broadcast("updateDiagrams", wpsPropertiesService.selectedIndicator, wpsPropertiesService.selectedSpatialUnit.spatialUnitLevel, wpsPropertiesService.selectedSpatialUnit.spatialUnitId, $scope.date, $scope.defaultBrew, $scope.gtMeasureOfValueBrew, $scope.ltMeasureOfValueBrew, wpsPropertiesService.isMeasureOfValueChecked, wpsPropertiesService.measureOfValue, justRestyling);
 
 
                                                                             // $scope.currentIndicatorLayer.resetStyle($scope.currentIndicatorLayer);

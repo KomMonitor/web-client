@@ -20,7 +20,13 @@ angular
 
 								$scope.date;
 
-								$scope.$on("updateDiagrams", function (event, indicatorMetadataAndGeoJSON, spatialUnitName, spatialUnitId, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, isMeasureOfValueChecked, measureOfValue) {
+								$scope.$on("updateDiagrams", function (event, indicatorMetadataAndGeoJSON, spatialUnitName, spatialUnitId, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, isMeasureOfValueChecked, measureOfValue, justRestyling) {
+
+									// if the layer is just restyled (i.e. due to change of measureOfValue)
+									// then we do not need to costly update the radar diagram
+									if(justRestyling){
+										return;
+									}
 
 									console.log("updating radar diagram");
 
