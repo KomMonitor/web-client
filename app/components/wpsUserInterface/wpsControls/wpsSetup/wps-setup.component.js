@@ -606,7 +606,7 @@ angular
 									$scope.addSelectedIndicatorToMap();
 
 									$scope.loadingData = false;
-									$scope.$apply();
+									//$scope.$apply();
 								}
 
 								$scope.modifyComponentsForCurrentIndicatorTimestampAndSpatialUnit = function(){

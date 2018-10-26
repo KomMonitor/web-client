@@ -977,7 +977,7 @@ angular.module('wpsMap').component(
                                                                               layer.setStyle(styleMeasureOfValue(layer.feature));
                                                                             });
 
-                                                                            $rootScope.$broadcast("updateDiagrams", wpsPropertiesService.selectedIndicator, wpsPropertiesService.selectedSpatialUnit.spatialUnitLevel, $scope.date, $scope.defaultBrew, $scope.gtMeasureOfValueBrew, $scope.ltMeasureOfValueBrew, wpsPropertiesService.isMeasureOfValueChecked, wpsPropertiesService.measureOfValue);
+                                                                            $rootScope.$broadcast("updateDiagrams", wpsPropertiesService.selectedIndicator, wpsPropertiesService.selectedSpatialUnit.spatialUnitLevel, wpsPropertiesService.selectedSpatialUnit.spatialUnitId, $scope.date, $scope.defaultBrew, $scope.gtMeasureOfValueBrew, $scope.ltMeasureOfValueBrew, wpsPropertiesService.isMeasureOfValueChecked, wpsPropertiesService.measureOfValue);
 
 
                                                                             // $scope.currentIndicatorLayer.resetStyle($scope.currentIndicatorLayer);
