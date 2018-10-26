@@ -258,9 +258,9 @@ angular
 
 									console.log("updateRadarDiagramForUnhoveredFeature called!");
 
-									if(! wpsPropertiesService.clickedIndicatorFeatureNames.includes(featureProperties.spatialUnitFeatureName)){
-										unhighlightFeatureInRadarChart(featureProperties);
+									unhighlightFeatureInRadarChart(featureProperties);
 
+									if(! wpsPropertiesService.clickedIndicatorFeatureNames.includes(featureProperties.spatialUnitFeatureName)){
 										removeSeriesFromRadarChart(featureProperties);
 									}
 								});
