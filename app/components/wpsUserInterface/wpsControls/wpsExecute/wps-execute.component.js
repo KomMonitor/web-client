@@ -19,6 +19,9 @@ angular
 
 								const INDICATOR_DATE_PREFIX = "DATE_";
 
+								$scope.userHoveresOverBarItem = false;
+								$scope.eventsRegistered = false;
+
 								var compareFeaturesByIndicatorValue = function(featureA, featureB) {
 								  if (featureA.properties[$scope.indicatorPropertyName] < featureB.properties[$scope.indicatorPropertyName])
 								    return -1;
@@ -311,51 +314,61 @@ angular
 									// use configuration item and data specified to show chart
 									$scope.barChart.setOption($scope.barOption);
 
-									// when hovering over elements of the chart then highlight them in the map.
-									$scope.barChart.on('mouseOver', function(params){
-										var seriesIndex = params.seriesIndex;
-										var dataIndex = params.dataIndex;
+									registerEventsIfNecessary();
+								};
 
-										// console.log("Series: " + seriesIndex + ", dataIndex: " + dataIndex);
-										//
-										// var barElement = $scope.barOption.series[seriesIndex].data[dataIndex];
-										//
-										// console.log(barElement);
+								function registerEventsIfNecessary(){
+									if(!$scope.eventsRegistered){
+										// when hovering over elements of the chart then highlight them in the map.
+										$scope.barChart.on('mouseOver', function(params){
+											$scope.userHoveresOverBarItem = true;
+											var seriesIndex = params.seriesIndex;
+											var dataIndex = params.dataIndex;
 
-										var spatialFeatureName = $scope.barOption.xAxis.data[dataIndex];
-										// console.log(spatialFeatureName);
-										$rootScope.$broadcast("highlightFeatureOnMap", spatialFeatureName);
-									});
+											// console.log("Series: " + seriesIndex + ", dataIndex: " + dataIndex);
+											//
+											// var barElement = $scope.barOption.series[seriesIndex].data[dataIndex];
+											//
+											// console.log(barElement);
 
-									$scope.barChart.on('mouseOut', function(params){
-										var seriesIndex = params.seriesIndex;
-										var dataIndex = params.dataIndex;
+											var spatialFeatureName = $scope.barOption.xAxis.data[dataIndex];
+											// console.log(spatialFeatureName);
+											$rootScope.$broadcast("highlightFeatureOnMap", spatialFeatureName);
+										});
 
-										// console.log("Series: " + seriesIndex + ", dataIndex: " + dataIndex);
-										//
-										// var barElement = $scope.barOption.series[seriesIndex].data[dataIndex];
-										//
-										// console.log(barElement);
+										$scope.barChart.on('mouseOut', function(params){
+											$scope.userHoveresOverBarItem = false;
+											var seriesIndex = params.seriesIndex;
+											var dataIndex = params.dataIndex;
 
-										var spatialFeatureName = $scope.barOption.xAxis.data[dataIndex];
-										// console.log(spatialFeatureName);
-										$rootScope.$broadcast("unhighlightFeatureOnMap", spatialFeatureName);
-									});
+											// console.log("Series: " + seriesIndex + ", dataIndex: " + dataIndex);
+											//
+											// var barElement = $scope.barOption.series[seriesIndex].data[dataIndex];
+											//
+											// console.log(barElement);
 
-									$scope.barChart.on('click', function(params){
-										var seriesIndex = params.seriesIndex;
-										var dataIndex = params.dataIndex;
+											var spatialFeatureName = $scope.barOption.xAxis.data[dataIndex];
+											// console.log(spatialFeatureName);
+											$rootScope.$broadcast("unhighlightFeatureOnMap", spatialFeatureName);
+										});
 
-										// console.log("Series: " + seriesIndex + ", dataIndex: " + dataIndex);
-										//
-										// var barElement = $scope.barOption.series[seriesIndex].data[dataIndex];
-										//
-										// console.log(barElement);
+										$scope.barChart.on('click', function(params){
+											var seriesIndex = params.seriesIndex;
+											var dataIndex = params.dataIndex;
 
-										var spatialFeatureName = $scope.barOption.xAxis.data[dataIndex];
-										// console.log(spatialFeatureName);
-										$rootScope.$broadcast("switchHighlightFeatureOnMap", spatialFeatureName);
-									});
+											// console.log("Series: " + seriesIndex + ", dataIndex: " + dataIndex);
+											//
+											// var barElement = $scope.barOption.series[seriesIndex].data[dataIndex];
+											//
+											// console.log(barElement);
+
+											var spatialFeatureName = $scope.barOption.xAxis.data[dataIndex];
+											// console.log(spatialFeatureName);
+											$rootScope.$broadcast("switchHighlightFeatureOnMap", spatialFeatureName);
+										});
+
+										$scope.eventsRegistered = true;
+									}
 								};
 
 								// LINE CHART TIME SERIES FUNCTION
@@ -472,6 +485,11 @@ angular
 								var highlightFeatureInBarChart = function(featureProperties){
 									// highlight the corresponding bar diagram item
 									// get index of bar item
+
+									if($scope.userHoveresOverBarItem){
+										return;
+									}
+
 									var index = -1;
 									for(var i=0; i<$scope.barOption.xAxis.data.length; i++){
 										if($scope.barOption.xAxis.data[i] === featureProperties.spatialUnitFeatureName){

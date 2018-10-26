@@ -991,12 +991,13 @@ angular.module('wpsMap').component(
 
                                             									console.log("highlight feature on map for featureName " + spatialFeatureName);
 
-                                            									$scope.currentIndicatorLayer;
+                                                              var done = false;
 
                                                               $scope.map.eachLayer(function(layer){
-                                                                if(layer.feature){
+                                                                if(!done && layer.feature){
                                                                   if(layer.feature.properties.spatialUnitFeatureName === spatialFeatureName){
                                                                     highlightFeatureForLayer(layer);
+                                                                    done = true;
                                                                   }
                                                                 }
 
@@ -1008,12 +1009,13 @@ angular.module('wpsMap').component(
 
                                             									console.log("unhighlight feature on map for featureName " + spatialFeatureName);
 
-                                            									$scope.currentIndicatorLayer;
+                                                              var done = false;
 
                                                               $scope.map.eachLayer(function(layer){
-                                                                if(layer.feature){
+                                                                if(!done && layer.feature){
                                                                   if(layer.feature.properties.spatialUnitFeatureName === spatialFeatureName){
                                                                     resetHighlightForLayer(layer);
+                                                                    done = true;
                                                                   }
                                                                 }
 
@@ -1025,12 +1027,13 @@ angular.module('wpsMap').component(
 
                                             									console.log("switch highlight feature on map for featureName " + spatialFeatureName);
 
-                                            									$scope.currentIndicatorLayer;
+                                            									var done = false;
 
                                                               $scope.map.eachLayer(function(layer){
-                                                                if(layer.feature){
+                                                                if(!done && layer.feature){
                                                                   if(layer.feature.properties.spatialUnitFeatureName === spatialFeatureName){
                                                                     switchHighlightFeature(layer);
+                                                                    done = true;
                                                                   }
                                                                 }
 
