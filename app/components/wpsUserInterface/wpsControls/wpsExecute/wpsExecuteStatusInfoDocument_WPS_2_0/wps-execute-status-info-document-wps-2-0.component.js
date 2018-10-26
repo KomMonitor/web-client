@@ -114,32 +114,28 @@ angular
 											series: [{
 									        name: 'Indikatorvergleich',
 									        type: 'radar',
-													symbolSize: 6,
-									        // areaStyle: {normal: {}},
-													itemStyle: {
-							                emphasis: {
-							                    lineStyle: {
-							                        width: 6
-							                    }
-							                }
-							            },
+													symbolSize: 8,
 									        data : [
 									            {
 									                value : defaultSeriesValueArray,
 									                name : 'Durchschnitt',
 																	lineStyle: {
-							                        normal: {
-																					color: 'gray',
-							                            type: 'dashed',
-																					width: 4
-							                        }
+																			color: 'gray',
+							                        type: 'dashed',
+																			width: 4
 							                    },
 																	itemStyle: {
-													            normal: {
-													                borderWidth: 3,
-													                color: 'gray',
-													            }
-													        }
+													            borderWidth: 3,
+													            color: 'gray'
+													        },
+																	emphasis: {
+																			lineStyle: {
+																					width: 6
+																			},
+																			itemStyle: {
+															            borderType: 'dashed'
+															        }
+																	}
 									            }
 									        ]
 									    }]
@@ -210,11 +206,19 @@ angular
 									var featureSeries = {};
 									featureSeries.name = featureProperties.spatialUnitFeatureName;
 									featureSeries.value = new Array();
-									featureSeries.lineStyle = {
-											normal: {
-													width: 4
+									featureSeries.emphasis = {
+											lineStyle: {
+													width: 6
 											}
 									};
+									featureSeries.lineStyle = {
+										width: 3,
+										type: 'solid'
+									};
+									featureSeries.itemStyle = {
+											borderWidth: 3
+									};
+
 
 									// for each date create series data entry for feature
 									for(var i=0; i<$scope.allIndicatorProperties.length; i++){
