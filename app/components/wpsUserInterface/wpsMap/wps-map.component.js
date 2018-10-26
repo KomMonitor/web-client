@@ -672,6 +672,12 @@ angular.module('wpsMap').component(
                                         function highlightFeature(e) {
                                             var layer = e.target;
 
+                                            highlightFeatureForLayer(layer);
+
+                                        }
+
+                                        function highlightFeatureForLayer(layer) {
+
                                             if(wpsPropertiesService.clickedIndicatorFeatureNames.includes(layer.feature.properties.spatialUnitFeatureName)){
                                               highlightClickedFeature(layer);
                                               return;
@@ -715,6 +721,10 @@ angular.module('wpsMap').component(
 
                                         function resetHighlight(e) {
                                           var layer = e.target;
+                                          resetHighlightForLayer(layer);
+                                        }
+
+                                        function resetHighlightForLayer(layer) {
 
                                           // only restyle feature when not in list of clicked features
                                           if(! wpsPropertiesService.clickedIndicatorFeatureNames.includes(layer.feature.properties.spatialUnitFeatureName)){
@@ -978,6 +988,40 @@ angular.module('wpsMap').component(
                                                                           }
 
                                                             });
+
+                                                            $scope.$on("highlightFeatureOnMap", function (event, spatialFeatureName) {
+
+                                            									console.log("highlight feature on map for featureName " + spatialFeatureName);
+
+                                            									$scope.currentIndicatorLayer;
+
+                                                              $scope.map.eachLayer(function(layer){
+                                                                if(layer.feature){
+                                                                  if(layer.feature.properties.spatialUnitFeatureName === spatialFeatureName){
+                                                                    highlightFeatureForLayer(layer);
+                                                                  }
+                                                                }
+
+                                                              });
+
+                                            								});
+
+                                                            $scope.$on("unhighlightFeatureOnMap", function (event, spatialFeatureName) {
+
+                                            									console.log("highlight feature on map for featureName " + spatialFeatureName);
+
+                                            									$scope.currentIndicatorLayer;
+
+                                                              $scope.map.eachLayer(function(layer){
+                                                                if(layer.feature){
+                                                                  if(layer.feature.properties.spatialUnitFeatureName === spatialFeatureName){
+                                                                    resetHighlightForLayer(layer);
+                                                                  }
+                                                                }
+
+                                                              });
+
+                                            								});
 
 
 

@@ -11,9 +11,9 @@ angular
 					controller : [
 							'wpsPropertiesService',
 							'wpsFormControlService',
-							'$scope',
+							'$scope', '$rootScope',
 							function WpsExecuteController(wpsPropertiesService,
-									wpsFormControlService, $scope) {
+									wpsFormControlService, $scope, $rootScope) {
 								this.wpsPropertiesServiceInstance = wpsPropertiesService;
 								this.wpsFormControlServiceInstance = wpsFormControlService;
 
@@ -310,6 +310,37 @@ angular
 
 									// use configuration item and data specified to show chart
 									$scope.barChart.setOption($scope.barOption);
+
+									// when hovering over elements of the chart then highlight them in the map.
+									$scope.barChart.on('mouseOver', function(params){
+										var seriesIndex = params.seriesIndex;
+										var dataIndex = params.dataIndex;
+
+										// console.log("Series: " + seriesIndex + ", dataIndex: " + dataIndex);
+										//
+										// var barElement = $scope.barOption.series[seriesIndex].data[dataIndex];
+										//
+										// console.log(barElement);
+
+										var spatialFeatureName = $scope.barOption.xAxis.data[dataIndex];
+										// console.log(spatialFeatureName);
+										$rootScope.$broadcast("highlightFeatureOnMap", spatialFeatureName);
+									});
+
+									$scope.barChart.on('mouseOut', function(params){
+										var seriesIndex = params.seriesIndex;
+										var dataIndex = params.dataIndex;
+
+										// console.log("Series: " + seriesIndex + ", dataIndex: " + dataIndex);
+										//
+										// var barElement = $scope.barOption.series[seriesIndex].data[dataIndex];
+										//
+										// console.log(barElement);
+
+										var spatialFeatureName = $scope.barOption.xAxis.data[dataIndex];
+										// console.log(spatialFeatureName);
+										$rootScope.$broadcast("unhighlightFeatureOnMap", spatialFeatureName);
+									});
 								};
 
 								// LINE CHART TIME SERIES FUNCTION

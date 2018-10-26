@@ -241,7 +241,7 @@ angular
 									// get series index of series
 									var dataIndex = getSeriesDataIndexByFeatureName(featureProperties.spatialUnitFeatureName);
 
-									if(seriesIndex > -1){
+									if(dataIndex > -1){
 										$scope.radarChart.dispatchAction({
 												type: 'highlight',
 												seriesIndex: 0,
