@@ -385,28 +385,26 @@ angular.module('wpsMap').component(
                             mouseover: highlightFeature,
                             mouseout: resetHighlight,
                             click: function () {
-
-                              // add or remove feature within a list of "clicked features"
-                              // those shall be treated specially, i.e. keep being highlighted
-                              if(! wpsPropertiesService.clickedIndicatorFeatureNames.includes(layer.feature.properties.spatialUnitFeatureName)){
-                                wpsPropertiesService.clickedIndicatorFeatureNames.push(layer.feature.properties.spatialUnitFeatureName);
-                                highlightClickedFeature(layer);
-                              }
-
-                              else{
-                                //remove from array
-                                var index = wpsPropertiesService.clickedIndicatorFeatureNames.indexOf(layer.feature.properties.spatialUnitFeatureName);
-                                wpsPropertiesService.clickedIndicatorFeatureNames.splice(index, 1);
-                                resetHighlightClickedFeature(layer);
-                              }
-
-                                // var popupContent = layer.feature.properties;
-                                //
-                                // if (popupContent)
-                                //     layer.bindPopup("Indicator: " + JSON.stringify(popupContent));
+                              switchHighlightFeature(layer);
                             }
                         })
                     };
+
+                    function switchHighlightFeature(layer){
+                      // add or remove feature within a list of "clicked features"
+                      // those shall be treated specially, i.e. keep being highlighted
+                      if(! wpsPropertiesService.clickedIndicatorFeatureNames.includes(layer.feature.properties.spatialUnitFeatureName)){
+                        wpsPropertiesService.clickedIndicatorFeatureNames.push(layer.feature.properties.spatialUnitFeatureName);
+                        highlightClickedFeature(layer);
+                      }
+
+                      else{
+                        //remove from array
+                        var index = wpsPropertiesService.clickedIndicatorFeatureNames.indexOf(layer.feature.properties.spatialUnitFeatureName);
+                        wpsPropertiesService.clickedIndicatorFeatureNames.splice(index, 1);
+                        resetHighlightClickedFeature(layer);
+                      }
+                    }
 
                     function onEachFeatureCustomIndicator(feature, layer) {
                         // does this feature have a property named popupContent?
@@ -1008,7 +1006,7 @@ angular.module('wpsMap').component(
 
                                                             $scope.$on("unhighlightFeatureOnMap", function (event, spatialFeatureName) {
 
-                                            									console.log("highlight feature on map for featureName " + spatialFeatureName);
+                                            									console.log("unhighlight feature on map for featureName " + spatialFeatureName);
 
                                             									$scope.currentIndicatorLayer;
 
@@ -1016,6 +1014,23 @@ angular.module('wpsMap').component(
                                                                 if(layer.feature){
                                                                   if(layer.feature.properties.spatialUnitFeatureName === spatialFeatureName){
                                                                     resetHighlightForLayer(layer);
+                                                                  }
+                                                                }
+
+                                                              });
+
+                                            								});
+
+                                                            $scope.$on("switchHighlightFeatureOnMap", function (event, spatialFeatureName) {
+
+                                            									console.log("switch highlight feature on map for featureName " + spatialFeatureName);
+
+                                            									$scope.currentIndicatorLayer;
+
+                                                              $scope.map.eachLayer(function(layer){
+                                                                if(layer.feature){
+                                                                  if(layer.feature.properties.spatialUnitFeatureName === spatialFeatureName){
+                                                                    switchHighlightFeature(layer);
                                                                   }
                                                                 }
 

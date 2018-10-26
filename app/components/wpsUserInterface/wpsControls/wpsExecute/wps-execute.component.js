@@ -341,6 +341,21 @@ angular
 										// console.log(spatialFeatureName);
 										$rootScope.$broadcast("unhighlightFeatureOnMap", spatialFeatureName);
 									});
+
+									$scope.barChart.on('click', function(params){
+										var seriesIndex = params.seriesIndex;
+										var dataIndex = params.dataIndex;
+
+										// console.log("Series: " + seriesIndex + ", dataIndex: " + dataIndex);
+										//
+										// var barElement = $scope.barOption.series[seriesIndex].data[dataIndex];
+										//
+										// console.log(barElement);
+
+										var spatialFeatureName = $scope.barOption.xAxis.data[dataIndex];
+										// console.log(spatialFeatureName);
+										$rootScope.$broadcast("switchHighlightFeatureOnMap", spatialFeatureName);
+									});
 								};
 
 								// LINE CHART TIME SERIES FUNCTION
