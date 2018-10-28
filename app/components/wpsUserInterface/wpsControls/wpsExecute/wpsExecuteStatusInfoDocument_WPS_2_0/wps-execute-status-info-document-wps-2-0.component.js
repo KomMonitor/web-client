@@ -17,6 +17,7 @@ angular
 								const DATE_PREFIX = "DATE_";
 
 								$scope.allIndicatorProperties;
+								$scope.namesOfFailesIndicators  = new Array();
 
 								$scope.date;
 
@@ -39,6 +40,8 @@ angular
 									// based on prepared DOM, initialize echarts instance
 									$scope.date = date;
 
+									$scope.namesOfFailesIndicators = new Array();
+
 									if(!$scope.radarChart)
 										$scope.radarChart = echarts.init(document.getElementById('radarDiagram'));
 
@@ -58,7 +61,8 @@ angular
 									// iterate over all indicator properties
 									var indicatorNames = new Array();
 									for (var indicatorMetadata of wpsPropertiesService.availableIndicators){
-										indicatorNames.push(indicatorMetadata.indicatorName);
+										if(!$scope.namesOfFailesIndicators.includes(indicatorMetadata.indicatorName))
+											indicatorNames.push(indicatorMetadata.indicatorName);
 									}
 
 									for(var i=0; i<$scope.allIndicatorProperties.length; i++){
@@ -166,10 +170,14 @@ angular
 
 										try{
 											var indicatorProperties = await fetchIndicatorProperties(indicatorMetadata, spatialUnitId, year, month, day);
-											allIndicatorProperties.push(indicatorProperties);
+											if(indicatorProperties)
+												allIndicatorProperties.push(indicatorProperties);
 										}
 										catch(error){
-							        throw error;
+							        console.error("Error while fetching indicatorProperties while updating radar diagram. Error was: " + error);
+											console.error("Will ignore the indicator that caused the upper error. Will still try to update radar diagram.");
+
+											$scope.namesOfFailesIndicators.push(indicatorMetadata.indicatorName);
 							      }
 									}
 
