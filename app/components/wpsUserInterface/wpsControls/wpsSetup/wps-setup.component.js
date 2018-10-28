@@ -134,9 +134,10 @@ angular
 										var applicableSpatialUnits = wpsPropertiesService.selectedIndicator.applicableSpatialUnits;
 
 										for (const spatialUnitEntry of wpsPropertiesService.availableSpatialUnits){
-											if(applicableSpatialUnits.includes(spatialUnitEntry.spatialUnitLevel))
+											if(applicableSpatialUnits.includes(spatialUnitEntry.spatialUnitLevel)){
 												result = spatialUnitEntry;
 												break;
+											}
 										};
 
 										return result;
