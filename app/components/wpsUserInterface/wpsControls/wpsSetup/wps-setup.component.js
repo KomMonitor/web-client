@@ -38,11 +38,11 @@ angular
 									this.wpsMapServiceInstance.addSpatialUnitGeoJSON();
 								}
 
-								$scope.$watch('filteredSpatialUnits', function(value){
-								  if ($scope.filteredSpatialUnits) {
-								    wpsPropertiesService.selectedSpatialUnit = $scope.filteredSpatialUnits[0];
-								  }
-								}, true);
+								// $scope.$watch('filteredSpatialUnits', function(value){
+								//   if ($scope.filteredSpatialUnits) {
+								//     wpsPropertiesService.selectedSpatialUnit = $scope.filteredSpatialUnits[0];
+								//   }
+								// }, true);
 
 								this.onClickTheme = function(topicName){
 
