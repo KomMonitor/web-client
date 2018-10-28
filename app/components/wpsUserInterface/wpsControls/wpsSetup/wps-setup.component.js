@@ -562,7 +562,7 @@ angular
 
 										this.setupDateSliderForIndicator();
 
-										if(!wpsPropertiesService.selectedSpatialUnit){
+										if(!wpsPropertiesService.selectedSpatialUnit || !wpsPropertiesService.selectedIndicator.applicableSpatialUnits.includes(wpsPropertiesService.selectedSpatialUnit.spatialUnitLevel)){
 											wpsPropertiesService.selectedSpatialUnit = $scope.getFirstSpatialUnitForSelectedIndicator();
 										}
 
