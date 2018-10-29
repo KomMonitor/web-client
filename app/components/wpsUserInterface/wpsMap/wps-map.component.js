@@ -317,10 +317,14 @@ angular.module('wpsMap').component(
 
                         $scope.div.innerHTML += "<label>< Schwellwert</label><br/>";
 
+                        var labelArray_below = ["deutlich kleiner Schwellwert", "moderat kleiner Schwellwert", "geringfügig kleiner Schwellwert"];
+                        var labelArray_upper = ["geringfügig über Schwellwert", "moderat über Schwellwert", "deutlich über Schwellwert"];
+
                         for (var i = 0; i < colorsLtMeasureOfValue.length; i++) {
                             $scope.div.innerHTML +=
                                 '<i style="background:' + colorsLtMeasureOfValue[i] + '"></i> ' +
-                                (+labelsLtMeasureOfValue[i].toFixed(4)) + ((+labelsLtMeasureOfValue[i + 1].toFixed(4)) ? '&ndash;' + (+labelsLtMeasureOfValue[i + 1].toFixed(4)) + '<br>' : '+');
+                                //(+labelsLtMeasureOfValue[i].toFixed(4)) + ((+labelsLtMeasureOfValue[i + 1].toFixed(4)) ? '&ndash;' + (+labelsLtMeasureOfValue[i + 1].toFixed(4)) + '<br>' : '+');
+                                (labelsLtMeasureOfValue[i].toFixed(3)) + ((labelsLtMeasureOfValue[i + 1].toFixed(3)) ? '&ndash;' + (labelsLtMeasureOfValue[i + 1].toFixed(3)) + ' &ndash; ' + labelArray_below[i] + '<br>' : '+');
                         }
 
                         $scope.div.innerHTML += "<br/>";
@@ -330,7 +334,7 @@ angular.module('wpsMap').component(
                         for (var i = 0; i < colorsGtMeasureOfValue.length; i++) {
                             $scope.div.innerHTML +=
                                 '<i style="background:' + colorsGtMeasureOfValue[i] + '"></i> ' +
-                                (+labelsGtMeasureOfValue[i].toFixed(4)) + ((+labelsGtMeasureOfValue[i + 1].toFixed(4)) ? '&ndash;' + (+labelsGtMeasureOfValue[i + 1].toFixed(4)) + '<br>' : '+');
+                                (labelsGtMeasureOfValue[i].toFixed(3)) + ((labelsGtMeasureOfValue[i + 1].toFixed(3)) ? '&ndash;' + (labelsGtMeasureOfValue[i + 1].toFixed(3)) + ' &ndash; ' + labelArray_upper[i] + '<br>' : '+');
                         }
 
                         return $scope.div;
