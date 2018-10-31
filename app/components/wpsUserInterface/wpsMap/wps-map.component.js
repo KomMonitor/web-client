@@ -730,7 +730,14 @@ angular.module('wpsMap').component(
 
                                           // only restyle feature when not in list of clicked features
                                           if(! wpsPropertiesService.clickedIndicatorFeatureNames.includes(layer.feature.properties.spatialUnitFeatureName)){
-                                            $scope.currentIndicatorLayer.resetStyle(layer);
+                                            //$scope.currentIndicatorLayer.resetStyle(layer);
+                                            if(! wpsPropertiesService.isMeasureOfValueChecked){
+                                              //$scope.currentIndicatorLayer.resetStyle(layer);
+                                              layer.setStyle(styleDefault(layer.feature));
+                                            }
+                                            else{
+                                              layer.setStyle(styleMeasureOfValue(layer.feature));
+                                            }
                                           }
                                           $scope.infoControl.update();
 
@@ -739,7 +746,15 @@ angular.module('wpsMap').component(
                                         }
 
                                         function resetHighlightClickedFeature(layer) {
-                                          $scope.currentIndicatorLayer.resetStyle(layer);
+                                          //$scope.currentIndicatorLayer.resetStyle(layer);
+
+                                          if(! wpsPropertiesService.isMeasureOfValueChecked){
+                                            //$scope.currentIndicatorLayer.resetStyle(layer);
+                                            layer.setStyle(styleDefault(layer.feature));
+                                          }
+                                          else{
+                                            layer.setStyle(styleMeasureOfValue(layer.feature));
+                                          }
                                         }
 
                                         function resetHighlightCustom(e) {
