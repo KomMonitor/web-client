@@ -288,7 +288,7 @@ angular.module('wpsMap').component(
                         for (var i = 0; i < colors.length; i++) {
                             $scope.div.innerHTML +=
                                 '<i style="background:' + colors[i] + '"></i> ' +
-                                defaultClassificationMapping.items[i].defaultCustomRating + ' (' + (labels[i].toFixed(4)) + ((labels[i + 1].toFixed(4)) ? '&ndash;' + (labels[i + 1].toFixed(4)) + ') <br>' : '+');
+                                defaultClassificationMapping.items[i].defaultCustomRating + ' (' + (+labels[i].toFixed(4)) + ((+labels[i + 1].toFixed(4)) ? '&ndash;' + (+labels[i + 1].toFixed(4)) + ') <br>' : '+');
                         }
 
                         return $scope.div;
@@ -338,7 +338,7 @@ angular.module('wpsMap').component(
                             $scope.div.innerHTML +=
                                 '<i style="background:' + colorsLtMeasureOfValue[i] + '"></i> ' +
                                 //(+labelsLtMeasureOfValue[i].toFixed(4)) + ((+labelsLtMeasureOfValue[i + 1].toFixed(4)) ? '&ndash;' + (+labelsLtMeasureOfValue[i + 1].toFixed(4)) + '<br>' : '+');
-                                labelArray_below[i] + ' (' + (labelsLtMeasureOfValue[i].toFixed(3)) + ((labelsLtMeasureOfValue[i + 1].toFixed(3)) ? '&ndash;' + (labelsLtMeasureOfValue[i + 1].toFixed(3)) + ') <br>' : '+');
+                                labelArray_below[i] + ' (' + (+labelsLtMeasureOfValue[i].toFixed(3)) + ((+labelsLtMeasureOfValue[i + 1].toFixed(3)) ? '&ndash;' + (+labelsLtMeasureOfValue[i + 1].toFixed(3)) + ') <br>' : '+');
                         }
 
                         $scope.div.innerHTML += "<br/>";
@@ -348,7 +348,7 @@ angular.module('wpsMap').component(
                         for (var i = 0; i < colorsGtMeasureOfValue.length; i++) {
                             $scope.div.innerHTML +=
                                 '<i style="background:' + colorsGtMeasureOfValue[i] + '"></i> ' +
-                                labelArray_upper[i] + ' (' + (labelsGtMeasureOfValue[i].toFixed(3)) + ((labelsGtMeasureOfValue[i + 1].toFixed(3)) ? '&ndash;' + (labelsGtMeasureOfValue[i + 1].toFixed(3)) + ') <br>' : '+');
+                                labelArray_upper[i] + ' (' + (+labelsGtMeasureOfValue[i].toFixed(3)) + ((+labelsGtMeasureOfValue[i + 1].toFixed(3)) ? '&ndash;' + (+labelsGtMeasureOfValue[i + 1].toFixed(3)) + ') <br>' : '+');
                         }
 
                         return $scope.div;
