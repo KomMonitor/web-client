@@ -41,6 +41,8 @@ angular.module('wpsMap').component(
                     $scope.ltMeasureOfValueBrew = new classyBrew();
 
                     $scope.currentIndicatorLayerOfCurrentLayer;
+                    $scope.currentIndicatorContainsZeroValues = false;
+                    $scope.defaultColorForZeroValues = "#525252";
 
                     $scope.customIndicatorPropertyName;
                     $scope.customIndicatorName;
@@ -277,6 +279,12 @@ angular.module('wpsMap').component(
                         //         labels[i] + (labels[i + 1] ? '&ndash;' + labels[i + 1] + '<br>' : '+');
                         // }
 
+                        if($scope.currentIndicatorContainsZeroValues){
+                          $scope.div.innerHTML +=
+                              '<i style="background:' + $scope.defaultColorForZeroValues + '"></i> ' +
+                              "0" + '<br>';
+                        }
+
                         for (var i = 0; i < colors.length; i++) {
                             $scope.div.innerHTML +=
                                 '<i style="background:' + colors[i] + '"></i> ' +
@@ -307,6 +315,12 @@ angular.module('wpsMap').component(
                             colorsLtMeasureOfValue = $scope.ltMeasureOfValueBrew.getColors();
 
                         $scope.div.innerHTML = "";
+
+                        if($scope.currentIndicatorContainsZeroValues){
+                          $scope.div.innerHTML +=
+                              '<i style="background:' + $scope.defaultColorForZeroValues + '"></i> ' +
+                              "0" + '<br><br>';
+                        }
 
                         // loop through our density intervals and generate a label with a colored square for each interval
                         // for (var i = 0; i < labels.length; i++) {
@@ -541,7 +555,8 @@ angular.module('wpsMap').component(
                                           // see link above to view geojson used in this example
                                           var values = [];
                                           for (var i = 0; i < geoJSON.features.length; i++){
-                                              if (geoJSON.features[i].properties[propertyName] == null) continue;
+                                              if (geoJSON.features[i].properties[propertyName] == null || geoJSON.features[i].properties[propertyName] == 0 || geoJSON.features[i].properties[propertyName] == "0")
+                                                continue;
                                               values.push(geoJSON.features[i].properties[propertyName]);
                                           }
 
@@ -564,7 +579,7 @@ angular.module('wpsMap').component(
                                           // see link above to view geojson used in this example
                                           var values = [];
                                           for (var i = 0; i < geoJSON.features.length; i++){
-                                              if (geoJSON.features[i].properties[propertyName] == null)
+                                              if (geoJSON.features[i].properties[propertyName] == null || geoJSON.features[i].properties[propertyName] == 0 || geoJSON.features[i].properties[propertyName] == "0")
                                                 continue;
 
                                               if(geoJSON.features[i].properties[propertyName] >= measureOfValue)
@@ -597,7 +612,7 @@ angular.module('wpsMap').component(
                                           // see link above to view geojson used in this example
                                           var values = [];
                                           for (var i = 0; i < geoJSON.features.length; i++){
-                                              if (geoJSON.features[i].properties[propertyName] == null)
+                                              if (geoJSON.features[i].properties[propertyName] == null || geoJSON.features[i].properties[propertyName] == 0 || geoJSON.features[i].properties[propertyName] == "0")
                                                 continue;
 
                                               if(geoJSON.features[i].properties[propertyName] < measureOfValue)
@@ -628,47 +643,85 @@ angular.module('wpsMap').component(
                                         // style function to return
                                         // fill color based on $scope.defaultBrew.getColorInRange() method
                                         function styleDefault(feature) {
+
+                                          var fillColor;
+                                          if(feature.properties[$scope.propertyName] == 0 || feature.properties[$scope.propertyName] == "0"){
+                                            fillColor = $scope.defaultColorForZeroValues;
+                                          }
+                                          else{
+                                            fillColor = $scope.defaultBrew.getColorInRange(feature.properties[$scope.propertyName]);
+                                          }
+
                                             return {
                                                 weight: 2,
                                                 opacity: 1,
                                                 color: 'white',
                                                 dashArray: '3',
                                                 fillOpacity: 0.7,
-                                                fillColor: $scope.defaultBrew.getColorInRange(feature.properties[$scope.propertyName])
+                                                fillColor: fillColor
                                             }
                                         }
 
                                         function styleCustomDefault(feature) {
+
+                                          var fillColor;
+                                          if(feature.properties[$scope.propertyName] == 0 || feature.properties[$scope.propertyName] == "0"){
+                                            fillColor = $scope.defaultColorForZeroValues;
+                                          }
+                                          else{
+                                            fillColor = $scope.defaultBrew.getColorInRange(feature.properties[$scope.propertyName]);
+                                          }
+
                                             return {
                                                 weight: 2,
                                                 opacity: 1,
                                                 color: 'white',
                                                 dashArray: '3',
                                                 fillOpacity: 0.7,
-                                                fillColor: $scope.defaultBrew.getColorInRange(feature.properties[$scope.customPropertyName])
+                                                fillColor: fillColor
                                             }
                                         }
 
                                         function styleMeasureOfValue (feature) {
 
-                                          if(feature.properties[$scope.indicatorPropertyName] >= wpsPropertiesService.measureOfValue)
-                                              return {
-                                                  weight: 2,
-                                                  opacity: 1,
-                                                  color: 'white',
-                                                  dashArray: '3',
-                                                  fillOpacity: 0.7,
-                                                  fillColor: $scope.gtMeasureOfValueBrew.getColorInRange(feature.properties[$scope.indicatorPropertyName])
-                                              }
-                                          else
-                                              return {
-                                                  weight: 2,
-                                                  opacity: 1,
-                                                  color: 'white',
-                                                  dashArray: '3',
-                                                  fillOpacity: 0.7,
-                                                  fillColor: $scope.ltMeasureOfValueBrew.getColorInRange(feature.properties[$scope.indicatorPropertyName])
-                                              }
+                                          if(feature.properties[$scope.indicatorPropertyName] >= wpsPropertiesService.measureOfValue){
+                                            var fillColor;
+                                            if(feature.properties[$scope.propertyName] == 0 || feature.properties[$scope.propertyName] == "0"){
+                                              fillColor = $scope.defaultColorForZeroValues;
+                                            }
+                                            else{
+                                              fillColor = $scope.gtMeasureOfValueBrew.getColorInRange(feature.properties[$scope.propertyName]);
+                                            }
+
+                                            return {
+                                                weight: 2,
+                                                opacity: 1,
+                                                color: 'white',
+                                                dashArray: '3',
+                                                fillOpacity: 0.7,
+                                                fillColor: fillColor
+                                            }
+                                          }
+                                          else{
+
+                                            var fillColor;
+                                            if(feature.properties[$scope.propertyName] == 0 || feature.properties[$scope.propertyName] == "0"){
+                                              fillColor = $scope.defaultColorForZeroValues;
+                                            }
+                                            else{
+                                              fillColor = $scope.ltMeasureOfValueBrew.getColorInRange(feature.properties[$scope.propertyName]);
+                                            }
+
+                                            return {
+                                                weight: 2,
+                                                opacity: 1,
+                                                color: 'white',
+                                                dashArray: '3',
+                                                fillOpacity: 0.7,
+                                                fillColor: fillColor
+                                            }
+                                          }
+
                                         }
 
                                         function highlightFeature(e) {
@@ -867,6 +920,8 @@ angular.module('wpsMap').component(
                                                                 if($scope.currentIndicatorLayer)
                                                                   $scope.layerControl.removeLayer($scope.currentIndicatorLayer);
 
+                                                                $scope.currentIndicatorContainsZeroValues = false;
+
                                                                 // check if measureOfValueCheckbox is checked
 
                                                                 $scope.date = date;
@@ -877,6 +932,13 @@ angular.module('wpsMap').component(
                                                                 $scope.indicatorUnit = indicatorMetadataAndGeoJSON.unit;
 
                                                                 $scope.currentIndicatorLayerOfCurrentLayer = indicatorMetadataAndGeoJSON.geoJSON;
+
+                                                                for (var i = 0; i < indicatorMetadataAndGeoJSON.geoJSON.features.length; i++){
+                                                                    if (indicatorMetadataAndGeoJSON.geoJSON.features[i].properties[$scope.indicatorPropertyName] == 0 || indicatorMetadataAndGeoJSON.geoJSON.features[i].properties[$scope.indicatorPropertyName] == "0"){
+                                                                      $scope.currentIndicatorContainsZeroValues = true;
+                                                                      break;
+                                                                    };
+                                                                }
 
                                                                 var layer;
 
