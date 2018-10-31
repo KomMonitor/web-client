@@ -334,9 +334,10 @@ angular.module('wpsMap').component(
                         var labelArray_below = ["deutlich kleiner Schwellwert", "moderat kleiner Schwellwert", "geringfügig kleiner Schwellwert"];
                         var labelArray_upper = ["geringfügig über Schwellwert", "moderat über Schwellwert", "deutlich über Schwellwert"];
 
+                        // invert color labeling as colorization of lT features is also inverted
                         for (var i = 0; i < colorsLtMeasureOfValue.length; i++) {
                             $scope.div.innerHTML +=
-                                '<i style="background:' + colorsLtMeasureOfValue[i] + '"></i> ' +
+                                '<i style="background:' + colorsLtMeasureOfValue[colorsLtMeasureOfValue.length - 1 - i] + '"></i> ' +
                                 //(+labelsLtMeasureOfValue[i].toFixed(4)) + ((+labelsLtMeasureOfValue[i + 1].toFixed(4)) ? '&ndash;' + (+labelsLtMeasureOfValue[i + 1].toFixed(4)) + '<br>' : '+');
                                 labelArray_below[i] + ' (' + (+labelsLtMeasureOfValue[i].toFixed(3)) + ((+labelsLtMeasureOfValue[i + 1].toFixed(3)) ? '&ndash;' + (+labelsLtMeasureOfValue[i + 1].toFixed(3)) + ') <br>' : '+');
                         }
@@ -709,7 +710,23 @@ angular.module('wpsMap').component(
                                               fillColor = $scope.defaultColorForZeroValues;
                                             }
                                             else{
-                                              fillColor = $scope.ltMeasureOfValueBrew.getColorInRange(feature.properties[$scope.propertyName]);
+                                              // invert colors, so that lowest values will become strong colored!
+                                              var ltColors = $scope.ltMeasureOfValueBrew.getColors();
+                                              var ltBreaks = $scope.ltMeasureOfValueBrew.getBreaks();
+
+                                              // we use 3 classes --> thus 4 breaks and 3 colors
+
+                                              if(feature.properties[$scope.propertyName] >= ltBreaks[0] && feature.properties[$scope.propertyName] < ltBreaks[1]){
+                                                // strongest color
+                                                fillColor = ltColors[2];
+                                              }
+                                              else if(feature.properties[$scope.propertyName] >= ltBreaks[1] && feature.properties[$scope.propertyName] < ltBreaks[2]){
+                                                // middle color
+                                                fillColor = ltColors[1];
+                                              }
+                                              else{
+                                                fillColor = ltColors[0];
+                                              }
                                             }
 
                                             return {
