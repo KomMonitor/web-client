@@ -48,6 +48,11 @@ angular
 
 									if(!$scope.radarChart)
 										$scope.radarChart = echarts.init(document.getElementById('radarDiagram'));
+									else{
+										// explicitly kill and reinstantiate radar diagram to avoid zombie states on spatial unit change
+										$scope.radarChart.dispose();
+										$scope.radarChart = echarts.init(document.getElementById('radarDiagram'));
+									}
 
 									$scope.radarChart.showLoading();
 

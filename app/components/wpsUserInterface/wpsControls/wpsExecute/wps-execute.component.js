@@ -142,6 +142,11 @@ angular
 
 									if(!$scope.histogramChart)
 										$scope.histogramChart = echarts.init(document.getElementById('histogramDiagram'));
+									else{
+										// explicitly kill and reinstantiate histogram diagram to avoid zombie states on spatial unit change
+										$scope.histogramChart.dispose();
+										$scope.histogramChart = echarts.init(document.getElementById('histogramDiagram'));
+									}
 
 									$scope.histogramChart.hideLoading();
 
@@ -271,6 +276,11 @@ angular
 									// based on prepared DOM, initialize echarts instance
 									if(!$scope.barChart)
 										$scope.barChart = echarts.init(document.getElementById('barDiagram'));
+									else{
+										// explicitly kill and reinstantiate bar diagram to avoid zombie states on spatial unit change
+										$scope.barChart.dispose();
+										$scope.barChart = echarts.init(document.getElementById('barDiagram'));
+									}
 
 									$scope.barChart.hideLoading();
 
@@ -388,6 +398,11 @@ angular
 									// based on prepared DOM, initialize echarts instance
 									if(!$scope.lineChart)
 										$scope.lineChart = echarts.init(document.getElementById('lineDiagram'));
+									else{
+										// explicitly kill and reinstantiate line diagram to avoid zombie states on spatial unit change
+										$scope.lineChart.dispose();
+										$scope.lineChart = echarts.init(document.getElementById('lineDiagram'));
+									}
 
 									$scope.lineChart.hideLoading();
 

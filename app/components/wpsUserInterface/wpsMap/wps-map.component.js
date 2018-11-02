@@ -933,6 +933,9 @@ angular.module('wpsMap').component(
 
                                                                 console.log('replaceIndicatorAsGeoJSON was called');
 
+                                                                // empty layer of possibly selected features
+                                                                wpsPropertiesService.clickedIndicatorFeatureNames = [];
+
                                                                 console.log("Remove old indicatorLayer if exists");
                                                                 if($scope.currentIndicatorLayer)
                                                                   $scope.layerControl.removeLayer($scope.currentIndicatorLayer);
