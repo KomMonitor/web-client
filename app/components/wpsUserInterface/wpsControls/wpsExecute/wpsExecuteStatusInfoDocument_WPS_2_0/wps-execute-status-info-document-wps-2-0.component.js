@@ -121,13 +121,19 @@ angular
 											},
 											radar: {
 									        // shape: 'circle',
-									        name: {
+									        // name: {
+									        //     textStyle: {
+									        //         color: '#fff',
+									        //         backgroundColor: '#999',
+									        //         borderRadius: 3,
+									        //         padding: [3, 5]
+									        //    }
+									        // },
+													name: {
+									            formatter:'[{value}]',
 									            textStyle: {
-									                color: '#fff',
-									                backgroundColor: '#999',
-									                borderRadius: 3,
-									                padding: [3, 5]
-									           }
+									                color:'#525252'
+									            }
 									        },
 									        indicator: indicatorArrayForRadarChart
 									    },
