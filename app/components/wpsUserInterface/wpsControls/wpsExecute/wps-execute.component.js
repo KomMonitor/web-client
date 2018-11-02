@@ -21,6 +21,7 @@ angular
 
 								$scope.userHoveresOverBarItem = false;
 								$scope.eventsRegistered = false;
+								$scope.isTooManyFeatures = false;
 
 								var compareFeaturesByIndicatorValue = function(featureA, featureB) {
 								  if (featureA.properties[$scope.indicatorPropertyName] < featureB.properties[$scope.indicatorPropertyName])
@@ -48,10 +49,7 @@ angular
 
 									showLoadingIcons();
 
-									if (indicatorMetadataAndGeoJSON.geoJSON.features.length > 75){
-										console.log("Number of features too big (more than 75). Thus no diagrams will be updated");
-										return;
-									}
+									$scope.isTooManyFeatures = false;
 
 									$scope.indicatorPropertyName = INDICATOR_DATE_PREFIX + date;
 
@@ -115,11 +113,26 @@ angular
 										indicatorTimeSeriesAverageArray[i] = indicatorTimeSeriesAverageArray[i] / indicatorTimeSeriesCountArray[i];
 									}
 
-									updateBarChart(indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray);
-
 									updateHistogramChart(indicatorMetadataAndGeoJSON, indicatorValueArray);
 
 									updateLineChart(indicatorMetadataAndGeoJSON, indicatorTimeSeriesDatesArray, indicatorTimeSeriesAverageArray);
+
+									// bar chart only if feature number is below 75
+									if (indicatorMetadataAndGeoJSON.geoJSON.features.length > 75){
+										console.log("Number of features too big (more than 75). Thus bar diagram cannot be created");
+
+										// remove bar diagram if exist
+										if($scope.barChart){
+											$scope.barChart.dispose();
+											$scope.barChart = undefined;
+											$scope.eventsRegistered = false;
+										}
+
+										$scope.isTooManyFeatures = true;
+									}
+									else{
+										updateBarChart(indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray);
+									}
 
 								});
 
