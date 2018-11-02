@@ -1,3 +1,10 @@
 <div>
-			<div id="radarDiagram" style="width:800px; height:800px;"></div>
+			<div id="radarDiagram" style="width:700px; height:700px;"></div>
+
+			<div ng-show="selectableIndicatorsForRadar" id="radarInputForm">
+
+					<label class='checkbox-inline' ng-repeat='input in selectableIndicatorsForRadar'><input type="checkbox" value="input.indicatorMetadata.indicatorName" ng-model="input.isSelected" ng-change="$ctrl.filterDisplayedIndicatorsOnRadar()">{{input.indicatorMetadata.indicatorName}}: {{input.isSelected}}</label>
+			</div>
+
+
 </div>

@@ -16,10 +16,13 @@ angular
 
 								const DATE_PREFIX = "DATE_";
 
-								$scope.allIndicatorProperties;
-								$scope.namesOfFailesIndicators  = new Array();
+								//$scope.allIndicatorProperties;
+								$scope.namesOfFailedIndicators  = new Array();
+								$scope.selectableIndicatorsForRadar = new Array();
+								$scope.indicatorInputsForRadar = new Array();
 
 								$scope.date;
+								$scope.spatialUnitName;
 
 								$scope.$on("updateDiagrams", function (event, indicatorMetadataAndGeoJSON, spatialUnitName, spatialUnitId, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, isMeasureOfValueChecked, measureOfValue, justRestyling) {
 
@@ -39,68 +42,70 @@ angular
 								var updateRadarChart = async function(indicatorMetadataAndGeoJSON, spatialUnitName, spatialUnitId, date){
 									// based on prepared DOM, initialize echarts instance
 									$scope.date = date;
+									$scope.spatialUnitName = spatialUnitName;
 
-									$scope.namesOfFailesIndicators = new Array();
+									$scope.namesOfFailedIndicators = new Array();
 
 									if(!$scope.radarChart)
 										$scope.radarChart = echarts.init(document.getElementById('radarDiagram'));
 
 									$scope.radarChart.showLoading();
 
-									var indicatorArrayForRadarChart = new Array();
-									var defaultSeriesValueArray = new Array();
-
 									// fetch properties of all indicators for targetSpatialunit and date
 									try{
-										$scope.allIndicatorProperties = await fetchAllIndicatorProperties(spatialUnitId, date);
+										$scope.selectableIndicatorsForRadar = await fetchAllIndicatorProperties(spatialUnitId, date);
+										buildCheckboxForm($scope.selectableIndicatorsForRadar);
 									}
 									catch(error){
 										throw error;
 									}
 
-									// iterate over all indicator properties
-									var indicatorNames = new Array();
-									for (var indicatorMetadata of wpsPropertiesService.availableIndicators){
-										if(!$scope.namesOfFailesIndicators.includes(indicatorMetadata.indicatorName))
-											indicatorNames.push(indicatorMetadata.indicatorName);
-									}
+									modifyRadarContent($scope.selectableIndicatorsForRadar);
+								};
 
-									for(var i=0; i<$scope.allIndicatorProperties.length; i++){
-										// make object to hold indicatorName, max value and average value
-										var indicatorProperties = $scope.allIndicatorProperties[i];
+								var modifyRadarContent = function(selectedIndicatorsForRadar){
+									var indicatorArrayForRadarChart = new Array();
+									var defaultSeriesValueArray = new Array();
 
-										var sample = indicatorProperties[0];
-										var maxValue = sample[DATE_PREFIX + date];
-										var minValue = sample[DATE_PREFIX + date];
-										var valueSum = 0;
+									for(var i=0; i<selectedIndicatorsForRadar.length; i++){
+										if(selectedIndicatorsForRadar[i].isSelected){
 
-										for(var indicatorPropertyInstance of indicatorProperties){
-											valueSum += Number(indicatorPropertyInstance[DATE_PREFIX + date]);
+											// make object to hold indicatorName, max value and average value
+											var indicatorProperties = selectedIndicatorsForRadar[i].indicatorProperties;
 
-											if(Number(indicatorPropertyInstance[DATE_PREFIX + date]) > maxValue)
-												maxValue = Number(Number(indicatorPropertyInstance[DATE_PREFIX + date]).toFixed(4));
+											var sample = indicatorProperties[0];
+											var maxValue = sample[DATE_PREFIX + $scope.date];
+											var minValue = sample[DATE_PREFIX + $scope.date];
+											var valueSum = 0;
 
-											if(Number(indicatorPropertyInstance[DATE_PREFIX + date]) < minValue)
-												minValue = Number(Number(indicatorPropertyInstance[DATE_PREFIX + date]).toFixed(4));
-										}
+											for(var indicatorPropertyInstance of indicatorProperties){
+												valueSum += Number(indicatorPropertyInstance[DATE_PREFIX + $scope.date]);
 
-										// IT MIGHT HAPPEN THAT AN INDICATOR IS INSPECTED THAT DOES NOT SUPPORT THE DATE
-										// HENCE ONLY ADD VALUES TO DEFAULT IF THEY SHOW MEANINGFUL VALUES
-										if(maxValue > 0 && valueSum > 0){
-											indicatorArrayForRadarChart.push({
-												name: indicatorNames[i],
-												max: maxValue,
-												min: minValue
-											});
+												if(Number(indicatorPropertyInstance[DATE_PREFIX + $scope.date]) > maxValue)
+													maxValue = Number(Number(indicatorPropertyInstance[DATE_PREFIX + $scope.date]).toFixed(4));
 
-											defaultSeriesValueArray.push(Number(Number(valueSum/indicatorProperties.length).toFixed(4)));
+												if(Number(indicatorPropertyInstance[DATE_PREFIX + $scope.date]) < minValue)
+													minValue = Number(Number(indicatorPropertyInstance[DATE_PREFIX + $scope.date]).toFixed(4));
+											}
+
+											// IT MIGHT HAPPEN THAT AN INDICATOR IS INSPECTED THAT DOES NOT SUPPORT THE DATE
+											// HENCE ONLY ADD VALUES TO DEFAULT IF THEY SHOW MEANINGFUL VALUES
+											if(maxValue > 0 && valueSum > 0){
+												indicatorArrayForRadarChart.push({
+													name: selectedIndicatorsForRadar[i].indicatorMetadata.indicatorName,
+													max: maxValue,
+													min: minValue
+												});
+
+												defaultSeriesValueArray.push(Number(Number(valueSum/indicatorProperties.length).toFixed(4)));
+											}
 										}
 
 									}
 
 									$scope.radarOption = {
 											title: {
-													text: 'Indikatoren im Vergleich - ' + spatialUnitName + ' - ' + date,
+													text: 'Indikatoren im Vergleich - ' + $scope.spatialUnitName + ' - ' + $scope.date,
 													left: 'center',
 									        top: 15
 											},
@@ -155,10 +160,10 @@ angular
 
 									// use configuration item and data specified to show chart
 									$scope.radarChart.setOption($scope.radarOption);
-								};
+								}
 
 								var fetchAllIndicatorProperties = async function(spatialUnitId, date){
-									var allIndicatorProperties = new Array();
+								//	var allIndicatorProperties = new Array();
 
 									var dateComps = date.split("-");
 
@@ -166,22 +171,34 @@ angular
 									var month = dateComps[1];
 									var day = dateComps[2];
 
+									var selectableIndicatorsForRadar = [];
+
 									for (var indicatorMetadata of wpsPropertiesService.availableIndicators){
 
 										try{
 											var indicatorProperties = await fetchIndicatorProperties(indicatorMetadata, spatialUnitId, year, month, day);
-											if(indicatorProperties)
-												allIndicatorProperties.push(indicatorProperties);
+											if(indicatorProperties){
+												var selectableIndicatorEntry = {};
+												selectableIndicatorEntry.indicatorProperties = indicatorProperties;
+												// per default show all indicators on radar
+												selectableIndicatorEntry.isSelected = true;
+												selectableIndicatorEntry.indicatorMetadata = indicatorMetadata;
+
+												selectableIndicatorsForRadar.push(selectableIndicatorEntry);
+
+												//allIndicatorProperties.push(indicatorProperties);
+											}
+
 										}
 										catch(error){
 							        console.error("Error while fetching indicatorProperties while updating radar diagram. Error was: " + error);
 											console.error("Will ignore the indicator that caused the upper error. Will still try to update radar diagram.");
 
-											$scope.namesOfFailesIndicators.push(indicatorMetadata.indicatorName);
+											$scope.namesOfFailedIndicators.push(indicatorMetadata.indicatorName);
 							      }
 									}
 
-									return allIndicatorProperties;
+									return selectableIndicatorsForRadar;
 								};
 
 								var fetchIndicatorProperties = function(indicatorMetadata, spatialUnitId, year, month, day){
@@ -236,9 +253,9 @@ angular
 
 
 									// for each date create series data entry for feature
-									for(var i=0; i<$scope.allIndicatorProperties.length; i++){
+									for(var i=0; i<$scope.selectableIndicatorsForRadar.length; i++){
 										// make object to hold indicatorName, max value and average value
-										var indicatorProperties = $scope.allIndicatorProperties[i];
+										var indicatorProperties = $scope.selectableIndicatorsForRadar[i].indicatorProperties;
 
 										for(var indicatorPropertyInstance of indicatorProperties){
 											if(indicatorPropertyInstance.spatialUnitFeatureName === featureProperties.spatialUnitFeatureName){
@@ -320,6 +337,59 @@ angular
 										});
 									}
 								};
+
+								var buildCheckboxForm = function(selectableIndicatorsForRadar){
+									//
+									// $scope.indicatorInputsForRadar = new Array();
+									//
+									// selectableIndicatorsForRadar.forEach(function(selectableIndicator){
+									// 	// looks like:
+									//
+									// 	// {
+									// 	// 	 "minParameterValueForNumericInputs": 6.027456183070403,
+									// 	// 	 "maxParameterValueForNumericInputs": 0.8008281904610115,
+									// 	// 	 "defaultValue": "defaultValue",
+									// 	// 	 "dataType": "string",
+									// 	// 	 "name": "name",
+									// 	// 	 "description": "description"
+									// 	//  }
+									//
+									// 	// var parameterNode = document.createDocumentFragment();
+									//
+									// 	var indicatorInput={};
+									//
+									// 	indicatorInput.name = selectableIndicator.indicatorMetadata.indicatorName;
+									//
+									// 	var inputElement = document.createElement("input");
+									// 	inputElement.setAttribute("id", indicatorInput.name);
+									// 	inputElement.setAttribute("type", "checkbox");
+									// 	inputElement.setAttribute("value", indicatorInput.name);
+									//
+									// 	if(selectableIndicator.isSelected){
+									// 		inputElement.setAttribute("checked", true);
+									// 	}
+									//
+									//
+									// 	indicatorInput.inputElement = inputElement;
+									//
+									// 	$scope.indicatorInputsForRadar.push(indicatorInput);
+									//
+									// 	// make a bit space after paramter
+									// 	// parameterDiv.appendChild(document.createElement("p"));
+									//
+									// 	// processInputFormNode.appendChild(parameterDiv);
+									// });
+									//
+									// // parameterNode.appendChild(parameterDiv);
+
+									 $scope.$apply();
+								};
+
+								this.filterDisplayedIndicatorsOnRadar = function(){
+									console.log("Filtering indicator radar");
+
+									modifyRadarContent($scope.selectableIndicatorsForRadar);
+								}
 
 
 							} ]
