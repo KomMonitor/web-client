@@ -312,6 +312,17 @@ angular
 							}
 						}
 
+						this.appendDatesFromIndicatorMetadataApplicableDates = function(dates){
+
+								var indicatorMetadata = this.fetchBaseIndicatorMetadata(this.targetScriptMetadata.indicatorId);
+								for (const date of indicatorMetadata.applicableDates){
+									if(!dates.includes(date))
+										dates.push(date);
+								}
+
+							return dates;
+						}
+
 						this.appendDatesFromBaseIndicators = function(dates){
 
 							for (const baseIndicatorId of this.targetScriptMetadata.requiredIndicatorIds){
@@ -347,7 +358,8 @@ angular
 
 							var availableDates = new Array();
 
-							availableDates = this.appendDatesFromBaseIndicators(availableDates);
+							// availableDates = this.appendDatesFromBaseIndicators(availableDates);
+							availableDates = this.appendDatesFromIndicatorMetadataApplicableDates(availableDates);
 							// availableDates = this.appendDatesFromGeoresources(availableDates);
 
 							// sort ascending
