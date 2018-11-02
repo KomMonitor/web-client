@@ -254,17 +254,20 @@ angular
 
 									// for each date create series data entry for feature
 									for(var i=0; i<$scope.selectableIndicatorsForRadar.length; i++){
-										// make object to hold indicatorName, max value and average value
-										var indicatorProperties = $scope.selectableIndicatorsForRadar[i].indicatorProperties;
+										if($scope.selectableIndicatorsForRadar[i].isSelected){
+											// make object to hold indicatorName, max value and average value
+											var indicatorProperties = $scope.selectableIndicatorsForRadar[i].indicatorProperties;
 
-										for(var indicatorPropertyInstance of indicatorProperties){
-											if(indicatorPropertyInstance.spatialUnitFeatureName === featureProperties.spatialUnitFeatureName){
-												if(indicatorPropertyInstance[DATE_PREFIX + $scope.date] != undefined && indicatorPropertyInstance[DATE_PREFIX + $scope.date] != null){
-													featureSeries.value.push(Number(Number(indicatorPropertyInstance[DATE_PREFIX + $scope.date]).toFixed(4)));
+											for(var indicatorPropertyInstance of indicatorProperties){
+												if(indicatorPropertyInstance.spatialUnitFeatureName === featureProperties.spatialUnitFeatureName){
+													if(indicatorPropertyInstance[DATE_PREFIX + $scope.date] != undefined && indicatorPropertyInstance[DATE_PREFIX + $scope.date] != null){
+														featureSeries.value.push(Number(Number(indicatorPropertyInstance[DATE_PREFIX + $scope.date]).toFixed(4)));
+													}
+													break;
 												}
-												break;
 											}
 										}
+
 									}
 
 									$scope.radarOption.series[0].data.push(featureSeries);

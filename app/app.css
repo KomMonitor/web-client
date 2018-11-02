@@ -156,6 +156,12 @@
     opacity: 0.7;
 }
 
+#radarInputForm {
+	height: auto !important;
+	max-height: 300px;
+  overflow-y: scroll;
+}
+
 
 
 
