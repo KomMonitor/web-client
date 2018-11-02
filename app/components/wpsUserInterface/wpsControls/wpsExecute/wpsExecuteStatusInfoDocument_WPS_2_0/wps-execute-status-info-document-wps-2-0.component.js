@@ -133,7 +133,8 @@ angular
 									            formatter:'[{value}]',
 									            textStyle: {
 									                color:'#525252'
-									            }
+									            },
+															fontSize: 11
 									        },
 									        indicator: indicatorArrayForRadarChart
 									    },
