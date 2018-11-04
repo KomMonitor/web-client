@@ -169,7 +169,7 @@ angular
 												show : true,
 												feature : {
 														// mark : {show: true},
-														dataView : {show: true, readOnly: true, title: "Data View"},
+														dataView : {show: true, readOnly: true, title: "Data View", lang: ['Data View', 'close', 'refresh']},
 														restore : {show: true, title: "Restore"},
 														saveAsImage : {show: true, title: "Save"}
 												}
@@ -324,7 +324,7 @@ angular
 													show : true,
 													feature : {
 															// mark : {show: true},
-															dataView : {show: true, readOnly: true, title: "Data View"},
+															dataView : {show: true, readOnly: true, title: "Data View", lang: ['Data View', 'close', 'refresh']},
 															restore : {show: true, title: "Restore"},
 															saveAsImage : {show: true, title: "Save"}
 													}
@@ -455,7 +455,7 @@ angular
 													show : true,
 													feature : {
 															// mark : {show: true},
-															dataView : {show: true, readOnly: true, title: "Data View"},
+															dataView : {show: true, readOnly: true, title: "Data View", lang: ['Data View', 'close', 'refresh']},
 															restore : {show: true, title: "Restore"},
 															saveAsImage : {show: true, title: "Save"}
 													}
