@@ -165,6 +165,15 @@ angular
 													}
 											}
 										},
+										toolbox: {
+												show : true,
+												feature : {
+														// mark : {show: true},
+														dataView : {show: true, readOnly: true, title: "Data View"},
+														restore : {show: true, title: "Restore"},
+														saveAsImage : {show: true, title: "Save"}
+												}
+										},
                     xAxis: [{
 											name: 'Wertintervalle',
 											nameLocation: 'center',
@@ -311,6 +320,15 @@ angular
 															}
 													}
 											},
+											toolbox: {
+													show : true,
+													feature : {
+															// mark : {show: true},
+															dataView : {show: true, readOnly: true, title: "Data View"},
+															restore : {show: true, title: "Restore"},
+															saveAsImage : {show: true, title: "Save"}
+													}
+											},
 											// legend: {
 											// 		//data:[indicatorMetadataAndGeoJSON.indicatorName]
 											// },
@@ -431,6 +449,15 @@ angular
 															crossStyle: {
 																	color: '#999'
 															}
+													}
+											},
+											toolbox: {
+													show : true,
+													feature : {
+															// mark : {show: true},
+															dataView : {show: true, readOnly: true, title: "Data View"},
+															restore : {show: true, title: "Restore"},
+															saveAsImage : {show: true, title: "Save"}
 													}
 											},
 											legend: {
