@@ -194,7 +194,7 @@ angular
 										if(wpsPropertiesService.clickedIndicatorFeatureNames.includes(propertiesInstance.spatialUnitFeatureName)){
 											appendSeriesToRadarChart(propertiesInstance);
 										}
-									}	
+									}
 								};
 
 								var fetchAllIndicatorProperties = async function(spatialUnitId, date){
@@ -208,20 +208,27 @@ angular
 
 									var selectableIndicatorsForRadar = [];
 
+									var dateProperty = '' + DATE_PREFIX + date;
+
 									for (var indicatorMetadata of wpsPropertiesService.availableIndicators){
 
 										try{
 											var indicatorProperties = await fetchIndicatorProperties(indicatorMetadata, spatialUnitId, year, month, day);
+											// only use if response is valid and contains a date property for selected date!
+
 											if(indicatorProperties){
-												var selectableIndicatorEntry = {};
-												selectableIndicatorEntry.indicatorProperties = indicatorProperties;
-												// per default show all indicators on radar
-												selectableIndicatorEntry.isSelected = true;
-												selectableIndicatorEntry.indicatorMetadata = indicatorMetadata;
+												var propertiesSample = indicatorProperties[0];
+												if (propertiesSample[dateProperty]){
+													var selectableIndicatorEntry = {};
+													selectableIndicatorEntry.indicatorProperties = indicatorProperties;
+													// per default show all indicators on radar
+													selectableIndicatorEntry.isSelected = true;
+													selectableIndicatorEntry.indicatorMetadata = indicatorMetadata;
 
-												selectableIndicatorsForRadar.push(selectableIndicatorEntry);
+													selectableIndicatorsForRadar.push(selectableIndicatorEntry);
 
-												//allIndicatorProperties.push(indicatorProperties);
+													//allIndicatorProperties.push(indicatorProperties);
+												}												
 											}
 
 										}
