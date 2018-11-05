@@ -26,7 +26,7 @@ angular
 								$scope.wmsUrlForSelectedIndicator;
 								$scope.wfsUrlForSelectedIndicator;
 
-								$scope.loadingData = false;
+								$scope.loadingData = true;
 								$scope.changeIndicatorWasClicked = false;
 
 								this.selectedDate;
@@ -171,8 +171,11 @@ angular
 								var fetchedIndicatorsInitially = false;
 
 								var callScopeApplyInitially = function(){
-									if(fetchedTopicsInitially && fetchedIndicatorsInitially && fetchedGeoresourcesInitially && fetchedSpatialUnitsInitially)
+									if(fetchedTopicsInitially && fetchedIndicatorsInitially && fetchedGeoresourcesInitially && fetchedSpatialUnitsInitially){
+										$scope.loadingData = false;
 										$scope.$apply();
+									}
+
 								};
 
 								$http({
