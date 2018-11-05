@@ -177,11 +177,25 @@ angular
 									    }]
 									};
 
+									// check if any feature is still clicked/selected
+									// then append those as series within radar chart
+									appendSelectedFeaturesIfNecessary();
+
 									$scope.radarChart.hideLoading();
 
 									// use configuration item and data specified to show chart
 									$scope.radarChart.setOption($scope.radarOption);
 								}
+
+								var appendSelectedFeaturesIfNecessary = function(){
+									var sampleProperties = $scope.selectableIndicatorsForRadar[0].indicatorProperties;
+
+									for (var propertiesInstance of sampleProperties){
+										if(wpsPropertiesService.clickedIndicatorFeatureNames.includes(propertiesInstance.spatialUnitFeatureName)){
+											appendSeriesToRadarChart(propertiesInstance);
+										}
+									}	
+								};
 
 								var fetchAllIndicatorProperties = async function(spatialUnitId, date){
 								//	var allIndicatorProperties = new Array();
