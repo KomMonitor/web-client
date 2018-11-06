@@ -172,11 +172,23 @@ angular
 
 								var callScopeApplyInitially = function(){
 									if(fetchedTopicsInitially && fetchedIndicatorsInitially && fetchedGeoresourcesInitially && fetchedSpatialUnitsInitially){
+
+										$rootScope.$broadcast("loadExampleIndicatorInitially");
+
 										$scope.loadingData = false;
 										$scope.$apply();
 									}
 
 								};
+
+								$scope.$on("loadExampleIndicatorInitially", function (event) {
+
+									console.log("Load an initial example indicator");
+									wpsPropertiesService.selectedIndicator = wpsPropertiesService.availableIndicators[0];
+
+									$scope.onChangeSelectedIndicator();
+
+								});
 
 								$http({
 									url: this.wpsPropertiesServiceInstance.baseUrlToKomMonitorDataAPI + "/spatial-units",
@@ -428,7 +440,7 @@ angular
 
 								};
 
-								this.setupDateSliderForIndicator = function(){
+								$scope.setupDateSliderForIndicator = function(){
 
 									var domNode = document.getElementById("dateSlider");
 
@@ -444,7 +456,6 @@ angular
 
 									$scope.selectedDate = lastDate;
 									$scope.date = lastDate;
-									this.selectedDate = lastDate;
 
 									availableDates.forEach(function(date){
 										var dateItem = {};
@@ -469,14 +480,14 @@ angular
 										markerSize: 22,
 										tickHeight: 10,
 										handlers: {
-											"valueChanged": [this.onChangeDateSliderItem]
+											"valueChanged": [$scope.onChangeDateSliderItem]
 										}
 									});
 
 
 								};
 
-								this.onChangeDateSliderItem = async function(dataItem, rangeslideElement){
+								$scope.onChangeDateSliderItem = async function(dataItem, rangeslideElement){
 
 									if(!$scope.changeIndicatorWasClicked && wpsPropertiesService.selectedIndicator){
 										$scope.loadingData = true;
@@ -484,7 +495,6 @@ angular
 										console.log("Change selected date");
 
 										$scope.selectedDate = dataItem.key;
-										this.selectedDate = dataItem.key;
 										$scope.date = dataItem.key;
 
 										try{
@@ -557,13 +567,13 @@ angular
 									}
 								}
 
-								this.onChangeSelectedIndicator = async function(){
+								$scope.onChangeSelectedIndicator = async function(){
 
 									if(wpsPropertiesService.selectedIndicator){
 										$scope.loadingData = true;
 										$scope.changeIndicatorWasClicked = true;
 
-										this.setupDateSliderForIndicator();
+										$scope.setupDateSliderForIndicator();
 
 										if(!wpsPropertiesService.selectedSpatialUnit || !wpsPropertiesService.selectedIndicator.applicableSpatialUnits.includes(wpsPropertiesService.selectedSpatialUnit.spatialUnitLevel)){
 											wpsPropertiesService.selectedSpatialUnit = $scope.getFirstSpatialUnitForSelectedIndicator();
@@ -717,7 +727,7 @@ angular
 															$scope.wfsUrlForSelectedIndicator = indicatorWfsUrl;
 															$scope.$apply();
 
-													});
+								});
 
 
 							this.onMeasureOfValueChange = function(){
