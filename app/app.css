@@ -270,6 +270,14 @@
 #indicatorProcessing{
 	margin-left: 35px;
 	margin-right: 35px;
+	margin-top: 20px;
+	z-index: 2000;
+}
+
+#indicatorRadar{
+	margin-left: 5px;
+	margin-right: 5px;
+	margin-top: 20px;
 	z-index: 2000;
 }
 
