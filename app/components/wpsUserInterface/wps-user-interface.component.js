@@ -4,12 +4,12 @@ angular.module('wpsUserInterface').component('wpsUserInterface', {
 
 		this.wpsPropertiesServiceInstance = wpsPropertiesService;
 
-		$scope.sidebarIndicatorConfigClass = "hidden";
+		$scope.sidebarIndicatorConfigClass = "";
 		$scope.sidebarDiagramsClass = "hidden";
 		$scope.sidebarRadarDiagramClass = "hidden";
 		$scope.sidebarProcessingClass = "hidden";
 
-		$scope.buttonIndicatorConfigClass = "btn btn-custom btn-circle";
+		$scope.buttonIndicatorConfigClass = "btn btn-custom btn-docked";
 		$scope.buttonDiagramsClass = "btn btn-custom btn-circle";
 		$scope.buttonRadarDiagramClass = "btn btn-custom btn-circle";
 		$scope.buttonProcessingClass = "btn btn-custom btn-circle";

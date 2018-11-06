@@ -174,9 +174,6 @@ angular
 									if(fetchedTopicsInitially && fetchedIndicatorsInitially && fetchedGeoresourcesInitially && fetchedSpatialUnitsInitially){
 
 										$rootScope.$broadcast("loadExampleIndicatorInitially");
-
-										$scope.loadingData = false;
-										$scope.$apply();
 									}
 
 								};
