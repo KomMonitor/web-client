@@ -163,6 +163,47 @@
 }
 
 
+.wrapper {
+    display: flex;
+    width: 100%;
+    align-items: stretch;
+}
+
+#sidebarIndicatorConfig {
+    min-width: 600px;
+    max-width: 600px;
+		min-height: 100vh;
+		background: #F7EBDB;
+    transition: all 0.3s;
+}
+
+#sidebarIndicatorConfig.active {
+    margin-left: -600px;
+}
+
+@media (max-width: 768px) {
+    #sidebarIndicatorConfig {
+        margin-left: -600px;
+    }
+    #sidebarIndicatorConfig.active {
+        margin-left: 0;
+    }
+}
+
+#indicatorSetup{
+	margin-left: 15px;
+	margin-right: 15px;
+}
+
+
+
+
+
+
+
+
+
+
 
 
 

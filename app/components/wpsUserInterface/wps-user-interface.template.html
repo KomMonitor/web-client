@@ -1,24 +1,38 @@
-<div class="container-fluid">
+<!-- <div class="container-fluid"> -->
 
-	<div class="row wps-ui">
+	<div class="wrapper">
+
+    <!-- Sidebar -->
+    <nav id="sidebarIndicatorConfig" ng-class="sidebarIndicatorConfigClass">
+        <wps-setup></wps-setup>
+    </nav>
+
+    <!-- Page Content -->
+    <div id="content">
+			<!-- <nav class="navbar navbar-expand-lg navbar-light bg-light"> -->
+				<div class="container-fluid">
+
+						<button type="button" id="sidebarIndicatorConfigCollapse" ng-click="onSidebarIndicatorButtonClick()" class="btn btn-info">
+								<i class="fas fa-align-left"></i>
+								<span>Toggle IndicatorConfig</span>
+						</button>
+
+				</div>
+			<!-- </nav> -->
+        <wps-map style="height: 100%; width: 100%;"></wps-map>
+    </div>
+
+	</div>
+
+	<!-- <div class="row wps-ui"> -->
 
 		<!-- embed map component -->
-		<wps-map class="col-sm-7" style="height: 100%;"></wps-map>
+		<!-- <wps-map class="col-sm-7" style="height: 100%;"></wps-map> -->
 
-		<div class="col-sm-5 sidenav">
+		<!-- <div class="col-sm-5 sidenav"> -->
 			<!-- embed the control options  -->
-			<wps-controls></wps-controls>
+			<!-- <wps-controls></wps-controls>
 		</div>
-	</div>
+	</div> -->
 
-	<!-- <div id="dateSlider" class="rangeslide" ng-show="$ctrl.wpsPropertiesServiceInstance.selectedIndicator"></div> -->
-
-	<div id="legend" class="form-group" ng-if="$ctrl.wpsPropertiesServiceInstance.selectedIndicatorLegendURL">
-	<h4 class="justify" align="center">Indikator Legende</h4>
-
-		<div align="center">
-			<img ng-src="{{$ctrl.wpsPropertiesServiceInstance.selectedIndicatorLegendURL}}"/>
-		</div>
-	</div>
-
-</div>
+<!-- </div> -->
