@@ -264,11 +264,13 @@
 #indicatorSetup{
 	margin-left: 15px;
 	margin-right: 15px;
+	z-index: 2000;
 }
 
 #indicatorProcessing{
 	margin-left: 35px;
 	margin-right: 35px;
+	z-index: 2000;
 }
 
 .btn-circle {
