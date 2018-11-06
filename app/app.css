@@ -167,18 +167,21 @@
     display: flex;
     width: 100%;
     align-items: stretch;
+		perspective: 1500px;
 }
 
 #sidebarIndicatorConfig {
-    min-width: 600px;
-    max-width: 600px;
+    min-width: 750px;
+    max-width: 750px;
 		min-height: 100vh;
 		background: #E6EEFB;
-    transition: all 0.3s;
+		transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
+    transform-origin: center left; /* Set the transformed position of sidebar to center left side. */
 }
 
 #sidebarIndicatorConfig.hidden {
-    margin-left: -600px;
+    margin-left: -750px;
+		transform: rotateY(100deg); /* Rotate sidebar vertically by 100 degrees. */
 }
 
 #sidebarDiagrams {
@@ -195,10 +198,12 @@
 
 @media (max-width: 768px) {
     #sidebarIndicatorConfig {
-        margin-left: -600px;
+        margin-left: -750px;
+				transform: rotateY(100deg);
     }
     #sidebarIndicatorConfig.hidden {
         margin-left: 0;
+				transform: none;
     }
 
 		#sidebarDiagrams {
@@ -222,17 +227,34 @@
   font-size: 12px;
   line-height: 1.42;
   border-radius: 25px;
+	left: 10px;
+}
+
+.btn-docked {
+	position: absolute;
+  left: 0px;
+  transition: 0.3s;
+  padding: 15px;
+  width: 100px;
+  text-decoration: none;
+  font-size: 20px;
+  color: white;
+  border-radius: 0 5px 5px 0;
 }
 
 .btn-custom {
 	background-color: #008CBA;
   color: white;
+	position: absolute;
+	z-index: 1000;
 }
 
 .btn-custom:hover {
 	background-color: white;
   color: black;
   border: 2px solid #008CBA;
+	position: absolute;
+	z-index: 1000;
 }
 
 
