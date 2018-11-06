@@ -177,15 +177,34 @@
     transition: all 0.3s;
 }
 
-#sidebarIndicatorConfig.active {
+#sidebarIndicatorConfig.hidden {
     margin-left: -600px;
+}
+
+#sidebarDiagrams {
+    min-width: 750px;
+    max-width: 750px;
+		min-height: 100vh;
+		background: #E6EEFB;
+    transition: all 0.3s;
+}
+
+#sidebarDiagrams.hidden {
+    margin-left: -750px;
 }
 
 @media (max-width: 768px) {
     #sidebarIndicatorConfig {
         margin-left: -600px;
     }
-    #sidebarIndicatorConfig.active {
+    #sidebarIndicatorConfig.hidden {
+        margin-left: 0;
+    }
+
+		#sidebarDiagrams {
+        margin-left: -750px;
+    }
+    #sidebarDiagrams.hidden {
         margin-left: 0;
     }
 }

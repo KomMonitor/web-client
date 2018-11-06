@@ -7,20 +7,24 @@
         <wps-setup></wps-setup>
     </nav>
 
+		<nav id="sidebarDiagrams" ng-class="sidebarDiagramsClass">
+        <wps-execute></wps-execute>
+    </nav>
+
     <!-- Page Content -->
     <div id="content" style="height: 100%; width: 100%; position: relative;">
         <wps-map style="height: 100%; width: 100%; position: absolute; z-index: 1;"></wps-map>
 
-				<!-- <nav class="navbar navbar-expand-lg navbar-light bg-light"> -->
-					<!-- <div class="container-fluid"> -->
+				<button type="button" style="position: absolute;  z-index: 1000; top: 100px; left: 10px;" id="sidebarIndicatorConfigCollapse"
+					ng-click="onSidebarIndicatorButtonClick()" class="btn btn-custom btn-circle" data-toggle="tooltip" title="Indikatorenauswahl">
+						<span style="font-size:1.5em;" class="glyphicon glyphicon-th" aria-hidden="true"></span>
+				</button>
 
-							<button type="button" style="position: absolute;  z-index: 1000; top: 100px; left: 10px;" id="sidebarIndicatorConfigCollapse"
-							ng-click="onSidebarIndicatorButtonClick()" class="btn btn-custom btn-circle" data-toggle="tooltip" title="Indikatoren">
-									<span class="glyphicon glyphicon-th" aria-hidden="true"></span>
-							</button>
+				<button type="button" style="position: absolute;  z-index: 1000; top: 200px; left: 10px;" id="sidebarDiagramsCollapse"
+					ng-click="onSidebarDiagramsClick()" class="btn btn-custom btn-circle" data-toggle="tooltip" title="statistische Diagramme">
+						<span style="font-size:1.5em;" class="glyphicon glyphicon-stats" aria-hidden="true"></span>
+				</button>
 
-					<!-- </div> -->
-				<!-- </nav> -->
     </div>
 
 	</div>
