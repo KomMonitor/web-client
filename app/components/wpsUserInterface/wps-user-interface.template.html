@@ -11,6 +11,14 @@
         <wps-execute></wps-execute>
     </nav>
 
+		<nav id="sidebarRadarDiagram" ng-class="sidebarRadarDiagramClass">
+        <wps-execute-status-info-document-wps-2></wps-execute-status-info-document-wps-2>
+    </nav>
+
+		<nav id="sidebarProcessing" ng-class="sidebarProcessingClass">
+        <wps-processes></wps-processes>
+    </nav>
+
     <!-- Page Content -->
     <div id="content" style="height: 100%; width: 100%; position: relative;">
         <wps-map style="height: 100%; width: 100%; position: absolute; z-index: 1;"></wps-map>
@@ -22,6 +30,16 @@
 
 				<button type="button" style="top: 200px;" id="sidebarDiagramsCollapse"
 					ng-click="onSidebarDiagramsClick()" ng-class="buttonDiagramsClass" data-toggle="tooltip" title="statistische Diagramme">
+						<span style="font-size:1.5em;" class="glyphicon glyphicon-stats" aria-hidden="true"></span>
+				</button>
+
+				<button type="button" style="top: 300px;" id="sidebarRadarDiagramCollapse"
+					ng-click="onsidebarRadarDiagramClick()" ng-class="buttonRadarDiagramClass" data-toggle="tooltip" title="Indikatorenradar">
+						<span style="font-size:1.5em;" class="glyphicon glyphicon-stats" aria-hidden="true"></span>
+				</button>
+
+				<button type="button" style="top: 400px;" id="sidebarProcessingCollapse"
+					ng-click="onsidebarProcessingClick()" ng-class="buttonProcessingClass" data-toggle="tooltip" title="Individuelle Indikatorenberechnung">
 						<span style="font-size:1.5em;" class="glyphicon glyphicon-stats" aria-hidden="true"></span>
 				</button>
 

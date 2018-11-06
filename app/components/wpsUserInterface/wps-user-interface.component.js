@@ -6,18 +6,26 @@ angular.module('wpsUserInterface').component('wpsUserInterface', {
 
 		$scope.sidebarIndicatorConfigClass = "";
 		$scope.sidebarDiagramsClass = "hidden";
+		$scope.sidebarRadarDiagramClass = "hidden";
+		$scope.sidebarProcessingClass = "hidden";
 
 		$scope.buttonIndicatorConfigClass = "btn btn-custom btn-docked";
 		$scope.buttonDiagramsClass = "btn btn-custom btn-circle";
+		$scope.buttonRadarDiagramClass = "btn btn-custom btn-circle";
+		$scope.buttonProcessingClass = "btn btn-custom btn-circle";
 
 		$scope.undockButtons = function(){
 			$scope.buttonIndicatorConfigClass = "btn btn-custom btn-circle";
 			$scope.buttonDiagramsClass = "btn btn-custom btn-circle";
+			$scope.buttonRadarDiagramClass = "btn btn-custom btn-circle";
+			$scope.buttonProcessingClass = "btn btn-custom btn-circle";
 		};
 
 		$scope.hideSidebars = function(){
 			$scope.sidebarIndicatorConfigClass = "hidden";
 			$scope.sidebarDiagramsClass = "hidden";
+			$scope.sidebarRadarDiagramClass = "hidden";
+			$scope.sidebarProcessingClass = "hidden";
 		};
 
 		$scope.onSidebarIndicatorButtonClick = function(){
@@ -43,6 +51,30 @@ angular.module('wpsUserInterface').component('wpsUserInterface', {
 			}
 			else{
 				$scope.sidebarDiagramsClass = "hidden";
+			}
+		}
+
+		$scope.onsidebarRadarDiagramClick = function(){
+			$scope.undockButtons();
+			if($scope.sidebarRadarDiagramClass === "hidden"){
+				$scope.hideSidebars();
+				$scope.sidebarRadarDiagramClass = "";
+				$scope.buttonRadarDiagramClass = "btn btn-custom btn-docked";
+			}
+			else{
+				$scope.sidebarRadarDiagramClass = "hidden";
+			}
+		}
+
+		$scope.onsidebarProcessingClick = function(){
+			$scope.undockButtons();
+			if($scope.sidebarProcessingClass === "hidden"){
+				$scope.hideSidebars();
+				$scope.sidebarProcessingClass = "";
+				$scope.buttonProcessingClass = "btn btn-custom btn-docked";
+			}
+			else{
+				$scope.sidebarProcessingClass = "hidden";
 			}
 		}
 
