@@ -20,6 +20,8 @@ angular.module('wpsMap').component(
                     this.wpsExecuteSetupInputs = wpsExecuteInputService;
                     $scope.inputLayerCounter = 0;
 
+                    $scope.loadingData = true;
+
                     $scope.drawnItems = new L.FeatureGroup();
                     $scope.drawControl;
 
@@ -122,78 +124,19 @@ angular.module('wpsMap').component(
                       $scope.layerControl = L.Control.styledLayerControl($scope.baseMaps, $scope.overlays, options);
 	                    $scope.map.addControl($scope.layerControl);
 
+                      $scope.loadingData = false;
 
-
-
-                      // $scope.legendControl = L.control({position: 'bottomleft'});
-                      //
-                      // $scope.legendControl.onAdd = function (map) {
-                      //
-                      //     $scope.div = L.DomUtil.create('div', 'info legend');
-                      //     //     labels = $scope.defaultBrew.getBreaks();
-                      //     //     colors = $scope.defaultBrew.getColors();
-                      //     //
-                      //     // // loop through our density intervals and generate a label with a colored square for each interval
-                      //     // for (var i = 0; i < labels.length; i++) {
-                      //     //     $scope.div.innerHTML +=
-                      //     //         '<i style="background:' + $scope.defaultBrew.getColorInRange(labels[i] + 1) + '"></i> ' +
-                      //     //         labels[i] + (labels[i + 1] ? '&ndash;' + labels[i + 1] + '<br>' : '+');
-                      //     // }
-                      //     //
-                      //     $scope.div.innerHTML = "<h2>Test</h2>";
-                      //     return $scope.div;
-                      // };
-                      //
-                      // $scope.legendControl.update = function (map) {
-                      //   $scope.div = L.DomUtil.create('div', 'info legend'),
-                      //       labels = $scope.defaultBrew.getBreaks();
-                      //       colors = $scope.defaultBrew.getColors();
-                      //
-                      //   $scope.div.innerHTML = "";
-                      //
-                      //   // loop through our density intervals and generate a label with a colored square for each interval
-                      //   for (var i = 0; i < labels.length; i++) {
-                      //       $scope.div.innerHTML +=
-                      //           '<i style="background:' + $scope.defaultBrew.getColorInRange(labels[i] + 1) + '"></i> ' +
-                      //           labels[i] + (labels[i + 1] ? '&ndash;' + labels[i + 1] + '<br>' : '+');
-                      //   }
-                      //
-                      //   return $scope.div;
-                      // };
-                      //
-                      // $scope.legendControl.addTo($scope.map);
-
-
-                      // $scope.layerControl = L.control.layers($scope.baseMaps, $scope.overlays);
-                      //
-                      // $scope.layerControl.addTo($scope.map);
               			}
 
-                    // this.initializeMap = function(){
-            				// 	this.wpsMapServiceInstance.initializeMap();
-            				// };
+                    $scope.$on("showLoadingIconOnMap", function (event) {
+                      console.log("Show loading icon on map");
+                      $scope.loadingData = true;
+                    });
 
-
-					// angular.extend($scope, {
-          //               center: {
-          //                   lat: 51.4386432,
-          //                   lng: 7.0115552,
-          //                   zoom: 12
-          //               },
-          //               layers: {
-          //                   baselayers: {
-          //                       osm: {
-          //                           name: 'OpenStreetMap',
-          //                           url: 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-          //                           type: 'xyz'
-          //                       }
-          //                   },
-          //                   overlays: {
-          //                   }
-          //               },
-          //               controls: {
-          //               }
-          //           });
+                    $scope.$on("hideLoadingIconOnMap", function (event) {
+                      console.log("Hide loading icon on map");
+                      $scope.loadingData = false;
+                    });
 
                     $scope.makeInfoControl = function(date){
 
@@ -836,99 +779,6 @@ angular.module('wpsMap').component(
                                             map.fitBounds(e.target.getBounds());
                                         }
 
-
-
-                                        // $scope.$on("addIndicatorAsGeoJSON", function (event, indicatorMetadataAndGeoJSON, spatialUnitName, date) {
-                                        //
-                                        //               console.log('addIndicatorAsGeoJSON was called');
-                                        //
-                                        //               // check if measureOfValueCheckbox is checked
-                                        //
-                                        //
-                                        //
-                                        //
-                                        //
-                                        //               $scope.indicatorPropertyName = INDICATOR_DATE_PREFIX + date;
-                                        //               $scope.indicatorName = indicatorMetadataAndGeoJSON.indicatorName;
-                                        //               $scope.indicatorDescription = indicatorMetadataAndGeoJSON.metadata.description;
-                                        //               $scope.indicatorUnit = indicatorMetadataAndGeoJSON.unit;
-                                        //
-                                        //               $scope.currentIndicatorLayerOfCurrentLayer = indicatorMetadataAndGeoJSON.geoJSON;
-                                        //
-                                        //               var layer;
-                                        //
-                                        //               if(wpsPropertiesService.isMeasureOfValueChecked){
-                                        //
-                                        //                 setupGtMeasureOfValueBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, 3, "YlOrBr", "jenks", wpsPropertiesService.measureOfValue);
-                                        //                 setupLtMeasureOfValueBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, 3, "Purples", "jenks", wpsPropertiesService.measureOfValue);
-                                        //                 $scope.propertyName = INDICATOR_DATE_PREFIX + date;
-                                        //
-                                        //                 layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
-                                        //                     style: styleMeasureOfValue,
-                                        //                     onEachFeature: onEachFeatureIndicator
-                                        //                 });
-                                        //
-                                        //                 $scope.makeInfoControl(date);
-                                        //                 $scope.makeMeasureOfValueLegend();
-                                        //
-                                        //               }
-                                        //               else{
-                                        //                 setupDefaultBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, indicatorMetadataAndGeoJSON.defaultClassificationMapping.items.length, indicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, "jenks");
-                                        //                 $scope.propertyName = INDICATOR_DATE_PREFIX + date;
-                                        //
-                                        //                 layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
-                                        //                     style: styleDefault,
-                                        //                     onEachFeature: onEachFeatureIndicator
-                                        //                 });
-                                        //                 $scope.makeInfoControl(date);
-                                        //                 $scope.makeDefaultLegend(indicatorMetadataAndGeoJSON.defaultClassificationMapping);
-                                        //
-                                        //               }
-                                        //
-                                        //               $scope.currentIndicatorLayer = layer;
-                                        //
-                                        //               layer.StyledLayerControl = {
-                                        //                 removable : true,
-                                        //                 visible : true
-                                        //               };
-                                        //
-                                        //               $scope.layerControl.addOverlay( layer, indicatorMetadataAndGeoJSON.indicatorName + "_" + spatialUnitName + "_" + date, {groupName : indicatorLayerGroupName} );
-                                        //
-                                        //               var justRestyling = false;
-                                        //
-                                        //               $rootScope.$broadcast("updateDiagrams", wpsPropertiesService.selectedIndicator, wpsPropertiesService.selectedSpatialUnit.spatialUnitLevel, wpsPropertiesService.selectedSpatialUnit.spatialUnitId, date, $scope.defaultBrew, $scope.gtMeasureOfValueBrew, $scope.ltMeasureOfValueBrew, wpsPropertiesService.isMeasureOfValueChecked, wpsPropertiesService.measureOfValue, justRestyling);
-                                        //
-                                        //
-                                        //               // if ($scope.layers.overlays[indicatorMetadataAndGeoJSON.indicatorName]) {
-                                        //               //     delete $scope.layers.overlays[indicatorMetadataAndGeoJSON.indicatorName];
-                                        //               //
-                                        //               //     console.log($scope.layers.overlays);
-                                        //               // }
-                                        //               //
-                                        //               // var geoJSONLayer = {
-                                        //               //     name: indicatorMetadataAndGeoJSON.indicatorName,
-                                        //               //     type: "geoJSONShape",
-                                        //               //     data: indicatorMetadataAndGeoJSON.geoJSON,
-                                        //               //     visible: true,
-                                        //               //     layerOptions: {
-                                        //               //         style: {
-                                        //               //             color: '#1B4F72',
-                                        //               //             fillColor: 'red',
-                                        //               //             weight: 2.0,
-                                        //               //             opacity: 0.6,
-                                        //               //             fillOpacity: 0.2
-                                        //               //         },
-                                        //               //         onEachFeature: onEachFeatureIndicator
-                                        //               //     }
-                                        //               // };
-                                        //               //
-                                        //               // $scope.layers.overlays[indicatorMetadataAndGeoJSON.indicatorName] = geoJSONLayer;
-                                        //               //
-                                        //               // // refresh the layer!!! Otherwise display is not updated properly in case
-                                        //               // // an existing overlay is updated!
-                                        //               // $scope.layers.overlays[indicatorMetadataAndGeoJSON.indicatorName].doRefresh = true;
-                                        //           });
-
                                                   $scope.$on("replaceIndicatorAsGeoJSON", function (event, indicatorMetadataAndGeoJSON, spatialUnitName, date) {
 
                                                                 console.log('replaceIndicatorAsGeoJSON was called');
@@ -1002,35 +852,6 @@ angular.module('wpsMap').component(
                                                                 var justRestyling = false;
 
                                                                 $rootScope.$broadcast("updateDiagrams", wpsPropertiesService.selectedIndicator, wpsPropertiesService.selectedSpatialUnit.spatialUnitLevel, wpsPropertiesService.selectedSpatialUnit.spatialUnitId, date, $scope.defaultBrew, $scope.gtMeasureOfValueBrew, $scope.ltMeasureOfValueBrew, wpsPropertiesService.isMeasureOfValueChecked, wpsPropertiesService.measureOfValue, justRestyling);
-
-                                                                // if ($scope.layers.overlays[indicatorMetadataAndGeoJSON.indicatorName]) {
-                                                                //     delete $scope.layers.overlays[indicatorMetadataAndGeoJSON.indicatorName];
-                                                                //
-                                                                //     console.log($scope.layers.overlays);
-                                                                // }
-                                                                //
-                                                                // var geoJSONLayer = {
-                                                                //     name: indicatorMetadataAndGeoJSON.indicatorName,
-                                                                //     type: "geoJSONShape",
-                                                                //     data: indicatorMetadataAndGeoJSON.geoJSON,
-                                                                //     visible: true,
-                                                                //     layerOptions: {
-                                                                //         style: {
-                                                                //             color: '#1B4F72',
-                                                                //             fillColor: 'red',
-                                                                //             weight: 2.0,
-                                                                //             opacity: 0.6,
-                                                                //             fillOpacity: 0.2
-                                                                //         },
-                                                                //         onEachFeature: onEachFeatureIndicator
-                                                                //     }
-                                                                // };
-                                                                //
-                                                                // $scope.layers.overlays[indicatorMetadataAndGeoJSON.indicatorName] = geoJSONLayer;
-                                                                //
-                                                                // // refresh the layer!!! Otherwise display is not updated properly in case
-                                                                // // an existing overlay is updated!
-                                                                // $scope.layers.overlays[indicatorMetadataAndGeoJSON.indicatorName].doRefresh = true;
                                                             });
 
                                                   $scope.$on("addCustomIndicatorAsGeoJSON", function (event, indicatorMetadataAndGeoJSON, spatialUnitName, date) {

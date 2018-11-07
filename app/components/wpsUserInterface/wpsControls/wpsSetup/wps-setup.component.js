@@ -272,6 +272,7 @@ angular
 
 								this.addSelectedSpatialUnitToMap = function() {
 									$scope.loadingData = true;
+									$rootScope.$broadcast("showLoadingIconOnMap");
 
 									var metadata = wpsPropertiesService.selectedSpatialUnit;
 
@@ -297,16 +298,19 @@ angular
 
 											wpsMapService.addSpatialUnitGeoJSON(wpsPropertiesService.selectedSpatialUnit, $scope.date);
 											$scope.loadingData = false;
+											$rootScope.$broadcast("hideLoadingIconOnMap");
 
 										}, function errorCallback(response) {
 											// called asynchronously if an error occurs
 											// or server returns response with an error status.
 											$scope.loadingData = false;
+											$rootScope.$broadcast("hideLoadingIconOnMap");
 									});
 								};
 
 								this.addSelectedSpatialUnitToMapAsWFS = function() {
 									$scope.loadingData = true;
+									$rootScope.$broadcast("showLoadingIconOnMap");
 
 									var metadata = wpsPropertiesService.selectedSpatialUnit;
 
@@ -316,11 +320,13 @@ angular
 
 									wpsMapService.addSpatialUnitWFS(name, wfsUrl);
 									$scope.loadingData = false;
+									$rootScope.$broadcast("hideLoadingIconOnMap");
 
 								};
 
 								this.addSelectedGeoresourceToMap = function() {
 									$scope.loadingData = true;
+									$rootScope.$broadcast("showLoadingIconOnMap");
 
 									var metadata = wpsPropertiesService.selectedGeoresource;
 
@@ -346,11 +352,13 @@ angular
 
 											wpsMapService.addGeoresourceGeoJSON(wpsPropertiesService.selectedGeoresource, $scope.date);
 											$scope.loadingData = false;
+											$rootScope.$broadcast("hideLoadingIconOnMap");
 
 										}, function errorCallback(response) {
 											// called asynchronously if an error occurs
 											// or server returns response with an error status.
 											$scope.loadingData = false;
+											$rootScope.$broadcast("hideLoadingIconOnMap");
 									});
 
 								};
@@ -412,6 +420,7 @@ angular
 
 									if(!$scope.changeIndicatorWasClicked && wpsPropertiesService.selectedIndicator){
 										$scope.loadingData = true;
+										$rootScope.$broadcast("showLoadingIconOnMap");
 
 										console.log("Change selected date");
 
@@ -424,12 +433,14 @@ angular
 										catch(error){
 											console.error(error);
 											$scope.loadingData = false;
+											$rootScope.$broadcast("hideLoadingIconOnMap");
 											return;
 										}
 
 										$scope.modifyComponentsForCurrentIndicatorTimestampAndSpatialUnit();
 
 										$scope.loadingData = false;
+										$rootScope.$broadcast("hideLoadingIconOnMap");
 										$scope.$apply();
 									}
 								}
@@ -461,6 +472,7 @@ angular
 											// called asynchronously if an error occurs
 											// or server returns response with an error status.
 											$scope.loadingData = false;
+											$rootScope.$broadcast("hideLoadingIconOnMap");
 
 											return wpsPropertiesService.selectedIndicator;
 									});
@@ -469,6 +481,7 @@ angular
 								this.onChangeSelectedSpatialUnit = async function(){
 									if(!$scope.changeIndicatorWasClicked && wpsPropertiesService.selectedIndicator){
 										$scope.loadingData = true;
+										$rootScope.$broadcast("showLoadingIconOnMap");
 
 										console.log("Change spatial unit");
 
@@ -478,12 +491,14 @@ angular
 										catch(error){
 											console.error(error);
 											$scope.loadingData = false;
+											$rootScope.$broadcast("hideLoadingIconOnMap");
 											return;
 										}
 
 										$scope.modifyComponentsForCurrentIndicatorTimestampAndSpatialUnit();
 
 										$scope.loadingData = false;
+										$rootScope.$broadcast("hideLoadingIconOnMap");
 										$scope.$apply();
 									}
 								}
@@ -492,6 +507,7 @@ angular
 
 									if(wpsPropertiesService.selectedIndicator){
 										$scope.loadingData = true;
+										$rootScope.$broadcast("showLoadingIconOnMap");
 										$scope.changeIndicatorWasClicked = true;
 
 										$scope.setupDateSliderForIndicator();
@@ -506,6 +522,7 @@ angular
 										catch(error){
 											console.error(error);
 											$scope.loadingData = false;
+											$rootScope.$broadcast("hideLoadingIconOnMap");
 											return;
 										}
 
@@ -513,6 +530,7 @@ angular
 
 
 												$scope.loadingData = false;
+												$rootScope.$broadcast("hideLoadingIconOnMap");
 												$scope.changeIndicatorWasClicked = false;
 
 												// $rootScope.$broadcast("updateDiagrams", wpsPropertiesService.selectedIndicator, wpsPropertiesService.selectedSpatialUnit.spatialUnitLevel, $scope.selectedDate);
@@ -525,6 +543,7 @@ angular
 
 								this.onChangeUseMeasureOfValue = function(){
 									$scope.loadingData = true;
+									$rootScope.$broadcast("showLoadingIconOnMap");
 
 									console.log("Change UseMeasureOfValue");
 
@@ -543,6 +562,7 @@ angular
 									this.wpsMapServiceInstance.restyleCurrentLayer();
 
 									$scope.loadingData = false;
+									$rootScope.$broadcast("hideLoadingIconOnMap");
 									//$scope.$apply();
 								}
 

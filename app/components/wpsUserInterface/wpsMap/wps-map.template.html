@@ -5,6 +5,12 @@
 
 <div style="position:relative;">
 
+  <div align="center">
+    <div class="loading-overlay ng-hide" ng-show="loadingData">
+          <span class="glyphicon glyphicon-refresh icon-spin"></span>
+    </div>
+  </div>
+
   <div id="map" ng-init="$ctrl.initializeMap()"></div>
 
   <div id="dateSlider" class="rangeslide" ></div>
