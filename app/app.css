@@ -36,10 +36,10 @@
 }
 
 #dateSlider{
-	position: absolute;
-  bottom: 30px;
-  margin-right: auto;
-  margin-left: auto;
+
+  bottom: 100px;
+  margin-right: 150px;
+  margin-left: 100;
   left: 90px;
   right: 90px;
 	z-index: 9999;
@@ -199,8 +199,8 @@
 }
 
 #sidebarRadarDiagram {
-    min-width: 900px;
-    max-width: 900px;
+    min-width: 750px;
+    max-width: 750px;
 		min-height: 100vh;
 		background: #E6EEFB;
 		transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
@@ -208,13 +208,13 @@
 }
 
 #sidebarRadarDiagram.hidden {
-    margin-left: -900px;
+    margin-left: -750px;
 		transform: rotateY(100deg); /* Rotate sidebar vertically by 100 degrees. */
 }
 
 #sidebarProcessing {
-    min-width: 800px;
-    max-width: 800px;
+    min-width: 750px;
+    max-width: 750px;
 		min-height: 100vh;
 		background: #E6EEFB;
 		transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
@@ -222,7 +222,7 @@
 }
 
 #sidebarProcessing.hidden {
-    margin-left: -800px;
+    margin-left: -750px;
 		transform: rotateY(100deg); /* Rotate sidebar vertically by 100 degrees. */
 }
 
@@ -245,7 +245,7 @@
     }
 
 		#sidebarRadarDiagram {
-        margin-left: -900px;
+        margin-left: -750px;
 				transform: rotateY(100deg);
     }
     #sidebarRadarDiagram.hidden {
@@ -253,7 +253,7 @@
     }
 
 		#sidebarProcessing {
-        margin-left: -800px;
+        margin-left: -750px;
 				transform: rotateY(100deg);
     }
     #sidebarProcessing.hidden {
