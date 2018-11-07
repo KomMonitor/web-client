@@ -273,20 +273,28 @@
 #indicatorSetup{
 	margin-left: 15px;
 	margin-right: 15px;
+	margin-top: 20px;
 	z-index: 2000;
 }
 
 #indicatorProcessing{
 	margin-left: 35px;
 	margin-right: 35px;
-	margin-top: 20px;
+	margin-top: 60px;
 	z-index: 2000;
 }
 
 #indicatorRadar{
 	margin-left: 5px;
 	margin-right: 5px;
-	margin-top: 20px;
+	margin-top: 60px;
+	z-index: 2000;
+}
+
+#indicatorDiagrams{
+	margin-left: 5px;
+	margin-right: 5px;
+	margin-top: 60px;
 	z-index: 2000;
 }
 
