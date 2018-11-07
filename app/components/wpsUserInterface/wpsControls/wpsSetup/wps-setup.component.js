@@ -270,47 +270,6 @@ angular
 										//$scope.error = response.statusText;
 								});
 
-								// this.applyMeasureOfValue = function(){
-								//
-								// 	$scope.loadingData = true;
-								//
-								// 	// call REST Service to add new customized SLD to GeosServer Layer that is currently selected
-								// 	var jahrParam = 'jahr=' + wpsPropertiesService.selectedIndicator.jahr;
-								// 	var measureOfValueParam = 'grenzwertVersorgungInProzent=' + wpsPropertiesService.measureOfValue;
-								//
-								// 	var url = 'http://localhost:8085/FusslErreichbarkeitBewertungsmodellierung?' + jahrParam + '&' + measureOfValueParam;
-								//
-								// 	console.log('created SLD URL: ' + url);
-								//
-								// 	$http({
-								// 		url: url,
-								// 		method: "POST",
-								// 		data: {}
-								// 	}).then(function successCallback(response) {
-								// 			// this callback will be called asynchronously
-								// 			// when the response is available
-								// 			var sldName = response.data.sldName;
-								//
-								// 			var dataset = wpsPropertiesService.selectedIndicator;
-								//
-								// 			var customLayerName = 'CUSTOM ' + dataset.name + '_bewertung_' + wpsPropertiesService.measureOfValue;
-								//
-								// 			// add current Layer again, but with customized name and customized SLD
-								// 			wpsMapService.addIndicatorLayer_withNameAndStyle(dataset, customLayerName, sldName);
-								//
-								// 			$scope.loadingData = false;
-								//
-								// 		}, function errorCallback(response) {
-								// 			// called asynchronously if an error occurs
-								// 			// or server returns response with an error status.
-								// 			$scope.error = response.statusText;
-								// 			$scope.loadingData = false;
-								// 	});
-								//
-								//
-								//
-								// }
-
 								this.addSelectedSpatialUnitToMap = function() {
 									$scope.loadingData = true;
 
@@ -398,42 +357,7 @@ angular
 
 								$scope.addSelectedIndicatorToMap = function() {
 
-									// var metadata = wpsPropertiesService.selectedIndicator;
-									//
-									// var id = metadata.indicatorId;
-
-									// $scope.date = this.selectedDate;
-									// $scope.spatialUnitName = this.wpsPropertiesServiceInstance.selectedSpatialUnit.spatialUnitLevel;
-
 									wpsMapService.replaceIndicatorGeoJSON(wpsPropertiesService.selectedIndicator, wpsPropertiesService.selectedSpatialUnit.spatialUnitLevel, $scope.selectedDate);
-
-									// $rootScope.$broadcast("updateDiagrams", wpsPropertiesService.selectedIndicator, wpsPropertiesService.selectedSpatialUnit.spatialUnitLevel, $scope.selectedDate);
-
-
-									// var dateComps = this.selectedDate.split("-");
-									//
-									// var year = dateComps[0];
-									// var month = dateComps[1];
-									// var day = dateComps[2];
-									//
-									// $http({
-									// 	url: this.wpsPropertiesServiceInstance.baseUrlToKomMonitorDataAPI + "/indicators/" + id + "/" + wpsPropertiesService.selectedSpatialUnit.spatialUnitId,
-									// 	method: "GET"
-									// }).then(function successCallback(response) {
-									// 		// this callback will be called asynchronously
-									// 		// when the response is available
-									// 		var geoJSON = response.data;
-									//
-									// 		wpsPropertiesService.selectedIndicator.geoJSON = geoJSON;
-									//
-									// 		wpsMapService.addIndicatorGeoJSON(wpsPropertiesService.selectedIndicator, $scope.spatialUnitName, $scope.date);
-									// 		$scope.loadingData = false;
-									//
-									// 	}, function errorCallback(response) {
-									// 		// called asynchronously if an error occurs
-									// 		// or server returns response with an error status.
-									// 		$scope.loadingData = false;
-									// });
 
 								};
 
