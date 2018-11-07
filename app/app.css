@@ -36,10 +36,10 @@
 }
 
 #dateSlider{
-
-  bottom: 100px;
-  margin-right: 150px;
-  margin-left: 100;
+	position: absolute;
+  bottom: 50px;
+  margin-right: auto;
+  margin-left: auto;
   left: 90px;
   right: 90px;
 	z-index: 9999;
@@ -165,8 +165,8 @@
 
 .wrapper {
     display: flex;
+		align-items: stretch;
     width: 100%;
-    align-items: stretch;
 		perspective: 1500px;
 }
 
