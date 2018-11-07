@@ -32,7 +32,7 @@ angular
 								$scope.dateSlider;
 								$scope.onlyRefreshingDateSliderVisuals = false;
 
-								this.selectedDate;
+								$scope.selectedDate;
 
 								this.addGeopackage = function(){
 									this.wpsMapServiceInstance.addSpatialUnitGeopackage();
@@ -147,9 +147,9 @@ angular
 								};
 
 								this.onDateChange = function(){
-									console.log(this.selectedDate);
+									console.log($scope.selectedDate);
 
-									var date = new Date(this.selectedDate);
+									var date = new Date($scope.selectedDate);
 
 									var month = date.getMonth()+1;
 									var day = date.getDate();
@@ -160,10 +160,10 @@ angular
 									if (day < 10)
 										day = "0" + day;
 
-									this.selectedDate = date.getFullYear() + "-" + month  + "-" + day;
+									$scope.selectedDate = date.getFullYear() + "-" + month  + "-" + day;
 
 									console.log(date);
-									console.log(this.selectedDate);
+									console.log($scope.selectedDate);
 
 									$scope.$apply();
 								};
@@ -281,9 +281,9 @@ angular
 
 									var id = metadata.spatialUnitId;
 
-									$scope.date = this.selectedDate;
+									$scope.date = $scope.selectedDate;
 
-									var dateComps = this.selectedDate.split("-");
+									var dateComps = $scope.selectedDate.split("-");
 
 									var year = dateComps[0];
 									var month = dateComps[1];
@@ -335,9 +335,9 @@ angular
 
 									var id = metadata.georesourceId;
 
-									$scope.date = this.selectedDate;
+									$scope.date = $scope.selectedDate;
 
-									var dateComps = this.selectedDate.split("-");
+									var dateComps = $scope.selectedDate.split("-");
 
 									var year = dateComps[0];
 									var month = dateComps[1];
@@ -521,7 +521,7 @@ angular
 									if(! ($scope.date && wpsPropertiesService.selectedSpatialUnit && indicatorId))
 										throw Error("Not all parameters have been set up yet.");
 									//
-									// $scope.selectedDate = this.selectedDate;
+									// $scope.selectedDate = $scope.selectedDate;
 									$scope.spatialUnitName = wpsPropertiesService.selectedSpatialUnit.spatialUnitLevel;
 
 									return await $http({

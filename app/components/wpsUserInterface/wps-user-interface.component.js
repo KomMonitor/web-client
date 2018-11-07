@@ -41,6 +41,7 @@ angular.module('wpsUserInterface').component('wpsUserInterface', {
 				$scope.sidebarIndicatorConfigClass = "hidden";
 			}
 			$rootScope.$broadcast("refreshDateSlider");
+			$rootScope.$broadcast("recenterMapContent");
 		}
 
 		$scope.onSidebarDiagramsClick = function(){
@@ -54,6 +55,7 @@ angular.module('wpsUserInterface').component('wpsUserInterface', {
 				$scope.sidebarDiagramsClass = "hidden";
 			}
 			$rootScope.$broadcast("refreshDateSlider");
+			$rootScope.$broadcast("recenterMapContent");
 		}
 
 		$scope.onsidebarRadarDiagramClick = function(){
@@ -67,6 +69,7 @@ angular.module('wpsUserInterface').component('wpsUserInterface', {
 				$scope.sidebarRadarDiagramClass = "hidden";
 			}
 			$rootScope.$broadcast("refreshDateSlider");
+			$rootScope.$broadcast("recenterMapContent");
 		}
 
 		$scope.onsidebarProcessingClick = function(){
@@ -80,6 +83,7 @@ angular.module('wpsUserInterface').component('wpsUserInterface', {
 				$scope.sidebarProcessingClass = "hidden";
 			}
 			$rootScope.$broadcast("refreshDateSlider");
+			$rootScope.$broadcast("recenterMapContent");
 		}
 
 	}

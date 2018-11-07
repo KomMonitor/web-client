@@ -20,6 +20,10 @@ angular.module('wpsMap').component(
                     this.wpsExecuteSetupInputs = wpsExecuteInputService;
                     $scope.inputLayerCounter = 0;
 
+                    $scope.latCenter = 51.4386432;
+                    $scope.lonCenter = 7.0115552;
+                    $scope.zoomLevel = 12;
+
                     $scope.loadingData = true;
 
                     $scope.drawnItems = new L.FeatureGroup();
@@ -80,8 +84,8 @@ angular.module('wpsMap').component(
 
                       // $scope.map = L.map('map').setView([51.4386432, 7.0115552], 12);
                       $scope.map = L.map('map', {
-                          center: [51.4386432, 7.0115552],
-                          zoom: 12,
+                          center: [$scope.latCenter, $scope.lonCenter],
+                          zoom: $scope.zoomLevel,
                           layers: [osm_blackWhite]
                       });
 
@@ -775,6 +779,25 @@ angular.module('wpsMap').component(
                                             $scope.infoControl.update();
                                         }
 
+                                        var wait = ms => new Promise((r, j)=>setTimeout(r, ms))
+
+                                        $scope.$on("recenterMapContent", async function (event) {
+
+                                          await wait(100);
+
+                                          fitBounds();
+                                        });
+
+                                        function fitBounds(){
+                                          console.log("fit map bounds for current indicator");
+                                          if($scope.map && $scope.currentIndicatorLayer){
+
+                                            $scope.map.setView(L.latLng($scope.latCenter, $scope.lonCenter), $scope.zoomLevel);
+                                            $scope.map.fitBounds($scope.currentIndicatorLayer.getBounds());
+                                          }
+
+                                        }
+
                                         function zoomToFeature(e) {
                                             map.fitBounds(e.target.getBounds());
                                         }
@@ -850,6 +873,8 @@ angular.module('wpsMap').component(
                                                                 $scope.layerControl.addOverlay( layer, indicatorMetadataAndGeoJSON.indicatorName + "_" + spatialUnitName + "_" + date, {groupName : indicatorLayerGroupName} );
 
                                                                 var justRestyling = false;
+
+                                                                fitBounds();
 
                                                                 $rootScope.$broadcast("updateDiagrams", wpsPropertiesService.selectedIndicator, wpsPropertiesService.selectedSpatialUnit.spatialUnitLevel, wpsPropertiesService.selectedSpatialUnit.spatialUnitId, date, $scope.defaultBrew, $scope.gtMeasureOfValueBrew, $scope.ltMeasureOfValueBrew, wpsPropertiesService.isMeasureOfValueChecked, wpsPropertiesService.measureOfValue, justRestyling);
                                                             });
