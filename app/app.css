@@ -23,8 +23,19 @@
 	}
 }
 
+#header{
+	background: #E6EEFB;
+	z-index: 2000;
+	position: relative;
+	top: 0px;
+}
+
+#content{
+	background: #E6EEFB;
+}
+
 #map {
-	height: 100vh;
+	height: 90vh;
 	position: relative;
 	z-index: 1;
 }
