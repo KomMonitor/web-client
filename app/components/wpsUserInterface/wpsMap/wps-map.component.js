@@ -792,7 +792,7 @@ angular.module('wpsMap').component(
                                           console.log("fit map bounds for current indicator");
                                           if($scope.map && $scope.currentIndicatorLayer){
 
-                                            $scope.map.setView(L.latLng($scope.latCenter, $scope.lonCenter), $scope.zoomLevel);
+                                            // $scope.map.setView(L.latLng($scope.latCenter, $scope.lonCenter), $scope.zoomLevel);
                                             $scope.map.fitBounds($scope.currentIndicatorLayer.getBounds());
                                           }
 
@@ -874,7 +874,7 @@ angular.module('wpsMap').component(
 
                                                                 var justRestyling = false;
 
-                                                                fitBounds();
+                                                                // fitBounds();
 
                                                                 $rootScope.$broadcast("updateDiagrams", wpsPropertiesService.selectedIndicator, wpsPropertiesService.selectedSpatialUnit.spatialUnitLevel, wpsPropertiesService.selectedSpatialUnit.spatialUnitId, date, $scope.defaultBrew, $scope.gtMeasureOfValueBrew, $scope.ltMeasureOfValueBrew, wpsPropertiesService.isMeasureOfValueChecked, wpsPropertiesService.measureOfValue, justRestyling);
                                                             });
