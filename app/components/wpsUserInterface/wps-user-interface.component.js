@@ -1,6 +1,6 @@
 angular.module('wpsUserInterface').component('wpsUserInterface', {
 	templateUrl : "components/wpsUserInterface/wps-user-interface.template.html",
-	controller : ['wpsPropertiesService', '$scope', function UserInterfaceController(wpsPropertiesService, $scope) {
+	controller : ['wpsPropertiesService', '$scope', '$rootScope', function UserInterfaceController(wpsPropertiesService, $scope, $rootScope) {
 
 		this.wpsPropertiesServiceInstance = wpsPropertiesService;
 
@@ -40,6 +40,7 @@ angular.module('wpsUserInterface').component('wpsUserInterface', {
 			else{
 				$scope.sidebarIndicatorConfigClass = "hidden";
 			}
+			$rootScope.$broadcast("refreshDateSlider");
 		}
 
 		$scope.onSidebarDiagramsClick = function(){
@@ -52,6 +53,7 @@ angular.module('wpsUserInterface').component('wpsUserInterface', {
 			else{
 				$scope.sidebarDiagramsClass = "hidden";
 			}
+			$rootScope.$broadcast("refreshDateSlider");
 		}
 
 		$scope.onsidebarRadarDiagramClick = function(){
@@ -64,6 +66,7 @@ angular.module('wpsUserInterface').component('wpsUserInterface', {
 			else{
 				$scope.sidebarRadarDiagramClass = "hidden";
 			}
+			$rootScope.$broadcast("refreshDateSlider");
 		}
 
 		$scope.onsidebarProcessingClick = function(){
@@ -76,6 +79,7 @@ angular.module('wpsUserInterface').component('wpsUserInterface', {
 			else{
 				$scope.sidebarProcessingClass = "hidden";
 			}
+			$rootScope.$broadcast("refreshDateSlider");
 		}
 
 	}

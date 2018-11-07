@@ -29,6 +29,8 @@ angular
 								$scope.loadingData = true;
 								$scope.changeIndicatorWasClicked = false;
 
+								$scope.dateSlider;
+
 								this.selectedDate;
 
 								this.addGeopackage = function(){
@@ -395,7 +397,7 @@ angular
 										timeSliderInput.push(dateItem);
 									});
 
-									var dateSlider = rangeslide("#dateSlider", {
+									$scope.dateSlider = rangeslide("#dateSlider", {
 										data: timeSliderInput,
 										startPosition: lastDateIndex,
 										thumbWidth: 22,
@@ -444,6 +446,22 @@ angular
 										$scope.$apply();
 									}
 								}
+
+								var wait = ms => new Promise((r, j)=>setTimeout(r, ms))
+
+								$scope.$on("refreshDateSlider", async function (event) {
+
+										console.log('refreshDateSlider was called. Waiting for one second.');
+
+										await wait(300);
+
+										console.log("waiting finished");
+
+										if($scope.dateSlider){
+											$scope.dateSlider.refresh();
+										}
+
+								});
 
 								$scope.tryUpdateMeasureOfValueBarForIndicator = async function(){
 									var indicatorId = wpsPropertiesService.selectedIndicator.indicatorId;

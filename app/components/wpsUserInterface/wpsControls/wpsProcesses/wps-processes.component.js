@@ -19,6 +19,24 @@ angular
 						$scope.jobInfoText;
 						$scope.computedCustomizedIndicatorGeoJSON;
 
+						$scope.dateSliderForComputation;
+
+						// var wait = ms => new Promise((r, j)=>setTimeout(r, ms))
+						//
+						// $scope.$on("refreshDateSlider", async function (event) {
+						//
+						// 		console.log('refreshDateSlider was called. Waiting for one second.');
+						//
+						// 		await wait(300);
+						//
+						// 		console.log("waiting finished");
+						//
+						// 		if($scope.dateSliderForComputation){
+						// 			$scope.dateSliderForComputation.refresh();
+						// 		}
+						//
+						// });
+
 						this.onTargetDateChange = function(){
 							console.log(this.targetDate);
 
@@ -385,7 +403,7 @@ angular
 								timeSliderInput.push(dateItem);
 							});
 
-							var dateSlider = rangeslide("#dateSliderForComputation", {
+							$scope.dateSliderForComputation = rangeslide("#dateSliderForComputation", {
 								data: timeSliderInput,
 								startPosition: lastDateIndex,
 								thumbWidth: 12,
