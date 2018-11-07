@@ -30,6 +30,7 @@ angular
 								$scope.changeIndicatorWasClicked = false;
 
 								$scope.dateSlider;
+								$scope.onlyRefreshingDateSliderVisuals = false;
 
 								this.selectedDate;
 
@@ -371,6 +372,55 @@ angular
 
 								};
 
+								$scope.resetDateSliderForIndicator = function(){
+
+									if($scope.dateSlider){
+										$scope.dateSlider.destroy();
+									}
+
+									var domNode = document.getElementById("dateSlider");
+
+									while (domNode.hasChildNodes()) {
+									  domNode.removeChild(domNode.lastChild);
+									}
+
+									var availableDates = wpsPropertiesService.selectedIndicator.applicableDates;
+									var selectedDateIndex;
+									var timeSliderInput = [];
+
+									for(var i=0; i<availableDates.length; i++){
+										var date = availableDates[i];
+										var dateItem = {};
+
+										dateItem.key = date;
+										dateItem.value = date;
+
+										timeSliderInput.push(dateItem);
+
+										if(date === $scope.selectedDate){
+											selectedDateIndex = i;
+										}
+									};
+
+									$scope.dateSlider = rangeslide("#dateSlider", {
+										data: timeSliderInput,
+										startPosition: selectedDateIndex,
+										thumbWidth: 22,
+										thumbHeight: 24,
+										labelsPosition: "alternate",
+										showLabels: true,
+										startAlternateLabelsFromTop: false,
+										trackHeight: 13,
+										showTicks: false,
+										showTrackMarkers: true,
+										markerSize: 22,
+										tickHeight: 10,
+										handlers: {
+											"valueChanged": [$scope.onChangeDateSliderItem]
+										}
+									});
+								};
+
 								$scope.setupDateSliderForIndicator = function(){
 
 									var domNode = document.getElementById("dateSlider");
@@ -414,13 +464,11 @@ angular
 											"valueChanged": [$scope.onChangeDateSliderItem]
 										}
 									});
-
-
 								};
 
 								$scope.onChangeDateSliderItem = async function(dataItem, rangeslideElement){
 
-									if(!$scope.changeIndicatorWasClicked && wpsPropertiesService.selectedIndicator){
+									if(!$scope.onlyRefreshingDateSliderVisuals && !$scope.changeIndicatorWasClicked && wpsPropertiesService.selectedIndicator){
 										$scope.loadingData = true;
 										$rootScope.$broadcast("showLoadingIconOnMap");
 
@@ -445,6 +493,7 @@ angular
 										$rootScope.$broadcast("hideLoadingIconOnMap");
 										$scope.$apply();
 									}
+									$scope.onlyRefreshingDateSliderVisuals = false;
 								}
 
 								var wait = ms => new Promise((r, j)=>setTimeout(r, ms))
@@ -453,12 +502,15 @@ angular
 
 										console.log('refreshDateSlider was called. Waiting for one second.');
 
-										await wait(300);
+										await wait(100);
 
 										console.log("waiting finished");
 
+										$scope.onlyRefreshingDateSliderVisuals = true;
+
 										if($scope.dateSlider){
-											$scope.dateSlider.refresh();
+											$scope.resetDateSliderForIndicator();
+
 										}
 
 								});
