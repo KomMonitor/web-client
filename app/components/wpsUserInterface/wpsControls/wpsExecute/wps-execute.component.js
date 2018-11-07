@@ -284,7 +284,7 @@ angular
 								var updateBarChart = function(indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray){
 									// based on prepared DOM, initialize echarts instance
 									$scope.eventsRegistered = false;
-									
+
 									if(!$scope.barChart)
 										$scope.barChart = echarts.init(document.getElementById('barDiagram'));
 									else{
@@ -463,6 +463,8 @@ angular
 													}
 											},
 											legend: {
+													type: "scroll",
+													bottom: 0,
 													data:['Durchschnitt']
 											},
 											xAxis: {

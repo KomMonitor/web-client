@@ -126,6 +126,8 @@ angular
 													}
 											},
 											legend: {
+													type: "scroll",
+													bottom: 0,
 													data: ['Durchschnitt']
 											},
 											radar: {
@@ -228,7 +230,7 @@ angular
 													selectableIndicatorsForRadar.push(selectableIndicatorEntry);
 
 													//allIndicatorProperties.push(indicatorProperties);
-												}												
+												}
 											}
 
 										}
