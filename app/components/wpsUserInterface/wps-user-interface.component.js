@@ -40,12 +40,14 @@ angular.module('wpsUserInterface').component('wpsUserInterface', {
 				$scope.undockButtons();
 				$scope.sidebarIndicatorConfigClass = "";
 				$scope.buttonIndicatorConfigClass = "btn btn-custom btn-docked";
+				$rootScope.$broadcast("recenterMapOnShowSideBar");
 			}
 			else{
 				$scope.sidebarIndicatorConfigClass = "hidden";
+				$rootScope.$broadcast("recenterMapOnHideSideBar");
 			}
 			$rootScope.$broadcast("refreshDateSlider");
-			// $rootScope.$broadcast("recenterMapContent");
+
 		}
 
 		$scope.onSidebarMeasureOfValueClassificationButtonClick = function(){
@@ -56,12 +58,13 @@ angular.module('wpsUserInterface').component('wpsUserInterface', {
 				$scope.undockButtons();
 				$scope.sidebarMeasureOfValueClassificationClass = "";
 				$scope.buttonMeasureOfValueClassificationClass = "btn btn-custom btn-docked";
+				$rootScope.$broadcast("recenterMapOnShowSideBar");
 			}
 			else{
 				$scope.sidebarMeasureOfValueClassificationClass = "hidden";
+				$rootScope.$broadcast("recenterMapOnHideSideBar");
 			}
 			$rootScope.$broadcast("refreshDateSlider");
-			// $rootScope.$broadcast("recenterMapContent");
 		}
 
 		$scope.onSidebarDiagramsClick = function(){
@@ -70,12 +73,13 @@ angular.module('wpsUserInterface').component('wpsUserInterface', {
 				$scope.hideSidebars();
 				$scope.sidebarDiagramsClass = "";
 				$scope.buttonDiagramsClass = "btn btn-custom btn-docked";
+				$rootScope.$broadcast("recenterMapOnShowSideBar");
 			}
 			else{
 				$scope.sidebarDiagramsClass = "hidden";
+				$rootScope.$broadcast("recenterMapOnHideSideBar");
 			}
 			$rootScope.$broadcast("refreshDateSlider");
-			// $rootScope.$broadcast("recenterMapContent");
 		}
 
 		$scope.onSidebarRadarDiagramClick = function(){
@@ -84,12 +88,13 @@ angular.module('wpsUserInterface').component('wpsUserInterface', {
 				$scope.hideSidebars();
 				$scope.sidebarRadarDiagramClass = "";
 				$scope.buttonRadarDiagramClass = "btn btn-custom btn-docked";
+				$rootScope.$broadcast("recenterMapOnShowSideBar");
 			}
 			else{
 				$scope.sidebarRadarDiagramClass = "hidden";
+				$rootScope.$broadcast("recenterMapOnHideSideBar");
 			}
 			$rootScope.$broadcast("refreshDateSlider");
-			// $rootScope.$broadcast("recenterMapContent");
 		}
 
 		$scope.onSidebarProcessingClick = function(){
@@ -98,12 +103,13 @@ angular.module('wpsUserInterface').component('wpsUserInterface', {
 				$scope.hideSidebars();
 				$scope.sidebarProcessingClass = "";
 				$scope.buttonProcessingClass = "btn btn-custom btn-docked";
+				$rootScope.$broadcast("recenterMapOnShowSideBar");
 			}
 			else{
 				$scope.sidebarProcessingClass = "hidden";
+				$rootScope.$broadcast("recenterMapOnHideSideBar");
 			}
 			$rootScope.$broadcast("refreshDateSlider");
-			// $rootScope.$broadcast("recenterMapContent");
 		}
 
 		$scope.onRecenterMapButtonClick = function(){

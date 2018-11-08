@@ -794,14 +794,46 @@ angular.module('wpsMap').component(
                                           fitBounds();
                                         });
 
+                                        $scope.$on("recenterMapOnHideSideBar", async function (event) {
+
+                                          await wait(100);
+
+                                          panToCenterOnUnactiveMenue();
+                                        });
+
+                                        $scope.$on("recenterMapOnShowSideBar", async function (event) {
+
+                                          await wait(100);
+
+                                          panToCenterOnActiveMenue();
+                                        });
+
                                         function fitBounds(){
-                                          console.log("fit map bounds for current indicator");
                                           if($scope.map && $scope.currentIndicatorLayer){
 
                                             // $scope.map.setView(L.latLng($scope.latCenter, $scope.lonCenter), $scope.zoomLevel);
                                             $scope.map.fitBounds($scope.currentIndicatorLayer.getBounds());
                                           }
 
+                                        }
+
+                                        function panToCenterOnActiveMenue(){
+                                          if($scope.map && $scope.currentIndicatorLayer){
+
+                                            //$scope.map.setView(L.latLng($scope.latCenter, $scope.lonCenter + 0.15), $scope.zoomLevel);
+                                            // $scope.map.panTo(L.latLng($scope.latCenter, $scope.lonCenter + 0.15));
+                                            $scope.map.panBy(L.point(500, 0));
+
+                                          }
+                                        }
+
+                                        function panToCenterOnUnactiveMenue(){
+                                          if($scope.map && $scope.currentIndicatorLayer){
+
+                                            //$scope.map.setView(L.latLng($scope.latCenter, $scope.lonCenter), $scope.zoomLevel);
+                                            // $scope.map.panTo(L.latLng($scope.latCenter, $scope.lonCenter));
+                                            $scope.map.panBy(L.point(-500, 0));
+                                          }
                                         }
 
                                         function zoomToFeature(e) {
