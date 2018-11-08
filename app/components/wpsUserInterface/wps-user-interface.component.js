@@ -86,5 +86,9 @@ angular.module('wpsUserInterface').component('wpsUserInterface', {
 			// $rootScope.$broadcast("recenterMapContent");
 		}
 
+		$scope.onRecenterMapButtonClick = function(){
+			$rootScope.$broadcast("recenterMapContent");
+		}
+
 	}
 ]});

@@ -336,6 +336,21 @@
 	z-index: 1000;
 }
 
+.btn-leaflet-custom{
+	background-color: #f0f0f0;
+  color: black;
+	position: absolute;
+	z-index: 1000;
+}
+
+.btn-leaflet-custom:hover {
+	background-color: white;
+  color: black;
+  border: 2px solid #f0f0f0;
+	position: absolute;
+	z-index: 1000;
+}
+
 
 
 
