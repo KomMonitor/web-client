@@ -90,5 +90,9 @@ angular.module('wpsUserInterface').component('wpsUserInterface', {
 			$rootScope.$broadcast("recenterMapContent");
 		}
 
+		$scope.onUnselectFeaturesButtonClick = function(){
+			$rootScope.$broadcast("unselectAllFeatures");
+		}
+
 	}
 ]});

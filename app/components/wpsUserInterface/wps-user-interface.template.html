@@ -42,6 +42,8 @@
 
         <wps-map style="height: 100%; width: 100%; position: absolute; z-index: 1;"></wps-map>
 
+				<!-- LEFT-HANDED SIDEBAR BUTTONS -->
+
 				<button type="button" style="top: 200px;" id="sidebarIndicatorConfigCollapse"
 					ng-click="onSidebarIndicatorButtonClick()" ng-class="buttonIndicatorConfigClass" data-toggle="tooltip" title="Indikatorenauswahl">
 						<span style="font-size:1.5em;" class="glyphicon glyphicon-th" aria-hidden="true"></span>
@@ -62,9 +64,16 @@
 						<span style="font-size:1.5em;" class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
 				</button>
 
+				<!-- MAP UTIL BUTTONS -->
+
 				<button type="button" style="top: 75px; left:100px;" id="recenterMapButton"
 					ng-click="onRecenterMapButtonClick()" class="btn btn-custom btn-circle" data-toggle="tooltip" title="Karte zentrieren">
 						<span style="font-size:1.5em;" class="glyphicon glyphicon-globe" aria-hidden="true"></span>
+				</button>
+
+				<button type="button" style="top: 75px; left:200px;" id="unselectFeaturesButton"
+					ng-click="onUnselectFeaturesButtonClick()" class="btn btn-custom btn-circle" data-toggle="tooltip" title="Feature-Selektion aufheben">
+						<span style="font-size:1.5em;" class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span>
 				</button>
 
     </div>

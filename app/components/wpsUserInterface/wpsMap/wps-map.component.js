@@ -356,6 +356,8 @@ angular.module('wpsMap').component(
                         })
                     };
 
+
+
                     function switchHighlightFeature(layer){
                       // add or remove feature within a list of "clicked features"
                       // those shall be treated specially, i.e. keep being highlighted
@@ -1005,9 +1007,18 @@ angular.module('wpsMap').component(
 
                                             								});
 
+                                                            $scope.$on("unselectAllFeatures", function (event) {
 
-
-
+                                                              $scope.map.eachLayer(function(layer){
+                                                                if(layer.feature){
+                                                                  if(wpsPropertiesService.clickedIndicatorFeatureNames.includes(layer.feature.properties.spatialUnitFeatureName)){
+                                                                    var index = wpsPropertiesService.clickedIndicatorFeatureNames.indexOf(layer.feature.properties.spatialUnitFeatureName);
+                                                                    wpsPropertiesService.clickedIndicatorFeatureNames.splice(index, 1);
+                                                                    resetHighlightForLayer(layer);
+                                                                  }
+                                                                }
+                                                              });
+                                                            });
 
 
 
