@@ -1,7 +1,7 @@
 <div id="indicatorMeasureOfValueClassification">
 
 		<div align="center">
-			<h4>Dynamische Schwellwertklassifizierung</h4>
+			<h4><strong>Dynamische Schwellwertklassifizierung</strong></h4>
 		</div>
 
 		<div align="justify">
@@ -10,19 +10,22 @@
 				<li>Features, deren Indikatorwert unter dem Schwellwert liegt (Violett-T&ouml;ne)</li>
 				<li>Features, deren Indikatorwert &uuml;ber dem Schwellwert liegt (Orange-T&ouml;ne)</li>
 			</ul>
-			<p>Jedes Feature wird anschließend gem&auml;&szlig; seiner Kategorie in eine von drei Abstufungen klassifiziert und eingef&auml;rbt. Das Aktivieren/Deaktivieren der Schwellwertklassifizierung kontrollieren Sie bitte &uuml;ber die unten stehende Checkbox.</p>
+			<p>Jedes Feature wird anschließend gem&auml;&szlig; seiner Kategorie in eine von drei Abstufungen klassifiziert und eingef&auml;rbt. Zum Aktivieren/Deaktivieren der Schwellwertklassifizierung bitte die unten stehende Checkbox nutzen.</p>
 		</div>
 
-
+		<br/>
+		<br/>
+		<br/>
+		<br/>
 
 		<div align="center" class="form-group" ng-if="$ctrl.wpsPropertiesServiceInstance.selectedIndicator">
 
-			<input id="measureOfValueCheckbox" type="checkbox" ng-change="$ctrl.onChangeUseMeasureOfValue()" ng-model="$ctrl.wpsPropertiesServiceInstance.isMeasureOfValueChecked" ng-checked="$ctrl.wpsPropertiesServiceInstance.isMeasureOfValueChecked">Eigenen Wertmaßstab mittels Grenzwert festlegen?</input>
+			<input id="measureOfValueCheckbox" type="checkbox" ng-change="$ctrl.onChangeUseMeasureOfValue()" ng-model="$ctrl.wpsPropertiesServiceInstance.isMeasureOfValueChecked" ng-checked="$ctrl.wpsPropertiesServiceInstance.isMeasureOfValueChecked"><strong>Schwellwertklassifizierung aktivieren/deaktivieren</strong></input>
 
 			<div ng-show="$ctrl.wpsPropertiesServiceInstance.isMeasureOfValueChecked">
 
 
-				<p>Individuellen Wertma&szlig;stab anwenden. Durch Verschieben des Schwellwertes werden die dargestellten Indikatoren-Features unmittelbar neu klassifiziert.</p>
+				<p>Verschieben des Schwellwertes klassifiziert die dargestellten Indikatoren-Features unmittelbar neu. Die gew&auml;hlte Raumebene muss dabei mindestens 10 Features aufweisen, damit eine sinnvolle Klassifizierung vorgenommen werden kann.</p>
 
 				<p></p>
 
