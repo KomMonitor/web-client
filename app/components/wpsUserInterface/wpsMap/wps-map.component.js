@@ -149,8 +149,12 @@ angular.module('wpsMap').component(
                     $scope.makeInfoControl = function(date){
 
                       if($scope.infoControl){
-                        $scope.map.removeControl($scope.infoControl);
-                        $scope.infoControl = undefined;
+                        try{
+                          $scope.map.removeControl($scope.infoControl);
+                          $scope.infoControl = undefined;
+                        }
+                        catch(error){
+                        }
                       }
 
 
@@ -183,8 +187,12 @@ angular.module('wpsMap').component(
                     $scope.makeCustomInfoControl = function(date){
 
                       if($scope.infoControl){
-                        $scope.map.removeControl($scope.infoControl);
-                        $scope.infoControl = undefined;
+                        try{
+                          $scope.map.removeControl($scope.infoControl);
+                          $scope.infoControl = undefined;
+                        }
+                        catch(error){
+                        }
                       }
 
 
@@ -217,8 +225,12 @@ angular.module('wpsMap').component(
                     $scope.makeDefaultLegend = function(defaultClassificationMapping){
 
                       if($scope.legendControl){
-                        $scope.map.removeControl($scope.legendControl);
-                        $scope.legendControl = undefined;
+                        try{
+                          $scope.map.removeControl($scope.legendControl);
+                          $scope.legendControl = undefined;
+                        }
+                        catch(error){
+                        }
                       }
 
                       $scope.legendControl = L.control({position: 'topright'});
@@ -260,8 +272,12 @@ angular.module('wpsMap').component(
                     $scope.makeMeasureOfValueLegend = function(){
 
                       if($scope.legendControl){
-                        $scope.map.removeControl($scope.legendControl);
-                        $scope.legendControl = undefined;
+                        try{
+                          $scope.map.removeControl($scope.legendControl);
+                          $scope.legendControl = undefined;
+                        }
+                        catch(error){
+                        }
                       }
 
                       $scope.legendControl = L.control({position: 'topright'});
