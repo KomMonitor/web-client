@@ -33,6 +33,7 @@ angular.module('wpsMap').component(
 
                     // central map object
               			$scope.map;
+                    $scope.scaleBar;
                     $scope.layerControl;
                     $scope.overlays = new Array();
                     $scope.baseMaps = new Array();
@@ -127,6 +128,9 @@ angular.module('wpsMap').component(
 
                       $scope.layerControl = L.Control.styledLayerControl($scope.baseMaps, $scope.overlays, options);
 	                    $scope.map.addControl($scope.layerControl);
+
+                      $scope.scaleBar = L.control.scale();
+                      $scope.scaleBar.addTo($scope.map);
 
                       $scope.loadingData = false;
 
