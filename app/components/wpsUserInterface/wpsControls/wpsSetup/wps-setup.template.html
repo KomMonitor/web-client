@@ -108,32 +108,6 @@
 
 			</div> -->
 
-
-
-
-		<div align="center" class="form-group" ng-if="$ctrl.wpsPropertiesServiceInstance.selectedIndicator">
-
-			<br/>
-
-			<input id="measureOfValueCheckbox" type="checkbox" ng-change="$ctrl.onChangeUseMeasureOfValue()" ng-model="$ctrl.wpsPropertiesServiceInstance.isMeasureOfValueChecked" ng-checked="$ctrl.wpsPropertiesServiceInstance.isMeasureOfValueChecked">Eigenen Wertmaßstab mittels Grenzwert festlegen?</input>
-
-			<div ng-show="$ctrl.wpsPropertiesServiceInstance.isMeasureOfValueChecked">
-
-				<h4>Dynamische Schwellwertklassifizierung</h4>
-				<p>Individuellen Wertma&szlig;stab anwenden. Durch Verschieben des Schwellwertes werden die dargestellten Indikatoren-Features unmittelbar neu klassifiziert.</p>
-
-				<p></p>
-
-				<div class="slidecontainer">
-					<input ng-model="$ctrl.wpsPropertiesServiceInstance.measureOfValue" ng-change="$ctrl.onMeasureOfValueChange()" type="range" min="0" max="100" step="1" value="51" class="slider" id="measureOfValueInput">
-
-					<p>Schwellwert: {{$ctrl.wpsPropertiesServiceInstance.measureOfValue}}</p>
-				</div>
-
-			</div>
-
-		</div>
-
 	</div>
 
 	<br/>

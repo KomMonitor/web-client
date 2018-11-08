@@ -7,6 +7,10 @@
         <wps-setup></wps-setup>
     </nav>
 
+		<nav id="sidebarMeasureOfValueClassification" ng-class="sidebarMeasureOfValueClassificationClass">
+        <wps-change-language></wps-change-language>
+    </nav>
+
 		<nav id="sidebarDiagrams" ng-class="sidebarDiagramsClass">
         <wps-execute></wps-execute>
     </nav>
@@ -49,18 +53,23 @@
 						<span style="font-size:1.5em;" class="glyphicon glyphicon-th" aria-hidden="true"></span>
 				</button>
 
-				<button type="button" style="top: 350px;" id="sidebarDiagramsCollapse"
+				<button type="button" style="top: 275px;" id="sidebarMeasureOfValueClassificationCollapse"
+					ng-click="onSidebarMeasureOfValueClassificationButtonClick()" ng-class="buttonMeasureOfValueClassificationClass" data-toggle="tooltip" title="Klassifizierung mittels Schwellwert">
+						<span style="font-size:1.5em;" class="glyphicon glyphicon-sort" aria-hidden="true"></span>
+				</button>
+
+				<button type="button" style="top: 425px;" id="sidebarDiagramsCollapse"
 					ng-click="onSidebarDiagramsClick()" ng-class="buttonDiagramsClass" data-toggle="tooltip" title="statistische Diagramme">
 						<span style="font-size:1.5em;" class="glyphicon glyphicon-stats" aria-hidden="true"></span>
 				</button>
 
-				<button type="button" style="top: 425px;" id="sidebarRadarDiagramCollapse"
-					ng-click="onsidebarRadarDiagramClick()" ng-class="buttonRadarDiagramClass" data-toggle="tooltip" title="Indikatorenradar">
+				<button type="button" style="top: 500px;" id="sidebarRadarDiagramCollapse"
+					ng-click="onSidebarRadarDiagramClick()" ng-class="buttonRadarDiagramClass" data-toggle="tooltip" title="Indikatorenradar">
 						<span style="font-size:1.5em;" class="glyphicon glyphicon-star-empty" aria-hidden="true"></span>
 				</button>
 
-				<button type="button" style="top: 575px;" id="sidebarProcessingCollapse"
-					ng-click="onsidebarProcessingClick()" ng-class="buttonProcessingClass" data-toggle="tooltip" title="Individuelle Indikatorenberechnung">
+				<button type="button" style="top: 650px;" id="sidebarProcessingCollapse"
+					ng-click="onSidebarProcessingClick()" ng-class="buttonProcessingClass" data-toggle="tooltip" title="Individuelle Indikatorenberechnung">
 						<span style="font-size:1.5em;" class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
 				</button>
 

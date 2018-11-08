@@ -1,1 +1,1 @@
-angular.module('wpsChangeLanguage', ['pascalprecht.translate']);
+angular.module('wpsChangeLanguage', ['wpsProperties', 'wpsMap']);
