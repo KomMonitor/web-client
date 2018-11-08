@@ -148,8 +148,11 @@ angular.module('wpsMap').component(
 
                     $scope.makeInfoControl = function(date){
 
-                      if($scope.infoControl)
+                      if($scope.infoControl){
                         $scope.map.removeControl($scope.infoControl);
+                        $scope.infoControl = undefined;
+                      }
+
 
                       $scope.infoControl = L.control({position: 'topright'});
 
@@ -179,8 +182,11 @@ angular.module('wpsMap').component(
 
                     $scope.makeCustomInfoControl = function(date){
 
-                      if($scope.infoControl)
+                      if($scope.infoControl){
                         $scope.map.removeControl($scope.infoControl);
+                        $scope.infoControl = undefined;
+                      }
+
 
                       $scope.infoControl = L.control({position: 'topright'});
 
@@ -210,8 +216,10 @@ angular.module('wpsMap').component(
 
                     $scope.makeDefaultLegend = function(defaultClassificationMapping){
 
-                      if($scope.legendControl)
+                      if($scope.legendControl){
                         $scope.map.removeControl($scope.legendControl);
+                        $scope.legendControl = undefined;
+                      }
 
                       $scope.legendControl = L.control({position: 'topright'});
 
@@ -251,8 +259,10 @@ angular.module('wpsMap').component(
 
                     $scope.makeMeasureOfValueLegend = function(){
 
-                      if($scope.legendControl)
+                      if($scope.legendControl){
                         $scope.map.removeControl($scope.legendControl);
+                        $scope.legendControl = undefined;
+                      }
 
                       $scope.legendControl = L.control({position: 'topright'});
 
