@@ -205,7 +205,7 @@ angular
                             };
                         },
                         itemStyle: {
-                            color: 'rgb(25, 183, 207)'
+                            color: '#337ab7'
                         },
                         // label: {
                         //     normal: {
