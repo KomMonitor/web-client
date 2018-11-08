@@ -1009,15 +1009,17 @@ angular.module('wpsMap').component(
 
                                                             $scope.$on("unselectAllFeatures", function (event) {
 
-                                                              $scope.map.eachLayer(function(layer){
-                                                                if(layer.feature){
-                                                                  if(wpsPropertiesService.clickedIndicatorFeatureNames.includes(layer.feature.properties.spatialUnitFeatureName)){
-                                                                    var index = wpsPropertiesService.clickedIndicatorFeatureNames.indexOf(layer.feature.properties.spatialUnitFeatureName);
-                                                                    wpsPropertiesService.clickedIndicatorFeatureNames.splice(index, 1);
-                                                                    resetHighlightForLayer(layer);
+                                                              if(wpsPropertiesService.clickedIndicatorFeatureNames && wpsPropertiesService.clickedIndicatorFeatureNames.length > 0){
+                                                                $scope.map.eachLayer(function(layer){
+                                                                  if(layer.feature){
+                                                                    if(wpsPropertiesService.clickedIndicatorFeatureNames.includes(layer.feature.properties.spatialUnitFeatureName)){
+                                                                      var index = wpsPropertiesService.clickedIndicatorFeatureNames.indexOf(layer.feature.properties.spatialUnitFeatureName);
+                                                                      wpsPropertiesService.clickedIndicatorFeatureNames.splice(index, 1);
+                                                                      resetHighlightForLayer(layer);
+                                                                    }
                                                                   }
-                                                                }
-                                                              });
+                                                                });
+                                                              }
                                                             });
 
 
