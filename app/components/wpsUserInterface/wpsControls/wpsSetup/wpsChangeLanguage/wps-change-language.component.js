@@ -19,6 +19,8 @@ angular
 							$scope.middleValue;
 							$scope.step;
 
+							$scope.inputNotValid = false;
+
 
 							this.onChangeUseMeasureOfValue = function(){
 								$scope.loadingData = true;
@@ -102,7 +104,8 @@ angular
 								$scope.maxValue = +values[values.length - 4].toFixed(4);
 
 								$scope.middleValue = +(($scope.maxValue + $scope.minValue) / 2).toFixed(4);
-								$scope.step = +($scope.maxValue/values.length).toFixed(4);
+								// $scope.step = +($scope.maxValue/values.length).toFixed(4);
+								$scope.step = 0.02;
 
 								measureOfValueInput.setAttribute("min", $scope.minValue);
 								measureOfValueInput.setAttribute("max", $scope.maxValue);
@@ -115,11 +118,22 @@ angular
 								measureOfValueTextInput.setAttribute("min", $scope.minValue);
 								measureOfValueTextInput.setAttribute("max", $scope.maxValue);
 								measureOfValueTextInput.setAttribute("value", $scope.middleValue);
+								measureOfValueTextInput.setAttribute("step", $scope.step);
+
+								$scope.inputNotValid = false;
 
 							};
 
 							this.onMeasureOfValueChange = function(){
-								this.wpsMapServiceInstance.restyleCurrentLayer();
+
+								if(wpsPropertiesService.measureOfValue >= $scope.minValue && wpsPropertiesService.measureOfValue <= $scope.maxValue){
+									$scope.inputNotValid = false;
+									this.wpsMapServiceInstance.restyleCurrentLayer();
+								}
+								else{
+									$scope.inputNotValid = true;
+								}
+
 							};
 
 					}]

@@ -33,10 +33,10 @@
 					<input ng-model="$ctrl.wpsPropertiesServiceInstance.measureOfValue" ng-change="$ctrl.onMeasureOfValueChange()" style="background: #337ab7;" type="range" min="0" max="100" step="1" value="51" class="slider" id="measureOfValueInput">
 
 					<div style="position:absolute; left:10px">
-						<p>Minimum: {{minValue}}</p>
+						<label>Minimum: {{minValue}}</label>
 					</div>
 					<div style="position:absolute; right:10px">
-						<p>Maximum: {{maxValue}}</p>
+						<label>Maximum: {{maxValue}}</label>
 					</div>
 					<!-- <input ng-model="$ctrl.wpsPropertiesServiceInstance.measureOfValue" type="number" style="width:100px;" class="form-control" id="measureOfValueTextInput">
 					<br/>
@@ -44,9 +44,21 @@
 				</div>
 				<div align="center">
 					<br/>
-					<input ng-model="$ctrl.wpsPropertiesServiceInstance.measureOfValue" ng-change="$ctrl.onMeasureOfValueChange()" string-to-number type="number" style="width:300px;" class="form-control" id="measureOfValueTextInput">
+					<label>Schwellwert: </label><input ng-model="$ctrl.wpsPropertiesServiceInstance.measureOfValue" ng-change="$ctrl.onMeasureOfValueChange()" string-to-number type="number" style="width:175px;" class="form-control" id="measureOfValueTextInput">
 					<br/>
-					<p>Schwellwert: {{$ctrl.wpsPropertiesServiceInstance.measureOfValue}}</p>
+					<div ng-show="inputNotValid">
+						<p>Schwellwert: {{$ctrl.wpsPropertiesServiceInstance.measureOfValue}}</p>
+					</div>
+
+					<div ng-show="inputNotValid"
+						class="alert alert-danger">
+						<strong>Eingegebener Schwellwert ist nicht g&uuml;ltig!</strong>
+						<p></p>
+						<p>
+							<strong>Hinweis: </strong>Der Wert muss zwischen {{minValue}} und {{maxValue}} liegen.
+						</p>
+					</div>
+
 				</div>
 
 			</div>
