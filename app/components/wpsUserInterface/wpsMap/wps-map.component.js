@@ -250,6 +250,8 @@ angular.module('wpsMap').component(
                         //         labels[i] + (labels[i + 1] ? '&ndash;' + labels[i + 1] + '<br>' : '+');
                         // }
 
+                        $scope.div.innerHTML += "<label>Einheit: </label> " + $scope.indicatorUnit + "<br/><br/>";
+
                         if($scope.currentIndicatorContainsZeroValues){
                           $scope.div.innerHTML +=
                               '<i style="background:' + $scope.defaultColorForZeroValues + '"></i> ' +
@@ -292,6 +294,8 @@ angular.module('wpsMap').component(
                             colorsLtMeasureOfValue = $scope.ltMeasureOfValueBrew.getColors();
 
                         $scope.div.innerHTML = "";
+
+                        $scope.div.innerHTML += "<label>aktueller Schwellwert: </label> " + wpsPropertiesService.measureOfValue + " " + $scope.indicatorUnit + "<br/><br/>";
 
                         if($scope.currentIndicatorContainsZeroValues){
                           $scope.div.innerHTML +=
