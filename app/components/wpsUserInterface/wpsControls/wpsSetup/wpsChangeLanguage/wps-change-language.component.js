@@ -75,8 +75,26 @@ angular
 								//sort ascending order
 								values.sort(function(a, b){return a-b});
 
+								// for minValue we need to find the fifth lowest value
+								// in order to use classyBrew classification lib properly
+								// and ensure that minimum measureOfValue will guarantee that there are
+								// four lower values for three classes! 
+								var counterToFive = 0;
+
+								for(var i=0; i<values.length; i++){
+									if(values[i] != null && Number(values[i]) > 0){
+										counterToFive++;
+
+										if(counterToFive === 5){
+											// plus sign turn it into a number again and removes tailing 0s
+											minValue = +values[i].toFixed(4);
+										}
+									}
+
+								}
+
 								// plus sign turn it into a number again and removes tailing 0s
-								minValue = +values[4].toFixed(4);
+								// minValue = +values[4].toFixed(4);
 								maxValue = +values[values.length - 4].toFixed(4);
 
 								middleValue = +((maxValue + minValue) / 2).toFixed(4);
