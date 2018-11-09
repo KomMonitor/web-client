@@ -295,6 +295,7 @@ angular.module('wpsMap').component(
 
                         $scope.div.innerHTML = "";
 
+                        $scope.div.innerHTML += "<label>Einheit: </label> " + $scope.indicatorUnit + "<br/>";
                         $scope.div.innerHTML += "<label>aktueller Schwellwert: </label> " + wpsPropertiesService.measureOfValue + " " + $scope.indicatorUnit + "<br/><br/>";
 
                         if($scope.currentIndicatorContainsZeroValues){
