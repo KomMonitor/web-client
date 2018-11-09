@@ -112,30 +112,38 @@
 
 	<br/>
 
-	<div class="form-group" ng-if="$ctrl.wpsPropertiesServiceInstance.selectedIndicator.referencedGeoresources.length > 0">
-	<h4 class="justify" align="center">Mit Indikator verkn&uuml;pfte Geodaten</h4>
+	<div text-align="center" align="center" class="form-group" ng-if="$ctrl.wpsPropertiesServiceInstance.selectedIndicator.referencedGeoresources.length > 0">
+	<h4>Mit Indikator verkn&uuml;pfte Geodaten</h4>
 
-		<label for="sel1">Mit Indikator verkn&uuml;pfte Georessourcen zur Karte hinzuf&uuml;gen</label>
+		<label>Mit Indikator verkn&uuml;pfte Georessourcen zur Karte hinzuf&uuml;gen</label>
 
-		<div>
+		<div class="hiddenTable">
+			<div class="hiddenTableCell">
 
-			<div style="display: inline-block">
+				<div class="hiddenTableContent">
 
-				<!-- simple list of available processes -->
-				<select
-					ng-model="$ctrl.wpsPropertiesServiceInstance.selectedGeoresource" ng-options="georesource as georesource.datasetName for georesource in $ctrl.wpsPropertiesServiceInstance.availableGeoresources | filter:filterGeoresourcesByIndicator()"
-					size="4" class="form-control" required>
-					<option value="" selected disabled>-- Georessource w&auml;hlen --</option>
-					<!-- <option
-						ng-repeat="georesource as georesource.datasetName for georesource in $ctrl.wpsPropertiesServiceInstance.availableGeoresources | filter:filterGeoresourcesByIndicator()"></option> -->
-				</select>
+					<!-- simple list of available processes -->
+					<select
+						ng-model="$ctrl.wpsPropertiesServiceInstance.selectedGeoresource" ng-options="georesource as georesource.datasetName for georesource in $ctrl.wpsPropertiesServiceInstance.availableGeoresources | filter:filterGeoresourcesByIndicator()"
+						size="4" class="form-control" required>
+						<option value="" selected disabled>-- Georessource w&auml;hlen --</option>
+						<!-- <option
+							ng-repeat="georesource as georesource.datasetName for georesource in $ctrl.wpsPropertiesServiceInstance.availableGeoresources | filter:filterGeoresourcesByIndicator()"></option> -->
+					</select>
+				</div>
+
 			</div>
 
-			<div style="display: inline-block" align="center" ng-if="$ctrl.wpsPropertiesServiceInstance.selectedGeoresource">
-				<button align="center"  ng-click="$ctrl.addSelectedGeoresourceToMap()" type="button" class="btn btn-success">Kartenlayer hinzuf&uuml;gen</button>
-					<a class="btn btn-warning" target="_blank" rel="noopener noreferrer" ng-href="{{$ctrl.wpsPropertiesServiceInstance.selectedGeoresource.wmsUrl}}">WMS</a>
-					<a class="btn btn-info" target="_blank" rel="noopener noreferrer" ng-href="{{$ctrl.wpsPropertiesServiceInstance.selectedGeoresource.wfsUrl}}">WFS</a>
-			</div>
+				<div class="hiddenTableCell">
+
+					<div class="hiddenTableContent" ng-if="$ctrl.wpsPropertiesServiceInstance.selectedGeoresource">
+						<button  ng-click="$ctrl.addSelectedGeoresourceToMap()" type="button" class="btn btn-success">Kartenlayer hinzuf&uuml;gen</button>
+							<a class="btn btn-warning" target="_blank" rel="noopener noreferrer" ng-href="{{$ctrl.wpsPropertiesServiceInstance.selectedGeoresource.wmsUrl}}">WMS</a>
+							<a class="btn btn-info" target="_blank" rel="noopener noreferrer" ng-href="{{$ctrl.wpsPropertiesServiceInstance.selectedGeoresource.wfsUrl}}">WFS</a>
+					</div>
+
+				</div>
+		</div>
 
 		</div>
 	</div>
