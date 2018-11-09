@@ -105,7 +105,7 @@ angular
 
 								$scope.middleValue = +(($scope.maxValue + $scope.minValue) / 2).toFixed(4);
 								// $scope.step = +($scope.maxValue/values.length).toFixed(4);
-								$scope.step = 0.02;
+								$scope.step = 1;
 
 								measureOfValueInput.setAttribute("min", $scope.minValue);
 								measureOfValueInput.setAttribute("max", $scope.maxValue);
