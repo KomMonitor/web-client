@@ -29,9 +29,23 @@
 
 				<p></p>
 
-				<div class="slidecontainer">
-					<input ng-model="$ctrl.wpsPropertiesServiceInstance.measureOfValue" ng-change="$ctrl.onMeasureOfValueChange()" type="range" min="0" max="100" step="1" value="51" class="slider" id="measureOfValueInput">
+				<div class="slidecontainer" style="position:relative">
+					<input ng-model="$ctrl.wpsPropertiesServiceInstance.measureOfValue" ng-change="$ctrl.onMeasureOfValueChange()" style="background: #337ab7;" type="range" min="0" max="100" step="1" value="51" class="slider" id="measureOfValueInput">
 
+					<div style="position:absolute; left:10px">
+						<p>Minimum: {{minValue}}</p>
+					</div>
+					<div style="position:absolute; right:10px">
+						<p>Maximum: {{maxValue}}</p>
+					</div>
+					<!-- <input ng-model="$ctrl.wpsPropertiesServiceInstance.measureOfValue" type="number" style="width:100px;" class="form-control" id="measureOfValueTextInput">
+					<br/>
+					<p>Schwellwert: {{$ctrl.wpsPropertiesServiceInstance.measureOfValue}}</p> -->
+				</div>
+				<div align="center">
+					<br/>
+					<input ng-model="$ctrl.wpsPropertiesServiceInstance.measureOfValue" ng-change="$ctrl.onMeasureOfValueChange()" string-to-number type="number" style="width:300px;" class="form-control" id="measureOfValueTextInput">
+					<br/>
 					<p>Schwellwert: {{$ctrl.wpsPropertiesServiceInstance.measureOfValue}}</p>
 				</div>
 
