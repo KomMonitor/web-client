@@ -5,7 +5,7 @@ angular.module('wpsMap', ['wpsProperties']);
  */
 angular.module('wpsMap').service(
 		'wpsMapService',
-		[ 'leafletData', '$rootScope', '$http', function(leafletData, $rootScope, $http) {
+		[ '$rootScope', '$http', function($rootScope, $http) {
 
 
 			// // central map object

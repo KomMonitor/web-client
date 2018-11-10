@@ -1,6 +1,6 @@
 // Declare app level module which depends on views, and components
-var appModule = angular.module('wpsClient', [ 'pascalprecht.translate',
-		'wpsUserInterface', 'leaflet-directive' ]);
+var appModule = angular.module('kommonitorClient', [ 'pascalprecht.translate',
+		'kommonitorUserInterface' ]);
 
 appModule
 		.config([
