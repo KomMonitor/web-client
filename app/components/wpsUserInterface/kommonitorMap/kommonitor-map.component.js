@@ -1,20 +1,20 @@
-angular.module('wpsMap').component(
-        'wpsMap',
+angular.module('kommonitorMap').component(
+        'kommonitorMap',
         {
-            templateUrl: "components/wpsUserInterface/wpsMap/wps-map.template.html",
+            templateUrl: "components/wpsUserInterface/kommonitorMap/kommonitor-map.template.html",
             controller: [
                 '$rootScope',
 				'$http',
                 '$scope',
                 '$timeout',
-                'wpsMapService',
+                'kommonitorMapService',
                 'wpsExecuteInputService',
 				'wpsPropertiesService',
-                function MapController($rootScope, $http, $scope, $timeout, wpsMapService, wpsExecuteInputService, wpsPropertiesService) {
+                function MapController($rootScope, $http, $scope, $timeout, kommonitorMapService, wpsExecuteInputService, wpsPropertiesService) {
 
                     const INDICATOR_DATE_PREFIX = "DATE_";
 
-                    this.wpsMapServiceInstance = wpsMapService;
+                    this.kommonitorMapServiceInstance = kommonitorMapService;
 					          this.wpsPropertiesServiceInstance = wpsPropertiesService;
                     this.wpsExecuteSetupInputs = wpsExecuteInputService;
                     $scope.inputLayerCounter = 0;

@@ -4,8 +4,8 @@ angular
 				'wpsProcesses',
 				{
 					templateUrl : "components/wpsUserInterface/wpsControls/wpsProcesses/wps-processes.template.html",
-					controller : ['wpsPropertiesService', 'wpsFormControlService', '$scope', '$http','wpsMapService', function WpsProcessesController(
-							wpsPropertiesService, wpsFormControlService, $scope, $http, wpsMapService) {
+					controller : ['wpsPropertiesService', 'wpsFormControlService', '$scope', '$http','kommonitorMapService', function WpsProcessesController(
+							wpsPropertiesService, wpsFormControlService, $scope, $http, kommonitorMapService) {
 
 						this.wpsPropertiesServiceInstance = wpsPropertiesService;
 						this.wpsFormControlServiceInstance = wpsFormControlService;
@@ -644,7 +644,7 @@ angular
 							console.log("Adding customized indicator to map.");
 
 							this.targetIndicator.geoJSON = $scope.computedCustomizedIndicatorGeoJSON;
-							wpsMapService.addCustomIndicatorGeoJSON(this.targetIndicator, this.targetSpatialUnit.spatialUnitLevel, this.targetDate);
+							kommonitorMapService.addCustomIndicatorGeoJSON(this.targetIndicator, this.targetSpatialUnit.spatialUnitLevel, this.targetDate);
 						};
 
 						$scope.prepareDownloadGeoJSON = function(){

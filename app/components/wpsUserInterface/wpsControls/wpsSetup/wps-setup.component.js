@@ -9,8 +9,8 @@ angular
 					 * enabled tabs
 					 */
 					controller : [
-							'wpsPropertiesService', 'wpsFormControlService', '$scope', 'wpsMapService', '$http', '$rootScope',
-							function WpsSetupController(wpsPropertiesService, wpsFormControlService, $scope, wpsMapService, $http, $rootScope) {
+							'wpsPropertiesService', 'wpsFormControlService', '$scope', 'kommonitorMapService', '$http', '$rootScope',
+							function WpsSetupController(wpsPropertiesService, wpsFormControlService, $scope, kommonitorMapService, $http, $rootScope) {
 
 								const INDICATOR_DATE_PREFIX = "DATE_";
 
@@ -20,7 +20,7 @@ angular
 								 */
 								this.wpsPropertiesServiceInstance = wpsPropertiesService;
 								this.wpsPropertiesServiceInstance.selectedServiceUrl = '';
-								this.wpsMapServiceInstance = wpsMapService;
+								this.kommonitorMapServiceInstance = kommonitorMapService;
 								this.wpsFormControlServiceInstance = wpsFormControlService;
 
 								$scope.wmsUrlForSelectedIndicator;
@@ -35,10 +35,10 @@ angular
 								$scope.selectedDate;
 
 								this.addGeopackage = function(){
-									this.wpsMapServiceInstance.addSpatialUnitGeopackage();
+									this.kommonitorMapServiceInstance.addSpatialUnitGeopackage();
 								}
 								this.addGeoJSON = function(){
-									this.wpsMapServiceInstance.addSpatialUnitGeoJSON();
+									this.kommonitorMapServiceInstance.addSpatialUnitGeoJSON();
 								}
 
 								// $scope.$watch('filteredSpatialUnits', function(value){
@@ -299,7 +299,7 @@ angular
 
 											wpsPropertiesService.selectedSpatialUnit.geoJSON = geoJSON;
 
-											wpsMapService.addSpatialUnitGeoJSON(wpsPropertiesService.selectedSpatialUnit, $scope.date);
+											kommonitorMapService.addSpatialUnitGeoJSON(wpsPropertiesService.selectedSpatialUnit, $scope.date);
 											$scope.loadingData = false;
 											$rootScope.$broadcast("hideLoadingIconOnMap");
 
@@ -321,7 +321,7 @@ angular
 
 									var wfsUrl = metadata.wfsUrl;
 
-									wpsMapService.addSpatialUnitWFS(name, wfsUrl);
+									kommonitorMapService.addSpatialUnitWFS(name, wfsUrl);
 									$scope.loadingData = false;
 									$rootScope.$broadcast("hideLoadingIconOnMap");
 
@@ -353,7 +353,7 @@ angular
 
 											wpsPropertiesService.selectedGeoresource.geoJSON = geoJSON;
 
-											wpsMapService.addGeoresourceGeoJSON(wpsPropertiesService.selectedGeoresource, $scope.date);
+											kommonitorMapService.addGeoresourceGeoJSON(wpsPropertiesService.selectedGeoresource, $scope.date);
 											$scope.loadingData = false;
 											$rootScope.$broadcast("hideLoadingIconOnMap");
 
@@ -368,7 +368,7 @@ angular
 
 								$scope.addSelectedIndicatorToMap = function() {
 
-									wpsMapService.replaceIndicatorGeoJSON(wpsPropertiesService.selectedIndicator, wpsPropertiesService.selectedSpatialUnit.spatialUnitLevel, $scope.selectedDate);
+									kommonitorMapService.replaceIndicatorGeoJSON(wpsPropertiesService.selectedIndicator, wpsPropertiesService.selectedSpatialUnit.spatialUnitLevel, $scope.selectedDate);
 
 								};
 

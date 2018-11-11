@@ -1,4 +1,4 @@
-angular.module('wpsChangeLanguage', ['wpsProperties', 'wpsMap'])
+angular.module('wpsChangeLanguage', ['wpsProperties', 'kommonitorMap'])
 
 .directive('stringToNumber', function() {
   return {

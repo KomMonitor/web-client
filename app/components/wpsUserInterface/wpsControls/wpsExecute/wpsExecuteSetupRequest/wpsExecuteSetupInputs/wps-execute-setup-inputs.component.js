@@ -10,14 +10,14 @@ angular
                         'wpsExecuteInputService',
                         'wpsPropertiesService',
                         'wpsFormControlService',
-                        'wpsMapService',
+                        'kommonitorMapService',
                         'wpsGeometricOutputService',
                         function WpsExecuteSetupInputsController(
                                 $rootScope, $scope,
                                 wpsExecuteInputService,
                                 wpsPropertiesService,
                                 wpsFormControlService,
-                                wpsMapService,
+                                kommonitorMapService,
                                 wpsGeometricOutputService) {
                             /*
                              * reference to wpsPropertiesService instances
@@ -26,7 +26,7 @@ angular
                             this.wpsPropertiesServiceInstance = wpsPropertiesService;
                             this.wpsFormControlServiceInstance = wpsFormControlService;
                             this.wpsGeometricOutputServiceInstance = wpsGeometricOutputService;
-                            this.wpsMapServiceInstance = wpsMapService;
+                            this.kommonitorMapServiceInstance = kommonitorMapService;
 
                             // controller layout items;
                             this.formData = {};
@@ -126,8 +126,8 @@ angular
                             this.onChangeAlreadyDefinedExecuteInput = function () {
                                 /*
                                  * user selected an already defined input
-                                 * 
-                                 * now identify it, show the corresponding form 
+                                 *
+                                 * now identify it, show the corresponding form
                                  * and fill the form elements with the defined values!
                                  */
                                 var selectedInput = this.wpsExecuteInputServiceInstance.selectedExecuteInput;
@@ -135,10 +135,10 @@ angular
                                 var definedInput = this.getDefinedInput(selectedInput, this.wpsPropertiesServiceInstance.executeRequest.inputs);
 
                                 /*
-                                 * depending on the type of the definedInput 
+                                 * depending on the type of the definedInput
                                  * we have to fill in a different form
-                                 * 
-                                 * type may be "literal", "complex", "bbox" 
+                                 *
+                                 * type may be "literal", "complex", "bbox"
                                  * according to InputGenerator-class from wps-js-lib library
                                  */
                                 var type = definedInput.type;
@@ -157,7 +157,7 @@ angular
                                         this.fillBoundingBoxInputForm(definedInput);
 
                                 }
-                                
+
                                 //disable drawing tools
                                 $rootScope.$broadcast('set-complex-data-map-input-enabled', {'enabled': false});
 
@@ -252,8 +252,8 @@ angular
                                 /*
                                  * current input from list of already
                                  * defined inputs as well as from execute
-                                 * request object 
-                                 * 
+                                 * request object
+                                 *
                                  * and add it to list of not
                                  * defined inputs
                                  */
@@ -276,7 +276,7 @@ angular
                                 resetAllInputForms();
 
                                 /*
-                                 * set selection to undefined as visual feedback (and prevent that the same 
+                                 * set selection to undefined as visual feedback (and prevent that the same
                                  * input view is still shown)
                                  */
                                 this.wpsExecuteInputServiceInstance.selectedExecuteInput = undefined;
@@ -340,7 +340,7 @@ angular
                             this.onCrsChanged = function () {
                                 /*
                                  * check if create input via "drawing" on map is selected (which is selected by default)
-                                 * 
+                                 *
                                  * if so then show input draw tools
                                  */
                                 if (this.formData.bboxDataInput === "drawing")

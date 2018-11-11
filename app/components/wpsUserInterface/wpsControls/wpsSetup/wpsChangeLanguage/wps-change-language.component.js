@@ -8,11 +8,11 @@ angular
 					 * injected with a modules service method that manages
 					 * enabled tabs
 					 */
-					controller : ['$scope', '$rootScope', 'wpsMapService', 'wpsPropertiesService', function WpsChangeLanguageController($scope, $rootScope, wpsMapService, wpsPropertiesService) {
+					controller : ['$scope', '$rootScope', 'kommonitorMapService', 'wpsPropertiesService', function WpsChangeLanguageController($scope, $rootScope, kommonitorMapService, wpsPropertiesService) {
 
 							const INDICATOR_DATE_PREFIX = "DATE_";
 							this.wpsPropertiesServiceInstance = wpsPropertiesService;
-							this.wpsMapServiceInstance = wpsMapService;
+							this.kommonitorMapServiceInstance = kommonitorMapService;
 
 							$scope.minValue;
 							$scope.maxValue;
@@ -40,7 +40,7 @@ angular
 								// $scope.modifyComponentsForCurrentIndicatorTimestampAndSpatialUnit();
 							//	$scope.addSelectedIndicatorToMap();
 
-								this.wpsMapServiceInstance.restyleCurrentLayer();
+								this.kommonitorMapServiceInstance.restyleCurrentLayer();
 
 								$scope.loadingData = false;
 								$rootScope.$broadcast("hideLoadingIconOnMap");
@@ -128,7 +128,7 @@ angular
 
 								if(wpsPropertiesService.measureOfValue >= $scope.minValue && wpsPropertiesService.measureOfValue <= $scope.maxValue){
 									$scope.inputNotValid = false;
-									this.wpsMapServiceInstance.restyleCurrentLayer();
+									this.kommonitorMapServiceInstance.restyleCurrentLayer();
 								}
 								else{
 									$scope.inputNotValid = true;

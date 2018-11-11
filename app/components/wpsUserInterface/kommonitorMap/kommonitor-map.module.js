@@ -1,10 +1,10 @@
-angular.module('wpsMap', ['wpsProperties']);
+angular.module('kommonitorMap', ['wpsProperties']);
 /**
  * a common serviceInstance that holds all needed properties and methods for
  * interacting with a map (openlayers).
  */
-angular.module('wpsMap').service(
-		'wpsMapService',
+angular.module('kommonitorMap').service(
+		'kommonitorMapService',
 		[ '$rootScope', '$http', function($rootScope, $http) {
 
 
