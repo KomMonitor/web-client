@@ -1,7 +1,7 @@
 angular.module('kommonitorMap').component(
         'kommonitorMap',
         {
-            templateUrl: "components/wpsUserInterface/kommonitorMap/kommonitor-map.template.html",
+            templateUrl: "components/kommonitorUserInterface/kommonitorMap/kommonitor-map.template.html",
             controller: [
                 '$rootScope',
 				        '$http',

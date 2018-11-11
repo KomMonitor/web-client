@@ -3,7 +3,7 @@ angular
 		.component(
 				'kommonitorIndividualIndicatorComputation',
 				{
-					templateUrl : "components/wpsUserInterface/kommonitorControls/kommonitorIndividualIndicatorComputation/kommonitor-individual-indicator-computation.template.html",
+					templateUrl : "components/kommonitorUserInterface/kommonitorControls/kommonitorIndividualIndicatorComputation/kommonitor-individual-indicator-computation.template.html",
 					controller : ['wpsPropertiesService', '$scope', '$http','kommonitorMapService', function kommonitorIndividualIndicatorComputationController(
 							wpsPropertiesService, $scope, $http, kommonitorMapService) {
 

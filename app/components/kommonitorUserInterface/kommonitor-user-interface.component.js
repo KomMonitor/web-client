@@ -1,5 +1,5 @@
 angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
-	templateUrl : "components/wpsUserInterface/kommonitor-user-interface.template.html",
+	templateUrl : "components/kommonitorUserInterface/kommonitor-user-interface.template.html",
 	controller : ['wpsPropertiesService', '$scope', '$rootScope', function UserInterfaceController(wpsPropertiesService, $scope, $rootScope) {
 
 		this.wpsPropertiesServiceInstance = wpsPropertiesService;

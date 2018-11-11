@@ -3,7 +3,7 @@ angular
 		.component(
 				'indicatorRadar',
 				{
-					templateUrl : "components/wpsUserInterface/kommonitorControls/indicatorRadar/indicator-radar.template.html",
+					templateUrl : "components/kommonitorUserInterface/kommonitorControls/indicatorRadar/indicator-radar.template.html",
 
 					controller : [
 							'wpsPropertiesService', '$scope', '$http',
