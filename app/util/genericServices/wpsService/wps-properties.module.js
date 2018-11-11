@@ -1,4 +1,4 @@
-angular.module('wpsProperties', ['wpsExecuteInput', 'wpsExecuteOutput', 'wpsGeometricOutput', 'kommonitorMap']);
+angular.module('wpsProperties', ['kommonitorMap']);
 
 /**
  * a common serviceInstance that holds all needed properties for a WPS service.
@@ -12,14 +12,10 @@ angular.module('wpsProperties', ['wpsExecuteInput', 'wpsExecuteOutput', 'wpsGeom
 angular
 		.module('wpsProperties')
 		.service(
-				'wpsPropertiesService', ['$rootScope', 'wpsExecuteInputService', 'wpsExecuteOutputService',
-				                         'wpsGeometricOutputService', 'kommonitorMapService', '$http',
-				function($rootScope, wpsExecuteInputService, wpsExecuteOutputService, wpsGeometricOutputService,
+				'wpsPropertiesService', ['$rootScope', 'kommonitorMapService', '$http',
+				function($rootScope,
 						kommonitorMapService, $http) {
 
-					this.wpsExecuteInputServiceInstance = wpsExecuteInputService;
-					this.wpsExecuteOutputServiceInstance = wpsExecuteOutputService;
-					this.wpsGeometricOutputServiceInstance = wpsGeometricOutputService;
 					this.kommonitorMapServiceInstance = kommonitorMapService;
 
 					this.isMeasureOfValueChecked = false;

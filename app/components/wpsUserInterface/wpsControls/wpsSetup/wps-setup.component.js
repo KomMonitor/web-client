@@ -9,8 +9,8 @@ angular
 					 * enabled tabs
 					 */
 					controller : [
-							'wpsPropertiesService', 'wpsFormControlService', '$scope', 'kommonitorMapService', '$http', '$rootScope',
-							function WpsSetupController(wpsPropertiesService, wpsFormControlService, $scope, kommonitorMapService, $http, $rootScope) {
+							'wpsPropertiesService', '$scope', 'kommonitorMapService', '$http', '$rootScope',
+							function WpsSetupController(wpsPropertiesService, $scope, kommonitorMapService, $http, $rootScope) {
 
 								const INDICATOR_DATE_PREFIX = "DATE_";
 
@@ -21,7 +21,6 @@ angular
 								this.wpsPropertiesServiceInstance = wpsPropertiesService;
 								this.wpsPropertiesServiceInstance.selectedServiceUrl = '';
 								this.kommonitorMapServiceInstance = kommonitorMapService;
-								this.wpsFormControlServiceInstance = wpsFormControlService;
 
 								$scope.wmsUrlForSelectedIndicator;
 								$scope.wfsUrlForSelectedIndicator;

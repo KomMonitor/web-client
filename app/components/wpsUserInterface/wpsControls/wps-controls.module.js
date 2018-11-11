@@ -1,2 +1,2 @@
 angular.module('wpsControls', [ 'wpsSetup', 'wpsCapabilities', 'wpsProcesses',
-		'wpsExecute', 'wpsExecuteStatusInfoDocumentWps2', 'wpsFormControl' ]);
+		'wpsExecute', 'wpsExecuteStatusInfoDocumentWps2' ]);

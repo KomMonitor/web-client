@@ -6,10 +6,8 @@ angular.module('wpsControls').component(
 			 * controller is injected with two module-values from module
 			 * wpsSetup
 			 */
-			controller : [ 'wpsFormControlService',
-					function ControlsController(wpsFormControlService) {
-
-						this.formControlServiceInstance = wpsFormControlService;
+			controller : [
+					function ControlsController() {
 
 					} ]
 		});

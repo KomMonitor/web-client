@@ -10,12 +10,10 @@ angular
 					 */
 					controller : [
 							'wpsPropertiesService',
-							'wpsFormControlService',
 							'$scope', '$rootScope',
 							function WpsExecuteController(wpsPropertiesService,
-									wpsFormControlService, $scope, $rootScope) {
+									$scope, $rootScope) {
 								this.wpsPropertiesServiceInstance = wpsPropertiesService;
-								this.wpsFormControlServiceInstance = wpsFormControlService;
 
 								const INDICATOR_DATE_PREFIX = "DATE_";
 
