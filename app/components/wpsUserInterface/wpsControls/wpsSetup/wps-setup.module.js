@@ -1,1 +1,1 @@
-angular.module('wpsSetup', ['wpsProperties', 'wpsAddServiceModal', 'wpsChangeLanguage', 'kommonitorMap']);
+angular.module('wpsSetup', ['wpsProperties', 'wpsChangeLanguage', 'kommonitorMap']);
