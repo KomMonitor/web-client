@@ -1,10 +1,10 @@
 angular
-		.module('wpsProcesses')
+		.module('kommonitorIndividualIndicatorComputation')
 		.component(
-				'wpsProcesses',
+				'kommonitorIndividualIndicatorComputation',
 				{
-					templateUrl : "components/wpsUserInterface/wpsControls/wpsProcesses/wps-processes.template.html",
-					controller : ['wpsPropertiesService', '$scope', '$http','kommonitorMapService', function WpsProcessesController(
+					templateUrl : "components/wpsUserInterface/wpsControls/kommonitorIndividualIndicatorComputation/kommonitor-individual-indicator-computation.template.html",
+					controller : ['wpsPropertiesService', '$scope', '$http','kommonitorMapService', function kommonitorIndividualIndicatorComputationController(
 							wpsPropertiesService, $scope, $http, kommonitorMapService) {
 
 						this.wpsPropertiesServiceInstance = wpsPropertiesService;

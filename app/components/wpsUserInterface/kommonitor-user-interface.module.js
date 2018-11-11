@@ -1,2 +1,2 @@
-angular.module('kommonitorUserInterface', ['kommonitorMap', 'wpsControls', 'wpsSetup', 'wpsChangeLanguage', 'kommonitorAdmin', 'wpsProcesses',
+angular.module('kommonitorUserInterface', ['kommonitorMap', 'wpsControls', 'wpsSetup', 'wpsChangeLanguage', 'kommonitorAdmin', 'kommonitorIndividualIndicatorComputation',
 		'kommonitorDiagrams', 'indicatorRadar']);
