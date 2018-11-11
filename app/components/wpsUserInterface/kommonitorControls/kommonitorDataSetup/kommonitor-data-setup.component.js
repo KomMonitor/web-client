@@ -3,7 +3,7 @@ angular
 		.component(
 				'kommonitorDataSetup',
 				{
-					templateUrl : "components/wpsUserInterface/wpsControls/kommonitorDataSetup/kommonitor-data-setup.template.html",
+					templateUrl : "components/wpsUserInterface/kommonitorControls/kommonitorDataSetup/kommonitor-data-setup.template.html",
 					/*
 					 * injected with a modules service method that manages
 					 * enabled tabs

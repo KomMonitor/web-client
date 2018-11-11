@@ -3,7 +3,7 @@ angular
 		.component(
 				'kommonitorAdmin',
 				{
-					templateUrl : "components/wpsUserInterface/wpsControls/kommonitorAdmin/kommonitor-admin.template.html",
+					templateUrl : "components/wpsUserInterface/kommonitorControls/kommonitorAdmin/kommonitor-admin.template.html",
 					controller : ['wpsPropertiesService', function kommonitorAdminController(
 							wpsPropertiesService) {
 

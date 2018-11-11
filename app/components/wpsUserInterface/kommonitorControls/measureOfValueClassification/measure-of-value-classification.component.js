@@ -3,7 +3,7 @@ angular
 		.component(
 				'measureOfValueClassification',
 				{
-					templateUrl : "components/wpsUserInterface/wpsControls/measureOfValueClassification/measure-of-value-classification.template.html",
+					templateUrl : "components/wpsUserInterface/kommonitorControls/measureOfValueClassification/measure-of-value-classification.template.html",
 					/*
 					 * injected with a modules service method that manages
 					 * enabled tabs
