@@ -1,1 +1,0 @@
-angular.module('wpsBoundingBoxOutputs', ['wpsProperties', 'wpsInputOutputFilter']);

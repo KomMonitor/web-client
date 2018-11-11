@@ -1,1 +1,1 @@
-angular.module('wpsProcesses', ['wpsProperties', 'wpsFormControl', 'wpsProcessDescription']);
+angular.module('wpsProcesses', ['wpsProperties', 'wpsFormControl']);
