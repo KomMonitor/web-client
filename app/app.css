@@ -235,6 +235,20 @@
 		transform: rotateY(100deg); /* Rotate sidebar vertically by 100 degrees. */
 }
 
+#sidebarRegressionDiagram {
+    min-width: 770px;
+    max-width: 770px;
+		min-height: 100vh;
+		background: #E6EEFB;
+		transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
+    transform-origin: center left; /* Set the transformed position of sidebar to center left side. */
+}
+
+#sidebarRegressionDiagram.hidden {
+    /* margin-left: -770px; */
+		transform: rotateY(100deg); /* Rotate sidebar vertically by 100 degrees. */
+}
+
 #sidebarProcessing {
     min-width: 770px;
     max-width: 770px;
@@ -284,6 +298,14 @@
         margin-left: 0;
     }
 
+		#sidebarRegressionDiagram {
+        /* margin-left: -770px; */
+				transform: rotateY(100deg);
+    }
+    #sidebarRegressionDiagram.hidden {
+        margin-left: 0;
+    }
+
 		#sidebarProcessing {
         /* margin-left: -770px; */
 				transform: rotateY(100deg);
@@ -315,6 +337,13 @@
 }
 
 #indicatorRadar{
+	margin-left: 5px;
+	margin-right: 5px;
+	margin-top: 60px;
+	z-index: 2000;
+}
+
+#regressionDiagram{
 	margin-left: 5px;
 	margin-right: 5px;
 	margin-top: 60px;
@@ -358,12 +387,24 @@
 	z-index: 1000;
 }
 
+.btn-custom img {
+	filter: invert(1);
+	width:25px;
+	height:25px;
+}
+
 .btn-custom:hover {
 	background-color: white;
   color: black;
   border: 2px solid #337ab7;
 	position: absolute;
 	z-index: 1000;
+}
+
+.btn-custom:hover img{
+	filter: invert(0);
+	width:25px;
+	height:25px;
 }
 
 .btn-leaflet-custom{

@@ -11,12 +11,14 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 		$scope.sidebarDiagramsClass = "hidden";
 		$scope.sidebarRadarDiagramClass = "hidden";
 		$scope.sidebarProcessingClass = "hidden";
+		$scope.sidebarRegressionDiagramClass = "hidden";
 
 		$scope.buttonIndicatorConfigClass = "btn btn-custom btn-circle";
 		$scope.buttonMeasureOfValueClassificationClass = "btn btn-custom btn-circle";
 		$scope.buttonDiagramsClass = "btn btn-custom btn-circle";
 		$scope.buttonRadarDiagramClass = "btn btn-custom btn-circle";
 		$scope.buttonProcessingClass = "btn btn-custom btn-circle";
+		$scope.buttonRegressionDiagramClass = "btn btn-custom btn-circle";
 
 		$scope.undockButtons = function(){
 			$scope.buttonIndicatorConfigClass = "btn btn-custom btn-circle";
@@ -24,6 +26,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			$scope.buttonDiagramsClass = "btn btn-custom btn-circle";
 			$scope.buttonRadarDiagramClass = "btn btn-custom btn-circle";
 			$scope.buttonProcessingClass = "btn btn-custom btn-circle";
+			$scope.buttonRegressionDiagramClass = "btn btn-custom btn-circle";
 		};
 
 		$scope.hideSidebars = function(){
@@ -32,6 +35,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			$scope.sidebarDiagramsClass = "hidden";
 			$scope.sidebarRadarDiagramClass = "hidden";
 			$scope.sidebarProcessingClass = "hidden";
+			$scope.sidebarRegressionDiagramClass = "hidden";
 		};
 
 		$scope.onSidebarIndicatorButtonClick = function(){
@@ -127,6 +131,25 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			}
 			else{
 				$scope.sidebarProcessingClass = "hidden";
+				$rootScope.$broadcast("recenterMapOnHideSideBar");
+				$scope.anySideBarIsShown = false;
+			}
+			$rootScope.$broadcast("refreshDateSlider");
+		}
+
+		$scope.onSidebarRegressionDiagramClick = function(){
+			$scope.undockButtons();
+			if($scope.sidebarRegressionDiagramClass === "hidden"){
+				$scope.hideSidebars();
+				$scope.sidebarRegressionDiagramClass = "";
+				$scope.buttonRegressionDiagramClass = "btn btn-custom btn-docked";
+				if($scope.anySideBarIsShown === false){
+					$rootScope.$broadcast("recenterMapOnShowSideBar");
+				}
+				$scope.anySideBarIsShown = true;
+			}
+			else{
+				$scope.sidebarRegressionDiagramClass = "hidden";
 				$rootScope.$broadcast("recenterMapOnHideSideBar");
 				$scope.anySideBarIsShown = false;
 			}
