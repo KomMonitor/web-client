@@ -1,9 +1,9 @@
 angular
-		.module('wpsExecute')
+		.module('kommonitorDiagrams')
 		.component(
-				'wpsExecute',
+				'kommonitorDiagrams',
 				{
-					templateUrl : "components/wpsUserInterface/wpsControls/wpsExecute/wps-execute.template.html",
+					templateUrl : "components/wpsUserInterface/wpsControls/kommonitorDiagrams/kommonitor-diagrams.template.html",
 					/*
 					 * injected with a modules service method that manages
 					 * enabled tabs
@@ -11,7 +11,7 @@ angular
 					controller : [
 							'wpsPropertiesService',
 							'$scope', '$rootScope',
-							function WpsExecuteController(wpsPropertiesService,
+							function kommonitorDiagramsController(wpsPropertiesService,
 									$scope, $rootScope) {
 								this.wpsPropertiesServiceInstance = wpsPropertiesService;
 
