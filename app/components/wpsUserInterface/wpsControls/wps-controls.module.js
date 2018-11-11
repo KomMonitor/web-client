@@ -1,2 +1,2 @@
-angular.module('wpsControls', [ 'wpsSetup', 'kommonitorAdmin', 'kommonitorIndividualIndicatorComputation',
+angular.module('wpsControls', [ 'kommonitorDataSetup', 'kommonitorAdmin', 'kommonitorIndividualIndicatorComputation',
 		'kommonitorDiagrams', 'indicatorRadar' ]);

@@ -1,16 +1,16 @@
 angular
-		.module('wpsSetup')
+		.module('kommonitorDataSetup')
 		.component(
-				'wpsSetup',
+				'kommonitorDataSetup',
 				{
-					templateUrl : "components/wpsUserInterface/wpsControls/wpsSetup/wps-setup.template.html",
+					templateUrl : "components/wpsUserInterface/wpsControls/kommonitorDataSetup/kommonitor-data-setup.template.html",
 					/*
 					 * injected with a modules service method that manages
 					 * enabled tabs
 					 */
 					controller : [
 							'wpsPropertiesService', '$scope', 'kommonitorMapService', '$http', '$rootScope',
-							function WpsSetupController(wpsPropertiesService, $scope, kommonitorMapService, $http, $rootScope) {
+							function kommonitorDataSetupController(wpsPropertiesService, $scope, kommonitorMapService, $http, $rootScope) {
 
 								const INDICATOR_DATE_PREFIX = "DATE_";
 
