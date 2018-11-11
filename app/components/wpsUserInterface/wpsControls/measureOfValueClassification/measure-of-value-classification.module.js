@@ -1,4 +1,4 @@
-angular.module('wpsChangeLanguage', ['wpsProperties', 'kommonitorMap'])
+angular.module('measureOfValueClassification', ['wpsProperties', 'kommonitorMap'])
 
 .directive('stringToNumber', function() {
   return {

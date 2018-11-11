@@ -1,14 +1,14 @@
 angular
-		.module('wpsChangeLanguage')
+		.module('measureOfValueClassification')
 		.component(
-				'wpsChangeLanguage',
+				'measureOfValueClassification',
 				{
-					templateUrl : "components/wpsUserInterface/wpsControls/wpsSetup/wpsChangeLanguage/wps-change-language.template.html",
+					templateUrl : "components/wpsUserInterface/wpsControls/measureOfValueClassification/measure-of-value-classification.template.html",
 					/*
 					 * injected with a modules service method that manages
 					 * enabled tabs
 					 */
-					controller : ['$scope', '$rootScope', 'kommonitorMapService', 'wpsPropertiesService', function WpsChangeLanguageController($scope, $rootScope, kommonitorMapService, wpsPropertiesService) {
+					controller : ['$scope', '$rootScope', 'kommonitorMapService', 'wpsPropertiesService', function measureOfValueClassificationController($scope, $rootScope, kommonitorMapService, wpsPropertiesService) {
 
 							const INDICATOR_DATE_PREFIX = "DATE_";
 							this.wpsPropertiesServiceInstance = wpsPropertiesService;
