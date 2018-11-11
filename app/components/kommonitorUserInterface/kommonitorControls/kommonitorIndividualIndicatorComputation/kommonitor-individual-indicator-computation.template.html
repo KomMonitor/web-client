@@ -10,7 +10,7 @@
 
 			<div text-align="center" align="center" class="hiddenTableContent">
 				<select
-					size="5" ng-model="$ctrl.targetIndicator" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.wpsPropertiesServiceInstance.availableIndicators | filter:{creationType:'COMPUTATION'}"
+					size="5" ng-model="$ctrl.targetIndicator" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:{creationType:'COMPUTATION'}"
 					class="form-control" ng-change="$ctrl.onChangeTargetIndicator()" required>
 					<option value="" selected disabled>-- berechenbaren Indikator w&auml;hlen --</option>
 				</select>
@@ -24,11 +24,11 @@
 			<div text-align="center" align="center" class="hiddenTableContent" ng-show="$ctrl.targetIndicator">
 				<!-- simple list of available processes -->
 				<select
-					size="5" ng-model="$ctrl.targetSpatialUnit" ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in $ctrl.wpsPropertiesServiceInstance.availableSpatialUnits"
+					size="5" ng-model="$ctrl.targetSpatialUnit" ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits"
 					ng-change="$ctrl.onChangeTargetSpatialUnit()" class="form-control" required>
 					<option value="" selected disabled>-- Ziel-Raumeinheit w&auml;hlen --</option>
 					<option
-						ng-repeat="spatialUnit in $ctrl.wpsPropertiesServiceInstance.availableSpatialUnits"></option>
+						ng-repeat="spatialUnit in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits"></option>
 				</select>
 			</div>
 

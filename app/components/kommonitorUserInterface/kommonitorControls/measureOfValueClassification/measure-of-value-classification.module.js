@@ -1,4 +1,4 @@
-angular.module('measureOfValueClassification', ['wpsProperties', 'kommonitorMap'])
+angular.module('measureOfValueClassification', ['kommonitorDataExchange', 'kommonitorMap'])
 
 .directive('stringToNumber', function() {
   return {

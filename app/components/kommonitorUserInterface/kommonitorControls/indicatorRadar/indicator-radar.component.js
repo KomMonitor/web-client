@@ -6,13 +6,13 @@ angular
 					templateUrl : "components/kommonitorUserInterface/kommonitorControls/indicatorRadar/indicator-radar.template.html",
 
 					controller : [
-							'wpsPropertiesService', '$scope', '$http',
+							'kommonitorDataExchangeService', '$scope', '$http',
 							function indicatorRadarController(
-									wpsPropertiesService, $scope, $http) {
+									kommonitorDataExchangeService, $scope, $http) {
 								/*
-								 * reference to wpsPropertiesService instances
+								 * reference to kommonitorDataExchangeService instances
 								 */
-								this.wpsPropertiesServiceInstance = wpsPropertiesService;
+								this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
 								const DATE_PREFIX = "DATE_";
 
@@ -193,7 +193,7 @@ angular
 									var sampleProperties = $scope.selectableIndicatorsForRadar[0].indicatorProperties;
 
 									for (var propertiesInstance of sampleProperties){
-										if(wpsPropertiesService.clickedIndicatorFeatureNames.includes(propertiesInstance.spatialUnitFeatureName)){
+										if(kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(propertiesInstance.spatialUnitFeatureName)){
 											appendSeriesToRadarChart(propertiesInstance);
 										}
 									}
@@ -212,7 +212,7 @@ angular
 
 									var dateProperty = '' + DATE_PREFIX + date;
 
-									for (var indicatorMetadata of wpsPropertiesService.availableIndicators){
+									for (var indicatorMetadata of kommonitorDataExchangeService.availableIndicators){
 
 										try{
 											var indicatorProperties = await fetchIndicatorProperties(indicatorMetadata, spatialUnitId, year, month, day);
@@ -247,7 +247,7 @@ angular
 
 								var fetchIndicatorProperties = function(indicatorMetadata, spatialUnitId, year, month, day){
 									return $http({
-										url: wpsPropertiesService.baseUrlToKomMonitorDataAPI + "/indicators/" + indicatorMetadata.indicatorId + "/" + spatialUnitId + "/" + year + "/" + month + "/" + day + "/without-geometry",
+										url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/indicators/" + indicatorMetadata.indicatorId + "/" + spatialUnitId + "/" + year + "/" + month + "/" + day + "/without-geometry",
 										method: "GET"
 									}).then(function successCallback(response) {
 											// this callback will be called asynchronously
@@ -266,7 +266,7 @@ angular
 
 									console.log("updateRadarDiagramForHoveredFeature called!");
 
-									if(! wpsPropertiesService.clickedIndicatorFeatureNames.includes(featureProperties.spatialUnitFeatureName)){
+									if(! kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(featureProperties.spatialUnitFeatureName)){
 										appendSeriesToRadarChart(featureProperties);
 									}
 
@@ -339,7 +339,7 @@ angular
 
 									unhighlightFeatureInRadarChart(featureProperties);
 
-									if(! wpsPropertiesService.clickedIndicatorFeatureNames.includes(featureProperties.spatialUnitFeatureName)){
+									if(! kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(featureProperties.spatialUnitFeatureName)){
 										removeSeriesFromRadarChart(featureProperties);
 									}
 								});

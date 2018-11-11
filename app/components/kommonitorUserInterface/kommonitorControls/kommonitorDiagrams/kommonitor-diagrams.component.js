@@ -9,11 +9,11 @@ angular
 					 * enabled tabs
 					 */
 					controller : [
-							'wpsPropertiesService',
+							'kommonitorDataExchangeService',
 							'$scope', '$rootScope',
-							function kommonitorDiagramsController(wpsPropertiesService,
+							function kommonitorDiagramsController(kommonitorDataExchangeService,
 									$scope, $rootScope) {
-								this.wpsPropertiesServiceInstance = wpsPropertiesService;
+								this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
 								const INDICATOR_DATE_PREFIX = "DATE_";
 
@@ -510,7 +510,7 @@ angular
 
 									console.log("updateDiagramsForHoveredFeature called!");
 
-									if(! wpsPropertiesService.clickedIndicatorFeatureNames.includes(featureProperties.spatialUnitFeatureName)){
+									if(! kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(featureProperties.spatialUnitFeatureName)){
 										appendSeriesToLineChart(featureProperties);
 									}
 
@@ -586,7 +586,7 @@ angular
 
 									console.log("updateDiagramsForUnhoveredFeature called!");
 
-									if(! wpsPropertiesService.clickedIndicatorFeatureNames.includes(featureProperties.spatialUnitFeatureName)){
+									if(! kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(featureProperties.spatialUnitFeatureName)){
 										unhighlightFeatureInLineChart(featureProperties);
 
 										removeSeriesFromLineChart(featureProperties);

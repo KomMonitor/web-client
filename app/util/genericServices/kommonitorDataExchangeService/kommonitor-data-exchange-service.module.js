@@ -1,4 +1,4 @@
-angular.module('wpsProperties', ['kommonitorMap']);
+angular.module('kommonitorDataExchange', ['kommonitorMap']);
 
 /**
  * a common serviceInstance that holds all needed properties for a WPS service.
@@ -10,9 +10,9 @@ angular.module('wpsProperties', ['kommonitorMap']);
  * parameters for each WPS operation represented by different Angular components
  */
 angular
-		.module('wpsProperties')
+		.module('kommonitorDataExchange')
 		.service(
-				'wpsPropertiesService', ['$rootScope', 'kommonitorMapService', '$http',
+				'kommonitorDataExchangeService', ['$rootScope', 'kommonitorMapService', '$http',
 				function($rootScope,
 						kommonitorMapService, $http) {
 

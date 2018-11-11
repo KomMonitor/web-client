@@ -37,14 +37,14 @@
 					<h4>Themenfilter für Indikatoren</h4>
 		    </div>
 		    <ul class="nav nav-pills nav-justified">
-		      <li ng-repeat="topic in $ctrl.wpsPropertiesServiceInstance.availableTopics" id="{{topic.topicName}}" class=""><a ng-click="$ctrl.onClickTheme(topic.topicName)" href="#">{{topic.topicName}}</a></li>
+		      <li ng-repeat="topic in $ctrl.kommonitorDataExchangeServiceInstance.availableTopics" id="{{topic.topicName}}" class=""><a ng-click="$ctrl.onClickTheme(topic.topicName)" href="#">{{topic.topicName}}</a></li>
 		    </ul>
 		  </div>
 
 			<br/>
 
-			<div align="center" ng-if="$ctrl.wpsPropertiesServiceInstance.selectedTopic">
-				<p>{{$ctrl.wpsPropertiesServiceInstance.selectedTopic.topicDescription}}</p>
+			<div align="center" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.selectedTopic">
+				<p>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedTopic.topicDescription}}</p>
 				<p/>
 				<button type="button" class="btn btn-danger" ng-click="$ctrl.unsetTopic()" type="button">Themenfilter aufheben</button>
 				<p/>
@@ -65,7 +65,7 @@
 
 				<div text-align="center" align="center" class="hiddenTableContent">
 						<select
-							size="12" ng-model="$ctrl.wpsPropertiesServiceInstance.selectedIndicator" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.wpsPropertiesServiceInstance.availableIndicators | filter:filterIndicatorsByTopic()"
+							size="12" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicatorsByTopic()"
 							ng-change="onChangeSelectedIndicator()" class="form-control" required>
 							<option disabled selected value> -- Indikator w&auml;hlen -- </option>
 						</select>
@@ -75,9 +75,9 @@
 
 
 			<div class="hiddenTableCell">
-				<div text-align="center" align="center" class="hiddenTableContent" ng-show="$ctrl.wpsPropertiesServiceInstance.selectedIndicator">
+				<div text-align="center" align="center" class="hiddenTableContent" ng-show="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator">
 					<select
-						size="6" ng-model="$ctrl.wpsPropertiesServiceInstance.selectedSpatialUnit" ng-change="$ctrl.onChangeSelectedSpatialUnit()" ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in filteredSpatialUnits = ($ctrl.wpsPropertiesServiceInstance.availableSpatialUnits | filter:filterSpatialUnitsByIndicator())"
+						size="6" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.selectedSpatialUnit" ng-change="$ctrl.onChangeSelectedSpatialUnit()" ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in filteredSpatialUnits = ($ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits | filter:filterSpatialUnitsByIndicator())"
 						class="form-control" required>
 						<option disabled value> -- Raumebene w&auml;hlen -- </option>
 					</select>
@@ -86,7 +86,7 @@
 
 			<div class="hiddenTableCell">
 
-				<div id="exportButtonDiv" class="dropdown hiddenTableContent" ng-show="$ctrl.wpsPropertiesServiceInstance.selectedIndicator">
+				<div id="exportButtonDiv" class="dropdown hiddenTableContent" ng-show="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator">
 					<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Export
 					<span class="caret"></span></button>
 					<ul id="exportDropdown" class="dropdown-menu">
@@ -102,7 +102,7 @@
 
 
 
-			<!-- <div align="center" ng-show="$ctrl.selectedDate && $ctrl.wpsPropertiesServiceInstance.selectedSpatialUnit">
+			<!-- <div align="center" ng-show="$ctrl.selectedDate && $ctrl.kommonitorDataExchangeServiceInstance.selectedSpatialUnit">
 
 				<button ng-click="$ctrl.addSelectedIndicatorToMap()" type="button" class="btn btn-success">Indikator als Kartenlayer hinzuf&uuml;gen</button>
 
@@ -112,7 +112,7 @@
 
 	<br/>
 
-	<div text-align="center" align="center" class="form-group" ng-if="$ctrl.wpsPropertiesServiceInstance.selectedIndicator.referencedGeoresources.length > 0">
+	<div text-align="center" align="center" class="form-group" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.referencedGeoresources.length > 0">
 	<h4>Mit Indikator verkn&uuml;pfte Geodaten</h4>
 
 		<label>Mit Indikator verkn&uuml;pfte Georessourcen zur Karte hinzuf&uuml;gen</label>
@@ -124,11 +124,11 @@
 
 					<!-- simple list of available processes -->
 					<select
-						ng-model="$ctrl.wpsPropertiesServiceInstance.selectedGeoresource" ng-options="georesource as georesource.datasetName for georesource in $ctrl.wpsPropertiesServiceInstance.availableGeoresources | filter:filterGeoresourcesByIndicator()"
+						ng-model="$ctrl.kommonitorDataExchangeServiceInstance.selectedGeoresource" ng-options="georesource as georesource.datasetName for georesource in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:filterGeoresourcesByIndicator()"
 						size="4" class="form-control" required>
 						<option value="" selected disabled>-- Georessource w&auml;hlen --</option>
 						<!-- <option
-							ng-repeat="georesource as georesource.datasetName for georesource in $ctrl.wpsPropertiesServiceInstance.availableGeoresources | filter:filterGeoresourcesByIndicator()"></option> -->
+							ng-repeat="georesource as georesource.datasetName for georesource in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:filterGeoresourcesByIndicator()"></option> -->
 					</select>
 				</div>
 
@@ -136,10 +136,10 @@
 
 				<div class="hiddenTableCell">
 
-					<div class="hiddenTableContent" ng-if="$ctrl.wpsPropertiesServiceInstance.selectedGeoresource">
+					<div class="hiddenTableContent" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.selectedGeoresource">
 						<button  ng-click="$ctrl.addSelectedGeoresourceToMap()" type="button" class="btn btn-success">Kartenlayer hinzuf&uuml;gen</button>
-							<a class="btn btn-warning" target="_blank" rel="noopener noreferrer" ng-href="{{$ctrl.wpsPropertiesServiceInstance.selectedGeoresource.wmsUrl}}">WMS</a>
-							<a class="btn btn-info" target="_blank" rel="noopener noreferrer" ng-href="{{$ctrl.wpsPropertiesServiceInstance.selectedGeoresource.wfsUrl}}">WFS</a>
+							<a class="btn btn-warning" target="_blank" rel="noopener noreferrer" ng-href="{{$ctrl.kommonitorDataExchangeServiceInstance.selectedGeoresource.wmsUrl}}">WMS</a>
+							<a class="btn btn-info" target="_blank" rel="noopener noreferrer" ng-href="{{$ctrl.kommonitorDataExchangeServiceInstance.selectedGeoresource.wfsUrl}}">WFS</a>
 					</div>
 
 				</div>
@@ -166,33 +166,33 @@
 		<button type="button" class="btn btn-danger" ng-click="$ctrl.addGeoJSON()" type="button">Add GeoJSON</button>
 	</div> -->
 
-		<div align="center" ng-if="$ctrl.wpsPropertiesServiceInstance.selectedIndicatorLegendURL">
+		<div align="center" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicatorLegendURL">
 			<label align='left'>gewählter Indikator:</label>
-			<p>{{$ctrl.wpsPropertiesServiceInstance.selectedIndicator.name}}</p>
+			<p>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.name}}</p>
 		</div>
 
-		<div class="form-group" ng-if="$ctrl.wpsPropertiesServiceInstance.selectedIndicatorLegendURL">
+		<div class="form-group" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicatorLegendURL">
 			<h4 class="justify" align="center">Indikator Legende</h4>
 
-			<p>{{$ctrl.wpsPropertiesServiceInstance.selectedIndicator.layerLegendText}}</p>
+			<p>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.layerLegendText}}</p>
 
 		</div>
 
-		<hr ng-if="$ctrl.wpsPropertiesServiceInstance.selectedIndicatorLegendURL"/>
+		<hr ng-if="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicatorLegendURL"/>
 
-		<div align="center" class="form-group" ng-if="$ctrl.wpsPropertiesServiceInstance.selectedIndicatorLegendURL">
+		<div align="center" class="form-group" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicatorLegendURL">
 			<label align='left'>Bewertungsmodellierung</label>
-			<p>{{$ctrl.wpsPropertiesServiceInstance.selectedIndicator.measureOfValueText}}</p>
+			<p>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.measureOfValueText}}</p>
 
 			<p></p>
 
 			<div class="slidecontainer">
-			  <input ng-model="$ctrl.wpsPropertiesServiceInstance.measureOfValue" ng-change="$ctrl.onMeasureOfValueChange()" type="range" min="0" max="100" step="1" value="51" class="slider" id="myRange">
+			  <input ng-model="$ctrl.kommonitorDataExchangeServiceInstance.measureOfValue" ng-change="$ctrl.onMeasureOfValueChange()" type="range" min="0" max="100" step="1" value="51" class="slider" id="myRange">
 
-			  <p>Value: {{$ctrl.wpsPropertiesServiceInstance.measureOfValue}}</p>
+			  <p>Value: {{$ctrl.kommonitorDataExchangeServiceInstance.measureOfValue}}</p>
 			</div>
 
-			<button ng-if="$ctrl.wpsPropertiesServiceInstance.measureOfValue" align="center" ng-click="$ctrl.applyMeasureOfValue()" type="button" class="btn btn-success">Bewertung anwenden!</button>
+			<button ng-if="$ctrl.kommonitorDataExchangeServiceInstance.measureOfValue" align="center" ng-click="$ctrl.applyMeasureOfValue()" type="button" class="btn btn-success">Bewertung anwenden!</button>
 
 
 			<div>

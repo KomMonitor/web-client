@@ -9,17 +9,17 @@ angular
 					 * enabled tabs
 					 */
 					controller : [
-							'wpsPropertiesService', '$scope', 'kommonitorMapService', '$http', '$rootScope',
-							function kommonitorDataSetupController(wpsPropertiesService, $scope, kommonitorMapService, $http, $rootScope) {
+							'kommonitorDataExchangeService', '$scope', 'kommonitorMapService', '$http', '$rootScope',
+							function kommonitorDataSetupController(kommonitorDataExchangeService, $scope, kommonitorMapService, $http, $rootScope) {
 
 								const INDICATOR_DATE_PREFIX = "DATE_";
 
 								// var rangeslide = require("rangeslide");
 								/*
-								 * references to wpsPropertiesService and wpsFormControl instances
+								 * references to kommonitorDataExchangeService and wpsFormControl instances
 								 */
-								this.wpsPropertiesServiceInstance = wpsPropertiesService;
-								this.wpsPropertiesServiceInstance.selectedServiceUrl = '';
+								this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
+								this.kommonitorDataExchangeServiceInstance.selectedServiceUrl = '';
 								this.kommonitorMapServiceInstance = kommonitorMapService;
 
 								$scope.wmsUrlForSelectedIndicator;
@@ -42,16 +42,16 @@ angular
 
 								// $scope.$watch('filteredSpatialUnits', function(value){
 								//   if ($scope.filteredSpatialUnits) {
-								//     wpsPropertiesService.selectedSpatialUnit = $scope.filteredSpatialUnits[0];
+								//     kommonitorDataExchangeService.selectedSpatialUnit = $scope.filteredSpatialUnits[0];
 								//   }
 								// }, true);
 
 								this.onClickTheme = function(topicName){
 
-									for(const topic of this.wpsPropertiesServiceInstance.availableTopics){
+									for(const topic of this.kommonitorDataExchangeServiceInstance.availableTopics){
 										if(topic.topicName === topicName){
 											document.getElementById(topicName).setAttribute("class", "active");
-											this.wpsPropertiesServiceInstance.selectedTopic = topic;
+											this.kommonitorDataExchangeServiceInstance.selectedTopic = topic;
 										}
 										else {
 											document.getElementById(topic.topicName).setAttribute("class", "");
@@ -62,9 +62,9 @@ angular
 								};
 
 								this.unsetTopic = function(){
-									this.wpsPropertiesServiceInstance.selectedTopic = null;
+									this.kommonitorDataExchangeServiceInstance.selectedTopic = null;
 
-									for(const topic of this.wpsPropertiesServiceInstance.availableTopics){
+									for(const topic of this.kommonitorDataExchangeServiceInstance.availableTopics){
 											document.getElementById(topic.topicName).setAttribute("class", "");
 									};
 
@@ -75,7 +75,7 @@ angular
 									return function( item ) {
 
 										try{
-											var referencedGeoresources = wpsPropertiesService.selectedIndicator.referencedGeoresources;
+											var referencedGeoresources = kommonitorDataExchangeService.selectedIndicator.referencedGeoresources;
 											var georesourceId = item.georesourceId;
 
 											for (const refGeoresource of referencedGeoresources){
@@ -93,8 +93,8 @@ angular
 
 								$scope.filterGeoresourcesByTopic = function() {
 								  return function( item ) {
-										if (wpsPropertiesService.selectedTopic)
-								    	return item.applicableTopics.includes(wpsPropertiesService.selectedTopic.topicName);
+										if (kommonitorDataExchangeService.selectedTopic)
+								    	return item.applicableTopics.includes(kommonitorDataExchangeService.selectedTopic.topicName);
 
 										return true;
 								  };
@@ -106,8 +106,8 @@ angular
 										if(item.applicableDates == undefined || item.applicableDates.length === 0)
 											return false;
 
-										if (wpsPropertiesService.selectedTopic)
-												return item.applicableTopics.includes(wpsPropertiesService.selectedTopic.topicName);
+										if (kommonitorDataExchangeService.selectedTopic)
+												return item.applicableTopics.includes(kommonitorDataExchangeService.selectedTopic.topicName);
 
 
 										return true;
@@ -118,7 +118,7 @@ angular
 								  return function( item ) {
 
 										try{
-											var applicableSpatialUnits = wpsPropertiesService.selectedIndicator.applicableSpatialUnits;
+											var applicableSpatialUnits = kommonitorDataExchangeService.selectedIndicator.applicableSpatialUnits;
 											var spatialUnitName = item.spatialUnitLevel;
 
 											return applicableSpatialUnits.includes(spatialUnitName);
@@ -133,9 +133,9 @@ angular
 
 									var result = undefined;
 
-										var applicableSpatialUnits = wpsPropertiesService.selectedIndicator.applicableSpatialUnits;
+										var applicableSpatialUnits = kommonitorDataExchangeService.selectedIndicator.applicableSpatialUnits;
 
-										for (const spatialUnitEntry of wpsPropertiesService.availableSpatialUnits){
+										for (const spatialUnitEntry of kommonitorDataExchangeService.availableSpatialUnits){
 											if(applicableSpatialUnits.includes(spatialUnitEntry.spatialUnitLevel)){
 												result = spatialUnitEntry;
 												break;
@@ -183,20 +183,20 @@ angular
 								$scope.$on("loadExampleIndicatorInitially", function (event) {
 
 									console.log("Load an initial example indicator");
-									wpsPropertiesService.selectedIndicator = wpsPropertiesService.availableIndicators[0];
+									kommonitorDataExchangeService.selectedIndicator = kommonitorDataExchangeService.availableIndicators[0];
 
 									$scope.onChangeSelectedIndicator();
 
 								});
 
 								$http({
-									url: this.wpsPropertiesServiceInstance.baseUrlToKomMonitorDataAPI + "/spatial-units",
+									url: this.kommonitorDataExchangeServiceInstance.baseUrlToKomMonitorDataAPI + "/spatial-units",
 									method: "GET"
 								}).then(function successCallback(response) {
 										// this callback will be called asynchronously
 										// when the response is available
 
-										wpsPropertiesService.setSpatialUnits(response.data);
+										kommonitorDataExchangeService.setSpatialUnits(response.data);
 										fetchedSpatialUnitsInitially = true;
 										callScopeApplyInitially();
 
@@ -207,13 +207,13 @@ angular
 								});
 
 								$http({
-									url: this.wpsPropertiesServiceInstance.baseUrlToKomMonitorDataAPI + "/georesources",
+									url: this.kommonitorDataExchangeServiceInstance.baseUrlToKomMonitorDataAPI + "/georesources",
 									method: "GET"
 								}).then(function successCallback(response) {
 										// this callback will be called asynchronously
 										// when the response is available
 
-										wpsPropertiesService.setGeoresources(response.data);
+										kommonitorDataExchangeService.setGeoresources(response.data);
 										fetchedGeoresourcesInitially = true;
 										callScopeApplyInitially();
 
@@ -224,13 +224,13 @@ angular
 								});
 
 								$http({
-									url: this.wpsPropertiesServiceInstance.baseUrlToKomMonitorDataAPI + "/indicators",
+									url: this.kommonitorDataExchangeServiceInstance.baseUrlToKomMonitorDataAPI + "/indicators",
 									method: "GET"
 								}).then(function successCallback(response) {
 										// this callback will be called asynchronously
 										// when the response is available
 
-										wpsPropertiesService.setIndicators(response.data);
+										kommonitorDataExchangeService.setIndicators(response.data);
 										fetchedIndicatorsInitially = true;
 										callScopeApplyInitially();
 
@@ -241,13 +241,13 @@ angular
 								});
 
 								$http({
-									url: this.wpsPropertiesServiceInstance.baseUrlToKomMonitorDataAPI + "/topics",
+									url: this.kommonitorDataExchangeServiceInstance.baseUrlToKomMonitorDataAPI + "/topics",
 									method: "GET"
 								}).then(function successCallback(response) {
 										// this callback will be called asynchronously
 										// when the response is available
 
-										wpsPropertiesService.setTopics(response.data);
+										kommonitorDataExchangeService.setTopics(response.data);
 										fetchedTopicsInitially = true;
 										callScopeApplyInitially();
 
@@ -258,13 +258,13 @@ angular
 								});
 
 								$http({
-									url: this.wpsPropertiesServiceInstance.baseUrlToKomMonitorDataAPI + "/process-scripts",
+									url: this.kommonitorDataExchangeServiceInstance.baseUrlToKomMonitorDataAPI + "/process-scripts",
 									method: "GET"
 								}).then(function successCallback(response) {
 										// this callback will be called asynchronously
 										// when the response is available
 
-										wpsPropertiesService.setProcessScripts(response.data);
+										kommonitorDataExchangeService.setProcessScripts(response.data);
 
 									}, function errorCallback(response) {
 										// called asynchronously if an error occurs
@@ -276,7 +276,7 @@ angular
 									$scope.loadingData = true;
 									$rootScope.$broadcast("showLoadingIconOnMap");
 
-									var metadata = wpsPropertiesService.selectedSpatialUnit;
+									var metadata = kommonitorDataExchangeService.selectedSpatialUnit;
 
 									var id = metadata.spatialUnitId;
 
@@ -289,16 +289,16 @@ angular
 									var day = dateComps[2];
 
 									$http({
-										url: this.wpsPropertiesServiceInstance.baseUrlToKomMonitorDataAPI + "/spatial-units/" + id + "/" + year + "/" + month + "/" + day,
+										url: this.kommonitorDataExchangeServiceInstance.baseUrlToKomMonitorDataAPI + "/spatial-units/" + id + "/" + year + "/" + month + "/" + day,
 										method: "GET"
 									}).then(function successCallback(response) {
 											// this callback will be called asynchronously
 											// when the response is available
 											var geoJSON = response.data;
 
-											wpsPropertiesService.selectedSpatialUnit.geoJSON = geoJSON;
+											kommonitorDataExchangeService.selectedSpatialUnit.geoJSON = geoJSON;
 
-											kommonitorMapService.addSpatialUnitGeoJSON(wpsPropertiesService.selectedSpatialUnit, $scope.date);
+											kommonitorMapService.addSpatialUnitGeoJSON(kommonitorDataExchangeService.selectedSpatialUnit, $scope.date);
 											$scope.loadingData = false;
 											$rootScope.$broadcast("hideLoadingIconOnMap");
 
@@ -314,7 +314,7 @@ angular
 									$scope.loadingData = true;
 									$rootScope.$broadcast("showLoadingIconOnMap");
 
-									var metadata = wpsPropertiesService.selectedSpatialUnit;
+									var metadata = kommonitorDataExchangeService.selectedSpatialUnit;
 
 									var name = metadata.spatialUnitLevel;
 
@@ -330,7 +330,7 @@ angular
 									$scope.loadingData = true;
 									$rootScope.$broadcast("showLoadingIconOnMap");
 
-									var metadata = wpsPropertiesService.selectedGeoresource;
+									var metadata = kommonitorDataExchangeService.selectedGeoresource;
 
 									var id = metadata.georesourceId;
 
@@ -343,16 +343,16 @@ angular
 									var day = dateComps[2];
 
 									$http({
-										url: this.wpsPropertiesServiceInstance.baseUrlToKomMonitorDataAPI + "/georesources/" + id + "/" + year + "/" + month + "/" + day,
+										url: this.kommonitorDataExchangeServiceInstance.baseUrlToKomMonitorDataAPI + "/georesources/" + id + "/" + year + "/" + month + "/" + day,
 										method: "GET"
 									}).then(function successCallback(response) {
 											// this callback will be called asynchronously
 											// when the response is available
 											var geoJSON = response.data;
 
-											wpsPropertiesService.selectedGeoresource.geoJSON = geoJSON;
+											kommonitorDataExchangeService.selectedGeoresource.geoJSON = geoJSON;
 
-											kommonitorMapService.addGeoresourceGeoJSON(wpsPropertiesService.selectedGeoresource, $scope.date);
+											kommonitorMapService.addGeoresourceGeoJSON(kommonitorDataExchangeService.selectedGeoresource, $scope.date);
 											$scope.loadingData = false;
 											$rootScope.$broadcast("hideLoadingIconOnMap");
 
@@ -367,7 +367,7 @@ angular
 
 								$scope.addSelectedIndicatorToMap = function() {
 
-									kommonitorMapService.replaceIndicatorGeoJSON(wpsPropertiesService.selectedIndicator, wpsPropertiesService.selectedSpatialUnit.spatialUnitLevel, $scope.selectedDate);
+									kommonitorMapService.replaceIndicatorGeoJSON(kommonitorDataExchangeService.selectedIndicator, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, $scope.selectedDate);
 
 								};
 
@@ -383,7 +383,7 @@ angular
 									  domNode.removeChild(domNode.lastChild);
 									}
 
-									var availableDates = wpsPropertiesService.selectedIndicator.applicableDates;
+									var availableDates = kommonitorDataExchangeService.selectedIndicator.applicableDates;
 									var selectedDateIndex;
 									var timeSliderInput = [];
 
@@ -428,7 +428,7 @@ angular
 									  domNode.removeChild(domNode.lastChild);
 									}
 
-									var availableDates = wpsPropertiesService.selectedIndicator.applicableDates;
+									var availableDates = kommonitorDataExchangeService.selectedIndicator.applicableDates;
 									var lastDateIndex = availableDates.length-1;
 									var lastDate = availableDates[lastDateIndex];
 
@@ -467,7 +467,7 @@ angular
 
 								$scope.onChangeDateSliderItem = async function(dataItem, rangeslideElement){
 
-									if(!$scope.onlyRefreshingDateSliderVisuals && !$scope.changeIndicatorWasClicked && wpsPropertiesService.selectedIndicator){
+									if(!$scope.onlyRefreshingDateSliderVisuals && !$scope.changeIndicatorWasClicked && kommonitorDataExchangeService.selectedIndicator){
 										$scope.loadingData = true;
 										$rootScope.$broadcast("showLoadingIconOnMap");
 
@@ -515,29 +515,29 @@ angular
 								});
 
 								$scope.tryUpdateMeasureOfValueBarForIndicator = async function(){
-									var indicatorId = wpsPropertiesService.selectedIndicator.indicatorId;
+									var indicatorId = kommonitorDataExchangeService.selectedIndicator.indicatorId;
 
-									if(! ($scope.date && wpsPropertiesService.selectedSpatialUnit && indicatorId))
+									if(! ($scope.date && kommonitorDataExchangeService.selectedSpatialUnit && indicatorId))
 										throw Error("Not all parameters have been set up yet.");
 									//
 									// $scope.selectedDate = $scope.selectedDate;
-									$scope.spatialUnitName = wpsPropertiesService.selectedSpatialUnit.spatialUnitLevel;
+									$scope.spatialUnitName = kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel;
 
 									return await $http({
-										url: wpsPropertiesService.baseUrlToKomMonitorDataAPI + "/indicators/" + indicatorId + "/" + wpsPropertiesService.selectedSpatialUnit.spatialUnitId,
+										url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/indicators/" + indicatorId + "/" + kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitId,
 										method: "GET"
 									}).then(function successCallback(response) {
 											// this callback will be called asynchronously
 											// when the response is available
 											var geoJSON = response.data;
 
-											wpsPropertiesService.selectedIndicator.geoJSON = geoJSON;
+											kommonitorDataExchangeService.selectedIndicator.geoJSON = geoJSON;
 
 											$rootScope.$broadcast("updateMeasureOfValueBar", $scope.date);
 
 											// $scope.updateMeasureOfValueBar($scope.date);
 
-											return wpsPropertiesService.selectedIndicator;
+											return kommonitorDataExchangeService.selectedIndicator;
 
 										}, function errorCallback(response) {
 											// called asynchronously if an error occurs
@@ -545,12 +545,12 @@ angular
 											$scope.loadingData = false;
 											$rootScope.$broadcast("hideLoadingIconOnMap");
 
-											return wpsPropertiesService.selectedIndicator;
+											return kommonitorDataExchangeService.selectedIndicator;
 									});
 								};
 
 								this.onChangeSelectedSpatialUnit = async function(){
-									if(!$scope.changeIndicatorWasClicked && wpsPropertiesService.selectedIndicator){
+									if(!$scope.changeIndicatorWasClicked && kommonitorDataExchangeService.selectedIndicator){
 										$scope.loadingData = true;
 										$rootScope.$broadcast("showLoadingIconOnMap");
 
@@ -576,15 +576,15 @@ angular
 
 								$scope.onChangeSelectedIndicator = async function(){
 
-									if(wpsPropertiesService.selectedIndicator){
+									if(kommonitorDataExchangeService.selectedIndicator){
 										$scope.loadingData = true;
 										$rootScope.$broadcast("showLoadingIconOnMap");
 										$scope.changeIndicatorWasClicked = true;
 
 										$scope.setupDateSliderForIndicator();
 
-										if(!wpsPropertiesService.selectedSpatialUnit || !wpsPropertiesService.selectedIndicator.applicableSpatialUnits.includes(wpsPropertiesService.selectedSpatialUnit.spatialUnitLevel)){
-											wpsPropertiesService.selectedSpatialUnit = $scope.getFirstSpatialUnitForSelectedIndicator();
+										if(!kommonitorDataExchangeService.selectedSpatialUnit || !kommonitorDataExchangeService.selectedIndicator.applicableSpatialUnits.includes(kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel)){
+											kommonitorDataExchangeService.selectedSpatialUnit = $scope.getFirstSpatialUnitForSelectedIndicator();
 										}
 
 										try{
@@ -604,7 +604,7 @@ angular
 												$rootScope.$broadcast("hideLoadingIconOnMap");
 												$scope.changeIndicatorWasClicked = false;
 
-												// $rootScope.$broadcast("updateDiagrams", wpsPropertiesService.selectedIndicator, wpsPropertiesService.selectedSpatialUnit.spatialUnitLevel, $scope.selectedDate);
+												// $rootScope.$broadcast("updateDiagrams", kommonitorDataExchangeService.selectedIndicator, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, $scope.selectedDate);
 
 												$scope.$apply();
 
@@ -618,9 +618,9 @@ angular
 									$scope.wmsUrlForSelectedIndicator = undefined;
 									$scope.wmsUrlForSelectedIndicator = undefined;
 
-									var selectedSpatialUnitName = wpsPropertiesService.selectedSpatialUnit.spatialUnitLevel;
+									var selectedSpatialUnitName = kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel;
 
-									for(const ogcServiceEntry of wpsPropertiesService.selectedIndicator.ogcServices){
+									for(const ogcServiceEntry of kommonitorDataExchangeService.selectedIndicator.ogcServices){
 										if (ogcServiceEntry.spatialUnit === selectedSpatialUnitName){
 											$scope.wmsUrlForSelectedIndicator = ogcServiceEntry.wmsUrl;
 											$scope.wfsUrlForSelectedIndicator = ogcServiceEntry.wfsUrl;
@@ -639,9 +639,9 @@ angular
 									if(document.getElementById("downloadSelectedIndicator"))
 										document.getElementById("downloadSelectedIndicator").remove();
 
-									var geoJSON_string = JSON.stringify(wpsPropertiesService.selectedIndicator.geoJSON);
+									var geoJSON_string = JSON.stringify(kommonitorDataExchangeService.selectedIndicator.geoJSON);
 
-									var fileName = wpsPropertiesService.selectedIndicator.indicatorName + "_" + wpsPropertiesService.selectedSpatialUnit.spatialUnitLevel + "_" + $scope.selectedDate + ".geojson";
+									var fileName = kommonitorDataExchangeService.selectedIndicator.indicatorName + "_" + kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel + "_" + $scope.selectedDate + ".geojson";
 
 									var blob = new Blob([geoJSON_string], {type: "application/json"});
 									var data  = URL.createObjectURL(blob);

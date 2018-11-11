@@ -1,1 +1,1 @@
-angular.module('kommonitorIndividualIndicatorComputation', ['wpsProperties']);
+angular.module('kommonitorIndividualIndicatorComputation', ['kommonitorDataExchange']);

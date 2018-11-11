@@ -1,1 +1,1 @@
-angular.module('kommonitorDiagrams', [ 'wpsProperties']);
+angular.module('kommonitorDiagrams', [ 'kommonitorDataExchange']);

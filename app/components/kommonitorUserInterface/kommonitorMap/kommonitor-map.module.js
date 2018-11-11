@@ -1,4 +1,4 @@
-angular.module('kommonitorMap', ['wpsProperties']);
+angular.module('kommonitorMap', ['kommonitorDataExchange']);
 /**
  * a common serviceInstance that holds all needed properties and methods for
  * interacting with a map (openlayers).

@@ -1,8 +1,8 @@
 angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 	templateUrl : "components/kommonitorUserInterface/kommonitor-user-interface.template.html",
-	controller : ['wpsPropertiesService', '$scope', '$rootScope', function UserInterfaceController(wpsPropertiesService, $scope, $rootScope) {
+	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', function UserInterfaceController(kommonitorDataExchangeService, $scope, $rootScope) {
 
-		this.wpsPropertiesServiceInstance = wpsPropertiesService;
+		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
 		$scope.anySideBarIsShown = false;
 

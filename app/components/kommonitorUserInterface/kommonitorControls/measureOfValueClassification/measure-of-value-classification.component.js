@@ -8,10 +8,10 @@ angular
 					 * injected with a modules service method that manages
 					 * enabled tabs
 					 */
-					controller : ['$scope', '$rootScope', 'kommonitorMapService', 'wpsPropertiesService', function measureOfValueClassificationController($scope, $rootScope, kommonitorMapService, wpsPropertiesService) {
+					controller : ['$scope', '$rootScope', 'kommonitorMapService', 'kommonitorDataExchangeService', function measureOfValueClassificationController($scope, $rootScope, kommonitorMapService, kommonitorDataExchangeService) {
 
 							const INDICATOR_DATE_PREFIX = "DATE_";
-							this.wpsPropertiesServiceInstance = wpsPropertiesService;
+							this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 							this.kommonitorMapServiceInstance = kommonitorMapService;
 
 							$scope.minValue;
@@ -57,11 +57,11 @@ angular
 
 								//append date prefix to access correct property!
 								date = INDICATOR_DATE_PREFIX + date;
-								var geoJSON = wpsPropertiesService.selectedIndicator.geoJSON;
+								var geoJSON = kommonitorDataExchangeService.selectedIndicator.geoJSON;
 
 								var measureOfValueInput = document.getElementById("measureOfValueInput");
 
-								// <input ng-model="$ctrl.wpsPropertiesServiceInstance.measureOfValue" ng-change="$ctrl.onMeasureOfValueChange()" type="range" min="0" max="100" step="1" value="51" class="slider" id="measureOfValueInput">
+								// <input ng-model="$ctrl.kommonitorDataExchangeServiceInstance.measureOfValue" ng-change="$ctrl.onMeasureOfValueChange()" type="range" min="0" max="100" step="1" value="51" class="slider" id="measureOfValueInput">
 								var sampleFeature = geoJSON.features[0];
 								$scope.minValue = sampleFeature.properties[date];
 								$scope.maxValue = sampleFeature.properties[date];
@@ -112,7 +112,7 @@ angular
 								measureOfValueInput.setAttribute("step", $scope.step);
 								measureOfValueInput.setAttribute("value", $scope.middleValue);
 
-								wpsPropertiesService.measureOfValue = $scope.middleValue;
+								kommonitorDataExchangeService.measureOfValue = $scope.middleValue;
 
 								var measureOfValueTextInput = document.getElementById("measureOfValueTextInput");
 								measureOfValueTextInput.setAttribute("min", $scope.minValue);
@@ -126,7 +126,7 @@ angular
 
 							this.onMeasureOfValueChange = function(){
 
-								if(wpsPropertiesService.measureOfValue >= $scope.minValue && wpsPropertiesService.measureOfValue <= $scope.maxValue){
+								if(kommonitorDataExchangeService.measureOfValue >= $scope.minValue && kommonitorDataExchangeService.measureOfValue <= $scope.maxValue){
 									$scope.inputNotValid = false;
 									this.kommonitorMapServiceInstance.restyleCurrentLayer();
 								}

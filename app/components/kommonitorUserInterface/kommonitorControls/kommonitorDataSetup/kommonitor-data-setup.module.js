@@ -1,1 +1,1 @@
-angular.module('kommonitorDataSetup', ['wpsProperties', 'kommonitorMap']);
+angular.module('kommonitorDataSetup', ['kommonitorDataExchange', 'kommonitorMap']);

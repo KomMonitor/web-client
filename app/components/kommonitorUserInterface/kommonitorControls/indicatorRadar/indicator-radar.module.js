@@ -1,1 +1,1 @@
-angular.module('indicatorRadar', [ 'wpsProperties']);
+angular.module('indicatorRadar', [ 'kommonitorDataExchange']);

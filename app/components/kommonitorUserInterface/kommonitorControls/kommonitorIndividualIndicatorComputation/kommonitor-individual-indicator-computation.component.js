@@ -4,10 +4,10 @@ angular
 				'kommonitorIndividualIndicatorComputation',
 				{
 					templateUrl : "components/kommonitorUserInterface/kommonitorControls/kommonitorIndividualIndicatorComputation/kommonitor-individual-indicator-computation.template.html",
-					controller : ['wpsPropertiesService', '$scope', '$http','kommonitorMapService', function kommonitorIndividualIndicatorComputationController(
-							wpsPropertiesService, $scope, $http, kommonitorMapService) {
+					controller : ['kommonitorDataExchangeService', '$scope', '$http','kommonitorMapService', function kommonitorIndividualIndicatorComputationController(
+							kommonitorDataExchangeService, $scope, $http, kommonitorMapService) {
 
-						this.wpsPropertiesServiceInstance = wpsPropertiesService;
+						this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
 						$scope.loadingData = false;
 
@@ -262,7 +262,7 @@ angular
 						this.getScriptMetadataForIndicatorId = function(indicatorId){
 							var targetScriptMetadata;
 
-							for (const scriptElement of wpsPropertiesService.availableProcessScripts){
+							for (const scriptElement of kommonitorDataExchangeService.availableProcessScripts){
 								if (scriptElement.indicatorId === indicatorId){
 									targetScriptMetadata = scriptElement;
 									break;
@@ -295,7 +295,7 @@ angular
 
 								var applicableSpatialUnits = this.targetIndicator.applicableSpatialUnits;
 
-								for (const spatialUnitEntry of wpsPropertiesService.availableSpatialUnits){
+								for (const spatialUnitEntry of kommonitorDataExchangeService.availableSpatialUnits){
 									if(applicableSpatialUnits.includes(spatialUnitEntry.spatialUnitLevel))
 										result = spatialUnitEntry;
 										break;
@@ -316,14 +316,14 @@ angular
 						};
 
 						this.fetchBaseIndicatorMetadata = function(baseIndicatorId){
-							for (const indicatorMetadata of wpsPropertiesService.availableIndicators){
+							for (const indicatorMetadata of kommonitorDataExchangeService.availableIndicators){
 								if(indicatorMetadata.indicatorId === baseIndicatorId)
 									return indicatorMetadata;
 							}
 						}
 
 						this.fetchGeoresourceMetadata = function(georesourceId){
-							for (const georesourceMetadata of wpsPropertiesService.availableGeoresources){
+							for (const georesourceMetadata of kommonitorDataExchangeService.availableGeoresources){
 								if(georesourceMetadata.datasetId === georesourceId)
 									return georesourceMetadata;
 							}
