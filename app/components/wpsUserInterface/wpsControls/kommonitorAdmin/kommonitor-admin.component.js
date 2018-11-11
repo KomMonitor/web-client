@@ -1,10 +1,10 @@
 angular
-		.module('wpsCapabilities')
+		.module('kommonitorAdmin')
 		.component(
-				'wpsCapabilities',
+				'kommonitorAdmin',
 				{
-					templateUrl : "components/wpsUserInterface/wpsControls/wpsCapabilities/wps-capabilities.template.html",
-					controller : ['wpsPropertiesService', function WpsCapabilitiesController(
+					templateUrl : "components/wpsUserInterface/wpsControls/kommonitorAdmin/kommonitor-admin.template.html",
+					controller : ['wpsPropertiesService', function kommonitorAdminController(
 							wpsPropertiesService) {
 
 								this.selectedResourceType = 'spatialUnits';
