@@ -1,13 +1,13 @@
 angular
-		.module('wpsExecuteStatusInfoDocumentWps2')
+		.module('indicatorRadar')
 		.component(
-				'wpsExecuteStatusInfoDocumentWps2',
+				'indicatorRadar',
 				{
-					templateUrl : "components/wpsUserInterface/wpsControls/wpsExecute/wpsExecuteStatusInfoDocument_WPS_2_0/wps-execute-status-info-document-wps-2-0.template.html",
+					templateUrl : "components/wpsUserInterface/wpsControls/indicatorRadar/indicator-radar.template.html",
 
 					controller : [
 							'wpsPropertiesService', '$scope', '$http',
-							function WpsExecuteStatusInfoDocumentWps2Controller(
+							function indicatorRadarController(
 									wpsPropertiesService, $scope, $http) {
 								/*
 								 * reference to wpsPropertiesService instances
