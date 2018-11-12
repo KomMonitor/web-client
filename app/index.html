@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" ng-app="wpsClient" style="height: 100%;">
+<html lang="en" ng-app="kommonitorClient" style="height: 100%;">
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -14,6 +14,7 @@
         <link href="bower_components/leaflet/leaflet.css" rel="stylesheet" type="text/css"/>
         <link href="lib/Leaflet.StyledLayerControl-master/css/styledLayerControl.css" rel="stylesheet" type="text/css"/>
         <link href="lib/rangeslide.js-master/dist/rangeslide.min.css" rel="stylesheet" type="text/css"/>
+        <link href="lib/fontawesome-free-5.5.0/css/all.min.css" rel="stylesheet" type="text/css"/>
         <!-- <link href="lib/leaflet-dvf-0.3.1/dist/css/dvf.css" rel="stylesheet" type="text/css"/> -->
         <!-- <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" /> -->
         <link rel="stylesheet" href="bower_components/leaflet-draw/dist/leaflet.draw.css">
@@ -35,7 +36,7 @@
   <![endif]-->
 
         <!-- embed the user interface via angular -->
-    <wps-user-interface></wps-user-interface>
+    <kommonitor-user-interface></kommonitor-user-interface>
 
     <!-- build:js js/deps.wps-js-client.min.js -->
     <!-- start lib script tags -->
@@ -71,72 +72,25 @@
 
     <!-- build:js wps-js-client-all.min.js -->
     <!-- start client script tags -->
-    <script src="util/genericServices/wpsFormControlService/wps-form-control.module.js" type="text/javascript"></script>
-    <script src="util/genericServices/wpsExecuteInputService/wps-execute-input.module.js" type="text/javascript"></script>
-    <script src="util/genericServices/wpsExecuteOutputService/wps-execute-output.module.js" type="text/javascript"></script>
-    <script src="util/genericServices/wpsService/wps-properties.module.js" type="text/javascript"></script>
-    <script src="util/genericServices/wpsInputOutputFilterService/wps-input-output-filter.module.js" type="text/javascript"></script>
-    <script src="util/genericServices/wpsGeometricOutputService/wps-geometric-output.module.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wps-controls.module.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wps-controls.component.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsSetup/wps-setup.module.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsSetup/wps-setup.component.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsSetup/modal/wps-add-service-modal.module.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsSetup/modal/wps-add-service-modal.component.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsSetup/wpsChangeLanguage/wps-change-language.module.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsSetup/wpsChangeLanguage/wps-change-language.component.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsCapabilities/wps-capabilities.module.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsCapabilities/wps-capabilities.component.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsCapabilities/wpsCapabilitiesServiceIdentification/wps-capabilities-service-identification.module.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsCapabilities/wpsCapabilitiesServiceIdentification/wps-capabilities-service-identification.component.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsCapabilities/wpsCapabilitiesServiceProvider/wps-capabilities-service-provider.module.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsCapabilities/wpsCapabilitiesServiceProvider/wps-capabilities-service-provider.component.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsCapabilities/wpsCapabilitiesServiceOperations/wps-capabilities-service-operations.module.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsCapabilities/wpsCapabilitiesServiceOperations/wps-capabilities-service-operations.component.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsProcesses/wps-processes.module.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsProcesses/wps-processes.component.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsProcesses/wpsProcessDescription/wps-process-description.module.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsProcesses/wpsProcessDescription/wps-process-description.component.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsProcesses/wpsProcessDescription/wpsGeneralProcessInformation/wps-general-process-information.module.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsProcesses/wpsProcessDescription/wpsGeneralProcessInformation/wps-general-process-information.component.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsProcesses/wpsProcessDescription/wpsProcessInputs/wps-process-inputs.module.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsProcesses/wpsProcessDescription/wpsProcessInputs/wps-process-inputs.component.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsProcesses/wpsProcessDescription/wpsProcessInputs/wpsLiteralInputs/wps-literal-inputs.module.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsProcesses/wpsProcessDescription/wpsProcessInputs/wpsLiteralInputs/wps-literal-inputs.component.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsProcesses/wpsProcessDescription/wpsProcessInputs/wpsComplexInputs/wps-complex-inputs.module.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsProcesses/wpsProcessDescription/wpsProcessInputs/wpsComplexInputs/wps-complex-inputs.component.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsProcesses/wpsProcessDescription/wpsProcessInputs/wpsBoundingBoxInputs/wps-bounding-box-inputs.module.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsProcesses/wpsProcessDescription/wpsProcessInputs/wpsBoundingBoxInputs/wps-bounding-box-inputs.component.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsProcesses/wpsProcessDescription/wpsProcessOutputs/wps-process-outputs.module.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsProcesses/wpsProcessDescription/wpsProcessOutputs/wps-process-outputs.component.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsProcesses/wpsProcessDescription/wpsProcessOutputs/wpsLiteralOutputs/wps-literal-outputs.module.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsProcesses/wpsProcessDescription/wpsProcessOutputs/wpsLiteralOutputs/wps-literal-outputs.component.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsProcesses/wpsProcessDescription/wpsProcessOutputs/wpsComplexOutputs/wps-complex-outputs.module.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsProcesses/wpsProcessDescription/wpsProcessOutputs/wpsComplexOutputs/wps-complex-outputs.component.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsProcesses/wpsProcessDescription/wpsProcessOutputs/wpsBoundingBoxOutputs/wps-bounding-box-outputs.module.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsProcesses/wpsProcessDescription/wpsProcessOutputs/wpsBoundingBoxOutputs/wps-bounding-box-outputs.component.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsExecute/wps-execute.module.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsExecute/wps-execute.component.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsExecute/wpsExecuteSetupRequest/wps-execute-setup-request.module.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsExecute/wpsExecuteSetupRequest/wps-execute-setup-request.component.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsExecute/wpsExecuteSetupRequest/wpsExecuteSetupInputs/wps-execute-setup-inputs.module.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsExecute/wpsExecuteSetupRequest/wpsExecuteSetupInputs/wps-execute-setup-inputs.component.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsExecute/wpsExecuteSetupRequest/wpsExecuteSetupOutputs/wps-execute-setup-outputs.module.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsExecute/wpsExecuteSetupRequest/wpsExecuteSetupOutputs/wps-execute-setup-outputs.component.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsExecute/wpsExecuteSetupRequest/wpsExecuteSetupParameters/wps-execute-setup-parameters.module.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsExecute/wpsExecuteSetupRequest/wpsExecuteSetupParameters/wps-execute-setup-parameters.component.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsExecute/wpsExecuteResultDocument_WPS_2_0/wps-execute-result-document-wps-2-0.module.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsExecute/wpsExecuteResultDocument_WPS_2_0/wps-execute-result-document-wps-2-0.component.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsExecute/wpsExecuteStatusInfoDocument_WPS_2_0/wps-execute-status-info-document-wps-2-0.module.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsExecute/wpsExecuteStatusInfoDocument_WPS_2_0/wps-execute-status-info-document-wps-2-0.component.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsExecute/wpsExecuteResponseDocument_WPS_1_0/wps-execute-response-document-wps-1-0.module.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsExecute/wpsExecuteResponseDocument_WPS_1_0/wps-execute-response-document-wps-1-0.component.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsExecute/wpsExecuteRawOutput/wps-execute-raw-output.module.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsControls/wpsExecute/wpsExecuteRawOutput/wps-execute-raw-output.component.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsMap/wps-map.module.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wpsMap/wps-map.component.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wps-user-interface.module.js" type="text/javascript"></script>
-    <script src="components/wpsUserInterface/wps-user-interface.component.js" type="text/javascript"></script>
+    <script src="util/genericServices/kommonitorDataExchangeService/kommonitor-data-exchange-service.module.js" type="text/javascript"></script>
+    <script src="components/kommonitorUserInterface/kommonitorControls/kommonitorDataSetup/kommonitor-data-setup.module.js" type="text/javascript"></script>
+    <script src="components/kommonitorUserInterface/kommonitorControls/kommonitorDataSetup/kommonitor-data-setup.component.js" type="text/javascript"></script>
+    <script src="components/kommonitorUserInterface/kommonitorControls/measureOfValueClassification/measure-of-value-classification.module.js" type="text/javascript"></script>
+    <script src="components/kommonitorUserInterface/kommonitorControls/measureOfValueClassification/measure-of-value-classification.component.js" type="text/javascript"></script>
+    <script src="components/kommonitorUserInterface/kommonitorControls/kommonitorAdmin/kommonitor-admin.module.js" type="text/javascript"></script>
+    <script src="components/kommonitorUserInterface/kommonitorControls/kommonitorAdmin/kommonitor-admin.component.js" type="text/javascript"></script>
+    <script src="components/kommonitorUserInterface/kommonitorControls/kommonitorIndividualIndicatorComputation/kommonitor-individual-indicator-computation.module.js" type="text/javascript"></script>
+    <script src="components/kommonitorUserInterface/kommonitorControls/kommonitorIndividualIndicatorComputation/kommonitor-individual-indicator-computation.component.js" type="text/javascript"></script>
+    <script src="components/kommonitorUserInterface/kommonitorControls/kommonitorDiagrams/kommonitor-diagrams.module.js" type="text/javascript"></script>
+    <script src="components/kommonitorUserInterface/kommonitorControls/kommonitorDiagrams/kommonitor-diagrams.component.js" type="text/javascript"></script>
+    <script src="components/kommonitorUserInterface/kommonitorControls/indicatorRadar/indicator-radar.module.js" type="text/javascript"></script>
+    <script src="components/kommonitorUserInterface/kommonitorControls/indicatorRadar/indicator-radar.component.js" type="text/javascript"></script>
+    <script src="components/kommonitorUserInterface/kommonitorControls/regressionDiagram/regression-diagram.module.js" type="text/javascript"></script>
+    <script src="components/kommonitorUserInterface/kommonitorControls/regressionDiagram/regression-diagram.component.js" type="text/javascript"></script>
+    <script src="components/kommonitorUserInterface/kommonitorMap/kommonitor-map.module.js" type="text/javascript"></script>
+    <script src="components/kommonitorUserInterface/kommonitorMap/kommonitor-map.component.js" type="text/javascript"></script>
+    <script src="components/kommonitorUserInterface/kommonitor-user-interface.module.js" type="text/javascript"></script>
+    <script src="components/kommonitorUserInterface/kommonitor-user-interface.component.js" type="text/javascript"></script>
     <script src="app.js" type="text/javascript"></script>
     <!-- end client script tags -->
     <!-- /build -->

@@ -1,0 +1,21 @@
+<div align="center" id="indicatorDiagrams">
+	<!-- DIAGRAMS which will be automatically updated on changed indicator -->
+	<!-- preparing a DOM with width and height for ECharts -->
+
+	<div id="histogramDiagram" style="width:750px; height:250px;"></div>
+
+	<div ng-show="isTooManyFeatures">
+		<br/>
+		<br/>
+		<br/>
+		<h4>gew&auml;hlte Raumebene enth&auml;lt zu viele Features. Balkendiagramm kann nicht dargestellt werden.</h4>
+		<br/>
+		<br/>
+		<br/>
+	</div>
+
+		<div ng-show="!isTooManyFeatures" id="barDiagram" style="width:750px; height:300px;"></div>
+
+		<div id="lineDiagram" style="width:750px; height:250px;"></div>
+
+</div>

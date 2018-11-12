@@ -1,0 +1,118 @@
+<!-- <div class="container-fluid"> -->
+
+	<div class="wrapper">
+
+    <!-- Sidebar -->
+    <nav id="sidebarIndicatorConfig" ng-class="sidebarIndicatorConfigClass">
+        <kommonitor-data-setup></kommonitor-data-setup>
+    </nav>
+
+		<nav id="sidebarMeasureOfValueClassification" ng-class="sidebarMeasureOfValueClassificationClass">
+        <measure-of-value-classification></measure-of-value-classification>
+    </nav>
+
+		<nav id="sidebarDiagrams" ng-class="sidebarDiagramsClass">
+        <kommonitor-diagrams></kommonitor-diagrams>
+    </nav>
+
+		<nav id="sidebarRadarDiagram" ng-class="sidebarRadarDiagramClass">
+        <indicator-radar></indicator-radar>
+    </nav>
+
+		<nav id="sidebarRegressionDiagram" ng-class="sidebarRegressionDiagramClass">
+        <regression-diagram></regression-diagram>
+    </nav>
+
+		<nav id="sidebarProcessing" ng-class="sidebarProcessingClass">
+        <kommonitor-individual-indicator-computation></kommonitor-individual-indicator-computation>
+    </nav>
+
+    <!-- Page Content -->
+    <div id="content" style="height: 100%; width: 100%; position: relative;">
+
+			<header id="header" >
+
+				<div  style="position:absolute; left:50%; right:50%;">
+					<h4 >KomMonitor</h4>
+				</div>
+
+				<div style="margin-left: 10px; margin-top: 7px;">
+					<img src="/logos/transparent/hsbo.png" style="float: left; width: 145px; height: 35px; margin-right: 0.5%;">
+					<img src="/logos/transparent/rub.png" style="float: left; width: 35px; height: 35px; margin-right: 0.5%;">
+					<img src="/logos/transparent/inwis.png" style="float: left; width: 102px; height: 35px; margin-right: 0.5%;">
+					<img src="/logos/transparent/essen.png" style="float: left; width: 35px; height: 35px; margin-right: 0.5%;">
+					<img src="/logos/transparent/muelheim.png" style="float: left; width: 70px; height: 35px; margin-right: 0.5%;">
+					<p style="clear: both;">
+
+				</div>
+
+			</header>
+
+        <kommonitor-map style="height: 100%; width: 100%; position: absolute; z-index: 1;"></kommonitor-map>
+
+				<!-- LEFT-HANDED SIDEBAR BUTTONS -->
+
+				<button type="button" style="top: 200px;" id="sidebarIndicatorConfigCollapse"
+					ng-click="onSidebarIndicatorButtonClick()" ng-class="buttonIndicatorConfigClass" data-toggle="tooltip" title="Indikatorenauswahl">
+						<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
+						<i style="font-size:1.8em;" class="fas fa-sitemap"></i>
+				</button>
+
+				<button type="button" style="top: 275px;" id="sidebarMeasureOfValueClassificationCollapse"
+					ng-click="onSidebarMeasureOfValueClassificationButtonClick()" ng-class="buttonMeasureOfValueClassificationClass" data-toggle="tooltip" title="Klassifizierung mittels Schwellwert">
+						<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-sort" aria-hidden="true"></span> -->
+						<i style="font-size:1.8em;" class="fas fa-tint-slash"></i>
+				</button>
+
+				<button type="button" style="top: 425px;" id="sidebarDiagramsCollapse"
+					ng-click="onSidebarDiagramsClick()" ng-class="buttonDiagramsClass" data-toggle="tooltip" title="statistische Diagramme">
+						<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-stats" aria-hidden="true"></span> -->
+						<i style="font-size:1.8em;" class="fas fa-chart-line"></i>
+				</button>
+
+				<button type="button" style="top: 500px;" id="sidebarRadarDiagramCollapse"
+					ng-click="onSidebarRadarDiagramClick()" ng-class="buttonRadarDiagramClass" data-toggle="tooltip" title="Indikatorenradar">
+						<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-star-empty" aria-hidden="true"></span> -->
+						<img src="/iconsFromPngTree/radarMap.svg"></img>
+				</button>
+
+				<button type="button" style="top: 575px;" id="sidebarRegressionDiagramCollapse"
+					ng-click="onSidebarRegressionDiagramClick()" ng-class="buttonRegressionDiagramClass" data-toggle="tooltip" title="Regressionsdiagramm">
+						<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-star-empty" aria-hidden="true"></span> -->
+						<img src="/iconsFromPngTree/scatterPlot.svg"></img>
+				</button>
+
+				<button type="button" style="top: 725px;" id="sidebarProcessingCollapse"
+					ng-click="onSidebarProcessingClick()" ng-class="buttonProcessingClass" data-toggle="tooltip" title="Individuelle Indikatorenberechnung">
+					<i style="font-size:1.8em;" class="fas fa-sliders-h"></i>
+						<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-wrench" aria-hidden="true"></span> -->
+				</button>
+
+				<!-- MAP UTIL BUTTONS -->
+
+				<button type="button" style="top: 70px; left:75px;" id="recenterMapButton"
+					ng-click="onRecenterMapButtonClick()" class="btn btn-custom btn-circle" data-toggle="tooltip" title="Karte zentrieren">
+						<span style="font-size:1.8em;" class="glyphicon glyphicon-globe" aria-hidden="true"></span>
+				</button>
+
+				<button type="button" style="top: 70px; left:150px;" id="unselectFeaturesButton"
+					ng-click="onUnselectFeaturesButtonClick()" class="btn btn-custom btn-circle" data-toggle="tooltip" title="Feature-Selektion aufheben">
+						<span style="font-size:1.8em;" class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span>
+				</button>
+
+    </div>
+
+	</div>
+
+	<!-- <div class="row wps-ui"> -->
+
+		<!-- embed map component -->
+		<!-- <kommonitor-map class="col-sm-7" style="height: 100%;"></kommonitor-map> -->
+
+		<!-- <div class="col-sm-5 sidenav"> -->
+			<!-- embed the control options  -->
+			<!-- <wps-controls></wps-controls>
+		</div>
+	</div> -->
+
+<!-- </div> -->

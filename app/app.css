@@ -23,8 +23,17 @@
 	}
 }
 
+#header{
+	background: #E6EEFB;
+	z-index: 2000;
+}
+
+#content{
+	background: #E6EEFB;
+}
+
 #map {
-	height: 98vh;
+	height: 94.5vh;
 	position: relative;
 	z-index: 1;
 }
@@ -37,7 +46,7 @@
 
 #dateSlider{
 	position: absolute;
-  bottom: 30px;
+  bottom: 50px;
   margin-right: auto;
   margin-left: auto;
   left: 90px;
@@ -156,6 +165,382 @@
     opacity: 0.7;
 }
 
+#radarInputForm {
+	height: auto !important;
+	max-height: 300px;
+  overflow-y: scroll;
+}
+
+
+.wrapper {
+    display: flex;
+		align-items: stretch;
+    width: 100%;
+		perspective: 1500px;
+}
+
+#sidebarIndicatorConfig {
+    min-width: 770px;
+    max-width: 770px;
+		min-height: 100vh;
+		background: #E6EEFB;
+		transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
+    transform-origin: center left; /* Set the transformed position of sidebar to center left side. */
+}
+
+#sidebarIndicatorConfig.hidden {
+    /* margin-left: -770px; */
+		transform: rotateY(100deg); /* Rotate sidebar vertically by 100 degrees. */
+}
+
+#sidebarMeasureOfValueClassification {
+    min-width: 770px;
+    max-width: 770px;
+		min-height: 100vh;
+		background: #E6EEFB;
+		transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
+    transform-origin: center left; /* Set the transformed position of sidebar to center left side. */
+}
+
+#sidebarMeasureOfValueClassification.hidden {
+    /* margin-left: -770px; */
+		transform: rotateY(100deg); /* Rotate sidebar vertically by 100 degrees. */
+}
+
+#sidebarDiagrams {
+    min-width: 770px;
+    max-width: 770px;
+		min-height: 100vh;
+		background: #E6EEFB;
+		transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
+    transform-origin: center left; /* Set the transformed position of sidebar to center left side. */
+}
+
+#sidebarDiagrams.hidden {
+    /* margin-left: -770px; */
+		transform: rotateY(100deg); /* Rotate sidebar vertically by 100 degrees. */
+}
+
+#sidebarRadarDiagram {
+    min-width: 770px;
+    max-width: 770px;
+		min-height: 100vh;
+		background: #E6EEFB;
+		transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
+    transform-origin: center left; /* Set the transformed position of sidebar to center left side. */
+}
+
+#sidebarRadarDiagram.hidden {
+    /* margin-left: -770px; */
+		transform: rotateY(100deg); /* Rotate sidebar vertically by 100 degrees. */
+}
+
+#sidebarRegressionDiagram {
+    min-width: 770px;
+    max-width: 770px;
+		min-height: 100vh;
+		background: #E6EEFB;
+		transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
+    transform-origin: center left; /* Set the transformed position of sidebar to center left side. */
+}
+
+#sidebarRegressionDiagram.hidden {
+    /* margin-left: -770px; */
+		transform: rotateY(100deg); /* Rotate sidebar vertically by 100 degrees. */
+}
+
+#sidebarProcessing {
+    min-width: 770px;
+    max-width: 770px;
+		min-height: 100vh;
+		background: #E6EEFB;
+		transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
+    transform-origin: center left; /* Set the transformed position of sidebar to center left side. */
+}
+
+#sidebarProcessing.hidden {
+    /* margin-left: -770px; */
+		transform: rotateY(100deg); /* Rotate sidebar vertically by 100 degrees. */
+}
+
+@media (max-width: 768px) {
+    #sidebarIndicatorConfig {
+        /* margin-left: -770px; */
+				transform: rotateY(100deg);
+    }
+    #sidebarIndicatorConfig.hidden {
+        margin-left: 0;
+				transform: none;
+    }
+
+		#sidebarMeasureOfValueClassification {
+        /* margin-left: -770px; */
+				transform: rotateY(100deg);
+    }
+    #sidebarMeasureOfValueClassification.hidden {
+        margin-left: 0;
+				transform: none;
+    }
+
+		#sidebarDiagrams {
+        /* margin-left: -770px; */
+				transform: rotateY(100deg);
+    }
+    #sidebarDiagrams.hidden {
+        margin-left: 0;
+    }
+
+		#sidebarRadarDiagram {
+        /* margin-left: -770px; */
+				transform: rotateY(100deg);
+    }
+    #sidebarRadarDiagram.hidden {
+        margin-left: 0;
+    }
+
+		#sidebarRegressionDiagram {
+        /* margin-left: -770px; */
+				transform: rotateY(100deg);
+    }
+    #sidebarRegressionDiagram.hidden {
+        margin-left: 0;
+    }
+
+		#sidebarProcessing {
+        /* margin-left: -770px; */
+				transform: rotateY(100deg);
+    }
+    #sidebarProcessing.hidden {
+        margin-left: 0;
+    }
+}
+
+#indicatorSetup{
+	margin-left: 15px;
+	margin-right: 15px;
+	margin-top: 20px;
+	z-index: 2000;
+}
+
+#indicatorMeasureOfValueClassification{
+	margin-left: 50px;
+	margin-right: 50px;
+	margin-top: 60px;
+	z-index: 2000;
+}
+
+#indicatorProcessing{
+	margin-left: 35px;
+	margin-right: 35px;
+	margin-top: 60px;
+	z-index: 2000;
+}
+
+#indicatorRadar{
+	margin-left: 5px;
+	margin-right: 5px;
+	margin-top: 60px;
+	z-index: 2000;
+}
+
+#regressionDiagram{
+	margin-left: 5px;
+	margin-right: 5px;
+	margin-top: 60px;
+	z-index: 2000;
+}
+
+#indicatorDiagrams{
+	margin-left: 5px;
+	margin-right: 5px;
+	margin-top: 60px;
+	z-index: 2000;
+}
+
+.btn-circle {
+  width: 50px;
+  height: 50px;
+  text-align: center;
+  padding: 6px 0;
+  font-size: 12px;
+  line-height: 1.42;
+  border-radius: 25px;
+	left: 10px;
+}
+
+.btn-docked {
+	position: absolute;
+  left: 0px;
+  transition: 0.3s;
+  padding: 15px;
+  width: 100px;
+  text-decoration: none;
+  font-size: 20px;
+  color: white;
+  border-radius: 0 5px 5px 0;
+}
+
+.btn-custom {
+	background-color: #337ab7;
+  color: white;
+	position: absolute;
+	z-index: 1000;
+}
+
+.btn-custom img {
+	filter: invert(1);
+	width:25px;
+	height:25px;
+}
+
+.btn-custom:hover {
+	background-color: white;
+  color: black;
+  border: 2px solid #337ab7;
+	position: absolute;
+	z-index: 1000;
+}
+
+.btn-custom:hover img{
+	filter: invert(0);
+	width:25px;
+	height:25px;
+}
+
+.btn-leaflet-custom{
+	background-color: #f0f0f0;
+  color: black;
+	position: absolute;
+	z-index: 1000;
+}
+
+.btn-leaflet-custom:hover {
+	background-color: white;
+  color: black;
+  border: 2px solid #f0f0f0;
+	position: absolute;
+	z-index: 1000;
+}
+
+/* CUSTOM RANGE SLIDER  */
+input[type=range] {
+  -webkit-appearance: none; /* Hides the slider so that custom slider can be made */
+  width: 100%; /* Specific width is required for Firefox. */
+  background: transparent; /* Otherwise white in Chrome */
+}
+
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+}
+
+input[type=range]:focus {
+  outline: none; /* Removes the blue border. You should probably do some kind of focus styling for accessibility reasons though. */
+}
+
+input[type=range]::-ms-track {
+  width: 100%;
+  cursor: pointer;
+
+  /* Hides the slider so custom styles can be added */
+  background: transparent;
+  border-color: transparent;
+  color: transparent;
+}
+
+/* Special styling for WebKit/Blink */
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  border: 1px solid #000000;
+  height: 36px;
+  width: 16px;
+  border-radius: 3px;
+  background: #ffffff;
+  cursor: pointer;
+  margin-top: -14px; /* You need to specify a margin in Chrome, but in Firefox and IE it is automatic */
+  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d; /* Add cool effects to your sliders! */
+}
+
+/* All the same stuff for Firefox */
+input[type=range]::-moz-range-thumb {
+  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+  border: 1px solid #000000;
+  height: 36px;
+  width: 16px;
+  border-radius: 3px;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+/* All the same stuff for IE */
+input[type=range]::-ms-thumb {
+  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+  border: 1px solid #000000;
+  height: 36px;
+  width: 16px;
+  border-radius: 3px;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+input[type=range]::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 8.4px;
+  cursor: pointer;
+  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+  background: #337ab7;
+  border-radius: 1.3px;
+  border: 0.2px solid #010101;
+}
+
+input[type=range]:focus::-webkit-slider-runnable-track {
+  background: #367ebd;
+}
+
+input[type=range]::-moz-range-track {
+  width: 100%;
+  height: 8.4px;
+  cursor: pointer;
+  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+  background: #337ab7;
+  border-radius: 1.3px;
+  border: 0.2px solid #010101;
+}
+
+input[type=range]::-ms-track {
+  width: 100%;
+  height: 8.4px;
+  cursor: pointer;
+  background: transparent;
+  border-color: transparent;
+  border-width: 16px 0;
+  color: transparent;
+}
+input[type=range]::-ms-fill-lower {
+  background: #2a6495;
+  border: 0.2px solid #010101;
+  border-radius: 2.6px;
+  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+}
+input[type=range]:focus::-ms-fill-lower {
+  background: #337ab7;
+}
+input[type=range]::-ms-fill-upper {
+  background: #337ab7;
+  border: 0.2px solid #010101;
+  border-radius: 2.6px;
+  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+}
+input[type=range]:focus::-ms-fill-upper {
+  background: #367ebd;
+}
+
+
+
+
+
+
+
+
 
 
 
@@ -256,7 +641,7 @@ hr {
   left: 0;
   border-radius: 5px;
   opacity: 0.8;
-  z-index: 1;
+  z-index: 2001;
 }
 
 .loading-overlay .icon-spin {

@@ -1,0 +1,68 @@
+<div id="indicatorMeasureOfValueClassification">
+
+		<div align="center">
+			<h4><strong>Dynamische Schwellwertklassifizierung</strong></h4>
+		</div>
+
+		<div align="justify">
+			<p>Dieses Tool bietet eine spezielle Form der Klassifizierung der dargestellten r&auml;mlichen Features. Mit Hilfe eines Schwellwertes werden die Features zun&auml;chst in zwei Kategorien unterteilt:</p>
+			<ul>
+				<li>Features, deren Indikatorwert unter dem Schwellwert liegt (Violett-T&ouml;ne)</li>
+				<li>Features, deren Indikatorwert &uuml;ber dem Schwellwert liegt (Orange-T&ouml;ne)</li>
+			</ul>
+			<p>Jedes Feature wird anschließend gem&auml;&szlig; seiner Kategorie in eine von drei Abstufungen klassifiziert und eingef&auml;rbt. Zum Aktivieren/Deaktivieren der Schwellwertklassifizierung bitte die unten stehende Checkbox nutzen.</p>
+		</div>
+
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+
+		<div align="center" class="form-group" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator">
+
+			<input id="measureOfValueCheckbox" type="checkbox" ng-change="$ctrl.onChangeUseMeasureOfValue()" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked" ng-checked="$ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked"><strong>Schwellwertklassifizierung aktivieren/deaktivieren</strong></input>
+
+			<div ng-show="$ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked">
+
+
+				<p>Verschieben des Schwellwertes klassifiziert die dargestellten Indikatoren-Features unmittelbar neu. Die gew&auml;hlte Raumebene muss dabei mindestens 10 Features aufweisen, damit eine sinnvolle Klassifizierung vorgenommen werden kann.</p>
+
+				<p></p>
+
+				<div class="slidecontainer" style="position:relative">
+					<input ng-model="$ctrl.kommonitorDataExchangeServiceInstance.measureOfValue" ng-change="$ctrl.onMeasureOfValueChange()" type="range" min="0" max="100" step="1" value="51" class="slider" id="measureOfValueInput">
+
+					<div style="position:absolute; left:10px">
+						<label>Minimum: {{minValue}}</label>
+					</div>
+					<div style="position:absolute; right:10px">
+						<label>Maximum: {{maxValue}}</label>
+					</div>
+					<!-- <input ng-model="$ctrl.kommonitorDataExchangeServiceInstance.measureOfValue" type="number" style="width:100px;" class="form-control" id="measureOfValueTextInput">
+					<br/>
+					<p>Schwellwert: {{$ctrl.kommonitorDataExchangeServiceInstance.measureOfValue}}</p> -->
+				</div>
+				<div align="center">
+					<br/>
+					<label>Schwellwert: </label><input ng-model="$ctrl.kommonitorDataExchangeServiceInstance.measureOfValue" ng-change="$ctrl.onMeasureOfValueChange()" string-to-number type="number" style="width:175px;" class="form-control" id="measureOfValueTextInput">
+					<br/>
+					<div ng-show="inputNotValid">
+						<p>Schwellwert: {{$ctrl.kommonitorDataExchangeServiceInstance.measureOfValue}}</p>
+					</div>
+
+					<div ng-show="inputNotValid"
+						class="alert alert-danger">
+						<strong>Eingegebener Schwellwert ist nicht g&uuml;ltig!</strong>
+						<p></p>
+						<p>
+							<strong>Hinweis: </strong>Der Wert muss zwischen {{minValue}} und {{maxValue}} liegen.
+						</p>
+					</div>
+
+				</div>
+
+			</div>
+
+	</div>
+
+</div>

@@ -1,0 +1,1 @@
+angular.module('indicatorRadar', [ 'kommonitorDataExchange']);
