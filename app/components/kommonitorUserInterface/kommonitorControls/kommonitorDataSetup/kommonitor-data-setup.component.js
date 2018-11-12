@@ -436,6 +436,7 @@ angular
 
 									$scope.selectedDate = lastDate;
 									$scope.date = lastDate;
+									kommonitorDataExchangeService.selectedDate = lastDate;
 
 									availableDates.forEach(function(date){
 										var dateItem = {};
@@ -475,6 +476,7 @@ angular
 
 										$scope.selectedDate = dataItem.key;
 										$scope.date = dataItem.key;
+										kommonitorDataExchangeService.selectedDate = dataItem.key;
 
 										try{
 											var selectedIndicator = await $scope.tryUpdateMeasureOfValueBarForIndicator();

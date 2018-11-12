@@ -32,6 +32,7 @@ angular
 					this.availableSpatialUnits;
 
 					this.selectedSpatialUnit;
+					this.selectedDate;
 
 					this.setSpatialUnits = function(spatialUnitsArray){
 						this.availableSpatialUnits = spatialUnitsArray;
@@ -61,6 +62,9 @@ angular
 					this.selectedIndicatorLegendURL;
 
 					this.measureOfValue = 51;
+
+					// an array of only the properties and metadata of all indicatorFeatures
+					this.allIndicatorPropertiesForCurrentSpatialUnitAndTime;
 
 					this.setIndicators = function(indicatorsArray){
 						this.availableIndicators = indicatorsArray;

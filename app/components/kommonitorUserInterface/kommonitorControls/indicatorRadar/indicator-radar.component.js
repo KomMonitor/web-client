@@ -59,6 +59,7 @@ angular
 									// fetch properties of all indicators for targetSpatialunit and date
 									try{
 										$scope.selectableIndicatorsForRadar = await fetchAllIndicatorProperties(spatialUnitId, date);
+										kommonitorDataExchangeService.allIndicatorPropertiesForCurrentSpatialUnitAndTime = $scope.selectableIndicatorsForRadar;
 										buildCheckboxForm($scope.selectableIndicatorsForRadar);
 									}
 									catch(error){
