@@ -16,7 +16,7 @@
 					<div text-align="center" align="center" class="hiddenTableContent">
 						<label>X-Achse</label>
 							<select
-								size="12" ng-model="selectedIndicatorForXAxis" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators"
+								size="8" ng-model="selectedIndicatorForXAxis" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators"
 								ng-change="onChangeSelectedIndicators()" class="form-control" required>
 								<option disabled selected value> -- Indikator f&uuml;r X-Achse w&auml;hlen -- </option>
 							</select>
@@ -30,7 +30,7 @@
 					<div text-align="center" align="center" class="hiddenTableContent">
 						<label>Y-Achse</label>
 							<select
-								size="12" ng-model="selectedIndicatorForYAxis" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators"
+								size="8" ng-model="selectedIndicatorForYAxis" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators"
 								ng-change="onChangeSelectedIndicators()" class="form-control" required>
 								<option disabled selected value> -- Indikator f&uuml;r Y-Achse w&auml;hlen -- </option>
 							</select>
@@ -43,7 +43,7 @@
 
 
 
-			<div id="regressionDiagram" style="width:700px; height:600px;"></div>
+			<div id="regressionDiagram" style="width:700px; height:500px;"></div>
 
 			<h4>Korrelationskoeffizient: {{correlation}}</h4>
 
