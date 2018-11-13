@@ -23,6 +23,8 @@ angular
 								$scope.linearRegression;
 								$scope.regressionOption;
 								$scope.regressionChart;
+								$scope.data;
+								$scope.dataWithLabels;
 
 								$scope.sortedIndicatorProps;
 
@@ -55,6 +57,8 @@ angular
 									$scope.linearRegression = undefined;
 									$scope.regressionOption = undefined;
 									$scope.sortedIndicatorProps = undefined;
+									$scope.data = undefined;
+									$scope.dataWithLabels = undefined;
 									$scope.spatialUnitName = spatialUnitName;
 
 								});
@@ -91,7 +95,8 @@ angular
 								};
 
 								$scope.buildDataArrayForSelectedIndicators = function(){
-									var data = new Array();
+									$scope.data = new Array();
+									$scope.dataWithLabels = new Array();
 
 									var indicatorPropertiesArrayForXAxis = $scope.getPropertiesForIndicatorName($scope.selectedIndicatorForXAxis.indicatorName);
 									var indicatorPropertiesArrayForYAxis = $scope.getPropertiesForIndicatorName($scope.selectedIndicatorForYAxis.indicatorName);
@@ -101,10 +106,16 @@ angular
 										// + sign turns output into number!
 										var xAxisDataElement = +indicatorPropertiesArrayForXAxis[i][DATE_PREFIX + kommonitorDataExchangeService.selectedDate];
 										var yAxisDataElement = +indicatorPropertiesArrayForYAxis[i][DATE_PREFIX + kommonitorDataExchangeService.selectedDate];
-										data.push([Number(xAxisDataElement.toFixed(4)), Number(yAxisDataElement.toFixed(4))]);
+										$scope.data.push([Number(xAxisDataElement.toFixed(4)), Number(yAxisDataElement.toFixed(4))]);
+
+										var featureName = indicatorPropertiesArrayForXAxis[i].spatialUnitFeatureName;
+										$scope.dataWithLabels.push({
+											name: featureName,
+											value: [Number(xAxisDataElement.toFixed(4)), Number(yAxisDataElement.toFixed(4))]
+										});
 									}
 
-									return data;
+									return $scope.data;
 								};
 
 								/*
@@ -208,10 +219,11 @@ angular
 										        left: 'center'
 										    },
 										    tooltip: {
-										        trigger: 'axis',
+										        trigger: 'item',
 										        axisPointer: {
 										            type: 'cross'
-										        }
+										        },
+														formatter: '{b0}: {c0}'
 										    },
 										    xAxis: {
 														name: $scope.selectedIndicatorForXAxis.indicatorName + ", Einheit: " + $scope.selectedIndicatorForXAxis.unit,
@@ -238,19 +250,19 @@ angular
 										        },
 										    },
 										    series: [{
-										        name: 'scatter',
+										        name: "scatter",
 										        type: 'scatter',
-										        label: {
-										            emphasis: {
-										                show: true,
-										                position: 'left',
-										                textStyle: {
-										                    color: 'blue',
-										                    fontSize: 16
-										                }
-										            }
-										        },
-										        data: data
+										        // label: {
+										        //     emphasis: {
+										        //         show: false,
+										        //         position: 'left',
+										        //         textStyle: {
+										        //             color: 'blue',
+										        //             fontSize: 16
+										        //         }
+										        //     }
+										        // },
+										        data: $scope.dataWithLabels
 										    }, {
 										        name: 'line',
 										        type: 'line',
