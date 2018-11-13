@@ -17,7 +17,7 @@ angular
 
 								const INDICATOR_DATE_PREFIX = "DATE_";
 
-								$scope.userHoveresOverBarItem = false;
+								// $scope.userHoveresOverBarItem = false;
 								$scope.eventsRegistered = false;
 								$scope.isTooManyFeatures = false;
 
@@ -349,7 +349,7 @@ angular
 													type: 'bar',
 													emphasis: {
 														itemStyle: {
-															borderWidth: 2,
+															borderWidth: 4,
 															borderColor: '#42e5f4'
 														}
 													},
@@ -367,7 +367,7 @@ angular
 									if(!$scope.eventsRegistered){
 										// when hovering over elements of the chart then highlight them in the map.
 										$scope.barChart.on('mouseOver', function(params){
-											$scope.userHoveresOverBarItem = true;
+											// $scope.userHoveresOverBarItem = true;
 											var seriesIndex = params.seriesIndex;
 											var dataIndex = params.dataIndex;
 
@@ -383,7 +383,7 @@ angular
 										});
 
 										$scope.barChart.on('mouseOut', function(params){
-											$scope.userHoveresOverBarItem = false;
+											// $scope.userHoveresOverBarItem = false;
 											var seriesIndex = params.seriesIndex;
 											var dataIndex = params.dataIndex;
 
@@ -546,9 +546,9 @@ angular
 									// highlight the corresponding bar diagram item
 									// get index of bar item
 
-									if($scope.userHoveresOverBarItem){
-										return;
-									}
+									// if($scope.userHoveresOverBarItem){
+									// 	return;
+									// }
 
 									var index = -1;
 									for(var i=0; i<$scope.barOption.xAxis.data.length; i++){

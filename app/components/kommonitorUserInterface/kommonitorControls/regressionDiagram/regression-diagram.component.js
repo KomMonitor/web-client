@@ -26,7 +26,7 @@ angular
 								$scope.data;
 								$scope.dataWithLabels;
 								$scope.eventsRegistered = false;
-								$scope.userHoveresOverItem = false;
+								// $scope.userHoveresOverItem = false;
 
 								$scope.sortedIndicatorProps;
 
@@ -62,7 +62,7 @@ angular
 									$scope.data = undefined;
 									$scope.dataWithLabels = undefined;
 									$scope.eventsRegistered = false;
-									$scope.userHoveresOverItem = false;
+									// $scope.userHoveresOverItem = false;
 									$scope.spatialUnitName = spatialUnitName;
 
 								});
@@ -73,9 +73,9 @@ angular
 										return;
 									}
 
-									if($scope.userHoveresOverItem){
-										return;
-									}
+									// if($scope.userHoveresOverItem){
+									// 	return;
+									// }
 
 									var index = -1;
 									for(var i=0; i<$scope.regressionOption.series[0].data.length; i++){
@@ -344,7 +344,7 @@ angular
 										        // },
 														emphasis: {
 															itemStyle: {
-																borderWidth: 2,
+																borderWidth: 4,
 																borderColor: '#42e5f4'
 															}
 														},
@@ -390,14 +390,14 @@ angular
 									if(!$scope.eventsRegistered){
 										// when hovering over elements of the chart then highlight them in the map.
 										$scope.regressionChart.on('mouseOver', function(params){
-											$scope.userHoveresOverItem = true;
+											// $scope.userHoveresOverItem = true;
 											var spatialFeatureName = params.data.name;
 											// console.log(spatialFeatureName);
 											$rootScope.$broadcast("highlightFeatureOnMap", spatialFeatureName);
 										});
 
 										$scope.regressionChart.on('mouseOut', function(params){
-											$scope.userHoveresOverItem = false;
+											// $scope.userHoveresOverItem = false;
 
 											var spatialFeatureName = params.data.name;
 											// console.log(spatialFeatureName);
