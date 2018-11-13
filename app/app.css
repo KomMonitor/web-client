@@ -368,6 +368,12 @@
 	left: 10px;
 }
 
+.btn-circle img {
+	filter: invert(1);
+	width:25px;
+	height:25px;
+}
+
 .btn-docked {
 	position: absolute;
   left: 0px;
@@ -380,17 +386,17 @@
   border-radius: 0 5px 5px 0;
 }
 
+.btn-docked img {
+	filter: invert(1);
+	width:40px;
+	height:40px;
+}
+
 .btn-custom {
 	background-color: #337ab7;
   color: white;
 	position: absolute;
 	z-index: 1000;
-}
-
-.btn-custom img {
-	filter: invert(1);
-	width:25px;
-	height:25px;
 }
 
 .btn-custom:hover {
@@ -403,8 +409,6 @@
 
 .btn-custom:hover img{
 	filter: invert(0);
-	width:25px;
-	height:25px;
 }
 
 .btn-leaflet-custom{
