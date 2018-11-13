@@ -49,6 +49,9 @@ angular
 										$scope.regressionChart = undefined;
 									}
 
+									$scope.correlation = undefined;
+									$scope.sortedIndicatorProps = undefined;
+
 								});
 
 								$scope.getAllIndicatorPropertiesSortedBySpatialUnitFeatureName = function(){
@@ -90,13 +93,77 @@ angular
 
 									for (var i=0; i<indicatorPropertiesArrayForXAxis.length; i++){
 
-										var xAxisDataElement = indicatorPropertiesArrayForXAxis[i][DATE_PREFIX + kommonitorDataExchangeService.selectedDate];
-										var yAxisDataElement = indicatorPropertiesArrayForYAxis[i][DATE_PREFIX + kommonitorDataExchangeService.selectedDate];
-										data.push([xAxisDataElement, yAxisDataElement]);
+										// + sign turns output into number!
+										var xAxisDataElement = +indicatorPropertiesArrayForXAxis[i][DATE_PREFIX + kommonitorDataExchangeService.selectedDate];
+										var yAxisDataElement = +indicatorPropertiesArrayForYAxis[i][DATE_PREFIX + kommonitorDataExchangeService.selectedDate];
+										data.push([Number(xAxisDataElement.toFixed(4)), Number(yAxisDataElement.toFixed(4))]);
 									}
 
 									return data;
 								};
+
+								/*
+								 *  Source: http://stevegardner.net/2012/06/11/javascript-code-to-calculate-the-pearson-correlation-coefficient/
+								 */
+								function getPearsonCorrelation(x, y) {
+								    var shortestArrayLength = 0;
+
+								    if(x.length == y.length) {
+								        shortestArrayLength = x.length;
+								    } else if(x.length > y.length) {
+								        shortestArrayLength = y.length;
+								        console.error('x has more items in it, the last ' + (x.length - shortestArrayLength) + ' item(s) will be ignored');
+								    } else {
+								        shortestArrayLength = x.length;
+								        console.error('y has more items in it, the last ' + (y.length - shortestArrayLength) + ' item(s) will be ignored');
+								    }
+
+								    var xy = [];
+								    var x2 = [];
+								    var y2 = [];
+
+								    for(var i=0; i<shortestArrayLength; i++) {
+								        xy.push(x[i] * y[i]);
+								        x2.push(x[i] * x[i]);
+								        y2.push(y[i] * y[i]);
+								    }
+
+								    var sum_x = 0;
+								    var sum_y = 0;
+								    var sum_xy = 0;
+								    var sum_x2 = 0;
+								    var sum_y2 = 0;
+
+								    for(var i=0; i< shortestArrayLength; i++) {
+								        sum_x += x[i];
+								        sum_y += y[i];
+								        sum_xy += xy[i];
+								        sum_x2 += x2[i];
+								        sum_y2 += y2[i];
+								    }
+
+								    var step1 = (shortestArrayLength * sum_xy) - (sum_x * sum_y);
+								    var step2 = (shortestArrayLength * sum_x2) - (sum_x * sum_x);
+								    var step3 = (shortestArrayLength * sum_y2) - (sum_y * sum_y);
+								    var step4 = Math.sqrt(step2 * step3);
+								    var answer = step1 / step4;
+
+								    return Number(+answer.toFixed(2));
+									}
+
+									$scope.calculatePearsonCorrelation = function(data){
+										// data is an array of arrays containing the pairs of [x, y]
+
+										var xArray = new Array();
+										var yArray = new Array();
+
+										data.forEach(function(xyPair) {
+										  xArray.push(xyPair[0]);
+											yArray.push(xyPair[1]);
+										});
+
+										return getPearsonCorrelation(xArray, yArray);
+									}
 
 								$scope.onChangeSelectedIndicators = function(){
 									if($scope.selectedIndicatorForXAxis && $scope.selectedIndicatorForYAxis){
@@ -117,11 +184,18 @@ angular
 
 										var data = $scope.buildDataArrayForSelectedIndicators();
 
-										$scope.linearRegression = ecStat.regression('linear', data);
-
-										$scope.linearRegression.points.sort(function(a, b) {
+										data.sort(function(a, b) {
 										    return a[0] - b[0];
 										});
+
+										$scope.correlation = $scope.calculatePearsonCorrelation(data);
+
+										$scope.linearRegression = ecStat.regression('linear', data);
+
+										for(var i=0; i<$scope.linearRegression.points.length; i++){
+											$scope.linearRegression.points[i][0] = Number($scope.linearRegression.points[i][0].toFixed(4));
+											$scope.linearRegression.points[i][1] = Number($scope.linearRegression.points[i][1].toFixed(4));
+										}
 
 										$scope.regressionOption = {
 										    title: {
