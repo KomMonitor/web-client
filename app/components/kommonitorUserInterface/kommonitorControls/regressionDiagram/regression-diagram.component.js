@@ -49,8 +49,13 @@ angular
 										$scope.regressionChart = undefined;
 									}
 
+									$scope.selectedIndicatorForXAxis = undefined;
+									$scope.selectedIndicatorForYAxis = undefined;
 									$scope.correlation = undefined;
+									$scope.linearRegression = undefined;
+									$scope.regressionOption = undefined;
 									$scope.sortedIndicatorProps = undefined;
+									$scope.spatialUnitName = spatialUnitName;
 
 								});
 
