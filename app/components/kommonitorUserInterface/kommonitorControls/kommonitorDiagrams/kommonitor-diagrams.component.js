@@ -155,7 +155,7 @@ angular
 											top: 15
                     },
                     tooltip: {
-											trigger: 'axis',
+											trigger: 'item',
 											axisPointer: {
 													type: 'line',
 													crossStyle: {
@@ -312,7 +312,7 @@ angular
 									        top: 15
 											},
 											tooltip: {
-													trigger: 'axis',
+													trigger: 'item',
 													axisPointer: {
 															type: 'line',
 															crossStyle: {
