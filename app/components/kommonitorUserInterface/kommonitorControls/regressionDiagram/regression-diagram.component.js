@@ -6,9 +6,9 @@ angular
 					templateUrl : "components/kommonitorUserInterface/kommonitorControls/regressionDiagram/regression-diagram.template.html",
 
 					controller : [
-							'kommonitorDataExchangeService', '$scope', '$http',
+							'kommonitorDataExchangeService', '$scope', '$rootScope', '$http',
 							function indicatorRadarController(
-									kommonitorDataExchangeService, $scope, $http) {
+									kommonitorDataExchangeService, $scope, $rootScope, $http) {
 								/*
 								 * reference to kommonitorDataExchangeService instances
 								 */
@@ -25,6 +25,8 @@ angular
 								$scope.regressionChart;
 								$scope.data;
 								$scope.dataWithLabels;
+								$scope.eventsRegistered = false;
+								$scope.userHoveresOverItem = false;
 
 								$scope.sortedIndicatorProps;
 
@@ -59,8 +61,68 @@ angular
 									$scope.sortedIndicatorProps = undefined;
 									$scope.data = undefined;
 									$scope.dataWithLabels = undefined;
+									$scope.eventsRegistered = false;
+									$scope.userHoveresOverItem = false;
 									$scope.spatialUnitName = spatialUnitName;
 
+								});
+
+								$scope.$on("updateDiagramsForHoveredFeature", function (event, featureProperties) {
+									if($scope.userHoveresOverItem){
+										return;
+									}
+
+									var index = -1;
+									for(var i=0; i<$scope.regressionOption.series[0].data.length; i++){
+										if($scope.regressionOption.series[0].data[i].name === featureProperties.spatialUnitFeatureName){
+											index = i;
+											break;
+										}
+									}
+
+									if(index > -1){
+										$scope.regressionChart.dispatchAction({
+												type: 'highlight',
+												seriesIndex: 0,
+												dataIndex: index
+										});
+								    // tooltip
+								    $scope.regressionChart.dispatchAction({
+								        type: 'showTip',
+												seriesIndex: 0,
+												dataIndex: index
+								    });
+									}
+								});
+
+								$scope.$on("updateDiagramsForUnhoveredFeature", function (event, featureProperties) {
+
+									console.log("updateDiagramsForUnhoveredFeature called!");
+
+									if(! kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(featureProperties.spatialUnitFeatureName)){
+										// highlight the corresponding bar diagram item
+										var index = -1;
+										for(var i=0; i<$scope.regressionOption.series[0].data.length; i++){
+											if($scope.regressionOption.series[0].data[i].name === featureProperties.spatialUnitFeatureName){
+												index = i;
+												break;
+											}
+										}
+
+										if(index > -1){
+											$scope.regressionChart.dispatchAction({
+													type: 'downplay',
+													seriesIndex: 0,
+													dataIndex: index
+											});
+									    // tooltip
+									    $scope.regressionChart.dispatchAction({
+									        type: 'hideTip',
+													seriesIndex: 0,
+													dataIndex: index
+									    });
+										}
+									}
 								});
 
 								$scope.getAllIndicatorPropertiesSortedBySpatialUnitFeatureName = function(){
@@ -184,6 +246,8 @@ angular
 								$scope.onChangeSelectedIndicators = function(){
 									if($scope.selectedIndicatorForXAxis && $scope.selectedIndicatorForYAxis){
 
+										$scope.eventsRegistered = false;
+
 										if(!$scope.regressionChart)
 											$scope.regressionChart = echarts.init(document.getElementById('regressionDiagram'));
 										else{
@@ -295,8 +359,38 @@ angular
 										$scope.regressionChart.hideLoading();
 										$scope.regressionChart.setOption($scope.regressionOption);
 
+										registerEventsIfNecessary();
+
 									}
 								}
+
+								function registerEventsIfNecessary(){
+									if(!$scope.eventsRegistered){
+										// when hovering over elements of the chart then highlight them in the map.
+										$scope.regressionChart.on('mouseOver', function(params){
+											$scope.userHoveresOverItem = true;
+											var spatialFeatureName = params.data.name;
+											// console.log(spatialFeatureName);
+											$rootScope.$broadcast("highlightFeatureOnMap", spatialFeatureName);
+										});
+
+										$scope.regressionChart.on('mouseOut', function(params){
+											$scope.userHoveresOverItem = false;
+
+											var spatialFeatureName = params.data.name;
+											// console.log(spatialFeatureName);
+											$rootScope.$broadcast("unhighlightFeatureOnMap", spatialFeatureName);
+										});
+
+										$scope.regressionChart.on('click', function(params){
+											var spatialFeatureName = params.data.name;
+											// console.log(spatialFeatureName);
+											$rootScope.$broadcast("switchHighlightFeatureOnMap", spatialFeatureName);
+										});
+
+										$scope.eventsRegistered = true;
+									}
+								};
 
 
 							} ]
