@@ -214,6 +214,10 @@ angular
 										        }
 										    },
 										    xAxis: {
+														name: $scope.selectedIndicatorForXAxis.indicatorName + ", Einheit: " + $scope.selectedIndicatorForXAxis.unit,
+														nameLocation: 'center',
+														nameGap: 30,
+		                        scale: true,
 										        type: 'value',
 										        splitLine: {
 										            lineStyle: {
@@ -222,6 +226,9 @@ angular
 										        },
 										    },
 										    yAxis: {
+														name: $scope.selectedIndicatorForYAxis.indicatorName + ", Einheit: " + $scope.selectedIndicatorForYAxis.unit,
+														nameLocation: 'center',
+														nameGap: 60,
 										        type: 'value',
 										        min: 1.5,
 										        splitLine: {
