@@ -265,8 +265,6 @@ angular
 
 								$scope.$on("updateDiagramsForHoveredFeature", function (event, featureProperties) {
 
-									console.log("updateRadarDiagramForHoveredFeature called!");
-
 									if(! kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(featureProperties.spatialUnitFeatureName)){
 										appendSeriesToRadarChart(featureProperties);
 									}
@@ -335,8 +333,6 @@ angular
 								};
 
 								$scope.$on("updateDiagramsForUnhoveredFeature", function (event, featureProperties) {
-
-									console.log("updateRadarDiagramForUnhoveredFeature called!");
 
 									unhighlightFeatureInRadarChart(featureProperties);
 

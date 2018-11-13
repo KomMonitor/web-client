@@ -347,6 +347,12 @@ angular
 											series: [{
 													// name: indicatorMetadataAndGeoJSON.indicatorName,
 													type: 'bar',
+													emphasis: {
+														itemStyle: {
+															borderWidth: 2,
+															borderColor: '#42e5f4'
+														}
+													},
 													data: indicatorValueBarChartArray
 											}]
 									};
@@ -508,8 +514,6 @@ angular
 
 								$scope.$on("updateDiagramsForHoveredFeature", function (event, featureProperties) {
 
-									console.log("updateDiagramsForHoveredFeature called!");
-
 									if(! kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(featureProperties.spatialUnitFeatureName)){
 										appendSeriesToLineChart(featureProperties);
 									}
@@ -583,8 +587,6 @@ angular
 								};
 
 								$scope.$on("updateDiagramsForUnhoveredFeature", function (event, featureProperties) {
-
-									console.log("updateDiagramsForUnhoveredFeature called!");
 
 									if(! kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(featureProperties.spatialUnitFeatureName)){
 										unhighlightFeatureInLineChart(featureProperties);

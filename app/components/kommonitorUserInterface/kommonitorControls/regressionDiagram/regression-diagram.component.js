@@ -68,6 +68,11 @@ angular
 								});
 
 								$scope.$on("updateDiagramsForHoveredFeature", function (event, featureProperties) {
+
+									if(!$scope.regressionChart){
+										return;
+									}
+
 									if($scope.userHoveresOverItem){
 										return;
 									}
@@ -97,7 +102,9 @@ angular
 
 								$scope.$on("updateDiagramsForUnhoveredFeature", function (event, featureProperties) {
 
-									console.log("updateDiagramsForUnhoveredFeature called!");
+									if(!$scope.regressionChart){
+										return;
+									}
 
 									if(! kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(featureProperties.spatialUnitFeatureName)){
 										// highlight the corresponding bar diagram item
@@ -326,6 +333,12 @@ angular
 										        //         }
 										        //     }
 										        // },
+														emphasis: {
+															itemStyle: {
+																borderWidth: 2,
+																borderColor: '#42e5f4'
+															}
+														},
 										        data: $scope.dataWithLabels
 										    }, {
 										        name: 'line',
