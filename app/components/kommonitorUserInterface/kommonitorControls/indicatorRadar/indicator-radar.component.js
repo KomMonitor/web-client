@@ -142,7 +142,20 @@ angular
 									        //    }
 									        // },
 													name: {
-									            formatter:'[{value}]',
+									            formatter: function (value, indicator) {
+																							var maxCharsPerLine = 25;
+																							var counter = 0;
+																							var label = "";
+																							for(var i=0; i<value.length; i++){
+																								if(counter === maxCharsPerLine){
+																									label += "\n";
+																									counter = 0;
+																								}
+																								label += value.charAt(i);
+																								counter++;
+																							}
+																					    return label;
+																					},
 									            textStyle: {
 									                color:'#525252'
 									            },
