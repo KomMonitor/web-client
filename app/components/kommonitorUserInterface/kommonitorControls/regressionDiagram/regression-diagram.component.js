@@ -64,6 +64,7 @@ angular
 									$scope.eventsRegistered = false;
 									// $scope.userHoveresOverItem = false;
 									$scope.spatialUnitName = spatialUnitName;
+									$scope.date = date;
 
 								});
 
@@ -286,7 +287,7 @@ angular
 
 										$scope.regressionOption = {
 										    title: {
-										        text: 'Lineare Regression',
+										        text: 'Lineare Regression - ' + $scope.spatialUnitName + ' - ' + $scope.date,
 										        left: 'center'
 										    },
 										    tooltip: {
