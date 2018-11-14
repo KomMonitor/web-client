@@ -180,8 +180,8 @@
 }
 
 #sidebarIndicatorConfig {
-    min-width: 770px;
-    max-width: 770px;
+    min-width: 780px;
+    max-width: 780px;
 		min-height: 100vh;
 		background: #E6EEFB;
 		transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
@@ -189,13 +189,13 @@
 }
 
 #sidebarIndicatorConfig.hidden {
-    /* margin-left: -770px; */
+    /* margin-left: -780px; */
 		transform: rotateY(100deg); /* Rotate sidebar vertically by 100 degrees. */
 }
 
 #sidebarMeasureOfValueClassification {
-    min-width: 770px;
-    max-width: 770px;
+    min-width: 780px;
+    max-width: 780px;
 		min-height: 100vh;
 		background: #E6EEFB;
 		transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
@@ -203,13 +203,13 @@
 }
 
 #sidebarMeasureOfValueClassification.hidden {
-    /* margin-left: -770px; */
+    /* margin-left: -780px; */
 		transform: rotateY(100deg); /* Rotate sidebar vertically by 100 degrees. */
 }
 
 #sidebarDiagrams {
-    min-width: 770px;
-    max-width: 770px;
+    min-width: 780px;
+    max-width: 780px;
 		min-height: 100vh;
 		background: #E6EEFB;
 		transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
@@ -217,13 +217,13 @@
 }
 
 #sidebarDiagrams.hidden {
-    /* margin-left: -770px; */
+    /* margin-left: -780px; */
 		transform: rotateY(100deg); /* Rotate sidebar vertically by 100 degrees. */
 }
 
 #sidebarRadarDiagram {
-    min-width: 770px;
-    max-width: 770px;
+    min-width: 780px;
+    max-width: 780px;
 		min-height: 100vh;
 		background: #E6EEFB;
 		transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
@@ -231,13 +231,13 @@
 }
 
 #sidebarRadarDiagram.hidden {
-    /* margin-left: -770px; */
+    /* margin-left: -780px; */
 		transform: rotateY(100deg); /* Rotate sidebar vertically by 100 degrees. */
 }
 
 #sidebarRegressionDiagram {
-    min-width: 770px;
-    max-width: 770px;
+    min-width: 780px;
+    max-width: 780px;
 		min-height: 100vh;
 		background: #E6EEFB;
 		transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
@@ -245,13 +245,13 @@
 }
 
 #sidebarRegressionDiagram.hidden {
-    /* margin-left: -770px; */
+    /* margin-left: -780px; */
 		transform: rotateY(100deg); /* Rotate sidebar vertically by 100 degrees. */
 }
 
 #sidebarProcessing {
-    min-width: 770px;
-    max-width: 770px;
+    min-width: 780px;
+    max-width: 780px;
 		min-height: 100vh;
 		background: #E6EEFB;
 		transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
@@ -259,13 +259,13 @@
 }
 
 #sidebarProcessing.hidden {
-    /* margin-left: -770px; */
+    /* margin-left: -780px; */
 		transform: rotateY(100deg); /* Rotate sidebar vertically by 100 degrees. */
 }
 
 @media (max-width: 768px) {
     #sidebarIndicatorConfig {
-        /* margin-left: -770px; */
+        /* margin-left: -780px; */
 				transform: rotateY(100deg);
     }
     #sidebarIndicatorConfig.hidden {
@@ -274,7 +274,7 @@
     }
 
 		#sidebarMeasureOfValueClassification {
-        /* margin-left: -770px; */
+        /* margin-left: -780px; */
 				transform: rotateY(100deg);
     }
     #sidebarMeasureOfValueClassification.hidden {
@@ -283,7 +283,7 @@
     }
 
 		#sidebarDiagrams {
-        /* margin-left: -770px; */
+        /* margin-left: -780px; */
 				transform: rotateY(100deg);
     }
     #sidebarDiagrams.hidden {
@@ -291,7 +291,7 @@
     }
 
 		#sidebarRadarDiagram {
-        /* margin-left: -770px; */
+        /* margin-left: -780px; */
 				transform: rotateY(100deg);
     }
     #sidebarRadarDiagram.hidden {
@@ -299,7 +299,7 @@
     }
 
 		#sidebarRegressionDiagram {
-        /* margin-left: -770px; */
+        /* margin-left: -780px; */
 				transform: rotateY(100deg);
     }
     #sidebarRegressionDiagram.hidden {
@@ -307,7 +307,7 @@
     }
 
 		#sidebarProcessing {
-        /* margin-left: -770px; */
+        /* margin-left: -780px; */
 				transform: rotateY(100deg);
     }
     #sidebarProcessing.hidden {
