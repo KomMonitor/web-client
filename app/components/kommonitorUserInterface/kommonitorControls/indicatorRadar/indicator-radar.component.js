@@ -278,6 +278,10 @@ angular
 
 								$scope.$on("updateDiagramsForHoveredFeature", function (event, featureProperties) {
 
+									if(!$scope.radarChart || !$scope.radarOption || !$scope.radarOption.legend || !$scope.radarOption.series){
+										return;
+									}
+
 									if(! kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(featureProperties.spatialUnitFeatureName)){
 										appendSeriesToRadarChart(featureProperties);
 									}
@@ -346,6 +350,10 @@ angular
 								};
 
 								$scope.$on("updateDiagramsForUnhoveredFeature", function (event, featureProperties) {
+
+									if(!$scope.radarChart || !$scope.radarOption || !$scope.radarOption.legend || !$scope.radarOption.series){
+										return;
+									}
 
 									unhighlightFeatureInRadarChart(featureProperties);
 
