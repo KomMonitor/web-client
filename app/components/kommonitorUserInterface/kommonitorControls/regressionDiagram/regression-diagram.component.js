@@ -29,9 +29,8 @@ angular
 								// $scope.userHoveresOverItem = false;
 
 								$scope.sortedIndicatorProps;
-
-								kommonitorDataExchangeService.selectedDate;
 								$scope.spatialUnitName;
+								$scope.date;
 
 								$scope.filterIndicatorsBySpatialUnitAndDate = function() {
 								  return function( item ) {

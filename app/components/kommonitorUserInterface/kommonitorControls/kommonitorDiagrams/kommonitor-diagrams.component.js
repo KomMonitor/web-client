@@ -20,6 +20,8 @@ angular
 								// $scope.userHoveresOverBarItem = false;
 								$scope.eventsRegistered = false;
 								$scope.isTooManyFeatures = false;
+								$scope.spatialUnitName;
+								$scope.date;
 
 								var compareFeaturesByIndicatorValue = function(featureA, featureB) {
 								  if (featureA.properties[$scope.indicatorPropertyName] < featureB.properties[$scope.indicatorPropertyName])
@@ -46,6 +48,9 @@ angular
 									console.log("Updating diagrams!");
 
 									showLoadingIcons();
+
+									$scope.spatialUnitName = spatialUnitName;
+									$scope.date = date;
 
 									$scope.isTooManyFeatures = false;
 
@@ -150,7 +155,7 @@ angular
 
 									$scope.histogramOption = {
                     title: {
-											text: 'Histogramm - Wertverteilung',
+											text: 'Histogramm - ' + $scope.spatialUnitName + ' - ' + $scope.date,
 											left: 'center',
 											top: 15
                     },
@@ -307,7 +312,7 @@ angular
 
 									$scope.barOption = {
 											title: {
-													text: 'Wertvergleich',
+													text: 'Wertvergleich - ' + $scope.spatialUnitName + ' - ' + $scope.date,
 													left: 'center',
 									        top: 15
 											},
@@ -444,7 +449,7 @@ angular
 
 									$scope.lineOption = {
 											title: {
-													text: 'Zeitreihe',
+													text: 'Zeitreihe - ' + $scope.spatialUnitName,
 													left: 'center',
 									        top: 15
 											},
