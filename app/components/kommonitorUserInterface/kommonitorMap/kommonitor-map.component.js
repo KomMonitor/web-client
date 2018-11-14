@@ -738,7 +738,7 @@ angular.module('kommonitorMap').component(
 
                                             layer.setStyle({
                                                 weight: 5,
-                                                color: '#666',
+                                                color: '#42e5f4',
                                                 dashArray: '',
                                                 fillOpacity: 0.7
                                             });
