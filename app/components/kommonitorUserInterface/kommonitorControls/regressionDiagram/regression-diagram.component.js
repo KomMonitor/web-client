@@ -313,7 +313,6 @@ angular
 														nameLocation: 'center',
 														nameGap: 60,
 										        type: 'value',
-										        min: 1.5,
 										        splitLine: {
 										            lineStyle: {
 										                type: 'dashed'
