@@ -175,12 +175,12 @@ angular
                     xAxis: [{
 											name: 'Wertintervalle',
 											nameLocation: 'center',
-											nameGap: 15,
+											nameGap: 25,
                         scale: true,
                     }],
                     yAxis: {
 											name: 'Anzahl Features',
-											nameGap: 24,
+											nameGap: 35,
 											nameLocation: 'center',
 											nameRotate: 90,
                     },
