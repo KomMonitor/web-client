@@ -318,42 +318,42 @@
 #indicatorSetup{
 	margin-left: 15px;
 	margin-right: 15px;
-	margin-top: 20px;
+	margin-top: 0px;
 	z-index: 2000;
 }
 
 #indicatorMeasureOfValueClassification{
 	margin-left: 50px;
 	margin-right: 50px;
-	margin-top: 60px;
+	margin-top: 10px;
 	z-index: 2000;
 }
 
 #indicatorProcessing{
 	margin-left: 35px;
 	margin-right: 35px;
-	margin-top: 60px;
+	margin-top: 10px;
 	z-index: 2000;
 }
 
 #indicatorRadar{
 	margin-left: 5px;
 	margin-right: 5px;
-	margin-top: 60px;
+	margin-top: 10px;
 	z-index: 2000;
 }
 
 #indicatorRegression{
 	margin-left: 5px;
 	margin-right: 5px;
-	margin-top: 60px;
+	margin-top: 10px;
 	z-index: 2000;
 }
 
 #indicatorDiagrams{
 	margin-left: 5px;
 	margin-right: 5px;
-	margin-top: 60px;
+	margin-top: 10px;
 	z-index: 2000;
 }
 
