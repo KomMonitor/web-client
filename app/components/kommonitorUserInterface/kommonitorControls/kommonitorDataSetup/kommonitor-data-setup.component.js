@@ -91,6 +91,25 @@ angular
 								  };
 								};
 
+								$scope.filterReferencedIndicatorsByIndicator = function() {
+									return function( item ) {
+
+										try{
+											var referencedIndicators = kommonitorDataExchangeService.selectedIndicator.referencedIndicators;
+											var indicatorId = item.indicatorId;
+
+											for (const refIndicator of referencedIndicators){
+												if(refIndicator.referencedIndicatorId === indicatorId)
+													return true;
+											};
+
+										}
+										catch(error){
+											return false;
+										}
+								  };
+								};
+
 								$scope.filterGeoresourcesByTopic = function() {
 								  return function( item ) {
 										if (kommonitorDataExchangeService.selectedTopic)

@@ -112,6 +112,28 @@
 
 	<br/>
 
+	<div id="referencedIndicatorOverview" text-align="center" align="center" class="form-group" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.referencedIndicators.length > 0">
+	<h4>Mit Indikator verkn&uuml;pfte Indikatoren</h4>
+
+	<table class="table table-condensed">
+	<thead>
+		<tr>
+			<th>Indikator-Name</th>
+			<th>Beschreibung der Verkn&uuml;pfung</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr ng-repeat="indicator in $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.referencedIndicators">
+			<td>{{indicator.referencedIndicatorName}}</td>
+			<td>{{indicator.referencedIndicatorDescription}}</td>
+		</tr>
+	</tbody>
+</table>
+
+		</div>
+
+		<br/>
+
 	<div text-align="center" align="center" class="form-group" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.referencedGeoresources.length > 0">
 	<h4>Mit Indikator verkn&uuml;pfte Geodaten</h4>
 
