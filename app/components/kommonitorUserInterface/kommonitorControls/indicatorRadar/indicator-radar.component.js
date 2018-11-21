@@ -109,98 +109,119 @@ angular
 
 									}
 
-									$scope.radarOption = {
-											title: {
-													text: 'Indikatoren im Vergleich - ' + $scope.spatialUnitName + ' - ' + $scope.date,
-													left: 'center',
-									        top: 15
-											},
-											tooltip: {
-											},
-											toolbox: {
-													show : true,
-													feature : {
-															// mark : {show: true},
-															dataView : {show: true, readOnly: true, title: "Data View", lang: ['Data View', 'close', 'refresh']},
-															restore : {show: true, title: "Restore"},
-															saveAsImage : {show: true, title: "Save"}
-													}
-											},
-											legend: {
-													type: "scroll",
-													bottom: 0,
-													data: ['Durchschnitt']
-											},
-											radar: {
-									        // shape: 'circle',
-									        // name: {
-									        //     textStyle: {
-									        //         color: '#fff',
-									        //         backgroundColor: '#999',
-									        //         borderRadius: 3,
-									        //         padding: [3, 5]
-									        //    }
-									        // },
-													name: {
-									            formatter: function (value, indicator) {
-																							var maxCharsPerLine = 25;
-																							var counter = 0;
-																							var label = "";
-																							for(var i=0; i<value.length; i++){
-																								if(counter === maxCharsPerLine){
-																									label += "\n";
-																									counter = 0;
+									if(defaultSeriesValueArray.length === 0){
+
+										if($scope.radarChart){
+											$scope.radarChart.dispose();
+											$scope.radarChart = undefined;
+										}
+
+									}
+									else{
+
+										if(!$scope.radarChart)
+											$scope.radarChart = echarts.init(document.getElementById('radarDiagram'));
+										// else{
+										// 	// explicitly kill and reinstantiate radar diagram to avoid zombie states on spatial unit change
+										// 	$scope.radarChart.dispose();
+										// 	$scope.radarChart = echarts.init(document.getElementById('radarDiagram'));
+										// }
+
+										$scope.radarOption = {
+												title: {
+														text: 'Indikatoren im Vergleich - ' + $scope.spatialUnitName + ' - ' + $scope.date,
+														left: 'center',
+														top: 15
+												},
+												tooltip: {
+												},
+												toolbox: {
+														show : true,
+														feature : {
+																// mark : {show: true},
+																dataView : {show: true, readOnly: true, title: "Data View", lang: ['Data View', 'close', 'refresh']},
+																restore : {show: true, title: "Restore"},
+																saveAsImage : {show: true, title: "Save"}
+														}
+												},
+												legend: {
+														type: "scroll",
+														bottom: 0,
+														data: ['Durchschnitt']
+												},
+												radar: {
+														// shape: 'circle',
+														// name: {
+														//     textStyle: {
+														//         color: '#fff',
+														//         backgroundColor: '#999',
+														//         borderRadius: 3,
+														//         padding: [3, 5]
+														//    }
+														// },
+														name: {
+																formatter: function (value, indicator) {
+																								var maxCharsPerLine = 25;
+																								var counter = 0;
+																								var label = "";
+																								for(var i=0; i<value.length; i++){
+																									if(counter === maxCharsPerLine){
+																										label += "\n";
+																										counter = 0;
+																									}
+																									label += value.charAt(i);
+																									counter++;
 																								}
-																								label += value.charAt(i);
-																								counter++;
-																							}
-																					    return label;
-																					},
-									            textStyle: {
-									                color:'#525252'
-									            },
-															fontSize: 11
-									        },
-									        indicator: indicatorArrayForRadarChart
-									    },
-											series: [{
-									        name: 'Indikatorvergleich',
-									        type: 'radar',
-													symbolSize: 8,
-									        data : [
-									            {
-									                value : defaultSeriesValueArray,
-									                name : 'Durchschnitt',
-																	lineStyle: {
-																			color: 'gray',
-							                        type: 'dashed',
-																			width: 4
-							                    },
-																	itemStyle: {
-													            borderWidth: 3,
-													            color: 'gray'
-													        },
-																	emphasis: {
-																			lineStyle: {
-																					width: 6
-																			},
-																			itemStyle: {
-															            borderType: 'dashed'
-															        }
-																	}
-									            }
-									        ]
-									    }]
-									};
+																								return label;
+																						},
+																textStyle: {
+																		color:'#525252'
+																},
+																fontSize: 11
+														},
+														indicator: indicatorArrayForRadarChart
+												},
+												series: [{
+														name: 'Indikatorvergleich',
+														type: 'radar',
+														symbolSize: 8,
+														data : [
+																{
+																		value : defaultSeriesValueArray,
+																		name : 'Durchschnitt',
+																		lineStyle: {
+																				color: 'gray',
+																				type: 'dashed',
+																				width: 4
+																		},
+																		itemStyle: {
+																				borderWidth: 3,
+																				color: 'gray'
+																		},
+																		emphasis: {
+																				lineStyle: {
+																						width: 6
+																				},
+																				itemStyle: {
+																						borderType: 'dashed'
+																				}
+																		}
+																}
+														]
+												}]
+										};
 
-									// check if any feature is still clicked/selected
-									// then append those as series within radar chart
-									appendSelectedFeaturesIfNecessary();
+										// check if any feature is still clicked/selected
+										// then append those as series within radar chart
+										appendSelectedFeaturesIfNecessary();
 
-									$scope.radarChart.hideLoading();
+										$scope.radarChart.hideLoading();
 
-									// use configuration item and data specified to show chart
-									$scope.radarChart.setOption($scope.radarOption);
+										// use configuration item and data specified to show chart
+										$scope.radarChart.setOption($scope.radarOption);
+
+									}
+
 								}
 
 								var appendSelectedFeaturesIfNecessary = function(){
@@ -452,6 +473,24 @@ angular
 
 								this.filterDisplayedIndicatorsOnRadar = function(){
 									console.log("Filtering indicator radar");
+
+									modifyRadarContent($scope.selectableIndicatorsForRadar);
+								}
+
+								this.selectAllIndicatorsForRadar = function(){
+
+									for(var indicator of $scope.selectableIndicatorsForRadar){
+										indicator.isSelected = true;
+									}
+
+									modifyRadarContent($scope.selectableIndicatorsForRadar);
+								}
+
+								this.deselectAllIndicatorsForRadar = function(){
+
+									for(var indicator of $scope.selectableIndicatorsForRadar){
+										indicator.isSelected = false;
+									}
 
 									modifyRadarContent($scope.selectableIndicatorsForRadar);
 								}
