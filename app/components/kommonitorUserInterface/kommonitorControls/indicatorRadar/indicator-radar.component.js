@@ -96,7 +96,7 @@ angular
 
 											// IT MIGHT HAPPEN THAT AN INDICATOR IS INSPECTED THAT DOES NOT SUPPORT THE DATE
 											// HENCE ONLY ADD VALUES TO DEFAULT IF THEY SHOW MEANINGFUL VALUES
-											if(maxValue > 0 && valueSum > 0){
+											// if(valueSum != 0){
 												indicatorArrayForRadarChart.push({
 													name: selectedIndicatorsForRadar[i].indicatorMetadata.indicatorName,
 													max: maxValue,
@@ -104,7 +104,7 @@ angular
 												});
 
 												defaultSeriesValueArray.push(Number(Number(valueSum/indicatorProperties.length).toFixed(4)));
-											}
+											// }
 										}
 
 									}
