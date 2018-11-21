@@ -161,7 +161,7 @@ angular
 														// },
 														name: {
 																formatter: function (value, indicator) {
-																								var maxCharsPerLine = 25;
+																								var maxCharsPerLine = 24;
 																								var counter = 0;
 																								var label = "";
 																								for(var i=0; i<value.length; i++){
