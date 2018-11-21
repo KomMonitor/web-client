@@ -25,6 +25,8 @@
 						<input type="button" class="btn btn-danger" value="alle deselektieren" ng-click="$ctrl.deselectAllIndicatorsForRadar()"></input>
 					</div>
 
+					<br/>
+
 						<label class='checkbox-inline' ng-repeat='input in selectableIndicatorsForRadar'><input type="checkbox" value="input.indicatorMetadata.indicatorName" ng-model="input.isSelected" ng-change="$ctrl.filterDisplayedIndicatorsOnRadar()">{{input.indicatorMetadata.indicatorName}}</label>
 				</div>
 
