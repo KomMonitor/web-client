@@ -52,6 +52,10 @@ angular
 										// explicitly kill and reinstantiate radar diagram to avoid zombie states on spatial unit change
 										$scope.radarChart.dispose();
 										$scope.radarChart = echarts.init(document.getElementById('radarDiagram'));
+
+										$scope.namesOfFailedIndicators  = new Array();
+										$scope.selectableIndicatorsForRadar = new Array();
+										$scope.indicatorInputsForRadar = new Array();
 									}
 
 									$scope.radarChart.showLoading();
