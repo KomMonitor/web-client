@@ -167,7 +167,7 @@
 
 #radarInputForm {
 	height: auto !important;
-	max-height: 300px;
+	max-height: 130px;
   overflow-y: scroll;
 }
 

@@ -18,7 +18,7 @@
 
 				<h4>Filtern der dargestellten Indikatoren</h4>
 
-				<div ng-show="selectableIndicatorsForRadar" id="radarInputForm">
+				<div ng-show="selectableIndicatorsForRadar">
 
 					<div align="center">
 						<input type="button" class="btn btn-primary" value="alle selektieren" ng-click="$ctrl.selectAllIndicatorsForRadar()"></input>
@@ -27,8 +27,11 @@
 
 					<br/>
 
+					<div id="radarInputForm">
 						<label class='checkbox-inline' ng-repeat='input in selectableIndicatorsForRadar'><input type="checkbox" value="input.indicatorMetadata.indicatorName" ng-model="input.isSelected" ng-change="$ctrl.filterDisplayedIndicatorsOnRadar()">{{input.indicatorMetadata.indicatorName}}</label>
-				</div>
+					</div>
+
+					</div>
 
 			</div>
 
