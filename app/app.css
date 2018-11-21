@@ -33,7 +33,7 @@
 }
 
 #map {
-	height: 94.5vh;
+	height: 94.1vh;
 	position: relative;
 	z-index: 1;
 }
@@ -176,13 +176,15 @@
     display: flex;
 		align-items: stretch;
     width: 100%;
+		/* height: 94.1vh; */
 		perspective: 1500px;
 }
 
 #sidebarIndicatorConfig {
     min-width: 780px;
     max-width: 780px;
-		min-height: 100vh;
+		height: 94.1vh;
+		/* min-height: 100vh; */
 		background: #E6EEFB;
 		transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
     transform-origin: center left; /* Set the transformed position of sidebar to center left side. */
@@ -196,7 +198,8 @@
 #sidebarMeasureOfValueClassification {
     min-width: 780px;
     max-width: 780px;
-		min-height: 100vh;
+		/* min-height: 100vh; */
+		height: 94.1vh;
 		background: #E6EEFB;
 		transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
     transform-origin: center left; /* Set the transformed position of sidebar to center left side. */
@@ -210,7 +213,8 @@
 #sidebarDiagrams {
     min-width: 780px;
     max-width: 780px;
-		min-height: 100vh;
+		/* min-height: 100vh; */
+		height: 94.1vh;
 		background: #E6EEFB;
 		transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
     transform-origin: center left; /* Set the transformed position of sidebar to center left side. */
@@ -224,7 +228,8 @@
 #sidebarRadarDiagram {
     min-width: 780px;
     max-width: 780px;
-		min-height: 100vh;
+		/* min-height: 100vh; */
+		height: 94.1vh;
 		background: #E6EEFB;
 		transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
     transform-origin: center left; /* Set the transformed position of sidebar to center left side. */
@@ -238,7 +243,8 @@
 #sidebarRegressionDiagram {
     min-width: 780px;
     max-width: 780px;
-		min-height: 100vh;
+		/* min-height: 100vh; */
+		height: 94.1vh;
 		background: #E6EEFB;
 		transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
     transform-origin: center left; /* Set the transformed position of sidebar to center left side. */
@@ -252,7 +258,8 @@
 #sidebarProcessing {
     min-width: 780px;
     max-width: 780px;
-		min-height: 100vh;
+		/* min-height: 100vh; */
+		height: 94.1vh;
 		background: #E6EEFB;
 		transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
     transform-origin: center left; /* Set the transformed position of sidebar to center left side. */
