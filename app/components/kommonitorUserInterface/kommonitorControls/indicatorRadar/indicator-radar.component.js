@@ -6,9 +6,9 @@ angular
 					templateUrl : "components/kommonitorUserInterface/kommonitorControls/indicatorRadar/indicator-radar.template.html",
 
 					controller : [
-							'kommonitorDataExchangeService', '$scope', '$http',
+							'kommonitorDataExchangeService', '$scope', '$rootScope', '$http',
 							function indicatorRadarController(
-									kommonitorDataExchangeService, $scope, $http) {
+									kommonitorDataExchangeService, $scope, $rootScope, $http) {
 								/*
 								 * reference to kommonitorDataExchangeService instances
 								 */
@@ -64,6 +64,7 @@ angular
 									try{
 										$scope.selectableIndicatorsForRadar = await fetchAllIndicatorProperties(spatialUnitId, date);
 										kommonitorDataExchangeService.allIndicatorPropertiesForCurrentSpatialUnitAndTime = $scope.selectableIndicatorsForRadar;
+										$rootScope.$broadcast("allIndicatorPropertiesForCurrentSpatialUnitAndTime setup completed");
 										buildCheckboxForm($scope.selectableIndicatorsForRadar);
 									}
 									catch(error){

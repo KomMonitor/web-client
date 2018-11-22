@@ -16,6 +16,8 @@ angular
 
 								const DATE_PREFIX = "DATE_";
 
+								$scope.setupCompleted = false;
+
 								//$scope.allIndicatorProperties;
 								$scope.selectedIndicatorForXAxis;
 								$scope.selectedIndicatorForYAxis;
@@ -45,12 +47,20 @@ angular
 								  };
 								};
 
+								$scope.$on("allIndicatorPropertiesForCurrentSpatialUnitAndTime setup completed", function (event) {
+
+									$scope.setupCompleted = true;
+
+								});
+
 								$scope.$on("updateDiagrams", function (event, indicatorMetadataAndGeoJSON, spatialUnitName, spatialUnitId, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, isMeasureOfValueChecked, measureOfValue, justRestyling) {
 
 									if($scope.regressionChart){
 										$scope.regressionChart.dispose();
 										$scope.regressionChart = undefined;
 									}
+
+									$scope.setupCompleted = false;
 
 									$scope.selectedIndicatorForXAxis = undefined;
 									$scope.selectedIndicatorForYAxis = undefined;
