@@ -21,6 +21,8 @@ angular
 								$scope.selectableIndicatorsForRadar = new Array();
 								$scope.indicatorInputsForRadar = new Array();
 
+								$scope.setupCompleted = false;
+
 								$scope.date;
 								$scope.spatialUnitName;
 
@@ -33,6 +35,8 @@ angular
 									}
 
 									console.log("updating radar diagram");
+
+									$scope.setupCompleted = false;
 
 									updateRadarChart(indicatorMetadataAndGeoJSON, spatialUnitName, spatialUnitId, date);
 
@@ -73,6 +77,10 @@ angular
 
 									modifyRadarContent($scope.selectableIndicatorsForRadar);
 								};
+
+								$scope.$on("allIndicatorPropertiesForCurrentSpatialUnitAndTime setup completed", function (event) {
+									$scope.setupCompleted = true;
+								});
 
 								var modifyRadarContent = function(selectedIndicatorsForRadar){
 									var indicatorArrayForRadarChart = new Array();

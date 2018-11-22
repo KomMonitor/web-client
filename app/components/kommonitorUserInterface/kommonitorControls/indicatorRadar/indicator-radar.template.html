@@ -1,4 +1,11 @@
 <div align="center" id="indicatorRadar">
+
+	<div align="center">
+		<div class="loading-overlay-sidebar ng-hide" ng-show="!setupCompleted">
+					<span class="glyphicon glyphicon-refresh icon-spin"></span>
+		</div>
+	</div>
+
 			<div ng-show="radarChart" id="radarDiagram" style="width:770px; height:600px;"></div>
 
 			<div ng-show="!radarChart" style="width:770px; height:600px;">
@@ -9,7 +16,7 @@
 								<h4>Radardiagramm kann nur angezeigt werden, wenn mindestens ein Indikator gew&auml;hlt ist.</h4>
 						</div>
 					</div>
-				</div>				
+				</div>
 
 			</div>
 
