@@ -148,6 +148,7 @@ angular
 														// top: 15
 												},
 												tooltip: {
+													position: ['50%', '50%']
 												},
 												toolbox: {
 														show : true,
@@ -175,7 +176,7 @@ angular
 														// },
 														name: {
 																formatter: function (value, indicator) {
-																								var maxCharsPerLine = 24;
+																								var maxCharsPerLine = 22;
 																								var counter = 0;
 																								var label = "";
 																								for(var i=0; i<value.length; i++){
