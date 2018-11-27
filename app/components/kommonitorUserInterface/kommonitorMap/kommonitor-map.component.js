@@ -254,7 +254,7 @@ angular.module('kommonitorMap').component(
                         // for (var i = 0; i < labels.length; i++) {
                         //     $scope.div.innerHTML +=
                         //         '<i style="background:' + $scope.defaultBrew.getColorInRange(labels[i] + 1) + '"></i> ' +
-                        //         labels[i] + (labels[i + 1] ? '&ndash;' + labels[i + 1] + '<br>' : '+');
+                        //         labels[i] + (labels[i + 1] ? ' &mdash; ' + labels[i + 1] + '<br>' : '+');
                         // }
 
                         $scope.div.innerHTML += "<label>Einheit: </label> " + $scope.indicatorUnit + "<br/><br/>";
@@ -268,7 +268,7 @@ angular.module('kommonitorMap').component(
                         for (var i = 0; i < colors.length; i++) {
                             $scope.div.innerHTML +=
                                 '<i style="background:' + colors[i] + '"></i> ' +
-                                defaultClassificationMapping.items[i].defaultCustomRating + ' (' + (+labels[i].toFixed(4)) + ((+labels[i + 1].toFixed(4)) ? '&ndash;' + (+labels[i + 1].toFixed(4)) + ') <br>' : '+');
+                                defaultClassificationMapping.items[i].defaultCustomRating + ' (' + (+labels[i].toFixed(4)) + ((+labels[i + 1].toFixed(4)) ? ' &mdash; ' + (+labels[i + 1].toFixed(4)) + ') <br>' : '+');
                         }
 
                         return $scope.div;
@@ -315,7 +315,7 @@ angular.module('kommonitorMap').component(
                         // for (var i = 0; i < labels.length; i++) {
                         //     $scope.div.innerHTML +=
                         //         '<i style="background:' + $scope.defaultBrew.getColorInRange(labels[i] + 1) + '"></i> ' +
-                        //         labels[i] + (labels[i + 1] ? '&ndash;' + labels[i + 1] + '<br>' : '+');
+                        //         labels[i] + (labels[i + 1] ? ' &mdash; ' + labels[i + 1] + '<br>' : '+');
                         // }
 
                         $scope.div.innerHTML += "<label>< Schwellwert</label><br/>";
@@ -327,8 +327,8 @@ angular.module('kommonitorMap').component(
                         for (var i = 0; i < colorsLtMeasureOfValue.length; i++) {
                             $scope.div.innerHTML +=
                                 '<i style="background:' + colorsLtMeasureOfValue[colorsLtMeasureOfValue.length - 1 - i] + '"></i> ' +
-                                //(+labelsLtMeasureOfValue[i].toFixed(4)) + ((+labelsLtMeasureOfValue[i + 1].toFixed(4)) ? '&ndash;' + (+labelsLtMeasureOfValue[i + 1].toFixed(4)) + '<br>' : '+');
-                                labelArray_below[i] + ' (' + (+labelsLtMeasureOfValue[i].toFixed(3)) + ((+labelsLtMeasureOfValue[i + 1].toFixed(3)) ? '&ndash;' + (+labelsLtMeasureOfValue[i + 1].toFixed(3)) + ') <br>' : '+');
+                                //(+labelsLtMeasureOfValue[i].toFixed(4)) + ((+labelsLtMeasureOfValue[i + 1].toFixed(4)) ? ' &mdash; ' + (+labelsLtMeasureOfValue[i + 1].toFixed(4)) + '<br>' : '+');
+                                labelArray_below[i] + ' (' + (+labelsLtMeasureOfValue[i].toFixed(3)) + ((+labelsLtMeasureOfValue[i + 1].toFixed(3)) ? ' &mdash; ' + (+labelsLtMeasureOfValue[i + 1].toFixed(3)) + ') <br>' : '+');
                         }
 
                         $scope.div.innerHTML += "<br/>";
@@ -338,7 +338,7 @@ angular.module('kommonitorMap').component(
                         for (var i = 0; i < colorsGtMeasureOfValue.length; i++) {
                             $scope.div.innerHTML +=
                                 '<i style="background:' + colorsGtMeasureOfValue[i] + '"></i> ' +
-                                labelArray_upper[i] + ' (' + (+labelsGtMeasureOfValue[i].toFixed(3)) + ((+labelsGtMeasureOfValue[i + 1].toFixed(3)) ? '&ndash;' + (+labelsGtMeasureOfValue[i + 1].toFixed(3)) + ') <br>' : '+');
+                                labelArray_upper[i] + ' (' + (+labelsGtMeasureOfValue[i].toFixed(3)) + ((+labelsGtMeasureOfValue[i + 1].toFixed(3)) ? ' &mdash; ' + (+labelsGtMeasureOfValue[i + 1].toFixed(3)) + ') <br>' : '+');
                         }
 
                         return $scope.div;
