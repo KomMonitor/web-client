@@ -195,7 +195,7 @@ angular
 														var dataTableId = "histogramDataTable";
 														var tableExportName = opt.xAxis[0].name + " - " + opt.title[0].text;
 
-															var htmlString = '<table id="' + dataTableId + '" class="table table-bordered" style="width:100%;text-align:center;">';
+															var htmlString = '<table id="' + dataTableId + '" class="table table-bordered table-condensed" style="width:100%;text-align:center;">';
 															htmlString += "<thead>";
 															htmlString += "<tr>";
 															htmlString += "<th style='text-align:center;'>Wertintervall</th>";
@@ -412,7 +412,7 @@ angular
 															var dataTableId = "barDataTable";
 															var tableExportName = opt.xAxis[0].name + " - " + opt.title[0].text;
 
-																var htmlString = '<table id="' + dataTableId + '" class="table table-bordered" style="width:100%;text-align:center;">';
+																var htmlString = '<table id="' + dataTableId + '" class="table table-bordered table-condensed" style="width:100%;text-align:center;">';
 																htmlString += "<thead>";
 																htmlString += "<tr>";
 																htmlString += "<th style='text-align:center;'>Feature-Name</th>";
@@ -603,7 +603,7 @@ angular
 															var dataTableId = "lineDataTable";
 															var tableExportName = opt.xAxis[0].name + " - " + opt.title[0].text;
 
-																var htmlString = '<table id="' + dataTableId + '" class="table table-bordered" style="width:100%;text-align:center;">';
+																var htmlString = '<table id="' + dataTableId + '" class="table table-bordered table-condensed" style="width:100%;text-align:center;">';
 																htmlString += "<thead>";
 																htmlString += "<tr>";
 																htmlString += "<th style='text-align:center;'>Zeitpunkt</th>";
