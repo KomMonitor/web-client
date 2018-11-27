@@ -172,7 +172,47 @@ angular
 												show : true,
 												feature : {
 														// mark : {show: true},
-														dataView : {show: true, readOnly: true, title: "Data View", lang: ['Data View', 'close', 'refresh']},
+														dataView : {show: true, readOnly: true, title: "Data View", lang: ['Data View', 'close', 'refresh'], optionToContent: function(opt){
+
+														// 	<table class="table table-condensed table-hover">
+														// 	<thead>
+														// 		<tr>
+														// 			<th>Indikator-Name</th>
+														// 			<th>Beschreibung der Verkn&uuml;pfung</th>
+														// 		</tr>
+														// 	</thead>
+														// 	<tbody>
+														// 		<tr ng-repeat="indicator in $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.referencedIndicators">
+														// 			<td>{{indicator.referencedIndicatorName}}</td>
+														// 			<td>{{indicator.referencedIndicatorDescription}}</td>
+														// 		</tr>
+														// 	</tbody>
+														// </table>
+
+														var histogramData = opt.series[0].data;
+
+															var htmlString = '<table class="table table-bordered" style="width:100%;text-align:center;">';
+															htmlString += "<thead>";
+															htmlString += "<tr>";
+															htmlString += "<th style='text-align:center;'>Wertintervall</th>";
+															htmlString += "<th style='text-align:center;'>H&auml;ufigkeit</th>";
+															htmlString += "</tr>";
+															htmlString += "</thead>";
+
+															htmlString += "<tbody>";
+
+															for (var i=0; i<histogramData.length; i++){
+																htmlString += "<tr>";
+																htmlString += "<td>" + histogramData[i][0] + " &mdash; " + histogramData[i][1] + "</td>";
+																htmlString += "<td>" + histogramData[i][2] + "</td>";
+																htmlString += "</tr>";
+															}
+
+															htmlString += "</tbody>";
+															htmlString += "</table>";
+
+													    return htmlString;
+														}},
 														restore : {show: true, title: "Restore"},
 														saveAsImage : {show: true, title: "Save"}
 												}
