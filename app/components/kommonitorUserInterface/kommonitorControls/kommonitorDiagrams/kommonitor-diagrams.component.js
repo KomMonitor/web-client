@@ -157,7 +157,7 @@ angular
                     title: {
 											text: 'Histogramm - ' + $scope.spatialUnitName + ' - ' + $scope.date,
 											left: 'center',
-											top: 15
+											// top: 15
                     },
                     tooltip: {
 											trigger: 'item',
@@ -178,16 +178,16 @@ angular
 												}
 										},
                     xAxis: [{
-											name: 'Wertintervalle',
+											name: indicatorMetadataAndGeoJSON.indicatorName,
 											nameLocation: 'center',
 											nameGap: 25,
-                        scale: true,
+                      scale: true,
                     }],
                     yAxis: {
 											name: 'Anzahl Features',
-											nameGap: 35,
-											nameLocation: 'center',
-											nameRotate: 90,
+											// nameGap: 35,
+											// nameLocation: 'center',
+											// nameRotate: 90,
                     },
                     series: [{
                         type: 'custom',
@@ -279,7 +279,21 @@ angular
                 //     }]
                 // };
 
+								if(onlyContainsPositiveNumbers(indicatorValueArray)){
+									$scope.histogramOption.xAxis.min = 0;
+								}
+
 									$scope.histogramChart.setOption($scope.histogramOption);
+								};
+
+								var onlyContainsPositiveNumbers = function(indicatorValueArray){
+									indicatorValueArray.forEach(function(element){
+										if(element < 0){
+											return false;
+										}
+									});
+
+									return true;
 								};
 
 								// BAR CHART FUNCTION
@@ -314,7 +328,7 @@ angular
 											title: {
 													text: 'Wertvergleich - ' + $scope.spatialUnitName + ' - ' + $scope.date,
 													left: 'center',
-									        top: 15
+									        // top: 15
 											},
 											tooltip: {
 													trigger: 'item',
@@ -338,6 +352,9 @@ angular
 											// 		//data:[indicatorMetadataAndGeoJSON.indicatorName]
 											// },
 											xAxis: {
+													name: indicatorMetadataAndGeoJSON.indicatorName,
+													nameLocation: 'center',
+													nameGap: 25,
 													axisLabel: {
 														rotate: 90,
 														interval: 0,
@@ -348,7 +365,12 @@ angular
 													data: featureNamesArray
 											},
 											yAxis: {
-											},
+									        type: 'value',
+									        name: indicatorMetadataAndGeoJSON.unit,
+									        splitArea: {
+									            show: true
+									        }
+									    },
 											series: [{
 													// name: indicatorMetadataAndGeoJSON.indicatorName,
 													type: 'bar',
@@ -451,7 +473,7 @@ angular
 											title: {
 													text: 'Zeitreihe - ' + $scope.spatialUnitName,
 													left: 'center',
-									        top: 15
+									        // top: 15
 											},
 											tooltip: {
 													trigger: 'axis',
@@ -477,6 +499,9 @@ angular
 													data:['Durchschnitt']
 											},
 											xAxis: {
+													name: indicatorMetadataAndGeoJSON.indicatorName,
+													nameLocation: 'center',
+													nameGap: 25,
 													// axisLabel: {
 													// 	rotate: 90,
 													// 	interval: 0,
@@ -488,8 +513,12 @@ angular
 													data: indicatorTimeSeriesDatesArray
 											},
 											yAxis: {
-												type: 'value'
-											},
+									        type: 'value',
+									        name: indicatorMetadataAndGeoJSON.unit,
+									        splitArea: {
+									            show: true
+									        }
+									    },
 											series: [{
 													name: "Durchschnitt",
 													type: 'line',

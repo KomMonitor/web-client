@@ -112,6 +112,7 @@ angular
 											// if(valueSum != 0){
 												indicatorArrayForRadarChart.push({
 													name: selectedIndicatorsForRadar[i].indicatorMetadata.indicatorName,
+													unit: selectedIndicatorsForRadar[i].indicatorMetadata.unit,
 													max: maxValue,
 													min: minValue
 												});
@@ -142,9 +143,9 @@ angular
 
 										$scope.radarOption = {
 												title: {
-														text: 'Indikatoren im Vergleich - ' + $scope.spatialUnitName + ' - ' + $scope.date,
+														text: 'Indikatorenradar - ' + $scope.spatialUnitName + ' - ' + $scope.date,
 														left: 'center',
-														top: 15
+														// top: 15
 												},
 												tooltip: {
 												},
@@ -185,6 +186,7 @@ angular
 																									label += value.charAt(i);
 																									counter++;
 																								}
+																								label = label + "\n" + "[" + indicator.unit + "]";
 																								return label;
 																						},
 																textStyle: {

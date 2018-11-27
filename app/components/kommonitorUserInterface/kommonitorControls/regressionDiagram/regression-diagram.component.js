@@ -305,7 +305,7 @@ angular
 														formatter: '{b0}: {c0}'
 										    },
 										    xAxis: {
-														name: $scope.selectedIndicatorForXAxis.indicatorName + ", Einheit: " + $scope.selectedIndicatorForXAxis.unit,
+														name: $scope.selectedIndicatorForXAxis.indicatorName + " [" + $scope.selectedIndicatorForXAxis.unit + "]",
 														nameLocation: 'center',
 														nameGap: 30,
 		                        scale: true,
@@ -317,7 +317,7 @@ angular
 										        },
 										    },
 										    yAxis: {
-														name: $scope.selectedIndicatorForYAxis.indicatorName + ", Einheit: " + $scope.selectedIndicatorForYAxis.unit,
+														name: $scope.selectedIndicatorForYAxis.indicatorName + " [" + $scope.selectedIndicatorForYAxis.unit + "]",
 														nameLocation: 'center',
 														nameGap: 60,
 										        type: 'value',
