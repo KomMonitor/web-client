@@ -388,7 +388,53 @@ angular
 													show : true,
 													feature : {
 															// mark : {show: true},
-															dataView : {show: true, readOnly: true, title: "Data View", lang: ['Data View', 'close', 'refresh']},
+															dataView : {show: true, readOnly: true, title: "Data View", lang: ['Data View', 'close', 'refresh'], optionToContent: function(opt){
+
+															// 	<table class="table table-condensed table-hover">
+															// 	<thead>
+															// 		<tr>
+															// 			<th>Indikator-Name</th>
+															// 			<th>Beschreibung der Verkn&uuml;pfung</th>
+															// 		</tr>
+															// 	</thead>
+															// 	<tbody>
+															// 		<tr ng-repeat="indicator in $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.referencedIndicators">
+															// 			<td>{{indicator.referencedIndicatorName}}</td>
+															// 			<td>{{indicator.referencedIndicatorDescription}}</td>
+															// 		</tr>
+															// 	</tbody>
+															// </table>
+
+															var barData = opt.series[0].data;
+															var featureNames = opt.xAxis[0].data;
+
+															var dataTableId = "barDataTable";
+															var tableExportName = opt.xAxis[0].name + " - " + opt.title[0].text;
+
+																var htmlString = '<table id="' + dataTableId + '" class="table table-bordered" style="width:100%;text-align:center;">';
+																htmlString += "<thead>";
+																htmlString += "<tr>";
+																htmlString += "<th style='text-align:center;'>Feature-Name</th>";
+																htmlString += "<th style='text-align:center;'>" + opt.xAxis[0].name + " [" + opt.yAxis[0].name + "]</th>";
+																htmlString += "</tr>";
+																htmlString += "</thead>";
+
+																htmlString += "<tbody>";
+
+																for (var i=0; i<barData.length; i++){
+																	htmlString += "<tr>";
+																	htmlString += "<td>" + featureNames[i] + "</td>";
+																	htmlString += "<td>" + barData[i].value + "</td>";
+																	htmlString += "</tr>";
+																}
+
+																htmlString += "</tbody>";
+																htmlString += "</table>";
+
+																$rootScope.$broadcast("AppendExportButtonsForTable", dataTableId, tableExportName);
+
+														    return htmlString;
+															}},
 															restore : {show: true, title: "Restore"},
 															saveAsImage : {show: true, title: "Save"}
 													}
