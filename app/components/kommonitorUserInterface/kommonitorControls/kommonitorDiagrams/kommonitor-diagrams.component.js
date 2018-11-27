@@ -22,6 +22,7 @@ angular
 								$scope.isTooManyFeatures = false;
 								$scope.spatialUnitName;
 								$scope.date;
+								var numberOfDecimals = 4;
 
 								var compareFeaturesByIndicatorValue = function(featureA, featureB) {
 								  if (featureA.properties[$scope.indicatorPropertyName] < featureB.properties[$scope.indicatorPropertyName])
@@ -424,7 +425,7 @@ angular
 																for (var i=0; i<barData.length; i++){
 																	htmlString += "<tr>";
 																	htmlString += "<td>" + featureNames[i] + "</td>";
-																	htmlString += "<td>" + barData[i].value + "</td>";
+																	htmlString += "<td>" + Number(barData[i].value).toFixed(numberOfDecimals) + "</td>";
 																	htmlString += "</tr>";
 																}
 
@@ -620,7 +621,7 @@ angular
 																	htmlString += "<tr>";
 																	htmlString += "<td>" + timestamps[j] + "</td>";
 																	for (var k=0; k<lineSeries.length; k++){
-																		htmlString += "<td>" + lineSeries[k].data[j] + "</td>";
+																		htmlString += "<td>" + Number(lineSeries[k].data[j]).toFixed(numberOfDecimals) + "</td>";
 																	}
 																	htmlString += "</tr>";
 																}
