@@ -77,8 +77,17 @@ angular.module('kommonitorMap').component(
                     		visible : true
                     	};
 
+                      var wmsLayerRVR = L.tileLayer.wms('https://geodaten.metropoleruhr.de/spw2?', {
+                          layers: 'stadtplan_rvr'
+                      });
+                      wmsLayerRVR.StyledLayerControl = {
+                    		removable : false,
+                    		visible : false
+                    	};
+
                       osm_blackWhite.addTo($scope.baseMapLayers);
                       osm.addTo($scope.baseMapLayers);
+                      wmsLayerRVR.addTo($scope.baseMapLayers);
 
                       // $scope.map = L.map('map').setView([51.4386432, 7.0115552], 12);
                       $scope.map = L.map('map', {
@@ -91,6 +100,7 @@ angular.module('kommonitorMap').component(
                       osmBaseMapGroup.groupName = "Basiskarten";
                       osmBaseMapGroup.expanded = true;
                       osmBaseMapGroup.layers = {};
+                      osmBaseMapGroup.layers["RVR Stadtplan"] = wmsLayerRVR;
                       osmBaseMapGroup.layers["OpenStreetMap - Graustufen"] = osm_blackWhite;
                       osmBaseMapGroup.layers["OpenStreetMap"] = osm;
 
