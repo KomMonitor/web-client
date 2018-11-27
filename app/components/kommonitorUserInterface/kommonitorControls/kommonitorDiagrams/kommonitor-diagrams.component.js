@@ -579,7 +579,59 @@ angular
 													show : true,
 													feature : {
 															// mark : {show: true},
-															dataView : {show: true, readOnly: true, title: "Data View", lang: ['Data View', 'close', 'refresh']},
+															dataView : {show: true, readOnly: true, title: "Data View", lang: ['Data View', 'close', 'refresh'], optionToContent: function(opt){
+
+															// 	<table class="table table-condensed table-hover">
+															// 	<thead>
+															// 		<tr>
+															// 			<th>Indikator-Name</th>
+															// 			<th>Beschreibung der Verkn&uuml;pfung</th>
+															// 		</tr>
+															// 	</thead>
+															// 	<tbody>
+															// 		<tr ng-repeat="indicator in $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.referencedIndicators">
+															// 			<td>{{indicator.referencedIndicatorName}}</td>
+															// 			<td>{{indicator.referencedIndicatorDescription}}</td>
+															// 		</tr>
+															// 	</tbody>
+															// </table>
+
+															var lineSeries = opt.series;
+															var timestamps = opt.xAxis[0].data;
+
+															var dataTableId = "lineDataTable";
+															var tableExportName = opt.xAxis[0].name + " - " + opt.title[0].text;
+
+																var htmlString = '<table id="' + dataTableId + '" class="table table-bordered" style="width:100%;text-align:center;">';
+																htmlString += "<thead>";
+																htmlString += "<tr>";
+																htmlString += "<th style='text-align:center;'>Zeitpunkt</th>";
+
+																for (var i=0; i<lineSeries.length; i++){
+																	htmlString += "<th style='text-align:center;'>" + lineSeries[i].name + " [" + opt.yAxis[0].name + "]</th>";
+																}
+
+																htmlString += "</tr>";
+																htmlString += "</thead>";
+
+																htmlString += "<tbody>";
+
+																for (var j=0; j<timestamps.length; j++){
+																	htmlString += "<tr>";
+																	htmlString += "<td>" + timestamps[j] + "</td>";
+																	for (var k=0; k<lineSeries.length; k++){
+																		htmlString += "<td>" + lineSeries[k].data[j] + "</td>";
+																	}
+																	htmlString += "</tr>";
+																}
+
+																htmlString += "</tbody>";
+																htmlString += "</table>";
+
+																$rootScope.$broadcast("AppendExportButtonsForTable", dataTableId, tableExportName);
+
+														    return htmlString;
+															}},
 															restore : {show: true, title: "Restore"},
 															saveAsImage : {show: true, title: "Save"}
 													}
