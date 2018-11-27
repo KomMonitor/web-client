@@ -21,6 +21,8 @@ angular
 								$scope.selectableIndicatorsForRadar = new Array();
 								$scope.indicatorInputsForRadar = new Array();
 
+								var numberOfDecimals = 4;
+
 								$scope.setupCompleted = false;
 
 								$scope.date;
@@ -154,7 +156,59 @@ angular
 														show : true,
 														feature : {
 																// mark : {show: true},
-																dataView : {show: true, readOnly: true, title: "Data View", lang: ['Data View', 'close', 'refresh']},
+																dataView : {show: true, readOnly: true, title: "Data View", lang: ['Data View', 'close', 'refresh'], optionToContent: function(opt){
+
+																// 	<table class="table table-condensed table-hover">
+																// 	<thead>
+																// 		<tr>
+																// 			<th>Indikator-Name</th>
+																// 			<th>Beschreibung der Verkn&uuml;pfung</th>
+																// 		</tr>
+																// 	</thead>
+																// 	<tbody>
+																// 		<tr ng-repeat="indicator in $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.referencedIndicators">
+																// 			<td>{{indicator.referencedIndicatorName}}</td>
+																// 			<td>{{indicator.referencedIndicatorDescription}}</td>
+																// 		</tr>
+																// 	</tbody>
+																// </table>
+
+																var radarSeries = opt.series[0].data;
+																var indicators = opt.radar[0].indicator;
+
+																var dataTableId = "radarDataTable";
+																var tableExportName = opt.title[0].text;
+
+																	var htmlString = '<table id="' + dataTableId + '" class="table table-bordered table-condensed" style="width:100%;text-align:center;">';
+																	htmlString += "<thead>";
+																	htmlString += "<tr>";
+																	htmlString += "<th style='text-align:center;'>Feature-Name</th>";
+
+																	for (var i=0; i<indicators.length; i++){
+																		htmlString += "<th style='text-align:center;'>" + indicators[i].name + " [" + indicators[i].unit + "]</th>";
+																	}
+
+																	htmlString += "</tr>";
+																	htmlString += "</thead>";
+
+																	htmlString += "<tbody>";
+
+																	for (var j=0; j<radarSeries.length; j++){
+																		htmlString += "<tr>";
+																		htmlString += "<td>" + radarSeries[j].name + "</td>";
+																		for (var k=0; k<indicators.length; k++){
+																			htmlString += "<td>" + Number(radarSeries[j].value[k]).toFixed(numberOfDecimals) + "</td>";
+																		}
+																		htmlString += "</tr>";
+																	}
+
+																	htmlString += "</tbody>";
+																	htmlString += "</table>";
+
+																	$rootScope.$broadcast("AppendExportButtonsForTable", dataTableId, tableExportName);
+
+															    return htmlString;
+																}},
 																restore : {show: true, title: "Restore"},
 																saveAsImage : {show: true, title: "Save"}
 														}
