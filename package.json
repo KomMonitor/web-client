@@ -46,7 +46,10 @@
     "@fortawesome/fontawesome-free": "^5.5.0",
     "@ngageoint/leaflet-geopackage": "^2.0.4",
     "classybrew": "0.0.3",
+    "file-saverjs": "^1.3.6",
+    "js-xlsx": "^0.8.22",
     "leaflet": "^1.3.4",
-    "leaflet.timeline": "^1.2.1"
+    "leaflet.timeline": "^1.2.1",
+    "tableexport": "^5.0.5"
   }
 }
