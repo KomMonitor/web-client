@@ -191,7 +191,10 @@ angular
 
 														var histogramData = opt.series[0].data;
 
-															var htmlString = '<table class="table table-bordered" style="width:100%;text-align:center;">';
+														var dataTableId = "histogramDataTable";
+														var tableExportName = opt.xAxis[0].name + " - " + opt.title[0].text;
+
+															var htmlString = '<table id="' + dataTableId + '" class="table table-bordered" style="width:100%;text-align:center;">';
 															htmlString += "<thead>";
 															htmlString += "<tr>";
 															htmlString += "<th style='text-align:center;'>Wertintervall</th>";
@@ -210,6 +213,8 @@ angular
 
 															htmlString += "</tbody>";
 															htmlString += "</table>";
+
+															$rootScope.$broadcast("AppendExportButtonsForTable", dataTableId, tableExportName);
 
 													    return htmlString;
 														}},
@@ -736,6 +741,29 @@ angular
 										});
 									}
 								};
+
+								$scope.$on("AppendExportButtonsForTable", function (event, tableId, tableExportName) {
+
+									setTimeout(function () {
+
+
+										// new TableExport(document.getElementsByTagName("table"), {
+										new TableExport(document.getElementById(tableId), {
+												headers: true,                              // (Boolean), display table headers (th or td elements) in the <thead>, (default: true)
+												footers: true,                              // (Boolean), display table footers (th or td elements) in the <tfoot>, (default: false)
+												formats: ['xlsx', 'csv', 'txt'],            // (String[]), filetype(s) for the export, (default: ['xlsx', 'csv', 'txt'])
+												filename: tableExportName,                             // (id, String), filename for the downloaded file, (default: 'id')
+												bootstrap: true,                           // (Boolean), style buttons using bootstrap, (default: true)
+												exportButtons: true,                        // (Boolean), automatically generate the built-in export buttons for each of the specified formats (default: true)
+												position: 'top',                         // (top, bottom), position of the caption element relative to table, (default: 'bottom')
+												ignoreRows: null,                           // (Number, Number[]), row indices to exclude from the exported file(s) (default: null)
+												ignoreCols: null,                           // (Number, Number[]), column indices to exclude from the exported file(s) (default: null)
+												trimWhitespace: true                        // (Boolean), remove all leading/trailing newlines, spaces, and tabs from cell text in the exported file(s) (default: false)
+										});
+							    }, 50);
+
+
+								});
 
 							} ]
 				});
