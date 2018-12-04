@@ -461,9 +461,9 @@ angular
 											yAxis: {
 									        type: 'value',
 									        name: indicatorMetadataAndGeoJSON.unit,
-									        splitArea: {
-									            show: true
-									        }
+									        // splitArea: {
+									        //     show: true
+									        // }
 									    },
 											series: [{
 													// name: indicatorMetadataAndGeoJSON.indicatorName,
@@ -662,9 +662,9 @@ angular
 											yAxis: {
 									        type: 'value',
 									        name: indicatorMetadataAndGeoJSON.unit,
-									        splitArea: {
-									            show: true
-									        }
+									        // splitArea: {
+									        //     show: true
+									        // }
 									    },
 											series: [{
 													name: "Durchschnitt",
