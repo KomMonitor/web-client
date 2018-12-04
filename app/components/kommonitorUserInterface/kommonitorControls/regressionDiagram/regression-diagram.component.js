@@ -331,7 +331,86 @@ angular
 														show : true,
 														feature : {
 																// mark : {show: true},
-																dataView : {show: true, readOnly: true, title: "Data View", lang: ['Data View', 'close', 'refresh']},
+																dataView : {show: true, readOnly: true, title: "Data View", lang: ['Data View', 'close', 'refresh'], optionToContent: function(opt){
+
+																// 	<table class="table table-condensed table-hover">
+																// 	<thead>
+																// 		<tr>
+																// 			<th>Indikator-Name</th>
+																// 			<th>Beschreibung der Verkn&uuml;pfung</th>
+																// 		</tr>
+																// 	</thead>
+																// 	<tbody>
+																// 		<tr ng-repeat="indicator in $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.referencedIndicators">
+																// 			<td>{{indicator.referencedIndicatorName}}</td>
+																// 			<td>{{indicator.referencedIndicatorDescription}}</td>
+																// 		</tr>
+																// 	</tbody>
+																// </table>
+
+																// has properties "name" and "value"
+																// value: [Number(xAxisDataElement.toFixed(4)), Number(yAxisDataElement.toFixed(4))]
+																var scatterSeries = opt.series[0].data;
+																var lineSeries = opt.series[1].data;
+
+																var dataTableId = "regressionDataTable";
+																var tableExportName = opt.title[0].text + " - Scatter Table";
+
+																var htmlString = "<p>Data View enth&auml;lt zwei nachstehende Tabellen, die Tabelle des Scatter Plots und die Tabelle der Punkte der Regressionsgeraden.</p><br/>";
+																htmlString += '<h4>Scatter Plot Tabelle</h4>';
+																	htmlString += '<table id="' + dataTableId + '" class="table table-bordered table-condensed" style="width:100%;text-align:center;">';
+																	htmlString += "<thead>";
+																	htmlString += "<tr>";
+																	htmlString += "<th style='text-align:center;'>Feature-Name</th>";
+																	htmlString += "<th style='text-align:center;'>" + opt.xAxis[0].name + "</th>";
+																	htmlString += "<th style='text-align:center;'>" + opt.yAxis[0].name + "</th>";
+
+																	htmlString += "</tr>";
+																	htmlString += "</thead>";
+
+																	htmlString += "<tbody>";
+
+																	for (var j=0; j<scatterSeries.length; j++){
+																		htmlString += "<tr>";
+																		htmlString += "<td>" + scatterSeries[j].name + "</td>";
+																		htmlString += "<td>" + scatterSeries[j].value[0] + "</td>";
+																		htmlString += "<td>" + scatterSeries[j].value[1] + "</td>";
+																		htmlString += "</tr>";
+																	}
+
+																	htmlString += "</tbody>";
+																	htmlString += "</table>";
+
+																	var lineTableId = "lineDataTable";
+																	var lineTableExportName = opt.title[0].text + " - Line Table";
+
+																	htmlString += '<br/><h4>Referenzpunkte der Regressionsgraden</h4>';
+
+																	htmlString += '<table id="' + lineTableId + '" class="table table-bordered table-condensed" style="width:100%;text-align:center;">';
+																	htmlString += "<thead>";
+																	htmlString += "<tr>";
+																	htmlString += "<th style='text-align:center;'>X</th>";
+																	htmlString += "<th style='text-align:center;'>Y</th>";
+																	htmlString += "</tr>";
+																	htmlString += "</thead>";
+
+																	htmlString += "<tbody>";
+
+																	for (var j=0; j<lineSeries.length; j++){
+																		htmlString += "<tr>";
+																		htmlString += "<td>" + lineSeries[j][0] + "</td>";
+																		htmlString += "<td>" + lineSeries[j][1] + "</td>";
+																		htmlString += "</tr>";
+																	}
+
+																	htmlString += "</tbody>";
+																	htmlString += "</table>";
+
+																	$rootScope.$broadcast("AppendExportButtonsForTable", dataTableId, tableExportName);
+																	$rootScope.$broadcast("AppendExportButtonsForTable", lineTableId, lineTableExportName);
+
+															    return htmlString;
+																}},
 																restore : {show: true, title: "Restore"},
 																saveAsImage : {show: true, title: "Save"}
 														}
