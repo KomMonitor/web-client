@@ -171,9 +171,10 @@ angular
 										},
 										toolbox: {
 												show : true,
+												right: '25',
 												feature : {
 														// mark : {show: true},
-														dataView : {show: true, readOnly: true, title: "Data View", lang: ['Data View', 'close', 'refresh'], optionToContent: function(opt){
+														dataView : {show: true, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Histogramm', 'schlie&szlig;en', 'refresh'], optionToContent: function(opt){
 
 														// 	<table class="table table-condensed table-hover">
 														// 	<thead>
@@ -219,8 +220,8 @@ angular
 
 													    return htmlString;
 														}},
-														restore : {show: true, title: "Restore"},
-														saveAsImage : {show: true, title: "Save"}
+														restore : {show: true, title: "Erneuern"},
+														saveAsImage : {show: true, title: "Export"}
 												}
 										},
                     xAxis: [{
@@ -372,7 +373,7 @@ angular
 
 									$scope.barOption = {
 											title: {
-													text: 'Wertvergleich - ' + $scope.spatialUnitName + ' - ' + $scope.date,
+													text: 'Feature-Vergleich - ' + $scope.spatialUnitName + ' - ' + $scope.date,
 													left: 'center',
 									        // top: 15
 											},
@@ -387,9 +388,10 @@ angular
 											},
 											toolbox: {
 													show : true,
+													right: '25',
 													feature : {
 															// mark : {show: true},
-															dataView : {show: true, readOnly: true, title: "Data View", lang: ['Data View', 'close', 'refresh'], optionToContent: function(opt){
+															dataView : {show: true, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Feature-Vergleich', 'schlie&szlig;en', 'refresh'], optionToContent: function(opt){
 
 															// 	<table class="table table-condensed table-hover">
 															// 	<thead>
@@ -436,8 +438,8 @@ angular
 
 														    return htmlString;
 															}},
-															restore : {show: true, title: "Restore"},
-															saveAsImage : {show: true, title: "Save"}
+															restore : {show: true, title: "Erneuern"},
+															saveAsImage : {show: true, title: "Export"}
 													}
 											},
 											// legend: {
@@ -578,9 +580,10 @@ angular
 											},
 											toolbox: {
 													show : true,
+													right: '25',
 													feature : {
 															// mark : {show: true},
-															dataView : {show: true, readOnly: true, title: "Data View", lang: ['Data View', 'close', 'refresh'], optionToContent: function(opt){
+															dataView : {show: true, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Zeitreihe', 'schlie&szlig;en', 'refresh'], optionToContent: function(opt){
 
 															// 	<table class="table table-condensed table-hover">
 															// 	<thead>
@@ -633,8 +636,8 @@ angular
 
 														    return htmlString;
 															}},
-															restore : {show: true, title: "Restore"},
-															saveAsImage : {show: true, title: "Save"}
+															restore : {show: true, title: "Erneuern"},
+															saveAsImage : {show: true, title: "Export"}
 													}
 											},
 											legend: {
