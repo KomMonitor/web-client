@@ -384,7 +384,7 @@ angular
 																	var lineTableId = "lineDataTable";
 																	var lineTableExportName = opt.title[0].text + " - Line Table";
 
-																	htmlString += '<br/><h4>Referenzpunkte der Regressionsgraden</h4>';
+																	htmlString += "<br/><h4>Referenzpunkte der Regressionsgraden '" + $scope.linearRegression.expression + "'</h4>";
 
 																	htmlString += '<table id="' + lineTableId + '" class="table table-bordered table-condensed" style="width:100%;text-align:center;">';
 																	htmlString += "<thead>";
