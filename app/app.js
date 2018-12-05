@@ -10,3 +10,9 @@ var appModule = angular.module('kommonitorClient', [ 'kommonitorUserInterface' ]
 
 // Register environment in AngularJS as constant
 appModule.constant('__env', env);
+
+if (!env.enableDebug) {
+  if(window){
+    window.console.log=function(){};
+  }
+}
