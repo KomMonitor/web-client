@@ -15,7 +15,20 @@ module.exports = {
     plugins: [
       new CopyWebpackPlugin([
           { from: nodeModulePathConstant + 'bootstrap/dist', to: 'bootstrap/' },
-          { from: nodeModulePathConstant + 'leaflet/dist', to: 'leaflet/' }
+          { from: nodeModulePathConstant + 'leaflet/dist', to: 'leaflet/' },
+          { from: './customizedExternalLibs/Leaflet.StyledLayerControl-master/src/styledLayerControl.js', to: 'styledLayerControl/styledLayerControl_custom.js' },
+          { from: './customizedExternalLibs/Leaflet.StyledLayerControl-master/css', to: 'styledLayerControl/css/' },
+          { from: nodeModulePathConstant + 'rangeslide.js/dist', to: 'rangeslide/' },
+          { from: nodeModulePathConstant + '@fortawesome/fontawesome-free', to: 'fontawesome/' },
+          { from: nodeModulePathConstant + 'file-saverjs/FileSaver.min.js', to: 'file-saverjs/FileSaver.min.js' },
+          { from: nodeModulePathConstant + 'js-xlsx/dist/xlsx.full.min.js', to: 'js-xlsx/xlsx.full.min.js' },
+          { from: nodeModulePathConstant + 'tableexport/dist', to: 'tableexport' },
+          { from: nodeModulePathConstant + 'leaflet-draw/dist', to: 'leaflet-draw/' },
+          { from: nodeModulePathConstant + 'jquery/dist', to: 'jquery/' },
+          { from: nodeModulePathConstant + 'angular/angular.min.js', to: 'angular/angular.min.js' },
+          { from: nodeModulePathConstant + 'classybrew/build/classybrew.min.js', to: 'classybrew/classybrew.min.js' },
+          { from: nodeModulePathConstant + 'echarts/dist/echarts.min.js', to: 'echarts/echarts.min.js' },
+          { from: './customizedExternalLibs/ecStat.min.js', to: 'echarts/ecStat.min.js' },
       ])
     ]
 };
