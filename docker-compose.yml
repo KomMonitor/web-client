@@ -1,0 +1,14 @@
+version: '2.1'
+
+networks:
+  kommonitor:
+      name: kommonitor-network
+
+services:
+  kommonitor-client:
+    image: 'kommonitor-client'
+    build: '.'
+    ports:
+        - 8087:80
+    networks:
+     - kommonitor
