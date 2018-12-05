@@ -27,6 +27,7 @@
     "webpack-cli": "^3.1.2"
   },
   "scripts": {
+    "build": "webpack",
     "prestart": "npm install",
     "start": "http-server -a localhost -p 8000 -c-1 ./app",
     "pretest": "npm install",
