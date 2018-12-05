@@ -5,24 +5,24 @@ module.exports = function (grunt) {
         context_name: '<%= name %>##<%= pkg.version %>-<%= grunt.template.today("yyyymmddHHMM")%>',
         kommonitor_client: [
             'app/util/genericServices/kommonitorDataExchangeService/kommonitor-data-exchange-service.module.js',
-            'components/kommonitorUserInterface/kommonitorControls/kommonitorDataSetup/kommonitor-data-setup.module.js',
-            'components/kommonitorUserInterface/kommonitorControls/kommonitorDataSetup/kommonitor-data-setup.component.js',
-            'components/kommonitorUserInterface/kommonitorControls/measureOfValueClassification/measure-of-value-classification.module.js',
-            'components/kommonitorUserInterface/kommonitorControls/measureOfValueClassification/measure-of-value-classification.component.js',
-            'components/kommonitorUserInterface/kommonitorControls/kommonitorAdmin/kommonitor-admin.module.js',
-            'components/kommonitorUserInterface/kommonitorControls/kommonitorAdmin/kommonitor-admin.component.js',
-            'components/kommonitorUserInterface/kommonitorControls/kommonitorIndividualIndicatorComputation/kommonitor-individual-indicator-computation.module.js',
-            'components/kommonitorUserInterface/kommonitorControls/kommonitorIndividualIndicatorComputation/kommonitor-individual-indicator-computation.component.js',
-            'components/kommonitorUserInterface/kommonitorControls/kommonitorDiagrams/kommonitor-diagrams.module.js',
-            'components/kommonitorUserInterface/kommonitorControls/kommonitorDiagrams/kommonitor-diagrams.component.js',
-            'components/kommonitorUserInterface/kommonitorControls/indicatorRadar/indicator-radar.module.js',
-            'components/kommonitorUserInterface/kommonitorControls/indicatorRadar/indicator-radar.component.js',
-            'components/kommonitorUserInterface/kommonitorControls/regressionDiagram/regression-diagram.module.js',
-            'components/kommonitorUserInterface/kommonitorControls/regressionDiagram/regression-diagram.component.js',
-            'components/kommonitorUserInterface/kommonitorMap/kommonitor-map.module.js',
-            'components/kommonitorUserInterface/kommonitorMap/kommonitor-map.component.js',
-            'components/kommonitorUserInterface/kommonitor-user-interface.module.js',
-            'components/kommonitorUserInterface/kommonitor-user-interface.component.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/kommonitorDataSetup/kommonitor-data-setup.module.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/kommonitorDataSetup/kommonitor-data-setup.component.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/measureOfValueClassification/measure-of-value-classification.module.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/measureOfValueClassification/measure-of-value-classification.component.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/kommonitorAdmin/kommonitor-admin.module.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/kommonitorAdmin/kommonitor-admin.component.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/kommonitorIndividualIndicatorComputation/kommonitor-individual-indicator-computation.module.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/kommonitorIndividualIndicatorComputation/kommonitor-individual-indicator-computation.component.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/kommonitorDiagrams/kommonitor-diagrams.module.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/kommonitorDiagrams/kommonitor-diagrams.component.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/indicatorRadar/indicator-radar.module.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/indicatorRadar/indicator-radar.component.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/regressionDiagram/regression-diagram.module.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/regressionDiagram/regression-diagram.component.js',
+            'app/components/kommonitorUserInterface/kommonitorMap/kommonitor-map.module.js',
+            'app/components/kommonitorUserInterface/kommonitorMap/kommonitor-map.component.js',
+            'app/components/kommonitorUserInterface/kommonitor-user-interface.module.js',
+            'app/components/kommonitorUserInterface/kommonitor-user-interface.component.js',
       			'app/app.js'
         ],
         kommonitor_styles: [
@@ -98,7 +98,7 @@ module.exports = function (grunt) {
             },
             appJs: {
                 files: {
-                    'dist/kommonitor-client.min.js': ['<%= concat.kommonitor.dest %>']
+                    'dist/js/kommonitor-client.min.js': ['<%= concat.kommonitor.dest %>']
                 }
             }
         },
@@ -186,7 +186,8 @@ module.exports = function (grunt) {
         }
     });
 
-    grunt.loadNpmTasks('grunt-contrib-uglify');
+    // grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-contrib-uglify-es');
     grunt.loadNpmTasks('grunt-contrib-cssmin');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-watch');
