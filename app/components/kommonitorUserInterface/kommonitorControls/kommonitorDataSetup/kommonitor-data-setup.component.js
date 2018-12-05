@@ -9,10 +9,10 @@ angular
 					 * enabled tabs
 					 */
 					controller : [
-							'kommonitorDataExchangeService', '$scope', 'kommonitorMapService', '$http', '$rootScope',
-							function kommonitorDataSetupController(kommonitorDataExchangeService, $scope, kommonitorMapService, $http, $rootScope) {
+							'kommonitorDataExchangeService', '$scope', 'kommonitorMapService', '$http', '$rootScope', '__env',
+							function kommonitorDataSetupController(kommonitorDataExchangeService, $scope, kommonitorMapService, $http, $rootScope, __env) {
 
-								const INDICATOR_DATE_PREFIX = "DATE_";
+								const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
 
 								// var rangeslide = require("rangeslide");
 								/*

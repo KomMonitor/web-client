@@ -6,22 +6,22 @@ angular
 					templateUrl : "components/kommonitorUserInterface/kommonitorControls/indicatorRadar/indicator-radar.template.html",
 
 					controller : [
-							'kommonitorDataExchangeService', '$scope', '$rootScope', '$http',
+							'kommonitorDataExchangeService', '$scope', '$rootScope', '$http', '__env',
 							function indicatorRadarController(
-									kommonitorDataExchangeService, $scope, $rootScope, $http) {
+									kommonitorDataExchangeService, $scope, $rootScope, $http, __env) {
 								/*
 								 * reference to kommonitorDataExchangeService instances
 								 */
 								this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
-								const DATE_PREFIX = "DATE_";
+								const DATE_PREFIX = __env.indicatorDatePrefix;
 
 								//$scope.allIndicatorProperties;
 								$scope.namesOfFailedIndicators  = new Array();
 								$scope.selectableIndicatorsForRadar = new Array();
 								$scope.indicatorInputsForRadar = new Array();
 
-								var numberOfDecimals = 4;
+								var numberOfDecimals = __env.numberOfDecimals;
 
 								$scope.setupCompleted = false;
 

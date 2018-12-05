@@ -10,19 +10,19 @@ angular
 					 */
 					controller : [
 							'kommonitorDataExchangeService',
-							'$scope', '$rootScope',
+							'$scope', '$rootScope', '__env',
 							function kommonitorDiagramsController(kommonitorDataExchangeService,
-									$scope, $rootScope) {
+									$scope, $rootScope, __env) {
 								this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
-								const INDICATOR_DATE_PREFIX = "DATE_";
+								const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
 
 								// $scope.userHoveresOverBarItem = false;
 								$scope.eventsRegistered = false;
 								$scope.isTooManyFeatures = false;
 								$scope.spatialUnitName;
 								$scope.date;
-								var numberOfDecimals = 4;
+								var numberOfDecimals = __env.numberOfDecimals;
 
 								var compareFeaturesByIndicatorValue = function(featureA, featureB) {
 								  if (featureA.properties[$scope.indicatorPropertyName] < featureB.properties[$scope.indicatorPropertyName])
@@ -122,8 +122,8 @@ angular
 									updateLineChart(indicatorMetadataAndGeoJSON, indicatorTimeSeriesDatesArray, indicatorTimeSeriesAverageArray);
 
 									// bar chart only if feature number is below 75
-									if (indicatorMetadataAndGeoJSON.geoJSON.features.length > 75){
-										console.log("Number of features too big (more than 75). Thus bar diagram cannot be created");
+									if (indicatorMetadataAndGeoJSON.geoJSON.features.length > 50){
+										console.log("Number of features too big (more than 50). Thus bar diagram cannot be created");
 
 										// remove bar diagram if exist
 										if($scope.barChart){

@@ -6,15 +6,15 @@ angular
 					templateUrl : "components/kommonitorUserInterface/kommonitorControls/regressionDiagram/regression-diagram.template.html",
 
 					controller : [
-							'kommonitorDataExchangeService', '$scope', '$rootScope', '$http',
+							'kommonitorDataExchangeService', '$scope', '$rootScope', '$http', '__env',
 							function indicatorRadarController(
-									kommonitorDataExchangeService, $scope, $rootScope, $http) {
+									kommonitorDataExchangeService, $scope, $rootScope, $http, __env) {
 								/*
 								 * reference to kommonitorDataExchangeService instances
 								 */
 								this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
-								const DATE_PREFIX = "DATE_";
+								const DATE_PREFIX = __env.indicatorDatePrefix;
 
 								$scope.setupCompleted = false;
 

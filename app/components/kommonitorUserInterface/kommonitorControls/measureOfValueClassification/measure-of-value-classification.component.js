@@ -8,9 +8,9 @@ angular
 					 * injected with a modules service method that manages
 					 * enabled tabs
 					 */
-					controller : ['$scope', '$rootScope', 'kommonitorMapService', 'kommonitorDataExchangeService', function measureOfValueClassificationController($scope, $rootScope, kommonitorMapService, kommonitorDataExchangeService) {
+					controller : ['$scope', '$rootScope', 'kommonitorMapService', 'kommonitorDataExchangeService', '__env', function measureOfValueClassificationController($scope, $rootScope, kommonitorMapService, kommonitorDataExchangeService, __env) {
 
-							const INDICATOR_DATE_PREFIX = "DATE_";
+							const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
 							this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 							this.kommonitorMapServiceInstance = kommonitorMapService;
 

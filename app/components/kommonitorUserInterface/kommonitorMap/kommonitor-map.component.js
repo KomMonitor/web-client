@@ -8,18 +8,20 @@ angular.module('kommonitorMap').component(
                 '$scope',
                 '$timeout',
                 'kommonitorMapService',
-				            'kommonitorDataExchangeService',
-                function MapController($rootScope, $http, $scope, $timeout, kommonitorMapService, kommonitorDataExchangeService) {
+				        'kommonitorDataExchangeService',
+                '__env',
+                function MapController($rootScope, $http, $scope, $timeout, kommonitorMapService, kommonitorDataExchangeService, __env) {
 
-                    const INDICATOR_DATE_PREFIX = "DATE_";
+                    const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
+                    const numberOfDecimals = __env.numberOfDecimals;
 
                     this.kommonitorMapServiceInstance = kommonitorMapService;
 					          this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
                     $scope.inputLayerCounter = 0;
 
-                    $scope.latCenter = 51.4386432;
-                    $scope.lonCenter = 7.0115552;
-                    $scope.zoomLevel = 12;
+                    $scope.latCenter = __env.initialLatitude;
+                    $scope.lonCenter = __env.initialLongitude;
+                    $scope.zoomLevel = __env.initialZoomLevel;
 
                     $scope.loadingData = true;
 
@@ -46,7 +48,7 @@ angular.module('kommonitorMap').component(
 
                     $scope.currentIndicatorLayerOfCurrentLayer;
                     $scope.currentIndicatorContainsZeroValues = false;
-                    $scope.defaultColorForZeroValues = "#525252";
+                    $scope.defaultColorForZeroValues = __env.defaultColorForZeroValues;
 
                     $scope.customIndicatorPropertyName;
                     $scope.customIndicatorName;
@@ -65,7 +67,7 @@ angular.module('kommonitorMap').component(
                       // create OSM tile layer with correct attribution
                       var osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
                       var osmAttrib='Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
-                      var osm = new L.TileLayer(osmUrl, {minZoom: 1, maxZoom: 19, attribution: osmAttrib});
+                      var osm = new L.TileLayer(osmUrl, {minZoom: __env.minZoomLevel, maxZoom: __env.maxZoomLevel, attribution: osmAttrib});
                       osm.StyledLayerControl = {
                     		removable : false,
                     		visible : false
@@ -268,7 +270,7 @@ angular.module('kommonitorMap').component(
                         for (var i = 0; i < colors.length; i++) {
                             $scope.div.innerHTML +=
                                 '<i style="background:' + colors[i] + '"></i> ' +
-                                defaultClassificationMapping.items[i].defaultCustomRating + ' (' + (+labels[i].toFixed(4)) + ((+labels[i + 1].toFixed(4)) ? ' &mdash; ' + (+labels[i + 1].toFixed(4)) + ') <br>' : '+');
+                                defaultClassificationMapping.items[i].defaultCustomRating + ' (' + (+labels[i].toFixed(numberOfDecimals)) + ((+labels[i + 1].toFixed(numberOfDecimals)) ? ' &mdash; ' + (+labels[i + 1].toFixed(numberOfDecimals)) + ') <br>' : '+');
                         }
 
                         return $scope.div;
@@ -328,7 +330,7 @@ angular.module('kommonitorMap').component(
                             $scope.div.innerHTML +=
                                 '<i style="background:' + colorsLtMeasureOfValue[colorsLtMeasureOfValue.length - 1 - i] + '"></i> ' +
                                 //(+labelsLtMeasureOfValue[i].toFixed(4)) + ((+labelsLtMeasureOfValue[i + 1].toFixed(4)) ? ' &mdash; ' + (+labelsLtMeasureOfValue[i + 1].toFixed(4)) + '<br>' : '+');
-                                labelArray_below[i] + ' (' + (+labelsLtMeasureOfValue[i].toFixed(3)) + ((+labelsLtMeasureOfValue[i + 1].toFixed(3)) ? ' &mdash; ' + (+labelsLtMeasureOfValue[i + 1].toFixed(3)) + ') <br>' : '+');
+                                labelArray_below[i] + ' (' + (+labelsLtMeasureOfValue[i].toFixed(numberOfDecimals)) + ((+labelsLtMeasureOfValue[i + 1].toFixed(numberOfDecimals)) ? ' &mdash; ' + (+labelsLtMeasureOfValue[i + 1].toFixed(numberOfDecimals)) + ') <br>' : '+');
                         }
 
                         $scope.div.innerHTML += "<br/>";
@@ -338,7 +340,7 @@ angular.module('kommonitorMap').component(
                         for (var i = 0; i < colorsGtMeasureOfValue.length; i++) {
                             $scope.div.innerHTML +=
                                 '<i style="background:' + colorsGtMeasureOfValue[i] + '"></i> ' +
-                                labelArray_upper[i] + ' (' + (+labelsGtMeasureOfValue[i].toFixed(3)) + ((+labelsGtMeasureOfValue[i + 1].toFixed(3)) ? ' &mdash; ' + (+labelsGtMeasureOfValue[i + 1].toFixed(3)) + ') <br>' : '+');
+                                labelArray_upper[i] + ' (' + (+labelsGtMeasureOfValue[i].toFixed(numberOfDecimals)) + ((+labelsGtMeasureOfValue[i + 1].toFixed(numberOfDecimals)) ? ' &mdash; ' + (+labelsGtMeasureOfValue[i + 1].toFixed(numberOfDecimals)) + ') <br>' : '+');
                         }
 
                         return $scope.div;
