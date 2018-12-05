@@ -12,16 +12,16 @@ angular.module('kommonitorDataExchange', ['kommonitorMap']);
 angular
 		.module('kommonitorDataExchange')
 		.service(
-				'kommonitorDataExchangeService', ['$rootScope', 'kommonitorMapService', '$http',
+				'kommonitorDataExchangeService', ['$rootScope', 'kommonitorMapService', '$http', '__env',
 				function($rootScope,
-						kommonitorMapService, $http) {
+						kommonitorMapService, $http, __env) {
 
 					this.kommonitorMapServiceInstance = kommonitorMapService;
 
 					this.isMeasureOfValueChecked = false;
 					this.tmpIndicatorGeoJSON = undefined;
 
-					this.baseUrlToKomMonitorDataAPI = "http://localhost:8085/rest/v1";
+					this.baseUrlToKomMonitorDataAPI = __env.apiUrl + __env.basePath;
 
 					this.availableProcessScripts;
 

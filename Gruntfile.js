@@ -23,7 +23,8 @@ module.exports = function (grunt) {
             'app/components/kommonitorUserInterface/kommonitorMap/kommonitor-map.component.js',
             'app/components/kommonitorUserInterface/kommonitor-user-interface.module.js',
             'app/components/kommonitorUserInterface/kommonitor-user-interface.component.js',
-      			'app/app.js'
+            'app/env.js',
+            'app/app.js'
         ],
         kommonitor_styles: [
             'app/app.css'
