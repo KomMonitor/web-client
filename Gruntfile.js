@@ -31,8 +31,8 @@ module.exports = function (grunt) {
         copy_files: [
             //the path prefix 'app/' will be set in the copy-command itself! Thus is omitted here.
             'dependencies/**/*',
-            'iconsFromPngTree/*',
-            'logos/*',
+            'iconsFromPngTree/**/*',
+            'logos/**/*',
 			      'components/**/*.template.html'
         ],
         clean: ["dist/"],
