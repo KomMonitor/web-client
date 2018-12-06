@@ -103,10 +103,10 @@ angular
 												valueSum += Number(indicatorPropertyInstance[DATE_PREFIX + $scope.date]);
 
 												if(Number(indicatorPropertyInstance[DATE_PREFIX + $scope.date]) > maxValue)
-													maxValue = Number(Number(indicatorPropertyInstance[DATE_PREFIX + $scope.date]).toFixed(4));
+													maxValue = Number(Number(indicatorPropertyInstance[DATE_PREFIX + $scope.date]).toFixed(numberOfDecimals));
 
 												if(Number(indicatorPropertyInstance[DATE_PREFIX + $scope.date]) < minValue)
-													minValue = Number(Number(indicatorPropertyInstance[DATE_PREFIX + $scope.date]).toFixed(4));
+													minValue = Number(Number(indicatorPropertyInstance[DATE_PREFIX + $scope.date]).toFixed(numberOfDecimals));
 											}
 
 											// IT MIGHT HAPPEN THAT AN INDICATOR IS INSPECTED THAT DOES NOT SUPPORT THE DATE
@@ -119,7 +119,7 @@ angular
 													min: minValue
 												});
 
-												defaultSeriesValueArray.push(Number(Number(valueSum/indicatorProperties.length).toFixed(4)));
+												defaultSeriesValueArray.push(Number(Number(valueSum/indicatorProperties.length).toFixed(numberOfDecimals)));
 											// }
 										}
 
@@ -413,7 +413,7 @@ angular
 											for(var indicatorPropertyInstance of indicatorProperties){
 												if(indicatorPropertyInstance.spatialUnitFeatureName === featureProperties.spatialUnitFeatureName){
 													if(indicatorPropertyInstance[DATE_PREFIX + $scope.date] != undefined && indicatorPropertyInstance[DATE_PREFIX + $scope.date] != null){
-														featureSeries.value.push(Number(Number(indicatorPropertyInstance[DATE_PREFIX + $scope.date]).toFixed(4)));
+														featureSeries.value.push(Number(Number(indicatorPropertyInstance[DATE_PREFIX + $scope.date]).toFixed(numberOfDecimals)));
 													}
 													break;
 												}

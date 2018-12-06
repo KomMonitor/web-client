@@ -13,6 +13,7 @@ angular
 							const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
 							this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 							this.kommonitorMapServiceInstance = kommonitorMapService;
+							var numberOfDecimals = __env.numberOfDecimals;
 
 							$scope.minValue;
 							$scope.maxValue;
@@ -93,7 +94,7 @@ angular
 
 										if(counterToFive === 5){
 											// plus sign turn it into a number again and removes tailing 0s
-											$scope.minValue = +values[i].toFixed(4);
+											$scope.minValue = +values[i].toFixed(numberOfDecimals);
 										}
 									}
 
@@ -101,9 +102,9 @@ angular
 
 								// plus sign turn it into a number again and removes tailing 0s
 								// minValue = +values[4].toFixed(4);
-								$scope.maxValue = +values[values.length - 4].toFixed(4);
+								$scope.maxValue = +values[values.length - 4].toFixed(numberOfDecimals);
 
-								$scope.middleValue = +(($scope.maxValue + $scope.minValue) / 2).toFixed(4);
+								$scope.middleValue = +(($scope.maxValue + $scope.minValue) / 2).toFixed(numberOfDecimals);
 								// $scope.step = +($scope.maxValue/values.length).toFixed(4);
 								$scope.step = 1;
 

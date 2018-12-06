@@ -184,12 +184,12 @@ angular
 										// + sign turns output into number!
 										var xAxisDataElement = +indicatorPropertiesArrayForXAxis[i][DATE_PREFIX + kommonitorDataExchangeService.selectedDate];
 										var yAxisDataElement = +indicatorPropertiesArrayForYAxis[i][DATE_PREFIX + kommonitorDataExchangeService.selectedDate];
-										$scope.data.push([Number(xAxisDataElement.toFixed(4)), Number(yAxisDataElement.toFixed(4))]);
+										$scope.data.push([Number(xAxisDataElement.toFixed(numberOfDecimals)), Number(yAxisDataElement.toFixed(numberOfDecimals))]);
 
 										var featureName = indicatorPropertiesArrayForXAxis[i].spatialUnitFeatureName;
 										$scope.dataWithLabels.push({
 											name: featureName,
-											value: [Number(xAxisDataElement.toFixed(4)), Number(yAxisDataElement.toFixed(4))]
+											value: [Number(xAxisDataElement.toFixed(numberOfDecimals)), Number(yAxisDataElement.toFixed(numberOfDecimals))]
 										});
 									}
 
@@ -289,8 +289,8 @@ angular
 										$scope.linearRegression = ecStat.regression('linear', data);
 
 										for(var i=0; i<$scope.linearRegression.points.length; i++){
-											$scope.linearRegression.points[i][0] = Number($scope.linearRegression.points[i][0].toFixed(4));
-											$scope.linearRegression.points[i][1] = Number($scope.linearRegression.points[i][1].toFixed(4));
+											$scope.linearRegression.points[i][0] = Number($scope.linearRegression.points[i][0].toFixed(numberOfDecimals));
+											$scope.linearRegression.points[i][1] = Number($scope.linearRegression.points[i][1].toFixed(numberOfDecimals));
 										}
 
 										$scope.regressionOption = {
