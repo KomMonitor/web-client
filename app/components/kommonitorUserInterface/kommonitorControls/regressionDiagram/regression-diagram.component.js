@@ -15,6 +15,7 @@ angular
 								this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
 								const DATE_PREFIX = __env.indicatorDatePrefix;
+								var numberOfDecimals = __env.numberOfDecimals;
 
 								$scope.setupCompleted = false;
 
@@ -374,8 +375,8 @@ angular
 																	for (var j=0; j<scatterSeries.length; j++){
 																		htmlString += "<tr>";
 																		htmlString += "<td>" + scatterSeries[j].name + "</td>";
-																		htmlString += "<td>" + scatterSeries[j].value[0] + "</td>";
-																		htmlString += "<td>" + scatterSeries[j].value[1] + "</td>";
+																		htmlString += "<td>" + Number(scatterSeries[j].value[0]).toFixed(numberOfDecimals) + "</td>";
+																		htmlString += "<td>" + Number(scatterSeries[j].value[1]).toFixed(numberOfDecimals) + "</td>";
 																		htmlString += "</tr>";
 																	}
 
@@ -399,8 +400,8 @@ angular
 
 																	for (var j=0; j<lineSeries.length; j++){
 																		htmlString += "<tr>";
-																		htmlString += "<td>" + lineSeries[j][0] + "</td>";
-																		htmlString += "<td>" + lineSeries[j][1] + "</td>";
+																		htmlString += "<td>" + Number(lineSeries[j][0]).toFixed(numberOfDecimals) + "</td>";
+																		htmlString += "<td>" + Number(lineSeries[j][1]).toFixed(numberOfDecimals) + "</td>";
 																		htmlString += "</tr>";
 																	}
 
