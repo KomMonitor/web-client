@@ -16,7 +16,7 @@
   window.__env.numberOfDecimals = 4;
 
   window.__env.initialLatitude = 51.4386432;
-  window.__env.initialLongitude = 7.0115552
+  window.__env.initialLongitude = 7.0115552;
   window.__env.initialZoomLevel = 12;
   window.__env.minZoomLevel = 1;
   window.__env.maxZoomLevel = 19;
