@@ -23,6 +23,7 @@ angular
 								$scope.spatialUnitName;
 								$scope.date;
 								var numberOfDecimals = __env.numberOfDecimals;
+								var defaultColorForZeroValues = __env.defaultColorForZeroValues;
 
 								var compareFeaturesByIndicatorValue = function(featureA, featureB) {
 								  if (featureA.properties[$scope.indicatorPropertyName] < featureB.properties[$scope.indicatorPropertyName])
@@ -44,7 +45,7 @@ angular
 										$scope.lineChart.showLoading();
 								};
 
-								$scope.$on("updateDiagrams", function (event, indicatorMetadataAndGeoJSON, spatialUnitName, spatialUnitId, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, isMeasureOfValueChecked, measureOfValue, justRestyling) {
+								$scope.$on("updateDiagrams", function (event, indicatorMetadataAndGeoJSON, spatialUnitName, spatialUnitId, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, justRestyling) {
 
 									console.log("Updating diagrams!");
 
@@ -80,7 +81,11 @@ angular
 										indicatorValueArray.push(feature.properties[$scope.indicatorPropertyName]);
 
 										var color;
-										if(isMeasureOfValueChecked){
+
+										if(Number(feature.properties[$scope.indicatorPropertyName]) === 0 ){
+											color = defaultColorForZeroValues;
+										}
+										else if(isMeasureOfValueChecked){
 
 											if(feature.properties[$scope.indicatorPropertyName] >= measureOfValue){
 												color = gtMeasureOfValueBrew.getColorInRange(feature.properties[$scope.indicatorPropertyName]);
@@ -91,7 +96,40 @@ angular
 
 										}
 										else{
-											color = defaultBrew.getColorInRange(feature.properties[$scope.indicatorPropertyName]);
+											if(indicatorMetadataAndGeoJSON.indicatorType === 'DYNAMIC'){
+
+												if(feature.properties[$scope.indicatorPropertyName] < 0){
+
+													for(var index = 0 ; index < dynamicDecreaseBrew.breaks.length; index++){
+														if (feature.properties[$scope.indicatorPropertyName] <= dynamicDecreaseBrew.breaks[index]){
+															if(dynamicDecreaseBrew.colors[index]){
+																color = dynamicDecreaseBrew.colors[index];
+															}
+															else{
+																color = dynamicDecreaseBrew.colors[index-1];
+															}
+															break;
+														}
+													}
+												}
+												else{
+													for(var index = 0 ; index < dynamicIncreaseBrew.breaks.length; index++){
+														if (feature.properties[$scope.indicatorPropertyName] <= dynamicIncreaseBrew.breaks[index]){
+															if(dynamicIncreaseBrew.colors[index]){
+																color = dynamicIncreaseBrew.colors[index];
+															}
+															else{
+																color = dynamicIncreaseBrew.colors[index-1];
+															}
+															break;
+														}
+													}
+												}
+
+											}
+											else{
+													color = defaultBrew.getColorInRange(feature.properties[$scope.indicatorPropertyName]);
+											}
 										}
 
 
