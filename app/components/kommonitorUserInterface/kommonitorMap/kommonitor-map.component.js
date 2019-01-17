@@ -1314,13 +1314,10 @@ angular.module('kommonitorMap').component(
                                                                           if($scope.currentIndicatorLayer){
 
                                                                             if(kommonitorDataExchangeService.isMeasureOfValueChecked){
+                                                                              setupGtMeasureOfValueBrew($scope.currentIndicatorLayerOfCurrentLayer, $scope.indicatorPropertyName, 3, "YlOrBr", "jenks", kommonitorDataExchangeService.measureOfValue);
+                                                                              setupLtMeasureOfValueBrew($scope.currentIndicatorLayerOfCurrentLayer, $scope.indicatorPropertyName, 3, "Purples", "jenks", kommonitorDataExchangeService.measureOfValue);
+                                                                              $scope.makeMeasureOfValueLegend();
                                                                               $scope.currentIndicatorLayer.eachLayer(function(layer) {
-
-                                                                                setupGtMeasureOfValueBrew($scope.currentIndicatorLayerOfCurrentLayer, $scope.indicatorPropertyName, 3, "YlOrBr", "jenks", kommonitorDataExchangeService.measureOfValue);
-                                                                                setupLtMeasureOfValueBrew($scope.currentIndicatorLayerOfCurrentLayer, $scope.indicatorPropertyName, 3, "Purples", "jenks", kommonitorDataExchangeService.measureOfValue);
-
-                                                                                $scope.makeMeasureOfValueLegend();
-
                                                                                 layer.setStyle(styleMeasureOfValue(layer.feature));
                                                                               });
                                                                             }
@@ -1330,15 +1327,18 @@ angular.module('kommonitorMap').component(
                                                                                 setupDynamicIndicatorBrew($scope.currentIndicatorLayerOfCurrentLayer, $scope.indicatorPropertyName, "PuBuGn", "YlOrRd", "jenks");
                                                                                 $scope.makeDynamicIndicatorLegend();
 
-                                                                                layer.setStyle(styleDynamicIndicator(layer.feature));
+                                                                                $scope.currentIndicatorLayer.eachLayer(function(layer) {
+                                                                                  layer.setStyle(styleDynamicIndicator(layer.feature));
+                                                                                });
                                                                               }
                                                                               else{
                                                                                 $scope.currentIndicatorLayer.eachLayer(function(layer) {
                                                                                   setupDefaultBrew($scope.currentIndicatorLayerOfCurrentLayer, $scope.indicatorPropertyName, kommonitorDataExchangeService.selectedIndicator.defaultClassificationMapping.items.length, kommonitorDataExchangeService.selectedIndicator.defaultClassificationMapping.colorBrewerSchemeName, "jenks");
-
                                                                                   $scope.makeDefaultLegend(kommonitorDataExchangeService.selectedIndicator.defaultClassificationMapping);
 
-                                                                                  layer.setStyle(styleDefault(layer.feature));
+                                                                                  $scope.currentIndicatorLayer.eachLayer(function(layer) {
+                                                                                    layer.setStyle(styleDefault(layer.feature));
+                                                                                  });
                                                                                 });
                                                                               }
 
