@@ -246,7 +246,7 @@ angular.module('kommonitorMap').component(
 
                       $scope.legendControl.onAdd = function (map) {
 
-                        $scope.div = L.DomUtil.create('div', 'info legend'),
+                        $scope.div = L.DomUtil.create('div', 'info legend');
                             labels = $scope.defaultBrew.getBreaks();
                             colors = $scope.defaultBrew.getColors();
 
@@ -270,7 +270,76 @@ angular.module('kommonitorMap').component(
                         for (var i = 0; i < colors.length; i++) {
                             $scope.div.innerHTML +=
                                 '<i style="background:' + colors[i] + '"></i> ' +
-                                defaultClassificationMapping.items[i].defaultCustomRating + ' (' + (+labels[i].toFixed(numberOfDecimals)) + ((+labels[i + 1].toFixed(numberOfDecimals)) ? ' &mdash; ' + (+labels[i + 1].toFixed(numberOfDecimals)) + ') <br>' : '+');
+                                defaultClassificationMapping.items[i].defaultCustomRating + ' (' + (+labels[i].toFixed(numberOfDecimals)) + ((+labels[i + 1]) ? ' &mdash; ' + (+labels[i + 1].toFixed(numberOfDecimals)) + ') <br>' : '+');
+                        }
+
+                        return $scope.div;
+                      };
+
+                      $scope.legendControl.addTo($scope.map);
+
+                    }
+
+                    $scope.makeDynamicIndicatorLegend = function(){
+
+                      if($scope.legendControl){
+                        try{
+                          $scope.map.removeControl($scope.legendControl);
+                          $scope.legendControl = undefined;
+                        }
+                        catch(error){
+                        }
+                      }
+
+                      $scope.legendControl = L.control({position: 'topright'});
+
+                      $scope.legendControl.onAdd = function (map) {
+
+                        $scope.div = L.DomUtil.create('div', 'info legend');
+
+                        $scope.div.innerHTML = "";
+
+                        $scope.div.innerHTML += "<label>Einheit: </label> " + $scope.indicatorUnit + "<br/>";
+                        $scope.div.innerHTML += "<label>Dynamik-Indikator (Darstellung der zeitlichen Entwicklung)</label><br/><br/>";
+
+                        // dynamic legend creation depending on number of positive and negative classes
+                        if($scope.dynamicDecreaseBrew){
+                          labelsDynamicDecrease = $scope.dynamicDecreaseBrew.breaks;
+                          colorsDynamicDecrease = $scope.dynamicDecreaseBrew.colors;
+
+                          $scope.div.innerHTML += "<label>Sinkende Entwicklung</label><br/>";
+
+                            // invert color labeling as colorization of lT features is also inverted
+                            for (var i = 0; i < colorsDynamicDecrease.length; i++) {
+                                $scope.div.innerHTML +=
+                                    '<i style="background:' + colorsDynamicDecrease[colorsDynamicDecrease.length - 1 - i] + '"></i> ' +
+                                    //(+labelsLtMeasureOfValue[i].toFixed(4)) + ((+labelsLtMeasureOfValue[i + 1].toFixed(4)) ? ' &mdash; ' + (+labelsLtMeasureOfValue[i + 1].toFixed(4)) + '<br>' : '+');
+                                    (+labelsDynamicDecrease[i].toFixed(numberOfDecimals)) + ((+labelsDynamicDecrease[i + 1]) ? ' &mdash; ' + (+labelsDynamicDecrease[i + 1].toFixed(numberOfDecimals)) + '<br>' : ' &mdash; 0');
+                            }
+                          $scope.div.innerHTML += "<br/>";
+                        }
+
+                        if($scope.currentIndicatorContainsZeroValues){
+                          $scope.div.innerHTML +=
+                              '<i style="background:' + $scope.defaultColorForZeroValues + '"></i> ' +
+                              "0" + '<br><br>';
+                        }
+
+                        if($scope.dynamicIncreaseBrew){
+                          labelsDynamicIncrease = $scope.dynamicIncreaseBrew.breaks;
+                          colorsDynamicIncrease = $scope.dynamicIncreaseBrew.colors;
+
+                          $scope.div.innerHTML += "<label>Steigende Entwicklung</label><br/>";
+
+                            // invert color labeling as colorization of lT features is also inverted
+                            for (var i = 0; i < colorsDynamicIncrease.length; i++) {
+                                $scope.div.innerHTML +=
+                                    '<i style="background:' + colorsDynamicIncrease[i] + '"></i> ' +
+                                    //(+labelsLtMeasureOfValue[i].toFixed(4)) + ((+labelsLtMeasureOfValue[i + 1].toFixed(4)) ? ' &mdash; ' + (+labelsLtMeasureOfValue[i + 1].toFixed(4)) + '<br>' : '+');
+                                    // (i == 0 ? '0 &mdash; ' + labelsDynamicIncrease[i].toFixed(numberOfDecimals) : '') + (+labelsDynamicIncrease[i].toFixed(numberOfDecimals)) + ((+labelsDynamicIncrease[i + 1]) ? ' &mdash; ' + (+labelsDynamicIncrease[i + 1].toFixed(numberOfDecimals)) + '<br>' : ' +');
+                                    (+labelsDynamicIncrease[i].toFixed(numberOfDecimals)) + (typeof labelsDynamicIncrease[i + 1] === 'undefined' ? ' &mdash; 0' : ' &mdash; ' + (+labelsDynamicIncrease[i + 1].toFixed(numberOfDecimals)) + '<br>');
+                            }
+                          $scope.div.innerHTML += "<br/>";
                         }
 
                         return $scope.div;
@@ -295,7 +364,7 @@ angular.module('kommonitorMap').component(
 
                       $scope.legendControl.onAdd = function (map) {
 
-                        $scope.div = L.DomUtil.create('div', 'info legend'),
+                        $scope.div = L.DomUtil.create('div', 'info legend');
                             labelsGtMeasureOfValue = $scope.gtMeasureOfValueBrew.getBreaks();
                             colorsGtMeasureOfValue = $scope.gtMeasureOfValueBrew.getColors();
 
@@ -330,7 +399,7 @@ angular.module('kommonitorMap').component(
                             $scope.div.innerHTML +=
                                 '<i style="background:' + colorsLtMeasureOfValue[colorsLtMeasureOfValue.length - 1 - i] + '"></i> ' +
                                 //(+labelsLtMeasureOfValue[i].toFixed(4)) + ((+labelsLtMeasureOfValue[i + 1].toFixed(4)) ? ' &mdash; ' + (+labelsLtMeasureOfValue[i + 1].toFixed(4)) + '<br>' : '+');
-                                labelArray_below[i] + ' (' + (+labelsLtMeasureOfValue[i].toFixed(numberOfDecimals)) + ((+labelsLtMeasureOfValue[i + 1].toFixed(numberOfDecimals)) ? ' &mdash; ' + (+labelsLtMeasureOfValue[i + 1].toFixed(numberOfDecimals)) + ') <br>' : '+');
+                                labelArray_below[i] + ' (' + (+labelsLtMeasureOfValue[i].toFixed(numberOfDecimals)) + ((+labelsLtMeasureOfValue[i + 1]) ? ' &mdash; ' + (+labelsLtMeasureOfValue[i + 1].toFixed(numberOfDecimals)) + ') <br>' : '+');
                         }
 
                         $scope.div.innerHTML += "<br/>";
@@ -340,7 +409,7 @@ angular.module('kommonitorMap').component(
                         for (var i = 0; i < colorsGtMeasureOfValue.length; i++) {
                             $scope.div.innerHTML +=
                                 '<i style="background:' + colorsGtMeasureOfValue[i] + '"></i> ' +
-                                labelArray_upper[i] + ' (' + (+labelsGtMeasureOfValue[i].toFixed(numberOfDecimals)) + ((+labelsGtMeasureOfValue[i + 1].toFixed(numberOfDecimals)) ? ' &mdash; ' + (+labelsGtMeasureOfValue[i + 1].toFixed(numberOfDecimals)) + ') <br>' : '+');
+                                labelArray_upper[i] + ' (' + (+labelsGtMeasureOfValue[i].toFixed(numberOfDecimals)) + ((+labelsGtMeasureOfValue[i + 1]) ? ' &mdash; ' + (+labelsGtMeasureOfValue[i + 1].toFixed(numberOfDecimals)) + ') <br>' : '+');
                         }
 
                         return $scope.div;
@@ -634,6 +703,162 @@ angular.module('kommonitorMap').component(
                                           $scope.ltMeasureOfValueBrew.classify(classifyMethod);
                                         }
 
+                                        var setupDynamicIndicatorBrew = function(geoJSON, propertyName, colorCodeForPositiveValues, colorCodeForNegativeValues, classifyMethod){
+
+                                          /*
+                                          * Idea: Analyse the complete geoJSON property array for each feature and make conclusion about how to build the legend
+
+                                          e.g. if there are only positive values then display only positive values within 5 categories - same for only negative values
+
+                                          e.g. if there are equally many positive as negative values then display both using 3 categories each
+
+                                          e.g. if there are way more positive than negative values, then display both with 2 (negative) and 4 (positive) classes
+
+                                          --> implement special cases (0, 1 or 2 negative/positive values --> apply colors manually)
+                                          --> treat all other cases equally to measureOfValue
+                                          */
+
+                                          $scope.dynamicIncreaseBrew = {};
+                                          $scope.dynamicDecreaseBrew = {};
+
+                                          var positiveValues = [];
+                                          var negativeValues = [];
+
+                                          for (var i = 0; i < geoJSON.features.length; i++){
+                                              if (geoJSON.features[i].properties[propertyName] == null || geoJSON.features[i].properties[propertyName] == 0 || geoJSON.features[i].properties[propertyName] == "0")
+                                                continue;
+                                              else if(Number(geoJSON.features[i].properties[propertyName]) > 0)
+                                                positiveValues.push(geoJSON.features[i].properties[propertyName]);
+                                              else
+                                                negativeValues.push(geoJSON.features[i].properties[propertyName]);
+                                          }
+
+                                          setupDynamicIncreaseBrew(positiveValues, colorCodeForPositiveValues, classifyMethod);
+                                          setupDynamicDecreaseBrew(negativeValues, colorCodeForNegativeValues, classifyMethod);
+                                        }
+
+                                        function setupDynamicIncreaseBrew(positiveValues, colorCodeForPositiveValues, classifyMethod){
+                                          // analyse length of value arrays
+
+                                          var tempBrew = new classyBrew();
+                                          if(positiveValues.length > 5){
+                                            // pass array to our classyBrew series
+                                            tempBrew.setSeries(positiveValues);
+                                            // define number of classes
+                                            tempBrew.setNumClasses(5);
+                                            // set color ramp code
+                                            tempBrew.setColorCode(colorCodeForPositiveValues);
+                                            // classify by passing in statistical method
+                                            // i.e. equal_interval, jenks, quantile
+                                            tempBrew.classify(classifyMethod);
+
+                                            $scope.dynamicIncreaseBrew.colors = tempBrew.getColors();
+                                            $scope.dynamicIncreaseBrew.breaks = tempBrew.getBreaks();
+                                          }
+                                          else if(positiveValues.length === 4 || positiveValues.length === 5){
+                                            // pass array to our classyBrew series
+                                            tempBrew.setSeries(positiveValues);
+                                            // define number of classes
+                                            tempBrew.setNumClasses(3);
+                                            // set color ramp code
+                                            tempBrew.setColorCode(colorCodeForPositiveValues);
+                                            // classify by passing in statistical method
+                                            // i.e. equal_interval, jenks, quantile
+                                            tempBrew.classify(classifyMethod);
+
+                                            $scope.dynamicIncreaseBrew.colors = tempBrew.getColors();
+                                            $scope.dynamicIncreaseBrew.breaks = tempBrew.getBreaks();
+                                          }
+                                          else if(positiveValues.length === 3){
+                                            positiveValues.sort((a, b) => a - b);
+
+                                            $scope.dynamicIncreaseBrew.colors = tempBrew.colorSchemes[colorCodeForPositiveValues]['3'];
+                                            $scope.dynamicIncreaseBrew.breaks = positiveValues;
+                                          }
+                                          else if(positiveValues.length === 2){
+                                            positiveValues.sort((a, b) => a - b);
+
+                                            $scope.dynamicIncreaseBrew.colors = tempBrew.colorSchemes[colorCodeForPositiveValues]['3'];
+                                            $scope.dynamicIncreaseBrew.breaks = positiveValues;
+
+                                            $scope.dynamicIncreaseBrew.colors.shift(); // remove first element of array
+                                          }
+                                          else if(positiveValues.length === 1){
+                                            positiveValues.sort((a, b) => a - b);
+
+                                            $scope.dynamicIncreaseBrew.colors = tempBrew.colorSchemes[colorCodeForPositiveValues]['3'];
+                                            $scope.dynamicIncreaseBrew.breaks = positiveValues;
+
+                                            $scope.dynamicIncreaseBrew.colors.shift(); // remove first element of array
+                                            $scope.dynamicIncreaseBrew.colors.shift(); // remove first element of array
+                                          }
+                                          else{
+                                            // no positive values
+                                            $scope.dynamicIncreaseBrew = undefined;
+                                          }
+                                        }
+
+                                        function setupDynamicDecreaseBrew(negativeValues, colorCodeForNegativeValues, classifyMethod){
+                                          var tempBrew = new classyBrew();
+                                          // analyse length of value arrays
+                                          if(negativeValues.length > 5){
+                                            // pass array to our classyBrew series
+                                            tempBrew.setSeries(negativeValues);
+                                            // define number of classes
+                                            tempBrew.setNumClasses(5);
+                                            // set color ramp code
+                                            tempBrew.setColorCode(colorCodeForNegativeValues);
+                                            // classify by passing in statistical method
+                                            // i.e. equal_interval, jenks, quantile
+                                            tempBrew.classify(classifyMethod);
+
+                                            $scope.dynamicDecreaseBrew.colors = tempBrew.getColors();
+                                            $scope.dynamicDecreaseBrew.breaks = tempBrew.getBreaks();
+                                          }
+                                          else if(negativeValues.length === 4 || negativeValues.length === 5){
+                                            // pass array to our classyBrew series
+                                            tempBrew.setSeries(negativeValues);
+                                            // define number of classes
+                                            tempBrew.setNumClasses(3);
+                                            // set color ramp code
+                                            tempBrew.setColorCode(colorCodeForNegativeValues);
+                                            // classify by passing in statistical method
+                                            // i.e. equal_interval, jenks, quantile
+                                            tempBrew.classify(classifyMethod);
+
+                                            $scope.dynamicDecreaseBrew.colors = tempBrew.getColors();
+                                            $scope.dynamicDecreaseBrew.breaks = tempBrew.getBreaks();
+                                          }
+                                          else if(negativeValues.length === 3){
+
+                                            negativeValues.sort((a, b) => a - b);
+
+                                            $scope.dynamicDecreaseBrew.colors = tempBrew.colorSchemes[colorCodeForNegativeValues]['3'];
+                                            $scope.dynamicDecreaseBrew.breaks = negativeValues;
+                                          }
+                                          else if(negativeValues.length === 2){
+                                            negativeValues.sort((a, b) => a - b);
+
+                                            $scope.dynamicDecreaseBrew.colors = tempBrew.colorSchemes[colorCodeForNegativeValues]['3'];
+                                            $scope.dynamicDecreaseBrew.breaks = negativeValues;
+
+                                            $scope.dynamicDecreaseBrew.colors.shift(); // remove first element of array
+                                          }
+                                          else if(negativeValues.length === 1){
+                                            negativeValues.sort((a, b) => a - b);
+
+                                            $scope.dynamicDecreaseBrew.colors = tempBrew.colorSchemes[colorCodeForNegativeValues]['3'];
+                                            $scope.dynamicDecreaseBrew.breaks = negativeValues;
+
+                                            $scope.dynamicDecreaseBrew.colors.shift(); // remove first element of array
+                                            $scope.dynamicDecreaseBrew.colors.shift(); // remove first element of array
+                                          }
+                                          else{
+                                            // no positive values
+                                            $scope.dynamicDecreaseBrew = undefined;
+                                          }
+                                        }
+
                                         // style function to return
                                         // fill color based on $scope.defaultBrew.getColorInRange() method
                                         function styleDefault(feature) {
@@ -719,6 +944,69 @@ angular.module('kommonitorMap').component(
                                               }
                                               else{
                                                 fillColor = ltColors[0];
+                                              }
+                                            }
+
+                                            return {
+                                                weight: 2,
+                                                opacity: 1,
+                                                color: 'white',
+                                                dashArray: '3',
+                                                fillOpacity: 0.7,
+                                                fillColor: fillColor
+                                            }
+                                          }
+
+                                        }
+
+                                        function styleDynamicIndicator (feature) {
+
+                                          if(feature.properties[$scope.indicatorPropertyName] >= 0){
+                                            var fillColor;
+                                            if(feature.properties[$scope.propertyName] == 0 || feature.properties[$scope.propertyName] == "0"){
+                                              fillColor = $scope.defaultColorForZeroValues;
+                                            }
+                                            else{
+                                              for (var index=0; index < $scope.dynamicIncreaseBrew.breaks.length; index++){
+                                                if (feature.properties[$scope.propertyName] <= $scope.dynamicIncreaseBrew.breaks[index]){
+                                                  if($scope.dynamicIncreaseBrew.colors[index]){
+                                                    fillColor = $scope.dynamicIncreaseBrew.colors[index];
+                                                  }
+                                                  else{
+                                                    fillColor = $scope.dynamicIncreaseBrew.colors[index-1];
+                                                  }
+                                                  break;
+                                                }
+                                              }
+                                            }
+
+                                            return {
+                                                weight: 2,
+                                                opacity: 1,
+                                                color: 'white',
+                                                dashArray: '3',
+                                                fillOpacity: 0.7,
+                                                fillColor: fillColor
+                                            }
+                                          }
+                                          else{
+
+                                            var fillColor;
+                                            if(feature.properties[$scope.propertyName] == 0 || feature.properties[$scope.propertyName] == "0"){
+                                              fillColor = $scope.defaultColorForZeroValues;
+                                            }
+                                            else{
+                                              // invert colors, so that lowest values will become strong colored!
+                                              for (var index=0; index < $scope.dynamicDecreaseBrew.breaks.length; index++){
+                                                if (feature.properties[$scope.propertyName] <= $scope.dynamicDecreaseBrew.breaks[index]){
+                                                  if($scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - index]){
+                                                    fillColor = $scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - index];
+                                                  }
+                                                  else{
+                                                    fillColor = $scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - index - 1];
+                                                  }
+                                                  break;
+                                                }
                                               }
                                             }
 
@@ -929,15 +1217,30 @@ angular.module('kommonitorMap').component(
 
                                                                 }
                                                                 else{
-                                                                  setupDefaultBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, indicatorMetadataAndGeoJSON.defaultClassificationMapping.items.length, indicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, "jenks");
-                                                                  $scope.propertyName = INDICATOR_DATE_PREFIX + date;
 
-                                                                  layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
-                                                                      style: styleDefault,
-                                                                      onEachFeature: onEachFeatureIndicator
-                                                                  });
-                                                                  $scope.makeInfoControl(date);
-                                                                  $scope.makeDefaultLegend(indicatorMetadataAndGeoJSON.defaultClassificationMapping);
+                                                                  if (indicatorMetadataAndGeoJSON.indicatorType === "STATUS"){
+                                                                    setupDefaultBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, indicatorMetadataAndGeoJSON.defaultClassificationMapping.items.length, indicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, "jenks");
+                                                                    $scope.propertyName = INDICATOR_DATE_PREFIX + date;
+
+                                                                    layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
+                                                                        style: styleDefault,
+                                                                        onEachFeature: onEachFeatureIndicator
+                                                                    });
+                                                                    $scope.makeInfoControl(date);
+                                                                    $scope.makeDefaultLegend(indicatorMetadataAndGeoJSON.defaultClassificationMapping);
+                                                                  }
+                                                                  else if (indicatorMetadataAndGeoJSON.indicatorType === "DYNAMIC"){
+                                                                    setupDynamicIndicatorBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, "PuBuGn", "YlOrRd", "jenks");
+                                                                    $scope.propertyName = INDICATOR_DATE_PREFIX + date;
+
+                                                                    layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
+                                                                        style: styleDynamicIndicator,
+                                                                        onEachFeature: onEachFeatureIndicator
+                                                                    });
+                                                                    $scope.makeInfoControl(date);
+                                                                    $scope.makeDynamicIndicatorLegend();
+                                                                  }
+
 
                                                                 }
 
