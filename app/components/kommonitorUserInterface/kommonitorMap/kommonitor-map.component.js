@@ -48,6 +48,7 @@ angular.module('kommonitorMap').component(
 
                     $scope.currentIndicatorLayerOfCurrentLayer;
                     $scope.currentIndicatorContainsZeroValues = false;
+                    $scope.indicatorTypeOfCurrentLayer;
                     $scope.defaultColorForZeroValues = __env.defaultColorForZeroValues;
 
                     $scope.customIndicatorPropertyName;
@@ -1084,7 +1085,12 @@ angular.module('kommonitorMap').component(
                                             //$scope.currentIndicatorLayer.resetStyle(layer);
                                             if(! kommonitorDataExchangeService.isMeasureOfValueChecked){
                                               //$scope.currentIndicatorLayer.resetStyle(layer);
+                                              if($scope.indicatorTypeOfCurrentLayer === 'DYNAMIC'){
+                                                  layer.setStyle(styleDynamicIndicator(layer.feature));
+                                              }
+                                              else{
                                               layer.setStyle(styleDefault(layer.feature));
+                                              }
                                             }
                                             else{
                                               layer.setStyle(styleMeasureOfValue(layer.feature));
@@ -1101,7 +1107,12 @@ angular.module('kommonitorMap').component(
 
                                           if(! kommonitorDataExchangeService.isMeasureOfValueChecked){
                                             //$scope.currentIndicatorLayer.resetStyle(layer);
-                                            layer.setStyle(styleDefault(layer.feature));
+                                            if($scope.indicatorTypeOfCurrentLayer === 'DYNAMIC'){
+                                                layer.setStyle(styleDynamicIndicator(layer.feature));
+                                            }
+                                            else{
+                                                layer.setStyle(styleDefault(layer.feature));
+                                            }
                                           }
                                           else{
                                             layer.setStyle(styleMeasureOfValue(layer.feature));
@@ -1200,6 +1211,8 @@ angular.module('kommonitorMap').component(
                                                                 }
 
                                                                 var layer;
+
+                                                                $scope.indicatorTypeOfCurrentLayer = indicatorMetadataAndGeoJSON.indicatorType;
 
                                                                 if(kommonitorDataExchangeService.isMeasureOfValueChecked){
 
@@ -1311,13 +1324,23 @@ angular.module('kommonitorMap').component(
                                                                               });
                                                                             }
                                                                             else{
-                                                                              $scope.currentIndicatorLayer.eachLayer(function(layer) {
-                                                                                setupDefaultBrew($scope.currentIndicatorLayerOfCurrentLayer, $scope.indicatorPropertyName, kommonitorDataExchangeService.selectedIndicator.defaultClassificationMapping.items.length, kommonitorDataExchangeService.selectedIndicator.defaultClassificationMapping.colorBrewerSchemeName, "jenks");
 
-                                                                                $scope.makeDefaultLegend(kommonitorDataExchangeService.selectedIndicator.defaultClassificationMapping);
+                                                                              if($scope.indicatorTypeOfCurrentLayer === 'DYNAMIC'){
+                                                                                setupDynamicIndicatorBrew($scope.currentIndicatorLayerOfCurrentLayer, $scope.indicatorPropertyName, "PuBuGn", "YlOrRd", "jenks");
+                                                                                $scope.makeDynamicIndicatorLegend();
 
-                                                                                layer.setStyle(styleDefault(layer.feature));
-                                                                              });
+                                                                                layer.setStyle(styleDynamicIndicator(layer.feature));
+                                                                              }
+                                                                              else{
+                                                                                $scope.currentIndicatorLayer.eachLayer(function(layer) {
+                                                                                  setupDefaultBrew($scope.currentIndicatorLayerOfCurrentLayer, $scope.indicatorPropertyName, kommonitorDataExchangeService.selectedIndicator.defaultClassificationMapping.items.length, kommonitorDataExchangeService.selectedIndicator.defaultClassificationMapping.colorBrewerSchemeName, "jenks");
+
+                                                                                  $scope.makeDefaultLegend(kommonitorDataExchangeService.selectedIndicator.defaultClassificationMapping);
+
+                                                                                  layer.setStyle(styleDefault(layer.feature));
+                                                                                });
+                                                                              }
+
                                                                             }
 
                                                                             var justRestyling = true;
