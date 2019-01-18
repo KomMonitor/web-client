@@ -326,7 +326,6 @@ angular.module('kommonitorMap').component(
                             for (var i = 0; i < colorsDynamicDecrease.length; i++) {
                                 $scope.div.innerHTML +=
                                     '<i style="background:' + colorsDynamicDecrease[colorsDynamicDecrease.length - 1 - i] + '"></i> ' +
-                                    //(+labelsLtMeasureOfValue[i].toFixed(4)) + ((+labelsLtMeasureOfValue[i + 1].toFixed(4)) ? ' &mdash; ' + (+labelsLtMeasureOfValue[i + 1].toFixed(4)) + '<br>' : '+');
                                     (+labelsDynamicDecrease[i].toFixed(numberOfDecimals)) + ((+labelsDynamicDecrease[i + 1]) ? ' &mdash; ' + (+labelsDynamicDecrease[i + 1].toFixed(numberOfDecimals)) + '<br>' : ' &mdash; 0');
                             }
                           $scope.div.innerHTML += "<br/>";
@@ -348,8 +347,6 @@ angular.module('kommonitorMap').component(
                             for (var i = 0; i < colorsDynamicIncrease.length; i++) {
                                 $scope.div.innerHTML +=
                                     '<i style="background:' + colorsDynamicIncrease[i] + '"></i> ' +
-                                    //(+labelsLtMeasureOfValue[i].toFixed(4)) + ((+labelsLtMeasureOfValue[i + 1].toFixed(4)) ? ' &mdash; ' + (+labelsLtMeasureOfValue[i + 1].toFixed(4)) + '<br>' : '+');
-                                    // (i == 0 ? '0 &mdash; ' + labelsDynamicIncrease[i].toFixed(numberOfDecimals) : '') + (+labelsDynamicIncrease[i].toFixed(numberOfDecimals)) + ((+labelsDynamicIncrease[i + 1]) ? ' &mdash; ' + (+labelsDynamicIncrease[i + 1].toFixed(numberOfDecimals)) + '<br>' : ' +');
                                     (+labelsDynamicIncrease[i].toFixed(numberOfDecimals)) + (typeof labelsDynamicIncrease[i + 1] === 'undefined' ? ' &mdash; 0' : ' &mdash; ' + (+labelsDynamicIncrease[i + 1].toFixed(numberOfDecimals)) + '<br>');
                             }
                           $scope.div.innerHTML += "<br/>";
@@ -648,6 +645,40 @@ angular.module('kommonitorMap').component(
                                           // classify by passing in statistical method
                                           // i.e. equal_interval, jenks, quantile
                                           $scope.defaultBrew.classify(classifyMethod);
+                                        }
+
+                                        var setupMeasureOfValueBrew = function(geoJSON, propertyName, colorCodeForGreaterThanValues, colorCodeForLesserThanValues, classifyMethod, measureOfValue){
+
+                                          /*
+                                          * Idea: Analyse the complete geoJSON property array for each feature and make conclusion about how to build the legend
+
+                                          e.g. if there are only positive values then display only positive values within 5 categories - same for only negative values
+
+                                          e.g. if there are equally many positive as negative values then display both using 3 categories each
+
+                                          e.g. if there are way more positive than negative values, then display both with 2 (negative) and 4 (positive) classes
+
+                                          --> implement special cases (0, 1 or 2 negative/positive values --> apply colors manually)
+                                          --> treat all other cases equally to measureOfValue
+                                          */
+
+                                          $scope.gtMeasureOfValueBrew = {};
+                                          $scope.ltMeasureOfValueBrew = {};
+
+                                          var greaterThanValues = [];
+                                          var negativeValues = [];
+
+                                          for (var i = 0; i < geoJSON.features.length; i++){
+                                              if (geoJSON.features[i].properties[propertyName] == null || geoJSON.features[i].properties[propertyName] == 0 || geoJSON.features[i].properties[propertyName] == "0")
+                                                continue;
+                                              else if(Number(geoJSON.features[i].properties[propertyName]) > 0)
+                                                greaterThanValues.push(geoJSON.features[i].properties[propertyName]);
+                                              else
+                                                negativeValues.push(geoJSON.features[i].properties[propertyName]);
+                                          }
+
+                                          setupgtMeasureOfValueBrew(greaterThanValues, colorCodeForgreaterThanValues, classifyMethod);
+                                          setupltMeasureOfValueBrew(negativeValues, colorCodeForNegativeValues, classifyMethod);
                                         }
 
                                         var setupGtMeasureOfValueBrew = function(geoJSON, propertyName, numClasses, colorCode, classifyMethod, measureOfValue){
@@ -1229,9 +1260,7 @@ angular.module('kommonitorMap').component(
                                                                 $scope.indicatorTypeOfCurrentLayer = indicatorMetadataAndGeoJSON.indicatorType;
 
                                                                 if(kommonitorDataExchangeService.isMeasureOfValueChecked){
-
-                                                                  setupGtMeasureOfValueBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, 3, "YlOrBr", "jenks", kommonitorDataExchangeService.measureOfValue);
-                                                                  setupLtMeasureOfValueBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, 3, "Purples", "jenks", kommonitorDataExchangeService.measureOfValue);
+                                                                  setupMeasureOfValueBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, "YlOrBr", "Purples", "jenks", kommonitorDataExchangeService.measureOfValue);
                                                                   $scope.propertyName = INDICATOR_DATE_PREFIX + date;
 
                                                                   layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
