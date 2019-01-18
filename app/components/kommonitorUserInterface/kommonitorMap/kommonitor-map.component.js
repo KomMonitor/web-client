@@ -375,11 +375,6 @@ angular.module('kommonitorMap').component(
                       $scope.legendControl.onAdd = function (map) {
 
                         $scope.div = L.DomUtil.create('div', 'info legend');
-                            labelsGtMeasureOfValue = $scope.gtMeasureOfValueBrew.breaks;
-                            colorsGtMeasureOfValue = $scope.gtMeasureOfValueBrew.colors;
-
-                            labelsLtMeasureOfValue = $scope.ltMeasureOfValueBrew.breaks;
-                            colorsLtMeasureOfValue = $scope.ltMeasureOfValueBrew.colors;
 
                         $scope.div.innerHTML = "";
 
@@ -399,39 +394,48 @@ angular.module('kommonitorMap').component(
                         //         labels[i] + (labels[i + 1] ? ' &mdash; ' + labels[i + 1] + '<br>' : '+');
                         // }
 
-                        $scope.div.innerHTML += "<label>Features < Schwellwert</label><br/>";
+                        if($scope.ltMeasureOfValueBrew){
+                          labelsLtMeasureOfValue = $scope.ltMeasureOfValueBrew.breaks;
+                          colorsLtMeasureOfValue = $scope.ltMeasureOfValueBrew.colors;
+                          $scope.div.innerHTML += "<label>Features < Schwellwert</label><br/>";
 
-                        var labelArray_below = ["deutlich kleiner Schwellwert", "moderat kleiner Schwellwert", "geringfügig kleiner Schwellwert"];
-                        var labelArray_upper = ["geringfügig über Schwellwert", "moderat über Schwellwert", "deutlich über Schwellwert"];
+                          // var labelArray_below = ["deutlich kleiner Schwellwert", "moderat kleiner Schwellwert", "geringfügig kleiner Schwellwert"];
+                          // var labelArray_upper = ["geringfügig über Schwellwert", "moderat über Schwellwert", "deutlich über Schwellwert"];
 
-                        // invert color labeling as colorization of lT features is also inverted
-                        // for (var i = 0; i < colorsLtMeasureOfValue.length; i++) {
-                        //     $scope.div.innerHTML +=
-                        //         '<i style="background:' + colorsLtMeasureOfValue[colorsLtMeasureOfValue.length - 1 - i] + '"></i> ' +
-                        //         //(+labelsLtMeasureOfValue[i].toFixed(4)) + ((+labelsLtMeasureOfValue[i + 1].toFixed(4)) ? ' &mdash; ' + (+labelsLtMeasureOfValue[i + 1].toFixed(4)) + '<br>' : '+');
-                        //         labelArray_below[i] + ' (' + (+labelsLtMeasureOfValue[i].toFixed(numberOfDecimals)) + ((+labelsLtMeasureOfValue[i + 1]) ? ' &mdash; ' + (+labelsLtMeasureOfValue[i + 1].toFixed(numberOfDecimals)) + ') <br>' : '+');
-                        // }
-                        for (var i = 0; i < colorsLtMeasureOfValue.length; i++) {
-                            $scope.div.innerHTML +=
-                                '<i style="background:' + colorsLtMeasureOfValue[i] + '"></i> ' +
-                                (+labelsLtMeasureOfValue[i].toFixed(numberOfDecimals)) + (typeof labelsLtMeasureOfValue[i + 1] === 'undefined' ? '' : ' &mdash; ' + (+labelsLtMeasureOfValue[i + 1].toFixed(numberOfDecimals)) + '<br>');
+                          // invert color labeling as colorization of lT features is also inverted
+                          // for (var i = 0; i < colorsLtMeasureOfValue.length; i++) {
+                          //     $scope.div.innerHTML +=
+                          //         '<i style="background:' + colorsLtMeasureOfValue[colorsLtMeasureOfValue.length - 1 - i] + '"></i> ' +
+                          //         //(+labelsLtMeasureOfValue[i].toFixed(4)) + ((+labelsLtMeasureOfValue[i + 1].toFixed(4)) ? ' &mdash; ' + (+labelsLtMeasureOfValue[i + 1].toFixed(4)) + '<br>' : '+');
+                          //         labelArray_below[i] + ' (' + (+labelsLtMeasureOfValue[i].toFixed(numberOfDecimals)) + ((+labelsLtMeasureOfValue[i + 1]) ? ' &mdash; ' + (+labelsLtMeasureOfValue[i + 1].toFixed(numberOfDecimals)) + ') <br>' : '+');
+                          // }
+                          for (var i = 0; i < colorsLtMeasureOfValue.length; i++) {
+                              $scope.div.innerHTML +=
+                                  '<i style="background:' + colorsLtMeasureOfValue[i] + '"></i> ' +
+                                  (+labelsLtMeasureOfValue[i].toFixed(numberOfDecimals)) + (typeof labelsLtMeasureOfValue[i + 1] === 'undefined' ? '' : ' &mdash; ' + (+labelsLtMeasureOfValue[i + 1].toFixed(numberOfDecimals)) + '<br>');
+                          }
+
+                          $scope.div.innerHTML += "<br/>";
                         }
 
-                        $scope.div.innerHTML += "<br/>";
+                        if($scope.gtMeasureOfValueBrew){
+                          labelsGtMeasureOfValue = $scope.gtMeasureOfValueBrew.breaks;
+                          colorsGtMeasureOfValue = $scope.gtMeasureOfValueBrew.colors;
 
-                        $scope.div.innerHTML += "<label>Features >= Schwellwert</label><br/>";
+                          $scope.div.innerHTML += "<label>Features >= Schwellwert</label><br/>";
 
-                        // for (var i = 0; i < colorsGtMeasureOfValue.length; i++) {
-                        //     $scope.div.innerHTML +=
-                        //         '<i style="background:' + colorsGtMeasureOfValue[i] + '"></i> ' +
-                        //         labelArray_upper[i] + ' (' + (+labelsGtMeasureOfValue[i].toFixed(numberOfDecimals)) + ((+labelsGtMeasureOfValue[i + 1]) ? ' &mdash; ' + (+labelsGtMeasureOfValue[i + 1].toFixed(numberOfDecimals)) + ') <br>' : '+');
-                        // }
-                        for (var i = 0; i < colorsGtMeasureOfValue.length; i++) {
-                            $scope.div.innerHTML +=
-                                '<i style="background:' + colorsGtMeasureOfValue[i] + '"></i> ' +
-                                (+labelsGtMeasureOfValue[i].toFixed(numberOfDecimals)) + (typeof labelsGtMeasureOfValue[i + 1] === 'undefined' ? '' : ' &mdash; ' + (+labelsGtMeasureOfValue[i + 1].toFixed(numberOfDecimals)) + '<br>');
+                          // for (var i = 0; i < colorsGtMeasureOfValue.length; i++) {
+                          //     $scope.div.innerHTML +=
+                          //         '<i style="background:' + colorsGtMeasureOfValue[i] + '"></i> ' +
+                          //         labelArray_upper[i] + ' (' + (+labelsGtMeasureOfValue[i].toFixed(numberOfDecimals)) + ((+labelsGtMeasureOfValue[i + 1]) ? ' &mdash; ' + (+labelsGtMeasureOfValue[i + 1].toFixed(numberOfDecimals)) + ') <br>' : '+');
+                          // }
+                          for (var i = 0; i < colorsGtMeasureOfValue.length; i++) {
+                              $scope.div.innerHTML +=
+                                  '<i style="background:' + colorsGtMeasureOfValue[i] + '"></i> ' +
+                                  (+labelsGtMeasureOfValue[i].toFixed(numberOfDecimals)) + (typeof labelsGtMeasureOfValue[i + 1] === 'undefined' ? '' : ' &mdash; ' + (+labelsGtMeasureOfValue[i + 1].toFixed(numberOfDecimals)) + '<br>');
+                          }
                         }
-
+      
                         return $scope.div;
                       };
 
