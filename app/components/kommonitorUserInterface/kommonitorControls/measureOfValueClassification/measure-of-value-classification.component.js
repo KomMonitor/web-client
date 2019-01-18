@@ -77,8 +77,8 @@ angular
 								//sort ascending order
 								values.sort(function(a, b){return a-b});
 
-								$scope.minValue = values[0];
-								$scope.maxValue = values[values.length - 1];
+								$scope.minValue = +Number(values[0]).toFixed(numberOfDecimals);
+								$scope.maxValue = +Number(values[values.length - 1]).toFixed(numberOfDecimals);
 
 								$scope.middleValue = +(($scope.maxValue + $scope.minValue) / 2).toFixed(numberOfDecimals);
 								$scope.step = +(($scope.maxValue - $scope.minValue)/35).toFixed(2);
@@ -101,6 +101,8 @@ angular
 							};
 
 							this.onMeasureOfValueChange = function(){
+
+								kommonitorDataExchangeService.measureOfValue = +Number(kommonitorDataExchangeService.measureOfValue).toFixed(numberOfDecimals);
 
 								if(kommonitorDataExchangeService.measureOfValue >= $scope.minValue && kommonitorDataExchangeService.measureOfValue <= $scope.maxValue){
 									$scope.inputNotValid = false;
