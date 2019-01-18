@@ -46,6 +46,7 @@ angular.module('kommonitorMap').component(
                     $scope.gtMeasureOfValueBrew = new classyBrew();
                     $scope.ltMeasureOfValueBrew = new classyBrew();
 
+                    $scope.currentIndicatorMetadataAndGeoJSON;
                     $scope.currentIndicatorLayerOfCurrentLayer;
                     $scope.currentIndicatorContainsZeroValues = false;
                     $scope.indicatorTypeOfCurrentLayer;
@@ -173,10 +174,14 @@ angular.module('kommonitorMap').component(
                       $scope.infoControl.onAdd = function (map) {
                           this._div = L.DomUtil.create('div', 'info legend'); // create a div with a class "info"
 
-                          this._div.innerHTML = '<h4>' + $scope.indicatorName + ' ' + date +'</h4>';
+                          this._div.innerHTML = '<h4>' + $scope.indicatorName + ' ' + date +'</h4><br/>';
                           // this._div.innerHTML += '<p>' + $scope.indicatorDescription + '</p>'
-                          this._div.innerHTML += '<p>' + $scope.indicatorDescription + '</p>';
-                          this._div.innerHTML +=  '<p>&uuml;ber ein Feature hovern</p>';
+                          this._div.innerHTML += '<b>Beschreibung: </b> ' + $scope.indicatorDescription + '<br/>';
+                          this._div.innerHTML += '<b>Datenquelle: </b> ' + $scope.currentIndicatorMetadataAndGeoJSON.metadata.datasource + '<br/>';
+                          this._div.innerHTML += '<b>Kontakt: </b> ' + $scope.currentIndicatorMetadataAndGeoJSON.metadata.contact + '<br/>';
+                          this._div.innerHTML += '<b>Aktualisierungszyklus: </b> ' + $scope.currentIndicatorMetadataAndGeoJSON.metadata.updateInterval + '<br/>';
+                          this._div.innerHTML += '<b>letzte Aktualisierung: </b> ' + $scope.currentIndicatorMetadataAndGeoJSON.metadata.lastUpdate + '<br/><br/>';
+                          this._div.innerHTML +=  '<h4>Selektiertes Feature:</h4> &uuml;ber ein Feature hovern';
 
                           // this.update();
                           return this._div;
@@ -184,11 +189,17 @@ angular.module('kommonitorMap').component(
 
                       // method that we will use to update the control based on feature properties passed
                       $scope.infoControl.update = function (props) {
-                        this._div.innerHTML = '<h4>' + $scope.indicatorName + ' ' + date +'</h4>';
-                        this._div.innerHTML += '<p>' + $scope.indicatorDescription + '</p>';
+                        this._div.innerHTML = '<h4>' + $scope.indicatorName + ' ' + date +'</h4><br/>';
+                        // this._div.innerHTML += '<p>' + $scope.indicatorDescription + '</p>'
+                        this._div.innerHTML += '<b>Beschreibung: </b> ' + $scope.indicatorDescription + '<br/>';
+                        this._div.innerHTML += '<b>Datenquelle: </b> ' + $scope.currentIndicatorMetadataAndGeoJSON.metadata.datasource + '<br/>';
+                        this._div.innerHTML += '<b>Kontakt: </b> ' + $scope.currentIndicatorMetadataAndGeoJSON.metadata.contact + '<br/>';
+                        this._div.innerHTML += '<b>Aktualisierungszyklus: </b> ' + $scope.currentIndicatorMetadataAndGeoJSON.metadata.updateInterval + '<br/>';
+                        this._div.innerHTML += '<b>letzte Aktualisierung: </b> ' + $scope.currentIndicatorMetadataAndGeoJSON.metadata.lastUpdate + '<br/><br/>';
+
                         this._div.innerHTML +=  (props ?
-                          '<b>' + props.spatialUnitFeatureName + '</b><br />' + props[$scope.indicatorPropertyName] + ' ' + $scope.indicatorUnit
-                          : '&uuml;ber ein Feature hovern');
+                          '<h4>Selektiertes Feature:</h4> <b>' + props.spatialUnitFeatureName + '</b> ' + Number(props[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) + ' ' + $scope.indicatorUnit
+                          : '<h4>Selektiertes Feature:</h4> &uuml;ber ein Feature hovern');
                       };
 
                       $scope.infoControl.addTo($scope.map);
@@ -1183,6 +1194,8 @@ angular.module('kommonitorMap').component(
                                                   $scope.$on("replaceIndicatorAsGeoJSON", function (event, indicatorMetadataAndGeoJSON, spatialUnitName, date) {
 
                                                                 console.log('replaceIndicatorAsGeoJSON was called');
+
+                                                                $scope.currentIndicatorMetadataAndGeoJSON = indicatorMetadataAndGeoJSON;
 
                                                                 // empty layer of possibly selected features
                                                                 kommonitorDataExchangeService.clickedIndicatorFeatureNames = [];
