@@ -62,11 +62,6 @@ angular
 
 								var measureOfValueInput = document.getElementById("measureOfValueInput");
 
-								// <input ng-model="$ctrl.kommonitorDataExchangeServiceInstance.measureOfValue" ng-change="$ctrl.onMeasureOfValueChange()" type="range" min="0" max="100" step="1" value="51" class="slider" id="measureOfValueInput">
-								var sampleFeature = geoJSON.features[0];
-								$scope.minValue = sampleFeature.properties[date];
-								$scope.maxValue = sampleFeature.properties[date];
-
 								var values = [];
 
 								geoJSON.features.forEach(function(feature){
@@ -82,31 +77,11 @@ angular
 								//sort ascending order
 								values.sort(function(a, b){return a-b});
 
-								// for minValue we need to find the fifth lowest value
-								// in order to use classyBrew classification lib properly
-								// and ensure that minimum measureOfValue will guarantee that there are
-								// four lower values for three classes!
-								var counterToFive = 0;
-
-								for(var i=0; i<values.length; i++){
-									if(values[i] != null && Number(values[i]) > 0){
-										counterToFive++;
-
-										if(counterToFive === 5){
-											// plus sign turn it into a number again and removes tailing 0s
-											$scope.minValue = +values[i].toFixed(numberOfDecimals);
-										}
-									}
-
-								}
-
-								// plus sign turn it into a number again and removes tailing 0s
-								// minValue = +values[4].toFixed(4);
-								$scope.maxValue = +values[values.length - 4].toFixed(numberOfDecimals);
+								$scope.minValue = values[0];
+								$scope.maxValue = values[values.length - 1];
 
 								$scope.middleValue = +(($scope.maxValue + $scope.minValue) / 2).toFixed(numberOfDecimals);
-								// $scope.step = +($scope.maxValue/values.length).toFixed(4);
-								$scope.step = 1;
+								$scope.step = +(($scope.maxValue - $scope.minValue)/35).toFixed(2);
 
 								measureOfValueInput.setAttribute("min", $scope.minValue);
 								measureOfValueInput.setAttribute("max", $scope.maxValue);
