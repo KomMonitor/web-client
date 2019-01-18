@@ -88,10 +88,30 @@ angular
 										else if(isMeasureOfValueChecked){
 
 											if(feature.properties[$scope.indicatorPropertyName] >= measureOfValue){
-												color = gtMeasureOfValueBrew.getColorInRange(feature.properties[$scope.indicatorPropertyName]);
+												for(var index = 0 ; index < gtMeasureOfValueBrew.breaks.length; index++){
+													if (feature.properties[$scope.indicatorPropertyName] <= gtMeasureOfValueBrew.breaks[index]){
+														if(gtMeasureOfValueBrew.colors[index]){
+															color = gtMeasureOfValueBrew.colors[index];
+														}
+														else{
+															color = gtMeasureOfValueBrew.colors[index-1];
+														}
+														break;
+													}
+												}
 											}
 											else {
-												color = ltMeasureOfValueBrew.getColorInRange(feature.properties[$scope.indicatorPropertyName]);
+												for (var index=0; index < ltMeasureOfValueBrew.breaks.length; index++){
+													if (feature.properties[$scope.indicatorPropertyName] <= ltMeasureOfValueBrew.breaks[index]){
+														if(ltMeasureOfValueBrew.colors[ltMeasureOfValueBrew.colors.length - index]){
+															color = ltMeasureOfValueBrew.colors[ltMeasureOfValueBrew.colors.length - index];
+														}
+														else{
+															color = ltMeasureOfValueBrew.colors[ltMeasureOfValueBrew.colors.length - index - 1];
+														}
+														break;
+													}
+												}
 											}
 
 										}
@@ -100,13 +120,13 @@ angular
 
 												if(feature.properties[$scope.indicatorPropertyName] < 0){
 
-													for(var index = 0 ; index < dynamicDecreaseBrew.breaks.length; index++){
+													for (var index=0; index < dynamicDecreaseBrew.breaks.length; index++){
 														if (feature.properties[$scope.indicatorPropertyName] <= dynamicDecreaseBrew.breaks[index]){
-															if(dynamicDecreaseBrew.colors[index]){
-																color = dynamicDecreaseBrew.colors[index];
+															if(dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - index]){
+																color = dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - index];
 															}
 															else{
-																color = dynamicDecreaseBrew.colors[index-1];
+																color = dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - index - 1];
 															}
 															break;
 														}

@@ -198,7 +198,7 @@ angular.module('kommonitorMap').component(
                         this._div.innerHTML += '<b>letzte Aktualisierung: </b> ' + $scope.currentIndicatorMetadataAndGeoJSON.metadata.lastUpdate + '<br/><br/>';
 
                         this._div.innerHTML +=  (props ?
-                          '<h4>Selektiertes Feature:</h4> <b>' + props.spatialUnitFeatureName + '</b> ' + Number(props[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) + ' ' + $scope.indicatorUnit
+                          '<h4>Selektiertes Feature:</h4> <b>' + props.spatialUnitFeatureName + '</b> ' + +Number(props[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) + ' ' + $scope.indicatorUnit
                           : '<h4>Selektiertes Feature:</h4> &uuml;ber ein Feature hovern');
                       };
 
@@ -347,7 +347,7 @@ angular.module('kommonitorMap').component(
                             for (var i = 0; i < colorsDynamicIncrease.length; i++) {
                                 $scope.div.innerHTML +=
                                     '<i style="background:' + colorsDynamicIncrease[i] + '"></i> ' +
-                                    (+labelsDynamicIncrease[i].toFixed(numberOfDecimals)) + (typeof labelsDynamicIncrease[i + 1] === 'undefined' ? ' &mdash; 0' : ' &mdash; ' + (+labelsDynamicIncrease[i + 1].toFixed(numberOfDecimals)) + '<br>');
+                                    (+labelsDynamicIncrease[i].toFixed(numberOfDecimals)) + (typeof labelsDynamicIncrease[i + 1] === 'undefined' ? '' : ' &mdash; ' + (+labelsDynamicIncrease[i + 1].toFixed(numberOfDecimals)) + '<br>');
                             }
                           $scope.div.innerHTML += "<br/>";
                         }
@@ -375,11 +375,11 @@ angular.module('kommonitorMap').component(
                       $scope.legendControl.onAdd = function (map) {
 
                         $scope.div = L.DomUtil.create('div', 'info legend');
-                            labelsGtMeasureOfValue = $scope.gtMeasureOfValueBrew.getBreaks();
-                            colorsGtMeasureOfValue = $scope.gtMeasureOfValueBrew.getColors();
+                            labelsGtMeasureOfValue = $scope.gtMeasureOfValueBrew.breaks;
+                            colorsGtMeasureOfValue = $scope.gtMeasureOfValueBrew.colors;
 
-                            labelsLtMeasureOfValue = $scope.ltMeasureOfValueBrew.getBreaks();
-                            colorsLtMeasureOfValue = $scope.ltMeasureOfValueBrew.getColors();
+                            labelsLtMeasureOfValue = $scope.ltMeasureOfValueBrew.breaks;
+                            colorsLtMeasureOfValue = $scope.ltMeasureOfValueBrew.colors;
 
                         $scope.div.innerHTML = "";
 
@@ -399,27 +399,37 @@ angular.module('kommonitorMap').component(
                         //         labels[i] + (labels[i + 1] ? ' &mdash; ' + labels[i + 1] + '<br>' : '+');
                         // }
 
-                        $scope.div.innerHTML += "<label>< Schwellwert</label><br/>";
+                        $scope.div.innerHTML += "<label>Features < Schwellwert</label><br/>";
 
                         var labelArray_below = ["deutlich kleiner Schwellwert", "moderat kleiner Schwellwert", "geringfügig kleiner Schwellwert"];
                         var labelArray_upper = ["geringfügig über Schwellwert", "moderat über Schwellwert", "deutlich über Schwellwert"];
 
                         // invert color labeling as colorization of lT features is also inverted
+                        // for (var i = 0; i < colorsLtMeasureOfValue.length; i++) {
+                        //     $scope.div.innerHTML +=
+                        //         '<i style="background:' + colorsLtMeasureOfValue[colorsLtMeasureOfValue.length - 1 - i] + '"></i> ' +
+                        //         //(+labelsLtMeasureOfValue[i].toFixed(4)) + ((+labelsLtMeasureOfValue[i + 1].toFixed(4)) ? ' &mdash; ' + (+labelsLtMeasureOfValue[i + 1].toFixed(4)) + '<br>' : '+');
+                        //         labelArray_below[i] + ' (' + (+labelsLtMeasureOfValue[i].toFixed(numberOfDecimals)) + ((+labelsLtMeasureOfValue[i + 1]) ? ' &mdash; ' + (+labelsLtMeasureOfValue[i + 1].toFixed(numberOfDecimals)) + ') <br>' : '+');
+                        // }
                         for (var i = 0; i < colorsLtMeasureOfValue.length; i++) {
                             $scope.div.innerHTML +=
-                                '<i style="background:' + colorsLtMeasureOfValue[colorsLtMeasureOfValue.length - 1 - i] + '"></i> ' +
-                                //(+labelsLtMeasureOfValue[i].toFixed(4)) + ((+labelsLtMeasureOfValue[i + 1].toFixed(4)) ? ' &mdash; ' + (+labelsLtMeasureOfValue[i + 1].toFixed(4)) + '<br>' : '+');
-                                labelArray_below[i] + ' (' + (+labelsLtMeasureOfValue[i].toFixed(numberOfDecimals)) + ((+labelsLtMeasureOfValue[i + 1]) ? ' &mdash; ' + (+labelsLtMeasureOfValue[i + 1].toFixed(numberOfDecimals)) + ') <br>' : '+');
+                                '<i style="background:' + colorsLtMeasureOfValue[i] + '"></i> ' +
+                                (+labelsLtMeasureOfValue[i].toFixed(numberOfDecimals)) + (typeof labelsLtMeasureOfValue[i + 1] === 'undefined' ? '' : ' &mdash; ' + (+labelsLtMeasureOfValue[i + 1].toFixed(numberOfDecimals)) + '<br>');
                         }
 
                         $scope.div.innerHTML += "<br/>";
 
-                        $scope.div.innerHTML += "<label>>= Schwellwert</label><br/>";
+                        $scope.div.innerHTML += "<label>Features >= Schwellwert</label><br/>";
 
+                        // for (var i = 0; i < colorsGtMeasureOfValue.length; i++) {
+                        //     $scope.div.innerHTML +=
+                        //         '<i style="background:' + colorsGtMeasureOfValue[i] + '"></i> ' +
+                        //         labelArray_upper[i] + ' (' + (+labelsGtMeasureOfValue[i].toFixed(numberOfDecimals)) + ((+labelsGtMeasureOfValue[i + 1]) ? ' &mdash; ' + (+labelsGtMeasureOfValue[i + 1].toFixed(numberOfDecimals)) + ') <br>' : '+');
+                        // }
                         for (var i = 0; i < colorsGtMeasureOfValue.length; i++) {
                             $scope.div.innerHTML +=
                                 '<i style="background:' + colorsGtMeasureOfValue[i] + '"></i> ' +
-                                labelArray_upper[i] + ' (' + (+labelsGtMeasureOfValue[i].toFixed(numberOfDecimals)) + ((+labelsGtMeasureOfValue[i + 1]) ? ' &mdash; ' + (+labelsGtMeasureOfValue[i + 1].toFixed(numberOfDecimals)) + ') <br>' : '+');
+                                (+labelsGtMeasureOfValue[i].toFixed(numberOfDecimals)) + (typeof labelsGtMeasureOfValue[i + 1] === 'undefined' ? '' : ' &mdash; ' + (+labelsGtMeasureOfValue[i + 1].toFixed(numberOfDecimals)) + '<br>');
                         }
 
                         return $scope.div;
@@ -666,85 +676,137 @@ angular.module('kommonitorMap').component(
                                           $scope.ltMeasureOfValueBrew = {};
 
                                           var greaterThanValues = [];
-                                          var negativeValues = [];
+                                          var lesserThanValues = [];
 
                                           for (var i = 0; i < geoJSON.features.length; i++){
                                               if (geoJSON.features[i].properties[propertyName] == null || geoJSON.features[i].properties[propertyName] == 0 || geoJSON.features[i].properties[propertyName] == "0")
                                                 continue;
-                                              else if(Number(geoJSON.features[i].properties[propertyName]) > 0)
+                                              else if(Number(geoJSON.features[i].properties[propertyName]) >= measureOfValue)
                                                 greaterThanValues.push(geoJSON.features[i].properties[propertyName]);
                                               else
-                                                negativeValues.push(geoJSON.features[i].properties[propertyName]);
+                                                lesserThanValues.push(geoJSON.features[i].properties[propertyName]);
                                           }
 
-                                          setupgtMeasureOfValueBrew(greaterThanValues, colorCodeForgreaterThanValues, classifyMethod);
-                                          setupltMeasureOfValueBrew(negativeValues, colorCodeForNegativeValues, classifyMethod);
+                                          setupGtMeasureOfValueBrew(greaterThanValues, colorCodeForGreaterThanValues, classifyMethod);
+                                          setupLtMeasureOfValueBrew(lesserThanValues, colorCodeForLesserThanValues, classifyMethod);
                                         }
 
-                                        var setupGtMeasureOfValueBrew = function(geoJSON, propertyName, numClasses, colorCode, classifyMethod, measureOfValue){
-                                          // pass values from your geojson object into an empty array
-                                          // see link above to view geojson used in this example
-                                          var values = [];
-                                          for (var i = 0; i < geoJSON.features.length; i++){
-                                              if (geoJSON.features[i].properties[propertyName] == null || geoJSON.features[i].properties[propertyName] == 0 || geoJSON.features[i].properties[propertyName] == "0")
-                                                continue;
+                                        var setupGtMeasureOfValueBrew = function(greaterThanValues, colorCodeForGreaterThanValues, classifyMethod){
+                                          var tempBrew = new classyBrew();
+                                          if(greaterThanValues.length > 5){
+                                            // pass array to our classyBrew series
+                                            tempBrew.setSeries(greaterThanValues);
+                                            // define number of classes
+                                            tempBrew.setNumClasses(5);
+                                            // set color ramp code
+                                            tempBrew.setColorCode(colorCodeForGreaterThanValues);
+                                            // classify by passing in statistical method
+                                            // i.e. equal_interval, jenks, quantile
+                                            tempBrew.classify(classifyMethod);
 
-                                              if(geoJSON.features[i].properties[propertyName] >= measureOfValue)
-                                                values.push(geoJSON.features[i].properties[propertyName]);
+                                            $scope.gtMeasureOfValueBrew.colors = tempBrew.getColors();
+                                            $scope.gtMeasureOfValueBrew.breaks = tempBrew.getBreaks();
                                           }
+                                          else if(greaterThanValues.length === 4 || greaterThanValues.length === 5){
+                                            // pass array to our classyBrew series
+                                            tempBrew.setSeries(greaterThanValues);
+                                            // define number of classes
+                                            tempBrew.setNumClasses(3);
+                                            // set color ramp code
+                                            tempBrew.setColorCode(colorCodeForGreaterThanValues);
+                                            // classify by passing in statistical method
+                                            // i.e. equal_interval, jenks, quantile
+                                            tempBrew.classify(classifyMethod);
 
-                                          // pass array to our classyBrew series
-                                          $scope.gtMeasureOfValueBrew.setSeries(values);
+                                            $scope.gtMeasureOfValueBrew.colors = tempBrew.getColors();
+                                            $scope.gtMeasureOfValueBrew.breaks = tempBrew.getBreaks();
+                                          }
+                                          else if(greaterThanValues.length === 3){
+                                            greaterThanValues.sort((a, b) => a - b);
 
-                                          // define number of classes
-                                          // if(values.length < numClasses){
-                                          //   if(values.length < 2)
-                                          //     $scope.gtMeasureOfValueBrew.setNumClasses(values.length);
-                                          //   else
-                                          //     $scope.gtMeasureOfValueBrew.setNumClasses(values.length);
-                                          // }
-                                          // else
-                                          $scope.gtMeasureOfValueBrew.setNumClasses(numClasses);
+                                            $scope.gtMeasureOfValueBrew.colors = tempBrew.colorSchemes[colorCodeForGreaterThanValues]['3'];
+                                            $scope.gtMeasureOfValueBrew.breaks = greaterThanValues;
+                                          }
+                                          else if(greaterThanValues.length === 2){
+                                            greaterThanValues.sort((a, b) => a - b);
 
-                                          // set color ramp code
-                                          $scope.gtMeasureOfValueBrew.setColorCode(colorCode);
+                                            $scope.gtMeasureOfValueBrew.colors = tempBrew.colorSchemes[colorCodeForGreaterThanValues]['3'];
+                                            $scope.gtMeasureOfValueBrew.breaks = greaterThanValues;
 
-                                          // classify by passing in statistical method
-                                          // i.e. equal_interval, jenks, quantile
-                                          $scope.gtMeasureOfValueBrew.classify(classifyMethod);
+                                            $scope.gtMeasureOfValueBrew.colors.shift(); // remove first element of array
+                                          }
+                                          else if(greaterThanValues.length === 1){
+                                            greaterThanValues.sort((a, b) => a - b);
+
+                                            $scope.gtMeasureOfValueBrew.colors = tempBrew.colorSchemes[colorCodeForGreaterThanValues]['3'];
+                                            $scope.gtMeasureOfValueBrew.breaks = greaterThanValues;
+
+                                            $scope.gtMeasureOfValueBrew.colors.shift(); // remove first element of array
+                                            $scope.gtMeasureOfValueBrew.colors.shift(); // remove first element of array
+                                          }
+                                          else{
+                                            // no positive values
+                                            $scope.gtMeasureOfValueBrew = undefined;
+                                          }
                                         }
 
-                                        var setupLtMeasureOfValueBrew = function(geoJSON, propertyName, numClasses, colorCode, classifyMethod, measureOfValue){
-                                          // pass values from your geojson object into an empty array
-                                          // see link above to view geojson used in this example
-                                          var values = [];
-                                          for (var i = 0; i < geoJSON.features.length; i++){
-                                              if (geoJSON.features[i].properties[propertyName] == null || geoJSON.features[i].properties[propertyName] == 0 || geoJSON.features[i].properties[propertyName] == "0")
-                                                continue;
+                                        var setupLtMeasureOfValueBrew = function(lesserThanValues, colorCodeForLesserThanValues, classifyMethod){
+                                          var tempBrew = new classyBrew();
+                                          if(lesserThanValues.length > 5){
+                                            // pass array to our classyBrew series
+                                            tempBrew.setSeries(lesserThanValues);
+                                            // define number of classes
+                                            tempBrew.setNumClasses(5);
+                                            // set color ramp code
+                                            tempBrew.setColorCode(colorCodeForLesserThanValues);
+                                            // classify by passing in statistical method
+                                            // i.e. equal_interval, jenks, quantile
+                                            tempBrew.classify(classifyMethod);
 
-                                              if(geoJSON.features[i].properties[propertyName] < measureOfValue)
-                                                values.push(geoJSON.features[i].properties[propertyName]);
+                                            $scope.ltMeasureOfValueBrew.colors = tempBrew.getColors();
+                                            $scope.ltMeasureOfValueBrew.breaks = tempBrew.getBreaks();
                                           }
+                                          else if(lesserThanValues.length === 4 || lesserThanValues.length === 5){
+                                            // pass array to our classyBrew series
+                                            tempBrew.setSeries(lesserThanValues);
+                                            // define number of classes
+                                            tempBrew.setNumClasses(3);
+                                            // set color ramp code
+                                            tempBrew.setColorCode(colorCodeForLesserThanValues);
+                                            // classify by passing in statistical method
+                                            // i.e. equal_interval, jenks, quantile
+                                            tempBrew.classify(classifyMethod);
 
-                                          // pass array to our classyBrew series
-                                          $scope.ltMeasureOfValueBrew.setSeries(values);
+                                            $scope.ltMeasureOfValueBrew.colors = tempBrew.getColors();
+                                            $scope.ltMeasureOfValueBrew.breaks = tempBrew.getBreaks();
+                                          }
+                                          else if(lesserThanValues.length === 3){
+                                            lesserThanValues.sort((a, b) => a - b);
 
-                                          // define number of classes
-                                          // if(values.length < numClasses){
-                                          //   if(values.length < 2)
-                                          //     $scope.ltMeasureOfValueBrew.setNumClasses(values.length);
-                                          //   else
-                                          //     $scope.ltMeasureOfValueBrew.setNumClasses(values.length);
-                                          // }
-                                          // else
-                                          $scope.ltMeasureOfValueBrew.setNumClasses(numClasses);
+                                            $scope.ltMeasureOfValueBrew.colors = tempBrew.colorSchemes[colorCodeForLesserThanValues]['3'];
+                                            $scope.ltMeasureOfValueBrew.breaks = lesserThanValues;
+                                          }
+                                          else if(lesserThanValues.length === 2){
+                                            lesserThanValues.sort((a, b) => a - b);
 
-                                          // set color ramp code
-                                          $scope.ltMeasureOfValueBrew.setColorCode(colorCode);
+                                            $scope.ltMeasureOfValueBrew.colors = tempBrew.colorSchemes[colorCodeForLesserThanValues]['3'];
+                                            $scope.ltMeasureOfValueBrew.breaks = lesserThanValues;
 
-                                          // classify by passing in statistical method
-                                          // i.e. equal_interval, jenks, quantile
-                                          $scope.ltMeasureOfValueBrew.classify(classifyMethod);
+                                            $scope.ltMeasureOfValueBrew.colors.shift(); // remove first element of array
+                                          }
+                                          else if(lesserThanValues.length === 1){
+                                            lesserThanValues.sort((a, b) => a - b);
+
+                                            $scope.ltMeasureOfValueBrew.colors = tempBrew.colorSchemes[colorCodeForLesserThanValues]['3'];
+                                            $scope.ltMeasureOfValueBrew.breaks = lesserThanValues;
+
+                                            $scope.ltMeasureOfValueBrew.colors.shift(); // remove first element of array
+                                            $scope.ltMeasureOfValueBrew.colors.shift(); // remove first element of array
+                                          }
+                                          else{
+                                            // no positive values
+                                            $scope.ltMeasureOfValueBrew = undefined;
+                                          }
                                         }
 
                                         var setupDynamicIndicatorBrew = function(geoJSON, propertyName, colorCodeForPositiveValues, colorCodeForNegativeValues, classifyMethod){
@@ -953,7 +1015,17 @@ angular.module('kommonitorMap').component(
                                               fillColor = $scope.defaultColorForZeroValues;
                                             }
                                             else{
-                                              fillColor = $scope.gtMeasureOfValueBrew.getColorInRange(feature.properties[$scope.propertyName]);
+                                              for (var index=0; index < $scope.gtMeasureOfValueBrew.breaks.length; index++){
+                                                if (feature.properties[$scope.propertyName] <= $scope.gtMeasureOfValueBrew.breaks[index]){
+                                                  if($scope.gtMeasureOfValueBrew.colors[index]){
+                                                    fillColor = $scope.gtMeasureOfValueBrew.colors[index];
+                                                  }
+                                                  else{
+                                                    fillColor = $scope.gtMeasureOfValueBrew.colors[index-1];
+                                                  }
+                                                  break;
+                                                }
+                                              }
                                             }
 
                                             return {
@@ -973,21 +1045,16 @@ angular.module('kommonitorMap').component(
                                             }
                                             else{
                                               // invert colors, so that lowest values will become strong colored!
-                                              var ltColors = $scope.ltMeasureOfValueBrew.getColors();
-                                              var ltBreaks = $scope.ltMeasureOfValueBrew.getBreaks();
-
-                                              // we use 3 classes --> thus 4 breaks and 3 colors
-
-                                              if(feature.properties[$scope.propertyName] >= ltBreaks[0] && feature.properties[$scope.propertyName] < ltBreaks[1]){
-                                                // strongest color
-                                                fillColor = ltColors[2];
-                                              }
-                                              else if(feature.properties[$scope.propertyName] >= ltBreaks[1] && feature.properties[$scope.propertyName] < ltBreaks[2]){
-                                                // middle color
-                                                fillColor = ltColors[1];
-                                              }
-                                              else{
-                                                fillColor = ltColors[0];
+                                              for (var index=0; index < $scope.ltMeasureOfValueBrew.breaks.length; index++){
+                                                if (feature.properties[$scope.propertyName] <= $scope.ltMeasureOfValueBrew.breaks[index]){
+                                                  if($scope.ltMeasureOfValueBrew.colors[$scope.ltMeasureOfValueBrew.colors.length - index]){
+                                                    fillColor = $scope.ltMeasureOfValueBrew.colors[$scope.ltMeasureOfValueBrew.colors.length - index];
+                                                  }
+                                                  else{
+                                                    fillColor = $scope.ltMeasureOfValueBrew.colors[$scope.ltMeasureOfValueBrew.colors.length - index - 1];
+                                                  }
+                                                  break;
+                                                }
                                               }
                                             }
 
@@ -1356,8 +1423,7 @@ angular.module('kommonitorMap').component(
                                                                           if($scope.currentIndicatorLayer){
 
                                                                             if(kommonitorDataExchangeService.isMeasureOfValueChecked){
-                                                                              setupGtMeasureOfValueBrew($scope.currentIndicatorLayerOfCurrentLayer, $scope.indicatorPropertyName, 3, "YlOrBr", "jenks", kommonitorDataExchangeService.measureOfValue);
-                                                                              setupLtMeasureOfValueBrew($scope.currentIndicatorLayerOfCurrentLayer, $scope.indicatorPropertyName, 3, "Purples", "jenks", kommonitorDataExchangeService.measureOfValue);
+                                                                              setupMeasureOfValueBrew($scope.currentIndicatorLayerOfCurrentLayer, $scope.indicatorPropertyName, "YlOrBr", "Purples", "jenks", kommonitorDataExchangeService.measureOfValue);
                                                                               $scope.makeMeasureOfValueLegend();
                                                                               $scope.currentIndicatorLayer.eachLayer(function(layer) {
                                                                                 layer.setStyle(styleMeasureOfValue(layer.feature));
