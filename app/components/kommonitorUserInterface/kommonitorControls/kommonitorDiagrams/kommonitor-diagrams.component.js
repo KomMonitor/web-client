@@ -78,7 +78,7 @@ angular
 
 									for(var feature of indicatorMetadataAndGeoJSON.geoJSON.features){
 										featureNamesArray.push(feature.properties.spatialUnitFeatureName);
-										indicatorValueArray.push(feature.properties[$scope.indicatorPropertyName]);
+										indicatorValueArray.push(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals));
 
 										var color;
 
@@ -134,7 +134,7 @@ angular
 
 
 										var seriesItem = {
-											value: feature.properties[$scope.indicatorPropertyName],
+											value: +Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals),
 											itemStyle: {
 												color: color
 											}
@@ -152,7 +152,7 @@ angular
 
 									// finish timeSeries arrays by computing averages of all time series values
 									for(var i=0; i<indicatorTimeSeriesDatesArray.length; i++){
-										indicatorTimeSeriesAverageArray[i] = indicatorTimeSeriesAverageArray[i] / indicatorTimeSeriesCountArray[i];
+										indicatorTimeSeriesAverageArray[i] = +Number(indicatorTimeSeriesAverageArray[i] / indicatorTimeSeriesCountArray[i]).toFixed(numberOfDecimals);
 									}
 
 									updateHistogramChart(indicatorMetadataAndGeoJSON, indicatorValueArray);
@@ -753,7 +753,7 @@ angular
 
 									// for each date create series data entry for feature
 									for (var date of $scope.lineOption.xAxis.data){
-										featureSeries.data.push(featureProperties[INDICATOR_DATE_PREFIX + date]);
+										featureSeries.data.push(+Number(featureProperties[INDICATOR_DATE_PREFIX + date]).toFixed(numberOfDecimals));
 									}
 
 									$scope.lineOption.series.push(featureSeries);
