@@ -150,7 +150,8 @@ angular
 														// top: 15
 												},
 												tooltip: {
-													position: ['50%', '50%']
+													confine: 'true'
+													// position: ['50%', '50%']
 												},
 												toolbox: {
 														show : true,

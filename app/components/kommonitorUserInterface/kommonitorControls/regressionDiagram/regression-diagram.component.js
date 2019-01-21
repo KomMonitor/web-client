@@ -300,6 +300,7 @@ angular
 										    },
 										    tooltip: {
 										        trigger: 'item',
+														confine: 'true',
 										        axisPointer: {
 										            type: 'cross'
 										        },

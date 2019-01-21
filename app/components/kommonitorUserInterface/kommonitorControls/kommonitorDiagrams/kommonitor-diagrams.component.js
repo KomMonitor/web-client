@@ -220,6 +220,7 @@ angular
                     },
                     tooltip: {
 											trigger: 'item',
+											confine: 'true',
 											axisPointer: {
 													type: 'line',
 													crossStyle: {
@@ -437,6 +438,7 @@ angular
 											},
 											tooltip: {
 													trigger: 'item',
+													confine: 'true',
 													axisPointer: {
 															type: 'line',
 															crossStyle: {
@@ -629,6 +631,7 @@ angular
 											},
 											tooltip: {
 													trigger: 'axis',
+													confine: 'true',
 													axisPointer: {
 															type: 'line',
 															crossStyle: {
