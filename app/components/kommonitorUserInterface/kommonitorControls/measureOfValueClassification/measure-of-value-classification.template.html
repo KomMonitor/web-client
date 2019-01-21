@@ -10,7 +10,7 @@
 				<li>Features, deren Indikatorwert unter dem Schwellwert liegt (Violett-T&ouml;ne)</li>
 				<li>Features, deren Indikatorwert &uuml;ber dem Schwellwert liegt (Orange-T&ouml;ne)</li>
 			</ul>
-			<p>Jedes Feature wird anschließend gem&auml;&szlig; seiner Kategorie in eine von drei Abstufungen klassifiziert und eingef&auml;rbt. Zum Aktivieren/Deaktivieren der Schwellwertklassifizierung bitte die unten stehende Checkbox nutzen.</p>
+			<p>Jedes Feature wird anschließend gem&auml;&szlig; seiner Kategorie in eine von 1-5 Abstufungen klassifiziert und entsprechend eingef&auml;rbt. Zum Aktivieren/Deaktivieren der Schwellwertklassifizierung bitte die unten stehende Checkbox nutzen.</p>
 		</div>
 
 		<br/>
@@ -24,10 +24,11 @@
 
 			<div ng-show="$ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked">
 
+				<br/><br/>
 
-				<p>Verschieben des Schwellwertes klassifiziert die dargestellten Indikatoren-Features unmittelbar neu. Die gew&auml;hlte Raumebene muss dabei mindestens 10 Features aufweisen, damit eine sinnvolle Klassifizierung vorgenommen werden kann.</p>
+				<p>Verschieben des Schwellwertes klassifiziert die dargestellten Indikatoren-Features unmittelbar neu. Ebenso passt sich die Anzahl an Klassen der beiden oben genannten Kategorien dynamisch an die Anzahl der zu klassifizierenden Features an.</p>
 
-				<p></p>
+				<br/><br/>
 
 				<div class="slidecontainer" style="position:relative">
 					<input ng-model="$ctrl.kommonitorDataExchangeServiceInstance.measureOfValue" ng-change="$ctrl.onMeasureOfValueChange()" type="range" min="0" max="100" step="1" value="51" class="slider" id="measureOfValueInput">
