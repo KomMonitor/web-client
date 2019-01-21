@@ -271,7 +271,7 @@ angular.module('kommonitorMap').component(
                         //         labels[i] + (labels[i + 1] ? ' &mdash; ' + labels[i + 1] + '<br>' : '+');
                         // }
 
-                        $scope.div.innerHTML += "<label>Status-Indikator (Darstellung der Indikatorenwerte zum gew&auml;hlten Zeitpunkt)</label><br/><br/>";
+                        $scope.div.innerHTML += "<label>Status-Indikator</label><br/><em>Darstellung der Indikatorenwerte zum gew&auml;hlten Zeitpunkt</em><br/><br/>";
                         $scope.div.innerHTML += "<label>Einheit: </label> " + $scope.indicatorUnit + "<br/><br/>";
 
                         if($scope.currentIndicatorContainsZeroValues){
@@ -312,7 +312,7 @@ angular.module('kommonitorMap').component(
 
                         $scope.div.innerHTML = "";
 
-                        $scope.div.innerHTML += "<label>Dynamik-Indikator (Darstellung der zeitlichen Entwicklung)</label><br/><br/>";
+                        $scope.div.innerHTML += "<label>Dynamik-Indikator</label><br/><em>Darstellung der zeitlichen Entwicklung</em><br/><br/>";
                         $scope.div.innerHTML += "<label>Einheit: </label> " + $scope.indicatorUnit + "<br/><br/>";
 
                         // dynamic legend creation depending on number of positive and negative classes
@@ -378,8 +378,11 @@ angular.module('kommonitorMap').component(
 
                         $scope.div.innerHTML = "";
 
+                        $scope.div.innerHTML += "<label>Schwellwert-Klassifizierung</label><br/>";
+
+                        $scope.div.innerHTML += "<em>aktueller Schwellwert: </em> " + kommonitorDataExchangeService.measureOfValue + " " + $scope.indicatorUnit + "<br/><br/>";
+
                         $scope.div.innerHTML += "<label>Einheit: </label> " + $scope.indicatorUnit + "<br/><br/>";
-                        $scope.div.innerHTML += "<label>aktueller Schwellwert: </label> " + kommonitorDataExchangeService.measureOfValue + " " + $scope.indicatorUnit + "<br/><br/>";
 
                         if($scope.currentIndicatorContainsZeroValues){
                           $scope.div.innerHTML +=
