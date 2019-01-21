@@ -411,7 +411,7 @@ angular.module('kommonitorMap').component(
                           // }
                           for (var i = 0; i < colorsLtMeasureOfValue.length; i++) {
                               $scope.div.innerHTML +=
-                                  '<i style="background:' + colorsLtMeasureOfValue[i] + '"></i> ' +
+                                  '<i style="background:' + colorsLtMeasureOfValue[colorsLtMeasureOfValue.length - 1 -i] + '"></i> ' +
                                   (+labelsLtMeasureOfValue[i].toFixed(numberOfDecimals)) + (typeof labelsLtMeasureOfValue[i + 1] === 'undefined' ? '' : ' &mdash; ' + (+labelsLtMeasureOfValue[i + 1].toFixed(numberOfDecimals)) + '<br>');
                           }
 
@@ -435,7 +435,7 @@ angular.module('kommonitorMap').component(
                                   (+labelsGtMeasureOfValue[i].toFixed(numberOfDecimals)) + (typeof labelsGtMeasureOfValue[i + 1] === 'undefined' ? '' : ' &mdash; ' + (+labelsGtMeasureOfValue[i + 1].toFixed(numberOfDecimals)) + '<br>');
                           }
                         }
-      
+
                         return $scope.div;
                       };
 
