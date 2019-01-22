@@ -47,6 +47,10 @@
         <measure-of-value-classification></measure-of-value-classification>
     </nav>
 
+		<nav id="sidebarBalance" ng-class="sidebarBalanceClass">
+        <kommonitor-balance></kommonitor-balance>
+    </nav>
+
 		<nav id="sidebarDiagrams" ng-class="sidebarDiagramsClass">
         <kommonitor-diagrams></kommonitor-diagrams>
     </nav>
@@ -86,6 +90,12 @@
 					ng-click="onSidebarMeasureOfValueClassificationButtonClick()" ng-class="buttonMeasureOfValueClassificationClass" data-toggle="tooltip" title="Klassifizierung mittels Schwellwert">
 						<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-sort" aria-hidden="true"></span> -->
 						<i style="font-size:1.8em;" class="fas fa-tint-slash"></i>
+				</button>
+
+				<button type="button" style="top: 350px;" id="sidebarBalanceCollapse"
+					ng-click="onSidebarBalanceButtonClick()" ng-class="buttonBalanceClass" data-toggle="tooltip" title="zeitliche Bilanzierung">
+						<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-sort" aria-hidden="true"></span> -->
+						<i style="font-size:1.8em;" class="fas fa-chart-line"></i>
 				</button>
 
 				<button type="button" style="top: 425px;" id="sidebarDiagramsCollapse"
