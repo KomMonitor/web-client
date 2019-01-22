@@ -39,6 +39,10 @@
         <kommonitor-data-setup></kommonitor-data-setup>
     </nav>
 
+		<nav id="sidebarFilter" ng-class="sidebarFilterClass">
+        <kommonitor-filter></kommonitor-filter>
+    </nav>
+
 		<nav id="sidebarMeasureOfValueClassification" ng-class="sidebarMeasureOfValueClassificationClass">
         <measure-of-value-classification></measure-of-value-classification>
     </nav>
@@ -66,10 +70,16 @@
 
 				<!-- LEFT-HANDED SIDEBAR BUTTONS -->
 
-				<button type="button" style="top: 200px;" id="sidebarIndicatorConfigCollapse"
+				<button type="button" style="top: 125px;" id="sidebarIndicatorConfigCollapse"
 					ng-click="onSidebarIndicatorButtonClick()" ng-class="buttonIndicatorConfigClass" data-toggle="tooltip" title="Indikatorenauswahl">
 						<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 						<i style="font-size:1.8em;" class="fas fa-sitemap"></i>
+				</button>
+
+				<button type="button" style="top: 200px;" id="sidebarFilterCollapse"
+					ng-click="onSidebarFilterButtonClick()" ng-class="buttonFilterClass" data-toggle="tooltip" title="Darstellungsfilter">
+						<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
+						<i style="font-size:1.8em;" class="fas fa-filter"></i>
 				</button>
 
 				<button type="button" style="top: 275px;" id="sidebarMeasureOfValueClassificationCollapse"
