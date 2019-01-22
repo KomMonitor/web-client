@@ -6,10 +6,10 @@
   window.__env.enableDebug = true;
 
   // API url
-  window.__env.apiUrl = 'http://localhost:8085';
+  window.__env.apiUrl = 'http://kommonitor.fbg-hsbo.de/';
 
   // Base url
-  window.__env.basePath = '/rest/v1';
+  window.__env.basePath = 'management';
 
   window.__env.indicatorDatePrefix = "DATE_";
 
