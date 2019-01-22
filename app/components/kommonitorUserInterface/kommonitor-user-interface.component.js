@@ -69,6 +69,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				$scope.anySideBarIsShown = false;
 			}
 			$rootScope.$broadcast("refreshDateSlider");
+			$rootScope.$broadcast("refreshIndicatorValueRangeSlider");
 
 		}
 
@@ -91,6 +92,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				$scope.anySideBarIsShown = false;
 			}
 			$rootScope.$broadcast("refreshDateSlider");
+			$rootScope.$broadcast("refreshIndicatorValueRangeSlider");
 
 		}
 
@@ -113,6 +115,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				$scope.anySideBarIsShown = false;
 			}
 			$rootScope.$broadcast("refreshDateSlider");
+			$rootScope.$broadcast("refreshIndicatorValueRangeSlider");
 
 		}
 
@@ -135,6 +138,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				$scope.anySideBarIsShown = false;
 			}
 			$rootScope.$broadcast("refreshDateSlider");
+			$rootScope.$broadcast("refreshIndicatorValueRangeSlider");
 
 		}
 
@@ -156,6 +160,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				$scope.anySideBarIsShown = false;
 			}
 			$rootScope.$broadcast("refreshDateSlider");
+			$rootScope.$broadcast("refreshIndicatorValueRangeSlider");
 		}
 
 		$scope.onSidebarDiagramsClick = function(){
@@ -175,6 +180,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				$scope.anySideBarIsShown = false;
 			}
 			$rootScope.$broadcast("refreshDateSlider");
+			$rootScope.$broadcast("refreshIndicatorValueRangeSlider");
 		}
 
 		$scope.onSidebarRadarDiagramClick = function(){
@@ -194,6 +200,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				$scope.anySideBarIsShown = false;
 			}
 			$rootScope.$broadcast("refreshDateSlider");
+			$rootScope.$broadcast("refreshIndicatorValueRangeSlider");
 		}
 
 		$scope.onSidebarProcessingClick = function(){
@@ -213,6 +220,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				$scope.anySideBarIsShown = false;
 			}
 			$rootScope.$broadcast("refreshDateSlider");
+			$rootScope.$broadcast("refreshIndicatorValueRangeSlider");
 		}
 
 		$scope.onSidebarRegressionDiagramClick = function(){
@@ -232,6 +240,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				$scope.anySideBarIsShown = false;
 			}
 			$rootScope.$broadcast("refreshDateSlider");
+			$rootScope.$broadcast("refreshIndicatorValueRangeSlider");
 		}
 
 		$scope.onRecenterMapButtonClick = function(){

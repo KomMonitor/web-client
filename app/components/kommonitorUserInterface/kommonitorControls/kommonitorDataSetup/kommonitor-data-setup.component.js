@@ -536,11 +536,7 @@ angular
 
 								$scope.$on("refreshDateSlider", async function (event) {
 
-										console.log('refreshDateSlider was called. Waiting for one second.');
-
 										await wait(100);
-
-										console.log("waiting finished");
 
 										$scope.onlyRefreshingDateSliderVisuals = true;
 
@@ -571,6 +567,7 @@ angular
 											kommonitorDataExchangeService.selectedIndicator.geoJSON = geoJSON;
 
 											$rootScope.$broadcast("updateMeasureOfValueBar", $scope.date);
+											$rootScope.$broadcast("updateIndicatorValueRangeFilter", $scope.date);
 
 											// $scope.updateMeasureOfValueBar($scope.date);
 
