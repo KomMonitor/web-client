@@ -231,6 +231,21 @@
 		transform: rotateY(100deg); /* Rotate sidebar vertically by 100 degrees. */
 }
 
+#sidebarReachability {
+    min-width: 780px;
+    max-width: 780px;
+		height: 94.1vh;
+		/* min-height: 100vh; */
+		background: #E6EEFB;
+		transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
+    transform-origin: center left; /* Set the transformed position of sidebar to center left side. */
+}
+
+#sidebarReachability.hidden {
+    /* margin-left: -780px; */
+		transform: rotateY(100deg); /* Rotate sidebar vertically by 100 degrees. */
+}
+
 #sidebarMeasureOfValueClassification {
     min-width: 780px;
     max-width: 780px;
@@ -325,6 +340,15 @@
 				transform: none;
     }
 
+		#sidebarReachability {
+        /* margin-left: -780px; */
+				transform: rotateY(100deg);
+    }
+    #sidebarReachability.hidden {
+        margin-left: 0;
+				transform: none;
+    }
+
 		#sidebarBalance {
         /* margin-left: -780px; */
 				transform: rotateY(100deg);
@@ -391,6 +415,13 @@
 }
 
 #kommonitorBalance{
+	margin-left: 35px;
+	margin-right: 35px;
+	margin-top: 10px;
+	z-index: 2000;
+}
+
+#kommonitorReachability{
 	margin-left: 35px;
 	margin-right: 35px;
 	margin-top: 10px;

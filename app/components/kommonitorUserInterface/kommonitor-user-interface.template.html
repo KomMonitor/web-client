@@ -63,6 +63,10 @@
         <regression-diagram></regression-diagram>
     </nav>
 
+		<nav id="sidebarReachability" ng-class="sidebarReachabilityClass">
+        <kommonitor-reachability></kommonitor-reachability>
+    </nav>
+
 		<nav id="sidebarProcessing" ng-class="sidebarProcessingClass">
         <kommonitor-individual-indicator-computation></kommonitor-individual-indicator-computation>
     </nav>
@@ -116,10 +120,15 @@
 						<img src="iconsFromPngTree/scatterPlot.svg"></img>
 				</button>
 
+				<button type="button" style="top: 650px;" id="sidebarReachabilityCollapse"
+					ng-click="onSidebarReachabilityButtonClick()" ng-class="buttonReachabilityClass" data-toggle="tooltip" title="Erreichbarkeitsanalyse">
+					<i style="font-size:1.8em;" class="fas fa-route"></i>
+						<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-wrench" aria-hidden="true"></span> -->
+				</button>
+
 				<button type="button" style="top: 725px;" id="sidebarProcessingCollapse"
 					ng-click="onSidebarProcessingClick()" ng-class="buttonProcessingClass" data-toggle="tooltip" title="Individuelle Indikatorenberechnung">
 					<i style="font-size:1.8em;" class="fas fa-sliders-h"></i>
-						<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-wrench" aria-hidden="true"></span> -->
 				</button>
 
 				<!-- MAP UTIL BUTTONS -->
