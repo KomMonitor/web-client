@@ -80,8 +80,13 @@ angular
 									modifyRadarContent($scope.selectableIndicatorsForRadar);
 								};
 
-								$scope.$on("allIndicatorPropertiesForCurrentSpatialUnitAndTime setup completed", function (event) {
+								var wait = ms => new Promise((r, j)=>setTimeout(r, ms));
+
+								$scope.$on("allIndicatorPropertiesForCurrentSpatialUnitAndTime setup completed", async function (event) {
+
+									await wait(130);
 									$scope.setupCompleted = true;
+									$scope.$apply();
 								});
 
 								var modifyRadarContent = function(selectedIndicatorsForRadar){

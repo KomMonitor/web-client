@@ -48,8 +48,14 @@ angular
 								  };
 								};
 
-								$scope.$on("allIndicatorPropertiesForCurrentSpatialUnitAndTime setup completed", function (event) {
+								var wait = ms => new Promise((r, j)=>setTimeout(r, ms));
+
+								$scope.$on("allIndicatorPropertiesForCurrentSpatialUnitAndTime setup completed", async function (event) {
+
+									await wait(100);
+
 									$scope.setupCompleted = true;
+									$scope.$apply();
 								});
 
 								$scope.$on("updateDiagrams", function (event, indicatorMetadataAndGeoJSON, spatialUnitName, spatialUnitId, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, isMeasureOfValueChecked, measureOfValue, justRestyling) {
