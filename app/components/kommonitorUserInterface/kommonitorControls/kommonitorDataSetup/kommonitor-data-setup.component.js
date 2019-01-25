@@ -567,7 +567,6 @@ angular
 											kommonitorDataExchangeService.selectedIndicator.geoJSON = geoJSON;
 
 											$rootScope.$broadcast("updateMeasureOfValueBar", $scope.date);
-											$rootScope.$broadcast("updateIndicatorValueRangeFilter", $scope.date);
 
 											// $scope.updateMeasureOfValueBar($scope.date);
 
@@ -663,8 +662,8 @@ angular
 									};
 
 									$scope.prepareDownloadGeoJSON();
-
 									$scope.addSelectedIndicatorToMap();
+									$rootScope.$broadcast("updateIndicatorValueRangeFilter", kommonitorDataExchangeService.selectedDate);
 								}
 
 								$scope.prepareDownloadGeoJSON = function(){
