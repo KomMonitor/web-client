@@ -160,12 +160,12 @@ angular.module('kommonitorMap').component(
               			}
 
                     $scope.$on("showLoadingIconOnMap", function (event) {
-                      console.log("Show loading icon on map");
+                      // console.log("Show loading icon on map");
                       $scope.loadingData = true;
                     });
 
                     $scope.$on("hideLoadingIconOnMap", function (event) {
-                      console.log("Hide loading icon on map");
+                      // console.log("Hide loading icon on map");
                       $scope.loadingData = false;
                     });
 
@@ -1518,7 +1518,7 @@ angular.module('kommonitorMap').component(
 
                                                             $scope.$on("highlightFeatureOnMap", function (event, spatialFeatureName) {
 
-                                            									console.log("highlight feature on map for featureName " + spatialFeatureName);
+                                            									// console.log("highlight feature on map for featureName " + spatialFeatureName);
 
                                                               var done = false;
 
@@ -1536,7 +1536,7 @@ angular.module('kommonitorMap').component(
 
                                                             $scope.$on("unhighlightFeatureOnMap", function (event, spatialFeatureName) {
 
-                                            									console.log("unhighlight feature on map for featureName " + spatialFeatureName);
+                                            									// console.log("unhighlight feature on map for featureName " + spatialFeatureName);
 
                                                               var done = false;
 
@@ -1554,7 +1554,7 @@ angular.module('kommonitorMap').component(
 
                                                             $scope.$on("switchHighlightFeatureOnMap", function (event, spatialFeatureName) {
 
-                                            									console.log("switch highlight feature on map for featureName " + spatialFeatureName);
+                                            									// console.log("switch highlight feature on map for featureName " + spatialFeatureName);
 
                                             									var done = false;
 

@@ -165,7 +165,6 @@ angular
 								};
 
 								this.onDateChange = function(){
-									console.log($scope.selectedDate);
 
 									var date = new Date($scope.selectedDate);
 
@@ -179,9 +178,6 @@ angular
 										day = "0" + day;
 
 									$scope.selectedDate = date.getFullYear() + "-" + month  + "-" + day;
-
-									console.log(date);
-									console.log($scope.selectedDate);
 
 									$scope.$apply();
 								};
