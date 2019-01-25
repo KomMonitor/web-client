@@ -62,15 +62,6 @@ angular
 
 								$scope.$on("updateDiagrams", function (event, indicatorMetadataAndGeoJSON, spatialUnitName, spatialUnitId, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, justRestyling) {
 
-									if($scope.regressionChart){
-										$scope.regressionChart.dispose();
-										$scope.regressionChart = undefined;
-									}
-
-									$scope.setupCompleted = false;
-
-									$scope.selectedIndicatorForXAxis = undefined;
-									$scope.selectedIndicatorForYAxis = undefined;
 									$scope.correlation = undefined;
 									$scope.linearRegression = undefined;
 									$scope.regressionOption = undefined;
@@ -91,6 +82,21 @@ angular
 									$scope.isMeasureOfValueChecked = isMeasureOfValueChecked;
 									$scope.measureOfValue = measureOfValue;
 
+									if(justRestyling){
+										$scope.onChangeSelectedIndicators();
+									}
+									else{
+										if($scope.regressionChart){
+											$scope.regressionChart.dispose();
+											$scope.regressionChart = undefined;
+										}
+
+										$scope.setupCompleted = false;
+
+										$scope.selectedIndicatorForXAxis = undefined;
+										$scope.selectedIndicatorForYAxis = undefined;
+
+									}
 								});
 
 								$scope.$on("updateDiagramsForHoveredFeature", function (event, featureProperties) {
