@@ -16,97 +16,95 @@ angular
 							var numberOfDecimals = __env.numberOfDecimals;
 
 							$scope.rangeSliderForFilter;
-							$scope.currentRangeStartPosition;
-							$scope.currentRangeEndPosition;
-
-							$scope.maxNumberOfSliderItems = 8;
-
+							$scope.minValue;
+							$scope.maxValue;
 
 							$scope.$on("updateIndicatorValueRangeFilter", function (event, date) {
 
-									$scope.setuprangeSliderForFilter(date);
+									$scope.setupRangeSliderForFilter(date);
 
 							});
 
-							$scope.makeInputItems = function(geoJSON, date){
-								var values = [];
+							function dateToTS (date) {
+					        return date.valueOf();
+					    }
 
-								geoJSON.features.forEach(function(feature){
-									var item = {};
+					    function tsToDate (ts) {
+					        var d = new Date(ts);
 
-									var value = +Number(feature.properties[date]).toFixed(numberOfDecimals);
+					        return d.toLocaleDateString("de-DE", {
+					            year: 'numeric',
+					            month: 'long',
+					            day: 'numeric'
+					        });
+					    }
 
-									item.key = value;
-									item.value = value;
-
-									values.push(item);
-								});
-
-								//sort ascending order
-								values.sort(function(a, b){return a.key-b.key});
-
-								var difference = values[values.length-1].key - values[0].key;
-								var step = difference / $scope.maxNumberOfSliderItems;
-
-								var items = [];
-								items.push(values[0]);
-								for(var index=0; index <= $scope.maxNumberOfSliderItems - 2; index++){
-									var newItem = {};
-
-									newItem.key = +Number(items[items.length-1].key + step).toFixed(numberOfDecimals);
-									newItem.value = newItem.key;
-
-									items.push(newItem);
-								}
-								items.push(values[values.length-1]);
-
-								return items;
-							};
-
-							$scope.setuprangeSliderForFilter = function(date){
+							$scope.setupRangeSliderForFilter = function(date){
 								date = INDICATOR_DATE_PREFIX + date;
-								var domNode = document.getElementById("rangeSliderForFiltering");
 
-								while (domNode.hasChildNodes()) {
-									domNode.removeChild(domNode.lastChild);
+								if($scope.rangeSliderForFilter){
+									$scope.rangeSliderForFilter.destroy();
 								}
 
 								var geoJSON = kommonitorDataExchangeService.selectedIndicator.geoJSON;
 
-								var items = $scope.makeInputItems(geoJSON, date);
+								// initialize and fill in loop
+								$scope.minValue = geoJSON.features[0].properties[date];
+								$scope.maxValue = $scope.minValue;
 
-								$scope.currentRangeStartPosition = 0;
-								$scope.currentRangeEndPosition = items.length - 1;
-								$scope.rangeSliderForFilter = rangeslide("#rangeSliderForFiltering", {
-									data: items,
-									startPosition: $scope.currentRangeStartPosition,
-									endPosition: $scope.currentRangeEndPosition,
-									thumbWidth: 20,
-									thumbHeight: 36,
-									labelsPosition: "alternate",
-									showLabels: true,
-									startAlternateLabelsFromTop: false,
-									trackHeight: 5,
-									showTicks: false,
-									showTrackMarkers: true,
-									showTrackMarkersProgress: true,
-									showTrackProgress: true,
-									markerSize: 12,
-									tickHeight: 0,
-									slideMode: "free",
-									valuePosition: "above",
-									valueIndicatorWidth: 60,
-									valueIndicatorHeight: 20,
-									highlightSelectedLabels: true,
-									dataSource: "key",
-									labelsContent: "key",
-									valueIndicatorContent: "key",
-									showValue: true,
-									mode: "range",
-									handlers: {
-										"valueChanged": [onChangeValueRange]
+								geoJSON.features.forEach(function(feature){
+									var value = +Number().toFixed(numberOfDecimals);
+
+									if(feature.properties[date] < $scope.minValue){
+										$scope.minValue = feature.properties[date]
+									}
+									else if(feature.properties[date] > $scope.maxValue){
+										$scope.maxValue = feature.properties[date]
 									}
 								});
+
+								$scope.minValue = +$scope.minValue.toFixed(numberOfDecimals);
+								$scope.maxValue = +$scope.maxValue.toFixed(numberOfDecimals);
+
+								$("#rangeSliderForFiltering").ionRangeSlider({
+										skin: "big",
+						        type: "double",
+						        min: $scope.minValue,
+						        max: $scope.maxValue,
+						        from: $scope.minValue,
+						        to: $scope.maxValue,
+								   	force_edges: true,
+										step: 0.0001,
+						        grid: true,
+										prettify_enabled: true,
+										prettify_separator: ",",
+										onChange: function (data) {
+						            // Called every time handle position is changed
+
+						            console.log('change' + data.from);
+												console.log(data);
+						        },
+
+						        onFinish: function (data) {
+						            // Called then action is done and mouse is released
+
+						            console.log('finished' + data.to);
+						        }
+						    });
+
+								$scope.rangeSliderForFilter = $("#rangeSliderForFiltering").data("ionRangeSlider");
+								// $("#rangeSliderForFiltering").ionRangeSlider({
+						    //     skin: "big",
+						    //     type: "double",
+						    //     grid: true,
+						    //     min: dateToTS(new Date(2000, 10, 1)),
+						    //     max: dateToTS(new Date(2018, 11, 1)),
+						    //     from: dateToTS(new Date(205, 10, 8)),
+						    //     to: dateToTS(new Date(2014, 10, 23)),
+								// 		force_edges: true,
+								// 		step: 86400000*30,
+						    //     prettify: tsToDate
+						    // });
 
 							};
 
@@ -119,73 +117,6 @@ angular
 
 									//TODO
 							};
-
-							var wait = ms => new Promise((r, j)=>setTimeout(r, ms))
-
-							$scope.$on("refreshIndicatorValueRangeSlider", async function (event) {
-
-									await wait(100);
-
-									if($scope.dateSlider){
-										$scope.resetIndicatorValueRangeSlider();
-
-									}
-
-							});
-
-							$scope.resetIndicatorValueRangeSlider = function(){
-
-								if($scope.rangeSliderForFilter){
-									$scope.rangeSliderForFilter.destroy();
-								}
-
-								var date = INDICATOR_DATE_PREFIX + kommonitorDataExchangeService.selectedDate;
-								var domNode = document.getElementById("rangeSliderForFiltering");
-
-								while (domNode.hasChildNodes()) {
-									domNode.removeChild(domNode.lastChild);
-								}
-
-								var geoJSON = kommonitorDataExchangeService.selectedIndicator.geoJSON;
-
-								var items = $scope.makeInputItems(geoJSON, date);
-
-								$scope.currentRangeStartPosition = 0;
-								$scope.currentRangeEndPosition = values.length - 1;
-
-								$scope.rangeSliderForFilter = rangeslide("#rangeSliderForFiltering", {
-									data: items,
-									startPosition: $scope.currentRangeStartPosition,
-									endPosition: $scope.currentRangeEndPosition,
-									thumbWidth: 20,
-									thumbHeight: 36,
-									labelsPosition: "alternate",
-									showLabels: true,
-									startAlternateLabelsFromTop: false,
-									trackHeight: 5,
-									showTicks: false,
-									showTrackMarkers: true,
-									showTrackMarkersProgress: true,
-									showTrackProgress: true,
-									markerSize: 12,
-									tickHeight: 0,
-									slideMode: "free",
-									valuePosition: "above",
-									valueIndicatorWidth: 60,
-									valueIndicatorHeight: 20,
-									highlightSelectedLabels: true,
-									dataSource: "key",
-									labelsContent: "key",
-									valueIndicatorContent: "key",
-									showValue: true,
-									mode: "range",
-									handlers: {
-										"valueChanged": [onChangeValueRange]
-									}
-								});
-							};
-
-
 
 					}]
 				});

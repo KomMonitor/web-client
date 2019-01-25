@@ -29,6 +29,8 @@ module.exports = {
           { from: nodeModulePathConstant + 'classybrew/build/classybrew.min.js', to: 'classybrew/classybrew.min.js' },
           { from: nodeModulePathConstant + 'echarts/dist/echarts.min.js', to: 'echarts/echarts.min.js' },
           { from: './customizedExternalLibs/ecStat.min.js', to: 'echarts/ecStat.min.js' },
+          { from: nodeModulePathConstant + 'ion-rangeslider/css/ion.rangeSlider.min.css', to: 'ion-rangeslider' },
+          { from: nodeModulePathConstant + 'ion-rangeslider/js/ion.rangeSlider.min.js', to: 'ion-rangeslider' }
       ])
     ]
 };
