@@ -54,7 +54,6 @@ angular
 								$scope.maxValue = $scope.minValue;
 
 								geoJSON.features.forEach(function(feature){
-									var value = +Number().toFixed(numberOfDecimals);
 
 									if(feature.properties[date] < $scope.minValue){
 										$scope.minValue = feature.properties[date]
@@ -79,12 +78,41 @@ angular
 						        grid: true,
 										prettify_enabled: true,
 										prettify_separator: "",
-										onChange: function (data) {
-						            // Called every time handle position is changed
-												kommonitorDataExchangeService.rangeFilterData = data;
-												kommonitorMapService.restyleCurrentLayer();
-						        }
+										onChange: onChangeRangeFilter
 						    });
+
+								function onChangeRangeFilter (data) {
+									// Called every time handle position is changed
+									kommonitorDataExchangeService.rangeFilterData = data;
+
+									if(!kommonitorDataExchangeService.filteredIndicatorFeatureNames){
+										kommonitorDataExchangeService.filteredIndicatorFeatureNames = [];
+									}
+
+									var date = INDICATOR_DATE_PREFIX + kommonitorDataExchangeService.selectedDate;
+									var geoJSON = kommonitorDataExchangeService.selectedIndicator.geoJSON;
+
+									geoJSON.features.forEach(function(feature){
+										var value = +Number(feature.properties[date]).toFixed(numberOfDecimals);
+
+										if(value >= data.from && value <= data.to){
+											// feature must not be filtered - make sure it is not marked as filtered
+											if (kommonitorDataExchangeService.filteredIndicatorFeatureNames.includes(feature.properties.spatialUnitFeatureName)){
+												var index = kommonitorDataExchangeService.filteredIndicatorFeatureNames.indexOf(feature.properties.spatialUnitFeatureName);
+												kommonitorDataExchangeService.filteredIndicatorFeatureNames.splice(index, 1);
+											}
+										}
+										else{
+											// feature must be filtered
+											if (!kommonitorDataExchangeService.filteredIndicatorFeatureNames.includes(feature.properties.spatialUnitFeatureName)){
+												kommonitorDataExchangeService.filteredIndicatorFeatureNames.push(feature.properties.spatialUnitFeatureName);
+											}
+										}
+
+									});
+
+									kommonitorMapService.restyleCurrentLayer();
+								};
 
 								$scope.rangeSliderForFilter = $("#rangeSliderForFiltering").data("ionRangeSlider");
 								// $("#rangeSliderForFiltering").ionRangeSlider({
@@ -100,16 +128,6 @@ angular
 						    //     prettify: tsToDate
 						    // });
 
-							};
-
-							var onChangeValueRange = async function(dataItem, rangeslideElement){
-
-									console.log("Change selected indicator value range");
-
-									// $scope.currentRangeStartPosition = 0;
-									// $scope.currentRangeEndPosition = 1;
-
-									//TODO
 							};
 
 					}]

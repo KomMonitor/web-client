@@ -83,5 +83,6 @@ angular
 
 					// FILTER
 					this.rangeFilterData;
+					this.filteredIndicatorFeatureNames;
 
 				}]);

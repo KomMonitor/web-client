@@ -14,6 +14,18 @@ angular.module('kommonitorMap').component(
 
                     const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
                     const numberOfDecimals = __env.numberOfDecimals;
+                    const defaultColorForFilteredValues = __env.defaultColorForFilteredValues;
+                    const defaultBorderColorForFilteredValues = __env.defaultBorderColorForFilteredValues;
+                    const defaultBorderColor = __env.defaultBorderColor;
+
+                    $scope.filteredStyle = {
+                        weight: 2,
+                        opacity: 0.5,
+                        color: defaultBorderColorForFilteredValues,
+                        dashArray: '3',
+                        fillOpacity: 0.5,
+                        fillColor: defaultColorForFilteredValues
+                    };
 
                     this.kommonitorMapServiceInstance = kommonitorMapService;
 					          this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
@@ -976,9 +988,11 @@ angular.module('kommonitorMap').component(
                                         // fill color based on $scope.defaultBrew.getColorInRange() method
                                         function styleDefault(feature) {
 
+                                          var fillOpacity = 0.7;
                                           var fillColor;
                                           if(feature.properties[$scope.propertyName] == 0 || feature.properties[$scope.propertyName] == "0"){
                                             fillColor = $scope.defaultColorForZeroValues;
+                                            var fillOpacity = 0.5;
                                           }
                                           else{
                                             fillColor = $scope.defaultBrew.getColorInRange(feature.properties[$scope.propertyName]);
@@ -987,9 +1001,9 @@ angular.module('kommonitorMap').component(
                                             return {
                                                 weight: 2,
                                                 opacity: 1,
-                                                color: 'white',
+                                                color: defaultBorderColor,
                                                 dashArray: '3',
-                                                fillOpacity: 0.7,
+                                                fillOpacity: fillOpacity,
                                                 fillColor: fillColor
                                             }
                                         }
@@ -1007,7 +1021,7 @@ angular.module('kommonitorMap').component(
                                             return {
                                                 weight: 2,
                                                 opacity: 1,
-                                                color: 'white',
+                                                color: defaultBorderColor,
                                                 dashArray: '3',
                                                 fillOpacity: 0.7,
                                                 fillColor: fillColor
@@ -1016,10 +1030,13 @@ angular.module('kommonitorMap').component(
 
                                         function styleMeasureOfValue (feature) {
 
+                                          var fillOpacity = 0.7;
+
                                           if(feature.properties[$scope.indicatorPropertyName] >= kommonitorDataExchangeService.measureOfValue){
                                             var fillColor;
                                             if(feature.properties[$scope.propertyName] == 0 || feature.properties[$scope.propertyName] == "0"){
                                               fillColor = $scope.defaultColorForZeroValues;
+                                              var fillOpacity = 0.5;
                                             }
                                             else{
                                               for (var index=0; index < $scope.gtMeasureOfValueBrew.breaks.length; index++){
@@ -1038,9 +1055,9 @@ angular.module('kommonitorMap').component(
                                             return {
                                                 weight: 2,
                                                 opacity: 1,
-                                                color: 'white',
+                                                color: defaultBorderColor,
                                                 dashArray: '3',
-                                                fillOpacity: 0.7,
+                                                fillOpacity: fillOpacity,
                                                 fillColor: fillColor
                                             }
                                           }
@@ -1049,6 +1066,7 @@ angular.module('kommonitorMap').component(
                                             var fillColor;
                                             if(feature.properties[$scope.propertyName] == 0 || feature.properties[$scope.propertyName] == "0"){
                                               fillColor = $scope.defaultColorForZeroValues;
+                                              var fillOpacity = 0.5;
                                             }
                                             else{
                                               // invert colors, so that lowest values will become strong colored!
@@ -1068,9 +1086,9 @@ angular.module('kommonitorMap').component(
                                             return {
                                                 weight: 2,
                                                 opacity: 1,
-                                                color: 'white',
+                                                color: defaultBorderColor,
                                                 dashArray: '3',
-                                                fillOpacity: 0.7,
+                                                fillOpacity: fillOpacity,
                                                 fillColor: fillColor
                                             }
                                           }
@@ -1079,10 +1097,13 @@ angular.module('kommonitorMap').component(
 
                                         function styleDynamicIndicator (feature) {
 
+                                          var fillOpacity = 0.7;
+
                                           if(feature.properties[$scope.indicatorPropertyName] >= 0){
                                             var fillColor;
                                             if(feature.properties[$scope.propertyName] == 0 || feature.properties[$scope.propertyName] == "0"){
                                               fillColor = $scope.defaultColorForZeroValues;
+                                              var fillOpacity = 0.5;
                                             }
                                             else{
                                               for (var index=0; index < $scope.dynamicIncreaseBrew.breaks.length; index++){
@@ -1101,9 +1122,9 @@ angular.module('kommonitorMap').component(
                                             return {
                                                 weight: 2,
                                                 opacity: 1,
-                                                color: 'white',
+                                                color: defaultBorderColor,
                                                 dashArray: '3',
-                                                fillOpacity: 0.7,
+                                                fillOpacity: fillOpacity,
                                                 fillColor: fillColor
                                             }
                                           }
@@ -1112,6 +1133,7 @@ angular.module('kommonitorMap').component(
                                             var fillColor;
                                             if(feature.properties[$scope.propertyName] == 0 || feature.properties[$scope.propertyName] == "0"){
                                               fillColor = $scope.defaultColorForZeroValues;
+                                              var fillOpacity = 0.5;
                                             }
                                             else{
                                               // invert colors, so that lowest values will become strong colored!
@@ -1131,9 +1153,9 @@ angular.module('kommonitorMap').component(
                                             return {
                                                 weight: 2,
                                                 opacity: 1,
-                                                color: 'white',
+                                                color: defaultBorderColor,
                                                 dashArray: '3',
-                                                fillOpacity: 0.7,
+                                                fillOpacity: fillOpacity,
                                                 fillColor: fillColor
                                             }
                                           }
@@ -1199,8 +1221,10 @@ angular.module('kommonitorMap').component(
 
                                           // only restyle feature when not in list of clicked features
                                           if(! kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(layer.feature.properties.spatialUnitFeatureName)){
-                                            //$scope.currentIndicatorLayer.resetStyle(layer);
-                                            if(! kommonitorDataExchangeService.isMeasureOfValueChecked){
+                                            if(kommonitorDataExchangeService.filteredIndicatorFeatureNames.includes(layer.feature.properties.spatialUnitFeatureName)){
+                                              layer.setStyle($scope.filteredStyle);
+                                            }
+                                            else if(! kommonitorDataExchangeService.isMeasureOfValueChecked){
                                               //$scope.currentIndicatorLayer.resetStyle(layer);
                                               if($scope.indicatorTypeOfCurrentLayer === 'DYNAMIC'){
                                                   layer.setStyle(styleDynamicIndicator(layer.feature));
@@ -1221,8 +1245,10 @@ angular.module('kommonitorMap').component(
 
                                         function resetHighlightClickedFeature(layer) {
                                           //$scope.currentIndicatorLayer.resetStyle(layer);
-
-                                          if(! kommonitorDataExchangeService.isMeasureOfValueChecked){
+                                          if(kommonitorDataExchangeService.filteredIndicatorFeatureNames.includes(layer.feature.properties.spatialUnitFeatureName)){
+                                            layer.setStyle($scope.filteredStyle);
+                                          }
+                                          else if(! kommonitorDataExchangeService.isMeasureOfValueChecked){
                                             //$scope.currentIndicatorLayer.resetStyle(layer);
                                             if($scope.indicatorTypeOfCurrentLayer === 'DYNAMIC'){
                                                 layer.setStyle(styleDynamicIndicator(layer.feature));
@@ -1304,6 +1330,7 @@ angular.module('kommonitorMap').component(
 
                                                                 // empty layer of possibly selected features
                                                                 kommonitorDataExchangeService.clickedIndicatorFeatureNames = [];
+                                                                kommonitorDataExchangeService.filteredIndicatorFeatureNames = [];
 
                                                                 console.log("Remove old indicatorLayer if exists");
                                                                 if($scope.currentIndicatorLayer)
@@ -1429,26 +1456,12 @@ angular.module('kommonitorMap').component(
 
                                                                           if($scope.currentIndicatorLayer){
 
-                                                                            var filteredStyle = {
-                                                                                weight: 2,
-                                                                                opacity: 0.5,
-                                                                                color: 'white',
-                                                                                dashArray: '3',
-                                                                                fillOpacity: 0.5,
-                                                                                fillColor: 'gray'
-                                                                            };
-
                                                                             if(kommonitorDataExchangeService.isMeasureOfValueChecked){
                                                                               setupMeasureOfValueBrew($scope.currentIndicatorLayerOfCurrentLayer, $scope.indicatorPropertyName, "YlOrBr", "Purples", "jenks", kommonitorDataExchangeService.measureOfValue);
                                                                               $scope.makeMeasureOfValueLegend();
                                                                               $scope.currentIndicatorLayer.eachLayer(function(layer) {
-                                                                                if(kommonitorDataExchangeService.rangeFilterData){
-                                                                                  if(layer.feature.properties[$scope.indicatorPropertyName] < kommonitorDataExchangeService.rangeFilterData.from || layer.feature.properties[$scope.indicatorPropertyName] > kommonitorDataExchangeService.rangeFilterData.to){
-                                                                                    layer.setStyle(filteredStyle);
-                                                                                  }
-                                                                                  else{
-                                                                                    layer.setStyle(styleMeasureOfValue(layer.feature));
-                                                                                  }
+                                                                                if(kommonitorDataExchangeService.filteredIndicatorFeatureNames.includes(layer.feature.properties.spatialUnitFeatureName)){
+                                                                                  layer.setStyle($scope.filteredStyle);
                                                                                 }
                                                                                 else{
                                                                                   layer.setStyle(styleMeasureOfValue(layer.feature));
@@ -1463,13 +1476,8 @@ angular.module('kommonitorMap').component(
                                                                                 $scope.makeDynamicIndicatorLegend();
 
                                                                                 $scope.currentIndicatorLayer.eachLayer(function(layer) {
-                                                                                  if(kommonitorDataExchangeService.rangeFilterData){
-                                                                                    if(layer.feature.properties[$scope.indicatorPropertyName] < kommonitorDataExchangeService.rangeFilterData.from || layer.feature.properties[$scope.indicatorPropertyName] > kommonitorDataExchangeService.rangeFilterData.to){
-                                                                                      layer.setStyle(filteredStyle);
-                                                                                    }
-                                                                                    else{
-                                                                                      layer.setStyle(styleDynamicIndicator(layer.feature));
-                                                                                    }
+                                                                                  if(kommonitorDataExchangeService.filteredIndicatorFeatureNames.includes(layer.feature.properties.spatialUnitFeatureName)){
+                                                                                    layer.setStyle($scope.filteredStyle);
                                                                                   }
                                                                                   else{
                                                                                     layer.setStyle(styleDynamicIndicator(layer.feature));
@@ -1483,13 +1491,8 @@ angular.module('kommonitorMap').component(
                                                                                   $scope.makeDefaultLegend(kommonitorDataExchangeService.selectedIndicator.defaultClassificationMapping);
 
                                                                                   $scope.currentIndicatorLayer.eachLayer(function(layer) {
-                                                                                    if(kommonitorDataExchangeService.rangeFilterData){
-                                                                                      if(layer.feature.properties[$scope.indicatorPropertyName] < kommonitorDataExchangeService.rangeFilterData.from || layer.feature.properties[$scope.indicatorPropertyName] > kommonitorDataExchangeService.rangeFilterData.to){
-                                                                                        layer.setStyle(filteredStyle);
-                                                                                      }
-                                                                                      else{
-                                                                                        layer.setStyle(styleDefault(layer.feature));
-                                                                                      }
+                                                                                    if(kommonitorDataExchangeService.filteredIndicatorFeatureNames.includes(layer.feature.properties.spatialUnitFeatureName)){
+                                                                                      layer.setStyle($scope.filteredStyle);
                                                                                     }
                                                                                     else{
                                                                                       layer.setStyle(styleDefault(layer.feature));
