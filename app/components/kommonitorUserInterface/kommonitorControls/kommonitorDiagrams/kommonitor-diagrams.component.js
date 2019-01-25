@@ -24,6 +24,7 @@ angular
 								$scope.date;
 								var numberOfDecimals = __env.numberOfDecimals;
 								var defaultColorForZeroValues = __env.defaultColorForZeroValues;
+								var defaultColorForFilteredValues = __env.defaultColorForFilteredValues;
 
 								var compareFeaturesByIndicatorValue = function(featureA, featureB) {
 								  if (featureA.properties[$scope.indicatorPropertyName] < featureB.properties[$scope.indicatorPropertyName])
@@ -47,7 +48,7 @@ angular
 
 								$scope.$on("updateDiagrams", function (event, indicatorMetadataAndGeoJSON, spatialUnitName, spatialUnitId, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, justRestyling) {
 
-									console.log("Updating diagrams!");
+									// console.log("Updating diagrams!");
 
 									showLoadingIcons();
 
@@ -82,7 +83,10 @@ angular
 
 										var color;
 
-										if(Number(feature.properties[$scope.indicatorPropertyName]) === 0 ){
+										if(kommonitorDataExchangeService.filteredIndicatorFeatureNames.includes(feature.properties.spatialUnitFeatureName)){
+											color = defaultColorForFilteredValues;
+										}
+										else if(Number(feature.properties[$scope.indicatorPropertyName]) === 0 ){
 											color = defaultColorForZeroValues;
 										}
 										else if(isMeasureOfValueChecked){
