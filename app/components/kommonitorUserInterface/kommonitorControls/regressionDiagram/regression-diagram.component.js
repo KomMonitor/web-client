@@ -16,6 +16,8 @@ angular
 
 								const DATE_PREFIX = __env.indicatorDatePrefix;
 								var numberOfDecimals = __env.numberOfDecimals;
+								const defaultColorForFilteredValues = __env.defaultColorForFilteredValues;
+								const defaultColorForZeroValues = __env.defaultColorForZeroValues;
 
 								$scope.setupCompleted = false;
 
@@ -77,8 +79,17 @@ angular
 									$scope.dataWithLabels = undefined;
 									$scope.eventsRegistered = false;
 									// $scope.userHoveresOverItem = false;
+									$scope.indicatorPropertyName = DATE_PREFIX + kommonitorDataExchangeService.selectedDate;
 									$scope.spatialUnitName = spatialUnitName;
 									$scope.date = date;
+									$scope.indicatorMetadataAndGeoJSON = indicatorMetadataAndGeoJSON;
+									$scope.defaultBrew = defaultBrew;
+									$scope.gtMeasureOfValueBrew = gtMeasureOfValueBrew;
+									$scope.ltMeasureOfValueBrew = ltMeasureOfValueBrew;
+									$scope.dynamicIncreaseBrew = dynamicIncreaseBrew;
+									$scope.dynamicDecreaseBrew = dynamicDecreaseBrew;
+									$scope.isMeasureOfValueChecked = isMeasureOfValueChecked;
+									$scope.measureOfValue = measureOfValue;
 
 								});
 
@@ -178,6 +189,100 @@ angular
 									}
 								};
 
+								var getColor = function(featureName){
+
+									var color;
+
+									for (var index=0; index<$scope.indicatorMetadataAndGeoJSON.geoJSON.features.length; index++){
+										var feature = $scope.indicatorMetadataAndGeoJSON.geoJSON.features[index];
+										if (feature.properties.spatialUnitFeatureName === featureName){
+											color = getColorForFeature(feature);
+											break;
+										}
+									}
+
+									return color;
+								};
+
+								var getColorForFeature = function(feature){
+									var color;
+
+									if(kommonitorDataExchangeService.filteredIndicatorFeatureNames.includes(feature.properties.spatialUnitFeatureName)){
+										color = defaultColorForFilteredValues;
+									}
+									else if(Number(feature.properties[$scope.indicatorPropertyName]) === 0 ){
+										color = defaultColorForZeroValues;
+									}
+									else if($scope.isMeasureOfValueChecked){
+
+										if(feature.properties[$scope.indicatorPropertyName] >= $scope.measureOfValue){
+											for(var index = 0 ; index < $scope.gtMeasureOfValueBrew.breaks.length; index++){
+												if (feature.properties[$scope.indicatorPropertyName] <= $scope.gtMeasureOfValueBrew.breaks[index]){
+													if($scope.gtMeasureOfValueBrew.colors[index]){
+														color = $scope.gtMeasureOfValueBrew.colors[index];
+													}
+													else{
+														color = $scope.gtMeasureOfValueBrew.colors[index-1];
+													}
+													break;
+												}
+											}
+										}
+										else {
+											for (var index=0; index < $scope.ltMeasureOfValueBrew.breaks.length; index++){
+												if (feature.properties[$scope.indicatorPropertyName] <= $scope.ltMeasureOfValueBrew.breaks[index]){
+													if($scope.ltMeasureOfValueBrew.colors[$scope.ltMeasureOfValueBrew.colors.length - index]){
+														color = $scope.ltMeasureOfValueBrew.colors[$scope.ltMeasureOfValueBrew.colors.length - index];
+													}
+													else{
+														color = $scope.ltMeasureOfValueBrew.colors[$scope.ltMeasureOfValueBrew.colors.length - index - 1];
+													}
+													break;
+												}
+											}
+										}
+
+									}
+									else{
+										if($scope.indicatorMetadataAndGeoJSON.indicatorType === 'DYNAMIC'){
+
+											if(feature.properties[$scope.indicatorPropertyName] < 0){
+
+												for (var index=0; index < $scope.dynamicDecreaseBrew.breaks.length; index++){
+													if (feature.properties[$scope.indicatorPropertyName] <= $scope.dynamicDecreaseBrew.breaks[index]){
+														if($scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - index]){
+															color = $scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - index];
+														}
+														else{
+															color = $scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - index - 1];
+														}
+														break;
+													}
+												}
+											}
+											else{
+												for(var index = 0 ; index < $scope.dynamicIncreaseBrew.breaks.length; index++){
+													if (feature.properties[$scope.indicatorPropertyName] <= $scope.dynamicIncreaseBrew.breaks[index]){
+														if($scope.dynamicIncreaseBrew.colors[index]){
+															color = $scope.dynamicIncreaseBrew.colors[index];
+														}
+														else{
+															color = $scope.dynamicIncreaseBrew.colors[index-1];
+														}
+														break;
+													}
+												}
+											}
+
+										}
+										else{
+												color = $scope.defaultBrew.getColorInRange(feature.properties[$scope.indicatorPropertyName]);
+										}
+									}
+
+									return color;
+								}
+
 								$scope.buildDataArrayForSelectedIndicators = function(){
 									$scope.data = new Array();
 									$scope.dataWithLabels = new Array();
@@ -193,9 +298,13 @@ angular
 										$scope.data.push([Number(xAxisDataElement.toFixed(numberOfDecimals)), Number(yAxisDataElement.toFixed(numberOfDecimals))]);
 
 										var featureName = indicatorPropertiesArrayForXAxis[i].spatialUnitFeatureName;
+										var color = getColor(featureName);
 										$scope.dataWithLabels.push({
 											name: featureName,
-											value: [Number(xAxisDataElement.toFixed(numberOfDecimals)), Number(yAxisDataElement.toFixed(numberOfDecimals))]
+											value: [Number(xAxisDataElement.toFixed(numberOfDecimals)), Number(yAxisDataElement.toFixed(numberOfDecimals))],
+											itemStyle: {
+												color: color
+											}
 										});
 									}
 
