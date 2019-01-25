@@ -6,7 +6,8 @@
   window.__env.enableDebug = true;
 
   // API url
-  window.__env.apiUrl = 'http://kommonitor.fbg-hsbo.de/';
+  // window.__env.apiUrl = 'http://kommonitor.fbg-hsbo.de/';
+  window.__env.apiUrl = 'http://localhost:8085/';
 
   // Base url
   window.__env.basePath = 'management';
@@ -22,6 +23,7 @@
   window.__env.maxZoomLevel = 19;
 
   window.__env.defaultColorForZeroValues = "#525252";
+  window.__env.defaultColorForFilteredValues = "#bfbfbf";
 
 
 }(this));
