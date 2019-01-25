@@ -1429,11 +1429,31 @@ angular.module('kommonitorMap').component(
 
                                                                           if($scope.currentIndicatorLayer){
 
+                                                                            var filteredStyle = {
+                                                                                weight: 2,
+                                                                                opacity: 0.5,
+                                                                                color: 'white',
+                                                                                dashArray: '3',
+                                                                                fillOpacity: 0.5,
+                                                                                fillColor: 'gray'
+                                                                            };
+
                                                                             if(kommonitorDataExchangeService.isMeasureOfValueChecked){
                                                                               setupMeasureOfValueBrew($scope.currentIndicatorLayerOfCurrentLayer, $scope.indicatorPropertyName, "YlOrBr", "Purples", "jenks", kommonitorDataExchangeService.measureOfValue);
                                                                               $scope.makeMeasureOfValueLegend();
                                                                               $scope.currentIndicatorLayer.eachLayer(function(layer) {
-                                                                                layer.setStyle(styleMeasureOfValue(layer.feature));
+                                                                                if(kommonitorDataExchangeService.rangeFilterData){
+                                                                                  if(layer.feature.properties[$scope.indicatorPropertyName] < kommonitorDataExchangeService.rangeFilterData.from || layer.feature.properties[$scope.indicatorPropertyName] > kommonitorDataExchangeService.rangeFilterData.to){
+                                                                                    layer.setStyle(filteredStyle);
+                                                                                  }
+                                                                                  else{
+                                                                                    layer.setStyle(styleMeasureOfValue(layer.feature));
+                                                                                  }
+                                                                                }
+                                                                                else{
+                                                                                  layer.setStyle(styleMeasureOfValue(layer.feature));
+                                                                                }
+
                                                                               });
                                                                             }
                                                                             else{
@@ -1443,7 +1463,18 @@ angular.module('kommonitorMap').component(
                                                                                 $scope.makeDynamicIndicatorLegend();
 
                                                                                 $scope.currentIndicatorLayer.eachLayer(function(layer) {
-                                                                                  layer.setStyle(styleDynamicIndicator(layer.feature));
+                                                                                  if(kommonitorDataExchangeService.rangeFilterData){
+                                                                                    if(layer.feature.properties[$scope.indicatorPropertyName] < kommonitorDataExchangeService.rangeFilterData.from || layer.feature.properties[$scope.indicatorPropertyName] > kommonitorDataExchangeService.rangeFilterData.to){
+                                                                                      layer.setStyle(filteredStyle);
+                                                                                    }
+                                                                                    else{
+                                                                                      layer.setStyle(styleDynamicIndicator(layer.feature));
+                                                                                    }
+                                                                                  }
+                                                                                  else{
+                                                                                    layer.setStyle(styleDynamicIndicator(layer.feature));
+                                                                                  }
+
                                                                                 });
                                                                               }
                                                                               else{
@@ -1452,7 +1483,18 @@ angular.module('kommonitorMap').component(
                                                                                   $scope.makeDefaultLegend(kommonitorDataExchangeService.selectedIndicator.defaultClassificationMapping);
 
                                                                                   $scope.currentIndicatorLayer.eachLayer(function(layer) {
-                                                                                    layer.setStyle(styleDefault(layer.feature));
+                                                                                    if(kommonitorDataExchangeService.rangeFilterData){
+                                                                                      if(layer.feature.properties[$scope.indicatorPropertyName] < kommonitorDataExchangeService.rangeFilterData.from || layer.feature.properties[$scope.indicatorPropertyName] > kommonitorDataExchangeService.rangeFilterData.to){
+                                                                                        layer.setStyle(filteredStyle);
+                                                                                      }
+                                                                                      else{
+                                                                                        layer.setStyle(styleDefault(layer.feature));
+                                                                                      }
+                                                                                    }
+                                                                                    else{
+                                                                                      layer.setStyle(styleDefault(layer.feature));
+                                                                                    }
+
                                                                                   });
                                                                                 });
                                                                               }

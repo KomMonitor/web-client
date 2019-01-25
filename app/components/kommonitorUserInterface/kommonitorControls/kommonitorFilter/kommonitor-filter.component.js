@@ -43,6 +43,7 @@ angular
 								date = INDICATOR_DATE_PREFIX + date;
 
 								if($scope.rangeSliderForFilter){
+									kommonitorDataExchangeService.rangeFilterData = undefined;
 									$scope.rangeSliderForFilter.destroy();
 								}
 
@@ -77,18 +78,11 @@ angular
 										step: 0.0001,
 						        grid: true,
 										prettify_enabled: true,
-										prettify_separator: ",",
+										prettify_separator: "",
 										onChange: function (data) {
 						            // Called every time handle position is changed
-
-						            console.log('change' + data.from);
-												console.log(data);
-						        },
-
-						        onFinish: function (data) {
-						            // Called then action is done and mouse is released
-
-						            console.log('finished' + data.to);
+												kommonitorDataExchangeService.rangeFilterData = data;
+												kommonitorMapService.restyleCurrentLayer();
 						        }
 						    });
 
