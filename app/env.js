@@ -22,8 +22,10 @@
   window.__env.minZoomLevel = 1;
   window.__env.maxZoomLevel = 19;
 
-  window.__env.defaultColorForZeroValues = "#525252";
-  window.__env.defaultColorForFilteredValues = "#bfbfbf";
+  window.__env.defaultColorForZeroValues = "black";
+  window.__env.defaultBorderColor = "black";
+  window.__env.defaultColorForFilteredValues = "#a6a6a6";
+  window.__env.defaultBorderColorForFilteredValues = "black";
 
 
 }(this));
