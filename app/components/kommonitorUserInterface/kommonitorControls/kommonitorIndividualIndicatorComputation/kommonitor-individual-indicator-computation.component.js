@@ -37,7 +37,6 @@ angular
 						// });
 
 						this.onTargetDateChange = function(){
-							console.log(this.targetDate);
 
 							$scope.computedCustomizedIndicatorGeoJSON = undefined;
 							$scope.resetProgressBar();
@@ -54,9 +53,6 @@ angular
 								day = "0" + day;
 
 							this.targetDate = date.getFullYear() + "-" + month  + "-" + day;
-
-							console.log(date);
-							console.log(this.targetDate);
 
 							$scope.$apply();
 						};
