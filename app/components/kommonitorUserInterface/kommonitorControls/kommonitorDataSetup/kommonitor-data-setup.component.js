@@ -660,6 +660,8 @@ angular
 									$scope.prepareDownloadGeoJSON();
 									$scope.addSelectedIndicatorToMap();
 									$rootScope.$broadcast("updateIndicatorValueRangeFilter", kommonitorDataExchangeService.selectedDate);
+									$rootScope.$broadcast("updateBalanceSlider", kommonitorDataExchangeService.selectedDate);
+
 								}
 
 								$scope.prepareDownloadGeoJSON = function(){

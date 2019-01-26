@@ -5,8 +5,21 @@
 		</div>
 
 		<div align="center">
-			<p>Zeitliche Trendbetrachtung der Indikatorenentwicklung &uuml;ber eine definierbare Zeitperiode</p>
+			<p>Zeitliche Trendbetrachtung der Indikatorenentwicklung &uuml;ber eine definierbare Zeitperiode.</p>
 		</div>
+
+		<br/>
+		<br/>
+
+		<input id="balanceCheckbox" type="checkbox" ng-change="$ctrl.onChangeUseBalance()" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked" ng-checked="$ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked"><strong>Bilanzierung aktivieren/deaktivieren</strong></input>
+
+		<br/>
+		<br/>
+
+		<input id="rangeSliderForBalance" type="text" class="js-range-slider" value=""></input>
+
+		<br/>
+		<br/>
 
 		<div align="center">
 			<p>TODO</p>

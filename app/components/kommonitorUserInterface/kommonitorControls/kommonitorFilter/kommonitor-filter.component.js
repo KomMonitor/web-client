@@ -25,20 +25,6 @@ angular
 
 							});
 
-							function dateToTS (date) {
-					        return date.valueOf();
-					    }
-
-					    function tsToDate (ts) {
-					        var d = new Date(ts);
-
-					        return d.toLocaleDateString("de-DE", {
-					            year: 'numeric',
-					            month: 'long',
-					            day: 'numeric'
-					        });
-					    }
-
 							$scope.setupRangeSliderForFilter = function(date){
 								date = INDICATOR_DATE_PREFIX + date;
 
@@ -93,18 +79,6 @@ angular
 						        from: $scope.minValue,
 						        to: $scope.maxValue
 						    });
-								// $("#rangeSliderForFiltering").ionRangeSlider({
-						    //     skin: "big",
-						    //     type: "double",
-						    //     grid: true,
-						    //     min: dateToTS(new Date(2000, 10, 1)),
-						    //     max: dateToTS(new Date(2018, 11, 1)),
-						    //     from: dateToTS(new Date(205, 10, 8)),
-						    //     to: dateToTS(new Date(2014, 10, 23)),
-								// 		force_edges: true,
-								// 		step: 86400000*30,
-						    //     prettify: tsToDate
-						    // });
 
 							};
 

@@ -19,6 +19,8 @@ angular
 					this.kommonitorMapServiceInstance = kommonitorMapService;
 
 					this.isMeasureOfValueChecked = false;
+					this.isBalanceChecked = false;
+					this.indicatorAndMetadataAsBalance;
 					this.tmpIndicatorGeoJSON = undefined;
 
 					this.baseUrlToKomMonitorDataAPI = __env.apiUrl + __env.basePath;
