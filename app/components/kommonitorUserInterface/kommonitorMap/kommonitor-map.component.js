@@ -286,10 +286,24 @@ angular.module('kommonitorMap').component(
                         $scope.div.innerHTML += "<label>Status-Indikator</label><br/><em>Darstellung der Indikatorenwerte zum gew&auml;hlten Zeitpunkt</em><br/><br/>";
                         $scope.div.innerHTML += "<label>Einheit: </label> " + $scope.indicatorUnit + "<br/><br/>";
 
+                        var useFilteredOrZeroValues = false;
+
+                        if(kommonitorDataExchangeService.filteredIndicatorFeatureNames.length > 0){
+                          $scope.div.innerHTML +=
+                              '<i style="background:' + defaultColorForFilteredValues + '"></i> ' +
+                              "gefilterte Features" + '<br>';
+                              useFilteredOrZeroValues = true;
+                        }
+
                         if($scope.currentIndicatorContainsZeroValues){
                           $scope.div.innerHTML +=
                               '<i style="background:' + $scope.defaultColorForZeroValues + '"></i> ' +
                               "0" + '<br>';
+                              useFilteredOrZeroValues = true;
+                        }
+
+                        if(useFilteredOrZeroValues){
+                          $scope.div.innerHTML += '<br/>';
                         }
 
                         for (var i = 0; i < colors.length; i++) {
@@ -327,6 +341,12 @@ angular.module('kommonitorMap').component(
                         $scope.div.innerHTML += "<label>Dynamik-Indikator</label><br/><em>Darstellung der zeitlichen Entwicklung</em><br/><br/>";
                         $scope.div.innerHTML += "<label>Einheit: </label> " + $scope.indicatorUnit + "<br/><br/>";
 
+                        if(kommonitorDataExchangeService.filteredIndicatorFeatureNames.length > 0){
+                          $scope.div.innerHTML +=
+                              '<i style="background:' + defaultColorForFilteredValues + '"></i> ' +
+                              "gefilterte Features" + '<br/><br/>';
+                        }
+
                         // dynamic legend creation depending on number of positive and negative classes
                         if($scope.dynamicDecreaseBrew){
                           labelsDynamicDecrease = $scope.dynamicDecreaseBrew.breaks;
@@ -346,12 +366,14 @@ angular.module('kommonitorMap').component(
                         if($scope.currentIndicatorContainsZeroValues){
                           $scope.div.innerHTML +=
                               '<i style="background:' + $scope.defaultColorForZeroValues + '"></i> ' +
-                              "0" + '<br><br>';
+                              "0" + '<br>';
                         }
 
                         if($scope.dynamicIncreaseBrew){
                           labelsDynamicIncrease = $scope.dynamicIncreaseBrew.breaks;
                           colorsDynamicIncrease = $scope.dynamicIncreaseBrew.colors;
+
+                          $scope.div.innerHTML += "<br/>";
 
                           $scope.div.innerHTML += "<label>Steigende Entwicklung</label><br/>";
 
@@ -396,10 +418,16 @@ angular.module('kommonitorMap').component(
 
                         $scope.div.innerHTML += "<label>Einheit: </label> " + $scope.indicatorUnit + "<br/><br/>";
 
+                        if(kommonitorDataExchangeService.filteredIndicatorFeatureNames.length > 0){
+                          $scope.div.innerHTML +=
+                              '<i style="background:' + defaultColorForFilteredValues + '"></i> ' +
+                              "gefilterte Features" + '<br>';
+                        }
+
                         if($scope.currentIndicatorContainsZeroValues){
                           $scope.div.innerHTML +=
                               '<i style="background:' + $scope.defaultColorForZeroValues + '"></i> ' +
-                              "0" + '<br><br>';
+                              "0" + '<br>';
                         }
 
                         // loop through our density intervals and generate a label with a colored square for each interval
@@ -412,6 +440,7 @@ angular.module('kommonitorMap').component(
                         if($scope.ltMeasureOfValueBrew){
                           labelsLtMeasureOfValue = $scope.ltMeasureOfValueBrew.breaks;
                           colorsLtMeasureOfValue = $scope.ltMeasureOfValueBrew.colors;
+                          $scope.div.innerHTML += '<br/>';
                           $scope.div.innerHTML += "<label>Features < Schwellwert</label><br/>";
 
                           // var labelArray_below = ["deutlich kleiner Schwellwert", "moderat kleiner Schwellwert", "geringfügig kleiner Schwellwert"];
