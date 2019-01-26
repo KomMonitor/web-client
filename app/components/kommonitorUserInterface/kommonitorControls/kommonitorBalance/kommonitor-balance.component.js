@@ -146,6 +146,8 @@ angular
 							for (var index=0; index < kommonitorDataExchangeService.selectedIndicator.geoJSON.features.length; index++){
 								kommonitorDataExchangeService.indicatorAndMetadataAsBalance.geoJSON.features[index].properties[$scope.targetIndicatorProperty] = +Number(kommonitorDataExchangeService.selectedIndicator.geoJSON.features[index].properties[toDateAsPropertyString] - kommonitorDataExchangeService.selectedIndicator.geoJSON.features[index].properties[fromDateAsPropertyString]).toFixed(numberOfDecimals);
 							}
+							kommonitorDataExchangeService.indicatorAndMetadataAsBalance['fromDate'] = tsToDate(dateToTS(fromDate));
+							kommonitorDataExchangeService.indicatorAndMetadataAsBalance['toDate'] = tsToDate(dateToTS(toDate)); 
 						};
 
 						function snapToNearestLowerDate(toDate, applicableDates){

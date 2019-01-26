@@ -341,6 +341,11 @@ angular.module('kommonitorMap').component(
                         $scope.div.innerHTML += "<label>Dynamik-Indikator</label><br/><em>Darstellung der zeitlichen Entwicklung</em><br/><br/>";
                         $scope.div.innerHTML += "<label>Einheit: </label> " + $scope.indicatorUnit + "<br/><br/>";
 
+                        if($scope.currentIndicatorMetadataAndGeoJSON['fromDate']){
+                          $scope.div.innerHTML += "<label>Bilanzierungszeitraum: </label><br/>";
+                          $scope.div.innerHTML += "<em>" + $scope.currentIndicatorMetadataAndGeoJSON['fromDate'] + " - " + $scope.currentIndicatorMetadataAndGeoJSON['toDate'] + "</em><br/><br/>";
+                        }
+
                         if(kommonitorDataExchangeService.filteredIndicatorFeatureNames.length > 0){
                           $scope.div.innerHTML +=
                               '<i style="background:' + defaultColorForFilteredValues + '"></i> ' +
@@ -1379,7 +1384,7 @@ angular.module('kommonitorMap').component(
                                                                 $scope.currentIndicatorLayerOfCurrentLayer = indicatorMetadataAndGeoJSON.geoJSON;
 
                                                                 for (var i = 0; i < indicatorMetadataAndGeoJSON.geoJSON.features.length; i++){
-                                                                    if (indicatorMetadataAndGeoJSON.geoJSON.features[i].properties[$scope.indicatorPropertyName] == 0 || indicatorMetadataAndGeoJSON.geoJSON.features[i].properties[$scope.indicatorPropertyName] == "0"){
+                                                                    if (indicatorMetadataAndGeoJSON.geoJSON.features[i].properties[$scope.indicatorPropertyName] === 0 || indicatorMetadataAndGeoJSON.geoJSON.features[i].properties[$scope.indicatorPropertyName] === "0"){
                                                                       $scope.currentIndicatorContainsZeroValues = true;
                                                                       break;
                                                                     };
@@ -1484,6 +1489,15 @@ angular.module('kommonitorMap').component(
                                                             $scope.$on("restyleCurrentLayer", function (event) {
 
                                                                           if($scope.currentIndicatorLayer){
+
+                                                                            $scope.currentIndicatorContainsZeroValues = false;
+
+                                                                            for (var i = 0; i < $scope.currentIndicatorMetadataAndGeoJSON.geoJSON.features.length; i++){
+                                                                                if ($scope.currentIndicatorMetadataAndGeoJSON.geoJSON.features[i].properties[$scope.indicatorPropertyName] === 0 || $scope.currentIndicatorMetadataAndGeoJSON.geoJSON.features[i].properties[$scope.indicatorPropertyName] === "0"){
+                                                                                  $scope.currentIndicatorContainsZeroValues = true;
+                                                                                  break;
+                                                                                };
+                                                                            }
 
                                                                             if(kommonitorDataExchangeService.isMeasureOfValueChecked){
                                                                               setupMeasureOfValueBrew($scope.currentIndicatorLayerOfCurrentLayer, $scope.indicatorPropertyName, "YlOrBr", "Purples", "jenks", kommonitorDataExchangeService.measureOfValue);
