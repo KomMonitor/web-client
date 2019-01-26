@@ -135,11 +135,11 @@ angular
 
 							var fromDateAsPropertyString = makePropertyString(fromDate);
 							if(!kommonitorDataExchangeService.indicatorAndMetadataAsBalance.geoJSON.features[0].properties[fromDateAsPropertyString]){
-								fromDateAsPropertyString = snapToNearestUpperDate(fromDateAsPropertyString, kommonitorDataExchangeService.indicatorAndMetadataAsBalance.applicableDates);
+								fromDateAsPropertyString = snapToNearestUpperDate(fromDate, kommonitorDataExchangeService.indicatorAndMetadataAsBalance.applicableDates);
 							}
 							var toDateAsPropertyString = makePropertyString(toDate);
 							if(!kommonitorDataExchangeService.indicatorAndMetadataAsBalance.geoJSON.features[0].properties[toDateAsPropertyString]){
-								toDateAsPropertyString = snapToNearestLowerDate(toDateAsPropertyString, kommonitorDataExchangeService.indicatorAndMetadataAsBalance.applicableDates);
+								toDateAsPropertyString = snapToNearestLowerDate(toDate, kommonitorDataExchangeService.indicatorAndMetadataAsBalance.applicableDates);
 							}
 
 							// set value of selected target property with the computed balance between toDate - FromDate
@@ -148,12 +148,11 @@ angular
 							}
 						};
 
-						function snapToNearestLowerDate(toDateAsPropertyString, applicableDates){
-							var components = toDateAsPropertyString.split("-");
+						function snapToNearestLowerDate(toDate, applicableDates){
 							var earliestDateStringComponents = applicableDates[0].split("-");
 
 							var earliestDate = new Date(Number(earliestDateStringComponents[0]), Number(earliestDateStringComponents[1]) - 1, Number(earliestDateStringComponents[2]));
-							var dateCandidate = new Date(Number(components[0]), Number(components[1]) - 1, Number(components[2]));
+							var dateCandidate = toDate;
 
 							// we need to find the next lower applicableDate
 							// decrement day by one and check, otherwise decrement month and/or year
@@ -177,12 +176,11 @@ angular
 							return targetDatePropertyString;
 						}
 
-						function snapToNearestUpperDate(fromDateAsPropertyString, applicableDates){
-							var components = fromDateAsPropertyString.split("-");
+						function snapToNearestUpperDate(fromDate, applicableDates){
 							var lastDateStringComponents = applicableDates[applicableDates.length -1].split("-");
 
 							var latestDate = new Date(Number(lastDateStringComponents[0]), Number(lastDateStringComponents[1]) - 1, Number(lastDateStringComponents[2]));
-							var dateCandidate = new Date(Number(components[0]), Number(components[1]) - 1, Number(components[2]));
+							var dateCandidate = fromDate;
 
 							// we need to find the next upper applicableDate
 							// increment day by one and check, otherwise increment month and/or year
