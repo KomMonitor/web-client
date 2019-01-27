@@ -56,6 +56,7 @@ angular
 								});
 								kommonitorMapService.replaceIndicatorGeoJSON(kommonitorDataExchangeService.selectedIndicator, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, $scope.targetDate, true);
 							}
+							$rootScope.$broadcast("updateIndicatorValueRangeFilter", $scope.targetDate);
 						};
 
 						$scope.$on("updateBalanceSlider", function (event, date) {

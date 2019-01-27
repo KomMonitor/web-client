@@ -18,6 +18,7 @@ angular
 							$scope.rangeSliderForFilter;
 							$scope.minValue;
 							$scope.maxValue;
+							$scope.geoJSON;
 
 							$scope.$on("updateIndicatorValueRangeFilter", function (event, date) {
 
@@ -39,13 +40,18 @@ angular
 									}
 								}
 
-								var geoJSON = kommonitorDataExchangeService.selectedIndicator.geoJSON;
+								$scope.geoJSON = kommonitorDataExchangeService.selectedIndicator.geoJSON;
+								if(kommonitorDataExchangeService.isBalanceChecked){
+									//we have to use the geoJSON of balance mode
+									$scope.geoJSON = kommonitorDataExchangeService.indicatorAndMetadataAsBalance.geoJSON;
+								}
+
 
 								// initialize and fill in loop
-								$scope.minValue = geoJSON.features[0].properties[date];
+								$scope.minValue = $scope.geoJSON.features[0].properties[date];
 								$scope.maxValue = $scope.minValue;
 
-								geoJSON.features.forEach(function(feature){
+								$scope.geoJSON.features.forEach(function(feature){
 
 									if(feature.properties[date] < $scope.minValue){
 										$scope.minValue = feature.properties[date]
@@ -91,9 +97,8 @@ angular
 								}
 
 								var date = INDICATOR_DATE_PREFIX + kommonitorDataExchangeService.selectedDate;
-								var geoJSON = kommonitorDataExchangeService.selectedIndicator.geoJSON;
 
-								geoJSON.features.forEach(function(feature){
+								$scope.geoJSON.features.forEach(function(feature){
 									var value = +Number(feature.properties[date]).toFixed(numberOfDecimals);
 
 									if(value >= data.from && value <= data.to){

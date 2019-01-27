@@ -26,6 +26,7 @@ angular
 							this.onChangeUseMeasureOfValue = function(){
 								if(kommonitorDataExchangeService.isBalanceChecked){
 									$rootScope.$broadcast("DisableBalance");
+									$rootScope.$broadcast("updateIndicatorValueRangeFilter", kommonitorDataExchangeService.selectedDate);
 									//replace displayed indicator on map
 									kommonitorMapService.replaceIndicatorGeoJSON(kommonitorDataExchangeService.selectedIndicator, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, kommonitorDataExchangeService.selectedDate, true);
 								}
