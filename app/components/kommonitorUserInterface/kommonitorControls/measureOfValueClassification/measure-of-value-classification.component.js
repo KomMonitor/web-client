@@ -24,29 +24,37 @@ angular
 
 
 							this.onChangeUseMeasureOfValue = function(){
-								kommonitorDataExchangeService.isBalanceChecked = false;
-								$scope.loadingData = true;
-								$rootScope.$broadcast("showLoadingIconOnMap");
+								if(kommonitorDataExchangeService.isBalanceChecked){
+									$rootScope.$broadcast("DisableBalance");
+									//replace displayed indicator on map
+									kommonitorMapService.replaceIndicatorGeoJSON(kommonitorDataExchangeService.selectedIndicator, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, kommonitorDataExchangeService.selectedDate, true);
+								}
+								else{
+									this.kommonitorMapServiceInstance.restyleCurrentLayer();
+								}
 
-								console.log("Change UseMeasureOfValue");
-
-								// try{
-								// 	var selectedIndicator = await $scope.tryUpdateMeasureOfValueBarForIndicator();
-								// }
-								// catch(error){
-								// 	console.error(error);
-								// 	$scope.loadingData = false;
-								// 	return;
-								// }
-
-								// $scope.modifyComponentsForCurrentIndicatorTimestampAndSpatialUnit();
-							//	$scope.addSelectedIndicatorToMap();
-
-								this.kommonitorMapServiceInstance.restyleCurrentLayer();
-
-								$scope.loadingData = false;
-								$rootScope.$broadcast("hideLoadingIconOnMap");
-								//$scope.$apply();
+							// 	$scope.loadingData = true;
+							// 	$rootScope.$broadcast("showLoadingIconOnMap");
+							//
+							// 	console.log("Change UseMeasureOfValue");
+							//
+							// 	// try{
+							// 	// 	var selectedIndicator = await $scope.tryUpdateMeasureOfValueBarForIndicator();
+							// 	// }
+							// 	// catch(error){
+							// 	// 	console.error(error);
+							// 	// 	$scope.loadingData = false;
+							// 	// 	return;
+							// 	// }
+							//
+							// 	// $scope.modifyComponentsForCurrentIndicatorTimestampAndSpatialUnit();
+							// //	$scope.addSelectedIndicatorToMap();
+							//
+							//
+							//
+							// 	$scope.loadingData = false;
+							// 	$rootScope.$broadcast("hideLoadingIconOnMap");
+							// 	//$scope.$apply();
 							};
 
 							$scope.$on("updateMeasureOfValueBar", function (event, date) {

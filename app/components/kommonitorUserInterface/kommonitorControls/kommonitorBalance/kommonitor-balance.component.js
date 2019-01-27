@@ -21,8 +21,21 @@ angular
 						$scope.minDate;
 						$scope.maxDate;
 
+						$scope.$on("DisableBalance", function (event) {
+							kommonitorDataExchangeService.isBalanceChecked = false;
+							if($scope.rangeSliderForBalance){
+								$scope.rangeSliderForBalance.update({
+										block: true
+								});
+							}
+						});
+
 						this.onChangeUseBalance = function(){
 							console.log("Change UseBalance");
+
+							if(kommonitorDataExchangeService.isMeasureOfValueChecked){
+								kommonitorDataExchangeService.isMeasureOfValueChecked = false;
+							}
 
 							if(kommonitorDataExchangeService.isBalanceChecked){
 								kommonitorDataExchangeService.isMeasureOfValueChecked = false;
