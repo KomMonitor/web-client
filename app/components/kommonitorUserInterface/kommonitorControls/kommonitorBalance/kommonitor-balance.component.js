@@ -135,11 +135,13 @@ angular
 							var toDate = new Date(data.to);
 
 							var fromDateAsPropertyString = makePropertyString(fromDate);
-							if(!kommonitorDataExchangeService.indicatorAndMetadataAsBalance.geoJSON.features[0].properties[fromDateAsPropertyString]){
+							var fromDateAsString = makeDateString(fromDate);
+							if(!kommonitorDataExchangeService.indicatorAndMetadataAsBalance.applicableDates.includes(fromDateAsString)){
 								fromDateAsPropertyString = snapToNearestUpperDate(fromDate, kommonitorDataExchangeService.indicatorAndMetadataAsBalance.applicableDates);
 							}
 							var toDateAsPropertyString = makePropertyString(toDate);
-							if(!kommonitorDataExchangeService.indicatorAndMetadataAsBalance.geoJSON.features[0].properties[toDateAsPropertyString]){
+							var toDateAsString = makeDateString(toDate);
+							if(!kommonitorDataExchangeService.indicatorAndMetadataAsBalance.applicableDates.includes(toDateAsString)){
 								toDateAsPropertyString = snapToNearestLowerDate(toDate, kommonitorDataExchangeService.indicatorAndMetadataAsBalance.applicableDates);
 							}
 
