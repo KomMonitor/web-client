@@ -34,18 +34,19 @@ angular
 								}
 								var data = $scope.rangeSliderForBalance.options;
 								computeAndSetBalance(data);
-								kommonitorMapService.replaceIndicatorGeoJSON(kommonitorDataExchangeService.indicatorAndMetadataAsBalance, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, $scope.targetDate);
+								kommonitorMapService.replaceIndicatorGeoJSON(kommonitorDataExchangeService.indicatorAndMetadataAsBalance, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, $scope.targetDate, true);
 							}
 							else{
 								$scope.rangeSliderForBalance.update({
 										block: true
 								});
-								kommonitorMapService.replaceIndicatorGeoJSON(kommonitorDataExchangeService.selectedIndicator, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, $scope.targetDate);
+								kommonitorMapService.replaceIndicatorGeoJSON(kommonitorDataExchangeService.selectedIndicator, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, $scope.targetDate, true);
 							}
 						};
 
 						$scope.$on("updateBalanceSlider", function (event, date) {
 
+								kommonitorDataExchangeService.isBalanceChecked = false;
 								$scope.setupRangeSliderForBalance(date);
 
 						});
@@ -147,7 +148,7 @@ angular
 								kommonitorDataExchangeService.indicatorAndMetadataAsBalance.geoJSON.features[index].properties[$scope.targetIndicatorProperty] = +Number(kommonitorDataExchangeService.selectedIndicator.geoJSON.features[index].properties[toDateAsPropertyString] - kommonitorDataExchangeService.selectedIndicator.geoJSON.features[index].properties[fromDateAsPropertyString]).toFixed(numberOfDecimals);
 							}
 							kommonitorDataExchangeService.indicatorAndMetadataAsBalance['fromDate'] = tsToDate(dateToTS(fromDate));
-							kommonitorDataExchangeService.indicatorAndMetadataAsBalance['toDate'] = tsToDate(dateToTS(toDate)); 
+							kommonitorDataExchangeService.indicatorAndMetadataAsBalance['toDate'] = tsToDate(dateToTS(toDate));
 						};
 
 						function snapToNearestLowerDate(toDate, applicableDates){

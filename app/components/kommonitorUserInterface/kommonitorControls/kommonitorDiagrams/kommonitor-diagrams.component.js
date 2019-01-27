@@ -52,6 +52,8 @@ angular
 
 									showLoadingIcons();
 
+									var selectedIndicator = kommonitorDataExchangeService.selectedIndicator;
+
 									$scope.spatialUnitName = spatialUnitName;
 									$scope.date = date;
 
@@ -74,44 +76,53 @@ angular
 									}
 
 									//sort array of features
-									var features = indicatorMetadataAndGeoJSON.geoJSON.features;
-									features.sort(compareFeaturesByIndicatorValue);
+									var cartographicFeatures = indicatorMetadataAndGeoJSON.geoJSON.features;
+									cartographicFeatures.sort(compareFeaturesByIndicatorValue);
+									var selectedFeatures = selectedIndicator.geoJSON.features;
+									selectedFeatures.sort(compareFeaturesByIndicatorValue);
 
-									for(var feature of indicatorMetadataAndGeoJSON.geoJSON.features){
-										featureNamesArray.push(feature.properties.spatialUnitFeatureName);
-										indicatorValueArray.push(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals));
+									for (var j=0; j < cartographicFeatures.length; j++){
+										// diff occurs when balance mode is activated
+										// then, cartographicFeatures display balance over time period, which shall be reflected in bar chart and histogram
+										// the other diagrams must use the "normal" unbalanced indicator instead --> selectedFeatures
+										cartographicFeature = cartographicFeatures[j];
+										selectedFeature = selectedFeatures[j];
+
+
+										featureNamesArray.push(cartographicFeature.properties.spatialUnitFeatureName);
+										indicatorValueArray.push(+Number(cartographicFeature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals));
 
 										var color;
 
-										if(kommonitorDataExchangeService.filteredIndicatorFeatureNames.includes(feature.properties.spatialUnitFeatureName)){
+										if(kommonitorDataExchangeService.filteredIndicatorFeatureNames.includes(cartographicFeature.properties.spatialUnitFeatureName)){
 											color = defaultColorForFilteredValues;
 										}
-										else if(Number(feature.properties[$scope.indicatorPropertyName]) === 0 ){
+										else if(Number(cartographicFeature.properties[$scope.indicatorPropertyName]) === 0 ){
 											color = defaultColorForZeroValues;
 										}
 										else if(isMeasureOfValueChecked){
 
-											if(feature.properties[$scope.indicatorPropertyName] >= measureOfValue){
-												for(var index = 0 ; index < gtMeasureOfValueBrew.breaks.length; index++){
-													if (feature.properties[$scope.indicatorPropertyName] <= gtMeasureOfValueBrew.breaks[index]){
-														if(gtMeasureOfValueBrew.colors[index]){
-															color = gtMeasureOfValueBrew.colors[index];
+											if(cartographicFeature.properties[$scope.indicatorPropertyName] >= measureOfValue){
+												for(var k = 0 ; k < gtMeasureOfValueBrew.breaks.length; k++){
+													if (cartographicFeature.properties[$scope.indicatorPropertyName] <= gtMeasureOfValueBrew.breaks[k]){
+														if(gtMeasureOfValueBrew.colors[k]){
+															color = gtMeasureOfValueBrew.colors[k];
 														}
 														else{
-															color = gtMeasureOfValueBrew.colors[index-1];
+															color = gtMeasureOfValueBrew.colors[k-1];
 														}
 														break;
 													}
 												}
 											}
 											else {
-												for (var index=0; index < ltMeasureOfValueBrew.breaks.length; index++){
-													if (feature.properties[$scope.indicatorPropertyName] <= ltMeasureOfValueBrew.breaks[index]){
-														if(ltMeasureOfValueBrew.colors[ltMeasureOfValueBrew.colors.length - index]){
-															color = ltMeasureOfValueBrew.colors[ltMeasureOfValueBrew.colors.length - index];
+												for (var l=0; l < ltMeasureOfValueBrew.breaks.length; l++){
+													if (cartographicFeature.properties[$scope.indicatorPropertyName] <= ltMeasureOfValueBrew.breaks[l]){
+														if(ltMeasureOfValueBrew.colors[ltMeasureOfValueBrew.colors.length - l]){
+															color = ltMeasureOfValueBrew.colors[ltMeasureOfValueBrew.colors.length - l];
 														}
 														else{
-															color = ltMeasureOfValueBrew.colors[ltMeasureOfValueBrew.colors.length - index - 1];
+															color = ltMeasureOfValueBrew.colors[ltMeasureOfValueBrew.colors.length - l - 1];
 														}
 														break;
 													}
@@ -122,28 +133,28 @@ angular
 										else{
 											if(indicatorMetadataAndGeoJSON.indicatorType === 'DYNAMIC'){
 
-												if(feature.properties[$scope.indicatorPropertyName] < 0){
+												if(cartographicFeature.properties[$scope.indicatorPropertyName] < 0){
 
-													for (var index=0; index < dynamicDecreaseBrew.breaks.length; index++){
-														if (feature.properties[$scope.indicatorPropertyName] <= dynamicDecreaseBrew.breaks[index]){
-															if(dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - index]){
-																color = dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - index];
+													for (var h=0; h < dynamicDecreaseBrew.breaks.length; h++){
+														if (cartographicFeature.properties[$scope.indicatorPropertyName] <= dynamicDecreaseBrew.breaks[h]){
+															if(dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - h]){
+																color = dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - h];
 															}
 															else{
-																color = dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - index - 1];
+																color = dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - h - 1];
 															}
 															break;
 														}
 													}
 												}
 												else{
-													for(var index = 0 ; index < dynamicIncreaseBrew.breaks.length; index++){
-														if (feature.properties[$scope.indicatorPropertyName] <= dynamicIncreaseBrew.breaks[index]){
-															if(dynamicIncreaseBrew.colors[index]){
-																color = dynamicIncreaseBrew.colors[index];
+													for(var g = 0 ; g < dynamicIncreaseBrew.breaks.length; g++){
+														if (cartographicFeature.properties[$scope.indicatorPropertyName] <= dynamicIncreaseBrew.breaks[g]){
+															if(dynamicIncreaseBrew.colors[g]){
+																color = dynamicIncreaseBrew.colors[g];
 															}
 															else{
-																color = dynamicIncreaseBrew.colors[index-1];
+																color = dynamicIncreaseBrew.colors[g-1];
 															}
 															break;
 														}
@@ -152,13 +163,13 @@ angular
 
 											}
 											else{
-													color = defaultBrew.getColorInRange(feature.properties[$scope.indicatorPropertyName]);
+													color = defaultBrew.getColorInRange(cartographicFeature.properties[$scope.indicatorPropertyName]);
 											}
 										}
 
 
 										var seriesItem = {
-											value: +Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals),
+											value: +Number(cartographicFeature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals),
 											itemStyle: {
 												color: color
 											}
@@ -169,7 +180,7 @@ angular
 										// continue timeSeries arrays by adding and counting all time series values
 										for(var i=0; i<indicatorTimeSeriesDatesArray.length; i++){
 											var datePropertyName = INDICATOR_DATE_PREFIX + indicatorTimeSeriesDatesArray[i];
-											indicatorTimeSeriesAverageArray[i] += feature.properties[datePropertyName];
+											indicatorTimeSeriesAverageArray[i] += selectedFeature.properties[datePropertyName];
 											indicatorTimeSeriesCountArray[i] ++;
 										}
 									}
@@ -216,10 +227,24 @@ angular
 
 									$scope.histogramChart.hideLoading();
 
+									// default fontSize of echarts title
+									var fontSize = 18;
+									var histogramChartTitel = 'Histogramm - ' + $scope.spatialUnitName + ' - ';
+									if(indicatorMetadataAndGeoJSON.fromDate){
+										histogramChartTitel += "Bilanz " + indicatorMetadataAndGeoJSON.fromDate + " - " + indicatorMetadataAndGeoJSON.toDate;
+										fontSize = 14;
+									}
+									else{
+										histogramChartTitel += $scope.date;
+									}
+
 									$scope.histogramOption = {
                     title: {
-											text: 'Histogramm - ' + $scope.spatialUnitName + ' - ' + $scope.date,
+											text: histogramChartTitel,
 											left: 'center',
+											textStyle:{
+												fontSize: fontSize
+											}
 											// top: 15
                     },
                     tooltip: {
@@ -434,10 +459,24 @@ angular
 												}
 										};
 
+										// default fontSize of echarts
+										var fontSize = 18;
+										var barChartTitel = 'Feature-Vergleich - ' + $scope.spatialUnitName + ' - ';
+										if(indicatorMetadataAndGeoJSON.fromDate){
+											barChartTitel += "Bilanz " + indicatorMetadataAndGeoJSON.fromDate + " - " + indicatorMetadataAndGeoJSON.toDate;
+											fontSize = 14;
+										}
+										else{
+											barChartTitel += $scope.date;
+										}
+
 									$scope.barOption = {
 											title: {
-													text: 'Feature-Vergleich - ' + $scope.spatialUnitName + ' - ' + $scope.date,
+													text: barChartTitel,
 													left: 'center',
+													textStyle:{
+														fontSize: fontSize
+													}
 									        // top: 15
 											},
 											tooltip: {
@@ -769,6 +808,12 @@ angular
 								});
 
 								var appendSeriesToLineChart = function(featureProperties){
+
+									// in case of activated balance mode, we must use the properties of kommonitorDataExchangeService.selectedIndicator, to aquire the correct time series item!
+									if(kommonitorDataExchangeService.isBalanceChecked){
+										featureProperties = findPropertiesForTimeSeries(featureProperties.spatialUnitFeatureName);
+									}
+
 									// append feature name to legend
 									$scope.lineOption.legend.data.push(featureProperties.spatialUnitFeatureName);
 
@@ -787,6 +832,14 @@ angular
 
 									$scope.lineChart.setOption($scope.lineOption);
 								};
+
+								var findPropertiesForTimeSeries = function(spatialUnitFeatureName){
+									for(var feature of kommonitorDataExchangeService.selectedIndicator.geoJSON.features){
+										if(feature.properties.spatialUnitFeatureName === spatialUnitFeatureName){
+											return feature.properties;
+										}
+									}
+								}
 
 								var highlightFeatureInBarChart = function(featureProperties){
 									// highlight the corresponding bar diagram item
