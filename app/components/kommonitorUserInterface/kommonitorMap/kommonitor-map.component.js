@@ -59,7 +59,7 @@ angular.module('kommonitorMap').component(
                     $scope.ltMeasureOfValueBrew = new classyBrew();
 
                     $scope.currentIndicatorMetadataAndGeoJSON;
-                    $scope.currentIndicatorLayerOfCurrentLayer;
+                    $scope.currentGeoJSONOfCurrentLayer;
                     $scope.currentIndicatorContainsZeroValues = false;
                     $scope.indicatorTypeOfCurrentLayer;
                     $scope.defaultColorForZeroValues = __env.defaultColorForZeroValues;
@@ -1381,7 +1381,7 @@ angular.module('kommonitorMap').component(
                                                                 $scope.indicatorDescription = indicatorMetadataAndGeoJSON.metadata.description;
                                                                 $scope.indicatorUnit = indicatorMetadataAndGeoJSON.unit;
 
-                                                                $scope.currentIndicatorLayerOfCurrentLayer = indicatorMetadataAndGeoJSON.geoJSON;
+                                                                $scope.currentGeoJSONOfCurrentLayer = indicatorMetadataAndGeoJSON.geoJSON;
 
                                                                 for (var i = 0; i < indicatorMetadataAndGeoJSON.geoJSON.features.length; i++){
                                                                     if (indicatorMetadataAndGeoJSON.geoJSON.features[i].properties[$scope.indicatorPropertyName] === 0 || indicatorMetadataAndGeoJSON.geoJSON.features[i].properties[$scope.indicatorPropertyName] === "0"){
@@ -1490,6 +1490,11 @@ angular.module('kommonitorMap').component(
 
                                                                           if($scope.currentIndicatorLayer){
 
+                                                                            if(!kommonitorDataExchangeService.isBalanceChecked){
+                                                                              // if mode is not balance then we have to make use of "normal" unbalanced indicator values
+                                                                              $scope.currentIndicatorMetadataAndGeoJSON = kommonitorDataExchangeService.selectedIndicator;
+                                                                            }
+
                                                                             $scope.currentIndicatorContainsZeroValues = false;
 
                                                                             for (var i = 0; i < $scope.currentIndicatorMetadataAndGeoJSON.geoJSON.features.length; i++){
@@ -1500,7 +1505,7 @@ angular.module('kommonitorMap').component(
                                                                             }
 
                                                                             if(kommonitorDataExchangeService.isMeasureOfValueChecked){
-                                                                              setupMeasureOfValueBrew($scope.currentIndicatorLayerOfCurrentLayer, $scope.indicatorPropertyName, "YlOrBr", "Purples", "jenks", kommonitorDataExchangeService.measureOfValue);
+                                                                              setupMeasureOfValueBrew($scope.currentGeoJSONOfCurrentLayer, $scope.indicatorPropertyName, "YlOrBr", "Purples", "jenks", kommonitorDataExchangeService.measureOfValue);
                                                                               $scope.makeMeasureOfValueLegend();
                                                                               $scope.currentIndicatorLayer.eachLayer(function(layer) {
                                                                                 if(kommonitorDataExchangeService.filteredIndicatorFeatureNames.includes(layer.feature.properties.spatialUnitFeatureName)){
@@ -1515,7 +1520,7 @@ angular.module('kommonitorMap').component(
                                                                             else{
 
                                                                               if($scope.indicatorTypeOfCurrentLayer === 'DYNAMIC'){
-                                                                                setupDynamicIndicatorBrew($scope.currentIndicatorLayerOfCurrentLayer, $scope.indicatorPropertyName, "PuBuGn", "YlOrRd", "jenks");
+                                                                                setupDynamicIndicatorBrew($scope.currentGeoJSONOfCurrentLayer, $scope.indicatorPropertyName, "PuBuGn", "YlOrRd", "jenks");
                                                                                 $scope.makeDynamicIndicatorLegend();
 
                                                                                 $scope.currentIndicatorLayer.eachLayer(function(layer) {
@@ -1530,7 +1535,7 @@ angular.module('kommonitorMap').component(
                                                                               }
                                                                               else{
                                                                                 $scope.currentIndicatorLayer.eachLayer(function(layer) {
-                                                                                  setupDefaultBrew($scope.currentIndicatorLayerOfCurrentLayer, $scope.indicatorPropertyName, kommonitorDataExchangeService.selectedIndicator.defaultClassificationMapping.items.length, kommonitorDataExchangeService.selectedIndicator.defaultClassificationMapping.colorBrewerSchemeName, "jenks");
+                                                                                  setupDefaultBrew($scope.currentGeoJSONOfCurrentLayer, $scope.indicatorPropertyName, kommonitorDataExchangeService.selectedIndicator.defaultClassificationMapping.items.length, kommonitorDataExchangeService.selectedIndicator.defaultClassificationMapping.colorBrewerSchemeName, "jenks");
                                                                                   $scope.makeDefaultLegend(kommonitorDataExchangeService.selectedIndicator.defaultClassificationMapping);
 
                                                                                   $scope.currentIndicatorLayer.eachLayer(function(layer) {
@@ -1549,7 +1554,13 @@ angular.module('kommonitorMap').component(
 
                                                                             var justRestyling = true;
 
-                                                                            $rootScope.$broadcast("updateDiagrams", kommonitorDataExchangeService.selectedIndicator, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitId, $scope.date, $scope.defaultBrew, $scope.gtMeasureOfValueBrew, $scope.ltMeasureOfValueBrew, $scope.dynamicIncreaseBrew, $scope.dynamicDecreaseBrew, kommonitorDataExchangeService.isMeasureOfValueChecked, kommonitorDataExchangeService.measureOfValue, justRestyling);
+                                                                            var indicatorObjectForDiagramUpdate = kommonitorDataExchangeService.selectedIndicator;
+                                                                            if(kommonitorDataExchangeService.isBalanceChecked){
+                                                                              indicatorObjectForDiagramUpdate = $scope.currentIndicatorMetadataAndGeoJSON;
+                                                                            }
+                                                                            $rootScope.$broadcast("updateDiagrams", indicatorObjectForDiagramUpdate, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitId, $scope.date, $scope.defaultBrew, $scope.gtMeasureOfValueBrew, $scope.ltMeasureOfValueBrew, $scope.dynamicIncreaseBrew, $scope.dynamicDecreaseBrew, kommonitorDataExchangeService.isMeasureOfValueChecked, kommonitorDataExchangeService.measureOfValue, justRestyling);
+
+
 
 
                                                                             // $scope.currentIndicatorLayer.resetStyle($scope.currentIndicatorLayer);
