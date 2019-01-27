@@ -24,6 +24,7 @@ angular
 
 
 							this.onChangeUseMeasureOfValue = function(){
+								kommonitorDataExchangeService.isBalanceChecked = false;
 								$scope.loadingData = true;
 								$rootScope.$broadcast("showLoadingIconOnMap");
 

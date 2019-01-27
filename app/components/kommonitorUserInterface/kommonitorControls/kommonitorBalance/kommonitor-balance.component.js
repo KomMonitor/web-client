@@ -25,6 +25,7 @@ angular
 							console.log("Change UseBalance");
 
 							if(kommonitorDataExchangeService.isBalanceChecked){
+								kommonitorDataExchangeService.isMeasureOfValueChecked = false;
 								$scope.rangeSliderForBalance.update({
 										block: false
 								});
