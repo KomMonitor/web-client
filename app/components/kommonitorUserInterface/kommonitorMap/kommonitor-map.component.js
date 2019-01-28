@@ -1362,9 +1362,11 @@ angular.module('kommonitorMap').component(
 
                                                                 $scope.currentIndicatorMetadataAndGeoJSON = indicatorMetadataAndGeoJSON;
 
-                                                                // empty layer of possibly selected features
-                                                                kommonitorDataExchangeService.clickedIndicatorFeatureNames = [];
-                                                                kommonitorDataExchangeService.filteredIndicatorFeatureNames = [];
+                                                                if (!justRestyling){
+                                                                  // empty layer of possibly selected features
+                                                                  kommonitorDataExchangeService.clickedIndicatorFeatureNames = [];
+                                                                  kommonitorDataExchangeService.filteredIndicatorFeatureNames = [];
+                                                                }
 
                                                                 console.log("Remove old indicatorLayer if exists");
                                                                 if($scope.currentIndicatorLayer)
