@@ -141,7 +141,8 @@ angular
 							// create balance GeoJSON and broadcast "replaceIndicatorAsGeoJSON"
 							// Called every time handle position is changed
 							computeAndSetBalance(data);
-							kommonitorMapService.restyleCurrentLayer();
+							// we must call replaceIndicatorGeoJSON because the feature vaues have changed. calling restyle will not work as it only restyles the old numbers 
+							kommonitorMapService.replaceIndicatorGeoJSON(kommonitorDataExchangeService.indicatorAndMetadataAsBalance, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, $scope.targetDate, true);
 						};
 
 						function computeAndSetBalance(data){
@@ -159,6 +160,10 @@ angular
 							if(!kommonitorDataExchangeService.indicatorAndMetadataAsBalance.applicableDates.includes(toDateAsString)){
 								toDateAsPropertyString = snapToNearestLowerDate(toDate, kommonitorDataExchangeService.indicatorAndMetadataAsBalance.applicableDates);
 							}
+
+							// make another copy of selectedIndicator to ensure that feature order matches each other
+							kommonitorDataExchangeService.indicatorAndMetadataAsBalance = jQuery.extend(true, {}, kommonitorDataExchangeService.selectedIndicator);
+							kommonitorDataExchangeService.indicatorAndMetadataAsBalance.indicatorType = "DYNAMIC";
 
 							// set value of selected target property with the computed balance between toDate - FromDate
 							for (var index=0; index < kommonitorDataExchangeService.selectedIndicator.geoJSON.features.length; index++){

@@ -1495,6 +1495,11 @@ angular.module('kommonitorMap').component(
                                                                               $scope.currentIndicatorMetadataAndGeoJSON = kommonitorDataExchangeService.selectedIndicator;
                                                                               $scope.currentGeoJSONOfCurrentLayer = kommonitorDataExchangeService.selectedIndicator.geoJSON;
                                                                             }
+                                                                            else{
+                                                                              // if mode is not balance then we have to make use of "normal" unbalanced indicator values
+                                                                              $scope.currentIndicatorMetadataAndGeoJSON = kommonitorDataExchangeService.indicatorAndMetadataAsBalance;
+                                                                              $scope.currentGeoJSONOfCurrentLayer = kommonitorDataExchangeService.indicatorAndMetadataAsBalance.geoJSON;
+                                                                            }
 
                                                                             $scope.currentIndicatorContainsZeroValues = false;
 
