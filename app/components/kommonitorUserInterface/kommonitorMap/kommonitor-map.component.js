@@ -1073,15 +1073,33 @@ angular.module('kommonitorMap').component(
                                               var fillOpacity = 0.5;
                                             }
                                             else{
+
+
+
                                               for (var index=0; index < $scope.gtMeasureOfValueBrew.breaks.length; index++){
-                                                if (feature.properties[$scope.propertyName] < $scope.gtMeasureOfValueBrew.breaks[index]){
-                                                  if($scope.gtMeasureOfValueBrew.colors[index]){
-                                                    fillColor = $scope.gtMeasureOfValueBrew.colors[index];
+
+                                                if(feature.properties[$scope.propertyName] == $scope.gtMeasureOfValueBrew.breaks[index]){
+                                                  if(index < $scope.gtMeasureOfValueBrew.breaks.length -1){
+                                                    // min value
+                                                    fillColor =  $scope.gtMeasureOfValueBrew.colors[index];
+                                                    break;
                                                   }
-                                                  else{
-                                                    fillColor = $scope.gtMeasureOfValueBrew.colors[index-1];
+                                                  else {
+                                                    //max value
+                                                    if ($scope.gtMeasureOfValueBrew.colors[index]){
+                                                      fillColor =  $scope.gtMeasureOfValueBrew.colors[index];
+                                                    }
+                                                    else{
+                                                      fillColor =  $scope.gtMeasureOfValueBrew.colors[index - 1];
+                                                    }
+                                                    break;
                                                   }
-                                                  break;
+                                                }
+                                                else{
+                                                  if(feature.properties[$scope.propertyName] < $scope.gtMeasureOfValueBrew.breaks[index + 1]) {
+                                      							fillColor =  $scope.gtMeasureOfValueBrew.colors[index];
+                                                    break;
+                                      						}
                                                 }
                                               }
                                             }
@@ -1105,14 +1123,28 @@ angular.module('kommonitorMap').component(
                                             else{
                                               // invert colors, so that lowest values will become strong colored!
                                               for (var index=0; index < $scope.ltMeasureOfValueBrew.breaks.length; index++){
-                                                if (feature.properties[$scope.propertyName] < $scope.ltMeasureOfValueBrew.breaks[index]){
-                                                  if($scope.ltMeasureOfValueBrew.colors[$scope.ltMeasureOfValueBrew.colors.length - index]){
-                                                    fillColor = $scope.ltMeasureOfValueBrew.colors[$scope.ltMeasureOfValueBrew.colors.length - index];
+                                                if(feature.properties[$scope.propertyName] == $scope.ltMeasureOfValueBrew.breaks[index]){
+                                                  if(index < $scope.ltMeasureOfValueBrew.breaks.length -1){
+                                                    // min value
+                                                    fillColor =  $scope.ltMeasureOfValueBrew.colors[$scope.ltMeasureOfValueBrew.colors.length - index - 1];
+                                                    break;
                                                   }
-                                                  else{
-                                                    fillColor = $scope.ltMeasureOfValueBrew.colors[$scope.ltMeasureOfValueBrew.colors.length - index - 1];
+                                                  else {
+                                                    //max value
+                                                    if ($scope.ltMeasureOfValueBrew.colors[$scope.ltMeasureOfValueBrew.colors.length - index]){
+                                                      fillColor =  $scope.ltMeasureOfValueBrew.colors[$scope.ltMeasureOfValueBrew.colors.length - index];
+                                                    }
+                                                    else{
+                                                      fillColor =  $scope.ltMeasureOfValueBrew.colors[$scope.ltMeasureOfValueBrew.colors.length - index - 1];
+                                                    }
+                                                    break;
                                                   }
-                                                  break;
+                                                }
+                                                else{
+                                                  if(feature.properties[$scope.propertyName] < $scope.ltMeasureOfValueBrew.breaks[index + 1]) {
+                                      							fillColor =  $scope.ltMeasureOfValueBrew.colors[$scope.ltMeasureOfValueBrew.colors.length - index - 1];
+                                                    break;
+                                      						}
                                                 }
                                               }
                                             }
@@ -1141,14 +1173,28 @@ angular.module('kommonitorMap').component(
                                             }
                                             else{
                                               for (var index=0; index < $scope.dynamicIncreaseBrew.breaks.length; index++){
-                                                if (feature.properties[$scope.propertyName] < $scope.dynamicIncreaseBrew.breaks[index]){
-                                                  if($scope.dynamicIncreaseBrew.colors[index]){
-                                                    fillColor = $scope.dynamicIncreaseBrew.colors[index];
+                                                if(feature.properties[$scope.propertyName] == $scope.dynamicIncreaseBrew.breaks[index]){
+                                                  if(index < $scope.dynamicIncreaseBrew.breaks.length -1){
+                                                    // min value
+                                                    fillColor =  $scope.dynamicIncreaseBrew.colors[index];
+                                                    break;
                                                   }
-                                                  else{
-                                                    fillColor = $scope.dynamicIncreaseBrew.colors[index-1];
+                                                  else {
+                                                    //max value
+                                                    if ($scope.dynamicIncreaseBrew.colors[index]){
+                                                      fillColor =  $scope.dynamicIncreaseBrew.colors[index];
+                                                    }
+                                                    else{
+                                                      fillColor =  $scope.dynamicIncreaseBrew.colors[index - 1];
+                                                    }
+                                                    break;
                                                   }
-                                                  break;
+                                                }
+                                                else{
+                                                  if(feature.properties[$scope.propertyName] < $scope.dynamicIncreaseBrew.breaks[index + 1]) {
+                                      							fillColor =  $scope.dynamicIncreaseBrew.colors[index];
+                                                    break;
+                                      						}
                                                 }
                                               }
                                             }
@@ -1172,14 +1218,28 @@ angular.module('kommonitorMap').component(
                                             else{
                                               // invert colors, so that lowest values will become strong colored!
                                               for (var index=0; index < $scope.dynamicDecreaseBrew.breaks.length; index++){
-                                                if (feature.properties[$scope.propertyName] < $scope.dynamicDecreaseBrew.breaks[index]){
-                                                  if($scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - index]){
-                                                    fillColor = $scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - index];
+                                                if(feature.properties[$scope.propertyName] == $scope.dynamicDecreaseBrew.breaks[index]){
+                                                  if(index < $scope.dynamicDecreaseBrew.breaks.length -1){
+                                                    // min value
+                                                    fillColor =  $scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - index - 1];
+                                                    break;
                                                   }
-                                                  else{
-                                                    fillColor = $scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - index - 1];
+                                                  else {
+                                                    //max value
+                                                    if ($scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - index]){
+                                                      fillColor =  $scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - index];
+                                                    }
+                                                    else{
+                                                      fillColor =  $scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - index - 1];
+                                                    }
+                                                    break;
                                                   }
-                                                  break;
+                                                }
+                                                else{
+                                                  if(feature.properties[$scope.propertyName] < $scope.dynamicDecreaseBrew.breaks[index + 1]) {
+                                      							fillColor =  $scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - index - 1];
+                                                    break;
+                                      						}
                                                 }
                                               }
                                             }
