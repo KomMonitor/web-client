@@ -20,6 +20,19 @@ angular.module('kommonitorMap').component(
                     const defaultFillOpacity = __env.defaultFillOpacity;
                     const defaultFillOpacityForFilteredFeatures = __env.defaultFillOpacityForFilteredFeatures;
                     const defaultFillOpacityForHighlightedFeatures = __env.defaultFillOpacityForHighlightedFeatures;
+                    //allowesValues: equal_interval, quantile, jenks
+                    $scope.classifyMethods = [{
+                      name: "Jenks",
+                      value: "jenks"
+                    },{
+                      name: "Gleiches Intervall",
+                      value: "equal_interval"
+                    },{
+                      name: "Quantile",
+                      value: "quantile"
+                    }];
+
+                    $scope.classifyMethod = __env.defaultClassifyMethod || "jenks";
 
                     $scope.filteredStyle = {
                         weight: 2,
@@ -258,6 +271,69 @@ angular.module('kommonitorMap').component(
                       $scope.infoControl.addTo($scope.map);
                     }
 
+                    function onClickClassifyMethod(){
+                      console.log("test ");
+                    };
+
+                    $scope.onClickClassifyMethod = function(){
+                      console.log("test ");
+                    };
+
+                    this.onClickClassifyMethod = function(){
+                      console.log("test ");
+                    };
+
+                    $(document).on('click','#radiojenks',function(e){
+                      $rootScope.$broadcast("changeClassifyMethod", "jenks");
+                    });
+
+                    $(document).on('click','#radioquantile',function(e){
+                     $rootScope.$broadcast("changeClassifyMethod", "quantile");
+                    });
+
+                    $(document).on('click','#radioequal_interval',function(e){
+                     $rootScope.$broadcast("changeClassifyMethod", "equal_interval");
+                    });
+
+                    $scope.$on("changeClassifyMethod", function (event, method) {
+                      $scope.classifyMethod = method;
+
+                      $rootScope.$broadcast("restyleCurrentLayer");
+                    });
+
+
+                    $scope.appendClassifyRadioOptions = function(){
+                      var innerHTMLString = "<strong>Klassifizierungsmethode:</strong>";
+
+                      // <label class="radio-inline"><input type="radio" name="optradio" checked>Option 1</label>
+                      // <label class="radio-inline"><input type="radio" name="optradio">Option 2</label>
+                      // <label class="radio-inline"><input type="radio" name="optradio">Option 3</label>
+
+                      // angular
+                        //<form>
+                        //   <div ng-repeat="option in occurrenceOptions track by $index">
+                        //     <input type="radio" name="occurrences" ng-value="option" ng-model="model.selectedOccurrence" />
+                        //     <label>{{ option }}</label>
+                        //   </div>
+                        // </form>
+                      innerHTMLString += "<form>";
+                      innerHTMLString += '<div>';
+                      for (var option of $scope.classifyMethods){
+                        // innerHTMLString += ' <label class="radio-inline"><input type="radio" name="classifyMethod" onclick="onClickClassifyMethod(\'' + option.value + '\')" ';
+                        innerHTMLString += ' <label class="radio-inline"><input id="radio' + option.value + '" type="radio" name="classifyMethod" ';
+                        if ($scope.classifyMethod === option.value){
+                          innerHTMLString +=' checked ';
+                        }
+                        innerHTMLString +='>' + option.name + '</label>';
+
+                      }
+                      innerHTMLString += "</div>";
+                      innerHTMLString += "</form>";
+                      innerHTMLString += "<br/>";
+
+                      return innerHTMLString;
+                    };
+
                     $scope.makeDefaultLegend = function(defaultClassificationMapping){
 
                       if($scope.legendControl){
@@ -288,6 +364,8 @@ angular.module('kommonitorMap').component(
 
                         $scope.div.innerHTML += "<label>Status-Indikator</label><br/><em>Darstellung der Indikatorenwerte zum gew&auml;hlten Zeitpunkt</em><br/><br/>";
                         $scope.div.innerHTML += "<label>Einheit: </label> " + $scope.indicatorUnit + "<br/><br/>";
+
+                        $scope.div.innerHTML += $scope.appendClassifyRadioOptions();
 
                         var useFilteredOrZeroValues = false;
 
@@ -348,6 +426,8 @@ angular.module('kommonitorMap').component(
                           $scope.div.innerHTML += "<label>Bilanzierungszeitraum: </label><br/>";
                           $scope.div.innerHTML += "<em>" + $scope.currentIndicatorMetadataAndGeoJSON['fromDate'] + " - " + $scope.currentIndicatorMetadataAndGeoJSON['toDate'] + "</em><br/><br/>";
                         }
+
+                        $scope.div.innerHTML += $scope.appendClassifyRadioOptions();
 
                         if(kommonitorDataExchangeService.filteredIndicatorFeatureNames.length > 0){
                           $scope.div.innerHTML +=
@@ -425,6 +505,8 @@ angular.module('kommonitorMap').component(
                         $scope.div.innerHTML += "<em>aktueller Schwellwert: </em> " + kommonitorDataExchangeService.measureOfValue + " " + $scope.indicatorUnit + "<br/><br/>";
 
                         $scope.div.innerHTML += "<label>Einheit: </label> " + $scope.indicatorUnit + "<br/><br/>";
+
+                        $scope.div.innerHTML += $scope.appendClassifyRadioOptions();
 
                         if(kommonitorDataExchangeService.filteredIndicatorFeatureNames.length > 0){
                           $scope.div.innerHTML +=
@@ -1460,7 +1542,7 @@ angular.module('kommonitorMap').component(
                                                                 $scope.indicatorTypeOfCurrentLayer = indicatorMetadataAndGeoJSON.indicatorType;
 
                                                                 if(kommonitorDataExchangeService.isMeasureOfValueChecked){
-                                                                  setupMeasureOfValueBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, "YlOrBr", "Purples", "jenks", kommonitorDataExchangeService.measureOfValue);
+                                                                  setupMeasureOfValueBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, "YlOrBr", "Purples", $scope.classifyMethod, kommonitorDataExchangeService.measureOfValue);
                                                                   $scope.propertyName = INDICATOR_DATE_PREFIX + date;
 
                                                                   layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
@@ -1475,7 +1557,7 @@ angular.module('kommonitorMap').component(
                                                                 else{
 
                                                                   if (indicatorMetadataAndGeoJSON.indicatorType === "STATUS"){
-                                                                    setupDefaultBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, indicatorMetadataAndGeoJSON.defaultClassificationMapping.items.length, indicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, "jenks");
+                                                                    setupDefaultBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, indicatorMetadataAndGeoJSON.defaultClassificationMapping.items.length, indicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, $scope.classifyMethod);
                                                                     $scope.propertyName = INDICATOR_DATE_PREFIX + date;
 
                                                                     layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
@@ -1486,7 +1568,7 @@ angular.module('kommonitorMap').component(
                                                                     $scope.makeDefaultLegend(indicatorMetadataAndGeoJSON.defaultClassificationMapping);
                                                                   }
                                                                   else if (indicatorMetadataAndGeoJSON.indicatorType === "DYNAMIC"){
-                                                                    setupDynamicIndicatorBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, "PuBuGn", "YlOrRd", "jenks");
+                                                                    setupDynamicIndicatorBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, "PuBuGn", "YlOrRd", $scope.classifyMethod);
                                                                     $scope.propertyName = INDICATOR_DATE_PREFIX + date;
 
                                                                     layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
@@ -1529,7 +1611,7 @@ angular.module('kommonitorMap').component(
 
                                                                 $scope.currentCustomIndicatorLayerOfCurrentLayer = indicatorMetadataAndGeoJSON.geoJSON;
 
-                                                                setupDefaultBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.customIndicatorPropertyName, indicatorMetadataAndGeoJSON.defaultClassificationMapping.items.length, indicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, "jenks");
+                                                                setupDefaultBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.customIndicatorPropertyName, indicatorMetadataAndGeoJSON.defaultClassificationMapping.items.length, indicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, $scope.classifyMethod);
                                                                 $scope.customPropertyName = INDICATOR_DATE_PREFIX + date;
 
                                                                 var layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
@@ -1576,7 +1658,7 @@ angular.module('kommonitorMap').component(
                                                                             }
 
                                                                             if(kommonitorDataExchangeService.isMeasureOfValueChecked){
-                                                                              setupMeasureOfValueBrew($scope.currentGeoJSONOfCurrentLayer, $scope.indicatorPropertyName, "YlOrBr", "Purples", "jenks", kommonitorDataExchangeService.measureOfValue);
+                                                                              setupMeasureOfValueBrew($scope.currentGeoJSONOfCurrentLayer, $scope.indicatorPropertyName, "YlOrBr", "Purples", $scope.classifyMethod, kommonitorDataExchangeService.measureOfValue);
                                                                               $scope.makeMeasureOfValueLegend();
                                                                               $scope.currentIndicatorLayer.eachLayer(function(layer) {
                                                                                 if(kommonitorDataExchangeService.filteredIndicatorFeatureNames.includes(layer.feature.properties.spatialUnitFeatureName)){
@@ -1591,7 +1673,7 @@ angular.module('kommonitorMap').component(
                                                                             else{
 
                                                                               if($scope.indicatorTypeOfCurrentLayer === 'DYNAMIC'){
-                                                                                setupDynamicIndicatorBrew($scope.currentGeoJSONOfCurrentLayer, $scope.indicatorPropertyName, "PuBuGn", "YlOrRd", "jenks");
+                                                                                setupDynamicIndicatorBrew($scope.currentGeoJSONOfCurrentLayer, $scope.indicatorPropertyName, "PuBuGn", "YlOrRd", $scope.classifyMethod);
                                                                                 $scope.makeDynamicIndicatorLegend();
 
                                                                                 $scope.currentIndicatorLayer.eachLayer(function(layer) {
@@ -1606,7 +1688,7 @@ angular.module('kommonitorMap').component(
                                                                               }
                                                                               else{
                                                                                 $scope.currentIndicatorLayer.eachLayer(function(layer) {
-                                                                                  setupDefaultBrew($scope.currentGeoJSONOfCurrentLayer, $scope.indicatorPropertyName, kommonitorDataExchangeService.selectedIndicator.defaultClassificationMapping.items.length, kommonitorDataExchangeService.selectedIndicator.defaultClassificationMapping.colorBrewerSchemeName, "jenks");
+                                                                                  setupDefaultBrew($scope.currentGeoJSONOfCurrentLayer, $scope.indicatorPropertyName, kommonitorDataExchangeService.selectedIndicator.defaultClassificationMapping.items.length, kommonitorDataExchangeService.selectedIndicator.defaultClassificationMapping.colorBrewerSchemeName, $scope.classifyMethod);
                                                                                   $scope.makeDefaultLegend(kommonitorDataExchangeService.selectedIndicator.defaultClassificationMapping);
 
                                                                                   $scope.currentIndicatorLayer.eachLayer(function(layer) {
