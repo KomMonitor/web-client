@@ -25,7 +25,7 @@ angular.module('kommonitorMap').component(
                         weight: 2,
                         opacity: 0.5,
                         color: defaultBorderColorForFilteredValues,
-                        dashArray: '3',
+                        dashArray: '',
                         fillOpacity: defaultFillOpacityForFilteredFeatures,
                         fillColor: defaultColorForFilteredValues
                     };
@@ -1039,7 +1039,7 @@ angular.module('kommonitorMap').component(
                                                 weight: 2,
                                                 opacity: 1,
                                                 color: defaultBorderColor,
-                                                dashArray: '3',
+                                                dashArray: '',
                                                 fillOpacity: fillOpacity,
                                                 fillColor: fillColor
                                             }
@@ -1059,7 +1059,7 @@ angular.module('kommonitorMap').component(
                                                 weight: 2,
                                                 opacity: 1,
                                                 color: defaultBorderColor,
-                                                dashArray: '3',
+                                                dashArray: '',
                                                 fillOpacity: defaultFillOpacity,
                                                 fillColor: fillColor
                                             }
@@ -1111,7 +1111,7 @@ angular.module('kommonitorMap').component(
                                                 weight: 2,
                                                 opacity: 1,
                                                 color: defaultBorderColor,
-                                                dashArray: '3',
+                                                dashArray: '',
                                                 fillOpacity: fillOpacity,
                                                 fillColor: fillColor
                                             }
@@ -1156,7 +1156,7 @@ angular.module('kommonitorMap').component(
                                                 weight: 2,
                                                 opacity: 1,
                                                 color: defaultBorderColor,
-                                                dashArray: '3',
+                                                dashArray: '',
                                                 fillOpacity: fillOpacity,
                                                 fillColor: fillColor
                                             }
@@ -1206,7 +1206,7 @@ angular.module('kommonitorMap').component(
                                                 weight: 2,
                                                 opacity: 1,
                                                 color: defaultBorderColor,
-                                                dashArray: '3',
+                                                dashArray: '',
                                                 fillOpacity: fillOpacity,
                                                 fillColor: fillColor
                                             }
@@ -1251,7 +1251,7 @@ angular.module('kommonitorMap').component(
                                                 weight: 2,
                                                 opacity: 1,
                                                 color: defaultBorderColor,
-                                                dashArray: '3',
+                                                dashArray: '',
                                                 fillOpacity: fillOpacity,
                                                 fillColor: fillColor
                                             }
