@@ -280,7 +280,7 @@ angular.module('kommonitorMap').component(
                         // for (var i = 0; i < labels.length; i++) {
                         //     $scope.div.innerHTML +=
                         //         '<i style="background:' + $scope.defaultBrew.getColorInRange(labels[i] + 1) + '"></i> ' +
-                        //         labels[i] + (labels[i + 1] ? ' &mdash; ' + labels[i + 1] + '<br>' : '+');
+                        //         labels[i] + (labels[i + 1] ? ' &ndash; &lt; ' + labels[i + 1] + '<br>' : '+');
                         // }
 
                         $scope.div.innerHTML += "<label>Status-Indikator</label><br/><em>Darstellung der Indikatorenwerte zum gew&auml;hlten Zeitpunkt</em><br/><br/>";
@@ -309,7 +309,7 @@ angular.module('kommonitorMap').component(
                         for (var i = 0; i < colors.length; i++) {
                             $scope.div.innerHTML +=
                                 '<i style="background:' + colors[i] + '"></i> ' +
-                                defaultClassificationMapping.items[i].defaultCustomRating + ' (' + (+labels[i].toFixed(numberOfDecimals)) + ((+labels[i + 1]) ? ' &mdash; ' + (+labels[i + 1].toFixed(numberOfDecimals)) + ') <br>' : '+');
+                                defaultClassificationMapping.items[i].defaultCustomRating + ' (' + (+labels[i].toFixed(numberOfDecimals)) + ((+labels[i + 1]) ? ' &ndash; &lt; ' + (+labels[i + 1].toFixed(numberOfDecimals)) + ') <br>' : '+');
                         }
 
                         return $scope.div;
@@ -363,7 +363,7 @@ angular.module('kommonitorMap').component(
                             for (var i = 0; i < colorsDynamicDecrease.length; i++) {
                                 $scope.div.innerHTML +=
                                     '<i style="background:' + colorsDynamicDecrease[colorsDynamicDecrease.length - 1 - i] + '"></i> ' +
-                                    (+labelsDynamicDecrease[i].toFixed(numberOfDecimals)) + ((+labelsDynamicDecrease[i + 1]) ? ' &mdash; ' + (+labelsDynamicDecrease[i + 1].toFixed(numberOfDecimals)) + '<br>' : ' &mdash; 0');
+                                    (+labelsDynamicDecrease[i].toFixed(numberOfDecimals)) + ((+labelsDynamicDecrease[i + 1]) ? ' &ndash; &lt; ' + (+labelsDynamicDecrease[i + 1].toFixed(numberOfDecimals)) + '<br>' : ' &ndash; &lt; 0');
                             }
                           $scope.div.innerHTML += "<br/>";
                         }
@@ -386,7 +386,7 @@ angular.module('kommonitorMap').component(
                             for (var i = 0; i < colorsDynamicIncrease.length; i++) {
                                 $scope.div.innerHTML +=
                                     '<i style="background:' + colorsDynamicIncrease[i] + '"></i> ' +
-                                    (+labelsDynamicIncrease[i].toFixed(numberOfDecimals)) + (typeof labelsDynamicIncrease[i + 1] === 'undefined' ? '' : ' &mdash; ' + (+labelsDynamicIncrease[i + 1].toFixed(numberOfDecimals)) + '<br>');
+                                    (+labelsDynamicIncrease[i].toFixed(numberOfDecimals)) + (typeof labelsDynamicIncrease[i + 1] === 'undefined' ? '' : ' &ndash; &lt; ' + (+labelsDynamicIncrease[i + 1].toFixed(numberOfDecimals)) + '<br>');
                             }
                           $scope.div.innerHTML += "<br/>";
                         }
@@ -439,7 +439,7 @@ angular.module('kommonitorMap').component(
                         // for (var i = 0; i < labels.length; i++) {
                         //     $scope.div.innerHTML +=
                         //         '<i style="background:' + $scope.defaultBrew.getColorInRange(labels[i] + 1) + '"></i> ' +
-                        //         labels[i] + (labels[i + 1] ? ' &mdash; ' + labels[i + 1] + '<br>' : '+');
+                        //         labels[i] + (labels[i + 1] ? ' &ndash; &lt; ' + labels[i + 1] + '<br>' : '+');
                         // }
 
                         if($scope.ltMeasureOfValueBrew){
@@ -455,13 +455,13 @@ angular.module('kommonitorMap').component(
                           // for (var i = 0; i < colorsLtMeasureOfValue.length; i++) {
                           //     $scope.div.innerHTML +=
                           //         '<i style="background:' + colorsLtMeasureOfValue[colorsLtMeasureOfValue.length - 1 - i] + '"></i> ' +
-                          //         //(+labelsLtMeasureOfValue[i].toFixed(4)) + ((+labelsLtMeasureOfValue[i + 1].toFixed(4)) ? ' &mdash; ' + (+labelsLtMeasureOfValue[i + 1].toFixed(4)) + '<br>' : '+');
-                          //         labelArray_below[i] + ' (' + (+labelsLtMeasureOfValue[i].toFixed(numberOfDecimals)) + ((+labelsLtMeasureOfValue[i + 1]) ? ' &mdash; ' + (+labelsLtMeasureOfValue[i + 1].toFixed(numberOfDecimals)) + ') <br>' : '+');
+                          //         //(+labelsLtMeasureOfValue[i].toFixed(4)) + ((+labelsLtMeasureOfValue[i + 1].toFixed(4)) ? ' &ndash; &lt; ' + (+labelsLtMeasureOfValue[i + 1].toFixed(4)) + '<br>' : '+');
+                          //         labelArray_below[i] + ' (' + (+labelsLtMeasureOfValue[i].toFixed(numberOfDecimals)) + ((+labelsLtMeasureOfValue[i + 1]) ? ' &ndash; &lt; ' + (+labelsLtMeasureOfValue[i + 1].toFixed(numberOfDecimals)) + ') <br>' : '+');
                           // }
                           for (var i = 0; i < colorsLtMeasureOfValue.length; i++) {
                               $scope.div.innerHTML +=
                                   '<i style="background:' + colorsLtMeasureOfValue[colorsLtMeasureOfValue.length - 1 -i] + '"></i> ' +
-                                  (+labelsLtMeasureOfValue[i].toFixed(numberOfDecimals)) + (typeof labelsLtMeasureOfValue[i + 1] === 'undefined' ? '' : ' &mdash; ' + (+labelsLtMeasureOfValue[i + 1].toFixed(numberOfDecimals)) + '<br>');
+                                  (+labelsLtMeasureOfValue[i].toFixed(numberOfDecimals)) + (typeof labelsLtMeasureOfValue[i + 1] === 'undefined' ? '' : ' &ndash; &lt; ' + (+labelsLtMeasureOfValue[i + 1].toFixed(numberOfDecimals)) + '<br>');
                           }
 
                           $scope.div.innerHTML += "<br/>";
@@ -476,12 +476,12 @@ angular.module('kommonitorMap').component(
                           // for (var i = 0; i < colorsGtMeasureOfValue.length; i++) {
                           //     $scope.div.innerHTML +=
                           //         '<i style="background:' + colorsGtMeasureOfValue[i] + '"></i> ' +
-                          //         labelArray_upper[i] + ' (' + (+labelsGtMeasureOfValue[i].toFixed(numberOfDecimals)) + ((+labelsGtMeasureOfValue[i + 1]) ? ' &mdash; ' + (+labelsGtMeasureOfValue[i + 1].toFixed(numberOfDecimals)) + ') <br>' : '+');
+                          //         labelArray_upper[i] + ' (' + (+labelsGtMeasureOfValue[i].toFixed(numberOfDecimals)) + ((+labelsGtMeasureOfValue[i + 1]) ? ' &ndash; &lt; ' + (+labelsGtMeasureOfValue[i + 1].toFixed(numberOfDecimals)) + ') <br>' : '+');
                           // }
                           for (var i = 0; i < colorsGtMeasureOfValue.length; i++) {
                               $scope.div.innerHTML +=
                                   '<i style="background:' + colorsGtMeasureOfValue[i] + '"></i> ' +
-                                  (+labelsGtMeasureOfValue[i].toFixed(numberOfDecimals)) + (typeof labelsGtMeasureOfValue[i + 1] === 'undefined' ? '' : ' &mdash; ' + (+labelsGtMeasureOfValue[i + 1].toFixed(numberOfDecimals)) + '<br>');
+                                  (+labelsGtMeasureOfValue[i].toFixed(numberOfDecimals)) + (typeof labelsGtMeasureOfValue[i + 1] === 'undefined' ? '' : ' &ndash; &lt; ' + (+labelsGtMeasureOfValue[i + 1].toFixed(numberOfDecimals)) + '<br>');
                           }
                         }
 
@@ -1074,7 +1074,7 @@ angular.module('kommonitorMap').component(
                                             }
                                             else{
                                               for (var index=0; index < $scope.gtMeasureOfValueBrew.breaks.length; index++){
-                                                if (feature.properties[$scope.propertyName] <= $scope.gtMeasureOfValueBrew.breaks[index]){
+                                                if (feature.properties[$scope.propertyName] < $scope.gtMeasureOfValueBrew.breaks[index]){
                                                   if($scope.gtMeasureOfValueBrew.colors[index]){
                                                     fillColor = $scope.gtMeasureOfValueBrew.colors[index];
                                                   }
@@ -1105,7 +1105,7 @@ angular.module('kommonitorMap').component(
                                             else{
                                               // invert colors, so that lowest values will become strong colored!
                                               for (var index=0; index < $scope.ltMeasureOfValueBrew.breaks.length; index++){
-                                                if (feature.properties[$scope.propertyName] <= $scope.ltMeasureOfValueBrew.breaks[index]){
+                                                if (feature.properties[$scope.propertyName] < $scope.ltMeasureOfValueBrew.breaks[index]){
                                                   if($scope.ltMeasureOfValueBrew.colors[$scope.ltMeasureOfValueBrew.colors.length - index]){
                                                     fillColor = $scope.ltMeasureOfValueBrew.colors[$scope.ltMeasureOfValueBrew.colors.length - index];
                                                   }
@@ -1141,7 +1141,7 @@ angular.module('kommonitorMap').component(
                                             }
                                             else{
                                               for (var index=0; index < $scope.dynamicIncreaseBrew.breaks.length; index++){
-                                                if (feature.properties[$scope.propertyName] <= $scope.dynamicIncreaseBrew.breaks[index]){
+                                                if (feature.properties[$scope.propertyName] < $scope.dynamicIncreaseBrew.breaks[index]){
                                                   if($scope.dynamicIncreaseBrew.colors[index]){
                                                     fillColor = $scope.dynamicIncreaseBrew.colors[index];
                                                   }
@@ -1172,7 +1172,7 @@ angular.module('kommonitorMap').component(
                                             else{
                                               // invert colors, so that lowest values will become strong colored!
                                               for (var index=0; index < $scope.dynamicDecreaseBrew.breaks.length; index++){
-                                                if (feature.properties[$scope.propertyName] <= $scope.dynamicDecreaseBrew.breaks[index]){
+                                                if (feature.properties[$scope.propertyName] < $scope.dynamicDecreaseBrew.breaks[index]){
                                                   if($scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - index]){
                                                     fillColor = $scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - index];
                                                   }
