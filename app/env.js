@@ -26,6 +26,10 @@
   window.__env.defaultBorderColor = "black";
   window.__env.defaultColorForFilteredValues = "#a6a6a6";
   window.__env.defaultBorderColorForFilteredValues = "black";
+  window.__env.defaultFillOpacity = "0.8";
+  window.__env.defaultFillOpacityForFilteredFeatures = "0.7";
+  window.__env.defaultFillOpacityForHighlightedFeatures = "0.95";
+
 
 
 }(this));

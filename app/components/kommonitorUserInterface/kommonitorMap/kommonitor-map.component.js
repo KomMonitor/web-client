@@ -17,13 +17,16 @@ angular.module('kommonitorMap').component(
                     const defaultColorForFilteredValues = __env.defaultColorForFilteredValues;
                     const defaultBorderColorForFilteredValues = __env.defaultBorderColorForFilteredValues;
                     const defaultBorderColor = __env.defaultBorderColor;
+                    const defaultFillOpacity = __env.defaultFillOpacity;
+                    const defaultFillOpacityForFilteredFeatures = __env.defaultFillOpacityForFilteredFeatures;
+                    const defaultFillOpacityForHighlightedFeatures = __env.defaultFillOpacityForHighlightedFeatures;
 
                     $scope.filteredStyle = {
                         weight: 2,
                         opacity: 0.5,
                         color: defaultBorderColorForFilteredValues,
                         dashArray: '3',
-                        fillOpacity: 0.5,
+                        fillOpacity: defaultFillOpacityForFilteredFeatures,
                         fillColor: defaultColorForFilteredValues
                     };
 
@@ -1022,11 +1025,11 @@ angular.module('kommonitorMap').component(
                                         // fill color based on $scope.defaultBrew.getColorInRange() method
                                         function styleDefault(feature) {
 
-                                          var fillOpacity = 0.7;
+                                          var fillOpacity = defaultFillOpacity;
                                           var fillColor;
                                           if(feature.properties[$scope.propertyName] == 0 || feature.properties[$scope.propertyName] == "0"){
                                             fillColor = $scope.defaultColorForZeroValues;
-                                            var fillOpacity = 0.5;
+                                            var fillOpacity = defaultFillOpacityForFilteredFeatures;
                                           }
                                           else{
                                             fillColor = $scope.defaultBrew.getColorInRange(feature.properties[$scope.propertyName]);
@@ -1057,20 +1060,20 @@ angular.module('kommonitorMap').component(
                                                 opacity: 1,
                                                 color: defaultBorderColor,
                                                 dashArray: '3',
-                                                fillOpacity: 0.7,
+                                                fillOpacity: defaultFillOpacity,
                                                 fillColor: fillColor
                                             }
                                         }
 
                                         function styleMeasureOfValue (feature) {
 
-                                          var fillOpacity = 0.7;
+                                          var fillOpacity = defaultFillOpacity;
 
                                           if(feature.properties[$scope.indicatorPropertyName] >= kommonitorDataExchangeService.measureOfValue){
                                             var fillColor;
                                             if(feature.properties[$scope.propertyName] == 0 || feature.properties[$scope.propertyName] == "0"){
                                               fillColor = $scope.defaultColorForZeroValues;
-                                              var fillOpacity = 0.5;
+                                              var fillOpacity = defaultFillOpacityForFilteredFeatures;
                                             }
                                             else{
 
@@ -1118,7 +1121,7 @@ angular.module('kommonitorMap').component(
                                             var fillColor;
                                             if(feature.properties[$scope.propertyName] == 0 || feature.properties[$scope.propertyName] == "0"){
                                               fillColor = $scope.defaultColorForZeroValues;
-                                              var fillOpacity = 0.5;
+                                              var fillOpacity = defaultFillOpacityForFilteredFeatures;
                                             }
                                             else{
                                               // invert colors, so that lowest values will become strong colored!
@@ -1163,13 +1166,13 @@ angular.module('kommonitorMap').component(
 
                                         function styleDynamicIndicator (feature) {
 
-                                          var fillOpacity = 0.7;
+                                          var fillOpacity = defaultFillOpacity;
 
                                           if(feature.properties[$scope.indicatorPropertyName] >= 0){
                                             var fillColor;
                                             if(feature.properties[$scope.propertyName] == 0 || feature.properties[$scope.propertyName] == "0"){
                                               fillColor = $scope.defaultColorForZeroValues;
-                                              var fillOpacity = 0.5;
+                                              var fillOpacity = defaultFillOpacityForFilteredFeatures;
                                             }
                                             else{
                                               for (var index=0; index < $scope.dynamicIncreaseBrew.breaks.length; index++){
@@ -1213,7 +1216,7 @@ angular.module('kommonitorMap').component(
                                             var fillColor;
                                             if(feature.properties[$scope.propertyName] == 0 || feature.properties[$scope.propertyName] == "0"){
                                               fillColor = $scope.defaultColorForZeroValues;
-                                              var fillOpacity = 0.5;
+                                              var fillOpacity = defaultFillOpacityForFilteredFeatures;
                                             }
                                             else{
                                               // invert colors, so that lowest values will become strong colored!
@@ -1274,7 +1277,7 @@ angular.module('kommonitorMap').component(
                                                 weight: 5,
                                                 color: '#42e5f4',
                                                 dashArray: '',
-                                                fillOpacity: 0.7
+                                                fillOpacity: defaultFillOpacity
                                             });
 
                                             if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
@@ -1293,7 +1296,7 @@ angular.module('kommonitorMap').component(
                                                 weight: 6,
                                                 color: '#42e5f4',
                                                 dashArray: '',
-                                                fillOpacity: 0.8
+                                                fillOpacity: defaultFillOpacityForHighlightedFeatures
                                             });
 
                                             if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
