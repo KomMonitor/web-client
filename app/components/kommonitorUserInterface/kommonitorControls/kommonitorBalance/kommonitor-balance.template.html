@@ -13,6 +13,10 @@
 
 		<div align="center">
 			<input id="balanceCheckbox" type="checkbox" ng-change="$ctrl.onChangeUseBalance()" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked" ng-checked="$ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked"><strong>Bilanzierung aktivieren/deaktivieren</strong></input>
+			
+			<br/>
+			<br/>
+			<input id="relativeBalanceCheckbox" type="checkbox" ng-change="$ctrl.onChangeUseRelativeBalance()" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.isRelativeBalanceChecked" ng-checked="$ctrl.kommonitorDataExchangeServiceInstance.isRelativeBalanceChecked"><strong>relative Bilanzierung aktivieren/deaktivieren (noch nicht implementiert)</strong></input>
 
 			<br/>
 			<br/>
@@ -22,7 +26,7 @@
 			<br/>
 			<br/>
 		</div>
-		
+
 		<div align="center">
 			<p>TODO</p>
 		</div>
