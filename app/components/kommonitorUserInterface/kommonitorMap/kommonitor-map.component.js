@@ -162,7 +162,8 @@ angular.module('kommonitorMap').component(
                     		container_width 	: "300px",
                     		container_maxHeight : "350px",
                     		group_maxHeight     : "80px",
-                    		exclusive       	: false
+                    		exclusive       	: false,
+                        position: 'topleft'
                     	};
 
                       $scope.layerControl = L.Control.styledLayerControl($scope.baseMaps, $scope.overlays, options);

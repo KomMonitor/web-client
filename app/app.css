@@ -35,13 +35,23 @@
 #map {
 	height: 94.1vh;
 	position: relative;
-	z-index: 1;
+	z-index: 1999;
 }
 
 #legend{
 	position: absolute;
 	bottom: 0;
 	max-width: 200px;
+}
+
+.leaflet-left .leaflet-control-layers {
+  display: inline-block;
+  float: none;
+}
+
+.leaflet-control-layers{
+	left: 175px;
+	top: 10px;
 }
 
 #dateSlider{
@@ -51,7 +61,7 @@
   margin-left: auto;
   left: 90px;
   right: 90px;
-	z-index: 9999;
+	z-index: 8000;
 }
 
 #dateSliderForComputation{
