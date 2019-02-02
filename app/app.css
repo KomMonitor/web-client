@@ -41,7 +41,8 @@
 #legend{
 	position: absolute;
 	bottom: 0;
-	max-width: 200px;
+	width: 200;
+	max-width: 200;
 }
 
 .leaflet-left .leaflet-control-layers {
@@ -164,7 +165,8 @@
 .legend {
     line-height: 18px;
     color: #555;
-		max-width: 350px;
+		width: 300px;
+		max-width: 300px;
 }
 .legend i {
     width: 18px;
