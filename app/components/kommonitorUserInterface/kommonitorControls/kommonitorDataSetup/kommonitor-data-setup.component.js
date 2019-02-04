@@ -519,7 +519,7 @@ angular
 											return;
 										}
 
-										$scope.modifyComponentsForCurrentIndicatorTimestampAndSpatialUnit();
+										$scope.modifyOgcAndGeoJSONExport();
 
 										$scope.loadingData = false;
 										$rootScope.$broadcast("hideLoadingIconOnMap");
@@ -599,7 +599,7 @@ angular
 											return;
 										}
 
-										$scope.modifyComponentsForCurrentIndicatorTimestampAndSpatialUnit();
+										$scope.modifyOgcAndGeoJSONExport();
 
 										$scope.loadingData = false;
 										$rootScope.$broadcast("hideLoadingIconOnMap");
@@ -630,7 +630,7 @@ angular
 											return;
 										}
 
-												$scope.modifyComponentsForCurrentIndicatorTimestampAndSpatialUnit();
+												$scope.modifyOgcAndGeoJSONExport();
 
 
 												$scope.loadingData = false;
@@ -647,7 +647,7 @@ angular
 
 
 
-								$scope.modifyComponentsForCurrentIndicatorTimestampAndSpatialUnit = function(){
+								$scope.modifyOgcAndGeoJSONExport = function(){
 									$scope.wmsUrlForSelectedIndicator = undefined;
 									$scope.wmsUrlForSelectedIndicator = undefined;
 
