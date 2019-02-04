@@ -578,7 +578,11 @@ angular
 									});
 								};
 
-								this.onChangeSelectedSpatialUnit = async function(){
+								$scope.$on("changeSpatialUnit", function(event){
+									$scope.onChangeSelectedSpatialUnit();
+								});
+
+								$scope.onChangeSelectedSpatialUnit = async function(){
 									if(!$scope.changeIndicatorWasClicked && kommonitorDataExchangeService.selectedIndicator){
 										$scope.loadingData = true;
 										$rootScope.$broadcast("showLoadingIconOnMap");

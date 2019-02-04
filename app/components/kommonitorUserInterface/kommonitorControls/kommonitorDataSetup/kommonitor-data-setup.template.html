@@ -77,7 +77,7 @@
 			<div class="hiddenTableCell">
 				<div text-align="center" align="center" class="hiddenTableContent" ng-show="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator">
 					<select
-						size="6" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.selectedSpatialUnit" ng-change="$ctrl.onChangeSelectedSpatialUnit()" ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in filteredSpatialUnits = ($ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits | filter:filterSpatialUnitsByIndicator())"
+						size="6" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.selectedSpatialUnit" ng-change="onChangeSelectedSpatialUnit()" ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in filteredSpatialUnits = ($ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits | filter:filterSpatialUnitsByIndicator())"
 						class="form-control" required>
 						<option disabled value> -- Raumebene w&auml;hlen -- </option>
 					</select>

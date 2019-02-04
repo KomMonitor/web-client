@@ -186,6 +186,63 @@ angular.module('kommonitorMap').component(
                       $scope.loadingData = false;
                     });
 
+                    $(document).on('change','#selectSpatialUnitViaInfoControl',function(){
+                      var selector = document.getElementById('selectSpatialUnitViaInfoControl');
+                      var spatialUnitLevel = selector[selector.selectedIndex].value;
+
+                     $rootScope.$broadcast("changeSpatialUnitViaInfoControl", spatialUnitLevel);
+                    });
+
+                    $scope.$on("changeSpatialUnitViaInfoControl", function (event, spatialUnitLevel) {
+                      //TODO
+                      for (var i=0; i< kommonitorDataExchangeService.availableSpatialUnits.length; i++){
+                        if(kommonitorDataExchangeService.availableSpatialUnits[i].spatialUnitLevel === spatialUnitLevel){
+                            kommonitorDataExchangeService.selectedSpatialUnit = kommonitorDataExchangeService.availableSpatialUnits[i];
+                            break;
+                        }
+                      }
+
+                        $rootScope.$broadcast("changeSpatialUnit");
+
+                    });
+
+
+                    $scope.appendSpatialUnitOptions = function(){
+
+                      // <form action="select.html">
+                      //   <label>Künstler(in):
+                      //     <select name="top5" size="5">
+                      //       <option>Heino</option>
+                      //       <option>Michael Jackson</option>
+                      //       <option>Tom Waits</option>
+                      //       <option>Nina Hagen</option>
+                      //       <option>Marianne Rosenberg</option>
+                      //     </select>
+                      //   </label>
+                      // </form>
+
+                      var innerHTMLString = "<form>";
+                      innerHTMLString += "<label>Raumebene:  ";
+                      innerHTMLString += "<select id='selectSpatialUnitViaInfoControl'>";
+
+
+                      for (var option of kommonitorDataExchangeService.availableSpatialUnits){
+                        // innerHTMLString += ' <label class="radio-inline"><input type="radio" name="classifyMethod" onclick="onClickClassifyMethod(\'' + option.value + '\')" ';
+                        innerHTMLString += ' <option value="' + option.spatialUnitLevel + '" ';
+                        if (kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel === option.spatialUnitLevel){
+                          innerHTMLString +=' selected ';
+                        }
+                        innerHTMLString +='>' + option.spatialUnitLevel + '</option>';
+
+                      }
+                      innerHTMLString += "</select>";
+                      innerHTMLString += "</label>";
+                      innerHTMLString += "</form>";
+                      innerHTMLString += "<br/>";
+
+                      return innerHTMLString;
+                    };
+
                     $scope.makeInfoControl = function(date){
 
                       if($scope.infoControl){
@@ -210,6 +267,10 @@ angular.module('kommonitorMap').component(
                           this._div.innerHTML += '<b>Kontakt: </b> ' + $scope.currentIndicatorMetadataAndGeoJSON.metadata.contact + '<br/>';
                           this._div.innerHTML += '<b>Aktualisierungszyklus: </b> ' + $scope.currentIndicatorMetadataAndGeoJSON.metadata.updateInterval + '<br/>';
                           this._div.innerHTML += '<b>letzte Aktualisierung: </b> ' + $scope.currentIndicatorMetadataAndGeoJSON.metadata.lastUpdate + '<br/><br/>';
+
+                          this._div.innerHTML += $scope.appendSpatialUnitOptions();
+                          // this._div.innerHTML += '<br/><br/>';
+
                           this._div.innerHTML +=  '<h4>Selektiertes Feature:</h4> &uuml;ber ein Feature hovern';
 
                           // this.update();
@@ -225,6 +286,9 @@ angular.module('kommonitorMap').component(
                         this._div.innerHTML += '<b>Kontakt: </b> ' + $scope.currentIndicatorMetadataAndGeoJSON.metadata.contact + '<br/>';
                         this._div.innerHTML += '<b>Aktualisierungszyklus: </b> ' + $scope.currentIndicatorMetadataAndGeoJSON.metadata.updateInterval + '<br/>';
                         this._div.innerHTML += '<b>letzte Aktualisierung: </b> ' + $scope.currentIndicatorMetadataAndGeoJSON.metadata.lastUpdate + '<br/><br/>';
+
+                        this._div.innerHTML += $scope.appendSpatialUnitOptions();
+                        // this._div.innerHTML += '<br/><br/>';
 
                         this._div.innerHTML +=  (props ?
                           '<h4>Selektiertes Feature:</h4> <b>' + props.spatialUnitFeatureName + '</b> ' + +Number(props[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) + ' ' + $scope.indicatorUnit
@@ -271,18 +335,6 @@ angular.module('kommonitorMap').component(
 
                       $scope.infoControl.addTo($scope.map);
                     }
-
-                    function onClickClassifyMethod(){
-                      console.log("test ");
-                    };
-
-                    $scope.onClickClassifyMethod = function(){
-                      console.log("test ");
-                    };
-
-                    this.onClickClassifyMethod = function(){
-                      console.log("test ");
-                    };
 
                     $(document).on('click','#radiojenks',function(e){
                       $rootScope.$broadcast("changeClassifyMethod", "jenks");
