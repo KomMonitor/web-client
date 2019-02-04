@@ -7,7 +7,6 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 		$scope.anySideBarIsShown = false;
 
 		$scope.sidebarIndicatorConfigClass = "hidden";
-		$scope.sidebarMeasureOfValueClassificationClass = "hidden";
 		$scope.sidebarDiagramsClass = "hidden";
 		$scope.sidebarRadarDiagramClass = "hidden";
 		$scope.sidebarProcessingClass = "hidden";
@@ -17,7 +16,6 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 		$scope.sidebarReachabilityClass = "hidden";
 
 		$scope.buttonIndicatorConfigClass = "btn btn-custom btn-circle";
-		$scope.buttonMeasureOfValueClassificationClass = "btn btn-custom btn-circle";
 		$scope.buttonDiagramsClass = "btn btn-custom btn-circle";
 		$scope.buttonRadarDiagramClass = "btn btn-custom btn-circle";
 		$scope.buttonProcessingClass = "btn btn-custom btn-circle";
@@ -28,7 +26,6 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 
 		$scope.undockButtons = function(){
 			$scope.buttonIndicatorConfigClass = "btn btn-custom btn-circle";
-			$scope.buttonMeasureOfValueClassificationClass = "btn btn-custom btn-circle";
 			$scope.buttonDiagramsClass = "btn btn-custom btn-circle";
 			$scope.buttonRadarDiagramClass = "btn btn-custom btn-circle";
 			$scope.buttonProcessingClass = "btn btn-custom btn-circle";
@@ -40,7 +37,6 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 
 		$scope.hideSidebars = function(){
 			$scope.sidebarIndicatorConfigClass = "hidden";
-			$scope.sidebarMeasureOfValueClassificationClass = "hidden";
 			$scope.sidebarDiagramsClass = "hidden";
 			$scope.sidebarRadarDiagramClass = "hidden";
 			$scope.sidebarProcessingClass = "hidden";
@@ -140,27 +136,6 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			$rootScope.$broadcast("refreshDateSlider");
 			$rootScope.$broadcast("refreshIndicatorValueRangeSlider");
 
-		}
-
-		$scope.onSidebarMeasureOfValueClassificationButtonClick = function(){
-			$scope.undockButtons();
-
-			if($scope.sidebarMeasureOfValueClassificationClass === "hidden"){
-				$scope.hideSidebars();
-				$scope.sidebarMeasureOfValueClassificationClass = "";
-				$scope.buttonMeasureOfValueClassificationClass = "btn btn-custom-docked btn-docked";
-				if($scope.anySideBarIsShown === false){
-					$rootScope.$broadcast("recenterMapOnShowSideBar");
-				}
-				$scope.anySideBarIsShown = true;
-			}
-			else{
-				$scope.sidebarMeasureOfValueClassificationClass = "hidden";
-				$rootScope.$broadcast("recenterMapOnHideSideBar");
-				$scope.anySideBarIsShown = false;
-			}
-			$rootScope.$broadcast("refreshDateSlider");
-			$rootScope.$broadcast("refreshIndicatorValueRangeSlider");
 		}
 
 		$scope.onSidebarDiagramsClick = function(){

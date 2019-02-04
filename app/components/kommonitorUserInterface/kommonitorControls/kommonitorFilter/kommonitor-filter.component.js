@@ -16,9 +16,17 @@ angular
 							var numberOfDecimals = __env.numberOfDecimals;
 
 							$scope.rangeSliderForFilter;
-							$scope.minValue;
-							$scope.maxValue;
+							$scope.valueRangeMinValue;
+							$scope.valueRangeMaxValue;
 							$scope.geoJSON;
+
+							//measureOfValue stuff
+							$scope.movMinValue;
+							$scope.movMaxValue;
+							$scope.movMiddleValue;
+							$scope.movStep;
+
+							$scope.inputNotValid = false;
 
 							$scope.$on("updateIndicatorValueRangeFilter", function (event, date) {
 
@@ -48,29 +56,29 @@ angular
 
 
 								// initialize and fill in loop
-								$scope.minValue = $scope.geoJSON.features[0].properties[date];
-								$scope.maxValue = $scope.minValue;
+								$scope.valueRangeMinValue = $scope.geoJSON.features[0].properties[date];
+								$scope.valueRangeMaxValue = $scope.valueRangeMinValue;
 
 								$scope.geoJSON.features.forEach(function(feature){
 
-									if(feature.properties[date] < $scope.minValue){
-										$scope.minValue = feature.properties[date]
+									if(feature.properties[date] < $scope.valueRangeMinValue){
+										$scope.valueRangeMinValue = feature.properties[date]
 									}
-									else if(feature.properties[date] > $scope.maxValue){
-										$scope.maxValue = feature.properties[date]
+									else if(feature.properties[date] > $scope.valueRangeMaxValue){
+										$scope.valueRangeMaxValue = feature.properties[date]
 									}
 								});
 
-								$scope.minValue = +$scope.minValue.toFixed(numberOfDecimals);
-								$scope.maxValue = +$scope.maxValue.toFixed(numberOfDecimals);
+								$scope.valueRangeMinValue = +$scope.valueRangeMinValue.toFixed(numberOfDecimals);
+								$scope.valueRangeMaxValue = +$scope.valueRangeMaxValue.toFixed(numberOfDecimals);
 
 								$("#rangeSliderForFiltering").ionRangeSlider({
 										skin: "big",
 						        type: "double",
-						        min: $scope.minValue,
-						        max: $scope.maxValue,
-						        from: $scope.minValue,
-						        to: $scope.maxValue,
+						        min: $scope.valueRangeMinValue,
+						        max: $scope.valueRangeMaxValue,
+						        from: $scope.valueRangeMinValue,
+						        to: $scope.valueRangeMaxValue,
 								   	force_edges: true,
 										step: 0.0001,
 						        grid: true,
@@ -82,8 +90,8 @@ angular
 								$scope.rangeSliderForFilter = $("#rangeSliderForFiltering").data("ionRangeSlider");
 								// make sure that tha handles are properly set to man and max values
 								$scope.rangeSliderForFilter.update({
-						        from: $scope.minValue,
-						        to: $scope.maxValue
+						        from: $scope.valueRangeMinValue,
+						        to: $scope.valueRangeMaxValue
 						    });
 
 							};
@@ -118,6 +126,92 @@ angular
 								});
 
 								kommonitorMapService.restyleCurrentLayer();
+							};
+
+
+
+
+							// MeasureOfValue stuff
+							$scope.inputNotValid = false;
+
+
+							this.onChangeUseMeasureOfValue = function(){
+								if(kommonitorDataExchangeService.isBalanceChecked){
+									$rootScope.$broadcast("DisableBalance");
+									$rootScope.$broadcast("updateIndicatorValueRangeFilter", kommonitorDataExchangeService.selectedDate);
+									//replace displayed indicator on map
+									kommonitorMapService.replaceIndicatorGeoJSON(kommonitorDataExchangeService.selectedIndicator, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, kommonitorDataExchangeService.selectedDate, true);
+								}
+								else{
+									this.kommonitorMapServiceInstance.restyleCurrentLayer();
+								}
+
+							};
+
+							$scope.$on("updateMeasureOfValueBar", function (event, date) {
+
+									$scope.updateMeasureOfValueBar(date);
+
+							});
+
+							$scope.updateMeasureOfValueBar = function(date){
+
+								//append date prefix to access correct property!
+								date = INDICATOR_DATE_PREFIX + date;
+								var geoJSON = kommonitorDataExchangeService.selectedIndicator.geoJSON;
+
+								var measureOfValueInput = document.getElementById("measureOfValueInput");
+
+								var values = [];
+
+								geoJSON.features.forEach(function(feature){
+									// if (feature.properties[date] > movMaxValue)
+									// 	movMaxValue = feature.properties[date];
+									//
+									// else if (feature.properties[date] < movMinValue)
+									// 	movMinValue = feature.properties[date];
+
+									values.push(feature.properties[date]);
+								});
+
+								//sort ascending order
+								values.sort(function(a, b){return a-b});
+
+								$scope.movMinValue = +Number(values[0]).toFixed(numberOfDecimals);
+								$scope.movMaxValue = +Number(values[values.length - 1]).toFixed(numberOfDecimals);
+
+								$scope.movMiddleValue = +(($scope.movMaxValue + $scope.movMinValue) / 2).toFixed(numberOfDecimals);
+								$scope.movStep = +(($scope.movMaxValue - $scope.movMinValue)/35).toFixed(2);
+
+								measureOfValueInput.setAttribute("min", $scope.movMinValue);
+								measureOfValueInput.setAttribute("max", $scope.movMaxValue);
+								measureOfValueInput.setAttribute("movStep", $scope.movStep);
+								measureOfValueInput.setAttribute("value", $scope.movMiddleValue);
+
+								kommonitorDataExchangeService.measureOfValue = $scope.movMiddleValue;
+
+								var measureOfValueTextInput = document.getElementById("measureOfValueTextInput");
+								measureOfValueTextInput.setAttribute("min", $scope.movMinValue);
+								measureOfValueTextInput.setAttribute("max", $scope.movMaxValue);
+								measureOfValueTextInput.setAttribute("value", $scope.movMiddleValue);
+								measureOfValueTextInput.setAttribute("movStep", $scope.movStep);
+
+								$scope.inputNotValid = false;
+
+							};
+
+							this.onMeasureOfValueChange = function(){
+
+								kommonitorDataExchangeService.measureOfValue = +Number(kommonitorDataExchangeService.measureOfValue).toFixed(numberOfDecimals);
+
+								if(kommonitorDataExchangeService.measureOfValue >= $scope.movMinValue && kommonitorDataExchangeService.measureOfValue <= $scope.movMaxValue){
+									$scope.inputNotValid = false;
+									this.kommonitorMapServiceInstance.restyleCurrentLayer();
+								}
+								else{
+									$scope.inputNotValid = true;
+								}
+
 							};
 
 					}]

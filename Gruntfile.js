@@ -7,8 +7,6 @@ module.exports = function (grunt) {
             'app/util/genericServices/kommonitorDataExchangeService/kommonitor-data-exchange-service.module.js',
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorDataSetup/kommonitor-data-setup.module.js',
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorDataSetup/kommonitor-data-setup.component.js',
-            'app/components/kommonitorUserInterface/kommonitorControls/measureOfValueClassification/measure-of-value-classification.module.js',
-            'app/components/kommonitorUserInterface/kommonitorControls/measureOfValueClassification/measure-of-value-classification.component.js',
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorAdmin/kommonitor-admin.module.js',
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorAdmin/kommonitor-admin.component.js',
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorIndividualIndicatorComputation/kommonitor-individual-indicator-computation.module.js',
