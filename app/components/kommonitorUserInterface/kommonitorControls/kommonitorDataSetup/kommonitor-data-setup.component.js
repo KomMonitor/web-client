@@ -399,12 +399,15 @@ angular
 								$scope.addSelectedIndicatorToMap = function() {
 
 									// check if balance mode is active
-									if (kommonitorDataExchangeService.isBalanceChecked){
-										$rootScope.$broadcast("replaceBalancedIndicator");
-									}
-									else{
-										kommonitorMapService.replaceIndicatorGeoJSON(kommonitorDataExchangeService.selectedIndicator, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, $scope.selectedDate, false);
-									}
+									// if (kommonitorDataExchangeService.isBalanceChecked){
+									// 	$rootScope.$broadcast("replaceBalancedIndicator");
+									// }
+									// else{
+									// 	kommonitorMapService.replaceIndicatorGeoJSON(kommonitorDataExchangeService.selectedIndicator, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, $scope.selectedDate, false);
+									// }
+									// 
+									// $rootScope.$broadcast("DisableBalance");
+									kommonitorMapService.replaceIndicatorGeoJSON(kommonitorDataExchangeService.selectedIndicator, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, $scope.selectedDate, false);
 
 								};
 
@@ -636,6 +639,7 @@ angular
 											return;
 										}
 
+											$rootScope.$broadcast("DisableBalance");
 												$scope.modifyOgcAndGeoJSONExport();
 
 

@@ -51,9 +51,13 @@ angular
 								$scope.geoJSON = kommonitorDataExchangeService.selectedIndicator.geoJSON;
 								if(kommonitorDataExchangeService.isBalanceChecked){
 									//we have to use the geoJSON of balance mode
-									$scope.geoJSON = kommonitorDataExchangeService.indicatorAndMetadataAsBalance.geoJSON;
-								}
+									try{
+										$scope.geoJSON = kommonitorDataExchangeService.indicatorAndMetadataAsBalance.geoJSON;
+									}catch(err){
+										$scope.geoJSON = kommonitorDataExchangeService.selectedIndicator.geoJSON;
+									}
 
+								}
 
 								// initialize and fill in loop
 								$scope.valueRangeMinValue = $scope.geoJSON.features[0].properties[date];
