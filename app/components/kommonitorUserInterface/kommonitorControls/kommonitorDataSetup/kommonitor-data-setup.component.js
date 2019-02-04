@@ -396,19 +396,21 @@ angular
 
 								};
 
-								$scope.addSelectedIndicatorToMap = function() {
+								$scope.addSelectedIndicatorToMap = function(changeIndicator) {
 
-									// check if balance mode is active
-									// if (kommonitorDataExchangeService.isBalanceChecked){
-									// 	$rootScope.$broadcast("replaceBalancedIndicator");
-									// }
-									// else{
-									// 	kommonitorMapService.replaceIndicatorGeoJSON(kommonitorDataExchangeService.selectedIndicator, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, $scope.selectedDate, false);
-									// }
-									// 
-									// $rootScope.$broadcast("DisableBalance");
-									kommonitorMapService.replaceIndicatorGeoJSON(kommonitorDataExchangeService.selectedIndicator, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, $scope.selectedDate, false);
-
+									if(changeIndicator){
+										$rootScope.$broadcast("DisableBalance");
+										kommonitorMapService.replaceIndicatorGeoJSON(kommonitorDataExchangeService.selectedIndicator, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, $scope.selectedDate, false);
+									}
+									else{
+										// check if balance mode is active
+										if (kommonitorDataExchangeService.isBalanceChecked){
+											$rootScope.$broadcast("replaceBalancedIndicator");
+										}
+										else{
+											kommonitorMapService.replaceIndicatorGeoJSON(kommonitorDataExchangeService.selectedIndicator, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, $scope.selectedDate, false);
+										}
+									}
 								};
 
 								$scope.resetDateSliderForIndicator = function(){
@@ -528,7 +530,7 @@ angular
 											return;
 										}
 
-										$scope.modifyOgcAndGeoJSONExport();
+										$scope.modifyOgcAndGeoJSONExport(false);
 
 										$scope.loadingData = false;
 										$rootScope.$broadcast("hideLoadingIconOnMap");
@@ -608,7 +610,7 @@ angular
 											return;
 										}
 
-										$scope.modifyOgcAndGeoJSONExport();
+										$scope.modifyOgcAndGeoJSONExport(false);
 
 										$scope.loadingData = false;
 										$rootScope.$broadcast("hideLoadingIconOnMap");
@@ -640,7 +642,7 @@ angular
 										}
 
 											$rootScope.$broadcast("DisableBalance");
-												$scope.modifyOgcAndGeoJSONExport();
+												$scope.modifyOgcAndGeoJSONExport(true);
 
 
 												$scope.loadingData = false;
@@ -657,7 +659,7 @@ angular
 
 
 
-								$scope.modifyOgcAndGeoJSONExport = function(){
+								$scope.modifyOgcAndGeoJSONExport = function(changeIndicator){
 									$scope.wmsUrlForSelectedIndicator = undefined;
 									$scope.wmsUrlForSelectedIndicator = undefined;
 
@@ -674,7 +676,7 @@ angular
 									$scope.prepareDownloadGeoJSON();
 									$rootScope.$broadcast("updateBalanceSlider", kommonitorDataExchangeService.selectedDate);
 									$rootScope.$broadcast("updateIndicatorValueRangeFilter", kommonitorDataExchangeService.selectedDate);
-									$scope.addSelectedIndicatorToMap();
+									$scope.addSelectedIndicatorToMap(changeIndicator);
 
 
 								}
