@@ -251,6 +251,20 @@ angular.module('kommonitorMap').component(
                       return innerHTMLString;
                     };
 
+                    function dateToTS (date) {
+        								return date.valueOf();
+        						}
+
+        						function tsToDate (ts) {
+        								var d = new Date(ts);
+
+        								return d.toLocaleDateString("de-DE", {
+        										year: 'numeric',
+        										month: 'long',
+        										day: 'numeric'
+        								});
+        						}
+
                     $scope.makeInfoControl = function(date){
 
                       if($scope.infoControl){
@@ -268,13 +282,17 @@ angular.module('kommonitorMap').component(
                       $scope.infoControl.onAdd = function (map) {
                           this._div = L.DomUtil.create('div', 'info legend'); // create a div with a class "info"
 
+                          // [year, month, day]
+            							var lastUpdateComponents = $scope.currentIndicatorMetadataAndGeoJSON.metadata.lastUpdate.split("-");
+            							var lastUpdateAsDate = new Date(Number(lastUpdateComponents[0]), Number(lastUpdateComponents[1]) - 1, Number(lastUpdateComponents[2]));
+
                           this._div.innerHTML = '<h4>' + $scope.indicatorName + ' ' + date +'</h4><br/>';
                           // this._div.innerHTML += '<p>' + $scope.indicatorDescription + '</p>'
                           this._div.innerHTML += '<b>Beschreibung: </b> ' + $scope.indicatorDescription + '<br/>';
                           this._div.innerHTML += '<b>Datenquelle: </b> ' + $scope.currentIndicatorMetadataAndGeoJSON.metadata.datasource + '<br/>';
                           this._div.innerHTML += '<b>Kontakt: </b> ' + $scope.currentIndicatorMetadataAndGeoJSON.metadata.contact + '<br/>';
                           this._div.innerHTML += '<b>Aktualisierungszyklus: </b> ' + $scope.updateInterval.get($scope.currentIndicatorMetadataAndGeoJSON.metadata.updateInterval.toUpperCase()) + '<br/>';
-                          this._div.innerHTML += '<b>letzte Aktualisierung: </b> ' + $scope.currentIndicatorMetadataAndGeoJSON.metadata.lastUpdate + '<br/><br/>';
+                          this._div.innerHTML += '<b>zuletzt aktualisiert am: </b> ' + tsToDate(dateToTS(lastUpdateAsDate)) + '<br/><br/>';
 
                           this._div.innerHTML += $scope.appendSpatialUnitOptions();
                           // this._div.innerHTML += '<br/><br/>';
@@ -287,13 +305,18 @@ angular.module('kommonitorMap').component(
 
                       // method that we will use to update the control based on feature properties passed
                       $scope.infoControl.update = function (props) {
+
+                        // [year, month, day]
+                        var lastUpdateComponents = $scope.currentIndicatorMetadataAndGeoJSON.metadata.lastUpdate.split("-");
+                        var lastUpdateAsDate = new Date(Number(lastUpdateComponents[0]), Number(lastUpdateComponents[1]) - 1, Number(lastUpdateComponents[2]));
+
                         this._div.innerHTML = '<h4>' + $scope.indicatorName + ' ' + date +'</h4><br/>';
                         // this._div.innerHTML += '<p>' + $scope.indicatorDescription + '</p>'
                         this._div.innerHTML += '<b>Beschreibung: </b> ' + $scope.indicatorDescription + '<br/>';
                         this._div.innerHTML += '<b>Datenquelle: </b> ' + $scope.currentIndicatorMetadataAndGeoJSON.metadata.datasource + '<br/>';
                         this._div.innerHTML += '<b>Kontakt: </b> ' + $scope.currentIndicatorMetadataAndGeoJSON.metadata.contact + '<br/>';
                         this._div.innerHTML += '<b>Aktualisierungszyklus: </b> ' + $scope.updateInterval.get($scope.currentIndicatorMetadataAndGeoJSON.metadata.updateInterval.toUpperCase()) + '<br/>';
-                        this._div.innerHTML += '<b>letzte Aktualisierung: </b> ' + $scope.currentIndicatorMetadataAndGeoJSON.metadata.lastUpdate + '<br/><br/>';
+                        this._div.innerHTML += '<b>zuletzt aktualisiert am: </b> ' + tsToDate(dateToTS(lastUpdateAsDate)) + '<br/><br/>';
 
                         this._div.innerHTML += $scope.appendSpatialUnitOptions();
                         // this._div.innerHTML += '<br/><br/>';
