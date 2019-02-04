@@ -65,6 +65,7 @@ angular.module('kommonitorMap').component(
                     $scope.drawControl;
 
                     $scope.allDrawingToolsEnabled = false;
+                    $scope.date;
 
                     // central map object
               			$scope.map;
@@ -286,7 +287,7 @@ angular.module('kommonitorMap').component(
             							var lastUpdateComponents = $scope.currentIndicatorMetadataAndGeoJSON.metadata.lastUpdate.split("-");
             							var lastUpdateAsDate = new Date(Number(lastUpdateComponents[0]), Number(lastUpdateComponents[1]) - 1, Number(lastUpdateComponents[2]));
 
-                          this._div.innerHTML = '<h4>' + $scope.indicatorName + ' ' + date +'</h4><br/>';
+                          this._div.innerHTML = '<h4>' + $scope.indicatorName + '</h4><br/>';
                           // this._div.innerHTML += '<p>' + $scope.indicatorDescription + '</p>'
                           this._div.innerHTML += '<b>Beschreibung: </b> ' + $scope.indicatorDescription + '<br/>';
                           this._div.innerHTML += '<b>Datenquelle: </b> ' + $scope.currentIndicatorMetadataAndGeoJSON.metadata.datasource + '<br/>';
@@ -310,7 +311,7 @@ angular.module('kommonitorMap').component(
                         var lastUpdateComponents = $scope.currentIndicatorMetadataAndGeoJSON.metadata.lastUpdate.split("-");
                         var lastUpdateAsDate = new Date(Number(lastUpdateComponents[0]), Number(lastUpdateComponents[1]) - 1, Number(lastUpdateComponents[2]));
 
-                        this._div.innerHTML = '<h4>' + $scope.indicatorName + ' ' + date +'</h4><br/>';
+                        this._div.innerHTML = '<h4>' + $scope.indicatorName + '</h4><br/>';
                         // this._div.innerHTML += '<p>' + $scope.indicatorDescription + '</p>'
                         this._div.innerHTML += '<b>Beschreibung: </b> ' + $scope.indicatorDescription + '<br/>';
                         this._div.innerHTML += '<b>Datenquelle: </b> ' + $scope.currentIndicatorMetadataAndGeoJSON.metadata.datasource + '<br/>';
@@ -429,6 +430,9 @@ angular.module('kommonitorMap').component(
                         }
                       }
 
+                      var dateComponents = $scope.date.split("-");
+                      var dateAsDate = new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]));
+
                       $scope.legendControl = L.control({position: 'topright'});
 
                       $scope.legendControl.onAdd = function (map) {
@@ -446,7 +450,7 @@ angular.module('kommonitorMap').component(
                         //         labels[i] + (labels[i + 1] ? ' &ndash; &lt; ' + labels[i + 1] + '<br>' : '+');
                         // }
 
-                        $scope.div.innerHTML += "<label>Status-Indikator</label><br/><em>Darstellung der Indikatorenwerte zum gew&auml;hlten Zeitpunkt</em><br/><br/>";
+                        $scope.div.innerHTML += "<label>Status-Indikator</label><br/><em>Darstellung der Indikatorenwerte zum gew&auml;hlten Zeitpunkt " + tsToDate(dateToTS(dateAsDate)) + "</em><br/><br/>";
                         $scope.div.innerHTML += "<label>Einheit: </label> " + $scope.indicatorUnit + "<br/><br/>";
 
                         $scope.div.innerHTML += $scope.appendClassifyRadioOptions();
@@ -503,13 +507,18 @@ angular.module('kommonitorMap').component(
 
                         $scope.div.innerHTML = "";
 
-                        $scope.div.innerHTML += "<label>Dynamik-Indikator</label><br/><em>Darstellung der zeitlichen Entwicklung</em><br/><br/>";
-                        $scope.div.innerHTML += "<label>Einheit: </label> " + $scope.indicatorUnit + "<br/><br/>";
-
                         if($scope.currentIndicatorMetadataAndGeoJSON['fromDate']){
-                          $scope.div.innerHTML += "<label>Bilanzierungszeitraum: </label><br/>";
+                          $scope.div.innerHTML += "<label>Bilanzierung des Indikators für den Zeitraum: </label><br/>";
                           $scope.div.innerHTML += "<em>" + $scope.currentIndicatorMetadataAndGeoJSON['fromDate'] + " - " + $scope.currentIndicatorMetadataAndGeoJSON['toDate'] + "</em><br/><br/>";
                         }
+                        else{
+
+                          var dateComponents = $scope.date.split("-");
+                          var dateAsDate = new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]));
+                          $scope.div.innerHTML += "<label>Dynamik-Indikator</label><br/><em>Darstellung der zeitlichen Entwicklung zum gew&auml;hlten Zeitpunkt " + tsToDate(dateToTS(dateAsDate)) + "</em><br/><br/>";
+                        }
+
+                        $scope.div.innerHTML += "<label>Einheit: </label> " + $scope.indicatorUnit + "<br/><br/>";
 
                         $scope.div.innerHTML += $scope.appendClassifyRadioOptions();
 
@@ -576,6 +585,9 @@ angular.module('kommonitorMap').component(
                         }
                       }
 
+                      var dateComponents = $scope.date.split("-");
+                      var dateAsDate = new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]));
+
                       $scope.legendControl = L.control({position: 'topright'});
 
                       $scope.legendControl.onAdd = function (map) {
@@ -584,9 +596,9 @@ angular.module('kommonitorMap').component(
 
                         $scope.div.innerHTML = "";
 
-                        $scope.div.innerHTML += "<label>Schwellwert-Klassifizierung</label><br/>";
+                        $scope.div.innerHTML += "<label>Schwellwert-Klassifizierung</label><br/><em>Gew&auml;hlter Zeitpunkt: " + tsToDate(dateToTS(dateAsDate)) + "</em><br/>";
 
-                        $scope.div.innerHTML += "<em>aktueller Schwellwert: </em> " + kommonitorDataExchangeService.measureOfValue + " " + $scope.indicatorUnit + "<br/><br/>";
+                        $scope.div.innerHTML += "<em>aktueller Schwellwert: </em> " + kommonitorDataExchangeService.measureOfValue + "<br/><br/>";
 
                         $scope.div.innerHTML += "<label>Einheit: </label> " + $scope.indicatorUnit + "<br/><br/>";
 
