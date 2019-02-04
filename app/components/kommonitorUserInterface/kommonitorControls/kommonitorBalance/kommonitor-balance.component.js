@@ -18,8 +18,7 @@ angular
 						$scope.targetDate;
 						$scope.targetIndicatorProperty;
 						$scope.rangeSliderForBalance;
-						$scope.minDate;
-						$scope.maxDate;
+						$scope.datesAsMs;
 
 						$scope.$on("DisableBalance", function (event) {
 							kommonitorDataExchangeService.isBalanceChecked = false;
@@ -70,14 +69,35 @@ angular
 								return date.valueOf();
 						}
 
-						function tsToDate (ts) {
-								var d = new Date(ts);
+						function tsToDateString (dateAsMs) {
+							var date = new Date(dateAsMs);
 
-								return d.toLocaleDateString("de-DE", {
+								return date.toLocaleDateString("de-DE", {
 										year: 'numeric',
 										month: 'long',
 										day: 'numeric'
 								});
+						}
+
+						function dateToDateString (date) {
+
+								return date.toLocaleDateString("de-DE", {
+										year: 'numeric',
+										month: 'long',
+										day: 'numeric'
+								});
+						}
+
+						function createDatesFromIndicatorDates(indicatorDates) {
+
+							$scope.datesAsMs = [];
+
+							for (var index=0; index < indicatorDates.length; index++){
+								// year-month-day
+								var dateComponents = indicatorDates[index].split("-");
+								$scope.datesAsMs.push(dateToTS(new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]))));
+							}
+							return $scope.datesAsMs;
 						}
 
 						$scope.setupRangeSliderForBalance = function(date){
@@ -96,29 +116,18 @@ angular
 								}
 							}
 
-							// year-month-day
-							var minDateAsString = kommonitorDataExchangeService.selectedIndicator.applicableDates[0];
-							var maxDateAsString = kommonitorDataExchangeService.selectedIndicator.applicableDates[kommonitorDataExchangeService.selectedIndicator.applicableDates.length - 1];
-
-							// [year, month, day]
-							var minDateComponents = minDateAsString.split("-");
-							var maxDateComponents = maxDateAsString.split("-");
-
-							$scope.minDate = new Date(Number(minDateComponents[0]), Number(minDateComponents[1]) - 1, Number(minDateComponents[2]));
-							$scope.maxDate = new Date(Number(maxDateComponents[0]), Number(maxDateComponents[1]) - 1, Number(maxDateComponents[2]));
+							$scope.datesAsMs = createDatesFromIndicatorDates(kommonitorDataExchangeService.selectedIndicator.applicableDates);
 
 							// new Date() uses month between 0-11!
 							$("#rangeSliderForBalance").ionRangeSlider({
 							    skin: "big",
 							    type: "double",
 							    grid: true,
-							    min: dateToTS($scope.minDate),
-							    max: dateToTS($scope.maxDate),
-							    from: dateToTS($scope.minDate),
-							    to: dateToTS($scope.maxDate),
+									values: $scope.datesAsMs,
+							    from: 0, // index, not the date
+							    to: $scope.datesAsMs.length -1, // index, not the date
 									force_edges: true,
-									step: 86400000, // one day as milliseconds
-							    prettify: tsToDate,
+							    prettify: tsToDateString,
 									block: true,
 									onChange: onChangeBalanceRange
 							});
@@ -126,8 +135,8 @@ angular
 							$scope.rangeSliderForBalance = $("#rangeSliderForBalance").data("ionRangeSlider");
 							// make sure that tha handles are properly set to man and max values
 							$scope.rangeSliderForBalance.update({
-									from: dateToTS($scope.minDate),
-									to: dateToTS($scope.maxDate)
+									from: 0, // index, not the date
+								 	to: $scope.datesAsMs.length -1, // index, not the date
 							});
 
 							if (!kommonitorDataExchangeService.isBalanceChecked){
@@ -141,14 +150,15 @@ angular
 							// create balance GeoJSON and broadcast "replaceIndicatorAsGeoJSON"
 							// Called every time handle position is changed
 							computeAndSetBalance(data);
-							// we must call replaceIndicatorGeoJSON because the feature vaues have changed. calling restyle will not work as it only restyles the old numbers 
+							// we must call replaceIndicatorGeoJSON because the feature vaues have changed. calling restyle will not work as it only restyles the old numbers
 							kommonitorMapService.replaceIndicatorGeoJSON(kommonitorDataExchangeService.indicatorAndMetadataAsBalance, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, $scope.targetDate, true);
 						};
 
 						function computeAndSetBalance(data){
 
-							var fromDate = new Date(data.from);
-							var toDate = new Date(data.to);
+							// data.from and data.to are index values, not the actual dates! (because we use "values" for rangeSlider)
+							var fromDate = new Date($scope.datesAsMs[data.from]);
+							var toDate = new Date($scope.datesAsMs[data.to]);
 
 							var fromDateAsPropertyString = makePropertyString(fromDate);
 							var fromDateAsString = makeDateString(fromDate);
@@ -169,8 +179,8 @@ angular
 							for (var index=0; index < kommonitorDataExchangeService.selectedIndicator.geoJSON.features.length; index++){
 								kommonitorDataExchangeService.indicatorAndMetadataAsBalance.geoJSON.features[index].properties[$scope.targetIndicatorProperty] = +Number(kommonitorDataExchangeService.selectedIndicator.geoJSON.features[index].properties[toDateAsPropertyString] - kommonitorDataExchangeService.selectedIndicator.geoJSON.features[index].properties[fromDateAsPropertyString]).toFixed(numberOfDecimals);
 							}
-							kommonitorDataExchangeService.indicatorAndMetadataAsBalance['fromDate'] = tsToDate(dateToTS(fromDate));
-							kommonitorDataExchangeService.indicatorAndMetadataAsBalance['toDate'] = tsToDate(dateToTS(toDate));
+							kommonitorDataExchangeService.indicatorAndMetadataAsBalance['fromDate'] = dateToDateString(fromDate);
+							kommonitorDataExchangeService.indicatorAndMetadataAsBalance['toDate'] = dateToDateString(toDate);
 						};
 
 						function snapToNearestLowerDate(toDate, applicableDates){
