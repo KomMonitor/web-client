@@ -32,6 +32,14 @@ angular.module('kommonitorMap').component(
                       value: "quantile"
                     }];
 
+                    // updateInterval (from kommonitor data management api) = ['ARBITRARY', 'MONTHLY', 'QUARTERLY', 'HALF_YEARLY', 'YEARLY']
+                    $scope.updateInterval = new Map();
+                    $scope.updateInterval.set("ARBITRARY", "beliebig");
+                    $scope.updateInterval.set("YEARLY", "jährlich");
+                    $scope.updateInterval.set("HALF_YEARLY", "halbjährig");
+                    $scope.updateInterval.set("MONTHLY", "monatlich");
+                    $scope.updateInterval.set("QUARTERLY", "vierteljährlich");
+
                     $scope.classifyMethod = __env.defaultClassifyMethod || "jenks";
 
                     $scope.filteredStyle = {
@@ -265,7 +273,7 @@ angular.module('kommonitorMap').component(
                           this._div.innerHTML += '<b>Beschreibung: </b> ' + $scope.indicatorDescription + '<br/>';
                           this._div.innerHTML += '<b>Datenquelle: </b> ' + $scope.currentIndicatorMetadataAndGeoJSON.metadata.datasource + '<br/>';
                           this._div.innerHTML += '<b>Kontakt: </b> ' + $scope.currentIndicatorMetadataAndGeoJSON.metadata.contact + '<br/>';
-                          this._div.innerHTML += '<b>Aktualisierungszyklus: </b> ' + $scope.currentIndicatorMetadataAndGeoJSON.metadata.updateInterval + '<br/>';
+                          this._div.innerHTML += '<b>Aktualisierungszyklus: </b> ' + $scope.updateInterval.get($scope.currentIndicatorMetadataAndGeoJSON.metadata.updateInterval.toUpperCase()) + '<br/>';
                           this._div.innerHTML += '<b>letzte Aktualisierung: </b> ' + $scope.currentIndicatorMetadataAndGeoJSON.metadata.lastUpdate + '<br/><br/>';
 
                           this._div.innerHTML += $scope.appendSpatialUnitOptions();
@@ -284,7 +292,7 @@ angular.module('kommonitorMap').component(
                         this._div.innerHTML += '<b>Beschreibung: </b> ' + $scope.indicatorDescription + '<br/>';
                         this._div.innerHTML += '<b>Datenquelle: </b> ' + $scope.currentIndicatorMetadataAndGeoJSON.metadata.datasource + '<br/>';
                         this._div.innerHTML += '<b>Kontakt: </b> ' + $scope.currentIndicatorMetadataAndGeoJSON.metadata.contact + '<br/>';
-                        this._div.innerHTML += '<b>Aktualisierungszyklus: </b> ' + $scope.currentIndicatorMetadataAndGeoJSON.metadata.updateInterval + '<br/>';
+                        this._div.innerHTML += '<b>Aktualisierungszyklus: </b> ' + $scope.updateInterval.get($scope.currentIndicatorMetadataAndGeoJSON.metadata.updateInterval.toUpperCase()) + '<br/>';
                         this._div.innerHTML += '<b>letzte Aktualisierung: </b> ' + $scope.currentIndicatorMetadataAndGeoJSON.metadata.lastUpdate + '<br/><br/>';
 
                         this._div.innerHTML += $scope.appendSpatialUnitOptions();
