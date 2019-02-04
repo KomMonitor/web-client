@@ -29,8 +29,13 @@ angular
 							}
 						});
 
-						this.onChangeUseBalance = function(){
-							console.log("Change UseBalance");
+						$scope.$on("replaceBalancedIndicator", function (event) {
+							if(kommonitorDataExchangeService.isBalanceChecked){
+								$scope.onChangeUseBalance();
+							}
+						});
+
+						$scope.onChangeUseBalance = function(){
 
 							if(kommonitorDataExchangeService.isMeasureOfValueChecked){
 								kommonitorDataExchangeService.isMeasureOfValueChecked = false;
@@ -60,7 +65,7 @@ angular
 
 						$scope.$on("updateBalanceSlider", function (event, date) {
 
-								kommonitorDataExchangeService.isBalanceChecked = false;
+								// kommonitorDataExchangeService.isBalanceChecked = false;
 								$scope.setupRangeSliderForBalance(date);
 
 						});
@@ -100,35 +105,19 @@ angular
 							return $scope.datesAsMs;
 						}
 
-						$scope.setupRangeSliderForBalance = function(date){
-							$scope.targetDate = date;
-							$scope.targetIndicatorProperty = INDICATOR_DATE_PREFIX + date;
-
-							if($scope.rangeSliderForBalance){
-								kommonitorDataExchangeService.rangeFilterData = undefined;
-								$scope.rangeSliderForBalance.destroy();
-								kommonitorDataExchangeService.indicatorAndMetadataAsBalance = undefined;
-
-								var domNode = document.getElementById("rangeSliderForBalance");
-
-								while (domNode.hasChildNodes()) {
-									domNode.removeChild(domNode.lastChild);
-								}
-							}
-
+						$scope.createNewBalanceInstance = function(){
 							$scope.datesAsMs = createDatesFromIndicatorDates(kommonitorDataExchangeService.selectedIndicator.applicableDates);
 
 							// new Date() uses month between 0-11!
 							$("#rangeSliderForBalance").ionRangeSlider({
-							    skin: "big",
-							    type: "double",
-							    grid: true,
+									skin: "big",
+									type: "double",
+									grid: true,
 									values: $scope.datesAsMs,
-							    from: 0, // index, not the date
-							    to: $scope.datesAsMs.length -1, // index, not the date
+									from: 0, // index, not the date
+									to: $scope.datesAsMs.length -1, // index, not the date
 									force_edges: true,
-							    prettify: tsToDateString,
-									block: true,
+									prettify: tsToDateString,
 									onChange: onChangeBalanceRange
 							});
 
@@ -136,12 +125,52 @@ angular
 							// make sure that tha handles are properly set to man and max values
 							$scope.rangeSliderForBalance.update({
 									from: 0, // index, not the date
-								 	to: $scope.datesAsMs.length -1, // index, not the date
+									to: $scope.datesAsMs.length -1, // index, not the date
 							});
 
 							if (!kommonitorDataExchangeService.isBalanceChecked){
 								// deactivate balance slider
-								$scope.rangeSliderForBalance.block = true;
+								$scope.rangeSliderForBalance.update({
+										block: true
+								});
+							}
+						}
+
+						$scope.removeOldInstance = function(){
+							kommonitorDataExchangeService.rangeFilterData = undefined;
+							$scope.rangeSliderForBalance.destroy();
+							kommonitorDataExchangeService.indicatorAndMetadataAsBalance = undefined;
+
+							var domNode = document.getElementById("rangeSliderForBalance");
+
+							while (domNode.hasChildNodes()) {
+								domNode.removeChild(domNode.lastChild);
+							}
+						}
+
+						$scope.setupRangeSliderForBalance = function(date){
+							$scope.targetDate = date;
+							$scope.targetIndicatorProperty = INDICATOR_DATE_PREFIX + date;
+
+							if(!$scope.rangeSliderForBalance){
+								// create new instance
+								$scope.createNewBalanceInstance();
+							}
+							else {
+
+								if(kommonitorDataExchangeService.indicatorAndMetadataAsBalance){
+									if (kommonitorDataExchangeService.selectedIndicator.indicatorName != kommonitorDataExchangeService.indicatorAndMetadataAsBalance.indicatorName){
+										$scope.removeOldInstance();
+
+										// create new instance
+										$scope.createNewBalanceInstance();
+									}
+								}
+								else{
+									$scope.removeOldInstance();
+									$scope.createNewBalanceInstance();
+								}
+
 							}
 
 						};

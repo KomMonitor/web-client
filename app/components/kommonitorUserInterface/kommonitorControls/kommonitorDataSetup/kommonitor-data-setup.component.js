@@ -398,7 +398,13 @@ angular
 
 								$scope.addSelectedIndicatorToMap = function() {
 
-									kommonitorMapService.replaceIndicatorGeoJSON(kommonitorDataExchangeService.selectedIndicator, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, $scope.selectedDate, false);
+									// check if balance mode is active
+									if (kommonitorDataExchangeService.isBalanceChecked){
+										$rootScope.$broadcast("replaceBalancedIndicator");
+									}
+									else{
+										kommonitorMapService.replaceIndicatorGeoJSON(kommonitorDataExchangeService.selectedIndicator, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, $scope.selectedDate, false);
+									}
 
 								};
 
@@ -662,9 +668,10 @@ angular
 									};
 
 									$scope.prepareDownloadGeoJSON();
-									$scope.addSelectedIndicatorToMap();
-									$rootScope.$broadcast("updateIndicatorValueRangeFilter", kommonitorDataExchangeService.selectedDate);
 									$rootScope.$broadcast("updateBalanceSlider", kommonitorDataExchangeService.selectedDate);
+									$rootScope.$broadcast("updateIndicatorValueRangeFilter", kommonitorDataExchangeService.selectedDate);
+									$scope.addSelectedIndicatorToMap();
+
 
 								}
 
