@@ -168,8 +168,8 @@ angular.module('kommonitorMap').component(
                   	];
 
                       var options = {
-                    		container_width 	: "300px",
-                    		container_maxHeight : "350px",
+                    		container_width 	: "600px",
+                    		container_maxHeight : "600px",
                     		group_maxHeight     : "80px",
                     		exclusive       	: false,
                         position: 'topleft'
