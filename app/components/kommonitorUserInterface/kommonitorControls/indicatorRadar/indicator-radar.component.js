@@ -152,7 +152,7 @@ angular
 												title: {
 														text: 'Indikatorenradar - ' + $scope.spatialUnitName + ' - ' + $scope.date,
 														left: 'center',
-														// top: 15
+														top: 0
 												},
 												tooltip: {
 													confine: 'true'
@@ -237,7 +237,7 @@ angular
 														// },
 														name: {
 																formatter: function (value, indicator) {
-																								var maxCharsPerLine = 22;
+																								var maxCharsPerLine = 28;
 																								var counter = 0;
 																								var label = "";
 																								for(var i=0; i<value.length; i++){
