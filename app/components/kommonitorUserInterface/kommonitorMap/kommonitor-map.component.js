@@ -475,10 +475,13 @@ angular.module('kommonitorMap').component(
                           $scope.div.innerHTML += '<br/>';
                         }
 
+                        //TODO FIXME defaultCustomRating comes in the wrong order! inspect that behaviour server-side
                         for (var i = 0; i < colors.length; i++) {
                             $scope.div.innerHTML +=
+                                // '<i style="background:' + colors[i] + '"></i> ' +
+                                // defaultClassificationMapping.items[defaultClassificationMapping.items.length - 1 - i].defaultCustomRating + ' (' + (+labels[i].toFixed(numberOfDecimals)) + ((+labels[i + 1]) ? ' &ndash; &lt; ' + (+labels[i + 1].toFixed(numberOfDecimals)) + ') <br>' : '+');
                                 '<i style="background:' + colors[i] + '"></i> ' +
-                                defaultClassificationMapping.items[i].defaultCustomRating + ' (' + (+labels[i].toFixed(numberOfDecimals)) + ((+labels[i + 1]) ? ' &ndash; &lt; ' + (+labels[i + 1].toFixed(numberOfDecimals)) + ') <br>' : '+');
+                                (+labels[i].toFixed(numberOfDecimals)) + ((+labels[i + 1]) ? ' &ndash; &lt; ' + (+labels[i + 1].toFixed(numberOfDecimals)) + ' <br>' : '+');
                         }
 
                         return $scope.div;
