@@ -9,8 +9,8 @@ angular
 					 * enabled tabs
 					 */
 					controller : [
-							'kommonitorDataExchangeService', '$scope', 'kommonitorMapService', '$http', '$rootScope', '__env',
-							function kommonitorDataSetupController(kommonitorDataExchangeService, $scope, kommonitorMapService, $http, $rootScope, __env) {
+							'kommonitorDataExchangeService', '$scope', 'kommonitorMapService', '$http', '$rootScope', '__env', '$timeout',
+							function kommonitorDataSetupController(kommonitorDataExchangeService, $scope, kommonitorMapService, $http, $rootScope, __env, $timeout) {
 
 								const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
 
@@ -191,6 +191,13 @@ angular
 									if(fetchedTopicsInitially && fetchedIndicatorsInitially && fetchedGeoresourcesInitially && fetchedSpatialUnitsInitially){
 
 										$rootScope.$broadcast("loadExampleIndicatorInitially");
+
+										$timeout(function () {
+								         $("option").each(function (index, element) {
+								            var text = $(element).text();
+								            $(element).attr("title", text);
+								         });
+								    });
 									}
 
 								};

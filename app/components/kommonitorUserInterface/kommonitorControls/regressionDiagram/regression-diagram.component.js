@@ -6,9 +6,9 @@ angular
 					templateUrl : "components/kommonitorUserInterface/kommonitorControls/regressionDiagram/regression-diagram.template.html",
 
 					controller : [
-							'kommonitorDataExchangeService', '$scope', '$rootScope', '$http', '__env',
+							'kommonitorDataExchangeService', '$scope', '$rootScope', '$http', '__env', '$timeout',
 							function indicatorRadarController(
-									kommonitorDataExchangeService, $scope, $rootScope, $http, __env) {
+									kommonitorDataExchangeService, $scope, $rootScope, $http, __env, $timeout) {
 								/*
 								 * reference to kommonitorDataExchangeService instances
 								 */
@@ -95,6 +95,13 @@ angular
 
 										$scope.selectedIndicatorForXAxis = undefined;
 										$scope.selectedIndicatorForYAxis = undefined;
+
+										$timeout(function () {
+								         $("option").each(function (index, element) {
+								            var text = $(element).text();
+								            $(element).attr("title", text);
+								         });
+								    });
 
 									}
 								});
