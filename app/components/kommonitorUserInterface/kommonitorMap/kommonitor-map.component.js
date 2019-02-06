@@ -1607,6 +1607,8 @@ angular.module('kommonitorMap').component(
                                                                   // empty layer of possibly selected features
                                                                   kommonitorDataExchangeService.clickedIndicatorFeatureNames = [];
                                                                   kommonitorDataExchangeService.filteredIndicatorFeatureNames = [];
+
+                                                                  $rootScope.$broadcast("checkBalanceMenueAndButton");
                                                                 }
 
                                                                 console.log("Remove old indicatorLayer if exists");

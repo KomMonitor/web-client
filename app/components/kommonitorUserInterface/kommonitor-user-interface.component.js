@@ -33,6 +33,10 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			$scope.buttonFilterClass = "btn btn-custom btn-circle";
 			$scope.buttonBalanceClass = "btn btn-custom btn-circle";
 			$scope.buttonReachabilityClass = "btn btn-custom btn-circle";
+
+			// in addition check if balance menue and button are allowed for current indicator
+			// it is not allowed if indicator is of type "DYNAMIC"
+			$scope.checkBalanceButtonAndMenueState();
 		};
 
 		$scope.hideSidebars = function(){
@@ -45,6 +49,20 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			$scope.sidebarBalanceClass = "hidden";
 			$scope.sidebarReachabilityClass = "hidden";
 		};
+
+		$scope.checkBalanceButtonAndMenueState = function(){
+			if(kommonitorDataExchangeService.selectedIndicator.indicatorType === "DYNAMIC"){
+				$scope.buttonBalanceClass = "btn btn-custom btn-circle disabled";
+				$scope.sidebarBalanceClass = "hidden";
+			}
+			else{
+				$scope.buttonBalanceClass = "btn btn-custom btn-circle";
+			}
+		};
+
+		$scope.$on("checkBalanceMenueAndButton", function(event){
+			$scope.checkBalanceButtonAndMenueState();
+		});
 
 		$scope.onSidebarIndicatorButtonClick = function(){
 			$scope.undockButtons();
@@ -93,26 +111,33 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 		}
 
 		$scope.onSidebarBalanceButtonClick = function(){
-			$scope.undockButtons();
 
-			if($scope.sidebarBalanceClass === "hidden"){
-				$scope.hideSidebars();
-				$scope.sidebarBalanceClass = "";
-				$scope.buttonBalanceClass = "btn btn-custom-docked btn-docked";
-
-				if($scope.anySideBarIsShown === false){
-					$rootScope.$broadcast("recenterMapOnShowSideBar");
-				}
-				$scope.anySideBarIsShown = true;
+			// check if button is marked as disabled
+			if($scope.buttonBalanceClass.includes("disabled")){
+				// do nothing
+				return;
 			}
 			else{
-				$scope.sidebarBalanceClass = "hidden";
-				$rootScope.$broadcast("recenterMapOnHideSideBar");
-				$scope.anySideBarIsShown = false;
-			}
-			$rootScope.$broadcast("refreshDateSlider");
-			$rootScope.$broadcast("refreshIndicatorValueRangeSlider");
+				$scope.undockButtons();
 
+				if($scope.sidebarBalanceClass === "hidden"){
+					$scope.hideSidebars();
+					$scope.sidebarBalanceClass = "";
+					$scope.buttonBalanceClass = "btn btn-custom-docked btn-docked";
+
+					if($scope.anySideBarIsShown === false){
+						$rootScope.$broadcast("recenterMapOnShowSideBar");
+					}
+					$scope.anySideBarIsShown = true;
+				}
+				else{
+					$scope.sidebarBalanceClass = "hidden";
+					$rootScope.$broadcast("recenterMapOnHideSideBar");
+					$scope.anySideBarIsShown = false;
+				}
+				$rootScope.$broadcast("refreshDateSlider");
+				$rootScope.$broadcast("refreshIndicatorValueRangeSlider");
+			}
 		}
 
 		$scope.onSidebarReachabilityButtonClick = function(){
