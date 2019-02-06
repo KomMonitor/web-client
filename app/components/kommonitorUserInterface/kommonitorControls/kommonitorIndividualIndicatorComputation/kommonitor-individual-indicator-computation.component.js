@@ -4,10 +4,12 @@ angular
 				'kommonitorIndividualIndicatorComputation',
 				{
 					templateUrl : "components/kommonitorUserInterface/kommonitorControls/kommonitorIndividualIndicatorComputation/kommonitor-individual-indicator-computation.template.html",
-					controller : ['kommonitorDataExchangeService', '$scope', '$http','kommonitorMapService', function kommonitorIndividualIndicatorComputationController(
-							kommonitorDataExchangeService, $scope, $http, kommonitorMapService) {
+					controller : ['kommonitorDataExchangeService', '$scope', '$http','kommonitorMapService', '__env', function kommonitorIndividualIndicatorComputationController(
+							kommonitorDataExchangeService, $scope, $http, kommonitorMapService, __env) {
 
 						this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
+
+						const targetURL = __env.targetUrlToProcessingEngine;
 
 						$scope.loadingData = false;
 
@@ -436,9 +438,6 @@ angular
 							console.log("calculateCustomIndicator called!");
 
 							$scope.loadingData = true;
-
-							var targetURL = "http://localhost:8086/rest/v1/script-engine/customizableIndicatorComputation";
-
 							// example request model
 
 							// {
@@ -532,7 +531,7 @@ angular
 						$scope.showInitialJobStatus = function(jobId){
 
 							$http({
-								url: "http://localhost:8086/rest/v1/script-engine/customizableIndicatorComputation/" + jobId,
+								url: targetURL + "/" + jobId,
 								method: "GET"
 							}).then(function successCallback(response) {
 									// this callback will be called asynchronously
@@ -566,7 +565,7 @@ angular
 									break;
 
 								$http({
-									url: "http://localhost:8086/rest/v1/script-engine/customizableIndicatorComputation/" + jobId,
+									url: targetURL + '/' + jobId,
 									method: "GET"
 								}).then(function successCallback(response) {
 										// this callback will be called asynchronously
