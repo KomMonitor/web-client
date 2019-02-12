@@ -11,6 +11,7 @@
   // Base url
   window.__env.basePath = 'management';
   window.__env.targetUrlToProcessingEngine = 'http://localhost:8086/processing/script-engine/customizableIndicatorComputation';
+  window.__env.targetUrlToReachabilityService = 'http://localhost:8088/otp/routers/current';
 
 
 

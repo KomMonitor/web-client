@@ -78,6 +78,7 @@ angular.module('kommonitorMap').component(
                     const georesourceLayerGroupName = "Georessourcen";
                     const poiLayerGroupName = "Points of Interest";
                     const indicatorLayerGroupName = "Indikatoren";
+                    const reachabilityLayerGroupName = "Erreichbarkeiten";
 
                     // create classyBrew object
                     $scope.defaultBrew = new classyBrew();
@@ -167,6 +168,11 @@ angular.module('kommonitorMap').component(
                   						}
                   					 }, {
                   						groupName : poiLayerGroupName,
+                              expanded  : true,
+                  						layers    : {
+                  						}
+                  					 }, {
+                  						groupName : reachabilityLayerGroupName,
                               expanded  : true,
                   						layers    : {
                   						}
@@ -824,7 +830,6 @@ angular.module('kommonitorMap').component(
                               });
 
                               $scope.$on("addGeoresourceAsGeoJSON", function (event, georesourceMetadataAndGeoJSON, date) {
-                                console.log('addGeoresourceAsGeoJSON was called');
 
                                 var layer = L.geoJSON(georesourceMetadataAndGeoJSON.geoJSON, {
                                     style: function (feature) {
@@ -843,6 +848,45 @@ angular.module('kommonitorMap').component(
                                 };
 
                                 $scope.layerControl.addOverlay( layer, georesourceMetadataAndGeoJSON.datasetName + "_" + date, {groupName : georesourceLayerGroupName} );
+                              });
+
+                              $scope.$on("addIsochronesAsGeoJSON", function (event, geoJSON, mode) {
+
+                                var layer = L.geoJSON(geoJSON, {
+                                    style: function (feature) {
+
+                                      var color;
+                                      if (feature.properties.time === 1500){
+                                        color = "red";
+                                      }
+                                      else if (feature.properties.time === 1200){
+                                        color = "brown";
+                                      }
+                                      else if (feature.properties.time === 900){
+                                        color = "orange";
+                                      }
+                                      else if (feature.properties.time === 600){
+                                        color = "yellow";
+                                      }
+                                      else{
+                                        color = "green";
+                                      }
+
+                                      return {
+                                        color: color,
+                                        weight: 2,
+                                        opacity: 1
+                                      };
+                                    },
+                                    onEachFeature: onEachFeatureGeoresource
+                                });
+
+                                layer.StyledLayerControl = {
+                                  removable : true,
+                                  visible : true
+                                };
+
+                                $scope.layerControl.addOverlay( layer, "Erreichbarkeits-Isochronen 5-25 Minuten per" + mode, {groupName : reachabilityLayerGroupName} );
                               });
 
                               $scope.$on("addPoiGeoresourceAsGeoJSON", function (event, georesourceMetadataAndGeoJSON, date) {
