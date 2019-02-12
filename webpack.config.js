@@ -33,7 +33,8 @@ module.exports = {
           { from: nodeModulePathConstant + 'ion-rangeslider/js/ion.rangeSlider.min.js', to: 'ion-rangeslider' },
           { from: nodeModulePathConstant + 'leaflet.markercluster/dist/leaflet.markercluster.js', to: 'leaflet-markercluster' },
           { from: nodeModulePathConstant + 'leaflet.markercluster/dist/MarkerCluster.css', to: 'leaflet-markercluster' },
-          { from: nodeModulePathConstant + 'leaflet.markercluster/dist/MarkerCluster.Default.css', to: 'leaflet-markercluster' }
+          { from: nodeModulePathConstant + 'leaflet.markercluster/dist/MarkerCluster.Default.css', to: 'leaflet-markercluster' },
+          { from: nodeModulePathConstant + 'leaflet.awesome-markers/dist', to: 'leaflet-awesome-markers' }
       ])
     ]
 };
