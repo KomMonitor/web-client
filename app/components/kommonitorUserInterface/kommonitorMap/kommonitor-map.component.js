@@ -76,6 +76,7 @@ angular.module('kommonitorMap').component(
                     $scope.baseMapLayers = new L.LayerGroup();
                     const spatialUnitLayerGroupName = "Raumeinheiten";
                     const georesourceLayerGroupName = "Georessourcen";
+                    const poiLayerGroupName = "Points of Interest";
                     const indicatorLayerGroupName = "Indikatoren";
 
                     // create classyBrew object
@@ -161,6 +162,11 @@ angular.module('kommonitorMap').component(
                   						}
                   					 }, {
                   						groupName : indicatorLayerGroupName,
+                              expanded  : true,
+                  						layers    : {
+                  						}
+                  					 }, {
+                  						groupName : poiLayerGroupName,
                               expanded  : true,
                   						layers    : {
                   						}
@@ -856,7 +862,7 @@ angular.module('kommonitorMap').component(
                                   visible : true
                                 };
 
-                                $scope.layerControl.addOverlay( markers, georesourceMetadataAndGeoJSON.datasetName + "_" + date, {groupName : georesourceLayerGroupName} );
+                                $scope.layerControl.addOverlay( markers, georesourceMetadataAndGeoJSON.datasetName + "_" + date, {groupName : poiLayerGroupName} );
                                 // $scope.map.addLayer( markers );
                               });
 
