@@ -849,10 +849,22 @@ angular.module('kommonitorMap').component(
 
                                 // use leaflet.markercluster to cluster markers!
                                 var markers = L.markerClusterGroup();
+                                var customMarker;
+                                try{
+                                  customMarker = L.AwesomeMarkers.icon({
+                                    icon: georesourceMetadataAndGeoJSON.poiSymbolBootstrap3Name,
+                                    markerColor: georesourceMetadataAndGeoJSON.poiMarkerColor
+                                  });
+                                }catch(err){
+                                  customMarker = L.AwesomeMarkers.icon({
+                                    icon: 'home', // default back to home
+                                    markerColor: georesourceMetadataAndGeoJSON.poiMarkerColor
+                                  });
+                                }
 
                                 georesourceMetadataAndGeoJSON.geoJSON.features.forEach(function(poiFeature){
                                   // index 0 should be longitude and index 1 should be latitude
-                                  var newMarker = L.marker( [Number(poiFeature.geometry.coordinates[1]), Number(poiFeature.geometry.coordinates[0])] ).bindPopup( poiFeature.properties.name );
+                                  var newMarker = L.marker( [Number(poiFeature.geometry.coordinates[1]), Number(poiFeature.geometry.coordinates[0])], {icon: customMarker} ).bindPopup( poiFeature.properties.name );
                                     markers.addLayer(newMarker);
                                 });
 
