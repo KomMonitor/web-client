@@ -30,7 +30,10 @@ module.exports = {
           { from: nodeModulePathConstant + 'echarts/dist/echarts.min.js', to: 'echarts/echarts.min.js' },
           { from: './customizedExternalLibs/ecStat.min.js', to: 'echarts/ecStat.min.js' },
           { from: nodeModulePathConstant + 'ion-rangeslider/css/ion.rangeSlider.min.css', to: 'ion-rangeslider' },
-          { from: nodeModulePathConstant + 'ion-rangeslider/js/ion.rangeSlider.min.js', to: 'ion-rangeslider' }
+          { from: nodeModulePathConstant + 'ion-rangeslider/js/ion.rangeSlider.min.js', to: 'ion-rangeslider' },
+          { from: nodeModulePathConstant + 'leaflet.markercluster/dist/leaflet.markercluster.js', to: 'leaflet-markercluster' },
+          { from: nodeModulePathConstant + 'leaflet.markercluster/dist/MarkerCluster.css', to: 'leaflet-markercluster' },
+          { from: nodeModulePathConstant + 'leaflet.markercluster/dist/MarkerCluster.Default.css', to: 'leaflet-markercluster' }
       ])
     ]
 };
