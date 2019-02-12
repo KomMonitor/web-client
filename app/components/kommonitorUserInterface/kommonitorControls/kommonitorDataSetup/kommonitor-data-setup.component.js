@@ -178,6 +178,7 @@ angular
 										day = "0" + day;
 
 									$scope.selectedDate = date.getFullYear() + "-" + month  + "-" + day;
+									kommonitorDataExchangeService.selectedDate = $scope.selectedDate;
 
 									$scope.$apply();
 								};

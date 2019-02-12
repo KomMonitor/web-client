@@ -832,43 +832,52 @@ angular.module('kommonitorMap').component(
                                 });
 
                                 layer.StyledLayerControl = {
-                                  removable : true,
+                                  removable : false,
                                   visible : true
                                 };
 
                                 $scope.layerControl.addOverlay( layer, georesourceMetadataAndGeoJSON.datasetName + "_" + date, {groupName : georesourceLayerGroupName} );
+                              });
+
+                              $scope.$on("addPoiGeoresourceAsGeoJSON", function (event, georesourceMetadataAndGeoJSON, date) {
+
+                                // use leaflet.markercluster to cluster markers!
+                                var markers = L.markerClusterGroup();
+
+                                georesourceMetadataAndGeoJSON.geoJSON.features.forEach(function(poiFeature){
+                                  // index 0 should be longitude and index 1 should be latitude
+                                  var newMarker = L.marker( [Number(poiFeature.geometry.coordinates[1]), Number(poiFeature.geometry.coordinates[0])] ).bindPopup( poiFeature.properties.name );
+                                    markers.addLayer(newMarker);
+                                });
 
 
-                                            //
-                                            // if ($scope.layers.overlays[georesourceMetadataAndGeoJSON.datasetName]) {
-                                            //     delete $scope.layers.overlays[georesourceMetadataAndGeoJSON.datasetName];
-                                            //
-                                            //     console.log($scope.layers.overlays);
-                                            // }
-                                            //
-                                            // var geoJSONLayer = {
-                                            //     name: georesourceMetadataAndGeoJSON.datasetName,
-                                            //     type: "geoJSONShape",
-                                            //     data: georesourceMetadataAndGeoJSON.geoJSON,
-                                            //     visible: true,
-                                            //     layerOptions: {
-                                            //         style: {
-                                            //             color: '#1B4F72',
-                                            //             fillColor: 'red',
-                                            //             weight: 2.0,
-                                            //             opacity: 0.6,
-                                            //             fillOpacity: 0.2
-                                            //         },
-                                            //         onEachFeature: onEachFeatureGeoresource
-                                            //     }
-                                            // };
-                                            //
-                                            // $scope.layers.overlays[georesourceMetadataAndGeoJSON.datasetName] = geoJSONLayer;
-                                            //
-                                            // // refresh the layer!!! Otherwise display is not updated properly in case
-                                            // // an existing overlay is updated!
-                                            // $scope.layers.overlays[georesourceMetadataAndGeoJSON.datasetName].doRefresh = true;
-                                        });
+                                markers.StyledLayerControl = {
+                                  removable : false,
+                                  visible : true
+                                };
+
+                                $scope.layerControl.addOverlay( markers, georesourceMetadataAndGeoJSON.datasetName + "_" + date, {groupName : georesourceLayerGroupName} );
+                                // $scope.map.addLayer( markers );
+                              });
+
+                              $scope.$on("removePoiGeoresource", function (event, georesourceMetadataAndGeoJSON) {
+
+                                var layerName = georesourceMetadataAndGeoJSON.datasetName;
+
+                                $scope.layerControl._layers.forEach(function(layer){
+                                  if(layer.name.includes(layerName)){
+                                    $scope.layerControl.removeLayer(layer.layer);
+                                  }
+                                });
+
+                                // $scope.map.eachLayer(function(layer){
+                                //     if(layer.name.includes(layerName)){
+                                //       $scope.layerControl.removeLayer(layer);
+                                //     }
+                                // });
+
+
+                              });
 
                                         var setupDefaultBrew = function(geoJSON, propertyName, numClasses, colorCode, classifyMethod){
                                           // pass values from your geojson object into an empty array
@@ -1686,7 +1695,7 @@ angular.module('kommonitorMap').component(
                                                                 $scope.currentIndicatorLayer = layer;
 
                                                                 layer.StyledLayerControl = {
-                                                                  removable : true,
+                                                                  removable : false,
                                                                   visible : true
                                                                 };
 
@@ -1723,7 +1732,7 @@ angular.module('kommonitorMap').component(
                                                                 $scope.currentCustomIndicatorLayer = layer;
 
                                                                 layer.StyledLayerControl = {
-                                                                  removable : true,
+                                                                  removable : false,
                                                                   visible : true
                                                                 };
 

@@ -185,6 +185,14 @@
   overflow-y: scroll;
 }
 
+#poiInputForm {
+	height: auto !important;
+	max-height: 900px;
+	border: 2px solid gray;
+  border-radius: 8px;
+  overflow-y: scroll;
+}
+
 #referencedIndicatorOverview {
 	height: auto !important;
 	max-height: 250px;
@@ -290,6 +298,21 @@
 		transform: rotateY(100deg); /* Rotate sidebar vertically by 100 degrees. */
 }
 
+#sidebarPoi {
+    min-width: 780px;
+    max-width: 780px;
+		/* min-height: 100vh; */
+		height: 94.1vh;
+		background: #E6EEFB;
+		transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
+    transform-origin: center left; /* Set the transformed position of sidebar to center left side. */
+}
+
+#sidebarPoi.hidden {
+    /* margin-left: -780px; */
+		transform: rotateY(100deg); /* Rotate sidebar vertically by 100 degrees. */
+}
+
 #sidebarRegressionDiagram {
     min-width: 780px;
     max-width: 780px;
@@ -373,6 +396,14 @@
         margin-left: 0;
     }
 
+		#sidebarPoi {
+        /* margin-left: -780px; */
+				transform: rotateY(100deg);
+    }
+    #sidebarPoi.hidden {
+        margin-left: 0;
+    }
+
 		#sidebarRegressionDiagram {
         /* margin-left: -780px; */
 				transform: rotateY(100deg);
@@ -426,6 +457,13 @@
 }
 
 #indicatorRadar{
+	margin-left: 5px;
+	margin-right: 5px;
+	margin-top: 10px;
+	z-index: 2000;
+}
+
+#poi{
 	margin-left: 5px;
 	margin-right: 5px;
 	margin-top: 10px;

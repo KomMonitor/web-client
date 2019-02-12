@@ -1,0 +1,29 @@
+<div id="poi">
+
+	<div align="center">
+		<div class="loading-overlay-sidebar ng-hide" ng-show="loadingData">
+					<span class="glyphicon glyphicon-refresh icon-spin"></span>
+		</div>
+	</div>
+
+			<div class="form-group" >
+				<br/>
+				<div align="center">
+					<h4>Points of Interest</h4>
+				</div>
+
+					<br/>
+
+					<p>Selektieren eines Eintrags aus unten stehender Liste f&uuml;gt den entsprechenden Punkt-Layer der Kartendarstellung hinzu. Deselektion entfernt den entsprechenden Layer aus der Kartendarstellung.</p>
+
+					<div id="poiInputForm">
+						<div ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:filterGeoresourcesByPoi()'>
+							<label class='checkbox-inline' ><input type="checkbox" value="poi.datasetName" ng-model="poi.isSelected" ng-change="handlePoiOnMap(poi)">{{poi.datasetName}}</label>
+							<br/>
+						</div>
+						</div>
+
+			</div>
+
+
+</div>

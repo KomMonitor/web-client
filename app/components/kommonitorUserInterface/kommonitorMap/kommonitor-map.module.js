@@ -47,6 +47,18 @@ angular.module('kommonitorMap').service(
 						georesourceMetadataAndGeoJSON, date);
 			};
 
+      this.addPoiGeoresourceGeoJSON = function (georesourceMetadataAndGeoJSON, date) {
+
+				$rootScope.$broadcast("addPoiGeoresourceAsGeoJSON",
+						georesourceMetadataAndGeoJSON, date);
+			};
+
+      this.removePoiGeoresource = function (georesourceMetadataAndGeoJSON) {
+
+				$rootScope.$broadcast("removePoiGeoresource",
+						georesourceMetadataAndGeoJSON);
+			};
+
 			this.addIndicatorGeoJSON = function (indicatorMetadataAndGeoJSON, spatialUnitName, date) {
 
 				$rootScope.$broadcast("addIndicatorAsGeoJSON",
