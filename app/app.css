@@ -12,6 +12,43 @@
 	height: 100%;
 }
 
+/* Colors */
+.awesome-marker-legend-icon-red {
+  background: url('dependencies/leaflet-awesome-markers/images/markers-soft.png') no-repeat -0px -50px;
+}
+
+.awesome-marker-legend-icon-orange {
+  background: url('dependencies/leaflet-awesome-markers/images/markers-soft.png') no-repeat -43px -50px;
+}
+
+.awesome-marker-legend-icon-beige {
+	background: url('dependencies/leaflet-awesome-markers/images/markers-soft.png') no-repeat -403px -50px;
+}
+
+.awesome-marker-legend-icon-green {
+	background: url('dependencies/leaflet-awesome-markers/images/markers-soft.png') no-repeat -79px -50px;
+}
+
+.awesome-marker-legend-icon-blue {
+	background: url('dependencies/leaflet-awesome-markers/images/markers-soft.png') no-repeat -115px -50px;
+}
+
+.awesome-marker-legend-icon-purple {
+	background: url('dependencies/leaflet-awesome-markers/images/markers-soft.png') no-repeat -151px -50px;
+}
+
+.awesome-marker-legend-icon-pink {
+	background: url('dependencies/leaflet-awesome-markers/images/markers-soft.png') no-repeat -511px -50px;
+}
+
+.awesome-marker-legend-icon-gray {
+	background: url('dependencies/leaflet-awesome-markers/images/markers-soft.png') no-repeat -655px -50px;
+}
+
+.awesome-marker-legend-icon-black {
+	background: url('dependencies/leaflet-awesome-markers/images/markers-soft.png') no-repeat -689px -50px;
+}
+
 /* On small screens, set height to 'auto' for sidenav and grid */
 @media screen and (max-width: 767px) {
 	.sidenav {

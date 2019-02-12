@@ -18,7 +18,14 @@
 
 					<div id="poiInputForm">
 						<div ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:filterGeoresourcesByPoi()'>
-							<label class='checkbox-inline' ><input type="checkbox" value="poi.datasetName" ng-model="poi.isSelected" ng-change="handlePoiOnMap(poi)"><b>{{poi.datasetName}}</b> &mdash; {{poi.metadata.description}}</label>
+							<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
+							<label class='checkbox-inline' ><input type="checkbox" value="poi.datasetName" ng-model="poi.isSelected" ng-change="handlePoiOnMap(poi)">
+								<i class="awesome-marker-legend awesome-marker-legend-icon-{{poi.poiMarkerColor}}">
+									<span style="margin-left:3px; font-size:0.7em; color:white;" align="center" class="glyphicon glyphicon-{{poi.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
+								</i>
+
+								<b>&nbsp;&nbsp;{{poi.datasetName}}</b> &mdash; {{poi.metadata.description}}
+							</label>
 							<br/>
 						</div>
 						</div>
