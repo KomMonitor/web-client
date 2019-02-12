@@ -897,11 +897,13 @@ angular.module('kommonitorMap').component(
                                 try{
                                   customMarker = L.AwesomeMarkers.icon({
                                     icon: georesourceMetadataAndGeoJSON.poiSymbolBootstrap3Name,
+                                    iconColor: georesourceMetadataAndGeoJSON.poiSymbolColor,
                                     markerColor: georesourceMetadataAndGeoJSON.poiMarkerColor
                                   });
                                 }catch(err){
                                   customMarker = L.AwesomeMarkers.icon({
                                     icon: 'home', // default back to home
+                                    iconColor: georesourceMetadataAndGeoJSON.poiSymbolColor,
                                     markerColor: georesourceMetadataAndGeoJSON.poiMarkerColor
                                   });
                                 }
