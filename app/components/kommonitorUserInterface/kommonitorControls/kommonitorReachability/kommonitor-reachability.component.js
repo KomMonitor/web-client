@@ -17,9 +17,13 @@ angular
 							$scope.targetUrlToReachabilityService = __env.targetUrlToReachabilityService;
 							var numberOfDecimals = __env.numberOfDecimals;
 
+							$scope.loadingData = false;
+
 							var constantUrlQueryParamsForDemo = "&algorithm=accSampling&fromPlace=51.4531655,7.0250244&date=2018/10/01&time=12:00:00&mode=WALK&cutoffSec=300&cutoffSec=600&cutoffSec=900&cutoffSec=1200&cutoffSec=1500"
 
 							$scope.runPedestrianDemo = function(){
+
+								$scope.loadingData = true;
 
 								// http://localhost:8088/otp/routers/current/isochrone?algorithm=accSampling&fromPlace=51.44542,7.04468&date=2018/10/01&time=12:00:00&mode=WALK&cutoffSec=1800&cutoffSec=3600
 
@@ -52,6 +56,8 @@ angular
 
 							$scope.runBicycleDemo = function(){
 
+								$scope.loadingData = true;
+
 								// http://localhost:8088/otp/routers/current/isochrone?algorithm=accSampling&fromPlace=51.44542,7.04468&date=2018/10/01&time=12:00:00&mode=WALK&cutoffSec=1800&cutoffSec=3600
 
 								var url = $scope.targetUrlToReachabilityService + "/isochrone?mode=BICYCLE" + constantUrlQueryParamsForDemo;
@@ -82,6 +88,8 @@ angular
 							};
 
 							$scope.runCarDemo = function(){
+
+								$scope.loadingData = true;
 
 								// http://localhost:8088/otp/routers/current/isochrone?algorithm=accSampling&fromPlace=51.44542,7.04468&date=2018/10/01&time=12:00:00&mode=WALK&cutoffSec=1800&cutoffSec=3600
 
