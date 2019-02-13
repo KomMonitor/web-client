@@ -852,41 +852,65 @@ angular.module('kommonitorMap').component(
 
                               $scope.$on("addIsochronesAsGeoJSON", function (event, geoJSON, mode) {
 
-                                var layer = L.geoJSON(geoJSON, {
-                                    style: function (feature) {
+                                var isochronesLayer = L.featureGroup();
 
-                                      var color;
-                                      if (feature.properties.time === 1500){
-                                        color = "red";
-                                      }
-                                      else if (feature.properties.time === 1200){
-                                        color = "brown";
-                                      }
-                                      else if (feature.properties.time === 900){
-                                        color = "orange";
-                                      }
-                                      else if (feature.properties.time === 600){
-                                        color = "yellow";
-                                      }
-                                      else{
-                                        color = "green";
-                                      }
+                                var colors;
 
-                                      return {
-                                        color: color,
-                                        weight: 2,
-                                        opacity: 1
-                                      };
-                                    },
-                                    onEachFeature: onEachFeatureGeoresource
-                                });
+                                var numFeatures = geoJSON.features.length;
 
-                                layer.StyledLayerControl = {
+                                if(numFeatures === 0){
+                                  return;
+                                }
+                                else if(numFeatures === 1){
+                                  colors = ["green"];
+                                }
+                                else if(numFeatures === 2){
+                                  colors = ["yellow", "green"];
+                                }
+                                else if(numFeatures === 3){
+                                  colors = ["red", "yellow", "green"];
+                                }
+                                else if(numFeatures === 4){
+                                  colors = ["red", "orange", "yellow", "green"];
+                                }
+                                else if(numFeatures === 5){
+                                  colors = ["brown", "red", "orange", "yellow", "green"];
+                                }
+                                else{
+                                  colors = ["brown", "red", "orange", "yellow", "green"];
+                                }
+
+                                for(var index=0; index<numFeatures; index++){
+
+                                  var style = {
+                                    color: colors[index],
+                                    weight: 2,
+                                    opacity: 1
+                                  };
+
+                                  L.geoJSON(geoJSON.features[index], {
+                                      style: style,
+                                      onEachFeature: function(feature, layer){
+                                        layer.on({
+                                            click: function () {
+
+                                                 var popupContent = "" + layer.feature.properties.time + " Sekunden (" + +Number(layer.feature.properties.time/60).toFixed(2) + " Minuten)";
+                                                 // var popupContent = "TestValue";
+
+                                                if (popupContent)
+                                                    layer.bindPopup("Isochrone: " + JSON.stringify(popupContent));
+                                            }
+                                        })
+                                      }
+                                  }).addTo(isochronesLayer);
+                                }
+
+                                isochronesLayer.StyledLayerControl = {
                                   removable : true,
                                   visible : true
                                 };
 
-                                $scope.layerControl.addOverlay( layer, "Erreichbarkeits-Isochronen 5-25 Minuten per" + mode, {groupName : reachabilityLayerGroupName} );
+                                $scope.layerControl.addOverlay( isochronesLayer, "Erreichbarkeits-Isochronen 5-25 Minuten per" + mode, {groupName : reachabilityLayerGroupName} );
                               });
 
                               $scope.$on("addPoiGeoresourceAsGeoJSON", function (event, georesourceMetadataAndGeoJSON, date) {
