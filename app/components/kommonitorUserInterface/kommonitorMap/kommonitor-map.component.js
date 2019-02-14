@@ -377,32 +377,32 @@ angular.module('kommonitorMap').component(
                           return this._div;
                       };
 
-                      // method that we will use to update the control based on feature properties passed
-                      $scope.infoControl.update = function (props) {
-
-                        // [year, month, day]
-                        var lastUpdateComponents = $scope.currentIndicatorMetadataAndGeoJSON.metadata.lastUpdate.split("-");
-                        var lastUpdateAsDate = new Date(Number(lastUpdateComponents[0]), Number(lastUpdateComponents[1]) - 1, Number(lastUpdateComponents[2]));
-
-                        this._div.innerHTML = $scope.appendInfoCloseButton();
-                        this._div.innerHTML += '<div>';
-                        this._div.innerHTML += '<h4>' + $scope.indicatorName + '</h4><br/>';
-                        // this._div.innerHTML += '<p>' + $scope.indicatorDescription + '</p>'
-                        this._div.innerHTML += '<b>Beschreibung: </b> ' + $scope.indicatorDescription + '<br/>';
-                        this._div.innerHTML += '<b>Datenquelle: </b> ' + $scope.currentIndicatorMetadataAndGeoJSON.metadata.datasource + '<br/>';
-                        this._div.innerHTML += '<b>Kontakt: </b> ' + $scope.currentIndicatorMetadataAndGeoJSON.metadata.contact + '<br/>';
-                        this._div.innerHTML += '<b>Aktualisierungszyklus: </b> ' + $scope.updateInterval.get($scope.currentIndicatorMetadataAndGeoJSON.metadata.updateInterval.toUpperCase()) + '<br/>';
-                        this._div.innerHTML += '<b>zuletzt aktualisiert am: </b> ' + tsToDate(dateToTS(lastUpdateAsDate)) + '<br/><br/>';
-
-                        this._div.innerHTML += $scope.appendSpatialUnitOptions();
-                        // this._div.innerHTML += '<br/><br/>';
-
-                        // this._div.innerHTML +=  (props ?
-                        //   '<h4>Selektiertes Feature:</h4> <b>' + props.spatialUnitFeatureName + '</b> ' + +Number(props[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) + ' ' + $scope.indicatorUnit
-                        //   : '<h4>Selektiertes Feature:</h4> &uuml;ber ein Feature hovern');
-
-                        this._div.innerHTML += '</div>';
-                      };
+                      // // method that we will use to update the control based on feature properties passed
+                      // $scope.infoControl.update = function (props) {
+                      //
+                      //   // [year, month, day]
+                      //   var lastUpdateComponents = $scope.currentIndicatorMetadataAndGeoJSON.metadata.lastUpdate.split("-");
+                      //   var lastUpdateAsDate = new Date(Number(lastUpdateComponents[0]), Number(lastUpdateComponents[1]) - 1, Number(lastUpdateComponents[2]));
+                      //
+                      //   this._div.innerHTML = $scope.appendInfoCloseButton();
+                      //   this._div.innerHTML += '<div>';
+                      //   this._div.innerHTML += '<h4>' + $scope.indicatorName + '</h4><br/>';
+                      //   // this._div.innerHTML += '<p>' + $scope.indicatorDescription + '</p>'
+                      //   this._div.innerHTML += '<b>Beschreibung: </b> ' + $scope.indicatorDescription + '<br/>';
+                      //   this._div.innerHTML += '<b>Datenquelle: </b> ' + $scope.currentIndicatorMetadataAndGeoJSON.metadata.datasource + '<br/>';
+                      //   this._div.innerHTML += '<b>Kontakt: </b> ' + $scope.currentIndicatorMetadataAndGeoJSON.metadata.contact + '<br/>';
+                      //   this._div.innerHTML += '<b>Aktualisierungszyklus: </b> ' + $scope.updateInterval.get($scope.currentIndicatorMetadataAndGeoJSON.metadata.updateInterval.toUpperCase()) + '<br/>';
+                      //   this._div.innerHTML += '<b>zuletzt aktualisiert am: </b> ' + tsToDate(dateToTS(lastUpdateAsDate)) + '<br/><br/>';
+                      //
+                      //   this._div.innerHTML += $scope.appendSpatialUnitOptions();
+                      //   // this._div.innerHTML += '<br/><br/>';
+                      //
+                      //   // this._div.innerHTML +=  (props ?
+                      //   //   '<h4>Selektiertes Feature:</h4> <b>' + props.spatialUnitFeatureName + '</b> ' + +Number(props[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) + ' ' + $scope.indicatorUnit
+                      //   //   : '<h4>Selektiertes Feature:</h4> &uuml;ber ein Feature hovern');
+                      //
+                      //   this._div.innerHTML += '</div>';
+                      // };
 
                       $scope.infoControl.addTo($scope.map);
                     }
