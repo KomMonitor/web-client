@@ -194,7 +194,7 @@
     box-shadow: 0 0 15px rgba(0,0,0,0.2);
     border-radius: 5px;
 
-		width: 350px;
+		width: 300px;
 		max-width: 350px;
 		height: auto !important;
 		max-height: 400px;
@@ -219,7 +219,7 @@
 		border-radius: 5px;
     line-height: 18px;
     color: #555;
-		width: 350px;
+		width: 300px;
 		max-width: 350px;
 		height: auto !important;
 		max-height: 400px;
@@ -266,8 +266,8 @@
 }
 
 #sidebarIndicatorConfig {
-    min-width: 780px;
-    max-width: 780px;
+    min-width: 700px;
+    max-width: 700px;
 		height: 94.1vh;
 		/* min-height: 100vh; */
 		background: #E6EEFB;
@@ -276,13 +276,13 @@
 }
 
 #sidebarIndicatorConfig.hidden {
-    /* margin-left: -780px; */
+    /* margin-left: -700px; */
 		transform: rotateY(100deg); /* Rotate sidebar vertically by 100 degrees. */
 }
 
 #sidebarFilter {
-    min-width: 780px;
-    max-width: 780px;
+    min-width: 700px;
+    max-width: 700px;
 		height: 94.1vh;
 		/* min-height: 100vh; */
 		background: #E6EEFB;
@@ -296,8 +296,8 @@
 }
 
 #sidebarBalance {
-    min-width: 780px;
-    max-width: 780px;
+    min-width: 700px;
+    max-width: 700px;
 		height: 94.1vh;
 		/* min-height: 100vh; */
 		background: #E6EEFB;
@@ -311,8 +311,8 @@
 }
 
 #sidebarReachability {
-    min-width: 780px;
-    max-width: 780px;
+    min-width: 700px;
+    max-width: 700px;
 		height: 94.1vh;
 		/* min-height: 100vh; */
 		background: #E6EEFB;
@@ -356,8 +356,8 @@
 }
 
 #sidebarPoi {
-    min-width: 780px;
-    max-width: 780px;
+    min-width: 700px;
+    max-width: 700px;
 		/* min-height: 100vh; */
 		height: 94.1vh;
 		background: #E6EEFB;
@@ -386,8 +386,8 @@
 }
 
 #sidebarProcessing {
-    min-width: 780px;
-    max-width: 780px;
+    min-width: 700px;
+    max-width: 700px;
 		/* min-height: 100vh; */
 		height: 94.1vh;
 		background: #E6EEFB;
