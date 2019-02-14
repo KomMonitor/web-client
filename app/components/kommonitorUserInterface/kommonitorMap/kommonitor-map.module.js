@@ -53,10 +53,10 @@ angular.module('kommonitorMap').service(
 						georesourceMetadataAndGeoJSON, date);
 			};
 
-      this.addIsochroneGeoJSON = function (geoJSON, mode) {
+      this.replaceIsochroneGeoJSON = function (geoJSON, transitMode, reachMode, cutOffValues, cutOffUnit) {
 
-				$rootScope.$broadcast("addIsochronesAsGeoJSON",
-						geoJSON, mode);
+				$rootScope.$broadcast("replaceIsochronesAsGeoJSON",
+						geoJSON, transitMode, reachMode, cutOffValues, cutOffUnit);
 			};
 
       this.removePoiGeoresource = function (georesourceMetadataAndGeoJSON) {

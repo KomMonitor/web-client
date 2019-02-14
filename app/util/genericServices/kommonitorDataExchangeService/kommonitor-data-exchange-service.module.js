@@ -26,6 +26,7 @@ angular
 					this.baseUrlToKomMonitorDataAPI = __env.apiUrl + __env.basePath;
 
 					this.availableProcessScripts;
+          this.isochroneLegend;
 
 					this.setProcessScripts = function(scriptsArray){
 						this.availableProcessScripts = scriptsArray;

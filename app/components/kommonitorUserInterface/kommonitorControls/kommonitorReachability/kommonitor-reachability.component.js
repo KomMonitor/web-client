@@ -17,6 +17,9 @@ angular
 							$scope.targetUrlToReachabilityService = __env.targetUrlToReachabilityService;
 							var numberOfDecimals = __env.numberOfDecimals;
 
+							$scope.currentIsochronesGeoJSON;
+							$scope.fromPlace = "51.4531655, 7.0250244";
+
 							$scope.loadingData = false;
 
 							var constantUrlQueryParamsForDemo = "&algorithm=accSampling&fromPlace=51.4531655,7.0250244&date=2018/10/01&time=12:00:00&mode=WALK&cutoffSec=300&cutoffSec=600&cutoffSec=900&cutoffSec=1200&cutoffSec=1500"
@@ -40,9 +43,9 @@ angular
 								$http(req).then(function successCallback(response) {
 										// this callback will be called asynchronously
 										// when the response is available
-										var geoJSON = response.data;
+										$scope.currentIsochronesGeoJSON = response.data;
 
-										kommonitorMapService.addIsochroneGeoJSON(geoJSON, "Fuß");
+										kommonitorMapService.replaceIsochroneGeoJSON($scope.currentIsochronesGeoJSON, "Fußgänger", "Zeit", ["5", "10", "15", "20", "25"], "Minuten");
 										$scope.loadingData = false;
 										$rootScope.$broadcast("hideLoadingIconOnMap");
 
@@ -73,9 +76,9 @@ angular
 								$http(req).then(function successCallback(response) {
 										// this callback will be called asynchronously
 										// when the response is available
-										var geoJSON = response.data;
+										$scope.currentIsochronesGeoJSON = response.data;
 
-										kommonitorMapService.addIsochroneGeoJSON(geoJSON, "Fahrrad");
+										kommonitorMapService.replaceIsochroneGeoJSON($scope.currentIsochronesGeoJSON, "Fahrrad", "Zeit", ["5", "10", "15", "20", "25"], "Minuten");
 										$scope.loadingData = false;
 										$rootScope.$broadcast("hideLoadingIconOnMap");
 
@@ -106,9 +109,9 @@ angular
 								$http(req).then(function successCallback(response) {
 										// this callback will be called asynchronously
 										// when the response is available
-										var geoJSON = response.data;
+										$scope.currentIsochronesGeoJSON = response.data;
 
-										kommonitorMapService.addIsochroneGeoJSON(geoJSON, "Auto");
+										kommonitorMapService.replaceIsochroneGeoJSON($scope.currentIsochronesGeoJSON, "Auto", "Zeit", ["5", "10", "15", "20", "25"], "Minuten");
 										$scope.loadingData = false;
 										$rootScope.$broadcast("hideLoadingIconOnMap");
 

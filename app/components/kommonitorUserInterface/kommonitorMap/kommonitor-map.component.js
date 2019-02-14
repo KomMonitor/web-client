@@ -102,6 +102,7 @@ angular.module('kommonitorMap').component(
                     $scope.customPropertyName;
 
                     $scope.currentCustomIndicatorLayer;
+                    $scope.isochronesLayer = undefined;
 
               			this.initializeMap = function() {
 
@@ -368,41 +369,8 @@ angular.module('kommonitorMap').component(
                           this._div.innerHTML += '<b>zuletzt aktualisiert am: </b> ' + tsToDate(dateToTS(lastUpdateAsDate)) + '<br/><br/>';
 
                           this._div.innerHTML += $scope.appendSpatialUnitOptions();
-                          // this._div.innerHTML += '<br/><br/>';
-
-                          // this._div.innerHTML +=  '<h4>Selektiertes Feature:</h4> &uuml;ber ein Feature hovern';
-                          // this._div.innerHTML += '</div>';
-
-                          // this.update();
                           return this._div;
                       };
-
-                      // // method that we will use to update the control based on feature properties passed
-                      // $scope.infoControl.update = function (props) {
-                      //
-                      //   // [year, month, day]
-                      //   var lastUpdateComponents = $scope.currentIndicatorMetadataAndGeoJSON.metadata.lastUpdate.split("-");
-                      //   var lastUpdateAsDate = new Date(Number(lastUpdateComponents[0]), Number(lastUpdateComponents[1]) - 1, Number(lastUpdateComponents[2]));
-                      //
-                      //   this._div.innerHTML = $scope.appendInfoCloseButton();
-                      //   this._div.innerHTML += '<div>';
-                      //   this._div.innerHTML += '<h4>' + $scope.indicatorName + '</h4><br/>';
-                      //   // this._div.innerHTML += '<p>' + $scope.indicatorDescription + '</p>'
-                      //   this._div.innerHTML += '<b>Beschreibung: </b> ' + $scope.indicatorDescription + '<br/>';
-                      //   this._div.innerHTML += '<b>Datenquelle: </b> ' + $scope.currentIndicatorMetadataAndGeoJSON.metadata.datasource + '<br/>';
-                      //   this._div.innerHTML += '<b>Kontakt: </b> ' + $scope.currentIndicatorMetadataAndGeoJSON.metadata.contact + '<br/>';
-                      //   this._div.innerHTML += '<b>Aktualisierungszyklus: </b> ' + $scope.updateInterval.get($scope.currentIndicatorMetadataAndGeoJSON.metadata.updateInterval.toUpperCase()) + '<br/>';
-                      //   this._div.innerHTML += '<b>zuletzt aktualisiert am: </b> ' + tsToDate(dateToTS(lastUpdateAsDate)) + '<br/><br/>';
-                      //
-                      //   this._div.innerHTML += $scope.appendSpatialUnitOptions();
-                      //   // this._div.innerHTML += '<br/><br/>';
-                      //
-                      //   // this._div.innerHTML +=  (props ?
-                      //   //   '<h4>Selektiertes Feature:</h4> <b>' + props.spatialUnitFeatureName + '</b> ' + +Number(props[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) + ' ' + $scope.indicatorUnit
-                      //   //   : '<h4>Selektiertes Feature:</h4> &uuml;ber ein Feature hovern');
-                      //
-                      //   this._div.innerHTML += '</div>';
-                      // };
 
                       $scope.infoControl.addTo($scope.map);
                     }
@@ -926,11 +894,21 @@ angular.module('kommonitorMap').component(
                                 $scope.layerControl.addOverlay( layer, georesourceMetadataAndGeoJSON.datasetName + "_" + date, {groupName : georesourceLayerGroupName} );
                               });
 
-                              $scope.$on("addIsochronesAsGeoJSON", function (event, geoJSON, mode) {
+                              $scope.$on("replaceIsochronesAsGeoJSON", function (event, geoJSON, transitMode, reachMode, cutOffValues, cutOffUnit) {
 
-                                var isochronesLayer = L.featureGroup();
+                                if($scope.isochronesLayer){
+                                  $scope.layerControl.removeLayer($scope.isochronesLayer);
+                                }
 
-                                var colors;
+                                $scope.isochronesLayer = L.featureGroup();
+
+                                kommonitorDataExchangeService.isochroneLegend = {
+                                  transitMode: transitMode,
+                                  reachMode: reachMode,
+                                  colorValueEntries: [],
+                                  cutOffValues: cutOffValues,
+                                  cutOffUnit: cutOffUnit
+                                };
 
                                 var numFeatures = geoJSON.features.length;
 
@@ -938,28 +916,100 @@ angular.module('kommonitorMap').component(
                                   return;
                                 }
                                 else if(numFeatures === 1){
-                                  colors = ["green"];
+                                  kommonitorDataExchangeService.isochroneLegend.colorValueEntries = [{
+                                    color: "green",
+                                    value: cutOffValues[0]
+                                  }];
                                 }
                                 else if(numFeatures === 2){
-                                  colors = ["yellow", "green"];
+                                  kommonitorDataExchangeService.isochroneLegend.colorValueEntries = [{
+                                    color: "yellow",
+                                    value: cutOffValues[1]
+                                  },
+                                  {
+                                    color: "green",
+                                    value: cutOffValues[0]
+                                  }]
                                 }
                                 else if(numFeatures === 3){
-                                  colors = ["red", "yellow", "green"];
+                                  kommonitorDataExchangeService.isochroneLegend.colorValueEntries = [{
+                                    color: "red",
+                                    value: cutOffValues[2]
+                                  },
+                                  {
+                                    color: "yellow",
+                                    value: cutOffValues[1]
+                                  },
+                                  {
+                                    color: "green",
+                                    value: cutOffValues[0]
+                                  }]
                                 }
                                 else if(numFeatures === 4){
-                                  colors = ["red", "orange", "yellow", "green"];
+                                  kommonitorDataExchangeService.isochroneLegend.colorValueEntries = [{
+                                    color: "red",
+                                    value: cutOffValues[3]
+                                  },
+                                  {
+                                    color: "orange",
+                                    value: cutOffValues[2]
+                                  },
+                                  {
+                                    color: "yellow",
+                                    value: cutOffValues[1]
+                                  },
+                                  {
+                                    color: "green",
+                                    value: cutOffValues[0]
+                                  }]
                                 }
                                 else if(numFeatures === 5){
-                                  colors = ["brown", "red", "orange", "yellow", "green"];
+                                  kommonitorDataExchangeService.isochroneLegend.colorValueEntries = [{
+                                    color: "brown",
+                                    value: cutOffValues[4]
+                                  },{
+                                    color: "red",
+                                    value: cutOffValues[3]
+                                  },
+                                  {
+                                    color: "orange",
+                                    value: cutOffValues[2]
+                                  },
+                                  {
+                                    color: "yellow",
+                                    value: cutOffValues[1]
+                                  },
+                                  {
+                                    color: "green",
+                                    value: cutOffValues[0]
+                                  }]
                                 }
                                 else{
-                                  colors = ["brown", "red", "orange", "yellow", "green"];
+                                  kommonitorDataExchangeService.isochroneLegend.colorValueEntries = [{
+                                    color: "brown",
+                                    value: cutOffValues[4]
+                                  },{
+                                    color: "red",
+                                    value: cutOffValues[3]
+                                  },
+                                  {
+                                    color: "orange",
+                                    value: cutOffValues[2]
+                                  },
+                                  {
+                                    color: "yellow",
+                                    value: cutOffValues[1]
+                                  },
+                                  {
+                                    color: "green",
+                                    value: cutOffValues[0]
+                                  }]
                                 }
 
                                 for(var index=0; index<numFeatures; index++){
 
                                   var style = {
-                                    color: colors[index],
+                                    color: kommonitorDataExchangeService.isochroneLegend.colorValueEntries[index].color,
                                     weight: 2,
                                     opacity: 1
                                   };
@@ -978,15 +1028,15 @@ angular.module('kommonitorMap').component(
                                             }
                                         })
                                       }
-                                  }).addTo(isochronesLayer);
+                                  }).addTo($scope.isochronesLayer);
                                 }
 
-                                isochronesLayer.StyledLayerControl = {
-                                  removable : true,
+                                $scope.isochronesLayer.StyledLayerControl = {
+                                  removable : false,
                                   visible : true
                                 };
 
-                                $scope.layerControl.addOverlay( isochronesLayer, "Erreichbarkeits-Isochronen 5-25 Minuten per" + mode, {groupName : reachabilityLayerGroupName} );
+                                $scope.layerControl.addOverlay( $scope.isochronesLayer, "Erreichbarkeits-Isochronen 5-25 Minuten per " + transitMode, {groupName : reachabilityLayerGroupName} );
                               });
 
                               $scope.$on("addPoiGeoresourceAsGeoJSON", function (event, georesourceMetadataAndGeoJSON, date) {
@@ -1637,7 +1687,6 @@ angular.module('kommonitorMap').component(
                                             if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
                                                 layer.bringToFront();
                                             }
-                                            $scope.infoControl.update(layer.feature.properties);
 
                                             // update diagrams for hovered feature
                                             $rootScope.$broadcast("updateDiagramsForHoveredFeature", layer.feature.properties);
@@ -1656,7 +1705,6 @@ angular.module('kommonitorMap').component(
                                             if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
                                                 layer.bringToFront();
                                             }
-                                            $scope.infoControl.update(layer.feature.properties);
 
                                             // update diagrams for hovered feature
                                             $rootScope.$broadcast("updateDiagramsForHoveredFeature", layer.feature.properties);
@@ -1688,7 +1736,6 @@ angular.module('kommonitorMap').component(
                                               layer.setStyle(styleMeasureOfValue(layer.feature));
                                             }
                                           }
-                                          $scope.infoControl.update();
 
                                             //update diagrams for unhoveredFeature
                                             $rootScope.$broadcast("updateDiagramsForUnhoveredFeature", layer.feature.properties);
@@ -1715,7 +1762,6 @@ angular.module('kommonitorMap').component(
 
                                         function resetHighlightCustom(e) {
                                             $scope.currentCustomIndicatorLayer.resetStyle(e.target);
-                                            $scope.infoControl.update();
                                         }
 
                                         var wait = ms => new Promise((r, j)=>setTimeout(r, ms))
@@ -1986,13 +2032,6 @@ angular.module('kommonitorMap').component(
                                                                               indicatorObjectForDiagramUpdate = $scope.currentIndicatorMetadataAndGeoJSON;
                                                                             }
                                                                             $rootScope.$broadcast("updateDiagrams", indicatorObjectForDiagramUpdate, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitId, $scope.date, $scope.defaultBrew, $scope.gtMeasureOfValueBrew, $scope.ltMeasureOfValueBrew, $scope.dynamicIncreaseBrew, $scope.dynamicDecreaseBrew, kommonitorDataExchangeService.isMeasureOfValueChecked, kommonitorDataExchangeService.measureOfValue, justRestyling);
-
-
-
-
-                                                                            // $scope.currentIndicatorLayer.resetStyle($scope.currentIndicatorLayer);
-                                                                            // $scope.currentIndicatorLayer.setStyle();
-                                                                            // $scope.infoControl.update();
                                                                           }
 
                                                             });
