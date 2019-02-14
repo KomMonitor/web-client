@@ -559,7 +559,7 @@ angular.module('kommonitorMap').component(
                                 // '<i style="background:' + colors[i] + '"></i> ' +
                                 // defaultClassificationMapping.items[defaultClassificationMapping.items.length - 1 - i].defaultCustomRating + ' (' + (+labels[i].toFixed(numberOfDecimals)) + ((+labels[i + 1]) ? ' &ndash; &lt; ' + (+labels[i + 1].toFixed(numberOfDecimals)) + ') <br>' : '+');
                                 '<i style="background:' + colors[i] + '"></i> ' +
-                                (+labels[i].toFixed(numberOfDecimals)) + ((+labels[i + 1]) ? ' &ndash; &lt; ' + (+labels[i + 1].toFixed(numberOfDecimals)) + ' <br>' : '+');
+                                (Number(labels[i]).toLocaleString("de-DE", {maximumFractionDigits: numberOfDecimals})) + ((Number(labels[i + 1]).toLocaleString("de-DE", {maximumFractionDigits: numberOfDecimals})) ? ' &ndash; &lt; ' + (Number(labels[i + 1]).toLocaleString("de-DE", {maximumFractionDigits: numberOfDecimals})) + ' <br>' : '+');
                         }
 
                         $scope.div.innerHTML += '</div>';
@@ -623,7 +623,7 @@ angular.module('kommonitorMap').component(
                             for (var i = 0; i < colorsDynamicDecrease.length; i++) {
                                 $scope.div.innerHTML +=
                                     '<i style="background:' + colorsDynamicDecrease[colorsDynamicDecrease.length - 1 - i] + '"></i> ' +
-                                    (+labelsDynamicDecrease[i].toFixed(numberOfDecimals)) + ((+labelsDynamicDecrease[i + 1]) ? ' &ndash; &lt; ' + (+labelsDynamicDecrease[i + 1].toFixed(numberOfDecimals)) + '<br>' : ' &ndash; &lt; 0');
+                                    (Number(labelsDynamicDecrease[i]).toLocaleString("de-DE", {maximumFractionDigits: numberOfDecimals})) + ((Number(labelsDynamicDecrease[i + 1]).toLocaleString("de-DE", {maximumFractionDigits: numberOfDecimals})) ? ' &ndash; &lt; ' + (Number(labelsDynamicDecrease[i + 1]).toLocaleString("de-DE", {maximumFractionDigits: numberOfDecimals})) + '<br>' : ' &ndash; &lt; 0');
                             }
 
                         }
@@ -646,7 +646,7 @@ angular.module('kommonitorMap').component(
                             for (var i = 0; i < colorsDynamicIncrease.length; i++) {
                                 $scope.div.innerHTML +=
                                     '<i style="background:' + colorsDynamicIncrease[i] + '"></i> ' +
-                                    (+labelsDynamicIncrease[i].toFixed(numberOfDecimals)) + (typeof labelsDynamicIncrease[i + 1] === 'undefined' ? '' : ' &ndash; &lt; ' + (+labelsDynamicIncrease[i + 1].toFixed(numberOfDecimals)) + '<br>');
+                                    (Number(labelsDynamicIncrease[i]).toLocaleString("de-DE", {maximumFractionDigits: numberOfDecimals})) + (typeof labelsDynamicIncrease[i + 1] === 'undefined' ? '' : ' &ndash; &lt; ' + (Number(labelsDynamicIncrease[i + 1]).toLocaleString("de-DE", {maximumFractionDigits: numberOfDecimals})) + '<br>');
                             }
                           $scope.div.innerHTML += "<br/>";
                         }
@@ -728,7 +728,7 @@ angular.module('kommonitorMap').component(
                           for (var i = 0; i < colorsLtMeasureOfValue.length; i++) {
                               $scope.div.innerHTML +=
                                   '<i style="background:' + colorsLtMeasureOfValue[colorsLtMeasureOfValue.length - 1 -i] + '"></i> ' +
-                                  (+labelsLtMeasureOfValue[i].toFixed(numberOfDecimals)) + (typeof labelsLtMeasureOfValue[i + 1] === 'undefined' ? '' : ' &ndash; &lt; ' + (+labelsLtMeasureOfValue[i + 1].toFixed(numberOfDecimals)) + '</br>');
+                                  (Number(labelsLtMeasureOfValue[i]).toLocaleString("de-DE", {maximumFractionDigits: numberOfDecimals})) + (typeof labelsLtMeasureOfValue[i + 1] === 'undefined' ? '' : ' &ndash; &lt; ' + (Number(labelsLtMeasureOfValue[i + 1]).toLocaleString("de-DE", {maximumFractionDigits: numberOfDecimals})) + '</br>');
                           }
 
                           $scope.div.innerHTML += "<br/>";
@@ -748,7 +748,7 @@ angular.module('kommonitorMap').component(
                           for (var i = 0; i < colorsGtMeasureOfValue.length; i++) {
                               $scope.div.innerHTML +=
                                   '<i style="background:' + colorsGtMeasureOfValue[i] + '"></i> ' +
-                                  (+labelsGtMeasureOfValue[i].toFixed(numberOfDecimals)) + (typeof labelsGtMeasureOfValue[i + 1] === 'undefined' ? '' : ' &ndash; &lt; ' + (+labelsGtMeasureOfValue[i + 1].toFixed(numberOfDecimals)) + '<br>');
+                                  (Number(labelsGtMeasureOfValue[i]).toLocaleString("de-DE", {maximumFractionDigits: numberOfDecimals})) + (typeof labelsGtMeasureOfValue[i + 1] === 'undefined' ? '' : ' &ndash; &lt; ' + (Number(labelsGtMeasureOfValue[i + 1]).toLocaleString("de-DE", {maximumFractionDigits: numberOfDecimals})) + '<br>');
                           }
                         }
 
@@ -801,7 +801,7 @@ angular.module('kommonitorMap').component(
                      * to layer.feature.properties.popupContent
                      */
                     function onEachFeatureIndicator(feature, layer) {
-                      var tooltipHtml = "<b>" + feature.properties.spatialUnitFeatureName + "</b><br/>" + +Number(feature.properties[INDICATOR_DATE_PREFIX + $scope.date]).toFixed(numberOfDecimals) + " [" + kommonitorDataExchangeService.selectedIndicator.unit + "]";
+                      var tooltipHtml = "<b>" + feature.properties.spatialUnitFeatureName + "</b><br/>" + Number(feature.properties[INDICATOR_DATE_PREFIX + $scope.date]).toLocaleString("de-DE", {maximumFractionDigits: numberOfDecimals}) + " [" + kommonitorDataExchangeService.selectedIndicator.unit + "]";
                         layer.bindTooltip(tooltipHtml, {
                           sticky: true // If true, the tooltip will follow the mouse instead of being fixed at the feature center.
                         });
@@ -970,7 +970,7 @@ angular.module('kommonitorMap').component(
                                         layer.on({
                                             click: function () {
 
-                                                 var popupContent = "" + layer.feature.properties.time + " Sekunden (" + +Number(layer.feature.properties.time/60).toFixed(2) + " Minuten)";
+                                                 var popupContent = "" + layer.feature.properties.time + " Sekunden (" + Number(layer.feature.properties.time/60).toLocaleString("de-DE", {maximumFractionDigits: 2}) + " Minuten)";
                                                  // var popupContent = "TestValue";
 
                                                 if (popupContent)
