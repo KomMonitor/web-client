@@ -219,11 +219,12 @@
 		border-radius: 5px;
     line-height: 18px;
     color: #555;
-		width: 325px;
+		width: auto;
 		max-width: 325px;
 		height: auto !important;
 		max-height: 400px;
 	  overflow-y: auto;
+		display: inline-block
 }
 .legend i {
     width: 18px;
