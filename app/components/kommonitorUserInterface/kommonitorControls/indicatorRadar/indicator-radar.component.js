@@ -155,7 +155,17 @@ angular
 														top: 0
 												},
 												tooltip: {
-													confine: 'true'
+													confine: 'true',
+													formatter: function (params) {
+
+																			var string = "" + params.name + "<br/>";
+
+																			for(var index=0; index < params.value.length; index++){
+																				string += $scope.radarOption.radar.indicator[index].name + ": " + Number(params.value[index]).toLocaleString('de-DE', {maximumFractionDigits: numberOfDecimals}) + " [" + $scope.radarOption.radar.indicator[index].unit + "]<br/>";
+																			};
+
+					                            return string;
+					                           }
 													// position: ['50%', '50%']
 												},
 												toolbox: {

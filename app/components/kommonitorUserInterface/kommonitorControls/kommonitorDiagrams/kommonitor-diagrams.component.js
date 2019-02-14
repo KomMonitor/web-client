@@ -482,6 +482,9 @@ angular
 											tooltip: {
 													trigger: 'item',
 													confine: 'true',
+													formatter: function (params) {
+					                            return "" + params.name + ": " + Number(params.value).toLocaleString('de-DE', {maximumFractionDigits: numberOfDecimals}) + " [" + kommonitorDataExchangeService.selectedIndicator.unit + "]";
+					                           },
 													axisPointer: {
 															type: 'line',
 															crossStyle: {
@@ -675,6 +678,16 @@ angular
 											tooltip: {
 													trigger: 'axis',
 													confine: 'true',
+													formatter: function (params) {
+
+																			var string = "" + params[0].axisValueLabel + "<br/>";
+
+																			params.forEach(function(paramObj){
+																				string += paramObj.seriesName + ": " + Number(paramObj.value).toLocaleString('de-DE', {maximumFractionDigits: numberOfDecimals}) + " [" + kommonitorDataExchangeService.selectedIndicator.unit + "]" + "<br/>";
+																			});
+
+					                            return string;
+					                           },
 													axisPointer: {
 															type: 'line',
 															crossStyle: {

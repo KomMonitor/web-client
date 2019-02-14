@@ -432,7 +432,12 @@ angular
 										        axisPointer: {
 										            type: 'cross'
 										        },
-														formatter: '{b0}: {c0}'
+														formatter: function (params) {
+																				var string = "" + params.name + "<br/>";
+																				string += $scope.selectedIndicatorForXAxis.indicatorName + ": " + Number(params.value[0]).toLocaleString('de-DE', {maximumFractionDigits: numberOfDecimals}) + " [" + $scope.selectedIndicatorForXAxis.unit + "]<br/>";
+																				string += $scope.selectedIndicatorForYAxis.indicatorName + ": " + Number(params.value[1]).toLocaleString('de-DE', {maximumFractionDigits: numberOfDecimals}) + " [" + $scope.selectedIndicatorForYAxis.unit + "]<br/>";
+						                            return string;
+						                           }
 										    },
 										    xAxis: {
 														name: $scope.selectedIndicatorForXAxis.indicatorName + " [" + $scope.selectedIndicatorForXAxis.unit + "]",
