@@ -18,7 +18,8 @@ angular
 							var numberOfDecimals = __env.numberOfDecimals;
 
 							$scope.currentIsochronesGeoJSON;
-							$scope.fromPlace = "51.4531655, 7.0250244";
+							$scope.latitudeStart = 51.4531655;
+							$scope.longitudeStart = 7.0250244;
 
 							$scope.loadingData = false;
 
@@ -44,6 +45,8 @@ angular
 										// this callback will be called asynchronously
 										// when the response is available
 										$scope.currentIsochronesGeoJSON = response.data;
+
+										kommonitorMapService.replaceIsochroneMarker($scope.latitudeStart, $scope.longitudeStart);
 
 										kommonitorMapService.replaceIsochroneGeoJSON($scope.currentIsochronesGeoJSON, "Fußgänger", "Zeit", ["5", "10", "15", "20", "25"], "Minuten");
 										$scope.loadingData = false;
@@ -78,6 +81,7 @@ angular
 										// when the response is available
 										$scope.currentIsochronesGeoJSON = response.data;
 
+										kommonitorMapService.replaceIsochroneMarker($scope.latitudeStart, $scope.longitudeStart);
 										kommonitorMapService.replaceIsochroneGeoJSON($scope.currentIsochronesGeoJSON, "Fahrrad", "Zeit", ["5", "10", "15", "20", "25"], "Minuten");
 										$scope.loadingData = false;
 										$rootScope.$broadcast("hideLoadingIconOnMap");
@@ -111,6 +115,7 @@ angular
 										// when the response is available
 										$scope.currentIsochronesGeoJSON = response.data;
 
+										kommonitorMapService.replaceIsochroneMarker($scope.latitudeStart, $scope.longitudeStart);
 										kommonitorMapService.replaceIsochroneGeoJSON($scope.currentIsochronesGeoJSON, "Auto", "Zeit", ["5", "10", "15", "20", "25"], "Minuten");
 										$scope.loadingData = false;
 										$rootScope.$broadcast("hideLoadingIconOnMap");

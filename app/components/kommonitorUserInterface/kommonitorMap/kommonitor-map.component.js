@@ -103,6 +103,7 @@ angular.module('kommonitorMap').component(
 
                     $scope.currentCustomIndicatorLayer;
                     $scope.isochronesLayer = undefined;
+                    $scope.isochroneMarkerLayer = undefined;
 
               			this.initializeMap = function() {
 
@@ -1037,6 +1038,23 @@ angular.module('kommonitorMap').component(
                                 };
 
                                 $scope.layerControl.addOverlay( $scope.isochronesLayer, "Erreichbarkeits-Isochronen 5-25 Minuten per " + transitMode, {groupName : reachabilityLayerGroupName} );
+                              });
+
+                              $scope.$on("replaceIsochroneMarker", function (event, latitude, longitude) {
+
+                                if($scope.isochroneMarkerLayer){
+                                  $scope.layerControl.removeLayer($scope.isochroneMarkerLayer);
+                                }
+
+                                $scope.isochroneMarkerLayer = L.marker([latitude, longitude]);
+                                $scope.isochroneMarkerLayer.bindPopup("Startpunkt der Isochronenberechnung");
+
+                                $scope.isochroneMarkerLayer.StyledLayerControl = {
+                                  removable : false,
+                                  visible : true
+                                };
+
+                                $scope.layerControl.addOverlay( $scope.isochroneMarkerLayer, "Startpunkt für Isochronenberechnung", {groupName : reachabilityLayerGroupName} );
                               });
 
                               $scope.$on("addPoiGeoresourceAsGeoJSON", function (event, georesourceMetadataAndGeoJSON, date) {

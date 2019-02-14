@@ -28,10 +28,10 @@
 		<br/><br/>
 
 		<div align="center" >
-			<div class="legend" ng-if="currentIsochronesGeoJSON">
+			<div class="legend" align="left" ng-if="currentIsochronesGeoJSON">
 
 				<h4>Legende</h4>
-				<label>Startpunkt: </label>&nbsp;{{fromPlace}}
+				<label>Startpunkt: </label>&nbsp;{{latitudeStart}}, {{longitudeStart}}
 				<br/>
 				<label>Fortbewegungsart: </label>&nbsp;{{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.transitMode}}
 				<br/>
