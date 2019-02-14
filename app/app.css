@@ -193,17 +193,37 @@
     /* background: rgba(255,255,255,1); */
     box-shadow: 0 0 15px rgba(0,0,0,0.2);
     border-radius: 5px;
+
+		width: 350px;
+		max-width: 350px;
+		height: auto !important;
+		max-height: 400px;
+		overflow-y: auto;
 }
 .info h4 {
     margin: 0 0 5px;
+		font: 16px/18px Arial, Helvetica, sans-serif;
     color: #777;
 }
 
+.leaflet-right .legend{
+    margin-bottom: 80px;
+}
+
 .legend {
+		padding: 6px 8px;
+		font: 14px/16px Arial, Helvetica, sans-serif;
+		background: white;
+		/* background: rgba(255,255,255,1); */
+		box-shadow: 0 0 15px rgba(0,0,0,0.2);
+		border-radius: 5px;
     line-height: 18px;
     color: #555;
-		width: 300px;
-		max-width: 300px;
+		width: 350px;
+		max-width: 350px;
+		height: auto !important;
+		max-height: 400px;
+	  overflow-y: auto;
 }
 .legend i {
     width: 18px;

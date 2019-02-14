@@ -278,5 +278,13 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			$rootScope.$broadcast("unselectAllFeatures");
 		}
 
+		$scope.onToggleInfoControlButtonClick = function(){
+			$rootScope.$broadcast("toggleInfoControl");
+		}
+
+		$scope.onToggleLegendControlButtonClick = function(){
+			$rootScope.$broadcast("toggleLegendControl");
+		}
+
 	}
 ]});

@@ -71,6 +71,8 @@ angular.module('kommonitorMap').component(
               			$scope.map;
                     $scope.scaleBar;
                     $scope.layerControl;
+                    $scope.showInfoControl = true;
+                    $scope.showLegend = true;
                     $scope.overlays = new Array();
                     $scope.baseMaps = new Array();
                     $scope.baseMapLayers = new L.LayerGroup();
@@ -278,6 +280,62 @@ angular.module('kommonitorMap').component(
         								});
         						}
 
+                    var toggleInfoControl = function(){
+                      if($scope.showInfoControl === true){
+                      /* use jquery to select your DOM elements that has the class 'legend' */
+                         $('.info').hide();
+                         $scope.showInfoControl = false;
+
+                         $('#toggleInfoControlButton').show();
+                      }else{
+                         $('.info').show();
+                         $scope.showInfoControl = true;
+
+                         // button is defined in kommonitor-user-interface component
+                         $('#toggleInfoControlButton').hide();
+                      }
+                    }
+
+                    var toggleLegendControl = function(){
+                      if($scope.showLegendControl === true){
+                      /* use jquery to select your DOM elements that has the class 'legend' */
+                         $('.legend').hide();
+                         $scope.showLegendControl = false;
+
+                         $('#toggleLegendControlButton').show();
+                      }else{
+                         $('.legend').show();
+                         $scope.showLegendControl = true;
+
+                         // button is defined in kommonitor-user-interface component
+                         $('#toggleLegendControlButton').hide();
+                      }
+                    }
+
+                    $scope.$on("toggleInfoControl", function(event){
+                      toggleInfoControl();
+                    });
+
+                    $scope.$on("toggleLegendControl", function(event){
+                      toggleLegendControl();
+                    });
+
+                    $(document).on('click','#info_close',function(e){
+                      toggleInfoControl();
+                    });
+
+                    $(document).on('click','#legend_close',function(e){
+                      toggleLegendControl();
+                    });
+
+                    $scope.appendInfoCloseButton = function(){
+                      return '<div id="info_close" class="btn btn-link" style="right: 0px; position: relative; float: right;" title="schlie&szlig;en"><span class="glyphicon glyphicon-remove"></span></div>';
+                    }
+
+                    $scope.appendLegendCloseButton = function(){
+                      return '<div id="legend_close" class="btn btn-link" style="right: 0px; position: relative; float: right;" title="schlie&szlig;en"><span class="glyphicon glyphicon-remove"></span></div>';
+                    }
+
                     $scope.makeInfoControl = function(date){
 
                       if($scope.infoControl){
@@ -289,17 +347,18 @@ angular.module('kommonitorMap').component(
                         }
                       }
 
-
                       $scope.infoControl = L.control({position: 'topright'});
 
                       $scope.infoControl.onAdd = function (map) {
-                          this._div = L.DomUtil.create('div', 'info legend'); // create a div with a class "info"
+                          this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
 
                           // [year, month, day]
             							var lastUpdateComponents = $scope.currentIndicatorMetadataAndGeoJSON.metadata.lastUpdate.split("-");
             							var lastUpdateAsDate = new Date(Number(lastUpdateComponents[0]), Number(lastUpdateComponents[1]) - 1, Number(lastUpdateComponents[2]));
 
-                          this._div.innerHTML = '<h4>' + $scope.indicatorName + '</h4><br/>';
+                          this._div.innerHTML = $scope.appendInfoCloseButton();
+                          this._div.innerHTML += '<div>';
+                          this._div.innerHTML += '<h4>' + $scope.indicatorName + '</h4><br/>';
                           // this._div.innerHTML += '<p>' + $scope.indicatorDescription + '</p>'
                           this._div.innerHTML += '<b>Beschreibung: </b> ' + $scope.indicatorDescription + '<br/>';
                           this._div.innerHTML += '<b>Datenquelle: </b> ' + $scope.currentIndicatorMetadataAndGeoJSON.metadata.datasource + '<br/>';
@@ -310,7 +369,8 @@ angular.module('kommonitorMap').component(
                           this._div.innerHTML += $scope.appendSpatialUnitOptions();
                           // this._div.innerHTML += '<br/><br/>';
 
-                          this._div.innerHTML +=  '<h4>Selektiertes Feature:</h4> &uuml;ber ein Feature hovern';
+                          // this._div.innerHTML +=  '<h4>Selektiertes Feature:</h4> &uuml;ber ein Feature hovern';
+                          // this._div.innerHTML += '</div>';
 
                           // this.update();
                           return this._div;
@@ -323,7 +383,9 @@ angular.module('kommonitorMap').component(
                         var lastUpdateComponents = $scope.currentIndicatorMetadataAndGeoJSON.metadata.lastUpdate.split("-");
                         var lastUpdateAsDate = new Date(Number(lastUpdateComponents[0]), Number(lastUpdateComponents[1]) - 1, Number(lastUpdateComponents[2]));
 
-                        this._div.innerHTML = '<h4>' + $scope.indicatorName + '</h4><br/>';
+                        this._div.innerHTML = $scope.appendInfoCloseButton();
+                        this._div.innerHTML += '<div>';
+                        this._div.innerHTML += '<h4>' + $scope.indicatorName + '</h4><br/>';
                         // this._div.innerHTML += '<p>' + $scope.indicatorDescription + '</p>'
                         this._div.innerHTML += '<b>Beschreibung: </b> ' + $scope.indicatorDescription + '<br/>';
                         this._div.innerHTML += '<b>Datenquelle: </b> ' + $scope.currentIndicatorMetadataAndGeoJSON.metadata.datasource + '<br/>';
@@ -334,9 +396,11 @@ angular.module('kommonitorMap').component(
                         this._div.innerHTML += $scope.appendSpatialUnitOptions();
                         // this._div.innerHTML += '<br/><br/>';
 
-                        this._div.innerHTML +=  (props ?
-                          '<h4>Selektiertes Feature:</h4> <b>' + props.spatialUnitFeatureName + '</b> ' + +Number(props[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) + ' ' + $scope.indicatorUnit
-                          : '<h4>Selektiertes Feature:</h4> &uuml;ber ein Feature hovern');
+                        // this._div.innerHTML +=  (props ?
+                        //   '<h4>Selektiertes Feature:</h4> <b>' + props.spatialUnitFeatureName + '</b> ' + +Number(props[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) + ' ' + $scope.indicatorUnit
+                        //   : '<h4>Selektiertes Feature:</h4> &uuml;ber ein Feature hovern');
+
+                        this._div.innerHTML += '</div>';
                       };
 
                       $scope.infoControl.addTo($scope.map);
@@ -357,7 +421,7 @@ angular.module('kommonitorMap').component(
                       $scope.infoControl = L.control({position: 'topright'});
 
                       $scope.infoControl.onAdd = function (map) {
-                          this._div = L.DomUtil.create('div', 'info legend'); // create a div with a class "info"
+                          this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
 
                           this._div.innerHTML = '<h4>' + $scope.customIndicatorName + ' ' + date +'</h4>';
                           // this._div.innerHTML += '<p>' + $scope.indicatorDescription + '</p>'
@@ -445,15 +509,16 @@ angular.module('kommonitorMap').component(
                       var dateComponents = $scope.date.split("-");
                       var dateAsDate = new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]));
 
-                      $scope.legendControl = L.control({position: 'topright'});
+                      $scope.legendControl = L.control({position: 'bottomright'});
 
                       $scope.legendControl.onAdd = function (map) {
 
-                        $scope.div = L.DomUtil.create('div', 'info legend');
+                        $scope.div = L.DomUtil.create('div', 'legend');
                             labels = $scope.defaultBrew.getBreaks();
                             colors = $scope.defaultBrew.getColors();
 
-                        $scope.div.innerHTML = "";
+                        $scope.div.innerHTML = $scope.appendLegendCloseButton();
+                        $scope.div.innerHTML += '<div>';
 
                         // loop through our density intervals and generate a label with a colored square for each interval
                         // for (var i = 0; i < labels.length; i++) {
@@ -463,7 +528,7 @@ angular.module('kommonitorMap').component(
                         // }
 
                         $scope.div.innerHTML += "<label>Status-Indikator</label><br/><em>Darstellung der Indikatorenwerte zum gew&auml;hlten Zeitpunkt " + tsToDate(dateToTS(dateAsDate)) + "</em><br/><br/>";
-                        $scope.div.innerHTML += "<label>Einheit: </label> " + $scope.indicatorUnit + "<br/><br/>";
+                        $scope.div.innerHTML += "<label>Einheit: </label> " + $scope.indicatorUnit + "<br/>";
 
                         $scope.div.innerHTML += $scope.appendClassifyRadioOptions();
 
@@ -496,6 +561,8 @@ angular.module('kommonitorMap').component(
                                 (+labels[i].toFixed(numberOfDecimals)) + ((+labels[i + 1]) ? ' &ndash; &lt; ' + (+labels[i + 1].toFixed(numberOfDecimals)) + ' <br>' : '+');
                         }
 
+                        $scope.div.innerHTML += '</div>';
+
                         return $scope.div;
                       };
 
@@ -514,17 +581,18 @@ angular.module('kommonitorMap').component(
                         }
                       }
 
-                      $scope.legendControl = L.control({position: 'topright'});
+                      $scope.legendControl = L.control({position: 'bottomright'});
 
                       $scope.legendControl.onAdd = function (map) {
 
-                        $scope.div = L.DomUtil.create('div', 'info legend');
+                        $scope.div = L.DomUtil.create('div', 'legend');
 
-                        $scope.div.innerHTML = "";
+                        $scope.div.innerHTML = $scope.appendLegendCloseButton();
+                        $scope.div.innerHTML += '<div>';
 
                         if($scope.currentIndicatorMetadataAndGeoJSON['fromDate']){
                           $scope.div.innerHTML += "<label>Bilanzierung des Indikators für den Zeitraum: </label><br/>";
-                          $scope.div.innerHTML += "<em>" + $scope.currentIndicatorMetadataAndGeoJSON['fromDate'] + " - " + $scope.currentIndicatorMetadataAndGeoJSON['toDate'] + "</em><br/><br/>";
+                          $scope.div.innerHTML += "<em>" + $scope.currentIndicatorMetadataAndGeoJSON['fromDate'] + " - " + $scope.currentIndicatorMetadataAndGeoJSON['toDate'] + "</em><br/>";
                         }
                         else{
 
@@ -533,14 +601,14 @@ angular.module('kommonitorMap').component(
                           $scope.div.innerHTML += "<label>Dynamik-Indikator</label><br/><em>Darstellung der zeitlichen Entwicklung zum gew&auml;hlten Zeitpunkt " + tsToDate(dateToTS(dateAsDate)) + "</em><br/><br/>";
                         }
 
-                        $scope.div.innerHTML += "<label>Einheit: </label> " + $scope.indicatorUnit + "<br/><br/>";
+                        $scope.div.innerHTML += "<label>Einheit: </label> " + $scope.indicatorUnit + "<br/>";
 
                         $scope.div.innerHTML += $scope.appendClassifyRadioOptions();
 
                         if(kommonitorDataExchangeService.filteredIndicatorFeatureNames.length > 0){
                           $scope.div.innerHTML +=
                               '<i style="background:' + defaultColorForFilteredValues + '"></i> ' +
-                              "gefilterte Features" + '<br/><br/>';
+                              "gefilterte Features" + '<br/>';
                         }
 
                         // dynamic legend creation depending on number of positive and negative classes
@@ -556,20 +624,19 @@ angular.module('kommonitorMap').component(
                                     '<i style="background:' + colorsDynamicDecrease[colorsDynamicDecrease.length - 1 - i] + '"></i> ' +
                                     (+labelsDynamicDecrease[i].toFixed(numberOfDecimals)) + ((+labelsDynamicDecrease[i + 1]) ? ' &ndash; &lt; ' + (+labelsDynamicDecrease[i + 1].toFixed(numberOfDecimals)) + '<br>' : ' &ndash; &lt; 0');
                             }
-                          $scope.div.innerHTML += "<br/>";
+
                         }
 
                         if($scope.currentIndicatorContainsZeroValues){
+                          $scope.div.innerHTML += "<br/>";
                           $scope.div.innerHTML +=
                               '<i style="background:' + $scope.defaultColorForZeroValues + '"></i> ' +
-                              "0" + '<br>';
+                              "0" + '</br>';
                         }
 
                         if($scope.dynamicIncreaseBrew){
                           labelsDynamicIncrease = $scope.dynamicIncreaseBrew.breaks;
                           colorsDynamicIncrease = $scope.dynamicIncreaseBrew.colors;
-
-                          $scope.div.innerHTML += "<br/>";
 
                           $scope.div.innerHTML += "<label>Steigende Entwicklung</label><br/>";
 
@@ -581,6 +648,8 @@ angular.module('kommonitorMap').component(
                             }
                           $scope.div.innerHTML += "<br/>";
                         }
+
+                        $scope.div.innerHTML += '</div>';
 
                         return $scope.div;
                       };
@@ -603,26 +672,27 @@ angular.module('kommonitorMap').component(
                       var dateComponents = $scope.date.split("-");
                       var dateAsDate = new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]));
 
-                      $scope.legendControl = L.control({position: 'topright'});
+                      $scope.legendControl = L.control({position: 'bottomright'});
 
                       $scope.legendControl.onAdd = function (map) {
 
-                        $scope.div = L.DomUtil.create('div', 'info legend');
+                        $scope.div = L.DomUtil.create('div', 'legend');
 
-                        $scope.div.innerHTML = "";
+                        $scope.div.innerHTML = $scope.appendLegendCloseButton();
+                        $scope.div.innerHTML += '<div>';
 
                         $scope.div.innerHTML += "<label>Schwellwert-Klassifizierung</label><br/><em>Gew&auml;hlter Zeitpunkt: " + tsToDate(dateToTS(dateAsDate)) + "</em><br/>";
 
                         $scope.div.innerHTML += "<em>aktueller Schwellwert: </em> " + kommonitorDataExchangeService.measureOfValue + "<br/><br/>";
 
-                        $scope.div.innerHTML += "<label>Einheit: </label> " + $scope.indicatorUnit + "<br/><br/>";
+                        $scope.div.innerHTML += "<label>Einheit: </label> " + $scope.indicatorUnit + "<br/>";
 
                         $scope.div.innerHTML += $scope.appendClassifyRadioOptions();
 
                         if(kommonitorDataExchangeService.filteredIndicatorFeatureNames.length > 0){
                           $scope.div.innerHTML +=
                               '<i style="background:' + defaultColorForFilteredValues + '"></i> ' +
-                              "gefilterte Features" + '<br>';
+                              "gefilterte Features" + '</br>';
                         }
 
                         if($scope.currentIndicatorContainsZeroValues){
@@ -641,7 +711,6 @@ angular.module('kommonitorMap').component(
                         if($scope.ltMeasureOfValueBrew){
                           labelsLtMeasureOfValue = $scope.ltMeasureOfValueBrew.breaks;
                           colorsLtMeasureOfValue = $scope.ltMeasureOfValueBrew.colors;
-                          $scope.div.innerHTML += '<br/>';
                           $scope.div.innerHTML += "<label>Features < Schwellwert</label><br/>";
 
                           // var labelArray_below = ["deutlich kleiner Schwellwert", "moderat kleiner Schwellwert", "geringfügig kleiner Schwellwert"];
@@ -657,7 +726,7 @@ angular.module('kommonitorMap').component(
                           for (var i = 0; i < colorsLtMeasureOfValue.length; i++) {
                               $scope.div.innerHTML +=
                                   '<i style="background:' + colorsLtMeasureOfValue[colorsLtMeasureOfValue.length - 1 -i] + '"></i> ' +
-                                  (+labelsLtMeasureOfValue[i].toFixed(numberOfDecimals)) + (typeof labelsLtMeasureOfValue[i + 1] === 'undefined' ? '' : ' &ndash; &lt; ' + (+labelsLtMeasureOfValue[i + 1].toFixed(numberOfDecimals)) + '<br>');
+                                  (+labelsLtMeasureOfValue[i].toFixed(numberOfDecimals)) + (typeof labelsLtMeasureOfValue[i + 1] === 'undefined' ? '' : ' &ndash; &lt; ' + (+labelsLtMeasureOfValue[i + 1].toFixed(numberOfDecimals)) + '</br>');
                           }
 
                           $scope.div.innerHTML += "<br/>";
@@ -680,6 +749,8 @@ angular.module('kommonitorMap').component(
                                   (+labelsGtMeasureOfValue[i].toFixed(numberOfDecimals)) + (typeof labelsGtMeasureOfValue[i + 1] === 'undefined' ? '' : ' &ndash; &lt; ' + (+labelsGtMeasureOfValue[i + 1].toFixed(numberOfDecimals)) + '<br>');
                           }
                         }
+
+                        $scope.div.innerHTML += '</div>';
 
                         return $scope.div;
                       };
