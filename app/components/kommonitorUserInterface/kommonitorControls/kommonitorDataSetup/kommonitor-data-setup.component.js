@@ -29,7 +29,7 @@ angular
 								$scope.changeIndicatorWasClicked = false;
 
 								$scope.dateSlider;
-								$scope.onlyRefreshingDateSliderVisuals = false;
+								$scope.datesAsMs;
 
 								$scope.selectedDate;
 
@@ -421,57 +421,47 @@ angular
 									}
 								};
 
-								$scope.resetDateSliderForIndicator = function(){
+								function dateToTS (date) {
+										return date.valueOf();
+								}
 
-									if($scope.dateSlider){
-										$scope.dateSlider.destroy();
+								function tsToDateString (dateAsMs) {
+									var date = new Date(dateAsMs);
+
+										return date.toLocaleDateString("de-DE", {
+												year: 'numeric',
+												month: 'long',
+												day: 'numeric'
+										});
+								}
+
+								function dateToDateString (date) {
+
+										return date.toLocaleDateString("de-DE", {
+												year: 'numeric',
+												month: 'long',
+												day: 'numeric'
+										});
+								}
+
+								function createDatesFromIndicatorDates(indicatorDates) {
+
+									$scope.datesAsMs = [];
+
+									for (var index=0; index < indicatorDates.length; index++){
+										// year-month-day
+										var dateComponents = indicatorDates[index].split("-");
+										$scope.datesAsMs.push(dateToTS(new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]))));
 									}
-
-									var domNode = document.getElementById("dateSlider");
-
-									while (domNode.hasChildNodes()) {
-									  domNode.removeChild(domNode.lastChild);
-									}
-
-									var availableDates = kommonitorDataExchangeService.selectedIndicator.applicableDates;
-									var selectedDateIndex;
-									var timeSliderInput = [];
-
-									for(var i=0; i<availableDates.length; i++){
-										var date = availableDates[i];
-										var dateItem = {};
-
-										dateItem.key = date;
-										dateItem.value = date;
-
-										timeSliderInput.push(dateItem);
-
-										if(date === $scope.selectedDate){
-											selectedDateIndex = i;
-										}
-									};
-
-									$scope.dateSlider = rangeslide("#dateSlider", {
-										data: timeSliderInput,
-										startPosition: selectedDateIndex,
-										thumbWidth: 22,
-										thumbHeight: 24,
-										labelsPosition: "alternate",
-										showLabels: true,
-										startAlternateLabelsFromTop: false,
-										trackHeight: 13,
-										showTicks: false,
-										showTrackMarkers: true,
-										markerSize: 22,
-										tickHeight: 10,
-										handlers: {
-											"valueChanged": [$scope.onChangeDateSliderItem]
-										}
-									});
-								};
+									return $scope.datesAsMs;
+								}
 
 								$scope.setupDateSliderForIndicator = function(){
 
+									if($scope.dateSlider){
+											$scope.dateSlider.destroy();
+									}
+
 									var domNode = document.getElementById("dateSlider");
 
 									while (domNode.hasChildNodes()) {
@@ -479,54 +469,44 @@ angular
 									}
 
 									var availableDates = kommonitorDataExchangeService.selectedIndicator.applicableDates;
-									var lastDateIndex = availableDates.length-1;
-									var lastDate = availableDates[lastDateIndex];
+									$scope.date = availableDates[availableDates.length - 1];
+									$scope.selectedDate = availableDates[availableDates.length - 1];
+									kommonitorDataExchangeService.selectedDate = availableDates[availableDates.length - 1];
 
-									var timeSliderInput = [];
+									$scope.datesAsMs = createDatesFromIndicatorDates(kommonitorDataExchangeService.selectedIndicator.applicableDates);
 
-									$scope.selectedDate = lastDate;
-									$scope.date = lastDate;
-									kommonitorDataExchangeService.selectedDate = lastDate;
-
-									availableDates.forEach(function(date){
-										var dateItem = {};
-
-										dateItem.key = date;
-										dateItem.value = date;
-
-										timeSliderInput.push(dateItem);
+									// new Date() uses month between 0-11!
+									$("#dateSlider").ionRangeSlider({
+											skin: "big",
+											type: "single",
+											grid: true,
+											values: $scope.datesAsMs,
+											from: $scope.datesAsMs.length -1, // index, not the date
+											force_edges: true,
+											prettify: tsToDateString,
+											onChange: $scope.onChangeDateSliderItem
 									});
 
-									$scope.dateSlider = rangeslide("#dateSlider", {
-										data: timeSliderInput,
-										startPosition: lastDateIndex,
-										thumbWidth: 22,
-										thumbHeight: 24,
-										labelsPosition: "alternate",
-										showLabels: true,
-										startAlternateLabelsFromTop: false,
-										trackHeight: 13,
-										showTicks: false,
-										showTrackMarkers: true,
-										markerSize: 22,
-										tickHeight: 10,
-										handlers: {
-											"valueChanged": [$scope.onChangeDateSliderItem]
-										}
+									$scope.dateSlider = $("#dateSlider").data("ionRangeSlider");
+									// make sure that tha handles are properly set to man and max values
+									$scope.dateSlider.update({
+											from: $scope.datesAsMs.length -1 // index, not the date
 									});
 								};
 
-								$scope.onChangeDateSliderItem = async function(dataItem, rangeslideElement){
+								$scope.onChangeDateSliderItem = async function(data){
 
-									if(!$scope.onlyRefreshingDateSliderVisuals && !$scope.changeIndicatorWasClicked && kommonitorDataExchangeService.selectedIndicator){
+									if(!$scope.changeIndicatorWasClicked && kommonitorDataExchangeService.selectedIndicator){
 										$scope.loadingData = true;
 										$rootScope.$broadcast("showLoadingIconOnMap");
 
 										console.log("Change selected date");
 
-										$scope.selectedDate = dataItem.key;
-										$scope.date = dataItem.key;
-										kommonitorDataExchangeService.selectedDate = dataItem.key;
+										//data.from is index of date!
+
+										$scope.selectedDate = kommonitorDataExchangeService.selectedIndicator.applicableDates[data.from];
+										$scope.date = $scope.selectedDate;
+										kommonitorDataExchangeService.selectedDate = $scope.selectedDate;
 
 										try{
 											var selectedIndicator = await $scope.tryUpdateMeasureOfValueBarForIndicator();
@@ -544,23 +524,9 @@ angular
 										$rootScope.$broadcast("hideLoadingIconOnMap");
 										$scope.$apply();
 									}
-									$scope.onlyRefreshingDateSliderVisuals = false;
 								}
 
 								var wait = ms => new Promise((r, j)=>setTimeout(r, ms))
-
-								$scope.$on("refreshDateSlider", async function (event) {
-
-										await wait(100);
-
-										$scope.onlyRefreshingDateSliderVisuals = true;
-
-										if($scope.dateSlider){
-											$scope.resetDateSliderForIndicator();
-
-										}
-
-								});
 
 								$scope.tryUpdateMeasureOfValueBarForIndicator = async function(){
 									var indicatorId = kommonitorDataExchangeService.selectedIndicator.indicatorId;

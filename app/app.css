@@ -92,14 +92,39 @@
 	top: 10px;
 }
 
-#dateSlider{
+#dateSliderWrapper{
 	position: absolute;
-  bottom: 50px;
+  bottom: 25px;
   margin-right: auto;
   margin-left: auto;
-  left: 90px;
-  right: 90px;
+  left: 100px;
+  right: 10px;
 	z-index: 8000;
+	font: 16px/18px Arial, Helvetica, sans-serif;
+	border: 2px solid black;
+  border-radius: 8px;
+}
+
+#dateSliderWrapper .irs-grid-text{
+	color: black;
+	font-size: 16px;
+	margin-top: 3px;
+	padding: 0px 5px;
+	/* font-weight: bold; */
+	background-color: white;
+  border-radius: 3px;
+	line-height: 20px;
+	/* opacity: 0.8; */
+}
+
+#dateSliderWrapper .irs-min{
+	font-size: 16px;
+	/* opacity: 0.8; */
+}
+
+#dateSliderWrapper .irs-single{
+	font-size: 16px;
+	/* opacity: 0.8; */
 }
 
 #dateSliderForComputation{
@@ -107,11 +132,6 @@
   margin-left: auto;
   left: 20px;
   /* right: 40px; */
-}
-
-#dateSlider span{
-	background-color: white;
-	opacity: 0.8;
 }
 
 .hiddenTable {
@@ -207,7 +227,7 @@
 }
 
 .leaflet-right .legend{
-    margin-bottom: 80px;
+    margin-bottom: 90px;
 }
 
 .legend {

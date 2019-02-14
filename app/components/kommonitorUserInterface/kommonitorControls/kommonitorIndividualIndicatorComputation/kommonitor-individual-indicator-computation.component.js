@@ -22,22 +22,6 @@ angular
 
 						$scope.dateSliderForComputation;
 
-						// var wait = ms => new Promise((r, j)=>setTimeout(r, ms))
-						//
-						// $scope.$on("refreshDateSlider", async function (event) {
-						//
-						// 		console.log('refreshDateSlider was called. Waiting for one second.');
-						//
-						// 		await wait(300);
-						//
-						// 		console.log("waiting finished");
-						//
-						// 		if($scope.dateSliderForComputation){
-						// 			$scope.dateSliderForComputation.refresh();
-						// 		}
-						//
-						// });
-
 						this.onTargetDateChange = function(){
 
 							$scope.computedCustomizedIndicatorGeoJSON = undefined;

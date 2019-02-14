@@ -86,7 +86,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				$rootScope.$broadcast("recenterMapOnHideSideBar");
 				$scope.anySideBarIsShown = false;
 			}
-			$rootScope.$broadcast("refreshDateSlider");
+
 			$rootScope.$broadcast("refreshIndicatorValueRangeSlider");
 
 		}
@@ -109,7 +109,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				$rootScope.$broadcast("recenterMapOnHideSideBar");
 				$scope.anySideBarIsShown = false;
 			}
-			$rootScope.$broadcast("refreshDateSlider");
+			
 			$rootScope.$broadcast("refreshIndicatorValueRangeSlider");
 
 		}
@@ -132,7 +132,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				$rootScope.$broadcast("recenterMapOnHideSideBar");
 				$scope.anySideBarIsShown = false;
 			}
-			$rootScope.$broadcast("refreshDateSlider");
+
 			$rootScope.$broadcast("refreshIndicatorValueRangeSlider");
 
 		}
@@ -162,7 +162,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 					$rootScope.$broadcast("recenterMapOnHideSideBar");
 					$scope.anySideBarIsShown = false;
 				}
-				$rootScope.$broadcast("refreshDateSlider");
+
 				$rootScope.$broadcast("refreshIndicatorValueRangeSlider");
 			}
 		}
@@ -185,7 +185,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				$rootScope.$broadcast("recenterMapOnHideSideBar");
 				$scope.anySideBarIsShown = false;
 			}
-			$rootScope.$broadcast("refreshDateSlider");
+
 			$rootScope.$broadcast("refreshIndicatorValueRangeSlider");
 
 		}
@@ -206,7 +206,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				$rootScope.$broadcast("recenterMapOnHideSideBar");
 				$scope.anySideBarIsShown = false;
 			}
-			$rootScope.$broadcast("refreshDateSlider");
+
 			$rootScope.$broadcast("refreshIndicatorValueRangeSlider");
 		}
 
@@ -226,7 +226,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				$rootScope.$broadcast("recenterMapOnHideSideBar");
 				$scope.anySideBarIsShown = false;
 			}
-			$rootScope.$broadcast("refreshDateSlider");
+
 			$rootScope.$broadcast("refreshIndicatorValueRangeSlider");
 		}
 
@@ -246,7 +246,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				$rootScope.$broadcast("recenterMapOnHideSideBar");
 				$scope.anySideBarIsShown = false;
 			}
-			$rootScope.$broadcast("refreshDateSlider");
+
 			$rootScope.$broadcast("refreshIndicatorValueRangeSlider");
 		}
 
@@ -266,7 +266,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				$rootScope.$broadcast("recenterMapOnHideSideBar");
 				$scope.anySideBarIsShown = false;
 			}
-			$rootScope.$broadcast("refreshDateSlider");
+
 			$rootScope.$broadcast("refreshIndicatorValueRangeSlider");
 		}
 
