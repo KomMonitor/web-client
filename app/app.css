@@ -194,8 +194,8 @@
     box-shadow: 0 0 15px rgba(0,0,0,0.2);
     border-radius: 5px;
 
-		width: auto;
-		max-width: 350px;
+		width: 325px;
+		max-width: 325px;
 		height: auto !important;
 		max-height: 400px;
 		overflow-y: auto;
@@ -219,8 +219,8 @@
 		border-radius: 5px;
     line-height: 18px;
     color: #555;
-		width: auto;
-		max-width: 350px;
+		width: 325px;
+		max-width: 325px;
 		height: auto !important;
 		max-height: 400px;
 	  overflow-y: auto;
@@ -232,6 +232,11 @@
     float: left;
     margin-right: 8px;
     opacity: 0.7;
+}
+.legend h4 {
+    margin: 0 0 5px;
+		font: 16px/18px Arial, Helvetica, sans-serif;
+    color: #777;
 }
 
 #radarInputForm {
