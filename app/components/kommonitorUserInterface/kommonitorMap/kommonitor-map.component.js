@@ -728,7 +728,10 @@ angular.module('kommonitorMap').component(
                      * to layer.feature.properties.popupContent
                      */
                     function onEachFeatureIndicator(feature, layer) {
-                        // does this feature have a property named popupContent?
+                      var tooltipHtml = "<b>" + feature.properties.spatialUnitFeatureName + "</b><br/>" + +Number(feature.properties[INDICATOR_DATE_PREFIX + $scope.date]).toFixed(numberOfDecimals) + " [" + kommonitorDataExchangeService.selectedIndicator.unit + "]";
+                        layer.bindTooltip(tooltipHtml, {
+                          sticky: true // If true, the tooltip will follow the mouse instead of being fixed at the feature center.
+                        });
                         layer.on({
                             mouseover: highlightFeature,
                             mouseout: resetHighlight,
