@@ -72,6 +72,7 @@ angular.module('kommonitorMap').component(
                     $scope.scaleBar;
                     $scope.layerControl;
                     $scope.showInfoControl = true;
+                    $scope.showLegendControl = true;
                     $scope.showLegend = true;
                     $scope.overlays = new Array();
                     $scope.baseMaps = new Array();
@@ -591,8 +592,8 @@ angular.module('kommonitorMap').component(
                         $scope.div.innerHTML += '<div>';
 
                         if($scope.currentIndicatorMetadataAndGeoJSON['fromDate']){
-                          $scope.div.innerHTML += "<label>Bilanzierung des Indikators für den Zeitraum: </label><br/>";
-                          $scope.div.innerHTML += "<em>" + $scope.currentIndicatorMetadataAndGeoJSON['fromDate'] + " - " + $scope.currentIndicatorMetadataAndGeoJSON['toDate'] + "</em><br/>";
+                          $scope.div.innerHTML += "<label>Bilanzierung</label><br/>";
+                          $scope.div.innerHTML += "<em>" + $scope.currentIndicatorMetadataAndGeoJSON['fromDate'] + " - " + $scope.currentIndicatorMetadataAndGeoJSON['toDate'] + "</em><br/><br/>";
                         }
                         else{
 
