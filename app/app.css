@@ -82,15 +82,25 @@
 	max-width: 200;
 }
 
-/* .leaflet-left .leaflet-control-layers {
+.leaflet-left .leaflet-control-layers {
   display: inline-block;
   float: none;
-}
-
-.leaflet-control-layers{
 	left: 125px;
 	top: 10px;
-} */
+	max-width 	: "600px";
+	max-height : "400px";
+	overflow : auto;
+}
+
+.leaflet-control-layers-group-name{
+	font-size: 14px;
+	font-weight: bold;
+	font-style: italic;
+}
+
+.leaflet-control-layers-group {
+    margin-top: 20px;
+}
 
 #dateSliderWrapper{
 	position: absolute;

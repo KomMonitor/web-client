@@ -210,7 +210,7 @@ angular.module('kommonitorMap').component(
                     	// };
 
                       // $scope.layerControl = L.Control.styledLayerControl($scope.baseMaps, $scope.overlays, options);
-                      $scope.layerControl = L.control.groupedLayers($scope.baseMaps, $scope.groupedOverlays);
+                      $scope.layerControl = L.control.groupedLayers($scope.baseMaps, $scope.groupedOverlays, {position: 'topleft'});
 	                    $scope.map.addControl($scope.layerControl);
 
                       $scope.scaleBar = L.control.scale();
@@ -1883,7 +1883,7 @@ angular.module('kommonitorMap').component(
                                                                   $scope.layerControl.removeLayer($scope.currentIndicatorLayer);
                                                                   $scope.map.removeLayer($scope.currentIndicatorLayer);
                                                                 }
-                                                                  
+
                                                                 $scope.currentIndicatorContainsZeroValues = false;
 
                                                                 // check if measureOfValueCheckbox is checked
