@@ -25,6 +25,7 @@ angular
 							$scope.movMaxValue;
 							$scope.movMiddleValue;
 							$scope.movStep;
+							$scope.movRangeSlider;
 
 							$scope.inputNotValid = false;
 
@@ -164,7 +165,7 @@ angular
 								date = INDICATOR_DATE_PREFIX + date;
 								var geoJSON = kommonitorDataExchangeService.selectedIndicator.geoJSON;
 
-								var measureOfValueInput = document.getElementById("measureOfValueInput");
+								// var measureOfValueInput = document.getElementById("measureOfValueInput");
 
 								var values = [];
 
@@ -185,12 +186,12 @@ angular
 								$scope.movMaxValue = +Number(values[values.length - 1]).toFixed(numberOfDecimals);
 
 								$scope.movMiddleValue = +(($scope.movMaxValue + $scope.movMinValue) / 2).toFixed(numberOfDecimals);
-								$scope.movStep = +(($scope.movMaxValue - $scope.movMinValue)/35).toFixed(2);
+								$scope.movStep = +(($scope.movMaxValue - $scope.movMinValue)/35).toFixed(numberOfDecimals);
 
-								measureOfValueInput.setAttribute("min", $scope.movMinValue);
-								measureOfValueInput.setAttribute("max", $scope.movMaxValue);
-								measureOfValueInput.setAttribute("movStep", $scope.movStep);
-								measureOfValueInput.setAttribute("value", $scope.movMiddleValue);
+								// measureOfValueInput.setAttribute("min", $scope.movMinValue);
+								// measureOfValueInput.setAttribute("max", $scope.movMaxValue);
+								// measureOfValueInput.setAttribute("movStep", $scope.movStep);
+								// measureOfValueInput.setAttribute("value", $scope.movMiddleValue);
 
 								kommonitorDataExchangeService.measureOfValue = $scope.movMiddleValue;
 
@@ -200,17 +201,69 @@ angular
 								measureOfValueTextInput.setAttribute("value", $scope.movMiddleValue);
 								measureOfValueTextInput.setAttribute("movStep", $scope.movStep);
 
+								if($scope.movRangeSlider){
+									$scope.movRangeSlider.destroy();
+
+									var domNode = document.getElementById("measureOfValueInput");
+
+									while (domNode.hasChildNodes()) {
+									  domNode.removeChild(domNode.lastChild);
+									}
+								}
+
+								// rangeSLider
+								$("#measureOfValueInput").ionRangeSlider({
+										skin: "big",
+						        type: "single",
+						        min: $scope.movMinValue,
+						        max: $scope.movMaxValue,
+						        from: $scope.movMiddleValue,
+								   	force_edges: true,
+										step: $scope.movStep,
+						        grid: true,
+										prettify_enabled: true,
+										prettify_separator: "",
+										onChange: $scope.onMeasureOfValueChange
+						    });
+
+								$scope.movRangeSlider = $("#measureOfValueInput").data("ionRangeSlider");
+								// make sure that tha handles are properly set to man and max values
+								$scope.movRangeSlider.update({
+						        from: $scope.movMiddleValue
+						    });
+
 								$scope.inputNotValid = false;
 
 							};
 
-							this.onMeasureOfValueChange = function(){
+							$scope.onMeasureOfValueChange = function(data){
 
-								kommonitorDataExchangeService.measureOfValue = +Number(kommonitorDataExchangeService.measureOfValue).toFixed(numberOfDecimals);
+								kommonitorDataExchangeService.measureOfValue = +Number(data.from).toFixed(numberOfDecimals);
+
+								// kommonitorDataExchangeService.measureOfValue = +Number(kommonitorDataExchangeService.measureOfValue).toFixed(numberOfDecimals);
 
 								if(kommonitorDataExchangeService.measureOfValue >= $scope.movMinValue && kommonitorDataExchangeService.measureOfValue <= $scope.movMaxValue){
 									$scope.inputNotValid = false;
-									this.kommonitorMapServiceInstance.restyleCurrentLayer();
+									kommonitorMapService.restyleCurrentLayer();
+								}
+								else{
+									$scope.inputNotValid = true;
+								}
+
+							};
+
+							$scope.onMeasureOfValueChangeByText = function(){
+
+								kommonitorDataExchangeService.measureOfValue = +Number(kommonitorDataExchangeService.measureOfValue).toFixed(numberOfDecimals);
+
+								// kommonitorDataExchangeService.measureOfValue = +Number(kommonitorDataExchangeService.measureOfValue).toFixed(numberOfDecimals);
+
+								if(kommonitorDataExchangeService.measureOfValue >= $scope.movMinValue && kommonitorDataExchangeService.measureOfValue <= $scope.movMaxValue){
+									$scope.inputNotValid = false;
+									$scope.movRangeSlider.update({
+							        from: kommonitorDataExchangeService.measureOfValue
+							    });
+									kommonitorMapService.restyleCurrentLayer();
 								}
 								else{
 									$scope.inputNotValid = true;

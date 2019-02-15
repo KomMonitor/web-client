@@ -45,21 +45,15 @@
 				<br/>
 
 				<div class="slidecontainer" style="position:relative">
-					<input ng-model="$ctrl.kommonitorDataExchangeServiceInstance.measureOfValue" ng-change="$ctrl.onMeasureOfValueChange()" type="range" min="0" max="100" step="1" value="51" class="slider" id="measureOfValueInput">
+					<input ng-model="$ctrl.kommonitorDataExchangeServiceInstance.measureOfValue" id="measureOfValueInput" type="text" class="js-range-slider" value=""></input>
 
-					<div style="position:absolute; left:10px">
-						<label>Minimum: {{movMinValue}}</label>
-					</div>
-					<div style="position:absolute; right:10px">
-						<label>Maximum: {{movMaxValue}}</label>
-					</div>
 					<!-- <input ng-model="$ctrl.kommonitorDataExchangeServiceInstance.measureOfValue" type="number" style="width:100px;" class="form-control" id="measureOfValueTextInput">
 					<br/>
 					<p>Schwellwert: {{$ctrl.kommonitorDataExchangeServiceInstance.measureOfValue}}</p> -->
 				</div>
 				<div align="center">
 					<br/>
-					<label>Schwellwert: </label><input ng-model="$ctrl.kommonitorDataExchangeServiceInstance.measureOfValue" ng-change="$ctrl.onMeasureOfValueChange()" string-to-number type="number" style="width:175px;" class="form-control" id="measureOfValueTextInput">
+					<label>Schwellwert: </label><input ng-model="$ctrl.kommonitorDataExchangeServiceInstance.measureOfValue" ng-change="onMeasureOfValueChangeByText()" string-to-number type="number" style="width:175px;" class="form-control" id="measureOfValueTextInput">
 					<br/>
 					<div ng-show="inputNotValid">
 						<p>Schwellwert: {{$ctrl.kommonitorDataExchangeServiceInstance.measureOfValue}}</p>
