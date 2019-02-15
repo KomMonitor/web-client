@@ -101,8 +101,8 @@
   right: 10px;
 	z-index: 8000;
 	font: 16px/18px Arial, Helvetica, sans-serif;
-	border: 2px solid black;
-  border-radius: 8px;
+	/* border: 2px solid black;
+  border-radius: 8px; */
 }
 
 #dateSliderWrapper .irs-grid-text{
