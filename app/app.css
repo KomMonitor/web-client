@@ -127,6 +127,20 @@
 	/* opacity: 0.8; */
 }
 
+.irs-handle:hover {
+	cursor: pointer;
+}
+
+.irs-bar:hover {
+	cursor: pointer;
+	filter: brightness(85%);
+}
+
+.irs-line:hover {
+	cursor: pointer;
+	filter: brightness(85%);
+}
+
 #dateSliderForComputation{
   margin-right: 20px;
   margin-left: auto;
