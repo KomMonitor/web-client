@@ -34,7 +34,9 @@ module.exports = {
           { from: nodeModulePathConstant + 'leaflet.markercluster/dist/leaflet.markercluster.js', to: 'leaflet-markercluster' },
           { from: nodeModulePathConstant + 'leaflet.markercluster/dist/MarkerCluster.css', to: 'leaflet-markercluster' },
           { from: nodeModulePathConstant + 'leaflet.markercluster/dist/MarkerCluster.Default.css', to: 'leaflet-markercluster' },
-          { from: nodeModulePathConstant + 'leaflet.awesome-markers/dist', to: 'leaflet-awesome-markers' }
+          { from: nodeModulePathConstant + 'leaflet.awesome-markers/dist', to: 'leaflet-awesome-markers' },
+          { from: './customizedExternalLibs/leaflet-groupedlayercontrol/leaflet.groupedlayercontrol.js', to: 'leaflet-groupedlayercontrol' },
+          { from: './customizedExternalLibs/leaflet-groupedlayercontrol/leaflet.groupedlayercontrol.min.css', to: 'leaflet-groupedlayercontrol' }
       ])
     ]
 };

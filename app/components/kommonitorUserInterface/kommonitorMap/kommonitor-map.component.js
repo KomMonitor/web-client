@@ -114,28 +114,28 @@ angular.module('kommonitorMap').component(
                       var osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
                       var osmAttrib='Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
                       var osm = new L.TileLayer(osmUrl, {minZoom: __env.minZoomLevel, maxZoom: __env.maxZoomLevel, attribution: osmAttrib});
-                      osm.StyledLayerControl = {
-                    		removable : false,
-                    		visible : false
-                    	};
+                      // osm.StyledLayerControl = {
+                    	// 	removable : false,
+                    	// 	visible : false
+                    	// };
 
                       var osm_blackWhite = L.tileLayer('http://{s}.www.toolserver.org/tiles/bw-mapnik/{z}/{x}/{y}.png', {minZoom: 1, maxZoom: 19, attribution: osmAttrib});
-                      osm_blackWhite.StyledLayerControl = {
-                    		removable : false,
-                    		visible : true
-                    	};
+                      // osm_blackWhite.StyledLayerControl = {
+                    	// 	removable : false,
+                    	// 	visible : true
+                    	// };
 
                       var wmsLayerRVR = L.tileLayer.wms('https://geodaten.metropoleruhr.de/spw2?', {
                           layers: 'stadtplan_rvr'
                       });
-                      wmsLayerRVR.StyledLayerControl = {
-                    		removable : false,
-                    		visible : false
-                    	};
+                      // wmsLayerRVR.StyledLayerControl = {
+                    	// 	removable : false,
+                    	// 	visible : false
+                    	// };
 
-                      osm_blackWhite.addTo($scope.baseMapLayers);
-                      osm.addTo($scope.baseMapLayers);
-                      wmsLayerRVR.addTo($scope.baseMapLayers);
+                      // osm_blackWhite.addTo($scope.baseMapLayers);
+                      // osm.addTo($scope.baseMapLayers);
+                      // wmsLayerRVR.addTo($scope.baseMapLayers);
 
                       // $scope.map = L.map('map').setView([51.4386432, 7.0115552], 12);
                       $scope.map = L.map('map', {
@@ -144,55 +144,73 @@ angular.module('kommonitorMap').component(
                           layers: [osm_blackWhite]
                       });
 
-                      var osmBaseMapGroup = {};
-                      osmBaseMapGroup.groupName = "Basiskarten";
-                      osmBaseMapGroup.expanded = true;
-                      osmBaseMapGroup.layers = {};
-                      osmBaseMapGroup.layers["RVR Stadtplan"] = wmsLayerRVR;
-                      osmBaseMapGroup.layers["OpenStreetMap - Graustufen"] = osm_blackWhite;
-                      osmBaseMapGroup.layers["OpenStreetMap"] = osm;
+                      // var osmBaseMapGroup = {};
+                      // osmBaseMapGroup.groupName = "Basiskarten";
+                      // osmBaseMapGroup.expanded = true;
+                      // osmBaseMapGroup.layers = {};
+                      // osmBaseMapGroup.layers["RVR Stadtplan"] = wmsLayerRVR;
+                      // osmBaseMapGroup.layers["OpenStreetMap - Graustufen"] = osm_blackWhite;
+                      // osmBaseMapGroup.layers["OpenStreetMap"] = osm;
 
-                      $scope.baseMaps.push(osmBaseMapGroup);
+                      // $scope.baseMaps.push(osmBaseMapGroup);
+                      $scope.baseMaps = {
+                        "OpenStreetMap - Graustufen": osm_blackWhite,
+                        "OpenStreetMap - Farbe": osm,
+                        "RVR Stadtplan": wmsLayerRVR
+                      };
 
                       // overlays
-                      var overlays = [
-                  					 {
-                  						groupName : spatialUnitLayerGroupName,
-                  						expanded  : true,
-                  						layers    : {
-                  						}
-                  					 }, {
-                  						groupName : georesourceLayerGroupName,
-                  						expanded  : true,
-                  						layers    : {
-                  						}
-                  					 }, {
-                  						groupName : indicatorLayerGroupName,
-                              expanded  : true,
-                  						layers    : {
-                  						}
-                  					 }, {
-                  						groupName : poiLayerGroupName,
-                              expanded  : true,
-                  						layers    : {
-                  						}
-                  					 }, {
-                  						groupName : reachabilityLayerGroupName,
-                              expanded  : true,
-                  						layers    : {
-                  						}
-                  					 }
-                  	];
+                    //   var overlays = [
+                  	// 				 {
+                  	// 					groupName : spatialUnitLayerGroupName,
+                  	// 					expanded  : true,
+                  	// 					layers    : {
+                  	// 					}
+                  	// 				 }, {
+                  	// 					groupName : georesourceLayerGroupName,
+                  	// 					expanded  : true,
+                  	// 					layers    : {
+                  	// 					}
+                  	// 				 }, {
+                  	// 					groupName : indicatorLayerGroupName,
+                    //           expanded  : true,
+                  	// 					layers    : {
+                  	// 					}
+                  	// 				 }, {
+                  	// 					groupName : poiLayerGroupName,
+                    //           expanded  : true,
+                  	// 					layers    : {
+                  	// 					}
+                  	// 				 }, {
+                  	// 					groupName : reachabilityLayerGroupName,
+                    //           expanded  : true,
+                  	// 					layers    : {
+                  	// 					}
+                  	// 				 }
+                  	// ];
 
-                      var options = {
-                    		container_width 	: "600px",
-                    		container_maxHeight : "600px",
-                    		group_maxHeight     : "80px",
-                    		exclusive       	: false,
-                        position: 'topleft'
-                    	};
+                    $scope.groupedOverlays = {
+                      indicatorLayerGroupName: {
 
-                      $scope.layerControl = L.Control.styledLayerControl($scope.baseMaps, $scope.overlays, options);
+                      },
+                      poiLayerGroupName: {
+
+                      },
+                      reachabilityLayerGroupName: {
+
+                      }
+                    };
+
+                      // var options = {
+                    	// 	container_width 	: "600px",
+                    	// 	container_maxHeight : "600px",
+                    	// 	group_maxHeight     : "80px",
+                    	// 	exclusive       	: false,
+                      //   position: 'topleft'
+                    	// };
+
+                      // $scope.layerControl = L.Control.styledLayerControl($scope.baseMaps, $scope.overlays, options);
+                      $scope.layerControl = L.control.groupedLayers($scope.baseMaps, $scope.groupedOverlays);
 	                    $scope.map.addControl($scope.layerControl);
 
                       $scope.scaleBar = L.control.scale();
@@ -834,12 +852,13 @@ angular.module('kommonitorMap').component(
                                       onEachFeature: onEachFeatureSpatialUnit
                                   });
 
-                                  layer.StyledLayerControl = {
-                                		removable : true,
-                                		visible : true
-                                	};
+                                  // layer.StyledLayerControl = {
+                                	// 	removable : true,
+                                	// 	visible : true
+                                	// };
 
                                   $scope.layerControl.addOverlay( layer, "GeoPackage", {groupName : spatialUnitLayerGroupName} );
+                                  layer.addTo($scope.map);
 
 
                               });
@@ -865,12 +884,13 @@ angular.module('kommonitorMap').component(
                                       onEachFeature: onEachFeatureSpatialUnit
                                   });
 
-                                  layer.StyledLayerControl = {
-                                		removable : true,
-                                		visible : true
-                                	};
+                                  // layer.StyledLayerControl = {
+                                	// 	removable : true,
+                                	// 	visible : true
+                                	// };
 
-                                  $scope.layerControl.addOverlay( layer, spatialUnitMetadataAndGeoJSON.spatialUnitLevel + "_" + date, {groupName : spatialUnitLayerGroupName} );
+                                  $scope.layerControl.addOverlay( layer, spatialUnitMetadataAndGeoJSON.spatialUnitLevel + "_" + date, spatialUnitLayerGroupName );
+                                  layer.addTo($scope.map);
 
                               });
 
@@ -887,18 +907,20 @@ angular.module('kommonitorMap').component(
                                     onEachFeature: onEachFeatureGeoresource
                                 });
 
-                                layer.StyledLayerControl = {
-                                  removable : false,
-                                  visible : true
-                                };
+                                // layer.StyledLayerControl = {
+                                //   removable : false,
+                                //   visible : true
+                                // };
 
-                                $scope.layerControl.addOverlay( layer, georesourceMetadataAndGeoJSON.datasetName + "_" + date, {groupName : georesourceLayerGroupName} );
+                                $scope.layerControl.addOverlay( layer, georesourceMetadataAndGeoJSON.datasetName + "_" + date, georesourceLayerGroupName );
+                                layer.addTo($scope.map);
                               });
 
                               $scope.$on("replaceIsochronesAsGeoJSON", function (event, geoJSON, transitMode, reachMode, cutOffValues, cutOffUnit) {
 
                                 if($scope.isochronesLayer){
                                   $scope.layerControl.removeLayer($scope.isochronesLayer);
+                                  $scope.map.removeLayer($scope.isochronesLayer);
                                 }
 
                                 $scope.isochronesLayer = L.featureGroup();
@@ -1032,29 +1054,32 @@ angular.module('kommonitorMap').component(
                                   }).addTo($scope.isochronesLayer);
                                 }
 
-                                $scope.isochronesLayer.StyledLayerControl = {
-                                  removable : false,
-                                  visible : true
-                                };
+                                // $scope.isochronesLayer.StyledLayerControl = {
+                                //   removable : false,
+                                //   visible : true
+                                // };
 
-                                $scope.layerControl.addOverlay( $scope.isochronesLayer, "Erreichbarkeits-Isochronen 5-25 Minuten per " + transitMode, {groupName : reachabilityLayerGroupName} );
+                                $scope.layerControl.addOverlay( $scope.isochronesLayer, "Erreichbarkeits-Isochronen 5-25 Minuten per " + transitMode, reachabilityLayerGroupName );
+                                $scope.isochronesLayer.addTo($scope.map);
                               });
 
                               $scope.$on("replaceIsochroneMarker", function (event, latitude, longitude) {
 
                                 if($scope.isochroneMarkerLayer){
                                   $scope.layerControl.removeLayer($scope.isochroneMarkerLayer);
+                                  $scope.map.removeLayer($scope.isochroneMarkerLayer);
                                 }
 
                                 $scope.isochroneMarkerLayer = L.marker([latitude, longitude]);
                                 $scope.isochroneMarkerLayer.bindPopup("Startpunkt der Isochronenberechnung");
 
-                                $scope.isochroneMarkerLayer.StyledLayerControl = {
-                                  removable : false,
-                                  visible : true
-                                };
+                                // $scope.isochroneMarkerLayer.StyledLayerControl = {
+                                //   removable : false,
+                                //   visible : true
+                                // };
 
-                                $scope.layerControl.addOverlay( $scope.isochroneMarkerLayer, "Startpunkt für Isochronenberechnung", {groupName : reachabilityLayerGroupName} );
+                                $scope.layerControl.addOverlay( $scope.isochroneMarkerLayer, "Startpunkt für Isochronenberechnung", reachabilityLayerGroupName );
+                                $scope.isochroneMarkerLayer.addTo($scope.map);
                               });
 
                               $scope.$on("addPoiGeoresourceAsGeoJSON", function (event, georesourceMetadataAndGeoJSON, date) {
@@ -1083,12 +1108,13 @@ angular.module('kommonitorMap').component(
                                 });
 
 
-                                markers.StyledLayerControl = {
-                                  removable : false,
-                                  visible : true
-                                };
+                                // markers.StyledLayerControl = {
+                                //   removable : false,
+                                //   visible : true
+                                // };
 
-                                $scope.layerControl.addOverlay( markers, georesourceMetadataAndGeoJSON.datasetName + "_" + date, {groupName : poiLayerGroupName} );
+                                $scope.layerControl.addOverlay( markers, georesourceMetadataAndGeoJSON.datasetName + "_" + date, poiLayerGroupName );
+                                markers.addTo($scope.map);
                                 // $scope.map.addLayer( markers );
                               });
 
@@ -1099,6 +1125,7 @@ angular.module('kommonitorMap').component(
                                 $scope.layerControl._layers.forEach(function(layer){
                                   if(layer.name.includes(layerName)){
                                     $scope.layerControl.removeLayer(layer.layer);
+                                    $scope.map.removeLayer(layer.layer);
                                   }
                                 });
 
@@ -1852,9 +1879,11 @@ angular.module('kommonitorMap').component(
                                                                 }
 
                                                                 console.log("Remove old indicatorLayer if exists");
-                                                                if($scope.currentIndicatorLayer)
+                                                                if($scope.currentIndicatorLayer){
                                                                   $scope.layerControl.removeLayer($scope.currentIndicatorLayer);
-
+                                                                  $scope.map.removeLayer($scope.currentIndicatorLayer);
+                                                                }
+                                                                  
                                                                 $scope.currentIndicatorContainsZeroValues = false;
 
                                                                 // check if measureOfValueCheckbox is checked
@@ -1922,12 +1951,13 @@ angular.module('kommonitorMap').component(
 
                                                                 $scope.currentIndicatorLayer = layer;
 
-                                                                layer.StyledLayerControl = {
-                                                                  removable : false,
-                                                                  visible : true
-                                                                };
+                                                                // layer.StyledLayerControl = {
+                                                                //   removable : false,
+                                                                //   visible : true
+                                                                // };
 
-                                                                $scope.layerControl.addOverlay( layer, indicatorMetadataAndGeoJSON.indicatorName + "_" + spatialUnitName + "_" + date, {groupName : indicatorLayerGroupName} );
+                                                                $scope.layerControl.addOverlay( layer, indicatorMetadataAndGeoJSON.indicatorName + "_" + spatialUnitName + "_" + date, indicatorLayerGroupName );
+                                                                layer.addTo($scope.map);
 
                                                                 // var justRestyling = false;
 
@@ -1959,12 +1989,13 @@ angular.module('kommonitorMap').component(
 
                                                                 $scope.currentCustomIndicatorLayer = layer;
 
-                                                                layer.StyledLayerControl = {
-                                                                  removable : false,
-                                                                  visible : true
-                                                                };
+                                                                // layer.StyledLayerControl = {
+                                                                //   removable : false,
+                                                                //   visible : true
+                                                                // };
 
-                                                                $scope.layerControl.addOverlay( layer, indicatorMetadataAndGeoJSON.indicatorName + "_" + spatialUnitName + "_" + date + "_CUSTOM", {groupName : indicatorLayerGroupName} );
+                                                                $scope.layerControl.addOverlay( layer, indicatorMetadataAndGeoJSON.indicatorName + "_" + spatialUnitName + "_" + date + "_CUSTOM", indicatorLayerGroupName );
+                                                                layer.addTo($scope.map);
 
                                                                 $scope.makeCustomInfoControl(date);
                                                                 $scope.makeDefaultLegend(indicatorMetadataAndGeoJSON.defaultClassificationMapping);

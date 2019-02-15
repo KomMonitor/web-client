@@ -82,7 +82,7 @@
 	max-width: 200;
 }
 
-.leaflet-left .leaflet-control-layers {
+/* .leaflet-left .leaflet-control-layers {
   display: inline-block;
   float: none;
 }
@@ -90,7 +90,7 @@
 .leaflet-control-layers{
 	left: 125px;
 	top: 10px;
-}
+} */
 
 #dateSliderWrapper{
 	position: absolute;
