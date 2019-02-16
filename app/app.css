@@ -87,8 +87,10 @@
   float: none;
 	left: 125px;
 	top: 10px;
-	max-width 	: "600px";
-	max-height : "400px";
+
+	width: auto;
+	max-width	: 600px;
+	max-height : 400px;
 	overflow : auto;
 }
 
