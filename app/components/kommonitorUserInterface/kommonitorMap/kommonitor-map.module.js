@@ -71,6 +71,10 @@ angular.module('kommonitorMap').service(
 						georesourceMetadataAndGeoJSON);
 			};
 
+      this.removeReachabilityLayers = function(){
+        $rootScope.$broadcast("removeReachabilityLayers");
+      }
+
 			this.addIndicatorGeoJSON = function (indicatorMetadataAndGeoJSON, spatialUnitName, date) {
 
 				$rootScope.$broadcast("addIndicatorAsGeoJSON",

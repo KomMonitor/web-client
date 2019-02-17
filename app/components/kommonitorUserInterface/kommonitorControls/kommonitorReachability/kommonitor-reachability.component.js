@@ -20,6 +20,8 @@ angular
 							$scope.currentIsochronesGeoJSON;
 							$scope.latitudeStart = 51.4531655;
 							$scope.longitudeStart = 7.0250244;
+							$scope.transitMode;
+							$scope.reachMode;
 
 							$scope.loadingData = false;
 
@@ -28,6 +30,10 @@ angular
 							$scope.runPedestrianDemo = function(){
 
 								$scope.loadingData = true;
+								$rootScope.$broadcast("showLoadingIconOnMap");
+
+								$scope.transitMode = "Fußgänger";
+								$scope.reachMode = "Zeit";
 
 								// http://localhost:8088/otp/routers/current/isochrone?algorithm=accSampling&fromPlace=51.44542,7.04468&date=2018/10/01&time=12:00:00&mode=WALK&cutoffSec=1800&cutoffSec=3600
 
@@ -48,7 +54,8 @@ angular
 
 										kommonitorMapService.replaceIsochroneMarker($scope.latitudeStart, $scope.longitudeStart);
 
-										kommonitorMapService.replaceIsochroneGeoJSON($scope.currentIsochronesGeoJSON, "Fußgänger", "Zeit", ["5", "10", "15", "20", "25"], "Minuten");
+										kommonitorMapService.replaceIsochroneGeoJSON($scope.currentIsochronesGeoJSON, $scope.transitMode, $scope.reachMode, ["5", "10", "15", "20", "25"], "Minuten");
+										$scope.prepareDownloadGeoJSON();
 										$scope.loadingData = false;
 										$rootScope.$broadcast("hideLoadingIconOnMap");
 
@@ -63,7 +70,10 @@ angular
 							$scope.runBicycleDemo = function(){
 
 								$scope.loadingData = true;
+								$rootScope.$broadcast("showLoadingIconOnMap");
 
+								$scope.transitMode = "Fahrrad";
+								$scope.reachMode = "Zeit";
 								// http://localhost:8088/otp/routers/current/isochrone?algorithm=accSampling&fromPlace=51.44542,7.04468&date=2018/10/01&time=12:00:00&mode=WALK&cutoffSec=1800&cutoffSec=3600
 
 								var url = $scope.targetUrlToReachabilityService + "/isochrone?mode=BICYCLE" + constantUrlQueryParamsForDemo;
@@ -82,7 +92,8 @@ angular
 										$scope.currentIsochronesGeoJSON = response.data;
 
 										kommonitorMapService.replaceIsochroneMarker($scope.latitudeStart, $scope.longitudeStart);
-										kommonitorMapService.replaceIsochroneGeoJSON($scope.currentIsochronesGeoJSON, "Fahrrad", "Zeit", ["5", "10", "15", "20", "25"], "Minuten");
+										kommonitorMapService.replaceIsochroneGeoJSON($scope.currentIsochronesGeoJSON, $scope.transitMode, $scope.reachMode, ["5", "10", "15", "20", "25"], "Minuten");
+										$scope.prepareDownloadGeoJSON();
 										$scope.loadingData = false;
 										$rootScope.$broadcast("hideLoadingIconOnMap");
 
@@ -97,6 +108,10 @@ angular
 							$scope.runCarDemo = function(){
 
 								$scope.loadingData = true;
+								$rootScope.$broadcast("showLoadingIconOnMap");
+								
+								$scope.transitMode = "Auto";
+								$scope.reachMode = "Zeit";
 
 								// http://localhost:8088/otp/routers/current/isochrone?algorithm=accSampling&fromPlace=51.44542,7.04468&date=2018/10/01&time=12:00:00&mode=WALK&cutoffSec=1800&cutoffSec=3600
 
@@ -116,7 +131,8 @@ angular
 										$scope.currentIsochronesGeoJSON = response.data;
 
 										kommonitorMapService.replaceIsochroneMarker($scope.latitudeStart, $scope.longitudeStart);
-										kommonitorMapService.replaceIsochroneGeoJSON($scope.currentIsochronesGeoJSON, "Auto", "Zeit", ["5", "10", "15", "20", "25"], "Minuten");
+										kommonitorMapService.replaceIsochroneGeoJSON($scope.currentIsochronesGeoJSON, $scope.transitMode, $scope.reachMode, ["5", "10", "15", "20", "25"], "Minuten");
+										$scope.prepareDownloadGeoJSON();
 										$scope.loadingData = false;
 										$rootScope.$broadcast("hideLoadingIconOnMap");
 
@@ -127,6 +143,62 @@ angular
 										$rootScope.$broadcast("hideLoadingIconOnMap");
 								});
 							};
+
+							$scope.removeReachabilityLayers = function(){
+								$scope.loadingData = true;
+								$rootScope.$broadcast("showLoadingIconOnMap");
+
+								kommonitorMapService.removeReachabilityLayers();
+								$scope.currentIsochronesGeoJSON = undefined;
+								$scope.loadingData = false;
+								$rootScope.$broadcast("hideLoadingIconOnMap");
+							};
+
+							$scope.prepareDownloadGeoJSON = function(){
+
+								console.log("removing old download button if available")
+								if(document.getElementById("downloadReachabilityIsochrones"))
+									document.getElementById("downloadReachabilityIsochrones").remove();
+
+								var geoJSON_string = JSON.stringify($scope.currentIsochronesGeoJSON);
+
+								var fileName = "Erreichbarkeitsisochronen_via-" + $scope.transitMode + "_Abbruchkriterium-" + $scope.reachMode + ".geojson";
+
+								var blob = new Blob([geoJSON_string], {type: "application/json"});
+								var data  = URL.createObjectURL(blob);
+
+								console.log("create new Download button and append it to DOM");
+								var a = document.createElement('a');
+								a.download    = fileName;
+								a.href        = data;
+								a.textContent = "Download Isochronen als GeoJSON";
+								a.id = "downloadReachabilityIsochrones";
+								a.setAttribute("class", "btn btn-info");
+
+								document.getElementById('reachabilityButtonSection').appendChild(a);
+							};
+
+							// $scope.downloadGeoJSON = function(){
+							//
+							// 	var geoJSON_string = JSON.stringify($scope.computedCustomizedIndicatorGeoJSON);
+							//
+							// 	filename = $scope.targetIndicator.indicatorName + "_" + $scope.targetSpatialUnit.spatialUnitLevel + "_" + $scope.targetDate + "_CUSTOM.geojson";
+							//
+							// 	if (!geoJSON_string.match(/^data:application\/vnd.geo+json/i)) {
+							// 		geoJSON_string = 'data:application/vnd.geo+json;charset=utf-8,' + geoJSON_string;
+							// 	}
+							// 	data = encodeURI(geoJSON_string);
+							//
+							// 	link = document.createElement('a');
+							// 	link.setAttribute('href', data);
+							// 	link.setAttribute('download', filename);
+							//
+							// 	document.body.appendChild(link);
+							//
+							// 	console.log("Trigger download");
+							//
+							// 	link.click();
+							// }
 
 
 					}]

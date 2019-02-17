@@ -27,8 +27,8 @@
 
 		<br/><br/>
 
-		<div align="center" >
-			<div class="legend" align="left" ng-if="currentIsochronesGeoJSON">
+		<div align="center" ng-show="currentIsochronesGeoJSON">
+			<div class="legend" align="left">
 
 				<h4>Legende</h4>
 				<label>Startpunkt: </label>&nbsp;{{latitudeStart}}, {{longitudeStart}}
@@ -46,6 +46,14 @@
 
 				</div>
 
+			</div>
+
+			<br/>
+			<br/>
+
+			<div style="display: inline-block" align="center" id="reachabilityButtonSection">
+				<button ng-click="removeReachabilityLayers()" type="button" class="btn btn-danger">Ergebnis verwerfen / Layer entfernen</button>
+				<!-- another button to download as GeoJSOn will be set programatically within component file -->
 			</div>
 		</div>
 

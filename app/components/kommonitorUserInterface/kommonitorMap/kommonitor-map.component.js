@@ -1128,14 +1128,18 @@ angular.module('kommonitorMap').component(
                                     $scope.map.removeLayer(layer.layer);
                                   }
                                 });
+                              });
 
-                                // $scope.map.eachLayer(function(layer){
-                                //     if(layer.name.includes(layerName)){
-                                //       $scope.layerControl.removeLayer(layer);
-                                //     }
-                                // });
+                              $scope.$on("removeReachabilityLayers", function (event) {
 
+                                var layerNamePartly = "Isochrone";
 
+                                $scope.layerControl._layers.forEach(function(layer){
+                                  if(layer.name.includes(layerNamePartly)){
+                                    $scope.layerControl.removeLayer(layer.layer);
+                                    $scope.map.removeLayer(layer.layer);
+                                  }
+                                });
                               });
 
                                         var setupDefaultBrew = function(geoJSON, propertyName, numClasses, colorCode, classifyMethod){
