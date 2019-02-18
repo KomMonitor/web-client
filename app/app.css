@@ -14,7 +14,7 @@
 
 /* Colors */
 .awesome-marker-legend-icon-red {
-  background: url('dependencies/leaflet-awesome-markers/images/markers-soft.png') no-repeat -0px -50px;
+  background: url('dependencies/leaflet-awesome-markers/images/markers-soft.png') no-repeat -10px -50px;
 }
 
 .awesome-marker-legend-icon-orange {
