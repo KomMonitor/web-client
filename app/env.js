@@ -17,7 +17,7 @@
 
   window.__env.indicatorDatePrefix = "DATE_";
 
-  window.__env.numberOfDecimals = 4;
+  window.__env.numberOfDecimals = 2;
 
   window.__env.initialLatitude = 51.4386432;
   window.__env.initialLongitude = 7.0115552;
