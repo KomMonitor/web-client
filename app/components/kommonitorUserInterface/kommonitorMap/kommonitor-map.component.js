@@ -1123,7 +1123,7 @@ angular.module('kommonitorMap').component(
                                 var layerName = georesourceMetadataAndGeoJSON.datasetName;
 
                                 $scope.layerControl._layers.forEach(function(layer){
-                                  if(layer.name.includes(layerName)){
+                                  if(layer.group.name === poiLayerGroupName && layer.name.includes(layerName)){
                                     $scope.layerControl.removeLayer(layer.layer);
                                     $scope.map.removeLayer(layer.layer);
                                   }
@@ -1135,7 +1135,7 @@ angular.module('kommonitorMap').component(
                                 var layerNamePartly = "Isochrone";
 
                                 $scope.layerControl._layers.forEach(function(layer){
-                                  if(layer.name.includes(layerNamePartly)){
+                                  if(layer.group.name === reachabilityLayerGroupName && layer.name.includes(layerNamePartly)){
                                     $scope.layerControl.removeLayer(layer.layer);
                                     $scope.map.removeLayer(layer.layer);
                                   }
