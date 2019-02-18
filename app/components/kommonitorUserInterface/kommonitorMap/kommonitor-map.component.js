@@ -1939,7 +1939,7 @@ angular.module('kommonitorMap').component(
                                                                     $scope.makeDefaultLegend(indicatorMetadataAndGeoJSON.defaultClassificationMapping);
                                                                   }
                                                                   else if (indicatorMetadataAndGeoJSON.indicatorType === "DYNAMIC"){
-                                                                    setupDynamicIndicatorBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, "PuBuGn", "YlOrRd", $scope.classifyMethod);
+                                                                    setupDynamicIndicatorBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, "Greens", "Reds", $scope.classifyMethod);
                                                                     $scope.propertyName = INDICATOR_DATE_PREFIX + date;
 
                                                                     layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
@@ -2046,7 +2046,7 @@ angular.module('kommonitorMap').component(
                                                                             else{
 
                                                                               if($scope.indicatorTypeOfCurrentLayer === 'DYNAMIC'){
-                                                                                setupDynamicIndicatorBrew($scope.currentGeoJSONOfCurrentLayer, $scope.indicatorPropertyName, "PuBuGn", "YlOrRd", $scope.classifyMethod);
+                                                                                setupDynamicIndicatorBrew($scope.currentGeoJSONOfCurrentLayer, $scope.indicatorPropertyName, "Greens", "Reds", $scope.classifyMethod);
                                                                                 $scope.makeDynamicIndicatorLegend();
 
                                                                                 $scope.currentIndicatorLayer.eachLayer(function(layer) {
