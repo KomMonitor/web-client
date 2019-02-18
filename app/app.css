@@ -252,10 +252,6 @@
     color: #777;
 }
 
-.leaflet-right .legend{
-    margin-bottom: 90px;
-}
-
 .legend {
 		padding: 6px 8px;
 		font: 14px/16px Arial, Helvetica, sans-serif;
@@ -281,6 +277,40 @@
     opacity: 0.7;
 }
 .legend h4 {
+    margin: 0 0 5px;
+		font: 16px/18px Arial, Helvetica, sans-serif;
+    color: #777;
+}
+
+.leaflet-right .legendMap{
+    margin-bottom: 90px;
+}
+
+.legendMap {
+		padding: 6px 8px;
+		font: 14px/16px Arial, Helvetica, sans-serif;
+		background: white;
+		/* background: rgba(255,255,255,1); */
+		box-shadow: 0 0 15px rgba(0,0,0,0.2);
+		border-radius: 5px;
+    line-height: 18px;
+    color: #555;
+		width: auto;
+		max-width: 325px;
+		height: auto !important;
+		max-height: 400px;
+	  overflow-y: auto;
+		display: inline-block
+}
+.legendMap i {
+    width: 18px;
+    height: 18px;
+		max-width: 30px;
+    float: left;
+    margin-right: 8px;
+    opacity: 0.7;
+}
+.legendMap h4 {
     margin: 0 0 5px;
 		font: 16px/18px Arial, Helvetica, sans-serif;
     color: #777;

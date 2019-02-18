@@ -320,12 +320,12 @@ angular.module('kommonitorMap').component(
                     var toggleLegendControl = function(){
                       if($scope.showLegendControl === true){
                       /* use jquery to select your DOM elements that has the class 'legend' */
-                         $('.legend').hide();
+                         $('.legendMap').hide();
                          $scope.showLegendControl = false;
 
                          $('#toggleLegendControlButton').show();
                       }else{
-                         $('.legend').show();
+                         $('.legendMap').show();
                          $scope.showLegendControl = true;
 
                          // button is defined in kommonitor-user-interface component
@@ -501,7 +501,7 @@ angular.module('kommonitorMap').component(
 
                       $scope.legendControl.onAdd = function (map) {
 
-                        $scope.div = L.DomUtil.create('div', 'legend');
+                        $scope.div = L.DomUtil.create('div', 'legendMap');
                             labels = $scope.defaultBrew.getBreaks();
                             colors = $scope.defaultBrew.getColors();
 
@@ -573,7 +573,7 @@ angular.module('kommonitorMap').component(
 
                       $scope.legendControl.onAdd = function (map) {
 
-                        $scope.div = L.DomUtil.create('div', 'legend');
+                        $scope.div = L.DomUtil.create('div', 'legendMap');
 
                         $scope.div.innerHTML = $scope.appendLegendCloseButton();
                         $scope.div.innerHTML += '<div>';
@@ -665,7 +665,7 @@ angular.module('kommonitorMap').component(
 
                       $scope.legendControl.onAdd = function (map) {
 
-                        $scope.div = L.DomUtil.create('div', 'legend');
+                        $scope.div = L.DomUtil.create('div', 'legendMap');
 
                         $scope.div.innerHTML = $scope.appendLegendCloseButton();
                         $scope.div.innerHTML += '<div>';
