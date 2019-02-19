@@ -25,7 +25,7 @@ angular
 
 							$scope.loadingData = false;
 
-							var constantUrlQueryParamsForDemo = "&algorithm=accSampling&fromPlace=51.4531655,7.0250244&date=2018/10/01&time=12:00:00&mode=WALK&cutoffSec=300&cutoffSec=600&cutoffSec=900&cutoffSec=1200&cutoffSec=1500"
+							var constantUrlQueryParamsForDemo = "&algorithm=accSampling&fromPlace=51.4531655,7.0250244&date=2018/10/01&time=12:00:00&mode=WALK&precisionMeters=50&cutoffSec=300&cutoffSec=600&cutoffSec=900&cutoffSec=1200&cutoffSec=1500"
 
 							$scope.runPedestrianDemo = function(){
 
@@ -109,7 +109,7 @@ angular
 
 								$scope.loadingData = true;
 								$rootScope.$broadcast("showLoadingIconOnMap");
-								
+
 								$scope.transitMode = "Auto";
 								$scope.reachMode = "Zeit";
 
