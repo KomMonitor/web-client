@@ -357,7 +357,7 @@ angular.module('kommonitorMap').component(
                       return '<div id="legend_close" class="btn btn-link" style="right: 0px; position: relative; float: right;" title="schlie&szlig;en"><span class="glyphicon glyphicon-remove"></span></div>';
                     }
 
-                    $scope.makeInfoControl = function(date){
+                    $scope.makeInfoControl = function(date, isCustomComputation){
 
                       if($scope.infoControl){
                         try{
@@ -379,6 +379,12 @@ angular.module('kommonitorMap').component(
 
                           this._div.innerHTML = $scope.appendInfoCloseButton();
                           this._div.innerHTML += '<div>';
+                          var titel = $scope.indicatorName;
+
+                          if(isCustomComputation){
+                            titel += " - <i>individuelles Berechnungsergebnis</i>"
+                          }
+
                           this._div.innerHTML += '<h4>' + $scope.indicatorName + '</h4><br/>';
                           // this._div.innerHTML += '<p>' + $scope.indicatorDescription + '</p>'
                           this._div.innerHTML += '<b>Beschreibung: </b> ' + $scope.indicatorDescription + '<br/>';
@@ -1868,7 +1874,7 @@ angular.module('kommonitorMap').component(
                                             map.fitBounds(e.target.getBounds());
                                         }
 
-                                                  $scope.$on("replaceIndicatorAsGeoJSON", function (event, indicatorMetadataAndGeoJSON, spatialUnitName, date, justRestyling) {
+                                                  $scope.$on("replaceIndicatorAsGeoJSON", function (event, indicatorMetadataAndGeoJSON, spatialUnitName, date, justRestyling, isCustomComputation) {
 
                                                                 console.log('replaceIndicatorAsGeoJSON was called');
 
@@ -1921,7 +1927,7 @@ angular.module('kommonitorMap').component(
                                                                       onEachFeature: onEachFeatureIndicator
                                                                   });
 
-                                                                  $scope.makeInfoControl(date);
+                                                                  $scope.makeInfoControl(date, isCustomComputation);
                                                                   $scope.makeMeasureOfValueLegend();
 
                                                                 }
@@ -1935,7 +1941,7 @@ angular.module('kommonitorMap').component(
                                                                         style: styleDefault,
                                                                         onEachFeature: onEachFeatureIndicator
                                                                     });
-                                                                    $scope.makeInfoControl(date);
+                                                                    $scope.makeInfoControl(date, isCustomComputation);
                                                                     $scope.makeDefaultLegend(indicatorMetadataAndGeoJSON.defaultClassificationMapping);
                                                                   }
                                                                   else if (indicatorMetadataAndGeoJSON.indicatorType === "DYNAMIC"){
@@ -1946,7 +1952,7 @@ angular.module('kommonitorMap').component(
                                                                         style: styleDynamicIndicator,
                                                                         onEachFeature: onEachFeatureIndicator
                                                                     });
-                                                                    $scope.makeInfoControl(date);
+                                                                    $scope.makeInfoControl(date, isCustomComputation);
                                                                     $scope.makeDynamicIndicatorLegend();
                                                                   }
 
@@ -1960,7 +1966,12 @@ angular.module('kommonitorMap').component(
                                                                 //   visible : true
                                                                 // };
 
-                                                                $scope.layerControl.addOverlay( layer, indicatorMetadataAndGeoJSON.indicatorName + "_" + spatialUnitName + "_" + date, indicatorLayerGroupName );
+                                                                var layerName = indicatorMetadataAndGeoJSON.indicatorName + "_" + spatialUnitName + "_" + date;
+
+                                                                if(isCustomComputation){
+                                                                  layerName += " - individuelles Berechnungsergebnis";
+                                                                }
+                                                                $scope.layerControl.addOverlay( layer, layerName, indicatorLayerGroupName );
                                                                 layer.addTo($scope.map);
 
                                                                 // var justRestyling = false;

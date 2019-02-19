@@ -65,25 +65,28 @@
 					<div ng-repeat='input in processInputs' class="slidecontainer">
 						<!-- <label>{{input.parameterData.name}}: {{input.inputElement.value}}</label> -->
 
+						<label >{{input.parameterData.name}}:</label>&nbsp;{{input.parameterData.description}}
 						<form class="form-inline">
 						  <div class="form-group">
 								<!-- <label >{{input.parameterData.name}}: {{inputNgModels[input.inputElement.ngModelVariable]}}</label> -->
-								<label >{{input.parameterData.name}}:</label>
+
+								<label>{{input.inputElement.min}}</label><input id="{{input.parameterData.name}}" class="{{input.inputElement.class}} form-control" ng-model="inputNgModels[input.inputElement.ngModelVariable]" type="{{input.inputElement.type}}"  min="{{input.inputElement.min}}" max="{{input.inputElement.max}}" step="{{input.inputElement.step}}"><label>{{input.inputElement.max}}</label>
+								&nbsp;&nbsp;&nbsp;
 								<input ng-model="inputNgModels[input.inputElement.ngModelVariable]" type="number" string-to-number min="{{input.inputElement.min}}" max="{{input.inputElement.max}}" step="{{input.inputElement.step}}" style="height:20px; width:100px;" class="form-control" id="{{input.parameterData.name}}Label">
 								<span class="validity"></span>
 							</div>
 						</form>
 
-						<p>{{input.parameterData.description}}</p>
+
 						<!-- <input type='{{input.type}}' value='{{ input.value }}'> -->
-						<form class="form-inline">
+						<!-- <form class="form-inline">
 						  <div class="form-group">
 								<label>{{input.inputElement.min}}</label><input id="{{input.parameterData.name}}" class="{{input.inputElement.class}} form-control" ng-model="inputNgModels[input.inputElement.ngModelVariable]" type="{{input.inputElement.type}}"  min="{{input.inputElement.min}}" max="{{input.inputElement.max}}" step="{{input.inputElement.step}}"><label>{{input.inputElement.max}}</label>
 
 							</div>
-						</form>
+						</form> -->
 
-						<p></p>
+						<br/>
 					</div>
 				</div>
 
@@ -118,6 +121,8 @@
 					<button ng-click="addComputedIndicatorToMap()" type="button" class="btn btn-success">auf Karte darstellen</button>
 					<!-- another button to download as GeoJSOn will be set programatically within component file -->
 				</div>
+				<br/>
+				<button ng-click="" type="button" class="btn btn-success">mit Standard-Berechnung vergleichen (nicht implementiert)</button>
 
 			</div>
 

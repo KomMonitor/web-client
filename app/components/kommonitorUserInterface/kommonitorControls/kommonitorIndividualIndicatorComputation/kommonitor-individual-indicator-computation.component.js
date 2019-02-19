@@ -659,7 +659,9 @@ angular
 							console.log("Adding customized indicator to map.");
 
 							$scope.targetIndicator.geoJSON = $scope.computedCustomizedIndicatorGeoJSON;
-							kommonitorMapService.addCustomIndicatorGeoJSON($scope.targetIndicator, $scope.targetSpatialUnit.spatialUnitLevel, $scope.targetDate);
+							kommonitorDataExchangeService.selectedIndicator = $scope.targetIndicator;
+							// kommonitorMapService.addCustomIndicatorGeoJSON($scope.targetIndicator, $scope.targetSpatialUnit.spatialUnitLevel, $scope.targetDate);
+							kommonitorMapService.replaceIndicatorGeoJSON($scope.targetIndicator, $scope.targetSpatialUnit.spatialUnitLevel, $scope.targetDate, false, true);
 						};
 
 						$scope.prepareDownloadGeoJSON = function(){

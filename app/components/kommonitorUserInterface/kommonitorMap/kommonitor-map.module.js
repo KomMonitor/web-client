@@ -81,10 +81,10 @@ angular.module('kommonitorMap').service(
 						indicatorMetadataAndGeoJSON, spatialUnitName, date);
 			};
 
-			this.replaceIndicatorGeoJSON = function (indicatorMetadataAndGeoJSON, spatialUnitName, date, justRestyling) {
+			this.replaceIndicatorGeoJSON = function (indicatorMetadataAndGeoJSON, spatialUnitName, date, justRestyling, isCustomComputation) {
 
 				$rootScope.$broadcast("replaceIndicatorAsGeoJSON",
-						indicatorMetadataAndGeoJSON, spatialUnitName, date, justRestyling);
+						indicatorMetadataAndGeoJSON, spatialUnitName, date, justRestyling, isCustomComputation);
 			};
 
 			this.addCustomIndicatorGeoJSON = function (indicatorMetadataAndGeoJSON, spatialUnitName, date) {
