@@ -21,6 +21,7 @@ angular
 						$scope.computedCustomizedIndicatorGeoJSON;
 						$scope.datesAsMs;
 						$scope.availableDates;
+						$scope.inputNgModels = {};
 
 						$scope.dateSliderForComputation;
 
@@ -44,6 +45,15 @@ angular
 
 							$scope.$apply();
 						};
+
+						var updateInputDisplay = function(input){
+
+							var inputDOMElement = document.getElementById(input.parameterData.name);
+							var inputDOMLabelInput = document.getElementById(input.parameterData.name + "Label");
+
+							input.inputElement.value = inputDOMElement.value;
+							inputDOMLabelInput.value = inputDOMElement.value;
+						}
 
 						var createInputAsString = function(parameterData){
 							// {
@@ -100,8 +110,8 @@ angular
 							var inputElement = document.createElement("input");
 							inputElement.setAttribute("id", parameterData.name);
 							inputElement.setAttribute("type", "range");
-							inputElement.setAttribute("value", parameterData.defaultValue);
-							inputElement.value = parameterData.defaultValue;
+							inputElement.setAttribute("value", Number(parameterData.defaultValue));
+							inputElement.value = Number(parameterData.defaultValue);
 							inputElement.setAttribute("class", "slider");
 							inputElement.setAttribute("min", parameterData.minParameterValueForNumericInputs);
 							inputElement.setAttribute("max", parameterData.maxParameterValueForNumericInputs);
@@ -127,7 +137,7 @@ angular
 							var inputElement = {};
 							inputElement.id = parameterData.name;
 							inputElement.type = "range";
-							inputElement.value = parameterData.defaultValue;
+							inputElement.value = Number(parameterData.defaultValue);
 							inputElement.class = "slider";
 							inputElement.min = parameterData.minParameterValueForNumericInputs;
 							inputElement.max = parameterData.maxParameterValueForNumericInputs;
@@ -137,7 +147,7 @@ angular
 							inputElement.ngModelVariable = parameterData.name + "Value";
 
 							// inputElement.setAttribute("ng-model", parameterData.name + "Value");
-							// $scope[inputElement.ngModelVariable] = parameterData.defaultValue;
+							$scope.inputNgModels[inputElement.ngModelVariable] = Number(parameterData.defaultValue);
 
 							return inputElement;
 						};
@@ -150,6 +160,7 @@ angular
 
 							$scope.computedCustomizedIndicatorGeoJSON = undefined;
 							$scope.resetProgressBar();
+							$scope.inputNgModels = {};
 
 							// await sleep(1000);
 
@@ -230,7 +241,7 @@ angular
 
 								$scope.processInputs.push(processInput);
 
-								$scope[processInput.inputElement.ngModelVariable] = processInput.parameterData.defaultValue;
+								// $scope[processInput.inputElement.ngModelVariable] = processInput.parameterData.defaultValue;
 
 								// make a bit space after paramter
 								// parameterDiv.appendChild(document.createElement("p"));
@@ -535,7 +546,6 @@ angular
 
 											$scope.loadingData = false;
 									});
-
 
 						}
 
