@@ -69,8 +69,9 @@
 						  <div class="form-group">
 								<!-- <label >{{input.parameterData.name}}: {{inputNgModels[input.inputElement.ngModelVariable]}}</label> -->
 								<label >{{input.parameterData.name}}:</label>
-								<input ng-model="inputNgModels[input.inputElement.ngModelVariable]" type="text" string-to-number style="height:20px; width:100px;" class="form-control" id="{{input.parameterData.name}}Label">
-						  </div>
+								<input ng-model="inputNgModels[input.inputElement.ngModelVariable]" type="number" string-to-number min="{{input.inputElement.min}}" max="{{input.inputElement.max}}" step="{{input.inputElement.step}}" style="height:20px; width:100px;" class="form-control" id="{{input.parameterData.name}}Label">
+								<span class="validity"></span>
+							</div>
 						</form>
 
 						<p>{{input.parameterData.description}}</p>
