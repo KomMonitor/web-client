@@ -85,7 +85,7 @@ angular
 						        from: $scope.valueRangeMinValue,
 						        to: $scope.valueRangeMaxValue,
 								   	force_edges: true,
-										step: 0.0001,
+										step: 0.01,
 						        grid: true,
 										prettify_enabled: true,
 										prettify_separator: "",
