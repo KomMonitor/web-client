@@ -42,7 +42,7 @@
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.5.0",
     "@ngageoint/leaflet-geopackage": "^2.0.4",
-    "angular": "^1.5.0",
+    "angular": "^1.6.0",
     "bootstrap": "^3.3.6",
     "classybrew": "0.0.3",
     "echarts": "^4.2.0-rc.2",
@@ -56,6 +56,7 @@
     "leaflet.awesome-markers": "^2.0.5",
     "leaflet.markercluster": "^1.4.1",
     "rangeslide.js": "^0.13.0",
+    "shp-write": "^0.3.2",
     "tableexport": "^5.0.5"
   }
 }
