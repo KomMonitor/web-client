@@ -29,9 +29,9 @@
   window.__env.defaultBorderColor = "black";
   window.__env.defaultColorForFilteredValues = "white";
   window.__env.defaultBorderColorForFilteredValues = "black";
-  window.__env.defaultFillOpacity = "0.8";
+  window.__env.defaultFillOpacity = "0.6";
   window.__env.defaultFillOpacityForFilteredFeatures = "0.2";
-  window.__env.defaultFillOpacityForZeroFeatures = "0.8";
+  window.__env.defaultFillOpacityForZeroFeatures = "0.6";
   window.__env.defaultFillOpacityForHighlightedFeatures = "0.95";
   //allowesValues: equal_interval, quantile, jenks
   window.__env.defaultClassifyMethod = "jenks";
