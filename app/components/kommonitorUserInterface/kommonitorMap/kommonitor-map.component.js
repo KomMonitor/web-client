@@ -20,6 +20,7 @@ angular.module('kommonitorMap').component(
                     const defaultFillOpacity = __env.defaultFillOpacity;
                     const defaultFillOpacityForFilteredFeatures = __env.defaultFillOpacityForFilteredFeatures;
                     const defaultFillOpacityForHighlightedFeatures = __env.defaultFillOpacityForHighlightedFeatures;
+                    const defaultFillOpacityForZeroFeatures = __env.defaultFillOpacityForZeroFeatures;
                     //allowesValues: equal_interval, quantile, jenks
                     $scope.classifyMethods = [{
                       name: "Jenks",
@@ -530,7 +531,7 @@ angular.module('kommonitorMap').component(
 
                         if(kommonitorDataExchangeService.filteredIndicatorFeatureNames.length > 0){
                           $scope.div.innerHTML +=
-                              '<i style="background:' + defaultColorForFilteredValues + '"></i> ' +
+                              '<i style="background:' + defaultColorForFilteredValues + '; border: 2px solid ' + defaultBorderColorForFilteredValues + ';"></i> ' +
                               "gefilterte Features" + '<br>';
                               useFilteredOrZeroValues = true;
                         }
@@ -601,7 +602,7 @@ angular.module('kommonitorMap').component(
 
                         if(kommonitorDataExchangeService.filteredIndicatorFeatureNames.length > 0){
                           $scope.div.innerHTML +=
-                              '<i style="background:' + defaultColorForFilteredValues + '"></i> ' +
+                              '<i style="background:' + defaultColorForFilteredValues + '; border: 2px solid ' + defaultBorderColorForFilteredValues + ';"></i> ' +
                               "gefilterte Features" + '<br/>';
                         }
 
@@ -686,7 +687,7 @@ angular.module('kommonitorMap').component(
 
                         if(kommonitorDataExchangeService.filteredIndicatorFeatureNames.length > 0){
                           $scope.div.innerHTML +=
-                              '<i style="background:' + defaultColorForFilteredValues + '"></i> ' +
+                              '<i style="background:' + defaultColorForFilteredValues + '; border: 2px solid ' + defaultBorderColorForFilteredValues + ';"></i> ' +
                               "gefilterte Features" + '</br>';
                         }
 
@@ -1488,7 +1489,7 @@ angular.module('kommonitorMap').component(
                                           var fillColor;
                                           if(feature.properties[$scope.propertyName] == 0 || feature.properties[$scope.propertyName] == "0"){
                                             fillColor = $scope.defaultColorForZeroValues;
-                                            var fillOpacity = defaultFillOpacityForFilteredFeatures;
+                                            var fillOpacity = defaultFillOpacityForZeroFeatures;
                                           }
                                           else{
                                             fillColor = $scope.defaultBrew.getColorInRange(feature.properties[$scope.propertyName]);
@@ -1532,7 +1533,7 @@ angular.module('kommonitorMap').component(
                                             var fillColor;
                                             if(feature.properties[$scope.propertyName] == 0 || feature.properties[$scope.propertyName] == "0"){
                                               fillColor = $scope.defaultColorForZeroValues;
-                                              var fillOpacity = defaultFillOpacityForFilteredFeatures;
+                                              var fillOpacity = defaultFillOpacityForZeroFeatures;
                                             }
                                             else{
 
@@ -1580,7 +1581,7 @@ angular.module('kommonitorMap').component(
                                             var fillColor;
                                             if(feature.properties[$scope.propertyName] == 0 || feature.properties[$scope.propertyName] == "0"){
                                               fillColor = $scope.defaultColorForZeroValues;
-                                              var fillOpacity = defaultFillOpacityForFilteredFeatures;
+                                              var fillOpacity = defaultFillOpacityForZeroFeatures;
                                             }
                                             else{
                                               // invert colors, so that lowest values will become strong colored!
@@ -1631,7 +1632,7 @@ angular.module('kommonitorMap').component(
                                             var fillColor;
                                             if(feature.properties[$scope.propertyName] == 0 || feature.properties[$scope.propertyName] == "0"){
                                               fillColor = $scope.defaultColorForZeroValues;
-                                              var fillOpacity = defaultFillOpacityForFilteredFeatures;
+                                              var fillOpacity = defaultFillOpacityForZeroFeatures;
                                             }
                                             else{
                                               for (var index=0; index < $scope.dynamicIncreaseBrew.breaks.length; index++){
@@ -1675,7 +1676,7 @@ angular.module('kommonitorMap').component(
                                             var fillColor;
                                             if(feature.properties[$scope.propertyName] == 0 || feature.properties[$scope.propertyName] == "0"){
                                               fillColor = $scope.defaultColorForZeroValues;
-                                              var fillOpacity = defaultFillOpacityForFilteredFeatures;
+                                              var fillOpacity = defaultFillOpacityForZeroFeatures;
                                             }
                                             else{
                                               // invert colors, so that lowest values will become strong colored!

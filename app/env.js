@@ -25,12 +25,13 @@
   window.__env.minZoomLevel = 1;
   window.__env.maxZoomLevel = 19;
 
-  window.__env.defaultColorForZeroValues = "black";
+  window.__env.defaultColorForZeroValues = "#a6a6a6";
   window.__env.defaultBorderColor = "black";
-  window.__env.defaultColorForFilteredValues = "#a6a6a6";
+  window.__env.defaultColorForFilteredValues = "white";
   window.__env.defaultBorderColorForFilteredValues = "black";
   window.__env.defaultFillOpacity = "0.8";
-  window.__env.defaultFillOpacityForFilteredFeatures = "0.7";
+  window.__env.defaultFillOpacityForFilteredFeatures = "0.2";
+  window.__env.defaultFillOpacityForZeroFeatures = "0.8";
   window.__env.defaultFillOpacityForHighlightedFeatures = "0.95";
   //allowesValues: equal_interval, quantile, jenks
   window.__env.defaultClassifyMethod = "jenks";
