@@ -20,9 +20,10 @@
 
 
 		<div align="center">
-			<input type="button" class="btn btn-s btn-primary" value="Fußgänger-Demo" ng-click="runPedestrianDemo()"></input>
-			<input type="button" class="btn btn-s btn-primary" value="Fahrrad-Demo" ng-click="runBicycleDemo()"></input>
-			<input type="button" class="btn btn-s btn-primary" value="Auto-Demo" ng-click="runCarDemo()"></input>
+			<input type="button" class="btn btn-s btn-primary" value="Fußgänger-Demo (Kinder)" ng-click="runChildDemo()"></input>
+			<input type="button" class="btn btn-s btn-primary" value="Fußgänger-Demo (Erwachsener)" ng-click="runPedestrianDemo()"></input>
+			<!-- <input type="button" class="btn btn-s btn-primary" value="Fahrrad-Demo" ng-click="runBicycleDemo()"></input> -->
+			<!-- <input type="button" class="btn btn-s btn-primary" value="Auto-Demo" ng-click="runCarDemo()"></input> -->
 		</div>
 
 		<br/><br/>
@@ -34,6 +35,8 @@
 				<label>Startpunkt: </label>&nbsp;{{latitudeStart}}, {{longitudeStart}}
 				<br/>
 				<label>Fortbewegungsart: </label>&nbsp;{{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.transitMode}}
+				<br/>
+				<label>Geschwindigkeit: </label>&nbsp;{{speedInKilometersPerHour}} km/h
 				<br/>
 				<label>Abbruchkriterium: </label>&nbsp;{{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.reachMode}}
 				<br/>
