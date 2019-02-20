@@ -12,12 +12,12 @@
 	height: 100%;
 }
 
-input:invalid+span:after {
+#processInputForm input:invalid+span:after {
   content: '✖';
   padding-left: 5px;
 }
 
-input:valid+span:after {
+#processInputForm input:valid+span:after {
   content: '✓';
   padding-left: 5px;
 }
