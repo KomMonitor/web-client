@@ -28,9 +28,9 @@ angular
 
 							$scope.loadingData = false;
 
-							var constantUrlQueryParamsForDemo = "&algorithm=accSampling&fromPlace=51.4881124,7.01993644&date=2018/10/01&time=12:00:00&mode=WALK&precisionMeters=100&optimize=QUICK&ignoreRealtimeUpdates=true&cutoffSec=300&cutoffSec=600&cutoffSec=900"
+							// var constantUrlQueryParamsForDemo = "&algorithm=accSampling&fromPlace=51.4881124,7.01993644&date=2018/10/01&time=12:00:00&mode=WALK&precisionMeters=100&optimize=QUICK&ignoreRealtimeUpdates=true&cutoffSec=300&cutoffSec=600&cutoffSec=900"
+							var constantUrlQueryParamsForDemo = "&algorithm=accSampling&fromPlace=51.4881124,7.01993644&date=2018/10/01&time=12:00:00&mode=WALK&precisionMeters=50&ignoreRealtimeUpdates=true&cutoffSec=300&cutoffSec=600&cutoffSec=900"
 
-							// var constantUrlQueryParamsForDemo = "&output=SHED&fromPlace=51.4531655,7.0250244&date=2018/10/01&time=12:00:00&mode=WALK&optimize=QUICK&ignoreRealtimeUpdates=true&walkTime=15&disableRemainingWeightHeuristic=true";
 
 							$scope.runChildDemo = function(){
 
@@ -39,7 +39,7 @@ angular
 
 								$scope.transitMode = "Fußgänger (Kind)";
 								$scope.speedInMetersPerSecond = "0.833333";
-								$scope.speedInKilometersPerHour = $scope.speedInMetersPerSecond * 3600 / 1000;
+								$scope.speedInKilometersPerHour = Number($scope.speedInMetersPerSecond * 3600 / 1000).toFixed(0);
 								$scope.reachMode = "Zeit";
 
 								// http://localhost:8088/otp/routers/current/isochrone?algorithm=accSampling&fromPlace=51.44542,7.04468&date=2018/10/01&time=12:00:00&mode=WALK&cutoffSec=1800&cutoffSec=3600
@@ -82,7 +82,7 @@ angular
 								$scope.transitMode = "Fußgänger (Erwachsener)";
 								$scope.reachMode = "Zeit";
 								$scope.speedInMetersPerSecond = "1.38889";
-								$scope.speedInKilometersPerHour = $scope.speedInMetersPerSecond * 3600 / 1000;
+								$scope.speedInKilometersPerHour = Number($scope.speedInMetersPerSecond * 3600 / 1000).toFixed(0);
 
 								// http://localhost:8088/otp/routers/current/isochrone?algorithm=accSampling&fromPlace=51.44542,7.04468&date=2018/10/01&time=12:00:00&mode=WALK&cutoffSec=1800&cutoffSec=3600
 
