@@ -509,8 +509,8 @@ angular
 																	for (var j=0; j<scatterSeries.length; j++){
 																		htmlString += "<tr>";
 																		htmlString += "<td>" + scatterSeries[j].name + "</td>";
-																		htmlString += "<td>" + Number(scatterSeries[j].value[0]).toFixed(numberOfDecimals) + "</td>";
-																		htmlString += "<td>" + Number(scatterSeries[j].value[1]).toFixed(numberOfDecimals) + "</td>";
+																		htmlString += "<td>" + +Number(scatterSeries[j].value[0]).toFixed(numberOfDecimals) + "</td>";
+																		htmlString += "<td>" + +Number(scatterSeries[j].value[1]).toFixed(numberOfDecimals) + "</td>";
 																		htmlString += "</tr>";
 																	}
 

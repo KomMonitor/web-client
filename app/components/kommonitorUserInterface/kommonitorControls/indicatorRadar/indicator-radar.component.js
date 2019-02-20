@@ -214,7 +214,7 @@ angular
 																		htmlString += "<tr>";
 																		htmlString += "<td>" + radarSeries[j].name + "</td>";
 																		for (var k=0; k<indicators.length; k++){
-																			htmlString += "<td>" + Number(radarSeries[j].value[k]).toFixed(numberOfDecimals) + "</td>";
+																			htmlString += "<td>" + +Number(radarSeries[j].value[k]).toFixed(numberOfDecimals) + "</td>";
 																		}
 																		htmlString += "</tr>";
 																	}

@@ -533,7 +533,7 @@ angular
 																for (var i=0; i<barData.length; i++){
 																	htmlString += "<tr>";
 																	htmlString += "<td>" + featureNames[i] + "</td>";
-																	htmlString += "<td>" + Number(barData[i].value).toFixed(numberOfDecimals) + "</td>";
+																	htmlString += "<td>" + +Number(barData[i].value).toFixed(numberOfDecimals) + "</td>";
 																	htmlString += "</tr>";
 																}
 
@@ -741,7 +741,7 @@ angular
 																	htmlString += "<tr>";
 																	htmlString += "<td>" + timestamps[j] + "</td>";
 																	for (var k=0; k<lineSeries.length; k++){
-																		htmlString += "<td>" + Number(lineSeries[k].data[j]).toFixed(numberOfDecimals) + "</td>";
+																		htmlString += "<td>" + +Number(lineSeries[k].data[j]).toFixed(numberOfDecimals) + "</td>";
 																	}
 																	htmlString += "</tr>";
 																}
