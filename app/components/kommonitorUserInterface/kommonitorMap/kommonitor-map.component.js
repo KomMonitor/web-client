@@ -1209,21 +1209,35 @@ angular.module('kommonitorMap').component(
 
                                         var setupGtMeasureOfValueBrew = function(greaterThanValues, colorCodeForGreaterThanValues, classifyMethod){
                                           var tempBrew = new classyBrew();
-                                          if(greaterThanValues.length > 5){
-                                            // pass array to our classyBrew series
-                                            tempBrew.setSeries(greaterThanValues);
-                                            // define number of classes
-                                            tempBrew.setNumClasses(5);
-                                            // set color ramp code
-                                            tempBrew.setColorCode(colorCodeForGreaterThanValues);
-                                            // classify by passing in statistical method
-                                            // i.e. equal_interval, jenks, quantile
-                                            tempBrew.classify(classifyMethod);
-
-                                            $scope.gtMeasureOfValueBrew.colors = tempBrew.getColors();
-                                            $scope.gtMeasureOfValueBrew.breaks = tempBrew.getBreaks();
-                                          }
-                                          else if(greaterThanValues.length === 4 || greaterThanValues.length === 5){
+                                          // if(greaterThanValues.length > 5){
+                                          //   // pass array to our classyBrew series
+                                          //   tempBrew.setSeries(greaterThanValues);
+                                          //   // define number of classes
+                                          //   tempBrew.setNumClasses(5);
+                                          //   // set color ramp code
+                                          //   tempBrew.setColorCode(colorCodeForGreaterThanValues);
+                                          //   // classify by passing in statistical method
+                                          //   // i.e. equal_interval, jenks, quantile
+                                          //   tempBrew.classify(classifyMethod);
+                                          //
+                                          //   $scope.gtMeasureOfValueBrew.colors = tempBrew.getColors();
+                                          //   $scope.gtMeasureOfValueBrew.breaks = tempBrew.getBreaks();
+                                          // }
+                                          // else if(greaterThanValues.length === 4 || greaterThanValues.length === 5){
+                                          //   // pass array to our classyBrew series
+                                          //   tempBrew.setSeries(greaterThanValues);
+                                          //   // define number of classes
+                                          //   tempBrew.setNumClasses(3);
+                                          //   // set color ramp code
+                                          //   tempBrew.setColorCode(colorCodeForGreaterThanValues);
+                                          //   // classify by passing in statistical method
+                                          //   // i.e. equal_interval, jenks, quantile
+                                          //   tempBrew.classify(classifyMethod);
+                                          //
+                                          //   $scope.gtMeasureOfValueBrew.colors = tempBrew.getColors();
+                                          //   $scope.gtMeasureOfValueBrew.breaks = tempBrew.getBreaks();
+                                          // }
+                                          if(greaterThanValues.length === 4 || greaterThanValues.length >= 5){
                                             // pass array to our classyBrew series
                                             tempBrew.setSeries(greaterThanValues);
                                             // define number of classes
@@ -1237,6 +1251,7 @@ angular.module('kommonitorMap').component(
                                             $scope.gtMeasureOfValueBrew.colors = tempBrew.getColors();
                                             $scope.gtMeasureOfValueBrew.breaks = tempBrew.getBreaks();
                                           }
+
                                           else if(greaterThanValues.length === 3){
                                             greaterThanValues.sort((a, b) => a - b);
 
@@ -1268,21 +1283,35 @@ angular.module('kommonitorMap').component(
 
                                         var setupLtMeasureOfValueBrew = function(lesserThanValues, colorCodeForLesserThanValues, classifyMethod){
                                           var tempBrew = new classyBrew();
-                                          if(lesserThanValues.length > 5){
-                                            // pass array to our classyBrew series
-                                            tempBrew.setSeries(lesserThanValues);
-                                            // define number of classes
-                                            tempBrew.setNumClasses(5);
-                                            // set color ramp code
-                                            tempBrew.setColorCode(colorCodeForLesserThanValues);
-                                            // classify by passing in statistical method
-                                            // i.e. equal_interval, jenks, quantile
-                                            tempBrew.classify(classifyMethod);
-
-                                            $scope.ltMeasureOfValueBrew.colors = tempBrew.getColors();
-                                            $scope.ltMeasureOfValueBrew.breaks = tempBrew.getBreaks();
-                                          }
-                                          else if(lesserThanValues.length === 4 || lesserThanValues.length === 5){
+                                          // if(lesserThanValues.length > 5){
+                                          //   // pass array to our classyBrew series
+                                          //   tempBrew.setSeries(lesserThanValues);
+                                          //   // define number of classes
+                                          //   tempBrew.setNumClasses(5);
+                                          //   // set color ramp code
+                                          //   tempBrew.setColorCode(colorCodeForLesserThanValues);
+                                          //   // classify by passing in statistical method
+                                          //   // i.e. equal_interval, jenks, quantile
+                                          //   tempBrew.classify(classifyMethod);
+                                          //
+                                          //   $scope.ltMeasureOfValueBrew.colors = tempBrew.getColors();
+                                          //   $scope.ltMeasureOfValueBrew.breaks = tempBrew.getBreaks();
+                                          // }
+                                          // else if(lesserThanValues.length === 4 || lesserThanValues.length === 5){
+                                          //   // pass array to our classyBrew series
+                                          //   tempBrew.setSeries(lesserThanValues);
+                                          //   // define number of classes
+                                          //   tempBrew.setNumClasses(3);
+                                          //   // set color ramp code
+                                          //   tempBrew.setColorCode(colorCodeForLesserThanValues);
+                                          //   // classify by passing in statistical method
+                                          //   // i.e. equal_interval, jenks, quantile
+                                          //   tempBrew.classify(classifyMethod);
+                                          //
+                                          //   $scope.ltMeasureOfValueBrew.colors = tempBrew.getColors();
+                                          //   $scope.ltMeasureOfValueBrew.breaks = tempBrew.getBreaks();
+                                          // }
+                                          if(lesserThanValues.length === 4 || lesserThanValues.length >= 5){
                                             // pass array to our classyBrew series
                                             tempBrew.setSeries(lesserThanValues);
                                             // define number of classes
