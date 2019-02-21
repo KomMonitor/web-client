@@ -1397,21 +1397,35 @@ angular.module('kommonitorMap').component(
                                           // analyse length of value arrays
 
                                           var tempBrew = new classyBrew();
-                                          if(positiveValues.length > 5){
-                                            // pass array to our classyBrew series
-                                            tempBrew.setSeries(positiveValues);
-                                            // define number of classes
-                                            tempBrew.setNumClasses(5);
-                                            // set color ramp code
-                                            tempBrew.setColorCode(colorCodeForPositiveValues);
-                                            // classify by passing in statistical method
-                                            // i.e. equal_interval, jenks, quantile
-                                            tempBrew.classify(classifyMethod);
-
-                                            $scope.dynamicIncreaseBrew.colors = tempBrew.getColors();
-                                            $scope.dynamicIncreaseBrew.breaks = tempBrew.getBreaks();
-                                          }
-                                          else if(positiveValues.length === 4 || positiveValues.length === 5){
+                                          // if(positiveValues.length > 5){
+                                          //   // pass array to our classyBrew series
+                                          //   tempBrew.setSeries(positiveValues);
+                                          //   // define number of classes
+                                          //   tempBrew.setNumClasses(5);
+                                          //   // set color ramp code
+                                          //   tempBrew.setColorCode(colorCodeForPositiveValues);
+                                          //   // classify by passing in statistical method
+                                          //   // i.e. equal_interval, jenks, quantile
+                                          //   tempBrew.classify(classifyMethod);
+                                          //
+                                          //   $scope.dynamicIncreaseBrew.colors = tempBrew.getColors();
+                                          //   $scope.dynamicIncreaseBrew.breaks = tempBrew.getBreaks();
+                                          // }
+                                          // else if(positiveValues.length === 4 || positiveValues.length === 5){
+                                          //   // pass array to our classyBrew series
+                                          //   tempBrew.setSeries(positiveValues);
+                                          //   // define number of classes
+                                          //   tempBrew.setNumClasses(3);
+                                          //   // set color ramp code
+                                          //   tempBrew.setColorCode(colorCodeForPositiveValues);
+                                          //   // classify by passing in statistical method
+                                          //   // i.e. equal_interval, jenks, quantile
+                                          //   tempBrew.classify(classifyMethod);
+                                          //
+                                          //   $scope.dynamicIncreaseBrew.colors = tempBrew.getColors();
+                                          //   $scope.dynamicIncreaseBrew.breaks = tempBrew.getBreaks();
+                                          // }
+                                          if(positiveValues.length === 4 || positiveValues.length >= 5){
                                             // pass array to our classyBrew series
                                             tempBrew.setSeries(positiveValues);
                                             // define number of classes
@@ -1457,21 +1471,35 @@ angular.module('kommonitorMap').component(
                                         function setupDynamicDecreaseBrew(negativeValues, colorCodeForNegativeValues, classifyMethod){
                                           var tempBrew = new classyBrew();
                                           // analyse length of value arrays
-                                          if(negativeValues.length > 5){
-                                            // pass array to our classyBrew series
-                                            tempBrew.setSeries(negativeValues);
-                                            // define number of classes
-                                            tempBrew.setNumClasses(5);
-                                            // set color ramp code
-                                            tempBrew.setColorCode(colorCodeForNegativeValues);
-                                            // classify by passing in statistical method
-                                            // i.e. equal_interval, jenks, quantile
-                                            tempBrew.classify(classifyMethod);
-
-                                            $scope.dynamicDecreaseBrew.colors = tempBrew.getColors();
-                                            $scope.dynamicDecreaseBrew.breaks = tempBrew.getBreaks();
-                                          }
-                                          else if(negativeValues.length === 4 || negativeValues.length === 5){
+                                          // if(negativeValues.length > 5){
+                                          //   // pass array to our classyBrew series
+                                          //   tempBrew.setSeries(negativeValues);
+                                          //   // define number of classes
+                                          //   tempBrew.setNumClasses(5);
+                                          //   // set color ramp code
+                                          //   tempBrew.setColorCode(colorCodeForNegativeValues);
+                                          //   // classify by passing in statistical method
+                                          //   // i.e. equal_interval, jenks, quantile
+                                          //   tempBrew.classify(classifyMethod);
+                                          //
+                                          //   $scope.dynamicDecreaseBrew.colors = tempBrew.getColors();
+                                          //   $scope.dynamicDecreaseBrew.breaks = tempBrew.getBreaks();
+                                          // }
+                                          // else if(negativeValues.length === 4 || negativeValues.length === 5){
+                                          //   // pass array to our classyBrew series
+                                          //   tempBrew.setSeries(negativeValues);
+                                          //   // define number of classes
+                                          //   tempBrew.setNumClasses(3);
+                                          //   // set color ramp code
+                                          //   tempBrew.setColorCode(colorCodeForNegativeValues);
+                                          //   // classify by passing in statistical method
+                                          //   // i.e. equal_interval, jenks, quantile
+                                          //   tempBrew.classify(classifyMethod);
+                                          //
+                                          //   $scope.dynamicDecreaseBrew.colors = tempBrew.getColors();
+                                          //   $scope.dynamicDecreaseBrew.breaks = tempBrew.getBreaks();
+                                          // }
+                                          if(negativeValues.length === 4 || negativeValues.length >= 5){
                                             // pass array to our classyBrew series
                                             tempBrew.setSeries(negativeValues);
                                             // define number of classes
