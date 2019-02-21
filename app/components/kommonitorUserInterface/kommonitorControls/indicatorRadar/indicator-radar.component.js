@@ -346,7 +346,7 @@ angular
 													var selectableIndicatorEntry = {};
 													selectableIndicatorEntry.indicatorProperties = indicatorProperties;
 													// per default show all indicators on radar
-													selectableIndicatorEntry.isSelected = true;
+													selectableIndicatorEntry.isSelected = false;
 													selectableIndicatorEntry.indicatorMetadata = indicatorMetadata;
 
 													selectableIndicatorsForRadar.push(selectableIndicatorEntry);
