@@ -228,31 +228,65 @@ angular
 									}
 									else if($scope.isMeasureOfValueChecked){
 
-										if(feature.properties[$scope.indicatorPropertyName] >= $scope.measureOfValue){
-											for(var index = 0 ; index < $scope.gtMeasureOfValueBrew.breaks.length; index++){
-												if (feature.properties[$scope.indicatorPropertyName] <= $scope.gtMeasureOfValueBrew.breaks[index]){
-													if($scope.gtMeasureOfValueBrew.colors[index]){
-														color = $scope.gtMeasureOfValueBrew.colors[index];
+										if(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) >= +Number($scope.measureOfValue).toFixed(numberOfDecimals)){
+
+											for (var index=0; index < $scope.gtMeasureOfValueBrew.breaks.length; index++){
+
+												if(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) == +Number($scope.gtMeasureOfValueBrew.breaks[index]).toFixed(numberOfDecimals)){
+													if(index < $scope.gtMeasureOfValueBrew.breaks.length -1){
+														// min value
+														color =  $scope.gtMeasureOfValueBrew.colors[index];
+														break;
 													}
-													else{
-														color = $scope.gtMeasureOfValueBrew.colors[index-1];
+													else {
+														//max value
+														if ($scope.gtMeasureOfValueBrew.colors[index]){
+															color =  $scope.gtMeasureOfValueBrew.colors[index];
+														}
+														else{
+															color =  $scope.gtMeasureOfValueBrew.colors[index - 1];
+														}
+														break;
 													}
-													break;
+												}
+												else{
+													if(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) < +Number($scope.gtMeasureOfValueBrew.breaks[index + 1]).toFixed(numberOfDecimals)) {
+														color =  $scope.gtMeasureOfValueBrew.colors[index];
+														break;
+													}
 												}
 											}
+
 										}
 										else {
+
+											// invert colors, so that lowest values will become strong colored!
 											for (var index=0; index < $scope.ltMeasureOfValueBrew.breaks.length; index++){
-												if (feature.properties[$scope.indicatorPropertyName] <= $scope.ltMeasureOfValueBrew.breaks[index]){
-													if($scope.ltMeasureOfValueBrew.colors[$scope.ltMeasureOfValueBrew.colors.length - index]){
-														color = $scope.ltMeasureOfValueBrew.colors[$scope.ltMeasureOfValueBrew.colors.length - index];
+												if(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) == +Number($scope.ltMeasureOfValueBrew.breaks[index]).toFixed(numberOfDecimals)){
+													if(index < $scope.ltMeasureOfValueBrew.breaks.length -1){
+														// min value
+														color =  $scope.ltMeasureOfValueBrew.colors[$scope.ltMeasureOfValueBrew.colors.length - index - 1];
+														break;
 													}
-													else{
-														color = $scope.ltMeasureOfValueBrew.colors[$scope.ltMeasureOfValueBrew.colors.length - index - 1];
+													else {
+														//max value
+														if ($scope.ltMeasureOfValueBrew.colors[$scope.ltMeasureOfValueBrew.colors.length - index]){
+															color =  $scope.ltMeasureOfValueBrew.colors[$scope.ltMeasureOfValueBrew.colors.length - index];
+														}
+														else{
+															color =  $scope.ltMeasureOfValueBrew.colors[$scope.ltMeasureOfValueBrew.colors.length - index - 1];
+														}
+														break;
 													}
-													break;
+												}
+												else{
+													if(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) < +Number($scope.ltMeasureOfValueBrew.breaks[index + 1]).toFixed(numberOfDecimals)) {
+														color =  $scope.ltMeasureOfValueBrew.colors[$scope.ltMeasureOfValueBrew.colors.length - index - 1];
+														break;
+													}
 												}
 											}
+
 										}
 
 									}
@@ -262,34 +296,63 @@ angular
 											if(feature.properties[$scope.indicatorPropertyName] < 0){
 
 												for (var index=0; index < $scope.dynamicDecreaseBrew.breaks.length; index++){
-													if (feature.properties[$scope.indicatorPropertyName] <= $scope.dynamicDecreaseBrew.breaks[index]){
-														if($scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - index]){
-															color = $scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - index];
+													if(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) == +Number($scope.dynamicDecreaseBrew.breaks[index]).toFixed(numberOfDecimals)){
+														if(index < $scope.dynamicDecreaseBrew.breaks.length -1){
+															// min value
+															color =  $scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - index - 1];
+															break;
 														}
-														else{
-															color = $scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - index - 1];
+														else {
+															//max value
+															if ($scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - index]){
+																color =  $scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - index];
+															}
+															else{
+																color =  $scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - index - 1];
+															}
+															break;
 														}
-														break;
+													}
+													else{
+														if(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) < +Number($scope.dynamicDecreaseBrew.breaks[index + 1]).toFixed(numberOfDecimals)) {
+															color =  $scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - index - 1];
+															break;
+														}
 													}
 												}
+
 											}
 											else{
-												for(var index = 0 ; index < $scope.dynamicIncreaseBrew.breaks.length; index++){
-													if (feature.properties[$scope.indicatorPropertyName] <= $scope.dynamicIncreaseBrew.breaks[index]){
-														if($scope.dynamicIncreaseBrew.colors[index]){
-															color = $scope.dynamicIncreaseBrew.colors[index];
+												for (var index=0; index < $scope.dynamicIncreaseBrew.breaks.length; index++){
+													if(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) == +Number($scope.dynamicIncreaseBrew.breaks[index]).toFixed(numberOfDecimals)){
+														if(index < $scope.dynamicIncreaseBrew.breaks.length -1){
+															// min value
+															color =  $scope.dynamicIncreaseBrew.colors[index];
+															break;
 														}
-														else{
-															color = $scope.dynamicIncreaseBrew.colors[index-1];
+														else {
+															//max value
+															if ($scope.dynamicIncreaseBrew.colors[index]){
+																color =  $scope.dynamicIncreaseBrew.colors[index];
+															}
+															else{
+																color =  $scope.dynamicIncreaseBrew.colors[index - 1];
+															}
+															break;
 														}
-														break;
+													}
+													else{
+														if(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) < +Number($scope.dynamicIncreaseBrew.breaks[index + 1]).toFixed(numberOfDecimals)) {
+															color =  $scope.dynamicIncreaseBrew.colors[index];
+															break;
+														}
 													}
 												}
 											}
 
 										}
 										else{
-												color = $scope.defaultBrew.getColorInRange(feature.properties[$scope.indicatorPropertyName]);
+												color = $scope.defaultBrew.getColorInRange(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals));
 										}
 									}
 

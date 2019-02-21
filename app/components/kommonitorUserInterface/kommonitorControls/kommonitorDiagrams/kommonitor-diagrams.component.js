@@ -46,6 +46,146 @@ angular
 										$scope.lineChart.showLoading();
 								};
 
+								var getColorForFeature = function(feature, indicatorMetadataAndGeoJSON, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue){
+									var color;
+
+									if(kommonitorDataExchangeService.filteredIndicatorFeatureNames.includes(feature.properties.spatialUnitFeatureName)){
+										color = defaultColorForFilteredValues;
+									}
+									else if(Number(feature.properties[$scope.indicatorPropertyName]) === 0 ){
+										color = defaultColorForZeroValues;
+									}
+									else if(isMeasureOfValueChecked){
+
+										if(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) >= +Number(measureOfValue).toFixed(numberOfDecimals)){
+
+											for (var index=0; index < gtMeasureOfValueBrew.breaks.length; index++){
+
+												if(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) == +Number(gtMeasureOfValueBrew.breaks[index]).toFixed(numberOfDecimals)){
+													if(index < gtMeasureOfValueBrew.breaks.length -1){
+														// min value
+														color =  gtMeasureOfValueBrew.colors[index];
+														break;
+													}
+													else {
+														//max value
+														if (gtMeasureOfValueBrew.colors[index]){
+															color =  gtMeasureOfValueBrew.colors[index];
+														}
+														else{
+															color =  gtMeasureOfValueBrew.colors[index - 1];
+														}
+														break;
+													}
+												}
+												else{
+													if(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) < +Number(gtMeasureOfValueBrew.breaks[index + 1]).toFixed(numberOfDecimals)) {
+														color =  gtMeasureOfValueBrew.colors[index];
+														break;
+													}
+												}
+											}
+										}
+										else {
+
+											// invert colors, so that lowest values will become strong colored!
+											for (var index=0; index < ltMeasureOfValueBrew.breaks.length; index++){
+												if(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) == +Number(ltMeasureOfValueBrew.breaks[index]).toFixed(numberOfDecimals)){
+													if(index < ltMeasureOfValueBrew.breaks.length -1){
+														// min value
+														color =  ltMeasureOfValueBrew.colors[ltMeasureOfValueBrew.colors.length - index - 1];
+														break;
+													}
+													else {
+														//max value
+														if (ltMeasureOfValueBrew.colors[ltMeasureOfValueBrew.colors.length - index]){
+															color =  ltMeasureOfValueBrew.colors[ltMeasureOfValueBrew.colors.length - index];
+														}
+														else{
+															color =  ltMeasureOfValueBrew.colors[ltMeasureOfValueBrew.colors.length - index - 1];
+														}
+														break;
+													}
+												}
+												else{
+													if(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) < +Number(ltMeasureOfValueBrew.breaks[index + 1]).toFixed(numberOfDecimals)) {
+														color =  ltMeasureOfValueBrew.colors[ltMeasureOfValueBrew.colors.length - index - 1];
+														break;
+													}
+												}
+											}
+
+										}
+
+									}
+									else{
+										if(indicatorMetadataAndGeoJSON.indicatorType === 'DYNAMIC'){
+
+											if(feature.properties[$scope.indicatorPropertyName] < 0){
+
+												for (var index=0; index < dynamicDecreaseBrew.breaks.length; index++){
+													if(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) == +Number(dynamicDecreaseBrew.breaks[index]).toFixed(numberOfDecimals)){
+														if(index < dynamicDecreaseBrew.breaks.length -1){
+															// min value
+															color =  dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - index - 1];
+															break;
+														}
+														else {
+															//max value
+															if (dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - index]){
+																color =  dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - index];
+															}
+															else{
+																color =  dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - index - 1];
+															}
+															break;
+														}
+													}
+													else{
+														if(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) < +Number(dynamicDecreaseBrew.breaks[index + 1]).toFixed(numberOfDecimals)) {
+															color =  dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - index - 1];
+															break;
+														}
+													}
+												}
+											}
+											else{
+												for (var index=0; index < dynamicIncreaseBrew.breaks.length; index++){
+													if(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) == +Number(dynamicIncreaseBrew.breaks[index]).toFixed(numberOfDecimals)){
+														if(index < dynamicIncreaseBrew.breaks.length -1){
+															// min value
+															color =  dynamicIncreaseBrew.colors[index];
+															break;
+														}
+														else {
+															//max value
+															if (dynamicIncreaseBrew.colors[index]){
+																color =  dynamicIncreaseBrew.colors[index];
+															}
+															else{
+																color =  dynamicIncreaseBrew.colors[index - 1];
+															}
+															break;
+														}
+													}
+													else{
+														if(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) < +Number(dynamicIncreaseBrew.breaks[index + 1]).toFixed(numberOfDecimals)) {
+															color =  dynamicIncreaseBrew.colors[index];
+															break;
+														}
+													}
+												}
+											}
+
+										}
+										else{
+												color = defaultBrew.getColorInRange(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals));
+										}
+									}
+
+									return color;
+								}
+
 								$scope.$on("updateDiagrams", function (event, indicatorMetadataAndGeoJSON, spatialUnitName, spatialUnitId, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, justRestyling) {
 
 									// console.log("Updating diagrams!");
@@ -92,80 +232,7 @@ angular
 										featureNamesArray.push(cartographicFeature.properties.spatialUnitFeatureName);
 										indicatorValueArray.push(+Number(cartographicFeature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals));
 
-										var color;
-
-										if(kommonitorDataExchangeService.filteredIndicatorFeatureNames.includes(cartographicFeature.properties.spatialUnitFeatureName)){
-											color = defaultColorForFilteredValues;
-										}
-										else if(Number(cartographicFeature.properties[$scope.indicatorPropertyName]) === 0 ){
-											color = defaultColorForZeroValues;
-										}
-										else if(isMeasureOfValueChecked){
-
-											if(cartographicFeature.properties[$scope.indicatorPropertyName] >= measureOfValue){
-												for(var k = 0 ; k < gtMeasureOfValueBrew.breaks.length; k++){
-													if (cartographicFeature.properties[$scope.indicatorPropertyName] <= gtMeasureOfValueBrew.breaks[k]){
-														if(gtMeasureOfValueBrew.colors[k]){
-															color = gtMeasureOfValueBrew.colors[k];
-														}
-														else{
-															color = gtMeasureOfValueBrew.colors[k-1];
-														}
-														break;
-													}
-												}
-											}
-											else {
-												for (var l=0; l < ltMeasureOfValueBrew.breaks.length; l++){
-													if (cartographicFeature.properties[$scope.indicatorPropertyName] <= ltMeasureOfValueBrew.breaks[l]){
-														if(ltMeasureOfValueBrew.colors[ltMeasureOfValueBrew.colors.length - l]){
-															color = ltMeasureOfValueBrew.colors[ltMeasureOfValueBrew.colors.length - l];
-														}
-														else{
-															color = ltMeasureOfValueBrew.colors[ltMeasureOfValueBrew.colors.length - l - 1];
-														}
-														break;
-													}
-												}
-											}
-
-										}
-										else{
-											if(indicatorMetadataAndGeoJSON.indicatorType === 'DYNAMIC'){
-
-												if(cartographicFeature.properties[$scope.indicatorPropertyName] < 0){
-
-													for (var h=0; h < dynamicDecreaseBrew.breaks.length; h++){
-														if (cartographicFeature.properties[$scope.indicatorPropertyName] <= dynamicDecreaseBrew.breaks[h]){
-															if(dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - h]){
-																color = dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - h];
-															}
-															else{
-																color = dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - h - 1];
-															}
-															break;
-														}
-													}
-												}
-												else{
-													for(var g = 0 ; g < dynamicIncreaseBrew.breaks.length; g++){
-														if (cartographicFeature.properties[$scope.indicatorPropertyName] <= dynamicIncreaseBrew.breaks[g]){
-															if(dynamicIncreaseBrew.colors[g]){
-																color = dynamicIncreaseBrew.colors[g];
-															}
-															else{
-																color = dynamicIncreaseBrew.colors[g-1];
-															}
-															break;
-														}
-													}
-												}
-
-											}
-											else{
-													color = defaultBrew.getColorInRange(cartographicFeature.properties[$scope.indicatorPropertyName]);
-											}
-										}
+										var color = getColorForFeature(cartographicFeature, indicatorMetadataAndGeoJSON, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue);
 
 
 										var seriesItem = {
