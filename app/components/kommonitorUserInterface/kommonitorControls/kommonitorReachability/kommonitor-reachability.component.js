@@ -19,8 +19,8 @@ angular
 
 							$scope.currentIsochronesGeoJSON;
 
-							$scope.latitudeStart = 51.4881124;
-							$scope.longitudeStart = 7.01993644;
+							$scope.latitudeStart = 51.42055331;
+							$scope.longitudeStart = 7.049869894;
 							$scope.transitMode;
 							$scope.reachMode;
 							$scope.speedInMetersPerSecond;
@@ -29,7 +29,7 @@ angular
 							$scope.loadingData = false;
 
 							// var constantUrlQueryParamsForDemo = "&algorithm=accSampling&fromPlace=51.4881124,7.01993644&date=2018/10/01&time=12:00:00&mode=WALK&precisionMeters=100&optimize=QUICK&ignoreRealtimeUpdates=true&cutoffSec=300&cutoffSec=600&cutoffSec=900"
-							var constantUrlQueryParamsForDemo = "&algorithm=accSampling&fromPlace=51.4881124,7.01993644&date=2018/10/01&time=12:00:00&mode=WALK&precisionMeters=50&ignoreRealtimeUpdates=true&cutoffSec=300&cutoffSec=600&cutoffSec=900"
+							var constantUrlQueryParamsForDemo = "&algorithm=accSampling&fromPlace=51.42055331,7.049869894&date=2018/10/01&time=12:00:00&mode=WALK&precisionMeters=50&ignoreRealtimeUpdates=true&cutoffSec=300&cutoffSec=600&cutoffSec=900"
 
 
 							$scope.runChildDemo = function(){
