@@ -271,14 +271,15 @@ angular.module('kommonitorMap').component(
                       innerHTMLString += "<select id='selectSpatialUnitViaInfoControl'>";
 
 
-                      for (var option of kommonitorDataExchangeService.selectedIndicator.applicableSpatialUnits){
-                        // innerHTMLString += ' <label class="radio-inline"><input type="radio" name="classifyMethod" onclick="onClickClassifyMethod(\'' + option.value + '\')" ';
-                        innerHTMLString += ' <option value="' + option + '" ';
-                        if (kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel === option){
-                          innerHTMLString +=' selected ';
-                        }
-                        innerHTMLString +='>' + option + '</option>';
+                      for (var option of kommonitorDataExchangeService.availableSpatialUnits){
 
+                        if (kommonitorDataExchangeService.selectedIndicator.applicableSpatialUnits.includes(option.spatialUnitLevel)){
+                          innerHTMLString += ' <option value="' + option.spatialUnitLevel + '" ';
+                          if (kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel === option.spatialUnitLevel){
+                            innerHTMLString +=' selected ';
+                          }
+                          innerHTMLString +='>' + option.spatialUnitLevel + '</option>';
+                        }
                       }
                       innerHTMLString += "</select>";
                       innerHTMLString += "</label>";
