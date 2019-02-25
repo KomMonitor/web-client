@@ -1069,7 +1069,7 @@ angular.module('kommonitorMap').component(
                                 //   visible : true
                                 // };
 
-                                $scope.layerControl.addOverlay( $scope.isochronesLayer, "Erreichbarkeits-Isochronen 5-25 Minuten per " + transitMode, reachabilityLayerGroupName );
+                                $scope.layerControl.addOverlay( $scope.isochronesLayer, "Erreichbarkeits-Isochronen 5-15 Minuten per " + transitMode, reachabilityLayerGroupName );
                                 $scope.isochronesLayer.addTo($scope.map);
                               });
 
