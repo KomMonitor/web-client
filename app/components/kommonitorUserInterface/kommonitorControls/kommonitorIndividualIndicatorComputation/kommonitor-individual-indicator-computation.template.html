@@ -10,7 +10,7 @@
 
 			<div text-align="center" align="center" class="hiddenTableContent">
 				<select
-					size="5" ng-model="targetIndicator" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:{creationType:'COMPUTATION'}"
+					size="8" ng-model="targetIndicator" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:{creationType:'COMPUTATION'}"
 					class="form-control" ng-change="onChangeTargetIndicator()" required>
 					<option value="" selected disabled>-- berechenbaren Indikator w&auml;hlen --</option>
 				</select>
@@ -24,7 +24,7 @@
 			<div text-align="center" align="center" class="hiddenTableContent" ng-show="targetIndicator">
 				<!-- simple list of available processes -->
 				<select
-					size="5" ng-model="targetSpatialUnit" ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits"
+					size="8" ng-model="targetSpatialUnit" ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits"
 					ng-change="onChangeTargetSpatialUnit()" class="form-control" required>
 					<option value="" selected disabled>-- Ziel-Raumeinheit w&auml;hlen --</option>
 					<option
