@@ -627,6 +627,10 @@ angular
 										        //         }
 										        //     }
 										        // },
+														itemStyle: {
+															borderWidth: 1,
+															borderColor: 'black'
+														},
 														emphasis: {
 															itemStyle: {
 																borderWidth: 4,
