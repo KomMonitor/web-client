@@ -1,0 +1,4 @@
+AuthType Basic
+AuthName "KomMonitor Landing Page"
+AuthUserFile /full/path/to/.htpasswd
+Require valid-user
