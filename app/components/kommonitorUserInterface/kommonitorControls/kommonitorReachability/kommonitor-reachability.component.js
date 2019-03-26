@@ -28,9 +28,9 @@ angular
 
 							$scope.loadingData = false;
 
-							// var constantUrlQueryParamsForDemo = "&algorithm=accSampling&fromPlace=51.4881124,7.01993644&date=2018/10/01&time=12:00:00&mode=WALK&precisionMeters=100&optimize=QUICK&ignoreRealtimeUpdates=true&cutoffSec=300&cutoffSec=600&cutoffSec=900"
-							var constantUrlQueryParamsForDemo = "&algorithm=accSampling&fromPlace=51.42055331,7.049869894&date=2018/10/01&time=12:00:00&mode=WALK&precisionMeters=50&ignoreRealtimeUpdates=true&cutoffSec=300&cutoffSec=600&cutoffSec=900"
-
+							//"locations":[[7.049869894,51.42055331],[7.19869894,51.52055331]]
+							//"locations":[[7.049869894,51.42055331]]
+							var constantIsochronesParameter = {"locations":[[7.049869894,51.42055331]],"range":[300,600,900],"attributes":["area","reachfactor"],"intersections":"false","location_type":"start","range_type":"time","area_units":"m","units":"m"};
 
 							$scope.runChildDemo = function(){
 
@@ -38,20 +38,21 @@ angular
 								$rootScope.$broadcast("showLoadingIconOnMap");
 
 								$scope.transitMode = "Fußgänger (Kind)";
-								$scope.speedInMetersPerSecond = "0.833333";
-								$scope.speedInKilometersPerHour = Number($scope.speedInMetersPerSecond * 3600 / 1000).toFixed(0);
+								// $scope.speedInMetersPerSecond = "0.833333";
+								// $scope.speedInKilometersPerHour = Number($scope.speedInMetersPerSecond * 3600 / 1000).toFixed(0);
 								$scope.reachMode = "Zeit";
 
 								// http://localhost:8088/otp/routers/current/isochrone?algorithm=accSampling&fromPlace=51.44542,7.04468&date=2018/10/01&time=12:00:00&mode=WALK&cutoffSec=1800&cutoffSec=3600
 
-								var url = $scope.targetUrlToReachabilityService + "/isochrone?mode=WALK&walkSpeed=" + $scope.speedInMetersPerSecond + constantUrlQueryParamsForDemo;
+								var url = $scope.targetUrlToReachabilityService + "/v2/isochrones/foot-walking";
 
 								var req = {
-									 method: 'GET',
+									 method: 'POST',
 									 url: url,
 									 headers: {
-									   'Accept': 'application/json'
-									 }
+									   // 'Accept': 'application/json'
+									 },
+									 data: constantIsochronesParameter
 									}
 
 								$http(req).then(function successCallback(response) {
@@ -61,7 +62,7 @@ angular
 
 										kommonitorMapService.replaceIsochroneMarker($scope.latitudeStart, $scope.longitudeStart);
 
-										kommonitorMapService.replaceIsochroneGeoJSON($scope.currentIsochronesGeoJSON, $scope.transitMode, $scope.reachMode, ["5", "10", "15", "20", "25"], "Minuten");
+										kommonitorMapService.replaceIsochroneGeoJSON($scope.currentIsochronesGeoJSON, $scope.transitMode, $scope.reachMode, ["5", "10", "15"], "Minuten");
 										$scope.prepareDownloadGeoJSON();
 										$scope.loadingData = false;
 										$rootScope.$broadcast("hideLoadingIconOnMap");
@@ -79,21 +80,22 @@ angular
 								$scope.loadingData = true;
 								$rootScope.$broadcast("showLoadingIconOnMap");
 
-								$scope.transitMode = "Fußgänger (Erwachsener)";
+								$scope.transitMode = "Fußgänger";
+								// $scope.speedInMetersPerSecond = "0.833333";
+								// $scope.speedInKilometersPerHour = Number($scope.speedInMetersPerSecond * 3600 / 1000).toFixed(0);
 								$scope.reachMode = "Zeit";
-								$scope.speedInMetersPerSecond = "1.38889";
-								$scope.speedInKilometersPerHour = Number($scope.speedInMetersPerSecond * 3600 / 1000).toFixed(0);
 
 								// http://localhost:8088/otp/routers/current/isochrone?algorithm=accSampling&fromPlace=51.44542,7.04468&date=2018/10/01&time=12:00:00&mode=WALK&cutoffSec=1800&cutoffSec=3600
 
-								var url = $scope.targetUrlToReachabilityService + "/isochrone?mode=WALK&walkSpeed"  + $scope.speedInMetersPerSecond + constantUrlQueryParamsForDemo;
+								var url = $scope.targetUrlToReachabilityService + "/v2/isochrones/foot-walking";
 
 								var req = {
-									 method: 'GET',
+									 method: 'POST',
 									 url: url,
 									 headers: {
-									   'Accept': 'application/json'
-									 }
+										 // 'Accept': 'application/json'
+									 },
+									 data: constantIsochronesParameter
 									}
 
 								$http(req).then(function successCallback(response) {
@@ -103,7 +105,7 @@ angular
 
 										kommonitorMapService.replaceIsochroneMarker($scope.latitudeStart, $scope.longitudeStart);
 
-										kommonitorMapService.replaceIsochroneGeoJSON($scope.currentIsochronesGeoJSON, $scope.transitMode, $scope.reachMode, ["5", "10", "15", "20", "25"], "Minuten");
+										kommonitorMapService.replaceIsochroneGeoJSON($scope.currentIsochronesGeoJSON, $scope.transitMode, $scope.reachMode, ["5", "10", "15"], "Minuten");
 										$scope.prepareDownloadGeoJSON();
 										$scope.loadingData = false;
 										$rootScope.$broadcast("hideLoadingIconOnMap");
@@ -122,17 +124,21 @@ angular
 								$rootScope.$broadcast("showLoadingIconOnMap");
 
 								$scope.transitMode = "Fahrrad";
+								// $scope.speedInMetersPerSecond = "0.833333";
+								// $scope.speedInKilometersPerHour = Number($scope.speedInMetersPerSecond * 3600 / 1000).toFixed(0);
 								$scope.reachMode = "Zeit";
+
 								// http://localhost:8088/otp/routers/current/isochrone?algorithm=accSampling&fromPlace=51.44542,7.04468&date=2018/10/01&time=12:00:00&mode=WALK&cutoffSec=1800&cutoffSec=3600
 
-								var url = $scope.targetUrlToReachabilityService + "/isochrone?mode=BICYCLE" + constantUrlQueryParamsForDemo;
+								var url = $scope.targetUrlToReachabilityService + "/v2/isochrones/cycling-regular";
 
 								var req = {
-									 method: 'GET',
+									 method: 'POST',
 									 url: url,
 									 headers: {
-									   'Accept': 'application/json'
-									 }
+										 // 'Accept': 'application/json'
+									 },
+									 data: constantIsochronesParameter
 									}
 
 								$http(req).then(function successCallback(response) {
@@ -141,7 +147,7 @@ angular
 										$scope.currentIsochronesGeoJSON = response.data;
 
 										kommonitorMapService.replaceIsochroneMarker($scope.latitudeStart, $scope.longitudeStart);
-										kommonitorMapService.replaceIsochroneGeoJSON($scope.currentIsochronesGeoJSON, $scope.transitMode, $scope.reachMode, ["5", "10", "15", "20", "25"], "Minuten");
+										kommonitorMapService.replaceIsochroneGeoJSON($scope.currentIsochronesGeoJSON, $scope.transitMode, $scope.reachMode, ["5", "10", "15"], "Minuten");
 										$scope.prepareDownloadGeoJSON();
 										$scope.loadingData = false;
 										$rootScope.$broadcast("hideLoadingIconOnMap");
@@ -160,18 +166,21 @@ angular
 								$rootScope.$broadcast("showLoadingIconOnMap");
 
 								$scope.transitMode = "Auto";
+								// $scope.speedInMetersPerSecond = "0.833333";
+								// $scope.speedInKilometersPerHour = Number($scope.speedInMetersPerSecond * 3600 / 1000).toFixed(0);
 								$scope.reachMode = "Zeit";
 
 								// http://localhost:8088/otp/routers/current/isochrone?algorithm=accSampling&fromPlace=51.44542,7.04468&date=2018/10/01&time=12:00:00&mode=WALK&cutoffSec=1800&cutoffSec=3600
 
-								var url = $scope.targetUrlToReachabilityService + "/isochrone?mode=CAR" + constantUrlQueryParamsForDemo;
+								var url = $scope.targetUrlToReachabilityService + "/v2/isochrones/driving-car";
 
 								var req = {
-									 method: 'GET',
+									 method: 'POST',
 									 url: url,
 									 headers: {
-									   'Accept': 'application/json'
-									 }
+										 // 'Accept': 'application/json'
+									 },
+									 data: constantIsochronesParameter
 									}
 
 								$http(req).then(function successCallback(response) {
@@ -180,7 +189,7 @@ angular
 										$scope.currentIsochronesGeoJSON = response.data;
 
 										kommonitorMapService.replaceIsochroneMarker($scope.latitudeStart, $scope.longitudeStart);
-										kommonitorMapService.replaceIsochroneGeoJSON($scope.currentIsochronesGeoJSON, $scope.transitMode, $scope.reachMode, ["5", "10", "15", "20", "25"], "Minuten");
+										kommonitorMapService.replaceIsochroneGeoJSON($scope.currentIsochronesGeoJSON, $scope.transitMode, $scope.reachMode, ["5", "10", "15"], "Minuten");
 										$scope.prepareDownloadGeoJSON();
 										$scope.loadingData = false;
 										$rootScope.$broadcast("hideLoadingIconOnMap");

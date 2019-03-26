@@ -945,16 +945,16 @@ angular.module('kommonitorMap').component(
 
                                 var numFeatures = geoJSON.features.length;
 
-                                if(numFeatures === 0){
+                                if(cutOffValues.length === 0){
                                   return;
                                 }
-                                else if(numFeatures === 1){
+                                else if(cutOffValues.length === 1){
                                   kommonitorDataExchangeService.isochroneLegend.colorValueEntries = [{
                                     color: "green",
                                     value: cutOffValues[0]
                                   }];
                                 }
-                                else if(numFeatures === 2){
+                                else if(cutOffValues.length === 2){
                                   kommonitorDataExchangeService.isochroneLegend.colorValueEntries = [{
                                     color: "yellow",
                                     value: cutOffValues[1]
@@ -964,7 +964,7 @@ angular.module('kommonitorMap').component(
                                     value: cutOffValues[0]
                                   }]
                                 }
-                                else if(numFeatures === 3){
+                                else if(cutOffValues.length === 3){
                                   kommonitorDataExchangeService.isochroneLegend.colorValueEntries = [{
                                     color: "red",
                                     value: cutOffValues[2]
@@ -978,7 +978,7 @@ angular.module('kommonitorMap').component(
                                     value: cutOffValues[0]
                                   }]
                                 }
-                                else if(numFeatures === 4){
+                                else if(cutOffValues.length === 4){
                                   kommonitorDataExchangeService.isochroneLegend.colorValueEntries = [{
                                     color: "red",
                                     value: cutOffValues[3]
@@ -996,7 +996,7 @@ angular.module('kommonitorMap').component(
                                     value: cutOffValues[0]
                                   }]
                                 }
-                                else if(numFeatures === 5){
+                                else if(cutOffValues.length === 5){
                                   kommonitorDataExchangeService.isochroneLegend.colorValueEntries = [{
                                     color: "brown",
                                     value: cutOffValues[4]
@@ -1039,10 +1039,12 @@ angular.module('kommonitorMap').component(
                                   }]
                                 }
 
-                                for(var index=0; index<numFeatures; index++){
+                                for(var index=numFeatures-1; index>=0; index--){
+
+                                  var styleIndex = (numFeatures-index-1) % (kommonitorDataExchangeService.isochroneLegend.colorValueEntries.length);
 
                                   var style = {
-                                    color: kommonitorDataExchangeService.isochroneLegend.colorValueEntries[index].color,
+                                    color: kommonitorDataExchangeService.isochroneLegend.colorValueEntries[styleIndex].color,
                                     weight: 2,
                                     opacity: 1
                                   };
@@ -1053,7 +1055,7 @@ angular.module('kommonitorMap').component(
                                         layer.on({
                                             click: function () {
 
-                                                 var popupContent = "" + layer.feature.properties.time + " Sekunden (" + Number(layer.feature.properties.time/60).toLocaleString("de-DE", {maximumFractionDigits: 2}) + " Minuten)";
+                                                 var popupContent = "" + layer.feature.properties.value + " Sekunden (" + Number(layer.feature.properties.value/60).toLocaleString("de-DE", {maximumFractionDigits: 2}) + " Minuten)";
                                                  // var popupContent = "TestValue";
 
                                                 if (popupContent)
