@@ -207,7 +207,7 @@ angular
 								$scope.loadingData = true;
 								$rootScope.$broadcast("showLoadingIconOnMap");
 
-								$scope.transitMode = "Auto";
+								$scope.transitMode = "Fahrrad";
 								// $scope.speedInMetersPerSecond = "0.833333";
 								// $scope.speedInKilometersPerHour = Number($scope.speedInMetersPerSecond * 3600 / 1000).toFixed(0);
 								$scope.reachMode = "Zeit";
