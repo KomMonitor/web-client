@@ -181,7 +181,7 @@ angular
 										 // 'Accept': 'application/json'
 									 },
 									 data: constantIsochronesParameter
-									}
+								 }
 
 								$http(req).then(function successCallback(response) {
 										// this callback will be called asynchronously
@@ -189,6 +189,48 @@ angular
 										$scope.currentIsochronesGeoJSON = response.data;
 
 										kommonitorMapService.replaceIsochroneMarker($scope.latitudeStart, $scope.longitudeStart);
+										kommonitorMapService.replaceIsochroneGeoJSON($scope.currentIsochronesGeoJSON, $scope.transitMode, $scope.reachMode, ["5", "10", "15"], "Minuten");
+										$scope.prepareDownloadGeoJSON();
+										$scope.loadingData = false;
+										$rootScope.$broadcast("hideLoadingIconOnMap");
+
+									}, function errorCallback(response) {
+										// called asynchronously if an error occurs
+										// or server returns response with an error status.
+										$scope.loadingData = false;
+										$rootScope.$broadcast("hideLoadingIconOnMap");
+								});
+							};
+
+							$scope.runBicycleDemoWithMultipleStartPoints = function(){
+
+								$scope.loadingData = true;
+								$rootScope.$broadcast("showLoadingIconOnMap");
+
+								$scope.transitMode = "Auto";
+								// $scope.speedInMetersPerSecond = "0.833333";
+								// $scope.speedInKilometersPerHour = Number($scope.speedInMetersPerSecond * 3600 / 1000).toFixed(0);
+								$scope.reachMode = "Zeit";
+
+								// http://localhost:8088/otp/routers/current/isochrone?algorithm=accSampling&fromPlace=51.44542,7.04468&date=2018/10/01&time=12:00:00&mode=WALK&cutoffSec=1800&cutoffSec=3600
+
+								var url = $scope.targetUrlToReachabilityService + "/v2/isochrones/cycling-regular";
+
+								var req = {
+									 method: 'POST',
+									 url: url,
+									 headers: {
+										 // 'Accept': 'application/json'
+									 },
+									 data: {"locations":[[7.049869894,51.42055331],[7.0115552,51.4386432]],"range":[300,600,900],"attributes":["area","reachfactor"],"intersections":"false","location_type":"start","range_type":"time","area_units":"m","units":"m"}
+									}
+
+								$http(req).then(function successCallback(response) {
+										// this callback will be called asynchronously
+										// when the response is available
+										$scope.currentIsochronesGeoJSON = response.data;
+
+										// kommonitorMapService.replaceIsochroneMarker($scope.latitudeStart, $scope.longitudeStart);
 										kommonitorMapService.replaceIsochroneGeoJSON($scope.currentIsochronesGeoJSON, $scope.transitMode, $scope.reachMode, ["5", "10", "15"], "Minuten");
 										$scope.prepareDownloadGeoJSON();
 										$scope.loadingData = false;
