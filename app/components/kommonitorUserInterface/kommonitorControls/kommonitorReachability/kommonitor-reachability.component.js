@@ -21,16 +21,19 @@ angular
 
 							$scope.latitudeStart = 51.42055331;
 							$scope.longitudeStart = 7.049869894;
+							$scope.locationsArray = [[7.049869894,51.42055331]];
+							$scope.rangeArray = [300,600,900];
 							$scope.transitMode;
 							$scope.reachMode;
 							$scope.speedInMetersPerSecond;
 							$scope.speedInKilometersPerHour;
+							$scope.useMultipleStartPoints = false;
 
 							$scope.loadingData = false;
 
 							//"locations":[[7.049869894,51.42055331],[7.19869894,51.52055331]]
 							//"locations":[[7.049869894,51.42055331]]
-							var constantIsochronesParameter = {"locations":[[7.049869894,51.42055331]],"range":[300,600,900],"attributes":["area","reachfactor"],"intersections":"false","location_type":"start","range_type":"time","area_units":"m","units":"m"};
+							var isochronesPOSTBody = {"locations":[[7.049869894,51.42055331]],"range":[300,600,900],"attributes":["area","reachfactor"],"intersections":"false","location_type":"start","range_type":"time","area_units":"m","units":"m"};
 
 							$scope.runChildDemo = function(){
 
@@ -41,6 +44,11 @@ angular
 								// $scope.speedInMetersPerSecond = "0.833333";
 								// $scope.speedInKilometersPerHour = Number($scope.speedInMetersPerSecond * 3600 / 1000).toFixed(0);
 								$scope.reachMode = "Zeit";
+								$scope.locationsArray = [[7.049869894,51.42055331]];
+								$scope.rangeArray = [300,600,900];
+								isochronesPOSTBody.locations = $scope.locationsArray;
+								isochronesPOSTBody.range = $scope.rangeArray;
+								$scope.useMultipleStartPoints = false;
 
 								// http://localhost:8088/otp/routers/current/isochrone?algorithm=accSampling&fromPlace=51.44542,7.04468&date=2018/10/01&time=12:00:00&mode=WALK&cutoffSec=1800&cutoffSec=3600
 
@@ -52,7 +60,7 @@ angular
 									 headers: {
 									   // 'Accept': 'application/json'
 									 },
-									 data: constantIsochronesParameter
+									 data: isochronesPOSTBody
 									}
 
 								$http(req).then(function successCallback(response) {
@@ -62,7 +70,7 @@ angular
 
 										kommonitorMapService.replaceIsochroneMarker($scope.latitudeStart, $scope.longitudeStart);
 
-										kommonitorMapService.replaceIsochroneGeoJSON($scope.currentIsochronesGeoJSON, $scope.transitMode, $scope.reachMode, ["5", "10", "15"], "Minuten");
+										kommonitorMapService.replaceIsochroneGeoJSON($scope.currentIsochronesGeoJSON, $scope.transitMode, $scope.reachMode, $scope.rangeArray, $scope.useMultipleStartPoints);
 										$scope.prepareDownloadGeoJSON();
 										$scope.loadingData = false;
 										$rootScope.$broadcast("hideLoadingIconOnMap");
@@ -84,6 +92,11 @@ angular
 								// $scope.speedInMetersPerSecond = "0.833333";
 								// $scope.speedInKilometersPerHour = Number($scope.speedInMetersPerSecond * 3600 / 1000).toFixed(0);
 								$scope.reachMode = "Zeit";
+								$scope.locationsArray = [[7.049869894,51.42055331]];
+								$scope.rangeArray = [300,600,900];
+								isochronesPOSTBody.locations = $scope.locationsArray;
+								isochronesPOSTBody.range = $scope.rangeArray;
+								$scope.useMultipleStartPoints = false;
 
 								// http://localhost:8088/otp/routers/current/isochrone?algorithm=accSampling&fromPlace=51.44542,7.04468&date=2018/10/01&time=12:00:00&mode=WALK&cutoffSec=1800&cutoffSec=3600
 
@@ -95,7 +108,7 @@ angular
 									 headers: {
 										 // 'Accept': 'application/json'
 									 },
-									 data: constantIsochronesParameter
+									 data: isochronesPOSTBody
 									}
 
 								$http(req).then(function successCallback(response) {
@@ -105,7 +118,7 @@ angular
 
 										kommonitorMapService.replaceIsochroneMarker($scope.latitudeStart, $scope.longitudeStart);
 
-										kommonitorMapService.replaceIsochroneGeoJSON($scope.currentIsochronesGeoJSON, $scope.transitMode, $scope.reachMode, ["5", "10", "15"], "Minuten");
+										kommonitorMapService.replaceIsochroneGeoJSON($scope.currentIsochronesGeoJSON, $scope.transitMode, $scope.reachMode, $scope.rangeArray, $scope.useMultipleStartPoints);
 										$scope.prepareDownloadGeoJSON();
 										$scope.loadingData = false;
 										$rootScope.$broadcast("hideLoadingIconOnMap");
@@ -127,6 +140,11 @@ angular
 								// $scope.speedInMetersPerSecond = "0.833333";
 								// $scope.speedInKilometersPerHour = Number($scope.speedInMetersPerSecond * 3600 / 1000).toFixed(0);
 								$scope.reachMode = "Zeit";
+								$scope.locationsArray = [[7.049869894,51.42055331]];
+								$scope.rangeArray = [300,600,900];
+								isochronesPOSTBody.locations = $scope.locationsArray;
+								isochronesPOSTBody.range = $scope.rangeArray;
+								$scope.useMultipleStartPoints = false;
 
 								// http://localhost:8088/otp/routers/current/isochrone?algorithm=accSampling&fromPlace=51.44542,7.04468&date=2018/10/01&time=12:00:00&mode=WALK&cutoffSec=1800&cutoffSec=3600
 
@@ -138,7 +156,7 @@ angular
 									 headers: {
 										 // 'Accept': 'application/json'
 									 },
-									 data: constantIsochronesParameter
+									 data: isochronesPOSTBody
 									}
 
 								$http(req).then(function successCallback(response) {
@@ -147,7 +165,7 @@ angular
 										$scope.currentIsochronesGeoJSON = response.data;
 
 										kommonitorMapService.replaceIsochroneMarker($scope.latitudeStart, $scope.longitudeStart);
-										kommonitorMapService.replaceIsochroneGeoJSON($scope.currentIsochronesGeoJSON, $scope.transitMode, $scope.reachMode, ["5", "10", "15"], "Minuten");
+										kommonitorMapService.replaceIsochroneGeoJSON($scope.currentIsochronesGeoJSON, $scope.transitMode, $scope.reachMode, $scope.rangeArray, $scope.useMultipleStartPoints);
 										$scope.prepareDownloadGeoJSON();
 										$scope.loadingData = false;
 										$rootScope.$broadcast("hideLoadingIconOnMap");
@@ -169,6 +187,11 @@ angular
 								// $scope.speedInMetersPerSecond = "0.833333";
 								// $scope.speedInKilometersPerHour = Number($scope.speedInMetersPerSecond * 3600 / 1000).toFixed(0);
 								$scope.reachMode = "Zeit";
+								$scope.locationsArray = [[7.049869894,51.42055331]];
+								$scope.rangeArray = [300,600,900];
+								isochronesPOSTBody.locations = $scope.locationsArray;
+								isochronesPOSTBody.range = $scope.rangeArray;
+								$scope.useMultipleStartPoints = false;
 
 								// http://localhost:8088/otp/routers/current/isochrone?algorithm=accSampling&fromPlace=51.44542,7.04468&date=2018/10/01&time=12:00:00&mode=WALK&cutoffSec=1800&cutoffSec=3600
 
@@ -180,7 +203,7 @@ angular
 									 headers: {
 										 // 'Accept': 'application/json'
 									 },
-									 data: constantIsochronesParameter
+									 data: isochronesPOSTBody
 								 }
 
 								$http(req).then(function successCallback(response) {
@@ -189,7 +212,7 @@ angular
 										$scope.currentIsochronesGeoJSON = response.data;
 
 										kommonitorMapService.replaceIsochroneMarker($scope.latitudeStart, $scope.longitudeStart);
-										kommonitorMapService.replaceIsochroneGeoJSON($scope.currentIsochronesGeoJSON, $scope.transitMode, $scope.reachMode, ["5", "10", "15"], "Minuten");
+										kommonitorMapService.replaceIsochroneGeoJSON($scope.currentIsochronesGeoJSON, $scope.transitMode, $scope.reachMode, $scope.rangeArray, $scope.useMultipleStartPoints);
 										$scope.prepareDownloadGeoJSON();
 										$scope.loadingData = false;
 										$rootScope.$broadcast("hideLoadingIconOnMap");
@@ -211,6 +234,11 @@ angular
 								// $scope.speedInMetersPerSecond = "0.833333";
 								// $scope.speedInKilometersPerHour = Number($scope.speedInMetersPerSecond * 3600 / 1000).toFixed(0);
 								$scope.reachMode = "Zeit";
+								$scope.locationsArray = [[7.049869894,51.42055331],[7.0115552,51.4386432]];
+								$scope.rangeArray = [300,600,900];
+								isochronesPOSTBody.locations = $scope.locationsArray;
+								isochronesPOSTBody.range = $scope.rangeArray;
+								$scope.useMultipleStartPoints = true;
 
 								// http://localhost:8088/otp/routers/current/isochrone?algorithm=accSampling&fromPlace=51.44542,7.04468&date=2018/10/01&time=12:00:00&mode=WALK&cutoffSec=1800&cutoffSec=3600
 
@@ -222,7 +250,7 @@ angular
 									 headers: {
 										 // 'Accept': 'application/json'
 									 },
-									 data: {"locations":[[7.049869894,51.42055331],[7.0115552,51.4386432]],"range":[300,600,900],"attributes":["area","reachfactor"],"intersections":"false","location_type":"start","range_type":"time","area_units":"m","units":"m"}
+									 data: isochronesPOSTBody
 									}
 
 								$http(req).then(function successCallback(response) {
@@ -231,7 +259,7 @@ angular
 										$scope.currentIsochronesGeoJSON = response.data;
 
 										// kommonitorMapService.replaceIsochroneMarker($scope.latitudeStart, $scope.longitudeStart);
-										kommonitorMapService.replaceIsochroneGeoJSON($scope.currentIsochronesGeoJSON, $scope.transitMode, $scope.reachMode, ["5", "10", "15"], "Minuten");
+										kommonitorMapService.replaceIsochroneGeoJSON($scope.currentIsochronesGeoJSON, $scope.transitMode, $scope.reachMode, $scope.rangeArray, $scope.useMultipleStartPoints);
 										$scope.prepareDownloadGeoJSON();
 										$scope.loadingData = false;
 										$rootScope.$broadcast("hideLoadingIconOnMap");

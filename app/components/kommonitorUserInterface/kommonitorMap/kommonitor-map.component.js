@@ -926,7 +926,7 @@ angular.module('kommonitorMap').component(
                                 layer.addTo($scope.map);
                               });
 
-                              $scope.$on("replaceIsochronesAsGeoJSON", function (event, geoJSON, transitMode, reachMode, cutOffValues, cutOffUnit) {
+                              $scope.$on("replaceIsochronesAsGeoJSON", function (event, geoJSON, transitMode, reachMode, cutOffValues, useMultipleStartPoints) {
 
                                 if($scope.isochronesLayer){
                                   $scope.layerControl.removeLayer($scope.isochronesLayer);
@@ -940,10 +940,8 @@ angular.module('kommonitorMap').component(
                                   reachMode: reachMode,
                                   colorValueEntries: [],
                                   cutOffValues: cutOffValues,
-                                  cutOffUnit: cutOffUnit
+                                  cutOffUnit: "Sekunden"
                                 };
-
-                                var numFeatures = geoJSON.features.length;
 
                                 if(cutOffValues.length === 0){
                                   return;
@@ -1039,9 +1037,17 @@ angular.module('kommonitorMap').component(
                                   }]
                                 }
 
-                                for(var index=numFeatures-1; index>=0; index--){
+                                if(useMultipleStartPoints){
+                                  // merge intersecting isochrones of same cutOffValue
+                                  geoJSON = mergeIntersectingIsochrones(geoJSON);
+                                }
 
-                                  var styleIndex = (numFeatures-index-1) % (kommonitorDataExchangeService.isochroneLegend.colorValueEntries.length);
+                                // sort features to ensure correct z-order of layers (begin with smallest isochrones)
+                                geoJSON.features.sort((a, b) => a.properties.value - b.properties.value);
+
+                                for(var index=geoJSON.features.length-1; index>=0; index--){
+
+                                  var styleIndex = getStyleIndexForFeature(geoJSON.features[index], kommonitorDataExchangeService.isochroneLegend.colorValueEntries);
 
                                   var style = {
                                     color: kommonitorDataExchangeService.isochroneLegend.colorValueEntries[styleIndex].color,
@@ -1074,6 +1080,28 @@ angular.module('kommonitorMap').component(
                                 $scope.layerControl.addOverlay( $scope.isochronesLayer, "Erreichbarkeits-Isochronen 5-15 Minuten per " + transitMode, reachabilityLayerGroupName );
                                 $scope.isochronesLayer.addTo($scope.map);
                               });
+
+                              var getStyleIndexForFeature = function(feature, colorValueEntries){
+                                var index=0;
+                                var featureCutOffValue = feature.properties.value;
+
+                                for(var i=0; i<colorValueEntries.length; i++){
+                                  if (featureCutOffValue === colorValueEntries[i].value){
+                                    index = i;
+                                    break;
+                                  }
+                                }
+
+                                return index;
+                              };
+
+                              var mergeIntersectingIsochrones = function(geoJSON){
+                                // use turf to dissolve any overlapping/intersecting isochrones that have the same cutOffValue!
+
+                                var dissolved = turf.dissolve(geoJSON, {propertyName: 'value'});
+
+                                return dissolved;
+                              };
 
                               $scope.$on("replaceIsochroneMarker", function (event, latitude, longitude) {
 
