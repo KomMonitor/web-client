@@ -272,6 +272,53 @@ angular
 								});
 							};
 
+							$scope.runPedestrianKitaRellinghausenDemoWithMultipleStartPoints = function(){
+
+								$scope.loadingData = true;
+								$rootScope.$broadcast("showLoadingIconOnMap");
+
+								$scope.transitMode = "Fußgänger";
+								// $scope.speedInMetersPerSecond = "0.833333";
+								// $scope.speedInKilometersPerHour = Number($scope.speedInMetersPerSecond * 3600 / 1000).toFixed(0);
+								$scope.reachMode = "Zeit";
+								$scope.locationsArray = [[7.049869894,51.42055331],[7.0394219,51.4232979],[7.040197,51.4254453]];
+								$scope.rangeArray = [300,600,900];
+								isochronesPOSTBody.locations = $scope.locationsArray;
+								isochronesPOSTBody.range = $scope.rangeArray;
+								$scope.useMultipleStartPoints = true;
+
+								// http://localhost:8088/otp/routers/current/isochrone?algorithm=accSampling&fromPlace=51.44542,7.04468&date=2018/10/01&time=12:00:00&mode=WALK&cutoffSec=1800&cutoffSec=3600
+
+								var url = $scope.targetUrlToReachabilityService + "/v2/isochrones/foot-walking";
+
+								var req = {
+									 method: 'POST',
+									 url: url,
+									 headers: {
+										 // 'Accept': 'application/json'
+									 },
+									 data: isochronesPOSTBody
+									}
+
+								$http(req).then(function successCallback(response) {
+										// this callback will be called asynchronously
+										// when the response is available
+										$scope.currentIsochronesGeoJSON = response.data;
+
+										// kommonitorMapService.replaceIsochroneMarker($scope.latitudeStart, $scope.longitudeStart);
+										kommonitorMapService.replaceIsochroneGeoJSON($scope.currentIsochronesGeoJSON, $scope.transitMode, $scope.reachMode, $scope.rangeArray, $scope.useMultipleStartPoints);
+										$scope.prepareDownloadGeoJSON();
+										$scope.loadingData = false;
+										$rootScope.$broadcast("hideLoadingIconOnMap");
+
+									}, function errorCallback(response) {
+										// called asynchronously if an error occurs
+										// or server returns response with an error status.
+										$scope.loadingData = false;
+										$rootScope.$broadcast("hideLoadingIconOnMap");
+								});
+							};
+
 							$scope.removeReachabilityLayers = function(){
 								$scope.loadingData = true;
 								$rootScope.$broadcast("showLoadingIconOnMap");
