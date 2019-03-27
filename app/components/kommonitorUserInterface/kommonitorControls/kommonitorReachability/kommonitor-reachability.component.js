@@ -68,8 +68,7 @@ angular
 										// when the response is available
 										$scope.currentIsochronesGeoJSON = response.data;
 
-										kommonitorMapService.replaceIsochroneMarker($scope.latitudeStart, $scope.longitudeStart);
-
+										kommonitorMapService.replaceIsochroneMarker($scope.locationsArray);
 										kommonitorMapService.replaceIsochroneGeoJSON($scope.currentIsochronesGeoJSON, $scope.transitMode, $scope.reachMode, $scope.rangeArray, $scope.useMultipleStartPoints);
 										$scope.prepareDownloadGeoJSON();
 										$scope.loadingData = false;
@@ -116,8 +115,7 @@ angular
 										// when the response is available
 										$scope.currentIsochronesGeoJSON = response.data;
 
-										kommonitorMapService.replaceIsochroneMarker($scope.latitudeStart, $scope.longitudeStart);
-
+										kommonitorMapService.replaceIsochroneMarker($scope.locationsArray);
 										kommonitorMapService.replaceIsochroneGeoJSON($scope.currentIsochronesGeoJSON, $scope.transitMode, $scope.reachMode, $scope.rangeArray, $scope.useMultipleStartPoints);
 										$scope.prepareDownloadGeoJSON();
 										$scope.loadingData = false;
@@ -164,7 +162,7 @@ angular
 										// when the response is available
 										$scope.currentIsochronesGeoJSON = response.data;
 
-										kommonitorMapService.replaceIsochroneMarker($scope.latitudeStart, $scope.longitudeStart);
+										kommonitorMapService.replaceIsochroneMarker($scope.locationsArray);
 										kommonitorMapService.replaceIsochroneGeoJSON($scope.currentIsochronesGeoJSON, $scope.transitMode, $scope.reachMode, $scope.rangeArray, $scope.useMultipleStartPoints);
 										$scope.prepareDownloadGeoJSON();
 										$scope.loadingData = false;
@@ -211,7 +209,7 @@ angular
 										// when the response is available
 										$scope.currentIsochronesGeoJSON = response.data;
 
-										kommonitorMapService.replaceIsochroneMarker($scope.latitudeStart, $scope.longitudeStart);
+										kommonitorMapService.replaceIsochroneMarker($scope.locationsArray);
 										kommonitorMapService.replaceIsochroneGeoJSON($scope.currentIsochronesGeoJSON, $scope.transitMode, $scope.reachMode, $scope.rangeArray, $scope.useMultipleStartPoints);
 										$scope.prepareDownloadGeoJSON();
 										$scope.loadingData = false;
@@ -258,7 +256,7 @@ angular
 										// when the response is available
 										$scope.currentIsochronesGeoJSON = response.data;
 
-										// kommonitorMapService.replaceIsochroneMarker($scope.latitudeStart, $scope.longitudeStart);
+										kommonitorMapService.replaceIsochroneMarker($scope.locationsArray);
 										kommonitorMapService.replaceIsochroneGeoJSON($scope.currentIsochronesGeoJSON, $scope.transitMode, $scope.reachMode, $scope.rangeArray, $scope.useMultipleStartPoints);
 										$scope.prepareDownloadGeoJSON();
 										$scope.loadingData = false;
@@ -281,7 +279,8 @@ angular
 								// $scope.speedInMetersPerSecond = "0.833333";
 								// $scope.speedInKilometersPerHour = Number($scope.speedInMetersPerSecond * 3600 / 1000).toFixed(0);
 								$scope.reachMode = "Zeit";
-								$scope.locationsArray = [[7.049869894,51.42055331],[7.0394219,51.4232979],[7.040197,51.4254453]];
+								// $scope.locationsArray = [[7.049869894,51.42055331],[7.0394219,51.4232979],[7.040197,51.4254453]];
+								$scope.locationsArray = [[7.049869894,51.42055331],[7.0382865,51.4234454],[7.0403425,51.4258269]];
 								$scope.rangeArray = [300,600,900];
 								isochronesPOSTBody.locations = $scope.locationsArray;
 								isochronesPOSTBody.range = $scope.rangeArray;
@@ -305,7 +304,7 @@ angular
 										// when the response is available
 										$scope.currentIsochronesGeoJSON = response.data;
 
-										// kommonitorMapService.replaceIsochroneMarker($scope.latitudeStart, $scope.longitudeStart);
+										kommonitorMapService.replaceIsochroneMarker($scope.locationsArray);
 										kommonitorMapService.replaceIsochroneGeoJSON($scope.currentIsochronesGeoJSON, $scope.transitMode, $scope.reachMode, $scope.rangeArray, $scope.useMultipleStartPoints);
 										$scope.prepareDownloadGeoJSON();
 										$scope.loadingData = false;

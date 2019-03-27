@@ -1103,22 +1103,22 @@ angular.module('kommonitorMap').component(
                                 return dissolved;
                               };
 
-                              $scope.$on("replaceIsochroneMarker", function (event, latitude, longitude) {
+                              $scope.$on("replaceIsochroneMarker", function (event, lonLatArray) {
 
                                 if($scope.isochroneMarkerLayer){
                                   $scope.layerControl.removeLayer($scope.isochroneMarkerLayer);
                                   $scope.map.removeLayer($scope.isochroneMarkerLayer);
                                 }
 
-                                $scope.isochroneMarkerLayer = L.marker([latitude, longitude]);
-                                $scope.isochroneMarkerLayer.bindPopup("Startpunkt der Isochronenberechnung");
+                                $scope.isochroneMarkerLayer = L.featureGroup();
 
-                                // $scope.isochroneMarkerLayer.StyledLayerControl = {
-                                //   removable : false,
-                                //   visible : true
-                                // };
+                                lonLatArray.forEach(function(lonLat){
+                                  var layer = L.marker([lonLat[1], lonLat[0]]);
+                                  layer.bindPopup("Startpunkt der Isochronenberechnung");
+                                  layer.addTo($scope.isochroneMarkerLayer);
+                                })
 
-                                $scope.layerControl.addOverlay( $scope.isochroneMarkerLayer, "Startpunkt für Isochronenberechnung", reachabilityLayerGroupName );
+                                $scope.layerControl.addOverlay( $scope.isochroneMarkerLayer, "Startpunkte für Isochronenberechnung", reachabilityLayerGroupName );
                                 $scope.isochroneMarkerLayer.addTo($scope.map);
                               });
 
