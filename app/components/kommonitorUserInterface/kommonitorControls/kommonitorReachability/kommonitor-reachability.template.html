@@ -20,11 +20,11 @@
 
 
 		<div align="center">
-			<!-- <input type="button" class="btn btn-s btn-primary" value="Fußgänger-Demo (Kinder)" ng-click="runChildDemo()"></input> -->
-			<input type="button" class="btn btn-s btn-primary" value="Fußgänger-Kita-Rellinghausen-Demo" ng-click="runPedestrianDemo()"></input>
+			<input type="button" class="btn btn-s btn-primary" value="Kind-Kita-Rellinghausen-Demo" ng-click="runChildDemo()"></input>
+			<input type="button" class="btn btn-s btn-primary" value="Erwachsener-Kita-Rellinghausen-Demo" ng-click="runPedestrianDemo()"></input>
 			<input type="button" class="btn btn-s btn-primary" value="Fahrrad-Kita-Rellinghausen-Demo" ng-click="runBicycleDemo()"></input>
 			<input type="button" class="btn btn-s btn-primary" value="Auto-Kita-Rellinghausen-Demo" ng-click="runCarDemo()"></input>
-			<input type="button" class="btn btn-s btn-primary" value="Fußgänger-Drei-Kitas-Rellinghausen-Demo" ng-click="runPedestrianKitaRellinghausenDemoWithMultipleStartPoints()"></input>
+			<input type="button" class="btn btn-s btn-primary" value="Kind-Drei-Kitas-Rellinghausen-Demo" ng-click="runPedestrianKitaRellinghausenDemoWithMultipleStartPoints()"></input>
 		</div>
 
 		<br/><br/>
@@ -36,8 +36,8 @@
 				<label>Startpunkt: </label>&nbsp;{{latitudeStart}}, {{longitudeStart}}
 				<br/>
 				<label>Fortbewegungsart: </label>&nbsp;{{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.transitMode}}
-				<!-- <br/>
-				<label>Geschwindigkeit: </label>&nbsp;{{speedInKilometersPerHour}} km/h -->
+				<br/>
+				<label>maximale Geschwindigkeit: </label>&nbsp;{{speedInKilometersPerHour}} km/h
 				<br/>
 				<label>Abbruchkriterium: </label>&nbsp;{{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.reachMode}}
 				<br/>

@@ -24,8 +24,8 @@ angular
 							$scope.locationsArray = [[7.049869894,51.42055331]];
 							$scope.rangeArray = [300,600,900];
 							$scope.transitMode;
+							$scope.reachProfile;
 							$scope.reachMode;
-							$scope.speedInMetersPerSecond;
 							$scope.speedInKilometersPerHour;
 							$scope.useMultipleStartPoints = false;
 
@@ -33,7 +33,39 @@ angular
 
 							//"locations":[[7.049869894,51.42055331],[7.19869894,51.52055331]]
 							//"locations":[[7.049869894,51.42055331]]
-							var isochronesPOSTBody = {"locations":[[7.049869894,51.42055331]],"range":[300,600,900],"attributes":["area","reachfactor"],"intersections":"false","location_type":"start","range_type":"time","area_units":"m","units":"m"};
+							var isochronesGETParameter = "profile=foot-walking&units=m&location_type=start&locations=7.268504,51.448405&range_type=time&range=300,600,900&attributes=area|reachfactor&options={'maximum_speed':3}";
+
+							var createORSIsochroneRequest = function(reachProfile, locationsArray, rangeArray, speedInKilometersPerHour){
+								var locationsString = "";
+								for (var index=0; index<locationsArray.length; index++){
+									//element looks like [longitude,latitude]
+									locationsString += locationsArray[index][0] + "," + locationsArray[index][1];
+									if(index != locationsArray.length - 1){
+										// encode pipe symbol "|" manually
+										locationsString += "%7C";
+									}
+								};
+
+								var rangeString = "";
+								for (var i=0; i<rangeArray.length; i++){
+									rangeString += rangeArray[i];
+									if(i != rangeArray.length - 1){
+										rangeString += ",";
+									}
+								};
+
+								var optionsString = '{"maximum_speed":' + speedInKilometersPerHour + '}';
+
+								// var constantParameters = "&units=m&location_type=start&range_type=time";
+								// encode pipe symbol manually via %7C
+								var constantParameters = "&units=m&location_type=start&range_type=time&attributes=area%7Creachfactor";
+
+								var getRequest = $scope.targetUrlToReachabilityService_ORS + "/isochrones?profile=" + reachProfile + "&locations=" + locationsString + "&range=" + rangeString + constantParameters + "&options=" + encodeURIComponent(optionsString);
+
+																// var getRequest = $scope.targetUrlToReachabilityService_ORS + "/isochrones?profile=" + reachProfile + "&locations=" + encodeURIComponent(locationsString) + "&range=" + rangeString + constantParameters;
+								console.log(getRequest);
+								return getRequest;
+							}
 
 							$scope.runChildDemo = function(){
 
@@ -41,26 +73,21 @@ angular
 								$rootScope.$broadcast("showLoadingIconOnMap");
 
 								$scope.transitMode = "Fußgänger (Kind)";
-								// $scope.speedInMetersPerSecond = "0.833333";
-								// $scope.speedInKilometersPerHour = Number($scope.speedInMetersPerSecond * 3600 / 1000).toFixed(0);
+								$scope.reachProfile = "foot-walking";
+								$scope.speedInKilometersPerHour = 3;
 								$scope.reachMode = "Zeit";
 								$scope.locationsArray = [[7.049869894,51.42055331]];
 								$scope.rangeArray = [300,600,900];
-								isochronesPOSTBody.locations = $scope.locationsArray;
-								isochronesPOSTBody.range = $scope.rangeArray;
 								$scope.useMultipleStartPoints = false;
 
-								// http://localhost:8088/otp/routers/current/isochrone?algorithm=accSampling&fromPlace=51.44542,7.04468&date=2018/10/01&time=12:00:00&mode=WALK&cutoffSec=1800&cutoffSec=3600
-
-								var url = $scope.targetUrlToReachabilityService_ORS + "/v2/isochrones/foot-walking";
+								var url = createORSIsochroneRequest($scope.reachProfile, $scope.locationsArray, $scope.rangeArray, $scope.speedInKilometersPerHour);
 
 								var req = {
-									 method: 'POST',
+									 method: 'GET',
 									 url: url,
 									 headers: {
 									   // 'Accept': 'application/json'
-									 },
-									 data: isochronesPOSTBody
+									 }
 									}
 
 								$http(req).then(function successCallback(response) {
@@ -87,27 +114,22 @@ angular
 								$scope.loadingData = true;
 								$rootScope.$broadcast("showLoadingIconOnMap");
 
-								$scope.transitMode = "Fußgänger";
-								// $scope.speedInMetersPerSecond = "0.833333";
-								// $scope.speedInKilometersPerHour = Number($scope.speedInMetersPerSecond * 3600 / 1000).toFixed(0);
+								$scope.transitMode = "Fußgänger (Erwachsener)";
 								$scope.reachMode = "Zeit";
 								$scope.locationsArray = [[7.049869894,51.42055331]];
 								$scope.rangeArray = [300,600,900];
-								isochronesPOSTBody.locations = $scope.locationsArray;
-								isochronesPOSTBody.range = $scope.rangeArray;
+								$scope.reachProfile = "foot-walking";
+								$scope.speedInKilometersPerHour = 5;
 								$scope.useMultipleStartPoints = false;
 
-								// http://localhost:8088/otp/routers/current/isochrone?algorithm=accSampling&fromPlace=51.44542,7.04468&date=2018/10/01&time=12:00:00&mode=WALK&cutoffSec=1800&cutoffSec=3600
-
-								var url = $scope.targetUrlToReachabilityService_ORS + "/v2/isochrones/foot-walking";
+								var url = createORSIsochroneRequest($scope.reachProfile, $scope.locationsArray, $scope.rangeArray, $scope.speedInKilometersPerHour);
 
 								var req = {
-									 method: 'POST',
+									 method: 'GET',
 									 url: url,
 									 headers: {
-										 // 'Accept': 'application/json'
-									 },
-									 data: isochronesPOSTBody
+									   // 'Accept': 'application/json'
+									 }
 									}
 
 								$http(req).then(function successCallback(response) {
@@ -135,26 +157,21 @@ angular
 								$rootScope.$broadcast("showLoadingIconOnMap");
 
 								$scope.transitMode = "Fahrrad";
-								// $scope.speedInMetersPerSecond = "0.833333";
-								// $scope.speedInKilometersPerHour = Number($scope.speedInMetersPerSecond * 3600 / 1000).toFixed(0);
 								$scope.reachMode = "Zeit";
 								$scope.locationsArray = [[7.049869894,51.42055331]];
 								$scope.rangeArray = [300,600,900];
-								isochronesPOSTBody.locations = $scope.locationsArray;
-								isochronesPOSTBody.range = $scope.rangeArray;
+								$scope.reachProfile = "cycling-regular";
+								$scope.speedInKilometersPerHour = 15;
 								$scope.useMultipleStartPoints = false;
 
-								// http://localhost:8088/otp/routers/current/isochrone?algorithm=accSampling&fromPlace=51.44542,7.04468&date=2018/10/01&time=12:00:00&mode=WALK&cutoffSec=1800&cutoffSec=3600
-
-								var url = $scope.targetUrlToReachabilityService_ORS + "/v2/isochrones/cycling-regular";
+								var url = createORSIsochroneRequest($scope.reachProfile, $scope.locationsArray, $scope.rangeArray, $scope.speedInKilometersPerHour);
 
 								var req = {
-									 method: 'POST',
+									 method: 'GET',
 									 url: url,
 									 headers: {
-										 // 'Accept': 'application/json'
-									 },
-									 data: isochronesPOSTBody
+									   // 'Accept': 'application/json'
+									 }
 									}
 
 								$http(req).then(function successCallback(response) {
@@ -182,27 +199,23 @@ angular
 								$rootScope.$broadcast("showLoadingIconOnMap");
 
 								$scope.transitMode = "Auto";
-								// $scope.speedInMetersPerSecond = "0.833333";
-								// $scope.speedInKilometersPerHour = Number($scope.speedInMetersPerSecond * 3600 / 1000).toFixed(0);
 								$scope.reachMode = "Zeit";
 								$scope.locationsArray = [[7.049869894,51.42055331]];
 								$scope.rangeArray = [300,600,900];
-								isochronesPOSTBody.locations = $scope.locationsArray;
-								isochronesPOSTBody.range = $scope.rangeArray;
+								$scope.reachProfile = "driving-car";
+								$scope.speedInKilometersPerHour = 130;
 								$scope.useMultipleStartPoints = false;
 
-								// http://localhost:8088/otp/routers/current/isochrone?algorithm=accSampling&fromPlace=51.44542,7.04468&date=2018/10/01&time=12:00:00&mode=WALK&cutoffSec=1800&cutoffSec=3600
+								var url = createORSIsochroneRequest($scope.reachProfile, $scope.locationsArray, $scope.rangeArray, $scope.speedInKilometersPerHour);
 
-								var url = $scope.targetUrlToReachabilityService_ORS + "/v2/isochrones/driving-car";
 
 								var req = {
-									 method: 'POST',
+									 method: 'GET',
 									 url: url,
 									 headers: {
-										 // 'Accept': 'application/json'
-									 },
-									 data: isochronesPOSTBody
-								 }
+									   // 'Accept': 'application/json'
+									 }
+									}
 
 								$http(req).then(function successCallback(response) {
 										// this callback will be called asynchronously
@@ -229,26 +242,21 @@ angular
 								$rootScope.$broadcast("showLoadingIconOnMap");
 
 								$scope.transitMode = "Fahrrad";
-								// $scope.speedInMetersPerSecond = "0.833333";
-								// $scope.speedInKilometersPerHour = Number($scope.speedInMetersPerSecond * 3600 / 1000).toFixed(0);
 								$scope.reachMode = "Zeit";
 								$scope.locationsArray = [[7.049869894,51.42055331],[7.0115552,51.4386432]];
 								$scope.rangeArray = [300,600,900];
-								isochronesPOSTBody.locations = $scope.locationsArray;
-								isochronesPOSTBody.range = $scope.rangeArray;
+								$scope.reachProfile = "cycling-regular";
+								$scope.speedInKilometersPerHour = 15;
 								$scope.useMultipleStartPoints = true;
 
-								// http://localhost:8088/otp/routers/current/isochrone?algorithm=accSampling&fromPlace=51.44542,7.04468&date=2018/10/01&time=12:00:00&mode=WALK&cutoffSec=1800&cutoffSec=3600
-
-								var url = $scope.targetUrlToReachabilityService_ORS + "/v2/isochrones/cycling-regular";
+								var url = createORSIsochroneRequest($scope.reachProfile, $scope.locationsArray, $scope.rangeArray, $scope.speedInKilometersPerHour);
 
 								var req = {
-									 method: 'POST',
+									 method: 'GET',
 									 url: url,
 									 headers: {
-										 // 'Accept': 'application/json'
-									 },
-									 data: isochronesPOSTBody
+									   // 'Accept': 'application/json'
+									 }
 									}
 
 								$http(req).then(function successCallback(response) {
@@ -275,28 +283,23 @@ angular
 								$scope.loadingData = true;
 								$rootScope.$broadcast("showLoadingIconOnMap");
 
-								$scope.transitMode = "Fußgänger";
-								// $scope.speedInMetersPerSecond = "0.833333";
-								// $scope.speedInKilometersPerHour = Number($scope.speedInMetersPerSecond * 3600 / 1000).toFixed(0);
+								$scope.transitMode = "Fußgänger (Kind)";
 								$scope.reachMode = "Zeit";
 								// $scope.locationsArray = [[7.049869894,51.42055331],[7.0394219,51.4232979],[7.040197,51.4254453]];
 								$scope.locationsArray = [[7.049869894,51.42055331],[7.0382865,51.4234454],[7.0403425,51.4258269]];
 								$scope.rangeArray = [300,600,900];
-								isochronesPOSTBody.locations = $scope.locationsArray;
-								isochronesPOSTBody.range = $scope.rangeArray;
+								$scope.reachProfile = "foot-walking";
+								$scope.speedInKilometersPerHour = 3;
 								$scope.useMultipleStartPoints = true;
 
-								// http://localhost:8088/otp/routers/current/isochrone?algorithm=accSampling&fromPlace=51.44542,7.04468&date=2018/10/01&time=12:00:00&mode=WALK&cutoffSec=1800&cutoffSec=3600
-
-								var url = $scope.targetUrlToReachabilityService_ORS + "/v2/isochrones/foot-walking";
+								var url = createORSIsochroneRequest($scope.reachProfile, $scope.locationsArray, $scope.rangeArray, $scope.speedInKilometersPerHour);
 
 								var req = {
-									 method: 'POST',
+									 method: 'GET',
 									 url: url,
 									 headers: {
-										 // 'Accept': 'application/json'
-									 },
-									 data: isochronesPOSTBody
+									   // 'Accept': 'application/json'
+									 }
 									}
 
 								$http(req).then(function successCallback(response) {
