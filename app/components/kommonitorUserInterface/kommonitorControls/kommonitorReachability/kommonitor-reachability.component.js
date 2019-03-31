@@ -14,7 +14,7 @@ angular
 							const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
 							this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 							this.kommonitorMapServiceInstance = kommonitorMapService;
-							$scope.targetUrlToReachabilityService = __env.targetUrlToReachabilityService;
+							$scope.targetUrlToReachabilityService_ORS = __env.targetUrlToReachabilityService_ORS;
 							var numberOfDecimals = __env.numberOfDecimals;
 
 							$scope.currentIsochronesGeoJSON;
@@ -52,7 +52,7 @@ angular
 
 								// http://localhost:8088/otp/routers/current/isochrone?algorithm=accSampling&fromPlace=51.44542,7.04468&date=2018/10/01&time=12:00:00&mode=WALK&cutoffSec=1800&cutoffSec=3600
 
-								var url = $scope.targetUrlToReachabilityService + "/v2/isochrones/foot-walking";
+								var url = $scope.targetUrlToReachabilityService_ORS + "/v2/isochrones/foot-walking";
 
 								var req = {
 									 method: 'POST',
@@ -99,7 +99,7 @@ angular
 
 								// http://localhost:8088/otp/routers/current/isochrone?algorithm=accSampling&fromPlace=51.44542,7.04468&date=2018/10/01&time=12:00:00&mode=WALK&cutoffSec=1800&cutoffSec=3600
 
-								var url = $scope.targetUrlToReachabilityService + "/v2/isochrones/foot-walking";
+								var url = $scope.targetUrlToReachabilityService_ORS + "/v2/isochrones/foot-walking";
 
 								var req = {
 									 method: 'POST',
@@ -146,7 +146,7 @@ angular
 
 								// http://localhost:8088/otp/routers/current/isochrone?algorithm=accSampling&fromPlace=51.44542,7.04468&date=2018/10/01&time=12:00:00&mode=WALK&cutoffSec=1800&cutoffSec=3600
 
-								var url = $scope.targetUrlToReachabilityService + "/v2/isochrones/cycling-regular";
+								var url = $scope.targetUrlToReachabilityService_ORS + "/v2/isochrones/cycling-regular";
 
 								var req = {
 									 method: 'POST',
@@ -193,7 +193,7 @@ angular
 
 								// http://localhost:8088/otp/routers/current/isochrone?algorithm=accSampling&fromPlace=51.44542,7.04468&date=2018/10/01&time=12:00:00&mode=WALK&cutoffSec=1800&cutoffSec=3600
 
-								var url = $scope.targetUrlToReachabilityService + "/v2/isochrones/driving-car";
+								var url = $scope.targetUrlToReachabilityService_ORS + "/v2/isochrones/driving-car";
 
 								var req = {
 									 method: 'POST',
@@ -240,7 +240,7 @@ angular
 
 								// http://localhost:8088/otp/routers/current/isochrone?algorithm=accSampling&fromPlace=51.44542,7.04468&date=2018/10/01&time=12:00:00&mode=WALK&cutoffSec=1800&cutoffSec=3600
 
-								var url = $scope.targetUrlToReachabilityService + "/v2/isochrones/cycling-regular";
+								var url = $scope.targetUrlToReachabilityService_ORS + "/v2/isochrones/cycling-regular";
 
 								var req = {
 									 method: 'POST',
@@ -288,7 +288,7 @@ angular
 
 								// http://localhost:8088/otp/routers/current/isochrone?algorithm=accSampling&fromPlace=51.44542,7.04468&date=2018/10/01&time=12:00:00&mode=WALK&cutoffSec=1800&cutoffSec=3600
 
-								var url = $scope.targetUrlToReachabilityService + "/v2/isochrones/foot-walking";
+								var url = $scope.targetUrlToReachabilityService_ORS + "/v2/isochrones/foot-walking";
 
 								var req = {
 									 method: 'POST',
