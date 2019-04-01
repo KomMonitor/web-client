@@ -27,6 +27,9 @@ angular
 										block: true
 								});
 							}
+
+							// reanebalbe DateSlider on map
+							$rootScope.$broadcast("EnableDateSlider");
 						});
 
 						$scope.$on("replaceBalancedIndicator", function (event) {
@@ -46,6 +49,8 @@ angular
 								$scope.rangeSliderForBalance.update({
 										block: false
 								});
+								// disable DateSlider on map
+								$rootScope.$broadcast("DisableDateSlider");
 								if(!kommonitorDataExchangeService.indicatorAndMetadataAsBalance){
 									kommonitorDataExchangeService.indicatorAndMetadataAsBalance = jQuery.extend(true, {}, kommonitorDataExchangeService.selectedIndicator);
 									kommonitorDataExchangeService.indicatorAndMetadataAsBalance.indicatorType = "DYNAMIC";
@@ -58,6 +63,8 @@ angular
 								$scope.rangeSliderForBalance.update({
 										block: true
 								});
+								// reanebalbe DateSlider on map
+								$rootScope.$broadcast("EnableDateSlider");
 								kommonitorMapService.replaceIndicatorGeoJSON(kommonitorDataExchangeService.selectedIndicator, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, $scope.targetDate, true);
 							}
 							$rootScope.$broadcast("updateIndicatorValueRangeFilter", $scope.targetDate);

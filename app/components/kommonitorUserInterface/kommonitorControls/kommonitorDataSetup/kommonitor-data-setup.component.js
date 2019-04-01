@@ -524,7 +524,23 @@ angular
 										$rootScope.$broadcast("hideLoadingIconOnMap");
 										$scope.$apply();
 									}
-								}
+								};
+
+								$scope.$on("DisableDateSlider", function (event) {
+									if($scope.dateSlider){
+										$scope.dateSlider.update({
+												block: true
+										});
+									}
+								});
+
+								$scope.$on("EnableDateSlider", function (event) {
+									if($scope.dateSlider){
+										$scope.dateSlider.update({
+												block: false
+										});
+									}
+								});
 
 								var wait = ms => new Promise((r, j)=>setTimeout(r, ms))
 
