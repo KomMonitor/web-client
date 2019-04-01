@@ -394,7 +394,7 @@ angular.module('kommonitorMap').component(
                           this._div.innerHTML += '<b>Kontakt: </b> ' + $scope.currentIndicatorMetadataAndGeoJSON.metadata.contact + '<br/>';
                           this._div.innerHTML += '<b>Aktualisierungszyklus: </b> ' + $scope.updateInterval.get($scope.currentIndicatorMetadataAndGeoJSON.metadata.updateInterval.toUpperCase()) + '<br/>';
                           this._div.innerHTML += '<b>zuletzt aktualisiert am: </b> ' + tsToDate(dateToTS(lastUpdateAsDate)) + '<br/><br/>';
-                          this._div.innerHTML += '<a href="IndicatorMetadata" download>Download Indikatorenbeschreibung</a><br/><br/>';
+                          this._div.innerHTML += '<a href="IndicatorMetadata" download>Download Indikatorenbeschreibung (derzeitig unwirksam)</a><br/><br/>';
 
 
                           this._div.innerHTML += $scope.appendSpatialUnitOptions();
