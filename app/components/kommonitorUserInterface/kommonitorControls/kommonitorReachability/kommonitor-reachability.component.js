@@ -243,7 +243,7 @@ angular
 
 								$scope.transitMode = "Fahrrad";
 								$scope.reachMode = "Zeit";
-								$scope.locationsArray = [[7.049869894,51.42055331],[7.0115552,51.4386432]];
+								$scope.locationsArray = [[7.049869894,51.42055331],[7.0382865,51.4234454],[7.0403425,51.4258269]];
 								$scope.rangeArray = [300,600,900];
 								$scope.reachProfile = "cycling-regular";
 								$scope.speedInKilometersPerHour = 15;
