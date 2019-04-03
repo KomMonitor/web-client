@@ -256,7 +256,7 @@
 #parameterManagement {
 	margin-top:25px;
 	height: auto !important;
-	max-height: 600px;
+	max-height: 525px;
   overflow-y: scroll;
 }
 
