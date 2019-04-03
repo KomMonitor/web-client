@@ -1,4 +1,10 @@
 /* app css stylesheet */
+
+/* required to increase drowdown menu z-index in oder to let layer export options overlap menu buttons and map */
+.dropdown-menu {
+	z-index: 7000;
+}
+
 /* Set height of the grid so .sidenav can be 100% (adjust if needed) */
 .row.wps-ui {
 	height: 98vh;
@@ -576,63 +582,63 @@
 	margin-left: 15px;
 	margin-right: 15px;
 	margin-top: 0px;
-	z-index: 2000;
+	z-index: 7000;
 }
 
 #kommonitorFilter{
 	margin-left: 35px;
 	margin-right: 35px;
 	margin-top: 10px;
-	z-index: 2000;
+	z-index: 7000;
 }
 
 #kommonitorBalance{
 	margin-left: 35px;
 	margin-right: 35px;
 	margin-top: 10px;
-	z-index: 2000;
+	z-index: 7000;
 }
 
 #kommonitorReachability{
 	margin-left: 35px;
 	margin-right: 35px;
 	margin-top: 10px;
-	z-index: 2000;
+	z-index: 7000;
 }
 
 #indicatorProcessing{
 	margin-left: 35px;
 	margin-right: 35px;
 	margin-top: 10px;
-	z-index: 2000;
+	z-index: 7000;
 }
 
 #indicatorRadar{
 	margin-left: 5px;
 	margin-right: 5px;
 	margin-top: 10px;
-	z-index: 2000;
+	z-index: 7000;
 }
 
 #poi{
 	margin-left: 5px;
 	margin-right: 5px;
 	margin-top: 10px;
-	z-index: 2000;
+	z-index: 7000;
 }
 
 #indicatorRegression{
 	margin-left: 5px;
 	margin-right: 5px;
 	margin-top: 10px;
-	z-index: 2000;
+	z-index: 7000;
 }
 
 #indicatorDiagrams{
 	margin-left: 5px;
 	margin-right: 5px;
 	margin-top: 10px;
-	z-index: 2000;
+	z-index: 7000;
 }
 
 .btn-circle {
