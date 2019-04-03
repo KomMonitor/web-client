@@ -126,7 +126,7 @@
   margin-right: auto;
   margin-left: auto;
   left: 100px;
-  right: 10px;
+  right: 20px;
 	z-index: 8000;
 	font: 16px/18px Arial, Helvetica, sans-serif;
 	/* border: 2px solid black;
@@ -162,6 +162,18 @@
 .irs-bar:hover {
 	cursor: pointer;
 	filter: brightness(85%);
+}
+
+#dateSliderWrapper .irs--big .irs-line {
+	background-color: #92bce0;
+  border: 1px solid #428bca;
+  background: linear-gradient(to bottom, #ffffff 0%, #428bca 30%, #b9d4ec 100%);
+}
+
+#dateSliderForComputationWrapperr .irs--big .irs-line {
+	background-color: #92bce0;
+  border: 1px solid #428bca;
+  background: linear-gradient(to bottom, #ffffff 0%, #428bca 30%, #b9d4ec 100%);
 }
 
 .irs-line:hover {
