@@ -90,8 +90,8 @@
 					<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Export
 					<span class="caret"></span></button>
 					<ul id="exportDropdown" class="dropdown-menu">
-						<li><a  target="_blank" rel="noopener noreferrer" ng-href="{{wmsUrlForSelectedIndicator}}">WMS</a></li>
-						<li><a  target="_blank" rel="noopener noreferrer" ng-href="{{wfsUrlForSelectedIndicator}}">WFS</a></li>
+						<li><a  target="_blank" rel="noopener noreferrer" ng-href="{{wmsUrlForSelectedIndicator}}">WMS  (derzeit fehlerhaft)</a></li>
+						<li><a  target="_blank" rel="noopener noreferrer" ng-href="{{wfsUrlForSelectedIndicator}}">WFS  (derzeit fehlerhaft)</a></li>
 
 					</ul>
 				</div>
@@ -159,9 +159,9 @@
 				<div class="hiddenTableCell">
 
 					<div class="hiddenTableContent" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.selectedGeoresource">
-						<button  ng-click="$ctrl.addSelectedGeoresourceToMap()" type="button" class="btn btn-success">Kartenlayer hinzuf&uuml;gen</button>
-							<a class="btn btn-warning" target="_blank" rel="noopener noreferrer" ng-href="{{$ctrl.kommonitorDataExchangeServiceInstance.selectedGeoresource.wmsUrl}}">WMS</a>
-							<a class="btn btn-info" target="_blank" rel="noopener noreferrer" ng-href="{{$ctrl.kommonitorDataExchangeServiceInstance.selectedGeoresource.wfsUrl}}">WFS</a>
+						<!-- <button  ng-click="$ctrl.addSelectedGeoresourceToMap()" type="button" class="btn btn-success">Kartenlayer hinzuf&uuml;gen</button> -->
+							<a class="btn btn-warning" target="_blank" rel="noopener noreferrer" ng-href="{{$ctrl.kommonitorDataExchangeServiceInstance.selectedGeoresource.wmsUrl}}">WMS (derzeit fehlerhaft)</a>
+							<a class="btn btn-info" target="_blank" rel="noopener noreferrer" ng-href="{{$ctrl.kommonitorDataExchangeServiceInstance.selectedGeoresource.wfsUrl}}">WFS (derzeit fehlerhaft)</a>
 					</div>
 
 				</div>
