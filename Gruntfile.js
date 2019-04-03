@@ -88,11 +88,11 @@ module.exports = function (grunt) {
             // },
             kommonitor: {
                 src: '<%= kommonitor_client %>',
-                dest: 'dist/js/kommonitor-client.js'
+                dest: 'dist/kommonitor-client.js'
             },
             styles: {
                 src: '<%= kommonitor_styles %>',
-                dest: 'dist/css/<%= name %>.css'
+                dest: 'dist/<%= name %>.css'
             },
             // libStyles: {
             //     src: '<%= lib_styles %>',
@@ -105,7 +105,7 @@ module.exports = function (grunt) {
             },
             appJs: {
                 files: {
-                    'dist/js/kommonitor-client.min.js': ['<%= concat.kommonitor.dest %>']
+                    'dist/kommonitor-client.min.js': ['<%= concat.kommonitor.dest %>']
                 }
             }
         },
@@ -114,7 +114,7 @@ module.exports = function (grunt) {
             },
             styles: {
                 files: {
-                    'dist/css/<%= name %>.min.css': ['<%= concat.styles.dest %>']
+                    'dist/<%= name %>.min.css': ['<%= concat.styles.dest %>']
                 }
             },
             // depStyles: {
