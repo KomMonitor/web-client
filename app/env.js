@@ -16,9 +16,12 @@
     // window.__env.apiUrl = 'http://kommonitor.fbg-hsbo.de/openrouteservice';
   window.__env.targetUrlToReachabilityService_ORS = 'http://srvkommon01:8080/openrouteservice';
   // window.__env.apiUrl = 'http://kommonitor.fbg-hsbo.de/opentripplanner';
-window.__env.targetUrlToReachabilityService_OTP = 'http://srvkommon01:8080/opentripplanner';
+  window.__env.targetUrlToReachabilityService_OTP = 'http://srvkommon01:8080/opentripplanner';
 
 
+  window.__env.simplifyGeometriesParameterName = "simplifyGeometries";
+  window.__env.simplifyGeometriesOptions = [{"label": "keine", "value": "original"}, {"label": "schwach", "value": "weak"}, {"label": "mittel", "value": "medium"}, {"label": "stark", "value": "strong"}];
+  window.__env.simplifyGeometries = "medium";
 
   window.__env.indicatorDatePrefix = "DATE_";
 
