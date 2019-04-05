@@ -186,7 +186,8 @@ angular
 								$scope.movMaxValue = +Number(values[values.length - 1]).toFixed(numberOfDecimals);
 
 								$scope.movMiddleValue = +(($scope.movMaxValue + $scope.movMinValue) / 2).toFixed(numberOfDecimals);
-								$scope.movStep = +(($scope.movMaxValue - $scope.movMinValue)/35).toFixed(numberOfDecimals);
+								// $scope.movStep = +(($scope.movMaxValue - $scope.movMinValue)/35).toFixed(numberOfDecimals);
+								$scope.movStep = 0.01;
 
 								// measureOfValueInput.setAttribute("min", $scope.movMinValue);
 								// measureOfValueInput.setAttribute("max", $scope.movMaxValue);
@@ -199,7 +200,7 @@ angular
 								measureOfValueTextInput.setAttribute("min", $scope.movMinValue);
 								measureOfValueTextInput.setAttribute("max", $scope.movMaxValue);
 								measureOfValueTextInput.setAttribute("value", $scope.movMiddleValue);
-								measureOfValueTextInput.setAttribute("movStep", $scope.movStep);
+								measureOfValueTextInput.setAttribute("step", $scope.movStep);
 
 								if($scope.movRangeSlider){
 									$scope.movRangeSlider.destroy();
@@ -219,7 +220,7 @@ angular
 						        max: $scope.movMaxValue,
 						        from: $scope.movMiddleValue,
 								   	force_edges: true,
-										step: $scope.movStep,
+										step: 0.01,
 						        grid: true,
 										prettify_enabled: true,
 										prettify_separator: "",

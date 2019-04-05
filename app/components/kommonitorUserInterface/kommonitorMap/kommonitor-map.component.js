@@ -2212,19 +2212,15 @@ angular.module('kommonitorMap').component(
                                                                                 });
                                                                               }
                                                                               else{
+                                                                                setupDefaultBrew($scope.currentGeoJSONOfCurrentLayer, $scope.indicatorPropertyName, kommonitorDataExchangeService.selectedIndicator.defaultClassificationMapping.items.length, kommonitorDataExchangeService.selectedIndicator.defaultClassificationMapping.colorBrewerSchemeName, $scope.classifyMethod);
+                                                                                $scope.makeDefaultLegend(kommonitorDataExchangeService.selectedIndicator.defaultClassificationMapping);
                                                                                 $scope.currentIndicatorLayer.eachLayer(function(layer) {
-                                                                                  setupDefaultBrew($scope.currentGeoJSONOfCurrentLayer, $scope.indicatorPropertyName, kommonitorDataExchangeService.selectedIndicator.defaultClassificationMapping.items.length, kommonitorDataExchangeService.selectedIndicator.defaultClassificationMapping.colorBrewerSchemeName, $scope.classifyMethod);
-                                                                                  $scope.makeDefaultLegend(kommonitorDataExchangeService.selectedIndicator.defaultClassificationMapping);
-
-                                                                                  $scope.currentIndicatorLayer.eachLayer(function(layer) {
                                                                                     if(kommonitorDataExchangeService.filteredIndicatorFeatureNames.includes(layer.feature.properties.spatialUnitFeatureName)){
                                                                                       layer.setStyle($scope.filteredStyle);
                                                                                     }
                                                                                     else{
                                                                                       layer.setStyle(styleDefault(layer.feature));
                                                                                     }
-
-                                                                                  });
                                                                                 });
                                                                               }
 
