@@ -24,6 +24,9 @@ angular
 					this.tmpIndicatorGeoJSON = undefined;
 
 					this.baseUrlToKomMonitorDataAPI = __env.apiUrl + __env.basePath;
+          this.simplifyGeometriesParameterName = __env.simplifyGeometriesParameterName;
+          this.simplifyGeometriesOptions = __env.simplifyGeometriesOptions;
+          this.simplifyGeometries = __env.simplifyGeometries;
 
 					this.availableProcessScripts;
           this.isochroneLegend;
