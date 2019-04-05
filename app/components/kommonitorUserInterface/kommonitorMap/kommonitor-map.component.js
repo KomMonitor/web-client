@@ -21,6 +21,7 @@ angular.module('kommonitorMap').component(
                     const defaultFillOpacityForFilteredFeatures = __env.defaultFillOpacityForFilteredFeatures;
                     const defaultFillOpacityForHighlightedFeatures = __env.defaultFillOpacityForHighlightedFeatures;
                     const defaultFillOpacityForZeroFeatures = __env.defaultFillOpacityForZeroFeatures;
+
                     //allowesValues: equal_interval, quantile, jenks
                     $scope.classifyMethods = [{
                       name: "Jenks",
@@ -238,6 +239,15 @@ angular.module('kommonitorMap').component(
                      $rootScope.$broadcast("changeSpatialUnitViaInfoControl", spatialUnitLevel);
                     });
 
+                    $(document).on('change','#selectSimplifyGeometriesViaInfoControl',function(){
+                      var selector = document.getElementById('selectSimplifyGeometriesViaInfoControl');
+                      var simplifyGeometries = selector[selector.selectedIndex].value;
+
+                      kommonitorDataExchangeService.simplifyGeometries = simplifyGeometries;
+
+                      $rootScope.$broadcast("changeSpatialUnit");
+                    });
+
                     $scope.$on("changeSpatialUnitViaInfoControl", function (event, spatialUnitLevel) {
                       //TODO
                       for (var i=0; i< kommonitorDataExchangeService.availableSpatialUnits.length; i++){
@@ -284,7 +294,41 @@ angular.module('kommonitorMap').component(
                       innerHTMLString += "</select>";
                       innerHTMLString += "</label>";
                       innerHTMLString += "</form>";
-                      innerHTMLString += "<br/>";
+                      // innerHTMLString += "<br/>";
+
+                      return innerHTMLString;
+                    };
+
+                    $scope.appendSimplifyGeometriesOptions = function(){
+
+                      // <form action="select.html">
+                      //   <label>Künstler(in):
+                      //     <select name="top5" size="5">
+                      //       <option>Heino</option>
+                      //       <option>Michael Jackson</option>
+                      //       <option>Tom Waits</option>
+                      //       <option>Nina Hagen</option>
+                      //       <option>Marianne Rosenberg</option>
+                      //     </select>
+                      //   </label>
+                      // </form>
+
+                      var innerHTMLString = "<form>";
+                      innerHTMLString += "<label>Geometrie vereinfachen?  ";
+                      innerHTMLString += "<select id='selectSimplifyGeometriesViaInfoControl'>";
+
+
+                      for (var option of kommonitorDataExchangeService.simplifyGeometriesOptions){
+                          innerHTMLString += ' <option value="' + option.value + '" ';
+                          if (kommonitorDataExchangeService.simplifyGeometries === option.value){
+                            innerHTMLString +=' selected ';
+                          }
+                          innerHTMLString +='>' + option.label + '</option>';
+                      }
+                      innerHTMLString += "</select>";
+                      innerHTMLString += "</label>";
+                      innerHTMLString += "</form>";
+                      // innerHTMLString += "<br/>";
 
                       return innerHTMLString;
                     };
@@ -398,6 +442,7 @@ angular.module('kommonitorMap').component(
 
 
                           this._div.innerHTML += $scope.appendSpatialUnitOptions();
+                          this._div.innerHTML += $scope.appendSimplifyGeometriesOptions();
                           return this._div;
                       };
 
