@@ -19,7 +19,7 @@
   window.__env.targetUrlToReachabilityService_OTP = 'http://localhost:8090/opentripplanner';
 
   window.__env.simplifyGeometriesParameterName = "simplifyGeometries";
-  window.__env.simplifyGeometriesOptions = [{"label": "keine", "value": "original"}, {"label": "schwach", "value": "weak"}, {"label": "mittel", "value": "medium"}, {"label": "stark", "value": "strong"}];
+  window.__env.simplifyGeometriesOptions = [{"label": "nein", "value": "original"}, {"label": "schwach", "value": "weak"}, {"label": "mittel", "value": "medium"}, {"label": "stark", "value": "strong"}];
   window.__env.simplifyGeometries = "medium";
 
   window.__env.indicatorDatePrefix = "DATE_";
