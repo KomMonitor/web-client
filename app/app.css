@@ -368,6 +368,12 @@
   overflow-y: scroll;
 }
 
+#referencedGeoresourcesOverview {
+	height: auto !important;
+	max-height: 250px;
+  overflow-y: scroll;
+}
+
 
 .wrapper {
     display: flex;
