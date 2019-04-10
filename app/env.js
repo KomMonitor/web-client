@@ -7,16 +7,16 @@
 
   // API url
   // window.__env.apiUrl = 'http://kommonitor.fbg-hsbo.de/';
-  window.__env.apiUrl = 'http://srvkommon01:8080/kommonitor-data-management-api/';
+  window.__env.apiUrl = 'https://kommonitor.essen.de/kommonitor-data-management-api/';
   // Base url
   window.__env.basePath = 'management';
 
   // window.__env.apiUrl = 'http://kommonitor.fbg-hsbo.de/processing';
-  window.__env.targetUrlToProcessingEngine = 'http://srvkommon01:8086/processing/script-engine/customizableIndicatorComputation';
+  window.__env.targetUrlToProcessingEngine = 'https://kommonitor.essen.de/processing';
     // window.__env.apiUrl = 'http://kommonitor.fbg-hsbo.de/openrouteservice';
-  window.__env.targetUrlToReachabilityService_ORS = 'http://srvkommon01:8080/openrouteservice';
+  window.__env.targetUrlToReachabilityService_ORS = 'https://kommonitor.essen.de/openrouteservice';
   // window.__env.apiUrl = 'http://kommonitor.fbg-hsbo.de/opentripplanner';
-  window.__env.targetUrlToReachabilityService_OTP = 'http://srvkommon01:8080/opentripplanner';
+  window.__env.targetUrlToReachabilityService_OTP = 'https://kommonitor.essen.de/opentripplanner';
 
 
   window.__env.simplifyGeometriesParameterName = "simplifyGeometries";
