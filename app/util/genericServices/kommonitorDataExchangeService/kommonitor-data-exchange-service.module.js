@@ -62,6 +62,8 @@ angular
 					this.availableIndicators;
 
 					this.selectedIndicator;
+          // backup used when switching themes --< this might make selectedIndicator undefined due to filtering list of theme-matching indicators
+          this.selectedIndicatorBackup;
 					this.wmsUrlForSelectedIndicator;
 					this.wfsUrlForSelectedIndicator;
 

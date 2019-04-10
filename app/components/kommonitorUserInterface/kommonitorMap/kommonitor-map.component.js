@@ -314,7 +314,7 @@ angular.module('kommonitorMap').component(
                       // </form>
 
                       var innerHTMLString = "<form>";
-                      innerHTMLString += "<label>Geometrie vereinfachen?  ";
+                      innerHTMLString += "<label title='Angabe, ob die Geometrien für die Kartendarstellung vereinfacht werden sollen. Jede der Optionen schwach, mittel, stark, reduziert dabei die Stützpunkte der Geometrien um ein steigendes Maß. Dies reduziert die Geometrie-Komplexitität und erhöht die Performanz.'>Geometrie vereinfachen?  ";
                       innerHTMLString += "<select id='selectSimplifyGeometriesViaInfoControl'>";
 
 
