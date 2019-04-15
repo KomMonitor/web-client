@@ -41,7 +41,7 @@
   window.__env.defaultFillOpacityForZeroFeatures = "0.6";
   window.__env.defaultFillOpacityForHighlightedFeatures = "0.95";
   //allowesValues: equal_interval, quantile, jenks
-  window.__env.defaultClassifyMethod = "jenks";
+  window.__env.defaultClassifyMethod = "equal_interval";
 
 
 
