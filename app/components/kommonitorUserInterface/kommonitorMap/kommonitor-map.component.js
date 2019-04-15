@@ -21,6 +21,10 @@ angular.module('kommonitorMap').component(
                     const defaultFillOpacityForFilteredFeatures = __env.defaultFillOpacityForFilteredFeatures;
                     const defaultFillOpacityForHighlightedFeatures = __env.defaultFillOpacityForHighlightedFeatures;
                     const defaultFillOpacityForZeroFeatures = __env.defaultFillOpacityForZeroFeatures;
+                    const defaultColorBrewerPaletteForBalanceIncreasingValues = __env.defaultColorBrewerPaletteForBalanceIncreasingValues;
+                    const defaultColorBrewerPaletteForBalanceDecreasingValues = __env.defaultColorBrewerPaletteForBalanceDecreasingValues;
+                    const defaultColorBrewerPaletteForGtMovValues = __env.defaultColorBrewerPaletteForGtMovValues;
+                    const defaultColorBrewerPaletteForLtMovValues = __env.defaultColorBrewerPaletteForLtMovValues;
 
                     //allowesValues: equal_interval, quantile, jenks
                     $scope.classifyMethods = [{
@@ -2060,7 +2064,7 @@ angular.module('kommonitorMap').component(
                                                                 $scope.indicatorTypeOfCurrentLayer = indicatorMetadataAndGeoJSON.indicatorType;
 
                                                                 if(kommonitorDataExchangeService.isMeasureOfValueChecked){
-                                                                  setupMeasureOfValueBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, "YlOrBr", "Purples", $scope.classifyMethod, kommonitorDataExchangeService.measureOfValue);
+                                                                  setupMeasureOfValueBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, defaultColorBrewerPaletteForGtMovValues, defaultColorBrewerPaletteForLtMovValues, $scope.classifyMethod, kommonitorDataExchangeService.measureOfValue);
                                                                   $scope.propertyName = INDICATOR_DATE_PREFIX + date;
 
                                                                   layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
@@ -2086,7 +2090,7 @@ angular.module('kommonitorMap').component(
                                                                     $scope.makeDefaultLegend(indicatorMetadataAndGeoJSON.defaultClassificationMapping);
                                                                   }
                                                                   else if (indicatorMetadataAndGeoJSON.indicatorType === "DYNAMIC"){
-                                                                    setupDynamicIndicatorBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, "Greens", "Reds", $scope.classifyMethod);
+                                                                    setupDynamicIndicatorBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, defaultColorBrewerPaletteForBalanceIncreasingValues, defaultColorBrewerPaletteForBalanceDecreasingValues, $scope.classifyMethod);
                                                                     $scope.propertyName = INDICATOR_DATE_PREFIX + date;
 
                                                                     layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
@@ -2183,7 +2187,7 @@ angular.module('kommonitorMap').component(
                                                                             }
 
                                                                             if(kommonitorDataExchangeService.isMeasureOfValueChecked){
-                                                                              setupMeasureOfValueBrew($scope.currentGeoJSONOfCurrentLayer, $scope.indicatorPropertyName, "YlOrBr", "Purples", $scope.classifyMethod, kommonitorDataExchangeService.measureOfValue);
+                                                                              setupMeasureOfValueBrew($scope.currentGeoJSONOfCurrentLayer, $scope.indicatorPropertyName, defaultColorBrewerPaletteForGtMovValues, defaultColorBrewerPaletteForLtMovValues, $scope.classifyMethod, kommonitorDataExchangeService.measureOfValue);
                                                                               $scope.makeMeasureOfValueLegend();
                                                                               $scope.currentIndicatorLayer.eachLayer(function(layer) {
                                                                                 if(kommonitorDataExchangeService.filteredIndicatorFeatureNames.includes(layer.feature.properties.spatialUnitFeatureName)){
@@ -2198,7 +2202,7 @@ angular.module('kommonitorMap').component(
                                                                             else{
 
                                                                               if($scope.indicatorTypeOfCurrentLayer === 'DYNAMIC'){
-                                                                                setupDynamicIndicatorBrew($scope.currentGeoJSONOfCurrentLayer, $scope.indicatorPropertyName, "Greens", "Reds", $scope.classifyMethod);
+                                                                                setupDynamicIndicatorBrew($scope.currentGeoJSONOfCurrentLayer, $scope.indicatorPropertyName, defaultColorBrewerPaletteForBalanceIncreasingValues, defaultColorBrewerPaletteForBalanceDecreasingValues, $scope.classifyMethod);
                                                                                 $scope.makeDynamicIndicatorLegend();
 
                                                                                 $scope.currentIndicatorLayer.eachLayer(function(layer) {
