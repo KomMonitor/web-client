@@ -58,6 +58,10 @@ angular
 										}
 									};
 
+									if(kommonitorDataExchangeService.selectedIndicator){
+										kommonitorDataExchangeService.selectedIndicatorBackup = kommonitorDataExchangeService.selectedIndicator;
+									}
+
 									// $scope.$apply();
 								};
 
@@ -67,6 +71,10 @@ angular
 									for(const topic of this.kommonitorDataExchangeServiceInstance.availableTopics){
 											document.getElementById(topic.topicName).setAttribute("class", "");
 									};
+
+									if(!kommonitorDataExchangeService.selectedIndicator){
+										kommonitorDataExchangeService.selectedIndicator = kommonitorDataExchangeService.selectedIndicatorBackup;
+									}
 
 									// $scope.$apply();
 								};
@@ -125,8 +133,18 @@ angular
 										if(item.applicableDates == undefined || item.applicableDates.length === 0)
 											return false;
 
-										if (kommonitorDataExchangeService.selectedTopic)
+										if (kommonitorDataExchangeService.selectedTopic){
+												if(!kommonitorDataExchangeService.selectedIndicator){
+													// kommonitorDataExchangeService.selectedIndicator = kommonitorDataExchangeService.selectedIndicator;
+													kommonitorDataExchangeService.selectedIndicator = kommonitorDataExchangeService.selectedIndicatorBackup;
+												}
+												// else{
+												// 	if(kommonitorDataExchangeService.selectedIndicatorBackup){
+												// 		kommonitorDataExchangeService.selectedIndicator = kommonitorDataExchangeService.selectedIndicatorBackup;
+												// 	}
+												// }
 												return item.applicableTopics.includes(kommonitorDataExchangeService.selectedTopic.topicName);
+										}
 
 
 										return true;
