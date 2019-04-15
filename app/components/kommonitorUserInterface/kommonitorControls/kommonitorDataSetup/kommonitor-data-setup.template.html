@@ -34,7 +34,7 @@
 					<h4>Themenfilter für Indikatoren</h4>
 		    </div>
 		    <ul class="nav nav-pills nav-justified">
-		      <li ng-repeat="topic in $ctrl.kommonitorDataExchangeServiceInstance.availableTopics" id="{{topic.topicName}}" class=""><a ng-click="$ctrl.onClickTheme(topic.topicName)" href="#">{{topic.topicName}}</a></li>
+		      <li ng-repeat="topic in $ctrl.kommonitorDataExchangeServiceInstance.availableTopics | filter: { topicName: '!Migration' }" id="{{topic.topicName}}"  class=""><a ng-click="$ctrl.onClickTheme(topic.topicName)" href="#">{{topic.topicName}}</a></li>
 		    </ul>
 		  </div>
 
