@@ -239,14 +239,14 @@ angular.module('kommonitorMap').component(
                      $rootScope.$broadcast("changeSpatialUnitViaInfoControl", spatialUnitLevel);
                     });
 
-                    $(document).on('change','#selectSimplifyGeometriesViaInfoControl',function(){
-                      var selector = document.getElementById('selectSimplifyGeometriesViaInfoControl');
-                      var simplifyGeometries = selector[selector.selectedIndex].value;
-
-                      kommonitorDataExchangeService.simplifyGeometries = simplifyGeometries;
-
-                      $rootScope.$broadcast("changeSpatialUnit");
-                    });
+                    // $(document).on('change','#selectSimplifyGeometriesViaInfoControl',function(){
+                    //   var selector = document.getElementById('selectSimplifyGeometriesViaInfoControl');
+                    //   var simplifyGeometries = selector[selector.selectedIndex].value;
+                    //
+                    //   kommonitorDataExchangeService.simplifyGeometries = simplifyGeometries;
+                    //
+                    //   $rootScope.$broadcast("changeSpatialUnit");
+                    // });
 
                     $scope.$on("changeSpatialUnitViaInfoControl", function (event, spatialUnitLevel) {
                       //TODO
@@ -299,39 +299,39 @@ angular.module('kommonitorMap').component(
                       return innerHTMLString;
                     };
 
-                    $scope.appendSimplifyGeometriesOptions = function(){
-
-                      // <form action="select.html">
-                      //   <label>Künstler(in):
-                      //     <select name="top5" size="5">
-                      //       <option>Heino</option>
-                      //       <option>Michael Jackson</option>
-                      //       <option>Tom Waits</option>
-                      //       <option>Nina Hagen</option>
-                      //       <option>Marianne Rosenberg</option>
-                      //     </select>
-                      //   </label>
-                      // </form>
-
-                      var innerHTMLString = "<form>";
-                      innerHTMLString += "<label title='Angabe, ob die Geometrien für die Kartendarstellung vereinfacht werden sollen. Jede der Optionen schwach, mittel, stark, reduziert dabei die Stützpunkte der Geometrien um ein steigendes Maß. Dies reduziert die Geometrie-Komplexitität und erhöht die Performanz.'>Geometrie vereinfachen?  ";
-                      innerHTMLString += "<select id='selectSimplifyGeometriesViaInfoControl'>";
-
-
-                      for (var option of kommonitorDataExchangeService.simplifyGeometriesOptions){
-                          innerHTMLString += ' <option value="' + option.value + '" ';
-                          if (kommonitorDataExchangeService.simplifyGeometries === option.value){
-                            innerHTMLString +=' selected ';
-                          }
-                          innerHTMLString +='>' + option.label + '</option>';
-                      }
-                      innerHTMLString += "</select>";
-                      innerHTMLString += "</label>";
-                      innerHTMLString += "</form>";
-                      // innerHTMLString += "<br/>";
-
-                      return innerHTMLString;
-                    };
+                    // $scope.appendSimplifyGeometriesOptions = function(){
+                    //
+                    //   // <form action="select.html">
+                    //   //   <label>Künstler(in):
+                    //   //     <select name="top5" size="5">
+                    //   //       <option>Heino</option>
+                    //   //       <option>Michael Jackson</option>
+                    //   //       <option>Tom Waits</option>
+                    //   //       <option>Nina Hagen</option>
+                    //   //       <option>Marianne Rosenberg</option>
+                    //   //     </select>
+                    //   //   </label>
+                    //   // </form>
+                    //
+                    //   var innerHTMLString = "<form>";
+                    //   innerHTMLString += "<label title='Angabe, ob die Geometrien für die Kartendarstellung vereinfacht werden sollen. Jede der Optionen schwach, mittel, stark, reduziert dabei die Stützpunkte der Geometrien um ein steigendes Maß. Dies reduziert die Geometrie-Komplexitität und erhöht die Performanz.'>Geometrie vereinfachen?  ";
+                    //   innerHTMLString += "<select id='selectSimplifyGeometriesViaInfoControl'>";
+                    //
+                    //
+                    //   for (var option of kommonitorDataExchangeService.simplifyGeometriesOptions){
+                    //       innerHTMLString += ' <option value="' + option.value + '" ';
+                    //       if (kommonitorDataExchangeService.simplifyGeometries === option.value){
+                    //         innerHTMLString +=' selected ';
+                    //       }
+                    //       innerHTMLString +='>' + option.label + '</option>';
+                    //   }
+                    //   innerHTMLString += "</select>";
+                    //   innerHTMLString += "</label>";
+                    //   innerHTMLString += "</form>";
+                    //   // innerHTMLString += "<br/>";
+                    //
+                    //   return innerHTMLString;
+                    // };
 
                     function dateToTS (date) {
         								return date.valueOf();
@@ -442,7 +442,7 @@ angular.module('kommonitorMap').component(
 
 
                           this._div.innerHTML += $scope.appendSpatialUnitOptions();
-                          this._div.innerHTML += $scope.appendSimplifyGeometriesOptions();
+                          // this._div.innerHTML += $scope.appendSimplifyGeometriesOptions();
                           return this._div;
                       };
 
