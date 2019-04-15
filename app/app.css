@@ -18,6 +18,10 @@
 	height: 100%;
 }
 
+#infoModal {
+	z-index: 9999;
+}
+
 #processInputForm input:invalid+span:after {
   content: '✖';
   padding-left: 5px;
