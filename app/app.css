@@ -202,6 +202,13 @@
   /* right: 40px; */
 }
 
+#rangeSliderForFilteringWrapper{
+	margin-right: 10px;
+  margin-left: auto;
+  left: 10px;
+  /* right: 40px; */
+}
+
 .hiddenTable {
   display: table;
   width: 100%;
