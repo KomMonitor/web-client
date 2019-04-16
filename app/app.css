@@ -275,8 +275,8 @@
     box-shadow: 0 0 15px rgba(0,0,0,0.2);
     border-radius: 5px;
 
-		width: 35%;
-		max-width: 35%;
+		width: 40%;
+		max-width: 40%;
 		height: auto !important;
 		max-height: 10%;
 		overflow: auto;
@@ -411,7 +411,7 @@
     min-width: 35%;
     max-width: 35%;
 		height: 94.1vh;
-		max-height: 96%;
+		max-height: 98%;
 		/* min-height: 100vh; */
 		background: #E6EEFB;
 		/* transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
@@ -457,8 +457,8 @@
 }
 
 #sidebarDiagrams {
-	min-width: 40%;
-	max-width: 40%;
+	min-width: 42%;
+	max-width: 42%;
 		/* min-height: 100vh; */
 		height: 94.1vh;
 		background: #E6EEFB;
@@ -473,8 +473,8 @@
 }
 
 #sidebarRadarDiagram {
-	min-width: 40%;
-	max-width: 40%;
+	min-width: 42%;
+	max-width: 42%;
 		/* min-height: 100vh; */
 		height: 94.1vh;
 		background: #E6EEFB;
@@ -505,8 +505,8 @@
 }
 
 #sidebarRegressionDiagram {
-	min-width: 40%;
-	max-width: 40%;
+	min-width: 42%;
+	max-width: 42%;
 		/* min-height: 100vh; */
 		height: 94.1vh;
 		background: #E6EEFB;
@@ -628,7 +628,7 @@
 	margin-right: 1%;
 	/* margin-top: 1%; */
 	z-index: 7000;
-	max-height: 96%;
+	max-height: 98%;
 	overflow: auto;
 }
 
@@ -637,7 +637,7 @@
 	margin-right: 1%;
 	/* margin-top: 1%x; */
 	z-index: 7000;
-	max-height: 96%;
+	max-height: 98%;
 	overflow: auto;
 }
 
@@ -646,7 +646,7 @@
 	margin-right: 1%;
 	/* margin-top: 1%; */
 	z-index: 7000;
-	max-height: 96%;
+	max-height: 98%;
 	overflow: auto;
 }
 
@@ -655,7 +655,7 @@
 	margin-right: 1%;
 	/* margin-top: 1%; */
 	z-index: 7000;
-	max-height: 96%;
+	max-height: 98%;
 	overflow: auto;
 }
 
@@ -664,7 +664,7 @@
 	margin-right: 1%;
 	/* margin-top: 1%; */
 	z-index: 7000;
-	max-height: 96%;
+	max-height: 98%;
 	overflow: auto;
 }
 
@@ -673,7 +673,7 @@
 	margin-right: 1%;
 	/* margin-top: 1%; */
 	z-index: 7000;
-	max-height: 96%;
+	max-height: 98%;
 	overflow: auto;
 }
 
@@ -682,7 +682,7 @@
 	margin-right: 1%;
 	/* margin-top: 1%; */
 	z-index: 7000;
-	max-height: 96%;
+	max-height: 98%;
 	overflow: auto;
 }
 
@@ -691,7 +691,7 @@
 	margin-right: 1%;
 	/* margin-top: 1%; */
 	z-index: 7000;
-	max-height: 96%;
+	max-height: 98%;
 	overflow: auto;
 }
 
@@ -700,7 +700,7 @@
 	margin-right: 1%;
 	/* margin-top: 1%; */
 	z-index: 7000;
-	max-height: 96%;
+	max-height: 98%;
 	overflow: auto;
 }
 
