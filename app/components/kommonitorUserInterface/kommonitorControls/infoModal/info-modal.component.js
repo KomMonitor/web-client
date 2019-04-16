@@ -4,5 +4,7 @@ angular.module('infoModal').component('infoModal', {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
+		$('#infoModal').modal('show');
+
 	}
 ]});
