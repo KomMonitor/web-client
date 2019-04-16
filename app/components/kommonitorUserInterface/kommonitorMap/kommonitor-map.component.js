@@ -1171,10 +1171,16 @@ angular.module('kommonitorMap').component(
                                 $scope.isochroneMarkerLayer.addTo($scope.map);
                               });
 
-                              $scope.$on("addPoiGeoresourceAsGeoJSON", function (event, georesourceMetadataAndGeoJSON, date) {
+                              $scope.$on("addPoiGeoresourceAsGeoJSON", function (event, georesourceMetadataAndGeoJSON, date, useCluster) {
 
                                 // use leaflet.markercluster to cluster markers!
-                                var markers = L.markerClusterGroup();
+                                var markers;
+                                if(useCluster){
+                                  markers = L.markerClusterGroup();
+                                }
+                                else{
+                                  markers = L.layerGroup();
+                                }
                                 var customMarker;
                                 try{
                                   customMarker = L.AwesomeMarkers.icon({

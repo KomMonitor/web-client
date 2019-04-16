@@ -14,6 +14,7 @@ angular
 								 */
 								this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 								this.kommonitorMapServiceInstance = kommonitorMapService;
+								$scope.useCluster = true;
 								$scope.loadingData = false;
 								$scope.date;
 
@@ -41,7 +42,7 @@ angular
 
 									if(poi.isSelected){
 										//display on Map
-										$scope.addPoiLayerToMap(poi);
+										$scope.addPoiLayerToMap(poi, $scope.useCluster);
 									}
 									else{
 										//remove POI layer from map
@@ -50,7 +51,7 @@ angular
 
 								};
 
-								$scope.addPoiLayerToMap = function(poiGeoresource) {
+								$scope.addPoiLayerToMap = async function(poiGeoresource, useCluster) {
 									$scope.loadingData = true;
 									$rootScope.$broadcast("showLoadingIconOnMap");
 
@@ -66,7 +67,7 @@ angular
 									var month = dateComps[1];
 									var day = dateComps[2];
 
-									$http({
+									await $http({
 										url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + id + "/" + year + "/" + month + "/" + day,
 										method: "GET"
 									}).then(function successCallback(response) {
@@ -76,7 +77,7 @@ angular
 
 											$scope.currentPoiGeoresource.geoJSON = geoJSON;
 
-											kommonitorMapService.addPoiGeoresourceGeoJSON($scope.currentPoiGeoresource, $scope.date);
+											kommonitorMapService.addPoiGeoresourceGeoJSON($scope.currentPoiGeoresource, $scope.date, useCluster);
 											$scope.loadingData = false;
 											$rootScope.$broadcast("hideLoadingIconOnMap");
 
@@ -99,6 +100,18 @@ angular
 									$scope.loadingData = false;
 									$rootScope.$broadcast("hideLoadingIconOnMap");
 
+								};
+
+								$scope.refreshPoiLayers = async function(){
+									for (var poi of kommonitorDataExchangeService.availableGeoresources){
+										if (poi.isSelected){
+											//remove POI layer from map
+											$scope.removePoiLayerFromMap(poi);
+
+											// remove layer and add layer again
+											await $scope.addPoiLayerToMap(poi, $scope.useCluster);
+										}
+									}
 								};
 
 
