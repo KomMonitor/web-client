@@ -195,6 +195,13 @@
   /* right: 40px; */
 }
 
+#rangeSliderForBalanceWrapper{
+  margin-right: 10px;
+  margin-left: auto;
+  left: 10px;
+  /* right: 40px; */
+}
+
 .hiddenTable {
   display: table;
   width: 100%;
@@ -670,7 +677,8 @@
 	margin-right: 1%;
 	/* margin-top: 1%; */
 	z-index: 7000;
-	height: 98%;
+	/* do not specify height, as this will put a lot of empty space on page*/
+	/* height: 98%; */
 	max-height: 98%;
 	overflow: auto;
 }
@@ -700,7 +708,8 @@
 	margin-right: 1%;
 	/* margin-top: 1%; */
 	z-index: 7000;
-	height: 98%;
+	/* do not specify height, as this will put a lot of empty space on page*/
+	/* height: 98%; */
 	max-height: 98%;
 	overflow: auto;
 }
