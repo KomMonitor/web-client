@@ -43,8 +43,8 @@
   //allowesValues: equal_interval, quantile, jenks
   window.__env.defaultClassifyMethod = "equal_interval";
 
-  window.__env.defaultColorBrewerPaletteForBalanceIncreasingValues = "Blues";
-  window.__env.defaultColorBrewerPaletteForBalanceDecreasingValues = "Oranges";
+  window.__env.defaultColorBrewerPaletteForBalanceIncreasingValues = "Oranges";
+  window.__env.defaultColorBrewerPaletteForBalanceDecreasingValues = "Blues";
   window.__env.defaultColorBrewerPaletteForGtMovValues = "Oranges";
   window.__env.defaultColorBrewerPaletteForLtMovValues = "Purples";
 
