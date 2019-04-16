@@ -511,7 +511,7 @@ angular.module('kommonitorMap').component(
 
 
                     $scope.appendClassifyRadioOptions = function(){
-                      var innerHTMLString = "<strong>Klassifizierungsmethode:</strong>";
+                      var innerHTMLString = "<strong title='Hier können Sie die Klassifizierungsmethode ändern. Das Herüberfahren des Mauszeigers über eine der Optionen öffnet einen Tooltip mit Informationen zu den Methoden. In Zukunft sollen auch manuelle Klassifikationen möglich gemacht werden.'>Klassifizierungsmethode:</strong>";
 
                       // <label class="radio-inline"><input type="radio" name="optradio" checked>Option 1</label>
                       // <label class="radio-inline"><input type="radio" name="optradio">Option 2</label>
@@ -528,7 +528,7 @@ angular.module('kommonitorMap').component(
                       innerHTMLString += '<div>';
                       for (var option of $scope.classifyMethods){
                         // innerHTMLString += ' <label class="radio-inline"><input type="radio" name="classifyMethod" onclick="onClickClassifyMethod(\'' + option.value + '\')" ';
-                        innerHTMLString += ' <label class="radio-inline"><input id="radio' + option.value + '" type="radio" name="classifyMethod" ';
+                        innerHTMLString += ' <label title="Mit der Methode Gleiches Intervall wird der Bereich der Attributwerte in gleich große Teilbereiche unterteilt. Bei der Quantil-Methode enthält jede Klasse die gleiche Anzahl von Features. Bei Jenks (Natürliche Unterbrechungen) werden Klassengrenzen identifiziert, die ähnliche Werte möglichst gut gruppieren und zugleich die Unterschiede zwischen den Klassen maximieren." class="radio-inline"><input id="radio' + option.value + '" type="radio" name="classifyMethod" ';
                         if ($scope.classifyMethod === option.value){
                           innerHTMLString +=' checked ';
                         }
