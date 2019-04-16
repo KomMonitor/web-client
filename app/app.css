@@ -101,8 +101,8 @@
 #legend{
 	position: absolute;
 	bottom: 0;
-	width: 200;
-	max-width: 200;
+	/* width: 20%;
+	max-width: 20%; */
 }
 
 .leaflet-left .leaflet-control-layers {
@@ -275,10 +275,10 @@
     box-shadow: 0 0 15px rgba(0,0,0,0.2);
     border-radius: 5px;
 
-		width: 325px;
-		max-width: 325px;
+		width: 35%;
+		max-width: 35%;
 		height: auto !important;
-		max-height: 400px;
+		max-height: 10%;
 		overflow: auto;
 }
 .info h4 {
@@ -296,10 +296,10 @@
 		border-radius: 5px;
     line-height: 18px;
     color: #555;
-		width: auto;
-		max-width: 325px;
+		width: 50%;
+		max-width: 50%;
 		height: auto !important;
-		max-height: 400px;
+		max-height: 10%;
 	  overflow: auto;
 		display: inline-block
 }
@@ -330,10 +330,10 @@
 		border-radius: 5px;
     line-height: 18px;
     color: #555;
-		width: auto;
-		max-width: 325px;
+		width: 50%;
+		max-width: 50%;
 		height: auto !important;
-		max-height: 400px;
+		max-height: 10%;
 	  overflow: auto;
 		display: inline-block
 }
