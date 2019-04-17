@@ -4,7 +4,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
-		$scope.anySideBarIsShown = false;
+		kommonitorDataExchangeService.anySideBarIsShown = false;
 
 		$scope.sidebarIndicatorConfigClass = "hidden";
 		$scope.sidebarDiagramsClass = "hidden";
@@ -76,15 +76,15 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				$scope.sidebarIndicatorConfigClass = "";
 				$scope.buttonIndicatorConfigClass = "btn btn-custom-docked btn-docked";
 
-				if($scope.anySideBarIsShown === false){
+				if(kommonitorDataExchangeService.anySideBarIsShown === false){
 					$rootScope.$broadcast("recenterMapOnShowSideBar");
 				}
-				$scope.anySideBarIsShown = true;
+				kommonitorDataExchangeService.anySideBarIsShown = true;
 			}
 			else{
 				$scope.sidebarIndicatorConfigClass = "hidden";
 				$rootScope.$broadcast("recenterMapOnHideSideBar");
-				$scope.anySideBarIsShown = false;
+				kommonitorDataExchangeService.anySideBarIsShown = false;
 			}
 
 			$rootScope.$broadcast("refreshIndicatorValueRangeSlider");
@@ -99,17 +99,17 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				$scope.sidebarPoiClass = "";
 				$scope.buttonPoiClass = "btn btn-custom-docked btn-docked";
 
-				if($scope.anySideBarIsShown === false){
+				if(kommonitorDataExchangeService.anySideBarIsShown === false){
 					$rootScope.$broadcast("recenterMapOnShowSideBar");
 				}
-				$scope.anySideBarIsShown = true;
+				kommonitorDataExchangeService.anySideBarIsShown = true;
 			}
 			else{
 				$scope.sidebarPoiClass = "hidden";
 				$rootScope.$broadcast("recenterMapOnHideSideBar");
-				$scope.anySideBarIsShown = false;
+				kommonitorDataExchangeService.anySideBarIsShown = false;
 			}
-			
+
 			$rootScope.$broadcast("refreshIndicatorValueRangeSlider");
 
 		}
@@ -122,15 +122,15 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				$scope.sidebarFilterClass = "";
 				$scope.buttonFilterClass = "btn btn-custom-docked btn-docked";
 
-				if($scope.anySideBarIsShown === false){
+				if(kommonitorDataExchangeService.anySideBarIsShown === false){
 					$rootScope.$broadcast("recenterMapOnShowSideBar");
 				}
-				$scope.anySideBarIsShown = true;
+				kommonitorDataExchangeService.anySideBarIsShown = true;
 			}
 			else{
 				$scope.sidebarFilterClass = "hidden";
 				$rootScope.$broadcast("recenterMapOnHideSideBar");
-				$scope.anySideBarIsShown = false;
+				kommonitorDataExchangeService.anySideBarIsShown = false;
 			}
 
 			$rootScope.$broadcast("refreshIndicatorValueRangeSlider");
@@ -152,15 +152,15 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 					$scope.sidebarBalanceClass = "";
 					$scope.buttonBalanceClass = "btn btn-custom-docked btn-docked";
 
-					if($scope.anySideBarIsShown === false){
+					if(kommonitorDataExchangeService.anySideBarIsShown === false){
 						$rootScope.$broadcast("recenterMapOnShowSideBar");
 					}
-					$scope.anySideBarIsShown = true;
+					kommonitorDataExchangeService.anySideBarIsShown = true;
 				}
 				else{
 					$scope.sidebarBalanceClass = "hidden";
 					$rootScope.$broadcast("recenterMapOnHideSideBar");
-					$scope.anySideBarIsShown = false;
+					kommonitorDataExchangeService.anySideBarIsShown = false;
 				}
 
 				$rootScope.$broadcast("refreshIndicatorValueRangeSlider");
@@ -175,15 +175,15 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				$scope.sidebarReachabilityClass = "";
 				$scope.buttonReachabilityClass = "btn btn-custom-docked btn-docked";
 
-				if($scope.anySideBarIsShown === false){
+				if(kommonitorDataExchangeService.anySideBarIsShown === false){
 					$rootScope.$broadcast("recenterMapOnShowSideBar");
 				}
-				$scope.anySideBarIsShown = true;
+				kommonitorDataExchangeService.anySideBarIsShown = true;
 			}
 			else{
 				$scope.sidebarReachabilityClass = "hidden";
 				$rootScope.$broadcast("recenterMapOnHideSideBar");
-				$scope.anySideBarIsShown = false;
+				kommonitorDataExchangeService.anySideBarIsShown = false;
 			}
 
 			$rootScope.$broadcast("refreshIndicatorValueRangeSlider");
@@ -196,15 +196,15 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				$scope.hideSidebars();
 				$scope.sidebarDiagramsClass = "";
 				$scope.buttonDiagramsClass = "btn btn-custom-docked btn-docked";
-				if($scope.anySideBarIsShown === false){
+				if(kommonitorDataExchangeService.anySideBarIsShown === false){
 					$rootScope.$broadcast("recenterMapOnShowSideBar");
 				}
-				$scope.anySideBarIsShown = true;
+				kommonitorDataExchangeService.anySideBarIsShown = true;
 			}
 			else{
 				$scope.sidebarDiagramsClass = "hidden";
 				$rootScope.$broadcast("recenterMapOnHideSideBar");
-				$scope.anySideBarIsShown = false;
+				kommonitorDataExchangeService.anySideBarIsShown = false;
 			}
 
 			$rootScope.$broadcast("refreshIndicatorValueRangeSlider");
@@ -216,15 +216,15 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				$scope.hideSidebars();
 				$scope.sidebarRadarDiagramClass = "";
 				$scope.buttonRadarDiagramClass = "btn btn-custom-docked btn-docked";
-				if($scope.anySideBarIsShown === false){
+				if(kommonitorDataExchangeService.anySideBarIsShown === false){
 					$rootScope.$broadcast("recenterMapOnShowSideBar");
 				}
-				$scope.anySideBarIsShown = true;
+				kommonitorDataExchangeService.anySideBarIsShown = true;
 			}
 			else{
 				$scope.sidebarRadarDiagramClass = "hidden";
 				$rootScope.$broadcast("recenterMapOnHideSideBar");
-				$scope.anySideBarIsShown = false;
+				kommonitorDataExchangeService.anySideBarIsShown = false;
 			}
 
 			$rootScope.$broadcast("refreshIndicatorValueRangeSlider");
@@ -236,15 +236,15 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				$scope.hideSidebars();
 				$scope.sidebarProcessingClass = "";
 				$scope.buttonProcessingClass = "btn btn-custom-docked btn-docked";
-				if($scope.anySideBarIsShown === false){
+				if(kommonitorDataExchangeService.anySideBarIsShown === false){
 					$rootScope.$broadcast("recenterMapOnShowSideBar");
 				}
-				$scope.anySideBarIsShown = true;
+				kommonitorDataExchangeService.anySideBarIsShown = true;
 			}
 			else{
 				$scope.sidebarProcessingClass = "hidden";
 				$rootScope.$broadcast("recenterMapOnHideSideBar");
-				$scope.anySideBarIsShown = false;
+				kommonitorDataExchangeService.anySideBarIsShown = false;
 			}
 
 			$rootScope.$broadcast("refreshIndicatorValueRangeSlider");
@@ -256,15 +256,15 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				$scope.hideSidebars();
 				$scope.sidebarRegressionDiagramClass = "";
 				$scope.buttonRegressionDiagramClass = "btn btn-custom-docked btn-docked";
-				if($scope.anySideBarIsShown === false){
+				if(kommonitorDataExchangeService.anySideBarIsShown === false){
 					$rootScope.$broadcast("recenterMapOnShowSideBar");
 				}
-				$scope.anySideBarIsShown = true;
+				kommonitorDataExchangeService.anySideBarIsShown = true;
 			}
 			else{
 				$scope.sidebarRegressionDiagramClass = "hidden";
 				$rootScope.$broadcast("recenterMapOnHideSideBar");
-				$scope.anySideBarIsShown = false;
+				kommonitorDataExchangeService.anySideBarIsShown = false;
 			}
 
 			$rootScope.$broadcast("refreshIndicatorValueRangeSlider");
