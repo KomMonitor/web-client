@@ -1024,7 +1024,7 @@ hr {
 }
 
 .loading-overlay-sidebar {
-  width: 780px;
+  width: 42%;
   height: 100%;
   position: absolute;
   background-color: rgb(128,128,128);
@@ -1054,7 +1054,7 @@ hr {
 }
 
 .loading-overlay-sidebar-small {
-  width: 700px;
+  width: 35%;
   height: 100%;
   position: absolute;
   background-color: rgb(128,128,128);
