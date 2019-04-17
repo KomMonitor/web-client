@@ -890,7 +890,7 @@ angular
 
 								$scope.$on("updateDiagramsForHoveredFeature", function (event, featureProperties) {
 
-									if(! kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(featureProperties.spatialUnitFeatureName)){
+									if(! $scope.lineOption.legend.data.includes(featureProperties.spatialUnitFeatureName)){
 										appendSeriesToLineChart(featureProperties);
 									}
 

@@ -535,15 +535,7 @@ angular.module('kommonitorMap').component(
                       $rootScope.$broadcast("restyleCurrentLayer");
 
                       // ensure that highlighted features remain highlighted
-                      $scope.map.eachLayer(function(layer){
-                        if(layer.feature){
-                          if(kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(layer.feature.properties.spatialUnitFeatureName)){
-                            setHighlightedStyle(layer);
-                            $rootScope.$broadcast("updateDiagramsForHoveredFeature", layer.feature.properties);
-                          }
-                        }
-
-                      });
+                      preserveHighlightedFeatures();
                     });
 
                     $scope.$on("changeClassifyMethod", function (event, method) {
@@ -2033,6 +2025,21 @@ angular.module('kommonitorMap').component(
                                             }
                                         };
 
+                                        function preserveHighlightedFeatures(){
+                                          $scope.map.eachLayer(function(layer){
+                                            if(layer.feature){
+                                              if(kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(layer.feature.properties.spatialUnitFeatureName)){
+                                                setHighlightedStyle(layer);
+                                                $rootScope.$broadcast("updateDiagramsForHoveredFeature", layer.feature.properties);
+                                              }
+                                            }
+                                          });
+                                        };
+
+                                        $scope.$on("preserveHighlightedFeatures", function (event) {
+                                            preserveHighlightedFeatures();
+                                        });
+
                                         function resetHighlight(e) {
                                           var layer = e.target;
                                           resetHighlightForLayer(layer);
@@ -2366,6 +2373,9 @@ angular.module('kommonitorMap').component(
                                                                               indicatorObjectForDiagramUpdate = $scope.currentIndicatorMetadataAndGeoJSON;
                                                                             }
                                                                             $rootScope.$broadcast("updateDiagrams", indicatorObjectForDiagramUpdate, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitId, $scope.date, $scope.defaultBrew, $scope.gtMeasureOfValueBrew, $scope.ltMeasureOfValueBrew, $scope.dynamicIncreaseBrew, $scope.dynamicDecreaseBrew, kommonitorDataExchangeService.isMeasureOfValueChecked, kommonitorDataExchangeService.measureOfValue, justRestyling);
+
+                                                                            //ensure that highlighted feature remain highlighted
+                                                                            preserveHighlightedFeatures();
                                                                           }
 
                                                             });

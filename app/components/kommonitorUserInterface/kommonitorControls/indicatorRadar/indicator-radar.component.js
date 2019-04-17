@@ -42,6 +42,8 @@ angular
 
 									updateRadarChart(indicatorMetadataAndGeoJSON, spatialUnitName, spatialUnitId, date);
 
+									$rootScope.$broadcast("preserveHighlightedFeatures");
+
 								});
 
 								// RADAR CHART TIME SERIES FUNCTION

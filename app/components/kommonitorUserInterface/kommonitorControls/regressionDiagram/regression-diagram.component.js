@@ -674,6 +674,8 @@ angular
 
 										registerEventsIfNecessary();
 
+										$rootScope.$broadcast("preserveHighlightedFeatures");
+
 									}
 								}
 
