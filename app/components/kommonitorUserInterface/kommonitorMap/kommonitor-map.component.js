@@ -140,80 +140,32 @@ angular.module('kommonitorMap').component(
                       var osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
                       var osmAttrib='Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
                       var osm = new L.TileLayer(osmUrl, {minZoom: __env.minZoomLevel, maxZoom: __env.maxZoomLevel, attribution: osmAttrib});
-                      // osm.StyledLayerControl = {
-                    	// 	removable : false,
-                    	// 	visible : false
-                    	// };
 
                       var osm_blackWhite = L.tileLayer('http://{s}.www.toolserver.org/tiles/bw-mapnik/{z}/{x}/{y}.png', {minZoom: 1, maxZoom: 19, attribution: osmAttrib});
-                      // osm_blackWhite.StyledLayerControl = {
-                    	// 	removable : false,
-                    	// 	visible : true
-                    	// };
 
                       var wmsLayerRVR = L.tileLayer.wms('https://geodaten.metropoleruhr.de/spw2?', {
                           layers: 'stadtplan_rvr'
                       });
-                      // wmsLayerRVR.StyledLayerControl = {
-                    	// 	removable : false,
-                    	// 	visible : false
-                    	// };
+                      var wmsLayerDTK = L.tileLayer.wms('https://www.wms.nrw.de/geobasis/wms_nw_dtk?', {
+                          layers: 'nw_dtk_pan'
+                      });
+                      var wmsLayerDOP = L.tileLayer.wms('https://www.wms.nrw.de/geobasis/wms_nw_dop?', {
+                          layers: 'nw_dop_rgb'
+                      });
 
-                      // osm_blackWhite.addTo($scope.baseMapLayers);
-                      // osm.addTo($scope.baseMapLayers);
-                      // wmsLayerRVR.addTo($scope.baseMapLayers);
-
-                      // $scope.map = L.map('map').setView([51.4386432, 7.0115552], 12);
                       $scope.map = L.map('map', {
                           center: [$scope.latCenter, $scope.lonCenter],
                           zoom: $scope.zoomLevel,
                           layers: [osm_blackWhite]
                       });
 
-                      // var osmBaseMapGroup = {};
-                      // osmBaseMapGroup.groupName = "Basiskarten";
-                      // osmBaseMapGroup.expanded = true;
-                      // osmBaseMapGroup.layers = {};
-                      // osmBaseMapGroup.layers["RVR Stadtplan"] = wmsLayerRVR;
-                      // osmBaseMapGroup.layers["OpenStreetMap - Graustufen"] = osm_blackWhite;
-                      // osmBaseMapGroup.layers["OpenStreetMap"] = osm;
-
-                      // $scope.baseMaps.push(osmBaseMapGroup);
                       $scope.baseMaps = {
                         "OpenStreetMap - Graustufen": osm_blackWhite,
                         "OpenStreetMap - Farbe": osm,
+                        "NRW Digitale Topographische Karte": wmsLayerDTK,
+                        "NRW Digitale Orthophotos (Luftbilder)": wmsLayerDOP,
                         "RVR Stadtplan": wmsLayerRVR
                       };
-
-                      // overlays
-                    //   var overlays = [
-                  	// 				 {
-                  	// 					groupName : spatialUnitLayerGroupName,
-                  	// 					expanded  : true,
-                  	// 					layers    : {
-                  	// 					}
-                  	// 				 }, {
-                  	// 					groupName : georesourceLayerGroupName,
-                  	// 					expanded  : true,
-                  	// 					layers    : {
-                  	// 					}
-                  	// 				 }, {
-                  	// 					groupName : indicatorLayerGroupName,
-                    //           expanded  : true,
-                  	// 					layers    : {
-                  	// 					}
-                  	// 				 }, {
-                  	// 					groupName : poiLayerGroupName,
-                    //           expanded  : true,
-                  	// 					layers    : {
-                  	// 					}
-                  	// 				 }, {
-                  	// 					groupName : reachabilityLayerGroupName,
-                    //           expanded  : true,
-                  	// 					layers    : {
-                  	// 					}
-                  	// 				 }
-                  	// ];
 
                     $scope.groupedOverlays = {
                       indicatorLayerGroupName: {
@@ -227,15 +179,6 @@ angular.module('kommonitorMap').component(
                       }
                     };
 
-                      // var options = {
-                    	// 	container_width 	: "600px",
-                    	// 	container_maxHeight : "600px",
-                    	// 	group_maxHeight     : "80px",
-                    	// 	exclusive       	: false,
-                      //   position: 'topleft'
-                    	// };
-
-                      // $scope.layerControl = L.Control.styledLayerControl($scope.baseMaps, $scope.overlays, options);
                       $scope.layerControl = L.control.groupedLayers($scope.baseMaps, $scope.groupedOverlays, {position: 'topleft'});
 	                    $scope.map.addControl($scope.layerControl);
 
