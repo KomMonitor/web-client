@@ -42,7 +42,7 @@
   window.__env.defaultFillOpacity = "0.6";
   window.__env.defaultFillOpacityForFilteredFeatures = "0.2";
   window.__env.defaultFillOpacityForZeroFeatures = "0.6";
-  window.__env.defaultFillOpacityForHighlightedFeatures = "0.95";
+  window.__env.defaultFillOpacityForHighlightedFeatures = "0.7";
   window.__env.useTransparencyOnIndicator = true;
   //allowesValues: equal_interval, quantile, jenks
   window.__env.defaultClassifyMethod = "equal_interval";
