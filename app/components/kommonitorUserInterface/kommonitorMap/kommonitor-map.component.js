@@ -1248,19 +1248,19 @@ angular.module('kommonitorMap').component(
                                     iconCreateFunction: function (cluster) {
                                       var childCount = cluster.getChildCount();
 
-                                  		var c = ' marker-cluster-';
+                                  		var c = 'cluster-';
                                   		if (childCount < 10) {
                                   			c += 'small';
-                                  		} else if (childCount < 100) {
+                                  		} else if (childCount < 30) {
                                   			c += 'medium';
                                   		} else {
                                   			c += 'large';
                                   		}
 
-                                      var className = "marker-cluster awesome-marker-legend-icon-" + georesourceMetadataAndGeoJSON.poiMarkerColor;
+                                      var className = "marker-cluster " + c + " awesome-marker-legend-TransparentIcon-" + georesourceMetadataAndGeoJSON.poiMarkerColor;
 
                                       //'marker-cluster' + c + ' ' +
-                                  		return new L.DivIcon({ html: '<div><span>' + childCount + '</span></div>', className: className, iconSize: new L.Point(40,40) });
+                                  		return new L.DivIcon({ html: '<div class="awesome-marker-legend-icon-' + georesourceMetadataAndGeoJSON.poiMarkerColor + '" ><span>' + childCount + '</span></div>', className: className, iconSize: new L.Point(40,40) });
                               			}
                                   });
                                 }

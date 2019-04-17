@@ -80,6 +80,93 @@
 	background-color: rgb(47,47,47);
 }
 
+.awesome-marker-legend-TransparentIcon-red {
+  /* background: url('dependencies/leaflet-awesome-markers/images/markers-soft.png') no-repeat -10px -50px; */
+	background-color: rgba(205,59,40, 0.6);
+}
+
+.awesome-marker-legend-TransparentIcon-orange {
+  /* background: url('dependencies/leaflet-awesome-markers/images/markers-soft.png') no-repeat -43px -50px; */
+	background-color: rgba(235,144,46,0.6);
+}
+
+.awesome-marker-legend-TransparentIcon-beige {
+	/* background: url('dependencies/leaflet-awesome-markers/images/markers-soft.png') no-repeat -403px -50px; */
+		background-color: rgba(255,198,138,0.6);
+}
+
+.awesome-marker-legend-TransparentIcon-green {
+	/* background: url('dependencies/leaflet-awesome-markers/images/markers-soft.png') no-repeat -79px -50px; */
+	background-color: rgba(108,166,36,0.6);
+}
+
+.awesome-marker-legend-TransparentIcon-blue {
+	/* background: url('dependencies/leaflet-awesome-markers/images/markers-soft.png') no-repeat -115px -50px; */
+	background-color: rgba(53,161,209,0.6);
+}
+
+.awesome-marker-legend-TransparentIcon-purple {
+	/* background: url('dependencies/leaflet-awesome-markers/images/markers-soft.png') no-repeat -151px -50px; */
+	background-color: rgba(198,77,175,0.6);
+}
+
+.awesome-marker-legend-TransparentIcon-pink {
+	/* background: url('dependencies/leaflet-awesome-markers/images/markers-soft.png') no-repeat -511px -50px; */
+	background-color: rgba(255,138,232,0.6);
+}
+
+.awesome-marker-legend-TransparentIcon-gray {
+	/* background: url('dependencies/leaflet-awesome-markers/images/markers-soft.png') no-repeat -655px -50px; */
+	background-color: rgba(163,163,163,0.6);
+}
+
+.awesome-marker-legend-TransparentIcon-black {
+	/* background: url('dependencies/leaflet-awesome-markers/images/markers-soft.png') no-repeat -689px -50px; */
+	background-color: rgba(47,47,47,0.6);
+}
+
+/* .marker-cluster div{
+	width: 30px;
+	height: 30px;
+	border-radius: 15px;
+} */
+
+.cluster-small div{
+	width: 20px;
+	height: 20px;
+	border-radius: 10px;
+	margin-left: 10px;
+	margin-top: 10px;
+	}
+
+.cluster-medium div{
+	width: 24px;
+	height: 24px;
+	border-radius: 12px;
+	margin-left: 8px;
+	margin-top: 8px;
+	}
+
+.cluster-large div{
+	width: 30px;
+	height: 30px;
+	border-radius: 15px;
+	margin-left: 5px;
+	margin-top: 5px;
+	}
+
+.cluster-small span{
+	line-height: 20px;
+}
+
+.cluster-medium span{
+	line-height: 24px;
+}
+
+.cluster-large span{
+	line-height: 30px;
+}
+
 /* On small screens, set height to 'auto' for sidenav and grid */
 @media screen and (max-width: 767px) {
 	.sidenav {
