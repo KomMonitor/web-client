@@ -1707,7 +1707,7 @@ angular.module('kommonitorMap').component(
                                           var fillColor;
                                           if(feature.properties[$scope.propertyName] == 0 || feature.properties[$scope.propertyName] == "0"){
                                             fillColor = $scope.defaultColorForZeroValues;
-                                            if(!$scope.useTransparencyOnIndicator){
+                                            if($scope.useTransparencyOnIndicator){
                                               fillOpacity = defaultFillOpacityForZeroFeatures;
                                             }
 
@@ -1762,7 +1762,7 @@ angular.module('kommonitorMap').component(
                                             var fillColor;
                                             if(feature.properties[$scope.propertyName] == 0 || feature.properties[$scope.propertyName] == "0"){
                                               fillColor = $scope.defaultColorForZeroValues;
-                                              if(!$scope.useTransparencyOnIndicator){
+                                              if($scope.useTransparencyOnIndicator){
                                                 fillOpacity = defaultFillOpacityForZeroFeatures;
                                               }
                                             }
@@ -1812,7 +1812,7 @@ angular.module('kommonitorMap').component(
                                             var fillColor;
                                             if(feature.properties[$scope.propertyName] == 0 || feature.properties[$scope.propertyName] == "0"){
                                               fillColor = $scope.defaultColorForZeroValues;
-                                              if(!$scope.useTransparencyOnIndicator){
+                                              if($scope.useTransparencyOnIndicator){
                                                 fillOpacity = defaultFillOpacityForZeroFeatures;
                                               }
                                             }
@@ -1868,7 +1868,7 @@ angular.module('kommonitorMap').component(
                                             var fillColor;
                                             if(feature.properties[$scope.propertyName] == 0 || feature.properties[$scope.propertyName] == "0"){
                                               fillColor = $scope.defaultColorForZeroValues;
-                                              if(!$scope.useTransparencyOnIndicator){
+                                              if($scope.useTransparencyOnIndicator){
                                                 fillOpacity = defaultFillOpacityForZeroFeatures;
                                               }
                                             }
@@ -1914,7 +1914,7 @@ angular.module('kommonitorMap').component(
                                             var fillColor;
                                             if(feature.properties[$scope.propertyName] == 0 || feature.properties[$scope.propertyName] == "0"){
                                               fillColor = $scope.defaultColorForZeroValues;
-                                              if(!$scope.useTransparencyOnIndicator){
+                                              if($scope.useTransparencyOnIndicator){
                                                 fillOpacity = defaultFillOpacityForZeroFeatures;
                                               }
                                             }
