@@ -16,6 +16,8 @@ angular
 								this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
 								const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
+								const defaultColorForHoveredFeatures = __env.defaultColorForHoveredFeatures;
+								const defaultColorForClickedFeatures = __env.defaultColorForClickedFeatures;
 
 								// $scope.userHoveresOverBarItem = false;
 								$scope.eventsRegistered = false;
@@ -644,7 +646,7 @@ angular
 													emphasis: {
 														itemStyle: {
 															borderWidth: 4,
-															borderColor: '#42e5f4'
+															borderColor: defaultColorForClickedFeatures
 														}
 													},
 													data: indicatorValueBarChartArray

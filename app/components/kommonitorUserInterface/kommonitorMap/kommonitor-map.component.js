@@ -25,6 +25,8 @@ angular.module('kommonitorMap').component(
                     const defaultColorBrewerPaletteForBalanceDecreasingValues = __env.defaultColorBrewerPaletteForBalanceDecreasingValues;
                     const defaultColorBrewerPaletteForGtMovValues = __env.defaultColorBrewerPaletteForGtMovValues;
                     const defaultColorBrewerPaletteForLtMovValues = __env.defaultColorBrewerPaletteForLtMovValues;
+                    const defaultColorForHoveredFeatures = __env.defaultColorForHoveredFeatures;
+                    const defaultColorForClickedFeatures = __env.defaultColorForClickedFeatures;
 
                     $scope.useTransparencyOnIndicator = __env.useTransparencyOnIndicator;
 
@@ -1980,7 +1982,7 @@ angular.module('kommonitorMap').component(
 
                                             layer.setStyle({
                                                 weight: 5,
-                                                color: '#42e5f4',
+                                                color: defaultColorForHoveredFeatures,
                                                 dashArray: '',
                                                 fillOpacity: fillOpacity
                                             });
@@ -2003,7 +2005,7 @@ angular.module('kommonitorMap').component(
 
                                             layer.setStyle({
                                                 weight: 6,
-                                                color: '#42e5f4',
+                                                color: defaultColorForClickedFeatures,
                                                 dashArray: '',
                                                 fillOpacity: fillOpacity
                                             });

@@ -32,6 +32,9 @@
   window.__env.minZoomLevel = 1;
   window.__env.maxZoomLevel = 19;
 
+
+  window.__env.defaultColorForHoveredFeatures = "#e01414";
+  window.__env.defaultColorForClickedFeatures = "#42e5f4";
   window.__env.defaultColorForZeroValues = "#a6a6a6";
   window.__env.defaultBorderColor = "black";
   window.__env.defaultColorForFilteredValues = "white";
