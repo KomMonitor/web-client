@@ -22,6 +22,7 @@ angular
 								// $scope.userHoveresOverBarItem = false;
 								$scope.eventsRegistered = false;
 								$scope.isTooManyFeatures = false;
+								$scope.histogramCanBeDisplayed = false;
 								$scope.spatialUnitName;
 								$scope.date;
 								var numberOfDecimals = __env.numberOfDecimals;
@@ -287,10 +288,14 @@ angular
 									var bins;
 									try{
 										bins = ecStat.histogram(indicatorValueArray);
+										$scope.histogramCanBeDisplayed = true;
 									}
 									catch{
 										console.log("Histogram chart cannot be drawn");
-										$scope.histogramChart.dispose();
+										$scope.histogramCanBeDisplayed = false;
+										if(!$scope.histogramChart){
+											$scope.histogramChart.dispose();
+										}
 										return;
 									}
 
