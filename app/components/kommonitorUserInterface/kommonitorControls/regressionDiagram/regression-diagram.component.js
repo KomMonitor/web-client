@@ -18,6 +18,8 @@ angular
 								var numberOfDecimals = __env.numberOfDecimals;
 								const defaultColorForFilteredValues = __env.defaultColorForFilteredValues;
 								const defaultColorForZeroValues = __env.defaultColorForZeroValues;
+								const defaultColorForHoveredFeatures = __env.defaultColorForHoveredFeatures;
+								const defaultColorForClickedFeatures = __env.defaultColorForClickedFeatures;
 
 								$scope.setupCompleted = false;
 
@@ -634,7 +636,7 @@ angular
 														emphasis: {
 															itemStyle: {
 																borderWidth: 4,
-																borderColor: '#42e5f4'
+																borderColor: defaultColorForClickedFeatures
 															}
 														},
 										        data: $scope.dataWithLabels
@@ -671,6 +673,8 @@ angular
 										$scope.regressionChart.setOption($scope.regressionOption);
 
 										registerEventsIfNecessary();
+
+										$rootScope.$broadcast("preserveHighlightedFeatures");
 
 									}
 								}

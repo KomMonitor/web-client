@@ -25,6 +25,30 @@ angular
 
 						$scope.dateSliderForComputation;
 
+						$scope.filterComputableIndicators = function() {
+							return function( item ) {
+
+								if(item.indicatorName.includes("Erreichbarkeit")){
+									return false;
+								}
+
+								var scriptForIndicator;
+
+								for (var script of kommonitorDataExchangeService.availableProcessScripts){
+									if (script.indicatorId === item.indicatorId){
+										scriptForIndicator = script;
+										break;
+									}
+								};
+
+								if (! script.variableProcessParameters.length > 0){
+									return false;
+								}
+
+								return true;
+							};
+						};
+
 						$scope.onTargetDateChange = function(){
 
 							$scope.computedCustomizedIndicatorGeoJSON = undefined;

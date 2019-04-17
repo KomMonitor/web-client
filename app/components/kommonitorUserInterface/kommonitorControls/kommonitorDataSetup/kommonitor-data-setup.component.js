@@ -54,7 +54,9 @@ angular
 											this.kommonitorDataExchangeServiceInstance.selectedTopic = topic;
 										}
 										else {
-											document.getElementById(topic.topicName).setAttribute("class", "");
+											if(document.getElementById(topic.topicName)){
+												document.getElementById(topic.topicName).setAttribute("class", "");
+											}
 										}
 									};
 

@@ -16,10 +16,13 @@ angular
 								this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
 								const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
+								const defaultColorForHoveredFeatures = __env.defaultColorForHoveredFeatures;
+								const defaultColorForClickedFeatures = __env.defaultColorForClickedFeatures;
 
 								// $scope.userHoveresOverBarItem = false;
 								$scope.eventsRegistered = false;
 								$scope.isTooManyFeatures = false;
+								$scope.histogramCanBeDisplayed = false;
 								$scope.spatialUnitName;
 								$scope.date;
 								var numberOfDecimals = __env.numberOfDecimals;
@@ -282,7 +285,20 @@ angular
 
 								//HISTOGRAM CHART FUNCTION
 								var updateHistogramChart = function(indicatorMetadataAndGeoJSON, indicatorValueArray){
-									var bins = ecStat.histogram(indicatorValueArray);
+									var bins;
+									try{
+										bins = ecStat.histogram(indicatorValueArray);
+										$scope.histogramCanBeDisplayed = true;
+									}
+									catch{
+										console.log("Histogram chart cannot be drawn");
+										$scope.histogramCanBeDisplayed = false;
+										if(!$scope.histogramChart){
+											$scope.histogramChart.dispose();
+										}
+										return;
+									}
+
 
 									if(!$scope.histogramChart)
 										$scope.histogramChart = echarts.init(document.getElementById('histogramDiagram'));
@@ -644,7 +660,7 @@ angular
 													emphasis: {
 														itemStyle: {
 															borderWidth: 4,
-															borderColor: '#42e5f4'
+															borderColor: defaultColorForClickedFeatures
 														}
 													},
 													data: indicatorValueBarChartArray
@@ -879,7 +895,7 @@ angular
 
 								$scope.$on("updateDiagramsForHoveredFeature", function (event, featureProperties) {
 
-									if(! kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(featureProperties.spatialUnitFeatureName)){
+									if(! $scope.lineOption.legend.data.includes(featureProperties.spatialUnitFeatureName)){
 										appendSeriesToLineChart(featureProperties);
 									}
 

@@ -21,7 +21,7 @@
 
   window.__env.simplifyGeometriesParameterName = "simplifyGeometries";
   window.__env.simplifyGeometriesOptions = [{"label": "nein", "value": "original"}, {"label": "schwach", "value": "weak"}, {"label": "mittel", "value": "medium"}, {"label": "stark", "value": "strong"}];
-  window.__env.simplifyGeometries = "medium";
+  window.__env.simplifyGeometries = "strong";
 
   window.__env.indicatorDatePrefix = "DATE_";
 
@@ -33,6 +33,9 @@
   window.__env.minZoomLevel = 1;
   window.__env.maxZoomLevel = 19;
 
+
+  window.__env.defaultColorForHoveredFeatures = "#e01414";
+  window.__env.defaultColorForClickedFeatures = "#42e5f4";
   window.__env.defaultColorForZeroValues = "#a6a6a6";
   window.__env.defaultBorderColor = "black";
   window.__env.defaultColorForFilteredValues = "white";
@@ -40,9 +43,15 @@
   window.__env.defaultFillOpacity = "0.6";
   window.__env.defaultFillOpacityForFilteredFeatures = "0.2";
   window.__env.defaultFillOpacityForZeroFeatures = "0.6";
-  window.__env.defaultFillOpacityForHighlightedFeatures = "0.95";
+  window.__env.defaultFillOpacityForHighlightedFeatures = "0.7";
+  window.__env.useTransparencyOnIndicator = true;
   //allowesValues: equal_interval, quantile, jenks
-  window.__env.defaultClassifyMethod = "jenks";
+  window.__env.defaultClassifyMethod = "equal_interval";
+
+  window.__env.defaultColorBrewerPaletteForBalanceIncreasingValues = "Oranges";
+  window.__env.defaultColorBrewerPaletteForBalanceDecreasingValues = "Blues";
+  window.__env.defaultColorBrewerPaletteForGtMovValues = "Oranges";
+  window.__env.defaultColorBrewerPaletteForLtMovValues = "Purples";
 
 
 
