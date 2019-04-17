@@ -579,7 +579,7 @@ angular.module('kommonitorMap').component(
 
                     $scope.appendTransparencyCheckbox = function(){
                       // <label class='checkbox-inline' >
-        							// 	<input type="checkbox" value="useCluster" checked>
+        							// 	<input type="checkbox" value="" checked>
         							// 	<b title="">Text</b>
         							// </label>
                       var innerHTMLString = "<label class='checkbos-inline' title='Einstellung, ob der Indikatorenlayer semi-transparent oder opak dargestellt wird'>";
@@ -1244,7 +1244,25 @@ angular.module('kommonitorMap').component(
                                 // use leaflet.markercluster to cluster markers!
                                 var markers;
                                 if(useCluster){
-                                  markers = L.markerClusterGroup();
+                                  markers = L.markerClusterGroup({
+                                    iconCreateFunction: function (cluster) {
+                                      var childCount = cluster.getChildCount();
+
+                                  		var c = ' marker-cluster-';
+                                  		if (childCount < 10) {
+                                  			c += 'small';
+                                  		} else if (childCount < 100) {
+                                  			c += 'medium';
+                                  		} else {
+                                  			c += 'large';
+                                  		}
+
+                                      var className = "marker-cluster awesome-marker-legend-icon-" + georesourceMetadataAndGeoJSON.poiMarkerColor;
+
+                                      //'marker-cluster' + c + ' ' +
+                                  		return new L.DivIcon({ html: '<div><span>' + childCount + '</span></div>', className: className, iconSize: new L.Point(40,40) });
+                              			}
+                                  });
                                 }
                                 else{
                                   markers = L.layerGroup();
