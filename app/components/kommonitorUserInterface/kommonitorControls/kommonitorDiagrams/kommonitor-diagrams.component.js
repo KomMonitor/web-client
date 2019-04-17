@@ -284,7 +284,16 @@ angular
 
 								//HISTOGRAM CHART FUNCTION
 								var updateHistogramChart = function(indicatorMetadataAndGeoJSON, indicatorValueArray){
-									var bins = ecStat.histogram(indicatorValueArray);
+									var bins;
+									try{
+										bins = ecStat.histogram(indicatorValueArray);
+									}
+									catch{
+										console.log("Histogram chart cannot be drawn");
+										$scope.histogramChart.dispose();
+										return;
+									}
+
 
 									if(!$scope.histogramChart)
 										$scope.histogramChart = echarts.init(document.getElementById('histogramDiagram'));

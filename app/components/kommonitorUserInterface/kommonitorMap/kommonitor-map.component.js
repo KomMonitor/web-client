@@ -533,6 +533,17 @@ angular.module('kommonitorMap').component(
                         $scope.useTransparencyOnIndicator = false;
                       }
                       $rootScope.$broadcast("restyleCurrentLayer");
+
+                      // ensure that highlighted features remain highlighted
+                      $scope.map.eachLayer(function(layer){
+                        if(layer.feature){
+                          if(kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(layer.feature.properties.spatialUnitFeatureName)){
+                            setHighlightedStyle(layer);
+                            $rootScope.$broadcast("updateDiagramsForHoveredFeature", layer.feature.properties);
+                          }
+                        }
+
+                      });
                     });
 
                     $scope.$on("changeClassifyMethod", function (event, method) {
@@ -1998,6 +2009,13 @@ angular.module('kommonitorMap').component(
 
                                         function highlightClickedFeature(layer) {
 
+                                            setHighlightedStyle(layer);
+
+                                            // update diagrams for hovered feature
+                                            $rootScope.$broadcast("updateDiagramsForHoveredFeature", layer.feature.properties);
+                                        }
+
+                                        function setHighlightedStyle(layer){
                                           var fillOpacity = 1;
                                           if($scope.useTransparencyOnIndicator){
                                             fillOpacity = defaultFillOpacityForHighlightedFeatures;
@@ -2013,11 +2031,7 @@ angular.module('kommonitorMap').component(
                                             if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
                                                 layer.bringToFront();
                                             }
-
-                                            // update diagrams for hovered feature
-                                            $rootScope.$broadcast("updateDiagramsForHoveredFeature", layer.feature.properties);
-
-                                        }
+                                        };
 
                                         function resetHighlight(e) {
                                           var layer = e.target;
@@ -2044,6 +2058,9 @@ angular.module('kommonitorMap').component(
                                               layer.setStyle(styleMeasureOfValue(layer.feature));
                                             }
                                           }
+                                            else{
+                                              setHighlightedStyle(layer);
+                                            }
 
                                             //update diagrams for unhoveredFeature
                                             $rootScope.$broadcast("updateDiagramsForUnhoveredFeature", layer.feature.properties);
