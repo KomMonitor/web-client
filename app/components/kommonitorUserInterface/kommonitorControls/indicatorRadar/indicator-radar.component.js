@@ -250,17 +250,30 @@ angular
 														name: {
 																formatter: function (value, indicator) {
 																								var maxCharsPerLine = 28;
+																								var separationSigns = [" ", "-", "_"];
 																								var counter = 0;
+																								var nextWord = "";
+																								var nextChar;
 																								var label = "";
 																								for(var i=0; i<value.length; i++){
+																									nextChar = value.charAt(i);
+																									nextWord += nextChar;
 																									if(counter === maxCharsPerLine){
 																										label += "\n";
 																										counter = 0;
 																									}
-																									label += value.charAt(i);
+																									else if(separationSigns.includes(nextChar)){
+																										// add word to label
+																										label += nextWord;
+																										nextWord = "";
+																									}
 																									counter++;
 																								}
-																								label = label + "\n" + "[" + indicator.unit + "]";
+																								//append last word
+																								label += nextWord;
+																								
+																								// skip unit to save on line in legend
+																								// label = label + "\n" + "[" + indicator.unit + "]";
 																								return label;
 																						},
 																textStyle: {
