@@ -20,6 +20,7 @@ angular
 								$scope.namesOfFailedIndicators  = new Array();
 								$scope.selectableIndicatorsForRadar = new Array();
 								$scope.indicatorInputsForRadar = new Array();
+								$scope.eventsRegistered = false;
 
 								var numberOfDecimals = __env.numberOfDecimals;
 
@@ -271,7 +272,7 @@ angular
 																								}
 																								//append last word
 																								label += nextWord;
-																								
+
 																								// skip unit to save on line in legend
 																								// label = label + "\n" + "[" + indicator.unit + "]";
 																								return label;
@@ -321,6 +322,7 @@ angular
 
 										// use configuration item and data specified to show chart
 										$scope.radarChart.setOption($scope.radarOption);
+										registerEventsIfNecessary();
 
 									}
 
@@ -333,6 +335,35 @@ angular
 										if(kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(propertiesInstance.spatialUnitFeatureName)){
 											appendSeriesToRadarChart(propertiesInstance);
 										}
+									}
+								};
+
+								function registerEventsIfNecessary(){
+									if(!$scope.eventsRegistered){
+										// when hovering over elements of the chart then highlight them in the map.
+										$scope.radarChart.on('mouseOver', function(params){
+											// $scope.userHoveresOverItem = true;
+											var spatialFeatureName = params.data.name;
+											// console.log(spatialFeatureName);
+											$rootScope.$broadcast("highlightFeatureOnMap", spatialFeatureName);
+										});
+
+										$scope.radarChart.on('mouseOut', function(params){
+											// $scope.userHoveresOverItem = false;
+
+											var spatialFeatureName = params.data.name;
+											// console.log(spatialFeatureName);
+											$rootScope.$broadcast("unhighlightFeatureOnMap", spatialFeatureName);
+										});
+
+										//disable feature removal for radar chart - seems to be unintuititve
+										// $scope.radarChart.on('click', function(params){
+										// 	var spatialFeatureName = params.data.name;
+										// 	// console.log(spatialFeatureName);
+										// 	$rootScope.$broadcast("switchHighlightFeatureOnMap", spatialFeatureName);
+										// });
+
+										$scope.eventsRegistered = true;
 									}
 								};
 
@@ -456,6 +487,7 @@ angular
 									$scope.radarOption.series[0].data.push(featureSeries);
 
 									$scope.radarChart.setOption($scope.radarOption);
+									registerEventsIfNecessary();
 								};
 
 								var highlightFeatureInRadarChart = function(featureProperties){
@@ -510,6 +542,7 @@ angular
 
 									// second parameter tells echarts to not merge options with previous data. hence really remove series from graphic
 									$scope.radarChart.setOption($scope.radarOption, true);
+									registerEventsIfNecessary();
 								};
 
 								var unhighlightFeatureInRadarChart = function(featureProperties){
