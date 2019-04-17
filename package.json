@@ -45,6 +45,7 @@
     "@turf/turf": "^5.1.6",
     "angular": "^1.6.0",
     "bootstrap": "^3.3.6",
+    "bootstrap-tour": "^0.12.0",
     "classybrew": "0.0.3",
     "echarts": "^4.2.0-rc.2",
     "echarts-stat": "^1.1.1",
