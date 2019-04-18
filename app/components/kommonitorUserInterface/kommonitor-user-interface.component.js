@@ -301,43 +301,49 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				element: "#header",
 				title: "Header",
 				placement: "bottom",
-				content: "In der Kopfzeile befinden sich neben dem Titel der Webanwendung ein Info-Button, der das beim Aufurf der Seite erschienene Informationsfenster öffnet, sowie Button zum (erneuten) Starten der geführten Tour. Ganz rechts sehen Sie darüber hinaus die Logos der Partner des Projekts KomMonitor, inklusive Links zu deren Webseiten."
+				content: "In der Kopfzeile befinden sich neben dem Titel der Webanwendung ein <b>Info-Button</b>, der das beim Aufurf der Seite erschienene Informationsfenster öffnet, sowie Button zum (erneuten) <b>Starten der geführten Tour</b>. Ganz rechts sehen Sie darüber hinaus die Logos der Partner des Projekts KomMonitor, inklusive Links zu deren Webseiten."
 			},
 			{
 				element: "#map",
 				title: "Kartenfenster",
 				placement: "top",
-				content: "Beim Anwendungsstart sehen Sie zunächst die kartographische Darstellung eines zufällig ausgewählten Indikators. In dieser Darstellung können Sie in der Karte frei navigieren (zoomen, verschieben) und beim Herüberfahren mit dem Mauszeiger über eines der Indikator-Geometrien erhalten sie ein Popup mit dem Indikator-Wert."
+				content: "Beim Anwendungsstart sehen Sie zunächst die <b>kartographische Darstellung</b> eines zufällig ausgewählten Indikators. In dieser Darstellung können Sie in der <b>Karte frei navigieren (zoomen, verschieben)</b> und beim <i>Herüberfahren mit dem Mauszeiger über eines der Indikator-Geometrien</i> erhalten sie ein <b>Popup mit dem Indikator-Wert</b>."
 			},
 			{
 				element: "#infoControl",
 				title: "Indikatoren-Informationsfenster",
 				placement: "left",
-				content: "Dieses Element enthält relevante Metadaten über den dargestellten Indikator. Darüber hinaus kann die Raumebene gewechselt werden (in Abhängigkeit der verfügbaren Raumebenen des selektierten Indikators). Die Checkbox unten steuert, ob der Indikator-Layer semi-transparent dargestellt werden soll."
+				content: "Dieses Element enthält relevante <b>Metadaten</b> über den dargestellten Indikator. Darüber hinaus kann die <b>Raumebene gewechselt</b> werden (in Abhängigkeit der verfügbaren Raumebenen des selektierten Indikators). Die <b>Checkbox</b> unten steuert, ob der <b>Indikator-Layer semi-transparent</b> dargestellt werden soll."
 			},
 			{
 				element: "#legendControl",
 				title: "Indikatoren-Legende",
 				placement: "left",
-				content: "Dieses Element repräsentiert die Legende, sprich die Zuordnung von Indikatorenwertebereichen zu Darstellungsfarben. Über die Radio-Buttons kann die Klassifizierungsmethode geändert werden (Für Details zu den Methodenunterschieden nutzen Sie bitte den Tooltip, der erscheint, wenn Sie mit dem Mauszeiger über eine der Optionen fahren)."
+				content: "Dieses Element repräsentiert die <b>Legende</b>, sprich die Zuordnung von Indikatorenwertebereichen zu Darstellungsfarben. Über die <b>Radio-Buttons</b> kann die <b>Klassifizierungsmethode</b> geändert werden (Für Details zu den Methodenunterschieden nutzen Sie bitte den <b>Tooltip</b>, der erscheint, wenn Sie mit dem <i>Mauszeiger über eine der Optionen fahren</i>)."
 			},
 			{
 				element: "#dateSliderWrapper",
 				title: "Zeitstrahl",
 				placement: "top",
-				content: "Die Zeitleiste am unteren Bildschirmrand enthält die verfügbaren Zeitschnitte des selektierten Indikators. Standardmäßig ist der aktuellste Zeitschnitt voreingestellt. Ein Klicken auf einen beliebigen Punkt der Leiste oder durch Verschieben des runden Auswahlknopfs können Sie den Zeitschnitt ändern."
+				content: "Die <b>Zeitleiste</b> am unteren Bildschirmrand enthält die <b>verfügbaren Zeitschnitte des selektierten Indikators</b>. Standardmäßig ist der aktuellste Zeitschnitt voreingestellt. Ein <i>Klicken auf einen beliebigen Punkt der Leiste oder durch Verschieben des runden Auswahlknopfs</i> können Sie den <b>Zeitschnitt ändern</b>."
 			},
 			{
 				element: "#mapUtilButtons",
 				title: "Hilfs-Buttons für die Kartendarstellung",
 				placement: "bottom",
-				content: "Diese Buttons bieten Hilfsfunktionen für die Kartendarstellung. Über <b>Plus</b> und <b>Minus</b> anstelle des Mausrads gezoomt werden. Der <b>Weltkugel-Button</b> zentriert die Karte und zoomt auf die maximale Ausdehnung des Indikator-Layers. Der nachfolgende Button hebt die Selektion von kartographischen Features auf. Abschließend bietet der rechte <b>Layer-Button</b> die Möglichkeit, einzelne Layer temporär auszublenden oder die Hintergrundkarte zu wechseln."
+				content: "Diese Buttons bieten Hilfsfunktionen für die Kartendarstellung. Über <b>Plus</b> und <b>Minus</b> kann anstelle des Mausrads gezoomt werden. Der <b>Weltkugel-Button</b> zentriert die Karte und zoomt auf die maximale Ausdehnung des Indikator-Layers. Der nachfolgende Button <b>hebt die Selektion von kartographischen Features</b> auf. Abschließend bietet der rechte <b>Layer-Button</b> die Möglichkeit, einzelne Layer <b>temporär auszublenden oder die Hintergrundkarte zu wechseln</b>."
 			},
 			{
 				element: "#sideBarButtons",
 				title: "Menü-Buttons",
 				placement: "right",
-				content: "Diese Buttons öffnen jeweils ein linkseitig angeordnetets Menü, um zusätzliche Funktionen auszuführen. Jedes Menü wird in einem weiteren Tour-Schritt kurz erläutert."
+				content: "Diese Buttons öffnen jeweils ein linkseitig angeordnetets <b>Menü</b>, um zusätzliche Funktionen auszuführen. Jedes Menü wird in einem weiteren Tour-Schritt kurz erläutert."
+			},
+			{
+				element: "#sidebarIndicatorConfigCollapse",
+				title: "Indikatorenkatalog und Verknüpfungen zu anderen Indikatoren oder Geodaten",
+				placement: "right",
+				content: "Dieses Menü enthält eine <b>Übersicht verfügbarer Indikatoren</b> sowie der Option, den derzeitig betrachteten <b>Indikator zu wechseln</b>. Im obigen <b>Themenfilter</b> kann die Übersicht der Indikatoren je nach Thema gefiltert werden. Sollte ein Indikator etwaige <b>Verknüpfungen</b> zu anderen Indikatoren oder sonstigen Geodaten beinhalten, so werden diese in tabellarischer Form kenntlich gemacht."
 			}
 		]};
 
