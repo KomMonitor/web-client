@@ -343,7 +343,55 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				element: "#sidebarIndicatorConfigCollapse",
 				title: "Indikatorenkatalog und Verknüpfungen zu anderen Indikatoren oder Geodaten",
 				placement: "right",
-				content: "Dieses Menü enthält eine <b>Übersicht verfügbarer Indikatoren</b> sowie der Option, den derzeitig betrachteten <b>Indikator zu wechseln</b>. Im obigen <b>Themenfilter</b> kann die Übersicht der Indikatoren je nach Thema gefiltert werden. Sollte ein Indikator etwaige <b>Verknüpfungen</b> zu anderen Indikatoren oder sonstigen Geodaten beinhalten, so werden diese in tabellarischer Form kenntlich gemacht."
+				content: "Dieses Menü enthält eine <b>Übersicht verfügbarer Indikatoren</b> sowie der Option, den derzeitig betrachteten <b>Indikator zu wechseln</b> oder den Indikator in der gewählten Raumebene zu <b>exportieren</b> (derzeitg nur eingeschränkte Download-Optionen). Im obigen <b>Themenfilter</b> kann die Übersicht der Indikatoren je nach Thema gefiltert werden. Sollte ein Indikator etwaige <b>Verknüpfungen</b> zu anderen Indikatoren oder sonstigen Geodaten beinhalten, so werden diese in tabellarischer Form kenntlich gemacht."
+			},
+			{
+				element: "#sidebarPoiCollapse",
+				title: "Points of Interest",
+				placement: "right",
+				content: "Zur Überlagerung von flächenhaften Indikator-Geometrien mit weiteren relevanten Geodaten können hier sogenannte <b>Points of Interest (POI) Layer</b> zur Karte hinzugefügt werden. Hinzufügen und Entfernen der POI-Layer geschieht dabei intuitiv durch <i>Checkboxes</i>. In der Standardkonfiguration werden die einzelnen Punktgeometrien räumlich zu sogenannten <b>Cluster-Punkten</b> zusammengefasst, um die Darstellung je nach Zoom-Stufe zu optimieren. Über eine entsprechende <i>Auswahloption</i> können jedoch bei jeder Zoomstufe auch <b>alle Einzelpunkte dargestellt</b> werden."
+			},
+			{
+				element: "#sidebarFilterCollapse",
+				title: "Darstellungsfilter",
+				placement: "right",
+				content: "Hier können verschiedene <b>Darstellungsfilter</b> angewendet werden, die sich auf die <i>kartographische Darstellung</i> auswirken. Darüber können je nach Fragestellung die Raumebenen-Geometrien (z.B. Stadtteile) auf diejenigen eingeschränkt werden, die zur Beantwortung der Fragestellung beitragen. <br/><br/>Ein besonderer Filter ist die <b>dynamische Schwellwetklassifizierung</b>, bei der ein spezifischer <b>Trennwert</b> angegeben werden kann, der die Indikator-Features in zwei Gruppen einteilt, größer und kleiner dem Trennwert, die in der kartographischen Darstellung entsprechendend klassifiziert werden. Dieser Filtertyp eignet sich besonders bei Fragestellungen, bei denen Features identifiziert werden sollen, die einen bestimmten Zielgrad erreichen / nicht erreichen (z.B. Versorgungsquoten)."
+			},
+			{
+				element: "#sidebarBalanceCollapse",
+				title: "Um die zeitliche Entwicklung",
+				placement: "right",
+				content: "Text."
+			},
+			{
+				element: "#sidebarDiagramsCollapse",
+				title: "Text",
+				placement: "right",
+				content: "Text."
+			},
+			{
+				element: "#sidebarRadarDiagramCollapse",
+				title: "Text",
+				placement: "right",
+				content: "Text."
+			},
+			{
+				element: "#sidebarRegressionDiagramCollapse",
+				title: "Text",
+				placement: "right",
+				content: "Text."
+			},
+			{
+				element: "#sidebarReachabilityCollapse",
+				title: "Text",
+				placement: "right",
+				content: "Text."
+			},
+			{
+				element: "#sidebarProcessingCollapse",
+				title: "Text",
+				placement: "right",
+				content: "Text."
 			}
 		]};
 
