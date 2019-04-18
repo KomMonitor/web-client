@@ -24,6 +24,42 @@
 	overflow: auto;
 }
 
+.popover {
+	min-width: 250px;
+	width: auto;
+	max-width: 500px;
+}
+
+.popover-title {
+	background-color: #917d72;
+	font-weight: bold;
+}
+
+.popover-content {
+	background-color: #ad988c;
+	font-weight: italic;
+}
+
+.popover-navigation {
+	background-color: #917d72;
+}
+
+.popover.right>.arrow:after{
+	border-right-color: #917d72;
+}
+
+.popover.left>.arrow:after{
+	border-left-color: #917d72;
+}
+
+.popover.top>.arrow:after{
+	border-top-color: #917d72;
+}
+
+.popover.bottom>.arrow:after{
+	border-bottom-color: #917d72;
+}
+
 #processInputForm input:invalid+span:after {
   content: '✖';
   padding-left: 5px;

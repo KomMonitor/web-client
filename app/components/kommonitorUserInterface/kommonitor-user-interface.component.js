@@ -286,5 +286,38 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			$rootScope.$broadcast("toggleLegendControl");
 		}
 
+		$scope.startGuidedTour = function(){
+			// GUIDED TOUR
+			// Instance the tour
+			kommonitorDataExchangeService.guidedTour = new Tour({
+				container: "body",
+				backdrop: true,
+				backdropContainer: "body",
+				smartPlacement: true,
+				// template: "<div class='popover tour'><div class='arrow'></div><h3 class='popover-title'></h3><div class='popover-content'></div><div class='popover-navigation'><div class='btn-group'>    <button class='btn btn-default' data-role='prev'>« Prev</button>    <span data-role='separator'>|</span>    <button class='btn btn-default' data-role='next'>Next »</button></div>	</div><button class='btn btn-default' data-role='end'>End tour</button></div>",
+				steps: [
+			  {
+			    element: "#map",
+			    title: "Kartenfenster",
+			    content: "Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text "
+			  },
+			  {
+			    element: "#dateSliderWrapper",
+			    title: "Zeitslider",
+			    content: "Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text "
+			  }
+			]});
+
+			// Initialize the tour
+			kommonitorDataExchangeService.guidedTour.init();
+			// Start the tour
+			try{
+				kommonitorDataExchangeService.guidedTour.restart();
+			}
+			catch(error){
+					kommonitorDataExchangeService.guidedTour.start(true);
+			}
+		};
+
 	}
 ]});

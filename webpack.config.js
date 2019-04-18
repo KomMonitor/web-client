@@ -38,8 +38,8 @@ module.exports = {
           { from: './customizedExternalLibs/leaflet-groupedlayercontrol/leaflet.groupedlayercontrol.js', to: 'leaflet-groupedlayercontrol' },
           { from: './customizedExternalLibs/leaflet-groupedlayercontrol/leaflet.groupedlayercontrol.min.css', to: 'leaflet-groupedlayercontrol' },
           { from: nodeModulePathConstant + '@turf/turf/turf.min.js', to: 'turf' },
-          { from: nodeModulePathConstant + 'bootstrap-tour/build/css/bootstrap-tour-standalone.min.css', to: 'bootstrap-tour' },
-          { from: nodeModulePathConstant + 'bootstrap-tour/build/js/bootstrap-tour-standalone.min.js', to: 'bootstrap-tour' }
+          { from: nodeModulePathConstant + 'bootstrap-tour/build/css/bootstrap-tour.min.css', to: 'bootstrap-tour' },
+          { from: nodeModulePathConstant + 'bootstrap-tour/build/js/bootstrap-tour.min.js', to: 'bootstrap-tour' }
       ])
     ]
 };
