@@ -293,18 +293,38 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				container: "body",
 				backdrop: true,
 				backdropContainer: "body",
-				smartPlacement: true,
+				smartPlacement: false,
 				// template: "<div class='popover tour'><div class='arrow'></div><h3 class='popover-title'></h3><div class='popover-content'></div><div class='popover-navigation'><div class='btn-group'>    <button class='btn btn-default' data-role='prev'>« Prev</button>    <span data-role='separator'>|</span>    <button class='btn btn-default' data-role='next'>Next »</button></div>	</div><button class='btn btn-default' data-role='end'>End tour</button></div>",
 				steps: [
 			  {
+			    element: "#header",
+			    title: "Header",
+					placement: "bottom",
+			    content: "In der Kopfzeile befinden sich neben dem Titel der Webanwendung ein Info-Button, der das beim Aufurf der Seite erschienene Informationsfenster öffnet, sowie Button zum (erneuten) Starten der geführten Tour. Ganz rechts sehen Sie darüber hinaus die Logos der Partner des Projekts KomMonitor, inklusive Links zu deren Webseiten."
+			  },
+				{
 			    element: "#map",
 			    title: "Kartenfenster",
-			    content: "Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text "
+					placement: "top",
+			    content: "Beim Anwendungsstart sehen Sie zunächst die kartographische Darstellung eines zufällig ausgewählten Indikators. In dieser Darstellung können Sie in der Karte frei navigieren (zoomen, verschieben) und beim Herüberfahren mit dem Mauszeiger über eines der Indikator-Geometrien erhalten sie ein Popup mit dem Indikator-Wert."
+			  },
+				{
+			    element: "#infoControl",
+			    title: "Indikatoren-Informationsfenster",
+					placement: "left",
+			    content: "Dieses Element enthält relevante Metadaten über den dargestellten Indikator. Darüber hinaus kann die Raumebene gewechselt werden (in Abhängigkeit der verfügbaren Raumebenen des selektierten Indikators). Die Checkbox unten steuert, ob der Indikator-Layer semi-transparent dargestellt werden soll."
+			  },
+				{
+			    element: "#legendControl",
+			    title: "Indikatoren-Legende",
+					placement: "left",
+			    content: "Dieses Element repräsentiert die Legende, sprich die Zuordnung von Indikatorenwertebereichen zu Darstellungsfarben. Über die Radio-Buttons kann die Klassifizierungsmethode geändert werden (Für Details zu den Methodenunterschieden nutzen Sie bitte den Tooltip, der erscheint, wenn Sie mit dem Mauszeiger über eine der Optionen fahren)."
 			  },
 			  {
 			    element: "#dateSliderWrapper",
-			    title: "Zeitslider",
-			    content: "Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text "
+			    title: "Zeitstrahl",
+					placement: "top",
+			    content: "Die Zeitleiste am unteren Bildschirmrand enthält die verfügbaren Zeitschnitte des selektierten Indikators. Standardmäßig ist der aktuellste Zeitschnitt voreingestellt. Ein Klicken auf einen beliebigen Punkt der Leiste oder durch Verschieben des runden Auswahlknopfs können Sie den Zeitschnitt ändern."
 			  }
 			]});
 

@@ -386,6 +386,7 @@ angular.module('kommonitorMap').component(
                       $scope.infoControl.onAdd = function (map) {
                           this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
 
+                          this._div.id = "infoControl";
                           // [year, month, day]
             							var lastUpdateComponents = $scope.currentIndicatorMetadataAndGeoJSON.metadata.lastUpdate.split("-");
             							var lastUpdateAsDate = new Date(Number(lastUpdateComponents[0]), Number(lastUpdateComponents[1]) - 1, Number(lastUpdateComponents[2]));
@@ -557,6 +558,10 @@ angular.module('kommonitorMap').component(
                       $scope.legendControl.onAdd = function (map) {
 
                         $scope.div = L.DomUtil.create('div', 'legendMap');
+
+
+                        $scope.div.id = "legendControl";
+
                             labels = $scope.defaultBrew.getBreaks();
                             colors = $scope.defaultBrew.getColors();
 
@@ -639,6 +644,7 @@ angular.module('kommonitorMap').component(
                       $scope.legendControl.onAdd = function (map) {
 
                         $scope.div = L.DomUtil.create('div', 'legendMap');
+                        $scope.div.id = "legendControl";
 
                         $scope.div.innerHTML = $scope.appendLegendCloseButton();
                         $scope.div.innerHTML += '<div>';
@@ -736,6 +742,7 @@ angular.module('kommonitorMap').component(
                       $scope.legendControl.onAdd = function (map) {
 
                         $scope.div = L.DomUtil.create('div', 'legendMap');
+                        $scope.div.id = "legendControl";
 
                         $scope.div.innerHTML = $scope.appendLegendCloseButton();
                         $scope.div.innerHTML += '<div>';
