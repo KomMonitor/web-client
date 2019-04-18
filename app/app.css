@@ -237,6 +237,19 @@
 	max-width: 20%; */
 }
 
+#mapUtilButtons{
+	width: 250px;
+  height: 80px;
+  position: absolute;
+}
+
+#sideBarButtons{
+	margin-top: 90px;
+  width: 90px;
+  height: 90vh;
+  position: absolute;
+}
+
 .leaflet-left .leaflet-control-layers {
   display: inline-block;
   float: none;

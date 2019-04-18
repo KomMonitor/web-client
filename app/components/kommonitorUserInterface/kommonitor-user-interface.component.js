@@ -325,6 +325,12 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			    title: "Zeitstrahl",
 					placement: "top",
 			    content: "Die Zeitleiste am unteren Bildschirmrand enthält die verfügbaren Zeitschnitte des selektierten Indikators. Standardmäßig ist der aktuellste Zeitschnitt voreingestellt. Ein Klicken auf einen beliebigen Punkt der Leiste oder durch Verschieben des runden Auswahlknopfs können Sie den Zeitschnitt ändern."
+			  },
+			  {
+			    element: "#mapUtilButtons",
+			    title: "Hilfs-Buttons für die Kartendarstellung",
+					placement: "bottom",
+			    content: "Diese Buttons bieten Hilfsfunktionen für die Kartendarstellung. Der linke <b>Weltkugel-Button</b> zentriert die Karte und zoomt auf die maximale Ausdehnung des Indikator-Layers"
 			  }
 			]});
 
