@@ -286,6 +286,10 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			$rootScope.$broadcast("toggleLegendControl");
 		}
 
+		$scope.$on("startGuidedTour", function(event){
+				$scope.startGuidedTour();
+		});
+
 		$scope.startGuidedTour = function(){
 			// GUIDED TOUR
 			// Instance the tour
