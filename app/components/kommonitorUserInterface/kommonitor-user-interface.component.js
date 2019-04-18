@@ -290,59 +290,61 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				$scope.startGuidedTour();
 		});
 
+		$scope.tourOptions = {
+			container: "body",
+			backdrop: true,
+			backdropContainer: "body",
+			smartPlacement: false,
+			// template: "<div class='popover tour'><div class='arrow'></div><h3 class='popover-title'></h3><div class='popover-content'></div><div class='popover-navigation'><div class='btn-group'>    <button class='btn btn-default' data-role='prev'>« Prev</button>    <span data-role='separator'>|</span>    <button class='btn btn-default' data-role='next'>Next »</button></div>	</div><button class='btn btn-default' data-role='end'>End tour</button></div>",
+			steps: [
+			{
+				element: "#header",
+				title: "Header",
+				placement: "bottom",
+				content: "In der Kopfzeile befinden sich neben dem Titel der Webanwendung ein Info-Button, der das beim Aufurf der Seite erschienene Informationsfenster öffnet, sowie Button zum (erneuten) Starten der geführten Tour. Ganz rechts sehen Sie darüber hinaus die Logos der Partner des Projekts KomMonitor, inklusive Links zu deren Webseiten."
+			},
+			{
+				element: "#map",
+				title: "Kartenfenster",
+				placement: "top",
+				content: "Beim Anwendungsstart sehen Sie zunächst die kartographische Darstellung eines zufällig ausgewählten Indikators. In dieser Darstellung können Sie in der Karte frei navigieren (zoomen, verschieben) und beim Herüberfahren mit dem Mauszeiger über eines der Indikator-Geometrien erhalten sie ein Popup mit dem Indikator-Wert."
+			},
+			{
+				element: "#infoControl",
+				title: "Indikatoren-Informationsfenster",
+				placement: "left",
+				content: "Dieses Element enthält relevante Metadaten über den dargestellten Indikator. Darüber hinaus kann die Raumebene gewechselt werden (in Abhängigkeit der verfügbaren Raumebenen des selektierten Indikators). Die Checkbox unten steuert, ob der Indikator-Layer semi-transparent dargestellt werden soll."
+			},
+			{
+				element: "#legendControl",
+				title: "Indikatoren-Legende",
+				placement: "left",
+				content: "Dieses Element repräsentiert die Legende, sprich die Zuordnung von Indikatorenwertebereichen zu Darstellungsfarben. Über die Radio-Buttons kann die Klassifizierungsmethode geändert werden (Für Details zu den Methodenunterschieden nutzen Sie bitte den Tooltip, der erscheint, wenn Sie mit dem Mauszeiger über eine der Optionen fahren)."
+			},
+			{
+				element: "#dateSliderWrapper",
+				title: "Zeitstrahl",
+				placement: "top",
+				content: "Die Zeitleiste am unteren Bildschirmrand enthält die verfügbaren Zeitschnitte des selektierten Indikators. Standardmäßig ist der aktuellste Zeitschnitt voreingestellt. Ein Klicken auf einen beliebigen Punkt der Leiste oder durch Verschieben des runden Auswahlknopfs können Sie den Zeitschnitt ändern."
+			},
+			{
+				element: "#mapUtilButtons",
+				title: "Hilfs-Buttons für die Kartendarstellung",
+				placement: "bottom",
+				content: "Diese Buttons bieten Hilfsfunktionen für die Kartendarstellung. Über <b>Plus</b> und <b>Minus</b> anstelle des Mausrads gezoomt werden. Der <b>Weltkugel-Button</b> zentriert die Karte und zoomt auf die maximale Ausdehnung des Indikator-Layers. Der nachfolgende Button hebt die Selektion von kartographischen Features auf. Abschließend bietet der rechte <b>Layer-Button</b> die Möglichkeit, einzelne Layer temporär auszublenden oder die Hintergrundkarte zu wechseln."
+			},
+			{
+				element: "#sideBarButtons",
+				title: "Menü-Buttons",
+				placement: "right",
+				content: "Diese Buttons öffnen jeweils ein linkseitig angeordnetets Menü, um zusätzliche Funktionen auszuführen. Jedes Menü wird in einem weiteren Tour-Schritt kurz erläutert."
+			}
+		]};
+
 		$scope.startGuidedTour = function(){
 			// GUIDED TOUR
 			// Instance the tour
-			kommonitorDataExchangeService.guidedTour = new Tour({
-				container: "body",
-				backdrop: true,
-				backdropContainer: "body",
-				smartPlacement: false,
-				// template: "<div class='popover tour'><div class='arrow'></div><h3 class='popover-title'></h3><div class='popover-content'></div><div class='popover-navigation'><div class='btn-group'>    <button class='btn btn-default' data-role='prev'>« Prev</button>    <span data-role='separator'>|</span>    <button class='btn btn-default' data-role='next'>Next »</button></div>	</div><button class='btn btn-default' data-role='end'>End tour</button></div>",
-				steps: [
-			  {
-			    element: "#header",
-			    title: "Header",
-					placement: "bottom",
-			    content: "In der Kopfzeile befinden sich neben dem Titel der Webanwendung ein Info-Button, der das beim Aufurf der Seite erschienene Informationsfenster öffnet, sowie Button zum (erneuten) Starten der geführten Tour. Ganz rechts sehen Sie darüber hinaus die Logos der Partner des Projekts KomMonitor, inklusive Links zu deren Webseiten."
-			  },
-				{
-			    element: "#map",
-			    title: "Kartenfenster",
-					placement: "top",
-			    content: "Beim Anwendungsstart sehen Sie zunächst die kartographische Darstellung eines zufällig ausgewählten Indikators. In dieser Darstellung können Sie in der Karte frei navigieren (zoomen, verschieben) und beim Herüberfahren mit dem Mauszeiger über eines der Indikator-Geometrien erhalten sie ein Popup mit dem Indikator-Wert."
-			  },
-				{
-			    element: "#infoControl",
-			    title: "Indikatoren-Informationsfenster",
-					placement: "left",
-			    content: "Dieses Element enthält relevante Metadaten über den dargestellten Indikator. Darüber hinaus kann die Raumebene gewechselt werden (in Abhängigkeit der verfügbaren Raumebenen des selektierten Indikators). Die Checkbox unten steuert, ob der Indikator-Layer semi-transparent dargestellt werden soll."
-			  },
-				{
-			    element: "#legendControl",
-			    title: "Indikatoren-Legende",
-					placement: "left",
-			    content: "Dieses Element repräsentiert die Legende, sprich die Zuordnung von Indikatorenwertebereichen zu Darstellungsfarben. Über die Radio-Buttons kann die Klassifizierungsmethode geändert werden (Für Details zu den Methodenunterschieden nutzen Sie bitte den Tooltip, der erscheint, wenn Sie mit dem Mauszeiger über eine der Optionen fahren)."
-			  },
-			  {
-			    element: "#dateSliderWrapper",
-			    title: "Zeitstrahl",
-					placement: "top",
-			    content: "Die Zeitleiste am unteren Bildschirmrand enthält die verfügbaren Zeitschnitte des selektierten Indikators. Standardmäßig ist der aktuellste Zeitschnitt voreingestellt. Ein Klicken auf einen beliebigen Punkt der Leiste oder durch Verschieben des runden Auswahlknopfs können Sie den Zeitschnitt ändern."
-			  },
-			  {
-			    element: "#mapUtilButtons",
-			    title: "Hilfs-Buttons für die Kartendarstellung",
-					placement: "bottom",
-			    content: "Diese Buttons bieten Hilfsfunktionen für die Kartendarstellung. Über <b>Plus</b> und <b>Minus</b> anstelle des Mausrads gezoomt werden. Der <b>Weltkugel-Button</b> zentriert die Karte und zoomt auf die maximale Ausdehnung des Indikator-Layers. Der nachfolgende Button hebt die Selektion von kartographischen Features auf. Abschließend bietet der rechte <b>Layer-Button</b> die Möglichkeit, einzelne Layer temporär auszublenden oder die Hintergrundkarte zu wechseln."
-			  },
-			  {
-			    element: "#sideBarButtons",
-			    title: "Menü-Buttons",
-					placement: "right",
-			    content: "Diese Buttons öffnen jeweils ein linkseitig angeordnetets Menü, um zusätzliche Funktionen auszuführen. Jedes Menü wird in einem weiteren Tour-Schritt kurz erläutert."
-			  }
-			]});
+			kommonitorDataExchangeService.guidedTour = new Tour($scope.tourOptions);
 
 			// Initialize the tour
 			kommonitorDataExchangeService.guidedTour.init();
