@@ -330,7 +330,13 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			    element: "#mapUtilButtons",
 			    title: "Hilfs-Buttons für die Kartendarstellung",
 					placement: "bottom",
-			    content: "Diese Buttons bieten Hilfsfunktionen für die Kartendarstellung. Der linke <b>Weltkugel-Button</b> zentriert die Karte und zoomt auf die maximale Ausdehnung des Indikator-Layers"
+			    content: "Diese Buttons bieten Hilfsfunktionen für die Kartendarstellung. Über <b>Plus</b> und <b>Minus</b> anstelle des Mausrads gezoomt werden. Der <b>Weltkugel-Button</b> zentriert die Karte und zoomt auf die maximale Ausdehnung des Indikator-Layers. Der nachfolgende Button hebt die Selektion von kartographischen Features auf. Abschließend bietet der rechte <b>Layer-Button</b> die Möglichkeit, einzelne Layer temporär auszublenden oder die Hintergrundkarte zu wechseln."
+			  },
+			  {
+			    element: "#sideBarButtons",
+			    title: "Menü-Buttons",
+					placement: "right",
+			    content: "Diese Buttons öffnen jeweils ein linkseitig angeordnetets Menü, um zusätzliche Funktionen auszuführen. Jedes Menü wird in einem weiteren Tour-Schritt kurz erläutert."
 			  }
 			]});
 
