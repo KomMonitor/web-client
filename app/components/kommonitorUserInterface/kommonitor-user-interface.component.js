@@ -329,7 +329,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				element: "#infoControl",
 				title: "Indikatoren-Informationsfenster",
 				placement: "left",
-				content: "Dieses Element enthält relevante <b>Metadaten</b> über den dargestellten Indikator. Darüber hinaus kann die <b>Raumebene gewechselt</b> werden (in Abhängigkeit der verfügbaren Raumebenen des selektierten Indikators). Die <b>Checkbox</b> unten steuert, ob der <b>Indikator-Layer semi-transparent</b> dargestellt werden soll."
+				content: "Dieses Element enthält relevante <b>Metadaten</b> über den dargestellten Indikator. Darüber hinaus kann die <b>Raumebene gewechselt</b> werden (in Abhängigkeit der verfügbaren Raumebenen des selektierten Indikators). <br/><br/>Die <b>Checkbox</b> unten steuert, ob der <b>Indikator-Layer semi-transparent</b> dargestellt werden soll."
 			},
 			{
 				element: "#legendControl",
@@ -347,7 +347,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				element: "#mapUtilButtons",
 				title: "Hilfs-Buttons für die Kartendarstellung",
 				placement: "bottom",
-				content: "Diese Buttons bieten Hilfsfunktionen für die Kartendarstellung. Über <b>Plus</b> und <b>Minus</b> kann anstelle des Mausrads gezoomt werden. Der <b>Weltkugel-Button</b> zentriert die Karte und zoomt auf die maximale Ausdehnung des Indikator-Layers. Der nachfolgende Button <b>hebt die Selektion von kartographischen Features</b> auf. Abschließend bietet der rechte <b>Layer-Button</b> die Möglichkeit, einzelne Layer <b>temporär auszublenden oder die Hintergrundkarte zu wechseln</b>."
+				content: "Diese Buttons bieten Hilfsfunktionen für die Kartendarstellung. Über <b>Plus</b> und <b>Minus</b> kann anstelle des Mausrads gezoomt werden. <br/><br/>Der <b>Weltkugel-Button</b> zentriert die Karte und zoomt auf die maximale Ausdehnung des Indikator-Layers. <br/><br/>Der nachfolgende Button <b>hebt die Selektion von kartographischen Features</b> auf. <br/><br/>Abschließend bietet der rechte <b>Layer-Button</b> die Möglichkeit, einzelne Layer <b>temporär auszublenden oder die Hintergrundkarte zu wechseln</b>."
 			},
 			{
 				element: "#sideBarButtons",
@@ -370,7 +370,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				element: "#indicatorSetup",
 				title: "Indikatorenkatalog und Verknüpfungen zu anderen Indikatoren oder Geodaten",
 				placement: "right",
-				content: "Dieses Menü enthält eine <b>Übersicht verfügbarer Indikatoren</b> sowie der Option, den derzeitig betrachteten <b>Indikator zu wechseln</b> oder den Indikator in der gewählten Raumebene zu <b>exportieren</b> (derzeitg nur eingeschränkte Download-Optionen). Im obigen <b>Themenfilter</b> kann die Übersicht der Indikatoren je nach Thema gefiltert werden. Sollte ein Indikator etwaige <b>Verknüpfungen</b> zu anderen Indikatoren oder sonstigen Geodaten beinhalten, so werden diese in tabellarischer Form kenntlich gemacht.",
+				content: "Dieses Menü enthält eine <b>Übersicht verfügbarer Indikatoren</b> sowie der Option, den derzeitig betrachteten <b>Indikator zu wechseln</b> oder den Indikator in der gewählten Raumebene zu <b>exportieren</b> (derzeitg nur eingeschränkte Download-Optionen). <br/><br/>Im obigen <b>Themenfilter</b> kann die Übersicht der Indikatoren je nach Thema gefiltert werden. <br/><br/>Sollte ein Indikator etwaige <b>Verknüpfungen</b> zu anderen Indikatoren oder sonstigen Geodaten beinhalten, so werden diese in tabellarischer Form kenntlich gemacht.",
 				onNext: function(tour){
 					if($scope.sidebarIndicatorConfigClass !== "hidden"){
 							$("#sidebarIndicatorConfigCollapse").click();
@@ -397,7 +397,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				element: "#poi",
 				title: "Points of Interest",
 				placement: "right",
-				content: "Zur Überlagerung von flächenhaften Indikator-Geometrien mit weiteren relevanten Geodaten können hier sogenannte <b>Points of Interest (POI) Layer</b> zur Karte hinzugefügt werden. Hinzufügen und Entfernen der POI-Layer geschieht dabei intuitiv durch <i>Checkboxes</i>. In der Standardkonfiguration werden die einzelnen Punktgeometrien räumlich zu sogenannten <b>Cluster-Punkten</b> zusammengefasst, um die Darstellung je nach Zoom-Stufe zu optimieren. Über eine entsprechende <i>Auswahloption</i> können jedoch bei jeder Zoomstufe auch <b>alle Einzelpunkte dargestellt</b> werden.",
+				content: "Zur Überlagerung von flächenhaften Indikator-Geometrien mit weiteren relevanten Geodaten können hier sogenannte <b>Points of Interest (POI) Layer</b> zur Karte hinzugefügt werden. Hinzufügen und Entfernen der POI-Layer geschieht dabei intuitiv durch <i>Checkboxes</i>. <br/><br/>In der Standardkonfiguration werden die einzelnen Punktgeometrien räumlich zu sogenannten <b>Cluster-Punkten</b> zusammengefasst, um die Darstellung je nach Zoom-Stufe zu optimieren. Über eine entsprechende <i>Auswahloption</i> können jedoch bei jeder Zoomstufe auch <b>alle Einzelpunkte dargestellt</b> werden.",
 				onNext: function(tour){
 					if($scope.sidebarPoiClass !== "hidden"){
 							$("#sidebarPoiCollapse").click();
@@ -440,7 +440,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				element: "#sidebarBalanceCollapse",
 				title: "Zeitliche Bilanzierung",
 				placement: "right",
-				content: "Text.",
+				content: "Ein Klick auf diesen Button öffnet ein Fenster zur zeitlichen Bilanzierung des aktuell dargestellten Indikators. <br/><br/>Beim Wechsel auf das nächste Tour-Element wird das Menü automatisch geöffnet.",
 				onNext: function(tour){
 					if($scope.sidebarBalanceClass === "hidden"){
 							$("#sidebarBalanceCollapse").click();
@@ -451,7 +451,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				element: "#kommonitorBalance",
 				title: "Zeitliche Bilanzierung",
 				placement: "right",
-				content: "Text.",
+				content: "Bei der zeitlichen Bilanzierung steht die <b>Wertentwicklung eines Indikators</b> über die Zeit im Fokus (Wachstum / Schrumpfung). Wird die Bilanzierung mittels der entsprehenden <b>Checkbox</b> aktiviert, so kann über die Zeitleiste ein <b>Zeitraum</b> spezifiziert werden, für den die Wertentwicklung berechnet und dargestellt werden soll. <br/><br/>Die Indikatoren-Legende am unteren rechten Rand der Anwendung zeigt über dies textuell an, ob die Bilanz des Indikators dargestellt wird.<br/><br/>Bitte bachten Sie, dass bei Indikatoren mit nur einem Zeitschnitt eine Bilanzierung zwar technisch möglich ist, aber für alle Geometrien der Raumebene den Wert '0' resultiert.",
 				onNext: function(tour){
 					if($scope.sidebarBalanceClass !== "hidden"){
 							$("#sidebarFilterCollapse").click();
@@ -467,7 +467,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				element: "#sidebarDiagramsCollapse",
 				title: "Klassische statistische Diagramme",
 				placement: "right",
-				content: "Text.",
+				content: "Ein Klick auf diesen Button öffnet ein Fenster mit klassischen statistischen Diagrammen. <br/><br/>Beim Wechsel auf das nächste Tour-Element wird das Menü automatisch geöffnet.",
 				onNext: function(tour){
 					if($scope.sidebarDiagramsClass === "hidden"){
 							$("#sidebarDiagramsCollapse").click();
@@ -475,10 +475,10 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				}
 			},
 			{
-				element: "#kommonitorDiagrams",
+				element: "#indicatorDiagrams",
 				title: "Klassische statistische Diagramme",
 				placement: "right",
-				content: "Text.",
+				content: "Zusätzlich zur kartographischen Darstellung bieten grundlegende <b>statistische Diagramme</b> hilfreiche Zusatzinformationen zum gewählten Indikator. <br/><br/> Das obige <b>Histogramm</b> fokussiert die <b>Wertverteilung</b> und zeigt an, wie viele Element der Raumebene in welchem Klassenintervall liegen. <br/>Ein <b>Ranking</b> der Raumebenen-Geometrien wird über das mittlere <b>Säulendiagramm</b> ermöglicht, welches nur für Raumebenen mit einer maximalen Anzahl von 75 Element generiert werden kann. <br/>Das untere <b>Liniendiagramm</b> zeigt schließlich die <b>zeitliche Entwicklung</b> des aktuellen Indikators, in der bereits der Durchschnitt aller Geometrien der Raumebene vorberechnet ist.<br/><br/>Um einzelne Geometrien der gewählten Raumebene im Säulen- und Liniendiagramm zu betrachten und <i>hervorzuheben</i>, kann mit dem <i>Mauszeiger</i> entweder über die <i>Säule innerhalb des Säulendiagramms</i> oder über die jeweilige <i>Geometrie in der Karte</i> gefahren werden. Eine dauerhafte Selektion durch Klicken auf die Geometrie ermöglicht das simultane Betrachten mehrerer Geometrien.<br/><br/>Jedes Diagramm enthält in der oberen rechte Ecke eine <b>Toolbox</b>, über die das Diagramm entweder als <b>Bilddatei</b> oder im <b>Tabellenformat</b> <b>exportiert</b> werden kann.",
 				onNext: function(tour){
 					if($scope.sidebarDiagramsClass !== "hidden"){
 							$("#sidebarDiagramsCollapse").click();
@@ -494,7 +494,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				element: "#sidebarRadarDiagramCollapse",
 				title: "Indikatorenradar",
 				placement: "right",
-				content: "Text.",
+				content: "Ein Klick auf diesen Button öffnet das Indiktorenradar für die Querschnittsbetrachtung mehrerer Indikatoren. <br/><br/>Beim Wechsel auf das nächste Tour-Element wird das Menü automatisch geöffnet.",
 				onNext: function(tour){
 					if($scope.sidebarRadarDiagramClass === "hidden"){
 							$("#sidebarRadarDiagramCollapse").click();
@@ -505,7 +505,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				element: "#indicatorRadar",
 				title: "Indikatorenradar",
 				placement: "right",
-				content: "Text.",
+				content: "Das <b>Indikatorenradar</b> eignet sich insbesondere für die <b>querschnittsorientierte Betrachtung mehrerer Indikatoren<b/>. <br/>Um eine Darstellung zu erzeugen, <i>selektieren Sie bitte mindestens einen Indikator</i> aus der unten stehenden Liste (empfohlen sind mindestens drei, damit ein Raum mit drei Achsen aufgespannt werden kann). <br/>Für jeden gewählten Indikator wird im Diagramm eine Achse genutzt, auf der einzelne Raumebenen-Geometrien anhand ihrer Wertausprägung abgetragen werden. Jede Achse wird dabei durch <b>Minimum und Maximum</b> der Geometrien der betrachteten Raumebene gebildet (daher ist die <b><i>Radarmitte ausdrücklich nicht zwingend mit dem Wert '0' gleichzusetzen, sondern mit dem Minimalwert des Indikators</i></b>). <br/><br/>Auch hier ist der Durchschnitt aller Geometrien bereits vorberechnet und einzelne Geometrien können mittels Selektion in der Karte hinzugefügt werden. <br/><br/> Auch das Radardiagramm in der oberen rechte Ecke eine <b>Toolbox</b>, über die das Diagramm entweder als <b>Bilddatei</b> oder im <b>Tabellenformat</b> <b>exportiert</b> werden kann",
 				onNext: function(tour){
 					if($scope.sidebarRadarDiagramClass !== "hidden"){
 							$("#sidebarRadarDiagramCollapse").click();
@@ -521,7 +521,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				element: "#sidebarRegressionDiagramCollapse",
 				title: "Regressionsdiagramm",
 				placement: "right",
-				content: "Text.",
+				content: "Ein Klick auf diesen Button öffnet Fenster zur Definition von Regressionsdiagrammen. <br/><br/>Beim Wechsel auf das nächste Tour-Element wird das Menü automatisch geöffnet.",
 				onNext: function(tour){
 					if($scope.sidebarRegressionDiagramClass === "hidden"){
 							$("#sidebarRegressionDiagramCollapse").click();
@@ -548,7 +548,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				element: "#sidebarReachabilityCollapse",
 				title: "Erreichbarkeitsanalysen",
 				placement: "right",
-				content: "Text.",
+				content: "Ein Klick auf diesen Button öffnet ein Fenster für Erreichbarkeitsanalysen. <br/><br/>Beim Wechsel auf das nächste Tour-Element wird das Menü automatisch geöffnet.",
 				onNext: function(tour){
 					if($scope.sidebarReachabilityClass === "hidden"){
 							$("#sidebarReachabilityCollapse").click();
@@ -575,7 +575,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				element: "#sidebarProcessingCollapse",
 				title: "Individuelle Indikatoren-Neuberechnung",
 				placement: "right",
-				content: "Text.",
+				content: "Ein Klick auf diesen Button öffnet ein Fenster zur individuellen Neuberechnung einzelner Indikatoren. <br/><br/>Beim Wechsel auf das nächste Tour-Element wird das Menü automatisch geöffnet.",
 				onNext: function(tour){
 					if($scope.sidebarProcessingClass === "hidden"){
 							$("#sidebarProcessingCollapse").click();
