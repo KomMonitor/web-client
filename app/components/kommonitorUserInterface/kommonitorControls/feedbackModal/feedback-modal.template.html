@@ -8,46 +8,57 @@
 				<h4 class="modal-title"><b>Feedback-Formular</b></h4>
 			</div>
 			<div class="modal-body" style="text-align: justify">
-				<p>Text
-				</p>
 
-					<div id="feedbackForm">
+						<!-- <form action="mailto:Thomas.Blasche@amt62.essen.de" method="post"> -->
+						<!-- <form action="mailto:Christian.Danowski-Buhren@hs-bochum.de" method="post"> -->
+						<form>
 
-						<form action="mailto:Thomas.Blasche@amt62.essen.de" method="post">
+								<div align="center" id="feedbackForm">
 
 										<div class="form-group">
 											<label>Titel</label>
-											<input class="form-control" type="text" name="Titel" value="" size="30" maxlength="70" placeholder="Ihr Titel" />
+											<input ng-model="titel" class="form-control" type="text" name="Titel" value="" size="30" maxlength="70" placeholder="Ihr Titel" required/>
 										</div>
 										<div class="form-group">
 											<label>Ihr Fachbereich</label>
-											<input class="form-control" type="text" name="Fachbereich" value="" size="30" maxlength="50" placeholder="Ihr Fachbereich"/>
+											<input ng-model="organization" class="form-control" type="text" name="Fachbereich" value="" size="30" maxlength="50" placeholder="Ihr Fachbereich" required/>
 										</div>
 										<div class="form-group">
-											<label>Ihre Kontaktdetails für Rückfragen</label>
-											<textarea class="form-control" name="Kontaktdaten" rows="4" cols="50" placeholder="Ihre Kontaktdaten"></textarea>
+											<label>Ihre Kontaktdetails f&uumlr R&uumlckfragen</label>
+											<textarea ng-model="contactDetails" class="form-control" name="Kontaktdaten" value="" rows="4" cols="50" placeholder="Ihre Kontaktdaten" required></textarea>
 										</div>
-										<div class="form-group">
-											<label>Art der Anmerkung</label>
+										<div class="form-group radio-custom">
+											<label><b>Art der Anmerkung</b></label>
 											<br/>
-											<label><input class="radio-inline" type="radio" name="Typ" checked>Allgemeines Feedback</label>
-												<label><input class="radio-inline" type="radio" name="Typ">Wunsch nach Funktionalit&auml;t</label>
-												<label><input class="radio-inline" type="radio" name="Typ">Wunsch nach Inhalten</label>
-												<label><input class="radio-inline" type="radio" name="Typ">Fehler in der Anwendung</label>
-												<label><input class="radio-inline" type="radio" name="Typ">Bitte um Gespr&auml;ch</label>
+											<label><input ng-model="feedbackType" value="Frage" class="radio-inline" type="radio" name="Typ">R&uuml;ckfrage</label>
+												<label><input ng-model="feedbackType" value="Wunsch-Funktion" class="radio-inline" type="radio" name="Typ">Wunsch nach Funktionalit&auml;t</label>
+												<label><input ng-model="feedbackType" value="Wunsch-Inhalt" class="radio-inline" type="radio" name="Typ">Wunsch nach Inhalten</label>
+												<label><input ng-model="feedbackType" value="Kritik-an-Anwendung" class="radio-inline" type="radio" name="Typ">Kritik zu Struktur und Bedienung der Web-Oberfl&auml;che</label>
+												<label><input ng-model="feedbackType" value="Fehlermeldung" class="radio-inline" type="radio" name="Typ">Fehler in der Anwendung</label>
+												<label><input ng-model="feedbackType" value="Wunsch-Termin" class="radio-inline" type="radio" name="Typ">Bitte um Gespr&auml;ch</label>
+												<label><input ng-model="feedbackType" value="sonstiges" class="radio-inline" type="radio" name="Typ">sonstiges Feedback</label>
 										</div>
 										<div class="form-group">
 											<label>Ihre Anmerkung</label>
-											<textarea class="form-control" name="Kontaktdaten" rows="6" cols="30" placeholder="Ihre Anmerkung"></textarea>
+											<textarea ng-model="feedbackContent" class="form-control" name="Kontaktdaten" rows="6" cols="30" value="" placeholder="Ihre Anmerkung" required></textarea>
+										</div>
+
+										<div class="form-group radio-custom">
+											<label><b>Wie gef&auml;llt Ihnen KomMonitor bisher?</b></label>
+											<br/>
+											<label><input ng-model="like" value="gut" class="radio-inline" type="radio" name="Bewertung"><span class="glyphicon glyphicon-thumbs-up"></span></label>
+											<label><input ng-model="like" value="schlecht" class="radio-inline" type="radio" name="Bewertung"><span class="glyphicon glyphicon-thumbs-down"></span></label>
 										</div>
 
 										<div align="center">
-											<input class="btn btn-info" type="submit" name="absenden" value="Absenden">
+											<input class="btn btn-info" type="submit" ng-click="onSubmit()" name="absenden" value="Absenden" />
+											<button type="button" class="btn btn-danger" ng-click="reset()">Zur&uuml;cksetzen</button>
+											<p>(<b>Absenden</b> &oumlffnet ein Fenter ihres lokalen Mail-Clients - bspw. eine Outlook-Nachricht - die Sie noch manuell best&aumltigen m&uumlssen.)</p>
 										</div>
 
-						</form>
+								</div>
 
-					</div>
+						</form>
 
 			<div class="modal-footer">
 				<button type="button" class="btn btn-default" data-dismiss="modal">Schlie&szlig;en</button>
