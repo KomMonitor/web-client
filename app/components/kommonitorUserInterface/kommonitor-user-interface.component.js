@@ -505,7 +505,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				element: "#indicatorRadar",
 				title: "Indikatorenradar",
 				placement: "right",
-				content: "Das <b>Indikatorenradar</b> eignet sich insbesondere für die <b>querschnittsorientierte Betrachtung mehrerer Indikatoren<b/>. <br/>Um eine Darstellung zu erzeugen, <i>selektieren Sie bitte mindestens einen Indikator</i> aus der unten stehenden Liste (empfohlen sind mindestens drei, damit ein Raum mit drei Achsen aufgespannt werden kann). <br/>Für jeden gewählten Indikator wird im Diagramm eine Achse genutzt, auf der einzelne Raumebenen-Geometrien anhand ihrer Wertausprägung abgetragen werden. Jede Achse wird dabei durch <b>Minimum und Maximum</b> der Geometrien der betrachteten Raumebene gebildet (daher ist die <b><i>Radarmitte ausdrücklich nicht zwingend mit dem Wert '0' gleichzusetzen, sondern mit dem Minimalwert des Indikators</i></b>). <br/><br/>Auch hier ist der Durchschnitt aller Geometrien bereits vorberechnet und einzelne Geometrien können mittels Selektion in der Karte hinzugefügt werden. <br/><br/> Auch das Radardiagramm in der oberen rechte Ecke eine <b>Toolbox</b>, über die das Diagramm entweder als <b>Bilddatei</b> oder im <b>Tabellenformat</b> <b>exportiert</b> werden kann",
+				content: "Das <b>Indikatorenradar</b> eignet sich insbesondere für die <b>querschnittsorientierte Betrachtung mehrerer Indikatoren<b/>. <br/>Um eine Darstellung zu erzeugen, <i>selektieren Sie bitte mindestens einen Indikator</i> aus der unten stehenden Liste (empfohlen sind mindestens drei, damit ein Raum mit drei Achsen aufgespannt werden kann). <br/>Für jeden gewählten Indikator wird im Diagramm eine Achse genutzt, auf der einzelne Raumebenen-Geometrien anhand ihrer Wertausprägung abgetragen werden. Jede Achse wird dabei durch <b>Minimum und Maximum</b> der Geometrien der betrachteten Raumebene gebildet (daher ist die <b><i>Radarmitte ausdrücklich nicht zwingend mit dem Wert '0' gleichzusetzen, sondern mit dem Minimalwert des Indikators</i></b>). <br/><br/>Auch hier ist der Durchschnitt aller Geometrien bereits vorberechnet und einzelne Geometrien können mittels Selektion in der Karte hinzugefügt werden. <br/><br/> Auch das Radardiagramm besitzt in der oberen rechte Ecke eine <b>Toolbox</b>, über die das Diagramm entweder als <b>Bilddatei</b> oder im <b>Tabellenformat</b> <b>exportiert</b> werden kann",
 				onNext: function(tour){
 					if($scope.sidebarRadarDiagramClass !== "hidden"){
 							$("#sidebarRadarDiagramCollapse").click();
@@ -532,7 +532,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				element: "#indicatorRegression",
 				title: "Regressionsdiagramm",
 				placement: "right",
-				content: "Text.",
+				content: "Als exemplarischer weiterer Diagrammtyp unterstützt KomMonitor die Berechnung einer <b>linearen Regression</b> zwischen zwei zu wählenden Indikatoren, um insbesondere die <b>Korrelation</b> zwischen diesen zu bestimmen. Nach Auswahl der Indikatoren werden die Regressionsgerade und alle Elemente der gewählten Raumebene gemäß ihrer Wertausprägungen entlang der Indikatorenachsen im Diagramm abgetragen. <br/><br/>Beim Überfahren eines Datenpunkts mit der Maus im Diagramm oder einer in der Karte dargestellten Geometrie, wird das jeweilige Pendant visuell hervorgehoben.<br/><br/> Auch das Regressionsdiagramm besitzt in der oberen rechte Ecke eine <b>Toolbox</b>, über die das Diagramm entweder als <b>Bilddatei</b> oder im <b>Tabellenformat</b> <b>exportiert</b> werden kann.",
 				onNext: function(tour){
 					if($scope.sidebarRegressionDiagramClass !== "hidden"){
 							$("#sidebarRegressionDiagramCollapse").click();
@@ -559,7 +559,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				element: "#kommonitorReachability",
 				title: "Erreichbarkeitsanalysen",
 				placement: "right",
-				content: "Text.",
+				content: "Als GIS-basiertes Werkzeug soll KomMonitor ausgewählte <b>räumliche Analysen</b> unterstützen. Insbesondere stehen <b>Erreichbarkeitsanalysen</b> im Fokus, bei denen, neben reinen <i>Puffer-basierten Ansätzen</i>, <b>Erreichbarkeiten anhand tatsächlicher Wegenetze</b> für verschiedenen <b>Transportmittel (z.B. Fußgänger, Fahrrad, Auto)</b> zu berechnen sind. Konkret soll hierbei sowohl ein <b>Routing</b> zwischen einzelnen Punkten sowie die Berechnung von <b>Isochronen (Äquidistanzen und zeitliches Abbruchkriterium)</b> angeboten werden.<br/><br/>Derzeit sind lediglich ausgewählte, vordefinierte Berechnungen durchführbar. Frei definierbare Erreichbarkeitsanalysen folgen demnächst.",
 				onNext: function(tour){
 					if($scope.sidebarReachabilityClass !== "hidden"){
 							$("#sidebarReachabilityCollapse").click();
@@ -586,7 +586,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				element: "#indicatorProcessing",
 				title: "Individuelle Indikatoren-Neuberechnung",
 				placement: "right",
-				content: "Text.",
+				content: "KomMonitor ist mehr als nur ein Darstellungswerkzeug. Es ermöglicht insbesondere auch die <b>automatisierte Berechnung von Indikatoren</b>. Je nach Berechnungsvorschrift kann es dabei <b>konfigurierbare Parameter</b> geben, die die <i>resultierenden Indikatorenwerte beeinflussen</i> (bspw. eine maximle Distanz bei Erreichbarkeiten oder Gewichtungen grundlegender Eingangsdaten). <br/><br/>Dieses Menü bietet die Möglichkeit einer <b>Nutzer-individualisierten Neu-Berechnung von Indikatoren</b> mit mindestens einem solchen konfigurierbaren Indikator. Experten können hiermit verschiedene <i>Szenarien</i> testen, indem die Berechnung mit verschiedenen Parameter-Einstellungen wiederholt wird. <br/>Das jeweilige Ergebnis steht temporär zur Verfügung und kann bei Bedarf exportiert werden.",
 				onNext: function(tour){
 					if($scope.sidebarProcessingClass !== "hidden"){
 							$("#sidebarProcessingCollapse").click();
