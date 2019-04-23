@@ -465,33 +465,138 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			},
 			{
 				element: "#sidebarDiagramsCollapse",
-				title: "Text",
+				title: "Klassische statistische Diagramme",
 				placement: "right",
-				content: "Text."
+				content: "Text.",
+				onNext: function(tour){
+					if($scope.sidebarDiagramsClass === "hidden"){
+							$("#sidebarDiagramsCollapse").click();
+					}
+				}
+			},
+			{
+				element: "#kommonitorDiagrams",
+				title: "Klassische statistische Diagramme",
+				placement: "right",
+				content: "Text.",
+				onNext: function(tour){
+					if($scope.sidebarDiagramsClass !== "hidden"){
+							$("#sidebarDiagramsCollapse").click();
+					}
+				},
+				onPrev: function(tour){
+					if($scope.sidebarDiagramsClass !== "hidden"){
+							$("#sidebarDiagramsCollapse").click();
+					}
+				}
 			},
 			{
 				element: "#sidebarRadarDiagramCollapse",
-				title: "Text",
+				title: "Indikatorenradar",
 				placement: "right",
-				content: "Text."
+				content: "Text.",
+				onNext: function(tour){
+					if($scope.sidebarRadarDiagramClass === "hidden"){
+							$("#sidebarRadarDiagramCollapse").click();
+					}
+				}
+			},
+			{
+				element: "#indicatorRadar",
+				title: "Indikatorenradar",
+				placement: "right",
+				content: "Text.",
+				onNext: function(tour){
+					if($scope.sidebarRadarDiagramClass !== "hidden"){
+							$("#sidebarRadarDiagramCollapse").click();
+					}
+				},
+				onPrev: function(tour){
+					if($scope.sidebarRadarDiagramClass !== "hidden"){
+							$("#sidebarRadarDiagramCollapse").click();
+					}
+				}
 			},
 			{
 				element: "#sidebarRegressionDiagramCollapse",
-				title: "Text",
+				title: "Regressionsdiagramm",
 				placement: "right",
-				content: "Text."
+				content: "Text.",
+				onNext: function(tour){
+					if($scope.sidebarRegressionDiagramClass === "hidden"){
+							$("#sidebarRegressionDiagramCollapse").click();
+					}
+				}
+			},
+			{
+				element: "#indicatorRegression",
+				title: "Regressionsdiagramm",
+				placement: "right",
+				content: "Text.",
+				onNext: function(tour){
+					if($scope.sidebarRegressionDiagramClass !== "hidden"){
+							$("#sidebarRegressionDiagramCollapse").click();
+					}
+				},
+				onPrev: function(tour){
+					if($scope.sidebarRegressionDiagramClass !== "hidden"){
+							$("#sidebarRegressionDiagramCollapse").click();
+					}
+				}
 			},
 			{
 				element: "#sidebarReachabilityCollapse",
-				title: "Text",
+				title: "Erreichbarkeitsanalysen",
 				placement: "right",
-				content: "Text."
+				content: "Text.",
+				onNext: function(tour){
+					if($scope.sidebarReachabilityClass === "hidden"){
+							$("#sidebarReachabilityCollapse").click();
+					}
+				}
+			},
+			{
+				element: "#kommonitorReachability",
+				title: "Erreichbarkeitsanalysen",
+				placement: "right",
+				content: "Text.",
+				onNext: function(tour){
+					if($scope.sidebarReachabilityClass !== "hidden"){
+							$("#sidebarReachabilityCollapse").click();
+					}
+				},
+				onPrev: function(tour){
+					if($scope.sidebarReachabilityClass !== "hidden"){
+							$("#sidebarReachabilityCollapse").click();
+					}
+				}
 			},
 			{
 				element: "#sidebarProcessingCollapse",
-				title: "Text",
+				title: "Individuelle Indikatoren-Neuberechnung",
 				placement: "right",
-				content: "Text."
+				content: "Text.",
+				onNext: function(tour){
+					if($scope.sidebarProcessingClass === "hidden"){
+							$("#sidebarProcessingCollapse").click();
+					}
+				}
+			},
+			{
+				element: "#indicatorProcessing",
+				title: "Individuelle Indikatoren-Neuberechnung",
+				placement: "right",
+				content: "Text.",
+				onNext: function(tour){
+					if($scope.sidebarProcessingClass !== "hidden"){
+							$("#sidebarProcessingCollapse").click();
+					}
+				},
+				onPrev: function(tour){
+					if($scope.sidebarProcessingClass !== "hidden"){
+							$("#sidebarProcessingCollapse").click();
+					}
+				}
 			}
 		]};
 
