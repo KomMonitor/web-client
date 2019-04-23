@@ -234,6 +234,7 @@
 #header{
 	background: #E6EEFB;
 	z-index: 2000;
+	border-bottom: 2px solid gray;
 }
 
 #content{
