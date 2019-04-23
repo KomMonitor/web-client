@@ -4,7 +4,7 @@ angular.module('feedbackModal').component('feedbackModal', {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
-		$scope.titel;
+		// $scope.titel;
 		$scope.organization;
 		$scope.contactDetails;
 		$scope.feedbackType = "Frage";
@@ -12,8 +12,8 @@ angular.module('feedbackModal').component('feedbackModal', {
 		$scope.like = "gut";
 
 		$scope.onSubmit = function(){
-				var body = "Titel:  " + $scope.titel + "\n";
-				body += "Fachbereich/Organisation:  " + $scope.organization + "\n\n";
+				// var body = "Titel:  " + $scope.titel + "\n";
+				var body = "Fachbereich/Organisation:  " + $scope.organization + "\n\n";
 				body += "Kontaktdaten:  " + $scope.contactDetails + "\n\n";
 				body += "Feedback Typ:  " + $scope.feedbackType + "\n\n";
 				body += "Feedback Inhalt:  " + $scope.feedbackContent + "\n\n";
@@ -38,14 +38,13 @@ angular.module('feedbackModal').component('feedbackModal', {
 		}
 
 		$scope.validate = function(){
-			if ($scope.titel && $scope.organization && $scope.contactDetails && $scope.feedbackType && $scope.feedbackContent && $scope.like){
+			if ($scope.feedbackType && $scope.feedbackContent && $scope.like){
 				return true;
 			}
 			return false;
 		}
 
 		$scope.reset = function(){
-			$scope.titel = undefined;
 			$scope.organization = undefined;
 			$scope.contactDetails = undefined;
 			$scope.feedbackType = "Frage";
