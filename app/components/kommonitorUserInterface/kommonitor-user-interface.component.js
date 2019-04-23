@@ -454,7 +454,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				content: "Bei der zeitlichen Bilanzierung steht die <b>Wertentwicklung eines Indikators</b> über die Zeit im Fokus (Wachstum / Schrumpfung). Wird die Bilanzierung mittels der entsprehenden <b>Checkbox</b> aktiviert, so kann über die Zeitleiste ein <b>Zeitraum</b> spezifiziert werden, für den die Wertentwicklung berechnet und dargestellt werden soll. <br/><br/>Die Indikatoren-Legende am unteren rechten Rand der Anwendung zeigt über dies textuell an, ob die Bilanz des Indikators dargestellt wird.<br/><br/>Bitte bachten Sie, dass bei Indikatoren mit nur einem Zeitschnitt eine Bilanzierung zwar technisch möglich ist, aber für alle Geometrien der Raumebene den Wert '0' resultiert.",
 				onNext: function(tour){
 					if($scope.sidebarBalanceClass !== "hidden"){
-							$("#sidebarFilterCollapse").click();
+							$("#sidebarBalanceCollapse").click();
 					}
 				},
 				onPrev: function(tour){
