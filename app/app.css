@@ -19,6 +19,13 @@
 	height: 100%;
 }
 
+#feedbackForm {
+	padding: 5px;
+	overflow: auto;
+	border: 2px solid rgb(91,192,222);
+  border-radius: 8px;
+}
+
 #infoModal {
 	z-index: 9999;
 	overflow: auto;
@@ -514,6 +521,7 @@
 
 
 #radarInputForm {
+	padding: 5px;
 	height: auto;
 	max-height: 190px;
 	border: 2px solid gray;

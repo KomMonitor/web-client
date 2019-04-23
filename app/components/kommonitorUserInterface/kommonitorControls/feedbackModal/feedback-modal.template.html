@@ -1,0 +1,58 @@
+<div class="modal fade" id="feedbackModal" role="dialog">
+	<div class="modal-dialog modal-lg">
+
+		<!-- Modal content-->
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4 class="modal-title"><b>Feedback-Formular</b></h4>
+			</div>
+			<div class="modal-body" style="text-align: justify">
+				<p>Text
+				</p>
+
+					<div id="feedbackForm">
+
+						<form action="mailto:Thomas.Blasche@amt62.essen.de" method="post">
+
+										<div class="form-group">
+											<label>Titel</label>
+											<input class="form-control" type="text" name="Titel" value="" size="30" maxlength="70" placeholder="Ihr Titel" />
+										</div>
+										<div class="form-group">
+											<label>Ihr Fachbereich</label>
+											<input class="form-control" type="text" name="Fachbereich" value="" size="30" maxlength="50" placeholder="Ihr Fachbereich"/>
+										</div>
+										<div class="form-group">
+											<label>Ihre Kontaktdetails für Rückfragen</label>
+											<textarea class="form-control" name="Kontaktdaten" rows="4" cols="50" placeholder="Ihre Kontaktdaten"></textarea>
+										</div>
+										<div class="form-group">
+											<label>Art der Anmerkung</label>
+											<br/>
+											<label><input class="radio-inline" type="radio" name="Typ" checked>Allgemeines Feedback</label>
+												<label><input class="radio-inline" type="radio" name="Typ">Wunsch nach Funktionalit&auml;t</label>
+												<label><input class="radio-inline" type="radio" name="Typ">Wunsch nach Inhalten</label>
+												<label><input class="radio-inline" type="radio" name="Typ">Fehler in der Anwendung</label>
+												<label><input class="radio-inline" type="radio" name="Typ">Bitte um Gespr&auml;ch</label>
+										</div>
+										<div class="form-group">
+											<label>Ihre Anmerkung</label>
+											<textarea class="form-control" name="Kontaktdaten" rows="6" cols="30" placeholder="Ihre Anmerkung"></textarea>
+										</div>
+
+										<div align="center">
+											<input class="btn btn-info" type="submit" name="absenden" value="Absenden">
+										</div>
+
+						</form>
+
+					</div>
+
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Schlie&szlig;en</button>
+			</div>
+		</div>
+
+	</div>
+</div>

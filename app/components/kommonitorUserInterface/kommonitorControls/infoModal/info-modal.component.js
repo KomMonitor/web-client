@@ -11,5 +11,10 @@ angular.module('infoModal').component('infoModal', {
 			$rootScope.$broadcast("startGuidedTour");
 		};
 
+		$scope.showFeedbackForm = function(){
+			$('#infoModal').modal('hide');
+			$('#feedbackModal').modal('show');
+		};
+
 	}
 ]});
