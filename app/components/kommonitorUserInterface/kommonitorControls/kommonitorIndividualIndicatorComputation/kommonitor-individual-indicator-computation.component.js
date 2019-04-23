@@ -4,8 +4,8 @@ angular
 				'kommonitorIndividualIndicatorComputation',
 				{
 					templateUrl : "components/kommonitorUserInterface/kommonitorControls/kommonitorIndividualIndicatorComputation/kommonitor-individual-indicator-computation.template.html",
-					controller : ['kommonitorDataExchangeService', '$scope', '$http','kommonitorMapService', '__env', function kommonitorIndividualIndicatorComputationController(
-							kommonitorDataExchangeService, $scope, $http, kommonitorMapService, __env) {
+					controller : ['kommonitorDataExchangeService', '$rootScope', '$scope', '$http','kommonitorMapService', '__env', function kommonitorIndividualIndicatorComputationController(
+							kommonitorDataExchangeService, $rootScope, $scope, $http, kommonitorMapService, __env) {
 
 						this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
@@ -305,6 +305,9 @@ angular
 							if(!$scope.targetSpatialUnit){
 								$scope.targetSpatialUnit = $scope.getFirstSpatialUnitForSelectedIndicator();
 							}
+
+							// modify guidedTour if required
+							$rootScope.$broadcast("redrawGuidedTourElement");
 
 						};
 
