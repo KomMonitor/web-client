@@ -32,6 +32,9 @@
   window.__env.minZoomLevel = 1;
   window.__env.maxZoomLevel = 19;
 
+  window.__env.initialIndicatorId = "d6f447c1-5432-4405-9041-7d5b05fd9ece";
+  window.__env.initialSpatialUnitName = "Stadtteilebene";
+
 
   window.__env.defaultColorForHoveredFeatures = "#e01414";
   window.__env.defaultColorForClickedFeatures = "#42e5f4";
