@@ -372,6 +372,14 @@ angular.module('kommonitorMap').component(
 
                     $scope.makeInfoControl = function(date, isCustomComputation){
 
+                      if(!$scope.showInfoControl){
+                        try{
+                          toggleInfoControl();
+                        }
+                        catch(error){
+                        }
+                      }
+
                       if($scope.infoControl){
                         try{
                           $scope.map.removeControl($scope.infoControl);
@@ -419,6 +427,14 @@ angular.module('kommonitorMap').component(
                     }
 
                     $scope.makeCustomInfoControl = function(date){
+
+                      if(!$scope.showInfoControl){
+                        try{
+                          toggleInfoControl();
+                        }
+                        catch(error){
+                        }
+                      }
 
                       if($scope.infoControl){
                         try{
@@ -541,6 +557,14 @@ angular.module('kommonitorMap').component(
 
                     $scope.makeDefaultLegend = function(defaultClassificationMapping){
 
+                      if(!$scope.showLegendControl){
+                        try{
+                          toggleLegendControl();
+                        }
+                        catch(error){
+                        }
+                      }
+
                       if($scope.legendControl){
                         try{
                           $scope.map.removeControl($scope.legendControl);
@@ -624,6 +648,14 @@ angular.module('kommonitorMap').component(
                     }
 
                     $scope.makeDynamicIndicatorLegend = function(){
+
+                      if(!$scope.showLegendControl){
+                        try{
+                          toggleLegendControl();
+                        }
+                        catch(error){
+                        }
+                      }
 
                       if($scope.legendControl){
                         try{
@@ -719,6 +751,14 @@ angular.module('kommonitorMap').component(
                     }
 
                     $scope.makeMeasureOfValueLegend = function(){
+
+                      if(!$scope.showLegendControl){
+                        try{
+                          toggleLegendControl();
+                        }
+                        catch(error){
+                        }
+                      }
 
                       if($scope.legendControl){
                         try{
