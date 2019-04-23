@@ -137,11 +137,11 @@ angular.module('kommonitorMap').component(
 
 
                       // create OSM tile layer with correct attribution
-                      var osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+                      var osmUrl='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
                       var osmAttrib='Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
                       var osm = new L.TileLayer(osmUrl, {minZoom: __env.minZoomLevel, maxZoom: __env.maxZoomLevel, attribution: osmAttrib});
 
-                      var osm_blackWhite = L.tileLayer('http://{s}.www.toolserver.org/tiles/bw-mapnik/{z}/{x}/{y}.png', {minZoom: 1, maxZoom: 19, attribution: osmAttrib});
+                      var osm_blackWhite = L.tileLayer('https://www.toolserver.org/tiles/bw-mapnik/{z}/{x}/{y}.png', {minZoom: 1, maxZoom: 19, attribution: osmAttrib});
 
                       var wmsLayerRVR = L.tileLayer.wms('https://geodaten.metropoleruhr.de/spw2?', {
                           layers: 'stadtplan_rvr'
