@@ -533,7 +533,7 @@ angular.module('kommonitorMap').component(
                       }
                       innerHTMLString += ">";
 
-                      innerHTMLString += '<b>Indikator transparent darstellen</b>';
+                      innerHTMLString += '<b>Indikator semi-transparent darstellen</b>';
                       innerHTMLString += '</label>';
 
                       return innerHTMLString;
