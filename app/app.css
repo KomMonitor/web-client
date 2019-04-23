@@ -23,6 +23,10 @@
 	font-weight: unset;
 }
 
+.tour-backdrop {
+	opacity: 0.6;
+}
+
 #feedbackForm {
 	padding: 5px;
 	overflow: auto;
