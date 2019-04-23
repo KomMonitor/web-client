@@ -26,6 +26,10 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 		$scope.buttonReachabilityClass = "btn btn-custom btn-circle";
 		$scope.buttonPoiClass = "btn btn-custom btn-circle";
 
+		function sleep(ms) {
+			return new Promise(resolve => setTimeout(resolve, ms));
+		}
+
 		$scope.undockButtons = function(){
 			$scope.buttonIndicatorConfigClass = "btn btn-custom btn-circle";
 			$scope.buttonDiagramsClass = "btn btn-custom btn-circle";
@@ -88,6 +92,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			}
 
 			$rootScope.$broadcast("refreshIndicatorValueRangeSlider");
+			$rootScope.$broadcast("redrawGuidedTourElement");
 
 		}
 
@@ -111,6 +116,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			}
 
 			$rootScope.$broadcast("refreshIndicatorValueRangeSlider");
+			$rootScope.$broadcast("redrawGuidedTourElement");
 
 		}
 
@@ -134,6 +140,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			}
 
 			$rootScope.$broadcast("refreshIndicatorValueRangeSlider");
+			$rootScope.$broadcast("redrawGuidedTourElement");
 
 		}
 
@@ -164,6 +171,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				}
 
 				$rootScope.$broadcast("refreshIndicatorValueRangeSlider");
+				$rootScope.$broadcast("redrawGuidedTourElement");
 			}
 		}
 
@@ -187,6 +195,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			}
 
 			$rootScope.$broadcast("refreshIndicatorValueRangeSlider");
+			$rootScope.$broadcast("redrawGuidedTourElement");
 
 		}
 
@@ -208,6 +217,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			}
 
 			$rootScope.$broadcast("refreshIndicatorValueRangeSlider");
+			$rootScope.$broadcast("redrawGuidedTourElement");
 		}
 
 		$scope.onSidebarRadarDiagramClick = function(){
@@ -228,6 +238,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			}
 
 			$rootScope.$broadcast("refreshIndicatorValueRangeSlider");
+			$rootScope.$broadcast("redrawGuidedTourElement");
 		}
 
 		$scope.onSidebarProcessingClick = function(){
@@ -248,6 +259,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			}
 
 			$rootScope.$broadcast("refreshIndicatorValueRangeSlider");
+			$rootScope.$broadcast("redrawGuidedTourElement");
 		}
 
 		$scope.onSidebarRegressionDiagramClick = function(){
@@ -268,6 +280,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			}
 
 			$rootScope.$broadcast("refreshIndicatorValueRangeSlider");
+			$rootScope.$broadcast("redrawGuidedTourElement");
 		}
 
 		$scope.onRecenterMapButtonClick = function(){
@@ -295,6 +308,9 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			backdrop: true,
 			backdropContainer: "body",
 			smartPlacement: false,
+			onEnd: function(tour){
+				kommonitorDataExchangeService.guidedTour = undefined;
+			},
 			// template: "<div class='popover tour'><div class='arrow'></div><h3 class='popover-title'></h3><div class='popover-content'></div><div class='popover-navigation'><div class='btn-group'>    <button class='btn btn-default' data-role='prev'>« Prev</button>    <span data-role='separator'>|</span>    <button class='btn btn-default' data-role='next'>Next »</button></div>	</div><button class='btn btn-default' data-role='end'>End tour</button></div>",
 			steps: [
 			{
@@ -343,25 +359,73 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				element: "#sidebarIndicatorConfigCollapse",
 				title: "Indikatorenkatalog und Verknüpfungen zu anderen Indikatoren oder Geodaten",
 				placement: "right",
-				content: "Dieses Menü enthält eine <b>Übersicht verfügbarer Indikatoren</b> sowie der Option, den derzeitig betrachteten <b>Indikator zu wechseln</b> oder den Indikator in der gewählten Raumebene zu <b>exportieren</b> (derzeitg nur eingeschränkte Download-Optionen). Im obigen <b>Themenfilter</b> kann die Übersicht der Indikatoren je nach Thema gefiltert werden. Sollte ein Indikator etwaige <b>Verknüpfungen</b> zu anderen Indikatoren oder sonstigen Geodaten beinhalten, so werden diese in tabellarischer Form kenntlich gemacht."
+				content: "Ein Klick auf diesen Button öffnet das Indikatoren-Auswahl-Fenster. Beim Wechsel auf das nächste Tour-Element wird das Menü automatisch geöffnet.",
+				onNext: function(tour){
+					$("#sidebarIndicatorConfigCollapse").click();
+				},
+			},
+			{
+				element: "#indicatorSetup",
+				title: "Indikatorenkatalog und Verknüpfungen zu anderen Indikatoren oder Geodaten",
+				placement: "right",
+				content: "Dieses Menü enthält eine <b>Übersicht verfügbarer Indikatoren</b> sowie der Option, den derzeitig betrachteten <b>Indikator zu wechseln</b> oder den Indikator in der gewählten Raumebene zu <b>exportieren</b> (derzeitg nur eingeschränkte Download-Optionen). Im obigen <b>Themenfilter</b> kann die Übersicht der Indikatoren je nach Thema gefiltert werden. Sollte ein Indikator etwaige <b>Verknüpfungen</b> zu anderen Indikatoren oder sonstigen Geodaten beinhalten, so werden diese in tabellarischer Form kenntlich gemacht.",
+				onNext: function(tour){
+					$("#sidebarIndicatorConfigCollapse").click();
+				},
+				onPrev: function(tour){
+					$("#sidebarIndicatorConfigCollapse").click();
+				}
 			},
 			{
 				element: "#sidebarPoiCollapse",
 				title: "Points of Interest",
 				placement: "right",
-				content: "Zur Überlagerung von flächenhaften Indikator-Geometrien mit weiteren relevanten Geodaten können hier sogenannte <b>Points of Interest (POI) Layer</b> zur Karte hinzugefügt werden. Hinzufügen und Entfernen der POI-Layer geschieht dabei intuitiv durch <i>Checkboxes</i>. In der Standardkonfiguration werden die einzelnen Punktgeometrien räumlich zu sogenannten <b>Cluster-Punkten</b> zusammengefasst, um die Darstellung je nach Zoom-Stufe zu optimieren. Über eine entsprechende <i>Auswahloption</i> können jedoch bei jeder Zoomstufe auch <b>alle Einzelpunkte dargestellt</b> werden."
+				content: "Ein Klick auf diesen Button öffnet das Point of Interest Fenster. Beim Wechsel auf das nächste Tour-Element wird das Menü automatisch geöffnet.",
+				onNext: function(tour){
+					$("#sidebarPoiCollapse").click();
+				}
+			},
+			{
+				element: "#poi",
+				title: "Points of Interest",
+				placement: "right",
+				content: "Zur Überlagerung von flächenhaften Indikator-Geometrien mit weiteren relevanten Geodaten können hier sogenannte <b>Points of Interest (POI) Layer</b> zur Karte hinzugefügt werden. Hinzufügen und Entfernen der POI-Layer geschieht dabei intuitiv durch <i>Checkboxes</i>. In der Standardkonfiguration werden die einzelnen Punktgeometrien räumlich zu sogenannten <b>Cluster-Punkten</b> zusammengefasst, um die Darstellung je nach Zoom-Stufe zu optimieren. Über eine entsprechende <i>Auswahloption</i> können jedoch bei jeder Zoomstufe auch <b>alle Einzelpunkte dargestellt</b> werden.",
+				onNext: function(tour){
+					$("#sidebarPoiCollapse").click();
+				},
+				onPrev: function(tour){
+					$("#sidebarPoiCollapse").click();
+				}
 			},
 			{
 				element: "#sidebarFilterCollapse",
 				title: "Darstellungsfilter",
 				placement: "right",
-				content: "Hier können verschiedene <b>Darstellungsfilter</b> angewendet werden, die sich auf die <i>kartographische Darstellung</i> auswirken. Darüber können je nach Fragestellung die Raumebenen-Geometrien (z.B. Stadtteile) auf diejenigen eingeschränkt werden, die zur Beantwortung der Fragestellung beitragen. <br/><br/>Ein besonderer Filter ist die <b>dynamische Schwellwetklassifizierung</b>, bei der ein spezifischer <b>Trennwert</b> angegeben werden kann, der die Indikator-Features in zwei Gruppen einteilt, größer und kleiner dem Trennwert, die in der kartographischen Darstellung entsprechendend klassifiziert werden. Dieser Filtertyp eignet sich besonders bei Fragestellungen, bei denen Features identifiziert werden sollen, die einen bestimmten Zielgrad erreichen / nicht erreichen (z.B. Versorgungsquoten)."
+				content: "Ein Klick auf diesen Button öffnet ein Fenster zur Definition von Darstellungsfiltern. Beim Wechsel auf das nächste Tour-Element wird das Menü automatisch geöffnet.",
+				onNext: function(tour){
+					$("#sidebarFilterCollapse").click();
+				}
+			},
+			{
+				element: "#kommonitorFilter",
+				title: "Darstellungsfilter",
+				placement: "right",
+				content: "Hier können verschiedene <b>Darstellungsfilter</b> angewendet werden, die sich auf die <i>kartographische Darstellung</i> auswirken. Darüber können je nach Fragestellung die Raumebenen-Geometrien (z.B. Stadtteile) auf diejenigen eingeschränkt werden, die zur Beantwortung der Fragestellung beitragen. <br/><br/>Ein besonderer Filter ist die <b>dynamische Schwellwetklassifizierung</b>, bei der ein spezifischer <b>Trennwert</b> angegeben werden kann, der die Indikator-Features in zwei Gruppen einteilt, größer und kleiner dem Trennwert, die in der kartographischen Darstellung entsprechendend klassifiziert werden. Dieser Filtertyp eignet sich besonders bei Fragestellungen, bei denen Features identifiziert werden sollen, die einen bestimmten Zielgrad erreichen / nicht erreichen (z.B. Versorgungsquoten).",
+				onNext: function(tour){
+					$("#sidebarFilterCollapse").click();
+				},
+				onPrev: function(tour){
+					$("#sidebarFilterCollapse").click();
+				}
 			},
 			{
 				element: "#sidebarBalanceCollapse",
 				title: "Um die zeitliche Entwicklung",
 				placement: "right",
-				content: "Text."
+				content: "Text.",
+				onNext: function(tour){
+					$("#sidebarBalanceCollapse").click();
+				}
 			},
 			{
 				element: "#sidebarDiagramsCollapse",
@@ -410,6 +474,15 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 					kommonitorDataExchangeService.guidedTour.start(true);
 			}
 		};
+
+		$scope.$on("redrawGuidedTourElement", async function(event){
+
+			await sleep(100);
+
+			if(kommonitorDataExchangeService.guidedTour){
+				kommonitorDataExchangeService.guidedTour.redraw();
+			}
+		});
 
 	}
 ]});
