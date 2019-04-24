@@ -40,7 +40,7 @@
   window.__env.defaultColorForClickedFeatures = "#42e5f4";
   window.__env.defaultColorForZeroValues = "#a6a6a6";
   window.__env.defaultBorderColor = "black";
-  window.__env.defaultColorForFilteredValues = "white";
+  window.__env.defaultColorForFilteredValues = "rgba(255,255,255,0)";
   window.__env.defaultBorderColorForFilteredValues = "black";
   window.__env.defaultFillOpacity = "0.7";
   window.__env.defaultFillOpacityForFilteredFeatures = "0.2";
