@@ -39,7 +39,9 @@ module.exports = {
           { from: './customizedExternalLibs/leaflet-groupedlayercontrol/leaflet.groupedlayercontrol.min.css', to: 'leaflet-groupedlayercontrol' },
           { from: nodeModulePathConstant + '@turf/turf/turf.min.js', to: 'turf' },
           { from: nodeModulePathConstant + 'bootstrap-tour/build/css/bootstrap-tour.min.css', to: 'bootstrap-tour' },
-          { from: nodeModulePathConstant + 'bootstrap-tour/build/js/bootstrap-tour.min.js', to: 'bootstrap-tour' }
+          { from: nodeModulePathConstant + 'bootstrap-tour/build/js/bootstrap-tour.min.js', to: 'bootstrap-tour' },
+          { from: nodeModulePathConstant + 'jspdf/dist/jspdf.min.js', to: 'jspdf' },
+          { from: nodeModulePathConstant + 'jspdf-autotable/dist/jspdf.plugin.autotable.min.js', to: 'jspdf-autotable' }
       ])
     ]
 };
