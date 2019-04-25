@@ -33,17 +33,20 @@
   window.__env.minZoomLevel = 1;
   window.__env.maxZoomLevel = 19;
 
+  window.__env.initialIndicatorId = "d6f447c1-5432-4405-9041-7d5b05fd9ece";
+  window.__env.initialSpatialUnitName = "Stadtteilebene";
+
 
   window.__env.defaultColorForHoveredFeatures = "#e01414";
   window.__env.defaultColorForClickedFeatures = "#42e5f4";
   window.__env.defaultColorForZeroValues = "#a6a6a6";
   window.__env.defaultBorderColor = "black";
-  window.__env.defaultColorForFilteredValues = "white";
+  window.__env.defaultColorForFilteredValues = "rgba(255,255,255,0)";
   window.__env.defaultBorderColorForFilteredValues = "black";
-  window.__env.defaultFillOpacity = "0.6";
+  window.__env.defaultFillOpacity = "0.7";
   window.__env.defaultFillOpacityForFilteredFeatures = "0.2";
-  window.__env.defaultFillOpacityForZeroFeatures = "0.6";
-  window.__env.defaultFillOpacityForHighlightedFeatures = "0.7";
+  window.__env.defaultFillOpacityForZeroFeatures = "0.7";
+  window.__env.defaultFillOpacityForHighlightedFeatures = "0.8";
   window.__env.useTransparencyOnIndicator = true;
   //allowesValues: equal_interval, quantile, jenks
   window.__env.defaultClassifyMethod = "equal_interval";
@@ -52,6 +55,8 @@
   window.__env.defaultColorBrewerPaletteForBalanceDecreasingValues = "Blues";
   window.__env.defaultColorBrewerPaletteForGtMovValues = "Oranges";
   window.__env.defaultColorBrewerPaletteForLtMovValues = "Purples";
+
+  window.__env.feedbackMailRecipient = "thomas.blasche@amt62.essen.de";
 
 
 

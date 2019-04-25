@@ -137,83 +137,35 @@ angular.module('kommonitorMap').component(
 
 
                       // create OSM tile layer with correct attribution
-                      var osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+                      var osmUrl='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
                       var osmAttrib='Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
                       var osm = new L.TileLayer(osmUrl, {minZoom: __env.minZoomLevel, maxZoom: __env.maxZoomLevel, attribution: osmAttrib});
-                      // osm.StyledLayerControl = {
-                    	// 	removable : false,
-                    	// 	visible : false
-                    	// };
 
-                      var osm_blackWhite = L.tileLayer('http://{s}.www.toolserver.org/tiles/bw-mapnik/{z}/{x}/{y}.png', {minZoom: 1, maxZoom: 19, attribution: osmAttrib});
-                      // osm_blackWhite.StyledLayerControl = {
-                    	// 	removable : false,
-                    	// 	visible : true
-                    	// };
+                      var osm_blackWhite = L.tileLayer('https://www.toolserver.org/tiles/bw-mapnik/{z}/{x}/{y}.png', {minZoom: 1, maxZoom: 19, attribution: osmAttrib});
 
                       var wmsLayerRVR = L.tileLayer.wms('https://geodaten.metropoleruhr.de/spw2?', {
                           layers: 'stadtplan_rvr'
                       });
-                      // wmsLayerRVR.StyledLayerControl = {
-                    	// 	removable : false,
-                    	// 	visible : false
-                    	// };
+                      var wmsLayerDTK = L.tileLayer.wms('https://www.wms.nrw.de/geobasis/wms_nw_dtk?', {
+                          layers: 'nw_dtk_pan'
+                      });
+                      var wmsLayerDOP = L.tileLayer.wms('https://www.wms.nrw.de/geobasis/wms_nw_dop?', {
+                          layers: 'nw_dop_rgb'
+                      });
 
-                      // osm_blackWhite.addTo($scope.baseMapLayers);
-                      // osm.addTo($scope.baseMapLayers);
-                      // wmsLayerRVR.addTo($scope.baseMapLayers);
-
-                      // $scope.map = L.map('map').setView([51.4386432, 7.0115552], 12);
                       $scope.map = L.map('map', {
                           center: [$scope.latCenter, $scope.lonCenter],
                           zoom: $scope.zoomLevel,
                           layers: [osm_blackWhite]
                       });
 
-                      // var osmBaseMapGroup = {};
-                      // osmBaseMapGroup.groupName = "Basiskarten";
-                      // osmBaseMapGroup.expanded = true;
-                      // osmBaseMapGroup.layers = {};
-                      // osmBaseMapGroup.layers["RVR Stadtplan"] = wmsLayerRVR;
-                      // osmBaseMapGroup.layers["OpenStreetMap - Graustufen"] = osm_blackWhite;
-                      // osmBaseMapGroup.layers["OpenStreetMap"] = osm;
-
-                      // $scope.baseMaps.push(osmBaseMapGroup);
                       $scope.baseMaps = {
                         "OpenStreetMap - Graustufen": osm_blackWhite,
                         "OpenStreetMap - Farbe": osm,
+                        "NRW Digitale Topographische Karte": wmsLayerDTK,
+                        "NRW Digitale Orthophotos (Luftbilder)": wmsLayerDOP,
                         "RVR Stadtplan": wmsLayerRVR
                       };
-
-                      // overlays
-                    //   var overlays = [
-                  	// 				 {
-                  	// 					groupName : spatialUnitLayerGroupName,
-                  	// 					expanded  : true,
-                  	// 					layers    : {
-                  	// 					}
-                  	// 				 }, {
-                  	// 					groupName : georesourceLayerGroupName,
-                  	// 					expanded  : true,
-                  	// 					layers    : {
-                  	// 					}
-                  	// 				 }, {
-                  	// 					groupName : indicatorLayerGroupName,
-                    //           expanded  : true,
-                  	// 					layers    : {
-                  	// 					}
-                  	// 				 }, {
-                  	// 					groupName : poiLayerGroupName,
-                    //           expanded  : true,
-                  	// 					layers    : {
-                  	// 					}
-                  	// 				 }, {
-                  	// 					groupName : reachabilityLayerGroupName,
-                    //           expanded  : true,
-                  	// 					layers    : {
-                  	// 					}
-                  	// 				 }
-                  	// ];
 
                     $scope.groupedOverlays = {
                       indicatorLayerGroupName: {
@@ -227,15 +179,6 @@ angular.module('kommonitorMap').component(
                       }
                     };
 
-                      // var options = {
-                    	// 	container_width 	: "600px",
-                    	// 	container_maxHeight : "600px",
-                    	// 	group_maxHeight     : "80px",
-                    	// 	exclusive       	: false,
-                      //   position: 'topleft'
-                    	// };
-
-                      // $scope.layerControl = L.Control.styledLayerControl($scope.baseMaps, $scope.overlays, options);
                       $scope.layerControl = L.control.groupedLayers($scope.baseMaps, $scope.groupedOverlays, {position: 'topleft'});
 	                    $scope.map.addControl($scope.layerControl);
 
@@ -419,6 +362,127 @@ angular.module('kommonitorMap').component(
                       toggleLegendControl();
                     });
 
+                    $(document).on('click','#downloadMetadata',function(e){
+                      // create PDF from currently selected/displayed indicator!
+                      var indicatorMetadata = kommonitorDataExchangeService.selectedIndicator;
+
+                      var jspdf = new jsPDF();
+
+                      jspdf.setFontSize(18);
+                      jspdf.text('KomMonitor - (vorläufiges) Metadatenblatt', 14, 22);
+                      jspdf.setFontSize(12);
+
+                      var topicsString = "";
+
+                      for (var [index, topic] of indicatorMetadata.applicableTopics.entries()){
+                        topicsString += topic;
+
+                        if(index < indicatorMetadata.applicableTopics.length - 1){
+                          topicsString += "\n";
+                        }
+                      }
+
+                      // Or JavaScript:
+                      jspdf.autoTable({
+                          head: [['Themenfeld', 'Name des Indikators', 'Kategorie', 'Kurzbezeichnung']],
+                          body: [
+                              [topicsString, indicatorMetadata.indicatorName, "Indikator", "-"]
+                              // ...
+                          ],
+                          startY: 40
+                      });
+
+                      var linkedIndicatorsString = "";
+
+                      for (var [index, linkedIndicator] of indicatorMetadata.referencedIndicators.entries()){
+                        linkedIndicatorsString += linkedIndicator.referencedIndicatorName + " - \n   " + linkedIndicator.referencedIndicatorDescription;
+
+                        if(index < indicatorMetadata.referencedIndicators.length - 1){
+                          linkedIndicatorsString += "\n\n";
+                        }
+                      }
+
+                      if(linkedIndicatorsString === ""){
+                        linkedIndicatorsString = "-";
+                      }
+
+                      var linkedGeoresourcesString = "";
+
+                      for (var [index, linkedGeoresource] of indicatorMetadata.referencedGeoresources.entries()){
+                        linkedGeoresourcesString += linkedGeoresource.referencedGeoresourceName + " - \n   " + linkedGeoresource.referencedGeoresourceDescription;
+
+                        if(index < indicatorMetadata.referencedGeoresources.length - 1){
+                          linkedGeoresourcesString += "\n\n";
+                        }
+                      }
+
+                      if(linkedGeoresourcesString === ""){
+                        linkedGeoresourcesString = "-";
+                      }
+
+                      // jspdf.autoTable({
+                      //     head: [],
+                      //     body: [
+                      //         ["Beschreibung", indicatorMetadata.metadata.description],
+                      //         ["Maßeinheit", indicatorMetadata.unit],
+                      //         ["Definition des Leitindikators", "-"],
+                      //         ["Klassifizierung", "-"],
+                      //         ["Interpretation", "-"],
+                      //         ["Verknüpfte Indikatoren", linkedIndicatorsString],
+                      //         ["Verknüpfte Geodaten", linkedGeoresourcesString]
+                      //         // ...
+                      //     ],
+                      //     startY: jspdf.autoTable.previous.finalY + 20,
+                      // });
+
+                      var spatialUnitsString = "";
+
+                      for (var [index, spatialUnit] of indicatorMetadata.applicableSpatialUnits.entries()){
+                        spatialUnitsString += spatialUnit;
+
+                        if(index < indicatorMetadata.applicableSpatialUnits.length - 1){
+                          spatialUnitsString += "\n";
+                        }
+                      }
+
+                      var datesString = "";
+
+                      for (var [index, date] of indicatorMetadata.applicableDates.entries()){
+                        datesString += date;
+
+                        if(index < indicatorMetadata.applicableDates.length - 1){
+                          datesString += "\n";
+                        }
+                      }
+
+                      jspdf.autoTable({
+                          head: [],
+                          body: [
+                              ["Beschreibung", indicatorMetadata.metadata.description],
+                              ["Maßeinheit", indicatorMetadata.unit],
+                              // ["Definition des Leitindikators", "-"],
+                              // ["Klassifizierung", "-"],
+                              // ["Interpretation", "-"],
+                              ["Verknüpfte Indikatoren", linkedIndicatorsString],
+                              ["Verknüpfte Geodaten", linkedGeoresourcesString],
+                              ["Datenquelle", indicatorMetadata.metadata.datasource],
+                              ["Datenhalter", indicatorMetadata.metadata.contact],
+                              ["Raumbezug", spatialUnitsString],
+                              // $scope.updateInteval is a map mapping the english KEYs to german expressions
+                              ["Zeitbezug / Fortführungsintervall", $scope.updateInterval.get(indicatorMetadata.metadata.updateInterval.toUpperCase())],
+                              ["Verfügbare Zeitreihe", datesString],
+                              ["Letzte Aktualisierung", indicatorMetadata.metadata.lastUpdate],
+                              ["Weiterführende Literatur", "-"]
+                              // ...
+                          ],
+                          startY: jspdf.autoTable.previous.finalY + 20
+                      });
+
+                      var pdfName = indicatorMetadata.indicatorName + ".pdf"
+
+                      jspdf.save(pdfName);
+                    });
+
                     $scope.appendInfoCloseButton = function(){
                       return '<div id="info_close" class="btn btn-link" style="right: 0px; position: relative; float: right;" title="schlie&szlig;en"><span class="glyphicon glyphicon-remove"></span></div>';
                     }
@@ -428,6 +492,14 @@ angular.module('kommonitorMap').component(
                     }
 
                     $scope.makeInfoControl = function(date, isCustomComputation){
+
+                      if(!$scope.showInfoControl){
+                        try{
+                          toggleInfoControl();
+                        }
+                        catch(error){
+                        }
+                      }
 
                       if($scope.infoControl){
                         try{
@@ -443,6 +515,7 @@ angular.module('kommonitorMap').component(
                       $scope.infoControl.onAdd = function (map) {
                           this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
 
+                          this._div.id = "infoControl";
                           // [year, month, day]
             							var lastUpdateComponents = $scope.currentIndicatorMetadataAndGeoJSON.metadata.lastUpdate.split("-");
             							var lastUpdateAsDate = new Date(Number(lastUpdateComponents[0]), Number(lastUpdateComponents[1]) - 1, Number(lastUpdateComponents[2]));
@@ -462,8 +535,7 @@ angular.module('kommonitorMap').component(
                           // this._div.innerHTML += '<b>Kontakt: </b> ' + $scope.currentIndicatorMetadataAndGeoJSON.metadata.contact + '<br/>';
                           this._div.innerHTML += '<b>Aktualisierungszyklus: </b> ' + $scope.updateInterval.get($scope.currentIndicatorMetadataAndGeoJSON.metadata.updateInterval.toUpperCase()) + '<br/>';
                           this._div.innerHTML += '<b>zuletzt aktualisiert am: </b> ' + tsToDate(dateToTS(lastUpdateAsDate)) + '<br/><br/>';
-                          this._div.innerHTML += '<a href="IndicatorMetadata" download>Download Indikatorenbeschreibung (derzeitig unwirksam)</a><br/><br/>';
-
+                          this._div.innerHTML += '<button id="downloadMetadata" class="btn btn-default"><i class="fa fa-download"></i>&nbsp;&nbsp;Download Metadatenblatt</button><br/><br/>';
 
                           this._div.innerHTML += $scope.appendSpatialUnitOptions();
                           this._div.innerHTML += $scope.appendTransparencyCheckbox();
@@ -475,6 +547,14 @@ angular.module('kommonitorMap').component(
                     }
 
                     $scope.makeCustomInfoControl = function(date){
+
+                      if(!$scope.showInfoControl){
+                        try{
+                          toggleInfoControl();
+                        }
+                        catch(error){
+                        }
+                      }
 
                       if($scope.infoControl){
                         try{
@@ -589,13 +669,21 @@ angular.module('kommonitorMap').component(
                       }
                       innerHTMLString += ">";
 
-                      innerHTMLString += '<b>Indikator transparent darstellen</b>';
+                      innerHTMLString += '<b>Indikator semi-transparent darstellen</b>';
                       innerHTMLString += '</label>';
 
                       return innerHTMLString;
                     };
 
                     $scope.makeDefaultLegend = function(defaultClassificationMapping){
+
+                      if(!$scope.showLegendControl){
+                        try{
+                          toggleLegendControl();
+                        }
+                        catch(error){
+                        }
+                      }
 
                       if($scope.legendControl){
                         try{
@@ -614,6 +702,10 @@ angular.module('kommonitorMap').component(
                       $scope.legendControl.onAdd = function (map) {
 
                         $scope.div = L.DomUtil.create('div', 'legendMap');
+
+
+                        $scope.div.id = "legendControl";
+
                             labels = $scope.defaultBrew.getBreaks();
                             colors = $scope.defaultBrew.getColors();
 
@@ -677,6 +769,14 @@ angular.module('kommonitorMap').component(
 
                     $scope.makeDynamicIndicatorLegend = function(){
 
+                      if(!$scope.showLegendControl){
+                        try{
+                          toggleLegendControl();
+                        }
+                        catch(error){
+                        }
+                      }
+
                       if($scope.legendControl){
                         try{
                           $scope.map.removeControl($scope.legendControl);
@@ -696,6 +796,7 @@ angular.module('kommonitorMap').component(
                       $scope.legendControl.onAdd = function (map) {
 
                         $scope.div = L.DomUtil.create('div', 'legendMap');
+                        $scope.div.id = "legendControl";
 
                         $scope.div.innerHTML = $scope.appendLegendCloseButton();
                         $scope.div.innerHTML += '<div>';
@@ -771,6 +872,14 @@ angular.module('kommonitorMap').component(
 
                     $scope.makeMeasureOfValueLegend = function(){
 
+                      if(!$scope.showLegendControl){
+                        try{
+                          toggleLegendControl();
+                        }
+                        catch(error){
+                        }
+                      }
+
                       if($scope.legendControl){
                         try{
                           $scope.map.removeControl($scope.legendControl);
@@ -793,6 +902,7 @@ angular.module('kommonitorMap').component(
                       $scope.legendControl.onAdd = function (map) {
 
                         $scope.div = L.DomUtil.create('div', 'legendMap');
+                        $scope.div.id = "legendControl";
 
                         $scope.div.innerHTML = $scope.appendLegendCloseButton();
                         $scope.div.innerHTML += '<div>';
@@ -2118,22 +2228,40 @@ angular.module('kommonitorMap').component(
                                         $scope.$on("recenterMapContent", async function (event) {
 
                                           await wait(100);
-
                                           fitBounds();
+
+                                          if(kommonitorDataExchangeService.anySideBarIsShown){
+                                            await wait(300);
+
+                                            // $scope.map.setZoom($scope.zoomLevel);
+                                            // var latlng = L.latLng($scope.latCenter, $scope.lonCenter);
+                                            // var currentZoom = $scope.map.getZoom();
+                                            // var centerPointPixels = L.CRS.latLngToPoint(latlng, currentZoom);
+                                            // centerPointPixels = L.Point(centerPointPixels.x - 500, centerPointPixels.y);
+                                            // latlng = L.CRS.pointToLatLng(centerPointPixels);
+                                            // $scope.map.panTo(latlng);
+
+                                            panToCenterOnActiveMenue(500);
+                                          }
+                                          // else{
+                                          //   await wait(100);
+                                          //   fitBounds();
+                                          // }
+
                                         });
 
                                         $scope.$on("recenterMapOnHideSideBar", async function (event) {
 
                                           await wait(100);
 
-                                          panToCenterOnUnactiveMenue();
+                                          panToCenterOnUnactiveMenue(500);
                                         });
 
                                         $scope.$on("recenterMapOnShowSideBar", async function (event) {
 
                                           await wait(100);
 
-                                          panToCenterOnActiveMenue();
+                                          panToCenterOnActiveMenue(500);
                                         });
 
                                         function fitBounds(){
@@ -2145,22 +2273,22 @@ angular.module('kommonitorMap').component(
 
                                         }
 
-                                        function panToCenterOnActiveMenue(){
+                                        function panToCenterOnActiveMenue(numPixels){
                                           if($scope.map && $scope.currentIndicatorLayer){
 
                                             //$scope.map.setView(L.latLng($scope.latCenter, $scope.lonCenter + 0.15), $scope.zoomLevel);
                                             // $scope.map.panTo(L.latLng($scope.latCenter, $scope.lonCenter + 0.15));
-                                            $scope.map.panBy(L.point(500, 0));
+                                            $scope.map.panBy(L.point(numPixels, 0));
 
                                           }
                                         }
 
-                                        function panToCenterOnUnactiveMenue(){
+                                        function panToCenterOnUnactiveMenue(numPixels){
                                           if($scope.map && $scope.currentIndicatorLayer){
 
                                             //$scope.map.setView(L.latLng($scope.latCenter, $scope.lonCenter), $scope.zoomLevel);
                                             // $scope.map.panTo(L.latLng($scope.latCenter, $scope.lonCenter));
-                                            $scope.map.panBy(L.point(-500, 0));
+                                            $scope.map.panBy(L.point(-numPixels, 0));
                                           }
                                         }
 

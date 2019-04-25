@@ -2,8 +2,13 @@
 
 	<header id="header" >
 
-		<div  style="position:absolute; left:35%;  padding-top: 7px;">
-			<h4 >KomMonitor (Pilotversion in Entwicklung) <a href="#" data-toggle="modal" data-target="#infoModal"><span class="glyphicon glyphicon-info-sign"></span></a></h4>
+		<div  style="position:absolute; left:25%;  padding-top: 7px;">
+
+			<h4>KomMonitor (Pilotversion in Entwicklung)
+				<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#infoModal">Information&nbsp;&nbsp;<span class="glyphicon glyphicon-info-sign"></span></button>
+				<button type="button" data-toggle="modal" data-target="#feedbackModal" class="btn btn-danger">Feedback&nbsp;&nbsp;<span class="glyphicon glyphicon-envelope"></span></button>
+				<button type="button" ng-click="startGuidedTour()" class="btn btn-danger">Guided Tour&nbsp;&nbsp;<span class="glyphicon glyphicon-play"></span></button>
+			</h4>
 		</div>
 
 		<div style="padding-left: 10px; padding-top: 7px;">
@@ -34,6 +39,9 @@
 
 	<!-- Modal -->
 	<info-modal></info-modal>
+
+	<!-- Modal -->
+	<feedback-modal></feedback-modal>
 
 	<div class="wrapper">
 
@@ -85,71 +93,74 @@
 
 				<!-- LEFT-HANDED SIDEBAR BUTTONS -->
 
-				<button type="button" style="top: 100px;" id="sidebarIndicatorConfigCollapse"
-					ng-click="onSidebarIndicatorButtonClick()" ng-class="buttonIndicatorConfigClass" data-toggle="tooltip" title="Indikatorenauswahl">
-						<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
-						<i style="font-size:1.8em;" class="fas fa-sitemap"></i>
-				</button>
+				<div id="sideBarButtons">
+						<button type="button" style="top: 10px;" id="sidebarIndicatorConfigCollapse"
+							ng-click="onSidebarIndicatorButtonClick()" ng-class="buttonIndicatorConfigClass" data-toggle="tooltip" title="Indikatorenauswahl">
+								<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
+								<i style="font-size:1.8em;" class="fas fa-sitemap"></i>
+						</button>
 
-				<button type="button" style="top: 175px;" id="sidebarPoiCollapse"
-					ng-click="onSidebarPoiButtonClick()" ng-class="buttonPoiClass" data-toggle="tooltip" title="Points of Interest">
-						<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
-						<i style="font-size:1.8em;" class="fas fa-map-marker-alt"></i>
-				</button>
+						<button type="button" style="top: 85px;" id="sidebarPoiCollapse"
+							ng-click="onSidebarPoiButtonClick()" ng-class="buttonPoiClass" data-toggle="tooltip" title="Points of Interest">
+								<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
+								<i style="font-size:1.8em;" class="fas fa-map-marker-alt"></i>
+						</button>
 
-				<button type="button" style="top: 250px;" id="sidebarFilterCollapse"
-					ng-click="onSidebarFilterButtonClick()" ng-class="buttonFilterClass" data-toggle="tooltip" title="Darstellungsfilter">
-						<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
-						<i style="font-size:1.8em;" class="fas fa-filter"></i>
-				</button>
+						<button type="button" style="top: 160px;" id="sidebarFilterCollapse"
+							ng-click="onSidebarFilterButtonClick()" ng-class="buttonFilterClass" data-toggle="tooltip" title="Darstellungsfilter">
+								<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
+								<i style="font-size:1.8em;" class="fas fa-filter"></i>
+						</button>
 
-				<button type="button" style="top: 325px;" id="sidebarBalanceCollapse"
-					ng-click="onSidebarBalanceButtonClick()" ng-class="buttonBalanceClass" data-toggle="tooltip" title="zeitliche Bilanzierung">
-						<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-sort" aria-hidden="true"></span> -->
-						<i style="font-size:1.8em;" class="fas fa-chart-line"></i>
-				</button>
+						<button type="button" style="top: 235px;" id="sidebarBalanceCollapse"
+							ng-click="onSidebarBalanceButtonClick()" ng-class="buttonBalanceClass" data-toggle="tooltip" title="zeitliche Bilanzierung">
+								<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-sort" aria-hidden="true"></span> -->
+								<i style="font-size:1.8em;" class="fas fa-chart-line"></i>
+						</button>
 
-				<button type="button" style="top: 450px;" id="sidebarDiagramsCollapse"
-					ng-click="onSidebarDiagramsClick()" ng-class="buttonDiagramsClass" data-toggle="tooltip" title="statistische Diagramme">
-						<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-stats" aria-hidden="true"></span> -->
-						<i style="font-size:1.8em;" class="fas fa-chart-bar"></i>
-				</button>
+						<button type="button" style="top: 360px;" id="sidebarDiagramsCollapse"
+							ng-click="onSidebarDiagramsClick()" ng-class="buttonDiagramsClass" data-toggle="tooltip" title="statistische Diagramme">
+								<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-stats" aria-hidden="true"></span> -->
+								<i style="font-size:1.8em;" class="fas fa-chart-bar"></i>
+						</button>
 
-				<button type="button" style="top: 525px;" id="sidebarRadarDiagramCollapse"
-					ng-click="onSidebarRadarDiagramClick()" ng-class="buttonRadarDiagramClass" data-toggle="tooltip" title="Indikatorenradar">
-						<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-star-empty" aria-hidden="true"></span> -->
-						<img src="iconsFromPngTree/radarMap.svg"></img>
-				</button>
+						<button type="button" style="top: 435px;" id="sidebarRadarDiagramCollapse"
+							ng-click="onSidebarRadarDiagramClick()" ng-class="buttonRadarDiagramClass" data-toggle="tooltip" title="Indikatorenradar">
+								<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-star-empty" aria-hidden="true"></span> -->
+								<img src="iconsFromPngTree/radarMap.svg"></img>
+						</button>
 
-				<button type="button" style="top: 600px;" id="sidebarRegressionDiagramCollapse"
-					ng-click="onSidebarRegressionDiagramClick()" ng-class="buttonRegressionDiagramClass" data-toggle="tooltip" title="Regressionsdiagramm">
-						<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-star-empty" aria-hidden="true"></span> -->
-						<img src="iconsFromPngTree/scatterPlot.svg"></img>
-				</button>
+						<button type="button" style="top: 510px;" id="sidebarRegressionDiagramCollapse"
+							ng-click="onSidebarRegressionDiagramClick()" ng-class="buttonRegressionDiagramClass" data-toggle="tooltip" title="Regressionsdiagramm">
+								<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-star-empty" aria-hidden="true"></span> -->
+								<img src="iconsFromPngTree/scatterPlot.svg"></img>
+						</button>
 
-				<button type="button" style="top: 715px;" id="sidebarReachabilityCollapse"
-					ng-click="onSidebarReachabilityButtonClick()" ng-class="buttonReachabilityClass" data-toggle="tooltip" title="Erreichbarkeitsanalyse">
-					<i style="font-size:1.8em;" class="fas fa-route"></i>
-						<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-wrench" aria-hidden="true"></span> -->
-				</button>
+						<button type="button" style="top: 625px;" id="sidebarReachabilityCollapse"
+							ng-click="onSidebarReachabilityButtonClick()" ng-class="buttonReachabilityClass" data-toggle="tooltip" title="Erreichbarkeitsanalyse">
+							<i style="font-size:1.8em;" class="fas fa-route"></i>
+								<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-wrench" aria-hidden="true"></span> -->
+						</button>
 
-				<button type="button" style="top: 775px;" id="sidebarProcessingCollapse"
-					ng-click="onSidebarProcessingClick()" ng-class="buttonProcessingClass" data-toggle="tooltip" title="Individuelle Indikatorenberechnung">
-					<i style="font-size:1.8em;" class="fas fa-sliders-h"></i>
-				</button>
+						<button type="button" style="top: 685px;" id="sidebarProcessingCollapse"
+							ng-click="onSidebarProcessingClick()" ng-class="buttonProcessingClass" data-toggle="tooltip" title="Individuelle Indikatorenberechnung">
+							<i style="font-size:1.8em;" class="fas fa-sliders-h"></i>
+						</button>
+				</div>
 
 				<!-- MAP UTIL BUTTONS -->
 
-				<button type="button" style="top: 20px; left:60px;" id="recenterMapButton"
-					ng-click="onRecenterMapButtonClick()" class="btn btn-leaflet-custom" data-toggle="tooltip" title="Karte zentrieren">
-						<span style="font-size:1.5em;" class="glyphicon glyphicon-globe" aria-hidden="true"></span>
-				</button>
+				<div id="mapUtilButtons">
+					<button type="button" style="top: 20px; left:60px;" id="recenterMapButton"
+						ng-click="onRecenterMapButtonClick()" class="btn btn-leaflet-custom" data-toggle="tooltip" title="Karte zentrieren">
+							<span style="font-size:1.5em;" class="glyphicon glyphicon-globe" aria-hidden="true"></span>
+					</button>
 
-				<button type="button" style="top: 20px; left:120px;" id="unselectFeaturesButton"
-					ng-click="onUnselectFeaturesButtonClick()" class="btn btn-leaflet-custom" data-toggle="tooltip" title="Feature-Selektion aufheben">
-						<span style="font-size:1.5em;" class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span>
-				</button>
-
+					<button type="button" style="top: 20px; left:120px;" id="unselectFeaturesButton"
+						ng-click="onUnselectFeaturesButtonClick()" class="btn btn-leaflet-custom" data-toggle="tooltip" title="Feature-Selektion aufheben">
+							<span style="font-size:1.5em;" class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span>
+					</button>
+				</div>
 
 				<!-- Info and legend Control buttons -->
 				<button type="button" style="top: 120px; right:10px; display:none;" id="toggleInfoControlButton"

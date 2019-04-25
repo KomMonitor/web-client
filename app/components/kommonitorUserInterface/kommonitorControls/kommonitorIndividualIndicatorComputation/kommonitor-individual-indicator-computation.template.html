@@ -1,6 +1,6 @@
 <div align="center" id="indicatorProcessing">
 	<h4 class="justify" align="center">Interaktive parametrisierte Neuberechnung eines Indikators</h4>
-	<div ng-if="!targetIndicator">
+	<div ng-show="!targetIndicator">
 		<p>Bitte einen Indikator ausw&auml;hlen, der über ein Skript berechnet werden kann.</p>
 	</div>
 
@@ -59,7 +59,7 @@
 		<div class="form-group">
 			<!-- <label align='left'>individuelle Neuberechung</label> -->
 
-				<div ng-if="processInputs" id="processInputForm">
+				<div ng-show="processInputs" id="processInputForm">
 					<!-- here the content is filled programatically -->
 
 					<div ng-repeat='input in processInputs' class="slidecontainer">

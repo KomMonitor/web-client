@@ -6,5 +6,15 @@ angular.module('infoModal').component('infoModal', {
 
 		$('#infoModal').modal('show');
 
+		$scope.callStartGuidedTour = function(){
+			$('#infoModal').modal('hide');
+			$rootScope.$broadcast("startGuidedTour");
+		};
+
+		$scope.showFeedbackForm = function(){
+			$('#infoModal').modal('hide');
+			$('#feedbackModal').modal('show');
+		};
+
 	}
 ]});
