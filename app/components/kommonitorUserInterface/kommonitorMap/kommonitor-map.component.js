@@ -362,6 +362,127 @@ angular.module('kommonitorMap').component(
                       toggleLegendControl();
                     });
 
+                    $(document).on('click','#downloadMetadata',function(e){
+                      // create PDF from currently selected/displayed indicator!
+                      var indicatorMetadata = kommonitorDataExchangeService.selectedIndicator;
+
+                      var jspdf = new jsPDF();
+
+                      jspdf.setFontSize(18);
+                      jspdf.text('KomMonitor - (vorläufiges) Metadatenblatt', 14, 22);
+                      jspdf.setFontSize(12);
+
+                      var topicsString = "";
+
+                      for (var [index, topic] of indicatorMetadata.applicableTopics.entries()){
+                        topicsString += topic;
+
+                        if(index < indicatorMetadata.applicableTopics.length - 1){
+                          topicsString += "\n";
+                        }
+                      }
+
+                      // Or JavaScript:
+                      jspdf.autoTable({
+                          head: [['Themenfeld', 'Name des Indikators', 'Kategorie', 'Kurzbezeichnung']],
+                          body: [
+                              [topicsString, indicatorMetadata.indicatorName, "Indikator", "-"]
+                              // ...
+                          ],
+                          startY: 40
+                      });
+
+                      var linkedIndicatorsString = "";
+
+                      for (var [index, linkedIndicator] of indicatorMetadata.referencedIndicators.entries()){
+                        linkedIndicatorsString += linkedIndicator.referencedIndicatorName + " - \n   " + linkedIndicator.referencedIndicatorDescription;
+
+                        if(index < indicatorMetadata.referencedIndicators.length - 1){
+                          linkedIndicatorsString += "\n\n";
+                        }
+                      }
+
+                      if(linkedIndicatorsString === ""){
+                        linkedIndicatorsString = "-";
+                      }
+
+                      var linkedGeoresourcesString = "";
+
+                      for (var [index, linkedGeoresource] of indicatorMetadata.referencedGeoresources.entries()){
+                        linkedGeoresourcesString += linkedGeoresource.referencedGeoresourceName + " - \n   " + linkedGeoresource.referencedGeoresourceDescription;
+
+                        if(index < indicatorMetadata.referencedGeoresources.length - 1){
+                          linkedGeoresourcesString += "\n\n";
+                        }
+                      }
+
+                      if(linkedGeoresourcesString === ""){
+                        linkedGeoresourcesString = "-";
+                      }
+
+                      // jspdf.autoTable({
+                      //     head: [],
+                      //     body: [
+                      //         ["Beschreibung", indicatorMetadata.metadata.description],
+                      //         ["Maßeinheit", indicatorMetadata.unit],
+                      //         ["Definition des Leitindikators", "-"],
+                      //         ["Klassifizierung", "-"],
+                      //         ["Interpretation", "-"],
+                      //         ["Verknüpfte Indikatoren", linkedIndicatorsString],
+                      //         ["Verknüpfte Geodaten", linkedGeoresourcesString]
+                      //         // ...
+                      //     ],
+                      //     startY: jspdf.autoTable.previous.finalY + 20,
+                      // });
+
+                      var spatialUnitsString = "";
+
+                      for (var [index, spatialUnit] of indicatorMetadata.applicableSpatialUnits.entries()){
+                        spatialUnitsString += spatialUnit;
+
+                        if(index < indicatorMetadata.applicableSpatialUnits.length - 1){
+                          spatialUnitsString += "\n";
+                        }
+                      }
+
+                      var datesString = "";
+
+                      for (var [index, date] of indicatorMetadata.applicableDates.entries()){
+                        datesString += date;
+
+                        if(index < indicatorMetadata.applicableDates.length - 1){
+                          datesString += "\n";
+                        }
+                      }
+
+                      jspdf.autoTable({
+                          head: [],
+                          body: [
+                              ["Beschreibung", indicatorMetadata.metadata.description],
+                              ["Maßeinheit", indicatorMetadata.unit],
+                              // ["Definition des Leitindikators", "-"],
+                              // ["Klassifizierung", "-"],
+                              // ["Interpretation", "-"],
+                              ["Verknüpfte Indikatoren", linkedIndicatorsString],
+                              ["Verknüpfte Geodaten", linkedGeoresourcesString],
+                              ["Datenquelle", indicatorMetadata.metadata.datasource],
+                              ["Datenhalter", indicatorMetadata.metadata.contact],
+                              ["Raumbezug", spatialUnitsString],
+                              // $scope.updateInteval is a map mapping the english KEYs to german expressions
+                              ["Zeitbezug / Fortführungsintervall", $scope.updateInterval.get(indicatorMetadata.metadata.updateInterval.toUpperCase())],
+                              ["Verfügbare Zeitreihe", datesString],
+                              ["Letzte Aktualisierung", indicatorMetadata.metadata.lastUpdate],
+                              ["Weiterführende Literatur", "-"]
+                              // ...
+                          ],
+                          startY: jspdf.autoTable.previous.finalY + 20
+                      });
+
+                      var pdfName = indicatorMetadata.indicatorName + ".pdf"
+
+                      jspdf.save(pdfName);
+                    });
+
                     $scope.appendInfoCloseButton = function(){
                       return '<div id="info_close" class="btn btn-link" style="right: 0px; position: relative; float: right;" title="schlie&szlig;en"><span class="glyphicon glyphicon-remove"></span></div>';
                     }
@@ -414,8 +535,7 @@ angular.module('kommonitorMap').component(
                           // this._div.innerHTML += '<b>Kontakt: </b> ' + $scope.currentIndicatorMetadataAndGeoJSON.metadata.contact + '<br/>';
                           this._div.innerHTML += '<b>Aktualisierungszyklus: </b> ' + $scope.updateInterval.get($scope.currentIndicatorMetadataAndGeoJSON.metadata.updateInterval.toUpperCase()) + '<br/>';
                           this._div.innerHTML += '<b>zuletzt aktualisiert am: </b> ' + tsToDate(dateToTS(lastUpdateAsDate)) + '<br/><br/>';
-                          this._div.innerHTML += '<a href="IndicatorMetadata" download>Download Indikatorenbeschreibung (derzeitig unwirksam)</a><br/><br/>';
-
+                          this._div.innerHTML += '<button id="downloadMetadata" class="btn btn-default"><i class="fa fa-download"></i>&nbsp;&nbsp;Download Metadatenblatt</button><br/><br/>';
 
                           this._div.innerHTML += $scope.appendSpatialUnitOptions();
                           this._div.innerHTML += $scope.appendTransparencyCheckbox();
