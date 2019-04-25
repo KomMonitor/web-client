@@ -55,6 +55,8 @@
   window.__env.defaultColorBrewerPaletteForGtMovValues = "Oranges";
   window.__env.defaultColorBrewerPaletteForLtMovValues = "Purples";
 
+  window.__env.feedbackMailRecipient = "thomas.blasche@amt62.essen.de";
+
 
 
 }(this));

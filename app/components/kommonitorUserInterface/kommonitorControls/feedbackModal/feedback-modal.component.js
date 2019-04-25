@@ -1,8 +1,10 @@
 angular.module('feedbackModal').component('feedbackModal', {
 	templateUrl : "components/kommonitorUserInterface/kommonitorControls/feedbackModal/feedback-modal.template.html",
-	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', function FeedbackModalController(kommonitorDataExchangeService, $scope, $rootScope) {
+	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '__env', function FeedbackModalController(kommonitorDataExchangeService, $scope, $rootScope, __env) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
+
+		const feedbackMailRecipient = __env.feedbackMailRecipient;
 
 		// $scope.titel;
 		$scope.organization;
@@ -28,7 +30,7 @@ angular.module('feedbackModal').component('feedbackModal', {
 				return;
 			}
 
-		  var link = "mailto:christian.danowski-buhren@hs-bochum.de"+
+		  var link = "mailto:"+ feedbackMailRecipient +
 		             "?"+
 		             "subject=" + encodeURIComponent("KomMonitor - Feedback") +
 		             "&body=" + encodeURIComponent(body);
