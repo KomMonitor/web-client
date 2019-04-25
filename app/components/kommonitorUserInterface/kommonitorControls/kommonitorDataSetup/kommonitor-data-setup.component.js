@@ -757,8 +757,46 @@ angular
 									        line: 'lines'
 									    }
 									}
-									// a GeoJSON bridge for features
-									shpwrite.download(kommonitorDataExchangeService.selectedIndicator.geoJSON, options);
+
+									var geoJSON = jQuery.extend(true, {}, kommonitorDataExchangeService.selectedIndicator.geoJSON);
+
+									for (var feature of geoJSON.features){
+										var properties = feature.properties;
+
+										// rename all properties due to char limit in shaoefiles
+										var keys = Object.keys(properties);
+
+										for (var key of keys){
+											var newKey = undefined;
+											if(key.toLowerCase().includes("featureid")){
+												newKey = "ID";
+											}
+											else if(key.toLowerCase().includes("featurename")){
+												newKey = "NAME";
+											}
+											else if(key.toLowerCase().includes("date_")){
+												// from DATE_2018-01-01
+												// to 20180101
+												newKey = key.split("_")[1].replace(/-|\s/g, "");
+											}
+											else if(key.toLowerCase().includes("startdate")){
+												newKey = "validFrom";
+											}
+											else if(key.toLowerCase().includes("enddate")){
+												newKey = "validTo";
+											}
+
+											if(newKey){
+												properties[newKey] = properties[key];
+												delete properties[key];
+											}
+										}
+
+										// replace properties with the one with new keys
+										feature.properties = properties;
+									}
+
+									shpwrite.download(geoJSON, options);
 								};
 
 								$scope.$on("updateIndicatorOgcServices", function (event, indicatorWmsUrl, indicatorWfsUrl) {
