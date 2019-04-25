@@ -9,7 +9,7 @@ angular
 
 						this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
-						const targetURL = __env.targetUrlToProcessingEngine;
+						const targetURL = __env.targetUrlToProcessingEngine + "script-engine/customizableIndicatorComputation";
 
 						$scope.loadingData = false;
 

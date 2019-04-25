@@ -12,7 +12,7 @@
   window.__env.basePath = 'management';
 
   // window.__env.apiUrl = 'http://kommonitor.fbg-hsbo.de/processing';
-  window.__env.targetUrlToProcessingEngine = 'http://localhost:8086/processing/script-engine/customizableIndicatorComputation';
+  window.__env.targetUrlToProcessingEngine = 'http://localhost:8086/processing/';
     // window.__env.apiUrl = 'http://kommonitor.fbg-hsbo.de/openrouteservice';
   window.__env.targetUrlToReachabilityService_ORS = 'http://localhost:8090/openrouteservice-4.7.2';
   // window.__env.apiUrl = 'http://kommonitor.fbg-hsbo.de/opentripplanner';
