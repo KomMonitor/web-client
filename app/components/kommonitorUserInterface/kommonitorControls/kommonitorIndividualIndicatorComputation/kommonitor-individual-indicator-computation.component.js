@@ -4,8 +4,8 @@ angular
 				'kommonitorIndividualIndicatorComputation',
 				{
 					templateUrl : "components/kommonitorUserInterface/kommonitorControls/kommonitorIndividualIndicatorComputation/kommonitor-individual-indicator-computation.template.html",
-					controller : ['kommonitorDataExchangeService', '$scope', '$http','kommonitorMapService', '__env', function kommonitorIndividualIndicatorComputationController(
-							kommonitorDataExchangeService, $scope, $http, kommonitorMapService, __env) {
+					controller : ['kommonitorDataExchangeService', '$rootScope', '$scope', '$http','kommonitorMapService', '__env', function kommonitorIndividualIndicatorComputationController(
+							kommonitorDataExchangeService, $rootScope, $scope, $http, kommonitorMapService, __env) {
 
 						this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
@@ -24,6 +24,30 @@ angular
 						$scope.inputNgModels = {};
 
 						$scope.dateSliderForComputation;
+
+						$scope.filterComputableIndicators = function() {
+							return function( item ) {
+
+								if(item.indicatorName.includes("Erreichbarkeit")){
+									return false;
+								}
+
+								var scriptForIndicator;
+
+								for (var script of kommonitorDataExchangeService.availableProcessScripts){
+									if (script.indicatorId === item.indicatorId){
+										scriptForIndicator = script;
+										break;
+									}
+								};
+
+								if (! script.variableProcessParameters.length > 0){
+									return false;
+								}
+
+								return true;
+							};
+						};
 
 						$scope.onTargetDateChange = function(){
 
@@ -281,6 +305,9 @@ angular
 							if(!$scope.targetSpatialUnit){
 								$scope.targetSpatialUnit = $scope.getFirstSpatialUnitForSelectedIndicator();
 							}
+
+							// modify guidedTour if required
+							$rootScope.$broadcast("redrawGuidedTourElement");
 
 						};
 

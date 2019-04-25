@@ -2,7 +2,17 @@
 	<!-- DIAGRAMS which will be automatically updated on changed indicator -->
 	<!-- preparing a DOM with width and height for ECharts -->
 
-	<div id="histogramDiagram" style="width:770px; height:270px;"></div>
+	<div ng-show="!histogramCanBeDisplayed">
+		<br/>
+		<br/>
+		<br/>
+		<h4>Keine Histogramm-Darstellung m&ouml;glich.</h4>
+		<br/>
+		<br/>
+		<br/>
+	</div>
+
+	<div ng-show="histogramCanBeDisplayed" id="histogramDiagram" style="width:770px; height:270px;"></div>
 
 	<div ng-show="isTooManyFeatures">
 		<br/>

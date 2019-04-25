@@ -13,6 +13,8 @@ angular
 							function kommonitorDataSetupController(kommonitorDataExchangeService, $scope, kommonitorMapService, $http, $rootScope, __env, $timeout) {
 
 								const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
+								const initialIndicatorId = __env.initialIndicatorId;
+								const initialSpatialUnitName = __env.initialSpatialUnitName;
 
 								// var rangeslide = require("rangeslide");
 								/*
@@ -54,7 +56,9 @@ angular
 											this.kommonitorDataExchangeServiceInstance.selectedTopic = topic;
 										}
 										else {
-											document.getElementById(topic.topicName).setAttribute("class", "");
+											if(document.getElementById(topic.topicName)){
+												document.getElementById(topic.topicName).setAttribute("class", "");
+											}
 										}
 									};
 
@@ -225,9 +229,31 @@ angular
 
 									console.log("Load an initial example indicator");
 
-									var randomIndicatorIndex = getRandomInt(0, kommonitorDataExchangeService.availableIndicators.length - 1);
+									var indicatorIndex;
 
-									kommonitorDataExchangeService.selectedIndicator = kommonitorDataExchangeService.availableIndicators[randomIndicatorIndex];
+									for (var index=0; index < kommonitorDataExchangeService.availableIndicators.length; index++){
+										if (kommonitorDataExchangeService.availableIndicators[index].indicatorId === initialIndicatorId){
+											indicatorIndex = index;
+											break;
+										}
+									}
+
+									if(! indicatorIndex){
+											indicatorIndex = getRandomInt(0, kommonitorDataExchangeService.availableIndicators.length - 1);
+									}
+
+									kommonitorDataExchangeService.selectedIndicator = kommonitorDataExchangeService.availableIndicators[indicatorIndex];
+
+									// set spatialUnit
+									for (var spatialUnitEntry of kommonitorDataExchangeService.availableSpatialUnits){
+										if(spatialUnitEntry.spatialUnitLevel === initialSpatialUnitName){
+											kommonitorDataExchangeService.selectedSpatialUnit = spatialUnitEntry;
+											break;
+										}
+									};
+									if(!kommonitorDataExchangeService.selectedSpatialUnit){
+											kommonitorDataExchangeService.selectedSpatialUnit = $scope.getFirstSpatialUnitForSelectedIndicator();
+									}
 
 									$scope.onChangeSelectedIndicator();
 

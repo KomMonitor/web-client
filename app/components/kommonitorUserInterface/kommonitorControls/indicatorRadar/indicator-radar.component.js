@@ -20,6 +20,7 @@ angular
 								$scope.namesOfFailedIndicators  = new Array();
 								$scope.selectableIndicatorsForRadar = new Array();
 								$scope.indicatorInputsForRadar = new Array();
+								$scope.eventsRegistered = false;
 
 								var numberOfDecimals = __env.numberOfDecimals;
 
@@ -41,6 +42,8 @@ angular
 									$scope.setupCompleted = false;
 
 									updateRadarChart(indicatorMetadataAndGeoJSON, spatialUnitName, spatialUnitId, date);
+
+									$rootScope.$broadcast("preserveHighlightedFeatures");
 
 								});
 
@@ -248,17 +251,30 @@ angular
 														name: {
 																formatter: function (value, indicator) {
 																								var maxCharsPerLine = 28;
+																								var separationSigns = [" ", "-", "_"];
 																								var counter = 0;
+																								var nextWord = "";
+																								var nextChar;
 																								var label = "";
 																								for(var i=0; i<value.length; i++){
+																									nextChar = value.charAt(i);
+																									nextWord += nextChar;
 																									if(counter === maxCharsPerLine){
 																										label += "\n";
 																										counter = 0;
 																									}
-																									label += value.charAt(i);
+																									else if(separationSigns.includes(nextChar)){
+																										// add word to label
+																										label += nextWord;
+																										nextWord = "";
+																									}
 																									counter++;
 																								}
-																								label = label + "\n" + "[" + indicator.unit + "]";
+																								//append last word
+																								label += nextWord;
+
+																								// skip unit to save on line in legend
+																								// label = label + "\n" + "[" + indicator.unit + "]";
 																								return label;
 																						},
 																textStyle: {
@@ -306,6 +322,7 @@ angular
 
 										// use configuration item and data specified to show chart
 										$scope.radarChart.setOption($scope.radarOption);
+										registerEventsIfNecessary();
 
 									}
 
@@ -318,6 +335,35 @@ angular
 										if(kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(propertiesInstance.spatialUnitFeatureName)){
 											appendSeriesToRadarChart(propertiesInstance);
 										}
+									}
+								};
+
+								function registerEventsIfNecessary(){
+									if(!$scope.eventsRegistered){
+										// when hovering over elements of the chart then highlight them in the map.
+										$scope.radarChart.on('mouseOver', function(params){
+											// $scope.userHoveresOverItem = true;
+											var spatialFeatureName = params.data.name;
+											// console.log(spatialFeatureName);
+											$rootScope.$broadcast("highlightFeatureOnMap", spatialFeatureName);
+										});
+
+										$scope.radarChart.on('mouseOut', function(params){
+											// $scope.userHoveresOverItem = false;
+
+											var spatialFeatureName = params.data.name;
+											// console.log(spatialFeatureName);
+											$rootScope.$broadcast("unhighlightFeatureOnMap", spatialFeatureName);
+										});
+
+										//disable feature removal for radar chart - seems to be unintuititve
+										// $scope.radarChart.on('click', function(params){
+										// 	var spatialFeatureName = params.data.name;
+										// 	// console.log(spatialFeatureName);
+										// 	$rootScope.$broadcast("switchHighlightFeatureOnMap", spatialFeatureName);
+										// });
+
+										$scope.eventsRegistered = true;
 									}
 								};
 
@@ -441,6 +487,7 @@ angular
 									$scope.radarOption.series[0].data.push(featureSeries);
 
 									$scope.radarChart.setOption($scope.radarOption);
+									registerEventsIfNecessary();
 								};
 
 								var highlightFeatureInRadarChart = function(featureProperties){
@@ -495,6 +542,7 @@ angular
 
 									// second parameter tells echarts to not merge options with previous data. hence really remove series from graphic
 									$scope.radarChart.setOption($scope.radarOption, true);
+									registerEventsIfNecessary();
 								};
 
 								var unhighlightFeatureInRadarChart = function(featureProperties){

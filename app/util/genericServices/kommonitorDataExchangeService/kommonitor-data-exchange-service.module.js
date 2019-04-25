@@ -18,6 +18,8 @@ angular
 
 					this.kommonitorMapServiceInstance = kommonitorMapService;
 
+          this.anySideBarIsShown = false;
+
 					this.isMeasureOfValueChecked = false;
 					this.isBalanceChecked = false;
 					this.indicatorAndMetadataAsBalance;

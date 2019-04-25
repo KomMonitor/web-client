@@ -47,10 +47,10 @@ angular.module('kommonitorMap').service(
 						georesourceMetadataAndGeoJSON, date);
 			};
 
-      this.addPoiGeoresourceGeoJSON = function (georesourceMetadataAndGeoJSON, date) {
+      this.addPoiGeoresourceGeoJSON = function (georesourceMetadataAndGeoJSON, date, useCluster) {
 
 				$rootScope.$broadcast("addPoiGeoresourceAsGeoJSON",
-						georesourceMetadataAndGeoJSON, date);
+						georesourceMetadataAndGeoJSON, date, useCluster);
 			};
 
       this.replaceIsochroneGeoJSON = function (geoJSON, transitMode, reachMode, cutOffValues, useMultipleStartPoints) {

@@ -34,7 +34,7 @@
 					<h4>Themenfilter für Indikatoren</h4>
 		    </div>
 		    <ul class="nav nav-pills nav-justified">
-		      <li ng-repeat="topic in $ctrl.kommonitorDataExchangeServiceInstance.availableTopics" id="{{topic.topicName}}" class=""><a ng-click="$ctrl.onClickTheme(topic.topicName)" href="#">{{topic.topicName}}</a></li>
+		      <li ng-repeat="topic in $ctrl.kommonitorDataExchangeServiceInstance.availableTopics | filter: { topicName: '!Migration' }" id="{{topic.topicName}}"  class=""><a ng-click="$ctrl.onClickTheme(topic.topicName)" href="#">{{topic.topicName}}</a></li>
 		    </ul>
 		  </div>
 
@@ -81,7 +81,7 @@
 
 			<div class="hiddenTableCell">
 
-				<div id="exportButtonDiv" class="dropdown hiddenTableContent" ng-show="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator">
+				<!-- <div id="exportButtonDiv" class="dropdown hiddenTableContent" ng-show="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator">
 					<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Export
 					<span class="caret"></span></button>
 					<ul id="exportDropdown" class="dropdown-menu">
@@ -89,10 +89,22 @@
 						<li><a  target="_blank" rel="noopener noreferrer" ng-href="{{wfsUrlForSelectedIndicator}}">WFS  (derzeit fehlerhaft)</a></li>
 
 					</ul>
-				</div>
+				</div> -->
 
 			</div>
 
+		</div>
+
+		<div class="text-center">
+			<div  id="exportButtonDiv" class="dropdown btn-group" ng-show="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator">
+				<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Export
+				<span class="caret"></span></button>
+				<ul id="exportDropdown" class="dropdown-menu">
+					<li><a  target="_blank" rel="noopener noreferrer" ng-href="{{wmsUrlForSelectedIndicator}}">WMS  (derzeit fehlerhaft)</a></li>
+					<li><a  target="_blank" rel="noopener noreferrer" ng-href="{{wfsUrlForSelectedIndicator}}">WFS  (derzeit fehlerhaft)</a></li>
+
+				</ul>
+			</div>
 		</div>
 
 

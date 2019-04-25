@@ -3,6 +3,7 @@
 /* required to increase drowdown menu z-index in oder to let layer export options overlap menu buttons and map */
 .dropdown-menu {
 	z-index: 7000;
+	/* overflow: hidden; */
 }
 
 /* Set height of the grid so .sidenav can be 100% (adjust if needed) */
@@ -18,6 +19,64 @@
 	height: 100%;
 }
 
+.radio-custom label{
+	font-weight: unset;
+}
+
+.tour-backdrop {
+	opacity: 0.6;
+}
+
+#feedbackForm {
+	padding: 5px;
+	overflow: auto;
+	/* border: 2px solid rgb(91,192,222);
+  border-radius: 8px; */
+	max-height: 700px;
+	height: auto;
+}
+
+#infoModal {
+	z-index: 9999;
+	overflow: auto;
+}
+
+.popover {
+	min-width: 250px;
+	width: auto;
+	max-width: 500px;
+}
+
+.popover-title {
+	background-color: #917d72;
+	font-weight: bold;
+}
+
+.popover-content {
+	background-color: #ad988c;
+	font-weight: italic;
+}
+
+.popover-navigation {
+	background-color: #917d72;
+}
+
+.popover.right>.arrow:after{
+	border-right-color: #917d72;
+}
+
+.popover.left>.arrow:after{
+	border-left-color: #917d72;
+}
+
+.popover.top>.arrow:after{
+	border-top-color: #917d72;
+}
+
+.popover.bottom>.arrow:after{
+	border-bottom-color: #917d72;
+}
+
 #processInputForm input:invalid+span:after {
   content: '✖';
   padding-left: 5px;
@@ -30,39 +89,135 @@
 
 /* Colors */
 .awesome-marker-legend-icon-red {
-  background: url('dependencies/leaflet-awesome-markers/images/markers-soft.png') no-repeat -10px -50px;
+  /* background: url('dependencies/leaflet-awesome-markers/images/markers-soft.png') no-repeat -10px -50px; */
+	background-color: rgb(205,59,40);
 }
 
 .awesome-marker-legend-icon-orange {
-  background: url('dependencies/leaflet-awesome-markers/images/markers-soft.png') no-repeat -43px -50px;
+  /* background: url('dependencies/leaflet-awesome-markers/images/markers-soft.png') no-repeat -43px -50px; */
+	background-color: rgb(235,144,46);
 }
 
 .awesome-marker-legend-icon-beige {
-	background: url('dependencies/leaflet-awesome-markers/images/markers-soft.png') no-repeat -403px -50px;
+	/* background: url('dependencies/leaflet-awesome-markers/images/markers-soft.png') no-repeat -403px -50px; */
+		background-color: rgb(255,198,138);
 }
 
 .awesome-marker-legend-icon-green {
-	background: url('dependencies/leaflet-awesome-markers/images/markers-soft.png') no-repeat -79px -50px;
+	/* background: url('dependencies/leaflet-awesome-markers/images/markers-soft.png') no-repeat -79px -50px; */
+	background-color: rgb(108,166,36);
 }
 
 .awesome-marker-legend-icon-blue {
-	background: url('dependencies/leaflet-awesome-markers/images/markers-soft.png') no-repeat -115px -50px;
+	/* background: url('dependencies/leaflet-awesome-markers/images/markers-soft.png') no-repeat -115px -50px; */
+	background-color: rgb(53,161,209);
 }
 
 .awesome-marker-legend-icon-purple {
-	background: url('dependencies/leaflet-awesome-markers/images/markers-soft.png') no-repeat -151px -50px;
+	/* background: url('dependencies/leaflet-awesome-markers/images/markers-soft.png') no-repeat -151px -50px; */
+	background-color: rgb(198,77,175);
 }
 
 .awesome-marker-legend-icon-pink {
-	background: url('dependencies/leaflet-awesome-markers/images/markers-soft.png') no-repeat -511px -50px;
+	/* background: url('dependencies/leaflet-awesome-markers/images/markers-soft.png') no-repeat -511px -50px; */
+	background-color: rgb(255,138,232);
 }
 
 .awesome-marker-legend-icon-gray {
-	background: url('dependencies/leaflet-awesome-markers/images/markers-soft.png') no-repeat -655px -50px;
+	/* background: url('dependencies/leaflet-awesome-markers/images/markers-soft.png') no-repeat -655px -50px; */
+	background-color: rgb(163,163,163);
 }
 
 .awesome-marker-legend-icon-black {
-	background: url('dependencies/leaflet-awesome-markers/images/markers-soft.png') no-repeat -689px -50px;
+	/* background: url('dependencies/leaflet-awesome-markers/images/markers-soft.png') no-repeat -689px -50px; */
+	background-color: rgb(47,47,47);
+}
+
+.awesome-marker-legend-TransparentIcon-red {
+  /* background: url('dependencies/leaflet-awesome-markers/images/markers-soft.png') no-repeat -10px -50px; */
+	background-color: rgba(205,59,40, 0.6);
+}
+
+.awesome-marker-legend-TransparentIcon-orange {
+  /* background: url('dependencies/leaflet-awesome-markers/images/markers-soft.png') no-repeat -43px -50px; */
+	background-color: rgba(235,144,46,0.6);
+}
+
+.awesome-marker-legend-TransparentIcon-beige {
+	/* background: url('dependencies/leaflet-awesome-markers/images/markers-soft.png') no-repeat -403px -50px; */
+		background-color: rgba(255,198,138,0.6);
+}
+
+.awesome-marker-legend-TransparentIcon-green {
+	/* background: url('dependencies/leaflet-awesome-markers/images/markers-soft.png') no-repeat -79px -50px; */
+	background-color: rgba(108,166,36,0.6);
+}
+
+.awesome-marker-legend-TransparentIcon-blue {
+	/* background: url('dependencies/leaflet-awesome-markers/images/markers-soft.png') no-repeat -115px -50px; */
+	background-color: rgba(53,161,209,0.6);
+}
+
+.awesome-marker-legend-TransparentIcon-purple {
+	/* background: url('dependencies/leaflet-awesome-markers/images/markers-soft.png') no-repeat -151px -50px; */
+	background-color: rgba(198,77,175,0.6);
+}
+
+.awesome-marker-legend-TransparentIcon-pink {
+	/* background: url('dependencies/leaflet-awesome-markers/images/markers-soft.png') no-repeat -511px -50px; */
+	background-color: rgba(255,138,232,0.6);
+}
+
+.awesome-marker-legend-TransparentIcon-gray {
+	/* background: url('dependencies/leaflet-awesome-markers/images/markers-soft.png') no-repeat -655px -50px; */
+	background-color: rgba(163,163,163,0.6);
+}
+
+.awesome-marker-legend-TransparentIcon-black {
+	/* background: url('dependencies/leaflet-awesome-markers/images/markers-soft.png') no-repeat -689px -50px; */
+	background-color: rgba(47,47,47,0.6);
+}
+
+/* .marker-cluster div{
+	width: 30px;
+	height: 30px;
+	border-radius: 15px;
+} */
+
+.cluster-small div{
+	width: 20px;
+	height: 20px;
+	border-radius: 10px;
+	margin-left: 10px;
+	margin-top: 10px;
+	}
+
+.cluster-medium div{
+	width: 24px;
+	height: 24px;
+	border-radius: 12px;
+	margin-left: 8px;
+	margin-top: 8px;
+	}
+
+.cluster-large div{
+	width: 30px;
+	height: 30px;
+	border-radius: 15px;
+	margin-left: 5px;
+	margin-top: 5px;
+	}
+
+.cluster-small span{
+	line-height: 20px;
+}
+
+.cluster-medium span{
+	line-height: 24px;
+}
+
+.cluster-large span{
+	line-height: 30px;
 }
 
 /* On small screens, set height to 'auto' for sidenav and grid */
@@ -79,10 +234,12 @@
 #header{
 	background: #E6EEFB;
 	z-index: 2000;
+	border-bottom: 2px solid gray;
 }
 
 #content{
 	background: #E6EEFB;
+	/* overflow: auto; */
 }
 
 #map {
@@ -94,8 +251,21 @@
 #legend{
 	position: absolute;
 	bottom: 0;
-	width: 200;
-	max-width: 200;
+	/* width: 20%;
+	max-width: 20%; */
+}
+
+#mapUtilButtons{
+	width: 250px;
+  height: 80px;
+  position: absolute;
+}
+
+#sideBarButtons{
+	margin-top: 90px;
+  width: 90px;
+  height: 80vh;
+  position: absolute;
 }
 
 .leaflet-left .leaflet-control-layers {
@@ -188,6 +358,20 @@
   /* right: 40px; */
 }
 
+#rangeSliderForBalanceWrapper{
+  margin-right: 10px;
+  margin-left: auto;
+  left: 10px;
+  /* right: 40px; */
+}
+
+#rangeSliderForFilteringWrapper{
+	margin-right: 10px;
+  margin-left: auto;
+  left: 10px;
+  /* right: 40px; */
+}
+
 .hiddenTable {
   display: table;
   width: 100%;
@@ -250,14 +434,14 @@
 	margin-top:25px;
 	height: auto !important;
 	max-height: 700px;
-  overflow-y: scroll;
+  overflow: auto;
 }
 
 #parameterManagement {
 	margin-top:25px;
 	height: auto !important;
 	max-height: 525px;
-  overflow-y: scroll;
+	overflow: auto;
 }
 
 .info {
@@ -268,11 +452,12 @@
     box-shadow: 0 0 15px rgba(0,0,0,0.2);
     border-radius: 5px;
 
-		width: 325px;
-		max-width: 325px;
+		min-width: 250px;
+		width: auto;
+		max-width: 40%;
 		height: auto !important;
-		max-height: 400px;
-		overflow-y: auto;
+		max-height: 10%;
+		overflow: auto;
 }
 .info h4 {
     margin: 0 0 5px;
@@ -289,11 +474,11 @@
 		border-radius: 5px;
     line-height: 18px;
     color: #555;
-		width: auto;
-		max-width: 325px;
+		width: 50%;
+		max-width: 50%;
 		height: auto !important;
-		max-height: 400px;
-	  overflow-y: auto;
+		max-height: 10%;
+	  overflow: auto;
 		display: inline-block
 }
 .legend i {
@@ -302,7 +487,6 @@
 		max-width: 30px;
     float: left;
     margin-right: 8px;
-    opacity: 0.7;
 }
 .legend h4 {
     margin: 0 0 5px;
@@ -323,11 +507,12 @@
 		border-radius: 5px;
     line-height: 18px;
     color: #555;
+		min-width: 315px;
 		width: auto;
-		max-width: 325px;
+		max-width: 50%;
 		height: auto !important;
-		max-height: 400px;
-	  overflow-y: auto;
+		max-height: 10%;
+	  overflow: auto;
 		display: inline-block
 }
 .legendMap i {
@@ -347,11 +532,12 @@
 
 
 #radarInputForm {
-	height: auto !important;
-	max-height: 200px;
+	padding: 5px;
+	height: auto;
+	max-height: 190px;
 	border: 2px solid gray;
   border-radius: 8px;
-  overflow-y: scroll;
+  overflow: auto;
 }
 
 #poiInputForm {
@@ -359,19 +545,19 @@
 	max-height: 900px;
 	border: 2px solid gray;
   border-radius: 8px;
-  overflow-y: scroll;
+  overflow: auto;
 }
 
 #referencedIndicatorOverview {
 	height: auto !important;
 	max-height: 250px;
-  overflow-y: scroll;
+  overflow: auto;
 }
 
 #referencedGeoresourcesOverview {
 	height: auto !important;
 	max-height: 250px;
-  overflow-y: scroll;
+  overflow: auto;
 }
 
 
@@ -384,13 +570,15 @@
 }
 
 #sidebarIndicatorConfig {
-    min-width: 700px;
-    max-width: 700px;
+    min-width: 35%;
+    max-width: 35%;
 		height: 94.1vh;
+		max-height: 94.1vh;
 		/* min-height: 100vh; */
 		background: #E6EEFB;
-		transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
-    transform-origin: center left; /* Set the transformed position of sidebar to center left side. */
+		/* transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
+    transform-origin: center left; /* Set the transformed position of sidebar to center left side. */ */
+		overflow: auto;
 }
 
 #sidebarIndicatorConfig.hidden {
@@ -399,13 +587,15 @@
 }
 
 #sidebarFilter {
-    min-width: 700px;
-    max-width: 700px;
+    min-width: 35%;
+    max-width: 35%;
 		height: 94.1vh;
+		max-height: 98%;
 		/* min-height: 100vh; */
 		background: #E6EEFB;
-		transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
-    transform-origin: center left; /* Set the transformed position of sidebar to center left side. */
+		/* transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
+    transform-origin: center left; /* Set the transformed position of sidebar to center left side. */ */
+		overflow: auto;
 }
 
 #sidebarFilter.hidden {
@@ -414,13 +604,14 @@
 }
 
 #sidebarBalance {
-    min-width: 700px;
-    max-width: 700px;
+	min-width: 35%;
+	max-width: 35%;
 		height: 94.1vh;
 		/* min-height: 100vh; */
 		background: #E6EEFB;
-		transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
-    transform-origin: center left; /* Set the transformed position of sidebar to center left side. */
+		/* transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
+    transform-origin: center left; /* Set the transformed position of sidebar to center left side. */ */
+		overflow: auto;
 }
 
 #sidebarBalance.hidden {
@@ -429,13 +620,14 @@
 }
 
 #sidebarReachability {
-    min-width: 700px;
-    max-width: 700px;
+	min-width: 35%;
+	max-width: 35%;
 		height: 94.1vh;
 		/* min-height: 100vh; */
 		background: #E6EEFB;
-		transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
-    transform-origin: center left; /* Set the transformed position of sidebar to center left side. */
+		/* transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
+    transform-origin: center left; /* Set the transformed position of sidebar to center left side. */ */
+		overflow: auto;
 }
 
 #sidebarReachability.hidden {
@@ -444,13 +636,14 @@
 }
 
 #sidebarDiagrams {
-    min-width: 780px;
-    max-width: 780px;
+	min-width: 42%;
+	max-width: 42%;
 		/* min-height: 100vh; */
 		height: 94.1vh;
 		background: #E6EEFB;
-		transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
-    transform-origin: center left; /* Set the transformed position of sidebar to center left side. */
+		/* transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
+    transform-origin: center left; /* Set the transformed position of sidebar to center left side. */ */
+		overflow: auto;
 }
 
 #sidebarDiagrams.hidden {
@@ -459,13 +652,14 @@
 }
 
 #sidebarRadarDiagram {
-    min-width: 780px;
-    max-width: 780px;
+	min-width: 42%;
+	max-width: 42%;
 		/* min-height: 100vh; */
 		height: 94.1vh;
 		background: #E6EEFB;
-		transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
-    transform-origin: center left; /* Set the transformed position of sidebar to center left side. */
+		/* transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
+    transform-origin: center left; /* Set the transformed position of sidebar to center left side. */ */
+		overflow: auto;
 }
 
 #sidebarRadarDiagram.hidden {
@@ -474,13 +668,14 @@
 }
 
 #sidebarPoi {
-    min-width: 700px;
-    max-width: 700px;
+	min-width: 35%;
+	max-width: 35%;
 		/* min-height: 100vh; */
 		height: 94.1vh;
 		background: #E6EEFB;
-		transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
-    transform-origin: center left; /* Set the transformed position of sidebar to center left side. */
+		/* transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
+    transform-origin: center left; /* Set the transformed position of sidebar to center left side. */ */
+		overflow: auto;
 }
 
 #sidebarPoi.hidden {
@@ -489,13 +684,14 @@
 }
 
 #sidebarRegressionDiagram {
-    min-width: 780px;
-    max-width: 780px;
+	min-width: 42%;
+	max-width: 42%;
 		/* min-height: 100vh; */
 		height: 94.1vh;
 		background: #E6EEFB;
-		transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
-    transform-origin: center left; /* Set the transformed position of sidebar to center left side. */
+		/* transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
+    transform-origin: center left; /* Set the transformed position of sidebar to center left side. */ */
+		overflow: auto;
 }
 
 #sidebarRegressionDiagram.hidden {
@@ -504,13 +700,14 @@
 }
 
 #sidebarProcessing {
-    min-width: 700px;
-    max-width: 700px;
+	min-width: 35%;
+	max-width: 35%;
 		/* min-height: 100vh; */
 		height: 94.1vh;
 		background: #E6EEFB;
-		transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
-    transform-origin: center left; /* Set the transformed position of sidebar to center left side. */
+		/* transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
+    transform-origin: center left; /* Set the transformed position of sidebar to center left side. */ */
+		overflow: auto;
 }
 
 #sidebarProcessing.hidden {
@@ -521,7 +718,8 @@
 @media (max-width: 768px) {
     #sidebarIndicatorConfig {
         /* margin-left: -780px; */
-				transform: rotateY(100deg);
+				/* transform: rotateY(100deg); */
+				overflow: auto;
     }
     #sidebarIndicatorConfig.hidden {
         margin-left: 0;
@@ -530,7 +728,8 @@
 
 		#sidebarFilter {
         /* margin-left: -780px; */
-				transform: rotateY(100deg);
+				/* transform: rotateY(100deg); */
+				overflow: auto;
     }
     #sidebarFilter.hidden {
         margin-left: 0;
@@ -539,7 +738,8 @@
 
 		#sidebarReachability {
         /* margin-left: -780px; */
-				transform: rotateY(100deg);
+				/* transform: rotateY(100deg); */
+				overflow: auto;
     }
     #sidebarReachability.hidden {
         margin-left: 0;
@@ -548,7 +748,8 @@
 
 		#sidebarBalance {
         /* margin-left: -780px; */
-				transform: rotateY(100deg);
+				/* transform: rotateY(100deg); */
+				overflow: auto;
     }
     #sidebarBalance.hidden {
         margin-left: 0;
@@ -557,7 +758,8 @@
 
 		#sidebarDiagrams {
         /* margin-left: -780px; */
-				transform: rotateY(100deg);
+				/* transform: rotateY(100deg); */
+				overflow: auto;
     }
     #sidebarDiagrams.hidden {
         margin-left: 0;
@@ -565,7 +767,8 @@
 
 		#sidebarRadarDiagram {
         /* margin-left: -780px; */
-				transform: rotateY(100deg);
+				/* transform: rotateY(100deg); */
+				overflow: auto;
     }
     #sidebarRadarDiagram.hidden {
         margin-left: 0;
@@ -573,7 +776,8 @@
 
 		#sidebarPoi {
         /* margin-left: -780px; */
-				transform: rotateY(100deg);
+				/* transform: rotateY(100deg); */
+				overflow: auto;
     }
     #sidebarPoi.hidden {
         margin-left: 0;
@@ -581,7 +785,8 @@
 
 		#sidebarRegressionDiagram {
         /* margin-left: -780px; */
-				transform: rotateY(100deg);
+				/* transform: rotateY(100deg); */
+				overflow: auto;
     }
     #sidebarRegressionDiagram.hidden {
         margin-left: 0;
@@ -589,7 +794,8 @@
 
 		#sidebarProcessing {
         /* margin-left: -780px; */
-				transform: rotateY(100deg);
+				/* transform: rotateY(100deg); */
+				overflow: auto;
     }
     #sidebarProcessing.hidden {
         margin-left: 0;
@@ -597,66 +803,95 @@
 }
 
 #indicatorSetup{
-	margin-left: 15px;
-	margin-right: 15px;
-	margin-top: 0px;
+	margin-left: 1%;
+	margin-right: 1%;
+	/* margin-top: 1%; */
 	z-index: 7000;
+	height: 98%;
+	max-height: 98%;
+	overflow: auto;
 }
 
 #kommonitorFilter{
-	margin-left: 35px;
-	margin-right: 35px;
-	margin-top: 10px;
+	margin-left: 1%;
+	margin-right: 1%;
+	/* margin-top: 1%x; */
 	z-index: 7000;
+	height: 98%;
+	max-height: 98%;
+	overflow: auto;
 }
 
 #kommonitorBalance{
-	margin-left: 35px;
-	margin-right: 35px;
-	margin-top: 10px;
+	margin-left: 1%;
+	margin-right: 1%;
+	/* margin-top: 1%; */
 	z-index: 7000;
+	height: 98%;
+	max-height: 98%;
+	overflow: auto;
 }
 
 #kommonitorReachability{
-	margin-left: 35px;
-	margin-right: 35px;
-	margin-top: 10px;
+	margin-left: 1%;
+	margin-right: 1%;
+	/* margin-top: 1%; */
 	z-index: 7000;
+	height: 98%;
+	max-height: 98%;
+	overflow: auto;
 }
 
 #indicatorProcessing{
-	margin-left: 35px;
-	margin-right: 35px;
-	margin-top: 10px;
+	margin-left: 1%;
+	margin-right: 1%;
+	/* margin-top: 1%; */
 	z-index: 7000;
+	/* do not specify height, as this will put a lot of empty space on page*/
+	/* height: 98%; */
+	max-height: 98%;
+	overflow: auto;
 }
 
 #indicatorRadar{
-	margin-left: 5px;
-	margin-right: 5px;
-	margin-top: 10px;
+	margin-left: 1%;
+	margin-right: 1%;
+	/* margin-top: 1%; */
 	z-index: 7000;
+	height: 98%;
+	max-height: 98%;
+	overflow: auto;
 }
 
 #poi{
-	margin-left: 5px;
-	margin-right: 5px;
-	margin-top: 10px;
+	margin-left: 1%;
+	margin-right: 1%;
+	/* margin-top: 1%; */
 	z-index: 7000;
+	height: 98%;
+	max-height: 98%;
+	overflow: auto;
 }
 
 #indicatorRegression{
-	margin-left: 5px;
-	margin-right: 5px;
-	margin-top: 10px;
+	margin-left: 1%;
+	margin-right: 1%;
+	/* margin-top: 1%; */
 	z-index: 7000;
+	/* do not specify height, as this will put a lot of empty space on page*/
+	/* height: 98%; */
+	max-height: 98%;
+	overflow: auto;
 }
 
 #indicatorDiagrams{
-	margin-left: 5px;
-	margin-right: 5px;
-	margin-top: 10px;
+	margin-left: 1%;
+	margin-right: 1%;
+	/* margin-top: 1%; */
 	z-index: 7000;
+	height: 98%;
+	max-height: 98%;
+	overflow: auto;
 }
 
 .btn-circle {
@@ -953,7 +1188,7 @@ hr {
 }
 
 .loading-overlay-sidebar {
-  width: 780px;
+  width: 42%;
   height: 100%;
   position: absolute;
   background-color: rgb(128,128,128);
@@ -983,7 +1218,7 @@ hr {
 }
 
 .loading-overlay-sidebar-small {
-  width: 700px;
+  width: 35%;
   height: 100%;
   position: absolute;
   background-color: rgb(128,128,128);
