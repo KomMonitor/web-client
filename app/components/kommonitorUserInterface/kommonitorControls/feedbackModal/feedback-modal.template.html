@@ -7,7 +7,7 @@
 				<button type="button" class="close" data-dismiss="modal">&times;</button>
 				<h4 class="modal-title"><b>Feedback-Formular</b></h4>
 			</div>
-			<div class="modal-body" style="text-align: justify">
+			<div id="feedbackModalBody" class="modal-body" style="text-align: justify">
 
 						<!-- <form action="mailto:Thomas.Blasche@amt62.essen.de" method="post"> -->
 						<!-- <form action="mailto:Christian.Danowski-Buhren@hs-bochum.de" method="post"> -->
@@ -64,9 +64,37 @@
 
 						</form>
 
+						<div id="mailSuccessInfo" align="center" ng-show="success" class="alert alert-success fade in">
+							<button class="close" ng-click="onCloseSuccessAlert()" aria-label="close">&times;</button>
+
+							<br/>
+
+							<p>Ihre Feedback-Mitteilung wurde erfolgreich versendet.</p>
+
+							<br/>
+							<strong>Vielen Dank!</strong>
+
+						</div>
+
+						<div id="mailErrorInfo" align="center" ng-show="error"
+							class="alert alert-danger fade in">
+							<button class="close" ng-click="onCloseErrorAlert()" aria-label="close">&times;</button>
+							<strong>Fehler</strong>
+							Ihre Feedback-Mitteilung konnte leider nicht gesendet werden.
+							<p></p>
+							<p>
+								<strong>Fehlernachricht: </strong>{{error}}
+							</p>
+						</div>
+
 			<div class="modal-footer">
 				<button type="button" class="btn btn-default" data-dismiss="modal">Schlie&szlig;en</button>
 			</div>
+
+		</div>
+
+
+
 		</div>
 
 	</div>

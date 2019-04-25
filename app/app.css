@@ -6,6 +6,20 @@
 	/* overflow: hidden; */
 }
 
+#mailSuccessInfo{
+    position: fixed;
+    bottom: 20px;
+    left:2%;
+    width: 96%;
+}
+
+#mailErrorInfo{
+    position: fixed;
+    bottom: 20px;
+    left:2%;
+    width: 96%;
+}
+
 /* Set height of the grid so .sidenav can be 100% (adjust if needed) */
 .row.wps-ui {
 	height: 98vh;

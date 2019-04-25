@@ -14,6 +14,9 @@ angular.module('feedbackModal').component('feedbackModal', {
 		$scope.feedbackContent;
 		$scope.like = "gut";
 
+		$scope.error = undefined;
+		$scope.success = undefined;
+
 		$scope.onSubmit = function(){
 				// var body = "Titel:  " + $scope.titel + "\n";
 				var body = "Fachbereich/Organisation:  " + $scope.organization + "\n\n";
@@ -23,7 +26,7 @@ angular.module('feedbackModal').component('feedbackModal', {
 				body += "KomMonitor Bewertung:  " + $scope.like + "\n\n";
 
 				var mailInput = {};
-				mailInput.recipientMail = recipientMail;
+				mailInput.recipientMail = feedbackMailRecipient;
 				mailInput.subject = "KomMonitor - Feedback";
 				mailInput.body = body;
 
@@ -36,42 +39,41 @@ angular.module('feedbackModal').component('feedbackModal', {
 				return;
 			}
 
+			$scope.error = undefined;
+			$scope.success = undefined;
+
 			$http({
 				url: emailURL,
 				method: "POST",
 				data: mailInput
 			}).then(function successCallback(response) {
 
-					alert("Success");
+				$scope.error = undefined;
+				$scope.success = true;
 
-				}, function errorCallback(response) {
+				$("#mailSuccessInfo").show();
 
-					alert("Failed");
+				// auto-close after 3 seconds
+				// setTimeout(function() {
+		    //     $("#mailSuccessInfo").alert('close');
+		    // }, 3000);
+
+			}, function errorCallback(error) {
+
+					$scope.error = error;
+					$scope.success = undefined;
+
+					$("#mailErrorInfo").show();
 			});
-
-		  // var link = "mailto:"+ feedbackMailRecipient +
-		  //            "?"+
-		  //            "subject=" + encodeURIComponent("KomMonitor - Feedback") +
-		  //            "&body=" + encodeURIComponent(body);
-		  // window.location.href = link;
-
-			// Email.send({
-			//     SecureToken : "77870d8f-41cb-4aa4-a9dc-2eae310cbc92",
-			// 		// Host : "mail.gmx.net",
-			//     // Username : "kommonitor@gmx.de",
-			//     // Password : "ProjektKM2017",
-			//     To : feedbackMailRecipient	,
-			//     From : "kommonitor@gmx.de",
-			//     Subject : "KomMonitor - Feedback",
-			//     Body : body
-			// }).then(
-			//   message => alert(message)
-			// );
-
-
-
-			// console.log(link);
 		}
+
+		$scope.onCloseSuccessAlert = function(){
+			$("#mailSuccessInfo").hide();
+		};
+
+		$scope.onCloseErrorAlert = function(){
+			$("#mailErrorInfo").hide();
+		};
 
 		$scope.validate = function(){
 			if ($scope.feedbackType && $scope.feedbackContent && $scope.like){
@@ -86,6 +88,9 @@ angular.module('feedbackModal').component('feedbackModal', {
 			$scope.feedbackType = "Frage";
 			$scope.feedbackContent = undefined;
 			$scope.like = "gut";
+
+			$scope.error = undefined;
+			$scope.success = undefined;
 		}
 
 	}
