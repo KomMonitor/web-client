@@ -460,7 +460,7 @@
 
 .info {
     padding: 6px 8px;
-    font: 14px/16px Arial, Helvetica, sans-serif;
+    font: 12px/14px Arial, Helvetica, sans-serif;
     background: white;
     /* background: rgba(255,255,255,1); */
     box-shadow: 0 0 15px rgba(0,0,0,0.2);
@@ -481,7 +481,7 @@
 
 .legend {
 		padding: 6px 8px;
-		font: 14px/16px Arial, Helvetica, sans-serif;
+		font: 12px/14px Arial, Helvetica, sans-serif;
 		background: white;
 		/* background: rgba(255,255,255,1); */
 		box-shadow: 0 0 15px rgba(0,0,0,0.2);
@@ -514,7 +514,7 @@
 
 .legendMap {
 		padding: 6px 8px;
-		font: 14px/16px Arial, Helvetica, sans-serif;
+		font: 12px/14px Arial, Helvetica, sans-serif;
 		background: white;
 		/* background: rgba(255,255,255,1); */
 		box-shadow: 0 0 15px rgba(0,0,0,0.2);
