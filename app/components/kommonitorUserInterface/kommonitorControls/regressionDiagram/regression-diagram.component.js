@@ -238,7 +238,7 @@ angular
 									else if(feature.properties["outlier"].includes("low") && kommonitorDataExchangeService.useOutlinerDetectionOnIndicator){
 										color = defaultColorForOutliers_low;
 									}
-									else if(feature.properties["outlier"].includes("high") && ){
+									else if(feature.properties["outlier"].includes("high") && kommonitorDataExchangeService.useOutlinerDetectionOnIndicator){
 										color = defaultColorForOutliers_high;
 									}
 									else if($scope.isMeasureOfValueChecked){
