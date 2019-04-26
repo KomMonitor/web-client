@@ -254,7 +254,9 @@ angular
 										var seriesItem = {
 											value: +Number(cartographicFeature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals),
 											itemStyle: {
-												color: color
+												color: color,
+												borderWidth: 1,
+												borderColor: 'black'
 											}
 										};
 
@@ -670,6 +672,10 @@ angular
 											series: [{
 													// name: indicatorMetadataAndGeoJSON.indicatorName,
 													type: 'bar',
+													itemStyle: {
+														borderWidth: 1,
+														borderColor: 'black'
+													},
 													emphasis: {
 														itemStyle: {
 															borderWidth: 4,
