@@ -468,9 +468,9 @@
 
 		min-width: 250px;
 		width: auto;
-		max-width: 40%;
+		max-width: 350px;
 		height: auto !important;
-		max-height: 10%;
+		max-height: 350px;
 		overflow: auto;
 }
 .info h4 {
@@ -489,9 +489,9 @@
     line-height: 18px;
     color: #555;
 		width: 50%;
-		max-width: 50%;
+		max-width: 300px;
 		height: auto !important;
-		max-height: 10%;
+		max-height: 400px;
 	  overflow: auto;
 		display: inline-block
 }
@@ -523,9 +523,9 @@
     color: #555;
 		min-width: 315px;
 		width: auto;
-		max-width: 50%;
+		max-width: 350px;
 		height: auto !important;
-		max-height: 10%;
+		max-height: 400px;
 	  overflow: auto;
 		display: inline-block
 }
