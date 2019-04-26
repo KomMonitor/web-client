@@ -290,7 +290,7 @@ angular
 										bins = ecStat.histogram(indicatorValueArray);
 										$scope.histogramCanBeDisplayed = true;
 									}
-									catch{
+									catch(error){
 										console.log("Histogram chart cannot be drawn");
 										$scope.histogramCanBeDisplayed = false;
 										if(!$scope.histogramChart){

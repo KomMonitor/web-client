@@ -462,7 +462,7 @@ angular.module('kommonitorMap').component(
                               ["Maßeinheit", indicatorMetadata.unit],
                               // ["Definition des Leitindikators", "-"],
                               // ["Klassifizierung", "-"],
-                              // ["Interpretation", "-"],
+                              ["Interpretation", "-"],
                               ["Verknüpfte Indikatoren", linkedIndicatorsString],
                               ["Verknüpfte Geodaten", linkedGeoresourcesString],
                               ["Datenquelle", indicatorMetadata.metadata.datasource],
