@@ -28,6 +28,77 @@ angular.module('kommonitorMap').component(
                     const defaultColorForHoveredFeatures = __env.defaultColorForHoveredFeatures;
                     const defaultColorForClickedFeatures = __env.defaultColorForClickedFeatures;
 
+                    const defaultColorForOutliers_high = __env.defaultColorForOutliers_high;
+                    const defaultBorderColorForOutliers_high = __env.defaultBorderColorForOutliers_high;
+                    const defaultFillOpacityForOutliers_high = __env.defaultFillOpacityForOutliers_high;
+                    const defaultColorForOutliers_low = __env.defaultColorForOutliers_low;
+                    const defaultBorderColorForOutliers_low = __env.defaultBorderColorForOutliers_low;
+                    const defaultFillOpacityForOutliers_low = __env.defaultFillOpacityForOutliers_low;
+
+                    const outlierPropertyName = "outlier";
+                    const outlierPropertyValue_high_soft = "high-soft";
+                    const outlierPropertyValue_low_soft = "low-soft";
+                    const outlierPropertyValue_high_extreme = "high-extreme";
+                    const outlierPropertyValue_low_extreme = "low-extreme";
+                    const outlierPropertyValue_no = "no";
+
+                    $scope.containsOutliers_high = false;
+                    $scope.containsOutliers_low = false;
+                    $scope.outliers_high = undefined;
+                    $scope.outliers_low = undefined;
+                    $scope.useOutlinerDetectionOnIndicator = true;
+
+                    $scope.outlierStyle_high = {
+                        weight: 2,
+                        opacity: 1,
+                        color: defaultBorderColorForOutliers_high,
+                        dashArray: '3',
+                        fillOpacity: defaultFillOpacityForOutliers_high,
+                        fillColor: defaultColorForOutliers_high
+                    };
+
+                    $scope.outlierStyle_low = {
+                        weight: 2,
+                        opacity: 1,
+                        color: defaultBorderColorForOutliers_low,
+                        dashArray: '3',
+                        fillOpacity: defaultFillOpacityForOutliers_low,
+                        fillColor: defaultColorForOutliers_low
+                    };
+
+                    var refreshOutliersStyle = function(){
+
+                      $scope.containsOutliers_high = false;
+                      $scope.containsOutliers_low = false;
+                      $scope.outlierMinValue = undefined;
+                      $scope.outlierMaxValue = undefined;
+
+                      var fillOpacity_high = 1;
+                      var fillOpacity_low = 1;
+                      if($scope.useTransparencyOnIndicator){
+                        fillOpacity_high = defaultFillOpacityForOutliers_high;
+                        fillOpacity_low = defaultFillOpacityForOutliers_low;
+                      }
+
+                      $scope.outlierStyle_high = {
+                          weight: 2,
+                          opacity: 1,
+                          color: defaultBorderColorForOutliers_high,
+                          dashArray: '',
+                          fillOpacity: fillOpacity_high,
+                          fillColor: defaultColorForOutliers_high
+                      };
+
+                      $scope.outlierStyle_low = {
+                          weight: 2,
+                          opacity: 1,
+                          color: defaultBorderColorForOutliers_low,
+                          dashArray: '',
+                          fillOpacity: fillOpacity_low,
+                          fillColor: defaultColorForOutliers_low
+                      };
+                    };
+
                     $scope.useTransparencyOnIndicator = __env.useTransparencyOnIndicator;
 
                     //allowesValues: equal_interval, quantile, jenks
@@ -539,6 +610,7 @@ angular.module('kommonitorMap').component(
 
                           this._div.innerHTML += $scope.appendSpatialUnitOptions();
                           this._div.innerHTML += $scope.appendTransparencyCheckbox();
+                          this._div.innerHTML += $scope.appendOutlinersCheckbox();
                           // this._div.innerHTML += $scope.appendSimplifyGeometriesOptions();
                           return this._div;
                       };
@@ -618,6 +690,20 @@ angular.module('kommonitorMap').component(
                       preserveHighlightedFeatures();
                     });
 
+                    $(document).on('click','#controlIndicatorOutlinerDetection',function(e){
+                      var indicatorOutlinerCheckbox = document.getElementById('controlIndicatorOutlinerDetection');
+                      if (indicatorOutlinerCheckbox.checked){
+                        $scope.useOutlinerDetectionOnIndicator = true;
+                      }
+                      else{
+                        $scope.useOutlinerDetectionOnIndicator = false;
+                      }
+                      $rootScope.$broadcast("restyleCurrentLayer");
+
+                      // ensure that highlighted features remain highlighted
+                      preserveHighlightedFeatures();
+                    });
+
                     $scope.$on("changeClassifyMethod", function (event, method) {
                       $scope.classifyMethod = method;
 
@@ -675,6 +761,43 @@ angular.module('kommonitorMap').component(
                       return innerHTMLString;
                     };
 
+                    $scope.appendOutlinersCheckbox = function(){
+                      // <label class='checkbox-inline' >
+        							// 	<input type="checkbox" value="" checked>
+        							// 	<b title="">Text</b>
+        							// </label>
+                      var innerHTMLString = "<label class='checkbos-inline' title='Einstellung, ob extreme Ausreißer gesondert markiert werden sollen'>";
+                      innerHTMLString += "<input id='controlIndicatorOutlinerDetection' type='checkbox' value='useOutlinerDetection'";
+                      if($scope.useOutlinerDetectionOnIndicator){
+                        innerHTMLString += " checked";
+                      }
+                      innerHTMLString += ">";
+
+                      innerHTMLString += '<b>extreme Ausreißer gesondert markieren</b>';
+                      innerHTMLString += '</label>';
+
+                      return innerHTMLString;
+                    };
+
+                    function makeOutliersLowLegendString (outliersArray){
+                      if(outliersArray.length > 1){
+
+                        return "(" + (Number(outliersArray[0]).toLocaleString("de-DE", {maximumFractionDigits: numberOfDecimals})) +  " &ndash; " + (Number(outliersArray[outliersArray.length -1]).toLocaleString("de-DE", {maximumFractionDigits: numberOfDecimals})) + ")";
+                      }
+                      else{
+                        return "(" + (Number(outliersArray[0]).toLocaleString("de-DE", {maximumFractionDigits: numberOfDecimals})) + ")";
+                      }
+                    };
+
+                    function makeOutliersHighLegendString (outliersArray){
+                      if(outliersArray.length > 1){
+                        return "(" + (Number(outliersArray[0]).toLocaleString("de-DE", {maximumFractionDigits: numberOfDecimals})) +  " &ndash; " + (Number(outliersArray[outliersArray.length -1]).toLocaleString("de-DE", {maximumFractionDigits: numberOfDecimals})) + ")";
+                      }
+                      else{
+                        return "(" + (Number(outliersArray[0]).toLocaleString("de-DE", {maximumFractionDigits: numberOfDecimals})) + ")";
+                      }
+                    };
+
                     $scope.makeDefaultLegend = function(defaultClassificationMapping){
 
                       if(!$scope.showLegendControl){
@@ -729,23 +852,36 @@ angular.module('kommonitorMap').component(
 
                         $scope.div.innerHTML += $scope.appendClassifyRadioOptions();
 
-                        var useFilteredOrZeroValues = false;
+                        var useFilteredOrZeroOrOutlierValues = false;
+
+                        if($scope.containsOutliers_low){
+                          $scope.div.innerHTML +=
+                              '<i style="background:' + defaultColorForOutliers_low + '; opacity: ' + opacity + ';"></i> ' +
+                              "extreme untere Ausrei&szlig;er " + makeOutliersLowLegendString($scope.outliers_low) + '<br/>';
+                              useFilteredOrZeroOrOutlierValues = true;
+                        }
+                        if($scope.containsOutliers_high){
+                          $scope.div.innerHTML +=
+                              '<i style="background:' + defaultColorForOutliers_high + '; opacity: ' + opacity + ';"></i> ' +
+                              "extreme obere Ausrei&szlig;er " + makeOutliersHighLegendString($scope.outliers_high) + '<br/>';
+                              useFilteredOrZeroOrOutlierValues = true;
+                        }
 
                         if(kommonitorDataExchangeService.filteredIndicatorFeatureNames.length > 0){
                           $scope.div.innerHTML +=
                               '<i style="background:' + defaultColorForFilteredValues + '; border: 2px solid ' + defaultBorderColorForFilteredValues + '; opacity: ' + opacity + ';"></i> ' +
-                              "gefilterte Features" + '<br>';
-                              useFilteredOrZeroValues = true;
+                              "gefilterte Features" + '<br/>';
+                              useFilteredOrZeroOrOutlierValues = true;
                         }
 
                         if($scope.currentIndicatorContainsZeroValues){
                           $scope.div.innerHTML +=
                               '<i style="background:' + $scope.defaultColorForZeroValues + '; opacity: ' + opacity + ';"></i> ' +
-                              "0" + '<br>';
-                              useFilteredOrZeroValues = true;
+                              "0" + '<br/>';
+                              useFilteredOrZeroOrOutlierValues = true;
                         }
 
-                        if(useFilteredOrZeroValues){
+                        if(useFilteredOrZeroOrOutlierValues){
                           $scope.div.innerHTML += '<br/>';
                         }
 
@@ -816,10 +952,30 @@ angular.module('kommonitorMap').component(
 
                         $scope.div.innerHTML += $scope.appendClassifyRadioOptions();
 
+                        var useFilteredOrZeroOrOutlierValues = false;
+
+                        if($scope.containsOutliers_low){
+                          $scope.div.innerHTML +=
+                              '<i style="background:' + defaultColorForOutliers_low + '; opacity: ' + opacity + ';"></i> ' +
+                              "extreme untere Ausrei&szlig;er " + makeOutliersLowLegendString($scope.outliers_low) + '<br/>';
+                              useFilteredOrZeroOrOutlierValues = true;
+                        }
+                        if($scope.containsOutliers_high){
+                          $scope.div.innerHTML +=
+                              '<i style="background:' + defaultColorForOutliers_high + '; opacity: ' + opacity + ';"></i> ' +
+                              "extreme obere Ausrei&szlig;er " + makeOutliersHighLegendString($scope.outliers_high) + '<br/>';
+                              useFilteredOrZeroOrOutlierValues = true;
+                        }
+
                         if(kommonitorDataExchangeService.filteredIndicatorFeatureNames.length > 0){
                           $scope.div.innerHTML +=
                               '<i style="background:' + defaultColorForFilteredValues + '; border: 2px solid ' + defaultBorderColorForFilteredValues + '; opacity: ' + opacity + ';"></i> ' +
                               "gefilterte Features" + '<br/>';
+                              useFilteredOrZeroOrOutlierValues = true;
+                        }
+
+                        if(useFilteredOrZeroOrOutlierValues){
+                          $scope.div.innerHTML += '<br/>';
                         }
 
                         // dynamic legend creation depending on number of positive and negative classes
@@ -915,16 +1071,37 @@ angular.module('kommonitorMap').component(
 
                         $scope.div.innerHTML += $scope.appendClassifyRadioOptions();
 
+                        var useFilteredOrZeroOrOutlierValues = false;
+
+                        if($scope.containsOutliers_low){
+                          $scope.div.innerHTML +=
+                              '<i style="background:' + defaultColorForOutliers_low + '; opacity: ' + opacity + ';"></i> ' +
+                              "extreme untere Ausrei&szlig;er " + makeOutliersLowLegendString($scope.outliers_low) + '<br/>';
+                              useFilteredOrZeroOrOutlierValues = true;
+                        }
+                        if($scope.containsOutliers_high){
+                          $scope.div.innerHTML +=
+                              '<i style="background:' + defaultColorForOutliers_high + '; opacity: ' + opacity + ';"></i> ' +
+                              "extreme obere Ausrei&szlig;er " + makeOutliersHighLegendString($scope.outliers_high) + '<br/>';
+                              useFilteredOrZeroOrOutlierValues = true;
+                        }
+
                         if(kommonitorDataExchangeService.filteredIndicatorFeatureNames.length > 0){
                           $scope.div.innerHTML +=
                               '<i style="background:' + defaultColorForFilteredValues + '; border: 2px solid ' + defaultBorderColorForFilteredValues + '; opacity: ' + opacity + ';"></i> ' +
                               "gefilterte Features" + '</br>';
+                              useFilteredOrZeroOrOutlierValues = true;
                         }
 
                         if($scope.currentIndicatorContainsZeroValues){
                           $scope.div.innerHTML +=
                               '<i style="background:' + $scope.defaultColorForZeroValues + '; opacity: ' + opacity + ';"></i> ' +
                               "0" + '<br>';
+                              useFilteredOrZeroOrOutlierValues = true;
+                        }
+
+                        if(useFilteredOrZeroOrOutlierValues){
+                          $scope.div.innerHTML += '<br/>';
                         }
 
                         // loop through our density intervals and generate a label with a colored square for each interval
@@ -1441,6 +1618,12 @@ angular.module('kommonitorMap').component(
                                           for (var i = 0; i < geoJSON.features.length; i++){
                                               if (geoJSON.features[i].properties[propertyName] == null || geoJSON.features[i].properties[propertyName] == 0 || geoJSON.features[i].properties[propertyName] == "0")
                                                 continue;
+
+                                              // check if is outlier, then do not use within classification, as it will be marked on map with special color
+                                              if(geoJSON.features[i].properties[outlierPropertyName] !== outlierPropertyValue_no && $scope.useOutlinerDetectionOnIndicator){
+                                                continue;
+                                              }
+
                                               values.push(+Number(geoJSON.features[i].properties[propertyName]).toFixed(numberOfDecimals));
                                           }
 
@@ -1487,6 +1670,12 @@ angular.module('kommonitorMap').component(
 
                                               if (geoJSON.features[i].properties[propertyName] == null || geoJSON.features[i].properties[propertyName] == 0 || geoJSON.features[i].properties[propertyName] == "0")
                                                 continue;
+
+                                                // check if is outlier, then do not use within classification, as it will be marked on map with special color
+                                                if(geoJSON.features[i].properties[outlierPropertyName] !== outlierPropertyValue_no && $scope.useOutlinerDetectionOnIndicator){
+                                                  continue;
+                                                }
+
                                               else if(+Number(geoJSON.features[i].properties[propertyName]).toFixed(numberOfDecimals) >= +Number(measureOfValue).toFixed(numberOfDecimals))
                                                 greaterThanValues.push(+Number(geoJSON.features[i].properties[propertyName]).toFixed(numberOfDecimals));
                                               else
@@ -1668,6 +1857,12 @@ angular.module('kommonitorMap').component(
                                           for (var i = 0; i < geoJSON.features.length; i++){
                                               if (geoJSON.features[i].properties[propertyName] == null || geoJSON.features[i].properties[propertyName] == 0 || geoJSON.features[i].properties[propertyName] == "0")
                                                 continue;
+
+                                                // check if is outlier, then do not use within classification, as it will be marked on map with special color
+                                                if(geoJSON.features[i].properties[outlierPropertyName] !== outlierPropertyValue_no && $scope.useOutlinerDetectionOnIndicator){
+                                                  continue;
+                                                }
+
                                               else if(+Number(geoJSON.features[i].properties[propertyName]).toFixed(numberOfDecimals) > 0)
                                                 positiveValues.push(+Number(geoJSON.features[i].properties[propertyName]).toFixed(numberOfDecimals));
                                               else
@@ -1828,9 +2023,24 @@ angular.module('kommonitorMap').component(
                                           }
                                         }
 
+                                        function styleOutlier(feature) {
+                                          if((feature.properties[outlierPropertyName] === outlierPropertyValue_low_soft) || (feature.properties[outlierPropertyName] === outlierPropertyValue_low_extreme)){
+                                            $scope.containsOutliers_low = true;
+                                            return $scope.outlierStyle_low;
+                                          }
+                                          else{
+                                            $scope.containsOutliers_high = true;
+                                            return $scope.outlierStyle_high;
+                                          }
+                                        };
+
                                         // style function to return
                                         // fill color based on $scope.defaultBrew.getColorInRange() method
                                         function styleDefault(feature) {
+                                          // check if feature is outlier
+                                          if(feature.properties[outlierPropertyName] !== outlierPropertyValue_no && $scope.useOutlinerDetectionOnIndicator){
+                                            return styleOutlier(feature);
+                                          }
 
                                           var fillOpacity = 1;
                                           if($scope.useTransparencyOnIndicator){
@@ -1861,6 +2071,11 @@ angular.module('kommonitorMap').component(
 
                                         function styleCustomDefault(feature) {
 
+                                          // check if feature is outlier
+                                          if(feature.properties[outlierPropertyName] !== outlierPropertyValue_no && $scope.useOutlinerDetectionOnIndicator){
+                                            return styleOutlier(feature);
+                                          }
+
                                           var fillColor;
                                           if(feature.properties[$scope.propertyName] == 0 || feature.properties[$scope.propertyName] == "0"){
                                             fillColor = $scope.defaultColorForZeroValues;
@@ -1885,6 +2100,11 @@ angular.module('kommonitorMap').component(
                                         }
 
                                         function styleMeasureOfValue (feature) {
+
+                                          // check if feature is outlier
+                                          if(feature.properties[outlierPropertyName] !== outlierPropertyValue_no && $scope.useOutlinerDetectionOnIndicator){
+                                            return styleOutlier(feature);
+                                          }
 
                                           var fillOpacity = 1;
                                           if($scope.useTransparencyOnIndicator){
@@ -1991,6 +2211,11 @@ angular.module('kommonitorMap').component(
                                         }
 
                                         function styleDynamicIndicator (feature) {
+
+                                          // check if feature is outlier
+                                          if(feature.properties[outlierPropertyName] !== outlierPropertyValue_no && $scope.useOutlinerDetectionOnIndicator){
+                                            return styleOutlier(feature);
+                                          }
 
                                           var fillOpacity = 1;
                                           if($scope.useTransparencyOnIndicator){
@@ -2296,11 +2521,80 @@ angular.module('kommonitorMap').component(
                                             map.fitBounds(e.target.getBounds());
                                         }
 
+                                        function markOutliers(indicatorMetadataAndGeoJSON, indicatorPropertyName){
+                                          // identify possible data outliers
+                                          // mark them using a dedicated property
+
+                                          $scope.outliers_high = [];
+                                          $scope.outliers_low = [];
+
+                                          var valueArray = new Array();
+
+                                          indicatorMetadataAndGeoJSON.geoJSON.features.forEach(function(feature){
+                                              valueArray.push(feature.properties[indicatorPropertyName]);
+                                          });
+
+                                          // https://jstat.github.io/all.html#quartiles
+                                          var quartiles = jStat.quartiles(valueArray);
+                                          var quartile_25 = quartiles[0];
+                                          var quartile_75 = quartiles[2];
+
+                                          var diff = quartile_75 - quartile_25;
+                                          var whiskerRange_outliers_soft = diff * 1.5;
+                                          var whiskerRange_outliers_extreme = diff * 3;
+
+                                          var whisker_low_soft = quartile_25 - whiskerRange_outliers_soft;
+                                          var whisker_high_soft = quartile_75 + whiskerRange_outliers_soft;
+
+                                          var whisker_low_extreme = quartile_25 - whiskerRange_outliers_extreme;
+                                          var whisker_high_extreme = quartile_75 + whiskerRange_outliers_extreme;
+
+                                          // for now only mark extreme outliers!
+
+                                          indicatorMetadataAndGeoJSON.geoJSON.features.forEach(function(feature){
+                                            // compare feature value to whiskers and set property
+                                              if (feature.properties[indicatorPropertyName] < whisker_low_extreme){
+                                                feature.properties[outlierPropertyName] = outlierPropertyValue_low_extreme;
+                                                $scope.containsOutliers_low = true;
+                                                $scope.outliers_low.push(feature.properties[indicatorPropertyName]);
+                                              }
+                                              // else if (feature.properties[indicatorPropertyName] < whisker_low_soft){
+                                              //   feature.properties[outlierPropertyName] = outlierPropertyValue_low_soft;
+                                              //   $scope.containsOutliers_low = true;
+                                              //   $scope.outliers_low.push(feature.properties[indicatorPropertyName]);
+                                              // }
+                                              else if (feature.properties[indicatorPropertyName] > whisker_high_extreme){
+                                                feature.properties[outlierPropertyName] = outlierPropertyValue_high_extreme;
+                                                $scope.containsOutliers_high = true;
+                                                $scope.outliers_high.push(feature.properties[indicatorPropertyName]);
+                                              }
+                                              // else if (feature.properties[indicatorPropertyName] > whisker_high_soft){
+                                              //   feature.properties[outlierPropertyName] = outlierPropertyValue_high_soft;
+                                              //   $scope.containsOutliers_high = true;
+                                              //   $scope.outliers_high.push(feature.properties[indicatorPropertyName]);
+                                              // }
+                                              else {
+                                                feature.properties[outlierPropertyName] = outlierPropertyValue_no;
+                                              }
+                                          });
+
+                                          // sort outliers arrays
+                                          $scope.outliers_high.sort(function(a, b) {
+                                            return a - b;
+                                          });
+                                          $scope.outliers_low.sort(function(a, b) {
+                                            return a - b;
+                                          });
+
+                                          return indicatorMetadataAndGeoJSON;
+                                        }
+
                                                   $scope.$on("replaceIndicatorAsGeoJSON", function (event, indicatorMetadataAndGeoJSON, spatialUnitName, date, justRestyling, isCustomComputation) {
 
                                                                 console.log('replaceIndicatorAsGeoJSON was called');
 
                                                                 refreshFilteredStyle();
+                                                                refreshOutliersStyle();
 
                                                                 $scope.currentIndicatorMetadataAndGeoJSON = indicatorMetadataAndGeoJSON;
 
@@ -2320,8 +2614,6 @@ angular.module('kommonitorMap').component(
 
                                                                 $scope.currentIndicatorContainsZeroValues = false;
 
-                                                                // check if measureOfValueCheckbox is checked
-
                                                                 $scope.date = date;
 
                                                                 $scope.indicatorPropertyName = INDICATOR_DATE_PREFIX + date;
@@ -2329,7 +2621,13 @@ angular.module('kommonitorMap').component(
                                                                 $scope.indicatorDescription = indicatorMetadataAndGeoJSON.metadata.description;
                                                                 $scope.indicatorUnit = indicatorMetadataAndGeoJSON.unit;
 
-                                                                $scope.currentGeoJSONOfCurrentLayer = indicatorMetadataAndGeoJSON.geoJSON;
+                                                                // identify and mark outliers prior to setting up of styling
+                                                                // in styling methods, outliers should be removed from classification!
+                                                                if($scope.useOutlinerDetectionOnIndicator){
+                                                                  $scope.currentIndicatorMetadataAndGeoJSON = markOutliers($scope.currentIndicatorMetadataAndGeoJSON, $scope.indicatorPropertyName);
+                                                                }
+
+                                                                $scope.currentGeoJSONOfCurrentLayer = $scope.currentIndicatorMetadataAndGeoJSON.geoJSON;
 
                                                                 for (var i = 0; i < indicatorMetadataAndGeoJSON.geoJSON.features.length; i++){
                                                                     if (indicatorMetadataAndGeoJSON.geoJSON.features[i].properties[$scope.indicatorPropertyName] === 0 || indicatorMetadataAndGeoJSON.geoJSON.features[i].properties[$scope.indicatorPropertyName] === "0"){
@@ -2444,17 +2742,24 @@ angular.module('kommonitorMap').component(
                                                             $scope.$on("restyleCurrentLayer", function (event) {
 
                                                                           refreshFilteredStyle();
+                                                                          refreshOutliersStyle();
 
                                                                           if($scope.currentIndicatorLayer){
 
                                                                             if(!kommonitorDataExchangeService.isBalanceChecked){
                                                                               // if mode is not balance then we have to make use of "normal" unbalanced indicator values
                                                                               $scope.currentIndicatorMetadataAndGeoJSON = kommonitorDataExchangeService.selectedIndicator;
+                                                                              if($scope.useOutlinerDetectionOnIndicator){
+                                                                                $scope.currentIndicatorMetadataAndGeoJSON = markOutliers($scope.currentIndicatorMetadataAndGeoJSON, $scope.indicatorPropertyName);
+                                                                              }
                                                                               $scope.currentGeoJSONOfCurrentLayer = kommonitorDataExchangeService.selectedIndicator.geoJSON;
                                                                             }
                                                                             else{
                                                                               // if mode is not balance then we have to make use of "normal" unbalanced indicator values
                                                                               $scope.currentIndicatorMetadataAndGeoJSON = kommonitorDataExchangeService.indicatorAndMetadataAsBalance;
+                                                                              if($scope.useOutlinerDetectionOnIndicator){
+                                                                                $scope.currentIndicatorMetadataAndGeoJSON = markOutliers($scope.currentIndicatorMetadataAndGeoJSON, $scope.indicatorPropertyName);
+                                                                              }
                                                                               $scope.currentGeoJSONOfCurrentLayer = kommonitorDataExchangeService.indicatorAndMetadataAsBalance.geoJSON;
                                                                             }
 
@@ -2469,7 +2774,6 @@ angular.module('kommonitorMap').component(
 
                                                                             if(kommonitorDataExchangeService.isMeasureOfValueChecked){
                                                                               setupMeasureOfValueBrew($scope.currentGeoJSONOfCurrentLayer, $scope.indicatorPropertyName, defaultColorBrewerPaletteForGtMovValues, defaultColorBrewerPaletteForLtMovValues, $scope.classifyMethod, kommonitorDataExchangeService.measureOfValue);
-                                                                              $scope.makeMeasureOfValueLegend();
                                                                               $scope.currentIndicatorLayer.eachLayer(function(layer) {
                                                                                 if(kommonitorDataExchangeService.filteredIndicatorFeatureNames.includes(layer.feature.properties.spatialUnitFeatureName)){
                                                                                   layer.setStyle($scope.filteredStyle);
@@ -2479,12 +2783,13 @@ angular.module('kommonitorMap').component(
                                                                                 }
 
                                                                               });
+
+                                                                              $scope.makeMeasureOfValueLegend();
                                                                             }
                                                                             else{
 
                                                                               if($scope.indicatorTypeOfCurrentLayer === 'DYNAMIC'){
                                                                                 setupDynamicIndicatorBrew($scope.currentGeoJSONOfCurrentLayer, $scope.indicatorPropertyName, defaultColorBrewerPaletteForBalanceIncreasingValues, defaultColorBrewerPaletteForBalanceDecreasingValues, $scope.classifyMethod);
-                                                                                $scope.makeDynamicIndicatorLegend();
 
                                                                                 $scope.currentIndicatorLayer.eachLayer(function(layer) {
                                                                                   if(kommonitorDataExchangeService.filteredIndicatorFeatureNames.includes(layer.feature.properties.spatialUnitFeatureName)){
@@ -2495,10 +2800,10 @@ angular.module('kommonitorMap').component(
                                                                                   }
 
                                                                                 });
+                                                                                $scope.makeDynamicIndicatorLegend();
                                                                               }
                                                                               else{
                                                                                 setupDefaultBrew($scope.currentGeoJSONOfCurrentLayer, $scope.indicatorPropertyName, kommonitorDataExchangeService.selectedIndicator.defaultClassificationMapping.items.length, kommonitorDataExchangeService.selectedIndicator.defaultClassificationMapping.colorBrewerSchemeName, $scope.classifyMethod);
-                                                                                $scope.makeDefaultLegend(kommonitorDataExchangeService.selectedIndicator.defaultClassificationMapping);
                                                                                 $scope.currentIndicatorLayer.eachLayer(function(layer) {
                                                                                     if(kommonitorDataExchangeService.filteredIndicatorFeatureNames.includes(layer.feature.properties.spatialUnitFeatureName)){
                                                                                       layer.setStyle($scope.filteredStyle);
@@ -2507,6 +2812,7 @@ angular.module('kommonitorMap').component(
                                                                                       layer.setStyle(styleDefault(layer.feature));
                                                                                     }
                                                                                 });
+                                                                                $scope.makeDefaultLegend(kommonitorDataExchangeService.selectedIndicator.defaultClassificationMapping);
                                                                               }
 
                                                                             }

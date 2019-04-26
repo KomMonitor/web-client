@@ -29,6 +29,13 @@ angular
 								var defaultColorForZeroValues = __env.defaultColorForZeroValues;
 								var defaultColorForFilteredValues = __env.defaultColorForFilteredValues;
 
+								const defaultColorForOutliers_high = __env.defaultColorForOutliers_high;
+								const defaultBorderColorForOutliers_high = __env.defaultBorderColorForOutliers_high;
+								const defaultFillOpacityForOutliers_high = __env.defaultFillOpacityForOutliers_high;
+								const defaultColorForOutliers_low = __env.defaultColorForOutliers_low;
+								const defaultBorderColorForOutliers_low = __env.defaultBorderColorForOutliers_low;
+								const defaultFillOpacityForOutliers_low = __env.defaultFillOpacityForOutliers_low;
+
 								var compareFeaturesByIndicatorValue = function(featureA, featureB) {
 								  if (featureA.properties[$scope.indicatorPropertyName] < featureB.properties[$scope.indicatorPropertyName])
 								    return -1;
@@ -57,6 +64,12 @@ angular
 									}
 									else if(Number(feature.properties[$scope.indicatorPropertyName]) === 0 ){
 										color = defaultColorForZeroValues;
+									}
+									else if(feature.properties["outlier"].includes("low") ){
+										color = defaultColorForOutliers_low;
+									}
+									else if(feature.properties["outlier"].includes("high") ){
+										color = defaultColorForOutliers_high;
 									}
 									else if(isMeasureOfValueChecked){
 
