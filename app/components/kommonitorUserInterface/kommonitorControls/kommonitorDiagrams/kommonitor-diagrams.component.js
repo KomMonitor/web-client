@@ -65,10 +65,10 @@ angular
 									else if(Number(feature.properties[$scope.indicatorPropertyName]) === 0 ){
 										color = defaultColorForZeroValues;
 									}
-									else if(feature.properties["outlier"].includes("low") ){
+									else if(feature.properties["outlier"].includes("low") && kommonitorDataExchangeService.useOutlinerDetectionOnIndicator){
 										color = defaultColorForOutliers_low;
 									}
-									else if(feature.properties["outlier"].includes("high") ){
+									else if(feature.properties["outlier"].includes("high") && kommonitorDataExchangeService.useOutlinerDetectionOnIndicator){
 										color = defaultColorForOutliers_high;
 									}
 									else if(isMeasureOfValueChecked){
@@ -254,7 +254,9 @@ angular
 										var seriesItem = {
 											value: +Number(cartographicFeature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals),
 											itemStyle: {
-												color: color
+												color: color,
+												borderWidth: 1,
+												borderColor: 'black'
 											}
 										};
 
@@ -670,6 +672,10 @@ angular
 											series: [{
 													// name: indicatorMetadataAndGeoJSON.indicatorName,
 													type: 'bar',
+													itemStyle: {
+														borderWidth: 1,
+														borderColor: 'black'
+													},
 													emphasis: {
 														itemStyle: {
 															borderWidth: 4,

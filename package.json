@@ -60,6 +60,7 @@
     "leaflet-draw": "^1.0.4",
     "leaflet.awesome-markers": "^2.0.5",
     "leaflet.markercluster": "^1.4.1",
+    "leaflet.pattern": "^0.1.0",
     "rangeslide.js": "^0.13.0",
     "shp-write": "^0.3.2",
     "tableexport": "^5.0.5"

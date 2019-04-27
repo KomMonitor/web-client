@@ -33,6 +33,8 @@ angular
 					this.availableProcessScripts;
           this.isochroneLegend;
 
+          this.useOutlinerDetectionOnIndicator = true;
+
 					this.setProcessScripts = function(scriptsArray){
 						this.availableProcessScripts = scriptsArray;
 					};
