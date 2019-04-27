@@ -44,6 +44,7 @@ module.exports = {
           { from: nodeModulePathConstant + 'jspdf-autotable/dist/jspdf.plugin.autotable.min.js', to: 'jspdf-autotable' },
           { from: './customizedExternalLibs/shpwrite.js', to: 'shp-write' },
           { from: nodeModulePathConstant + 'jstat/dist/jstat.min.js', to: 'jstat' },
+          { from: nodeModulePathConstant + 'leaflet.pattern/dist/leaflet.pattern.js', to: 'leaflet-pattern' }
       ])
     ]
 };

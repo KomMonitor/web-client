@@ -48,13 +48,17 @@ angular.module('kommonitorMap').component(
                     $scope.outliers_low = undefined;
                     kommonitorDataExchangeService.useOutlinerDetectionOnIndicator = true;
 
+                    $scope.outlierFillPattern_high;
+                    $scope.outlierFillPattern_low;
+
                     $scope.outlierStyle_high = {
                         weight: 2,
                         opacity: 1,
                         color: defaultBorderColorForOutliers_high,
                         dashArray: '3',
                         fillOpacity: defaultFillOpacityForOutliers_high,
-                        fillColor: defaultColorForOutliers_high
+                        // fillColor: defaultColorForOutliers_high,
+                        fillPattern: $scope.outlierFillPattern_high
                     };
 
                     $scope.outlierStyle_low = {
@@ -63,7 +67,8 @@ angular.module('kommonitorMap').component(
                         color: defaultBorderColorForOutliers_low,
                         dashArray: '3',
                         fillOpacity: defaultFillOpacityForOutliers_low,
-                        fillColor: defaultColorForOutliers_low
+                        // fillColor: defaultColorForOutliers_low,
+                        fillPattern: $scope.outlierFillPattern_low
                     };
 
                     var refreshOutliersStyle = function(){
@@ -80,22 +85,42 @@ angular.module('kommonitorMap').component(
                         fillOpacity_low = defaultFillOpacityForOutliers_low;
                       }
 
+                      // $scope.outlierStyle_high = {
+                      //     weight: 2,
+                      //     opacity: 1,
+                      //     color: defaultBorderColorForOutliers_high,
+                      //     dashArray: '',
+                      //     fillOpacity: fillOpacity_high,
+                      //     fillColor: defaultColorForOutliers_high
+                      // };
+                      //
+                      // $scope.outlierStyle_low = {
+                      //     weight: 2,
+                      //     opacity: 1,
+                      //     color: defaultBorderColorForOutliers_low,
+                      //     dashArray: '',
+                      //     fillOpacity: fillOpacity_low,
+                      //     fillColor: defaultColorForOutliers_low
+                      // };
+
                       $scope.outlierStyle_high = {
                           weight: 2,
                           opacity: 1,
                           color: defaultBorderColorForOutliers_high,
-                          dashArray: '',
-                          fillOpacity: fillOpacity_high,
-                          fillColor: defaultColorForOutliers_high
+                          dashArray: '3',
+                          fillOpacity: defaultFillOpacityForOutliers_high,
+                          fillColor: defaultColorForOutliers_high,
+                          fillPattern: $scope.outlierFillPattern_high
                       };
 
                       $scope.outlierStyle_low = {
                           weight: 2,
                           opacity: 1,
                           color: defaultBorderColorForOutliers_low,
-                          dashArray: '',
-                          fillOpacity: fillOpacity_low,
-                          fillColor: defaultColorForOutliers_low
+                          dashArray: '3',
+                          fillOpacity: defaultFillOpacityForOutliers_low,
+                          fillColor: defaultColorForOutliers_low,
+                          fillPattern: $scope.outlierFillPattern_low
                       };
                     };
 
@@ -256,9 +281,24 @@ angular.module('kommonitorMap').component(
                       $scope.scaleBar = L.control.scale();
                       $scope.scaleBar.addTo($scope.map);
 
+
+
+                      // hatch patterns
+                      var diagonalPattern = new L.PatternPath({ d: "M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2" , fill: true });
+
+                      // $scope.outlierFillPattern_high = new L.Pattern();
+                      // $scope.outlierFillPattern_high.addShape(diagonalPattern);
+                      // $scope.outlierFillPattern_high.addTo($scope.map);
+
+                      $scope.outlierFillPattern_low = new L.StripePattern({patternTransform: "rotate(45)"});
+                      $scope.outlierFillPattern_low.addTo($scope.map);
+
+                      $scope.outlierFillPattern_high = new L.StripePattern({patternTransform: "rotate(-45)"});
+                      $scope.outlierFillPattern_high.addTo($scope.map);
+
                       $scope.loadingData = false;
 
-              			}
+              			};
 
                     $scope.$on("showLoadingIconOnMap", function (event) {
                       // console.log("Show loading icon on map");
@@ -859,10 +899,19 @@ angular.module('kommonitorMap').component(
                               '<i style="background:' + defaultColorForOutliers_low + '; opacity: ' + opacity + ';"></i> ' +
                               "extreme untere Ausrei&szlig;er " + makeOutliersLowLegendString($scope.outliers_low) + '<br/>';
                               useFilteredOrZeroOrOutlierValues = true;
+
+                              var svgString = '<svg height="18" width="18"><line x1="10" y1="0" x2="110" y2="100" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:3" /><line x1="0" y1="0" x2="100" y2="100" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:3" /><line x1="0" y1="10" x2="100" y2="110" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:3" />Sorry, your browser does not support inline SVG.</svg>'
+
+                              $scope.div.innerHTML +=
+                                  '<i style="opacity: ' + opacity + ';">' + svgString + '</i> ' +
+                                  "extreme untere Ausrei&szlig;er " + makeOutliersLowLegendString($scope.outliers_low) + '<br/>';
+                                  useFilteredOrZeroOrOutlierValues = true;
                         }
                         if($scope.containsOutliers_high){
+                          var svgString = '<svg height="18" width="18"><line x1="8" y1="18" x2="18" y2="8" style="stroke:' + defaultColorForOutliers_high + ';stroke-width:3" /><line x1="0" y1="18" x2="18" y2="0" style="stroke:' + defaultColorForOutliers_high + ';stroke-width:3" /><line x1="0" y1="10" x2="10" y2="0" style="stroke:' + defaultColorForOutliers_high + ';stroke-width:3" />Sorry, your browser does not support inline SVG.</svg>'
+
                           $scope.div.innerHTML +=
-                              '<i style="background:' + defaultColorForOutliers_high + '; opacity: ' + opacity + ';"></i> ' +
+                              '<i style="opacity: ' + opacity + ';">' + svgString + '</i> ' +
                               "extreme obere Ausrei&szlig;er " + makeOutliersHighLegendString($scope.outliers_high) + '<br/>';
                               useFilteredOrZeroOrOutlierValues = true;
                         }
@@ -959,10 +1008,19 @@ angular.module('kommonitorMap').component(
                               '<i style="background:' + defaultColorForOutliers_low + '; opacity: ' + opacity + ';"></i> ' +
                               "extreme untere Ausrei&szlig;er " + makeOutliersLowLegendString($scope.outliers_low) + '<br/>';
                               useFilteredOrZeroOrOutlierValues = true;
+
+                              var svgString = '<svg height="18" width="18"><line x1="10" y1="0" x2="110" y2="100" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:3" /><line x1="0" y1="0" x2="100" y2="100" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:3" /><line x1="0" y1="10" x2="100" y2="110" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:3" />Sorry, your browser does not support inline SVG.</svg>'
+
+                              $scope.div.innerHTML +=
+                                  '<i style="opacity: ' + opacity + ';">' + svgString + '</i> ' +
+                                  "extreme untere Ausrei&szlig;er " + makeOutliersLowLegendString($scope.outliers_low) + '<br/>';
+                                  useFilteredOrZeroOrOutlierValues = true;
                         }
                         if($scope.containsOutliers_high){
+                          var svgString = '<svg height="18" width="18"><line x1="8" y1="18" x2="18" y2="8" style="stroke:' + defaultColorForOutliers_high + ';stroke-width:3" /><line x1="0" y1="18" x2="18" y2="0" style="stroke:' + defaultColorForOutliers_high + ';stroke-width:3" /><line x1="0" y1="10" x2="10" y2="0" style="stroke:' + defaultColorForOutliers_high + ';stroke-width:3" />Sorry, your browser does not support inline SVG.</svg>'
+
                           $scope.div.innerHTML +=
-                              '<i style="background:' + defaultColorForOutliers_high + '; opacity: ' + opacity + ';"></i> ' +
+                              '<i style="opacity: ' + opacity + ';">' + svgString + '</i> ' +
                               "extreme obere Ausrei&szlig;er " + makeOutliersHighLegendString($scope.outliers_high) + '<br/>';
                               useFilteredOrZeroOrOutlierValues = true;
                         }
@@ -1078,10 +1136,19 @@ angular.module('kommonitorMap').component(
                               '<i style="background:' + defaultColorForOutliers_low + '; opacity: ' + opacity + ';"></i> ' +
                               "extreme untere Ausrei&szlig;er " + makeOutliersLowLegendString($scope.outliers_low) + '<br/>';
                               useFilteredOrZeroOrOutlierValues = true;
+
+                              var svgString = '<svg height="18" width="18"><line x1="10" y1="0" x2="110" y2="100" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:3" /><line x1="0" y1="0" x2="100" y2="100" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:3" /><line x1="0" y1="10" x2="100" y2="110" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:3" />Sorry, your browser does not support inline SVG.</svg>'
+
+                              $scope.div.innerHTML +=
+                                  '<i style="opacity: ' + opacity + ';">' + svgString + '</i> ' +
+                                  "extreme untere Ausrei&szlig;er " + makeOutliersLowLegendString($scope.outliers_low) + '<br/>';
+                                  useFilteredOrZeroOrOutlierValues = true;
                         }
                         if($scope.containsOutliers_high){
+                          var svgString = '<svg height="18" width="18"><line x1="8" y1="18" x2="18" y2="8" style="stroke:' + defaultColorForOutliers_high + ';stroke-width:3" /><line x1="0" y1="18" x2="18" y2="0" style="stroke:' + defaultColorForOutliers_high + ';stroke-width:3" /><line x1="0" y1="10" x2="10" y2="0" style="stroke:' + defaultColorForOutliers_high + ';stroke-width:3" />Sorry, your browser does not support inline SVG.</svg>'
+
                           $scope.div.innerHTML +=
-                              '<i style="background:' + defaultColorForOutliers_high + '; opacity: ' + opacity + ';"></i> ' +
+                              '<i style="opacity: ' + opacity + ';">' + svgString + '</i> ' +
                               "extreme obere Ausrei&szlig;er " + makeOutliersHighLegendString($scope.outliers_high) + '<br/>';
                               useFilteredOrZeroOrOutlierValues = true;
                         }
