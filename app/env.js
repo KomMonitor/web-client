@@ -9,7 +9,7 @@
   window.__env.apiUrl = 'http://kommonitor.fbg-hsbo.de/management';
   // window.__env.apiUrl = 'http://localhost:8085/';
   // Base url
-  window.__env.basePath = 'management';
+  window.__env.basePath = '';
 
   window.__env.targetUrlToProcessingEngine = 'http://kommonitor.fbg-hsbo.de/processing';
   // window.__env.targetUrlToProcessingEngine = 'http://localhost:8086/processing/script-engine/customizableIndicatorComputation';
