@@ -57,7 +57,7 @@ angular.module('kommonitorMap').component(
                         color: defaultBorderColorForOutliers_high,
                         dashArray: '3',
                         fillOpacity: defaultFillOpacityForOutliers_high,
-                        // fillColor: defaultColorForOutliers_high,
+                        fillColor: defaultColorForOutliers_high,
                         fillPattern: $scope.outlierFillPattern_high
                     };
 
@@ -67,7 +67,7 @@ angular.module('kommonitorMap').component(
                         color: defaultBorderColorForOutliers_low,
                         dashArray: '3',
                         fillOpacity: defaultFillOpacityForOutliers_low,
-                        // fillColor: defaultColorForOutliers_low,
+                        fillColor: defaultColorForOutliers_low,
                         fillPattern: $scope.outlierFillPattern_low
                     };
 
@@ -284,7 +284,7 @@ angular.module('kommonitorMap').component(
 
 
                       // hatch patterns
-                      var diagonalPattern = new L.PatternPath({ d: "M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2" , fill: true });
+                      // var diagonalPattern = new L.PatternPath({ d: "M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2" , fill: true });
 
                       // $scope.outlierFillPattern_high = new L.Pattern();
                       // $scope.outlierFillPattern_high.addShape(diagonalPattern);
@@ -895,10 +895,6 @@ angular.module('kommonitorMap').component(
                         var useFilteredOrZeroOrOutlierValues = false;
 
                         if($scope.containsOutliers_low){
-                          $scope.div.innerHTML +=
-                              '<i style="background:' + defaultColorForOutliers_low + '; opacity: ' + opacity + ';"></i> ' +
-                              "extreme untere Ausrei&szlig;er " + makeOutliersLowLegendString($scope.outliers_low) + '<br/>';
-                              useFilteredOrZeroOrOutlierValues = true;
 
                               var svgString = '<svg height="18" width="18"><line x1="10" y1="0" x2="110" y2="100" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:3" /><line x1="0" y1="0" x2="100" y2="100" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:3" /><line x1="0" y1="10" x2="100" y2="110" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:3" />Sorry, your browser does not support inline SVG.</svg>'
 
@@ -1004,10 +1000,6 @@ angular.module('kommonitorMap').component(
                         var useFilteredOrZeroOrOutlierValues = false;
 
                         if($scope.containsOutliers_low){
-                          $scope.div.innerHTML +=
-                              '<i style="background:' + defaultColorForOutliers_low + '; opacity: ' + opacity + ';"></i> ' +
-                              "extreme untere Ausrei&szlig;er " + makeOutliersLowLegendString($scope.outliers_low) + '<br/>';
-                              useFilteredOrZeroOrOutlierValues = true;
 
                               var svgString = '<svg height="18" width="18"><line x1="10" y1="0" x2="110" y2="100" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:3" /><line x1="0" y1="0" x2="100" y2="100" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:3" /><line x1="0" y1="10" x2="100" y2="110" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:3" />Sorry, your browser does not support inline SVG.</svg>'
 
@@ -1132,10 +1124,6 @@ angular.module('kommonitorMap').component(
                         var useFilteredOrZeroOrOutlierValues = false;
 
                         if($scope.containsOutliers_low){
-                          $scope.div.innerHTML +=
-                              '<i style="background:' + defaultColorForOutliers_low + '; opacity: ' + opacity + ';"></i> ' +
-                              "extreme untere Ausrei&szlig;er " + makeOutliersLowLegendString($scope.outliers_low) + '<br/>';
-                              useFilteredOrZeroOrOutlierValues = true;
 
                               var svgString = '<svg height="18" width="18"><line x1="10" y1="0" x2="110" y2="100" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:3" /><line x1="0" y1="0" x2="100" y2="100" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:3" /><line x1="0" y1="10" x2="100" y2="110" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:3" />Sorry, your browser does not support inline SVG.</svg>'
 
