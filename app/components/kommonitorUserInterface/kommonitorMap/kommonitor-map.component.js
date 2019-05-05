@@ -899,7 +899,8 @@ angular.module('kommonitorMap').component(
                               var svgString = '<svg height="18" width="18"><line x1="10" y1="0" x2="110" y2="100" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:3" /><line x1="0" y1="0" x2="100" y2="100" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:3" /><line x1="0" y1="10" x2="100" y2="110" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:3" />Sorry, your browser does not support inline SVG.</svg>'
 
                               $scope.div.innerHTML +=
-                                  '<i style="opacity: ' + opacity + ';">' + svgString + '</i> ' +
+                                  // '<i style="opacity: ' + opacity + ';">' + svgString + '</i> ' +
+                                  '<i>' + svgString + '</i> ' +
                                   "extreme untere Ausrei&szlig;er " + makeOutliersLowLegendString($scope.outliers_low) + '<br/>';
                                   useFilteredOrZeroOrOutlierValues = true;
                         }
@@ -907,7 +908,8 @@ angular.module('kommonitorMap').component(
                           var svgString = '<svg height="18" width="18"><line x1="8" y1="18" x2="18" y2="8" style="stroke:' + defaultColorForOutliers_high + ';stroke-width:3" /><line x1="0" y1="18" x2="18" y2="0" style="stroke:' + defaultColorForOutliers_high + ';stroke-width:3" /><line x1="0" y1="10" x2="10" y2="0" style="stroke:' + defaultColorForOutliers_high + ';stroke-width:3" />Sorry, your browser does not support inline SVG.</svg>'
 
                           $scope.div.innerHTML +=
-                              '<i style="opacity: ' + opacity + ';">' + svgString + '</i> ' +
+                              // '<i style="opacity: ' + opacity + ';">' + svgString + '</i> ' +
+                              '<i>' + svgString + '</i> ' +
                               "extreme obere Ausrei&szlig;er " + makeOutliersHighLegendString($scope.outliers_high) + '<br/>';
                               useFilteredOrZeroOrOutlierValues = true;
                         }
@@ -1004,7 +1006,8 @@ angular.module('kommonitorMap').component(
                               var svgString = '<svg height="18" width="18"><line x1="10" y1="0" x2="110" y2="100" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:3" /><line x1="0" y1="0" x2="100" y2="100" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:3" /><line x1="0" y1="10" x2="100" y2="110" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:3" />Sorry, your browser does not support inline SVG.</svg>'
 
                               $scope.div.innerHTML +=
-                                  '<i style="opacity: ' + opacity + ';">' + svgString + '</i> ' +
+                                  // '<i style="opacity: ' + opacity + ';">' + svgString + '</i> ' +
+                                  '<i>' + svgString + '</i> ' +
                                   "extreme untere Ausrei&szlig;er " + makeOutliersLowLegendString($scope.outliers_low) + '<br/>';
                                   useFilteredOrZeroOrOutlierValues = true;
                         }
@@ -1012,7 +1015,8 @@ angular.module('kommonitorMap').component(
                           var svgString = '<svg height="18" width="18"><line x1="8" y1="18" x2="18" y2="8" style="stroke:' + defaultColorForOutliers_high + ';stroke-width:3" /><line x1="0" y1="18" x2="18" y2="0" style="stroke:' + defaultColorForOutliers_high + ';stroke-width:3" /><line x1="0" y1="10" x2="10" y2="0" style="stroke:' + defaultColorForOutliers_high + ';stroke-width:3" />Sorry, your browser does not support inline SVG.</svg>'
 
                           $scope.div.innerHTML +=
-                              '<i style="opacity: ' + opacity + ';">' + svgString + '</i> ' +
+                              // '<i style="opacity: ' + opacity + ';">' + svgString + '</i> ' +
+                              '<i>' + svgString + '</i> ' +
                               "extreme obere Ausrei&szlig;er " + makeOutliersHighLegendString($scope.outliers_high) + '<br/>';
                               useFilteredOrZeroOrOutlierValues = true;
                         }
@@ -1128,7 +1132,8 @@ angular.module('kommonitorMap').component(
                               var svgString = '<svg height="18" width="18"><line x1="10" y1="0" x2="110" y2="100" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:3" /><line x1="0" y1="0" x2="100" y2="100" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:3" /><line x1="0" y1="10" x2="100" y2="110" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:3" />Sorry, your browser does not support inline SVG.</svg>'
 
                               $scope.div.innerHTML +=
-                                  '<i style="opacity: ' + opacity + ';">' + svgString + '</i> ' +
+                                  // '<i style="opacity: ' + opacity + ';">' + svgString + '</i> ' +
+                                  '<i>' + svgString + '</i> ' +
                                   "extreme untere Ausrei&szlig;er " + makeOutliersLowLegendString($scope.outliers_low) + '<br/>';
                                   useFilteredOrZeroOrOutlierValues = true;
                         }
@@ -1136,7 +1141,8 @@ angular.module('kommonitorMap').component(
                           var svgString = '<svg height="18" width="18"><line x1="8" y1="18" x2="18" y2="8" style="stroke:' + defaultColorForOutliers_high + ';stroke-width:3" /><line x1="0" y1="18" x2="18" y2="0" style="stroke:' + defaultColorForOutliers_high + ';stroke-width:3" /><line x1="0" y1="10" x2="10" y2="0" style="stroke:' + defaultColorForOutliers_high + ';stroke-width:3" />Sorry, your browser does not support inline SVG.</svg>'
 
                           $scope.div.innerHTML +=
-                              '<i style="opacity: ' + opacity + ';">' + svgString + '</i> ' +
+                              // '<i style="opacity: ' + opacity + ';">' + svgString + '</i> ' +
+                              '<i>' + svgString + '</i> ' +
                               "extreme obere Ausrei&szlig;er " + makeOutliersHighLegendString($scope.outliers_high) + '<br/>';
                               useFilteredOrZeroOrOutlierValues = true;
                         }
