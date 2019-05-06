@@ -650,7 +650,11 @@ angular.module('kommonitorMap').component(
 
                           this._div.innerHTML += $scope.appendSpatialUnitOptions();
                           this._div.innerHTML += $scope.appendTransparencyCheckbox();
-                          this._div.innerHTML += $scope.appendOutliersCheckbox();
+
+                          if($scope.containsOutliers_low || $scope.containsOutliers_high){
+                            this._div.innerHTML += $scope.appendOutliersCheckbox();
+                          }
+
                           // this._div.innerHTML += $scope.appendSimplifyGeometriesOptions();
                           return this._div;
                       };
