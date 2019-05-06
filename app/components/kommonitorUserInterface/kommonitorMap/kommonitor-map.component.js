@@ -51,6 +51,8 @@ angular.module('kommonitorMap').component(
                     $scope.outlierFillPattern_high;
                     $scope.outlierFillPattern_low;
 
+                    $scope.showOutlierInfoAlert = false;
+
                     $scope.outlierStyle_high = {
                         weight: 2,
                         opacity: 1,
@@ -71,12 +73,19 @@ angular.module('kommonitorMap').component(
                         fillPattern: $scope.outlierFillPattern_low
                     };
 
+                    $scope.onCloseOutlierAlert = function(){
+                			// $("#outlierInfo").hide();
+                      $scope.showOutlierInfoAlert = false;
+                		};
+
                     var refreshOutliersStyle = function(){
 
                       $scope.containsOutliers_high = false;
                       $scope.containsOutliers_low = false;
                       $scope.outlierMinValue = undefined;
                       $scope.outlierMaxValue = undefined;
+                      $scope.showOutlierInfoAlert = false;
+
 
                       var fillOpacity_high = 1;
                       var fillOpacity_low = 1;
@@ -2770,6 +2779,10 @@ angular.module('kommonitorMap').component(
                                                                 // var justRestyling = false;
 
                                                                 // fitBounds();
+
+                                                                if($scope.containsOutliers_low || $scope.containsOutliers_high){
+                                                                  $scope.showOutlierInfoAlert = true;
+                                                                }
 
                                                                 $rootScope.$broadcast("updateDiagrams", $scope.currentIndicatorMetadataAndGeoJSON, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitId, date, $scope.defaultBrew, $scope.gtMeasureOfValueBrew, $scope.ltMeasureOfValueBrew, $scope.dynamicIncreaseBrew, $scope.dynamicDecreaseBrew, kommonitorDataExchangeService.isMeasureOfValueChecked, kommonitorDataExchangeService.measureOfValue, justRestyling);
                                                             });

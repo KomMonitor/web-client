@@ -20,6 +20,14 @@
     width: 96%;
 }
 
+#outlierInfo{
+    position: absolute;
+    bottom: 50%;
+    left:10%;
+    width: 80%;
+		z-index: 9999;
+}
+
 /* Set height of the grid so .sidenav can be 100% (adjust if needed) */
 .row.wps-ui {
 	height: 98vh;
