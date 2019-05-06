@@ -323,13 +323,29 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				element: "#map",
 				title: "Kartenfenster",
 				placement: "top",
-				content: "Beim Anwendungsstart sehen Sie zun&auml;chst die <b>kartographische Darstellung</b> eines ausgew&auml;hlten Indikators. In dieser Darstellung k&ouml;nnen Sie in der <b>Karte frei navigieren (zoomen, verschieben)</b> und beim <i>Her&uuml;berfahren mit dem Mauszeiger &uuml;ber eines der Indikator-Geometrien</i> erhalten sie ein <b>Popup mit dem Indikator-Wert</b>."
+				content: "Beim Anwendungsstart sehen Sie zun&auml;chst die <b>kartographische Darstellung</b> eines ausgew&auml;hlten Indikators. In dieser Darstellung k&ouml;nnen Sie in der <b>Karte frei navigieren (zoomen, verschieben)</b> und beim <i>Her&uuml;berfahren mit dem Mauszeiger &uuml;ber eines der Indikator-Geometrien</i> erhalten sie ein <b>Popup mit dem Indikator-Wert</b>.",
+				onNext: function(tour){
+					// make sure that Info control is displayed
+
+					if(document.getElementById("toggleInfoControlButton").display !== "none"){
+						$rootScope.$broadcast("toggleInfoControl");
+					}
+
+				},
 			},
 			{
 				element: "#infoControl",
 				title: "Indikatoren-Informationsfenster",
 				placement: "left",
-				content: "Dieses Element enth&auml;lt relevante <b>Metadaten</b> &uuml;ber den dargestellten Indikator. Dar&uuml;ber hinaus kann die <b>Raumebene gewechselt</b> werden (in Abh&auml;ngigkeit der verf&uuml;gbaren Raumebenen des selektierten Indikators). <br/><br/>Die <b>Checkbox</b> unten steuert, ob der <b>Indikator-Layer semi-transparent</b> dargestellt werden soll."
+				content: "Dieses Element enth&auml;lt relevante <b>Metadaten</b> &uuml;ber den dargestellten Indikator. Dar&uuml;ber hinaus kann die <b>Raumebene gewechselt</b> werden (in Abh&auml;ngigkeit der verf&uuml;gbaren Raumebenen des selektierten Indikators). <br/><br/>Die <b>Checkbox</b> unten steuert, ob der <b>Indikator-Layer semi-transparent</b> dargestellt werden soll.",
+				onNext: function(tour){
+					// make sure that legend control is displayed
+
+					if(document.getElementById("toggleLegendControlButton").display !== "none"){
+						$rootScope.$broadcast("toggleLegendControl");
+					}
+
+				},
 			},
 			{
 				element: "#legendControl",

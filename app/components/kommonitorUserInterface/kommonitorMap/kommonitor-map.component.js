@@ -46,10 +46,12 @@ angular.module('kommonitorMap').component(
                     $scope.containsOutliers_low = false;
                     $scope.outliers_high = undefined;
                     $scope.outliers_low = undefined;
-                    kommonitorDataExchangeService.useOutlinerDetectionOnIndicator = true;
+                    kommonitorDataExchangeService.useOutlierDetectionOnIndicator = true;
 
                     $scope.outlierFillPattern_high;
                     $scope.outlierFillPattern_low;
+
+                    $scope.showOutlierInfoAlert = false;
 
                     $scope.outlierStyle_high = {
                         weight: 2,
@@ -57,7 +59,7 @@ angular.module('kommonitorMap').component(
                         color: defaultBorderColorForOutliers_high,
                         dashArray: '3',
                         fillOpacity: defaultFillOpacityForOutliers_high,
-                        // fillColor: defaultColorForOutliers_high,
+                        fillColor: defaultColorForOutliers_high,
                         fillPattern: $scope.outlierFillPattern_high
                     };
 
@@ -67,9 +69,14 @@ angular.module('kommonitorMap').component(
                         color: defaultBorderColorForOutliers_low,
                         dashArray: '3',
                         fillOpacity: defaultFillOpacityForOutliers_low,
-                        // fillColor: defaultColorForOutliers_low,
+                        fillColor: defaultColorForOutliers_low,
                         fillPattern: $scope.outlierFillPattern_low
                     };
+
+                    $scope.onCloseOutlierAlert = function(){
+                			// $("#outlierInfo").hide();
+                      $scope.showOutlierInfoAlert = false;
+                		};
 
                     var refreshOutliersStyle = function(){
 
@@ -77,6 +84,8 @@ angular.module('kommonitorMap').component(
                       $scope.containsOutliers_low = false;
                       $scope.outlierMinValue = undefined;
                       $scope.outlierMaxValue = undefined;
+                      $scope.showOutlierInfoAlert = false;
+
 
                       var fillOpacity_high = 1;
                       var fillOpacity_low = 1;
@@ -284,7 +293,7 @@ angular.module('kommonitorMap').component(
 
 
                       // hatch patterns
-                      var diagonalPattern = new L.PatternPath({ d: "M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2" , fill: true });
+                      // var diagonalPattern = new L.PatternPath({ d: "M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2" , fill: true });
 
                       // $scope.outlierFillPattern_high = new L.Pattern();
                       // $scope.outlierFillPattern_high.addShape(diagonalPattern);
@@ -650,7 +659,11 @@ angular.module('kommonitorMap').component(
 
                           this._div.innerHTML += $scope.appendSpatialUnitOptions();
                           this._div.innerHTML += $scope.appendTransparencyCheckbox();
-                          this._div.innerHTML += $scope.appendOutlinersCheckbox();
+
+                          if($scope.containsOutliers_low || $scope.containsOutliers_high){
+                            this._div.innerHTML += $scope.appendOutliersCheckbox();
+                          }
+
                           // this._div.innerHTML += $scope.appendSimplifyGeometriesOptions();
                           return this._div;
                       };
@@ -730,13 +743,13 @@ angular.module('kommonitorMap').component(
                       preserveHighlightedFeatures();
                     });
 
-                    $(document).on('click','#controlIndicatorOutlinerDetection',function(e){
-                      var indicatorOutlinerCheckbox = document.getElementById('controlIndicatorOutlinerDetection');
-                      if (indicatorOutlinerCheckbox.checked){
-                        kommonitorDataExchangeService.useOutlinerDetectionOnIndicator = true;
+                    $(document).on('click','#controlIndicatorOutlierDetection',function(e){
+                      var indicatorOutlierCheckbox = document.getElementById('controlIndicatorOutlierDetection');
+                      if (indicatorOutlierCheckbox.checked){
+                        kommonitorDataExchangeService.useOutlierDetectionOnIndicator = true;
                       }
                       else{
-                        kommonitorDataExchangeService.useOutlinerDetectionOnIndicator = false;
+                        kommonitorDataExchangeService.useOutlierDetectionOnIndicator = false;
                       }
                       $rootScope.$broadcast("restyleCurrentLayer");
 
@@ -801,14 +814,14 @@ angular.module('kommonitorMap').component(
                       return innerHTMLString;
                     };
 
-                    $scope.appendOutlinersCheckbox = function(){
+                    $scope.appendOutliersCheckbox = function(){
                       // <label class='checkbox-inline' >
         							// 	<input type="checkbox" value="" checked>
         							// 	<b title="">Text</b>
         							// </label>
                       var innerHTMLString = "<label class='checkbos-inline' title='Einstellung, ob extreme Ausreißer gesondert markiert werden sollen'>";
-                      innerHTMLString += "<input id='controlIndicatorOutlinerDetection' type='checkbox' value='useOutlinerDetection'";
-                      if(kommonitorDataExchangeService.useOutlinerDetectionOnIndicator){
+                      innerHTMLString += "<input id='controlIndicatorOutlierDetection' type='checkbox' value='useOutlierDetection'";
+                      if(kommonitorDataExchangeService.useOutlierDetectionOnIndicator){
                         innerHTMLString += " checked";
                       }
                       innerHTMLString += ">";
@@ -895,15 +908,12 @@ angular.module('kommonitorMap').component(
                         var useFilteredOrZeroOrOutlierValues = false;
 
                         if($scope.containsOutliers_low){
-                          $scope.div.innerHTML +=
-                              '<i style="background:' + defaultColorForOutliers_low + '; opacity: ' + opacity + ';"></i> ' +
-                              "extreme untere Ausrei&szlig;er " + makeOutliersLowLegendString($scope.outliers_low) + '<br/>';
-                              useFilteredOrZeroOrOutlierValues = true;
 
                               var svgString = '<svg height="18" width="18"><line x1="10" y1="0" x2="110" y2="100" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:3" /><line x1="0" y1="0" x2="100" y2="100" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:3" /><line x1="0" y1="10" x2="100" y2="110" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:3" />Sorry, your browser does not support inline SVG.</svg>'
 
                               $scope.div.innerHTML +=
-                                  '<i style="opacity: ' + opacity + ';">' + svgString + '</i> ' +
+                                  // '<i style="opacity: ' + opacity + ';">' + svgString + '</i> ' +
+                                  '<i>' + svgString + '</i> ' +
                                   "extreme untere Ausrei&szlig;er " + makeOutliersLowLegendString($scope.outliers_low) + '<br/>';
                                   useFilteredOrZeroOrOutlierValues = true;
                         }
@@ -911,7 +921,8 @@ angular.module('kommonitorMap').component(
                           var svgString = '<svg height="18" width="18"><line x1="8" y1="18" x2="18" y2="8" style="stroke:' + defaultColorForOutliers_high + ';stroke-width:3" /><line x1="0" y1="18" x2="18" y2="0" style="stroke:' + defaultColorForOutliers_high + ';stroke-width:3" /><line x1="0" y1="10" x2="10" y2="0" style="stroke:' + defaultColorForOutliers_high + ';stroke-width:3" />Sorry, your browser does not support inline SVG.</svg>'
 
                           $scope.div.innerHTML +=
-                              '<i style="opacity: ' + opacity + ';">' + svgString + '</i> ' +
+                              // '<i style="opacity: ' + opacity + ';">' + svgString + '</i> ' +
+                              '<i>' + svgString + '</i> ' +
                               "extreme obere Ausrei&szlig;er " + makeOutliersHighLegendString($scope.outliers_high) + '<br/>';
                               useFilteredOrZeroOrOutlierValues = true;
                         }
@@ -1004,15 +1015,12 @@ angular.module('kommonitorMap').component(
                         var useFilteredOrZeroOrOutlierValues = false;
 
                         if($scope.containsOutliers_low){
-                          $scope.div.innerHTML +=
-                              '<i style="background:' + defaultColorForOutliers_low + '; opacity: ' + opacity + ';"></i> ' +
-                              "extreme untere Ausrei&szlig;er " + makeOutliersLowLegendString($scope.outliers_low) + '<br/>';
-                              useFilteredOrZeroOrOutlierValues = true;
 
                               var svgString = '<svg height="18" width="18"><line x1="10" y1="0" x2="110" y2="100" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:3" /><line x1="0" y1="0" x2="100" y2="100" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:3" /><line x1="0" y1="10" x2="100" y2="110" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:3" />Sorry, your browser does not support inline SVG.</svg>'
 
                               $scope.div.innerHTML +=
-                                  '<i style="opacity: ' + opacity + ';">' + svgString + '</i> ' +
+                                  // '<i style="opacity: ' + opacity + ';">' + svgString + '</i> ' +
+                                  '<i>' + svgString + '</i> ' +
                                   "extreme untere Ausrei&szlig;er " + makeOutliersLowLegendString($scope.outliers_low) + '<br/>';
                                   useFilteredOrZeroOrOutlierValues = true;
                         }
@@ -1020,7 +1028,8 @@ angular.module('kommonitorMap').component(
                           var svgString = '<svg height="18" width="18"><line x1="8" y1="18" x2="18" y2="8" style="stroke:' + defaultColorForOutliers_high + ';stroke-width:3" /><line x1="0" y1="18" x2="18" y2="0" style="stroke:' + defaultColorForOutliers_high + ';stroke-width:3" /><line x1="0" y1="10" x2="10" y2="0" style="stroke:' + defaultColorForOutliers_high + ';stroke-width:3" />Sorry, your browser does not support inline SVG.</svg>'
 
                           $scope.div.innerHTML +=
-                              '<i style="opacity: ' + opacity + ';">' + svgString + '</i> ' +
+                              // '<i style="opacity: ' + opacity + ';">' + svgString + '</i> ' +
+                              '<i>' + svgString + '</i> ' +
                               "extreme obere Ausrei&szlig;er " + makeOutliersHighLegendString($scope.outliers_high) + '<br/>';
                               useFilteredOrZeroOrOutlierValues = true;
                         }
@@ -1132,15 +1141,12 @@ angular.module('kommonitorMap').component(
                         var useFilteredOrZeroOrOutlierValues = false;
 
                         if($scope.containsOutliers_low){
-                          $scope.div.innerHTML +=
-                              '<i style="background:' + defaultColorForOutliers_low + '; opacity: ' + opacity + ';"></i> ' +
-                              "extreme untere Ausrei&szlig;er " + makeOutliersLowLegendString($scope.outliers_low) + '<br/>';
-                              useFilteredOrZeroOrOutlierValues = true;
 
                               var svgString = '<svg height="18" width="18"><line x1="10" y1="0" x2="110" y2="100" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:3" /><line x1="0" y1="0" x2="100" y2="100" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:3" /><line x1="0" y1="10" x2="100" y2="110" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:3" />Sorry, your browser does not support inline SVG.</svg>'
 
                               $scope.div.innerHTML +=
-                                  '<i style="opacity: ' + opacity + ';">' + svgString + '</i> ' +
+                                  // '<i style="opacity: ' + opacity + ';">' + svgString + '</i> ' +
+                                  '<i>' + svgString + '</i> ' +
                                   "extreme untere Ausrei&szlig;er " + makeOutliersLowLegendString($scope.outliers_low) + '<br/>';
                                   useFilteredOrZeroOrOutlierValues = true;
                         }
@@ -1148,7 +1154,8 @@ angular.module('kommonitorMap').component(
                           var svgString = '<svg height="18" width="18"><line x1="8" y1="18" x2="18" y2="8" style="stroke:' + defaultColorForOutliers_high + ';stroke-width:3" /><line x1="0" y1="18" x2="18" y2="0" style="stroke:' + defaultColorForOutliers_high + ';stroke-width:3" /><line x1="0" y1="10" x2="10" y2="0" style="stroke:' + defaultColorForOutliers_high + ';stroke-width:3" />Sorry, your browser does not support inline SVG.</svg>'
 
                           $scope.div.innerHTML +=
-                              '<i style="opacity: ' + opacity + ';">' + svgString + '</i> ' +
+                              // '<i style="opacity: ' + opacity + ';">' + svgString + '</i> ' +
+                              '<i>' + svgString + '</i> ' +
                               "extreme obere Ausrei&szlig;er " + makeOutliersHighLegendString($scope.outliers_high) + '<br/>';
                               useFilteredOrZeroOrOutlierValues = true;
                         }
@@ -1687,7 +1694,7 @@ angular.module('kommonitorMap').component(
                                                 continue;
 
                                               // check if is outlier, then do not use within classification, as it will be marked on map with special color
-                                              if(geoJSON.features[i].properties[outlierPropertyName] !== outlierPropertyValue_no && kommonitorDataExchangeService.useOutlinerDetectionOnIndicator){
+                                              if(geoJSON.features[i].properties[outlierPropertyName] !== outlierPropertyValue_no && kommonitorDataExchangeService.useOutlierDetectionOnIndicator){
                                                 continue;
                                               }
 
@@ -1739,7 +1746,7 @@ angular.module('kommonitorMap').component(
                                                 continue;
 
                                                 // check if is outlier, then do not use within classification, as it will be marked on map with special color
-                                                if(geoJSON.features[i].properties[outlierPropertyName] !== outlierPropertyValue_no && kommonitorDataExchangeService.useOutlinerDetectionOnIndicator){
+                                                if(geoJSON.features[i].properties[outlierPropertyName] !== outlierPropertyValue_no && kommonitorDataExchangeService.useOutlierDetectionOnIndicator){
                                                   continue;
                                                 }
 
@@ -1926,7 +1933,7 @@ angular.module('kommonitorMap').component(
                                                 continue;
 
                                                 // check if is outlier, then do not use within classification, as it will be marked on map with special color
-                                                if(geoJSON.features[i].properties[outlierPropertyName] !== outlierPropertyValue_no && kommonitorDataExchangeService.useOutlinerDetectionOnIndicator){
+                                                if(geoJSON.features[i].properties[outlierPropertyName] !== outlierPropertyValue_no && kommonitorDataExchangeService.useOutlierDetectionOnIndicator){
                                                   continue;
                                                 }
 
@@ -2105,7 +2112,7 @@ angular.module('kommonitorMap').component(
                                         // fill color based on $scope.defaultBrew.getColorInRange() method
                                         function styleDefault(feature) {
                                           // check if feature is outlier
-                                          if(feature.properties[outlierPropertyName] !== outlierPropertyValue_no && kommonitorDataExchangeService.useOutlinerDetectionOnIndicator){
+                                          if((feature.properties[outlierPropertyName] !== outlierPropertyValue_no) && kommonitorDataExchangeService.useOutlierDetectionOnIndicator){
                                             return styleOutlier(feature);
                                           }
 
@@ -2132,14 +2139,15 @@ angular.module('kommonitorMap').component(
                                                 color: defaultBorderColor,
                                                 dashArray: '',
                                                 fillOpacity: fillOpacity,
-                                                fillColor: fillColor
+                                                fillColor: fillColor,
+                                                fillPattern: undefined
                                             }
                                         }
 
                                         function styleCustomDefault(feature) {
 
                                           // check if feature is outlier
-                                          if(feature.properties[outlierPropertyName] !== outlierPropertyValue_no && kommonitorDataExchangeService.useOutlinerDetectionOnIndicator){
+                                          if((feature.properties[outlierPropertyName] !== outlierPropertyValue_no) && kommonitorDataExchangeService.useOutlierDetectionOnIndicator){
                                             return styleOutlier(feature);
                                           }
 
@@ -2162,14 +2170,15 @@ angular.module('kommonitorMap').component(
                                                 color: defaultBorderColor,
                                                 dashArray: '',
                                                 fillOpacity: fillOpacity,
-                                                fillColor: fillColor
+                                                fillColor: fillColor,
+                                                fillPattern: undefined
                                             }
                                         }
 
                                         function styleMeasureOfValue (feature) {
 
                                           // check if feature is outlier
-                                          if(feature.properties[outlierPropertyName] !== outlierPropertyValue_no && kommonitorDataExchangeService.useOutlinerDetectionOnIndicator){
+                                          if((feature.properties[outlierPropertyName] !== outlierPropertyValue_no) && kommonitorDataExchangeService.useOutlierDetectionOnIndicator){
                                             return styleOutlier(feature);
                                           }
 
@@ -2224,7 +2233,8 @@ angular.module('kommonitorMap').component(
                                                 color: defaultBorderColor,
                                                 dashArray: '',
                                                 fillOpacity: fillOpacity,
-                                                fillColor: fillColor
+                                                fillColor: fillColor,
+                                                fillPattern: undefined
                                             }
                                           }
                                           else{
@@ -2271,7 +2281,8 @@ angular.module('kommonitorMap').component(
                                                 color: defaultBorderColor,
                                                 dashArray: '',
                                                 fillOpacity: fillOpacity,
-                                                fillColor: fillColor
+                                                fillColor: fillColor,
+                                                fillPattern: undefined
                                             }
                                           }
 
@@ -2280,7 +2291,7 @@ angular.module('kommonitorMap').component(
                                         function styleDynamicIndicator (feature) {
 
                                           // check if feature is outlier
-                                          if(feature.properties[outlierPropertyName] !== outlierPropertyValue_no && kommonitorDataExchangeService.useOutlinerDetectionOnIndicator){
+                                          if((feature.properties[outlierPropertyName] !== outlierPropertyValue_no) && kommonitorDataExchangeService.useOutlierDetectionOnIndicator){
                                             return styleOutlier(feature);
                                           }
 
@@ -2331,7 +2342,8 @@ angular.module('kommonitorMap').component(
                                                 color: defaultBorderColor,
                                                 dashArray: '',
                                                 fillOpacity: fillOpacity,
-                                                fillColor: fillColor
+                                                fillColor: fillColor,
+                                                fillPattern: undefined
                                             }
                                           }
                                           else{
@@ -2378,7 +2390,8 @@ angular.module('kommonitorMap').component(
                                                 color: defaultBorderColor,
                                                 dashArray: '',
                                                 fillOpacity: fillOpacity,
-                                                fillColor: fillColor
+                                                fillColor: fillColor,
+                                                fillPattern: undefined
                                             }
                                           }
 
@@ -2690,7 +2703,7 @@ angular.module('kommonitorMap').component(
 
                                                                 // identify and mark outliers prior to setting up of styling
                                                                 // in styling methods, outliers should be removed from classification!
-                                                                if(kommonitorDataExchangeService.useOutlinerDetectionOnIndicator){
+                                                                if(kommonitorDataExchangeService.useOutlierDetectionOnIndicator){
                                                                   $scope.currentIndicatorMetadataAndGeoJSON = markOutliers($scope.currentIndicatorMetadataAndGeoJSON, $scope.indicatorPropertyName);
                                                                 }
 
@@ -2767,6 +2780,10 @@ angular.module('kommonitorMap').component(
 
                                                                 // fitBounds();
 
+                                                                if($scope.containsOutliers_low || $scope.containsOutliers_high){
+                                                                  $scope.showOutlierInfoAlert = true;
+                                                                }
+
                                                                 $rootScope.$broadcast("updateDiagrams", $scope.currentIndicatorMetadataAndGeoJSON, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitId, date, $scope.defaultBrew, $scope.gtMeasureOfValueBrew, $scope.ltMeasureOfValueBrew, $scope.dynamicIncreaseBrew, $scope.dynamicDecreaseBrew, kommonitorDataExchangeService.isMeasureOfValueChecked, kommonitorDataExchangeService.measureOfValue, justRestyling);
                                                             });
 
@@ -2816,7 +2833,7 @@ angular.module('kommonitorMap').component(
                                                                             if(!kommonitorDataExchangeService.isBalanceChecked){
                                                                               // if mode is not balance then we have to make use of "normal" unbalanced indicator values
                                                                               $scope.currentIndicatorMetadataAndGeoJSON = kommonitorDataExchangeService.selectedIndicator;
-                                                                              if(kommonitorDataExchangeService.useOutlinerDetectionOnIndicator){
+                                                                              if(kommonitorDataExchangeService.useOutlierDetectionOnIndicator){
                                                                                 $scope.currentIndicatorMetadataAndGeoJSON = markOutliers($scope.currentIndicatorMetadataAndGeoJSON, $scope.indicatorPropertyName);
                                                                               }
                                                                               $scope.currentGeoJSONOfCurrentLayer = kommonitorDataExchangeService.selectedIndicator.geoJSON;
@@ -2824,7 +2841,7 @@ angular.module('kommonitorMap').component(
                                                                             else{
                                                                               // if mode is not balance then we have to make use of "normal" unbalanced indicator values
                                                                               $scope.currentIndicatorMetadataAndGeoJSON = kommonitorDataExchangeService.indicatorAndMetadataAsBalance;
-                                                                              if(kommonitorDataExchangeService.useOutlinerDetectionOnIndicator){
+                                                                              if(kommonitorDataExchangeService.useOutlierDetectionOnIndicator){
                                                                                 $scope.currentIndicatorMetadataAndGeoJSON = markOutliers($scope.currentIndicatorMetadataAndGeoJSON, $scope.indicatorPropertyName);
                                                                               }
                                                                               $scope.currentGeoJSONOfCurrentLayer = kommonitorDataExchangeService.indicatorAndMetadataAsBalance.geoJSON;
