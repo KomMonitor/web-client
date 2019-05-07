@@ -258,6 +258,24 @@ angular.module('kommonitorMap').component(
                           layers: 'nw_dop_rgb'
                       });
 
+                      //CITY OF ESSEN WMS #1
+               var wms_essen_ALK_grau = L.tileLayer.wms('https://geo.essen.de/arcgis/services/basemap/Stadtplanpaket_ALK_grau/MapServer/WMSServer?',
+                                              {
+                                                     maxZoom : 22,
+                                                     layers : "0,1,2,3",
+                                                     attribution : 'Stadt Essen: Amt f&uumlr Geoinformation, Vermessung und Kataster'
+                                              });
+               // CITY OF ESSEN WMS #2
+               var wms_essen_ABK = L.tileLayer
+                               .wms(
+                                              'https://geo.essen.de/arcgis/services/basemap/Uebersicht_ABK_Stadtgrundkarte/MapServer/WMSServer?',
+                                              {
+                                                     maxZoom : 22,
+                                                     layers : "0,1,2,3",
+                                                     attribution : 'Stadt Essen: Amt f&uumlr Geoinformation, Vermessung und Kataster'
+                                              });
+
+
                       $scope.map = L.map('map', {
                           center: [$scope.latCenter, $scope.lonCenter],
                           zoom: $scope.zoomLevel,
@@ -265,6 +283,8 @@ angular.module('kommonitorMap').component(
                       });
 
                       $scope.baseMaps = {
+                        "Stadt Essen - Amtliche Liegenschaftskarte": wms_essen_ALK_grau,
+                        "Stadt Essen - Amtliche Basiskarte": wms_essen_ABK,
                         "OpenStreetMap - Graustufen": osm_blackWhite,
                         "OpenStreetMap - Farbe": osm,
                         "NRW Digitale Topographische Karte": wmsLayerDTK,
