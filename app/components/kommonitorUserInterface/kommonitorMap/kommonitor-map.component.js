@@ -246,22 +246,25 @@ angular.module('kommonitorMap').component(
                       var osmAttrib='Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
                       var osm = new L.TileLayer(osmUrl, {minZoom: __env.minZoomLevel, maxZoom: __env.maxZoomLevel, attribution: osmAttrib});
 
-                      var osm_blackWhite = L.tileLayer('https://www.toolserver.org/tiles/bw-mapnik/{z}/{x}/{y}.png', {minZoom: 1, maxZoom: 19, attribution: osmAttrib});
+                      var osm_blackWhite = L.tileLayer('https://www.toolserver.org/tiles/bw-mapnik/{z}/{x}/{y}.png', {minZoom: __env.minZoomLevel, maxZoom: __env.maxZoomLevel, attribution: osmAttrib});
 
                       var wmsLayerRVR = L.tileLayer.wms('https://geodaten.metropoleruhr.de/spw2?', {
-                          layers: 'stadtplan_rvr'
+                          layers: 'stadtplan_rvr',
+                          minZoom: __env.minZoomLevel, maxZoom: __env.maxZoomLevel
                       });
                       var wmsLayerDTK = L.tileLayer.wms('https://www.wms.nrw.de/geobasis/wms_nw_dtk?', {
-                          layers: 'nw_dtk_pan'
+                          layers: 'nw_dtk_pan',
+                          minZoom: __env.minZoomLevel, maxZoom: __env.maxZoomLevel
                       });
                       var wmsLayerDOP = L.tileLayer.wms('https://www.wms.nrw.de/geobasis/wms_nw_dop?', {
-                          layers: 'nw_dop_rgb'
+                          layers: 'nw_dop_rgb',
+                          minZoom: __env.minZoomLevel, maxZoom: __env.maxZoomLevel
                       });
 
                       //CITY OF ESSEN WMS #1
                var wms_essen_ALK_grau = L.tileLayer.wms('https://geo.essen.de/arcgis/services/basemap/Stadtplanpaket_ALK_grau/MapServer/WMSServer?',
                                               {
-                                                     maxZoom : 22,
+                                                     minZoom: __env.minZoomLevel, maxZoom: __env.maxZoomLevel,
                                                      layers : "0,1,2,3",
                                                      attribution : 'Stadt Essen: Amt f&uumlr Geoinformation, Vermessung und Kataster'
                                               });
@@ -270,7 +273,7 @@ angular.module('kommonitorMap').component(
                                .wms(
                                               'https://geo.essen.de/arcgis/services/basemap/Uebersicht_ABK_Stadtgrundkarte/MapServer/WMSServer?',
                                               {
-                                                     maxZoom : 22,
+                                                     minZoom: __env.minZoomLevel, maxZoom: __env.maxZoomLevel,
                                                      layers : "0,1,2,3",
                                                      attribution : 'Stadt Essen: Amt f&uumlr Geoinformation, Vermessung und Kataster'
                                               });
