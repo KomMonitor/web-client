@@ -401,7 +401,7 @@ angular.module('kommonitorMap').component(
                     //   // </form>
                     //
                     //   var innerHTMLString = "<form>";
-                    //   innerHTMLString += "<label title='Angabe, ob die Geometrien für die Kartendarstellung vereinfacht werden sollen. Jede der Optionen schwach, mittel, stark, reduziert dabei die Stützpunkte der Geometrien um ein steigendes Maß. Dies reduziert die Geometrie-Komplexitität und erhöht die Performanz.'>Geometrie vereinfachen?  ";
+                    //   innerHTMLString += "<label title='Angabe, ob die Geometrien für die Kartendarstellung vereinfacht werden sollen. Jede der Optionen schwach, mittel, stark, reduziert dabei die Stützpunkte der Geometrien um ein Zunehmendes Maß. Dies reduziert die Geometrie-Komplexitität und erhöht die Performanz.'>Geometrie vereinfachen?  ";
                     //   innerHTMLString += "<select id='selectSimplifyGeometriesViaInfoControl'>";
                     //
                     //
@@ -1050,7 +1050,7 @@ angular.module('kommonitorMap').component(
                           labelsDynamicDecrease = $scope.dynamicDecreaseBrew.breaks;
                           colorsDynamicDecrease = $scope.dynamicDecreaseBrew.colors;
 
-                          $scope.div.innerHTML += "<label>Sinkende Entwicklung</label><br/>";
+                          $scope.div.innerHTML += "<label>Abnahme</label><br/>";
 
                             // invert color labeling as colorization of lT features is also inverted
                             for (var i = 0; i < colorsDynamicDecrease.length; i++) {
@@ -1073,7 +1073,7 @@ angular.module('kommonitorMap').component(
                           labelsDynamicIncrease = $scope.dynamicIncreaseBrew.breaks;
                           colorsDynamicIncrease = $scope.dynamicIncreaseBrew.colors;
 
-                          $scope.div.innerHTML += "<label>Steigende Entwicklung</label><br/>";
+                          $scope.div.innerHTML += "<label>Zunahme</label><br/>";
 
                             // invert color labeling as colorization of lT features is also inverted
                             for (var i = 0; i < colorsDynamicIncrease.length; i++) {
