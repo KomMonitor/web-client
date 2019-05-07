@@ -55,10 +55,10 @@
   //allowesValues: equal_interval, quantile, jenks
   window.__env.defaultClassifyMethod = "equal_interval";
 
-  window.__env.defaultColorBrewerPaletteForBalanceIncreasingValues = "Oranges";
-  window.__env.defaultColorBrewerPaletteForBalanceDecreasingValues = "Blues";
-  window.__env.defaultColorBrewerPaletteForGtMovValues = "Oranges";
-  window.__env.defaultColorBrewerPaletteForLtMovValues = "Purples";
+  window.__env.defaultColorBrewerPaletteForBalanceIncreasingValues = "Purples";
+  window.__env.defaultColorBrewerPaletteForBalanceDecreasingValues = "YlOrBr";
+  window.__env.defaultColorBrewerPaletteForGtMovValues = "YlOrBr";
+  window.__env.defaultColorBrewerPaletteForLtMovValues = "Blues";
 
   window.__env.feedbackMailRecipient = "thomas.blasche@amt62.essen.de";
 
