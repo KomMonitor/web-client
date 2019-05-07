@@ -250,13 +250,12 @@ angular
 
 										var color = getColorForFeature(cartographicFeature, indicatorMetadataAndGeoJSON, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue);
 
-
 										var seriesItem = {
 											value: +Number(cartographicFeature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals),
 											itemStyle: {
-												color: color,
-												borderWidth: 1,
-												borderColor: 'black'
+												color: color
+												// borderWidth: 1,
+												// borderColor: 'black'
 											}
 										};
 
@@ -279,23 +278,24 @@ angular
 
 									updateLineChart(indicatorMetadataAndGeoJSON, indicatorTimeSeriesDatesArray, indicatorTimeSeriesAverageArray);
 
-									// bar chart only if feature number is below 75
-									if (indicatorMetadataAndGeoJSON.geoJSON.features.length > 50){
-										console.log("Number of features too big (more than 50). Thus bar diagram cannot be created");
+									// // bar chart only if feature number is below 75
+									// if (indicatorMetadataAndGeoJSON.geoJSON.features.length > 50){
+									// 	console.log("Number of features too big (more than 50). Thus bar diagram cannot be created");
+									//
+									// 	// remove bar diagram if exist
+									// 	if($scope.barChart){
+									// 		$scope.barChart.dispose();
+									// 		$scope.barChart = undefined;
+									// 		$scope.eventsRegistered = false;
+									// 	}
+									//
+									// 	$scope.isTooManyFeatures = true;
+									// }
+									// else{
+									// 	updateBarChart(indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray);
+									// }
 
-										// remove bar diagram if exist
-										if($scope.barChart){
-											$scope.barChart.dispose();
-											$scope.barChart = undefined;
-											$scope.eventsRegistered = false;
-										}
-
-										$scope.isTooManyFeatures = true;
-									}
-									else{
 										updateBarChart(indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray);
-									}
-
 								});
 
 								//HISTOGRAM CHART FUNCTION
@@ -672,10 +672,6 @@ angular
 											series: [{
 													// name: indicatorMetadataAndGeoJSON.indicatorName,
 													type: 'bar',
-													itemStyle: {
-														borderWidth: 1,
-														borderColor: 'black'
-													},
 													emphasis: {
 														itemStyle: {
 															borderWidth: 4,
@@ -685,6 +681,11 @@ angular
 													data: indicatorValueBarChartArray
 											}]
 									};
+
+									if (indicatorMetadataAndGeoJSON.geoJSON.features.length > 50){
+										// $scope.barOption.xAxis.data = undefined;
+										$scope.barOption.xAxis.axisLabel.show = false;
+									}
 
 									// use configuration item and data specified to show chart
 									$scope.barChart.setOption($scope.barOption);
