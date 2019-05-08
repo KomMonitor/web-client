@@ -238,6 +238,8 @@ angular.module('kommonitorMap').component(
 
               			this.initializeMap = function() {
 
+                      $scope.loadingData = true;
+
                       // initialize map referring to div element with id="map"
 
 
@@ -328,7 +330,7 @@ angular.module('kommonitorMap').component(
                       $scope.outlierFillPattern_high = new L.StripePattern({patternTransform: "rotate(-45)"});
                       $scope.outlierFillPattern_high.addTo($scope.map);
 
-                      $scope.loadingData = false;
+                      // $scope.loadingData = false;
 
               			};
 
