@@ -229,7 +229,7 @@ angular
 
 									console.log("Load an initial example indicator");
 
-									var indicatorIndex;
+									var indicatorIndex = undefined;
 
 									for (var index=0; index < kommonitorDataExchangeService.availableIndicators.length; index++){
 										if (kommonitorDataExchangeService.availableIndicators[index].indicatorId === initialIndicatorId){
@@ -238,7 +238,7 @@ angular
 										}
 									}
 
-									if(! indicatorIndex){
+									if( indicatorIndex === undefined)){
 											indicatorIndex = getRandomInt(0, kommonitorDataExchangeService.availableIndicators.length - 1);
 									}
 
