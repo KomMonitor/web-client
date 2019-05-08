@@ -625,7 +625,7 @@ angular
 
 															    return htmlString;
 																}},
-																restore : {show: true, title: "Erneuern"},
+																restore : {show: false, title: "Erneuern"},
 																saveAsImage : {show: true, title: "Export"}
 														}
 												},
