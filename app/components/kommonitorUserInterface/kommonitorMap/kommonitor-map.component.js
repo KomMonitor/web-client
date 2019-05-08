@@ -686,10 +686,6 @@ angular.module('kommonitorMap').component(
                           this._div.innerHTML += $scope.appendSpatialUnitOptions();
                           this._div.innerHTML += $scope.appendTransparencyCheckbox();
 
-                          if($scope.containsOutliers_low || $scope.containsOutliers_high){
-                            this._div.innerHTML += $scope.appendOutliersCheckbox();
-                          }
-
                           // this._div.innerHTML += $scope.appendSimplifyGeometriesOptions();
                           return this._div;
                       };
@@ -854,6 +850,8 @@ angular.module('kommonitorMap').component(
 
                       innerHTMLString += '<b>extreme Ausreißer gesondert markieren</b>';
                       innerHTMLString += '</label>';
+                      innerHTMLString += '<br/>';
+                      innerHTMLString += '<br/>';
 
                       return innerHTMLString;
                     };
@@ -931,9 +929,13 @@ angular.module('kommonitorMap').component(
 
                         $scope.div.innerHTML += $scope.appendClassifyRadioOptions();
 
+                        if($scope.containsOutliers_low || $scope.containsOutliers_high){
+                          this._div.innerHTML += $scope.appendOutliersCheckbox();
+                        }
+
                         var useFilteredOrZeroOrOutlierValues = false;
 
-                        if($scope.containsOutliers_low){
+                        if($scope.containsOutliers_low && kommonitorDataExchangeService.useOutlierDetectionOnIndicator){
 
                               var svgString = '<svg height="18" width="18"><line x1="10" y1="0" x2="110" y2="100" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:3" /><line x1="0" y1="0" x2="100" y2="100" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:3" /><line x1="0" y1="10" x2="100" y2="110" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:3" />Sorry, your browser does not support inline SVG.</svg>'
 
@@ -943,7 +945,7 @@ angular.module('kommonitorMap').component(
                                   "extreme untere Ausrei&szlig;er " + makeOutliersLowLegendString($scope.outliers_low) + '<br/>';
                                   useFilteredOrZeroOrOutlierValues = true;
                         }
-                        if($scope.containsOutliers_high){
+                        if($scope.containsOutliers_high && kommonitorDataExchangeService.useOutlierDetectionOnIndicator){
                           var svgString = '<svg height="18" width="18"><line x1="8" y1="18" x2="18" y2="8" style="stroke:' + defaultColorForOutliers_high + ';stroke-width:3" /><line x1="0" y1="18" x2="18" y2="0" style="stroke:' + defaultColorForOutliers_high + ';stroke-width:3" /><line x1="0" y1="10" x2="10" y2="0" style="stroke:' + defaultColorForOutliers_high + ';stroke-width:3" />Sorry, your browser does not support inline SVG.</svg>'
 
                           $scope.div.innerHTML +=
@@ -1038,9 +1040,13 @@ angular.module('kommonitorMap').component(
 
                         $scope.div.innerHTML += $scope.appendClassifyRadioOptions();
 
+                        if($scope.containsOutliers_low || $scope.containsOutliers_high){
+                          $scope.div.innerHTML += $scope.appendOutliersCheckbox();
+                        }
+
                         var useFilteredOrZeroOrOutlierValues = false;
 
-                        if($scope.containsOutliers_low){
+                        if($scope.containsOutliers_low && kommonitorDataExchangeService.useOutlierDetectionOnIndicator){
 
                               var svgString = '<svg height="18" width="18"><line x1="10" y1="0" x2="110" y2="100" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:3" /><line x1="0" y1="0" x2="100" y2="100" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:3" /><line x1="0" y1="10" x2="100" y2="110" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:3" />Sorry, your browser does not support inline SVG.</svg>'
 
@@ -1050,7 +1056,7 @@ angular.module('kommonitorMap').component(
                                   "extreme untere Ausrei&szlig;er " + makeOutliersLowLegendString($scope.outliers_low) + '<br/>';
                                   useFilteredOrZeroOrOutlierValues = true;
                         }
-                        if($scope.containsOutliers_high){
+                        if($scope.containsOutliers_high && kommonitorDataExchangeService.useOutlierDetectionOnIndicator){
                           var svgString = '<svg height="18" width="18"><line x1="8" y1="18" x2="18" y2="8" style="stroke:' + defaultColorForOutliers_high + ';stroke-width:3" /><line x1="0" y1="18" x2="18" y2="0" style="stroke:' + defaultColorForOutliers_high + ';stroke-width:3" /><line x1="0" y1="10" x2="10" y2="0" style="stroke:' + defaultColorForOutliers_high + ';stroke-width:3" />Sorry, your browser does not support inline SVG.</svg>'
 
                           $scope.div.innerHTML +=
@@ -1164,9 +1170,13 @@ angular.module('kommonitorMap').component(
 
                         $scope.div.innerHTML += $scope.appendClassifyRadioOptions();
 
+                        if($scope.containsOutliers_low || $scope.containsOutliers_high){
+                          $scope.div.innerHTML += $scope.appendOutliersCheckbox();
+                        }
+
                         var useFilteredOrZeroOrOutlierValues = false;
 
-                        if($scope.containsOutliers_low){
+                        if($scope.containsOutliers_low && kommonitorDataExchangeService.useOutlierDetectionOnIndicator){
 
                               var svgString = '<svg height="18" width="18"><line x1="10" y1="0" x2="110" y2="100" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:3" /><line x1="0" y1="0" x2="100" y2="100" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:3" /><line x1="0" y1="10" x2="100" y2="110" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:3" />Sorry, your browser does not support inline SVG.</svg>'
 
@@ -1176,7 +1186,7 @@ angular.module('kommonitorMap').component(
                                   "extreme untere Ausrei&szlig;er " + makeOutliersLowLegendString($scope.outliers_low) + '<br/>';
                                   useFilteredOrZeroOrOutlierValues = true;
                         }
-                        if($scope.containsOutliers_high){
+                        if($scope.containsOutliers_high && kommonitorDataExchangeService.useOutlierDetectionOnIndicator){
                           var svgString = '<svg height="18" width="18"><line x1="8" y1="18" x2="18" y2="8" style="stroke:' + defaultColorForOutliers_high + ';stroke-width:3" /><line x1="0" y1="18" x2="18" y2="0" style="stroke:' + defaultColorForOutliers_high + ';stroke-width:3" /><line x1="0" y1="10" x2="10" y2="0" style="stroke:' + defaultColorForOutliers_high + ';stroke-width:3" />Sorry, your browser does not support inline SVG.</svg>'
 
                           $scope.div.innerHTML +=
@@ -2729,9 +2739,7 @@ angular.module('kommonitorMap').component(
 
                                                                 // identify and mark outliers prior to setting up of styling
                                                                 // in styling methods, outliers should be removed from classification!
-                                                                if(kommonitorDataExchangeService.useOutlierDetectionOnIndicator){
                                                                   $scope.currentIndicatorMetadataAndGeoJSON = markOutliers($scope.currentIndicatorMetadataAndGeoJSON, $scope.indicatorPropertyName);
-                                                                }
 
                                                                 $scope.currentGeoJSONOfCurrentLayer = $scope.currentIndicatorMetadataAndGeoJSON.geoJSON;
 
@@ -2859,17 +2867,13 @@ angular.module('kommonitorMap').component(
                                                                             if(!kommonitorDataExchangeService.isBalanceChecked){
                                                                               // if mode is not balance then we have to make use of "normal" unbalanced indicator values
                                                                               $scope.currentIndicatorMetadataAndGeoJSON = kommonitorDataExchangeService.selectedIndicator;
-                                                                              if(kommonitorDataExchangeService.useOutlierDetectionOnIndicator){
                                                                                 $scope.currentIndicatorMetadataAndGeoJSON = markOutliers($scope.currentIndicatorMetadataAndGeoJSON, $scope.indicatorPropertyName);
-                                                                              }
                                                                               $scope.currentGeoJSONOfCurrentLayer = kommonitorDataExchangeService.selectedIndicator.geoJSON;
                                                                             }
                                                                             else{
                                                                               // if mode is not balance then we have to make use of "normal" unbalanced indicator values
                                                                               $scope.currentIndicatorMetadataAndGeoJSON = kommonitorDataExchangeService.indicatorAndMetadataAsBalance;
-                                                                              if(kommonitorDataExchangeService.useOutlierDetectionOnIndicator){
                                                                                 $scope.currentIndicatorMetadataAndGeoJSON = markOutliers($scope.currentIndicatorMetadataAndGeoJSON, $scope.indicatorPropertyName);
-                                                                              }
                                                                               $scope.currentGeoJSONOfCurrentLayer = kommonitorDataExchangeService.indicatorAndMetadataAsBalance.geoJSON;
                                                                             }
 

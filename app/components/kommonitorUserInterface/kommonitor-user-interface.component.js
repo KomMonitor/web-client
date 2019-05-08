@@ -356,7 +356,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				element: "#legendControl",
 				title: "Indikatorenlegende",
 				placement: "left",
-				content: "Dieses Element repr&auml;sentiert die <b>Legende</b>, sprich die Zuordnung von Indikatorenwertebereichen zu Darstellungsfarben. &Uuml;ber die <b>Radio-Buttons</b> (Jenks, Gleiches Intervall, Quantile) kann die <b>Klassifizierungsmethode</b> ge&auml;ndert werden (f&uuml;r detaillierte Informationen zu den Klassifizierungsmethoden lesen Sie bitte das <b>Popup</b>, das erscheint, wenn Sie mit dem <i>Mauszeiger &uuml;ber eine der drei Optionen fahren</i>).",
+				content: "Dieses Element repr&auml;sentiert die <b>Legende</b>, sprich die Zuordnung von Indikatorenwertebereichen zu Darstellungsfarben. &Uuml;ber die <b>Radio-Buttons</b> (Jenks, Gleiches Intervall, Quantile) kann die <b>Klassifizierungsmethode</b> ge&auml;ndert werden (f&uuml;r detaillierte Informationen zu den Klassifizierungsmethoden lesen Sie bitte das <b>Popup</b>, das erscheint, wenn Sie mit dem <i>Mauszeiger &uuml;ber eine der drei Optionen fahren</i>). <br/><br/> KomMonitor &uuml;berpr&uuml;ft jeden Indikatorendatensatz auf <b>Ausrei&szlig;er</b>. Werden ein oder mehrere Ausrei&szlig;er erkannt, so enth&auml;t die Legende auch eine <b>Checkbox</b>, mit der <i>Ausrei&szlig;er gesondert markiert und aus der Klassifizierung genommen werden k&ouml;nnen</i>. ",
 				onPrev: function(tour){
 					// make sure that legend control is displayed
 
