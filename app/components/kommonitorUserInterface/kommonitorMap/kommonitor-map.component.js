@@ -841,14 +841,14 @@ angular.module('kommonitorMap').component(
         							// 	<input type="checkbox" value="" checked>
         							// 	<b title="">Text</b>
         							// </label>
-                      var innerHTMLString = "<label class='checkbos-inline' title='Einstellung, ob extreme Ausreißer gesondert markiert werden sollen'>";
+                      var innerHTMLString = "<label class='checkbos-inline' title='Einstellung, ob Ausreißer gesondert markiert werden sollen'>";
                       innerHTMLString += "<input id='controlIndicatorOutlierDetection' type='checkbox' value='useOutlierDetection'";
                       if(kommonitorDataExchangeService.useOutlierDetectionOnIndicator){
                         innerHTMLString += " checked";
                       }
                       innerHTMLString += ">";
 
-                      innerHTMLString += '<b>extreme Ausreißer gesondert markieren</b>';
+                      innerHTMLString += '<b>Ausreißer gesondert markieren</b>';
                       innerHTMLString += '</label>';
                       innerHTMLString += '<br/>';
                       innerHTMLString += '<br/>';
@@ -942,7 +942,7 @@ angular.module('kommonitorMap').component(
                               $scope.div.innerHTML +=
                                   // '<i style="opacity: ' + opacity + ';">' + svgString + '</i> ' +
                                   '<i>' + svgString + '</i> ' +
-                                  "extreme untere Ausrei&szlig;er " + makeOutliersLowLegendString($scope.outliers_low) + '<br/>';
+                                  "untere Ausrei&szlig;er " + makeOutliersLowLegendString($scope.outliers_low) + '<br/>';
                                   useFilteredOrZeroOrOutlierValues = true;
                         }
                         if($scope.containsOutliers_high && kommonitorDataExchangeService.useOutlierDetectionOnIndicator){
@@ -951,7 +951,7 @@ angular.module('kommonitorMap').component(
                           $scope.div.innerHTML +=
                               // '<i style="opacity: ' + opacity + ';">' + svgString + '</i> ' +
                               '<i>' + svgString + '</i> ' +
-                              "extreme obere Ausrei&szlig;er " + makeOutliersHighLegendString($scope.outliers_high) + '<br/>';
+                              "obere Ausrei&szlig;er " + makeOutliersHighLegendString($scope.outliers_high) + '<br/>';
                               useFilteredOrZeroOrOutlierValues = true;
                         }
 
@@ -1053,7 +1053,7 @@ angular.module('kommonitorMap').component(
                               $scope.div.innerHTML +=
                                   // '<i style="opacity: ' + opacity + ';">' + svgString + '</i> ' +
                                   '<i>' + svgString + '</i> ' +
-                                  "extreme untere Ausrei&szlig;er " + makeOutliersLowLegendString($scope.outliers_low) + '<br/>';
+                                  "untere Ausrei&szlig;er " + makeOutliersLowLegendString($scope.outliers_low) + '<br/>';
                                   useFilteredOrZeroOrOutlierValues = true;
                         }
                         if($scope.containsOutliers_high && kommonitorDataExchangeService.useOutlierDetectionOnIndicator){
@@ -1062,7 +1062,7 @@ angular.module('kommonitorMap').component(
                           $scope.div.innerHTML +=
                               // '<i style="opacity: ' + opacity + ';">' + svgString + '</i> ' +
                               '<i>' + svgString + '</i> ' +
-                              "extreme obere Ausrei&szlig;er " + makeOutliersHighLegendString($scope.outliers_high) + '<br/>';
+                              "obere Ausrei&szlig;er " + makeOutliersHighLegendString($scope.outliers_high) + '<br/>';
                               useFilteredOrZeroOrOutlierValues = true;
                         }
 
@@ -1183,7 +1183,7 @@ angular.module('kommonitorMap').component(
                               $scope.div.innerHTML +=
                                   // '<i style="opacity: ' + opacity + ';">' + svgString + '</i> ' +
                                   '<i>' + svgString + '</i> ' +
-                                  "extreme untere Ausrei&szlig;er " + makeOutliersLowLegendString($scope.outliers_low) + '<br/>';
+                                  "untere Ausrei&szlig;er " + makeOutliersLowLegendString($scope.outliers_low) + '<br/>';
                                   useFilteredOrZeroOrOutlierValues = true;
                         }
                         if($scope.containsOutliers_high && kommonitorDataExchangeService.useOutlierDetectionOnIndicator){
@@ -1192,7 +1192,7 @@ angular.module('kommonitorMap').component(
                           $scope.div.innerHTML +=
                               // '<i style="opacity: ' + opacity + ';">' + svgString + '</i> ' +
                               '<i>' + svgString + '</i> ' +
-                              "extreme obere Ausrei&szlig;er " + makeOutliersHighLegendString($scope.outliers_high) + '<br/>';
+                              "obere Ausrei&szlig;er " + makeOutliersHighLegendString($scope.outliers_high) + '<br/>';
                               useFilteredOrZeroOrOutlierValues = true;
                         }
 
