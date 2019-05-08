@@ -31,8 +31,9 @@
 
 										<div class="form-group radio-custom">
 											<label for="fbType"><b>Art der Anmerkung*</b></label>
-								      <select ng-model="feedbackType" class="form-control" id="fbType">
-								        <option value="Frage" selected>R&uuml;ckfrage</option>
+								      <select ng-model="feedbackType" class="form-control" id="fbType" required>
+												<option disabled selected value> -- Art des Feedbacks w&auml;hlen -- </option>
+								        <option value="Frage">R&uuml;ckfrage</option>
 								        <option value="Wunsch-Funktion">Wunsch nach weiter Funktionalit&auml;t</option>
 								        <option value="Wunsch-Inhalt">Wunsch nach Erg&auml;nzung konkreter Inhalte</option>
 								        <option value="Kritik-an-Anwendung">Kritik zu Struktur und Bedienung der Web-Oberfl&auml;che</option>
@@ -47,8 +48,13 @@
 											<textarea ng-model="feedbackContent" class="form-control" name="Kontaktdaten" rows="6" cols="30" value="" placeholder="Ihre Anmerkung" required></textarea>
 										</div>
 
+										<div class="form-group">
+				                <label for="attachement">Optionales Attachement (z. B. ein Screenshot der Anwendung)</label>
+				                <input type="file" ng-model="attachement" select-ng-files class="form-control" id="attachement" name="attachement">
+				            </div>
+
 										<div class="form-group radio-custom">
-											<label><b>Wie gef&auml;llt Ihnen KomMonitor bisher?*</b></label>
+											<label><b>Wie gef&auml;llt Ihnen KomMonitor bisher?</b></label>
 											<br/>
 											<label><input ng-model="like" value="gut" class="radio-inline" type="radio" name="Bewertung"><span class="glyphicon glyphicon-thumbs-up"></span></label>
 											<label><input ng-model="like" value="schlecht" class="radio-inline" type="radio" name="Bewertung"><span class="glyphicon glyphicon-thumbs-down"></span></label>

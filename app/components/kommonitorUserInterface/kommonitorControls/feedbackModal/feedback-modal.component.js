@@ -10,9 +10,10 @@ angular.module('feedbackModal').component('feedbackModal', {
 		// $scope.titel;
 		$scope.organization;
 		$scope.contactDetails;
-		$scope.feedbackType = "Frage";
+		$scope.feedbackType = undefined;
 		$scope.feedbackContent;
-		$scope.like = "gut";
+		$scope.like = undefined;
+		$scope.attachement = undefined;
 
 		$scope.error = undefined;
 		$scope.success = undefined;
@@ -29,6 +30,7 @@ angular.module('feedbackModal').component('feedbackModal', {
 				mailInput.recipientMail = feedbackMailRecipient;
 				mailInput.subject = "KomMonitor - Feedback";
 				mailInput.body = body;
+				mailInput.attachement = $scope.attachement;
 
 				$scope.sendMail(mailInput);
 		};
@@ -76,7 +78,7 @@ angular.module('feedbackModal').component('feedbackModal', {
 		};
 
 		$scope.validate = function(){
-			if ($scope.feedbackType && $scope.feedbackContent && $scope.like){
+			if ($scope.feedbackType && $scope.feedbackContent){
 				return true;
 			}
 			return false;
@@ -85,9 +87,10 @@ angular.module('feedbackModal').component('feedbackModal', {
 		$scope.reset = function(){
 			$scope.organization = undefined;
 			$scope.contactDetails = undefined;
-			$scope.feedbackType = "Frage";
+			$scope.feedbackType = undefined;
 			$scope.feedbackContent = undefined;
-			$scope.like = "gut";
+			$scope.like = undefined;
+			$scope.attachement = undefined;
 
 			$scope.error = undefined;
 			$scope.success = undefined;
