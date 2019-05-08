@@ -34,6 +34,7 @@ angular.module('kommonitorMap').component(
                     const defaultColorForOutliers_low = __env.defaultColorForOutliers_low;
                     const defaultBorderColorForOutliers_low = __env.defaultBorderColorForOutliers_low;
                     const defaultFillOpacityForOutliers_low = __env.defaultFillOpacityForOutliers_low;
+                    const useOutlierDetectionOnIndicator = __env.useOutlierDetectionOnIndicator;
 
                     const outlierPropertyName = "outlier";
                     const outlierPropertyValue_high_soft = "high-soft";
@@ -46,7 +47,7 @@ angular.module('kommonitorMap').component(
                     $scope.containsOutliers_low = false;
                     $scope.outliers_high = undefined;
                     $scope.outliers_low = undefined;
-                    kommonitorDataExchangeService.useOutlierDetectionOnIndicator = true;
+                    kommonitorDataExchangeService.useOutlierDetectionOnIndicator = useOutlierDetectionOnIndicator;
 
                     $scope.outlierFillPattern_high;
                     $scope.outlierFillPattern_low;
