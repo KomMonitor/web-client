@@ -327,7 +327,9 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				onNext: function(tour){
 					// make sure that Info control is displayed
 
-					if(document.getElementById("toggleInfoControlButton").display !== "none"){
+					var control = document.getElementById("infoControl");
+					var controlButton = document.getElementById("toggleInfoControlButton");
+					if(control.style.display === "none" || (controlButton.style.display !== undefined && controlButton.style.display !== "none")){
 						$rootScope.$broadcast("toggleInfoControl");
 					}
 
@@ -341,23 +343,45 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				onNext: function(tour){
 					// make sure that legend control is displayed
 
-					if(document.getElementById("toggleLegendControlButton").display !== "none"){
+					var control = document.getElementById("legendControl");
+					var controlButton = document.getElementById("toggleLegendControlButton");
+					if(control.style.display === "none" || (controlButton.style.display !== undefined && controlButton.style.display !== "none")){
 						$rootScope.$broadcast("toggleLegendControl");
 					}
 
-				},
+				}
 			},
 			{
 				element: "#legendControl",
 				title: "Indikatorenlegende",
 				placement: "left",
-				content: "Dieses Element repr&auml;sentiert die <b>Legende</b>, sprich die Zuordnung von Indikatorenwertebereichen zu Darstellungsfarben. &Uuml;ber die <b>Radio-Buttons</b> (Jenks, Gleiches Intervall, Quantile) kann die <b>Klassifizierungsmethode</b> ge&auml;ndert werden (f&uuml;r detaillierte Informationen zu den Klassifizierungsmethoden lesen Sie bitte das <b>Popup</b>, das erscheint, wenn Sie mit dem <i>Mauszeiger &uuml;ber eine der drei Optionen fahren</i>)."
+				content: "Dieses Element repr&auml;sentiert die <b>Legende</b>, sprich die Zuordnung von Indikatorenwertebereichen zu Darstellungsfarben. &Uuml;ber die <b>Radio-Buttons</b> (Jenks, Gleiches Intervall, Quantile) kann die <b>Klassifizierungsmethode</b> ge&auml;ndert werden (f&uuml;r detaillierte Informationen zu den Klassifizierungsmethoden lesen Sie bitte das <b>Popup</b>, das erscheint, wenn Sie mit dem <i>Mauszeiger &uuml;ber eine der drei Optionen fahren</i>).",
+				onPrev: function(tour){
+					// make sure that legend control is displayed
+
+					var control = document.getElementById("infoControl");
+					var controlButton = document.getElementById("toggleInfoControlButton");
+					if(control.style.display === "none" || (controlButton.style.display !== undefined && controlButton.style.display !== "none")){
+						$rootScope.$broadcast("toggleInfoControl");
+					}
+
+				},
 			},
 			{
 				element: "#dateSliderWrapper",
 				title: "Zeitstrahl",
 				placement: "top",
-				content: "Die <b>Zeitleiste</b> am unteren Bildschirmrand enth&auml;lt die <b>verf&uuml;gbaren Zeitschnitte des selektierten Indikators</b>. Standardm&auml;ßig ist der aktuellste Zeitschnitt voreingestellt. Durch ein <i>Klicken auf einen beliebigen Punkt der Leiste oder durch Verschieben des runden Auswahlknopfs</i> k&ouml;nnen Sie den <b>Zeitschnitt &auml;ndern</b>."
+				content: "Die <b>Zeitleiste</b> am unteren Bildschirmrand enth&auml;lt die <b>verf&uuml;gbaren Zeitschnitte des selektierten Indikators</b>. Standardm&auml;ßig ist der aktuellste Zeitschnitt voreingestellt. Durch ein <i>Klicken auf einen beliebigen Punkt der Leiste oder durch Verschieben des runden Auswahlknopfs</i> k&ouml;nnen Sie den <b>Zeitschnitt &auml;ndern</b>.",
+				onPrev: function(tour){
+					// make sure that legend control is displayed
+
+					var control = document.getElementById("legendControl");
+					var controlButton = document.getElementById("toggleLegendControlButton");
+					if(control.style.display === "none" || (controlButton.style.display !== undefined && controlButton.style.display !== "none")){
+						$rootScope.$broadcast("toggleLegendControl");
+					}
+
+				},
 			},
 			{
 				element: "#mapUtilButtons",
