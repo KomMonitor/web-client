@@ -311,7 +311,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			onEnd: function(tour){
 				kommonitorDataExchangeService.guidedTour = undefined;
 			},
-			// template: "<div class='popover tour'><div class='arrow'></div><h3 class='popover-title'></h3><div class='popover-content'></div><div class='popover-navigation'><div class='btn-group'>    <button class='btn btn-default' data-role='prev'>« Prev</button>    <span data-role='separator'>|</span>    <button class='btn btn-default' data-role='next'>Next »</button></div>	</div><button class='btn btn-default' data-role='end'>End tour</button></div>",
+			template: "<div class='popover tour'> <div class='arrow'></div> <h3 class='popover-title'></h3>  <div class='popover-content'></div><div class='popover-navigation'> <div class='btn-group'> <button class='btn btn-sm btn-default' data-role='prev'>« Zur&uuml;ck</button> <button class='btn btn-sm btn-default' data-role='next'>Weiter »</button> </div> <button class='btn btn-sm btn-default' data-role='end'>Guided Tour beenden</button></div></div>",
 			steps: [
 			{
 				element: "#header",
