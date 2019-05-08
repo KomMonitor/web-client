@@ -238,7 +238,7 @@ angular
 										}
 									}
 
-									if( indicatorIndex === undefined)){
+									if( indicatorIndex === undefined){
 											indicatorIndex = getRandomInt(0, kommonitorDataExchangeService.availableIndicators.length - 1);
 									}
 
