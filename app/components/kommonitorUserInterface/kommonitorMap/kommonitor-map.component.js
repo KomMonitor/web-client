@@ -930,7 +930,7 @@ angular.module('kommonitorMap').component(
                         $scope.div.innerHTML += $scope.appendClassifyRadioOptions();
 
                         if($scope.containsOutliers_low || $scope.containsOutliers_high){
-                          this._div.innerHTML += $scope.appendOutliersCheckbox();
+                          $scope.div.innerHTML += $scope.appendOutliersCheckbox();
                         }
 
                         var useFilteredOrZeroOrOutlierValues = false;
