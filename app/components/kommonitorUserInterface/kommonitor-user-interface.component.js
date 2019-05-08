@@ -59,7 +59,8 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 		};
 
 		$scope.checkBalanceButtonAndMenueState = function(){
-			if(kommonitorDataExchangeService.selectedIndicator.indicatorType === "DYNAMIC"){
+			// disable if indicator is dynamic or if indicator only contains 1 or less timeseries entries
+			if(kommonitorDataExchangeService.selectedIndicator.indicatorType === "DYNAMIC" || kommonitorDataExchangeService.selectedIndicator.applicableDates.length < 2){
 				$scope.buttonBalanceClass = "btn btn-custom btn-circle disabled";
 				$scope.sidebarBalanceClass = "hidden";
 			}
@@ -492,7 +493,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				element: "#kommonitorBalance",
 				title: "Zeitliche Bilanzierung",
 				placement: "right",
-				content: "Bei der zeitlichen Bilanzierung steht die <b>Wertentwicklung eines Indikators</b> &uuml;ber die Zeit im Fokus (z. B. Wachstum / Schrumpfung). Wird die Bilanzierung mittels der entsprehenden <b>Checkbox</b> aktiviert, so kann &uuml;ber die Zeitleiste ein <b>Zeitraum</b> spezifiziert werden, f&uuml;r den die Wertentwicklung berechnet und dargestellt werden soll. <br/><br/>Die Indikatoren-Legende am unteren rechten Rand der Anwendung zeigt &uuml;ber dies bei aktivierter Checkbox an, dass die Bilanz des Indikators dargestellt wird.<br/><br/>Bitte bachten Sie, dass bei Indikatoren mit nur einem Zeitschnitt eine Bilanzierung zwar technisch m&ouml;glich ist, aber f&uuml;r alle Geometrien der Raumebene der Wert '0' resultiert.",
+				content: "Bei der zeitlichen Bilanzierung steht die <b>Wertentwicklung eines Indikators</b> &uuml;ber die Zeit im Fokus (z. B. Wachstum / Schrumpfung). Wird die Bilanzierung mittels der entsprehenden <b>Checkbox</b> aktiviert, so kann &uuml;ber die Zeitleiste ein <b>Zeitraum</b> spezifiziert werden, f&uuml;r den die Wertentwicklung berechnet und dargestellt werden soll. <br/><br/>Die Indikatoren-Legende am unteren rechten Rand der Anwendung zeigt &uuml;ber dies bei aktivierter Checkbox an, dass die Bilanz des Indikators dargestellt wird.<br/><br/>Bitte bachten Sie, dass eine Bilanzierung nur bei Status-Indikatoren m&ouml;glich ist, deren Zeitreihe mehr als einen Eintrag enth&auml;lt.",
 				onNext: function(tour){
 					if($scope.sidebarBalanceClass !== "hidden"){
 							$("#sidebarBalanceCollapse").click();
