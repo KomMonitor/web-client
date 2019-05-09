@@ -17,7 +17,7 @@
 					<p>Selektieren eines Eintrags aus unten stehender Liste f&uuml;gt den entsprechenden Punkt-Layer der Kartendarstellung hinzu. Deselektion entfernt den entsprechenden Layer aus der Kartendarstellung.</p>
 
 					<div id="poiInputForm">
-						<div ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:filterGeoresourcesByPoi()'>
+						<div ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:filterGeoresourcesByPoi() | filter:filterPois()'>
 							<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 							<label class='checkbox-inline' ><input type="checkbox" value="poi.datasetName" ng-model="poi.isSelected" ng-change="handlePoiOnMap(poi)">
 								<i class="awesome-marker-legend awesome-marker-legend-icon-{{poi.poiMarkerColor}}">
