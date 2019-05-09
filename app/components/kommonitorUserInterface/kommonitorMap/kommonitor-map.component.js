@@ -289,7 +289,7 @@ angular.module('kommonitorMap').component(
                       });
 
                       $scope.baseMaps = {
-                        "Stadt Essen - Amtliche Liegenschaftskarte": wms_essen_ALK_grau,
+                        "Stadt Essen - Automatisierte Liegenschaftskarte": wms_essen_ALK_grau,
                         "Stadt Essen - Amtliche Basiskarte": wms_essen_ABK,
                         "OpenStreetMap - Graustufen": osm_blackWhite,
                         "OpenStreetMap - Farbe": osm,
