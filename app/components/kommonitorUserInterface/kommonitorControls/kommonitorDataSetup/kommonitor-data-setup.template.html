@@ -50,7 +50,7 @@
 	</div>
 
 	<div class="form-group">
-	<h4 class="justify" align="center">Verf&uuml;gbare Indikatoren und Raumebenen</h4>
+	<h4 class="justify" align="center">Verf&uuml;gbare Indikatoren</h4>
 
 		<div text-align="center" align="center" class="hiddenTable">
 
@@ -60,7 +60,7 @@
 
 				<div text-align="center" align="center" class="hiddenTableContent">
 						<select
-							size="12" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicatorsByTopic()"
+							size="12" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators() | filter:filterIndicatorsByTopic()"
 							ng-change="onChangeSelectedIndicator()" class="form-control" required>
 							<option disabled selected value> -- Indikator w&auml;hlen -- </option>
 						</select>
@@ -102,6 +102,7 @@
 				<ul id="exportDropdown" class="dropdown-menu">
 					<li><a  target="_blank" rel="noopener noreferrer" ng-href="{{wmsUrlForSelectedIndicator}}">WMS  (derzeit fehlerhaft)</a></li>
 					<li><a  target="_blank" rel="noopener noreferrer" ng-href="{{wfsUrlForSelectedIndicator}}">WFS  (derzeit fehlerhaft)</a></li>
+					<li><a 	style="cursor: pointer;" ng-click="downloadIndicatorAsShape()">Shapefile</a></li>
 
 				</ul>
 			</div>

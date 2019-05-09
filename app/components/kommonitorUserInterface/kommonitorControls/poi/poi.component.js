@@ -37,6 +37,21 @@ angular
 								  };
 								};
 
+								$scope.filterPois = function(){
+									return function( item ) {
+
+										try{
+											if(item.datasetName.includes("Lebensmittel")){
+												return false;
+											}
+											return true;
+										}
+										catch(error){
+											return true;
+										}
+								  };
+								};
+
 								$scope.handlePoiOnMap = function(poi){
 									console.log("POI: " + poi.datasetName);
 

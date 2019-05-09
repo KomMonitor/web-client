@@ -73,7 +73,9 @@ angular
 									this.kommonitorDataExchangeServiceInstance.selectedTopic = null;
 
 									for(const topic of this.kommonitorDataExchangeServiceInstance.availableTopics){
-											document.getElementById(topic.topicName).setAttribute("class", "");
+										if (document.getElementById(topic.topicName)){
+												document.getElementById(topic.topicName).setAttribute("class", "");
+										}
 									};
 
 									if(!kommonitorDataExchangeService.selectedIndicator){
@@ -127,6 +129,21 @@ angular
 										if (kommonitorDataExchangeService.selectedTopic)
 								    	return item.applicableTopics.includes(kommonitorDataExchangeService.selectedTopic.topicName);
 
+										return true;
+								  };
+								};
+
+								$scope.filterIndicators = function() {
+								  return function( item ) {
+
+										if(item.applicableDates == undefined || item.applicableDates.length === 0)
+											return false;
+
+											var isIndicatorThatShallNotBeDisplayed = item.indicatorName.includes("Standardabweichung") || item.indicatorName.includes("Prozentuale Ver");
+
+											if(isIndicatorThatShallNotBeDisplayed){
+												return false;
+											}
 										return true;
 								  };
 								};
@@ -229,7 +246,7 @@ angular
 
 									console.log("Load an initial example indicator");
 
-									var indicatorIndex;
+									var indicatorIndex = undefined;
 
 									for (var index=0; index < kommonitorDataExchangeService.availableIndicators.length; index++){
 										if (kommonitorDataExchangeService.availableIndicators[index].indicatorId === initialIndicatorId){
@@ -238,7 +255,7 @@ angular
 										}
 									}
 
-									if(! indicatorIndex){
+									if( indicatorIndex === undefined){
 											indicatorIndex = getRandomInt(0, kommonitorDataExchangeService.availableIndicators.length - 1);
 									}
 
@@ -472,20 +489,32 @@ angular
 								function tsToDateString (dateAsMs) {
 									var date = new Date(dateAsMs);
 
-										return date.toLocaleDateString("de-DE", {
-												year: 'numeric',
-												month: 'long',
-												day: 'numeric'
-										});
+									/**
+									* TODO FIXME dateSLider formatter will return only year for now to prevent misleading month and day settings
+									*/
+
+									return date.getFullYear();
+
+										// return date.toLocaleDateString("de-DE", {
+										// 		year: 'numeric',
+										// 		month: 'long',
+										// 		day: 'numeric'
+										// });
 								}
 
 								function dateToDateString (date) {
 
-										return date.toLocaleDateString("de-DE", {
-												year: 'numeric',
-												month: 'long',
-												day: 'numeric'
-										});
+									/**
+									* TODO FIXME dateSLider formatter will return only year for now to prevent misleading month and day settings
+									*/
+
+									return date.getFullYear();
+
+										// return date.toLocaleDateString("de-DE", {
+										// 		year: 'numeric',
+										// 		month: 'long',
+										// 		day: 'numeric'
+										// });
 								}
 
 								function createDatesFromIndicatorDates(indicatorDates) {
@@ -562,7 +591,7 @@ angular
 											return;
 										}
 
-										$scope.modifyOgcAndGeoJSONExport(false);
+										$scope.modifyExports(false);
 
 										$scope.loadingData = false;
 										$rootScope.$broadcast("hideLoadingIconOnMap");
@@ -644,7 +673,7 @@ angular
 											return;
 										}
 
-										$scope.modifyOgcAndGeoJSONExport(false);
+										$scope.modifyExports(false);
 
 										$scope.loadingData = false;
 										$rootScope.$broadcast("hideLoadingIconOnMap");
@@ -676,7 +705,7 @@ angular
 										}
 
 											$rootScope.$broadcast("DisableBalance");
-												$scope.modifyOgcAndGeoJSONExport(true);
+												$scope.modifyExports(true);
 
 
 												$scope.loadingData = false;
@@ -693,7 +722,7 @@ angular
 
 
 
-								$scope.modifyOgcAndGeoJSONExport = function(changeIndicator){
+								$scope.modifyExports = function(changeIndicator){
 									$scope.wmsUrlForSelectedIndicator = undefined;
 									$scope.wmsUrlForSelectedIndicator = undefined;
 
@@ -718,8 +747,8 @@ angular
 								$scope.prepareDownloadGeoJSON = function(){
 
 									console.log("removing old download button if available")
-									if(document.getElementById("downloadSelectedIndicator"))
-										document.getElementById("downloadSelectedIndicator").remove();
+									if(document.getElementById("downloadSelectedIndicatorAsGeoJSON"))
+										document.getElementById("downloadSelectedIndicatorAsGeoJSON").remove();
 
 									var geoJSON_string = JSON.stringify(kommonitorDataExchangeService.selectedIndicator.geoJSON);
 
@@ -736,7 +765,7 @@ angular
 									a.download    = fileName;
 									a.href        = data;
 									a.textContent = "GeoJSON";
-									a.id = "downloadSelectedIndicator";
+									a.id = "downloadSelectedIndicatorAsGeoJSON";
 
 									var li = document.createElement("li");
 									li.appendChild(a);
@@ -744,7 +773,60 @@ angular
 									document.getElementById('exportDropdown').appendChild(li);
 								}
 
+								$scope.downloadIndicatorAsShape = function(){
 
+									var folderName = kommonitorDataExchangeService.selectedIndicator.indicatorName + "_" + kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel + "_" + $scope.selectedDate;
+									var polygonName = kommonitorDataExchangeService.selectedIndicator.indicatorName + "_" + kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel;
+
+									var options = {
+									    folder: folderName,
+									    types: {
+									        point: 'points',
+									        polygon: polygonName,
+									        line: 'lines'
+									    }
+									}
+
+									var geoJSON = jQuery.extend(true, {}, kommonitorDataExchangeService.selectedIndicator.geoJSON);
+
+									for (var feature of geoJSON.features){
+										var properties = feature.properties;
+
+										// rename all properties due to char limit in shaoefiles
+										var keys = Object.keys(properties);
+
+										for (var key of keys){
+											var newKey = undefined;
+											if(key.toLowerCase().includes("featureid")){
+												newKey = "ID";
+											}
+											else if(key.toLowerCase().includes("featurename")){
+												newKey = "NAME";
+											}
+											else if(key.toLowerCase().includes("date_")){
+												// from DATE_2018-01-01
+												// to 20180101
+												newKey = key.split("_")[1].replace(/-|\s/g, "");
+											}
+											else if(key.toLowerCase().includes("startdate")){
+												newKey = "validFrom";
+											}
+											else if(key.toLowerCase().includes("enddate")){
+												newKey = "validTo";
+											}
+
+											if(newKey){
+												properties[newKey] = properties[key];
+												delete properties[key];
+											}
+										}
+
+										// replace properties with the one with new keys
+										feature.properties = properties;
+									}
+
+									shpwrite.download(geoJSON, options);
+								};
 
 								$scope.$on("updateIndicatorOgcServices", function (event, indicatorWmsUrl, indicatorWfsUrl) {
 

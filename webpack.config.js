@@ -41,7 +41,10 @@ module.exports = {
           { from: nodeModulePathConstant + 'bootstrap-tour/build/css/bootstrap-tour.min.css', to: 'bootstrap-tour' },
           { from: nodeModulePathConstant + 'bootstrap-tour/build/js/bootstrap-tour.min.js', to: 'bootstrap-tour' },
           { from: nodeModulePathConstant + 'jspdf/dist/jspdf.min.js', to: 'jspdf' },
-          { from: nodeModulePathConstant + 'jspdf-autotable/dist/jspdf.plugin.autotable.min.js', to: 'jspdf-autotable' }
+          { from: nodeModulePathConstant + 'jspdf-autotable/dist/jspdf.plugin.autotable.min.js', to: 'jspdf-autotable' },
+          { from: './customizedExternalLibs/shpwrite.js', to: 'shp-write' },
+          { from: nodeModulePathConstant + 'jstat/dist/jstat.min.js', to: 'jstat' },
+          { from: nodeModulePathConstant + 'leaflet.pattern/dist/leaflet.pattern.js', to: 'leaflet-pattern' }
       ])
     ]
 };

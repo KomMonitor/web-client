@@ -6,6 +6,28 @@
 	/* overflow: hidden; */
 }
 
+#mailSuccessInfo{
+    position: fixed;
+    bottom: 20px;
+    left:2%;
+    width: 96%;
+}
+
+#mailErrorInfo{
+    position: fixed;
+    bottom: 20px;
+    left:2%;
+    width: 96%;
+}
+
+#outlierInfo{
+    position: absolute;
+    bottom: 50%;
+    left:10%;
+    width: 80%;
+		z-index: 9999;
+}
+
 /* Set height of the grid so .sidenav can be 100% (adjust if needed) */
 .row.wps-ui {
 	height: 98vh;
@@ -243,7 +265,7 @@
 }
 
 #map {
-	height: 94.1vh;
+	height: 94vh;
 	position: relative;
 	z-index: 1999;
 }
@@ -442,11 +464,12 @@
 	height: auto !important;
 	max-height: 525px;
 	overflow: auto;
+	font: 12px/14px Arial, Helvetica, sans-serif;
 }
 
 .info {
     padding: 6px 8px;
-    font: 14px/16px Arial, Helvetica, sans-serif;
+    font: 12px/14px Arial, Helvetica, sans-serif;
     background: white;
     /* background: rgba(255,255,255,1); */
     box-shadow: 0 0 15px rgba(0,0,0,0.2);
@@ -454,9 +477,9 @@
 
 		min-width: 250px;
 		width: auto;
-		max-width: 40%;
+		max-width: 350px;
 		height: auto !important;
-		max-height: 10%;
+		max-height: 350px;
 		overflow: auto;
 }
 .info h4 {
@@ -467,7 +490,7 @@
 
 .legend {
 		padding: 6px 8px;
-		font: 14px/16px Arial, Helvetica, sans-serif;
+		font: 12px/14px Arial, Helvetica, sans-serif;
 		background: white;
 		/* background: rgba(255,255,255,1); */
 		box-shadow: 0 0 15px rgba(0,0,0,0.2);
@@ -475,9 +498,9 @@
     line-height: 18px;
     color: #555;
 		width: 50%;
-		max-width: 50%;
+		max-width: 300px;
 		height: auto !important;
-		max-height: 10%;
+		max-height: 400px;
 	  overflow: auto;
 		display: inline-block
 }
@@ -500,7 +523,7 @@
 
 .legendMap {
 		padding: 6px 8px;
-		font: 14px/16px Arial, Helvetica, sans-serif;
+		font: 12px/14px Arial, Helvetica, sans-serif;
 		background: white;
 		/* background: rgba(255,255,255,1); */
 		box-shadow: 0 0 15px rgba(0,0,0,0.2);
@@ -509,9 +532,9 @@
     color: #555;
 		min-width: 315px;
 		width: auto;
-		max-width: 50%;
+		max-width: 350px;
 		height: auto !important;
-		max-height: 10%;
+		max-height: 400px;
 	  overflow: auto;
 		display: inline-block
 }
@@ -550,14 +573,16 @@
 
 #referencedIndicatorOverview {
 	height: auto !important;
-	max-height: 250px;
+	max-height: 230px;
   overflow: auto;
+	font: 12px/14px Arial, Helvetica, sans-serif;
 }
 
 #referencedGeoresourcesOverview {
 	height: auto !important;
-	max-height: 250px;
+	max-height: 230px;
   overflow: auto;
+	font: 12px/14px Arial, Helvetica, sans-serif;
 }
 
 
@@ -565,15 +590,15 @@
     display: flex;
 		align-items: stretch;
     width: 100%;
-		/* height: 94.1vh; */
+		/* height: 94vh; */
 		perspective: 1500px;
 }
 
 #sidebarIndicatorConfig {
     min-width: 35%;
     max-width: 35%;
-		height: 94.1vh;
-		max-height: 94.1vh;
+		height: 94vh;
+		max-height: 94vh;
 		/* min-height: 100vh; */
 		background: #E6EEFB;
 		/* transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
@@ -589,7 +614,7 @@
 #sidebarFilter {
     min-width: 35%;
     max-width: 35%;
-		height: 94.1vh;
+		height: 94vh;
 		max-height: 98%;
 		/* min-height: 100vh; */
 		background: #E6EEFB;
@@ -606,7 +631,7 @@
 #sidebarBalance {
 	min-width: 35%;
 	max-width: 35%;
-		height: 94.1vh;
+		height: 94vh;
 		/* min-height: 100vh; */
 		background: #E6EEFB;
 		/* transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
@@ -622,7 +647,7 @@
 #sidebarReachability {
 	min-width: 35%;
 	max-width: 35%;
-		height: 94.1vh;
+		height: 94vh;
 		/* min-height: 100vh; */
 		background: #E6EEFB;
 		/* transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
@@ -639,7 +664,7 @@
 	min-width: 42%;
 	max-width: 42%;
 		/* min-height: 100vh; */
-		height: 94.1vh;
+		height: 94vh;
 		background: #E6EEFB;
 		/* transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
     transform-origin: center left; /* Set the transformed position of sidebar to center left side. */ */
@@ -655,7 +680,7 @@
 	min-width: 42%;
 	max-width: 42%;
 		/* min-height: 100vh; */
-		height: 94.1vh;
+		height: 94vh;
 		background: #E6EEFB;
 		/* transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
     transform-origin: center left; /* Set the transformed position of sidebar to center left side. */ */
@@ -671,7 +696,7 @@
 	min-width: 35%;
 	max-width: 35%;
 		/* min-height: 100vh; */
-		height: 94.1vh;
+		height: 94vh;
 		background: #E6EEFB;
 		/* transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
     transform-origin: center left; /* Set the transformed position of sidebar to center left side. */ */
@@ -687,7 +712,7 @@
 	min-width: 42%;
 	max-width: 42%;
 		/* min-height: 100vh; */
-		height: 94.1vh;
+		height: 94vh;
 		background: #E6EEFB;
 		/* transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
     transform-origin: center left; /* Set the transformed position of sidebar to center left side. */ */
@@ -703,7 +728,7 @@
 	min-width: 35%;
 	max-width: 35%;
 		/* min-height: 100vh; */
-		height: 94.1vh;
+		height: 94vh;
 		background: #E6EEFB;
 		/* transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
     transform-origin: center left; /* Set the transformed position of sidebar to center left side. */ */
@@ -805,7 +830,7 @@
 #indicatorSetup{
 	margin-left: 1%;
 	margin-right: 1%;
-	/* margin-top: 1%; */
+	margin-top: 1%;
 	z-index: 7000;
 	height: 98%;
 	max-height: 98%;
