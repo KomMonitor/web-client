@@ -464,6 +464,7 @@
 	height: auto !important;
 	max-height: 525px;
 	overflow: auto;
+	font: 12px/14px Arial, Helvetica, sans-serif;
 }
 
 .info {
