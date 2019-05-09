@@ -73,7 +73,9 @@ angular
 									this.kommonitorDataExchangeServiceInstance.selectedTopic = null;
 
 									for(const topic of this.kommonitorDataExchangeServiceInstance.availableTopics){
-											document.getElementById(topic.topicName).setAttribute("class", "");
+										if (document.getElementById(topic.topicName)){
+												document.getElementById(topic.topicName).setAttribute("class", "");
+										}
 									};
 
 									if(!kommonitorDataExchangeService.selectedIndicator){
@@ -127,6 +129,21 @@ angular
 										if (kommonitorDataExchangeService.selectedTopic)
 								    	return item.applicableTopics.includes(kommonitorDataExchangeService.selectedTopic.topicName);
 
+										return true;
+								  };
+								};
+
+								$scope.filterIndicators = function() {
+								  return function( item ) {
+
+										if(item.applicableDates == undefined || item.applicableDates.length === 0)
+											return false;
+
+											var isIndicatorThatShallNotBeDisplayed = item.indicatorName.includes("Standardabweichung") || item.indicatorName.includes("Prozentuale Ver");
+
+											if(isIndicatorThatShallNotBeDisplayed){
+												return false;
+											}
 										return true;
 								  };
 								};
