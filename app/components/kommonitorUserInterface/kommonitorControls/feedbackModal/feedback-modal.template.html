@@ -21,20 +21,21 @@
 											<input ng-model="titel" class="form-control" type="text" name="Titel" value="" size="30" maxlength="70" placeholder="Ihr Titel" required/>
 										</div> -->
 										<div class="form-group">
-											<label>Ihr Fachbereich</label>
-											<input ng-model="organization" class="form-control" type="text" name="Fachbereich" value="" size="30" maxlength="50" placeholder="Ihr Fachbereich"/>
+											<label>Name/Fachbereich</label>
+											<input ng-model="organization" class="form-control" type="text" name="Fachbereich" value="" size="30" maxlength="50" placeholder="Ihr Name / Ihr Fachbereich"/>
 										</div>
 										<div class="form-group">
-											<label>Ihre Kontaktdetails f&uumlr R&uumlckfragen</label>
-											<textarea ng-model="contactDetails" class="form-control" name="Kontaktdaten" value="" rows="4" cols="50" placeholder="Ihre Kontaktdaten"></textarea>
+											<label>Ihre E-Mail-Adresse oder Telefonnummer f&uuml;r R&uuml;ckfragen</label>
+											<textarea ng-model="contactDetails" class="form-control" name="Kontaktdaten" value="" rows="1" cols="50" placeholder="Ihre Kontaktdaten"></textarea>
 										</div>
 
 										<div class="form-group radio-custom">
 											<label for="fbType"><b>Art der Anmerkung*</b></label>
-								      <select ng-model="feedbackType" class="form-control" id="fbType">
-								        <option value="Frage" selected>R&uuml;ckfrage</option>
+								      <select ng-model="feedbackType" class="form-control" id="fbType" required>
+												<option disabled selected value> -- Art des Feedbacks w&auml;hlen -- </option>
+								        <option value="Frage">R&uuml;ckfrage</option>
 								        <option value="Wunsch-Funktion">Wunsch nach weiter Funktionalit&auml;t</option>
-								        <option value="Wunsch-Inhalt">Wunsch nach weiterem Inhalt</option>
+								        <option value="Wunsch-Inhalt">Wunsch nach Erg&auml;nzung konkreter Inhalte</option>
 								        <option value="Kritik-an-Anwendung">Kritik zu Struktur und Bedienung der Web-Oberfl&auml;che</option>
 												<option value="Fehlermeldung">Fehler in der Anwendung</option>
 												<option value="Wunsch-Termin">Bitte um Gespr&auml;ch</option>
@@ -47,8 +48,13 @@
 											<textarea ng-model="feedbackContent" class="form-control" name="Kontaktdaten" rows="6" cols="30" value="" placeholder="Ihre Anmerkung" required></textarea>
 										</div>
 
+										<div class="form-group">
+				                <label for="attachment">Optionales Attachment (z. B. ein Screenshot der Anwendung)</label>
+				                <input type="file" class="form-control" id="attachment" name="files">
+				            </div>
+
 										<div class="form-group radio-custom">
-											<label><b>Wie gef&auml;llt Ihnen KomMonitor bisher?*</b></label>
+											<label><b>Wie gef&auml;llt Ihnen KomMonitor bisher?</b></label>
 											<br/>
 											<label><input ng-model="like" value="gut" class="radio-inline" type="radio" name="Bewertung"><span class="glyphicon glyphicon-thumbs-up"></span></label>
 											<label><input ng-model="like" value="schlecht" class="radio-inline" type="radio" name="Bewertung"><span class="glyphicon glyphicon-thumbs-down"></span></label>
@@ -57,7 +63,6 @@
 										<div align="center">
 											<input class="btn btn-info" type="submit" ng-click="onSubmit()" name="absenden" value="Absenden" />
 											<button type="button" class="btn btn-danger" ng-click="reset()">Zur&uuml;cksetzen</button>
-											<p>(<b>Absenden</b> &oumlffnet ein Fenter ihres lokalen Mail-Clients - bspw. eine Outlook-Nachricht - die Sie noch manuell best&aumltigen m&uumlssen.)</p>
 										</div>
 
 								</div>

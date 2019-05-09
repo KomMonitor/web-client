@@ -10,14 +10,29 @@ angular.module('feedbackModal').component('feedbackModal', {
 		// $scope.titel;
 		$scope.organization;
 		$scope.contactDetails;
-		$scope.feedbackType = "Frage";
+		$scope.feedbackType = undefined;
 		$scope.feedbackContent;
-		$scope.like = "gut";
+		$scope.like = undefined;
+		$scope.attachment = undefined;
+		document.getElementById("attachment").value = "";
 
 		$scope.error = undefined;
 		$scope.success = undefined;
 
-		$scope.onSubmit = function(){
+		var fileToBase64 = (file) => {
+			  return new Promise(resolve => {
+			    var reader = new FileReader();
+			    // Read file content on file loaded event
+			    reader.onload = function(event) {
+			      resolve(event.target.result);
+			    };
+
+			    // Convert data to base64
+			    reader.readAsDataURL(file);
+			  });
+			};
+
+		$scope.onSubmit = async function(){
 				// var body = "Titel:  " + $scope.titel + "\n";
 				var body = "Fachbereich/Organisation:  " + $scope.organization + "\n\n";
 				body += "Kontaktdaten:  " + $scope.contactDetails + "\n\n";
@@ -25,10 +40,31 @@ angular.module('feedbackModal').component('feedbackModal', {
 				body += "Feedback Inhalt:  " + $scope.feedbackContent + "\n\n";
 				body += "KomMonitor Bewertung:  " + $scope.like + "\n\n";
 
+				// var blobFile = $('#attachment').files[0];
+				var files = document.getElementById('attachment').files;
+				if(files.length > 0){
+					var uploadFile = files[0];
+					var base64 = await fileToBase64(uploadFile);
+					$scope.attachment = base64;
+				}
+
+
+		    // var formData = undefined;
+				//
+				// if(files.length > 0){
+				// 	formData = new FormData();
+				//
+				// 	for (var i = 0; i < files.length; i++) {
+				// 		formData.append("files[]", files[i]);
+				// 	}
+				//
+				// }
+
 				var mailInput = {};
 				mailInput.recipientMail = feedbackMailRecipient;
 				mailInput.subject = "KomMonitor - Feedback";
 				mailInput.body = body;
+				mailInput.attachment = $scope.attachment;
 
 				$scope.sendMail(mailInput);
 		};
@@ -76,7 +112,7 @@ angular.module('feedbackModal').component('feedbackModal', {
 		};
 
 		$scope.validate = function(){
-			if ($scope.feedbackType && $scope.feedbackContent && $scope.like){
+			if ($scope.feedbackType && $scope.feedbackContent){
 				return true;
 			}
 			return false;
@@ -85,9 +121,11 @@ angular.module('feedbackModal').component('feedbackModal', {
 		$scope.reset = function(){
 			$scope.organization = undefined;
 			$scope.contactDetails = undefined;
-			$scope.feedbackType = "Frage";
+			$scope.feedbackType = undefined;
 			$scope.feedbackContent = undefined;
-			$scope.like = "gut";
+			$scope.like = undefined;
+			$scope.attachment = undefined;
+			document.getElementById("attachment").value = "";
 
 			$scope.error = undefined;
 			$scope.success = undefined;

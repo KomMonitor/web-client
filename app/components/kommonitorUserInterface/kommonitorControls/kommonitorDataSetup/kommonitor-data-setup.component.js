@@ -73,7 +73,9 @@ angular
 									this.kommonitorDataExchangeServiceInstance.selectedTopic = null;
 
 									for(const topic of this.kommonitorDataExchangeServiceInstance.availableTopics){
-											document.getElementById(topic.topicName).setAttribute("class", "");
+										if (document.getElementById(topic.topicName)){
+												document.getElementById(topic.topicName).setAttribute("class", "");
+										}
 									};
 
 									if(!kommonitorDataExchangeService.selectedIndicator){
@@ -127,6 +129,21 @@ angular
 										if (kommonitorDataExchangeService.selectedTopic)
 								    	return item.applicableTopics.includes(kommonitorDataExchangeService.selectedTopic.topicName);
 
+										return true;
+								  };
+								};
+
+								$scope.filterIndicators = function() {
+								  return function( item ) {
+
+										if(item.applicableDates == undefined || item.applicableDates.length === 0)
+											return false;
+
+											var isIndicatorThatShallNotBeDisplayed = item.indicatorName.includes("Standardabweichung") || item.indicatorName.includes("Prozentuale Ver");
+
+											if(isIndicatorThatShallNotBeDisplayed){
+												return false;
+											}
 										return true;
 								  };
 								};
@@ -229,7 +246,7 @@ angular
 
 									console.log("Load an initial example indicator");
 
-									var indicatorIndex;
+									var indicatorIndex = undefined;
 
 									for (var index=0; index < kommonitorDataExchangeService.availableIndicators.length; index++){
 										if (kommonitorDataExchangeService.availableIndicators[index].indicatorId === initialIndicatorId){
@@ -238,7 +255,7 @@ angular
 										}
 									}
 
-									if(! indicatorIndex){
+									if( indicatorIndex === undefined){
 											indicatorIndex = getRandomInt(0, kommonitorDataExchangeService.availableIndicators.length - 1);
 									}
 
@@ -472,20 +489,32 @@ angular
 								function tsToDateString (dateAsMs) {
 									var date = new Date(dateAsMs);
 
-										return date.toLocaleDateString("de-DE", {
-												year: 'numeric',
-												month: 'long',
-												day: 'numeric'
-										});
+									/**
+									* TODO FIXME dateSLider formatter will return only year for now to prevent misleading month and day settings
+									*/
+
+									return date.getFullYear();
+
+										// return date.toLocaleDateString("de-DE", {
+										// 		year: 'numeric',
+										// 		month: 'long',
+										// 		day: 'numeric'
+										// });
 								}
 
 								function dateToDateString (date) {
 
-										return date.toLocaleDateString("de-DE", {
-												year: 'numeric',
-												month: 'long',
-												day: 'numeric'
-										});
+									/**
+									* TODO FIXME dateSLider formatter will return only year for now to prevent misleading month and day settings
+									*/
+
+									return date.getFullYear();
+
+										// return date.toLocaleDateString("de-DE", {
+										// 		year: 'numeric',
+										// 		month: 'long',
+										// 		day: 'numeric'
+										// });
 								}
 
 								function createDatesFromIndicatorDates(indicatorDates) {
