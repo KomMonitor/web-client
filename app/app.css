@@ -265,7 +265,7 @@
 }
 
 #map {
-	height: 94.1vh;
+	height: 94vh;
 	position: relative;
 	z-index: 1999;
 }
@@ -572,14 +572,16 @@
 
 #referencedIndicatorOverview {
 	height: auto !important;
-	max-height: 250px;
+	max-height: 230px;
   overflow: auto;
+	font: 12px/14px Arial, Helvetica, sans-serif;
 }
 
 #referencedGeoresourcesOverview {
 	height: auto !important;
-	max-height: 250px;
+	max-height: 230px;
   overflow: auto;
+	font: 12px/14px Arial, Helvetica, sans-serif;
 }
 
 
@@ -827,7 +829,7 @@
 #indicatorSetup{
 	margin-left: 1%;
 	margin-right: 1%;
-	/* margin-top: 1%; */
+	margin-top: 1%;
 	z-index: 7000;
 	height: 98%;
 	max-height: 98%;
