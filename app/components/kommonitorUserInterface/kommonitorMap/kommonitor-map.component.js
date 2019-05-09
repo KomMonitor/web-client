@@ -610,7 +610,11 @@ angular.module('kommonitorMap').component(
                       var datesString = "";
 
                       for (var [index, date] of indicatorMetadata.applicableDates.entries()){
-                        datesString += date;
+
+                        var dateComponents = date.split("-");
+                        var asDate = new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]));
+
+                        datesString += tsToDate_fullYear(dateToTS(asDate));
 
                         if(index < indicatorMetadata.applicableDates.length - 1){
                           datesString += "\n";
