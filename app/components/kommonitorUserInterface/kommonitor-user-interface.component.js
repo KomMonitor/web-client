@@ -59,7 +59,8 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 		};
 
 		$scope.checkBalanceButtonAndMenueState = function(){
-			if(kommonitorDataExchangeService.selectedIndicator.indicatorType === "DYNAMIC"){
+			// disable if indicator is dynamic or if indicator only contains 1 or less timeseries entries
+			if(kommonitorDataExchangeService.selectedIndicator.indicatorType === "DYNAMIC" || kommonitorDataExchangeService.selectedIndicator.applicableDates.length < 2){
 				$scope.buttonBalanceClass = "btn btn-custom btn-circle disabled";
 				$scope.sidebarBalanceClass = "hidden";
 			}
@@ -311,7 +312,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			onEnd: function(tour){
 				kommonitorDataExchangeService.guidedTour = undefined;
 			},
-			// template: "<div class='popover tour'><div class='arrow'></div><h3 class='popover-title'></h3><div class='popover-content'></div><div class='popover-navigation'><div class='btn-group'>    <button class='btn btn-default' data-role='prev'>« Prev</button>    <span data-role='separator'>|</span>    <button class='btn btn-default' data-role='next'>Next »</button></div>	</div><button class='btn btn-default' data-role='end'>End tour</button></div>",
+			template: "<div class='popover tour'> <div class='arrow'></div> <h3 class='popover-title'></h3>  <div class='popover-content'></div><div class='popover-navigation'> <div class='btn-group'> <button class='btn btn-sm btn-default' data-role='prev'>« Zur&uuml;ck</button> <button class='btn btn-sm btn-default' data-role='next'>Weiter »</button> </div> <button class='btn btn-sm btn-default' data-role='end'>Guided Tour beenden</button></div></div>",
 			steps: [
 			{
 				element: "#header",
@@ -327,7 +328,9 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				onNext: function(tour){
 					// make sure that Info control is displayed
 
-					if(document.getElementById("toggleInfoControlButton").display !== "none"){
+					var control = document.getElementById("infoControl");
+					var controlButton = document.getElementById("toggleInfoControlButton");
+					if(control.style.display === "none" || (controlButton.style.display !== undefined && controlButton.style.display !== "none")){
 						$rootScope.$broadcast("toggleInfoControl");
 					}
 
@@ -341,23 +344,45 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				onNext: function(tour){
 					// make sure that legend control is displayed
 
-					if(document.getElementById("toggleLegendControlButton").display !== "none"){
+					var control = document.getElementById("legendControl");
+					var controlButton = document.getElementById("toggleLegendControlButton");
+					if(control.style.display === "none" || (controlButton.style.display !== undefined && controlButton.style.display !== "none")){
 						$rootScope.$broadcast("toggleLegendControl");
 					}
 
-				},
+				}
 			},
 			{
 				element: "#legendControl",
 				title: "Indikatorenlegende",
 				placement: "left",
-				content: "Dieses Element repr&auml;sentiert die <b>Legende</b>, sprich die Zuordnung von Indikatorenwertebereichen zu Darstellungsfarben. &Uuml;ber die <b>Radio-Buttons</b> (Jenks, Gleiches Intervall, Quantile) kann die <b>Klassifizierungsmethode</b> ge&auml;ndert werden (f&uuml;r detaillierte Informationen zu den Klassifizierungsmethoden lesen Sie bitte das <b>Popup</b>, das erscheint, wenn Sie mit dem <i>Mauszeiger &uuml;ber eine der drei Optionen fahren</i>)."
+				content: "Dieses Element repr&auml;sentiert die <b>Legende</b>, sprich die Zuordnung von Indikatorenwertebereichen zu Darstellungsfarben. &Uuml;ber die <b>Radio-Buttons</b> (Jenks, Gleiches Intervall, Quantile) kann die <b>Klassifizierungsmethode</b> ge&auml;ndert werden (f&uuml;r detaillierte Informationen zu den Klassifizierungsmethoden lesen Sie bitte das <b>Popup</b>, das erscheint, wenn Sie mit dem <i>Mauszeiger &uuml;ber eine der drei Optionen fahren</i>). <br/><br/> KomMonitor &uuml;berpr&uuml;ft jeden Indikatorendatensatz auf <b>Ausrei&szlig;er</b>. Werden ein oder mehrere Ausrei&szlig;er erkannt, so enth&auml;t die Legende auch eine <b>Checkbox</b>, mit der <i>Ausrei&szlig;er gesondert markiert und aus der Klassifizierung genommen werden k&ouml;nnen</i>. ",
+				onPrev: function(tour){
+					// make sure that legend control is displayed
+
+					var control = document.getElementById("infoControl");
+					var controlButton = document.getElementById("toggleInfoControlButton");
+					if(control.style.display === "none" || (controlButton.style.display !== undefined && controlButton.style.display !== "none")){
+						$rootScope.$broadcast("toggleInfoControl");
+					}
+
+				},
 			},
 			{
 				element: "#dateSliderWrapper",
 				title: "Zeitstrahl",
 				placement: "top",
-				content: "Die <b>Zeitleiste</b> am unteren Bildschirmrand enth&auml;lt die <b>verf&uuml;gbaren Zeitschnitte des selektierten Indikators</b>. Standardm&auml;ßig ist der aktuellste Zeitschnitt voreingestellt. Durch ein <i>Klicken auf einen beliebigen Punkt der Leiste oder durch Verschieben des runden Auswahlknopfs</i> k&ouml;nnen Sie den <b>Zeitschnitt &auml;ndern</b>."
+				content: "Die <b>Zeitleiste</b> am unteren Bildschirmrand enth&auml;lt die <b>verf&uuml;gbaren Zeitschnitte des selektierten Indikators</b>. Standardm&auml;ßig ist der aktuellste Zeitschnitt voreingestellt. Durch ein <i>Klicken auf einen beliebigen Punkt der Leiste oder durch Verschieben des runden Auswahlknopfs</i> k&ouml;nnen Sie den <b>Zeitschnitt &auml;ndern</b>.",
+				onPrev: function(tour){
+					// make sure that legend control is displayed
+
+					var control = document.getElementById("legendControl");
+					var controlButton = document.getElementById("toggleLegendControlButton");
+					if(control.style.display === "none" || (controlButton.style.display !== undefined && controlButton.style.display !== "none")){
+						$rootScope.$broadcast("toggleLegendControl");
+					}
+
+				},
 			},
 			{
 				element: "#mapUtilButtons",
@@ -441,7 +466,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				title: "Darstellungsfilter",
 				placement: "right",
 				// <br/><br/>Dar&uuml;ber hinaus k&ouml;nnen je nach Fragestellung die Raumebenen-Geometrien (z.B. Stadtteile) auf diejenigen eingeschr&auml;nkt werden, die zur Beantwortung der Fragestellung beitragen.
-				content: "Hier k&ouml;nnen verschiedene <b>Darstellungsfilter</b> angewendet werden, die sich auf die <i>kartographische Darstellung</i> auswirken. &Uuml;ber den <b>Wertebereichsfilter</b> k&ouml;nnen die angezeigten Features anhand ihrer Wertauspr&auml;gung gefiltert werden. Dazu kann der Schieberegler an dem minimalen und maximalen Werten nach rechts/links geschoben werden.<br/><br/>Eine weitere Option ist die <b>dynamische Schwellwertklassifizierung</b>, bei der ein spezifischer <b>Wert</b> definiert werden kann, der die Indikator-Darstellung in <b>zwei Bereiche</b> unterteilt (oberhalb und unterhalb des Schwellwerts) und entsprechend farbig darstellt.",
+				content: "Hier k&ouml;nnen verschiedene <b>Darstellungsfilter</b> angewendet werden, die sich auf die <i>kartographische Darstellung</i> auswirken. &Uuml;ber den <b>Wertebereichsfilter</b> k&ouml;nnen die angezeigten Raumeinheiten anhand ihrer Wertauspr&auml;gung gefiltert werden. Dazu kann der Schieberegler an dem minimalen und maximalen Werten nach rechts/links geschoben werden.<br/><br/>Eine weitere Option ist die <b>dynamische Schwellwertklassifizierung</b>, bei der ein spezifischer <b>Wert</b> definiert werden kann, der die Indikator-Darstellung in <b>zwei Bereiche</b> unterteilt (oberhalb und unterhalb des Schwellwerts) und entsprechend farbig darstellt.",
 				onNext: function(tour){
 					if($scope.sidebarFilterClass !== "hidden"){
 							$("#sidebarFilterCollapse").click();
@@ -468,7 +493,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				element: "#kommonitorBalance",
 				title: "Zeitliche Bilanzierung",
 				placement: "right",
-				content: "Bei der zeitlichen Bilanzierung steht die <b>Wertentwicklung eines Indikators</b> &uuml;ber die Zeit im Fokus (z. B. Wachstum / Schrumpfung). Wird die Bilanzierung mittels der entsprehenden <b>Checkbox</b> aktiviert, so kann &uuml;ber die Zeitleiste ein <b>Zeitraum</b> spezifiziert werden, f&uuml;r den die Wertentwicklung berechnet und dargestellt werden soll. <br/><br/>Die Indikatoren-Legende am unteren rechten Rand der Anwendung zeigt &uuml;ber dies bei aktivierter Checkbox an, dass die Bilanz des Indikators dargestellt wird.<br/><br/>Bitte bachten Sie, dass bei Indikatoren mit nur einem Zeitschnitt eine Bilanzierung zwar technisch m&ouml;glich ist, aber f&uuml;r alle Geometrien der Raumebene der Wert '0' resultiert.",
+				content: "Bei der zeitlichen Bilanzierung steht die <b>Wertentwicklung eines Indikators</b> &uuml;ber die Zeit im Fokus (z. B. Wachstum / Schrumpfung). Wird die Bilanzierung mittels der entsprehenden <b>Checkbox</b> aktiviert, so kann &uuml;ber die Zeitleiste ein <b>Zeitraum</b> spezifiziert werden, f&uuml;r den die Wertentwicklung berechnet und dargestellt werden soll. <br/><br/>Die Indikatoren-Legende am unteren rechten Rand der Anwendung zeigt &uuml;ber dies bei aktivierter Checkbox an, dass die Bilanz des Indikators dargestellt wird.<br/><br/>Bitte bachten Sie, dass eine Bilanzierung nur bei Status-Indikatoren m&ouml;glich ist, deren Zeitreihe mehr als einen Eintrag enth&auml;lt.",
 				onNext: function(tour){
 					if($scope.sidebarBalanceClass !== "hidden"){
 							$("#sidebarBalanceCollapse").click();

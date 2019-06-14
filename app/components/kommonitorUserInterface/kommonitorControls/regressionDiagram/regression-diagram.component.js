@@ -235,10 +235,10 @@ angular
 									else if(Number(feature.properties[$scope.indicatorPropertyName]) === 0 ){
 										color = defaultColorForZeroValues;
 									}
-									else if(feature.properties["outlier"].includes("low") && kommonitorDataExchangeService.useOutlierDetectionOnIndicator){
+									else if(feature.properties["outlier"] !== undefined && feature.properties["outlier"].includes("low") && kommonitorDataExchangeService.useOutlierDetectionOnIndicator){
 										color = defaultColorForOutliers_low;
 									}
-									else if(feature.properties["outlier"].includes("high") && kommonitorDataExchangeService.useOutlierDetectionOnIndicator){
+									else if(feature.properties["outlier"] !== undefined && feature.properties["outlier"].includes("high") && kommonitorDataExchangeService.useOutlierDetectionOnIndicator){
 										color = defaultColorForOutliers_high;
 									}
 									else if($scope.isMeasureOfValueChecked){
@@ -625,7 +625,7 @@ angular
 
 															    return htmlString;
 																}},
-																restore : {show: true, title: "Erneuern"},
+																restore : {show: false, title: "Erneuern"},
 																saveAsImage : {show: true, title: "Export"}
 														}
 												},

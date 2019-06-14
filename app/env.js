@@ -53,6 +53,7 @@
   window.__env.defaultFillOpacityForZeroFeatures = "0.7";
   window.__env.defaultFillOpacityForHighlightedFeatures = "0.8";
   window.__env.useTransparencyOnIndicator = true;
+  window.__env.useOutlierDetectionOnIndicator = false;
   //allowesValues: equal_interval, quantile, jenks
   window.__env.defaultClassifyMethod = "equal_interval";
 
@@ -62,6 +63,7 @@
   window.__env.defaultColorBrewerPaletteForLtMovValues = "Blues";
 
   window.__env.feedbackMailRecipient = "thomas.blasche@amt62.essen.de";
+  // window.__env.feedbackMailRecipient = "christian.danowski-buhren@hs-bochum.de";
 
 
 

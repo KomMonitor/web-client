@@ -395,20 +395,32 @@ angular
 						function tsToDateString (dateAsMs) {
 							var date = new Date(dateAsMs);
 
-								return date.toLocaleDateString("de-DE", {
-										year: 'numeric',
-										month: 'long',
-										day: 'numeric'
-								});
+							/**
+							* TODO FIXME dateSLider formatter will return only year for now to prevent misleading month and day settings
+							*/
+
+							return date.getFullYear();
+
+								// return date.toLocaleDateString("de-DE", {
+								// 		year: 'numeric',
+								// 		month: 'long',
+								// 		day: 'numeric'
+								// });
 						}
 
 						function dateToDateString (date) {
 
-								return date.toLocaleDateString("de-DE", {
-										year: 'numeric',
-										month: 'long',
-										day: 'numeric'
-								});
+							/**
+							* TODO FIXME dateSLider formatter will return only year for now to prevent misleading month and day settings
+							*/
+
+							return date.getFullYear();
+
+								// return date.toLocaleDateString("de-DE", {
+								// 		year: 'numeric',
+								// 		month: 'long',
+								// 		day: 'numeric'
+								// });
 						}
 
 						function createDatesFromIndicatorDates(indicatorDates) {
