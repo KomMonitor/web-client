@@ -26,14 +26,14 @@
 
   window.__env.numberOfDecimals = 2;
 
-  window.__env.initialLatitude = 51.4386432;
-  window.__env.initialLongitude = 7.0115552;
+  window.__env.initialLatitude = 51.470824;
+  window.__env.initialLongitude = 7.2254752;
   window.__env.initialZoomLevel = 12;
   window.__env.minZoomLevel = 11;
   window.__env.maxZoomLevel = 22;
 
-  window.__env.initialIndicatorId = "d6f447c1-5432-4405-9041-7d5b05fd9ece";
-  window.__env.initialSpatialUnitName = "Stadtteilebene";
+  window.__env.initialIndicatorId = "aef33697-ff0a-4794-b9d1-35bd9d980f46";
+  window.__env.initialSpatialUnitName = "Statistische Bezirke";
 
   window.__env.defaultColorForOutliers_high = "#191919";
   window.__env.defaultBorderColorForOutliers_high = "black";
