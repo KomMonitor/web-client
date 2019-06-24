@@ -2457,7 +2457,7 @@ angular.module('kommonitorMap').component(
                                             var layer = e.target;
 
                                             highlightFeatureForLayer(layer);
-
+                                            layer.bringToBack();
                                         }
 
                                         function highlightFeatureForLayer(layer) {
@@ -2475,6 +2475,7 @@ angular.module('kommonitorMap').component(
 
                                             // update diagrams for hovered feature
                                             $rootScope.$broadcast("updateDiagramsForHoveredFeature", layer.feature.properties);
+                                            layer.bringToBack();
                                         }
 
                                         function setPermanentlyHighlightedStyle(layer){
@@ -2490,9 +2491,9 @@ angular.module('kommonitorMap').component(
                                                 fillOpacity: fillOpacity
                                             });
 
-                                            if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-                                                layer.bringToFront();
-                                            }
+                                            // if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+                                            //     layer.bringToFront();
+                                            // }
                                         };
 
                                         function setTemporarilyHighlightedStyle(layer){
@@ -2508,9 +2509,9 @@ angular.module('kommonitorMap').component(
                                               fillOpacity: fillOpacity
                                           });
 
-                                          if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-                                              layer.bringToFront();
-                                          }
+                                          // if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+                                          //     layer.bringToFront();
+                                          // }
                                         };
 
                                         function preserveHighlightedFeatures(){
@@ -2531,6 +2532,7 @@ angular.module('kommonitorMap').component(
                                         function resetHighlight(e) {
                                           var layer = e.target;
                                           resetHighlightForLayer(layer);
+                                          layer.bringToBack();
                                         }
 
                                         function resetHighlightForLayer(layer) {
@@ -2582,6 +2584,7 @@ angular.module('kommonitorMap').component(
 
                                         function resetHighlightCustom(e) {
                                             $scope.currentCustomIndicatorLayer.resetStyle(e.target);
+                                            e.target.bringToBack();
                                         }
 
                                         var wait = ms => new Promise((r, j)=>setTimeout(r, ms))
