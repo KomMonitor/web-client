@@ -2457,7 +2457,6 @@ angular.module('kommonitorMap').component(
                                             var layer = e.target;
 
                                             highlightFeatureForLayer(layer);
-                                            layer.bringToBack();
                                         }
 
                                         function highlightFeatureForLayer(layer) {
@@ -2475,7 +2474,6 @@ angular.module('kommonitorMap').component(
 
                                             // update diagrams for hovered feature
                                             $rootScope.$broadcast("updateDiagramsForHoveredFeature", layer.feature.properties);
-                                            layer.bringToBack();
                                         }
 
                                         function setPermanentlyHighlightedStyle(layer){
@@ -2491,9 +2489,14 @@ angular.module('kommonitorMap').component(
                                                 fillOpacity: fillOpacity
                                             });
 
-                                            // if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-                                            //     layer.bringToFront();
-                                            // }
+                                            if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+                                                layer.bringToFront();
+                                                // also bring possible isochrone layer to front
+                                                // so it will not disapper behing indicator layer
+                                                if($scope.isochronesLayer){
+                                                  $scope.isochronesLayer.bringToFront();
+                                                }
+                                            }
                                         };
 
                                         function setTemporarilyHighlightedStyle(layer){
@@ -2509,9 +2512,14 @@ angular.module('kommonitorMap').component(
                                               fillOpacity: fillOpacity
                                           });
 
-                                          // if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-                                          //     layer.bringToFront();
-                                          // }
+                                          if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+                                              layer.bringToFront();
+                                              // also bring possible isochrone layer to front
+                                              // so it will not disapper behing indicator layer
+                                              if($scope.isochronesLayer){
+                                                $scope.isochronesLayer.bringToFront();
+                                              }
+                                          }
                                         };
 
                                         function preserveHighlightedFeatures(){
