@@ -1722,7 +1722,7 @@ angular.module('kommonitorMap').component(
                                 var layerName = georesourceMetadataAndGeoJSON.datasetName;
 
                                 $scope.layerControl._layers.forEach(function(layer){
-                                  if(layer.group.name === poiLayerGroupName && layer.name.includes(layerName)){
+                                  if(layer.group.name === poiLayerGroupName && layer.name.includes(layerName + "_")){
                                     $scope.layerControl.removeLayer(layer.layer);
                                     $scope.map.removeLayer(layer.layer);
                                   }
