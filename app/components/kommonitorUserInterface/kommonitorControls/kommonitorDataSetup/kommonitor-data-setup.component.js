@@ -139,11 +139,11 @@ angular
 										if(item.applicableDates == undefined || item.applicableDates.length === 0)
 											return false;
 
-											var isIndicatorThatShallNotBeDisplayed = item.indicatorName.includes("Standardabweichung") || item.indicatorName.includes("Prozentuale Ver");
-
-											if(isIndicatorThatShallNotBeDisplayed){
-												return false;
-											}
+											// var isIndicatorThatShallNotBeDisplayed = item.indicatorName.includes("Standardabweichung") || item.indicatorName.includes("Prozentuale Ver");
+											//
+											// if(isIndicatorThatShallNotBeDisplayed){
+											// 	return false;
+											// }
 										return true;
 								  };
 								};

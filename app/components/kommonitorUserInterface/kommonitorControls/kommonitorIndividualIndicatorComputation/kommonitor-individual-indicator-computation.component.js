@@ -28,9 +28,9 @@ angular
 						$scope.filterComputableIndicators = function() {
 							return function( item ) {
 
-								if(item.indicatorName.includes("Erreichbarkeit")){
-									return false;
-								}
+								// if(item.indicatorName.includes("Erreichbarkeit")){
+								// 	return false;
+								// }
 
 								var scriptForIndicator;
 
