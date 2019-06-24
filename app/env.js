@@ -54,7 +54,7 @@
   window.__env.useTransparencyOnIndicator = true;
   window.__env.useOutlierDetectionOnIndicator = false;
   //allowesValues: equal_interval, quantile, jenks
-  window.__env.defaultClassifyMethod = "equal_interval";
+  window.__env.defaultClassifyMethod = "jenks";
 
   window.__env.defaultColorBrewerPaletteForBalanceIncreasingValues = "Purples";
   window.__env.defaultColorBrewerPaletteForBalanceDecreasingValues = "YlOrBr";
