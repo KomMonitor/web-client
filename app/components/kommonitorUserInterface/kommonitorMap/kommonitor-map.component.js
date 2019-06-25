@@ -285,6 +285,8 @@ angular.module('kommonitorMap').component(
                       $scope.map = L.map('map', {
                           center: [$scope.latCenter, $scope.lonCenter],
                           zoom: $scope.zoomLevel,
+                          zoomDelta: 0.5,
+                          zoomSnap: 0.5,
                           layers: [osm_blackWhite]
                       });
 
