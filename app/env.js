@@ -34,7 +34,7 @@
 
   // window.__env.initialIndicatorId = "d6f447c1-5432-4405-9041-7d5b05fd9ece";
   window.__env.initialIndicatorId = "c9f168a8-a547-416d-acfc-82ecfaa830d8";
-  window.__env.initialSpatialUnitName = "Baublockebene";
+  window.__env.initialSpatialUnitName = "Statistische Bezirke";
 
   window.__env.defaultColorForOutliers_high = "#191919";
   window.__env.defaultBorderColorForOutliers_high = "black";
