@@ -1703,6 +1703,12 @@ angular.module('kommonitorMap').component(
                                   // index 0 should be longitude and index 1 should be latitude
                                   //.bindPopup( poiFeature.properties.name )
                                   var newMarker = L.marker( [Number(poiFeature.geometry.coordinates[1]), Number(poiFeature.geometry.coordinates[0])], {icon: customMarker} );
+                                  if (poiFeature.properties.name){
+                                    newMarker.bindPopup( poiFeature.properties.name );
+                                  }
+                                  else if (poiFeature.properties.NAME){
+                                    newMarker.bindPopup( poiFeature.properties.NAME );
+                                  }
                                     markers.addLayer(newMarker);
                                 });
 
@@ -1722,7 +1728,7 @@ angular.module('kommonitorMap').component(
                                 var layerName = georesourceMetadataAndGeoJSON.datasetName;
 
                                 $scope.layerControl._layers.forEach(function(layer){
-                                  if(layer.group.name === poiLayerGroupName && layer.name.includes(layerName)){
+                                  if(layer.group.name === poiLayerGroupName && layer.name.includes(layerName + "_")){
                                     $scope.layerControl.removeLayer(layer.layer);
                                     $scope.map.removeLayer(layer.layer);
                                   }
@@ -2457,7 +2463,6 @@ angular.module('kommonitorMap').component(
                                             var layer = e.target;
 
                                             highlightFeatureForLayer(layer);
-
                                         }
 
                                         function highlightFeatureForLayer(layer) {
@@ -2492,6 +2497,11 @@ angular.module('kommonitorMap').component(
 
                                             if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
                                                 layer.bringToFront();
+                                                // also bring possible isochrone layer to front
+                                                // so it will not disapper behing indicator layer
+                                                if($scope.isochronesLayer){
+                                                  $scope.isochronesLayer.bringToFront();
+                                                }
                                             }
                                         };
 
@@ -2510,6 +2520,11 @@ angular.module('kommonitorMap').component(
 
                                           if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
                                               layer.bringToFront();
+                                              // also bring possible isochrone layer to front
+                                              // so it will not disapper behing indicator layer
+                                              if($scope.isochronesLayer){
+                                                $scope.isochronesLayer.bringToFront();
+                                              }
                                           }
                                         };
 
@@ -2531,6 +2546,7 @@ angular.module('kommonitorMap').component(
                                         function resetHighlight(e) {
                                           var layer = e.target;
                                           resetHighlightForLayer(layer);
+                                          layer.bringToBack();
                                         }
 
                                         function resetHighlightForLayer(layer) {
@@ -2582,6 +2598,7 @@ angular.module('kommonitorMap').component(
 
                                         function resetHighlightCustom(e) {
                                             $scope.currentCustomIndicatorLayer.resetStyle(e.target);
+                                            e.target.bringToBack();
                                         }
 
                                         var wait = ms => new Promise((r, j)=>setTimeout(r, ms))
