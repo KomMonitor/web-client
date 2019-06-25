@@ -1703,6 +1703,12 @@ angular.module('kommonitorMap').component(
                                   // index 0 should be longitude and index 1 should be latitude
                                   //.bindPopup( poiFeature.properties.name )
                                   var newMarker = L.marker( [Number(poiFeature.geometry.coordinates[1]), Number(poiFeature.geometry.coordinates[0])], {icon: customMarker} );
+                                  if (poiFeature.properties.name){
+                                    newMarker.bindPopup( poiFeature.properties.name );
+                                  }
+                                  else if (poiFeature.properties.NAME){
+                                    newMarker.bindPopup( poiFeature.properties.NAME );
+                                  }
                                     markers.addLayer(newMarker);
                                 });
 
