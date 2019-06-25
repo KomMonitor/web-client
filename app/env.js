@@ -26,9 +26,9 @@
 
   window.__env.numberOfDecimals = 2;
 
-  window.__env.initialLatitude = 51.4036432;
-  window.__env.initialLongitude = 6.9115552;
-  window.__env.initialZoomLevel = 12;
+  window.__env.initialLatitude = 51.4136432;
+  window.__env.initialLongitude = 6.8915552;
+  window.__env.initialZoomLevel = 12.5;
   window.__env.minZoomLevel = 11;
   window.__env.maxZoomLevel = 22;
 
