@@ -20,14 +20,14 @@
 
   window.__env.simplifyGeometriesParameterName = "simplifyGeometries";
   window.__env.simplifyGeometriesOptions = [{"label": "nein", "value": "original"}, {"label": "schwach", "value": "weak"}, {"label": "mittel", "value": "medium"}, {"label": "stark", "value": "strong"}];
-  window.__env.simplifyGeometries = "strong";
+  window.__env.simplifyGeometries = "original";
 
   window.__env.indicatorDatePrefix = "DATE_";
 
   window.__env.numberOfDecimals = 2;
 
-  window.__env.initialLatitude = 51.4386432;
-  window.__env.initialLongitude = 7.0115552;
+  window.__env.initialLatitude = 51.4036432;
+  window.__env.initialLongitude = 6.9115552;
   window.__env.initialZoomLevel = 12;
   window.__env.minZoomLevel = 11;
   window.__env.maxZoomLevel = 22;
