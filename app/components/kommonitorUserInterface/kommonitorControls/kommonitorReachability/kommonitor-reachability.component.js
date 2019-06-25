@@ -35,7 +35,7 @@ angular
 							//"locations":[[7.049869894,51.42055331]]
 							var isochronesGETParameter = "profile=foot-walking&units=m&location_type=start&locations=7.268504,51.448405&range_type=time&range=300,600,900&attributes=area|reachfactor&options={'maximum_speed':3}";
 
-							var createORSIsochroneRequest = function(reachProfile, locationsArray, rangeArray, speedInKilometersPerHour){
+							var createORSIsochroneRequest_byTime = function(reachProfile, locationsArray, rangeArray, speedInKilometersPerHour){
 								var locationsString = "";
 								for (var index=0; index<locationsArray.length; index++){
 									//element looks like [longitude,latitude]
@@ -67,6 +67,36 @@ angular
 								return getRequest;
 							}
 
+							var createORSIsochroneRequest_byDistance = function(reachProfile, locationsArray, rangeArray){
+								var locationsString = "";
+								for (var index=0; index<locationsArray.length; index++){
+									//element looks like [longitude,latitude]
+									locationsString += locationsArray[index][0] + "," + locationsArray[index][1];
+									if(index != locationsArray.length - 1){
+										// encode pipe symbol "|" manually
+										locationsString += "%7C";
+									}
+								};
+
+								var rangeString = "";
+								for (var i=0; i<rangeArray.length; i++){
+									rangeString += rangeArray[i];
+									if(i != rangeArray.length - 1){
+										rangeString += ",";
+									}
+								};
+
+								// var constantParameters = "&units=m&location_type=start&range_type=time";
+								// encode pipe symbol manually via %7C
+								var constantParameters = "&units=m&location_type=start&range_type=distance&attributes=area%7Creachfactor";
+
+								var getRequest = $scope.targetUrlToReachabilityService_ORS + "/isochrones?profile=" + reachProfile + "&locations=" + locationsString + "&range=" + rangeString + constantParameters;
+
+																// var getRequest = $scope.targetUrlToReachabilityService_ORS + "/isochrones?profile=" + reachProfile + "&locations=" + encodeURIComponent(locationsString) + "&range=" + rangeString + constantParameters;
+								console.log(getRequest);
+								return getRequest;
+							}
+
 							$scope.runChildDemoHolthausen = function(){
 
 								$scope.loadingData = true;
@@ -76,7 +106,7 @@ angular
 								$scope.reachProfile = "foot-walking";
 								$scope.speedInKilometersPerHour = 3;
 								$scope.reachMode = "Zeit";
-								$scope.locationsArray = [[8.87997, 51.40330], [6.88013, 51.41958], [6.90614, 51.42382]];
+								$scope.locationsArray = [[6.87997, 51.40330], [6.88013, 51.41958], [6.90614, 51.42382]];
 								$scope.rangeArray = [300,600,900];
 								$scope.useMultipleStartPoints = true;
 
@@ -119,7 +149,7 @@ angular
 								$scope.reachProfile = "foot-walking";
 								$scope.speedInKilometersPerHour = 5;
 								$scope.reachMode = "Äquidistanz";
-								$scope.locationsArray = [[8.87997, 51.40330], [6.88013, 51.41958], [6.90614, 51.42382]];
+								$scope.locationsArray = [[6.87997, 51.40330], [6.88013, 51.41958], [6.90614, 51.42382]];
 								$scope.rangeArray = [1500];
 								$scope.useMultipleStartPoints = true;
 
