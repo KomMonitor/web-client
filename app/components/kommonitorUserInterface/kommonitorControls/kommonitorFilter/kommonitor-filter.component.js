@@ -60,19 +60,26 @@ angular
 
 								}
 
-								// initialize and fill in loop
-								$scope.valueRangeMinValue = $scope.geoJSON.features[0].properties[date];
-								$scope.valueRangeMaxValue = $scope.valueRangeMinValue;
+								var values = [];
 
 								$scope.geoJSON.features.forEach(function(feature){
+									// if (feature.properties[date] > movMaxValue)
+									// 	movMaxValue = feature.properties[date];
+									//
+									// else if (feature.properties[date] < movMinValue)
+									// 	movMinValue = feature.properties[date];
 
-									if(feature.properties[date] < $scope.valueRangeMinValue){
-										$scope.valueRangeMinValue = feature.properties[date]
-									}
-									else if(feature.properties[date] > $scope.valueRangeMaxValue){
-										$scope.valueRangeMaxValue = feature.properties[date]
+									if(! kommonitorDataExchangeService.indicatorValueIsNoData(feature.properties[date])){
+											values.push(feature.properties[date]);
 									}
 								});
+
+								//sort ascending order
+								values.sort(function(a, b){return a-b});
+
+								// initialize and fill in loop
+								$scope.valueRangeMinValue = values[0];
+								$scope.valueRangeMaxValue = values[values.length - 1];
 
 								$scope.valueRangeMinValue = +$scope.valueRangeMinValue.toFixed(numberOfDecimals);
 								$scope.valueRangeMaxValue = +$scope.valueRangeMaxValue.toFixed(numberOfDecimals);
@@ -176,7 +183,9 @@ angular
 									// else if (feature.properties[date] < movMinValue)
 									// 	movMinValue = feature.properties[date];
 
-									values.push(feature.properties[date]);
+									if(! kommonitorDataExchangeService.indicatorValueIsNoData(feature.properties[date])){
+											values.push(feature.properties[date]);
+									}
 								});
 
 								//sort ascending order
