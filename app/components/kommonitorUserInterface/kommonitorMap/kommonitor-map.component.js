@@ -1334,7 +1334,15 @@ angular.module('kommonitorMap').component(
                      * to layer.feature.properties.popupContent
                      */
                     function onEachFeatureIndicator(feature, layer) {
-                      var tooltipHtml = "<b>" + feature.properties.spatialUnitFeatureName + "</b><br/>" + Number(feature.properties[INDICATOR_DATE_PREFIX + $scope.date]).toLocaleString("de-DE", {maximumFractionDigits: numberOfDecimals}) + " [" + kommonitorDataExchangeService.selectedIndicator.unit + "]";
+                      var indicatorValue = feature.properties[INDICATOR_DATE_PREFIX + $scope.date];
+                      var indicatorValueText;
+                      if(kommonitorDataExchangeService.indicatorValueIsNoData(indicatorValue)){
+                        indicatorValueText = "NoData";
+                      }
+                      else{
+                        indicatorValueText = Number(indicatorValue).toLocaleString("de-DE", {maximumFractionDigits: numberOfDecimals});
+                      }
+                      var tooltipHtml = "<b>" + feature.properties.spatialUnitFeatureName + "</b><br/>" + indicatorValueText + " [" + kommonitorDataExchangeService.selectedIndicator.unit + "]";
                         layer.bindTooltip(tooltipHtml, {
                           sticky: true // If true, the tooltip will follow the mouse instead of being fixed at the feature center.
                         });
