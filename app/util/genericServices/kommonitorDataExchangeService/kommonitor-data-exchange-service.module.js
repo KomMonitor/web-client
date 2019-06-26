@@ -97,4 +97,11 @@ angular
 					this.rangeFilterData;
 					this.filteredIndicatorFeatureNames;
 
+					this.indicatorValueIsNoData = function(indicatorValue){
+						if(Number.isNaN(indicatorValue) || indicatorValue === null || indicatorValue === undefined){
+							return true;
+						}
+						return false;
+					}
+
 				}]);

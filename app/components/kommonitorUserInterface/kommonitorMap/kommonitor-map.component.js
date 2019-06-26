@@ -1754,7 +1754,7 @@ angular.module('kommonitorMap').component(
                                           // see link above to view geojson used in this example
                                           var values = [];
                                           for (var i = 0; i < geoJSON.features.length; i++){
-                                              if (geoJSON.features[i].properties[propertyName] == null || geoJSON.features[i].properties[propertyName] == 0 || geoJSON.features[i].properties[propertyName] == "0")
+                                              if (kommonitorDataExchangeService.indicatorValueIsNoData(geoJSON.features[i].properties[propertyName]) || geoJSON.features[i].properties[propertyName] == 0 || geoJSON.features[i].properties[propertyName] == "0")
                                                 continue;
 
                                               // check if is outlier, then do not use within classification, as it will be marked on map with special color
@@ -1806,7 +1806,7 @@ angular.module('kommonitorMap').component(
                                               console.log("");
                                             }
 
-                                              if (geoJSON.features[i].properties[propertyName] == null || geoJSON.features[i].properties[propertyName] == 0 || geoJSON.features[i].properties[propertyName] == "0")
+                                              if (kommonitorDataExchangeService.indicatorValueIsNoData(geoJSON.features[i].properties[propertyName]) || geoJSON.features[i].properties[propertyName] == 0 || geoJSON.features[i].properties[propertyName] == "0")
                                                 continue;
 
                                                 // check if is outlier, then do not use within classification, as it will be marked on map with special color
@@ -1993,7 +1993,7 @@ angular.module('kommonitorMap').component(
                                           var negativeValues = [];
 
                                           for (var i = 0; i < geoJSON.features.length; i++){
-                                              if (geoJSON.features[i].properties[propertyName] == null || geoJSON.features[i].properties[propertyName] == 0 || geoJSON.features[i].properties[propertyName] == "0")
+                                              if (kommonitorDataExchangeService.indicatorValueIsNoData(geoJSON.features[i].properties[propertyName]) || geoJSON.features[i].properties[propertyName] == 0 || geoJSON.features[i].properties[propertyName] == "0")
                                                 continue;
 
                                                 // check if is outlier, then do not use within classification, as it will be marked on map with special color
@@ -2744,6 +2744,16 @@ angular.module('kommonitorMap').component(
                                           return indicatorMetadataAndGeoJSON;
                                         }
 
+                                        $scope.setNoDataValuesAsNull = function(indicatorMetadataAndGeoJSON){
+                                          indicatorMetadataAndGeoJSON.geoJSON.features.forEach(function(feature){
+                                              if (kommonitorDataExchangeService.indicatorValueIsNoData(feature.properties[$scope.indicatorPropertyName])){
+                                                feature.properties[$scope.indicatorPropertyName] = null;
+                                              }
+                                          });
+
+                                          return indicatorMetadataAndGeoJSON;
+                                        }
+
                                                   $scope.$on("replaceIndicatorAsGeoJSON", function (event, indicatorMetadataAndGeoJSON, spatialUnitName, date, justRestyling, isCustomComputation) {
 
                                                                 console.log('replaceIndicatorAsGeoJSON was called');
@@ -2775,6 +2785,8 @@ angular.module('kommonitorMap').component(
                                                                 $scope.indicatorName = indicatorMetadataAndGeoJSON.indicatorName;
                                                                 $scope.indicatorDescription = indicatorMetadataAndGeoJSON.metadata.description;
                                                                 $scope.indicatorUnit = indicatorMetadataAndGeoJSON.unit;
+
+                                                                $scope.currentIndicatorMetadataAndGeoJSON = $scope.setNoDataValuesAsNull($scope.currentIndicatorMetadataAndGeoJSON);
 
                                                                 // identify and mark outliers prior to setting up of styling
                                                                 // in styling methods, outliers should be removed from classification!
