@@ -18,6 +18,16 @@ angular
 
 							var numberOfDecimals = __env.numberOfDecimals;
 							const DATE_PREFIX = __env.indicatorDatePrefix;
+              var defaultColorForZeroValues = __env.defaultColorForZeroValues;
+              var defaultColorForNoDataValues = __env.defaultColorForNoDataValues;
+              var defaultColorForFilteredValues = __env.defaultColorForFilteredValues;
+
+              const defaultColorForOutliers_high = __env.defaultColorForOutliers_high;
+              const defaultBorderColorForOutliers_high = __env.defaultBorderColorForOutliers_high;
+              const defaultFillOpacityForOutliers_high = __env.defaultFillOpacityForOutliers_high;
+              const defaultColorForOutliers_low = __env.defaultColorForOutliers_low;
+              const defaultBorderColorForOutliers_low = __env.defaultBorderColorForOutliers_low;
+              const defaultFillOpacityForOutliers_low = __env.defaultFillOpacityForOutliers_low;
 
 					this.kommonitorMapServiceInstance = kommonitorMapService;
 
