@@ -237,15 +237,30 @@ angular
 									for (var i=0; i<indicatorPropertiesArrayForXAxis.length; i++){
 
 										// + sign turns output into number!
-										var xAxisDataElement = +indicatorPropertiesArrayForXAxis[i][DATE_PREFIX + kommonitorDataExchangeService.selectedDate];
-										var yAxisDataElement = +indicatorPropertiesArrayForYAxis[i][DATE_PREFIX + kommonitorDataExchangeService.selectedDate];
-										$scope.data.push([Number(xAxisDataElement.toFixed(numberOfDecimals)), Number(yAxisDataElement.toFixed(numberOfDecimals))]);
+										var xAxisDataElement;
+										var yAxisDataElement
+
+										if (kommonitorDataExchangeService.indicatorValueIsNoData(indicatorPropertiesArrayForXAxis[i][DATE_PREFIX + kommonitorDataExchangeService.selectedDate])){
+											xAxisDataElement = null;
+										}
+										else{
+											xAxisDataElement = kommonitorDataExchangeService.getIndicatorValue_asNumber(indicatorPropertiesArrayForXAxis[i][DATE_PREFIX + kommonitorDataExchangeService.selectedDate]);
+										}
+
+										if (kommonitorDataExchangeService.indicatorValueIsNoData(indicatorPropertiesArrayForYAxis[i][DATE_PREFIX + kommonitorDataExchangeService.selectedDate])){
+											yAxisDataElement = null;
+										}
+										else{
+											yAxisDataElement = kommonitorDataExchangeService.getIndicatorValue_asNumber(indicatorPropertiesArrayForYAxis[i][DATE_PREFIX + kommonitorDataExchangeService.selectedDate]);
+										}
+
+										$scope.data.push([xAxisDataElement, yAxisDataElement]);
 
 										var featureName = indicatorPropertiesArrayForXAxis[i].spatialUnitFeatureName;
 										var color = getColor(featureName);
 										$scope.dataWithLabels.push({
 											name: featureName,
-											value: [Number(xAxisDataElement.toFixed(numberOfDecimals)), Number(yAxisDataElement.toFixed(numberOfDecimals))],
+											value: [xAxisDataElement, yAxisDataElement],
 											itemStyle: {
 												color: color
 											}
