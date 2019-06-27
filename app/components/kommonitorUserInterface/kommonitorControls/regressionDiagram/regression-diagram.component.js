@@ -18,6 +18,7 @@ angular
 								var numberOfDecimals = __env.numberOfDecimals;
 								const defaultColorForFilteredValues = __env.defaultColorForFilteredValues;
 								const defaultColorForZeroValues = __env.defaultColorForZeroValues;
+								const defaultColorForNoDataValues = __env.defaultColorForNoDataValues;
 								const defaultColorForHoveredFeatures = __env.defaultColorForHoveredFeatures;
 								const defaultColorForClickedFeatures = __env.defaultColorForClickedFeatures;
 
@@ -218,161 +219,13 @@ angular
 									for (var index=0; index<$scope.indicatorMetadataAndGeoJSON.geoJSON.features.length; index++){
 										var feature = $scope.indicatorMetadataAndGeoJSON.geoJSON.features[index];
 										if (feature.properties.spatialUnitFeatureName === featureName){
-											color = getColorForFeature(feature);
+											color = kommonitorDataExchangeService.getColorForFeature(feature, $scope.indicatorMetadataAndGeoJSON, $scope.indicatorPropertyName, $scope.defaultBrew, $scope.gtMeasureOfValueBrew, $scope.ltMeasureOfValueBrew, $scope.dynamicIncreaseBrew, $scope.dynamicDecreaseBrew, $scope.isMeasureOfValueChecked, $scope.measureOfValue);
 											break;
 										}
 									}
 
 									return color;
 								};
-
-								var getColorForFeature = function(feature){
-									var color;
-
-									if(kommonitorDataExchangeService.filteredIndicatorFeatureNames.includes(feature.properties.spatialUnitFeatureName)){
-										color = defaultColorForFilteredValues;
-									}
-									else if(Number(feature.properties[$scope.indicatorPropertyName]) === 0 ){
-										color = defaultColorForZeroValues;
-									}
-									else if(feature.properties["outlier"] !== undefined && feature.properties["outlier"].includes("low") && kommonitorDataExchangeService.useOutlierDetectionOnIndicator){
-										color = defaultColorForOutliers_low;
-									}
-									else if(feature.properties["outlier"] !== undefined && feature.properties["outlier"].includes("high") && kommonitorDataExchangeService.useOutlierDetectionOnIndicator){
-										color = defaultColorForOutliers_high;
-									}
-									else if($scope.isMeasureOfValueChecked){
-
-										if(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) >= +Number($scope.measureOfValue).toFixed(numberOfDecimals)){
-
-											for (var index=0; index < $scope.gtMeasureOfValueBrew.breaks.length; index++){
-
-												if(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) == +Number($scope.gtMeasureOfValueBrew.breaks[index]).toFixed(numberOfDecimals)){
-													if(index < $scope.gtMeasureOfValueBrew.breaks.length -1){
-														// min value
-														color =  $scope.gtMeasureOfValueBrew.colors[index];
-														break;
-													}
-													else {
-														//max value
-														if ($scope.gtMeasureOfValueBrew.colors[index]){
-															color =  $scope.gtMeasureOfValueBrew.colors[index];
-														}
-														else{
-															color =  $scope.gtMeasureOfValueBrew.colors[index - 1];
-														}
-														break;
-													}
-												}
-												else{
-													if(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) < +Number($scope.gtMeasureOfValueBrew.breaks[index + 1]).toFixed(numberOfDecimals)) {
-														color =  $scope.gtMeasureOfValueBrew.colors[index];
-														break;
-													}
-												}
-											}
-
-										}
-										else {
-
-											// invert colors, so that lowest values will become strong colored!
-											for (var index=0; index < $scope.ltMeasureOfValueBrew.breaks.length; index++){
-												if(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) == +Number($scope.ltMeasureOfValueBrew.breaks[index]).toFixed(numberOfDecimals)){
-													if(index < $scope.ltMeasureOfValueBrew.breaks.length -1){
-														// min value
-														color =  $scope.ltMeasureOfValueBrew.colors[$scope.ltMeasureOfValueBrew.colors.length - index - 1];
-														break;
-													}
-													else {
-														//max value
-														if ($scope.ltMeasureOfValueBrew.colors[$scope.ltMeasureOfValueBrew.colors.length - index]){
-															color =  $scope.ltMeasureOfValueBrew.colors[$scope.ltMeasureOfValueBrew.colors.length - index];
-														}
-														else{
-															color =  $scope.ltMeasureOfValueBrew.colors[$scope.ltMeasureOfValueBrew.colors.length - index - 1];
-														}
-														break;
-													}
-												}
-												else{
-													if(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) < +Number($scope.ltMeasureOfValueBrew.breaks[index + 1]).toFixed(numberOfDecimals)) {
-														color =  $scope.ltMeasureOfValueBrew.colors[$scope.ltMeasureOfValueBrew.colors.length - index - 1];
-														break;
-													}
-												}
-											}
-
-										}
-
-									}
-									else{
-										if($scope.indicatorMetadataAndGeoJSON.indicatorType === 'DYNAMIC'){
-
-											if(feature.properties[$scope.indicatorPropertyName] < 0){
-
-												for (var index=0; index < $scope.dynamicDecreaseBrew.breaks.length; index++){
-													if(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) == +Number($scope.dynamicDecreaseBrew.breaks[index]).toFixed(numberOfDecimals)){
-														if(index < $scope.dynamicDecreaseBrew.breaks.length -1){
-															// min value
-															color =  $scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - index - 1];
-															break;
-														}
-														else {
-															//max value
-															if ($scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - index]){
-																color =  $scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - index];
-															}
-															else{
-																color =  $scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - index - 1];
-															}
-															break;
-														}
-													}
-													else{
-														if(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) < +Number($scope.dynamicDecreaseBrew.breaks[index + 1]).toFixed(numberOfDecimals)) {
-															color =  $scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - index - 1];
-															break;
-														}
-													}
-												}
-
-											}
-											else{
-												for (var index=0; index < $scope.dynamicIncreaseBrew.breaks.length; index++){
-													if(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) == +Number($scope.dynamicIncreaseBrew.breaks[index]).toFixed(numberOfDecimals)){
-														if(index < $scope.dynamicIncreaseBrew.breaks.length -1){
-															// min value
-															color =  $scope.dynamicIncreaseBrew.colors[index];
-															break;
-														}
-														else {
-															//max value
-															if ($scope.dynamicIncreaseBrew.colors[index]){
-																color =  $scope.dynamicIncreaseBrew.colors[index];
-															}
-															else{
-																color =  $scope.dynamicIncreaseBrew.colors[index - 1];
-															}
-															break;
-														}
-													}
-													else{
-														if(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) < +Number($scope.dynamicIncreaseBrew.breaks[index + 1]).toFixed(numberOfDecimals)) {
-															color =  $scope.dynamicIncreaseBrew.colors[index];
-															break;
-														}
-													}
-												}
-											}
-
-										}
-										else{
-												color = $scope.defaultBrew.getColorInRange(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals));
-										}
-									}
-
-									return color;
-								}
 
 								$scope.buildDataArrayForSelectedIndicators = function(){
 									$scope.data = new Array();
