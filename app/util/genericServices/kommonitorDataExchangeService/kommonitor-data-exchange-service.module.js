@@ -16,6 +16,9 @@ angular
 				function($rootScope,
 						kommonitorMapService, $http, __env) {
 
+							var numberOfDecimals = __env.numberOfDecimals;
+							const DATE_PREFIX = __env.indicatorDatePrefix;
+
 					this.kommonitorMapServiceInstance = kommonitorMapService;
 
           this.anySideBarIsShown = false;
@@ -102,6 +105,62 @@ angular
 							return true;
 						}
 						return false;
+					}
+
+					this.getIndicatorValueFromArray_asNumber = function(propertiesArray, targetDateString){
+						if(!targetDateString.includes(DATE_PREFIX)){
+							targetDateString = DATE_PREFIX + targetDateString;
+						}
+						var indicatorValue = propertiesArray[targetDateString];
+						var value;
+						if(this.indicatorValueIsNoData(indicatorValue)){
+							value = "NoData";
+						}
+						else{
+							value = +Number(indicatorValue).toFixed(numberOfDecimals);
+						}
+
+						return value;
+					}
+
+					this.getIndicatorValueFromArray_asFormattedText = function(propertiesArray, targetDateString){
+						if(!targetDateString.includes(DATE_PREFIX)){
+							targetDateString = DATE_PREFIX + targetDateString;
+						}
+						var indicatorValue = propertiesArray[targetDateString];
+						var value;
+						if(this.indicatorValueIsNoData(indicatorValue)){
+							value = "NoData";
+						}
+						else{
+						 	value = Number(indicatorValue).toLocaleString('de-DE', {maximumFractionDigits: numberOfDecimals});
+						}
+
+						return value;
+					}
+
+					this.getIndicatorValue_asNumber = function(indicatorValue){
+						var value;
+						if(this.indicatorValueIsNoData(indicatorValue)){
+							value = "NoData";
+						}
+						else{
+							value = +Number(indicatorValue).toFixed(numberOfDecimals);
+						}
+
+						return value;
+					}
+
+					this.getIndicatorValue_asFormattedText = function(indicatorValue){
+						var value;
+						if(this.indicatorValueIsNoData(indicatorValue)){
+							value = "NoData";
+						}
+						else{
+						 	value = Number(indicatorValue).toLocaleString('de-DE', {maximumFractionDigits: numberOfDecimals});
+						}
+
+						return value;
 					}
 
 				}]);

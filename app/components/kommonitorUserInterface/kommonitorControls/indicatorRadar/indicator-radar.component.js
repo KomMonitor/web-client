@@ -108,13 +108,17 @@ angular
 											var valueSum = 0;
 
 											for(var indicatorPropertyInstance of indicatorProperties){
-												valueSum += Number(indicatorPropertyInstance[DATE_PREFIX + $scope.date]);
+												// for average only apply real numeric values
+												if (! kommonitorDataExchangeService.indicatorValueIsNoData(indicatorPropertyInstance[DATE_PREFIX + $scope.date])){
+													var value = kommonitorDataExchangeService.getIndicatorValueFromArray_asNumber(indicatorPropertyInstance, $scope.date)
+													valueSum += value;
 
-												if(Number(indicatorPropertyInstance[DATE_PREFIX + $scope.date]) > maxValue)
-													maxValue = Number(Number(indicatorPropertyInstance[DATE_PREFIX + $scope.date]).toFixed(numberOfDecimals));
+													if(value > maxValue)
+														maxValue = value;
 
-												if(Number(indicatorPropertyInstance[DATE_PREFIX + $scope.date]) < minValue)
-													minValue = Number(Number(indicatorPropertyInstance[DATE_PREFIX + $scope.date]).toFixed(numberOfDecimals));
+													if(value < minValue)
+														minValue = value;
+												}
 											}
 
 											// IT MIGHT HAPPEN THAT AN INDICATOR IS INSPECTED THAT DOES NOT SUPPORT THE DATE
@@ -164,7 +168,7 @@ angular
 																			var string = "" + params.name + "<br/>";
 
 																			for(var index=0; index < params.value.length; index++){
-																				string += $scope.radarOption.radar.indicator[index].name + ": " + Number(params.value[index]).toLocaleString('de-DE', {maximumFractionDigits: numberOfDecimals}) + " [" + $scope.radarOption.radar.indicator[index].unit + "]<br/>";
+																				string += $scope.radarOption.radar.indicator[index].name + ": " + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(params.value[index]) + " [" + $scope.radarOption.radar.indicator[index].unit + "]<br/>";
 																			};
 
 					                            return string;
@@ -213,11 +217,13 @@ angular
 
 																	htmlString += "<tbody>";
 
+
+
 																	for (var j=0; j<radarSeries.length; j++){
 																		htmlString += "<tr>";
 																		htmlString += "<td>" + radarSeries[j].name + "</td>";
 																		for (var k=0; k<indicators.length; k++){
-																			htmlString += "<td>" + +Number(radarSeries[j].value[k]).toFixed(numberOfDecimals) + "</td>";
+																			htmlString += "<td>" + kommonitorDataExchangeService.getIndicatorValue_asNumber(radarSeries[j].value[k]) + "</td>";
 																		}
 																		htmlString += "</tr>";
 																	}
@@ -389,6 +395,14 @@ angular
 											if(indicatorProperties){
 												var propertiesSample = indicatorProperties[0];
 												if (propertiesSample[dateProperty]){
+
+													// ensure that NoData values are set to null!
+													indicatorProperties.forEach(function(properties){
+														if (kommonitorDataExchangeService.indicatorValueIsNoData(properties[dateProperty])){
+															properties[dateProperty] = null;
+														}
+													});
+
 													var selectableIndicatorEntry = {};
 													selectableIndicatorEntry.indicatorProperties = indicatorProperties;
 													// per default show all indicators on radar
@@ -466,7 +480,7 @@ angular
 									};
 
 
-									// for each date create series data entry for feature
+									// for each indicator create series data entry for feature
 									for(var i=0; i<$scope.selectableIndicatorsForRadar.length; i++){
 										if($scope.selectableIndicatorsForRadar[i].isSelected){
 											// make object to hold indicatorName, max value and average value
@@ -474,8 +488,11 @@ angular
 
 											for(var indicatorPropertyInstance of indicatorProperties){
 												if(indicatorPropertyInstance.spatialUnitFeatureName === featureProperties.spatialUnitFeatureName){
-													if(indicatorPropertyInstance[DATE_PREFIX + $scope.date] != undefined && indicatorPropertyInstance[DATE_PREFIX + $scope.date] != null){
-														featureSeries.value.push(Number(Number(indicatorPropertyInstance[DATE_PREFIX + $scope.date]).toFixed(numberOfDecimals)));
+													if(! kommonitorDataExchangeService.indicatorValueIsNoData(indicatorPropertyInstance[DATE_PREFIX + $scope.date])){
+														featureSeries.value.push(kommonitorDataExchangeService.getIndicatorValueFromArray_asNumber(indicatorPropertyInstance, $scope.date));
+													}
+													else{
+														featureSeries.value.push(null);
 													}
 													break;
 												}
