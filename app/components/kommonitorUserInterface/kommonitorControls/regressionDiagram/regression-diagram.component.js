@@ -386,6 +386,9 @@ angular
 										            type: 'cross'
 										        },
 														formatter: function (params) {
+																			if(!(params && params.value && params.value[0] && params.value[1])){
+																				return "";
+																			}
 																				var string = "" + params.name + "<br/>";
 
 																				string += $scope.selectedIndicatorForXAxis.indicatorName + ": " + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(params.value[0]) + " [" + $scope.selectedIndicatorForXAxis.unit + "]<br/>";
