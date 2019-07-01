@@ -286,14 +286,21 @@ angular
 								        console.error('y has more items in it, the last ' + (y.length - shortestArrayLength) + ' item(s) will be ignored');
 								    }
 
+										var x_numeric = [];
+										var y_numeric = [];
 								    var xy = [];
 								    var x2 = [];
 								    var y2 = [];
 
 								    for(var i=0; i<shortestArrayLength; i++) {
-								        xy.push(x[i] * y[i]);
-								        x2.push(x[i] * x[i]);
-								        y2.push(y[i] * y[i]);
+
+											if(x[i] && y[i]){
+												x_numeric.push(x[i]);
+												y_numeric.push(y[i]);
+												xy.push(x[i] * y[i]);
+												x2.push(x[i] * x[i]);
+												y2.push(y[i] * y[i]);
+											}
 								    }
 
 								    var sum_x = 0;
@@ -302,9 +309,9 @@ angular
 								    var sum_x2 = 0;
 								    var sum_y2 = 0;
 
-								    for(var i=0; i< shortestArrayLength; i++) {
-								        sum_x += x[i];
-								        sum_y += y[i];
+								    for(var i=0; i< x_numeric.length; i++) {
+												sum_x += x_numeric[i];
+								        sum_y += y_numeric[i];
 								        sum_xy += xy[i];
 								        sum_x2 += x2[i];
 								        sum_y2 += y2[i];
@@ -363,8 +370,8 @@ angular
 										$scope.linearRegression = ecStat.regression('linear', data);
 
 										for(var i=0; i<$scope.linearRegression.points.length; i++){
-											$scope.linearRegression.points[i][0] = Number($scope.linearRegression.points[i][0].toFixed(numberOfDecimals));
-											$scope.linearRegression.points[i][1] = Number($scope.linearRegression.points[i][1].toFixed(numberOfDecimals));
+											$scope.linearRegression.points[i][0] = kommonitorDataExchangeService.getIndicatorValue_asNumber($scope.linearRegression.points[i][0]);
+											$scope.linearRegression.points[i][1] = kommonitorDataExchangeService.getIndicatorValue_asNumber($scope.linearRegression.points[i][1]);
 										}
 
 										$scope.regressionOption = {
@@ -380,8 +387,9 @@ angular
 										        },
 														formatter: function (params) {
 																				var string = "" + params.name + "<br/>";
-																				string += $scope.selectedIndicatorForXAxis.indicatorName + ": " + Number(params.value[0]).toLocaleString('de-DE', {maximumFractionDigits: numberOfDecimals}) + " [" + $scope.selectedIndicatorForXAxis.unit + "]<br/>";
-																				string += $scope.selectedIndicatorForYAxis.indicatorName + ": " + Number(params.value[1]).toLocaleString('de-DE', {maximumFractionDigits: numberOfDecimals}) + " [" + $scope.selectedIndicatorForYAxis.unit + "]<br/>";
+
+																				string += $scope.selectedIndicatorForXAxis.indicatorName + ": " + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(params.value[0]) + " [" + $scope.selectedIndicatorForXAxis.unit + "]<br/>";
+																				string += $scope.selectedIndicatorForYAxis.indicatorName + ": " + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(params.value[1]) + " [" + $scope.selectedIndicatorForYAxis.unit + "]<br/>";
 						                            return string;
 						                           }
 										    },
@@ -455,8 +463,9 @@ angular
 																	for (var j=0; j<scatterSeries.length; j++){
 																		htmlString += "<tr>";
 																		htmlString += "<td>" + scatterSeries[j].name + "</td>";
-																		htmlString += "<td>" + +Number(scatterSeries[j].value[0]).toFixed(numberOfDecimals) + "</td>";
-																		htmlString += "<td>" + +Number(scatterSeries[j].value[1]).toFixed(numberOfDecimals) + "</td>";
+
+																		htmlString += "<td>" + kommonitorDataExchangeService.getIndicatorValue_asNumber(scatterSeries[j].value[0]) + "</td>";
+																		htmlString += "<td>" + kommonitorDataExchangeService.getIndicatorValue_asNumber(scatterSeries[j].value[1]) + "</td>";
 																		htmlString += "</tr>";
 																	}
 
@@ -480,8 +489,8 @@ angular
 
 																	for (var j=0; j<lineSeries.length; j++){
 																		htmlString += "<tr>";
-																		htmlString += "<td>" + Number(lineSeries[j][0]).toFixed(numberOfDecimals) + "</td>";
-																		htmlString += "<td>" + Number(lineSeries[j][1]).toFixed(numberOfDecimals) + "</td>";
+																		htmlString += "<td>" + kommonitorDataExchangeService.getIndicatorValue_asNumber(lineSeries[j][0]) + "</td>";
+																		htmlString += "<td>" + kommonitorDataExchangeService.getIndicatorValue_asNumber(lineSeries[j][1]) + "</td>";
 																		htmlString += "</tr>";
 																	}
 
