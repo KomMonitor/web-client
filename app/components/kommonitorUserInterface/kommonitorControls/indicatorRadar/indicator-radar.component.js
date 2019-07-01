@@ -121,9 +121,17 @@ angular
 												}
 											}
 
+											if (minValue == null){
+												minValue = 0;
+											}
+
+											if(maxValue == null){
+												maxValue = 1;
+											}
+
 											// IT MIGHT HAPPEN THAT AN INDICATOR IS INSPECTED THAT DOES NOT SUPPORT THE DATE
 											// HENCE ONLY ADD VALUES TO DEFAULT IF THEY SHOW MEANINGFUL VALUES
-											// if(valueSum != 0){
+											// if(valueSum != null){
 												indicatorArrayForRadarChart.push({
 													name: selectedIndicatorsForRadar[i].indicatorMetadata.indicatorName,
 													unit: selectedIndicatorsForRadar[i].indicatorMetadata.unit,
@@ -235,7 +243,7 @@ angular
 
 															    return htmlString;
 																}},
-																restore : {show: false, title: "Erneuern"},
+																restore : {show: false, title: "Darstellung erneuern"},
 																saveAsImage : {show: true, title: "Export"}
 														}
 												},
@@ -301,15 +309,15 @@ angular
 																		lineStyle: {
 																				color: 'gray',
 																				type: 'dashed',
-																				width: 4
+																				width: 3
 																		},
 																		itemStyle: {
-																				borderWidth: 3,
+																				borderWidth: 2,
 																				color: 'gray'
 																		},
 																		emphasis: {
 																				lineStyle: {
-																						width: 6
+																						width: 4
 																				},
 																				itemStyle: {
 																						borderType: 'dashed'
@@ -467,7 +475,7 @@ angular
 									featureSeries.value = new Array();
 									featureSeries.emphasis = {
 											lineStyle: {
-													width: 6,
+													width: 4,
 													type: 'dotted'
 											}
 									};
@@ -476,7 +484,7 @@ angular
 										type: 'solid'
 									};
 									featureSeries.itemStyle = {
-											borderWidth: 3
+											borderWidth: 2
 									};
 
 
