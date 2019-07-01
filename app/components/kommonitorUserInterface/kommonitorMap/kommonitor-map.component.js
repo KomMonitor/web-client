@@ -223,6 +223,7 @@ angular.module('kommonitorMap').component(
                     $scope.currentIndicatorMetadataAndGeoJSON;
                     $scope.currentGeoJSONOfCurrentLayer;
                     $scope.currentIndicatorContainsZeroValues = false;
+                    $scope.currentIndicatorContainsNoDataValues = false;
                     $scope.indicatorTypeOfCurrentLayer;
                     $scope.defaultColorForZeroValues = __env.defaultColorForZeroValues;
 
@@ -881,19 +882,19 @@ angular.module('kommonitorMap').component(
                     function makeOutliersLowLegendString (outliersArray){
                       if(outliersArray.length > 1){
 
-                        return "(" + (Number(outliersArray[0]).toLocaleString("de-DE", {maximumFractionDigits: numberOfDecimals})) +  " &ndash; " + (Number(outliersArray[outliersArray.length -1]).toLocaleString("de-DE", {maximumFractionDigits: numberOfDecimals})) + ")";
+                        return "(" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(outliersArray[0]) +  " &ndash; " + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(outliersArray[outliersArray.length -1]) + ")";
                       }
                       else{
-                        return "(" + (Number(outliersArray[0]).toLocaleString("de-DE", {maximumFractionDigits: numberOfDecimals})) + ")";
+                        return "(" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(outliersArray[0]) + ")";
                       }
                     };
 
                     function makeOutliersHighLegendString (outliersArray){
                       if(outliersArray.length > 1){
-                        return "(" + (Number(outliersArray[0]).toLocaleString("de-DE", {maximumFractionDigits: numberOfDecimals})) +  " &ndash; " + (Number(outliersArray[outliersArray.length -1]).toLocaleString("de-DE", {maximumFractionDigits: numberOfDecimals})) + ")";
+                        return "(" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(outliersArray[0]) +  " &ndash; " + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(outliersArray[outliersArray.length -1]) + ")";
                       }
                       else{
-                        return "(" + (Number(outliersArray[0]).toLocaleString("de-DE", {maximumFractionDigits: numberOfDecimals})) + ")";
+                        return "(" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(outliersArray[0]) + ")";
                       }
                     };
 
@@ -1001,7 +1002,7 @@ angular.module('kommonitorMap').component(
                                 // '<i style="background:' + colors[i] + '"></i> ' +
                                 // defaultClassificationMapping.items[defaultClassificationMapping.items.length - 1 - i].defaultCustomRating + ' (' + (+labels[i].toFixed(numberOfDecimals)) + ((+labels[i + 1]) ? ' &ndash; &lt; ' + (+labels[i + 1].toFixed(numberOfDecimals)) + ') <br>' : '+');
                                 '<i style="background:' + colors[i] + '; opacity: ' + opacity + ';"></i> ' +
-                                (Number(labels[i]).toLocaleString("de-DE", {maximumFractionDigits: numberOfDecimals})) + ((Number(labels[i + 1]).toLocaleString("de-DE", {maximumFractionDigits: numberOfDecimals})) ? ' &ndash; &lt; ' + (Number(labels[i + 1]).toLocaleString("de-DE", {maximumFractionDigits: numberOfDecimals})) + ' <br>' : '+');
+                                kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labels[i]) + (kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labels[i + 1]) ? ' &ndash; &lt; ' + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labels[i + 1]) + ' <br>' : '+');
                         }
 
                         $scope.div.innerHTML += '</div>';
@@ -1110,7 +1111,7 @@ angular.module('kommonitorMap').component(
                             for (var i = 0; i < colorsDynamicDecrease.length; i++) {
                                 $scope.div.innerHTML +=
                                     '<i style="background:' + colorsDynamicDecrease[colorsDynamicDecrease.length - 1 - i] + '; opacity: ' + opacity + ';"></i> ' +
-                                    (Number(labelsDynamicDecrease[i]).toLocaleString("de-DE", {maximumFractionDigits: numberOfDecimals})) + (typeof labelsDynamicDecrease[i + 1] != 'undefined' ? ' &ndash; &lt; ' + (Number(labelsDynamicDecrease[i + 1]).toLocaleString("de-DE", {maximumFractionDigits: numberOfDecimals})) + '<br>' : ' &ndash; &lt; 0');
+                                    kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labelsDynamicDecrease[i]) + (typeof labelsDynamicDecrease[i + 1] != 'undefined' ? ' &ndash; &lt; ' + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labelsDynamicDecrease[i + 1]) + '<br>' : ' &ndash; &lt; 0');
                             }
 
                         }
@@ -1133,7 +1134,7 @@ angular.module('kommonitorMap').component(
                             for (var i = 0; i < colorsDynamicIncrease.length; i++) {
                                 $scope.div.innerHTML +=
                                     '<i style="background:' + colorsDynamicIncrease[i] + '; opacity: ' + opacity + ';"></i> ' +
-                                    (Number(labelsDynamicIncrease[i]).toLocaleString("de-DE", {maximumFractionDigits: numberOfDecimals})) + (typeof labelsDynamicIncrease[i + 1] === 'undefined' ? '' : ' &ndash; &lt; ' + (Number(labelsDynamicIncrease[i + 1]).toLocaleString("de-DE", {maximumFractionDigits: numberOfDecimals})) + '<br>');
+                                    kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labelsDynamicIncrease[i]) + (typeof labelsDynamicIncrease[i + 1] === 'undefined' ? '' : ' &ndash; &lt; ' + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labelsDynamicIncrease[i + 1]) + '<br>');
                             }
                           $scope.div.innerHTML += "<br/>";
                         }
@@ -1261,7 +1262,7 @@ angular.module('kommonitorMap').component(
                           for (var i = 0; i < colorsLtMeasureOfValue.length; i++) {
                               $scope.div.innerHTML +=
                                   '<i style="background:' + colorsLtMeasureOfValue[colorsLtMeasureOfValue.length - 1 -i] + '; opacity: ' + opacity + ';"></i> ' +
-                                  (Number(labelsLtMeasureOfValue[i]).toLocaleString("de-DE", {maximumFractionDigits: numberOfDecimals})) + (typeof labelsLtMeasureOfValue[i + 1] === 'undefined' ? '' : ' &ndash; &lt; ' + (Number(labelsLtMeasureOfValue[i + 1]).toLocaleString("de-DE", {maximumFractionDigits: numberOfDecimals})) + '</br>');
+                                  kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labelsLtMeasureOfValue[i]) + (typeof labelsLtMeasureOfValue[i + 1] === 'undefined' ? '' : ' &ndash; &lt; ' + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labelsLtMeasureOfValue[i + 1]) + '</br>');
                           }
 
                           $scope.div.innerHTML += "<br/>";
@@ -1281,7 +1282,7 @@ angular.module('kommonitorMap').component(
                           for (var i = 0; i < colorsGtMeasureOfValue.length; i++) {
                               $scope.div.innerHTML +=
                                   '<i style="background:' + colorsGtMeasureOfValue[i] + '; opacity: ' + opacity + ';"></i> ' +
-                                  (Number(labelsGtMeasureOfValue[i]).toLocaleString("de-DE", {maximumFractionDigits: numberOfDecimals})) + (typeof labelsGtMeasureOfValue[i + 1] === 'undefined' ? '' : ' &ndash; &lt; ' + (Number(labelsGtMeasureOfValue[i + 1]).toLocaleString("de-DE", {maximumFractionDigits: numberOfDecimals})) + '<br>');
+                                  kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labelsGtMeasureOfValue[i]) + (typeof labelsGtMeasureOfValue[i + 1] === 'undefined' ? '' : ' &ndash; &lt; ' + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labelsGtMeasureOfValue[i + 1]) + '<br>');
                           }
                         }
 
@@ -1340,7 +1341,7 @@ angular.module('kommonitorMap').component(
                         indicatorValueText = "NoData";
                       }
                       else{
-                        indicatorValueText = Number(indicatorValue).toLocaleString("de-DE", {maximumFractionDigits: numberOfDecimals});
+                        indicatorValueText = kommonitorDataExchangeService.getIndicatorValue_asFormattedText(indicatorValue);
                       }
                       var tooltipHtml = "<b>" + feature.properties.spatialUnitFeatureName + "</b><br/>" + indicatorValueText + " [" + kommonitorDataExchangeService.selectedIndicator.unit + "]";
                         layer.bindTooltip(tooltipHtml, {
@@ -1770,7 +1771,7 @@ angular.module('kommonitorMap').component(
                                                 continue;
                                               }
 
-                                              values.push(+Number(geoJSON.features[i].properties[propertyName]).toFixed(numberOfDecimals));
+                                              values.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
                                           }
 
                                           // pass array to our classyBrew series
@@ -1822,10 +1823,10 @@ angular.module('kommonitorMap').component(
                                                   continue;
                                                 }
 
-                                              else if(+Number(geoJSON.features[i].properties[propertyName]).toFixed(numberOfDecimals) >= +Number(measureOfValue).toFixed(numberOfDecimals))
-                                                greaterThanValues.push(+Number(geoJSON.features[i].properties[propertyName]).toFixed(numberOfDecimals));
+                                              else if(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]) >= kommonitorDataExchangeService.getIndicatorValue_asNumber(measureOfValue))
+                                                greaterThanValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
                                               else
-                                                lesserThanValues.push(+Number(geoJSON.features[i].properties[propertyName]).toFixed(numberOfDecimals));
+                                                lesserThanValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
                                           }
 
                                           setupGtMeasureOfValueBrew(greaterThanValues, colorCodeForGreaterThanValues, classifyMethod);
@@ -2009,10 +2010,10 @@ angular.module('kommonitorMap').component(
                                                   continue;
                                                 }
 
-                                              else if(+Number(geoJSON.features[i].properties[propertyName]).toFixed(numberOfDecimals) > 0)
-                                                positiveValues.push(+Number(geoJSON.features[i].properties[propertyName]).toFixed(numberOfDecimals));
+                                              else if(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]) > 0)
+                                                positiveValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
                                               else
-                                                negativeValues.push(+Number(geoJSON.features[i].properties[propertyName]).toFixed(numberOfDecimals));
+                                                negativeValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
                                           }
 
                                           setupDynamicIncreaseBrew(positiveValues, colorCodeForPositiveValues, classifyMethod);
@@ -2202,7 +2203,7 @@ angular.module('kommonitorMap').component(
 
                                           }
                                           else{
-                                            fillColor = $scope.defaultBrew.getColorInRange(+Number(feature.properties[$scope.propertyName]).toFixed(numberOfDecimals));
+                                            fillColor = $scope.defaultBrew.getColorInRange(kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[$scope.propertyName]));
                                           }
 
                                             return {
@@ -2259,7 +2260,7 @@ angular.module('kommonitorMap').component(
                                             fillOpacity = defaultFillOpacity;
                                           }
 
-                                          if(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) >= kommonitorDataExchangeService.measureOfValue){
+                                          if(kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[$scope.indicatorPropertyName]) >= kommonitorDataExchangeService.measureOfValue){
                                             var fillColor;
                                             if(feature.properties[$scope.propertyName] == 0 || feature.properties[$scope.propertyName] == "0"){
                                               fillColor = $scope.defaultColorForZeroValues;
@@ -2273,7 +2274,7 @@ angular.module('kommonitorMap').component(
 
                                               for (var index=0; index < $scope.gtMeasureOfValueBrew.breaks.length; index++){
 
-                                                if(+Number(feature.properties[$scope.propertyName]).toFixed(numberOfDecimals) == +Number($scope.gtMeasureOfValueBrew.breaks[index]).toFixed(numberOfDecimals)){
+                                                if(kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[$scope.propertyName]) == kommonitorDataExchangeService.getIndicatorValue_asNumber($scope.gtMeasureOfValueBrew.breaks[index])){
                                                   if(index < $scope.gtMeasureOfValueBrew.breaks.length -1){
                                                     // min value
                                                     fillColor =  $scope.gtMeasureOfValueBrew.colors[index];
@@ -2291,7 +2292,7 @@ angular.module('kommonitorMap').component(
                                                   }
                                                 }
                                                 else{
-                                                  if(+Number(feature.properties[$scope.propertyName]).toFixed(numberOfDecimals) < +Number($scope.gtMeasureOfValueBrew.breaks[index + 1]).toFixed(numberOfDecimals)) {
+                                                  if(kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[$scope.propertyName]) < kommonitorDataExchangeService.getIndicatorValue_asNumber($scope.gtMeasureOfValueBrew.breaks[index + 1])) {
                                       							fillColor =  $scope.gtMeasureOfValueBrew.colors[index];
                                                     break;
                                       						}
@@ -2321,7 +2322,7 @@ angular.module('kommonitorMap').component(
                                             else{
                                               // invert colors, so that lowest values will become strong colored!
                                               for (var index=0; index < $scope.ltMeasureOfValueBrew.breaks.length; index++){
-                                                if(+Number(feature.properties[$scope.propertyName]).toFixed(numberOfDecimals) == +Number($scope.ltMeasureOfValueBrew.breaks[index]).toFixed(numberOfDecimals)){
+                                                if(kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[$scope.propertyName]) == kommonitorDataExchangeService.getIndicatorValue_asNumber($scope.ltMeasureOfValueBrew.breaks[index])){
                                                   if(index < $scope.ltMeasureOfValueBrew.breaks.length -1){
                                                     // min value
                                                     fillColor =  $scope.ltMeasureOfValueBrew.colors[$scope.ltMeasureOfValueBrew.colors.length - index - 1];
@@ -2339,7 +2340,7 @@ angular.module('kommonitorMap').component(
                                                   }
                                                 }
                                                 else{
-                                                  if(+Number(feature.properties[$scope.propertyName]).toFixed(numberOfDecimals) < +Number($scope.ltMeasureOfValueBrew.breaks[index + 1]).toFixed(numberOfDecimals)) {
+                                                  if(kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[$scope.propertyName]) < kommonitorDataExchangeService.getIndicatorValue_asNumber($scope.ltMeasureOfValueBrew.breaks[index + 1])) {
                                       							fillColor =  $scope.ltMeasureOfValueBrew.colors[$scope.ltMeasureOfValueBrew.colors.length - index - 1];
                                                     break;
                                       						}
@@ -2372,7 +2373,7 @@ angular.module('kommonitorMap').component(
                                             fillOpacity = defaultFillOpacity;
                                           }
 
-                                          if(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) >= 0){
+                                          if(kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[$scope.indicatorPropertyName]) >= 0){
                                             var fillColor;
                                             if(feature.properties[$scope.propertyName] == 0 || feature.properties[$scope.propertyName] == "0"){
                                               fillColor = $scope.defaultColorForZeroValues;
@@ -2382,7 +2383,7 @@ angular.module('kommonitorMap').component(
                                             }
                                             else{
                                               for (var index=0; index < $scope.dynamicIncreaseBrew.breaks.length; index++){
-                                                if(+Number(feature.properties[$scope.propertyName]).toFixed(numberOfDecimals) == +Number($scope.dynamicIncreaseBrew.breaks[index]).toFixed(numberOfDecimals)){
+                                                if(kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[$scope.propertyName]) == kommonitorDataExchangeService.getIndicatorValue_asNumber($scope.dynamicIncreaseBrew.breaks[index])){
                                                   if(index < $scope.dynamicIncreaseBrew.breaks.length -1){
                                                     // min value
                                                     fillColor =  $scope.dynamicIncreaseBrew.colors[index];
@@ -2400,7 +2401,7 @@ angular.module('kommonitorMap').component(
                                                   }
                                                 }
                                                 else{
-                                                  if(+Number(feature.properties[$scope.propertyName]).toFixed(numberOfDecimals) < +Number($scope.dynamicIncreaseBrew.breaks[index + 1]).toFixed(numberOfDecimals)) {
+                                                  if(kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[$scope.propertyName]) < kommonitorDataExchangeService.getIndicatorValue_asNumber($scope.dynamicIncreaseBrew.breaks[index + 1])) {
                                       							fillColor =  $scope.dynamicIncreaseBrew.colors[index];
                                                     break;
                                       						}
@@ -2430,7 +2431,7 @@ angular.module('kommonitorMap').component(
                                             else{
                                               // invert colors, so that lowest values will become strong colored!
                                               for (var index=0; index < $scope.dynamicDecreaseBrew.breaks.length; index++){
-                                                if(+Number(feature.properties[$scope.propertyName]).toFixed(numberOfDecimals) == +Number($scope.dynamicDecreaseBrew.breaks[index]).toFixed(numberOfDecimals)){
+                                                if(kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[$scope.propertyName]) == kommonitorDataExchangeService.getIndicatorValue_asNumber($scope.dynamicDecreaseBrew.breaks[index])){
                                                   if(index < $scope.dynamicDecreaseBrew.breaks.length -1){
                                                     // min value
                                                     fillColor =  $scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - index - 1];
@@ -2448,7 +2449,7 @@ angular.module('kommonitorMap').component(
                                                   }
                                                 }
                                                 else{
-                                                  if(+Number(feature.properties[$scope.propertyName]).toFixed(numberOfDecimals) < +Number($scope.dynamicDecreaseBrew.breaks[index + 1]).toFixed(numberOfDecimals)) {
+                                                  if(kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[$scope.propertyName]) < kommonitorDataExchangeService.getIndicatorValue_asNumber($scope.dynamicDecreaseBrew.breaks[index + 1])) {
                                       							fillColor =  $scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - index - 1];
                                                     break;
                                       						}
