@@ -100,6 +100,12 @@ angular.module('kommonitorMap').component(
                     var refreshNoDataStyle = function(){
 
                       $scope.currentIndicatorContainsNoDataValues = false;
+                      $scope.svgString_noData = '<svg height="18" width="18">' +
+                            '<circle cx="4" cy="4" r="1.5" stroke="' + defaultBorderColorForNoDataValues + '" stroke-width="2" fill="' + defaultColorForNoDataValues + '" />' +
+                            '<circle cx="14" cy="4" r="1.5" stroke="' + defaultBorderColorForNoDataValues + '" stroke-width="2" fill="' + defaultColorForNoDataValues + '" />' +
+                            '<circle cx="4" cy="14" r="1.5" stroke="' + defaultBorderColorForNoDataValues + '" stroke-width="2" fill="' + defaultColorForNoDataValues + '" />' +
+                            '<circle cx="14" cy="14" r="1.5" stroke="' + defaultBorderColorForNoDataValues + '" stroke-width="2" fill="' + defaultColorForNoDataValues + '" />' +
+                            'Sorry, your browser does not support inline SVG.</svg>';
 
                       $scope.noDataStyle = {
                           weight: 2,
@@ -372,7 +378,7 @@ angular.module('kommonitorMap').component(
                           y: 5,
                           radius: 1,
                           fill: true,
-                          color: 'black'
+                          color: defaultColorForNoDataValues
                       });
                       $scope.noDataFillPattern = new L.Pattern({width:8, height:8});
                       $scope.noDataFillPattern.addShape(shape);
@@ -1000,6 +1006,13 @@ angular.module('kommonitorMap').component(
                           $scope.div.innerHTML += $scope.appendOutliersCheckbox();
                         }
 
+                        if($scope.currentIndicatorContainsNoDataValues){
+                              $scope.div.innerHTML +=
+                                  // '<i style="opacity: ' + opacity + ';">' + svgString + '</i> ' +
+                                  '<i>' + $scope.svgString_noData + '</i> ' +
+                                  "Leerwert <br/>";
+                        }
+
                         var useFilteredOrZeroOrOutlierValues = false;
 
                         if($scope.containsOutliers_low && kommonitorDataExchangeService.useOutlierDetectionOnIndicator){
@@ -1106,6 +1119,13 @@ angular.module('kommonitorMap').component(
 
                         if($scope.containsOutliers_low || $scope.containsOutliers_high){
                           $scope.div.innerHTML += $scope.appendOutliersCheckbox();
+                        }
+
+                        if($scope.currentIndicatorContainsNoDataValues){
+                              $scope.div.innerHTML +=
+                                  // '<i style="opacity: ' + opacity + ';">' + svgString + '</i> ' +
+                                  '<i>' + $scope.svgString_noData + '</i> ' +
+                                  "Leerwert <br/>";
                         }
 
                         var useFilteredOrZeroOrOutlierValues = false;
@@ -1233,6 +1253,13 @@ angular.module('kommonitorMap').component(
 
                         if($scope.containsOutliers_low || $scope.containsOutliers_high){
                           $scope.div.innerHTML += $scope.appendOutliersCheckbox();
+                        }
+
+                        if($scope.currentIndicatorContainsNoDataValues){
+                              $scope.div.innerHTML +=
+                                  // '<i style="opacity: ' + opacity + ';">' + svgString + '</i> ' +
+                                  '<i>' + $scope.svgString_noData + '</i> ' +
+                                  "Leerwert <br/>";
                         }
 
                         var useFilteredOrZeroOrOutlierValues = false;
