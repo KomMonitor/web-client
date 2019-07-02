@@ -62,7 +62,7 @@ angular.module('kommonitorMap').component(
                         weight: 2,
                         opacity: 1,
                         color: defaultBorderColorForOutliers_high,
-                        dashArray: '3',
+                        dashArray: '',
                         fillOpacity: defaultFillOpacityForOutliers_high,
                         fillColor: defaultColorForOutliers_high,
                         fillPattern: $scope.outlierFillPattern_high
@@ -72,7 +72,7 @@ angular.module('kommonitorMap').component(
                         weight: 2,
                         opacity: 1,
                         color: defaultBorderColorForOutliers_low,
-                        dashArray: '3',
+                        dashArray: '',
                         fillOpacity: defaultFillOpacityForOutliers_low,
                         fillColor: defaultColorForOutliers_low,
                         fillPattern: $scope.outlierFillPattern_low
@@ -82,7 +82,7 @@ angular.module('kommonitorMap').component(
                         weight: 2,
                         opacity: 1,
                         color: defaultBorderColorForNoDataValues,
-                        dashArray: '3',
+                        dashArray: '',
                         fillOpacity: defaultFillOpacityForNoDataValues,
                         fillColor: defaultColorForNoDataValues,
                         fillPattern: $scope.noDataFillPattern
@@ -102,7 +102,7 @@ angular.module('kommonitorMap').component(
                           weight: 2,
                           opacity: 1,
                           color: defaultBorderColorForNoDataValues,
-                          dashArray: '3',
+                          dashArray: '',
                           fillOpacity: defaultFillOpacityForNoDataValues,
                           fillColor: defaultColorForNoDataValues,
                           fillPattern: $scope.noDataFillPattern
@@ -147,7 +147,7 @@ angular.module('kommonitorMap').component(
                           weight: 2,
                           opacity: 1,
                           color: defaultBorderColorForOutliers_high,
-                          dashArray: '3',
+                          dashArray: '',
                           fillOpacity: defaultFillOpacityForOutliers_high,
                           fillColor: defaultColorForOutliers_high,
                           fillPattern: $scope.outlierFillPattern_high
@@ -157,7 +157,7 @@ angular.module('kommonitorMap').component(
                           weight: 2,
                           opacity: 1,
                           color: defaultBorderColorForOutliers_low,
-                          dashArray: '3',
+                          dashArray: '',
                           fillOpacity: defaultFillOpacityForOutliers_low,
                           fillColor: defaultColorForOutliers_low,
                           fillPattern: $scope.outlierFillPattern_low
@@ -371,7 +371,7 @@ angular.module('kommonitorMap').component(
                           fill: true,
                           color: 'black'
                       });
-                      $scope.noDataFillPattern = new L.Pattern({width:10, height:10});
+                      $scope.noDataFillPattern = new L.Pattern({width:8, height:8});
                       $scope.noDataFillPattern.addShape(shape);
                       $scope.noDataFillPattern.addTo($scope.map);
 
