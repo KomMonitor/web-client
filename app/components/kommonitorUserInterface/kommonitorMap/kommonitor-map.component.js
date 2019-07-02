@@ -2781,7 +2781,9 @@ angular.module('kommonitorMap').component(
                                           var valueArray = new Array();
 
                                           indicatorMetadataAndGeoJSON.geoJSON.features.forEach(function(feature){
-                                              valueArray.push(feature.properties[indicatorPropertyName]);
+                                            if (! kommonitorDataExchangeService.indicatorValueIsNoData(feature.properties[indicatorPropertyName])){
+                                                valueArray.push(feature.properties[indicatorPropertyName]);
+                                            }
                                           });
 
                                           // https://jstat.github.io/all.html#quartiles
@@ -2803,7 +2805,10 @@ angular.module('kommonitorMap').component(
 
                                           indicatorMetadataAndGeoJSON.geoJSON.features.forEach(function(feature){
                                             // compare feature value to whiskers and set property
-                                              if (feature.properties[indicatorPropertyName] < whisker_low_extreme){
+                                            if (kommonitorDataExchangeService.indicatorValueIsNoData(feature.properties[indicatorPropertyName])){
+                                              feature.properties[outlierPropertyName] = outlierPropertyValue_no;
+                                            }
+                                              else if (feature.properties[indicatorPropertyName] < whisker_low_extreme){
                                                 feature.properties[outlierPropertyName] = outlierPropertyValue_low_extreme;
                                                 $scope.containsOutliers_low = true;
                                                 $scope.outliers_low.push(feature.properties[indicatorPropertyName]);
