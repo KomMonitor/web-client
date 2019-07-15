@@ -225,7 +225,11 @@ angular
 
 							// set value of selected target property with the computed balance between toDate - FromDate
 							for (var index=0; index < kommonitorDataExchangeService.selectedIndicator.geoJSON.features.length; index++){
-								kommonitorDataExchangeService.indicatorAndMetadataAsBalance.geoJSON.features[index].properties[$scope.targetIndicatorProperty] = +Number(kommonitorDataExchangeService.selectedIndicator.geoJSON.features[index].properties[toDateAsPropertyString] - kommonitorDataExchangeService.selectedIndicator.geoJSON.features[index].properties[fromDateAsPropertyString]).toFixed(numberOfDecimals);
+
+								var toDateValue = kommonitorDataExchangeService.getIndicatorValue_asNumber(kommonitorDataExchangeService.selectedIndicator.geoJSON.features[index].properties[toDateAsPropertyString]);
+								var fromDateValue = kommonitorDataExchangeService.getIndicatorValue_asNumber(kommonitorDataExchangeService.selectedIndicator.geoJSON.features[index].properties[fromDateAsPropertyString]);
+
+								kommonitorDataExchangeService.indicatorAndMetadataAsBalance.geoJSON.features[index].properties[$scope.targetIndicatorProperty] = +Number(toDateValue - fromDateValue).toFixed(numberOfDecimals);
 							}
 							kommonitorDataExchangeService.indicatorAndMetadataAsBalance['fromDate'] = dateToDateString(fromDate);
 							kommonitorDataExchangeService.indicatorAndMetadataAsBalance['toDate'] = dateToDateString(toDate);
