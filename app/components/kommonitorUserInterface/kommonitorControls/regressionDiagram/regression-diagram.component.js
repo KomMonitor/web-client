@@ -18,6 +18,7 @@ angular
 								var numberOfDecimals = __env.numberOfDecimals;
 								const defaultColorForFilteredValues = __env.defaultColorForFilteredValues;
 								const defaultColorForZeroValues = __env.defaultColorForZeroValues;
+								const defaultColorForNoDataValues = __env.defaultColorForNoDataValues;
 								const defaultColorForHoveredFeatures = __env.defaultColorForHoveredFeatures;
 								const defaultColorForClickedFeatures = __env.defaultColorForClickedFeatures;
 
@@ -127,7 +128,7 @@ angular
 
 									var index = -1;
 									for(var i=0; i<$scope.regressionOption.series[0].data.length; i++){
-										if($scope.regressionOption.series[0].data[i].name === featureProperties.spatialUnitFeatureName){
+										if($scope.regressionOption.series[0].data[i].name === featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]){
 											index = i;
 											break;
 										}
@@ -154,11 +155,11 @@ angular
 										return;
 									}
 
-									if(! kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(featureProperties.spatialUnitFeatureName)){
+									if(! kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME])){
 										// highlight the corresponding bar diagram item
 										var index = -1;
 										for(var i=0; i<$scope.regressionOption.series[0].data.length; i++){
-											if($scope.regressionOption.series[0].data[i].name === featureProperties.spatialUnitFeatureName){
+											if($scope.regressionOption.series[0].data[i].name === featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]){
 												index = i;
 												break;
 											}
@@ -186,8 +187,8 @@ angular
 											kommonitorDataExchangeService.allIndicatorPropertiesForCurrentSpatialUnitAndTime[i].indicatorProperties.sort(function(a, b) {
 												// a and b are arrays of indicatorProperties for all features of the selected spatialUnit. We sort them by their property "spatialUnitFeatureName"
 
-													var nameA = a.spatialUnitFeatureName.toUpperCase(); // ignore upper and lowercase
-												  var nameB = b.spatialUnitFeatureName.toUpperCase(); // ignore upper and lowercase
+													var nameA = a[__env.FEATURE_NAME_PROPERTY_NAME].toUpperCase(); // ignore upper and lowercase
+												  var nameB = b[__env.FEATURE_NAME_PROPERTY_NAME].toUpperCase(); // ignore upper and lowercase
 												  if (nameA < nameB) {
 												    return -1;
 												  }
@@ -217,162 +218,14 @@ angular
 
 									for (var index=0; index<$scope.indicatorMetadataAndGeoJSON.geoJSON.features.length; index++){
 										var feature = $scope.indicatorMetadataAndGeoJSON.geoJSON.features[index];
-										if (feature.properties.spatialUnitFeatureName === featureName){
-											color = getColorForFeature(feature);
+										if (feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] === featureName){
+											color = kommonitorDataExchangeService.getColorForFeature(feature, $scope.indicatorMetadataAndGeoJSON, $scope.indicatorPropertyName, $scope.defaultBrew, $scope.gtMeasureOfValueBrew, $scope.ltMeasureOfValueBrew, $scope.dynamicIncreaseBrew, $scope.dynamicDecreaseBrew, $scope.isMeasureOfValueChecked, $scope.measureOfValue);
 											break;
 										}
 									}
 
 									return color;
 								};
-
-								var getColorForFeature = function(feature){
-									var color;
-
-									if(kommonitorDataExchangeService.filteredIndicatorFeatureNames.includes(feature.properties.spatialUnitFeatureName)){
-										color = defaultColorForFilteredValues;
-									}
-									else if(Number(feature.properties[$scope.indicatorPropertyName]) === 0 ){
-										color = defaultColorForZeroValues;
-									}
-									else if(feature.properties["outlier"] !== undefined && feature.properties["outlier"].includes("low") && kommonitorDataExchangeService.useOutlierDetectionOnIndicator){
-										color = defaultColorForOutliers_low;
-									}
-									else if(feature.properties["outlier"] !== undefined && feature.properties["outlier"].includes("high") && kommonitorDataExchangeService.useOutlierDetectionOnIndicator){
-										color = defaultColorForOutliers_high;
-									}
-									else if($scope.isMeasureOfValueChecked){
-
-										if(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) >= +Number($scope.measureOfValue).toFixed(numberOfDecimals)){
-
-											for (var index=0; index < $scope.gtMeasureOfValueBrew.breaks.length; index++){
-
-												if(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) == +Number($scope.gtMeasureOfValueBrew.breaks[index]).toFixed(numberOfDecimals)){
-													if(index < $scope.gtMeasureOfValueBrew.breaks.length -1){
-														// min value
-														color =  $scope.gtMeasureOfValueBrew.colors[index];
-														break;
-													}
-													else {
-														//max value
-														if ($scope.gtMeasureOfValueBrew.colors[index]){
-															color =  $scope.gtMeasureOfValueBrew.colors[index];
-														}
-														else{
-															color =  $scope.gtMeasureOfValueBrew.colors[index - 1];
-														}
-														break;
-													}
-												}
-												else{
-													if(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) < +Number($scope.gtMeasureOfValueBrew.breaks[index + 1]).toFixed(numberOfDecimals)) {
-														color =  $scope.gtMeasureOfValueBrew.colors[index];
-														break;
-													}
-												}
-											}
-
-										}
-										else {
-
-											// invert colors, so that lowest values will become strong colored!
-											for (var index=0; index < $scope.ltMeasureOfValueBrew.breaks.length; index++){
-												if(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) == +Number($scope.ltMeasureOfValueBrew.breaks[index]).toFixed(numberOfDecimals)){
-													if(index < $scope.ltMeasureOfValueBrew.breaks.length -1){
-														// min value
-														color =  $scope.ltMeasureOfValueBrew.colors[$scope.ltMeasureOfValueBrew.colors.length - index - 1];
-														break;
-													}
-													else {
-														//max value
-														if ($scope.ltMeasureOfValueBrew.colors[$scope.ltMeasureOfValueBrew.colors.length - index]){
-															color =  $scope.ltMeasureOfValueBrew.colors[$scope.ltMeasureOfValueBrew.colors.length - index];
-														}
-														else{
-															color =  $scope.ltMeasureOfValueBrew.colors[$scope.ltMeasureOfValueBrew.colors.length - index - 1];
-														}
-														break;
-													}
-												}
-												else{
-													if(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) < +Number($scope.ltMeasureOfValueBrew.breaks[index + 1]).toFixed(numberOfDecimals)) {
-														color =  $scope.ltMeasureOfValueBrew.colors[$scope.ltMeasureOfValueBrew.colors.length - index - 1];
-														break;
-													}
-												}
-											}
-
-										}
-
-									}
-									else{
-										if($scope.indicatorMetadataAndGeoJSON.indicatorType === 'DYNAMIC'){
-
-											if(feature.properties[$scope.indicatorPropertyName] < 0){
-
-												for (var index=0; index < $scope.dynamicDecreaseBrew.breaks.length; index++){
-													if(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) == +Number($scope.dynamicDecreaseBrew.breaks[index]).toFixed(numberOfDecimals)){
-														if(index < $scope.dynamicDecreaseBrew.breaks.length -1){
-															// min value
-															color =  $scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - index - 1];
-															break;
-														}
-														else {
-															//max value
-															if ($scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - index]){
-																color =  $scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - index];
-															}
-															else{
-																color =  $scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - index - 1];
-															}
-															break;
-														}
-													}
-													else{
-														if(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) < +Number($scope.dynamicDecreaseBrew.breaks[index + 1]).toFixed(numberOfDecimals)) {
-															color =  $scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - index - 1];
-															break;
-														}
-													}
-												}
-
-											}
-											else{
-												for (var index=0; index < $scope.dynamicIncreaseBrew.breaks.length; index++){
-													if(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) == +Number($scope.dynamicIncreaseBrew.breaks[index]).toFixed(numberOfDecimals)){
-														if(index < $scope.dynamicIncreaseBrew.breaks.length -1){
-															// min value
-															color =  $scope.dynamicIncreaseBrew.colors[index];
-															break;
-														}
-														else {
-															//max value
-															if ($scope.dynamicIncreaseBrew.colors[index]){
-																color =  $scope.dynamicIncreaseBrew.colors[index];
-															}
-															else{
-																color =  $scope.dynamicIncreaseBrew.colors[index - 1];
-															}
-															break;
-														}
-													}
-													else{
-														if(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) < +Number($scope.dynamicIncreaseBrew.breaks[index + 1]).toFixed(numberOfDecimals)) {
-															color =  $scope.dynamicIncreaseBrew.colors[index];
-															break;
-														}
-													}
-												}
-											}
-
-										}
-										else{
-												color = $scope.defaultBrew.getColorInRange(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals));
-										}
-									}
-
-									return color;
-								}
 
 								$scope.buildDataArrayForSelectedIndicators = function(){
 									$scope.data = new Array();
@@ -384,15 +237,30 @@ angular
 									for (var i=0; i<indicatorPropertiesArrayForXAxis.length; i++){
 
 										// + sign turns output into number!
-										var xAxisDataElement = +indicatorPropertiesArrayForXAxis[i][DATE_PREFIX + kommonitorDataExchangeService.selectedDate];
-										var yAxisDataElement = +indicatorPropertiesArrayForYAxis[i][DATE_PREFIX + kommonitorDataExchangeService.selectedDate];
-										$scope.data.push([Number(xAxisDataElement.toFixed(numberOfDecimals)), Number(yAxisDataElement.toFixed(numberOfDecimals))]);
+										var xAxisDataElement;
+										var yAxisDataElement
+
+										if (kommonitorDataExchangeService.indicatorValueIsNoData(indicatorPropertiesArrayForXAxis[i][DATE_PREFIX + kommonitorDataExchangeService.selectedDate])){
+											xAxisDataElement = null;
+										}
+										else{
+											xAxisDataElement = kommonitorDataExchangeService.getIndicatorValue_asNumber(indicatorPropertiesArrayForXAxis[i][DATE_PREFIX + kommonitorDataExchangeService.selectedDate]);
+										}
+
+										if (kommonitorDataExchangeService.indicatorValueIsNoData(indicatorPropertiesArrayForYAxis[i][DATE_PREFIX + kommonitorDataExchangeService.selectedDate])){
+											yAxisDataElement = null;
+										}
+										else{
+											yAxisDataElement = kommonitorDataExchangeService.getIndicatorValue_asNumber(indicatorPropertiesArrayForYAxis[i][DATE_PREFIX + kommonitorDataExchangeService.selectedDate]);
+										}
+
+										$scope.data.push([xAxisDataElement, yAxisDataElement]);
 
 										var featureName = indicatorPropertiesArrayForXAxis[i].spatialUnitFeatureName;
 										var color = getColor(featureName);
 										$scope.dataWithLabels.push({
 											name: featureName,
-											value: [Number(xAxisDataElement.toFixed(numberOfDecimals)), Number(yAxisDataElement.toFixed(numberOfDecimals))],
+											value: [xAxisDataElement, yAxisDataElement],
 											itemStyle: {
 												color: color
 											}
@@ -418,14 +286,21 @@ angular
 								        console.error('y has more items in it, the last ' + (y.length - shortestArrayLength) + ' item(s) will be ignored');
 								    }
 
+										var x_numeric = [];
+										var y_numeric = [];
 								    var xy = [];
 								    var x2 = [];
 								    var y2 = [];
 
 								    for(var i=0; i<shortestArrayLength; i++) {
-								        xy.push(x[i] * y[i]);
-								        x2.push(x[i] * x[i]);
-								        y2.push(y[i] * y[i]);
+
+											if(x[i] && y[i]){
+												x_numeric.push(x[i]);
+												y_numeric.push(y[i]);
+												xy.push(x[i] * y[i]);
+												x2.push(x[i] * x[i]);
+												y2.push(y[i] * y[i]);
+											}
 								    }
 
 								    var sum_x = 0;
@@ -434,9 +309,9 @@ angular
 								    var sum_x2 = 0;
 								    var sum_y2 = 0;
 
-								    for(var i=0; i< shortestArrayLength; i++) {
-								        sum_x += x[i];
-								        sum_y += y[i];
+								    for(var i=0; i< x_numeric.length; i++) {
+												sum_x += x_numeric[i];
+								        sum_y += y_numeric[i];
 								        sum_xy += xy[i];
 								        sum_x2 += x2[i];
 								        sum_y2 += y2[i];
@@ -495,8 +370,8 @@ angular
 										$scope.linearRegression = ecStat.regression('linear', data);
 
 										for(var i=0; i<$scope.linearRegression.points.length; i++){
-											$scope.linearRegression.points[i][0] = Number($scope.linearRegression.points[i][0].toFixed(numberOfDecimals));
-											$scope.linearRegression.points[i][1] = Number($scope.linearRegression.points[i][1].toFixed(numberOfDecimals));
+											$scope.linearRegression.points[i][0] = kommonitorDataExchangeService.getIndicatorValue_asNumber($scope.linearRegression.points[i][0]);
+											$scope.linearRegression.points[i][1] = kommonitorDataExchangeService.getIndicatorValue_asNumber($scope.linearRegression.points[i][1]);
 										}
 
 										$scope.regressionOption = {
@@ -511,9 +386,13 @@ angular
 										            type: 'cross'
 										        },
 														formatter: function (params) {
+																			if(!(params && params.value && params.value[0] && params.value[1])){
+																				return "";
+																			}
 																				var string = "" + params.name + "<br/>";
-																				string += $scope.selectedIndicatorForXAxis.indicatorName + ": " + Number(params.value[0]).toLocaleString('de-DE', {maximumFractionDigits: numberOfDecimals}) + " [" + $scope.selectedIndicatorForXAxis.unit + "]<br/>";
-																				string += $scope.selectedIndicatorForYAxis.indicatorName + ": " + Number(params.value[1]).toLocaleString('de-DE', {maximumFractionDigits: numberOfDecimals}) + " [" + $scope.selectedIndicatorForYAxis.unit + "]<br/>";
+
+																				string += $scope.selectedIndicatorForXAxis.indicatorName + ": " + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(params.value[0]) + " [" + $scope.selectedIndicatorForXAxis.unit + "]<br/>";
+																				string += $scope.selectedIndicatorForYAxis.indicatorName + ": " + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(params.value[1]) + " [" + $scope.selectedIndicatorForYAxis.unit + "]<br/>";
 						                            return string;
 						                           }
 										    },
@@ -587,8 +466,9 @@ angular
 																	for (var j=0; j<scatterSeries.length; j++){
 																		htmlString += "<tr>";
 																		htmlString += "<td>" + scatterSeries[j].name + "</td>";
-																		htmlString += "<td>" + +Number(scatterSeries[j].value[0]).toFixed(numberOfDecimals) + "</td>";
-																		htmlString += "<td>" + +Number(scatterSeries[j].value[1]).toFixed(numberOfDecimals) + "</td>";
+
+																		htmlString += "<td>" + kommonitorDataExchangeService.getIndicatorValue_asNumber(scatterSeries[j].value[0]) + "</td>";
+																		htmlString += "<td>" + kommonitorDataExchangeService.getIndicatorValue_asNumber(scatterSeries[j].value[1]) + "</td>";
 																		htmlString += "</tr>";
 																	}
 
@@ -612,8 +492,8 @@ angular
 
 																	for (var j=0; j<lineSeries.length; j++){
 																		htmlString += "<tr>";
-																		htmlString += "<td>" + Number(lineSeries[j][0]).toFixed(numberOfDecimals) + "</td>";
-																		htmlString += "<td>" + Number(lineSeries[j][1]).toFixed(numberOfDecimals) + "</td>";
+																		htmlString += "<td>" + kommonitorDataExchangeService.getIndicatorValue_asNumber(lineSeries[j][0]) + "</td>";
+																		htmlString += "<td>" + kommonitorDataExchangeService.getIndicatorValue_asNumber(lineSeries[j][1]) + "</td>";
 																		htmlString += "</tr>";
 																	}
 
