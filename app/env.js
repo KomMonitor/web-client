@@ -5,6 +5,10 @@
   // Setting this to false will disable console output
   window.__env.enableDebug = true;
 
+  // property names of feature id and name (relevant for all spatial features) - KomMonitor specific 
+  window.__env.FEATURE_ID_PROPERTY_NAME = "ID";
+  window.__env.FEATURE_NAME_PROPERTY_NAME = "NAME";
+
   // API url
   // window.__env.apiUrl = 'http://kommonitor.fbg-hsbo.de/';
   window.__env.apiUrl = 'https://kommonitor.essen.de/kommonitor-data-management-api/';
@@ -36,6 +40,8 @@
   window.__env.initialIndicatorId = "d6f447c1-5432-4405-9041-7d5b05fd9ece";
   window.__env.initialSpatialUnitName = "Stadtteilebene";
 
+  window.__env.defaultColorForNoDataValues = "black";
+  window.__env.defaultBorderColorForNoDataValues = "black";
   window.__env.defaultColorForOutliers_high = "#191919";
   window.__env.defaultBorderColorForOutliers_high = "black";
   window.__env.defaultFillOpacityForOutliers_high = "0.7";
@@ -51,6 +57,7 @@
   window.__env.defaultFillOpacity = "0.7";
   window.__env.defaultFillOpacityForFilteredFeatures = "0.7";
   window.__env.defaultFillOpacityForZeroFeatures = "0.7";
+  window.__env.defaultFillOpacityForNoDataFeatures = "0.7";
   window.__env.defaultFillOpacityForHighlightedFeatures = "0.8";
   window.__env.useTransparencyOnIndicator = true;
   window.__env.useOutlierDetectionOnIndicator = false;
