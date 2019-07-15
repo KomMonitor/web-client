@@ -123,15 +123,15 @@ angular
 
 									if(value >= data.from && value <= data.to){
 										// feature must not be filtered - make sure it is not marked as filtered
-										if (kommonitorDataExchangeService.filteredIndicatorFeatureNames.includes(feature.properties.spatialUnitFeatureName)){
-											var index = kommonitorDataExchangeService.filteredIndicatorFeatureNames.indexOf(feature.properties.spatialUnitFeatureName);
+										if (kommonitorDataExchangeService.filteredIndicatorFeatureNames.includes(feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])){
+											var index = kommonitorDataExchangeService.filteredIndicatorFeatureNames.indexOf(feature.properties[__env.FEATURE_NAME_PROPERTY_NAME]);
 											kommonitorDataExchangeService.filteredIndicatorFeatureNames.splice(index, 1);
 										}
 									}
 									else{
 										// feature must be filtered
-										if (!kommonitorDataExchangeService.filteredIndicatorFeatureNames.includes(feature.properties.spatialUnitFeatureName)){
-											kommonitorDataExchangeService.filteredIndicatorFeatureNames.push(feature.properties.spatialUnitFeatureName);
+										if (!kommonitorDataExchangeService.filteredIndicatorFeatureNames.includes(feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])){
+											kommonitorDataExchangeService.filteredIndicatorFeatureNames.push(feature.properties[__env.FEATURE_NAME_PROPERTY_NAME]);
 										}
 									}
 

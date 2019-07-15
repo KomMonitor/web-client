@@ -128,7 +128,7 @@ angular
 
 									var index = -1;
 									for(var i=0; i<$scope.regressionOption.series[0].data.length; i++){
-										if($scope.regressionOption.series[0].data[i].name === featureProperties.spatialUnitFeatureName){
+										if($scope.regressionOption.series[0].data[i].name === featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]){
 											index = i;
 											break;
 										}
@@ -155,11 +155,11 @@ angular
 										return;
 									}
 
-									if(! kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(featureProperties.spatialUnitFeatureName)){
+									if(! kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME])){
 										// highlight the corresponding bar diagram item
 										var index = -1;
 										for(var i=0; i<$scope.regressionOption.series[0].data.length; i++){
-											if($scope.regressionOption.series[0].data[i].name === featureProperties.spatialUnitFeatureName){
+											if($scope.regressionOption.series[0].data[i].name === featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]){
 												index = i;
 												break;
 											}
@@ -187,8 +187,8 @@ angular
 											kommonitorDataExchangeService.allIndicatorPropertiesForCurrentSpatialUnitAndTime[i].indicatorProperties.sort(function(a, b) {
 												// a and b are arrays of indicatorProperties for all features of the selected spatialUnit. We sort them by their property "spatialUnitFeatureName"
 
-													var nameA = a.spatialUnitFeatureName.toUpperCase(); // ignore upper and lowercase
-												  var nameB = b.spatialUnitFeatureName.toUpperCase(); // ignore upper and lowercase
+													var nameA = a[__env.FEATURE_NAME_PROPERTY_NAME].toUpperCase(); // ignore upper and lowercase
+												  var nameB = b[__env.FEATURE_NAME_PROPERTY_NAME].toUpperCase(); // ignore upper and lowercase
 												  if (nameA < nameB) {
 												    return -1;
 												  }
@@ -218,7 +218,7 @@ angular
 
 									for (var index=0; index<$scope.indicatorMetadataAndGeoJSON.geoJSON.features.length; index++){
 										var feature = $scope.indicatorMetadataAndGeoJSON.geoJSON.features[index];
-										if (feature.properties.spatialUnitFeatureName === featureName){
+										if (feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] === featureName){
 											color = kommonitorDataExchangeService.getColorForFeature(feature, $scope.indicatorMetadataAndGeoJSON, $scope.indicatorPropertyName, $scope.defaultBrew, $scope.gtMeasureOfValueBrew, $scope.ltMeasureOfValueBrew, $scope.dynamicIncreaseBrew, $scope.dynamicDecreaseBrew, $scope.isMeasureOfValueChecked, $scope.measureOfValue);
 											break;
 										}

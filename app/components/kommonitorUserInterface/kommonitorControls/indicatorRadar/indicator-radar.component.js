@@ -346,7 +346,7 @@ angular
 									var sampleProperties = $scope.selectableIndicatorsForRadar[0].indicatorProperties;
 
 									for (var propertiesInstance of sampleProperties){
-										if(kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(propertiesInstance.spatialUnitFeatureName)){
+										if(kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(propertiesInstance[__env.FEATURE_NAME_PROPERTY_NAME])){
 											appendSeriesToRadarChart(propertiesInstance);
 										}
 									}
@@ -458,7 +458,7 @@ angular
 										return;
 									}
 
-									if(! kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(featureProperties.spatialUnitFeatureName)){
+									if(! kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME])){
 										appendSeriesToRadarChart(featureProperties);
 									}
 
@@ -467,11 +467,11 @@ angular
 
 								var appendSeriesToRadarChart = function(featureProperties){
 									// append feature name to legend
-									$scope.radarOption.legend.data.push(featureProperties.spatialUnitFeatureName);
+									$scope.radarOption.legend.data.push(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]);
 
 									// create feature data series
 									var featureSeries = {};
-									featureSeries.name = featureProperties.spatialUnitFeatureName;
+									featureSeries.name = featureProperties[__env.FEATURE_NAME_PROPERTY_NAME];
 									featureSeries.value = new Array();
 									featureSeries.emphasis = {
 											lineStyle: {
@@ -495,7 +495,7 @@ angular
 											var indicatorProperties = $scope.selectableIndicatorsForRadar[i].indicatorProperties;
 
 											for(var indicatorPropertyInstance of indicatorProperties){
-												if(indicatorPropertyInstance.spatialUnitFeatureName === featureProperties.spatialUnitFeatureName){
+												if(indicatorPropertyInstance[__env.FEATURE_NAME_PROPERTY_NAME] === featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]){
 													if(! kommonitorDataExchangeService.indicatorValueIsNoData(indicatorPropertyInstance[DATE_PREFIX + $scope.date])){
 														featureSeries.value.push(kommonitorDataExchangeService.getIndicatorValueFromArray_asNumber(indicatorPropertyInstance, $scope.date));
 													}
@@ -518,7 +518,7 @@ angular
 								var highlightFeatureInRadarChart = function(featureProperties){
 									// highlight the corresponding bar diagram item
 									// get series index of series
-									var dataIndex = getSeriesDataIndexByFeatureName(featureProperties.spatialUnitFeatureName);
+									var dataIndex = getSeriesDataIndexByFeatureName(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]);
 
 									if(dataIndex > -1){
 										$scope.radarChart.dispatchAction({
@@ -537,7 +537,7 @@ angular
 
 									unhighlightFeatureInRadarChart(featureProperties);
 
-									if(! kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(featureProperties.spatialUnitFeatureName)){
+									if(! kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME])){
 										removeSeriesFromRadarChart(featureProperties);
 									}
 								});
@@ -554,13 +554,13 @@ angular
 
 								var removeSeriesFromRadarChart = function(featureProperties){
 									// remove feature from legend
-									var legendIndex = $scope.radarOption.legend.data.indexOf(featureProperties.spatialUnitFeatureName);
+									var legendIndex = $scope.radarOption.legend.data.indexOf(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]);
 									if (legendIndex > -1) {
 									  $scope.radarOption.legend.data.splice(legendIndex, 1);
 									}
 
 									// remove feature data series
-									var dataIndex = getSeriesDataIndexByFeatureName(featureProperties.spatialUnitFeatureName);
+									var dataIndex = getSeriesDataIndexByFeatureName(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]);
 									if (dataIndex > -1) {
 									  $scope.radarOption.series[0].data.splice(dataIndex, 1);
 									}
@@ -573,7 +573,7 @@ angular
 								var unhighlightFeatureInRadarChart = function(featureProperties){
 									// highlight the corresponding bar diagram item
 									// get series index of series
-									var dataIndex = getSeriesDataIndexByFeatureName(featureProperties.spatialUnitFeatureName);
+									var dataIndex = getSeriesDataIndexByFeatureName(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]);
 
 									if(dataIndex > -1){
 										$scope.radarChart.dispatchAction({

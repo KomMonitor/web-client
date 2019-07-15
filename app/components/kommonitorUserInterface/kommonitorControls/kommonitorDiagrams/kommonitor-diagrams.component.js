@@ -106,7 +106,7 @@ angular
 											indicatorValue = +Number(cartographicFeature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals);
 										}
 
-										featureNamesArray.push(cartographicFeature.properties.spatialUnitFeatureName);
+										featureNamesArray.push(cartographicFeature.properties[__env.FEATURE_NAME_PROPERTY_NAME]);
 										indicatorValueArray.push(indicatorValue);
 
 										var color = kommonitorDataExchangeService.getColorForFeature(cartographicFeature, indicatorMetadataAndGeoJSON, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue);
@@ -784,7 +784,7 @@ angular
 
 								$scope.$on("updateDiagramsForHoveredFeature", function (event, featureProperties) {
 
-									if(! $scope.lineOption.legend.data.includes(featureProperties.spatialUnitFeatureName)){
+									if(! $scope.lineOption.legend.data.includes(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME])){
 										appendSeriesToLineChart(featureProperties);
 									}
 
@@ -796,15 +796,15 @@ angular
 
 									// in case of activated balance mode, we must use the properties of kommonitorDataExchangeService.selectedIndicator, to aquire the correct time series item!
 									if(kommonitorDataExchangeService.isBalanceChecked){
-										featureProperties = findPropertiesForTimeSeries(featureProperties.spatialUnitFeatureName);
+										featureProperties = findPropertiesForTimeSeries(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]);
 									}
 
 									// append feature name to legend
-									$scope.lineOption.legend.data.push(featureProperties.spatialUnitFeatureName);
+									$scope.lineOption.legend.data.push(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]);
 
 									// create feature data series
 									var featureSeries = {};
-									featureSeries.name = featureProperties.spatialUnitFeatureName;
+									featureSeries.name = featureProperties[__env.FEATURE_NAME_PROPERTY_NAME];
 									featureSeries.type = 'line';
 									featureSeries.data = new Array();
 
@@ -827,7 +827,7 @@ angular
 
 								var findPropertiesForTimeSeries = function(spatialUnitFeatureName){
 									for(var feature of kommonitorDataExchangeService.selectedIndicator.geoJSON.features){
-										if(feature.properties.spatialUnitFeatureName === spatialUnitFeatureName){
+										if(feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] === spatialUnitFeatureName){
 											return feature.properties;
 										}
 									}
@@ -843,7 +843,7 @@ angular
 
 									var index = -1;
 									for(var i=0; i<$scope.barOption.xAxis.data.length; i++){
-										if($scope.barOption.xAxis.data[i] === featureProperties.spatialUnitFeatureName){
+										if($scope.barOption.xAxis.data[i] === featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]){
 											index = i;
 											break;
 										}
@@ -867,7 +867,7 @@ angular
 								var highlightFeatureInLineChart = function(featureProperties){
 									// highlight the corresponding bar diagram item
 									// get series index of series
-									var seriesIndex = getSeriesIndexByFeatureName(featureProperties.spatialUnitFeatureName);
+									var seriesIndex = getSeriesIndexByFeatureName(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]);
 
 									if(seriesIndex > -1){
 										$scope.lineChart.dispatchAction({
@@ -879,7 +879,7 @@ angular
 
 								$scope.$on("updateDiagramsForUnhoveredFeature", function (event, featureProperties) {
 
-									if(! kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(featureProperties.spatialUnitFeatureName)){
+									if(! kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME])){
 										unhighlightFeatureInLineChart(featureProperties);
 
 										removeSeriesFromLineChart(featureProperties);
@@ -900,13 +900,13 @@ angular
 
 								var removeSeriesFromLineChart = function(featureProperties){
 									// remove feature from legend
-									var legendIndex = $scope.lineOption.legend.data.indexOf(featureProperties.spatialUnitFeatureName);
+									var legendIndex = $scope.lineOption.legend.data.indexOf(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]);
 									if (legendIndex > -1) {
 									  $scope.lineOption.legend.data.splice(legendIndex, 1);
 									}
 
 									// remove feature data series
-									var seriesIndex = getSeriesIndexByFeatureName(featureProperties.spatialUnitFeatureName);
+									var seriesIndex = getSeriesIndexByFeatureName(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]);
 									if (seriesIndex > -1) {
 									  $scope.lineOption.series.splice(seriesIndex, 1);
 									}
@@ -920,7 +920,7 @@ angular
 									// get index of bar item
 									var index = -1;
 									for(var i=0; i<$scope.barOption.xAxis.data.length; i++){
-										if($scope.barOption.xAxis.data[i] === featureProperties.spatialUnitFeatureName){
+										if($scope.barOption.xAxis.data[i] === featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]){
 											index = i;
 											break;
 										}
@@ -944,7 +944,7 @@ angular
 								var unhighlightFeatureInLineChart = function(featureProperties){
 									// highlight the corresponding bar diagram item
 									// get series index of series
-									var seriesIndex = getSeriesIndexByFeatureName(featureProperties.spatialUnitFeatureName);
+									var seriesIndex = getSeriesIndexByFeatureName(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]);
 
 									if(seriesIndex > -1){
 										$scope.lineChart.dispatchAction({

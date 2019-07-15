@@ -183,7 +183,7 @@ angular
             if(this.indicatorValueIsNoData(feature.properties[targetDate])){
               color = defaultColorForNoDataValues;
             }
-            else if(this.filteredIndicatorFeatureNames.includes(feature.properties.spatialUnitFeatureName)){
+            else if(this.filteredIndicatorFeatureNames.includes(feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])){
               color = defaultColorForFilteredValues;
             }
             else if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) === 0 ){
