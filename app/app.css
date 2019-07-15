@@ -267,7 +267,7 @@
 #map {
 	height: 94vh;
 	position: relative;
-	z-index: 1999;
+	z-index: 9999;
 }
 
 #legend{

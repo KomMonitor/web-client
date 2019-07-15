@@ -60,19 +60,26 @@ angular
 
 								}
 
-								// initialize and fill in loop
-								$scope.valueRangeMinValue = $scope.geoJSON.features[0].properties[date];
-								$scope.valueRangeMaxValue = $scope.valueRangeMinValue;
+								var values = [];
 
 								$scope.geoJSON.features.forEach(function(feature){
+									// if (feature.properties[date] > movMaxValue)
+									// 	movMaxValue = feature.properties[date];
+									//
+									// else if (feature.properties[date] < movMinValue)
+									// 	movMinValue = feature.properties[date];
 
-									if(feature.properties[date] < $scope.valueRangeMinValue){
-										$scope.valueRangeMinValue = feature.properties[date]
-									}
-									else if(feature.properties[date] > $scope.valueRangeMaxValue){
-										$scope.valueRangeMaxValue = feature.properties[date]
+									if(! kommonitorDataExchangeService.indicatorValueIsNoData(feature.properties[date])){
+											values.push(feature.properties[date]);
 									}
 								});
+
+								//sort ascending order
+								values.sort(function(a, b){return a-b});
+
+								// initialize and fill in loop
+								$scope.valueRangeMinValue = values[0];
+								$scope.valueRangeMaxValue = values[values.length - 1];
 
 								$scope.valueRangeMinValue = +$scope.valueRangeMinValue.toFixed(numberOfDecimals);
 								$scope.valueRangeMaxValue = +$scope.valueRangeMaxValue.toFixed(numberOfDecimals);
@@ -116,15 +123,15 @@ angular
 
 									if(value >= data.from && value <= data.to){
 										// feature must not be filtered - make sure it is not marked as filtered
-										if (kommonitorDataExchangeService.filteredIndicatorFeatureNames.includes(feature.properties.spatialUnitFeatureName)){
-											var index = kommonitorDataExchangeService.filteredIndicatorFeatureNames.indexOf(feature.properties.spatialUnitFeatureName);
+										if (kommonitorDataExchangeService.filteredIndicatorFeatureNames.includes(feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])){
+											var index = kommonitorDataExchangeService.filteredIndicatorFeatureNames.indexOf(feature.properties[__env.FEATURE_NAME_PROPERTY_NAME]);
 											kommonitorDataExchangeService.filteredIndicatorFeatureNames.splice(index, 1);
 										}
 									}
 									else{
 										// feature must be filtered
-										if (!kommonitorDataExchangeService.filteredIndicatorFeatureNames.includes(feature.properties.spatialUnitFeatureName)){
-											kommonitorDataExchangeService.filteredIndicatorFeatureNames.push(feature.properties.spatialUnitFeatureName);
+										if (!kommonitorDataExchangeService.filteredIndicatorFeatureNames.includes(feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])){
+											kommonitorDataExchangeService.filteredIndicatorFeatureNames.push(feature.properties[__env.FEATURE_NAME_PROPERTY_NAME]);
 										}
 									}
 
@@ -176,7 +183,9 @@ angular
 									// else if (feature.properties[date] < movMinValue)
 									// 	movMinValue = feature.properties[date];
 
-									values.push(feature.properties[date]);
+									if(! kommonitorDataExchangeService.indicatorValueIsNoData(feature.properties[date])){
+											values.push(feature.properties[date]);
+									}
 								});
 
 								//sort ascending order

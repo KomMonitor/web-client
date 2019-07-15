@@ -27,6 +27,7 @@ angular
 								$scope.date;
 								var numberOfDecimals = __env.numberOfDecimals;
 								var defaultColorForZeroValues = __env.defaultColorForZeroValues;
+								var defaultColorForNoDataValues = __env.defaultColorForNoDataValues;
 								var defaultColorForFilteredValues = __env.defaultColorForFilteredValues;
 
 								const defaultColorForOutliers_high = __env.defaultColorForOutliers_high;
@@ -55,152 +56,6 @@ angular
 									if($scope.lineChart)
 										$scope.lineChart.showLoading();
 								};
-
-								var getColorForFeature = function(feature, indicatorMetadataAndGeoJSON, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue){
-									var color;
-
-									if(kommonitorDataExchangeService.filteredIndicatorFeatureNames.includes(feature.properties.spatialUnitFeatureName)){
-										color = defaultColorForFilteredValues;
-									}
-									else if(Number(feature.properties[$scope.indicatorPropertyName]) === 0 ){
-										color = defaultColorForZeroValues;
-									}
-									else if(feature.properties["outlier"] !== undefined && feature.properties["outlier"].includes("low") && kommonitorDataExchangeService.useOutlierDetectionOnIndicator){
-										color = defaultColorForOutliers_low;
-									}
-									else if(feature.properties["outlier"] !== undefined && feature.properties["outlier"].includes("high") && kommonitorDataExchangeService.useOutlierDetectionOnIndicator){
-										color = defaultColorForOutliers_high;
-									}
-									else if(isMeasureOfValueChecked){
-
-										if(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) >= +Number(measureOfValue).toFixed(numberOfDecimals)){
-
-											for (var index=0; index < gtMeasureOfValueBrew.breaks.length; index++){
-
-												if(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) == +Number(gtMeasureOfValueBrew.breaks[index]).toFixed(numberOfDecimals)){
-													if(index < gtMeasureOfValueBrew.breaks.length -1){
-														// min value
-														color =  gtMeasureOfValueBrew.colors[index];
-														break;
-													}
-													else {
-														//max value
-														if (gtMeasureOfValueBrew.colors[index]){
-															color =  gtMeasureOfValueBrew.colors[index];
-														}
-														else{
-															color =  gtMeasureOfValueBrew.colors[index - 1];
-														}
-														break;
-													}
-												}
-												else{
-													if(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) < +Number(gtMeasureOfValueBrew.breaks[index + 1]).toFixed(numberOfDecimals)) {
-														color =  gtMeasureOfValueBrew.colors[index];
-														break;
-													}
-												}
-											}
-										}
-										else {
-
-											// invert colors, so that lowest values will become strong colored!
-											for (var index=0; index < ltMeasureOfValueBrew.breaks.length; index++){
-												if(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) == +Number(ltMeasureOfValueBrew.breaks[index]).toFixed(numberOfDecimals)){
-													if(index < ltMeasureOfValueBrew.breaks.length -1){
-														// min value
-														color =  ltMeasureOfValueBrew.colors[ltMeasureOfValueBrew.colors.length - index - 1];
-														break;
-													}
-													else {
-														//max value
-														if (ltMeasureOfValueBrew.colors[ltMeasureOfValueBrew.colors.length - index]){
-															color =  ltMeasureOfValueBrew.colors[ltMeasureOfValueBrew.colors.length - index];
-														}
-														else{
-															color =  ltMeasureOfValueBrew.colors[ltMeasureOfValueBrew.colors.length - index - 1];
-														}
-														break;
-													}
-												}
-												else{
-													if(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) < +Number(ltMeasureOfValueBrew.breaks[index + 1]).toFixed(numberOfDecimals)) {
-														color =  ltMeasureOfValueBrew.colors[ltMeasureOfValueBrew.colors.length - index - 1];
-														break;
-													}
-												}
-											}
-
-										}
-
-									}
-									else{
-										if(indicatorMetadataAndGeoJSON.indicatorType === 'DYNAMIC'){
-
-											if(feature.properties[$scope.indicatorPropertyName] < 0){
-
-												for (var index=0; index < dynamicDecreaseBrew.breaks.length; index++){
-													if(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) == +Number(dynamicDecreaseBrew.breaks[index]).toFixed(numberOfDecimals)){
-														if(index < dynamicDecreaseBrew.breaks.length -1){
-															// min value
-															color =  dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - index - 1];
-															break;
-														}
-														else {
-															//max value
-															if (dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - index]){
-																color =  dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - index];
-															}
-															else{
-																color =  dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - index - 1];
-															}
-															break;
-														}
-													}
-													else{
-														if(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) < +Number(dynamicDecreaseBrew.breaks[index + 1]).toFixed(numberOfDecimals)) {
-															color =  dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - index - 1];
-															break;
-														}
-													}
-												}
-											}
-											else{
-												for (var index=0; index < dynamicIncreaseBrew.breaks.length; index++){
-													if(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) == +Number(dynamicIncreaseBrew.breaks[index]).toFixed(numberOfDecimals)){
-														if(index < dynamicIncreaseBrew.breaks.length -1){
-															// min value
-															color =  dynamicIncreaseBrew.colors[index];
-															break;
-														}
-														else {
-															//max value
-															if (dynamicIncreaseBrew.colors[index]){
-																color =  dynamicIncreaseBrew.colors[index];
-															}
-															else{
-																color =  dynamicIncreaseBrew.colors[index - 1];
-															}
-															break;
-														}
-													}
-													else{
-														if(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals) < +Number(dynamicIncreaseBrew.breaks[index + 1]).toFixed(numberOfDecimals)) {
-															color =  dynamicIncreaseBrew.colors[index];
-															break;
-														}
-													}
-												}
-											}
-
-										}
-										else{
-												color = defaultBrew.getColorInRange(+Number(feature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals));
-										}
-									}
-
-									return color;
-								}
 
 								$scope.$on("updateDiagrams", function (event, indicatorMetadataAndGeoJSON, spatialUnitName, spatialUnitId, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, justRestyling) {
 
@@ -244,14 +99,20 @@ angular
 										cartographicFeature = cartographicFeatures[j];
 										selectedFeature = selectedFeatures[j];
 
+										if (kommonitorDataExchangeService.indicatorValueIsNoData(cartographicFeature.properties[$scope.indicatorPropertyName])){
+											indicatorValue = null;
+										}
+										else{
+											indicatorValue = +Number(cartographicFeature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals);
+										}
 
-										featureNamesArray.push(cartographicFeature.properties.spatialUnitFeatureName);
-										indicatorValueArray.push(+Number(cartographicFeature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals));
+										featureNamesArray.push(cartographicFeature.properties[__env.FEATURE_NAME_PROPERTY_NAME]);
+										indicatorValueArray.push(indicatorValue);
 
-										var color = getColorForFeature(cartographicFeature, indicatorMetadataAndGeoJSON, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue);
+										var color = kommonitorDataExchangeService.getColorForFeature(cartographicFeature, indicatorMetadataAndGeoJSON, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue);
 
 										var seriesItem = {
-											value: +Number(cartographicFeature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals),
+											value: indicatorValue,
 											itemStyle: {
 												color: color
 												// borderWidth: 1,
@@ -264,8 +125,11 @@ angular
 										// continue timeSeries arrays by adding and counting all time series values
 										for(var i=0; i<indicatorTimeSeriesDatesArray.length; i++){
 											var datePropertyName = INDICATOR_DATE_PREFIX + indicatorTimeSeriesDatesArray[i];
-											indicatorTimeSeriesAverageArray[i] += selectedFeature.properties[datePropertyName];
-											indicatorTimeSeriesCountArray[i] ++;
+											if (!kommonitorDataExchangeService.indicatorValueIsNoData(cartographicFeature.properties[datePropertyName])){
+												// indicatorTimeSeriesAverageArray[i] += selectedFeature.properties[datePropertyName];
+												indicatorTimeSeriesAverageArray[i] += cartographicFeature.properties[datePropertyName];
+												indicatorTimeSeriesCountArray[i] ++;
+											}
 										}
 									}
 
@@ -581,7 +445,8 @@ angular
 													trigger: 'item',
 													confine: 'true',
 													formatter: function (params) {
-					                            return "" + params.name + ": " + Number(params.value).toLocaleString('de-DE', {maximumFractionDigits: numberOfDecimals}) + " [" + kommonitorDataExchangeService.selectedIndicator.unit + "]";
+																			var value = kommonitorDataExchangeService.getIndicatorValue_asFormattedText(params.value);
+					                            return "" + params.name + ": " + value + " [" + kommonitorDataExchangeService.selectedIndicator.unit + "]";
 					                           },
 													axisPointer: {
 															type: 'line',
@@ -629,9 +494,10 @@ angular
 																htmlString += "<tbody>";
 
 																for (var i=0; i<barData.length; i++){
+																	var value = kommonitorDataExchangeService.getIndicatorValue_asNumber(barData[i].value);
 																	htmlString += "<tr>";
 																	htmlString += "<td>" + featureNames[i] + "</td>";
-																	htmlString += "<td>" + +Number(barData[i].value).toFixed(numberOfDecimals) + "</td>";
+																	htmlString += "<td>" + value + "</td>";
 																	htmlString += "</tr>";
 																}
 
@@ -786,7 +652,9 @@ angular
 																			var string = "" + params[0].axisValueLabel + "<br/>";
 
 																			params.forEach(function(paramObj){
-																				string += paramObj.seriesName + ": " + Number(paramObj.value).toLocaleString('de-DE', {maximumFractionDigits: numberOfDecimals}) + " [" + kommonitorDataExchangeService.selectedIndicator.unit + "]" + "<br/>";
+
+																				var value = kommonitorDataExchangeService.getIndicatorValue_asFormattedText(paramObj.value);
+																				string += paramObj.seriesName + ": " + value + " [" + kommonitorDataExchangeService.selectedIndicator.unit + "]" + "<br/>";
 																			});
 
 					                            return string;
@@ -844,7 +712,8 @@ angular
 																	htmlString += "<tr>";
 																	htmlString += "<td>" + timestamps[j] + "</td>";
 																	for (var k=0; k<lineSeries.length; k++){
-																		htmlString += "<td>" + +Number(lineSeries[k].data[j]).toFixed(numberOfDecimals) + "</td>";
+																		var value = kommonitorDataExchangeService.getIndicatorValue_asNumber(lineSeries[k].data[j]);
+																		htmlString += "<td>" + value + "</td>";
 																	}
 																	htmlString += "</tr>";
 																}
@@ -915,7 +784,7 @@ angular
 
 								$scope.$on("updateDiagramsForHoveredFeature", function (event, featureProperties) {
 
-									if(! $scope.lineOption.legend.data.includes(featureProperties.spatialUnitFeatureName)){
+									if(! $scope.lineOption.legend.data.includes(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME])){
 										appendSeriesToLineChart(featureProperties);
 									}
 
@@ -927,21 +796,28 @@ angular
 
 									// in case of activated balance mode, we must use the properties of kommonitorDataExchangeService.selectedIndicator, to aquire the correct time series item!
 									if(kommonitorDataExchangeService.isBalanceChecked){
-										featureProperties = findPropertiesForTimeSeries(featureProperties.spatialUnitFeatureName);
+										featureProperties = findPropertiesForTimeSeries(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]);
 									}
 
 									// append feature name to legend
-									$scope.lineOption.legend.data.push(featureProperties.spatialUnitFeatureName);
+									$scope.lineOption.legend.data.push(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]);
 
 									// create feature data series
 									var featureSeries = {};
-									featureSeries.name = featureProperties.spatialUnitFeatureName;
+									featureSeries.name = featureProperties[__env.FEATURE_NAME_PROPERTY_NAME];
 									featureSeries.type = 'line';
 									featureSeries.data = new Array();
 
 									// for each date create series data entry for feature
 									for (var date of $scope.lineOption.xAxis.data){
-										featureSeries.data.push(+Number(featureProperties[INDICATOR_DATE_PREFIX + date]).toFixed(numberOfDecimals));
+										var value;
+										if(kommonitorDataExchangeService.indicatorValueIsNoData(featureProperties[INDICATOR_DATE_PREFIX + date])){
+											value = null;
+										}
+										else{
+											value = +Number(featureProperties[INDICATOR_DATE_PREFIX + date]).toFixed(numberOfDecimals)
+										}
+										featureSeries.data.push(value);
 									}
 
 									$scope.lineOption.series.push(featureSeries);
@@ -951,7 +827,7 @@ angular
 
 								var findPropertiesForTimeSeries = function(spatialUnitFeatureName){
 									for(var feature of kommonitorDataExchangeService.selectedIndicator.geoJSON.features){
-										if(feature.properties.spatialUnitFeatureName === spatialUnitFeatureName){
+										if(feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] === spatialUnitFeatureName){
 											return feature.properties;
 										}
 									}
@@ -967,7 +843,7 @@ angular
 
 									var index = -1;
 									for(var i=0; i<$scope.barOption.xAxis.data.length; i++){
-										if($scope.barOption.xAxis.data[i] === featureProperties.spatialUnitFeatureName){
+										if($scope.barOption.xAxis.data[i] === featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]){
 											index = i;
 											break;
 										}
@@ -991,7 +867,7 @@ angular
 								var highlightFeatureInLineChart = function(featureProperties){
 									// highlight the corresponding bar diagram item
 									// get series index of series
-									var seriesIndex = getSeriesIndexByFeatureName(featureProperties.spatialUnitFeatureName);
+									var seriesIndex = getSeriesIndexByFeatureName(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]);
 
 									if(seriesIndex > -1){
 										$scope.lineChart.dispatchAction({
@@ -1003,7 +879,7 @@ angular
 
 								$scope.$on("updateDiagramsForUnhoveredFeature", function (event, featureProperties) {
 
-									if(! kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(featureProperties.spatialUnitFeatureName)){
+									if(! kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME])){
 										unhighlightFeatureInLineChart(featureProperties);
 
 										removeSeriesFromLineChart(featureProperties);
@@ -1024,13 +900,13 @@ angular
 
 								var removeSeriesFromLineChart = function(featureProperties){
 									// remove feature from legend
-									var legendIndex = $scope.lineOption.legend.data.indexOf(featureProperties.spatialUnitFeatureName);
+									var legendIndex = $scope.lineOption.legend.data.indexOf(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]);
 									if (legendIndex > -1) {
 									  $scope.lineOption.legend.data.splice(legendIndex, 1);
 									}
 
 									// remove feature data series
-									var seriesIndex = getSeriesIndexByFeatureName(featureProperties.spatialUnitFeatureName);
+									var seriesIndex = getSeriesIndexByFeatureName(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]);
 									if (seriesIndex > -1) {
 									  $scope.lineOption.series.splice(seriesIndex, 1);
 									}
@@ -1044,7 +920,7 @@ angular
 									// get index of bar item
 									var index = -1;
 									for(var i=0; i<$scope.barOption.xAxis.data.length; i++){
-										if($scope.barOption.xAxis.data[i] === featureProperties.spatialUnitFeatureName){
+										if($scope.barOption.xAxis.data[i] === featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]){
 											index = i;
 											break;
 										}
@@ -1068,7 +944,7 @@ angular
 								var unhighlightFeatureInLineChart = function(featureProperties){
 									// highlight the corresponding bar diagram item
 									// get series index of series
-									var seriesIndex = getSeriesIndexByFeatureName(featureProperties.spatialUnitFeatureName);
+									var seriesIndex = getSeriesIndexByFeatureName(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]);
 
 									if(seriesIndex > -1){
 										$scope.lineChart.dispatchAction({

@@ -5,6 +5,10 @@
   // Setting this to false will disable console output
   window.__env.enableDebug = true;
 
+  // property names of feature id and name (relevant for all spatial features) - KomMonitor specific 
+  window.__env.FEATURE_ID_PROPERTY_NAME = "ID";
+  window.__env.FEATURE_NAME_PROPERTY_NAME = "NAME";
+
   // API url
   // window.__env.apiUrl = 'http://kommonitor.fbg-hsbo.de/';
   window.__env.apiUrl = 'http://localhost:8085/';
@@ -35,6 +39,8 @@
   window.__env.initialIndicatorId = "aef33697-ff0a-4794-b9d1-35bd9d980f46";
   window.__env.initialSpatialUnitName = "Statistische Bezirke";
 
+  window.__env.defaultColorForNoDataValues = "black";
+  window.__env.defaultBorderColorForNoDataValues = "black";
   window.__env.defaultColorForOutliers_high = "#191919";
   window.__env.defaultBorderColorForOutliers_high = "black";
   window.__env.defaultFillOpacityForOutliers_high = "0.7";
@@ -50,6 +56,7 @@
   window.__env.defaultFillOpacity = "0.7";
   window.__env.defaultFillOpacityForFilteredFeatures = "0.7";
   window.__env.defaultFillOpacityForZeroFeatures = "0.7";
+  window.__env.defaultFillOpacityForNoDataFeatures = "0.7";
   window.__env.defaultFillOpacityForHighlightedFeatures = "0.8";
   window.__env.useTransparencyOnIndicator = true;
   window.__env.useOutlierDetectionOnIndicator = false;
