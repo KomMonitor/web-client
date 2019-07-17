@@ -64,5 +64,10 @@
     "rangeslide.js": "^0.13.0",
     "shp-write": "^0.3.2",
     "tableexport": "^5.0.5"
+  },
+  "jshintConfig": {
+    "undef": true,
+    "unused": true,
+    "esversion": 8
   }
 }
