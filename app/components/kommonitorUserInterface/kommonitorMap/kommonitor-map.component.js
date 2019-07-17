@@ -2646,6 +2646,10 @@ angular.module('kommonitorMap').component(
                                         function resetHighlight(e) {
                                           var layer = e.target;
                                           resetHighlightForLayer(layer);
+
+                                          if(!kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(layer.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])){
+                                            layer.bringToBack();
+                                          }
                                           //layer.bringToBack();
                                         }
 
@@ -2698,7 +2702,9 @@ angular.module('kommonitorMap').component(
 
                                         function resetHighlightCustom(e) {
                                             $scope.currentCustomIndicatorLayer.resetStyle(e.target);
-                                            // e.target.bringToBack();
+                                            if(!kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(e.target.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])){
+                                              e.target.bringToBack();
+                                            }
                                         }
 
                                         var wait = ms => new Promise((r, j)=>setTimeout(r, ms))
