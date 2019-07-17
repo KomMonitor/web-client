@@ -11,7 +11,7 @@
 
   // API url
   // window.__env.apiUrl = 'http://kommonitor.fbg-hsbo.de/';
-  window.__env.apiUrl = 'http://localhost:8082/';
+  window.__env.apiUrl = 'http://localhost:8085/';
   // Base url
   window.__env.basePath = 'management';
 
