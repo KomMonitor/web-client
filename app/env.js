@@ -5,7 +5,7 @@
   // Setting this to false will disable console output
   window.__env.enableDebug = true;
 
-  // property names of feature id and name (relevant for all spatial features) - KomMonitor specific 
+  // property names of feature id and name (relevant for all spatial features) - KomMonitor specific
   window.__env.FEATURE_ID_PROPERTY_NAME = "ID";
   window.__env.FEATURE_NAME_PROPERTY_NAME = "NAME";
 
@@ -37,7 +37,7 @@
   window.__env.maxZoomLevel = 22;
 
   // window.__env.initialIndicatorId = "d6f447c1-5432-4405-9041-7d5b05fd9ece";
-  window.__env.initialIndicatorId = "c9f168a8-a547-416d-acfc-82ecfaa830d8";
+  window.__env.initialIndicatorId = "f397fd73-7963-42e5-bb5b-8c54a0080254";
   window.__env.initialSpatialUnitName = "Statistische Bezirke";
 
   window.__env.defaultColorForNoDataValues = "black";
