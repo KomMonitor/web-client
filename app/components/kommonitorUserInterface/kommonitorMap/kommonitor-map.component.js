@@ -62,7 +62,7 @@ angular.module('kommonitorMap').component(
                     $scope.showOutlierInfoAlert = false;
 
                     $scope.outlierStyle_high = {
-                        weight: 2,
+                        weight: 1,
                         opacity: 1,
                         color: defaultBorderColorForOutliers_high,
                         dashArray: '',
@@ -72,7 +72,7 @@ angular.module('kommonitorMap').component(
                     };
 
                     $scope.outlierStyle_low = {
-                        weight: 2,
+                        weight: 1,
                         opacity: 1,
                         color: defaultBorderColorForOutliers_low,
                         dashArray: '',
@@ -82,7 +82,7 @@ angular.module('kommonitorMap').component(
                     };
 
                     $scope.noDataStyle = {
-                        weight: 2,
+                        weight: 1,
                         opacity: 1,
                         color: defaultBorderColorForNoDataValues,
                         dashArray: '',
@@ -108,7 +108,7 @@ angular.module('kommonitorMap').component(
                             'Sorry, your browser does not support inline SVG.</svg>';
 
                       $scope.noDataStyle = {
-                          weight: 2,
+                          weight: 1,
                           opacity: 1,
                           color: defaultBorderColorForNoDataValues,
                           dashArray: '',
@@ -135,7 +135,7 @@ angular.module('kommonitorMap').component(
                       }
 
                       // $scope.outlierStyle_high = {
-                      //     weight: 2,
+                      //     weight: 1,
                       //     opacity: 1,
                       //     color: defaultBorderColorForOutliers_high,
                       //     dashArray: '',
@@ -144,7 +144,7 @@ angular.module('kommonitorMap').component(
                       // };
                       //
                       // $scope.outlierStyle_low = {
-                      //     weight: 2,
+                      //     weight: 1,
                       //     opacity: 1,
                       //     color: defaultBorderColorForOutliers_low,
                       //     dashArray: '',
@@ -153,7 +153,7 @@ angular.module('kommonitorMap').component(
                       // };
 
                       $scope.outlierStyle_high = {
-                          weight: 2,
+                          weight: 1,
                           opacity: 1,
                           color: defaultBorderColorForOutliers_high,
                           dashArray: '',
@@ -163,7 +163,7 @@ angular.module('kommonitorMap').component(
                       };
 
                       $scope.outlierStyle_low = {
-                          weight: 2,
+                          weight: 1,
                           opacity: 1,
                           color: defaultBorderColorForOutliers_low,
                           dashArray: '',
@@ -198,7 +198,7 @@ angular.module('kommonitorMap').component(
                     $scope.classifyMethod = __env.defaultClassifyMethod || "jenks";
 
                     $scope.filteredStyle = {
-                        weight: 2,
+                        weight: 1,
                         opacity: 1,
                         color: defaultBorderColorForFilteredValues,
                         dashArray: '',
@@ -213,7 +213,7 @@ angular.module('kommonitorMap').component(
                       }
 
                       $scope.filteredStyle = {
-                          weight: 2,
+                          weight: 1,
                           opacity: 1,
                           color: defaultBorderColorForFilteredValues,
                           dashArray: '',
@@ -367,10 +367,10 @@ angular.module('kommonitorMap').component(
                       // $scope.outlierFillPattern_high.addShape(diagonalPattern);
                       // $scope.outlierFillPattern_high.addTo($scope.map);
 
-                      $scope.outlierFillPattern_low = new L.StripePattern({weight: 2, spaceWeight: 2, patternTransform: "rotate(45)"});
+                      $scope.outlierFillPattern_low = new L.StripePattern({weight: 1, spaceweight: 1, patternTransform: "rotate(45)"});
                       $scope.outlierFillPattern_low.addTo($scope.map);
 
-                      $scope.outlierFillPattern_high = new L.StripePattern({weight: 2, spaceWeight: 2, patternTransform: "rotate(-45)"});
+                      $scope.outlierFillPattern_high = new L.StripePattern({weight: 1, spaceweight: 1, patternTransform: "rotate(-45)"});
                       $scope.outlierFillPattern_high.addTo($scope.map);
 
                       var shape = new L.PatternCircle({
@@ -1462,7 +1462,7 @@ angular.module('kommonitorMap').component(
                                       style: function (feature) {
                                         return {
                                           color: "#F00",
-                                          weight: 2,
+                                          weight: 1,
                                           opacity: 1
                                         };
                                       },
@@ -1494,7 +1494,7 @@ angular.module('kommonitorMap').component(
                                       style: function (feature) {
                                         return {
                                           color: "blue",
-                                          weight: 2,
+                                          weight: 1,
                                           opacity: 1
                                         };
                                       },
@@ -1517,7 +1517,7 @@ angular.module('kommonitorMap').component(
                                     style: function (feature) {
                                       return {
                                         color: "red",
-                                        weight: 2,
+                                        weight: 1,
                                         opacity: 1
                                       };
                                     },
@@ -1658,7 +1658,7 @@ angular.module('kommonitorMap').component(
 
                                   var style = {
                                     color: kommonitorDataExchangeService.isochroneLegend.colorValueEntries[styleIndex].color,
-                                    weight: 2,
+                                    weight: 1,
                                     opacity: 1
                                   };
 
@@ -2281,7 +2281,7 @@ angular.module('kommonitorMap').component(
                                           }
 
                                             return {
-                                                weight: 2,
+                                                weight: 1,
                                                 opacity: 1,
                                                 color: defaultBorderColor,
                                                 dashArray: '',
@@ -2317,7 +2317,7 @@ angular.module('kommonitorMap').component(
                                           }
 
                                             return {
-                                                weight: 2,
+                                                weight: 1,
                                                 opacity: 1,
                                                 color: defaultBorderColor,
                                                 dashArray: '',
@@ -2385,7 +2385,7 @@ angular.module('kommonitorMap').component(
                                             }
 
                                             return {
-                                                weight: 2,
+                                                weight: 1,
                                                 opacity: 1,
                                                 color: defaultBorderColor,
                                                 dashArray: '',
@@ -2433,7 +2433,7 @@ angular.module('kommonitorMap').component(
                                             }
 
                                             return {
-                                                weight: 2,
+                                                weight: 1,
                                                 opacity: 1,
                                                 color: defaultBorderColor,
                                                 dashArray: '',
@@ -2499,7 +2499,7 @@ angular.module('kommonitorMap').component(
                                             }
 
                                             return {
-                                                weight: 2,
+                                                weight: 1,
                                                 opacity: 1,
                                                 color: defaultBorderColor,
                                                 dashArray: '',
@@ -2547,7 +2547,7 @@ angular.module('kommonitorMap').component(
                                             }
 
                                             return {
-                                                weight: 2,
+                                                weight: 1,
                                                 opacity: 1,
                                                 color: defaultBorderColor,
                                                 dashArray: '',
@@ -2589,7 +2589,7 @@ angular.module('kommonitorMap').component(
                                           }
 
                                             layer.setStyle({
-                                                weight: 6,
+                                                weight: 3,
                                                 color: defaultColorForClickedFeatures,
                                                 dashArray: '',
                                                 fillOpacity: fillOpacity
@@ -2612,7 +2612,7 @@ angular.module('kommonitorMap').component(
                                           }
 
                                           layer.setStyle({
-                                              weight: 5,
+                                              weight: 3,
                                               color: defaultColorForHoveredFeatures,
                                               dashArray: '',
                                               fillOpacity: fillOpacity
@@ -2646,7 +2646,11 @@ angular.module('kommonitorMap').component(
                                         function resetHighlight(e) {
                                           var layer = e.target;
                                           resetHighlightForLayer(layer);
-                                          layer.bringToBack();
+
+                                          if(!kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(layer.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])){
+                                            layer.bringToBack();
+                                          }
+                                          //layer.bringToBack();
                                         }
 
                                         function resetHighlightForLayer(layer) {
@@ -2698,7 +2702,9 @@ angular.module('kommonitorMap').component(
 
                                         function resetHighlightCustom(e) {
                                             $scope.currentCustomIndicatorLayer.resetStyle(e.target);
-                                            e.target.bringToBack();
+                                            if(!kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(e.target.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])){
+                                              e.target.bringToBack();
+                                            }
                                         }
 
                                         var wait = ms => new Promise((r, j)=>setTimeout(r, ms))
