@@ -193,7 +193,21 @@ TODO
 This section contains information for developers.
 
 ### How to Contribute
-The technical lead of the whole [KomMonitor](http://kommonitor.de) spatial data infrastructure currently lies at the Bochum University of Applied Sciences, Department of Geodesy. We invite you to participate in the project and in the software development process. If you are interested, please contact any of the persons listed in the [Contact section](#contact):
+The technical lead of the whole [KomMonitor](http://kommonitor.de) spatial data infrastructure currently lies at the Bochum University of Applied Sciences, Department of Geodesy. We invite you to participate in the project and in the software development process. If you are interested, please contact any of the persons listed in the [Contact section](#contact)
+
+### Hints on how to integrate a new Module
+TODO
+
+Things to mention:
+- hierarchical code structure
+   - put new module where it is integrated within the application
+- how to write module, controller and template
+- how to take care of dependency injection (inject angular-internal modules as well as other depending app modules in new module; inject new module in HTML and module of superior module where it shall be placed)   
+- add new codefiles to build tools etc. (beware of order of integration with regard to what module depends on what other module etc.)
+- how to add new libraries and integrate them to build tools
+- ...
+
+`MAYBE AS SEPARATE DOCUMENTATION TO KEEP THIS REDME SHORT`
 
 ### Branching
 The `master` branch contains latest stable releases. The `develop` branch is the main development branch that will be merged into the `master` branch from time to time. Any other branch focuses certain bug fixes or feature requests.
