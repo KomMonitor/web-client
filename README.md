@@ -104,14 +104,12 @@ window.__env.indicatorDatePrefix = "DATE_";
 ```
 // number of decimals for display of numeric values in app
 window.__env.numberOfDecimals = 2;
-
 // starting viewpoint parameters and zoom level
 window.__env.initialLatitude = 51.4386432;
 window.__env.initialLongitude = 7.0115552;
 window.__env.initialZoomLevel = 12;
 window.__env.minZoomLevel = 11;
 window.__env.maxZoomLevel = 22;
-
 // starting indicator and spatial unit
 // if faulty values are provided, a random indicator will be displayed
 window.__env.initialIndicatorId = "d6f447c1-5432-4405-9041-7d5b05fd9ece";
@@ -141,7 +139,6 @@ window.__env.initialSpatialUnitName = "Stadtteilebene";
  window.__env.defaultFillOpacityForHighlightedFeatures = "0.8";
  window.__env.useTransparencyOnIndicator = true;
  window.__env.useOutlierDetectionOnIndicator = false;
-
  // default color for specific classification as ColorBrewer palette name
  // i.e. balance mode
  // i.e. measure of value classification (German: Schwellwertklassifizierung)
@@ -149,7 +146,6 @@ window.__env.initialSpatialUnitName = "Stadtteilebene";
  window.__env.defaultColorBrewerPaletteForBalanceDecreasingValues = "YlOrBr";
  window.__env.defaultColorBrewerPaletteForGtMovValues = "YlOrBr";
  window.__env.defaultColorBrewerPaletteForLtMovValues = "Blues";
-
  // classification
  //allowesValues: equal_interval, quantile, jenks
  window.__env.defaultClassifyMethod = "equal_interval";
@@ -206,8 +202,9 @@ The `master` branch contains latest stable releases. The `develop` branch is the
 We use [license-checker](https://www.npmjs.com/package/license-checker) to gain insight about used third party libs. I.e. install globally via ```npm install -g license-checker```, navigate to root of the project and then perform ```license-checker --json --out ThirdParty.json``` to create/overwrite the respective file in JSON format.
 
 ## Contact
+
 |    Name   |   Organization    |    Mail    |
-| :-------------: |:-------------:| :-----:|
+| ------------- |-------------| -----|
 | Christian Danowski-Buhren | Bochum University of Applied Sciences | christian.danowski-buhren@hs-bochum.de |
 | Andreas Wytzisk  | Bochum University of Applied Sciences | Andreas-Wytzisk@hs-bochum.de |
 | Ulrike Klein | Bochum University of Applied Sciences | christian.danowski-buhren@hs-bochum.de | Ulrike.Klein@hs-bochum.de |
