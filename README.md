@@ -2,8 +2,35 @@
 
 This project is part of the [KomMonitor](http://kommonitor.de) spatial data infrastructure. As web client it acts as the main platform to display and analyze indicator and other georesource data of municipal interest, combine cartographic and statistical visualizations and offer exploration tools to gain insight within the scope of city planning.
 
+**Table of Content**
+
+<!-- TOC depthFrom:1 depthTo:6 withLinks:1 updateOnSave:0 orderedList:0 -->
+
+- [KomMonitor Web Client](#kommonitor-web-client)
+	- [Background Information Concerning KomMonitor Spatial Data Infrastructure](#background-information-concerning-kommonitor-spatial-data-infrastructure)
+		- [Architecture Overview](#architecture-overview)
+	- [Overview](#overview)
+	- [Features](#features)
+	- [Installation / Building Information](#installation-building-information)
+		- [Configuration](#configuration)
+			- [env.js - Configure Deployment Details of other Services and App Properties](#envjs-configure-deployment-details-of-other-services-and-app-properties)
+		- [Running the NodeJS KomMonitor Web Client](#running-the-nodejs-kommonitor-web-client)
+			- [Local Manual Startup and Shutdown](#local-manual-startup-and-shutdown)
+			- [Production Startup and Shutdown](#production-startup-and-shutdown)
+		- [Docker](#docker)
+	- [User Guide](#user-guide)
+	- [Contribution - Developer Information](#contribution-developer-information)
+		- [How to Contribute](#how-to-contribute)
+		- [Hints on how to integrate a new Module](#hints-on-how-to-integrate-a-new-module)
+		- [Branching](#branching)
+	- [Third Party Dependencies](#third-party-dependencies)
+	- [Contact](#contact)
+	- [Credits and Contributing Organizations](#credits-and-contributing-organizations)
+
+<!-- /TOC -->
+
 ## Background Information Concerning KomMonitor Spatial Data Infrastructure
-This software is part of a spatial data infrastructure called [KomMonitor](http://kommonitor.de), which is a shortcut for German "Kommunales Monitoring" (Municipal monitoring). Funded by the <i>German Federal Ministry of Education and Research</i> municipal actors from the cities Essen and Mülheim cooperate with scientists from the Ruhr University Bochum and the Bochum University of Applied Sciences in order to create a monitoring infrastructure to support planning processes within local governments. I.e., by monitoring certain planning aspects from various topics like demography, social, environment, habitation and other, whose spatio-temporal variation and development can be measured in the form of indicators, [KomMonitor](http://kommonitor.de) may act as a <i>Spatial Decision Support System</i>. Amongst others, the following goals and key aspects are focused:
+This software is part of a spatial data infrastructure called [KomMonitor](http://kommonitor.de), which is a shortcut for German "Kommunales Monitoring" (Municipal monitoring). Funded by the *German Federal Ministry of Education and Research* municipal actors from the cities Essen and Mülheim cooperate with scientists from the Ruhr University Bochum and the Bochum University of Applied Sciences in order to create a monitoring infrastructure to support planning processes within local governments. I.e., by monitoring certain planning aspects from various topics like demography, social, environment, habitation and other, whose spatio-temporal variation and development can be measured in the form of indicators, [KomMonitor](http://kommonitor.de) may act as a *Spatial Decision Support System*. Amongst others, the following goals and key aspects are focused:
 1. cross-sectional data from several topics
 2. variable spatial layers (i.e. administrative layers of a city)
 3. transparency with regard to indicators and how they are computed
@@ -15,18 +42,18 @@ The project is funded from Feb 2017 - Feb 2020. The resulting software component
 ### Architecture Overview
 ![Conceptual KomMonitor Architecture and Idea](./misc/KomMonitor-Architecture.png "Conceptual KomMonitor Architecture and Idea")
 
-As a spatial decision support system, the main idea behind KomMonitor is to take (geo-)data from local authorities, import them to the <i>Data Management</i> component, process them (i.e. compute indicators based on georesurces and maybe other indicators via the <i>Processing Engine</i>; or compute waypath routing and reachability isochrones via <i>Reachability Service</i>) and finally publish, display and analyze them within a <i>Web-Client</i>.     
+As a spatial decision support system, the main idea behind KomMonitor is to take (geo-)data from local authorities, import them to the *Data Management* component, process them (i.e. compute indicators based on georesurces and maybe other indicators via the *Processing Engine*; or compute waypath routing and reachability isochrones via *Reachability Service*) and finally publish, display and analyze them within a *Web-Client*.     
 
 ## Overview
-This <b>Web client</b> is specially designed to consume the remaining components of the <b>KomMonitor spatial data infrastructure</b>, i.e. the [Data Management API](https://gitlab.fbg-hsbo.de/kommonitor/kommonitor-data-management-api) and [Processing Engine](https://gitlab.fbg-hsbo.de/kommonitor/kommonitor-script-execution-api) as well as <b>Reachability Service - e.g. Open Route Service</b> and <b>GeoServer</b>. With the scope of a spatial decision support system, it consumes the relevant municipal geospatial and statistical data for systematical display, exploration and analyzation. As described in section [Features](#features) dedicated tools are developed to support city planners and other employees of local authorities in their daily work.
+This **Web client** is specially designed to consume the remaining components of the **KomMonitor spatial data infrastructure**, i.e. the [Data Management API](https://gitlab.fbg-hsbo.de/kommonitor/kommonitor-data-management-api) and [Processing Engine](https://gitlab.fbg-hsbo.de/kommonitor/kommonitor-script-execution-api) as well as **Reachability Service - e.g. Open Route Service** and **GeoServer**. With the scope of a spatial decision support system, it consumes the relevant municipal geospatial and statistical data for systematical display, exploration and analyzation. As described in section [Features](#features) dedicated tools are developed to support city planners and other employees of local authorities in their daily work.
 
 The Web client is based on Angular and Bootstrap and hence uses a modular project structure for the implementation of the dedicated tools (i.e. map module for cartographic display; charting tools for bar, line or radar charts; etc...).
 
 ## Features
 
-The following non-exclusive list of features presents key features of the <b>KomMonitor Web Client</b>. Note that it is still under development, so some mentioned features are currently not implemented and the list might be extended in the future.
+The following non-exclusive list of features presents key features of the **KomMonitor Web Client**. Note that it is still under development, so some mentioned features are currently not implemented and the list might be extended in the future.
 
-<b><u>Key Features</u></b>:
+**<u>Key Features</u>**:
 
  - linked combination of cartographic and statistical display of indicators (i.e. hover over map features to highlight corresponding diagram elements and vice versa)
  - typical map interactions (pan, zoom, measure, search, etc.)
@@ -66,7 +93,7 @@ In short, after downloading the project you should run the following command in 
 Even Docker images can be acquired with ease, as described below. However, depending on your environment configuration aspects have to be adjusted first.
 
 ### Configuration
-Similar to other <b>KomMonitor</b> components, some settings are required, especially to adjust connection details to other linked services to your local environment. The configuration is done in a file called `env.js` located at project root. When starting the app the key-value pairs are made available globally to populate them to app components.
+Similar to other **KomMonitor** components, some settings are required, especially to adjust connection details to other linked services to your local environment. The configuration is done in a file called `env.js` located at project root. When starting the app the key-value pairs are made available globally to populate them to app components.
 
 #### env.js - Configure Deployment Details of other Services and App Properties
 The central configuration file is located at [app/env.js](./app/env.js). Several important aspects must match your target environment when deploying the app. These are:
@@ -92,7 +119,7 @@ window.__env.simplifyGeometries = "strong";
 // Open Route Service URL
 window.__env.targetUrlToReachabilityService_ORS = 'http://localhost:8090/openrouteservice-4.7.2';
 ```
-- required property names of ID and NAME property of KomMonitor features as well as timeseries specific prefixes (<b><u>MUST NOT BE CHANGED</u></b>) :
+- required property names of ID and NAME property of KomMonitor features as well as timeseries specific prefixes (**<u>MUST NOT BE CHANGED</u>**) :
 ```
 // property names of feature id and name (relevant for all spatial features) - KomMonitor specific
 // DO NOT CHANGE THEM - ONLY IF YOU REALLY KNOW WHAT YOU ARE DOING
@@ -182,7 +209,7 @@ Either the `dist` folder with all its contents or the `build/kommonitor-webclien
 Assuming the WAR file is named `kommonitor-webclient.WAR` and Tomcat is started locally on port 8080, you may reach the web app via `localhost:8080/kommonitor-webclient`.
 
 ### Docker
-The <b>KomMonitor Web Client</b> can also be build and deployed as Docker image (i.e. `docker build -t kommonitor-web-client:latest .`). The project contains the associated `Dockerfile` and an exemplar `docker-compose.yml` on project root level. The Dockerfile relies on an existing `dist` folder, so you must build the project before according to the building steps listed above. Only then the docker image can be created.
+The **KomMonitor Web Client** can also be build and deployed as Docker image (i.e. `docker build -t kommonitor-web-client:latest .`). The project contains the associated `Dockerfile` and an exemplar `docker-compose.yml` on project root level. The Dockerfile relies on an existing `dist` folder, so you must build the project before according to the building steps listed above. Only then the docker image can be created.
 
 The exemplar [docker-compose.yml](./docker-compose.yml) file specifies only the `kommonitor-web-client` service as all required connections to the respective components of KomMonitor are configured in `./app/env.js` (connection details to other services etc. according to the [Configuration section](#configuration) mentioned above).
 
