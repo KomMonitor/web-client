@@ -6,8 +6,8 @@
   window.__env.enableDebug = true;
 
   // property names of feature id and name (relevant for all spatial features) - KomMonitor specific
-  window.__env.FEATURE_ID_PROPERTY_NAME = "spatialUnitFeatureId";
-  window.__env.FEATURE_NAME_PROPERTY_NAME = "spatialUnitFeatureName";
+  window.__env.FEATURE_ID_PROPERTY_NAME = "ID";
+  window.__env.FEATURE_NAME_PROPERTY_NAME = "NAME";
   window.__env.indicatorDatePrefix = "DATE_";
 
   // API url
