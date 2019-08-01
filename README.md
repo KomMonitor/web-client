@@ -99,7 +99,7 @@ Similar to other **KomMonitor** components, some settings are required, especial
 The central configuration file is located at [app/env.js](./app/env.js). Several important aspects must match your target environment when deploying the app. These are:
 
 - connection to KomMonitor Data Management API:
-```
+```JavaScript
 // Data Management API URL
 window.__env.apiUrl = 'http://localhost:8085/';
 // Base url for Data Management API
@@ -115,12 +115,12 @@ window.__env.simplifyGeometriesOptions = [{"label": "nein", "value": "original"}
 window.__env.simplifyGeometries = "strong";
 ```
 - connection to Open Route Service instance:
-```
+```JavaScript
 // Open Route Service URL
 window.__env.targetUrlToReachabilityService_ORS = 'http://localhost:8090/openrouteservice-4.7.2';
 ```
 - required property names of ID and NAME property of KomMonitor features as well as timeseries specific prefixes (**<u>MUST NOT BE CHANGED</u>**) :
-```
+```JavaScript
 // property names of feature id and name (relevant for all spatial features) - KomMonitor specific
 // DO NOT CHANGE THEM - ONLY IF YOU REALLY KNOW WHAT YOU ARE DOING
 window.__env.FEATURE_ID_PROPERTY_NAME = "ID";
@@ -128,7 +128,7 @@ window.__env.FEATURE_NAME_PROPERTY_NAME = "NAME";
 window.__env.indicatorDatePrefix = "DATE_";
 ```
 - initial startup configuration:
-```
+```JavaScript
 // number of decimals for display of numeric values in app
 window.__env.numberOfDecimals = 2;
 // starting viewpoint parameters and zoom level
@@ -143,7 +143,7 @@ window.__env.initialIndicatorId = "d6f447c1-5432-4405-9041-7d5b05fd9ece";
 window.__env.initialSpatialUnitName = "Stadtteilebene";
 ```
 - various color and classification settings:
-```
+```JavaScript
 // various color settings
  window.__env.defaultColorForNoDataValues = "black";
  window.__env.defaultBorderColorForNoDataValues = "black";
@@ -178,7 +178,7 @@ window.__env.initialSpatialUnitName = "Stadtteilebene";
  window.__env.defaultClassifyMethod = "equal_interval";
 ```
 - recipient mail address for feedback-form:
-```
+```JavaScript
 // e-mail recipient for feedback mail
 window.__env.feedbackMailRecipient = "name@mail.example";
 ```
@@ -234,7 +234,7 @@ Things to mention:
 - how to add new libraries and integrate them to build tools
 - ...
 
-`MAYBE AS SEPARATE DOCUMENTATION TO KEEP THIS REDME SHORT`
+`MAYBE AS SEPARATE DOCUMENTATION TO KEEP THIS README SHORT`
 
 ### Branching
 The `master` branch contains latest stable releases. The `develop` branch is the main development branch that will be merged into the `master` branch from time to time. Any other branch focuses certain bug fixes or feature requests.
