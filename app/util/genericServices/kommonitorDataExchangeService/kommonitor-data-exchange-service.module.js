@@ -329,7 +329,8 @@ angular
           this.filterIndicators = function (){
             return function( item ) {
 
-              var arrayOfNameSubstringsForHidingIndicators = ["Standardabweichung", "Prozentuale Ver"];
+              // var arrayOfNameSubstringsForHidingIndicators = ["Standardabweichung", "Prozentuale Ver"];
+              var arrayOfNameSubstringsForHidingIndicators = __env.arrayOfNameSubstringsForHidingIndicators;
 
               // this is an item from i.e. indicatorRadar, that has a different structure
               if(item.indicatorMetadata){
