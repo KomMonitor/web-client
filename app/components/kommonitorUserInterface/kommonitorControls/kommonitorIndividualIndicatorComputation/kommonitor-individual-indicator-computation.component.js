@@ -25,6 +25,11 @@ angular
 
 						$scope.dateSliderForComputation;
 
+						$scope.filterIndicators = function() {
+
+							return kommonitorDataExchangeService.filterIndicators();
+						};
+
 						$scope.filterComputableIndicators = function() {
 							return function( item ) {
 

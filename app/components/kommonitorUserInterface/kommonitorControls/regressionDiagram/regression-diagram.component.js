@@ -47,6 +47,11 @@ angular
 								$scope.spatialUnitName;
 								$scope.date;
 
+								$scope.filterIndicators = function() {
+
+									return kommonitorDataExchangeService.filterIndicators();
+								};
+
 								$scope.filterIndicatorsBySpatialUnitAndDate = function() {
 								  return function( item ) {
 
