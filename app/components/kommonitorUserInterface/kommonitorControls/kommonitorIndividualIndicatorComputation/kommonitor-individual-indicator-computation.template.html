@@ -10,7 +10,7 @@
 
 			<div text-align="center" align="center" class="hiddenTableContent">
 				<select
-					size="8" ng-model="targetIndicator" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:{creationType:'COMPUTATION'} | filter:filterComputableIndicators()"
+					size="8" ng-model="targetIndicator" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators() | filter:{creationType:'COMPUTATION'} | filter:filterComputableIndicators()"
 					class="form-control" ng-change="onChangeTargetIndicator()" required>
 					<option value="" selected disabled>-- berechenbaren Indikator w&auml;hlen --</option>
 				</select>

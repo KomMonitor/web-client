@@ -2612,7 +2612,7 @@ angular.module('kommonitorMap').component(
                                           }
 
                                           layer.setStyle({
-                                              weight: 2,
+                                              weight: 3,
                                               color: defaultColorForHoveredFeatures,
                                               dashArray: '',
                                               fillOpacity: fillOpacity
