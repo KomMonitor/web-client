@@ -24,7 +24,7 @@
   // Open Route Service URL
     // window.__env.apiUrl = 'http://kommonitor.fbg-hsbo.de/openrouteservice';
   window.__env.targetUrlToReachabilityService_ORS = 'https://kommonitor.essen.de/openrouteservice';
-  
+
     // Open Trip Planner URL - currently not integrated
   // window.__env.apiUrl = 'http://kommonitor.fbg-hsbo.de/opentripplanner';
   window.__env.targetUrlToReachabilityService_OTP = 'https://kommonitor.essen.de/opentripplanner';
@@ -92,7 +92,7 @@
 
   // array of indicator name substring that shal be used to filter out / hide certain indicators by their name
   // e.g. set ["entwicklung"] to hide all indicators whose name contains the substring "entwicklung"
-  window.__env.arrayOfNameSubstringsForHidingIndicators = [];
+  window.__env.arrayOfNameSubstringsForHidingIndicators = ["Prozentuale Vers", "Standardabweichung"];
 
   // e-mail recipient for feedback mail
   window.__env.feedbackMailRecipient = "thomas.blasche@amt62.essen.de";
