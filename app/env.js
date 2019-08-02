@@ -85,8 +85,8 @@
   window.__env.defaultClassifyMethod = "equal_interval";
 
   // array of indicator name substring that shal be used to filter out / hide certain indicators by their name
-  // e.g. set ["entwicklung"] to hide all indicators whose name contains the substring "entwicklung" 
-  window.__env.arrayOfNameSubstringsForHidingIndicators = [];
+  // e.g. set ["entwicklung"] to hide all indicators whose name contains the substring "entwicklung"
+  window.__env.arrayOfNameSubstringsForHidingIndicators = ["Prozentuale Vers", "Standardabweichung", "Stadtteil", "aussschließlich", "doppelt", "Versorgungsquote"];
 
   // e-mail recipient for feedback mail
   window.__env.feedbackMailRecipient = "thomas.blasche@amt62.essen.de";
