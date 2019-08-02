@@ -631,6 +631,11 @@ angular
 									 $scope.$apply();
 								};
 
+								$scope.filterIndicators = function() {
+
+									return kommonitorDataExchangeService.filterIndicators();
+								};
+
 								this.filterDisplayedIndicatorsOnRadar = function(){
 									console.log("Filtering indicator radar");
 

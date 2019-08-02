@@ -134,18 +134,8 @@ angular
 								};
 
 								$scope.filterIndicators = function() {
-								  return function( item ) {
 
-										if(item.applicableDates == undefined || item.applicableDates.length === 0)
-											return false;
-
-											// var isIndicatorThatShallNotBeDisplayed = item.indicatorName.includes("Standardabweichung") || item.indicatorName.includes("Prozentuale Ver");
-											//
-											// if(isIndicatorThatShallNotBeDisplayed){
-											// 	return false;
-											// }
-										return true;
-								  };
+									return kommonitorDataExchangeService.filterIndicators();
 								};
 
 								$scope.filterIndicatorsByTopic = function() {
