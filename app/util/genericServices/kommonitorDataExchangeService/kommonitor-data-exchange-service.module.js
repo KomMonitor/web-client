@@ -324,6 +324,39 @@ angular
             }
 
             return color;
-          }
+          };
+
+          this.filterIndicators = function (){
+            return function( item ) {
+
+              var arrayOfNameSubstringsForHidingIndicators = ["Standardabweichung", "Prozentuale Ver"];
+
+              // this is an item from i.e. indicatorRadar, that has a different structure
+              if(item.indicatorMetadata){
+                if(item.indicatorMetadata.applicableDates == undefined || item.indicatorMetadata.applicableDates.length === 0)
+                  return false;
+
+                  var isIndicatorThatShallNotBeDisplayed = arrayOfNameSubstringsForHidingIndicators.some(substring => String(item.indicatorMetadata.indicatorName).includes(substring));
+
+                  if(isIndicatorThatShallNotBeDisplayed){
+                    return false;
+                  }
+                return true;
+              }
+              else{
+                //
+                if(item.applicableDates == undefined || item.applicableDates.length === 0)
+                  return false;
+
+                  // var isIndicatorThatShallNotBeDisplayed = item.indicatorName.includes("Standardabweichung") || item.indicatorName.includes("Prozentuale Ver");
+                  var isIndicatorThatShallNotBeDisplayed = arrayOfNameSubstringsForHidingIndicators.some(substring => String(item.indicatorName).includes(substring));
+
+                  if(isIndicatorThatShallNotBeDisplayed){
+                    return false;
+                  }
+                return true;
+              }
+            };
+          };
 
 				}]);

@@ -35,7 +35,7 @@
 					<br/>
 
 					<div id="radarInputForm">
-						<div ng-repeat='input in selectableIndicatorsForRadar'>
+						<div ng-repeat='input in selectableIndicatorsForRadar | filter:filterIndicators()'>
 							<label class='checkbox-inline' ><input type="checkbox" value="input.indicatorMetadata.indicatorName" ng-model="input.isSelected" ng-change="$ctrl.filterDisplayedIndicatorsOnRadar()">{{input.indicatorMetadata.indicatorName}}</label>
 							<br/>
 						</div>
