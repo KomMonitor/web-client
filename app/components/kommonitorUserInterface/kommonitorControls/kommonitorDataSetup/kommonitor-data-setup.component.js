@@ -9,10 +9,12 @@ angular
 					 * enabled tabs
 					 */
 					controller : [
-							'kommonitorDataExchangeService', '$scope', 'kommonitorMapService', '$http', '$rootScope',
-							function kommonitorDataSetupController(kommonitorDataExchangeService, $scope, kommonitorMapService, $http, $rootScope) {
+							'kommonitorDataExchangeService', '$scope', 'kommonitorMapService', '$http', '$rootScope', '__env', '$timeout',
+							function kommonitorDataSetupController(kommonitorDataExchangeService, $scope, kommonitorMapService, $http, $rootScope, __env, $timeout) {
 
-								const INDICATOR_DATE_PREFIX = "DATE_";
+								const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
+								const initialIndicatorId = __env.initialIndicatorId;
+								const initialSpatialUnitName = __env.initialSpatialUnitName;
 
 								// var rangeslide = require("rangeslide");
 								/*
@@ -29,7 +31,7 @@ angular
 								$scope.changeIndicatorWasClicked = false;
 
 								$scope.dateSlider;
-								$scope.onlyRefreshingDateSliderVisuals = false;
+								$scope.datesAsMs;
 
 								$scope.selectedDate;
 
@@ -54,9 +56,15 @@ angular
 											this.kommonitorDataExchangeServiceInstance.selectedTopic = topic;
 										}
 										else {
-											document.getElementById(topic.topicName).setAttribute("class", "");
+											if(document.getElementById(topic.topicName)){
+												document.getElementById(topic.topicName).setAttribute("class", "");
+											}
 										}
 									};
+
+									if(kommonitorDataExchangeService.selectedIndicator){
+										kommonitorDataExchangeService.selectedIndicatorBackup = kommonitorDataExchangeService.selectedIndicator;
+									}
 
 									// $scope.$apply();
 								};
@@ -65,8 +73,14 @@ angular
 									this.kommonitorDataExchangeServiceInstance.selectedTopic = null;
 
 									for(const topic of this.kommonitorDataExchangeServiceInstance.availableTopics){
-											document.getElementById(topic.topicName).setAttribute("class", "");
+										if (document.getElementById(topic.topicName)){
+												document.getElementById(topic.topicName).setAttribute("class", "");
+										}
 									};
+
+									if(!kommonitorDataExchangeService.selectedIndicator){
+										kommonitorDataExchangeService.selectedIndicator = kommonitorDataExchangeService.selectedIndicatorBackup;
+									}
 
 									// $scope.$apply();
 								};
@@ -91,6 +105,25 @@ angular
 								  };
 								};
 
+								$scope.filterReferencedIndicatorsByIndicator = function() {
+									return function( item ) {
+
+										try{
+											var referencedIndicators = kommonitorDataExchangeService.selectedIndicator.referencedIndicators;
+											var indicatorId = item.indicatorId;
+
+											for (const refIndicator of referencedIndicators){
+												if(refIndicator.referencedIndicatorId === indicatorId)
+													return true;
+											};
+
+										}
+										catch(error){
+											return false;
+										}
+								  };
+								};
+
 								$scope.filterGeoresourcesByTopic = function() {
 								  return function( item ) {
 										if (kommonitorDataExchangeService.selectedTopic)
@@ -100,14 +133,29 @@ angular
 								  };
 								};
 
+								$scope.filterIndicators = function() {
+
+									return kommonitorDataExchangeService.filterIndicators();
+								};
+
 								$scope.filterIndicatorsByTopic = function() {
 								  return function( item ) {
 
 										if(item.applicableDates == undefined || item.applicableDates.length === 0)
 											return false;
 
-										if (kommonitorDataExchangeService.selectedTopic)
+										if (kommonitorDataExchangeService.selectedTopic){
+												if(!kommonitorDataExchangeService.selectedIndicator){
+													// kommonitorDataExchangeService.selectedIndicator = kommonitorDataExchangeService.selectedIndicator;
+													kommonitorDataExchangeService.selectedIndicator = kommonitorDataExchangeService.selectedIndicatorBackup;
+												}
+												// else{
+												// 	if(kommonitorDataExchangeService.selectedIndicatorBackup){
+												// 		kommonitorDataExchangeService.selectedIndicator = kommonitorDataExchangeService.selectedIndicatorBackup;
+												// 	}
+												// }
 												return item.applicableTopics.includes(kommonitorDataExchangeService.selectedTopic.topicName);
+										}
 
 
 										return true;
@@ -146,7 +194,6 @@ angular
 								};
 
 								this.onDateChange = function(){
-									console.log($scope.selectedDate);
 
 									var date = new Date($scope.selectedDate);
 
@@ -160,9 +207,7 @@ angular
 										day = "0" + day;
 
 									$scope.selectedDate = date.getFullYear() + "-" + month  + "-" + day;
-
-									console.log(date);
-									console.log($scope.selectedDate);
+									kommonitorDataExchangeService.selectedDate = $scope.selectedDate;
 
 									$scope.$apply();
 								};
@@ -176,6 +221,13 @@ angular
 									if(fetchedTopicsInitially && fetchedIndicatorsInitially && fetchedGeoresourcesInitially && fetchedSpatialUnitsInitially){
 
 										$rootScope.$broadcast("loadExampleIndicatorInitially");
+
+										$timeout(function () {
+								         $("option").each(function (index, element) {
+								            var text = $(element).text();
+								            $(element).attr("title", text);
+								         });
+								    });
 									}
 
 								};
@@ -183,11 +235,49 @@ angular
 								$scope.$on("loadExampleIndicatorInitially", function (event) {
 
 									console.log("Load an initial example indicator");
-									kommonitorDataExchangeService.selectedIndicator = kommonitorDataExchangeService.availableIndicators[0];
+
+									var indicatorIndex = undefined;
+
+									for (var index=0; index < kommonitorDataExchangeService.availableIndicators.length; index++){
+										if (kommonitorDataExchangeService.availableIndicators[index].indicatorId === initialIndicatorId){
+											indicatorIndex = index;
+											break;
+										}
+									}
+
+									if( indicatorIndex === undefined){
+											indicatorIndex = getRandomInt(0, kommonitorDataExchangeService.availableIndicators.length - 1);
+									}
+
+									kommonitorDataExchangeService.selectedIndicator = kommonitorDataExchangeService.availableIndicators[indicatorIndex];
+
+									// set spatialUnit
+									for (var spatialUnitEntry of kommonitorDataExchangeService.availableSpatialUnits){
+										if(spatialUnitEntry.spatialUnitLevel === initialSpatialUnitName){
+											kommonitorDataExchangeService.selectedSpatialUnit = spatialUnitEntry;
+											break;
+										}
+									};
+									if(!kommonitorDataExchangeService.selectedSpatialUnit){
+											kommonitorDataExchangeService.selectedSpatialUnit = $scope.getFirstSpatialUnitForSelectedIndicator();
+									}
 
 									$scope.onChangeSelectedIndicator();
 
 								});
+
+								/**
+								 * Returns a random integer between min (inclusive) and max (inclusive).
+								 * The value is no lower than min (or the next integer greater than min
+								 * if min isn't an integer) and no greater than max (or the next integer
+								 * lower than max if max isn't an integer).
+								 * Using Math.round() will give you a non-uniform distribution!
+								 */
+								function getRandomInt(min, max) {
+								    min = Math.ceil(min);
+								    max = Math.floor(max);
+								    return Math.floor(Math.random() * (max - min + 1)) + min;
+								}
 
 								$http({
 									url: this.kommonitorDataExchangeServiceInstance.baseUrlToKomMonitorDataAPI + "/spatial-units",
@@ -289,7 +379,7 @@ angular
 									var day = dateComps[2];
 
 									$http({
-										url: this.kommonitorDataExchangeServiceInstance.baseUrlToKomMonitorDataAPI + "/spatial-units/" + id + "/" + year + "/" + month + "/" + day,
+										url: this.kommonitorDataExchangeServiceInstance.baseUrlToKomMonitorDataAPI + "/spatial-units/" + id + "/" + year + "/" + month + "/" + day + "?" + kommonitorDataExchangeServiceInstance.simplifyGeometriesParameterName + "=" + kommonitorDataExchangeServiceInstance.simplifyGeometries,
 										method: "GET"
 									}).then(function successCallback(response) {
 											// this callback will be called asynchronously
@@ -343,7 +433,7 @@ angular
 									var day = dateComps[2];
 
 									$http({
-										url: this.kommonitorDataExchangeServiceInstance.baseUrlToKomMonitorDataAPI + "/georesources/" + id + "/" + year + "/" + month + "/" + day,
+										url: this.kommonitorDataExchangeServiceInstance.baseUrlToKomMonitorDataAPI + "/georesources/" + id + "/" + year + "/" + month + "/" + day  + "?" + kommonitorDataExchangeServiceInstance.simplifyGeometriesParameterName + "=" + kommonitorDataExchangeServiceInstance.simplifyGeometries,
 										method: "GET"
 									}).then(function successCallback(response) {
 											// this callback will be called asynchronously
@@ -365,63 +455,76 @@ angular
 
 								};
 
-								$scope.addSelectedIndicatorToMap = function() {
+								$scope.addSelectedIndicatorToMap = function(changeIndicator) {
 
-									kommonitorMapService.replaceIndicatorGeoJSON(kommonitorDataExchangeService.selectedIndicator, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, $scope.selectedDate);
-
+									if(changeIndicator){
+										$rootScope.$broadcast("DisableBalance");
+										kommonitorMapService.replaceIndicatorGeoJSON(kommonitorDataExchangeService.selectedIndicator, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, $scope.selectedDate, false);
+									}
+									else{
+										// check if balance mode is active
+										if (kommonitorDataExchangeService.isBalanceChecked){
+											$rootScope.$broadcast("replaceBalancedIndicator");
+										}
+										else{
+											kommonitorMapService.replaceIndicatorGeoJSON(kommonitorDataExchangeService.selectedIndicator, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, $scope.selectedDate, false);
+										}
+									}
 								};
 
-								$scope.resetDateSliderForIndicator = function(){
+								function dateToTS (date) {
+										return date.valueOf();
+								}
 
-									if($scope.dateSlider){
-										$scope.dateSlider.destroy();
+								function tsToDateString (dateAsMs) {
+									var date = new Date(dateAsMs);
+
+									/**
+									* TODO FIXME dateSLider formatter will return only year for now to prevent misleading month and day settings
+									*/
+
+									return date.getFullYear();
+
+										// return date.toLocaleDateString("de-DE", {
+										// 		year: 'numeric',
+										// 		month: 'long',
+										// 		day: 'numeric'
+										// });
+								}
+
+								function dateToDateString (date) {
+
+									/**
+									* TODO FIXME dateSLider formatter will return only year for now to prevent misleading month and day settings
+									*/
+
+									return date.getFullYear();
+
+										// return date.toLocaleDateString("de-DE", {
+										// 		year: 'numeric',
+										// 		month: 'long',
+										// 		day: 'numeric'
+										// });
+								}
+
+								function createDatesFromIndicatorDates(indicatorDates) {
+
+									$scope.datesAsMs = [];
+
+									for (var index=0; index < indicatorDates.length; index++){
+										// year-month-day
+										var dateComponents = indicatorDates[index].split("-");
+										$scope.datesAsMs.push(dateToTS(new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]))));
 									}
-
-									var domNode = document.getElementById("dateSlider");
-
-									while (domNode.hasChildNodes()) {
-									  domNode.removeChild(domNode.lastChild);
-									}
-
-									var availableDates = kommonitorDataExchangeService.selectedIndicator.applicableDates;
-									var selectedDateIndex;
-									var timeSliderInput = [];
-
-									for(var i=0; i<availableDates.length; i++){
-										var date = availableDates[i];
-										var dateItem = {};
-
-										dateItem.key = date;
-										dateItem.value = date;
-
-										timeSliderInput.push(dateItem);
-
-										if(date === $scope.selectedDate){
-											selectedDateIndex = i;
-										}
-									};
-
-									$scope.dateSlider = rangeslide("#dateSlider", {
-										data: timeSliderInput,
-										startPosition: selectedDateIndex,
-										thumbWidth: 22,
-										thumbHeight: 24,
-										labelsPosition: "alternate",
-										showLabels: true,
-										startAlternateLabelsFromTop: false,
-										trackHeight: 13,
-										showTicks: false,
-										showTrackMarkers: true,
-										markerSize: 22,
-										tickHeight: 10,
-										handlers: {
-											"valueChanged": [$scope.onChangeDateSliderItem]
-										}
-									});
-								};
+									return $scope.datesAsMs;
+								}
 
 								$scope.setupDateSliderForIndicator = function(){
 
+									if($scope.dateSlider){
+											$scope.dateSlider.destroy();
+									}
+
 									var domNode = document.getElementById("dateSlider");
 
 									while (domNode.hasChildNodes()) {
@@ -429,52 +532,44 @@ angular
 									}
 
 									var availableDates = kommonitorDataExchangeService.selectedIndicator.applicableDates;
-									var lastDateIndex = availableDates.length-1;
-									var lastDate = availableDates[lastDateIndex];
+									$scope.date = availableDates[availableDates.length - 1];
+									$scope.selectedDate = availableDates[availableDates.length - 1];
+									kommonitorDataExchangeService.selectedDate = availableDates[availableDates.length - 1];
 
-									var timeSliderInput = [];
+									$scope.datesAsMs = createDatesFromIndicatorDates(kommonitorDataExchangeService.selectedIndicator.applicableDates);
 
-									$scope.selectedDate = lastDate;
-									$scope.date = lastDate;
-
-									availableDates.forEach(function(date){
-										var dateItem = {};
-
-										dateItem.key = date;
-										dateItem.value = date;
-
-										timeSliderInput.push(dateItem);
+									// new Date() uses month between 0-11!
+									$("#dateSlider").ionRangeSlider({
+											skin: "big",
+											type: "single",
+											grid: true,
+											values: $scope.datesAsMs,
+											from: $scope.datesAsMs.length -1, // index, not the date
+											force_edges: true,
+											prettify: tsToDateString,
+											onChange: $scope.onChangeDateSliderItem
 									});
 
-									$scope.dateSlider = rangeslide("#dateSlider", {
-										data: timeSliderInput,
-										startPosition: lastDateIndex,
-										thumbWidth: 22,
-										thumbHeight: 24,
-										labelsPosition: "alternate",
-										showLabels: true,
-										startAlternateLabelsFromTop: false,
-										trackHeight: 13,
-										showTicks: false,
-										showTrackMarkers: true,
-										markerSize: 22,
-										tickHeight: 10,
-										handlers: {
-											"valueChanged": [$scope.onChangeDateSliderItem]
-										}
+									$scope.dateSlider = $("#dateSlider").data("ionRangeSlider");
+									// make sure that tha handles are properly set to man and max values
+									$scope.dateSlider.update({
+											from: $scope.datesAsMs.length -1 // index, not the date
 									});
 								};
 
-								$scope.onChangeDateSliderItem = async function(dataItem, rangeslideElement){
+								$scope.onChangeDateSliderItem = async function(data){
 
-									if(!$scope.onlyRefreshingDateSliderVisuals && !$scope.changeIndicatorWasClicked && kommonitorDataExchangeService.selectedIndicator){
+									if(!$scope.changeIndicatorWasClicked && kommonitorDataExchangeService.selectedIndicator){
 										$scope.loadingData = true;
 										$rootScope.$broadcast("showLoadingIconOnMap");
 
 										console.log("Change selected date");
 
-										$scope.selectedDate = dataItem.key;
-										$scope.date = dataItem.key;
+										//data.from is index of date!
+
+										$scope.selectedDate = kommonitorDataExchangeService.selectedIndicator.applicableDates[data.from];
+										$scope.date = $scope.selectedDate;
+										kommonitorDataExchangeService.selectedDate = $scope.selectedDate;
 
 										try{
 											var selectedIndicator = await $scope.tryUpdateMeasureOfValueBarForIndicator();
@@ -486,33 +581,31 @@ angular
 											return;
 										}
 
-										$scope.modifyComponentsForCurrentIndicatorTimestampAndSpatialUnit();
+										$scope.modifyExports(false);
 
 										$scope.loadingData = false;
 										$rootScope.$broadcast("hideLoadingIconOnMap");
 										$scope.$apply();
 									}
-									$scope.onlyRefreshingDateSliderVisuals = false;
-								}
+								};
+
+								$scope.$on("DisableDateSlider", function (event) {
+									if($scope.dateSlider){
+										$scope.dateSlider.update({
+												block: true
+										});
+									}
+								});
+
+								$scope.$on("EnableDateSlider", function (event) {
+									if($scope.dateSlider){
+										$scope.dateSlider.update({
+												block: false
+										});
+									}
+								});
 
 								var wait = ms => new Promise((r, j)=>setTimeout(r, ms))
-
-								$scope.$on("refreshDateSlider", async function (event) {
-
-										console.log('refreshDateSlider was called. Waiting for one second.');
-
-										await wait(100);
-
-										console.log("waiting finished");
-
-										$scope.onlyRefreshingDateSliderVisuals = true;
-
-										if($scope.dateSlider){
-											$scope.resetDateSliderForIndicator();
-
-										}
-
-								});
 
 								$scope.tryUpdateMeasureOfValueBarForIndicator = async function(){
 									var indicatorId = kommonitorDataExchangeService.selectedIndicator.indicatorId;
@@ -524,7 +617,7 @@ angular
 									$scope.spatialUnitName = kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel;
 
 									return await $http({
-										url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/indicators/" + indicatorId + "/" + kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitId,
+										url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/indicators/" + indicatorId + "/" + kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitId  + "?" + kommonitorDataExchangeService.simplifyGeometriesParameterName + "=" + kommonitorDataExchangeService.simplifyGeometries,
 										method: "GET"
 									}).then(function successCallback(response) {
 											// this callback will be called asynchronously
@@ -549,7 +642,11 @@ angular
 									});
 								};
 
-								this.onChangeSelectedSpatialUnit = async function(){
+								$scope.$on("changeSpatialUnit", function(event){
+									$scope.onChangeSelectedSpatialUnit();
+								});
+
+								$scope.onChangeSelectedSpatialUnit = async function(){
 									if(!$scope.changeIndicatorWasClicked && kommonitorDataExchangeService.selectedIndicator){
 										$scope.loadingData = true;
 										$rootScope.$broadcast("showLoadingIconOnMap");
@@ -566,7 +663,7 @@ angular
 											return;
 										}
 
-										$scope.modifyComponentsForCurrentIndicatorTimestampAndSpatialUnit();
+										$scope.modifyExports(false);
 
 										$scope.loadingData = false;
 										$rootScope.$broadcast("hideLoadingIconOnMap");
@@ -597,7 +694,8 @@ angular
 											return;
 										}
 
-												$scope.modifyComponentsForCurrentIndicatorTimestampAndSpatialUnit();
+											$rootScope.$broadcast("DisableBalance");
+												$scope.modifyExports(true);
 
 
 												$scope.loadingData = false;
@@ -614,7 +712,7 @@ angular
 
 
 
-								$scope.modifyComponentsForCurrentIndicatorTimestampAndSpatialUnit = function(){
+								$scope.modifyExports = function(changeIndicator){
 									$scope.wmsUrlForSelectedIndicator = undefined;
 									$scope.wmsUrlForSelectedIndicator = undefined;
 
@@ -629,15 +727,18 @@ angular
 									};
 
 									$scope.prepareDownloadGeoJSON();
+									$rootScope.$broadcast("updateBalanceSlider", kommonitorDataExchangeService.selectedDate);
+									$rootScope.$broadcast("updateIndicatorValueRangeFilter", kommonitorDataExchangeService.selectedDate);
+									$scope.addSelectedIndicatorToMap(changeIndicator);
 
-									$scope.addSelectedIndicatorToMap();
+
 								}
 
 								$scope.prepareDownloadGeoJSON = function(){
 
 									console.log("removing old download button if available")
-									if(document.getElementById("downloadSelectedIndicator"))
-										document.getElementById("downloadSelectedIndicator").remove();
+									if(document.getElementById("downloadSelectedIndicatorAsGeoJSON"))
+										document.getElementById("downloadSelectedIndicatorAsGeoJSON").remove();
 
 									var geoJSON_string = JSON.stringify(kommonitorDataExchangeService.selectedIndicator.geoJSON);
 
@@ -654,7 +755,7 @@ angular
 									a.download    = fileName;
 									a.href        = data;
 									a.textContent = "GeoJSON";
-									a.id = "downloadSelectedIndicator";
+									a.id = "downloadSelectedIndicatorAsGeoJSON";
 
 									var li = document.createElement("li");
 									li.appendChild(a);
@@ -662,7 +763,60 @@ angular
 									document.getElementById('exportDropdown').appendChild(li);
 								}
 
+								$scope.downloadIndicatorAsShape = function(){
 
+									var folderName = kommonitorDataExchangeService.selectedIndicator.indicatorName + "_" + kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel + "_" + $scope.selectedDate;
+									var polygonName = kommonitorDataExchangeService.selectedIndicator.indicatorName + "_" + kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel;
+
+									var options = {
+									    folder: folderName,
+									    types: {
+									        point: 'points',
+									        polygon: polygonName,
+									        line: 'lines'
+									    }
+									}
+
+									var geoJSON = jQuery.extend(true, {}, kommonitorDataExchangeService.selectedIndicator.geoJSON);
+
+									for (var feature of geoJSON.features){
+										var properties = feature.properties;
+
+										// rename all properties due to char limit in shaoefiles
+										var keys = Object.keys(properties);
+
+										for (var key of keys){
+											var newKey = undefined;
+											if(key.toLowerCase().includes("featureid")){
+												newKey = "ID";
+											}
+											else if(key.toLowerCase().includes("featurename")){
+												newKey = "NAME";
+											}
+											else if(key.toLowerCase().includes("date_")){
+												// from DATE_2018-01-01
+												// to 20180101
+												newKey = key.split("_")[1].replace(/-|\s/g, "");
+											}
+											else if(key.toLowerCase().includes("startdate")){
+												newKey = "validFrom";
+											}
+											else if(key.toLowerCase().includes("enddate")){
+												newKey = "validTo";
+											}
+
+											if(newKey){
+												properties[newKey] = properties[key];
+												delete properties[key];
+											}
+										}
+
+										// replace properties with the one with new keys
+										feature.properties = properties;
+									}
+
+									shpwrite.download(geoJSON, options);
+								};
 
 								$scope.$on("updateIndicatorOgcServices", function (event, indicatorWmsUrl, indicatorWfsUrl) {
 

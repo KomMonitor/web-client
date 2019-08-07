@@ -10,16 +10,32 @@ angular
 					 */
 					controller : [
 							'kommonitorDataExchangeService',
-							'$scope', '$rootScope',
+							'$scope', '$rootScope', '__env',
 							function kommonitorDiagramsController(kommonitorDataExchangeService,
-									$scope, $rootScope) {
+									$scope, $rootScope, __env) {
 								this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
-								const INDICATOR_DATE_PREFIX = "DATE_";
+								const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
+								const defaultColorForHoveredFeatures = __env.defaultColorForHoveredFeatures;
+								const defaultColorForClickedFeatures = __env.defaultColorForClickedFeatures;
 
-								$scope.userHoveresOverBarItem = false;
+								// $scope.userHoveresOverBarItem = false;
 								$scope.eventsRegistered = false;
 								$scope.isTooManyFeatures = false;
+								$scope.histogramCanBeDisplayed = false;
+								$scope.spatialUnitName;
+								$scope.date;
+								var numberOfDecimals = __env.numberOfDecimals;
+								var defaultColorForZeroValues = __env.defaultColorForZeroValues;
+								var defaultColorForNoDataValues = __env.defaultColorForNoDataValues;
+								var defaultColorForFilteredValues = __env.defaultColorForFilteredValues;
+
+								const defaultColorForOutliers_high = __env.defaultColorForOutliers_high;
+								const defaultBorderColorForOutliers_high = __env.defaultBorderColorForOutliers_high;
+								const defaultFillOpacityForOutliers_high = __env.defaultFillOpacityForOutliers_high;
+								const defaultColorForOutliers_low = __env.defaultColorForOutliers_low;
+								const defaultBorderColorForOutliers_low = __env.defaultBorderColorForOutliers_low;
+								const defaultFillOpacityForOutliers_low = __env.defaultFillOpacityForOutliers_low;
 
 								var compareFeaturesByIndicatorValue = function(featureA, featureB) {
 								  if (featureA.properties[$scope.indicatorPropertyName] < featureB.properties[$scope.indicatorPropertyName])
@@ -41,11 +57,16 @@ angular
 										$scope.lineChart.showLoading();
 								};
 
-								$scope.$on("updateDiagrams", function (event, indicatorMetadataAndGeoJSON, spatialUnitName, spatialUnitId, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, isMeasureOfValueChecked, measureOfValue, justRestyling) {
+								$scope.$on("updateDiagrams", function (event, indicatorMetadataAndGeoJSON, spatialUnitName, spatialUnitId, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, justRestyling) {
 
-									console.log("Updating diagrams!");
+									// console.log("Updating diagrams!");
 
 									showLoadingIcons();
+
+									var selectedIndicator = kommonitorDataExchangeService.selectedIndicator;
+
+									$scope.spatialUnitName = spatialUnitName;
+									$scope.date = date;
 
 									$scope.isTooManyFeatures = false;
 
@@ -66,33 +87,36 @@ angular
 									}
 
 									//sort array of features
-									var features = indicatorMetadataAndGeoJSON.geoJSON.features;
-									features.sort(compareFeaturesByIndicatorValue);
+									var cartographicFeatures = indicatorMetadataAndGeoJSON.geoJSON.features;
+									cartographicFeatures.sort(compareFeaturesByIndicatorValue);
+									var selectedFeatures = selectedIndicator.geoJSON.features;
+									selectedFeatures.sort(compareFeaturesByIndicatorValue);
 
-									for(var feature of indicatorMetadataAndGeoJSON.geoJSON.features){
-										featureNamesArray.push(feature.properties.spatialUnitFeatureName);
-										indicatorValueArray.push(feature.properties[$scope.indicatorPropertyName]);
+									for (var j=0; j < cartographicFeatures.length; j++){
+										// diff occurs when balance mode is activated
+										// then, cartographicFeatures display balance over time period, which shall be reflected in bar chart and histogram
+										// the other diagrams must use the "normal" unbalanced indicator instead --> selectedFeatures
+										cartographicFeature = cartographicFeatures[j];
+										selectedFeature = selectedFeatures[j];
 
-										var color;
-										if(isMeasureOfValueChecked){
-
-											if(feature.properties[$scope.indicatorPropertyName] >= measureOfValue){
-												color = gtMeasureOfValueBrew.getColorInRange(feature.properties[$scope.indicatorPropertyName]);
-											}
-											else {
-												color = ltMeasureOfValueBrew.getColorInRange(feature.properties[$scope.indicatorPropertyName]);
-											}
-
+										if (kommonitorDataExchangeService.indicatorValueIsNoData(cartographicFeature.properties[$scope.indicatorPropertyName])){
+											indicatorValue = null;
 										}
 										else{
-											color = defaultBrew.getColorInRange(feature.properties[$scope.indicatorPropertyName]);
+											indicatorValue = +Number(cartographicFeature.properties[$scope.indicatorPropertyName]).toFixed(numberOfDecimals);
 										}
 
+										featureNamesArray.push(cartographicFeature.properties[__env.FEATURE_NAME_PROPERTY_NAME]);
+										indicatorValueArray.push(indicatorValue);
+
+										var color = kommonitorDataExchangeService.getColorForFeature(cartographicFeature, indicatorMetadataAndGeoJSON, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue);
 
 										var seriesItem = {
-											value: feature.properties[$scope.indicatorPropertyName],
+											value: indicatorValue,
 											itemStyle: {
 												color: color
+												// borderWidth: 1,
+												// borderColor: 'black'
 											}
 										};
 
@@ -101,42 +125,59 @@ angular
 										// continue timeSeries arrays by adding and counting all time series values
 										for(var i=0; i<indicatorTimeSeriesDatesArray.length; i++){
 											var datePropertyName = INDICATOR_DATE_PREFIX + indicatorTimeSeriesDatesArray[i];
-											indicatorTimeSeriesAverageArray[i] += feature.properties[datePropertyName];
-											indicatorTimeSeriesCountArray[i] ++;
+											if (!kommonitorDataExchangeService.indicatorValueIsNoData(cartographicFeature.properties[datePropertyName])){
+												// indicatorTimeSeriesAverageArray[i] += selectedFeature.properties[datePropertyName];
+												indicatorTimeSeriesAverageArray[i] += cartographicFeature.properties[datePropertyName];
+												indicatorTimeSeriesCountArray[i] ++;
+											}
 										}
 									}
 
 									// finish timeSeries arrays by computing averages of all time series values
 									for(var i=0; i<indicatorTimeSeriesDatesArray.length; i++){
-										indicatorTimeSeriesAverageArray[i] = indicatorTimeSeriesAverageArray[i] / indicatorTimeSeriesCountArray[i];
+										indicatorTimeSeriesAverageArray[i] = +Number(indicatorTimeSeriesAverageArray[i] / indicatorTimeSeriesCountArray[i]).toFixed(numberOfDecimals);
 									}
 
 									updateHistogramChart(indicatorMetadataAndGeoJSON, indicatorValueArray);
 
 									updateLineChart(indicatorMetadataAndGeoJSON, indicatorTimeSeriesDatesArray, indicatorTimeSeriesAverageArray);
 
-									// bar chart only if feature number is below 75
-									if (indicatorMetadataAndGeoJSON.geoJSON.features.length > 75){
-										console.log("Number of features too big (more than 75). Thus bar diagram cannot be created");
+									// // bar chart only if feature number is below 75
+									// if (indicatorMetadataAndGeoJSON.geoJSON.features.length > 50){
+									// 	console.log("Number of features too big (more than 50). Thus bar diagram cannot be created");
+									//
+									// 	// remove bar diagram if exist
+									// 	if($scope.barChart){
+									// 		$scope.barChart.dispose();
+									// 		$scope.barChart = undefined;
+									// 		$scope.eventsRegistered = false;
+									// 	}
+									//
+									// 	$scope.isTooManyFeatures = true;
+									// }
+									// else{
+									// 	updateBarChart(indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray);
+									// }
 
-										// remove bar diagram if exist
-										if($scope.barChart){
-											$scope.barChart.dispose();
-											$scope.barChart = undefined;
-											$scope.eventsRegistered = false;
-										}
-
-										$scope.isTooManyFeatures = true;
-									}
-									else{
 										updateBarChart(indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray);
-									}
-
 								});
 
 								//HISTOGRAM CHART FUNCTION
 								var updateHistogramChart = function(indicatorMetadataAndGeoJSON, indicatorValueArray){
-									var bins = ecStat.histogram(indicatorValueArray);
+									var bins;
+									try{
+										bins = ecStat.histogram(indicatorValueArray);
+										$scope.histogramCanBeDisplayed = true;
+									}
+									catch(error){
+										console.log("Histogram chart cannot be drawn");
+										$scope.histogramCanBeDisplayed = false;
+										if(!$scope.histogramChart){
+											$scope.histogramChart.dispose();
+										}
+										return;
+									}
+
 
 									if(!$scope.histogramChart)
 										$scope.histogramChart = echarts.init(document.getElementById('histogramDiagram'));
@@ -148,14 +189,29 @@ angular
 
 									$scope.histogramChart.hideLoading();
 
+									// default fontSize of echarts title
+									var fontSize = 18;
+									var histogramChartTitel = 'Histogramm - ' + $scope.spatialUnitName + ' - ';
+									if(indicatorMetadataAndGeoJSON.fromDate){
+										histogramChartTitel += "Bilanz " + indicatorMetadataAndGeoJSON.fromDate + " - " + indicatorMetadataAndGeoJSON.toDate;
+										fontSize = 14;
+									}
+									else{
+										histogramChartTitel += $scope.date;
+									}
+
 									$scope.histogramOption = {
                     title: {
-											text: 'Histogramm - Wertverteilung',
+											text: histogramChartTitel,
 											left: 'center',
-											top: 15
+											textStyle:{
+												fontSize: fontSize
+											}
+											// top: 15
                     },
                     tooltip: {
-											trigger: 'axis',
+											trigger: 'item',
+											confine: 'true',
 											axisPointer: {
 													type: 'line',
 													crossStyle: {
@@ -165,24 +221,70 @@ angular
 										},
 										toolbox: {
 												show : true,
+												right: '25',
 												feature : {
 														// mark : {show: true},
-														dataView : {show: true, readOnly: true, title: "Data View", lang: ['Data View', 'close', 'refresh']},
-														restore : {show: true, title: "Restore"},
-														saveAsImage : {show: true, title: "Save"}
+														dataView : {show: true, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Histogramm', 'schlie&szlig;en', 'refresh'], optionToContent: function(opt){
+
+														// 	<table class="table table-condensed table-hover">
+														// 	<thead>
+														// 		<tr>
+														// 			<th>Indikator-Name</th>
+														// 			<th>Beschreibung der Verkn&uuml;pfung</th>
+														// 		</tr>
+														// 	</thead>
+														// 	<tbody>
+														// 		<tr ng-repeat="indicator in $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.referencedIndicators">
+														// 			<td>{{indicator.referencedIndicatorName}}</td>
+														// 			<td>{{indicator.referencedIndicatorDescription}}</td>
+														// 		</tr>
+														// 	</tbody>
+														// </table>
+
+														var histogramData = opt.series[0].data;
+
+														var dataTableId = "histogramDataTable";
+														var tableExportName = opt.xAxis[0].name + " - " + opt.title[0].text;
+
+															var htmlString = '<table id="' + dataTableId + '" class="table table-bordered table-condensed" style="width:100%;text-align:center;">';
+															htmlString += "<thead>";
+															htmlString += "<tr>";
+															htmlString += "<th style='text-align:center;'>Wertintervall</th>";
+															htmlString += "<th style='text-align:center;'>H&auml;ufigkeit</th>";
+															htmlString += "</tr>";
+															htmlString += "</thead>";
+
+															htmlString += "<tbody>";
+
+															for (var i=0; i<histogramData.length; i++){
+																htmlString += "<tr>";
+																htmlString += "<td>" + histogramData[i][0] + " &mdash; " + histogramData[i][1] + "</td>";
+																htmlString += "<td>" + histogramData[i][2] + "</td>";
+																htmlString += "</tr>";
+															}
+
+															htmlString += "</tbody>";
+															htmlString += "</table>";
+
+															$rootScope.$broadcast("AppendExportButtonsForTable", dataTableId, tableExportName);
+
+													    return htmlString;
+														}},
+														restore : {show: false, title: "Erneuern"},
+														saveAsImage : {show: true, title: "Export"}
 												}
 										},
                     xAxis: [{
-											name: 'Wertintervalle',
+											name: indicatorMetadataAndGeoJSON.indicatorName,
 											nameLocation: 'center',
-											nameGap: 15,
-                        scale: true,
+											nameGap: 25,
+                      scale: true,
                     }],
                     yAxis: {
 											name: 'Anzahl Features',
-											nameGap: 24,
-											nameLocation: 'center',
-											nameRotate: 90,
+											// nameGap: 35,
+											// nameLocation: 'center',
+											// nameRotate: 90,
                     },
                     series: [{
                         type: 'custom',
@@ -274,7 +376,21 @@ angular
                 //     }]
                 // };
 
+								if(onlyContainsPositiveNumbers(indicatorValueArray)){
+									$scope.histogramOption.xAxis.min = 0;
+								}
+
 									$scope.histogramChart.setOption($scope.histogramOption);
+								};
+
+								var onlyContainsPositiveNumbers = function(indicatorValueArray){
+									indicatorValueArray.forEach(function(element){
+										if(element < 0){
+											return false;
+										}
+									});
+
+									return true;
 								};
 
 								// BAR CHART FUNCTION
@@ -305,14 +421,33 @@ angular
 												}
 										};
 
+										// default fontSize of echarts
+										var fontSize = 18;
+										var barChartTitel = 'Feature-Vergleich - ' + $scope.spatialUnitName + ' - ';
+										if(indicatorMetadataAndGeoJSON.fromDate){
+											barChartTitel += "Bilanz " + indicatorMetadataAndGeoJSON.fromDate + " - " + indicatorMetadataAndGeoJSON.toDate;
+											fontSize = 14;
+										}
+										else{
+											barChartTitel += $scope.date;
+										}
+
 									$scope.barOption = {
 											title: {
-													text: 'Wertvergleich',
+													text: barChartTitel,
 													left: 'center',
-									        top: 15
+													textStyle:{
+														fontSize: fontSize
+													}
+									        // top: 15
 											},
 											tooltip: {
-													trigger: 'axis',
+													trigger: 'item',
+													confine: 'true',
+													formatter: function (params) {
+																			var value = kommonitorDataExchangeService.getIndicatorValue_asFormattedText(params.value);
+					                            return "" + params.name + ": " + value + " [" + kommonitorDataExchangeService.selectedIndicator.unit + "]";
+					                           },
 													axisPointer: {
 															type: 'line',
 															crossStyle: {
@@ -322,17 +457,68 @@ angular
 											},
 											toolbox: {
 													show : true,
+													right: '25',
 													feature : {
 															// mark : {show: true},
-															dataView : {show: true, readOnly: true, title: "Data View", lang: ['Data View', 'close', 'refresh']},
-															restore : {show: true, title: "Restore"},
-															saveAsImage : {show: true, title: "Save"}
+															dataView : {show: true, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Feature-Vergleich', 'schlie&szlig;en', 'refresh'], optionToContent: function(opt){
+
+															// 	<table class="table table-condensed table-hover">
+															// 	<thead>
+															// 		<tr>
+															// 			<th>Indikator-Name</th>
+															// 			<th>Beschreibung der Verkn&uuml;pfung</th>
+															// 		</tr>
+															// 	</thead>
+															// 	<tbody>
+															// 		<tr ng-repeat="indicator in $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.referencedIndicators">
+															// 			<td>{{indicator.referencedIndicatorName}}</td>
+															// 			<td>{{indicator.referencedIndicatorDescription}}</td>
+															// 		</tr>
+															// 	</tbody>
+															// </table>
+
+															var barData = opt.series[0].data;
+															var featureNames = opt.xAxis[0].data;
+
+															var dataTableId = "barDataTable";
+															var tableExportName = opt.xAxis[0].name + " - " + opt.title[0].text;
+
+																var htmlString = '<table id="' + dataTableId + '" class="table table-bordered table-condensed" style="width:100%;text-align:center;">';
+																htmlString += "<thead>";
+																htmlString += "<tr>";
+																htmlString += "<th style='text-align:center;'>Feature-Name</th>";
+																htmlString += "<th style='text-align:center;'>" + opt.xAxis[0].name + " [" + opt.yAxis[0].name + "]</th>";
+																htmlString += "</tr>";
+																htmlString += "</thead>";
+
+																htmlString += "<tbody>";
+
+																for (var i=0; i<barData.length; i++){
+																	var value = kommonitorDataExchangeService.getIndicatorValue_asNumber(barData[i].value);
+																	htmlString += "<tr>";
+																	htmlString += "<td>" + featureNames[i] + "</td>";
+																	htmlString += "<td>" + value + "</td>";
+																	htmlString += "</tr>";
+																}
+
+																htmlString += "</tbody>";
+																htmlString += "</table>";
+
+																$rootScope.$broadcast("AppendExportButtonsForTable", dataTableId, tableExportName);
+
+														    return htmlString;
+															}},
+															restore : {show: false, title: "Erneuern"},
+															saveAsImage : {show: true, title: "Export"}
 													}
 											},
 											// legend: {
 											// 		//data:[indicatorMetadataAndGeoJSON.indicatorName]
 											// },
 											xAxis: {
+													name: indicatorMetadataAndGeoJSON.indicatorName,
+													nameLocation: 'center',
+													nameGap: 25,
 													axisLabel: {
 														rotate: 90,
 														interval: 0,
@@ -343,13 +529,29 @@ angular
 													data: featureNamesArray
 											},
 											yAxis: {
-											},
+									        type: 'value',
+									        name: indicatorMetadataAndGeoJSON.unit,
+									        // splitArea: {
+									        //     show: true
+									        // }
+									    },
 											series: [{
 													// name: indicatorMetadataAndGeoJSON.indicatorName,
 													type: 'bar',
+													emphasis: {
+														itemStyle: {
+															borderWidth: 4,
+															borderColor: defaultColorForClickedFeatures
+														}
+													},
 													data: indicatorValueBarChartArray
 											}]
 									};
+
+									if (indicatorMetadataAndGeoJSON.geoJSON.features.length > 50){
+										// $scope.barOption.xAxis.data = undefined;
+										$scope.barOption.xAxis.axisLabel.show = false;
+									}
 
 									// use configuration item and data specified to show chart
 									$scope.barChart.setOption($scope.barOption);
@@ -361,7 +563,7 @@ angular
 									if(!$scope.eventsRegistered){
 										// when hovering over elements of the chart then highlight them in the map.
 										$scope.barChart.on('mouseOver', function(params){
-											$scope.userHoveresOverBarItem = true;
+											// $scope.userHoveresOverBarItem = true;
 											var seriesIndex = params.seriesIndex;
 											var dataIndex = params.dataIndex;
 
@@ -377,7 +579,7 @@ angular
 										});
 
 										$scope.barChart.on('mouseOut', function(params){
-											$scope.userHoveresOverBarItem = false;
+											// $scope.userHoveresOverBarItem = false;
 											var seriesIndex = params.seriesIndex;
 											var dataIndex = params.dataIndex;
 
@@ -438,12 +640,25 @@ angular
 
 									$scope.lineOption = {
 											title: {
-													text: 'Zeitreihe',
+													text: 'Zeitreihe - ' + $scope.spatialUnitName,
 													left: 'center',
-									        top: 15
+									        // top: 15
 											},
 											tooltip: {
 													trigger: 'axis',
+													confine: 'true',
+													formatter: function (params) {
+
+																			var string = "" + params[0].axisValueLabel + "<br/>";
+
+																			params.forEach(function(paramObj){
+
+																				var value = kommonitorDataExchangeService.getIndicatorValue_asFormattedText(paramObj.value);
+																				string += paramObj.seriesName + ": " + value + " [" + kommonitorDataExchangeService.selectedIndicator.unit + "]" + "<br/>";
+																			});
+
+					                            return string;
+					                           },
 													axisPointer: {
 															type: 'line',
 															crossStyle: {
@@ -453,11 +668,65 @@ angular
 											},
 											toolbox: {
 													show : true,
+													right: '25',
 													feature : {
 															// mark : {show: true},
-															dataView : {show: true, readOnly: true, title: "Data View", lang: ['Data View', 'close', 'refresh']},
-															restore : {show: true, title: "Restore"},
-															saveAsImage : {show: true, title: "Save"}
+															dataView : {show: true, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Zeitreihe', 'schlie&szlig;en', 'refresh'], optionToContent: function(opt){
+
+															// 	<table class="table table-condensed table-hover">
+															// 	<thead>
+															// 		<tr>
+															// 			<th>Indikator-Name</th>
+															// 			<th>Beschreibung der Verkn&uuml;pfung</th>
+															// 		</tr>
+															// 	</thead>
+															// 	<tbody>
+															// 		<tr ng-repeat="indicator in $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.referencedIndicators">
+															// 			<td>{{indicator.referencedIndicatorName}}</td>
+															// 			<td>{{indicator.referencedIndicatorDescription}}</td>
+															// 		</tr>
+															// 	</tbody>
+															// </table>
+
+															var lineSeries = opt.series;
+															var timestamps = opt.xAxis[0].data;
+
+															var dataTableId = "lineDataTable";
+															var tableExportName = opt.xAxis[0].name + " - " + opt.title[0].text;
+
+																var htmlString = '<table id="' + dataTableId + '" class="table table-bordered table-condensed" style="width:100%;text-align:center;">';
+																htmlString += "<thead>";
+																htmlString += "<tr>";
+																htmlString += "<th style='text-align:center;'>Zeitpunkt</th>";
+
+																for (var i=0; i<lineSeries.length; i++){
+																	htmlString += "<th style='text-align:center;'>" + lineSeries[i].name + " [" + opt.yAxis[0].name + "]</th>";
+																}
+
+																htmlString += "</tr>";
+																htmlString += "</thead>";
+
+																htmlString += "<tbody>";
+
+																for (var j=0; j<timestamps.length; j++){
+																	htmlString += "<tr>";
+																	htmlString += "<td>" + timestamps[j] + "</td>";
+																	for (var k=0; k<lineSeries.length; k++){
+																		var value = kommonitorDataExchangeService.getIndicatorValue_asNumber(lineSeries[k].data[j]);
+																		htmlString += "<td>" + value + "</td>";
+																	}
+																	htmlString += "</tr>";
+																}
+
+																htmlString += "</tbody>";
+																htmlString += "</table>";
+
+																$rootScope.$broadcast("AppendExportButtonsForTable", dataTableId, tableExportName);
+
+														    return htmlString;
+															}},
+															restore : {show: false, title: "Erneuern"},
+															saveAsImage : {show: true, title: "Export"}
 													}
 											},
 											legend: {
@@ -466,6 +735,9 @@ angular
 													data:['Durchschnitt']
 											},
 											xAxis: {
+													name: indicatorMetadataAndGeoJSON.indicatorName,
+													nameLocation: 'center',
+													nameGap: 25,
 													// axisLabel: {
 													// 	rotate: 90,
 													// 	interval: 0,
@@ -477,8 +749,12 @@ angular
 													data: indicatorTimeSeriesDatesArray
 											},
 											yAxis: {
-												type: 'value'
-											},
+									        type: 'value',
+									        name: indicatorMetadataAndGeoJSON.unit,
+									        // splitArea: {
+									        //     show: true
+									        // }
+									    },
 											series: [{
 													name: "Durchschnitt",
 													type: 'line',
@@ -508,9 +784,7 @@ angular
 
 								$scope.$on("updateDiagramsForHoveredFeature", function (event, featureProperties) {
 
-									console.log("updateDiagramsForHoveredFeature called!");
-
-									if(! kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(featureProperties.spatialUnitFeatureName)){
+									if(! $scope.lineOption.legend.data.includes(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME])){
 										appendSeriesToLineChart(featureProperties);
 									}
 
@@ -519,18 +793,31 @@ angular
 								});
 
 								var appendSeriesToLineChart = function(featureProperties){
+
+									// in case of activated balance mode, we must use the properties of kommonitorDataExchangeService.selectedIndicator, to aquire the correct time series item!
+									if(kommonitorDataExchangeService.isBalanceChecked){
+										featureProperties = findPropertiesForTimeSeries(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]);
+									}
+
 									// append feature name to legend
-									$scope.lineOption.legend.data.push(featureProperties.spatialUnitFeatureName);
+									$scope.lineOption.legend.data.push(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]);
 
 									// create feature data series
 									var featureSeries = {};
-									featureSeries.name = featureProperties.spatialUnitFeatureName;
+									featureSeries.name = featureProperties[__env.FEATURE_NAME_PROPERTY_NAME];
 									featureSeries.type = 'line';
 									featureSeries.data = new Array();
 
 									// for each date create series data entry for feature
 									for (var date of $scope.lineOption.xAxis.data){
-										featureSeries.data.push(featureProperties[INDICATOR_DATE_PREFIX + date]);
+										var value;
+										if(kommonitorDataExchangeService.indicatorValueIsNoData(featureProperties[INDICATOR_DATE_PREFIX + date])){
+											value = null;
+										}
+										else{
+											value = +Number(featureProperties[INDICATOR_DATE_PREFIX + date]).toFixed(numberOfDecimals)
+										}
+										featureSeries.data.push(value);
 									}
 
 									$scope.lineOption.series.push(featureSeries);
@@ -538,17 +825,25 @@ angular
 									$scope.lineChart.setOption($scope.lineOption);
 								};
 
+								var findPropertiesForTimeSeries = function(spatialUnitFeatureName){
+									for(var feature of kommonitorDataExchangeService.selectedIndicator.geoJSON.features){
+										if(feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] === spatialUnitFeatureName){
+											return feature.properties;
+										}
+									}
+								}
+
 								var highlightFeatureInBarChart = function(featureProperties){
 									// highlight the corresponding bar diagram item
 									// get index of bar item
 
-									if($scope.userHoveresOverBarItem){
-										return;
-									}
+									// if($scope.userHoveresOverBarItem){
+									// 	return;
+									// }
 
 									var index = -1;
 									for(var i=0; i<$scope.barOption.xAxis.data.length; i++){
-										if($scope.barOption.xAxis.data[i] === featureProperties.spatialUnitFeatureName){
+										if($scope.barOption.xAxis.data[i] === featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]){
 											index = i;
 											break;
 										}
@@ -572,7 +867,7 @@ angular
 								var highlightFeatureInLineChart = function(featureProperties){
 									// highlight the corresponding bar diagram item
 									// get series index of series
-									var seriesIndex = getSeriesIndexByFeatureName(featureProperties.spatialUnitFeatureName);
+									var seriesIndex = getSeriesIndexByFeatureName(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]);
 
 									if(seriesIndex > -1){
 										$scope.lineChart.dispatchAction({
@@ -584,9 +879,7 @@ angular
 
 								$scope.$on("updateDiagramsForUnhoveredFeature", function (event, featureProperties) {
 
-									console.log("updateDiagramsForUnhoveredFeature called!");
-
-									if(! kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(featureProperties.spatialUnitFeatureName)){
+									if(! kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME])){
 										unhighlightFeatureInLineChart(featureProperties);
 
 										removeSeriesFromLineChart(featureProperties);
@@ -607,13 +900,13 @@ angular
 
 								var removeSeriesFromLineChart = function(featureProperties){
 									// remove feature from legend
-									var legendIndex = $scope.lineOption.legend.data.indexOf(featureProperties.spatialUnitFeatureName);
+									var legendIndex = $scope.lineOption.legend.data.indexOf(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]);
 									if (legendIndex > -1) {
 									  $scope.lineOption.legend.data.splice(legendIndex, 1);
 									}
 
 									// remove feature data series
-									var seriesIndex = getSeriesIndexByFeatureName(featureProperties.spatialUnitFeatureName);
+									var seriesIndex = getSeriesIndexByFeatureName(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]);
 									if (seriesIndex > -1) {
 									  $scope.lineOption.series.splice(seriesIndex, 1);
 									}
@@ -627,7 +920,7 @@ angular
 									// get index of bar item
 									var index = -1;
 									for(var i=0; i<$scope.barOption.xAxis.data.length; i++){
-										if($scope.barOption.xAxis.data[i] === featureProperties.spatialUnitFeatureName){
+										if($scope.barOption.xAxis.data[i] === featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]){
 											index = i;
 											break;
 										}
@@ -651,7 +944,7 @@ angular
 								var unhighlightFeatureInLineChart = function(featureProperties){
 									// highlight the corresponding bar diagram item
 									// get series index of series
-									var seriesIndex = getSeriesIndexByFeatureName(featureProperties.spatialUnitFeatureName);
+									var seriesIndex = getSeriesIndexByFeatureName(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]);
 
 									if(seriesIndex > -1){
 										$scope.lineChart.dispatchAction({
@@ -660,6 +953,29 @@ angular
 										});
 									}
 								};
+
+								$scope.$on("AppendExportButtonsForTable", function (event, tableId, tableExportName) {
+
+									setTimeout(function () {
+
+
+										// new TableExport(document.getElementsByTagName("table"), {
+										new TableExport(document.getElementById(tableId), {
+												headers: true,                              // (Boolean), display table headers (th or td elements) in the <thead>, (default: true)
+												footers: true,                              // (Boolean), display table footers (th or td elements) in the <tfoot>, (default: false)
+												formats: ['xlsx', 'csv', 'txt'],            // (String[]), filetype(s) for the export, (default: ['xlsx', 'csv', 'txt'])
+												filename: tableExportName,                             // (id, String), filename for the downloaded file, (default: 'id')
+												bootstrap: true,                           // (Boolean), style buttons using bootstrap, (default: true)
+												exportButtons: true,                        // (Boolean), automatically generate the built-in export buttons for each of the specified formats (default: true)
+												position: 'top',                         // (top, bottom), position of the caption element relative to table, (default: 'bottom')
+												ignoreRows: null,                           // (Number, Number[]), row indices to exclude from the exported file(s) (default: null)
+												ignoreCols: null,                           // (Number, Number[]), column indices to exclude from the exported file(s) (default: null)
+												trimWhitespace: true                        // (Boolean), remove all leading/trailing newlines, spaces, and tabs from cell text in the exported file(s) (default: false)
+										});
+							    }, 50);
+
+
+								});
 
 							} ]
 				});

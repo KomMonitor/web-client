@@ -1,8 +1,14 @@
-<div align="center" id="regressionDiagram">
+<div align="center" id="indicatorRegression">
+
+	<div align="center">
+		<div class="loading-overlay-sidebar ng-hide" ng-show="!setupCompleted">
+					<span class="glyphicon glyphicon-refresh icon-spin"></span>
+		</div>
+	</div>
 
 	<h4>Lineare Regression zwischen zwei Indikatoren</h4>
 
-	<div ng-show="!selectedIndicatorForXAxis && !selectedIndicatorForYAxis">
+	<div>
 		<p>Nach Selektion je eines Indikators für die X- und Y-Achse wird eine lineare Regression gerechnet und als Diagramm dargestellt.</p>
 	</div>
 
@@ -16,7 +22,7 @@
 					<div text-align="center" align="center" class="hiddenTableContent">
 						<label>X-Achse</label>
 							<select
-								size="12" ng-model="selectedIndicatorForXAxis" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators"
+								size="8" ng-model="selectedIndicatorForXAxis" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators()  | filter:filterIndicatorsBySpatialUnitAndDate()"
 								ng-change="onChangeSelectedIndicators()" class="form-control" required>
 								<option disabled selected value> -- Indikator f&uuml;r X-Achse w&auml;hlen -- </option>
 							</select>
@@ -30,7 +36,7 @@
 					<div text-align="center" align="center" class="hiddenTableContent">
 						<label>Y-Achse</label>
 							<select
-								size="12" ng-model="selectedIndicatorForYAxis" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators"
+								size="8" ng-model="selectedIndicatorForYAxis" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators() | filter:filterIndicatorsBySpatialUnitAndDate()"
 								ng-change="onChangeSelectedIndicators()" class="form-control" required>
 								<option disabled selected value> -- Indikator f&uuml;r Y-Achse w&auml;hlen -- </option>
 							</select>
@@ -41,11 +47,12 @@
 
 			</div>
 
+			<br/>
+			<br/>
 
+			<div id="regressionDiagram" style="width:770px; height:500px;"></div>
 
-			<div id="regressionDiagram" style="width:700px; height:600px;"></div>
-
-			<h4>Korrelationskoeffizient: {{correlation}}</h4>
+			<h4>Korrelationskoeffizient nach Pearson: {{correlation}}</h4>
 
 
 </div>

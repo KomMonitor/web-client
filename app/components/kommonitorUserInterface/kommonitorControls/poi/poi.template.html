@@ -1,0 +1,54 @@
+<div id="poi">
+
+	<div align="center">
+		<div class="loading-overlay-sidebar-small ng-hide" ng-show="loadingData">
+					<span class="glyphicon glyphicon-refresh icon-spin"></span>
+		</div>
+	</div>
+
+			<div class="form-group" >
+				<br/>
+				<div align="center">
+					<h4>Points of Interest</h4>
+				</div>
+
+					<br/>
+
+					<p>Selektieren eines Eintrags aus unten stehender Liste f&uuml;gt den entsprechenden Punkt-Layer der Kartendarstellung hinzu. Deselektion entfernt den entsprechenden Layer aus der Kartendarstellung.</p>
+
+					<div id="poiInputForm">
+						<div ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:filterGeoresourcesByPoi() | filter:filterPois()'>
+							<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
+							<label class='checkbox-inline' ><input type="checkbox" value="poi.datasetName" ng-model="poi.isSelected" ng-change="handlePoiOnMap(poi)">
+								<i class="awesome-marker-legend awesome-marker-legend-icon-{{poi.poiMarkerColor}}">
+									<span style="margin-left:3px; font-size:0.7em; color:{{poi.poiSymbolColor}};" align="center" class="glyphicon glyphicon-{{poi.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
+								</i>
+
+								<b>&nbsp;&nbsp;{{poi.datasetName}}</b> &mdash; {{poi.metadata.description}}
+							</label>
+							<br/>
+						</div>
+						</div>
+
+						<br/>
+
+						<div align="center">
+							<label class='checkbox-inline' >
+								<input type="checkbox" value="useCluster" ng-model="useCluster" ng-change="refreshPoiLayers()" checked>
+								<b title="Checkbox zur Wahl, ob die einzelnen Punkte eines POI Layers geclustered werden sollen">Nutze geclusterte Darstellung der POI</b> (Zusammenfassung mehrerer Punkte je nach Zoomstufe)
+							</label>
+						</div>
+
+						<br/><br/>
+
+						<div align="center">
+							<p>TODO - Under Development</p>
+							<strong>derzeitig nur Anzeige ausgewählter POIs möglich. Künftig sollen auch Lines of Interest and Areas of Interest zur Einblendung weiterer Infrastrukturmerkmale sowie eine Darstellung der jeweiligen Metadaten als Kartenpopup angeboten werden.</strong>
+						</div>
+
+						<br/><br/>
+
+			</div>
+
+
+</div>

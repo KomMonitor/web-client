@@ -12,18 +12,41 @@ angular.module('kommonitorDataExchange', ['kommonitorMap']);
 angular
 		.module('kommonitorDataExchange')
 		.service(
-				'kommonitorDataExchangeService', ['$rootScope', 'kommonitorMapService', '$http',
+				'kommonitorDataExchangeService', ['$rootScope', 'kommonitorMapService', '$http', '__env',
 				function($rootScope,
-						kommonitorMapService, $http) {
+						kommonitorMapService, $http, __env) {
+
+							var numberOfDecimals = __env.numberOfDecimals;
+							const DATE_PREFIX = __env.indicatorDatePrefix;
+              var defaultColorForZeroValues = __env.defaultColorForZeroValues;
+              var defaultColorForNoDataValues = __env.defaultColorForNoDataValues;
+              var defaultColorForFilteredValues = __env.defaultColorForFilteredValues;
+
+              const defaultColorForOutliers_high = __env.defaultColorForOutliers_high;
+              const defaultBorderColorForOutliers_high = __env.defaultBorderColorForOutliers_high;
+              const defaultFillOpacityForOutliers_high = __env.defaultFillOpacityForOutliers_high;
+              const defaultColorForOutliers_low = __env.defaultColorForOutliers_low;
+              const defaultBorderColorForOutliers_low = __env.defaultBorderColorForOutliers_low;
+              const defaultFillOpacityForOutliers_low = __env.defaultFillOpacityForOutliers_low;
 
 					this.kommonitorMapServiceInstance = kommonitorMapService;
 
+          this.anySideBarIsShown = false;
+
 					this.isMeasureOfValueChecked = false;
+					this.isBalanceChecked = false;
+					this.indicatorAndMetadataAsBalance;
 					this.tmpIndicatorGeoJSON = undefined;
 
-					this.baseUrlToKomMonitorDataAPI = "http://localhost:8085/rest/v1";
+					this.baseUrlToKomMonitorDataAPI = __env.apiUrl + __env.basePath;
+          this.simplifyGeometriesParameterName = __env.simplifyGeometriesParameterName;
+          this.simplifyGeometriesOptions = __env.simplifyGeometriesOptions;
+          this.simplifyGeometries = __env.simplifyGeometries;
 
 					this.availableProcessScripts;
+          this.isochroneLegend;
+
+          this.useOutlierDetectionOnIndicator = true;
 
 					this.setProcessScripts = function(scriptsArray){
 						this.availableProcessScripts = scriptsArray;
@@ -32,6 +55,7 @@ angular
 					this.availableSpatialUnits;
 
 					this.selectedSpatialUnit;
+					this.selectedDate;
 
 					this.setSpatialUnits = function(spatialUnitsArray){
 						this.availableSpatialUnits = spatialUnitsArray;
@@ -55,6 +79,8 @@ angular
 					this.availableIndicators;
 
 					this.selectedIndicator;
+          // backup used when switching themes --< this might make selectedIndicator undefined due to filtering list of theme-matching indicators
+          this.selectedIndicatorBackup;
 					this.wmsUrlForSelectedIndicator;
 					this.wfsUrlForSelectedIndicator;
 
@@ -62,42 +88,12 @@ angular
 
 					this.measureOfValue = 51;
 
+					// an array of only the properties and metadata of all indicatorFeatures
+					this.allIndicatorPropertiesForCurrentSpatialUnitAndTime;
+
 					this.setIndicators = function(indicatorsArray){
 						this.availableIndicators = indicatorsArray;
 					};
-
-					// this.onChangeSelectedIndicator = function(){
-					// 	// parse the WMS and WFS URL from the selected indicator
-					// 	// for this we also have to inspect the currently seelcted spatial unit
-					//
-					// 	 // e.g. the structure of OGC services within indocator metadata looks like:
-					// 		// 		 "ogcServices": [
-			    //     //     {
-			    //     //         "spatialUnit": "Stadtteilebene",
-			    //     //         "wmsUrl": "http://localhost:8080/geoserver/kommonitor/VIEW_INDICATOR_0/wms?service=WMS&request=GetCapabilities",
-			    //     //         "wfsUrl": "http://localhost:8080/geoserver/kommonitor/VIEW_INDICATOR_0/wfs?service=WFS&request=GetCapabilities"
-			    //     //     }
-			    //     // ]
-					//
-					// 		this.wmsUrlForSelectedIndicator = undefined;
-					// 		this.wmsUrlForSelectedIndicator = undefined;
-					//
-					// 		var selectedSpatialUnitName = this.selectedSpatialUnit.spatialUnitLevel;
-					//
-					// 		this.selectedIndicator.ogcServices.forEach(function(ogcServiceEntry){
-					// 			if (ogcServiceEntry.spatialUnit === selectedSpatialUnitName){
-					// 				this.wmsUrlForSelectedIndicator = ogcServiceEntry.wmsUrl;
-					// 				this.wfsUrlForSelectedIndicator = ogcServiceEntry.wfsUrl;
-					//
-					// 				// $scope.$apply();
-					// 				$rootScope.$broadcast("updateIndicatorOgcServices", this.wmsUrlForSelectedIndicator, this.wfsUrlForSelectedIndicator);
-					// 				return;
-					// 			}
-					// 		});
-					//
-					// 	this.tmpIndicatorGeoJSON =
-					// }
-
 
 
 					// TOPICS
@@ -110,65 +106,258 @@ angular
 						this.availableTopics = topicsArray;
 					};
 
+					// FILTER
+					this.rangeFilterData;
+					this.filteredIndicatorFeatureNames;
 
+					this.indicatorValueIsNoData = function(indicatorValue){
+						if(Number.isNaN(indicatorValue) || indicatorValue === null || indicatorValue === undefined){
+							return true;
+						}
+						return false;
+					}
 
-					// this.availableBaseData = [
-					// {"name":"Baublöcke",
-					//  "wfsURL":"http://localhost:8080/geoserver/kommonitor/Baubloecke_EWS/wfs",
-					//  "wmsURL":"http://localhost:8080/geoserver/kommonitor/Baubloecke_EWS/wms",
-					//  "layerName":"kommonitor:Baubloecke_EWS"},
-					// {"name":"Flächennutzungskartierung",
-					//  "wfsURL":"http://localhost:8080/geoserver/kommonitor/FNK15/wfs",
-					//  "wmsURL":"http://localhost:8080/geoserver/kommonitor/FNK15/wms",
-					//  "layerName":"kommonitor:FNK15"},
-					//  {"name":"Freiflächen - 2009",
-					//  "wfsURL":"http://localhost:8080/geoserver/kommonitor/fnk_frfl_2009/wfs",
-					//  "wmsURL":"http://localhost:8080/geoserver/kommonitor/fnk_frfl_2009/wms",
-					//  "layerName":"kommonitor:fnk_frfl_2009"},
-					//  {"name":"Freiflächen - 2012",
-					//  "wfsURL":"http://localhost:8080/geoserver/kommonitor/fnk_frfl_2012/wfs",
-					//  "wmsURL":"http://localhost:8080/geoserver/kommonitor/fnk_frfl_2012/wms",
-					//  "layerName":"kommonitor:fnk_frfl_2012"},
-					//  {"name":"Freiflächen - 2015",
-					//  "wfsURL":"http://localhost:8080/geoserver/kommonitor/fnk_frfl_2015/wfs",
-					//  "wmsURL":"http://localhost:8080/geoserver/kommonitor/fnk_frfl_2015/wms",
-					//  "layerName":"kommonitor:fnk_frfl_2015"}];
-					//
-					// this.selectedBaseData;
-					//
-					// this.availableIndicators = [
-					// {"name":"Fussl. Erreichbarkeit von Freiraum - Baublockebene - 2015",
-					// "jahr":"2015",
-					//  "wfsURL":"http://localhost:8080/geoserver/kommonitor/frfl_versorgung_baublockebene/wfs",
-					//  "wmsURL":"http://localhost:8080/geoserver/kommonitor/frfl_versorgung_baublockebene/wms",
-					//  "styleNameSLD":"frfl_versorgung_baublockebene_2015_style",
-					//  "measureOfValueText": "Angabe des Trennwertes versorgter und nicht versorgter Entitäten in Prozent (0 - 100). Default: 51%",
-					//  "layerName":"kommonitor:frfl_versorgung_baublockebene",
-					//  "layerLegendText":"Der Indikator zeigt die Versorgung der Einwohner mit fussl. erreichbarem Freiraum auf der Baublockebene. Als default-Wertmaßstab zur Unterscheidung versorgter und nicht versorgter Entitäten wurde 51% der versorgten Fläche genutzt.",
-					//  "layerLegendURL":"http://localhost:8080/geoserver/kommonitor/frfl_versorgung_baublockebene/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=kommonitor:frfl_versorgung_baublockebene"},
-					//
-					//  {"name":"Fussl. Erreichbarkeit von Freiraum - Baublockebene - 2012",
-					//  "jahr":"2012",
-					//  "wfsURL":"http://localhost:8080/geoserver/kommonitor/frfl_versorgung_baublockebene/wfs",
-					//  "wmsURL":"http://localhost:8080/geoserver/kommonitor/frfl_versorgung_baublockebene/wms",
-					//  "styleNameSLD":"frfl_versorgung_baublockebene_2012_style",
-					//  "measureOfValueText": "Angabe des Trennwertes versorgter und nicht versorgter Entitäten in Prozent (0 - 100). Default: 51%",
-					//  "layerName":"kommonitor:frfl_versorgung_baublockebene",
-					//  "layerLegendText":"Der Indikator zeigt die Versorgung der Einwohner mit fussl. erreichbarem Freiraum auf der Baublockebene. Als default-Wertmaßstab zur Unterscheidung versorgter und nicht versorgter Entitäten wurde 51% der versorgten Fläche genutzt.",
-					//  "layerLegendURL":"http://localhost:8080/geoserver/kommonitor/frfl_versorgung_baublockebene/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=kommonitor:frfl_versorgung_baublockebene"},
-					//
-					//  {"name":"Fussl. Erreichbarkeit von Freiraum - Baublockebene - 2009",
-					//  "jahr":"2009",
-					//  "wfsURL":"http://localhost:8080/geoserver/kommonitor/frfl_versorgung_baublockebene/wfs",
-					//  "wmsURL":"http://localhost:8080/geoserver/kommonitor/frfl_versorgung_baublockebene/wms",
-					//  "styleNameSLD":"frfl_versorgung_baublockebene_2009_style",
-					//  "measureOfValueText": "Angabe des Trennwertes versorgter und nicht versorgter Entitäten in Prozent (0 - 100). Default: 51%",
-					//  "layerName":"kommonitor:frfl_versorgung_baublockebene",
-					//  "layerLegendText":"Der Indikator zeigt die Versorgung der Einwohner mit fussl. erreichbarem Freiraum auf der Baublockebene. Als default-Wertmaßstab zur Unterscheidung versorgter und nicht versorgter Entitäten wurde 51% der versorgten Fläche genutzt.",
-					//  "layerLegendURL":"http://localhost:8080/geoserver/kommonitor/frfl_versorgung_baublockebene/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=kommonitor:frfl_versorgung_baublockebene"}
-					// ];
+					this.getIndicatorValueFromArray_asNumber = function(propertiesArray, targetDateString){
+						if(!targetDateString.includes(DATE_PREFIX)){
+							targetDateString = DATE_PREFIX + targetDateString;
+						}
+						var indicatorValue = propertiesArray[targetDateString];
+						var value;
+						if(this.indicatorValueIsNoData(indicatorValue)){
+							value = "NoData";
+						}
+						else{
+							value = +Number(indicatorValue).toFixed(numberOfDecimals);
+						}
 
+						return value;
+					}
 
+					this.getIndicatorValueFromArray_asFormattedText = function(propertiesArray, targetDateString){
+						if(!targetDateString.includes(DATE_PREFIX)){
+							targetDateString = DATE_PREFIX + targetDateString;
+						}
+						var indicatorValue = propertiesArray[targetDateString];
+						var value;
+						if(this.indicatorValueIsNoData(indicatorValue)){
+							value = "NoData";
+						}
+						else{
+						 	value = Number(indicatorValue).toLocaleString('de-DE', {maximumFractionDigits: numberOfDecimals});
+						}
 
+						return value;
+					}
+
+					this.getIndicatorValue_asNumber = function(indicatorValue){
+						var value;
+						if(this.indicatorValueIsNoData(indicatorValue)){
+							value = "NoData";
+						}
+						else{
+							value = +Number(indicatorValue).toFixed(numberOfDecimals);
+						}
+
+						return value;
+					}
+
+					this.getIndicatorValue_asFormattedText = function(indicatorValue){
+						var value;
+						if(this.indicatorValueIsNoData(indicatorValue)){
+							value = "NoData";
+						}
+						else{
+						 	value = Number(indicatorValue).toLocaleString('de-DE', {maximumFractionDigits: numberOfDecimals});
+						}
+
+						return value;
+					}
+
+          this.getColorForFeature = function(feature, indicatorMetadataAndGeoJSON, targetDate, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue){
+            var color;
+
+            if(!targetDate.includes(DATE_PREFIX)){
+							targetDate = DATE_PREFIX + targetDate;
+						}
+
+            if(this.indicatorValueIsNoData(feature.properties[targetDate])){
+              color = defaultColorForNoDataValues;
+            }
+            else if(this.filteredIndicatorFeatureNames.includes(feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])){
+              color = defaultColorForFilteredValues;
+            }
+            else if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) === 0 ){
+              color = defaultColorForZeroValues;
+            }
+            else if(feature.properties["outlier"] !== undefined && feature.properties["outlier"].includes("low") && this.useOutlierDetectionOnIndicator){
+              color = defaultColorForOutliers_low;
+            }
+            else if(feature.properties["outlier"] !== undefined && feature.properties["outlier"].includes("high") && this.useOutlierDetectionOnIndicator){
+              color = defaultColorForOutliers_high;
+            }
+            else if(isMeasureOfValueChecked){
+
+              if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) >= +Number(measureOfValue).toFixed(numberOfDecimals)){
+
+                for (var index=0; index < gtMeasureOfValueBrew.breaks.length; index++){
+
+                  if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) == +Number(gtMeasureOfValueBrew.breaks[index]).toFixed(numberOfDecimals)){
+                    if(index < gtMeasureOfValueBrew.breaks.length -1){
+                      // min value
+                      color =  gtMeasureOfValueBrew.colors[index];
+                      break;
+                    }
+                    else {
+                      //max value
+                      if (gtMeasureOfValueBrew.colors[index]){
+                        color =  gtMeasureOfValueBrew.colors[index];
+                      }
+                      else{
+                        color =  gtMeasureOfValueBrew.colors[index - 1];
+                      }
+                      break;
+                    }
+                  }
+                  else{
+                    if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) < +Number(gtMeasureOfValueBrew.breaks[index + 1]).toFixed(numberOfDecimals)) {
+                      color =  gtMeasureOfValueBrew.colors[index];
+                      break;
+                    }
+                  }
+                }
+              }
+              else {
+
+                // invert colors, so that lowest values will become strong colored!
+                for (var index=0; index < ltMeasureOfValueBrew.breaks.length; index++){
+                  if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) == +Number(ltMeasureOfValueBrew.breaks[index]).toFixed(numberOfDecimals)){
+                    if(index < ltMeasureOfValueBrew.breaks.length -1){
+                      // min value
+                      color =  ltMeasureOfValueBrew.colors[ltMeasureOfValueBrew.colors.length - index - 1];
+                      break;
+                    }
+                    else {
+                      //max value
+                      if (ltMeasureOfValueBrew.colors[ltMeasureOfValueBrew.colors.length - index]){
+                        color =  ltMeasureOfValueBrew.colors[ltMeasureOfValueBrew.colors.length - index];
+                      }
+                      else{
+                        color =  ltMeasureOfValueBrew.colors[ltMeasureOfValueBrew.colors.length - index - 1];
+                      }
+                      break;
+                    }
+                  }
+                  else{
+                    if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) < +Number(ltMeasureOfValueBrew.breaks[index + 1]).toFixed(numberOfDecimals)) {
+                      color =  ltMeasureOfValueBrew.colors[ltMeasureOfValueBrew.colors.length - index - 1];
+                      break;
+                    }
+                  }
+                }
+
+              }
+
+            }
+            else{
+              if(indicatorMetadataAndGeoJSON.indicatorType === 'DYNAMIC'){
+
+                if(feature.properties[targetDate] < 0){
+
+                  for (var index=0; index < dynamicDecreaseBrew.breaks.length; index++){
+                    if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) == +Number(dynamicDecreaseBrew.breaks[index]).toFixed(numberOfDecimals)){
+                      if(index < dynamicDecreaseBrew.breaks.length -1){
+                        // min value
+                        color =  dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - index - 1];
+                        break;
+                      }
+                      else {
+                        //max value
+                        if (dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - index]){
+                          color =  dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - index];
+                        }
+                        else{
+                          color =  dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - index - 1];
+                        }
+                        break;
+                      }
+                    }
+                    else{
+                      if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) < +Number(dynamicDecreaseBrew.breaks[index + 1]).toFixed(numberOfDecimals)) {
+                        color =  dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - index - 1];
+                        break;
+                      }
+                    }
+                  }
+                }
+                else{
+                  for (var index=0; index < dynamicIncreaseBrew.breaks.length; index++){
+                    if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) == +Number(dynamicIncreaseBrew.breaks[index]).toFixed(numberOfDecimals)){
+                      if(index < dynamicIncreaseBrew.breaks.length -1){
+                        // min value
+                        color =  dynamicIncreaseBrew.colors[index];
+                        break;
+                      }
+                      else {
+                        //max value
+                        if (dynamicIncreaseBrew.colors[index]){
+                          color =  dynamicIncreaseBrew.colors[index];
+                        }
+                        else{
+                          color =  dynamicIncreaseBrew.colors[index - 1];
+                        }
+                        break;
+                      }
+                    }
+                    else{
+                      if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) < +Number(dynamicIncreaseBrew.breaks[index + 1]).toFixed(numberOfDecimals)) {
+                        color =  dynamicIncreaseBrew.colors[index];
+                        break;
+                      }
+                    }
+                  }
+                }
+
+              }
+              else{
+                  color = defaultBrew.getColorInRange(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate));
+              }
+            }
+
+            return color;
+          };
+
+          this.filterIndicators = function (){
+            return function( item ) {
+
+              // var arrayOfNameSubstringsForHidingIndicators = ["Standardabweichung", "Prozentuale Ver"];
+              var arrayOfNameSubstringsForHidingIndicators = __env.arrayOfNameSubstringsForHidingIndicators;
+
+              // this is an item from i.e. indicatorRadar, that has a different structure
+              if(item.indicatorMetadata){
+                if(item.indicatorMetadata.applicableDates == undefined || item.indicatorMetadata.applicableDates.length === 0)
+                  return false;
+
+                  var isIndicatorThatShallNotBeDisplayed = arrayOfNameSubstringsForHidingIndicators.some(substring => String(item.indicatorMetadata.indicatorName).includes(substring));
+
+                  if(isIndicatorThatShallNotBeDisplayed){
+                    return false;
+                  }
+                return true;
+              }
+              else{
+                //
+                if(item.applicableDates == undefined || item.applicableDates.length === 0)
+                  return false;
+
+                  // var isIndicatorThatShallNotBeDisplayed = item.indicatorName.includes("Standardabweichung") || item.indicatorName.includes("Prozentuale Ver");
+                  var isIndicatorThatShallNotBeDisplayed = arrayOfNameSubstringsForHidingIndicators.some(substring => String(item.indicatorName).includes(substring));
+
+                  if(isIndicatorThatShallNotBeDisplayed){
+                    return false;
+                  }
+                return true;
+              }
+            };
+          };
 
 				}]);

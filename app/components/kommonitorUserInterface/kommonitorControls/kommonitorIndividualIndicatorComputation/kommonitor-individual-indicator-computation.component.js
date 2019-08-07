@@ -4,45 +4,62 @@ angular
 				'kommonitorIndividualIndicatorComputation',
 				{
 					templateUrl : "components/kommonitorUserInterface/kommonitorControls/kommonitorIndividualIndicatorComputation/kommonitor-individual-indicator-computation.template.html",
-					controller : ['kommonitorDataExchangeService', '$scope', '$http','kommonitorMapService', function kommonitorIndividualIndicatorComputationController(
-							kommonitorDataExchangeService, $scope, $http, kommonitorMapService) {
+					controller : ['kommonitorDataExchangeService', '$rootScope', '$scope', '$http','kommonitorMapService', '__env', function kommonitorIndividualIndicatorComputationController(
+							kommonitorDataExchangeService, $rootScope, $scope, $http, kommonitorMapService, __env) {
 
 						this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
+						const targetURL = __env.targetUrlToProcessingEngine + "script-engine/customizableIndicatorComputation";
+
 						$scope.loadingData = false;
 
-						this.targetIndicator;
-						this.targetDate;
-						this.targetSpatialUnit;
-						this.targetScriptMetadata;
+						$scope.targetIndicator;
+						$scope.targetDate;
+						$scope.targetSpatialUnit;
+						$scope.targetScriptMetadata;
 						$scope.jobInfoText;
 						$scope.computedCustomizedIndicatorGeoJSON;
+						$scope.datesAsMs;
+						$scope.availableDates;
+						$scope.inputNgModels = {};
 
 						$scope.dateSliderForComputation;
 
-						// var wait = ms => new Promise((r, j)=>setTimeout(r, ms))
-						//
-						// $scope.$on("refreshDateSlider", async function (event) {
-						//
-						// 		console.log('refreshDateSlider was called. Waiting for one second.');
-						//
-						// 		await wait(300);
-						//
-						// 		console.log("waiting finished");
-						//
-						// 		if($scope.dateSliderForComputation){
-						// 			$scope.dateSliderForComputation.refresh();
-						// 		}
-						//
-						// });
+						$scope.filterIndicators = function() {
 
-						this.onTargetDateChange = function(){
-							console.log(this.targetDate);
+							return kommonitorDataExchangeService.filterIndicators();
+						};
+
+						$scope.filterComputableIndicators = function() {
+							return function( item ) {
+
+								// if(item.indicatorName.includes("Erreichbarkeit")){
+								// 	return false;
+								// }
+
+								var scriptForIndicator;
+
+								for (var script of kommonitorDataExchangeService.availableProcessScripts){
+									if (script.indicatorId === item.indicatorId){
+										scriptForIndicator = script;
+										break;
+									}
+								};
+
+								if (! script.variableProcessParameters.length > 0){
+									return false;
+								}
+
+								return true;
+							};
+						};
+
+						$scope.onTargetDateChange = function(){
 
 							$scope.computedCustomizedIndicatorGeoJSON = undefined;
 							$scope.resetProgressBar();
 
-							var date = new Date(this.targetDate);
+							var date = new Date($scope.targetDate);
 
 							var month = date.getMonth()+1;
 							var day = date.getDate();
@@ -53,13 +70,19 @@ angular
 							if (day < 10)
 								day = "0" + day;
 
-							this.targetDate = date.getFullYear() + "-" + month  + "-" + day;
-
-							console.log(date);
-							console.log(this.targetDate);
+							$scope.targetDate = date.getFullYear() + "-" + month  + "-" + day;
 
 							$scope.$apply();
 						};
+
+						var updateInputDisplay = function(input){
+
+							var inputDOMElement = document.getElementById(input.parameterData.name);
+							var inputDOMLabelInput = document.getElementById(input.parameterData.name + "Label");
+
+							input.inputElement.value = inputDOMElement.value;
+							inputDOMLabelInput.value = inputDOMElement.value;
+						}
 
 						var createInputAsString = function(parameterData){
 							// {
@@ -116,8 +139,8 @@ angular
 							var inputElement = document.createElement("input");
 							inputElement.setAttribute("id", parameterData.name);
 							inputElement.setAttribute("type", "range");
-							inputElement.setAttribute("value", parameterData.defaultValue);
-							inputElement.value = parameterData.defaultValue;
+							inputElement.setAttribute("value", Number(parameterData.defaultValue));
+							inputElement.value = Number(parameterData.defaultValue);
 							inputElement.setAttribute("class", "slider");
 							inputElement.setAttribute("min", parameterData.minParameterValueForNumericInputs);
 							inputElement.setAttribute("max", parameterData.maxParameterValueForNumericInputs);
@@ -143,7 +166,7 @@ angular
 							var inputElement = {};
 							inputElement.id = parameterData.name;
 							inputElement.type = "range";
-							inputElement.value = parameterData.defaultValue;
+							inputElement.value = Number(parameterData.defaultValue);
 							inputElement.class = "slider";
 							inputElement.min = parameterData.minParameterValueForNumericInputs;
 							inputElement.max = parameterData.maxParameterValueForNumericInputs;
@@ -153,7 +176,7 @@ angular
 							inputElement.ngModelVariable = parameterData.name + "Value";
 
 							// inputElement.setAttribute("ng-model", parameterData.name + "Value");
-							// $scope[inputElement.ngModelVariable] = parameterData.defaultValue;
+							$scope.inputNgModels[inputElement.ngModelVariable] = Number(parameterData.defaultValue);
 
 							return inputElement;
 						};
@@ -166,6 +189,7 @@ angular
 
 							$scope.computedCustomizedIndicatorGeoJSON = undefined;
 							$scope.resetProgressBar();
+							$scope.inputNgModels = {};
 
 							// await sleep(1000);
 
@@ -246,7 +270,7 @@ angular
 
 								$scope.processInputs.push(processInput);
 
-								$scope[processInput.inputElement.ngModelVariable] = processInput.parameterData.defaultValue;
+								// $scope[processInput.inputElement.ngModelVariable] = processInput.parameterData.defaultValue;
 
 								// make a bit space after paramter
 								// parameterDiv.appendChild(document.createElement("p"));
@@ -259,7 +283,7 @@ angular
 							// $scope.$apply();
 						};
 
-						this.getScriptMetadataForIndicatorId = function(indicatorId){
+						$scope.getScriptMetadataForIndicatorId = function(indicatorId){
 							var targetScriptMetadata;
 
 							for (const scriptElement of kommonitorDataExchangeService.availableProcessScripts){
@@ -272,28 +296,31 @@ angular
 							return targetScriptMetadata;
 						};
 
-						this.onChangeTargetIndicator = function(){
+						$scope.onChangeTargetIndicator = function(){
 
 							$scope.computedCustomizedIndicatorGeoJSON = undefined;
 							$scope.resetProgressBar();
 
-							this.targetScriptMetadata = this.getScriptMetadataForIndicatorId(this.targetIndicator.indicatorId);
+							$scope.targetScriptMetadata = $scope.getScriptMetadataForIndicatorId($scope.targetIndicator.indicatorId);
 
-							buildParameterFormHtml(this.targetScriptMetadata);
+							buildParameterFormHtml($scope.targetScriptMetadata);
 
-							this.setupDateSliderForComputation();
+							$scope.setupDateSliderForComputation();
 
-							if(!this.targetSpatialUnit){
-								this.targetSpatialUnit = this.getFirstSpatialUnitForSelectedIndicator();
+							if(!$scope.targetSpatialUnit){
+								$scope.targetSpatialUnit = $scope.getFirstSpatialUnitForSelectedIndicator();
 							}
+
+							// modify guidedTour if required
+							$rootScope.$broadcast("redrawGuidedTourElement");
 
 						};
 
-						this.getFirstSpatialUnitForSelectedIndicator = function() {
+						$scope.getFirstSpatialUnitForSelectedIndicator = function() {
 
 							var result = undefined;
 
-								var applicableSpatialUnits = this.targetIndicator.applicableSpatialUnits;
+								var applicableSpatialUnits = $scope.targetIndicator.applicableSpatialUnits;
 
 								for (const spatialUnitEntry of kommonitorDataExchangeService.availableSpatialUnits){
 									if(applicableSpatialUnits.includes(spatialUnitEntry.spatialUnitLevel))
@@ -304,34 +331,34 @@ angular
 								return result;
 						};
 
-						this.onChangeTargetSpatialUnit = function(){
+						$scope.onChangeTargetSpatialUnit = function(){
 
 							$scope.computedCustomizedIndicatorGeoJSON = undefined;
 							$scope.resetProgressBar();
 
 
-							buildParameterFormHtml(this.targetScriptMetadata);
-							this.setupDateSliderForComputation();
+							buildParameterFormHtml($scope.targetScriptMetadata);
+							$scope.setupDateSliderForComputation();
 
 						};
 
-						this.fetchBaseIndicatorMetadata = function(baseIndicatorId){
+						$scope.fetchBaseIndicatorMetadata = function(baseIndicatorId){
 							for (const indicatorMetadata of kommonitorDataExchangeService.availableIndicators){
 								if(indicatorMetadata.indicatorId === baseIndicatorId)
 									return indicatorMetadata;
 							}
 						}
 
-						this.fetchGeoresourceMetadata = function(georesourceId){
+						$scope.fetchGeoresourceMetadata = function(georesourceId){
 							for (const georesourceMetadata of kommonitorDataExchangeService.availableGeoresources){
 								if(georesourceMetadata.datasetId === georesourceId)
 									return georesourceMetadata;
 							}
 						}
 
-						this.appendDatesFromIndicatorMetadataApplicableDates = function(dates){
+						$scope.appendDatesFromIndicatorMetadataApplicableDates = function(dates){
 
-								var indicatorMetadata = this.fetchBaseIndicatorMetadata(this.targetScriptMetadata.indicatorId);
+								var indicatorMetadata = $scope.fetchBaseIndicatorMetadata($scope.targetScriptMetadata.indicatorId);
 								for (const date of indicatorMetadata.applicableDates){
 									if(!dates.includes(date))
 										dates.push(date);
@@ -340,10 +367,10 @@ angular
 							return dates;
 						}
 
-						this.appendDatesFromBaseIndicators = function(dates){
+						$scope.appendDatesFromBaseIndicators = function(dates){
 
-							for (const baseIndicatorId of this.targetScriptMetadata.requiredIndicatorIds){
-								var baseIndicator = this.fetchBaseIndicatorMetadata(baseIndicatorId);
+							for (const baseIndicatorId of $scope.targetScriptMetadata.requiredIndicatorIds){
+								var baseIndicator = $scope.fetchBaseIndicatorMetadata(baseIndicatorId);
 								for (const date of baseIndicator.applicableDates){
 									if(!dates.includes(date))
 										dates.push(date);
@@ -353,10 +380,10 @@ angular
 							return dates;
 						}
 
-						this.appendDatesFromGeoresources = function(dates){
+						$scope.appendDatesFromGeoresources = function(dates){
 
-							for (const georesourceId of this.targetScriptMetadata.requiredGeoresourceIds){
-								var georesource = this.fetchGeoresourceMetadata(georesourceId);
+							for (const georesourceId of $scope.targetScriptMetadata.requiredGeoresourceIds){
+								var georesource = $scope.fetchGeoresourceMetadata(georesourceId);
 								for (const date of georesource.applicableDates){
 									if(!dates.includes(date))
 										dates.push(date);
@@ -366,72 +393,109 @@ angular
 							return dates;
 						}
 
-						this.setupDateSliderForComputation = function(){
+						function dateToTS (date) {
+								return date.valueOf();
+						}
+
+						function tsToDateString (dateAsMs) {
+							var date = new Date(dateAsMs);
+
+							/**
+							* TODO FIXME dateSLider formatter will return only year for now to prevent misleading month and day settings
+							*/
+
+							return date.getFullYear();
+
+								// return date.toLocaleDateString("de-DE", {
+								// 		year: 'numeric',
+								// 		month: 'long',
+								// 		day: 'numeric'
+								// });
+						}
+
+						function dateToDateString (date) {
+
+							/**
+							* TODO FIXME dateSLider formatter will return only year for now to prevent misleading month and day settings
+							*/
+
+							return date.getFullYear();
+
+								// return date.toLocaleDateString("de-DE", {
+								// 		year: 'numeric',
+								// 		month: 'long',
+								// 		day: 'numeric'
+								// });
+						}
+
+						function createDatesFromIndicatorDates(indicatorDates) {
+
+							$scope.datesAsMs = [];
+
+							for (var index=0; index < indicatorDates.length; index++){
+								// year-month-day
+								var dateComponents = indicatorDates[index].split("-");
+								$scope.datesAsMs.push(dateToTS(new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]))));
+							}
+							return $scope.datesAsMs;
+						}
+
+
+						$scope.setupDateSliderForComputation = function(){
+
+							if($scope.dateSliderForComputation){
+									$scope.dateSliderForComputation.destroy();
+							}
+
 							var domNode = document.getElementById("dateSliderForComputation");
 
 							while (domNode.hasChildNodes()) {
 								domNode.removeChild(domNode.lastChild);
 							}
 
-							var availableDates = new Array();
+							$scope.availableDates = new Array();
 
-							// availableDates = this.appendDatesFromBaseIndicators(availableDates);
-							availableDates = this.appendDatesFromIndicatorMetadataApplicableDates(availableDates);
-							// availableDates = this.appendDatesFromGeoresources(availableDates);
+							// availableDates = $scope.appendDatesFromBaseIndicators(availableDates);
+							$scope.availableDates = $scope.appendDatesFromIndicatorMetadataApplicableDates($scope.availableDates);
+							// availableDates = $scope.appendDatesFromGeoresources(availableDates);
 
 							// sort ascending
-							availableDates.sort(function(a, b) {
+							$scope.availableDates.sort(function(a, b) {
 							  return a - b;
 							});
 
-							var lastDateIndex = availableDates.length-1;
-							var lastDate = availableDates[lastDateIndex];
+							$scope.date = $scope.availableDates[$scope.availableDates.length - 1];
+							$scope.targetDate = $scope.availableDates[$scope.availableDates.length - 1];
 
-							var timeSliderInput = [];
+							$scope.datesAsMs = createDatesFromIndicatorDates($scope.availableDates);
 
-							$scope.targetDate = lastDate;
-							$scope.date = lastDate;
-							this.targetDate = lastDate;
-
-							availableDates.forEach(function(date){
-								var dateItem = {};
-
-								dateItem.key = date;
-								dateItem.value = date;
-
-								timeSliderInput.push(dateItem);
+							// new Date() uses month between 0-11!
+							$("#dateSliderForComputation").ionRangeSlider({
+									skin: "big",
+									type: "single",
+									grid: true,
+									values: $scope.datesAsMs,
+									from: $scope.datesAsMs.length -1, // index, not the date
+									force_edges: true,
+									prettify: tsToDateString,
+									onChange: $scope.onChangeDateSliderItem
 							});
 
-							$scope.dateSliderForComputation = rangeslide("#dateSliderForComputation", {
-								data: timeSliderInput,
-								startPosition: lastDateIndex,
-								thumbWidth: 12,
-								thumbHeight: 14,
-								labelsPosition: "alternate",
-								showLabels: true,
-								startAlternateLabelsFromTop: false,
-								trackHeight: 5,
-								showTicks: false,
-								showTrackMarkers: true,
-								markerSize: 12,
-								tickHeight: 0,
-								handlers: {
-									"valueChanged": [this.onChangeDateSliderItem]
-								}
+							$scope.dateSliderForComputation = $("#dateSliderForComputation").data("ionRangeSlider");
+							// make sure that tha handles are properly set to man and max values
+							$scope.dateSliderForComputation.update({
+									from: $scope.datesAsMs.length -1 // index, not the date
 							});
 						};
 
-						this.onChangeDateSliderItem = async function(dataItem, rangeslideElement){
+						$scope.onChangeDateSliderItem = async function(data){
 
-								console.log("Change selected date");
-
-								$scope.targetDate = dataItem.key;
-								this.targetDate = dataItem.key;
-								$scope.date = dataItem.key;
+								$scope.targetDate = $scope.availableDates[data.from];
+								$scope.date = $scope.targetDate;
 							};
 
 
-						this.calculateCustomIndicator = function(){
+						$scope.calculateCustomIndicator = function(){
 
 							$scope.computedCustomizedIndicatorGeoJSON = undefined;
 							$scope.jobInfoText = undefined;
@@ -440,9 +504,6 @@ angular
 							console.log("calculateCustomIndicator called!");
 
 							$scope.loadingData = true;
-
-							var targetURL = "http://localhost:8086/rest/v1/script-engine/customizableIndicatorComputation";
-
 							// example request model
 
 							// {
@@ -472,14 +533,14 @@ angular
 							// }
 
 							var processingInput = {};
-							processingInput.targetSpatialUnitId = this.targetSpatialUnit.spatialUnitId;
-							processingInput.scriptId = this.targetScriptMetadata.scriptId;
-							processingInput.targetDate = this.targetDate;
-							processingInput.georesourceIds = this.targetScriptMetadata.requiredGeoresourceIds;
-							processingInput.baseIndicatorIds = this.targetScriptMetadata.requiredIndicatorIds;
+							processingInput.targetSpatialUnitId = $scope.targetSpatialUnit.spatialUnitId;
+							processingInput.scriptId = $scope.targetScriptMetadata.scriptId;
+							processingInput.targetDate = $scope.targetDate;
+							processingInput.georesourceIds = $scope.targetScriptMetadata.requiredGeoresourceIds;
+							processingInput.baseIndicatorIds = $scope.targetScriptMetadata.requiredIndicatorIds;
 							processingInput.customProcessProperties = new Array();
 
-							this.targetScriptMetadata.variableProcessParameters.forEach(function(processParam){
+							$scope.targetScriptMetadata.variableProcessParameters.forEach(function(processParam){
 								// now get name of parameter
 								// then seach for input element within DOM with id=name
 								// get value of that DOM element and create parameter object
@@ -493,9 +554,9 @@ angular
 
 							console.log("created URL POST body for CUSTOM PROCESSING: " + processingInput);
 
-							$scope.indicatorName = this.targetIndicator.indicatorName;
-							$scope.spatialUnitName = this.targetSpatialUnit.spatialUnitLevel;
-							$scope.date = this.targetDate;
+							$scope.indicatorName = $scope.targetIndicator.indicatorName;
+							$scope.spatialUnitName = $scope.targetSpatialUnit.spatialUnitLevel;
+							$scope.date = $scope.targetDate;
 
 									$http({
 										url: targetURL,
@@ -530,13 +591,12 @@ angular
 											$scope.loadingData = false;
 									});
 
-
 						}
 
 						$scope.showInitialJobStatus = function(jobId){
 
 							$http({
-								url: "http://localhost:8086/rest/v1/script-engine/customizableIndicatorComputation/" + jobId,
+								url: targetURL + "/" + jobId,
 								method: "GET"
 							}).then(function successCallback(response) {
 									// this callback will be called asynchronously
@@ -570,7 +630,7 @@ angular
 									break;
 
 								$http({
-									url: "http://localhost:8086/rest/v1/script-engine/customizableIndicatorComputation/" + jobId,
+									url: targetURL + '/' + jobId,
 									method: "GET"
 								}).then(function successCallback(response) {
 										// this callback will be called asynchronously
@@ -639,11 +699,13 @@ angular
 							// $scope.progress = 0;
 						};
 
-						this.addComputedIndicatorToMap = function(){
+						$scope.addComputedIndicatorToMap = function(){
 							console.log("Adding customized indicator to map.");
 
-							this.targetIndicator.geoJSON = $scope.computedCustomizedIndicatorGeoJSON;
-							kommonitorMapService.addCustomIndicatorGeoJSON(this.targetIndicator, this.targetSpatialUnit.spatialUnitLevel, this.targetDate);
+							$scope.targetIndicator.geoJSON = $scope.computedCustomizedIndicatorGeoJSON;
+							kommonitorDataExchangeService.selectedIndicator = $scope.targetIndicator;
+							// kommonitorMapService.addCustomIndicatorGeoJSON($scope.targetIndicator, $scope.targetSpatialUnit.spatialUnitLevel, $scope.targetDate);
+							kommonitorMapService.replaceIndicatorGeoJSON($scope.targetIndicator, $scope.targetSpatialUnit.spatialUnitLevel, $scope.targetDate, false, true);
 						};
 
 						$scope.prepareDownloadGeoJSON = function(){
@@ -679,11 +741,11 @@ angular
 							document.getElementById('indicatorOutput').appendChild(a);
 						}
 
-						this.downloadGeoJSON = function(){
+						$scope.downloadGeoJSON = function(){
 
 							var geoJSON_string = JSON.stringify($scope.computedCustomizedIndicatorGeoJSON);
 
-							filename = this.targetIndicator.indicatorName + "_" + this.targetSpatialUnit.spatialUnitLevel + "_" + this.targetDate + "_CUSTOM.geojson";
+							filename = $scope.targetIndicator.indicatorName + "_" + $scope.targetSpatialUnit.spatialUnitLevel + "_" + $scope.targetDate + "_CUSTOM.geojson";
 
 							if (!geoJSON_string.match(/^data:application\/vnd.geo+json/i)) {
 								geoJSON_string = 'data:application/vnd.geo+json;charset=utf-8,' + geoJSON_string;

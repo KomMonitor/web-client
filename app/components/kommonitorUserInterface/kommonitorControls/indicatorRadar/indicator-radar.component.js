@@ -6,25 +6,30 @@ angular
 					templateUrl : "components/kommonitorUserInterface/kommonitorControls/indicatorRadar/indicator-radar.template.html",
 
 					controller : [
-							'kommonitorDataExchangeService', '$scope', '$http',
+							'kommonitorDataExchangeService', '$scope', '$rootScope', '$http', '__env',
 							function indicatorRadarController(
-									kommonitorDataExchangeService, $scope, $http) {
+									kommonitorDataExchangeService, $scope, $rootScope, $http, __env) {
 								/*
 								 * reference to kommonitorDataExchangeService instances
 								 */
 								this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
-								const DATE_PREFIX = "DATE_";
+								const DATE_PREFIX = __env.indicatorDatePrefix;
 
 								//$scope.allIndicatorProperties;
 								$scope.namesOfFailedIndicators  = new Array();
 								$scope.selectableIndicatorsForRadar = new Array();
 								$scope.indicatorInputsForRadar = new Array();
+								$scope.eventsRegistered = false;
+
+								var numberOfDecimals = __env.numberOfDecimals;
+
+								$scope.setupCompleted = false;
 
 								$scope.date;
 								$scope.spatialUnitName;
 
-								$scope.$on("updateDiagrams", function (event, indicatorMetadataAndGeoJSON, spatialUnitName, spatialUnitId, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, isMeasureOfValueChecked, measureOfValue, justRestyling) {
+								$scope.$on("updateDiagrams", function (event, indicatorMetadataAndGeoJSON, spatialUnitName, spatialUnitId, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, justRestyling) {
 
 									// if the layer is just restyled (i.e. due to change of measureOfValue)
 									// then we do not need to costly update the radar diagram
@@ -34,7 +39,11 @@ angular
 
 									console.log("updating radar diagram");
 
+									$scope.setupCompleted = false;
+
 									updateRadarChart(indicatorMetadataAndGeoJSON, spatialUnitName, spatialUnitId, date);
+
+									$rootScope.$broadcast("preserveHighlightedFeatures");
 
 								});
 
@@ -52,6 +61,10 @@ angular
 										// explicitly kill and reinstantiate radar diagram to avoid zombie states on spatial unit change
 										$scope.radarChart.dispose();
 										$scope.radarChart = echarts.init(document.getElementById('radarDiagram'));
+
+										$scope.namesOfFailedIndicators  = new Array();
+										$scope.selectableIndicatorsForRadar = new Array();
+										$scope.indicatorInputsForRadar = new Array();
 									}
 
 									$scope.radarChart.showLoading();
@@ -59,6 +72,8 @@ angular
 									// fetch properties of all indicators for targetSpatialunit and date
 									try{
 										$scope.selectableIndicatorsForRadar = await fetchAllIndicatorProperties(spatialUnitId, date);
+										kommonitorDataExchangeService.allIndicatorPropertiesForCurrentSpatialUnitAndTime = $scope.selectableIndicatorsForRadar;
+										$rootScope.$broadcast("allIndicatorPropertiesForCurrentSpatialUnitAndTime setup completed");
 										buildCheckboxForm($scope.selectableIndicatorsForRadar);
 									}
 									catch(error){
@@ -67,6 +82,15 @@ angular
 
 									modifyRadarContent($scope.selectableIndicatorsForRadar);
 								};
+
+								var wait = ms => new Promise((r, j)=>setTimeout(r, ms));
+
+								$scope.$on("allIndicatorPropertiesForCurrentSpatialUnitAndTime setup completed", async function (event) {
+
+									await wait(130);
+									$scope.setupCompleted = true;
+									$scope.$apply();
+								});
 
 								var modifyRadarContent = function(selectedIndicatorsForRadar){
 									var indicatorArrayForRadarChart = new Array();
@@ -84,118 +108,276 @@ angular
 											var valueSum = 0;
 
 											for(var indicatorPropertyInstance of indicatorProperties){
-												valueSum += Number(indicatorPropertyInstance[DATE_PREFIX + $scope.date]);
+												// for average only apply real numeric values
+												if (! kommonitorDataExchangeService.indicatorValueIsNoData(indicatorPropertyInstance[DATE_PREFIX + $scope.date])){
+													var value = kommonitorDataExchangeService.getIndicatorValueFromArray_asNumber(indicatorPropertyInstance, $scope.date)
+													valueSum += value;
 
-												if(Number(indicatorPropertyInstance[DATE_PREFIX + $scope.date]) > maxValue)
-													maxValue = Number(Number(indicatorPropertyInstance[DATE_PREFIX + $scope.date]).toFixed(4));
+													if(value > maxValue)
+														maxValue = value;
 
-												if(Number(indicatorPropertyInstance[DATE_PREFIX + $scope.date]) < minValue)
-													minValue = Number(Number(indicatorPropertyInstance[DATE_PREFIX + $scope.date]).toFixed(4));
+													if(value < minValue)
+														minValue = value;
+												}
+											}
+
+											if (minValue == null){
+												minValue = 0;
+											}
+
+											if(maxValue == null){
+												maxValue = 1;
 											}
 
 											// IT MIGHT HAPPEN THAT AN INDICATOR IS INSPECTED THAT DOES NOT SUPPORT THE DATE
 											// HENCE ONLY ADD VALUES TO DEFAULT IF THEY SHOW MEANINGFUL VALUES
-											if(maxValue > 0 && valueSum > 0){
+											// if(valueSum != null){
 												indicatorArrayForRadarChart.push({
 													name: selectedIndicatorsForRadar[i].indicatorMetadata.indicatorName,
+													unit: selectedIndicatorsForRadar[i].indicatorMetadata.unit,
 													max: maxValue,
 													min: minValue
 												});
 
-												defaultSeriesValueArray.push(Number(Number(valueSum/indicatorProperties.length).toFixed(4)));
-											}
+												defaultSeriesValueArray.push(Number(Number(valueSum/indicatorProperties.length).toFixed(numberOfDecimals)));
+											// }
 										}
 
 									}
 
-									$scope.radarOption = {
-											title: {
-													text: 'Indikatoren im Vergleich - ' + $scope.spatialUnitName + ' - ' + $scope.date,
-													left: 'center',
-									        top: 15
-											},
-											tooltip: {
-											},
-											toolbox: {
-													show : true,
-													feature : {
-															// mark : {show: true},
-															dataView : {show: true, readOnly: true, title: "Data View", lang: ['Data View', 'close', 'refresh']},
-															restore : {show: true, title: "Restore"},
-															saveAsImage : {show: true, title: "Save"}
-													}
-											},
-											legend: {
-													type: "scroll",
-													bottom: 0,
-													data: ['Durchschnitt']
-											},
-											radar: {
-									        // shape: 'circle',
-									        // name: {
-									        //     textStyle: {
-									        //         color: '#fff',
-									        //         backgroundColor: '#999',
-									        //         borderRadius: 3,
-									        //         padding: [3, 5]
-									        //    }
-									        // },
-													name: {
-									            formatter:'[{value}]',
-									            textStyle: {
-									                color:'#525252'
-									            },
-															fontSize: 11
-									        },
-									        indicator: indicatorArrayForRadarChart
-									    },
-											series: [{
-									        name: 'Indikatorvergleich',
-									        type: 'radar',
-													symbolSize: 8,
-									        data : [
-									            {
-									                value : defaultSeriesValueArray,
-									                name : 'Durchschnitt',
-																	lineStyle: {
-																			color: 'gray',
-							                        type: 'dashed',
-																			width: 4
-							                    },
-																	itemStyle: {
-													            borderWidth: 3,
-													            color: 'gray'
-													        },
-																	emphasis: {
-																			lineStyle: {
-																					width: 6
-																			},
-																			itemStyle: {
-															            borderType: 'dashed'
-															        }
+									if(defaultSeriesValueArray.length === 0){
+
+										if($scope.radarChart){
+											$scope.radarChart.dispose();
+											$scope.radarChart = undefined;
+										}
+
+									}
+									else{
+
+										if(!$scope.radarChart)
+											$scope.radarChart = echarts.init(document.getElementById('radarDiagram'));
+										// else{
+										// 	// explicitly kill and reinstantiate radar diagram to avoid zombie states on spatial unit change
+										// 	$scope.radarChart.dispose();
+										// 	$scope.radarChart = echarts.init(document.getElementById('radarDiagram'));
+										// }
+
+										$scope.radarOption = {
+												title: {
+														text: 'Indikatorenradar - ' + $scope.spatialUnitName + ' - ' + $scope.date,
+														left: 'center',
+														top: 0
+												},
+												tooltip: {
+													confine: 'true',
+													formatter: function (params) {
+
+																			var string = "" + params.name + "<br/>";
+
+																			for(var index=0; index < params.value.length; index++){
+																				string += $scope.radarOption.radar.indicator[index].name + ": " + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(params.value[index]) + " [" + $scope.radarOption.radar.indicator[index].unit + "]<br/>";
+																			};
+
+					                            return string;
+					                           }
+													// position: ['50%', '50%']
+												},
+												toolbox: {
+														show : true,
+														right: '25',
+														feature : {
+																// mark : {show: true},
+																dataView : {show: true, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Indikatorenradar', 'schlie&szlig;en', 'refresh'], optionToContent: function(opt){
+
+																// 	<table class="table table-condensed table-hover">
+																// 	<thead>
+																// 		<tr>
+																// 			<th>Indikator-Name</th>
+																// 			<th>Beschreibung der Verkn&uuml;pfung</th>
+																// 		</tr>
+																// 	</thead>
+																// 	<tbody>
+																// 		<tr ng-repeat="indicator in $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.referencedIndicators">
+																// 			<td>{{indicator.referencedIndicatorName}}</td>
+																// 			<td>{{indicator.referencedIndicatorDescription}}</td>
+																// 		</tr>
+																// 	</tbody>
+																// </table>
+
+																var radarSeries = opt.series[0].data;
+																var indicators = opt.radar[0].indicator;
+
+																var dataTableId = "radarDataTable";
+																var tableExportName = opt.title[0].text;
+
+																	var htmlString = '<table id="' + dataTableId + '" class="table table-bordered table-condensed" style="width:100%;text-align:center;">';
+																	htmlString += "<thead>";
+																	htmlString += "<tr>";
+																	htmlString += "<th style='text-align:center;'>Feature-Name</th>";
+
+																	for (var i=0; i<indicators.length; i++){
+																		htmlString += "<th style='text-align:center;'>" + indicators[i].name + " [" + indicators[i].unit + "]</th>";
 																	}
-									            }
-									        ]
-									    }]
-									};
 
-									// check if any feature is still clicked/selected
-									// then append those as series within radar chart
-									appendSelectedFeaturesIfNecessary();
+																	htmlString += "</tr>";
+																	htmlString += "</thead>";
 
-									$scope.radarChart.hideLoading();
+																	htmlString += "<tbody>";
 
-									// use configuration item and data specified to show chart
-									$scope.radarChart.setOption($scope.radarOption);
+
+
+																	for (var j=0; j<radarSeries.length; j++){
+																		htmlString += "<tr>";
+																		htmlString += "<td>" + radarSeries[j].name + "</td>";
+																		for (var k=0; k<indicators.length; k++){
+																			htmlString += "<td>" + kommonitorDataExchangeService.getIndicatorValue_asNumber(radarSeries[j].value[k]) + "</td>";
+																		}
+																		htmlString += "</tr>";
+																	}
+
+																	htmlString += "</tbody>";
+																	htmlString += "</table>";
+
+																	$rootScope.$broadcast("AppendExportButtonsForTable", dataTableId, tableExportName);
+
+															    return htmlString;
+																}},
+																restore : {show: false, title: "Darstellung erneuern"},
+																saveAsImage : {show: true, title: "Export"}
+														}
+												},
+												legend: {
+														type: "scroll",
+														bottom: 0,
+														data: ['Durchschnitt']
+												},
+												radar: {
+														// shape: 'circle',
+														// name: {
+														//     textStyle: {
+														//         color: '#fff',
+														//         backgroundColor: '#999',
+														//         borderRadius: 3,
+														//         padding: [3, 5]
+														//    }
+														// },
+														name: {
+																formatter: function (value, indicator) {
+																								var maxCharsPerLine = 28;
+																								var separationSigns = [" ", "-", "_"];
+																								var counter = 0;
+																								var nextWord = "";
+																								var nextChar;
+																								var label = "";
+																								for(var i=0; i<value.length; i++){
+																									nextChar = value.charAt(i);
+																									nextWord += nextChar;
+																									if(counter === maxCharsPerLine){
+																										label += "\n";
+																										counter = 0;
+																									}
+																									else if(separationSigns.includes(nextChar)){
+																										// add word to label
+																										label += nextWord;
+																										nextWord = "";
+																									}
+																									counter++;
+																								}
+																								//append last word
+																								label += nextWord;
+
+																								// skip unit to save on line in legend
+																								// label = label + "\n" + "[" + indicator.unit + "]";
+																								return label;
+																						},
+																textStyle: {
+																		color:'#525252'
+																},
+																fontSize: 11
+														},
+														indicator: indicatorArrayForRadarChart
+												},
+												series: [{
+														name: 'Indikatorvergleich',
+														type: 'radar',
+														symbolSize: 8,
+														data : [
+																{
+																		value : defaultSeriesValueArray,
+																		name : 'Durchschnitt',
+																		lineStyle: {
+																				color: 'gray',
+																				type: 'dashed',
+																				width: 3
+																		},
+																		itemStyle: {
+																				borderWidth: 2,
+																				color: 'gray'
+																		},
+																		emphasis: {
+																				lineStyle: {
+																						width: 4
+																				},
+																				itemStyle: {
+																						borderType: 'dashed'
+																				}
+																		}
+																}
+														]
+												}]
+										};
+
+										// check if any feature is still clicked/selected
+										// then append those as series within radar chart
+										appendSelectedFeaturesIfNecessary();
+
+										$scope.radarChart.hideLoading();
+
+										// use configuration item and data specified to show chart
+										$scope.radarChart.setOption($scope.radarOption);
+										registerEventsIfNecessary();
+
+									}
+
 								}
 
 								var appendSelectedFeaturesIfNecessary = function(){
 									var sampleProperties = $scope.selectableIndicatorsForRadar[0].indicatorProperties;
 
 									for (var propertiesInstance of sampleProperties){
-										if(kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(propertiesInstance.spatialUnitFeatureName)){
+										if(kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(propertiesInstance[__env.FEATURE_NAME_PROPERTY_NAME])){
 											appendSeriesToRadarChart(propertiesInstance);
 										}
+									}
+								};
+
+								function registerEventsIfNecessary(){
+									if(!$scope.eventsRegistered){
+										// when hovering over elements of the chart then highlight them in the map.
+										$scope.radarChart.on('mouseOver', function(params){
+											// $scope.userHoveresOverItem = true;
+											var spatialFeatureName = params.data.name;
+											// console.log(spatialFeatureName);
+											$rootScope.$broadcast("highlightFeatureOnMap", spatialFeatureName);
+										});
+
+										$scope.radarChart.on('mouseOut', function(params){
+											// $scope.userHoveresOverItem = false;
+
+											var spatialFeatureName = params.data.name;
+											// console.log(spatialFeatureName);
+											$rootScope.$broadcast("unhighlightFeatureOnMap", spatialFeatureName);
+										});
+
+										//disable feature removal for radar chart - seems to be unintuititve
+										// $scope.radarChart.on('click', function(params){
+										// 	var spatialFeatureName = params.data.name;
+										// 	// console.log(spatialFeatureName);
+										// 	$rootScope.$broadcast("switchHighlightFeatureOnMap", spatialFeatureName);
+										// });
+
+										$scope.eventsRegistered = true;
 									}
 								};
 
@@ -221,10 +403,18 @@ angular
 											if(indicatorProperties){
 												var propertiesSample = indicatorProperties[0];
 												if (propertiesSample[dateProperty]){
+
+													// ensure that NoData values are set to null!
+													indicatorProperties.forEach(function(properties){
+														if (kommonitorDataExchangeService.indicatorValueIsNoData(properties[dateProperty])){
+															properties[dateProperty] = null;
+														}
+													});
+
 													var selectableIndicatorEntry = {};
 													selectableIndicatorEntry.indicatorProperties = indicatorProperties;
 													// per default show all indicators on radar
-													selectableIndicatorEntry.isSelected = true;
+													selectableIndicatorEntry.isSelected = false;
 													selectableIndicatorEntry.indicatorMetadata = indicatorMetadata;
 
 													selectableIndicatorsForRadar.push(selectableIndicatorEntry);
@@ -264,9 +454,11 @@ angular
 
 								$scope.$on("updateDiagramsForHoveredFeature", function (event, featureProperties) {
 
-									console.log("updateRadarDiagramForHoveredFeature called!");
+									if(!$scope.radarChart || !$scope.radarOption || !$scope.radarOption.legend || !$scope.radarOption.series){
+										return;
+									}
 
-									if(! kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(featureProperties.spatialUnitFeatureName)){
+									if(! kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME])){
 										appendSeriesToRadarChart(featureProperties);
 									}
 
@@ -275,15 +467,15 @@ angular
 
 								var appendSeriesToRadarChart = function(featureProperties){
 									// append feature name to legend
-									$scope.radarOption.legend.data.push(featureProperties.spatialUnitFeatureName);
+									$scope.radarOption.legend.data.push(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]);
 
 									// create feature data series
 									var featureSeries = {};
-									featureSeries.name = featureProperties.spatialUnitFeatureName;
+									featureSeries.name = featureProperties[__env.FEATURE_NAME_PROPERTY_NAME];
 									featureSeries.value = new Array();
 									featureSeries.emphasis = {
 											lineStyle: {
-													width: 6,
+													width: 4,
 													type: 'dotted'
 											}
 									};
@@ -292,20 +484,23 @@ angular
 										type: 'solid'
 									};
 									featureSeries.itemStyle = {
-											borderWidth: 3
+											borderWidth: 2
 									};
 
 
-									// for each date create series data entry for feature
+									// for each indicator create series data entry for feature
 									for(var i=0; i<$scope.selectableIndicatorsForRadar.length; i++){
 										if($scope.selectableIndicatorsForRadar[i].isSelected){
 											// make object to hold indicatorName, max value and average value
 											var indicatorProperties = $scope.selectableIndicatorsForRadar[i].indicatorProperties;
 
 											for(var indicatorPropertyInstance of indicatorProperties){
-												if(indicatorPropertyInstance.spatialUnitFeatureName === featureProperties.spatialUnitFeatureName){
-													if(indicatorPropertyInstance[DATE_PREFIX + $scope.date] != undefined && indicatorPropertyInstance[DATE_PREFIX + $scope.date] != null){
-														featureSeries.value.push(Number(Number(indicatorPropertyInstance[DATE_PREFIX + $scope.date]).toFixed(4)));
+												if(indicatorPropertyInstance[__env.FEATURE_NAME_PROPERTY_NAME] === featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]){
+													if(! kommonitorDataExchangeService.indicatorValueIsNoData(indicatorPropertyInstance[DATE_PREFIX + $scope.date])){
+														featureSeries.value.push(kommonitorDataExchangeService.getIndicatorValueFromArray_asNumber(indicatorPropertyInstance, $scope.date));
+													}
+													else{
+														featureSeries.value.push(null);
 													}
 													break;
 												}
@@ -317,12 +512,13 @@ angular
 									$scope.radarOption.series[0].data.push(featureSeries);
 
 									$scope.radarChart.setOption($scope.radarOption);
+									registerEventsIfNecessary();
 								};
 
 								var highlightFeatureInRadarChart = function(featureProperties){
 									// highlight the corresponding bar diagram item
 									// get series index of series
-									var dataIndex = getSeriesDataIndexByFeatureName(featureProperties.spatialUnitFeatureName);
+									var dataIndex = getSeriesDataIndexByFeatureName(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]);
 
 									if(dataIndex > -1){
 										$scope.radarChart.dispatchAction({
@@ -335,11 +531,13 @@ angular
 
 								$scope.$on("updateDiagramsForUnhoveredFeature", function (event, featureProperties) {
 
-									console.log("updateRadarDiagramForUnhoveredFeature called!");
+									if(!$scope.radarChart || !$scope.radarOption || !$scope.radarOption.legend || !$scope.radarOption.series){
+										return;
+									}
 
 									unhighlightFeatureInRadarChart(featureProperties);
 
-									if(! kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(featureProperties.spatialUnitFeatureName)){
+									if(! kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME])){
 										removeSeriesFromRadarChart(featureProperties);
 									}
 								});
@@ -356,25 +554,26 @@ angular
 
 								var removeSeriesFromRadarChart = function(featureProperties){
 									// remove feature from legend
-									var legendIndex = $scope.radarOption.legend.data.indexOf(featureProperties.spatialUnitFeatureName);
+									var legendIndex = $scope.radarOption.legend.data.indexOf(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]);
 									if (legendIndex > -1) {
 									  $scope.radarOption.legend.data.splice(legendIndex, 1);
 									}
 
 									// remove feature data series
-									var dataIndex = getSeriesDataIndexByFeatureName(featureProperties.spatialUnitFeatureName);
+									var dataIndex = getSeriesDataIndexByFeatureName(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]);
 									if (dataIndex > -1) {
 									  $scope.radarOption.series[0].data.splice(dataIndex, 1);
 									}
 
 									// second parameter tells echarts to not merge options with previous data. hence really remove series from graphic
 									$scope.radarChart.setOption($scope.radarOption, true);
+									registerEventsIfNecessary();
 								};
 
 								var unhighlightFeatureInRadarChart = function(featureProperties){
 									// highlight the corresponding bar diagram item
 									// get series index of series
-									var dataIndex = getSeriesDataIndexByFeatureName(featureProperties.spatialUnitFeatureName);
+									var dataIndex = getSeriesDataIndexByFeatureName(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]);
 
 									if(dataIndex > -1){
 										$scope.radarChart.dispatchAction({
@@ -432,8 +631,31 @@ angular
 									 $scope.$apply();
 								};
 
+								$scope.filterIndicators = function() {
+
+									return kommonitorDataExchangeService.filterIndicators();
+								};
+
 								this.filterDisplayedIndicatorsOnRadar = function(){
 									console.log("Filtering indicator radar");
+
+									modifyRadarContent($scope.selectableIndicatorsForRadar);
+								}
+
+								this.selectAllIndicatorsForRadar = function(){
+
+									for(var indicator of $scope.selectableIndicatorsForRadar){
+										indicator.isSelected = true;
+									}
+
+									modifyRadarContent($scope.selectableIndicatorsForRadar);
+								}
+
+								this.deselectAllIndicatorsForRadar = function(){
+
+									for(var indicator of $scope.selectableIndicatorsForRadar){
+										indicator.isSelected = false;
+									}
 
 									modifyRadarContent($scope.selectableIndicatorsForRadar);
 								}

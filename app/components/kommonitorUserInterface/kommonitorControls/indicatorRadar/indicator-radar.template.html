@@ -1,17 +1,47 @@
-<div align="center" id="indicatorRadar">
-			<div id="radarDiagram" style="width:700px; height:600px;"></div>
+<div id="indicatorRadar">
 
-			<div class="form-group" align="center">
+	<div align="center">
+		<div class="loading-overlay-sidebar ng-hide" ng-show="!setupCompleted">
+					<span class="glyphicon glyphicon-refresh icon-spin"></span>
+		</div>
+	</div>
 
-				<br/>
-				<br/>
+			<div ng-show="radarChart" id="radarDiagram" style="width:770px; height:550px;"></div>
 
-				<h4>Filtern der dargestellten Indikatoren</h4>
+			<div ng-show="!radarChart" style="width:770px; height:550px;">
 
-				<div ng-show="selectableIndicatorsForRadar" id="radarInputForm">
-
-						<label class='checkbox-inline' ng-repeat='input in selectableIndicatorsForRadar'><input type="checkbox" value="input.indicatorMetadata.indicatorName" ng-model="input.isSelected" ng-change="$ctrl.filterDisplayedIndicatorsOnRadar()">{{input.indicatorMetadata.indicatorName}}</label>
+				<div text-align="center" align="center" class="hiddenTable">
+					<div class="hiddenTableCell">
+						<div text-align="center" align="center" class="hiddenTableContent">
+								<h4>Radardiagramm kann nur angezeigt werden, wenn mindestens ein Indikator gew&auml;hlt ist.</h4>
+						</div>
+					</div>
 				</div>
+
+			</div>
+
+			<div class="form-group" >
+				<br/>
+				<div align="center">
+					<h4>Filtern der dargestellten Indikatoren</h4>
+				</div>
+				<div ng-show="selectableIndicatorsForRadar">
+
+					<div align="center">
+						<input type="button" class="btn btn-xs btn-primary" value="alle Indikatoren zur Radardarstellung hinzufügen" ng-click="$ctrl.selectAllIndicatorsForRadar()"></input>
+						<input type="button" class="btn btn-xs btn-danger" value="alle Indikatoren aus Radardarstellung entfernen" ng-click="$ctrl.deselectAllIndicatorsForRadar()"></input>
+					</div>
+
+					<br/>
+
+					<div id="radarInputForm">
+						<div ng-repeat='input in selectableIndicatorsForRadar | filter:filterIndicators()'>
+							<label class='checkbox-inline' ><input type="checkbox" value="input.indicatorMetadata.indicatorName" ng-model="input.isSelected" ng-change="$ctrl.filterDisplayedIndicatorsOnRadar()">{{input.indicatorMetadata.indicatorName}}</label>
+							<br/>
+						</div>
+						</div>
+
+					</div>
 
 			</div>
 

@@ -47,16 +47,44 @@ angular.module('kommonitorMap').service(
 						georesourceMetadataAndGeoJSON, date);
 			};
 
+      this.addPoiGeoresourceGeoJSON = function (georesourceMetadataAndGeoJSON, date, useCluster) {
+
+				$rootScope.$broadcast("addPoiGeoresourceAsGeoJSON",
+						georesourceMetadataAndGeoJSON, date, useCluster);
+			};
+
+      this.replaceIsochroneGeoJSON = function (geoJSON, transitMode, reachMode, cutOffValues, useMultipleStartPoints) {
+
+				$rootScope.$broadcast("replaceIsochronesAsGeoJSON",
+						geoJSON, transitMode, reachMode, cutOffValues, useMultipleStartPoints);
+			};
+
+      this.replaceIsochroneMarker = function (lonLatArray) {
+
+				$rootScope.$broadcast("replaceIsochroneMarker",
+						lonLatArray);
+			};
+
+      this.removePoiGeoresource = function (georesourceMetadataAndGeoJSON) {
+
+				$rootScope.$broadcast("removePoiGeoresource",
+						georesourceMetadataAndGeoJSON);
+			};
+
+      this.removeReachabilityLayers = function(){
+        $rootScope.$broadcast("removeReachabilityLayers");
+      }
+
 			this.addIndicatorGeoJSON = function (indicatorMetadataAndGeoJSON, spatialUnitName, date) {
 
 				$rootScope.$broadcast("addIndicatorAsGeoJSON",
 						indicatorMetadataAndGeoJSON, spatialUnitName, date);
 			};
 
-			this.replaceIndicatorGeoJSON = function (indicatorMetadataAndGeoJSON, spatialUnitName, date) {
+			this.replaceIndicatorGeoJSON = function (indicatorMetadataAndGeoJSON, spatialUnitName, date, justRestyling, isCustomComputation) {
 
 				$rootScope.$broadcast("replaceIndicatorAsGeoJSON",
-						indicatorMetadataAndGeoJSON, spatialUnitName, date);
+						indicatorMetadataAndGeoJSON, spatialUnitName, date, justRestyling, isCustomComputation);
 			};
 
 			this.addCustomIndicatorGeoJSON = function (indicatorMetadataAndGeoJSON, spatialUnitName, date) {
