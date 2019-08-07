@@ -18,7 +18,21 @@ if(window){
 }
 
 // Declare app level module which depends on views, and components
-var appModule = angular.module('kommonitorClient', [ 'kommonitorUserInterface' ]);
+var appModule = angular.module('kommonitorClient', [ 'ngRoute', 'kommonitorUserInterface', 'kommonitorAdmin']);
+
+appModule.
+  config(['$routeProvider',
+    function config($routeProvider) {
+      $routeProvider.
+        when('/', {
+          template: '<kommonitor-user-interface></kommonitor-user-interface>'
+        }).
+        when('/administration', {
+          template: '<kommonitor-admin></kommonitor-admin>'
+        }).
+        otherwise('/');
+    }
+  ]);
 
 // Register environment in AngularJS as constant
 appModule.constant('__env', env);

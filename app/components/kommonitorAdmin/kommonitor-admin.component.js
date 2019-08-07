@@ -3,7 +3,7 @@ angular
 		.component(
 				'kommonitorAdmin',
 				{
-					templateUrl : "components/kommonitorUserInterface/kommonitorControls/kommonitorAdmin/kommonitor-admin.template.html",
+					templateUrl : "components/kommonitorAdmin/kommonitor-admin.template.html",
 					controller : ['kommonitorDataExchangeService', function kommonitorAdminController(
 							kommonitorDataExchangeService) {
 
