@@ -26,6 +26,7 @@ module.exports = {
           { from: nodeModulePathConstant + 'leaflet-draw/dist', to: 'leaflet-draw/' },
           { from: nodeModulePathConstant + 'jquery/dist', to: 'jquery/' },
           { from: nodeModulePathConstant + 'angular/angular.min.js', to: 'angular/angular.min.js' },
+          { from: nodeModulePathConstant + 'angular-route/angular-route.min.js', to: 'angular-route/angular-route.min.js' },
           { from: nodeModulePathConstant + 'classybrew/build/classybrew.min.js', to: 'classybrew/classybrew.min.js' },
           { from: nodeModulePathConstant + 'echarts/dist/echarts.min.js', to: 'echarts/echarts.min.js' },
           { from: './customizedExternalLibs/ecStat.min.js', to: 'echarts/ecStat.min.js' },
