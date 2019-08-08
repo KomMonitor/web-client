@@ -42,6 +42,7 @@
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.5.0",
+    "font-awesome": "^4.7.0",
     "@ngageoint/leaflet-geopackage": "^2.0.4",
     "@turf/turf": "^5.1.6",
     "admin-lte": "^2.4.15",
