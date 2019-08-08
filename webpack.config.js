@@ -45,7 +45,11 @@ module.exports = {
           { from: nodeModulePathConstant + 'jspdf-autotable/dist/jspdf.plugin.autotable.min.js', to: 'jspdf-autotable' },
           { from: './customizedExternalLibs/shpwrite.js', to: 'shp-write' },
           { from: nodeModulePathConstant + 'jstat/dist/jstat.min.js', to: 'jstat' },
-          { from: nodeModulePathConstant + 'leaflet.pattern/dist/leaflet.pattern.js', to: 'leaflet-pattern' }
+          { from: nodeModulePathConstant + 'leaflet.pattern/dist/leaflet.pattern.js', to: 'leaflet-pattern' },
+          { from: nodeModulePathConstant + 'admin-lte/dist/js/adminlte.min.js', to: 'admin-lte/js/adminlte.min.js' },
+          { from: nodeModulePathConstant + 'admin-lte/dist/css', to: 'admin-lte/css' },
+          { from: nodeModulePathConstant + 'fastclick/lib/fastclick.js', to: 'fastclick' },
+          { from: nodeModulePathConstant + 'slimscroll/lib/slimscroll.js', to: 'slimscroll' }          
       ])
     ]
 };
