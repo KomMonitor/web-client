@@ -564,6 +564,7 @@
 }
 
 #poiInputForm {
+	padding: 5px;
 	height: auto !important;
 	max-height: 900px;
 	border: 2px solid gray;
