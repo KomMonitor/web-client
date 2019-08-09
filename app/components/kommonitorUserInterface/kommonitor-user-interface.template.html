@@ -2,34 +2,23 @@
 
 	<header id="header" >
 
-		<div  style="position:absolute; left:25%;  padding-top: 7px;">
+		<div  style="position:absolute; left:40%;  padding-top: 7px;">
 
 			<h4>KomMonitor (Pilotversion in Entwicklung)
-				<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#infoModal">Information&nbsp;&nbsp;<span class="glyphicon glyphicon-info-sign"></span></button>
+				<!-- <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#infoModal">Information&nbsp;&nbsp;<span class="glyphicon glyphicon-info-sign"></span></button>
 				<button type="button" data-toggle="modal" data-target="#feedbackModal" class="btn btn-danger">Feedback&nbsp;&nbsp;<span class="glyphicon glyphicon-envelope"></span></button>
-				<button type="button" ng-click="startGuidedTour()" class="btn btn-danger">Guided Tour&nbsp;&nbsp;<span class="glyphicon glyphicon-play"></span></button>
+				<button type="button" ng-click="startGuidedTour()" class="btn btn-danger">Guided Tour&nbsp;&nbsp;<span class="glyphicon glyphicon-play"></span></button> -->
 			</h4>
 		</div>
 
 		<div style="padding-left: 10px; padding-top: 7px;">
 
-			<img src="logos/city-logo.png" style="float: left; width: 35px; height: 35px; margin-right: 0.5%;">
+			 <a target="_blank" rel="noopener noreferrer" href="http://kommonitor.de"><img style="float: left; width: 35px; height: 35px; margin-right: 0.5%;" src="logos/KM_Logo1.svg"></img></a>
+			 <img src="logos/city-logo.png" style="float: left; width: 35px; height: 35px; margin-right: 0.5%;"></img>
 
-			<a href="https://www.essen.de/rathaus/organisationseinheiten/organisationseinheit_1188191.de.html" target="_blank" rel="noopener noreferrer">
-				<img src="logos/transparent/essen.png" style="float: right; width: 35px; height: 35px; margin-right: 0.5%;">
-			</a>
-
-			<a href="https://ratsinfo.muelheim-ruhr.de/buerger/at020.asp?ATLFDNR=23" target="_blank" rel="noopener noreferrer">
-				<img src="logos/transparent/muelheim.png" style="float: right; width: 70px; height: 35px; margin-right: 0.5%;">
-			</a>
-			<!-- <img src="/logos/transparent/inwis.png" style="float: right; width: 102px; height: 35px; margin-right: 0.5%;"> -->
-			<a href="https://www.geographie.ruhr-uni-bochum.de/institut/" target="_blank" rel="noopener noreferrer">
-				<img src="logos/transparent/rub.png" style="float: right; width: 35px; height: 35px; margin-right: 0.5%;">
-			</a>
-			<a href="https://www.hochschule-bochum.de/fbg/forschung-und-entwicklung/" target="_blank" rel="noopener noreferrer">
-				<img src="logos/transparent/hsbo.png" style="float: right; width: 145px; height: 35px; margin-right: 0.5%;">
-			</a>
-			<p style="float: right; margin-right: 0.5%; padding-top: 7px;">Projektpartner</p>
+			<a data-toggle="modal" data-target="#infoModal" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;" title="Information&nbsp;&nbsp;"><span class="glyphicon glyphicon-info-sign"></span></a>
+			<a data-toggle="modal" data-target="#feedbackModal" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;" title="Feedback&nbsp;&nbsp;"><span class="glyphicon glyphicon-envelope"></span></a>
+			<a ng-click="startGuidedTour()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;" title="Guided Tour&nbsp;&nbsp;"><span class="glyphicon glyphicon-play"></span></a>
 
 			<p style="clear: both;"></p>
 
