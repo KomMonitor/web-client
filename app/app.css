@@ -573,14 +573,14 @@
 
 #referencedIndicatorOverview {
 	height: auto !important;
-	max-height: 230px;
+	max-height: 200px;
   overflow: auto;
 	font: 12px/14px Arial, Helvetica, sans-serif;
 }
 
 #referencedGeoresourcesOverview {
 	height: auto !important;
-	max-height: 230px;
+	max-height: 200px;
   overflow: auto;
 	font: 12px/14px Arial, Helvetica, sans-serif;
 }
