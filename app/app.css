@@ -254,13 +254,13 @@
 }
 
 #header{
-	background: #E6EEFB;
+	background: rgb(236,240,245);
 	z-index: 2000;
 	border-bottom: 2px solid gray;
 }
 
 #content{
-	background: #E6EEFB;
+	background: rgb(236,240,245);
 	/* overflow: auto; */
 }
 
@@ -600,7 +600,7 @@
 		height: 94vh;
 		max-height: 94vh;
 		/* min-height: 100vh; */
-		background: #E6EEFB;
+		background: rgb(236,240,245);
 		/* transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
     transform-origin: center left; /* Set the transformed position of sidebar to center left side. */ */
 		overflow: auto;
@@ -617,7 +617,7 @@
 		height: 94vh;
 		max-height: 98%;
 		/* min-height: 100vh; */
-		background: #E6EEFB;
+		background: rgb(236,240,245);
 		/* transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
     transform-origin: center left; /* Set the transformed position of sidebar to center left side. */ */
 		overflow: auto;
@@ -633,7 +633,7 @@
 	max-width: 35%;
 		height: 94vh;
 		/* min-height: 100vh; */
-		background: #E6EEFB;
+		background: rgb(236,240,245);
 		/* transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
     transform-origin: center left; /* Set the transformed position of sidebar to center left side. */ */
 		overflow: auto;
@@ -649,7 +649,7 @@
 	max-width: 35%;
 		height: 94vh;
 		/* min-height: 100vh; */
-		background: #E6EEFB;
+		background: rgb(236,240,245);
 		/* transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
     transform-origin: center left; /* Set the transformed position of sidebar to center left side. */ */
 		overflow: auto;
@@ -665,7 +665,7 @@
 	max-width: 42%;
 		/* min-height: 100vh; */
 		height: 94vh;
-		background: #E6EEFB;
+		background: rgb(236,240,245);
 		/* transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
     transform-origin: center left; /* Set the transformed position of sidebar to center left side. */ */
 		overflow: auto;
@@ -681,7 +681,7 @@
 	max-width: 42%;
 		/* min-height: 100vh; */
 		height: 94vh;
-		background: #E6EEFB;
+		background: rgb(236,240,245);
 		/* transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
     transform-origin: center left; /* Set the transformed position of sidebar to center left side. */ */
 		overflow: auto;
@@ -697,7 +697,7 @@
 	max-width: 35%;
 		/* min-height: 100vh; */
 		height: 94vh;
-		background: #E6EEFB;
+		background: rgb(236,240,245);
 		/* transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
     transform-origin: center left; /* Set the transformed position of sidebar to center left side. */ */
 		overflow: auto;
@@ -713,7 +713,7 @@
 	max-width: 42%;
 		/* min-height: 100vh; */
 		height: 94vh;
-		background: #E6EEFB;
+		background: rgb(236,240,245);
 		/* transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
     transform-origin: center left; /* Set the transformed position of sidebar to center left side. */ */
 		overflow: auto;
@@ -729,7 +729,7 @@
 	max-width: 35%;
 		/* min-height: 100vh; */
 		height: 94vh;
-		background: #E6EEFB;
+		background: rgb(236,240,245);
 		/* transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
     transform-origin: center left; /* Set the transformed position of sidebar to center left side. */ */
 		overflow: auto;
@@ -947,7 +947,7 @@
   font-size: 14px;
   color: white;
   border-radius: 0 5px 5px 0;
-	background-color: #E6EEFB;
+	background-color: rgb(236,240,245);
 }
 
 .btn-docked img {
@@ -976,7 +976,7 @@
 }
 
 .btn-custom-docked {
-	background-color: #E6EEFB;
+	background-color: rgb(236,240,245);
   color: black;
 	position: absolute;
 	z-index: 1000;
