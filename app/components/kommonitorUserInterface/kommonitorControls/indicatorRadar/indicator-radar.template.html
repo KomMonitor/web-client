@@ -6,7 +6,26 @@
 		</div>
 	</div>
 
-			<div ng-show="radarChart" id="radarDiagram" style="width:770px; height:550px;"></div>
+	<p></p>
+
+	<!-- RADAR CHART -->
+				<div ng-show="radarChart"  class="box box-primary">
+					<div class="box-header with-border">
+						<h3 class="box-title">Indikatorenradar - {{spatialUnitName}} - {{date}}</h3>
+
+						<div class="box-tools pull-right">
+							<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+							</button>
+						</div>
+					</div>
+					<div class="box-body">
+						<div class="chart">
+							<div id="radarDiagram" style="width:770px; height:500px;"></div>
+						</div>
+					</div>
+					<!-- /.box-body -->
+				</div>
+				<!-- /.box -->
 
 			<div ng-show="!radarChart" style="width:770px; height:550px;">
 
@@ -21,7 +40,6 @@
 			</div>
 
 			<div class="form-group" >
-				<br/>
 				<div align="center">
 					<h4>Filtern der dargestellten Indikatoren</h4>
 				</div>

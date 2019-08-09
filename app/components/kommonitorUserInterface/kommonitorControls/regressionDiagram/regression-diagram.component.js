@@ -380,9 +380,16 @@ angular
 										}
 
 										$scope.regressionOption = {
+											grid: {
+											  left: '10%',
+											  top: 10,
+											  right: '10%',
+											  bottom: 55
+											},
 										    title: {
 										        text: 'Lineare Regression - ' + $scope.spatialUnitName + ' - ' + $scope.date,
-										        left: 'center'
+										        left: 'center',
+														show: false
 										    },
 										    tooltip: {
 										        trigger: 'item',
@@ -402,9 +409,9 @@ angular
 						                           }
 										    },
 										    xAxis: {
-														name: $scope.selectedIndicatorForXAxis.indicatorName + " [" + $scope.selectedIndicatorForXAxis.unit + "]",
+														name: kommonitorDataExchangeService.formatIndiatorNameForLabel($scope.selectedIndicatorForXAxis.indicatorName + " [" + $scope.selectedIndicatorForXAxis.unit + "]", 100),
 														nameLocation: 'center',
-														nameGap: 30,
+														nameGap: 22,
 		                        scale: true,
 										        type: 'value',
 										        splitLine: {
@@ -414,9 +421,9 @@ angular
 										        },
 										    },
 										    yAxis: {
-														name: $scope.selectedIndicatorForYAxis.indicatorName + " [" + $scope.selectedIndicatorForYAxis.unit + "]",
+														name: kommonitorDataExchangeService.formatIndiatorNameForLabel($scope.selectedIndicatorForYAxis.indicatorName + " [" + $scope.selectedIndicatorForYAxis.unit + "]", 75),
 														nameLocation: 'center',
-														nameGap: 60,
+														nameGap: 50,
 										        type: 'value',
 										        splitLine: {
 										            lineStyle: {
@@ -426,7 +433,7 @@ angular
 										    },
 												toolbox: {
 														show : true,
-														right: '25',
+														right: '15',
 														feature : {
 																// mark : {show: true},
 																dataView : {show: true, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - lineare Regression', 'schlie&szlig;en', 'refresh'], optionToContent: function(opt){

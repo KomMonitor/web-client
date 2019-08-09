@@ -201,12 +201,20 @@ angular
 									}
 
 									$scope.histogramOption = {
+										// grid get rid of whitespace around chart
+										grid: {
+											left: '7%',
+											top: 32,
+											right: '7%',
+											bottom: 35
+										},
                     title: {
 											text: histogramChartTitel,
 											left: 'center',
 											textStyle:{
 												fontSize: fontSize
-											}
+											},
+											show: false
 											// top: 15
                     },
                     tooltip: {
@@ -221,7 +229,7 @@ angular
 										},
 										toolbox: {
 												show : true,
-												right: '25',
+												right: '15',
 												feature : {
 														// mark : {show: true},
 														dataView : {show: true, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Histogramm', 'schlie&szlig;en', 'refresh'], optionToContent: function(opt){
@@ -277,7 +285,7 @@ angular
                     xAxis: [{
 											name: indicatorMetadataAndGeoJSON.indicatorName,
 											nameLocation: 'center',
-											nameGap: 25,
+											nameGap: 22,
                       scale: true,
                     }],
                     yAxis: {
@@ -355,7 +363,7 @@ angular
 		            //         yAxis: {
 								// 					type: 'value',
 								// 					name: 'Anzahl Features',
-								// 					nameGap: 24,
+								// 					nameGap: 22,
 								// 					nameLocation: 'center',
 								// 					nameRotate: 90,
 		            //         },
@@ -433,12 +441,20 @@ angular
 										}
 
 									$scope.barOption = {
+										// grid get rid of whitespace around chart
+											grid: {
+											  left: '7%',
+											  top: 32,
+											  right: '5%',
+											  bottom: 32
+											},
 											title: {
 													text: barChartTitel,
 													left: 'center',
 													textStyle:{
 														fontSize: fontSize
-													}
+													},
+													show: false
 									        // top: 15
 											},
 											tooltip: {
@@ -457,7 +473,7 @@ angular
 											},
 											toolbox: {
 													show : true,
-													right: '25',
+													right: '15',
 													feature : {
 															// mark : {show: true},
 															dataView : {show: true, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Feature-Vergleich', 'schlie&szlig;en', 'refresh'], optionToContent: function(opt){
@@ -518,7 +534,7 @@ angular
 											xAxis: {
 													name: indicatorMetadataAndGeoJSON.indicatorName,
 													nameLocation: 'center',
-													nameGap: 25,
+													nameGap: 15,
 													axisLabel: {
 														rotate: 90,
 														interval: 0,
@@ -639,9 +655,17 @@ angular
 									// 	};
 
 									$scope.lineOption = {
+										// grid get rid of whitespace around chart
+										grid: {
+											left: '7%',
+											top: 32,
+											right: '5%',
+											bottom: 55
+										},
 											title: {
 													text: 'Zeitreihe - ' + $scope.spatialUnitName,
 													left: 'center',
+													show: false
 									        // top: 15
 											},
 											tooltip: {
@@ -668,7 +692,7 @@ angular
 											},
 											toolbox: {
 													show : true,
-													right: '25',
+													right: '15',
 													feature : {
 															// mark : {show: true},
 															dataView : {show: true, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Zeitreihe', 'schlie&szlig;en', 'refresh'], optionToContent: function(opt){
@@ -737,7 +761,7 @@ angular
 											xAxis: {
 													name: indicatorMetadataAndGeoJSON.indicatorName,
 													nameLocation: 'center',
-													nameGap: 25,
+													nameGap: 22,
 													// axisLabel: {
 													// 	rotate: 90,
 													// 	interval: 0,

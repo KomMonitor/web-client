@@ -2,6 +2,8 @@
 	<!-- DIAGRAMS which will be automatically updated on changed indicator -->
 	<!-- preparing a DOM with width and height for ECharts -->
 
+	<p></p>
+
 	<div ng-show="!histogramCanBeDisplayed">
 		<br/>
 		<br/>
@@ -12,7 +14,24 @@
 		<br/>
 	</div>
 
-	<div ng-show="histogramCanBeDisplayed" id="histogramDiagram" style="width:770px; height:270px;"></div>
+	<!-- HISTOGRAM CHART -->
+				<div ng-show="histogramCanBeDisplayed" class="box box-primary">
+					<div class="box-header with-border">
+						<h3 class="box-title">Histogramm - {{spatialUnitName}} - {{date}}</h3>
+
+						<div class="box-tools pull-right">
+							<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+							</button>
+						</div>
+					</div>
+					<div class="box-body">
+						<div class="chart">
+							<div id="histogramDiagram" style="width:770px; height:170px;"></div>
+						</div>
+					</div>
+					<!-- /.box-body -->
+				</div>
+				<!-- /.box -->
 
 	<div ng-show="isTooManyFeatures">
 		<br/>
@@ -24,8 +43,43 @@
 		<br/>
 	</div>
 
-		<div ng-show="!isTooManyFeatures" id="barDiagram" style="width:770px; height:320px;"></div>
+	<!-- BAR CHART -->
+				<div ng-show="!isTooManyFeatures" class="box box-primary">
+					<div class="box-header with-border">
+						<h3 ng-if="date" class="box-title">Feature-Vergleich - {{spatialUnitName}} - {{date}}</h3>
+						<h3 ng-if="fromDate && toDate" class="box-title">Feature-Vergleich - {{spatialUnitName}} - Bilanz {{fromDate}} - {{toDate}}</h3>
 
-		<div id="lineDiagram" style="width:770px; height:270px;"></div>
+						<div class="box-tools pull-right">
+							<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+							</button>
+						</div>
+					</div>
+					<div class="box-body">
+						<div class="chart">
+							<div  id="barDiagram" style="width:770px; height:230px;"></div>
+						</div>
+					</div>
+					<!-- /.box-body -->
+				</div>
+				<!-- /.box -->
+
+		<!-- LINE CHART -->
+					<div class="box box-primary">
+						<div class="box-header with-border">
+							<h3 class="box-title">Zeitreihe - {{spatialUnitName}}</h3>
+
+							<div class="box-tools pull-right">
+								<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+								</button>
+							</div>
+						</div>
+						<div class="box-body">
+							<div class="chart">
+								<div id="lineDiagram" style="width:770px; height:180px;"></div>
+							</div>
+						</div>
+						<!-- /.box-body -->
+					</div>
+					<!-- /.box -->
 
 </div>

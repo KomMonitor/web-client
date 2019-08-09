@@ -164,10 +164,17 @@ angular
 										// }
 
 										$scope.radarOption = {
+											grid: {
+											  left: '5%',
+											  top: 0,
+											  right: '5%',
+											  bottom: 30
+											},
 												title: {
 														text: 'Indikatorenradar - ' + $scope.spatialUnitName + ' - ' + $scope.date,
 														left: 'center',
-														top: 0
+														top: 0,
+														show: false
 												},
 												tooltip: {
 													confine: 'true',
@@ -185,7 +192,7 @@ angular
 												},
 												toolbox: {
 														show : true,
-														right: '25',
+														right: '15',
 														feature : {
 																// mark : {show: true},
 																dataView : {show: true, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Indikatorenradar', 'schlie&szlig;en', 'refresh'], optionToContent: function(opt){
@@ -264,32 +271,8 @@ angular
 														// },
 														name: {
 																formatter: function (value, indicator) {
-																								var maxCharsPerLine = 28;
-																								var separationSigns = [" ", "-", "_"];
-																								var counter = 0;
-																								var nextWord = "";
-																								var nextChar;
-																								var label = "";
-																								for(var i=0; i<value.length; i++){
-																									nextChar = value.charAt(i);
-																									nextWord += nextChar;
-																									if(counter === maxCharsPerLine){
-																										label += "\n";
-																										counter = 0;
-																									}
-																									else if(separationSigns.includes(nextChar)){
-																										// add word to label
-																										label += nextWord;
-																										nextWord = "";
-																									}
-																									counter++;
-																								}
-																								//append last word
-																								label += nextWord;
 
-																								// skip unit to save on line in legend
-																								// label = label + "\n" + "[" + indicator.unit + "]";
-																								return label;
+																								return kommonitorDataExchangeService.formatIndiatorNameForLabel(value, 28);																								
 																						},
 																textStyle: {
 																		color:'#525252'

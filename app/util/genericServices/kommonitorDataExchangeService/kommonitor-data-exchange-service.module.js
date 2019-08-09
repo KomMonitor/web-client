@@ -326,6 +326,31 @@ angular
             return color;
           };
 
+          this.formatIndiatorNameForLabel = function(indicatorName, maxCharsPerLine){
+            var separationSigns = [" ", "-", "_"];
+            var counter = 0;
+            var nextWord = "";
+            var nextChar;
+            var label = "";
+            for(var i=0; i<indicatorName.length; i++){
+              nextChar = indicatorName.charAt(i);
+              nextWord += nextChar;
+              if(counter === maxCharsPerLine){
+                label += "\n";
+                counter = 0;
+              }
+              else if(separationSigns.includes(nextChar)){
+                // add word to label
+                label += nextWord;
+                nextWord = "";
+              }
+              counter++;
+            }
+            //append last word
+            label += nextWord;
+            return label;
+          }
+
           this.filterIndicators = function (){
             return function( item ) {
 
