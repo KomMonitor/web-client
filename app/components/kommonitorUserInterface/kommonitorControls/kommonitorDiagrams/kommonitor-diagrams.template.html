@@ -15,7 +15,7 @@
 	</div>
 
 	<!-- HISTOGRAM CHART -->
-				<div ng-show="histogramCanBeDisplayed" class="box box-primary">
+				<div ng-show="histogramCanBeDisplayed" class="box box-success">
 					<div class="box-header with-border">
 						<h3 class="box-title">Histogramm - {{spatialUnitName}} - {{date}}</h3>
 
@@ -44,7 +44,7 @@
 	</div>
 
 	<!-- BAR CHART -->
-				<div ng-show="!isTooManyFeatures" class="box box-primary">
+				<div ng-show="!isTooManyFeatures" class="box box-success">
 					<div class="box-header with-border">
 						<h3 ng-if="date" class="box-title">Feature-Vergleich - {{spatialUnitName}} - {{date}}</h3>
 						<h3 ng-if="fromDate && toDate" class="box-title">Feature-Vergleich - {{spatialUnitName}} - Bilanz {{fromDate}} - {{toDate}}</h3>
@@ -64,7 +64,7 @@
 				<!-- /.box -->
 
 		<!-- LINE CHART -->
-					<div class="box box-primary">
+					<div class="box box-success">
 						<div class="box-header with-border">
 							<h3 class="box-title">Zeitreihe - {{spatialUnitName}}</h3>
 
