@@ -204,22 +204,22 @@
       <ul class="sidebar-menu" data-widget="tree">
         <li class="header">Administration</li>
         <!-- Optionally, you can add icons to the links -->
-        <li class="active"><a href=""><i class="fas fa-tachometer-alt"></i> <span>&Uuml;bersicht</span></a></li>
-        <li><a href=""><i class="fas fa-users"></i></i> <span>Nutzer- und Rollenverwaltung</span></a></li>
-        <li><a href=""><i class="fas fa-book"></i> <span>Themenverwaltung</span></a></li>
+        <li class="active"><a data-toggle="tab" data-target="#dashboardWrapper" href=""><i class="fas fa-tachometer-alt"></i> <span>&Uuml;bersicht</span></a></li>
+        <li><a data-toggle="tab" data-target="#userWrapper" href=""><i class="fas fa-users"></i> <span>Nutzer- und Rollenverwaltung</span></a></li>
+        <li><a data-toggle="tab" data-target="#topicsWrapper" href=""><i class="fas fa-book"></i> <span>Themenverwaltung</span></a></li>
         <li class="treeview">
-          <a href=""><i class="fas fa-globe-americas"></i> <span>Geodatenverwaltung</span>
+          <a data-toggle="tab" href=""><i class="fas fa-globe-americas"></i> <span>Geodatenverwaltung</span>
             <span class="pull-right-container">
                 <i class="fa fa-angle-left pull-right"></i>
               </span>
           </a>
           <ul class="treeview-menu">
-            <li><a href=""><i class="fas fa-layer-group"></i> <span>Raumeinheiten</span></a></li>
-            <li><a href=""><i class="fas fa-sitemap"></i> <span>Indikatoren</span></a></li>
-            <li><a href=""><i class="fas fa-map-marked-alt"></i> <span>sonstige Geodaten</span></a></li>
+            <li><a data-toggle="tab" data-target="#spatialUnitsWrapper" href=""><i class="fas fa-layer-group"></i> <span>Raumeinheiten</span></a></li>
+            <li><a data-toggle="tab" data-target="#indicatorsWrapper" href=""><i class="fas fa-sitemap"></i> <span>Indikatoren</span></a></li>
+            <li><a data-toggle="tab" data-target="#georesourcesWrapper" href=""><i class="fas fa-map-marked-alt"></i> <span>sonstige Geodaten</span></a></li>
           </ul>
         </li>
-        <li><a href=""><i class="far fa-file-code"></i> <span>Skriptverwaltung</span></a></li>
+        <li><a data-toggle="tab" data-target="#scriptWrapper" href=""><i class="far fa-file-code"></i> <span>Skriptverwaltung</span></a></li>
       </ul>
       <!-- /.sidebar-menu -->
     </section>
@@ -228,30 +228,53 @@
 
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
-    <!-- Content Header (Page header) -->
-    <section class="content-header">
-      <h1>
-        Page Header
-        <small>Optional description</small>
-      </h1>
-      <ol class="breadcrumb">
-        <li><a href="">
-          <!-- <i class="fa fa-dashboard"></i>  -->
-          <i class="fas fa-tachometer-alt"></i>
-          Level</a></li>
-        <li class="active">Here</li>
-      </ol>
-    </section>
 
-    <!-- Main content -->
-    <section class="content container-fluid">
+    <div class="tab-content">
 
-      <!--------------------------
-        | Your Page Content Here |
-        -------------------------->
+      <div id="dashboardWrapper" class="tab-pane fade in active">
 
-    </section>
-    <!-- /.content -->
+        <admin-dashboard-management></admin-dashboard-management>
+
+      </div>
+
+      <div id="userWrapper" class="tab-pane fade in">
+
+        <admin-user-management></admin-user-management>
+
+      </div>
+
+      <div id="topicsWrapper" class="tab-pane fade in">
+
+        <admin-topics-management></admin-topics-management>
+
+      </div>
+
+      <div id="spatialUnitsWrapper" class="tab-pane fade in">
+
+        <admin-spatial-units-management></admin-spatial-units-management>
+
+      </div>
+
+      <div id="indicatorsWrapper" class="tab-pane fade in">
+
+        <admin-indicators-management></admin-indicators-management>
+
+      </div>
+
+      <div id="georesourcesWrapper" class="tab-pane fade in">
+
+        <admin-georesources-management></admin-georesources-management>
+
+      </div>
+
+      <div id="scriptWrapper" class="tab-pane fade in">
+
+        <admin-script-management></admin-script-management>
+
+      </div>
+
+
+    </div>
   </div>
   <!-- /.content-wrapper -->
 
