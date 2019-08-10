@@ -1,5 +1,7 @@
 <div id="kommonitorBalance">
 
+	<p></p>
+
 	<!-- DARSTELLUNGSFILTER -->
 		<div class="box box-primary">
 			<div class="box-header with-border">
@@ -17,12 +19,12 @@
 				</div>
 
 				<br/>
-				<br/>
 
 				<div align="center">
 
 					<!-- Rounded switch -->
 					<strong>Bilanzierung aktivieren/deaktivieren</strong>
+					&nbsp;
 					<label class="switch">
 						<input id="balanceCheckbox" type="checkbox" ng-change="onChangeUseBalance()" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked" ng-checked="$ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked"></input>
 					  <span class="switchslider round"></span>
@@ -31,7 +33,13 @@
 
 					<br/>
 					<br/>
-					<input id="relativeBalanceCheckbox" type="checkbox" ng-change="onChangeUseRelativeBalance()" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.isRelativeBalanceChecked" ng-checked="$ctrl.kommonitorDataExchangeServiceInstance.isRelativeBalanceChecked"><strong>relative Bilanzierung aktivieren/deaktivieren (noch nicht implementiert)</strong></input>
+
+					<strong>relative Bilanzierung aktivieren/deaktivieren (noch nicht implementiert)</strong>
+					&nbsp;
+					<label class="switch">
+						<input id="relativeBalanceCheckbox" type="checkbox" ng-change="onChangeUseRelativeBalance()" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.isRelativeBalanceChecked" ng-checked="$ctrl.kommonitorDataExchangeServiceInstance.isRelativeBalanceChecked"></input>
+						<span class="switchslider round"></span>
+					</label>
 
 					<br/>
 					<br/>

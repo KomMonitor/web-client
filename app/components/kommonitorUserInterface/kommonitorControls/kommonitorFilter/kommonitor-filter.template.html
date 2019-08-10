@@ -74,7 +74,12 @@
 
 						<div align="center" class="form-group" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator">
 
-							<input id="measureOfValueCheckbox" type="checkbox" ng-change="$ctrl.onChangeUseMeasureOfValue()" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked" ng-checked="$ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked"><strong>Schwellwertklassifizierung aktivieren/deaktivieren</strong></input>
+							<strong>Schwellwertklassifizierung aktivieren/deaktivieren</strong>
+							&nbsp;
+							<label class="switch">
+								<input id="measureOfValueCheckbox" type="checkbox" ng-change="$ctrl.onChangeUseMeasureOfValue()" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked" ng-checked="$ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked"></input>
+								<span class="switchslider round"></span>
+							</label>
 
 							<div ng-show="$ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked">
 
