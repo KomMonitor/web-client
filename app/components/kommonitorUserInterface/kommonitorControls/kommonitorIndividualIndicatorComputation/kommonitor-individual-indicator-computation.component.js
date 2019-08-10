@@ -54,6 +54,37 @@ angular
 							};
 						};
 
+						$scope.resetComputationForm = function(){
+
+							$scope.stopLoop = true;
+							$scope.computationStarted = false;
+
+							$scope.loadingData = false;
+
+							$scope.targetIndicator = undefined;
+							$scope.targetDate = undefined;
+							$scope.targetSpatialUnit = undefined;
+							$scope.targetScriptMetadata = undefined;
+							$scope.jobInfoText = undefined;
+							$scope.computedCustomizedIndicatorGeoJSON = undefined;
+							$scope.datesAsMs = undefined;
+							$scope.availableDates = undefined;
+							$scope.inputNgModels = {};
+							$scope.error = undefined;
+
+							if($scope.dateSliderForComputation){
+									$scope.dateSliderForComputation.destroy();
+							}
+
+							var domNode = document.getElementById("dateSliderForComputation");
+
+							while (domNode.hasChildNodes()) {
+								domNode.removeChild(domNode.lastChild);
+							}
+
+							$scope.resetProgressBar();
+						};
+
 						$scope.onTargetDateChange = function(){
 
 							$scope.computedCustomizedIndicatorGeoJSON = undefined;
@@ -497,9 +528,13 @@ angular
 
 						$scope.calculateCustomIndicator = function(){
 
+							$scope.computationStarted = true;
+
 							$scope.computedCustomizedIndicatorGeoJSON = undefined;
 							$scope.jobInfoText = undefined;
 							$scope.resetProgressBar();
+
+							$scope.stopLoop = false;
 
 							console.log("calculateCustomIndicator called!");
 
@@ -621,10 +656,8 @@ angular
 
 							var sleepTimeInMS = 1000;
 
-							var maxTryNumber = 60;
-							var tryNumber = 0;
 
-							while(!$scope.computedCustomizedIndicatorGeoJSON && (tryNumber < maxTryNumber)){
+							while(!$scope.computedCustomizedIndicatorGeoJSON && !$scope.stopLoop){
 
 								if($scope.stopLoop)
 									break;
@@ -654,6 +687,7 @@ angular
 											// first decode Base64 and then parse string as JSON
 											$scope.computedCustomizedIndicatorGeoJSON = JSON.parse(atob(geoJSON_base64));
 											$scope.jobInfoText = undefined;
+											$scope.stopLoop = true;
 
 											$scope.prepareDownloadGeoJSON();
 
@@ -675,7 +709,6 @@ angular
 								if ($scope.computedCustomizedIndicatorGeoJSON)
 									return;
 
-									tryNumber++;
 								await sleep(sleepTimeInMS);
 							}
 
