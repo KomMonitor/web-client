@@ -20,7 +20,14 @@
 				<br/>
 
 				<div align="center">
-					<input id="balanceCheckbox" type="checkbox" ng-change="onChangeUseBalance()" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked" ng-checked="$ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked"><strong>Bilanzierung aktivieren/deaktivieren</strong></input>
+
+					<!-- Rounded switch -->
+					<strong>Bilanzierung aktivieren/deaktivieren</strong>
+					<label class="switch">
+						<input id="balanceCheckbox" type="checkbox" ng-change="onChangeUseBalance()" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked" ng-checked="$ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked"></input>
+					  <span class="switchslider round"></span>
+					</label>
+
 
 					<br/>
 					<br/>
