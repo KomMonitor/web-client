@@ -567,6 +567,7 @@
 	padding: 5px;
 	height: auto !important;
 	max-height: 900px;
+	max-width: 100%;
 	border: 2px solid gray;
   border-radius: 8px;
   overflow: auto;

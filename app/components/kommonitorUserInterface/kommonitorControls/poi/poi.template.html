@@ -24,18 +24,36 @@
 
 					<!-- <p>Selektieren eines Eintrags aus unten stehender Liste f&uuml;gt den entsprechenden Punkt-Layer der Kartendarstellung hinzu. Deselektion entfernt den entsprechenden Layer aus der Kartendarstellung.</p> -->
 
-					<div id="poiInputForm">
-						<div ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:filterGeoresourcesByPoi() | filter:filterPois()'>
-							<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
-							<label class='checkbox-inline' ><input type="checkbox" value="poi.datasetName" ng-model="poi.isSelected" ng-change="handlePoiOnMap(poi)">
-								<i class="awesome-marker-legend awesome-marker-legend-icon-{{poi.poiMarkerColor}}">
-									<span style="margin-left:3px; font-size:0.7em; color:{{poi.poiSymbolColor}};" align="center" class="glyphicon glyphicon-{{poi.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
-								</i>
+					<div  id="poiInputForm">
 
-								<b>&nbsp;&nbsp;{{poi.datasetName}}</b> &mdash; {{poi.metadata.description}}
-							</label>
-							<br/>
-						</div>
+						<table class="table table-condensed" style="margin-bottom:0px;">
+					    <thead>
+					      <tr>
+					        <th>Datensatz</th>
+					        <th>Export</th>
+					      </tr>
+					    </thead>
+
+							<tbody>
+
+								<tr ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:filterGeoresourcesByPoi() | filter:filterPois()'>
+									<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
+									<td>
+										<label class='checkbox-inline' ><input type="checkbox" value="poi.datasetName" ng-model="poi.isSelected" ng-change="handlePoiOnMap(poi)">
+											<i class="awesome-marker-legend awesome-marker-legend-icon-{{poi.poiMarkerColor}}">
+												<span style="margin-left:3px; font-size:0.7em; color:{{poi.poiSymbolColor}};" align="center" class="glyphicon glyphicon-{{poi.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
+											</i>
+
+											<b>&nbsp;&nbsp;{{poi.datasetName}}</b> &mdash; {{poi.metadata.description}}
+										</label>
+									</td>
+									<td>
+										<a href="" ng-click="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
+										<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
+									</td>
+								</tr>
+							</tbody>
+						</table>
 						</div>
 
 						<br/>
@@ -51,13 +69,6 @@
 
 		</div>
 		<!-- /.box-body -->
-
-		<div class="box-footer">
-			<div align="center">
-				<p>TODO - Under Development</p>
-				<strong>derzeitig nur Anzeige ausgewählter POIs möglich. Künftig sollen auch Lines of Interest and Areas of Interest zur Einblendung weiterer Infrastrukturmerkmale sowie eine Darstellung der jeweiligen Metadaten als Kartenpopup angeboten werden.</strong>
-			</div>
-		</div>
 
 	</div>
 	<!-- /.box -->
