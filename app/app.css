@@ -1336,8 +1336,8 @@ hr {
 .switch {
   position: relative;
   display: inline-block;
-  width: 60px;
-  height: 34px;
+  width: 55px;
+  height: 26px;
 }
 
 /* Hide default HTML checkbox */
@@ -1363,8 +1363,8 @@ hr {
 .switchslider:before {
   position: absolute;
   content: "";
-  height: 26px;
-  width: 26px;
+  height: 20px;
+  width: 20px;
   left: 4px;
   bottom: 4px;
   background-color: white;
@@ -1388,7 +1388,7 @@ input:checked + .switchslider:before {
 
 /* Rounded sliders */
 .switchslider.round {
-  border-radius: 34px;
+  border-radius: 20px;
 }
 
 .switchslider.round:before {
