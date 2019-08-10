@@ -1776,14 +1776,17 @@ angular.module('kommonitorMap').component(
                                   // index 0 should be longitude and index 1 should be latitude
                                   //.bindPopup( poiFeature.properties.name )
                                   var newMarker = L.marker( [Number(poiFeature.geometry.coordinates[1]), Number(poiFeature.geometry.coordinates[0])], {icon: customMarker} );
+
+                                  var propertiesString = "<pre>"+JSON.stringify(poiFeature.properties,null,' ').replace(/[\{\}"]/g,'')+"</pre>";
+
                                   if (poiFeature.properties.name){
-                                    newMarker.bindPopup( poiFeature.properties.name );
+                                    newMarker.bindPopup( poiFeature.properties.name + "\n\n" + propertiesString);
                                   }
                                   else if (poiFeature.properties.NAME){
-                                    newMarker.bindPopup( poiFeature.properties.NAME );
+                                    newMarker.bindPopup( poiFeature.properties.NAME + "\n\n" + propertiesString);
                                   }
                                   else if (poiFeature.properties[__env.FEATURE_NAME_PROPERTY_NAME]){
-                                    newMarker.bindPopup( poiFeature.properties[__env.FEATURE_NAME_PROPERTY_NAME] );
+                                    newMarker.bindPopup( poiFeature.properties[__env.FEATURE_NAME_PROPERTY_NAME] + "\n\n" + propertiesString);
                                   }
                                     markers.addLayer(newMarker);
                                 });
