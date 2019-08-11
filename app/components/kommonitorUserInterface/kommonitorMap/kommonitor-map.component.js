@@ -892,36 +892,46 @@ angular.module('kommonitorMap').component(
                     };
 
                     $scope.appendTransparencyCheckbox = function(){
-                      // <label class='checkbox-inline' >
-        							// 	<input type="checkbox" value="" checked>
-        							// 	<b title="">Text</b>
-        							// </label>
-                      var innerHTMLString = "<label class='checkbos-inline' title='Einstellung, ob der Indikatorenlayer semi-transparent oder opak dargestellt wird'>";
+
+                      /*
+                      * <strong>Schwellwertklassifizierung aktivieren/deaktivieren</strong>
+          							&nbsp;
+          							<label class="switch">
+          								<input id="measureOfValueCheckbox" type="checkbox" ng-change="$ctrl.onChangeUseMeasureOfValue()" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked" ng-checked="$ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked"></input>
+          								<span class="switchslider round"></span>
+          							</label>
+                      */
+                      var innerHTMLString = '<br/><strong>Indikator semi-transparent darstellen</strong> &nbsp;';
+                      innerHTMLString += "<label class='switch' title='Einstellung, ob der Indikatorenlayer semi-transparent oder opak dargestellt wird'>";
                       innerHTMLString += "<input id='controlIndicatorTransparency' type='checkbox' value='useTransparency'";
                       if($scope.useTransparencyOnIndicator){
                         innerHTMLString += " checked";
                       }
                       innerHTMLString += ">";
-
-                      innerHTMLString += '<b>Indikator semi-transparent darstellen</b>';
+                      innerHTMLString += "<span class='switchslider round'></span>";
                       innerHTMLString += '</label>';
 
                       return innerHTMLString;
                     };
 
                     $scope.appendOutliersCheckbox = function(){
-                      // <label class='checkbox-inline' >
-        							// 	<input type="checkbox" value="" checked>
-        							// 	<b title="">Text</b>
-        							// </label>
-                      var innerHTMLString = "<label class='checkbos-inline' title='Einstellung, ob Ausreißer gesondert markiert werden sollen'>";
+
+                      /*
+                      * <strong>Schwellwertklassifizierung aktivieren/deaktivieren</strong>
+          							&nbsp;
+          							<label class="switch">
+          								<input id="measureOfValueCheckbox" type="checkbox" ng-change="$ctrl.onChangeUseMeasureOfValue()" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked" ng-checked="$ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked"></input>
+          								<span class="switchslider round"></span>
+          							</label>
+                      */
+                      var innerHTMLString = '<strong>Ausreißer gesondert markieren</strong> &nbsp;';
+                      innerHTMLString += "<label class='switch' title='Ausreißer gesondert darstellen'>";
                       innerHTMLString += "<input id='controlIndicatorOutlierDetection' type='checkbox' value='useOutlierDetection'";
                       if(kommonitorDataExchangeService.useOutlierDetectionOnIndicator){
                         innerHTMLString += " checked";
                       }
                       innerHTMLString += ">";
-
-                      innerHTMLString += '<b>Ausreißer gesondert markieren</b>';
+                      innerHTMLString += "<span class='switchslider round'></span>";
                       innerHTMLString += '</label>';
                       innerHTMLString += '<br/>';
                       innerHTMLString += '<br/>';
