@@ -47,6 +47,7 @@
     "admin-lte": "^2.4.15",
     "angular": "^1.7.8",
     "angular-route": "^1.7.8",
+    "angular-sanitize": "^1.7.8",
     "bootstrap": "^3.3.6",
     "bootstrap-tour": "^0.12.0",
     "classybrew": "0.0.3",
