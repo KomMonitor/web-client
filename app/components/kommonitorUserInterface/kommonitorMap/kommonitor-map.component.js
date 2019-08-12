@@ -890,7 +890,7 @@ angular.module('kommonitorMap').component(
 
                           var exportDomString = '<br/><div class="btn-group">';
                           exportDomString += "<label><i class='fa fa-file-download'></i>&nbsp;&nbsp;&nbsp;Export</label>";
-                          exportDomString += '<br/><button id="downloadMetadata" class="btn btn-primary btn-xs">Metadatenblatt</button>';
+                          exportDomString += '<br/><button id="downloadMetadata" class="btn btn-default btn-xs">Metadatenblatt</button>';
                           exportDomString += '<button id="downloadGeoJSON" class="btn btn-primary btn-xs">GeoJSON</button>';
                           exportDomString += '<button id="downloadShape" class="btn btn-primary btn-xs">ESRI Shape</button>';
                           exportDomString += '<a style="color:white;" class="btn btn-primary btn-xs" href="' + kommonitorDataExchangeService.wmsUrlForSelectedIndicator + '" target="_blank" rel="noopener noreferrer" id="downloadWMS">WMS</a>';
@@ -2013,7 +2013,8 @@ angular.module('kommonitorMap').component(
 
                                 opacity = opacity.toFixed(numberOfDecimals);
 
-                                document.getElementById("indicatorTransparencyLabel").innerHTML = opacity;
+                                // set transparency here
+                                document.getElementById("indicatorTransparencyLabel").innerHTML = (1 - opacity).toFixed(numberOfDecimals);
                                 defaultFillOpacity = opacity;
                                 $rootScope.$broadcast("restyleCurrentLayer", true);
                               });
