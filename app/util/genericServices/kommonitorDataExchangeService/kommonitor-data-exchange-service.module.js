@@ -43,6 +43,8 @@ angular
           this.simplifyGeometriesOptions = __env.simplifyGeometriesOptions;
           this.simplifyGeometries = __env.simplifyGeometries;
 
+          this.wmsDatasets = __env.wmsDatasets;
+
 					this.availableProcessScripts;
           this.isochroneLegend;
 

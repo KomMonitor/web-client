@@ -51,7 +51,8 @@ module.exports = {
           { from: nodeModulePathConstant + 'admin-lte/dist/css', to: 'admin-lte/css' },
           { from: nodeModulePathConstant + 'fastclick/lib/fastclick.js', to: 'fastclick' },
           { from: nodeModulePathConstant + 'jquery-slimscroll/jquery.slimscroll.min.js', to: 'jquery-slimscroll' },
-          { from: nodeModulePathConstant + 'ionicons/dist', to: 'ionicons' }
+          { from: nodeModulePathConstant + 'ionicons/dist', to: 'ionicons' },
+          { from: nodeModulePathConstant + 'angular-sanitize/angular-sanitize.min.js', to: 'angular-sanitize' }
       ])
     ]
 };

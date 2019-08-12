@@ -90,11 +90,38 @@
   window.__env.defaultClassifyMethod = "equal_interval";
 
   // array of indicator name substring that shal be used to filter out / hide certain indicators by their name
-  // e.g. set ["entwicklung"] to hide all indicators whose name contains the substring "entwicklung" 
+  // e.g. set ["entwicklung"] to hide all indicators whose name contains the substring "entwicklung"
   window.__env.arrayOfNameSubstringsForHidingIndicators = [];
 
   // e-mail recipient for feedback mail
   window.__env.feedbackMailRecipient = "thomas.blasche@amt62.essen.de";
   // window.__env.feedbackMailRecipient = "christian.danowski-buhren@hs-bochum.de";
+
+  window.__env.wmsDatasets = [
+    {
+      title: "Versiegelungsgrad 2006 anhand von Copernicus Satellitendaten",
+      description: "Mehr Informationen unter <a href='https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness' rel='noopener noreferrer' target='_blank'>https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness</a>",
+      url: "https://image.discomap.eea.europa.eu/arcgis/services/GioLandPublic/HRL_ImperviousnessDensity_2006/MapServer/WMSServer?",
+      layerName: "0"
+    },
+    {
+      title: "Versiegelungsgrad 2009 anhand von Copernicus Satellitendaten",
+      description: "Mehr Informationen unter <a href='https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness' rel='noopener noreferrer' target='_blank'>https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness</a>",
+      url: "https://image.discomap.eea.europa.eu/arcgis/services/GioLandPublic/HRL_ImperviousnessDensity_2009/MapServer/WMSServer?",
+      layerName: "0"
+    },
+    {
+      title: "Versiegelungsgrad 2012 anhand von Copernicus Satellitendaten",
+      description: "Mehr Informationen unter <a href='https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness' rel='noopener noreferrer' target='_blank'>https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness</a>",
+      url: "https://image.discomap.eea.europa.eu/arcgis/services/GioLandPublic/HRL_Imperviousness_Density_2012/MapServer/WMSServer?",
+      layerName: "Imperviousness density 2012 20m"
+    },
+    {
+      title: "Versiegelungsgrad 2015 anhand von Copernicus Satellitendaten",
+      description: "Mehr Informationen unter <a href='https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness' rel='noopener noreferrer' target='_blank'>https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness</a>",
+      url: "https://image.discomap.eea.europa.eu/arcgis/services/GioLandPublic/HRL_ImperviousnessDensity_2015/MapServer/WMSServer?",
+      layerName: "0"
+    }
+  ];
 
 }(this));

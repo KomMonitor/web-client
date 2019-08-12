@@ -136,4 +136,91 @@
 			<!-- /.box -->
 
 
+			<!-- WMS -->
+				<div class="box box-primary collapsed-box">
+					<div class="box-header with-border">
+						<h3 class="box-title">Web Map Service (WMS)</h3>
+
+						<div class="box-tools pull-right">
+							<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+							</button>
+						</div>
+					</div>
+					<div class="box-body">
+
+											<!-- <div class="hiddenTableCell">
+
+												<div text-align="center" align="center" class="hiddenTableContent">
+														<select
+															size="10" ng-model="kommonitorDataExchangeService.selectedWMSDataset" ng-options="dataset as dataset.title for dataset in kommonitorDataExchangeService.wmsDatasets"
+															ng-change="onChangeSelectedWmsDataset()" class="form-control" required>
+															<option disabled selected value> -- WMS Datensatz w&auml;hlen -- </option>
+														</select>
+												</div>
+
+											</div> -->
+
+
+
+											<div  id="wmsInputForm">
+
+												<table class="table table-condensed" style="margin-bottom:0px;">
+											    <thead>
+											      <tr>
+											        <th>Datensatz</th>
+											        <th>Beschreibung</th>
+															<th>Legende</th>
+															<th>WMS URL</th>
+											      </tr>
+											    </thead>
+
+													<tbody>
+
+														<tr ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets'>
+															<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
+															<td>
+																<label class='checkbox-inline' ><input type="checkbox" value="dataset.title" ng-model="dataset.isSelected" ng-change="handleWmsOnMap(dataset)">
+
+																	<b>{{dataset.title}}</b>
+																</label>
+															</td>
+															<td>
+																<p ng-bind-html="dataset.description"></p>
+															</td>
+															<td>
+																<img src="{{dataset.url}}REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER={{dataset.layerName}}">
+															</td>
+															<td>
+																<a href="{{dataset.url}}" title="WMS URL" rel='noopener noreferrer' target='_blank'><i class="fas fa-cloud-download-alt"></i></a>
+															</td>
+														</tr>
+													</tbody>
+												</table>
+												</div>
+
+											<div class="hiddenTableCell">
+
+												<!-- <div id="exportButtonDiv" class="dropdown hiddenTableContent" ng-show="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator">
+													<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Export
+													<span class="caret"></span></button>
+													<ul id="exportDropdown" class="dropdown-menu">
+														<li><a  target="_blank" rel="noopener noreferrer" ng-href="{{wmsUrlForSelectedIndicator}}">WMS  (derzeit fehlerhaft)</a></li>
+														<li><a  target="_blank" rel="noopener noreferrer" ng-href="{{wfsUrlForSelectedIndicator}}">WFS  (derzeit fehlerhaft)</a></li>
+
+													</ul>
+												</div> -->
+
+											</div>
+
+	              </div>
+	              <!-- /.box-body -->
+
+						</div>
+
+					</div>
+					<!-- /.box-body -->
+				</div>
+				<!-- /.box -->
+
+
 </div>

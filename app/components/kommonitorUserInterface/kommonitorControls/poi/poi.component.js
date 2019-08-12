@@ -169,5 +169,21 @@ angular
 
 								};
 
+								$scope.handleWmsOnMap = function(dataset){
+									kommonitorDataExchangeService.wmsLegendImage = undefined;
+									console.log("Show WMS: " + dataset.title);
+
+									if(dataset.isSelected){
+										//display on Map
+										kommonitorMapService.addWmsLayerToMap(dataset);
+
+									}
+									else{
+										//remove WMS layer from map
+										kommonitorMapService.removeWmsLayerFromMap(dataset);
+
+									}
+								};
+
 							} ]
 				});

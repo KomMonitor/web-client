@@ -253,6 +253,7 @@ angular.module('kommonitorMap').component(
                     const poiLayerGroupName = "Points of Interest";
                     const indicatorLayerGroupName = "Indikatoren";
                     const reachabilityLayerGroupName = "Erreichbarkeiten";
+                    const wmsLayerGroupName = "Web Map Service (WMS)";
 
                     // create classyBrew object
                     $scope.defaultBrew = new classyBrew();
@@ -345,6 +346,9 @@ angular.module('kommonitorMap').component(
 
                       },
                       poiLayerGroupName: {
+
+                      },
+                      wmsLayerGroupName: {
 
                       },
                       reachabilityLayerGroupName: {
@@ -1818,6 +1822,28 @@ angular.module('kommonitorMap').component(
 
                                 $scope.layerControl._layers.forEach(function(layer){
                                   if(layer.group.name === poiLayerGroupName && layer.name.includes(layerName + "_")){
+                                    $scope.layerControl.removeLayer(layer.layer);
+                                    $scope.map.removeLayer(layer.layer);
+                                  }
+                                });
+                              });
+
+                              $scope.$on("addWmsLayerToMap", function (event, dataset) {
+                                var wmsLayer = L.tileLayer.wms(dataset.url, {
+                                    layers: dataset.layerName,
+                                    minZoom: __env.minZoomLevel, maxZoom: __env.maxZoomLevel
+                                });
+
+                                $scope.layerControl.addOverlay( wmsLayer, dataset.title, wmsLayerGroupName );
+                                wmsLayer.addTo($scope.map);
+                              });
+
+                              $scope.$on("removeWmsLayerFromMap", function (event, dataset) {
+
+                                var layerName = dataset.title;
+
+                                $scope.layerControl._layers.forEach(function(layer){
+                                  if(layer.group.name === wmsLayerGroupName && layer.name.includes(layerName)){
                                     $scope.layerControl.removeLayer(layer.layer);
                                     $scope.map.removeLayer(layer.layer);
                                   }

@@ -98,7 +98,15 @@ angular.module('kommonitorMap').service(
 				$rootScope.$broadcast("restyleCurrentLayer");
 			};
 
+      this.addWmsLayerToMap = function (dataset) {
+        $rootScope.$broadcast("addWmsLayerToMap",
+            dataset);
+      };
 
+      this.removeWmsLayerFromMap = function (dataset) {
+        $rootScope.$broadcast("addWmsLayerToMap",
+            dataset);
+      };
 
 
 
