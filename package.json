@@ -50,6 +50,7 @@
     "angular-sanitize": "^1.7.8",
     "bootstrap": "^3.3.6",
     "bootstrap-tour": "^0.12.0",
+    "bootstrap-validator": "^0.11.9",
     "classybrew": "0.0.3",
     "echarts": "^4.2.0-rc.2",
     "echarts-stat": "^1.1.1",

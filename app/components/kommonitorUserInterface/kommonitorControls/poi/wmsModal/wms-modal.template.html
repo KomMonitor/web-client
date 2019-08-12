@@ -8,24 +8,30 @@
 			</div>
 			<div class="modal-body">
 
-				<form role="form" class="form-group needs-validation" >
+				<p><b><i>* = Pflichtfeld</i></b></p>
+
+				<form role="form" class="form-group" data-toggle="validator" >
 					<div class="form-group">
 						<label >WMS Titel</label>
 						<input type="text" class="form-control" ng-model="customWmsTitle" placeholder="WMS Titel" required>
+						<div class="help-block with-errors"></div>
 					</div>
 					<div class="form-group">
 						<label >WMS Beschreibung</label>
 						<input type="text" class="form-control" ng-model="customWmsDescription" placeholder="WMS Beschreibung (bei Bedarf mit HTML-Tags zur Auszeichnung)" required>
+						<div class="help-block with-errors"></div>
 					</div>
 					<div class="form-group">
 						<label >WMS URL</label>
 						<input type="url" class="form-control" ng-model="customWmsUrl" placeholder="WMS URL" required pattern="https?://.+\\?">
 						<p class="help-block">Angabe der URL mit abschließendem "?". Beispiel: "https://image.discomap.eea.europa.eu/arcgis/services/GioLandPublic/HRL_ImperviousnessDensity_2015/MapServer/WMSServer?".</p>
+						<div class="help-block with-errors"></div>
 					</div>
 					<div class="form-group">
 						<label >WMS LAYER Name</label>
 						<input type="text" class="form-control" ng-model="customWmsLayerName" placeholder="WMS LAYER Name" required>
 						<p class="help-block">Den Layernamen finden Sie unter anderem im GetCapabilities Dokument des WMS.</p>
+						<div class="help-block with-errors"></div>
 					</div>
 
 					<div class="form-group">
@@ -37,14 +43,21 @@
 
 				</form>
 
-				<!-- ng-disabled="((!customWmsTitle) || (!customWmsDescription) || (!customWmsURL) || (!customWmsLayerName))" -->
+				<!-- ng-disabled="((!customWmsTitle) || (!customWmsDescription) || (!customWmsUrl) || (!customWmsLayerName))" -->
 
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
-					<button type="button" class="btn btn-success" ng-click="addCustomTempWMS()">WMS tempor&auml;r hinzuladen</button>
+					<button type="button" class="btn btn-success" ng-disabled="!customWmsTitle || !customWmsDescription || !customWmsUrl || !customWmsLayerName" ng-click="addCustomTempWMS()">WMS tempor&auml;r hinzuladen</button>
 					<button type="button" class="btn btn-danger" ng-click="resetCustomTempWMSForm()">Zur&uuml;cksetzen</button>
 			</div>
+
+			<div id="wmsSucessAlert" class="alert alert-success alert-dismissible">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                <h4><i class="icon fa fa-check"></i> WMS hinzugef&uuml;gt</h4>
+                Der definierte WMS wurde in der Tabelle eingetragen.
+      </div>
+
 		</div>
 		<!-- /.modal-content -->
 	</div>

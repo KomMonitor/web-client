@@ -52,7 +52,8 @@ module.exports = {
           { from: nodeModulePathConstant + 'fastclick/lib/fastclick.js', to: 'fastclick' },
           { from: nodeModulePathConstant + 'jquery-slimscroll/jquery.slimscroll.min.js', to: 'jquery-slimscroll' },
           { from: nodeModulePathConstant + 'ionicons/dist', to: 'ionicons' },
-          { from: nodeModulePathConstant + 'angular-sanitize/angular-sanitize.min.js', to: 'angular-sanitize' }
+          { from: nodeModulePathConstant + 'angular-sanitize/angular-sanitize.min.js', to: 'angular-sanitize' },
+          { from: nodeModulePathConstant + 'bootstrap-validator/dist/validator.min.js', to: 'bootstrap-validator' }
       ])
     ]
 };

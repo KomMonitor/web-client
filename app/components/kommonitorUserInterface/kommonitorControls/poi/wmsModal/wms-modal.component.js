@@ -27,6 +27,10 @@ angular.module('wmsModal').component('wmsModal', {
 			// TODO verify input
 
 			kommonitorDataExchangeService.wmsDatasets.push(wmsObject);
+
+			$("#wmsSucessAlert").show();
+
+
 		};
 
 	}
