@@ -123,7 +123,7 @@
   <!-- /.box -->
 
 
-	<div ng-show="($ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.referencedGeoresources.length > 0)" class="box box-danger">
+	<div ng-show="($ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.referencedGeoresources.length > 0)" style="margin-bottom: 0px;" class="box box-danger">
             <div class="box-header with-border">
               <h3 class="box-title">Verkn&uuml;pfte Georessourcen</h3>
 
@@ -161,97 +161,4 @@
   </div>
   <!-- /.box -->
 
-
-
-<!--
-
-			<br/>
-
-	<div text-align="center" align="center" class="" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.referencedGeoresources.length > 0">
-	<h4>Mit Indikator verkn&uuml;pfte Geodaten</h4>
-
-		<div class="hiddenTable">
-			<div class="hiddenTableCell">
-
-				<div class="hiddenTableContent">
-
-					<select
-						ng-model="$ctrl.kommonitorDataExchangeServiceInstance.selectedGeoresource" ng-options="georesource as georesource.datasetName for georesource in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:filterGeoresourcesByIndicator()"
-						size="4" class="form-control" required>
-						<option value="" selected disabled>-- Georessource w&auml;hlen --</option>
-					</select>
-				</div>
-
-			</div>
-
-				<div class="hiddenTableCell">
-
-					<div class="hiddenTableContent" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.selectedGeoresource">
-							<a class="btn btn-warning" target="_blank" rel="noopener noreferrer" ng-href="{{$ctrl.kommonitorDataExchangeServiceInstance.selectedGeoresource.wmsUrl}}">WMS (derzeit fehlerhaft)</a>
-							<a class="btn btn-info" target="_blank" rel="noopener noreferrer" ng-href="{{$ctrl.kommonitorDataExchangeServiceInstance.selectedGeoresource.wfsUrl}}">WFS (derzeit fehlerhaft)</a>
-					</div>
-
-				</div>
-		</div>
-
-		</div> -->
-
-
-
-
 	</div>
-
-	<br/>
-
-
-
-
-
-
-
-
-
-
-	<!-- <div style="display: inline-block">
-		<button type="button" class="btn btn-danger" ng-click="$ctrl.addGeopackage()" type="button">Add GeoPackage</button>
-	</div>
-	<div style="display: inline-block">
-		<button type="button" class="btn btn-danger" ng-click="$ctrl.addGeoJSON()" type="button">Add GeoJSON</button>
-	</div> -->
-
-		<div align="center" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicatorLegendURL">
-			<label align='left'>gewählter Indikator:</label>
-			<p>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.name}}</p>
-		</div>
-
-		<div class="" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicatorLegendURL">
-			<h4 class="justify" align="center">Indikator Legende</h4>
-
-			<p>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.layerLegendText}}</p>
-
-		</div>
-
-		<hr ng-if="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicatorLegendURL"/>
-
-		<div align="center" class="" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicatorLegendURL">
-			<label align='left'>Bewertungsmodellierung</label>
-			<p>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.measureOfValueText}}</p>
-
-			<p></p>
-
-			<div class="slidecontainer">
-			  <input ng-model="$ctrl.kommonitorDataExchangeServiceInstance.measureOfValue" ng-change="$ctrl.onMeasureOfValueChange()" type="range" min="0" max="100" step="1" value="51" class="slider" id="myRange">
-
-			  <p>Value: {{$ctrl.kommonitorDataExchangeServiceInstance.measureOfValue}}</p>
-			</div>
-
-			<button ng-if="$ctrl.kommonitorDataExchangeServiceInstance.measureOfValue" align="center" ng-click="$ctrl.applyMeasureOfValue()" type="button" class="btn btn-success">Bewertung anwenden!</button>
-
-
-			<div>
-				<p>Das Ergebnis sollte als neuer Layer der Karte hinzugefügt werden.</p>
-			</div>
-
-		</div>
-
-</div>
