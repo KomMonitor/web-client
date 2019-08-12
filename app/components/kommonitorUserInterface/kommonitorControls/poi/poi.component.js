@@ -177,7 +177,8 @@ angular
 
 									if(dataset.isSelected){
 										//display on Map
-										kommonitorMapService.addWmsLayerToMap(dataset);
+										var opacity = 1 - dataset.transparency;
+										kommonitorMapService.addWmsLayerToMap(dataset, opacity);
 
 									}
 									else{
@@ -185,6 +186,13 @@ angular
 										kommonitorMapService.removeWmsLayerFromMap(dataset);
 
 									}
+								};
+
+								$scope.adjustWMSLayerTransparency = function(dataset){
+
+									var opacity = 1 - dataset.transparency;
+
+									kommonitorMapService.adjustOpacityForWmsLayer(dataset, opacity);
 								};
 
 							} ]

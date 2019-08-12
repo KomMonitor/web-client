@@ -1828,14 +1828,28 @@ angular.module('kommonitorMap').component(
                                 });
                               });
 
-                              $scope.$on("addWmsLayerToMap", function (event, dataset) {
+                              $scope.$on("addWmsLayerToMap", function (event, dataset, opacity) {
                                 var wmsLayer = L.tileLayer.wms(dataset.url, {
                                     layers: dataset.layerName,
-                                    minZoom: __env.minZoomLevel, maxZoom: __env.maxZoomLevel
+                                    transparency: 'true',
+                                    format: 'image/png',
+                                    minZoom: __env.minZoomLevel,
+                                    maxZoom: __env.maxZoomLevel,
+                                    opacity: opacity
                                 });
 
                                 $scope.layerControl.addOverlay( wmsLayer, dataset.title, wmsLayerGroupName );
                                 wmsLayer.addTo($scope.map);
+                              });
+
+                              $scope.$on("adjustOpacityForWmsLayer", function (event, dataset, opacity) {
+                                var layerName = dataset.title;
+
+                                $scope.layerControl._layers.forEach(function(layer){
+                                  if(layer.group.name === wmsLayerGroupName && layer.name.includes(layerName)){
+                                    layer.layer.setOpacity(opacity);
+                                  }
+                                });
                               });
 
                               $scope.$on("removeWmsLayerFromMap", function (event, dataset) {

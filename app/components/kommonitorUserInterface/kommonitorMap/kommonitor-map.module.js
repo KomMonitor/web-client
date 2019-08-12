@@ -98,9 +98,14 @@ angular.module('kommonitorMap').service(
 				$rootScope.$broadcast("restyleCurrentLayer");
 			};
 
-      this.addWmsLayerToMap = function (dataset) {
+      this.addWmsLayerToMap = function (dataset, opacity) {
         $rootScope.$broadcast("addWmsLayerToMap",
             dataset);
+      };
+
+      this.adjustOpacityForWmsLayer = function (dataset, opacity) {
+        $rootScope.$broadcast("adjustOpacityForWmsLayer",
+            dataset, opacity);
       };
 
       this.removeWmsLayerFromMap = function (dataset) {
