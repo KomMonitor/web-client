@@ -1,0 +1,53 @@
+<div class="modal fade" id="modal-add-wms" role="dialog">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Tempor&auml;ren Web Map Service (WMS) definieren</h4>
+			</div>
+			<div class="modal-body">
+
+				<form role="form" class="form-group needs-validation" >
+					<div class="form-group">
+						<label >WMS Titel</label>
+						<input type="text" class="form-control" ng-model="customWmsTitle" placeholder="WMS Titel" required>
+					</div>
+					<div class="form-group">
+						<label >WMS Beschreibung</label>
+						<input type="text" class="form-control" ng-model="customWmsDescription" placeholder="WMS Beschreibung (bei Bedarf mit HTML-Tags zur Auszeichnung)" required>
+					</div>
+					<div class="form-group">
+						<label >WMS URL</label>
+						<input type="url" class="form-control" ng-model="customWmsUrl" placeholder="WMS URL" required pattern="https?://.+\\?">
+						<p class="help-block">Angabe der URL mit abschließendem "?". Beispiel: "https://image.discomap.eea.europa.eu/arcgis/services/GioLandPublic/HRL_ImperviousnessDensity_2015/MapServer/WMSServer?".</p>
+					</div>
+					<div class="form-group">
+						<label >WMS LAYER Name</label>
+						<input type="text" class="form-control" ng-model="customWmsLayerName" placeholder="WMS LAYER Name" required>
+						<p class="help-block">Den Layernamen finden Sie unter anderem im GetCapabilities Dokument des WMS.</p>
+					</div>
+
+					<div class="form-group">
+						<label>Legende</label>
+						<p>Die Legende wird automatisch anhand der definierten URL und des Layer-Namens ermittelt. Der WMS muss dabei &uuml;ber eine Standard-Legende für den Layer verf&uuml;gen.</p>
+					</div>
+
+					<p>Ein hinzugeladener WMS wird in die Tabelle der verf&uuml;gbaren WMS-Datens&auml;tze angezeigt. Gegenw&auml;rtig findet keine Verifikation des WMS statt. Sie m&uuml;ssen daher selbst die Eingaben sowie die Erreichbarkeit des Dienstes und des spezifizierten Layers auf Korrektheit &uuml;berprüfen</p>
+
+				</form>
+
+				<!-- ng-disabled="((!customWmsTitle) || (!customWmsDescription) || (!customWmsURL) || (!customWmsLayerName))" -->
+
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
+					<button type="button" class="btn btn-success" ng-click="addCustomTempWMS()">WMS tempor&auml;r hinzuladen</button>
+					<button type="button" class="btn btn-danger" ng-click="resetCustomTempWMSForm()">Zur&uuml;cksetzen</button>
+			</div>
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->

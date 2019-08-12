@@ -39,6 +39,8 @@ module.exports = function (grunt) {
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorReachability/kommonitor-reachability.component.js',
             'app/components/kommonitorUserInterface/kommonitorControls/poi/poi.module.js',
             'app/components/kommonitorUserInterface/kommonitorControls/poi/poi.component.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/poi/wmsModal/wms-modal.module.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/poi/wmsModal/wms-modal.component.js',
             'app/components/kommonitorUserInterface/kommonitorMap/kommonitor-map.module.js',
             'app/components/kommonitorUserInterface/kommonitorMap/kommonitor-map.component.js',
             'app/components/kommonitorUserInterface/kommonitorControls/infoModal/info-modal.module.js',
