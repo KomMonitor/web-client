@@ -17,7 +17,7 @@ angular.module('kommonitorMap').component(
                     const defaultColorForFilteredValues = __env.defaultColorForFilteredValues;
                     const defaultBorderColorForFilteredValues = __env.defaultBorderColorForFilteredValues;
                     const defaultBorderColor = __env.defaultBorderColor;
-                    const defaultFillOpacity = __env.defaultFillOpacity;
+                    var defaultFillOpacity = __env.defaultFillOpacity;
                     const defaultFillOpacityForFilteredFeatures = __env.defaultFillOpacityForFilteredFeatures;
                     const defaultFillOpacityForHighlightedFeatures = __env.defaultFillOpacityForHighlightedFeatures;
                     const defaultFillOpacityForZeroFeatures = __env.defaultFillOpacityForZeroFeatures;
@@ -581,6 +581,16 @@ angular.module('kommonitorMap').component(
                       toggleLegendControl();
                     });
 
+                    $(document).on('input','#indicatorTransparencyInput',function(e){
+                      // create PDF from currently selected/displayed indicator!
+                      var indicatorMetadata = kommonitorDataExchangeService.selectedIndicator;
+
+                      var transparency = document.getElementById("indicatorTransparencyInput").value;
+                      var opacity = 1 - transparency;
+
+                      $rootScope.$broadcast("adjustOpacityForIndicatorLayer", indicatorMetadata, opacity);
+                    });
+
                     $(document).on('click','#downloadMetadata',function(e){
                       // create PDF from currently selected/displayed indicator!
                       var indicatorMetadata = kommonitorDataExchangeService.selectedIndicator;
@@ -761,13 +771,49 @@ angular.module('kommonitorMap').component(
                           this._div.innerHTML += '<button id="downloadMetadata" class="btn btn-default"><i class="fa fa-download"></i>&nbsp;&nbsp;Download Metadatenblatt</button><br/><br/>';
 
                           this._div.innerHTML += $scope.appendSpatialUnitOptions();
-                          this._div.innerHTML += $scope.appendTransparencyCheckbox();
+                          // this._div.innerHTML += $scope.appendTransparencyCheckbox();
+
+                          // <form class="form-inline">
+                          // <div class="form-group" align="center">
+                          //
+                          //   <input class="form-control" id="indicatorTransparencyInput" type="range"  min="0" max="1" step="0.01">
+                          //
+                          //   <label id="">0.3</label>
+                          // </div>
+                          // </form>
+
+                          var transparencyDomString = "";
+                          transparencyDomString += '<br/><form class="form-inline">';
+                          transparencyDomString += '<div class="form-group">';
+                          transparencyDomString += '<label>Transparenz</label>&nbsp;&nbsp;&nbsp;';
+                          transparencyDomString += '<input class="slider form-control" style="width:50%;" id="indicatorTransparencyInput" type="range" value="' + (1 - defaultFillOpacity).toFixed(numberOfDecimals) + '" min="0" max="1" step="0.01">';
+                          transparencyDomString += '&nbsp;&nbsp;&nbsp;<label id="indicatorTransparencyLabel">' + (1 - defaultFillOpacity).toFixed(numberOfDecimals) + '</label>';
+                          transparencyDomString += '</div>';
+                          transparencyDomString += '</form>';
+
+                          this._div.innerHTML += transparencyDomString;
 
                           // this._div.innerHTML += $scope.appendSimplifyGeometriesOptions();
                           return this._div;
                       };
 
                       $scope.infoControl.addTo($scope.map);
+
+                      // Disable dragging when user's cursor enters the element
+                      $scope.infoControl.getContainer().addEventListener('mouseover', function () {
+                          $scope.map.dragging.disable();
+                          $scope.map.touchZoom.disable();
+                          $scope.map.doubleClickZoom.disable();
+                          $scope.map.scrollWheelZoom.disable();
+                      });
+
+                      // Re-enable dragging when user's cursor leaves the element
+                      $scope.infoControl.getContainer().addEventListener('mouseout', function () {
+                          $scope.map.dragging.enable();
+                          $scope.map.touchZoom.enable();
+                          $scope.map.doubleClickZoom.enable();
+                          $scope.map.scrollWheelZoom.enable();
+                      });
                     }
 
                     $scope.makeCustomInfoControl = function(date){
@@ -836,7 +882,7 @@ angular.module('kommonitorMap').component(
                       else{
                         $scope.useTransparencyOnIndicator = false;
                       }
-                      $rootScope.$broadcast("restyleCurrentLayer");
+                      $rootScope.$broadcast("restyleCurrentLayer", false);
 
                       // ensure that highlighted features remain highlighted
                       preserveHighlightedFeatures();
@@ -850,7 +896,7 @@ angular.module('kommonitorMap').component(
                       else{
                         kommonitorDataExchangeService.useOutlierDetectionOnIndicator = false;
                       }
-                      $rootScope.$broadcast("restyleCurrentLayer");
+                      $rootScope.$broadcast("restyleCurrentLayer", false);
 
                       // ensure that highlighted features remain highlighted
                       preserveHighlightedFeatures();
@@ -859,7 +905,7 @@ angular.module('kommonitorMap').component(
                     $scope.$on("changeClassifyMethod", function (event, method) {
                       $scope.classifyMethod = method;
 
-                      $rootScope.$broadcast("restyleCurrentLayer");
+                      $rootScope.$broadcast("restyleCurrentLayer", false);
                     });
 
 
@@ -961,6 +1007,24 @@ angular.module('kommonitorMap').component(
                         return "(" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(outliersArray[0]) + ")";
                       }
                     };
+
+                    $scope.registerEventListenersForLegend = function(){
+                      // Disable dragging when user's cursor enters the element
+                      $scope.legendControl.getContainer().addEventListener('mouseover', function () {
+                          $scope.map.dragging.disable();
+                          $scope.map.touchZoom.disable();
+                          $scope.map.doubleClickZoom.disable();
+                          $scope.map.scrollWheelZoom.disable();
+                      });
+
+                      // Re-enable dragging when user's cursor leaves the element
+                      $scope.legendControl.getContainer().addEventListener('mouseout', function () {
+                          $scope.map.dragging.enable();
+                          $scope.map.touchZoom.enable();
+                          $scope.map.doubleClickZoom.enable();
+                          $scope.map.scrollWheelZoom.enable();
+                      });
+                    }
 
                     $scope.makeDefaultLegend = function(defaultClassificationMapping){
 
@@ -1080,6 +1144,7 @@ angular.module('kommonitorMap').component(
 
                       $scope.legendControl.addTo($scope.map);
 
+                      $scope.registerEventListenersForLegend();
                     }
 
                     $scope.makeDynamicIndicatorLegend = function(){
@@ -1826,6 +1891,25 @@ angular.module('kommonitorMap').component(
                                     $scope.map.removeLayer(layer.layer);
                                   }
                                 });
+                              });
+
+                              $scope.$on("adjustOpacityForIndicatorLayer", function (event, indicatorMetadata, opacity) {
+                                // var layerName = indicatorMetadataAndGeoJSON.indicatorName;
+                                //
+                                // $scope.layerControl._layers.forEach(function(layer){
+                                //   if(layer.group.name === indicatorLayerGroupName && layer.name.includes(layerName)){
+                                //     layer.layer.setOpacity(opacity);
+                                //     layer.layer.setStyle({
+                                //       opacity: opacity
+                                //     });
+                                //   }
+                                // });
+
+                                opacity = opacity.toFixed(numberOfDecimals);
+
+                                document.getElementById("indicatorTransparencyLabel").innerHTML = opacity;
+                                defaultFillOpacity = opacity;
+                                $rootScope.$broadcast("restyleCurrentLayer", true);
                               });
 
                               $scope.$on("addWmsLayerToMap", function (event, dataset, opacity) {
@@ -3082,7 +3166,7 @@ angular.module('kommonitorMap').component(
                                                             });
 
 
-                                                            $scope.$on("restyleCurrentLayer", function (event) {
+                                                            $scope.$on("restyleCurrentLayer", function (event, skipDiagramRefresh) {
 
                                                                           refreshFilteredStyle();
                                                                           refreshOutliersStyle();
@@ -3168,13 +3252,15 @@ angular.module('kommonitorMap').component(
 
                                                                             }
 
-                                                                            var justRestyling = true;
+                                                                            if (!skipDiagramRefresh){
+                                                                              var justRestyling = true;
 
-                                                                            var indicatorObjectForDiagramUpdate = kommonitorDataExchangeService.selectedIndicator;
-                                                                            if(kommonitorDataExchangeService.isBalanceChecked){
-                                                                              indicatorObjectForDiagramUpdate = $scope.currentIndicatorMetadataAndGeoJSON;
+                                                                              var indicatorObjectForDiagramUpdate = kommonitorDataExchangeService.selectedIndicator;
+                                                                              if(kommonitorDataExchangeService.isBalanceChecked){
+                                                                                indicatorObjectForDiagramUpdate = $scope.currentIndicatorMetadataAndGeoJSON;
+                                                                              }
+                                                                              $rootScope.$broadcast("updateDiagrams", indicatorObjectForDiagramUpdate, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitId, $scope.date, $scope.defaultBrew, $scope.gtMeasureOfValueBrew, $scope.ltMeasureOfValueBrew, $scope.dynamicIncreaseBrew, $scope.dynamicDecreaseBrew, kommonitorDataExchangeService.isMeasureOfValueChecked, kommonitorDataExchangeService.measureOfValue, justRestyling);
                                                                             }
-                                                                            $rootScope.$broadcast("updateDiagrams", indicatorObjectForDiagramUpdate, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitId, $scope.date, $scope.defaultBrew, $scope.gtMeasureOfValueBrew, $scope.ltMeasureOfValueBrew, $scope.dynamicIncreaseBrew, $scope.dynamicDecreaseBrew, kommonitorDataExchangeService.isMeasureOfValueChecked, kommonitorDataExchangeService.measureOfValue, justRestyling);
 
                                                                             //ensure that highlighted feature remain highlighted
                                                                             preserveHighlightedFeatures();
