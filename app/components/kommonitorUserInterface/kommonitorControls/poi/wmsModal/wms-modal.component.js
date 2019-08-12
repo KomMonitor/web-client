@@ -30,6 +30,11 @@ angular.module('wmsModal').component('wmsModal', {
 
 			$("#wmsSucessAlert").show();
 
+			$scope.resetCustomTempWMSForm();
+
+			setTimeout(function() {
+					$("#wmsSucessAlert").hide();
+			}, 3000);
 
 		};
 
