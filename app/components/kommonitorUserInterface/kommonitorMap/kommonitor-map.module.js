@@ -104,7 +104,7 @@ angular.module('kommonitorMap').service(
       };
 
       this.removeWmsLayerFromMap = function (dataset) {
-        $rootScope.$broadcast("addWmsLayerToMap",
+        $rootScope.$broadcast("removeWmsLayerFromMap",
             dataset);
       };
 
