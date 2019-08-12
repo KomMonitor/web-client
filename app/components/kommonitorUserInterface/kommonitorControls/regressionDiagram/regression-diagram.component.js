@@ -16,6 +16,9 @@ angular
 								// initialize any adminLTE box widgets
 								$('.box').boxWidget();
 
+								$scope.indicatorNameFilterForXAxis = undefined;
+								$scope.indicatorNameFilterForYAxis = undefined;
+
 								const DATE_PREFIX = __env.indicatorDatePrefix;
 								var numberOfDecimals = __env.numberOfDecimals;
 								const defaultColorForFilteredValues = __env.defaultColorForFilteredValues;
@@ -35,7 +38,9 @@ angular
 
 								//$scope.allIndicatorProperties;
 								$scope.selectedIndicatorForXAxis;
+								$scope.selectedIndicatorForXAxis_backup;
 								$scope.selectedIndicatorForYAxis;
+								$scope.selectedIndicatorForYAxis_backup;
 								$scope.correlation;
 								$scope.linearRegression;
 								$scope.regressionOption;
@@ -348,6 +353,21 @@ angular
 									}
 
 								$scope.onChangeSelectedIndicators = function(){
+
+									if($scope.selectedIndicatorForXAxis){
+										$scope.selectedIndicatorForXAxis_backup = $scope.selectedIndicatorForXAxis;
+									}
+									else if ($scope.selectedIndicatorForXAxis_backup){
+										$scope.selectedIndicatorForXAxis = $scope.selectedIndicatorForXAxis_backup;
+									}
+
+									if($scope.selectedIndicatorForYAxis){
+										$scope.selectedIndicatorForYAxis_backup = $scope.selectedIndicatorForYAxis;
+									}
+									else if ($scope.selectedIndicatorForYAxis_backup){
+										$scope.selectedIndicatorForYAxis = $scope.selectedIndicatorForYAxis_backup;
+									}
+
 									if($scope.selectedIndicatorForXAxis && $scope.selectedIndicatorForYAxis){
 
 										$scope.eventsRegistered = false;

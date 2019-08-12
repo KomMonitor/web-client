@@ -18,6 +18,8 @@ angular
 
 								const DATE_PREFIX = __env.indicatorDatePrefix;
 
+								$scope.indicatorNameFilter = undefined;
+
 								//$scope.allIndicatorProperties;
 								$scope.namesOfFailedIndicators  = new Array();
 								$scope.selectableIndicatorsForRadar = new Array();

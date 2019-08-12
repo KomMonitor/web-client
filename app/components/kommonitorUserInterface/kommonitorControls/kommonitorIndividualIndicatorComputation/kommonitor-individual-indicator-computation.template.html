@@ -14,17 +14,21 @@
 			</div>
 			<div class="box-body">
 
-				<div ng-show="!targetIndicator">
-					<p>Bitte einen Indikator ausw&auml;hlen, der über ein Skript berechnet werden kann.</p>
+				<div class="input-group">
+					<span class="input-group-addon"><i class="fas fa-filter"></i></span>
+					<input type="text" class="form-control" placeholder="Filtern nach Indikatorenname" ng-model="indicatorNameFilter">
 				</div>
+
+				<p></p>
 
 				<div class="hiddenTable" text-align="center" align="center">
 
 					<div class="hiddenTableCell">
 
+
 						<div text-align="center" align="center" class="hiddenTableContent">
 							<select
-								size="8" ng-model="targetIndicator" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators() | filter:{creationType:'COMPUTATION'} | filter:filterComputableIndicators()"
+								size="8" ng-model="targetIndicator" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators() | filter:{creationType:'COMPUTATION'} | filter:filterComputableIndicators() | filter:indicatorNameFilter"
 								class="form-control" ng-change="onChangeTargetIndicator()" required>
 								<option value="" selected disabled>-- berechenbaren Indikator w&auml;hlen --</option>
 							</select>

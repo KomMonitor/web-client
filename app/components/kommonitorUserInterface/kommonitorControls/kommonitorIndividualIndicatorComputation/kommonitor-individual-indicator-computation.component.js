@@ -16,6 +16,10 @@ angular
 						$scope.loadingData = false;
 
 						$scope.targetIndicator;
+						$scope.targetIndicator_backup;
+
+						$scope.indicatorNameFilter = undefined;
+
 						$scope.targetDate;
 						$scope.targetSpatialUnit;
 						$scope.targetScriptMetadata;
@@ -330,6 +334,13 @@ angular
 						};
 
 						$scope.onChangeTargetIndicator = function(){
+
+							if($scope.targetIndicator){
+								$scope.targetIndicator_backup = $scope.targetIndicator;
+							}
+							else{
+								$scope.targetIndicator = $scope.targetIndicator_backup;
+							}
 
 							$scope.computedCustomizedIndicatorGeoJSON = undefined;
 							$scope.resetProgressBar();
