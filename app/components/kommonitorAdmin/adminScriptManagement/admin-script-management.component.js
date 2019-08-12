@@ -3,7 +3,8 @@ angular.module('adminScriptManagement').component('adminScriptManagement', {
 	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '__env', '$http', function ScriptManagementController(kommonitorDataExchangeService, $scope, $rootScope, __env, $http) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
-
+		// initialize any adminLTE box widgets
+	  $('.box').boxWidget();
 
 
 	}

@@ -13,6 +13,8 @@ angular
 						const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
 						this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 						this.kommonitorMapServiceInstance = kommonitorMapService;
+						// initialize any adminLTE box widgets
+						$('.box').boxWidget();
 						var numberOfDecimals = __env.numberOfDecimals;
 
 						$scope.targetDate;

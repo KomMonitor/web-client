@@ -16,6 +16,9 @@ angular
 								const initialIndicatorId = __env.initialIndicatorId;
 								const initialSpatialUnitName = __env.initialSpatialUnitName;
 
+								// initialize any adminLTE box widgets
+								$('.box').boxWidget();
+
 								// var rangeslide = require("rangeslide");
 								/*
 								 * references to kommonitorDataExchangeService and wpsFormControl instances

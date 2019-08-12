@@ -8,6 +8,8 @@ angular
 							kommonitorDataExchangeService, $rootScope, $scope, $http, kommonitorMapService, __env) {
 
 						this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
+						// initialize any adminLTE box widgets
+						$('.box').boxWidget();
 
 						const targetURL = __env.targetUrlToProcessingEngine + "script-engine/customizableIndicatorComputation";
 

@@ -14,6 +14,8 @@ angular
 							function kommonitorDiagramsController(kommonitorDataExchangeService,
 									$scope, $rootScope, __env) {
 								this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
+								// initialize any adminLTE box widgets
+								$('.box').boxWidget();
 
 								const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
 								const defaultColorForHoveredFeatures = __env.defaultColorForHoveredFeatures;

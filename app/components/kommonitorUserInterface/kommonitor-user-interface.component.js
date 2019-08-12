@@ -5,6 +5,8 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
 		kommonitorDataExchangeService.anySideBarIsShown = false;
+		// initialize any adminLTE box widgets
+		$('.box').boxWidget();
 
 		$scope.sidebarIndicatorConfigClass = "hidden";
 		$scope.sidebarDiagramsClass = "hidden";

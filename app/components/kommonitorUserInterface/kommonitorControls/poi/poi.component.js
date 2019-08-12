@@ -17,6 +17,8 @@ angular
 								$scope.useCluster = true;
 								$scope.loadingData = false;
 								$scope.date;
+								// initialize any adminLTE box widgets
+								$('.box').boxWidget();
 
 								const DATE_PREFIX = __env.indicatorDatePrefix;
 

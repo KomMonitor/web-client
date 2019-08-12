@@ -13,6 +13,8 @@ angular
 								 * reference to kommonitorDataExchangeService instances
 								 */
 								this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
+								// initialize any adminLTE box widgets
+								$('.box').boxWidget();
 
 								const DATE_PREFIX = __env.indicatorDatePrefix;
 								var numberOfDecimals = __env.numberOfDecimals;

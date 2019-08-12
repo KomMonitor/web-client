@@ -14,6 +14,8 @@ angular
 							this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 							this.kommonitorMapServiceInstance = kommonitorMapService;
 							var numberOfDecimals = __env.numberOfDecimals;
+							// initialize any adminLTE box widgets
+							$('.box').boxWidget();
 
 							$scope.rangeSliderForFilter;
 							$scope.valueRangeMinValue;

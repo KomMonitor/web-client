@@ -9,6 +9,9 @@ angular
 
 								this.selectedResourceType = 'spatialUnits';
 
+								// initialize any adminLTE box widgets
+							  $('.box').boxWidget();
+
 								this.onClickDataManagement = function(resourceType){
 									this.selectedResourceType = resourceType;
 

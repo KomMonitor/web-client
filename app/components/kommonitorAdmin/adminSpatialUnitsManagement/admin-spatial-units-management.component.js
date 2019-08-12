@@ -3,7 +3,8 @@ angular.module('adminSpatialUnitsManagement').component('adminSpatialUnitsManage
 	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '__env', '$http', function SpatialUnitsManagementController(kommonitorDataExchangeService, $scope, $rootScope, __env, $http) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
-
+		// initialize any adminLTE box widgets
+	  $('.box').boxWidget();
 
 
 	}

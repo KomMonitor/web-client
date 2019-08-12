@@ -16,6 +16,8 @@ angular
 							this.kommonitorMapServiceInstance = kommonitorMapService;
 							$scope.targetUrlToReachabilityService_ORS = __env.targetUrlToReachabilityService_ORS;
 							var numberOfDecimals = __env.numberOfDecimals;
+							// initialize any adminLTE box widgets
+							$('.box').boxWidget();
 
 							$scope.currentIsochronesGeoJSON;
 

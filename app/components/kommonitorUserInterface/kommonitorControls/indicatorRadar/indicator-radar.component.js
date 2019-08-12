@@ -13,6 +13,8 @@ angular
 								 * reference to kommonitorDataExchangeService instances
 								 */
 								this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
+								// initialize any adminLTE box widgets
+								$('.box').boxWidget();
 
 								const DATE_PREFIX = __env.indicatorDatePrefix;
 
@@ -272,7 +274,7 @@ angular
 														name: {
 																formatter: function (value, indicator) {
 
-																								return kommonitorDataExchangeService.formatIndiatorNameForLabel(value, 28);																								
+																								return kommonitorDataExchangeService.formatIndiatorNameForLabel(value, 28);
 																						},
 																textStyle: {
 																		color:'#525252'
