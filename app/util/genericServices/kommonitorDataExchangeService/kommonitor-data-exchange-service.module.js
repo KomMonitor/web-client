@@ -38,6 +38,9 @@ angular
 					this.indicatorAndMetadataAsBalance;
 					this.tmpIndicatorGeoJSON = undefined;
 
+          this.wmsUrlForSelectedIndicator = undefined;
+          this.wfsUrlForSelectedIndicator = undefined;
+
 					this.baseUrlToKomMonitorDataAPI = __env.apiUrl + __env.basePath;
           this.simplifyGeometriesParameterName = __env.simplifyGeometriesParameterName;
           this.simplifyGeometriesOptions = __env.simplifyGeometriesOptions;

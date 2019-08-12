@@ -27,9 +27,6 @@ angular
 								this.kommonitorDataExchangeServiceInstance.selectedServiceUrl = '';
 								this.kommonitorMapServiceInstance = kommonitorMapService;
 
-								$scope.wmsUrlForSelectedIndicator;
-								$scope.wfsUrlForSelectedIndicator;
-
 								$scope.loadingData = true;
 								$scope.changeIndicatorWasClicked = false;
 
@@ -716,117 +713,31 @@ angular
 
 
 								$scope.modifyExports = function(changeIndicator){
-									$scope.wmsUrlForSelectedIndicator = undefined;
-									$scope.wmsUrlForSelectedIndicator = undefined;
+									kommonitorDataExchangeService.wmsUrlForSelectedIndicator = undefined;
+									kommonitorDataExchangeService.wmsUrlForSelectedIndicator = undefined;
 
 									var selectedSpatialUnitName = kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel;
 
 									for(const ogcServiceEntry of kommonitorDataExchangeService.selectedIndicator.ogcServices){
 										if (ogcServiceEntry.spatialUnit === selectedSpatialUnitName){
-											$scope.wmsUrlForSelectedIndicator = ogcServiceEntry.wmsUrl;
-											$scope.wfsUrlForSelectedIndicator = ogcServiceEntry.wfsUrl;
+											kommonitorDataExchangeService.wmsUrlForSelectedIndicator = ogcServiceEntry.wmsUrl;
+											kommonitorDataExchangeService.wfsUrlForSelectedIndicator = ogcServiceEntry.wfsUrl;
 											break;
 										}
 									};
 
-									$scope.prepareDownloadGeoJSON();
 									$rootScope.$broadcast("updateBalanceSlider", kommonitorDataExchangeService.selectedDate);
 									$rootScope.$broadcast("updateIndicatorValueRangeFilter", kommonitorDataExchangeService.selectedDate);
 									$scope.addSelectedIndicatorToMap(changeIndicator);
 
-
 								}
-
-								$scope.prepareDownloadGeoJSON = function(){
-
-									console.log("removing old download button if available")
-									if(document.getElementById("downloadSelectedIndicatorAsGeoJSON"))
-										document.getElementById("downloadSelectedIndicatorAsGeoJSON").remove();
-
-									var geoJSON_string = JSON.stringify(kommonitorDataExchangeService.selectedIndicator.geoJSON);
-
-									var fileName = kommonitorDataExchangeService.selectedIndicator.indicatorName + "_" + kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel + "_" + $scope.selectedDate + ".geojson";
-
-									var blob = new Blob([geoJSON_string], {type: "application/json"});
-									var data  = URL.createObjectURL(blob);
-									//
-									// $scope.indicatorDownloadURL = data;
-									// $scope.indicatorDownloadName = fileName;
-
-									console.log("create new Download button and append it to DOM");
-									var a = document.createElement('a');
-									a.download    = fileName;
-									a.href        = data;
-									a.textContent = "GeoJSON";
-									a.id = "downloadSelectedIndicatorAsGeoJSON";
-
-									var li = document.createElement("li");
-									li.appendChild(a);
-
-									document.getElementById('exportDropdown').appendChild(li);
-								}
-
-								$scope.downloadIndicatorAsShape = function(){
-
-									var folderName = kommonitorDataExchangeService.selectedIndicator.indicatorName + "_" + kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel + "_" + $scope.selectedDate;
-									var polygonName = kommonitorDataExchangeService.selectedIndicator.indicatorName + "_" + kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel;
-
-									var options = {
-									    folder: folderName,
-									    types: {
-									        point: 'points',
-									        polygon: polygonName,
-									        line: 'lines'
-									    }
-									}
-
-									var geoJSON = jQuery.extend(true, {}, kommonitorDataExchangeService.selectedIndicator.geoJSON);
-
-									for (var feature of geoJSON.features){
-										var properties = feature.properties;
-
-										// rename all properties due to char limit in shaoefiles
-										var keys = Object.keys(properties);
-
-										for (var key of keys){
-											var newKey = undefined;
-											if(key.toLowerCase().includes("featureid")){
-												newKey = "ID";
-											}
-											else if(key.toLowerCase().includes("featurename")){
-												newKey = "NAME";
-											}
-											else if(key.toLowerCase().includes("date_")){
-												// from DATE_2018-01-01
-												// to 20180101
-												newKey = key.split("_")[1].replace(/-|\s/g, "");
-											}
-											else if(key.toLowerCase().includes("startdate")){
-												newKey = "validFrom";
-											}
-											else if(key.toLowerCase().includes("enddate")){
-												newKey = "validTo";
-											}
-
-											if(newKey){
-												properties[newKey] = properties[key];
-												delete properties[key];
-											}
-										}
-
-										// replace properties with the one with new keys
-										feature.properties = properties;
-									}
-
-									shpwrite.download(geoJSON, options);
-								};
 
 								$scope.$on("updateIndicatorOgcServices", function (event, indicatorWmsUrl, indicatorWfsUrl) {
 
 															console.log('updateIndicatorOgcServices was called');
 
-															$scope.wmsUrlForSelectedIndicator = indicatorWmsUrl;
-															$scope.wfsUrlForSelectedIndicator = indicatorWfsUrl;
+															kommonitorDataExchangeService.wmsUrlForSelectedIndicator = indicatorWmsUrl;
+															kommonitorDataExchangeService.wfsUrlForSelectedIndicator = indicatorWfsUrl;
 															$scope.$apply();
 
 								});

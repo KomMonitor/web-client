@@ -573,6 +573,103 @@ angular.module('kommonitorMap').component(
                       toggleLegendControl();
                     });
 
+                    $scope.downloadIndicatorAsGeoJSON = function(){
+
+    									var geoJSON_string = JSON.stringify(kommonitorDataExchangeService.selectedIndicator.geoJSON);
+
+    									var fileName = kommonitorDataExchangeService.selectedIndicator.indicatorName + "_" + kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel + "_" + kommonitorDataExchangeService.selectedDate + ".geojson";
+
+    									var blob = new Blob([geoJSON_string], {type: "application/json"});
+    									var data  = URL.createObjectURL(blob);
+    									//
+    									// $scope.indicatorDownloadURL = data;
+    									// $scope.indicatorDownloadName = fileName;
+
+                      // var element = document.createElement('a');
+											// element.setAttribute('href', 'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(geoJSON)));
+											// element.setAttribute('download', fileName);
+                      //
+											// element.style.display = 'none';
+											// document.body.appendChild(element);
+                      //
+											// element.click();
+                      //
+											// document.body.removeChild(element);
+
+    									var a = document.createElement('a');
+    									a.download    = fileName;
+    									a.href        = data;
+    									a.textContent = "GeoJSON";
+                      a.target = "_blank";
+                      a.rel = "noopener noreferrer";
+    									a.click();
+
+                      a.remove();
+    								}
+
+    								$scope.downloadIndicatorAsShape = function(){
+
+    									var folderName = kommonitorDataExchangeService.selectedIndicator.indicatorName + "_" + kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel + "_" + kommonitorDataExchangeService.selectedDate;
+    									var polygonName = kommonitorDataExchangeService.selectedIndicator.indicatorName + "_" + kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel;
+
+    									var options = {
+    									    folder: folderName,
+    									    types: {
+    									        point: 'points',
+    									        polygon: polygonName,
+    									        line: 'lines'
+    									    }
+    									}
+
+    									var geoJSON = jQuery.extend(true, {}, kommonitorDataExchangeService.selectedIndicator.geoJSON);
+
+    									for (var feature of geoJSON.features){
+    										var properties = feature.properties;
+
+    										// rename all properties due to char limit in shaoefiles
+    										var keys = Object.keys(properties);
+
+    										for (var key of keys){
+    											var newKey = undefined;
+    											if(key.toLowerCase().includes("featureid")){
+    												newKey = "ID";
+    											}
+    											else if(key.toLowerCase().includes("featurename")){
+    												newKey = "NAME";
+    											}
+    											else if(key.toLowerCase().includes("date_")){
+    												// from DATE_2018-01-01
+    												// to 20180101
+    												newKey = key.split("_")[1].replace(/-|\s/g, "");
+    											}
+    											else if(key.toLowerCase().includes("startdate")){
+    												newKey = "validFrom";
+    											}
+    											else if(key.toLowerCase().includes("enddate")){
+    												newKey = "validTo";
+    											}
+
+    											if(newKey){
+    												properties[newKey] = properties[key];
+    												delete properties[key];
+    											}
+    										}
+
+    										// replace properties with the one with new keys
+    										feature.properties = properties;
+    									}
+
+    									shpwrite.download(geoJSON, options);
+    								};
+
+                    $(document).on('click','#downloadGeoJSON',function(e){
+                      $scope.downloadIndicatorAsGeoJSON();
+                    });
+
+                    $(document).on('click','#downloadShape',function(e){
+                      $scope.downloadIndicatorAsShape();
+                    });
+
                     $(document).on('click','#info_close',function(e){
                       toggleInfoControl();
                     });
@@ -768,8 +865,6 @@ angular.module('kommonitorMap').component(
                           // this._div.innerHTML += '<b>Kontakt: </b> ' + $scope.currentIndicatorMetadataAndGeoJSON.metadata.contact + '<br/>';
                           this._div.innerHTML += '<b>Aktualisierungszyklus: </b> ' + $scope.updateInterval.get($scope.currentIndicatorMetadataAndGeoJSON.metadata.updateInterval.toUpperCase()) + '<br/>';
                           this._div.innerHTML += '<b>zuletzt aktualisiert am: </b> ' + tsToDate(dateToTS(lastUpdateAsDate)) + '<br/><br/>';
-                          this._div.innerHTML += '<button id="downloadMetadata" class="btn btn-default"><i class="fa fa-download"></i>&nbsp;&nbsp;Download Metadatenblatt</button><br/><br/>';
-
                           this._div.innerHTML += $scope.appendSpatialUnitOptions();
                           // this._div.innerHTML += $scope.appendTransparencyCheckbox();
 
@@ -792,6 +887,17 @@ angular.module('kommonitorMap').component(
                           transparencyDomString += '</form>';
 
                           this._div.innerHTML += transparencyDomString;
+
+                          var exportDomString = '<br/><div class="btn-group">';
+                          exportDomString += "<label><i class='fa fa-file-download'></i>&nbsp;&nbsp;&nbsp;Export</label>";
+                          exportDomString += '<br/><button id="downloadMetadata" class="btn btn-primary btn-xs">Metadatenblatt</button>';
+                          exportDomString += '<button id="downloadGeoJSON" class="btn btn-primary btn-xs">GeoJSON</button>';
+                          exportDomString += '<button id="downloadShape" class="btn btn-primary btn-xs">ESRI Shape</button>';
+                          exportDomString += '<a style="color:white;" class="btn btn-primary btn-xs" href="' + kommonitorDataExchangeService.wmsUrlForSelectedIndicator + '" target="_blank" rel="noopener noreferrer" id="downloadWMS">WMS</a>';
+                          exportDomString += '<a style="color:white;" class="btn btn-primary btn-xs" href="' + kommonitorDataExchangeService.wfsUrlForSelectedIndicator + '" target="_blank" rel="noopener noreferrer" id="downloadWFS">WFS</a>';
+                          exportDomString += "</div>";
+
+                          this._div.innerHTML += exportDomString;
 
                           // this._div.innerHTML += $scope.appendSimplifyGeometriesOptions();
                           return this._div;
