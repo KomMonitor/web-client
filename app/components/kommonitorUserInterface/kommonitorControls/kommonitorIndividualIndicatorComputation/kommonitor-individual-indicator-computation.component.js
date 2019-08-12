@@ -771,7 +771,7 @@ angular
 							a.href        = data;
 							a.textContent = "Download GeoJSON";
 							a.id = "downloadComputedIndicator";
-							a.setAttribute("class", "btn btn-info");
+							a.setAttribute("class", "btn btn-primary");
 
 							document.getElementById('indicatorOutput').appendChild(a);
 						}
