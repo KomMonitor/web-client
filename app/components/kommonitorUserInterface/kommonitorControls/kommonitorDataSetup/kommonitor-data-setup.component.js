@@ -16,6 +16,8 @@ angular
 								const initialIndicatorId = __env.initialIndicatorId;
 								const initialSpatialUnitName = __env.initialSpatialUnitName;
 
+								$scope.indicatorNameFilter = undefined;
+
 								// initialize any adminLTE box widgets
 								$('.box').boxWidget();
 
@@ -250,6 +252,8 @@ angular
 									}
 
 									kommonitorDataExchangeService.selectedIndicator = kommonitorDataExchangeService.availableIndicators[indicatorIndex];
+									// create Backup which is used when currently selected indicator is filtered out in select
+									kommonitorDataExchangeService.selectedIndicatorBackup = kommonitorDataExchangeService.selectedIndicator;
 
 									// set spatialUnit
 									for (var spatialUnitEntry of kommonitorDataExchangeService.availableSpatialUnits){
@@ -707,6 +711,14 @@ angular
 												$scope.$apply();
 
 
+									}
+									else{
+										if (kommonitorDataExchangeService.selectedIndicatorBackup){
+											kommonitorDataExchangeService.selectedIndicator = kommonitorDataExchangeService.selectedIndicatorBackup;
+											// call same method again
+											// this shall ensure, that there is always a value for $scope.onChangeSelectedIndicator
+											// $scope.onChangeSelectedIndicator();
+										}
 									}
 								}
 
