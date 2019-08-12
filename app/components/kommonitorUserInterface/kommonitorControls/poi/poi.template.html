@@ -24,6 +24,13 @@
 
 					<!-- <p>Selektieren eines Eintrags aus unten stehender Liste f&uuml;gt den entsprechenden Punkt-Layer der Kartendarstellung hinzu. Deselektion entfernt den entsprechenden Layer aus der Kartendarstellung.</p> -->
 
+					<div class="input-group">
+						<span class="input-group-addon"><i class="fas fa-filter"></i></span>
+						<input type="text" class="form-control" placeholder="Filtern nach POI-Name" ng-model="poiNameFilter">
+					</div>
+
+					<br/>
+
 					<div  id="poiInputForm">
 
 						<table class="table table-condensed" style="margin-bottom:0px;">
@@ -36,7 +43,7 @@
 
 							<tbody>
 
-								<tr ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:filterGeoresourcesByPoi() | filter:filterPois()'>
+								<tr ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:filterGeoresourcesByPoi() | filter:filterPois() | filter:poiNameFilter'>
 									<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 									<td>
 										<label class='checkbox-inline' ><input type="checkbox" value="poi.datasetName" ng-model="poi.isSelected" ng-change="handlePoiOnMap(poi)">
@@ -160,7 +167,12 @@
 
 											</div> -->
 
+											<div class="input-group">
+												<span class="input-group-addon"><i class="fas fa-filter"></i></span>
+												<input type="text" class="form-control" placeholder="Filtern nach WMS-Name" ng-model="wmsNameFilter">
+											</div>
 
+											<br/>
 
 											<div  id="wmsInputForm" style="font-size:11px;">
 
@@ -177,7 +189,7 @@
 
 													<tbody>
 
-														<tr ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets'>
+														<tr ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:wmsNameFilter'>
 															<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 															<td>
 																<label class='checkbox-inline' ><input type="checkbox" value="dataset.title" ng-model="dataset.isSelected" ng-change="handleWmsOnMap(dataset)">

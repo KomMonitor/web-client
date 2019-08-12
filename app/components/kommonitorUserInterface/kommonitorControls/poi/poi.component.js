@@ -17,6 +17,13 @@ angular
 								$scope.useCluster = true;
 								$scope.loadingData = false;
 								$scope.date;
+
+								$scope.poiNameFilter = undefined;
+								$scope.loiNameFilter = undefined;
+								$scope.aoiNameFilter = undefined;
+								$scope.wmsNameFilter = undefined;
+
+
 								// initialize any adminLTE box widgets
 								$('.box').boxWidget();
 
