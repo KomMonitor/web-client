@@ -302,9 +302,10 @@
 }
 
 .leaflet-left .leaflet-control-layers {
-  display: inline-block;
-  float: none;
-	left: 100px;
+  /* display: inline-block;
+  float: none; */
+	left: 150px;
+	position: fixed;
 
 	/* width: auto; */
 	max-width	: 600px;
@@ -313,26 +314,28 @@
 }
 
 .leaflet-left .leaflet-control-geosearch {
-  display: inline-block;
-  float: none;
+  /* display: inline-block; */
+  /* float: none; */
+	position: fixed;
 	left: 100px;
-
-	/* width: auto;
-	max-width	: 600px;
-	max-height : 350px;
-	overflow : auto; */
+	top: 100px;
 }
 
 .leaflet-left .leaflet-control-search {
-  display: inline-block;
-  float: none;
-	left: -97px;
-	top: 40px;
+  /* display: inline-block; */
+  /* float: none; */
+	position: fixed;
+	left: 100px;
+	top: 50px;
+}
 
-	/* width: auto;
-	max-width	: 600px;
-	max-height : 350px;
-	overflow : auto; */
+.leaflet-left .leaflet-control-measure{
+
+	/* display: inline-block; */
+	/* float: none; */
+	position: fixed;
+	left: 100px;
+	top: 150px;
 }
 
 .leaflet-control-layers-group-name{

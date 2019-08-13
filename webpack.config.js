@@ -61,7 +61,7 @@ module.exports = {
           { from: nodeModulePathConstant + 'leaflet-search/images/', to: 'leaflet-search/images' },
           { from: nodeModulePathConstant + 'leaflet-measure/dist/leaflet-measure.de.js', to: 'leaflet-measure' },
           { from: nodeModulePathConstant + 'leaflet-measure/dist/leaflet-measure.css', to: 'leaflet-measure' },
-          { from: nodeModulePathConstant + 'leaflet-measure/dist/assets', to: 'leaflet-measure' }
+          { from: nodeModulePathConstant + 'leaflet-measure/dist/assets', to: 'leaflet-measure/assets' }
       ])
     ]
 };

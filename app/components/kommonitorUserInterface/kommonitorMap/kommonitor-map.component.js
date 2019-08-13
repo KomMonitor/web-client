@@ -400,6 +400,7 @@ angular.module('kommonitorMap').component(
                       var provider = new OpenStreetMapProvider();
 
                       $scope.geosearchControl = new GeoSearchControl({
+                        position:"topleft",
                         provider: provider,
                         style: 'button',
                         autoComplete: true,
@@ -434,7 +435,13 @@ angular.module('kommonitorMap').component(
                       /////////////////////////////////////////////////////
                       ///// LEAFLET MEASURE SETUP
                       /////////////////////////////////////////////////////
-
+                      var measureOptions = {
+                        position: 'topleft',
+                        primaryLengthUnit: 'meters',
+                        primaryAreaUnit: 'sqmeters'
+                      }
+                      $scope.measureControl = new L.Control.Measure(measureOptions);
+                      $scope.measureControl.addTo($scope.map);
 
 
 
@@ -463,6 +470,7 @@ angular.module('kommonitorMap').component(
                       var layerGroup = L.featureGroup(featureLayers);
 
                       $scope.searchControl = L.control.search({
+                        position:"topleft",
                     		layer: layerGroup,
                     		initial: false,
                     		propertyName: __env.FEATURE_NAME_PROPERTY_NAME,
