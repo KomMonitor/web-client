@@ -189,12 +189,12 @@
 
 													<tbody>
 
-														<tr ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:wmsNameFilter'>
+														<tr ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:wmsNameFilter | orderBy:"title"'>
 															<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 															<td>
 																<label class='checkbox-inline' ><input type="checkbox" value="dataset.title" ng-model="dataset.isSelected" ng-change="handleWmsOnMap(dataset)">
 
-																	<b>{{dataset.title}}</b>
+																	<b ng-bind-html="dataset.title"></b>
 																</label>
 															</td>
 															<td>
