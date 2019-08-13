@@ -290,16 +290,49 @@
   position: absolute;
 }
 
+/* MAP UTIL BUTTONS */
+#recenterMapButton {
+	left: 60px;
+	top: 10px;
+}
+
+#unselectFeaturesButton {
+	left: 110px;
+	top: 10px;
+}
+
 .leaflet-left .leaflet-control-layers {
   display: inline-block;
   float: none;
-	left: 125px;
-	top: 10px;
+	left: 100px;
 
-	width: auto;
+	/* width: auto; */
 	max-width	: 600px;
 	max-height : 350px;
 	overflow : auto;
+}
+
+.leaflet-left .leaflet-control-geosearch {
+  display: inline-block;
+  float: none;
+	left: 100px;
+
+	/* width: auto;
+	max-width	: 600px;
+	max-height : 350px;
+	overflow : auto; */
+}
+
+.leaflet-left .leaflet-control-search {
+  display: inline-block;
+  float: none;
+	left: -97px;
+	top: 40px;
+
+	/* width: auto;
+	max-width	: 600px;
+	max-height : 350px;
+	overflow : auto; */
 }
 
 .leaflet-control-layers-group-name{
@@ -310,6 +343,36 @@
 
 .leaflet-control-layers-group {
     margin-top: 20px;
+}
+
+.leaflet-touch .leaflet-control-layers-toggle {
+    width: 35px;
+		height: 35px;
+}
+
+.leaflet-touch .leaflet-bar a {
+    width: 35px;
+    height: 35px;
+}
+
+.leaflet-control-search .search-button {
+    width: 35px;
+    height: 35px;
+		top: 5px;
+		left: 20px;
+    /* background: url(iconsFromPngTree/filter-icon.png) no-repeat 4px 4px #fff; */
+		background-image: url(iconsFromPngTree/filter-icon.png);
+		background-repeat: no-repeat;
+		background-size: 60% 60%;
+  	background-position: center;
+}
+
+.leaflet-control-search .search-button:hover {
+    /* background: url(iconsFromPngTree/filter-icon.png) no-repeat 4px 4px #fff; */
+		background-image: url(iconsFromPngTree/filter-icon.png);
+		background-repeat: no-repeat;
+		background-size: 60% 60%;
+  	background-position: center;
 }
 
 #dateSliderWrapper{
@@ -1012,8 +1075,8 @@
 
 .btn-leaflet-custom{
 	background-color: #fff;
-	width: 48px;
-	height: 48px;
+	width: 39px;
+	height: 39px;
   color: black;
 	position: absolute;
 	border: 2px solid rgba(0,0,0,0.2);

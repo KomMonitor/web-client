@@ -390,7 +390,91 @@ angular.module('kommonitorMap').component(
 
                       // $scope.loadingData = false;
 
+                      /////////////////////////////////////////////////////
+                      ///// LEAFLET GEOSEARCH SETUP
+                      /////////////////////////////////////////////////////
+                      var GeoSearchControl = window.GeoSearch.GeoSearchControl;
+                      var OpenStreetMapProvider = window.GeoSearch.OpenStreetMapProvider;
+
+                      // remaining is the same as in the docs, accept for the var instead of const declarations
+                      var provider = new OpenStreetMapProvider();
+
+                      $scope.geosearchControl = new GeoSearchControl({
+                        provider: provider,
+                        style: 'button',
+                        autoComplete: true,
+                        autoCompleteDelay: 250,
+                        showMarker: true,                                   // optional: true|false  - default true
+                        showPopup: false,                                   // optional: true|false  - default false
+                        marker: {                                           // optional: L.Marker    - default L.Icon.Default
+                          icon: new L.Icon.Default(),
+                          draggable: false,
+                        },
+                        popupFormat: ({ query, result }) => result.label,   // optional: function    - default returns result label
+                        maxMarkers: 1,                                      // optional: number      - default 1
+                        retainZoomLevel: false,                             // optional: true|false  - default false
+                        animateZoom: true,                                  // optional: true|false  - default true
+                        autoClose: false,                                   // optional: true|false  - default false
+                        searchLabel: 'Suche nach Adressen ...',                       // optional: string      - default 'Enter address'
+                        keepResult: false                                   // optional: true|false  - default false
+                      });
+
+                      $scope.map.addControl($scope.geosearchControl);
+
+
+                      /////////////////////////////////////////////////////
+                      ///// LEAFLET SEARCH SETUP
+                      /////////////////////////////////////////////////////
+                      // will be updated once example indicator layer is loaded
+                      $scope.searchControl = L.control.search({
+                    	});
+                      $scope.searchControl.addTo($scope.map);
+
+
+                      /////////////////////////////////////////////////////
+                      ///// LEAFLET MEASURE SETUP
+                      /////////////////////////////////////////////////////
+
+
+
+
               			};
+
+                    $scope.updateSearchControl = function(){
+
+                      if($scope.searchControl){
+                        try{
+                          $scope.map.removeControl($scope.searchControl);
+                          $scope.searchControl = undefined;
+                        }
+                        catch(error){
+                        }
+                      }
+
+                      // build L.layerGroup of available POI layers
+                      var featureLayers = [];
+
+                      for (var layerEntry of $scope.layerControl._layers){
+                          if (layerEntry.overlay){
+                            featureLayers.push(layerEntry.layer);
+                          }
+                      }
+
+                      var layerGroup = L.featureGroup(featureLayers);
+
+                      $scope.searchControl = L.control.search({
+                    		layer: layerGroup,
+                    		initial: false,
+                    		propertyName: __env.FEATURE_NAME_PROPERTY_NAME,
+                        textPlaceholder: "Layer-Objekte nach Name filtern (Attribut 'NAME')",
+                        textCancel: "Abbrechen",
+                        textErr: "Position nicht gefunden",
+                        hideMarkerOnCollapse: true,
+                        zoom: 15
+                    	});
+
+                      $scope.searchControl.addTo($scope.map);
+                    };
 
                     $scope.$on("showLoadingIconOnMap", function (event) {
                       // console.log("Show loading icon on map");
@@ -1671,6 +1755,7 @@ angular.module('kommonitorMap').component(
 
                                   $scope.layerControl.addOverlay( layer, "GeoPackage", {groupName : spatialUnitLayerGroupName} );
                                   layer.addTo($scope.map);
+                                  $scope.updateSearchControl();
 
 
                               });
@@ -1703,6 +1788,7 @@ angular.module('kommonitorMap').component(
 
                                   $scope.layerControl.addOverlay( layer, spatialUnitMetadataAndGeoJSON.spatialUnitLevel + "_" + date, spatialUnitLayerGroupName );
                                   layer.addTo($scope.map);
+                                  $scope.updateSearchControl();
 
                               });
 
@@ -1726,6 +1812,7 @@ angular.module('kommonitorMap').component(
 
                                 $scope.layerControl.addOverlay( layer, georesourceMetadataAndGeoJSON.datasetName + "_" + date, georesourceLayerGroupName );
                                 layer.addTo($scope.map);
+                                $scope.updateSearchControl();
                               });
 
                               $scope.$on("replaceIsochronesAsGeoJSON", function (event, geoJSON, transitMode, reachMode, cutOffValues, useMultipleStartPoints) {
@@ -1881,6 +1968,7 @@ angular.module('kommonitorMap').component(
 
                                 $scope.layerControl.addOverlay( $scope.isochronesLayer, "Erreichbarkeits-Isochronen 5-15 Minuten per " + transitMode, reachabilityLayerGroupName );
                                 $scope.isochronesLayer.addTo($scope.map);
+                                $scope.updateSearchControl();
                               });
 
                               var getStyleIndexForFeature = function(feature, colorValueEntries){
@@ -1922,6 +2010,7 @@ angular.module('kommonitorMap').component(
 
                                 $scope.layerControl.addOverlay( $scope.isochroneMarkerLayer, "Startpunkte für Isochronenberechnung", reachabilityLayerGroupName );
                                 $scope.isochroneMarkerLayer.addTo($scope.map);
+                                $scope.updateSearchControl();
                               });
 
                               $scope.$on("addPoiGeoresourceAsGeoJSON", function (event, georesourceMetadataAndGeoJSON, date, useCluster) {
@@ -1972,6 +2061,9 @@ angular.module('kommonitorMap').component(
                                   //.bindPopup( poiFeature.properties.name )
                                   var newMarker = L.marker( [Number(poiFeature.geometry.coordinates[1]), Number(poiFeature.geometry.coordinates[0])], {icon: customMarker} );
 
+                                  //populate the original geoJSOn feature to the marker layer!
+                                  newMarker.feature = poiFeature;
+
                                   var propertiesString = "<pre>"+JSON.stringify(poiFeature.properties,null,' ').replace(/[\{\}"]/g,'')+"</pre>";
 
                                   if (poiFeature.properties.name){
@@ -1994,6 +2086,7 @@ angular.module('kommonitorMap').component(
 
                                 $scope.layerControl.addOverlay( markers, georesourceMetadataAndGeoJSON.datasetName + "_" + date, poiLayerGroupName );
                                 markers.addTo($scope.map);
+                                $scope.updateSearchControl();
                                 // $scope.map.addLayer( markers );
                               });
 
@@ -2041,6 +2134,7 @@ angular.module('kommonitorMap').component(
 
                                 $scope.layerControl.addOverlay( wmsLayer, dataset.title, wmsLayerGroupName );
                                 wmsLayer.addTo($scope.map);
+                                $scope.updateSearchControl();
                               });
 
                               $scope.$on("adjustOpacityForWmsLayer", function (event, dataset, opacity) {
@@ -3235,6 +3329,7 @@ angular.module('kommonitorMap').component(
                                                                 }
                                                                 $scope.layerControl.addOverlay( layer, layerName, indicatorLayerGroupName );
                                                                 layer.addTo($scope.map);
+                                                                $scope.updateSearchControl();
 
                                                                 // var justRestyling = false;
 
@@ -3277,6 +3372,7 @@ angular.module('kommonitorMap').component(
 
                                                                 $scope.layerControl.addOverlay( layer, indicatorMetadataAndGeoJSON.indicatorName + "_" + spatialUnitName + "_" + date + "_CUSTOM", indicatorLayerGroupName );
                                                                 layer.addTo($scope.map);
+                                                                $scope.updateSearchControl();
 
                                                                 $scope.makeCustomInfoControl(date);
                                                                 $scope.makeDefaultLegend(indicatorMetadataAndGeoJSON.defaultClassificationMapping);
