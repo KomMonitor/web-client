@@ -556,6 +556,7 @@
 
 #radarInputForm {
 	padding: 5px;
+	padding-left: 15px;
 	height: auto;
 	max-height: 175px;
 	font-size: 12px;
