@@ -268,7 +268,7 @@ angular
 
 										$scope.data.push([xAxisDataElement, yAxisDataElement]);
 
-										var featureName = indicatorPropertiesArrayForXAxis[i].spatialUnitFeatureName;
+										var featureName = indicatorPropertiesArrayForXAxis[i][__env.FEATURE_NAME_PROPERTY_NAME];
 										var color = getColor(featureName);
 										$scope.dataWithLabels.push({
 											name: featureName,
