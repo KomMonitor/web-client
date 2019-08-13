@@ -762,12 +762,21 @@ angular.module('kommonitorMap').component(
                       // });
 
                       var spatialUnitsString = "";
+                      var processedSpatialUnits = 0;
 
-                      for (var [index, spatialUnit] of indicatorMetadata.applicableSpatialUnits.entries()){
-                        spatialUnitsString += spatialUnit;
+                      for (var [index, availableSpatialUnit] of kommonitorDataExchangeService.availableSpatialUnits.entries()){
 
-                        if(index < indicatorMetadata.applicableSpatialUnits.length - 1){
-                          spatialUnitsString += "\n";
+                        for (var [index, applicableSpatialUnit] of indicatorMetadata.applicableSpatialUnits.entries()){
+
+                          if(availableSpatialUnit.spatialUnitLevel === applicableSpatialUnit){
+                            spatialUnitsString += applicableSpatialUnit;
+                            processedSpatialUnits++;
+
+                            if(processedSpatialUnits < indicatorMetadata.applicableSpatialUnits.length){
+                              spatialUnitsString += "\n";
+                            }
+                          }
+
                         }
                       }
 
