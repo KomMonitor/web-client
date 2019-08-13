@@ -16,7 +16,7 @@
 
 				<div class="input-group">
 					<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-					<input type="text" class="form-control" placeholder="Filtern nach Indikatorenname" ng-model="indicatorNameFilter">
+					<input type="text" class="form-control input-sm" placeholder="Filtern nach Indikatorenname" ng-model="indicatorNameFilter">
 				</div>
 
 				<p></p>
@@ -87,9 +87,9 @@
 									  <div class="form-group">
 											<!-- <label >{{input.parameterData.name}}: {{inputNgModels[input.inputElement.ngModelVariable]}}</label> -->
 
-											<label>{{input.inputElement.min}}</label><input id="{{input.parameterData.name}}" class="{{input.inputElement.class}} form-control" ng-model="inputNgModels[input.inputElement.ngModelVariable]" type="{{input.inputElement.type}}"  min="{{input.inputElement.min}}" max="{{input.inputElement.max}}" step="{{input.inputElement.step}}"><label>{{input.inputElement.max}}</label>
+											<label>{{input.inputElement.min}}</label><input id="{{input.parameterData.name}}" class="{{input.inputElement.class}} form-control input-sm" ng-model="inputNgModels[input.inputElement.ngModelVariable]" type="{{input.inputElement.type}}"  min="{{input.inputElement.min}}" max="{{input.inputElement.max}}" step="{{input.inputElement.step}}"><label>{{input.inputElement.max}}</label>
 											&nbsp;&nbsp;&nbsp;
-											<input ng-model="inputNgModels[input.inputElement.ngModelVariable]" type="number" string-to-number min="{{input.inputElement.min}}" max="{{input.inputElement.max}}" step="{{input.inputElement.step}}" style="height:30px; width:100px;" class="form-control" id="{{input.parameterData.name}}Label">
+											<input ng-model="inputNgModels[input.inputElement.ngModelVariable]" type="number" string-to-number min="{{input.inputElement.min}}" max="{{input.inputElement.max}}" step="{{input.inputElement.step}}" style="height:30px; width:100px;" class="form-control input-sm" id="{{input.parameterData.name}}Label">
 											<span class="validity"></span>
 										</div>
 									</form>

@@ -55,7 +55,7 @@
 
 									<div class="input-group">
 										<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-										<input type="text" class="form-control" placeholder="Filtern nach Indikatorenname" ng-model="indicatorNameFilter">
+										<input type="text" class="form-control input-sm" placeholder="Filtern nach Indikatorenname" ng-model="indicatorNameFilter">
 									</div>
 
 									<p></p>
@@ -67,7 +67,7 @@
 
 									<div id="radarInputForm">
 										<div ng-repeat='input in selectableIndicatorsForRadar | filter:filterIndicators() | filter:indicatorNameFilter'>
-											<label class='checkbox-inline' ><input type="checkbox" value="input.indicatorMetadata.indicatorName" ng-model="input.isSelected" ng-change="$ctrl.filterDisplayedIndicatorsOnRadar()">{{input.indicatorMetadata.indicatorName}}</label>
+											<label class='checkbox-inline input-sm' ><input type="checkbox" value="input.indicatorMetadata.indicatorName" ng-model="input.isSelected" ng-change="$ctrl.filterDisplayedIndicatorsOnRadar()">{{input.indicatorMetadata.indicatorName}}</label>
 											<br/>
 										</div>
 										</div>

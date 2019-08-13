@@ -29,7 +29,7 @@
                         <span class="input-group-addon">
                           <b>untere Grenze</b>
                         </span>
-                    <input ng-model="currentLowerFilterValue" ng-change="onChangeLowerFilterValue()" string-to-number type="number" min="{{valueRangeMinValue}}" max="{{valueRangeMaxValue}}" step="0.01" class="form-control">
+                    <input ng-model="currentLowerFilterValue" ng-change="onChangeLowerFilterValue()" string-to-number type="number" min="{{valueRangeMinValue}}" max="{{valueRangeMaxValue}}" step="0.01" class="form-control input-sm">
 
 									</div>
                   <!-- /input-group -->
@@ -50,7 +50,7 @@
                         <span class="input-group-addon">
                           <b>obere Grenze</b>
                         </span>
-                    <input ng-model="currentHigherFilterValue" ng-change="onChangeHigherFilterValue()" string-to-number type="number" min="{{valueRangeMinValue}}" max="{{valueRangeMaxValue}}" step="0.01" class="form-control">
+                    <input ng-model="currentHigherFilterValue" ng-change="onChangeHigherFilterValue()" string-to-number type="number" min="{{valueRangeMinValue}}" max="{{valueRangeMaxValue}}" step="0.01" class="form-control input-sm">
 
 									</div>
                   <!-- /input-group -->
@@ -146,19 +146,21 @@
 								</div>
 								<div align="center">
 									<br/>
-									<label>Schwellenwert: </label><input ng-model="$ctrl.kommonitorDataExchangeServiceInstance.measureOfValue" ng-change="onMeasureOfValueChangeByText()" min="{{movMinValue}}" max="{{movMaxValue}}" step="0.01" string-to-number type="number" style="width:175px;" class="form-control" id="measureOfValueTextInput">
-									<br/>
+									<label>Schwellenwert: </label><input ng-model="$ctrl.kommonitorDataExchangeServiceInstance.measureOfValue" ng-change="onMeasureOfValueChangeByText()" min="{{movMinValue}}" max="{{movMaxValue}}" step="0.01" string-to-number type="number" style="width:175px;" class="form-control input-sm" id="measureOfValueTextInput">
+
 									<!-- <div ng-show="inputNotValid">
 										<p>Schwellenwert: {{$ctrl.kommonitorDataExchangeServiceInstance.measureOfValue}}</p>
 									</div> -->
 
-									<div ng-show="inputNotValid"
-										class="alert alert-danger" style="margin-bottom:0px;">
-										<strong><i class="icon fas fa-ban"></i>Eingegebener Schwellenwert ist nicht g&uuml;ltig!</strong>
-										<p></p>
-										<p>
-											<strong>Hinweis: </strong>Der Schwellenwert muss zwischen {{movMinValue}} und {{movMaxValue}} liegen.
-										</p>
+									<div ng-show="inputNotValid">
+										<br/>
+										<div	class="alert alert-danger" style="margin-bottom:0px;">
+											<strong><i class="icon fas fa-ban"></i>Eingegebener Schwellenwert ist nicht g&uuml;ltig!</strong>
+											<p></p>
+											<p>
+												<strong>Hinweis: </strong>Der Schwellenwert muss zwischen {{movMinValue}} und {{movMaxValue}} liegen.
+											</p>
+										</div>
 									</div>
 
 								</div>
