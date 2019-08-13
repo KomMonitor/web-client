@@ -902,8 +902,9 @@ angular.module('kommonitorMap').component(
                           exportDomString += '<br/><button id="downloadMetadata" class="btn btn-default btn-xs">Metadatenblatt</button>';
                           exportDomString += '<button id="downloadGeoJSON" class="btn btn-primary btn-xs">GeoJSON</button>';
                           exportDomString += '<button id="downloadShape" class="btn btn-primary btn-xs">ESRI Shape</button>';
-                          exportDomString += '<a style="color:white;" class="btn btn-primary btn-xs" href="' + kommonitorDataExchangeService.wmsUrlForSelectedIndicator + '" target="_blank" rel="noopener noreferrer" id="downloadWMS">WMS</a>';
-                          exportDomString += '<a style="color:white;" class="btn btn-primary btn-xs" href="' + kommonitorDataExchangeService.wfsUrlForSelectedIndicator + '" target="_blank" rel="noopener noreferrer" id="downloadWFS">WFS</a>';
+                          // temporarily disable WMS and WFS export
+                          exportDomString += '<a style="color:white;pointer-events: none;cursor: default;" class="btn btn-primary btn-xs disabled" href="' + kommonitorDataExchangeService.wmsUrlForSelectedIndicator + '" target="_blank" rel="noopener noreferrer" id="downloadWMS"><span title="WMS Link in Zukunft abrufbar">WMS</span></a>';
+                          exportDomString += '<a style="color:white;pointer-events: none;cursor: default;" class="btn btn-primary btn-xs disabled" href="' + kommonitorDataExchangeService.wfsUrlForSelectedIndicator + '" target="_blank" rel="noopener noreferrer" id="downloadWFS"><span title="WFS Link in Zukunft abrufbar">WFS</span></a>';
                           exportDomString += "</div>";
 
                           this._div.innerHTML += exportDomString;
