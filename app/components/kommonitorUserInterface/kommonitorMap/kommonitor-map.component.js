@@ -454,9 +454,12 @@ angular.module('kommonitorMap').component(
                       var measureOptions = {
                         position: 'topleft',
                         primaryLengthUnit: 'meters',
+                        secondaryLengthUnit: 'kilometers',
                         primaryAreaUnit: 'sqmeters',
                         activeColor: "#d15c54",
-                        completedColor: "#d15c54"
+                        completedColor: "#d15c54",
+                        decPoint: ',',
+                        thousandsSep: '.'
                       };
 
                       $scope.measureControl = new L.Control.Measure(measureOptions);
