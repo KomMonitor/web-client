@@ -438,8 +438,11 @@ angular.module('kommonitorMap').component(
                       var measureOptions = {
                         position: 'topleft',
                         primaryLengthUnit: 'meters',
-                        primaryAreaUnit: 'sqmeters'
-                      }
+                        primaryAreaUnit: 'sqmeters',
+                        activeColor: "#d15c54",
+                        completedColor: "#d15c54"
+                      };
+                      
                       $scope.measureControl = new L.Control.Measure(measureOptions);
                       $scope.measureControl.addTo($scope.map);
 
