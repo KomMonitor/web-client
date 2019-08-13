@@ -20,6 +20,10 @@ angular
 							$scope.rangeSliderForFilter;
 							$scope.valueRangeMinValue;
 							$scope.valueRangeMaxValue;
+							$scope.currentLowerFilterValue;
+							$scope.currentHigherFilterValue;
+							$scope.lowerFilterInputNotValid = false;
+							$scope.higherFilterInputNotValid = false;
 							$scope.geoJSON;
 
 							//measureOfValue stuff
@@ -86,6 +90,9 @@ angular
 								$scope.valueRangeMinValue = +$scope.valueRangeMinValue.toFixed(numberOfDecimals);
 								$scope.valueRangeMaxValue = +$scope.valueRangeMaxValue.toFixed(numberOfDecimals);
 
+								$scope.currentLowerFilterValue = $scope.valueRangeMinValue;
+								$scope.currentHigherFilterValue = $scope.valueRangeMaxValue;
+
 								$("#rangeSliderForFiltering").ionRangeSlider({
 										skin: "big",
 						        type: "double",
@@ -102,7 +109,7 @@ angular
 						    });
 
 								$scope.rangeSliderForFilter = $("#rangeSliderForFiltering").data("ionRangeSlider");
-								// make sure that tha handles are properly set to man and max values
+								// make sure that tha handles are properly set to min and max values
 								$scope.rangeSliderForFilter.update({
 						        from: $scope.valueRangeMinValue,
 						        to: $scope.valueRangeMaxValue
@@ -110,9 +117,40 @@ angular
 
 							};
 
+							$scope.onChangeLowerFilterValue = function(){
+								if(($scope.currentLowerFilterValue >= $scope.valueRangeMinValue) && ($scope.currentLowerFilterValue <= $scope.valueRangeMaxValue) && ($scope.currentLowerFilterValue <= $scope.currentHigherFilterValue)){
+									$scope.lowerFilterInputNotValid = false;
+									$scope.rangeSliderForFilter.update({
+											from: $scope.currentLowerFilterValue,
+											to: $scope.currentHigherFilterValue
+									});
+								}
+								else{
+									$scope.lowerFilterInputNotValid = true;
+								}
+							};
+
+							$scope.onChangeHigherFilterValue = function(){
+								if(($scope.currentHigherFilterValue <= $scope.valueRangeMaxValue) && ($scope.currentHigherFilterValue >= $scope.valueRangeMinValue) && ($scope.currentLowerFilterValue <= $scope.currentHigherFilterValue)){
+									$scope.higherFilterInputNotValid = false;
+									$scope.rangeSliderForFilter.update({
+											from: $scope.currentLowerFilterValue,
+											to: $scope.currentHigherFilterValue
+									});
+								}
+								else{
+									$scope.higherFilterInputNotValid = true;
+								}
+							};
+
 							function onChangeRangeFilter (data) {
 								// Called every time handle position is changed
 								kommonitorDataExchangeService.rangeFilterData = data;
+
+								$scope.currentLowerFilterValue = data.from;
+								$scope.currentHigherFilterValue = data.to;
+
+								$scope.$apply();
 
 								if(!kommonitorDataExchangeService.filteredIndicatorFeatureNames){
 									kommonitorDataExchangeService.filteredIndicatorFeatureNames = [];

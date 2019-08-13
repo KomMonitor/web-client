@@ -21,6 +21,56 @@
 					</div>
 				</div>
 
+				<p></p>
+
+				<div class="row">
+                <div class="col-lg-6">
+                  <div class="input-group">
+                        <span class="input-group-addon">
+                          <b>untere Grenze</b>
+                        </span>
+                    <input ng-model="currentLowerFilterValue" ng-change="onChangeLowerFilterValue()" string-to-number type="number" min="{{valueRangeMinValue}}" max="{{valueRangeMaxValue}}" step="0.01" class="form-control">
+
+									</div>
+                  <!-- /input-group -->
+									<p></p>
+
+									<div ng-show="lowerFilterInputNotValid"
+										class="alert alert-danger" style="margin-bottom:0px;">
+										<strong><i class="icon fas fa-ban"></i>Untere Filtergrenze ung&uuml;ltig!</strong>
+										<p></p>
+										<p>
+											<strong>Hinweis: </strong>Der Wert muss zwischen {{valueRangeMinValue}} und {{valueRangeMaxValue}} liegen und kleiner als die aktuelle obere Filtergrenze ({{currentHigherFilterValue}}) sein.
+										</p>
+									</div>
+                </div>
+                <!-- /.col-lg-6 -->
+                <div class="col-lg-6">
+                  <div class="input-group">
+                        <span class="input-group-addon">
+                          <b>obere Grenze</b>
+                        </span>
+                    <input ng-model="currentHigherFilterValue" ng-change="onChangeHigherFilterValue()" string-to-number type="number" min="{{valueRangeMinValue}}" max="{{valueRangeMaxValue}}" step="0.01" class="form-control">
+
+									</div>
+                  <!-- /input-group -->
+
+									<p></p>
+									<div ng-show="higherFilterInputNotValid"
+										class="alert alert-danger" style="margin-bottom:0px;">
+										<strong><i class="icon fas fa-ban"></i>Obere Filtergrenze ung&uuml;ltig!</strong>
+
+										<p></p>
+
+										<p>
+											<strong>Hinweis: </strong>Der Wert muss zwischen {{valueRangeMinValue}} und {{valueRangeMaxValue}} liegen und gr&ouml;ßer als die aktuelle untere Filtergrenze ({{currentLowerFilterValue}}) sein.
+										</p>
+									</div>
+                </div>
+                <!-- /.col-lg-6 -->
+              </div>
+              <!-- /.row -->
+
 			</div>
 			<!-- /.box-body -->
 		</div>
@@ -96,18 +146,18 @@
 								</div>
 								<div align="center">
 									<br/>
-									<label>Schwellenwert: </label><input ng-model="$ctrl.kommonitorDataExchangeServiceInstance.measureOfValue" ng-change="onMeasureOfValueChangeByText()" string-to-number type="number" style="width:175px;" class="form-control" id="measureOfValueTextInput">
+									<label>Schwellenwert: </label><input ng-model="$ctrl.kommonitorDataExchangeServiceInstance.measureOfValue" ng-change="onMeasureOfValueChangeByText()" min="{{movMinValue}}" max="{{movMaxValue}}" step="0.01" string-to-number type="number" style="width:175px;" class="form-control" id="measureOfValueTextInput">
 									<br/>
-									<div ng-show="inputNotValid">
+									<!-- <div ng-show="inputNotValid">
 										<p>Schwellenwert: {{$ctrl.kommonitorDataExchangeServiceInstance.measureOfValue}}</p>
-									</div>
+									</div> -->
 
 									<div ng-show="inputNotValid"
-										class="alert alert-danger">
-										<strong>Eingegebener Schwellenwert ist nicht g&uuml;ltig!</strong>
+										class="alert alert-danger" style="margin-bottom:0px;">
+										<strong><i class="icon fas fa-ban"></i>Eingegebener Schwellenwert ist nicht g&uuml;ltig!</strong>
 										<p></p>
 										<p>
-											<strong>Hinweis: </strong>Der Wert muss zwischen {{movMinValue}} und {{movMaxValue}} liegen.
+											<strong>Hinweis: </strong>Der Schwellenwert muss zwischen {{movMinValue}} und {{movMaxValue}} liegen.
 										</p>
 									</div>
 
