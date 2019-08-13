@@ -62,7 +62,7 @@
 											<br/>
 
 											<div text-align="center" align="center" class="hiddenTableContent">
-													<select
+													<select style="font-size: 12px;"
 														size="10" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators() | filter:filterIndicatorsByTopic() | filter:indicatorNameFilter"
 														ng-change="onChangeSelectedIndicator()" class="form-control" required>
 														<option disabled selected value> -- Indikator w&auml;hlen -- </option>

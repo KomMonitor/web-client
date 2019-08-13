@@ -557,7 +557,8 @@
 #radarInputForm {
 	padding: 5px;
 	height: auto;
-	max-height: 180px;
+	max-height: 175px;
+	font-size: 12px;
 	border: 2px solid gray;
   border-radius: 8px;
   overflow: auto;
@@ -568,6 +569,7 @@
 	height: auto !important;
 	max-height: 500px;
 	max-width: 100%;
+	font-size: 12px;
 	border: 2px solid gray;
   border-radius: 8px;
   overflow: auto;
@@ -578,6 +580,7 @@
 	height: auto !important;
 	max-height: 500px;
 	max-width: 100%;
+	font-size: 11px;
 	border: 2px solid gray;
   border-radius: 8px;
   overflow: auto;
@@ -739,6 +742,7 @@
 #sidebarProcessing {
 	min-width: 35%;
 	max-width: 35%;
+	font-size: 11px;
 		/* min-height: 100vh; */
 		height: 94vh;
 		background: rgb(236,240,245);
@@ -843,6 +847,7 @@
 	margin-left: 1%;
 	margin-right: 1%;
 	margin-top: 1%;
+	font-size: 12px;
 	z-index: 7000;
 	height: 100%;
 	max-height: 100%;
@@ -1126,96 +1131,6 @@ input[type=range]::-ms-fill-upper {
 }
 input[type=range]:focus::-ms-fill-upper {
   background: #367ebd;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* openlayers */
-.ol-scale-line {
-    background: black;
-    opacity: 0.65;
-    padding: 5px;
-  }
-
-/* setup tab*/
-#wpsSetupContainer{
-	margin-top:25px;
-}
-
-#ChangeLanguageContainer {
-	margin-top: 25px
-}
-
-/* capabilities tab */
-#wpsCapabilitiesAccordion {
-	margin-top:25px;
-	height: auto !important;
-	max-height: 650px;
-    overflow-y: scroll;
-}
-
-/* processes tab */
-#wpsProcessesContainer {
-	margin-top: 25px;
-}
-
-#wpsProcessDescriptionAccordion {
-	margin-top:25px;
-	height: auto !important;
-	max-height: 550px;
-    overflow-y: scroll;
-}
-
-/* execute tab */
-#wpsExecuteContainer {
-	margin-top:25px;
-}
-
-#wpsExecuteAccordion {
-	height: auto !important;
-	max-height: 650px;
-    overflow-y: scroll;
-}
-
-#executeInputChoose {
-	margin-bottom:25px;
-}
-
-#executeOutputChoose {
-	margin-bottom:25px;
-}
-
-#wps-execute-result-document {
-	max-height: 650px;
-    overflow-y: scroll;
-}
-
-#wps-execute-status-info-document {
-	max-height: 650px;
-    overflow-y: scroll;
-}
-
-#wps-execute-response-document {
-	max-height: 650px;
-    overflow-y: scroll;
-}
-
-#wps-execute-raw-output{
-	max-height: 650px;
-    overflow-y: scroll;
 }
 
 hr {
