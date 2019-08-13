@@ -261,6 +261,8 @@ angular
 												legend: {
 														type: "scroll",
 														bottom: 0,
+														align: 'left',
+        										left: 5,
 														data: ['Durchschnitt']
 												},
 												radar: {
