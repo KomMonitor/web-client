@@ -678,9 +678,11 @@ angular
 								$scope.onChangeSelectedIndicator = async function(){
 
 									if(kommonitorDataExchangeService.selectedIndicator){
+
 										$scope.loadingData = true;
 										$rootScope.$broadcast("showLoadingIconOnMap");
 										$scope.changeIndicatorWasClicked = true;
+										kommonitorDataExchangeService.selectedIndicatorBackup = kommonitorDataExchangeService.selectedIndicator;
 
 										$scope.setupDateSliderForIndicator();
 
@@ -715,9 +717,6 @@ angular
 									else{
 										if (kommonitorDataExchangeService.selectedIndicatorBackup){
 											kommonitorDataExchangeService.selectedIndicator = kommonitorDataExchangeService.selectedIndicatorBackup;
-											// call same method again
-											// this shall ensure, that there is always a value for $scope.onChangeSelectedIndicator
-											// $scope.onChangeSelectedIndicator();
 										}
 									}
 								}
