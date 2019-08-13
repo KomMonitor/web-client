@@ -47,7 +47,7 @@
   window.__env.initialLongitude = 7.0115552;
   window.__env.initialZoomLevel = 12;
   window.__env.minZoomLevel = 11;
-  window.__env.maxZoomLevel = 22;
+  window.__env.maxZoomLevel = 18;
 
   // starting indicator and spatial unit
   // if faulty values are provided, a random indicator will be displayed
