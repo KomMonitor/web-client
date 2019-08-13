@@ -359,6 +359,22 @@ angular.module('kommonitorMap').component(
                       $scope.layerControl = L.control.groupedLayers($scope.baseMaps, $scope.groupedOverlays, {position: 'topleft'});
 	                    $scope.map.addControl($scope.layerControl);
 
+                      // Disable dragging when user's cursor enters the element
+                      $scope.layerControl.getContainer().addEventListener('mouseover', function () {
+                          $scope.map.dragging.disable();
+                          $scope.map.touchZoom.disable();
+                          $scope.map.doubleClickZoom.disable();
+                          $scope.map.scrollWheelZoom.disable();
+                      });
+
+                      // Re-enable dragging when user's cursor leaves the element
+                      $scope.layerControl.getContainer().addEventListener('mouseout', function () {
+                          $scope.map.dragging.enable();
+                          $scope.map.touchZoom.enable();
+                          $scope.map.doubleClickZoom.enable();
+                          $scope.map.scrollWheelZoom.enable();
+                      });
+
                       $scope.scaleBar = L.control.scale();
                       $scope.scaleBar.addTo($scope.map);
 
@@ -442,7 +458,7 @@ angular.module('kommonitorMap').component(
                         activeColor: "#d15c54",
                         completedColor: "#d15c54"
                       };
-                      
+
                       $scope.measureControl = new L.Control.Measure(measureOptions);
                       $scope.measureControl.addTo($scope.map);
 

@@ -313,6 +313,19 @@
 	overflow : auto;
 }
 
+.leaflet-left .leaflet-control-layers-expanded {
+  /* display: inline-block; */
+  /* float: none; */
+	left: 170px;
+	position: absolute;
+
+	width:500px;
+	height: auto;
+	/* max-width	: 600px;
+	max-height : 350px; */
+	overflow : auto;
+}
+
 .leaflet-left .leaflet-control-geosearch {
   /* display: inline-block; */
   /* float: none; */
