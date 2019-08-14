@@ -1515,6 +1515,8 @@ angular.module('kommonitorMap').component(
 
                       $scope.legendControl.addTo($scope.map);
 
+                      $scope.registerEventListenersForLegend();
+
                     }
 
                     $scope.makeMeasureOfValueLegend = function(){
@@ -1665,6 +1667,7 @@ angular.module('kommonitorMap').component(
                       };
 
                       $scope.legendControl.addTo($scope.map);
+                      $scope.registerEventListenersForLegend();
 
                     }
 
