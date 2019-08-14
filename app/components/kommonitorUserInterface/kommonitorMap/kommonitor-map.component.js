@@ -484,9 +484,11 @@ angular.module('kommonitorMap').component(
                       var featureLayers = [];
 
                       for (var layerEntry of $scope.layerControl._layers){
+                        if(layerEntry){
                           if (layerEntry.overlay){
                             featureLayers.push(layerEntry.layer);
                           }
+                        }
                       }
 
                       var layerGroup = L.featureGroup(featureLayers);
@@ -2128,6 +2130,7 @@ angular.module('kommonitorMap').component(
                                   if(layer.group.name === poiLayerGroupName && layer.name.includes(layerName + "_")){
                                     $scope.layerControl.removeLayer(layer.layer);
                                     $scope.map.removeLayer(layer.layer);
+                                    $scope.updateSearchControl();
                                   }
                                 });
                               });
