@@ -390,6 +390,11 @@
   	background-position: center;
 }
 
+
+.chart {
+	overflow:auto;
+}
+
 #dateSliderWrapper{
 	position: absolute;
   bottom: 25px;
