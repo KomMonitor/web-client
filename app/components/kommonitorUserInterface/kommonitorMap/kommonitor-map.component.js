@@ -2461,7 +2461,7 @@ angular.module('kommonitorMap').component(
 
                                               else if(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]) > 0)
                                                 positiveValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
-                                              else
+                                              else if(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]) < 0)
                                                 negativeValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
                                           }
 
@@ -2614,7 +2614,7 @@ angular.module('kommonitorMap').component(
                                             $scope.dynamicDecreaseBrew.colors.shift(); // remove first element of array
                                           }
                                           else{
-                                            // no positive values
+                                            // no negative values
                                             $scope.dynamicDecreaseBrew = undefined;
                                           }
                                         }
