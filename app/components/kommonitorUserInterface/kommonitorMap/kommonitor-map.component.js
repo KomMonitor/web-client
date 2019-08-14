@@ -3175,7 +3175,9 @@ angular.module('kommonitorMap').component(
 
                                           indicatorMetadataAndGeoJSON.geoJSON.features.forEach(function(feature){
                                             if (! kommonitorDataExchangeService.indicatorValueIsNoData(feature.properties[indicatorPropertyName])){
-                                                valueArray.push(feature.properties[indicatorPropertyName]);
+                                              if(!valueArray.includes(feature.properties[indicatorPropertyName])){
+                                                  valueArray.push(feature.properties[indicatorPropertyName]);
+                                              }
                                             }
                                           });
 
