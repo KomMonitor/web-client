@@ -91,6 +91,121 @@ angular.module('kommonitorMap').component(
                         fillPattern: $scope.noDataFillPattern
                     };
 
+
+
+                    const MultipleResultsLeafletSearch = L.Control.Search.extend({
+
+                      _makeUniqueKey: function(featureName, featureId){
+                        return featureName  + " (Name) - " + featureId + " (ID)";
+                      },
+
+                      _searchInLayer: function(layer, retRecords, propName) {
+                        var self = this, loc;
+                        var key_withUniqueID;
+
+                        if(layer instanceof L.Control.Search.Marker) return;
+
+                        if(layer instanceof L.Marker || layer instanceof L.CircleMarker)
+                        {
+                          if(self._getPath(layer.options,propName))
+                          {
+                            loc = layer.getLatLng();
+                            loc.layer = layer;
+                            retRecords[ self._getPath(layer.options,propName) ] = loc;
+                          }
+                          else if(self._getPath(layer.feature.properties,propName))
+                          {
+                            loc = layer.getLatLng();
+                            loc.layer = layer;
+                            key_withUniqueID =  this._makeUniqueKey(self._getPath(layer.feature.properties,propName), layer.feature.properties.ID);
+                            retRecords[ key_withUniqueID ] = loc;
+                          }
+                          else {
+                            //throw new Error("propertyName '"+propName+"' not found in marker");
+                            console.warn("propertyName '"+propName+"' not found in marker");
+                          }
+                        }
+                        else if(layer instanceof L.Path || layer instanceof L.Polyline || layer instanceof L.Polygon)
+                        {
+                          if(self._getPath(layer.options,propName))
+                          {
+                            loc = layer.getBounds().getCenter();
+                            loc.layer = layer;
+                            retRecords[ self._getPath(layer.options,propName) ] = loc;
+                          }
+                          else if(self._getPath(layer.feature.properties,propName))
+                          {
+                            loc = layer.getBounds().getCenter();
+                            loc.layer = layer;
+                            key_withUniqueID =  this._makeUniqueKey(self._getPath(layer.feature.properties,propName), layer.feature.properties.ID);
+                            retRecords[ key_withUniqueID ] = loc;
+                          }
+                          else {
+                            //throw new Error("propertyName '"+propName+"' not found in shape");
+                            console.warn("propertyName '"+propName+"' not found in shape");
+                          }
+                        }
+                        else if(layer.hasOwnProperty('feature'))//GeoJSON
+                        {
+                          if(layer.feature.properties.hasOwnProperty(propName))
+                          {
+
+                            key_withUniqueID =  this._makeUniqueKey(self._getPath(layer.feature.properties,propName), layer.feature.properties.ID);
+                            if(layer.getLatLng && typeof layer.getLatLng === 'function') {
+                              loc = layer.getLatLng();
+                              loc.layer = layer;
+                              retRecords[ key_withUniqueID ] = loc;
+                            } else if(layer.getBounds && typeof layer.getBounds === 'function') {
+                              loc = layer.getBounds().getCenter();
+                              loc.layer = layer;
+                              retRecords[ key_withUniqueID] = loc;
+                            } else {
+                              console.warn("Unknown type of Layer");
+                            }
+                          }
+                          else {
+                            //throw new Error("propertyName '"+propName+"' not found in feature");
+                            console.warn("propertyName '"+propName+"' not found in feature");
+                          }
+                        }
+                        else if(layer instanceof L.LayerGroup)
+                        {
+                          layer.eachLayer(function (layer) {
+                            self._searchInLayer(layer, retRecords, propName);
+                          });
+                        }
+                      },
+                      _defaultMoveToLocation: function(latlng, title, map) {
+                        if(this.options.zoom)
+                          this._map.setView(latlng, this.options.zoom);
+                        else
+                          this._map.panTo(latlng);
+
+                          // add collapse after click on item
+                        this.collapse();
+                      },
+                      _handleAutoresize: function() {
+                    	    var maxWidth;
+
+                          if(!this._map){
+                            this._map = $scope.map;
+                          }
+
+                    		if (this._input.style.maxWidth !== this._map._container.offsetWidth) {
+                    			maxWidth = this._map._container.clientWidth;
+
+                    			// other side margin + padding + width border + width search-button + width search-cancel
+                    			maxWidth -= 10 + 20 + 1 + 30 + 22;
+
+                    			this._input.style.maxWidth = maxWidth.toString() + 'px';
+                    		}
+
+                    		if (this.options.autoResize && (this._container.offsetWidth + 20 < this._map._container.offsetWidth)) {
+                    			this._input.size = this._input.value.length < this._inputMinSize ? this._inputMinSize : this._input.value.length;
+                    		}
+                    	}
+                    })
+
                     $scope.onCloseOutlierAlert = function(){
                 			// $("#outlierInfo").hide();
                       $scope.showOutlierInfoAlert = false;
@@ -443,7 +558,7 @@ angular.module('kommonitorMap').component(
                       ///// LEAFLET SEARCH SETUP
                       /////////////////////////////////////////////////////
                       // will be updated once example indicator layer is loaded
-                      $scope.searchControl = L.control.search({
+                      $scope.searchControl = new MultipleResultsLeafletSearch({
                     	});
                       $scope.searchControl.addTo($scope.map);
 
@@ -493,7 +608,7 @@ angular.module('kommonitorMap').component(
 
                       var layerGroup = L.featureGroup(featureLayers);
 
-                      $scope.searchControl = L.control.search({
+                      $scope.searchControl = new MultipleResultsLeafletSearch({
                         position:"topleft",
                     		layer: layerGroup,
                     		initial: false,
@@ -502,7 +617,46 @@ angular.module('kommonitorMap').component(
                         textCancel: "Abbrechen",
                         textErr: "Position nicht gefunden",
                         hideMarkerOnCollapse: true,
-                        zoom: 15
+                        zoom: 15,
+                        autoResize: true,
+                        autoCollapse: false,
+                        autoType: true,
+                        formatData: function (json) {	//adds coordinates to name.
+                                      var propName = this.options.propertyName,
+                                          propLoc = this.options.propertyLoc,
+                                          i, jsonret = {};
+                                      if (L.Util.isArray(propLoc))
+                                          for (i in json) {
+                                              if (!this._getPath(json[i], propName)) continue;
+                                              jsonret[this._getPath(json[i], propName) + " (" + json[i][propLoc[0]] + "," + json[i][propLoc[1]] + ")"] = L.latLng(json[i][propLoc[0]], json[i][propLoc[1]]);
+                                          }
+                                      else
+                                          for (i in json) {
+                                              if (!this._getPath(json[i], propName)) continue;
+                                              jsonret[this._getPath(json[i], propName) + " (" + json[i][propLoc][0] + "," + json[i][propLoc][1] + ")"] = L.latLng(this._getPath(json[i], propLoc));
+                                          }
+                                      return jsonret;
+                          },
+                          filterData: function(text, records) {
+                            var I, icase, regSearch, frecords = {};
+
+                            text = text.replace(/[.*+?^${}()|[\]\\]/g, '');  //sanitize remove all special characters
+                            if(text==='')
+                              return [];
+
+                            I = this.options.initial ? '^' : '';  //search only initial text
+                            icase = !this.options.casesensitive ? 'i' : undefined;
+
+                            regSearch = new RegExp(I + text, icase);
+
+                            //TODO use .filter or .map
+                            for(var key in records) {
+                              if( regSearch.test(key) )
+                                frecords[key]= records[key];
+                            }
+
+                            return frecords;
+                          }
                     	});
 
                       $scope.searchControl.addTo($scope.map);
