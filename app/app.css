@@ -700,14 +700,14 @@
 		max-height: 94vh;
 		/* min-height: 100vh; */
 		background: rgb(236,240,245);
-		/* transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
-    transform-origin: center left; /* Set the transformed position of sidebar to center left side. */ */
+		-webkit-transition: -webkit-transform .3s ease-in-out,width .3s ease-in-out;
+    -moz-transition: -moz-transform .3s ease-in-out,width .3s ease-in-out;
+    -o-transition: -o-transform .3s ease-in-out,width .3s ease-in-out;
+		transition: transform .3s ease-in-out,width .3s ease-in-out;
 		overflow: auto;
 }
 
 #sidebarIndicatorConfig.hidden {
-    /* margin-left: -700px; */
-		transform: rotateY(100deg); /* Rotate sidebar vertically by 100 degrees. */
 }
 
 #sidebarFilter {
@@ -717,14 +717,12 @@
 		max-height: 98%;
 		/* min-height: 100vh; */
 		background: rgb(236,240,245);
-		/* transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
-    transform-origin: center left; /* Set the transformed position of sidebar to center left side. */ */
+		transition: transform .3s ease-in-out,width .3s ease-in-out;
 		overflow: auto;
 }
 
 #sidebarFilter.hidden {
-    /* margin-left: -780px; */
-		transform: rotateY(100deg); /* Rotate sidebar vertically by 100 degrees. */
+
 }
 
 #sidebarBalance {
@@ -733,14 +731,11 @@
 		height: 94vh;
 		/* min-height: 100vh; */
 		background: rgb(236,240,245);
-		/* transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
-    transform-origin: center left; /* Set the transformed position of sidebar to center left side. */ */
+		transition: transform .3s ease-in-out,width .3s ease-in-out;
 		overflow: auto;
 }
 
 #sidebarBalance.hidden {
-    /* margin-left: -780px; */
-		transform: rotateY(100deg); /* Rotate sidebar vertically by 100 degrees. */
 }
 
 #sidebarReachability {
@@ -749,14 +744,11 @@
 		height: 94vh;
 		/* min-height: 100vh; */
 		background: rgb(236,240,245);
-		/* transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
-    transform-origin: center left; /* Set the transformed position of sidebar to center left side. */ */
+		transition: transform .3s ease-in-out,width .3s ease-in-out;
 		overflow: auto;
 }
 
 #sidebarReachability.hidden {
-    /* margin-left: -780px; */
-		transform: rotateY(100deg); /* Rotate sidebar vertically by 100 degrees. */
 }
 
 #sidebarDiagrams {
@@ -765,14 +757,12 @@
 		/* min-height: 100vh; */
 		height: 94vh;
 		background: rgb(236,240,245);
-		/* transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
-    transform-origin: center left; /* Set the transformed position of sidebar to center left side. */ */
+		transition: transform .3s ease-in-out,width .3s ease-in-out;
 		overflow: auto;
 }
 
 #sidebarDiagrams.hidden {
-    /* margin-left: -780px; */
-		transform: rotateY(100deg); /* Rotate sidebar vertically by 100 degrees. */
+
 }
 
 #sidebarRadarDiagram {
@@ -781,14 +771,12 @@
 		/* min-height: 100vh; */
 		height: 94vh;
 		background: rgb(236,240,245);
-		/* transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
-    transform-origin: center left; /* Set the transformed position of sidebar to center left side. */ */
+	transition: transform .3s ease-in-out,width .3s ease-in-out;
 		overflow: auto;
 }
 
 #sidebarRadarDiagram.hidden {
-    /* margin-left: -780px; */
-		transform: rotateY(100deg); /* Rotate sidebar vertically by 100 degrees. */
+
 }
 
 #sidebarPoi {
@@ -797,14 +785,12 @@
 		/* min-height: 100vh; */
 		height: 94vh;
 		background: rgb(236,240,245);
-		/* transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
-    transform-origin: center left; /* Set the transformed position of sidebar to center left side. */ */
+transition: transform .3s ease-in-out,width .3s ease-in-out;
 		overflow: auto;
 }
 
 #sidebarPoi.hidden {
-    /* margin-left: -780px; */
-		transform: rotateY(100deg); /* Rotate sidebar vertically by 100 degrees. */
+
 }
 
 #sidebarRegressionDiagram {
@@ -813,14 +799,12 @@
 		/* min-height: 100vh; */
 		height: 94vh;
 		background: rgb(236,240,245);
-		/* transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
-    transform-origin: center left; /* Set the transformed position of sidebar to center left side. */ */
+transition: transform .3s ease-in-out,width .3s ease-in-out;
 		overflow: auto;
 }
 
 #sidebarRegressionDiagram.hidden {
-    /* margin-left: -780px; */
-		transform: rotateY(100deg); /* Rotate sidebar vertically by 100 degrees. */
+
 }
 
 #sidebarProcessing {
@@ -830,14 +814,12 @@
 		/* min-height: 100vh; */
 		height: 94vh;
 		background: rgb(236,240,245);
-		/* transition: all 0.6s cubic-bezier(0.945, 0.020, 0.270, 0.665);
-    transform-origin: center left; /* Set the transformed position of sidebar to center left side. */ */
+transition: transform .3s ease-in-out,width .3s ease-in-out;
 		overflow: auto;
 }
 
 #sidebarProcessing.hidden {
-    /* margin-left: -780px; */
-		transform: rotateY(100deg); /* Rotate sidebar vertically by 100 degrees. */
+
 }
 
 @media (max-width: 768px) {
@@ -933,8 +915,8 @@
 	margin-top: 1%;
 	font-size: 12px;
 	z-index: 7000;
-	height: 100%;
-	max-height: 100%;
+	height: 99%;
+	max-height: 99%;
 	overflow: auto;
 }
 
@@ -944,8 +926,8 @@
 	font-size: 12px;
 	/* margin-top: 1%x; */
 	z-index: 7000;
-	height: 100%;
-	max-height: 100%;
+	height: 99%;
+	max-height: 99%;
 	overflow: auto;
 }
 
@@ -955,8 +937,8 @@
 	font-size: 12px;
 	/* margin-top: 1%; */
 	z-index: 7000;
-	height: 100%;
-	max-height: 100%;
+	height: 99%;
+	max-height: 99%;
 	overflow: auto;
 }
 
@@ -966,8 +948,8 @@
 	font-size: 12px;
 	/* margin-top: 1%; */
 	z-index: 7000;
-	height: 100%;
-	max-height: 100%;
+	height: 99%;
+	max-height: 99%;
 	overflow: auto;
 }
 
@@ -979,8 +961,8 @@
 	z-index: 7000;
 	/* do not specify height, as this will put a lot of empty space on page*/
 	/* height: 98%; */
-	height: 100%;
-	max-height: 100%;
+	height: 99%;
+	max-height: 99%;
 	overflow: auto;
 }
 
@@ -990,8 +972,8 @@
 	font-size: 12px;
 	/* margin-top: 1%; */
 	z-index: 7000;
-	height: 100%;
-	max-height: 100%;
+	height: 99%;
+	max-height: 99%;
 	overflow: auto;
 }
 
@@ -1001,8 +983,8 @@
 	font-size: 12px;
 	/* margin-top: 1%; */
 	z-index: 7000;
-	height: 100%;
-	max-height: 100%;
+	height: 99%;
+	max-height: 99%;
 	overflow: auto;
 }
 
@@ -1014,8 +996,8 @@
 	z-index: 7000;
 	/* do not specify height, as this will put a lot of empty space on page*/
 	/* height: 98%; */
-	height: 100%;
-	max-height: 100%;
+	height: 99%;
+	max-height: 99%;
 	overflow: auto;
 }
 
@@ -1025,8 +1007,8 @@
 	font-size: 12px;
 	/* margin-top: 1%; */
 	z-index: 7000;
-	height: 100%;
-	max-height: 100%;
+	height: 99%;
+	max-height: 99%;
 	overflow: auto;
 }
 

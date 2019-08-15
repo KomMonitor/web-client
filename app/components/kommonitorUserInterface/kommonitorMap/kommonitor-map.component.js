@@ -3263,43 +3263,36 @@ angular.module('kommonitorMap').component(
 
                                         var wait = ms => new Promise((r, j)=>setTimeout(r, ms))
 
-                                        $scope.$on("recenterMapContent", async function (event) {
+                                        $scope.recenterMap = async function(){
+                                          $scope.map.invalidateSize(true);
 
                                           await wait(100);
                                           fitBounds();
 
-                                          if(kommonitorDataExchangeService.anySideBarIsShown){
-                                            await wait(300);
+                                        };
 
-                                            // $scope.map.setZoom($scope.zoomLevel);
-                                            // var latlng = L.latLng($scope.latCenter, $scope.lonCenter);
-                                            // var currentZoom = $scope.map.getZoom();
-                                            // var centerPointPixels = L.CRS.latLngToPoint(latlng, currentZoom);
-                                            // centerPointPixels = L.Point(centerPointPixels.x - 500, centerPointPixels.y);
-                                            // latlng = L.CRS.pointToLatLng(centerPointPixels);
-                                            // $scope.map.panTo(latlng);
-
-                                            panToCenterOnActiveMenue(500);
-                                          }
-                                          // else{
-                                          //   await wait(100);
-                                          //   fitBounds();
-                                          // }
-
+                                        $scope.$on("recenterMapContent", async function (event) {
+                                          $scope.recenterMap();
                                         });
 
                                         $scope.$on("recenterMapOnHideSideBar", async function (event) {
 
+                                          $scope.map.invalidateSize(true);
+
                                           await wait(100);
 
-                                          panToCenterOnUnactiveMenue(500);
+                                          // panToCenterOnUnactiveMenue(500);
+                                          $scope.recenterMap();
                                         });
 
                                         $scope.$on("recenterMapOnShowSideBar", async function (event) {
 
+                                          $scope.map.invalidateSize(true);
+
                                           await wait(100);
 
-                                          panToCenterOnActiveMenue(500);
+                                          // panToCenterOnActiveMenue(500);
+                                          $scope.recenterMap();
                                         });
 
                                         function fitBounds(){
@@ -3309,25 +3302,6 @@ angular.module('kommonitorMap').component(
                                             $scope.map.fitBounds($scope.currentIndicatorLayer.getBounds());
                                           }
 
-                                        }
-
-                                        function panToCenterOnActiveMenue(numPixels){
-                                          if($scope.map && $scope.currentIndicatorLayer){
-
-                                            //$scope.map.setView(L.latLng($scope.latCenter, $scope.lonCenter + 0.15), $scope.zoomLevel);
-                                            // $scope.map.panTo(L.latLng($scope.latCenter, $scope.lonCenter + 0.15));
-                                            $scope.map.panBy(L.point(numPixels, 0));
-
-                                          }
-                                        }
-
-                                        function panToCenterOnUnactiveMenue(numPixels){
-                                          if($scope.map && $scope.currentIndicatorLayer){
-
-                                            //$scope.map.setView(L.latLng($scope.latCenter, $scope.lonCenter), $scope.zoomLevel);
-                                            // $scope.map.panTo(L.latLng($scope.latCenter, $scope.lonCenter));
-                                            $scope.map.panBy(L.point(-numPixels, 0));
-                                          }
                                         }
 
                                         function zoomToFeature(e) {
