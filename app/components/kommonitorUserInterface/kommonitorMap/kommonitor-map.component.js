@@ -613,7 +613,7 @@ angular.module('kommonitorMap').component(
                     		layer: layerGroup,
                     		initial: false,
                     		propertyName: __env.FEATURE_NAME_PROPERTY_NAME,
-                        textPlaceholder: "Layer-Objekte nach Name filtern (Attribut 'NAME')",
+                        textPlaceholder: "Layer-Objekte nach Name und/oder ID filtern",
                         textCancel: "Abbrechen",
                         textErr: "Position nicht gefunden",
                         hideMarkerOnCollapse: true,
@@ -656,6 +656,21 @@ angular.module('kommonitorMap').component(
                             }
 
                             return frecords;
+                          },
+                          buildTip: function(text, val) {
+                            var emString = "";
+
+                            if(val.layer.metadataObject){
+                              if(val.layer.metadataObject.isPOI){
+                                emString += '<i style="width:14px;height:14px;float:left;" class="awesome-marker-legend awesome-marker-legend-icon-' + val.layer.metadataObject.poiMarkerColor + '">';
+                                emString += "<span style='margin-left:3px; top:-2px; font-size:0.7em; color:" + val.layer.metadataObject.poiSymbolColor + ";' align='center' class='glyphicon glyphicon-" + val.layer.metadataObject.poiSymbolBootstrap3Name + "' aria-hidden='true'></span>";
+                                emString += '</i>';
+                              }
+                            }
+                            else{
+                              emString += "<i style='font-size:1.0em;' class='fas fa-sitemap'></i>";
+                            }
+                            return '<a href="" class="search-tip">'+ emString + '&nbsp;&nbsp;' + text +'</a>';
                           }
                     	});
 
@@ -2252,6 +2267,7 @@ angular.module('kommonitorMap').component(
 
                                   //populate the original geoJSOn feature to the marker layer!
                                   newMarker.feature = poiFeature;
+                                  newMarker.metadataObject = georesourceMetadataAndGeoJSON;
 
                                   var propertiesString = "<pre>"+JSON.stringify(poiFeature.properties,null,' ').replace(/[\{\}"]/g,'')+"</pre>";
 
