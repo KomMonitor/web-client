@@ -8,15 +8,15 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 		// initialize any adminLTE box widgets
 		$('.box').boxWidget();
 
-		$scope.sidebarIndicatorConfigClass = "hidden";
-		$scope.sidebarDiagramsClass = "hidden";
-		$scope.sidebarRadarDiagramClass = "hidden";
-		$scope.sidebarProcessingClass = "hidden";
-		$scope.sidebarRegressionDiagramClass = "hidden";
-		$scope.sidebarFilterClass = "hidden";
-		$scope.sidebarBalanceClass = "hidden";
-		$scope.sidebarReachabilityClass = "hidden";
-		$scope.sidebarPoiClass = "hidden";
+		$scope.sidebarIndicatorConfigClass = "disappear";
+		$scope.sidebarDiagramsClass = "disappear";
+		$scope.sidebarRadarDiagramClass = "disappear";
+		$scope.sidebarProcessingClass = "disappear";
+		$scope.sidebarRegressionDiagramClass = "disappear";
+		$scope.sidebarFilterClass = "disappear";
+		$scope.sidebarBalanceClass = "disappear";
+		$scope.sidebarReachabilityClass = "disappear";
+		$scope.sidebarPoiClass = "disappear";
 
 		$scope.buttonIndicatorConfigClass = "btn btn-custom btn-circle";
 		$scope.buttonDiagramsClass = "btn btn-custom btn-circle";
@@ -49,22 +49,22 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 		};
 
 		$scope.hideSidebars = function(){
-			$scope.sidebarIndicatorConfigClass = "hidden";
-			$scope.sidebarDiagramsClass = "hidden";
-			$scope.sidebarRadarDiagramClass = "hidden";
-			$scope.sidebarProcessingClass = "hidden";
-			$scope.sidebarRegressionDiagramClass = "hidden";
-			$scope.sidebarFilterClass = "hidden";
-			$scope.sidebarBalanceClass = "hidden";
-			$scope.sidebarReachabilityClass = "hidden";
-			$scope.sidebarPoiClass = "hidden";
+			$scope.sidebarIndicatorConfigClass = "disappear";
+			$scope.sidebarDiagramsClass = "disappear";
+			$scope.sidebarRadarDiagramClass = "disappear";
+			$scope.sidebarProcessingClass = "disappear";
+			$scope.sidebarRegressionDiagramClass = "disappear";
+			$scope.sidebarFilterClass = "disappear";
+			$scope.sidebarBalanceClass = "disappear";
+			$scope.sidebarReachabilityClass = "disappear";
+			$scope.sidebarPoiClass = "disappear";
 		};
 
 		$scope.checkBalanceButtonAndMenueState = function(){
 			// disable if indicator is dynamic or if indicator only contains 1 or less timeseries entries
 			if(kommonitorDataExchangeService.selectedIndicator.indicatorType === "DYNAMIC" || kommonitorDataExchangeService.selectedIndicator.applicableDates.length < 2){
 				$scope.buttonBalanceClass = "btn btn-custom btn-circle disabled";
-				$scope.sidebarBalanceClass = "hidden";
+				$scope.sidebarBalanceClass = "disappear";
 			}
 			else{
 				$scope.buttonBalanceClass = "btn btn-custom btn-circle";
@@ -78,7 +78,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 		$scope.onSidebarIndicatorButtonClick = function(){
 			$scope.undockButtons();
 
-			if($scope.sidebarIndicatorConfigClass === "hidden"){
+			if($scope.sidebarIndicatorConfigClass === "disappear"){
 				$scope.hideSidebars();
 				$scope.sidebarIndicatorConfigClass = "";
 				$scope.buttonIndicatorConfigClass = "btn btn-custom-docked btn-docked";
@@ -89,7 +89,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				kommonitorDataExchangeService.anySideBarIsShown = true;
 			}
 			else{
-				$scope.sidebarIndicatorConfigClass = "hidden";
+				$scope.sidebarIndicatorConfigClass = "disappear";
 				$rootScope.$broadcast("recenterMapOnHideSideBar");
 				kommonitorDataExchangeService.anySideBarIsShown = false;
 			}
@@ -102,7 +102,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 		$scope.onSidebarPoiButtonClick = function(){
 			$scope.undockButtons();
 
-			if($scope.sidebarPoiClass === "hidden"){
+			if($scope.sidebarPoiClass === "disappear"){
 				$scope.hideSidebars();
 				$scope.sidebarPoiClass = "";
 				$scope.buttonPoiClass = "btn btn-custom-docked btn-docked";
@@ -113,7 +113,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				kommonitorDataExchangeService.anySideBarIsShown = true;
 			}
 			else{
-				$scope.sidebarPoiClass = "hidden";
+				$scope.sidebarPoiClass = "disappear";
 				$rootScope.$broadcast("recenterMapOnHideSideBar");
 				kommonitorDataExchangeService.anySideBarIsShown = false;
 			}
@@ -126,7 +126,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 		$scope.onSidebarFilterButtonClick = function(){
 			$scope.undockButtons();
 
-			if($scope.sidebarFilterClass === "hidden"){
+			if($scope.sidebarFilterClass === "disappear"){
 				$scope.hideSidebars();
 				$scope.sidebarFilterClass = "";
 				$scope.buttonFilterClass = "btn btn-custom-docked btn-docked";
@@ -137,7 +137,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				kommonitorDataExchangeService.anySideBarIsShown = true;
 			}
 			else{
-				$scope.sidebarFilterClass = "hidden";
+				$scope.sidebarFilterClass = "disappear";
 				$rootScope.$broadcast("recenterMapOnHideSideBar");
 				kommonitorDataExchangeService.anySideBarIsShown = false;
 			}
@@ -157,7 +157,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			else{
 				$scope.undockButtons();
 
-				if($scope.sidebarBalanceClass === "hidden"){
+				if($scope.sidebarBalanceClass === "disappear"){
 					$scope.hideSidebars();
 					$scope.sidebarBalanceClass = "";
 					$scope.buttonBalanceClass = "btn btn-custom-docked btn-docked";
@@ -168,7 +168,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 					kommonitorDataExchangeService.anySideBarIsShown = true;
 				}
 				else{
-					$scope.sidebarBalanceClass = "hidden";
+					$scope.sidebarBalanceClass = "disappear";
 					$rootScope.$broadcast("recenterMapOnHideSideBar");
 					kommonitorDataExchangeService.anySideBarIsShown = false;
 				}
@@ -181,7 +181,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 		$scope.onSidebarReachabilityButtonClick = function(){
 			$scope.undockButtons();
 
-			if($scope.sidebarReachabilityClass === "hidden"){
+			if($scope.sidebarReachabilityClass === "disappear"){
 				$scope.hideSidebars();
 				$scope.sidebarReachabilityClass = "";
 				$scope.buttonReachabilityClass = "btn btn-custom-docked btn-docked";
@@ -192,7 +192,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				kommonitorDataExchangeService.anySideBarIsShown = true;
 			}
 			else{
-				$scope.sidebarReachabilityClass = "hidden";
+				$scope.sidebarReachabilityClass = "disappear";
 				$rootScope.$broadcast("recenterMapOnHideSideBar");
 				kommonitorDataExchangeService.anySideBarIsShown = false;
 			}
@@ -204,7 +204,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 
 		$scope.onSidebarDiagramsClick = function(){
 			$scope.undockButtons();
-			if($scope.sidebarDiagramsClass === "hidden"){
+			if($scope.sidebarDiagramsClass === "disappear"){
 				$scope.hideSidebars();
 				$scope.sidebarDiagramsClass = "";
 				$scope.buttonDiagramsClass = "btn btn-custom-docked btn-docked";
@@ -214,7 +214,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				kommonitorDataExchangeService.anySideBarIsShown = true;
 			}
 			else{
-				$scope.sidebarDiagramsClass = "hidden";
+				$scope.sidebarDiagramsClass = "disappear";
 				$rootScope.$broadcast("recenterMapOnHideSideBar");
 				kommonitorDataExchangeService.anySideBarIsShown = false;
 			}
@@ -225,7 +225,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 
 		$scope.onSidebarRadarDiagramClick = function(){
 			$scope.undockButtons();
-			if($scope.sidebarRadarDiagramClass === "hidden"){
+			if($scope.sidebarRadarDiagramClass === "disappear"){
 				$scope.hideSidebars();
 				$scope.sidebarRadarDiagramClass = "";
 				$scope.buttonRadarDiagramClass = "btn btn-custom-docked btn-docked";
@@ -235,7 +235,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				kommonitorDataExchangeService.anySideBarIsShown = true;
 			}
 			else{
-				$scope.sidebarRadarDiagramClass = "hidden";
+				$scope.sidebarRadarDiagramClass = "disappear";
 				$rootScope.$broadcast("recenterMapOnHideSideBar");
 				kommonitorDataExchangeService.anySideBarIsShown = false;
 			}
@@ -246,7 +246,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 
 		$scope.onSidebarProcessingClick = function(){
 			$scope.undockButtons();
-			if($scope.sidebarProcessingClass === "hidden"){
+			if($scope.sidebarProcessingClass === "disappear"){
 				$scope.hideSidebars();
 				$scope.sidebarProcessingClass = "";
 				$scope.buttonProcessingClass = "btn btn-custom-docked btn-docked";
@@ -256,7 +256,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				kommonitorDataExchangeService.anySideBarIsShown = true;
 			}
 			else{
-				$scope.sidebarProcessingClass = "hidden";
+				$scope.sidebarProcessingClass = "disappear";
 				$rootScope.$broadcast("recenterMapOnHideSideBar");
 				kommonitorDataExchangeService.anySideBarIsShown = false;
 			}
@@ -267,7 +267,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 
 		$scope.onSidebarRegressionDiagramClick = function(){
 			$scope.undockButtons();
-			if($scope.sidebarRegressionDiagramClass === "hidden"){
+			if($scope.sidebarRegressionDiagramClass === "disappear"){
 				$scope.hideSidebars();
 				$scope.sidebarRegressionDiagramClass = "";
 				$scope.buttonRegressionDiagramClass = "btn btn-custom-docked btn-docked";
@@ -277,7 +277,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				kommonitorDataExchangeService.anySideBarIsShown = true;
 			}
 			else{
-				$scope.sidebarRegressionDiagramClass = "hidden";
+				$scope.sidebarRegressionDiagramClass = "disappear";
 				$rootScope.$broadcast("recenterMapOnHideSideBar");
 				kommonitorDataExchangeService.anySideBarIsShown = false;
 			}
@@ -404,7 +404,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				placement: "right",
 				content: "Ein Klick auf diesen Button &ouml;ffnet das Indikatoren-Auswahl-Fenster. <br/><br/><i>Im n&auml;chsten Schritt wird das Men&uuml; automatisch ge&ouml;ffnet.</i>",
 				onNext: function(tour){
-					if($scope.sidebarIndicatorConfigClass === "hidden"){
+					if($scope.sidebarIndicatorConfigClass === "disappear"){
 							$("#sidebarIndicatorConfigCollapse").click();
 					}
 				},
@@ -415,12 +415,12 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				placement: "right",
 				content: "Dieses Men&uuml; enth&auml;lt eine <b>&Uuml;bersicht aller verf&uuml;gbarer Indikatoren</b> sowie die Optionen, den aktuell betrachteten <b>Indikator zu wechseln</b> oder den Indikator in der gew&auml;hlten Raumebene zu <b>exportieren</b> (derzeitg nur eingeschr&auml;nkte Exportoptionen). <br/><br/>Im obigen <b>Themenfilter</b> kann die &Uuml;bersicht der Indikatoren nach verschiedenen Themenkomplexen gefiltert werden. <br/><br/>Sollte ein Indikator etwaige <b>Verkn&uuml;pfungen</b> zu anderen Indikatoren oder sonstigen Geodaten beinhalten, so werden diese in tabellarischer Form kenntlich gemacht.",
 				onNext: function(tour){
-					if($scope.sidebarIndicatorConfigClass !== "hidden"){
+					if($scope.sidebarIndicatorConfigClass !== "disappear"){
 							$("#sidebarIndicatorConfigCollapse").click();
 					}
 				},
 				onPrev: function(tour){
-					if($scope.sidebarIndicatorConfigClass !== "hidden"){
+					if($scope.sidebarIndicatorConfigClass !== "disappear"){
 							$("#sidebarIndicatorConfigCollapse").click();
 					}
 				}
@@ -431,7 +431,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				placement: "right",
 				content: "Ein Klick auf diesen Button &ouml;ffnet das Points of Interest Fenster. <br/><br/><i>Im n&auml;chsten Schritt wird das Men&uuml; automatisch ge&ouml;ffnet.</i>",
 				onNext: function(tour){
-					if($scope.sidebarPoiClass === "hidden"){
+					if($scope.sidebarPoiClass === "disappear"){
 							$("#sidebarPoiCollapse").click();
 					}
 				}
@@ -442,12 +442,12 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				placement: "right",
 				content: "Zur &Uuml;berlagerung von fl&auml;chenhaften Indikator-Geometrien mit weiteren relevanten Geodaten k&ouml;nnen hier sogenannte <b>Points of Interest (POI)-Layer</b> zur Karte hinzugef&uuml;gt werden. Hinzuf&uuml;gen und Entfernen der POI-Layer geschieht dabei durch (De-) Selektion der jeweiligen <i>Checkbox</i>. <br/><br/>In der Standardkonfiguration werden die einzelnen Punktgeometrien r&auml;umlich zu sogenannten <b>Cluster-Punkten</b> zusammengefasst, um die Darstellung je nach Zoom-Stufe zu optimieren. &Uuml;ber eine entsprechende <i>Auswahloption</i> k&ouml;nnen jedoch bei jeder Zoomstufe wahlweise auch <b>alle Einzelpunkte dargestellt</b> werden.",
 				onNext: function(tour){
-					if($scope.sidebarPoiClass !== "hidden"){
+					if($scope.sidebarPoiClass !== "disappear"){
 							$("#sidebarPoiCollapse").click();
 					}
 				},
 				onPrev: function(tour){
-					if($scope.sidebarPoiClass !== "hidden"){
+					if($scope.sidebarPoiClass !== "disappear"){
 							$("#sidebarPoiCollapse").click();
 					}
 				}
@@ -458,7 +458,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				placement: "right",
 				content: "Ein Klick auf diesen Button &ouml;ffnet ein Fenster zur Definition von Darstellungsfiltern. <br/><br/><i>Im n&auml;chsten Schritt wird das Men&uuml; automatisch ge&ouml;ffnet.</i>",
 				onNext: function(tour){
-					if($scope.sidebarFilterClass === "hidden"){
+					if($scope.sidebarFilterClass === "disappear"){
 							$("#sidebarFilterCollapse").click();
 					}
 				}
@@ -470,12 +470,12 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				// <br/><br/>Dar&uuml;ber hinaus k&ouml;nnen je nach Fragestellung die Raumebenen-Geometrien (z.B. Stadtteile) auf diejenigen eingeschr&auml;nkt werden, die zur Beantwortung der Fragestellung beitragen.
 				content: "Hier k&ouml;nnen verschiedene <b>Darstellungsfilter</b> angewendet werden, die sich auf die <i>kartographische Darstellung</i> auswirken. &Uuml;ber den <b>Wertebereichsfilter</b> k&ouml;nnen die angezeigten Raumeinheiten anhand ihrer Wertauspr&auml;gung gefiltert werden. Dazu kann der Schieberegler an dem minimalen und maximalen Werten nach rechts/links geschoben werden.<br/><br/>Eine weitere Option ist die <b>dynamische Schwellwertklassifizierung</b>, bei der ein spezifischer <b>Wert</b> definiert werden kann, der die Indikator-Darstellung in <b>zwei Bereiche</b> unterteilt (oberhalb und unterhalb des Schwellwerts) und entsprechend farbig darstellt.",
 				onNext: function(tour){
-					if($scope.sidebarFilterClass !== "hidden"){
+					if($scope.sidebarFilterClass !== "disappear"){
 							$("#sidebarFilterCollapse").click();
 					}
 				},
 				onPrev: function(tour){
-					if($scope.sidebarFilterClass !== "hidden"){
+					if($scope.sidebarFilterClass !== "disappear"){
 							$("#sidebarFilterCollapse").click();
 					}
 				}
@@ -486,7 +486,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				placement: "right",
 				content: "Ein Klick auf diesen Button &ouml;ffnet ein Fenster zur zeitlichen Bilanzierung des aktuell dargestellten Indikators. <br/><br/><i>Im n&auml;chsten Schritt wird das Men&uuml; automatisch ge&ouml;ffnet.</i>",
 				onNext: function(tour){
-					if($scope.sidebarBalanceClass === "hidden"){
+					if($scope.sidebarBalanceClass === "disappear"){
 							$("#sidebarBalanceCollapse").click();
 					}
 				}
@@ -497,12 +497,12 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				placement: "right",
 				content: "Bei der zeitlichen Bilanzierung steht die <b>Wertentwicklung eines Indikators</b> &uuml;ber die Zeit im Fokus (z. B. Wachstum / Schrumpfung). Wird die Bilanzierung mittels der entsprehenden <b>Checkbox</b> aktiviert, so kann &uuml;ber die Zeitleiste ein <b>Zeitraum</b> spezifiziert werden, f&uuml;r den die Wertentwicklung berechnet und dargestellt werden soll. <br/><br/>Die Indikatoren-Legende am unteren rechten Rand der Anwendung zeigt &uuml;ber dies bei aktivierter Checkbox an, dass die Bilanz des Indikators dargestellt wird.<br/><br/>Bitte bachten Sie, dass eine Bilanzierung nur bei Status-Indikatoren m&ouml;glich ist, deren Zeitreihe mehr als einen Eintrag enth&auml;lt.",
 				onNext: function(tour){
-					if($scope.sidebarBalanceClass !== "hidden"){
+					if($scope.sidebarBalanceClass !== "disappear"){
 							$("#sidebarBalanceCollapse").click();
 					}
 				},
 				onPrev: function(tour){
-					if($scope.sidebarBalanceClass !== "hidden"){
+					if($scope.sidebarBalanceClass !== "disappear"){
 							$("#sidebarBalanceCollapse").click();
 					}
 				}
@@ -513,7 +513,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				placement: "right",
 				content: "Ein Klick auf diesen Button &ouml;ffnet ein Fenster mit statistischen Diagrammen. <br/><br/><i>Im n&auml;chsten Schritt wird das Men&uuml; automatisch ge&ouml;ffnet.</i>",
 				onNext: function(tour){
-					if($scope.sidebarDiagramsClass === "hidden"){
+					if($scope.sidebarDiagramsClass === "disappear"){
 							$("#sidebarDiagramsCollapse").click();
 					}
 				}
@@ -524,12 +524,12 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				placement: "right",
 				content: "Zus&auml;tzlich zur kartographischen Darstellung bieten grundlegende <b>statistische Diagramme</b> hilfreiche Zusatzinformationen zum gew&auml;hlten Indikator. <br/><br/> Das obige <b>Histogramm</b> fokussiert die <b>Werteverteilung</b> und zeigt an, wie viele Elemente der Raumebene in welchem Klassenintervall liegen. <br/><br/>Ein <b>Ranking</b> der jeweiligen Raumeinheiten wird &uuml;ber das mittlere <b>S&auml;ulendiagramm</b> dargestellt.<br/><br/>Das untere <b>Liniendiagramm</b> visualisiert die <b>zeitliche Entwicklung</b> des aktuellen Indikators &uuml;ber alle jeweils verf&uuml;gbaren Zeitschnitte. Standardm&auml;&szlig;ig wird hier der Durchschnittswert &uuml;ber alle Raumeinheiten dargestellt.<br/><br/>Um einzelne Elemente der gew&auml;hlten Raumebene im S&auml;ulen- und Liniendiagramm zu betrachten und <i>hervorzuheben</i>, kann mit dem <i>Mauszeiger</i> entweder &uuml;ber die <i>S&auml;ule innerhalb des S&auml;ulendiagramms</i> oder &uuml;ber das jeweilige <i>Element in der Karte</i> gefahren werden. Eine dauerhafte Selektion durch Klicken auf das kartographische Element oder die dazugeh&ouml;rige S&auml;ule erm&ouml;glicht das simultane Betrachten mehrerer Elemente.<br/><br/>Jedes Diagramm enth&auml;lt in der oberen rechte Ecke eine <b>Toolbox</b>, &uuml;ber die das Diagramm entweder als <b>Bilddatei</b> oder im <b>Tabellenformat</b> <b>exportiert</b> werden kann.",
 				onNext: function(tour){
-					if($scope.sidebarDiagramsClass !== "hidden"){
+					if($scope.sidebarDiagramsClass !== "disappear"){
 							$("#sidebarDiagramsCollapse").click();
 					}
 				},
 				onPrev: function(tour){
-					if($scope.sidebarDiagramsClass !== "hidden"){
+					if($scope.sidebarDiagramsClass !== "disappear"){
 							$("#sidebarDiagramsCollapse").click();
 					}
 				}
@@ -540,7 +540,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				placement: "right",
 				content: "Ein Klick auf diesen Button &ouml;ffnet das Indiktorenradar f&uuml;r die Querschnittsbetrachtung mehrerer Indikatoren. <br/><br/><i>Im n&auml;chsten Schritt wird das Men&uuml; automatisch ge&ouml;ffnet.</i>",
 				onNext: function(tour){
-					if($scope.sidebarRadarDiagramClass === "hidden"){
+					if($scope.sidebarRadarDiagramClass === "disappear"){
 							$("#sidebarRadarDiagramCollapse").click();
 					}
 				}
@@ -551,12 +551,12 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				placement: "right",
 				content: "Das <b>Indikatorenradar</b> eignet sich insbesondere f&uuml;r die <b>querschnittsorientierte Betrachtung mehrerer Indikatoren</b>. <br/>F&uuml;r die Anzeige eines solchen Diagramms, <i>selektieren Sie bitte mindestens drei Indikatoren</i> aus der unten stehenden Liste. <br/><br/>F&uuml;r jeden gew&auml;hlten Indikator wird im Diagramm eine Achse genutzt, auf der einzelne Raumeinheiten anhand ihrer Wertauspr&auml;gung abgetragen werden. Jede Achse wird dabei durch <b>Minimum und Maximum</b> der Geometrien der betrachteten Raumebene gebildet (daher ist die <b><i>Radarmitte ausdr&uuml;cklich nicht zwingend mit dem Wert '0' gleichzusetzen, sondern mit dem Minimalwert des Indikators</i></b>). <br/><br/>Auch hier ist der Durchschnitt aller Raumeinheiten bereits vorberechnet und einzelne Elemente k&ouml;nnen mittels Selektion innerhalb der Karte dem Radar hinzugef&uuml;gt werden. Die Indikatorenauswahl umfasst dabei nur solche Indikatoren, die die gew&auml;hlte Raumebene und den aktuell gew&auml;hlten Zeitschnitt unterst&uuml;tzen.<br/><br/> Auch das Radardiagramm besitzt in der oberen rechte Ecke eine <b>Toolbox</b>, &uuml;ber die das Diagramm entweder als <b>Bilddatei</b> oder im <b>Tabellenformat</b> <b>exportiert</b> werden kann",
 				onNext: function(tour){
-					if($scope.sidebarRadarDiagramClass !== "hidden"){
+					if($scope.sidebarRadarDiagramClass !== "disappear"){
 							$("#sidebarRadarDiagramCollapse").click();
 					}
 				},
 				onPrev: function(tour){
-					if($scope.sidebarRadarDiagramClass !== "hidden"){
+					if($scope.sidebarRadarDiagramClass !== "disappear"){
 							$("#sidebarRadarDiagramCollapse").click();
 					}
 				}
@@ -567,7 +567,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				placement: "right",
 				content: "Ein Klick auf diesen Button &ouml;ffnet Fenster zur Definition von Regressionsdiagrammen. <br/><br/><i>Im n&auml;chsten Schritt wird das Men&uuml; automatisch ge&ouml;ffnet.</i>",
 				onNext: function(tour){
-					if($scope.sidebarRegressionDiagramClass === "hidden"){
+					if($scope.sidebarRegressionDiagramClass === "disappear"){
 							$("#sidebarRegressionDiagramCollapse").click();
 					}
 				}
@@ -578,12 +578,12 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				placement: "right",
 				content: "Als exemplarischer weiterer Diagrammtyp unterst&uuml;tzt KomMonitor die Berechnung einer <b>linearen Regression</b> zwischen zwei zu w&auml;hlenden Indikatoren, um insbesondere die <b>Korrelation</b> zwischen diesen zu betrachten. Nach Auswahl der Indikatoren werden die Regressionsgerade und alle Elemente der gew&auml;hlten Raumebene gem&auml;ß ihrer Wertauspr&auml;gungen entlang der Indikatorenachsen im Diagramm abgetragen. <br/><br/>Beim &Uuml;berfahren eines Datenpunkts mit der Maus im Diagramm oder einer in der Karte dargestellten Raumeinheit, wird das jeweilige Pendant visuell hervorgehoben.<br/><br/>Die Indikatorenauswahl umfasst dabei nur solche Indikatoren, die die gew&auml;hlte Raumebene und den aktuell gew&auml;hlten Zeitschnitt unterst&uuml;tzen.<br/><br/> Auch das Regressionsdiagramm besitzt in der oberen rechte Ecke eine <b>Toolbox</b>, &uuml;ber die das Diagramm entweder als <b>Bilddatei</b> oder im <b>Tabellenformat</b> <b>exportiert</b> werden kann.",
 				onNext: function(tour){
-					if($scope.sidebarRegressionDiagramClass !== "hidden"){
+					if($scope.sidebarRegressionDiagramClass !== "disappear"){
 							$("#sidebarRegressionDiagramCollapse").click();
 					}
 				},
 				onPrev: function(tour){
-					if($scope.sidebarRegressionDiagramClass !== "hidden"){
+					if($scope.sidebarRegressionDiagramClass !== "disappear"){
 							$("#sidebarRegressionDiagramCollapse").click();
 					}
 				}
@@ -594,7 +594,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				placement: "right",
 				content: "Ein Klick auf diesen Button &ouml;ffnet ein Fenster f&uuml;r Erreichbarkeitsanalysen. <br/><br/><i>Im n&auml;chsten Schritt wird das Men&uuml; automatisch ge&ouml;ffnet.</i>",
 				onNext: function(tour){
-					if($scope.sidebarReachabilityClass === "hidden"){
+					if($scope.sidebarReachabilityClass === "disappear"){
 							$("#sidebarReachabilityCollapse").click();
 					}
 				}
@@ -605,12 +605,12 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				placement: "right",
 				content: "Als GIS-basiertes Werkzeug soll KomMonitor ausgew&auml;hlte <b>r&auml;umliche Analysen</b> unterst&uuml;tzen. Insbesondere stehen <b>Erreichbarkeitsanalysen</b> im Fokus, bei denen, neben reinen <i>Puffer-basierten Ans&auml;tzen</i>, <b>Erreichbarkeiten anhand tats&auml;chlicher Wegenetze</b> f&uuml;r verschiedene <b>Transportmittel (z.B. Fußg&auml;nger, Fahrrad, Auto)</b> berechnet werden k&ouml;nnen. Konkret soll hierbei sowohl ein <b>Routing</b> zwischen einzelnen Punkten sowie die Berechnung von <b>Isochronen (&Auml;quidistanzen und zeitliches Abbruchkriterium)</b> angeboten werden.<br/><br/>Derzeit sind lediglich ausgew&auml;hlte, vordefinierte Demo-Berechnungen durchf&uuml;hrbar. Frei definierbare Erreichbarkeitsanalysen werden in K&uuml;rze implementiert.",
 				onNext: function(tour){
-					if($scope.sidebarReachabilityClass !== "hidden"){
+					if($scope.sidebarReachabilityClass !== "disappear"){
 							$("#sidebarReachabilityCollapse").click();
 					}
 				},
 				onPrev: function(tour){
-					if($scope.sidebarReachabilityClass !== "hidden"){
+					if($scope.sidebarReachabilityClass !== "disappear"){
 							$("#sidebarReachabilityCollapse").click();
 					}
 				}
@@ -621,7 +621,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				placement: "right",
 				content: "Ein Klick auf diesen Button &ouml;ffnet ein Fenster zur individuellen Neuberechnung einzelner Indikatoren. <br/><br/><i>Im n&auml;chsten Schritt wird das Men&uuml; automatisch ge&ouml;ffnet.</i>",
 				onNext: function(tour){
-					if($scope.sidebarProcessingClass === "hidden"){
+					if($scope.sidebarProcessingClass === "disappear"){
 							$("#sidebarProcessingCollapse").click();
 					}
 				}
@@ -632,12 +632,12 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				placement: "right",
 				content: "KomMonitor ist mehr als nur ein Darstellungswerkzeug. Es erm&ouml;glicht insbesondere auch die <b>automatisierte Berechnung von Indikatoren</b>. Je nach Berechnungsvorschrift kann es dabei <b>konfigurierbare Parameter</b> geben, die die <i>resultierenden Indikatorenwerte beeinflussen</i> (bspw. eine maximle Distanz bei Erreichbarkeiten oder Gewichtungen grundlegender Eingangsdaten). <br/><br/>Dieses Men&uuml; bietet die M&ouml;glichkeit einer <b>Nutzer-definierten Neuberechnung von Indikatoren</b> mit mindestens einem konfigurierbaren Parameter. Das jeweilige Berechnungsergebnis steht anschlie&szlig;end tempor&auml;r zur Verf&uuml;gung und kann bei Bedarf exportiert werden. <br/><br/>K&uuml;nftig sollen dar&uuml;ber hinaus unmittelbare Vergleiche mit der 'Standard'-Variante des Indikators angeboten werden. Diese sind jedoch zum gegenw&auml;rtigen Zeitpunkt noch nicht in der Anwendung umgesetzt.",
 				onNext: function(tour){
-					if($scope.sidebarProcessingClass !== "hidden"){
+					if($scope.sidebarProcessingClass !== "disappear"){
 							$("#sidebarProcessingCollapse").click();
 					}
 				},
 				onPrev: function(tour){
-					if($scope.sidebarProcessingClass !== "hidden"){
+					if($scope.sidebarProcessingClass !== "disappear"){
 							$("#sidebarProcessingCollapse").click();
 					}
 				}
