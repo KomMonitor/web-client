@@ -3266,7 +3266,6 @@ angular.module('kommonitorMap').component(
                                         $scope.recenterMap = async function(){
                                           $scope.map.invalidateSize(true);
 
-                                          await wait(100);
                                           fitBounds();
 
                                         };
@@ -3276,23 +3275,40 @@ angular.module('kommonitorMap').component(
                                         });
 
                                         $scope.$on("recenterMapOnHideSideBar", async function (event) {
+                                          //wait due to animation of the sidebar
 
-                                          $scope.map.invalidateSize(true);
+                                          // make animation in 30 steps
+                                          var waitForInMs = 30;
+                                          for(var i=0; i<=300; i++){
 
-                                          await wait(100);
+                                            i += waitForInMs;
 
-                                          // panToCenterOnUnactiveMenue(500);
-                                          $scope.recenterMap();
+                                            await wait(waitForInMs);
+
+                                            $scope.map.invalidateSize(true);
+
+                                            // panToCenterOnActiveMenue(500);
+                                            $scope.recenterMap();
+                                          }
                                         });
 
                                         $scope.$on("recenterMapOnShowSideBar", async function (event) {
+                                          //wait due to animation of the sidebar
 
-                                          $scope.map.invalidateSize(true);
+                                          // make animation in 30 steps
+                                          var waitForInMs = 30;
+                                          for(var i=0; i<=300; i++){
 
-                                          await wait(100);
+                                            i += waitForInMs;
 
-                                          // panToCenterOnActiveMenue(500);
-                                          $scope.recenterMap();
+                                            await wait(waitForInMs);
+
+                                            $scope.map.invalidateSize(true);
+
+                                            // panToCenterOnActiveMenue(500);
+                                            $scope.recenterMap();
+                                          }
+
                                         });
 
                                         function fitBounds(){
