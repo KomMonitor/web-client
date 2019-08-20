@@ -393,6 +393,63 @@ angular.module('kommonitorMap').component(
                     $scope.isochronesLayer = undefined;
                     $scope.isochroneMarkerLayer = undefined;
 
+                    /*
+                     * L.TileLayer.Grayscale is a regular tilelayer with grayscale makeover.
+                     */
+
+                    L.TileLayer.Grayscale = L.TileLayer.extend({
+                    	options: {
+                    		quotaRed: 21,
+                    		quotaGreen: 71,
+                    		quotaBlue: 8,
+                    		quotaDividerTune: 0,
+                    		quotaDivider: function() {
+                    			return this.quotaRed + this.quotaGreen + this.quotaBlue + this.quotaDividerTune;
+                    		}
+                    	},
+
+                    	initialize: function (url, options) {
+                    		options = options || {};
+                    		options.crossOrigin = true;
+                    		L.TileLayer.prototype.initialize.call(this, url, options);
+
+                    		this.on('tileload', function(e) {
+                    			this._makeGrayscale(e.tile);
+                    		});
+                    	},
+
+                    	_createTile: function () {
+                    		var tile = L.TileLayer.prototype._createTile.call(this);
+                    		tile.crossOrigin = "Anonymous";
+                    		return tile;
+                    	},
+
+                    	_makeGrayscale: function (img) {
+                    		if (img.getAttribute('data-grayscaled'))
+                    			return;
+
+                                    img.crossOrigin = '';
+                    		var canvas = document.createElement("canvas");
+                    		canvas.width = img.width;
+                    		canvas.height = img.height;
+                    		var ctx = canvas.getContext("2d");
+                    		ctx.drawImage(img, 0, 0);
+
+                    		var imgd = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    		var pix = imgd.data;
+                    		for (var i = 0, n = pix.length; i < n; i += 4) {
+                                            pix[i] = pix[i + 1] = pix[i + 2] = (this.options.quotaRed * pix[i] + this.options.quotaGreen * pix[i + 1] + this.options.quotaBlue * pix[i + 2]) / this.options.quotaDivider();
+                    		}
+                    		ctx.putImageData(imgd, 0, 0);
+                    		img.setAttribute('data-grayscaled', true);
+                    		img.src = canvas.toDataURL();
+                    	}
+                    });
+
+                    L.tileLayer.grayscale = function (url, options) {
+                    	return new L.TileLayer.Grayscale(url, options);
+                    };
+
               			this.initializeMap = function() {
 
                       $scope.loadingData = true;
@@ -405,7 +462,9 @@ angular.module('kommonitorMap').component(
                       var osmAttrib='Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
                       var osm = new L.TileLayer(osmUrl, {minZoom: __env.minZoomLevel, maxZoom: __env.maxZoomLevel, attribution: osmAttrib});
 
-                      var osm_blackWhite = L.tileLayer('https://www.toolserver.org/tiles/bw-mapnik/{z}/{x}/{y}.png', {minZoom: __env.minZoomLevel, maxZoom: __env.maxZoomLevel, attribution: osmAttrib});
+                      // var osm_blackWhite = L.tileLayer('https://www.toolserver.org/tiles/bw-mapnik/{z}/{x}/{y}.png', {minZoom: __env.minZoomLevel, maxZoom: __env.maxZoomLevel, attribution: osmAttrib});
+
+                      var osm_blackWhite = new L.tileLayer.grayscale(osmUrl, {minZoom: __env.minZoomLevel, maxZoom: __env.maxZoomLevel, attribution: osmAttrib});
 
                       var wmsLayerRVR = L.tileLayer.wms('https://geodaten.metropoleruhr.de/spw2?', {
                           layers: 'stadtplan_rvr',
@@ -443,7 +502,8 @@ angular.module('kommonitorMap').component(
                           zoom: $scope.zoomLevel,
                           zoomDelta: 0.5,
                           zoomSnap: 0.5,
-                          layers: [osm_blackWhite]
+                          layers: [osm_blackWhite],
+                          renderer: L.canvas()
                       });
 
                       $scope.baseMaps = {
@@ -580,7 +640,22 @@ angular.module('kommonitorMap').component(
                       $scope.measureControl = new L.Control.Measure(measureOptions);
                       $scope.measureControl.addTo($scope.map);
 
+                      /////////////////////////////////////////////////////
+                      ///// LEAFLET EASY PRINT SETUP
+                      /////////////////////////////////////////////////////
 
+                      $scope.printControl = L.easyPrint({
+                      	title: 'Kartenexport',
+                      	position: 'topleft',
+                      	sizeModes: ['Current'],
+                        exportOnly: true,
+                        filename: "KomMonitor-Kartenexport",
+                        hideControlContainer: false,
+                        hideClasses: ['leaflet-left'],
+                        defaultSizeTitles: {Current: 'Aktueller Kartenausschnitt', A4Landscape: 'A4 Querformat', A4Portrait: 'A4 Portrait'}
+                      });
+
+                      $scope.printControl.addTo($scope.map);
 
               			};
 

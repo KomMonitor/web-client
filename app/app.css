@@ -304,7 +304,7 @@
 .leaflet-left .leaflet-control-layers {
   /* display: inline-block; */
   /* float: none; */
-	left: 170px;
+	left: 220px;
 	position: absolute;
 
 	width: auto;
@@ -348,6 +348,14 @@
 	position: absolute;
 	left: 70px;
 	top: 150px;
+}
+
+.leaflet-left .leaflet-control-easyPrint{
+
+	/* display: inline-block; */
+	/* float: none; */
+	position: absolute;
+	left: 170px;
 }
 
 .leaflet-control-layers-group-name{
@@ -585,7 +593,7 @@
 		height: auto !important;
 		max-height: 400px;
 	  overflow: auto;
-		display: inline-block
+		display: flex;
 }
 .legend i {
     width: 18px;

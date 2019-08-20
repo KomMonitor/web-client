@@ -67,6 +67,7 @@
     "jstat": "^1.7.1",
     "leaflet": "^1.3.4",
     "leaflet-draw": "^1.0.4",
+    "leaflet-easyprint": "^2.1.9",
     "leaflet-geosearch": "^2.7.0",
     "leaflet-groupedlayercontrol": "^0.6.1",
     "leaflet-measure": "^3.1.0",
