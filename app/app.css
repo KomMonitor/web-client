@@ -301,6 +301,11 @@
 	top: 10px;
 }
 
+#exportMapButton {
+	left: 180px;
+	top: 10px;
+}
+
 .leaflet-left .leaflet-control-layers {
   /* display: inline-block; */
   /* float: none; */

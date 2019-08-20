@@ -290,6 +290,10 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			$rootScope.$broadcast("recenterMapContent");
 		}
 
+		$scope.onExportMapButtonClick = function(){
+			$rootScope.$broadcast("exportMap");
+		}
+
 		$scope.onUnselectFeaturesButtonClick = function(){
 			$rootScope.$broadcast("unselectAllFeatures");
 		}

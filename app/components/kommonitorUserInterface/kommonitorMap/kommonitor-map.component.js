@@ -649,6 +649,7 @@ angular.module('kommonitorMap').component(
                       	position: 'topleft',
                       	sizeModes: ['Current'],
                         exportOnly: true,
+                        hidden: true,
                         filename: "KomMonitor-Kartenexport",
                         hideControlContainer: false,
                         hideClasses: ['leaflet-left'],
@@ -657,7 +658,12 @@ angular.module('kommonitorMap').component(
 
                       $scope.printControl.addTo($scope.map);
 
-              			};
+              			}; // end initialize map
+
+
+                    $scope.$on("exportMap", function (event) {
+                      $scope.printControl.printMap('CurrentSize', 'KomMonitor-Kartenexport');
+                    });
 
                     $scope.updateSearchControl = function(){
 
