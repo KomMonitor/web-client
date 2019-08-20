@@ -395,6 +395,10 @@
   	background-position: center;
 }
 
+.leaflet-touch .leaflet-control-measure .leaflet-control-measure-toggle {
+	background-size: 20px 20px;
+}
+
 .leaflet-control-search .search-button:hover {
     /* background: url(iconsFromPngTree/filter-icon.png) no-repeat 4px 4px #fff; */
 		background-image: url(iconsFromPngTree/filter-icon.png);
