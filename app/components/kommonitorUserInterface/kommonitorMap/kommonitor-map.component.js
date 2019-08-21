@@ -14,31 +14,31 @@ angular.module('kommonitorMap').component(
 
                     const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
                     const numberOfDecimals = __env.numberOfDecimals;
-                    const defaultColorForFilteredValues = __env.defaultColorForFilteredValues;
-                    const defaultBorderColorForFilteredValues = __env.defaultBorderColorForFilteredValues;
-                    const defaultBorderColor = __env.defaultBorderColor;
+                    var defaultColorForFilteredValues = __env.defaultColorForFilteredValues;
+                    var defaultBorderColorForFilteredValues = __env.defaultBorderColorForFilteredValues;
+                    var defaultBorderColor = __env.defaultBorderColor;
                     var defaultFillOpacity = __env.defaultFillOpacity;
-                    const defaultFillOpacityForFilteredFeatures = __env.defaultFillOpacityForFilteredFeatures;
-                    const defaultFillOpacityForHighlightedFeatures = __env.defaultFillOpacityForHighlightedFeatures;
-                    const defaultFillOpacityForZeroFeatures = __env.defaultFillOpacityForZeroFeatures;
-                    const defaultColorBrewerPaletteForBalanceIncreasingValues = __env.defaultColorBrewerPaletteForBalanceIncreasingValues;
-                    const defaultColorBrewerPaletteForBalanceDecreasingValues = __env.defaultColorBrewerPaletteForBalanceDecreasingValues;
-                    const defaultColorBrewerPaletteForGtMovValues = __env.defaultColorBrewerPaletteForGtMovValues;
-                    const defaultColorBrewerPaletteForLtMovValues = __env.defaultColorBrewerPaletteForLtMovValues;
-                    const defaultColorForHoveredFeatures = __env.defaultColorForHoveredFeatures;
-                    const defaultColorForClickedFeatures = __env.defaultColorForClickedFeatures;
-                    const defaultBorderColorForNoDataValues = __env.defaultBorderColorForNoDataValues;
-                    const defaultColorForNoDataValues = __env.defaultColorForNoDataValues;
-                    const defaultFillOpacityForNoDataValues = __env.defaultFillOpacityForNoDataValues;
+                    var defaultFillOpacityForFilteredFeatures = __env.defaultFillOpacityForFilteredFeatures;
+                    var defaultFillOpacityForHighlightedFeatures = __env.defaultFillOpacityForHighlightedFeatures;
+                    var defaultFillOpacityForZeroFeatures = __env.defaultFillOpacityForZeroFeatures;
+                    var defaultColorBrewerPaletteForBalanceIncreasingValues = __env.defaultColorBrewerPaletteForBalanceIncreasingValues;
+                    var defaultColorBrewerPaletteForBalanceDecreasingValues = __env.defaultColorBrewerPaletteForBalanceDecreasingValues;
+                    var defaultColorBrewerPaletteForGtMovValues = __env.defaultColorBrewerPaletteForGtMovValues;
+                    var defaultColorBrewerPaletteForLtMovValues = __env.defaultColorBrewerPaletteForLtMovValues;
+                    var defaultColorForHoveredFeatures = __env.defaultColorForHoveredFeatures;
+                    var defaultColorForClickedFeatures = __env.defaultColorForClickedFeatures;
+                    var defaultBorderColorForNoDataValues = __env.defaultBorderColorForNoDataValues;
+                    var defaultColorForNoDataValues = __env.defaultColorForNoDataValues;
+                    var defaultFillOpacityForNoDataValues = __env.defaultFillOpacityForNoDataValues;
 
 
-                    const defaultColorForOutliers_high = __env.defaultColorForOutliers_high;
-                    const defaultBorderColorForOutliers_high = __env.defaultBorderColorForOutliers_high;
-                    const defaultFillOpacityForOutliers_high = __env.defaultFillOpacityForOutliers_high;
-                    const defaultColorForOutliers_low = __env.defaultColorForOutliers_low;
-                    const defaultBorderColorForOutliers_low = __env.defaultBorderColorForOutliers_low;
-                    const defaultFillOpacityForOutliers_low = __env.defaultFillOpacityForOutliers_low;
-                    const useOutlierDetectionOnIndicator = __env.useOutlierDetectionOnIndicator;
+                    var defaultColorForOutliers_high = __env.defaultColorForOutliers_high;
+                    var defaultBorderColorForOutliers_high = __env.defaultBorderColorForOutliers_high;
+                    var defaultFillOpacityForOutliers_high = __env.defaultFillOpacityForOutliers_high;
+                    var defaultColorForOutliers_low = __env.defaultColorForOutliers_low;
+                    var defaultBorderColorForOutliers_low = __env.defaultBorderColorForOutliers_low;
+                    var defaultFillOpacityForOutliers_low = __env.defaultFillOpacityForOutliers_low;
+                    var useOutlierDetectionOnIndicator = __env.useOutlierDetectionOnIndicator;
 
                     const outlierPropertyName = "outlier";
                     const outlierPropertyValue_high_soft = "high-soft";
@@ -53,8 +53,8 @@ angular.module('kommonitorMap').component(
                     $scope.outliers_low = undefined;
                     kommonitorDataExchangeService.useOutlierDetectionOnIndicator = useOutlierDetectionOnIndicator;
 
-                    $scope.svgString_outlierLow = '<svg height="18" width="18"><line x1="10" y1="0" x2="110" y2="100" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:2" /><line x1="0" y1="0" x2="100" y2="100" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:2" /><line x1="0" y1="10" x2="100" y2="110" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:2" />Sorry, your browser does not support inline SVG.</svg>';
-                    $scope.svgString_outlierHigh = '<svg height="18" width="18"><line x1="8" y1="18" x2="18" y2="8" style="stroke:' + defaultColorForOutliers_high + ';stroke-width:2" /><line x1="0" y1="18" x2="18" y2="0" style="stroke:' + defaultColorForOutliers_high + ';stroke-width:2" /><line x1="0" y1="10" x2="10" y2="0" style="stroke:' + defaultColorForOutliers_high + ';stroke-width:2" />Sorry, your browser does not support inline SVG.</svg>';
+                    $scope.svgString_outlierLow = '<svg height="18" width="18"><line x1="10" y1="0" x2="110" y2="100" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:2; stroke-opacity: ' + defaultFillOpacityForOutliers_low + ';" /><line x1="0" y1="0" x2="100" y2="100" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:2; stroke-opacity: ' + defaultFillOpacityForOutliers_low + ';" /><line x1="0" y1="10" x2="100" y2="110" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:2; stroke-opacity: ' + defaultFillOpacityForOutliers_low + ';" />Sorry, your browser does not support inline SVG.</svg>';
+                    $scope.svgString_outlierHigh = '<svg height="18" width="18"><line x1="8" y1="18" x2="18" y2="8" style="stroke:' + defaultColorForOutliers_high + ';stroke-width:2; stroke-opacity: ' + defaultFillOpacityForOutliers_high + ';" /><line x1="0" y1="18" x2="18" y2="0" style="stroke:' + defaultColorForOutliers_high + ';stroke-width:2; stroke-opacity: ' + defaultFillOpacityForOutliers_high + ';" /><line x1="0" y1="10" x2="10" y2="0" style="stroke:' + defaultColorForOutliers_high + ';stroke-width:2; stroke-opacity: ' + defaultFillOpacityForOutliers_high + ';" />Sorry, your browser does not support inline SVG.</svg>';
 
                     $scope.outlierFillPattern_high;
                     $scope.outlierFillPattern_low;
@@ -216,10 +216,10 @@ angular.module('kommonitorMap').component(
 
                       $scope.currentIndicatorContainsNoDataValues = false;
                       $scope.svgString_noData = '<svg height="18" width="18">' +
-                            '<circle cx="4" cy="4" r="1.5" stroke="' + defaultBorderColorForNoDataValues + '" stroke-width="2" fill="' + defaultColorForNoDataValues + '" />' +
-                            '<circle cx="14" cy="4" r="1.5" stroke="' + defaultBorderColorForNoDataValues + '" stroke-width="2" fill="' + defaultColorForNoDataValues + '" />' +
-                            '<circle cx="4" cy="14" r="1.5" stroke="' + defaultBorderColorForNoDataValues + '" stroke-width="2" fill="' + defaultColorForNoDataValues + '" />' +
-                            '<circle cx="14" cy="14" r="1.5" stroke="' + defaultBorderColorForNoDataValues + '" stroke-width="2" fill="' + defaultColorForNoDataValues + '" />' +
+                            '<circle style="stroke-opacity: ' + defaultFillOpacityForNoDataValues + ';" cx="4" cy="4" r="1.5" stroke="' + defaultBorderColorForNoDataValues + '" stroke-width="2" fill="' + defaultColorForNoDataValues + '" />' +
+                            '<circle style="stroke-opacity: ' + defaultFillOpacityForNoDataValues + ';" cx="14" cy="4" r="1.5" stroke="' + defaultBorderColorForNoDataValues + '" stroke-width="2" fill="' + defaultColorForNoDataValues + '" />' +
+                            '<circle style="stroke-opacity: ' + defaultFillOpacityForNoDataValues + ';" cx="4" cy="14" r="1.5" stroke="' + defaultBorderColorForNoDataValues + '" stroke-width="2" fill="' + defaultColorForNoDataValues + '" />' +
+                            '<circle style="stroke-opacity: ' + defaultFillOpacityForNoDataValues + ';" cx="14" cy="14" r="1.5" stroke="' + defaultBorderColorForNoDataValues + '" stroke-width="2" fill="' + defaultColorForNoDataValues + '" />' +
                             'Sorry, your browser does not support inline SVG.</svg>';
 
                       $scope.noDataStyle = {
@@ -240,6 +240,9 @@ angular.module('kommonitorMap').component(
                       $scope.outlierMinValue = undefined;
                       $scope.outlierMaxValue = undefined;
                       $scope.showOutlierInfoAlert = false;
+
+                      $scope.svgString_outlierLow = '<svg height="18" width="18"><line x1="10" y1="0" x2="110" y2="100" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:2; stroke-opacity: ' + defaultFillOpacityForOutliers_low + ';" /><line x1="0" y1="0" x2="100" y2="100" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:2; stroke-opacity: ' + defaultFillOpacityForOutliers_low + ';" /><line x1="0" y1="10" x2="100" y2="110" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:2; stroke-opacity: ' + defaultFillOpacityForOutliers_low + ';" />Sorry, your browser does not support inline SVG.</svg>';
+                      $scope.svgString_outlierHigh = '<svg height="18" width="18"><line x1="8" y1="18" x2="18" y2="8" style="stroke:' + defaultColorForOutliers_high + ';stroke-width:2; stroke-opacity: ' + defaultFillOpacityForOutliers_high + ';" /><line x1="0" y1="18" x2="18" y2="0" style="stroke:' + defaultColorForOutliers_high + ';stroke-width:2; stroke-opacity: ' + defaultFillOpacityForOutliers_high + ';" /><line x1="0" y1="10" x2="10" y2="0" style="stroke:' + defaultColorForOutliers_high + ';stroke-width:2; stroke-opacity: ' + defaultFillOpacityForOutliers_high + ';" />Sorry, your browser does not support inline SVG.</svg>';
 
 
                       var fillOpacity_high = 1;
@@ -2405,6 +2408,11 @@ angular.module('kommonitorMap').component(
                                 // set transparency here
                                 document.getElementById("indicatorTransparencyLabel").innerHTML = (1 - opacity).toFixed(numberOfDecimals);
                                 defaultFillOpacity = opacity;
+                                defaultFillOpacityForOutliers_low = opacity;
+                                defaultFillOpacityForOutliers_high = opacity;
+                                defaultFillOpacityForZeroFeatures = opacity;
+                                defaultFillOpacityForNoDataValues = opacity;
+                                defaultFillOpacityForFilteredFeatures = opacity;
                                 $rootScope.$broadcast("restyleCurrentLayer", true);
                               });
 
