@@ -502,8 +502,7 @@ angular.module('kommonitorMap').component(
                           zoom: $scope.zoomLevel,
                           zoomDelta: 0.5,
                           zoomSnap: 0.5,
-                          layers: [osm_blackWhite],
-                          renderer: L.canvas()
+                          layers: [osm_blackWhite]
                       });
 
                       $scope.baseMaps = {
