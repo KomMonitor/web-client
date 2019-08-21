@@ -21,7 +21,6 @@ angular
 								$scope.poiNameFilter = undefined;
 								$scope.loiNameFilter = undefined;
 								$scope.aoiNameFilter = undefined;
-								$scope.wmsNameFilter = undefined;
 
 
 								// initialize any adminLTE box widgets
@@ -176,30 +175,6 @@ angular
 											$rootScope.$broadcast("hideLoadingIconOnMap");
 									});
 
-								};
-
-								$scope.handleWmsOnMap = function(dataset){
-									kommonitorDataExchangeService.wmsLegendImage = undefined;
-									console.log("Show WMS: " + dataset.title);
-
-									if(dataset.isSelected){
-										//display on Map
-										var opacity = 1 - dataset.transparency;
-										kommonitorMapService.addWmsLayerToMap(dataset, opacity);
-
-									}
-									else{
-										//remove WMS layer from map
-										kommonitorMapService.removeWmsLayerFromMap(dataset);
-
-									}
-								};
-
-								$scope.adjustWMSLayerTransparency = function(dataset){
-
-									var opacity = 1 - dataset.transparency;
-
-									kommonitorMapService.adjustOpacityForWmsLayer(dataset, opacity);
 								};
 
 							} ]

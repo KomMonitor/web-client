@@ -1,5 +1,5 @@
 angular.module('wmsModal').component('wmsModal', {
-	templateUrl : "components/kommonitorUserInterface/kommonitorControls/poi/wmsModal/wms-modal.template.html",
+	templateUrl : "components/kommonitorUserInterface/kommonitorControls/kommonitorDataImport/wmsModal/wms-modal.template.html",
 	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', function WmsModalController(kommonitorDataExchangeService, $scope, $rootScope) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;

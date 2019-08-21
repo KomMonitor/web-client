@@ -825,6 +825,22 @@ transition: opacity 0.3s;
 	opacity: 0;
 }
 
+#sidebarDataImport {
+	/* min-width: 35%; */
+	max-width: 35%;
+	width:100%;
+		/* min-height: 100vh; */
+		height: 94vh;
+		background: rgb(236,240,245);
+transition: opacity 0.3s;
+		overflow: auto;
+}
+
+#sidebarDataImport.disappear {
+	width: 0;
+	opacity: 0;
+}
+
 #sidebarRegressionDiagram {
 	/* min-width: 42%; */
 	max-width: 42%;
@@ -927,6 +943,17 @@ transition: opacity 0.3s;
 }
 
 #poi{
+	margin-left: 1%;
+	margin-right: 1%;
+	font-size: 12px;
+	/* margin-top: 1%; */
+	z-index: 7000;
+	height: 99%;
+	max-height: 99%;
+	overflow: auto;
+}
+
+#dataImport{
 	margin-left: 1%;
 	margin-right: 1%;
 	font-size: 12px;

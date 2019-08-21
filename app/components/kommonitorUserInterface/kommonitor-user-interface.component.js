@@ -17,6 +17,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 		$scope.sidebarBalanceClass = "disappear";
 		$scope.sidebarReachabilityClass = "disappear";
 		$scope.sidebarPoiClass = "disappear";
+		$scope.sidebarDataImportClass = "disappear";
 
 		$scope.buttonIndicatorConfigClass = "btn btn-custom btn-circle";
 		$scope.buttonDiagramsClass = "btn btn-custom btn-circle";
@@ -27,6 +28,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 		$scope.buttonBalanceClass = "btn btn-custom btn-circle";
 		$scope.buttonReachabilityClass = "btn btn-custom btn-circle";
 		$scope.buttonPoiClass = "btn btn-custom btn-circle";
+		$scope.buttonDataImportClass = "btn btn-custom btn-circle";
 
 		function sleep(ms) {
 			return new Promise(resolve => setTimeout(resolve, ms));
@@ -42,6 +44,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			$scope.buttonBalanceClass = "btn btn-custom btn-circle";
 			$scope.buttonReachabilityClass = "btn btn-custom btn-circle";
 			$scope.buttonPoiClass = "btn btn-custom btn-circle";
+			$scope.buttonDataImportClass = "btn btn-custom btn-circle";
 
 			// in addition check if balance menue and button are allowed for current indicator
 			// it is not allowed if indicator is of type "DYNAMIC"
@@ -58,6 +61,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			$scope.sidebarBalanceClass = "disappear";
 			$scope.sidebarReachabilityClass = "disappear";
 			$scope.sidebarPoiClass = "disappear";
+			$scope.sidebarDataImportClass = "disappear";
 		};
 
 		$scope.checkBalanceButtonAndMenueState = function(){
@@ -114,6 +118,30 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			}
 			else{
 				$scope.sidebarPoiClass = "disappear";
+				$rootScope.$broadcast("recenterMapOnHideSideBar");
+				kommonitorDataExchangeService.anySideBarIsShown = false;
+			}
+
+			$rootScope.$broadcast("refreshIndicatorValueRangeSlider");
+			$rootScope.$broadcast("redrawGuidedTourElement");
+
+		}
+
+		$scope.onSidebarDataImportButtonClick = function(){
+			$scope.undockButtons();
+
+			if($scope.sidebarDataImportClass === "disappear"){
+				$scope.hideSidebars();
+				$scope.sidebarDataImportClass = "";
+				$scope.buttonDataImportClass = "btn btn-custom-docked btn-docked";
+
+				if(kommonitorDataExchangeService.anySideBarIsShown === false){
+					$rootScope.$broadcast("recenterMapOnShowSideBar");
+				}
+				kommonitorDataExchangeService.anySideBarIsShown = true;
+			}
+			else{
+				$scope.sidebarDataImportClass = "disappear";
 				$rootScope.$broadcast("recenterMapOnHideSideBar");
 				kommonitorDataExchangeService.anySideBarIsShown = false;
 			}
