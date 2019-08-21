@@ -160,4 +160,43 @@
     }
   ];
 
+  window.__env.wfsDatasets = [
+    {
+      title: "Bodennutzung - Bebauungsplanumringe",
+      description: "Umringe der Bebauungspläne",
+      url: "https://geodaten.metropoleruhr.de:443/inspire/bodennutzung/metropoleruhr",
+      featureTypeNamespace: "ms",
+      featureTypeName: "bplan",
+      featureTypeGeometryName: "geom",
+      displayColor: "blue"
+    },
+    {
+      title: "Mapserver Test",
+      description: "Umringe der Bebauungspläne",
+      url: "https://demo.mapserver.org/cgi-bin/wfs",
+      featureTypeNamespace: "ms",
+      featureTypeName: "bplan",
+      featureTypeGeometryName: "msGeometry",
+      displayColor: "blue"
+    },
+    {
+      title: "Geoserver Test",
+      description: "Umringe der Bebauungspläne",
+      url: "http://demo.opengeo.org/geoserver/ows",
+      featureTypeNamespace: "topp",
+      featureTypeName: "tasmania_state_boundaries",
+      featureTypeGeometryName: "geom",
+      displayColor: "blue"
+    },
+    {
+      title: "Verwaltungsgrenzen",
+      description: "Umringe der Bebauungspläne",
+      url: "https://www.wfs.nrw.de/geobasis/wfs_nw_dvg",
+      featureTypeNamespace: "dvg",
+      featureTypeName: "nw_dvg1_gem",
+      featureTypeGeometryName: "msGeometry",
+      displayColor: "blue"
+    }
+  ];
+
 }(this));

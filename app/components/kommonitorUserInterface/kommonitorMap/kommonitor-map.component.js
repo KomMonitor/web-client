@@ -371,7 +371,8 @@ angular.module('kommonitorMap').component(
                     const poiLayerGroupName = "Points of Interest";
                     const indicatorLayerGroupName = "Indikatoren";
                     const reachabilityLayerGroupName = "Erreichbarkeiten";
-                    const wmsLayerGroupName = "Web Map Service (WMS)";
+                    const wmsLayerGroupName = "Web Map Services (WMS)";
+                    const wfsLayerGroupName = "Web Feature Services (WFS)";
 
                     // create classyBrew object
                     $scope.defaultBrew = new classyBrew();
@@ -526,6 +527,9 @@ angular.module('kommonitorMap').component(
 
                       },
                       wmsLayerGroupName: {
+
+                      },
+                      wfsLayerGroupName: {
 
                       },
                       reachabilityLayerGroupName: {
@@ -2447,6 +2451,92 @@ angular.module('kommonitorMap').component(
 
                                 $scope.layerControl._layers.forEach(function(layer){
                                   if(layer.group.name === wmsLayerGroupName && layer.name.includes(layerName)){
+                                    $scope.layerControl.removeLayer(layer.layer);
+                                    $scope.map.removeLayer(layer.layer);
+                                  }
+                                });
+                              });
+
+                              $scope.$on("addWfsLayerToMap", function (event, dataset, opacity) {
+                                var wfsLayer = new L.WFS({
+                                  url: dataset.url,
+                                  typeNS: dataset.featureTypeNamespace,
+                                  typeName: dataset.featureTypeName,
+                                  crs: L.CRS.EPSG4326,
+                                  geometryField: dataset.featureTypeGeometryName,
+                                  style: {
+                                    color: dataset.displayColor,
+                                    weight: 2
+                                  }
+                                });
+
+                                // var wfsLayer = new L.WFST({
+                                //   url: dataset.url,
+                                //   typeNS: dataset.featureTypeNamespace,
+                                //   typeName: dataset.featureTypeName,
+                                //   crs: L.CRS.EPSG4326,
+                                //   geometryField: dataset.featureTypeGeometryName,
+                                //   style: {
+                                //     color: dataset.displayColor,
+                                //     weight: 2
+                                //   }
+                                // }, new L.Format.GeoJSON({crs: L.CRS.EPSG4326}))
+                                //   .addTo($scope.map)
+                                //   .once('load', function () {
+                                //     $scope.map.fitBounds(wfsLayer);
+                                //   });
+
+                                // var boundaries = new L.WFS({
+                                //     url: 'http://demo.opengeo.org/geoserver/ows',
+                                //     typeNS: 'topp',
+                                //     typeName: 'tasmania_state_boundaries',
+                                //     crs: L.CRS.EPSG4326,
+                                //     style: {
+                                //         color: 'blue',
+                                //         weight: 2
+                                //     }
+                                // }).addTo($scope.map)
+                                //   .on('load', function () {
+                                //       $scope.map.fitBounds(boundaries);
+                                //   })
+                                //
+                                // var boundaries = new L.WFS({
+                                //    url: 'http://geoserver.ics.perm.ru/geoserver/ows',
+                                //    typeNS: 'topp',
+                                //    typeName: 'tasmania_state_boundaries',
+                                //    crs: L.CRS.EPSG4326,
+                                //    geometryField: 'the_geom',
+                                //    style: {
+                                //      color: 'blue',
+                                //      weight: 2
+                                //    }
+                                //  }, new L.Format.GeoJSON({crs: L.CRS.EPSG4326}))
+                                //    .addTo($scope.map)
+                                //    .once('load', function () {
+                                //      $scope.map.fitBounds(boundaries);
+                                //    });
+
+                                $scope.layerControl.addOverlay( wfsLayer, dataset.title, wfsLayerGroupName );
+                                wfsLayer.addTo($scope.map);
+                                $scope.updateSearchControl();
+                              });
+
+                              $scope.$on("adjustOpacityForWfsLayer", function (event, dataset, opacity) {
+                                var layerName = dataset.title;
+
+                                $scope.layerControl._layers.forEach(function(layer){
+                                  if(layer.group.name === wfsLayerGroupName && layer.name.includes(layerName)){
+                                    layer.layer.setOpacity(opacity);
+                                  }
+                                });
+                              });
+
+                              $scope.$on("removeWfsLayerFromMap", function (event, dataset) {
+
+                                var layerName = dataset.title;
+
+                                $scope.layerControl._layers.forEach(function(layer){
+                                  if(layer.group.name === wfsLayerGroupName && layer.name.includes(layerName)){
                                     $scope.layerControl.removeLayer(layer.layer);
                                     $scope.map.removeLayer(layer.layer);
                                   }

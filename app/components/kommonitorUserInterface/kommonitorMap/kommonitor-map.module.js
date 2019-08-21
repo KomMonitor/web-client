@@ -113,6 +113,20 @@ angular.module('kommonitorMap').service(
             dataset);
       };
 
+      this.addWfsLayerToMap = function (dataset, opacity) {
+        $rootScope.$broadcast("addWfsLayerToMap",
+            dataset);
+      };
+
+      this.adjustOpacityForWfsLayer = function (dataset, opacity) {
+        $rootScope.$broadcast("adjustOpacityForWfsLayer",
+            dataset, opacity);
+      };
+
+      this.removeWfsLayerFromMap = function (dataset) {
+        $rootScope.$broadcast("removeWfsLayerFromMap",
+            dataset);
+      };
 
 
 

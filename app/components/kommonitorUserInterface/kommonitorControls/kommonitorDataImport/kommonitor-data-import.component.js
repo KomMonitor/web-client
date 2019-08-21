@@ -51,5 +51,28 @@ angular
 									kommonitorMapService.adjustOpacityForWmsLayer(dataset, opacity);
 								};
 
+								$scope.handleWfsOnMap = function(dataset){
+									console.log("Show WFS: " + dataset.title);
+
+									if(dataset.isSelected){
+										//display on Map
+										var opacity = 1 - dataset.transparency;
+										kommonitorMapService.addWfsLayerToMap(dataset, opacity);
+
+									}
+									else{
+										//remove WMS layer from map
+										kommonitorMapService.removeWfsLayerFromMap(dataset);
+
+									}
+								};
+
+								$scope.adjustWFSLayerTransparency = function(dataset){
+
+									var opacity = 1 - dataset.transparency;
+
+									kommonitorMapService.adjustOpacityForWfsLayer(dataset, opacity);
+								};
+
 							} ]
 				});

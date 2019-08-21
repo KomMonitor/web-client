@@ -63,6 +63,7 @@ module.exports = {
           { from: nodeModulePathConstant + 'leaflet-measure/dist/leaflet-measure.css', to: 'leaflet-measure' },
           { from: nodeModulePathConstant + 'leaflet-measure/dist/assets', to: 'leaflet-measure/assets' },
           { from: nodeModulePathConstant + 'leaflet-easyprint/dist/bundle.js', to: 'leaflet-easyprint/leaflet-easyprint.js' },
+          { from: nodeModulePathConstant + 'leaflet-wfst/dist/leaflet-wfst.min.js', to: 'leaflet-wfst/' }
       ])
     ]
 };

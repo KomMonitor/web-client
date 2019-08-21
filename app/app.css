@@ -617,6 +617,13 @@
     color: #777;
 }
 
+.wfsInputForm td i {
+	margin-left: 12px;
+	width: 18px;
+	float: left;
+	height: 18px;
+}
+
 .leaflet-right .legendMap{
     margin-bottom: 90px;
 }
@@ -677,6 +684,17 @@
 }
 
 #wmsInputForm {
+	padding: 5px;
+	height: auto !important;
+	max-height: 500px;
+	max-width: 100%;
+	font-size: 11px;
+	border: 2px solid gray;
+  border-radius: 8px;
+  overflow: auto;
+}
+
+#wfsInputForm {
 	padding: 5px;
 	height: auto !important;
 	max-height: 500px;
