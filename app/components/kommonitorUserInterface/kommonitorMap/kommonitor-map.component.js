@@ -668,7 +668,20 @@ angular.module('kommonitorMap').component(
 
 
                     $scope.$on("exportMap", function (event) {
-                      $scope.printControl.printMap('CurrentSize', 'KomMonitor-Kartenexport');
+                      try{
+                          $scope.printControl.printMap('CurrentSize', 'KomMonitor-Kartenexport');
+
+                          setTimeout(function(){
+                            $(".leaflet-left").css("display", "");
+                          }, 1000);
+                      }
+                      catch(error){
+                        console.log("Error while exporting map view.");
+                        console.error(error);
+
+                        $(".leaflet-left").css("display", "");
+                      }
+
                     });
 
                     $scope.updateSearchControl = function(){
