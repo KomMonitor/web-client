@@ -602,7 +602,6 @@
 		height: auto !important;
 		max-height: 400px;
 	  overflow: auto;
-		display: flex;
 }
 .legend i {
     width: 18px;
