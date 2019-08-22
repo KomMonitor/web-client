@@ -2464,6 +2464,7 @@ angular.module('kommonitorMap').component(
                                   typeName: dataset.featureTypeName,
                                   crs: L.CRS.EPSG4326,
                                   geometryField: dataset.featureTypeGeometryName,
+                                  maxFeatures: 100,
                                   style: {
                                     color: dataset.displayColor,
                                     weight: 2
