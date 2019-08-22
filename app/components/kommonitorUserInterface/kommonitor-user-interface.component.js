@@ -374,7 +374,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				element: "#infoControl",
 				title: "Indikatoren-Informationsfenster",
 				placement: "left",
-				content: "Dieses Element enth&auml;lt die wichtigsten <b>Metadaten</b> &uuml;ber den aktuell dargestellten Indikator. Dar&uuml;ber hinaus kann hier die <b>Raumbezugsebene gewechselt</b> werden (in Abh&auml;ngigkeit der verf&uuml;gbaren Raumebenen des gew&auml;hlten Indikators). <br/><br/>Die <b>Checkbox</b> unten steuert, ob der <b>Indikator-Layer halbtransparent</b> &uuml;ber der Hintergrundkarte dargestellt werden soll.",
+				content: "Dieses Element enth&auml;lt die wichtigsten <b>Metadaten</b> &uuml;ber den aktuell dargestellten Indikator. Dar&uuml;ber hinaus kann hier die <b>Raumbezugsebene gewechselt</b> werden (in Abh&auml;ngigkeit der verf&uuml;gbaren Raumebenen des gew&auml;hlten Indikators). <br/><br/>Mittels eines <b>Schiebereglers</b> wird zudem die <b>Transparenz des Indikator-Layers</b> bestimmt. Verschiedene <b>Export-Buttons</b> erm&ouml;glichen den Export des Metadatenblatts sowie der Geometrien inklusive Sachdaten in verschiedenen Formaten",
 				onNext: function(tour){
 					// make sure that legend control is displayed
 
@@ -422,7 +422,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				element: "#mapUtilButtons",
 				title: "Steuerung der Kartendarstellung",
 				placement: "bottom",
-				content: "Diese Buttons bieten Steuerungsm&ouml;glichkeiten f&uuml;r die Kartendarstellung. &Uuml;ber <b>Plus</b> und <b>Minus</b> kann alternativ zur Verwendung des Mausrades hinein- bzw. hinausgezoomt werden. <br/><br/>Der <b>Weltkugel-Button</b> zentriert die Karte und zoomt auf die maximale Ausdehnung des dargestellten Themas. <br/><br/>Der mittlere Button <b>hebt jegliche benutzerdefinierte Selektionen</b> auf. <br/><br/>Der rechte <b>Layer-Button</b> bietet die M&ouml;glichkeit, einzelne Layer <b>tempor&auml;r auszublenden oder die Hintergrundkarte zu wechseln</b>."
+				content: "Diese Buttons bieten Steuerungsm&ouml;glichkeiten f&uuml;r die Kartendarstellung. &Uuml;ber <b>Plus</b> und <b>Minus</b> kann alternativ zur Verwendung des Mausrades hinein- bzw. hinausgezoomt werden. <br/><br/>Der <b>Weltkugel-Button</b> zentriert die Karte und zoomt auf die maximale Ausdehnung des dargestellten Themas. <br/><br/>Der daneben positionierte Button <b>hebt jegliche benutzerdefinierte Selektionen</b> auf. <br/><br/>Der Download-Button erlaubt den Export des aktuellen <b>Kartenausschnitts ald Bildatei</b>. <br/><br/>Der rechte <b>Layer-Button</b> bietet die M&ouml;glichkeit, einzelne Layer <b>tempor&auml;r auszublenden oder die Hintergrundkarte zu wechseln</b>.<br/><br/>Der Filterbutton erm&ouml;glicht das <b>Filtern innerhalb dargestellter Vektorlayer anhand des Namens oder der ID der Raumelemente</b>. <br/><br/>Der darunter positionierte Suchbutton repr&auml;sentiert eine <b>Geolokalisierung von Adressen und Orten</b>. <br/><br/>Dar&uuml;ber hinaus bietet der unterste Button eine <b>Messfunktion von Linienz&uuml;gen und Polygonen</b>."
 			},
 			{
 				element: "#sideBarButtons",
@@ -445,7 +445,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				element: "#indicatorSetup",
 				title: "Indikatorenkatalog und Verkn&uuml;pfungen zu anderen Indikatoren oder Geodaten",
 				placement: "right",
-				content: "Dieses Men&uuml; enth&auml;lt eine <b>&Uuml;bersicht aller verf&uuml;gbarer Indikatoren</b> sowie die Optionen, den aktuell betrachteten <b>Indikator zu wechseln</b> oder den Indikator in der gew&auml;hlten Raumebene zu <b>exportieren</b> (derzeitg nur eingeschr&auml;nkte Exportoptionen). <br/><br/>Im obigen <b>Themenfilter</b> kann die &Uuml;bersicht der Indikatoren nach verschiedenen Themenkomplexen gefiltert werden. <br/><br/>Sollte ein Indikator etwaige <b>Verkn&uuml;pfungen</b> zu anderen Indikatoren oder sonstigen Geodaten beinhalten, so werden diese in tabellarischer Form kenntlich gemacht.",
+				content: "Dieses Men&uuml; enth&auml;lt eine <b>&Uuml;bersicht aller verf&uuml;gbarer Indikatoren</b> sowie die Optionen, den aktuell betrachteten <b>Indikator zu wechseln</b>. <br/><br/>Im obigen <b>Themenfilter</b> kann die &Uuml;bersicht der Indikatoren nach verschiedenen Themenkomplexen gefiltert werden. <br/><br/>Sollte ein Indikator etwaige <b>Verkn&uuml;pfungen</b> zu anderen Indikatoren oder sonstigen Geodaten beinhalten, so werden diese in tabellarischer Form kenntlich gemacht.",
 				onNext: function(tour){
 					if($scope.sidebarIndicatorConfigClass !== "disappear"){
 							$("#sidebarIndicatorConfigCollapse").click();
@@ -459,9 +459,9 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			},
 			{
 				element: "#sidebarPoiCollapse",
-				title: "Points of Interest",
+				title: "Geometries of Interest",
 				placement: "right",
-				content: "Ein Klick auf diesen Button &ouml;ffnet das Points of Interest Fenster. <br/><br/><i>Im n&auml;chsten Schritt wird das Men&uuml; automatisch ge&ouml;ffnet.</i>",
+				content: "Ein Klick auf diesen Button &ouml;ffnet das Geometries of Interest Fenster. <br/><br/><i>Im n&auml;chsten Schritt wird das Men&uuml; automatisch ge&ouml;ffnet.</i>",
 				onNext: function(tour){
 					if($scope.sidebarPoiClass === "disappear"){
 							$("#sidebarPoiCollapse").click();
@@ -470,9 +470,9 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			},
 			{
 				element: "#poi",
-				title: "Points of Interest",
+				title: "Geometries of Interest",
 				placement: "right",
-				content: "Zur &Uuml;berlagerung von fl&auml;chenhaften Indikator-Geometrien mit weiteren relevanten Geodaten k&ouml;nnen hier sogenannte <b>Points of Interest (POI)-Layer</b> zur Karte hinzugef&uuml;gt werden. Hinzuf&uuml;gen und Entfernen der POI-Layer geschieht dabei durch (De-) Selektion der jeweiligen <i>Checkbox</i>. <br/><br/>In der Standardkonfiguration werden die einzelnen Punktgeometrien r&auml;umlich zu sogenannten <b>Cluster-Punkten</b> zusammengefasst, um die Darstellung je nach Zoom-Stufe zu optimieren. &Uuml;ber eine entsprechende <i>Auswahloption</i> k&ouml;nnen jedoch bei jeder Zoomstufe wahlweise auch <b>alle Einzelpunkte dargestellt</b> werden.",
+				content: "Zur &Uuml;berlagerung von fl&auml;chenhaften Indikator-Geometrien mit weiteren relevanten Geodaten k&ouml;nnen hier sogenannte <b>Points of Interest (POI)-Layer</b> zur Karte hinzugef&uuml;gt werden. Hinzuf&uuml;gen und Entfernen der POI-Layer geschieht dabei durch (De-) Selektion der jeweiligen <i>Checkbox</i>. <br/><br/>In der Standardkonfiguration werden die einzelnen Punktgeometrien r&auml;umlich zu sogenannten <b>Cluster-Punkten</b> zusammengefasst, um die Darstellung je nach Zoom-Stufe zu optimieren. &Uuml;ber eine entsprechende <i>Auswahloption</i> k&ouml;nnen jedoch bei jeder Zoomstufe wahlweise auch <b>alle Einzelpunkte dargestellt</b> werden.<br/><br/>Zuk&uuml;nftig sollen hier auch <b>Lines of Interest</b> und <b>Areas of Interest</b> angeboten werden.",
 				onNext: function(tour){
 					if($scope.sidebarPoiClass !== "disappear"){
 							$("#sidebarPoiCollapse").click();
@@ -481,6 +481,33 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				onPrev: function(tour){
 					if($scope.sidebarPoiClass !== "disappear"){
 							$("#sidebarPoiCollapse").click();
+					}
+				}
+			},
+			{
+				element: "#sidebarDataImportCollapse",
+				title: "Datenimport aus externen Quellen",
+				placement: "right",
+				content: "Ein Klick auf diesen Button &ouml;ffnet das Datenimport Fenster. <br/><br/><i>Im n&auml;chsten Schritt wird das Men&uuml; automatisch ge&ouml;ffnet.</i>",
+				onNext: function(tour){
+					if($scope.sidebarDataImportClass === "disappear"){
+							$("#sidebarDataImportCollapse").click();
+					}
+				}
+			},
+			{
+				element: "#dataImport",
+				title: "Datenimport aus externen Quellen",
+				placement: "right",
+				content: "Dieses Fenster bietet Optionen zum <b>Datenimport aus externen Datenquellen</b>, insbesondere mittels <i>Web Map Services</i> und <i>Datei-basierten Quellen wie GeoJSON oder ESRI Shape</i>. <br/><br/>Jeder <b>WMS-Datensatz</b> wird tabellarisch inklusive Titel, Beschreibung, Transparenzschieberegler, URL und Legende dargestellt. Durch Anhaken/Deselektion der Checkbox kann ein Datensatz hinzugef&uuml;gt/entfernt werden. Neben den bereits vorkonfigurierten Datens&auml;tzen lassen sich <i>weitere Quellen &uuml;ber den unten stehenden Button erg&auml;nzen</i>.<br/><br/>Die M&ouml;glichkeit <b>Layer aus einer lokalen Datei einzuladen</b> wird in K&uuml;rze verf&uuml;gbar sein.",
+				onNext: function(tour){
+					if($scope.sidebarDataImportClass !== "disappear"){
+							$("#sidebarDataImportCollapse").click();
+					}
+				},
+				onPrev: function(tour){
+					if($scope.sidebarDataImportClass !== "disappear"){
+							$("#sidebarDataImportCollapse").click();
 					}
 				}
 			},
