@@ -2545,6 +2545,15 @@ angular.module('kommonitorMap').component(
                                        console.log("Tried fit bounds on wfsLayer");
                                        // $scope.loadingData = false;
                                      });
+
+                                  wfsLayer.on('click', function (event) {
+                                    var propertiesString = "<pre>"+JSON.stringify(event.layer.feature.properties,null,' ').replace(/[\{\}"]/g,'')+"</pre>";
+                                    var popup = L.popup();
+                                     popup
+                                       .setLatLng(event.latlng)
+                                       .setContent(propertiesString)
+                                       .openOn($scope.map);
+                                   });
                                   $scope.layerControl.addOverlay( wfsLayer, dataset.title, wfsLayerGroupName );
                                   wfsLayer.addTo($scope.map);
                                   $scope.updateSearchControl();
