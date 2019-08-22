@@ -2475,12 +2475,16 @@ angular.module('kommonitorMap').component(
                                   url: dataset.url,
                                   typeNS: dataset.featureTypeNamespace,
                                   typeName: dataset.featureTypeName,
-                                  crs: L.CRS.EPSG4326,
                                   geometryField: dataset.featureTypeGeometryName,
-                                  maxFeatures: 100,
+                                  filter: new L.Filter.BBox(dataset.featureTypeGeometryName, $scope.map.getBounds(), L.CRS.EPSG3857),
+                                  maxFeatures: null,
                                   style: {
-                                    color: dataset.displayColor,
-                                    weight: 2
+                                    weight: 1,
+                                    opacity: 1,
+                                    color: defaultBorderColor,
+                                    dashArray: '',
+                                    fillOpacity: 1,
+                                    fillColor: dataset.displayColor
                                   }
                                 });
 
@@ -2530,9 +2534,26 @@ angular.module('kommonitorMap').component(
                                 //      $scope.map.fitBounds(boundaries);
                                 //    });
 
-                                $scope.layerControl.addOverlay( wfsLayer, dataset.title, wfsLayerGroupName );
-                                wfsLayer.addTo($scope.map);
-                                $scope.updateSearchControl();
+                                // $scope.loadingData = true;
+
+                                try{
+                                  wfsLayer.once('load', function () {
+
+                                       console.log("Try to fit bounds on wfsLayer");
+                                       $scope.map.fitBounds(wfsLayer.getBounds());
+
+                                       console.log("Tried fit bounds on wfsLayer");
+                                       // $scope.loadingData = false;
+                                     });
+                                  $scope.layerControl.addOverlay( wfsLayer, dataset.title, wfsLayerGroupName );
+                                  wfsLayer.addTo($scope.map);
+                                  $scope.updateSearchControl();
+
+                                }
+                                catch(error){
+                                  // $scope.loadingData = false;
+                                }
+
                               });
 
                               $scope.$on("adjustOpacityForWfsLayer", function (event, dataset, opacity) {
