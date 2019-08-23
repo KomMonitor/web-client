@@ -14,6 +14,7 @@ angular.module('wfsModal').component('wfsModal', {
 		$scope.customWfsFeatureTypeNamespace = undefined;
 		$scope.customWfsFeatureTypeGeometryAttributeName = undefined;
 		$scope.customWfsLegendColor = `#00AABB`;
+		$scope.useBBOXFilter = true;
 
 
 		$scope.resetCustomTempWFSForm = function(){
@@ -24,6 +25,7 @@ angular.module('wfsModal').component('wfsModal', {
 			$scope.customWfsFeatureTypeNamespace = undefined;
 			$scope.customWfsFeatureTypeGeometryAttributeName = undefined;
 			$scope.customWfsLegendColor = `#00AABB`;
+			$scope.useBBOXFilter = true;
 		};
 
 		$scope.addCustomTempWFS = function(){
@@ -34,7 +36,8 @@ angular.module('wfsModal').component('wfsModal', {
 				featureTypeNamespace: $scope.customWfsFeatureTypeNamespace,
 	      featureTypeName: $scope.customWfsFeatureTypeName,
 	      featureTypeGeometryName: $scope.customWfsFeatureTypeGeometryAttributeName,
-	      displayColor: $scope.customWfsLegendColor
+	      displayColor: $scope.customWfsLegendColor,
+				filterFeaturesToMapBBOX: $scope.useBBOXFilter
 
 			};
 

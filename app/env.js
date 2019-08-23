@@ -169,7 +169,8 @@
       featureTypeNamespace: "ms",
       featureTypeName: "bplan",
       featureTypeGeometryName: "geom",
-      displayColor: "blue"
+      displayColor: "blue",
+      filterFeaturesToMapBBOX: false
     },
     {
       title: "Verwaltungsgrenzen Kreise und kreisfreie Städte",
@@ -178,7 +179,8 @@
       featureTypeNamespace: "dvg",
       featureTypeName: "nw_dvg1_gem",
       featureTypeGeometryName: "msGeometry",
-      displayColor: "blue"
+      displayColor: "blue",
+      filterFeaturesToMapBBOX: true
     },
     {
       title: "Freizeitkataster - POI_p",
@@ -187,7 +189,8 @@
       featureTypeNamespace: "fzk",
       featureTypeName: "POI_p",
       featureTypeGeometryName: "msGeometry",
-      displayColor: null
+      displayColor: null,
+      filterFeaturesToMapBBOX: true
     }
   ];
 

@@ -72,6 +72,15 @@
                 </div>
           </div>
 
+					<div class="form-group">
+						<label >Features des WFS auf aktuellen Kartenausschnitt beschränken (WFS muss BBOX-Filter unterst&uuml;tzen)*</label>
+						<label class="switch">
+							<input id="filterCheckbox" type="checkbox" ng-model="useBBOXFilter" ng-checked="useBBOXFilter"></input>
+						  <span class="switchslider round"></span>
+						</label>
+						<div class="help-block with-errors"></div>
+					</div>
+
 					<p>Ein hinzugeladener WFS wird in die Tabelle der verf&uuml;gbaren WFS-Datens&auml;tze angezeigt. Gegenw&auml;rtig findet keine Verifikation des WFS statt. Sie m&uuml;ssen daher selbst die Eingaben sowie die Erreichbarkeit des Dienstes und des spezifizierten FeatuerTypes auf Korrektheit &uuml;berprüfen</p>
 
 				</form>
