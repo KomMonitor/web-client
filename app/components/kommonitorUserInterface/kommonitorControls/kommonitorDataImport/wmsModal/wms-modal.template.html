@@ -12,24 +12,24 @@
 
 				<form role="form" class="form-group" data-toggle="validator" >
 					<div class="form-group">
-						<label >WMS Titel</label>
-						<input type="text" class="form-control" ng-model="customWmsTitle" placeholder="WMS Titel" required>
+						<label >WMS Titel*</label>
+						<input type="text" class="form-control input-sm" ng-model="customWmsTitle" placeholder="WMS Titel" required>
 						<div class="help-block with-errors"></div>
 					</div>
 					<div class="form-group">
-						<label >WMS Beschreibung</label>
-						<input type="text" class="form-control" ng-model="customWmsDescription" placeholder="WMS Beschreibung (bei Bedarf mit HTML-Tags zur Auszeichnung)" required>
+						<label >WMS Beschreibung*</label>
+						<input type="text" class="form-control input-sm" ng-model="customWmsDescription" placeholder="WMS Beschreibung (bei Bedarf mit HTML-Tags zur Auszeichnung)" required>
 						<div class="help-block with-errors"></div>
 					</div>
 					<div class="form-group">
-						<label >WMS URL</label>
-						<input type="url" class="form-control" ng-model="customWmsUrl" placeholder="WMS URL" required pattern="https?://.+\\?">
+						<label >WMS URL*</label>
+						<input type="url" class="form-control input-sm" ng-model="customWmsUrl" placeholder="WMS URL" required pattern="https?://.+\\?">
 						<p class="help-block">Angabe der URL mit abschließendem "?". Beispiel: "https://image.discomap.eea.europa.eu/arcgis/services/GioLandPublic/HRL_ImperviousnessDensity_2015/MapServer/WMSServer?".</p>
 						<div class="help-block with-errors"></div>
 					</div>
 					<div class="form-group">
-						<label >WMS LAYER Name</label>
-						<input type="text" class="form-control" ng-model="customWmsLayerName" placeholder="WMS LAYER Name" required>
+						<label >WMS LAYER Name*</label>
+						<input type="text" class="form-control input-sm" ng-model="customWmsLayerName" placeholder="WMS LAYER Name" required>
 						<p class="help-block">Den Layernamen finden Sie unter anderem im GetCapabilities Dokument des WMS.</p>
 						<div class="help-block with-errors"></div>
 					</div>
