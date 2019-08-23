@@ -2474,6 +2474,7 @@ angular.module('kommonitorMap').component(
                                 var wfsLayerOptions = {
                                   url: dataset.url,
                                   typeNS: dataset.featureTypeNamespace,
+                                  namespaceUri: "http://mapserver.gis.umn.edu/mapserver",
                                   typeName: dataset.featureTypeName,
                                   geometryField: dataset.featureTypeGeometryName,
                                   maxFeatures: null,

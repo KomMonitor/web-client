@@ -162,16 +162,16 @@
   ];
 
   window.__env.wfsDatasets = [
-    // {
-    //   title: "Bodennutzung - Bebauungsplanumringe",
-    //   description: "Umringe der Bebauungspläne",
-    //   url: "https://geodaten.metropoleruhr.de:443/inspire/bodennutzung/metropoleruhr?",
-    //   featureTypeNamespace: "ms",
-    //   featureTypeName: "bplan_stand",
-    //   featureTypeGeometryName: "geom",
-    //   displayColor: "blue",
-    //   filterFeaturesToMapBBOX: false
-    // },
+    {
+      title: "Bodennutzung - Bebauungsplanumringe",
+      description: "Umringe der Bebauungspläne",
+      url: "https://geodaten.metropoleruhr.de/inspire/bodennutzung/metropoleruhr?",
+      featureTypeNamespace: "ms",
+      featureTypeName: "bplan_stand",
+      featureTypeGeometryName: "geom",
+      displayColor: "blue",
+      filterFeaturesToMapBBOX: false
+    },
     {
       title: "Verwaltungsgrenzen Kreise und kreisfreie Städte",
       description: "Verwaltungsgrenzen gemäß Bezirksregierung Köln",
