@@ -164,7 +164,7 @@
   window.__env.wfsDatasets = [
     {
       title: "Bodennutzung - Bebauungsplanumringe",
-      description: "Umringe der Bebauungspläne",
+      description: "Umringe der Bebauungspl&auml;ne gem&auml;&szlig; geodaten.metropoleruhr.de. <b>WFS-Dienst unterst&uuml;tzt keine r&auumllichen Filter. Daher m&uuml;ssen zwingend alle Features abgerufen werden</b>.",
       url: "https://geodaten.metropoleruhr.de/inspire/bodennutzung/metropoleruhr?",
       featureTypeNamespace: "ms",
       featureTypeName: "bplan_stand",
@@ -173,8 +173,8 @@
       filterFeaturesToMapBBOX: false
     },
     {
-      title: "Verwaltungsgrenzen Kreise und kreisfreie Städte",
-      description: "Verwaltungsgrenzen gemäß Bezirksregierung Köln",
+      title: "Verwaltungsgrenzen Kreise und kreisfreie St&auml;dte",
+      description: "Verwaltungsgrenzen gem&auml;ß Bezirksregierung K&ouml;ln",
       url: "https://www.wfs.nrw.de/geobasis/wfs_nw_dvg?",
       featureTypeNamespace: "dvg",
       featureTypeName: "nw_dvg1_gem",
@@ -183,8 +183,8 @@
       filterFeaturesToMapBBOX: true
     },
     {
-      title: "Freizeitkataster - POI_p",
-      description: "Freizeitkataster gemäß Bezirksregierung Köln",
+      title: "Freizeitkataster",
+      description: "Freizeitkataster gem&auml;ß Bezirksregierung K&ouml;ln",
       url: "https://www.wfs.nrw.de/geobasis/wfs_nw_fzk?",
       featureTypeNamespace: "fzk",
       featureTypeName: "POI_p",
