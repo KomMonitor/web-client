@@ -167,7 +167,7 @@
       description: "Umringe der Bebauungspläne",
       url: "https://geodaten.metropoleruhr.de:443/inspire/bodennutzung/metropoleruhr?",
       featureTypeNamespace: "ms",
-      featureTypeName: "bplan",
+      featureTypeName: "bplan_stand",
       featureTypeGeometryName: "geom",
       displayColor: "blue",
       filterFeaturesToMapBBOX: false
