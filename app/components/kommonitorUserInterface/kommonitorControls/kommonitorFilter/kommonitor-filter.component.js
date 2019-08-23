@@ -124,6 +124,8 @@ angular
 											from: $scope.currentLowerFilterValue,
 											to: $scope.currentHigherFilterValue
 									});
+
+									$scope.applyRangeFilter();
 								}
 								else{
 									$scope.lowerFilterInputNotValid = true;
@@ -137,6 +139,8 @@ angular
 											from: $scope.currentLowerFilterValue,
 											to: $scope.currentHigherFilterValue
 									});
+
+									$scope.applyRangeFilter();
 								}
 								else{
 									$scope.higherFilterInputNotValid = true;
@@ -150,7 +154,10 @@ angular
 								$scope.currentLowerFilterValue = data.from;
 								$scope.currentHigherFilterValue = data.to;
 
-								$scope.$apply();
+								$scope.applyRangeFilter();
+							};
+
+							$scope.applyRangeFilter = function(){
 
 								if(!kommonitorDataExchangeService.filteredIndicatorFeatureNames){
 									kommonitorDataExchangeService.filteredIndicatorFeatureNames = [];
@@ -161,7 +168,7 @@ angular
 								$scope.geoJSON.features.forEach(function(feature){
 									var value = +Number(feature.properties[date]).toFixed(numberOfDecimals);
 
-									if(value >= data.from && value <= data.to){
+									if(value >= $scope.currentLowerFilterValue && value <= $scope.currentHigherFilterValue){
 										// feature must not be filtered - make sure it is not marked as filtered
 										if (kommonitorDataExchangeService.filteredIndicatorFeatureNames.includes(feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])){
 											var index = kommonitorDataExchangeService.filteredIndicatorFeatureNames.indexOf(feature.properties[__env.FEATURE_NAME_PROPERTY_NAME]);
@@ -178,9 +185,8 @@ angular
 								});
 
 								kommonitorMapService.restyleCurrentLayer();
-							};
-
-
+								$scope.$apply();
+							}
 
 
 							// MeasureOfValue stuff
