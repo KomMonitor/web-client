@@ -174,7 +174,7 @@
     {
       title: "Verwaltungsgrenzen Kreise und kreisfreie Städte",
       description: "Verwaltungsgrenzen gemäß Bezirksregierung Köln",
-      url: "https://www.wfs.nrw.de/geobasis/wfs_nw_dvg",
+      url: "https://www.wfs.nrw.de/geobasis/wfs_nw_dvg?",
       featureTypeNamespace: "dvg",
       featureTypeName: "nw_dvg1_gem",
       featureTypeGeometryName: "msGeometry",
@@ -183,11 +183,11 @@
     {
       title: "Freizeitkataster - POI_p",
       description: "Freizeitkataster gemäß Bezirksregierung Köln",
-      url: "https://www.wfs.nrw.de/geobasis/wfs_nw_fzk",
+      url: "https://www.wfs.nrw.de/geobasis/wfs_nw_fzk?",
       featureTypeNamespace: "fzk",
       featureTypeName: "POI_p",
       featureTypeGeometryName: "msGeometry",
-      displayColor: "blue"
+      displayColor: null
     }
   ];
 
