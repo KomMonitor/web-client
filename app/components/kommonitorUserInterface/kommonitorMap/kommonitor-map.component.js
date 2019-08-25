@@ -2436,7 +2436,7 @@ angular.module('kommonitorMap').component(
                               $scope.$on("addWmsLayerToMap", function (event, dataset, opacity) {
                                 var wmsLayer = L.tileLayer.wms(dataset.url, {
                                     layers: dataset.layerName,
-                                    transparency: 'true',
+                                    transparent: true,
                                     format: 'image/png',
                                     minZoom: __env.minZoomLevel,
                                     maxZoom: __env.maxZoomLevel,
