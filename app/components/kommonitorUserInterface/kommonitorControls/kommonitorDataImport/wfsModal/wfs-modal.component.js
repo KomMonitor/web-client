@@ -53,6 +53,14 @@ angular.module('wfsModal').component('wfsModal', {
 					$("#wfsSucessAlert").hide();
 			}, 3000);
 
+			setTimeout(function() {
+					// initialize colorpicker
+					$('.input-group.colorpicker-component').colorpicker();
+			}, 1000);
+
+			// initialize colorpicker
+			$('.colorpicker-component').colorpicker();
+
 		};
 
 	}

@@ -84,7 +84,7 @@
   window.__env.defaultColorBrewerPaletteForBalanceIncreasingValues = "Purples";
   window.__env.defaultColorBrewerPaletteForBalanceDecreasingValues = "YlOrBr";
   window.__env.defaultColorBrewerPaletteForGtMovValues = "YlOrBr";
-  window.__env.defaultColorBrewerPaletteForLtMovValues = "Blues";
+  window.__env.defaultColorBrewerPaletteForLtMovValues = "#00aabbs";
 
   // classification
   //allowesValues: equal_interval, quantile, jenks
@@ -164,12 +164,12 @@
   window.__env.wfsDatasets = [
     {
       title: "Bodennutzung - Bebauungsplanumringe",
-      description: "Umringe der Bebauungspl&auml;ne gem&auml;&szlig; geodaten.metropoleruhr.de. <b>WFS-Dienst unterst&uuml;tzt keine r&auumllichen Filter. Daher m&uuml;ssen zwingend alle Features abgerufen werden</b>.",
+      description: "Umringe der Bebauungspl&auml;ne gem&auml;&szlig; geodaten.metropoleruhr.de. <b>WFS-Dienst unterst&uuml;tzt keine r&auml;lichen Filter. Daher m&uuml;ssen zwingend alle Features abgerufen werden</b>.",
       url: "https://geodaten.metropoleruhr.de/inspire/bodennutzung/metropoleruhr?",
       featureTypeNamespace: "ms",
       featureTypeName: "bplan_stand",
       featureTypeGeometryName: "geom",
-      displayColor: "blue",
+      displayColor: "#00aabb",
       filterFeaturesToMapBBOX: false
     },
     {
@@ -179,7 +179,7 @@
       featureTypeNamespace: "dvg",
       featureTypeName: "nw_dvg1_gem",
       featureTypeGeometryName: "msGeometry",
-      displayColor: "blue",
+      displayColor: "#00aabb",
       filterFeaturesToMapBBOX: true
     },
     {

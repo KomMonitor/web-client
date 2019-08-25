@@ -160,7 +160,12 @@
 																		</td>
 																		<td>
 																			<div>
-																				<i style="background-color:{{dataset.displayColor}}; margin-left: 12px; width: 18px; height: 18px; float: left;"></i>
+																				<div class="input-group colorpicker-component">
+																				    <input type="text" style="display:none;" class="form-control input-sm" ng-model="dataset.displayColor" placeholder="WFS Darstellungsfarbe"  required />
+																				    <span style="border: 1px solid #ccc;" class="input-group-addon"><i></i></span>
+																				</div>
+																				<!-- value="{{dataset.displayColor}}" -->
+																				<!-- <i style="background-color:{{dataset.displayColor}}; margin-left: 12px; width: 18px; height: 18px; float: left;"></i> -->
 																			</div>
 																		</td>
 																	</tr>

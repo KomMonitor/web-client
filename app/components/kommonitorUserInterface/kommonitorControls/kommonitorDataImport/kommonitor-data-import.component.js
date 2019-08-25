@@ -19,6 +19,18 @@ angular
 
 								$scope.wmsNameFilter = undefined;
 
+								// initialize colorpicker after some time
+								// wait to ensure that elements ar available on DOM
+								setTimeout(function() {
+
+									var colorPickerInputs = $('.input-group.colorpicker-component')
+									colorPickerInputs.colorpicker();
+
+									// $('.input-group.colorpicker-component').each(function (index, value){
+									// 	$(this).colorpicker();
+									// });
+								}, 3000);
+
 
 								// initialize any adminLTE box widgets
 								$('.box').boxWidget();
