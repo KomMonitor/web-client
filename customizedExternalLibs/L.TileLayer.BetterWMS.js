@@ -89,11 +89,14 @@ L.TileLayer.BetterWMS = L.TileLayer.WMS.extend({
   showGetFeatureInfo: function (err, latlng, content) {
     if (err) { console.log(err); return; } // do nothing if there's an error
 
-    // Otherwise show the content in a popup, or something.
-    L.popup({ maxWidth: 800, className: "wms-popup"})
-      .setLatLng(latlng)
-      .setContent(content)
-      .openOn(this._map);
+    // only show popup if content is there
+    if (content!=undefined && content!=null && content != ""){
+      // Otherwise show the content in a popup, or something.
+      L.popup({ maxWidth: 800, className: "wms-popup"})
+        .setLatLng(latlng)
+        .setContent(content)
+        .openOn(this._map);
+    }
   }
 });
 
