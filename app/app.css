@@ -494,6 +494,23 @@
   /* right: 40px; */
 }
 
+/* 
+					table, th, td {
+						border: inherit !important;
+						border-collapse:inherit !important;
+						font-family: arial;
+						font-size: 100% !important;
+						color: #555 !important;
+					}
+					th, td {
+						valign: top !important;
+						text-align: left !important;
+					}
+					th {
+						background-color: white !important;
+					} */
+
+
 .hiddenTable {
   display: table;
   width: 100%;
