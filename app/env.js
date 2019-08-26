@@ -170,7 +170,7 @@
   window.__env.wfsDatasets = [
     {
       title: "Bodennutzung - Bebauungsplanumringe",
-      description: "Umringe der Bebauungspl&auml;ne gem&auml;&szlig; geodaten.metropoleruhr.de. <b>WFS-Dienst unterst&uuml;tzt keine r&auml;lichen Filter. Daher m&uuml;ssen zwingend alle Features abgerufen werden</b>.",
+      description: "Umringe der Bebauungspl&auml;ne gem&auml;&szlig; geodaten.metropoleruhr.de. <b>WFS-Dienst unterst&uuml;tzt keine r&auml;umllichen Filter. Daher m&uuml;ssen zwingend alle Features abgerufen werden</b>.",
       url: "https://geodaten.metropoleruhr.de/inspire/bodennutzung/metropoleruhr?",
       featureTypeNamespace: "ms",
       featureTypeName: "bplan_stand",
