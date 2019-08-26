@@ -383,32 +383,46 @@ angular
 
 									var dateProperty = '' + DATE_PREFIX + date;
 
+									var spatialUnitsMetadataArray = kommonitorDataExchangeService.availableSpatialUnits;
+									var spatialUnitName;
+
+									for (var i=0; i< spatialUnitsMetadataArray.length; i++){
+										if (spatialUnitsMetadataArray[i].spatialUnitId === spatialUnitId){
+											spatialUnitName = spatialUnitsMetadataArray[i].spatialUnitLevel;
+											break;
+										}
+									}
+
 									for (var indicatorMetadata of kommonitorDataExchangeService.availableIndicators){
 
 										try{
-											var indicatorProperties = await fetchIndicatorProperties(indicatorMetadata, spatialUnitId, year, month, day);
-											// only use if response is valid and contains a date property for selected date!
 
-											if(indicatorProperties){
-												var propertiesSample = indicatorProperties[0];
-												if (propertiesSample[dateProperty]){
+											//only fetch if the indicator has data for timestamd and spatial unit!
+											if(indicatorMetadata.applicableDates.includes(date) && indicatorMetadata.applicableSpatialUnits.includes(spatialUnitName)){
+												var indicatorProperties = await fetchIndicatorProperties(indicatorMetadata, spatialUnitId, year, month, day);
+												// only use if response is valid and contains a date property for selected date!
 
-													// ensure that NoData values are set to null!
-													indicatorProperties.forEach(function(properties){
-														if (kommonitorDataExchangeService.indicatorValueIsNoData(properties[dateProperty])){
-															properties[dateProperty] = null;
-														}
-													});
+												if(indicatorProperties){
+													var propertiesSample = indicatorProperties[0];
+													if (propertiesSample[dateProperty]){
 
-													var selectableIndicatorEntry = {};
-													selectableIndicatorEntry.indicatorProperties = indicatorProperties;
-													// per default show all indicators on radar
-													selectableIndicatorEntry.isSelected = false;
-													selectableIndicatorEntry.indicatorMetadata = indicatorMetadata;
+														// ensure that NoData values are set to null!
+														indicatorProperties.forEach(function(properties){
+															if (kommonitorDataExchangeService.indicatorValueIsNoData(properties[dateProperty])){
+																properties[dateProperty] = null;
+															}
+														});
 
-													selectableIndicatorsForRadar.push(selectableIndicatorEntry);
+														var selectableIndicatorEntry = {};
+														selectableIndicatorEntry.indicatorProperties = indicatorProperties;
+														// per default show all indicators on radar
+														selectableIndicatorEntry.isSelected = false;
+														selectableIndicatorEntry.indicatorMetadata = indicatorMetadata;
 
-													//allIndicatorProperties.push(indicatorProperties);
+														selectableIndicatorsForRadar.push(selectableIndicatorEntry);
+
+														//allIndicatorProperties.push(indicatorProperties);
+													}
 												}
 											}
 
