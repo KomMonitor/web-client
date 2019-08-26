@@ -17,7 +17,13 @@ angular
 								$scope.loadingData = false;
 								$scope.date;
 
+								$scope.error;
+
 								$scope.wmsNameFilter = undefined;
+
+								$scope.customFileInputColor;
+
+								$('#customFileInputColorDiv').colorpicker();
 
 								// initialize colorpicker after some time
 								// wait to ensure that elements ar available on DOM
@@ -85,6 +91,51 @@ angular
 
 									kommonitorMapService.adjustOpacityForWfsLayer(dataset, opacity);
 								};
+
+								function dropHandler(ev) {
+									$scope.error = undefined;
+									$("#fileErrorAlert").hide();
+									$("#fileSuccessAlert").hide();
+								  console.log('File(s) dropped');
+
+								  // Prevent default behavior (Prevent file from being opened)
+								  ev.preventDefault();
+
+								  if (ev.dataTransfer.items) {
+								    // Use DataTransferItemList interface to access the file(s)
+								    for (var i = 0; i < ev.dataTransfer.items.length; i++) {
+								      // If dropped items aren't files, reject them
+								      if (ev.dataTransfer.items[i].kind === 'file') {
+								        var file = ev.dataTransfer.items[i].getAsFile();
+								        console.log('... file[' + i + '].name = ' + file.name);
+
+												if(file.ending.toUpperCase() === "json".toUpperCase() || file.ending.toUpperCase() === "geojson".toUpperCase()){
+													console.log("Potential GeoJSON file identified")
+												}
+												else if (file.ending.toUpperCase() === "zip".toUpperCase() || file.ending.toUpperCase() === "shp".toUpperCase()){
+													console.log("Potential Shapefile file identified")
+												}
+												else{
+													$scope.error = "";
+													$("#fileErrorAlert").hide();
+												}
+								      }
+								    }
+								  } else {
+								    // Use DataTransfer interface to access the file(s)
+								    for (var i = 0; i < ev.dataTransfer.files.length; i++) {
+								      console.log('... file[' + i + '].name = ' + ev.dataTransfer.files[i].name);
+								    }
+								  }
+								}
+
+								function dragOverHandler(ev) {
+								  console.log('File(s) in drop zone');
+
+								  // Prevent default behavior (Prevent file from being opened)
+								  ev.preventDefault();
+								}
+
 
 							} ]
 				});

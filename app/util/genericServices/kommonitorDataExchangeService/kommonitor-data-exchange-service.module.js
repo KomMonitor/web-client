@@ -48,6 +48,7 @@ angular
 
           this.wmsDatasets = __env.wmsDatasets;
           this.wfsDatasets = __env.wfsDatasets;
+          this.fileDatasets = [];
 
 					this.availableProcessScripts;
           this.isochroneLegend;

@@ -494,7 +494,7 @@
   /* right: 40px; */
 }
 
-/* 
+/*
 					table, th, td {
 						border: inherit !important;
 						border-collapse:inherit !important;
@@ -510,6 +510,23 @@
 						background-color: white !important;
 					} */
 
+.vertical-align {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-direction: row;
+}
+
+#drop_zone {
+  border: 5px solid #d6d6d6;
+	border-radius: 10px;
+	border-style: dashed;
+	text-align: center;
+	valign: center;
+	color: "#d6d6d6"
+  width:  60%;
+  height: 40%;
+}
 
 .hiddenTable {
   display: table;
