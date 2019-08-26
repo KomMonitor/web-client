@@ -263,7 +263,7 @@ angular
 														bottom: 0,
 														align: 'left',
         										left: 5,
-														data: ['Durchschnitt']
+														data: ['Arithmetisches Mittel']
 												},
 												radar: {
 														// shape: 'circle',
@@ -294,7 +294,7 @@ angular
 														data : [
 																{
 																		value : defaultSeriesValueArray,
-																		name : 'Durchschnitt',
+																		name : 'Arithmetisches Mittel',
 																		lineStyle: {
 																				color: 'gray',
 																				type: 'dashed',

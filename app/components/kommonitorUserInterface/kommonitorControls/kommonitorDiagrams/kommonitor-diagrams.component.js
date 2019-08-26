@@ -758,7 +758,7 @@ angular
 											legend: {
 													type: "scroll",
 													bottom: 0,
-													data:['Durchschnitt']
+													data:['Arithmetisches Mittel']
 											},
 											xAxis: {
 													name: indicatorMetadataAndGeoJSON.indicatorName,
@@ -782,7 +782,7 @@ angular
 									        // }
 									    },
 											series: [{
-													name: "Durchschnitt",
+													name: "Arithmetisches Mittel",
 													type: 'line',
 													data: indicatorTimeSeriesAverageArray,
 													lineStyle: {
