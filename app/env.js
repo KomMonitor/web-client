@@ -84,7 +84,7 @@
   window.__env.defaultColorBrewerPaletteForBalanceIncreasingValues = "Purples";
   window.__env.defaultColorBrewerPaletteForBalanceDecreasingValues = "YlOrBr";
   window.__env.defaultColorBrewerPaletteForGtMovValues = "YlOrBr";
-  window.__env.defaultColorBrewerPaletteForLtMovValues = "#00aabbs";
+  window.__env.defaultColorBrewerPaletteForLtMovValues = "Blues";
 
   // classification
   //allowesValues: equal_interval, quantile, jenks
