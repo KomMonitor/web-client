@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" ng-app="kommonitorClient" style="height: 100%;">
+<html lang="en" xmlns:ng="http://angularjs.org" ng-app="kommonitorClient" style="height: 100%;">
     <head>
         <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE9">
+        <!-- <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE9"> -->
+        <meta http-equiv="X-UA-Compatible" content="IE=8">
         <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
         <title>KomMonitor</title>
         <!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
@@ -43,14 +44,6 @@
     </head>
     <body class="hold-transition skin-blue sidebar-mini">
 
-        <!--[if IE]>
-
-        <div class="container" style="position: absolute; text-align: center; height: 100%;">
-            <p style="position: absolute; top: 45%; left: 55%; right: 0; font-size: 24px">Sie verwenden einen <strong>veralteten</strong> Browser. KomMonitor kann in diesem Browser nicht korrekt dargestellt werden. Bitte nutzen Sie einen modernen Browser. Empfohlen werden <strong>Firefox, Chrome</strong>.</p>
-        </div>
-
-  <![endif]-->
-
         <!-- embed the user interface via angular -->
     <!-- <kommonitor-user-interface></kommonitor-user-interface> -->
     <!-- as we use ngRoute to distuingish between several pages, we embed the ng-view div container here. Its content is
@@ -58,6 +51,7 @@
     <div ng-view></div>
 
     <!-- start lib script tags -->
+    <script src="dependencies/babel-polyfill/polyfill.min.js" type="text/javascript"></script>
     <script src="dependencies/jquery/jquery.min.js" type="text/javascript"></script>
     <script src="dependencies/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
     <script src="dependencies/bootstrap-validator/validator.min.js" type="text/javascript"></script>
@@ -84,7 +78,7 @@
   <script src="dependencies/leaflet-measure/leaflet-measure.de.js"></script>
   <script src="dependencies/leaflet-easyprint/leaflet-easyprint.js"></script>
   <script src="dependencies/leaflet-wfst/leaflet-wfst.src_custom.js"></script>
-  <script src="dependencies/leaflet-betterWMS/L.TileLayer.BetterWMS.js"></script>  
+  <script src="dependencies/leaflet-betterWMS/L.TileLayer.BetterWMS.js"></script>
   <script src="dependencies/turf/turf.min.js"></script>
   <script src="dependencies/bootstrap-tour/bootstrap-tour.min.js"></script>
   <script src="dependencies/jspdf/jspdf.min.js"></script>

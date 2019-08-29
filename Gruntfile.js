@@ -66,6 +66,33 @@ module.exports = function (grunt) {
             'logos/**/*',
 			      'components/**/*.template.html'
         ],
+
+        // babel: {
+        //   options: {
+        //     sourceMap: true
+        //   },
+        //   dist: {
+        //     files: [{
+        //       expand: true,
+        //       cwd: './app',
+        //       src: '{,**/}*.js',
+        //       dest: '.tmp/scripts',
+        //       ext: '.es5.js'
+        //     }]
+        //   }
+        // },
+
+        babel: {
+          options: {
+            sourceMap: true
+          },
+          dist: {
+            files: {
+              "dist/kommonitor-client.es5.js": "dist/kommonitor-client.js"
+            }
+          }
+        },
+
         clean: ["dist/"],
         tags: {
             options: {
@@ -129,7 +156,7 @@ module.exports = function (grunt) {
             },
             appJs: {
                 files: {
-                    'dist/kommonitor-client.min.js': ['<%= concat.kommonitor.dest %>']
+                    'dist/kommonitor-client.min.js': ['dist/kommonitor-client.es5.js']
                 }
             }
         },
@@ -229,14 +256,15 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-processhtml');
 	grunt.loadNpmTasks('grunt-exec');
     grunt.loadNpmTasks('grunt-war');
+    grunt.loadNpmTasks('grunt-babel');
 
     grunt.registerTask('test', ['jshint']);
-    grunt.registerTask('copy-all', ['copy:locals', 'copy:css', 'copy:fonts']);
-    grunt.registerTask('copy-css', ['copy:css']);
-    grunt.registerTask('copy-fonts', ['copy:fonts']);
+    // grunt.registerTask('copy-all', ['copy:locals', 'copy:css', 'copy:fonts']);
+    // grunt.registerTask('copy-css', ['copy:css']);
+    // grunt.registerTask('copy-fonts', ['copy:fonts']);
     grunt.registerTask('env-build', ['tags']);
-    grunt.registerTask('default', ['clean', 'concat', 'uglify', 'cssmin', 'copy', 'processhtml']);
-	grunt.registerTask('buildDebugScript', ['clean', 'concat']);
+    grunt.registerTask('default', ['clean', 'concat', 'babel', 'uglify', 'cssmin', 'copy', 'processhtml']);
+	// grunt.registerTask('buildDebugScript', ['clean', 'concat']);
 
 	grunt.registerTask('buildWar', ['default', 'war']);
 //  grunt.registerTask('buildWar', ['test', 'default', 'war']);

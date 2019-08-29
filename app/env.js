@@ -1,4 +1,4 @@
-(function (window) {
+// (function (window) {
   window.__env = window.__env || {};
 
   // Whether or not to enable debug mode
@@ -200,4 +200,4 @@
     }
   ];
 
-}(this));
+// }(this));

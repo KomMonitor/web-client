@@ -6,8 +6,12 @@
   "repository": "",
   "license": "Apache 2.0",
   "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-polyfill": "^6.0.16",
+    "babel-preset-env": "^1.6.1",
     "copy-webpack-plugin": "^4.6.0",
     "grunt": "^1.0.1",
+    "grunt-babel": "^7.0.0",
     "grunt-cli": "^1.2.0",
     "grunt-contrib-clean": "^1.0.0",
     "grunt-contrib-concat": "^1.0.1",

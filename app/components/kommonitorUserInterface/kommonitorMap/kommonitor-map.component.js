@@ -1558,8 +1558,8 @@ angular.module('kommonitorMap').component(
 
                         $scope.div.id = "legendControl";
 
-                            labels = $scope.defaultBrew.getBreaks();
-                            colors = $scope.defaultBrew.getColors();
+                          var  labels = $scope.defaultBrew.getBreaks();
+                          var  colors = $scope.defaultBrew.getColors();
 
                         $scope.div.innerHTML = $scope.appendLegendCloseButton();
                         var opacity = 1;
@@ -1740,8 +1740,8 @@ angular.module('kommonitorMap').component(
 
                         // dynamic legend creation depending on number of positive and negative classes
                         if($scope.dynamicDecreaseBrew){
-                          labelsDynamicDecrease = $scope.dynamicDecreaseBrew.breaks;
-                          colorsDynamicDecrease = $scope.dynamicDecreaseBrew.colors;
+                          var  labelsDynamicDecrease = $scope.dynamicDecreaseBrew.breaks;
+                          var  colorsDynamicDecrease = $scope.dynamicDecreaseBrew.colors;
 
                           $scope.div.innerHTML += "<label>Abnahme</label><br/>";
 
@@ -1763,8 +1763,8 @@ angular.module('kommonitorMap').component(
 
                         if($scope.dynamicIncreaseBrew){
                           $scope.div.innerHTML += "<br/>";
-                          labelsDynamicIncrease = $scope.dynamicIncreaseBrew.breaks;
-                          colorsDynamicIncrease = $scope.dynamicIncreaseBrew.colors;
+                          var labelsDynamicIncrease = $scope.dynamicIncreaseBrew.breaks;
+                          var colorsDynamicIncrease = $scope.dynamicIncreaseBrew.colors;
 
                           $scope.div.innerHTML += "<label>Zunahme</label><br/>";
 
@@ -1889,8 +1889,8 @@ angular.module('kommonitorMap').component(
                         // }
 
                         if($scope.ltMeasureOfValueBrew){
-                          labelsLtMeasureOfValue = $scope.ltMeasureOfValueBrew.breaks;
-                          colorsLtMeasureOfValue = $scope.ltMeasureOfValueBrew.colors;
+                          var labelsLtMeasureOfValue = $scope.ltMeasureOfValueBrew.breaks;
+                          var colorsLtMeasureOfValue = $scope.ltMeasureOfValueBrew.colors;
                           $scope.div.innerHTML += "<label>Features < Schwellwert</label><br/>";
 
                           // var labelArray_below = ["deutlich kleiner Schwellwert", "moderat kleiner Schwellwert", "geringfügig kleiner Schwellwert"];
@@ -1913,8 +1913,8 @@ angular.module('kommonitorMap').component(
                         }
 
                         if($scope.gtMeasureOfValueBrew){
-                          labelsGtMeasureOfValue = $scope.gtMeasureOfValueBrew.breaks;
-                          colorsGtMeasureOfValue = $scope.gtMeasureOfValueBrew.colors;
+                          var labelsGtMeasureOfValue = $scope.gtMeasureOfValueBrew.breaks;
+                          var colorsGtMeasureOfValue = $scope.gtMeasureOfValueBrew.colors;
 
                           $scope.div.innerHTML += "<label>Features >= Schwellwert</label><br/>";
 

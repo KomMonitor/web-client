@@ -98,9 +98,10 @@ angular
 										// diff occurs when balance mode is activated
 										// then, cartographicFeatures display balance over time period, which shall be reflected in bar chart and histogram
 										// the other diagrams must use the "normal" unbalanced indicator instead --> selectedFeatures
-										cartographicFeature = cartographicFeatures[j];
-										selectedFeature = selectedFeatures[j];
+										var cartographicFeature = cartographicFeatures[j];
+										var selectedFeature = selectedFeatures[j];
 
+										var indicatorValue;
 										if (kommonitorDataExchangeService.indicatorValueIsNoData(cartographicFeature.properties[$scope.indicatorPropertyName])){
 											indicatorValue = null;
 										}
