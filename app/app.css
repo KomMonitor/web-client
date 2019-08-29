@@ -255,14 +255,14 @@
 
 #header{
 	background: rgb(236,240,245);
-	z-index: 2000;
+	z-index: 7500;
 	border-bottom: 2px solid gray;
 }
 
 #map {
 	height: 94vh;
 	position: relative;
-	z-index: 6500;
+	z-index: 7001;
 }
 
 #legend{
@@ -276,6 +276,7 @@
 	width: 280px;
   height: 220px;
   position: absolute;
+	z-index: 7500;
 }
 
 #sideBarButtons{
@@ -283,6 +284,7 @@
   width: 90px;
   height: 80vh;
   position: absolute;
+	z-index: 7500;
 }
 
 /* MAP UTIL BUTTONS */
@@ -1317,7 +1319,7 @@ hr {
   left: 0;
   border-radius: 5px;
   opacity: 0.8;
-  z-index: 7000;
+  z-index: 7002;
 }
 
 .loading-overlay .icon-spin {
