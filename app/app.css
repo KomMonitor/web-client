@@ -276,7 +276,6 @@
 	width: 280px;
   height: 220px;
   position: absolute;
-	z-index: 7500;
 }
 
 #sideBarButtons{
@@ -284,23 +283,25 @@
   width: 90px;
   height: 80vh;
   position: absolute;
-	z-index: 7500;
 }
 
 /* MAP UTIL BUTTONS */
 #recenterMapButton {
 	left: 80px;
 	top: 10px;
+	z-index: 7500;
 }
 
 #unselectFeaturesButton {
 	left: 130px;
 	top: 10px;
+	z-index: 7500;
 }
 
 #exportMapButton {
 	left: 180px;
 	top: 10px;
+	z-index: 7500;
 }
 
 .leaflet-left .leaflet-control-layers {
@@ -313,6 +314,7 @@
 	/* max-width	: 600px;
 	max-height : 350px; */
 	overflow : auto;
+	z-index: 7500;
 }
 
 .leaflet-left .leaflet-control-layers-expanded {
@@ -334,6 +336,7 @@
 	position: absolute;
 	left: 70px;
 	top: 100px;
+	z-index: 7500;
 }
 
 .leaflet-left .leaflet-control-search {
@@ -341,6 +344,7 @@
 	position: absolute;
 	left: 70px;
 	top: 50px;
+	z-index: 7500;
 }
 
 .leaflet-left .leaflet-control-measure{
@@ -350,6 +354,7 @@
 	position: absolute;
 	left: 70px;
 	top: 150px;
+	z-index: 7500;
 }
 
 .leaflet-left .leaflet-control-easyPrint{
@@ -358,6 +363,7 @@
 	/* float: none; */
 	position: absolute;
 	left: 170px;
+	z-index: 7500;
 }
 
 .leaflet-control-layers-group-name{
@@ -1056,9 +1062,13 @@ transition: opacity 0.3s;
   line-height: 1.42;
   border-radius: 25px;
 	left: 10px;
+	z-index: 7500;
 }
 
 .btn-circle img {
+	-webkit-filter: invert(1);
+	filter: progid:DXImageTransform.Microsoft.BasicImage(invert=1);
+	-ms-filter: 'progid:DXImageTransform.Microsoft.BasicImage(invert=1)';
 	filter: invert(1);
 	width:25px;
 	height:25px;
@@ -1076,10 +1086,10 @@ transition: opacity 0.3s;
   color: white;
   border-radius: 0 5px 5px 0;
 	background-color: rgb(236,240,245);
+	z-index: 7500;
 }
 
 .btn-docked img {
-	/* filter: invert(1); */
 	width:30px;
 	height:30px;
 }
@@ -1088,7 +1098,7 @@ transition: opacity 0.3s;
 	background-color: #337ab7;
   color: white;
 	position: absolute;
-	z-index: 1000;
+	z-index: 7500;
 }
 
 .btn-custom:hover {
@@ -1107,7 +1117,7 @@ transition: opacity 0.3s;
 	background-color: rgb(236,240,245);
   color: black;
 	position: absolute;
-	z-index: 1000;
+	z-index: 7500;
 }
 
 .btn-leaflet-custom{
@@ -1118,7 +1128,7 @@ transition: opacity 0.3s;
 	position: absolute;
 	border: 2px solid rgba(0,0,0,0.2);
 	background-clip: padding-box;
-	z-index: 1000;
+	z-index: 7500;
 }
 
 .btn-leaflet-custom:hover {
@@ -1127,7 +1137,7 @@ transition: opacity 0.3s;
 	border: 2px solid rgba(0,0,0,0.2);
 	background-clip: padding-box;
 	position: absolute;
-	z-index: 1000;
+	z-index: 7500;
 }
 
 /* CUSTOM RANGE SLIDER  */
