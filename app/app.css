@@ -259,11 +259,6 @@
 	border-bottom: 2px solid gray;
 }
 
-#content{
-	background: rgb(236,240,245);
-	/* overflow: auto; */
-}
-
 #map {
 	height: 94vh;
 	position: relative;
@@ -754,11 +749,22 @@
 
 
 .kmWrapper {
-    display: flex;
+		-ms-flex-direction: row;
+		flex-direction: row;
+		-ms-flex-align: stretch;
 		align-items: stretch;
     width: 100%;
-		/* height: 94vh; */
-		perspective: 1500px;
+
+		display: -webkit-box;
+	  display: -webkit-flex;
+	  display: -ms-flexbox;
+	  display: flex;
+    height:94vh; /* fix IE11 */
+    min-height:100%; /* fix IE11 */
+}
+
+#content{
+	background: rgb(236,240,245);
 }
 
 #sidebarIndicatorConfig {
