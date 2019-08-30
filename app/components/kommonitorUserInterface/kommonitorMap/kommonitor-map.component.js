@@ -787,11 +787,11 @@ angular.module('kommonitorMap').component(
                       $scope.loadingData = false;
                     });
 
-                    $(document).on('change','#selectSpatialUnitViaInfoControl',function(){
-                      var selector = document.getElementById('selectSpatialUnitViaInfoControl');
-                      var spatialUnitLevel = selector[selector.selectedIndex].value;
+                    $(document).on('click','#selectSpatialUnitViaInfoControl li p',function(){
+                      var spatialUnitName = $(this).text();
+                      $('#selectSpatialUnitViaInfoControl_text').text(spatialUnitName);
 
-                     $rootScope.$broadcast("changeSpatialUnitViaInfoControl", spatialUnitLevel);
+                     $rootScope.$broadcast("changeSpatialUnitViaInfoControl", spatialUnitName);
                     });
 
                     // $(document).on('change','#selectSimplifyGeometriesViaInfoControl',function(){
@@ -831,25 +831,53 @@ angular.module('kommonitorMap').component(
                       //   </label>
                       // </form>
 
-                      var innerHTMLString = "<form>";
-                      innerHTMLString += "<label>Raumebene:  ";
-                      innerHTMLString += "<select id='selectSpatialUnitViaInfoControl'>";
+                      // var innerHTMLString = "<form>";
+                      // innerHTMLString += "<label>Raumebene:  ";
+                      // innerHTMLString += "<select id='selectSpatialUnitViaInfoControl'>";
+                      //
+                      //
+                      // for (var option of kommonitorDataExchangeService.availableSpatialUnits){
+                      //
+                      //   if (kommonitorDataExchangeService.selectedIndicator.applicableSpatialUnits.includes(option.spatialUnitLevel)){
+                      //     innerHTMLString += ' <option value="' + option.spatialUnitLevel + '" ';
+                      //     if (kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel === option.spatialUnitLevel){
+                      //       innerHTMLString +=' selected ';
+                      //     }
+                      //     innerHTMLString +='>' + option.spatialUnitLevel + '</option>';
+                      //   }
+                      // }
+                      // innerHTMLString += "</select>";
+                      // innerHTMLString += "</label>";
+                      // innerHTMLString += "</form>";
+                      // // innerHTMLString += "<br/>";
 
+                      // <div class="dropdown">
+                      //     <a aria-expanded="false" aria-haspopup="true" role="button" data-toggle="dropdown" class="dropdown-toggle" href="#">
+                      //       <span id="selected">Chose option</span><span class="caret"></span></a>
+                      //   <ul class="dropdown-menu">
+                      //     <li><a href="#">Option 1</a></li>
+                      //     <li><a href="#">Option 2</a></li>
+                      //     <li><a href="#">Option 3</a></li>
+                      //     <li><a href="#">Option 4</a></li>
+                      //   </ul>
+                      // </div>
+
+                      var innerHTMLString = '<div class="row" style="margin-right: 0px;">';
+                      innerHTMLString += "<div class='col-sm-3'><div class='text-left'><label>Raumebene:   </label></div></div>";
+                      innerHTMLString += "<div class='col-sm-9'><div class='text-left'><div id='selectSpatialUnitViaInfoControl' class='dropdown'>";
+                      innerHTMLString += '<button class="btn btn-primary btn-xs dropdown-toggle" type="button" data-toggle="dropdown"><span id="selectSpatialUnitViaInfoControl_text">' + kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel + '&nbsp;&nbsp;&nbsp;</span><span class="caret"></span></button>';
+                      innerHTMLString += '<ul class="dropdown-menu">';
 
                       for (var option of kommonitorDataExchangeService.availableSpatialUnits){
 
                         if (kommonitorDataExchangeService.selectedIndicator.applicableSpatialUnits.includes(option.spatialUnitLevel)){
-                          innerHTMLString += ' <option value="' + option.spatialUnitLevel + '" ';
-                          if (kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel === option.spatialUnitLevel){
-                            innerHTMLString +=' selected ';
-                          }
-                          innerHTMLString +='>' + option.spatialUnitLevel + '</option>';
+                          innerHTMLString += ' <li><p style="cursor: pointer; font-size:12px;">' + option.spatialUnitLevel;
+                          innerHTMLString +='</p></li>';
                         }
                       }
-                      innerHTMLString += "</select>";
-                      innerHTMLString += "</label>";
-                      innerHTMLString += "</form>";
-                      // innerHTMLString += "<br/>";
+                      innerHTMLString += "</ul>";
+                      innerHTMLString += "</div></div></div>";
+                      innerHTMLString += "</div>";
 
                       return innerHTMLString;
                     };
@@ -1063,7 +1091,7 @@ angular.module('kommonitorMap').component(
                       toggleLegendControl();
                     });
 
-                    $(document).on('input','#indicatorTransparencyInput',function(e){
+                    $(document).on('input change','#indicatorTransparencyInput',function(e){
                       // create PDF from currently selected/displayed indicator!
                       var indicatorMetadata = kommonitorDataExchangeService.selectedIndicator;
 
