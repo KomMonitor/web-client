@@ -178,7 +178,7 @@ angular
 							inputElement.setAttribute("type", "range");
 							inputElement.setAttribute("value", Number(parameterData.defaultValue));
 							inputElement.value = Number(parameterData.defaultValue);
-							inputElement.setAttribute("class", "slider");
+							// inputElement.setAttribute("class", "slider");
 							inputElement.setAttribute("min", parameterData.minParameterValueForNumericInputs);
 							inputElement.setAttribute("max", parameterData.maxParameterValueForNumericInputs);
 							inputElement.setAttribute("data-show-value", "true");
@@ -204,10 +204,10 @@ angular
 							inputElement.id = parameterData.name;
 							inputElement.type = "range";
 							inputElement.value = Number(parameterData.defaultValue);
-							inputElement.class = "slider";
+							// inputElement.class = "slider";
 							inputElement.min = parameterData.minParameterValueForNumericInputs;
 							inputElement.max = parameterData.maxParameterValueForNumericInputs;
-							inputElement.dataShowValue = "true";
+							// inputElement.dataShowValue = "true";
 							inputElement.step = "0.01";
 
 							inputElement.ngModelVariable = parameterData.name + "Value";

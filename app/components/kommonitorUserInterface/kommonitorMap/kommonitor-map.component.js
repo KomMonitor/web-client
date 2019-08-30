@@ -1300,13 +1300,23 @@ angular.module('kommonitorMap').component(
                           // </form>
 
                           var transparencyDomString = "";
-                          transparencyDomString += '<br/><form class="form-inline">';
-                          transparencyDomString += '<div class="form-group">';
-                          transparencyDomString += '<label>Transparenz</label>&nbsp;&nbsp;&nbsp;';
-                          transparencyDomString += '<input class="slider form-control" style="width:50%;" id="indicatorTransparencyInput" type="range" value="' + (1 - defaultFillOpacity).toFixed(numberOfDecimals) + '" min="0" max="1" step="0.01">';
-                          transparencyDomString += '&nbsp;&nbsp;&nbsp;<label id="indicatorTransparencyLabel">' + (1 - defaultFillOpacity).toFixed(numberOfDecimals) + '</label>';
+                          transparencyDomString += '<br/><div class="row" style="margin-right:0px;">';
+                          transparencyDomString += '<div class="col-sm-3">';
+                          transparencyDomString += '<div class="text-left">';
+                          transparencyDomString += '<label>Transparenz</label>';
                           transparencyDomString += '</div>';
-                          transparencyDomString += '</form>';
+                          transparencyDomString += '</div>';
+                          transparencyDomString += '<div class="col-sm-7">';
+                          transparencyDomString += '<div class="text-left">';
+                          transparencyDomString += '<input style="width:100%;" id="indicatorTransparencyInput" type="range" value="' + (1 - defaultFillOpacity).toFixed(numberOfDecimals) + '" min="0" max="1" step="0.01">';
+                          transparencyDomString += '</div>';
+                          transparencyDomString += '</div>';
+                          transparencyDomString += '<div class="col-sm-2">';
+                          transparencyDomString += '<div class="text-left">';
+                          transparencyDomString += '<label id="indicatorTransparencyLabel">' + (1 - defaultFillOpacity).toFixed(numberOfDecimals) + '</label>';
+                          transparencyDomString += '</div>';
+                          transparencyDomString += '</div>';
+                          transparencyDomString += '</div>';
 
                           this._div.innerHTML += transparencyDomString;
 

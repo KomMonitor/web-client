@@ -82,17 +82,38 @@
 								<div ng-repeat='input in processInputs' class="slidecontainer">
 									<!-- <label>{{input.parameterData.name}}: {{input.inputElement.value}}</label> -->
 
-									<label >{{input.parameterData.name}}:</label>&nbsp;{{input.parameterData.description}}
-									<form class="form-inline">
-									  <div class="form-group">
+									<p><label >{{input.parameterData.name}}:</label>&nbsp;{{input.parameterData.description}}</p>
+
+									<div class="row vertical-align" style="margin-left: 0px; margin-right: 0px; display: flex;">
+									  <div class="col-sm-1">
+											<div class="text-left">
+												<label>{{input.inputElement.min}}</label>
+											</div>
+										</div>
+										<div class="col-sm-5">
+											<div class="text-left">
+												<input id="{{input.parameterData.name}}" style="width:100%;" ng-model="inputNgModels[input.inputElement.ngModelVariable]" type="{{input.inputElement.type}}"  min="{{input.inputElement.min}}" max="{{input.inputElement.max}}" step="{{input.inputElement.step}}">
+											</div>
+										</div>
+										<div class="col-sm-1">
+											<div class="text-left">
+												<label>{{input.inputElement.max}}</label>
+											</div>
+										</div>
+										<div class="col-sm-5 form-inline">
+											<div class="text-left form-group">
+												<input ng-model="inputNgModels[input.inputElement.ngModelVariable]" type="number" string-to-number min="{{input.inputElement.min}}" max="{{input.inputElement.max}}" step="{{input.inputElement.step}}" style="height:30px; width:80px;" class="form-control input-sm" id="{{input.parameterData.name}}Label">
+												<span class="validity"></span>
+											</div>
+										</div>
+										<!-- <div class="col-sm-1">
+											<div class="text-left">
+												<span class="validity"></span>
+											</div>
+										</div> -->
 											<!-- <label >{{input.parameterData.name}}: {{inputNgModels[input.inputElement.ngModelVariable]}}</label> -->
 
-											<label>{{input.inputElement.min}}&nbsp;</label><input id="{{input.parameterData.name}}" style="width:30%;" class="{{input.inputElement.class}} form-control input-sm" ng-model="inputNgModels[input.inputElement.ngModelVariable]" type="{{input.inputElement.type}}"  min="{{input.inputElement.min}}" max="{{input.inputElement.max}}" step="{{input.inputElement.step}}"><label>&nbsp;{{input.inputElement.max}}</label>
-											&nbsp;&nbsp;&nbsp;
-											<input ng-model="inputNgModels[input.inputElement.ngModelVariable]" type="number" string-to-number min="{{input.inputElement.min}}" max="{{input.inputElement.max}}" step="{{input.inputElement.step}}" style="height:30px; width:100px;" class="form-control input-sm" id="{{input.parameterData.name}}Label">
-											<span class="validity"></span>
-										</div>
-									</form>
+									</div>
 
 
 									<!-- <input type='{{input.type}}' value='{{ input.value }}'> -->

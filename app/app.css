@@ -514,10 +514,19 @@
 					} */
 
 .vertical-align {
+
+	-ms-flex-direction: row;
+	flex-direction: row;
+	/* -ms-flex-align: stretch;
+	align-items: stretch; */
+
+	display: -webkit-box;
+	display: -webkit-flex;
+	display: -ms-flexbox;
 	display: flex;
+
 	align-items: center;
 	justify-content: center;
-	flex-direction: row;
 }
 
 #drop_zone {
@@ -1263,6 +1272,10 @@ input[type=range]::-ms-fill-upper {
 }
 input[type=range]:focus::-ms-fill-upper {
   background: #367ebd;
+}
+/* hide tooltip on IE */
+input[type=range]::-ms-tooltip {
+    display: none;
 }
 
 hr {
