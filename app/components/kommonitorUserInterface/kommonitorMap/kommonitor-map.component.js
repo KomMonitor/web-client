@@ -1300,7 +1300,7 @@ angular.module('kommonitorMap').component(
                           // </form>
 
                           var transparencyDomString = "";
-                          transparencyDomString += '<br/><div class="row" style="margin-right:0px;">';
+                          transparencyDomString += '<br/><div class="row vertical-align" style="margin-right:0px;">';
                           transparencyDomString += '<div class="col-sm-3">';
                           transparencyDomString += '<div class="text-left">';
                           transparencyDomString += '<label>Transparenz</label>';
