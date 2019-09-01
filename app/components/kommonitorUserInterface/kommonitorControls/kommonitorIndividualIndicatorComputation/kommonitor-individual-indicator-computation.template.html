@@ -21,12 +21,10 @@
 
 				<p></p>
 
-				<div class="hiddenTable" text-align="center" align="center">
-
-					<div class="hiddenTableCell">
+				<div class="row vertical-align" style="margin-left: 0px; margin-right: 0px; display: flex;">
 
 
-						<div text-align="center" align="center" class="hiddenTableContent">
+						<div class="col-sm-8">
 							<select style="font-size: 12px;"
 								size="10" ng-model="targetIndicator" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators() | filter:{creationType:'COMPUTATION'} | filter:filterComputableIndicators() | filter:indicatorNameFilter"
 								class="form-control" ng-change="onChangeTargetIndicator()" required>
@@ -34,12 +32,8 @@
 							</select>
 						</div>
 
-					</div>
 
-
-					<div class="hiddenTableCell">
-
-						<div text-align="center" align="center" class="hiddenTableContent" ng-show="targetIndicator">
+						<div class="col-sm-4" ng-show="targetIndicator">
 							<!-- simple list of available processes -->
 							<select style="font-size: 12px;"
 								size="10" ng-model="targetSpatialUnit" ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits"
@@ -49,8 +43,6 @@
 									ng-repeat="spatialUnit in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits"></option>
 							</select>
 						</div>
-
-					</div>
 
 				</div>
 
