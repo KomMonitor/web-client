@@ -90,9 +90,9 @@
 												<label>{{input.inputElement.min}}</label>
 											</div>
 										</div>
-										<div class="col-sm-5">
+										<div class="col-sm-7">
 											<div class="text-left">
-												<input id="{{input.parameterData.name}}" style="width:100%;" ng-model="inputNgModels[input.inputElement.ngModelVariable]" type="{{input.inputElement.type}}"  min="{{input.inputElement.min}}" max="{{input.inputElement.max}}" step="{{input.inputElement.step}}">
+												<input id="{{input.parameterData.name}}" style="width:100%;" data-show-value="false" value="{{input.inputElement.value}}" ng-model="input.inputElement.value" type="{{input.inputElement.type}}"  min="{{input.inputElement.min}}" max="{{input.inputElement.max}}" step="{{input.inputElement.step}}">
 											</div>
 										</div>
 										<div class="col-sm-1">
@@ -100,9 +100,9 @@
 												<label>{{input.inputElement.max}}</label>
 											</div>
 										</div>
-										<div class="col-sm-5 form-inline">
+										<div class="col-sm-3 form-inline">
 											<div class="text-left form-group">
-												<input ng-model="inputNgModels[input.inputElement.ngModelVariable]" type="number" string-to-number min="{{input.inputElement.min}}" max="{{input.inputElement.max}}" step="{{input.inputElement.step}}" style="height:30px; width:80px;" class="form-control input-sm" id="{{input.parameterData.name}}Label">
+												<input ng-model="input.inputElement.value" type="number" string-to-number min="{{input.inputElement.min}}" max="{{input.inputElement.max}}" step="{{input.inputElement.step}}" style="height:30px; width:80px;" class="form-control input-sm" id="{{input.parameterData.name}}Label">
 												<span class="validity"></span>
 											</div>
 										</div>

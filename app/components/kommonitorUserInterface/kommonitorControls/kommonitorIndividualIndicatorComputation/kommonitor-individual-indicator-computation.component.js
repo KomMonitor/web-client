@@ -210,10 +210,10 @@ angular
 							// inputElement.dataShowValue = "true";
 							inputElement.step = "0.01";
 
-							inputElement.ngModelVariable = parameterData.name + "Value";
-
-							// inputElement.setAttribute("ng-model", parameterData.name + "Value");
-							$scope.inputNgModels[inputElement.ngModelVariable] = Number(parameterData.defaultValue);
+							// inputElement.ngModelVariable = parameterData.name + "Value";
+							//
+							// // inputElement.setAttribute("ng-model", parameterData.name + "Value");
+							// $scope.inputNgModels[inputElement.ngModelVariable] = Number(parameterData.defaultValue);
 
 							return inputElement;
 						};
