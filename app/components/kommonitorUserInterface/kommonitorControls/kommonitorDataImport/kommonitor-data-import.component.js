@@ -92,6 +92,13 @@ angular
 									kommonitorMapService.adjustOpacityForWfsLayer(dataset, opacity);
 								};
 
+								$scope.adjustWfsLayerColor = function(dataset){
+
+									var color = dataset.displayColor;
+
+									kommonitorMapService.adjustColorForWfsLayer(dataset, color);
+								};
+
 								$scope.dropHandler = function(ev) {
 									$scope.fileLayerError = undefined;
 									$("#fileErrorAlert").hide();
@@ -168,7 +175,7 @@ angular
 										setTimeout(function() {
 												// initialize colorpicker
 												$('.input-group.colorpicker-component').colorpicker();
-										}, 1000);
+										}, 350);
 
 										$scope.handleFileOnMap(fileDataset);
 
@@ -199,7 +206,7 @@ angular
 										setTimeout(function() {
 												// initialize colorpicker
 												$('.input-group.colorpicker-component').colorpicker();
-										}, 1000);
+										}, 350);
 
 										$scope.handleFileOnMap(fileDataset);
 
@@ -228,6 +235,13 @@ angular
 									var opacity = 1 - dataset.transparency;
 
 									kommonitorMapService.adjustOpacityForFileLayer(dataset, opacity);
+								};
+
+								$scope.adjustFileLayerColor = function(dataset){
+
+									var color = dataset.displayColor;
+
+									kommonitorMapService.adjustColorForFileLayer(dataset, color);
 								};
 
 								$scope.$on("onDropFile", function (ev, dropEvent) {

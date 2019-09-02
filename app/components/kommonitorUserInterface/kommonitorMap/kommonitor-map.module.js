@@ -123,6 +123,11 @@ angular.module('kommonitorMap').service(
             dataset, opacity);
       };
 
+      this.adjustColorForWfsLayer = function (dataset, color) {
+        $rootScope.$broadcast("adjustColorForWfsLayer",
+            dataset, color);
+      };
+
       this.removeWfsLayerFromMap = function (dataset) {
         $rootScope.$broadcast("removeWfsLayerFromMap",
             dataset);
@@ -136,6 +141,11 @@ angular.module('kommonitorMap').service(
       this.adjustOpacityForFileLayer = function (dataset, opacity) {
         $rootScope.$broadcast("adjustOpacityForFileLayer",
             dataset, opacity);
+      };
+
+      this.adjustColorForFileLayer = function (dataset, color) {
+        $rootScope.$broadcast("adjustColorForFileLayer",
+            dataset, color);
       };
 
       this.removeFileLayerFromMap = function (dataset) {

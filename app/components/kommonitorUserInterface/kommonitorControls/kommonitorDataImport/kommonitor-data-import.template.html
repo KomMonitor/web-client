@@ -161,7 +161,7 @@
 																		<td>
 																			<div>
 																				<div class="input-group colorpicker-component">
-																				    <input type="text" style="display:none;" class="form-control input-sm" ng-model="dataset.displayColor" placeholder="WFS Darstellungsfarbe"  required />
+																				    <input type="text" style="display:none;" class="form-control input-sm" ng-model="dataset.displayColor" ng-change="adjustWfsLayerColor(dataset)" placeholder="WFS Darstellungsfarbe"  required />
 																				    <span title="Klicken, um die Farbe anzupassen" style="border: 1px solid #ccc;" class="input-group-addon"><i></i></span>
 																				</div>
 																				<!-- value="{{dataset.displayColor}}" -->
@@ -279,7 +279,7 @@
 																			<td>
 																				<div>
 																					<div class="input-group colorpicker-component">
-																					    <input type="text" style="display:none;" class="input-sm" ng-model="dataset.displayColor" placeholder="Darstellungsfarbe"  required />
+																					    <input type="text" style="display:none;" class="input-sm" ng-model="dataset.displayColor" ng-change="adjustFileLayerColor(dataset)" placeholder="Darstellungsfarbe"  required />
 																					    <span title="Klicken, um die Farbe anzupassen" style="border: 1px solid #ccc;" class="input-group-addon"><i></i></span>
 																					</div>
 																					<!-- value="{{dataset.displayColor}}" -->

@@ -2573,7 +2573,33 @@ angular.module('kommonitorMap').component(
 
                                 $scope.layerControl._layers.forEach(function(layer){
                                   if(layer.group.name === wfsLayerGroupName && layer.name.includes(layerName)){
-                                    layer.layer.setOpacity(opacity);
+                                    // layer.layer.setOpacity(opacity);
+                                    var newStyle = {
+                                      weight: 1,
+                                      opacity: opacity,
+                                      color: defaultBorderColor,
+                                      dashArray: '',
+                                      fillOpacity: opacity,
+                                      fillColor: dataset.displayColor
+                                    };
+                                    // layer.layer.options.style = newStyle;
+                                    layer.layer.setStyle(newStyle);
+                                  }
+                                });
+                              });
+
+                              $scope.$on("adjustColorForWfsLayer", function (event, dataset, color) {
+                                var layerName = dataset.title;
+
+                                $scope.layerControl._layers.forEach(function(layer){
+                                  if(layer.group.name === wfsLayerGroupName && layer.name.includes(layerName)){
+                                    var newStyle = {
+                                      weight: 1,
+                                      color: defaultBorderColor,
+                                      dashArray: '',
+                                      fillColor: dataset.displayColor
+                                    };
+                                    layer.layer.setStyle(newStyle);
                                   }
                                 });
                               });
@@ -2687,6 +2713,22 @@ angular.module('kommonitorMap').component(
                                       fillColor: dataset.displayColor
                                     };
                                     // layer.layer.options.style = newStyle;
+                                    layer.layer.setStyle(newStyle);
+                                  }
+                                });
+                              });
+
+                              $scope.$on("adjustColorForFileLayer", function (event, dataset, color) {
+                                var layerName = dataset.title;
+
+                                $scope.layerControl._layers.forEach(function(layer){
+                                  if(layer.group.name === fileLayerGroupName && layer.name.includes(layerName)){
+                                    var newStyle = {
+                                      weight: 1,
+                                      color: defaultBorderColor,
+                                      dashArray: '',
+                                      fillColor: dataset.displayColor
+                                    };
                                     layer.layer.setStyle(newStyle);
                                   }
                                 });
