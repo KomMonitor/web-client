@@ -2593,14 +2593,15 @@ angular.module('kommonitorMap').component(
                               $scope.$on("addFileLayerToMap", function (event, dataset, opacity) {
                                 var fileLayer;
 
+                                var style = {
+                                  color: dataset.displayColor,
+                                  weight: 1,
+                                  opacity: opacity
+                                };
+
                                 var fileType = dataset.type;
                                 if(fileType.toUpperCase() === "geojson".toUpperCase()){
                                   var geoJSON = dataset.content;
-                                  var style = {
-                                    color: dataset.displayColor,
-                                    weight: 1,
-                                    opacity: opacity
-                                  };
 
                                   fileLayer = L.geoJSON(geoJSON, {
                                       style: style,
@@ -2616,12 +2617,45 @@ angular.module('kommonitorMap').component(
                                         })
                                       }
                                   });
+                                  $scope.showFileLayer(fileLayer, dataset);
                                 }
                                 else if(fileType.toUpperCase() === "shp".toUpperCase()){
-                                  // fileLayer =
+                                  // transform shape ZIP arrayBuffer to GeoJSON
+                                  // var geoJSON = await shp(dataset.content).then(
+                                  var zip = shp.parseZip(dataset.content);
+                                  shp(dataset.content).then(
+                                    function(geojson){
+                                      console.log("Shapefile parsed successfully");
+
+                                      fileLayer = L.geoJSON(geojson, {
+                                          style: style,
+                                          onEachFeature: function(feature, layer){
+                                            layer.on({
+                                                click: function () {
+
+                                                    var propertiesString = "<pre>"+JSON.stringify(feature.properties,null,' ').replace(/[\{\}"]/g,'')+"</pre>";
+
+                                                    if (propertiesString)
+                                                        layer.bindPopup(propertiesString);
+                                                }
+                                            })
+                                          }
+                                      });
+
+
+                                      $scope.showFileLayer(fileLayer, dataset);
+                                    },
+                                    function(reason) {
+                                      console.error("Error while parsing Shapefile");
+                                      console.error(reason);
+                                      throw reason;
+                                    }
+                                  );
                                 }
 
+                              });
 
+                              $scope.showFileLayer = function(fileLayer, dataset){
                                 $scope.layerControl.addOverlay( fileLayer, dataset.title, fileLayerGroupName );
                                 fileLayer.addTo($scope.map);
 
@@ -2631,7 +2665,7 @@ angular.module('kommonitorMap').component(
                                 console.log("Tried fit bounds on fileLayer");
 
                                 $scope.updateSearchControl();
-                              });
+                              }
 
                               $scope.$on("adjustOpacityForFileLayer", function (event, dataset, opacity) {
                                 var layerName = dataset.title;

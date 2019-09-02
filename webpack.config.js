@@ -66,7 +66,8 @@ module.exports = {
           { from: './customizedExternalLibs/leaflet-wfst.src_custom.js', to: 'leaflet-wfst/' },
           { from: nodeModulePathConstant + 'bootstrap-colorpicker/dist', to: 'bootstrap-colorpicker/' },
           { from: './customizedExternalLibs/L.TileLayer.BetterWMS.js', to: 'leaflet-betterWMS/' },
-          { from: nodeModulePathConstant + 'babel-polyfill/dist/polyfill.min.js', to: 'babel-polyfill/' }
+          { from: nodeModulePathConstant + 'babel-polyfill/dist/polyfill.min.js', to: 'babel-polyfill/' },
+          { from: nodeModulePathConstant + 'shpjs/dist/', to: 'shpjs/' }
       ])
     ]
 };

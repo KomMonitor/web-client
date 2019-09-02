@@ -82,6 +82,7 @@
     "leaflet.pattern": "^0.1.0",
     "rangeslide.js": "^0.13.0",
     "shp-write": "^0.3.2",
+    "shpjs": "^3.4.3",
     "slimscroll": "^0.9.1",
     "tableexport": "^5.0.5"
   },

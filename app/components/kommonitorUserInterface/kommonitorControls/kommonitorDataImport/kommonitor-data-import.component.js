@@ -179,7 +179,34 @@ angular
 								};
 
 								$scope.processFileInput_shape = function(file){
+									var fileReader = new FileReader();
 
+									fileReader.onload = function(event) {
+										var arrayBuffer = event.target.result;
+
+										var fileDataset = {
+											title: file.name,
+											isSelected: true,
+											transparency: 0,
+											displayColor: $scope.customFileInputColor,
+											type: "shp",
+											content: arrayBuffer
+										};
+
+										kommonitorDataExchangeService.fileDatasets.push(fileDataset);
+										$scope.$apply();
+										// initialize colorpicker in table
+										setTimeout(function() {
+												// initialize colorpicker
+												$('.input-group.colorpicker-component').colorpicker();
+										}, 1000);
+
+										$scope.handleFileOnMap(fileDataset);
+
+								  };
+
+						      // Read in the image file as a data URL.
+						      fileReader.readAsArrayBuffer(file);
 								};
 
 								$scope.handleFileOnMap = function(dataset){
