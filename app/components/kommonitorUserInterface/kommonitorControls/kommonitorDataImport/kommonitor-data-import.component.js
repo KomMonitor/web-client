@@ -17,7 +17,7 @@ angular
 								$scope.loadingData = false;
 								$scope.date;
 
-								$scope.error;
+								$scope.fileLayerError;
 
 								$scope.wmsNameFilter = undefined;
 
@@ -93,7 +93,7 @@ angular
 								};
 
 								$scope.dropHandler = function(ev) {
-									$scope.error = undefined;
+									$scope.fileLayerError = undefined;
 									$("#fileErrorAlert").hide();
 									$("#fileSuccessAlert").hide();
 								  console.log('File(s) dropped');
@@ -120,7 +120,7 @@ angular
 									    }
 									  }
 									} catch (e) {
-										$scope.error = e;
+										$scope.fileLayerError = e;
 										$("#fileErrorAlert").show();
 									} finally {
 
@@ -142,7 +142,7 @@ angular
 										$scope.processFileInput_shape(file);
 									}
 									else{
-										$scope.error = "Unknown or unsupported file format";
+										$scope.fileLayerError = "Unknown or unsupported file format";
 										$("#fileErrorAlert").show();
 									}
 								};
@@ -255,6 +255,17 @@ angular
 										var file = files[i];
 										$scope.processFileInput(file);
 									}
+								});
+
+								$scope.$on("FileLayerError", function (event, errorMsg) {
+									$scope.fileLayerError = errorMsg;
+									$("#fileErrorAlert").show();
+								});
+
+								$scope.$on("FileLayerSuccess", function (event) {
+									$scope.fileLayerError = undefined;
+									$("#fileErrorAlert").hide();
+									$("#fileSucessAlert").show();
 								});
 
 

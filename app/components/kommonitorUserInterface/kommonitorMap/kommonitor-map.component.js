@@ -2594,9 +2594,12 @@ angular.module('kommonitorMap').component(
                                 var fileLayer;
 
                                 var style = {
-                                  color: dataset.displayColor,
                                   weight: 1,
-                                  opacity: opacity
+                                  opacity: 1,
+                                  color: defaultBorderColor,
+                                  dashArray: '',
+                                  fillOpacity: 1,
+                                  fillColor: dataset.displayColor
                                 };
 
                                 var fileType = dataset.type;
@@ -2622,7 +2625,7 @@ angular.module('kommonitorMap').component(
                                 else if(fileType.toUpperCase() === "shp".toUpperCase()){
                                   // transform shape ZIP arrayBuffer to GeoJSON
                                   // var geoJSON = await shp(dataset.content).then(
-                                  var zip = shp.parseZip(dataset.content);
+                                  // var zip = shp.parseZip(dataset.content);
                                   shp(dataset.content).then(
                                     function(geojson){
                                       console.log("Shapefile parsed successfully");
@@ -2648,6 +2651,7 @@ angular.module('kommonitorMap').component(
                                     function(reason) {
                                       console.error("Error while parsing Shapefile");
                                       console.error(reason);
+                                      $rootScope.$broadcast("FileLayerError", reason);
                                       throw reason;
                                     }
                                   );
@@ -2664,6 +2668,8 @@ angular.module('kommonitorMap').component(
 
                                 console.log("Tried fit bounds on fileLayer");
 
+                                $rootScope.$broadcast("FileLayerSuccess");
+
                                 $scope.updateSearchControl();
                               }
 
@@ -2672,7 +2678,16 @@ angular.module('kommonitorMap').component(
 
                                 $scope.layerControl._layers.forEach(function(layer){
                                   if(layer.group.name === fileLayerGroupName && layer.name.includes(layerName)){
-                                    layer.layer.setOpacity(opacity);
+                                    var newStyle = {
+                                      weight: 1,
+                                      opacity: opacity,
+                                      color: defaultBorderColor,
+                                      dashArray: '',
+                                      fillOpacity: opacity,
+                                      fillColor: dataset.displayColor
+                                    };
+                                    // layer.layer.options.style = newStyle;
+                                    layer.layer.setStyle(newStyle);
                                   }
                                 });
                               });
