@@ -21,7 +21,7 @@ angular
 
 								$scope.wmsNameFilter = undefined;
 
-								$scope.customFileInputColor;
+								$scope.customFileInputColor = `#00AABB`;
 
 								$('#customFileInputColorDiv').colorpicker();
 
@@ -47,7 +47,7 @@ angular
 
 								$scope.handleWmsOnMap = function(dataset){
 									kommonitorDataExchangeService.wmsLegendImage = undefined;
-									console.log("Show WMS: " + dataset.title);
+									console.log("Toggle WMS: " + dataset.title);
 
 									if(dataset.isSelected){
 										//display on Map
@@ -70,7 +70,7 @@ angular
 								};
 
 								$scope.handleWfsOnMap = function(dataset){
-									console.log("Show WFS: " + dataset.title);
+									console.log("Toggle WFS: " + dataset.title);
 
 									if(dataset.isSelected){
 										//display on Map
@@ -92,49 +92,143 @@ angular
 									kommonitorMapService.adjustOpacityForWfsLayer(dataset, opacity);
 								};
 
-								function dropHandler(ev) {
+								$scope.dropHandler = function(ev) {
 									$scope.error = undefined;
 									$("#fileErrorAlert").hide();
 									$("#fileSuccessAlert").hide();
 								  console.log('File(s) dropped');
 
-								  // Prevent default behavior (Prevent file from being opened)
-								  ev.preventDefault();
+									try {
+										// Prevent default behavior (Prevent file from being opened)
+									  ev.preventDefault();
 
-								  if (ev.dataTransfer.items) {
-								    // Use DataTransferItemList interface to access the file(s)
-								    for (var i = 0; i < ev.dataTransfer.items.length; i++) {
-								      // If dropped items aren't files, reject them
-								      if (ev.dataTransfer.items[i].kind === 'file') {
-								        var file = ev.dataTransfer.items[i].getAsFile();
-								        console.log('... file[' + i + '].name = ' + file.name);
+									  if (ev.dataTransfer.items) {
+									    // Use DataTransferItemList interface to access the file(s)
+									    for (var i = 0; i < ev.dataTransfer.items.length; i++) {
+									      // If dropped items aren't files, reject them
+									      if (ev.dataTransfer.items[i].kind === 'file') {
+									        var file = ev.dataTransfer.items[i].getAsFile();
+													$scope.processFileInput(file);
 
-												if(file.ending.toUpperCase() === "json".toUpperCase() || file.ending.toUpperCase() === "geojson".toUpperCase()){
-													console.log("Potential GeoJSON file identified")
-												}
-												else if (file.ending.toUpperCase() === "zip".toUpperCase() || file.ending.toUpperCase() === "shp".toUpperCase()){
-													console.log("Potential Shapefile file identified")
-												}
-												else{
-													$scope.error = "";
-													$("#fileErrorAlert").hide();
-												}
-								      }
-								    }
-								  } else {
-								    // Use DataTransfer interface to access the file(s)
-								    for (var i = 0; i < ev.dataTransfer.files.length; i++) {
-								      console.log('... file[' + i + '].name = ' + ev.dataTransfer.files[i].name);
-								    }
-								  }
-								}
+									      }
+									    }
+									  } else {
+									    // Use DataTransfer interface to access the file(s)
+									    for (var i = 0; i < ev.dataTransfer.files.length; i++) {
+												var file = ev.dataTransfer.files[i];
+												$scope.processFileInput(file);
+									    }
+									  }
+									} catch (e) {
+										$scope.error = e;
+										$("#fileErrorAlert").show();
+									} finally {
 
-								function dragOverHandler(ev) {
-								  console.log('File(s) in drop zone');
+									}
 
-								  // Prevent default behavior (Prevent file from being opened)
-								  ev.preventDefault();
-								}
+								};
+
+								$scope.processFileInput = function(file){
+									console.log('... file[' + i + '].name = ' + file.name);
+
+									var fileEnding = file.name.split('.').pop();
+
+									if(fileEnding.toUpperCase() === "json".toUpperCase() || fileEnding.toUpperCase() === "geojson".toUpperCase()){
+										console.log("Potential GeoJSON file identified")
+										$scope.processFileInput_geoJson(file);
+									}
+									else if (fileEnding.toUpperCase() === "zip".toUpperCase() || fileEnding.toUpperCase() === "shp".toUpperCase()){
+										console.log("Potential Shapefile file identified")
+										$scope.processFileInput_shape(file);
+									}
+									else{
+										$scope.error = "Unknown or unsupported file format";
+										$("#fileErrorAlert").show();
+									}
+								};
+
+								$scope.processFileInput_geoJson = function(file){
+									var fileReader = new FileReader();
+
+									fileReader.onload = function(event) {
+										var geoJSON = JSON.parse(event.target.result);
+
+										var fileDataset = {
+											title: file.name,
+											isSelected: true,
+											transparency: 0,
+											displayColor: $scope.customFileInputColor,
+											type: "GeoJSON",
+											content: geoJSON
+										};
+
+										kommonitorDataExchangeService.fileDatasets.push(fileDataset);
+										$scope.$apply();
+										// initialize colorpicker in table
+										setTimeout(function() {
+												// initialize colorpicker
+												$('.input-group.colorpicker-component').colorpicker();
+										}, 1000);
+
+										$scope.handleFileOnMap(fileDataset);
+
+								  };
+
+						      // Read in the image file as a data URL.
+						      fileReader.readAsText(file);
+								};
+
+								$scope.processFileInput_shape = function(file){
+
+								};
+
+								$scope.handleFileOnMap = function(dataset){
+									console.log("Toggle File Layer: " + dataset.title);
+
+									if(dataset.isSelected){
+										//display on Map
+										var opacity = 1 - dataset.transparency;
+										kommonitorMapService.addFileLayerToMap(dataset, opacity);
+									}
+									else{
+										//remove WMS layer from map
+										kommonitorMapService.removeFileLayerFromMap(dataset);
+									}
+								};
+
+								$scope.adjustFileLayerTransparency = function(dataset){
+
+									var opacity = 1 - dataset.transparency;
+
+									kommonitorMapService.adjustOpacityForFileLayer(dataset, opacity);
+								};
+
+								$scope.$on("onDropFile", function (ev, dropEvent) {
+									$scope.dropHandler(dropEvent);
+								});
+
+								// $scope.dragOverHandler = function(ev) {
+								//   console.log('File(s) in drop zone');
+								//
+								//   // Prevent default behavior (Prevent file from being opened)
+								//   ev.preventDefault();
+								// };
+
+								$scope.openFileDialog = function(){
+									// $("#fileUploadInput").trigger("click");
+									document.getElementById("fileUploadInput").click();
+								};
+
+								$(document).on('change','#fileUploadInput',function(){
+
+									// get the file
+									var files = document.getElementById('fileUploadInput').files;
+
+									for (var i = 0; i < files.length; i++) {
+										var file = files[i];
+										$scope.processFileInput(file);
+									}
+								});
 
 
 							} ]

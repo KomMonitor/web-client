@@ -373,6 +373,7 @@ angular.module('kommonitorMap').component(
                     const reachabilityLayerGroupName = "Erreichbarkeiten";
                     const wmsLayerGroupName = "Web Map Services (WMS)";
                     const wfsLayerGroupName = "Web Feature Services (WFS)";
+                    const fileLayerGroupName = "Dateilayer";
 
                     // create classyBrew object
                     $scope.defaultBrew = new classyBrew();
@@ -530,6 +531,9 @@ angular.module('kommonitorMap').component(
 
                       },
                       wfsLayerGroupName: {
+
+                      },
+                      fileLayerGroupName: {
 
                       },
                       reachabilityLayerGroupName: {
@@ -2418,6 +2422,9 @@ angular.module('kommonitorMap').component(
                                   else if (poiFeature.properties[__env.FEATURE_NAME_PROPERTY_NAME]){
                                     newMarker.bindPopup( poiFeature.properties[__env.FEATURE_NAME_PROPERTY_NAME] + "\n\n" + propertiesString);
                                   }
+                                  else{
+                                    newMarker.bindPopup( propertiesString);
+                                  }
                                     markers.addLayer(newMarker);
                                 });
 
@@ -2577,6 +2584,71 @@ angular.module('kommonitorMap').component(
 
                                 $scope.layerControl._layers.forEach(function(layer){
                                   if(layer.group.name === wfsLayerGroupName && layer.name.includes(layerName)){
+                                    $scope.layerControl.removeLayer(layer.layer);
+                                    $scope.map.removeLayer(layer.layer);
+                                  }
+                                });
+                              });
+
+                              $scope.$on("addFileLayerToMap", function (event, dataset, opacity) {
+                                var fileLayer;
+
+                                var fileType = dataset.type;
+                                if(fileType.toUpperCase() === "geojson".toUpperCase()){
+                                  var geoJSON = dataset.content;
+                                  var style = {
+                                    color: dataset.displayColor,
+                                    weight: 1,
+                                    opacity: opacity
+                                  };
+
+                                  fileLayer = L.geoJSON(geoJSON, {
+                                      style: style,
+                                      onEachFeature: function(feature, layer){
+                                        layer.on({
+                                            click: function () {
+
+                                                var propertiesString = "<pre>"+JSON.stringify(feature.properties,null,' ').replace(/[\{\}"]/g,'')+"</pre>";
+
+                                                if (popupContent)
+                                                    layer.bindPopup(propertiesString);
+                                            }
+                                        })
+                                      }
+                                  });
+                                }
+                                else if(fileType.toUpperCase() === "shp".toUpperCase()){
+                                  // fileLayer =
+                                }
+
+
+                                $scope.layerControl.addOverlay( fileLayer, dataset.title, fileLayerGroupName );
+                                fileLayer.addTo($scope.map);
+
+                                console.log("Try to fit bounds on fileLayer");
+                                $scope.map.fitBounds(fileLayer.getBounds());
+
+                                console.log("Tried fit bounds on fileLayer");
+
+                                $scope.updateSearchControl();
+                              });
+
+                              $scope.$on("adjustOpacityForFileLayer", function (event, dataset, opacity) {
+                                var layerName = dataset.title;
+
+                                $scope.layerControl._layers.forEach(function(layer){
+                                  if(layer.group.name === fileLayerGroupName && layer.name.includes(layerName)){
+                                    layer.layer.setOpacity(opacity);
+                                  }
+                                });
+                              });
+
+                              $scope.$on("removeFileLayerFromMap", function (event, dataset) {
+
+                                var layerName = dataset.title;
+
+                                $scope.layerControl._layers.forEach(function(layer){
+                                  if(layer.group.name === fileLayerGroupName && layer.name.includes(layerName)){
                                     $scope.layerControl.removeLayer(layer.layer);
                                     $scope.map.removeLayer(layer.layer);
                                   }

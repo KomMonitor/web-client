@@ -226,7 +226,8 @@
 								                <div class="col-xs-10">
 																	<div class="form-group">
 																		<!-- DRAG/DROP Area to insert features from file  -->
-																		<div id="drop_zone" ondrop="dropHandler(event);" ondragover="dragOverHandler(event);">
+																		<div id="drop_zone" droppable ng-click="openFileDialog()" drop="dropHandler(event);">
+																			<input type="file" id="fileUploadInput" style="display: none" accept=".json, .geojson, .zip, .shp"/>
 																			<i style="font-size:4em; margin:5px; color: #d6d6d6;" class="fas fa-file-upload"></i>
 																			<h4 style="vertical-align: middle; color:#d6d6d6; margin-bottom:5px;">GeoJSON (.json oder .geojson) oder Shapefile (gezippt oder nur .SHP Datei)</h4>
 																		</div>
@@ -245,7 +246,7 @@
 
 															<br/>
 
-															<div ng-show="$ctrl.kommonitorDataExchangeService.fileDatasets.length > 0" id="fileInputForm">
+															<div ng-show="$ctrl.kommonitorDataExchangeServiceInstance.fileDatasets.length > 0" id="fileInputForm">
 
 																<table class="table table-condensed" style="margin-bottom:0px;">
 															    <thead>
@@ -278,7 +279,7 @@
 																			<td>
 																				<div>
 																					<div class="input-group colorpicker-component">
-																					    <input type="text" style="display:none;" class="form-control input-sm" ng-model="dataset.displayColor" placeholder="Darstellungsfarbe"  required />
+																					    <input type="text" style="display:none;" class="input-sm" ng-model="dataset.displayColor" placeholder="Darstellungsfarbe"  required />
 																					    <span title="Klicken, um die Farbe anzupassen" style="border: 1px solid #ccc;" class="input-group-addon"><i></i></span>
 																					</div>
 																					<!-- value="{{dataset.displayColor}}" -->

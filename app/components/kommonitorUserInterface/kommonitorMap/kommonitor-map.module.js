@@ -128,6 +128,20 @@ angular.module('kommonitorMap').service(
             dataset);
       };
 
+      this.addFileLayerToMap = function (dataset, opacity) {
+        $rootScope.$broadcast("addFileLayerToMap",
+            dataset);
+      };
+
+      this.adjustOpacityForFileLayer = function (dataset, opacity) {
+        $rootScope.$broadcast("adjustOpacityForFileLayer",
+            dataset, opacity);
+      };
+
+      this.removeFileLayerFromMap = function (dataset) {
+        $rootScope.$broadcast("removeFileLayerFromMap",
+            dataset);
+      };
 
 
 

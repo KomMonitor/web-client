@@ -6,6 +6,29 @@
 	/* overflow: hidden; */
 }
 
+#drop_zone {
+  border: 5px solid #d6d6d6;
+	border-radius: 10px;
+	border-style: dashed;
+	text-align: center;
+	valign: center;
+	color: "#d6d6d6"
+  width:  60%;
+  height: 40%;
+
+	cursor: pointer;
+	opacity: 0.7;
+}
+
+#drop_zone:hover {
+	opacity: 1;
+}
+
+/* droppable over class */
+.over {
+	opacity: 0.4;
+}
+
 #mailSuccessInfo{
     position: fixed;
     bottom: 20px;
@@ -527,17 +550,6 @@
 
 	align-items: center;
 	justify-content: center;
-}
-
-#drop_zone {
-  border: 5px solid #d6d6d6;
-	border-radius: 10px;
-	border-style: dashed;
-	text-align: center;
-	valign: center;
-	color: "#d6d6d6"
-  width:  60%;
-  height: 40%;
 }
 
 .hiddenTable {
