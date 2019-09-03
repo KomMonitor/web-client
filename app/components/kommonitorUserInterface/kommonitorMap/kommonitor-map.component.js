@@ -3678,7 +3678,7 @@ angular.module('kommonitorMap').component(
                                             }
                                             else if(! kommonitorDataExchangeService.isMeasureOfValueChecked){
                                               //$scope.currentIndicatorLayer.resetStyle(layer);
-                                              if($scope.indicatorTypeOfCurrentLayer === 'DYNAMIC'){
+                                              if($scope.indicatorTypeOfCurrentLayer.includes('DYNAMIC')){
                                                   layer.setStyle(styleDynamicIndicator(layer.feature));
                                               }
                                               else{
@@ -3704,7 +3704,7 @@ angular.module('kommonitorMap').component(
                                           }
                                           else if(! kommonitorDataExchangeService.isMeasureOfValueChecked){
                                             //$scope.currentIndicatorLayer.resetStyle(layer);
-                                            if($scope.indicatorTypeOfCurrentLayer === 'DYNAMIC'){
+                                            if($scope.indicatorTypeOfCurrentLayer.includes('DYNAMIC')){
                                                 layer.setStyle(styleDynamicIndicator(layer.feature));
                                             }
                                             else{
@@ -3949,7 +3949,7 @@ angular.module('kommonitorMap').component(
                                                                 }
                                                                 else{
 
-                                                                  if (indicatorMetadataAndGeoJSON.indicatorType === "STATUS"){
+                                                                  if (indicatorMetadataAndGeoJSON.indicatorType.includes("STATUS")){
                                                                     setupDefaultBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, indicatorMetadataAndGeoJSON.defaultClassificationMapping.items.length, indicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, $scope.classifyMethod);
                                                                     $scope.propertyName = INDICATOR_DATE_PREFIX + date;
 
@@ -3960,7 +3960,7 @@ angular.module('kommonitorMap').component(
                                                                     $scope.makeInfoControl(date, isCustomComputation);
                                                                     $scope.makeDefaultLegend(indicatorMetadataAndGeoJSON.defaultClassificationMapping);
                                                                   }
-                                                                  else if (indicatorMetadataAndGeoJSON.indicatorType === "DYNAMIC"){
+                                                                  else if (indicatorMetadataAndGeoJSON.indicatorType.includes("DYNAMIC")){
                                                                     setupDynamicIndicatorBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, defaultColorBrewerPaletteForBalanceIncreasingValues, defaultColorBrewerPaletteForBalanceDecreasingValues, $scope.classifyMethod);
                                                                     $scope.propertyName = INDICATOR_DATE_PREFIX + date;
 
@@ -4096,7 +4096,7 @@ angular.module('kommonitorMap').component(
                                                                             }
                                                                             else{
 
-                                                                              if($scope.indicatorTypeOfCurrentLayer === 'DYNAMIC'){
+                                                                              if($scope.indicatorTypeOfCurrentLayer.includes('DYNAMIC')){
                                                                                 setupDynamicIndicatorBrew($scope.currentGeoJSONOfCurrentLayer, $scope.indicatorPropertyName, defaultColorBrewerPaletteForBalanceIncreasingValues, defaultColorBrewerPaletteForBalanceDecreasingValues, $scope.classifyMethod);
 
                                                                                 $scope.currentIndicatorLayer.eachLayer(function(layer) {
