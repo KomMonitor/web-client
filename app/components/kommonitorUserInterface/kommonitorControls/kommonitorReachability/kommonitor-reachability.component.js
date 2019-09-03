@@ -21,9 +21,9 @@ angular
 
 							$scope.currentIsochronesGeoJSON;
 
-							$scope.latitudeStart = 51.42055331;
-							$scope.longitudeStart = 7.049869894;
-							$scope.locationsArray = [[7.049869894,51.42055331]];
+							$scope.latitudeStart = 51.3418407;
+							$scope.longitudeStart = 7.4173922;
+							$scope.locationsArray = [[7.4173922,51.3418407]];
 							$scope.rangeArray = [300,600,900];
 							$scope.transitMode;
 							$scope.reachProfile;
@@ -78,7 +78,7 @@ angular
 								$scope.reachProfile = "foot-walking";
 								$scope.speedInKilometersPerHour = 3;
 								$scope.reachMode = "Zeit";
-								$scope.locationsArray = [[7.049869894,51.42055331]];
+								$scope.locationsArray = [[7.4233922,51.3458407]];
 								$scope.rangeArray = [300,600,900];
 								$scope.useMultipleStartPoints = false;
 
