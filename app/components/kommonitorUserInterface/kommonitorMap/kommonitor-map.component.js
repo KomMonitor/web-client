@@ -1580,6 +1580,30 @@ angular.module('kommonitorMap').component(
                       });
                     }
 
+                    $scope.getIndicatorStringFromIndicatorType = function(){
+                      var indicatorTypeString;
+                      if ($scope.currentIndicatorMetadataAndGeoJSON.indicatorType.includes("DYNAMIC_ABSOLUTE")){
+                        indicatorTypeString = "Dynamik-Indikator (absolute)";
+                      }
+                      else if ($scope.currentIndicatorMetadataAndGeoJSON.indicatorType.includes("DYNAMIC_RELATIVE")){
+                        indicatorTypeString = "Dynamik-Indikator (relativ)";
+                      }
+                      else if ($scope.currentIndicatorMetadataAndGeoJSON.indicatorType.includes("DYNAMIC_STANDARDIZED")){
+                        indicatorTypeString = "Dynamik-Indikator (standardisiert)";
+                      }
+                      else if ($scope.currentIndicatorMetadataAndGeoJSON.indicatorType.includes("STATUS_ABSOLUTE")){
+                        indicatorTypeString = "Status-Indikator (absolut)";
+                      }
+                      else if ($scope.currentIndicatorMetadataAndGeoJSON.indicatorType.includes("STATUS_RELATIVE")){
+                        indicatorTypeString = "Status-Indikator (relativ)";
+                      }
+                      else if ($scope.currentIndicatorMetadataAndGeoJSON.indicatorType.includes("STATUS_STANDARDIZED")){
+                        indicatorTypeString = "Status-Indikator (standardisiert)";
+                      }
+
+                      return indicatorTypeString;
+                    };
+
                     $scope.makeDefaultLegend = function(defaultClassificationMapping){
 
                       if(!$scope.showLegendControl){
@@ -1629,7 +1653,7 @@ angular.module('kommonitorMap').component(
                         //         labels[i] + (labels[i + 1] ? ' &ndash; &lt; ' + labels[i + 1] + '<br>' : '+');
                         // }
 
-                        $scope.div.innerHTML += "<h4><b>Indikatorenlegende</b><br/>Status-Indikator</h4><br/><em>Darstellung der Indikatorenwerte zum gew&auml;hlten Zeitpunkt " + tsToDate_fullYear(dateToTS(dateAsDate)) + "</em><br/><br/>";
+                        $scope.div.innerHTML += "<h4><b>Indikatorenlegende</b><br/>" + $scope.getIndicatorStringFromIndicatorType() + "</h4><br/><em>Darstellung der Indikatorenwerte zum gew&auml;hlten Zeitpunkt " + tsToDate_fullYear(dateToTS(dateAsDate)) + "</em><br/><br/>";
                         $scope.div.innerHTML += "<label>Einheit: </label> " + $scope.indicatorUnit + "<br/>";
 
                         $scope.div.innerHTML += $scope.appendClassifyRadioOptions();
@@ -1736,14 +1760,14 @@ angular.module('kommonitorMap').component(
                         $scope.div.innerHTML += '<div>';
 
                         if($scope.currentIndicatorMetadataAndGeoJSON['fromDate']){
-                          $scope.div.innerHTML += "<h4><b>Indikatorenlegende</b><br/>Bilanzierung</h4><br/>";
-                          $scope.div.innerHTML += "<em>" + $scope.currentIndicatorMetadataAndGeoJSON['fromDate'] + " - " + $scope.currentIndicatorMetadataAndGeoJSON['toDate'] + "</em><br/><br/>";
+                          $scope.div.innerHTML += "<h4><b>Indikatorenlegende</b><br/>" + $scope.getIndicatorStringFromIndicatorType() + "</h4><br/>";
+                          $scope.div.innerHTML += "<em>Bilanzierung " + $scope.currentIndicatorMetadataAndGeoJSON['fromDate'] + " - " + $scope.currentIndicatorMetadataAndGeoJSON['toDate'] + "</em><br/><br/>";
                         }
                         else{
 
                           var dateComponents = $scope.date.split("-");
                           var dateAsDate = new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]));
-                          $scope.div.innerHTML += "<h4><b>Indikatorenlegende</b><br/>Dynamik-Indikator</h4><br/><em>Darstellung der zeitlichen Entwicklung zum gew&auml;hlten Zeitpunkt " + tsToDate_fullYear(dateToTS(dateAsDate)) + "</em><br/><br/>";
+                          $scope.div.innerHTML += "<h4><b>Indikatorenlegende</b><br/>" + $scope.getIndicatorStringFromIndicatorType() + "</h4><br/><em>Darstellung der zeitlichen Entwicklung zum gew&auml;hlten Zeitpunkt " + tsToDate_fullYear(dateToTS(dateAsDate)) + "</em><br/><br/>";
                         }
 
                         $scope.div.innerHTML += "<label>Einheit: </label> " + $scope.indicatorUnit + "<br/>";
@@ -1878,7 +1902,7 @@ angular.module('kommonitorMap').component(
                         $scope.div.innerHTML = $scope.appendLegendCloseButton();
                         $scope.div.innerHTML += '<div>';
 
-                        $scope.div.innerHTML += "<h4><b>Indikatorenlegende</b><br/>Schwellwert-Klassifizierung</h4><br/><em>Gew&auml;hlter Zeitpunkt: " + tsToDate_fullYear(dateToTS(dateAsDate)) + "</em><br/>";
+                        $scope.div.innerHTML += "<h4><b>Indikatorenlegende</b><br/>" + $scope.getIndicatorStringFromIndicatorType() + "</h4><br/><em>Schwellwert-Klassifizierung<br/>Gew&auml;hlter Zeitpunkt: " + tsToDate_fullYear(dateToTS(dateAsDate)) + "</em><br/>";
 
                         $scope.div.innerHTML += "<em>aktueller Schwellwert: </em> " + kommonitorDataExchangeService.measureOfValue + "<br/><br/>";
 
