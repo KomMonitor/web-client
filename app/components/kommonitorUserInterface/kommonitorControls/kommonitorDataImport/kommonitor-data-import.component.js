@@ -18,6 +18,7 @@ angular
 								$scope.date;
 
 								$scope.fileLayerError;
+								$scope.tmpDatasetName;
 
 								$scope.wmsNameFilter = undefined;
 
@@ -219,6 +220,8 @@ angular
 								$scope.handleFileOnMap = function(dataset){
 									console.log("Toggle File Layer: " + dataset.title);
 
+									$scope.tmpDatasetName = dataset.title;
+
 									if(dataset.isSelected){
 										//display on Map
 										var opacity = 1 - dataset.transparency;
@@ -271,12 +274,20 @@ angular
 									}
 								});
 
-								$scope.$on("FileLayerError", function (event, errorMsg) {
+								$scope.$on("FileLayerError", function (event, errorMsg, dataset) {
 									$scope.fileLayerError = errorMsg;
 									$("#fileErrorAlert").show();
+
+									// remove element from fileDatasets
+									for( var i = 0; i < kommonitorDataExchangeService.fileDatasets.length; i++){
+									   if ( kommonitorDataExchangeService.fileDatasets[i] === dataset) {
+									     kommonitorDataExchangeService.fileDatasets.splice(i, 1);
+											 break;
+									   }
+									}
 								});
 
-								$scope.$on("FileLayerSuccess", function (event) {
+								$scope.$on("FileLayerSuccess", function (event, dataset) {
 									$scope.fileLayerError = undefined;
 									$("#fileErrorAlert").hide();
 									$("#fileSucessAlert").show();

@@ -2677,7 +2677,7 @@ angular.module('kommonitorMap').component(
                                     function(reason) {
                                       console.error("Error while parsing Shapefile");
                                       console.error(reason);
-                                      $rootScope.$broadcast("FileLayerError", reason);
+                                      $rootScope.$broadcast("FileLayerError", reason, dataset);
                                       throw reason;
                                     }
                                   );
@@ -2694,7 +2694,7 @@ angular.module('kommonitorMap').component(
 
                                 console.log("Tried fit bounds on fileLayer");
 
-                                $rootScope.$broadcast("FileLayerSuccess");
+                                $rootScope.$broadcast("FileLayerSuccess", dataset);
 
                                 $scope.updateSearchControl();
                               }

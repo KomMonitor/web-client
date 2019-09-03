@@ -210,16 +210,16 @@
 																</ul>
 															</div> -->
 
-															<div id="fileSucessAlert" hidden class="alert alert-success alert-dismissible">
-												                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+															<div id="fileSucessAlert" hidden class="alert alert-success">
+												                <!-- <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button> -->
 												                <h4><i class="icon fa fa-check"></i> Features aus Datei hinzugef&uuml;gt</h4>
-												                Es wurde eine neuer Kartenlayer erstellt.
+												                Es wurde eine neuer Kartenlayer <i>{{tmpDatasetName}}</i> erstellt.
 												      </div>
 
-															<div id="fileErrorAlert" hidden class="alert alert-danger alert-dismissible">
-												                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+															<div id="fileErrorAlert" hidden class="alert alert-danger ">
+												                <!-- <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button> -->
 												                <h4><i class="icon fa fa-check"></i> Fehler</h4>
-												                Es trat ein Fehler beim Verarbeiten der Datei auf. Fehlermeldung: <i>{{fileLayerError}}</i>
+												                Es trat ein Fehler beim Verarbeiten der Datei <i>{{tmpDatasetName}}</i> auf. Fehlermeldung: <i>{{fileLayerError}}</i>
 												      </div>
 
 															<div class="row vertical-align">
