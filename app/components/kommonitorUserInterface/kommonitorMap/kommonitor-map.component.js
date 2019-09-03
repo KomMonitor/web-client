@@ -471,17 +471,27 @@ angular.module('kommonitorMap').component(
 
                       var osm_blackWhite = new L.tileLayer.grayscale(osmUrl, {minZoom: __env.minZoomLevel, maxZoom: __env.maxZoomLevel, attribution: osmAttrib});
 
+                      var rvrAttrib='Map data © <a href="https://geodaten.metropoleruhr.de">https://geodaten.metropoleruhr.de</a>';
                       var wmsLayerRVR = L.tileLayer.wms('https://geodaten.metropoleruhr.de/spw2?', {
                           layers: 'stadtplan_rvr',
-                          minZoom: __env.minZoomLevel, maxZoom: __env.maxZoomLevel
+                          minZoom: __env.minZoomLevel, maxZoom: __env.maxZoomLevel,
+                          attribution: rvrAttrib
                       });
+                      var wmsLayerRVR_test = L.tileLayer.wms('https://geodaten.metropoleruhr.de/spw2?', {
+                          layers: 'spw2_graublau',
+                          minZoom: __env.minZoomLevel, maxZoom: __env.maxZoomLevel,
+                          attribution: rvrAttrib
+                      });
+                      var geobasisAttrib='Map data © <a href="https://www.bezreg-koeln.nrw.de/brk_internet/geobasis/">Geobasis NRW</a>';
                       var wmsLayerDTK = L.tileLayer.wms('https://www.wms.nrw.de/geobasis/wms_nw_dtk?', {
                           layers: 'nw_dtk_pan',
-                          minZoom: __env.minZoomLevel, maxZoom: __env.maxZoomLevel
+                          minZoom: __env.minZoomLevel, maxZoom: __env.maxZoomLevel,
+                          attribution: geobasisAttrib
                       });
                       var wmsLayerDOP = L.tileLayer.wms('https://www.wms.nrw.de/geobasis/wms_nw_dop?', {
                           layers: 'nw_dop_rgb',
-                          minZoom: __env.minZoomLevel, maxZoom: __env.maxZoomLevel
+                          minZoom: __env.minZoomLevel, maxZoom: __env.maxZoomLevel,
+                          attribution: geobasisAttrib
                       });
 
                       //CITY OF ESSEN WMS #1
@@ -517,7 +527,8 @@ angular.module('kommonitorMap').component(
                         "OpenStreetMap - Farbe": osm,
                         "NRW Digitale Topographische Karte": wmsLayerDTK,
                         "NRW Digitale Orthophotos (Luftbilder)": wmsLayerDOP,
-                        "RVR Stadtplan": wmsLayerRVR
+                        "RVR Stadtplan - Farbe": wmsLayerRVR,
+                        "RVR Stadtplan - Graublau": wmsLayerRVR_test
                       };
 
                     $scope.groupedOverlays = {

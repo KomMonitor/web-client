@@ -145,7 +145,7 @@ angular
 										console.log("Potential GeoJSON file identified")
 										$scope.processFileInput_geoJson(file);
 									}
-									else if (fileEnding.toUpperCase() === "zip".toUpperCase() || fileEnding.toUpperCase() === "shp".toUpperCase()){
+									else if (fileEnding.toUpperCase() === "zip".toUpperCase()){
 										console.log("Potential Shapefile file identified")
 										$scope.processFileInput_shape(file);
 									}
