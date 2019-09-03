@@ -2669,7 +2669,7 @@ angular.module('kommonitorMap').component(
 
                                                 var propertiesString = "<pre>"+JSON.stringify(feature.properties,null,' ').replace(/[\{\}"]/g,'')+"</pre>";
 
-                                                if (popupContent)
+                                                if (propertiesString)
                                                     layer.bindPopup(propertiesString);
                                             }
                                         })
