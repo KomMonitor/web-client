@@ -2546,6 +2546,20 @@ angular.module('kommonitorMap').component(
                                        $scope.map.fitBounds(wfsLayer.getBounds());
 
                                        console.log("Tried fit bounds on wfsLayer");
+
+                                       //var geoJSON = layer.layertoGeoJSON();
+                                       var firstLayersPropertyName = Object.keys(wfsLayer._layers)[0];
+                                       if (firstLayersPropertyName){
+                                         var geoJSON_exmaple = wfsLayer._layers[firstLayersPropertyName].toGeoJSON();
+                                         if (isLinearGeoJSON(geoJSON_exmaple)){
+                                          var newStyle = {
+                                            color: dataset.displayColor
+                                          };
+
+                                          wfsLayer.setStyle(newStyle);
+
+                                         }
+                                       }
                                        // $scope.loadingData = false;
                                      });
 
@@ -2599,6 +2613,16 @@ angular.module('kommonitorMap').component(
                                       dashArray: '',
                                       fillColor: dataset.displayColor
                                     };
+
+                                    //var geoJSON = layer.layertoGeoJSON();
+                                    var firstLayersPropertyName = Object.keys(layer.layer._layers)[0];
+                                    if (firstLayersPropertyName){
+                                      var geoJSON_exmaple = layer.layer._layers[firstLayersPropertyName].toGeoJSON();
+                                      if (isLinearGeoJSON(geoJSON_exmaple)){
+                                        newStyle.color = dataset.displayColor;
+                                      }
+                                    }
+
                                     layer.layer.setStyle(newStyle);
                                   }
                                 });
@@ -2632,6 +2656,11 @@ angular.module('kommonitorMap').component(
                                 if(fileType.toUpperCase() === "geojson".toUpperCase()){
                                   var geoJSON = dataset.content;
 
+                                  if(isLinearGeoJSON(geoJSON)){
+                                    // when is line dataset then set the border color
+                                    style.color = dataset.displayColor;
+                                  }
+
                                   fileLayer = L.geoJSON(geoJSON, {
                                       style: style,
                                       onEachFeature: function(feature, layer){
@@ -2656,6 +2685,11 @@ angular.module('kommonitorMap').component(
                                     function(geojson){
                                       console.log("Shapefile parsed successfully");
 
+                                      if(isLinearGeoJSON(geojson)){
+                                        // when is line dataset then set the border color
+                                        style.color = dataset.displayColor;
+                                      }
+
                                       fileLayer = L.geoJSON(geojson, {
                                           style: style,
                                           onEachFeature: function(feature, layer){
@@ -2677,13 +2711,38 @@ angular.module('kommonitorMap').component(
                                     function(reason) {
                                       console.error("Error while parsing Shapefile");
                                       console.error(reason);
-                                      $rootScope.$broadcast("FileLayerError", reason);
+                                      $rootScope.$broadcast("FileLayerError", reason, dataset);
                                       throw reason;
                                     }
                                   );
                                 }
 
                               });
+
+                              var isLinearGeoJSON = function(geoJSON){
+                                if (geoJSON.features){
+                                  // featureCollection
+                                  if (geoJSON.features[0].geometry){
+                                    if(geoJSON.features[0].geometry.type === "LineString" || geoJSON.features[0].geometry.type === "MultiLineString"){
+                                      return true;
+                                    }
+                                  }
+                                }
+                                else if (geoJSON.geometry){
+                                  // single object
+                                  if(geoJSON.geometry.type === "LineString" || geoJSON.geometry.type === "MultiLineString"){
+                                    return true;
+                                  }
+                                }
+                                else if (geoJSON.geometries){
+                                  // geometryCollection
+                                  if(geoJSON.geometries[0].type === "LineString" || geoJSON.geometries[0].type === "MultiLineString"){
+                                    return true;
+                                  }
+                                }
+
+                                return false;
+                              };
 
                               $scope.showFileLayer = function(fileLayer, dataset){
                                 $scope.layerControl.addOverlay( fileLayer, dataset.title, fileLayerGroupName );
@@ -2694,7 +2753,7 @@ angular.module('kommonitorMap').component(
 
                                 console.log("Tried fit bounds on fileLayer");
 
-                                $rootScope.$broadcast("FileLayerSuccess");
+                                $rootScope.$broadcast("FileLayerSuccess", dataset);
 
                                 $scope.updateSearchControl();
                               }
@@ -2712,6 +2771,7 @@ angular.module('kommonitorMap').component(
                                       fillOpacity: opacity,
                                       fillColor: dataset.displayColor
                                     };
+
                                     // layer.layer.options.style = newStyle;
                                     layer.layer.setStyle(newStyle);
                                   }
@@ -2729,6 +2789,16 @@ angular.module('kommonitorMap').component(
                                       dashArray: '',
                                       fillColor: dataset.displayColor
                                     };
+
+                                    //var geoJSON = layer.layertoGeoJSON();
+                                    var firstLayersPropertyName = Object.keys(layer.layer._layers)[0];
+                                    if (firstLayersPropertyName){
+                                      var geoJSON_exmaple = layer.layer._layers[firstLayersPropertyName].toGeoJSON();
+                                      if (isLinearGeoJSON(geoJSON_exmaple)){
+                                        newStyle.color = dataset.displayColor;
+                                      }
+                                    }
+
                                     layer.layer.setStyle(newStyle);
                                   }
                                 });
