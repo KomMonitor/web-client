@@ -1121,27 +1121,31 @@ angular.module('kommonitorMap').component(
 
                       var jspdf = new jsPDF();
 
-                      // jspdf.setFontSize(18);
-                      // jspdf.text('KomMonitor - (vorläufiges) Metadatenblatt', 14, 22);
+                      jspdf.setFontSize(16);
+                      jspdf.setFontStyle('bolditalic');
+                      jspdf.text(indicatorMetadata.indicatorName, 14, 22);
                       jspdf.setFontSize(11);
 
                       var headStyles = {
                         fontStyle: 'bold',
-                        fontSize: 11,
+                        fontSize: 12,
                         fillColor: '#337ab7',
                         // auto or wrap
                         cellWidth: 'auto'
                       };
 
                       var bodyStyles = {
-                        fontStyle: 'bold',
+                        fontStyle: 'normal',
                         fontSize: 11,
                         // auto or wrap or number
                         cellWidth: 'auto'
                       };
 
                       // first column with fixed width
-                      var columnStyles = {0: {cellWidth: 45}};
+                      var columnStyles = {
+                        0: {cellWidth: 45, fontStyle: 'bold'},
+                        1: {fontStyle: 'normal'}
+                      };
 
                       var topicsString = "";
 
@@ -1160,15 +1164,15 @@ angular.module('kommonitorMap').component(
 
                       // Or JavaScript:
                       jspdf.autoTable({
-                          head: [['Themenfeld', 'Name des Indikators', 'Kategorie', 'Typ', 'Kennzeichen']],
+                          head: [['Themenfeld', 'Kategorie', 'Typ', 'Kennzeichen']],
                           body: [
-                              [topicsString, indicatorMetadata.indicatorName, category, $scope.getIndicatorStringFromIndicatorType(), indicatorMetadata.abbreviation ? indicatorMetadata.abbreviation : "-"]
+                              [topicsString, category, $scope.getIndicatorStringFromIndicatorType(), indicatorMetadata.abbreviation ? indicatorMetadata.abbreviation : "-"]
                               // ...
                           ],
                           theme: 'grid',
                           headStyles: headStyles,
                           bodyStyles: bodyStyles,
-                          startY: 10
+                          startY: 30
                       });
 
                       var linkedIndicatorsString = "";
