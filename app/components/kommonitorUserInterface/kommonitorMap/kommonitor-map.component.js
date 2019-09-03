@@ -1126,12 +1126,21 @@ angular.module('kommonitorMap').component(
                       //insert logo
                       var img = new Image();
                       img.src = '/logos/KM_Logo1.png';
-                      jspdf.addImage(img, 'PNG', 1, 1, 12, 12);
+                      jspdf.addImage(img, 'PNG', 193, 5, 12, 12);
 
                       jspdf.setFontSize(16);
                       jspdf.setFontStyle('bolditalic');
-                      jspdf.text(indicatorMetadata.indicatorName, 14, 25);
+                      var titleArray = jspdf.splitTextToSize(indicatorMetadata.indicatorName, 180);
+                      jspdf.text(titleArray, 14, 25);
                       jspdf.setFontSize(11);
+
+                      var initialStartY = 30;
+
+                      if (titleArray.length > 1){
+                        titleArray.forEach(function(item){
+                          initialStartY += 5;
+                        });
+                      }
 
                       var headStyles = {
                         fontStyle: 'bold',
@@ -1179,7 +1188,7 @@ angular.module('kommonitorMap').component(
                           theme: 'grid',
                           headStyles: headStyles,
                           bodyStyles: bodyStyles,
-                          startY: 35
+                          startY: initialStartY
                       });
 
                       var linkedIndicatorsString = "";
