@@ -1120,10 +1120,17 @@ angular.module('kommonitorMap').component(
                       var indicatorMetadata = kommonitorDataExchangeService.selectedIndicator;
 
                       var jspdf = new jsPDF();
+                      jspdf.setFontSize(16);
+                      // jspdf.text("Metadatenblatt", 70, 6);
+
+                      //insert logo
+                      var img = new Image();
+                      img.src = '/logos/KM_Logo1.png';
+                      jspdf.addImage(img, 'PNG', 1, 1, 12, 12);
 
                       jspdf.setFontSize(16);
                       jspdf.setFontStyle('bolditalic');
-                      jspdf.text(indicatorMetadata.indicatorName, 14, 22);
+                      jspdf.text(indicatorMetadata.indicatorName, 14, 25);
                       jspdf.setFontSize(11);
 
                       var headStyles = {
@@ -1172,7 +1179,7 @@ angular.module('kommonitorMap').component(
                           theme: 'grid',
                           headStyles: headStyles,
                           bodyStyles: bodyStyles,
-                          startY: 30
+                          startY: 35
                       });
 
                       var linkedIndicatorsString = "";
