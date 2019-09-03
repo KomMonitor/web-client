@@ -1107,7 +1107,6 @@ angular.module('kommonitorMap').component(
                     });
 
                     $(document).on('input change','#indicatorTransparencyInput',function(e){
-                      // create PDF from currently selected/displayed indicator!
                       var indicatorMetadata = kommonitorDataExchangeService.selectedIndicator;
 
                       var transparency = document.getElementById("indicatorTransparencyInput").value;
@@ -1122,9 +1121,27 @@ angular.module('kommonitorMap').component(
 
                       var jspdf = new jsPDF();
 
-                      jspdf.setFontSize(18);
-                      jspdf.text('KomMonitor - (vorläufiges) Metadatenblatt', 14, 22);
-                      jspdf.setFontSize(12);
+                      // jspdf.setFontSize(18);
+                      // jspdf.text('KomMonitor - (vorläufiges) Metadatenblatt', 14, 22);
+                      jspdf.setFontSize(11);
+
+                      var headStyles = {
+                        fontStyle: 'bold',
+                        fontSize: 11,
+                        fillColor: '#337ab7',
+                        // auto or wrap
+                        cellWidth: 'auto'
+                      };
+
+                      var bodyStyles = {
+                        fontStyle: 'bold',
+                        fontSize: 11,
+                        // auto or wrap or number
+                        cellWidth: 'auto'
+                      };
+
+                      // first column with fixed width
+                      var columnStyles = {0: {cellWidth: 45}};
 
                       var topicsString = "";
 
@@ -1136,14 +1153,22 @@ angular.module('kommonitorMap').component(
                         }
                       }
 
+                      var category = "Subindikator";
+                      if(indicatorMetadata.isHeadingIndicator){
+                        category = "Leitindikator";
+                      }
+
                       // Or JavaScript:
                       jspdf.autoTable({
-                          head: [['Themenfeld', 'Name des Indikators', 'Kategorie', 'Kurzbezeichnung']],
+                          head: [['Themenfeld', 'Name des Indikators', 'Kategorie', 'Typ', 'Kennzeichen']],
                           body: [
-                              [topicsString, indicatorMetadata.indicatorName, "Indikator", "-"]
+                              [topicsString, indicatorMetadata.indicatorName, category, $scope.getIndicatorStringFromIndicatorType(), indicatorMetadata.abbreviation ? indicatorMetadata.abbreviation : "-"]
                               // ...
                           ],
-                          startY: 40
+                          theme: 'grid',
+                          headStyles: headStyles,
+                          bodyStyles: bodyStyles,
+                          startY: 10
                       });
 
                       var linkedIndicatorsString = "";
@@ -1227,25 +1252,79 @@ angular.module('kommonitorMap').component(
                           body: [
                               ["Beschreibung", indicatorMetadata.metadata.description],
                               ["Maßeinheit", indicatorMetadata.unit],
-                              // ["Definition des Leitindikators", "-"],
+                              ["Methodik", indicatorMetadata.processDescription ? indicatorMetadata.processDescription : "-"],
                               // ["Klassifizierung", "-"],
-                              // ["Interpretation", "-"],
+                              ["Interpretation", indicatorMetadata.interpretation ? indicatorMetadata.interpretation : "-"],
+                              ["Tags", indicatorMetadata.tags ? JSON.stringify(indicatorMetadata.tags) : "-"],
                               ["Verknüpfte Indikatoren", linkedIndicatorsString],
-                              ["Verknüpfte Geodaten", linkedGeoresourcesString],
-                              ["Datenquelle", indicatorMetadata.metadata.datasource],
-                              ["Datenhalter", indicatorMetadata.metadata.contact],
+                              ["Verknüpfte Geodaten", linkedGeoresourcesString]
+                          ],
+                          theme: 'grid',
+                          headStyles: headStyles,
+                          bodyStyles: bodyStyles,
+                          columnStyles: columnStyles,
+                          startY: jspdf.autoTable.previous.finalY + 10
+                      });
+
+                      // // linked elements
+                      // jspdf.autoTable({
+                      //     head: [],
+                      //     body: [
+                      //         ["Verknüpfte Indikatoren", linkedIndicatorsString],
+                      //         ["Verknüpfte Geodaten", linkedGeoresourcesString]
+                      //     ],
+                      //     theme: 'grid',
+                      //     headStyles: headStyles,
+                      //     bodyStyles: bodyStyles,
+                      //     columnStyles: columnStyles,
+                      //     startY: jspdf.autoTable.previous.finalY + 10
+                      // });
+
+                      // linked elements
+                      jspdf.autoTable({
+                          head: [],
+                          body: [
+                              ["Datengrundlage", indicatorMetadata.metadata.databasis ? indicatorMetadata.metadata.databasis : "-"],
+                              ["Datenquelle", indicatorMetadata.metadata.datasource ? indicatorMetadata.metadata.datasource : "-"],
+                              ["Datenhalter und Kontakt", indicatorMetadata.metadata.contact ? indicatorMetadata.metadata.contact : "-"],
+                              ["Bemerkung", indicatorMetadata.metadata.note ? indicatorMetadata.metadata.note : "-"],
                               ["Raumbezug", spatialUnitsString],
                               // $scope.updateInteval is a map mapping the english KEYs to german expressions
                               ["Zeitbezug / Fortführungsintervall", $scope.updateInterval.get(indicatorMetadata.metadata.updateInterval.toUpperCase())],
-                              ["Verfügbare Zeitreihe", datesString],
-                              ["Letzte Aktualisierung", indicatorMetadata.metadata.lastUpdate],
-                              ["Weiterführende Literatur", "-"]
-                              // ...
+                              ["Verfügbare Zeitreihen", datesString],
+                              ["Datum der letzten Aktualisierung", indicatorMetadata.metadata.lastUpdate],
+                              ["Quellen / Literatur", indicatorMetadata.metadata.literature ? indicatorMetadata.metadata.literature : "-"]
                           ],
-                          startY: jspdf.autoTable.previous.finalY + 20
+                          theme: 'grid',
+                          headStyles: headStyles,
+                          bodyStyles: bodyStyles,
+                          columnStyles: columnStyles,
+                          startY: jspdf.autoTable.previous.finalY + 10
                       });
 
-                      var pdfName = indicatorMetadata.indicatorName + ".pdf"
+                      //
+                      // jspdf.autoTable({
+                      //     head: [],
+                      //     body: [
+                      //         ["Quellen / Literatur", indicatorMetadata.metadata.literature ? indicatorMetadata.metadata.literature : "-"]
+                      //         // ...
+                      //     ],
+                      //     theme: 'grid',
+                      //     headStyles: headStyles,
+                      //     bodyStyles: bodyStyles,
+                      //     columnStyles: columnStyles,
+                      //     startY: jspdf.autoTable.previous.finalY + 10
+                      // });
+
+                      var pdfName = indicatorMetadata.indicatorName + ".pdf";
+
+                      jspdf.setProperties({
+                      	title: 'KomMonitor Indikatorenblatt',
+                        subject: pdfName,
+                      	author: 'KomMonitor',
+                      	keywords: 'Indikator, Metadatenblatt',
+                      	creator: 'KomMonitor'
+                      });
 
                       jspdf.save(pdfName);
                     });
