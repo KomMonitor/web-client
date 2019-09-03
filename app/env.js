@@ -12,22 +12,22 @@
   window.__env.indicatorDatePrefix = "DATE_";
 
   // Data Management API URL
-  // window.__env.apiUrl = 'http://kommonitor.fbg-hsbo.de/';
-  window.__env.apiUrl = 'http://localhost:8085/';
+  window.__env.apiUrl = 'http://kommonitor-re.fbg-hsbo.de/';
+  // window.__env.apiUrl = 'http://localhost:8085/';
   // Base url for Data Management API
   window.__env.basePath = 'management';
 
   // Processing Engine URL
-  // window.__env.apiUrl = 'http://kommonitor.fbg-hsbo.de/processing';
-  window.__env.targetUrlToProcessingEngine = 'http://localhost:8086/processing/';
+  window.__env.apiUrl = 'http://KomMonitor:Monitor2019Kom@kommonitor.fbg-hsbo.de/processing';
+  // window.__env.targetUrlToProcessingEngine = 'http://localhost:8086/processing/';
 
   // Open Route Service URL
-    // window.__env.apiUrl = 'http://kommonitor.fbg-hsbo.de/openrouteservice';
-  window.__env.targetUrlToReachabilityService_ORS = 'http://localhost:8090/openrouteservice-4.7.2';
+    window.__env.apiUrl = 'http://KomMonitor:Monitor2019Kom@kommonitor.fbg-hsbo.de/openrouteservice';
+  // window.__env.targetUrlToReachabilityService_ORS = 'http://localhost:8090/openrouteservice-4.7.2';
 
   // Open Trip Planner URL - currently not integrated
-  // window.__env.apiUrl = 'http://kommonitor.fbg-hsbo.de/opentripplanner';
-  window.__env.targetUrlToReachabilityService_OTP = 'http://localhost:8090/opentripplanner';
+  window.__env.apiUrl = 'http://kommonitor.fbg-hsbo.de/opentripplanner';
+  // window.__env.targetUrlToReachabilityService_OTP = 'http://localhost:8090/opentripplanner';
 
   // optional geometry simplification (a feature of Data Management API)
   window.__env.simplifyGeometriesParameterName = "simplifyGeometries";
@@ -43,8 +43,8 @@
   window.__env.numberOfDecimals = 2;
 
   // starting viewpoint parameters and zoom level
-  window.__env.initialLatitude = 51.4386432;
-  window.__env.initialLongitude = 7.0115552;
+  window.__env.initialLatitude = 51.3418407;
+  window.__env.initialLongitude = 7.4173922;
   window.__env.initialZoomLevel = 12;
   // window.__env.minZoomLevel = 11;
   window.__env.minZoomLevel = 5;
@@ -177,27 +177,27 @@
       featureTypeGeometryName: "geom",
       displayColor: "#00aabb",
       filterFeaturesToMapBBOX: false
-    },
-    {
-      title: "Verwaltungsgrenzen Kreise und kreisfreie St&auml;dte",
-      description: "Verwaltungsgrenzen gem&auml;ß Bezirksregierung K&ouml;ln",
-      url: "https://www.wfs.nrw.de/geobasis/wfs_nw_dvg?",
-      featureTypeNamespace: "dvg",
-      featureTypeName: "nw_dvg1_gem",
-      featureTypeGeometryName: "msGeometry",
-      displayColor: "#00aabb",
-      filterFeaturesToMapBBOX: true
-    },
-    {
-      title: "Freizeitkataster",
-      description: "Freizeitkataster gem&auml;ß Bezirksregierung K&ouml;ln",
-      url: "https://www.wfs.nrw.de/geobasis/wfs_nw_fzk?",
-      featureTypeNamespace: "fzk",
-      featureTypeName: "POI_p",
-      featureTypeGeometryName: "msGeometry",
-      displayColor: null,
-      filterFeaturesToMapBBOX: true
     }
+    // {
+    //   title: "Verwaltungsgrenzen Kreise und kreisfreie St&auml;dte",
+    //   description: "Verwaltungsgrenzen gem&auml;ß Bezirksregierung K&ouml;ln",
+    //   url: "https://www.wfs.nrw.de/geobasis/wfs_nw_dvg?",
+    //   featureTypeNamespace: "dvg",
+    //   featureTypeName: "nw_dvg1_gem",
+    //   featureTypeGeometryName: "msGeometry",
+    //   displayColor: "#00aabb",
+    //   filterFeaturesToMapBBOX: true
+    // },
+    // {
+    //   title: "Freizeitkataster",
+    //   description: "Freizeitkataster gem&auml;ß Bezirksregierung K&ouml;ln",
+    //   url: "https://www.wfs.nrw.de/geobasis/wfs_nw_fzk?",
+    //   featureTypeNamespace: "fzk",
+    //   featureTypeName: "POI_p",
+    //   featureTypeGeometryName: "msGeometry",
+    //   displayColor: null,
+    //   filterFeaturesToMapBBOX: true
+    // }
   ];
 
 // }(this));
