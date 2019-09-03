@@ -266,7 +266,7 @@ angular
 
             }
             else{
-              if(indicatorMetadataAndGeoJSON.indicatorType === 'DYNAMIC'){
+              if(indicatorMetadataAndGeoJSON.indicatorType.includes('DYNAMIC')){
 
                 if(feature.properties[targetDate] < 0){
 

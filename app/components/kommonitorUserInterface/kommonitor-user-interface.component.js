@@ -66,7 +66,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 
 		$scope.checkBalanceButtonAndMenueState = function(){
 			// disable if indicator is dynamic or if indicator only contains 1 or less timeseries entries
-			if(kommonitorDataExchangeService.selectedIndicator.indicatorType === "DYNAMIC" || kommonitorDataExchangeService.selectedIndicator.applicableDates.length < 2){
+			if(kommonitorDataExchangeService.selectedIndicator.indicatorType.includes("DYNAMIC") || kommonitorDataExchangeService.selectedIndicator.applicableDates.length < 2){
 				$scope.buttonBalanceClass = "btn btn-custom btn-circle disabled";
 				$scope.sidebarBalanceClass = "disappear";
 			}

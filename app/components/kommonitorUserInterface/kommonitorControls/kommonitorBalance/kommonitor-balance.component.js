@@ -55,7 +55,17 @@ angular
 								$rootScope.$broadcast("DisableDateSlider");
 								if(!kommonitorDataExchangeService.indicatorAndMetadataAsBalance){
 									kommonitorDataExchangeService.indicatorAndMetadataAsBalance = jQuery.extend(true, {}, kommonitorDataExchangeService.selectedIndicator);
-									kommonitorDataExchangeService.indicatorAndMetadataAsBalance.indicatorType = "DYNAMIC";
+									var indicatorType = kommonitorDataExchangeService.selectedIndicator.indicatorType;
+									if(indicatorType.includes("ABSOLUTE")){
+										kommonitorDataExchangeService.indicatorAndMetadataAsBalance.indicatorType = "DYNAMIC_ABSOLUTE";
+									}
+									else if(indicatorType.includes("RELATIVE")){
+										kommonitorDataExchangeService.indicatorAndMetadataAsBalance.indicatorType = "DYNAMIC_RELATIVE";
+									}
+									else if(indicatorType.includes("STANDARDIZED")){
+										kommonitorDataExchangeService.indicatorAndMetadataAsBalance.indicatorType = "DYNAMIC_STANDARDIZED";
+									}
+
 								}
 								var data = $scope.rangeSliderForBalance.options;
 								computeAndSetBalance(data);
@@ -223,7 +233,17 @@ angular
 
 							// make another copy of selectedIndicator to ensure that feature order matches each other
 							kommonitorDataExchangeService.indicatorAndMetadataAsBalance = jQuery.extend(true, {}, kommonitorDataExchangeService.selectedIndicator);
-							kommonitorDataExchangeService.indicatorAndMetadataAsBalance.indicatorType = "DYNAMIC";
+
+							var indicatorType = kommonitorDataExchangeService.selectedIndicator.indicatorType;
+							if(indicatorType.includes("ABSOLUTE")){
+								kommonitorDataExchangeService.indicatorAndMetadataAsBalance.indicatorType = "DYNAMIC_ABSOLUTE";
+							}
+							else if(indicatorType.includes("RELATIVE")){
+								kommonitorDataExchangeService.indicatorAndMetadataAsBalance.indicatorType = "DYNAMIC_RELATIVE";
+							}
+							else if(indicatorType.includes("STANDARDIZED")){
+								kommonitorDataExchangeService.indicatorAndMetadataAsBalance.indicatorType = "DYNAMIC_STANDARDIZED";
+							}
 
 							// set value of selected target property with the computed balance between toDate - FromDate
 							for (var index=0; index < kommonitorDataExchangeService.selectedIndicator.geoJSON.features.length; index++){
