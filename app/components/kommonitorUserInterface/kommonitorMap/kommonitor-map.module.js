@@ -98,9 +98,60 @@ angular.module('kommonitorMap').service(
 				$rootScope.$broadcast("restyleCurrentLayer");
 			};
 
+      this.addWmsLayerToMap = function (dataset, opacity) {
+        $rootScope.$broadcast("addWmsLayerToMap",
+            dataset);
+      };
 
+      this.adjustOpacityForWmsLayer = function (dataset, opacity) {
+        $rootScope.$broadcast("adjustOpacityForWmsLayer",
+            dataset, opacity);
+      };
 
+      this.removeWmsLayerFromMap = function (dataset) {
+        $rootScope.$broadcast("removeWmsLayerFromMap",
+            dataset);
+      };
 
+      this.addWfsLayerToMap = function (dataset, opacity) {
+        $rootScope.$broadcast("addWfsLayerToMap",
+            dataset);
+      };
+
+      this.adjustOpacityForWfsLayer = function (dataset, opacity) {
+        $rootScope.$broadcast("adjustOpacityForWfsLayer",
+            dataset, opacity);
+      };
+
+      this.adjustColorForWfsLayer = function (dataset, color) {
+        $rootScope.$broadcast("adjustColorForWfsLayer",
+            dataset, color);
+      };
+
+      this.removeWfsLayerFromMap = function (dataset) {
+        $rootScope.$broadcast("removeWfsLayerFromMap",
+            dataset);
+      };
+
+      this.addFileLayerToMap = function (dataset, opacity) {
+        $rootScope.$broadcast("addFileLayerToMap",
+            dataset);
+      };
+
+      this.adjustOpacityForFileLayer = function (dataset, opacity) {
+        $rootScope.$broadcast("adjustOpacityForFileLayer",
+            dataset, opacity);
+      };
+
+      this.adjustColorForFileLayer = function (dataset, color) {
+        $rootScope.$broadcast("adjustColorForFileLayer",
+            dataset, color);
+      };
+
+      this.removeFileLayerFromMap = function (dataset) {
+        $rootScope.$broadcast("removeFileLayerFromMap",
+            dataset);
+      };
 
 
 

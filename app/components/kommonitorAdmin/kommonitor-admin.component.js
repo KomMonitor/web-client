@@ -3,11 +3,14 @@ angular
 		.component(
 				'kommonitorAdmin',
 				{
-					templateUrl : "components/kommonitorUserInterface/kommonitorControls/kommonitorAdmin/kommonitor-admin.template.html",
+					templateUrl : "components/kommonitorAdmin/kommonitor-admin.template.html",
 					controller : ['kommonitorDataExchangeService', function kommonitorAdminController(
 							kommonitorDataExchangeService) {
 
 								this.selectedResourceType = 'spatialUnits';
+
+								// initialize any adminLTE box widgets
+							  $('.box').boxWidget();
 
 								this.onClickDataManagement = function(resourceType){
 									this.selectedResourceType = resourceType;

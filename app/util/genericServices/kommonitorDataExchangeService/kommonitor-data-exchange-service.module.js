@@ -38,10 +38,17 @@ angular
 					this.indicatorAndMetadataAsBalance;
 					this.tmpIndicatorGeoJSON = undefined;
 
+          this.wmsUrlForSelectedIndicator = undefined;
+          this.wfsUrlForSelectedIndicator = undefined;
+
 					this.baseUrlToKomMonitorDataAPI = __env.apiUrl + __env.basePath;
           this.simplifyGeometriesParameterName = __env.simplifyGeometriesParameterName;
           this.simplifyGeometriesOptions = __env.simplifyGeometriesOptions;
           this.simplifyGeometries = __env.simplifyGeometries;
+
+          this.wmsDatasets = __env.wmsDatasets;
+          this.wfsDatasets = __env.wfsDatasets;
+          this.fileDatasets = [];
 
 					this.availableProcessScripts;
           this.isochroneLegend;
@@ -259,7 +266,7 @@ angular
 
             }
             else{
-              if(indicatorMetadataAndGeoJSON.indicatorType === 'DYNAMIC'){
+              if(indicatorMetadataAndGeoJSON.indicatorType.includes('DYNAMIC')){
 
                 if(feature.properties[targetDate] < 0){
 
@@ -325,6 +332,31 @@ angular
 
             return color;
           };
+
+          this.formatIndiatorNameForLabel = function(indicatorName, maxCharsPerLine){
+            var separationSigns = [" ", "-", "_"];
+            var counter = 0;
+            var nextWord = "";
+            var nextChar;
+            var label = "";
+            for(var i=0; i<indicatorName.length; i++){
+              nextChar = indicatorName.charAt(i);
+              nextWord += nextChar;
+              if(counter === maxCharsPerLine){
+                label += "\n";
+                counter = 0;
+              }
+              else if(separationSigns.includes(nextChar)){
+                // add word to label
+                label += nextWord;
+                nextWord = "";
+              }
+              counter++;
+            }
+            //append last word
+            label += nextWord;
+            return label;
+          }
 
           this.filterIndicators = function (){
             return function( item ) {

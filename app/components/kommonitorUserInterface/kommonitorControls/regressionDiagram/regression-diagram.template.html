@@ -6,53 +6,98 @@
 		</div>
 	</div>
 
-	<h4>Lineare Regression zwischen zwei Indikatoren</h4>
+	<p></p>
 
-	<div>
-		<p>Nach Selektion je eines Indikators für die X- und Y-Achse wird eine lineare Regression gerechnet und als Diagramm dargestellt.</p>
-	</div>
+	<!-- REGRESSION CHART CONFIG -->
+				<div class="box box-primary">
+					<div class="box-header with-border">
+						<h3 class="box-title">Lineare Regression zwischen zwei Indikatoren</h3>
 
-			<div text-align="center" align="center" class="hiddenTable">
-
-				<!-- <label  for="sel1">verf&uuml;gbare Indikatoren</label> -->
-
-				<div class="hiddenTableCell">
-
-
-					<div text-align="center" align="center" class="hiddenTableContent">
-						<label>X-Achse</label>
-							<select
-								size="8" ng-model="selectedIndicatorForXAxis" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators()  | filter:filterIndicatorsBySpatialUnitAndDate()"
-								ng-change="onChangeSelectedIndicators()" class="form-control" required>
-								<option disabled selected value> -- Indikator f&uuml;r X-Achse w&auml;hlen -- </option>
-							</select>
+						<!-- <div class="box-tools pull-right">
+							<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+							</button>
+						</div> -->
 					</div>
+					<div class="box-body">
 
-				</div>
+								<div text-align="center" align="center" class="hiddenTable">
 
-				<div class="hiddenTableCell">
+									<!-- <label  for="sel1">verf&uuml;gbare Indikatoren</label> -->
+
+									<div class="hiddenTableCell">
 
 
-					<div text-align="center" align="center" class="hiddenTableContent">
-						<label>Y-Achse</label>
-							<select
-								size="8" ng-model="selectedIndicatorForYAxis" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators() | filter:filterIndicatorsBySpatialUnitAndDate()"
-								ng-change="onChangeSelectedIndicators()" class="form-control" required>
-								<option disabled selected value> -- Indikator f&uuml;r Y-Achse w&auml;hlen -- </option>
-							</select>
+										<div text-align="center" align="center" class="hiddenTableContent">
+
+											<label>X-Achse</label>
+
+											<div class="input-group">
+												<span class="input-group-addon"><i class="fas fa-filter"></i></span>
+												<input type="text" class="form-control input-sm" placeholder="X-Achse - Filtern nach Indikatorenname" ng-model="indicatorNameFilterForXAxis">
+											</div>
+
+											<p></p>
+
+												<select style="font-size: 12px;"
+													size="10" ng-model="selectedIndicatorForXAxis" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators()  | filter:filterIndicatorsBySpatialUnitAndDate() | filter:indicatorNameFilterForXAxis"
+													ng-change="onChangeSelectedIndicators()" class="form-control" required>
+													<option disabled selected value> -- Indikator f&uuml;r X-Achse w&auml;hlen -- </option>
+												</select>
+										</div>
+
+									</div>
+
+									<div class="hiddenTableCell">
+
+
+										<div text-align="center" align="center" class="hiddenTableContent">
+
+											<label>Y-Achse</label>
+
+											<div class="input-group">
+												<span class="input-group-addon"><i class="fas fa-filter"></i></span>
+												<input type="text" class="form-control input-sm" placeholder="Y-Achse - Filtern nach Indikatorenname" ng-model="indicatorNameFilterForYAxis">
+											</div>
+
+											<p></p>
+
+												<select style="font-size: 12px;"
+													size="10" ng-model="selectedIndicatorForYAxis" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators() | filter:filterIndicatorsBySpatialUnitAndDate() | filter:indicatorNameFilterForYAxis"
+													ng-change="onChangeSelectedIndicators()" class="form-control" required>
+													<option disabled selected value> -- Indikator f&uuml;r Y-Achse w&auml;hlen -- </option>
+												</select>
+										</div>
+
+									</div>
+
+
+								</div>
+
 					</div>
-
+					<!-- /.box-body -->
 				</div>
+				<!-- /.box -->
 
+			<!-- REGRESSION CHART -->
+						<div style="margin-bottom: 0px;" ng-show="regressionChart" class="box box-success">
+							<div class="box-header with-border">
+								<h3 class="box-title">Lineare Regression - {{spatialUnitName}} - {{date}}</h3>
 
-			</div>
+								<!-- <div class="box-tools pull-right">
+									<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+									</button>
+								</div> -->
+							</div>
+							<div class="box-body">
+								<div class="chart">
+									<div id="regressionDiagram" style="width:770px; height:455px;"></div>
+								</div>
 
-			<br/>
-			<br/>
+									<b>Korrelationskoeffizient nach Pearson:</b> {{correlation}}
 
-			<div id="regressionDiagram" style="width:770px; height:500px;"></div>
-
-			<h4>Korrelationskoeffizient nach Pearson: {{correlation}}</h4>
-
+							</div>
+							<!-- /.box-body -->
+						</div>
+						<!-- /.box -->
 
 </div>

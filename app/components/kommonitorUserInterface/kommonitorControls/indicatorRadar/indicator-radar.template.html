@@ -6,9 +6,28 @@
 		</div>
 	</div>
 
-			<div ng-show="radarChart" id="radarDiagram" style="width:770px; height:550px;"></div>
+	<p></p>
 
-			<div ng-show="!radarChart" style="width:770px; height:550px;">
+	<!-- RADAR CHART -->
+				<div ng-show="radarChart"  class="box box-success">
+					<div class="box-header with-border">
+						<h3 class="box-title">Indikatorenradar - {{spatialUnitName}} - {{date}}</h3>
+
+						<!-- <div class="box-tools pull-right">
+							<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+							</button>
+						</div> -->
+					</div>
+					<div class="box-body">
+						<div class="chart">
+							<div id="radarDiagram" style="width:770px; height:490px;"></div>
+						</div>
+					</div>
+					<!-- /.box-body -->
+				</div>
+				<!-- /.box -->
+
+			<div ng-show="!radarChart" style="width:770px; height:575px;">
 
 				<div text-align="center" align="center" class="hiddenTable">
 					<div class="hiddenTableCell">
@@ -20,30 +39,44 @@
 
 			</div>
 
-			<div class="form-group" >
-				<br/>
-				<div align="center">
-					<h4>Filtern der dargestellten Indikatoren</h4>
-				</div>
-				<div ng-show="selectableIndicatorsForRadar">
+			<!-- RADAR CHART CONFIG -->
+						<div style="margin-bottom: 0px;" class="box box-primary">
+							<div class="box-header with-border">
+								<h3 class="box-title">Auswahl der darzustellenden Indikatoren</h3>
 
-					<div align="center">
-						<input type="button" class="btn btn-xs btn-primary" value="alle Indikatoren zur Radardarstellung hinzufügen" ng-click="$ctrl.selectAllIndicatorsForRadar()"></input>
-						<input type="button" class="btn btn-xs btn-danger" value="alle Indikatoren aus Radardarstellung entfernen" ng-click="$ctrl.deselectAllIndicatorsForRadar()"></input>
-					</div>
+								<!-- <div class="box-tools pull-right">
+									<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+									</button>
+								</div> -->
+							</div>
+							<div class="box-body">
 
-					<br/>
+								<div ng-show="selectableIndicatorsForRadar">
 
-					<div id="radarInputForm">
-						<div ng-repeat='input in selectableIndicatorsForRadar | filter:filterIndicators()'>
-							<label class='checkbox-inline' ><input type="checkbox" value="input.indicatorMetadata.indicatorName" ng-model="input.isSelected" ng-change="$ctrl.filterDisplayedIndicatorsOnRadar()">{{input.indicatorMetadata.indicatorName}}</label>
-							<br/>
+									<div class="input-group">
+										<span class="input-group-addon"><i class="fas fa-filter"></i></span>
+										<input type="text" class="form-control input-sm" placeholder="Filtern nach Indikatorenname" ng-model="indicatorNameFilter">
+									</div>
+
+									<p></p>
+
+									<!-- <div align="center">
+										<input type="button" class="btn btn-xs btn-primary" value="alle Indikatoren zur Radardarstellung hinzufügen" ng-click="$ctrl.selectAllIndicatorsForRadar()"></input>
+										<input type="button" class="btn btn-xs btn-danger" value="alle Indikatoren aus Radardarstellung entfernen" ng-click="$ctrl.deselectAllIndicatorsForRadar()"></input>
+									</div> -->
+
+									<div id="radarInputForm">
+										<div ng-repeat='input in selectableIndicatorsForRadar | filter:filterIndicators() | filter:indicatorNameFilter'>
+											<label class='checkbox-inline input-sm' ><input type="checkbox" value="input.indicatorMetadata.indicatorName" ng-model="input.isSelected" ng-change="$ctrl.filterDisplayedIndicatorsOnRadar()">{{input.indicatorMetadata.indicatorName}}</label>
+											<br/>
+										</div>
+										</div>
+
+									</div>
+
+							</div>
+							<!-- /.box-body -->
 						</div>
-						</div>
-
-					</div>
-
-			</div>
-
+						<!-- /.box -->
 
 </div>
