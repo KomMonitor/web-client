@@ -552,6 +552,10 @@
 	justify-content: center;
 }
 
+select {
+	overflow: auto;
+}
+
 .hiddenTable {
   display: table;
   width: 100%;
