@@ -26,7 +26,7 @@
   // window.__env.targetUrlToReachabilityService_ORS = 'http://localhost:8090/openrouteservice-4.7.2';
 
   // Open Trip Planner URL - currently not integrated
-  window.__env.targetUrlToReachabilityService_OTP = 'http://kommonitor.fbg-hsbo.de/opentripplanner';
+  window.__env.targetUrlToReachabilityService_OTP = 'http://KomMonitor:Monitor2019Kom@kommonitor.fbg-hsbo.de/opentripplanner';
   // window.__env.targetUrlToReachabilityService_OTP = 'http://localhost:8090/opentripplanner';
 
   // optional geometry simplification (a feature of Data Management API)
@@ -52,7 +52,7 @@
 
   // starting indicator and spatial unit
   // if faulty values are provided, a random indicator will be displayed
-  window.__env.initialIndicatorId = "d6f447c1-5432-4405-9041-7d5b05fd9ece";
+  window.__env.initialIndicatorId = "9fd43254-7f7c-4ff4-95b2-923176832881";
   window.__env.initialSpatialUnitName = "Stadtteilebene";
 
  // various color settings
