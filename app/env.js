@@ -43,8 +43,8 @@
   window.__env.numberOfDecimals = 2;
 
   // starting viewpoint parameters and zoom level
-  window.__env.initialLatitude = 51.3418407;
-  window.__env.initialLongitude = 7.4173922;
+  window.__env.initialLatitude = 51.7462374;
+  window.__env.initialLongitude = 7.1817236;
   window.__env.initialZoomLevel = 12;
   // window.__env.minZoomLevel = 11;
   window.__env.minZoomLevel = 5;

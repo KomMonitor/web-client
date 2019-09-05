@@ -78,7 +78,7 @@ angular
 								$scope.reachProfile = "foot-walking";
 								$scope.speedInKilometersPerHour = 3;
 								$scope.reachMode = "Zeit";
-								$scope.locationsArray = [[7.4233922,51.3458407]];
+								$scope.locationsArray = [[7.1817236,51.7462374]];
 								$scope.rangeArray = [300,600,900];
 								$scope.useMultipleStartPoints = false;
 
