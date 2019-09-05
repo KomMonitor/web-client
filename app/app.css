@@ -3,7 +3,7 @@
 /* required to increase drowdown menu z-index in oder to let layer export options overlap menu buttons and map */
 .dropdown-menu {
 	z-index: 1000;
-	max-height: 150px;
+	max-height: 130px;
 	max-width: 200px;
 	overflow: auto;
 	/* border: gray 2px solid; */
