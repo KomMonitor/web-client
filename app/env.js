@@ -22,11 +22,11 @@
   // window.__env.targetUrlToProcessingEngine = 'http://localhost:8086/processing/';
 
   // Open Route Service URL
-    window.__env.targetUrlToReachabilityService_ORS = 'http://KomMonitor:Monitor2019Kom@kommonitor.fbg-hsbo.de/openrouteservice';
+    window.__env.targetUrlToReachabilityService_ORS = 'http://kommonitor-re.fbg-hsbo.de/openrouteservice';
   // window.__env.targetUrlToReachabilityService_ORS = 'http://localhost:8090/openrouteservice-4.7.2';
 
   // Open Trip Planner URL - currently not integrated
-  window.__env.targetUrlToReachabilityService_OTP = 'http://KomMonitor:Monitor2019Kom@kommonitor.fbg-hsbo.de/opentripplanner';
+  window.__env.targetUrlToReachabilityService_OTP = 'http://kommonitor-re.fbg-hsbo.de/opentripplanner';
   // window.__env.targetUrlToReachabilityService_OTP = 'http://localhost:8090/opentripplanner';
 
   // optional geometry simplification (a feature of Data Management API)
