@@ -20,7 +20,7 @@
 			| Your Page Content Here |
 			-------------------------->
 
-			<div class="box box-primary">
+			<div class="box box-primary" style="margin-bottom: 10px;">
 				<div class="box-header with-border">
 					<h3 class="box-title">Nutzer und Rollen</h3>
 
@@ -73,7 +73,7 @@
 
 
 
-				<div class="box box-primary">
+				<div class="box box-primary" style="margin-bottom: 10px;">
 					<div class="box-header with-border">
 						<h3 class="box-title">Themenfelder</h3>
 
@@ -102,6 +102,14 @@
 				        <!-- ./col -->
 								<div class="col-md-3 col-sm-6 col-xs-12">
 
+									<ul>
+										<li ng-repeat="topic in kommonitorDataExchangeService.availableTopics">{{topic.topicName}}</li>
+									</ul>
+
+				        </div>
+				        <!-- ./col -->
+								<div class="col-md-3 col-sm-6 col-xs-12">
+
 									<div class="chart">
 										<div id="indicatorsPerTopicDiagram" style="width:100%; min-height:150px;"></div>
 									</div>
@@ -113,10 +121,6 @@
 									<div class="chart">
 										<div id="georesourcesPerTopicDiagram" style="width:100%; min-height:150px;"></div>
 									</div>
-
-				        </div>
-				        <!-- ./col -->
-								<div class="col-md-3 col-sm-6 col-xs-12">
 
 				        </div>
 				        <!-- ./col -->

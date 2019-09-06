@@ -6,20 +6,37 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 
 		$scope.kommonitorDataExchangeService = kommonitorDataExchangeService;
 
-		$scope.usersPerRoleChart;
+		$scope.usersPerRoleChart = echarts.init(document.getElementById('usersPerRoleDiagram'));
 		$scope.usersPerRoleChartOptions;
+		$scope.usersPerRoleChart.showLoading();
 
-		$scope.indicatorsPerTopicChart;
+		$scope.indicatorsPerTopicChart = echarts.init(document.getElementById('indicatorsPerTopicDiagram'));
 		$scope.indicatorsPerTopicChartOptions;
+		$scope.indicatorsPerTopicChart.showLoading();
 
-		$scope.georesourcesPerTopicChart;
+		$scope.georesourcesPerTopicChart = echarts.init(document.getElementById('georesourcesPerTopicDiagram'));
 		$scope.georesourcesPerTopicChartOptions;
+		$scope.georesourcesPerTopicChart.showLoading();
 
 
 		// initialize any adminLTE box widgets
 	  $('.box').boxWidget();
 
 		$scope.loadingData = true;
+
+		$(window).on('resize', function(){
+				if($scope.usersPerRoleChart != null && $scope.usersPerRoleChart != undefined){
+						$scope.usersPerRoleChart.resize();
+				}
+
+				if($scope.indicatorsPerTopicChart != null && $scope.indicatorsPerTopicChart != undefined){
+						$scope.indicatorsPerTopicChart.resize();
+				}
+
+				if($scope.georesourcesPerTopicChart != null && $scope.georesourcesPerTopicChart != undefined){
+						$scope.georesourcesPerTopicChart.resize();
+				}
+		});
 
 		// when ready check if required metadat was already fetched
 		$( document ).ready(function() {
@@ -55,15 +72,6 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 		};
 
 		$scope.updateUsersPerRoleChart = function(){
-
-			// based on prepared DOM, initialize echarts instance
-			if(!$scope.usersPerRoleChart)
-				$scope.usersPerRoleChart = echarts.init(document.getElementById('usersPerRoleDiagram'));
-			else{
-				// explicitly kill and reinstantiate line diagram to avoid zombie states on spatial unit change
-				$scope.usersPerRoleChart.dispose();
-				$scope.usersPerRoleChart = echarts.init(document.getElementById('usersPerRoleDiagram'));
-			}
 
 			$scope.usersPerRoleChart.showLoading();
 
@@ -153,15 +161,6 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 
 		$scope.updateIndicatorsPerTopicChart = function(){
 
-			// based on prepared DOM, initialize echarts instance
-			if(!$scope.indicatorsPerTopicChart)
-				$scope.indicatorsPerTopicChart = echarts.init(document.getElementById('indicatorsPerTopicDiagram'));
-			else{
-				// explicitly kill and reinstantiate line diagram to avoid zombie states on spatial unit change
-				$scope.indicatorsPerTopicChart.dispose();
-				$scope.indicatorsPerTopicChart = echarts.init(document.getElementById('indicatorsPerTopicDiagram'));
-			}
-
 			$scope.indicatorsPerTopicChart.showLoading();
 
 			var indicatorsPerTopicMap = new Map();
@@ -248,15 +247,6 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 		// GEORESOURCES PER TOPIC
 
 		$scope.updateGeoresourcesPerTopicChart = function(){
-
-			// based on prepared DOM, initialize echarts instance
-			if(!$scope.georesourcesPerTopicChart)
-				$scope.georesourcesPerTopicChart = echarts.init(document.getElementById('georesourcesPerTopicDiagram'));
-			else{
-				// explicitly kill and reinstantiate line diagram to avoid zombie states on spatial unit change
-				$scope.georesourcesPerTopicChart.dispose();
-				$scope.georesourcesPerTopicChart = echarts.init(document.getElementById('georesourcesPerTopicDiagram'));
-			}
 
 			$scope.georesourcesPerTopicChart.showLoading();
 
