@@ -565,6 +565,11 @@
 	justify-content: center;
 }
 
+.horizontal-align {
+	display: table;
+  margin: auto;
+}
+
 .modal {
 	z-index: 9999;
 }
