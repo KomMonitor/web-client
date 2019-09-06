@@ -214,7 +214,8 @@ angular
 									$scope.$apply();
 								};
 
-								$scope.$on("loadExampleIndicatorInitially", function (event) {
+								// load exemplar indicator
+								$scope.$on("initialMetadataLoadingCompleted", function (event) {
 
 									console.log("Load an initial example indicator");
 

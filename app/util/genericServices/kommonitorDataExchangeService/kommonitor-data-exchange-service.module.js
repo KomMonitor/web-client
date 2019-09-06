@@ -134,7 +134,7 @@ angular
           var callScopeApplyInitially = function(){
             if(fetchedUsersInitially && fetchedRolesInitially && fetchedTopicsInitially && fetchedIndicatorsInitially && fetchedGeoresourcesInitially && fetchedSpatialUnitsInitially){
 
-              $rootScope.$broadcast("loadExampleIndicatorInitially");
+              $rootScope.$broadcast("initialMetadataLoadingCompleted");
 
               $timeout(function () {
                    $("option").each(function (index, element) {
