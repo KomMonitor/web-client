@@ -16,6 +16,21 @@ angular
 								// initialize any adminLTE box widgets
 								$('.box').boxWidget();
 
+								$(window).on('resize', function(){
+						        if($scope.regressionChart != null && $scope.regressionChart != undefined){
+						            $scope.regressionChart.resize();
+						        }
+						    });
+
+								$scope.$on("resizeDiagrams", function (event) {
+
+									setTimeout(function(){
+										if($scope.regressionChart != null && $scope.regressionChart != undefined){
+						            $scope.regressionChart.resize();
+						        }
+									}, 350);
+								});
+
 								$scope.indicatorNameFilterForXAxis = undefined;
 								$scope.indicatorNameFilterForYAxis = undefined;
 
@@ -598,6 +613,9 @@ angular
 
 										$scope.regressionChart.hideLoading();
 										$scope.regressionChart.setOption($scope.regressionOption);
+										setTimeout(function(){
+											$scope.regressionChart.resize();
+										}, 350);
 
 										registerEventsIfNecessary();
 

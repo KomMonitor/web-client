@@ -240,6 +240,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 					$rootScope.$broadcast("recenterMapOnShowSideBar");
 				}
 				kommonitorDataExchangeService.anySideBarIsShown = true;
+				$rootScope.$broadcast("resizeDiagrams");
 			}
 			else{
 				$scope.sidebarDiagramsClass = "disappear";
@@ -261,6 +262,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 					$rootScope.$broadcast("recenterMapOnShowSideBar");
 				}
 				kommonitorDataExchangeService.anySideBarIsShown = true;
+				$rootScope.$broadcast("resizeDiagrams");
 			}
 			else{
 				$scope.sidebarRadarDiagramClass = "disappear";
@@ -303,6 +305,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 					$rootScope.$broadcast("recenterMapOnShowSideBar");
 				}
 				kommonitorDataExchangeService.anySideBarIsShown = true;
+				$rootScope.$broadcast("resizeDiagrams");
 			}
 			else{
 				$scope.sidebarRegressionDiagramClass = "disappear";
