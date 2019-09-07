@@ -11,14 +11,14 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 				confine: 'true',
 				formatter: "{a} <br/>{b} : {c} ({d}%)",
 				textStyle: {
-					fontSize: 11
+					fontSize: 12
 				}
 		};
 
 		$scope.pieChartLabel = {
 					normal: {
 							position: 'inside',
-							fontSize: 10
+							fontSize: 12
 					}
 		};
 
@@ -33,6 +33,10 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 		$scope.georesourcesPerTopicChart = echarts.init(document.getElementById('georesourcesPerTopicDiagram'));
 		$scope.georesourcesPerTopicChartOptions;
 		$scope.georesourcesPerTopicChart.showLoading();
+
+		$scope.indicatorsPerSpatialUnitChart = echarts.init(document.getElementById('indicatorsPerSpatialUnitDiagram'));
+		$scope.indicatorsPerSpatialUnitChartOptions;
+		$scope.indicatorsPerSpatialUnitChart.showLoading();
 
 
 		// initialize any adminLTE box widgets
@@ -51,6 +55,10 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 
 				if($scope.georesourcesPerTopicChart != null && $scope.georesourcesPerTopicChart != undefined){
 						$scope.georesourcesPerTopicChart.resize();
+				}
+
+				if($scope.indicatorsPerSpatialUnitChart != null && $scope.indicatorsPerSpatialUnitChart != undefined){
+						$scope.indicatorsPerSpatialUnitChart.resize();
 				}
 		});
 
@@ -85,6 +93,8 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 			$scope.updateIndicatorsPerTopicChart();
 
 			$scope.updateGeoresourcesPerTopicChart();
+
+			$scope.updateIndicatorsPerSpatialUnitChart();
 		};
 
 		$scope.updateUsersPerRoleChart = function(){
@@ -125,10 +135,11 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 				// 	bottom: 55
 				// },
 					title: {
-							text: 'Nutzer pro Rolle',
+							text: 'Nutzer \npro Rolle',
 							left: 'center',
-							show: false
-							// top: 15
+							show: true,
+							top: 15,
+							fontSize: 12
 					},
 					tooltip: $scope.pieChartTooltip,
 					series : [
@@ -200,10 +211,11 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 				// 	bottom: 55
 				// },
 					title: {
-							text: 'Indikatoren pro Themenbereich',
+							text: 'Indikatoren \npro Themenbereich',
 							left: 'center',
-							show: false
-							// top: 15
+							show: true,
+							top: 15,
+							fontSize: 12
 					},
 					tooltip: $scope.pieChartTooltip,
 					series : [
@@ -275,10 +287,11 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 				// 	bottom: 55
 				// },
 					title: {
-							text: 'Georessourcen pro Themenbereich',
+							text: 'Georessourcen \npro Themenbereich',
 							left: 'center',
-							show: false
-							// top: 15
+							show: true,
+							top: 15,
+							fontSize: 12
 					},
 					tooltip: $scope.pieChartTooltip,
 					series : [
@@ -291,7 +304,7 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 			            data: georesourcesPerTopicSeriesData,
 			            itemStyle: {
 											normal: {
-													color: '#dd4c39',
+													color: '#ff851b',
 													shadowBlur: 30,
 													shadowColor: 'rgba(0, 0, 0, 0.5)'
 											},
@@ -311,6 +324,81 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 			$scope.georesourcesPerTopicChart.hideLoading();
 		};
 
+		// INDICATORS PER SPATIAL UNIT
+
+		$scope.updateIndicatorsPerSpatialUnitChart = function(){
+
+			$scope.indicatorsPerSpatialUnitChart.showLoading();
+
+			var indicatorsPerSpatialUnitMap = new Map();
+
+			kommonitorDataExchangeService.availableIndicators.forEach(function(indicator){
+				indicator.applicableSpatialUnits.forEach(function(spatialUnitName){
+
+					if(indicatorsPerSpatialUnitMap.has(spatialUnitName)){
+						// increment by 1
+						indicatorsPerSpatialUnitMap.set(spatialUnitName, indicatorsPerSpatialUnitMap.get(spatialUnitName) + 1);
+					}
+					else{
+						indicatorsPerSpatialUnitMap.set(spatialUnitName, 1);
+					}
+				});
+			});
+
+			var indicatorsPerSpatialUnitSeriesData = [];
+
+			indicatorsPerSpatialUnitMap.forEach(function(value, key, map){
+				indicatorsPerSpatialUnitSeriesData.push({
+					name: key,
+					value: value
+				});
+			});
+
+			$scope.indicatorsPerSpatialUnitChartOptions = {
+				// grid get rid of whitespace around chart
+				// grid: {
+				// 	left: '7%',
+				// 	top: 32,
+				// 	right: '5%',
+				// 	bottom: 55
+				// },
+					title: {
+							text: 'Indikatoren \npro Raumeinheit',
+							left: 'center',
+							show: true,
+							top: 15,
+							fontSize: 12
+					},
+					tooltip: $scope.pieChartTooltip,
+					series : [
+			        {
+			            name: 'Indikatoren pro Raumeinheit',
+			            type: 'pie',
+									//roseType: 'radius',
+			            radius : '90%',
+			            center: ['50%', '50%'],
+			            data: indicatorsPerSpatialUnitSeriesData,
+			            itemStyle: {
+											normal: {
+													color: '#00a65b',
+													shadowBlur: 30,
+													shadowColor: 'rgba(0, 0, 0, 0.5)'
+											},
+			                emphasis: {
+			                    shadowBlur: 10,
+			                    shadowOffsetX: 0,
+			                    shadowColor: 'rgba(0, 0, 0, 0.5)'
+			                }
+			            },
+									label: $scope.pieChartLabel
+			        }
+			    ]
+			};
+			// end of chart options
+
+			$scope.indicatorsPerSpatialUnitChart.setOption($scope.indicatorsPerSpatialUnitChartOptions);
+			$scope.indicatorsPerSpatialUnitChart.hideLoading();
+		};
 
 	}
 ]});

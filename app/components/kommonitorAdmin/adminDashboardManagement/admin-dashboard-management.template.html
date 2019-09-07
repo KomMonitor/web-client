@@ -20,17 +20,6 @@
 			| Your Page Content Here |
 			-------------------------->
 
-			<div class="box box-primary" style="margin-bottom: 10px;">
-				<div class="box-header with-border">
-					<h3 class="box-title">Nutzer und Rollen</h3>
-
-					<div class="box-tools pull-right">
-						<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-						</button>
-					</div>
-				</div>
-				<div class="box-body">
-
 						<div class="row vertical-align">
 			        <div class="col-md-3 col-sm-6 col-xs-12">
 			          <!-- small box -->
@@ -49,90 +38,155 @@
 			        <!-- ./col -->
 							<div class="col-md-3 col-sm-6 col-xs-12">
 
-								<div class="chart">
-									<div id="usersPerRoleDiagram" style="width:100%; min-height:150px;"></div>
+								<!-- small box -->
+								<div class="small-box bg-gray">
+									<div class="inner">
+										<h3>{{kommonitorDataExchangeService.availableTopics.length}}</h3>
+
+										<p>oberste Themenbereiche</p>
+									</div>
+									<div class="icon">
+										<i class="fas fa-book"></i>
+									</div>
+										<a class="small-box-footer"></a>
+								</div>
+
+
+			        </div>
+			        <!-- ./col -->
+							<div class="col-md-3 col-sm-6 col-xs-12">
+
+								<!-- small box -->
+								<div class="small-box bg-primary">
+									<div class="inner">
+										<h3>{{kommonitorDataExchangeService.availableSpatialUnits.length}}</h3>
+
+										<p>Raumeinheiten</p>
+									</div>
+									<div class="icon">
+										<i class="fas fa-layer-group"></i>
+									</div>
+										<a class="small-box-footer"></a>
 								</div>
 
 			        </div>
 			        <!-- ./col -->
 							<div class="col-md-3 col-sm-6 col-xs-12">
 
-			        </div>
-			        <!-- ./col -->
-							<div class="col-md-3 col-sm-6 col-xs-12">
+								<!-- small box -->
+								<div class="small-box bg-purple">
+									<div class="inner">
+										<h3>{{kommonitorDataExchangeService.availableProcessScripts.length}}</h3>
+
+										<p>Berechnungsskripte</p>
+									</div>
+									<div class="icon">
+										<i class="fas fa-file-code"></i>
+									</div>
+										<a class="small-box-footer"></a>
+								</div>
 
 			        </div>
 			        <!-- ./col -->
 			      </div>
 			      <!-- /.row -->
 
-					</div>
-					<!-- /.box-body -->
-				</div>
-				<!-- /.box -->
-
-
-
-				<div class="box box-primary" style="margin-bottom: 10px;">
-					<div class="box-header with-border">
-						<h3 class="box-title">Themenfelder</h3>
-
-						<div class="box-tools pull-right">
-							<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-							</button>
-						</div>
-					</div>
-					<div class="box-body">
-
 							<div class="row vertical-align">
 				        <div class="col-md-3 col-sm-6 col-xs-12">
-				          <!-- small box -->
-				          <div class="small-box bg-gray">
-				            <div class="inner">
-				              <h3>{{kommonitorDataExchangeService.availableTopics.length}}</h3>
 
-				              <p>oberste Themenbereiche</p>
-				            </div>
-				            <div class="icon">
-				              <i class="fas fa-book"></i>
-				            </div>
-				            	<a class="small-box-footer"></a>
-				          </div>
 				        </div>
 				        <!-- ./col -->
 								<div class="col-md-3 col-sm-6 col-xs-12">
 
-									<div class="horizontal-align">
-										<ul>
+									<!-- <div class="horizontal-align">
+										<ul style="max-height: 200px; list-style-type: none; columns: 2; -webkit-columns: 2; -moz-columns: 2; list-style-position: inside;overflow:auto;">
+											<li ng-repeat="spatialUnit in kommonitorDataExchangeService.availableSpatialUnits">{{spatialUnit.spatialUnitLevel}}</li>
+										</ul>
+									</div> -->
+
+									<!-- small box -->
+									<div class="small-box bg-orange">
+										<div class="inner">
+											<h3>{{kommonitorDataExchangeService.availableGeoresources.length}}</h3>
+
+											<p>Georessourcen</p>
+										</div>
+										<div class="icon">
+											<i class="fas fa-map-marked-alt"></i>
+										</div>
+											<a class="small-box-footer"></a>
+									</div>
+
+				        </div>
+				        <!-- ./col -->
+								<div class="col-md-3 col-sm-6 col-xs-12">
+
+									<!-- small box -->
+									<div class="small-box bg-green">
+										<div class="inner">
+											<h3>{{kommonitorDataExchangeService.availableIndicators.length}}</h3>
+
+											<p>Indikatoren</p>
+										</div>
+										<div class="icon">
+											<i class="fas fa-sitemap"></i>
+										</div>
+											<a class="small-box-footer"></a>
+									</div>
+
+				        </div>
+				        <!-- ./col -->
+								<div class="col-md-3 col-sm-6 col-xs-12">
+
+									<!-- <div class="horizontal-align">
+										<ul style="max-height: 200px; list-style-type: none; columns: 2; -webkit-columns: 2; -moz-columns: 2; list-style-position: inside;overflow:auto;">
 											<li ng-repeat="topic in kommonitorDataExchangeService.availableTopics">{{topic.topicName}}</li>
 										</ul>
-									</div>
-
-				        </div>
-				        <!-- ./col -->
-								<div class="col-md-3 col-sm-6 col-xs-12">
-
-									<div class="chart">
-										<div id="indicatorsPerTopicDiagram" style="width:100%; min-height:150px;"></div>
-									</div>
-
-				        </div>
-				        <!-- ./col -->
-								<div class="col-md-3 col-sm-6 col-xs-12">
-
-									<div class="chart">
-										<div id="georesourcesPerTopicDiagram" style="width:100%; min-height:150px;"></div>
-									</div>
+									</div> -->
 
 				        </div>
 				        <!-- ./col -->
 				      </div>
 				      <!-- /.row -->
 
-						</div>
-						<!-- /.box-body -->
-					</div>
-					<!-- /.box -->
+							<!-- <br/>
+							<br/> -->
+
+								<div class="row vertical-align">
+					        <div class="col-md-3 col-sm-6 col-xs-12">
+
+										<div class="chart">
+											<div id="usersPerRoleDiagram" style="width:100%; min-height:500px;"></div>
+										</div>
+
+					        </div>
+					        <!-- ./col -->
+									<div class="col-md-3 col-sm-6 col-xs-12">
+
+										<div class="chart">
+											<div id="georesourcesPerTopicDiagram" style="width:100%; min-height:500px;"></div>
+										</div>
+
+					        </div>
+					        <!-- ./col -->
+									<div class="col-md-3 col-sm-6 col-xs-12">
+
+										<div class="chart">
+											<div id="indicatorsPerTopicDiagram" style="width:100%; min-height:500px;"></div>
+										</div>
+
+					        </div>
+					        <!-- ./col -->
+									<div class="col-md-3 col-sm-6 col-xs-12">
+
+										<div class="chart">
+											<div id="indicatorsPerSpatialUnitDiagram" style="width:100%; min-height:500px;"></div>
+										</div>
+
+					        </div>
+					        <!-- ./col -->
+					      </div>
+					      <!-- /.row -->
 
 
 	</section>
