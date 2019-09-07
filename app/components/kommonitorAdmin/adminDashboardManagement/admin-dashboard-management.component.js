@@ -195,11 +195,14 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 
 			var indicatorsPerTopicSeriesData = [];
 
-			indicatorsPerTopicMap.forEach(function(value, key, map){
-				indicatorsPerTopicSeriesData.push({
-					name: key,
-					value: value
-				});
+			//sorted alphabetically
+			kommonitorDataExchangeService.availableTopics.forEach(function(topic){
+				if(indicatorsPerTopicMap.has(topic.topicName)){
+					indicatorsPerTopicSeriesData.push({
+						name: topic.topicName,
+						value: indicatorsPerTopicMap.get(topic.topicName)
+					});
+				}
 			});
 
 			$scope.indicatorsPerTopicChartOptions = {
@@ -271,11 +274,14 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 
 			var georesourcesPerTopicSeriesData = [];
 
-			georesourcesPerTopicMap.forEach(function(value, key, map){
-				georesourcesPerTopicSeriesData.push({
-					name: key,
-					value: value
-				});
+			//sorted alphabetically
+			kommonitorDataExchangeService.availableTopics.forEach(function(topic){
+				if(georesourcesPerTopicMap.has(topic.topicName)){
+					georesourcesPerTopicSeriesData.push({
+						name: topic.topicName,
+						value: georesourcesPerTopicMap.get(topic.topicName)
+					});
+				}
 			});
 
 			$scope.georesourcesPerTopicChartOptions = {
@@ -347,11 +353,14 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 
 			var indicatorsPerSpatialUnitSeriesData = [];
 
-			indicatorsPerSpatialUnitMap.forEach(function(value, key, map){
-				indicatorsPerSpatialUnitSeriesData.push({
-					name: key,
-					value: value
-				});
+			//sorted by spatial unit size
+			kommonitorDataExchangeService.availableSpatialUnits.forEach(function(spatialUnit){
+				if(indicatorsPerSpatialUnitMap.has(spatialUnit.spatialUnitLevel)){
+					indicatorsPerSpatialUnitSeriesData.push({
+						name: spatialUnit.spatialUnitLevel,
+						value: indicatorsPerSpatialUnitMap.get(spatialUnit.spatialUnitLevel)
+					});
+				}
 			});
 
 			$scope.indicatorsPerSpatialUnitChartOptions = {
