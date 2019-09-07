@@ -6,6 +6,22 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 
 		$scope.kommonitorDataExchangeService = kommonitorDataExchangeService;
 
+		$scope.pieChartTooltip = {
+				trigger: 'item',
+				confine: 'true',
+				formatter: "{a} <br/>{b} : {c} ({d}%)",
+				textStyle: {
+					fontSize: 11
+				}
+		};
+
+		$scope.pieChartLabel = {
+					normal: {
+							position: 'inside',
+							fontSize: 10
+					}
+		};
+
 		$scope.usersPerRoleChart = echarts.init(document.getElementById('usersPerRoleDiagram'));
 		$scope.usersPerRoleChartOptions;
 		$scope.usersPerRoleChart.showLoading();
@@ -114,14 +130,7 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 							show: false
 							// top: 15
 					},
-					tooltip: {
-							trigger: 'item',
-							confine: 'true',
-							formatter: "{a} <br/>{b} : {c} ({d}%)",
-							textStyle: {
-								fontSize: 11
-							}
-					},
+					tooltip: $scope.pieChartTooltip,
 					series : [
 			        {
 			            name: 'Nutzer pro Rolle',
@@ -142,12 +151,7 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 			                    shadowColor: 'rgba(0, 0, 0, 0.5)'
 			                }
 			            },
-									label: {
-				                normal: {
-				                    position: 'inside',
-														fontSize: 10
-				                }
-				          }
+									label: $scope.pieChartLabel
 			        }
 			    ]
 			};
@@ -201,14 +205,7 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 							show: false
 							// top: 15
 					},
-					tooltip: {
-							trigger: 'item',
-							confine: 'true',
-							formatter: "{a} <br/>{b} : {c} ({d}%)",
-							textStyle: {
-								fontSize: 11
-							}
-					},
+					tooltip: $scope.pieChartTooltip,
 					series : [
 			        {
 			            name: 'Indikatoren pro Themenbereich',
@@ -229,12 +226,7 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 			                    shadowColor: 'rgba(0, 0, 0, 0.5)'
 			                }
 			            },
-									label: {
-				                normal: {
-				                    position: 'inside',
-														fontSize: 10
-				                }
-				          }
+									label: $scope.pieChartLabel
 			        }
 			    ]
 			};
@@ -288,14 +280,7 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 							show: false
 							// top: 15
 					},
-					tooltip: {
-							trigger: 'item',
-							confine: 'true',
-							formatter: "{a} <br/>{b} : {c} ({d}%)",
-							textStyle: {
-								fontSize: 11
-							}
-					},
+					tooltip: $scope.pieChartTooltip,
 					series : [
 			        {
 			            name: 'Georessourcen pro Themenbereich',
@@ -316,12 +301,7 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 			                    shadowColor: 'rgba(0, 0, 0, 0.5)'
 			                }
 			            },
-									label: {
-				                normal: {
-				                    position: 'inside',
-														fontSize: 10
-				                }
-				          }
+									label: $scope.pieChartLabel
 			        }
 			    ]
 			};
