@@ -153,7 +153,7 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 			            itemStyle: {
 											normal: {
 													color: '#00c0ef',
-													shadowBlur: 30,
+													shadowBlur: 20,
 													shadowColor: 'rgba(0, 0, 0, 0.5)'
 											},
 			                emphasis: {
@@ -232,7 +232,7 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 			            itemStyle: {
 											normal: {
 													color: '#00a65b',
-													shadowBlur: 30,
+													shadowBlur: 20,
 													shadowColor: 'rgba(0, 0, 0, 0.5)'
 											},
 			                emphasis: {
@@ -311,7 +311,7 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 			            itemStyle: {
 											normal: {
 													color: '#ff851b',
-													shadowBlur: 30,
+													shadowBlur: 20,
 													shadowColor: 'rgba(0, 0, 0, 0.5)'
 											},
 			                emphasis: {
@@ -390,7 +390,7 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 			            itemStyle: {
 											normal: {
 													color: '#00a65b',
-													shadowBlur: 30,
+													shadowBlur: 20,
 													shadowColor: 'rgba(0, 0, 0, 0.5)'
 											},
 			                emphasis: {
