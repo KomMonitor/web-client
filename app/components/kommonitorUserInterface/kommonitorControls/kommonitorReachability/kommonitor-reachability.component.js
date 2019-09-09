@@ -90,7 +90,7 @@ angular
 
 								// var constantParameters = "&units=m&location_type=start&range_type=time";
 								// encode pipe symbol manually via %7C
-								var constantParameters = "&units=m&location_type=start&range_type=distance&attributes=area%7Creachfactor";
+								var constantParameters = "&units=m&smoothing=0&location_type=start&range_type=distance&attributes=area%7Creachfactor";
 
 								var getRequest = $scope.targetUrlToReachabilityService_ORS + "/isochrones?profile=" + reachProfile + "&locations=" + locationsString + "&range=" + rangeString + constantParameters;
 
