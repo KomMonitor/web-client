@@ -47,6 +47,9 @@ angular.module('adminSpatialUnitsManagement').component('adminSpatialUnitsManage
 			}
 		};
 
+		$scope.onChangeSelectDataset = function(spatialUnitDataset){
+			console.log(spatialUnitDataset.spatialUnitLevel);
+		};
 
 	}
 ]});
