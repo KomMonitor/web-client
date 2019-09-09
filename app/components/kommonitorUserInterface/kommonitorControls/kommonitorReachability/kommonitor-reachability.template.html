@@ -6,59 +6,83 @@
 		</div>
 	</div>
 
-		<div align="center">
-			<h4>Erreichbarkeitsanalysen</h4>
-		</div>
+	<p></p>
 
-		<div align="center">
-			<p>Erreichbarkeitsanalysen auf Basis von Stra&szlig;en- und Wegenetzen</p>
-		</div>
+	<!-- REACHABILITY -->
+		<div style="margin-bottom: 0px;" class="box box-primary">
+			<div class="box-header with-border">
+				<h3 class="box-title">Erreichbarkeitsanalysen</h3>
 
-		<div align="center">
-			<p>TODO - Under Development</p>
-			<strong>derzeitig sind nur ausgewählte Demo-Erreichbarkeitsisochronen berechenbar. Künftig werden auch beliebige Erreichbarkeitsberechnungen (Routing und Isochronen) mit beliebigen Verkehrsmitteln möglich sein.</strong>
-		</div>
+				<!-- <div class="box-tools pull-right">
+					<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+					</button>
+				</div> -->
+			</div>
+			<div class="box-body">
 
-		<br/><br/>
+				<div align="center">
+					<p>Erreichbarkeitsanalysen auf Basis von Stra&szlig;en- und Wegenetzen</p>
+				</div>
 
+				<div align="center">
+					<p>TODO - Under Development</p>
+					<strong>derzeitig sind nur ausgewählte Demo-Erreichbarkeitsisochronen berechenbar. Künftig werden auch beliebige Erreichbarkeitsberechnungen (Routing und Isochronen) mit beliebigen Verkehrsmitteln möglich sein.</strong>
+				</div>
 
 		<div align="center">
 			<input type="button" class="btn btn-s btn-primary" value="Kind-Drei-Grundschulen-Holthausen-Demo" ng-click="runChildDemoHolthausen()"></input>
 			<input type="button" class="btn btn-s btn-primary" value="Äquidistanz-1500m-Drei-Grundschulen-Holthausen-Demo" ng-click="runEqualDistanceDemoHolthausen()"></input>
 		</div>
 
-		<br/><br/>
 
-		<div align="center" ng-show="currentIsochronesGeoJSON">
-			<div class="legend" align="left">
+				<!-- <div align="center">
+					<input type="button" class="btn btn-s btn-primary" value="Kind-Kita-Rellinghausen-Demo" ng-click="runChildDemo()"></input>
+					<input type="button" class="btn btn-s btn-primary" value="Erwachsener-Kita-Rellinghausen-Demo" ng-click="runPedestrianDemo()"></input>
+					<br/><br/>
+					<input type="button" class="btn btn-s btn-primary" value="Fahrrad-Kita-Rellinghausen-Demo" ng-click="runBicycleDemo()"></input>
+					<input type="button" class="btn btn-s btn-primary" value="Auto-Kita-Rellinghausen-Demo" ng-click="runCarDemo()"></input>
+					<br/><br/>
+					<input type="button" class="btn btn-s btn-primary" value="Kind-Drei-Kitas-Rellinghausen-Demo" ng-click="runPedestrianKitaRellinghausenDemoWithMultipleStartPoints()"></input>
+					<input type="button" class="btn btn-s btn-primary" value="Fahrrad-Drei-Kitas-Rellinghausen-Demo" ng-click="runBicycleDemoWithMultipleStartPoints()"></input>
+				</div> -->
 
-				<h4>Legende</h4>
-				<label>Startpunkte: </label>&nbsp;{{locationsArray}}
-				<br/>
-				<label>Fortbewegungsart: </label>&nbsp;{{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.transitMode}}
-				<br/>
-				<label>maximale Geschwindigkeit: </label>&nbsp;{{speedInKilometersPerHour}} km/h
-				<br/>
-				<label>Abbruchkriterium: </label>&nbsp;{{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.reachMode}}
-				<br/>
-				<label>Einheit: </label>&nbsp;{{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.cutOffUnit}}
-				<br/>
+				<br/><br/>
 
-				<div ng-repeat="entry in $ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.colorValueEntries">
+				<div align="center" ng-show="currentIsochronesGeoJSON">
+					<div class="legend" align="left">
 
-					<i style="background: {{entry.color}};"></i> {{entry.value}} {{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.cutOffUnit}}
+						<h4>Legende</h4>
+						<label>Startpunkte: </label>&nbsp;{{locationsArray}}
+						<br/>
+						<label>Fortbewegungsart: </label>&nbsp;{{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.transitMode}}
+						<br/>
+						<label>maximale Geschwindigkeit: </label>&nbsp;{{speedInKilometersPerHour}} km/h
+						<br/>
+						<label>Abbruchkriterium: </label>&nbsp;{{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.reachMode}}
+						<br/>
+						<label>Einheit: </label>&nbsp;{{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.cutOffUnit}}
+						<br/>
 
+						<div ng-repeat="entry in $ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.colorValueEntries">
+
+							<i style="background: {{entry.color}};"></i> {{entry.value}} {{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.cutOffUnit}}
+
+						</div>
+
+					</div>
+
+					<br/>
+					<br/>
+
+					<div style="display: inline-block" align="center" id="reachabilityButtonSection">
+						<button ng-click="removeReachabilityLayers()" type="button" class="btn btn-danger">Ergebnis verwerfen / Layer entfernen</button>
+						<!-- another button to download as GeoJSOn will be set programatically within component file -->
+					</div>
 				</div>
 
 			</div>
-
-			<br/>
-			<br/>
-
-			<div style="display: inline-block" align="center" id="reachabilityButtonSection">
-				<button ng-click="removeReachabilityLayers()" type="button" class="btn btn-danger">Ergebnis verwerfen / Layer entfernen</button>
-				<!-- another button to download as GeoJSOn will be set programatically within component file -->
-			</div>
+			<!-- /.box-body -->
 		</div>
+		<!-- /.box -->
 
 </div>

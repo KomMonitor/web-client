@@ -1,1 +1,1 @@
-angular.module('poi', [ 'kommonitorDataExchange', 'kommonitorMap']);
+angular.module('poi', [ 'kommonitorDataExchange', 'kommonitorMap', 'ngSanitize']);

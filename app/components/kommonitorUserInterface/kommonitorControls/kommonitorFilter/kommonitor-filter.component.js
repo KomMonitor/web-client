@@ -14,10 +14,16 @@ angular
 							this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 							this.kommonitorMapServiceInstance = kommonitorMapService;
 							var numberOfDecimals = __env.numberOfDecimals;
+							// initialize any adminLTE box widgets
+							$('.box').boxWidget();
 
 							$scope.rangeSliderForFilter;
 							$scope.valueRangeMinValue;
 							$scope.valueRangeMaxValue;
+							$scope.currentLowerFilterValue;
+							$scope.currentHigherFilterValue;
+							$scope.lowerFilterInputNotValid = false;
+							$scope.higherFilterInputNotValid = false;
 							$scope.geoJSON;
 
 							//measureOfValue stuff
@@ -84,6 +90,9 @@ angular
 								$scope.valueRangeMinValue = +$scope.valueRangeMinValue.toFixed(numberOfDecimals);
 								$scope.valueRangeMaxValue = +$scope.valueRangeMaxValue.toFixed(numberOfDecimals);
 
+								$scope.currentLowerFilterValue = $scope.valueRangeMinValue;
+								$scope.currentHigherFilterValue = $scope.valueRangeMaxValue;
+
 								$("#rangeSliderForFiltering").ionRangeSlider({
 										skin: "big",
 						        type: "double",
@@ -100,7 +109,7 @@ angular
 						    });
 
 								$scope.rangeSliderForFilter = $("#rangeSliderForFiltering").data("ionRangeSlider");
-								// make sure that tha handles are properly set to man and max values
+								// make sure that tha handles are properly set to min and max values
 								$scope.rangeSliderForFilter.update({
 						        from: $scope.valueRangeMinValue,
 						        to: $scope.valueRangeMaxValue
@@ -108,9 +117,47 @@ angular
 
 							};
 
+							$scope.onChangeLowerFilterValue = function(){
+								if(($scope.currentLowerFilterValue >= $scope.valueRangeMinValue) && ($scope.currentLowerFilterValue <= $scope.valueRangeMaxValue) && ($scope.currentLowerFilterValue <= $scope.currentHigherFilterValue)){
+									$scope.lowerFilterInputNotValid = false;
+									$scope.rangeSliderForFilter.update({
+											from: $scope.currentLowerFilterValue,
+											to: $scope.currentHigherFilterValue
+									});
+
+									$scope.applyRangeFilter();
+								}
+								else{
+									$scope.lowerFilterInputNotValid = true;
+								}
+							};
+
+							$scope.onChangeHigherFilterValue = function(){
+								if(($scope.currentHigherFilterValue <= $scope.valueRangeMaxValue) && ($scope.currentHigherFilterValue >= $scope.valueRangeMinValue) && ($scope.currentLowerFilterValue <= $scope.currentHigherFilterValue)){
+									$scope.higherFilterInputNotValid = false;
+									$scope.rangeSliderForFilter.update({
+											from: $scope.currentLowerFilterValue,
+											to: $scope.currentHigherFilterValue
+									});
+
+									$scope.applyRangeFilter();
+								}
+								else{
+									$scope.higherFilterInputNotValid = true;
+								}
+							};
+
 							function onChangeRangeFilter (data) {
 								// Called every time handle position is changed
 								kommonitorDataExchangeService.rangeFilterData = data;
+
+								$scope.currentLowerFilterValue = data.from;
+								$scope.currentHigherFilterValue = data.to;
+
+								$scope.applyRangeFilter();
+							};
+
+							$scope.applyRangeFilter = function(){
 
 								if(!kommonitorDataExchangeService.filteredIndicatorFeatureNames){
 									kommonitorDataExchangeService.filteredIndicatorFeatureNames = [];
@@ -121,7 +168,7 @@ angular
 								$scope.geoJSON.features.forEach(function(feature){
 									var value = +Number(feature.properties[date]).toFixed(numberOfDecimals);
 
-									if(value >= data.from && value <= data.to){
+									if(value >= $scope.currentLowerFilterValue && value <= $scope.currentHigherFilterValue){
 										// feature must not be filtered - make sure it is not marked as filtered
 										if (kommonitorDataExchangeService.filteredIndicatorFeatureNames.includes(feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])){
 											var index = kommonitorDataExchangeService.filteredIndicatorFeatureNames.indexOf(feature.properties[__env.FEATURE_NAME_PROPERTY_NAME]);
@@ -138,9 +185,8 @@ angular
 								});
 
 								kommonitorMapService.restyleCurrentLayer();
-							};
-
-
+								$scope.$apply();
+							}
 
 
 							// MeasureOfValue stuff

@@ -5089,6 +5089,13 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\leaflet-draw",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\leaflet-draw\\README.md"
   },
+  "leaflet-groupedlayercontrol@0.6.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/ismyrnow/leaflet-groupedlayercontrol",
+    "publisher": "Ishmael Smyrnow",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\leaflet-groupedlayercontrol",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\leaflet-groupedlayercontrol\\LICENSE.txt"
+  },
   "leaflet.awesome-markers@2.0.5": {
     "licenses": "ISC",
     "repository": "https://github.com/sigma-geosistemas/Leaflet.awesome-markers",

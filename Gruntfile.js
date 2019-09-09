@@ -7,8 +7,22 @@ module.exports = function (grunt) {
             'app/util/genericServices/kommonitorDataExchangeService/kommonitor-data-exchange-service.module.js',
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorDataSetup/kommonitor-data-setup.module.js',
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorDataSetup/kommonitor-data-setup.component.js',
-            'app/components/kommonitorUserInterface/kommonitorControls/kommonitorAdmin/kommonitor-admin.module.js',
-            'app/components/kommonitorUserInterface/kommonitorControls/kommonitorAdmin/kommonitor-admin.component.js',
+            'app/components/kommonitorAdmin/adminDashboardManagement/admin-dashboard-management.module.js',
+            'app/components/kommonitorAdmin/adminDashboardManagement/admin-dashboard-management.component.js',
+            'app/components/kommonitorAdmin/adminUserManagement/admin-user-management.module.js',
+            'app/components/kommonitorAdmin/adminUserManagement/admin-user-management.component.js',
+            'app/components/kommonitorAdmin/adminTopicsManagement/admin-topics-management.module.js',
+            'app/components/kommonitorAdmin/adminTopicsManagement/admin-topics-management.component.js',
+            'app/components/kommonitorAdmin/adminSpatialUnitsManagement/admin-spatial-units-management.module.js',
+            'app/components/kommonitorAdmin/adminSpatialUnitsManagement/admin-spatial-units-management.component.js',
+            'app/components/kommonitorAdmin/adminIndicatorsManagement/admin-indicators-management.module.js',
+            'app/components/kommonitorAdmin/adminIndicatorsManagement/admin-indicators-management.component.js',
+            'app/components/kommonitorAdmin/adminGeoresourcesManagement/admin-georesources-management.module.js',
+            'app/components/kommonitorAdmin/adminGeoresourcesManagement/admin-georesources-management.component.js',
+            'app/components/kommonitorAdmin/adminScriptManagement/admin-script-management.module.js',
+            'app/components/kommonitorAdmin/adminScriptManagement/admin-script-management.component.js',
+            'app/components/kommonitorAdmin/kommonitor-admin.module.js',
+            'app/components/kommonitorAdmin/kommonitor-admin.component.js',
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorIndividualIndicatorComputation/kommonitor-individual-indicator-computation.module.js',
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorIndividualIndicatorComputation/kommonitor-individual-indicator-computation.component.js',
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorDiagrams/kommonitor-diagrams.module.js',
@@ -25,6 +39,12 @@ module.exports = function (grunt) {
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorReachability/kommonitor-reachability.component.js',
             'app/components/kommonitorUserInterface/kommonitorControls/poi/poi.module.js',
             'app/components/kommonitorUserInterface/kommonitorControls/poi/poi.component.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/kommonitorDataImport/kommonitor-data-import.module.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/kommonitorDataImport/kommonitor-data-import.component.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/kommonitorDataImport/wmsModal/wms-modal.module.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/kommonitorDataImport/wmsModal/wms-modal.component.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/kommonitorDataImport/wfsModal/wfs-modal.module.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/kommonitorDataImport/wfsModal/wfs-modal.component.js',
             'app/components/kommonitorUserInterface/kommonitorMap/kommonitor-map.module.js',
             'app/components/kommonitorUserInterface/kommonitorMap/kommonitor-map.component.js',
             'app/components/kommonitorUserInterface/kommonitorControls/infoModal/info-modal.module.js',
@@ -46,6 +66,33 @@ module.exports = function (grunt) {
             'logos/**/*',
 			      'components/**/*.template.html'
         ],
+
+        // babel: {
+        //   options: {
+        //     sourceMap: true
+        //   },
+        //   dist: {
+        //     files: [{
+        //       expand: true,
+        //       cwd: './app',
+        //       src: '{,**/}*.js',
+        //       dest: '.tmp/scripts',
+        //       ext: '.es5.js'
+        //     }]
+        //   }
+        // },
+
+        babel: {
+          options: {
+            sourceMap: true
+          },
+          dist: {
+            files: {
+              "dist/kommonitor-client.es5.js": "dist/kommonitor-client.js"
+            }
+          }
+        },
+
         clean: ["dist/"],
         tags: {
             options: {
@@ -109,7 +156,7 @@ module.exports = function (grunt) {
             },
             appJs: {
                 files: {
-                    'dist/kommonitor-client.min.js': ['<%= concat.kommonitor.dest %>']
+                    'dist/kommonitor-client.min.js': ['dist/kommonitor-client.es5.js']
                 }
             }
         },
@@ -209,14 +256,15 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-processhtml');
 	grunt.loadNpmTasks('grunt-exec');
     grunt.loadNpmTasks('grunt-war');
+    grunt.loadNpmTasks('grunt-babel');
 
     grunt.registerTask('test', ['jshint']);
-    grunt.registerTask('copy-all', ['copy:locals', 'copy:css', 'copy:fonts']);
-    grunt.registerTask('copy-css', ['copy:css']);
-    grunt.registerTask('copy-fonts', ['copy:fonts']);
+    // grunt.registerTask('copy-all', ['copy:locals', 'copy:css', 'copy:fonts']);
+    // grunt.registerTask('copy-css', ['copy:css']);
+    // grunt.registerTask('copy-fonts', ['copy:fonts']);
     grunt.registerTask('env-build', ['tags']);
-    grunt.registerTask('default', ['clean', 'concat', 'uglify', 'cssmin', 'copy', 'processhtml']);
-	grunt.registerTask('buildDebugScript', ['clean', 'concat']);
+    grunt.registerTask('default', ['clean', 'concat', 'babel', 'uglify', 'cssmin', 'copy', 'processhtml']);
+	// grunt.registerTask('buildDebugScript', ['clean', 'concat']);
 
 	grunt.registerTask('buildWar', ['default', 'war']);
 //  grunt.registerTask('buildWar', ['test', 'default', 'war']);
