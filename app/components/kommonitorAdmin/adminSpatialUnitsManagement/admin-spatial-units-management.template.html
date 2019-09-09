@@ -1,4 +1,11 @@
 <div id="adminSpatialUnitsContent">
+
+	<div align="center">
+		<div class="loading-overlay-admin-panel ng-hide" ng-show="loadingData">
+					<span class="glyphicon glyphicon-refresh icon-spin"></span>
+		</div>
+	</div>
+
 	<!-- Content Header (Page header) -->
 	<section class="content-header">
 		<h1>
@@ -9,12 +16,92 @@
 
 	<!-- Main content -->
 	<section class="content container-fluid">
-
-		SPATIAL UNITS STUFF
-
 		<!--------------------------
 			| Your Page Content Here |
 			-------------------------->
+
+			<div class="box box-danger">
+            <div class="box-header">
+              <h3 class="box-title">Raumeinheiten</h3>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body">
+
+							<div class="admin-table-wrapper">
+	              <table id="spatialUnitOverviewTable" class="table table-bordered table-striped" style="width:100%; overflow:auto;">
+	                <thead>
+	                <tr>
+	                  <th><input type="checkbox" ng-model="selectAllEntriesInput" ng-change="onChangeSelectAllEntries()"></input></th>
+	                  <th>Id</th>
+	                  <th>Name</th>
+	                  <th>n&auml;chst niedrigere Raumebene</th>
+										<th>n&auml;chst h&ouml;here Raumebene</th>
+	                  <th>G&uuml;ltigkeitszeitraum</th>
+										<th>Beschreibung</th>
+										<th>Bemerkung</th>
+										<th>Datengrundlage</th>
+										<th>Datenquelle</th>
+										<th>Datenhalter und Kontakt</th>
+										<th>zuletzt aktualisiert am</th>
+										<th>Koordinatensystem</th>
+										<th>Aktualisierungszyklus</th>
+										<th>Quellen / Literatur</th>
+										<th>WMS URL</th>
+										<th>WFS URL</th>
+	                </tr>
+	                </thead>
+
+	                <tbody>
+	                <tr ng-repeat="spatialUnitDataset in availableSpatialUnitDatasets">
+										<td><input type="checkbox" ng-model="spatialUnitDataset.isSelected"></input></td>
+	                  <td>{{spatialUnitDataset.spatialUnitId}}</td>
+	                  <td>{{spatialUnitDataset.spatialUnitLevel}}</td>
+	                  <td>{{spatialUnitDataset.nextLowerHierarchyLevel}}</td>
+										<td>{{spatialUnitDataset.nextUpperHierarchyLevel}}</td>
+	                  <td>{{spatialUnitDataset.availablePeriodOfValidity.earliestStartDate}} - {{spatialUnitDataset.availablePeriodOfValidity.endDate}}</td>
+										<td ng-bind-html="spatialUnitDataset.metadata.description"></td>
+										<td ng-bind-html="spatialUnitDataset.metadata.note"></td>
+										<td ng-bind-html="spatialUnitDataset.metadata.databasis"></td>
+										<td ng-bind-html="spatialUnitDataset.metadata.datasource"></td>
+										<td ng-bind-html="spatialUnitDataset.metadata.contact"></td>
+										<td>{{spatialUnitDataset.metadata.lastUpdate}}</td>
+										<td>EPSG:{{spatialUnitDataset.metadata.sridEPSG}}</td>
+										<td>{{spatialUnitDataset.metadata.updateInterval}}</td>
+										<td ng-bind-html="spatialUnitDataset.metadata.literature"></td>
+										<td ng-bind-html="spatialUnitDataset.wmsUrl"></td>
+										<td ng-bind-html="spatialUnitDataset.wfsUrl"></td>
+	                </tr>
+
+	                </tbody>
+
+	                <tfoot>
+	                <tr>
+										<th>Checkbox</th>
+	                  <th>Id</th>
+	                  <th>Name</th>
+	                  <th>n&auml;chst niedrigere Raumebene</th>
+										<th>n&auml;chst h&ouml;here Raumebene</th>
+	                  <th>G&uuml;ltigkeitszeitraum</th>
+										<th>Beschreibung</th>
+										<th>Bemerkung</th>
+										<th>Datengrundlage</th>
+										<th>Datenquelle</th>
+										<th>Datenhalter und Kontakt</th>
+										<th>zuletzt aktualisiert am</th>
+										<th>Koordinatensystem</th>
+										<th>Aktualisierungszyklus</th>
+										<th>Quellen / Literatur</th>
+										<th>WMS URL</th>
+										<th>WFS URL</th>
+	                </tr>
+	                </tfoot>
+	              </table>
+
+							</div>
+            </div>
+            <!-- /.box-body -->
+          </div>
+          <!-- /.box -->
 
 	</section>
 <!-- /.content -->
