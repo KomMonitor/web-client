@@ -8,10 +8,22 @@
 
 	<!-- Content Header (Page header) -->
 	<section class="content-header">
-		<h1>
-			Verwalten der Raumeinheiten
-			<small>Info</small>
-		</h1>
+			<h1>
+				Verwalten der Raumeinheiten
+				<small>Info</small>
+			</h1>
+
+			<div class="adminTableButtonWrapper">
+				<button class="btn btn-success btn-sm" type="button" data-toggle="modal" data-target="#modal-add-spatialUnit"><i class="fas fa-plus"></i>&nbsp;&nbsp;Erstellen</button>
+				<!-- edit metadata -->
+
+				<!-- edit features -->
+
+				<!-- delete selected completely -->
+				<button class="btn btn-danger btn-sm" type="button" data-toggle="modal" data-target="#modal-delete-spatialUnits"><i class="fas fa-trash"></i>&nbsp;&nbsp;L&ouml;schen</button>
+
+				<!-- delete b timestamp -->
+			</div>
 	</section>
 
 	<!-- Main content -->
@@ -28,7 +40,7 @@
             <div class="box-body">
 
 							<div class="admin-table-wrapper">
-	              <table id="spatialUnitOverviewTable" class="table table-bordered table-striped" style="width:100%; overflow:auto;">
+	              <table id="spatialUnitOverviewTable" class="table table-bordered table-striped" style="width:100%; overflow:auto; font-size: 11px;">
 	                <thead>
 	                <tr>
 	                  <th><input type="checkbox" ng-model="selectAllEntriesInput" ng-change="onChangeSelectAllEntries()"></input></th>

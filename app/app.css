@@ -457,6 +457,15 @@
 	overflow: auto;
 }
 
+.adminTableButtonWrapper {
+	float: right;
+	background: transparent;
+	font-size: 12px;
+	position: absolute;
+	top: 15px;
+	right: 15px;
+}
+
 #dateSliderWrapper{
 	position: absolute;
   bottom: 25px;
