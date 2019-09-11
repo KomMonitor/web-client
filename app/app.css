@@ -589,6 +589,12 @@
 	z-index: 9999;
 }
 
+@media (min-width: 992px){
+	.modal-xl {
+			width: 1500px;
+	}
+}
+
 select {
 	overflow: auto;
 }
