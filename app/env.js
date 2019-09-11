@@ -98,6 +98,29 @@
   window.__env.feedbackMailRecipient = "thomas.blasche@amt62.essen.de";
   // window.__env.feedbackMailRecipient = "christian.danowski-buhren@hs-bochum.de";
 
+  window.__env.updateIntervalOptions = [
+    {
+        displayName: "jährlich",
+        apiName: "YEARLY"
+    },
+    {
+        displayName: "halbjährlich",
+        apiName: "HALF_YEARLY"
+    },
+    {
+        displayName: "vierteljährlich",
+        apiName: "QUARTERLY"
+    },
+    {
+        displayName: "monatlich",
+        apiName: "MONTHLY"
+    },
+    {
+        displayName: "beliebig",
+        apiName: "ARBITRARY"
+    }
+  ];
+
   window.__env.wmsDatasets = [
     {
       title: "Versiegelungsgrad - 2006 anhand von Copernicus Satellitendaten - 20m Rasterzellen",

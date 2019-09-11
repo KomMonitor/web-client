@@ -881,7 +881,7 @@ angular.module('kommonitorMap').component(
                       innerHTMLString += "<div class='col-sm-3'><div class='text-left'><label>Raumebene:   </label></div></div>";
                       innerHTMLString += "<div class='col-sm-9'><div class='text-left'><div id='selectSpatialUnitViaInfoControl' class='dropup'>";
                       innerHTMLString += '<button class="btn btn-primary btn-xs dropdown-toggle" type="button" data-toggle="dropdown"><span id="selectSpatialUnitViaInfoControl_text">' + kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel + '&nbsp;&nbsp;&nbsp;</span><span class="caret"></span></button>';
-                      innerHTMLString += '<ul class="dropdown-menu">';
+                      innerHTMLString += '<ul id="spatialUnitInfoControlDropdown" class="dropdown-menu">';
 
                       for (var option of kommonitorDataExchangeService.availableSpatialUnits){
 

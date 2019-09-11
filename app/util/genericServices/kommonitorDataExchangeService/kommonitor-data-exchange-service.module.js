@@ -33,6 +33,8 @@ angular
 
 					this.kommonitorMapServiceInstance = kommonitorMapService;
 
+          this.updateIntervalOptions = __env.updateIntervalOptions;
+
           this.anySideBarIsShown = false;
 
 					this.isMeasureOfValueChecked = false;

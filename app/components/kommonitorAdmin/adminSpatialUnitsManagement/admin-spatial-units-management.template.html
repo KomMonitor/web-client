@@ -14,13 +14,13 @@
 			</h1>
 
 			<div class="adminTableButtonWrapper">
-				<button class="btn btn-success btn-sm" type="button" data-toggle="modal" data-target="#modal-add-spatialUnit"><i class="fas fa-plus"></i>&nbsp;&nbsp;Erstellen</button>
+				<button class="btn btn-success btn-sm" type="button" data-toggle="modal" data-target="#modal-add-spatial-unit"><i class="fas fa-plus"></i>&nbsp;&nbsp;Erstellen</button>
 				<!-- edit metadata -->
 
 				<!-- edit features -->
 
 				<!-- delete selected completely -->
-				<button class="btn btn-danger btn-sm" type="button" data-toggle="modal" data-target="#modal-delete-spatialUnits"><i class="fas fa-trash"></i>&nbsp;&nbsp;L&ouml;schen</button>
+				<button class="btn btn-danger btn-sm" type="button" data-toggle="modal" data-target="#modal-delete-spatial-units"><i class="fas fa-trash"></i>&nbsp;&nbsp;L&ouml;schen</button>
 
 				<!-- delete b timestamp -->
 			</div>
@@ -44,7 +44,8 @@
 	                <thead>
 	                <tr>
 	                  <th><input type="checkbox" ng-model="selectAllEntriesInput" ng-change="onChangeSelectAllEntries()"></input></th>
-	                  <th>Id</th>
+										<th>Editierfunktionen</th>
+										<th>Id</th>
 	                  <th>Name</th>
 	                  <th>n&auml;chst niedrigere Raumebene</th>
 										<th>n&auml;chst h&ouml;here Raumebene</th>
@@ -66,6 +67,13 @@
 	                <tbody>
 	                <tr ng-repeat="spatialUnitDataset in availableSpatialUnitDatasets">
 										<td><input type="checkbox" ng-model="spatialUnitDataset.isSelected" ng-change="onChangeSelectDataset(spatialUnitDataset)"></input></td>
+										<td>
+											<div class="horizontal-align">
+												<button class="btn btn-warning btn-sm" data-toggle="modal" data-target="#modal-edit-spatial-unit-metadata" ng-click="onClickEditMetadata(spatialUnitDataset)"><i class="fas fa-edit"></i>&nbsp;&nbsp;Metadaten</button>
+												<p></p>
+												<button class="btn btn-warning btn-sm" data-toggle="modal" data-target="#modal-edit-spatial-unit-features" ng-click="onClickEditFeatures(spatialUnitDataset)"><i class="fas fa-edit"></i>&nbsp;&nbsp;Features</button>
+											</div>
+										</td>
 	                  <td>{{spatialUnitDataset.spatialUnitId}}</td>
 	                  <td>{{spatialUnitDataset.spatialUnitLevel}}</td>
 	                  <td>{{spatialUnitDataset.nextLowerHierarchyLevel}}</td>
@@ -88,7 +96,8 @@
 
 	                <tfoot>
 	                <tr>
-										<th>Checkbox</th>
+										<th>alle selektieren</th>
+										<th>Editierfunktionen</th>
 	                  <th>Id</th>
 	                  <th>Name</th>
 	                  <th>n&auml;chst niedrigere Raumebene</th>
