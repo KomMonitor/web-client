@@ -70,7 +70,11 @@ module.exports = {
           { from: nodeModulePathConstant + 'shpjs/dist/', to: 'shpjs/' },
           { from: nodeModulePathConstant + 'datatables.net/js/jquery.dataTables.min.js', to: 'datatables.net/' },
           { from: nodeModulePathConstant + 'datatables.net-bs/js', to: 'datatables.net-bs/js' },
-          { from: nodeModulePathConstant + 'datatables.net-bs/css', to: 'datatables.net-bs/css' }
+          { from: nodeModulePathConstant + 'datatables.net-bs/css', to: 'datatables.net-bs/css' },
+          { from: nodeModulePathConstant + 'bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css', to: 'bootstrap-datepicker/css' },
+          { from: nodeModulePathConstant + 'bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js', to: 'bootstrap-datepicker/js' },
+          { from: nodeModulePathConstant + 'bootstrap-datepicker/dist/locales/bootstrap-datepicker.de.min.js', to: 'bootstrap-datepicker/js' }
+
       ])
     ]
 };
