@@ -121,6 +121,13 @@
     }
   ];
 
+  window.__env.geodataSourceFormats = [
+    {
+        displayName: "GeoJSON",
+        value: "geojson"
+    }
+  ];
+
   window.__env.wmsDatasets = [
     {
       title: "Versiegelungsgrad - 2006 anhand von Copernicus Satellitendaten - 20m Rasterzellen",

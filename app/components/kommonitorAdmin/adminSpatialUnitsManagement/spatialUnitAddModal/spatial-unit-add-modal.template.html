@@ -136,35 +136,69 @@
 
 						<h4>R&auml;umlicher Datensatz</h4>
 						<div class="row vertical-align">
-	                <div class="col-md-4 col-sm-6 col-xs-12">
+	                <div class="col-md-3 col-sm-6 col-xs-12">
 										<div class="form-group">
-											<label >Geodaten*</label>
-											<input type="file" class="form-control"id="spatialUnitAddfileInput" required></input>
-											<div class="help-block"><p>Features m&uuml;ssen Informationen &uuml;ber eindutige ID und eindeutigen Namen in Attribut namens <code>ID</code> und <code>NAME</code> enthalten, um in KomMonitor verarbeitet werden zu k&ouml;nnen.</p></div>
+											<label >Geodaten-Quellformat*</label>
+											<select ng-model="geodataSourceFormat" ng-options="value as value.displayName for value in $ctrl.kommonitorDataExchangeServiceInstance.geodataSourceFormats" class="form-control" required>
+												<option disabled selected value> -- Quellformat w&auml;hlen -- </option>
+		                  </select>
 											<div class="help-block with-errors"></div>
 										</div>
 									</div>
-									<div class="col-md-4 col-sm-6 col-xs-12">
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label >Geodaten-Input*</label>
+											<div ng-if="!geodataSourceFormat.value">
+												<p>bitte zuerst das Quellformat w&auml;hlen</p>
+											</div>
+											<div ng-if="geodataSourceFormat.value === 'geojson'">
+												<input type="file" class="form-control" id="spatialUnitDataSourceInput" required></input>
+											</div>
+											<!-- <div class="help-block"><p>Features m&uuml;ssen Informationen &uuml;ber eindutige ID und eindeutigen Namen in Attribut namens <code>ID</code> und <code>NAME</code> enthalten, um in KomMonitor verarbeitet werden zu k&ouml;nnen.</p></div> -->
+											<div class="help-block"><p>Als Koordinatensystem wird gegenw&auml;rtig WGS84 (EPSG:4326) vorausgesetzt.</p></div>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label >ID Attributname*</label>
+											<input type="text" class="form-control" ng-model="spatialUnitDataSourceIdProperty" required></input>
+											<div class="help-block"><p>Name des Attributs, welches den eindeutigen Identifier des Features enth&auml;lt.</p></div>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label >NAME Attributname*</label>
+											<input type="text" class="form-control" ng-model="spatialUnitDataSourceNameProperty" required></input>
+											<div class="help-block"><p>Name des Attributs, welches den eindeutigen Namen des Features enth&auml;lt.</p></div>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+						</div>
+
+						<div class="row vertical-align">
+									<div class="col-md-6 col-sm-6 col-xs-12">
 										<div class="form-group">
 											<label >G&uuml;ltigkeitszeitraum: g&uuml;ltig seit*</label>
 											<div class="input-group date">
 			                  <div class="input-group-addon">
 			                    <i class="far fa-calendar-alt"></i>
 			                  </div>
-			                  <input type="text" class="form-control pull-right" id="spatialUnitAddDatepickerStart" required>
+			                  <input type="text" ng-model="periodOfValidity.startDate" class="form-control pull-right" id="spatialUnitAddDatepickerStart" required>
 			                </div>
 											<div class="help-block"><p>Eintrag ist erforderlich, falls die r&auml;mlichen Features nicht selbst &uuml;ber ein Attribut namens <code>validStartDate</code> verf&uuml;gen.</p></div>
 											<div class="help-block with-errors"></div>
 										</div>
 									</div>
-									<div class="col-md-4 col-sm-6 col-xs-12">
+									<div class="col-md-6 col-sm-6 col-xs-12">
 										<div class="form-group">
 											<label >G&uuml;ltigkeitszeitraum: g&uuml;ltig bis</label>
 											<div class="input-group date">
 			                  <div class="input-group-addon">
 			                    <i class="far fa-calendar-alt"></i>
 			                  </div>
-			                  <input type="text" class="form-control pull-right" id="spatialUnitAddDatepickerEnd">
+			                  <input type="text" ng-model="periodOfValidity.endDate" class="form-control pull-right" id="spatialUnitAddDatepickerEnd">
 			                </div>
 											<div class="help-block"><p>Eintrag ist erforderlich, falls die r&auml;mlichen Features nicht selbst &uuml;ber ein Attribut namens <code>validEndDate</code> verf&uuml;gen. Enddatum darf leer sein, um anzuzeigen, dass es sich um aktuell g&uuml;ltige Features handelt.</p></div>
 											<div class="help-block with-errors"></div>
@@ -179,7 +213,7 @@
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
-					<button type="button" class="btn btn-success" ng-disabled="!spatialUnitLevel || !metadata.description || !metadata.datasource || !metadata.contact || !metadata.updateInterval || !spatialFileWasUploaded" ng-click="addSpatialUnit()">Raumeinheit registrieren</button>
+					<button type="button" class="btn btn-success" ng-disabled="!spatialUnitLevel || !metadata.description || !metadata.datasource || !metadata.contact || !metadata.updateInterval || !spatialResourceConfigured || !spatialUnitDataSourceIdProperty || !spatialUnitDataSourceNameProperty || !periodOfValidity.startDate" ng-click="addSpatialUnit()">Raumeinheit registrieren</button>
 					<button type="button" class="btn btn-danger" ng-click="resetSpatialUnitAddForm()">Zur&uuml;cksetzen</button>
 			</div>
 

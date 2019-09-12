@@ -34,6 +34,7 @@ angular
 					this.kommonitorMapServiceInstance = kommonitorMapService;
 
           this.updateIntervalOptions = __env.updateIntervalOptions;
+          this.geodataSourceFormats = __env.geodataSourceFormats;
 
           this.anySideBarIsShown = false;
 

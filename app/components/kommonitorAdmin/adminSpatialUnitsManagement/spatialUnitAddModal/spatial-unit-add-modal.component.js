@@ -32,11 +32,13 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 		//Date picker
     $('#spatialUnitAddDatepickerStart').datepicker({
       autoclose: true,
-			language: 'de'
+			language: 'de',
+			format: 'yyyy-mm-dd'
     });
 		$('#spatialUnitAddDatepickerEnd').datepicker({
       autoclose: true,
-			language: 'de'
+			language: 'de',
+			format: 'yyyy-mm-dd'
     });
 
 		$scope.spatialUnitLevel = undefined;
@@ -61,7 +63,10 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 
 		$scope.geoJsonString = undefined;
 
-		$scope.spatialFileWasUploaded = false;
+		$scope.spatialResourceConfigured = false;
+		$scope.geodataSourceFormat = undefined;
+		$scope.spatialUnitDataSourceIdProperty = undefined;
+		$scope.spatialUnitDataSourceNameProperty = undefined;
 
 		$scope.successMessagePart = undefined;
 		$scope.errorMessagePart = undefined;
@@ -89,6 +94,9 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 			$scope.periodOfValidity.endDate = undefined;
 
 			$scope.geoJsonString = undefined;
+
+			$scope.spatialResourceConfigured = false;
+			$scope.geodataSourceFormat = undefined;
 		};
 
 		$scope.addSpatialUnit = function(){
@@ -157,10 +165,11 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 
 		};
 
-		$("#spatialUnitAddfileInput").on("change", function(){
+		$(document).on("change", "#spatialUnitDataSourceInput" ,function(){
 				// TODO validate file input and
+				console.log("Input resource set");
 
-				$scope.spatialFileWasUploaded = true;
+				$scope.spatialResourceConfigured = true;
 		});
 
 
