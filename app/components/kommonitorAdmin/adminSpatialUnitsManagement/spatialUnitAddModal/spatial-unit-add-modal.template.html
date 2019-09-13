@@ -108,28 +108,37 @@
 	                <div class="col-md-4 col-sm-6 col-xs-12">
 										<div class="form-group">
 											<label >Name der Raumeinheit*</label>
-											<input type="text" class="form-control" ng-model="spatialUnitLevel" placeholder="eindeutiger Name" required></textarea>
+											<input type="text" class="form-control" ng-model="spatialUnitLevel" ng-change="checkSpatialUnitName()" placeholder="eindeutiger Name" required></textarea>
 											<div class="help-block with-errors"></div>
+											<div ng-if="spatialUnitLevelInvalid" style="color: red;">
+												<p>Eingabe ung&uuml;ltig. Es existiert bereits eine Raumeinheit mit gleichem Namen.</p>
+											</div>
 										</div>
 									</div>
 									<div class="col-md-4 col-sm-6 col-xs-12">
 										<div class="form-group">
 											<label >Hierarchie: n&auml;chst niedrigere Ebene</label>
-											<select ng-model="nextLowerHierarchySpatialUnit" ng-options="value as value.spatialUnitLevel for value in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits" class="form-control">
+											<select ng-model="nextLowerHierarchySpatialUnit" ng-change="checkSpatialUnitHierarchy()" ng-options="value as value.spatialUnitLevel for value in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits" class="form-control">
 												<option disabled selected value> -- Raumeinheit w&auml;hlen -- </option>
 		                  </select>
 											<div class="help-block"><p>Eintrag kann im Nachhinein mittels Metadaten-Editier-Funktion gesetzt werden</p></div>
 											<div class="help-block with-errors"></div>
+											<div ng-if="hierarchyInvalid" style="color: red;">
+												<p>Eingabe ung&uuml;ltig. Definierte Hierarchie ist nicht erlaubt.</p>
+											</div>
 										</div>
 									</div>
 									<div class="col-md-4 col-sm-6 col-xs-12">
 										<div class="form-group">
 											<label >Hierarchie: n&auml;chst h&ouml;here Ebene</label>
-											<select ng-model="nextUpperHierarchySpatialUnit" ng-options="value as value.spatialUnitLevel for value in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits" class="form-control">
+											<select ng-model="nextUpperHierarchySpatialUnit" ng-change="checkSpatialUnitHierarchy()" ng-options="value as value.spatialUnitLevel for value in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits" class="form-control">
 												<option disabled selected value> -- Raumeinheit w&auml;hlen -- </option>
 		                  </select>
 											<div class="help-block"><p>Eintrag kann im Nachhinein mittels Metadaten-Editier-Funktion gesetzt werden</p></div>
 											<div class="help-block with-errors"></div>
+											<div ng-if="hierarchyInvalid" style="color: red;">
+												<p>Eingabe ung&uuml;ltig. Definierte Hierarchie ist nicht erlaubt.</p>
+											</div>
 										</div>
 									</div>
 						</div>
@@ -185,10 +194,13 @@
 			                  <div class="input-group-addon">
 			                    <i class="far fa-calendar-alt"></i>
 			                  </div>
-			                  <input type="text" ng-model="periodOfValidity.startDate" class="form-control pull-right" id="spatialUnitAddDatepickerStart" required>
+			                  <input type="text" ng-model="periodOfValidity.startDate" ng-change="checkPeriodOfValidity()" class="form-control pull-right" id="spatialUnitAddDatepickerStart" required>
 			                </div>
 											<div class="help-block"><p>Eintrag ist erforderlich, falls die r&auml;mlichen Features nicht selbst &uuml;ber ein Attribut namens <code>validStartDate</code> verf&uuml;gen.</p></div>
 											<div class="help-block with-errors"></div>
+											<div ng-if="periodOfValidityInvalid" style="color: red;">
+												<p>Eingabe ung&uuml;ltig. Definiertes Zeitintervall ist nicht erlaubt.</p>
+											</div>
 										</div>
 									</div>
 									<div class="col-md-6 col-sm-6 col-xs-12">
@@ -198,10 +210,13 @@
 			                  <div class="input-group-addon">
 			                    <i class="far fa-calendar-alt"></i>
 			                  </div>
-			                  <input type="text" ng-model="periodOfValidity.endDate" class="form-control pull-right" id="spatialUnitAddDatepickerEnd">
+			                  <input type="text" ng-model="periodOfValidity.endDate" ng-change="checkPeriodOfValidity()" class="form-control pull-right" id="spatialUnitAddDatepickerEnd">
 			                </div>
 											<div class="help-block"><p>Eintrag ist erforderlich, falls die r&auml;mlichen Features nicht selbst &uuml;ber ein Attribut namens <code>validEndDate</code> verf&uuml;gen. Enddatum darf leer sein, um anzuzeigen, dass es sich um aktuell g&uuml;ltige Features handelt.</p></div>
 											<div class="help-block with-errors"></div>
+											<div ng-if="periodOfValidityInvalid" style="color: red;">
+												<p>Eingabe ung&uuml;ltig. Definiertes Zeitintervall ist nicht erlaubt.</p>
+											</div>
 										</div>
 									</div>
 						</div>
@@ -213,7 +228,7 @@
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
-					<button type="button" class="btn btn-success" ng-disabled="!spatialUnitLevel || !metadata.description || !metadata.datasource || !metadata.contact || !metadata.updateInterval || !spatialResourceConfigured || !spatialUnitDataSourceIdProperty || !spatialUnitDataSourceNameProperty || !periodOfValidity.startDate" ng-click="addSpatialUnit()">Raumeinheit registrieren</button>
+					<button type="button" class="btn btn-success" ng-disabled="!spatialUnitLevel || !metadata.description || !metadata.datasource || !metadata.contact || !metadata.updateInterval || !spatialResourceConfigured || !spatialUnitDataSourceIdProperty || !spatialUnitDataSourceNameProperty || !periodOfValidity.startDate || spatialUnitLevelInvalid || periodOfValidityInvalid || hierarchyInvalid" ng-click="addSpatialUnit()">Raumeinheit registrieren</button>
 					<button type="button" class="btn btn-danger" ng-click="resetSpatialUnitAddForm()">Zur&uuml;cksetzen</button>
 			</div>
 

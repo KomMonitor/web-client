@@ -42,6 +42,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
     });
 
 		$scope.spatialUnitLevel = undefined;
+		$scope.spatialUnitLevelInvalid = false;
 
 		$scope.metadata = {};
 		$scope.metadata.note = undefined;
@@ -56,10 +57,12 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 
 		$scope.nextLowerHierarchySpatialUnit = undefined;
 		$scope.nextUpperHierarchySpatialUnit = undefined;
+		$scope.hierarchyInvalid = false;
 
 		$scope.periodOfValidity = {};
 		$scope.periodOfValidity.startDate = undefined;
 		$scope.periodOfValidity.endDate = undefined;
+		$scope.periodOfValidityInvalid = false;
 
 		$scope.geoJsonString = undefined;
 
@@ -74,6 +77,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 
 		$scope.resetSpatialUnitAddForm = function(){
 			$scope.spatialUnitLevel = undefined;
+			$scope.spatialUnitLevelInvalid = false;
 
 			$scope.metadata = {};
 			$scope.metadata.note = undefined;
@@ -88,15 +92,67 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 
 			$scope.nextLowerHierarchySpatialUnit = undefined;
 			$scope.nextUpperHierarchySpatialUnit = undefined;
+			$scope.hierarchyInvalid = false;
 
 			$scope.periodOfValidity = {};
 			$scope.periodOfValidity.startDate = undefined;
 			$scope.periodOfValidity.endDate = undefined;
+			$scope.periodOfValidityInvalid = false;
 
 			$scope.geoJsonString = undefined;
 
 			$scope.spatialResourceConfigured = false;
 			$scope.geodataSourceFormat = undefined;
+		};
+
+		$scope.checkSpatialUnitName = function(){
+			$scope.spatialUnitLevelInvalid = false;
+			kommonitorDataExchangeService.availableSpatialUnits.forEach(function(spatialUnit){
+				if (spatialUnit.spatialUnitLevel === $scope.spatialUnitLevel){
+					$scope.spatialUnitLevelInvalid = true;
+					return;
+				}
+			});
+		};
+
+		$scope.checkPeriodOfValidity = function(){
+			$scope.periodOfValidityInvalid = false;
+			if ($scope.periodOfValidity.startDate && $scope.periodOfValidity.endDate){
+				var startDate = new Date($scope.periodOfValidity.startDate);
+				var endDate = new Date($scope.periodOfValidity.endDate);
+
+				if ((startDate === endDate) || startDate > endDate){
+					// failure
+					$scope.periodOfValidityInvalid = true;
+				}
+			}
+		};
+
+		$scope.checkSpatialUnitHierarchy = function(){
+
+			$scope.hierarchyInvalid = false;
+
+			// smaller indices represent higher spatial units
+			// i.e. city districts will have a smaller index than building blocks
+			if($scope.nextLowerHierarchySpatialUnit && $scope.nextUpperHierarchySpatialUnit){
+				var indexOfLowerHierarchyUnit;
+				var indexOfUpperHierarchyUnit;
+
+				for(var i=0; i<kommonitorDataExchangeService.availableSpatialUnits.length; i++){
+					var spatialUnit = kommonitorDataExchangeService.availableSpatialUnits[i];
+					if (spatialUnit.spatialUnitLevel === $scope.nextLowerHierarchySpatialUnit.spatialUnitLevel){
+						indexOfLowerHierarchyUnit = i;
+					}
+					if (spatialUnit.spatialUnitLevel === $scope.nextUpperHierarchySpatialUnit.spatialUnitLevel){
+						indexOfUpperHierarchyUnit = i;
+					}
+				}
+
+					if ((indexOfLowerHierarchyUnit <= indexOfUpperHierarchyUnit)){
+						// failure
+						$scope.hierarchyInvalid = true;
+					}
+			}
 		};
 
 		$scope.addSpatialUnit = function(){
