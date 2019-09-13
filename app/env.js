@@ -123,7 +123,7 @@
 
   window.__env.geodataSourceFormats = [
     {
-        displayName: "GeoJSON",
+        displayName: "GeoJSON FeatureCollection",
         value: "geojson"
     }
   ];
