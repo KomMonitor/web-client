@@ -64,7 +64,7 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 
 		// when ready check if required metadat was already fetched
 		$( document ).ready(function() {
-		  if (kommonitorDataExchangeService.availableIndicators){
+		  if (kommonitorDataExchangeService.availableRoles.length > 0){
 				// we already have required data. hide loading icon
 				$scope.updateCharts();
 				$scope.loadingData = false;

@@ -55,7 +55,9 @@ angular
           this.wfsDatasets = __env.wfsDatasets;
           this.fileDatasets = [];
 
-					this.availableProcessScripts;
+          this.availableRoles = [];
+          this.availableUsers = [];
+					this.availableProcessScripts = [];
           this.isochroneLegend;
 
           this.useOutlierDetectionOnIndicator = true;
@@ -64,7 +66,7 @@ angular
 						this.availableProcessScripts = scriptsArray;
 					};
 
-					this.availableSpatialUnits;
+					this.availableSpatialUnits = [];
 
 					this.selectedSpatialUnit;
 					this.selectedDate;
@@ -75,7 +77,7 @@ angular
 
 					// GEORESOURCES
 
-					this.availableGeoresources;
+					this.availableGeoresources = [];
 
 					this.selectedGeoresource;
 
@@ -88,7 +90,7 @@ angular
 					// INDICATORS
 					this.clickedIndicatorFeatureNames = new Array();
 
-					this.availableIndicators;
+					this.availableIndicators = [];
 
 					this.selectedIndicator;
           // backup used when switching themes --< this might make selectedIndicator undefined due to filtering list of theme-matching indicators
@@ -110,7 +112,7 @@ angular
 
 					// TOPICS
 
-					this.availableTopics;
+					this.availableTopics = [];
 
 					this.selectedTopic;
 
