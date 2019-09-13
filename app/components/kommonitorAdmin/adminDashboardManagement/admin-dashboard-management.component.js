@@ -62,20 +62,6 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 				}
 		});
 
-		// when ready check if required metadat was already fetched
-		$( document ).ready(function() {
-		  if (kommonitorDataExchangeService.availableRoles.length > 0){
-				// we already have required data. hide loading icon
-				$scope.updateCharts();
-				$scope.loadingData = false;
-			}
-			else{
-				// we wait for  required data. show loading icon
-				console.log("fetching all required metadata");
-				$scope.loadingData = true;
-			}
-		});
-
 		$scope.$on("initialMetadataLoadingCompleted", function (event) {
 
 			console.log("refresh admin overview");
@@ -408,6 +394,20 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 			$scope.indicatorsPerSpatialUnitChart.setOption($scope.indicatorsPerSpatialUnitChartOptions);
 			$scope.indicatorsPerSpatialUnitChart.hideLoading();
 		};
+
+		// when ready check if required metadat was already fetched
+		$( document ).ready(function() {
+		  if (kommonitorDataExchangeService.availableRoles.length > 0){
+				// we already have required data. hide loading icon
+				$scope.updateCharts();
+				$scope.loadingData = false;
+			}
+			else{
+				// we wait for  required data. show loading icon
+				console.log("fetching all required metadata");
+				$scope.loadingData = true;
+			}
+		});
 
 	}
 ]});
