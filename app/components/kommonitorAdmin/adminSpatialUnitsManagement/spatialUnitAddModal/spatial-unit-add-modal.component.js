@@ -176,7 +176,6 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 
 		$scope.addSpatialUnit = function(){
 
-			var
 			var postBody =
 			{
 				"geoJsonString": $scope.geoJsonString,
@@ -219,17 +218,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 					// this callback will be called asynchronously
 					// when the response is available
 
-					$scope.successMessagePart = $scope.spatialUnitLevel;
-
-					$("#spatialUnitAddSucessAlert").show();
-
-					$scope.loadingData = false;
-
-					setTimeout(function() {
-							$("#spatialUnitAddSucessAlert").hide();
-					}, 3000);
-
-					$scope.resetSpatialUnitAddForm();
+					$scope.refetchSpatialUnitMetadata();
 
 				}, function errorCallback(response) {
 					$scope.errorMessagePart = response;
@@ -242,6 +231,50 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 					// }, 3000);
 			});
 		};
+
+		$scope.refetchSpatialUnitMetadata = function(response){
+
+			// refetch all metadata from spatial units to update table
+
+			$http({
+				url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/spatial-units",
+				method: "GET"
+			}).then(function successCallback(response) {
+						$scope.successMessagePart = $scope.spatialUnitLevel;
+
+						kommonitorDataExchangeService.availableSpatialUnits = response.data;
+
+						// must use timeout as table content is just built up by angular
+						setTimeout(function(){
+							// initialize table as DataTable
+							$('#spatialUnitOverviewTable').dataTable( {
+										"language": {
+												"url": "//cdn.datatables.net/plug-ins/1.10.15/i18n/German.json"
+										}
+								} );
+						}, 500);
+
+						$("#spatialUnitAddSucessAlert").show();
+
+						$scope.loadingData = false;
+
+						// setTimeout(function() {
+						// 		$("#spatialUnitAddSucessAlert").hide();
+						// }, 3000);
+
+						$scope.resetSpatialUnitAddForm();
+
+				}, function errorCallback(response) {
+					$scope.errorMessagePart = response;
+
+					$("#spatialUnitAddErrorAlert").show();
+					$scope.loadingData = false;
+
+					// setTimeout(function() {
+					// 		$("#spatialUnitAddSucessAlert").hide();
+					// }, 3000);
+			});
+		}
 
 		$(document).on("change", "#spatialUnitDataSourceInput" ,function(){
 				// TODO validate file input and
