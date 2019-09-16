@@ -19,6 +19,9 @@ angular.module('adminSpatialUnitsManagement').component('adminSpatialUnitsManage
 
 		$scope.initializeOrRefreshOverviewTable = function(){
 			$scope.loadingData = true;
+			if($.fn.DataTable.isDataTable( '#spatialUnitOverviewTable' )){
+				$('#spatialUnitOverviewTable').DataTable().clear().destroy();
+			}
 			$scope.availableSpatialUnitDatasets = JSON.parse(JSON.stringify(kommonitorDataExchangeService.availableSpatialUnits));
 
 			// initialize properties
@@ -26,18 +29,13 @@ angular.module('adminSpatialUnitsManagement').component('adminSpatialUnitsManage
 				dataset.isSelected = false;
 			});
 
-
 			// must use timeout as table content is just built up by angular
 			setTimeout(function(){
 
-				if($.fn.DataTable.isDataTable( '#spatialUnitOverviewTable' )){
-					$('#spatialUnitOverviewTable').DataTable().clear().destroy();
-				}
 				// initialize table as DataTable
 				$('#spatialUnitOverviewTable').DataTable( {
 							"language": kommonitorDataExchangeService.dataTableLanguageOption
 					} );
-
 
 			}, 500);
 
@@ -45,7 +43,8 @@ angular.module('adminSpatialUnitsManagement').component('adminSpatialUnitsManage
 		};
 
 		$scope.$on("refreshSpatialUnitOverviewTable", function (event) {
-			$scope.initializeOrRefreshOverviewTable();
+			$scope.loadingData = true;
+			$scope.refetchSpatialUnitMetadata();
 		});
 
 		$scope.onChangeSelectAllEntries = function(){
@@ -61,6 +60,40 @@ angular.module('adminSpatialUnitsManagement').component('adminSpatialUnitsManage
 			}
 		};
 
+		$scope.onChangeSelectAllEntries = function(){
+			if ($scope.selectAllEntriesInput){
+				$scope.availableSpatialUnitDatasets.forEach(function(dataset){
+					dataset.isSelected = true;
+				});
+			}
+			else{
+				$scope.availableSpatialUnitDatasets.forEach(function(dataset){
+					dataset.isSelected = false;
+				});
+			}
+		};
+
+		$scope.refetchSpatialUnitMetadata = function(){
+
+			// refetch all metadata from spatial units to update table
+
+			$http({
+				url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/spatial-units",
+				method: "GET"
+			}).then(function successCallback(response) {
+
+						kommonitorDataExchangeService.availableSpatialUnits = response.data;
+
+						$scope.initializeOrRefreshOverviewTable();
+
+						$scope.loadingData = false;
+
+				}, function errorCallback(response) {
+
+					$scope.loadingData = false;
+			});
+		};
+
 		$scope.onChangeSelectDataset = function(spatialUnitDataset){
 			console.log(spatialUnitDataset.spatialUnitLevel);
 		};
@@ -74,7 +107,15 @@ angular.module('adminSpatialUnitsManagement').component('adminSpatialUnitsManage
 						$scope.successMessagePart = $scope.spatialUnitLevel;
 
 						// remove entry from array
-						var index = kommonitorDataExchangeService.availableSpatialUnits.indexOf(spatialUnitDataset);
+						var index = -1;
+
+						for(var i=0; i< kommonitorDataExchangeService.availableSpatialUnits.length; i++){
+							if(kommonitorDataExchangeService.availableSpatialUnits[i].spatialUnitId === spatialUnitDataset.spatialUnitId){
+								index = i;
+								break;
+							}
+						}
+
 						if (index > -1) {
 						  kommonitorDataExchangeService.availableSpatialUnits.splice(index, 1);
 						}

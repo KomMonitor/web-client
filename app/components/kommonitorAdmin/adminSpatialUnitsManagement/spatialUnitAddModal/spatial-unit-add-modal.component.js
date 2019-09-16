@@ -218,45 +218,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 					// this callback will be called asynchronously
 					// when the response is available
 
-					$scope.refetchSpatialUnitMetadata();
-
-				}, function errorCallback(response) {
-					$scope.errorMessagePart = response;
-
-					$("#spatialUnitAddErrorAlert").show();
-					$scope.loadingData = false;
-
-					// setTimeout(function() {
-					// 		$("#spatialUnitAddSucessAlert").hide();
-					// }, 3000);
-			});
-		};
-
-		$scope.refetchSpatialUnitMetadata = function(){
-
-			// refetch all metadata from spatial units to update table
-
-			$http({
-				url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/spatial-units",
-				method: "GET"
-			}).then(function successCallback(response) {
-						$scope.successMessagePart = $scope.spatialUnitLevel;
-
-						$('#spatialUnitOverviewTable').DataTable().clear().destroy();
-
-						kommonitorDataExchangeService.availableSpatialUnits = response.data;
-
-						$rootScope.$broadcast("refreshSpatialUnitOverviewTable");
-
-						$("#spatialUnitAddSucessAlert").show();
-
-						$scope.loadingData = false;
-
-						// setTimeout(function() {
-						// 		$("#spatialUnitAddSucessAlert").hide();
-						// }, 3000);
-
-						$scope.resetSpatialUnitAddForm();
+					$rootScope.$broadcast("refreshSpatialUnitOverviewTable");
 
 				}, function errorCallback(response) {
 					$scope.errorMessagePart = response;
