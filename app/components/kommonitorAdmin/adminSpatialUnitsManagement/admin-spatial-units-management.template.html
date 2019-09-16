@@ -78,7 +78,11 @@
 	                  <td>{{spatialUnitDataset.spatialUnitLevel}}</td>
 	                  <td>{{spatialUnitDataset.nextLowerHierarchyLevel}}</td>
 										<td>{{spatialUnitDataset.nextUpperHierarchyLevel}}</td>
-	                  <td>{{spatialUnitDataset.availablePeriodOfValidity.earliestStartDate}} - {{spatialUnitDataset.availablePeriodOfValidity.endDate}}</td>
+	                  <td><p>{{spatialUnitDataset.availablePeriodOfValidity.earliestStartDate}}</p>
+												<p>bis</p>
+												<p ng-show="! spatialUnitDataset.availablePeriodOfValidity.endDate">heute (keine Beschr&auml;nkung)</p>
+												<p ng-show="spatialUnitDataset.availablePeriodOfValidity.endDate">{{spatialUnitDataset.availablePeriodOfValidity.endDate}}</p>
+										</td>
 										<td ng-bind-html="spatialUnitDataset.metadata.description"></td>
 										<td ng-bind-html="spatialUnitDataset.metadata.note"></td>
 										<td ng-bind-html="spatialUnitDataset.metadata.databasis"></td>
