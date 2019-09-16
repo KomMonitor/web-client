@@ -1335,11 +1335,13 @@ input[type=range]::-webkit-tooltip {
 }
 
 hr {
-    height: 2px;
+    /* height: 2px;
     background-color:#ababab;
     margin-top: 20px;
     margin-bottom: 20px;
-    width: 100%;
+    width: 100%; */
+
+		margin: 0px 0;
 }
 
 .loading-overlay-admin-panel {
