@@ -35,6 +35,12 @@ angular
               "url": "//cdn.datatables.net/plug-ins/1.10.15/i18n/German.json"
           };
 
+          this.datePickerOptions = {
+            autoclose: true,
+      			language: 'de',
+      			format: 'yyyy-mm-dd'
+          };
+
 					this.kommonitorMapServiceInstance = kommonitorMapService;
 
           this.updateIntervalOptions = __env.updateIntervalOptions;

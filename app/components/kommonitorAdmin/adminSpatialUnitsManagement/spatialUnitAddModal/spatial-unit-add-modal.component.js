@@ -30,21 +30,9 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 		*/
 
 		//Date picker
-    $('#spatialUnitAddDatepickerStart').datepicker({
-      autoclose: true,
-			language: 'de',
-			format: 'yyyy-mm-dd'
-    });
-		$('#spatialUnitAddDatepickerEnd').datepicker({
-      autoclose: true,
-			language: 'de',
-			format: 'yyyy-mm-dd'
-    });
-		$('#lastUpdateDatepicker').datepicker({
-      autoclose: true,
-			language: 'de',
-			format: 'yyyy-mm-dd'
-    });
+    $('#spatialUnitAddDatepickerStart').datepicker(kommonitorDataExchangeService.datePickerOptions);
+		$('#spatialUnitAddDatepickerEnd').datepicker(kommonitorDataExchangeService.datePickerOptions);
+		$('#spatialUnitAddLastUpdateDatepicker').datepicker(kommonitorDataExchangeService.datePickerOptions);
 
 		$scope.loadingData = false;
 
@@ -219,6 +207,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 					// when the response is available
 
 					$rootScope.$broadcast("refreshSpatialUnitOverviewTable");
+					$scope.loadingData = false;
 
 				}, function errorCallback(response) {
 					$scope.errorMessagePart = response;
