@@ -13,6 +13,12 @@ angular.module('adminSpatialUnitsManagement').component('adminSpatialUnitsManage
 
 		$scope.$on("initialMetadataLoadingCompleted", function (event) {
 
+			$scope.initializeOrRefreshOverviewTable();
+
+		});
+
+		$scope.initializeOrRefreshOverviewTable = function(){
+			$scope.loadingData = true;
 			$scope.availableSpatialUnitDatasets = JSON.parse(JSON.stringify(kommonitorDataExchangeService.availableSpatialUnits));
 
 			// initialize properties
@@ -20,18 +26,26 @@ angular.module('adminSpatialUnitsManagement').component('adminSpatialUnitsManage
 				dataset.isSelected = false;
 			});
 
-			$scope.loadingData = false;
 
 			// must use timeout as table content is just built up by angular
 			setTimeout(function(){
+
+				if($.fn.DataTable.isDataTable( '#spatialUnitOverviewTable' )){
+					$('#spatialUnitOverviewTable').DataTable().clear().destroy();
+				}
 				// initialize table as DataTable
-				$('#spatialUnitOverviewTable').dataTable( {
-							"language": {
-									"url": "//cdn.datatables.net/plug-ins/1.10.15/i18n/German.json"
-							}
+				$('#spatialUnitOverviewTable').DataTable( {
+							"language": kommonitorDataExchangeService.dataTableLanguageOption
 					} );
+
+
 			}, 500);
 
+			$scope.loadingData = false;
+		};
+
+		$scope.$on("refreshSpatialUnitOverviewTable", function (event) {
+			$scope.initializeOrRefreshOverviewTable();
 		});
 
 		$scope.onChangeSelectAllEntries = function(){
@@ -49,6 +63,36 @@ angular.module('adminSpatialUnitsManagement').component('adminSpatialUnitsManage
 
 		$scope.onChangeSelectDataset = function(spatialUnitDataset){
 			console.log(spatialUnitDataset.spatialUnitLevel);
+		};
+
+		$scope.onClickDeleteEntry = function(spatialUnitDataset){
+			$scope.loadingData = true;
+			$http({
+				url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/spatial-units/" + spatialUnitDataset.spatialUnitId,
+				method: "DELETE"
+			}).then(function successCallback(response) {
+						$scope.successMessagePart = $scope.spatialUnitLevel;
+
+						// remove entry from array
+						var index = kommonitorDataExchangeService.availableSpatialUnits.indexOf(spatialUnitDataset);
+						if (index > -1) {
+						  kommonitorDataExchangeService.availableSpatialUnits.splice(index, 1);
+						}
+
+						$scope.initializeOrRefreshOverviewTable();
+
+						$scope.loadingData = false;
+
+				}, function errorCallback(response) {
+					$scope.errorMessagePart = response;
+
+					$("#spatialUnitAddErrorAlert").show();
+					$scope.loadingData = false;
+
+					// setTimeout(function() {
+					// 		$("#spatialUnitAddSucessAlert").hide();
+					// }, 3000);
+			});
 		};
 
 	}

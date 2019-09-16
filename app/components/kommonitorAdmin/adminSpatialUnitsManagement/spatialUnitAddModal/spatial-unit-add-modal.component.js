@@ -232,7 +232,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 			});
 		};
 
-		$scope.refetchSpatialUnitMetadata = function(response){
+		$scope.refetchSpatialUnitMetadata = function(){
 
 			// refetch all metadata from spatial units to update table
 
@@ -242,17 +242,11 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 			}).then(function successCallback(response) {
 						$scope.successMessagePart = $scope.spatialUnitLevel;
 
+						$('#spatialUnitOverviewTable').DataTable().clear().destroy();
+
 						kommonitorDataExchangeService.availableSpatialUnits = response.data;
 
-						// must use timeout as table content is just built up by angular
-						setTimeout(function(){
-							// initialize table as DataTable
-							$('#spatialUnitOverviewTable').dataTable( {
-										"language": {
-												"url": "//cdn.datatables.net/plug-ins/1.10.15/i18n/German.json"
-										}
-								} );
-						}, 500);
+						$rootScope.$broadcast("refreshSpatialUnitOverviewTable");
 
 						$("#spatialUnitAddSucessAlert").show();
 
@@ -274,7 +268,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 					// 		$("#spatialUnitAddSucessAlert").hide();
 					// }, 3000);
 			});
-		}
+		};
 
 		$(document).on("change", "#spatialUnitDataSourceInput" ,function(){
 				// TODO validate file input and

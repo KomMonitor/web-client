@@ -31,6 +31,10 @@ angular
 
           var self = this;
 
+          this.dataTableLanguageOption = {
+              "url": "//cdn.datatables.net/plug-ins/1.10.15/i18n/German.json"
+          };
+
 					this.kommonitorMapServiceInstance = kommonitorMapService;
 
           this.updateIntervalOptions = __env.updateIntervalOptions;

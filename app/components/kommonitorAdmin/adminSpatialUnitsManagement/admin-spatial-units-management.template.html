@@ -68,10 +68,10 @@
 	                <tr ng-repeat="spatialUnitDataset in availableSpatialUnitDatasets">
 										<td><input type="checkbox" ng-model="spatialUnitDataset.isSelected" ng-change="onChangeSelectDataset(spatialUnitDataset)"></input></td>
 										<td>
-											<div class="horizontal-align">
-												<button class="btn btn-warning btn-sm" data-toggle="modal" data-target="#modal-edit-spatial-unit-metadata" ng-click="onClickEditMetadata(spatialUnitDataset)"><i class="fas fa-edit"></i>&nbsp;&nbsp;Metadaten</button>
-												<p></p>
-												<button class="btn btn-warning btn-sm" data-toggle="modal" data-target="#modal-edit-spatial-unit-features" ng-click="onClickEditFeatures(spatialUnitDataset)"><i class="fas fa-edit"></i>&nbsp;&nbsp;Features</button>
+											<div class="btn-group btn-group-sm">
+												<button class="btn btn-warning btn-sm" type="button" data-toggle="modal" data-target="#modal-edit-spatial-unit-metadata" ng-click="onClickEditMetadata(spatialUnitDataset)" title="Metadaten editieren"><i class="fas fa-pencil-alt"></i></button>
+												<button class="btn btn-warning btn-sm" type="button" data-toggle="modal" data-target="#modal-edit-spatial-unit-features" ng-click="onClickEditFeatures(spatialUnitDataset)" title="Features editieren"><i class="fas fa-draw-polygon"></i></button>
+												<button class="btn btn-danger btn-sm" type="button" data-toggle="modal" data-target="#modal-edit-spatial-unit-features" ng-click="onClickDeleteEntry(spatialUnitDataset)" title="Datensatz l&ouml;schen"><i class="fas fa-trash"></i></button>
 											</div>
 										</td>
 	                  <td>{{spatialUnitDataset.spatialUnitId}}</td>
