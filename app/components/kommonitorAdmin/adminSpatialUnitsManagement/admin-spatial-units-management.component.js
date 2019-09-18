@@ -36,7 +36,8 @@ angular.module('adminSpatialUnitsManagement').component('adminSpatialUnitsManage
 
 				// initialize table as DataTable
 				$('#spatialUnitOverviewTable').DataTable( {
-							"language": kommonitorDataExchangeService.dataTableLanguageOption
+							"language": kommonitorDataExchangeService.dataTableLanguageOption,
+							"lengthMenu": kommonitorDataExchangeService.dataTableLengthMenuOption
 					} );
 					$scope.loadingData = false;
 			}, 500);

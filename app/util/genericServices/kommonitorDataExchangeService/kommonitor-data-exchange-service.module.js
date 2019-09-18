@@ -34,6 +34,7 @@ angular
           this.dataTableLanguageOption = {
               "url": "//cdn.datatables.net/plug-ins/1.10.15/i18n/German.json"
           };
+          this.dataTableLengthMenuOption = [[5, 10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "Alle"]];
 
           this.datePickerOptions = {
             autoclose: true,
