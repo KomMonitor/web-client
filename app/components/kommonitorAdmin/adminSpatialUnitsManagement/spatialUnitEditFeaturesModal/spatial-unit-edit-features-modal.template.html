@@ -1,0 +1,188 @@
+<div class="modal fade" id="modal-edit-spatial-unit-features" role="dialog">
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content">
+
+			<div align="center">
+				<div class="loading-overlay-admin-panel ng-hide" ng-show="loadingData">
+							<span class="glyphicon glyphicon-refresh icon-spin"></span>
+				</div>
+			</div>
+
+
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Features der Raumeinheit <i><b>{{currentSpatialUnitDataset.spatialUnitLevel}}</b></i> fortf&uuml;hren</h4>
+			</div>
+			<div class="modal-body">
+
+				<p><b><i>* = Pflichtfeld</i></b></p>
+
+				<!-- {
+						  "geoJsonString": "geoJsonString",
+						  "periodOfValidity": {
+						    "endDate": "2000-01-23",
+						    "startDate": "2000-01-23"
+						  }
+						}
+			 -->
+
+			 <div class="admin-table-wrapper">
+				 <table id="spatialUnitFeatureTable" class="table table-bordered table-condensed table-striped" style="width:100%; overflow:auto; font-size: 11px;">
+					 <thead>
+					 <tr>
+						 <th>Id</th>
+						 <th>Name</th>
+						 <th>G&uuml;ltigkeitszeitraum</th>
+						 <th>Koordinatensystem</th>
+						 <th ng-repeat="(key, value) in spatialUnitFeaturesGeoJSON.features[0].properties ">{{key}}</th>
+					 </tr>
+					 </thead>
+
+					 <tbody>
+					 <tr ng-repeat="spatialUnitFeature in spatialUnitFeaturesGeoJSON.features">
+						 <td>{{getFeatureId(spatialUnitFeature)}}</td>
+						 <td>{{spatialUnitFeature.properties.NAME}}</td>
+						 <td>
+							 <p ng-show="spatialUnitFeature.properties.validEndDate">{{spatialUnitFeature.properties.validStartDate}} - {{spatialUnitFeature.properties.validEndDate}}</p>
+							 <p ng-show="! spatialUnitFeature.properties.validEndDate">{{spatialUnitFeature.properties.validStartDate}} - heute (keine Beschr&auml;nkung)</p>
+						 </td>
+						 <td>4326</td>
+						 <td ng-repeat="(key, value) in spatialUnitFeature.properties">{{value}}</td>
+					 </tr>
+
+					 </tbody>
+
+					 <tfoot>
+					 <tr>
+						 <th>Id</th>
+						 <th>Name</th>
+						 <th>G&uuml;ltigkeitszeitraum</th>
+						 <th>Koordinatensystem</th>
+						 <th ng-repeat="(key, value) in spatialUnitFeaturesGeoJSON.features[0].properties">{{key}}</th>
+					 </tr>
+					 </tfoot>
+				 </table>
+
+			 </div>
+
+			 <form role="form" class="form-group" data-toggle="validator" style="margin-bottom: 0px;">
+
+						<h4>R&auml;umlicher Datensatz</h4>
+						<div class="row vertical-align">
+	                <div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label >Geodaten-Quellformat*</label>
+											<select ng-model="geodataSourceFormat" ng-options="value as value.displayName for value in $ctrl.kommonitorDataExchangeServiceInstance.geodataSourceFormats" class="form-control" required>
+												<option disabled selected value> -- Quellformat w&auml;hlen -- </option>
+		                  </select>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label >Geodaten-Input*</label>
+											<div ng-if="!geodataSourceFormat.value">
+												<p>bitte zuerst das Quellformat w&auml;hlen</p>
+											</div>
+											<div ng-if="geodataSourceFormat.value === 'geojson'">
+												<input type="file" class="form-control" id="spatialUnitEditFeaturesDataSourceInput" accept=".json,.geojson" required></input>
+											</div>
+											<!-- <div class="help-block"><p>Features m&uuml;ssen Informationen &uuml;ber eindutige ID und eindeutigen Namen in Attribut namens <code>ID</code> und <code>NAME</code> enthalten, um in KomMonitor verarbeitet werden zu k&ouml;nnen.</p></div> -->
+											<div class="help-block"><p>Als Koordinatensystem wird gegenw&auml;rtig WGS84 (EPSG:4326) vorausgesetzt.</p></div>
+											<div class="help-block with-errors"></div>
+											<div ng-if="spatialUnitEditFeaturesDataSourceInputInvalid" style="color: red;">
+												<p>Eingabe ung&uuml;ltig. Grund: {{spatialUnitEditFeaturesDataSourceInputInvalidReason}}</p>
+											</div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label >ID Attributname*</label>
+											<input type="text" class="form-control" ng-change="checkSpatialUnitDataSource()" ng-model="spatialUnitDataSourceIdProperty" required></input>
+											<div class="help-block"><p>Name des Attributs, welches den eindeutigen Identifier des Features enth&auml;lt.</p></div>
+											<div class="help-block with-errors"></div>
+											<div ng-if="idPropertyNotFound" style="color: red;">
+												<p>Eingabe ung&uuml;ltig. Angegebenes Attribut nicht gefunden oder enth&auml;lt NULL-Werte.</p>
+											</div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label >NAME Attributname*</label>
+											<input type="text" class="form-control" ng-change="checkSpatialUnitDataSource()" ng-model="spatialUnitDataSourceNameProperty" required></input>
+											<div class="help-block"><p>Name des Attributs, welches den eindeutigen Namen des Features enth&auml;lt.</p></div>
+											<div class="help-block with-errors"></div>
+											<div ng-if="namePropertyNotFound" style="color: red;">
+												<p>Eingabe ung&uuml;ltig. Angegebenes Attribut nicht gefunden oder enth&auml;lt NULL-Werte.</p>
+											</div>
+										</div>
+									</div>
+						</div>
+
+						<div class="row vertical-align">
+									<div class="col-md-6 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label >G&uuml;ltigkeitszeitraum: g&uuml;ltig seit*</label>
+											<div class="input-group date">
+			                  <div class="input-group-addon">
+			                    <i class="far fa-calendar-alt"></i>
+			                  </div>
+			                  <input type="text" ng-model="periodOfValidity.startDate" ng-change="checkPeriodOfValidity()" class="form-control pull-right" id="spatialUnitEditFeaturesDatepickerStart" required>
+			                </div>
+											<div class="help-block"><p>Eintrag ist erforderlich, falls die r&auml;mlichen Features nicht selbst &uuml;ber ein Attribut namens <code>validStartDate</code> verf&uuml;gen.</p></div>
+											<div class="help-block with-errors"></div>
+											<div ng-if="periodOfValidityInvalid" style="color: red;">
+												<p>Eingabe ung&uuml;ltig. Definiertes Zeitintervall ist nicht erlaubt.</p>
+											</div>
+										</div>
+									</div>
+									<div class="col-md-6 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label >G&uuml;ltigkeitszeitraum: g&uuml;ltig bis</label>
+											<div class="input-group date">
+			                  <div class="input-group-addon">
+			                    <i class="far fa-calendar-alt"></i>
+			                  </div>
+			                  <input type="text" ng-model="periodOfValidity.endDate" ng-change="checkPeriodOfValidity()" class="form-control pull-right" id="spatialUnitEditFeaturesDatepickerEnd">
+			                </div>
+											<div class="help-block"><p>Eintrag ist erforderlich, falls die r&auml;mlichen Features nicht selbst &uuml;ber ein Attribut namens <code>validEndDate</code> verf&uuml;gen. Enddatum darf leer sein, um anzuzeigen, dass es sich um aktuell g&uuml;ltige Features handelt.</p></div>
+											<div class="help-block with-errors"></div>
+											<div ng-if="periodOfValidityInvalid" style="color: red;">
+												<p>Eingabe ung&uuml;ltig. Definiertes Zeitintervall ist nicht erlaubt.</p>
+											</div>
+										</div>
+									</div>
+						</div>
+
+				</form>
+
+				<!-- ng-disabled="((!customWfsTitle) || (!customWfsDescription) || (!customWfsUrl) || (!customWfsLayerName))" -->
+
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
+					<button type="button" class="btn btn-success" ng-disabled="!spatialUnitLevel || !spatialResourceConfigured || !spatialUnitDataSourceIdProperty || !spatialUnitDataSourceNameProperty || !periodOfValidity.startDate || spatialUnitLevelInvalid || periodOfValidityInvalid || spatialUnitEditFeaturesDataSourceInputInvalid || idPropertyNotFound || namePropertyNotFound" ng-click="editSpatialUnitFeatures()">Features fortf&uuml;hren</button>
+					<button type="button" class="btn btn-danger" ng-click="resetSpatialUnitEditFeaturesForm()">Zur&uuml;cksetzen</button>
+			</div>
+
+			<div id="spatialUnitEditFeaturesSucessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden class="alert alert-success alert-dismissable">
+                <button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
+                <h4><i class="icon fa fa-check"></i>Features erfolgreich fortgef&uuml;hrt</h4>
+                Fortf&uuml;hren der Features der Raumeinheit mit Namen {{successMessagePart}} war erfolgreich.
+      </div>
+
+			<div id="spatialUnitEditFeaturesErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden class="alert alert-danger alert-dismissable">
+                <button type="button" class="close" ng-click="hideErrorAlert()" aria-hidden="true">&times;</button>
+                <h4><i class="icon fa fa-ban"></i>Features fortf&uuml;hren gescheitert</h4>
+                Beim Fortf&uuml;hren der Features ist ein Fehler aufgetreten. Fehlermeldung:
+								<br/>
+								<pre>{{errorMessagePart}}</pre>.
+      </div>
+
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->

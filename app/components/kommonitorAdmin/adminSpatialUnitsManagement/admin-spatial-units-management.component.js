@@ -142,5 +142,10 @@ angular.module('adminSpatialUnitsManagement').component('adminSpatialUnitsManage
 			$rootScope.$broadcast("onEditSpatialUnitMetadata", spatialUnitDataset);
 		};
 
+		$scope.onClickEditFeatures = function(spatialUnitDataset){
+			// submit selected spatial unit to modal controller
+			$rootScope.$broadcast("onEditSpatialUnitFeatures", spatialUnitDataset);
+		};
+
 	}
 ]});

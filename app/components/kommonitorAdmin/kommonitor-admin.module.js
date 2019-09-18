@@ -1,5 +1,5 @@
 angular.module('kommonitorAdmin', ['kommonitorDataExchange', 'adminDashboardManagement', 'adminUserManagement', 'adminTopicsManagement',
 'adminSpatialUnitsManagement','adminIndicatorsManagement', 'adminGeoresourcesManagement', 'adminScriptManagement',
-'spatialUnitAddModal','spatialUnitEditMetadataModal'
-// ,'spatialUnitDeleteModal','spatialUnitEditFeaturesModal',
+'spatialUnitAddModal','spatialUnitEditMetadataModal', 'spatialUnitEditFeaturesModal'
+// ,'spatialUnitDeleteModal',,
 ]);
