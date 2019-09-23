@@ -31,6 +31,12 @@ angular
 
           var self = this;
 
+          this.FEATURE_ID_PROPERTY_NAME = __env.FEATURE_ID_PROPERTY_NAME;
+          this.FEATURE_NAME_PROPERTY_NAME = __env.FEATURE_NAME_PROPERTY_NAME;
+          this.VALID_START_DATE_PROPERTY_NAME = __env.VALID_START_DATE_PROPERTY_NAME;
+          this.VALID_END_DATE_PROPERTY_NAME = __env.VALID_END_DATE_PROPERTY_NAME;
+          this.indicatorDatePrefix = __env.indicatorDatePrefix;
+
           this.dataTableLanguageOption = {
               "url": "//cdn.datatables.net/plug-ins/1.10.15/i18n/German.json"
           };

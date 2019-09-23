@@ -9,6 +9,8 @@
   // DO NOT CHANGE THEM - ONLY IF YOU REALLY KNOW WHAT YOU ARE DOING
   window.__env.FEATURE_ID_PROPERTY_NAME = "ID";
   window.__env.FEATURE_NAME_PROPERTY_NAME = "NAME";
+  window.__env.VALID_START_DATE_PROPERTY_NAME = "validStartDate";
+  window.__env.VALID_END_DATE_PROPERTY_NAME = "validEndDate";
   window.__env.indicatorDatePrefix = "DATE_";
 
   // Data Management API URL

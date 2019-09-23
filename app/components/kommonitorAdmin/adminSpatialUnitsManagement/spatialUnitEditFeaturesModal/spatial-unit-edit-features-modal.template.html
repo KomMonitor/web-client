@@ -35,7 +35,7 @@
 						 <th>Name</th>
 						 <th>G&uuml;ltigkeitszeitraum</th>
 						 <th>Koordinatensystem</th>
-						 <th ng-repeat="(key, value) in spatialUnitFeaturesGeoJSON.features[0].properties ">{{key}}</th>
+						 <th ng-repeat="(key, value) in spatialUnitFeaturesGeoJSON.features[0].properties" ng-if="key != $ctrl.kommonitorDataExchangeServiceInstance.FEATURE_ID_PROPERTY_NAME && key != $ctrl.kommonitorDataExchangeServiceInstance.FEATURE_NAME_PROPERTY_NAME && key != $ctrl.kommonitorDataExchangeServiceInstance.VALID_START_DATE_PROPERTY_NAME && key != $ctrl.kommonitorDataExchangeServiceInstance.VALID_END_DATE_PROPERTY_NAME">{{key}}</th>
 					 </tr>
 					 </thead>
 
@@ -44,11 +44,11 @@
 						 <td>{{getFeatureId(spatialUnitFeature)}}</td>
 						 <td>{{spatialUnitFeature.properties.NAME}}</td>
 						 <td>
-							 <p ng-show="spatialUnitFeature.properties.validEndDate">{{spatialUnitFeature.properties.validStartDate}} - {{spatialUnitFeature.properties.validEndDate}}</p>
-							 <p ng-show="! spatialUnitFeature.properties.validEndDate">{{spatialUnitFeature.properties.validStartDate}} - heute (keine Beschr&auml;nkung)</p>
+							 <p ng-show="spatialUnitFeature.properties.validEndDate">{{spatialUnitFeature.properties.validStartDate | date:'yyyy-MM-dd'}} - {{spatialUnitFeature.properties.validEndDate | date:'yyyy-MM-dd'}}</p>
+							 <p ng-show="! spatialUnitFeature.properties.validEndDate">{{spatialUnitFeature.properties.validStartDate | date:'yyyy-MM-dd'}} - heute (keine Beschr&auml;nkung)</p>
 						 </td>
 						 <td>4326</td>
-						 <td ng-repeat="(key, value) in spatialUnitFeature.properties">{{value}}</td>
+						 <td ng-repeat="(key, value) in spatialUnitFeature.properties" ng-if="key != $ctrl.kommonitorDataExchangeServiceInstance.FEATURE_ID_PROPERTY_NAME && key != $ctrl.kommonitorDataExchangeServiceInstance.FEATURE_NAME_PROPERTY_NAME && key != $ctrl.kommonitorDataExchangeServiceInstance.VALID_START_DATE_PROPERTY_NAME && key != $ctrl.kommonitorDataExchangeServiceInstance.VALID_END_DATE_PROPERTY_NAME">{{value}}</td>
 					 </tr>
 
 					 </tbody>
@@ -59,7 +59,7 @@
 						 <th>Name</th>
 						 <th>G&uuml;ltigkeitszeitraum</th>
 						 <th>Koordinatensystem</th>
-						 <th ng-repeat="(key, value) in spatialUnitFeaturesGeoJSON.features[0].properties">{{key}}</th>
+						 <th ng-repeat="(key, value) in spatialUnitFeaturesGeoJSON.features[0].properties" ng-if="key != $ctrl.kommonitorDataExchangeServiceInstance.FEATURE_ID_PROPERTY_NAME && key != $ctrl.kommonitorDataExchangeServiceInstance.FEATURE_NAME_PROPERTY_NAME && key != $ctrl.kommonitorDataExchangeServiceInstance.VALID_START_DATE_PROPERTY_NAME && key != $ctrl.kommonitorDataExchangeServiceInstance.VALID_END_DATE_PROPERTY_NAME">{{key}}</th>
 					 </tr>
 					 </tfoot>
 				 </table>
