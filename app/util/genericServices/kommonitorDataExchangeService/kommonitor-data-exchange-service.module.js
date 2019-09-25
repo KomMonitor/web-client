@@ -10,11 +10,11 @@ angular.module('kommonitorDataExchange', ['kommonitorMap']);
  * parameters for each WPS operation represented by different Angular components
  */
 angular
-		.module('kommonitorDataExchange')
+		.module('kommonitorDataExchange', ['datatables'])
 		.service(
-				'kommonitorDataExchangeService', ['$rootScope', '$timeout', 'kommonitorMapService', '$http', '__env',
+				'kommonitorDataExchangeService', ['$rootScope', '$timeout', 'kommonitorMapService', '$http', '__env', 'DTOptionsBuilder',
 				function($rootScope, $timeout,
-						kommonitorMapService, $http, __env) {
+						kommonitorMapService, $http, __env, DTOptionsBuilder) {
 
 							var numberOfDecimals = __env.numberOfDecimals;
 							const DATE_PREFIX = __env.indicatorDatePrefix;
@@ -37,10 +37,11 @@ angular
           this.VALID_END_DATE_PROPERTY_NAME = __env.VALID_END_DATE_PROPERTY_NAME;
           this.indicatorDatePrefix = __env.indicatorDatePrefix;
 
-          this.dataTableLanguageOption = {
-              "url": "//cdn.datatables.net/plug-ins/1.10.15/i18n/German.json"
-          };
-          this.dataTableLengthMenuOption = [[5, 10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "Alle"]];
+          this.datatablesOptions = DTOptionsBuilder.newOptions()
+      				.withPaginationType('full_numbers')
+      				.withDisplayLength(5)
+      				.withLanguageSource('//cdn.datatables.net/plug-ins/1.10.15/i18n/German.json')
+              .withOption('lengthMenu', [[5, 10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "Alle"]]);
 
           this.datePickerOptions = {
             autoclose: true,

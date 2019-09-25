@@ -28,27 +28,27 @@
 			 -->
 
 			 <div class="admin-table-wrapper">
-				 <table id="spatialUnitFeatureTable" class="table table-bordered table-condensed table-striped" style="width:100%; overflow:auto; font-size: 11px;">
+				 <table id="spatialUnitFeatureTable" datatable="ng" dt-options="$ctrl.kommonitorDataExchangeServiceInstance.datatablesOptions" class="table table-bordered table-condensed table-striped" style="width:100%; overflow:auto; font-size: 11px;">
 					 <thead>
 					 <tr>
 						 <th>Id</th>
 						 <th>Name</th>
 						 <th>G&uuml;ltigkeitszeitraum</th>
 						 <th>Koordinatensystem</th>
-						 <th ng-repeat="(key, value) in spatialUnitFeaturesGeoJSON.features[0].properties" ng-if="key != $ctrl.kommonitorDataExchangeServiceInstance.FEATURE_ID_PROPERTY_NAME && key != $ctrl.kommonitorDataExchangeServiceInstance.FEATURE_NAME_PROPERTY_NAME && key != $ctrl.kommonitorDataExchangeServiceInstance.VALID_START_DATE_PROPERTY_NAME && key != $ctrl.kommonitorDataExchangeServiceInstance.VALID_END_DATE_PROPERTY_NAME">{{key}}</th>
+						 <th ng-repeat="header in remainingFeatureHeaders">{{header}}</th>
 					 </tr>
 					 </thead>
 
 					 <tbody>
 					 <tr ng-repeat="spatialUnitFeature in spatialUnitFeaturesGeoJSON.features">
 						 <td>{{getFeatureId(spatialUnitFeature)}}</td>
-						 <td>{{spatialUnitFeature.properties.NAME}}</td>
+						 <td>{{getFeatureName(spatialUnitFeature)}}</td>
 						 <td>
 							 <p ng-show="spatialUnitFeature.properties.validEndDate">{{spatialUnitFeature.properties.validStartDate | date:'yyyy-MM-dd'}} - {{spatialUnitFeature.properties.validEndDate | date:'yyyy-MM-dd'}}</p>
 							 <p ng-show="! spatialUnitFeature.properties.validEndDate">{{spatialUnitFeature.properties.validStartDate | date:'yyyy-MM-dd'}} - heute (keine Beschr&auml;nkung)</p>
 						 </td>
 						 <td>4326</td>
-						 <td ng-repeat="(key, value) in spatialUnitFeature.properties" ng-if="key != $ctrl.kommonitorDataExchangeServiceInstance.FEATURE_ID_PROPERTY_NAME && key != $ctrl.kommonitorDataExchangeServiceInstance.FEATURE_NAME_PROPERTY_NAME && key != $ctrl.kommonitorDataExchangeServiceInstance.VALID_START_DATE_PROPERTY_NAME && key != $ctrl.kommonitorDataExchangeServiceInstance.VALID_END_DATE_PROPERTY_NAME">{{value}}</td>
+						 <td ng-repeat="header in remainingFeatureHeaders" >{{spatialUnitFeature.properties[header]}}</td>
 					 </tr>
 
 					 </tbody>
@@ -59,7 +59,7 @@
 						 <th>Name</th>
 						 <th>G&uuml;ltigkeitszeitraum</th>
 						 <th>Koordinatensystem</th>
-						 <th ng-repeat="(key, value) in spatialUnitFeaturesGeoJSON.features[0].properties" ng-if="key != $ctrl.kommonitorDataExchangeServiceInstance.FEATURE_ID_PROPERTY_NAME && key != $ctrl.kommonitorDataExchangeServiceInstance.FEATURE_NAME_PROPERTY_NAME && key != $ctrl.kommonitorDataExchangeServiceInstance.VALID_START_DATE_PROPERTY_NAME && key != $ctrl.kommonitorDataExchangeServiceInstance.VALID_END_DATE_PROPERTY_NAME">{{key}}</th>
+						 <th ng-repeat="header in remainingFeatureHeaders">{{header}}</th>
 					 </tr>
 					 </tfoot>
 				 </table>
@@ -177,7 +177,7 @@
                 <h4><i class="icon fa fa-ban"></i>Features fortf&uuml;hren gescheitert</h4>
                 Beim Fortf&uuml;hren der Features ist ein Fehler aufgetreten. Fehlermeldung:
 								<br/>
-								<pre>{{errorMessagePart}}</pre>.
+								<pre>{{errorMessagePart}}</pre>
       </div>
 
 		</div>

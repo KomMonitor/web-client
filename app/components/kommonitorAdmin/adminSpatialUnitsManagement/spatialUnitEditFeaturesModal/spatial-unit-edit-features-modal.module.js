@@ -1,1 +1,1 @@
-angular.module('spatialUnitEditFeaturesModal', []);
+angular.module('spatialUnitEditFeaturesModal', ['datatables']);

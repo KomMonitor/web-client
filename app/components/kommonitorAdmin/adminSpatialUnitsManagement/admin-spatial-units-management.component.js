@@ -19,9 +19,6 @@ angular.module('adminSpatialUnitsManagement').component('adminSpatialUnitsManage
 
 		$scope.initializeOrRefreshOverviewTable = function(){
 			$scope.loadingData = true;
-			if($.fn.DataTable.isDataTable( '#spatialUnitOverviewTable' )){
-				$('#spatialUnitOverviewTable').DataTable().clear().destroy();
-			}
 			$scope.availableSpatialUnitDatasets = JSON.parse(JSON.stringify(kommonitorDataExchangeService.availableSpatialUnits));
 
 			// initialize properties
@@ -30,17 +27,6 @@ angular.module('adminSpatialUnitsManagement').component('adminSpatialUnitsManage
 			});
 
 			$scope.loadingData = false;
-
-			// must use timeout as table content is just built up by angular
-			setTimeout(function(){
-
-				// initialize table as DataTable
-				$('#spatialUnitOverviewTable').DataTable( {
-							"language": kommonitorDataExchangeService.dataTableLanguageOption,
-							"lengthMenu": kommonitorDataExchangeService.dataTableLengthMenuOption
-					} );
-					$scope.loadingData = false;
-			}, 500);
 		};
 
 		$scope.$on("refreshSpatialUnitOverviewTable", function (event) {

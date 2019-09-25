@@ -1,5 +1,9 @@
 /* app css stylesheet */
 
+.alert {
+		z-index: 99999;
+}
+
 /* required to increase drowdown menu z-index in oder to let layer export options overlap menu buttons and map */
 #spatialUnitInfoControlDropdown {
 	z-index: 1000;
