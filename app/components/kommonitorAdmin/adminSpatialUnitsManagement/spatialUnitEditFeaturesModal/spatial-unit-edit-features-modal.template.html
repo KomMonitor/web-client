@@ -45,7 +45,7 @@
 						 <td>{{getFeatureName(spatialUnitFeature)}}</td>
 						 <td>
 							 <p ng-show="spatialUnitFeature.properties.validEndDate">{{spatialUnitFeature.properties.validStartDate | date:'yyyy-MM-dd'}} - {{spatialUnitFeature.properties.validEndDate | date:'yyyy-MM-dd'}}</p>
-							 <p ng-show="! spatialUnitFeature.properties.validEndDate">{{spatialUnitFeature.properties.validStartDate | date:'yyyy-MM-dd'}} - heute (keine Beschr&auml;nkung)</p>
+							 <p ng-show="! spatialUnitFeature.properties.validEndDate">{{spatialUnitFeature.properties.validStartDate | date:'yyyy-MM-dd'}} - heute </p>
 						 </td>
 						 <td>4326</td>
 						 <td ng-repeat="header in remainingFeatureHeaders" >{{spatialUnitFeature.properties[header]}}</td>
@@ -65,6 +65,9 @@
 				 </table>
 
 			 </div>
+
+			 <br/>
+			 <hr>
 
 			 <form role="form" class="form-group" data-toggle="validator" style="margin-bottom: 0px;">
 
