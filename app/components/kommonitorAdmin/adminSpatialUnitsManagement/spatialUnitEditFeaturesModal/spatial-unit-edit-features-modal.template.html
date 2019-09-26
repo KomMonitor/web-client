@@ -165,11 +165,11 @@
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
-					<button type="button" class="btn btn-success" ng-disabled="!spatialUnitLevel || !spatialResourceConfigured || !spatialUnitDataSourceIdProperty || !spatialUnitDataSourceNameProperty || !periodOfValidity.startDate || spatialUnitLevelInvalid || periodOfValidityInvalid || spatialUnitEditFeaturesDataSourceInputInvalid || idPropertyNotFound || namePropertyNotFound" ng-click="editSpatialUnitFeatures()">Features fortf&uuml;hren</button>
+					<button type="button" class="btn btn-success" ng-disabled="!currentSpatialUnitDataset.spatialUnitLevel || !spatialResourceConfigured || !spatialUnitDataSourceIdProperty || !spatialUnitDataSourceNameProperty || !periodOfValidity.startDate || periodOfValidityInvalid || spatialUnitEditFeaturesDataSourceInputInvalid || idPropertyNotFound || namePropertyNotFound" ng-click="editSpatialUnitFeatures()">Features fortf&uuml;hren</button>
 					<button type="button" class="btn btn-danger" ng-click="resetSpatialUnitEditFeaturesForm()">Zur&uuml;cksetzen</button>
 			</div>
 
-			<div id="spatialUnitEditFeaturesSucessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden class="alert alert-success alert-dismissable">
+			<div id="spatialUnitEditFeaturesSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden class="alert alert-success alert-dismissable">
                 <button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
                 <h4><i class="icon fa fa-check"></i>Features erfolgreich fortgef&uuml;hrt</h4>
                 Fortf&uuml;hren der Features der Raumeinheit mit Namen {{successMessagePart}} war erfolgreich.

@@ -100,6 +100,11 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 				}
 			}
 			$scope.hierarchyInvalid = false;
+
+			$scope.successMessagePart = undefined;
+			$scope.errorMessagePart = undefined;
+			$("#spatialUnitEditMetadataSuccessAlert").hide();
+			$("#spatialUnitEditMetadataErrorAlert").hide();
 		};
 
 		$scope.checkSpatialUnitName = function(){
@@ -189,13 +194,13 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 					$scope.loadingData = false;
 
 					// setTimeout(function() {
-					// 		$("#spatialUnitEditMetadataSucessAlert").hide();
+					// 		$("#spatialUnitEditMetadataSuccessAlert").hide();
 					// }, 3000);
 			});
 		};
 
 			$scope.hideSuccessAlert = function(){
-				$("#spatialUnitEditMetadataSucessAlert").hide();
+				$("#spatialUnitEditMetadataSuccessAlert").hide();
 			};
 
 			$scope.hideErrorAlert = function(){

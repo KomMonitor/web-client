@@ -118,7 +118,7 @@ angular.module('adminSpatialUnitsManagement').component('adminSpatialUnitsManage
 					$scope.loadingData = false;
 
 					// setTimeout(function() {
-					// 		$("#spatialUnitAddSucessAlert").hide();
+					// 		$("#spatialUnitAddSuccessAlert").hide();
 					// }, 3000);
 			});
 		};
