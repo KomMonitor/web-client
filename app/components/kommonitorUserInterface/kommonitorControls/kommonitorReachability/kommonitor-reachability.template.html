@@ -1,85 +1,233 @@
 <div id="kommonitorReachability">
 
 	<div align="center">
-		<div class="loading-overlay-sidebar-small ng-hide" ng-show="loadingData">
-					<span class="glyphicon glyphicon-refresh icon-spin"></span>
+		<div class="loading-overlay-sidebar-small ng-hide"
+			ng-show="loadingData">
+			<span class="glyphicon glyphicon-refresh icon-spin"></span>
 		</div>
 	</div>
 
-	<p></p>
+	<div align="center">
+		<h4>Erreichbarkeitsanalysen</h4>
+	</div>
 
-	<!-- REACHABILITY -->
-		<div style="margin-bottom: 0px;" class="box box-primary">
-			<div class="box-header with-border">
-				<h3 class="box-title">Erreichbarkeitsanalysen</h3>
-
-				<!-- <div class="box-tools pull-right">
-					<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-					</button>
-				</div> -->
-			</div>
-			<div class="box-body">
-
-				<div align="center">
-					<p>Erreichbarkeitsanalysen auf Basis von Stra&szlig;en- und Wegenetzen</p>
-				</div>
-
-				<div align="center">
-					<p>TODO - Under Development</p>
-					<strong>derzeitig sind nur ausgewählte Demo-Erreichbarkeitsisochronen berechenbar. Künftig werden auch beliebige Erreichbarkeitsberechnungen (Routing und Isochronen) mit beliebigen Verkehrsmitteln möglich sein.</strong>
-				</div>
-
-				<br/><br/>
-
-
-				<div align="center">
-					<input type="button" class="btn btn-s btn-primary" value="Kind-Kita-Rellinghausen-Demo" ng-click="runChildDemo()"></input>
-					<input type="button" class="btn btn-s btn-primary" value="Erwachsener-Kita-Rellinghausen-Demo" ng-click="runPedestrianDemo()"></input>
-					<br/><br/>
-					<input type="button" class="btn btn-s btn-primary" value="Fahrrad-Kita-Rellinghausen-Demo" ng-click="runBicycleDemo()"></input>
-					<input type="button" class="btn btn-s btn-primary" value="Auto-Kita-Rellinghausen-Demo" ng-click="runCarDemo()"></input>
-					<br/><br/>
-					<input type="button" class="btn btn-s btn-primary" value="Kind-Drei-Kitas-Rellinghausen-Demo" ng-click="runPedestrianKitaRellinghausenDemoWithMultipleStartPoints()"></input>
-					<input type="button" class="btn btn-s btn-primary" value="Fahrrad-Drei-Kitas-Rellinghausen-Demo" ng-click="runBicycleDemoWithMultipleStartPoints()"></input>
-				</div>
-
-				<br/><br/>
-
-				<div align="center" ng-show="currentIsochronesGeoJSON">
-					<div class="legend" align="left">
-
-						<h4>Legende</h4>
-						<label>Startpunkte: </label>&nbsp;{{locationsArray}}
-						<br/>
-						<label>Fortbewegungsart: </label>&nbsp;{{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.transitMode}}
-						<br/>
-						<label>maximale Geschwindigkeit: </label>&nbsp;{{speedInKilometersPerHour}} km/h
-						<br/>
-						<label>Abbruchkriterium: </label>&nbsp;{{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.reachMode}}
-						<br/>
-						<label>Einheit: </label>&nbsp;{{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.cutOffUnit}}
-						<br/>
-
-						<div ng-repeat="entry in $ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.colorValueEntries">
-
-							<i style="background: {{entry.color}};"></i> {{entry.value}} {{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.cutOffUnit}}
-
-						</div>
-
-					</div>
-
-					<br/>
-					<br/>
-
-					<div style="display: inline-block" align="center" id="reachabilityButtonSection">
-						<button ng-click="removeReachabilityLayers()" type="button" class="btn btn-danger">Ergebnis verwerfen / Layer entfernen</button>
-						<!-- another button to download as GeoJSOn will be set programatically within component file -->
-					</div>
-				</div>
-
-			</div>
-			<!-- /.box-body -->
+	<div align="center">
+		<p>Erreichbarkeitsanalysen auf Basis von Stra&szlig;en- und Wegenetzen</p>
+	</div>
+	<br/>
+	<label for="TODO">Berechnungsaufgabe:</label> 
+		
+	<br />
+	
+	<div class="btn-group btn-group-justified" data-toggle="buttons">
+		<label class="btn btn-primary active" title="HELLO WORLD"> 
+			<input type="radio" name="btn_show_iso" id="btn_isochrones" ng-change="showIso()" autocomplete="off" checked ng-model="showIsochrones" value="true">Isochronenberechnung</input>
+		</label>
+		<label class="btn btn-primary"> 
+			<input type="radio" name="btn_show_rout" id="btn_routing" ng-change="showRouting()" autocomplete="off" ng-model="showIsochrones" value="false">Routing</input>
+		</label>
+	</div>
+	<!-- 
+		<label>showIsochrones= {{showIsochrones}}, transitMode= {{transitMode}}</label>
+	 -->
+	<hr>
+	 
+	<div ng-show="showIsochrones" class="ng-show" id="isochoneCalculation">
+	<label for="TODO">Verkehrsmittel</label> 
+	<br />
+		<div class="btn-group btn-group-justified" data-toggle="buttons">
+			<label class="btn btn-primary active"> 
+				<input type="radio" name="options" id="optFeet" autocomplete="off" checked ng-change="changeType()" ng-model="transitMode" value="foot-walking"> Fussg&aumlnger
+			</label> 
+			<label class="btn btn-primary"> 
+				<input type="radio" name="options" id="optBike" autocomplete="off" ng-change="changeType()" ng-model="transitMode" value="cycling-regular"> Fahrrad
+			</label> 
+			<label class="btn btn-primary"> 
+				<input type="radio" name="options" id="optCar" autocomplete="off" ng-change="changeType()" ng-model="transitMode" value="driving-car"> Auto
+			</label>
 		</div>
-		<!-- /.box -->
+		<!-- 
+			<label>{{transitMode}}</label>
+	 	-->
+		<br />
+		<br /> 
+		
+		<label for="TODO">Analysefokus</label> 
+		
+		<br />
+	
+		<div class="btn-group btn-group-justified" data-toggle="buttons">
+			<label class="btn btn-primary active"> 
+				<input type="radio" name="options" id="focus_distance" autocomplete="off" checked ng-change="changeFocus()" ng-model="focus" value="distance">Distanz</input>
+			</label>
+			<label class="btn btn-primary"> 
+				<input type="radio" name="options" id="focus_time" autocomplete="off" ng-change="changeFocus()" ng-model="focus" value="time"> Zeit</input>
+			</label>
+		</div>
+		
+		<!-- 
+			<label>Fokus= {{focus}}, Time= {{isTime}}</label>
+		-->
+	
+		<br /> 
+		<br />
+	
+		<div class="rangeslider">
+			<label for="TODO">Distanz / Zeit</label> 
+			<br />
+			<br />
+			<input type="range" min="1" max={{max_value}} value="1" class="myslider" id="timeOrDistSlider" ng-model="currentTODValue">
+			<br /> 
+			<label>Wert: {{currentTODValue}} {{unit}}; Maximum: {{max_value}} {{unit}}</label>
+		</div>
+	
+		<br /> 
+		<br />
+	
+		<div ng-show="isTime" class="ng-show" class="rangeslider">
+			<label for="TODO">Tempoauswahl</label> 
+			<br />
+			<br />
+			<input type="range" min={{minSpeedInKilometersPerHour}} max={{maxSpeedInKilometersPerHour}} value={{minSpeedInKilometersPerHour}} class="myslider" id="tempoSlider" ng-model="speedInKilometersPerHour">
+			<br /> 
+			<label>Wert: {{speedInKilometersPerHour}} km/h; Maximum: {{maxSpeedInKilometersPerHour}} km/h</label>
+			<br />
+			<br />
+		</div>
+		
+		<div>
+			<label>Isochonendistanzen</label>
+			<p>Wenn Sie die Isochronendistanzen anpassen m&ouml;chten nutzen Sie bitte das nachfolgende Textfeld. Geben Sie die gew&uuml;nschten Distanzen kommagetrennt ein (Beispiel: '100,200,300' in Metern oder '5,10,20' f&uuml;r Minuten).</p>
+			<input id="isoInputText" type="text" onkeypress="isInputAllowed(event)">
+			<script>
+				function isInputAllowed(evt) {
+					var code = (evt.keyCode ? evt.keyCode : evt.which);
+					if (code == 8) { //Backspace key press
+						return true;
+					} else {
+						var ch = String.fromCharCode(evt.which);
+						if (!(/[0-9,]/.test(ch))) {
+							evt.preventDefault();
+						}
+					}
+				}
+			</script>
+		</div>
+		<br /> 
+		<br />
+
+	</div>
+	<div ng-hide="showIsochrones" class="ng-hide" id="routing">			
+			<div class="form-group">
+			    <label for="transitModeList">Verkehrsmittel</label>
+			    <select class="form-control" id="transitModeList" ng-change="changeTransitMode()" ng-model="transitMode">
+			      <option value="driving-car">Auto</option>
+			      <option value="driving-hgv">LKW</option>
+			      <option value="cycling-regular">Fahrrad normal</option>
+			      <option value="cycling-road">Fahrrad asphaltiert</option>
+			      <option value="cycling-safe">Fahrrad separiert</option>
+			      <option value="cycling-mountain">Farrad offroad</option>
+			      <option value="cycling-tour">Fahrrad tour</option>
+			      <option value="cycling-electric">Fahrrad elektrisch</option>
+			      <option value="foot-walking">Laufen</option>
+			      <option value="foot-hiking">Wandern</option>
+			      <option value="wheelchair">Rollstuhl</option>
+			    </select>
+			  </div>
+			<br />
+			
+			<div class="btn-group btn-group-justified" data-toggle="buttons">
+				<label class="btn btn-primary active"> 
+					<input type="radio" name="options" id="optFastest" autocomplete="off" checked  ng-model="preference" value="fastest">Schnellste
+				</label> 
+				<label class="btn btn-primary"> 
+					<input type="radio" name="options" id="optShortest" autocomplete="off"  ng-model="preference" value="shortest">K&uuml;rzeste
+				</label> 
+				<label class="btn btn-primary"> 
+					<input type="radio" name="options" id="optRecommended" autocomplete="off"  ng-model="preference" value="recommended">Empfohlene
+				</label>
+			</div>
+			<!-- 
+				<label>{{preference}}</label> 
+			-->
+			
+			<br />
+			
+			<label for="TODO">Startpunkt:</label>
+			
+			<br />
+			
+			<input id="startInput" type="text" onkeypress="isPositionAllowed(event)" value="{{startArray}}" size = "50%">
+			
+			<br />
+			
+			<br />
+			
+			<label for="TODO">Zielpunkt:</label>
+			
+			<br />
+			
+			<input id="goalInput" type="text" onkeypress="isPositionAllowed(event)" value="{{endArray}}" size = "50%">
+			
+			<br />
+			
+			<script>
+				function isPositionAllowed(evt) {
+					var code = (evt.keyCode ? evt.keyCode : evt.which);
+					if (code == 8) { //Backspace key press
+						return true;
+					} else {
+						var ch = String.fromCharCode(evt.which);
+						if (!(/[0-9,.]/.test(ch))) {
+							evt.preventDefault();
+						}
+					}
+				}
+			</script>
+			
+		<!-- </div> -->
+	
+		<br /> 
+		<br />
+	</div>
+	
+	<hr>
+	<br />
+	
+	<div align="center">
+		<input type="button" class="btn btn-s btn-primary" value="Analyse starten!" ng-click="startAnalysis()"></input>
+	</div>
+		
+	<br />
+
+	<div align="center" ng-show="currentIsochronesGeoJSON">
+		<hr>
+		<div class="legend" align="left">
+			<h4>Legende</h4>
+			<label>Startpunkte: 
+			</label>&nbsp;{{locationsArray}} 
+			<br /> 			
+			<label>Fortbewegungsart:			
+			</label>&nbsp;{{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.transitMode}}		
+			<br /> 			
+			<label>maximale Geschwindigkeit: </label>&nbsp;{{speedInKilometersPerHour}} km/h 			
+			<br />			
+			<label>Abbruchkriterium: </label>&nbsp;{{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.focus}}			
+			<br />			
+			<label>Einheit: </label>&nbsp;{{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.cutOffUnit}}			
+			<br />
+			<div ng-repeat="entry in $ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.colorValueEntries">
+				<i style="background: {{entry.color"></i> {{entry.value}} {{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.cutOffUnit}}
+			</div>
+		</div>
+
+		<br />
+		<br />
+
+		<div style="display: inline-block" align="center" id="reachabilityButtonSection">
+			<button ng-click="removeReachabilityLayers()" type="button" class="btn btn-danger">Ergebnis verwerfen / Layer entfernen</button>
+			<!-- another button to download as GeoJSOn will be set programatically within component file -->
+		</div>
+	</div>
 
 </div>
