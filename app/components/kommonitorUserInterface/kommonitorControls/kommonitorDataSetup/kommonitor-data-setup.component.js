@@ -249,8 +249,6 @@ angular
 
 									$scope.onChangeSelectedIndicator();
 
-									$rootScope.$broadcast("recenterMapContent");
-
 								});
 
 								/**

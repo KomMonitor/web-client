@@ -88,13 +88,13 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				$scope.buttonIndicatorConfigClass = "btn btn-custom-docked btn-docked";
 
 				if(kommonitorDataExchangeService.anySideBarIsShown === false){
-					$rootScope.$broadcast("recenterMapOnShowSideBar");
+					// $rootScope.$broadcast("recenterMapOnShowSideBar");
 				}
 				kommonitorDataExchangeService.anySideBarIsShown = true;
 			}
 			else{
 				$scope.sidebarIndicatorConfigClass = "disappear";
-				$rootScope.$broadcast("recenterMapOnHideSideBar");
+				// $rootScope.$broadcast("recenterMapOnHideSideBar");
 				kommonitorDataExchangeService.anySideBarIsShown = false;
 			}
 
@@ -112,13 +112,13 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				$scope.buttonPoiClass = "btn btn-custom-docked btn-docked";
 
 				if(kommonitorDataExchangeService.anySideBarIsShown === false){
-					$rootScope.$broadcast("recenterMapOnShowSideBar");
+					// $rootScope.$broadcast("recenterMapOnShowSideBar");
 				}
 				kommonitorDataExchangeService.anySideBarIsShown = true;
 			}
 			else{
 				$scope.sidebarPoiClass = "disappear";
-				$rootScope.$broadcast("recenterMapOnHideSideBar");
+				// $rootScope.$broadcast("recenterMapOnHideSideBar");
 				kommonitorDataExchangeService.anySideBarIsShown = false;
 			}
 
@@ -136,13 +136,13 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				$scope.buttonDataImportClass = "btn btn-custom-docked btn-docked";
 
 				if(kommonitorDataExchangeService.anySideBarIsShown === false){
-					$rootScope.$broadcast("recenterMapOnShowSideBar");
+					// $rootScope.$broadcast("recenterMapOnShowSideBar");
 				}
 				kommonitorDataExchangeService.anySideBarIsShown = true;
 			}
 			else{
 				$scope.sidebarDataImportClass = "disappear";
-				$rootScope.$broadcast("recenterMapOnHideSideBar");
+				// $rootScope.$broadcast("recenterMapOnHideSideBar");
 				kommonitorDataExchangeService.anySideBarIsShown = false;
 			}
 
@@ -160,13 +160,13 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				$scope.buttonFilterClass = "btn btn-custom-docked btn-docked";
 
 				if(kommonitorDataExchangeService.anySideBarIsShown === false){
-					$rootScope.$broadcast("recenterMapOnShowSideBar");
+					// $rootScope.$broadcast("recenterMapOnShowSideBar");
 				}
 				kommonitorDataExchangeService.anySideBarIsShown = true;
 			}
 			else{
 				$scope.sidebarFilterClass = "disappear";
-				$rootScope.$broadcast("recenterMapOnHideSideBar");
+				// $rootScope.$broadcast("recenterMapOnHideSideBar");
 				kommonitorDataExchangeService.anySideBarIsShown = false;
 			}
 
@@ -191,13 +191,13 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 					$scope.buttonBalanceClass = "btn btn-custom-docked btn-docked";
 
 					if(kommonitorDataExchangeService.anySideBarIsShown === false){
-						$rootScope.$broadcast("recenterMapOnShowSideBar");
+						// $rootScope.$broadcast("recenterMapOnShowSideBar");
 					}
 					kommonitorDataExchangeService.anySideBarIsShown = true;
 				}
 				else{
 					$scope.sidebarBalanceClass = "disappear";
-					$rootScope.$broadcast("recenterMapOnHideSideBar");
+					// $rootScope.$broadcast("recenterMapOnHideSideBar");
 					kommonitorDataExchangeService.anySideBarIsShown = false;
 				}
 
@@ -215,13 +215,13 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				$scope.buttonReachabilityClass = "btn btn-custom-docked btn-docked";
 
 				if(kommonitorDataExchangeService.anySideBarIsShown === false){
-					$rootScope.$broadcast("recenterMapOnShowSideBar");
+					// $rootScope.$broadcast("recenterMapOnShowSideBar");
 				}
 				kommonitorDataExchangeService.anySideBarIsShown = true;
 			}
 			else{
 				$scope.sidebarReachabilityClass = "disappear";
-				$rootScope.$broadcast("recenterMapOnHideSideBar");
+				// $rootScope.$broadcast("recenterMapOnHideSideBar");
 				kommonitorDataExchangeService.anySideBarIsShown = false;
 			}
 
@@ -237,14 +237,14 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				$scope.sidebarDiagramsClass = "";
 				$scope.buttonDiagramsClass = "btn btn-custom-docked btn-docked";
 				if(kommonitorDataExchangeService.anySideBarIsShown === false){
-					$rootScope.$broadcast("recenterMapOnShowSideBar");
+					// $rootScope.$broadcast("recenterMapOnShowSideBar");
 				}
 				kommonitorDataExchangeService.anySideBarIsShown = true;
 				$rootScope.$broadcast("resizeDiagrams");
 			}
 			else{
 				$scope.sidebarDiagramsClass = "disappear";
-				$rootScope.$broadcast("recenterMapOnHideSideBar");
+				// $rootScope.$broadcast("recenterMapOnHideSideBar");
 				kommonitorDataExchangeService.anySideBarIsShown = false;
 			}
 
@@ -259,14 +259,14 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				$scope.sidebarRadarDiagramClass = "";
 				$scope.buttonRadarDiagramClass = "btn btn-custom-docked btn-docked";
 				if(kommonitorDataExchangeService.anySideBarIsShown === false){
-					$rootScope.$broadcast("recenterMapOnShowSideBar");
+					// $rootScope.$broadcast("recenterMapOnShowSideBar");
 				}
 				kommonitorDataExchangeService.anySideBarIsShown = true;
 				$rootScope.$broadcast("resizeDiagrams");
 			}
 			else{
 				$scope.sidebarRadarDiagramClass = "disappear";
-				$rootScope.$broadcast("recenterMapOnHideSideBar");
+				// $rootScope.$broadcast("recenterMapOnHideSideBar");
 				kommonitorDataExchangeService.anySideBarIsShown = false;
 			}
 
@@ -281,13 +281,13 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				$scope.sidebarProcessingClass = "";
 				$scope.buttonProcessingClass = "btn btn-custom-docked btn-docked";
 				if(kommonitorDataExchangeService.anySideBarIsShown === false){
-					$rootScope.$broadcast("recenterMapOnShowSideBar");
+					// $rootScope.$broadcast("recenterMapOnShowSideBar");
 				}
 				kommonitorDataExchangeService.anySideBarIsShown = true;
 			}
 			else{
 				$scope.sidebarProcessingClass = "disappear";
-				$rootScope.$broadcast("recenterMapOnHideSideBar");
+				// $rootScope.$broadcast("recenterMapOnHideSideBar");
 				kommonitorDataExchangeService.anySideBarIsShown = false;
 			}
 
@@ -302,14 +302,14 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				$scope.sidebarRegressionDiagramClass = "";
 				$scope.buttonRegressionDiagramClass = "btn btn-custom-docked btn-docked";
 				if(kommonitorDataExchangeService.anySideBarIsShown === false){
-					$rootScope.$broadcast("recenterMapOnShowSideBar");
+					// $rootScope.$broadcast("recenterMapOnShowSideBar");
 				}
 				kommonitorDataExchangeService.anySideBarIsShown = true;
 				$rootScope.$broadcast("resizeDiagrams");
 			}
 			else{
 				$scope.sidebarRegressionDiagramClass = "disappear";
-				$rootScope.$broadcast("recenterMapOnHideSideBar");
+				// $rootScope.$broadcast("recenterMapOnHideSideBar");
 				kommonitorDataExchangeService.anySideBarIsShown = false;
 			}
 
