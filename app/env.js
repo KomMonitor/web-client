@@ -94,7 +94,7 @@
 
   // array of indicator name substring that shal be used to filter out / hide certain indicators by their name
   // e.g. set ["entwicklung"] to hide all indicators whose name contains the substring "entwicklung"
-  window.__env.arrayOfNameSubstringsForHidingIndicators = ["Prozentuale", "Standardabweichung", "Stadtteil", "ausschließlich", "doppelt", "Versorgungsquote"];
+  window.__env.arrayOfNameSubstringsForHidingIndicators = ["Prozentuale", "Standardabweichung", "Stadtteil", "ausschließlich", "doppelt", "Versorgungsquote", "mittlerer Bodenversiegelungsgrad"];
 
   // e-mail recipient for feedback mail
   window.__env.feedbackMailRecipient = "thomas.blasche@amt62.essen.de";
@@ -209,27 +209,27 @@
       featureTypeGeometryName: "geom",
       displayColor: "#00aabb",
       filterFeaturesToMapBBOX: false
-    },
-    {
-      title: "Verwaltungsgrenzen Kreise und kreisfreie St&auml;dte",
-      description: "Verwaltungsgrenzen gem&auml;ß Bezirksregierung K&ouml;ln",
-      url: "https://www.wfs.nrw.de/geobasis/wfs_nw_dvg?",
-      featureTypeNamespace: "dvg",
-      featureTypeName: "nw_dvg1_gem",
-      featureTypeGeometryName: "msGeometry",
-      displayColor: "#00aabb",
-      filterFeaturesToMapBBOX: true
-    },
-    {
-      title: "Freizeitkataster",
-      description: "Freizeitkataster gem&auml;ß Bezirksregierung K&ouml;ln",
-      url: "https://www.wfs.nrw.de/geobasis/wfs_nw_fzk?",
-      featureTypeNamespace: "fzk",
-      featureTypeName: "POI_p",
-      featureTypeGeometryName: "msGeometry",
-      displayColor: null,
-      filterFeaturesToMapBBOX: true
     }
+    // {
+    //   title: "Verwaltungsgrenzen Kreise und kreisfreie St&auml;dte",
+    //   description: "Verwaltungsgrenzen gem&auml;ß Bezirksregierung K&ouml;ln",
+    //   url: "https://www.wfs.nrw.de/geobasis/wfs_nw_dvg?",
+    //   featureTypeNamespace: "dvg",
+    //   featureTypeName: "nw_dvg1_gem",
+    //   featureTypeGeometryName: "msGeometry",
+    //   displayColor: "#00aabb",
+    //   filterFeaturesToMapBBOX: true
+    // },
+    // {
+    //   title: "Freizeitkataster",
+    //   description: "Freizeitkataster gem&auml;ß Bezirksregierung K&ouml;ln",
+    //   url: "https://www.wfs.nrw.de/geobasis/wfs_nw_fzk?",
+    //   featureTypeNamespace: "fzk",
+    //   featureTypeName: "POI_p",
+    //   featureTypeGeometryName: "msGeometry",
+    //   displayColor: null,
+    //   filterFeaturesToMapBBOX: true
+    // }
   ];
 
 // }(this));
