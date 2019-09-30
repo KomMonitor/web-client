@@ -15,86 +15,86 @@
 		<p>Erreichbarkeitsanalysen auf Basis von Stra&szlig;en- und Wegenetzen</p>
 	</div>
 	<br/>
-	<label for="TODO">Berechnungsaufgabe:</label> 
-		
+	<label for="TODO">Berechnungsaufgabe:</label>
+
 	<br />
-	
+
 	<div class="btn-group btn-group-justified" data-toggle="buttons">
-		<label class="btn btn-primary active" title="HELLO WORLD"> 
+		<label class="btn btn-primary active" title="HELLO WORLD">
 			<input type="radio" name="btn_show_iso" id="btn_isochrones" ng-change="showIso()" autocomplete="off" checked ng-model="showIsochrones" value="true">Isochronenberechnung</input>
 		</label>
-		<label class="btn btn-primary"> 
+		<label class="btn btn-primary">
 			<input type="radio" name="btn_show_rout" id="btn_routing" ng-change="showRouting()" autocomplete="off" ng-model="showIsochrones" value="false">Routing</input>
 		</label>
 	</div>
-	<!-- 
+	<!--
 		<label>showIsochrones= {{showIsochrones}}, transitMode= {{transitMode}}</label>
 	 -->
 	<hr>
-	 
+
 	<div ng-show="showIsochrones" class="ng-show" id="isochoneCalculation">
-	<label for="TODO">Verkehrsmittel</label> 
+	<label for="TODO">Verkehrsmittel</label>
 	<br />
 		<div class="btn-group btn-group-justified" data-toggle="buttons">
-			<label class="btn btn-primary active"> 
+			<label class="btn btn-primary active">
 				<input type="radio" name="options" id="optFeet" autocomplete="off" checked ng-change="changeType()" ng-model="transitMode" value="foot-walking"> Fussg&aumlnger
-			</label> 
-			<label class="btn btn-primary"> 
+			</label>
+			<label class="btn btn-primary">
 				<input type="radio" name="options" id="optBike" autocomplete="off" ng-change="changeType()" ng-model="transitMode" value="cycling-regular"> Fahrrad
-			</label> 
-			<label class="btn btn-primary"> 
+			</label>
+			<label class="btn btn-primary">
 				<input type="radio" name="options" id="optCar" autocomplete="off" ng-change="changeType()" ng-model="transitMode" value="driving-car"> Auto
 			</label>
 		</div>
-		<!-- 
+		<!--
 			<label>{{transitMode}}</label>
 	 	-->
 		<br />
-		<br /> 
-		
-		<label for="TODO">Analysefokus</label> 
-		
 		<br />
-	
+
+		<label for="TODO">Analysefokus</label>
+
+		<br />
+
 		<div class="btn-group btn-group-justified" data-toggle="buttons">
-			<label class="btn btn-primary active"> 
+			<label class="btn btn-primary active">
 				<input type="radio" name="options" id="focus_distance" autocomplete="off" checked ng-change="changeFocus()" ng-model="focus" value="distance">Distanz</input>
 			</label>
-			<label class="btn btn-primary"> 
+			<label class="btn btn-primary">
 				<input type="radio" name="options" id="focus_time" autocomplete="off" ng-change="changeFocus()" ng-model="focus" value="time"> Zeit</input>
 			</label>
 		</div>
-		
-		<!-- 
+
+		<!--
 			<label>Fokus= {{focus}}, Time= {{isTime}}</label>
 		-->
-	
-		<br /> 
+
 		<br />
-	
+		<br />
+
 		<div class="rangeslider">
-			<label for="TODO">Distanz / Zeit</label> 
+			<label for="TODO">Distanz / Zeit</label>
 			<br />
 			<br />
 			<input type="range" min="1" max={{max_value}} value="1" class="myslider" id="timeOrDistSlider" ng-model="currentTODValue">
-			<br /> 
+			<br />
 			<label>Wert: {{currentTODValue}} {{unit}}; Maximum: {{max_value}} {{unit}}</label>
 		</div>
-	
-		<br /> 
+
 		<br />
-	
+		<br />
+
 		<div ng-show="isTime" class="ng-show" class="rangeslider">
-			<label for="TODO">Tempoauswahl</label> 
+			<label for="TODO">Tempoauswahl</label>
 			<br />
 			<br />
 			<input type="range" min={{minSpeedInKilometersPerHour}} max={{maxSpeedInKilometersPerHour}} value={{minSpeedInKilometersPerHour}} class="myslider" id="tempoSlider" ng-model="speedInKilometersPerHour">
-			<br /> 
+			<br />
 			<label>Wert: {{speedInKilometersPerHour}} km/h; Maximum: {{maxSpeedInKilometersPerHour}} km/h</label>
 			<br />
 			<br />
 		</div>
-		
+
 		<div>
 			<label>Isochonendistanzen</label>
 			<p>Wenn Sie die Isochronendistanzen anpassen m&ouml;chten nutzen Sie bitte das nachfolgende Textfeld. Geben Sie die gew&uuml;nschten Distanzen kommagetrennt ein (Beispiel: '100,200,300' in Metern oder '5,10,20' f&uuml;r Minuten).</p>
@@ -113,11 +113,11 @@
 				}
 			</script>
 		</div>
-		<br /> 
+		<br />
 		<br />
 
 	</div>
-	<div ng-hide="showIsochrones" class="ng-hide" id="routing">			
+	<div ng-hide="showIsochrones" class="ng-hide" id="routing">
 			<div class="form-group">
 			    <label for="transitModeList">Verkehrsmittel</label>
 			    <select class="form-control" id="transitModeList" ng-change="changeTransitMode()" ng-model="transitMode">
@@ -135,42 +135,42 @@
 			    </select>
 			  </div>
 			<br />
-			
+
 			<div class="btn-group btn-group-justified" data-toggle="buttons">
-				<label class="btn btn-primary active"> 
+				<label class="btn btn-primary active">
 					<input type="radio" name="options" id="optFastest" autocomplete="off" checked  ng-model="preference" value="fastest">Schnellste
-				</label> 
-				<label class="btn btn-primary"> 
+				</label>
+				<label class="btn btn-primary">
 					<input type="radio" name="options" id="optShortest" autocomplete="off"  ng-model="preference" value="shortest">K&uuml;rzeste
-				</label> 
-				<label class="btn btn-primary"> 
+				</label>
+				<label class="btn btn-primary">
 					<input type="radio" name="options" id="optRecommended" autocomplete="off"  ng-model="preference" value="recommended">Empfohlene
 				</label>
 			</div>
-			<!-- 
-				<label>{{preference}}</label> 
+			<!--
+				<label>{{preference}}</label>
 			-->
-			
+
 			<br />
-			
+
 			<label for="TODO">Startpunkt:</label>
-			
+
 			<br />
-			
+
 			<input id="startInput" type="text" onkeypress="isPositionAllowed(event)" value="{{startArray}}" size = "50%">
-			
+
 			<br />
-			
+
 			<br />
-			
+
 			<label for="TODO">Zielpunkt:</label>
-			
+
 			<br />
-			
+
 			<input id="goalInput" type="text" onkeypress="isPositionAllowed(event)" value="{{endArray}}" size = "50%">
-			
+
 			<br />
-			
+
 			<script>
 				function isPositionAllowed(evt) {
 					var code = (evt.keyCode ? evt.keyCode : evt.which);
@@ -184,40 +184,40 @@
 					}
 				}
 			</script>
-			
+
 		<!-- </div> -->
-	
-		<br /> 
+
+		<br />
 		<br />
 	</div>
-	
+
 	<hr>
 	<br />
-	
+
 	<div align="center">
 		<input type="button" class="btn btn-s btn-primary" value="Analyse starten!" ng-click="startAnalysis()"></input>
 	</div>
-		
+
 	<br />
 
 	<div align="center" ng-show="currentIsochronesGeoJSON">
 		<hr>
 		<div class="legend" align="left">
 			<h4>Legende</h4>
-			<label>Startpunkte: 
-			</label>&nbsp;{{locationsArray}} 
-			<br /> 			
-			<label>Fortbewegungsart:			
-			</label>&nbsp;{{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.transitMode}}		
-			<br /> 			
-			<label>maximale Geschwindigkeit: </label>&nbsp;{{speedInKilometersPerHour}} km/h 			
-			<br />			
-			<label>Abbruchkriterium: </label>&nbsp;{{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.focus}}			
-			<br />			
-			<label>Einheit: </label>&nbsp;{{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.cutOffUnit}}			
+			<label>Startpunkte:
+			</label>&nbsp;{{locationsArray}}
+			<br />
+			<label>Fortbewegungsart:
+			</label>&nbsp;{{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.transitMode}}
+			<br />
+			<label>maximale Geschwindigkeit: </label>&nbsp;{{speedInKilometersPerHour}} km/h
+			<br />
+			<label>Abbruchkriterium: </label>&nbsp;{{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.focus}}
+			<br />
+			<label>Einheit: </label>&nbsp;{{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.cutOffUnit}}
 			<br />
 			<div ng-repeat="entry in $ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.colorValueEntries">
-				<i style="background: {{entry.color"></i> {{entry.value}} {{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.cutOffUnit}}
+				<i style="background: {{entry.color}}"></i> {{entry.value}} {{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.cutOffUnit}}
 			</div>
 		</div>
 
