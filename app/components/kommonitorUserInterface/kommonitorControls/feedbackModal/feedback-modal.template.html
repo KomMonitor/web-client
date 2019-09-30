@@ -11,7 +11,7 @@
 
 						<!-- <form action="mailto:Thomas.Blasche@amt62.essen.de" method="post"> -->
 						<!-- <form action="mailto:Christian.Danowski-Buhren@hs-bochum.de" method="post"> -->
-						<form>
+						<form role="form" class="form-group" data-toggle="validator" >
 								<p><b><i>* = Pflichtfeld</i></b></p>
 
 								<div align="center" id="feedbackForm">
@@ -22,16 +22,16 @@
 										</div> -->
 										<div class="form-group">
 											<label>Name/Fachbereich</label>
-											<input ng-model="organization" class="form-control" type="text" name="Fachbereich" value="" size="30" maxlength="50" placeholder="Ihr Name / Ihr Fachbereich"/>
+											<input ng-model="organization" class="form-control input-sm" type="text" name="Fachbereich" value="" size="30" maxlength="50" placeholder="Ihr Name / Ihr Fachbereich"/>
 										</div>
 										<div class="form-group">
 											<label>Ihre E-Mail-Adresse oder Telefonnummer f&uuml;r R&uuml;ckfragen</label>
-											<textarea ng-model="contactDetails" class="form-control" name="Kontaktdaten" value="" rows="1" cols="50" placeholder="Ihre Kontaktdaten"></textarea>
+											<textarea ng-model="contactDetails" class="form-control input-sm" name="Kontaktdaten" value="" rows="1" cols="50" placeholder="Ihre Kontaktdaten"></textarea>
 										</div>
 
 										<div class="form-group radio-custom">
 											<label for="fbType"><b>Art der Anmerkung*</b></label>
-								      <select ng-model="feedbackType" class="form-control" id="fbType" required>
+								      <select ng-model="feedbackType" class="form-control input-sm" id="fbType" required>
 												<option disabled selected value> -- Art des Feedbacks w&auml;hlen -- </option>
 								        <option value="Frage">R&uuml;ckfrage</option>
 								        <option value="Wunsch-Funktion">Wunsch nach weiter Funktionalit&auml;t</option>
@@ -41,16 +41,18 @@
 												<option value="Wunsch-Termin">Bitte um Gespr&auml;ch</option>
 												<option value="sonstiges">sonstiges Feedback</option>
 								      </select>
+											<div class="help-block with-errors"></div>
 										</div>
 
 										<div class="form-group">
 											<label>Ihre Anmerkung*</label>
-											<textarea ng-model="feedbackContent" class="form-control" name="Kontaktdaten" rows="6" cols="30" value="" placeholder="Ihre Anmerkung" required></textarea>
+											<textarea ng-model="feedbackContent" class="form-control input-sm" name="Kontaktdaten" rows="6" cols="30" value="" placeholder="Ihre Anmerkung" required></textarea>
+											<div class="help-block with-errors"></div>
 										</div>
 
 										<div class="form-group">
 				                <label for="attachment">Optionales Attachment (z. B. ein Screenshot der Anwendung)</label>
-				                <input type="file" class="form-control" id="attachment" name="files">
+				                <input type="file" class="form-control input-sm" id="attachment" name="files">
 				            </div>
 
 										<div class="form-group radio-custom">
@@ -61,7 +63,7 @@
 										</div>
 
 										<div align="center">
-											<input class="btn btn-info" type="submit" ng-click="onSubmit()" name="absenden" value="Absenden" />
+											<input class="btn btn-info" type="submit" ng-disabled="!feedbackType || !feedbackContent" ng-click="onSubmit()" name="absenden" value="Absenden" />
 											<button type="button" class="btn btn-danger" ng-click="reset()">Zur&uuml;cksetzen</button>
 										</div>
 

@@ -18,6 +18,14 @@ angular
 								$scope.loadingData = false;
 								$scope.date;
 
+								$scope.poiNameFilter = undefined;
+								$scope.loiNameFilter = undefined;
+								$scope.aoiNameFilter = undefined;
+
+
+								// initialize any adminLTE box widgets
+								$('.box').boxWidget();
+
 								const DATE_PREFIX = __env.indicatorDatePrefix;
 
 								var numberOfDecimals = __env.numberOfDecimals;
@@ -129,6 +137,45 @@ angular
 									}
 								};
 
+								$scope.getExportLinkForPoi = function(poi){
+									$scope.date = kommonitorDataExchangeService.selectedDate;
+
+									var dateComps = $scope.date.split("-");
+
+									var year = dateComps[0];
+									var month = dateComps[1];
+									var day = dateComps[2];
+
+									var url = kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + poi.georesourceId + "/" + year + "/" + month + "/" + day;
+									var fileName = poi.datasetName + "-" + year + "-" + month + "-" + day;
+
+									$http({
+										url: url,
+										method: "GET"
+									}).then(function successCallback(response) {
+											// this callback will be called asynchronously
+											// when the response is available
+											var geoJSON = response.data;
+
+											var element = document.createElement('a');
+											element.setAttribute('href', 'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(geoJSON)));
+											element.setAttribute('download', fileName);
+
+											element.style.display = 'none';
+											document.body.appendChild(element);
+
+											element.click();
+
+											document.body.removeChild(element);
+
+										}, function errorCallback(response) {
+											// called asynchronously if an error occurs
+											// or server returns response with an error status.
+											$scope.loadingData = false;
+											$rootScope.$broadcast("hideLoadingIconOnMap");
+									});
+
+								};
 
 							} ]
 				});

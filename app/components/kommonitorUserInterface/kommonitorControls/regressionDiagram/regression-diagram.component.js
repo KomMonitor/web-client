@@ -13,6 +13,26 @@ angular
 								 * reference to kommonitorDataExchangeService instances
 								 */
 								this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
+								// initialize any adminLTE box widgets
+								$('.box').boxWidget();
+
+								$(window).on('resize', function(){
+						        if($scope.regressionChart != null && $scope.regressionChart != undefined){
+						            $scope.regressionChart.resize();
+						        }
+						    });
+
+								$scope.$on("resizeDiagrams", function (event) {
+
+									setTimeout(function(){
+										if($scope.regressionChart != null && $scope.regressionChart != undefined){
+						            $scope.regressionChart.resize();
+						        }
+									}, 350);
+								});
+
+								$scope.indicatorNameFilterForXAxis = undefined;
+								$scope.indicatorNameFilterForYAxis = undefined;
 
 								const DATE_PREFIX = __env.indicatorDatePrefix;
 								var numberOfDecimals = __env.numberOfDecimals;
@@ -33,7 +53,9 @@ angular
 
 								//$scope.allIndicatorProperties;
 								$scope.selectedIndicatorForXAxis;
+								$scope.selectedIndicatorForXAxis_backup;
 								$scope.selectedIndicatorForYAxis;
+								$scope.selectedIndicatorForYAxis_backup;
 								$scope.correlation;
 								$scope.linearRegression;
 								$scope.regressionOption;
@@ -261,7 +283,7 @@ angular
 
 										$scope.data.push([xAxisDataElement, yAxisDataElement]);
 
-										var featureName = indicatorPropertiesArrayForXAxis[i].spatialUnitFeatureName;
+										var featureName = indicatorPropertiesArrayForXAxis[i][__env.FEATURE_NAME_PROPERTY_NAME];
 										var color = getColor(featureName);
 										$scope.dataWithLabels.push({
 											name: featureName,
@@ -346,6 +368,21 @@ angular
 									}
 
 								$scope.onChangeSelectedIndicators = function(){
+
+									if($scope.selectedIndicatorForXAxis){
+										$scope.selectedIndicatorForXAxis_backup = $scope.selectedIndicatorForXAxis;
+									}
+									else if ($scope.selectedIndicatorForXAxis_backup){
+										$scope.selectedIndicatorForXAxis = $scope.selectedIndicatorForXAxis_backup;
+									}
+
+									if($scope.selectedIndicatorForYAxis){
+										$scope.selectedIndicatorForYAxis_backup = $scope.selectedIndicatorForYAxis;
+									}
+									else if ($scope.selectedIndicatorForYAxis_backup){
+										$scope.selectedIndicatorForYAxis = $scope.selectedIndicatorForYAxis_backup;
+									}
+
 									if($scope.selectedIndicatorForXAxis && $scope.selectedIndicatorForYAxis){
 
 										$scope.eventsRegistered = false;
@@ -380,9 +417,16 @@ angular
 										}
 
 										$scope.regressionOption = {
+											grid: {
+											  left: '10%',
+											  top: 10,
+											  right: '10%',
+											  bottom: 55
+											},
 										    title: {
 										        text: 'Lineare Regression - ' + $scope.spatialUnitName + ' - ' + $scope.date,
-										        left: 'center'
+										        left: 'center',
+														show: false
 										    },
 										    tooltip: {
 										        trigger: 'item',
@@ -402,9 +446,9 @@ angular
 						                           }
 										    },
 										    xAxis: {
-														name: $scope.selectedIndicatorForXAxis.indicatorName + " [" + $scope.selectedIndicatorForXAxis.unit + "]",
+														name: kommonitorDataExchangeService.formatIndiatorNameForLabel($scope.selectedIndicatorForXAxis.indicatorName + " [" + $scope.selectedIndicatorForXAxis.unit + "]", 100),
 														nameLocation: 'center',
-														nameGap: 30,
+														nameGap: 22,
 		                        scale: true,
 										        type: 'value',
 										        splitLine: {
@@ -414,9 +458,9 @@ angular
 										        },
 										    },
 										    yAxis: {
-														name: $scope.selectedIndicatorForYAxis.indicatorName + " [" + $scope.selectedIndicatorForYAxis.unit + "]",
+														name: kommonitorDataExchangeService.formatIndiatorNameForLabel($scope.selectedIndicatorForYAxis.indicatorName + " [" + $scope.selectedIndicatorForYAxis.unit + "]", 75),
 														nameLocation: 'center',
-														nameGap: 60,
+														nameGap: 50,
 										        type: 'value',
 										        splitLine: {
 										            lineStyle: {
@@ -426,7 +470,7 @@ angular
 										    },
 												toolbox: {
 														show : true,
-														right: '25',
+														right: '15',
 														feature : {
 																// mark : {show: true},
 																dataView : {show: true, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - lineare Regression', 'schlie&szlig;en', 'refresh'], optionToContent: function(opt){
@@ -569,6 +613,9 @@ angular
 
 										$scope.regressionChart.hideLoading();
 										$scope.regressionChart.setOption($scope.regressionOption);
+										setTimeout(function(){
+											$scope.regressionChart.resize();
+										}, 350);
 
 										registerEventsIfNecessary();
 

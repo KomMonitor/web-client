@@ -16,6 +16,8 @@ angular
 							this.kommonitorMapServiceInstance = kommonitorMapService;
 							$scope.targetUrlToReachabilityService_ORS = __env.targetUrlToReachabilityService_ORS;
 							var numberOfDecimals = __env.numberOfDecimals;
+							// initialize any adminLTE box widgets
+							$('.box').boxWidget();
 
 							$scope.currentIsochronesGeoJSON;
 
@@ -33,7 +35,7 @@ angular
 
 							//"locations":[[7.049869894,51.42055331],[7.19869894,51.52055331]]
 							//"locations":[[7.049869894,51.42055331]]
-							var isochronesGETParameter = "profile=foot-walking&units=m&location_type=start&locations=7.268504,51.448405&range_type=time&range=300,600,900&attributes=area|reachfactor&options={'maximum_speed':3}";
+							var isochronesGETParameter = "profile=foot-walking&smoothing=0&units=m&location_type=start&locations=7.268504,51.448405&range_type=time&range=300,600,900&attributes=area|reachfactor&options={'maximum_speed':3}";
 
 							var createORSIsochroneRequest = function(reachProfile, locationsArray, rangeArray, speedInKilometersPerHour){
 								var locationsString = "";
@@ -58,7 +60,7 @@ angular
 
 								// var constantParameters = "&units=m&location_type=start&range_type=time";
 								// encode pipe symbol manually via %7C
-								var constantParameters = "&units=m&location_type=start&range_type=time&attributes=area%7Creachfactor";
+								var constantParameters = "&units=m&smoothing=0&location_type=start&range_type=time&attributes=area%7Creachfactor";
 
 								var getRequest = $scope.targetUrlToReachabilityService_ORS + "/isochrones?profile=" + reachProfile + "&locations=" + locationsString + "&range=" + rangeString + constantParameters + "&options=" + encodeURIComponent(optionsString);
 
