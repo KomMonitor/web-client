@@ -1350,11 +1350,11 @@ angular.module('kommonitorMap').component(
                     });
 
                     $scope.appendInfoCloseButton = function(){
-                      return '<div id="info_close" class="btn btn-link" style="right: 0px; position: relative; float: right;" title="schlie&szlig;en"><span class="glyphicon glyphicon-remove"></span></div>';
+                      return '<div id="info_close" class="btn btn-link" style="right: 0px; position: relative; float: right;" title="beenden"><span class="glyphicon glyphicon-remove"></span></div>';
                     }
 
                     $scope.appendLegendCloseButton = function(){
-                      return '<div id="legend_close" class="btn btn-link" style="right: 0px; position: relative; float: right;" title="schlie&szlig;en"><span class="glyphicon glyphicon-remove"></span></div>';
+                      return '<div id="legend_close" class="btn btn-link" style="right: 0px; position: relative; float: right;" title="beenden"><span class="glyphicon glyphicon-remove"></span></div>';
                     }
 
                     $scope.makeInfoControl = function(date, isCustomComputation){
@@ -4346,6 +4346,114 @@ angular.module('kommonitorMap').component(
                                                                   $scope.drawnPointFeatures = new L.FeatureGroup();
                                                               }
 
+                                                              L.drawLocal = {
+                                                                  edit: {
+                                                                      toolbar: {
+                                                                         actions: {
+                                                                           save: {
+                                                                             title: "Bearbeitung speichern.",
+                                                                             text: "Speichern",
+                                                                           },
+                                                                           cancel: {
+                                                                             title: "Bearbeitung verwerfen.",
+                                                                             text: "Abbrechen",
+                                                                           },
+                                                                           clearAll: {
+                                                                             title: "Alle Features entfernen.",
+                                                                             text: "Alle Features entfernen",
+                                                                           },
+                                                                         },
+                                                                         buttons: {
+                                                                           edit: "Layer editieren.",
+                                                                           editDisabled: "Keine Layer zum editieren vorhanden.",
+                                                                           remove: "Layer entfernen.",
+                                                                           removeDisabled: "Keine Layer zum entfernen vorhanden.",
+                                                                         },
+                                                                       },
+                                                                       handlers: {
+                                                                         edit: {
+                                                                           tooltip: {
+                                                                             text: "Bearbeitungspunkte oder Punktmarker ziehen, um Feature zu editieren.",
+                                                                             subtext: "Abbrechen klicken, um Bearbeitung zu verwefen.",
+                                                                           },
+                                                                         },
+                                                                         remove: {
+                                                                           tooltip: {
+                                                                             text: "Feature anklicken, um es zu entfernen",
+                                                                           },
+                                                                         },
+                                                                       }
+                                                                  },
+                                                                  draw: {
+                                                                    toolbar: {
+                                                                      actions: {
+                                                                         title: "Zeichnen abbrechen",
+                                                                         text: "Abbrechen",
+                                                                       },
+                                                                       finish: {
+                                                                         title: "Zeichnen beenden",
+                                                                         text: "Beenden",
+                                                                       },
+                                                                       undo: {
+                                                                         title: "Zuletzt gezeichneten Punkt entfernen",
+                                                                         text: "Letzten Punkt entfernen",
+                                                                       },
+                                                                       buttons: {
+                                                                         polyline: "Polylinie zeichnen",
+                                                                         polygon: "Polygon zeichnen",
+                                                                         rectangle: "Rechteck zeichnen",
+                                                                         circle: "Kreis zeichnen",
+                                                                         marker: "Punkt zeichnen",
+                                                                         circlemarker: "Kreispunkt zeichnen",
+                                                                       },
+                                                                    },
+                                                                    handlers: {
+                                                                     circle: {
+                                                                       tooltip: {
+                                                                         start: "Klicken und halten, um Kreis zu zeichnen.",
+                                                                       },
+                                                                       radius: "Radius",
+                                                                     },
+                                                                     circlemarker: {
+                                                                       tooltip: {
+                                                                         start: "Klicken, um einen Punkt zu markieren.",
+                                                                       },
+                                                                     },
+                                                                     marker: {
+                                                                       tooltip: {
+                                                                         start: "Klicken, um einen Punkt zu markieren.",
+                                                                       },
+                                                                     },
+                                                                     polygon: {
+                                                                       tooltip: {
+                                                                         start: "Klicken, um ein Polygon zu beginnen.",
+                                                                         cont: "Klicken, um das Polygon weiter zu zeichnen.",
+                                                                         end: "Ersten Punkt anklicken, um Polygon zu beenden.",
+                                                                       },
+                                                                     },
+                                                                     polyline: {
+                                                                       error: "<strong>Fehler:</strong> Selbstueberschneidung!",
+                                                                       tooltip: {
+                                                                         start: "Klicken, um eine Polylinie zu beginnen.",
+                                                                         cont: "Klicken, um die Polylinie weiter zu zeichnen.",
+                                                                         end: "Letzten Punkt erneut anklicken, um Polylinie zu beenden.",
+                                                                       },
+                                                                     },
+                                                                     rectangle: {
+                                                                       tooltip: {
+                                                                         start: "Klicken und halten, um Rechteck zu zeichnen.",
+                                                                       },
+                                                                     },
+                                                                     simpleshape: {
+                                                                       tooltip: {
+                                                                         end: "Maus loslassen, um Zeichnung zu beenden.",
+                                                                       },
+                                                                     },
+                                                                   }
+                                                                  }
+
+                                                              };
+
                                                                $scope.map.addLayer($scope.drawnPointFeatures);
                                                                $scope.drawPointControl = new L.Control.Draw({
                                                                    edit: {
@@ -4359,7 +4467,9 @@ angular.module('kommonitorMap').component(
                                                                      circlemarker: false
                                                                    },
                                                                    position: 'bottomleft'
+
                                                                });
+
                                                                $scope.map.addControl($scope.drawPointControl);
 
                                                                $scope.map.on(L.Draw.Event.CREATED, function (event) {
