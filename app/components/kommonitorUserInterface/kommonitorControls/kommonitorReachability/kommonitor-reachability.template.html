@@ -76,6 +76,8 @@
 								-->
 
 								<br />
+								<hr>
+								<br />
 
 								<div class="rangeslider">
 									<label for="TODO">Distanz / Zeit</label>
@@ -98,6 +100,58 @@
 									<br />
 									<br />
 								</div>
+
+								<hr>
+								<br/>
+
+								<label for="TODO">Startpunkte</label>
+
+								<br />
+
+								<div class="btn-group btn-group-justified btn-group-sm" data-toggle="buttons">
+									<label class="btn btn-primary active">
+										<input type="radio" name="options" id="startPointsSource_layer" autocomplete="off" checked ng-change="changeStartPointsSource()" ng-model="startPointsSource" value="fromLayer">aus aktivem Layer</input>
+									</label>
+									<label class="btn btn-primary">
+										<input type="radio" name="options" id="startPointsSource_draw" autocomplete="off" ng-change="changeStartPointsSource()" ng-model="startPointsSource" value="manual">Punkte zeichnen</input>
+									</label>
+								</div>
+
+								<!--
+									<label>Fokus= {{focus}}, Time= {{isTime}}</label>
+								-->
+
+								<br />
+
+								<div ng-show="startPointsSource === 'fromLayer'">
+
+									<select style="font-size: 12px;"
+										ng-model="selectedStartPointLayer" ng-options="poi as poi.datasetName for poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois()"
+										ng-change="onChangeSelectedStartPointLayer()" class="form-control" required>
+										<option disabled selected value> -- Punkt-Layer w&auml;hlen -- </option>
+									</select>
+
+									<div ng-show="selectedStartPointLayer.geoJSON">
+										<br/>
+										<p><b>{{selectedStartPointLayer.geoJSON.features.length}}</b> Startpunkte im selektierten Layer</p>
+									</div>
+
+									<div ng-hide="selectedStartPointLayer">
+										<br/>
+										<p>noch kein Layer selektiert</p>
+									</div>
+
+								</div>
+
+								<div ng-show="startPointsSource === 'manual'">
+									<input type="text" ng-model="startingPoints" disabled></input>
+									manual draw
+
+									<br/>
+								</div>
+
+								<hr>
+								<br/>
 
 								<div>
 									<label>Isochonendistanzen</label>

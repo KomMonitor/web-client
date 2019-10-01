@@ -20,7 +20,7 @@ angular
 				function kommonitorReachabilityController($scope,
 					$rootScope, $http, kommonitorMapService,
 					kommonitorDataExchangeService, __env) {
-					
+
 					//$("[data-toggle=tooltip]").tooltip();
 
 					const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
@@ -46,7 +46,7 @@ angular
 					 * oder?
 					 */
 					$scope.locationsArray = [[7.049869894,51.42055331]];
-					
+
 					/**
 					 * Values used in the GUI (initial).
 					 */
@@ -67,17 +67,17 @@ angular
 
 					/**
 					 * Variable to save the keywords used by the
-					 * routing API. Valid values are: 
+					 * routing API. Valid values are:
 					 * driving-car
-					 * driving-hgv // LKW 
+					 * driving-hgv // LKW
 					 * cycling-regular
-					 * cycling-road 
-					 * cycling-safe 
+					 * cycling-road
+					 * cycling-safe
 					 * cycling-mountain
-					 * cycling-tour 
-					 * cycling-electric 
+					 * cycling-tour
+					 * cycling-electric
 					 * foot-walking
-					 * foot-hiking 
+					 * foot-hiking
 					 * wheelchair
 					 */
 					$scope.transitMode = 'foot-walking';
@@ -89,6 +89,22 @@ angular
 					 * die im Grunde genau das gleiche speichert.
 					 */
 					$scope.focus = 'distance';
+
+					/**
+					 * config of starting points source (layer or manual draw) for isochrones
+					 */
+					$scope.startPointsSource = "fromLayer";
+
+					/**
+					* selected start point layer for isochrone computation
+					*/
+					$scope.selectedStartPointLayer
+
+					/**
+					* array of active point layers that can be chosen
+					* for isochrone starting points
+					*/
+					$scope.activeLayers
 
 					/**
 					 * The analysis speed (for the current vehicle)
@@ -142,23 +158,23 @@ angular
 					 * handed to the routing API.
 					 */
 					$scope.currentTODValue = 1;
-					
+
 					/**
 					 * Variable that stores 'true' if the speed-selection
 					 * shall be shown or 'false' if not.
 					 */
 					$scope.isTime = false;
-					
+
 					/**
 					 * Specifies the route preference.
-					 * 
+					 *
 					 * Allowed values are:
 					 * - "fastest"
 					 * - "shortest"
 					 * - "recommended"
 					 */
 					$scope.preference = "fastest";
-					
+
 					/*
 					 * TODO : MUSS NOCH ENTFERNT / ERSETZT
 					 * WERDEN
@@ -186,12 +202,12 @@ angular
 							+ '&preference='+preference
 							+ '&units='+'m'
 							+ '&language='+'de';
-						
+
 						//console.log(getRequest);
-						
+
 						return getRequest;
 					}
-					
+
 					/**
 					 * TODO
 					 */
@@ -210,12 +226,12 @@ angular
 						var rangeString = '';
 							for (var i = 0; i < rangeArray.length; i++) {
 								var cValue = rangeArray[i];
-								
+
 								// CALCULATE SECONDS FROM MINUTE VALUES IF TIME-ANALYSIS IS WANTED
 								if($scope.focus=='time')
 									cValue = cValue*60;
 								rangeString += cValue;
-								
+
 								if (i != rangeArray.length - 1) {
 									rangeString += ',';
 								}
@@ -225,7 +241,7 @@ angular
 
 						// var constantParameters = '&units=m&location_type=start&range_type=time';
 						// encode pipe symbol manually via %7C
-						
+
 						var constantParameters = '&units=m&location_type=start&range_type=' +
 								$scope.focus+'&attributes=area%7Creachfactor';
 
@@ -313,14 +329,24 @@ angular
 					 */
 					$scope.changeFocus = function() {
 						$scope.resetSlider();
-						
-						if ($scope.focus=='distance') 
+
+						if ($scope.focus=='distance')
 							$scope.isTime=false;
-						if ($scope.focus=='time') 
+						if ($scope.focus=='time')
 							$scope.isTime=true;
 
 						$scope.changeMinMaxSpeed();
 						$scope.changeValues();
+					};
+
+					/**
+					 * Changes the start points source of the analysis between
+					 * fromLayer and manualDraw.
+					 */
+					$scope.changeStartPointsSource = function() {
+
+
+
 					};
 
 					/**
@@ -341,9 +367,9 @@ angular
 						$scope.changeMinMaxSpeed();
 						$scope.resetSlider();
 					};
-					
+
 					/**
-					 * Changes the transitMode depending on the selection in the 
+					 * Changes the transitMode depending on the selection in the
 					 * transitModeList-GUI-elements current selection.
 					 */
 					$scope.changeTransitMode = function(){
@@ -444,16 +470,60 @@ angular
 						$scope.showIsochrones = false;
 					};
 
+					$scope.onChangeSelectedStartPointLayer = async function(){
+						// check if dataset already contains geoJSON
+
+						// if not then fetch it!
+
+						if($scope.selectedStartPointLayer.geoJSON){
+							return;
+						}
+						else{
+							$scope.loadingData = true;
+							var id = $scope.selectedStartPointLayer.georesourceId;
+
+							var date = kommonitorDataExchangeService.selectedDate;
+
+							var dateComps = date.split("-");
+
+							var year = dateComps[0];
+							var month = dateComps[1];
+							var day = dateComps[2];
+
+							await $http({
+								url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + id + "/" + year + "/" + month + "/" + day,
+								method: "GET"
+							}).then(function successCallback(response) {
+									// this callback will be called asynchronously
+									// when the response is available
+									var geoJSON = response.data;
+
+									$scope.selectedStartPointLayer.geoJSON = geoJSON;
+
+									$scope.loadingData = false;
+
+								}, function errorCallback(response) {
+									// called asynchronously if an error occurs
+									// or server returns response with an error status.
+
+									$scope.loadingData = false;
+							});
+						}
+
+
+
+					};
+
 					/**
 					 * Starts the analysis. This function is fired
 					 * when the related button is pushed.
-					 * 
+					 *
 					 * Depending on the current selection of the
 					 * calculation-task the function
 					 * 'startRoutingAnalysis' or
 					 * 'startIsochroneCalculation' will be
 					 * triggered.
-					 * 
+					 *
 					 * The values from the input-elements are all
 					 * up-to-date and saved in the variables
 					 * accessable via the scope. The request URl
@@ -475,11 +545,11 @@ angular
 					$scope.startRoutingCalculation = function() {
 						var startPointString = document.getElementById('startInput').value;
 						var endPointString = document.getElementById('goalInput').value;
-						
+
 						var url = createRoutingRequest($scope.transitMode, $scope.preference, startPointString, endPointString);
-						
+
 						alert(url);
-						
+
 						var req = {
 								method: 'GET',
 								url: url,
