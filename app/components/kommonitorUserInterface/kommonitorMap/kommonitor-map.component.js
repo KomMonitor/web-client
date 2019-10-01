@@ -4333,6 +4333,55 @@ angular.module('kommonitorMap').component(
                                                               }
                                                             });
 
+                                                            $scope.$on("removeAllDrawnPoints", function (event) {
+
+                                                              $scope.drawnPointFeatures.clearLayers();
+
+                                                            });
+
+                                                            $scope.$on("enablePointDrawTool", function (event) {
+
+                                                              // FeatureGroup is to store editable layers
+                                                              if(! $scope.drawnPointFeatures){
+                                                                  $scope.drawnPointFeatures = new L.FeatureGroup();
+                                                              }
+
+                                                               $scope.map.addLayer($scope.drawnPointFeatures);
+                                                               $scope.drawPointControl = new L.Control.Draw({
+                                                                   edit: {
+                                                                       featureGroup: $scope.drawnPointFeatures
+                                                                   },
+                                                                   draw: {
+                                                                     polyline: false,
+                                                                     polygon: false,
+                                                                     rectangle: false,
+                                                                     circle: false,
+                                                                     circlemarker: false
+                                                                   },
+                                                                   position: 'bottomleft'
+                                                               });
+                                                               $scope.map.addControl($scope.drawPointControl);
+
+                                                               $scope.map.on(L.Draw.Event.CREATED, function (event) {
+                                                                  var layer = event.layer;
+
+                                                                  $scope.drawnPointFeatures.addLayer(layer);
+                                                              });
+
+                                                            });
+
+                                                            $scope.$on("disablePointDrawTool", function (event) {
+
+                                                              try{
+                                                                  $scope.map.removeControl($scope.drawPointControl);
+                                                                  $scope.drawPointControl = undefined;
+                                                              }
+                                                              catch (error){
+
+                                                              }
+
+                                                            });
+
                 }
             ]
         });

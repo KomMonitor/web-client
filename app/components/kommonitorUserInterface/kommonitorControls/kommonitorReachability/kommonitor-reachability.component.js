@@ -282,6 +282,8 @@ angular
 
 					$scope.removePotentialDrawnStartingPoints = function(){
 						// TODO
+						$scope.enablePointDrawTool = false;
+						$scope.disablePointDrawTool();
 					};
 
 					/**
@@ -369,10 +371,32 @@ angular
 					 */
 					$scope.changeStartPointsSource = function() {
 
+						if ($scope.startPointsSource === 'manual'){
+							$scope.enablePointDrawTool();
+						}
 
+						else{
+							$scope.disablePointDrawTool();
+						}
 
 					};
 
+					$scope.removeAllDrawnPoints = function(){
+						// TODO
+
+						$rootScope.$broadcast("removeAllDrawnPoints");
+					};
+
+					$scope.enablePointDrawTool = function(){
+						// add/activate leaflet-draw toolbar for only POINT features
+
+						$rootScope.$broadcast("enablePointDrawTool");
+					};
+
+					$scope.disablePointDrawTool = function(){
+						// disable/hide leaflet-draw toolbar for only POINT features
+						$rootScope.$broadcast("disablePointDrawTool");
+					};
 
 
 					/**

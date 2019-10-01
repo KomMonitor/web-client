@@ -144,8 +144,25 @@
 								</div>
 
 								<div ng-show="startPointsSource === 'manual'">
-									<input type="text" ng-model="startingPoints" disabled></input>
-									manual draw
+
+									<p>Zeichnen Sie selbst Punkte in die Karte. Dazu nutzen Sie bitte das Zeichen-Werkzeug in der unteren linken Ecke der Karte.</p>
+
+									<!-- <div align="center">
+
+										<b title="Zeichen-Funktion aktivieren/deaktivieren">Zeichen-Funktion aktivieren/deaktivieren</b>
+										&nbsp;
+										<label class="switch">
+											<input type="checkbox" value="enablePointDrawTool" ng-model="enablePointDrawTool" ng-change="handlePointDrawTool()" checked>
+											<span class="switchslider round"></span>
+										</label>
+
+									</div> -->
+
+									<div align="center">
+
+										<button type="button" class="btn btn-danger btn-sm" ng-click="removeAllDrawnPoints()" >alle gezeichneten Punkte entfernen</button>
+
+									</div>
 
 									<div ng-show="manualStartPoints.length > 0">
 										<br/>
