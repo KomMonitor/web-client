@@ -147,6 +147,16 @@
 									<input type="text" ng-model="startingPoints" disabled></input>
 									manual draw
 
+									<div ng-show="manualStartPoints.length > 0">
+										<br/>
+										<p><b>{{startingPoints.length}}</b> Startpunkte gezeichnet</p>
+									</div>
+
+									<div ng-hide="manualStartPoints.length > 0">
+										<br/>
+										<p>noch keine Start-Punkte gezeichnet</p>
+									</div>
+
 									<br/>
 								</div>
 
@@ -248,7 +258,8 @@
 							<br />
 
 							<div align="center">
-								<input type="button" class="btn btn-s btn-info" value="Analyse starten!" ng-click="startAnalysis()"></input>
+								<input type="button" class="btn btn-s btn-info" value="Analyse starten!" ng-disabled="!pointSourceConfigured" ng-click="startAnalysis()"></input>
+								<input type="button" class="btn btn-s btn-danger" value="Zur&uuml;cksetzen" ng-click="resetForm()"></input>
 							</div>
 
 						</div>

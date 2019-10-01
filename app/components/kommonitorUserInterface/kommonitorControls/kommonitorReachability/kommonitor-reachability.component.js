@@ -98,13 +98,12 @@ angular
 					/**
 					* selected start point layer for isochrone computation
 					*/
-					$scope.selectedStartPointLayer
+					$scope.selectedStartPointLayer = undefined;
 
 					/**
-					* array of active point layers that can be chosen
-					* for isochrone starting points
+					* indicator wheather the isochrone point source is configured
 					*/
-					$scope.activeLayers
+					$scope.pointSourceConfigured = false;
 
 					/**
 					 * The analysis speed (for the current vehicle)
@@ -260,6 +259,31 @@ angular
 						return getRequest;
 					}
 
+					$scope.resetForm = function(){
+						$scope.resetSlider();
+
+						$scope.showIsochrones = true;
+						$scope.transitMode = 'foot-walking';
+						$scope.focus = 'distance';
+						$scope.startPointsSource = "fromLayer";
+						$scope.selectedStartPointLayer = undefined;
+						$scope.pointSourceConfigured = false;
+						$scope.speedInKilometersPerHour = 3;
+						$scope.useMultipleStartPoints = false;
+						$scope.loadingData = false;
+						$scope.unit = 'm';
+						$scope.currentTODValue = 1;
+						$scope.isTime = false;
+						$scope.preference = "fastest";
+						$scope.locationsArray = [];
+
+						$scope.removePotentialDrawnStartingPoints();
+					};
+
+					$scope.removePotentialDrawnStartingPoints = function(){
+						// TODO
+					};
+
 					/**
 					 * TODO
 					 */
@@ -348,6 +372,8 @@ angular
 
 
 					};
+
+
 
 					/**
 					 * Resets the slider for the distance-/time and
@@ -476,6 +502,7 @@ angular
 						// if not then fetch it!
 
 						if($scope.selectedStartPointLayer.geoJSON){
+							$scope.pointSourceConfigured = true;
 							return;
 						}
 						else{
@@ -501,11 +528,12 @@ angular
 									$scope.selectedStartPointLayer.geoJSON = geoJSON;
 
 									$scope.loadingData = false;
+									$scope.pointSourceConfigured = true;
 
 								}, function errorCallback(response) {
 									// called asynchronously if an error occurs
 									// or server returns response with an error status.
-
+									$scope.pointSourceConfigured = false;
 									$scope.loadingData = false;
 							});
 						}
