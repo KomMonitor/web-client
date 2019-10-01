@@ -563,4 +563,34 @@ angular
             };
           };
 
+          this.filterGeoresourcesByPoi = function(){
+            return function( item ) {
+
+              try{
+                if(item.isPOI){
+                  return true;
+                }
+                return false;
+              }
+              catch(error){
+                return false;
+              }
+            };
+          };
+
+          this.filterPois = function(){
+            return function( item ) {
+
+              try{
+                if(item.datasetName.includes("Lebensmittel")){
+                  return false;
+                }
+                return true;
+              }
+              catch(error){
+                return true;
+              }
+            };
+          };
+
 				}]);
