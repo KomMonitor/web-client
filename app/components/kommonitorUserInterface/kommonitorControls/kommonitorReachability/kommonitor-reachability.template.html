@@ -291,20 +291,19 @@
 						<div align="center">
 							<div class="legend" align="left">
 								<h4>Legende</h4>
-								<label>Startpunkte:
-								</label>&nbsp;{{locationsArray}}
-								<br />
 								<label>Fortbewegungsart:
-								</label>&nbsp;{{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.transitMode}}
+								</label>&nbsp; {{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.transitMode}}
 								<br />
-								<label>maximale Geschwindigkeit: </label>&nbsp;{{speedInKilometersPerHour}} km/h
+								<div ng-show="focus === 'time'">
+									<label>maximale Geschwindigkeit: </label>&nbsp; {{speedInKilometersPerHour}} km/h
+									<br />
+								</div>
+								<label>Abbruchkriterium: </label>&nbsp; {{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.reachMode}}
 								<br />
-								<label>Abbruchkriterium: </label>&nbsp;{{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.focus}}
-								<br />
-								<label>Einheit: </label>&nbsp;{{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.cutOffUnit}}
+								<label>Einheit: </label>&nbsp; {{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.cutOffUnit}}
 								<br />
 								<div ng-repeat="entry in $ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.colorValueEntries">
-									<i style="background: {{entry.color}}"></i> {{entry.value}} {{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.cutOffUnit}}
+									<i style="background: {{entry.color}}"></i> {{entry.value}}
 								</div>
 							</div>
 

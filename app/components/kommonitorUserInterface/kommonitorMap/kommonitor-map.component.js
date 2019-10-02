@@ -2305,12 +2305,31 @@ angular.module('kommonitorMap').component(
 
                                 $scope.isochronesLayer = L.featureGroup();
 
+                                var cutOffUnitValue = "Meter";
+                                var reachModeValue = "Distanz";
+                                if(reachMode === "time"){
+                                  cutOffUnitValue = "Minuten";
+                                  reachModeValue = "Zeit";
+                                }
+
+                                var transitModeValue = "Passant";
+                                switch (transitMode) {
+                                  case "cycling-regular":
+                                    transitModeValue = "Fahrrad"
+                                    break;
+                                  case "driving-car":
+                                    transitModeValue = "Auto"
+                                    break;
+                                  default:
+                                    transitModeValue = "Passant";
+                                }
+
                                 kommonitorDataExchangeService.isochroneLegend = {
-                                  transitMode: transitMode,
-                                  reachMode: reachMode,
+                                  transitMode: transitModeValue,
+                                  reachMode: reachModeValue,
                                   colorValueEntries: [],
                                   cutOffValues: cutOffValues,
-                                  cutOffUnit: "Sekunden"
+                                  cutOffUnit: cutOffUnitValue
                                 };
 
                                 if(cutOffValues.length === 0){
