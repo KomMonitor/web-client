@@ -182,14 +182,10 @@ angular
 					$scope.preference = "fastest";
 
 					/*
-					 * TODO : MUSS NOCH ENTFERNT / ERSETZT
-					 * WERDEN
+					 * array of arrays of lon, lat
+					 * [[lon,lat],[lon,lat]]
 					 */
-					$scope.locationsArray = [
-						[7.049869894, 51.42055331],
-						[7.0382865, 51.4234454],
-						[7.0403425, 51.4258269]
-					];
+					$scope.locationsArray = [];
 
 					/**
 					 * TODO
@@ -424,16 +420,16 @@ angular
 						// if drawnPointsFeatureGroup is empty or does not exist, we must catch that
 						try{
 							$scope.manualStartPoints = drawnPointsFeatureGroup.toGeoJSON();
+							$scope.pointSourceConfigured = true;
 						}
 						catch (error){
 							$scope.manualStartPoints = undefined;
+							$scope.pointSourceConfigured = false;
 						}
 
 						setTimeout(function(){
 								$scope.$apply();
 						}, 150);
-
-
 					});
 
 
@@ -679,6 +675,26 @@ angular
 									});
 					};
 
+					$scope.makeLocationsArrayFromStartPoints = function(){
+						// array of arrays of lon,lat
+						$scope.locationsArray = [];
+
+						if($scope.startPointsSource === "manual"){
+							// establish from drawn points
+							$scope.manualStartPoints.features.forEach(function(feature){
+								$scope.locationsArray.push(feature.geometry.coordinates);
+							});
+						}
+						else{
+							// establish from chosen layer
+							$scope.selectedStartPointLayer.geoJSON.features.forEach(function(feature){
+								$scope.locationsArray.push(feature.geometry.coordinates);
+							});
+						}
+
+						return $scope.locationsArray;
+					};
+
 					/**
 					 * Starts an isochrone-calculation.
 					 */
@@ -687,6 +703,8 @@ angular
 						$rootScope.$broadcast('showLoadingIconOnMap');
 
 						$scope.checkArrayInput();
+
+						$scope.locationsArray = $scope.makeLocationsArrayFromStartPoints();
 
 						// SWITCH THE VALUE DEPENDING ON THE LENGTH
 						// OF THE LOCATIONS ARRAY
