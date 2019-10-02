@@ -270,9 +270,14 @@ angular
 						$scope.resetSlider();
 
 						$scope.showIsochrones = true;
+						document.getElementById("btn_isochrones").click();
 						$scope.transitMode = 'foot-walking';
+						document.getElementById("optFeet").click();
 						$scope.focus = 'distance';
+						document.getElementById("focus_distance").click();
 						$scope.startPointsSource = "fromLayer";
+						$scope.changeStartPointsSource();
+						document.getElementById("startPointsSource_layer").click();
 						$scope.selectedStartPointLayer = undefined;
 						$scope.pointSourceConfigured = false;
 						$scope.speedInKilometersPerHour = 3;
@@ -285,6 +290,10 @@ angular
 						$scope.locationsArray = [];
 
 						$scope.removePotentialDrawnStartingPoints();
+
+						setTimeout(function(){
+							$scope.$apply();
+						}, 200);
 					};
 
 					$scope.removePotentialDrawnStartingPoints = function(){
