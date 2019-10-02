@@ -97,8 +97,15 @@ angular
 
 					/**
 					* selected start point layer for isochrone computation
+					* GeoJSON within property .geoJSON
 					*/
 					$scope.selectedStartPointLayer = undefined;
+
+					/**
+					* start points that were drawn manually
+					* direct GeoJSON structure
+					*/
+					$scope.manualStartPoints = undefined;
 
 					/**
 					* indicator wheather the isochrone point source is configured
@@ -282,8 +289,9 @@ angular
 
 					$scope.removePotentialDrawnStartingPoints = function(){
 						// TODO
-						$scope.enablePointDrawTool = false;
+						$scope.manualStartPoints = undefined;
 						$scope.disablePointDrawTool();
+						$scope.removeAllDrawnPoints();
 					};
 
 					/**
@@ -397,6 +405,23 @@ angular
 						// disable/hide leaflet-draw toolbar for only POINT features
 						$rootScope.$broadcast("disablePointDrawTool");
 					};
+
+					$scope.$on("onUpdateDrawnPointFeatures", function (event, drawnPointsFeatureGroup) {
+
+						// if drawnPointsFeatureGroup is empty or does not exist, we must catch that
+						try{
+							$scope.manualStartPoints = drawnPointsFeatureGroup.toGeoJSON();
+						}
+						catch (error){
+							$scope.manualStartPoints = undefined;
+						}
+
+						setTimeout(function(){
+								$scope.$apply();
+						}, 150);
+
+
+					});
 
 
 					/**

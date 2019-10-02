@@ -91,7 +91,8 @@ angular.module('kommonitorMap').component(
                         fillPattern: $scope.noDataFillPattern
                     };
 
-
+                    $scope.drawnPointFeatures;
+                    $scope.drawPointControl;
 
                     const MultipleResultsLeafletSearch = L.Control.Search.extend({
 
@@ -4337,6 +4338,8 @@ angular.module('kommonitorMap').component(
 
                                                               $scope.drawnPointFeatures.clearLayers();
 
+                                                              $rootScope.$broadcast("onUpdateDrawnPointFeatures");
+
                                                             });
 
                                                             $scope.$on("enablePointDrawTool", function (event) {
@@ -4476,13 +4479,26 @@ angular.module('kommonitorMap').component(
                                                                   var layer = event.layer;
 
                                                                   $scope.drawnPointFeatures.addLayer(layer);
+
+                                                                  $rootScope.$broadcast("onUpdateDrawnPointFeatures", $scope.drawnPointFeatures);
                                                               });
+
+                                                              $scope.map.on(L.Draw.Event.EDITED, function (event) {
+
+                                                                 $rootScope.$broadcast("onUpdateDrawnPointFeatures", $scope.drawnPointFeatures);
+                                                             });
+
+                                                             $scope.map.on(L.Draw.Event.DELETED, function (event) {
+
+                                                                $rootScope.$broadcast("onUpdateDrawnPointFeatures", $scope.drawnPointFeatures);
+                                                            });
 
                                                             });
 
                                                             $scope.$on("disablePointDrawTool", function (event) {
 
                                                               try{
+                                                                  $scope.map.removeLayer($scope.drawnPointFeatures);
                                                                   $scope.map.removeControl($scope.drawPointControl);
                                                                   $scope.drawPointControl = undefined;
                                                               }

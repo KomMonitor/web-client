@@ -125,58 +125,47 @@
 
 								<div ng-show="startPointsSource === 'fromLayer'">
 
-									<select style="font-size: 12px;"
-										ng-model="selectedStartPointLayer" ng-options="poi as poi.datasetName for poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois()"
-										ng-change="onChangeSelectedStartPointLayer()" class="form-control" required>
-										<option disabled selected value> -- Punkt-Layer w&auml;hlen -- </option>
-									</select>
+									<div class="row vertical-align">
+						        <div class="col-md-6 col-sm-6 col-xs-6">
+											<div class="horizontal-align" ng-show="selectedStartPointLayer.geoJSON">
+												<p><b>{{selectedStartPointLayer.geoJSON.features.length}}</b> Startpunkte im selektierten Layer</p>
+											</div>
 
-									<div ng-show="selectedStartPointLayer.geoJSON">
-										<br/>
-										<p><b>{{selectedStartPointLayer.geoJSON.features.length}}</b> Startpunkte im selektierten Layer</p>
+											<div class="horizontal-align" ng-hide="selectedStartPointLayer">
+												<p>noch kein Layer selektiert</p>
+											</div>
+										</div>
+										<div class="col-md-6 col-sm-6 col-xs-6">
+											<select style="font-size: 12px;"
+												ng-model="selectedStartPointLayer" ng-options="poi as poi.datasetName for poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois()"
+												ng-change="onChangeSelectedStartPointLayer()" class="form-control" required>
+												<option disabled selected value> -- Punkt-Layer w&auml;hlen -- </option>
+											</select>
+										</div>
 									</div>
-
-									<div ng-hide="selectedStartPointLayer">
-										<br/>
-										<p>noch kein Layer selektiert</p>
-									</div>
-
 								</div>
 
 								<div ng-show="startPointsSource === 'manual'">
 
 									<p>Zeichnen Sie selbst Punkte in die Karte. Dazu nutzen Sie bitte das Zeichen-Werkzeug in der unteren linken Ecke der Karte.</p>
 
-									<!-- <div align="center">
+									<div class="row vertical-align">
+						        <div class="col-md-6 col-sm-6 col-xs-6">
+											<div class="horizontal-align" ng-show="manualStartPoints.features.length > 0">
+ 	 										<p><b>{{manualStartPoints.features.length}}</b> Startpunkte gezeichnet</p>
+ 	 									</div>
 
-										<b title="Zeichen-Funktion aktivieren/deaktivieren">Zeichen-Funktion aktivieren/deaktivieren</b>
-										&nbsp;
-										<label class="switch">
-											<input type="checkbox" value="enablePointDrawTool" ng-model="enablePointDrawTool" ng-change="handlePointDrawTool()" checked>
-											<span class="switchslider round"></span>
-										</label>
-
-									</div> -->
-
-									<div align="center">
-
-										<button type="button" class="btn btn-danger btn-sm" ng-click="removeAllDrawnPoints()" >alle gezeichneten Punkte entfernen</button>
-
+ 	 									<div class="horizontal-align" ng-hide="manualStartPoints.features.length > 0">
+ 	 										<p>noch keine Start-Punkte gezeichnet</p>
+ 	 									</div>
+						        </div>
+										<div class="col-md-6 col-sm-6 col-xs-6">
+						         <button type="button" class="btn btn-danger btn-sm" ng-click="removeAllDrawnPoints()" >alle gezeichneten Punkte entfernen</button>
+						        </div>
 									</div>
-
-									<div ng-show="manualStartPoints.length > 0">
-										<br/>
-										<p><b>{{startingPoints.length}}</b> Startpunkte gezeichnet</p>
-									</div>
-
-									<div ng-hide="manualStartPoints.length > 0">
-										<br/>
-										<p>noch keine Start-Punkte gezeichnet</p>
-									</div>
-
-									<br/>
 								</div>
 
+								<br/>
 								<hr>
 								<br/>
 
