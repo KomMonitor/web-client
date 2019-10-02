@@ -2305,6 +2305,7 @@ angular.module('kommonitorMap').component(
 
                                 $scope.isochronesLayer = L.featureGroup();
 
+                                $scope.isochroneReachMode = reachMode;
                                 var cutOffUnitValue = "Meter";
                                 var reachModeValue = "Distanz";
                                 if(reachMode === "time"){
@@ -2436,7 +2437,7 @@ angular.module('kommonitorMap').component(
 
                                 for(var index=geoJSON.features.length-1; index>=0; index--){
 
-                                  var styleIndex = getStyleIndexForFeature(geoJSON.features[index], kommonitorDataExchangeService.isochroneLegend.colorValueEntries);
+                                  var styleIndex = getStyleIndexForFeature(geoJSON.features[index], kommonitorDataExchangeService.isochroneLegend.colorValueEntries, reachMode);
 
                                   var style = {
                                     color: kommonitorDataExchangeService.isochroneLegend.colorValueEntries[styleIndex].color,
@@ -2450,7 +2451,13 @@ angular.module('kommonitorMap').component(
                                         layer.on({
                                             click: function () {
 
-                                                 var popupContent = "" + layer.feature.properties.value + " Sekunden (" + Number(layer.feature.properties.value/60).toLocaleString("de-DE", {maximumFractionDigits: 2}) + " Minuten)";
+                                                var isochroneValue = layer.feature.properties.value;
+
+                                                if ($scope.isochroneReachMode === "time"){
+                                                  //transform seconds to minutes
+                                                  isochroneValue = isochroneValue/60;
+                                                }
+                                                 var popupContent = "" + isochroneValue + " " + cutOffUnitValue;
                                                  // var popupContent = "TestValue";
 
                                                 if (popupContent)
@@ -2466,14 +2473,19 @@ angular.module('kommonitorMap').component(
                                 //   visible : true
                                 // };
 
-                                $scope.layerControl.addOverlay( $scope.isochronesLayer, "Erreichbarkeits-Isochronen 5-15 Minuten per " + transitMode, reachabilityLayerGroupName );
+                                $scope.layerControl.addOverlay( $scope.isochronesLayer, "Erreichbarkeits-Isochronen_" + transitModeValue, reachabilityLayerGroupName );
                                 $scope.isochronesLayer.addTo($scope.map);
                                 $scope.updateSearchControl();
                               });
 
-                              var getStyleIndexForFeature = function(feature, colorValueEntries){
+                              var getStyleIndexForFeature = function(feature, colorValueEntries, reachMode){
                                 var index=0;
                                 var featureCutOffValue = feature.properties.value;
+
+                                if(reachMode === "time"){
+                                  // answe has time in seconds - we expect minutes!
+                                  featureCutOffValue = featureCutOffValue/60;
+                                }
 
                                 for(var i=0; i<colorValueEntries.length; i++){
                                   if (featureCutOffValue === colorValueEntries[i].value){
