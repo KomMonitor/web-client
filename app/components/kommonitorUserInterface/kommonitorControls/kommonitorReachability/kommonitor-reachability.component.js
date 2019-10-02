@@ -289,6 +289,10 @@ angular
 						$scope.preference = "fastest";
 						$scope.locationsArray = [];
 
+						$scope.rangeArray = [];
+						document.getElementById("isoInputText").text = "";
+						document.getElementById("isoInputText").value = "";
+
 						$scope.removePotentialDrawnStartingPoints();
 
 						setTimeout(function(){
