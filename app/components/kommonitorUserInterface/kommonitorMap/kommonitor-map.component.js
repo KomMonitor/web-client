@@ -4336,10 +4336,10 @@ angular.module('kommonitorMap').component(
 
                                                             $scope.$on("removeAllDrawnPoints", function (event) {
 
-                                                              $scope.drawnPointFeatures.clearLayers();
-
-                                                              $rootScope.$broadcast("onUpdateDrawnPointFeatures");
-
+                                                              if($scope.drawnPointFeatures){
+                                                                $scope.drawnPointFeatures.clearLayers();
+                                                                $rootScope.$broadcast("onUpdateDrawnPointFeatures");
+                                                              }
                                                             });
 
                                                             $scope.$on("enablePointDrawTool", function (event) {
