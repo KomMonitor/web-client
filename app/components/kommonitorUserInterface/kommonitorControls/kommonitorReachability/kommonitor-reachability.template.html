@@ -44,7 +44,7 @@
 							<br />
 								<div class="btn-group btn-group-justified btn-group-sm" data-toggle="buttons">
 									<label class="btn btn-primary active">
-										<input type="radio" name="options" id="optFeet" autocomplete="off" checked ng-change="changeType()" ng-model="transitMode" value="foot-walking"> Fussg&aumlnger
+										<input type="radio" name="options" id="optFeet" autocomplete="off" checked ng-change="changeType()" ng-model="transitMode" value="foot-walking"> Fu&szlig;g&aumlnger
 									</label>
 									<label class="btn btn-primary">
 										<input type="radio" name="options" id="optBike" autocomplete="off" ng-change="changeType()" ng-model="transitMode" value="cycling-regular"> Fahrrad
@@ -81,11 +81,39 @@
 
 								<div class="rangeslider">
 									<label for="TODO">Distanz / Zeit</label>
-									<br />
-									<br />
-									<input type="range" min="1" max={{max_value}} value="1" class="myslider" id="timeOrDistSlider" ng-model="currentTODValue">
-									<br />
-									<label>Wert: {{currentTODValue}} {{unit}}; Maximum: {{max_value}} {{unit}}</label>
+
+									<div class="row vertical-align" style="margin-right:0px;">
+						        <div class="col-md-4 col-sm-4 col-xs-4">
+											<input type="range" min="1" max={{max_value}} value="1" class="myslider" id="timeOrDistSlider" ng-model="currentTODValue">
+											<br />
+											<label>Wert: {{currentTODValue}} {{unit}}</label>
+
+											<label>Maximum: {{max_value}} {{unit}}</label>
+										</div>
+										<div class="col-md-8 col-sm-8 col-xs-8">
+											<p>F&uuml;r die Definition mehrerer Isochronen nutzen Sie bitte das nachfolgende Textfeld. Geben Sie die gew&uuml;nschten Isochronengrenzen kommagetrennt ein (Beispiel: '100,200,300' in Metern oder '5,10,20' f&uuml;r Minuten).</p>
+											<div class="horizontal-align">
+												<input id="isoInputText" type="text" onkeypress="isInputAllowed(event)">
+											</div>
+
+											<script>
+												function isInputAllowed(evt) {
+													var code = (evt.keyCode ? evt.keyCode : evt.which);
+													if (code == 8) { //Backspace key press
+														return true;
+													} else {
+														var ch = String.fromCharCode(evt.which);
+														if (!(/[0-9,]/.test(ch))) {
+															evt.preventDefault();
+														}
+													}
+												}
+											</script>
+										</div>
+									</div>
+									<!-- <br />
+									<br /> -->
+
 								</div>
 
 								<br />
@@ -149,7 +177,7 @@
 
 									<p>Zeichnen Sie selbst Punkte in die Karte. Dazu nutzen Sie bitte das Zeichen-Werkzeug in der unteren linken Ecke der Karte.</p>
 
-									<div class="row vertical-align">
+									<div class="row vertical-align" style="margin-right:0px;">
 						        <div class="col-md-6 col-sm-6 col-xs-6">
 											<div class="horizontal-align" ng-show="manualStartPoints.features.length > 0">
  	 										<p><b>{{manualStartPoints.features.length}}</b> Startpunkte gezeichnet</p>
@@ -168,25 +196,6 @@
 								<br/>
 								<hr>
 								<br/>
-
-								<div>
-									<label>Isochonendistanzen</label>
-									<p>Wenn Sie die Isochronendistanzen anpassen m&ouml;chten nutzen Sie bitte das nachfolgende Textfeld. Geben Sie die gew&uuml;nschten Distanzen kommagetrennt ein (Beispiel: '100,200,300' in Metern oder '5,10,20' f&uuml;r Minuten).</p>
-									<input id="isoInputText" type="text" onkeypress="isInputAllowed(event)">
-									<script>
-										function isInputAllowed(evt) {
-											var code = (evt.keyCode ? evt.keyCode : evt.which);
-											if (code == 8) { //Backspace key press
-												return true;
-											} else {
-												var ch = String.fromCharCode(evt.which);
-												if (!(/[0-9,]/.test(ch))) {
-													evt.preventDefault();
-												}
-											}
-										}
-									</script>
-								</div>
 
 							</div>
 							<div ng-hide="showIsochrones" class="ng-hide" id="routing">

@@ -136,7 +136,7 @@ angular
 					/**
 					 * The calculation unit-indicator.
 					 */
-					$scope.unit = 'm';
+					$scope.unit = 'Meter';
 
 					/**
 					 * Stores the minimal speed in km/h for the
@@ -282,7 +282,7 @@ angular
 						$scope.speedInKilometersPerHour = 3;
 						$scope.useMultipleStartPoints = false;
 						$scope.loadingData = false;
-						$scope.unit = 'm';
+						$scope.unit = 'Meter';
 						$scope.currentTODValue = 1;
 						$scope.isTime = false;
 						$scope.preference = "fastest";
@@ -376,10 +376,14 @@ angular
 					$scope.changeFocus = function() {
 						$scope.resetSlider();
 
-						if ($scope.focus=='distance')
+						if ($scope.focus=='distance'){
 							$scope.isTime=false;
-						if ($scope.focus=='time')
+							$scope.unit = 'Meter';
+						}
+						else if ($scope.focus=='time'){
+							$scope.unit = 'Minuten';
 							$scope.isTime=true;
+						}
 
 						$scope.changeMinMaxSpeed();
 						$scope.changeValues();
