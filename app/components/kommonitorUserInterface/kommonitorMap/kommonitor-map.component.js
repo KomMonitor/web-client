@@ -2429,6 +2429,10 @@ angular.module('kommonitorMap').component(
 
                                 if(useMultipleStartPoints){
                                   // merge intersecting isochrones of same cutOffValue
+
+                                  // execute it 3 times in order to dissolve multiple intersections
+                                  geoJSON = mergeIntersectingIsochrones(geoJSON);
+                                  geoJSON = mergeIntersectingIsochrones(geoJSON);
                                   geoJSON = mergeIntersectingIsochrones(geoJSON);
                                 }
 

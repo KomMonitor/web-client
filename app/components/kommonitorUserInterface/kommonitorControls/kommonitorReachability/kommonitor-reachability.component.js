@@ -698,7 +698,7 @@ angular
 					/**
 					 * Starts an isochrone-calculation.
 					 */
-					$scope.startIsochroneCalculation = function() {
+					$scope.startIsochroneCalculation = async function() {
 						$scope.loadingData = true;
 						$rootScope.$broadcast('showLoadingIconOnMap');
 
@@ -715,11 +715,79 @@ angular
 
 						console.log('Calculating isochrones for ' +
 							$scope.locationsArray.length +
-							' start points.')
+							' start points.');
 
+							var maxLocationsForORSRequest = 150;
+
+						console.log("Number of Isochrone starting points is greater than the maximum number of locations (" + maxLocationsForORSRequest + "). Must split up starting points to make multiple requests. Result will contain all isochrones though.");
+				    var resultIsochrones;
+
+				    var featureIndex = 0;
+				    // log progress for each 10% of features
+				    var logProgressIndexSeparator = Math.round($scope.locationsArray.length / 100 * 10);
+
+				    var countFeatures = 0;
+				    var tempStartPointsArray = [];
+				    for (var pointIndex=0; pointIndex < $scope.locationsArray.length; pointIndex++){
+				      tempStartPointsArray.push($scope.locationsArray[pointIndex]);
+				      countFeatures++;
+
+				      // if maxNumber of locations is reached or the last starting point is reached
+				      if(countFeatures === maxLocationsForORSRequest || pointIndex ===  $scope.locationsArray.length -1){
+				        // make request, collect results
+
+				        // responses will be GeoJSON FeatureCollections
+				        var tempIsochrones = await $scope.fetchIsochrones(tempStartPointsArray);
+
+				        if (! resultIsochrones){
+				          resultIsochrones = tempIsochrones;
+				        }
+				        else{
+				          // apend results of tempIsochrones to resultIsochrones
+				          resultIsochrones.features = resultIsochrones.features.concat(tempIsochrones.features);
+				        }
+				          // increment featureIndex
+				          featureIndex++;
+				          if(featureIndex % logProgressIndexSeparator === 0){
+				              console.log("PROGRESS: Computed isochrones for '" + featureIndex + "' of total '" + $scope.locationsArray.length + "' starting points.");
+				          }
+
+				        // reset temp vars
+				        tempStartPointsArray = [];
+				        countFeatures = 0;
+
+				      } // end if
+				    } // end for
+
+						$scope.currentIsochronesGeoJSON = resultIsochrones;
+
+						kommonitorMapService.replaceIsochroneMarker($scope.locationsArray);
+						kommonitorMapService
+							.replaceIsochroneGeoJSON(
+								$scope.currentIsochronesGeoJSON,
+								$scope.transitMode,
+								$scope.focus,
+								$scope.rangeArray,
+								$scope.useMultipleStartPoints);
+						$scope
+							.prepareDownloadGeoJSON();
+
+							$scope.loadingData = false;
+							$rootScope.$broadcast('hideLoadingIconOnMap');
+
+							$scope.$apply();
+
+							// setTimeout(function(){
+							//
+							// }, 5000);
+					};
+
+
+
+					$scope.fetchIsochrones = async function(tempStartPointsArray){
 						var url = createORSIsochroneRequest(
 							$scope.transitMode,
-							$scope.locationsArray,
+							tempStartPointsArray,
 							$scope.rangeArray,
 							$scope.speedInKilometersPerHour);
 
@@ -731,7 +799,7 @@ angular
 							}
 						}
 
-						$http(req)
+						return await $http(req)
 							.then(
 								function successCallback(
 									response) {
@@ -740,19 +808,11 @@ angular
 									// asynchronously
 									// when the response is
 									// available
-									$scope.currentIsochronesGeoJSON = response.data;
-									kommonitorMapService.replaceIsochroneMarker($scope.locationsArray);
-									kommonitorMapService
-										.replaceIsochroneGeoJSON(
-											$scope.currentIsochronesGeoJSON,
-											$scope.transitMode,
-											$scope.focus,
-											$scope.rangeArray,
-											$scope.useMultipleStartPoints);
-									$scope
-										.prepareDownloadGeoJSON();
-									$scope.loadingData = false;
-									$rootScope.$broadcast('hideLoadingIconOnMap');
+
+									// dissolve features
+									var dissolved = turf.dissolve(response.data, {propertyName: 'value'});
+									return dissolved;
+
 								},
 								function errorCallback(
 									response) {
@@ -763,8 +823,10 @@ angular
 									// error status.
 									$scope.loadingData = false;
 									$rootScope.$broadcast('hideLoadingIconOnMap');
+									console.error(response);
 								});
 					};
+
 				}
 			]
 		});
