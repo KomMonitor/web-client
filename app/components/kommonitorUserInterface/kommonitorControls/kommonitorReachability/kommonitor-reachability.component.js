@@ -31,6 +31,7 @@ angular
 
 					$scope.currentIsochronesGeoJSON = undefined;
 					$scope.currentRouteGeoJSON = undefined;
+					$scope.error = undefined;
 
 					/**
 					 * Show the isochrone-calculation-div if this
@@ -264,6 +265,8 @@ angular
 
 					$scope.resetForm = function(){
 						$scope.resetSlider();
+
+						$scope.error = undefined;
 
 						$scope.showIsochrones = true;
 						document.getElementById("btn_isochrones").click();
@@ -619,6 +622,15 @@ angular
 					 * displayed in the KM GUI.
 					 */
 					$scope.startAnalysis = function() {
+
+						try{
+
+						}
+						catch(error){
+							$scope.error = error;
+							$scope.loadingData = false;
+							$rootScope.$broadcast("hideLoadingIconOnMap");
+						}
 						if ($scope.showIsochrones)
 							$scope.startIsochroneCalculation();
 						else
