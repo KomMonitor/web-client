@@ -9,7 +9,7 @@
 
 	<p></p>
 
-	<div class="box box-primary">
+	<div class="box box-primary" style="margin-bottom: 0px;">
             <div class="box-header with-border">
               <h3 class="box-title">Erreichbarkeitsanalysen</h3>
 							<p style="margin: 0 0 0px;">auf Basis von Stra&szlig;en- und Wegenetzen</p>
@@ -306,18 +306,19 @@
 								<input type="button" class="btn btn-s btn-danger" value="Zur&uuml;cksetzen" ng-click="resetForm()"></input>
 							</div>
 
-							<div ng-show="error"
-								class="alert alert-danger">
-								<strong>Fehler</strong>
-								Bei der Verarbeitung ist ein Fehler aufgetreten.
-								<p></p>
-									<strong>Fehlernachricht: </strong>
-									<pre>{{error}}</pre>
+							<div ng-show="error">
+								<br/>
+								<div
+									class="alert alert-danger">
+									<strong>Fehler</strong>
+									Bei der Verarbeitung ist ein Fehler aufgetreten.
+									<p></p>
+										<strong>Fehlernachricht: </strong>
+										<pre>{{error}}</pre>
+								</div>
 							</div>
-
 						</div>
 						<!-- /.box-body -->
-
 </div>
 <!-- /.box -->
 

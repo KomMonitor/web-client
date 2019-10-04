@@ -687,6 +687,8 @@ angular
 									// or server returns response with an error status.
 									$scope.pointSourceConfigured = false;
 									$scope.loadingData = false;
+									console.error(response.statusText);
+									$scope.error = response.statusText;
 							});
 						}
 
@@ -714,18 +716,10 @@ angular
 					 */
 					$scope.startAnalysis = function() {
 
-						try{
-
-						}
-						catch(error){
-							$scope.error = error;
-							$scope.loadingData = false;
-							$rootScope.$broadcast("hideLoadingIconOnMap");
-						}
-						if ($scope.showIsochrones)
-							$scope.startIsochroneCalculation();
-						else
-							$scope.startRoutingCalculation();
+							if ($scope.showIsochrones)
+								$scope.startIsochroneCalculation();
+							else
+								$scope.startRoutingCalculation();
 					};
 
 					/**
@@ -779,8 +773,10 @@ angular
 										// or server returns
 										// response with an
 										// error status.
+										console.error(response.data.error.message);
+										$scope.error = response.data.error.message;
 										$scope.loadingData = false;
-										$rootScope.$broadcast('hideLoadingIconOnMap');
+										$rootScope.$broadcast("hideLoadingIconOnMap");
 									});
 					};
 
@@ -930,9 +926,10 @@ angular
 									// or server returns
 									// response with an
 									// error status.
+									console.error(response.data.error.message);
+									$scope.error = response.data.error.message;
 									$scope.loadingData = false;
-									$rootScope.$broadcast('hideLoadingIconOnMap');
-									console.error(response);
+									$rootScope.$broadcast("hideLoadingIconOnMap");
 								});
 					};
 
