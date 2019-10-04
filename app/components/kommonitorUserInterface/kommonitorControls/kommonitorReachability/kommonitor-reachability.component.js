@@ -716,6 +716,8 @@ angular
 					 */
 					$scope.startAnalysis = function() {
 
+						$scope.error = undefined;
+
 							if ($scope.showIsochrones)
 								$scope.startIsochroneCalculation();
 							else
