@@ -2494,7 +2494,7 @@ angular.module('kommonitorMap').component(
                                   preferenceValue = "Empfohlen";
                                 }
                                 else if(preference === "shortest"){
-                                  preferenceValue = "K&uuml;rzeste";
+                                  preferenceValue = "Kürzeste";
                                 }
 
                                 var transitModeValue = "Passant";

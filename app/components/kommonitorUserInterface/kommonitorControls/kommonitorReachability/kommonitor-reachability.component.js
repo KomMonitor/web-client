@@ -323,6 +323,21 @@ angular
 						$scope.routeTotalAscent = undefined;
 						$scope.routeTotalDescent = undefined;
 
+						$scope.currentIsochronesGeoJSON = undefined;
+						$scope.currentRouteGeoJSON = undefined;
+						$scope.error = undefined;
+
+						$scope.geosearchResults_startingPoint;
+						$scope.geosearchResults_endPoint;
+
+						document.getElementById("optFastest").click();
+
+						$scope.routingStartPoint = undefined;
+						$scope.routingEndPoint = undefined;
+
+						$scope.routingStartPointInput = undefined;
+						$scope.routingEndPointInput = undefined;
+
 						setTimeout(function(){
 							$scope.$apply();
 						}, 200);
@@ -594,7 +609,7 @@ angular
 						}
 						if ($scope.transitMode == 'driving-car') {
 							$scope.minSpeedInKilometersPerHour = 30;
-							$scope.maxSpeedInKilometersPerHour = 50;
+							$scope.maxSpeedInKilometersPerHour = 130;
 						}
 
 						$scope.speedInKilometersPerHour = $scope.minSpeedInKilometersPerHour;
