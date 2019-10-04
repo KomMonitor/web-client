@@ -2482,6 +2482,92 @@ angular.module('kommonitorMap').component(
                                 $scope.updateSearchControl();
                               });
 
+                              $scope.$on("replaceRouteAsGeoJSON", function (event, geoJSON, transitMode, preference, routingStartPoint, routingEndPoint) {
+
+                                if($scope.routingLayer){
+                                  $scope.layerControl.removeLayer($scope.routingLayer);
+                                  $scope.map.removeLayer($scope.routingLayer);
+                                }
+
+                                var preferenceValue = "Schnellste";
+                                if(preference === "recommended"){
+                                  preferenceValue = "Empfohlen";
+                                }
+                                else if(preference === "shortest"){
+                                  preferenceValue = "K&uuml;rzeste";
+                                }
+
+                                var transitModeValue = "Passant";
+                                switch (transitMode) {
+                                  case "cycling-regular":
+                                    transitModeValue = "Fahrrad"
+                                    break;
+                                  case "driving-car":
+                                    transitModeValue = "Auto"
+                                    break;
+                                  default:
+                                    transitModeValue = "Passant";
+                                }
+
+                                kommonitorDataExchangeService.routingLegend = {
+                                  transitMode: transitModeValue,
+                                  preference: preferenceValue
+                                };
+
+                                var style = {
+                                  color: "#ed561a",
+                                  weight: 5,
+                                  opacity: 0.7
+                                };
+
+                                $scope.routingLayer = L.featureGroup();
+
+                                // start and end point
+                                var customStartMarker = L.AwesomeMarkers.icon({
+                                  icon: "home",
+                                  iconColor: "white",
+                                  markerColor: "green"
+                                });
+
+                                var customEndMarker = L.AwesomeMarkers.icon({
+                                  icon: "screenshot",
+                                  iconColor: "white",
+                                  markerColor: "red"
+                                });
+
+                                var numPoints = geoJSON.features[0].geometry.coordinates.length;
+                                var startPoint = geoJSON.features[0].geometry.coordinates[0];
+                                var endPoint = geoJSON.features[0].geometry.coordinates[numPoints-1];
+
+                                L.marker([startPoint[1],startPoint[0]], {icon: customStartMarker}).bindPopup(routingStartPoint.label).addTo($scope.routingLayer);
+                                L.marker([endPoint[1],endPoint[0]], {icon: customEndMarker}).bindPopup(routingEndPoint.label).addTo($scope.routingLayer);
+
+                                L.geoJSON(geoJSON, {
+                                    style: style,
+                                    onEachFeature: function(feature, layer){
+                                      layer.on({
+                                          click: function () {
+                                               var popupContent = "Routing Ergebnis - " + transitModeValue + " - " + preferenceValue;
+                                               // var popupContent = "TestValue";
+
+                                              if (popupContent)
+                                                  layer.bindPopup(JSON.stringify(popupContent));
+                                          }
+                                      })
+                                    }
+                                }).addTo($scope.routingLayer);
+
+                                // $scope.isochronesLayer.StyledLayerControl = {
+                                //   removable : false,
+                                //   visible : true
+                                // };
+
+                                $scope.layerControl.addOverlay( $scope.routingLayer, "Routing-Ergebnis_" + transitModeValue + "_" + preferenceValue, reachabilityLayerGroupName );
+                                $scope.routingLayer.addTo($scope.map);
+                                $scope.map.fitBounds($scope.routingLayer.getBounds());
+                                $scope.updateSearchControl();
+                              });
+
                               var getStyleIndexForFeature = function(feature, colorValueEntries, reachMode){
                                 var index=0;
                                 var featureCutOffValue = feature.properties.value;
@@ -2989,6 +3075,18 @@ angular.module('kommonitorMap').component(
                               $scope.$on("removeReachabilityLayers", function (event) {
 
                                 var layerNamePartly = "Isochrone";
+
+                                $scope.layerControl._layers.forEach(function(layer){
+                                  if(layer.group.name === reachabilityLayerGroupName && layer.name.includes(layerNamePartly)){
+                                    $scope.layerControl.removeLayer(layer.layer);
+                                    $scope.map.removeLayer(layer.layer);
+                                  }
+                                });
+                              });
+
+                              $scope.$on("removeRoutingLayers", function (event) {
+
+                                var layerNamePartly = "Routing";
 
                                 $scope.layerControl._layers.forEach(function(layer){
                                   if(layer.group.name === reachabilityLayerGroupName && layer.name.includes(layerNamePartly)){

@@ -23,6 +23,9 @@ angular
 
 					//$("[data-toggle=tooltip]").tooltip();
 
+					var OpenStreetMapProvider = window.GeoSearch.OpenStreetMapProvider;
+					$scope.openStreetMapProvider = new OpenStreetMapProvider();
+
 					const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
 					this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 					this.kommonitorMapServiceInstance = kommonitorMapService;
@@ -32,6 +35,20 @@ angular
 					$scope.currentIsochronesGeoJSON = undefined;
 					$scope.currentRouteGeoJSON = undefined;
 					$scope.error = undefined;
+
+					/**
+					* a delay object for geosearch input
+					*/
+					$scope.delay = undefined;
+
+					$scope.geosearchResults_startingPoint;
+					$scope.geosearchResults_endPoint;
+
+					$scope.routeDistance_km = undefined;
+					$scope.routeDuration_minutes = undefined;
+					$scope.routeAvgSpeed_kmh = undefined;
+					$scope.routeTotalAscent = undefined;
+					$scope.routeTotalDescent = undefined;
 
 					/**
 					 * Show the isochrone-calculation-div if this
@@ -55,8 +72,8 @@ angular
 					$scope.longitudeStart = 7.049869894;
 					$scope.latitudeEnd = 51.42055331+0.05;
 					$scope.longitudeEnd = 7.049869894+0.05;
-					$scope.startArray = $scope.longitudeStart+','+$scope.latitudeStart;
-					$scope.endArray = $scope.longitudeEnd+','+$scope.latitudeEnd;
+					$scope.routingStartPointInput = undefined;
+					$scope.routingEndPointInput = undefined;
 
 					/**
 					 * The range array (for isochrone calculation)
@@ -196,15 +213,21 @@ angular
 					/**
 					 * TODO
 					 */
-					var createRoutingRequest = function(transitMode, preference, startArray, endArray){
-						var locString = startArray+'%7C'+endArray;
+					var createRoutingRequest = function(transitMode, preference, routingStartPointInput, routingEndPointInput){
+						var locString = routingStartPointInput+'%7C'+routingEndPointInput;
 						var getRequest = $scope.targetUrlToReachabilityService_ORS
 							+ '/routes?'
 							+ 'coordinates=' + locString
 							+ '&profile='+transitMode
 							+ '&preference='+preference
-							+ '&units='+'m'
-							+ '&language='+'de';
+							+ '&units='+'km'
+							+ '&language='+'de'
+							+ '&format='+'geojson'
+							+ '&instructions='+'true'
+							+ '&instructions_format='+'html'
+							+ '&maneuvers='+'true'
+							+ '&attributes='+'avgspeed'
+							+ '&elevation='+'true';
 
 						//console.log(getRequest);
 
@@ -294,6 +317,12 @@ angular
 
 						$scope.removePotentialDrawnStartingPoints();
 
+						$scope.routeDistance_km = undefined;
+						$scope.routeDuration_minutes = undefined;
+						$scope.routeAvgSpeed_kmh = undefined;
+						$scope.routeTotalAscent = undefined;
+						$scope.routeTotalDescent = undefined;
+
 						setTimeout(function(){
 							$scope.$apply();
 						}, 200);
@@ -322,10 +351,34 @@ angular
 							.$broadcast('hideLoadingIconOnMap');
 					};
 
+					$scope.removeRoutingLayers = function() {
+						$scope.loadingData = true;
+						$rootScope
+							.$broadcast('showLoadingIconOnMap');
+
+						kommonitorMapService
+							.removeRoutingLayers();
+						$scope.currentRouteGeoJSON = undefined;
+						$scope.loadingData = false;
+						$rootScope
+							.$broadcast('hideLoadingIconOnMap');
+					};
+
 					/**
 					 * TODO
 					 */
 					$scope.prepareDownloadGeoJSON = function() {
+
+						if($scope.currentIsochronesGeoJSON){
+								$scope.prepareIsochroneDownload();
+						}
+						if($scope.currentRouteGeoJSON){
+								$scope.prepareRouteDownload();
+						}
+
+					};
+
+					$scope.prepareIsochroneDownload = function(){
 						console
 							.log('removing old download button if available')
 						if (document
@@ -358,7 +411,41 @@ angular
 						a.setAttribute('class', 'btn btn-info');
 
 						document.getElementById(
-								'reachabilityButtonSection')
+								'reachabilityIsochroneButtonSection')
+							.appendChild(a);
+					};
+
+					$scope.prepareRouteDownload = function(){
+						console
+							.log('removing old download button if available')
+						if (document
+							.getElementById('downloadReachabilityRoute'))
+							document
+							.getElementById(
+								'downloadReachabilityRoute')
+							.remove();
+
+						var geoJSON_string = JSON
+							.stringify($scope.currentRouteGeoJSON);
+
+						var fileName = 'Routing-Ergebnis.geojson';
+
+						var blob = new Blob([geoJSON_string], {
+							type: 'application/json'
+						});
+						var data = URL.createObjectURL(blob);
+
+						console
+							.log('create new Download button and append it to DOM');
+						var a = document.createElement('a');
+						a.download = fileName;
+						a.href = data;
+						a.textContent = 'Download Route als GeoJSON';
+						a.id = 'downloadReachabilityRoute';
+						a.setAttribute('class', 'btn btn-info');
+
+						document.getElementById(
+								'reachabilityRouteButtonSection')
 							.appendChild(a);
 					};
 
@@ -645,12 +732,15 @@ angular
 					 * Starts the routing-calculation.
 					 */
 					$scope.startRoutingCalculation = function() {
-						var startPointString = document.getElementById('startInput').value;
-						var endPointString = document.getElementById('goalInput').value;
+
+						$scope.loadingData = true;
+						$rootScope.$broadcast("showLoadingIconOnMap");
+						var startPointString = $scope.routingStartPoint.longitude + "," + $scope.routingStartPoint.latitude;
+						var endPointString = $scope.routingEndPoint.longitude + "," + $scope.routingEndPoint.latitude;
 
 						var url = createRoutingRequest($scope.transitMode, $scope.preference, startPointString, endPointString);
 
-						alert(url);
+						console.log("execute OpenRouteService routing request: " + url);
 
 						var req = {
 								method: 'GET',
@@ -665,17 +755,20 @@ angular
 									function successCallback(
 										response) {
 										$scope.currentRouteGeoJSON = response.data;
+
+										$scope.routeDistance_km = $scope.currentRouteGeoJSON.features[0].properties.summary[0].distance;
+										$scope.routeDuration_minutes = Math.round($scope.currentRouteGeoJSON.features[0].properties.summary[0].duration / 60);
+										$scope.routeAvgSpeed_kmh = $scope.currentRouteGeoJSON.features[0].properties.summary[0].avgspeed;
+										$scope.routeTotalAscent = $scope.currentRouteGeoJSON.features[0].properties.summary[0].ascent;
+										$scope.routeTotalDescent = $scope.currentRouteGeoJSON.features[0].properties.summary[0].descent;
+
 										// TODO : CDB
-										/*
 										kommonitorMapService
 											.replaceRouteGeoJSON(
 												$scope.currentRouteGeoJSON,
 												$scope.transitMode,
-												$scope.focus,
-												$scope.rangeArray,
-												$scope.useMultipleStartPoints);
+												$scope.preference, $scope.routingStartPoint, $scope.routingEndPoint);
 										$scope.prepareDownloadGeoJSON();
-										*/
 										$scope.loadingData = false;
 										$rootScope.$broadcast('hideLoadingIconOnMap');
 									},
@@ -841,6 +934,100 @@ angular
 									$rootScope.$broadcast('hideLoadingIconOnMap');
 									console.error(response);
 								});
+					};
+
+					$scope.onChangeRoutingStartPoint = function(){
+
+						// Clear the timeout if it has already been set.
+				    // This will prevent the previous task from executing
+				    // if it has been less than <MILLISECONDS>
+				    clearTimeout($scope.delay);
+
+						$scope.geosearchResults_startingPoint = undefined;
+
+				    // Make a new timeout set to go off in 800ms
+				    $scope.delay = setTimeout(function () {
+				        console.log('Geosearch for Input String: ', $scope.routingStartPointInput);
+
+								$scope.openStreetMapProvider.search({ query: $scope.routingStartPointInput })
+								.then(function(result){
+										$scope.geosearchResults_startingPoint = result;
+
+										$scope.$apply();
+								});
+
+				    }, 500);
+					};
+
+					$scope.onClickGeosearchResult_startingPoint = function(geosearchResult){
+						// result object from leaflet-geosearch
+
+						// const result = {
+						//   x: Number,                      // lon,
+						//   y: Number,                      // lat,
+						//   label: String,                  // formatted address
+						//   bounds: [
+						//     [Number, Number],             // s, w - lat, lon
+						//     [Number, Number],             // n, e - lat, lon
+						//   ],
+						//   raw: {},                        // raw provider result
+						// }
+
+						$scope.routingStartPoint = {
+							label: geosearchResult.label,
+							longitude: geosearchResult.x,
+							latitude: geosearchResult.y
+						};
+
+						// hide geosearch results to minimize page height
+						$scope.geosearchResults_startingPoint = undefined;
+					};
+
+					$scope.onChangeRoutingEndPoint = function(){
+
+						// Clear the timeout if it has already been set.
+				    // This will prevent the previous task from executing
+				    // if it has been less than <MILLISECONDS>
+				    clearTimeout($scope.delay);
+
+						$scope.geosearchResults_endPoint = undefined;
+
+				    // Make a new timeout set to go off in 800ms
+				    $scope.delay = setTimeout(function () {
+				        console.log('Geosearch for Input String: ', $scope.routingEndPointInput);
+
+								$scope.openStreetMapProvider.search({ query: $scope.routingEndPointInput })
+								.then(function(result){
+										$scope.geosearchResults_endPoint = result;
+
+										$scope.$apply();
+								});
+
+				    }, 500);
+					};
+
+					$scope.onClickGeosearchResult_endPoint = function(geosearchResult){
+						// result object from leaflet-geosearch
+
+						// const result = {
+						//   x: Number,                      // lon,
+						//   y: Number,                      // lat,
+						//   label: String,                  // formatted address
+						//   bounds: [
+						//     [Number, Number],             // s, w - lat, lon
+						//     [Number, Number],             // n, e - lat, lon
+						//   ],
+						//   raw: {},                        // raw provider result
+						// }
+
+						$scope.routingEndPoint = {
+							label: geosearchResult.label,
+							longitude: geosearchResult.x,
+							latitude: geosearchResult.y
+						};
+
+						// hide geosearch results to minimize page height
+						$scope.geosearchResults_endPoint = undefined;
 					};
 
 				}
