@@ -3997,38 +3997,61 @@ angular.module('kommonitorMap').component(
                                           //wait due to animation of the sidebar
 
                                           // make animation in 30 steps
-                                          var waitForInMs = 30;
-                                          for(var i=0; i<=300; i++){
+                                          // var waitForInMs = 30;
+                                          // for(var i=0; i<=300; i++){
+                                          //
+                                          //   i += waitForInMs;
+                                          //
+                                          //   await wait(waitForInMs);
+                                          //
+                                          //   $scope.map.invalidateSize(true);
+                                          //
+                                          //   panToCenterOnInActiveMenue(500);
+                                          //   // $scope.recenterMap();
+                                          // }
 
-                                            i += waitForInMs;
-
-                                            await wait(waitForInMs);
-
-                                            $scope.map.invalidateSize(true);
-
-                                            // panToCenterOnActiveMenue(500);
-                                            $scope.recenterMap();
-                                          }
+                                          var waitForInMs = 100;
+                                          await wait(waitForInMs);
+                                          panToCenterOnInActiveMenue(500);
                                         });
 
                                         $scope.$on("recenterMapOnShowSideBar", async function (event) {
                                           //wait due to animation of the sidebar
 
                                           // make animation in 30 steps
-                                          var waitForInMs = 30;
-                                          for(var i=0; i<=300; i++){
+                                          // var waitForInMs = 30;
+                                          // for(var i=0; i<=300; i++){
+                                          //
+                                          //   i += waitForInMs;
+                                          //
+                                          //   await wait(waitForInMs);
+                                          //
+                                          //   $scope.map.invalidateSize(true);
+                                          //
+                                          //   panToCenterOnActiveMenue(500);
+                                          //   // $scope.recenterMap();
+                                          // }
 
-                                            i += waitForInMs;
-
-                                            await wait(waitForInMs);
-
-                                            $scope.map.invalidateSize(true);
-
-                                            // panToCenterOnActiveMenue(500);
-                                            $scope.recenterMap();
-                                          }
+                                          var waitForInMs = 100;
+                                          await wait(waitForInMs);
+                                          panToCenterOnActiveMenue(500);
 
                                         });
+
+                                        function panToCenterOnActiveMenue(numPixels){
+                                          if($scope.map){
+                                            $scope.map.panBy(L.point(numPixels, 0));
+
+                                          }
+                                        };
+
+                                        function panToCenterOnInActiveMenue(numPixels){
+                                          if($scope.map){
+                                            $scope.map.panBy(L.point(-numPixels, 0));
+
+                                          }
+                                        };
+
 
                                         function fitBounds(){
                                           if($scope.map && $scope.currentIndicatorLayer){
