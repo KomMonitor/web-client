@@ -361,6 +361,7 @@ angular
 						kommonitorMapService
 							.removeReachabilityLayers();
 						$scope.currentIsochronesGeoJSON = undefined;
+						kommonitorDataExchangeService.isochroneLegend = undefined
 						$scope.loadingData = false;
 						$rootScope
 							.$broadcast('hideLoadingIconOnMap');
@@ -374,6 +375,7 @@ angular
 						kommonitorMapService
 							.removeRoutingLayers();
 						$scope.currentRouteGeoJSON = undefined;
+						kommonitorDataExchangeService.routingLegend = undefined;
 						$scope.loadingData = false;
 						$rootScope
 							.$broadcast('hideLoadingIconOnMap');
