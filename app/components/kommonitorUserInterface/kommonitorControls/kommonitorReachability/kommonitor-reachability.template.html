@@ -26,12 +26,12 @@
 
 							<br />
 
-							<div class="btn-group btn-group-justified btn-group-sm" data-toggle="buttons">
+							<div class="btn-group btn-group-justified" data-toggle="buttons">
 								<label class="btn btn-primary active">
-									<input type="radio" name="btn_show_iso" id="btn_isochrones" ng-change="showIso()" autocomplete="off" checked ng-model="showIsochrones" value="true">Isochronenberechnung</input>
+									<input type="radio" name="btn_show_iso" id="btn_isochrones" ng-change="showIso()" autocomplete="off" checked ng-model="showIsochrones" value="true"><i class="far fa-dot-circle"></i> Isochronenberechnung</input>
 								</label>
 								<label class="btn btn-primary">
-									<input type="radio" name="btn_show_rout" id="btn_routing" ng-change="showRouting()" autocomplete="off" ng-model="showIsochrones" value="false">Routing</input>
+									<input type="radio" name="btn_show_rout" id="btn_routing" ng-change="showRouting()" autocomplete="off" ng-model="showIsochrones" value="false"><i class="fas fa-route"></i> Routing</input>
 								</label>
 							</div>
 							<!--
@@ -42,15 +42,15 @@
 							<div ng-show="showIsochrones" class="ng-show" id="isochoneCalculation">
 							<label for="TODO">Verkehrsmittel</label>
 							<br />
-								<div class="btn-group btn-group-justified btn-group-sm" data-toggle="buttons">
+								<div class="btn-group btn-group-justified" data-toggle="buttons">
 									<label class="btn btn-primary active">
-										<input type="radio" name="options" id="optFeet" autocomplete="off" checked ng-change="changeType()" ng-model="transitMode" value="foot-walking"> Fu&szlig;g&aumlnger
+										<input type="radio" name="options" id="optFeet" autocomplete="off" checked ng-change="changeType()" ng-model="transitMode" value="foot-walking"> <i class="fas fa-walking"></i> Fu&szlig;g&aumlnger </input>
 									</label>
 									<label class="btn btn-primary">
-										<input type="radio" name="options" id="optBike" autocomplete="off" ng-change="changeType()" ng-model="transitMode" value="cycling-regular"> Fahrrad
+										<input type="radio" name="options" id="optBike" autocomplete="off" ng-change="changeType()" ng-model="transitMode" value="cycling-regular"> <i class="fas fa-biking"></i> Fahrrad </input>
 									</label>
 									<label class="btn btn-primary">
-										<input type="radio" name="options" id="optCar" autocomplete="off" ng-change="changeType()" ng-model="transitMode" value="driving-car"> PKW
+										<input type="radio" name="options" id="optCar" autocomplete="off" ng-change="changeType()" ng-model="transitMode" value="driving-car"> <i class="fas fa-car"></i> PKW </input>
 									</label>
 								</div>
 								<!--
@@ -62,12 +62,12 @@
 
 								<br />
 
-								<div class="btn-group btn-group-justified btn-group-sm" data-toggle="buttons">
+								<div class="btn-group btn-group-justified" data-toggle="buttons">
 									<label class="btn btn-primary active">
-										<input type="radio" name="options" id="focus_distance" autocomplete="off" checked ng-change="changeFocus()" ng-model="focus" value="distance">Distanz</input>
+										<input type="radio" name="options" id="focus_distance" autocomplete="off" checked ng-change="changeFocus()" ng-model="focus" value="distance"> <i class="fas fa-ruler"></i> Distanz
 									</label>
 									<label class="btn btn-primary">
-										<input type="radio" name="options" id="focus_time" autocomplete="off" ng-change="changeFocus()" ng-model="focus" value="time"> Zeit</input>
+										<input type="radio" name="options" id="focus_time" autocomplete="off" ng-change="changeFocus()" ng-model="focus" value="time"><i class="far fa-clock"></i> Zeit
 									</label>
 								</div>
 
@@ -136,12 +136,12 @@
 
 								<br />
 
-								<div class="btn-group btn-group-justified btn-group-sm" data-toggle="buttons">
+								<div class="btn-group btn-group-justified " data-toggle="buttons">
 									<label class="btn btn-primary active">
-										<input type="radio" name="options" id="startPointsSource_layer" autocomplete="off" checked ng-change="changeStartPointsSource()" ng-model="startPointsSource" value="fromLayer">aus Punkt-Layer</input>
+										<input type="radio" name="options" id="startPointsSource_layer" autocomplete="off" checked ng-change="changeStartPointsSource()" ng-model="startPointsSource" value="fromLayer"><i class="fas fa-layer-group"></i> aus Punkt-Layer</input>
 									</label>
 									<label class="btn btn-primary">
-										<input type="radio" name="options" id="startPointsSource_draw" autocomplete="off" ng-change="changeStartPointsSource()" ng-model="startPointsSource" value="manual">Punkte zeichnen</input>
+										<input type="radio" name="options" id="startPointsSource_draw" autocomplete="off" ng-change="changeStartPointsSource()" ng-model="startPointsSource" value="manual"><i class="fas fa-map-marked-alt"></i> Punkte zeichnen</input>
 									</label>
 								</div>
 
@@ -210,7 +210,7 @@
 									      <option value="cycling-mountain">Farrad offroad</option>
 									      <option value="cycling-tour">Fahrrad tour</option>
 									      <option value="cycling-electric">Fahrrad elektrisch</option> -->
-									      <option value="foot-walking">Laufen</option>
+									      <option value="foot-walking">Fu&szlig;g&auml;nger</option>
 									      <!-- <option value="foot-hiking">Wandern</option>
 									      <option value="wheelchair">Rollstuhl</option> -->
 									    </select>
@@ -237,7 +237,7 @@
 
 									<div class="row vertical-align" style="margin-right:0px; border: 1px solid #ccc!important; border-radius: 6px; padding:4px;">
 						        <div class="col-md-6 col-sm-6 col-xs-6">
-											<label for="TODO">Addresssuche:</label>
+											<label for="TODO"><i class="fas fa-thumbtack"></i> Addresssuche:</label>
 											<input id="startInput" type="text" ng-model="routingStartPointInput" ng-change="onChangeRoutingStartPoint()" placeholder="Addresse eingeben ...">
 
 											<div ng-show="geosearchResults_startingPoint.length > 0" class="leaflet-control-geosearch" style="overflow:auto; border: 1px solid #ccc!important; border-radius: 6px; padding:4px;">
@@ -251,7 +251,7 @@
 										</div>
 										<div class="col-md-6 col-sm-6 col-xs-6">
 											<div ng-show="routingStartPoint.longitude && routingStartPoint.latitude">
-												<label for="TODO">Longitude, Latitude:</label>
+												<label for="TODO"><i class="fas fa-map-marker-alt"></i> Longitude, Latitude:</label>
 												<p>{{routingStartPoint.longitude}}, {{routingStartPoint.latitude}}</p>
 											</div>
 
@@ -269,7 +269,7 @@
 
 									<div class="row vertical-align" style="margin-right:0px; border: 1px solid #ccc!important; border-radius: 6px; padding:4px;">
 						        <div class="col-md-6 col-sm-6 col-xs-6">
-											<label for="TODO">Addresssuche:</label>
+											<label for="TODO"><i class="fas fa-thumbtack"></i> Addresssuche:</label>
 											<input id="endInput" type="text" ng-model="routingEndPointInput" ng-change="onChangeRoutingEndPoint()" placeholder="Addresse eingeben ...">
 
 											<div ng-show="geosearchResults_endPoint.length > 0" class="leaflet-control-geosearch" style="overflow:auto; border: 1px solid #ccc!important; border-radius: 6px; padding:4px;">
@@ -283,7 +283,7 @@
 										</div>
 										<div class="col-md-6 col-sm-6 col-xs-6">
 											<div ng-show="routingEndPoint.longitude && routingEndPoint.latitude">
-												<label for="TODO">Longitude, Latitude:</label>
+												<label for="TODO"><i class="fas fa-map-marker-alt"></i> Longitude, Latitude:</label>
 												<p>{{routingEndPoint.longitude}}, {{routingEndPoint.latitude}}</p>
 											</div>
 
