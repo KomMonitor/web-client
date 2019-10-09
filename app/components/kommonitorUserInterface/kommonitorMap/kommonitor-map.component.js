@@ -1758,9 +1758,6 @@ angular.module('kommonitorMap').component(
 
                         $scope.div.id = "legendControl";
 
-                          var  labels = $scope.defaultBrew.getBreaks();
-                          var  colors = $scope.defaultBrew.getColors();
-
                         $scope.div.innerHTML = $scope.appendLegendCloseButton();
                         var opacity = 1;
                         if($scope.useTransparencyOnIndicator){
@@ -1877,6 +1874,9 @@ angular.module('kommonitorMap').component(
                           if(useFilteredOrZeroOrOutlierValues){
                             $scope.div.innerHTML += '<br/>';
                           }
+
+                          var  labels = $scope.defaultBrew.getBreaks();
+                          var  colors = $scope.defaultBrew.getColors();
 
                           for (var i = 0; i < colors.length; i++) {
                               $scope.div.innerHTML +=
@@ -3177,6 +3177,7 @@ angular.module('kommonitorMap').component(
                                         var setupDefaultBrew = function(geoJSON, propertyName, numClasses, colorCode, classifyMethod){
                                           // pass values from your geojson object into an empty array
                                           // see link above to view geojson used in this example
+
                                           var values = [];
                                           for (var i = 0; i < geoJSON.features.length; i++){
                                               if (kommonitorDataExchangeService.indicatorValueIsNoData(geoJSON.features[i].properties[propertyName]) || geoJSON.features[i].properties[propertyName] == 0 || geoJSON.features[i].properties[propertyName] == "0")
@@ -3628,7 +3629,7 @@ angular.module('kommonitorMap').component(
 
                                           }
                                           else{
-                                            if($scope.dynamicIncreaseBrew || $scope.dynamicDecreaseBrew){
+                                            if($scope.containsNegativeValues($scope.currentIndicatorMetadataAndGeoJSON.geoJSON)){
                                               if(kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[$scope.indicatorPropertyName]) >= 0){
                                                 var fillColor;
                                                 if(feature.properties[$scope.propertyName] == 0 || feature.properties[$scope.propertyName] == "0"){
@@ -4335,6 +4336,10 @@ angular.module('kommonitorMap').component(
                                                                 refreshOutliersStyle();
                                                                 refreshNoDataStyle();
 
+                                                                $scope.defaultBrew = new classyBrew();
+                                                                $scope.gtMeasureOfValueBrew = new classyBrew();
+                                                                $scope.ltMeasureOfValueBrew = new classyBrew();
+
                                                                 $scope.currentIndicatorMetadataAndGeoJSON = indicatorMetadataAndGeoJSON;
 
                                                                 if (!justRestyling){
@@ -4527,6 +4532,10 @@ angular.module('kommonitorMap').component(
                                                                           refreshOutliersStyle();
                                                                           refreshNoDataStyle();
 
+                                                                          $scope.defaultBrew = new classyBrew();
+                                                                          $scope.gtMeasureOfValueBrew = new classyBrew();
+                                                                          $scope.ltMeasureOfValueBrew = new classyBrew();
+
                                                                           if($scope.currentIndicatorLayer){
 
                                                                             if(!kommonitorDataExchangeService.isBalanceChecked){
@@ -4593,12 +4602,12 @@ angular.module('kommonitorMap').component(
                                                                                 $scope.makeDynamicIndicatorLegend();
                                                                               }
                                                                               else{
-                                                                                var containsNegativeValues = $scope.containsNegativeValues(indicatorMetadataAndGeoJSON.geoJSON);
+                                                                                var containsNegativeValues = $scope.containsNegativeValues($scope.currentGeoJSONOfCurrentLayer);
                                                                                 if(containsNegativeValues){
-                                                                                  setupDynamicIndicatorBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, defaultColorBrewerPaletteForBalanceIncreasingValues, defaultColorBrewerPaletteForBalanceDecreasingValues, $scope.classifyMethod);
+                                                                                  setupDynamicIndicatorBrew($scope.currentGeoJSONOfCurrentLayer, $scope.indicatorPropertyName, defaultColorBrewerPaletteForBalanceIncreasingValues, defaultColorBrewerPaletteForBalanceDecreasingValues, $scope.classifyMethod);
                                                                                 }
                                                                                 else{
-                                                                                  setupDefaultBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, indicatorMetadataAndGeoJSON.defaultClassificationMapping.items.length, indicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, $scope.classifyMethod);
+                                                                                  setupDefaultBrew($scope.currentGeoJSONOfCurrentLayer, $scope.indicatorPropertyName, $scope.currentIndicatorMetadataAndGeoJSON.defaultClassificationMapping.items.length, $scope.currentIndicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, $scope.classifyMethod);
                                                                                 }
 
                                                                                 $scope.currentIndicatorLayer.eachLayer(function(layer) {
