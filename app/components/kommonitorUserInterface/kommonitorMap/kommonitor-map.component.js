@@ -1595,6 +1595,29 @@ angular.module('kommonitorMap').component(
                       return innerHTMLString;
                     };
 
+                    $scope.appendInterpretation = function(){
+
+                        var innerHTMLString = "<label>Interpretationshilfe:</label>  ";
+
+                        // <label class="radio-inline"><input type="radio" name="optradio" checked>Option 1</label>
+                        // <label class="radio-inline"><input type="radio" name="optradio">Option 2</label>
+                        // <label class="radio-inline"><input type="radio" name="optradio">Option 3</label>
+
+                        // angular
+                          //<form>
+                          //   <div ng-repeat="option in occurrenceOptions track by $index">
+                          //     <input type="radio" name="occurrences" ng-value="option" ng-model="model.selectedOccurrence" />
+                          //     <label>{{ option }}</label>
+                          //   </div>
+                          // </form>
+                        innerHTMLString += $scope.currentIndicatorMetadataAndGeoJSON.interpretation;
+                        innerHTMLString += "<br/>";
+                        innerHTMLString += "<br/>";
+
+                        return innerHTMLString;
+
+                    };
+
                     $scope.appendTransparencyCheckbox = function(){
 
                       /*
@@ -1754,9 +1777,14 @@ angular.module('kommonitorMap').component(
                         // }
 
                         $scope.div.innerHTML += "<h4><b>Indikatorenlegende</b><br/>" + $scope.getIndicatorStringFromIndicatorType() + "</h4><br/><em>Darstellung der Indikatorenwerte zum gew&auml;hlten Zeitpunkt " + tsToDate_fullYear(dateToTS(dateAsDate)) + "</em><br/><br/>";
-                        $scope.div.innerHTML += "<label>Einheit: </label> " + $scope.indicatorUnit + "<br/>";
 
                         $scope.div.innerHTML += $scope.appendClassifyRadioOptions();
+
+                        $scope.div.innerHTML += "<label>Einheit: </label> " + $scope.indicatorUnit + "<br/>";
+
+                        if($scope.currentIndicatorMetadataAndGeoJSON.interpretation && $scope.currentIndicatorMetadataAndGeoJSON.interpretation != ""){
+                          $scope.div.innerHTML += $scope.appendInterpretation();
+                        }
 
                         if($scope.containsOutliers_low || $scope.containsOutliers_high){
                           $scope.div.innerHTML += $scope.appendOutliersCheckbox();
@@ -1870,9 +1898,13 @@ angular.module('kommonitorMap').component(
                           $scope.div.innerHTML += "<h4><b>Indikatorenlegende</b><br/>" + $scope.getIndicatorStringFromIndicatorType() + "</h4><br/><em>Darstellung der zeitlichen Entwicklung zum gew&auml;hlten Zeitpunkt " + tsToDate_fullYear(dateToTS(dateAsDate)) + "</em><br/><br/>";
                         }
 
+                        $scope.div.innerHTML += $scope.appendClassifyRadioOptions();
+
                         $scope.div.innerHTML += "<label>Einheit: </label> " + $scope.indicatorUnit + "<br/>";
 
-                        $scope.div.innerHTML += $scope.appendClassifyRadioOptions();
+                        if($scope.currentIndicatorMetadataAndGeoJSON.interpretation && $scope.currentIndicatorMetadataAndGeoJSON.interpretation != ""){
+                          $scope.div.innerHTML += $scope.appendInterpretation();
+                        }
 
                         if($scope.containsOutliers_low || $scope.containsOutliers_high){
                           $scope.div.innerHTML += $scope.appendOutliersCheckbox();
@@ -2006,9 +2038,11 @@ angular.module('kommonitorMap').component(
 
                         $scope.div.innerHTML += "<em>aktueller Schwellwert: </em> " + kommonitorDataExchangeService.measureOfValue + "<br/><br/>";
 
-                        $scope.div.innerHTML += "<label>Einheit: </label> " + $scope.indicatorUnit + "<br/>";
-
                         $scope.div.innerHTML += $scope.appendClassifyRadioOptions();
+                        $scope.div.innerHTML += "<label>Einheit: </label> " + $scope.indicatorUnit + "<br/>";
+                        if($scope.currentIndicatorMetadataAndGeoJSON.interpretation && $scope.currentIndicatorMetadataAndGeoJSON.interpretation != ""){
+                          $scope.div.innerHTML += $scope.appendInterpretation();
+                        }
 
                         if($scope.containsOutliers_low || $scope.containsOutliers_high){
                           $scope.div.innerHTML += $scope.appendOutliersCheckbox();
