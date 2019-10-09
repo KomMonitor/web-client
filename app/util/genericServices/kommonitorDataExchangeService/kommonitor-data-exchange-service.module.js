@@ -671,9 +671,9 @@ angular
             return function( item ) {
 
               try{
-                if(item.datasetName.includes("Lebensmittel")){
-                  return false;
-                }
+                // if(item.datasetName.includes("Lebensmittel")){
+                //   return false;
+                // }
                 return true;
               }
               catch(error){
