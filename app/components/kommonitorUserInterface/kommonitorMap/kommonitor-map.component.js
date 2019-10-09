@@ -1727,7 +1727,7 @@ angular.module('kommonitorMap').component(
                       return indicatorTypeString;
                     };
 
-                    $scope.makeDefaultLegend = function(defaultClassificationMapping){
+                    $scope.makeDefaultLegend = function(defaultClassificationMapping, containsNegativeValues){
 
                       if(!$scope.showLegendControl){
                         try{
@@ -1823,24 +1823,68 @@ angular.module('kommonitorMap').component(
                               useFilteredOrZeroOrOutlierValues = true;
                         }
 
-                        if($scope.currentIndicatorContainsZeroValues){
-                          $scope.div.innerHTML +=
-                              '<i style="background:' + $scope.defaultColorForZeroValues + '; opacity: ' + opacity + ';"></i> ' +
-                              "0" + '<br/>';
-                              useFilteredOrZeroOrOutlierValues = true;
-                        }
+                        if(containsNegativeValues){
+                          // dynamic legend creation depending on number of positive and negative classes
+                          if($scope.dynamicDecreaseBrew){
+                            var  labelsDynamicDecrease = $scope.dynamicDecreaseBrew.breaks;
+                            var  colorsDynamicDecrease = $scope.dynamicDecreaseBrew.colors;
 
-                        if(useFilteredOrZeroOrOutlierValues){
-                          $scope.div.innerHTML += '<br/>';
-                        }
+                            $scope.div.innerHTML += "<label>Werte < 0</label><br/>";
 
-                        //TODO FIXME defaultCustomRating comes in the wrong order! inspect that behaviour server-side
-                        for (var i = 0; i < colors.length; i++) {
+                              // invert color labeling as colorization of lT features is also inverted
+                              for (var i = 0; i < colorsDynamicDecrease.length; i++) {
+                                  $scope.div.innerHTML +=
+                                      '<i style="background:' + colorsDynamicDecrease[colorsDynamicDecrease.length - 1 - i] + '; opacity: ' + opacity + ';"></i> ' +
+                                      kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labelsDynamicDecrease[i]) + (typeof labelsDynamicDecrease[i + 1] != 'undefined' ? ' &ndash; &lt; ' + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labelsDynamicDecrease[i + 1]) + '<br>' : ' &ndash; &lt; 0');
+                              }
+
+                          }
+
+                          if($scope.currentIndicatorContainsZeroValues){
+                            $scope.div.innerHTML += "<br/>";
                             $scope.div.innerHTML +=
-                                // '<i style="background:' + colors[i] + '"></i> ' +
-                                // defaultClassificationMapping.items[defaultClassificationMapping.items.length - 1 - i].defaultCustomRating + ' (' + (+labels[i].toFixed(numberOfDecimals)) + ((+labels[i + 1]) ? ' &ndash; &lt; ' + (+labels[i + 1].toFixed(numberOfDecimals)) + ') <br>' : '+');
-                                '<i style="background:' + colors[i] + '; opacity: ' + opacity + ';"></i> ' +
-                                kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labels[i]) + (kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labels[i + 1]) ? ' &ndash; &lt; ' + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labels[i + 1]) + ' <br>' : '+');
+                                '<i style="background:' + $scope.defaultColorForZeroValues + '; opacity: ' + opacity + ';"></i> ' +
+                                "0" + '</br>';
+                          }
+
+                          if($scope.dynamicIncreaseBrew){
+                            $scope.div.innerHTML += "<br/>";
+                            var labelsDynamicIncrease = $scope.dynamicIncreaseBrew.breaks;
+                            var colorsDynamicIncrease = $scope.dynamicIncreaseBrew.colors;
+
+                            $scope.div.innerHTML += "<label>Werte > 0</label><br/>";
+
+                              // invert color labeling as colorization of lT features is also inverted
+                              for (var i = 0; i < colorsDynamicIncrease.length; i++) {
+                                  $scope.div.innerHTML +=
+                                      '<i style="background:' + colorsDynamicIncrease[i] + '; opacity: ' + opacity + ';"></i> ' +
+                                      kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labelsDynamicIncrease[i]) + (typeof labelsDynamicIncrease[i + 1] === 'undefined' ? '' : ' &ndash; &lt; ' + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labelsDynamicIncrease[i + 1]) + '<br>');
+                              }
+                            $scope.div.innerHTML += "<br/>";
+                          }
+
+                        }
+                        else{
+                          //TODO FIXME defaultCustomRating comes in the wrong order! inspect that behaviour server-side
+
+                          if($scope.currentIndicatorContainsZeroValues){
+                            $scope.div.innerHTML +=
+                                '<i style="background:' + $scope.defaultColorForZeroValues + '; opacity: ' + opacity + ';"></i> ' +
+                                "0" + '<br/>';
+                                useFilteredOrZeroOrOutlierValues = true;
+                          }
+
+                          if(useFilteredOrZeroOrOutlierValues){
+                            $scope.div.innerHTML += '<br/>';
+                          }
+
+                          for (var i = 0; i < colors.length; i++) {
+                              $scope.div.innerHTML +=
+                                  // '<i style="background:' + colors[i] + '"></i> ' +
+                                  // defaultClassificationMapping.items[defaultClassificationMapping.items.length - 1 - i].defaultCustomRating + ' (' + (+labels[i].toFixed(numberOfDecimals)) + ((+labels[i + 1]) ? ' &ndash; &lt; ' + (+labels[i + 1].toFixed(numberOfDecimals)) + ') <br>' : '+');
+                                  '<i style="background:' + colors[i] + '; opacity: ' + opacity + ';"></i> ' +
+                                  kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labels[i]) + (kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labels[i + 1]) ? ' &ndash; &lt; ' + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labels[i + 1]) + ' <br>' : '+');
+                          }
                         }
 
                         $scope.div.innerHTML += '</div>';
@@ -3584,7 +3628,105 @@ angular.module('kommonitorMap').component(
 
                                           }
                                           else{
-                                            fillColor = $scope.defaultBrew.getColorInRange(kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[$scope.propertyName]));
+                                            if($scope.dynamicIncreaseBrew || $scope.dynamicDecreaseBrew){
+                                              if(kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[$scope.indicatorPropertyName]) >= 0){
+                                                var fillColor;
+                                                if(feature.properties[$scope.propertyName] == 0 || feature.properties[$scope.propertyName] == "0"){
+                                                  fillColor = $scope.defaultColorForZeroValues;
+                                                  if($scope.useTransparencyOnIndicator){
+                                                    fillOpacity = defaultFillOpacityForZeroFeatures;
+                                                  }
+                                                }
+                                                else{
+                                                  for (var index=0; index < $scope.dynamicIncreaseBrew.breaks.length; index++){
+                                                    if(kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[$scope.propertyName]) == kommonitorDataExchangeService.getIndicatorValue_asNumber($scope.dynamicIncreaseBrew.breaks[index])){
+                                                      if(index < $scope.dynamicIncreaseBrew.breaks.length -1){
+                                                        // min value
+                                                        fillColor =  $scope.dynamicIncreaseBrew.colors[index];
+                                                        break;
+                                                      }
+                                                      else {
+                                                        //max value
+                                                        if ($scope.dynamicIncreaseBrew.colors[index]){
+                                                          fillColor =  $scope.dynamicIncreaseBrew.colors[index];
+                                                        }
+                                                        else{
+                                                          fillColor =  $scope.dynamicIncreaseBrew.colors[index - 1];
+                                                        }
+                                                        break;
+                                                      }
+                                                    }
+                                                    else{
+                                                      if(kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[$scope.propertyName]) < kommonitorDataExchangeService.getIndicatorValue_asNumber($scope.dynamicIncreaseBrew.breaks[index + 1])) {
+                                                        fillColor =  $scope.dynamicIncreaseBrew.colors[index];
+                                                        break;
+                                                      }
+                                                    }
+                                                  }
+                                                }
+
+                                                return {
+                                                    weight: 1,
+                                                    opacity: 1,
+                                                    color: defaultBorderColor,
+                                                    dashArray: '',
+                                                    fillOpacity: fillOpacity,
+                                                    fillColor: fillColor,
+                                                    fillPattern: undefined
+                                                }
+                                              }
+                                              else{
+
+                                                var fillColor;
+                                                if(feature.properties[$scope.propertyName] == 0 || feature.properties[$scope.propertyName] == "0"){
+                                                  fillColor = $scope.defaultColorForZeroValues;
+                                                  if($scope.useTransparencyOnIndicator){
+                                                    fillOpacity = defaultFillOpacityForZeroFeatures;
+                                                  }
+                                                }
+                                                else{
+                                                  // invert colors, so that lowest values will become strong colored!
+                                                  for (var index=0; index < $scope.dynamicDecreaseBrew.breaks.length; index++){
+                                                    if(kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[$scope.propertyName]) == kommonitorDataExchangeService.getIndicatorValue_asNumber($scope.dynamicDecreaseBrew.breaks[index])){
+                                                      if(index < $scope.dynamicDecreaseBrew.breaks.length -1){
+                                                        // min value
+                                                        fillColor =  $scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - index - 1];
+                                                        break;
+                                                      }
+                                                      else {
+                                                        //max value
+                                                        if ($scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - index]){
+                                                          fillColor =  $scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - index];
+                                                        }
+                                                        else{
+                                                          fillColor =  $scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - index - 1];
+                                                        }
+                                                        break;
+                                                      }
+                                                    }
+                                                    else{
+                                                      if(kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[$scope.propertyName]) < kommonitorDataExchangeService.getIndicatorValue_asNumber($scope.dynamicDecreaseBrew.breaks[index + 1])) {
+                                                        fillColor =  $scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - index - 1];
+                                                        break;
+                                                      }
+                                                    }
+                                                  }
+                                                }
+
+                                                return {
+                                                    weight: 1,
+                                                    opacity: 1,
+                                                    color: defaultBorderColor,
+                                                    dashArray: '',
+                                                    fillOpacity: fillOpacity,
+                                                    fillColor: fillColor,
+                                                    fillPattern: undefined
+                                                }
+                                              }
+                                            }
+                                            else{
+                                              fillColor = $scope.defaultBrew.getColorInRange(kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[$scope.propertyName]));
+                                            }
                                           }
 
                                             return {
@@ -4264,7 +4406,13 @@ angular.module('kommonitorMap').component(
                                                                 else{
 
                                                                   if (indicatorMetadataAndGeoJSON.indicatorType.includes("STATUS")){
-                                                                    setupDefaultBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, indicatorMetadataAndGeoJSON.defaultClassificationMapping.items.length, indicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, $scope.classifyMethod);
+                                                                    var containsNegativeValues = $scope.containsNegativeValues(indicatorMetadataAndGeoJSON.geoJSON);
+                                                                    if(containsNegativeValues){
+                                                                      setupDynamicIndicatorBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, defaultColorBrewerPaletteForBalanceIncreasingValues, defaultColorBrewerPaletteForBalanceDecreasingValues, $scope.classifyMethod);
+                                                                    }
+                                                                    else{
+                                                                      setupDefaultBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, indicatorMetadataAndGeoJSON.defaultClassificationMapping.items.length, indicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, $scope.classifyMethod);
+                                                                    }
                                                                     $scope.propertyName = INDICATOR_DATE_PREFIX + date;
 
                                                                     layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
@@ -4272,7 +4420,7 @@ angular.module('kommonitorMap').component(
                                                                         onEachFeature: onEachFeatureIndicator
                                                                     });
                                                                     $scope.makeInfoControl(date, isCustomComputation);
-                                                                    $scope.makeDefaultLegend(indicatorMetadataAndGeoJSON.defaultClassificationMapping);
+                                                                    $scope.makeDefaultLegend(indicatorMetadataAndGeoJSON.defaultClassificationMapping, containsNegativeValues);
                                                                   }
                                                                   else if (indicatorMetadataAndGeoJSON.indicatorType.includes("DYNAMIC")){
                                                                     setupDynamicIndicatorBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, defaultColorBrewerPaletteForBalanceIncreasingValues, defaultColorBrewerPaletteForBalanceDecreasingValues, $scope.classifyMethod);
@@ -4316,6 +4464,19 @@ angular.module('kommonitorMap').component(
                                                                 $rootScope.$broadcast("updateDiagrams", $scope.currentIndicatorMetadataAndGeoJSON, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitId, date, $scope.defaultBrew, $scope.gtMeasureOfValueBrew, $scope.ltMeasureOfValueBrew, $scope.dynamicIncreaseBrew, $scope.dynamicDecreaseBrew, kommonitorDataExchangeService.isMeasureOfValueChecked, kommonitorDataExchangeService.measureOfValue, justRestyling);
                                                             });
 
+                                                            $scope.containsNegativeValues = function(geoJSON){
+
+                                                              var containsNegativeValues = false;
+                                                              for(var i=0; i< geoJSON.features.length; i++){
+                                                                if (geoJSON.features[i].properties[$scope.indicatorPropertyName] < 0){
+                                                                  containsNegativeValues = true;
+                                                                  break;
+                                                                }
+                                                              }
+
+                                                              return containsNegativeValues;
+                                                            };
+
                                                   $scope.$on("addCustomIndicatorAsGeoJSON", function (event, indicatorMetadataAndGeoJSON, spatialUnitName, date) {
 
                                                                 console.log('addCustomIndicatorAsGeoJSON was called');
@@ -4329,7 +4490,14 @@ angular.module('kommonitorMap').component(
 
                                                                 $scope.currentCustomIndicatorLayerOfCurrentLayer = indicatorMetadataAndGeoJSON.geoJSON;
 
-                                                                setupDefaultBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.customIndicatorPropertyName, indicatorMetadataAndGeoJSON.defaultClassificationMapping.items.length, indicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, $scope.classifyMethod);
+                                                                var containsNegativeValues = $scope.containsNegativeValues(indicatorMetadataAndGeoJSON.geoJSON);
+                                                                if(containsNegativeValues){
+                                                                  setupDynamicIndicatorBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, defaultColorBrewerPaletteForBalanceIncreasingValues, defaultColorBrewerPaletteForBalanceDecreasingValues, $scope.classifyMethod);
+                                                                }
+                                                                else{
+                                                                  setupDefaultBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, indicatorMetadataAndGeoJSON.defaultClassificationMapping.items.length, indicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, $scope.classifyMethod);
+                                                                }
+
                                                                 $scope.customPropertyName = INDICATOR_DATE_PREFIX + date;
 
                                                                 var layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
@@ -4349,7 +4517,7 @@ angular.module('kommonitorMap').component(
                                                                 $scope.updateSearchControl();
 
                                                                 $scope.makeCustomInfoControl(date);
-                                                                $scope.makeDefaultLegend(indicatorMetadataAndGeoJSON.defaultClassificationMapping);
+                                                                $scope.makeDefaultLegend(indicatorMetadataAndGeoJSON.defaultClassificationMapping, containsNegativeValues);
                                                             });
 
 
@@ -4425,7 +4593,14 @@ angular.module('kommonitorMap').component(
                                                                                 $scope.makeDynamicIndicatorLegend();
                                                                               }
                                                                               else{
-                                                                                setupDefaultBrew($scope.currentGeoJSONOfCurrentLayer, $scope.indicatorPropertyName, kommonitorDataExchangeService.selectedIndicator.defaultClassificationMapping.items.length, kommonitorDataExchangeService.selectedIndicator.defaultClassificationMapping.colorBrewerSchemeName, $scope.classifyMethod);
+                                                                                var containsNegativeValues = $scope.containsNegativeValues(indicatorMetadataAndGeoJSON.geoJSON);
+                                                                                if(containsNegativeValues){
+                                                                                  setupDynamicIndicatorBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, defaultColorBrewerPaletteForBalanceIncreasingValues, defaultColorBrewerPaletteForBalanceDecreasingValues, $scope.classifyMethod);
+                                                                                }
+                                                                                else{
+                                                                                  setupDefaultBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, indicatorMetadataAndGeoJSON.defaultClassificationMapping.items.length, indicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, $scope.classifyMethod);
+                                                                                }
+
                                                                                 $scope.currentIndicatorLayer.eachLayer(function(layer) {
                                                                                     if(kommonitorDataExchangeService.filteredIndicatorFeatureNames.includes(layer.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])){
                                                                                       layer.setStyle($scope.filteredStyle);
@@ -4434,7 +4609,7 @@ angular.module('kommonitorMap').component(
                                                                                       layer.setStyle(styleDefault(layer.feature));
                                                                                     }
                                                                                 });
-                                                                                $scope.makeDefaultLegend(kommonitorDataExchangeService.selectedIndicator.defaultClassificationMapping);
+                                                                                $scope.makeDefaultLegend(kommonitorDataExchangeService.selectedIndicator.defaultClassificationMapping, containsNegativeValues);
                                                                               }
 
                                                                             }
