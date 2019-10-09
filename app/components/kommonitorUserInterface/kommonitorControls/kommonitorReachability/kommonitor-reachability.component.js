@@ -268,7 +268,7 @@ angular
 						// var constantParameters = '&units=m&location_type=start&range_type=time';
 						// encode pipe symbol manually via %7C
 
-						var constantParameters = '&units=m&location_type=start&range_type=' +
+						var constantParameters = '&smoothing=0&units=m&location_type=start&range_type=' +
 								$scope.focus+'&attributes=area%7Creachfactor';
 
 						var getRequest = $scope.targetUrlToReachabilityService_ORS +
@@ -1302,7 +1302,7 @@ angular
 // $rootScope
 // .$broadcast('showLoadingIconOnMap');
 //
-// $scope.transitMode = 'Auto';
+// $scope.transitMode = 'PKW';
 // $scope.reachMode = 'Zeit';
 // $scope.locationsArray = [ [ 7.049869894,
 // 51.42055331 ] ];
