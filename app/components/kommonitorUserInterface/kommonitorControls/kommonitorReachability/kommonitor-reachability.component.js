@@ -58,6 +58,8 @@ angular
 					 */
 					$scope.showIsochrones = true;
 
+					$scope.dissolveIsochrones = true;
+
 					/**
 					 * TODO : Folgende drei Variablen werden fuer den
 					 * Produktivbetrieb eigentlich nicht benoetigt,
@@ -292,6 +294,7 @@ angular
 						$scope.error = undefined;
 
 						$scope.showIsochrones = true;
+						$scope.dissolveIsochrones = true;
 						document.getElementById("btn_isochrones").click();
 						$scope.transitMode = 'foot-walking';
 						document.getElementById("optFeet").click();
@@ -892,7 +895,8 @@ angular
 								$scope.transitMode,
 								$scope.focus,
 								$scope.rangeArray,
-								$scope.useMultipleStartPoints);
+								$scope.useMultipleStartPoints,
+								$scope.dissolveIsochrones);
 						$scope
 							.prepareDownloadGeoJSON();
 
@@ -934,8 +938,22 @@ angular
 									// available
 
 									// dissolve features
-									var dissolved = turf.dissolve(response.data, {propertyName: 'value'});
-									return dissolved;
+									if ($scope.dissolveIsochrones){
+										try {
+											var dissolved = turf.dissolve(response.data, {propertyName: 'value'});
+											return dissolved;
+										} catch (e) {
+											console.error("Dissolving Isochrones failed with error: " + e);
+											console.error("Will return undissolved isochrones");
+											return response.data;
+										} finally {
+
+										}
+
+									}
+									else{
+										return response.data;
+									}
 
 								},
 								function errorCallback(
