@@ -54,7 +54,7 @@
 
   // starting indicator and spatial unit
   // if faulty values are provided, a random indicator will be displayed
-  window.__env.initialIndicatorId = "9fd43254-7f7c-4ff4-95b2-923176832881";
+  window.__env.initialIndicatorId = "e61762c4-8b11-4631-8dd5-9ae0a5fc6f99";
   window.__env.initialSpatialUnitName = "Stadtteilebene";
 
  // various color settings
