@@ -497,11 +497,100 @@ angular
 
               }
               else{
-                  color = defaultBrew.getColorInRange(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate));
+
+                if(containsNegativeValues(indicatorMetadataAndGeoJSON.geoJSON, targetDate)){
+                  if(this.getIndicatorValue_asNumber(feature.properties[targetDate]) >= 0){
+                    if(feature.properties[targetDate] == 0 || feature.properties[targetDate] == "0"){
+                      color = defaultColorForZeroValues;
+                      if(useTransparencyOnIndicator){
+                        fillOpacity = defaultFillOpacityForZeroFeatures;
+                      }
+                    }
+                    else{
+                      for (var index=0; index < dynamicIncreaseBrew.breaks.length; index++){
+                        if(this.getIndicatorValue_asNumber(feature.properties[targetDate]) == this.getIndicatorValue_asNumber(dynamicIncreaseBrew.breaks[index])){
+                          if(index < dynamicIncreaseBrew.breaks.length -1){
+                            // min value
+                            color =  dynamicIncreaseBrew.colors[index];
+                            break;
+                          }
+                          else {
+                            //max value
+                            if (dynamicIncreaseBrew.colors[index]){
+                              color =  dynamicIncreaseBrew.colors[index];
+                            }
+                            else{
+                              color =  dynamicIncreaseBrew.colors[index - 1];
+                            }
+                            break;
+                          }
+                        }
+                        else{
+                          if(this.getIndicatorValue_asNumber(feature.properties[targetDate]) < this.getIndicatorValue_asNumber(dynamicIncreaseBrew.breaks[index + 1])) {
+                            color =  dynamicIncreaseBrew.colors[index];
+                            break;
+                          }
+                        }
+                      }
+                    }
+                  }
+                  else{
+                    if(feature.properties[targetDate] == 0 || feature.properties[targetDate] == "0"){
+                      color = defaultColorForZeroValues;
+                      if(useTransparencyOnIndicator){
+                        fillOpacity = defaultFillOpacityForZeroFeatures;
+                      }
+                    }
+                    else{
+                      // invert colors, so that lowest values will become strong colored!
+                      for (var index=0; index < dynamicDecreaseBrew.breaks.length; index++){
+                        if(this.getIndicatorValue_asNumber(feature.properties[targetDate]) == this.getIndicatorValue_asNumber(dynamicDecreaseBrew.breaks[index])){
+                          if(index < dynamicDecreaseBrew.breaks.length -1){
+                            // min value
+                            color =  dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - index - 1];
+                            break;
+                          }
+                          else {
+                            //max value
+                            if (dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - index]){
+                              color =  dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - index];
+                            }
+                            else{
+                              color =  dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - index - 1];
+                            }
+                            break;
+                          }
+                        }
+                        else{
+                          if(this.getIndicatorValue_asNumber(feature.properties[targetDate]) < this.getIndicatorValue_asNumber(dynamicDecreaseBrew.breaks[index + 1])) {
+                            color =  dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - index - 1];
+                            break;
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+                else{
+                  color = defaultBrew.getColorInRange(this.getIndicatorValue_asNumber(feature.properties[targetDate]));
+                }
               }
             }
 
             return color;
+          };
+
+          var containsNegativeValues = function(geoJSON, propertyName){
+
+            var containsNegativeValues = false;
+            for(var i=0; i< geoJSON.features.length; i++){
+              if (geoJSON.features[i].properties[propertyName] < 0){
+                containsNegativeValues = true;
+                break;
+              }
+            }
+
+            return containsNegativeValues;
           };
 
           this.formatIndiatorNameForLabel = function(indicatorName, maxCharsPerLine){
@@ -558,6 +647,36 @@ angular
                   if(isIndicatorThatShallNotBeDisplayed){
                     return false;
                   }
+                return true;
+              }
+            };
+          };
+
+          this.filterGeoresourcesByPoi = function(){
+            return function( item ) {
+
+              try{
+                if(item.isPOI){
+                  return true;
+                }
+                return false;
+              }
+              catch(error){
+                return false;
+              }
+            };
+          };
+
+          this.filterPois = function(){
+            return function( item ) {
+
+              try{
+                // if(item.datasetName.includes("Lebensmittel")){
+                //   return false;
+                // }
+                return true;
+              }
+              catch(error){
                 return true;
               }
             };

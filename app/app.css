@@ -406,6 +406,15 @@
 	z-index: 1003;
 }
 
+.leaflet-left .leaflet-draw {
+  /* display: inline-block; */
+  /* float: none; */
+	position: absolute;
+	left: 70px;
+	bottom: 100px;
+	z-index: 1003;
+}
+
 .leaflet-control-layers-group-name{
 	font-size: 14px;
 	font-weight: bold;

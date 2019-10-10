@@ -33,7 +33,14 @@ angular
 
 						$scope.filterIndicators = function() {
 
-							return kommonitorDataExchangeService.filterIndicators();
+							return function(item){
+								if (item.indicatorName.includes("Erreichbar")){
+									return false;
+								}
+								else{
+									return kommonitorDataExchangeService.filterIndicators();
+								}
+							};
 						};
 
 						$scope.filterComputableIndicators = function() {
