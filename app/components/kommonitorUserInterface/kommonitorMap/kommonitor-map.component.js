@@ -521,6 +521,14 @@ angular.module('kommonitorMap').component(
                           layers: [osm_blackWhite]
                       });
 
+                      // execute update search control on layer add and remove
+                      $scope.map.on('overlayadd', function(eo) {
+                        $scope.updateSearchControl();
+                      });
+                      $scope.map.on('overlayremove', function(eo) {
+                        $scope.updateSearchControl();
+                      });
+
                       $scope.baseMaps = {
                         "Stadt Essen - Automatisierte Liegenschaftskarte": wms_essen_ALK_grau,
                         "Stadt Essen - Amtliche Basiskarte": wms_essen_ABK,
@@ -702,95 +710,111 @@ angular.module('kommonitorMap').component(
 
                     $scope.updateSearchControl = function(){
 
-                      if($scope.searchControl){
-                        try{
-                          $scope.map.removeControl($scope.searchControl);
-                          $scope.searchControl = undefined;
-                        }
-                        catch(error){
-                        }
-                      }
-
-                      // build L.layerGroup of available POI layers
-                      var featureLayers = [];
-
-                      for (var layerEntry of $scope.layerControl._layers){
-                        if(layerEntry){
-                          if (layerEntry.overlay){
-                            featureLayers.push(layerEntry.layer);
+                      setTimeout(function(){
+                        if($scope.searchControl){
+                          try{
+                            $scope.map.removeControl($scope.searchControl);
+                            $scope.searchControl = undefined;
+                          }
+                          catch(error){
                           }
                         }
-                      }
 
-                      var layerGroup = L.featureGroup(featureLayers);
+                        // build L.layerGroup of available POI layers
+                        var featureLayers = [];
 
-                      $scope.searchControl = new MultipleResultsLeafletSearch({
-                        position:"topleft",
-                    		layer: layerGroup,
-                    		initial: false,
-                    		propertyName: __env.FEATURE_NAME_PROPERTY_NAME,
-                        textPlaceholder: "Layer-Objekte nach Name und/oder ID filtern",
-                        textCancel: "Abbrechen",
-                        textErr: "Position nicht gefunden",
-                        hideMarkerOnCollapse: true,
-                        zoom: 15,
-                        autoResize: true,
-                        autoCollapse: false,
-                        autoType: true,
-                        formatData: function (json) {	//adds coordinates to name.
-                                      var propName = this.options.propertyName,
-                                          propLoc = this.options.propertyLoc,
-                                          i, jsonret = {};
-                                      if (L.Util.isArray(propLoc))
-                                          for (i in json) {
-                                              if (!this._getPath(json[i], propName)) continue;
-                                              jsonret[this._getPath(json[i], propName) + " (" + json[i][propLoc[0]] + "," + json[i][propLoc[1]] + ")"] = L.latLng(json[i][propLoc[0]], json[i][propLoc[1]]);
-                                          }
-                                      else
-                                          for (i in json) {
-                                              if (!this._getPath(json[i], propName)) continue;
-                                              jsonret[this._getPath(json[i], propName) + " (" + json[i][propLoc][0] + "," + json[i][propLoc][1] + ")"] = L.latLng(this._getPath(json[i], propLoc));
-                                          }
-                                      return jsonret;
-                          },
-                          filterData: function(text, records) {
-                            var I, icase, regSearch, frecords = {};
-
-                            text = text.replace(/[.*+?^${}()|[\]\\]/g, '');  //sanitize remove all special characters
-                            if(text==='')
-                              return [];
-
-                            I = this.options.initial ? '^' : '';  //search only initial text
-                            icase = !this.options.casesensitive ? 'i' : undefined;
-
-                            regSearch = new RegExp(I + text, icase);
-
-                            //TODO use .filter or .map
-                            for(var key in records) {
-                              if( regSearch.test(key) )
-                                frecords[key]= records[key];
-                            }
-
-                            return frecords;
-                          },
-                          buildTip: function(text, val) {
-                            var emString = "";
-
-                            if(val.layer.metadataObject){
-                              if(val.layer.metadataObject.isPOI){
-                                emString += '<i style="width:14px;height:14px;float:left;" class="awesome-marker-legend awesome-marker-legend-icon-' + val.layer.metadataObject.poiMarkerColor + '">';
-                                emString += "<span style='margin-left:3px; top:-2px; font-size:0.7em; color:" + val.layer.metadataObject.poiSymbolColor + ";' align='center' class='glyphicon glyphicon-" + val.layer.metadataObject.poiSymbolBootstrap3Name + "' aria-hidden='true'></span>";
-                                emString += '</i>';
+                        for (var layerEntry of $scope.layerControl._layers){
+                          if(layerEntry){
+                            if (layerEntry.overlay){
+                              if ($scope.map.hasLayer(layerEntry.layer)){
+                                  if(layerEntry.group.name === poiLayerGroupName || layerEntry.group.name === indicatorLayerGroupName || layerEntry.group.name === wfsLayerGroupName || layerEntry.group.name === fileLayerGroupName){
+                                      featureLayers.push(layerEntry.layer);
+                                  }
                               }
-                            }
-                            else{
-                              emString += "<i style='font-size:1.0em;' class='fas fa-sitemap'></i>";
-                            }
-                            return '<a href="" class="search-tip">'+ emString + '&nbsp;&nbsp;' + text +'</a>';
-                          }
-                    	});
 
-                      $scope.searchControl.addTo($scope.map);
+                            }
+                          }
+                        }
+
+                        var layerGroup;
+                        // if no relevant layers are currently displayed, then
+                        if(featureLayers.length === 0){
+                          $scope.searchControl = new MultipleResultsLeafletSearch({
+                        	});
+                          $scope.searchControl.addTo($scope.map);
+                        }
+                        else{
+                            layerGroup = L.featureGroup(featureLayers);
+
+                            $scope.searchControl = new MultipleResultsLeafletSearch({
+                              position:"topleft",
+                          		layer: layerGroup,
+                          		initial: false,
+                          		propertyName: __env.FEATURE_NAME_PROPERTY_NAME,
+                              textPlaceholder: "Layer-Objekte nach Name und/oder ID filtern",
+                              textCancel: "Abbrechen",
+                              textErr: "Position nicht gefunden",
+                              hideMarkerOnCollapse: true,
+                              zoom: 15,
+                              autoResize: true,
+                              autoCollapse: false,
+                              autoType: true,
+                              formatData: function (json) {	//adds coordinates to name.
+                                            var propName = this.options.propertyName,
+                                                propLoc = this.options.propertyLoc,
+                                                i, jsonret = {};
+                                            if (L.Util.isArray(propLoc))
+                                                for (i in json) {
+                                                    if (!this._getPath(json[i], propName)) continue;
+                                                    jsonret[this._getPath(json[i], propName) + " (" + json[i][propLoc[0]] + "," + json[i][propLoc[1]] + ")"] = L.latLng(json[i][propLoc[0]], json[i][propLoc[1]]);
+                                                }
+                                            else
+                                                for (i in json) {
+                                                    if (!this._getPath(json[i], propName)) continue;
+                                                    jsonret[this._getPath(json[i], propName) + " (" + json[i][propLoc][0] + "," + json[i][propLoc][1] + ")"] = L.latLng(this._getPath(json[i], propLoc));
+                                                }
+                                            return jsonret;
+                                },
+                                filterData: function(text, records) {
+                                  var I, icase, regSearch, frecords = {};
+
+                                  text = text.replace(/[.*+?^${}()|[\]\\]/g, '');  //sanitize remove all special characters
+                                  if(text==='')
+                                    return [];
+
+                                  I = this.options.initial ? '^' : '';  //search only initial text
+                                  icase = !this.options.casesensitive ? 'i' : undefined;
+
+                                  regSearch = new RegExp(I + text, icase);
+
+                                  //TODO use .filter or .map
+                                  for(var key in records) {
+                                    if( regSearch.test(key) )
+                                      frecords[key]= records[key];
+                                  }
+
+                                  return frecords;
+                                },
+                                buildTip: function(text, val) {
+                                  var emString = "";
+
+                                  if(val.layer.metadataObject){
+                                    if(val.layer.metadataObject.isPOI){
+                                      emString += '<i style="width:14px;height:14px;float:left;" class="awesome-marker-legend awesome-marker-legend-icon-' + val.layer.metadataObject.poiMarkerColor + '">';
+                                      emString += "<span style='margin-left:3px; top:-2px; font-size:0.7em; color:" + val.layer.metadataObject.poiSymbolColor + ";' align='center' class='glyphicon glyphicon-" + val.layer.metadataObject.poiSymbolBootstrap3Name + "' aria-hidden='true'></span>";
+                                      emString += '</i>';
+                                    }
+                                  }
+                                  else{
+                                    emString += "<i style='font-size:1.0em;' class='fas fa-sitemap'></i>";
+                                  }
+                                  return '<a href="" class="search-tip">'+ emString + '&nbsp;&nbsp;' + text +'</a>';
+                                }
+                          	});
+
+                            $scope.searchControl.addTo($scope.map);
+                        }
+                      }, 200);
                     };
 
                     $scope.$on("showLoadingIconOnMap", function (event) {
