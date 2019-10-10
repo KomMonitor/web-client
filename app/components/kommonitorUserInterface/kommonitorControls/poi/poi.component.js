@@ -28,37 +28,7 @@ angular
 
 								const DATE_PREFIX = __env.indicatorDatePrefix;
 
-								var numberOfDecimals = __env.numberOfDecimals;
-
-								$scope.filterGeoresourcesByPoi = function(){
-									return function( item ) {
-
-										try{
-											if(item.isPOI){
-												return true;
-											}
-											return false;
-										}
-										catch(error){
-											return false;
-										}
-								  };
-								};
-
-								$scope.filterPois = function(){
-									return function( item ) {
-
-										try{
-											if(item.datasetName.includes("Lebensmittel")){
-												return false;
-											}
-											return true;
-										}
-										catch(error){
-											return true;
-										}
-								  };
-								};
+								var numberOfDecimals = __env.numberOfDecimals;								
 
 								$scope.handlePoiOnMap = function(poi){
 									console.log("POI: " + poi.datasetName);

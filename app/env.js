@@ -9,6 +9,8 @@
   // DO NOT CHANGE THEM - ONLY IF YOU REALLY KNOW WHAT YOU ARE DOING
   window.__env.FEATURE_ID_PROPERTY_NAME = "ID";
   window.__env.FEATURE_NAME_PROPERTY_NAME = "NAME";
+  window.__env.VALID_START_DATE_PROPERTY_NAME = "validStartDate";
+  window.__env.VALID_END_DATE_PROPERTY_NAME = "validEndDate";
   window.__env.indicatorDatePrefix = "DATE_";
 
   // Data Management API URL
@@ -92,11 +94,41 @@
 
   // array of indicator name substring that shal be used to filter out / hide certain indicators by their name
   // e.g. set ["entwicklung"] to hide all indicators whose name contains the substring "entwicklung"
-  window.__env.arrayOfNameSubstringsForHidingIndicators = [];
+  window.__env.arrayOfNameSubstringsForHidingIndicators = ["Prozentuale", "Standardabweichung", "Stadtteil", "ausschließlich", "doppelt", "Versorgungsquote", "mittlerer Bodenversiegelungsgrad"];
 
   // e-mail recipient for feedback mail
   window.__env.feedbackMailRecipient = "thomas.blasche@amt62.essen.de";
   // window.__env.feedbackMailRecipient = "christian.danowski-buhren@hs-bochum.de";
+
+  window.__env.updateIntervalOptions = [
+    {
+        displayName: "jährlich",
+        apiName: "YEARLY"
+    },
+    {
+        displayName: "halbjährlich",
+        apiName: "HALF_YEARLY"
+    },
+    {
+        displayName: "vierteljährlich",
+        apiName: "QUARTERLY"
+    },
+    {
+        displayName: "monatlich",
+        apiName: "MONTHLY"
+    },
+    {
+        displayName: "beliebig",
+        apiName: "ARBITRARY"
+    }
+  ];
+
+  window.__env.geodataSourceFormats = [
+    {
+        displayName: "GeoJSON FeatureCollection",
+        value: "geojson"
+    }
+  ];
 
   window.__env.wmsDatasets = [
     {

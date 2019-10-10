@@ -5,7 +5,7 @@ angular.module('feedbackModal').component('feedbackModal', {
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
 		const feedbackMailRecipient = __env.feedbackMailRecipient;
-		const emailURL = __env.targetUrlToProcessingEngine + "/feedback-mail";
+		const emailURL = __env.targetUrlToProcessingEngine + "feedback-mail";
 
 		// $scope.titel;
 		$scope.organization;

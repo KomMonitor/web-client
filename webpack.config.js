@@ -67,7 +67,15 @@ module.exports = {
           { from: nodeModulePathConstant + 'bootstrap-colorpicker/dist', to: 'bootstrap-colorpicker/' },
           { from: './customizedExternalLibs/L.TileLayer.BetterWMS.js', to: 'leaflet-betterWMS/' },
           { from: nodeModulePathConstant + 'babel-polyfill/dist/polyfill.min.js', to: 'babel-polyfill/' },
-          { from: nodeModulePathConstant + 'shpjs/dist/', to: 'shpjs/' }
+          { from: nodeModulePathConstant + 'shpjs/dist/', to: 'shpjs/' },
+          { from: nodeModulePathConstant + 'datatables.net/js/jquery.dataTables.min.js', to: 'datatables.net/' },
+          { from: nodeModulePathConstant + 'datatables.net-bs/js', to: 'datatables.net-bs/js' },
+          { from: nodeModulePathConstant + 'datatables.net-bs/css', to: 'datatables.net-bs/css' },
+          { from: nodeModulePathConstant + 'bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css', to: 'bootstrap-datepicker/css' },
+          { from: nodeModulePathConstant + 'bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js', to: 'bootstrap-datepicker/js' },
+          { from: nodeModulePathConstant + 'bootstrap-datepicker/dist/locales/bootstrap-datepicker.de.min.js', to: 'bootstrap-datepicker/js' },
+          { from: nodeModulePathConstant + 'angular-datatables/dist', to: 'angular-datatables/' }
+
       ])
     ]
 };
