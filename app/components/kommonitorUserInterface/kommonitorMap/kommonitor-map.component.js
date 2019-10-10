@@ -4217,15 +4217,19 @@ angular.module('kommonitorMap').component(
 
                                         function panToCenterOnActiveMenue(numPixels){
                                           if($scope.map){
+                                            $scope.map.invalidateSize(true);
                                             $scope.map.panBy(L.point(numPixels, 0));
 
+                                            $scope.map.invalidateSize(true);
                                           }
                                         };
 
                                         function panToCenterOnInActiveMenue(numPixels){
                                           if($scope.map){
+                                            $scope.map.invalidateSize(true);
                                             $scope.map.panBy(L.point(-numPixels, 0));
 
+                                            $scope.map.invalidateSize(true);
                                           }
                                         };
 
@@ -4233,6 +4237,7 @@ angular.module('kommonitorMap').component(
                                         function fitBounds(){
                                           if($scope.map && $scope.currentIndicatorLayer){
 
+                                            $scope.map.invalidateSize(true);
                                             // $scope.map.setView(L.latLng($scope.latCenter, $scope.lonCenter), $scope.zoomLevel);
                                             $scope.map.fitBounds($scope.currentIndicatorLayer.getBounds());
                                           }
