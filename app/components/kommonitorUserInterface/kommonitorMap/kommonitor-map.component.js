@@ -91,7 +91,8 @@ angular.module('kommonitorMap').component(
                         fillPattern: $scope.noDataFillPattern
                     };
 
-
+                    $scope.drawnPointFeatures;
+                    $scope.drawPointControl;
 
                     const MultipleResultsLeafletSearch = L.Control.Search.extend({
 
@@ -520,6 +521,14 @@ angular.module('kommonitorMap').component(
                           layers: [osm_blackWhite]
                       });
 
+                      // execute update search control on layer add and remove
+                      $scope.map.on('overlayadd', function(eo) {
+                        $scope.updateSearchControl();
+                      });
+                      $scope.map.on('overlayremove', function(eo) {
+                        $scope.updateSearchControl();
+                      });
+
                       $scope.baseMaps = {
                         "Stadt Essen - Automatisierte Liegenschaftskarte": wms_essen_ALK_grau,
                         "Stadt Essen - Amtliche Basiskarte": wms_essen_ABK,
@@ -701,95 +710,111 @@ angular.module('kommonitorMap').component(
 
                     $scope.updateSearchControl = function(){
 
-                      if($scope.searchControl){
-                        try{
-                          $scope.map.removeControl($scope.searchControl);
-                          $scope.searchControl = undefined;
-                        }
-                        catch(error){
-                        }
-                      }
-
-                      // build L.layerGroup of available POI layers
-                      var featureLayers = [];
-
-                      for (var layerEntry of $scope.layerControl._layers){
-                        if(layerEntry){
-                          if (layerEntry.overlay){
-                            featureLayers.push(layerEntry.layer);
+                      setTimeout(function(){
+                        if($scope.searchControl){
+                          try{
+                            $scope.map.removeControl($scope.searchControl);
+                            $scope.searchControl = undefined;
+                          }
+                          catch(error){
                           }
                         }
-                      }
 
-                      var layerGroup = L.featureGroup(featureLayers);
+                        // build L.layerGroup of available POI layers
+                        var featureLayers = [];
 
-                      $scope.searchControl = new MultipleResultsLeafletSearch({
-                        position:"topleft",
-                    		layer: layerGroup,
-                    		initial: false,
-                    		propertyName: __env.FEATURE_NAME_PROPERTY_NAME,
-                        textPlaceholder: "Layer-Objekte nach Name und/oder ID filtern",
-                        textCancel: "Abbrechen",
-                        textErr: "Position nicht gefunden",
-                        hideMarkerOnCollapse: true,
-                        zoom: 15,
-                        autoResize: true,
-                        autoCollapse: false,
-                        autoType: true,
-                        formatData: function (json) {	//adds coordinates to name.
-                                      var propName = this.options.propertyName,
-                                          propLoc = this.options.propertyLoc,
-                                          i, jsonret = {};
-                                      if (L.Util.isArray(propLoc))
-                                          for (i in json) {
-                                              if (!this._getPath(json[i], propName)) continue;
-                                              jsonret[this._getPath(json[i], propName) + " (" + json[i][propLoc[0]] + "," + json[i][propLoc[1]] + ")"] = L.latLng(json[i][propLoc[0]], json[i][propLoc[1]]);
-                                          }
-                                      else
-                                          for (i in json) {
-                                              if (!this._getPath(json[i], propName)) continue;
-                                              jsonret[this._getPath(json[i], propName) + " (" + json[i][propLoc][0] + "," + json[i][propLoc][1] + ")"] = L.latLng(this._getPath(json[i], propLoc));
-                                          }
-                                      return jsonret;
-                          },
-                          filterData: function(text, records) {
-                            var I, icase, regSearch, frecords = {};
-
-                            text = text.replace(/[.*+?^${}()|[\]\\]/g, '');  //sanitize remove all special characters
-                            if(text==='')
-                              return [];
-
-                            I = this.options.initial ? '^' : '';  //search only initial text
-                            icase = !this.options.casesensitive ? 'i' : undefined;
-
-                            regSearch = new RegExp(I + text, icase);
-
-                            //TODO use .filter or .map
-                            for(var key in records) {
-                              if( regSearch.test(key) )
-                                frecords[key]= records[key];
-                            }
-
-                            return frecords;
-                          },
-                          buildTip: function(text, val) {
-                            var emString = "";
-
-                            if(val.layer.metadataObject){
-                              if(val.layer.metadataObject.isPOI){
-                                emString += '<i style="width:14px;height:14px;float:left;" class="awesome-marker-legend awesome-marker-legend-icon-' + val.layer.metadataObject.poiMarkerColor + '">';
-                                emString += "<span style='margin-left:3px; top:-2px; font-size:0.7em; color:" + val.layer.metadataObject.poiSymbolColor + ";' align='center' class='glyphicon glyphicon-" + val.layer.metadataObject.poiSymbolBootstrap3Name + "' aria-hidden='true'></span>";
-                                emString += '</i>';
+                        for (var layerEntry of $scope.layerControl._layers){
+                          if(layerEntry){
+                            if (layerEntry.overlay){
+                              if ($scope.map.hasLayer(layerEntry.layer)){
+                                  if(layerEntry.group.name === poiLayerGroupName || layerEntry.group.name === indicatorLayerGroupName || layerEntry.group.name === wfsLayerGroupName || layerEntry.group.name === fileLayerGroupName){
+                                      featureLayers.push(layerEntry.layer);
+                                  }
                               }
-                            }
-                            else{
-                              emString += "<i style='font-size:1.0em;' class='fas fa-sitemap'></i>";
-                            }
-                            return '<a href="" class="search-tip">'+ emString + '&nbsp;&nbsp;' + text +'</a>';
-                          }
-                    	});
 
-                      $scope.searchControl.addTo($scope.map);
+                            }
+                          }
+                        }
+
+                        var layerGroup;
+                        // if no relevant layers are currently displayed, then
+                        if(featureLayers.length === 0){
+                          $scope.searchControl = new MultipleResultsLeafletSearch({
+                        	});
+                          $scope.searchControl.addTo($scope.map);
+                        }
+                        else{
+                            layerGroup = L.featureGroup(featureLayers);
+
+                            $scope.searchControl = new MultipleResultsLeafletSearch({
+                              position:"topleft",
+                          		layer: layerGroup,
+                          		initial: false,
+                          		propertyName: __env.FEATURE_NAME_PROPERTY_NAME,
+                              textPlaceholder: "Layer-Objekte nach Name und/oder ID filtern",
+                              textCancel: "Abbrechen",
+                              textErr: "Position nicht gefunden",
+                              hideMarkerOnCollapse: true,
+                              zoom: 15,
+                              autoResize: true,
+                              autoCollapse: false,
+                              autoType: true,
+                              formatData: function (json) {	//adds coordinates to name.
+                                            var propName = this.options.propertyName,
+                                                propLoc = this.options.propertyLoc,
+                                                i, jsonret = {};
+                                            if (L.Util.isArray(propLoc))
+                                                for (i in json) {
+                                                    if (!this._getPath(json[i], propName)) continue;
+                                                    jsonret[this._getPath(json[i], propName) + " (" + json[i][propLoc[0]] + "," + json[i][propLoc[1]] + ")"] = L.latLng(json[i][propLoc[0]], json[i][propLoc[1]]);
+                                                }
+                                            else
+                                                for (i in json) {
+                                                    if (!this._getPath(json[i], propName)) continue;
+                                                    jsonret[this._getPath(json[i], propName) + " (" + json[i][propLoc][0] + "," + json[i][propLoc][1] + ")"] = L.latLng(this._getPath(json[i], propLoc));
+                                                }
+                                            return jsonret;
+                                },
+                                filterData: function(text, records) {
+                                  var I, icase, regSearch, frecords = {};
+
+                                  text = text.replace(/[.*+?^${}()|[\]\\]/g, '');  //sanitize remove all special characters
+                                  if(text==='')
+                                    return [];
+
+                                  I = this.options.initial ? '^' : '';  //search only initial text
+                                  icase = !this.options.casesensitive ? 'i' : undefined;
+
+                                  regSearch = new RegExp(I + text, icase);
+
+                                  //TODO use .filter or .map
+                                  for(var key in records) {
+                                    if( regSearch.test(key) )
+                                      frecords[key]= records[key];
+                                  }
+
+                                  return frecords;
+                                },
+                                buildTip: function(text, val) {
+                                  var emString = "";
+
+                                  if(val.layer.metadataObject){
+                                    if(val.layer.metadataObject.isPOI){
+                                      emString += '<i style="width:14px;height:14px;float:left;" class="awesome-marker-legend awesome-marker-legend-icon-' + val.layer.metadataObject.poiMarkerColor + '">';
+                                      emString += "<span style='margin-left:3px; top:-2px; font-size:0.7em; color:" + val.layer.metadataObject.poiSymbolColor + ";' align='center' class='glyphicon glyphicon-" + val.layer.metadataObject.poiSymbolBootstrap3Name + "' aria-hidden='true'></span>";
+                                      emString += '</i>';
+                                    }
+                                  }
+                                  else{
+                                    emString += "<i style='font-size:1.0em;' class='fas fa-sitemap'></i>";
+                                  }
+                                  return '<a href="" class="search-tip">'+ emString + '&nbsp;&nbsp;' + text +'</a>';
+                                }
+                          	});
+
+                            $scope.searchControl.addTo($scope.map);
+                        }
+                      }, 200);
                     };
 
                     $scope.$on("showLoadingIconOnMap", function (event) {
@@ -881,7 +906,7 @@ angular.module('kommonitorMap').component(
                       innerHTMLString += "<div class='col-sm-3'><div class='text-left'><label>Raumebene:   </label></div></div>";
                       innerHTMLString += "<div class='col-sm-9'><div class='text-left'><div id='selectSpatialUnitViaInfoControl' class='dropup'>";
                       innerHTMLString += '<button class="btn btn-primary btn-xs dropdown-toggle" type="button" data-toggle="dropdown"><span id="selectSpatialUnitViaInfoControl_text">' + kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel + '&nbsp;&nbsp;&nbsp;</span><span class="caret"></span></button>';
-                      innerHTMLString += '<ul class="dropdown-menu">';
+                      innerHTMLString += '<ul id="spatialUnitInfoControlDropdown" class="dropdown-menu">';
 
                       for (var option of kommonitorDataExchangeService.availableSpatialUnits){
 
@@ -1350,11 +1375,11 @@ angular.module('kommonitorMap').component(
                     });
 
                     $scope.appendInfoCloseButton = function(){
-                      return '<div id="info_close" class="btn btn-link" style="right: 0px; position: relative; float: right;" title="schlie&szlig;en"><span class="glyphicon glyphicon-remove"></span></div>';
+                      return '<div id="info_close" class="btn btn-link" style="right: 0px; position: relative; float: right;" title="beenden"><span class="glyphicon glyphicon-remove"></span></div>';
                     }
 
                     $scope.appendLegendCloseButton = function(){
-                      return '<div id="legend_close" class="btn btn-link" style="right: 0px; position: relative; float: right;" title="schlie&szlig;en"><span class="glyphicon glyphicon-remove"></span></div>';
+                      return '<div id="legend_close" class="btn btn-link" style="right: 0px; position: relative; float: right;" title="beenden"><span class="glyphicon glyphicon-remove"></span></div>';
                     }
 
                     $scope.makeInfoControl = function(date, isCustomComputation){
@@ -1594,6 +1619,29 @@ angular.module('kommonitorMap').component(
                       return innerHTMLString;
                     };
 
+                    $scope.appendInterpretation = function(){
+
+                        var innerHTMLString = "<label>Interpretationshilfe:</label>  ";
+
+                        // <label class="radio-inline"><input type="radio" name="optradio" checked>Option 1</label>
+                        // <label class="radio-inline"><input type="radio" name="optradio">Option 2</label>
+                        // <label class="radio-inline"><input type="radio" name="optradio">Option 3</label>
+
+                        // angular
+                          //<form>
+                          //   <div ng-repeat="option in occurrenceOptions track by $index">
+                          //     <input type="radio" name="occurrences" ng-value="option" ng-model="model.selectedOccurrence" />
+                          //     <label>{{ option }}</label>
+                          //   </div>
+                          // </form>
+                        innerHTMLString += $scope.currentIndicatorMetadataAndGeoJSON.interpretation;
+                        innerHTMLString += "<br/>";
+                        innerHTMLString += "<br/>";
+
+                        return innerHTMLString;
+
+                    };
+
                     $scope.appendTransparencyCheckbox = function(){
 
                       /*
@@ -1703,7 +1751,7 @@ angular.module('kommonitorMap').component(
                       return indicatorTypeString;
                     };
 
-                    $scope.makeDefaultLegend = function(defaultClassificationMapping){
+                    $scope.makeDefaultLegend = function(defaultClassificationMapping, containsNegativeValues){
 
                       if(!$scope.showLegendControl){
                         try{
@@ -1734,9 +1782,6 @@ angular.module('kommonitorMap').component(
 
                         $scope.div.id = "legendControl";
 
-                          var  labels = $scope.defaultBrew.getBreaks();
-                          var  colors = $scope.defaultBrew.getColors();
-
                         $scope.div.innerHTML = $scope.appendLegendCloseButton();
                         var opacity = 1;
                         if($scope.useTransparencyOnIndicator){
@@ -1753,9 +1798,14 @@ angular.module('kommonitorMap').component(
                         // }
 
                         $scope.div.innerHTML += "<h4><b>Indikatorenlegende</b><br/>" + $scope.getIndicatorStringFromIndicatorType() + "</h4><br/><em>Darstellung der Indikatorenwerte zum gew&auml;hlten Zeitpunkt " + tsToDate_fullYear(dateToTS(dateAsDate)) + "</em><br/><br/>";
-                        $scope.div.innerHTML += "<label>Einheit: </label> " + $scope.indicatorUnit + "<br/>";
 
                         $scope.div.innerHTML += $scope.appendClassifyRadioOptions();
+
+                        $scope.div.innerHTML += "<label>Einheit: </label> " + $scope.indicatorUnit + "<br/>";
+
+                        if($scope.currentIndicatorMetadataAndGeoJSON.interpretation && $scope.currentIndicatorMetadataAndGeoJSON.interpretation != ""){
+                          $scope.div.innerHTML += $scope.appendInterpretation();
+                        }
 
                         if($scope.containsOutliers_low || $scope.containsOutliers_high){
                           $scope.div.innerHTML += $scope.appendOutliersCheckbox();
@@ -1794,24 +1844,71 @@ angular.module('kommonitorMap').component(
                               useFilteredOrZeroOrOutlierValues = true;
                         }
 
-                        if($scope.currentIndicatorContainsZeroValues){
-                          $scope.div.innerHTML +=
-                              '<i style="background:' + $scope.defaultColorForZeroValues + '; opacity: ' + opacity + ';"></i> ' +
-                              "0" + '<br/>';
-                              useFilteredOrZeroOrOutlierValues = true;
-                        }
+                        if(containsNegativeValues){
+                          // dynamic legend creation depending on number of positive and negative classes
+                          if($scope.dynamicDecreaseBrew){
+                            var  labelsDynamicDecrease = $scope.dynamicDecreaseBrew.breaks;
+                            var  colorsDynamicDecrease = $scope.dynamicDecreaseBrew.colors;
 
-                        if(useFilteredOrZeroOrOutlierValues){
-                          $scope.div.innerHTML += '<br/>';
-                        }
+                            $scope.div.innerHTML += "<label>Werte < 0</label><br/>";
 
-                        //TODO FIXME defaultCustomRating comes in the wrong order! inspect that behaviour server-side
-                        for (var i = 0; i < colors.length; i++) {
+                              // invert color labeling as colorization of lT features is also inverted
+                              for (var i = 0; i < colorsDynamicDecrease.length; i++) {
+                                  $scope.div.innerHTML +=
+                                      '<i style="background:' + colorsDynamicDecrease[colorsDynamicDecrease.length - 1 - i] + '; opacity: ' + opacity + ';"></i> ' +
+                                      kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labelsDynamicDecrease[i]) + (typeof labelsDynamicDecrease[i + 1] != 'undefined' ? ' &ndash; &lt; ' + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labelsDynamicDecrease[i + 1]) + '<br>' : ' &ndash; &lt; 0');
+                              }
+
+                          }
+
+                          if($scope.currentIndicatorContainsZeroValues){
+                            $scope.div.innerHTML += "<br/>";
                             $scope.div.innerHTML +=
-                                // '<i style="background:' + colors[i] + '"></i> ' +
-                                // defaultClassificationMapping.items[defaultClassificationMapping.items.length - 1 - i].defaultCustomRating + ' (' + (+labels[i].toFixed(numberOfDecimals)) + ((+labels[i + 1]) ? ' &ndash; &lt; ' + (+labels[i + 1].toFixed(numberOfDecimals)) + ') <br>' : '+');
-                                '<i style="background:' + colors[i] + '; opacity: ' + opacity + ';"></i> ' +
-                                kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labels[i]) + (kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labels[i + 1]) ? ' &ndash; &lt; ' + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labels[i + 1]) + ' <br>' : '+');
+                                '<i style="background:' + $scope.defaultColorForZeroValues + '; opacity: ' + opacity + ';"></i> ' +
+                                "0" + '</br>';
+                          }
+
+                          if($scope.dynamicIncreaseBrew){
+                            $scope.div.innerHTML += "<br/>";
+                            var labelsDynamicIncrease = $scope.dynamicIncreaseBrew.breaks;
+                            var colorsDynamicIncrease = $scope.dynamicIncreaseBrew.colors;
+
+                            $scope.div.innerHTML += "<label>Werte > 0</label><br/>";
+
+                              // invert color labeling as colorization of lT features is also inverted
+                              for (var i = 0; i < colorsDynamicIncrease.length; i++) {
+                                  $scope.div.innerHTML +=
+                                      '<i style="background:' + colorsDynamicIncrease[i] + '; opacity: ' + opacity + ';"></i> ' +
+                                      kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labelsDynamicIncrease[i]) + (typeof labelsDynamicIncrease[i + 1] === 'undefined' ? '' : ' &ndash; &lt; ' + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labelsDynamicIncrease[i + 1]) + '<br>');
+                              }
+                            $scope.div.innerHTML += "<br/>";
+                          }
+
+                        }
+                        else{
+                          //TODO FIXME defaultCustomRating comes in the wrong order! inspect that behaviour server-side
+
+                          if($scope.currentIndicatorContainsZeroValues){
+                            $scope.div.innerHTML +=
+                                '<i style="background:' + $scope.defaultColorForZeroValues + '; opacity: ' + opacity + ';"></i> ' +
+                                "0" + '<br/>';
+                                useFilteredOrZeroOrOutlierValues = true;
+                          }
+
+                          if(useFilteredOrZeroOrOutlierValues){
+                            $scope.div.innerHTML += '<br/>';
+                          }
+
+                          var  labels = $scope.defaultBrew.getBreaks();
+                          var  colors = $scope.defaultBrew.getColors();
+
+                          for (var i = 0; i < colors.length; i++) {
+                              $scope.div.innerHTML +=
+                                  // '<i style="background:' + colors[i] + '"></i> ' +
+                                  // defaultClassificationMapping.items[defaultClassificationMapping.items.length - 1 - i].defaultCustomRating + ' (' + (+labels[i].toFixed(numberOfDecimals)) + ((+labels[i + 1]) ? ' &ndash; &lt; ' + (+labels[i + 1].toFixed(numberOfDecimals)) + ') <br>' : '+');
+                                  '<i style="background:' + colors[i] + '; opacity: ' + opacity + ';"></i> ' +
+                                  kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labels[i]) + (kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labels[i + 1]) ? ' &ndash; &lt; ' + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labels[i + 1]) + ' <br>' : '+');
+                          }
                         }
 
                         $scope.div.innerHTML += '</div>';
@@ -1869,9 +1966,13 @@ angular.module('kommonitorMap').component(
                           $scope.div.innerHTML += "<h4><b>Indikatorenlegende</b><br/>" + $scope.getIndicatorStringFromIndicatorType() + "</h4><br/><em>Darstellung der zeitlichen Entwicklung zum gew&auml;hlten Zeitpunkt " + tsToDate_fullYear(dateToTS(dateAsDate)) + "</em><br/><br/>";
                         }
 
+                        $scope.div.innerHTML += $scope.appendClassifyRadioOptions();
+
                         $scope.div.innerHTML += "<label>Einheit: </label> " + $scope.indicatorUnit + "<br/>";
 
-                        $scope.div.innerHTML += $scope.appendClassifyRadioOptions();
+                        if($scope.currentIndicatorMetadataAndGeoJSON.interpretation && $scope.currentIndicatorMetadataAndGeoJSON.interpretation != ""){
+                          $scope.div.innerHTML += $scope.appendInterpretation();
+                        }
 
                         if($scope.containsOutliers_low || $scope.containsOutliers_high){
                           $scope.div.innerHTML += $scope.appendOutliersCheckbox();
@@ -2005,9 +2106,11 @@ angular.module('kommonitorMap').component(
 
                         $scope.div.innerHTML += "<em>aktueller Schwellwert: </em> " + kommonitorDataExchangeService.measureOfValue + "<br/><br/>";
 
-                        $scope.div.innerHTML += "<label>Einheit: </label> " + $scope.indicatorUnit + "<br/>";
-
                         $scope.div.innerHTML += $scope.appendClassifyRadioOptions();
+                        $scope.div.innerHTML += "<label>Einheit: </label> " + $scope.indicatorUnit + "<br/>";
+                        if($scope.currentIndicatorMetadataAndGeoJSON.interpretation && $scope.currentIndicatorMetadataAndGeoJSON.interpretation != ""){
+                          $scope.div.innerHTML += $scope.appendInterpretation();
+                        }
 
                         if($scope.containsOutliers_low || $scope.containsOutliers_high){
                           $scope.div.innerHTML += $scope.appendOutliersCheckbox();
@@ -2295,7 +2398,7 @@ angular.module('kommonitorMap').component(
                                 $scope.updateSearchControl();
                               });
 
-                              $scope.$on("replaceIsochronesAsGeoJSON", function (event, geoJSON, transitMode, reachMode, cutOffValues, useMultipleStartPoints) {
+                              $scope.$on("replaceIsochronesAsGeoJSON", function (event, geoJSON, transitMode, reachMode, cutOffValues, useMultipleStartPoints, dissolveIsochrones) {
 
                                 if($scope.isochronesLayer){
                                   $scope.layerControl.removeLayer($scope.isochronesLayer);
@@ -2304,12 +2407,32 @@ angular.module('kommonitorMap').component(
 
                                 $scope.isochronesLayer = L.featureGroup();
 
+                                $scope.isochroneReachMode = reachMode;
+                                var cutOffUnitValue = "Meter";
+                                var reachModeValue = "Distanz";
+                                if(reachMode === "time"){
+                                  cutOffUnitValue = "Minuten";
+                                  reachModeValue = "Zeit";
+                                }
+
+                                var transitModeValue = "Passant";
+                                switch (transitMode) {
+                                  case "cycling-regular":
+                                    transitModeValue = "Fahrrad"
+                                    break;
+                                  case "driving-car":
+                                    transitModeValue = "Auto"
+                                    break;
+                                  default:
+                                    transitModeValue = "Passant";
+                                }
+
                                 kommonitorDataExchangeService.isochroneLegend = {
-                                  transitMode: transitMode,
-                                  reachMode: reachMode,
+                                  transitMode: transitModeValue,
+                                  reachMode: reachModeValue,
                                   colorValueEntries: [],
                                   cutOffValues: cutOffValues,
-                                  cutOffUnit: "Sekunden"
+                                  cutOffUnit: cutOffUnitValue
                                 };
 
                                 if(cutOffValues.length === 0){
@@ -2406,8 +2529,12 @@ angular.module('kommonitorMap').component(
                                   }]
                                 }
 
-                                if(useMultipleStartPoints){
+                                if(useMultipleStartPoints && dissolveIsochrones){
                                   // merge intersecting isochrones of same cutOffValue
+
+                                  // execute it 3 times in order to dissolve multiple intersections
+                                  geoJSON = mergeIntersectingIsochrones(geoJSON);
+                                  geoJSON = mergeIntersectingIsochrones(geoJSON);
                                   geoJSON = mergeIntersectingIsochrones(geoJSON);
                                 }
 
@@ -2416,12 +2543,13 @@ angular.module('kommonitorMap').component(
 
                                 for(var index=geoJSON.features.length-1; index>=0; index--){
 
-                                  var styleIndex = getStyleIndexForFeature(geoJSON.features[index], kommonitorDataExchangeService.isochroneLegend.colorValueEntries);
+                                  var styleIndex = getStyleIndexForFeature(geoJSON.features[index], kommonitorDataExchangeService.isochroneLegend.colorValueEntries, reachMode);
 
                                   var style = {
                                     color: kommonitorDataExchangeService.isochroneLegend.colorValueEntries[styleIndex].color,
                                     weight: 1,
-                                    opacity: 1
+                                    opacity: 0.4,
+                                    fillOpacity: 0.3
                                   };
 
                                   L.geoJSON(geoJSON.features[index], {
@@ -2430,7 +2558,13 @@ angular.module('kommonitorMap').component(
                                         layer.on({
                                             click: function () {
 
-                                                 var popupContent = "" + layer.feature.properties.value + " Sekunden (" + Number(layer.feature.properties.value/60).toLocaleString("de-DE", {maximumFractionDigits: 2}) + " Minuten)";
+                                                var isochroneValue = layer.feature.properties.value;
+
+                                                if ($scope.isochroneReachMode === "time"){
+                                                  //transform seconds to minutes
+                                                  isochroneValue = isochroneValue/60;
+                                                }
+                                                 var popupContent = "" + isochroneValue + " " + cutOffUnitValue;
                                                  // var popupContent = "TestValue";
 
                                                 if (popupContent)
@@ -2446,14 +2580,105 @@ angular.module('kommonitorMap').component(
                                 //   visible : true
                                 // };
 
-                                $scope.layerControl.addOverlay( $scope.isochronesLayer, "Erreichbarkeits-Isochronen 5-15 Minuten per " + transitMode, reachabilityLayerGroupName );
+                                $scope.layerControl.addOverlay( $scope.isochronesLayer, "Erreichbarkeits-Isochronen_" + transitModeValue, reachabilityLayerGroupName );
                                 $scope.isochronesLayer.addTo($scope.map);
                                 $scope.updateSearchControl();
                               });
 
-                              var getStyleIndexForFeature = function(feature, colorValueEntries){
+                              $scope.$on("replaceRouteAsGeoJSON", function (event, geoJSON, transitMode, preference, routingStartPoint, routingEndPoint) {
+
+                                if($scope.routingLayer){
+                                  $scope.layerControl.removeLayer($scope.routingLayer);
+                                  $scope.map.removeLayer($scope.routingLayer);
+                                }
+
+                                var preferenceValue = "Schnellste";
+                                if(preference === "recommended"){
+                                  preferenceValue = "Empfohlen";
+                                }
+                                else if(preference === "shortest"){
+                                  preferenceValue = "Kürzeste";
+                                }
+
+                                var transitModeValue = "Passant";
+                                switch (transitMode) {
+                                  case "cycling-regular":
+                                    transitModeValue = "Fahrrad"
+                                    break;
+                                  case "driving-car":
+                                    transitModeValue = "Auto"
+                                    break;
+                                  default:
+                                    transitModeValue = "Passant";
+                                }
+
+                                kommonitorDataExchangeService.routingLegend = {
+                                  transitMode: transitModeValue,
+                                  preference: preferenceValue
+                                };
+
+                                var style = {
+                                  color: "#ed561a",
+                                  weight: 5,
+                                  opacity: 0.7
+                                };
+
+                                $scope.routingLayer = L.featureGroup();
+
+                                // start and end point
+                                var customStartMarker = L.AwesomeMarkers.icon({
+                                  icon: "home",
+                                  iconColor: "white",
+                                  markerColor: "green"
+                                });
+
+                                var customEndMarker = L.AwesomeMarkers.icon({
+                                  icon: "screenshot",
+                                  iconColor: "white",
+                                  markerColor: "red"
+                                });
+
+                                var numPoints = geoJSON.features[0].geometry.coordinates.length;
+                                var startPoint = geoJSON.features[0].geometry.coordinates[0];
+                                var endPoint = geoJSON.features[0].geometry.coordinates[numPoints-1];
+
+                                L.marker([startPoint[1],startPoint[0]], {icon: customStartMarker}).bindPopup(routingStartPoint.label).addTo($scope.routingLayer);
+                                L.marker([endPoint[1],endPoint[0]], {icon: customEndMarker}).bindPopup(routingEndPoint.label).addTo($scope.routingLayer);
+
+                                L.geoJSON(geoJSON, {
+                                    style: style,
+                                    onEachFeature: function(feature, layer){
+                                      layer.on({
+                                          click: function () {
+                                               var popupContent = "Routing Ergebnis - " + transitModeValue + " - " + preferenceValue;
+                                               // var popupContent = "TestValue";
+
+                                              if (popupContent)
+                                                  layer.bindPopup(JSON.stringify(popupContent));
+                                          }
+                                      })
+                                    }
+                                }).addTo($scope.routingLayer);
+
+                                // $scope.isochronesLayer.StyledLayerControl = {
+                                //   removable : false,
+                                //   visible : true
+                                // };
+
+                                $scope.layerControl.addOverlay( $scope.routingLayer, "Routing-Ergebnis_" + transitModeValue + "_" + preferenceValue, reachabilityLayerGroupName );
+                                $scope.routingLayer.addTo($scope.map);
+                                $scope.map.fitBounds($scope.routingLayer.getBounds());
+                                $scope.updateSearchControl();
+                              });
+
+                              var getStyleIndexForFeature = function(feature, colorValueEntries, reachMode){
                                 var index=0;
                                 var featureCutOffValue = feature.properties.value;
+
+                                if(reachMode === "time"){
+                                  // answe has time in seconds - we expect minutes!
+                                  featureCutOffValue = featureCutOffValue/60;
+                                }
 
                                 for(var i=0; i<colorValueEntries.length; i++){
                                   if (featureCutOffValue === colorValueEntries[i].value){
@@ -2468,9 +2693,18 @@ angular.module('kommonitorMap').component(
                               var mergeIntersectingIsochrones = function(geoJSON){
                                 // use turf to dissolve any overlapping/intersecting isochrones that have the same cutOffValue!
 
-                                var dissolved = turf.dissolve(geoJSON, {propertyName: 'value'});
+                                try {
+                                  var dissolved = turf.dissolve(geoJSON, {propertyName: 'value'});
 
-                                return dissolved;
+                                  return dissolved;
+                                } catch (e) {
+                                  console.error("Dissolving Isochrones failed with error: " + e);
+            											console.error("Will return undissolved isochrones");
+                                  return geoJSON;
+                                } finally {
+
+                                }
+
                               };
 
                               $scope.$on("replaceIsochroneMarker", function (event, lonLatArray) {
@@ -2962,9 +3196,22 @@ angular.module('kommonitorMap').component(
                                 });
                               });
 
+                              $scope.$on("removeRoutingLayers", function (event) {
+
+                                var layerNamePartly = "Routing";
+
+                                $scope.layerControl._layers.forEach(function(layer){
+                                  if(layer.group.name === reachabilityLayerGroupName && layer.name.includes(layerNamePartly)){
+                                    $scope.layerControl.removeLayer(layer.layer);
+                                    $scope.map.removeLayer(layer.layer);
+                                  }
+                                });
+                              });
+
                                         var setupDefaultBrew = function(geoJSON, propertyName, numClasses, colorCode, classifyMethod){
                                           // pass values from your geojson object into an empty array
                                           // see link above to view geojson used in this example
+
                                           var values = [];
                                           for (var i = 0; i < geoJSON.features.length; i++){
                                               if (kommonitorDataExchangeService.indicatorValueIsNoData(geoJSON.features[i].properties[propertyName]) || geoJSON.features[i].properties[propertyName] == 0 || geoJSON.features[i].properties[propertyName] == "0")
@@ -3416,7 +3663,105 @@ angular.module('kommonitorMap').component(
 
                                           }
                                           else{
-                                            fillColor = $scope.defaultBrew.getColorInRange(kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[$scope.propertyName]));
+                                            if($scope.containsNegativeValues($scope.currentIndicatorMetadataAndGeoJSON.geoJSON)){
+                                              if(kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[$scope.indicatorPropertyName]) >= 0){
+                                                var fillColor;
+                                                if(feature.properties[$scope.propertyName] == 0 || feature.properties[$scope.propertyName] == "0"){
+                                                  fillColor = $scope.defaultColorForZeroValues;
+                                                  if($scope.useTransparencyOnIndicator){
+                                                    fillOpacity = defaultFillOpacityForZeroFeatures;
+                                                  }
+                                                }
+                                                else{
+                                                  for (var index=0; index < $scope.dynamicIncreaseBrew.breaks.length; index++){
+                                                    if(kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[$scope.propertyName]) == kommonitorDataExchangeService.getIndicatorValue_asNumber($scope.dynamicIncreaseBrew.breaks[index])){
+                                                      if(index < $scope.dynamicIncreaseBrew.breaks.length -1){
+                                                        // min value
+                                                        fillColor =  $scope.dynamicIncreaseBrew.colors[index];
+                                                        break;
+                                                      }
+                                                      else {
+                                                        //max value
+                                                        if ($scope.dynamicIncreaseBrew.colors[index]){
+                                                          fillColor =  $scope.dynamicIncreaseBrew.colors[index];
+                                                        }
+                                                        else{
+                                                          fillColor =  $scope.dynamicIncreaseBrew.colors[index - 1];
+                                                        }
+                                                        break;
+                                                      }
+                                                    }
+                                                    else{
+                                                      if(kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[$scope.propertyName]) < kommonitorDataExchangeService.getIndicatorValue_asNumber($scope.dynamicIncreaseBrew.breaks[index + 1])) {
+                                                        fillColor =  $scope.dynamicIncreaseBrew.colors[index];
+                                                        break;
+                                                      }
+                                                    }
+                                                  }
+                                                }
+
+                                                return {
+                                                    weight: 1,
+                                                    opacity: 1,
+                                                    color: defaultBorderColor,
+                                                    dashArray: '',
+                                                    fillOpacity: fillOpacity,
+                                                    fillColor: fillColor,
+                                                    fillPattern: undefined
+                                                }
+                                              }
+                                              else{
+
+                                                var fillColor;
+                                                if(feature.properties[$scope.propertyName] == 0 || feature.properties[$scope.propertyName] == "0"){
+                                                  fillColor = $scope.defaultColorForZeroValues;
+                                                  if($scope.useTransparencyOnIndicator){
+                                                    fillOpacity = defaultFillOpacityForZeroFeatures;
+                                                  }
+                                                }
+                                                else{
+                                                  // invert colors, so that lowest values will become strong colored!
+                                                  for (var index=0; index < $scope.dynamicDecreaseBrew.breaks.length; index++){
+                                                    if(kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[$scope.propertyName]) == kommonitorDataExchangeService.getIndicatorValue_asNumber($scope.dynamicDecreaseBrew.breaks[index])){
+                                                      if(index < $scope.dynamicDecreaseBrew.breaks.length -1){
+                                                        // min value
+                                                        fillColor =  $scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - index - 1];
+                                                        break;
+                                                      }
+                                                      else {
+                                                        //max value
+                                                        if ($scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - index]){
+                                                          fillColor =  $scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - index];
+                                                        }
+                                                        else{
+                                                          fillColor =  $scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - index - 1];
+                                                        }
+                                                        break;
+                                                      }
+                                                    }
+                                                    else{
+                                                      if(kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[$scope.propertyName]) < kommonitorDataExchangeService.getIndicatorValue_asNumber($scope.dynamicDecreaseBrew.breaks[index + 1])) {
+                                                        fillColor =  $scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - index - 1];
+                                                        break;
+                                                      }
+                                                    }
+                                                  }
+                                                }
+
+                                                return {
+                                                    weight: 1,
+                                                    opacity: 1,
+                                                    color: defaultBorderColor,
+                                                    dashArray: '',
+                                                    fillOpacity: fillOpacity,
+                                                    fillColor: fillColor,
+                                                    fillPattern: undefined
+                                                }
+                                              }
+                                            }
+                                            else{
+                                              fillColor = $scope.defaultBrew.getColorInRange(kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[$scope.propertyName]));
+                                            }
                                           }
 
                                             return {
@@ -3863,42 +4208,70 @@ angular.module('kommonitorMap').component(
                                           //wait due to animation of the sidebar
 
                                           // make animation in 30 steps
-                                          var waitForInMs = 30;
-                                          for(var i=0; i<=300; i++){
+                                          // var waitForInMs = 30;
+                                          // for(var i=0; i<=300; i++){
+                                          //
+                                          //   i += waitForInMs;
+                                          //
+                                          //   await wait(waitForInMs);
+                                          //
+                                          //   $scope.map.invalidateSize(true);
+                                          //
+                                          //   panToCenterOnInActiveMenue(500);
+                                          //   // $scope.recenterMap();
+                                          // }
 
-                                            i += waitForInMs;
-
-                                            await wait(waitForInMs);
-
-                                            $scope.map.invalidateSize(true);
-
-                                            // panToCenterOnActiveMenue(500);
-                                            $scope.recenterMap();
-                                          }
+                                          var waitForInMs = 100;
+                                          await wait(waitForInMs);
+                                          panToCenterOnInActiveMenue(500);
                                         });
 
                                         $scope.$on("recenterMapOnShowSideBar", async function (event) {
                                           //wait due to animation of the sidebar
 
                                           // make animation in 30 steps
-                                          var waitForInMs = 30;
-                                          for(var i=0; i<=300; i++){
+                                          // var waitForInMs = 30;
+                                          // for(var i=0; i<=300; i++){
+                                          //
+                                          //   i += waitForInMs;
+                                          //
+                                          //   await wait(waitForInMs);
+                                          //
+                                          //   $scope.map.invalidateSize(true);
+                                          //
+                                          //   panToCenterOnActiveMenue(500);
+                                          //   // $scope.recenterMap();
+                                          // }
 
-                                            i += waitForInMs;
-
-                                            await wait(waitForInMs);
-
-                                            $scope.map.invalidateSize(true);
-
-                                            // panToCenterOnActiveMenue(500);
-                                            $scope.recenterMap();
-                                          }
+                                          var waitForInMs = 100;
+                                          await wait(waitForInMs);
+                                          panToCenterOnActiveMenue(500);
 
                                         });
+
+                                        function panToCenterOnActiveMenue(numPixels){
+                                          if($scope.map){
+                                            $scope.map.invalidateSize(true);
+                                            $scope.map.panBy(L.point(numPixels, 0));
+
+                                            $scope.map.invalidateSize(true);
+                                          }
+                                        };
+
+                                        function panToCenterOnInActiveMenue(numPixels){
+                                          if($scope.map){
+                                            $scope.map.invalidateSize(true);
+                                            $scope.map.panBy(L.point(-numPixels, 0));
+
+                                            $scope.map.invalidateSize(true);
+                                          }
+                                        };
+
 
                                         function fitBounds(){
                                           if($scope.map && $scope.currentIndicatorLayer){
 
+                                            $scope.map.invalidateSize(true);
                                             // $scope.map.setView(L.latLng($scope.latCenter, $scope.lonCenter), $scope.zoomLevel);
                                             $scope.map.fitBounds($scope.currentIndicatorLayer.getBounds());
                                           }
@@ -4002,6 +4375,10 @@ angular.module('kommonitorMap').component(
                                                                 refreshOutliersStyle();
                                                                 refreshNoDataStyle();
 
+                                                                $scope.defaultBrew = new classyBrew();
+                                                                $scope.gtMeasureOfValueBrew = new classyBrew();
+                                                                $scope.ltMeasureOfValueBrew = new classyBrew();
+
                                                                 $scope.currentIndicatorMetadataAndGeoJSON = indicatorMetadataAndGeoJSON;
 
                                                                 if (!justRestyling){
@@ -4073,7 +4450,13 @@ angular.module('kommonitorMap').component(
                                                                 else{
 
                                                                   if (indicatorMetadataAndGeoJSON.indicatorType.includes("STATUS")){
-                                                                    setupDefaultBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, indicatorMetadataAndGeoJSON.defaultClassificationMapping.items.length, indicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, $scope.classifyMethod);
+                                                                    var containsNegativeValues = $scope.containsNegativeValues(indicatorMetadataAndGeoJSON.geoJSON);
+                                                                    if(containsNegativeValues){
+                                                                      setupDynamicIndicatorBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, defaultColorBrewerPaletteForBalanceIncreasingValues, defaultColorBrewerPaletteForBalanceDecreasingValues, $scope.classifyMethod);
+                                                                    }
+                                                                    else{
+                                                                      setupDefaultBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, indicatorMetadataAndGeoJSON.defaultClassificationMapping.items.length, indicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, $scope.classifyMethod);
+                                                                    }
                                                                     $scope.propertyName = INDICATOR_DATE_PREFIX + date;
 
                                                                     layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
@@ -4081,7 +4464,7 @@ angular.module('kommonitorMap').component(
                                                                         onEachFeature: onEachFeatureIndicator
                                                                     });
                                                                     $scope.makeInfoControl(date, isCustomComputation);
-                                                                    $scope.makeDefaultLegend(indicatorMetadataAndGeoJSON.defaultClassificationMapping);
+                                                                    $scope.makeDefaultLegend(indicatorMetadataAndGeoJSON.defaultClassificationMapping, containsNegativeValues);
                                                                   }
                                                                   else if (indicatorMetadataAndGeoJSON.indicatorType.includes("DYNAMIC")){
                                                                     setupDynamicIndicatorBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, defaultColorBrewerPaletteForBalanceIncreasingValues, defaultColorBrewerPaletteForBalanceDecreasingValues, $scope.classifyMethod);
@@ -4125,6 +4508,19 @@ angular.module('kommonitorMap').component(
                                                                 $rootScope.$broadcast("updateDiagrams", $scope.currentIndicatorMetadataAndGeoJSON, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitId, date, $scope.defaultBrew, $scope.gtMeasureOfValueBrew, $scope.ltMeasureOfValueBrew, $scope.dynamicIncreaseBrew, $scope.dynamicDecreaseBrew, kommonitorDataExchangeService.isMeasureOfValueChecked, kommonitorDataExchangeService.measureOfValue, justRestyling);
                                                             });
 
+                                                            $scope.containsNegativeValues = function(geoJSON){
+
+                                                              var containsNegativeValues = false;
+                                                              for(var i=0; i< geoJSON.features.length; i++){
+                                                                if (geoJSON.features[i].properties[$scope.indicatorPropertyName] < 0){
+                                                                  containsNegativeValues = true;
+                                                                  break;
+                                                                }
+                                                              }
+
+                                                              return containsNegativeValues;
+                                                            };
+
                                                   $scope.$on("addCustomIndicatorAsGeoJSON", function (event, indicatorMetadataAndGeoJSON, spatialUnitName, date) {
 
                                                                 console.log('addCustomIndicatorAsGeoJSON was called');
@@ -4138,7 +4534,14 @@ angular.module('kommonitorMap').component(
 
                                                                 $scope.currentCustomIndicatorLayerOfCurrentLayer = indicatorMetadataAndGeoJSON.geoJSON;
 
-                                                                setupDefaultBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.customIndicatorPropertyName, indicatorMetadataAndGeoJSON.defaultClassificationMapping.items.length, indicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, $scope.classifyMethod);
+                                                                var containsNegativeValues = $scope.containsNegativeValues(indicatorMetadataAndGeoJSON.geoJSON);
+                                                                if(containsNegativeValues){
+                                                                  setupDynamicIndicatorBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, defaultColorBrewerPaletteForBalanceIncreasingValues, defaultColorBrewerPaletteForBalanceDecreasingValues, $scope.classifyMethod);
+                                                                }
+                                                                else{
+                                                                  setupDefaultBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, indicatorMetadataAndGeoJSON.defaultClassificationMapping.items.length, indicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, $scope.classifyMethod);
+                                                                }
+
                                                                 $scope.customPropertyName = INDICATOR_DATE_PREFIX + date;
 
                                                                 var layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
@@ -4158,7 +4561,7 @@ angular.module('kommonitorMap').component(
                                                                 $scope.updateSearchControl();
 
                                                                 $scope.makeCustomInfoControl(date);
-                                                                $scope.makeDefaultLegend(indicatorMetadataAndGeoJSON.defaultClassificationMapping);
+                                                                $scope.makeDefaultLegend(indicatorMetadataAndGeoJSON.defaultClassificationMapping, containsNegativeValues);
                                                             });
 
 
@@ -4167,6 +4570,10 @@ angular.module('kommonitorMap').component(
                                                                           refreshFilteredStyle();
                                                                           refreshOutliersStyle();
                                                                           refreshNoDataStyle();
+
+                                                                          $scope.defaultBrew = new classyBrew();
+                                                                          $scope.gtMeasureOfValueBrew = new classyBrew();
+                                                                          $scope.ltMeasureOfValueBrew = new classyBrew();
 
                                                                           if($scope.currentIndicatorLayer){
 
@@ -4234,7 +4641,14 @@ angular.module('kommonitorMap').component(
                                                                                 $scope.makeDynamicIndicatorLegend();
                                                                               }
                                                                               else{
-                                                                                setupDefaultBrew($scope.currentGeoJSONOfCurrentLayer, $scope.indicatorPropertyName, kommonitorDataExchangeService.selectedIndicator.defaultClassificationMapping.items.length, kommonitorDataExchangeService.selectedIndicator.defaultClassificationMapping.colorBrewerSchemeName, $scope.classifyMethod);
+                                                                                var containsNegativeValues = $scope.containsNegativeValues($scope.currentGeoJSONOfCurrentLayer);
+                                                                                if(containsNegativeValues){
+                                                                                  setupDynamicIndicatorBrew($scope.currentGeoJSONOfCurrentLayer, $scope.indicatorPropertyName, defaultColorBrewerPaletteForBalanceIncreasingValues, defaultColorBrewerPaletteForBalanceDecreasingValues, $scope.classifyMethod);
+                                                                                }
+                                                                                else{
+                                                                                  setupDefaultBrew($scope.currentGeoJSONOfCurrentLayer, $scope.indicatorPropertyName, $scope.currentIndicatorMetadataAndGeoJSON.defaultClassificationMapping.items.length, $scope.currentIndicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, $scope.classifyMethod);
+                                                                                }
+
                                                                                 $scope.currentIndicatorLayer.eachLayer(function(layer) {
                                                                                     if(kommonitorDataExchangeService.filteredIndicatorFeatureNames.includes(layer.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])){
                                                                                       layer.setStyle($scope.filteredStyle);
@@ -4243,7 +4657,7 @@ angular.module('kommonitorMap').component(
                                                                                       layer.setStyle(styleDefault(layer.feature));
                                                                                     }
                                                                                 });
-                                                                                $scope.makeDefaultLegend(kommonitorDataExchangeService.selectedIndicator.defaultClassificationMapping);
+                                                                                $scope.makeDefaultLegend(kommonitorDataExchangeService.selectedIndicator.defaultClassificationMapping, containsNegativeValues);
                                                                               }
 
                                                                             }
@@ -4331,6 +4745,180 @@ angular.module('kommonitorMap').component(
                                                                   }
                                                                 });
                                                               }
+                                                            });
+
+                                                            $scope.$on("removeAllDrawnPoints", function (event) {
+
+                                                              if($scope.drawnPointFeatures){
+                                                                $scope.drawnPointFeatures.clearLayers();
+                                                                $rootScope.$broadcast("onUpdateDrawnPointFeatures");
+                                                              }
+                                                            });
+
+                                                            $scope.$on("enablePointDrawTool", function (event) {
+
+                                                              // FeatureGroup is to store editable layers
+                                                              if(! $scope.drawnPointFeatures){
+                                                                  $scope.drawnPointFeatures = new L.FeatureGroup();
+                                                              }
+
+                                                              L.drawLocal = {
+                                                                  edit: {
+                                                                      toolbar: {
+                                                                         actions: {
+                                                                           save: {
+                                                                             title: "Bearbeitung speichern.",
+                                                                             text: "Speichern",
+                                                                           },
+                                                                           cancel: {
+                                                                             title: "Bearbeitung verwerfen.",
+                                                                             text: "Abbrechen",
+                                                                           },
+                                                                           clearAll: {
+                                                                             title: "Alle Features entfernen.",
+                                                                             text: "Alle Features entfernen",
+                                                                           },
+                                                                         },
+                                                                         buttons: {
+                                                                           edit: "Layer editieren.",
+                                                                           editDisabled: "Keine Layer zum editieren vorhanden.",
+                                                                           remove: "Layer entfernen.",
+                                                                           removeDisabled: "Keine Layer zum entfernen vorhanden.",
+                                                                         },
+                                                                       },
+                                                                       handlers: {
+                                                                         edit: {
+                                                                           tooltip: {
+                                                                             text: "Bearbeitungspunkte oder Punktmarker ziehen, um Feature zu editieren.",
+                                                                             subtext: "Abbrechen klicken, um Bearbeitung zu verwefen.",
+                                                                           },
+                                                                         },
+                                                                         remove: {
+                                                                           tooltip: {
+                                                                             text: "Feature anklicken, um es zu entfernen",
+                                                                           },
+                                                                         },
+                                                                       }
+                                                                  },
+                                                                  draw: {
+                                                                    toolbar: {
+                                                                      actions: {
+                                                                         title: "Zeichnen abbrechen",
+                                                                         text: "Abbrechen",
+                                                                       },
+                                                                       finish: {
+                                                                         title: "Zeichnen beenden",
+                                                                         text: "Beenden",
+                                                                       },
+                                                                       undo: {
+                                                                         title: "Zuletzt gezeichneten Punkt entfernen",
+                                                                         text: "Letzten Punkt entfernen",
+                                                                       },
+                                                                       buttons: {
+                                                                         polyline: "Polylinie zeichnen",
+                                                                         polygon: "Polygon zeichnen",
+                                                                         rectangle: "Rechteck zeichnen",
+                                                                         circle: "Kreis zeichnen",
+                                                                         marker: "Punkt zeichnen",
+                                                                         circlemarker: "Kreispunkt zeichnen",
+                                                                       },
+                                                                    },
+                                                                    handlers: {
+                                                                     circle: {
+                                                                       tooltip: {
+                                                                         start: "Klicken und halten, um Kreis zu zeichnen.",
+                                                                       },
+                                                                       radius: "Radius",
+                                                                     },
+                                                                     circlemarker: {
+                                                                       tooltip: {
+                                                                         start: "Klicken, um einen Punkt zu markieren.",
+                                                                       },
+                                                                     },
+                                                                     marker: {
+                                                                       tooltip: {
+                                                                         start: "Klicken, um einen Punkt zu markieren.",
+                                                                       },
+                                                                     },
+                                                                     polygon: {
+                                                                       tooltip: {
+                                                                         start: "Klicken, um ein Polygon zu beginnen.",
+                                                                         cont: "Klicken, um das Polygon weiter zu zeichnen.",
+                                                                         end: "Ersten Punkt anklicken, um Polygon zu beenden.",
+                                                                       },
+                                                                     },
+                                                                     polyline: {
+                                                                       error: "<strong>Fehler:</strong> Selbstueberschneidung!",
+                                                                       tooltip: {
+                                                                         start: "Klicken, um eine Polylinie zu beginnen.",
+                                                                         cont: "Klicken, um die Polylinie weiter zu zeichnen.",
+                                                                         end: "Letzten Punkt erneut anklicken, um Polylinie zu beenden.",
+                                                                       },
+                                                                     },
+                                                                     rectangle: {
+                                                                       tooltip: {
+                                                                         start: "Klicken und halten, um Rechteck zu zeichnen.",
+                                                                       },
+                                                                     },
+                                                                     simpleshape: {
+                                                                       tooltip: {
+                                                                         end: "Maus loslassen, um Zeichnung zu beenden.",
+                                                                       },
+                                                                     },
+                                                                   }
+                                                                  }
+
+                                                              };
+
+                                                               $scope.map.addLayer($scope.drawnPointFeatures);
+                                                               $scope.drawPointControl = new L.Control.Draw({
+                                                                   edit: {
+                                                                       featureGroup: $scope.drawnPointFeatures
+                                                                   },
+                                                                   draw: {
+                                                                     polyline: false,
+                                                                     polygon: false,
+                                                                     rectangle: false,
+                                                                     circle: false,
+                                                                     circlemarker: false
+                                                                   },
+                                                                   position: 'bottomleft'
+
+                                                               });
+
+                                                               $scope.map.addControl($scope.drawPointControl);
+
+                                                               $scope.map.on(L.Draw.Event.CREATED, function (event) {
+                                                                  var layer = event.layer;
+
+                                                                  $scope.drawnPointFeatures.addLayer(layer);
+
+                                                                  $rootScope.$broadcast("onUpdateDrawnPointFeatures", $scope.drawnPointFeatures);
+                                                              });
+
+                                                              $scope.map.on(L.Draw.Event.EDITED, function (event) {
+
+                                                                 $rootScope.$broadcast("onUpdateDrawnPointFeatures", $scope.drawnPointFeatures);
+                                                             });
+
+                                                             $scope.map.on(L.Draw.Event.DELETED, function (event) {
+
+                                                                $rootScope.$broadcast("onUpdateDrawnPointFeatures", $scope.drawnPointFeatures);
+                                                            });
+
+                                                            });
+
+                                                            $scope.$on("disablePointDrawTool", function (event) {
+
+                                                              try{
+                                                                  $scope.map.removeLayer($scope.drawnPointFeatures);
+                                                                  $scope.map.removeControl($scope.drawPointControl);
+                                                                  $scope.drawPointControl = undefined;
+                                                              }
+                                                              catch (error){
+
+                                                              }
+
                                                             });
 
                 }

@@ -214,27 +214,8 @@ angular
 									$scope.$apply();
 								};
 
-								var fetchedTopicsInitially = false;
-								var fetchedSpatialUnitsInitially = false;
-								var fetchedGeoresourcesInitially = false;
-								var fetchedIndicatorsInitially = false;
-
-								var callScopeApplyInitially = function(){
-									if(fetchedTopicsInitially && fetchedIndicatorsInitially && fetchedGeoresourcesInitially && fetchedSpatialUnitsInitially){
-
-										$rootScope.$broadcast("loadExampleIndicatorInitially");
-
-										$timeout(function () {
-								         $("option").each(function (index, element) {
-								            var text = $(element).text();
-								            $(element).attr("title", text);
-								         });
-								    });
-									}
-
-								};
-
-								$scope.$on("loadExampleIndicatorInitially", function (event) {
+								// load exemplar indicator
+								$scope.$on("initialMetadataLoadingCompleted", function (event) {
 
 									console.log("Load an initial example indicator");
 
@@ -268,8 +249,6 @@ angular
 
 									$scope.onChangeSelectedIndicator();
 
-									$rootScope.$broadcast("recenterMapContent");
-
 								});
 
 								/**
@@ -284,89 +263,6 @@ angular
 								    max = Math.floor(max);
 								    return Math.floor(Math.random() * (max - min + 1)) + min;
 								}
-
-								$http({
-									url: this.kommonitorDataExchangeServiceInstance.baseUrlToKomMonitorDataAPI + "/spatial-units",
-									method: "GET"
-								}).then(function successCallback(response) {
-										// this callback will be called asynchronously
-										// when the response is available
-
-										kommonitorDataExchangeService.setSpatialUnits(response.data);
-										fetchedSpatialUnitsInitially = true;
-										callScopeApplyInitially();
-
-									}, function errorCallback(response) {
-										// called asynchronously if an error occurs
-										// or server returns response with an error status.
-										//$scope.error = response.statusText;
-								});
-
-								$http({
-									url: this.kommonitorDataExchangeServiceInstance.baseUrlToKomMonitorDataAPI + "/georesources",
-									method: "GET"
-								}).then(function successCallback(response) {
-										// this callback will be called asynchronously
-										// when the response is available
-
-										kommonitorDataExchangeService.setGeoresources(response.data);
-										fetchedGeoresourcesInitially = true;
-										callScopeApplyInitially();
-
-									}, function errorCallback(response) {
-										// called asynchronously if an error occurs
-										// or server returns response with an error status.
-										//$scope.error = response.statusText;
-								});
-
-								$http({
-									url: this.kommonitorDataExchangeServiceInstance.baseUrlToKomMonitorDataAPI + "/indicators",
-									method: "GET"
-								}).then(function successCallback(response) {
-										// this callback will be called asynchronously
-										// when the response is available
-
-										kommonitorDataExchangeService.setIndicators(response.data);
-										fetchedIndicatorsInitially = true;
-										callScopeApplyInitially();
-
-									}, function errorCallback(response) {
-										// called asynchronously if an error occurs
-										// or server returns response with an error status.
-										//$scope.error = response.statusText;
-								});
-
-								$http({
-									url: this.kommonitorDataExchangeServiceInstance.baseUrlToKomMonitorDataAPI + "/topics",
-									method: "GET"
-								}).then(function successCallback(response) {
-										// this callback will be called asynchronously
-										// when the response is available
-
-										kommonitorDataExchangeService.setTopics(response.data);
-										fetchedTopicsInitially = true;
-										callScopeApplyInitially();
-
-									}, function errorCallback(response) {
-										// called asynchronously if an error occurs
-										// or server returns response with an error status.
-										//$scope.error = response.statusText;
-								});
-
-								$http({
-									url: this.kommonitorDataExchangeServiceInstance.baseUrlToKomMonitorDataAPI + "/process-scripts",
-									method: "GET"
-								}).then(function successCallback(response) {
-										// this callback will be called asynchronously
-										// when the response is available
-
-										kommonitorDataExchangeService.setProcessScripts(response.data);
-
-									}, function errorCallback(response) {
-										// called asynchronously if an error occurs
-										// or server returns response with an error status.
-										//$scope.error = response.statusText;
-								});
 
 								this.addSelectedSpatialUnitToMap = function() {
 									$scope.loadingData = true;
