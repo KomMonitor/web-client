@@ -1,0 +1,136 @@
+<div id="adminSpatialUnitsContent">
+
+	<div align="center">
+		<div class="loading-overlay-admin-panel ng-hide" ng-show="loadingData">
+					<span class="glyphicon glyphicon-refresh icon-spin"></span>
+		</div>
+	</div>
+
+	<!-- Content Header (Page header) -->
+	<section class="content-header">
+			<h1>
+				Verwalten der Raumeinheiten
+				<small>Info</small>
+			</h1>
+
+			<div class="adminTableButtonWrapper">
+				<button class="btn btn-success btn-sm" type="button" data-toggle="modal" data-target="#modal-add-spatial-unit"><i class="fas fa-plus"></i>&nbsp;&nbsp;Erstellen</button>
+				<!-- edit metadata -->
+
+				<!-- edit features -->
+
+				<!-- delete selected completely -->
+				<button class="btn btn-danger btn-sm" type="button" data-toggle="modal" data-target="#modal-delete-spatial-units"><i class="fas fa-trash"></i>&nbsp;&nbsp;L&ouml;schen</button>
+
+				<!-- delete b timestamp -->
+			</div>
+	</section>
+
+	<!-- Main content -->
+	<section class="content container-fluid">
+		<!--------------------------
+			| Your Page Content Here |
+			-------------------------->
+
+			<div class="box box-primary">
+            <div class="box-header">
+              <h3 class="box-title">Raumeinheiten</h3>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body">
+
+							<div class="admin-table-wrapper">
+	              <table id="spatialUnitOverviewTable" datatable="ng" dt-options="$ctrl.kommonitorDataExchangeServiceInstance.datatablesOptions" class="table table-bordered table-condensed table-striped" style="width:100%; overflow:auto; font-size: 11px;">
+	                <thead>
+	                <tr>
+	                  <th><input type="checkbox" ng-model="selectAllEntriesInput" ng-change="onChangeSelectAllEntries()"></input></th>
+										<th>Editierfunktionen</th>
+										<th>Id</th>
+	                  <th>Name</th>
+	                  <th>n&auml;chst niedrigere Raumebene</th>
+										<th>n&auml;chst h&ouml;here Raumebene</th>
+	                  <th>G&uuml;ltigkeitszeitraum</th>
+										<th>Beschreibung</th>
+										<th>Bemerkung</th>
+										<th>Datengrundlage</th>
+										<th>Datenquelle</th>
+										<th>Datenhalter und Kontakt</th>
+										<th>zuletzt aktualisiert am</th>
+										<th>Koordinatensystem</th>
+										<th>Aktualisierungszyklus</th>
+										<th>Quellen / Literatur</th>
+										<th>WMS URL</th>
+										<th>WFS URL</th>
+	                </tr>
+	                </thead>
+
+	                <tbody>
+	                <tr ng-repeat="spatialUnitDataset in availableSpatialUnitDatasets">
+										<td><input type="checkbox" ng-model="spatialUnitDataset.isSelected" ng-change="onChangeSelectDataset(spatialUnitDataset)"></input></td>
+										<td>
+											<div class="btn-group btn-group-sm">
+												<button class="btn btn-warning btn-sm" type="button" data-toggle="modal" data-target="#modal-edit-spatial-unit-metadata" ng-click="onClickEditMetadata(spatialUnitDataset)" title="Metadaten editieren"><i class="fas fa-pencil-alt"></i></button>
+												<button class="btn btn-warning btn-sm" type="button" data-toggle="modal" data-target="#modal-edit-spatial-unit-features" ng-click="onClickEditFeatures(spatialUnitDataset)" title="Features fortf&uuml;hren"><i class="fas fa-draw-polygon"></i></button>
+												<button class="btn btn-danger btn-sm" type="button" data-toggle="modal" data-target="#modal-delete-spatial-unit-features" ng-click="onClickDeleteEntry(spatialUnitDataset)" title="Datensatz l&ouml;schen"><i class="fas fa-trash"></i></button>
+											</div>
+										</td>
+	                  <td>{{spatialUnitDataset.spatialUnitId}}</td>
+	                  <td>{{spatialUnitDataset.spatialUnitLevel}}</td>
+	                  <td>{{spatialUnitDataset.nextLowerHierarchyLevel}}</td>
+										<td>{{spatialUnitDataset.nextUpperHierarchyLevel}}</td>
+	                  <td>
+											<ul>
+												<li ng-repeat="periodOfValidity in spatialUnitDataset.availablePeriodsOfValidity">
+													<p ng-show="periodOfValidity.endDate">{{periodOfValidity.startDate}} - {{periodOfValidity.endDate}}</p>
+													<p ng-show="! periodOfValidity.endDate">{{periodOfValidity.startDate}} - heute </p>
+												</li>
+											</ul>
+										</td>
+										<td ng-bind-html="spatialUnitDataset.metadata.description"></td>
+										<td ng-bind-html="spatialUnitDataset.metadata.note"></td>
+										<td ng-bind-html="spatialUnitDataset.metadata.databasis"></td>
+										<td ng-bind-html="spatialUnitDataset.metadata.datasource"></td>
+										<td ng-bind-html="spatialUnitDataset.metadata.contact"></td>
+										<td>{{spatialUnitDataset.metadata.lastUpdate}}</td>
+										<td>EPSG:{{spatialUnitDataset.metadata.sridEPSG}}</td>
+										<td>{{spatialUnitDataset.metadata.updateInterval}}</td>
+										<td ng-bind-html="spatialUnitDataset.metadata.literature"></td>
+										<td ng-bind-html="spatialUnitDataset.wmsUrl"></td>
+										<td ng-bind-html="spatialUnitDataset.wfsUrl"></td>
+	                </tr>
+
+	                </tbody>
+
+	                <tfoot>
+	                <tr>
+										<th>alle selektieren</th>
+										<th>Editierfunktionen</th>
+	                  <th>Id</th>
+	                  <th>Name</th>
+	                  <th>n&auml;chst niedrigere Raumebene</th>
+										<th>n&auml;chst h&ouml;here Raumebene</th>
+	                  <th>G&uuml;ltigkeitszeitraum</th>
+										<th>Beschreibung</th>
+										<th>Bemerkung</th>
+										<th>Datengrundlage</th>
+										<th>Datenquelle</th>
+										<th>Datenhalter und Kontakt</th>
+										<th>zuletzt aktualisiert am</th>
+										<th>Koordinatensystem</th>
+										<th>Aktualisierungszyklus</th>
+										<th>Quellen / Literatur</th>
+										<th>WMS URL</th>
+										<th>WFS URL</th>
+	                </tr>
+	                </tfoot>
+	              </table>
+
+							</div>
+            </div>
+            <!-- /.box-body -->
+          </div>
+          <!-- /.box -->
+
+	</section>
+<!-- /.content -->
+</div>

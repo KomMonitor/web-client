@@ -6,49 +6,141 @@
 		</div>
 	</div>
 
-			<div class="form-group" >
-				<br/>
-				<div align="center">
-					<h4>Points of Interest</h4>
-				</div>
+	<p></p>
+
+<!-- POINTS OF INTEREST -->
+	<div class="box box-primary">
+		<div class="box-header with-border">
+			<h3 class="box-title">Points of Interest</h3>
+
+			<div class="box-tools pull-right">
+				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+				</button>
+			</div>
+		</div>
+		<div class="box-body">
+
+			<div class="" >
+
+					<!-- <p>Selektieren eines Eintrags aus unten stehender Liste f&uuml;gt den entsprechenden Punkt-Layer der Kartendarstellung hinzu. Deselektion entfernt den entsprechenden Layer aus der Kartendarstellung.</p> -->
+
+					<div class="input-group">
+						<span class="input-group-addon"><i class="fas fa-filter"></i></span>
+						<input type="text" class="form-control input-sm" placeholder="Filtern nach POI-Name" ng-model="poiNameFilter">
+					</div>
 
 					<br/>
 
-					<p>Selektieren eines Eintrags aus unten stehender Liste f&uuml;gt den entsprechenden Punkt-Layer der Kartendarstellung hinzu. Deselektion entfernt den entsprechenden Layer aus der Kartendarstellung.</p>
+					<div  id="poiInputForm">
 
-					<div id="poiInputForm">
-						<div ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:filterGeoresourcesByPoi() | filter:filterPois()'>
-							<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
-							<label class='checkbox-inline' ><input type="checkbox" value="poi.datasetName" ng-model="poi.isSelected" ng-change="handlePoiOnMap(poi)">
-								<i class="awesome-marker-legend awesome-marker-legend-icon-{{poi.poiMarkerColor}}">
-									<span style="margin-left:3px; font-size:0.7em; color:{{poi.poiSymbolColor}};" align="center" class="glyphicon glyphicon-{{poi.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
-								</i>
+						<table class="table table-condensed" style="margin-bottom:0px;">
+					    <thead>
+					      <tr>
+					        <th>Datensatz</th>
+					        <th>Export</th>
+					      </tr>
+					    </thead>
 
-								<b>&nbsp;&nbsp;{{poi.datasetName}}</b> &mdash; {{poi.metadata.description}}
-							</label>
-							<br/>
-						</div>
+							<tbody>
+
+								<tr ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:poiNameFilter'>
+									<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
+									<td>
+										<label class='checkbox-inline' ><input type="checkbox" value="poi.datasetName" ng-model="poi.isSelected" ng-change="handlePoiOnMap(poi)">
+											<i class="awesome-marker-legend awesome-marker-legend-icon-{{poi.poiMarkerColor}}">
+												<span style="margin-left:3px; font-size:0.7em; color:{{poi.poiSymbolColor}};" align="center" class="glyphicon glyphicon-{{poi.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
+											</i>
+
+											<b>&nbsp;&nbsp;{{poi.datasetName}}</b> &mdash; {{poi.metadata.description}}
+										</label>
+									</td>
+									<td>
+										<a href="" ng-click="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
+										<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
+									</td>
+								</tr>
+							</tbody>
+						</table>
 						</div>
 
 						<br/>
 
 						<div align="center">
-							<label class='checkbox-inline' >
+
+							<b title="Checkbox zur Wahl, ob die einzelnen Punkte eines POI Layers geclustered werden sollen">Kartenstandorte clustern</b> (Zusammenfassung mehrerer Punkte je nach Zoomstufe)
+							&nbsp;
+							<label class="switch">
 								<input type="checkbox" value="useCluster" ng-model="useCluster" ng-change="refreshPoiLayers()" checked>
-								<b title="Checkbox zur Wahl, ob die einzelnen Punkte eines POI Layers geclustered werden sollen">Nutze geclusterte Darstellung der POI</b> (Zusammenfassung mehrerer Punkte je nach Zoomstufe)
+								<span class="switchslider round"></span>
 							</label>
+
 						</div>
-
-						<br/><br/>
-
-						<div align="center">
-							<p>TODO - Under Development</p>
-							<strong>derzeitig nur Anzeige ausgewählter POIs möglich. Künftig sollen auch Lines of Interest and Areas of Interest zur Einblendung weiterer Infrastrukturmerkmale sowie eine Darstellung der jeweiligen Metadaten als Kartenpopup angeboten werden.</strong>
-						</div>
-
-						<br/><br/>
 
 			</div>
+
+		</div>
+		<!-- /.box-body -->
+
+	</div>
+	<!-- /.box -->
+
+
+	<!-- LINES OF INTEREST -->
+		<div class="box box-primary collapsed-box">
+			<div class="box-header with-border">
+				<h3 class="box-title">Lines of Interest</h3>
+
+				<div class="box-tools pull-right">
+					<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+					</button>
+				</div>
+			</div>
+			<div class="box-body">
+
+				<div class="" >
+
+							<div align="center">
+								<p>TODO - Under Development</p>
+								<strong>in Zukunft verf&uuml;gbar</strong>
+							</div>
+
+							<br/><br/>
+
+				</div>
+
+			</div>
+			<!-- /.box-body -->
+		</div>
+		<!-- /.box -->
+
+
+		<!-- AREAS OF INTEREST -->
+			<div class="box box-primary collapsed-box">
+				<div class="box-header with-border">
+					<h3 class="box-title">Areas of Interest</h3>
+
+					<div class="box-tools pull-right">
+						<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+						</button>
+					</div>
+				</div>
+				<div class="box-body">
+
+					<div class="" >
+
+								<div align="center">
+									<p>TODO - Under Development</p>
+									<strong>in Zukunft verf&uuml;gbar</strong>
+								</div>
+
+								<br/><br/>
+
+					</div>
+
+				</div>
+				<!-- /.box-body -->
+			</div>
+			<!-- /.box -->
 
 
 </div>

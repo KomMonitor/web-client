@@ -8,12 +8,18 @@ angular
 							kommonitorDataExchangeService, $rootScope, $scope, $http, kommonitorMapService, __env) {
 
 						this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
+						// initialize any adminLTE box widgets
+						$('.box').boxWidget();
 
 						const targetURL = __env.targetUrlToProcessingEngine + "script-engine/customizableIndicatorComputation";
 
 						$scope.loadingData = false;
 
 						$scope.targetIndicator;
+						$scope.targetIndicator_backup;
+
+						$scope.indicatorNameFilter = undefined;
+
 						$scope.targetDate;
 						$scope.targetSpatialUnit;
 						$scope.targetScriptMetadata;
@@ -27,7 +33,14 @@ angular
 
 						$scope.filterIndicators = function() {
 
-							return kommonitorDataExchangeService.filterIndicators();
+							return function(item){
+								if (item.indicatorName.includes("Erreichbar")){
+									return false;
+								}
+								else{
+									return kommonitorDataExchangeService.filterIndicators();
+								}
+							};
 						};
 
 						$scope.filterComputableIndicators = function() {
@@ -52,6 +65,37 @@ angular
 
 								return true;
 							};
+						};
+
+						$scope.resetComputationForm = function(){
+
+							$scope.stopLoop = true;
+							$scope.computationStarted = false;
+
+							$scope.loadingData = false;
+
+							$scope.targetIndicator = undefined;
+							$scope.targetDate = undefined;
+							$scope.targetSpatialUnit = undefined;
+							$scope.targetScriptMetadata = undefined;
+							$scope.jobInfoText = undefined;
+							$scope.computedCustomizedIndicatorGeoJSON = undefined;
+							$scope.datesAsMs = undefined;
+							$scope.availableDates = undefined;
+							$scope.inputNgModels = {};
+							$scope.error = undefined;
+
+							if($scope.dateSliderForComputation){
+									$scope.dateSliderForComputation.destroy();
+							}
+
+							var domNode = document.getElementById("dateSliderForComputation");
+
+							while (domNode.hasChildNodes()) {
+								domNode.removeChild(domNode.lastChild);
+							}
+
+							$scope.resetProgressBar();
 						};
 
 						$scope.onTargetDateChange = function(){
@@ -141,7 +185,7 @@ angular
 							inputElement.setAttribute("type", "range");
 							inputElement.setAttribute("value", Number(parameterData.defaultValue));
 							inputElement.value = Number(parameterData.defaultValue);
-							inputElement.setAttribute("class", "slider");
+							// inputElement.setAttribute("class", "slider");
 							inputElement.setAttribute("min", parameterData.minParameterValueForNumericInputs);
 							inputElement.setAttribute("max", parameterData.maxParameterValueForNumericInputs);
 							inputElement.setAttribute("data-show-value", "true");
@@ -167,16 +211,16 @@ angular
 							inputElement.id = parameterData.name;
 							inputElement.type = "range";
 							inputElement.value = Number(parameterData.defaultValue);
-							inputElement.class = "slider";
+							// inputElement.class = "slider";
 							inputElement.min = parameterData.minParameterValueForNumericInputs;
 							inputElement.max = parameterData.maxParameterValueForNumericInputs;
-							inputElement.dataShowValue = "true";
+							// inputElement.dataShowValue = "true";
 							inputElement.step = "0.01";
 
-							inputElement.ngModelVariable = parameterData.name + "Value";
-
-							// inputElement.setAttribute("ng-model", parameterData.name + "Value");
-							$scope.inputNgModels[inputElement.ngModelVariable] = Number(parameterData.defaultValue);
+							// inputElement.ngModelVariable = parameterData.name + "Value";
+							//
+							// // inputElement.setAttribute("ng-model", parameterData.name + "Value");
+							// $scope.inputNgModels[inputElement.ngModelVariable] = Number(parameterData.defaultValue);
 
 							return inputElement;
 						};
@@ -297,6 +341,13 @@ angular
 						};
 
 						$scope.onChangeTargetIndicator = function(){
+
+							if($scope.targetIndicator){
+								$scope.targetIndicator_backup = $scope.targetIndicator;
+							}
+							else{
+								$scope.targetIndicator = $scope.targetIndicator_backup;
+							}
 
 							$scope.computedCustomizedIndicatorGeoJSON = undefined;
 							$scope.resetProgressBar();
@@ -497,9 +548,13 @@ angular
 
 						$scope.calculateCustomIndicator = function(){
 
+							$scope.computationStarted = true;
+
 							$scope.computedCustomizedIndicatorGeoJSON = undefined;
 							$scope.jobInfoText = undefined;
 							$scope.resetProgressBar();
+
+							$scope.stopLoop = false;
 
 							console.log("calculateCustomIndicator called!");
 
@@ -621,10 +676,8 @@ angular
 
 							var sleepTimeInMS = 1000;
 
-							var maxTryNumber = 60;
-							var tryNumber = 0;
 
-							while(!$scope.computedCustomizedIndicatorGeoJSON && (tryNumber < maxTryNumber)){
+							while(!$scope.computedCustomizedIndicatorGeoJSON && !$scope.stopLoop){
 
 								if($scope.stopLoop)
 									break;
@@ -654,6 +707,7 @@ angular
 											// first decode Base64 and then parse string as JSON
 											$scope.computedCustomizedIndicatorGeoJSON = JSON.parse(atob(geoJSON_base64));
 											$scope.jobInfoText = undefined;
+											$scope.stopLoop = true;
 
 											$scope.prepareDownloadGeoJSON();
 
@@ -675,7 +729,6 @@ angular
 								if ($scope.computedCustomizedIndicatorGeoJSON)
 									return;
 
-									tryNumber++;
 								await sleep(sleepTimeInMS);
 							}
 
@@ -736,7 +789,7 @@ angular
 							a.href        = data;
 							a.textContent = "Download GeoJSON";
 							a.id = "downloadComputedIndicator";
-							a.setAttribute("class", "btn btn-info");
+							a.setAttribute("class", "btn btn-primary");
 
 							document.getElementById('indicatorOutput').appendChild(a);
 						}

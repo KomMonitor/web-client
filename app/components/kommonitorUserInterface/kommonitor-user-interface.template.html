@@ -2,34 +2,23 @@
 
 	<header id="header" >
 
-		<div  style="position:absolute; left:25%;  padding-top: 7px;">
+		<div  style="position:absolute; left:40%;  padding-top: 7px;">
 
 			<h4>KomMonitor (Pilotversion in Entwicklung)
-				<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#infoModal">Information&nbsp;&nbsp;<span class="glyphicon glyphicon-info-sign"></span></button>
+				<!-- <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#infoModal">Information&nbsp;&nbsp;<span class="glyphicon glyphicon-info-sign"></span></button>
 				<button type="button" data-toggle="modal" data-target="#feedbackModal" class="btn btn-danger">Feedback&nbsp;&nbsp;<span class="glyphicon glyphicon-envelope"></span></button>
-				<button type="button" ng-click="startGuidedTour()" class="btn btn-danger">Guided Tour&nbsp;&nbsp;<span class="glyphicon glyphicon-play"></span></button>
+				<button type="button" ng-click="startGuidedTour()" class="btn btn-danger">Guided Tour&nbsp;&nbsp;<span class="glyphicon glyphicon-play"></span></button> -->
 			</h4>
 		</div>
 
 		<div style="padding-left: 10px; padding-top: 7px;">
 
-			<img src="logos/city-logo.png" style="float: left; width: 19px; height: 35px; margin-right: 0.5%;">
+			 <a target="_blank" rel="noopener noreferrer" href="http://kommonitor.de"><img style="float: left; width: 35px; height: 35px; margin-right: 0.5%;" src="logos/KM_Logo1.svg"></img></a>
+			 <img src="logos/city-logo.png" style="float: left; width: 35px; height: 35px; margin-right: 0.5%;"></img>
 
-			<a href="https://www.essen.de/rathaus/organisationseinheiten/organisationseinheit_1188191.de.html" target="_blank" rel="noopener noreferrer">
-				<img src="logos/transparent/essen.png" style="float: right; width: 35px; height: 35px; margin-right: 0.5%;">
-			</a>
-
-			<a href="https://ratsinfo.muelheim-ruhr.de/buerger/at020.asp?ATLFDNR=23" target="_blank" rel="noopener noreferrer">
-				<img src="logos/transparent/muelheim.png" style="float: right; width: 70px; height: 35px; margin-right: 0.5%;">
-			</a>
-			<!-- <img src="/logos/transparent/inwis.png" style="float: right; width: 102px; height: 35px; margin-right: 0.5%;"> -->
-			<a href="https://www.geographie.ruhr-uni-bochum.de/institut/" target="_blank" rel="noopener noreferrer">
-				<img src="logos/transparent/rub.png" style="float: right; width: 35px; height: 35px; margin-right: 0.5%;">
-			</a>
-			<a href="https://www.hochschule-bochum.de/fbg/forschung-und-entwicklung/" target="_blank" rel="noopener noreferrer">
-				<img src="logos/transparent/hsbo.png" style="float: right; width: 145px; height: 35px; margin-right: 0.5%;">
-			</a>
-			<p style="float: right; margin-right: 0.5%; padding-top: 7px;">Projektpartner</p>
+			<a data-toggle="modal" data-target="#infoModal" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Information&nbsp;&nbsp;"><span class="glyphicon glyphicon-info-sign"></span></a>
+			<!-- <a data-toggle="modal" data-target="#feedbackModal" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;  cursor:pointer;" title="Feedback&nbsp;&nbsp;"><span class="glyphicon glyphicon-envelope"></span></a> -->
+			<a ng-click="startGuidedTour()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;  cursor:pointer;" title="Guided Tour&nbsp;&nbsp;"><span class="glyphicon glyphicon-play"></span></a>
 
 			<p style="clear: both;"></p>
 
@@ -43,53 +32,63 @@
 	<!-- Modal -->
 	<feedback-modal></feedback-modal>
 
-	<div class="wrapper">
+	<!-- Modal -->
+	<wms-modal></wms-modal>
+
+	<!-- Modal -->
+	<wfs-modal></wfs-modal>
+
+	<div class="kmWrapper">
 
     <!-- Sidebar -->
-    <nav id="sidebarIndicatorConfig" ng-class="sidebarIndicatorConfigClass">
+    <aside id="sidebarIndicatorConfig" ng-class="sidebarIndicatorConfigClass">
         <kommonitor-data-setup></kommonitor-data-setup>
-    </nav>
+    </aside>
 
-		<nav id="sidebarPoi" ng-class="sidebarPoiClass">
+		<aside id="sidebarPoi" ng-class="sidebarPoiClass">
         <poi></poi>
-    </nav>
+    </aside>
 
-		<nav id="sidebarFilter" ng-class="sidebarFilterClass">
+		<aside id="sidebarDataImport" ng-class="sidebarDataImportClass">
+        <kommonitor-data-import></kommonitor-data-import>
+    </aside>
+
+		<aside id="sidebarFilter" ng-class="sidebarFilterClass">
         <kommonitor-filter></kommonitor-filter>
-    </nav>
+    </aside>
 
-		<nav id="sidebarMeasureOfValueClassification" ng-class="sidebarMeasureOfValueClassificationClass">
+		<aside id="sidebarMeasureOfValueClassification" ng-class="sidebarMeasureOfValueClassificationClass">
         <measure-of-value-classification></measure-of-value-classification>
-    </nav>
+    </aside>
 
-		<nav id="sidebarBalance" ng-class="sidebarBalanceClass">
+		<aside id="sidebarBalance" ng-class="sidebarBalanceClass">
         <kommonitor-balance></kommonitor-balance>
-    </nav>
+    </aside>
 
-		<nav id="sidebarDiagrams" ng-class="sidebarDiagramsClass">
+		<aside id="sidebarDiagrams" ng-class="sidebarDiagramsClass">
         <kommonitor-diagrams></kommonitor-diagrams>
-    </nav>
+    </aside>
 
-		<nav id="sidebarRadarDiagram" ng-class="sidebarRadarDiagramClass">
+		<aside id="sidebarRadarDiagram" ng-class="sidebarRadarDiagramClass">
         <indicator-radar></indicator-radar>
-    </nav>
+    </aside>
 
-		<nav id="sidebarRegressionDiagram" ng-class="sidebarRegressionDiagramClass">
+		<aside id="sidebarRegressionDiagram" ng-class="sidebarRegressionDiagramClass">
         <regression-diagram></regression-diagram>
-    </nav>
+    </aside>
 
-		<nav id="sidebarReachability" ng-class="sidebarReachabilityClass">
+		<aside id="sidebarReachability" ng-class="sidebarReachabilityClass">
         <kommonitor-reachability></kommonitor-reachability>
-    </nav>
+    </aside>
 
-		<nav id="sidebarProcessing" ng-class="sidebarProcessingClass">
+		<aside id="sidebarProcessing" ng-class="sidebarProcessingClass">
         <kommonitor-individual-indicator-computation></kommonitor-individual-indicator-computation>
-    </nav>
+    </aside>
 
     <!-- Page Content -->
     <div id="content" style="height: 100%; width: 100%; position: relative;">
 
-        <kommonitor-map style="height: 100%; width: 100%; position: absolute; z-index: 1;"></kommonitor-map>
+        <kommonitor-map style="height: 100%; width: 100%; position: absolute;"></kommonitor-map>
 
 				<!-- LEFT-HANDED SIDEBAR BUTTONS -->
 
@@ -100,49 +99,55 @@
 								<i style="font-size:1.8em;" class="fas fa-sitemap"></i>
 						</button>
 
-						<button type="button" style="top: 85px;" id="sidebarPoiCollapse"
+						<button type="button" style="top: 70px;" id="sidebarPoiCollapse"
 							ng-click="onSidebarPoiButtonClick()" ng-class="buttonPoiClass" data-toggle="tooltip" title="Points of Interest">
 								<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 								<i style="font-size:1.8em;" class="fas fa-map-marker-alt"></i>
 						</button>
 
-						<button type="button" style="top: 160px;" id="sidebarFilterCollapse"
+						<button type="button" style="top: 130px;" id="sidebarDataImportCollapse"
+							ng-click="onSidebarDataImportButtonClick()" ng-class="buttonDataImportClass" data-toggle="tooltip" title="Datenimport">
+								<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
+								<i style="font-size:1.8em;" class="fas fa-file-import"></i>
+						</button>
+
+						<button type="button" style="top: 190px;" id="sidebarFilterCollapse"
 							ng-click="onSidebarFilterButtonClick()" ng-class="buttonFilterClass" data-toggle="tooltip" title="Darstellungsfilter">
 								<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 								<i style="font-size:1.8em;" class="fas fa-filter"></i>
 						</button>
 
-						<button type="button" style="top: 235px;" id="sidebarBalanceCollapse"
+						<button type="button" style="top: 250px;" id="sidebarBalanceCollapse"
 							ng-click="onSidebarBalanceButtonClick()" ng-class="buttonBalanceClass" data-toggle="tooltip" title="zeitliche Bilanzierung">
 								<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-sort" aria-hidden="true"></span> -->
 								<i style="font-size:1.8em;" class="fas fa-chart-line"></i>
 						</button>
 
-						<button type="button" style="top: 360px;" id="sidebarDiagramsCollapse"
+						<button type="button" style="top: 350px;" id="sidebarDiagramsCollapse"
 							ng-click="onSidebarDiagramsClick()" ng-class="buttonDiagramsClass" data-toggle="tooltip" title="statistische Diagramme">
 								<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-stats" aria-hidden="true"></span> -->
 								<i style="font-size:1.8em;" class="fas fa-chart-bar"></i>
 						</button>
 
-						<button type="button" style="top: 435px;" id="sidebarRadarDiagramCollapse"
+						<button type="button" style="top: 410px;" id="sidebarRadarDiagramCollapse"
 							ng-click="onSidebarRadarDiagramClick()" ng-class="buttonRadarDiagramClass" data-toggle="tooltip" title="Indikatorenradar">
 								<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-star-empty" aria-hidden="true"></span> -->
 								<img src="iconsFromPngTree/radarMap.svg"></img>
 						</button>
 
-						<button type="button" style="top: 510px;" id="sidebarRegressionDiagramCollapse"
+						<button type="button" style="top: 470px;" id="sidebarRegressionDiagramCollapse"
 							ng-click="onSidebarRegressionDiagramClick()" ng-class="buttonRegressionDiagramClass" data-toggle="tooltip" title="Regressionsdiagramm">
 								<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-star-empty" aria-hidden="true"></span> -->
 								<img src="iconsFromPngTree/scatterPlot.svg"></img>
 						</button>
 
-						<button type="button" style="top: 625px;" id="sidebarReachabilityCollapse"
+						<button type="button" style="top: 570px;" id="sidebarReachabilityCollapse"
 							ng-click="onSidebarReachabilityButtonClick()" ng-class="buttonReachabilityClass" data-toggle="tooltip" title="Erreichbarkeitsanalyse">
 							<i style="font-size:1.8em;" class="fas fa-route"></i>
 								<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-wrench" aria-hidden="true"></span> -->
 						</button>
 
-						<button type="button" style="top: 685px;" id="sidebarProcessingCollapse"
+						<button type="button" style="top: 630px;" id="sidebarProcessingCollapse"
 							ng-click="onSidebarProcessingClick()" ng-class="buttonProcessingClass" data-toggle="tooltip" title="Individuelle Indikatorenberechnung">
 							<i style="font-size:1.8em;" class="fas fa-sliders-h"></i>
 						</button>
@@ -151,14 +156,19 @@
 				<!-- MAP UTIL BUTTONS -->
 
 				<div id="mapUtilButtons">
-					<button type="button" style="top: 20px; left:60px;" id="recenterMapButton"
+					<button type="button" id="recenterMapButton"
 						ng-click="onRecenterMapButtonClick()" class="btn btn-leaflet-custom" data-toggle="tooltip" title="Karte zentrieren">
-							<span style="font-size:1.5em;" class="glyphicon glyphicon-globe" aria-hidden="true"></span>
+							<span style="font-size:1.5em;left:-5px;" class="glyphicon glyphicon-globe" aria-hidden="true"></span>
 					</button>
 
-					<button type="button" style="top: 20px; left:120px;" id="unselectFeaturesButton"
+					<button type="button" id="unselectFeaturesButton"
 						ng-click="onUnselectFeaturesButtonClick()" class="btn btn-leaflet-custom" data-toggle="tooltip" title="Feature-Selektion aufheben">
-							<span style="font-size:1.5em;" class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span>
+							<span style="font-size:1.5em;left:-5px;" class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span>
+					</button>
+
+					<button type="button" id="exportMapButton"
+						ng-click="onExportMapButtonClick()" class="btn btn-leaflet-custom" data-toggle="tooltip" title="aktuellen Kartenausschnitt exportieren">
+							<i style="font-size:1.5em;margin-left:-5px;" class="fas fa-download"></i>
 					</button>
 				</div>
 

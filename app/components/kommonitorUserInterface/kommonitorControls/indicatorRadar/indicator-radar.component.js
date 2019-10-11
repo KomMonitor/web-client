@@ -13,8 +13,27 @@ angular
 								 * reference to kommonitorDataExchangeService instances
 								 */
 								this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
+								// initialize any adminLTE box widgets
+								$('.box').boxWidget();
+
+								$(window).on('resize', function(){
+						        if($scope.radarChart != null && $scope.radarChart != undefined){
+						            $scope.radarChart.resize();
+						        }
+						    });
+
+								$scope.$on("resizeDiagrams", function (event) {
+
+									setTimeout(function(){
+										if($scope.radarChart != null && $scope.radarChart != undefined){
+						            $scope.radarChart.resize();
+						        }
+									}, 350);
+								});
 
 								const DATE_PREFIX = __env.indicatorDatePrefix;
+
+								$scope.indicatorNameFilter = undefined;
 
 								//$scope.allIndicatorProperties;
 								$scope.namesOfFailedIndicators  = new Array();
@@ -164,10 +183,17 @@ angular
 										// }
 
 										$scope.radarOption = {
+											grid: {
+											  left: '5%',
+											  top: 0,
+											  right: '5%',
+											  bottom: 30
+											},
 												title: {
 														text: 'Indikatorenradar - ' + $scope.spatialUnitName + ' - ' + $scope.date,
 														left: 'center',
-														top: 0
+														top: 0,
+														show: false
 												},
 												tooltip: {
 													confine: 'true',
@@ -185,7 +211,7 @@ angular
 												},
 												toolbox: {
 														show : true,
-														right: '25',
+														right: '15',
 														feature : {
 																// mark : {show: true},
 																dataView : {show: true, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Indikatorenradar', 'schlie&szlig;en', 'refresh'], optionToContent: function(opt){
@@ -250,7 +276,9 @@ angular
 												legend: {
 														type: "scroll",
 														bottom: 0,
-														data: ['Durchschnitt']
+														align: 'left',
+        										left: 5,
+														data: ['Arithmetisches Mittel']
 												},
 												radar: {
 														// shape: 'circle',
@@ -264,32 +292,8 @@ angular
 														// },
 														name: {
 																formatter: function (value, indicator) {
-																								var maxCharsPerLine = 28;
-																								var separationSigns = [" ", "-", "_"];
-																								var counter = 0;
-																								var nextWord = "";
-																								var nextChar;
-																								var label = "";
-																								for(var i=0; i<value.length; i++){
-																									nextChar = value.charAt(i);
-																									nextWord += nextChar;
-																									if(counter === maxCharsPerLine){
-																										label += "\n";
-																										counter = 0;
-																									}
-																									else if(separationSigns.includes(nextChar)){
-																										// add word to label
-																										label += nextWord;
-																										nextWord = "";
-																									}
-																									counter++;
-																								}
-																								//append last word
-																								label += nextWord;
 
-																								// skip unit to save on line in legend
-																								// label = label + "\n" + "[" + indicator.unit + "]";
-																								return label;
+																								return kommonitorDataExchangeService.formatIndiatorNameForLabel(value, 28);
 																						},
 																textStyle: {
 																		color:'#525252'
@@ -305,7 +309,7 @@ angular
 														data : [
 																{
 																		value : defaultSeriesValueArray,
-																		name : 'Durchschnitt',
+																		name : 'Arithmetisches Mittel',
 																		lineStyle: {
 																				color: 'gray',
 																				type: 'dashed',
@@ -336,6 +340,9 @@ angular
 
 										// use configuration item and data specified to show chart
 										$scope.radarChart.setOption($scope.radarOption);
+										setTimeout(function(){
+											$scope.radarChart.resize();
+										}, 350);
 										registerEventsIfNecessary();
 
 									}
@@ -394,32 +401,46 @@ angular
 
 									var dateProperty = '' + DATE_PREFIX + date;
 
+									var spatialUnitsMetadataArray = kommonitorDataExchangeService.availableSpatialUnits;
+									var spatialUnitName;
+
+									for (var i=0; i< spatialUnitsMetadataArray.length; i++){
+										if (spatialUnitsMetadataArray[i].spatialUnitId === spatialUnitId){
+											spatialUnitName = spatialUnitsMetadataArray[i].spatialUnitLevel;
+											break;
+										}
+									}
+
 									for (var indicatorMetadata of kommonitorDataExchangeService.availableIndicators){
 
 										try{
-											var indicatorProperties = await fetchIndicatorProperties(indicatorMetadata, spatialUnitId, year, month, day);
-											// only use if response is valid and contains a date property for selected date!
 
-											if(indicatorProperties){
-												var propertiesSample = indicatorProperties[0];
-												if (propertiesSample[dateProperty]){
+											//only fetch if the indicator has data for timestamd and spatial unit!
+											if(indicatorMetadata.applicableDates.includes(date) && indicatorMetadata.applicableSpatialUnits.includes(spatialUnitName)){
+												var indicatorProperties = await fetchIndicatorProperties(indicatorMetadata, spatialUnitId, year, month, day);
+												// only use if response is valid and contains a date property for selected date!
 
-													// ensure that NoData values are set to null!
-													indicatorProperties.forEach(function(properties){
-														if (kommonitorDataExchangeService.indicatorValueIsNoData(properties[dateProperty])){
-															properties[dateProperty] = null;
-														}
-													});
+												if(indicatorProperties){
+													var propertiesSample = indicatorProperties[0];
+													if (propertiesSample[dateProperty]){
 
-													var selectableIndicatorEntry = {};
-													selectableIndicatorEntry.indicatorProperties = indicatorProperties;
-													// per default show all indicators on radar
-													selectableIndicatorEntry.isSelected = false;
-													selectableIndicatorEntry.indicatorMetadata = indicatorMetadata;
+														// ensure that NoData values are set to null!
+														indicatorProperties.forEach(function(properties){
+															if (kommonitorDataExchangeService.indicatorValueIsNoData(properties[dateProperty])){
+																properties[dateProperty] = null;
+															}
+														});
 
-													selectableIndicatorsForRadar.push(selectableIndicatorEntry);
+														var selectableIndicatorEntry = {};
+														selectableIndicatorEntry.indicatorProperties = indicatorProperties;
+														// per default show all indicators on radar
+														selectableIndicatorEntry.isSelected = false;
+														selectableIndicatorEntry.indicatorMetadata = indicatorMetadata;
 
-													//allIndicatorProperties.push(indicatorProperties);
+														selectableIndicatorsForRadar.push(selectableIndicatorEntry);
+
+														//allIndicatorProperties.push(indicatorProperties);
+													}
 												}
 											}
 
@@ -512,6 +533,9 @@ angular
 									$scope.radarOption.series[0].data.push(featureSeries);
 
 									$scope.radarChart.setOption($scope.radarOption);
+									setTimeout(function(){
+										$scope.radarChart.resize();
+									}, 350);
 									registerEventsIfNecessary();
 								};
 
@@ -567,6 +591,9 @@ angular
 
 									// second parameter tells echarts to not merge options with previous data. hence really remove series from graphic
 									$scope.radarChart.setOption($scope.radarOption, true);
+									setTimeout(function(){
+										$scope.radarChart.resize();
+									}, 350);
 									registerEventsIfNecessary();
 								};
 

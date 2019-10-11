@@ -1,37 +1,65 @@
 <div id="kommonitorBalance">
 
-		<div align="center">
-			<h4>Bilanzierung</h4>
-		</div>
+	<p></p>
 
-		<div align="center">
-			<p>Zeitliche Trendbetrachtung der Indikatorenentwicklung &uuml;ber eine definierbare Zeitperiode.</p>
-		</div>
+	<!-- BALANCE  -->
+		<div style="margin-bottom: 0px;" class="box box-primary">
+			<div class="box-header with-border">
+				<h3 class="box-title">Bilanzierung</h3>
 
-		<br/>
-		<br/>
-
-		<div align="center">
-			<input id="balanceCheckbox" type="checkbox" ng-change="onChangeUseBalance()" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked" ng-checked="$ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked"><strong>Bilanzierung aktivieren/deaktivieren</strong></input>
-
-			<br/>
-			<br/>
-			<input id="relativeBalanceCheckbox" type="checkbox" ng-change="onChangeUseRelativeBalance()" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.isRelativeBalanceChecked" ng-checked="$ctrl.kommonitorDataExchangeServiceInstance.isRelativeBalanceChecked"><strong>relative Bilanzierung aktivieren/deaktivieren (noch nicht implementiert)</strong></input>
-
-			<br/>
-			<br/>
-
-			<div id="rangeSliderForBalanceWrapper">
-				<input id="rangeSliderForBalance" type="text" class="js-range-slider" value=""></input>
+				<!-- <div class="box-tools pull-right">
+					<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+					</button>
+				</div> -->
 			</div>
+			<div class="box-body">
 
-			<br/>
-			<br/>
+				<div align="center">
+					<p>Zeitliche Trendbetrachtung der Indikatorenentwicklung &uuml;ber eine definierbare Zeitperiode.</p>
+				</div>
+
+				<br/>
+
+				<div align="center">
+
+					<!-- Rounded switch -->
+					<strong>Bilanzierung aktivieren/deaktivieren</strong>
+					&nbsp;
+					<label class="switch">
+						<input id="balanceCheckbox" type="checkbox" ng-change="onChangeUseBalance()" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked" ng-checked="$ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked"></input>
+					  <span class="switchslider round"></span>
+					</label>
+
+
+					<!-- <br/>
+					<br/>
+
+					<strong>relative Bilanzierung aktivieren/deaktivieren (noch nicht implementiert)</strong>
+					&nbsp;
+					<label class="switch">
+						<input id="relativeBalanceCheckbox" type="checkbox" ng-change="onChangeUseRelativeBalance()" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.isRelativeBalanceChecked" ng-checked="$ctrl.kommonitorDataExchangeServiceInstance.isRelativeBalanceChecked"></input>
+						<span class="switchslider round"></span>
+					</label> -->
+
+					<br/>
+					<br/>
+
+					<div id="rangeSliderForBalanceWrapper">
+						<input id="rangeSliderForBalance" type="text" class="js-range-slider" value=""></input>
+					</div>
+
+					<br/>
+					<br/>
+				</div>
+
+				<!-- <div align="center">
+					<p>TODO - Under Development</p>
+					<strong>derzeitig nur absolute Bilanzierung über obigen Zeitstrahl möglich.</strong>
+				</div> -->
+
+			</div>
+			<!-- /.box-body -->
 		</div>
-
-		<!-- <div align="center">
-			<p>TODO - Under Development</p>
-			<strong>derzeitig nur absolute Bilanzierung über obigen Zeitstrahl möglich.</strong>
-		</div> -->
+		<!-- /.box -->
 
 </div>

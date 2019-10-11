@@ -53,10 +53,15 @@ angular.module('kommonitorMap').service(
 						georesourceMetadataAndGeoJSON, date, useCluster);
 			};
 
-      this.replaceIsochroneGeoJSON = function (geoJSON, transitMode, reachMode, cutOffValues, useMultipleStartPoints) {
+      this.replaceIsochroneGeoJSON = function (geoJSON, transitMode, reachMode, cutOffValues, useMultipleStartPoints, dissolveIsochrones) {
 
 				$rootScope.$broadcast("replaceIsochronesAsGeoJSON",
-						geoJSON, transitMode, reachMode, cutOffValues, useMultipleStartPoints);
+						geoJSON, transitMode, reachMode, cutOffValues, useMultipleStartPoints, dissolveIsochrones);
+			};
+
+      this.replaceRouteGeoJSON = function (geoJSON, transitMode, preference, routingStartPoint, routingEndPoint) {
+
+				$rootScope.$broadcast("replaceRouteAsGeoJSON", geoJSON, transitMode, preference, routingStartPoint, routingEndPoint);
 			};
 
       this.replaceIsochroneMarker = function (lonLatArray) {
@@ -73,6 +78,10 @@ angular.module('kommonitorMap').service(
 
       this.removeReachabilityLayers = function(){
         $rootScope.$broadcast("removeReachabilityLayers");
+      }
+
+      this.removeRoutingLayers = function(){
+        $rootScope.$broadcast("removeRoutingLayers");
       }
 
 			this.addIndicatorGeoJSON = function (indicatorMetadataAndGeoJSON, spatialUnitName, date) {
@@ -98,9 +107,60 @@ angular.module('kommonitorMap').service(
 				$rootScope.$broadcast("restyleCurrentLayer");
 			};
 
+      this.addWmsLayerToMap = function (dataset, opacity) {
+        $rootScope.$broadcast("addWmsLayerToMap",
+            dataset);
+      };
 
+      this.adjustOpacityForWmsLayer = function (dataset, opacity) {
+        $rootScope.$broadcast("adjustOpacityForWmsLayer",
+            dataset, opacity);
+      };
 
+      this.removeWmsLayerFromMap = function (dataset) {
+        $rootScope.$broadcast("removeWmsLayerFromMap",
+            dataset);
+      };
 
+      this.addWfsLayerToMap = function (dataset, opacity) {
+        $rootScope.$broadcast("addWfsLayerToMap",
+            dataset);
+      };
+
+      this.adjustOpacityForWfsLayer = function (dataset, opacity) {
+        $rootScope.$broadcast("adjustOpacityForWfsLayer",
+            dataset, opacity);
+      };
+
+      this.adjustColorForWfsLayer = function (dataset, color) {
+        $rootScope.$broadcast("adjustColorForWfsLayer",
+            dataset, color);
+      };
+
+      this.removeWfsLayerFromMap = function (dataset) {
+        $rootScope.$broadcast("removeWfsLayerFromMap",
+            dataset);
+      };
+
+      this.addFileLayerToMap = function (dataset, opacity) {
+        $rootScope.$broadcast("addFileLayerToMap",
+            dataset);
+      };
+
+      this.adjustOpacityForFileLayer = function (dataset, opacity) {
+        $rootScope.$broadcast("adjustOpacityForFileLayer",
+            dataset, opacity);
+      };
+
+      this.adjustColorForFileLayer = function (dataset, color) {
+        $rootScope.$broadcast("adjustColorForFileLayer",
+            dataset, color);
+      };
+
+      this.removeFileLayerFromMap = function (dataset) {
+        $rootScope.$broadcast("removeFileLayerFromMap",
+            dataset);
+      };
 
 
 

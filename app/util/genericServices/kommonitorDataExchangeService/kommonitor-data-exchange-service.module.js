@@ -10,11 +10,11 @@ angular.module('kommonitorDataExchange', ['kommonitorMap']);
  * parameters for each WPS operation represented by different Angular components
  */
 angular
-		.module('kommonitorDataExchange')
+		.module('kommonitorDataExchange', ['datatables'])
 		.service(
-				'kommonitorDataExchangeService', ['$rootScope', 'kommonitorMapService', '$http', '__env',
-				function($rootScope,
-						kommonitorMapService, $http, __env) {
+				'kommonitorDataExchangeService', ['$rootScope', '$timeout', 'kommonitorMapService', '$http', '__env', 'DTOptionsBuilder',
+				function($rootScope, $timeout,
+						kommonitorMapService, $http, __env, DTOptionsBuilder) {
 
 							var numberOfDecimals = __env.numberOfDecimals;
 							const DATE_PREFIX = __env.indicatorDatePrefix;
@@ -29,7 +29,30 @@ angular
               const defaultBorderColorForOutliers_low = __env.defaultBorderColorForOutliers_low;
               const defaultFillOpacityForOutliers_low = __env.defaultFillOpacityForOutliers_low;
 
+          var self = this;
+
+          this.FEATURE_ID_PROPERTY_NAME = __env.FEATURE_ID_PROPERTY_NAME;
+          this.FEATURE_NAME_PROPERTY_NAME = __env.FEATURE_NAME_PROPERTY_NAME;
+          this.VALID_START_DATE_PROPERTY_NAME = __env.VALID_START_DATE_PROPERTY_NAME;
+          this.VALID_END_DATE_PROPERTY_NAME = __env.VALID_END_DATE_PROPERTY_NAME;
+          this.indicatorDatePrefix = __env.indicatorDatePrefix;
+
+          this.datatablesOptions = DTOptionsBuilder.newOptions()
+      				.withPaginationType('full_numbers')
+      				.withDisplayLength(5)
+      				.withLanguageSource('//cdn.datatables.net/plug-ins/1.10.15/i18n/German.json')
+              .withOption('lengthMenu', [[5, 10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "Alle"]]);
+
+          this.datePickerOptions = {
+            autoclose: true,
+      			language: 'de',
+      			format: 'yyyy-mm-dd'
+          };
+
 					this.kommonitorMapServiceInstance = kommonitorMapService;
+
+          this.updateIntervalOptions = __env.updateIntervalOptions;
+          this.geodataSourceFormats = __env.geodataSourceFormats;
 
           this.anySideBarIsShown = false;
 
@@ -38,12 +61,21 @@ angular
 					this.indicatorAndMetadataAsBalance;
 					this.tmpIndicatorGeoJSON = undefined;
 
+          this.wmsUrlForSelectedIndicator = undefined;
+          this.wfsUrlForSelectedIndicator = undefined;
+
 					this.baseUrlToKomMonitorDataAPI = __env.apiUrl + __env.basePath;
           this.simplifyGeometriesParameterName = __env.simplifyGeometriesParameterName;
           this.simplifyGeometriesOptions = __env.simplifyGeometriesOptions;
           this.simplifyGeometries = __env.simplifyGeometries;
 
-					this.availableProcessScripts;
+          this.wmsDatasets = __env.wmsDatasets;
+          this.wfsDatasets = __env.wfsDatasets;
+          this.fileDatasets = [];
+
+          this.availableRoles = [];
+          this.availableUsers = [];
+					this.availableProcessScripts = [];
           this.isochroneLegend;
 
           this.useOutlierDetectionOnIndicator = true;
@@ -52,7 +84,7 @@ angular
 						this.availableProcessScripts = scriptsArray;
 					};
 
-					this.availableSpatialUnits;
+					this.availableSpatialUnits = [];
 
 					this.selectedSpatialUnit;
 					this.selectedDate;
@@ -63,7 +95,7 @@ angular
 
 					// GEORESOURCES
 
-					this.availableGeoresources;
+					this.availableGeoresources = [];
 
 					this.selectedGeoresource;
 
@@ -76,7 +108,7 @@ angular
 					// INDICATORS
 					this.clickedIndicatorFeatureNames = new Array();
 
-					this.availableIndicators;
+					this.availableIndicators = [];
 
 					this.selectedIndicator;
           // backup used when switching themes --< this might make selectedIndicator undefined due to filtering list of theme-matching indicators
@@ -98,7 +130,7 @@ angular
 
 					// TOPICS
 
-					this.availableTopics;
+					this.availableTopics = [];
 
 					this.selectedTopic;
 
@@ -109,6 +141,152 @@ angular
 					// FILTER
 					this.rangeFilterData;
 					this.filteredIndicatorFeatureNames;
+
+
+          /*
+          * FETCH INITIAL METADATA ABOUT EACH RESOURCE
+          */
+
+          var fetchedTopicsInitially = false;
+          var fetchedSpatialUnitsInitially = false;
+          var fetchedGeoresourcesInitially = false;
+          var fetchedIndicatorsInitially = false;
+          var fetchedUsersInitially = false;
+          var fetchedRolesInitially = false;
+
+          var callScopeApplyInitially = function(){
+            if(fetchedUsersInitially && fetchedRolesInitially && fetchedTopicsInitially && fetchedIndicatorsInitially && fetchedGeoresourcesInitially && fetchedSpatialUnitsInitially){
+
+              $rootScope.$broadcast("initialMetadataLoadingCompleted");
+
+              $timeout(function () {
+                   $("option").each(function (index, element) {
+                      var text = $(element).text();
+                      $(element).attr("title", text);
+                   });
+              });
+            }
+
+          };
+
+          $http({
+            url: this.baseUrlToKomMonitorDataAPI + "/roles",
+            method: "GET"
+          }).then(function successCallback(response) {
+              // this callback will be called asynchronously
+              // when the response is available
+
+              self.availableRoles = response.data;
+              fetchedRolesInitially = true;
+              callScopeApplyInitially();
+
+            }, function errorCallback(response) {
+              // called asynchronously if an error occurs
+              // or server returns response with an error status.
+              //$scope.error = response.statusText;
+          });
+
+          $http({
+            url: this.baseUrlToKomMonitorDataAPI + "/users",
+            method: "GET"
+          }).then(function successCallback(response) {
+              // this callback will be called asynchronously
+              // when the response is available
+
+              self.availableUsers=response.data;
+              fetchedUsersInitially = true;
+              callScopeApplyInitially();
+
+            }, function errorCallback(response) {
+              // called asynchronously if an error occurs
+              // or server returns response with an error status.
+              //$scope.error = response.statusText;
+          });
+
+          $http({
+            url: this.baseUrlToKomMonitorDataAPI + "/spatial-units",
+            method: "GET"
+          }).then(function successCallback(response) {
+              // this callback will be called asynchronously
+              // when the response is available
+
+              self.setSpatialUnits(response.data);
+              fetchedSpatialUnitsInitially = true;
+              callScopeApplyInitially();
+
+            }, function errorCallback(response) {
+              // called asynchronously if an error occurs
+              // or server returns response with an error status.
+              //$scope.error = response.statusText;
+          });
+
+          $http({
+            url: this.baseUrlToKomMonitorDataAPI + "/georesources",
+            method: "GET"
+          }).then(function successCallback(response) {
+              // this callback will be called asynchronously
+              // when the response is available
+
+              self.setGeoresources(response.data);
+              fetchedGeoresourcesInitially = true;
+              callScopeApplyInitially();
+
+            }, function errorCallback(response) {
+              // called asynchronously if an error occurs
+              // or server returns response with an error status.
+              //$scope.error = response.statusText;
+          });
+
+          $http({
+            url: this.baseUrlToKomMonitorDataAPI + "/indicators",
+            method: "GET"
+          }).then(function successCallback(response) {
+              // this callback will be called asynchronously
+              // when the response is available
+
+              self.setIndicators(response.data);
+              fetchedIndicatorsInitially = true;
+              callScopeApplyInitially();
+
+            }, function errorCallback(response) {
+              // called asynchronously if an error occurs
+              // or server returns response with an error status.
+              //$scope.error = response.statusText;
+          });
+
+          $http({
+            url: this.baseUrlToKomMonitorDataAPI + "/topics",
+            method: "GET"
+          }).then(function successCallback(response) {
+              // this callback will be called asynchronously
+              // when the response is available
+
+              self.setTopics(response.data);
+              fetchedTopicsInitially = true;
+              callScopeApplyInitially();
+
+            }, function errorCallback(response) {
+              // called asynchronously if an error occurs
+              // or server returns response with an error status.
+              //$scope.error = response.statusText;
+          });
+
+          $http({
+            url: this.baseUrlToKomMonitorDataAPI + "/process-scripts",
+            method: "GET"
+          }).then(function successCallback(response) {
+              // this callback will be called asynchronously
+              // when the response is available
+
+              self.setProcessScripts(response.data);
+
+            }, function errorCallback(response) {
+              // called asynchronously if an error occurs
+              // or server returns response with an error status.
+              //$scope.error = response.statusText;
+          });
+
+
 
 					this.indicatorValueIsNoData = function(indicatorValue){
 						if(Number.isNaN(indicatorValue) || indicatorValue === null || indicatorValue === undefined){
@@ -259,7 +437,7 @@ angular
 
             }
             else{
-              if(indicatorMetadataAndGeoJSON.indicatorType === 'DYNAMIC'){
+              if(indicatorMetadataAndGeoJSON.indicatorType.includes('DYNAMIC')){
 
                 if(feature.properties[targetDate] < 0){
 
@@ -319,12 +497,126 @@ angular
 
               }
               else{
-                  color = defaultBrew.getColorInRange(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate));
+
+                if(containsNegativeValues(indicatorMetadataAndGeoJSON.geoJSON, targetDate)){
+                  if(this.getIndicatorValue_asNumber(feature.properties[targetDate]) >= 0){
+                    if(feature.properties[targetDate] == 0 || feature.properties[targetDate] == "0"){
+                      color = defaultColorForZeroValues;
+                      if(useTransparencyOnIndicator){
+                        fillOpacity = defaultFillOpacityForZeroFeatures;
+                      }
+                    }
+                    else{
+                      for (var index=0; index < dynamicIncreaseBrew.breaks.length; index++){
+                        if(this.getIndicatorValue_asNumber(feature.properties[targetDate]) == this.getIndicatorValue_asNumber(dynamicIncreaseBrew.breaks[index])){
+                          if(index < dynamicIncreaseBrew.breaks.length -1){
+                            // min value
+                            color =  dynamicIncreaseBrew.colors[index];
+                            break;
+                          }
+                          else {
+                            //max value
+                            if (dynamicIncreaseBrew.colors[index]){
+                              color =  dynamicIncreaseBrew.colors[index];
+                            }
+                            else{
+                              color =  dynamicIncreaseBrew.colors[index - 1];
+                            }
+                            break;
+                          }
+                        }
+                        else{
+                          if(this.getIndicatorValue_asNumber(feature.properties[targetDate]) < this.getIndicatorValue_asNumber(dynamicIncreaseBrew.breaks[index + 1])) {
+                            color =  dynamicIncreaseBrew.colors[index];
+                            break;
+                          }
+                        }
+                      }
+                    }
+                  }
+                  else{
+                    if(feature.properties[targetDate] == 0 || feature.properties[targetDate] == "0"){
+                      color = defaultColorForZeroValues;
+                      if(useTransparencyOnIndicator){
+                        fillOpacity = defaultFillOpacityForZeroFeatures;
+                      }
+                    }
+                    else{
+                      // invert colors, so that lowest values will become strong colored!
+                      for (var index=0; index < dynamicDecreaseBrew.breaks.length; index++){
+                        if(this.getIndicatorValue_asNumber(feature.properties[targetDate]) == this.getIndicatorValue_asNumber(dynamicDecreaseBrew.breaks[index])){
+                          if(index < dynamicDecreaseBrew.breaks.length -1){
+                            // min value
+                            color =  dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - index - 1];
+                            break;
+                          }
+                          else {
+                            //max value
+                            if (dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - index]){
+                              color =  dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - index];
+                            }
+                            else{
+                              color =  dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - index - 1];
+                            }
+                            break;
+                          }
+                        }
+                        else{
+                          if(this.getIndicatorValue_asNumber(feature.properties[targetDate]) < this.getIndicatorValue_asNumber(dynamicDecreaseBrew.breaks[index + 1])) {
+                            color =  dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - index - 1];
+                            break;
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+                else{
+                  color = defaultBrew.getColorInRange(this.getIndicatorValue_asNumber(feature.properties[targetDate]));
+                }
               }
             }
 
             return color;
           };
+
+          var containsNegativeValues = function(geoJSON, propertyName){
+
+            var containsNegativeValues = false;
+            for(var i=0; i< geoJSON.features.length; i++){
+              if (geoJSON.features[i].properties[propertyName] < 0){
+                containsNegativeValues = true;
+                break;
+              }
+            }
+
+            return containsNegativeValues;
+          };
+
+          this.formatIndiatorNameForLabel = function(indicatorName, maxCharsPerLine){
+            var separationSigns = [" ", "-", "_"];
+            var counter = 0;
+            var nextWord = "";
+            var nextChar;
+            var label = "";
+            for(var i=0; i<indicatorName.length; i++){
+              nextChar = indicatorName.charAt(i);
+              nextWord += nextChar;
+              if(counter === maxCharsPerLine){
+                label += "\n";
+                counter = 0;
+              }
+              else if(separationSigns.includes(nextChar)){
+                // add word to label
+                label += nextWord;
+                nextWord = "";
+              }
+              counter++;
+            }
+            //append last word
+            label += nextWord;
+            return label;
+          }
 
           this.filterIndicators = function (){
             return function( item ) {
@@ -355,6 +647,36 @@ angular
                   if(isIndicatorThatShallNotBeDisplayed){
                     return false;
                   }
+                return true;
+              }
+            };
+          };
+
+          this.filterGeoresourcesByPoi = function(){
+            return function( item ) {
+
+              try{
+                if(item.isPOI){
+                  return true;
+                }
+                return false;
+              }
+              catch(error){
+                return false;
+              }
+            };
+          };
+
+          this.filterPois = function(){
+            return function( item ) {
+
+              try{
+                // if(item.datasetName.includes("Lebensmittel")){
+                //   return false;
+                // }
+                return true;
+              }
+              catch(error){
                 return true;
               }
             };

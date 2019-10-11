@@ -1,4 +1,4 @@
-(function (window) {
+// (function (window) {
   window.__env = window.__env || {};
 
   // Whether or not to enable debug mode
@@ -9,6 +9,8 @@
   // DO NOT CHANGE THEM - ONLY IF YOU REALLY KNOW WHAT YOU ARE DOING
   window.__env.FEATURE_ID_PROPERTY_NAME = "ID";
   window.__env.FEATURE_NAME_PROPERTY_NAME = "NAME";
+  window.__env.VALID_START_DATE_PROPERTY_NAME = "validStartDate";
+  window.__env.VALID_END_DATE_PROPERTY_NAME = "validEndDate";
   window.__env.indicatorDatePrefix = "DATE_";
 
   // Data Management API URL
@@ -46,8 +48,9 @@
   window.__env.initialLatitude = 51.470824;
   window.__env.initialLongitude = 7.2254752;
   window.__env.initialZoomLevel = 12;
-  window.__env.minZoomLevel = 11;
-  window.__env.maxZoomLevel = 22;
+  // window.__env.minZoomLevel = 11;
+  window.__env.minZoomLevel = 5;
+  window.__env.maxZoomLevel = 18;
 
   // starting indicator and spatial unit
   // if faulty values are provided, a random indicator will be displayed
@@ -91,10 +94,142 @@
 
   // array of indicator name substring that shal be used to filter out / hide certain indicators by their name
   // e.g. set ["entwicklung"] to hide all indicators whose name contains the substring "entwicklung"
-  window.__env.arrayOfNameSubstringsForHidingIndicators = [];
+  window.__env.arrayOfNameSubstringsForHidingIndicators = ["Prozentuale", "Standardabweichung", "Stadtteil", "ausschließlich", "doppelt", "Versorgungsquote", "mittlerer Bodenversiegelungsgrad"];
 
   // e-mail recipient for feedback mail
   window.__env.feedbackMailRecipient = "thomas.blasche@amt62.essen.de";
   // window.__env.feedbackMailRecipient = "christian.danowski-buhren@hs-bochum.de";
 
-}(this));
+  window.__env.updateIntervalOptions = [
+    {
+        displayName: "jährlich",
+        apiName: "YEARLY"
+    },
+    {
+        displayName: "halbjährlich",
+        apiName: "HALF_YEARLY"
+    },
+    {
+        displayName: "vierteljährlich",
+        apiName: "QUARTERLY"
+    },
+    {
+        displayName: "monatlich",
+        apiName: "MONTHLY"
+    },
+    {
+        displayName: "beliebig",
+        apiName: "ARBITRARY"
+    }
+  ];
+
+  window.__env.geodataSourceFormats = [
+    {
+        displayName: "GeoJSON FeatureCollection",
+        value: "geojson"
+    }
+  ];
+
+  window.__env.wmsDatasets = [
+    {
+      title: "Versiegelungsgrad - 2006 anhand von Copernicus Satellitendaten - 20m Rasterzellen",
+      description: "Mehr Informationen unter <a href='https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness' rel='noopener noreferrer' target='_blank'>https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness</a>",
+      url: "https://image.discomap.eea.europa.eu/arcgis/services/GioLandPublic/HRL_ImperviousnessDensity_2006/MapServer/WMSServer?",
+      layerName: "0"
+    },
+    {
+      title: "Versiegelungsgrad - 2009 anhand von Copernicus Satellitendaten - 20m Rasterzellen",
+      description: "Mehr Informationen unter <a href='https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness' rel='noopener noreferrer' target='_blank'>https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness</a>",
+      url: "https://image.discomap.eea.europa.eu/arcgis/services/GioLandPublic/HRL_ImperviousnessDensity_2009/MapServer/WMSServer?",
+      layerName: "0"
+    },
+    {
+      title: "Versiegelungsgrad - 2012 anhand von Copernicus Satellitendaten - 20m Rasterzellen",
+      description: "Mehr Informationen unter <a href='https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness' rel='noopener noreferrer' target='_blank'>https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness</a>",
+      url: "https://image.discomap.eea.europa.eu/arcgis/services/GioLandPublic/HRL_Imperviousness_Density_2012/MapServer/WMSServer?",
+      layerName: "Imperviousness density 2012 20m"
+    },
+    {
+      title: "Versiegelungsgrad - 2015 anhand von Copernicus Satellitendaten - 20m Rasterzellen",
+      description: "Mehr Informationen unter <a href='https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness' rel='noopener noreferrer' target='_blank'>https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness</a>",
+      url: "https://image.discomap.eea.europa.eu/arcgis/services/GioLandPublic/HRL_ImperviousnessDensity_2015/MapServer/WMSServer?",
+      layerName: "0"
+    },
+    {
+      title: "Versiegelungsgrad - Ver&auml;nderung 2006-2009 anhand von Copernicus Satellitendaten - 20m Rasterzellen",
+      description: "Mehr Informationen unter <a href='https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness' rel='noopener noreferrer' target='_blank'>https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness</a>",
+      url: "https://image.discomap.eea.europa.eu/arcgis/services/GioLandPublic/HRL_ImperviousnessChange_06_09/MapServer/WMSServer?",
+      layerName: "0"
+    },
+    {
+      title: "Versiegelungsgrad - Ver&auml;nderung 2009-2012 anhand von Copernicus Satellitendaten - 20m Rasterzellen",
+      description: "Mehr Informationen unter <a href='https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness' rel='noopener noreferrer' target='_blank'>https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness</a>",
+      url: "https://image.discomap.eea.europa.eu/arcgis/services/GioLandPublic/HRL_ImperviousnessChange_09_12/MapServer/WMSServer?",
+      layerName: "Imperviousness density change 09-12 20m"
+    },
+    {
+      title: "Versiegelungsgrad - Ver&auml;nderung 2012-2015 anhand von Copernicus Satellitendaten - 20m Rasterzellen",
+      description: "Mehr Informationen unter <a href='https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness' rel='noopener noreferrer' target='_blank'>https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness</a>",
+      url: "https://image.discomap.eea.europa.eu/arcgis/services/GioLandPublic/HRL_ImperviousnessChange_12_15/MapServer/WMSServer?",
+      layerName: "0"
+    },
+    {
+      title: "Versiegelungsgrad - Klassifizierte Ver&auml;nderung 2006-2009 anhand von Copernicus Satellitendaten - 20m Rasterzellen",
+      description: "Mehr Informationen unter <a href='https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness' rel='noopener noreferrer' target='_blank'>https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness</a>",
+      url: "https://image.discomap.eea.europa.eu/arcgis/services/GioLandPublic/HRL_ImperviousnessClassifiedChange_06_09/MapServer/WMSServer?",
+      layerName: "0"
+    },
+    {
+      title: "Versiegelungsgrad - Klassifizierte Ver&auml;nderung 2009-2012 anhand von Copernicus Satellitendaten - 20m Rasterzellen",
+      description: "Mehr Informationen unter <a href='https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness' rel='noopener noreferrer' target='_blank'>https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness</a>",
+      url: "https://image.discomap.eea.europa.eu/arcgis/services/GioLandPublic/HRL_ImperviousnessClassifiedChange_09_12/MapServer/WMSServer?",
+      layerName: "0"
+    },
+    {
+      title: "Versiegelungsgrad - Klassifizierte Ver&auml;nderung 2012-2015 anhand von Copernicus Satellitendaten - 20m Rasterzellen",
+      description: "Mehr Informationen unter <a href='https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness' rel='noopener noreferrer' target='_blank'>https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness</a>",
+      url: "https://image.discomap.eea.europa.eu/arcgis/services/GioLandPublic/HRL_ImperviousnessChange_12_15/MapServer/WMSServer?",
+      layerName: "0"
+    },
+    {
+      title: "Bodennutzung - Bebauungsplanumringe",
+      description: "Umringe der Bebauungspl&auml;ne gem&auml;&szlig; geodaten.metropoleruhr.de",
+      url: "https://geodaten.metropoleruhr.de/inspire/bodennutzung/metropoleruhr?",
+      layerName: "bplan"
+    }
+  ];
+
+  window.__env.wfsDatasets = [
+    {
+      title: "Bodennutzung - Bebauungsplanumringe",
+      description: "Umringe der Bebauungspl&auml;ne gem&auml;&szlig; geodaten.metropoleruhr.de. <b>WFS-Dienst unterst&uuml;tzt keine r&auml;umllichen Filter. Daher m&uuml;ssen zwingend alle Features abgerufen werden</b>.",
+      url: "https://geodaten.metropoleruhr.de/inspire/bodennutzung/metropoleruhr?",
+      featureTypeNamespace: "ms",
+      featureTypeName: "bplan_stand",
+      featureTypeGeometryName: "geom",
+      displayColor: "#00aabb",
+      filterFeaturesToMapBBOX: false
+    }
+    // {
+    //   title: "Verwaltungsgrenzen Kreise und kreisfreie St&auml;dte",
+    //   description: "Verwaltungsgrenzen gem&auml;ß Bezirksregierung K&ouml;ln",
+    //   url: "https://www.wfs.nrw.de/geobasis/wfs_nw_dvg?",
+    //   featureTypeNamespace: "dvg",
+    //   featureTypeName: "nw_dvg1_gem",
+    //   featureTypeGeometryName: "msGeometry",
+    //   displayColor: "#00aabb",
+    //   filterFeaturesToMapBBOX: true
+    // },
+    // {
+    //   title: "Freizeitkataster",
+    //   description: "Freizeitkataster gem&auml;ß Bezirksregierung K&ouml;ln",
+    //   url: "https://www.wfs.nrw.de/geobasis/wfs_nw_fzk?",
+    //   featureTypeNamespace: "fzk",
+    //   featureTypeName: "POI_p",
+    //   featureTypeGeometryName: "msGeometry",
+    //   displayColor: null,
+    //   filterFeaturesToMapBBOX: true
+    // }
+  ];
+
+// }(this));
