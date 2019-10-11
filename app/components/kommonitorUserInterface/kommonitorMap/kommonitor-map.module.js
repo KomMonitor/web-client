@@ -53,10 +53,15 @@ angular.module('kommonitorMap').service(
 						georesourceMetadataAndGeoJSON, date, useCluster);
 			};
 
-      this.replaceIsochroneGeoJSON = function (geoJSON, transitMode, reachMode, cutOffValues, useMultipleStartPoints) {
+      this.replaceIsochroneGeoJSON = function (geoJSON, transitMode, reachMode, cutOffValues, useMultipleStartPoints, dissolveIsochrones) {
 
 				$rootScope.$broadcast("replaceIsochronesAsGeoJSON",
-						geoJSON, transitMode, reachMode, cutOffValues, useMultipleStartPoints);
+						geoJSON, transitMode, reachMode, cutOffValues, useMultipleStartPoints, dissolveIsochrones);
+			};
+
+      this.replaceRouteGeoJSON = function (geoJSON, transitMode, preference, routingStartPoint, routingEndPoint) {
+
+				$rootScope.$broadcast("replaceRouteAsGeoJSON", geoJSON, transitMode, preference, routingStartPoint, routingEndPoint);
 			};
 
       this.replaceIsochroneMarker = function (lonLatArray) {
@@ -73,6 +78,10 @@ angular.module('kommonitorMap').service(
 
       this.removeReachabilityLayers = function(){
         $rootScope.$broadcast("removeReachabilityLayers");
+      }
+
+      this.removeRoutingLayers = function(){
+        $rootScope.$broadcast("removeRoutingLayers");
       }
 
 			this.addIndicatorGeoJSON = function (indicatorMetadataAndGeoJSON, spatialUnitName, date) {

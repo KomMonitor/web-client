@@ -16,6 +16,21 @@ angular
 								// initialize any adminLTE box widgets
 								$('.box').boxWidget();
 
+								$(window).on('resize', function(){
+						        if($scope.radarChart != null && $scope.radarChart != undefined){
+						            $scope.radarChart.resize();
+						        }
+						    });
+
+								$scope.$on("resizeDiagrams", function (event) {
+
+									setTimeout(function(){
+										if($scope.radarChart != null && $scope.radarChart != undefined){
+						            $scope.radarChart.resize();
+						        }
+									}, 350);
+								});
+
 								const DATE_PREFIX = __env.indicatorDatePrefix;
 
 								$scope.indicatorNameFilter = undefined;
@@ -325,6 +340,9 @@ angular
 
 										// use configuration item and data specified to show chart
 										$scope.radarChart.setOption($scope.radarOption);
+										setTimeout(function(){
+											$scope.radarChart.resize();
+										}, 350);
 										registerEventsIfNecessary();
 
 									}
@@ -515,6 +533,9 @@ angular
 									$scope.radarOption.series[0].data.push(featureSeries);
 
 									$scope.radarChart.setOption($scope.radarOption);
+									setTimeout(function(){
+										$scope.radarChart.resize();
+									}, 350);
 									registerEventsIfNecessary();
 								};
 
@@ -570,6 +591,9 @@ angular
 
 									// second parameter tells echarts to not merge options with previous data. hence really remove series from graphic
 									$scope.radarChart.setOption($scope.radarOption, true);
+									setTimeout(function(){
+										$scope.radarChart.resize();
+									}, 350);
 									registerEventsIfNecessary();
 								};
 

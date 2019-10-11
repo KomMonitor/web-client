@@ -17,6 +17,37 @@ angular
 								// initialize any adminLTE box widgets
 								$('.box').boxWidget();
 
+								$(window).on('resize', function(){
+						        if($scope.histogramChart != null && $scope.histogramChart != undefined){
+						            $scope.histogramChart.resize();
+						        }
+
+										if($scope.barChart != null && $scope.barChart != undefined){
+						            $scope.barChart.resize();
+						        }
+
+										if($scope.lineChart != null && $scope.lineChart != undefined){
+						            $scope.lineChart.resize();
+						        }
+						    });
+
+								$scope.$on("resizeDiagrams", function (event) {
+
+									setTimeout(function(){
+										if($scope.histogramChart != null && $scope.histogramChart != undefined){
+												$scope.histogramChart.resize();
+										}
+
+										if($scope.barChart != null && $scope.barChart != undefined){
+												$scope.barChart.resize();
+										}
+
+										if($scope.lineChart != null && $scope.lineChart != undefined){
+												$scope.lineChart.resize();
+										}
+									}, 350);
+								});
+
 								const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
 								const defaultColorForHoveredFeatures = __env.defaultColorForHoveredFeatures;
 								const defaultColorForClickedFeatures = __env.defaultColorForClickedFeatures;
@@ -392,6 +423,9 @@ angular
 								}
 
 									$scope.histogramChart.setOption($scope.histogramOption);
+									setTimeout(function(){
+										$scope.histogramChart.resize();
+									}, 350);
 								};
 
 								var onlyContainsPositiveNumbers = function(indicatorValueArray){
@@ -574,6 +608,10 @@ angular
 
 									// use configuration item and data specified to show chart
 									$scope.barChart.setOption($scope.barOption);
+
+									setTimeout(function(){
+										$scope.barChart.resize();
+									}, 350);
 
 									registerEventsIfNecessary();
 								};
@@ -804,6 +842,9 @@ angular
 
 									// use configuration item and data specified to show chart
 									$scope.lineChart.setOption($scope.lineOption);
+									setTimeout(function(){
+										$scope.lineChart.resize();
+									}, 350);
 								};
 
 
@@ -850,6 +891,9 @@ angular
 									$scope.lineOption.series.push(featureSeries);
 
 									$scope.lineChart.setOption($scope.lineOption);
+									setTimeout(function(){
+										$scope.lineChart.resize();
+									}, 350);
 								};
 
 								var findPropertiesForTimeSeries = function(spatialUnitFeatureName){
@@ -940,6 +984,9 @@ angular
 
 									// second parameter tells echarts to not merge options with previous data. hence really remove series from graphic
 									$scope.lineChart.setOption($scope.lineOption, true);
+									setTimeout(function(){
+										$scope.lineChart.resize();
+									}, 350);
 								};
 
 								var unhighlightFeatureInBarChart = function(featureProperties){
