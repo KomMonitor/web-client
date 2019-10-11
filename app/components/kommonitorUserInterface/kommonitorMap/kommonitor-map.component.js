@@ -2398,7 +2398,7 @@ angular.module('kommonitorMap').component(
                                 $scope.updateSearchControl();
                               });
 
-                              $scope.$on("replaceIsochronesAsGeoJSON", function (event, geoJSON, transitMode, reachMode, cutOffValues, useMultipleStartPoints) {
+                              $scope.$on("replaceIsochronesAsGeoJSON", function (event, geoJSON, transitMode, reachMode, cutOffValues, useMultipleStartPoints, dissolveIsochrones) {
 
                                 if($scope.isochronesLayer){
                                   $scope.layerControl.removeLayer($scope.isochronesLayer);
@@ -2529,7 +2529,7 @@ angular.module('kommonitorMap').component(
                                   }]
                                 }
 
-                                if(useMultipleStartPoints){
+                                if(useMultipleStartPoints && dissolveIsochrones){
                                   // merge intersecting isochrones of same cutOffValue
 
                                   // execute it 3 times in order to dissolve multiple intersections
@@ -2548,7 +2548,8 @@ angular.module('kommonitorMap').component(
                                   var style = {
                                     color: kommonitorDataExchangeService.isochroneLegend.colorValueEntries[styleIndex].color,
                                     weight: 1,
-                                    opacity: 1
+                                    opacity: 0.4,
+                                    fillOpacity: 0.3
                                   };
 
                                   L.geoJSON(geoJSON.features[index], {
@@ -2692,9 +2693,18 @@ angular.module('kommonitorMap').component(
                               var mergeIntersectingIsochrones = function(geoJSON){
                                 // use turf to dissolve any overlapping/intersecting isochrones that have the same cutOffValue!
 
-                                var dissolved = turf.dissolve(geoJSON, {propertyName: 'value'});
+                                try {
+                                  var dissolved = turf.dissolve(geoJSON, {propertyName: 'value'});
 
-                                return dissolved;
+                                  return dissolved;
+                                } catch (e) {
+                                  console.error("Dissolving Isochrones failed with error: " + e);
+            											console.error("Will return undissolved isochrones");
+                                  return geoJSON;
+                                } finally {
+
+                                }
+
                               };
 
                               $scope.$on("replaceIsochroneMarker", function (event, lonLatArray) {
