@@ -299,9 +299,23 @@
 
 							</div>
 
-							<br />
+							<div ng-hide="showIsochrones">
+								<br />
+							</div>
 
 							<div align="center">
+
+								<div ng-show="showIsochrones">
+									<b>Isochronen vereinigen</b> (erh&ouml;ht die Laufzeit der Berechnung)
+									&nbsp;
+									<label class="switch">
+										<input type="checkbox" value="dissolveIsochrones" ng-model="dissolveIsochrones" checked>
+										<span class="switchslider round"></span>
+									</label>
+									<br/>
+									<br/>
+								</div>
+
 								<input type="button" class="btn btn-s btn-info" value="Analyse starten!" ng-disabled="!(pointSourceConfigured && showIsochrones) && !(routingStartPoint && routingEndPoint && !showIsochrones)" ng-click="startAnalysis()"></input>
 								<input type="button" class="btn btn-s btn-danger" value="Zur&uuml;cksetzen" ng-click="resetForm()"></input>
 							</div>
@@ -351,7 +365,7 @@
 								<label>Einheit: </label>&nbsp; {{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.cutOffUnit}}
 								<br />
 								<div ng-repeat="entry in $ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.colorValueEntries">
-									<i style="background: {{entry.color}}"></i> {{entry.value}}
+									<i style="background: {{entry.color}}; opacity: 0.3;"></i> {{entry.value}}
 								</div>
 							</div>
 
