@@ -21,6 +21,8 @@ module.exports = function (grunt) {
             'app/components/kommonitorAdmin/adminSpatialUnitsManagement/spatialUnitEditMetadataModal/spatial-unit-edit-metadata-modal.component.js',
             'app/components/kommonitorAdmin/adminSpatialUnitsManagement/spatialUnitEditFeaturesModal/spatial-unit-edit-features-modal.module.js',
             'app/components/kommonitorAdmin/adminSpatialUnitsManagement/spatialUnitEditFeaturesModal/spatial-unit-edit-features-modal.component.js',
+            'app/components/kommonitorAdmin/adminSpatialUnitsManagement/spatialUnitDeleteModal/spatial-unit-delete-modal.module.js',
+            'app/components/kommonitorAdmin/adminSpatialUnitsManagement/spatialUnitDeleteModal/spatial-unit-delete-modal.component.js',
             'app/components/kommonitorAdmin/adminIndicatorsManagement/admin-indicators-management.module.js',
             'app/components/kommonitorAdmin/adminIndicatorsManagement/admin-indicators-management.component.js',
             'app/components/kommonitorAdmin/adminGeoresourcesManagement/admin-georesources-management.module.js',
