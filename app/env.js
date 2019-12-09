@@ -89,7 +89,7 @@
 
   // array of indicator name substring that shal be used to filter out / hide certain indicators by their name
   // e.g. set ["entwicklung"] to hide all indicators whose name contains the substring "entwicklung"
-  window.__env.arrayOfNameSubstringsForHidingIndicators = ["Prozentuale", "Standardabweichung", "Stadtteil", "ausschließlich", "doppelt", "Versorgungsquote", "mittlerer Bodenversiegelungsgrad"];
+  window.__env.arrayOfNameSubstringsForHidingIndicators = [];
 
   // e-mail recipient for feedback mail
   window.__env.feedbackMailRecipient = "marcel.thelen@muelheim-ruhr.de";
