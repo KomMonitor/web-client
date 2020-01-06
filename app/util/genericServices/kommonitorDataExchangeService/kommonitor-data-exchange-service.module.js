@@ -12,9 +12,9 @@ angular.module('kommonitorDataExchange', ['kommonitorMap']);
 angular
 		.module('kommonitorDataExchange', ['datatables'])
 		.service(
-				'kommonitorDataExchangeService', ['$rootScope', '$timeout', 'kommonitorMapService', '$http', '__env', 'DTOptionsBuilder',
+				'kommonitorDataExchangeService', ['$rootScope', '$timeout', 'kommonitorMapService', '$http', '__env', 'DTOptionsBuilder', '$q',
 				function($rootScope, $timeout,
-						kommonitorMapService, $http, __env, DTOptionsBuilder) {
+						kommonitorMapService, $http, __env, DTOptionsBuilder, $q) {
 
 							var numberOfDecimals = __env.numberOfDecimals;
 							const DATE_PREFIX = __env.indicatorDatePrefix;
@@ -154,7 +154,27 @@ angular
           var fetchedUsersInitially = false;
           var fetchedRolesInitially = false;
 
-          var callScopeApplyInitially = function(){
+          this.fetchAllMetadata = function(){
+            var topicsPromise = this.fetchTopicsMetadata();
+            var usersPromise = this.fetchUsersMetadata();
+            var rolesPromise = this.fetchRolesMetadata();
+            var spatialUnitsPromise = this.fetchSpatialUnitsMetadata();
+            var georesourcesPromise = this.fetchGeoresourcesMetadata();
+            var indicatorsPromise = this.fetchIndicatorsMetadata();
+            var scriptsPromise = this.fetchIndicatorScriptsMetadata();
+
+            var metadataPromises = [topicsPromise, usersPromise, rolesPromise, spatialUnitsPromise, georesourcesPromise, indicatorsPromise, scriptsPromise];
+
+            $q.all(metadataPromises).then(function successCallback(successArray) {
+      						onMetadataLoadingCompleted();
+      				}, function errorCallback(errorArray) {
+                // todo error handling
+
+      			});
+
+          };
+
+          var onMetadataLoadingCompleted = function(){
             if(fetchedUsersInitially && fetchedRolesInitially && fetchedTopicsInitially && fetchedIndicatorsInitially && fetchedGeoresourcesInitially && fetchedSpatialUnitsInitially){
 
               $rootScope.$broadcast("initialMetadataLoadingCompleted");
@@ -169,124 +189,133 @@ angular
 
           };
 
-          $http({
-            url: this.baseUrlToKomMonitorDataAPI + "/roles",
-            method: "GET"
-          }).then(function successCallback(response) {
-              // this callback will be called asynchronously
-              // when the response is available
+          this.fetchRolesMetadata = function(){
+            return $http({
+              url: this.baseUrlToKomMonitorDataAPI + "/roles",
+              method: "GET"
+            }).then(function successCallback(response) {
+                // this callback will be called asynchronously
+                // when the response is available
 
-              self.availableRoles = response.data;
-              fetchedRolesInitially = true;
-              callScopeApplyInitially();
+                self.availableRoles = response.data;
+                fetchedRolesInitially = true;
 
-            }, function errorCallback(response) {
-              // called asynchronously if an error occurs
-              // or server returns response with an error status.
-              //$scope.error = response.statusText;
-          });
+              }, function errorCallback(response) {
+                // called asynchronously if an error occurs
+                // or server returns response with an error status.
+                //$scope.error = response.statusText;
+            });
+          };
 
-          $http({
-            url: this.baseUrlToKomMonitorDataAPI + "/users",
-            method: "GET"
-          }).then(function successCallback(response) {
-              // this callback will be called asynchronously
-              // when the response is available
+          this.fetchUsersMetadata = function(){
+            return $http({
+              url: this.baseUrlToKomMonitorDataAPI + "/users",
+              method: "GET"
+            }).then(function successCallback(response) {
+                // this callback will be called asynchronously
+                // when the response is available
 
-              self.availableUsers=response.data;
-              fetchedUsersInitially = true;
-              callScopeApplyInitially();
+                self.availableUsers=response.data;
+                fetchedUsersInitially = true;
 
-            }, function errorCallback(response) {
-              // called asynchronously if an error occurs
-              // or server returns response with an error status.
-              //$scope.error = response.statusText;
-          });
+              }, function errorCallback(response) {
+                // called asynchronously if an error occurs
+                // or server returns response with an error status.
+                //$scope.error = response.statusText;
+            });
+          };
 
-          $http({
-            url: this.baseUrlToKomMonitorDataAPI + "/spatial-units",
-            method: "GET"
-          }).then(function successCallback(response) {
-              // this callback will be called asynchronously
-              // when the response is available
+          this.fetchTopicsMetadata = function(){
+            return $http({
+              url: this.baseUrlToKomMonitorDataAPI + "/topics",
+              method: "GET"
+            }).then(function successCallback(response) {
+                // this callback will be called asynchronously
+                // when the response is available
 
-              self.setSpatialUnits(response.data);
-              fetchedSpatialUnitsInitially = true;
-              callScopeApplyInitially();
+                self.setTopics(response.data);
+                fetchedTopicsInitially = true;
 
-            }, function errorCallback(response) {
-              // called asynchronously if an error occurs
-              // or server returns response with an error status.
-              //$scope.error = response.statusText;
-          });
+              }, function errorCallback(response) {
+                // called asynchronously if an error occurs
+                // or server returns response with an error status.
+                //$scope.error = response.statusText;
+            });
+          };
 
-          $http({
-            url: this.baseUrlToKomMonitorDataAPI + "/georesources",
-            method: "GET"
-          }).then(function successCallback(response) {
-              // this callback will be called asynchronously
-              // when the response is available
+          this.fetchSpatialUnitsMetadata = function(){
+            return $http({
+              url: this.baseUrlToKomMonitorDataAPI + "/spatial-units",
+              method: "GET"
+            }).then(function successCallback(response) {
+                // this callback will be called asynchronously
+                // when the response is available
 
-              self.setGeoresources(response.data);
-              fetchedGeoresourcesInitially = true;
-              callScopeApplyInitially();
+                self.setSpatialUnits(response.data);
+                fetchedSpatialUnitsInitially = true;
 
-            }, function errorCallback(response) {
-              // called asynchronously if an error occurs
-              // or server returns response with an error status.
-              //$scope.error = response.statusText;
-          });
+              }, function errorCallback(response) {
+                // called asynchronously if an error occurs
+                // or server returns response with an error status.
+                //$scope.error = response.statusText;
+            });
+          };
 
-          $http({
-            url: this.baseUrlToKomMonitorDataAPI + "/indicators",
-            method: "GET"
-          }).then(function successCallback(response) {
-              // this callback will be called asynchronously
-              // when the response is available
+          this.fetchGeoresourcesMetadata = function(){
+            return $http({
+              url: this.baseUrlToKomMonitorDataAPI + "/georesources",
+              method: "GET"
+            }).then(function successCallback(response) {
+                // this callback will be called asynchronously
+                // when the response is available
 
-              self.setIndicators(response.data);
-              fetchedIndicatorsInitially = true;
-              callScopeApplyInitially();
+                self.setGeoresources(response.data);
+                fetchedGeoresourcesInitially = true;
 
-            }, function errorCallback(response) {
-              // called asynchronously if an error occurs
-              // or server returns response with an error status.
-              //$scope.error = response.statusText;
-          });
+              }, function errorCallback(response) {
+                // called asynchronously if an error occurs
+                // or server returns response with an error status.
+                //$scope.error = response.statusText;
+            });
+          };
 
-          $http({
-            url: this.baseUrlToKomMonitorDataAPI + "/topics",
-            method: "GET"
-          }).then(function successCallback(response) {
-              // this callback will be called asynchronously
-              // when the response is available
+          this.fetchIndicatorsMetadata = function(){
+            return $http({
+              url: this.baseUrlToKomMonitorDataAPI + "/indicators",
+              method: "GET"
+            }).then(function successCallback(response) {
+                // this callback will be called asynchronously
+                // when the response is available
 
-              self.setTopics(response.data);
-              fetchedTopicsInitially = true;
-              callScopeApplyInitially();
+                self.setIndicators(response.data);
+                fetchedIndicatorsInitially = true;
 
-            }, function errorCallback(response) {
-              // called asynchronously if an error occurs
-              // or server returns response with an error status.
-              //$scope.error = response.statusText;
-          });
+              }, function errorCallback(response) {
+                // called asynchronously if an error occurs
+                // or server returns response with an error status.
+                //$scope.error = response.statusText;
+            });
+          };
 
-          $http({
-            url: this.baseUrlToKomMonitorDataAPI + "/process-scripts",
-            method: "GET"
-          }).then(function successCallback(response) {
-              // this callback will be called asynchronously
-              // when the response is available
+          this.fetchIndicatorScriptsMetadata = function(){
+            return $http({
+              url: this.baseUrlToKomMonitorDataAPI + "/process-scripts",
+              method: "GET"
+            }).then(function successCallback(response) {
+                // this callback will be called asynchronously
+                // when the response is available
 
-              self.setProcessScripts(response.data);
+                self.setProcessScripts(response.data);
 
-            }, function errorCallback(response) {
-              // called asynchronously if an error occurs
-              // or server returns response with an error status.
-              //$scope.error = response.statusText;
-          });
+              }, function errorCallback(response) {
+                // called asynchronously if an error occurs
+                // or server returns response with an error status.
+                //$scope.error = response.statusText;
+            });
+          };
 
-
+          // execute metadata fetching on page load
+          this.fetchAllMetadata();
 
 					this.indicatorValueIsNoData = function(indicatorValue){
 						if(Number.isNaN(indicatorValue) || indicatorValue === null || indicatorValue === undefined){
