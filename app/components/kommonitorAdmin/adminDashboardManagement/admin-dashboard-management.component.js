@@ -65,10 +65,23 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 				}
 		});
 
+		$scope.$on("refreshAdminDashboardDiagrams", function (event) {
+
+			console.log("refresh admin charts");
+
+			$scope.refreshAdminDashboardDiagrams();
+
+		});
+
 		$scope.$on("initialMetadataLoadingCompleted", function (event) {
 
 			console.log("refresh admin overview");
 
+			$scope.refreshAdminDashboardDiagrams();
+
+		});
+
+		$scope.refreshAdminDashboardDiagrams = function(){
 			var mainTopics = [];
 			var subTopics = [];
 
@@ -87,8 +100,7 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 			$scope.updateCharts();
 
 			$scope.loadingData = false;
-
-		});
+		};
 
 		$scope.updateCharts = function(){
 

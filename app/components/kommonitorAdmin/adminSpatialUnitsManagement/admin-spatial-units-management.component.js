@@ -63,13 +63,7 @@ angular.module('adminSpatialUnitsManagement').component('adminSpatialUnitsManage
 		$scope.refreshSpatialUnitOverviewTable = function(){
 
 			// refetch all metadata from spatial units to update table
-
-			$http({
-				url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/spatial-units",
-				method: "GET"
-			}).then(function successCallback(response) {
-
-						kommonitorDataExchangeService.availableSpatialUnits = response.data;
+			kommonitorDataExchangeService.fetchSpatialUnitsMetadata().then(function successCallback(response) {
 
 						$scope.initializeOrRefreshOverviewTable();
 
@@ -78,7 +72,8 @@ angular.module('adminSpatialUnitsManagement').component('adminSpatialUnitsManage
 				}, function errorCallback(response) {
 
 					$scope.loadingData = false;
-			});
+			})
+
 		};
 
 		$scope.onChangeSelectDataset = function(spatialUnitDataset){

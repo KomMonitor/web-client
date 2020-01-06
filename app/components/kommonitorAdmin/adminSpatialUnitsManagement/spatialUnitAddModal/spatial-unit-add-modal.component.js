@@ -207,6 +207,10 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 					// when the response is available
 
 					$rootScope.$broadcast("refreshSpatialUnitOverviewTable");
+
+					// refresh all admin dashboard diagrams due to modified metadata
+					$rootScope.$broadcast("refreshAdminDashboardDiagrams");
+					
 					$scope.loadingData = false;
 
 				}, function errorCallback(response) {

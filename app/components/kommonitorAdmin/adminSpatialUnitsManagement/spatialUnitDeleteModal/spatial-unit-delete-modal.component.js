@@ -45,7 +45,7 @@ angular.module('spatialUnitDeleteModal').component('spatialUnitDeleteModal', {
 				deletePromises.push($scope.getDeleteDatasetPromise(dataset));
 			});
 
-			$q.all(deletePromises).then(function successCallback(successArray) {
+			$q.all(deletePromises).then(async function successCallback(successArray) {
 						//
 
 						if($scope.failedDatasetsAndErrors.length > 0){
@@ -55,12 +55,19 @@ angular.module('spatialUnitDeleteModal').component('spatialUnitDeleteModal', {
 							// 	$("#spatialUnitsDeleteSuccessAlert").show();
 							// }
 
-							$rootScope.$broadcast("refreshSpatialUnitOverviewTable");
 							$scope.loadingData = false;
 						}
 						if($scope.successfullyDeletedDatasets.length > 0){
 							$("#spatialUnitsDeleteSuccessAlert").show();
+
+							// fetch indicatorMetada again as a spatialUnit was deleted
+							await kommonitorDataExchangeService.fetchIndicatorsMetadata();
+							// refresh spatial unit overview table
 							$rootScope.$broadcast("refreshSpatialUnitOverviewTable");
+
+							// refresh all admin dashboard diagrams due to modified metadata
+							$rootScope.$broadcast("refreshAdminDashboardDiagrams");
+
 							$scope.loadingData = false;
 						}
 				}, function errorCallback(errorArray) {
