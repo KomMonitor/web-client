@@ -49,7 +49,7 @@
                 <h4><i class="icon fa fa-ban"></i>L&ouml;schen gescheitert</h4>
                 Folgende Datens&auml;tze konnten nicht gel&ouml;scht werden.
 								<br/>
-								<table class="table table-bordered table-condensed table-striped" style="width:100%; overflow:auto; font-size: 11px;">
+								<table class="table table-bordered table-condensed" style="width:100%; overflow:auto; font-size: 11px;">
 	                <thead>
 	                <tr>
 	                  <th>Name</th>
@@ -58,10 +58,10 @@
 	                </thead>
 
 	                <tbody>
-	                <tr ng-repeat="dataset in failedDatasetsAndErrors">
-	                  <td>{{failedDatasetsAndErrors[0].spatialUnitLevel}}</td>
-	                  <td>{{failedDatasetsAndErrors[1]}}</td>
-	                </tr>
+		                <tr ng-repeat="dataset in failedDatasetsAndErrors">
+		                  <td>{{dataset[0].spatialUnitLevel}}</td>
+		                  <td>{{dataset[1]}}</td>
+		                </tr>
 
 	                </tbody>
 	              </table>

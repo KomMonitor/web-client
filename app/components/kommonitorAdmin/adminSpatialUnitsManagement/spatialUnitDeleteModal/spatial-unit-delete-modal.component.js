@@ -46,11 +46,23 @@ angular.module('spatialUnitDeleteModal').component('spatialUnitDeleteModal', {
 			});
 
 			$q.all(deletePromises).then(function successCallback(successArray) {
-						//everything worked fine
+						//
 
-						$("#spatialUnitsDeleteSuccessAlert").show();
-						$rootScope.$broadcast("refreshSpatialUnitOverviewTable");
-						$scope.loadingData = false;
+						if($scope.failedDatasetsAndErrors.length > 0){
+							// error handling
+							$("#spatialUnitsDeleteErrorAlert").show();
+							// if ($scope.successfullyDeletedDatasets.length > 0){
+							// 	$("#spatialUnitsDeleteSuccessAlert").show();
+							// }
+
+							$rootScope.$broadcast("refreshSpatialUnitOverviewTable");
+							$scope.loadingData = false;
+						}
+						if($scope.successfullyDeletedDatasets.length > 0){
+							$("#spatialUnitsDeleteSuccessAlert").show();
+							$rootScope.$broadcast("refreshSpatialUnitOverviewTable");
+							$scope.loadingData = false;
+						}
 				}, function errorCallback(errorArray) {
 
 					$("#spatialUnitsDeleteErrorAlert").show();
