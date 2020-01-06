@@ -6,6 +6,9 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 
 		$scope.kommonitorDataExchangeService = kommonitorDataExchangeService;
 
+		$scope.numberOfMainTopics = 0;
+		$scope.numberOfSubTopics = 0;
+
 		$scope.pieChartTooltip = {
 				trigger: 'item',
 				confine: 'true',
@@ -65,6 +68,21 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 		$scope.$on("initialMetadataLoadingCompleted", function (event) {
 
 			console.log("refresh admin overview");
+
+			var mainTopics = [];
+			var subTopics = [];
+
+			kommonitorDataExchangeService.availableTopics.forEach(function(topic){
+				if(topic.topicType === 'main'){
+					mainTopics.push(topic);
+				}
+				else{
+					subTopics.push(topic);
+				}
+			});
+
+			$scope.numberOfMainTopics = mainTopics.length;
+			$scope.numberOfSubTopics = subTopics.length;
 
 			$scope.updateCharts();
 
