@@ -39,7 +39,7 @@
 											<p></p>
 
 												<select style="font-size: 12px;"
-													size="10" ng-model="selectedIndicatorForXAxis" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators()  | filter:filterIndicatorsBySpatialUnitAndDate() | filter:indicatorNameFilterForXAxis"
+													size="10" ng-model="selectedIndicatorForXAxis" ng-options="indicator as indicator.indicatorMetadata.indicatorName for indicator in $ctrl.kommonitorDataExchangeServiceInstance.allIndicatorPropertiesForCurrentSpatialUnitAndTime | filter:filterIndicators() | filter:indicatorNameFilterForXAxis"
 													ng-change="onChangeSelectedIndicators()" class="form-control" required>
 													<option disabled selected value> -- Indikator f&uuml;r X-Achse w&auml;hlen -- </option>
 												</select>
@@ -62,7 +62,7 @@
 											<p></p>
 
 												<select style="font-size: 12px;"
-													size="10" ng-model="selectedIndicatorForYAxis" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators() | filter:filterIndicatorsBySpatialUnitAndDate() | filter:indicatorNameFilterForYAxis"
+													size="10" ng-model="selectedIndicatorForYAxis" ng-options="indicator as indicator.indicatorMetadata.indicatorName for indicator in $ctrl.kommonitorDataExchangeServiceInstance.allIndicatorPropertiesForCurrentSpatialUnitAndTime | filter:filterIndicators() | filter:indicatorNameFilterForYAxis"
 													ng-change="onChangeSelectedIndicators()" class="form-control" required>
 													<option disabled selected value> -- Indikator f&uuml;r Y-Achse w&auml;hlen -- </option>
 												</select>
