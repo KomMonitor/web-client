@@ -9,6 +9,8 @@ angular
 
 								this.selectedResourceType = 'spatialUnits';
 
+								$scope.activeItemBackupId = "adminDashboardNavItem";
+
 								// initialize any adminLTE box widgets
 							  $('.box').boxWidget();
 
@@ -36,20 +38,32 @@ angular
 
 								this.init();
 
-								$scope.onClickGeodataAdminPanel = function(){
+								$scope.onClickGeodataAdminPanel = function(idOfNavBarItem){
+									$scope.activeItemBackupId = idOfNavBarItem;
 									$('.sidebar-menu li').removeClass("active");
 
-									document.getElementById('geodataAdminListItem').setAttribute("class", "active");
+									document.getElementById('adminGeodataWrapperNavItem').setAttribute("class", "active");
 								};
 
-								$scope.onClickOtherAdminPanel = function(){
-									$('#geodataAdminListItem ul li').removeClass("active");
+								$scope.onClickOtherAdminPanel = function(idOfNavBarItem){
+									$scope.activeItemBackupId = idOfNavBarItem;
+									$('#adminGeodataWrapperNavItem ul li').removeClass("active");
+								};
+
+								$scope.onClickGeodataWrapperItem = function(){
+
+									setTimeout(function(){
+										if($scope.activeItemBackupId != 'adminSpatialUnitsNavItem' && $scope.activeItemBackupId != 'adminGeoresourcesNavItem' && $scope.activeItemBackupId != 'adminIndicatorsNavItem'){
+											$('#adminGeodataWrapperNavItem').removeClass("active");
+											$('#'+$scope.activeItemBackupId).addClass("active");
+										}
+									}, 40);
 								};
 
 								// this.onClickDataManagement = function(resourceType){
 								// 	this.selectedResourceType = resourceType;
 								//
-								// 	document.getElementById('geodataAdminListItem').setAttribute("class", "active");
+								// 	document.getElementById('adminGeodataWrapperNavItem').setAttribute("class", "active");
 								//
 								// 	switch(resourceType) {
 								// 	    case 'spatialUnits':
