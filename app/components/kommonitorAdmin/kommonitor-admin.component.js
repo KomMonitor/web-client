@@ -4,8 +4,8 @@ angular
 				'kommonitorAdmin',
 				{
 					templateUrl : "components/kommonitorAdmin/kommonitor-admin.template.html",
-					controller : ['kommonitorDataExchangeService', '$location', "$rootScope", function kommonitorAdminController(
-							kommonitorDataExchangeService, $location, $rootScope) {
+					controller : ['kommonitorDataExchangeService', '$location', "$rootScope", '$scope', function kommonitorAdminController(
+							kommonitorDataExchangeService, $location, $rootScope, $scope) {
 
 								this.selectedResourceType = 'spatialUnits';
 
@@ -30,47 +30,56 @@ angular
 								};
 
 								this.init = function(){
-									this.checkAuthorizationOnStartup();
+									//this.checkAuthorizationOnStartup();
 									kommonitorDataExchangeService.fetchAllMetadata();
 								};
 
 								this.init();
 
+								$scope.onClickGeodataAdminPanel = function(){
+									$('.sidebar-menu li').removeClass("active");
 
-								this.onClickDataManagement = function(resourceType){
-									this.selectedResourceType = resourceType;
+									document.getElementById('geodataAdminListItem').setAttribute("class", "active");
 
-									switch(resourceType) {
-									    case 'spatialUnits':
-													document.getElementById('spatialUnitManagement').setAttribute("class", "active");
-													document.getElementById('georesourceManagement').setAttribute("class", "");
-													document.getElementById('indicatorManagement').setAttribute("class", "");
-													document.getElementById('scriptManagement').setAttribute("class", "");
-									        break;
-									    case 'georesources':
-													document.getElementById('spatialUnitManagement').setAttribute("class", "");
-													document.getElementById('georesourceManagement').setAttribute("class", "active");
-													document.getElementById('indicatorManagement').setAttribute("class", "");
-													document.getElementById('scriptManagement').setAttribute("class", "");
-									        break;
-											case 'indicators':
-													document.getElementById('spatialUnitManagement').setAttribute("class", "");
-													document.getElementById('georesourceManagement').setAttribute("class", "");
-													document.getElementById('indicatorManagement').setAttribute("class", "active");
-													document.getElementById('scriptManagement').setAttribute("class", "");
-										      break;
-											case 'scripts':
-													document.getElementById('spatialUnitManagement').setAttribute("class", "");
-													document.getElementById('georesourceManagement').setAttribute("class", "");
-													document.getElementById('indicatorManagement').setAttribute("class", "");
-													document.getElementById('scriptManagement').setAttribute("class", "active");
-													break;
-									    default:
-													document.getElementById('spatialUnitManagement').setAttribute("class", "active");
-													document.getElementById('georesourceManagement').setAttribute("class", "");
-													document.getElementById('indicatorManagement').setAttribute("class", "");
-									}
+
 								};
+
+								// this.onClickDataManagement = function(resourceType){
+								// 	this.selectedResourceType = resourceType;
+								//
+								// 	document.getElementById('geodataAdminListItem').setAttribute("class", "active");
+								//
+								// 	switch(resourceType) {
+								// 	    case 'spatialUnits':
+								// 					document.getElementById('spatialUnitManagement').setAttribute("class", "active");
+								// 					document.getElementById('georesourceManagement').setAttribute("class", "");
+								// 					document.getElementById('indicatorManagement').setAttribute("class", "");
+								// 					document.getElementById('scriptManagement').setAttribute("class", "");
+								// 	        break;
+								// 	    case 'georesources':
+								// 					document.getElementById('spatialUnitManagement').setAttribute("class", "");
+								// 					document.getElementById('georesourceManagement').setAttribute("class", "active");
+								// 					document.getElementById('indicatorManagement').setAttribute("class", "");
+								// 					document.getElementById('scriptManagement').setAttribute("class", "");
+								// 	        break;
+								// 			case 'indicators':
+								// 					document.getElementById('spatialUnitManagement').setAttribute("class", "");
+								// 					document.getElementById('georesourceManagement').setAttribute("class", "");
+								// 					document.getElementById('indicatorManagement').setAttribute("class", "active");
+								// 					document.getElementById('scriptManagement').setAttribute("class", "");
+								// 		      break;
+								// 			case 'scripts':
+								// 					document.getElementById('spatialUnitManagement').setAttribute("class", "");
+								// 					document.getElementById('georesourceManagement').setAttribute("class", "");
+								// 					document.getElementById('indicatorManagement').setAttribute("class", "");
+								// 					document.getElementById('scriptManagement').setAttribute("class", "active");
+								// 					break;
+								// 	    default:
+								// 					document.getElementById('spatialUnitManagement').setAttribute("class", "active");
+								// 					document.getElementById('georesourceManagement').setAttribute("class", "");
+								// 					document.getElementById('indicatorManagement').setAttribute("class", "");
+								// 	}
+								// };
 
 					}
 				]});
