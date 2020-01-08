@@ -49,6 +49,9 @@ angular
       			format: 'yyyy-mm-dd'
           };
 
+          this.adminUserName = __env.adminUserName;
+          this.adminPassword = __env.adminPassword;
+
 					this.kommonitorMapServiceInstance = kommonitorMapService;
 
           this.updateIntervalOptions = __env.updateIntervalOptions;

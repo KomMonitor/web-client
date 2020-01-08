@@ -4,6 +4,130 @@
 		z-index: 99999;
 }
 
+#userLoginForm{
+    display: block;
+}
+
+#userLoginForm h4, span {
+    text-align: center;
+}
+
+:root {
+        --body_gradient_left:#7200D0;
+        --body_gradient_right: #C800C1;
+        --form_bg: #ffffff;
+        --input_bg: #E5E5E5;
+        --input_hover:#eaeaea;
+        --submit_bg: #1FCC44;
+        --submit_hover: #40e263;
+        --icon_color:#6b6b6b;
+    }
+
+.userFormWrapper {
+        width: 300px;
+        height: auto;
+        /* this will help us center it*/
+				position: absolute;
+        right: 2px;
+				top: 40px;
+        background-color: #ecf0f5;
+        border-radius: 50px;
+				box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+        /* make it a grid container*/
+        display: grid;
+        /* with two columns of same width*/
+        grid-template-columns: 1fr 1fr;
+        /* with a small gap in between them*/
+        grid-gap: 5vw;
+        /* add some padding around */
+        padding: 15px;
+}
+
+.userFormRight {
+        display: grid;
+        /* single column layout */
+        grid-template-columns: 1fr;
+        /* have some gap in between elements*/
+        grid-gap: 20px;
+        padding: 10% 5%;
+}
+
+.input_container {
+        background-color: var(--input_bg);
+        /* vertically align icon and text inside the div*/
+        display: flex;
+        align-items: center;
+        padding-left: 20px;
+    }
+
+    .input_container:hover {
+        background-color: var(--input_hover);
+    }
+
+    .input_container,
+    #input_submit {
+			height: 40px;
+			border-radius: 20px;
+			width: 100%;
+			margin-bottom: 10px;
+    }
+
+    .input_field {
+        /* customize the input tag with lighter font and some padding*/
+        color: var(--icon_color);
+        background-color: inherit;
+        width: 90%;
+        border: none;
+        font-size: 1.3rem;
+        font-weight: 400;
+        padding-left: 30px;
+    }
+
+    .input_field:hover,
+    .input_field:focus {
+        /* remove the outline */
+        outline: none;
+    }
+
+    #input_submit {
+        /* submit button has a different color and different padding */
+        background-color: var(--submit_bg);
+        padding-left: 0;
+        font-weight: bold;
+        color: white;
+        text-transform: uppercase;
+    }
+
+    #input_submit:hover {
+        background-color: var(--submit_hover);
+        /* simple color transition on hover */
+        transition: background-color,
+            1s;
+        cursor: pointer;
+    }
+
+		#userLogin a {
+		        /* remove default underline */
+		        text-decoration: none;
+		        color: var(--submit_bg);
+		        font-weight: bold;
+		    }
+
+		 #userLogin   a:hover {
+		        color: var(--submit_hover);
+		    }
+
+				/* make it responsive */
+				    @media screen and (max-width:768px) {
+
+				        /* make the layout  a single column and add some margin to the wrapper */
+				        .userFormWrapper {
+				            grid-template-columns: 1fr;
+				            margin-left: 10px;
+				            margin-right: 10px;
+				        }
+				    }
+
 /* required to increase drowdown menu z-index in oder to let layer export options overlap menu buttons and map */
 #spatialUnitInfoControlDropdown {
 	z-index: 1000;

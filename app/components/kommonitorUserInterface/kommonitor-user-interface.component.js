@@ -1,10 +1,15 @@
 angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 	templateUrl : "components/kommonitorUserInterface/kommonitor-user-interface.template.html",
-	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', function UserInterfaceController(kommonitorDataExchangeService, $scope, $rootScope) {
+	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '$location', function UserInterfaceController(kommonitorDataExchangeService, $scope, $rootScope, $location) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
 		kommonitorDataExchangeService.anySideBarIsShown = false;
+
+		$scope.username;
+		$scope.password;
+		$scope.showAdminLogin = false;
+
 		// initialize any adminLTE box widgets
 		$('.box').boxWidget();
 
@@ -33,6 +38,18 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 		function sleep(ms) {
 			return new Promise(resolve => setTimeout(resolve, ms));
 		}
+
+		$scope.tryLoginUser = function(){
+			// TODO FIXME make generic user login once user/role concept is implemented
+
+			// currently only simple ADMIN user login is possible
+			console.log("Check user login");
+			if (kommonitorDataExchangeService.adminUserName === $scope.username && kommonitorDataExchangeService.adminPassword === $scope.password){
+				// success login --> currently switch to ADMIN page directly
+				console.log("User Login success - redirect to Admin Page");
+				$location.path('/administration');
+			}
+		};
 
 		$scope.undockButtons = function(){
 			$scope.buttonIndicatorConfigClass = "btn btn-custom btn-circle";
