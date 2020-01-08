@@ -75,7 +75,9 @@ angular
 								};
 
 								$scope.filterIndicatorsBySpatialUnitAndDate = function() {
-								  return function( item ) {
+								  return async function( item ) {
+
+										await wait(2000);
 
 										if(item.applicableSpatialUnits.includes(kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel)){
 											return item.applicableDates.includes(kommonitorDataExchangeService.selectedDate);
