@@ -4,6 +4,8 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
+		$scope.loadingData = true;
+
 		$scope.kommonitorDataExchangeService = kommonitorDataExchangeService;
 
 		$scope.numberOfMainTopics = 0;
@@ -44,8 +46,6 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 
 		// initialize any adminLTE box widgets
 	  $('.box').boxWidget();
-
-		$scope.loadingData = true;
 
 		$(window).on('resize', function(){
 				if($scope.usersPerRoleChart != null && $scope.usersPerRoleChart != undefined){
@@ -466,18 +466,18 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 		};
 
 		// when ready check if required metadat was already fetched
-		$( document ).ready(function() {
-		  if (kommonitorDataExchangeService.availableRoles.length > 0){
-				// we already have required data. hide loading icon
-				$scope.updateCharts();
-				$scope.loadingData = false;
-			}
-			else{
-				// we wait for  required data. show loading icon
-				console.log("fetching all required metadata");
-				$scope.loadingData = true;
-			}
-		});
+		// $( document ).ready(function() {
+		//   if (kommonitorDataExchangeService.availableRoles.length > 0){
+		// 		// we already have required data. hide loading icon
+		// 		$scope.updateCharts();
+		// 		$scope.loadingData = false;
+		// 	}
+		// 	else{
+		// 		// we wait for  required data. show loading icon
+		// 		console.log("fetching all required metadata");
+		// 		$scope.loadingData = true;
+		// 	}
+		// });
 
 	}
 ]});

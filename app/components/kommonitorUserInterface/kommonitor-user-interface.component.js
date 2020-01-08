@@ -10,6 +10,12 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 		$scope.password;
 		$scope.showAdminLogin = false;
 
+		$scope.init = function(){
+			// initialize application
+			console.log("Initialize Application");
+			kommonitorDataExchangeService.fetchAllMetadata();
+		};
+
 		// initialize any adminLTE box widgets
 		$('.box').boxWidget();
 
@@ -47,8 +53,17 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			if (kommonitorDataExchangeService.adminUserName === $scope.username && kommonitorDataExchangeService.adminPassword === $scope.password){
 				// success login --> currently switch to ADMIN page directly
 				console.log("User Login success - redirect to Admin Page");
+				kommonitorDataExchangeService.adminIsLoggedIn = true;
 				$location.path('/administration');
 			}
+		};
+
+		$scope.tryLoginUserByKeypress = function($event){
+			var keyCode = $event.which || $event.keyCode;
+			//check for enter key
+	    if (keyCode === 13) {
+	        $scope.tryLoginUser();
+	    }
 		};
 
 		$scope.undockButtons = function(){
@@ -747,6 +762,8 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				kommonitorDataExchangeService.guidedTour.redraw();
 			}
 		});
+
+		$scope.init();
 
 	}
 ]});

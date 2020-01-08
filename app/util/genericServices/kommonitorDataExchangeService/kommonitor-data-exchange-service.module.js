@@ -51,6 +51,7 @@ angular
 
           this.adminUserName = __env.adminUserName;
           this.adminPassword = __env.adminPassword;
+          this.adminIsLoggedIn = false;
 
 					this.kommonitorMapServiceInstance = kommonitorMapService;
 
@@ -157,11 +158,14 @@ angular
           var fetchedUsersInitially = false;
           var fetchedRolesInitially = false;
 
-          $rootScope.$on("$locationChangeStart", function(event){
-            self.fetchAllMetadata();
-          });
+          // $rootScope.$on("$locationChangeStart", function(event){
+          //   self.fetchAllMetadata();
+          //   self.adminIsLoggedIn = false;
+          // });
 
           this.fetchAllMetadata = function(){
+            console.log("fetching all metadata from management component");
+
             var topicsPromise = this.fetchTopicsMetadata();
             var usersPromise = this.fetchUsersMetadata();
             var rolesPromise = this.fetchRolesMetadata();
@@ -173,6 +177,7 @@ angular
             var metadataPromises = [topicsPromise, usersPromise, rolesPromise, spatialUnitsPromise, georesourcesPromise, indicatorsPromise, scriptsPromise];
 
             $q.all(metadataPromises).then(function successCallback(successArray) {
+                  console.log("Metadata fetched. Call initialize event.");
       						onMetadataLoadingCompleted();
       				}, function errorCallback(errorArray) {
                 // todo error handling
@@ -320,9 +325,6 @@ angular
                 //$scope.error = response.statusText;
             });
           };
-
-          // execute metadata fetching on page load
-          this.fetchAllMetadata();
 
 					this.indicatorValueIsNoData = function(indicatorValue){
 						if(Number.isNaN(indicatorValue) || indicatorValue === null || indicatorValue === undefined){

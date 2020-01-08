@@ -4,13 +4,38 @@ angular
 				'kommonitorAdmin',
 				{
 					templateUrl : "components/kommonitorAdmin/kommonitor-admin.template.html",
-					controller : ['kommonitorDataExchangeService', function kommonitorAdminController(
-							kommonitorDataExchangeService) {
+					controller : ['kommonitorDataExchangeService', '$location', "$rootScope", function kommonitorAdminController(
+							kommonitorDataExchangeService, $location, $rootScope) {
 
 								this.selectedResourceType = 'spatialUnits';
 
 								// initialize any adminLTE box widgets
 							  $('.box').boxWidget();
+
+								// $rootScope.$on("$locationChangeStart", function(event){
+			          //   if (! kommonitorDataExchangeService.adminIsLoggedIn){
+								// 		// redirect to main page
+								// 		console.log("No Admin user is logged in - Prevent access to ADMIN panel");
+								// 		$location.path('/');
+								// 	}
+								//
+			          // });
+
+								this.checkAuthorizationOnStartup = function(){
+									if (! kommonitorDataExchangeService.adminIsLoggedIn){
+										// redirect to main page
+										console.log("No Admin user is logged in - Prevent access to ADMIN panel");
+										$location.path('/');
+									}
+								};
+
+								this.init = function(){
+									this.checkAuthorizationOnStartup();
+									kommonitorDataExchangeService.fetchAllMetadata();
+								};
+
+								this.init();
+
 
 								this.onClickDataManagement = function(resourceType){
 									this.selectedResourceType = resourceType;
