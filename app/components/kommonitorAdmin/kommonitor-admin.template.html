@@ -41,9 +41,9 @@
       <ul class="sidebar-menu" data-widget="tree">
         <li class="header">Administration</li>
         <!-- Optionally, you can add icons to the links -->
-        <li class="active"><a data-toggle="tab" data-target="#dashboardWrapper" href=""><i class="fas fa-tachometer-alt"></i> <span>&Uuml;bersicht</span></a></li>
-        <li><a data-toggle="tab" data-target="#userWrapper" href=""><i class="fas fa-users"></i> <span>Nutzer- und Rollenverwaltung</span></a></li>
-        <li><a data-toggle="tab" data-target="#topicsWrapper" href=""><i class="fas fa-book"></i> <span>Themenverwaltung</span></a></li>
+        <li class="active" ng-click="onClickOtherAdminPanel()"><a data-toggle="tab" data-target="#dashboardWrapper" href=""><i class="fas fa-tachometer-alt"></i> <span>&Uuml;bersicht</span></a></li>
+        <li ng-click="onClickOtherAdminPanel()"><a data-toggle="tab" data-target="#userWrapper" href=""><i class="fas fa-users"></i> <span>Nutzer- und Rollenverwaltung</span></a></li>
+        <li ng-click="onClickOtherAdminPanel()"><a data-toggle="tab" data-target="#topicsWrapper" href=""><i class="fas fa-book"></i> <span>Themenverwaltung</span></a></li>
         <li id="geodataAdminListItem" class="treeview">
           <a data-toggle="tab" href=""><i class="fas fa-globe-americas"></i> <span>Geodatenverwaltung</span>
             <span class="pull-right-container">
@@ -56,7 +56,7 @@
             <li><a data-toggle="tab" data-target="#georesourcesWrapper" ng-click="onClickGeodataAdminPanel()" href=""><i class="fas fa-map-marked-alt"></i> <span>sonstige Geodaten</span></a></li>
           </ul>
         </li>
-        <li><a data-toggle="tab" data-target="#scriptWrapper" href=""><i class="far fa-file-code"></i> <span>Skriptverwaltung</span></a></li>
+        <li ng-click="onClickOtherAdminPanel()"><a data-toggle="tab" data-target="#scriptWrapper" href=""><i class="far fa-file-code"></i> <span>Skriptverwaltung</span></a></li>
       </ul>
       <!-- /.sidebar-menu -->
     </section>

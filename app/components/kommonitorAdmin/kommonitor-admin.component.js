@@ -30,7 +30,7 @@ angular
 								};
 
 								this.init = function(){
-									//this.checkAuthorizationOnStartup();
+									this.checkAuthorizationOnStartup();
 									kommonitorDataExchangeService.fetchAllMetadata();
 								};
 
@@ -40,8 +40,10 @@ angular
 									$('.sidebar-menu li').removeClass("active");
 
 									document.getElementById('geodataAdminListItem').setAttribute("class", "active");
+								};
 
-
+								$scope.onClickOtherAdminPanel = function(){
+									$('#geodataAdminListItem ul li').removeClass("active");
 								};
 
 								// this.onClickDataManagement = function(resourceType){
