@@ -154,6 +154,10 @@ angular
           var fetchedUsersInitially = false;
           var fetchedRolesInitially = false;
 
+          $rootScope.$on("$locationChangeStart", function(event){
+            self.fetchAllMetadata();
+          });
+
           this.fetchAllMetadata = function(){
             var topicsPromise = this.fetchTopicsMetadata();
             var usersPromise = this.fetchUsersMetadata();
