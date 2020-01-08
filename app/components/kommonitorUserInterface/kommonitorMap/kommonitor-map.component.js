@@ -2396,6 +2396,8 @@ angular.module('kommonitorMap').component(
                                 $scope.layerControl.addOverlay( layer, georesourceMetadataAndGeoJSON.datasetName + "_" + date, georesourceLayerGroupName );
                                 layer.addTo($scope.map);
                                 $scope.updateSearchControl();
+
+                                $scope.map.invalidateSize(true);
                               });
 
                               $scope.$on("replaceIsochronesAsGeoJSON", function (event, geoJSON, transitMode, reachMode, cutOffValues, useMultipleStartPoints, dissolveIsochrones) {
@@ -2583,6 +2585,8 @@ angular.module('kommonitorMap').component(
                                 $scope.layerControl.addOverlay( $scope.isochronesLayer, "Erreichbarkeits-Isochronen_" + transitModeValue, reachabilityLayerGroupName );
                                 $scope.isochronesLayer.addTo($scope.map);
                                 $scope.updateSearchControl();
+
+                                $scope.map.invalidateSize(true);
                               });
 
                               $scope.$on("replaceRouteAsGeoJSON", function (event, geoJSON, transitMode, preference, routingStartPoint, routingEndPoint) {
@@ -2669,6 +2673,8 @@ angular.module('kommonitorMap').component(
                                 $scope.routingLayer.addTo($scope.map);
                                 $scope.map.fitBounds($scope.routingLayer.getBounds());
                                 $scope.updateSearchControl();
+
+                                $scope.map.invalidateSize(true);
                               });
 
                               var getStyleIndexForFeature = function(feature, colorValueEntries, reachMode){
@@ -2725,6 +2731,8 @@ angular.module('kommonitorMap').component(
                                 $scope.layerControl.addOverlay( $scope.isochroneMarkerLayer, "Startpunkte für Isochronenberechnung", reachabilityLayerGroupName );
                                 $scope.isochroneMarkerLayer.addTo($scope.map);
                                 $scope.updateSearchControl();
+
+                                $scope.map.invalidateSize(true);
                               });
 
                               $scope.$on("addPoiGeoresourceAsGeoJSON", function (event, georesourceMetadataAndGeoJSON, date, useCluster) {
@@ -2806,6 +2814,7 @@ angular.module('kommonitorMap').component(
                                 markers.addTo($scope.map);
                                 $scope.updateSearchControl();
                                 // $scope.map.addLayer( markers );
+                                $scope.map.invalidateSize(true);
                               });
 
                               $scope.$on("removePoiGeoresource", function (event, georesourceMetadataAndGeoJSON) {
@@ -2859,6 +2868,7 @@ angular.module('kommonitorMap').component(
                                 $scope.layerControl.addOverlay( wmsLayer, dataset.title, wmsLayerGroupName );
                                 wmsLayer.addTo($scope.map);
                                 $scope.updateSearchControl();
+                                $scope.map.invalidateSize(true);
                               });
 
                               $scope.$on("adjustOpacityForWmsLayer", function (event, dataset, opacity) {
@@ -2928,6 +2938,7 @@ angular.module('kommonitorMap').component(
 
                                          }
                                        }
+                                       $scope.map.invalidateSize(true);
                                        // $scope.loadingData = false;
                                      });
 
@@ -3124,6 +3135,8 @@ angular.module('kommonitorMap').component(
                                 $rootScope.$broadcast("FileLayerSuccess", dataset);
 
                                 $scope.updateSearchControl();
+
+                                $scope.map.invalidateSize(true);
                               }
 
                               $scope.$on("adjustOpacityForFileLayer", function (event, dataset, opacity) {
@@ -4506,6 +4519,8 @@ angular.module('kommonitorMap').component(
                                                                 }
 
                                                                 $rootScope.$broadcast("updateDiagrams", $scope.currentIndicatorMetadataAndGeoJSON, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitId, date, $scope.defaultBrew, $scope.gtMeasureOfValueBrew, $scope.ltMeasureOfValueBrew, $scope.dynamicIncreaseBrew, $scope.dynamicDecreaseBrew, kommonitorDataExchangeService.isMeasureOfValueChecked, kommonitorDataExchangeService.measureOfValue, justRestyling);
+
+                                                                $scope.map.invalidateSize(true);
                                                             });
 
                                                             $scope.containsNegativeValues = function(geoJSON){
@@ -4562,6 +4577,8 @@ angular.module('kommonitorMap').component(
 
                                                                 $scope.makeCustomInfoControl(date);
                                                                 $scope.makeDefaultLegend(indicatorMetadataAndGeoJSON.defaultClassificationMapping, containsNegativeValues);
+
+                                                                $scope.map.invalidateSize(true);
                                                             });
 
 
@@ -4675,6 +4692,8 @@ angular.module('kommonitorMap').component(
                                                                             //ensure that highlighted feature remain highlighted
                                                                             preserveHighlightedFeatures();
                                                                           }
+
+                                                                          $scope.map.invalidateSize(true);
 
                                                             });
 
