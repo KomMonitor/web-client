@@ -8,7 +8,7 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 
 		$(document).ready(function() {
 			setTimeout(function(){
-				$('.list-group-item').on('click', function() {
+				$('.list-group-item .collapseTrigger').on('click', function() {
 			    $('.glyphicon', this)
 			      .toggleClass('glyphicon-chevron-right')
 			      .toggleClass('glyphicon-chevron-down');

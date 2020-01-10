@@ -26,33 +26,36 @@
 									<div class="list-group list-group-root well">
 
 										<div ng-repeat="mainTopic in $ctrl.kommonitorDataExchangeServiceInstance.availableTopics | filter:{topicType:'main'}">
-											<a  ng-attr-title="{{mainTopic.topicDescription}}" href="" ng-click="isCollapsed_mainTopic = !isCollapsed_mainTopic" ng-init="isCollapsed_mainTopic=true" class="list-group-item list-group-item-info">
-										    <i class="glyphicon glyphicon-chevron-right"></i>{{mainTopic.topicName}}
+											<div  class="list-group-item list-group-item-info">
+												<a href="" ng-attr-title="{{mainTopic.topicDescription}}" class="collapseTrigger" ng-click="isCollapsed_mainTopic = !isCollapsed_mainTopic" ng-init="isCollapsed_mainTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{mainTopic.topicName}}</a>
 
 												<div class="btn-group btn-group-sm" style="margin-left: 30px;">
 													<button type="button" class="btn btn-warning"><i class="fas fa-pencil-alt"></i></button>
 													<button type="button" class="btn btn-danger"><i class="fas fa-trash"></i></button>
 												</div>
-										  </a>
+										  </div>
 
 
 											<div ng-repeat="subTopic in mainTopic.subTopics" class="list-group collapse" uib-collapse="isCollapsed_mainTopic">
 
-												<a ng-attr-title="{{subTopic.topicDescription}}" href="" ng-click="isCollapsed_subTopic = !isCollapsed_subTopic" ng-init="isCollapsed_subTopic=true" class="list-group-item list-group-item-warning">
-													<i class="glyphicon glyphicon-chevron-right"></i>{{subTopic.topicName}}
-												</a>
+												<div  class="list-group-item list-group-item-warning">
+													<a class="collapseTrigger" ng-attr-title="{{subTopic.topicDescription}}" href="" ng-click="isCollapsed_subTopic = !isCollapsed_subTopic" ng-init="isCollapsed_subTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{subTopic.topicName}}</a>
+
+												</div>
 
 												<div ng-repeat="subsubTopic in subTopic.subTopics" class="list-group collapse" uib-collapse="isCollapsed_subTopic">
 
-													<a ng-attr-title="{{subsubTopic.topicDescription}}" href="" ng-click="isCollapsed_subsubTopic = !isCollapsed_subsubTopic" ng-init="isCollapsed_subsubTopic=true" class="list-group-item list-group-item-warning">
-														<i class="glyphicon glyphicon-chevron-right"></i>{{subsubTopic.topicName}}
-													</a>
+													<div  class="list-group-item list-group-item-warning">
+														<a clas="collapseTrigger" ng-attr-title="{{subsubTopic.topicDescription}}" href="" ng-click="isCollapsed_subsubTopic = !isCollapsed_subsubTopic" ng-init="isCollapsed_subsubTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{subsubTopic.topicName}}</a>
+
+													</div>
 
 													<div ng-repeat="subsubsubTopic in subsubTopic.subTopics" class="list-group collapse" uib-collapse="isCollapsed_subsubTopic">
 
-														<a ng-attr-title="{{subsubsubTopic.topicDescription}}" href="" ng-click="isCollapsed_subsubsubTopic = !isCollapsed_subsubsubTopic" ng-init="isCollapsed_subsubsubTopic=true" class="list-group-item list-group-item-warning">
-															<i class="glyphicon glyphicon-chevron-right"></i>{{subsubsubTopic.topicName}}
-														</a>
+														<div  class="list-group-item list-group-item-warning">
+															<a class="collapseTrigger" ng-attr-title="{{subsubsubTopic.topicDescription}}" href="" ng-click="isCollapsed_subsubsubTopic = !isCollapsed_subsubsubTopic" ng-init="isCollapsed_subsubsubTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{subsubsubTopic.topicName}}</a>
+
+														</div>
 
 													</div>
 
