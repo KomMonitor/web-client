@@ -10,11 +10,145 @@
 	<!-- Main content -->
 	<section class="content container-fluid">
 
-		TOPICS STUFF
-
 		<!--------------------------
 			| Your Page Content Here |
 			-------------------------->
+
+			<div class="box box-primary">
+            <div class="box-header">
+              <h3 class="box-title">Themenhierarchie</h3>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body">
+
+								<div class="just-padding">
+
+									<div class="list-group list-group-root well">
+
+										<div ng-repeat="mainTopic in $ctrl.kommonitorDataExchangeServiceInstance.availableTopics | filter:{topicType:'main'}">
+											<a  ng-attr-title="{{mainTopic.topicDescription}}" href="" ng-click="isCollapsed_mainTopic = !isCollapsed_mainTopic" ng-init="isCollapsed_mainTopic=true" class="list-group-item list-group-item-info">
+										    <i class="glyphicon glyphicon-chevron-right"></i>{{mainTopic.topicName}}
+
+												<div class="btn-group btn-group-sm" style="margin-left: 30px;">
+													<button type="button" class="btn btn-warning"><i class="fas fa-pencil-alt"></i></button>
+													<button type="button" class="btn btn-danger"><i class="fas fa-trash"></i></button>
+												</div>
+										  </a>
+
+
+											<div ng-repeat="subTopic in mainTopic.subTopics" class="list-group collapse" uib-collapse="isCollapsed_mainTopic">
+
+												<a ng-attr-title="{{subTopic.topicDescription}}" href="" ng-click="isCollapsed_subTopic = !isCollapsed_subTopic" ng-init="isCollapsed_subTopic=true" class="list-group-item list-group-item-warning">
+													<i class="glyphicon glyphicon-chevron-right"></i>{{subTopic.topicName}}
+												</a>
+
+												<div ng-repeat="subsubTopic in subTopic.subTopics" class="list-group collapse" uib-collapse="isCollapsed_subTopic">
+
+													<a ng-attr-title="{{subsubTopic.topicDescription}}" href="" ng-click="isCollapsed_subsubTopic = !isCollapsed_subsubTopic" ng-init="isCollapsed_subsubTopic=true" class="list-group-item list-group-item-warning">
+														<i class="glyphicon glyphicon-chevron-right"></i>{{subsubTopic.topicName}}
+													</a>
+
+													<div ng-repeat="subsubsubTopic in subsubTopic.subTopics" class="list-group collapse" uib-collapse="isCollapsed_subsubTopic">
+
+														<a ng-attr-title="{{subsubsubTopic.topicDescription}}" href="" ng-click="isCollapsed_subsubsubTopic = !isCollapsed_subsubsubTopic" ng-init="isCollapsed_subsubsubTopic=true" class="list-group-item list-group-item-warning">
+															<i class="glyphicon glyphicon-chevron-right"></i>{{subsubsubTopic.topicName}}
+														</a>
+
+													</div>
+
+													<div class="list-group-item list-group-item-success" ng-show="!isCollapsed_subsubTopic" style="border-top: double;">
+														<form role="form" class="form-group" data-toggle="validator" style="margin-bottom: 0px;">
+															  <div class="row">
+																	<div class="col-md-3">
+																		<button class="btn btn-success btn-sm" ng-click="onAddSubSubSubTopic(mainTopic, subTopic, subsubTopic)" ng-disabled="!newSubSubSubTopicTitel || !newSubSubSubTopicDescription"><i class="fas fa-plus"></i> &nbsp; &nbsp; Unterthema hinzuf&uuml;gen</button>
+																	</div>
+															    <div class="col-md-4">
+																		<input style="width:100%;" class="form-control" type="text" placeholder="Titel des Unterthemas" ng-model="newSubSubSubTopicTitel" required></input>
+																		<div class="help-block with-errors"></div>
+																	</div>
+															    <div class="col-md-5">
+																		<textarea style="width:100%;" rows="1" class="form-control" type="text" placeholder="Beschreibung des Unterthemas" ng-model="newSubSubSubTopicDescription" required></textarea>
+																		<div class="help-block with-errors"></div>
+																	</div>
+
+															  </div>
+
+														</form>
+													</div>
+
+												</div>
+
+												<div class="list-group-item list-group-item-success" ng-show="!isCollapsed_subTopic" style="border-top: double;">
+													<form role="form" class="form-group" data-toggle="validator" style="margin-bottom: 0px;">
+														  <div class="row">
+																<div class="col-md-3">
+																	<button class="btn btn-success btn-sm" ng-click="onAddSubSubTopic(mainTopic, subTopic)" ng-disabled="!newSubSubTopicTitel || !newSubSubTopicDescription"><i class="fas fa-plus"></i> &nbsp; &nbsp; Unterthema hinzuf&uuml;gen</button>
+																</div>
+														    <div class="col-md-4">
+																	<input style="width:100%;" class="form-control" type="text" placeholder="Titel des Unterthemas" ng-model="newSubSubTopicTitel" required></input>
+																	<div class="help-block with-errors"></div>
+																</div>
+														    <div class="col-md-5">
+																	<textarea style="width:100%;" rows="1" class="form-control" type="text" placeholder="Beschreibung des Unterthemas" ng-model="newSubSubTopicDescription" required></textarea>
+																	<div class="help-block with-errors"></div>
+																</div>
+
+														  </div>
+
+													</form>
+												</div>
+
+											</div>
+
+											<div class="list-group-item list-group-item-success" ng-show="!isCollapsed_mainTopic" style="border-top: double;">
+												<form role="form" class="form-group" data-toggle="validator" style="margin-bottom: 0px;">
+													  <div class="row">
+															<div class="col-md-3">
+																<button class="btn btn-success btn-sm" ng-click="onAddSubTopic(mainTopic)" ng-disabled="!newSubTopicTitel || !newSubTopicDescription"><i class="fas fa-plus"></i> &nbsp; &nbsp; Unterthema hinzuf&uuml;gen</button>
+															</div>
+													    <div class="col-md-4">
+																<input style="width:100%;" class="form-control" type="text" placeholder="Titel des Unterthemas" ng-model="newSubTopicTitel" required></input>
+																<div class="help-block with-errors"></div>
+															</div>
+													    <div class="col-md-5">
+																<textarea style="width:100%;" rows="1" class="form-control" type="text" placeholder="Beschreibung des Unterthemas" ng-model="newSubTopicDescription" required></textarea>
+																<div class="help-block with-errors"></div>
+															</div>
+
+													  </div>
+
+												</form>
+											</div>
+
+										</div>
+										<div class="list-group-item list-group-item-success" style="border-top: double;">
+											<form role="form" class="form-group" data-toggle="validator" style="margin-bottom: 0px;">
+												  <div class="row">
+														<div class="col-md-3">
+															<button class="btn btn-success btn-sm" ng-click="onAddMainTopic()" ng-disabled="!newMainTopicTitel || !newMainTopicDescription"><i class="fas fa-plus"></i> &nbsp; &nbsp; Hauptthema hinzuf&uuml;gen</button>
+														</div>
+												    <div class="col-md-4">
+															<input style="width:100%;" class="form-control" type="text" placeholder="Titel des Hauptthemas" ng-model="newMainTopicTitel" required></input>
+															<div class="help-block with-errors"></div>
+														</div>
+												    <div class="col-md-5">
+															<textarea style="width:100%;" rows="1" class="form-control" type="text" placeholder="Beschreibung des Hauptthemas" ng-model="newMainTopicDescription" required></textarea>
+															<div class="help-block with-errors"></div>
+														</div>
+
+												  </div>
+
+											</form>
+										</div>
+
+									</div>
+
+							</div>
+
+            </div>
+            <!-- /.box-body -->
+          </div>
+          <!-- /.box -->
 
 	</section>
 <!-- /.content -->
