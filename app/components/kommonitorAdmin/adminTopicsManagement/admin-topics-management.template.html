@@ -66,7 +66,7 @@
 													<div ng-repeat="subsubsubTopic in subsubTopic.subTopics" class="list-group collapse" uib-collapse="isCollapsed_subsubTopic">
 
 														<div  class="list-group-item list-group-item-warning">
-															<a class="collapseTrigger" ng-attr-title="{{subsubsubTopic.topicDescription}}" href="" ng-click="isCollapsed_subsubsubTopic = !isCollapsed_subsubsubTopic" ng-init="isCollapsed_subsubsubTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{subsubsubTopic.topicName}}</a>
+															<a class="collapseTrigger" ng-attr-title="{{subsubsubTopic.topicDescription}}">{{subsubsubTopic.topicName}}</a>
 															<div class="btn-group btn-group-sm" style="margin-left: 30px;">
 																<button type="button" class="btn btn-warning" ng-click="onClickEditTopic(subsubsubTopic)" data-toggle="modal" data-target="#modal-edit-topic"><i class="fas fa-pencil-alt"></i></button>
 																<button type="button" class="btn btn-danger" ng-click="onClickDeleteTopic(subsubsubTopic)"><i class="fas fa-trash"></i></button>
@@ -79,14 +79,14 @@
 														<form role="form" class="form-group" data-toggle="validator" style="margin-bottom: 0px;">
 															  <div class="row">
 																	<div class="col-md-3">
-																		<button class="btn btn-success btn-sm" ng-click="onAddSubSubSubTopic(subsubTopic)" ng-disabled="!newSubSubSubTopicTitel || !newSubSubSubTopicDescription"><i class="fas fa-plus"></i> &nbsp; &nbsp; Unterthema hinzuf&uuml;gen</button>
+																		<button class="btn btn-success btn-sm" ng-click="onAddSubSubSubTopic(subsubTopic)" ng-disabled="!subsubTopic.newSubTopicTitle || !subsubTopic.newSubTopicDescription"><i class="fas fa-plus"></i> &nbsp; &nbsp; Unterthema hinzuf&uuml;gen</button>
 																	</div>
 															    <div class="col-md-4">
-																		<input style="width:100%;" class="form-control" type="text" placeholder="Titel des Unterthemas" ng-model="newSubSubSubTopicTitel" required></input>
+																		<input style="width:100%;" class="form-control" type="text" placeholder="Titel des Unterthemas" ng-model="subsubTopic.newSubTopicTitle" required></input>
 																		<div class="help-block with-errors"></div>
 																	</div>
 															    <div class="col-md-5">
-																		<textarea style="width:100%;" rows="1" class="form-control" type="text" placeholder="Beschreibung des Unterthemas" ng-model="newSubSubSubTopicDescription" required></textarea>
+																		<textarea style="width:100%;" rows="1" class="form-control" type="text" placeholder="Beschreibung des Unterthemas" ng-model="subsubTopic.newSubTopicDescription" required></textarea>
 																		<div class="help-block with-errors"></div>
 																	</div>
 
@@ -101,14 +101,14 @@
 													<form role="form" class="form-group" data-toggle="validator" style="margin-bottom: 0px;">
 														  <div class="row">
 																<div class="col-md-3">
-																	<button class="btn btn-success btn-sm" ng-click="onAddSubSubTopic(subTopic)" ng-disabled="!newSubSubTopicTitel || !newSubSubTopicDescription"><i class="fas fa-plus"></i> &nbsp; &nbsp; Unterthema hinzuf&uuml;gen</button>
+																	<button class="btn btn-success btn-sm" ng-click="onAddSubSubTopic(subTopic)" ng-disabled="!subTopic.newSubTopicTitle || !subTopic.newSubTopicDescription"><i class="fas fa-plus"></i> &nbsp; &nbsp; Unterthema hinzuf&uuml;gen</button>
 																</div>
 														    <div class="col-md-4">
-																	<input style="width:100%;" class="form-control" type="text" placeholder="Titel des Unterthemas" ng-model="newSubSubTopicTitel" required></input>
+																	<input style="width:100%;" class="form-control" type="text" placeholder="Titel des Unterthemas" ng-model="subTopic.newSubTopicTitle" required></input>
 																	<div class="help-block with-errors"></div>
 																</div>
 														    <div class="col-md-5">
-																	<textarea style="width:100%;" rows="1" class="form-control" type="text" placeholder="Beschreibung des Unterthemas" ng-model="newSubSubTopicDescription" required></textarea>
+																	<textarea style="width:100%;" rows="1" class="form-control" type="text" placeholder="Beschreibung des Unterthemas" ng-model="subTopic.newSubTopicDescription" required></textarea>
 																	<div class="help-block with-errors"></div>
 																</div>
 
@@ -123,14 +123,14 @@
 												<form role="form" class="form-group" data-toggle="validator" style="margin-bottom: 0px;">
 													  <div class="row">
 															<div class="col-md-3">
-																<button class="btn btn-success btn-sm" ng-click="onAddSubTopic(mainTopic)" ng-disabled="!$ctrl.newSubTopicTitel || !newSubTopicDescription"><i class="fas fa-plus"></i> &nbsp; &nbsp; Unterthema hinzuf&uuml;gen</button>
+																<button class="btn btn-success btn-sm" ng-click="onAddSubTopic(mainTopic)" ng-disabled="!mainTopic.newSubTopicTitle || !mainTopic.newSubTopicDescription"><i class="fas fa-plus"></i> &nbsp; &nbsp; Unterthema hinzuf&uuml;gen</button>
 															</div>
 													    <div class="col-md-4">
-																<input style="width:100%;" class="form-control" type="text" placeholder="Titel des Unterthemas" ng-model="$ctrl.newSubTopicTitel" required></input>
+																<input style="width:100%;" class="form-control" type="text" placeholder="Titel des Unterthemas" ng-model="mainTopic.newSubTopicTitle" required></input>
 																<div class="help-block with-errors"></div>
 															</div>
 													    <div class="col-md-5">
-																<textarea style="width:100%;" rows="1" class="form-control" type="text" placeholder="Beschreibung des Unterthemas" ng-model="newSubTopicDescription" required></textarea>
+																<textarea style="width:100%;" rows="1" class="form-control" type="text" placeholder="Beschreibung des Unterthemas" ng-model="mainTopic.newSubTopicDescription" required></textarea>
 																<div class="help-block with-errors"></div>
 															</div>
 
@@ -144,10 +144,10 @@
 											<form role="form" class="form-group" data-toggle="validator" style="margin-bottom: 0px;">
 												  <div class="row">
 														<div class="col-md-3">
-															<button class="btn btn-success btn-sm" ng-click="onAddMainTopic()" ng-disabled="!newMainTopicTitel || !newMainTopicDescription"><i class="fas fa-plus"></i> &nbsp; &nbsp; Hauptthema hinzuf&uuml;gen</button>
+															<button class="btn btn-success btn-sm" ng-click="onAddMainTopic()" ng-disabled="!newMainTopicTitle || !newMainTopicDescription"><i class="fas fa-plus"></i> &nbsp; &nbsp; Hauptthema hinzuf&uuml;gen</button>
 														</div>
 												    <div class="col-md-4">
-															<input style="width:100%;" class="form-control" type="text" placeholder="Titel des Hauptthemas" ng-model="newMainTopicTitel" required></input>
+															<input style="width:100%;" class="form-control" type="text" placeholder="Titel des Hauptthemas" ng-model="newMainTopicTitle" required></input>
 															<div class="help-block with-errors"></div>
 														</div>
 												    <div class="col-md-5">

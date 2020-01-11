@@ -6,12 +6,6 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 
 		$scope.newMainTopicTitel;
 		$scope.newMainTopicDescription;
-		this.newSubTopicTitel;
-		$scope.newSubTopicDescription;
-		$scope.newSubSubTopicTitel;
-		$scope.newSubSubTopicDescription;
-		$scope.newSubSubSubTopicTitel;
-		$scope.newSubSubSubTopicDescription;
 
 		$scope.errorMessagePart;
 
@@ -20,7 +14,7 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 
 		$(document).ready(function() {
 			setTimeout(function(){
-				$('.list-group-item .collapseTrigger').on('click', function() {
+				$('.list-group-item > .collapseTrigger').on('click', function() {
 			    $('.glyphicon', this)
 			      .toggleClass('glyphicon-chevron-right')
 			      .toggleClass('glyphicon-chevron-down');
@@ -81,8 +75,8 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 			var topicId = mainTopic.topicId;
 
 			var subTopic = {
-			  "topicName": this.newSubTopicTitel,
-			  "topicDescription": $scope.newSubTopicDescription,
+			  "topicName": mainTopic.newSubTopicTitle,
+			  "topicDescription": mainTopic.newSubTopicDescription,
 			  "topicType": "sub",
 			  "subTopics": []
 			};
@@ -132,8 +126,8 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 					// }, 3000);
 			});
 
-			this.newSubTopicTitel = undefined;
-			$scope.newSubTopicDescription = undefined;
+			delete mainTopic.newSubTopicTitle;
+			delete mainTopic.newSubTopicDescription;
 		};
 
 		$scope.alreadyInSubtopics = function(subTopicCandidate, subTopics){
@@ -151,8 +145,8 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 			var topicId = subTopic.topicId;
 
 			var subSubSubTopic = {
-			  "topicName": $scope.newSubSubSubTopicTitel,
-			  "topicDescription": $scope.newSubSubSubTopicDescription,
+			  "topicName": subTopic.newSubTopicTitle,
+			  "topicDescription": subTopic.newSubTopicDescription,
 			  "topicType": "sub",
 			  "subTopics": []
 			};
@@ -202,8 +196,8 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 					// }, 3000);
 			});
 
-			$scope.newSubSubTopicTitel = undefined;
-			$scope.newSubSubTopicDescription = undefined;
+			delete subTopic.newSubTopicTitle;
+			delete subTopic.newSubTopicDescription;
 		};
 
 		$scope.onAddSubSubTopic = function(subTopic){
@@ -212,8 +206,8 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 			var topicId = subTopic.topicId;
 
 			var subSubTopic = {
-			  "topicName": $scope.newSubSubTopicTitel,
-			  "topicDescription": $scope.newSubSubTopicDescription,
+			  "topicName": subTopic.newSubTopicTitle,
+			  "topicDescription": subTopic.newSubTopicDescription,
 			  "topicType": "sub",
 			  "subTopics": []
 			};
@@ -263,8 +257,8 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 					// }, 3000);
 			});
 
-			$scope.newSubSubSubTopicTitel = undefined;
-			$scope.newSubSubSubTopicDescription = undefined;
+			delete subTopic.newSubTopicTitle;
+			delete subTopic.newSubTopicDescription;
 		};
 
 		$scope.deleteTopic = function(topic){
