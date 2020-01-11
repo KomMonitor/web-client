@@ -1,4 +1,11 @@
 <div id="adminTopicsContent">
+
+	<div align="center">
+		<div class="loading-overlay-admin-panel ng-hide" ng-show="loadingData">
+					<span class="glyphicon glyphicon-refresh icon-spin"></span>
+		</div>
+	</div>
+
 	<!-- Content Header (Page header) -->
 	<section class="content-header">
 		<h1>
@@ -30,8 +37,8 @@
 												<a href="" ng-attr-title="{{mainTopic.topicDescription}}" class="collapseTrigger" ng-click="isCollapsed_mainTopic = !isCollapsed_mainTopic" ng-init="isCollapsed_mainTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{mainTopic.topicName}}</a>
 
 												<div class="btn-group btn-group-sm" style="margin-left: 30px;">
-													<button type="button" class="btn btn-warning"><i class="fas fa-pencil-alt"></i></button>
-													<button type="button" class="btn btn-danger"><i class="fas fa-trash"></i></button>
+													<button type="button" class="btn btn-warning" ng-click="onClickEditTopic(mainTopic)" data-toggle="modal" data-target="#modal-edit-topic"><i class="fas fa-pencil-alt"></i></button>
+													<button type="button" class="btn btn-danger" ng-click="onClickDeleteTopic(mainTopic)"><i class="fas fa-trash"></i></button>
 												</div>
 										  </div>
 
@@ -40,21 +47,30 @@
 
 												<div  class="list-group-item list-group-item-warning">
 													<a class="collapseTrigger" ng-attr-title="{{subTopic.topicDescription}}" href="" ng-click="isCollapsed_subTopic = !isCollapsed_subTopic" ng-init="isCollapsed_subTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{subTopic.topicName}}</a>
-
+													<div class="btn-group btn-group-sm" style="margin-left: 30px;">
+														<button type="button" class="btn btn-warning" ng-click="onClickEditTopic(subTopic)" data-toggle="modal" data-target="#modal-edit-topic"><i class="fas fa-pencil-alt"></i></button>
+														<button type="button" class="btn btn-danger" ng-click="onClickDeleteTopic(subTopic)"><i class="fas fa-trash"></i></button>
+													</div>
 												</div>
 
 												<div ng-repeat="subsubTopic in subTopic.subTopics" class="list-group collapse" uib-collapse="isCollapsed_subTopic">
 
 													<div  class="list-group-item list-group-item-warning">
 														<a clas="collapseTrigger" ng-attr-title="{{subsubTopic.topicDescription}}" href="" ng-click="isCollapsed_subsubTopic = !isCollapsed_subsubTopic" ng-init="isCollapsed_subsubTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{subsubTopic.topicName}}</a>
-
+														<div class="btn-group btn-group-sm" style="margin-left: 30px;">
+															<button type="button" class="btn btn-warning" ng-click="onClickEditTopic(subsubTopic)" data-toggle="modal" data-target="#modal-edit-topic"><i class="fas fa-pencil-alt"></i></button>
+															<button type="button" class="btn btn-danger" ng-click="onClickDeleteTopic(subsubTopic)"><i class="fas fa-trash"></i></button>
+														</div>
 													</div>
 
 													<div ng-repeat="subsubsubTopic in subsubTopic.subTopics" class="list-group collapse" uib-collapse="isCollapsed_subsubTopic">
 
 														<div  class="list-group-item list-group-item-warning">
 															<a class="collapseTrigger" ng-attr-title="{{subsubsubTopic.topicDescription}}" href="" ng-click="isCollapsed_subsubsubTopic = !isCollapsed_subsubsubTopic" ng-init="isCollapsed_subsubsubTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{subsubsubTopic.topicName}}</a>
-
+															<div class="btn-group btn-group-sm" style="margin-left: 30px;">
+																<button type="button" class="btn btn-warning" ng-click="onClickEditTopic(subsubsubTopic)" data-toggle="modal" data-target="#modal-edit-topic"><i class="fas fa-pencil-alt"></i></button>
+																<button type="button" class="btn btn-danger" ng-click="onClickDeleteTopic(subsubsubTopic)"><i class="fas fa-trash"></i></button>
+															</div>
 														</div>
 
 													</div>
@@ -63,7 +79,7 @@
 														<form role="form" class="form-group" data-toggle="validator" style="margin-bottom: 0px;">
 															  <div class="row">
 																	<div class="col-md-3">
-																		<button class="btn btn-success btn-sm" ng-click="onAddSubSubSubTopic(mainTopic, subTopic, subsubTopic)" ng-disabled="!newSubSubSubTopicTitel || !newSubSubSubTopicDescription"><i class="fas fa-plus"></i> &nbsp; &nbsp; Unterthema hinzuf&uuml;gen</button>
+																		<button class="btn btn-success btn-sm" ng-click="onAddSubSubSubTopic(subsubTopic)" ng-disabled="!newSubSubSubTopicTitel || !newSubSubSubTopicDescription"><i class="fas fa-plus"></i> &nbsp; &nbsp; Unterthema hinzuf&uuml;gen</button>
 																	</div>
 															    <div class="col-md-4">
 																		<input style="width:100%;" class="form-control" type="text" placeholder="Titel des Unterthemas" ng-model="newSubSubSubTopicTitel" required></input>
@@ -85,7 +101,7 @@
 													<form role="form" class="form-group" data-toggle="validator" style="margin-bottom: 0px;">
 														  <div class="row">
 																<div class="col-md-3">
-																	<button class="btn btn-success btn-sm" ng-click="onAddSubSubTopic(mainTopic, subTopic)" ng-disabled="!newSubSubTopicTitel || !newSubSubTopicDescription"><i class="fas fa-plus"></i> &nbsp; &nbsp; Unterthema hinzuf&uuml;gen</button>
+																	<button class="btn btn-success btn-sm" ng-click="onAddSubSubTopic(subTopic)" ng-disabled="!newSubSubTopicTitel || !newSubSubTopicDescription"><i class="fas fa-plus"></i> &nbsp; &nbsp; Unterthema hinzuf&uuml;gen</button>
 																</div>
 														    <div class="col-md-4">
 																	<input style="width:100%;" class="form-control" type="text" placeholder="Titel des Unterthemas" ng-model="newSubSubTopicTitel" required></input>
@@ -107,10 +123,10 @@
 												<form role="form" class="form-group" data-toggle="validator" style="margin-bottom: 0px;">
 													  <div class="row">
 															<div class="col-md-3">
-																<button class="btn btn-success btn-sm" ng-click="onAddSubTopic(mainTopic)" ng-disabled="!newSubTopicTitel || !newSubTopicDescription"><i class="fas fa-plus"></i> &nbsp; &nbsp; Unterthema hinzuf&uuml;gen</button>
+																<button class="btn btn-success btn-sm" ng-click="onAddSubTopic(mainTopic)" ng-disabled="!$ctrl.newSubTopicTitel || !newSubTopicDescription"><i class="fas fa-plus"></i> &nbsp; &nbsp; Unterthema hinzuf&uuml;gen</button>
 															</div>
 													    <div class="col-md-4">
-																<input style="width:100%;" class="form-control" type="text" placeholder="Titel des Unterthemas" ng-model="newSubTopicTitel" required></input>
+																<input style="width:100%;" class="form-control" type="text" placeholder="Titel des Unterthemas" ng-model="$ctrl.newSubTopicTitel" required></input>
 																<div class="help-block with-errors"></div>
 															</div>
 													    <div class="col-md-5">
@@ -152,6 +168,14 @@
             <!-- /.box-body -->
           </div>
           <!-- /.box -->
+
+					<div id="topicsErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden class="alert alert-danger alert-dismissable">
+		                <button type="button" class="close" ng-click="hideErrorAlert()" aria-hidden="true">&times;</button>
+		                <h4><i class="icon fa fa-ban"></i>Request gescheitert</h4>
+		                Fehlermeldung:
+										<br/>
+										<pre>{{errorMessagePart}}</pre>.
+		      </div>
 
 	</section>
 <!-- /.content -->
