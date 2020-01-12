@@ -15,6 +15,8 @@ module.exports = function (grunt) {
             'app/components/kommonitorAdmin/adminTopicsManagement/admin-topics-management.component.js',
             'app/components/kommonitorAdmin/adminTopicsManagement/topicEditModal/topic-edit-modal.module.js',
             'app/components/kommonitorAdmin/adminTopicsManagement/topicEditModal/topic-edit-modal.component.js',
+            'app/components/kommonitorAdmin/adminTopicsManagement/topicDeleteModal/topic-delete-modal.module.js',
+            'app/components/kommonitorAdmin/adminTopicsManagement/topicDeleteModal/topic-delete-modal.component.js',
             'app/components/kommonitorAdmin/adminSpatialUnitsManagement/admin-spatial-units-management.module.js',
             'app/components/kommonitorAdmin/adminSpatialUnitsManagement/admin-spatial-units-management.component.js',
             'app/components/kommonitorAdmin/adminSpatialUnitsManagement/spatialUnitAddModal/spatial-unit-add-modal.module.js',

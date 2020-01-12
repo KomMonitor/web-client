@@ -5,7 +5,7 @@ angular.module('topicEditModal').component('topicEditModal', {
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
 		$scope.currentTopic;
-		
+
 		$scope.loadingData = false;
 
 		$scope.errorMessagePart = undefined;
@@ -40,6 +40,8 @@ angular.module('topicEditModal').component('topicEditModal', {
 
 					await kommonitorDataExchangeService.fetchTopicsMetadata();
 
+					$rootScope.$broadcast("refreshTopicsOverview");
+
 					$("#topicEditMetadataSuccessAlert").show();
 					$scope.loadingData = false;
 					//
@@ -51,18 +53,15 @@ angular.module('topicEditModal').component('topicEditModal', {
 					$("#topicEditMetadataErrorAlert").show();
 					$scope.loadingData = false;
 
-					// setTimeout(function() {
-					// 		$("#spatialUnitAddSucessAlert").hide();
-					// }, 3000);
 			});
 		};
 
 			$scope.hideSuccessAlert = function(){
-				$("#spatialUnitEditMetadataSuccessAlert").hide();
+				$("#topicEditMetadataSuccessAlert").hide();
 			};
 
 			$scope.hideErrorAlert = function(){
-				$("#spatialUnitEditMetadataErrorAlert").hide();
+				$("#topicEditMetadataErrorAlert").hide();
 			};
 
 	}

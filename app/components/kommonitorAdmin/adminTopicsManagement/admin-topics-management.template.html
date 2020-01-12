@@ -38,7 +38,7 @@
 
 												<div class="btn-group btn-group-sm" style="margin-left: 30px;">
 													<button type="button" class="btn btn-warning" ng-click="onClickEditTopic(mainTopic)" data-toggle="modal" data-target="#modal-edit-topic"><i class="fas fa-pencil-alt"></i></button>
-													<button type="button" class="btn btn-danger" ng-click="onClickDeleteTopic(mainTopic)"><i class="fas fa-trash"></i></button>
+													<button type="button" class="btn btn-danger" ng-click="onClickDeleteTopic(mainTopic)" data-toggle="modal" data-target="#modal-delete-topic"><i class="fas fa-trash"></i></button>
 												</div>
 										  </div>
 
@@ -49,7 +49,7 @@
 													<a class="collapseTrigger" ng-attr-title="{{subTopic.topicDescription}}" href="" ng-click="isCollapsed_subTopic = !isCollapsed_subTopic" ng-init="isCollapsed_subTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{subTopic.topicName}}</a>
 													<div class="btn-group btn-group-sm" style="margin-left: 30px;">
 														<button type="button" class="btn btn-warning" ng-click="onClickEditTopic(subTopic)" data-toggle="modal" data-target="#modal-edit-topic"><i class="fas fa-pencil-alt"></i></button>
-														<button type="button" class="btn btn-danger" ng-click="onClickDeleteTopic(subTopic)"><i class="fas fa-trash"></i></button>
+														<button type="button" class="btn btn-danger" ng-click="onClickDeleteTopic(subTopic)" data-toggle="modal" data-target="#modal-delete-topic"><i class="fas fa-trash"></i></button>
 													</div>
 												</div>
 
@@ -59,7 +59,7 @@
 														<a clas="collapseTrigger" ng-attr-title="{{subsubTopic.topicDescription}}" href="" ng-click="isCollapsed_subsubTopic = !isCollapsed_subsubTopic" ng-init="isCollapsed_subsubTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{subsubTopic.topicName}}</a>
 														<div class="btn-group btn-group-sm" style="margin-left: 30px;">
 															<button type="button" class="btn btn-warning" ng-click="onClickEditTopic(subsubTopic)" data-toggle="modal" data-target="#modal-edit-topic"><i class="fas fa-pencil-alt"></i></button>
-															<button type="button" class="btn btn-danger" ng-click="onClickDeleteTopic(subsubTopic)"><i class="fas fa-trash"></i></button>
+															<button type="button" class="btn btn-danger" ng-click="onClickDeleteTopic(subsubTopic)" data-toggle="modal" data-target="#modal-delete-topic"><i class="fas fa-trash"></i></button>
 														</div>
 													</div>
 
@@ -69,7 +69,7 @@
 															<a class="collapseTrigger" ng-attr-title="{{subsubsubTopic.topicDescription}}">{{subsubsubTopic.topicName}}</a>
 															<div class="btn-group btn-group-sm" style="margin-left: 30px;">
 																<button type="button" class="btn btn-warning" ng-click="onClickEditTopic(subsubsubTopic)" data-toggle="modal" data-target="#modal-edit-topic"><i class="fas fa-pencil-alt"></i></button>
-																<button type="button" class="btn btn-danger" ng-click="onClickDeleteTopic(subsubsubTopic)"><i class="fas fa-trash"></i></button>
+																<button type="button" class="btn btn-danger" ng-click="onClickDeleteTopic(subsubsubTopic)" data-toggle="modal" data-target="#modal-delete-topic"><i class="fas fa-trash"></i></button>
 															</div>
 														</div>
 

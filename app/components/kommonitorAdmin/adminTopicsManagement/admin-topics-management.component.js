@@ -28,6 +28,10 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 			$scope.loadingData = false;
 		};
 
+		$scope.$on("refreshTopicsOverview", function (event) {
+			$scope.refreshTopicsOverview();
+		});
+
 		$scope.onAddMainTopic = function(){
 
 			var postBody = {
@@ -53,6 +57,9 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 					await kommonitorDataExchangeService.fetchTopicsMetadata();
 
 					$scope.refreshTopicsOverview();
+
+					// refresh all admin dashboard diagrams due to modified metadata
+					$rootScope.$broadcast("refreshAdminDashboardDiagrams");
 
 				}, function errorCallback(response) {
 					$scope.errorMessagePart = response;
@@ -114,6 +121,9 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 					await kommonitorDataExchangeService.fetchTopicsMetadata();
 
 					$scope.refreshTopicsOverview();
+
+					// refresh all admin dashboard diagrams due to modified metadata
+					$rootScope.$broadcast("refreshAdminDashboardDiagrams");
 
 				}, function errorCallback(response) {
 					$scope.errorMessagePart = response;
@@ -185,6 +195,9 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 
 					$scope.refreshTopicsOverview();
 
+					// refresh all admin dashboard diagrams due to modified metadata
+					$rootScope.$broadcast("refreshAdminDashboardDiagrams");
+
 				}, function errorCallback(response) {
 					$scope.errorMessagePart = response;
 
@@ -246,6 +259,9 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 
 					$scope.refreshTopicsOverview();
 
+					// refresh all admin dashboard diagrams due to modified metadata
+					$rootScope.$broadcast("refreshAdminDashboardDiagrams");
+
 				}, function errorCallback(response) {
 					$scope.errorMessagePart = response;
 
@@ -294,8 +310,13 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 		};
 
 		$scope.onClickEditTopic = function(topic){
-			// submit selected spatial unit to modal controller
+			// submit selected topic to modal controller
 			$rootScope.$broadcast("onEditTopic", topic);
+		};
+
+		$scope.onClickDeleteTopic = function(topic){
+			// submit selected topic to modal controller
+			$rootScope.$broadcast("onDeleteTopic", topic);
 		};
 
 		$scope.hideErrorAlert = function(){
