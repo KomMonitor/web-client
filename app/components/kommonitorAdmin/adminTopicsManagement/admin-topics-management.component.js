@@ -4,8 +4,10 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
-		$scope.newMainTopicTitel;
+		$scope.newMainTopicTitle;
 		$scope.newMainTopicDescription;
+
+		$scope.unCollapsedTopicIds = [];
 
 		$scope.errorMessagePart;
 
@@ -18,12 +20,27 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 			    $('.glyphicon', this)
 			      .toggleClass('glyphicon-chevron-right')
 			      .toggleClass('glyphicon-chevron-down');
+
+						// manage uncollapsed entries
+						var clickedTopicId = $(this).attr('id');
+						if ($scope.unCollapsedTopicIds.includes(clickedTopicId)){
+							var index = $scope.unCollapsedTopicIds.indexOf(clickedTopicId);
+							$scope.unCollapsedTopicIds.splice(index, 1);
+						}
+						else{
+							$scope.unCollapsedTopicIds.push(clickedTopicId);
+						}
 			  });
 			}, 500);
 		});
 
 		$scope.refreshTopicsOverview = function(){
 			$scope.loadingData = true;
+
+			$scope.unCollapsedTopicIds.forEach(function(topicId){
+				// simulate click on item in order to uncollapse it
+				$('#'+topicId).click();
+			});
 
 			$scope.loadingData = false;
 		};
@@ -35,7 +52,7 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 		$scope.onAddMainTopic = function(){
 
 			var postBody = {
-			  "topicName": $scope.newMainTopicTitel,
+			  "topicName": $scope.newMainTopicTitle,
 			  "topicDescription": $scope.newMainTopicDescription,
 			  "topicType": "main",
 			  "subTopics": []
@@ -72,7 +89,7 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 					// }, 3000);
 			});
 
-			$scope.newMainTopicTitel = undefined;
+			$scope.newMainTopicTitle = undefined;
 			$scope.newMainTopicDescription = undefined;
 		};
 
