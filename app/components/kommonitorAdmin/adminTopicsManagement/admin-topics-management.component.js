@@ -14,7 +14,7 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 		// initialize any adminLTE box widgets
 	  $('.box').boxWidget();
 
-		$(document).ready(function() {
+		var addClickListenerToEachCollapseTrigger = function(){
 			setTimeout(function(){
 				$('.list-group-item > .collapseTrigger').on('click', function() {
 			    $('.glyphicon', this)
@@ -32,6 +32,11 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 						}
 			  });
 			}, 500);
+		};
+
+		$(document).ready(function() {
+
+			addClickListenerToEachCollapseTrigger();
 		});
 
 		$scope.refreshTopicsOverview = function(){
@@ -41,6 +46,8 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 				// simulate click on item in order to uncollapse it
 				$('#'+topicId).click();
 			});
+
+			addClickListenerToEachCollapseTrigger();
 
 			$scope.loadingData = false;
 		};
