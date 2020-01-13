@@ -31,6 +31,8 @@ module.exports = function (grunt) {
             'app/components/kommonitorAdmin/adminIndicatorsManagement/admin-indicators-management.component.js',
             'app/components/kommonitorAdmin/adminGeoresourcesManagement/admin-georesources-management.module.js',
             'app/components/kommonitorAdmin/adminGeoresourcesManagement/admin-georesources-management.component.js',
+            'app/components/kommonitorAdmin/adminGeoresourcesManagement/georesourceDeleteModal/georesource-delete-modal.module.js',
+            'app/components/kommonitorAdmin/adminGeoresourcesManagement/georesourceDeleteModal/georesource-delete-modal.component.js',
             'app/components/kommonitorAdmin/adminScriptManagement/admin-script-management.module.js',
             'app/components/kommonitorAdmin/adminScriptManagement/admin-script-management.component.js',
             'app/components/kommonitorAdmin/kommonitor-admin.module.js',
