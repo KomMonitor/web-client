@@ -35,9 +35,9 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 		$scope.indicatorsPerTopicChartOptions;
 		$scope.indicatorsPerTopicChart.showLoading();
 
-		$scope.georesourcesPerTopicChart = echarts.init(document.getElementById('georesourcesPerTopicDiagram'));
-		$scope.georesourcesPerTopicChartOptions;
-		$scope.georesourcesPerTopicChart.showLoading();
+		$scope.georesourcesPerTypeChart = echarts.init(document.getElementById('georesourcesPerTypeDiagram'));
+		$scope.georesourcesPerTypeChartOptions;
+		$scope.georesourcesPerTypeChart.showLoading();
 
 		$scope.indicatorsPerSpatialUnitChart = echarts.init(document.getElementById('indicatorsPerSpatialUnitDiagram'));
 		$scope.indicatorsPerSpatialUnitChartOptions;
@@ -56,8 +56,8 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 						$scope.indicatorsPerTopicChart.resize();
 				}
 
-				if($scope.georesourcesPerTopicChart != null && $scope.georesourcesPerTopicChart != undefined){
-						$scope.georesourcesPerTopicChart.resize();
+				if($scope.georesourcesPerTypeChart != null && $scope.georesourcesPerTypeChart != undefined){
+						$scope.georesourcesPerTypeChart.resize();
 				}
 
 				if($scope.indicatorsPerSpatialUnitChart != null && $scope.indicatorsPerSpatialUnitChart != undefined){
@@ -108,7 +108,7 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 
 			$scope.updateIndicatorsPerTopicChart();
 
-			$scope.updateGeoresourcesPerTopicChart();
+			$scope.updateGeoresourcesPerTypeChart();
 
 			$scope.updateIndicatorsPerSpatialUnitChart();
 		};
@@ -310,37 +310,47 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 
 		// GEORESOURCES PER TOPIC
 
-		$scope.updateGeoresourcesPerTopicChart = function(){
+		$scope.updateGeoresourcesPerTypeChart = function(){
 
-			$scope.georesourcesPerTopicChart.showLoading();
+			$scope.georesourcesPerTypeChart.showLoading();
 
-			var georesourcesPerTopicMap = new Map();
+			var georesourcesPerTypeMap = new Map();
 
 			kommonitorDataExchangeService.availableGeoresources.forEach(function(georesource){
-				var mainTopicForCurrentGeoresource = findMainTopicNameForTopicReference(georesource.topicReference);
+				var georesourceType = "POI";
+				if(georesource.isLOI){
+					georesourceType = "LOI";
+				}
+				else if(georesource.isAOI){
+					georesourceType = "AOI";
+				}
 
-				if(georesourcesPerTopicMap.has(mainTopicForCurrentGeoresource)){
+				if(georesourcesPerTypeMap.has(georesourceType)){
 					// increment by 1
-					georesourcesPerTopicMap.set(mainTopicForCurrentGeoresource, georesourcesPerTopicMap.get(mainTopicForCurrentGeoresource) + 1);
+					georesourcesPerTypeMap.set(georesourceType, georesourcesPerTypeMap.get(georesourceType) + 1);
 				}
 				else{
-					georesourcesPerTopicMap.set(mainTopicForCurrentGeoresource, 1);
+					georesourcesPerTypeMap.set(georesourceType, 1);
 				}
 			});
 
-			var georesourcesPerTopicSeriesData = [];
+			var georesourcesPerTypeSeriesData = [];
 
 			//sorted alphabetically
-			kommonitorDataExchangeService.availableTopics.forEach(function(topic){
-				if(georesourcesPerTopicMap.has(topic.topicName)){
-					georesourcesPerTopicSeriesData.push({
-						name: topic.topicName,
-						value: georesourcesPerTopicMap.get(topic.topicName)
-					});
-				}
+			georesourcesPerTypeSeriesData.push({
+				name: "Points of Interest",
+				value: georesourcesPerTypeMap.get("POI")
+			});
+			georesourcesPerTypeSeriesData.push({
+				name: "Lines of Interest",
+				value: georesourcesPerTypeMap.get("LOI")
+			});
+			georesourcesPerTypeSeriesData.push({
+				name: "Areas of Interest",
+				value: georesourcesPerTypeMap.get("AOI")
 			});
 
-			$scope.georesourcesPerTopicChartOptions = {
+			$scope.georesourcesPerTypeChartOptions = {
 				// grid get rid of whitespace around chart
 				// grid: {
 				// 	left: '7%',
@@ -349,7 +359,7 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 				// 	bottom: 55
 				// },
 					title: {
-							text: 'Georessourcen \npro Themenbereich',
+							text: 'Georessourcen \npro Typ',
 							left: 'center',
 							show: true,
 							top: 15,
@@ -358,12 +368,12 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 					tooltip: $scope.pieChartTooltip,
 					series : [
 			        {
-			            name: 'Georessourcen pro Themenbereich',
+			            name: 'Georessourcen pro Typ',
 			            type: 'pie',
 									//roseType: 'radius',
 			            radius : '90%',
 			            center: ['50%', '50%'],
-			            data: georesourcesPerTopicSeriesData,
+			            data: georesourcesPerTypeSeriesData,
 			            itemStyle: {
 											normal: {
 													color: '#ff851b',
@@ -382,8 +392,8 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 			};
 			// end of chart options
 
-			$scope.georesourcesPerTopicChart.setOption($scope.georesourcesPerTopicChartOptions);
-			$scope.georesourcesPerTopicChart.hideLoading();
+			$scope.georesourcesPerTypeChart.setOption($scope.georesourcesPerTypeChartOptions);
+			$scope.georesourcesPerTypeChart.hideLoading();
 		};
 
 		// INDICATORS PER SPATIAL UNIT
