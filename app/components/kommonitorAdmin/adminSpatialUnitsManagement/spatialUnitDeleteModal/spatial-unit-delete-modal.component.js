@@ -36,7 +36,7 @@ angular.module('spatialUnitDeleteModal').component('spatialUnitDeleteModal', {
 
 			$scope.loadingData = true;
 
-			var deletePromises = []
+			var deletePromises = [];
 
 			$scope.datasetsToDelete.forEach(function(dataset){
 				deletePromises.push($scope.getDeleteDatasetPromise(dataset));
