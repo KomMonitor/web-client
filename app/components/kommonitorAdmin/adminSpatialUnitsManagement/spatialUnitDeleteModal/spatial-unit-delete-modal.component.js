@@ -6,9 +6,6 @@ angular.module('spatialUnitDeleteModal').component('spatialUnitDeleteModal', {
 
 		$scope.datasetsToDelete = [];
 
-		//Date picker
-		$('#spatialUnitEditMetadataLastUpdateDatepicker').datepicker(kommonitorDataExchangeService.datePickerOptions);
-
 		$scope.loadingData = false;
 
 		$scope.successfullyDeletedDatasets = [];
