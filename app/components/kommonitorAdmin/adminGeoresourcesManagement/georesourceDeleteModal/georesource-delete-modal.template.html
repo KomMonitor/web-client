@@ -134,6 +134,20 @@
 									</ul>
 								</div>
 
+								<div ng-if="affectedScripts.length > 0">
+									<h4>Skripte</h4>
+									<ul>
+					            <li ng-repeat="script in affectedScripts">{{script.name}}</li>
+									</ul>
+								</div>
+
+								<div ng-if="affectedIndicatorReferences.length > 0">
+									<h4>Skripte</h4>
+									<ul>
+					            <li ng-repeat="reference in affectedIndicatorReferences">{{reference.referencedGeoresourceName}}</li>
+									</ul>
+								</div>
+
       </div>
 
 			<div id="georesourcesDeleteErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden class="alert alert-danger alert-dismissable">
