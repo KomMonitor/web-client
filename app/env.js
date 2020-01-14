@@ -34,6 +34,9 @@
   // window.__env.apiUrl = 'http://kommonitor.fbg-hsbo.de/opentripplanner';
   window.__env.targetUrlToReachabilityService_OTP = 'http://localhost:8090/opentripplanner';
 
+  // Data Imporert URL
+  window.__env.targetUrlToImporterService = 'http://localhost:8087/';
+
   // optional geometry simplification (a feature of Data Management API)
   window.__env.simplifyGeometriesParameterName = "simplifyGeometries";
   // allowed values and meaning:
