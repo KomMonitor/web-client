@@ -11,6 +11,9 @@ angular.module('georesourceDeleteModal').component('georesourceDeleteModal', {
 		$scope.successfullyDeletedDatasets = [];
 		$scope.failedDatasetsAndErrors = [];
 
+		$scope.affectedScripts = [];
+		$scope.affectedIndicatorReferences = [];
+
 		$scope.$on("onDeleteGeoresources", function (event, datasets) {
 
 			$scope.datasetsToDelete = datasets;
@@ -24,8 +27,52 @@ angular.module('georesourceDeleteModal').component('georesourceDeleteModal', {
 
 			$scope.successfullyDeletedDatasets = [];
 			$scope.failedDatasetsAndErrors = [];
+			$scope.affectedScripts = $scope.gatherAffectedScripts();
+			$scope.affectedIndicatorReferences = $scope.gatherAffectedIndicatorReferences();
 			$("#georesourcesDeleteSuccessAlert").hide();
 			$("#georesourcesDeleteErrorAlert").hide();
+		};
+
+		$scope.gatherAffectedScripts = function(){
+			$scope.affectedScripts = [];
+
+			kommonitorDataExchangeService.availableProcessScripts.forEach(function(script){
+				var requiredGeoresourceIds = script.requiredGeoresourceIds;
+
+				for(var i=0; i<requiredGeoresourceIds.length; i++){
+					var georesourceId = requiredGeoresourceIds[i];
+					for(var k=0; k < $scope.datasetsToDelete.length; k++){
+						var datasetToDelete = $scope.datasetsToDelete[k];
+						if(georesourceId === datasetToDelete.georesourceId){
+							$scope.affectedScripts.push(script);
+							break;
+						}
+					}
+				}
+			});
+
+			return $scope.affectedScripts;
+		};
+
+		$scope.gatherAffectedIndicatorReferences = function(){
+			$scope.affectedIndicatorReferences = [];
+
+			kommonitorDataExchangeService.availableIndicators.forEach(function(indicator){
+				var georesourceReferences = indicator.referencedGeoresources;
+
+				for(var i=0; i<georesourceReferences.length; i++){
+					var georesourceReference = georesourceReferences[i];
+					for(var k=0; k < $scope.datasetsToDelete.length; k++){
+						var datasetToDelete = $scope.datasetsToDelete[k];
+						if(georesourceReference.referencedGeoresourceId === datasetToDelete.georesourceId){
+							$scope.affectedIndicatorReferences.push(georesourceReference);
+							break;
+						}
+					}
+				}
+			});
+
+			return $scope.affectedIndicatorReferences;
 		};
 
 		$scope.deleteGeoresources = function(){

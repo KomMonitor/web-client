@@ -18,7 +18,6 @@
 
 				<h4><b>Sollen die folgenden Georessourcen wirklich gel&ouml;scht werden?</b></h4>
 
-				<p>Dabei werden auch s&auml;mtliche Indikatoren-Referenzen auf die betroffenen Georessourcen dauerhaft aus dem System entfernt. Etwaige Skripte, in denen die betroffenen Georessourcen als Berechnungsgrundlage verwendet werden, werden ebenfalls ung&uuml;ltig und daher aus dem System gel&ouml;scht</p>
 
 				<div ng-if="(datasetsToDelete | filter:{isPOI:'true'}).length > 0">
 					<h4>Points of Interest</h4>
@@ -41,6 +40,64 @@
 					</ul>
 				</div>
 
+				<br/>
+
+				<div>
+					<h3>ACHTUNG!</h3>
+					<p>Dabei werden auch s&auml;mtliche <b>Indikatoren-Referenzen</b> auf die betroffenen Georessourcen dauerhaft aus dem System entfernt. Etwaige <b>Skripte</b>, in denen die betroffenen Georessourcen als Berechnungsgrundlage verwendet werden, werden ebenfalls ung&uuml;ltig und daher aus dem System gel&ouml;scht</p>
+					<h4>Betroffene Indikatorenreferenzen</h4>
+					<div ng-if="! affectedIndicatorReferences.length > 0">
+						<p>keine</p>
+					</div>
+					<div ng-if="affectedIndicatorReferences.length > 0">
+						<table class="table table-bordered table-condensed" style="width:100%; overflow:auto; font-size: 11px;">
+							<thead>
+							<tr>
+								<th>IndikatorenReferenz-ID</th>
+								<th>IndikatorenReferenz-Name</th>
+								<th>IndikatorenReferenz-Beschreibung</th>
+							</tr>
+							</thead>
+
+							<tbody>
+								<tr ng-repeat="reference in affectedIndicatorReferences">
+									<td>{{reference.referencedGeoresourceId}}</td>
+									<td>{{reference.referencedGeoresourceName}}</td>
+									<td>{{reference.referencedGeoresourceDescription}}</td>
+								</tr>
+
+							</tbody>
+						</table>
+					</div>
+
+					<h4>Betroffene Skripte</h4>
+					<div ng-if="! affectedScripts.length > 0">
+						<p>keine</p>
+					</div>
+					<div ng-if="affectedScripts.length > 0">
+						<table class="table table-bordered table-condensed" style="width:100%; overflow:auto; font-size: 11px;">
+							<thead>
+							<tr>
+								<th>Skript-ID</th>
+								<th>Skript-Name</th>
+								<th>Skript-Beschreibung</th>
+								<th>ID des berechneten Indikators</th>
+							</tr>
+							</thead>
+
+							<tbody>
+								<tr ng-repeat="script in affectedScripts">
+									<td>{{script.scriptId}}</td>
+									<td>{{script.name}}</td>
+									<td>{{script.description}}</td>
+									<td>{{script.indicatorId}}</td>
+								</tr>
+
+							</tbody>
+						</table>
+					</div>
+				</div>
+
 
 				<div ng-if="! datasetsToDelete.length > 0">
 					<pre>kein Datensatz zum L&ouml;schen markiert. Mindestens ein Datensatz muss markiert werden.</pre>
@@ -54,7 +111,7 @@
 
 			<div id="georesourcesDeleteSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden class="alert alert-success alert-dismissable">
                 <button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
-                <h4><i class="icon fa fa-check"></i>Folgende Georessourcen wurden erfolgreich gel&ouml;scht</h4>
+								<h4><i class="icon fa fa-check"></i>Folgende Georessourcen sowie assoziierte Indikatorenreferenzen und Skripte, bei denen die Georessource als Berechnungsgrundlage verwendet wurde, wurden erfolgreich gel&ouml;scht</h4>
 
 								<div ng-if="(successfullyDeletedDatasets | filter:{isPOI:'true'}).length > 0">
 									<h4>Points of Interest</h4>
@@ -76,7 +133,6 @@
 					            <li ng-repeat="dataset in successfullyDeletedDatasets | filter:{isAOI:'true'}">{{dataset.datasetName}}</li>
 									</ul>
 								</div>
-
 
       </div>
 
