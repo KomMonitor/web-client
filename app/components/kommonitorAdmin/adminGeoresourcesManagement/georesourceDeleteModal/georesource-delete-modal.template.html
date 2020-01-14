@@ -18,6 +18,9 @@
 
 				<h4><b>Sollen die folgenden Georessourcen wirklich gel&ouml;scht werden?</b></h4>
 
+				<div ng-if="! datasetsToDelete.length > 0">
+					<pre>kein Datensatz zum L&ouml;schen markiert. Mindestens ein Datensatz muss markiert werden.</pre>
+				</div>
 
 				<div ng-if="(datasetsToDelete | filter:{isPOI:'true'}).length > 0">
 					<h4>Points of Interest</h4>
@@ -42,7 +45,7 @@
 
 				<br/>
 
-				<div>
+				<div ng-if="datasetsToDelete.length > 0">
 					<h3>ACHTUNG!</h3>
 					<p>Dabei werden auch s&auml;mtliche <b>Indikatoren-Referenzen</b> auf die betroffenen Georessourcen dauerhaft aus dem System entfernt. Etwaige <b>Skripte</b>, in denen die betroffenen Georessourcen als Berechnungsgrundlage verwendet werden, werden ebenfalls ung&uuml;ltig und daher aus dem System gel&ouml;scht</p>
 					<h4>Betroffene Indikatorenreferenzen</h4>
@@ -96,11 +99,6 @@
 							</tbody>
 						</table>
 					</div>
-				</div>
-
-
-				<div ng-if="! datasetsToDelete.length > 0">
-					<pre>kein Datensatz zum L&ouml;schen markiert. Mindestens ein Datensatz muss markiert werden.</pre>
 				</div>
 
 			</div>
