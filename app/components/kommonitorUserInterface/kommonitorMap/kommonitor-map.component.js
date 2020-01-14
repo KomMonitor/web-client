@@ -2423,7 +2423,10 @@ angular.module('kommonitorMap').component(
                                     transitModeValue = "Fahrrad"
                                     break;
                                   case "driving-car":
-                                    transitModeValue = "Auto"
+                                    transitModeValue = "PKW"
+                                    break;
+                                  case "wheelchair":
+                                    transitModeValue = "Barrierefrei"
                                     break;
                                   default:
                                     transitModeValue = "Passant";
@@ -2610,7 +2613,10 @@ angular.module('kommonitorMap').component(
                                     transitModeValue = "Fahrrad"
                                     break;
                                   case "driving-car":
-                                    transitModeValue = "Auto"
+                                    transitModeValue = "PKW"
+                                    break;
+                                  case "wheelchair":
+                                    transitModeValue = "Barrierefrei"
                                     break;
                                   default:
                                     transitModeValue = "Passant";
