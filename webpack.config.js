@@ -75,7 +75,8 @@ module.exports = {
           { from: nodeModulePathConstant + 'bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js', to: 'bootstrap-datepicker/js' },
           { from: nodeModulePathConstant + 'bootstrap-datepicker/dist/locales/bootstrap-datepicker.de.min.js', to: 'bootstrap-datepicker/js' },
           { from: nodeModulePathConstant + 'angular-datatables/dist', to: 'angular-datatables/' },
-          { from: nodeModulePathConstant + 'angular-ui-bootstrap/dist', to: 'angular-ui-bootstrap/' }
+          { from: nodeModulePathConstant + 'angular-ui-bootstrap/dist', to: 'angular-ui-bootstrap/' },
+          { from: nodeModulePathConstant + 'bootstrap-iconpicker/bootstrap-iconpicker', to: 'bootstrap-iconpicker/' }
 
       ])
     ]
