@@ -215,6 +215,35 @@
     margin-right: 5px;
 }
 
+.iconpicker-popover {
+  z-index: 9999999 !important;
+}
+
+.customColorPicker i {
+    width: 14px;
+    height: 14px;
+		max-width: 28px;
+    float: left;
+    margin-right: 8px;
+}
+
+.colorpicker{
+	z-index: 9999999
+}
+
+.dropdown-menu-center {
+  left: 50% !important;
+  right: auto !important;
+  text-align: center !important;
+  transform: translate(-50%, 0) !important;
+}
+
+/* .customColorPicker ul li a {
+    display: unset;
+		clear: unset;
+		padding: unset;
+} */
+
 /* required to increase drowdown menu z-index in oder to let layer export options overlap menu buttons and map */
 #spatialUnitInfoControlDropdown {
 	z-index: 1000;
