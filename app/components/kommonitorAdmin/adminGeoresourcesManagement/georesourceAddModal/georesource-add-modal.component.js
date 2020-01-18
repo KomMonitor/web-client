@@ -46,28 +46,6 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 		$('#georesourceAddDatepickerEnd').datepicker(kommonitorDataExchangeService.datePickerOptions);
 		$('#georesourceAddLastUpdateDatepicker').datepicker(kommonitorDataExchangeService.datePickerOptions);
 
-
-
-		var iconPickerOptions = {
-			align: 'center', // Only in div tag
-	    arrowClass: 'btn-default',
-	    arrowPrevIconClass: 'fas fa-angle-left',
-	    arrowNextIconClass: 'fas fa-angle-right',
-	    cols: 10,
-	    footer: true,
-	    header: true,
-	    icon: 'glyphicon-' + $scope.selectedPoiIconName,
-	    iconset: 'glyphicon',
-	    labelHeader: '{0} von {1} Seiten',
-	    labelFooter: '{0} - {1} von {2} Icons',
-	    placement: 'bottom', // Only in button tag
-	    rows: 6,
-	    search: true,
-	    searchText: 'Stichwortsuche (Bootstrap Glyphicons)',
-	    selectedClass: 'btn-success',
-	    unselectedClass: ''
-		};
-
 		$scope.georesourceMetadataStructure = {
 			"metadata": {
 				"note": "an optional note",
@@ -143,7 +121,27 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 		$scope.successMessagePart = undefined;
 		$scope.errorMessagePart = undefined;
 
-		$('#poiSymbolPicker').iconpicker(iconPickerOptions);
+		$scope.iconPickerOptions = {
+			align: 'center', // Only in div tag
+	    arrowClass: 'btn-default',
+	    arrowPrevIconClass: 'fas fa-angle-left',
+	    arrowNextIconClass: 'fas fa-angle-right',
+	    cols: 10,
+	    footer: true,
+	    header: true,
+	    icon: 'glyphicon-' + $scope.selectedPoiIconName,
+	    iconset: 'glyphicon',
+	    labelHeader: '{0} von {1} Seiten',
+	    labelFooter: '{0} - {1} von {2} Icons',
+	    placement: 'bottom', // Only in button tag
+	    rows: 6,
+	    search: true,
+	    searchText: 'Stichwortsuche (Bootstrap Glyphicons)',
+	    selectedClass: 'btn-success',
+	    unselectedClass: ''
+		};
+
+		$('#poiSymbolPicker').iconpicker($scope.iconPickerOptions);
 
 		$('#poiSymbolPicker').on('change', function(e) {
 		    console.log(e.icon);
@@ -196,6 +194,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			$scope.loiColor = "#bf3d2c";
 			$scope.aoiColor = "#bf3d2c";
 			$scope.selectedPoiIconName = "home";
+			$("#poiSymbolPicker").val("").iconpicker('setIcon', 'glyphicon-' + $scope.selectedPoiIconName);
 
 			$scope.periodOfValidity = {};
 			$scope.periodOfValidity.startDate = undefined;
@@ -429,7 +428,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 
 			$scope.georesourceMetadataImportError = "";
 
-			$("#georesourceMetadataImportFile").files = undefined;
+			$("#georesourceMetadataImportFile").files = [];
 
 			// trigger file chooser
 			$("#georesourceMetadataImportFile").click();
@@ -527,6 +526,12 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 				$scope.loiColor = $scope.metadataImportSettings.loiColor;
 				$scope.aoiColor = $scope.metadataImportSettings.aoiColor;
 				$scope.selectedPoiIconName = $scope.metadataImportSettings.poiSymbolBootstrap3Name;
+
+				setTimeout(function(){
+					$("#poiSymbolPicker").val("").iconpicker('setIcon', 'glyphicon-' + $scope.metadataImportSettings.poiSymbolBootstrap3Name);
+					// $("#poiSymbolPicker i").css('glyphicon glyphicon-' + $scope.metadataImportSettings.poiSymbolBootstrap3Name);
+					// $("#poiSymbolPicker input").css('glyphicon-' + $scope.metadataImportSettings.poiSymbolBootstrap3Name);
+				}, 200);
 
 				$scope.$apply();
 		}
