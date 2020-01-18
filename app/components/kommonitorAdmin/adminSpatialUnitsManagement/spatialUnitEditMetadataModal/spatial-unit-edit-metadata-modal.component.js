@@ -36,6 +36,29 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 
 		$scope.loadingData = false;
 
+		$scope.spatialUnitMetadataStructure = {
+			"metadata": {
+				"note": "an optional note",
+				"literature": "optional text about literature",
+				"updateInterval": "YEARLY|HALF_YEARLY|QUARTERLY|MONTHLY|ARBITRARY",
+				"sridEPSG": 4326,
+				"datasource": "text about data source",
+				"contact": "text about contact details",
+				"lastUpdate": "YYYY-MM-DD",
+				"description": "description about spatial unit dataset",
+				"databasis": "text about data basis",
+			},
+			"nextLowerHierarchyLevel": "Name of lower hierarchy level",
+			"spatialUnitLevel": "Name of spatial unit dataset",
+			"nextUpperHierarchyLevel": "Name of upper hierarchy level"
+		};
+
+		$scope.spatialUnitMetadataStructure_pretty = kommonitorDataExchangeService.syntaxHighlightJSON($scope.spatialUnitMetadataStructure);
+
+		$scope.metadataImportSettings;
+		$scope.spatialUnitMetadataImportError;
+		$scope.spatialUnitMetadataImportErrorAlert;
+
 		$scope.spatialUnitLevel = undefined;
 		$scope.spatialUnitLevelInvalid = false;
 
@@ -197,6 +220,146 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 					// 		$("#spatialUnitEditMetadataSuccessAlert").hide();
 					// }, 3000);
 			});
+		};
+
+		$scope.onImportSpatialUnitEditMetadata = function(){
+
+			$scope.spatialUnitMetadataImportError = "";
+
+			$("#spatialUnitEditMetadataImportFile").files = [];
+
+			// trigger file chooser
+			$("#spatialUnitEditMetadataImportFile").click();
+
+		};
+
+		$(document).on("change", "#spatialUnitEditMetadataImportFile" ,function(){
+
+			console.log("Importing SpatialUnit metadata for Edit SpatialUnit Form");
+
+			// get the file
+			var file = document.getElementById('spatialUnitEditMetadataImportFile').files[0];
+			$scope.parseMetadataFromFile(file);
+		});
+
+		$scope.parseMetadataFromFile = function(file){
+			var fileReader = new FileReader();
+
+			fileReader.onload = function(event) {
+
+				try{
+					$scope.parseFromMetadataFile(event);
+				}
+				catch(error){
+					console.error("Uploaded Metadata File cannot be parsed.");
+					$scope.spatialUnitMetadataImportError = "Uploaded Metadata File cannot be parsed correctly";
+					document.getElementById("spatialUnitsEditMetadataPre").innerHTML = $scope.spatialUnitMetadataStructure_pretty;
+					$("#spatialUnitEditMetadataImportErrorAlert").show();
+				}
+
+			};
+
+			// Read in the image file as a data URL.
+			fileReader.readAsText(file);
+		};
+
+		$scope.parseFromMetadataFile = function(event){
+			// $scope.geoJsonString = event.target.result;
+			$scope.metadataImportSettings = JSON.parse(event.target.result);
+
+			if(! $scope.metadataImportSettings.metadata){
+				console.error("uploaded Metadata File cannot be parsed - wrong structure.");
+				$scope.spatialUnitMetadataImportError = "Struktur der Datei stimmt nicht mit erwartetem Muster &uuml;berein.";
+				document.getElementById("spatialUnitsEditMetadataPre").innerHTML = $scope.spatialUnitMetadataStructure_pretty;
+				$("#spatialUnitEditMetadataImportErrorAlert").show();
+			}
+
+				$scope.metadata = {};
+				$scope.metadata.note = $scope.metadataImportSettings.metadata.note;
+				$scope.metadata.literature = $scope.metadataImportSettings.metadata.literature;
+				kommonitorDataExchangeService.updateIntervalOptions.forEach(function(option){
+					if(option.apiName === $scope.metadataImportSettings.metadata.updateInterval){
+						$scope.metadata.updateInterval = option;
+					}
+				});
+				$scope.metadata.sridEPSG = $scope.metadataImportSettings.metadata.sridEPSG;
+				$scope.metadata.datasource = $scope.metadataImportSettings.metadata.datasource;
+				$scope.metadata.contact = $scope.metadataImportSettings.metadata.contact;
+				$scope.metadata.lastUpdate = $scope.metadataImportSettings.metadata.lastUpdate;
+				// initialize date
+				$('#spatialUnitEditLastUpdateDatepicker').datepicker('setDate', $scope.metadata.lastUpdate);
+
+				$scope.metadata.description = $scope.metadataImportSettings.metadata.description;
+				$scope.metadata.databasis = $scope.metadataImportSettings.metadata.databasis;
+
+				for(var i=0; i<kommonitorDataExchangeService.availableSpatialUnits.length; i++){
+					var spatialUnit = kommonitorDataExchangeService.availableSpatialUnits[i];
+					if (spatialUnit.spatialUnitLevel === $scope.metadataImportSettings.nextLowerHierarchyLevel){
+						$scope.nextLowerHierarchySpatialUnit = spatialUnit;
+					}
+					if (spatialUnit.spatialUnitLevel === $scope.metadataImportSettings.nextUpperHierarchyLevel){
+						$scope.nextUpperHierarchySpatialUnit = spatialUnit;
+					}
+				}
+
+				$scope.spatialUnitLevel = $scope.metadataImportSettings.spatialUnitLevel;
+
+				$scope.$apply();
+		}
+
+		$scope.onExportSpatialUnitEditMetadata = function(){
+			var metadataExport = $scope.spatialUnitMetadataStructure;
+
+			metadataExport.metadata.note = $scope.metadata.note || "";
+			metadataExport.metadata.literature = $scope.metadata.literature  || "";
+			metadataExport.metadata.sridEPSG = $scope.metadata.sridEPSG || "";
+			metadataExport.metadata.datasource = $scope.metadata.datasource || "";
+			metadataExport.metadata.contact = $scope.metadata.contact || "";
+			metadataExport.metadata.lastUpdate = $scope.metadata.lastUpdate || "";
+			metadataExport.metadata.description = $scope.metadata.description || "";
+			metadataExport.metadata.databasis = $scope.metadata.databasis || "";
+			metadataExport.spatialUnitLevel = $scope.spatialUnitLevel || "";
+
+			if($scope.metadata.updateInterval){
+					metadataExport.metadata.updateInterval = $scope.metadata.updateInterval.apiName;
+			}
+			if($scope.nextLowerHierarchySpatialUnit){
+				metadataExport.nextLowerHierarchyLevel = $scope.nextLowerHierarchySpatialUnit.spatialUnitLevel;
+			}
+			else{
+				metadataExport.nextLowerHierarchyLevel = "";
+			}
+			if($scope.nextUpperHierarchySpatialUnit){
+				metadataExport.nextUpperHierarchyLevel = $scope.nextUpperHierarchySpatialUnit.spatialUnitLevel;
+			}
+			else{
+				metadataExport.nextUpperHierarchyLevel = "";
+			}
+
+			var name = $scope.spatialUnitLevel;
+
+			var metadataJSON = JSON.stringify(metadataExport);
+
+			var fileName = "Raumeinheit_Metadaten_Export";
+
+			if (name){
+				fileName += "-" + name;
+			}
+
+			fileName += ".json";
+
+			var blob = new Blob([metadataJSON], {type: "application/json"});
+			var data  = URL.createObjectURL(blob);
+
+			var a = document.createElement('a');
+			a.download    = fileName;
+			a.href        = data;
+			a.textContent = "JSON";
+			a.target = "_blank";
+			a.rel = "noopener noreferrer";
+			a.click();
+
+			a.remove();
 		};
 
 			$scope.hideSuccessAlert = function(){

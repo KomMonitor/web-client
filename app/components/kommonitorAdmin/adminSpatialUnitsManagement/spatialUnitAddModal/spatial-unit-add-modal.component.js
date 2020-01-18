@@ -318,7 +318,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 
 			$scope.spatialUnitMetadataImportError = "";
 
-			$("#spatialUnitMetadataImportFile").files = undefined;
+			$("#spatialUnitMetadataImportFile").files = [];
 
 			// trigger file chooser
 			$("#spatialUnitMetadataImportFile").click();
