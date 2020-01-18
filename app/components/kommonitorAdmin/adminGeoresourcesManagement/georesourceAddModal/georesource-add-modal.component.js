@@ -344,6 +344,8 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 					// refresh all admin dashboard diagrams due to modified metadata
 					$rootScope.$broadcast("refreshAdminDashboardDiagrams");
 
+					$scope.successMessagePart = $scope.datasetName;
+
 					$("#georesourceAddSuccessAlert").show();
 
 					$scope.loadingData = false;
