@@ -344,6 +344,8 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 					// refresh all admin dashboard diagrams due to modified metadata
 					$rootScope.$broadcast("refreshAdminDashboardDiagrams");
 
+					$("#georesourceAddSuccessAlert").show();
+
 					$scope.loadingData = false;
 
 				}, function errorCallback(response) {
@@ -632,7 +634,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 
 
 			$scope.hideSuccessAlert = function(){
-				$("#georesourceAddSucessAlert").hide();
+				$("#georesourceAddSuccessAlert").hide();
 			};
 
 			$scope.hideErrorAlert = function(){
