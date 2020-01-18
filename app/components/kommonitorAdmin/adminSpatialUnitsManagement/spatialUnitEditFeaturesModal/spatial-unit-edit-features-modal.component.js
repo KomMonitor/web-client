@@ -199,7 +199,7 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 					// when the response is available
 
 					$rootScope.$broadcast("refreshSpatialUnitOverviewTable");
-					$scope.refreshSpatialUnitEditFeaturesOverviewTable();
+					// $scope.refreshSpatialUnitEditFeaturesOverviewTable();
 
 					$scope.successMessagePart = $scope.currentSpatialUnitDataset.spatialUnitLevel;
 
