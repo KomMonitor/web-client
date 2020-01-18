@@ -16,8 +16,6 @@
 			</div>
 			<div class="modal-body">
 
-				<p><b><i>* = Pflichtfeld</i></b></p>
-
 				<!-- {
 						  "geoJsonString": "geoJsonString",
 						  "periodOfValidity": {
@@ -27,7 +25,11 @@
 						}
 			 -->
 
-			 <div class="admin-table-wrapper">
+			 <button class="btn btn-info" ng-click="refreshSpatialUnitEditFeaturesOverviewTable()"><i class="fas fa-sync-alt"></i>&nbsp;Zeige alle Features</button>
+			 <br/>
+			 <p>Das Anzeigen aller Features der Raumeinheit kann je nach Anzahl und Komplexität der Objekte einige Zeit in Anspruch nehmen</p>
+
+			 <div class="admin-table-wrapper" >
 				 <table id="spatialUnitFeatureTable" datatable="ng" dt-options="$ctrl.kommonitorDataExchangeServiceInstance.datatablesOptions" class="table table-bordered table-condensed table-striped" style="width:100%; overflow:auto; font-size: 11px;">
 					 <thead>
 					 <tr>
@@ -72,6 +74,8 @@
 			 <form role="form" class="form-group" data-toggle="validator" style="margin-bottom: 0px;">
 
 						<h4>R&auml;umlicher Datensatz</h4>
+
+						<p><b><i>* = Pflichtfeld</i></b></p>
 						<div class="row vertical-align">
 	                <div class="col-md-3 col-sm-6 col-xs-12">
 										<div class="form-group">

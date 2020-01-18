@@ -65,11 +65,9 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 				return;
 			}
 			else{
-
-				$scope.loadingData = true;
 				$scope.currentSpatialUnitDataset = spatialUnitDataset;
 
-				$scope.refreshSpatialUnitEditFeaturesOverviewTable();
+				// $scope.refreshSpatialUnitEditFeaturesOverviewTable();
 
 				$scope.resetSpatialUnitEditFeaturesForm();
 			}
@@ -77,6 +75,8 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 		});
 
 		$scope.refreshSpatialUnitEditFeaturesOverviewTable = function(){
+
+			$scope.loadingData = true;
 			// fetch all spatial unit features
 			$http({
 				url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/spatial-units/" + $scope.currentSpatialUnitDataset.spatialUnitId + "/allFeatures",
