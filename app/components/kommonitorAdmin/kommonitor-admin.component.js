@@ -32,7 +32,7 @@ angular
 								};
 
 								this.init = function(){
-									// this.checkAuthorizationOnStartup();
+									this.checkAuthorizationOnStartup();
 									kommonitorDataExchangeService.fetchAllMetadata();
 								};
 
@@ -52,10 +52,12 @@ angular
 
 								$scope.onClickGeodataWrapperItem = function(){
 
+									// $('#adminGeodataWrapperNavItem').toggleClass("active");
+
 									setTimeout(function(){
 										if($scope.activeItemBackupId != 'adminSpatialUnitsNavItem' && $scope.activeItemBackupId != 'adminGeoresourcesNavItem' && $scope.activeItemBackupId != 'adminIndicatorsNavItem'){
 											// $('#adminGeodataWrapperNavItem').toggleClass("active");
-											$('#'+$scope.activeItemBackupId).toggleClass("active");
+											$('#'+$scope.activeItemBackupId).addClass("active");
 										}
 									}, 40);
 								};
