@@ -33,6 +33,8 @@ module.exports = function (grunt) {
             'app/components/kommonitorAdmin/adminGeoresourcesManagement/admin-georesources-management.component.js',
             'app/components/kommonitorAdmin/adminGeoresourcesManagement/georesourceAddModal/georesource-add-modal.module.js',
             'app/components/kommonitorAdmin/adminGeoresourcesManagement/georesourceAddModal/georesource-add-modal.component.js',
+            'app/components/kommonitorAdmin/adminGeoresourcesManagement/georesourceEditFeaturesModal/georesource-edit-features-modal.module.js',
+            'app/components/kommonitorAdmin/adminGeoresourcesManagement/georesourceEditFeaturesModal/georesource-edit-features-modal.component.js',
             'app/components/kommonitorAdmin/adminGeoresourcesManagement/georesourceEditMetadataModal/georesource-edit-metadata-modal.module.js',
             'app/components/kommonitorAdmin/adminGeoresourcesManagement/georesourceEditMetadataModal/georesource-edit-metadata-modal.component.js',
             'app/components/kommonitorAdmin/adminGeoresourcesManagement/georesourceDeleteModal/georesource-delete-modal.module.js',

@@ -110,6 +110,9 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 
 		$scope.resetSpatialUnitEditFeaturesForm = function(){
 
+			$scope.georesourceFeaturesGeoJSON = undefined;
+			$scope.remainingFeatureHeaders = undefined;
+
 			$scope.periodOfValidity = {};
 			$scope.periodOfValidity.startDate = undefined;
 			$scope.periodOfValidity.endDate = undefined;
