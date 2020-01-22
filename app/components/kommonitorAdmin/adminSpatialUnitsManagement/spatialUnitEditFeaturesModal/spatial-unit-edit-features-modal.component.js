@@ -108,6 +108,36 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 			});
 		};
 
+		$scope.clearAllSpatialUnitFeatures = function(){
+			$scope.loadingData = true;
+			// delete all georesource features
+			$http({
+				url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/spatial-units/" + $scope.currentSpatialUnitDataset.spatialUnitId + "/allFeatures",
+				method: "DELETE",
+				// headers: {
+				//    'Content-Type': undefined
+				// }
+			}).then(function successCallback(response) {
+
+				$scope.spatialUnitFeaturesGeoJSON = undefined;
+				$scope.remainingFeatureHeaders = undefined;
+
+				$rootScope.$broadcast("refreshSpatialUnitOverviewTable");
+				// $scope.refreshGeoresourceEditFeaturesOverviewTable();
+
+				$scope.successMessagePart = $scope.currentSpatialUnitDataset.spatialUnitLevel;
+
+				$("#spatialUnitEditFeaturesSuccessAlert").show();
+				$scope.loadingData = false;
+
+				}, function errorCallback(response) {
+					$scope.errorMessagePart = response;
+
+					$("#spatialUnitEditFeaturesErrorAlert").show();
+					$scope.loadingData = false;
+			});
+		};
+
 		$scope.resetSpatialUnitEditFeaturesForm = function(){
 
 			$scope.georesourceFeaturesGeoJSON = undefined;

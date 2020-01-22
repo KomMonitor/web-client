@@ -62,7 +62,7 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 		$scope.refreshGeoresourceEditFeaturesOverviewTable = function(){
 
 			$scope.loadingData = true;
-			// fetch all spatial unit features
+			// fetch all georesource features
 			$http({
 				url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + $scope.currentGeoresourceDataset.georesourceId + "/allFeatures",
 				method: "GET",
@@ -84,6 +84,36 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 				$scope.remainingFeatureHeaders = tmpRemainingHeaders;
 
 					$scope.loadingData = false;
+
+				}, function errorCallback(response) {
+					$scope.errorMessagePart = response;
+
+					$("#georesourceEditFeaturesErrorAlert").show();
+					$scope.loadingData = false;
+			});
+		};
+
+		$scope.clearAllGeoresourceFeatures = function(){
+			$scope.loadingData = true;
+			// delete all georesource features
+			$http({
+				url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + $scope.currentGeoresourceDataset.georesourceId + "/allFeatures",
+				method: "DELETE",
+				// headers: {
+				//    'Content-Type': undefined
+				// }
+			}).then(function successCallback(response) {
+
+				$scope.georesourceFeaturesGeoJSON = undefined;
+				$scope.remainingFeatureHeaders = undefined;
+
+				$rootScope.$broadcast("refreshGeoresourceOverviewTable");
+				// $scope.refreshGeoresourceEditFeaturesOverviewTable();
+
+				$scope.successMessagePart = $scope.currentGeoresourceDataset.datasetName;
+
+				$("#georesourceEditFeaturesSuccessAlert").show();
+				$scope.loadingData = false;
 
 				}, function errorCallback(response) {
 					$scope.errorMessagePart = response;

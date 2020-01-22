@@ -25,9 +25,26 @@
 						}
 			 -->
 
-			 <button class="btn btn-info" ng-click="refreshSpatialUnitEditFeaturesOverviewTable()"><i class="fas fa-sync-alt"></i>&nbsp;Zeige alle Features</button>
-			 <br/>
-			 <p>Das Anzeigen aller Features der Raumeinheit kann je nach Anzahl und Komplexität der Objekte einige Zeit in Anspruch nehmen</p>
+			 <div class="row vertical-align">
+						 <div class="col-md-6 col-sm-6 col-xs-12">
+							 <div class="form-group">
+								 <label >Datenbank-Features holen</label>
+								 <button class="btn btn-info" ng-click="refreshSpatialUnitEditFeaturesOverviewTable()"><i class="fas fa-sync-alt"></i>&nbsp;Zeige alle Features</button>
+
+								 <div class="help-block"><p>Das Anzeigen aller Features der Raumeinheit kann je nach Anzahl und Komplexität der Objekte einige Zeit in Anspruch nehmen</p></div>
+								 <div class="help-block with-errors"></div>
+							 </div>
+						 </div>
+						 <div class="col-md-6 col-sm-6 col-xs-12">
+							 <div class="form-group">
+								 <label >Datenbank-Features bereinigen</label>
+								 <button class="btn btn-danger" ng-click="clearAllSpatialUnitFeatures()"><i class="fas fa-trash"></i>&nbsp;Lösche alle Features</button>
+
+								 <div class="help-block"><p>Das Löschen aller Features der Raumeinheit ist unwiderruflich. Der Datensatz als solches (Metadaten) bleibt dabei bestehen.</p></div>
+								 <div class="help-block with-errors"></div>
+							 </div>
+						 </div>
+			 </div>
 
 			 <div class="admin-table-wrapper" >
 				 <table id="spatialUnitFeatureTable" datatable="ng" dt-options="$ctrl.kommonitorDataExchangeServiceInstance.datatablesOptions" class="table table-bordered table-condensed table-striped" style="width:100%; overflow:auto; font-size: 11px;">
