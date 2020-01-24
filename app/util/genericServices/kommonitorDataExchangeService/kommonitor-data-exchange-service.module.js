@@ -206,7 +206,64 @@ angular
 
 					this.setTopics = function(topicsArray){
 						this.availableTopics = topicsArray;
-					};
+          };
+          
+          this.getTopicHierarchyForTopicId = function(topicReferenceId){
+            // create an array respresenting the topic hierarchy
+            // i.e. [mainTopic_firstTier, subTopic_secondTier, subTopic_thirdTier, ...]
+            var topicHierarchyArray = [];
+
+            for (var i = 0; i < this.availableTopics.length; i++) {
+
+              var mainTopicCandidate = this.availableTopics[i];
+
+              if(mainTopicCandidate.topicId === topicReferenceId){
+                topicHierarchyArray.push(mainTopicCandidate);
+                break;
+              }
+
+              else if(this.findIdInAnySubTopicHierarchy(topicReferenceId, mainTopicCandidate.subTopics)){
+                topicHierarchyArray.push(mainTopicCandidate);
+                topicHierarchyArray = this.addSubTopicHierarchy(topicHierarchyArray, topicReferenceId, mainTopicCandidate.subTopics);
+              }
+            }
+
+            return topicHierarchyArray;
+          };
+
+          this.findIdInAnySubTopicHierarchy = function(topicReferenceId, subTopicsArray){
+            for (let index = 0; index < subTopicsArray.length; index++) {
+              const subTopicCandidate = subTopicsArray[index];
+              
+              if(subTopicCandidate.topicId === topicReferenceId){
+                return true;
+              }
+
+              else if(this.findIdInAnySubTopicHierarchy(topicReferenceId, subTopicCandidate.subTopics)){
+                return true;
+              }
+            }
+
+            return false;
+          };
+
+          this.addSubTopicHierarchy = function(topicHierarchyArray, topicReferenceId, subTopicsArray){
+            for (let index = 0; index < subTopicsArray.length; index++) {
+              const subTopicCandidate = subTopicsArray[index];
+              
+              if(subTopicCandidate.topicId === topicReferenceId){
+                topicHierarchyArray.push(subTopicCandidate);
+                break;
+              }
+
+              else if(this.findIdInAnySubTopicHierarchy(topicReferenceId, subTopicCandidate.subTopics)){
+                topicHierarchyArray.push(subTopicCandidate);
+                topicHierarchyArray = this.addSubTopicHierarchy(topicHierarchyArray, topicReferenceId, subTopicCandidate.subTopics);
+              }
+            }
+
+            return topicHierarchyArray;
+          };
 
 					// FILTER
 					this.rangeFilterData;

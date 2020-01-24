@@ -1157,6 +1157,13 @@ angular.module('kommonitorMap').component(
                       jspdf.setFontStyle('bolditalic');
                       var titleArray = jspdf.splitTextToSize(indicatorMetadata.indicatorName, 180);
                       jspdf.text(titleArray, 14, 25);
+                      
+                      if(indicatorMetadata.characteristicValue && indicatorMetadata.characteristicValue != "-" && indicatorMetadata.characteristicValue != ""){
+                        jspdf.setFontSize(14);
+                        jspdf.text(indicatorMetadata.characteristicValue, 14, 25);
+                      }
+                      
+                      
                       jspdf.setFontSize(11);
 
                       var initialStartY = 30;
@@ -1165,6 +1172,9 @@ angular.module('kommonitorMap').component(
                         titleArray.forEach(function(item){
                           initialStartY += 5;
                         });
+                      }
+                      if(indicatorMetadata.characteristicValue && indicatorMetadata.characteristicValue != "-" && indicatorMetadata.characteristicValue != ""){
+                        initialStartY += 5;
                       }
 
                       var headStyles = {
@@ -1190,12 +1200,30 @@ angular.module('kommonitorMap').component(
 
                       var topicsString = "";
 
-                      for (var [index, topic] of indicatorMetadata.applicableTopics.entries()){
-                        topicsString += topic;
+                      var topicReferenceId = indicatorMetadata.topicReference;
 
-                        if(index < indicatorMetadata.applicableTopics.length - 1){
-                          topicsString += "\n";
+                      // will be an array representing the topic hierarchy
+                      // i.e. [mainTopic, subTopicFirstTier, subTopicSecondTier, ...]
+                      var topicHierarchyArray = kommonitorDataExchangeService.getTopicHierarchyForTopicId(topicReferenceId);
+
+                      for (let index = 0; index < topicHierarchyArray.length; index++) {                        
+                        if(index === 0){
+                          // mainTopic --> first tier
+                          topicsString += topicHierarchyArray[index].topicName;
                         }
+                        else{
+                          var numberOfWhitespaces = 2 * index;
+                          var whitespaceString = "";
+                          for (let k = 0; k < numberOfWhitespaces; k++) {
+                            whitespaceString += "\s";                            
+                          }
+                          topicsString += whitespaceString + topicHierarchyArray[index].topicName;
+                        }
+                         
+                        if(index < topicHierarchyArray.length - 1){
+                          topicsString += "\n";
+                        } 
+                        
                       }
 
                       var category = "Subindikator";
@@ -1416,7 +1444,7 @@ angular.module('kommonitorMap').component(
                           var titel = $scope.indicatorName;
 
                           if(isCustomComputation){
-                            titel += " - <i>individuelles Berechnungsergebnis</i>"
+                            titel += " - <i>individuelles Berechnungsergebnis</i>";
                           }
 
                           this._div.innerHTML += '<h4><b>Indikatoreninformation</b><br/>' + $scope.indicatorName + '</h4><br/>';
