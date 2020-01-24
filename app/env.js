@@ -5,6 +5,9 @@
   // Setting this to false will disable console output
   window.__env.enableDebug = true;
 
+  window.__env.adminUserName = "Admin";
+  window.__env.adminPassword = "kmAdmin";
+
   // property names of feature id and name (relevant for all spatial features) - KomMonitor specific
   window.__env.FEATURE_ID_PROPERTY_NAME = "ID";
   window.__env.FEATURE_NAME_PROPERTY_NAME = "NAME";
@@ -20,11 +23,15 @@
 
   window.__env.targetUrlToProcessingEngine = 'http://kommonitor.fbg-hsbo.de/processing/';
   // window.__env.targetUrlToProcessingEngine = 'http://localhost:8086/processing/script-engine/customizableIndicatorComputation';
-  window.__env.targetUrlToReachabilityService_ORS = 'http://kommonitor.fbg-hsbo.de/openrouteservice';
-  // window.__env.targetUrlToReachabilityService_ORS = 'http://localhost:8090/openrouteservice-4.7.2';
   window.__env.targetUrlToReachabilityService_OTP = 'http://kommonitor.fbg-hsbo.de/opentripplanner';
 // window.__env.targetUrlToReachabilityService_OTP = 'http://localhost:8090/opentripplanner';
 
+  // Open Route Service URL
+    // window.__env.apiUrl = 'http://kommonitor.fbg-hsbo.de/openrouteservice';
+  window.__env.targetUrlToReachabilityService_ORS = 'https://ors5.fbg-hsbo.de';
+
+  // Data Imporert URL
+  window.__env.targetUrlToImporterService = 'http://localhost:8087/';
 
   // optional geometry simplification (a feature of Data Management API)
   window.__env.simplifyGeometriesParameterName = "simplifyGeometries";
@@ -89,7 +96,8 @@
 
   // array of indicator name substring that shal be used to filter out / hide certain indicators by their name
   // e.g. set ["entwicklung"] to hide all indicators whose name contains the substring "entwicklung"
-  window.__env.arrayOfNameSubstringsForHidingIndicators = ["Prozentuale", "Standardabweichung", "Stadtteil", "ausschließlich", "doppelt", "Versorgungsquote", "mittlerer Bodenversiegelungsgrad"];
+  // window.__env.arrayOfNameSubstringsForHidingIndicators = ["Prozentuale", "Standardabweichung", "Stadtteil", "ausschließlich", "doppelt", "Versorgungsquote", "mittlerer Bodenversiegelungsgrad"];
+  window.__env.arrayOfNameSubstringsForHidingIndicators = [];
 
   // e-mail recipient for feedback mail
   window.__env.feedbackMailRecipient = "thomas.blasche@amt62.essen.de";

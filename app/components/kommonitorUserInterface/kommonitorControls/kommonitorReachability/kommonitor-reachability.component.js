@@ -579,23 +579,36 @@ angular
 					 * selected vehicle type.
 					 */
 					$scope.changeValues = function() {
-						if ($scope.transitMode == 'foot-walking')
+						if ($scope.transitMode == 'foot-walking'){
 							if ($scope.focus == 'distance')
 								$scope.max_value = 5000;
 							else
 								$scope.max_value = 25;
+						}
 
-						if ($scope.transitMode == 'cycling-regular')
+
+						if ($scope.transitMode == 'cycling-regular'){
 							if ($scope.focus == 'distance')
 								$scope.max_value = 5000;
 							else
 								$scope.max_value = 20;
+						}
 
-						if ($scope.transitMode == 'driving-car')
+
+						if ($scope.transitMode == 'driving-car'){
 							if ($scope.focus == 'distance')
 								$scope.max_value = 5000;
 							else
 								$scope.max_value = 15;
+						}
+
+						if ($scope.transitMode == 'wheelchair'){
+							if ($scope.focus == 'distance')
+								$scope.max_value = 5000;
+							else
+								$scope.max_value = 25;
+						}
+
 					};
 
 					/**
@@ -615,6 +628,10 @@ angular
 						if ($scope.transitMode == 'driving-car') {
 							$scope.minSpeedInKilometersPerHour = 30;
 							$scope.maxSpeedInKilometersPerHour = 130;
+						}
+						if ($scope.transitMode == 'wheelchair') {
+							$scope.minSpeedInKilometersPerHour = 1;
+							$scope.maxSpeedInKilometersPerHour = 6;
 						}
 
 						$scope.speedInKilometersPerHour = $scope.minSpeedInKilometersPerHour;
