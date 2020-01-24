@@ -1,1 +1,1 @@
-angular.module('adminTopicsManagement', ['kommonitorDataExchange']);
+angular.module('adminTopicsManagement', ['kommonitorDataExchange', 'ui.bootstrap']);

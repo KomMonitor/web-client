@@ -52,6 +52,9 @@
 									<label class="btn btn-primary">
 										<input type="radio" name="options" id="optCar" autocomplete="off" ng-change="changeType()" ng-model="transitMode" value="driving-car"> <i class="fas fa-car"></i> PKW </input>
 									</label>
+									<label class="btn btn-primary">
+										<input type="radio" name="options" id="optWheelchair" autocomplete="off" ng-change="changeType()" ng-model="transitMode" value="wheelchair"> <i class="fab fa-accessible-icon"></i> Barrierefrei </input>
+									</label>
 								</div>
 								<!--
 									<label>{{transitMode}}</label>
@@ -203,7 +206,7 @@
 									    <label for="transitModeList">Verkehrsmittel</label>
 									    <select class="form-control" id="transitModeList" ng-change="changeTransitMode()" ng-model="transitMode">
 									      <option value="driving-car">PKW</option>
-									      <option value="driving-hgv">LKW</option>
+									      <!-- <option value="driving-hgv">LKW</option> -->
 									      <option value="cycling-regular">Fahrrad</option>
 									      <!-- <option value="cycling-road">Fahrrad asphaltiert</option>
 									      <option value="cycling-safe">Fahrrad separiert</option>
@@ -211,6 +214,7 @@
 									      <option value="cycling-tour">Fahrrad tour</option>
 									      <option value="cycling-electric">Fahrrad elektrisch</option> -->
 									      <option value="foot-walking">Fu&szlig;g&auml;nger</option>
+												<option value="wheelchair">Barrierefrei</option>
 									      <!-- <option value="foot-hiking">Wandern</option>
 									      <option value="wheelchair">Rollstuhl</option> -->
 									    </select>

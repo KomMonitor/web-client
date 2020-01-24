@@ -1157,6 +1157,13 @@ angular.module('kommonitorMap').component(
                       jspdf.setFontStyle('bolditalic');
                       var titleArray = jspdf.splitTextToSize(indicatorMetadata.indicatorName, 180);
                       jspdf.text(titleArray, 14, 25);
+                      
+                      if(indicatorMetadata.characteristicValue && indicatorMetadata.characteristicValue != "-" && indicatorMetadata.characteristicValue != ""){
+                        jspdf.setFontSize(14);
+                        jspdf.text(indicatorMetadata.characteristicValue, 14, 25);
+                      }
+                      
+                      
                       jspdf.setFontSize(11);
 
                       var initialStartY = 30;
@@ -1165,6 +1172,9 @@ angular.module('kommonitorMap').component(
                         titleArray.forEach(function(item){
                           initialStartY += 5;
                         });
+                      }
+                      if(indicatorMetadata.characteristicValue && indicatorMetadata.characteristicValue != "-" && indicatorMetadata.characteristicValue != ""){
+                        initialStartY += 5;
                       }
 
                       var headStyles = {
@@ -1190,12 +1200,30 @@ angular.module('kommonitorMap').component(
 
                       var topicsString = "";
 
-                      for (var [index, topic] of indicatorMetadata.applicableTopics.entries()){
-                        topicsString += topic;
+                      var topicReferenceId = indicatorMetadata.topicReference;
 
-                        if(index < indicatorMetadata.applicableTopics.length - 1){
-                          topicsString += "\n";
+                      // will be an array representing the topic hierarchy
+                      // i.e. [mainTopic, subTopicFirstTier, subTopicSecondTier, ...]
+                      var topicHierarchyArray = kommonitorDataExchangeService.getTopicHierarchyForTopicId(topicReferenceId);
+
+                      for (let index = 0; index < topicHierarchyArray.length; index++) {                        
+                        if(index === 0){
+                          // mainTopic --> first tier
+                          topicsString += topicHierarchyArray[index].topicName;
                         }
+                        else{
+                          var numberOfWhitespaces = 2 * index;
+                          var whitespaceString = "";
+                          for (let k = 0; k < numberOfWhitespaces; k++) {
+                            whitespaceString += "\s";                            
+                          }
+                          topicsString += whitespaceString + topicHierarchyArray[index].topicName;
+                        }
+                         
+                        if(index < topicHierarchyArray.length - 1){
+                          topicsString += "\n";
+                        } 
+                        
                       }
 
                       var category = "Subindikator";
@@ -1416,7 +1444,7 @@ angular.module('kommonitorMap').component(
                           var titel = $scope.indicatorName;
 
                           if(isCustomComputation){
-                            titel += " - <i>individuelles Berechnungsergebnis</i>"
+                            titel += " - <i>individuelles Berechnungsergebnis</i>";
                           }
 
                           this._div.innerHTML += '<h4><b>Indikatoreninformation</b><br/>' + $scope.indicatorName + '</h4><br/>';
@@ -2396,6 +2424,8 @@ angular.module('kommonitorMap').component(
                                 $scope.layerControl.addOverlay( layer, georesourceMetadataAndGeoJSON.datasetName + "_" + date, georesourceLayerGroupName );
                                 layer.addTo($scope.map);
                                 $scope.updateSearchControl();
+
+                                $scope.map.invalidateSize(true);
                               });
 
                               $scope.$on("replaceIsochronesAsGeoJSON", function (event, geoJSON, transitMode, reachMode, cutOffValues, useMultipleStartPoints, dissolveIsochrones) {
@@ -2421,7 +2451,10 @@ angular.module('kommonitorMap').component(
                                     transitModeValue = "Fahrrad"
                                     break;
                                   case "driving-car":
-                                    transitModeValue = "Auto"
+                                    transitModeValue = "PKW"
+                                    break;
+                                  case "wheelchair":
+                                    transitModeValue = "Barrierefrei"
                                     break;
                                   default:
                                     transitModeValue = "Passant";
@@ -2583,6 +2616,8 @@ angular.module('kommonitorMap').component(
                                 $scope.layerControl.addOverlay( $scope.isochronesLayer, "Erreichbarkeits-Isochronen_" + transitModeValue, reachabilityLayerGroupName );
                                 $scope.isochronesLayer.addTo($scope.map);
                                 $scope.updateSearchControl();
+
+                                $scope.map.invalidateSize(true);
                               });
 
                               $scope.$on("replaceRouteAsGeoJSON", function (event, geoJSON, transitMode, preference, routingStartPoint, routingEndPoint) {
@@ -2606,7 +2641,10 @@ angular.module('kommonitorMap').component(
                                     transitModeValue = "Fahrrad"
                                     break;
                                   case "driving-car":
-                                    transitModeValue = "Auto"
+                                    transitModeValue = "PKW"
+                                    break;
+                                  case "wheelchair":
+                                    transitModeValue = "Barrierefrei"
                                     break;
                                   default:
                                     transitModeValue = "Passant";
@@ -2669,6 +2707,8 @@ angular.module('kommonitorMap').component(
                                 $scope.routingLayer.addTo($scope.map);
                                 $scope.map.fitBounds($scope.routingLayer.getBounds());
                                 $scope.updateSearchControl();
+
+                                $scope.map.invalidateSize(true);
                               });
 
                               var getStyleIndexForFeature = function(feature, colorValueEntries, reachMode){
@@ -2725,6 +2765,8 @@ angular.module('kommonitorMap').component(
                                 $scope.layerControl.addOverlay( $scope.isochroneMarkerLayer, "Startpunkte für Isochronenberechnung", reachabilityLayerGroupName );
                                 $scope.isochroneMarkerLayer.addTo($scope.map);
                                 $scope.updateSearchControl();
+
+                                $scope.map.invalidateSize(true);
                               });
 
                               $scope.$on("addPoiGeoresourceAsGeoJSON", function (event, georesourceMetadataAndGeoJSON, date, useCluster) {
@@ -2806,6 +2848,7 @@ angular.module('kommonitorMap').component(
                                 markers.addTo($scope.map);
                                 $scope.updateSearchControl();
                                 // $scope.map.addLayer( markers );
+                                $scope.map.invalidateSize(true);
                               });
 
                               $scope.$on("removePoiGeoresource", function (event, georesourceMetadataAndGeoJSON) {
@@ -2859,6 +2902,7 @@ angular.module('kommonitorMap').component(
                                 $scope.layerControl.addOverlay( wmsLayer, dataset.title, wmsLayerGroupName );
                                 wmsLayer.addTo($scope.map);
                                 $scope.updateSearchControl();
+                                $scope.map.invalidateSize(true);
                               });
 
                               $scope.$on("adjustOpacityForWmsLayer", function (event, dataset, opacity) {
@@ -2928,6 +2972,7 @@ angular.module('kommonitorMap').component(
 
                                          }
                                        }
+                                       $scope.map.invalidateSize(true);
                                        // $scope.loadingData = false;
                                      });
 
@@ -3124,6 +3169,8 @@ angular.module('kommonitorMap').component(
                                 $rootScope.$broadcast("FileLayerSuccess", dataset);
 
                                 $scope.updateSearchControl();
+
+                                $scope.map.invalidateSize(true);
                               }
 
                               $scope.$on("adjustOpacityForFileLayer", function (event, dataset, opacity) {
@@ -4506,6 +4553,8 @@ angular.module('kommonitorMap').component(
                                                                 }
 
                                                                 $rootScope.$broadcast("updateDiagrams", $scope.currentIndicatorMetadataAndGeoJSON, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitId, date, $scope.defaultBrew, $scope.gtMeasureOfValueBrew, $scope.ltMeasureOfValueBrew, $scope.dynamicIncreaseBrew, $scope.dynamicDecreaseBrew, kommonitorDataExchangeService.isMeasureOfValueChecked, kommonitorDataExchangeService.measureOfValue, justRestyling);
+
+                                                                $scope.map.invalidateSize(true);
                                                             });
 
                                                             $scope.containsNegativeValues = function(geoJSON){
@@ -4562,6 +4611,8 @@ angular.module('kommonitorMap').component(
 
                                                                 $scope.makeCustomInfoControl(date);
                                                                 $scope.makeDefaultLegend(indicatorMetadataAndGeoJSON.defaultClassificationMapping, containsNegativeValues);
+
+                                                                $scope.map.invalidateSize(true);
                                                             });
 
 
@@ -4675,6 +4726,8 @@ angular.module('kommonitorMap').component(
                                                                             //ensure that highlighted feature remain highlighted
                                                                             preserveHighlightedFeatures();
                                                                           }
+
+                                                                          $scope.map.invalidateSize(true);
 
                                                             });
 

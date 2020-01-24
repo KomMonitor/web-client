@@ -4,7 +4,12 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
+		$scope.loadingData = true;
+
 		$scope.kommonitorDataExchangeService = kommonitorDataExchangeService;
+
+		$scope.numberOfMainTopics = 0;
+		$scope.numberOfSubTopics = 0;
 
 		$scope.pieChartTooltip = {
 				trigger: 'item',
@@ -30,9 +35,9 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 		$scope.indicatorsPerTopicChartOptions;
 		$scope.indicatorsPerTopicChart.showLoading();
 
-		$scope.georesourcesPerTopicChart = echarts.init(document.getElementById('georesourcesPerTopicDiagram'));
-		$scope.georesourcesPerTopicChartOptions;
-		$scope.georesourcesPerTopicChart.showLoading();
+		$scope.georesourcesPerTypeChart = echarts.init(document.getElementById('georesourcesPerTypeDiagram'));
+		$scope.georesourcesPerTypeChartOptions;
+		$scope.georesourcesPerTypeChart.showLoading();
 
 		$scope.indicatorsPerSpatialUnitChart = echarts.init(document.getElementById('indicatorsPerSpatialUnitDiagram'));
 		$scope.indicatorsPerSpatialUnitChartOptions;
@@ -41,8 +46,6 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 
 		// initialize any adminLTE box widgets
 	  $('.box').boxWidget();
-
-		$scope.loadingData = true;
 
 		$(window).on('resize', function(){
 				if($scope.usersPerRoleChart != null && $scope.usersPerRoleChart != undefined){
@@ -53,8 +56,8 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 						$scope.indicatorsPerTopicChart.resize();
 				}
 
-				if($scope.georesourcesPerTopicChart != null && $scope.georesourcesPerTopicChart != undefined){
-						$scope.georesourcesPerTopicChart.resize();
+				if($scope.georesourcesPerTypeChart != null && $scope.georesourcesPerTypeChart != undefined){
+						$scope.georesourcesPerTypeChart.resize();
 				}
 
 				if($scope.indicatorsPerSpatialUnitChart != null && $scope.indicatorsPerSpatialUnitChart != undefined){
@@ -62,15 +65,42 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 				}
 		});
 
+		$scope.$on("refreshAdminDashboardDiagrams", function (event) {
+
+			console.log("refresh admin charts");
+
+			$scope.refreshAdminDashboardDiagrams();
+
+		});
+
 		$scope.$on("initialMetadataLoadingCompleted", function (event) {
 
 			console.log("refresh admin overview");
 
+			$scope.refreshAdminDashboardDiagrams();
+
+		});
+
+		$scope.refreshAdminDashboardDiagrams = function(){
+			var mainTopics = [];
+			var subTopics = [];
+
+			kommonitorDataExchangeService.availableTopics.forEach(function(topic){
+				if(topic.topicType === 'main'){
+					mainTopics.push(topic);
+				}
+				else{
+					subTopics.push(topic);
+				}
+			});
+
+			$scope.numberOfMainTopics = mainTopics.length;
+			$scope.numberOfSubTopics = subTopics.length;
+
 			$scope.updateCharts();
 
 			$scope.loadingData = false;
-
-		});
+		};
 
 		$scope.updateCharts = function(){
 
@@ -78,7 +108,7 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 
 			$scope.updateIndicatorsPerTopicChart();
 
-			$scope.updateGeoresourcesPerTopicChart();
+			$scope.updateGeoresourcesPerTypeChart();
 
 			$scope.updateIndicatorsPerSpatialUnitChart();
 		};
@@ -167,16 +197,17 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 			var indicatorsPerTopicMap = new Map();
 
 			kommonitorDataExchangeService.availableIndicators.forEach(function(indicator){
-				indicator.applicableTopics.forEach(function(topicName){
 
-					if(indicatorsPerTopicMap.has(topicName)){
-						// increment by 1
-						indicatorsPerTopicMap.set(topicName, indicatorsPerTopicMap.get(topicName) + 1);
-					}
-					else{
-						indicatorsPerTopicMap.set(topicName, 1);
-					}
-				});
+				var mainTopicForCurrentIndicator = findMainTopicNameForTopicReference(indicator.topicReference);
+
+				if(indicatorsPerTopicMap.has(mainTopicForCurrentIndicator)){
+					// increment by 1
+					indicatorsPerTopicMap.set(mainTopicForCurrentIndicator, indicatorsPerTopicMap.get(mainTopicForCurrentIndicator) + 1);
+				}
+				else{
+					indicatorsPerTopicMap.set(mainTopicForCurrentIndicator, 1);
+				}
+
 			});
 
 			var indicatorsPerTopicSeriesData = [];
@@ -237,40 +268,94 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 			$scope.indicatorsPerTopicChart.hideLoading();
 		};
 
+		var findMainTopicNameForTopicReference = function(topicReference){
+			var mainTopicName;
+			for(var i=0; i < kommonitorDataExchangeService.availableTopics.length; i++){
+
+				var currentTopic = kommonitorDataExchangeService.availableTopics[i];
+
+				if (currentTopic.topicId === topicReference){
+					mainTopicName = currentTopic.topicName;
+					break;
+				}
+				else{
+					var topicReferenceWithinSubTopics = isTopicReferenceWithinSubTopics(topicReference, currentTopic);
+					if (topicReferenceWithinSubTopics){
+						mainTopicName = currentTopic.topicName;
+						break;
+					}
+				}
+			}
+			return mainTopicName;
+		};
+
+		var isTopicReferenceWithinSubTopics = function(topicReference, topic){
+			for(var subI=0; subI < topic.subTopics.length; subI++){
+				var currentSubTopic = topic.subTopics[subI];
+				if(currentSubTopic.topicId === topicReference){
+					return true;
+				}
+				else{
+					if (currentSubTopic.subTopics.length > 0){
+						var topicReferenceWithinSubTopics = isTopicReferenceWithinSubTopics(topicReference, currentSubTopic);
+						if(topicReferenceWithinSubTopics){
+							return true;
+						}
+					}
+				}
+			}
+
+			return false;
+		};
+
 		// GEORESOURCES PER TOPIC
 
-		$scope.updateGeoresourcesPerTopicChart = function(){
+		$scope.updateGeoresourcesPerTypeChart = function(){
 
-			$scope.georesourcesPerTopicChart.showLoading();
+			$scope.georesourcesPerTypeChart.showLoading();
 
-			var georesourcesPerTopicMap = new Map();
+			var georesourcesPerTypeMap = new Map();
 
 			kommonitorDataExchangeService.availableGeoresources.forEach(function(georesource){
-				georesource.applicableTopics.forEach(function(topicName){
+				var georesourceType = "POI";
+				if(georesource.isLOI){
+					georesourceType = "LOI";
+				}
+				else if(georesource.isAOI){
+					georesourceType = "AOI";
+				}
 
-					if(georesourcesPerTopicMap.has(topicName)){
-						// increment by 1
-						georesourcesPerTopicMap.set(topicName, georesourcesPerTopicMap.get(topicName) + 1);
-					}
-					else{
-						georesourcesPerTopicMap.set(topicName, 1);
-					}
-				});
-			});
-
-			var georesourcesPerTopicSeriesData = [];
-
-			//sorted alphabetically
-			kommonitorDataExchangeService.availableTopics.forEach(function(topic){
-				if(georesourcesPerTopicMap.has(topic.topicName)){
-					georesourcesPerTopicSeriesData.push({
-						name: topic.topicName,
-						value: georesourcesPerTopicMap.get(topic.topicName)
-					});
+				if(georesourcesPerTypeMap.has(georesourceType)){
+					// increment by 1
+					georesourcesPerTypeMap.set(georesourceType, georesourcesPerTypeMap.get(georesourceType) + 1);
+				}
+				else{
+					georesourcesPerTypeMap.set(georesourceType, 1);
 				}
 			});
 
-			$scope.georesourcesPerTopicChartOptions = {
+			var georesourcesPerTypeSeriesData = [];
+
+			if(georesourcesPerTypeMap.has("POI")){
+				georesourcesPerTypeSeriesData.push({
+					name: "Points of Interest",
+					value: georesourcesPerTypeMap.get("POI")
+				});
+			}
+			if(georesourcesPerTypeMap.has("LOI")){
+				georesourcesPerTypeSeriesData.push({
+					name: "Lines of Interest",
+					value: georesourcesPerTypeMap.get("LOI")
+				});
+			}
+			if(georesourcesPerTypeMap.has("AOI")){
+				georesourcesPerTypeSeriesData.push({
+					name: "Areas of Interest",
+					value: georesourcesPerTypeMap.get("AOI")
+				});
+			}
+
+			$scope.georesourcesPerTypeChartOptions = {
 				// grid get rid of whitespace around chart
 				// grid: {
 				// 	left: '7%',
@@ -279,7 +364,7 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 				// 	bottom: 55
 				// },
 					title: {
-							text: 'Georessourcen \npro Themenbereich',
+							text: 'Georessourcen \npro Typ',
 							left: 'center',
 							show: true,
 							top: 15,
@@ -288,12 +373,12 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 					tooltip: $scope.pieChartTooltip,
 					series : [
 			        {
-			            name: 'Georessourcen pro Themenbereich',
+			            name: 'Georessourcen pro Typ',
 			            type: 'pie',
 									//roseType: 'radius',
 			            radius : '90%',
 			            center: ['50%', '50%'],
-			            data: georesourcesPerTopicSeriesData,
+			            data: georesourcesPerTypeSeriesData,
 			            itemStyle: {
 											normal: {
 													color: '#ff851b',
@@ -312,8 +397,8 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 			};
 			// end of chart options
 
-			$scope.georesourcesPerTopicChart.setOption($scope.georesourcesPerTopicChartOptions);
-			$scope.georesourcesPerTopicChart.hideLoading();
+			$scope.georesourcesPerTypeChart.setOption($scope.georesourcesPerTypeChartOptions);
+			$scope.georesourcesPerTypeChart.hideLoading();
 		};
 
 		// INDICATORS PER SPATIAL UNIT
@@ -396,18 +481,18 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 		};
 
 		// when ready check if required metadat was already fetched
-		$( document ).ready(function() {
-		  if (kommonitorDataExchangeService.availableRoles.length > 0){
-				// we already have required data. hide loading icon
-				$scope.updateCharts();
-				$scope.loadingData = false;
-			}
-			else{
-				// we wait for  required data. show loading icon
-				console.log("fetching all required metadata");
-				$scope.loadingData = true;
-			}
-		});
+		// $( document ).ready(function() {
+		//   if (kommonitorDataExchangeService.availableRoles.length > 0){
+		// 		// we already have required data. hide loading icon
+		// 		$scope.updateCharts();
+		// 		$scope.loadingData = false;
+		// 	}
+		// 	else{
+		// 		// we wait for  required data. show loading icon
+		// 		console.log("fetching all required metadata");
+		// 		$scope.loadingData = true;
+		// 	}
+		// });
 
 	}
 ]});
