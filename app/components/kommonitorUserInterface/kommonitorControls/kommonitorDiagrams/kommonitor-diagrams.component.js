@@ -9,11 +9,12 @@ angular
 					 * enabled tabs
 					 */
 					controller : [
-							'kommonitorDataExchangeService',
+							'kommonitorDataExchangeService','kommonitorDiagramHelperService',
 							'$scope', '$rootScope', '__env',
-							function kommonitorDiagramsController(kommonitorDataExchangeService,
+							function kommonitorDiagramsController(kommonitorDataExchangeService,kommonitorDiagramHelperService,
 									$scope, $rootScope, __env) {
 								this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
+								this.kommonitorDiagramHelperServiceInstance = kommonitorDiagramHelperService;
 								// initialize any adminLTE box widgets
 								$('.box').boxWidget();
 
