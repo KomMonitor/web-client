@@ -6,13 +6,14 @@ angular
 					templateUrl : "components/kommonitorUserInterface/kommonitorControls/regressionDiagram/regression-diagram.template.html",
 
 					controller : [
-							'kommonitorDataExchangeService', '$scope', '$rootScope', '$http', '__env', '$timeout',
+							'kommonitorDataExchangeService', 'kommonitorDiagramHelperService', '$scope', '$rootScope', '$http', '__env', '$timeout',
 							function indicatorRadarController(
-									kommonitorDataExchangeService, $scope, $rootScope, $http, __env, $timeout) {
+									kommonitorDataExchangeService, kommonitorDiagramHelperService, $scope, $rootScope, $http, __env, $timeout) {
 								/*
 								 * reference to kommonitorDataExchangeService instances
 								 */
 								this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
+								this.kommonitorDiagramHelperServiceInstance = kommonitorDiagramHelperService;
 								// initialize any adminLTE box widgets
 								$('.box').boxWidget();
 
@@ -211,9 +212,9 @@ angular
 								});
 
 								$scope.getAllIndicatorPropertiesSortedBySpatialUnitFeatureName = function(){
-									for(var i=0; i<kommonitorDataExchangeService.allIndicatorPropertiesForCurrentSpatialUnitAndTime.length; i++){
+									for(var i=0; i<kommonitorDiagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime.length; i++){
 											// make object to hold indicatorName, max value and average value
-											kommonitorDataExchangeService.allIndicatorPropertiesForCurrentSpatialUnitAndTime[i].indicatorProperties.sort(function(a, b) {
+											kommonitorDiagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime[i].indicatorProperties.sort(function(a, b) {
 												// a and b are arrays of indicatorProperties for all features of the selected spatialUnit. We sort them by their property "spatialUnitFeatureName"
 
 													var nameA = a[__env.FEATURE_NAME_PROPERTY_NAME].toUpperCase(); // ignore upper and lowercase
@@ -230,12 +231,13 @@ angular
 											});
 									}
 
-									return kommonitorDataExchangeService.allIndicatorPropertiesForCurrentSpatialUnitAndTime;
+									return kommonitorDiagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime;
 								};
 
-								$scope.getPropertiesForIndicatorName = function(indicatorName){
-									for (var indicator of $scope.sortedIndicatorProps){
+								$scope.getPropertiesForIndicatorName = async function(indicatorName){									
+									for (var [index, indicator] of kommonitorDiagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime.entries()){
 										if(indicator.indicatorMetadata.indicatorName === indicatorName){
+											await kommonitorDiagramHelperService.fetchIndicatorPropertiesIfNotExists(index);
 											return indicator.indicatorProperties;
 										}
 									}
@@ -256,12 +258,12 @@ angular
 									return color;
 								};
 
-								$scope.buildDataArrayForSelectedIndicators = function(){
+								$scope.buildDataArrayForSelectedIndicators = async function(){
 									$scope.data = new Array();
 									$scope.dataWithLabels = new Array();
 
-									var indicatorPropertiesArrayForXAxis = $scope.getPropertiesForIndicatorName($scope.selectedIndicatorForXAxis.indicatorMetadata.indicatorName);
-									var indicatorPropertiesArrayForYAxis = $scope.getPropertiesForIndicatorName($scope.selectedIndicatorForYAxis.indicatorMetadata.indicatorName);
+									var indicatorPropertiesArrayForXAxis = await $scope.getPropertiesForIndicatorName($scope.selectedIndicatorForXAxis.indicatorMetadata.indicatorName);
+									var indicatorPropertiesArrayForYAxis = await $scope.getPropertiesForIndicatorName($scope.selectedIndicatorForYAxis.indicatorMetadata.indicatorName);
 
 									for (var i=0; i<indicatorPropertiesArrayForXAxis.length; i++){
 
@@ -369,7 +371,7 @@ angular
 										return getPearsonCorrelation(xArray, yArray);
 									}
 
-								$scope.onChangeSelectedIndicators = function(){
+								$scope.onChangeSelectedIndicators = async function(){
 
 									if($scope.selectedIndicatorForXAxis){
 										$scope.selectedIndicatorForXAxis_backup = $scope.selectedIndicatorForXAxis;
@@ -399,11 +401,11 @@ angular
 
 										$scope.regressionChart.showLoading();
 
-										if(!$scope.sortedIndicatorProps){
-											$scope.sortedIndicatorProps = $scope.getAllIndicatorPropertiesSortedBySpatialUnitFeatureName();
-										}
+										// if(!$scope.sortedIndicatorProps){
+										// 	$scope.sortedIndicatorProps = $scope.getAllIndicatorPropertiesSortedBySpatialUnitFeatureName();
+										// }
 
-										var data = $scope.buildDataArrayForSelectedIndicators();
+										var data = await $scope.buildDataArrayForSelectedIndicators();
 
 										data.sort(function(a, b) {
 										    return a[0] - b[0];
