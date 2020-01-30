@@ -43,6 +43,51 @@ angular
       // an array of only the properties and metadata of all indicatorFeatures
       this.indicatorPropertiesForCurrentSpatialUnitAndTime;
 
+      this.setupIndicatorPropertiesForCurrentSpatialUnitAndTime = function () {
+        this.indicatorPropertiesForCurrentSpatialUnitAndTime = [];
+
+        kommonitorDataExchangeService.availableIndicators.forEach(indicatorMetadata => {
+          if (indicatorMetadata.applicableDates.includes(kommonitorDataExchangeService.selectedDate) && indicatorMetadata.applicableSpatialUnits.includes(kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel)) {
+            var selectableIndicatorEntry = {};
+            selectableIndicatorEntry.indicatorProperties = null;
+            // per default show no indicators on radar
+            selectableIndicatorEntry.isSelected = false;
+            selectableIndicatorEntry.indicatorMetadata = indicatorMetadata;
+
+            this.indicatorPropertiesForCurrentSpatialUnitAndTime.push(selectableIndicatorEntry);
+          }
+        });
+
+        $rootScope.$broadcast("allIndicatorPropertiesForCurrentSpatialUnitAndTime setup completed");
+      };
+
+      this.fetchIndicatorPropertiesIfNotExists = async function(index){
+        if(this.indicatorPropertiesForCurrentSpatialUnitAndTime[index].indicatorProperties === null || this.indicatorPropertiesForCurrentSpatialUnitAndTime[index].indicatorProperties === undefined){
+          var dateComps = kommonitorDataExchangeService.selectedDate.split("-");
+
+						var year = dateComps[0];
+						var month = dateComps[1];
+						var day = dateComps[2];
+          
+          this.indicatorPropertiesForCurrentSpatialUnitAndTime[index].indicatorProperties = await this.fetchIndicatorProperties(this.indicatorPropertiesForCurrentSpatialUnitAndTime[index].indicatorMetadata, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitId, year, month, day);
+        }
+      };
+
+      this.fetchIndicatorProperties = function (indicatorMetadata, spatialUnitId, year, month, day) {
+        return $http({
+          url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/indicators/" + indicatorMetadata.indicatorId + "/" + spatialUnitId + "/" + year + "/" + month + "/" + day + "/without-geometry",
+          method: "GET"
+        }).then(function successCallback(response) {
+          // this callback will be called asynchronously
+          // when the response is available
+          return response.data;
+
+        }, function errorCallback(response) {
+          // called asynchronously if an error occurs
+          // or server returns response with an error status.
+        });
+      }
+
       this.getBarChartOptions = function () {
         return self.barChartOptions;
       };
