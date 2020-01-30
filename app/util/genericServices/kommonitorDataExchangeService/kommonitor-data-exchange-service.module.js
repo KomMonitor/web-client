@@ -190,9 +190,6 @@ angular
 
 					this.measureOfValue = 51;
 
-					// an array of only the properties and metadata of all indicatorFeatures
-					this.allIndicatorPropertiesForCurrentSpatialUnitAndTime;
-
 					this.setIndicators = function(indicatorsArray){
 						this.availableIndicators = indicatorsArray;
 					};

@@ -51,7 +51,7 @@
 							</div>
 							<div class="box-body">
 
-								<div ng-show="selectableIndicatorsForRadar">
+								<div ng-show="$ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime">
 
 									<div class="input-group">
 										<span class="input-group-addon"><i class="fas fa-filter"></i></span>
@@ -66,7 +66,7 @@
 									</div> -->
 
 									<div id="radarInputForm">
-										<div ng-repeat='input in selectableIndicatorsForRadar | filter:filterIndicators() | filter:indicatorNameFilter'>
+										<div ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime | filter:filterIndicators() | filter:indicatorNameFilter'>
 											<label class='checkbox-inline input-sm' ><input type="checkbox" value="input.indicatorMetadata.indicatorName" ng-model="input.isSelected" ng-change="$ctrl.filterDisplayedIndicatorsOnRadar()">{{input.indicatorMetadata.indicatorName}}</label>
 											<br/>
 										</div>
