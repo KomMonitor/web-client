@@ -40,15 +40,18 @@ angular
       this.radarChartOptions = {};
       this.regressionChartOptions = {};
 
-      this.getBarChartOptions = function(){
+      // an array of only the properties and metadata of all indicatorFeatures
+      this.indicatorPropertiesForCurrentSpatialUnitAndTime;
+
+      this.getBarChartOptions = function () {
         return self.barChartOptions;
       };
 
-      this.getHistogramChartOptions = function(){
+      this.getHistogramChartOptions = function () {
         return self.histogramChartOptions;
       };
 
-      this.getLineChartOptions = function(){
+      this.getLineChartOptions = function () {
         return self.lineChartOptions;
       };
 
@@ -648,9 +651,9 @@ angular
         self.histogramChartOptions = histogramOption;
       };
 
-      var onlyContainsPositiveNumbers = function(indicatorValueArray){
-        indicatorValueArray.forEach(function(element){
-          if(element < 0){
+      var onlyContainsPositiveNumbers = function (indicatorValueArray) {
+        indicatorValueArray.forEach(function (element) {
+          if (element < 0) {
             return false;
           }
         });

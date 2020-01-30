@@ -6,13 +6,14 @@ angular
 					templateUrl : "components/kommonitorUserInterface/kommonitorControls/indicatorRadar/indicator-radar.template.html",
 
 					controller : [
-							'kommonitorDataExchangeService', '$scope', '$rootScope', '$http', '__env',
+							'kommonitorDataExchangeService','kommonitorDiagramHelperService', '$scope', '$rootScope', '$http', '__env',
 							function indicatorRadarController(
-									kommonitorDataExchangeService, $scope, $rootScope, $http, __env) {
+									kommonitorDataExchangeService, kommonitorDiagramHelperService, $scope, $rootScope, $http, __env) {
 								/*
 								 * reference to kommonitorDataExchangeService instances
 								 */
 								this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
+								this.kommonitorDiagramHelperServiceInstance = kommonitorDiagramHelperService;
 								// initialize any adminLTE box widgets
 								$('.box').boxWidget();
 
@@ -91,7 +92,7 @@ angular
 									// fetch properties of all indicators for targetSpatialunit and date
 									try{
 										$scope.selectableIndicatorsForRadar = await fetchAllIndicatorProperties(spatialUnitId, date);
-										kommonitorDataExchangeService.allIndicatorPropertiesForCurrentSpatialUnitAndTime = $scope.selectableIndicatorsForRadar;
+										kommonitorDiagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime = $scope.selectableIndicatorsForRadar;
 										$rootScope.$broadcast("allIndicatorPropertiesForCurrentSpatialUnitAndTime setup completed");
 										buildCheckboxForm($scope.selectableIndicatorsForRadar);
 									}
