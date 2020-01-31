@@ -234,6 +234,8 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 					// refresh all admin dashboard diagrams due to modified metadata
 					$rootScope.$broadcast("refreshAdminDashboardDiagrams");
 
+					$("#spatialUnitAddSucessAlert").show();
+
 					$scope.loadingData = false;
 
 				}, function errorCallback(response) {
