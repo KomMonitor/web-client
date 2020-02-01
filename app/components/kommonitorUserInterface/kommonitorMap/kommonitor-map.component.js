@@ -3682,7 +3682,7 @@ angular.module('kommonitorMap').component(
           }
           else {
             if ($scope.containsNegativeValues($scope.currentIndicatorMetadataAndGeoJSON.geoJSON)) {
-              if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[$scope.indicatorPropertyName]) >= 0) {                
+              if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[$scope.indicatorPropertyName]) >= 0) {
                 if (feature.properties[$scope.propertyName] == 0 || feature.properties[$scope.propertyName] == "0") {
                   fillColor = $scope.defaultColorForZeroValues;
                   if ($scope.useTransparencyOnIndicator) {
@@ -3846,7 +3846,7 @@ angular.module('kommonitorMap').component(
 
           var fillColor;
           if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[$scope.indicatorPropertyName]) >= kommonitorDataExchangeService.measureOfValue) {
-            
+
             if (feature.properties[$scope.propertyName] == 0 || feature.properties[$scope.propertyName] == "0") {
               fillColor = $scope.defaultColorForZeroValues;
               if ($scope.useTransparencyOnIndicator) {
@@ -3963,7 +3963,7 @@ angular.module('kommonitorMap').component(
 
           var fillColor;
           if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[$scope.indicatorPropertyName]) >= 0) {
-            
+
             if (feature.properties[$scope.propertyName] == 0 || feature.properties[$scope.propertyName] == "0") {
               fillColor = $scope.defaultColorForZeroValues;
               if ($scope.useTransparencyOnIndicator) {
