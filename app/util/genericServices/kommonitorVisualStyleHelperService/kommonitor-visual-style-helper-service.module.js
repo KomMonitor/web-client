@@ -144,7 +144,7 @@ angular
 
       /**
        * Returns and array of color brewer instances for greater and lesser than measure of value colors
-       * 
+       *
        * [gtMeasureOfValueBrew, ltMeasureOfValueBrew]
        */
       this.setupMeasureOfValueBrew = function (geoJSON, propertyName, colorCodeForGreaterThanValues, colorCodeForLesserThanValues, classifyMethod, measureOfValue) {
@@ -315,7 +315,7 @@ angular
 
       /**
        * Returns and array of color brewer instances for dynamic increase and decrease colors
-       * 
+       *
        * [dynamicIncreaseBrew, dynamicDecreaseBrew]
        */
       this.setupDynamicIndicatorBrew = function (geoJSON, propertyName, colorCodeForPositiveValues, colorCodeForNegativeValues, classifyMethod) {
@@ -353,7 +353,7 @@ angular
 
         var dynamicIncreaseBrew = setupDynamicIncreaseBrew(positiveValues, colorCodeForPositiveValues, classifyMethod);
         var dynamicDecreaseBrew = setupDynamicDecreaseBrew(negativeValues, colorCodeForNegativeValues, classifyMethod);
-        
+
         return [dynamicIncreaseBrew, dynamicDecreaseBrew];
       };
 
@@ -513,20 +513,20 @@ angular
         return dynamicDecreaseBrew;
       }
 
-      function styleNoData(feature) {
+      this.styleNoData = function(feature) {
         return this.noDataStyle;
-      }
+      };
 
-      function styleOutlier(feature) {
+      this.styleOutlier = function(feature) {
         if ((feature.properties[outlierPropertyName] === outlierPropertyValue_low_soft) || (feature.properties[outlierPropertyName] === outlierPropertyValue_low_extreme)) {
-          
+
           return this.outlierStyle_low;
         }
         else {
-          
+
           return this.outlierStyle_high;
         }
-      }
+      };
 
       // style function to return
       // fill color based on defaultBrew.getColorInRange() method
@@ -538,7 +538,7 @@ angular
 
         // check if feature is outlier
         if ((feature.properties[outlierPropertyName] !== outlierPropertyValue_no) && kommonitorDataExchangeService.useOutlierDetectionOnIndicator) {
-          return styleOutlier(feature);
+          return this.styleOutlier(feature);
         }
 
         var fillOpacity = 1;
