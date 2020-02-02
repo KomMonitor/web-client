@@ -9,8 +9,10 @@ angular.module('kommonitorMap').component(
       '$timeout',
       'kommonitorMapService',
       'kommonitorDataExchangeService',
+      'kommonitorVisualStyleHelperService',
+      'kommonitorInfoLegendHelperService',
       '__env',
-      function MapController($rootScope, $http, $scope, $timeout, kommonitorMapService, kommonitorDataExchangeService, __env) {
+      function MapController($rootScope, $http, $scope, $timeout, kommonitorMapService, kommonitorDataExchangeService, kommonitorVisualStyleHelperService, kommonitorInfoLegendHelperService, __env) {
 
         const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
         const numberOfDecimals = __env.numberOfDecimals;
@@ -56,40 +58,9 @@ angular.module('kommonitorMap').component(
         $scope.svgString_outlierLow = '<svg height="18" width="18"><line x1="10" y1="0" x2="110" y2="100" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:2; stroke-opacity: ' + defaultFillOpacityForOutliers_low + ';" /><line x1="0" y1="0" x2="100" y2="100" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:2; stroke-opacity: ' + defaultFillOpacityForOutliers_low + ';" /><line x1="0" y1="10" x2="100" y2="110" style="stroke:' + defaultColorForOutliers_low + ';stroke-width:2; stroke-opacity: ' + defaultFillOpacityForOutliers_low + ';" />Sorry, your browser does not support inline SVG.</svg>';
         $scope.svgString_outlierHigh = '<svg height="18" width="18"><line x1="8" y1="18" x2="18" y2="8" style="stroke:' + defaultColorForOutliers_high + ';stroke-width:2; stroke-opacity: ' + defaultFillOpacityForOutliers_high + ';" /><line x1="0" y1="18" x2="18" y2="0" style="stroke:' + defaultColorForOutliers_high + ';stroke-width:2; stroke-opacity: ' + defaultFillOpacityForOutliers_high + ';" /><line x1="0" y1="10" x2="10" y2="0" style="stroke:' + defaultColorForOutliers_high + ';stroke-width:2; stroke-opacity: ' + defaultFillOpacityForOutliers_high + ';" />Sorry, your browser does not support inline SVG.</svg>';
 
-        $scope.outlierFillPattern_high = undefined;
-        $scope.outlierFillPattern_low = undefined;
-
         $scope.showOutlierInfoAlert = false;
 
-        $scope.outlierStyle_high = {
-          weight: 1,
-          opacity: 1,
-          color: defaultBorderColorForOutliers_high,
-          dashArray: '',
-          fillOpacity: defaultFillOpacityForOutliers_high,
-          fillColor: defaultColorForOutliers_high,
-          fillPattern: $scope.outlierFillPattern_high
-        };
 
-        $scope.outlierStyle_low = {
-          weight: 1,
-          opacity: 1,
-          color: defaultBorderColorForOutliers_low,
-          dashArray: '',
-          fillOpacity: defaultFillOpacityForOutliers_low,
-          fillColor: defaultColorForOutliers_low,
-          fillPattern: $scope.outlierFillPattern_low
-        };
-
-        $scope.noDataStyle = {
-          weight: 1,
-          opacity: 1,
-          color: defaultBorderColorForNoDataValues,
-          dashArray: '',
-          fillOpacity: defaultFillOpacityForNoDataValues,
-          fillColor: defaultColorForNoDataValues,
-          fillPattern: $scope.noDataFillPattern
-        };
 
         $scope.drawnPointFeatures = undefined;
         $scope.drawPointControl = undefined;
@@ -215,15 +186,7 @@ angular.module('kommonitorMap').component(
             '<circle style="stroke-opacity: ' + defaultFillOpacityForNoDataValues + ';" cx="14" cy="14" r="1.5" stroke="' + defaultBorderColorForNoDataValues + '" stroke-width="2" fill="' + defaultColorForNoDataValues + '" />' +
             'Sorry, your browser does not support inline SVG.</svg>';
 
-          $scope.noDataStyle = {
-            weight: 1,
-            opacity: 1,
-            color: defaultBorderColorForNoDataValues,
-            dashArray: '',
-            fillOpacity: defaultFillOpacityForNoDataValues,
-            fillColor: defaultColorForNoDataValues,
-            fillPattern: $scope.noDataFillPattern
-          };
+          $scope.noDataStyle = kommonitorVisualStyleHelperService.noDataStyle;
         };
 
         var refreshOutliersStyle = function () {
@@ -242,25 +205,9 @@ angular.module('kommonitorMap').component(
             fillOpacity_low = defaultFillOpacityForOutliers_low;
           }
 
-          $scope.outlierStyle_high = {
-            weight: 1,
-            opacity: 1,
-            color: defaultBorderColorForOutliers_high,
-            dashArray: '',
-            fillOpacity: defaultFillOpacityForOutliers_high,
-            fillColor: defaultColorForOutliers_high,
-            fillPattern: $scope.outlierFillPattern_high
-          };
+          $scope.outlierStyle_high = kommonitorVisualStyleHelperService.outlierStyle_high;
 
-          $scope.outlierStyle_low = {
-            weight: 1,
-            opacity: 1,
-            color: defaultBorderColorForOutliers_low,
-            dashArray: '',
-            fillOpacity: defaultFillOpacityForOutliers_low,
-            fillColor: defaultColorForOutliers_low,
-            fillPattern: $scope.outlierFillPattern_low
-          };
+          $scope.outlierStyle_low = kommonitorVisualStyleHelperService.outlierStyle_low;
         };
 
         $scope.useTransparencyOnIndicator = __env.useTransparencyOnIndicator;
@@ -287,14 +234,7 @@ angular.module('kommonitorMap').component(
 
         $scope.classifyMethod = __env.defaultClassifyMethod || "jenks";
 
-        $scope.filteredStyle = {
-          weight: 1,
-          opacity: 1,
-          color: defaultBorderColorForFilteredValues,
-          dashArray: '',
-          fillOpacity: defaultFillOpacityForFilteredFeatures,
-          fillColor: defaultColorForFilteredValues
-        };
+        $scope.filteredStyle = kommonitorVisualStyleHelperService.filteredStyle;
 
         var refreshFilteredStyle = function () {
           var fillOpacity = 1;
@@ -302,14 +242,7 @@ angular.module('kommonitorMap').component(
             fillOpacity = defaultFillOpacityForFilteredFeatures;
           }
 
-          $scope.filteredStyle = {
-            weight: 1,
-            opacity: 1,
-            color: defaultBorderColorForFilteredValues,
-            dashArray: '',
-            fillOpacity: fillOpacity,
-            fillColor: defaultColorForFilteredValues
-          };
+          $scope.filteredStyle = kommonitorVisualStyleHelperService.filteredStyle;
         };
 
         this.kommonitorMapServiceInstance = kommonitorMapService;
@@ -563,21 +496,13 @@ angular.module('kommonitorMap').component(
           // $scope.outlierFillPattern_high.addShape(diagonalPattern);
           // $scope.outlierFillPattern_high.addTo($scope.map);
 
-          $scope.outlierFillPattern_low = new L.StripePattern({ weight: 1, spaceweight: 1, patternTransform: "rotate(45)" });
+          $scope.outlierFillPattern_low = kommonitorVisualStyleHelperService.outlierFillPattern_low;
           $scope.outlierFillPattern_low.addTo($scope.map);
 
-          $scope.outlierFillPattern_high = new L.StripePattern({ weight: 1, spaceweight: 1, patternTransform: "rotate(-45)" });
+          $scope.outlierFillPattern_high = kommonitorVisualStyleHelperService.outlierFillPattern_high;
           $scope.outlierFillPattern_high.addTo($scope.map);
 
-          var shape = new L.PatternCircle({
-            x: 5,
-            y: 5,
-            radius: 1,
-            fill: true,
-            color: defaultColorForNoDataValues
-          });
-          $scope.noDataFillPattern = new L.Pattern({ width: 8, height: 8 });
-          $scope.noDataFillPattern.addShape(shape);
+          $scope.noDataFillPattern = kommonitorVisualStyleHelperService.noDataFillPattern;
           $scope.noDataFillPattern.addTo($scope.map);
 
           // $scope.loadingData = false;
@@ -3226,837 +3151,6 @@ angular.module('kommonitorMap').component(
           });
         });
 
-        var setupDefaultBrew = function (geoJSON, propertyName, numClasses, colorCode, classifyMethod) {
-          // pass values from your geojson object into an empty array
-          // see link above to view geojson used in this example
-
-          var values = [];
-          for (var i = 0; i < geoJSON.features.length; i++) {
-            if (kommonitorDataExchangeService.indicatorValueIsNoData(geoJSON.features[i].properties[propertyName]) || geoJSON.features[i].properties[propertyName] == 0 || geoJSON.features[i].properties[propertyName] == "0")
-              continue;
-
-            // check if is outlier, then do not use within classification, as it will be marked on map with special color
-            if (geoJSON.features[i].properties[outlierPropertyName] !== outlierPropertyValue_no && kommonitorDataExchangeService.useOutlierDetectionOnIndicator) {
-              continue;
-            }
-
-            values.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
-          }
-
-          // pass array to our classyBrew series
-          $scope.defaultBrew.setSeries(values);
-
-          // define number of classes
-          $scope.defaultBrew.setNumClasses(numClasses);
-
-          // set color ramp code
-          $scope.defaultBrew.setColorCode(colorCode);
-
-          // classify by passing in statistical method
-          // i.e. equal_interval, jenks, quantile
-          $scope.defaultBrew.classify(classifyMethod);
-        };
-
-        var setupMeasureOfValueBrew = function (geoJSON, propertyName, colorCodeForGreaterThanValues, colorCodeForLesserThanValues, classifyMethod, measureOfValue) {
-
-          /*
-          * Idea: Analyse the complete geoJSON property array for each feature and make conclusion about how to build the legend
-
-          e.g. if there are only positive values then display only positive values within 5 categories - same for only negative values
-
-          e.g. if there are equally many positive as negative values then display both using 3 categories each
-
-          e.g. if there are way more positive than negative values, then display both with 2 (negative) and 4 (positive) classes
-
-          --> implement special cases (0, 1 or 2 negative/positive values --> apply colors manually)
-          --> treat all other cases equally to measureOfValue
-          */
-
-          $scope.gtMeasureOfValueBrew = {};
-          $scope.ltMeasureOfValueBrew = {};
-
-          var greaterThanValues = [];
-          var lesserThanValues = [];
-
-          for (var i = 0; i < geoJSON.features.length; i++) {
-
-            if (geoJSON.features[i].properties[__env.FEATURE_NAME_PROPERTY_NAME] === "Heidhausen") {
-              console.log("");
-            }
-
-            if (kommonitorDataExchangeService.indicatorValueIsNoData(geoJSON.features[i].properties[propertyName]) || geoJSON.features[i].properties[propertyName] == 0 || geoJSON.features[i].properties[propertyName] == "0")
-              continue;
-
-            // check if is outlier, then do not use within classification, as it will be marked on map with special color
-            if (geoJSON.features[i].properties[outlierPropertyName] !== outlierPropertyValue_no && kommonitorDataExchangeService.useOutlierDetectionOnIndicator) {
-              continue;
-            }
-
-            else if (kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]) >= kommonitorDataExchangeService.getIndicatorValue_asNumber(measureOfValue))
-              greaterThanValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
-            else
-              lesserThanValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
-          }
-
-          setupGtMeasureOfValueBrew(greaterThanValues, colorCodeForGreaterThanValues, classifyMethod);
-          setupLtMeasureOfValueBrew(lesserThanValues, colorCodeForLesserThanValues, classifyMethod);
-        };
-
-        var setupGtMeasureOfValueBrew = function (greaterThanValues, colorCodeForGreaterThanValues, classifyMethod) {
-          var tempBrew = new classyBrew();
-          // if(greaterThanValues.length > 5){
-          //   // pass array to our classyBrew series
-          //   tempBrew.setSeries(greaterThanValues);
-          //   // define number of classes
-          //   tempBrew.setNumClasses(5);
-          //   // set color ramp code
-          //   tempBrew.setColorCode(colorCodeForGreaterThanValues);
-          //   // classify by passing in statistical method
-          //   // i.e. equal_interval, jenks, quantile
-          //   tempBrew.classify(classifyMethod);
-          //
-          //   $scope.gtMeasureOfValueBrew.colors = tempBrew.getColors();
-          //   $scope.gtMeasureOfValueBrew.breaks = tempBrew.getBreaks();
-          // }
-          // else if(greaterThanValues.length === 4 || greaterThanValues.length === 5){
-          //   // pass array to our classyBrew series
-          //   tempBrew.setSeries(greaterThanValues);
-          //   // define number of classes
-          //   tempBrew.setNumClasses(3);
-          //   // set color ramp code
-          //   tempBrew.setColorCode(colorCodeForGreaterThanValues);
-          //   // classify by passing in statistical method
-          //   // i.e. equal_interval, jenks, quantile
-          //   tempBrew.classify(classifyMethod);
-          //
-          //   $scope.gtMeasureOfValueBrew.colors = tempBrew.getColors();
-          //   $scope.gtMeasureOfValueBrew.breaks = tempBrew.getBreaks();
-          // }
-          if (greaterThanValues.length === 4 || greaterThanValues.length >= 5) {
-            // pass array to our classyBrew series
-            tempBrew.setSeries(greaterThanValues);
-            // define number of classes
-            tempBrew.setNumClasses(3);
-            // set color ramp code
-            tempBrew.setColorCode(colorCodeForGreaterThanValues);
-            // classify by passing in statistical method
-            // i.e. equal_interval, jenks, quantile
-            tempBrew.classify(classifyMethod);
-
-            $scope.gtMeasureOfValueBrew.colors = tempBrew.getColors();
-            $scope.gtMeasureOfValueBrew.breaks = tempBrew.getBreaks();
-          }
-
-          else if (greaterThanValues.length === 3) {
-            greaterThanValues.sort((a, b) => a - b);
-
-            $scope.gtMeasureOfValueBrew.colors = tempBrew.colorSchemes[colorCodeForGreaterThanValues]['3'];
-            $scope.gtMeasureOfValueBrew.breaks = greaterThanValues;
-          }
-          else if (greaterThanValues.length === 2) {
-            greaterThanValues.sort((a, b) => a - b);
-
-            $scope.gtMeasureOfValueBrew.colors = tempBrew.colorSchemes[colorCodeForGreaterThanValues]['3'];
-            $scope.gtMeasureOfValueBrew.breaks = greaterThanValues;
-
-            $scope.gtMeasureOfValueBrew.colors.shift(); // remove first element of array
-          }
-          else if (greaterThanValues.length === 1) {
-            greaterThanValues.sort((a, b) => a - b);
-
-            $scope.gtMeasureOfValueBrew.colors = tempBrew.colorSchemes[colorCodeForGreaterThanValues]['3'];
-            $scope.gtMeasureOfValueBrew.breaks = greaterThanValues;
-
-            $scope.gtMeasureOfValueBrew.colors.shift(); // remove first element of array
-            $scope.gtMeasureOfValueBrew.colors.shift(); // remove first element of array
-          }
-          else {
-            // no positive values
-            $scope.gtMeasureOfValueBrew = undefined;
-          }
-        };
-
-        var setupLtMeasureOfValueBrew = function (lesserThanValues, colorCodeForLesserThanValues, classifyMethod) {
-          var tempBrew = new classyBrew();
-          // if(lesserThanValues.length > 5){
-          //   // pass array to our classyBrew series
-          //   tempBrew.setSeries(lesserThanValues);
-          //   // define number of classes
-          //   tempBrew.setNumClasses(5);
-          //   // set color ramp code
-          //   tempBrew.setColorCode(colorCodeForLesserThanValues);
-          //   // classify by passing in statistical method
-          //   // i.e. equal_interval, jenks, quantile
-          //   tempBrew.classify(classifyMethod);
-          //
-          //   $scope.ltMeasureOfValueBrew.colors = tempBrew.getColors();
-          //   $scope.ltMeasureOfValueBrew.breaks = tempBrew.getBreaks();
-          // }
-          // else if(lesserThanValues.length === 4 || lesserThanValues.length === 5){
-          //   // pass array to our classyBrew series
-          //   tempBrew.setSeries(lesserThanValues);
-          //   // define number of classes
-          //   tempBrew.setNumClasses(3);
-          //   // set color ramp code
-          //   tempBrew.setColorCode(colorCodeForLesserThanValues);
-          //   // classify by passing in statistical method
-          //   // i.e. equal_interval, jenks, quantile
-          //   tempBrew.classify(classifyMethod);
-          //
-          //   $scope.ltMeasureOfValueBrew.colors = tempBrew.getColors();
-          //   $scope.ltMeasureOfValueBrew.breaks = tempBrew.getBreaks();
-          // }
-          if (lesserThanValues.length === 4 || lesserThanValues.length >= 5) {
-            // pass array to our classyBrew series
-            tempBrew.setSeries(lesserThanValues);
-            // define number of classes
-            tempBrew.setNumClasses(3);
-            // set color ramp code
-            tempBrew.setColorCode(colorCodeForLesserThanValues);
-            // classify by passing in statistical method
-            // i.e. equal_interval, jenks, quantile
-            tempBrew.classify(classifyMethod);
-
-            $scope.ltMeasureOfValueBrew.colors = tempBrew.getColors();
-            $scope.ltMeasureOfValueBrew.breaks = tempBrew.getBreaks();
-          }
-          else if (lesserThanValues.length === 3) {
-            lesserThanValues.sort((a, b) => a - b);
-
-            $scope.ltMeasureOfValueBrew.colors = tempBrew.colorSchemes[colorCodeForLesserThanValues]['3'];
-            $scope.ltMeasureOfValueBrew.breaks = lesserThanValues;
-          }
-          else if (lesserThanValues.length === 2) {
-            lesserThanValues.sort((a, b) => a - b);
-
-            $scope.ltMeasureOfValueBrew.colors = tempBrew.colorSchemes[colorCodeForLesserThanValues]['3'];
-            $scope.ltMeasureOfValueBrew.breaks = lesserThanValues;
-
-            $scope.ltMeasureOfValueBrew.colors.shift(); // remove first element of array
-          }
-          else if (lesserThanValues.length === 1) {
-            lesserThanValues.sort((a, b) => a - b);
-
-            $scope.ltMeasureOfValueBrew.colors = tempBrew.colorSchemes[colorCodeForLesserThanValues]['3'];
-            $scope.ltMeasureOfValueBrew.breaks = lesserThanValues;
-
-            $scope.ltMeasureOfValueBrew.colors.shift(); // remove first element of array
-            $scope.ltMeasureOfValueBrew.colors.shift(); // remove first element of array
-          }
-          else {
-            // no positive values
-            $scope.ltMeasureOfValueBrew = undefined;
-          }
-        };
-
-        var setupDynamicIndicatorBrew = function (geoJSON, propertyName, colorCodeForPositiveValues, colorCodeForNegativeValues, classifyMethod) {
-
-          /*
-          * Idea: Analyse the complete geoJSON property array for each feature and make conclusion about how to build the legend
-
-          e.g. if there are only positive values then display only positive values within 5 categories - same for only negative values
-
-          e.g. if there are equally many positive as negative values then display both using 3 categories each
-
-          e.g. if there are way more positive than negative values, then display both with 2 (negative) and 4 (positive) classes
-
-          --> implement special cases (0, 1 or 2 negative/positive values --> apply colors manually)
-          --> treat all other cases equally to measureOfValue
-          */
-
-          $scope.dynamicIncreaseBrew = {};
-          $scope.dynamicDecreaseBrew = {};
-
-          var positiveValues = [];
-          var negativeValues = [];
-
-          for (var i = 0; i < geoJSON.features.length; i++) {
-            if (kommonitorDataExchangeService.indicatorValueIsNoData(geoJSON.features[i].properties[propertyName]) || geoJSON.features[i].properties[propertyName] == 0 || geoJSON.features[i].properties[propertyName] == "0")
-              continue;
-
-            // check if is outlier, then do not use within classification, as it will be marked on map with special color
-            if (geoJSON.features[i].properties[outlierPropertyName] !== outlierPropertyValue_no && kommonitorDataExchangeService.useOutlierDetectionOnIndicator) {
-              continue;
-            }
-
-            else if (kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]) > 0)
-              positiveValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
-            else if (kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]) < 0)
-              negativeValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
-          }
-
-          setupDynamicIncreaseBrew(positiveValues, colorCodeForPositiveValues, classifyMethod);
-          setupDynamicDecreaseBrew(negativeValues, colorCodeForNegativeValues, classifyMethod);
-        };
-
-        function setupDynamicIncreaseBrew(positiveValues, colorCodeForPositiveValues, classifyMethod) {
-          // analyse length of value arrays
-
-          var tempBrew = new classyBrew();
-          // if(positiveValues.length > 5){
-          //   // pass array to our classyBrew series
-          //   tempBrew.setSeries(positiveValues);
-          //   // define number of classes
-          //   tempBrew.setNumClasses(5);
-          //   // set color ramp code
-          //   tempBrew.setColorCode(colorCodeForPositiveValues);
-          //   // classify by passing in statistical method
-          //   // i.e. equal_interval, jenks, quantile
-          //   tempBrew.classify(classifyMethod);
-          //
-          //   $scope.dynamicIncreaseBrew.colors = tempBrew.getColors();
-          //   $scope.dynamicIncreaseBrew.breaks = tempBrew.getBreaks();
-          // }
-          // else if(positiveValues.length === 4 || positiveValues.length === 5){
-          //   // pass array to our classyBrew series
-          //   tempBrew.setSeries(positiveValues);
-          //   // define number of classes
-          //   tempBrew.setNumClasses(3);
-          //   // set color ramp code
-          //   tempBrew.setColorCode(colorCodeForPositiveValues);
-          //   // classify by passing in statistical method
-          //   // i.e. equal_interval, jenks, quantile
-          //   tempBrew.classify(classifyMethod);
-          //
-          //   $scope.dynamicIncreaseBrew.colors = tempBrew.getColors();
-          //   $scope.dynamicIncreaseBrew.breaks = tempBrew.getBreaks();
-          // }
-          if (positiveValues.length === 4 || positiveValues.length >= 5) {
-            // pass array to our classyBrew series
-            tempBrew.setSeries(positiveValues);
-            // define number of classes
-            tempBrew.setNumClasses(3);
-            // set color ramp code
-            tempBrew.setColorCode(colorCodeForPositiveValues);
-            // classify by passing in statistical method
-            // i.e. equal_interval, jenks, quantile
-            tempBrew.classify(classifyMethod);
-
-            $scope.dynamicIncreaseBrew.colors = tempBrew.getColors();
-            $scope.dynamicIncreaseBrew.breaks = tempBrew.getBreaks();
-          }
-          else if (positiveValues.length === 3) {
-            positiveValues.sort((a, b) => a - b);
-
-            $scope.dynamicIncreaseBrew.colors = tempBrew.colorSchemes[colorCodeForPositiveValues]['3'];
-            $scope.dynamicIncreaseBrew.breaks = positiveValues;
-          }
-          else if (positiveValues.length === 2) {
-            positiveValues.sort((a, b) => a - b);
-
-            $scope.dynamicIncreaseBrew.colors = tempBrew.colorSchemes[colorCodeForPositiveValues]['3'];
-            $scope.dynamicIncreaseBrew.breaks = positiveValues;
-
-            $scope.dynamicIncreaseBrew.colors.shift(); // remove first element of array
-          }
-          else if (positiveValues.length === 1) {
-            positiveValues.sort((a, b) => a - b);
-
-            $scope.dynamicIncreaseBrew.colors = tempBrew.colorSchemes[colorCodeForPositiveValues]['3'];
-            $scope.dynamicIncreaseBrew.breaks = positiveValues;
-
-            $scope.dynamicIncreaseBrew.colors.shift(); // remove first element of array
-            $scope.dynamicIncreaseBrew.colors.shift(); // remove first element of array
-          }
-          else {
-            // no positive values
-            $scope.dynamicIncreaseBrew = undefined;
-          }
-        }
-
-        function setupDynamicDecreaseBrew(negativeValues, colorCodeForNegativeValues, classifyMethod) {
-          var tempBrew = new classyBrew();
-          // analyse length of value arrays
-          // if(negativeValues.length > 5){
-          //   // pass array to our classyBrew series
-          //   tempBrew.setSeries(negativeValues);
-          //   // define number of classes
-          //   tempBrew.setNumClasses(5);
-          //   // set color ramp code
-          //   tempBrew.setColorCode(colorCodeForNegativeValues);
-          //   // classify by passing in statistical method
-          //   // i.e. equal_interval, jenks, quantile
-          //   tempBrew.classify(classifyMethod);
-          //
-          //   $scope.dynamicDecreaseBrew.colors = tempBrew.getColors();
-          //   $scope.dynamicDecreaseBrew.breaks = tempBrew.getBreaks();
-          // }
-          // else if(negativeValues.length === 4 || negativeValues.length === 5){
-          //   // pass array to our classyBrew series
-          //   tempBrew.setSeries(negativeValues);
-          //   // define number of classes
-          //   tempBrew.setNumClasses(3);
-          //   // set color ramp code
-          //   tempBrew.setColorCode(colorCodeForNegativeValues);
-          //   // classify by passing in statistical method
-          //   // i.e. equal_interval, jenks, quantile
-          //   tempBrew.classify(classifyMethod);
-          //
-          //   $scope.dynamicDecreaseBrew.colors = tempBrew.getColors();
-          //   $scope.dynamicDecreaseBrew.breaks = tempBrew.getBreaks();
-          // }
-          if (negativeValues.length === 4 || negativeValues.length >= 5) {
-            // pass array to our classyBrew series
-            tempBrew.setSeries(negativeValues);
-            // define number of classes
-            tempBrew.setNumClasses(3);
-            // set color ramp code
-            tempBrew.setColorCode(colorCodeForNegativeValues);
-            // classify by passing in statistical method
-            // i.e. equal_interval, jenks, quantile
-            tempBrew.classify(classifyMethod);
-
-            $scope.dynamicDecreaseBrew.colors = tempBrew.getColors();
-            $scope.dynamicDecreaseBrew.breaks = tempBrew.getBreaks();
-          }
-          else if (negativeValues.length === 3) {
-
-            negativeValues.sort((a, b) => a - b);
-
-            $scope.dynamicDecreaseBrew.colors = tempBrew.colorSchemes[colorCodeForNegativeValues]['3'];
-            $scope.dynamicDecreaseBrew.breaks = negativeValues;
-          }
-          else if (negativeValues.length === 2) {
-            negativeValues.sort((a, b) => a - b);
-
-            $scope.dynamicDecreaseBrew.colors = tempBrew.colorSchemes[colorCodeForNegativeValues]['3'];
-            $scope.dynamicDecreaseBrew.breaks = negativeValues;
-
-            $scope.dynamicDecreaseBrew.colors.shift(); // remove first element of array
-          }
-          else if (negativeValues.length === 1) {
-            negativeValues.sort((a, b) => a - b);
-
-            $scope.dynamicDecreaseBrew.colors = tempBrew.colorSchemes[colorCodeForNegativeValues]['3'];
-            $scope.dynamicDecreaseBrew.breaks = negativeValues;
-
-            $scope.dynamicDecreaseBrew.colors.shift(); // remove first element of array
-            $scope.dynamicDecreaseBrew.colors.shift(); // remove first element of array
-          }
-          else {
-            // no negative values
-            $scope.dynamicDecreaseBrew = undefined;
-          }
-        }
-
-        function styleNoData(feature) {
-          return $scope.noDataStyle;
-        }
-
-        function styleOutlier(feature) {
-          if ((feature.properties[outlierPropertyName] === outlierPropertyValue_low_soft) || (feature.properties[outlierPropertyName] === outlierPropertyValue_low_extreme)) {
-            $scope.containsOutliers_low = true;
-            return $scope.outlierStyle_low;
-          }
-          else {
-            $scope.containsOutliers_high = true;
-            return $scope.outlierStyle_high;
-          }
-        }
-
-        // style function to return
-        // fill color based on $scope.defaultBrew.getColorInRange() method
-        function styleDefault(feature) {
-          // check if feature is NoData
-          if (kommonitorDataExchangeService.indicatorValueIsNoData(feature.properties[$scope.propertyName])) {
-            return styleNoData(feature);
-          }
-
-          // check if feature is outlier
-          if ((feature.properties[outlierPropertyName] !== outlierPropertyValue_no) && kommonitorDataExchangeService.useOutlierDetectionOnIndicator) {
-            return styleOutlier(feature);
-          }
-
-          var fillOpacity = 1;
-          if ($scope.useTransparencyOnIndicator) {
-            fillOpacity = defaultFillOpacity;
-          }
-
-          var fillColor;
-          if (feature.properties[$scope.propertyName] == 0 || feature.properties[$scope.propertyName] == "0") {
-            fillColor = $scope.defaultColorForZeroValues;
-            if ($scope.useTransparencyOnIndicator) {
-              fillOpacity = defaultFillOpacityForZeroFeatures;
-            }
-
-          }
-          else {
-            if ($scope.containsNegativeValues($scope.currentIndicatorMetadataAndGeoJSON.geoJSON)) {
-              if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[$scope.indicatorPropertyName]) >= 0) {
-                if (feature.properties[$scope.propertyName] == 0 || feature.properties[$scope.propertyName] == "0") {
-                  fillColor = $scope.defaultColorForZeroValues;
-                  if ($scope.useTransparencyOnIndicator) {
-                    fillOpacity = defaultFillOpacityForZeroFeatures;
-                  }
-                }
-                else {
-                  for (var index = 0; index < $scope.dynamicIncreaseBrew.breaks.length; index++) {
-                    if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[$scope.propertyName]) == kommonitorDataExchangeService.getIndicatorValue_asNumber($scope.dynamicIncreaseBrew.breaks[index])) {
-                      if (index < $scope.dynamicIncreaseBrew.breaks.length - 1) {
-                        // min value
-                        fillColor = $scope.dynamicIncreaseBrew.colors[index];
-                        break;
-                      }
-                      else {
-                        //max value
-                        if ($scope.dynamicIncreaseBrew.colors[index]) {
-                          fillColor = $scope.dynamicIncreaseBrew.colors[index];
-                        }
-                        else {
-                          fillColor = $scope.dynamicIncreaseBrew.colors[index - 1];
-                        }
-                        break;
-                      }
-                    }
-                    else {
-                      if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[$scope.propertyName]) < kommonitorDataExchangeService.getIndicatorValue_asNumber($scope.dynamicIncreaseBrew.breaks[index + 1])) {
-                        fillColor = $scope.dynamicIncreaseBrew.colors[index];
-                        break;
-                      }
-                    }
-                  }
-                }
-
-                return {
-                  weight: 1,
-                  opacity: 1,
-                  color: defaultBorderColor,
-                  dashArray: '',
-                  fillOpacity: fillOpacity,
-                  fillColor: fillColor,
-                  fillPattern: undefined
-                };
-              }
-              else {
-
-                if (feature.properties[$scope.propertyName] == 0 || feature.properties[$scope.propertyName] == "0") {
-                  fillColor = $scope.defaultColorForZeroValues;
-                  if ($scope.useTransparencyOnIndicator) {
-                    fillOpacity = defaultFillOpacityForZeroFeatures;
-                  }
-                }
-                else {
-                  // invert colors, so that lowest values will become strong colored!
-                  for (var k = 0; k < $scope.dynamicDecreaseBrew.breaks.length; k++) {
-                    if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[$scope.propertyName]) == kommonitorDataExchangeService.getIndicatorValue_asNumber($scope.dynamicDecreaseBrew.breaks[k])) {
-                      if (k < $scope.dynamicDecreaseBrew.breaks.length - 1) {
-                        // min value
-                        fillColor = $scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - k - 1];
-                        break;
-                      }
-                      else {
-                        //max value
-                        if ($scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - k]) {
-                          fillColor = $scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - k];
-                        }
-                        else {
-                          fillColor = $scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - k - 1];
-                        }
-                        break;
-                      }
-                    }
-                    else {
-                      if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[$scope.propertyName]) < kommonitorDataExchangeService.getIndicatorValue_asNumber($scope.dynamicDecreaseBrew.breaks[k + 1])) {
-                        fillColor = $scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - k - 1];
-                        break;
-                      }
-                    }
-                  }
-                }
-
-                return {
-                  weight: 1,
-                  opacity: 1,
-                  color: defaultBorderColor,
-                  dashArray: '',
-                  fillOpacity: fillOpacity,
-                  fillColor: fillColor,
-                  fillPattern: undefined
-                };
-              }
-            }
-            else {
-              fillColor = $scope.defaultBrew.getColorInRange(kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[$scope.propertyName]));
-            }
-          }
-
-          return {
-            weight: 1,
-            opacity: 1,
-            color: defaultBorderColor,
-            dashArray: '',
-            fillOpacity: fillOpacity,
-            fillColor: fillColor,
-            fillPattern: undefined
-          };
-        }
-
-        function styleCustomDefault(feature) {
-
-          // check if feature is NoData
-          if (kommonitorDataExchangeService.indicatorValueIsNoData(feature.properties[$scope.propertyName])) {
-            return styleNoData(feature);
-          }
-
-          // check if feature is outlier
-          if ((feature.properties[outlierPropertyName] !== outlierPropertyValue_no) && kommonitorDataExchangeService.useOutlierDetectionOnIndicator) {
-            return styleOutlier(feature);
-          }
-
-          var fillColor;
-          if (feature.properties[$scope.propertyName] == 0 || feature.properties[$scope.propertyName] == "0") {
-            fillColor = $scope.defaultColorForZeroValues;
-          }
-          else {
-            fillColor = $scope.defaultBrew.getColorInRange(feature.properties[$scope.propertyName]);
-          }
-
-          var fillOpacity = 1;
-          if ($scope.useTransparencyOnIndicator) {
-            fillOpacity = defaultFillOpacity;
-          }
-
-          return {
-            weight: 1,
-            opacity: 1,
-            color: defaultBorderColor,
-            dashArray: '',
-            fillOpacity: fillOpacity,
-            fillColor: fillColor,
-            fillPattern: undefined
-          };
-        }
-
-        function styleMeasureOfValue(feature) {
-
-          // check if feature is NoData
-          if (kommonitorDataExchangeService.indicatorValueIsNoData(feature.properties[$scope.propertyName])) {
-            return styleNoData(feature);
-          }
-
-          // check if feature is outlier
-          if ((feature.properties[outlierPropertyName] !== outlierPropertyValue_no) && kommonitorDataExchangeService.useOutlierDetectionOnIndicator) {
-            return styleOutlier(feature);
-          }
-
-          var fillOpacity = 1;
-          if ($scope.useTransparencyOnIndicator) {
-            fillOpacity = defaultFillOpacity;
-          }
-
-          var fillColor;
-          if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[$scope.indicatorPropertyName]) >= kommonitorDataExchangeService.measureOfValue) {
-
-            if (feature.properties[$scope.propertyName] == 0 || feature.properties[$scope.propertyName] == "0") {
-              fillColor = $scope.defaultColorForZeroValues;
-              if ($scope.useTransparencyOnIndicator) {
-                fillOpacity = defaultFillOpacityForZeroFeatures;
-              }
-            }
-            else {
-
-
-
-              for (var index = 0; index < $scope.gtMeasureOfValueBrew.breaks.length; index++) {
-
-                if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[$scope.propertyName]) == kommonitorDataExchangeService.getIndicatorValue_asNumber($scope.gtMeasureOfValueBrew.breaks[index])) {
-                  if (index < $scope.gtMeasureOfValueBrew.breaks.length - 1) {
-                    // min value
-                    fillColor = $scope.gtMeasureOfValueBrew.colors[index];
-                    break;
-                  }
-                  else {
-                    //max value
-                    if ($scope.gtMeasureOfValueBrew.colors[index]) {
-                      fillColor = $scope.gtMeasureOfValueBrew.colors[index];
-                    }
-                    else {
-                      fillColor = $scope.gtMeasureOfValueBrew.colors[index - 1];
-                    }
-                    break;
-                  }
-                }
-                else {
-                  if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[$scope.propertyName]) < kommonitorDataExchangeService.getIndicatorValue_asNumber($scope.gtMeasureOfValueBrew.breaks[index + 1])) {
-                    fillColor = $scope.gtMeasureOfValueBrew.colors[index];
-                    break;
-                  }
-                }
-              }
-            }
-
-            return {
-              weight: 1,
-              opacity: 1,
-              color: defaultBorderColor,
-              dashArray: '',
-              fillOpacity: fillOpacity,
-              fillColor: fillColor,
-              fillPattern: undefined
-            };
-          }
-          else {
-            if (feature.properties[$scope.propertyName] == 0 || feature.properties[$scope.propertyName] == "0") {
-              fillColor = $scope.defaultColorForZeroValues;
-              if ($scope.useTransparencyOnIndicator) {
-                fillOpacity = defaultFillOpacityForZeroFeatures;
-              }
-            }
-            else {
-              // invert colors, so that lowest values will become strong colored!
-              for (var j = 0; j < $scope.ltMeasureOfValueBrew.breaks.length; j++) {
-                if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[$scope.propertyName]) == kommonitorDataExchangeService.getIndicatorValue_asNumber($scope.ltMeasureOfValueBrew.breaks[j])) {
-                  if (j < $scope.ltMeasureOfValueBrew.breaks.length - 1) {
-                    // min value
-                    fillColor = $scope.ltMeasureOfValueBrew.colors[$scope.ltMeasureOfValueBrew.colors.length - j - 1];
-                    break;
-                  }
-                  else {
-                    //max value
-                    if ($scope.ltMeasureOfValueBrew.colors[$scope.ltMeasureOfValueBrew.colors.length - j]) {
-                      fillColor = $scope.ltMeasureOfValueBrew.colors[$scope.ltMeasureOfValueBrew.colors.length - j];
-                    }
-                    else {
-                      fillColor = $scope.ltMeasureOfValueBrew.colors[$scope.ltMeasureOfValueBrew.colors.length - j - 1];
-                    }
-                    break;
-                  }
-                }
-                else {
-                  if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[$scope.propertyName]) < kommonitorDataExchangeService.getIndicatorValue_asNumber($scope.ltMeasureOfValueBrew.breaks[j + 1])) {
-                    fillColor = $scope.ltMeasureOfValueBrew.colors[$scope.ltMeasureOfValueBrew.colors.length - j - 1];
-                    break;
-                  }
-                }
-              }
-            }
-
-            return {
-              weight: 1,
-              opacity: 1,
-              color: defaultBorderColor,
-              dashArray: '',
-              fillOpacity: fillOpacity,
-              fillColor: fillColor,
-              fillPattern: undefined
-            };
-          }
-
-        }
-
-        function styleDynamicIndicator(feature) {
-
-          // check if feature is NoData
-          if (kommonitorDataExchangeService.indicatorValueIsNoData(feature.properties[$scope.propertyName])) {
-            return styleNoData(feature);
-          }
-
-          // check if feature is outlier
-          if ((feature.properties[outlierPropertyName] !== outlierPropertyValue_no) && kommonitorDataExchangeService.useOutlierDetectionOnIndicator) {
-            return styleOutlier(feature);
-          }
-
-          var fillOpacity = 1;
-          if ($scope.useTransparencyOnIndicator) {
-            fillOpacity = defaultFillOpacity;
-          }
-
-          var fillColor;
-          if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[$scope.indicatorPropertyName]) >= 0) {
-
-            if (feature.properties[$scope.propertyName] == 0 || feature.properties[$scope.propertyName] == "0") {
-              fillColor = $scope.defaultColorForZeroValues;
-              if ($scope.useTransparencyOnIndicator) {
-                fillOpacity = defaultFillOpacityForZeroFeatures;
-              }
-            }
-            else {
-              for (var index = 0; index < $scope.dynamicIncreaseBrew.breaks.length; index++) {
-                if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[$scope.propertyName]) == kommonitorDataExchangeService.getIndicatorValue_asNumber($scope.dynamicIncreaseBrew.breaks[index])) {
-                  if (index < $scope.dynamicIncreaseBrew.breaks.length - 1) {
-                    // min value
-                    fillColor = $scope.dynamicIncreaseBrew.colors[index];
-                    break;
-                  }
-                  else {
-                    //max value
-                    if ($scope.dynamicIncreaseBrew.colors[index]) {
-                      fillColor = $scope.dynamicIncreaseBrew.colors[index];
-                    }
-                    else {
-                      fillColor = $scope.dynamicIncreaseBrew.colors[index - 1];
-                    }
-                    break;
-                  }
-                }
-                else {
-                  if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[$scope.propertyName]) < kommonitorDataExchangeService.getIndicatorValue_asNumber($scope.dynamicIncreaseBrew.breaks[index + 1])) {
-                    fillColor = $scope.dynamicIncreaseBrew.colors[index];
-                    break;
-                  }
-                }
-              }
-            }
-
-            return {
-              weight: 1,
-              opacity: 1,
-              color: defaultBorderColor,
-              dashArray: '',
-              fillOpacity: fillOpacity,
-              fillColor: fillColor,
-              fillPattern: undefined
-            };
-          }
-          else {
-            if (feature.properties[$scope.propertyName] == 0 || feature.properties[$scope.propertyName] == "0") {
-              fillColor = $scope.defaultColorForZeroValues;
-              if ($scope.useTransparencyOnIndicator) {
-                fillOpacity = defaultFillOpacityForZeroFeatures;
-              }
-            }
-            else {
-              // invert colors, so that lowest values will become strong colored!
-              for (var index = 0; index < $scope.dynamicDecreaseBrew.breaks.length; index++) {
-                if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[$scope.propertyName]) == kommonitorDataExchangeService.getIndicatorValue_asNumber($scope.dynamicDecreaseBrew.breaks[index])) {
-                  if (index < $scope.dynamicDecreaseBrew.breaks.length - 1) {
-                    // min value
-                    fillColor = $scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - index - 1];
-                    break;
-                  }
-                  else {
-                    //max value
-                    if ($scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - index]) {
-                      fillColor = $scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - index];
-                    }
-                    else {
-                      fillColor = $scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - index - 1];
-                    }
-                    break;
-                  }
-                }
-                else {
-                  if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[$scope.propertyName]) < kommonitorDataExchangeService.getIndicatorValue_asNumber($scope.dynamicDecreaseBrew.breaks[index + 1])) {
-                    fillColor = $scope.dynamicDecreaseBrew.colors[$scope.dynamicDecreaseBrew.colors.length - index - 1];
-                    break;
-                  }
-                }
-              }
-            }
-
-            return {
-              weight: 1,
-              opacity: 1,
-              color: defaultBorderColor,
-              dashArray: '',
-              fillOpacity: fillOpacity,
-              fillColor: fillColor,
-              fillPattern: undefined
-            };
-          }
-
-        }
-
         function highlightFeature(e) {
           var layer = e.target;
 
@@ -4153,6 +3247,8 @@ angular.module('kommonitorMap').component(
 
         function resetHighlightForLayer(layer) {
 
+          var style;
+
           // only restyle feature when not in list of clicked features
           if (!kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(layer.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])) {
             if (kommonitorDataExchangeService.filteredIndicatorFeatureNames.includes(layer.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])) {
@@ -4161,14 +3257,18 @@ angular.module('kommonitorMap').component(
             else if (!kommonitorDataExchangeService.isMeasureOfValueChecked) {
               //$scope.currentIndicatorLayer.resetStyle(layer);
               if ($scope.indicatorTypeOfCurrentLayer.includes('DYNAMIC')) {
-                layer.setStyle(styleDynamicIndicator(layer.feature));
+                style = kommonitorVisualStyleHelperService.styleDynamicIndicator(layer.feature, $scope.dynamicIncreaseBrew, $scope.dynamicDecreaseBrew, $scope.propertyName, $scope.useTransparencyOnIndicator);
+              
+                layer.setStyle(style);
               }
               else {
-                layer.setStyle(styleDefault(layer.feature));
+                style = kommonitorVisualStyleHelperService.styleDefault(layer.feature, $scope.defaultBrew, $scope.dynamicIncreaseBrew, $scope.dynamicDecreaseBrew, $scope.propertyName, $scope.useTransparencyOnIndicator, $scope.datasetContainsNegativeValues);
+                layer.setStyle(style);
               }
             }
             else {
-              layer.setStyle(styleMeasureOfValue(layer.feature));
+              style = kommonitorVisualStyleHelperService.styleMeasureOfValue(layer.feature, $scope.gtMeasureOfValueBrew, $scope.ltMeasureOfValueBrew, $scope.propertyName, $scope.useTransparencyOnIndicator);
+              layer.setStyle(style);
             }
           }
           else {
@@ -4180,6 +3280,7 @@ angular.module('kommonitorMap').component(
         }
 
         function resetHighlightClickedFeature(layer) {
+          var style;
           //$scope.currentIndicatorLayer.resetStyle(layer);
           if (kommonitorDataExchangeService.filteredIndicatorFeatureNames.includes(layer.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])) {
             layer.setStyle($scope.filteredStyle);
@@ -4187,14 +3288,20 @@ angular.module('kommonitorMap').component(
           else if (!kommonitorDataExchangeService.isMeasureOfValueChecked) {
             //$scope.currentIndicatorLayer.resetStyle(layer);
             if ($scope.indicatorTypeOfCurrentLayer.includes('DYNAMIC')) {
-              layer.setStyle(styleDynamicIndicator(layer.feature));
+              style = kommonitorVisualStyleHelperService.styleDynamicIndicator(layer.feature, $scope.dynamicIncreaseBrew, $scope.dynamicDecreaseBrew, $scope.propertyName, $scope.useTransparencyOnIndicator);
+              
+              layer.setStyle(style);
             }
             else {
-              layer.setStyle(styleDefault(layer.feature));
+              style = kommonitorVisualStyleHelperService.styleDefault(layer.feature, $scope.defaultBrew, $scope.dynamicIncreaseBrew, $scope.dynamicDecreaseBrew, $scope.propertyName, $scope.useTransparencyOnIndicator, $scope.datasetContainsNegativeValues);
+
+              layer.setStyle(style);
             }
           }
           else {
-            layer.setStyle(styleMeasureOfValue(layer.feature));
+            style = kommonitorVisualStyleHelperService.styleMeasureOfValue(layer.feature, $scope.gtMeasureOfValueBrew, $scope.ltMeasureOfValueBrew, $scope.propertyName, $scope.useTransparencyOnIndicator);
+
+            layer.setStyle(style);
           }
         }
 
@@ -4449,11 +3556,16 @@ angular.module('kommonitorMap').component(
           $scope.indicatorTypeOfCurrentLayer = indicatorMetadataAndGeoJSON.indicatorType;
 
           if (kommonitorDataExchangeService.isMeasureOfValueChecked) {
-            setupMeasureOfValueBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, defaultColorBrewerPaletteForGtMovValues, defaultColorBrewerPaletteForLtMovValues, $scope.classifyMethod, kommonitorDataExchangeService.measureOfValue);
+            var measureOfValueBrewArray = kommonitorVisualStyleHelperService.setupMeasureOfValueBrew($scope.currentGeoJSONOfCurrentLayer, $scope.indicatorPropertyName, defaultColorBrewerPaletteForGtMovValues, defaultColorBrewerPaletteForLtMovValues, $scope.classifyMethod, kommonitorDataExchangeService.measureOfValue);
+            $scope.gtMeasureOfValueBrew = measureOfValueBrewArray[0];
+            $scope.ltMeasureOfValueBrew = measureOfValueBrewArray[1];
+
             $scope.propertyName = INDICATOR_DATE_PREFIX + date;
 
             layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
-              style: styleMeasureOfValue,
+              style: function (feature) {
+                return kommonitorVisualStyleHelperService.styleMeasureOfValue(featue, $scope.gtMeasureOfValueBrew, $scope.ltMeasureOfValueBrew, $scope.propertyName, $scope.useTransparencyOnIndicator);
+              },
               onEachFeature: onEachFeatureIndicator
             });
 
@@ -4464,28 +3576,38 @@ angular.module('kommonitorMap').component(
           else {
 
             if (indicatorMetadataAndGeoJSON.indicatorType.includes("STATUS")) {
-              var containsNegativeValues = $scope.containsNegativeValues(indicatorMetadataAndGeoJSON.geoJSON);
-              if (containsNegativeValues) {
-                setupDynamicIndicatorBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, defaultColorBrewerPaletteForBalanceIncreasingValues, defaultColorBrewerPaletteForBalanceDecreasingValues, $scope.classifyMethod);
+              $scope.datasetContainsNegativeValues = $scope.containsNegativeValues(indicatorMetadataAndGeoJSON.geoJSON);
+              if ($scope.datasetContainsNegativeValues) {
+                var dynamicIndicatorBrewArray = kommonitorVisualStyleHelperService.setupDynamicIndicatorBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, defaultColorBrewerPaletteForBalanceIncreasingValues, defaultColorBrewerPaletteForBalanceDecreasingValues, $scope.classifyMethod);
+                $scope.dynamicIncreaseBrew = dynamicIndicatorBrewArray[0];
+                $scope.dynamicDecreaseBrew = dynamicIndicatorBrewArray[1];
+
               }
               else {
-                setupDefaultBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, indicatorMetadataAndGeoJSON.defaultClassificationMapping.items.length, indicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, $scope.classifyMethod);
+                $scope.defaultBrew = kommonitorVisualStyleHelperService.setupDefaultBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, indicatorMetadataAndGeoJSON.defaultClassificationMapping.items.length, indicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, $scope.classifyMethod);
               }
               $scope.propertyName = INDICATOR_DATE_PREFIX + date;
 
               layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
-                style: styleDefault,
+                style: function (feature) {
+                  return kommonitorVisualStyleHelperService.styleDefault(feature, $scope.defaultBrew, $scope.dynamicIncreaseBrew, $scope.dynamicDecreaseBrew, $scope.propertyName, $scope.useTransparencyOnIndicator, $scope.datasetContainsNegativeValues);
+                },
                 onEachFeature: onEachFeatureIndicator
               });
               $scope.makeInfoControl(date, isCustomComputation);
-              $scope.makeDefaultLegend(indicatorMetadataAndGeoJSON.defaultClassificationMapping, containsNegativeValues);
+              $scope.makeDefaultLegend(indicatorMetadataAndGeoJSON.defaultClassificationMapping, $scope.datasetContainsNegativeValues);
             }
             else if (indicatorMetadataAndGeoJSON.indicatorType.includes("DYNAMIC")) {
-              setupDynamicIndicatorBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, defaultColorBrewerPaletteForBalanceIncreasingValues, defaultColorBrewerPaletteForBalanceDecreasingValues, $scope.classifyMethod);
+              var dynamicIndicatorBrewArray = kommonitorVisualStyleHelperService.setupDynamicIndicatorBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, defaultColorBrewerPaletteForBalanceIncreasingValues, defaultColorBrewerPaletteForBalanceDecreasingValues, $scope.classifyMethod);
+              $scope.dynamicIncreaseBrew = dynamicIndicatorBrewArray[0];
+              $scope.dynamicDecreaseBrew = dynamicIndicatorBrewArray[1];
+
               $scope.propertyName = INDICATOR_DATE_PREFIX + date;
 
               layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
-                style: styleDynamicIndicator,
+                style: function(feature){
+                  return kommonitorVisualStyleHelperService.styleDynamicIndicator(feature, $scope.dynamicIncreaseBrew, $scope.dynamicDecreaseBrew, $scope.propertyName, $scope.useTransparencyOnIndicator);
+                },
                 onEachFeature: onEachFeatureIndicator
               });
               $scope.makeInfoControl(date, isCustomComputation);
@@ -4527,6 +3649,7 @@ angular.module('kommonitorMap').component(
         $scope.containsNegativeValues = function (geoJSON) {
 
           var containsNegativeValues = false;
+          $scope.datasetContainsNegativeValues = false;
           for (var i = 0; i < geoJSON.features.length; i++) {
             if (geoJSON.features[i].properties[$scope.indicatorPropertyName] < 0) {
               containsNegativeValues = true;
@@ -4550,12 +3673,14 @@ angular.module('kommonitorMap').component(
 
           $scope.currentCustomIndicatorLayerOfCurrentLayer = indicatorMetadataAndGeoJSON.geoJSON;
 
-          var containsNegativeValues = $scope.containsNegativeValues(indicatorMetadataAndGeoJSON.geoJSON);
-          if (containsNegativeValues) {
-            setupDynamicIndicatorBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, defaultColorBrewerPaletteForBalanceIncreasingValues, defaultColorBrewerPaletteForBalanceDecreasingValues, $scope.classifyMethod);
+          $scope.datasetContainsNegativeValues = $scope.containsNegativeValues(indicatorMetadataAndGeoJSON.geoJSON);
+          if ($scope.datasetContainsNegativeValues) {
+            var dynamicIndicatorBrewArray = kommonitorVisualStyleHelperService.setupDynamicIndicatorBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, defaultColorBrewerPaletteForBalanceIncreasingValues, defaultColorBrewerPaletteForBalanceDecreasingValues, $scope.classifyMethod);
+            $scope.dynamicIncreaseBrew = dynamicIndicatorBrewArray[0];
+            $scope.dynamicDecreaseBrew = dynamicIndicatorBrewArray[1];
           }
           else {
-            setupDefaultBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, indicatorMetadataAndGeoJSON.defaultClassificationMapping.items.length, indicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, $scope.classifyMethod);
+            $scope.defaultBrew = kommonitorVisualStyleHelperService.setupDefaultBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, indicatorMetadataAndGeoJSON.defaultClassificationMapping.items.length, indicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, $scope.classifyMethod);
           }
 
           $scope.customPropertyName = INDICATOR_DATE_PREFIX + date;
@@ -4577,7 +3702,7 @@ angular.module('kommonitorMap').component(
           $scope.updateSearchControl();
 
           $scope.makeCustomInfoControl(date);
-          $scope.makeDefaultLegend(indicatorMetadataAndGeoJSON.defaultClassificationMapping, containsNegativeValues);
+          $scope.makeDefaultLegend(indicatorMetadataAndGeoJSON.defaultClassificationMapping, $scope.datasetContainsNegativeValues);
 
           $scope.map.invalidateSize(true);
         });
@@ -4593,6 +3718,7 @@ angular.module('kommonitorMap').component(
           $scope.gtMeasureOfValueBrew = new classyBrew();
           $scope.ltMeasureOfValueBrew = new classyBrew();
 
+          var style;
           if ($scope.currentIndicatorLayer) {
 
             if (!kommonitorDataExchangeService.isBalanceChecked) {
@@ -4629,13 +3755,18 @@ angular.module('kommonitorMap').component(
             }
 
             if (kommonitorDataExchangeService.isMeasureOfValueChecked) {
-              setupMeasureOfValueBrew($scope.currentGeoJSONOfCurrentLayer, $scope.indicatorPropertyName, defaultColorBrewerPaletteForGtMovValues, defaultColorBrewerPaletteForLtMovValues, $scope.classifyMethod, kommonitorDataExchangeService.measureOfValue);
+              var measureOfValueBrewArray = kommonitorVisualStyleHelperService.setupMeasureOfValueBrew($scope.currentGeoJSONOfCurrentLayer, $scope.indicatorPropertyName, defaultColorBrewerPaletteForGtMovValues, defaultColorBrewerPaletteForLtMovValues, $scope.classifyMethod, kommonitorDataExchangeService.measureOfValue);
+              $scope.gtMeasureOfValueBrew = measureOfValueBrewArray[0];
+              $scope.ltMeasureOfValueBrew = measureOfValueBrewArray[1];
+
               $scope.currentIndicatorLayer.eachLayer(function (layer) {
                 if (kommonitorDataExchangeService.filteredIndicatorFeatureNames.includes(layer.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])) {
                   layer.setStyle($scope.filteredStyle);
                 }
                 else {
-                  layer.setStyle(styleMeasureOfValue(layer.feature));
+                  style = kommonitorVisualStyleHelperService.styleMeasureOfValue(layer.feature, $scope.gtMeasureOfValueBrew, $scope.ltMeasureOfValueBrew, $scope.propertyName, $scope.useTransparencyOnIndicator);
+
+                  layer.setStyle(style);
                 }
 
               });
@@ -4645,26 +3776,32 @@ angular.module('kommonitorMap').component(
             else {
 
               if ($scope.indicatorTypeOfCurrentLayer.includes('DYNAMIC')) {
-                setupDynamicIndicatorBrew($scope.currentGeoJSONOfCurrentLayer, $scope.indicatorPropertyName, defaultColorBrewerPaletteForBalanceIncreasingValues, defaultColorBrewerPaletteForBalanceDecreasingValues, $scope.classifyMethod);
+                var dynamicIndicatorBrewArray = kommonitorVisualStyleHelperService.setupDynamicIndicatorBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, defaultColorBrewerPaletteForBalanceIncreasingValues, defaultColorBrewerPaletteForBalanceDecreasingValues, $scope.classifyMethod);
+                $scope.dynamicIncreaseBrew = dynamicIndicatorBrewArray[0];
+                $scope.dynamicDecreaseBrew = dynamicIndicatorBrewArray[1];
 
                 $scope.currentIndicatorLayer.eachLayer(function (layer) {
                   if (kommonitorDataExchangeService.filteredIndicatorFeatureNames.includes(layer.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])) {
                     layer.setStyle($scope.filteredStyle);
                   }
                   else {
-                    layer.setStyle(styleDynamicIndicator(layer.feature));
+                    style = kommonitorVisualStyleHelperService.styleDynamicIndicator(layer.feature, $scope.dynamicIncreaseBrew, $scope.dynamicDecreaseBrew, $scope.propertyName, $scope.useTransparencyOnIndicator);
+              
+                    layer.setStyle(style);
                   }
 
                 });
                 $scope.makeDynamicIndicatorLegend();
               }
               else {
-                var containsNegativeValues = $scope.containsNegativeValues($scope.currentGeoJSONOfCurrentLayer);
-                if (containsNegativeValues) {
-                  setupDynamicIndicatorBrew($scope.currentGeoJSONOfCurrentLayer, $scope.indicatorPropertyName, defaultColorBrewerPaletteForBalanceIncreasingValues, defaultColorBrewerPaletteForBalanceDecreasingValues, $scope.classifyMethod);
+                $scope.datasetContainsNegativeValues = $scope.containsNegativeValues($scope.currentGeoJSONOfCurrentLayer);
+                if ($scope.datasetContainsNegativeValues) {
+                  var dynamicIndicatorBrewArray = kommonitorVisualStyleHelperService.setupDynamicIndicatorBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, defaultColorBrewerPaletteForBalanceIncreasingValues, defaultColorBrewerPaletteForBalanceDecreasingValues, $scope.classifyMethod);
+                  $scope.dynamicIncreaseBrew = dynamicIndicatorBrewArray[0];
+                  $scope.dynamicDecreaseBrew = dynamicIndicatorBrewArray[1];
                 }
                 else {
-                  setupDefaultBrew($scope.currentGeoJSONOfCurrentLayer, $scope.indicatorPropertyName, $scope.currentIndicatorMetadataAndGeoJSON.defaultClassificationMapping.items.length, $scope.currentIndicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, $scope.classifyMethod);
+                  $scope.defaultBrew = kommonitorVisualStyleHelperService.setupDefaultBrew($scope.currentGeoJSONOfCurrentLayer, $scope.indicatorPropertyName, $scope.currentIndicatorMetadataAndGeoJSON.defaultClassificationMapping.items.length, $scope.currentIndicatorMetadataAndGeoJSON.defaultClassificationMapping.colorBrewerSchemeName, $scope.classifyMethod);
                 }
 
                 $scope.currentIndicatorLayer.eachLayer(function (layer) {
@@ -4672,10 +3809,11 @@ angular.module('kommonitorMap').component(
                     layer.setStyle($scope.filteredStyle);
                   }
                   else {
-                    layer.setStyle(styleDefault(layer.feature));
+                    style = kommonitorVisualStyleHelperService.styleDefault(layer.feature, $scope.defaultBrew, $scope.dynamicIncreaseBrew, $scope.dynamicDecreaseBrew, $scope.propertyName, $scope.useTransparencyOnIndicator, $scope.datasetContainsNegativeValues);
+                    layer.setStyle(style);
                   }
                 });
-                $scope.makeDefaultLegend(kommonitorDataExchangeService.selectedIndicator.defaultClassificationMapping, containsNegativeValues);
+                $scope.makeDefaultLegend(kommonitorDataExchangeService.selectedIndicator.defaultClassificationMapping, $scope.datasetContainsNegativeValues);
               }
 
             }
