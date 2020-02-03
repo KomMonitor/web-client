@@ -1188,7 +1188,7 @@ angular.module('kommonitorMap').component(
 
           for (var availableSpatialUnit of kommonitorDataExchangeService.availableSpatialUnits) {
 
-            for (var applicableSpatialUnit of indicatorMetadata.applicableSpatialUnits.entries) {
+            for (var applicableSpatialUnit of indicatorMetadata.applicableSpatialUnits) {
 
               if (availableSpatialUnit.spatialUnitLevel === applicableSpatialUnit) {
                 spatialUnitsString += applicableSpatialUnit;
@@ -3258,7 +3258,7 @@ angular.module('kommonitorMap').component(
               //$scope.currentIndicatorLayer.resetStyle(layer);
               if ($scope.indicatorTypeOfCurrentLayer.includes('DYNAMIC')) {
                 style = kommonitorVisualStyleHelperService.styleDynamicIndicator(layer.feature, $scope.dynamicIncreaseBrew, $scope.dynamicDecreaseBrew, $scope.propertyName, $scope.useTransparencyOnIndicator);
-              
+
                 layer.setStyle(style);
               }
               else {
@@ -3289,7 +3289,7 @@ angular.module('kommonitorMap').component(
             //$scope.currentIndicatorLayer.resetStyle(layer);
             if ($scope.indicatorTypeOfCurrentLayer.includes('DYNAMIC')) {
               style = kommonitorVisualStyleHelperService.styleDynamicIndicator(layer.feature, $scope.dynamicIncreaseBrew, $scope.dynamicDecreaseBrew, $scope.propertyName, $scope.useTransparencyOnIndicator);
-              
+
               layer.setStyle(style);
             }
             else {
@@ -3786,7 +3786,7 @@ angular.module('kommonitorMap').component(
                   }
                   else {
                     style = kommonitorVisualStyleHelperService.styleDynamicIndicator(layer.feature, $scope.dynamicIncreaseBrew, $scope.dynamicDecreaseBrew, $scope.propertyName, $scope.useTransparencyOnIndicator);
-              
+
                     layer.setStyle(style);
                   }
 
