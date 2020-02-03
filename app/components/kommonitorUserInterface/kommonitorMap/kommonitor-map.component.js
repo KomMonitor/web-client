@@ -1111,7 +1111,7 @@ angular.module('kommonitorMap').component(
               var numberOfWhitespaces = 2 * index;
               var whitespaceString = "";
               for (let k = 0; k < numberOfWhitespaces; k++) {
-                whitespaceString += "\s";
+                whitespaceString += " ";
               }
               topicsString += whitespaceString + topicHierarchyArray[index].topicName;
             }
