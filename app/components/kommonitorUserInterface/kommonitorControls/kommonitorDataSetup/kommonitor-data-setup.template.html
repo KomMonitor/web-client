@@ -77,6 +77,96 @@
   </div>
   <!-- /.box -->
 
+	<div class="box box-success">
+            <div class="box-header with-border">
+              <h3 class="box-title">Indikatoren Metadaten</h3>
+
+							<div class="box-tools pull-right">
+								<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+								</button>
+							</div>
+            </div>
+            <!-- /.box-header -->
+            <!-- form start -->
+              <div class="box-body">
+
+								<div id="indicatorMetadataOverview" text-align="center" align="center" class="">
+
+								<table class="table table-condensed">
+								<!-- <thead>
+									<tr>
+										<th>Name des Metadatums</th>
+										<th>Beschreibung des Metadatums</th>
+									</tr>
+								</thead> -->
+								<tbody>
+									<tr>
+										<td><b>Name</b></td>
+										<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorName}}</td>
+									</tr>
+									<tr>
+										<td><b>Kategorie</b></td>
+										<td ng-if="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.isHeadlineIndicator">Leitindikator</td>
+										<td ng-if="! $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.isHeadlineIndicator">Subindikator</td>
+									</tr>
+									<tr>
+										<td><b>Typ</b></td>
+										<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorType}}</td>
+									</tr>
+									<tr ng-if="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.characteristicValue">
+										<td><b>Merkmalsauspr&auml;gung</b></td>
+										<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.characteristicValue}}</td>
+									</tr>
+									<tr>
+										<td><b>Kennzeichen/K&uuml;rzel</b></td>
+										<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.abbreviation}}</td>
+									</tr>
+									<tr>
+										<td><b>Beschreibung</b></td>
+										<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.metadata.description}}</td>
+									</tr>
+									<tr>
+										<td><b>Maßeinheit</b></td>
+										<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.unit}}</td>
+									</tr>
+									<tr>
+										<td><b>Methodik</b></td>
+										<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.processDescription}}</td>
+									</tr>
+									<tr>
+										<td><b>Interpretation</b></td>
+										<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.interpretation}}</td>
+									</tr>
+									<tr>
+										<td><b>Datengrundlage</b></td>
+										<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.metadata.databasis}}</td>
+									</tr>
+									<tr>
+										<td><b>Datenquelle</b></td>
+										<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.metadata.datasource}}</td>
+									</tr>
+									<tr>
+										<td><b>Datenhalter und Kontakt</b></td>
+										<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.metadata.contact}}</td>
+									</tr>
+									<tr>
+										<td><b>Bemerkung</b></td>
+										<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.metadata.note}}</td>
+									</tr>
+									<tr>
+										<td><b>Fortführungsintervall</b></td>
+										<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.metadata.updateInterval}}</td>
+									</tr>
+								</tbody>
+							</table>
+
+									</div>
+
+              </div>
+              <!-- /.box-body -->
+  </div>
+  <!-- /.box -->
+
 	<div ng-show="($ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.referencedIndicators.length > 0)" class="box box-danger">
             <div class="box-header with-border">
               <h3 class="box-title">Verkn&uuml;pfte Indikatoren</h3>

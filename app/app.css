@@ -1062,6 +1062,13 @@ select {
   overflow: auto;
 }
 
+#indicatorMetadataOverview {
+	height: auto !important;
+	max-height: 400px;
+  overflow: auto;
+	font: 12px/14px Arial, Helvetica, sans-serif;
+}
+
 #referencedIndicatorOverview {
 	height: auto !important;
 	max-height: 200px;
