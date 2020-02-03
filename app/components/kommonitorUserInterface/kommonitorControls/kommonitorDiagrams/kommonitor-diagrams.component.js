@@ -95,6 +95,8 @@ angular
 
 						// console.log("Updating diagrams!");
 
+						$scope.loadingData = true;
+
 						showLoadingIcons();
 
 						kommonitorDiagramHelperService.prepareAllDiagramResources(indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue);
@@ -104,6 +106,7 @@ angular
 						updateLineChart();
 
 						updateBarChart();
+						$scope.loadingData = false;
 					});
 
 					//HISTOGRAM CHART FUNCTION
@@ -119,11 +122,10 @@ angular
 							$scope.histogramChart = echarts.init(document.getElementById('histogramDiagram'));
 						}
 
-						$scope.histogramChart.hideLoading();
-
 						$scope.histogramOption = kommonitorDiagramHelperService.getHistogramChartOptions();
 
 						$scope.histogramChart.setOption($scope.histogramOption);
+						$scope.histogramChart.hideLoading();
 						$scope.histogramCanBeDisplayed = true;
 						setTimeout(function () {
 							$scope.histogramChart.resize();
@@ -144,11 +146,12 @@ angular
 							$scope.barChart = echarts.init(document.getElementById('barDiagram'));
 						}
 
-						$scope.barChart.hideLoading();
-
 						// use configuration item and data specified to show chart
 						$scope.barOption = kommonitorDiagramHelperService.getBarChartOptions();
+
 						$scope.barChart.setOption($scope.barOption);
+
+						$scope.barChart.hideLoading();
 
 						setTimeout(function () {
 							$scope.barChart.resize();
@@ -222,11 +225,11 @@ angular
 							$scope.lineChart = echarts.init(document.getElementById('lineDiagram'));
 						}
 
-						$scope.lineChart.hideLoading();
-
 						// use configuration item and data specified to show chart
 						$scope.lineOption = kommonitorDiagramHelperService.getLineChartOptions();
 						$scope.lineChart.setOption($scope.lineOption);
+
+						$scope.lineChart.hideLoading();
 						setTimeout(function () {
 							$scope.lineChart.resize();
 						}, 350);

@@ -399,7 +399,7 @@ angular
 											$scope.regressionChart = echarts.init(document.getElementById('regressionDiagram'));
 										}
 
-										$scope.regressionChart.showLoading();
+										await $scope.regressionChart.showLoading();
 
 										// if(!$scope.sortedIndicatorProps){
 										// 	$scope.sortedIndicatorProps = $scope.getAllIndicatorPropertiesSortedBySpatialUnitFeatureName();
@@ -615,8 +615,10 @@ angular
 										    }]
 										};
 
-										$scope.regressionChart.hideLoading();
+
 										$scope.regressionChart.setOption($scope.regressionOption);
+
+										await $scope.regressionChart.hideLoading();
 										setTimeout(function(){
 											$scope.regressionChart.resize();
 										}, 350);
