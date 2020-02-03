@@ -95,7 +95,11 @@ angular
 
 					this.setSpatialUnits = function(spatialUnitsArray){
 						this.availableSpatialUnits = spatialUnitsArray;
-					};
+          };
+          
+          // REPORTING
+
+          this.reportingIndicatorConfig = [];
 
 					// GEORESOURCES
 

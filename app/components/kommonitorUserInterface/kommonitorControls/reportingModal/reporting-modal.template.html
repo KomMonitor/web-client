@@ -1,0 +1,123 @@
+<div class="modal fade" id="reporting-modal" role="dialog">
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content">
+			<div class="loading-overlay" ng-show="generatingReport">
+				<span class="glyphicon glyphicon-refresh icon-spin"></span>
+			</div>
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">&times;</button>
+				<h4 class="modal-title">Reporting Einstellungen</h4>
+			</div>
+			<div class="modal-body">
+				<div class="container-fluid">
+					<div class="row">
+						<div class="col-md-3">
+							<div class="row">
+								<h4>Indikatoren</h4>
+								<!-- indicator selection box-->
+								<div id="indicatorSelectionBox" style="height:410px; border:solid black 1px; overflow:auto; white-space: nowrap;">
+									<div style="cursor:pointer; margin-left:5px; margin-right:5px" 
+											class="draggable" ng-repeat="indicator in availableIndicators | orderBy: 'indicatorName'" data-indicator={{indicator}}>
+										{{indicator.indicatorName}}
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<h4 style="margin-top:20px">hinzugef&uuml;gte Indikatoren</h4>
+								<!-- added indicators box-->
+								<div id="addedIndicatorBox" style="width:100%; height:150px; border:solid black 1px; overflow:auto; white-space: nowrap;">
+									<div style="cursor:pointer; margin-left:5px; margin-right:5px" ng-repeat="indicator in addedIndicators | orderBy: 'indicatorName'"
+											ng-click="toggleAddedIndicatorSelection($event, indicator)">
+										{{indicator.indicatorName}}
+									</div>
+								</div>
+							</div>
+							<div class="row" style="margin-top:5px">
+								<button class="btn btn-warning" ng-click="configureIndicator()"><i class="fas fa-hammer"></i></button>
+								<button class="btn btn-danger" ng-click="removeIndicator()"><i class="fa fa-trash"></i></button>
+							</div>
+						</div>
+						<div class="col-md-9">
+							<div class="row" style="margin:0">
+								<!-- show templates here-->
+								<div style="height:649.6px; border:solid black 1px;
+											background-color: lightgray; overflow:auto;"
+											class="droppable">
+									<div ng-repeat="page in pagesArray" class="reporting-page reporting-page-{{page.pFormat}}"
+										id="reporting-page-{{page.pNumber}}">
+										<div style="width:100%;height:100%;margin:0;padding:0;">
+											<div id="grid-{{page.pNumber}}" class="grid-stack">
+											</div>
+										</div>
+									</div>
+								<!--<div class="reporting-page reporting-page-landscape" id="reporting-page-1">
+										<div style="width:100%;height:100%;margin:0;padding:0;">
+											<div class="grid-stack">
+												<div class="grid-stack-item" data-gs-x="0" data-gs-y="0" data-gs-width="8" data-gs-height="9">
+													<div class="grid-stack-item-content">
+														<img style="width:511px;height:368px" src="img_temp/KomMonitor-Kartenexport.png" />
+													</div>
+												</div>
+											
+												<div class="grid-stack-item" data-gs-x="9" data-gs-y="0" data-gs-width="4" data-gs-height="6">
+													<div class="grid-stack-item-content">
+														<div style="width:100%;font-size:8pt;word-wrap:break-word;padding:3px;">
+															<h3>Indikatoreninformation</h3>
+															<p>Hier ist Platz für Informationen über den Indikator.
+																Dieses Feld ist kein Bild sondern Text</p>
+															<p><b>Beschreibung: </b>Platzhalter</p>
+															<p><b>Datenquelle: </b>Platzhalter</p>
+															<p><b>Aktualisierungszyklus: </b>Platzhalter</p>
+															<p><b>zuletzt aktualisiert am: </b>Platzhalter</p>
+														</div>
+													</div>
+												</div>
+
+												<div class="grid-stack-item" data-gs-x="0" data-gs-y="9" data-gs-width="6" data-gs-height="4">
+													<div class="grid-stack-item-content">
+															<img style="width:382px;height:159px" src="img_temp/feature-vergleich.jpg"/>
+													</div>
+												</div>
+
+												<div class="grid-stack-item" data-gs-x="7" data-gs-y="9" data-gs-width="6" data-gs-height="4">
+													<div class="grid-stack-item-content">
+															<img style="width:382px;height:159px" src="img_temp/histogramm.jpg"/>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="reporting-page reporting-page-portrait" id="reporting-page-2">
+										<div style="width:100%;height:100%;margin:0;padding:0;">
+											<div class="grid-stack">
+												<div class="grid-stack-item" data-gs-x="0" data-gs-y="0" data-gs-width="6" data-gs-height="3">
+													<div class="grid-stack-item-content">1</div>
+												</div>
+												<div class="grid-stack-item" data-gs-x="6" data-gs-y="0" data-gs-width="" data-gs-height="4">
+													<div class="grid-stack-item-content">2</div>
+												</div>
+											</div>
+										</div>
+									</div> -->
+								</div>
+							</div>
+							<div class="row" style="margin:0;margin-top:5px;">
+								<button type="button" class="btn btn-primary pull-left" style="margin-right:5px"><i class="fa fa-plus"></i>&nbsp;&nbsp;Seite hinzufügen</button>
+								<button type="button" class="btn btn-primary pull-left" style="margin-right:5px"><i class="fa fa-minus"></i>&nbsp;&nbsp;Seite entfernen</button>
+								<button type="button" class="btn btn-primary pull-left" style="margin-right:5px"><i class="fa fa-sync"></i>&nbsp;&nbsp;Seitenreihenfolge ändern</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary pull-left" ng-click="saveSettings()"><i class="fa fa-save"></i>&nbsp;&nbsp;Einstellungen exportieren</button>
+				<button type="button" class="btn btn-primary pull-left" ng-click="loadSettings()"><i class="fa fa-file-download"></i>&nbsp;&nbsp;Einstellungen importieren</button>
+				<button type="button" class="btn btn-success pull-right" ng-click="generateReport()"><i class="fa fa-copy"></i>&nbsp;&nbsp;Report erzeugen</button>
+			</div>
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
