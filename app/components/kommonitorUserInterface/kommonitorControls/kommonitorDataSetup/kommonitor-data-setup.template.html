@@ -59,7 +59,7 @@
 										<br/>
 
 
-										 <uib-tabset active="activeJustified" type="pills" justified="true">
+										 <uib-tabset active="activeJustified" justified="true">
 									    <uib-tab index="0" heading="Datenkatalog">
 
 												<div class="just-padding">
@@ -114,7 +114,7 @@
 															</div>
 															<!-- end sub topics -->
 															<div class="list-group collapse" uib-collapse="isCollapsed_mainTopic">
-																<div id="indicatorHierarchyElement-{{indicatorMetadata.indicatorId}}" style="background-color: #FEAB99;" ng-repeat="indicatorMetadata in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators() | filter:{topicReference:mainTopic.topicId} | filter:indicatorNameFilter" class="list-group-item list-group-item-default">
+																<div id="indicatorHierarchyElement-{{indicatorMetadata.indicatorId}}" ng-repeat="indicatorMetadata in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators() | filter:{topicReference:mainTopic.topicId} | filter:indicatorNameFilter" class="list-group-item list-group-item-default">
 																 	<p style="cursor:pointer;" ng-attr-title="{{indicatorMetadata.indicatorName}}" ng-click="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;{{indicatorMetadata.indicatorName}}</p>
 																</div>
 															</div>
