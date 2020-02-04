@@ -52,9 +52,11 @@ angular
 
 								$scope.onClickGeodataWrapperItem = function(){
 
+									// $('#adminGeodataWrapperNavItem').toggleClass("active");
+
 									setTimeout(function(){
 										if($scope.activeItemBackupId != 'adminSpatialUnitsNavItem' && $scope.activeItemBackupId != 'adminGeoresourcesNavItem' && $scope.activeItemBackupId != 'adminIndicatorsNavItem'){
-											$('#adminGeodataWrapperNavItem').removeClass("active");
+											// $('#adminGeodataWrapperNavItem').toggleClass("active");
 											$('#'+$scope.activeItemBackupId).addClass("active");
 										}
 									}, 40);

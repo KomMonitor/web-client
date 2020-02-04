@@ -179,41 +179,70 @@
     padding-left: 75px;
 }*/
 
-.list-group.list-group-root > div > div > .list-group-item-warning {
-    margin-left: 30px;
+.list-group.list-group-root > div > div > .list-group-item {
+    margin-left: 15px;
 }
 
 .list-group.list-group-root > div > .list-group-item-success {
+    margin-left: 15px;
+}
+
+.list-group.list-group-root > div > div > div > .list-group-item {
     margin-left: 30px;
 }
 
-.list-group.list-group-root > div > div > div > .list-group-item-warning {
-    margin-left: 60px;
-}
-
 .list-group.list-group-root > div > div > .list-group-item-success {
-    margin-left: 60px;
+    margin-left: 30px;
 }
 
-.list-group.list-group-root > div > div > div > div > .list-group-item-warning {
-    margin-left: 90px;
+.list-group.list-group-root > div > div > div > div > .list-group-item {
+    margin-left: 45px;
 }
 
 .list-group.list-group-root > div > div > div > .list-group-item-success {
-    margin-left: 90px;
+    margin-left: 45px;
 }
 
 .list-group.list-group-root > div > div > div > div > div > .list-group-item-warning {
-    margin-left: 120px;
+    margin-left: 60px;
 }
 
 .list-group.list-group-root > div > div > div > div > .list-group-item-success {
-    margin-left: 120px;
+    margin-left: 60px;
 }
 
 .list-group-item .glyphicon {
     margin-right: 5px;
 }
+
+.iconpicker-popover {
+  z-index: 9999999 !important;
+}
+
+.customColorPicker i {
+    width: 14px;
+    height: 14px;
+		max-width: 28px;
+    float: left;
+    margin-right: 8px;
+}
+
+.colorpicker{
+	z-index: 9999999
+}
+
+.dropdown-menu-center {
+  left: 50% !important;
+  right: auto !important;
+  text-align: center !important;
+  transform: translate(-50%, 0) !important;
+}
+
+/* .customColorPicker ul li a {
+    display: unset;
+		clear: unset;
+		padding: unset;
+} */
 
 /* required to increase drowdown menu z-index in oder to let layer export options overlap menu buttons and map */
 #spatialUnitInfoControlDropdown {
@@ -1037,6 +1066,20 @@ select {
 	border: 2px solid gray;
   border-radius: 8px;
   overflow: auto;
+}
+
+#indicatorHierarchySelection{
+	height: auto !important;
+	max-height: 450px;
+  overflow: auto;
+	font: 12px/14px Arial, Helvetica, sans-serif;
+}
+
+#indicatorMetadataOverview {
+	height: auto !important;
+	max-height: 400px;
+  overflow: auto;
+	font: 12px/14px Arial, Helvetica, sans-serif;
 }
 
 #referencedIndicatorOverview {

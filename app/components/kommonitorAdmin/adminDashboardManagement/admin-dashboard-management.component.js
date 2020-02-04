@@ -336,19 +336,24 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 
 			var georesourcesPerTypeSeriesData = [];
 
-			//sorted alphabetically
-			georesourcesPerTypeSeriesData.push({
-				name: "Points of Interest",
-				value: georesourcesPerTypeMap.get("POI")
-			});
-			georesourcesPerTypeSeriesData.push({
-				name: "Lines of Interest",
-				value: georesourcesPerTypeMap.get("LOI")
-			});
-			georesourcesPerTypeSeriesData.push({
-				name: "Areas of Interest",
-				value: georesourcesPerTypeMap.get("AOI")
-			});
+			if(georesourcesPerTypeMap.has("POI")){
+				georesourcesPerTypeSeriesData.push({
+					name: "Points of Interest",
+					value: georesourcesPerTypeMap.get("POI")
+				});
+			}
+			if(georesourcesPerTypeMap.has("LOI")){
+				georesourcesPerTypeSeriesData.push({
+					name: "Lines of Interest",
+					value: georesourcesPerTypeMap.get("LOI")
+				});
+			}
+			if(georesourcesPerTypeMap.has("AOI")){
+				georesourcesPerTypeSeriesData.push({
+					name: "Areas of Interest",
+					value: georesourcesPerTypeMap.get("AOI")
+				});
+			}
 
 			$scope.georesourcesPerTypeChartOptions = {
 				// grid get rid of whitespace around chart

@@ -203,13 +203,13 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 					"sridEPSG": 4326
 				},
 				"jsonSchema": null,
-				"nextLowerHierarchyLevel": $scope.nextLowerHierarchySpatialUnit.spatialUnitLevel,
+				"nextLowerHierarchyLevel": $scope.nextLowerHierarchySpatialUnit ? $scope.nextLowerHierarchySpatialUnit.spatialUnitLevel : null,
 				"spatialUnitLevel": $scope.spatialUnitLevel,
 				"periodOfValidity": {
 					"endDate": $scope.periodOfValidity.endDate,
 					"startDate": $scope.periodOfValidity.startDate
 				},
-				"nextUpperHierarchyLevel": $scope.nextUpperHierarchySpatialUnit.spatialUnitLevel
+				"nextUpperHierarchyLevel": $scope.nextUpperHierarchySpatialUnit ? $scope.nextUpperHierarchySpatialUnit.spatialUnitLevel : null
 			};
 
 			// TODO verify input
@@ -233,6 +233,8 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 
 					// refresh all admin dashboard diagrams due to modified metadata
 					$rootScope.$broadcast("refreshAdminDashboardDiagrams");
+
+					$("#spatialUnitAddSucessAlert").show();
 
 					$scope.loadingData = false;
 
@@ -318,7 +320,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 
 			$scope.spatialUnitMetadataImportError = "";
 
-			$("#spatialUnitMetadataImportFile").files = undefined;
+			$("#spatialUnitMetadataImportFile").files = [];
 
 			// trigger file chooser
 			$("#spatialUnitMetadataImportFile").click();

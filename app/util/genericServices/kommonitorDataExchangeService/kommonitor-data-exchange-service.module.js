@@ -53,6 +53,72 @@ angular
           this.adminPassword = __env.adminPassword;
           this.adminIsLoggedIn = false;
 
+          this.availablePoiMarkerColors = [
+            {
+              "colorName" : "red",
+              "colorValue" : "rgb(205,59,40)"
+            },
+            {
+              "colorName" : "white",
+              "colorValue" : "rgb(255,255,255)"
+            },
+            {
+              "colorName" : "orange",
+              "colorValue" : "rgb(235,144,46)"
+            },
+            {
+              "colorName" : "beige",
+              "colorValue" : "rgb(255,198,138)"
+            },
+            {
+              "colorName" : "green",
+              "colorValue" : "rgb(108,166,36)"
+            },
+            {
+              "colorName" : "blue",
+              "colorValue" : "rgb(53,161,209)"
+            },
+            {
+              "colorName" : "purple",
+              "colorValue" : "rgb(198,77,175)"
+            },
+            {
+              "colorName" : "pink",
+              "colorValue" : "rgb(255,138,232)"
+            },
+            {
+              "colorName" : "gray",
+              "colorValue" : "rgb(163,163,163)"
+            },
+            {
+              "colorName" : "black",
+              "colorValue" : "rgb(47,47,47)"
+            }
+          ];
+
+          this.availableLoiDashArrayObjects = [
+            {
+              "svgString" : '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black"/></svg>',
+              "dashArrayValue" : ""
+            },
+            {
+              "svgString" : '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black" stroke-dasharray="20"/></svg>',
+              "dashArrayValue" : "20"
+            },
+            {
+              "svgString" : '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black" stroke-dasharray="20 10"/></svg>',
+              "dashArrayValue" : "20 10"
+            },
+            {
+              "svgString" : '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black" stroke-dasharray="20 10 5 10"/></svg>',
+              "dashArrayValue" : "20"
+            },
+            {
+              "svgString" : '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black" stroke-dasharray="5"/></svg>',
+              "dashArrayValue" : "20"
+            }
+          ];
+
 					this.kommonitorMapServiceInstance = kommonitorMapService;
 
           this.updateIntervalOptions = __env.updateIntervalOptions;
@@ -128,9 +194,6 @@ angular
 
 					this.measureOfValue = 51;
 
-					// an array of only the properties and metadata of all indicatorFeatures
-					this.allIndicatorPropertiesForCurrentSpatialUnitAndTime;
-
 					this.setIndicators = function(indicatorsArray){
 						this.availableIndicators = indicatorsArray;
 					};
@@ -144,7 +207,64 @@ angular
 
 					this.setTopics = function(topicsArray){
 						this.availableTopics = topicsArray;
-					};
+          };
+          
+          this.getTopicHierarchyForTopicId = function(topicReferenceId){
+            // create an array respresenting the topic hierarchy
+            // i.e. [mainTopic_firstTier, subTopic_secondTier, subTopic_thirdTier, ...]
+            var topicHierarchyArray = [];
+
+            for (var i = 0; i < this.availableTopics.length; i++) {
+
+              var mainTopicCandidate = this.availableTopics[i];
+
+              if(mainTopicCandidate.topicId === topicReferenceId){
+                topicHierarchyArray.push(mainTopicCandidate);
+                break;
+              }
+
+              else if(this.findIdInAnySubTopicHierarchy(topicReferenceId, mainTopicCandidate.subTopics)){
+                topicHierarchyArray.push(mainTopicCandidate);
+                topicHierarchyArray = this.addSubTopicHierarchy(topicHierarchyArray, topicReferenceId, mainTopicCandidate.subTopics);
+              }
+            }
+
+            return topicHierarchyArray;
+          };
+
+          this.findIdInAnySubTopicHierarchy = function(topicReferenceId, subTopicsArray){
+            for (let index = 0; index < subTopicsArray.length; index++) {
+              const subTopicCandidate = subTopicsArray[index];
+              
+              if(subTopicCandidate.topicId === topicReferenceId){
+                return true;
+              }
+
+              else if(this.findIdInAnySubTopicHierarchy(topicReferenceId, subTopicCandidate.subTopics)){
+                return true;
+              }
+            }
+
+            return false;
+          };
+
+          this.addSubTopicHierarchy = function(topicHierarchyArray, topicReferenceId, subTopicsArray){
+            for (let index = 0; index < subTopicsArray.length; index++) {
+              const subTopicCandidate = subTopicsArray[index];
+              
+              if(subTopicCandidate.topicId === topicReferenceId){
+                topicHierarchyArray.push(subTopicCandidate);
+                break;
+              }
+
+              else if(this.findIdInAnySubTopicHierarchy(topicReferenceId, subTopicCandidate.subTopics)){
+                topicHierarchyArray.push(subTopicCandidate);
+                topicHierarchyArray = this.addSubTopicHierarchy(topicHierarchyArray, topicReferenceId, subTopicCandidate.subTopics);
+              }
+            }
+
+            return topicHierarchyArray;
+          };
 
 					// FILTER
 					this.rangeFilterData;

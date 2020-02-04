@@ -43,6 +43,7 @@
         <link rel="stylesheet" href="dependencies/angular-datatables/css/angular-datatables.min.css">
         <link rel="stylesheet" href="dependencies/gridstack/gridstack.min.css">
         <!--<link rel="stylesheet" href="dependencies/gridstack/gridstack-extra.min.css">-->
+        <link rel="stylesheet" href="dependencies/bootstrap-iconpicker/css/bootstrap-iconpicker.min.css">
         <!-- end lib style tags -->
 
         <!-- build:css kommonitor-client.min.css -->
@@ -108,15 +109,20 @@
         <script src="dependencies/shpjs/shp.min.js"></script>
         <script src="dependencies/angular-datatables/angular-datatables.min.js"></script>
         <script src="dependencies/angular-ui-bootstrap/ui-bootstrap-tpls.js"></script>
+        <script src="dependencies/bootstrap-iconpicker/js/iconset/iconset-all.min.js"></script>
+        <script src="dependencies/bootstrap-iconpicker/js/bootstrap-iconpicker.min.js"></script>
         <script src="dependencies/gridstack/gridstack.min.js"></script>
         <script src="dependencies/gridstack/gridstack.jQueryUI.min.js"></script>
         <script src="dependencies/html2canvas/html2canvas.min.js"></script>
         <script src="dependencies/html2pdf/html2pdf.js"></script>
         <!-- end lib script tags -->
-
+        
         <!-- build:js kommonitor-client.min.js -->
         <!-- start client script tags -->
         <script src="util/genericServices/kommonitorDataExchangeService/kommonitor-data-exchange-service.module.js" type="text/javascript"></script>
+        <script src="util/genericServices/kommonitorDiagramHelperService/kommonitor-diagram-helper-service.module.js" type="text/javascript"></script>
+        <script src="util/genericServices/kommonitorVisualStyleHelperService/kommonitor-visual-style-helper-service.module.js" type="text/javascript"></script>
+        <script src="util/genericServices/kommonitorInfoLegendHelperService/kommonitor-info-legend-helper-service.module.js" type="text/javascript"></script>
         <script src="components/kommonitorUserInterface/kommonitorControls/kommonitorDataSetup/kommonitor-data-setup.module.js" type="text/javascript"></script>
         <script src="components/kommonitorUserInterface/kommonitorControls/kommonitorDataSetup/kommonitor-data-setup.component.js" type="text/javascript"></script>
         <script src="components/kommonitorAdmin/adminDashboardManagement/admin-dashboard-management.module.js" type="text/javascript"></script>
@@ -143,6 +149,12 @@
         <script src="components/kommonitorAdmin/adminIndicatorsManagement/admin-indicators-management.component.js" type="text/javascript"></script>
         <script src="components/kommonitorAdmin/adminGeoresourcesManagement/admin-georesources-management.module.js" type="text/javascript"></script>
         <script src="components/kommonitorAdmin/adminGeoresourcesManagement/admin-georesources-management.component.js" type="text/javascript"></script>
+        <script src="components/kommonitorAdmin/adminGeoresourcesManagement/georesourceAddModal/georesource-add-modal.module.js" type="text/javascript"></script>
+        <script src="components/kommonitorAdmin/adminGeoresourcesManagement/georesourceAddModal/georesource-add-modal.component.js" type="text/javascript"></script>
+        <script src="components/kommonitorAdmin/adminGeoresourcesManagement/georesourceEditFeaturesModal/georesource-edit-features-modal.module.js" type="text/javascript"></script>
+        <script src="components/kommonitorAdmin/adminGeoresourcesManagement/georesourceEditFeaturesModal/georesource-edit-features-modal.component.js" type="text/javascript"></script>
+        <script src="components/kommonitorAdmin/adminGeoresourcesManagement/georesourceEditMetadataModal/georesource-edit-metadata-modal.module.js" type="text/javascript"></script>
+        <script src="components/kommonitorAdmin/adminGeoresourcesManagement/georesourceEditMetadataModal/georesource-edit-metadata-modal.component.js" type="text/javascript"></script>
         <script src="components/kommonitorAdmin/adminGeoresourcesManagement/georesourceDeleteModal/georesource-delete-modal.module.js" type="text/javascript"></script>
         <script src="components/kommonitorAdmin/adminGeoresourcesManagement/georesourceDeleteModal/georesource-delete-modal.component.js" type="text/javascript"></script>
         <script src="components/kommonitorAdmin/adminScriptManagement/admin-script-management.module.js" type="text/javascript"></script>
@@ -188,6 +200,5 @@
         <script src="app.js" type="text/javascript"></script>
         <!-- end client script tags -->
         <!-- /build -->
-       
-    </body>
+  </body>
 </html>
