@@ -79,7 +79,7 @@
   window.__env.defaultFillOpacityForNoDataFeatures = "0.7";
   window.__env.defaultFillOpacityForHighlightedFeatures = "0.8";
   window.__env.useTransparencyOnIndicator = true;
-  window.__env.useOutlierDetectionOnIndicator = false;
+  window.__env.useOutlierDetectionOnIndicator = true;
 
   // default color for specific classification as ColorBrewer palette name
   // i.e. balance mode
@@ -95,8 +95,8 @@
 
   // array of indicator name substring that shal be used to filter out / hide certain indicators by their name
   // e.g. set ["entwicklung"] to hide all indicators whose name contains the substring "entwicklung"
-  // window.__env.arrayOfNameSubstringsForHidingIndicators = ["Prozentuale", "Standardabweichung", "Stadtteil", "ausschließlich", "doppelt", "Versorgungsquote", "mittlerer Bodenversiegelungsgrad"];
-  window.__env.arrayOfNameSubstringsForHidingIndicators = [];
+  window.__env.arrayOfNameSubstringsForHidingIndicators = ["Standardabweichung", "Bevölkerung - ", "Soziale Lage - ", "Soziale Lage (Leitindikator)", "Sterberisiko", "mittlerer Bodenversiegelungsgrad"];
+  // window.__env.arrayOfNameSubstringsForHidingIndicators = [];
 
   // e-mail recipient for feedback mail
   window.__env.feedbackMailRecipient = "marcel.thelen@muelheim-ruhr.de";

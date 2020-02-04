@@ -234,7 +234,7 @@ angular
 									return kommonitorDiagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime;
 								};
 
-								$scope.getPropertiesForIndicatorName = async function(indicatorName){									
+								$scope.getPropertiesForIndicatorName = async function(indicatorName){
 									for (var [index, indicator] of kommonitorDiagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime.entries()){
 										if(indicator.indicatorMetadata.indicatorName === indicatorName){
 											await kommonitorDiagramHelperService.fetchIndicatorPropertiesIfNotExists(index);
@@ -399,7 +399,7 @@ angular
 											$scope.regressionChart = echarts.init(document.getElementById('regressionDiagram'));
 										}
 
-										$scope.regressionChart.showLoading();
+										await $scope.regressionChart.showLoading();
 
 										// if(!$scope.sortedIndicatorProps){
 										// 	$scope.sortedIndicatorProps = $scope.getAllIndicatorPropertiesSortedBySpatialUnitFeatureName();
@@ -615,8 +615,10 @@ angular
 										    }]
 										};
 
-										$scope.regressionChart.hideLoading();
+
 										$scope.regressionChart.setOption($scope.regressionOption);
+
+										await $scope.regressionChart.hideLoading();
 										setTimeout(function(){
 											$scope.regressionChart.resize();
 										}, 350);
@@ -625,6 +627,9 @@ angular
 
 										$rootScope.$broadcast("preserveHighlightedFeatures");
 
+										setTimeout(function(){
+											$scope.$apply();
+										}, 350);
 									}
 								}
 

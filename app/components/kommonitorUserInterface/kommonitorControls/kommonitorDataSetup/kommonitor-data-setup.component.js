@@ -21,6 +21,31 @@ angular
 								// initialize any adminLTE box widgets
 								$('.box').boxWidget();
 
+								var addClickListenerToEachCollapseTrigger = function(){
+									setTimeout(function(){
+										$('.list-group-item > .collapseTrigger').on('click', function() {
+									    $('.glyphicon', this)
+									      .toggleClass('glyphicon-chevron-right')
+									      .toggleClass('glyphicon-chevron-down');
+
+												// manage uncollapsed entries
+												// var clickedTopicId = $(this).attr('id');
+												// if ($scope.unCollapsedTopicIds.includes(clickedTopicId)){
+												// 	var index = $scope.unCollapsedTopicIds.indexOf(clickedTopicId);
+												// 	$scope.unCollapsedTopicIds.splice(index, 1);
+												// }
+												// else{
+												// 	$scope.unCollapsedTopicIds.push(clickedTopicId);
+												// }
+									  });
+									}, 500);
+								};
+
+								$(document).ready(function() {
+
+									addClickListenerToEachCollapseTrigger();
+								});
+
 								// var rangeslide = require("rangeslide");
 								/*
 								 * references to kommonitorDataExchangeService and wpsFormControl instances
@@ -43,6 +68,11 @@ angular
 								this.addGeoJSON = function(){
 									this.kommonitorMapServiceInstance.addSpatialUnitGeoJSON();
 								}
+
+								$scope.onClickHierarchyIndicator = function(indicatorMetadata){
+									kommonitorDataExchangeService.selectedIndicator = indicatorMetadata;
+									$scope.onChangeSelectedIndicator();
+								};
 
 								// $scope.$watch('filteredSpatialUnits', function(value){
 								//   if ($scope.filteredSpatialUnits) {
@@ -573,6 +603,16 @@ angular
 									}
 								}
 
+								$scope.markAssociatedHierarchyElement = function(selectedIndicatorMetadata){
+									var selectedIndicatorId = selectedIndicatorMetadata.indicatorId;
+
+									for (var indicator of kommonitorDataExchangeService.availableIndicators) {
+										$("#indicatorHierarchyElement-" + indicator.indicatorId).removeClass('active');
+									}
+
+									$("#indicatorHierarchyElement-" + selectedIndicatorId).addClass('active');
+								};
+
 								$scope.onChangeSelectedIndicator = async function(){
 
 									if(kommonitorDataExchangeService.selectedIndicator){
@@ -580,6 +620,9 @@ angular
 										$scope.loadingData = true;
 										$rootScope.$broadcast("showLoadingIconOnMap");
 										$scope.changeIndicatorWasClicked = true;
+
+										$scope.markAssociatedHierarchyElement(kommonitorDataExchangeService.selectedIndicator);
+
 										kommonitorDataExchangeService.selectedIndicatorBackup = kommonitorDataExchangeService.selectedIndicator;
 
 										$scope.setupDateSliderForIndicator();

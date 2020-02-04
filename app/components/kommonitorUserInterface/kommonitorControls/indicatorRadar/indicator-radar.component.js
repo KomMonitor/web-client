@@ -78,7 +78,7 @@ angular
 							kommonitorDiagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime = new Array();
 						}
 
-						$scope.radarChart.showLoading();
+						await $scope.radarChart.showLoading();
 
 						kommonitorDiagramHelperService.setupIndicatorPropertiesForCurrentSpatialUnitAndTime();
 
@@ -326,10 +326,10 @@ angular
 							// then append those as series within radar chart
 							appendSelectedFeaturesIfNecessary(sampleProperties);
 
-							$scope.radarChart.hideLoading();
-
 							// use configuration item and data specified to show chart
 							$scope.radarChart.setOption($scope.radarOption);
+
+							$scope.radarChart.hideLoading();
 							setTimeout(function () {
 								$scope.radarChart.resize();
 							}, 350);
@@ -377,7 +377,7 @@ angular
 						}
 					};
 
-					
+
 					$scope.$on("updateDiagramsForHoveredFeature", function (event, featureProperties) {
 
 						if (!$scope.radarChart || !$scope.radarOption || !$scope.radarOption.legend || !$scope.radarOption.series) {
