@@ -132,8 +132,10 @@
 									<div class="col-md-4 col-sm-6 col-xs-12">
 										<div class="form-group">
 											<label >Hierarchie: n&auml;chst niedrigere Ebene</label>
-											<select ng-model="nextLowerHierarchySpatialUnit" ng-change="checkSpatialUnitHierarchy()" ng-options="value as value.spatialUnitLevel for value in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits" class="form-control">
+											<select ng-model="nextLowerHierarchySpatialUnit" ng-change="checkSpatialUnitHierarchy()" class="form-control">
 												<option disabled selected value> -- Raumeinheit w&auml;hlen -- </option>
+												<option value> -- keine (neue unterste Ebene) -- </option>
+												<option ng-repeat="value in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits" ng-value="value"> {{value.spatialUnitLevel}} </option>
 		                  </select>
 											<div class="help-block"><p>Eintrag kann im Nachhinein mittels Metadaten-Editier-Funktion gesetzt werden</p></div>
 											<div class="help-block with-errors"></div>
@@ -145,8 +147,10 @@
 									<div class="col-md-4 col-sm-6 col-xs-12">
 										<div class="form-group">
 											<label >Hierarchie: n&auml;chst h&ouml;here Ebene</label>
-											<select ng-model="nextUpperHierarchySpatialUnit" ng-change="checkSpatialUnitHierarchy()" ng-options="value as value.spatialUnitLevel for value in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits" class="form-control">
+											<select ng-model="nextUpperHierarchySpatialUnit" ng-change="checkSpatialUnitHierarchy()" class="form-control">
 												<option disabled selected value> -- Raumeinheit w&auml;hlen -- </option>
+												<option value> -- keine (neue oberste Ebene) -- </option>
+												<option ng-repeat="value in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits" ng-value="value"> {{value.spatialUnitLevel}} </option>
 		                  </select>
 											<div class="help-block"><p>Eintrag kann im Nachhinein mittels Metadaten-Editier-Funktion gesetzt werden</p></div>
 											<div class="help-block with-errors"></div>
