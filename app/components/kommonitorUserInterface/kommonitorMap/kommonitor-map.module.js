@@ -53,6 +53,12 @@ angular.module('kommonitorMap').service(
 						georesourceMetadataAndGeoJSON, date, useCluster);
 			};
 
+      this.addAoiGeoresourceGeoJSON = function (georesourceMetadataAndGeoJSON, date) {
+
+				$rootScope.$broadcast("addAoiGeoresourceAsGeoJSON",
+						georesourceMetadataAndGeoJSON, date);
+			};
+
       this.replaceIsochroneGeoJSON = function (geoJSON, transitMode, reachMode, cutOffValues, useMultipleStartPoints, dissolveIsochrones) {
 
 				$rootScope.$broadcast("replaceIsochronesAsGeoJSON",
@@ -73,6 +79,12 @@ angular.module('kommonitorMap').service(
       this.removePoiGeoresource = function (georesourceMetadataAndGeoJSON) {
 
 				$rootScope.$broadcast("removePoiGeoresource",
+						georesourceMetadataAndGeoJSON);
+			};
+
+      this.removeAoiGeoresource = function (georesourceMetadataAndGeoJSON) {
+
+				$rootScope.$broadcast("removeAoiGeoresource",
 						georesourceMetadataAndGeoJSON);
 			};
 

@@ -22,16 +22,19 @@ angular
 								$scope.loiNameFilter = undefined;
 								$scope.aoiNameFilter = undefined;
 
+								$scope.currentPoiGeoresource;
+								$scope.currentLoiGeoresource;
+								$scope.currentAoiGeoresource;
+
 
 								// initialize any adminLTE box widgets
 								$('.box').boxWidget();
 
 								const DATE_PREFIX = __env.indicatorDatePrefix;
 
-								var numberOfDecimals = __env.numberOfDecimals;								
+								var numberOfDecimals = __env.numberOfDecimals;
 
 								$scope.handlePoiOnMap = function(poi){
-									console.log("POI: " + poi.datasetName);
 
 									if(poi.isSelected){
 										//display on Map
@@ -118,6 +121,114 @@ angular
 
 									var url = kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + poi.georesourceId + "/" + year + "/" + month + "/" + day;
 									var fileName = poi.datasetName + "-" + year + "-" + month + "-" + day;
+
+									$http({
+										url: url,
+										method: "GET"
+									}).then(function successCallback(response) {
+											// this callback will be called asynchronously
+											// when the response is available
+											var geoJSON = response.data;
+
+											var element = document.createElement('a');
+											element.setAttribute('href', 'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(geoJSON)));
+											element.setAttribute('download', fileName);
+
+											element.style.display = 'none';
+											document.body.appendChild(element);
+
+											element.click();
+
+											document.body.removeChild(element);
+
+										}, function errorCallback(response) {
+											// called asynchronously if an error occurs
+											// or server returns response with an error status.
+											$scope.loadingData = false;
+											$rootScope.$broadcast("hideLoadingIconOnMap");
+									});
+
+								};
+
+
+
+
+								////////// AOI
+								$scope.handleAoiOnMap = function(aoi){
+
+									if(aoi.isSelected){
+										//display on Map
+										$scope.addAoiLayerToMap(aoi);
+									}
+									else{
+										//remove POI layer from map
+										$scope.removeAoiLayerFromMap(aoi);
+									}
+
+								};
+
+								$scope.addAoiLayerToMap = async function(aoiGeoresource) {
+									$scope.loadingData = true;
+									$rootScope.$broadcast("showLoadingIconOnMap");
+
+									$scope.currentAoiGeoresource = aoiGeoresource;
+
+									var id = aoiGeoresource.georesourceId;
+
+									$scope.date = kommonitorDataExchangeService.selectedDate;
+
+									var dateComps = $scope.date.split("-");
+
+									var year = dateComps[0];
+									var month = dateComps[1];
+									var day = dateComps[2];
+
+									await $http({
+										url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + id + "/" + year + "/" + month + "/" + day,
+										method: "GET"
+									}).then(function successCallback(response) {
+											// this callback will be called asynchronously
+											// when the response is available
+											var geoJSON = response.data;
+
+											$scope.currentAoiGeoresource.geoJSON = geoJSON;
+
+											kommonitorMapService.addAoiGeoresourceGeoJSON($scope.currentAoiGeoresource, $scope.date);
+											$scope.loadingData = false;
+											$rootScope.$broadcast("hideLoadingIconOnMap");
+
+										}, function errorCallback(response) {
+											// called asynchronously if an error occurs
+											// or server returns response with an error status.
+											$scope.loadingData = false;
+											$rootScope.$broadcast("hideLoadingIconOnMap");
+									});
+
+								};
+
+								$scope.removeAoiLayerFromMap = function(aoiGeoresource) {
+									$scope.loadingData = true;
+									$rootScope.$broadcast("showLoadingIconOnMap");
+
+									$scope.currentAoiGeoresource = aoiGeoresource;
+
+									kommonitorMapService.removeAoiGeoresource($scope.currentAoiGeoresource);
+									$scope.loadingData = false;
+									$rootScope.$broadcast("hideLoadingIconOnMap");
+
+								};
+
+								$scope.getExportLinkForAoi = function(aoi){
+									$scope.date = kommonitorDataExchangeService.selectedDate;
+
+									var dateComps = $scope.date.split("-");
+
+									var year = dateComps[0];
+									var month = dateComps[1];
+									var day = dateComps[2];
+
+									var url = kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + aoi.georesourceId + "/" + year + "/" + month + "/" + day;
+									var fileName = aoi.datasetName + "-" + year + "-" + month + "-" + day;
 
 									$http({
 										url: url,
