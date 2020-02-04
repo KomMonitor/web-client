@@ -179,7 +179,7 @@
     padding-left: 75px;
 }*/
 
-.list-group.list-group-root > div > div > .list-group-item-warning {
+.list-group.list-group-root > div > div > .list-group-item {
     margin-left: 30px;
 }
 
@@ -187,7 +187,7 @@
     margin-left: 30px;
 }
 
-.list-group.list-group-root > div > div > div > .list-group-item-warning {
+.list-group.list-group-root > div > div > div > .list-group-item {
     margin-left: 60px;
 }
 
@@ -195,7 +195,7 @@
     margin-left: 60px;
 }
 
-.list-group.list-group-root > div > div > div > div > .list-group-item-warning {
+.list-group.list-group-root > div > div > div > div > .list-group-item {
     margin-left: 90px;
 }
 
@@ -1060,6 +1060,13 @@ select {
 	border: 2px solid gray;
   border-radius: 8px;
   overflow: auto;
+}
+
+#indicatorHierarchySelection{
+	height: auto !important;
+	max-height: 500px;
+  overflow: auto;
+	font: 12px/14px Arial, Helvetica, sans-serif;
 }
 
 #indicatorMetadataOverview {
