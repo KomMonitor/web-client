@@ -528,9 +528,20 @@ angular
         }
       };
 
+      this.setOpacity = function(opacity){
+
+        defaultFillOpacity = opacity;
+        defaultFillOpacityForOutliers_low = opacity;
+        defaultFillOpacityForOutliers_high = opacity;
+        defaultFillOpacityForZeroFeatures = opacity;
+        defaultFillOpacityForNoDataValues = opacity;
+        defaultFillOpacityForFilteredFeatures = opacity;
+      };
+
       // style function to return
       // fill color based on defaultBrew.getColorInRange() method
       this.styleDefault = function(feature, defaultBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, propertyName, useTransparencyOnIndicator, datasetContainsNegativeValues) {
+
         // check if feature is NoData
         if (kommonitorDataExchangeService.indicatorValueIsNoData(feature.properties[propertyName])) {
           return this.styleNoData(feature);
@@ -667,6 +678,7 @@ angular
 
       this.styleMeasureOfValue = function(feature, gtMeasureOfValueBrew, ltMeasureOfValueBrew, propertyName, useTransparencyOnIndicator) {
 
+
         // check if feature is NoData
         if (kommonitorDataExchangeService.indicatorValueIsNoData(feature.properties[propertyName])) {
           return this.styleNoData(feature);
@@ -783,6 +795,8 @@ angular
       };
 
       this.styleDynamicIndicator = function(feature, dynamicIncreaseBrew, dynamicDecreaseBrew, propertyName, useTransparencyOnIndicator) {
+
+
 
         // check if feature is NoData
         if (kommonitorDataExchangeService.indicatorValueIsNoData(feature.properties[propertyName])) {

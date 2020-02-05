@@ -2899,12 +2899,7 @@ angular.module('kommonitorMap').component(
 
           // set transparency here
           document.getElementById("indicatorTransparencyLabel").innerHTML = (1 - opacity).toFixed(numberOfDecimals);
-          defaultFillOpacity = opacity;
-          defaultFillOpacityForOutliers_low = opacity;
-          defaultFillOpacityForOutliers_high = opacity;
-          defaultFillOpacityForZeroFeatures = opacity;
-          defaultFillOpacityForNoDataValues = opacity;
-          defaultFillOpacityForFilteredFeatures = opacity;
+          kommonitorVisualStyleHelperService.setOpacity(opacity);          
           $rootScope.$broadcast("restyleCurrentLayer", true);
         });
 
