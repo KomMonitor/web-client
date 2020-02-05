@@ -530,6 +530,8 @@ angular
 
       this.setOpacity = function(opacity){
 
+        opacity = Number(opacity);
+
         defaultFillOpacity = opacity;
         defaultFillOpacityForOutliers_low = opacity;
         defaultFillOpacityForOutliers_high = opacity;
