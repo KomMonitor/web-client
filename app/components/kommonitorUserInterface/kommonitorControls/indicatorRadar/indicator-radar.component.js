@@ -94,6 +94,66 @@ angular
 						$scope.$apply();
 					});
 
+					var isCloserToTargetDate = function(date, closestDate, targetDate){
+						var targetYear = targetDate.split("-")[0];
+						var targetMonth = targetDate.split("-")[1];
+						var targetDay = targetDate.split("-")[2];
+
+						var closestDateComps = closestDate.split("-");
+						var closestDateYear = closestDateComps[0];
+						var closestDateMonth = closestDateComps[1];
+						var closestDateDay = closestDateComps[2];
+
+						var dateComps = date.split("-");
+						var year = dateComps[0];
+						var month = dateComps[1];
+						var day = dateComps[2];
+
+						var monthDiff_closestDate = Math.abs(targetMonth - closestDateMonth);
+						var monthDiff_date = Math.abs(targetMonth - month);
+
+						if(monthDiff_date <= monthDiff_closestDate){
+							var dayDiff_closestDate = Math.abs(targetDay - closestDateDay);
+							var dayDiff_date = Math.abs(targetDay - day);
+
+							if(dayDiff_date < dayDiff_closestDate){
+								return true;
+							}
+						}
+						return false;
+					};
+
+					var findClostestTimestamForTargetDate = function(indicatorForRadar, targetDate){
+						var applicableDates = indicatorForRadar.indicatorMetadata.applicableDates;
+
+						var targetYear = targetDate.split("-")[0];
+						var targetMonth = targetDate.split("-")[1];
+						var targetDay = targetDate.split("-")[2];
+
+						var closestDate = undefined;
+
+						for (var date of applicableDates) {
+							var dateComps = date.split("-");
+							var year = dateComps[0];
+							var month = dateComps[1];
+							var day = dateComps[2];
+
+							if(targetDate.includes(year)){
+								if(! closestDate){
+									closestDate = date;
+								}
+								else{
+									if(isCloserToTargetDate(date, closestDate, targetDate)){
+										closestDate = date;
+									}
+								}
+
+							}
+						}
+
+						return closestDate;
+					};
+
 					var modifyRadarContent = async function (indicatorsForRadar) {
 						var indicatorArrayForRadarChart = new Array();
 						var defaultSeriesValueArray = new Array();
@@ -109,15 +169,18 @@ angular
 								var indicatorProperties = indicatorsForRadar[i].indicatorProperties;
 								sampleProperties = indicatorsForRadar[i].indicatorProperties;
 
+								var closestApplicableTimestamp = findClostestTimestamForTargetDate(indicatorsForRadar[i], $scope.date);
+								indicatorsForRadar[i].closestTimestamp = closestApplicableTimestamp;
+
 								var sample = indicatorProperties[0];
-								var maxValue = sample[DATE_PREFIX + $scope.date];
-								var minValue = sample[DATE_PREFIX + $scope.date];
+								var maxValue = sample[DATE_PREFIX + closestApplicableTimestamp];
+								var minValue = sample[DATE_PREFIX + closestApplicableTimestamp];
 								var valueSum = 0;
 
 								for (var indicatorPropertyInstance of indicatorProperties) {
 									// for average only apply real numeric values
-									if (!kommonitorDataExchangeService.indicatorValueIsNoData(indicatorPropertyInstance[DATE_PREFIX + $scope.date])) {
-										var value = kommonitorDataExchangeService.getIndicatorValueFromArray_asNumber(indicatorPropertyInstance, $scope.date)
+									if (!kommonitorDataExchangeService.indicatorValueIsNoData(indicatorPropertyInstance[DATE_PREFIX + closestApplicableTimestamp])) {
+										var value = kommonitorDataExchangeService.getIndicatorValueFromArray_asNumber(indicatorPropertyInstance, closestApplicableTimestamp)
 										valueSum += value;
 
 										if (value > maxValue)
@@ -332,6 +395,7 @@ angular
 							$scope.radarChart.hideLoading();
 							setTimeout(function () {
 								$scope.radarChart.resize();
+								$scope.$apply();
 							}, 350);
 							registerEventsIfNecessary();
 
@@ -419,11 +483,12 @@ angular
 							if (kommonitorDiagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime[i].isSelected) {
 								// make object to hold indicatorName, max value and average value
 								var indicatorProperties = kommonitorDiagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime[i].indicatorProperties;
+								var closestTimestamp = kommonitorDiagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime[i].closestTimestamp;
 
 								for (var indicatorPropertyInstance of indicatorProperties) {
 									if (indicatorPropertyInstance[__env.FEATURE_NAME_PROPERTY_NAME] === featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]) {
-										if (!kommonitorDataExchangeService.indicatorValueIsNoData(indicatorPropertyInstance[DATE_PREFIX + $scope.date])) {
-											featureSeries.value.push(kommonitorDataExchangeService.getIndicatorValueFromArray_asNumber(indicatorPropertyInstance, $scope.date));
+										if (!kommonitorDataExchangeService.indicatorValueIsNoData(indicatorPropertyInstance[DATE_PREFIX + closestTimestamp])) {
+											featureSeries.value.push(kommonitorDataExchangeService.getIndicatorValueFromArray_asNumber(indicatorPropertyInstance, closestTimestamp));
 										}
 										else {
 											featureSeries.value.push(null);
@@ -525,6 +590,7 @@ angular
 						console.log("Filtering indicator radar");
 
 						modifyRadarContent(kommonitorDiagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime);
+
 					}
 
 					this.selectAllIndicatorsForRadar = function () {
