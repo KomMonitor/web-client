@@ -94,66 +94,6 @@ angular
 						$scope.$apply();
 					});
 
-					var isCloserToTargetDate = function(date, closestDate, targetDate){
-						var targetYear = targetDate.split("-")[0];
-						var targetMonth = targetDate.split("-")[1];
-						var targetDay = targetDate.split("-")[2];
-
-						var closestDateComps = closestDate.split("-");
-						var closestDateYear = closestDateComps[0];
-						var closestDateMonth = closestDateComps[1];
-						var closestDateDay = closestDateComps[2];
-
-						var dateComps = date.split("-");
-						var year = dateComps[0];
-						var month = dateComps[1];
-						var day = dateComps[2];
-
-						var monthDiff_closestDate = Math.abs(targetMonth - closestDateMonth);
-						var monthDiff_date = Math.abs(targetMonth - month);
-
-						if(monthDiff_date <= monthDiff_closestDate){
-							var dayDiff_closestDate = Math.abs(targetDay - closestDateDay);
-							var dayDiff_date = Math.abs(targetDay - day);
-
-							if(dayDiff_date < dayDiff_closestDate){
-								return true;
-							}
-						}
-						return false;
-					};
-
-					var findClostestTimestamForTargetDate = function(indicatorForRadar, targetDate){
-						var applicableDates = indicatorForRadar.indicatorMetadata.applicableDates;
-
-						var targetYear = targetDate.split("-")[0];
-						var targetMonth = targetDate.split("-")[1];
-						var targetDay = targetDate.split("-")[2];
-
-						var closestDate = undefined;
-
-						for (var date of applicableDates) {
-							var dateComps = date.split("-");
-							var year = dateComps[0];
-							var month = dateComps[1];
-							var day = dateComps[2];
-
-							if(targetDate.includes(year)){
-								if(! closestDate){
-									closestDate = date;
-								}
-								else{
-									if(isCloserToTargetDate(date, closestDate, targetDate)){
-										closestDate = date;
-									}
-								}
-
-							}
-						}
-
-						return closestDate;
-					};
-
 					var modifyRadarContent = async function (indicatorsForRadar) {
 						var indicatorArrayForRadarChart = new Array();
 						var defaultSeriesValueArray = new Array();
@@ -169,7 +109,7 @@ angular
 								var indicatorProperties = indicatorsForRadar[i].indicatorProperties;
 								sampleProperties = indicatorsForRadar[i].indicatorProperties;
 
-								var closestApplicableTimestamp = findClostestTimestamForTargetDate(indicatorsForRadar[i], $scope.date);
+								var closestApplicableTimestamp = kommonitorDiagramHelperService.findClostestTimestamForTargetDate(indicatorsForRadar[i], $scope.date);
 								indicatorsForRadar[i].closestTimestamp = closestApplicableTimestamp;
 
 								var sample = indicatorProperties[0];
