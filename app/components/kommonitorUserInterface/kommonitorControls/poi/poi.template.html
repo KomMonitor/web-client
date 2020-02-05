@@ -99,12 +99,45 @@
 
 				<div class="" >
 
-							<div align="center">
-								<p>TODO - Under Development</p>
-								<strong>in Zukunft verf&uuml;gbar</strong>
-							</div>
+						<!-- <p>Selektieren eines Eintrags aus unten stehender Liste f&uuml;gt den entsprechenden Punkt-Layer der Kartendarstellung hinzu. Deselektion entfernt den entsprechenden Layer aus der Kartendarstellung.</p> -->
 
-							<br/><br/>
+						<div class="input-group">
+							<span class="input-group-addon"><i class="fas fa-filter"></i></span>
+							<input type="text" class="form-control input-sm" placeholder="Filtern nach LOI-Name" ng-model="loiNameFilter">
+						</div>
+
+						<br/>
+
+						<div  id="loiInputForm">
+
+							<table class="table table-condensed" style="margin-bottom:0px;">
+								<thead>
+									<tr>
+										<th>Datensatz</th>
+										<th>Export</th>
+									</tr>
+								</thead>
+
+								<tbody>
+
+									<tr ng-repeat='loi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isLOI:true} | filter:loiNameFilter'>
+										<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
+										<td>
+											<label class='checkbox-inline' ><input type="checkbox" value="loi.datasetName" ng-model="loi.isSelected" ng-change="handleLoiOnMap(loi)">
+												<i style="width:15px; height:15px; background:{{loi.loiColor}}; display:inherit;">
+												</i>
+
+												<b>&nbsp;&nbsp;{{loi.datasetName}}</b> &mdash; {{loi.metadata.description}}
+											</label>
+										</td>
+										<td>
+											<a href="" ng-click="getExportLinkForLoi(loi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
+											<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
+										</td>
+									</tr>
+								</tbody>
+							</table>
+							</div>
 
 				</div>
 
@@ -128,12 +161,45 @@
 
 					<div class="" >
 
-								<div align="center">
-									<p>TODO - Under Development</p>
-									<strong>in Zukunft verf&uuml;gbar</strong>
-								</div>
+							<!-- <p>Selektieren eines Eintrags aus unten stehender Liste f&uuml;gt den entsprechenden Punkt-Layer der Kartendarstellung hinzu. Deselektion entfernt den entsprechenden Layer aus der Kartendarstellung.</p> -->
 
-								<br/><br/>
+							<div class="input-group">
+								<span class="input-group-addon"><i class="fas fa-filter"></i></span>
+								<input type="text" class="form-control input-sm" placeholder="Filtern nach AOI-Name" ng-model="aoiNameFilter">
+							</div>
+
+							<br/>
+
+							<div  id="aoiInputForm">
+
+								<table class="table table-condensed" style="margin-bottom:0px;">
+							    <thead>
+							      <tr>
+							        <th>Datensatz</th>
+							        <th>Export</th>
+							      </tr>
+							    </thead>
+
+									<tbody>
+
+										<tr ng-repeat='aoi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isAOI:true} | filter:aoiNameFilter'>
+											<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
+											<td>
+												<label class='checkbox-inline' ><input type="checkbox" value="aoi.datasetName" ng-model="aoi.isSelected" ng-change="handleAoiOnMap(aoi)">
+													<i style="width:15px; height:15px; background:{{aoi.aoiColor}}; display:inherit;">
+													</i>
+
+													<b>&nbsp;&nbsp;{{aoi.datasetName}}</b> &mdash; {{aoi.metadata.description}}
+												</label>
+											</td>
+											<td>
+												<a href="" ng-click="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
+												<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
+											</td>
+										</tr>
+									</tbody>
+								</table>
+								</div>
 
 					</div>
 

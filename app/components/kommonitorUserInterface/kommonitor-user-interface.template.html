@@ -1,6 +1,6 @@
 <!-- <div class="container-fluid"> -->
 
-	<header id="header" >
+	<header id="header" class="main-header">
 
 		<div  style="position:absolute; left:40%;  padding-top: 7px;">
 
@@ -16,6 +16,26 @@
 			 <a target="_blank" rel="noopener noreferrer" href="http://kommonitor.de"><img style="float: left; width: 35px; height: 35px; margin-right: 0.5%;" src="logos/KM_Logo1.svg"></img></a>
 			 <img src="logos/city-logo.png" style="float: left; width: 35px; height: 35px; margin-right: 0.5%;"></img>
 
+			 <!-- witch back to KomMonitor Main Application -->
+			<a id="userLogin" ng-mouseover="showUserLogin = true" ng-init="showUserLogin = false" title="Useristration" style="font-size:1.2em; float: right; margin-right: 2%; margin-left: 2%; margin-top: 0.5%;"><i class="fas fa-user-cog"></i></a>
+			<div id="userLoginForm" ng-show="showUserLogin" ng-mouseleave="showUserLogin = false" class="userFormWrapper">
+				<div id="userForm">
+					<h4>User Login</h4>
+                <div class="input_container">
+                    <i class="fas fa-user"></i>
+                    <input placeholder="Username" type="text" ng-model="username" name="Username" id="field_username" class='input_field'>
+                </div>
+                <div class="input_container">
+                    <i class="fas fa-lock"></i>
+                    <input  placeholder="Password" type="password" ng-model="password" ng-keypress="tryLoginUserByKeypress($event)" name="Password" id="field_password" class='input_field'>
+                </div>
+                <input type="submit" value="Login" id='input_submit' ng-click="tryLoginUser()" class='input_field'>
+                <!-- <span>Forgot <a href="#"> Username / Password ?</a></span>
+                <span id='create_account'>
+                    <a href="#">Create your account ➡ </a>
+                </span> -->
+				</div>
+			</div>
 			<a data-toggle="modal" data-target="#infoModal" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Information&nbsp;&nbsp;"><span class="glyphicon glyphicon-info-sign"></span></a>
 			<a data-toggle="modal" data-target="#feedbackModal" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;  cursor:pointer;" title="Feedback&nbsp;&nbsp;"><span class="glyphicon glyphicon-envelope"></span></a>
 			<a ng-click="startGuidedTour()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;  cursor:pointer;" title="Guided Tour&nbsp;&nbsp;"><span class="glyphicon glyphicon-play"></span></a>

@@ -65,11 +65,9 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 				return;
 			}
 			else{
-
-				$scope.loadingData = true;
 				$scope.currentSpatialUnitDataset = spatialUnitDataset;
 
-				$scope.refreshSpatialUnitEditFeaturesOverviewTable();
+				// $scope.refreshSpatialUnitEditFeaturesOverviewTable();
 
 				$scope.resetSpatialUnitEditFeaturesForm();
 			}
@@ -77,6 +75,8 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 		});
 
 		$scope.refreshSpatialUnitEditFeaturesOverviewTable = function(){
+
+			$scope.loadingData = true;
 			// fetch all spatial unit features
 			$http({
 				url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/spatial-units/" + $scope.currentSpatialUnitDataset.spatialUnitId + "/allFeatures",
@@ -108,7 +108,40 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 			});
 		};
 
+		$scope.clearAllSpatialUnitFeatures = function(){
+			$scope.loadingData = true;
+			// delete all georesource features
+			$http({
+				url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/spatial-units/" + $scope.currentSpatialUnitDataset.spatialUnitId + "/allFeatures",
+				method: "DELETE",
+				// headers: {
+				//    'Content-Type': undefined
+				// }
+			}).then(function successCallback(response) {
+
+				$scope.spatialUnitFeaturesGeoJSON = undefined;
+				$scope.remainingFeatureHeaders = undefined;
+
+				$rootScope.$broadcast("refreshSpatialUnitOverviewTable");
+				// $scope.refreshGeoresourceEditFeaturesOverviewTable();
+
+				$scope.successMessagePart = $scope.currentSpatialUnitDataset.spatialUnitLevel;
+
+				$("#spatialUnitEditFeaturesSuccessAlert").show();
+				$scope.loadingData = false;
+
+				}, function errorCallback(response) {
+					$scope.errorMessagePart = response;
+
+					$("#spatialUnitEditFeaturesErrorAlert").show();
+					$scope.loadingData = false;
+			});
+		};
+
 		$scope.resetSpatialUnitEditFeaturesForm = function(){
+
+			$scope.georesourceFeaturesGeoJSON = undefined;
+			$scope.remainingFeatureHeaders = undefined;
 
 			$scope.periodOfValidity = {};
 			$scope.periodOfValidity.startDate = undefined;
@@ -199,7 +232,7 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 					// when the response is available
 
 					$rootScope.$broadcast("refreshSpatialUnitOverviewTable");
-					$scope.refreshSpatialUnitEditFeaturesOverviewTable();
+					// $scope.refreshSpatialUnitEditFeaturesOverviewTable();
 
 					$scope.successMessagePart = $scope.currentSpatialUnitDataset.spatialUnitLevel;
 
