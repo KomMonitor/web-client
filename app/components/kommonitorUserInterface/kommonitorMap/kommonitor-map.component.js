@@ -2810,6 +2810,79 @@ angular.module('kommonitorMap').component(
           });
         });
 
+        $scope.$on("addLoiGeoresourceAsGeoJSON", function (event, georesourceMetadataAndGeoJSON, date) {
+
+          var color = georesourceMetadataAndGeoJSON.aoiColor;
+
+          var featureGroup = L.featureGroup();
+
+          var style = {
+            color: georesourceMetadataAndGeoJSON.loiColor,
+            dashArray: georesourceMetadataAndGeoJSON.loiDashArrayString,
+            weight: 3,
+            opacity: 1
+          };
+
+
+
+          georesourceMetadataAndGeoJSON.geoJSON.features.forEach((item, i) => {
+            var type = item.geometry.type;
+
+            if (type === "Polygon" || type === "MultiPolygon"){
+              var lines = turf.polygonToLine(item);
+
+              L.geoJSON(lines, {
+                style: style,
+                onEachFeature: onEachFeatureGeoresource
+              }).addTo(featureGroup);
+            }
+            else{
+              L.geoJSON(item, {
+                style: style,
+                onEachFeature: onEachFeatureGeoresource
+              }).addTo(featureGroup);
+            }
+          });
+
+          // georesourceMetadataAndGeoJSON.geoJSON.features.forEach((loiFeature, i) => {
+          //   var latLngs =
+          //   var polyline = L.polyline(loiFeature.geometry.coordinates);
+          //
+          //   var geoJSON = polyline.toGeoJSON();
+          //
+          //   var geoJSON_line = L.geoJSON(geoJSON, {
+          //     style: style,
+          //     onEachFeature: onEachFeatureGeoresource
+          //   })
+          //
+          //   geoJSON_line.addTo(featureGroup);
+          // });
+
+          // layer.StyledLayerControl = {
+          //   removable : false,
+          //   visible : true
+          // };
+
+          $scope.layerControl.addOverlay(featureGroup, georesourceMetadataAndGeoJSON.datasetName + "_" + date, loiLayerGroupName);
+          featureGroup.addTo($scope.map);
+          $scope.updateSearchControl();
+
+          $scope.map.invalidateSize(true);
+        });
+
+        $scope.$on("removeLoiGeoresource", function (event, georesourceMetadataAndGeoJSON) {
+
+          var layerName = georesourceMetadataAndGeoJSON.datasetName;
+
+          $scope.layerControl._layers.forEach(function (layer) {
+            if (layer.group.name === loiLayerGroupName && layer.name.includes(layerName + "_")) {
+              $scope.layerControl.removeLayer(layer.layer);
+              $scope.map.removeLayer(layer.layer);
+              $scope.updateSearchControl();
+            }
+          });
+        });
+
         $scope.$on("adjustOpacityForIndicatorLayer", function (event, indicatorMetadata, opacity) {
           // var layerName = indicatorMetadataAndGeoJSON.indicatorName;
           //

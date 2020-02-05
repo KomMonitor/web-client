@@ -256,6 +256,111 @@ angular
 											$rootScope.$broadcast("hideLoadingIconOnMap");
 									});
 
+								}
+
+									////////// LOI
+									$scope.handleLoiOnMap = function(loi){
+
+										if(loi.isSelected){
+											//display on Map
+											$scope.addLoiLayerToMap(loi);
+										}
+										else{
+											//remove POI layer from map
+											$scope.removeLoiLayerFromMap(loi);
+										}
+
+									};
+
+									$scope.addLoiLayerToMap = async function(loiGeoresource) {
+										$scope.loadingData = true;
+										$rootScope.$broadcast("showLoadingIconOnMap");
+
+										$scope.currentLoiGeoresource = loiGeoresource;
+
+										var id = loiGeoresource.georesourceId;
+
+										$scope.date = kommonitorDataExchangeService.selectedDate;
+
+										var dateComps = $scope.date.split("-");
+
+										var year = dateComps[0];
+										var month = dateComps[1];
+										var day = dateComps[2];
+
+										await $http({
+											url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + id + "/" + year + "/" + month + "/" + day,
+											method: "GET"
+										}).then(function successCallback(response) {
+												// this callback will be called asynchronously
+												// when the response is available
+												var geoJSON = response.data;
+
+												$scope.currentLoiGeoresource.geoJSON = geoJSON;
+
+												kommonitorMapService.addLoiGeoresourceGeoJSON($scope.currentLoiGeoresource, $scope.date);
+												$scope.loadingData = false;
+												$rootScope.$broadcast("hideLoadingIconOnMap");
+
+											}, function errorCallback(response) {
+												// called asynchronously if an error occurs
+												// or server returns response with an error status.
+												$scope.loadingData = false;
+												$rootScope.$broadcast("hideLoadingIconOnMap");
+										});
+
+									};
+
+									$scope.removeLoiLayerFromMap = function(loiGeoresource) {
+										$scope.loadingData = true;
+										$rootScope.$broadcast("showLoadingIconOnMap");
+
+										$scope.currentLoiGeoresource = loiGeoresource;
+
+										kommonitorMapService.removeLoiGeoresource($scope.currentLoiGeoresource);
+										$scope.loadingData = false;
+										$rootScope.$broadcast("hideLoadingIconOnMap");
+
+									};
+
+									$scope.getExportLinkForLoi = function(aoi){
+										$scope.date = kommonitorDataExchangeService.selectedDate;
+
+										var dateComps = $scope.date.split("-");
+
+										var year = dateComps[0];
+										var month = dateComps[1];
+										var day = dateComps[2];
+
+										var url = kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + aoi.georesourceId + "/" + year + "/" + month + "/" + day;
+										var fileName = aoi.datasetName + "-" + year + "-" + month + "-" + day;
+
+										$http({
+											url: url,
+											method: "GET"
+										}).then(function successCallback(response) {
+												// this callback will be called asynchronously
+												// when the response is available
+												var geoJSON = response.data;
+
+												var element = document.createElement('a');
+												element.setAttribute('href', 'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(geoJSON)));
+												element.setAttribute('download', fileName);
+
+												element.style.display = 'none';
+												document.body.appendChild(element);
+
+												element.click();
+
+												document.body.removeChild(element);
+
+											}, function errorCallback(response) {
+												// called asynchronously if an error occurs
+												// or server returns response with an error status.
+												$scope.loadingData = false;
+												$rootScope.$broadcast("hideLoadingIconOnMap");
+										});
+
 								};
 
 							} ]
