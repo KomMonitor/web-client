@@ -299,12 +299,14 @@
 								<thead>
 									<tr>
 										<th>Name des Indikators</th>
+										<th>K&uuml;rzel/Kennziffer</th>
 										<th>Beschreibung der Verkn&uuml;pfung</th>
 									</tr>
 								</thead>
 								<tbody>
 									<tr ng-repeat="indicator in $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.referencedIndicators">
 										<td>{{indicator.referencedIndicatorName}}</td>
+										<td ng-bind="$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorAbbreviationFromIndicatorId(indicator.referencedIndicatorId)"></td>
 										<td>{{indicator.referencedIndicatorDescription}}</td>
 									</tr>
 								</tbody>
