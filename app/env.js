@@ -37,7 +37,7 @@
 
 
   // Data Imporert URL
-  window.__env.targetUrlToImporterService = 'http://localhost:8087/';
+  window.__env.targetUrlToImporterService = 'https://kommonitor.essen.de/importer/';
 
   // optional geometry simplification (a feature of Data Management API)
   window.__env.simplifyGeometriesParameterName = "simplifyGeometries";
