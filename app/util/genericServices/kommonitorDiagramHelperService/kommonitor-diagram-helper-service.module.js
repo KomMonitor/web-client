@@ -40,6 +40,66 @@ angular
       this.radarChartOptions = {};
       this.regressionChartOptions = {};
 
+      this.isCloserToTargetDate = function(date, closestDate, targetDate){
+        var targetYear = targetDate.split("-")[0];
+        var targetMonth = targetDate.split("-")[1];
+        var targetDay = targetDate.split("-")[2];
+
+        var closestDateComps = closestDate.split("-");
+        var closestDateYear = closestDateComps[0];
+        var closestDateMonth = closestDateComps[1];
+        var closestDateDay = closestDateComps[2];
+
+        var dateComps = date.split("-");
+        var year = dateComps[0];
+        var month = dateComps[1];
+        var day = dateComps[2];
+
+        var monthDiff_closestDate = Math.abs(targetMonth - closestDateMonth);
+        var monthDiff_date = Math.abs(targetMonth - month);
+
+        if(monthDiff_date <= monthDiff_closestDate){
+          var dayDiff_closestDate = Math.abs(targetDay - closestDateDay);
+          var dayDiff_date = Math.abs(targetDay - day);
+
+          if(dayDiff_date < dayDiff_closestDate){
+            return true;
+          }
+        }
+        return false;
+      };
+
+      this.findClostestTimestamForTargetDate = function(indicatorForRadar, targetDate){
+        var applicableDates = indicatorForRadar.indicatorMetadata.applicableDates;
+
+        var targetYear = targetDate.split("-")[0];
+        var targetMonth = targetDate.split("-")[1];
+        var targetDay = targetDate.split("-")[2];
+
+        var closestDate = undefined;
+
+        for (var date of applicableDates) {
+          var dateComps = date.split("-");
+          var year = dateComps[0];
+          var month = dateComps[1];
+          var day = dateComps[2];
+
+          if(targetDate.includes(year)){
+            if(! closestDate){
+              closestDate = date;
+            }
+            else{
+              if(this.isCloserToTargetDate(date, closestDate, targetDate)){
+                closestDate = date;
+              }
+            }
+
+          }
+        }
+
+        return closestDate;
+      };
+
       // an array of only the properties and metadata of all indicatorFeatures
       this.indicatorPropertiesForCurrentSpatialUnitAndTime;
 
@@ -47,12 +107,20 @@ angular
         this.indicatorPropertiesForCurrentSpatialUnitAndTime = [];
 
         kommonitorDataExchangeService.availableIndicators.forEach(indicatorMetadata => {
-          if (indicatorMetadata.applicableDates.includes(kommonitorDataExchangeService.selectedDate) && indicatorMetadata.applicableSpatialUnits.includes(kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel)) {
+          var targetYear = kommonitorDataExchangeService.selectedDate.split("-")[0];
+          var indicatorCandidateYears = []
+          indicatorMetadata.applicableDates.forEach((date, i) => {
+            indicatorCandidateYears.push(date.split("-")[0]);
+          });
+
+
+          if (indicatorCandidateYears.includes(targetYear) && indicatorMetadata.applicableSpatialUnits.includes(kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel)) {
             var selectableIndicatorEntry = {};
             selectableIndicatorEntry.indicatorProperties = null;
             // per default show no indicators on radar
             selectableIndicatorEntry.isSelected = false;
             selectableIndicatorEntry.indicatorMetadata = indicatorMetadata;
+            selectableIndicatorEntry.closestTimestamp = undefined;
 
             this.indicatorPropertiesForCurrentSpatialUnitAndTime.push(selectableIndicatorEntry);
           }
@@ -63,19 +131,19 @@ angular
 
       this.fetchIndicatorPropertiesIfNotExists = async function(index){
         if(this.indicatorPropertiesForCurrentSpatialUnitAndTime[index].indicatorProperties === null || this.indicatorPropertiesForCurrentSpatialUnitAndTime[index].indicatorProperties === undefined){
-          var dateComps = kommonitorDataExchangeService.selectedDate.split("-");
+          // var dateComps = kommonitorDataExchangeService.selectedDate.split("-");
+          //
+					// 	var year = dateComps[0];
+					// 	var month = dateComps[1];
+					// 	var day = dateComps[2];
 
-						var year = dateComps[0];
-						var month = dateComps[1];
-						var day = dateComps[2];
-          
-          this.indicatorPropertiesForCurrentSpatialUnitAndTime[index].indicatorProperties = await this.fetchIndicatorProperties(this.indicatorPropertiesForCurrentSpatialUnitAndTime[index].indicatorMetadata, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitId, year, month, day);
+          this.indicatorPropertiesForCurrentSpatialUnitAndTime[index].indicatorProperties = await this.fetchIndicatorProperties(this.indicatorPropertiesForCurrentSpatialUnitAndTime[index].indicatorMetadata, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitId);
         }
       };
 
-      this.fetchIndicatorProperties = function (indicatorMetadata, spatialUnitId, year, month, day) {
+      this.fetchIndicatorProperties = function (indicatorMetadata, spatialUnitId) {
         return $http({
-          url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/indicators/" + indicatorMetadata.indicatorId + "/" + spatialUnitId + "/" + year + "/" + month + "/" + day + "/without-geometry",
+          url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/indicators/" + indicatorMetadata.indicatorId + "/" + spatialUnitId + "/without-geometry",
           method: "GET"
         }).then(function successCallback(response) {
           // this callback will be called asynchronously

@@ -204,7 +204,15 @@ angular
 					this.setTopics = function(topicsArray){
 						this.availableTopics = topicsArray;
           };
-          
+
+          this.getIndicatorAbbreviationFromIndicatorId = function(indicatorId){
+            for (var indicatorMetadata of this.availableIndicators) {
+              if (indicatorMetadata.indicatorId === indicatorId){
+                return indicatorMetadata.abbreviation;
+              }
+            }
+          };
+
           this.getTopicHierarchyForTopicId = function(topicReferenceId){
             // create an array respresenting the topic hierarchy
             // i.e. [mainTopic_firstTier, subTopic_secondTier, subTopic_thirdTier, ...]
@@ -231,7 +239,7 @@ angular
           this.findIdInAnySubTopicHierarchy = function(topicReferenceId, subTopicsArray){
             for (let index = 0; index < subTopicsArray.length; index++) {
               const subTopicCandidate = subTopicsArray[index];
-              
+
               if(subTopicCandidate.topicId === topicReferenceId){
                 return true;
               }
@@ -247,7 +255,7 @@ angular
           this.addSubTopicHierarchy = function(topicHierarchyArray, topicReferenceId, subTopicsArray){
             for (let index = 0; index < subTopicsArray.length; index++) {
               const subTopicCandidate = subTopicsArray[index];
-              
+
               if(subTopicCandidate.topicId === topicReferenceId){
                 topicHierarchyArray.push(subTopicCandidate);
                 break;
