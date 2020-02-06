@@ -53,7 +53,7 @@
   // starting viewpoint parameters and zoom level
   window.__env.initialLatitude = 51.4386432;
   window.__env.initialLongitude = 7.0115552;
-  window.__env.initialZoomLevel = 12;
+  window.__env.initialZoomLevel = 8.5;
   // window.__env.minZoomLevel = 11;
   window.__env.minZoomLevel = 5;
   window.__env.maxZoomLevel = 18;
