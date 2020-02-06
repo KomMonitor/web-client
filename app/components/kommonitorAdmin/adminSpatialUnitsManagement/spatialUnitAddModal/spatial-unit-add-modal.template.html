@@ -132,8 +132,10 @@
 									<div class="col-md-4 col-sm-6 col-xs-12">
 										<div class="form-group">
 											<label >Hierarchie: n&auml;chst niedrigere Ebene</label>
-											<select ng-model="nextLowerHierarchySpatialUnit" ng-change="checkSpatialUnitHierarchy()" ng-options="value as value.spatialUnitLevel for value in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits" class="form-control">
+											<select ng-model="nextLowerHierarchySpatialUnit" ng-change="checkSpatialUnitHierarchy()" class="form-control">
 												<option disabled selected value> -- Raumeinheit w&auml;hlen -- </option>
+												<option value> -- keine (neue unterste Ebene) -- </option>
+												<option ng-repeat="value in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits" ng-value="value"> {{value.spatialUnitLevel}} </option>
 		                  </select>
 											<div class="help-block"><p>Eintrag kann im Nachhinein mittels Metadaten-Editier-Funktion gesetzt werden</p></div>
 											<div class="help-block with-errors"></div>
@@ -145,8 +147,10 @@
 									<div class="col-md-4 col-sm-6 col-xs-12">
 										<div class="form-group">
 											<label >Hierarchie: n&auml;chst h&ouml;here Ebene</label>
-											<select ng-model="nextUpperHierarchySpatialUnit" ng-change="checkSpatialUnitHierarchy()" ng-options="value as value.spatialUnitLevel for value in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits" class="form-control">
+											<select ng-model="nextUpperHierarchySpatialUnit" ng-change="checkSpatialUnitHierarchy()" class="form-control">
 												<option disabled selected value> -- Raumeinheit w&auml;hlen -- </option>
+												<option value> -- keine (neue oberste Ebene) -- </option>
+												<option ng-repeat="value in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits" ng-value="value"> {{value.spatialUnitLevel}} </option>
 		                  </select>
 											<div class="help-block"><p>Eintrag kann im Nachhinein mittels Metadaten-Editier-Funktion gesetzt werden</p></div>
 											<div class="help-block with-errors"></div>
@@ -253,6 +257,9 @@
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
+				<button type="button" class="btn btn-info pull-left" ng-click="onImportSpatialUnitAddMetadata()" title="Importieren der Metadaten aus einer Datei"><i class="fas fa-file-import"></i>&nbsp;&nbsp;Metadaten-Import</button>
+				<input style="display:none;" class="pull-left" type="file" class="form-control" id="spatialUnitMetadataImportFile" accept=".json,"></input>
+				<button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" ng-disabled="" ng-click="onExportSpatialUnitAddMetadata()" title="Exportieren der Metadaten in eine Datei"><i class="fas fa-file-export"></i>&nbsp;&nbsp;Metadaten-Export</button>
 					<button type="button" class="btn btn-success" ng-disabled="!spatialUnitLevel || !metadata.description || !metadata.datasource || !metadata.contact || !metadata.updateInterval || !metadata.lastUpdate || !spatialResourceConfigured || !spatialUnitDataSourceIdProperty || !spatialUnitDataSourceNameProperty || !periodOfValidity.startDate || spatialUnitLevelInvalid || periodOfValidityInvalid || hierarchyInvalid || spatialUnitDataSourceInputInvalid || idPropertyNotFound || namePropertyNotFound" ng-click="addSpatialUnit()">Raumeinheit registrieren</button>
 					<button type="button" class="btn btn-danger" ng-click="resetSpatialUnitAddForm()">Zur&uuml;cksetzen</button>
 			</div>
@@ -269,6 +276,18 @@
                 Bei der Registrierung der Raumeinheit ist ein Fehler aufgetreten. Fehlermeldung:
 								<br/>
 								<pre>{{errorMessagePart}}</pre>.
+      </div>
+
+			<div id="spatialUnitMetadataImportErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden class="alert alert-danger alert-dismissable">
+                <button type="button" class="close" ng-click="hideMetadataErrorAlert()" aria-hidden="true">&times;</button>
+                <h4><i class="icon fa fa-ban"></i>Metadata Import gescheitert</h4>
+                Beim Import der Metadaten aus einer Datei ist ein Fehler aufgetreten. Fehlermeldung:
+								<br/>
+								<pre>{{spatialUnitMetadataImportError}}</pre>
+								<br/>
+								<br/>
+								<p>Bitte stellen Sie sicher, dass folgendes JSON-Format eingehalten wird:</p>
+								<pre id="spatialUnitsAddMetadataPre" style="overflow:auto; max-height:500px;"></pre>
       </div>
 
 		</div>

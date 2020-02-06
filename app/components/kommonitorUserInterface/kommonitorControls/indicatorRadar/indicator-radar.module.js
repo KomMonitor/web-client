@@ -1,1 +1,1 @@
-angular.module('indicatorRadar', [ 'kommonitorDataExchange']);
+angular.module('indicatorRadar', [ 'kommonitorDataExchange', 'kommonitorDiagramHelper']);

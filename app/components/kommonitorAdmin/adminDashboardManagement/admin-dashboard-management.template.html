@@ -22,18 +22,24 @@
 
 						<div class="row vertical-align">
 			        <div class="col-md-3 col-sm-6 col-xs-12">
-			          <!-- small box -->
-			          <div class="small-box bg-aqua">
-			            <div class="inner">
-			              <h3>{{kommonitorDataExchangeService.availableRoles.length}}&nbsp; &nbsp; &nbsp;{{kommonitorDataExchangeService.availableUsers.length}}</h3>
 
-			              <p>Rollen &nbsp; &nbsp; &nbsp; Nutzer</p>
-			            </div>
-			            <div class="icon">
-			              <i class="fas fa-users"></i>
-			            </div>
-			            	<a class="small-box-footer"></a>
-			          </div>
+			        </div>
+			        <!-- ./col -->
+							<div class="col-md-3 col-sm-6 col-xs-12">
+
+								<!-- small box -->
+								<div class="small-box bg-aqua">
+									<div class="inner">
+										<h3>{{kommonitorDataExchangeService.availableRoles.length}}&nbsp; &nbsp; / &nbsp; &nbsp;{{kommonitorDataExchangeService.availableUsers.length}}</h3>
+
+										<p>Rollen &nbsp; &nbsp; / &nbsp; &nbsp; Nutzer</p>
+									</div>
+									<div class="icon">
+										<i class="fas fa-users"></i>
+									</div>
+										<a class="small-box-footer"></a>
+								</div>
+
 			        </div>
 			        <!-- ./col -->
 							<div class="col-md-3 col-sm-6 col-xs-12">
@@ -41,9 +47,9 @@
 								<!-- small box -->
 								<div class="small-box bg-gray">
 									<div class="inner">
-										<h3>{{kommonitorDataExchangeService.availableTopics.length}}</h3>
+										<h3>{{numberOfMainTopics}}&nbsp; &nbsp; / &nbsp; &nbsp;{{numberOfSubTopics}}</h3>
 
-										<p>oberste Themenbereiche</p>
+										<p>Haupt- &nbsp; &nbsp; / &nbsp; &nbsp; Unterthemen</p>
 									</div>
 									<div class="icon">
 										<i class="fas fa-book"></i>
@@ -51,40 +57,11 @@
 										<a class="small-box-footer"></a>
 								</div>
 
-
 			        </div>
 			        <!-- ./col -->
 							<div class="col-md-3 col-sm-6 col-xs-12">
 
-								<!-- small box -->
-								<div class="small-box bg-primary">
-									<div class="inner">
-										<h3>{{kommonitorDataExchangeService.availableSpatialUnits.length}}</h3>
 
-										<p>Raumeinheiten</p>
-									</div>
-									<div class="icon">
-										<i class="fas fa-layer-group"></i>
-									</div>
-										<a class="small-box-footer"></a>
-								</div>
-
-			        </div>
-			        <!-- ./col -->
-							<div class="col-md-3 col-sm-6 col-xs-12">
-
-								<!-- small box -->
-								<div class="small-box bg-purple">
-									<div class="inner">
-										<h3>{{kommonitorDataExchangeService.availableProcessScripts.length}}</h3>
-
-										<p>Indikatorenskripte</p>
-									</div>
-									<div class="icon">
-										<i class="fas fa-file-code"></i>
-									</div>
-										<a class="small-box-footer"></a>
-								</div>
 
 			        </div>
 			        <!-- ./col -->
@@ -93,6 +70,19 @@
 
 							<div class="row vertical-align">
 				        <div class="col-md-3 col-sm-6 col-xs-12">
+
+									<!-- small box -->
+									<div class="small-box bg-primary">
+										<div class="inner">
+											<h3>{{kommonitorDataExchangeService.availableSpatialUnits.length}}</h3>
+
+											<p>Raumeinheiten</p>
+										</div>
+										<div class="icon">
+											<i class="fas fa-layer-group"></i>
+										</div>
+											<a class="small-box-footer"></a>
+									</div>
 
 				        </div>
 				        <!-- ./col -->
@@ -144,6 +134,19 @@
 										</ul>
 									</div> -->
 
+									<!-- small box -->
+									<div class="small-box bg-purple">
+										<div class="inner">
+											<h3>{{kommonitorDataExchangeService.availableProcessScripts.length}}</h3>
+
+											<p>Indikatorenskripte</p>
+										</div>
+										<div class="icon">
+											<i class="fas fa-file-code"></i>
+										</div>
+											<a class="small-box-footer"></a>
+									</div>
+
 				        </div>
 				        <!-- ./col -->
 				      </div>
@@ -163,8 +166,10 @@
 					        <!-- ./col -->
 									<div class="col-md-3 col-sm-6 col-xs-12">
 
+										<!-- georesources per type (POI, LOI, AOI) -->
+
 										<!-- <div class="chart"> -->
-											<div id="georesourcesPerTopicDiagram" style="width:100%; min-height:500px;"></div>
+											<div id="georesourcesPerTypeDiagram" style="width:100%; min-height:500px;"></div>
 										<!-- </div> -->
 
 					        </div>

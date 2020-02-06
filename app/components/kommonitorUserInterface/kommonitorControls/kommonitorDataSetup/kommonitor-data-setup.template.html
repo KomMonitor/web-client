@@ -23,12 +23,11 @@
 
               <div class="box-body">
 
-								<div class="" align="center">
+								<!-- <div class="" align="center">
 
 									<nav class="navbar navbar-default">
 										<div class="container-fluid">
 											<div  align="center" text-align="center">
-												<!-- <label class="navbar-brand" href="" align="center" text-align="center">Themenfilter für Indikatoren</label> -->
 												<label>Themenfilter</label>
 											</div>
 											<ul class="nav nav-pills nav-justified">
@@ -45,24 +44,137 @@
 											<p/>
 										</div>
 									</nav>
-								</div>
+								</div> -->
 
 
 								<div class="">
 
-									<div text-align="center" align="center">
+									<div >
 
 											<div class="input-group">
 				                <span class="input-group-addon"><i class="fas fa-filter"></i></span>
 				                <input type="text" class="form-control input-sm" placeholder="Filtern nach Indiktorenname" ng-model="indicatorNameFilter">
 				              </div>
 
-											<br/>
+										<br/>
+
+
+										 <uib-tabset active="activeJustified" justified="true">
+									    <uib-tab index="0" heading="Datenkatalog">
+
+												<div class="just-padding">
+
+													<div id="indicatorHierarchySelection" class="list-group list-group-root well">
+
+														<div ng-repeat="mainTopic in $ctrl.kommonitorDataExchangeServiceInstance.availableTopics | filter:{topicType:'main'}">
+															<div  class="list-group-item list-group-item-default" style="background: #2171b5; color: white;">
+																<a id="{{mainTopic.topicId}}" href="" ng-attr-title="{{mainTopic.topicDescription}}" class="collapseTrigger" style="color: white;" ng-click="isCollapsed_mainTopic = !isCollapsed_mainTopic" ng-init="isCollapsed_mainTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{mainTopic.topicName}}</a>
+															</div>
+
+
+															<div ng-repeat="subTopic in mainTopic.subTopics" class="list-group collapse" uib-collapse="isCollapsed_mainTopic">
+
+																<div  class="list-group-item list-group-item-default" style="background: #6baed6; color: white;">
+																	<a id="{{subTopic.topicId}}" class="collapseTrigger" style="color: white;" ng-attr-title="{{subTopic.topicDescription}}" href="" ng-click="isCollapsed_subTopic = !isCollapsed_subTopic" ng-init="isCollapsed_subTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{subTopic.topicName}}</a>
+																</div>
+
+																<div ng-repeat="subsubTopic in subTopic.subTopics" class="list-group collapse" uib-collapse="isCollapsed_subTopic">
+
+																	<div  class="list-group-item list-group-item-default" style="background: #bdd7e7; color: white;">
+																		<a id="{{subsubTopic.topicId}}" class="collapseTrigger" style="color: white;" ng-attr-title="{{subsubTopic.topicDescription}}" href="" ng-click="isCollapsed_subsubTopic = !isCollapsed_subsubTopic" ng-init="isCollapsed_subsubTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{subsubTopic.topicName}}</a>
+																	</div>
+
+																	<div ng-repeat="subsubsubTopic in subsubTopic.subTopics" class="list-group collapse" uib-collapse="isCollapsed_subsubTopic">
+
+																		<div  class="list-group-item list-group-item-default" style="background: #eff3ff; color: white;">
+																			<a id="{{subsubsubTopic.topicId}}" class="collapseTrigger" style="color: white;" ng-attr-title="{{subsubsubTopic.topicDescription}}">{{subsubsubTopic.topicName}}</a>
+																		</div>
+
+																	</div>
+																	<!-- end sub sub sub topics -->
+
+
+																	<div ng-show="($ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators() | filter:{topicReference:subsubTopic.topicId} | filter:indicatorNameFilter).length > 0">
+																		<div class="list-group collapse" uib-collapse="isCollapsed_subsubTopic">
+																			<div id="indicatorHierarchyElement-{{indicatorMetadata.indicatorId}}" ng-repeat="indicatorMetadata in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators() | filter:{topicReference:subsubTopic.topicId} | filter:indicatorNameFilter" class="list-group-item list-group-item-default">
+																			 	<p style="cursor:pointer;" ng-attr-title="{{indicatorMetadata.indicatorName}}" style="color: white;" ng-click="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;{{indicatorMetadata.indicatorName}}</p>
+																			</div>
+																		</div>
+																	</div>
+																	<div ng-show="!(($ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators() | filter:{topicReference:subsubTopic.topicId} | filter:indicatorNameFilter).length > 0)">
+																		<div class="list-group collapse" uib-collapse="isCollapsed_subsubTopic">
+																			<div class="list-group-item list-group-item-default" style="background: #eb9c98;">
+																			 	<p><i class="fas fa-sitemap"></i> &nbsp;&nbsp;- keine Indikatoren in dieser Hierarchieebene -</p>
+																			</div>
+																		</div>
+																	</div>
+
+
+																</div>
+																<!-- end sub sub opics -->
+
+
+
+																<div ng-show="($ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators() | filter:{topicReference:subTopic.topicId} | filter:indicatorNameFilter).length > 0">
+																	<div class="list-group collapse" uib-collapse="isCollapsed_subTopic">
+																		<div id="indicatorHierarchyElement-{{indicatorMetadata.indicatorId}}" ng-repeat="indicatorMetadata in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators() | filter:{topicReference:subTopic.topicId} | filter:indicatorNameFilter" class="list-group-item list-group-item-default">
+																		 	<p style="cursor:pointer;" ng-attr-title="{{indicatorMetadata.indicatorName}}" ng-click="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;{{indicatorMetadata.indicatorName}}</p>
+																		</div>
+																	</div>
+																</div>
+																<div ng-show="!(($ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators() | filter:{topicReference:subTopic.topicId} | filter:indicatorNameFilter).length > 0)">
+																	<div class="list-group collapse" uib-collapse="isCollapsed_subTopic">
+																		<div class="list-group-item list-group-item-default" style="background: #eb9c98;">
+																		 	<p><i class="fas fa-sitemap"></i> &nbsp;&nbsp;- keine Indikatoren in dieser Hierarchieebene -</p>
+																		</div>
+																	</div>
+																</div>
+
+
+
+
+															</div>
+															<!-- end sub topics -->
+															<div ng-show="($ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators() | filter:{topicReference:mainTopic.topicId} | filter:indicatorNameFilter).length > 0">
+																<div class="list-group collapse" uib-collapse="isCollapsed_mainTopic">
+																	<div id="indicatorHierarchyElement-{{indicatorMetadata.indicatorId}}" ng-repeat="indicatorMetadata in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators() | filter:{topicReference:mainTopic.topicId} | filter:indicatorNameFilter" class="list-group-item list-group-item-default">
+																	 	<p style="cursor:pointer;" ng-attr-title="{{indicatorMetadata.indicatorName}}" ng-click="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;{{indicatorMetadata.indicatorName}}</p>
+																	</div>
+																</div>
+															</div>
+															<div ng-show="!(($ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators() | filter:{topicReference:mainTopic.topicId} | filter:indicatorNameFilter).length > 0)">
+																<div class="list-group collapse" uib-collapse="isCollapsed_mainTopic">
+																	<div class="list-group-item list-group-item-default" style="background: #eb9c98;">
+																	 	<p><i class="fas fa-sitemap"></i> &nbsp;&nbsp;- keine Indikatoren in dieser Hierarchieebene -</p>
+																	</div>
+																</div>
+															</div>
+
+
+															<!-- <div ng-repeat="indicatorMetadata in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators() | filter:{topicReference:mainTopic.topicId} | filter:indicatorNameFilter">
+															</div> -->
+														</div>
+														<!-- end main Topics -->
+
+
+													</div>
+
+											</div>
+
+											</uib-tab>
+									    <uib-tab index="1" heading="Alphabetische Liste">
+												<div class="just-padding">
 													<select style="font-size: 12px;"
-														size="10" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators() | filter:filterIndicatorsByTopic() | filter:indicatorNameFilter"
+														size="30" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators() | filter:filterIndicatorsByTopic() | filter:indicatorNameFilter"
 														ng-change="onChangeSelectedIndicator()" class="form-control" required>
 														<option disabled selected value> -- Indikator w&auml;hlen -- </option>
 													</select>
+												</div>
+											</uib-tab>
+									  </uib-tabset>
+
+											<br/>
+
 
 									</div>
 
@@ -78,12 +190,102 @@
   </div>
   <!-- /.box -->
 
-	<div ng-show="($ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.referencedIndicators.length > 0)" class="box box-danger">
+	<div class="box box-success collapsed-box">
+            <div class="box-header with-border">
+              <h3 class="box-title">Indikatoren Metadaten</h3>
+
+							<div class="box-tools pull-right">
+								<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+								</button>
+							</div>
+            </div>
+            <!-- /.box-header -->
+            <!-- form start -->
+              <div class="box-body">
+
+								<div id="indicatorMetadataOverview" text-align="center" align="center" class="">
+
+								<table class="table table-condensed">
+								<!-- <thead>
+									<tr>
+										<th>Name des Metadatums</th>
+										<th>Beschreibung des Metadatums</th>
+									</tr>
+								</thead> -->
+								<tbody>
+									<tr>
+										<td><b>Name</b></td>
+										<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorName}}</td>
+									</tr>
+									<tr>
+										<td><b>Kategorie</b></td>
+										<td ng-if="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.isHeadlineIndicator">Leitindikator</td>
+										<td ng-if="! $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.isHeadlineIndicator">Subindikator</td>
+									</tr>
+									<tr>
+										<td><b>Typ</b></td>
+										<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorType}}</td>
+									</tr>
+									<tr ng-if="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.characteristicValue">
+										<td><b>Merkmalsauspr&auml;gung</b></td>
+										<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.characteristicValue}}</td>
+									</tr>
+									<tr>
+										<td><b>Kennzeichen/K&uuml;rzel</b></td>
+										<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.abbreviation}}</td>
+									</tr>
+									<tr>
+										<td><b>Beschreibung</b></td>
+										<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.metadata.description}}</td>
+									</tr>
+									<tr>
+										<td><b>Maßeinheit</b></td>
+										<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.unit}}</td>
+									</tr>
+									<tr>
+										<td><b>Methodik</b></td>
+										<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.processDescription}}</td>
+									</tr>
+									<tr>
+										<td><b>Interpretation</b></td>
+										<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.interpretation}}</td>
+									</tr>
+									<tr>
+										<td><b>Datengrundlage</b></td>
+										<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.metadata.databasis}}</td>
+									</tr>
+									<tr>
+										<td><b>Datenquelle</b></td>
+										<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.metadata.datasource}}</td>
+									</tr>
+									<tr>
+										<td><b>Datenhalter und Kontakt</b></td>
+										<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.metadata.contact}}</td>
+									</tr>
+									<tr>
+										<td><b>Bemerkung</b></td>
+										<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.metadata.note}}</td>
+									</tr>
+									<tr>
+										<td><b>Fortführungsintervall</b></td>
+										<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.metadata.updateInterval}}</td>
+									</tr>
+								</tbody>
+							</table>
+
+									</div>
+
+              </div>
+              <!-- /.box-body -->
+  </div>
+  <!-- /.box -->
+
+	<div ng-show="($ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.referencedIndicators.length > 0)" class="box box-danger collapsed-box">
             <div class="box-header with-border">
               <h3 class="box-title">Verkn&uuml;pfte Indikatoren</h3>
 
 							<div class="box-tools pull-right">
-								<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+								<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
 								</button>
 							</div>
             </div>
@@ -97,12 +299,14 @@
 								<thead>
 									<tr>
 										<th>Name des Indikators</th>
+										<th>K&uuml;rzel/Kennziffer</th>
 										<th>Beschreibung der Verkn&uuml;pfung</th>
 									</tr>
 								</thead>
 								<tbody>
 									<tr ng-repeat="indicator in $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.referencedIndicators">
 										<td>{{indicator.referencedIndicatorName}}</td>
+										<td ng-bind="$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorAbbreviationFromIndicatorId(indicator.referencedIndicatorId)"></td>
 										<td>{{indicator.referencedIndicatorDescription}}</td>
 									</tr>
 								</tbody>
@@ -116,12 +320,12 @@
   <!-- /.box -->
 
 
-	<div ng-show="($ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.referencedGeoresources.length > 0)" style="margin-bottom: 0px;" class="box box-danger">
+	<div ng-show="($ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.referencedGeoresources.length > 0)" style="margin-bottom: 0px;" class="box box-danger collapsed-box">
             <div class="box-header with-border">
               <h3 class="box-title">Verkn&uuml;pfte Georessourcen</h3>
 
 							<div class="box-tools pull-right">
-								<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+								<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
 								</button>
 							</div>
             </div>

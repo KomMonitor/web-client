@@ -1,4 +1,4 @@
-angular.module('kommonitorMap', ['kommonitorDataExchange']);
+angular.module('kommonitorMap', ['kommonitorDataExchange', 'kommonitorVisualStyleHelper', 'kommonitorInfoLegendHelper']);
 /**
  * a common serviceInstance that holds all needed properties and methods for
  * interacting with a map (openlayers).
@@ -53,6 +53,18 @@ angular.module('kommonitorMap').service(
 						georesourceMetadataAndGeoJSON, date, useCluster);
 			};
 
+      this.addLoiGeoresourceGeoJSON = function (georesourceMetadataAndGeoJSON, date) {
+
+				$rootScope.$broadcast("addLoiGeoresourceAsGeoJSON",
+						georesourceMetadataAndGeoJSON, date);
+			};
+
+      this.addAoiGeoresourceGeoJSON = function (georesourceMetadataAndGeoJSON, date) {
+
+				$rootScope.$broadcast("addAoiGeoresourceAsGeoJSON",
+						georesourceMetadataAndGeoJSON, date);
+			};
+
       this.replaceIsochroneGeoJSON = function (geoJSON, transitMode, reachMode, cutOffValues, useMultipleStartPoints, dissolveIsochrones) {
 
 				$rootScope.$broadcast("replaceIsochronesAsGeoJSON",
@@ -73,6 +85,18 @@ angular.module('kommonitorMap').service(
       this.removePoiGeoresource = function (georesourceMetadataAndGeoJSON) {
 
 				$rootScope.$broadcast("removePoiGeoresource",
+						georesourceMetadataAndGeoJSON);
+			};
+
+      this.removeLoiGeoresource = function (georesourceMetadataAndGeoJSON) {
+
+				$rootScope.$broadcast("removeLoiGeoresource",
+						georesourceMetadataAndGeoJSON);
+			};
+
+      this.removeAoiGeoresource = function (georesourceMetadataAndGeoJSON) {
+
+				$rootScope.$broadcast("removeAoiGeoresource",
 						georesourceMetadataAndGeoJSON);
 			};
 

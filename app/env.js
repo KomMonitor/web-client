@@ -5,6 +5,9 @@
   // Setting this to false will disable console output
   window.__env.enableDebug = true;
 
+  window.__env.adminUserName = "Admin";
+  window.__env.adminPassword = "kmAdmin";
+
   // property names of feature id and name (relevant for all spatial features) - KomMonitor specific
   // DO NOT CHANGE THEM - ONLY IF YOU REALLY KNOW WHAT YOU ARE DOING
   window.__env.FEATURE_ID_PROPERTY_NAME = "ID";
@@ -24,12 +27,15 @@
   // window.__env.targetUrlToProcessingEngine = 'http://localhost:8086/processing/';
 
   // Open Route Service URL
-    window.__env.targetUrlToReachabilityService_ORS = 'http://kommonitor-re.fbg-hsbo.de/openrouteservice';
-  // window.__env.targetUrlToReachabilityService_ORS = 'http://localhost:8090/openrouteservice-4.7.2';
+    // window.__env.apiUrl = 'http://kommonitor.fbg-hsbo.de/openrouteservice';
+  window.__env.targetUrlToReachabilityService_ORS = 'https://ors5.fbg-hsbo.de';
 
   // Open Trip Planner URL - currently not integrated
   window.__env.targetUrlToReachabilityService_OTP = 'http://kommonitor-re.fbg-hsbo.de/opentripplanner';
   // window.__env.targetUrlToReachabilityService_OTP = 'http://localhost:8090/opentripplanner';
+
+  // Data Imporert URL
+  window.__env.targetUrlToImporterService = 'http://localhost:8087/';
 
   // optional geometry simplification (a feature of Data Management API)
   window.__env.simplifyGeometriesParameterName = "simplifyGeometries";
@@ -78,7 +84,7 @@
   window.__env.defaultFillOpacityForNoDataFeatures = "0.7";
   window.__env.defaultFillOpacityForHighlightedFeatures = "0.8";
   window.__env.useTransparencyOnIndicator = true;
-  window.__env.useOutlierDetectionOnIndicator = false;
+  window.__env.useOutlierDetectionOnIndicator = true;
 
   // default color for specific classification as ColorBrewer palette name
   // i.e. balance mode
@@ -94,7 +100,8 @@
 
   // array of indicator name substring that shal be used to filter out / hide certain indicators by their name
   // e.g. set ["entwicklung"] to hide all indicators whose name contains the substring "entwicklung"
-  window.__env.arrayOfNameSubstringsForHidingIndicators = ["Prozentuale", "Standardabweichung", "Stadtteil", "ausschließlich", "doppelt", "Versorgungsquote", "mittlerer Bodenversiegelungsgrad"];
+  window.__env.arrayOfNameSubstringsForHidingIndicators = ["Standardabweichung", "Bevölkerung - ", "Soziale Lage - ", "Soziale Lage (Leitindikator)", "Sterberisiko", "mittlerer Bodenversiegelungsgrad"];
+  // window.__env.arrayOfNameSubstringsForHidingIndicators = [];
 
   // e-mail recipient for feedback mail
   window.__env.feedbackMailRecipient = "thomas.blasche@amt62.essen.de";
