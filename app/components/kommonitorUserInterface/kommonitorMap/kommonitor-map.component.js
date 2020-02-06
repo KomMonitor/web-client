@@ -237,10 +237,6 @@ angular.module('kommonitorMap').component(
         $scope.filteredStyle = kommonitorVisualStyleHelperService.filteredStyle;
 
         var refreshFilteredStyle = function () {
-          var fillOpacity = 1;
-          if ($scope.useTransparencyOnIndicator) {
-            fillOpacity = defaultFillOpacityForFilteredFeatures;
-          }
 
           $scope.filteredStyle = kommonitorVisualStyleHelperService.filteredStyle;
         };
@@ -2899,12 +2895,7 @@ angular.module('kommonitorMap').component(
 
           // set transparency here
           document.getElementById("indicatorTransparencyLabel").innerHTML = (1 - opacity).toFixed(numberOfDecimals);
-          defaultFillOpacity = opacity;
-          defaultFillOpacityForOutliers_low = opacity;
-          defaultFillOpacityForOutliers_high = opacity;
-          defaultFillOpacityForZeroFeatures = opacity;
-          defaultFillOpacityForNoDataValues = opacity;
-          defaultFillOpacityForFilteredFeatures = opacity;
+          kommonitorVisualStyleHelperService.setOpacity(opacity);
           $rootScope.$broadcast("restyleCurrentLayer", true);
         });
 
@@ -3615,6 +3606,9 @@ angular.module('kommonitorMap').component(
 
           console.log('replaceIndicatorAsGeoJSON was called');
 
+          //reset opacity
+          kommonitorVisualStyleHelperService.setOpacity(__env.defaultFillOpacity);
+
           refreshFilteredStyle();
           refreshOutliersStyle();
           refreshNoDataStyle();
@@ -3832,6 +3826,11 @@ angular.module('kommonitorMap').component(
 
 
         $scope.$on("restyleCurrentLayer", function (event, skipDiagramRefresh) {
+
+          // var transparency = document.getElementById("indicatorTransparencyInput").value;
+          // var opacity = 1 - transparency;
+          //
+          // kommonitorVisualStyleHelperService.setOpacity(opacity);
 
           refreshFilteredStyle();
           refreshOutliersStyle();
