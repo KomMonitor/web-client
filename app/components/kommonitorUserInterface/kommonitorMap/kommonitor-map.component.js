@@ -237,10 +237,6 @@ angular.module('kommonitorMap').component(
         $scope.filteredStyle = kommonitorVisualStyleHelperService.filteredStyle;
 
         var refreshFilteredStyle = function () {
-          var fillOpacity = 1;
-          if ($scope.useTransparencyOnIndicator) {
-            fillOpacity = defaultFillOpacityForFilteredFeatures;
-          }
 
           $scope.filteredStyle = kommonitorVisualStyleHelperService.filteredStyle;
         };
@@ -274,6 +270,8 @@ angular.module('kommonitorMap').component(
         const spatialUnitLayerGroupName = "Raumeinheiten";
         const georesourceLayerGroupName = "Georessourcen";
         const poiLayerGroupName = "Points of Interest";
+        const loiLayerGroupName = "Lines of Interest";
+        const aoiLayerGroupName = "Areas of Interest";
         const indicatorLayerGroupName = "Indikatoren";
         const reachabilityLayerGroupName = "Erreichbarkeiten";
         const wmsLayerGroupName = "Web Map Services (WMS)";
@@ -451,6 +449,12 @@ angular.module('kommonitorMap').component(
             poiLayerGroupName: {
 
             },
+            loiLayerGroupName: {
+
+            },
+            aoiLayerGroupName: {
+
+            },
             wmsLayerGroupName: {
 
             },
@@ -623,7 +627,7 @@ angular.module('kommonitorMap').component(
               if (layerEntry) {
                 if (layerEntry.overlay) {
                   if ($scope.map.hasLayer(layerEntry.layer)) {
-                    if (layerEntry.group.name === poiLayerGroupName || layerEntry.group.name === indicatorLayerGroupName || layerEntry.group.name === wfsLayerGroupName || layerEntry.group.name === fileLayerGroupName) {
+                    if (layerEntry.group.name === poiLayerGroupName || layerEntry.group.name === loiLayerGroupName || layerEntry.group.name === aoiLayerGroupName || layerEntry.group.name === indicatorLayerGroupName || layerEntry.group.name === wfsLayerGroupName || layerEntry.group.name === fileLayerGroupName) {
                       featureLayers.push(layerEntry.layer);
                     }
                   }
@@ -2153,10 +2157,10 @@ angular.module('kommonitorMap').component(
           layer.on({
             click: function () {
 
-              var popupContent = layer.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME];
+              var propertiesString = "<pre>" + JSON.stringify(feature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
 
-              if (popupContent)
-                layer.bindPopup("SpatialUnitFeatureName: " + popupContent);
+              if (propertiesString)
+                layer.bindPopup(propertiesString);
             }
           });
         }
@@ -2170,11 +2174,10 @@ angular.module('kommonitorMap').component(
           layer.on({
             click: function () {
 
-              var popupContent = layer.feature.properties;
-              // var popupContent = "TestValue";
+              var propertiesString = "<pre>" + JSON.stringify(feature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
 
-              if (popupContent)
-                layer.bindPopup("Georesource: " + JSON.stringify(popupContent));
+              if (propertiesString)
+                layer.bindPopup(propertiesString);
             }
           });
         }
@@ -2761,6 +2764,121 @@ angular.module('kommonitorMap').component(
           });
         });
 
+        $scope.$on("addAoiGeoresourceAsGeoJSON", function (event, georesourceMetadataAndGeoJSON, date) {
+
+          var color = georesourceMetadataAndGeoJSON.aoiColor;
+
+          var layer = L.geoJSON(georesourceMetadataAndGeoJSON.geoJSON, {
+            style: function (feature) {
+              return {
+                fillColor: color,
+                color: "black",
+                weight: 1,
+                opacity: 1,
+                fillOpacity: 0.7
+              };
+            },
+            onEachFeature: onEachFeatureGeoresource
+          });
+
+          // layer.StyledLayerControl = {
+          //   removable : false,
+          //   visible : true
+          // };
+
+          $scope.layerControl.addOverlay(layer, georesourceMetadataAndGeoJSON.datasetName + "_" + date, aoiLayerGroupName);
+          layer.addTo($scope.map);
+          $scope.updateSearchControl();
+
+          $scope.map.invalidateSize(true);
+        });
+
+        $scope.$on("removeAoiGeoresource", function (event, georesourceMetadataAndGeoJSON) {
+
+          var layerName = georesourceMetadataAndGeoJSON.datasetName;
+
+          $scope.layerControl._layers.forEach(function (layer) {
+            if (layer.group.name === aoiLayerGroupName && layer.name.includes(layerName + "_")) {
+              $scope.layerControl.removeLayer(layer.layer);
+              $scope.map.removeLayer(layer.layer);
+              $scope.updateSearchControl();
+            }
+          });
+        });
+
+        $scope.$on("addLoiGeoresourceAsGeoJSON", function (event, georesourceMetadataAndGeoJSON, date) {
+
+          var color = georesourceMetadataAndGeoJSON.aoiColor;
+
+          var featureGroup = L.featureGroup();
+
+          var style = {
+            color: georesourceMetadataAndGeoJSON.loiColor,
+            dashArray: georesourceMetadataAndGeoJSON.loiDashArrayString,
+            weight: 3,
+            opacity: 1
+          };
+
+
+
+          georesourceMetadataAndGeoJSON.geoJSON.features.forEach((item, i) => {
+            var type = item.geometry.type;
+
+            if (type === "Polygon" || type === "MultiPolygon"){
+              var lines = turf.polygonToLine(item);
+
+              L.geoJSON(lines, {
+                style: style,
+                onEachFeature: onEachFeatureGeoresource
+              }).addTo(featureGroup);
+            }
+            else{
+              L.geoJSON(item, {
+                style: style,
+                onEachFeature: onEachFeatureGeoresource
+              }).addTo(featureGroup);
+            }
+          });
+
+          // georesourceMetadataAndGeoJSON.geoJSON.features.forEach((loiFeature, i) => {
+          //   var latLngs =
+          //   var polyline = L.polyline(loiFeature.geometry.coordinates);
+          //
+          //   var geoJSON = polyline.toGeoJSON();
+          //
+          //   var geoJSON_line = L.geoJSON(geoJSON, {
+          //     style: style,
+          //     onEachFeature: onEachFeatureGeoresource
+          //   })
+          //
+          //   geoJSON_line.addTo(featureGroup);
+          // });
+
+          // layer.StyledLayerControl = {
+          //   removable : false,
+          //   visible : true
+          // };
+
+          $scope.layerControl.addOverlay(featureGroup, georesourceMetadataAndGeoJSON.datasetName + "_" + date, loiLayerGroupName);
+          featureGroup.addTo($scope.map);
+          $scope.updateSearchControl();
+
+          $scope.map.invalidateSize(true);
+        });
+
+        $scope.$on("removeLoiGeoresource", function (event, georesourceMetadataAndGeoJSON) {
+
+          var layerName = georesourceMetadataAndGeoJSON.datasetName;
+
+          $scope.layerControl._layers.forEach(function (layer) {
+            if (layer.group.name === loiLayerGroupName && layer.name.includes(layerName + "_")) {
+              $scope.layerControl.removeLayer(layer.layer);
+              $scope.map.removeLayer(layer.layer);
+              $scope.updateSearchControl();
+            }
+          });
+        });
+
         $scope.$on("adjustOpacityForIndicatorLayer", function (event, indicatorMetadata, opacity) {
           // var layerName = indicatorMetadataAndGeoJSON.indicatorName;
           //
@@ -2777,12 +2895,7 @@ angular.module('kommonitorMap').component(
 
           // set transparency here
           document.getElementById("indicatorTransparencyLabel").innerHTML = (1 - opacity).toFixed(numberOfDecimals);
-          defaultFillOpacity = opacity;
-          defaultFillOpacityForOutliers_low = opacity;
-          defaultFillOpacityForOutliers_high = opacity;
-          defaultFillOpacityForZeroFeatures = opacity;
-          defaultFillOpacityForNoDataValues = opacity;
-          defaultFillOpacityForFilteredFeatures = opacity;
+          kommonitorVisualStyleHelperService.setOpacity(opacity);
           $rootScope.$broadcast("restyleCurrentLayer", true);
         });
 
@@ -3493,6 +3606,9 @@ angular.module('kommonitorMap').component(
 
           console.log('replaceIndicatorAsGeoJSON was called');
 
+          //reset opacity
+          kommonitorVisualStyleHelperService.setOpacity(__env.defaultFillOpacity);
+
           refreshFilteredStyle();
           refreshOutliersStyle();
           refreshNoDataStyle();
@@ -3710,6 +3826,11 @@ angular.module('kommonitorMap').component(
 
 
         $scope.$on("restyleCurrentLayer", function (event, skipDiagramRefresh) {
+
+          // var transparency = document.getElementById("indicatorTransparencyInput").value;
+          // var opacity = 1 - transparency;
+          //
+          // kommonitorVisualStyleHelperService.setOpacity(opacity);
 
           refreshFilteredStyle();
           refreshOutliersStyle();

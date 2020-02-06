@@ -1040,6 +1040,28 @@ select {
   overflow: auto;
 }
 
+#aoiInputForm {
+	padding: 5px;
+	height: auto !important;
+	max-height: 500px;
+	max-width: 100%;
+	font-size: 12px;
+	border: 2px solid gray;
+  border-radius: 8px;
+  overflow: auto;
+}
+
+#loiInputForm {
+	padding: 5px;
+	height: auto !important;
+	max-height: 500px;
+	max-width: 100%;
+	font-size: 12px;
+	border: 2px solid gray;
+  border-radius: 8px;
+  overflow: auto;
+}
+
 #wmsInputForm {
 	padding: 5px;
 	height: auto !important;
