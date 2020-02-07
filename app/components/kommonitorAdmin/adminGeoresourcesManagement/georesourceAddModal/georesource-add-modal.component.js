@@ -1,8 +1,10 @@
 angular.module('georesourceAddModal').component('georesourceAddModal', {
 	templateUrl : "components/kommonitorAdmin/adminGeoresourcesManagement/georesourceAddModal/georesource-add-modal.template.html",
-	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '$http', '__env',function GeoresourceAddModalAddModalController(kommonitorDataExchangeService, $scope, $rootScope, $http, __env) {
+	controller : ['kommonitorDataExchangeService', 'kommonitorImporterHelperService', '$scope', '$rootScope', '$http', '__env',
+		function GeoresourceAddModalAddModalController(kommonitorDataExchangeService, kommonitorImporterHelperService, $scope, $rootScope, $http, __env) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
+		this.kommonitorImporterHelperServiceInstance = kommonitorImporterHelperService;
 
 		/*	POST BODY
 		{

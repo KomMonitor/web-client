@@ -1,8 +1,10 @@
 angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeaturesModal', {
 	templateUrl : "components/kommonitorAdmin/adminSpatialUnitsManagement/spatialUnitEditFeaturesModal/spatial-unit-edit-features-modal.template.html",
-	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '$http', '__env', '$timeout',function SpatialUnitEditFeaturesModalController(kommonitorDataExchangeService, $scope, $rootScope, $http, __env, $timeout) {
+	controller : ['kommonitorDataExchangeService', 'kommonitorImporterHelperService', '$scope', '$rootScope', '$http', '__env', '$timeout',
+		function SpatialUnitEditFeaturesModalController(kommonitorDataExchangeService, kommonitorImporterHelperService, $scope, $rootScope, $http, __env, $timeout) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
+		this.kommonitorImporterHelperServiceInstance = kommonitorImporterHelperService;
 
 		/*	POST BODY
 				{

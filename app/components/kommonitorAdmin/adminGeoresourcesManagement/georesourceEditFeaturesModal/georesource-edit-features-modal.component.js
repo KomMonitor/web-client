@@ -1,8 +1,10 @@
 angular.module('georesourceEditFeaturesModal').component('georesourceEditFeaturesModal', {
 	templateUrl : "components/kommonitorAdmin/adminGeoresourcesManagement/georesourceEditFeaturesModal/georesource-edit-features-modal.template.html",
-	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '$http', '__env', '$timeout',function GeoresourcesEditFeaturesModalController(kommonitorDataExchangeService, $scope, $rootScope, $http, __env, $timeout) {
+	controller : ['kommonitorDataExchangeService', 'kommonitorImporterHelperService', '$scope', '$rootScope', '$http', '__env', '$timeout',
+		function GeoresourcesEditFeaturesModalController(kommonitorDataExchangeService, kommonitorImporterHelperService, $scope, $rootScope, $http, __env, $timeout) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
+		this.kommonitorImporterHelperServiceInstance = kommonitorImporterHelperService;
 
 		/*	PUT BODY
 		{

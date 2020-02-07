@@ -6,6 +6,7 @@ module.exports = function (grunt) {
         kommonitor_client: [
             'app/util/genericServices/kommonitorDataExchangeService/kommonitor-data-exchange-service.module.js',
             'app/util/genericServices/kommonitorDiagramHelperService/kommonitor-diagram-helper-service.module.js',
+            'app/util/genericServices/kommonitorImporterHelperService/kommonitor-importer-helper-service.module.js',
             'app/util/genericServices/kommonitorVisualStyleHelperService/kommonitor-visual-style-helper-service.module.js',
             'app/util/genericServices/kommonitorInfoLegendHelperService/kommonitor-info-legend-helper-service.module.js',
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorDataSetup/kommonitor-data-setup.module.js',

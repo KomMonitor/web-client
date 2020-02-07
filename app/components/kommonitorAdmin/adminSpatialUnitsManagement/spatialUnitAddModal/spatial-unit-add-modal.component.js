@@ -1,8 +1,10 @@
 angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 	templateUrl : "components/kommonitorAdmin/adminSpatialUnitsManagement/spatialUnitAddModal/spatial-unit-add-modal.template.html",
-	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '$http', '__env',function SpatialUnitAddModalController(kommonitorDataExchangeService, $scope, $rootScope, $http, __env) {
+	controller : ['kommonitorDataExchangeService', 'kommonitorImporterHelperService', '$scope', '$rootScope', '$http', '__env',
+		function SpatialUnitAddModalController(kommonitorDataExchangeService, kommonitorImporterHelperService, $scope, $rootScope, $http, __env) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
+		this.kommonitorImporterHelperServiceInstance = kommonitorImporterHelperService;
 
 		/*	POST BODY
 				{
