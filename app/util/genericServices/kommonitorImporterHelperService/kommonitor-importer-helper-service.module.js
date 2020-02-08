@@ -119,15 +119,15 @@ angular
         console.log("Trying to POST to importer service to upload a new file.");
 
         var formdata = new FormData();
-        formdata.append(fileName, fileData);       
+        formdata.append("filename", fileName); 
+        formdata.append("file", fileData);       
 
         return await $http({
           url: this.targetUrlToImporterService + "upload",
           method: "POST",
-          data: formdata
-				// headers: {
-				//    'Content-Type': undefined
-				// }
+          data: formdata,
+          // must set header content-type to undefined in order to send as multipart-formdata
+          headers: {"Content-Type": undefined },
         }).then(function successCallback(response) {
             // this callback will be called asynchronously
             // when the response is available
