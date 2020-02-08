@@ -115,4 +115,251 @@ angular
       this.fetchResourcesFromImporter();
 
 
+      this.uploadNewFile = async function(fileData, fileName){
+        console.log("Trying to POST to importer service to upload a new file.");
+
+        var formdata = new FormData();
+        formdata.append(fileName, fileData);       
+
+        return await $http({
+          url: this.targetUrlToImporterService + "upload",
+          method: "POST",
+          data: formdata
+				// headers: {
+				//    'Content-Type': undefined
+				// }
+        }).then(function successCallback(response) {
+            // this callback will be called asynchronously
+            // when the response is available
+  
+            return response.data;
+  
+          }, function errorCallback(response) {
+            // called asynchronously if an error occurs
+            // or server returns response with an error status.
+            //$scope.error = response.statusText;
+            console.error("Error while posting to importer service.");
+            return false;
+        });        
+      };
+
+
+
+      this.buildPropertyMapping_spatialResource = function(nameProperty, idPropety, validStartDateProperty, validEndDateProperty, arisenFromProperty){
+        return {
+          "arisenFromProperty": arisenFromProperty,
+          "identifierProperty": idPropety,
+          "nameProperty": nameProperty,
+          "validEndDateProperty": validStartDateProperty,
+          "validStartDateProperty": validEndDateProperty
+        };
+      };
+
+      this.buildPropertyMapping_indicatorResource = function(spatialReferenceKeyProperty, timeseriesMappings){
+        return {
+          "spatialReferenceKeyProperty": spatialReferenceKeyProperty,
+          "timeseriesMappings": timeseriesMappings
+        };
+      };
+
+      this.registerNewSpatialUnit = async function(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, spatiaUnitPostBody_managementAPI){
+        console.log("Trying to POST to importer service to register new spatial unit.");
+
+        var postBody = {
+          "converter": converterDefinition,
+          "dataSource": datasourceTypeDefinition,
+          "propertyMapping": propertyMappingDefinition,
+          "spatialUnitPostBody": spatiaUnitPostBody_managementAPI
+        };        
+
+        return await $http({
+          url: this.targetUrlToImporterService + "spatial-units",
+          method: "POST",
+          data: postBody
+				// headers: {
+				//    'Content-Type': undefined
+				// }
+        }).then(function successCallback(response) {
+            // this callback will be called asynchronously
+            // when the response is available
+  
+            return response.data;
+  
+          }, function errorCallback(response) {
+            // called asynchronously if an error occurs
+            // or server returns response with an error status.
+            //$scope.error = response.statusText;
+            console.error("Error while posting to importer service.");
+            return false;
+        });        
+      };
+
+      this.updateSpatialUnit = async function(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, spatialUnitId, spatiaUnitPutBody_managementAPI){
+        console.log("Trying to POST to importer service to update spatial unit with id '" + spatialUnitId + "'.");
+
+        var postBody = {
+          "converter": converterDefinition,
+          "dataSource": datasourceTypeDefinition,
+          "propertyMapping": propertyMappingDefinition,
+          "spatialUnitId": spatialUnitId,
+          "spatialUnitPutBody": spatiaUnitPutBody_managementAPI
+        };        
+
+        return await $http({
+          url: this.targetUrlToImporterService + "spatial-units/update",
+          method: "POST",
+          data: postBody
+				// headers: {
+				//    'Content-Type': undefined
+				// }
+        }).then(function successCallback(response) {
+            // this callback will be called asynchronously
+            // when the response is available
+  
+            return response.data;
+  
+          }, function errorCallback(response) {
+            // called asynchronously if an error occurs
+            // or server returns response with an error status.
+            //$scope.error = response.statusText;
+            console.error("Error while posting to importer service.");
+            return false;
+        });        
+      };
+
+
+
+      this.registerNewGeoresource = async function(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, georesourcePostBody_managementAPI){
+        console.log("Trying to POST to importer service to register new georesource.");
+
+        var postBody = {
+          "converter": converterDefinition,
+          "dataSource": datasourceTypeDefinition,
+          "propertyMapping": propertyMappingDefinition,
+          "georesourcePostBody": georesourcePostBody_managementAPI
+        };        
+
+        return await $http({
+          url: this.targetUrlToImporterService + "georesources",
+          method: "POST",
+          data: postBody
+				// headers: {
+				//    'Content-Type': undefined
+				// }
+        }).then(function successCallback(response) {
+            // this callback will be called asynchronously
+            // when the response is available
+  
+            return response.data;
+  
+          }, function errorCallback(response) {
+            // called asynchronously if an error occurs
+            // or server returns response with an error status.
+            //$scope.error = response.statusText;
+            console.error("Error while posting to importer service.");
+            return false;
+        });        
+      };
+
+      this.updateGeoresource = async function(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, georesourceId, georesourcePutBody_managementAPI){
+        console.log("Trying to POST to importer service to update georesource with id '" + georesourceId + "'.");
+
+        var postBody = {
+          "converter": converterDefinition,
+          "dataSource": datasourceTypeDefinition,
+          "propertyMapping": propertyMappingDefinition,
+          "georesourceId": georesourceId,
+          "georesourcePutBody": georesourcePutBody_managementAPI
+        };        
+
+        return await $http({
+          url: this.targetUrlToImporterService + "georesources/update",
+          method: "POST",
+          data: postBody
+				// headers: {
+				//    'Content-Type': undefined
+				// }
+        }).then(function successCallback(response) {
+            // this callback will be called asynchronously
+            // when the response is available
+  
+            return response.data;
+  
+          }, function errorCallback(response) {
+            // called asynchronously if an error occurs
+            // or server returns response with an error status.
+            //$scope.error = response.statusText;
+            console.error("Error while posting to importer service.");
+            return false;
+        });        
+      };
+
+
+
+      this.registerNewIndicator = async function(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, indicatorPostBody_managementAPI){
+        console.log("Trying to POST to importer service to register new indicator.");
+
+        var postBody = {
+          "converter": converterDefinition,
+          "dataSource": datasourceTypeDefinition,
+          "propertyMapping": propertyMappingDefinition,
+          "indicatorPostBody": indicatorPostBody_managementAPI
+        };        
+
+        return await $http({
+          url: this.targetUrlToImporterService + "indicators",
+          method: "POST",
+          data: postBody
+				// headers: {
+				//    'Content-Type': undefined
+				// }
+        }).then(function successCallback(response) {
+            // this callback will be called asynchronously
+            // when the response is available
+  
+            return response.data;
+  
+          }, function errorCallback(response) {
+            // called asynchronously if an error occurs
+            // or server returns response with an error status.
+            //$scope.error = response.statusText;
+            console.error("Error while posting to importer service.");
+            return false;
+        });        
+      };
+
+      this.updateIndicator = async function(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, indicatorId, indicatorPutBody_managementAPI){
+        console.log("Trying to POST to importer service to update indicator with id '" + indicatorId + "'.");
+
+        var postBody = {
+          "converter": converterDefinition,
+          "dataSource": datasourceTypeDefinition,
+          "propertyMapping": propertyMappingDefinition,
+          "indicatorId": indicatorId,
+          "indicatorPutBody": indicatorPutBody_managementAPI
+        };        
+
+        return await $http({
+          url: this.targetUrlToImporterService + "indicators/update",
+          method: "POST",
+          data: postBody
+				// headers: {
+				//    'Content-Type': undefined
+				// }
+        }).then(function successCallback(response) {
+            // this callback will be called asynchronously
+            // when the response is available
+  
+            return response.data;
+  
+          }, function errorCallback(response) {
+            // called asynchronously if an error occurs
+            // or server returns response with an error status.
+            //$scope.error = response.statusText;
+            console.error("Error while posting to importer service.");
+            return false;
+        });        
+      };
+
+
     }]);
