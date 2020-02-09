@@ -28,14 +28,21 @@ angular
         this.availableConverters = await this.fetchConverters();
         this.availableDatasourceTypes = await this.fetchDatasourceTypes();
 
-        this.availableConverters.forEach(async (converter) => {
+        for (let index = 0; index < this.availableConverters.length; index++) {
+          var converter = this.availableConverters[index];
+          
           converter = await this.fetchConverterDetails(converter);
           converter.simpleName = converter.name.replace(this.prefix_converterName, "");
-        });
+          this.availableConverters[index] = converter;
+        }
 
-        this.availableDatasourceTypes.forEach(async (datasourceType) => {
-          datasourceType = await this.fetchDatasourceTypeDetails(datasourceType);
-        });
+        for (let k = 0; k < this.availableDatasourceTypes.length; k++) {
+          this.availableDatasourceTypes[k] = await this.fetchDatasourceTypeDetails(this.availableDatasourceTypes[k]);          
+        }
+
+        setTimeout(() => {
+          $rootScope.$apply();
+        }, 1500);
 
       };
 
