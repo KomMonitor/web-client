@@ -87,12 +87,9 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 		$scope.geoJsonString = undefined;
 		$scope.spatialUnit_asGeoJson = undefined;
 
-		$scope.spatialUnitDataSourceInputInvalidReason = undefined;
-		$scope.spatialUnitDataSourceInputInvalid = false;
 		$scope.spatialResourceConfigured = false;
-		$scope.idPropertyNotFound = false;
-		$scope.namePropertyNotFound = false;
-		$scope.geodataSourceFormat = undefined;
+		$scope.converter = undefined;
+		$scope.datasourceType = undefined;
 		$scope.spatialUnitDataSourceIdProperty = undefined;
 		$scope.spatialUnitDataSourceNameProperty = undefined;
 
@@ -127,12 +124,9 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 			$scope.geoJsonString = undefined;
 			$scope.spatialUnit_asGeoJson = undefined;
 
-			$scope.spatialUnitDataSourceInputInvalidReason = undefined;
-			$scope.spatialUnitDataSourceInputInvalid = false;
-			$scope.idPropertyNotFound = false;
-			$scope.namePropertyNotFound = false;
 			$scope.spatialResourceConfigured = false;
-			$scope.geodataSourceFormat = undefined;
+			$scope.converter = undefined;
+			$scope.datasourceType = undefined;
 			$scope.spatialUnitDataSourceIdProperty = undefined;
 			$scope.spatialUnitDataSourceNameProperty = undefined;
 		};
@@ -188,6 +182,8 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 		};
 
 		$scope.addSpatialUnit = function(){
+
+			// var file = document.getElementById('spatialUnitDataSourceInput').files[0];
 
 			var postBody =
 			{
@@ -250,72 +246,6 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 					// 		$("#spatialUnitAddSucessAlert").hide();
 					// }, 3000);
 			});
-		};
-
-		$(document).on("change", "#spatialUnitDataSourceInput" ,function(){
-				// TODO validate file input and
-				$scope.spatialUnitDataSourceInputInvalidReason = undefined;
-				$scope.spatialUnitDataSourceInputInvalid = false;
-
-				$scope.geoJsonString = undefined;
-				$scope.spatialUnit_asGeoJson = undefined;
-
-				// get the file
-				var file = document.getElementById('spatialUnitDataSourceInput').files[0];
-
-				var fileEnding = file.name.split('.').pop();
-
-				if(fileEnding.toUpperCase() === "json".toUpperCase() || fileEnding.toUpperCase() === "geojson".toUpperCase()){
-					console.log("Potential GeoJSON file identified")
-					$scope.processFileInput_geoJson(file);
-				}
-		});
-
-		$scope.processFileInput_geoJson = function(file){
-			var fileReader = new FileReader();
-
-			fileReader.onload = function(event) {
-				// $scope.geoJsonString = event.target.result;
-				$scope.spatialUnit_asGeoJson = JSON.parse(event.target.result);
-
-				if(! $scope.spatialUnit_asGeoJson.features){
-					console.error("uploaded GeoJSON is not a valid FeatureCollection");
-					$scope.spatialUnitDataSourceInputInvalidReason = "GeoJSON ist keine valide FeatureCollection.";
-					$scope.spatialUnitDataSourceInputInvalid = true;
-				}
-
-				$scope.checkSpatialUnitDataSource();
-			};
-
-			// Read in the image file as a data URL.
-			fileReader.readAsText(file);
-		};
-
-		$scope.checkSpatialUnitDataSource = function(){
-			$scope.idPropertyNotFound = false;
-			$scope.namePropertyNotFound = false;
-			$scope.spatialResourceConfigured = false;
-			if($scope.spatialUnit_asGeoJson && $scope.spatialUnitDataSourceIdProperty && $scope.spatialUnitDataSourceNameProperty){
-
-					 $scope.spatialUnit_asGeoJson.features.forEach(function(feature){
-						 if(! feature.properties[$scope.spatialUnitDataSourceIdProperty]){
-							 $scope.idPropertyNotFound = true;
-							 return;
-						 }
-						 if(! feature.properties[$scope.spatialUnitDataSourceNameProperty]){
-							 $scope.namePropertyNotFound = true;
-							 return;
-						 }
-
-						 // else everything fine
-						 // append ID and NAME properties using KomMOnitor required property names
-						 feature.properties[__env.FEATURE_ID_PROPERTY_NAME] = feature.properties[$scope.spatialUnitDataSourceIdProperty];
-						 feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] = feature.properties[$scope.spatialUnitDataSourceNameProperty];
-					 });
-
-					 $scope.geoJsonString = JSON.stringify($scope.spatialUnit_asGeoJson);
-					 $scope.spatialResourceConfigured = true;
-			}
 		};
 
 		$scope.onImportSpatialUnitAddMetadata = function(){
