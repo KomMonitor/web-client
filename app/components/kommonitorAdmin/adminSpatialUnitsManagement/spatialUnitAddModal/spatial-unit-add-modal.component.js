@@ -68,7 +68,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 		$scope.metadata.note = undefined;
 		$scope.metadata.literature = undefined;
 		$scope.metadata.updateInterval = undefined;
-		$scope.metadata.sridEPSG = undefined;
+		$scope.metadata.sridEPSG = 4326;
 		$scope.metadata.datasource = undefined;
 		$scope.metadata.databasis = undefined;
 		$scope.metadata.contact = undefined;
@@ -84,10 +84,6 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 		$scope.periodOfValidity.endDate = undefined;
 		$scope.periodOfValidityInvalid = false;
 
-		$scope.geoJsonString = undefined;
-		$scope.spatialUnit_asGeoJson = undefined;
-
-		$scope.spatialResourceConfigured = false;
 		$scope.converter = undefined;
 		$scope.datasourceType = undefined;
 		$scope.spatialUnitDataSourceIdProperty = undefined;
@@ -95,6 +91,14 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 
 		$scope.successMessagePart = undefined;
 		$scope.errorMessagePart = undefined;
+
+		$scope.converterDefinition = undefined;
+		$scope.datasourceTypeDefinition = undefined;
+		$scope.propertyMappingDefinition = undefined;
+		$scope.postBody_spatialUnits = undefined;
+
+		$scope.validityEndDate_perFeature = undefined;
+		$scope.validityStartDate_perFeature = undefined;
 
 
 		$scope.resetSpatialUnitAddForm = function(){
@@ -105,7 +109,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 			$scope.metadata.note = undefined;
 			$scope.metadata.literature = undefined;
 			$scope.metadata.updateInterval = undefined;
-			$scope.metadata.sridEPSG = undefined;
+			$scope.metadata.sridEPSG = 4326;
 			$scope.metadata.datasource = undefined;
 			$scope.metadata.databasis = undefined;
 			$scope.metadata.contact = undefined;
@@ -121,14 +125,18 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 			$scope.periodOfValidity.endDate = undefined;
 			$scope.periodOfValidityInvalid = false;
 
-			$scope.geoJsonString = undefined;
-			$scope.spatialUnit_asGeoJson = undefined;
-
-			$scope.spatialResourceConfigured = false;
 			$scope.converter = undefined;
 			$scope.datasourceType = undefined;
 			$scope.spatialUnitDataSourceIdProperty = undefined;
 			$scope.spatialUnitDataSourceNameProperty = undefined;
+
+			$scope.converterDefinition = undefined;
+			$scope.datasourceTypeDefinition = undefined;
+			$scope.propertyMappingDefinition = undefined;
+			$scope.postBody_spatialUnits = undefined;
+
+			$scope.validityEndDate_perFeature = undefined;
+			$scope.validityStartDate_perFeature = undefined;
 		};
 
 		$scope.checkSpatialUnitName = function(){
@@ -181,13 +189,136 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 			}
 		};
 
-		$scope.addSpatialUnit = function(){
+		$scope.buildImporterObjects = async function(){
+			$scope.converterDefinition = $scope.buildConverterDefinition();
+			$scope.datasourceTypeDefinition = await $scope.buildDatasourceTypeDefinition();
+			$scope.propertyMappingDefinition = $scope.buildPropertyMappingDefinition();
+			$scope.postBody_spatialUnits = $scope.buildPostBody_spatialUnits();
 
-			// var file = document.getElementById('spatialUnitDataSourceInput').files[0];
+			if(!$scope.converterDefinition || !$scope.datasourceTypeDefinition || !$scope.propertyMappingDefinition || !$scope.postBody_spatialUnits){
+				return false;
+			}
 
+			return true;
+		};
+
+		$scope.buildConverterDefinition = function(){
+			var converterDefinition = {
+				"encoding": $scope.converter.encodings[0],
+				"mimeType": $scope.converter.mimeTypes[0],
+				"name": $scope.converter.name,
+				"parameters": [
+				  
+				],
+				"schema": undefined
+			  };
+
+			if($scope.converter.schemas){
+				if ($scope.schema === undefined || $scope.schema === null){
+					return null;
+				}
+				else{
+					converterDefinition.schema = $scope.schema;
+				}
+			}  
+
+			if($scope.converter.parameters.length > 0){
+				for (const parameter of $scope.converter.parameters) {
+					var parameterName = parameter.name;
+					var parameterValue = $("#converterParameter_spatialUnitAdd_" + parameterName).val();
+
+					if (parameterValue === undefined || parameterValue === null){
+						return null;
+					}
+					else{
+						converterDefinition.parameters.push({
+							"name": parameterName,
+							"value": parameterValue
+						});
+					}
+				}
+			}
+
+			return converterDefinition;
+		};
+
+		$scope.buildDatasourceTypeDefinition = async function(){
+			var datasourceTypeDefinition = {
+				"parameters": [
+				  
+				],
+				"type": $scope.datasourceType.type
+			  };
+
+			if($scope.datasourceType.type === "FILE"){
+				// get file if present
+
+				// upload it to importer
+
+				// use file reference name for datasourceType definition
+
+				
+				var file = document.getElementById('spatialUnitDataSourceInput').files[0];
+
+				if(file === null || file === undefined){
+					return null;
+				}
+
+				var fileUploadName;
+				try {
+					fileUploadName = await kommonitorImporterHelperService.uploadNewFile(file, file.name);	
+				} catch (error) {
+					$scope.errorMessagePart = error;
+
+					$("#spatialUnitAddErrorAlert").show();
+					$scope.loadingData = false;
+					return null;
+				}
+
+				datasourceTypeDefinition.parameters.push({
+					"name": "NAME",
+					"value": fileUploadName
+				});
+			}  
+			else{
+				if($scope.datasourceType.parameters.length > 0){
+					for (const parameter of $scope.datasourceType.parameters) {
+						var parameterName = parameter.name;
+						var parameterValue = $("#datasourceTypeParameter_spatialUnitAdd_" + parameterName).val();
+	
+						if (parameterValue === undefined || parameterValue === null){
+							return null;
+						}
+						else{
+							datasourceTypeDefinition.parameters.push({
+								"name": parameterName,
+								"value": parameterValue
+							});
+						}
+					}
+				}
+			}
+
+			return datasourceTypeDefinition;
+		};
+
+		$scope.buildPropertyMappingDefinition = function(){
+			var propertyMapping = {
+				// arisenFrom current not used
+				"arisenFromProperty": undefined,
+				"identifierProperty": $scope.spatialUnitDataSourceIdProperty,
+				"nameProperty": $scope.spatialUnitDataSourceNameProperty,
+				"validEndDateProperty": $scope.validityEndDate_perFeature,
+				"validStartDateProperty": $scope.validityStartDate_perFeature
+			  };
+
+			  return propertyMapping;
+		};
+
+		$scope.buildPostBody_spatialUnits = function(){
 			var postBody =
 			{
-				"geoJsonString": $scope.geoJsonString,
+				"geoJsonString": undefined, // will be set by importer
 				"metadata": {
 					"note": $scope.metadata.note,
 					"literature": $scope.metadata.literature,
@@ -197,56 +328,76 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 					"contact": $scope.metadata.contact,
 					"lastUpdate": $scope.metadata.lastUpdate,
 					"description": $scope.metadata.description,
-					"databasis": $scope.metadata.databasis,
-					"sridEPSG": 4326
+					"databasis": $scope.metadata.databasis
 				},
-				"jsonSchema": null,
-				"nextLowerHierarchyLevel": $scope.nextLowerHierarchySpatialUnit ? $scope.nextLowerHierarchySpatialUnit.spatialUnitLevel : null,
+				"jsonSchema": undefined,
+				"nextLowerHierarchyLevel": $scope.nextLowerHierarchySpatialUnit ? $scope.nextLowerHierarchySpatialUnit.spatialUnitLevel : undefined,
 				"spatialUnitLevel": $scope.spatialUnitLevel,
 				"periodOfValidity": {
 					"endDate": $scope.periodOfValidity.endDate,
 					"startDate": $scope.periodOfValidity.startDate
 				},
-				"nextUpperHierarchyLevel": $scope.nextUpperHierarchySpatialUnit ? $scope.nextUpperHierarchySpatialUnit.spatialUnitLevel : null
+				"nextUpperHierarchyLevel": $scope.nextUpperHierarchySpatialUnit ? $scope.nextUpperHierarchySpatialUnit.spatialUnitLevel : undefined
 			};
 
-			// TODO verify input
-
-			// TODO Create and perform POST Request with loading screen
-
-			$scope.loadingData = true;
-
-			$http({
-				url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/spatial-units",
-				method: "POST",
-				data: postBody
-				// headers: {
-				//    'Content-Type': undefined
-				// }
-			}).then(function successCallback(response) {
-					// this callback will be called asynchronously
-					// when the response is available
-
-					$rootScope.$broadcast("refreshSpatialUnitOverviewTable");
-
-					// refresh all admin dashboard diagrams due to modified metadata
-					$rootScope.$broadcast("refreshAdminDashboardDiagrams");
-
-					$("#spatialUnitAddSucessAlert").show();
-
-					$scope.loadingData = false;
-
-				}, function errorCallback(response) {
-					$scope.errorMessagePart = response;
-
-					$("#spatialUnitAddErrorAlert").show();
-					$scope.loadingData = false;
-
-					// setTimeout(function() {
-					// 		$("#spatialUnitAddSucessAlert").hide();
-					// }, 3000);
-			});
+			return postBody;
 		};
+
+			$scope.addSpatialUnit = async function () {
+
+				/*
+					now collect data and build request for importer
+				*/
+
+				/*
+					if any required importer data is missing --> cancel request and highlight required errors 
+				*/
+				var allDataSpecified = await $scope.buildImporterObjects();
+
+				if (!allDataSpecified) {
+
+					$("#spatialUnitAddForm").validator("update");
+					$("#spatialUnitAddForm").validator("validate");
+					return;
+				}
+				else {
+
+
+					// TODO verify input
+
+					// TODO Create and perform POST Request with loading screen
+
+					$scope.loadingData = true;
+
+					try {
+						var newSpatialUnitResponse = await kommonitorImporterHelperService.registerNewSpatialUnit($scope.converterDefinition, $scope.datasourceTypeDefinition, $scope.propertyMappingDefinition, $scope.postBody_spatialUnits);
+
+						$rootScope.$broadcast("refreshSpatialUnitOverviewTable");
+
+						// refresh all admin dashboard diagrams due to modified metadata
+						$rootScope.$broadcast("refreshAdminDashboardDiagrams");
+
+						$("#spatialUnitAddSucessAlert").show();
+						$scope.loadingData = false;
+					} catch (error) {
+						if(error.data){
+							if (error.data.message){
+								$scope.errorMessagePart = error.data.message;
+							}
+							else{
+								$scope.errorMessagePart = error.data;
+							}
+						}
+						else{
+							$scope.errorMessagePart = error.data;
+						}
+
+						$("#spatialUnitAddErrorAlert").show();
+						$scope.loadingData = false;
+					}
+				}
+
+			};
 
 		$scope.onImportSpatialUnitAddMetadata = function(){
 
@@ -331,7 +482,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 				$scope.spatialUnitLevel = $scope.metadataImportSettings.spatialUnitLevel;
 
 				$scope.$apply();
-		}
+		};
 
 		$scope.onExportSpatialUnitAddMetadata = function(){
 			var metadataExport = $scope.spatialUnitMetadataStructure;
