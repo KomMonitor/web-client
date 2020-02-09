@@ -134,7 +134,8 @@ angular
           method: "POST",
           data: formdata,
           // must set header content-type to undefined in order to send as multipart-formdata
-          headers: {"Content-Type": undefined },
+          headers: {"Content-Type": undefined, "Accept": "text/plain" },
+          responseType: 'text'
         }).then(function successCallback(response) {
             // this callback will be called asynchronously
             // when the response is available
@@ -146,7 +147,7 @@ angular
             // or server returns response with an error status.
             //$scope.error = response.statusText;
             console.error("Error while posting to importer service.");
-            return false;
+            throw response;
         });        
       };
 
@@ -182,10 +183,10 @@ angular
         return await $http({
           url: this.targetUrlToImporterService + "spatial-units",
           method: "POST",
-          data: postBody
-				// headers: {
-				//    'Content-Type': undefined
-				// }
+          data: postBody,
+          headers: {
+            'Content-Type': "application/json"
+          }
         }).then(function successCallback(response) {
             // this callback will be called asynchronously
             // when the response is available
@@ -197,7 +198,7 @@ angular
             // or server returns response with an error status.
             //$scope.error = response.statusText;
             console.error("Error while posting to importer service.");
-            return false;
+            throw response;
         });        
       };
 
@@ -215,10 +216,10 @@ angular
         return await $http({
           url: this.targetUrlToImporterService + "spatial-units/update",
           method: "POST",
-          data: postBody
-				// headers: {
-				//    'Content-Type': undefined
-				// }
+          data: postBody,
+          headers: {
+            'Content-Type': "application/json"
+          }
         }).then(function successCallback(response) {
             // this callback will be called asynchronously
             // when the response is available
@@ -230,7 +231,7 @@ angular
             // or server returns response with an error status.
             //$scope.error = response.statusText;
             console.error("Error while posting to importer service.");
-            return false;
+            throw response;
         });        
       };
 
@@ -249,10 +250,10 @@ angular
         return await $http({
           url: this.targetUrlToImporterService + "georesources",
           method: "POST",
-          data: postBody
-				// headers: {
-				//    'Content-Type': undefined
-				// }
+          data: postBody,
+          headers: {
+            'Content-Type': "application/json"
+          }
         }).then(function successCallback(response) {
             // this callback will be called asynchronously
             // when the response is available
@@ -264,7 +265,7 @@ angular
             // or server returns response with an error status.
             //$scope.error = response.statusText;
             console.error("Error while posting to importer service.");
-            return false;
+            throw response;
         });        
       };
 
@@ -282,10 +283,10 @@ angular
         return await $http({
           url: this.targetUrlToImporterService + "georesources/update",
           method: "POST",
-          data: postBody
-				// headers: {
-				//    'Content-Type': undefined
-				// }
+          data: postBody,
+          headers: {
+            'Content-Type': "application/json"
+          }
         }).then(function successCallback(response) {
             // this callback will be called asynchronously
             // when the response is available
@@ -297,7 +298,7 @@ angular
             // or server returns response with an error status.
             //$scope.error = response.statusText;
             console.error("Error while posting to importer service.");
-            return false;
+            throw response;
         });        
       };
 
@@ -316,10 +317,10 @@ angular
         return await $http({
           url: this.targetUrlToImporterService + "indicators",
           method: "POST",
-          data: postBody
-				// headers: {
-				//    'Content-Type': undefined
-				// }
+          data: postBody,
+          headers: {
+            'Content-Type': "application/json"
+          }
         }).then(function successCallback(response) {
             // this callback will be called asynchronously
             // when the response is available
@@ -331,7 +332,7 @@ angular
             // or server returns response with an error status.
             //$scope.error = response.statusText;
             console.error("Error while posting to importer service.");
-            return false;
+            throw response;
         });        
       };
 
@@ -349,10 +350,10 @@ angular
         return await $http({
           url: this.targetUrlToImporterService + "indicators/update",
           method: "POST",
-          data: postBody
-				// headers: {
-				//    'Content-Type': undefined
-				// }
+          data: postBody,
+          headers: {
+            'Content-Type': "application/json"
+          }
         }).then(function successCallback(response) {
             // this callback will be called asynchronously
             // when the response is available
@@ -364,7 +365,7 @@ angular
             // or server returns response with an error status.
             //$scope.error = response.statusText;
             console.error("Error while posting to importer service.");
-            return false;
+            throw response;
         });        
       };
 
