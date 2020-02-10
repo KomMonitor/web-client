@@ -31,17 +31,23 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 		$scope.periodOfValidity.endDate = undefined;
 		$scope.periodOfValidityInvalid = false;
 
-		$scope.geoJsonString = undefined;
-		$scope.georesource_asGeoJson = undefined;
-
 		$scope.georesourceEditFeaturesDataSourceInputInvalidReason = undefined;
 		$scope.georesourceEditFeaturesDataSourceInputInvalid = false;
-		$scope.spatialResourceConfigured = false;
-		$scope.idPropertyNotFound = false;
-		$scope.namePropertyNotFound = false;
-		$scope.geodataSourceFormat = undefined;
 		$scope.georesourceDataSourceIdProperty = undefined;
 		$scope.georesourceDataSourceNameProperty = undefined;
+
+		$scope.converter = undefined;
+			$scope.datasourceType = undefined;
+			$scope.spatialUnitDataSourceIdProperty = undefined;
+			$scope.spatialUnitDataSourceNameProperty = undefined;
+
+			$scope.converterDefinition = undefined;
+			$scope.datasourceTypeDefinition = undefined;
+			$scope.propertyMappingDefinition = undefined;
+			$scope.putBody_spatialUnits = undefined;
+
+			$scope.validityEndDate_perFeature = undefined;
+			$scope.validityStartDate_perFeature = undefined;
 
 		$scope.successMessagePart = undefined;
 		$scope.errorMessagePart = undefined;
@@ -135,17 +141,23 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 			$scope.periodOfValidity.endDate = undefined;
 			$scope.periodOfValidityInvalid = false;
 
-			$scope.geoJsonString = undefined;
-			$scope.georesource_asGeoJson = undefined;
-
 			$scope.georesourceEditFeaturesDataSourceInputInvalidReason = undefined;
 			$scope.georesourceEditFeaturesDataSourceInputInvalid = false;
-			$scope.idPropertyNotFound = false;
-			$scope.namePropertyNotFound = false;
-			$scope.spatialResourceConfigured = false;
-			$scope.geodataSourceFormat = undefined;
 			$scope.georesourceDataSourceIdProperty = undefined;
 			$scope.georesourceDataSourceNameProperty = undefined;
+
+			$scope.converter = undefined;
+			$scope.datasourceType = undefined;
+			$scope.spatialUnitDataSourceIdProperty = undefined;
+			$scope.spatialUnitDataSourceNameProperty = undefined;
+
+			$scope.converterDefinition = undefined;
+			$scope.datasourceTypeDefinition = undefined;
+			$scope.propertyMappingDefinition = undefined;
+			$scope.putBody_spatialUnits = undefined;
+
+			$scope.validityEndDate_perFeature = undefined;
+			$scope.validityStartDate_perFeature = undefined;
 
 			$scope.successMessagePart = undefined;
 			$scope.errorMessagePart = undefined;
@@ -190,120 +202,106 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 			}
 		};
 
-		$scope.editGeoresourceFeatures = function(){
+		$scope.buildImporterObjects = async function(){
+			$scope.converterDefinition = $scope.buildConverterDefinition();
+			$scope.datasourceTypeDefinition = await $scope.buildDatasourceTypeDefinition();
+			$scope.propertyMappingDefinition = $scope.buildPropertyMappingDefinition();
+			$scope.putBody_georesources = $scope.buildPutBody_georesources();
 
+			if(!$scope.converterDefinition || !$scope.datasourceTypeDefinition || !$scope.propertyMappingDefinition || !$scope.putBody_georesources){
+				return false;
+			}
+
+			return true;
+		};
+
+		$scope.buildConverterDefinition = function(){
+
+			return kommonitorImporterHelperService.buildConverterDefinition($scope.converter, "converterParameter_georesourceEditFeatures_", $scope.schema);			
+		};
+
+		$scope.buildDatasourceTypeDefinition = async function(){
+			try {
+				return await kommonitorImporterHelperService.buildDatasourceTypeDefinition($scope.datasourceType, 'datasourceTypeParameter_georesourceEditFeatures_', 'georesourceDataSourceInput_editFeatures');			
+			} catch (error) {
+				$scope.errorMessagePart = error;
+
+				$("#georesourceEditFeaturesErrorAlert").show();
+				$scope.loadingData = false;
+				return null;
+			}			
+		};
+
+		$scope.buildPropertyMappingDefinition = function(){
+			// arsion from is undefined currently
+			return kommonitorImporterHelperService.buildPropertyMapping_spatialResource($scope.georesourceDataSourceNameProperty, $scope.georesourceDataSourceIdProperty, $scope.validityStartDate_perFeature, $scope.validityEndDate_perFeature, undefined);
+		};
+
+		$scope.buildPutBody_georesources = function(){
 			var putBody =
 			{
-				"geoJsonString": $scope.geoJsonString,
+				"geoJsonString": undefined,
 				"periodOfValidity": {
 					"endDate": $scope.periodOfValidity.endDate,
 					"startDate": $scope.periodOfValidity.startDate
 				}
 			};
 
-			// TODO verify input
+			return putBody;
+		};
 
-			// TODO Create and perform POST Request with loading screen
 
-			$scope.loadingData = true;
+		$scope.editGeoresourceFeatures = async function(){
 
-			$http({
-				url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + $scope.currentGeoresourceDataset.georesourceId,
-				method: "PUT",
-				data: putBody
-				// headers: {
-				//    'Content-Type': undefined
-				// }
-			}).then(function successCallback(response) {
-					// this callback will be called asynchronously
-					// when the response is available
+			/*
+					now collect data and build request for importer
+				*/
 
-					$rootScope.$broadcast("refreshGeoresourceOverviewTable");
+				/*
+					if any required importer data is missing --> cancel request and highlight required errors 
+				*/
+				var allDataSpecified = await $scope.buildImporterObjects();
+
+				if (!allDataSpecified) {
+
+					$("#spatialUnitEditFeaturesForm").validator("update");
+					$("#spatialUnitEditFeaturesForm").validator("validate");
+					return;
+				}
+				else {
+
+
+					// TODO verify input
+
+					// TODO Create and perform POST Request with loading screen
+
+					$scope.loadingData = true;
+
+					try {
+						var updateGeoresourceResponse = await kommonitorImporterHelperService.updateGeoresource($scope.converterDefinition, $scope.datasourceTypeDefinition, $scope.propertyMappingDefinition, $scope.currentGeoresourceDataset.georesourceId, $scope.putBody_georesources);
+
+						// this callback will be called asynchronously
+						// when the response is available
+
+						$rootScope.$broadcast("refreshGeoresourceOverviewTable");
 					// $scope.refreshGeoresourceEditFeaturesOverviewTable();
 
 					$scope.successMessagePart = $scope.currentGeoresourceDataset.datasetName;
 
 					$("#georesourceEditFeaturesSuccessAlert").show();
 					$scope.loadingData = false;
+					} catch (error) {
+						$scope.errorMessagePart = error;
 
-				}, function errorCallback(response) {
-					$scope.errorMessagePart = response;
+						$("#georesourceEditFeaturesErrorAlert").show();
+						$scope.loadingData = false;
 
-					$("#georesourceEditFeaturesErrorAlert").show();
-					$scope.loadingData = false;
-
-					// setTimeout(function() {
-					// 		$("#georesourceEditFeaturesSuccessAlert").hide();
-					// }, 3000);
-			});
-		};
-
-		$(document).on("change", "#georesourceEditFeaturesDataSourceInput" ,function(){
-				// TODO validate file input and
-				$scope.georesourceEditFeaturesDataSourceInputInvalidReason = undefined;
-				$scope.georesourceEditFeaturesDataSourceInputInvalid = false;
-
-				$scope.geoJsonString = undefined;
-				$scope.georesource_asGeoJson = undefined;
-
-				// get the file
-				var file = document.getElementById('georesourceEditFeaturesDataSourceInput').files[0];
-
-				var fileEnding = file.name.split('.').pop();
-
-				if(fileEnding.toUpperCase() === "json".toUpperCase() || fileEnding.toUpperCase() === "geojson".toUpperCase()){
-					console.log("Potential GeoJSON file identified")
-					$scope.processFileInput_geoJson(file);
+						setTimeout(() => {
+							$scope.$apply();
+						}, 250);
+					}
 				}
-		});
-
-		$scope.processFileInput_geoJson = function(file){
-			var fileReader = new FileReader();
-
-			fileReader.onload = function(event) {
-				// $scope.geoJsonString = event.target.result;
-				$scope.georesource_asGeoJson = JSON.parse(event.target.result);
-
-				if(! $scope.georesource_asGeoJson.features){
-					console.error("uploaded GeoJSON is not a valid FeatureCollection");
-					$scope.georesourceEditFeaturesDataSourceInputInvalidReason = "GeoJSON ist keine valide FeatureCollection.";
-					$scope.georesourceEditFeaturesDataSourceInputInvalid = true;
-				}
-
-				$scope.checkGeoresourceDataSource();
-			};
-
-			// Read in the image file as a data URL.
-			fileReader.readAsText(file);
 		};
-
-		$scope.checkGeoresourceDataSource = function(){
-			$scope.idPropertyNotFound = false;
-			$scope.namePropertyNotFound = false;
-			$scope.spatialResourceConfigured = false;
-			if($scope.georesource_asGeoJson && $scope.georesourceDataSourceIdProperty && $scope.georesourceDataSourceNameProperty){
-
-					 $scope.georesource_asGeoJson.features.forEach(function(feature){
-						 if(! feature.properties[$scope.georesourceDataSourceIdProperty]){
-							 $scope.idPropertyNotFound = true;
-							 return;
-						 }
-						 if(! feature.properties[$scope.georesourceDataSourceNameProperty]){
-							 $scope.namePropertyNotFound = true;
-							 return;
-						 }
-
-						 // else everything fine
-						 // append ID and NAME properties using KomMOnitor required property names
-						 feature.properties[__env.FEATURE_ID_PROPERTY_NAME] = feature.properties[$scope.georesourceDataSourceIdProperty];
-						 feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] = feature.properties[$scope.georesourceDataSourceNameProperty];
-					 });
-
-					 $scope.geoJsonString = JSON.stringify($scope.georesource_asGeoJson);
-					 $scope.spatialResourceConfigured = true;
-			}
-		};
-
 
 			$scope.hideSuccessAlert = function(){
 				$("#georesourceEditFeaturesSuccessAlert").hide();
