@@ -203,116 +203,25 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 		};
 
 		$scope.buildConverterDefinition = function(){
-			var converterDefinition = {
-				"encoding": $scope.converter.encodings[0],
-				"mimeType": $scope.converter.mimeTypes[0],
-				"name": $scope.converter.name,
-				"parameters": [
-				  
-				],
-				"schema": undefined
-			  };
 
-			if($scope.converter.schemas){
-				if ($scope.schema === undefined || $scope.schema === null){
-					return null;
-				}
-				else{
-					converterDefinition.schema = $scope.schema;
-				}
-			}  
-
-			if($scope.converter.parameters.length > 0){
-				for (const parameter of $scope.converter.parameters) {
-					var parameterName = parameter.name;
-					var parameterValue = $("#converterParameter_spatialUnitAdd_" + parameterName).val();
-
-					if (parameterValue === undefined || parameterValue === null){
-						return null;
-					}
-					else{
-						converterDefinition.parameters.push({
-							"name": parameterName,
-							"value": parameterValue
-						});
-					}
-				}
-			}
-
-			return converterDefinition;
+			return kommonitorImporterHelperService.buildConverterDefinition($scope.converter, "converterParameter_spatialUnitAdd_", $scope.schema);			
 		};
 
 		$scope.buildDatasourceTypeDefinition = async function(){
-			var datasourceTypeDefinition = {
-				"parameters": [
-				  
-				],
-				"type": $scope.datasourceType.type
-			  };
+			try {
+				return await kommonitorImporterHelperService.buildDatasourceTypeDefinition($scope.datasourceType, 'datasourceTypeParameter_spatialUnitAdd_', 'spatialUnitDataSourceInput');			
+			} catch (error) {
+				$scope.errorMessagePart = error;
 
-			if($scope.datasourceType.type === "FILE"){
-				// get file if present
-
-				// upload it to importer
-
-				// use file reference name for datasourceType definition
-
-				
-				var file = document.getElementById('spatialUnitDataSourceInput').files[0];
-
-				if(file === null || file === undefined){
-					return null;
-				}
-
-				var fileUploadName;
-				try {
-					fileUploadName = await kommonitorImporterHelperService.uploadNewFile(file, file.name);	
-				} catch (error) {
-					$scope.errorMessagePart = error;
-
-					$("#spatialUnitAddErrorAlert").show();
-					$scope.loadingData = false;
-					return null;
-				}
-
-				datasourceTypeDefinition.parameters.push({
-					"name": "NAME",
-					"value": fileUploadName
-				});
-			}  
-			else{
-				if($scope.datasourceType.parameters.length > 0){
-					for (const parameter of $scope.datasourceType.parameters) {
-						var parameterName = parameter.name;
-						var parameterValue = $("#datasourceTypeParameter_spatialUnitAdd_" + parameterName).val();
-	
-						if (parameterValue === undefined || parameterValue === null){
-							return null;
-						}
-						else{
-							datasourceTypeDefinition.parameters.push({
-								"name": parameterName,
-								"value": parameterValue
-							});
-						}
-					}
-				}
-			}
-
-			return datasourceTypeDefinition;
+				$("#spatialUnitAddErrorAlert").show();
+				$scope.loadingData = false;
+				return null;
+			}			
 		};
 
 		$scope.buildPropertyMappingDefinition = function(){
-			var propertyMapping = {
-				// arisenFrom current not used
-				"arisenFromProperty": undefined,
-				"identifierProperty": $scope.spatialUnitDataSourceIdProperty,
-				"nameProperty": $scope.spatialUnitDataSourceNameProperty,
-				"validEndDateProperty": $scope.validityEndDate_perFeature,
-				"validStartDateProperty": $scope.validityStartDate_perFeature
-			  };
-
-			  return propertyMapping;
+			// arsion from is undefined currently
+			return kommonitorImporterHelperService.buildPropertyMapping_spatialResource($scope.spatialUnitDataSourceNameProperty, $scope.spatialUnitDataSourceIdProperty, $scope.validityStartDate_perFeature, $scope.validityEndDate_perFeature, undefined);
 		};
 
 		$scope.buildPostBody_spatialUnits = function(){

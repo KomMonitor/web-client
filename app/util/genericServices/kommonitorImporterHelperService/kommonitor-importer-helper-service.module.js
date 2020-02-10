@@ -151,7 +151,103 @@ angular
         });        
       };
 
+      this.buildConverterDefinition = function(selectedConverter, converterParameterPrefix, schema){
+        var converterDefinition = {
+          "encoding": selectedConverter.encodings[0],
+          "mimeType": selectedConverter.mimeTypes[0],
+          "name": selectedConverter.name,
+          "parameters": [
+            
+          ],
+          "schema": undefined
+          };
+  
+        if(selectedConverter.schemas){
+          if (schema === undefined || schema === null){
+            return null;
+          }
+          else{
+            converterDefinition.schema = schema;
+          }
+        }  
+  
+        if(selectedConverter.parameters.length > 0){
+          for (const parameter of selectedConverter.parameters) {
+            var parameterName = parameter.name;
+            var parameterValue = $("#" + converterParameterPrefix + parameterName).val();
+  
+            if (parameterValue === undefined || parameterValue === null){
+              return null;
+            }
+            else{
+              converterDefinition.parameters.push({
+                "name": parameterName,
+                "value": parameterValue
+              });
+            }
+          }
+        }
+  
+        return converterDefinition;
+      };
 
+      this.buildDatasourceTypeDefinition = async function(selectedDatasourceType, datasourceTypeParameterPrefix, datasourceFileInputId){
+        var datasourceTypeDefinition = {
+          "parameters": [
+            
+          ],
+          "type": selectedDatasourceType.type
+          };
+  
+        if(selectedDatasourceType.type === "FILE"){
+          // get file if present
+  
+          // upload it to importer
+  
+          // use file reference name for datasourceType definition
+  
+          
+          var file = document.getElementById(datasourceFileInputId).files[0];
+  
+          if(file === null || file === undefined){
+            return null;
+          }
+  
+          var fileUploadName;
+          try {
+            fileUploadName = await this.uploadNewFile(file, file.name);	
+          } catch (error) {
+            console.error("Error while uploading file to importer.");
+            console.error(error);
+            throw error;
+          }
+  
+          datasourceTypeDefinition.parameters.push({
+            "name": "NAME",
+            "value": fileUploadName
+          });
+        }  
+        else{
+          if(selectedDatasourceType.parameters.length > 0){
+            for (const parameter of selectedDatasourceType.parameters) {
+              var parameterName = parameter.name;
+              var parameterValue = $("#" + datasourceTypeParameterPrefix + parameterName).val();
+    
+              if (parameterValue === undefined || parameterValue === null){
+                return null;
+              }
+              else{
+                datasourceTypeDefinition.parameters.push({
+                  "name": parameterName,
+                  "value": parameterValue
+                });
+              }
+            }
+          }
+        }
+  
+        return datasourceTypeDefinition;
+      };
 
       this.buildPropertyMapping_spatialResource = function(nameProperty, idPropety, validStartDateProperty, validEndDateProperty, arisenFromProperty){
         return {
