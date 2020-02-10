@@ -27,7 +27,8 @@ MULTI STEP FORM
     margin: 0 10%; */
 
     /*stacking fieldsets above each other*/
-    position: relative;
+	position: relative;
+	width: 100%;
 }
 
 /*Hide all except first fieldset*/
@@ -172,28 +173,6 @@ MULTI STEP FORM
 #progressbar li.active:before, #progressbar li.active:after {
     background: #337ab7;
 	color: white;
-}
-
-
-/* Not relevant to this form */
-.dme_link {
-    margin-top: 30px;
-    text-align: center;
-}
-.dme_link a {
-    background: #337ab7;
-    font-weight: bold;
-    color: white;
-    border: 0 none;
-    border-radius: 25px;
-    cursor: pointer;
-    padding: 5px 25px;
-    font-size: 12px;
-}
-
-.dme_link a:hover, .dme_link a:focus {
-    background: #337ab7;
-    text-decoration: none;
 }
 
 /* LOGIN STUFF */

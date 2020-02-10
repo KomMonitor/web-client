@@ -578,12 +578,12 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 						//3. increase opacity of next_fs to 1 as it moves in
 						opacity = 1 - now;
 						current_fs.css({
-					'transform': 'scale('+scale+')',
-					'position': 'absolute'
-				});
-						next_fs.css({'left': left, 'opacity': opacity});
+							'position': 'absolute'
+						});
+						// next_fs.css({'left': left, 'opacity': opacity});
+						next_fs.css({'opacity': opacity});
 					}, 
-					duration: 800, 
+					duration: 200, 
 					complete: function(){
 						current_fs.hide();
 						animating = false;
@@ -615,12 +615,19 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 						left = ((1-now) * 50)+"%";
 						//3. increase opacity of previous_fs to 1 as it moves in
 						opacity = 1 - now;
-						current_fs.css({'left': left});
-						previous_fs.css({'transform': 'scale('+scale+')', 'opacity': opacity});
+						// current_fs.css({'left': left});
+						// previous_fs.css({'transform': 'scale('+scale+')', 'opacity': opacity});
+						previous_fs.css({
+							'position': 'absolute'
+						});
+						previous_fs.css({'opacity': opacity});
 					}, 
-					duration: 800, 
+					duration: 200, 
 					complete: function(){
 						current_fs.hide();
+						previous_fs.css({
+							'position': 'relative'
+						});
 						animating = false;
 					}, 
 					//this comes from the custom easing plugin
