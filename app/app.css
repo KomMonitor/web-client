@@ -37,14 +37,14 @@ MULTI STEP FORM
 }
 
 /*inputs*/
-.multiStepForm input, .multiStepForm textarea {
+.multiStepForm input, .multiStepForm textarea, .multiStepForm select {
     padding: 15px;
     border: 1px solid #ccc;
     border-radius: 0px;
     margin-bottom: 10px;
     width: 100%;
     box-sizing: border-box;
-    font-family: montserrat;
+    /* font-family: montserrat; */
     color: #2C3E50;
     font-size: 13px;
 }
