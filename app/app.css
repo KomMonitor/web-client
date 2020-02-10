@@ -63,7 +63,7 @@ MULTI STEP FORM
 
 /*buttons*/
 .multiStepForm .action-button {
-    width: 100px;
+    width: auto;
     background: #337ab7;
     font-weight: bold;
     color: white;
