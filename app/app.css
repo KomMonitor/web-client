@@ -10,7 +10,7 @@ MULTI STEP FORM
 
 /*form styles*/
 .multiStepForm {
-    text-align: center;
+	text-align: center;
     position: relative;
 	margin-top: 30px;
 	z-index: 11000;
@@ -125,7 +125,7 @@ MULTI STEP FORM
     color: black;
     text-transform: uppercase;
     font-size: 9px;
-    width: 33.33%;
+    /* width: 33.33%; */
     float: left;
     position: relative;
 	letter-spacing: 1px;
