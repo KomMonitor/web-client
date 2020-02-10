@@ -1,21 +1,361 @@
 <div id="adminIndicatorsContent">
+
+	<div align="center">
+		<div class="loading-overlay-admin-panel ng-hide" ng-show="loadingData">
+					<span class="glyphicon glyphicon-refresh icon-spin"></span>
+		</div>
+	</div>
+
 	<!-- Content Header (Page header) -->
 	<section class="content-header">
-		<h1>
-			Indikatorenverwaltung
-			<small>Info</small>
-		</h1>
+			<h1>
+				Verwalten der Geodaten
+				<small>Info</small>
+			</h1>
+
+			<div class="adminTableButtonWrapper">
+				<button class="btn btn-success btn-sm" type="button" data-toggle="modal" data-target="#modal-add-georesource"><i class="fas fa-plus"></i>&nbsp;&nbsp;Erstellen</button>
+				<!-- edit metadata -->
+
+				<!-- edit features -->
+
+				<!-- delete selected completely -->
+				<button class="btn btn-danger btn-sm" type="button" data-toggle="modal" data-target="#modal-delete-georesources" ng-click="onClickDeleteDatasets()"><i class="fas fa-trash"></i>&nbsp;&nbsp;L&ouml;schen</button>
+
+				<!-- delete b timestamp -->
+			</div>
 	</section>
 
 	<!-- Main content -->
 	<section class="content container-fluid">
-
-		INDICATORS STUFF
-
 		<!--------------------------
 			| Your Page Content Here |
 			-------------------------->
 
+			<!-- POI -->
+
+			<div class="box box-primary">
+            <div class="box-header">
+              <h3 class="box-title">Points of Interest</h3>
+
+							<div class="box-tools pull-right">
+								<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+								</button>
+							</div>
+						</div>
+
+            <!-- /.box-header -->
+            <div class="box-body">
+
+							<div class="admin-table-wrapper">
+	              <table id="poiOverviewTable" datatable="ng" dt-options="$ctrl.kommonitorDataExchangeServiceInstance.datatablesOptions" class="table table-bordered table-condensed table-striped" style="width:100%; overflow:auto; font-size: 11px;">
+	                <thead>
+	                <tr>
+	                  <th><input type="checkbox" ng-model="selectPoiEntriesInput" ng-change="onChangeSelectPoiEntries()"></input></th>
+										<th>Editierfunktionen</th>
+										<th>Id</th>
+	                  <th>Name</th>
+										<th>Symbolfarbe</th>
+										<th>Symbolname</th>
+										<th>Markerfarbe</th>
+	                  <th>G&uuml;ltigkeitszeitraum</th>
+										<th>Beschreibung</th>
+										<th>Bemerkung</th>
+										<th>Datengrundlage</th>
+										<th>Datenquelle</th>
+										<th>Datenhalter und Kontakt</th>
+										<th>zuletzt aktualisiert am</th>
+										<th>Koordinatensystem</th>
+										<th>Aktualisierungszyklus</th>
+										<th>Quellen / Literatur</th>
+										<th>WMS URL</th>
+										<th>WFS URL</th>
+	                </tr>
+	                </thead>
+
+	                <tbody>
+	                <tr ng-repeat="poiDataset in availableGeoresourceDatasets | filter:{isPOI:'true'}">
+										<td><input type="checkbox" ng-model="poiDataset.isSelected" ng-change="onChangeSelectPoiDataset(poiDataset)"></input></td>
+										<td>
+											<div class="btn-group btn-group-sm">
+												<button class="btn btn-warning btn-sm" type="button" data-toggle="modal" data-target="#modal-edit-georesource-metadata" ng-click="onClickEditMetadata(poiDataset)" title="Metadaten editieren"><i class="fas fa-pencil-alt"></i></button>
+												<button class="btn btn-warning btn-sm" type="button" data-toggle="modal" data-target="#modal-edit-georesource-features" ng-click="onClickEditFeatures(poiDataset)" title="Features fortf&uuml;hren"><i class="fas fa-draw-polygon"></i></button>
+												<!-- <button class="btn btn-danger btn-sm" type="button" data-toggle="modal" data-target="#modal-delete-spatial-units" ng-click="onClickDeleteDatasets(poiDataset)" title="Datensatz l&ouml;schen"><i class="fas fa-trash"></i></button> -->
+											</div>
+										</td>
+	                  <td>{{poiDataset.georesourceId}}</td>
+	                  <td>{{poiDataset.datasetName}}</td>
+										<td>{{poiDataset.poiSymbolColor}}</td>
+										<td>{{poiDataset.poiSymbolBootstrap3Name}} <br/><br/> <span class="glyphicon glyphicon-{{poiDataset.poiSymbolBootstrap3Name}}"></span> </td>
+										<td>{{poiDataset.poiMarkerColor}}</td>
+	                  <td>
+											<ul>
+												<li ng-repeat="periodOfValidity in poiDataset.availablePeriodsOfValidity">
+													<p ng-show="periodOfValidity.endDate">{{periodOfValidity.startDate}} - {{periodOfValidity.endDate}}</p>
+													<p ng-show="! periodOfValidity.endDate">{{periodOfValidity.startDate}} - heute </p>
+												</li>
+											</ul>
+										</td>
+										<td ng-bind-html="poiDataset.metadata.description"></td>
+										<td ng-bind-html="poiDataset.metadata.note"></td>
+										<td ng-bind-html="poiDataset.metadata.databasis"></td>
+										<td ng-bind-html="poiDataset.metadata.datasource"></td>
+										<td ng-bind-html="poiDataset.metadata.contact"></td>
+										<td>{{poiDataset.metadata.lastUpdate}}</td>
+										<td>EPSG:{{poiDataset.metadata.sridEPSG}}</td>
+										<td>{{poiDataset.metadata.updateInterval}}</td>
+										<td ng-bind-html="poiDataset.metadata.literature"></td>
+										<td ng-bind-html="poiDataset.wmsUrl"></td>
+										<td ng-bind-html="poiDataset.wfsUrl"></td>
+	                </tr>
+
+	                </tbody>
+
+	                <tfoot>
+	                <tr>
+										<th>alle selektieren</th>
+										<th>Editierfunktionen</th>
+										<th>Id</th>
+	                  <th>Name</th>
+										<th>Symbolfarbe</th>
+										<th>Symbolname</th>
+										<th>Markerfarbe</th>
+	                  <th>G&uuml;ltigkeitszeitraum</th>
+										<th>Beschreibung</th>
+										<th>Bemerkung</th>
+										<th>Datengrundlage</th>
+										<th>Datenquelle</th>
+										<th>Datenhalter und Kontakt</th>
+										<th>zuletzt aktualisiert am</th>
+										<th>Koordinatensystem</th>
+										<th>Aktualisierungszyklus</th>
+										<th>Quellen / Literatur</th>
+										<th>WMS URL</th>
+										<th>WFS URL</th>
+	                </tr>
+	                </tfoot>
+	              </table>
+
+							</div>
+            </div>
+            <!-- /.box-body -->
+          </div>
+          <!-- /.box -->
+
+					<!-- LOI -->
+
+					<div class="box box-primary">
+								<div class="box-header">
+									<h3 class="box-title">Lines of Interest</h3>
+
+									<div class="box-tools pull-right">
+										<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+										</button>
+									</div>
+								</div>
+								<!-- /.box-header -->
+								<div class="box-body">
+
+									<div class="admin-table-wrapper">
+										<table id="loiOverviewTable" datatable="ng" dt-options="$ctrl.kommonitorDataExchangeServiceInstance.datatablesOptions" class="table table-bordered table-condensed table-striped" style="width:100%; overflow:auto; font-size: 11px;">
+											<thead>
+											<tr>
+												<th><input type="checkbox" ng-model="selectLoiEntriesInput" ng-change="onChangeSelectLoiEntries()"></input></th>
+												<th>Editierfunktionen</th>
+												<th>Id</th>
+												<th>Name</th>
+												<th>Linienfarbe</th>
+												<th>Linienmuster</th>
+												<th>G&uuml;ltigkeitszeitraum</th>
+												<th>Beschreibung</th>
+												<th>Bemerkung</th>
+												<th>Datengrundlage</th>
+												<th>Datenquelle</th>
+												<th>Datenhalter und Kontakt</th>
+												<th>zuletzt aktualisiert am</th>
+												<th>Koordinatensystem</th>
+												<th>Aktualisierungszyklus</th>
+												<th>Quellen / Literatur</th>
+												<th>WMS URL</th>
+												<th>WFS URL</th>
+											</tr>
+											</thead>
+
+											<tbody>
+											<tr ng-repeat="loiDataset in availableGeoresourceDatasets | filter:{isLOI:'true'}">
+												<td><input type="checkbox" ng-model="loiDataset.isSelected" ng-change="onChangeSelectLoiDataset(loiDataset)"></input></td>
+												<td>
+													<div class="btn-group btn-group-sm">
+														<button class="btn btn-warning btn-sm" type="button" data-toggle="modal" data-target="#modal-edit-georesource-metadata" ng-click="onClickEditMetadata(loiDataset)" title="Metadaten editieren"><i class="fas fa-pencil-alt"></i></button>
+														<button class="btn btn-warning btn-sm" type="button" data-toggle="modal" data-target="#modal-edit-georesource-features" ng-click="onClickEditFeatures(loiDataset)" title="Features fortf&uuml;hren"><i class="fas fa-draw-polygon"></i></button>
+														<!-- <button class="btn btn-danger btn-sm" type="button" data-toggle="modal" data-target="#modal-delete-spatial-units" ng-click="onClickDeleteDatasets(loiDataset)" title="Datensatz l&ouml;schen"><i class="fas fa-trash"></i></button> -->
+													</div>
+												</td>
+												<td>{{loiDataset.georesourceId}}</td>
+												<td>{{loiDataset.datasetName}}</td>
+												<td>{{loiDataset.loiColor}}</td>
+												<td>{{loiDataset.loiDashArrayString}}</td>
+												<td>
+													<ul>
+														<li ng-repeat="periodOfValidity in loiDataset.availablePeriodsOfValidity">
+															<p ng-show="periodOfValidity.endDate">{{periodOfValidity.startDate}} - {{periodOfValidity.endDate}}</p>
+															<p ng-show="! periodOfValidity.endDate">{{periodOfValidity.startDate}} - heute </p>
+														</li>
+													</ul>
+												</td>
+												<td ng-bind-html="loiDataset.metadata.description"></td>
+												<td ng-bind-html="loiDataset.metadata.note"></td>
+												<td ng-bind-html="loiDataset.metadata.databasis"></td>
+												<td ng-bind-html="loiDataset.metadata.datasource"></td>
+												<td ng-bind-html="loiDataset.metadata.contact"></td>
+												<td>{{loiDataset.metadata.lastUpdate}}</td>
+												<td>EPSG:{{loiDataset.metadata.sridEPSG}}</td>
+												<td>{{loiDataset.metadata.updateInterval}}</td>
+												<td ng-bind-html="loiDataset.metadata.literature"></td>
+												<td ng-bind-html="loiDataset.wmsUrl"></td>
+												<td ng-bind-html="loiDataset.wfsUrl"></td>
+											</tr>
+
+											</tbody>
+
+											<tfoot>
+											<tr>
+												<th>alle selektieren</th>
+												<th>Editierfunktionen</th>
+												<th>Id</th>
+												<th>Name</th>
+												<th>Linienfarbe</th>
+												<th>Linienmuster</th>
+												<th>G&uuml;ltigkeitszeitraum</th>
+												<th>Beschreibung</th>
+												<th>Bemerkung</th>
+												<th>Datengrundlage</th>
+												<th>Datenquelle</th>
+												<th>Datenhalter und Kontakt</th>
+												<th>zuletzt aktualisiert am</th>
+												<th>Koordinatensystem</th>
+												<th>Aktualisierungszyklus</th>
+												<th>Quellen / Literatur</th>
+												<th>WMS URL</th>
+												<th>WFS URL</th>
+											</tr>
+											</tfoot>
+										</table>
+
+									</div>
+								</div>
+								<!-- /.box-body -->
+							</div>
+							<!-- /.box -->
+
+
+							<!-- AOI -->
+
+							<div class="box box-primary">
+										<div class="box-header">
+											<h3 class="box-title">Areas of Interest</h3>
+
+											<div class="box-tools pull-right">
+												<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+												</button>
+											</div>
+										</div>
+										<!-- /.box-header -->
+										<div class="box-body">
+
+											<div class="admin-table-wrapper">
+												<table id="aoiOverviewTable" datatable="ng" dt-options="$ctrl.kommonitorDataExchangeServiceInstance.datatablesOptions" class="table table-bordered table-condensed table-striped" style="width:100%; overflow:auto; font-size: 11px;">
+													<thead>
+													<tr>
+														<th><input type="checkbox" ng-model="selectAoiEntriesInput" ng-change="onChangeSelectAoiEntries()"></input></th>
+														<th>Editierfunktionen</th>
+														<th>Id</th>
+														<th>Name</th>
+														<th>Polygonfarbe</th>
+														<th>G&uuml;ltigkeitszeitraum</th>
+														<th>Beschreibung</th>
+														<th>Bemerkung</th>
+														<th>Datengrundlage</th>
+														<th>Datenquelle</th>
+														<th>Datenhalter und Kontakt</th>
+														<th>zuletzt aktualisiert am</th>
+														<th>Koordinatensystem</th>
+														<th>Aktualisierungszyklus</th>
+														<th>Quellen / Literatur</th>
+														<th>WMS URL</th>
+														<th>WFS URL</th>
+													</tr>
+													</thead>
+
+													<tbody>
+													<tr ng-repeat="aoiDataset in availableGeoresourceDatasets | filter:{isAOI:'true'}">
+														<td><input type="checkbox" ng-model="aoiDataset.isSelected" ng-change="onChangeSelectAoiDataset(aoiDataset)"></input></td>
+														<td>
+															<div class="btn-group btn-group-sm">
+																<button class="btn btn-warning btn-sm" type="button" data-toggle="modal" data-target="#modal-edit-georesource-metadata" ng-click="onClickEditMetadata(aoiDataset)" title="Metadaten editieren"><i class="fas fa-pencil-alt"></i></button>
+																<button class="btn btn-warning btn-sm" type="button" data-toggle="modal" data-target="#modal-edit-georesource-features" ng-click="onClickEditFeatures(aoiDataset)" title="Features fortf&uuml;hren"><i class="fas fa-draw-polygon"></i></button>
+																<!-- <button class="btn btn-danger btn-sm" type="button" data-toggle="modal" data-target="#modal-delete-spatial-units" ng-click="onClickDeleteDatasets(aoiDataset)" title="Datensatz l&ouml;schen"><i class="fas fa-trash"></i></button> -->
+															</div>
+														</td>
+														<td>{{aoiDataset.georesourceId}}</td>
+														<td>{{aoiDataset.datasetName}}</td>
+														<td>{{aoiDataset.aoiColor}}</td>
+														<td>
+															<ul>
+																<li ng-repeat="periodOfValidity in aoiDataset.availablePeriodsOfValidity">
+																	<p ng-show="periodOfValidity.endDate">{{periodOfValidity.startDate}} - {{periodOfValidity.endDate}}</p>
+																	<p ng-show="! periodOfValidity.endDate">{{periodOfValidity.startDate}} - heute </p>
+																</li>
+															</ul>
+														</td>
+														<td ng-bind-html="aoiDataset.metadata.description"></td>
+														<td ng-bind-html="aoiDataset.metadata.note"></td>
+														<td ng-bind-html="aoiDataset.metadata.databasis"></td>
+														<td ng-bind-html="aoiDataset.metadata.datasource"></td>
+														<td ng-bind-html="aoiDataset.metadata.contact"></td>
+														<td>{{aoiDataset.metadata.lastUpdate}}</td>
+														<td>EPSG:{{aoiDataset.metadata.sridEPSG}}</td>
+														<td>{{aoiDataset.metadata.updateInterval}}</td>
+														<td ng-bind-html="aoiDataset.metadata.literature"></td>
+														<td ng-bind-html="aoiDataset.wmsUrl"></td>
+														<td ng-bind-html="aoiDataset.wfsUrl"></td>
+													</tr>
+
+													</tbody>
+
+													<tfoot>
+													<tr>
+														<th>alle selektieren</th>
+														<th>Editierfunktionen</th>
+														<th>Id</th>
+														<th>Name</th>
+														<th>Polygonfarbe</th>
+														<th>G&uuml;ltigkeitszeitraum</th>
+														<th>Beschreibung</th>
+														<th>Bemerkung</th>
+														<th>Datengrundlage</th>
+														<th>Datenquelle</th>
+														<th>Datenhalter und Kontakt</th>
+														<th>zuletzt aktualisiert am</th>
+														<th>Koordinatensystem</th>
+														<th>Aktualisierungszyklus</th>
+														<th>Quellen / Literatur</th>
+														<th>WMS URL</th>
+														<th>WFS URL</th>
+													</tr>
+													</tfoot>
+												</table>
+
+											</div>
+										</div>
+										<!-- /.box-body -->
+									</div>
+									<!-- /.box -->
+
+
+
+
 	</section>
 <!-- /.content -->
+
 </div>
