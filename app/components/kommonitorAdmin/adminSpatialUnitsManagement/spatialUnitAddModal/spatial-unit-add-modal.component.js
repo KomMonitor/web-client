@@ -380,20 +380,14 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 						$("#spatialUnitAddSucessAlert").show();
 						$scope.loadingData = false;
 					} catch (error) {
-						if(error.data){
-							if (error.data.message){
-								$scope.errorMessagePart = error.data.message;
-							}
-							else{
-								$scope.errorMessagePart = error.data;
-							}
-						}
-						else{
-							$scope.errorMessagePart = error.data;
-						}
+						$scope.errorMessagePart = error;
 
 						$("#spatialUnitAddErrorAlert").show();
 						$scope.loadingData = false;
+
+						setTimeout(() => {
+							$scope.$apply();
+						}, 250);
 					}
 				}
 
