@@ -38,7 +38,7 @@ MULTI STEP FORM
 
 /*inputs*/
 .multiStepForm input, .multiStepForm textarea, .multiStepForm select {
-    padding: 15px;
+    /* padding: 15px; */
     border: 1px solid #ccc;
     border-radius: 0px;
     margin-bottom: 10px;
