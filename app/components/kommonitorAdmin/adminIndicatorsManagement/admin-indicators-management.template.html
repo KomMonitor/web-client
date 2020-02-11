@@ -80,8 +80,7 @@
 										<th>Bemerkung</th>
 										<th>Niedrigste Raumeinheit f&uuml;r Berechnung</th>
 										<th>Klassifizierung</th>										
-										<th>WMS URL</th>
-										<th>WFS URL</th>
+										<th>OGC Dienste</th>
 	                </tr>
 	                </thead>
 
@@ -115,18 +114,18 @@
 						<td ng-bind-html="indicatorDataset.metadata.datasource"></td>
 						<td ng-bind-html="indicatorDataset.metadata.databasis"></td>
 						<td ng-bind-html="indicatorDataset.tags"></td>
-						<td>{{
-							<p>$ctrl.kommonitorDataExchangeServiceInstance.getTopicHierarchyDisplayString(indicatorDataset.topicReference)}}</p></td>
+						<td><p>{{
+							$ctrl.kommonitorDataExchangeServiceInstance.getTopicHierarchyDisplayString(indicatorDataset.topicReference)}}</p></td>
 						<td>
-							<ul>
-								<li ng-repeat="spatialUnitName in indicatorDataset.applicableSpatialUnits">
+							<ul style="columns: 2; 	-webkit-columns: 2;	-moz-columns: 2;">
+								<li style="margin-right: 15px;" ng-repeat="spatialUnitName in indicatorDataset.applicableSpatialUnits">
 									{{spatialUnitName}}
 								</li>
 							</ul>
 						</td>
 						<td>
-							<ul>
-								<li ng-repeat="timestamp in indicatorDataset.applicableDates">
+							<ul style="columns: 3; 	-webkit-columns: 3;	-moz-columns: 3;">
+								<li style="margin-right: 15px;" ng-repeat="timestamp in indicatorDataset.applicableDates">
 									{{timestamp}}
 								</li>
 							</ul>
@@ -134,8 +133,8 @@
 						</td>
 						<!-- <td ng-bind-html="indicatorDataset.applicableDates"></td> -->
 						<td>
-							<ul>
-								<li ng-repeat="indicatorReference in indicatorDataset.referencedIndicators">
+							<ul style="columns: 2; 	-webkit-columns: 2;	-moz-columns: 2;">
+								<li style="margin-right: 15px;" ng-repeat="indicatorReference in indicatorDataset.referencedIndicators">
 									<!-- <ul>
 										<li>
 											<b>Ref. IndikatorId: </b> {{indicatorReference.referencedIndicatorId}}
@@ -152,8 +151,8 @@
 							</ul>
 						</td>
 						<td>
-							<ul>
-								<li ng-repeat="georesourceReference in indicatorDataset.referencedGeoresources">
+							<ul style="columns: 2; 	-webkit-columns: 2;	-moz-columns: 2;">
+								<li style="margin-right: 15px;" ng-repeat="georesourceReference in indicatorDataset.referencedGeoresources">
 									<!-- <ul>
 										<li>
 											<b>Ref. GeoressourcenId: </b> {{georesourceReference.referencedGeoresourceId}}
@@ -192,9 +191,9 @@
 								</li>
 							</ul> -->
 						</td>
-						<td ng-bind-html="indicatorDataset.wmsUrl">
-							<ul>
-								<li ng-repeat="ogcService in indicatorDataset.ogcServices">
+						<td >
+							<ul style="columns: 2; 	-webkit-columns: 2;	-moz-columns: 2;">
+								<li style="margin-right: 15px;" ng-repeat="ogcService in indicatorDataset.ogcServices">
 									<ul>
 										<li>
 											<b>Raumeinheit: </b> {{ogcService.spatialUnit}}
@@ -209,7 +208,6 @@
 								</li>
 							</ul>
 						</td>
-						<td ng-bind-html="indicatorDataset.wfsUrl"></td>
 					</tr>
 
 	                </tbody>
@@ -245,8 +243,7 @@
 										<th>Bemerkung</th>
 										<th>Niedrigste Raumeinheit f&uuml;r Berechnung</th>
 										<th>Klassifizierung</th>										
-										<th>WMS URL</th>
-										<th>WFS URL</th>
+										<th>OGC Dienste</th>
 	                </tr>
 	                </tfoot>
 	              </table>
