@@ -524,7 +524,7 @@ angular
 						}
 
 						return value;
-					}
+					};
 
 					this.getIndicatorValue_asFormattedText = function(indicatorValue){
 						var value;
@@ -536,7 +536,58 @@ angular
 						}
 
 						return value;
-					}
+          };
+          
+          this.getTopicHierarchyDisplayString = function(topicReferenceId){
+            var topicHierarchyArray = this.getTopicHierarchyForTopicId(topicReferenceId);
+           
+            var topicsString = "";
+            for (let index = 0; index < topicHierarchyArray.length; index++) {
+              if (index === 0) {
+                // mainTopic --> first tier
+                topicsString += topicHierarchyArray[index].topicName;
+              }
+              else {
+                var numberOfWhitespaces = 2 * index;
+                var whitespaceString = "";
+                for (let k = 0; k < numberOfWhitespaces; k++) {
+                  whitespaceString += " ";
+                }
+                topicsString += whitespaceString + topicHierarchyArray[index].topicName;
+              }
+  
+              if (index < topicHierarchyArray.length - 1) {
+                topicsString += "\n";
+              }
+  
+            }
+
+            return topicsString;
+          };
+
+          this.getIndicatorStringFromIndicatorType = function (indicatorType) {
+            var indicatorTypeString;
+            if (indicatorType.includes("DYNAMIC_ABSOLUTE")) {
+              indicatorTypeString = "Dynamik-Indikator (absolute)";
+            }
+            else if (indicatorType.includes("DYNAMIC_RELATIVE")) {
+              indicatorTypeString = "Dynamik-Indikator (relativ)";
+            }
+            else if (indicatorType.includes("DYNAMIC_STANDARDIZED")) {
+              indicatorTypeString = "Dynamik-Indikator (standardisiert)";
+            }
+            else if (indicatorType.includes("STATUS_ABSOLUTE")) {
+              indicatorTypeString = "Status-Indikator (absolut)";
+            }
+            else if (indicatorType.includes("STATUS_RELATIVE")) {
+              indicatorTypeString = "Status-Indikator (relativ)";
+            }
+            else if (indicatorType.includes("STATUS_STANDARDIZED")) {
+              indicatorTypeString = "Status-Indikator (standardisiert)";
+            }
+  
+            return indicatorTypeString;
+          };
 
           this.getColorForFeature = function(feature, indicatorMetadataAndGeoJSON, targetDate, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue){
             var color;

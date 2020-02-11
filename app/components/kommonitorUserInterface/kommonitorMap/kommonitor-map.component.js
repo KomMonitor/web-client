@@ -1098,33 +1098,7 @@ angular.module('kommonitorMap').component(
             1: { fontStyle: 'normal' }
           };
 
-          var topicsString = "";
-
-          var topicReferenceId = indicatorMetadata.topicReference;
-
-          // will be an array representing the topic hierarchy
-          // i.e. [mainTopic, subTopicFirstTier, subTopicSecondTier, ...]
-          var topicHierarchyArray = kommonitorDataExchangeService.getTopicHierarchyForTopicId(topicReferenceId);
-
-          for (let index = 0; index < topicHierarchyArray.length; index++) {
-            if (index === 0) {
-              // mainTopic --> first tier
-              topicsString += topicHierarchyArray[index].topicName;
-            }
-            else {
-              var numberOfWhitespaces = 2 * index;
-              var whitespaceString = "";
-              for (let k = 0; k < numberOfWhitespaces; k++) {
-                whitespaceString += " ";
-              }
-              topicsString += whitespaceString + topicHierarchyArray[index].topicName;
-            }
-
-            if (index < topicHierarchyArray.length - 1) {
-              topicsString += "\n";
-            }
-
-          }
+          var topicsString = kommonitorDataExchangeService.getTopicHierarchyDisplayString(indicatorMetadata.topicReference);
 
           var category = "Subindikator";
           if (indicatorMetadata.isHeadingIndicator) {
@@ -1135,7 +1109,7 @@ angular.module('kommonitorMap').component(
           jspdf.autoTable({
             head: [['Themenfeld', 'Kategorie', 'Typ', 'Kennzeichen']],
             body: [
-              [topicsString, category, $scope.getIndicatorStringFromIndicatorType(), indicatorMetadata.abbreviation ? indicatorMetadata.abbreviation : "-"]
+              [topicsString, category, kommonitorDataExchangeService.getIndicatorStringFromIndicatorType($scope.currentIndicatorMetadataAndGeoJSON.indicatorType), indicatorMetadata.abbreviation ? indicatorMetadata.abbreviation : "-"]
               // ...
             ],
             theme: 'grid',
@@ -1656,30 +1630,6 @@ angular.module('kommonitorMap').component(
           });
         };
 
-        $scope.getIndicatorStringFromIndicatorType = function () {
-          var indicatorTypeString;
-          if ($scope.currentIndicatorMetadataAndGeoJSON.indicatorType.includes("DYNAMIC_ABSOLUTE")) {
-            indicatorTypeString = "Dynamik-Indikator (absolute)";
-          }
-          else if ($scope.currentIndicatorMetadataAndGeoJSON.indicatorType.includes("DYNAMIC_RELATIVE")) {
-            indicatorTypeString = "Dynamik-Indikator (relativ)";
-          }
-          else if ($scope.currentIndicatorMetadataAndGeoJSON.indicatorType.includes("DYNAMIC_STANDARDIZED")) {
-            indicatorTypeString = "Dynamik-Indikator (standardisiert)";
-          }
-          else if ($scope.currentIndicatorMetadataAndGeoJSON.indicatorType.includes("STATUS_ABSOLUTE")) {
-            indicatorTypeString = "Status-Indikator (absolut)";
-          }
-          else if ($scope.currentIndicatorMetadataAndGeoJSON.indicatorType.includes("STATUS_RELATIVE")) {
-            indicatorTypeString = "Status-Indikator (relativ)";
-          }
-          else if ($scope.currentIndicatorMetadataAndGeoJSON.indicatorType.includes("STATUS_STANDARDIZED")) {
-            indicatorTypeString = "Status-Indikator (standardisiert)";
-          }
-
-          return indicatorTypeString;
-        };
-
         $scope.makeDefaultLegend = function (defaultClassificationMapping, containsNegativeValues) {
 
           if (!$scope.showLegendControl) {
@@ -1726,7 +1676,7 @@ angular.module('kommonitorMap').component(
             //         labels[i] + (labels[i + 1] ? ' &ndash; &lt; ' + labels[i + 1] + '<br>' : '+');
             // }
 
-            $scope.div.innerHTML += "<h4><b>Indikatorenlegende</b><br/>" + $scope.getIndicatorStringFromIndicatorType() + "</h4><br/><em>Darstellung der Indikatorenwerte zum gew&auml;hlten Zeitpunkt " + tsToDate_fullYear(dateToTS(dateAsDate)) + "</em><br/><br/>";
+            $scope.div.innerHTML += "<h4><b>Indikatorenlegende</b><br/>" + kommonitorDataExchangeService.getIndicatorStringFromIndicatorType($scope.currentIndicatorMetadataAndGeoJSON.indicatorType) + "</h4><br/><em>Darstellung der Indikatorenwerte zum gew&auml;hlten Zeitpunkt " + tsToDate_fullYear(dateToTS(dateAsDate)) + "</em><br/><br/>";
 
             $scope.div.innerHTML += $scope.appendClassifyRadioOptions();
 
@@ -1885,14 +1835,14 @@ angular.module('kommonitorMap').component(
             $scope.div.innerHTML += '<div>';
 
             if ($scope.currentIndicatorMetadataAndGeoJSON['fromDate']) {
-              $scope.div.innerHTML += "<h4><b>Indikatorenlegende</b><br/>" + $scope.getIndicatorStringFromIndicatorType() + "</h4><br/>";
+              $scope.div.innerHTML += "<h4><b>Indikatorenlegende</b><br/>" + kommonitorDataExchangeService.getIndicatorStringFromIndicatorType($scope.currentIndicatorMetadataAndGeoJSON.indicatorType) + "</h4><br/>";
               $scope.div.innerHTML += "<em>Bilanzierung " + $scope.currentIndicatorMetadataAndGeoJSON['fromDate'] + " - " + $scope.currentIndicatorMetadataAndGeoJSON['toDate'] + "</em><br/><br/>";
             }
             else {
 
               var dateComponents = $scope.date.split("-");
               var dateAsDate = new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]));
-              $scope.div.innerHTML += "<h4><b>Indikatorenlegende</b><br/>" + $scope.getIndicatorStringFromIndicatorType() + "</h4><br/><em>Darstellung der zeitlichen Entwicklung zum gew&auml;hlten Zeitpunkt " + tsToDate_fullYear(dateToTS(dateAsDate)) + "</em><br/><br/>";
+              $scope.div.innerHTML += "<h4><b>Indikatorenlegende</b><br/>" + kommonitorDataExchangeService.getIndicatorStringFromIndicatorType($scope.currentIndicatorMetadataAndGeoJSON.indicatorType) + "</h4><br/><em>Darstellung der zeitlichen Entwicklung zum gew&auml;hlten Zeitpunkt " + tsToDate_fullYear(dateToTS(dateAsDate)) + "</em><br/><br/>";
             }
 
             $scope.div.innerHTML += $scope.appendClassifyRadioOptions();
@@ -2031,7 +1981,7 @@ angular.module('kommonitorMap').component(
             $scope.div.innerHTML = $scope.appendLegendCloseButton();
             $scope.div.innerHTML += '<div>';
 
-            $scope.div.innerHTML += "<h4><b>Indikatorenlegende</b><br/>" + $scope.getIndicatorStringFromIndicatorType() + "</h4><br/><em>Schwellwert-Klassifizierung<br/>Gew&auml;hlter Zeitpunkt: " + tsToDate_fullYear(dateToTS(dateAsDate)) + "</em><br/>";
+            $scope.div.innerHTML += "<h4><b>Indikatorenlegende</b><br/>" + kommonitorDataExchangeService.getIndicatorStringFromIndicatorType($scope.currentIndicatorMetadataAndGeoJSON.indicatorType) + "</h4><br/><em>Schwellwert-Klassifizierung<br/>Gew&auml;hlter Zeitpunkt: " + tsToDate_fullYear(dateToTS(dateAsDate)) + "</em><br/>";
 
             $scope.div.innerHTML += "<em>aktueller Schwellwert: </em> " + kommonitorDataExchangeService.measureOfValue + "<br/><br/>";
 
