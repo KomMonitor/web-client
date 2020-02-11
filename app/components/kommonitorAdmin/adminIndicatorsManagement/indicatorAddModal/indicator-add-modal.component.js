@@ -149,6 +149,11 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			$scope.indicatorLowestSpatialUnitMetadataObjectForComputation = undefined;
 			$scope.enableLowestSpatialUnitSelect = false;
 
+			$scope.indicatorTopic_mainTopic = undefined;
+			$scope.indicatorTopic_subTopic = undefined;
+			$scope.indicatorTopic_subsubTopic = undefined;
+			$scope.indicatorTopic_subsubsubTopic = undefined;
+
 
 			$scope.periodOfValidity = {};
 			$scope.periodOfValidity.startDate = undefined;

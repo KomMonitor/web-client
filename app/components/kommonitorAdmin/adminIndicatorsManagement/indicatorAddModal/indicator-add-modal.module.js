@@ -1,1 +1,1 @@
-angular.module('indicatorAddModal', ['kommonitorImporterHelper']);
+angular.module('indicatorAddModal', ['kommonitorImporterHelper', 'adminTopicsManagement']);
