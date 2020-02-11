@@ -24,7 +24,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 					"allowedRoles",
 					"allowedRoles"
 				],
-				"datasetName": "datasetName",
+				"indicatorName": "indicatorName",
 				"poiSymbolBootstrap3Name": "poiSymbolBootstrap3Name",
 				"poiSymbolColor": "white",
 				"isAOI": false,
@@ -44,11 +44,11 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 		*/
 
 		//Date picker
-    $('#georesourceAddDatepickerStart').datepicker(kommonitorDataExchangeService.datePickerOptions);
-		$('#georesourceAddDatepickerEnd').datepicker(kommonitorDataExchangeService.datePickerOptions);
-		$('#georesourceAddLastUpdateDatepicker').datepicker(kommonitorDataExchangeService.datePickerOptions);
+    $('#indicatorAddDatepickerStart').datepicker(kommonitorDataExchangeService.datePickerOptions);
+		$('#indicatorAddDatepickerEnd').datepicker(kommonitorDataExchangeService.datePickerOptions);
+		$('#indicatorAddLastUpdateDatepicker').datepicker(kommonitorDataExchangeService.datePickerOptions);
 
-		$scope.georesourceMetadataStructure = {
+		$scope.indicatorMetadataStructure = {
 			"metadata": {
 				"note": "an optional note",
 				"literature": "optional text about literature",
@@ -60,7 +60,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 				"description": "description about spatial unit dataset",
 				"databasis": "text about data basis",
 			},
-			"datasetName": "Name of georesource dataset",
+			"indicatorName": "Name of indicator dataset",
 			"isPOI": "boolean parameter for point of interest dataset - only one of isPOI, isLOI, isAOI can be true",
 			"isLOI": "boolean parameter for lines of interest dataset - only one of isPOI, isLOI, isAOI can be true",
 			"isAOI": "boolean parameter for area of interest dataset - only one of isPOI, isLOI, isAOI can be true",
@@ -72,14 +72,14 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			"aoiColor": "color for area of interest dataset"
 		};
 
-		$scope.georesourceMetadataStructure_pretty = kommonitorDataExchangeService.syntaxHighlightJSON($scope.georesourceMetadataStructure);
+		$scope.indicatorMetadataStructure_pretty = kommonitorDataExchangeService.syntaxHighlightJSON($scope.indicatorMetadataStructure);
 
 		$scope.metadataImportSettings;
-		$scope.georesourceMetadataImportError;
-		$scope.georesourceMetadataImportErrorAlert;
+		$scope.indicatorMetadataImportError;
+		$scope.indicatorMetadataImportErrorAlert;
 
-		$scope.datasetName = undefined;
-		$scope.datasetNameInvalid = false;
+		$scope.indicatorName = undefined;
+		$scope.indicatorNameInvalid = false;
 
 		$scope.metadata = {};
 		$scope.metadata.note = undefined;
@@ -92,40 +92,25 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 		$scope.metadata.lastUpdate = undefined;
 		$scope.metadata.description = undefined;
 
-		$scope.georesourceType = "poi";
-		$scope.isPOI = true;
-		$scope.isLOI = false;
-		$scope.isAOI = false;
-		$scope.selectedPoiMarkerColor = kommonitorDataExchangeService.availablePoiMarkerColors[0];
-		$scope.selectedPoiSymbolColor = kommonitorDataExchangeService.availablePoiMarkerColors[1];
-		$scope.selectedLoiDashArrayObject = kommonitorDataExchangeService.availableLoiDashArrayObjects[0];
-		$scope.loiColor = "#bf3d2c";
-		$scope.aoiColor = "#bf3d2c";
-		$scope.selectedPoiIconName = "home";
+
 
 		$scope.periodOfValidity = {};
 		$scope.periodOfValidity.startDate = undefined;
 		$scope.periodOfValidity.endDate = undefined;
 		$scope.periodOfValidityInvalid = false;
 
-		$scope.geoJsonString = undefined;
-		$scope.georesource_asGeoJson = undefined;
-
-		$scope.georesourceDataSourceInputInvalidReason = undefined;
-		$scope.georesourceDataSourceInputInvalid = false;
-
-		$scope.georesourceDataSourceIdProperty = undefined;
-		$scope.georesourceDataSourceNameProperty = undefined;
+		$scope.indicatorDataSourceIdProperty = undefined;
+		$scope.indicatorDataSourceNameProperty = undefined;
 
 		$scope.converter = undefined;
 			$scope.datasourceType = undefined;
-			$scope.georesourceDataSourceIdProperty = undefined;
-			$scope.georesourceDataSourceNameProperty = undefined;
+			$scope.indicatorDataSourceIdProperty = undefined;
+			$scope.indicatorDataSourceNameProperty = undefined;
 
 			$scope.converterDefinition = undefined;
 			$scope.datasourceTypeDefinition = undefined;
 			$scope.propertyMappingDefinition = undefined;
-			$scope.postBody_georesources = undefined;
+			$scope.postBody_indicators = undefined;
 
 			$scope.validityEndDate_perFeature = undefined;
 			$scope.validityStartDate_perFeature = undefined;
@@ -133,57 +118,11 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 		$scope.successMessagePart = undefined;
 		$scope.errorMessagePart = undefined;
 
-		$scope.iconPickerOptions = {
-			align: 'center', // Only in div tag
-	    arrowClass: 'btn-default',
-	    arrowPrevIconClass: 'fas fa-angle-left',
-	    arrowNextIconClass: 'fas fa-angle-right',
-	    cols: 10,
-	    footer: true,
-	    header: true,
-	    icon: 'glyphicon-' + $scope.selectedPoiIconName,
-	    iconset: 'glyphicon',
-	    labelHeader: '{0} von {1} Seiten',
-	    labelFooter: '{0} - {1} von {2} Icons',
-	    placement: 'bottom', // Only in button tag
-	    rows: 6,
-	    search: true,
-	    searchText: 'Stichwortsuche (Bootstrap Glyphicons)',
-	    selectedClass: 'btn-success',
-	    unselectedClass: ''
-		};
-
-		$('#poiSymbolPicker').iconpicker($scope.iconPickerOptions);
-
-		$('#poiSymbolPicker').on('change', function(e) {
-		    console.log(e.icon);
-				// split up due to current data management request structure where we expect only the last name of Bootstrap 3.3.7 glyphicon name
-				// i.e. "home" for "glyphicon-home"
-				$scope.selectedPoiIconName = e.icon.split("-")[1];
-				console.log($scope.selectedPoiIconName);
-		});
-
 		$scope.loadingData = false;
 
-		// initialize loiDashArray dropdown
-		setTimeout(function(){
-			for(var i=0; i<kommonitorDataExchangeService.availableLoiDashArrayObjects.length; i++){
-				$("#loiDashArrayDropdownItem-" + i).html(kommonitorDataExchangeService.availableLoiDashArrayObjects[i].svgString);
-			}
-
-			$("#loiDashArrayDropdownButton").html($scope.selectedLoiDashArrayObject.svgString);
-		},1000);
-
-
-
-		// initialize colorPickers
-		$('#loiColorPicker').colorpicker();
-		$('#aoiColorPicker').colorpicker();
-
-
-		$scope.resetGeoresourceAddForm = function(){
-			$scope.datasetName = undefined;
-			$scope.datasetNameInvalid = false;
+		$scope.resetIndicatorAddForm = function(){
+			$scope.indicatorName = undefined;
+			$scope.indicatorNameInvalid = false;
 
 			$scope.metadata = {};
 			$scope.metadata.note = undefined;
@@ -196,74 +135,67 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			$scope.metadata.lastUpdate = undefined;
 			$scope.metadata.description = undefined;
 
-			$scope.georesourceType = "poi";
-			$scope.isPOI = true;
-			$scope.isLOI = false;
-			$scope.isAOI = false;
-			$scope.selectedPoiMarkerColor = kommonitorDataExchangeService.availablePoiMarkerColors[0];
-			$scope.selectedPoiSymbolColor = kommonitorDataExchangeService.availablePoiMarkerColors[1];
-			$scope.selectedLoiDashArrayObject = kommonitorDataExchangeService.availableLoiDashArrayObjects[0];
-			$scope.loiColor = "#bf3d2c";
-			$scope.aoiColor = "#bf3d2c";
-			$scope.selectedPoiIconName = "home";
-			$("#poiSymbolPicker").val("").iconpicker('setIcon', 'glyphicon-' + $scope.selectedPoiIconName);
+			$scope.indicatorName = undefined;
+			$scope.indicatorAbbreviation = undefined;
+			$scope.indicatorType = undefined;
+			$scope.indicatorCharacteristicValue = undefined;
+			$scope.isHeadlineIndicator = false;
+			$scope.indicatorUnit = undefined;
+			$scope.enableFreeTextUnit = false;
+			$scope.indicatorProcessDescription = undefined;
+			$scope.indicatorTagsString_withCommas = undefined;
+			$scope.indicatorInterpretation = undefined;
+			$scope.indicatorCreationType = undefined;
+			$scope.indicatorLowestSpatialUnitMetadataObjectForComputation = undefined;
+			$scope.enableLowestSpatialUnitSelect = false;
+
 
 			$scope.periodOfValidity = {};
 			$scope.periodOfValidity.startDate = undefined;
 			$scope.periodOfValidity.endDate = undefined;
 			$scope.periodOfValidityInvalid = false;
-
-			$scope.georesourceDataSourceInputInvalidReason = undefined;
-			$scope.georesourceDataSourceInputInvalid = false;
 	
 			$scope.converter = undefined;
 			$scope.datasourceType = undefined;
-			$scope.georesourceDataSourceIdProperty = undefined;
-			$scope.georesourceDataSourceNameProperty = undefined;
+			$scope.indicatorDataSourceIdProperty = undefined;
+			$scope.indicatorDataSourceNameProperty = undefined;
 
 			$scope.converterDefinition = undefined;
 			$scope.datasourceTypeDefinition = undefined;
 			$scope.propertyMappingDefinition = undefined;
-			$scope.postBody_georesources = undefined;
+			$scope.postBody_indicators = undefined;
 
 			$scope.validityEndDate_perFeature = undefined;
 			$scope.validityStartDate_perFeature = undefined;
 
-			$scope.georesourceDataSourceIdProperty = undefined;
-			$scope.georesourceDataSourceNameProperty = undefined;
+			$scope.indicatorDataSourceIdProperty = undefined;
+			$scope.indicatorDataSourceNameProperty = undefined;
 		};
 
-		$scope.onChangeGeoresourceType = function(){
+		$scope.onChangeCreationType = function(){
+			if($scope.indicatorCreationType.apiName === "COMPUTATION"){
+				$scope.enableLowestSpatialUnitSelect = true;
+			}
+			else{
+				$scope.enableLowestSpatialUnitSelect = false;
+			}
 
-			switch ($scope.georesourceType) {
-				case "poi":
-					$scope.isPOI = true;
-					$scope.isLOI = false;
-					$scope.isAOI = false;
-					break;
-				case "loi":
-					$scope.isPOI = false;
-					$scope.isLOI = true;
-					$scope.isAOI = false;
-					break;
-				case "aoi":
-					$scope.isPOI = false;
-					$scope.isLOI = false;
-					$scope.isAOI = true;
-					break;
-				default:
-					$scope.isPOI = true;
-					$scope.isLOI = false;
-					$scope.isAOI = false;
-					break;
+		};
+
+		$scope.onChangeIndicatorUnit = function(){
+			if ($scope.indicatorUnit.includes("Freitext")){
+				$scope.enableFreeTextUnit = true;
+			}
+			else{
+				$scope.enableFreeTextUnit = false;
 			}
 		};
 
 		$scope.checkDatasetName = function(){
-			$scope.datasetNameInvalid = false;
-			kommonitorDataExchangeService.availableGeoresources.forEach(function(georesource){
-				if (georesource.datasetName === $scope.datasetName){
-					$scope.datasetNameInvalid = true;
+			$scope.indicatorNameInvalid = false;
+			kommonitorDataExchangeService.availableIndicators.forEach(function(indicator){
+				if (indicator.indicatorName === $scope.indicatorName){
+					$scope.indicatorNameInvalid = true;
 					return;
 				}
 			});
@@ -286,9 +218,9 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			$scope.converterDefinition = $scope.buildConverterDefinition();
 			$scope.datasourceTypeDefinition = await $scope.buildDatasourceTypeDefinition();
 			$scope.propertyMappingDefinition = $scope.buildPropertyMappingDefinition();
-			$scope.postBody_georesources = $scope.buildPostBody_georesources();
+			$scope.postBody_indicators = $scope.buildPostBody_indicators();
 
-			if(!$scope.converterDefinition || !$scope.datasourceTypeDefinition || !$scope.propertyMappingDefinition || !$scope.postBody_georesources){
+			if(!$scope.converterDefinition || !$scope.datasourceTypeDefinition || !$scope.propertyMappingDefinition || !$scope.postBody_indicators){
 				return false;
 			}
 
@@ -297,16 +229,16 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 
 		$scope.buildConverterDefinition = function(){
 
-			return kommonitorImporterHelperService.buildConverterDefinition($scope.converter, "converterParameter_georesourceAdd_", $scope.schema);			
+			return kommonitorImporterHelperService.buildConverterDefinition($scope.converter, "converterParameter_indicatorAdd_", $scope.schema);			
 		};
 
 		$scope.buildDatasourceTypeDefinition = async function(){
 			try {
-				return await kommonitorImporterHelperService.buildDatasourceTypeDefinition($scope.datasourceType, 'datasourceTypeParameter_georesourceAdd_', 'georesourceDataSourceInput_add');			
+				return await kommonitorImporterHelperService.buildDatasourceTypeDefinition($scope.datasourceType, 'datasourceTypeParameter_indicatorAdd_', 'indicatorDataSourceInput_add');			
 			} catch (error) {
 				$scope.errorMessagePart = error;
 
-				$("#georesourceAddErrorAlert").show();
+				$("#indicatorAddErrorAlert").show();
 				$scope.loadingData = false;
 				return null;
 			}			
@@ -314,10 +246,10 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 
 		$scope.buildPropertyMappingDefinition = function(){
 			// arsion from is undefined currently
-			return kommonitorImporterHelperService.buildPropertyMapping_spatialResource($scope.georesourceDataSourceNameProperty, $scope.georesourceDataSourceIdProperty, $scope.validityStartDate_perFeature, $scope.validityEndDate_perFeature, undefined);
+			return kommonitorImporterHelperService.buildPropertyMapping_spatialResource($scope.indicatorDataSourceNameProperty, $scope.indicatorDataSourceIdProperty, $scope.validityStartDate_perFeature, $scope.validityEndDate_perFeature, undefined);
 		};
 
-		$scope.buildPostBody_georesources = function(){
+		$scope.buildPostBody_indicators = function(){
 			var postBody =
 			{
 				"geoJsonString": $scope.geoJsonString,
@@ -333,7 +265,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 					"databasis": $scope.metadata.databasis
 				},
 				"jsonSchema": null,
-				"datasetName": $scope.datasetName,
+				"indicatorName": $scope.indicatorName,
 				"periodOfValidity": {
 					"endDate": $scope.periodOfValidity.endDate,
 					"startDate": $scope.periodOfValidity.startDate
@@ -344,41 +276,12 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			  "topicReference": null
 			};
 
-			if($scope.isPOI){
-				postBody["poiSymbolBootstrap3Name"] = $scope.selectedPoiIconName;
-				postBody["poiSymbolColor"] = $scope.selectedPoiSymbolColor.colorName;
-				postBody["poiMarkerColor"] = $scope.selectedPoiMarkerColor.colorName;
-
-				postBody["loiDashArrayString"] = null;
-				postBody["loiColor"] = null;
-
-				postBody["aoiColor"] = null;
-			}
-			else if($scope.isLOI){
-				postBody["poiSymbolBootstrap3Name"] = null;
-				postBody["poiSymbolColor"] = null;
-				postBody["poiMarkerColor"] = null;
-
-				postBody["loiDashArrayString"] = $scope.selectedLoiDashArrayObject.dashArrayValue;
-				postBody["loiColor"] = $scope.loiColor;
-
-				postBody["aoiColor"] = null;
-			}
-			else if($scope.isAOI){
-				postBody["poiSymbolBootstrap3Name"] = null;
-				postBody["poiSymbolColor"] = null;
-				postBody["poiMarkerColor"] = null;
-
-				postBody["loiDashArrayString"] = null;
-				postBody["loiColor"] = null;
-
-				postBody["aoiColor"] = $scope.aoiColor;
-			}
+			
 
 			return postBody;
 		};
 
-		$scope.addGeoresource = async function(){
+		$scope.addIndicator = async function(){
 
 			/*
 					now collect data and build request for importer
@@ -391,8 +294,8 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 
 				if (!allDataSpecified) {
 
-					$("#georesourceAddForm").validator("update");
-					$("#georesourceAddForm").validator("validate");
+					$("#indicatorAddForm").validator("update");
+					$("#indicatorAddForm").validator("validate");
 					return;
 				}
 				else {
@@ -405,22 +308,22 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 					$scope.loadingData = true;
 
 					try {
-						var newGeoresourceResponse = await kommonitorImporterHelperService.registerNewGeoresource($scope.converterDefinition, $scope.datasourceTypeDefinition, $scope.propertyMappingDefinition, $scope.postBody_georesources);
+						var newIndicatorResponse = await kommonitorImporterHelperService.registerNewIndicator($scope.converterDefinition, $scope.datasourceTypeDefinition, $scope.propertyMappingDefinition, $scope.postBody_indicators);
 
-						$rootScope.$broadcast("refreshGeoresourceOverviewTable");
+						$rootScope.$broadcast("refreshIndicatorOverviewTable");
 
 					// refresh all admin dashboard diagrams due to modified metadata
 					$rootScope.$broadcast("refreshAdminDashboardDiagrams");
 
-					$scope.successMessagePart = $scope.datasetName;
+					$scope.successMessagePart = $scope.indicatorName;
 
-					$("#georesourceAddSuccessAlert").show();
+					$("#indicatorAddSuccessAlert").show();
 
 					$scope.loadingData = false;
 					} catch (error) {
 						$scope.errorMessagePart = error;
 
-						$("#georesourceAddErrorAlert").show();
+						$("#indicatorAddErrorAlert").show();
 						$scope.loadingData = false;
 
 						setTimeout(() => {
@@ -431,23 +334,23 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 
 		};
 
-		$scope.onImportGeoresourceAddMetadata = function(){
+		$scope.onImportIndicatorAddMetadata = function(){
 
-			$scope.georesourceMetadataImportError = "";
+			$scope.indicatorMetadataImportError = "";
 
-			$("#georesourceMetadataImportFile").files = [];
+			$("#indicatorMetadataImportFile").files = [];
 
 			// trigger file chooser
-			$("#georesourceMetadataImportFile").click();
+			$("#indicatorMetadataImportFile").click();
 
 		};
 
-		$(document).on("change", "#georesourceMetadataImportFile" ,function(){
+		$(document).on("change", "#indicatorMetadataImportFile" ,function(){
 
-			console.log("Importing Georesource metadata for Add Georesource Form");
+			console.log("Importing Indicator metadata for Add Indicator Form");
 
 			// get the file
-			var file = document.getElementById('georesourceMetadataImportFile').files[0];
+			var file = document.getElementById('indicatorMetadataImportFile').files[0];
 			$scope.parseMetadataFromFile(file);
 		});
 
@@ -461,9 +364,9 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 				}
 				catch(error){
 					console.error("Uploaded Metadata File cannot be parsed.");
-					$scope.georesourceMetadataImportError = "Uploaded Metadata File cannot be parsed correctly";
-					document.getElementById("georesourcesAddMetadataPre").innerHTML = $scope.georesourceMetadataStructure_pretty;
-					$("#georesourceMetadataImportErrorAlert").show();
+					$scope.indicatorMetadataImportError = "Uploaded Metadata File cannot be parsed correctly";
+					document.getElementById("indicatorsAddMetadataPre").innerHTML = $scope.indicatorMetadataStructure_pretty;
+					$("#indicatorMetadataImportErrorAlert").show();
 				}
 
 			};
@@ -478,9 +381,9 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 
 			if(! $scope.metadataImportSettings.metadata){
 				console.error("uploaded Metadata File cannot be parsed - wrong structure.");
-				$scope.georesourceMetadataImportError = "Struktur der Datei stimmt nicht mit erwartetem Muster &uuml;berein.";
-				document.getElementById("georesourcesAddMetadataPre").innerHTML = $scope.georesourceMetadataStructure_pretty;
-				$("#georesourceMetadataImportErrorAlert").show();
+				$scope.indicatorMetadataImportError = "Struktur der Datei stimmt nicht mit erwartetem Muster &uuml;berein.";
+				document.getElementById("indicatorsAddMetadataPre").innerHTML = $scope.indicatorMetadataStructure_pretty;
+				$("#indicatorMetadataImportErrorAlert").show();
 			}
 
 				$scope.metadata = {};
@@ -496,26 +399,26 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 				$scope.metadata.contact = $scope.metadataImportSettings.metadata.contact;
 				$scope.metadata.lastUpdate = $scope.metadataImportSettings.metadata.lastUpdate;
 				// initialize date
-				$('#georesourceAddLastUpdateDatepicker').datepicker('setDate', $scope.metadata.lastUpdate);
+				$('#indicatorAddLastUpdateDatepicker').datepicker('setDate', $scope.metadata.lastUpdate);
 
 				$scope.metadata.description = $scope.metadataImportSettings.metadata.description;
 				$scope.metadata.databasis = $scope.metadataImportSettings.metadata.databasis;
 
-				$scope.datasetName = $scope.metadataImportSettings.datasetName;
+				$scope.indicatorName = $scope.metadataImportSettings.indicatorName;
 
-				// georesource specific properties
+				// indicator specific properties
 
 				$scope.isPOI = $scope.metadataImportSettings.isPOI;
 				$scope.isLOI = $scope.metadataImportSettings.isLOI;
 				$scope.isAOI = $scope.metadataImportSettings.isAOI;
 				if($scope.metadataImportSettings.isPOI){
-						$scope.georesourceType = "poi";
+						$scope.indicatorType = "poi";
 				}
 				else if($scope.metadataImportSettings.isLOI){
-						$scope.georesourceType = "loi";
+						$scope.indicatorType = "loi";
 				}
 				else{
-						$scope.georesourceType = "aoi";
+						$scope.indicatorType = "aoi";
 				}
 				kommonitorDataExchangeService.availablePoiMarkerColors.forEach(function(option){
 					if(option.colorName === $scope.metadataImportSettings.poiMarkerColor){
@@ -543,8 +446,8 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 				$scope.$apply();
 		}
 
-		$scope.onExportGeoresourceAddMetadata = function(){
-			var metadataExport = $scope.georesourceMetadataStructure;
+		$scope.onExportIndicatorAddMetadata = function(){
+			var metadataExport = $scope.indicatorMetadataStructure;
 
 			metadataExport.metadata.note = $scope.metadata.note || "";
 			metadataExport.metadata.literature = $scope.metadata.literature  || "";
@@ -554,15 +457,15 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			metadataExport.metadata.lastUpdate = $scope.metadata.lastUpdate || "";
 			metadataExport.metadata.description = $scope.metadata.description || "";
 			metadataExport.metadata.databasis = $scope.metadata.databasis || "";
-			metadataExport.datasetName = $scope.datasetName || "";
+			metadataExport.indicatorName = $scope.indicatorName || "";
 
 			if($scope.metadata.updateInterval){
 					metadataExport.metadata.updateInterval = $scope.metadata.updateInterval.apiName;
 			}
 
-			var name = $scope.datasetName;
+			var name = $scope.indicatorName;
 
-			// georesource specific properties
+			// indicator specific properties
 			metadataExport.isPOI = $scope.isPOI;
 			metadataExport.isLOI = $scope.isLOI;
 			metadataExport.isAOI = $scope.isAOI;
@@ -623,31 +526,17 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			a.remove();
 		};
 
-		$scope.onChangeMarkerColor = function(markerColor){
-			$scope.selectedPoiMarkerColor = markerColor;
-		};
-
-		$scope.onChangeSymbolColor = function(symbolColor){
-			$scope.selectedPoiSymbolColor = symbolColor;
-		};
-
-		$scope.onChangeLoiDashArray = function(loiDashArrayObject){
-			$scope.selectedLoiDashArrayObject = loiDashArrayObject;
-
-			$("#loiDashArrayDropdownButton").html(loiDashArrayObject.svgString);
-		};
-
 
 			$scope.hideSuccessAlert = function(){
-				$("#georesourceAddSuccessAlert").hide();
+				$("#indicatorAddSuccessAlert").hide();
 			};
 
 			$scope.hideErrorAlert = function(){
-				$("#georesourceAddErrorAlert").hide();
+				$("#indicatorAddErrorAlert").hide();
 			};
 
 			$scope.hideMetadataErrorAlert = function(){
-				$("#georesourceMetadataImportErrorAlert").hide();
+				$("#indicatorMetadataImportErrorAlert").hide();
 			};
 
 			/*
@@ -661,7 +550,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			$scope.scale; //fieldset properties which we will animate
 			$scope.animating; //flag to prevent quick multi-click glitches
 
-			$(".next_addGeoresource").click(function(){
+			$(".next_addIndicator").click(function(){
 				if($scope.animating) return false;
 				$scope.animating = true;
 				
@@ -699,7 +588,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 				});
 			});
 
-			$(".previous_addGeoresource").click(function(){
+			$(".previous_addIndicator").click(function(){
 				if($scope.animating) return false;
 				$scope.animating = true;
 				

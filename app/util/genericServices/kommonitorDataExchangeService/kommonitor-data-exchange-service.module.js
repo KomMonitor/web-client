@@ -122,6 +122,9 @@ angular
 					this.kommonitorMapServiceInstance = kommonitorMapService;
 
           this.updateIntervalOptions = __env.updateIntervalOptions;
+          this.indicatorTypeOptions = __env.indicatorTypeOptions;
+          this.indicatorUnitOptions = __env.indicatorUnitOptions.sort();
+          this.indicatorCreationTypeOptions = __env.indicatorCreationTypeOptions;
           this.geodataSourceFormats = __env.geodataSourceFormats;
 
           this.anySideBarIsShown = false;
@@ -567,25 +570,14 @@ angular
 
           this.getIndicatorStringFromIndicatorType = function (indicatorType) {
             var indicatorTypeString;
-            if (indicatorType.includes("DYNAMIC_ABSOLUTE")) {
-              indicatorTypeString = "Dynamik-Indikator (absolute)";
+
+            for (const indicatorTypeOption of this.indicatorTypeOptions) {
+              if (indicatorType.includes(indicatorTypeOption.apiName)) {
+                indicatorTypeString = indicatorTypeOption.displayName;
+                break;
+              }
             }
-            else if (indicatorType.includes("DYNAMIC_RELATIVE")) {
-              indicatorTypeString = "Dynamik-Indikator (relativ)";
-            }
-            else if (indicatorType.includes("DYNAMIC_STANDARDIZED")) {
-              indicatorTypeString = "Dynamik-Indikator (standardisiert)";
-            }
-            else if (indicatorType.includes("STATUS_ABSOLUTE")) {
-              indicatorTypeString = "Status-Indikator (absolut)";
-            }
-            else if (indicatorType.includes("STATUS_RELATIVE")) {
-              indicatorTypeString = "Status-Indikator (relativ)";
-            }
-            else if (indicatorType.includes("STATUS_STANDARDIZED")) {
-              indicatorTypeString = "Status-Indikator (standardisiert)";
-            }
-  
+
             return indicatorTypeString;
           };
 

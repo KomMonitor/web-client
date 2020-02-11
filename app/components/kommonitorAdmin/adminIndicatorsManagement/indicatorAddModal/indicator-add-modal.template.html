@@ -12,58 +12,297 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span></button>
-				<h4 class="modal-title">Neue Georessource registrieren</h4>
+				<h4 class="modal-title">Neuen Indikator registrieren</h4>
 			</div>
 			<div class="modal-body">
 
 				<!-- {
-					  "isLOI": false,
-					  "metadata": {
-					    "note": "note",
-					    "literature": "literature",
-					    "updateInterval": "ARBITRARY",
-					    "sridEPSG": 0.8008281904610115,
-					    "datasource": "datasource",
-					    "contact": "contact",
-					    "lastUpdate": "2000-01-23",
-					    "description": "description",
-					    "databasis": "databasis"
-					  },
-					  "allowedRoles": [
-					    "allowedRoles",
-					    "allowedRoles"
-					  ],
-					  "datasetName": "datasetName",
-					  "poiSymbolBootstrap3Name": "poiSymbolBootstrap3Name",
-					  "poiSymbolColor": "white",
-					  "isAOI": false,
-					  "loiDashArrayString": "loiDashArrayString",
-					  "geoJsonString": "geoJsonString",
-					  "topicReference": "topicReference",
-					  "poiMarkerColor": "white",
-					  "jsonSchema": "jsonSchema",
-					  "periodOfValidity": {
-					    "endDate": "2000-01-23",
-					    "startDate": "2000-01-23"
-					  },
-					  "isPOI": false,
-					  "loiColor": "loiColor",
-					  "aoiColor": "aoiColor"
-					}
+						"indicatorValues": [
+							{
+							"spatialReferenceKey": "spatialReferenceKey",
+							"valueMapping": [
+								{
+								"indicatorValue": 0.8008282,
+								"timestamp": "2000-01-23"
+								},
+								{
+								"indicatorValue": 0.8008282,
+								"timestamp": "2000-01-23"
+								}
+							]
+							},
+							{
+							"spatialReferenceKey": "spatialReferenceKey",
+							"valueMapping": [
+								{
+								"indicatorValue": 0.8008282,
+								"timestamp": "2000-01-23"
+								},
+								{
+								"indicatorValue": 0.8008282,
+								"timestamp": "2000-01-23"
+								}
+							]
+							}
+						],
+						"refrencesToOtherIndicators": [
+							{
+							"referenceDescription": "referenceDescription",
+							"indicatorId": "indicatorId"
+							},
+							{
+							"referenceDescription": "referenceDescription",
+							"indicatorId": "indicatorId"
+							}
+						],
+						"metadata": {
+							"note": "note",
+							"literature": "literature",
+							"updateInterval": "ARBITRARY",
+							"sridEPSG": 0.8008281904610115,
+							"datasource": "datasource",
+							"contact": "contact",
+							"lastUpdate": "2000-01-23",
+							"description": "description",
+							"databasis": "databasis"
+						},
+						"allowedRoles": [
+							"allowedRoles",
+							"allowedRoles"
+						],
+						"indicatorName": "indicatorName",
+						"applicableSpatialUnit": "applicableSpatialUnit",
+						"abbreviation": "abbreviation",
+						"characteristicValue": "characteristicValue",
+						"tags": [
+							"tags",
+							"tags"
+						],
+						"creationType": "INSERTION",
+						"unit": "unit",
+						"topicReference": "topicReference",
+						"refrencesToGeoresources": [
+							{
+							"referenceDescription": "referenceDescription",
+							"georesourceId": "georesourceId"
+							},
+							{
+							"referenceDescription": "referenceDescription",
+							"georesourceId": "georesourceId"
+							}
+						],
+						"indicatorType": "STATUS_ABSOLUTE",
+						"interpretation": "interpretation",
+						"isHeadlineIndicator": false,
+						"processDescription": "processDescription",
+						"lowestSpatialUnitForComputation": "lowestSpatialUnitForComputation",
+						"defaultClassificationMapping": {
+							"colorBrewerSchemeName": "colorBrewerSchemeName",
+							"items": [
+							{
+								"defaultCustomRating": "defaultCustomRating",
+								"defaultColorAsHex": "defaultColorAsHex"
+							},
+							{
+								"defaultCustomRating": "defaultCustomRating",
+								"defaultColorAsHex": "defaultColorAsHex"
+							}
+							]
+						}
+						}
 			 -->
 
 				<!-- MultiStep Form -->
 				<div class="row">
 					<div class="col-md-12">
-						<form class="multiStepForm form-group" id="georesourceAddForm" role="form"
+						<form class="multiStepForm form-group" id="indicatorAddForm" role="form"
 							data-toggle="validator" data-disable="true" style="margin-bottom: 0px;">
 							<!-- progressbar -->
 							<ul id="progressbar">
-								<li style="width: 33.33%;" class="active">Allgemeine Metadaten</li>
-								<li style="width: 33.33%;">Metadaten der Georessource</li>
-								<li style="width: 33.33%;">R&auml;umlicher Datensatz</li>
+								<li style="width: 16.66%;" class="active">Metadaten des Indikators</li>
+								<li style="width: 16.66%;" >Allgemeine Metadaten</li>
+								<li style="width: 16.66%;">Themenhierarchie</li>
+								<li style="width: 16.66%;">Referenzen zu Indikatoren/Georessourcen</li>
+								<li style="width: 16.66%;">Klassifizierungsoptionen</li>
+								<li style="width: 16.66%;">Zeitreihen-Import</li>
 							</ul>
 							<!-- fieldsets -->
+							
+							<fieldset>
+								<h2 class="fs-title">Metadaten des Indikators</h2>
+								<h3 class="fs-subtitle">Angaben &uuml;ber Metadaten des Indikators</h3>
+								<p><b><i>* = Pflichtfeld</i></b></p>
+
+								<div class="row vertical-align">
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Indikatorname*</label>
+											<input type="text" class="form-control" ng-model="indicatorName"
+												placeholder="Name" required></input>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>K&uuml;rzel/Kennzeichen</label>
+											<input type="text" class="form-control" ng-model="indicatorAbbreviation"
+												placeholder="optionales K&uuml;rzel" required></input>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Indikatoren-Typ*</label>
+											<select ng-model="indicatorType"
+												ng-options="type as type.displayName for type in $ctrl.kommonitorDataExchangeServiceInstance.indicatorTypeOptions"
+												class="form-control" required>
+												<option disabled selected value> -- Indikatorentyp w&auml;hlen --
+												</option>
+											</select>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Merkmalsauspr&auml;gung</label>
+											<input type="text" class="form-control" ng-model="indicatorCharacteristicValue"
+												placeholder="optionale Merkmalsauspr&auml;gung" required></input>
+											
+											<div class="help-block">
+												<p>Angabe, wenn mehrere Indikatoren mit gleichen Namen, aber unterschiedlichen Merkmals angelegt werden sollen 
+													(bspw. Einwohnerzahl männlich, Einwohnerzahl weiblich, Einwohnerzahl diverse)</p>
+											</div>	
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+								</div>
+
+								<div class="row vertical-align">
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Einheit*</label>
+											<select ng-model="indicatorUnit"	ng-change="onChangeIndicatorUnit()"											
+												class="form-control" required>
+												<option disabled selected value> -- Einheit w&auml;hlen -- </option>
+												<option>-- Freitext --</option>
+												<option ng-repeat="unit in $ctrl.kommonitorDataExchangeServiceInstance.indicatorUnitOptions"> 
+													{{unit}}
+												</option>
+												
+											</select>
+											<div ng-hide="! enableFreeTextUnit">
+												<label>Freitexteingabe*</label>
+												<input type="text"  class="form-control" ng-model="indicatorUnit"
+												placeholder="Einheit" required></input>
+											</div>
+											
+											<div class="help-block">
+												<p>Enth&auml;lt die Auswahlliste nicht das gew&uuml;nschte Elment, dann '-- Freitext --' selektieren, um einen Freitext einzugeben</p>
+											</div>	
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Methodik (der Berechnung)</label>
+											<input type="text" class="form-control" ng-model="indicatorProcessDescription"
+												placeholder="optionale Methodik"></input>
+
+											<div class="help-block">
+												<p>Hinweise &uuml;ber die Berechnungsvorschrift des Indikators</p>
+											</div>		
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Interpretation</label>
+											<input type="text" class="form-control" ng-model="indicatorInterpretation"
+												placeholder="optionale Interpretationshilfe"></input>
+											<div class="help-block">
+												<p>Hinweise, um die Verst&auml;ndlichkeit der Werteverteiung des Indikators zu erh&ouml;hen</p>
+											</div>		
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>									
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Tags (Komma-separierte Auflistung)</label>
+											<input type="text" class="form-control" ng-model="indicatorTagsString_withCommas"
+												placeholder="optionale Komma-separierte Tags"></input>
+											
+											<div class="help-block">
+												<p>Eingabe als Freitext. Komma dient als Trennzeichen</p>
+											</div>		
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+								</div>
+
+								<div class="row vertical-align">
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Leitindikator*</label>		
+											<label class="switch">
+												<input type="checkbox" value="isHeadlineIndicator" ng-model="isHeadlineIndicator">
+												<span class="switchslider round"></span>
+											</label>	
+										
+											<div class="help-block">
+												<p>Angabe, ob der Indikator ein Leitindikator ist. Leitindikatoren aggregieren in der Regel Subindikatoren zu einer h&ouml;herwertigen Aussage</p>
+											</div>	
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Fortf&uuml;hrungstyp*</label>
+											<select ng-model="indicatorCreationType" ng-change="onChangeCreationType()"
+												ng-options="type as type.displayName for type in $ctrl.kommonitorDataExchangeServiceInstance.indicatorCreationTypeOptions"
+												class="form-control" required>
+												<option disabled selected value> -- Fortf&uuml;hrungstyp w&auml;hlen --
+												</option>
+											</select>
+
+											<div class="help-block">
+												<p>'manuell' bedeutet, dass die Zeitreihenfortf&uuml;hrung manuell durch den Anwender durchgef&uuml;hrt werden muss.</p>
+												<p>'automatisierte Berechnung durch KomMonitor' bedeutet, dass die Zeitreihenfortf&uuml;hrung mittels eines Skript-Mechanismus 
+													semi-automatisiert von KomMonitor durchgef&uuml;hrt werden kann.
+												</p>
+											</div>	
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div ng-show="enableLowestSpatialUnitSelect" class="form-group">
+											<label>Niedrigste Raumebene für automatisierte Berechnung</label>
+											<select ng-model="indicatorLowestSpatialUnitMetadataObjectForComputation"
+												ng-options="spatialUnitLevel as spatialUnit.spatialUnitLevel for spatialUnit in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits"
+												class="form-control">
+												<option disabled selected value> -- Raumeinheit w&auml;hlen --
+												</option>
+											</select>
+
+											<div class="help-block">
+												<p>Angabe der niedrigsten Raumebene, für die der automatisiert berechenbare Indikator berechnet werden kann. 
+													Indikatorenwerte für h&ouml;here Raumebenen werden dabei automatisch aus den niedrigeren Ebenen aggregiert berechnet.</p>
+											</div>	
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											
+										</div>
+									</div>
+								</div>
+
+								<input type="button" name="next" class="next next_addIndicator action-button" value="N&auml;chster Schritt"/>
+
+							</fieldset>
+
 							<fieldset>
 								<h2 class="fs-title">Allgemeine Metadaten</h2>
 								<h3 class="fs-subtitle">Angaben &uuml;ber allgemeine Metadaten in KomMonitor</h3>
@@ -127,7 +366,7 @@
 												</div>
 												<input type="text" ng-model="metadata.lastUpdate"
 													class="form-control pull-right"
-													id="georesourceAddLastUpdateDatepicker" required>
+													id="indicatorAddLastUpdateDatepicker" required>
 											</div>
 											<div class="help-block with-errors"></div>
 										</div>
@@ -149,172 +388,58 @@
 										</div>
 									</div>
 								</div>
-
-								<input type="button" name="next" class="next next_addGeoresource action-button" value="N&auml;chster Schritt"/>
+								
+								<input type="button" name="previous" class="previous previous_addIndicator action-button-previous" value="Voriger Schritt"/>
+								<input type="button" name="next" class="next next_addIndicator action-button" value="N&auml;chster Schritt"/>
 							</fieldset>
 
+
 							<fieldset>
-								<h2 class="fs-title">Metadaten der Georessource</h2>
-								<h3 class="fs-subtitle">Angaben &uuml;ber Metadaten der Georessource</h3>
+								<h2 class="fs-title">Themenhierarchie</h2>
+								<h3 class="fs-subtitle">Angaben &uuml;ber die Themenhierarchie des Indikators</h3>
 								<p><b><i>* = Pflichtfeld</i></b></p>
 
-								<div class="row vertical-align">
-									<div class="col-md-6 col-sm-6 col-xs-12">
-										<div class="form-group">
-											<label>Name der Georessource*</label>
-											<input type="text" class="form-control" ng-model="datasetName"
-												ng-change="checkDatasetName()" placeholder="eindeutiger Name"
-												required></input>
-											<div class="help-block with-errors"></div>
-											<div ng-if="datasetNameInvalid" style="color: red;">
-												<p>Eingabe ung&uuml;ltig. Es existiert bereits eine Georessource mit
-													gleichem Namen und gleichem Typ.</p>
-											</div>
-										</div>
-									</div>
-									<div class="col-md-6 col-sm-6 col-xs-12">
-										<div class="form-group">
-											<label>Typ*</label>
-											<select ng-model="georesourceType" ng-change="onChangeGeoresourceType()"
-												class="form-control" required>
-												<option selected value="poi">Points of Interest</option>
-												<option value="loi">Lines of Interest</option>
-												<option value="aoi">Areas of Interest</option>
-											</select>
-											<div class="help-block with-errors"></div>
-										</div>
-									</div>
-								</div>
+								
 
-								<div ng-show="georesourceType === 'poi'" class="row vertical-align">
-									<div class="col-md-4 col-sm-6 col-xs-12">
-										<div class="form-group" align="center">
-											<label>Farbe des Punktmarkers*</label>
-											<div class="dropdown customColorPicker">
-												<button type="button" class="btn btn-info dropdown-toggle"
-													data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-													<i style="background: {{selectedPoiMarkerColor.colorValue}};"></i>
-													{{selectedPoiMarkerColor.colorName}} <span class="caret"></span>
-												</button>
-												<ul class="dropdown-menu dropdown-menu-center">
-													<li ng-repeat="markerColor in $ctrl.kommonitorDataExchangeServiceInstance.availablePoiMarkerColors"
-														ng-click="onChangeMarkerColor(markerColor)">
-														<a href=""><i
-																style="background: {{markerColor.colorValue}};"></i>{{markerColor.colorName}}</a>
-													</li>
-												</ul>
-												<div class="help-block with-errors"></div>
-											</div>
-										</div>
-									</div>
-									<div class="col-md-4 col-sm-6 col-xs-12">
-										<div class="form-group" align="center">
-											<label>Symbol*</label>
-											<br />
-											<button id="poiSymbolPicker" class="btn btn-info"></button>
-											<!-- <br/>
-														<p><b>Icon Bezeichner: </b>{{selectedPoiIconName}}</p> -->
-											<div class="help-block with-errors"></div>
-										</div>
-									</div>
-									<div class="col-md-4 col-sm-6 col-xs-12">
-										<div class="form-group" align="center">
-											<label>Farbe des Punktsymbols*</label>
-											<div class="dropdown customColorPicker">
-												<button type="button" class="btn btn-info dropdown-toggle"
-													data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-													<i style="background: {{selectedPoiSymbolColor.colorValue}};"></i>
-													{{selectedPoiSymbolColor.colorName}} <span class="caret"></span>
-												</button>
-												<ul class="dropdown-menu dropdown-menu-center">
-													<li ng-repeat="symbolColor in $ctrl.kommonitorDataExchangeServiceInstance.availablePoiMarkerColors"
-														ng-click="onChangeSymbolColor(symbolColor)">
-
-														<a href=""><i
-																style="background: {{symbolColor.colorValue}};"></i>
-															{{symbolColor.colorName}}</a>
-													</li>
-												</ul>
-												<div class="help-block with-errors"></div>
-											</div>
-										</div>
-									</div>
-								</div>
-
-								<div ng-show="georesourceType === 'loi'" class="row vertical-align">
-									<div class="col-md-6 col-sm-6 col-xs-12">
-										<div class="form-group" align="center">
-											<label>Linienfarbe*</label>
-											<div id="loiColorPicker" class="input-group" style="width: 50px;">
-												<input type="text" style="display:none;" class="form-control input-sm"
-													ng-model="loiColor" placeholder="Line of Interest Farbauswahl"
-													value="#bf3d2c" required />
-												<span title="Klicken, um die Farbe anzupassen"
-													style="border: 1px solid #ccc;"
-													class="input-group-addon btn btn-info btn-sm"><i></i></span>
-											</div>
-											<div class="help-block with-errors"></div>
-
-										</div>
-									</div>
-									<div class="col-md-6 col-sm-6 col-xs-12">
-										<div class="form-group" align="center">
-											<label>Linienmuster*</label>
-											<div class="dropdown">
-												<button type="button" width="200px" class="btn btn-info dropdown-toggle"
-													data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-													<div id="loiDashArrayDropdownButton">
-
-													</div> <span class="caret"></span>
-												</button>
-												<ul class="dropdown-menu dropdown-menu-center">
-													<li ng-repeat="loiDashArrayObject in $ctrl.kommonitorDataExchangeServiceInstance.availableLoiDashArrayObjects"
-														ng-click="onChangeLoiDashArray(loiDashArrayObject)">
-														<a href="">
-															<div id="loiDashArrayDropdownItem-{{$index}}">
-															</div>
-														</a>
-													</li>
-												</ul>
-												<div class="help-block with-errors"></div>
-											</div>
-										</div>
-									</div>
-								</div>
-
-								<div ng-show="georesourceType === 'aoi'" class="row vertical-align">
-									<div class="col-md-12 col-sm-12 col-xs-12">
-										<div class="form-group" align="center">
-											<label>Objektfarbe*</label>
-											<div id="aoiColorPicker" class="input-group" style="width: 50px;">
-												<input type="text" style="display:none;" class="form-control input-sm"
-													ng-model="aoiColor" placeholder="Area of Interest Farbauswahl"
-													value="#bf3d2c" required />
-												<span title="Klicken, um die Farbe anzupassen"
-													style="border: 1px solid #ccc;"
-													class="input-group-addon btn btn-info btn-sm"><i></i></span>
-											</div>
-											<div class="help-block with-errors"></div>
-
-										</div>
-									</div>
-								</div>
-
-								<input type="button" name="previous" class="previous previous_addGeoresource action-button-previous" value="Voriger Schritt"/>
-								<input type="button" name="next" class="next next_addGeoresource action-button" value="N&auml;chster Schritt"/>
+								<input type="button" name="previous" class="previous previous_addIndicator action-button-previous" value="Voriger Schritt"/>
+								<input type="button" name="next" class="next next_addIndicator action-button" value="N&auml;chster Schritt"/>
 
 							</fieldset>
 
 							<fieldset>
-								<h2 class="fs-title">R&auml;umlicher Datensatz</h2>
-								<h3 class="fs-subtitle">Angaben &uuml;ber den r&auml;umlichen Datensatz, aus dem die
-									Features importiert werden</h3>
+								<h2 class="fs-title">Referenzen zu Indikatoren/Georessourcen</h2>
+								<h3 class="fs-subtitle">Angaben &uuml;ber Referenzen des Indikators auf andere Indikatoren oder Georessourcen</h3>
+								<p><b><i>* = Pflichtfeld</i></b></p>
+
+								
+
+								<input type="button" name="previous" class="previous previous_addIndicator action-button-previous" value="Voriger Schritt"/>
+								<input type="button" name="next" class="next next_addIndicator action-button" value="N&auml;chster Schritt"/>
+
+							</fieldset>
+
+							<fieldset>
+								<h2 class="fs-title">Klassifizierungsoptionen</h2>
+								<h3 class="fs-subtitle">Angaben &uuml;ber die Standard-Klassifizierung des Indikators</h3>
+								<p><b><i>* = Pflichtfeld</i></b></p>
+
+								
+
+								<input type="button" name="previous" class="previous previous_addIndicator action-button-previous" value="Voriger Schritt"/>
+								<input type="button" name="next" class="next next_addIndicator action-button" value="N&auml;chster Schritt"/>
+
+							</fieldset>
+
+							<fieldset>
+								<h2 class="fs-title">Zeitreihen-Import</h2>
+								<h3 class="fs-subtitle">Angaben &uuml;ber den Datensatz, aus dem die
+									Indikatoren-Zeitreihen-Werte importiert werden</h3>
 								<p><b><i>* = Pflichtfeld</i></b></p>
 
 								<div class="row vertical-align">
 									<div class="col-md-3 col-sm-6 col-xs-12">
 										<div class="form-group">
-											<label>Geodaten-Quellformat*</label>
+											<label>Datensatz-Quellformat*</label>
 											<select ng-model="converter"
 												ng-options="converter as converter.simpleName for converter in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters"
 												class="form-control" required>
@@ -338,7 +463,7 @@
 
 											<div class="form-group">
 												<label>{{parameter.name}}*</label>
-												<input type="text" id="converterParameter_georesourceAdd_{{parameter.name}}" class="form-control"
+												<input type="text" id="converterParameter_indicatorAdd_{{parameter.name}}" class="form-control"
 													placeholder="{{parameter.name}}" required>
 												<div class="help-block">
 													<p>{{parameter.description}}</p>
@@ -366,13 +491,13 @@
 
 												<div ng-show="datasourceType.type === 'FILE'">
 													<label>Datei*</label>
-													<input type="file" class="form-control" id="georesourceDataSourceInput_add" required></input>
+													<input type="file" class="form-control" id="indicatorDataSourceInput_add" required></input>
 												</div>
 												<div ng-show="! (datasourceType.type === 'FILE')">
 													<div ng-repeat="parameter in datasourceType.parameters">
 														<div class="form-group">
 															<label>{{parameter.name}}*</label>
-															<textarea rows="1" id="datasourceTypeParameter_georesourceAdd_{{parameter.name}}"
+															<textarea rows="1" id="datasourceTypeParameter_indicatorAdd_{{parameter.name}}"
 																class="form-control" placeholder="{{parameter.name}}" required></textarea>
 															<div class="help-block">
 																<p>{{parameter.description}}</p>
@@ -385,15 +510,15 @@
 											<!-- <div class="help-block"><p>Features m&uuml;ssen Informationen &uuml;ber eindutige ID und eindeutigen Namen in Attribut namens <code>ID</code> und <code>NAME</code> enthalten, um in KomMonitor verarbeitet werden zu k&ouml;nnen.</p></div> -->
 
 											<div class="help-block with-errors"></div>
-											<div ng-if="georesourceDataSourceInputInvalid" style="color: red;">
-												<p>Eingabe ung&uuml;ltig. Grund: {{georesourceDataSourceInputInvalidReason}}</p>
+											<div ng-if="indicatorDataSourceInputInvalid" style="color: red;">
+												<p>Eingabe ung&uuml;ltig. Grund: {{indicatorDataSourceInputInvalidReason}}</p>
 											</div>
 										</div>
 									</div>
 									<div class="col-md-3 col-sm-6 col-xs-12">
 										<div class="form-group">
 											<label>ID Attributname*</label>
-											<input type="text" class="form-control" ng-model="georesourceDataSourceIdProperty" required></input>
+											<input type="text" class="form-control" ng-model="indicatorDataSourceIdProperty" required></input>
 											<div class="help-block">
 												<p>Name des Attributs, welches den eindeutigen Identifier des Features enth&auml;lt.</p>
 											</div>
@@ -404,7 +529,7 @@
 										</div>
 										<div class="form-group">
 											<label>NAME Attributname*</label>
-											<input type="text" class="form-control" ng-model="georesourceDataSourceNameProperty" required></input>
+											<input type="text" class="form-control" ng-model="indicatorDataSourceNameProperty" required></input>
 											<div class="help-block">
 												<p>Name des Attributs, welches den eindeutigen Namen des Features enth&auml;lt.</p>
 											</div>
@@ -444,7 +569,7 @@
 													<i class="far fa-calendar-alt"></i>
 												</div>
 												<input type="text" ng-model="periodOfValidity.startDate" ng-change="checkPeriodOfValidity()"
-													class="form-control pull-right" id="georesourceAddDatepickerStart" required>
+													class="form-control pull-right" id="indicatorAddDatepickerStart" required>
 											</div>
 											<div class="help-block">
 												<p>Eintrag ist immer erforderlich, selbst wenn die r&auml;umlichen Features &uuml;ber ein
@@ -465,7 +590,7 @@
 													<i class="far fa-calendar-alt"></i>
 												</div>
 												<input type="text" ng-model="periodOfValidity.endDate" ng-change="checkPeriodOfValidity()"
-													class="form-control pull-right" id="georesourceAddDatepickerEnd">
+													class="form-control pull-right" id="indicatorAddDatepickerEnd">
 											</div>
 											<div class="help-block">
 												<p>Eintrag ist erforderlich, falls die r&auml;umlichen Features nicht selbst &uuml;ber ein
@@ -481,7 +606,7 @@
 									</div>
 								</div>
 
-								<input type="button" name="previous" class="previous previous_addGeoresource action-button-previous" value="Voriger Schritt"/>
+								<input type="button" name="previous" class="previous previous_addIndicator action-button-previous" value="Voriger Schritt"/>
 
 							</fieldset>
 						</form>
@@ -491,51 +616,51 @@
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
-				<button type="button" class="btn btn-info pull-left" ng-click="onImportGeoresourceAddMetadata()"
+				<button type="button" class="btn btn-info pull-left" ng-click="onImportIndicatorAddMetadata()"
 					title="Importieren der Metadaten aus einer Datei"><i
 						class="fas fa-file-import"></i>&nbsp;&nbsp;Metadaten-Import</button>
 				<input style="display:none;" class="pull-left" type="file" class="form-control"
-					id="georesourceMetadataImportFile" accept=".json,"></input>
+					id="indicatorMetadataImportFile" accept=".json,"></input>
 				<button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" ng-disabled=""
-					ng-click="onExportGeoresourceAddMetadata()" title="Exportieren der Metadaten in eine Datei"><i
+					ng-click="onExportIndicatorAddMetadata()" title="Exportieren der Metadaten in eine Datei"><i
 						class="fas fa-file-export"></i>&nbsp;&nbsp;Metadaten-Export</button>
 				<button type="button" class="btn btn-success"
 				
-					ng-disabled="!datasetName || !metadata.description || !metadata.datasource || !metadata.contact || !metadata.updateInterval || !metadata.lastUpdate || !georesourceDataSourceIdProperty || !georesourceDataSourceNameProperty || !periodOfValidity.startDate || datasetNameInvalid || periodOfValidityInvalid || !converter || !datasourceType"
-					ng-click="addGeoresource()">Georessource registrieren</button>
+					ng-disabled="!indicatorName || !metadata.description || !metadata.datasource || !metadata.contact || !metadata.updateInterval || !metadata.lastUpdate || !indicatorDataSourceIdProperty || !indicatorDataSourceNameProperty || !periodOfValidity.startDate || indicatorNameInvalid || periodOfValidityInvalid || !converter || !datasourceType"
+					ng-click="addIndicator()">Indikator registrieren</button>
 				<button type="button" class="btn btn-danger"
-					ng-click="resetGeoresourceAddForm()">Zur&uuml;cksetzen</button>
+					ng-click="resetIndicatorAddForm()">Zur&uuml;cksetzen</button>
 			</div>
 
-			<div id="georesourceAddSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+			<div id="indicatorAddSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
 				class="alert alert-success alert-dismissable">
 				<button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
-				<h4><i class="icon fa fa-check"></i>Georessource registriert</h4>
-				Eine neue Georessource mit Namen {{successMessagePart}} wurde in KomMonitor registriert und in die
+				<h4><i class="icon fa fa-check"></i>Indikator registriert</h4>
+				Eine neuer Indikator mit Namen {{successMessagePart}} wurde in KomMonitor registriert und in die
 				&Uuml;bersichtstabelle eingetragen.
 			</div>
 
-			<div id="georesourceAddErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+			<div id="indicatorAddErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
 				class="alert alert-danger alert-dismissable">
 				<button type="button" class="close" ng-click="hideErrorAlert()" aria-hidden="true">&times;</button>
 				<h4><i class="icon fa fa-ban"></i>Registrierung gescheitert</h4>
-				Bei der Registrierung der Georessource ist ein Fehler aufgetreten. Fehlermeldung:
+				Bei der Registrierung des Indikators ist ein Fehler aufgetreten. Fehlermeldung:
 				<br />
 				<pre>{{errorMessagePart}}</pre>.
 			</div>
 
-			<div id="georesourceMetadataImportErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+			<div id="indicatorMetadataImportErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
 				class="alert alert-danger alert-dismissable">
 				<button type="button" class="close" ng-click="hideMetadataErrorAlert()"
 					aria-hidden="true">&times;</button>
 				<h4><i class="icon fa fa-ban"></i>Metadata Import gescheitert</h4>
 				Beim Import der Metadaten aus einer Datei ist ein Fehler aufgetreten. Fehlermeldung:
 				<br />
-				<pre>{{georesourceMetadataImportError}}</pre>
+				<pre>{{indicatorMetadataImportError}}</pre>
 				<br />
 				<br />
 				<p>Bitte stellen Sie sicher, dass folgendes JSON-Format eingehalten wird:</p>
-				<pre id="georesourcesAddMetadataPre" style="overflow:auto; max-height:500px;"></pre>
+				<pre id="indicatorsAddMetadataPre" style="overflow:auto; max-height:500px;"></pre>
 			</div>
 
 		</div>
