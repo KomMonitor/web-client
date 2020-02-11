@@ -8,10 +8,8 @@ angular.module('adminIndicatorsManagement').component('adminIndicatorsManagement
 
 		$scope.loadingData = true;
 
-		$scope.availableGeoresourceDatasets;
-		$scope.selectPoiEntriesInput = false;
-		$scope.selectLoiEntriesInput = false;
-		$scope.selectAoiEntriesInput = false;
+		$scope.availableIndicatorDatasets;
+		$scope.selectIndicatorEntriesInput = false;
 
 		$scope.$on("initialMetadataLoadingCompleted", function (event) {
 
@@ -21,70 +19,39 @@ angular.module('adminIndicatorsManagement').component('adminIndicatorsManagement
 
 		$scope.initializeOrRefreshOverviewTable = function(){
 			$scope.loadingData = true;
-			$scope.availableGeoresourceDatasets = JSON.parse(JSON.stringify(kommonitorDataExchangeService.availableGeoresources));
+			$scope.availableIndicatorDatasets = JSON.parse(JSON.stringify(kommonitorDataExchangeService.availableIndicators));
 
 			// initialize properties
-			$scope.availableGeoresourceDatasets.forEach(function(dataset){
+			$scope.availableIndicatorDatasets.forEach(function(dataset){
 				dataset.isSelected = false;
 			});
 
 			$scope.loadingData = false;
 		};
 
-		$scope.$on("refreshGeoresourceOverviewTable", function (event) {
+		$scope.$on("refreshIndicatorOverviewTable", function (event) {
 			$scope.loadingData = true;
-			$scope.refreshGeoresourceOverviewTable();
+			$scope.refreshIndicatorOverviewTable();
 		});
 
-		$scope.onChangeSelectPoiEntries = function(){
-			if ($scope.selectPoiEntriesInput){
-				$scope.availableGeoresourceDatasets.forEach(function(dataset){
-					if(dataset.isPOI)
-						dataset.isSelected = true;
+		$scope.onChangeSelectIndicatorEntries = function(){
+			if ($scope.selectIndicatorEntriesInput){
+				$scope.availableIndicatorDatasets.forEach(function(dataset){
+					dataset.isSelected = true;
+						
 				});
 			}
 			else{
-				$scope.availableGeoresourceDatasets.forEach(function(dataset){
-					if(dataset.isPOI)
-						dataset.isSelected = false;
+				$scope.availableIndicatorDatasets.forEach(function(dataset){
+					dataset.isSelected = false;
 				});
 			}
 		};
 
-		$scope.onChangeSelectLoiEntries = function(){
-			if ($scope.selectLoiEntriesInput){
-				$scope.availableGeoresourceDatasets.forEach(function(dataset){
-					if(dataset.isLOI)
-						dataset.isSelected = true;
-				});
-			}
-			else{
-				$scope.availableGeoresourceDatasets.forEach(function(dataset){
-					if(dataset.isLOI)
-						dataset.isSelected = false;
-				});
-			}
-		};
-
-		$scope.onChangeSelectAoiEntries = function(){
-			if ($scope.selectAoiEntriesInput){
-				$scope.availableGeoresourceDatasets.forEach(function(dataset){
-					if(dataset.isAOI)
-						dataset.isSelected = true;
-				});
-			}
-			else{
-				$scope.availableGeoresourceDatasets.forEach(function(dataset){
-					if(dataset.isAOI)
-						dataset.isSelected = false;
-				});
-			}
-		};
-
-		$scope.refreshGeoresourceOverviewTable = function(){
+		$scope.refreshIndicatorOverviewTable = function(){
 
 			// refetch all metadata from spatial units to update table
-			kommonitorDataExchangeService.fetchGeoresourcesMetadata().then(function successCallback(response) {
+			kommonitorDataExchangeService.fetchIndicatorsMetadata().then(function successCallback(response) {
 
 						$scope.initializeOrRefreshOverviewTable();
 
@@ -93,44 +60,34 @@ angular.module('adminIndicatorsManagement').component('adminIndicatorsManagement
 				}, function errorCallback(response) {
 
 					$scope.loadingData = false;
-			})
+			});
 
-		};
-
-		$scope.onChangeSelectPoiDataset = function(georesourceDataset){
-			console.log(georesourceDataset.datasetName);
-		};
-		$scope.onChangeSelectLoiDataset = function(georesourceDataset){
-			console.log(georesourceDataset.datasetName);
-		};
-		$scope.onChangeSelectAoiDataset = function(georesourceDataset){
-			console.log(georesourceDataset.datasetName);
 		};
 
 		$scope.onClickDeleteDatasets = function(){
 			$scope.loadingData = true;
 
 			var markedEntriesForDeletion = [];
-			$scope.availableGeoresourceDatasets.forEach(function(dataset){
+			$scope.availableIndicatorDatasets.forEach(function(dataset){
 				if(dataset.isSelected){
 					markedEntriesForDeletion.push(dataset);
 				}
 			});
 
 			// submit selected spatial units to modal controller
-			$rootScope.$broadcast("onDeleteGeoresources", markedEntriesForDeletion);
+			$rootScope.$broadcast("onDeleteIndicators", markedEntriesForDeletion);
 
 			$scope.loadingData = false;
 		};
 
-		$scope.onClickEditMetadata = function(georesourceDataset){
+		$scope.onClickEditMetadata = function(indicatorDataset){
 			// submit selected spatial unit to modal controller
-			$rootScope.$broadcast("onEditGeoresourceMetadata", georesourceDataset);
+			$rootScope.$broadcast("onEditIndicatorMetadata", indicatorDataset);
 		};
 
-		$scope.onClickEditFeatures = function(georesourceDataset){
+		$scope.onClickEditFeatures = function(indicatorDataset){
 			// submit selected spatial unit to modal controller
-			$rootScope.$broadcast("onEditGeoresourceFeatures", georesourceDataset);
+			$rootScope.$broadcast("onEditIndicatorFeatures", indicatorDataset);
 		};
 
 
