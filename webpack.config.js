@@ -77,7 +77,8 @@ module.exports = {
           { from: nodeModulePathConstant + 'angular-datatables/dist', to: 'angular-datatables/' },
           { from: nodeModulePathConstant + 'angular-ui-bootstrap/dist', to: 'angular-ui-bootstrap/' },
           { from: nodeModulePathConstant + 'bootstrap-iconpicker/bootstrap-iconpicker', to: 'bootstrap-iconpicker/' },
-          { from: nodeModulePathConstant + 'jquery.easing/jquery.easing.min.js', to: 'jquery.easing/' }
+          { from: nodeModulePathConstant + 'jquery.easing/jquery.easing.min.js', to: 'jquery.easing/' },
+          { from: './customizedExternalLibs/colorbrewer.js', to: 'colorbrewer/' }
 
       ])
     ]
