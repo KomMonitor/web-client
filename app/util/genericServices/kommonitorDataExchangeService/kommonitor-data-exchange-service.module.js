@@ -208,6 +208,14 @@ angular
 						this.availableTopics = topicsArray;
           };
 
+          this.getIndicatorMetadataById = function(indicatorId){
+            for (const indicatorMetadata of this.availableIndicators) {
+              if(indicatorMetadata.indicatorId === indicatorId){
+                return indicatorMetadata;
+              }
+            }
+          };
+
           this.getIndicatorAbbreviationFromIndicatorId = function(indicatorId){
             for (var indicatorMetadata of this.availableIndicators) {
               if (indicatorMetadata.indicatorId === indicatorId){

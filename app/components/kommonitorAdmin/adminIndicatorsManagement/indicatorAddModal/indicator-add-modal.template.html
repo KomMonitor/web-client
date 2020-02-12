@@ -493,7 +493,155 @@
 								<h3 class="fs-subtitle">Angaben &uuml;ber Referenzen des Indikators auf andere Indikatoren oder Georessourcen</h3>
 								<p><b><i>* = Pflichtfeld</i></b></p>
 
-								
+								<p>Hier werden Angaben &uuml;ber assoziierte Indikatoren und Georessourcen get&auml;tigt. Sie eignen sich dazu, im System Querverbindungen 
+									zwischen Indikatoren un Georessourcen darzustellen und dem Nutzer so die M&ouml;glichkeit zu geben, einen Themenkomplex, 
+									der durch mehrere Datens&auml;tze abgebildet wird, besser zu verstehen.</p>
+
+								<div class="row vertical-align">
+									<div class="col-md-12 col-sm-12 col-xs-12">
+										<!-- <div style="text-align: left;"> -->
+											<div class="box box-danger collapsed-box" style="background: #ebf0fd;">
+												<div class="box-header">
+												  <h3 class="box-title">Referenzen zu anderen Indikatoren</h3>
+
+													<div class="box-tools pull-right">
+														<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+														</button>
+													</div>
+												</div>
+												<!-- /.box-header -->
+												<div class="box-body">
+
+													<!-- Inputs for new reference -->
+
+													<div class="row vertical-align">
+														<div class="col-md-12 col-sm-12 col-xs-12">
+															<div class="form-group">
+																<label>Stichwortfilter</label>
+																<div class="input-group">
+																	<span class="input-group-addon"><i class="fas fa-filter"></i></span>
+																	<input type="text" class="form-control input-sm" placeholder="Filtern nach Indiktorenname" ng-model="indicatorNameFilter">
+																  </div>
+																<div class="help-block with-errors"></div>
+															</div>
+															<div class="form-group">
+																<label>Indikator, f&uuml;r den eine Referenz angelegt werden soll</label>
+																<select ng-model="tmpIndicatorReference_selectedIndicatorMetadata" size="5"
+																	ng-options="indicatorMetadata as indicatorMetadata.indicatorName for indicatorMetadata in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators() | filter:indicatorNameFilter"
+																	class="form-control" >
+																	<option disabled selected value> -- Hauptthema w&auml;hlen --
+																	</option>
+																</select>
+																<div class="help-block with-errors"></div>
+															</div>
+														</div>
+													</div>
+
+													<div class="row vertical-align">
+														<div class="col-md-3 col-sm-6 col-xs-12">
+															<div class="form-group">
+																<label>ID des selektierten Indikators</label>
+																<input type="text" class="form-control input-sm" disabled placeholder="IndikatorenId" ng-model="tmpIndicatorReference_selectedIndicatorMetadata.indicatorId">
+																<div class="help-block with-errors"></div>
+															</div>
+														</div>
+														<div class="col-md-3 col-sm-6 col-xs-12">												
+															<div class="form-group">
+																<label>Name des selektierten Indikators</label>
+																<input type="text" class="form-control input-sm" disabled placeholder="IndikatorenName" ng-model="tmpIndicatorReference_selectedIndicatorMetadata.indicatorName">
+																<div class="help-block with-errors"></div>
+															</div>
+														</div>
+														<div class="col-md-3 col-sm-6 col-xs-12">
+															<div class="form-group">
+																<label>Beschreibung der Indikatoren-Referenz</label>
+																<textarea rows="3" class="form-control input-sm" placeholder="Beschreibung der Referenz" ng-model="tmpIndicatorReference_referenceDescription"></textarea>
+																<div class="help-block with-errors"></div>
+															</div>
+														</div>
+														<div class="col-md-3 col-sm-6 col-xs-12">
+															<div class="form-group">
+																<button class="btn btn-success btn-sm" ng-disable="!tmpIndicatorReference_selectedIndicatorMetadata" ng-click="onAddOrUpdateIndicatorReference()">Hinzuf&uuml;gen/Editieren</button>
+																<div class="help-block with-errors"></div>
+															</div>
+														</div>
+													</div>
+					
+													<!-- Table to display currently specified references -->
+													<div class="row vertical-align">
+														<div class="col-md-12 col-sm-12 col-xs-12">
+															<label>&Uuml;bersicht der definierten Indikatoren-Referenzen</label>
+															<table class="table table-condensed">
+																<thead>
+																	<tr>
+																		<th>Editierfunktionen</th>
+																		<th>ID des Indikators</th>
+																		<th>Name des Indikators</th>
+																		<th>K&uuml;rzel/Kennziffer</th>
+																		<th>Beschreibung der Verkn&uuml;pfung</th>
+																	</tr>
+																</thead>
+																<tbody>
+																	<tr ng-repeat="indicatorReference in indicatorReferences_adminView">
+																		<td>
+																			<div class="btn-group btn-group-sm">
+																				<button class="btn btn-warning btn-sm" type="button" ng-click="onClickEditIndicatorReference(indicatorReference)"
+																					title="Referenz editieren"><i class="fas fa-pencil-alt"></i></button>
+																				<button class="btn btn-danger btn-sm" type="button" ng-click="onClickDeleteIndicatorReference(indicatorReference)"
+																					title="Referenz l&ouml;schen"><i class="fas fa-trash"></i></button>
+																				<!-- <button class="btn btn-danger btn-sm" type="button" data-toggle="modal" data-target="#modal-delete-spatial-units" ng-click="onClickDeleteDatasets(indicatorDataset)" title="Datensatz l&ouml;schen"><i class="fas fa-trash"></i></button> -->
+																			</div>
+																		</td>
+																		<td>{{indicatorReference.referencedIndicatorId}}</td>
+																		<td>{{indicatorReference.referencedIndicatorName}}</td>
+																		<td>{{indicatorReference.referencedIndicatorAbbreviation}}</td>
+																		<td>{{indicatorReference.referencedIndicatorDescription}}</td>
+																	</tr>
+																</tbody>
+															</table>
+														</div>
+													</div>
+
+
+												</div>
+												<!-- Box Body -->
+											</div>	
+											<!-- Box -->
+
+										<!-- </div>	 -->
+
+									</div>
+
+								</div>
+
+								<div class="row vertical-align">
+									<div class="col-md-12 col-sm-12 col-xs-12">
+										<!-- <div style="text-align: left;"> -->
+											<div class="box box-danger collapsed-box" style="background: #ebf0fd;">
+												<div class="box-header">
+												  <h3 class="box-title">Referenzen zu Georessourcen</h3>
+
+													<div class="box-tools pull-right">
+														<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+														</button>
+													</div>
+												</div>
+												<!-- /.box-header -->
+												<div class="box-body">
+
+													
+
+												</div>
+												<!-- Box Body -->
+											</div>	
+											<!-- Box -->
+
+										<!-- </div>	 -->
+
+									</div>
+
+								</div>
+
 
 								<input type="button" name="previous" class="previous previous_addIndicator action-button-previous" value="Voriger Schritt"/>
 								<input type="button" name="next" class="next next_addIndicator action-button" value="N&auml;chster Schritt"/>

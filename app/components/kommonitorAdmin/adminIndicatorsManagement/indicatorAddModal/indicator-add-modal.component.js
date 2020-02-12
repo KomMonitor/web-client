@@ -92,6 +92,33 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 		$scope.metadata.lastUpdate = undefined;
 		$scope.metadata.description = undefined;
 
+		$scope.indicatorName = undefined;
+			$scope.indicatorAbbreviation = undefined;
+			$scope.indicatorType = undefined;
+			$scope.indicatorCharacteristicValue = undefined;
+			$scope.isHeadlineIndicator = false;
+			$scope.indicatorUnit = undefined;
+			$scope.enableFreeTextUnit = false;
+			$scope.indicatorProcessDescription = undefined;
+			$scope.indicatorTagsString_withCommas = undefined;
+			$scope.indicatorInterpretation = undefined;
+			$scope.indicatorCreationType = undefined;
+			$scope.indicatorLowestSpatialUnitMetadataObjectForComputation = undefined;
+			$scope.enableLowestSpatialUnitSelect = false;
+
+			$scope.indicatorTopic_mainTopic = undefined;
+			$scope.indicatorTopic_subTopic = undefined;
+			$scope.indicatorTopic_subsubTopic = undefined;
+			$scope.indicatorTopic_subsubsubTopic = undefined;
+
+			$scope.indicatorNameFilter = undefined;
+			$scope.tmpIndicatorReference_selectedIndicatorMetadata = undefined;
+			$scope.tmpIndicatorReference_referenceDescription = undefined;
+			// tmp array to display indicatorReferences
+			$scope.indicatorReferences_adminView = [];
+			// array for API request (has less information per item)
+			$scope.indicatorReferences_apiRequest = [];
+
 
 
 		$scope.periodOfValidity = {};
@@ -154,6 +181,14 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			$scope.indicatorTopic_subsubTopic = undefined;
 			$scope.indicatorTopic_subsubsubTopic = undefined;
 
+			$scope.indicatorNameFilter = undefined;
+			$scope.tmpIndicatorReference_selectedIndicatorMetadata = undefined;
+			$scope.tmpIndicatorReference_referenceDescription = undefined;
+			// tmp array to display indicatorReferences
+			$scope.indicatorReferences_adminView = [];
+			// array for API request (has less information per item)
+			$scope.indicatorReferences_apiRequest = [];
+
 
 			$scope.periodOfValidity = {};
 			$scope.periodOfValidity.startDate = undefined;
@@ -175,6 +210,68 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 
 			$scope.indicatorDataSourceIdProperty = undefined;
 			$scope.indicatorDataSourceNameProperty = undefined;
+		};
+
+		$scope.onAddOrUpdateIndicatorReference = function(){
+			var tmpIndicatorReference_adminView = {
+				"referencedIndicatorName": $scope.tmpIndicatorReference_selectedIndicatorMetadata.indicatorName,
+				"referencedIndicatorId": $scope.tmpIndicatorReference_selectedIndicatorMetadata.indicatorId,
+				"referencedIndicatorAbbreviation": $scope.tmpIndicatorReference_selectedIndicatorMetadata.abbreviation,
+				"referencedIndicatorDescription": $scope.tmpIndicatorReference_referenceDescription
+			};
+
+			var processed = false;
+
+			for (let index = 0; index < $scope.indicatorReferences_adminView.length; index++) {
+				var indicatorReference_adminView = $scope.indicatorReferences_adminView[index];
+				
+				if (indicatorReference_adminView.referencedIndicatorId === tmpIndicatorReference_adminView.referencedIndicatorId){
+					// replace object
+					$scope.indicatorReferences_adminView[index] = tmpIndicatorReference_adminView;
+					processed = true;
+					break;
+				}
+			}			
+
+			if(! processed){
+				// new entry
+				$scope.indicatorReferences_adminView.push(tmpIndicatorReference_adminView);
+			}
+
+			setTimeout(() => {
+				$scope.$apply();
+			}, 250);
+		};
+
+		$scope.onClickEditIndicatorReference = function(indicatorReference_adminView){
+
+			$scope.tmpIndicatorReference_selectedIndicatorMetadata = kommonitorDataExchangeService.getIndicatorMetadataById(indicatorReference_adminView.referencedIndicatorId);
+			$scope.tmpIndicatorReference_referenceDescription = indicatorReference_adminView.referencedIndicatorDescription;
+
+			setTimeout(() => {
+				$scope.$apply();
+			}, 250);
+		};
+
+		$scope.onClickDeleteIndicatorReference = function(indicatorReference_adminView){
+
+			for (let index = 0; index < $scope.indicatorReferences_adminView.length; index++) {
+				
+				if ($scope.indicatorReferences_adminView[index].referencedIndicatorId === indicatorReference_adminView.referencedIndicatorId){
+					// remove object
+					$scope.indicatorReferences_adminView.splice(index, 1);
+					break;
+				}
+			}				
+
+			setTimeout(() => {
+				$scope.$apply();
+			}, 250);
+		};
+
+		$scope.filterIndicators = function() {
+
+			return kommonitorDataExchangeService.filterIndicators();
 		};
 
 		$scope.onChangeCreationType = function(){
