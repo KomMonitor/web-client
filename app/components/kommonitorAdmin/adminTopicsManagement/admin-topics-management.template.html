@@ -21,20 +21,15 @@
 			| Your Page Content Here |
 			-------------------------->
 
-			<div class="box box-primary">
-            <div class="box-header">
-              <h3 class="box-title">Themenhierarchie</h3>
-            </div>
-            <!-- /.box-header -->
-            <div class="box-body">
+			
 
 								<div class="just-padding">
 
 									<div class="list-group list-group-root well">
 
 										<div ng-repeat="mainTopic in $ctrl.kommonitorDataExchangeServiceInstance.availableTopics | filter:{topicType:'main'}">
-											<div  class="list-group-item list-group-item-info">
-												<a id="{{mainTopic.topicId}}" href="" ng-attr-title="{{mainTopic.topicDescription}}" class="collapseTrigger" ng-click="isCollapsed_mainTopic = !isCollapsed_mainTopic" ng-init="isCollapsed_mainTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{mainTopic.topicName}}</a>
+											<div  class="list-group-item list-group-item-default" style="background: #2171b5; color: white;">
+												<a id="{{mainTopic.topicId}}" href="" ng-attr-title="{{mainTopic.topicDescription}}" class="collapseTrigger" style="color: white;" ng-click="isCollapsed_mainTopic = !isCollapsed_mainTopic" ng-init="isCollapsed_mainTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{mainTopic.topicName}}</a>
 
 												<div class="btn-group btn-group-sm" style="margin-left: 30px;">
 													<button type="button" class="btn btn-warning" ng-click="onClickEditTopic(mainTopic)" data-toggle="modal" data-target="#modal-edit-topic"><i class="fas fa-pencil-alt"></i></button>
@@ -45,8 +40,8 @@
 
 											<div ng-repeat="subTopic in mainTopic.subTopics" class="list-group collapse" uib-collapse="isCollapsed_mainTopic">
 
-												<div  class="list-group-item list-group-item-warning">
-													<a id="{{subTopic.topicId}}" class="collapseTrigger" ng-attr-title="{{subTopic.topicDescription}}" href="" ng-click="isCollapsed_subTopic = !isCollapsed_subTopic" ng-init="isCollapsed_subTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{subTopic.topicName}}</a>
+												<div  class="list-group-item list-group-item-default" style="background: #6baed6; color: white;">
+													<a id="{{subTopic.topicId}}" class="collapseTrigger" style="color: white;" ng-attr-title="{{subTopic.topicDescription}}" href="" ng-click="isCollapsed_subTopic = !isCollapsed_subTopic" ng-init="isCollapsed_subTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{subTopic.topicName}}</a>
 													<div class="btn-group btn-group-sm" style="margin-left: 30px;">
 														<button type="button" class="btn btn-warning" ng-click="onClickEditTopic(subTopic)" data-toggle="modal" data-target="#modal-edit-topic"><i class="fas fa-pencil-alt"></i></button>
 														<button type="button" class="btn btn-danger" ng-click="onClickDeleteTopic(subTopic)" data-toggle="modal" data-target="#modal-delete-topic"><i class="fas fa-trash"></i></button>
@@ -55,8 +50,8 @@
 
 												<div ng-repeat="subsubTopic in subTopic.subTopics" class="list-group collapse" uib-collapse="isCollapsed_subTopic">
 
-													<div  class="list-group-item list-group-item-warning">
-														<a id="{{subsubTopic.topicId}}" class="collapseTrigger" ng-attr-title="{{subsubTopic.topicDescription}}" href="" ng-click="isCollapsed_subsubTopic = !isCollapsed_subsubTopic" ng-init="isCollapsed_subsubTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{subsubTopic.topicName}}</a>
+													<div  class="list-group-item list-group-item-default" style="background: #bdd7e7; color: white;">
+														<a id="{{subsubTopic.topicId}}" class="collapseTrigger" style="color: white;" ng-attr-title="{{subsubTopic.topicDescription}}" href="" ng-click="isCollapsed_subsubTopic = !isCollapsed_subsubTopic" ng-init="isCollapsed_subsubTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{subsubTopic.topicName}}</a>
 														<div class="btn-group btn-group-sm" style="margin-left: 30px;">
 															<button type="button" class="btn btn-warning" ng-click="onClickEditTopic(subsubTopic)" data-toggle="modal" data-target="#modal-edit-topic"><i class="fas fa-pencil-alt"></i></button>
 															<button type="button" class="btn btn-danger" ng-click="onClickDeleteTopic(subsubTopic)" data-toggle="modal" data-target="#modal-delete-topic"><i class="fas fa-trash"></i></button>
@@ -65,8 +60,8 @@
 
 													<div ng-repeat="subsubsubTopic in subsubTopic.subTopics" class="list-group collapse" uib-collapse="isCollapsed_subsubTopic">
 
-														<div  class="list-group-item list-group-item-warning">
-															<a id="{{subsubsubTopic.topicId}}" class="collapseTrigger" ng-attr-title="{{subsubsubTopic.topicDescription}}">{{subsubsubTopic.topicName}}</a>
+														<div  class="list-group-item list-group-item-default" style="background: #eff3ff; color: white;">
+															<a id="{{subsubsubTopic.topicId}}" class="collapseTrigger" style="color: white;" ng-attr-title="{{subsubsubTopic.topicDescription}}">{{subsubsubTopic.topicName}}</a>
 															<div class="btn-group btn-group-sm" style="margin-left: 30px;">
 																<button type="button" class="btn btn-warning" ng-click="onClickEditTopic(subsubsubTopic)" data-toggle="modal" data-target="#modal-edit-topic"><i class="fas fa-pencil-alt"></i></button>
 																<button type="button" class="btn btn-danger" ng-click="onClickDeleteTopic(subsubsubTopic)" data-toggle="modal" data-target="#modal-delete-topic"><i class="fas fa-trash"></i></button>
@@ -164,10 +159,7 @@
 
 							</div>
 
-            </div>
-            <!-- /.box-body -->
-          </div>
-          <!-- /.box -->
+            
 
 					<div id="topicsErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden class="alert alert-danger alert-dismissable">
 		                <button type="button" class="close" ng-click="hideErrorAlert()" aria-hidden="true">&times;</button>

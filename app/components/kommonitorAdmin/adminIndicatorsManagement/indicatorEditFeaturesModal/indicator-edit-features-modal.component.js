@@ -1,42 +1,27 @@
-angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeaturesModal', {
-	templateUrl : "components/kommonitorAdmin/adminSpatialUnitsManagement/spatialUnitEditFeaturesModal/spatial-unit-edit-features-modal.template.html",
+angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesModal', {
+	templateUrl : "components/kommonitorAdmin/adminIndicatorsManagement/indicatorEditFeaturesModal/indicator-edit-features-modal.template.html",
 	controller : ['kommonitorDataExchangeService', 'kommonitorImporterHelperService', '$scope', '$rootScope', '$http', '__env', '$timeout',
-		function SpatialUnitEditFeaturesModalController(kommonitorDataExchangeService, kommonitorImporterHelperService, $scope, $rootScope, $http, __env, $timeout) {
+		function IndicatorEditFeaturesModalController(kommonitorDataExchangeService, kommonitorImporterHelperService, $scope, $rootScope, $http, __env, $timeout) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 		this.kommonitorImporterHelperServiceInstance = kommonitorImporterHelperService;
 
-		/*	POST BODY
-				{
-				  "geoJsonString": "geoJsonString",
-				  "metadata": {
-				    "note": "note",
-				    "literature": "literature",
-				    "updateInterval": "ARBITRARY",
-				    "sridEPSG": 0.8008281904610115,
-				    "datasource": "datasource",
-				    "contact": "contact",
-				    "lastUpdate": "2000-01-23",
-				    "description": "description",
-				    "databasis": "databasis"
-				  },
-				  "jsonSchema": "jsonSchema",
-				  "nextLowerHierarchyLevel": "nextLowerHierarchyLevel",
-				  "spatialUnitLevel": "spatialUnitLevel",
-				  "periodOfValidity": {
-				    "endDate": "2000-01-23",
-				    "startDate": "2000-01-23"
-				  },
-				  "nextUpperHierarchyLevel": "nextUpperHierarchyLevel"
-				}
+		/*	PUT BODY
+		{
+		"geoJsonString": "geoJsonString",
+		"periodOfValidity": {
+		"endDate": "2000-01-23",
+		"startDate": "2000-01-23"
+		}
+		}
 		*/
 
 		//Date picker
-    $('#spatialUnitEditFeaturesDatepickerStart').datepicker(kommonitorDataExchangeService.datePickerOptions);
-		$('#spatialUnitEditFeaturesDatepickerEnd').datepicker(kommonitorDataExchangeService.datePickerOptions);
+    $('#georesourceEditFeaturesDatepickerStart').datepicker(kommonitorDataExchangeService.datePickerOptions);
+		$('#georesourceEditFeaturesDatepickerEnd').datepicker(kommonitorDataExchangeService.datePickerOptions);
 
-		$scope.spatialUnitFeaturesGeoJSON;
-		$scope.currentSpatialUnitDataset;
+		$scope.georesourceFeaturesGeoJSON;
+		$scope.currentGeoresourceDataset;
 		$scope.remainingFeatureHeaders;
 
 		$scope.loadingData = false;
@@ -46,13 +31,10 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 		$scope.periodOfValidity.endDate = undefined;
 		$scope.periodOfValidityInvalid = false;
 
-		$scope.geoJsonString = undefined;
-		$scope.spatialUnit_asGeoJson = undefined;
-
-		$scope.spatialUnitEditFeaturesDataSourceInputInvalidReason = undefined;
-		$scope.spatialUnitEditFeaturesDataSourceInputInvalid = false;
-		$scope.spatialUnitDataSourceIdProperty = undefined;
-		$scope.spatialUnitDataSourceNameProperty = undefined;
+		$scope.georesourceEditFeaturesDataSourceInputInvalidReason = undefined;
+		$scope.georesourceEditFeaturesDataSourceInputInvalid = false;
+		$scope.georesourceDataSourceIdProperty = undefined;
+		$scope.georesourceDataSourceNameProperty = undefined;
 
 		$scope.converter = undefined;
 			$scope.datasourceType = undefined;
@@ -70,38 +52,38 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 		$scope.successMessagePart = undefined;
 		$scope.errorMessagePart = undefined;
 
-		$scope.$on("onEditSpatialUnitFeatures", function (event, spatialUnitDataset) {
+		$scope.$on("onEditGeoresourceFeatures", function (event, georesourceDataset) {
 
-			if($scope.currentSpatialUnitDataset && $scope.currentSpatialUnitDataset.spatialUnitLevel === spatialUnitDataset.spatialUnitLevel){
+			if($scope.currentGeoresourceDataset && $scope.currentGeoresourceDataset.datasetName === georesourceDataset.datasetName){
 				return;
 			}
 			else{
-				$scope.currentSpatialUnitDataset = spatialUnitDataset;
+				$scope.currentGeoresourceDataset = georesourceDataset;
 
-				// $scope.refreshSpatialUnitEditFeaturesOverviewTable();
+				// $scope.refreshGeoresourceEditFeaturesOverviewTable();
 
-				$scope.resetSpatialUnitEditFeaturesForm();
+				$scope.resetGeoresourceEditFeaturesForm();
 			}
 
 		});
 
-		$scope.refreshSpatialUnitEditFeaturesOverviewTable = function(){
+		$scope.refreshGeoresourceEditFeaturesOverviewTable = function(){
 
 			$scope.loadingData = true;
-			// fetch all spatial unit features
+			// fetch all georesource features
 			$http({
-				url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/spatial-units/" + $scope.currentSpatialUnitDataset.spatialUnitId + "/allFeatures",
+				url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + $scope.currentGeoresourceDataset.georesourceId + "/allFeatures",
 				method: "GET",
 				// headers: {
 				//    'Content-Type': undefined
 				// }
 			}).then(function successCallback(response) {
 
-				$scope.spatialUnitFeaturesGeoJSON = response.data;
+				$scope.georesourceFeaturesGeoJSON = response.data;
 
 				var tmpRemainingHeaders = [];
 
-				for (var property in $scope.spatialUnitFeaturesGeoJSON.features[0].properties){
+				for (var property in $scope.georesourceFeaturesGeoJSON.features[0].properties){
 					if (property != __env.FEATURE_ID_PROPERTY_NAME && property != __env.FEATURE_NAME_PROPERTY_NAME && property != __env.VALID_START_DATE_PROPERTY_NAME && property != __env.VALID_END_DATE_PROPERTY_NAME){
 						tmpRemainingHeaders.push(property);
 					}
@@ -114,42 +96,42 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 				}, function errorCallback(response) {
 					$scope.errorMessagePart = response;
 
-					$("#spatialUnitEditFeaturesErrorAlert").show();
+					$("#georesourceEditFeaturesErrorAlert").show();
 					$scope.loadingData = false;
 			});
 		};
 
-		$scope.clearAllSpatialUnitFeatures = function(){
+		$scope.clearAllGeoresourceFeatures = function(){
 			$scope.loadingData = true;
 			// delete all georesource features
 			$http({
-				url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/spatial-units/" + $scope.currentSpatialUnitDataset.spatialUnitId + "/allFeatures",
+				url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + $scope.currentGeoresourceDataset.georesourceId + "/allFeatures",
 				method: "DELETE",
 				// headers: {
 				//    'Content-Type': undefined
 				// }
 			}).then(function successCallback(response) {
 
-				$scope.spatialUnitFeaturesGeoJSON = undefined;
+				$scope.georesourceFeaturesGeoJSON = undefined;
 				$scope.remainingFeatureHeaders = undefined;
 
-				$rootScope.$broadcast("refreshSpatialUnitOverviewTable");
+				$rootScope.$broadcast("refreshGeoresourceOverviewTable");
 				// $scope.refreshGeoresourceEditFeaturesOverviewTable();
 
-				$scope.successMessagePart = $scope.currentSpatialUnitDataset.spatialUnitLevel;
+				$scope.successMessagePart = $scope.currentGeoresourceDataset.datasetName;
 
-				$("#spatialUnitEditFeaturesSuccessAlert").show();
+				$("#georesourceEditFeaturesSuccessAlert").show();
 				$scope.loadingData = false;
 
 				}, function errorCallback(response) {
 					$scope.errorMessagePart = response;
 
-					$("#spatialUnitEditFeaturesErrorAlert").show();
+					$("#georesourceEditFeaturesErrorAlert").show();
 					$scope.loadingData = false;
 			});
 		};
 
-		$scope.resetSpatialUnitEditFeaturesForm = function(){
+		$scope.resetGeoresourceEditFeaturesForm = function(){
 
 			$scope.georesourceFeaturesGeoJSON = undefined;
 			$scope.remainingFeatureHeaders = undefined;
@@ -159,13 +141,10 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 			$scope.periodOfValidity.endDate = undefined;
 			$scope.periodOfValidityInvalid = false;
 
-			$scope.geoJsonString = undefined;
-			$scope.spatialUnit_asGeoJson = undefined;
-
-			$scope.spatialUnitEditFeaturesDataSourceInputInvalidReason = undefined;
-			$scope.spatialUnitEditFeaturesDataSourceInputInvalid = false;
-			$scope.spatialUnitDataSourceIdProperty = undefined;
-			$scope.spatialUnitDataSourceNameProperty = undefined;
+			$scope.georesourceEditFeaturesDataSourceInputInvalidReason = undefined;
+			$scope.georesourceEditFeaturesDataSourceInputInvalid = false;
+			$scope.georesourceDataSourceIdProperty = undefined;
+			$scope.georesourceDataSourceNameProperty = undefined;
 
 			$scope.converter = undefined;
 			$scope.datasourceType = undefined;
@@ -183,8 +162,8 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 			$scope.successMessagePart = undefined;
 			$scope.errorMessagePart = undefined;
 
-			$("#spatialUnitEditFeaturesSuccessAlert").hide();
-			$("#spatialUnitEditFeaturesErrorAlert").hide();
+			$("#georesourceEditFeaturesSuccessAlert").hide();
+			$("#georesourceEditFeaturesErrorAlert").hide();
 		};
 
 		$scope.filterByKomMonitorProperties = function() {
@@ -227,9 +206,9 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 			$scope.converterDefinition = $scope.buildConverterDefinition();
 			$scope.datasourceTypeDefinition = await $scope.buildDatasourceTypeDefinition();
 			$scope.propertyMappingDefinition = $scope.buildPropertyMappingDefinition();
-			$scope.putBody_spatialUnits = $scope.buildPutBody_spatialUnits();
+			$scope.putBody_georesources = $scope.buildPutBody_georesources();
 
-			if(!$scope.converterDefinition || !$scope.datasourceTypeDefinition || !$scope.propertyMappingDefinition || !$scope.putBody_spatialUnits){
+			if(!$scope.converterDefinition || !$scope.datasourceTypeDefinition || !$scope.propertyMappingDefinition || !$scope.putBody_georesources){
 				return false;
 			}
 
@@ -238,16 +217,16 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 
 		$scope.buildConverterDefinition = function(){
 
-			return kommonitorImporterHelperService.buildConverterDefinition($scope.converter, "converterParameter_spatialUnitEditFeatures_", $scope.schema);			
+			return kommonitorImporterHelperService.buildConverterDefinition($scope.converter, "converterParameter_georesourceEditFeatures_", $scope.schema);			
 		};
 
 		$scope.buildDatasourceTypeDefinition = async function(){
 			try {
-				return await kommonitorImporterHelperService.buildDatasourceTypeDefinition($scope.datasourceType, 'datasourceTypeParameter_spatialUnitEditFeatures_', 'spatialUnitDataSourceInput_editFeatures');			
+				return await kommonitorImporterHelperService.buildDatasourceTypeDefinition($scope.datasourceType, 'datasourceTypeParameter_georesourceEditFeatures_', 'georesourceDataSourceInput_editFeatures');			
 			} catch (error) {
 				$scope.errorMessagePart = error;
 
-				$("#spatialUnitEditFeaturesErrorAlert").show();
+				$("#georesourceEditFeaturesErrorAlert").show();
 				$scope.loadingData = false;
 				return null;
 			}			
@@ -255,13 +234,13 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 
 		$scope.buildPropertyMappingDefinition = function(){
 			// arsion from is undefined currently
-			return kommonitorImporterHelperService.buildPropertyMapping_spatialResource($scope.spatialUnitDataSourceNameProperty, $scope.spatialUnitDataSourceIdProperty, $scope.validityStartDate_perFeature, $scope.validityEndDate_perFeature, undefined);
+			return kommonitorImporterHelperService.buildPropertyMapping_spatialResource($scope.georesourceDataSourceNameProperty, $scope.georesourceDataSourceIdProperty, $scope.validityStartDate_perFeature, $scope.validityEndDate_perFeature, undefined);
 		};
 
-		$scope.buildPutBody_spatialUnits = function(){
+		$scope.buildPutBody_georesources = function(){
 			var putBody =
 			{
-				"geoJsonString": undefined, // will be set by importer
+				"geoJsonString": undefined,
 				"periodOfValidity": {
 					"endDate": $scope.periodOfValidity.endDate,
 					"startDate": $scope.periodOfValidity.startDate
@@ -272,7 +251,7 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 		};
 
 
-		$scope.editSpatialUnitFeatures = async function(){
+		$scope.editGeoresourceFeatures = async function(){
 
 			/*
 					now collect data and build request for importer
@@ -299,22 +278,22 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 					$scope.loadingData = true;
 
 					try {
-						var updateSpatialUnitResponse = await kommonitorImporterHelperService.updateSpatialUnit($scope.converterDefinition, $scope.datasourceTypeDefinition, $scope.propertyMappingDefinition, $scope.currentSpatialUnitDataset.spatialUnitId, $scope.putBody_spatialUnits);
+						var updateGeoresourceResponse = await kommonitorImporterHelperService.updateGeoresource($scope.converterDefinition, $scope.datasourceTypeDefinition, $scope.propertyMappingDefinition, $scope.currentGeoresourceDataset.georesourceId, $scope.putBody_georesources);
 
 						// this callback will be called asynchronously
 						// when the response is available
 
-						$rootScope.$broadcast("refreshSpatialUnitOverviewTable");
-						// $scope.refreshSpatialUnitEditFeaturesOverviewTable();
+						$rootScope.$broadcast("refreshGeoresourceOverviewTable");
+					// $scope.refreshGeoresourceEditFeaturesOverviewTable();
 
-						$scope.successMessagePart = $scope.currentSpatialUnitDataset.spatialUnitLevel;
+					$scope.successMessagePart = $scope.currentGeoresourceDataset.datasetName;
 
-						$("#spatialUnitEditFeaturesSuccessAlert").show();
-						$scope.loadingData = false;
+					$("#georesourceEditFeaturesSuccessAlert").show();
+					$scope.loadingData = false;
 					} catch (error) {
-						$scope.errorMessagePart = response;
+						$scope.errorMessagePart = error;
 
-						$("#spatialUnitEditFeaturesErrorAlert").show();
+						$("#georesourceEditFeaturesErrorAlert").show();
 						$scope.loadingData = false;
 
 						setTimeout(() => {
@@ -323,12 +302,13 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 					}
 				}
 		};
+
 			$scope.hideSuccessAlert = function(){
-				$("#spatialUnitEditFeaturesSuccessAlert").hide();
+				$("#georesourceEditFeaturesSuccessAlert").hide();
 			};
 
 			$scope.hideErrorAlert = function(){
-				$("#spatialUnitEditFeaturesErrorAlert").hide();
+				$("#georesourceEditFeaturesErrorAlert").hide();
 			};
 
 			/*
@@ -342,7 +322,7 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 			$scope.scale; //fieldset properties which we will animate
 			$scope.animating; //flag to prevent quick multi-click glitches
 
-			$(".next_editSpatialUnitFeatures").click(function(){
+			$(".next_editFeaturesGeoresource").click(function(){
 				if($scope.animating) return false;
 				$scope.animating = true;
 				
@@ -380,7 +360,7 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 				});
 			});
 
-			$(".previous_editSpatialUnitFeatures").click(function(){
+			$(".previous_editFeaturesGeoresource").click(function(){
 				if($scope.animating) return false;
 				$scope.animating = true;
 				

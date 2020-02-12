@@ -1,0 +1,901 @@
+<div class="modal fade" id="modal-add-indicator" role="dialog">
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content">
+
+			<div align="center">
+				<div class="loading-overlay-admin-panel ng-hide" ng-show="loadingData">
+					<span class="glyphicon glyphicon-refresh icon-spin"></span>
+				</div>
+			</div>
+
+
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Neuen Indikator registrieren</h4>
+			</div>
+			<div class="modal-body">
+
+				<!-- {
+						"indicatorValues": [
+							{
+							"spatialReferenceKey": "spatialReferenceKey",
+							"valueMapping": [
+								{
+								"indicatorValue": 0.8008282,
+								"timestamp": "2000-01-23"
+								},
+								{
+								"indicatorValue": 0.8008282,
+								"timestamp": "2000-01-23"
+								}
+							]
+							},
+							{
+							"spatialReferenceKey": "spatialReferenceKey",
+							"valueMapping": [
+								{
+								"indicatorValue": 0.8008282,
+								"timestamp": "2000-01-23"
+								},
+								{
+								"indicatorValue": 0.8008282,
+								"timestamp": "2000-01-23"
+								}
+							]
+							}
+						],
+						"refrencesToOtherIndicators": [
+							{
+							"referenceDescription": "referenceDescription",
+							"indicatorId": "indicatorId"
+							},
+							{
+							"referenceDescription": "referenceDescription",
+							"indicatorId": "indicatorId"
+							}
+						],
+						"metadata": {
+							"note": "note",
+							"literature": "literature",
+							"updateInterval": "ARBITRARY",
+							"sridEPSG": 0.8008281904610115,
+							"datasource": "datasource",
+							"contact": "contact",
+							"lastUpdate": "2000-01-23",
+							"description": "description",
+							"databasis": "databasis"
+						},
+						"allowedRoles": [
+							"allowedRoles",
+							"allowedRoles"
+						],
+						"indicatorName": "indicatorName",
+						"applicableSpatialUnit": "applicableSpatialUnit",
+						"abbreviation": "abbreviation",
+						"characteristicValue": "characteristicValue",
+						"tags": [
+							"tags",
+							"tags"
+						],
+						"creationType": "INSERTION",
+						"unit": "unit",
+						"topicReference": "topicReference",
+						"refrencesToGeoresources": [
+							{
+							"referenceDescription": "referenceDescription",
+							"georesourceId": "georesourceId"
+							},
+							{
+							"referenceDescription": "referenceDescription",
+							"georesourceId": "georesourceId"
+							}
+						],
+						"indicatorType": "STATUS_ABSOLUTE",
+						"interpretation": "interpretation",
+						"isHeadlineIndicator": false,
+						"processDescription": "processDescription",
+						"lowestSpatialUnitForComputation": "lowestSpatialUnitForComputation",
+						"defaultClassificationMapping": {
+							"colorBrewerSchemeName": "colorBrewerSchemeName",
+							"items": [
+							{
+								"defaultCustomRating": "defaultCustomRating",
+								"defaultColorAsHex": "defaultColorAsHex"
+							},
+							{
+								"defaultCustomRating": "defaultCustomRating",
+								"defaultColorAsHex": "defaultColorAsHex"
+							}
+							]
+						}
+						}
+			 -->
+
+				<!-- MultiStep Form -->
+				<div class="row">
+					<div class="col-md-12">
+						<form class="multiStepForm form-group" id="indicatorAddForm" role="form"
+							data-toggle="validator" data-disable="true" style="margin-bottom: 0px;">
+							<!-- progressbar -->
+							<ul id="progressbar">
+								<li style="width: 16.66%;" class="active">Metadaten des Indikators</li>
+								<li style="width: 16.66%;" >Allgemeine Metadaten</li>
+								<li style="width: 16.66%;">Themenhierarchie</li>
+								<li style="width: 16.66%;">Referenzen zu Indikatoren/Georessourcen</li>
+								<li style="width: 16.66%;">Klassifizierungsoptionen</li>
+								<li style="width: 16.66%;">Zeitreihen-Import</li>
+							</ul>
+							<!-- fieldsets -->
+							
+							<fieldset>
+								<h2 class="fs-title">Metadaten des Indikators</h2>
+								<h3 class="fs-subtitle">Angaben &uuml;ber Metadaten des Indikators</h3>
+								<p><b><i>* = Pflichtfeld</i></b></p>
+
+								<div class="row vertical-align">
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Indikatorname*</label>
+											<input type="text" class="form-control" ng-model="indicatorName"
+												placeholder="Name" required></input>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>K&uuml;rzel/Kennzeichen</label>
+											<input type="text" class="form-control" ng-model="indicatorAbbreviation"
+												placeholder="optionales K&uuml;rzel" required></input>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Indikatoren-Typ*</label>
+											<select ng-model="indicatorType"
+												ng-options="type as type.displayName for type in $ctrl.kommonitorDataExchangeServiceInstance.indicatorTypeOptions"
+												class="form-control" required>
+												<option disabled selected value> -- Indikatorentyp w&auml;hlen --
+												</option>
+											</select>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Merkmalsauspr&auml;gung</label>
+											<input type="text" class="form-control" ng-model="indicatorCharacteristicValue"
+												placeholder="optionale Merkmalsauspr&auml;gung" required></input>
+											
+											<div class="help-block">
+												<p>Angabe, wenn mehrere Indikatoren mit gleichen Namen, aber unterschiedlichen Merkmals angelegt werden sollen 
+													(bspw. Einwohnerzahl männlich, Einwohnerzahl weiblich, Einwohnerzahl diverse)</p>
+											</div>	
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+								</div>
+
+								<div class="row vertical-align">
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Einheit*</label>
+											<select ng-model="indicatorUnit"	ng-change="onChangeIndicatorUnit()"											
+												class="form-control" required>
+												<option disabled selected value> -- Einheit w&auml;hlen -- </option>
+												<option>-- Freitext --</option>
+												<option ng-repeat="unit in $ctrl.kommonitorDataExchangeServiceInstance.indicatorUnitOptions"> 
+													{{unit}}
+												</option>
+												
+											</select>
+											<div ng-hide="! enableFreeTextUnit">
+												<label>Freitexteingabe*</label>
+												<input type="text"  class="form-control" ng-model="indicatorUnit"
+												placeholder="Einheit" required></input>
+											</div>
+											
+											<div class="help-block">
+												<p>Enth&auml;lt die Auswahlliste nicht das gew&uuml;nschte Elment, dann '-- Freitext --' selektieren, um einen Freitext einzugeben</p>
+											</div>	
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Methodik (der Berechnung)</label>
+											<input type="text" class="form-control" ng-model="indicatorProcessDescription"
+												placeholder="optionale Methodik"></input>
+
+											<div class="help-block">
+												<p>Hinweise &uuml;ber die Berechnungsvorschrift des Indikators</p>
+											</div>		
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Interpretation</label>
+											<input type="text" class="form-control" ng-model="indicatorInterpretation"
+												placeholder="optionale Interpretationshilfe"></input>
+											<div class="help-block">
+												<p>Hinweise, um die Verst&auml;ndlichkeit der Werteverteiung des Indikators zu erh&ouml;hen</p>
+											</div>		
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>									
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Tags (Komma-separierte Auflistung)</label>
+											<input type="text" class="form-control" ng-model="indicatorTagsString_withCommas"
+												placeholder="optionale Komma-separierte Tags"></input>
+											
+											<div class="help-block">
+												<p>Eingabe als Freitext. Komma dient als Trennzeichen</p>
+											</div>		
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+								</div>
+
+								<div class="row vertical-align">
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Leitindikator*</label>		
+											<label class="switch">
+												<input type="checkbox" value="isHeadlineIndicator" ng-model="isHeadlineIndicator">
+												<span class="switchslider round"></span>
+											</label>	
+										
+											<div class="help-block">
+												<p>Angabe, ob der Indikator ein Leitindikator ist. Leitindikatoren aggregieren in der Regel Subindikatoren zu einer h&ouml;herwertigen Aussage</p>
+											</div>	
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Fortf&uuml;hrungstyp*</label>
+											<select ng-model="indicatorCreationType" ng-change="onChangeCreationType()"
+												ng-options="type as type.displayName for type in $ctrl.kommonitorDataExchangeServiceInstance.indicatorCreationTypeOptions"
+												class="form-control" required>
+												<option disabled selected value> -- Fortf&uuml;hrungstyp w&auml;hlen --
+												</option>
+											</select>
+
+											<div class="help-block">
+												<p>'manuell' bedeutet, dass die Zeitreihenfortf&uuml;hrung manuell durch den Anwender durchgef&uuml;hrt werden muss.</p>
+												<p>'automatisierte Berechnung durch KomMonitor' bedeutet, dass die Zeitreihenfortf&uuml;hrung mittels eines Skript-Mechanismus 
+													semi-automatisiert von KomMonitor durchgef&uuml;hrt werden kann.
+												</p>
+											</div>	
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div ng-show="enableLowestSpatialUnitSelect" class="form-group">
+											<label>Niedrigste Raumebene für automatisierte Berechnung</label>
+											<select ng-model="indicatorLowestSpatialUnitMetadataObjectForComputation"
+												ng-options="spatialUnitLevel as spatialUnit.spatialUnitLevel for spatialUnit in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits"
+												class="form-control">
+												<option disabled selected value> -- Raumeinheit w&auml;hlen --
+												</option>
+											</select>
+
+											<div class="help-block">
+												<p>Angabe der niedrigsten Raumebene, für die der automatisiert berechenbare Indikator berechnet werden kann. 
+													Indikatorenwerte für h&ouml;here Raumebenen werden dabei automatisch aus den niedrigeren Ebenen aggregiert berechnet.</p>
+											</div>	
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											
+										</div>
+									</div>
+								</div>
+
+								<input type="button" name="next" class="next next_addIndicator action-button" value="N&auml;chster Schritt"/>
+
+							</fieldset>
+
+							<fieldset>
+								<h2 class="fs-title">Allgemeine Metadaten</h2>
+								<h3 class="fs-subtitle">Angaben &uuml;ber allgemeine Metadaten in KomMonitor</h3>
+								<p><b><i>* = Pflichtfeld</i></b></p>
+
+								<div class="row vertical-align">
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Beschreibung*</label>
+											<textarea rows="3" class="form-control" ng-model="metadata.description"
+												placeholder="Datensatz Beschreibung" required></textarea>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Datenbasis</label>
+											<textarea rows="3" class="form-control" ng-model="metadata.databasis"
+												placeholder="optionale Beschreibung etwaiger grundlegender Daten, die zur Erzeugung des Datensatzes beitragen"></textarea>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Datenquelle*</label>
+											<textarea rows="3" class="form-control" ng-model="metadata.datasource"
+												placeholder="Beschreibung der Datenquelle" required></textarea>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Datenhalter und Kontakt*</label>
+											<textarea rows="3" class="form-control" ng-model="metadata.contact"
+												placeholder="Beschreibung des Datenhalters und etwaiger Kontaktinformationen"
+												required></textarea>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+								</div>
+
+								<div class="row vertical-align">
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Aktualisierungszyklus*</label>
+											<select ng-model="metadata.updateInterval"
+												ng-options="value as value.displayName for value in $ctrl.kommonitorDataExchangeServiceInstance.updateIntervalOptions"
+												class="form-control" required>
+												<option disabled selected value> -- Aktualisierungszyklus w&auml;hlen --
+												</option>
+											</select>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Datum der letzten Aktualisierung*</label>
+											<div class="input-group date">
+												<div class="input-group-addon">
+													<i class="far fa-calendar-alt"></i>
+												</div>
+												<input type="text" ng-model="metadata.lastUpdate"
+													class="form-control pull-right"
+													id="indicatorAddLastUpdateDatepicker" required>
+											</div>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Literatur</label>
+											<textarea rows="3" class="form-control" ng-model="metadata.literature"
+												placeholder="optionale Angaben zu Literatur"></textarea>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Bemerkung</label>
+											<textarea rows="3" class="form-control" ng-model="metadata.note"
+												placeholder="optionale Bemerkung"></textarea>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+								</div>
+								
+								<input type="button" name="previous" class="previous previous_addIndicator action-button-previous" value="Voriger Schritt"/>
+								<input type="button" name="next" class="next next_addIndicator action-button" value="N&auml;chster Schritt"/>
+							</fieldset>
+
+
+							<fieldset>
+								<h2 class="fs-title">Themenhierarchie</h2>
+								<h3 class="fs-subtitle">Angaben &uuml;ber die Themenhierarchie des Indikators</h3>								
+
+								<p><b><i>* = Pflichtfeld</i></b></p>
+								<p>Angabe der Themenhierarchie. Mindestens das Hauptthema muss gew&auml;hlt werden. Vorhandene Unterthemen erscheinen nach Auswahl eines Hauptthemas. Bis zu vier Themen-Ebenen sind erlaubt.</p>
+
+								<p>Das Aufklappen der unteren Box erm&ouml;glicht die Verwaltung des Themenkatalogs.</p>
+
+								<div class="row vertical-align">
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Hauptthema*</label>
+											<select ng-model="indicatorTopic_mainTopic"
+												ng-options="mainTopic as mainTopic.topicName for mainTopic in $ctrl.kommonitorDataExchangeServiceInstance.availableTopics"
+												class="form-control" required>
+												<option disabled selected value> -- Hauptthema w&auml;hlen --
+												</option>
+											</select>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div ng-show="indicatorTopic_mainTopic.subTopics.length > 0" class="form-group">
+											<label>Unterthema - erste Ebene</label>
+											<select ng-model="indicatorTopic_subTopic"
+												ng-options="subTopic as subTopic.topicName for subTopic in indicatorTopic_mainTopic.subTopics"
+												class="form-control" >
+												<option disabled selected value> -- Unterthema w&auml;hlen --
+												</option>
+											</select>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div ng-show="indicatorTopic_subTopic.subTopics.length > 0" class="form-group">
+											<label>Unterthema - zweite Ebene</label>
+											<select ng-model="indicatorTopic_subsubTopic"
+												ng-options="subsubTopic as subsubTopic.topicName for subsubTopic in indicatorTopic_subTopic.subTopics"
+												class="form-control" >
+												<option disabled selected value> -- Unterthema w&auml;hlen --
+												</option>
+											</select>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div ng-show="indicatorTopic_subsubTopic.subTopics.length > 0" class="form-group">
+											<label>Unterthema - zweite Ebene</label>
+											<select ng-model="indicatorTopic_subsubsubTopic"
+												ng-options="subsubsubTopic as subsubsubTopic.topicName for subsubsubTopic in indicatorTopic_subsubTopic.subTopics"
+												class="form-control" >
+												<option disabled selected value> -- Unterthema w&auml;hlen --
+												</option>
+											</select>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+								</div>
+
+								<hr>
+
+								<br/>
+
+								<div class="row vertical-align">
+									<div class="col-md-12 col-sm-12 col-xs-12">
+										<div style="text-align: left;">
+											<div class="box box-primary collapsed-box" style="background: #ebf0fd;">
+												<div class="box-header">
+												  <h3 class="box-title">Themenkatalog</h3>
+
+													<div class="box-tools pull-right">
+														<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+														</button>
+													</div>
+												</div>
+												<!-- /.box-header -->
+												<div class="box-body">
+													<admin-topics-management></admin-topics-management>
+												</div>
+												<!-- /.box-body -->
+											  </div>
+											  <!-- /.box -->
+
+										</div>
+									</div>
+								</div>
+								
+
+								<input type="button" name="previous" class="previous previous_addIndicator action-button-previous" value="Voriger Schritt"/>
+								<input type="button" name="next" class="next next_addIndicator action-button" value="N&auml;chster Schritt"/>
+
+							</fieldset>
+
+							<fieldset>
+								<h2 class="fs-title">Referenzen zu Indikatoren/Georessourcen</h2>
+								<h3 class="fs-subtitle">Angaben &uuml;ber Referenzen des Indikators auf andere Indikatoren oder Georessourcen</h3>
+								<p><b><i>* = Pflichtfeld</i></b></p>
+
+								<p>Hier werden Angaben &uuml;ber assoziierte Indikatoren und Georessourcen get&auml;tigt. Sie eignen sich dazu, im System Querverbindungen 
+									zwischen Indikatoren un Georessourcen darzustellen und dem Nutzer so die M&ouml;glichkeit zu geben, einen Themenkomplex, 
+									der durch mehrere Datens&auml;tze abgebildet wird, besser zu verstehen.</p>
+
+								<div class="row vertical-align">
+									<div class="col-md-12 col-sm-12 col-xs-12">
+										<!-- <div style="text-align: left;"> -->
+											<div class="box box-danger collapsed-box" style="background: #ebf0fd;">
+												<div class="box-header">
+												  <h3 class="box-title">Referenzen zu anderen Indikatoren</h3>
+
+													<div class="box-tools pull-right">
+														<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+														</button>
+													</div>
+												</div>
+												<!-- /.box-header -->
+												<div class="box-body">
+
+													<!-- Inputs for new reference -->
+
+													<div class="row vertical-align">
+														<div class="col-md-12 col-sm-12 col-xs-12">
+															<div class="form-group">
+																<label>Stichwortfilter</label>
+																<div class="input-group">
+																	<span class="input-group-addon"><i class="fas fa-filter"></i></span>
+																	<input type="text" class="form-control input-sm" placeholder="Filtern nach Indiktorenname" ng-model="indicatorNameFilter">
+																  </div>
+																<div class="help-block with-errors"></div>
+															</div>
+															<div class="form-group">
+																<label>Indikator, f&uuml;r den eine Referenz angelegt werden soll</label>
+																<select ng-model="tmpIndicatorReference_selectedIndicatorMetadata" size="5"
+																	ng-options="indicatorMetadata as indicatorMetadata.indicatorName for indicatorMetadata in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators() | filter:indicatorNameFilter"
+																	class="form-control" >
+																	<option disabled selected value> -- Hauptthema w&auml;hlen --
+																	</option>
+																</select>
+																<div class="help-block with-errors"></div>
+															</div>
+														</div>
+													</div>
+
+													<div class="row vertical-align">
+														<div class="col-md-3 col-sm-6 col-xs-12">
+															<div class="form-group">
+																<label>ID des selektierten Indikators</label>
+																<input type="text" class="form-control input-sm" disabled placeholder="IndikatorenId" ng-model="tmpIndicatorReference_selectedIndicatorMetadata.indicatorId">
+																<div class="help-block with-errors"></div>
+															</div>
+														</div>
+														<div class="col-md-3 col-sm-6 col-xs-12">												
+															<div class="form-group">
+																<label>Name des selektierten Indikators</label>
+																<input type="text" class="form-control input-sm" disabled placeholder="IndikatorenName" ng-model="tmpIndicatorReference_selectedIndicatorMetadata.indicatorName">
+																<div class="help-block with-errors"></div>
+															</div>
+														</div>
+														<div class="col-md-3 col-sm-6 col-xs-12">
+															<div class="form-group">
+																<label>Beschreibung der Indikatoren-Referenz</label>
+																<textarea rows="3" class="form-control input-sm" placeholder="Beschreibung der Referenz" ng-model="tmpIndicatorReference_referenceDescription"></textarea>
+																<div class="help-block with-errors"></div>
+															</div>
+														</div>
+														<div class="col-md-3 col-sm-6 col-xs-12">
+															<div class="form-group">
+																<button class="btn btn-success btn-sm" ng-disable="!tmpIndicatorReference_selectedIndicatorMetadata" ng-click="onAddOrUpdateIndicatorReference()">Hinzuf&uuml;gen/Editieren</button>
+																<div class="help-block with-errors"></div>
+															</div>
+														</div>
+													</div>
+					
+													<!-- Table to display currently specified references -->
+													<div class="row vertical-align">
+														<div class="col-md-12 col-sm-12 col-xs-12">
+															<label>&Uuml;bersicht der definierten Indikatoren-Referenzen</label>
+															<table class="table table-condensed">
+																<thead>
+																	<tr>
+																		<th>Editierfunktionen</th>
+																		<th>ID des Indikators</th>
+																		<th>Name des Indikators</th>
+																		<th>K&uuml;rzel/Kennziffer</th>
+																		<th>Beschreibung der Verkn&uuml;pfung</th>
+																	</tr>
+																</thead>
+																<tbody>
+																	<tr ng-repeat="indicatorReference in indicatorReferences_adminView">
+																		<td>
+																			<div class="btn-group btn-group-sm">
+																				<button class="btn btn-warning btn-sm" type="button" ng-click="onClickEditIndicatorReference(indicatorReference)"
+																					title="Referenz editieren"><i class="fas fa-pencil-alt"></i></button>
+																				<button class="btn btn-danger btn-sm" type="button" ng-click="onClickDeleteIndicatorReference(indicatorReference)"
+																					title="Referenz l&ouml;schen"><i class="fas fa-trash"></i></button>
+																				<!-- <button class="btn btn-danger btn-sm" type="button" data-toggle="modal" data-target="#modal-delete-spatial-units" ng-click="onClickDeleteDatasets(indicatorDataset)" title="Datensatz l&ouml;schen"><i class="fas fa-trash"></i></button> -->
+																			</div>
+																		</td>
+																		<td>{{indicatorReference.referencedIndicatorId}}</td>
+																		<td>{{indicatorReference.referencedIndicatorName}}</td>
+																		<td>{{indicatorReference.referencedIndicatorAbbreviation}}</td>
+																		<td>{{indicatorReference.referencedIndicatorDescription}}</td>
+																	</tr>
+																</tbody>
+															</table>
+														</div>
+													</div>
+
+
+												</div>
+												<!-- Box Body -->
+											</div>	
+											<!-- Box -->
+
+										<!-- </div>	 -->
+
+									</div>
+
+								</div>
+
+								<div class="row vertical-align">
+									<div class="col-md-12 col-sm-12 col-xs-12">
+										<!-- <div style="text-align: left;"> -->
+											<div class="box box-danger collapsed-box" style="background: #ebf0fd;">
+												<div class="box-header">
+												  <h3 class="box-title">Referenzen zu Georessourcen</h3>
+
+													<div class="box-tools pull-right">
+														<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+														</button>
+													</div>
+												</div>
+												<!-- /.box-header -->
+												<div class="box-body">
+
+													
+
+												</div>
+												<!-- Box Body -->
+											</div>	
+											<!-- Box -->
+
+										<!-- </div>	 -->
+
+									</div>
+
+								</div>
+
+
+								<input type="button" name="previous" class="previous previous_addIndicator action-button-previous" value="Voriger Schritt"/>
+								<input type="button" name="next" class="next next_addIndicator action-button" value="N&auml;chster Schritt"/>
+
+							</fieldset>
+
+							<fieldset>
+								<h2 class="fs-title">Klassifizierungsoptionen</h2>
+								<h3 class="fs-subtitle">Angaben &uuml;ber die Standard-Klassifizierung des Indikators</h3>
+								<p><b><i>* = Pflichtfeld</i></b></p>
+
+								
+
+								<input type="button" name="previous" class="previous previous_addIndicator action-button-previous" value="Voriger Schritt"/>
+								<input type="button" name="next" class="next next_addIndicator action-button" value="N&auml;chster Schritt"/>
+
+							</fieldset>
+
+							<fieldset>
+								<h2 class="fs-title">Zeitreihen-Import</h2>
+								<h3 class="fs-subtitle">Angaben &uuml;ber den Datensatz, aus dem die
+									Indikatoren-Zeitreihen-Werte importiert werden</h3>
+								<p><b><i>* = Pflichtfeld</i></b></p>
+
+								<div class="row vertical-align">
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Datensatz-Quellformat*</label>
+											<select ng-model="converter"
+												ng-options="converter as converter.simpleName for converter in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters"
+												class="form-control" required>
+												<option disabled selected value> -- Quellformat w&auml;hlen -- </option>
+											</select>
+											<div class="help-block with-errors"></div>
+										</div>
+										<div ng-if="converter.schemas">
+
+											<div class="form-group">
+												<label>Schema*</label>
+												<select ng-model="schema" ng-options="schema for schema in converter.schemas"
+													ng-init="schema = converter.schemas[0]" class="form-control" required>
+													<option disabled selected value> -- Schema w&auml;hlen -- </option>
+												</select>
+												<div class="help-block with-errors"></div>
+											</div>
+										</div>
+
+										<div ng-repeat="parameter in converter.parameters">
+
+											<div class="form-group">
+												<label>{{parameter.name}}*</label>
+												<input type="text" id="converterParameter_indicatorAdd_{{parameter.name}}" class="form-control"
+													placeholder="{{parameter.name}}" required>
+												<div class="help-block">
+													<p>{{parameter.description}}</p>
+												</div>
+												<div class="help-block with-errors"></div>
+											</div>
+										</div>
+
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<div ng-show="!converter">
+												<p>bitte zuerst das Quellformat w&auml;hlen</p>
+											</div>
+											<div ng-show="converter">
+												<div class="form-group">
+													<label>Datenquelltyp*</label>
+													<select ng-model="datasourceType"
+														ng-options="datasourceType as datasourceType.type for datasourceType in $ctrl.kommonitorImporterHelperServiceInstance.availableDatasourceTypes"
+														class="form-control" required>
+														<option disabled selected value> -- Quelltyp w&auml;hlen -- </option>
+													</select>
+													<div class="help-block with-errors"></div>
+												</div>
+
+												<div ng-show="datasourceType.type === 'FILE'">
+													<label>Datei*</label>
+													<input type="file" class="form-control" id="indicatorDataSourceInput_add" required></input>
+												</div>
+												<div ng-show="! (datasourceType.type === 'FILE')">
+													<div ng-repeat="parameter in datasourceType.parameters">
+														<div class="form-group">
+															<label>{{parameter.name}}*</label>
+															<textarea rows="1" id="datasourceTypeParameter_indicatorAdd_{{parameter.name}}"
+																class="form-control" placeholder="{{parameter.name}}" required></textarea>
+															<div class="help-block">
+																<p>{{parameter.description}}</p>
+															</div>
+															<div class="help-block with-errors"></div>
+														</div>
+													</div>
+												</div>
+											</div>
+											<!-- <div class="help-block"><p>Features m&uuml;ssen Informationen &uuml;ber eindutige ID und eindeutigen Namen in Attribut namens <code>ID</code> und <code>NAME</code> enthalten, um in KomMonitor verarbeitet werden zu k&ouml;nnen.</p></div> -->
+
+											<div class="help-block with-errors"></div>
+											<div ng-if="indicatorDataSourceInputInvalid" style="color: red;">
+												<p>Eingabe ung&uuml;ltig. Grund: {{indicatorDataSourceInputInvalidReason}}</p>
+											</div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>ID Attributname*</label>
+											<input type="text" class="form-control" ng-model="indicatorDataSourceIdProperty" required></input>
+											<div class="help-block">
+												<p>Name des Attributs, welches den eindeutigen Identifier des Features enth&auml;lt.</p>
+											</div>
+											<div class="help-block with-errors"></div>
+											<div ng-if="idPropertyNotFound" style="color: red;">
+												<p>Eingabe ung&uuml;ltig. Angegebenes Attribut nicht gefunden oder enth&auml;lt NULL-Werte.</p>
+											</div>
+										</div>
+										<div class="form-group">
+											<label>NAME Attributname*</label>
+											<input type="text" class="form-control" ng-model="indicatorDataSourceNameProperty" required></input>
+											<div class="help-block">
+												<p>Name des Attributs, welches den eindeutigen Namen des Features enth&auml;lt.</p>
+											</div>
+											<div class="help-block with-errors"></div>
+											<div ng-if="namePropertyNotFound" style="color: red;">
+												<p>Eingabe ung&uuml;ltig. Angegebenes Attribut nicht gefunden oder enth&auml;lt NULL-Werte.</p>
+											</div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Lebenszeit-Beginn Attributname</label>
+											<input type="text" ng-model="validityStartDate_perFeature" class="form-control pull-right">
+											<div class="help-block">
+												<p>Eintrag nur, falls die r&auml;umlichen Features &uuml;ber ein Attribut
+													für den Lebenszeitraum (Beginn) verf&uuml;gen.</p>
+											</div>
+											<div class="help-block with-errors"></div>
+										</div>
+										<div class="form-group">
+											<label>Lebenszeit-Ende Attributname</label>
+											<input type="text" ng-model="validityEndDate_perFeature" class="form-control pull-right">
+											<div class="help-block">
+												<p>Eintrag nur, falls die r&auml;umlichen Features &uuml;ber ein Attribut
+													für den Lebenszeitraum (Ende) verf&uuml;gen.</p>
+											</div>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+								</div>
+								<div class="row vertical-align">
+									<div class="col-md-6 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>G&uuml;ltigkeitszeitraum: g&uuml;ltig seit*</label>
+											<div class="input-group date">
+												<div class="input-group-addon">
+													<i class="far fa-calendar-alt"></i>
+												</div>
+												<input type="text" ng-model="periodOfValidity.startDate" ng-change="checkPeriodOfValidity()"
+													class="form-control pull-right" id="indicatorAddDatepickerStart" required>
+											</div>
+											<div class="help-block">
+												<p>Eintrag ist immer erforderlich, selbst wenn die r&auml;umlichen Features &uuml;ber ein
+													Lebenszeitraum-Attribut
+													verf&uuml;gen.</p>
+											</div>
+											<div class="help-block with-errors"></div>
+											<div ng-if="periodOfValidityInvalid" style="color: red;">
+												<p>Eingabe ung&uuml;ltig. Definiertes Zeitintervall ist nicht erlaubt.</p>
+											</div>
+										</div>
+									</div>
+									<div class="col-md-6 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>G&uuml;ltigkeitszeitraum: g&uuml;ltig bis</label>
+											<div class="input-group date">
+												<div class="input-group-addon">
+													<i class="far fa-calendar-alt"></i>
+												</div>
+												<input type="text" ng-model="periodOfValidity.endDate" ng-change="checkPeriodOfValidity()"
+													class="form-control pull-right" id="indicatorAddDatepickerEnd">
+											</div>
+											<div class="help-block">
+												<p>Eintrag ist erforderlich, falls die r&auml;umlichen Features nicht selbst &uuml;ber ein
+													Lebenszeitraum-Attribut
+													verf&uuml;gen. Enddatum darf leer sein, um anzuzeigen, dass es sich
+													um aktuell g&uuml;ltige Features handelt.</p>
+											</div>
+											<div class="help-block with-errors"></div>
+											<div ng-if="periodOfValidityInvalid" style="color: red;">
+												<p>Eingabe ung&uuml;ltig. Definiertes Zeitintervall ist nicht erlaubt.</p>
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<input type="button" name="previous" class="previous previous_addIndicator action-button-previous" value="Voriger Schritt"/>
+
+							</fieldset>
+						</form>
+					</div>
+				</div>
+
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
+				<button type="button" class="btn btn-info pull-left" ng-click="onImportIndicatorAddMetadata()"
+					title="Importieren der Metadaten aus einer Datei"><i
+						class="fas fa-file-import"></i>&nbsp;&nbsp;Metadaten-Import</button>
+				<input style="display:none;" class="pull-left" type="file" class="form-control"
+					id="indicatorMetadataImportFile" accept=".json,"></input>
+				<button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" ng-disabled=""
+					ng-click="onExportIndicatorAddMetadata()" title="Exportieren der Metadaten in eine Datei"><i
+						class="fas fa-file-export"></i>&nbsp;&nbsp;Metadaten-Export</button>
+				<button type="button" class="btn btn-success"
+				
+					ng-disabled="!indicatorName || !metadata.description || !metadata.datasource || !metadata.contact || !metadata.updateInterval || !metadata.lastUpdate || !indicatorDataSourceIdProperty || !indicatorDataSourceNameProperty || !periodOfValidity.startDate || indicatorNameInvalid || periodOfValidityInvalid || !converter || !datasourceType"
+					ng-click="addIndicator()">Indikator registrieren</button>
+				<button type="button" class="btn btn-danger"
+					ng-click="resetIndicatorAddForm()">Zur&uuml;cksetzen</button>
+			</div>
+
+			<div id="indicatorAddSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+				class="alert alert-success alert-dismissable">
+				<button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
+				<h4><i class="icon fa fa-check"></i>Indikator registriert</h4>
+				Eine neuer Indikator mit Namen {{successMessagePart}} wurde in KomMonitor registriert und in die
+				&Uuml;bersichtstabelle eingetragen.
+			</div>
+
+			<div id="indicatorAddErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+				class="alert alert-danger alert-dismissable">
+				<button type="button" class="close" ng-click="hideErrorAlert()" aria-hidden="true">&times;</button>
+				<h4><i class="icon fa fa-ban"></i>Registrierung gescheitert</h4>
+				Bei der Registrierung des Indikators ist ein Fehler aufgetreten. Fehlermeldung:
+				<br />
+				<pre>{{errorMessagePart}}</pre>.
+			</div>
+
+			<div id="indicatorMetadataImportErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+				class="alert alert-danger alert-dismissable">
+				<button type="button" class="close" ng-click="hideMetadataErrorAlert()"
+					aria-hidden="true">&times;</button>
+				<h4><i class="icon fa fa-ban"></i>Metadata Import gescheitert</h4>
+				Beim Import der Metadaten aus einer Datei ist ein Fehler aufgetreten. Fehlermeldung:
+				<br />
+				<pre>{{indicatorMetadataImportError}}</pre>
+				<br />
+				<br />
+				<p>Bitte stellen Sie sicher, dass folgendes JSON-Format eingehalten wird:</p>
+				<pre id="indicatorsAddMetadataPre" style="overflow:auto; max-height:500px;"></pre>
+			</div>
+
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->

@@ -130,6 +130,48 @@
     }
   ];
 
+  window.__env.indicatorCreationTypeOptions = [
+    {
+        displayName: "manuell",
+        apiName: "INSERTION"
+    },
+    {
+        displayName: "automatisierte Berechnung durch KomMonitor",
+        apiName: "COMPUTATION"
+    }
+  ];
+
+  window.__env.indicatorUnitOptions = [ "Anzahl", "Anteil", "Prozent", "Einwohner", "m", "m²", "km", "km²", "ha", "dimensionslos", "standardisiert", "z-transformierte Werte"
+  ];
+
+  window.__env.indicatorTypeOptions = [
+    {
+        displayName: "Status-Indikator (absolut)",
+        apiName: "STATUS_ABSOLUTE"
+    },
+    {
+        displayName: "Status-Indikator (relativ)",
+        apiName: "STATUS_RELATIVE"
+    },
+    {
+        displayName: "Dynamik-Indikator (absolut)",
+        apiName: "DYNAMIC_ABSOLUTE"
+    },
+    {
+        displayName: "Dynamik-Indikator (relativ)",
+        apiName: "DYNAMIC_RELATIVE"
+    },
+    {
+        displayName: "Status-Indikator (standardisiert)",
+        apiName: "STATUS_STANDARDIZED"
+    },
+    {
+        displayName: "Dynamik-Indikator (standardisiert)",
+        apiName: "DYNAMIC_STANDARDIZED"
+    }
+    
+  ];
+
   window.__env.geodataSourceFormats = [
     {
         displayName: "GeoJSON FeatureCollection",
