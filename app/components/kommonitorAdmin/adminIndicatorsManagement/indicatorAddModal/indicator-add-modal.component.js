@@ -127,6 +127,10 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			// array for API request (has less information per item)
 			$scope.georesourceReferences_apiRequest = [];
 
+			$scope.numClassesArray = [3,4,5,6,7,8];
+			$scope.numClasses = $scope.numClassesArray[2];
+			$scope.selectedColorBrewerPaletteEntry = undefined;
+
 
 
 		$scope.periodOfValidity = {};
@@ -154,6 +158,26 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 		$scope.errorMessagePart = undefined;
 
 		$scope.loadingData = false;
+
+		$scope.colorbrewerPalettes = [];
+
+		$scope.instantiateColorBrewerPalettes = function(){
+			for (const key in colorbrewer) {
+				if (colorbrewer.hasOwnProperty(key)) {
+					const colorPalettes = colorbrewer[key];
+					
+					var paletteEntry = {
+						"paletteName": key,
+						"paletteArrayObject": colorPalettes
+					};
+
+					$scope.colorbrewerPalettes.push(paletteEntry);
+				}
+			}
+
+		};
+
+		$scope.instantiateColorBrewerPalettes();
 
 		$scope.resetIndicatorAddForm = function(){
 			$scope.indicatorName = undefined;
@@ -205,6 +229,10 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			// array for API request (has less information per item)
 			$scope.georesourceReferences_apiRequest = [];
 
+			$scope.numClassesArray = [3,4,5,6,7,8];
+			$scope.numClasses = $scope.numClassesArray[2];
+			$scope.selectedColorBrewerPaletteEntry = undefined;
+
 
 			$scope.periodOfValidity = {};
 			$scope.periodOfValidity.startDate = undefined;
@@ -226,6 +254,14 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 
 			$scope.indicatorDataSourceIdProperty = undefined;
 			$scope.indicatorDataSourceNameProperty = undefined;
+		};
+
+		$scope.onClickColorBrewerEntry = function(colorPaletteEntry){
+			$scope.selectedColorBrewerPaletteEntry = colorPaletteEntry;
+
+			setTimeout(() => {
+				$scope.$apply();
+			}, 250);
 		};
 
 		$scope.onAddOrUpdateIndicatorReference = function(){
