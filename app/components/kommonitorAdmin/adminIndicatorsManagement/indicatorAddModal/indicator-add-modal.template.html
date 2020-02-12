@@ -793,10 +793,8 @@
 													</svg>
 												</div>
 										</div> 
-									</div>
-									
-								</div>		
-								
+									</div>									
+								</div>										
 
 								<input type="button" name="previous" class="previous previous_addIndicator action-button-previous" value="Voriger Schritt"/>
 								<input type="button" name="next" class="next next_addIndicator action-button" value="N&auml;chster Schritt"/>
@@ -890,92 +888,120 @@
 									</div>
 									<div class="col-md-3 col-sm-6 col-xs-12">
 										<div class="form-group">
-											<label>ID Attributname*</label>
-											<input type="text" class="form-control" ng-model="indicatorDataSourceIdProperty" required></input>
+											<label>ID Attributname der Raumeinheiten-Features*</label>
+											<input type="text" class="form-control" ng-model="spatialUnitRefKeyProperty" required></input>
 											<div class="help-block">
-												<p>Name des Attributs, welches den eindeutigen Identifier des Features enth&auml;lt.</p>
+												<p>Name des Attributs, welches den eindeutigen Identifier des Features enth&auml;lt. Dieser muss identisch sein mit den Feature-IDs der selektierten Raumebene</p>
 											</div>
 											<div class="help-block with-errors"></div>
 											<div ng-if="idPropertyNotFound" style="color: red;">
 												<p>Eingabe ung&uuml;ltig. Angegebenes Attribut nicht gefunden oder enth&auml;lt NULL-Werte.</p>
 											</div>
 										</div>
-										<div class="form-group">
-											<label>NAME Attributname*</label>
-											<input type="text" class="form-control" ng-model="indicatorDataSourceNameProperty" required></input>
-											<div class="help-block">
-												<p>Name des Attributs, welches den eindeutigen Namen des Features enth&auml;lt.</p>
-											</div>
-											<div class="help-block with-errors"></div>
-											<div ng-if="namePropertyNotFound" style="color: red;">
-												<p>Eingabe ung&uuml;ltig. Angegebenes Attribut nicht gefunden oder enth&auml;lt NULL-Werte.</p>
-											</div>
-										</div>
 									</div>
 									<div class="col-md-3 col-sm-6 col-xs-12">
 										<div class="form-group">
-											<label>Lebenszeit-Beginn Attributname</label>
-											<input type="text" ng-model="validityStartDate_perFeature" class="form-control pull-right">
-											<div class="help-block">
-												<p>Eintrag nur, falls die r&auml;umlichen Features &uuml;ber ein Attribut
-													für den Lebenszeitraum (Beginn) verf&uuml;gen.</p>
-											</div>
+											<label>Ziel-Raumebene*</label>
+											
+											<select ng-model="targetSpatialUnitMetadata" ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits"
+													class="form-control" required>
+													<option disabled selected value> -- Ziel-Raumebene w&auml;hlen -- </option>
+												</select>
+												<div class="help-block with-errors"></div>
+
+										</div>
+									</div>							
+								</div>
+
+								<hr>
+								
+								<br/>
+
+								<h4>Zeitreihen-Mapping</h4>
+								<p>Angabe des Attribut-Mappings f&uuml;r jeden zu importierenden Zeitschnitt. Jedes Mapping umfasst dabei das Attribut, in dem die Indikatoren-Werte hinterlegt sind 
+									sowie entweder einen direkt definierten Zeitstempel oder ein Attribut, welches den Zeitstempel gem&auml;&szlig; ISO8601 enth&auml;lt</p>
+
+								<div class="row vertical-align">
+									<div class="col-md-4 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Attributname der Indikatorenwerte*</label>
+											<input type="text" class="form-control input-sm" placeholder="Attributname für Indikatorenwerte" ng-model="tmpTimeseriesMapping_indicatorValuesPropertyName">
 											<div class="help-block with-errors"></div>
 										</div>
+									</div>
+									<div class="col-md-4 col-sm-6 col-xs-12">												
+										<label></label>
+										<label class="switch">
+											<input type="checkbox" value="useTimeseriesAsProperty" ng-model="useTimeseriesAsProperty">
+											<span class="switchslider round"></span>
+										</label>	
+									
+										<div class="help-block">
+											<p>Angabe, ob der Zeitstempel aus einem Attribut entnommen werden soll</p>
+										</div>
+									</div>
+									<div ng-show="useTimeseriesAsProperty" class="col-md-4 col-sm-6 col-xs-12">												
 										<div class="form-group">
-											<label>Lebenszeit-Ende Attributname</label>
-											<input type="text" ng-model="validityEndDate_perFeature" class="form-control pull-right">
-											<div class="help-block">
-												<p>Eintrag nur, falls die r&auml;umlichen Features &uuml;ber ein Attribut
-													für den Lebenszeitraum (Ende) verf&uuml;gen.</p>
+											<label>Attributname des Zeitstempels</label>
+											<input type="text" class="form-control input-sm" placeholder="Attributname für Zeitstempel" ng-model="tmpTimeseriesMapping_timestampPropertyName">
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div ng-show="! useTimeseriesAsProperty" class="col-md-4 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Zeitstempel (direkte Angabe)</label>
+											<div class="input-group date">
+												<div class="input-group-addon">
+													<i class="far fa-calendar-alt"></i>
+												</div>
+												<input type="text" ng-model="tmpTimeseriesMapping_directTimestamp" 
+													class="form-control pull-right" id="indicatorAddDirectTimestampDatepicker">
 											</div>
+										</div>
+									</div>
+								</div>
+
+								<div class="row vertical-align">
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<button class="btn btn-success btn-sm" ng-disabled="!tmpTimeseriesMapping_indicatorValuesPropertyName || (! tmpTimeseriesMapping_timestampPropertyName && !tmpTimeseriesMapping_directTimestamp)" ng-click="onAddOrUpdateTimeseriesMapping()">Hinzuf&uuml;gen/Editieren</button>
 											<div class="help-block with-errors"></div>
 										</div>
 									</div>
 								</div>
+
+								<br/>
+								<br/>
+
+								<!-- Table to display currently specified references -->
 								<div class="row vertical-align">
-									<div class="col-md-6 col-sm-6 col-xs-12">
-										<div class="form-group">
-											<label>G&uuml;ltigkeitszeitraum: g&uuml;ltig seit*</label>
-											<div class="input-group date">
-												<div class="input-group-addon">
-													<i class="far fa-calendar-alt"></i>
-												</div>
-												<input type="text" ng-model="periodOfValidity.startDate" ng-change="checkPeriodOfValidity()"
-													class="form-control pull-right" id="indicatorAddDatepickerStart" required>
-											</div>
-											<div class="help-block">
-												<p>Eintrag ist immer erforderlich, selbst wenn die r&auml;umlichen Features &uuml;ber ein
-													Lebenszeitraum-Attribut
-													verf&uuml;gen.</p>
-											</div>
-											<div class="help-block with-errors"></div>
-											<div ng-if="periodOfValidityInvalid" style="color: red;">
-												<p>Eingabe ung&uuml;ltig. Definiertes Zeitintervall ist nicht erlaubt.</p>
-											</div>
-										</div>
-									</div>
-									<div class="col-md-6 col-sm-6 col-xs-12">
-										<div class="form-group">
-											<label>G&uuml;ltigkeitszeitraum: g&uuml;ltig bis</label>
-											<div class="input-group date">
-												<div class="input-group-addon">
-													<i class="far fa-calendar-alt"></i>
-												</div>
-												<input type="text" ng-model="periodOfValidity.endDate" ng-change="checkPeriodOfValidity()"
-													class="form-control pull-right" id="indicatorAddDatepickerEnd">
-											</div>
-											<div class="help-block">
-												<p>Eintrag ist erforderlich, falls die r&auml;umlichen Features nicht selbst &uuml;ber ein
-													Lebenszeitraum-Attribut
-													verf&uuml;gen. Enddatum darf leer sein, um anzuzeigen, dass es sich
-													um aktuell g&uuml;ltige Features handelt.</p>
-											</div>
-											<div class="help-block with-errors"></div>
-											<div ng-if="periodOfValidityInvalid" style="color: red;">
-												<p>Eingabe ung&uuml;ltig. Definiertes Zeitintervall ist nicht erlaubt.</p>
-											</div>
-										</div>
+									<div class="col-md-12 col-sm-12 col-xs-12">
+										<label>&Uuml;bersicht der definierten Indikatoren-Zeitreihen-Mappings</label>
+										<table class="table table-condensed">
+											<thead>
+												<tr>
+													<th>Editierfunktionen</th>
+													<th>Attributname der Indikatorenwerte</th>
+													<th>Attributname des Zeitstempels</th>
+													<th>Zeitstempel (direkte Angabe)</th>
+												</tr>
+											</thead>
+											<tbody>
+												<tr ng-repeat="timeseriesMappingEntry in timeseriesMappings_adminView">
+													<td>
+														<div class="btn-group btn-group-sm">
+															<button class="btn btn-warning btn-sm" type="button" ng-click="onClickEditTimeseriesMapping(timeseriesMappingEntry)"
+																title="Referenz editieren"><i class="fas fa-pencil-alt"></i></button>
+															<button class="btn btn-danger btn-sm" type="button" ng-click="onClickDeleteTimeseriesMapping(timeseriesMappingEntry)"
+																title="Referenz l&ouml;schen"><i class="fas fa-trash"></i></button>
+														</div>
+													</td>
+													<td>{{timeseriesMappingEntry.indicatorValuesPropertyName}}</td>
+													<td>{{timeseriesMappingEntry.timestampPropertyName}}</td>
+													<td>{{timeseriesMappingEntry.timestampDirect}}</td>
+												</tr>
+											</tbody>
+										</table>
 									</div>
 								</div>
 

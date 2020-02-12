@@ -48,6 +48,8 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 		$('#indicatorAddDatepickerEnd').datepicker(kommonitorDataExchangeService.datePickerOptions);
 		$('#indicatorAddLastUpdateDatepicker').datepicker(kommonitorDataExchangeService.datePickerOptions);
 
+		$('#indicatorAddDirectTimestampDatepicker').datepicker(kommonitorDataExchangeService.datePickerOptions);
+
 		$scope.indicatorMetadataStructure = {
 			"metadata": {
 				"note": "an optional note",
@@ -130,6 +132,14 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			$scope.numClassesArray = [3,4,5,6,7,8];
 			$scope.numClasses = $scope.numClassesArray[2];
 			$scope.selectedColorBrewerPaletteEntry = undefined;
+
+			$scope.spatialUnitRefKeyProperty = undefined;
+			$scope.targetSpatialUnitMetadata = undefined;
+			$scope.tmpTimeseriesMapping_indicatorValuesPropertyName = undefined;
+			$scope.useTimeseriesAsProperty = false;
+			$scope.tmpTimeseriesMapping_timestampPropertyName = undefined;
+			$scope.tmpTimeseriesMapping_directTimestamp = undefined;
+			$scope.timeseriesMappings_adminView = [];
 
 
 
@@ -233,6 +243,14 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			$scope.numClasses = $scope.numClassesArray[2];
 			$scope.selectedColorBrewerPaletteEntry = undefined;
 
+			$scope.spatialUnitRefKeyProperty = undefined;
+			$scope.targetSpatialUnitMetadata = undefined;
+			$scope.tmpTimeseriesMapping_indicatorValuesPropertyName = undefined;
+			$scope.useTimeseriesAsProperty = false;
+			$scope.tmpTimeseriesMapping_timestampPropertyName = undefined;
+			$scope.tmpTimeseriesMapping_directTimestamp = undefined;
+			$scope.timeseriesMappings_adminView = [];
+
 
 			$scope.periodOfValidity = {};
 			$scope.periodOfValidity.startDate = undefined;
@@ -290,6 +308,9 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 				$scope.indicatorReferences_adminView.push(tmpIndicatorReference_adminView);
 			}
 
+			$scope.tmpIndicatorReference_selectedIndicatorMetadata = undefined;
+			$scope.tmpIndicatorReference_referenceDescription = undefined;
+
 			setTimeout(() => {
 				$scope.$apply();
 			}, 250);
@@ -346,6 +367,9 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 				$scope.georesourceReferences_adminView.push(tmpGeoresourceReference_adminView);
 			}
 
+			$scope.tmpGeoresourceReference_selectedGeoresourceMetadata = undefined;
+			$scope.tmpGeoresourceReference_referenceDescription = undefined;
+
 			setTimeout(() => {
 				$scope.$apply();
 			}, 250);
@@ -376,6 +400,77 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 				$scope.$apply();
 			}, 250);
 		};
+
+
+		$scope.onAddOrUpdateTimeseriesMapping = function(){
+			var tmpIndicatorTimeseriesMapping_adminView = {
+				"indicatorValuesPropertyName": $scope.tmpTimeseriesMapping_indicatorValuesPropertyName,
+				"timestampPropertyName": $scope.tmpTimeseriesMapping_timestampPropertyName,
+				"timestampDirect": $scope.tmpTimeseriesMapping_directTimestamp
+			};
+
+			var processed = false;
+
+			for (let index = 0; index < $scope.timeseriesMappings_adminView.length; index++) {
+				var timeseriesMappingEntry_adminView = $scope.timeseriesMappings_adminView[index];
+				
+				if (timeseriesMappingEntry_adminView.indicatorValuesPropertyName === tmpIndicatorTimeseriesMapping_adminView.indicatorValuesPropertyName){
+					// replace object
+					$scope.timeseriesMappings_adminView[index] = tmpIndicatorTimeseriesMapping_adminView;
+					processed = true;
+					break;
+				}
+			}			
+
+			if(! processed){
+				// new entry
+				$scope.timeseriesMappings_adminView.push(tmpIndicatorTimeseriesMapping_adminView);
+			}
+
+			$scope.tmpTimeseriesMapping_indicatorValuesPropertyName = undefined;
+			$scope.tmpTimeseriesMapping_timestampPropertyName = undefined;
+			$scope.tmpTimeseriesMapping_directTimestamp = undefined;
+
+			setTimeout(() => {
+				$scope.$apply();
+			}, 250);
+		};
+
+		$scope.onClickEditTimeseriesMapping = function(timeseriesMappingEntry_adminView){
+
+			$scope.tmpTimeseriesMapping_indicatorValuesPropertyName = timeseriesMappingEntry_adminView.indicatorValuesPropertyName;
+			$scope.tmpTimeseriesMapping_timestampPropertyName = timeseriesMappingEntry_adminView.timestampPropertyName;
+			$scope.tmpTimeseriesMapping_directTimestamp = timeseriesMappingEntry_adminView.timestampDirect;			
+
+			if($scope.tmpTimeseriesMapping_directTimestamp){				
+				$('#indicatorAddDirectTimestampDatepicker').datepicker('setDate', $scope.tmpTimeseriesMapping_directTimestamp);
+				$scope.useTimeseriesAsProperty = false;
+			}
+			else{
+				$scope.useTimeseriesAsProperty = true;
+			}
+
+			setTimeout(() => {
+				$scope.$apply();
+			}, 250);
+		};
+
+		$scope.onClickDeleteTimeseriesMapping = function(timeseriesMappingEntry_adminView){
+
+			for (let index = 0; index < $scope.timeseriesMappings_adminView.length; index++) {
+				
+				if ($scope.timeseriesMappings_adminView[index].indicatorValuesPropertyName === timeseriesMappingEntry_adminView.indicatorValuesPropertyName){
+					// remove object
+					$scope.timeseriesMappings_adminView.splice(index, 1);
+					break;
+				}
+			}				
+
+			setTimeout(() => {
+				$scope.$apply();
+			}, 250);
+		};
+
 
 
 		$scope.filterIndicators = function() {
