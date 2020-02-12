@@ -459,7 +459,7 @@
 								<br/>
 
 								<div class="row vertical-align">
-									<div class="col-md-12 col-sm-12 col-xs-12">
+									<div class="col-md-10 col-sm-12 col-xs-12">
 										<div style="text-align: left;">
 											<div class="box box-primary collapsed-box" style="background: #ebf0fd;">
 												<div class="box-header">
@@ -498,7 +498,7 @@
 									der durch mehrere Datens&auml;tze abgebildet wird, besser zu verstehen.</p>
 
 								<div class="row vertical-align">
-									<div class="col-md-12 col-sm-12 col-xs-12">
+									<div class="col-md-10 col-sm-12 col-xs-12">
 										<!-- <div style="text-align: left;"> -->
 											<div class="box box-danger collapsed-box" style="background: #ebf0fd;">
 												<div class="box-header">
@@ -515,21 +515,18 @@
 													<!-- Inputs for new reference -->
 
 													<div class="row vertical-align">
-														<div class="col-md-12 col-sm-12 col-xs-12">
+														<div class="col-md-12 col-sm-12 col-xs-12">					
 															<div class="form-group">
-																<label>Stichwortfilter</label>
+																<label>Indikator, f&uuml;r den eine Referenz angelegt werden soll</label>
 																<div class="input-group">
 																	<span class="input-group-addon"><i class="fas fa-filter"></i></span>
 																	<input type="text" class="form-control input-sm" placeholder="Filtern nach Indiktorenname" ng-model="indicatorNameFilter">
 																  </div>
-																<div class="help-block with-errors"></div>
-															</div>
-															<div class="form-group">
-																<label>Indikator, f&uuml;r den eine Referenz angelegt werden soll</label>
+																  <br/>
 																<select ng-model="tmpIndicatorReference_selectedIndicatorMetadata" size="5"
 																	ng-options="indicatorMetadata as indicatorMetadata.indicatorName for indicatorMetadata in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators() | filter:indicatorNameFilter"
 																	class="form-control" >
-																	<option disabled selected value> -- Hauptthema w&auml;hlen --
+																	<option disabled selected value> -- referenzierten Indikator w&auml;hlen --
 																	</option>
 																</select>
 																<div class="help-block with-errors"></div>
@@ -552,20 +549,26 @@
 																<div class="help-block with-errors"></div>
 															</div>
 														</div>
-														<div class="col-md-3 col-sm-6 col-xs-12">
+														<div class="col-md-6 col-sm-6 col-xs-12">
 															<div class="form-group">
 																<label>Beschreibung der Indikatoren-Referenz</label>
 																<textarea rows="3" class="form-control input-sm" placeholder="Beschreibung der Referenz" ng-model="tmpIndicatorReference_referenceDescription"></textarea>
 																<div class="help-block with-errors"></div>
 															</div>
-														</div>
+														</div>		
+													</div>
+
+													<div class="row vertical-align">														
 														<div class="col-md-3 col-sm-6 col-xs-12">
 															<div class="form-group">
-																<button class="btn btn-success btn-sm" ng-disable="!tmpIndicatorReference_selectedIndicatorMetadata" ng-click="onAddOrUpdateIndicatorReference()">Hinzuf&uuml;gen/Editieren</button>
+																<button class="btn btn-success btn-sm" ng-disabled="!tmpIndicatorReference_selectedIndicatorMetadata && tmpIndicatorReference_referenceDescription" ng-click="onAddOrUpdateIndicatorReference()">Hinzuf&uuml;gen/Editieren</button>
 																<div class="help-block with-errors"></div>
 															</div>
 														</div>
 													</div>
+
+													<br/>
+													<br/>
 					
 													<!-- Table to display currently specified references -->
 													<div class="row vertical-align">
@@ -615,7 +618,7 @@
 								</div>
 
 								<div class="row vertical-align">
-									<div class="col-md-12 col-sm-12 col-xs-12">
+									<div class="col-md-10 col-sm-12 col-xs-12">
 										<!-- <div style="text-align: left;"> -->
 											<div class="box box-danger collapsed-box" style="background: #ebf0fd;">
 												<div class="box-header">
@@ -629,7 +632,96 @@
 												<!-- /.box-header -->
 												<div class="box-body">
 
-													
+													<!-- Inputs for new reference -->
+
+													<div class="row vertical-align">
+														<div class="col-md-12 col-sm-12 col-xs-12">
+															<div class="form-group">
+																<label>Indikator, f&uuml;r den eine Referenz angelegt werden soll</label>
+																<div class="input-group">
+																	<span class="input-group-addon"><i class="fas fa-filter"></i></span>
+																	<input type="text" class="form-control input-sm" placeholder="Filtern nach Georessourcen-Name" ng-model="georesourceNameFilter">
+																  </div>
+																  <br/>
+																<select ng-model="tmpGeoresourceReference_selectedGeoresourceMetadata" size="5"
+																	ng-options="georesourceMetadata as georesourceMetadata.datasetName for georesourceMetadata in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:georesourceNameFilter"
+																	class="form-control" >
+																	<option disabled selected value> -- referenzierte Georessource w&auml;hlen --
+																	</option>
+																</select>
+																<div class="help-block with-errors"></div>
+															</div>
+														</div>
+													</div>
+
+													<div class="row vertical-align">
+														<div class="col-md-3 col-sm-6 col-xs-12">
+															<div class="form-group">
+																<label>ID der selektierten Georessource</label>
+																<input type="text" class="form-control input-sm" disabled placeholder="Georessourcen-Id" ng-model="tmpGeoresourceReference_selectedGeoresourceMetadata.georesourceId">
+																<div class="help-block with-errors"></div>
+															</div>
+														</div>
+														<div class="col-md-3 col-sm-6 col-xs-12">												
+															<div class="form-group">
+																<label>Name der selektierten Georessource</label>
+																<input type="text" class="form-control input-sm" disabled placeholder="Georessourcen-Name" ng-model="tmpGeoresourceReference_selectedGeoresourceMetadata.datasetName">
+																<div class="help-block with-errors"></div>
+															</div>
+														</div>
+														<div class="col-md-6 col-sm-6 col-xs-12">
+															<div class="form-group">
+																<label>Beschreibung der Georessourcen-Referenz</label>
+																<textarea rows="3" class="form-control input-sm" placeholder="Beschreibung der Referenz" ng-model="tmpGeoresourceReference_referenceDescription"></textarea>
+																<div class="help-block with-errors"></div>
+															</div>
+														</div>
+													</div>
+
+													<div class="row vertical-align">
+														<div class="col-md-3 col-sm-6 col-xs-12">
+															<div class="form-group">
+																<button class="btn btn-success btn-sm" ng-disabled="!tmpGeoresourceReference_selectedGeoresourceMetadata && tmpGeoresourceReference_referenceDescription" ng-click="onAddOrUpdateGeoresourceReference()">Hinzuf&uuml;gen/Editieren</button>
+																<div class="help-block with-errors"></div>
+															</div>
+														</div>
+													</div>
+
+													<br/>
+													<br/>
+					
+													<!-- Table to display currently specified references -->
+													<div class="row vertical-align">
+														<div class="col-md-12 col-sm-12 col-xs-12">
+															<label>&Uuml;bersicht der definierten Indikatoren-Referenzen</label>
+															<table class="table table-condensed">
+																<thead>
+																	<tr>
+																		<th>Editierfunktionen</th>
+																		<th>ID der Georessource</th>
+																		<th>Name der Georessource</th>
+																		<th>Beschreibung der Verkn&uuml;pfung</th>
+																	</tr>
+																</thead>
+																<tbody>
+																	<tr ng-repeat="georesourceReference in georesourceReferences_adminView">
+																		<td>
+																			<div class="btn-group btn-group-sm">
+																				<button class="btn btn-warning btn-sm" type="button" ng-click="onClickEditGeoresourceReference(georesourceReference)"
+																					title="Referenz editieren"><i class="fas fa-pencil-alt"></i></button>
+																				<button class="btn btn-danger btn-sm" type="button" ng-click="onClickDeleteGeoresourceReference(georesourceReference)"
+																					title="Referenz l&ouml;schen"><i class="fas fa-trash"></i></button>
+																			</div>
+																		</td>
+																		<td>{{georesourceReference.referencedGeoresourceId}}</td>
+																		<td>{{georesourceReference.referencedGeoresourceName}}</td>
+																		<td>{{georesourceReference.referencedGeoresourceDescription}}</td>
+																	</tr>
+																</tbody>
+															</table>
+														</div>
+													</div>
+
 
 												</div>
 												<!-- Box Body -->

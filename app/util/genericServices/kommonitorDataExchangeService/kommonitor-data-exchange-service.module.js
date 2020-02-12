@@ -216,6 +216,14 @@ angular
             }
           };
 
+          this.getGeoresourceMetadataById = function(georesourceId){
+            for (const georesourceMetadata of this.availableGeoresources) {
+              if(georesourceMetadata.georesourceId === georesourceId){
+                return georesourceMetadata;
+              }
+            }
+          };
+
           this.getIndicatorAbbreviationFromIndicatorId = function(indicatorId){
             for (var indicatorMetadata of this.availableIndicators) {
               if (indicatorMetadata.indicatorId === indicatorId){

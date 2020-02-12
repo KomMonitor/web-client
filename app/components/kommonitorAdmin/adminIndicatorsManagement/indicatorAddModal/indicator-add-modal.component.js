@@ -119,6 +119,14 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			// array for API request (has less information per item)
 			$scope.indicatorReferences_apiRequest = [];
 
+			$scope.georesourceNameFilter = undefined;
+			$scope.tmpGeoresourceReference_selectedGeoresourceMetadata = undefined;
+			$scope.tmpGeoresourceReference_referenceDescription = undefined;
+			// tmp array to display georesourceReferences
+			$scope.georesourceReferences_adminView = [];
+			// array for API request (has less information per item)
+			$scope.georesourceReferences_apiRequest = [];
+
 
 
 		$scope.periodOfValidity = {};
@@ -188,6 +196,14 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			$scope.indicatorReferences_adminView = [];
 			// array for API request (has less information per item)
 			$scope.indicatorReferences_apiRequest = [];
+
+			$scope.georesourceNameFilter = undefined;
+			$scope.tmpGeoresourceReference_selectedGeoresourceMetadata = undefined;
+			$scope.tmpGeoresourceReference_referenceDescription = undefined;
+			// tmp array to display georesourceReferences
+			$scope.georesourceReferences_adminView = [];
+			// array for API request (has less information per item)
+			$scope.georesourceReferences_apiRequest = [];
 
 
 			$scope.periodOfValidity = {};
@@ -268,6 +284,63 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 				$scope.$apply();
 			}, 250);
 		};
+
+		$scope.onAddOrUpdateGeoresourceReference = function(){
+			var tmpGeoresourceReference_adminView = {
+				"referencedGeoresourceName": $scope.tmpGeoresourceReference_selectedGeoresourceMetadata.datasetName,
+				"referencedGeoresourceId": $scope.tmpGeoresourceReference_selectedGeoresourceMetadata.georesourceId,
+				"referencedGeoresourceDescription": $scope.tmpGeoresourceReference_referenceDescription
+			};
+
+			var processed = false;
+
+			for (let index = 0; index < $scope.georesourceReferences_adminView.length; index++) {
+				var georesourceReference_adminView = $scope.georesourceReferences_adminView[index];
+				
+				if (georesourceReference_adminView.referencedGeoresourceId === tmpGeoresourceReference_adminView.referencedGeoresourceId){
+					// replace object
+					$scope.georesourceReferences_adminView[index] = tmpGeoresourceReference_adminView;
+					processed = true;
+					break;
+				}
+			}			
+
+			if(! processed){
+				// new entry
+				$scope.georesourceReferences_adminView.push(tmpGeoresourceReference_adminView);
+			}
+
+			setTimeout(() => {
+				$scope.$apply();
+			}, 250);
+		};
+
+		$scope.onClickEditGeoresourceReference = function(georesourceReference_adminView){
+
+			$scope.tmpGeoresourceReference_selectedGeoresourceMetadata = kommonitorDataExchangeService.getGeoresourceMetadataById(georesourceReference_adminView.referencedGeoresourceId);
+			$scope.tmpGeoresourceReference_referenceDescription = georesourceReference_adminView.referencedGeoresourceDescription;
+
+			setTimeout(() => {
+				$scope.$apply();
+			}, 250);
+		};
+
+		$scope.onClickDeleteGeoresourceReference = function(georesourceReference_adminView){
+
+			for (let index = 0; index < $scope.georesourceReferences_adminView.length; index++) {
+				
+				if ($scope.georesourceReferences_adminView[index].referencedGeoresourceId === georesourceReference_adminView.referencedGeoresourceId){
+					// remove object
+					$scope.georesourceReferences_adminView.splice(index, 1);
+					break;
+				}
+			}				
+
+			setTimeout(() => {
+				$scope.$apply();
+			}, 250);
+		};
+
 
 		$scope.filterIndicators = function() {
 
