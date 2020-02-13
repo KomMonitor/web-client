@@ -24,7 +24,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 					"allowedRoles",
 					"allowedRoles"
 				],
-				"indicatorName": "indicatorName",
+				"datasetName": "datasetName",
 				"poiSymbolBootstrap3Name": "poiSymbolBootstrap3Name",
 				"poiSymbolColor": "white",
 				"isAOI": false,
@@ -62,26 +62,51 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 				"description": "description about spatial unit dataset",
 				"databasis": "text about data basis",
 			},
-			"indicatorName": "Name of indicator dataset",
-			"isPOI": "boolean parameter for point of interest dataset - only one of isPOI, isLOI, isAOI can be true",
-			"isLOI": "boolean parameter for lines of interest dataset - only one of isPOI, isLOI, isAOI can be true",
-			"isAOI": "boolean parameter for area of interest dataset - only one of isPOI, isLOI, isAOI can be true",
-			"poiSymbolBootstrap3Name": "glyphicon name of bootstrap 3 symbol to use for a POI resource",
-			"poiSymbolColor": "'white'|'red'|'orange'|'beige'|'green'|'blue'|'purple'|'pink'|'gray'|'black'",
-			"loiDashArrayString": "dash array string value - e.g. 20 20",
-			"poiMarkerColor": "'white'|'red'|'orange'|'beige'|'green'|'blue'|'purple'|'pink'|'gray'|'black'",
-			"loiColor": "color for lines of interest dataset",
-			"aoiColor": "color for area of interest dataset"
+			"refrencesToOtherIndicators": [
+				{
+				  "referenceDescription": "description about the reference",
+				  "indicatorId": "ID of referenced indicator dataset"
+				}
+			  ],
+			  "refrencesToGeoresources": [
+				{
+				  "referenceDescription": "description about the reference",
+				  "georesourceId": "ID of referenced georesource dataset"
+				}
+			  ],
+			"datasetName": "Name of indicator dataset",
+			"abbreviation": "optional abbreviation of the indicator dataset",
+			"characteristicValue": "if the same datasetName is used for different indicators, the optional characteristicValue parameter may serve to distinguish between them (i.e. Habitants - male, Habitants - female, Habitants - diverse)",
+			"tags": [
+				"optinal list of tags; each tag is a free text tag"
+			],
+			"creationType": "INSERTION|COMPUTATION  <-- enum parameter controls whether each timestamp must be updated manually (INSERTION) or if KomMonitor shall compute the indicator values for respective timestamps based on script file (COMPUTATION)",
+			"unit": "unit of the indicator",
+			"topicReference": "ID of the respective main/sub topic instance",
+			"indicatorType": "STATUS_ABSOLUTE|STATUS_RELATIVE|DYNAMIC_ABSOLUTE|DYNAMIC_RELATIVE|STATUS_STANDARDIZED|DYNAMIC_STANDARDIZED",
+			"interpretation": "interpretation hints for the user to better understand the indicator values",
+			"isHeadlineIndicator": "boolean parameter to indicate if indicator is a headline indicator",
+			"processDescription": "detailed description about the computation/creation of the indicator",
+			"lowestSpatialUnitForComputation": "the name of the lowest possible spatial unit for which an indicator of creationType=COMPUTATION may be computed. All other superior spatial units will be aggregated automatically",
+			"defaultClassificationMapping": {
+				"colorBrewerSchemeName": "schema name of colorBrewer colorPalette to use for classification",
+				"items": [
+					{
+						"defaultCustomRating": "a string to rate indicator values of this class",
+						"defaultColorAsHex": "color as hexadecimal value"
+					}
+				]
+			}
 		};
 
 		$scope.indicatorMetadataStructure_pretty = kommonitorDataExchangeService.syntaxHighlightJSON($scope.indicatorMetadataStructure);
 
 		$scope.metadataImportSettings;
 		$scope.indicatorMetadataImportError;
-		$scope.indicatorMetadataImportErrorAlert;
+		$scope.indicatorAddMetadataImportErrorAlert;
 
-		$scope.indicatorName = undefined;
-		$scope.indicatorNameInvalid = false;
+		$scope.datasetName = undefined;
+		$scope.datasetNameInvalid = false;
 
 		$scope.metadata = {};
 		$scope.metadata.note = undefined;
@@ -94,7 +119,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 		$scope.metadata.lastUpdate = undefined;
 		$scope.metadata.description = undefined;
 
-		$scope.indicatorName = undefined;
+		$scope.datasetName = undefined;
 			$scope.indicatorAbbreviation = undefined;
 			$scope.indicatorType = undefined;
 			$scope.indicatorCharacteristicValue = undefined;
@@ -190,8 +215,8 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 		$scope.instantiateColorBrewerPalettes();
 
 		$scope.resetIndicatorAddForm = function(){
-			$scope.indicatorName = undefined;
-			$scope.indicatorNameInvalid = false;
+			$scope.datasetName = undefined;
+			$scope.datasetNameInvalid = false;
 
 			$scope.metadata = {};
 			$scope.metadata.note = undefined;
@@ -204,7 +229,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			$scope.metadata.lastUpdate = undefined;
 			$scope.metadata.description = undefined;
 
-			$scope.indicatorName = undefined;
+			$scope.datasetName = undefined;
 			$scope.indicatorAbbreviation = undefined;
 			$scope.indicatorType = undefined;
 			$scope.indicatorCharacteristicValue = undefined;
@@ -498,10 +523,10 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 		};
 
 		$scope.checkDatasetName = function(){
-			$scope.indicatorNameInvalid = false;
+			$scope.datasetNameInvalid = false;
 			kommonitorDataExchangeService.availableIndicators.forEach(function(indicator){
-				if (indicator.indicatorName === $scope.indicatorName){
-					$scope.indicatorNameInvalid = true;
+				if (indicator.indicatorName === $scope.datasetName){
+					$scope.datasetNameInvalid = true;
 					return;
 				}
 			});
@@ -571,7 +596,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 					"databasis": $scope.metadata.databasis
 				},
 				"jsonSchema": null,
-				"indicatorName": $scope.indicatorName,
+				"datasetName": $scope.datasetName,
 				"periodOfValidity": {
 					"endDate": $scope.periodOfValidity.endDate,
 					"startDate": $scope.periodOfValidity.startDate
@@ -621,7 +646,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 					// refresh all admin dashboard diagrams due to modified metadata
 					$rootScope.$broadcast("refreshAdminDashboardDiagrams");
 
-					$scope.successMessagePart = $scope.indicatorName;
+					$scope.successMessagePart = $scope.datasetName;
 
 					$("#indicatorAddSuccessAlert").show();
 
@@ -672,7 +697,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 					console.error("Uploaded Metadata File cannot be parsed.");
 					$scope.indicatorMetadataImportError = "Uploaded Metadata File cannot be parsed correctly";
 					document.getElementById("indicatorsAddMetadataPre").innerHTML = $scope.indicatorMetadataStructure_pretty;
-					$("#indicatorMetadataImportErrorAlert").show();
+					$("#indicatorAddMetadataImportErrorAlert").show();
 				}
 
 			};
@@ -689,7 +714,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 				console.error("uploaded Metadata File cannot be parsed - wrong structure.");
 				$scope.indicatorMetadataImportError = "Struktur der Datei stimmt nicht mit erwartetem Muster &uuml;berein.";
 				document.getElementById("indicatorsAddMetadataPre").innerHTML = $scope.indicatorMetadataStructure_pretty;
-				$("#indicatorMetadataImportErrorAlert").show();
+				$("#indicatorAddMetadataImportErrorAlert").show();
 			}
 
 				$scope.metadata = {};
@@ -710,47 +735,140 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 				$scope.metadata.description = $scope.metadataImportSettings.metadata.description;
 				$scope.metadata.databasis = $scope.metadataImportSettings.metadata.databasis;
 
-				$scope.indicatorName = $scope.metadataImportSettings.indicatorName;
+				$scope.datasetName = $scope.metadataImportSettings.datasetName;
 
 				// indicator specific properties
 
-				$scope.isPOI = $scope.metadataImportSettings.isPOI;
-				$scope.isLOI = $scope.metadataImportSettings.isLOI;
-				$scope.isAOI = $scope.metadataImportSettings.isAOI;
-				if($scope.metadataImportSettings.isPOI){
-						$scope.indicatorType = "poi";
+				
+				$scope.indicatorAbbreviation = $scope.metadataImportSettings.abbreviation;
+
+				for (const indicatorTypeOption of kommonitorDataExchangeService.indicatorTypeOptions) {
+					if(indicatorTypeOption.apiName === $scope.metadataImportSettings.indicatorType){
+						$scope.indicatorType = indicatorTypeOption;
+						break;
+					}
 				}
-				else if($scope.metadataImportSettings.isLOI){
-						$scope.indicatorType = "loi";
+
+				for (const indicatorCreationTypeOption of kommonitorDataExchangeService.indicatorCreationTypeOptions) {
+					if(indicatorCreationTypeOption.apiName === $scope.metadataImportSettings.creationType){
+						$scope.indicatorCreationType = indicatorCreationTypeOption;
+
+						if(indicatorCreationTypeOption.apiName === "COMPUTATION"){
+							$scope.enableLowestSpatialUnitSelect = true;
+						}
+						else{
+							$scope.enableLowestSpatialUnitSelect = false;
+						}
+						break;
+					}
+				}
+
+				$scope.indicatorCharacteristicValue = $scope.metadataImportSettings.characteristicValue;
+				$scope.isHeadlineIndicator = $scope.metadataImportSettings.isHeadlineIndicator;
+				$scope.indicatorUnit = $scope.metadataImportSettings.unit;
+				if(kommonitorDataExchangeService.indicatorUnitOptions.includes($scope.metadataImportSettings.unit)){
+					$scope.enableFreeTextUnit = false;
 				}
 				else{
-						$scope.indicatorType = "aoi";
+					$scope.enableFreeTextUnit = true;
 				}
-				kommonitorDataExchangeService.availablePoiMarkerColors.forEach(function(option){
-					if(option.colorName === $scope.metadataImportSettings.poiMarkerColor){
-						$scope.selectedPoiMarkerColor = option;
+				
+				$scope.indicatorProcessDescription = $scope.metadataImportSettings.processDescription;
+				
+				$scope.indicatorTagsString_withCommas = undefined;
+				if($scope.metadataImportSettings.tags && $scope.metadataImportSettings.tags.length > 0){
+					$scope.indicatorTagsString_withCommas = "";
+					for (let index = 0; index < $scope.metadataImportSettings.tags.length; index++) {
+						$scope.indicatorTagsString_withCommas += $scope.metadataImportSettings.tags[index];
+						
+						if(index < $scope.metadataImportSettings.tags.length - 1){
+							$scope.indicatorTagsString_withCommas += ",";
+						}
 					}
-					if(option.colorName === $scope.metadataImportSettings.poiSymbolColor){
-						$scope.selectedPoiSymbolColor = option;
-					}
-				});
-				kommonitorDataExchangeService.availableLoiDashArrayObjects.forEach(function(option){
-					if(option.dashArrayValue === $scope.metadataImportSettings.loiDashArrayString){
-						$scope.selectedLoiDashArrayObject = option;
-					}
-				});
-				$scope.loiColor = $scope.metadataImportSettings.loiColor;
-				$scope.aoiColor = $scope.metadataImportSettings.aoiColor;
-				$scope.selectedPoiIconName = $scope.metadataImportSettings.poiSymbolBootstrap3Name;
+				}
 
-				setTimeout(function(){
-					$("#poiSymbolPicker").val("").iconpicker('setIcon', 'glyphicon-' + $scope.metadataImportSettings.poiSymbolBootstrap3Name);
-					// $("#poiSymbolPicker i").css('glyphicon glyphicon-' + $scope.metadataImportSettings.poiSymbolBootstrap3Name);
-					// $("#poiSymbolPicker input").css('glyphicon-' + $scope.metadataImportSettings.poiSymbolBootstrap3Name);
-				}, 200);
+				$scope.indicatorInterpretation = $scope.metadataImportSettings.interpretation;
+				$scope.indicatorLowestSpatialUnitMetadataObjectForComputation = $scope.metadataImportSettings.lowestSpatialUnitForComputation;
+				
+				var topicHierarchy = kommonitorDataExchangeService.getTopicHierarchyForTopicId($scope.metadataImportSettings.topicReference);
+
+				if(topicHierarchy && topicHierarchy[0]){
+					$scope.indicatorTopic_mainTopic = topicHierarchy[0];
+				}
+				if(topicHierarchy && topicHierarchy[1]){
+					$scope.indicatorTopic_subTopic = topicHierarchy[1];
+				}
+				if(topicHierarchy && topicHierarchy[2]){
+					$scope.indicatorTopic_subsubTopic = topicHierarchy[2];
+				}
+				if(topicHierarchy && topicHierarchy[3]){
+					$scope.indicatorTopic_subsubsubTopic = topicHierarchy[3];
+				}
+
+				$scope.indicatorNameFilter = undefined;
+				$scope.tmpIndicatorReference_selectedIndicatorMetadata = undefined;
+				$scope.tmpIndicatorReference_referenceDescription = undefined;
+
+				// tmp array to display indicatorReferences
+				$scope.indicatorReferences_adminView = [];
+				// array for API request (has less information per item)
+				$scope.indicatorReferences_apiRequest = [];
+				if($scope.metadataImportSettings.refrencesToOtherIndicators && $scope.metadataImportSettings.refrencesToOtherIndicators.length > 0){
+					for (const indicatorReference of $scope.metadataImportSettings.refrencesToOtherIndicators) {
+						var indicatorMetadata = kommonitorDataExchangeService.getIndicatorMetadataById(indicatorReference.indicatorId);
+						var referenceEntry = {
+							"referencedIndicatorName": indicatorMetadata.indicatorName,
+							"referencedIndicatorId": indicatorMetadata.indicatorId,
+							"referencedIndicatorAbbreviation": indicatorMetadata.abbreviation,
+							"referencedIndicatorDescription": indicatorReference.referenceDescription
+						};
+						$scope.indicatorReferences_adminView.push(referenceEntry);	
+					}
+					
+				}
+
+				$scope.georesourceNameFilter = undefined;
+				$scope.tmpGeoresourceReference_selectedGeoresourceMetadata = undefined;
+				$scope.tmpGeoresourceReference_referenceDescription = undefined;
+				// tmp array to display georesourceReferences
+				$scope.georesourceReferences_adminView = [];
+				// array for API request (has less information per item)
+				$scope.georesourceReferences_apiRequest = [];
+
+				if($scope.metadataImportSettings.refrencesToGeoresources && $scope.metadataImportSettings.refrencesToGeoresources.length > 0){
+					for (const georesourceReference of $scope.metadataImportSettings.refrencesToGeoresources) {
+						var georesourceMetadata = kommonitorDataExchangeService.getGeoresourceMetadataById(georesourceReference.georesourceId);
+						var geo_referenceEntry = {
+							"referencedGeoresourceName": georesourceMetadata.datasetName,
+							"referencedGeoresourceId": georesourceMetadata.georesourceId,
+							"referencedGeoresourceDescription": georesourceReference.referenceDescription
+						};
+						$scope.georesourceReferences_adminView.push(geo_referenceEntry);	
+					}
+					
+				}			
+
+				$scope.numClassesArray = [3,4,5,6,7,8];
+				$scope.numClasses = $scope.numClassesArray[2];
+				$scope.selectedColorBrewerPaletteEntry = undefined;
+
+				for (const colorbrewerPalette of $scope.colorbrewerPalettes) {
+					if (colorbrewerPalette.paletteName === $scope.metadataImportSettings.defaultClassificationMapping.colorBrewerSchemeName){
+						$scope.selectedColorBrewerPaletteEntry = colorbrewerPalette;
+						break;
+					}
+				}
+
+				$scope.spatialUnitRefKeyProperty = undefined;
+				$scope.targetSpatialUnitMetadata = undefined;
+				$scope.tmpTimeseriesMapping_indicatorValuesPropertyName = undefined;
+				$scope.useTimeseriesAsProperty = false;
+				$scope.tmpTimeseriesMapping_timestampPropertyName = undefined;
+				$scope.tmpTimeseriesMapping_directTimestamp = undefined;
+				$scope.timeseriesMappings_adminView = [];
 
 				$scope.$apply();
-		}
+		};
 
 		$scope.onExportIndicatorAddMetadata = function(){
 			var metadataExport = $scope.indicatorMetadataStructure;
@@ -763,54 +881,107 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			metadataExport.metadata.lastUpdate = $scope.metadata.lastUpdate || "";
 			metadataExport.metadata.description = $scope.metadata.description || "";
 			metadataExport.metadata.databasis = $scope.metadata.databasis || "";
-			metadataExport.indicatorName = $scope.indicatorName || "";
+			metadataExport.datasetName = $scope.datasetName || "";
 
 			if($scope.metadata.updateInterval){
 					metadataExport.metadata.updateInterval = $scope.metadata.updateInterval.apiName;
 			}
 
-			var name = $scope.indicatorName;
+			var name = $scope.datasetName;
 
 			// indicator specific properties
-			metadataExport.isPOI = $scope.isPOI;
-			metadataExport.isLOI = $scope.isLOI;
-			metadataExport.isAOI = $scope.isAOI;
 
-			if($scope.isPOI){
-				metadataExport["poiSymbolBootstrap3Name"] = $scope.selectedPoiIconName;
-				metadataExport["poiSymbolColor"] = $scope.selectedPoiSymbolColor.colorName;
-				metadataExport["poiMarkerColor"] = $scope.selectedPoiMarkerColor.colorName;
+			metadataExport.abbreviation = $scope.indicatorAbbreviation || "";
+			metadataExport.indicatorType = $scope.indicatorType ? $scope.indicatorType.apiName : "";
+			metadataExport.creationType = $scope.indicatorCreationType ? $scope.indicatorCreationType.apiName : "";
 
-				metadataExport["loiDashArrayString"] = "";
-				metadataExport["loiColor"] = "";
+			metadataExport.characteristicValue = $scope.indicatorCharacteristicValue || "";
+			metadataExport.isHeadlineIndicator = $scope.isHeadlineIndicator || false;
+			metadataExport.unit = $scope.indicatorUnit || "";
+			metadataExport.processDescription = $scope.indicatorProcessDescription || "";
+			metadataExport.tags = [];
 
-				metadataExport["aoiColor"] = "";
+			if($scope.indicatorTagsString_withCommas){
+				var tags_splitted = $scope.indicatorTagsString_withCommas.split(",");
+				for (const tagString of tags_splitted) {
+					metadataExport.tags.push(tagString.trim());
+				}
 			}
-			else if($scope.isLOI){
-				metadataExport["poiSymbolBootstrap3Name"] = "";
-				metadataExport["poiSymbolColor"] = "";
-				metadataExport["poiMarkerColor"] = "";
+				
+			metadataExport.interpretation = $scope.indicatorInterpretation || "";
+			metadataExport.lowestSpatialUnitForComputation = $scope.indicatorLowestSpatialUnitMetadataObjectForComputation || "";
 
-				metadataExport["loiDashArrayString"] = $scope.selectedLoiDashArrayObject.dashArrayValue;
-				metadataExport["loiColor"] = $scope.loiColor;
-
-				metadataExport["aoiColor"] = "";
+			if($scope.indicatorTopic_subsubsubTopic){
+				metadataExport.topicReference = $scope.indicatorTopic_subsubsubTopic.topicId;
 			}
-			else if($scope.isAOI){
-				metadataExport["poiSymbolBootstrap3Name"] = "";
-				metadataExport["poiSymbolColor"] = "";
-				metadataExport["poiMarkerColor"] = "";
-
-				metadataExport["loiDashArrayString"] = "";
-				metadataExport["loiColor"] = "";
-
-				metadataExport["aoiColor"] = $scope.aoiColor;
+			else if($scope.indicatorTopic_subsubTopic){
+				metadataExport.topicReference = $scope.indicatorTopic_subsubTopic.topicId;
+			}
+			else if($scope.indicatorTopic_subTopic){
+				metadataExport.topicReference = $scope.indicatorTopic_subTopic.topicId;
+			}
+			else if($scope.indicatorTopic_mainTopic){
+				metadataExport.topicReference = $scope.indicatorTopic_mainTopic.topicId;
+			}
+			else {
+				metadataExport.topicReference = "";
 			}
 
+			if($scope.indicatorReferences_adminView && $scope.indicatorReferences_adminView.length > 0){
+				metadataExport.refrencesToOtherIndicators = [];
+
+				for (const indicRef of $scope.indicatorReferences_adminView) {
+					metadataExport.refrencesToOtherIndicators.push({
+						"indicatorId": indicRef.indicatorId,
+						"referenceDescription": indicRef.referencedIndicatorDescription
+					});
+				}
+			}
+
+			if($scope.georesourceReferences_adminView && $scope.georesourceReferences_adminView.length > 0){
+				metadataExport.refrencesToGeoresources = [];
+
+				for (const geoRef of $scope.georesourceReferences_adminView) {
+					metadataExport.refrencesToGeoresources.push({
+						"indicatorId": geoRef.georesourceId,
+						"referenceDescription": geoRef.referencedGeoresourceDescription
+					});
+				}
+			}		
+
+				$scope.numClasses = $scope.numClassesArray[2];
+				$scope.selectedColorBrewerPaletteEntry = undefined;
+
+				var defaultClassificationMapping = {
+					"colorBrewerSchemeName" : $scope.selectedColorBrewerPaletteEntry ? $scope.selectedColorBrewerPaletteEntry.paletteName : "Blues",
+					"items": [
+						{
+						  "defaultColorAsHex": "#edf8e9",
+						  "defaultCustomRating": "sehr niedrig"
+						},
+						{
+						  "defaultColorAsHex": "#bae4b3",
+						  "defaultCustomRating": "niedrig"
+						},
+						{
+						  "defaultColorAsHex": "#74c476",
+						  "defaultCustomRating": "mittel"
+						},
+						{
+						  "defaultColorAsHex": "#31a354",
+						  "defaultCustomRating": "hoch"
+						},
+						{
+						  "defaultColorAsHex": "#006d2c",
+						  "defaultCustomRating": "sehr hoch"
+						}
+					  ]
+				};
+			
 
 			var metadataJSON = JSON.stringify(metadataExport);
 
-			var fileName = "Georessource_Metadaten_Export";
+			var fileName = "Indikatoren_Metadaten_Export";
 
 			if (name){
 				fileName += "-" + name;
@@ -842,7 +1013,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			};
 
 			$scope.hideMetadataErrorAlert = function(){
-				$("#indicatorMetadataImportErrorAlert").hide();
+				$("#indicatorAddMetadataImportErrorAlert").hide();
 			};
 
 			/*

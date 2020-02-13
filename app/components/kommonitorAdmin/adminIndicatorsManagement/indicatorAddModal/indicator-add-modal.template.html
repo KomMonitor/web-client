@@ -70,7 +70,7 @@
 							"allowedRoles",
 							"allowedRoles"
 						],
-						"indicatorName": "indicatorName",
+						"datasetName": "datasetName",
 						"applicableSpatialUnit": "applicableSpatialUnit",
 						"abbreviation": "abbreviation",
 						"characteristicValue": "characteristicValue",
@@ -137,7 +137,7 @@
 									<div class="col-md-3 col-sm-6 col-xs-12">
 										<div class="form-group">
 											<label>Indikatorname*</label>
-											<input type="text" class="form-control" ng-model="indicatorName"
+											<input type="text" class="form-control" ng-model="datasetName"
 												placeholder="Name" required></input>
 											<div class="help-block with-errors"></div>
 										</div>
@@ -1025,7 +1025,7 @@
 						class="fas fa-file-export"></i>&nbsp;&nbsp;Metadaten-Export</button>
 				<button type="button" class="btn btn-success"
 				
-					ng-disabled="!indicatorName || !metadata.description || !metadata.datasource || !metadata.contact || !metadata.updateInterval || !metadata.lastUpdate || !indicatorDataSourceIdProperty || !indicatorDataSourceNameProperty || !periodOfValidity.startDate || indicatorNameInvalid || periodOfValidityInvalid || !converter || !datasourceType"
+					ng-disabled="!datasetName || !metadata.description || !metadata.datasource || !metadata.contact || !metadata.updateInterval || !metadata.lastUpdate || !indicatorDataSourceIdProperty || !indicatorDataSourceNameProperty || !periodOfValidity.startDate || datasetNameInvalid || periodOfValidityInvalid || !converter || !datasourceType"
 					ng-click="addIndicator()">Indikator registrieren</button>
 				<button type="button" class="btn btn-danger"
 					ng-click="resetIndicatorAddForm()">Zur&uuml;cksetzen</button>
@@ -1048,7 +1048,7 @@
 				<pre>{{errorMessagePart}}</pre>.
 			</div>
 
-			<div id="indicatorMetadataImportErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+			<div id="indicatorAddMetadataImportErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
 				class="alert alert-danger alert-dismissable">
 				<button type="button" class="close" ng-click="hideMetadataErrorAlert()"
 					aria-hidden="true">&times;</button>
