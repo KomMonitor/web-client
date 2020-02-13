@@ -146,7 +146,7 @@
 										<div class="form-group">
 											<label>K&uuml;rzel/Kennzeichen</label>
 											<input type="text" class="form-control" ng-model="indicatorAbbreviation"
-												placeholder="optionales K&uuml;rzel" required></input>
+												placeholder="optionales K&uuml;rzel"></input>
 											<div class="help-block with-errors"></div>
 										</div>
 									</div>
@@ -166,7 +166,7 @@
 										<div class="form-group">
 											<label>Merkmalsauspr&auml;gung</label>
 											<input type="text" class="form-control" ng-model="indicatorCharacteristicValue"
-												placeholder="optionale Merkmalsauspr&auml;gung" required></input>
+												placeholder="optionale Merkmalsauspr&auml;gung"></input>
 											
 											<div class="help-block">
 												<p>Angabe, wenn mehrere Indikatoren mit gleichen Namen, aber unterschiedlichen Merkmals angelegt werden sollen 
@@ -1023,7 +1023,7 @@
 						class="fas fa-file-export"></i>&nbsp;&nbsp;Metadaten-Export</button>
 				<button type="button" class="btn btn-success"
 				
-					ng-disabled="!datasetName || !metadata.description || !metadata.datasource || !metadata.contact || !metadata.updateInterval || !metadata.lastUpdate || !indicatorDataSourceIdProperty || !indicatorDataSourceNameProperty || !periodOfValidity.startDate || datasetNameInvalid || periodOfValidityInvalid || !converter || !datasourceType"
+					ng-disabled="!datasetName || !metadata.description || !metadata.datasource || !metadata.contact || !metadata.updateInterval || !metadata.lastUpdate || !indicatorType|| !indicatorCreationType || !indicatorTopic_mainTopic || datasetNameInvalid || !indicatorUnit || !isHeadlineIndicator ||  !converter || !datasourceType || !targetSpatialUnitMetadata || !spatialUnitRefKeyProperty || ! (timeseriesMappings_adminView.length > 0)"
 					ng-click="addIndicator()">Indikator registrieren</button>
 				<button type="button" class="btn btn-danger"
 					ng-click="resetIndicatorAddForm()">Zur&uuml;cksetzen</button>
