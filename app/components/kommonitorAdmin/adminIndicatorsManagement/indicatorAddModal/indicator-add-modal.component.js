@@ -588,7 +588,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 					});
 				}
 			}
-			return kommonitorImporterHelperService.buildPropertyMapping_indicators($scope.spatialUnitRefKeyProperty, timeseriesMappingForImporter);
+			return kommonitorImporterHelperService.buildPropertyMapping_indicatorResource($scope.spatialUnitRefKeyProperty, timeseriesMappingForImporter);
 		};
 
 		$scope.buildPostBody_indicators = function(){
@@ -788,6 +788,8 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 					$scope.indicatorMetadataImportError = "Uploaded Metadata File cannot be parsed correctly";
 					document.getElementById("indicatorsAddMetadataPre").innerHTML = $scope.indicatorMetadataStructure_pretty;
 					$("#indicatorAddMetadataImportErrorAlert").show();
+
+					$scope.$apply();
 				}
 
 			};
@@ -1017,6 +1019,8 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 				metadataExport.topicReference = "";
 			}
 
+			metadataExport.refrencesToOtherIndicators = [];
+
 			if($scope.indicatorReferences_adminView && $scope.indicatorReferences_adminView.length > 0){
 				metadataExport.refrencesToOtherIndicators = [];
 
@@ -1028,6 +1032,8 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 				}
 			}
 
+			metadataExport.refrencesToGeoresources = [];
+			
 			if($scope.georesourceReferences_adminView && $scope.georesourceReferences_adminView.length > 0){
 				metadataExport.refrencesToGeoresources = [];
 
