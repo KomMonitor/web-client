@@ -1033,7 +1033,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			}
 
 			metadataExport.refrencesToGeoresources = [];
-			
+
 			if($scope.georesourceReferences_adminView && $scope.georesourceReferences_adminView.length > 0){
 				metadataExport.refrencesToGeoresources = [];
 
@@ -1044,9 +1044,6 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 					});
 				}
 			}		
-
-				$scope.numClasses = $scope.numClassesArray[2];
-				$scope.selectedColorBrewerPaletteEntry = undefined;
 
 				var defaultClassificationMapping = {
 					"colorBrewerSchemeName" : $scope.selectedColorBrewerPaletteEntry ? $scope.selectedColorBrewerPaletteEntry.paletteName : "Blues",
