@@ -618,9 +618,9 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 				  "topicReference": "", // filled directly after
 				  "refrencesToGeoresources": [], // filled directly after
 				  "indicatorType": $scope.indicatorType.apiName,
-				  "interpretation": $scope.indicatorInterpretation || null,
+				  "interpretation": $scope.indicatorInterpretation || "",
 				  "isHeadlineIndicator": $scope.isHeadlineIndicator || false,
-				  "processDescription": $scope.indicatorProcessDescription || null,
+				  "processDescription": $scope.indicatorProcessDescription || "",
 				  "lowestSpatialUnitForComputation": $scope.indicatorLowestSpatialUnitMetadataObjectForComputation || null,
 				  "defaultClassificationMapping": {
 					"colorBrewerSchemeName": $scope.selectedColorBrewerPaletteEntry.paletteName,
