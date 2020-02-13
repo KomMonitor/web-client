@@ -214,9 +214,9 @@
 									</div>
 									<div class="col-md-3 col-sm-6 col-xs-12">
 										<div class="form-group">
-											<label>Interpretation</label>
+											<label>Interpretation*</label>
 											<input type="text" class="form-control" ng-model="indicatorInterpretation"
-												placeholder="optionale Interpretationshilfe"></input>
+												placeholder="optionale Interpretationshilfe" required></input>
 											<div class="help-block">
 												<p>Hinweise, um die Verst&auml;ndlichkeit der Werteverteiung des Indikators zu erh&ouml;hen</p>
 											</div>		
@@ -363,7 +363,7 @@
 													<i class="far fa-calendar-alt"></i>
 												</div>
 												<input type="text" ng-model="metadata.lastUpdate"
-													class="form-control pull-right"
+													class="form-control pull-right" placeholder="YYYY-MM-DD"
 													id="indicatorAddLastUpdateDatepicker" required>
 											</div>
 											<div class="help-block with-errors"></div>
@@ -952,7 +952,7 @@
 												<div class="input-group-addon">
 													<i class="far fa-calendar-alt"></i>
 												</div>
-												<input type="text" ng-model="tmpTimeseriesMapping_directTimestamp" 
+												<input type="text" ng-model="tmpTimeseriesMapping_directTimestamp" placeholder="YYYY-MM-DD"
 													class="form-control pull-right" id="indicatorAddDirectTimestampDatepicker">
 											</div>
 										</div>

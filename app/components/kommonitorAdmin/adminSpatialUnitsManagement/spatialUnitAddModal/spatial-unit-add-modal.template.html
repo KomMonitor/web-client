@@ -147,7 +147,7 @@
 													<i class="far fa-calendar-alt"></i>
 												</div>
 												<input type="text" ng-model="metadata.lastUpdate" class="form-control pull-right"
-													id="spatialUnitAddLastUpdateDatepicker" required>
+													id="spatialUnitAddLastUpdateDatepicker" placeholder="YYYY-MM-DD" required>
 											</div>
 											<div class="help-block with-errors"></div>
 										</div>
@@ -315,7 +315,7 @@
 													<i class="far fa-calendar-alt"></i>
 												</div>
 												<input type="text" ng-model="periodOfValidity.startDate" ng-change="checkPeriodOfValidity()"
-													class="form-control pull-right" id="spatialUnitAddDatepickerStart" required>
+													class="form-control pull-right" id="spatialUnitAddDatepickerStart"  placeholder="YYYY-MM-DD" required>
 											</div>
 											<div class="help-block">
 												<p>Eintrag ist immer erforderlich, selbst wenn die r&auml;umlichen Features &uuml;ber ein
@@ -336,7 +336,7 @@
 													<i class="far fa-calendar-alt"></i>
 												</div>
 												<input type="text" ng-model="periodOfValidity.endDate" ng-change="checkPeriodOfValidity()"
-													class="form-control pull-right" id="spatialUnitAddDatepickerEnd">
+													class="form-control pull-right" id="spatialUnitAddDatepickerEnd" placeholder="YYYY-MM-DD">
 											</div>
 											<div class="help-block">
 												<p>Eintrag ist erforderlich, falls die r&auml;umlichen Features nicht selbst &uuml;ber ein
