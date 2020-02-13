@@ -85,6 +85,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 		$scope.periodOfValidityInvalid = false;
 
 		$scope.converter = undefined;
+		$scope.schema = undefined;
 		$scope.datasourceType = undefined;
 		$scope.spatialUnitDataSourceIdProperty = undefined;
 		$scope.spatialUnitDataSourceNameProperty = undefined;
@@ -126,6 +127,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 			$scope.periodOfValidityInvalid = false;
 
 			$scope.converter = undefined;
+			$scope.schema = undefined;
 			$scope.datasourceType = undefined;
 			$scope.spatialUnitDataSourceIdProperty = undefined;
 			$scope.spatialUnitDataSourceNameProperty = undefined;
@@ -137,6 +139,10 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 
 			$scope.validityEndDate_perFeature = undefined;
 			$scope.validityStartDate_perFeature = undefined;
+		};
+
+		$scope.onChangeSchema = function(schema){
+			$scope.schema = schema;
 		};
 
 		$scope.checkSpatialUnitName = function(){

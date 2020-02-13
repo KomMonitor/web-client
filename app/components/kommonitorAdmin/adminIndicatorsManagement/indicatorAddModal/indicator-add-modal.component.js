@@ -177,6 +177,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 		$scope.indicatorDataSourceNameProperty = undefined;
 
 		$scope.converter = undefined;
+		$scope.schema = undefined;
 			$scope.datasourceType = undefined;
 			$scope.indicatorDataSourceIdProperty = undefined;
 			$scope.indicatorDataSourceNameProperty = undefined;
@@ -283,6 +284,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			$scope.periodOfValidityInvalid = false;
 	
 			$scope.converter = undefined;
+			$scope.schema = undefined;
 			$scope.datasourceType = undefined;
 			$scope.indicatorDataSourceIdProperty = undefined;
 			$scope.indicatorDataSourceNameProperty = undefined;
@@ -297,6 +299,10 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 
 			$scope.indicatorDataSourceIdProperty = undefined;
 			$scope.indicatorDataSourceNameProperty = undefined;
+		};
+
+		$scope.onChangeSchema = function(schema){
+			$scope.schema = schema;
 		};
 
 		$scope.onClickColorBrewerEntry = function(colorPaletteEntry){

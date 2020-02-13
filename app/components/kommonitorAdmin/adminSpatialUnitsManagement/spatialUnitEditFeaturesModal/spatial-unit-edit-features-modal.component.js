@@ -55,6 +55,7 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 		$scope.spatialUnitDataSourceNameProperty = undefined;
 
 		$scope.converter = undefined;
+		$scope.schema = undefined;
 			$scope.datasourceType = undefined;
 			$scope.spatialUnitDataSourceIdProperty = undefined;
 			$scope.spatialUnitDataSourceNameProperty = undefined;
@@ -84,6 +85,10 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 			}
 
 		});
+
+		$scope.onChangeSchema = function(schema){
+			$scope.schema = schema;
+		};
 
 		$scope.refreshSpatialUnitEditFeaturesOverviewTable = function(){
 
@@ -168,6 +173,7 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 			$scope.spatialUnitDataSourceNameProperty = undefined;
 
 			$scope.converter = undefined;
+			$scope.schema = undefined;
 			$scope.datasourceType = undefined;
 			$scope.spatialUnitDataSourceIdProperty = undefined;
 			$scope.spatialUnitDataSourceNameProperty = undefined;

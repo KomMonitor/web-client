@@ -330,8 +330,8 @@
 
 											<div class="form-group">
 												<label>Schema*</label>
-												<select ng-model="schema" ng-options="schema for schema in converter.schemas"
-													ng-init="schema = converter.schemas[0]" class="form-control" required>
+												<select ng-model="schema" ng-change="onChangeSchema(schema)" ng-options="schema for schema in converter.schemas"
+													class="form-control" required>
 													<option disabled selected value> -- Schema w&auml;hlen -- </option>
 												</select>
 												<div class="help-block with-errors"></div>

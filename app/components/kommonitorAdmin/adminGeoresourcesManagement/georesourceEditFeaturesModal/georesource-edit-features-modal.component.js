@@ -37,6 +37,7 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 		$scope.georesourceDataSourceNameProperty = undefined;
 
 		$scope.converter = undefined;
+		$scope.schema = undefined;
 			$scope.datasourceType = undefined;
 			$scope.spatialUnitDataSourceIdProperty = undefined;
 			$scope.spatialUnitDataSourceNameProperty = undefined;
@@ -147,6 +148,7 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 			$scope.georesourceDataSourceNameProperty = undefined;
 
 			$scope.converter = undefined;
+			$scope.schema = undefined;
 			$scope.datasourceType = undefined;
 			$scope.spatialUnitDataSourceIdProperty = undefined;
 			$scope.spatialUnitDataSourceNameProperty = undefined;
@@ -164,6 +166,10 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 
 			$("#georesourceEditFeaturesSuccessAlert").hide();
 			$("#georesourceEditFeaturesErrorAlert").hide();
+		};
+
+		$scope.onChangeSchema = function(schema){
+			$scope.schema = schema;
 		};
 
 		$scope.filterByKomMonitorProperties = function() {

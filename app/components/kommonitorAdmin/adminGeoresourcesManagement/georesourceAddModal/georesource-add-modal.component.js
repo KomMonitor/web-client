@@ -118,6 +118,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 		$scope.georesourceDataSourceNameProperty = undefined;
 
 		$scope.converter = undefined;
+		$scope.schema = undefined;
 			$scope.datasourceType = undefined;
 			$scope.georesourceDataSourceIdProperty = undefined;
 			$scope.georesourceDataSourceNameProperty = undefined;
@@ -217,6 +218,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			$scope.georesourceDataSourceInputInvalid = false;
 	
 			$scope.converter = undefined;
+			$scope.schema = undefined;
 			$scope.datasourceType = undefined;
 			$scope.georesourceDataSourceIdProperty = undefined;
 			$scope.georesourceDataSourceNameProperty = undefined;
@@ -231,6 +233,10 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 
 			$scope.georesourceDataSourceIdProperty = undefined;
 			$scope.georesourceDataSourceNameProperty = undefined;
+		};
+
+		$scope.onChangeSchema = function(schema){
+			$scope.schema = schema;
 		};
 
 		$scope.onChangeGeoresourceType = function(){
