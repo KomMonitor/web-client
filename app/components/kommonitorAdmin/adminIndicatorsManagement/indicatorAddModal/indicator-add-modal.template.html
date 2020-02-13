@@ -185,9 +185,7 @@
 												class="form-control" required>
 												<option disabled selected value> -- Einheit w&auml;hlen -- </option>
 												<option>-- Freitext --</option>
-												<option ng-repeat="unit in $ctrl.kommonitorDataExchangeServiceInstance.indicatorUnitOptions"> 
-													{{unit}}
-												</option>
+												<option ng-repeat="unit in $ctrl.kommonitorDataExchangeServiceInstance.indicatorUnitOptions">{{unit}}</option>
 												
 											</select>
 											<div ng-hide="! enableFreeTextUnit">

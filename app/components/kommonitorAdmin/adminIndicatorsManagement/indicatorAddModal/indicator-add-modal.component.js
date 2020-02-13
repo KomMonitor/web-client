@@ -932,7 +932,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 
 				for (const indicRef of $scope.indicatorReferences_adminView) {
 					metadataExport.refrencesToOtherIndicators.push({
-						"indicatorId": indicRef.indicatorId,
+						"indicatorId": indicRef.referencedIndicatorId,
 						"referenceDescription": indicRef.referencedIndicatorDescription
 					});
 				}
@@ -943,7 +943,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 
 				for (const geoRef of $scope.georesourceReferences_adminView) {
 					metadataExport.refrencesToGeoresources.push({
-						"indicatorId": geoRef.georesourceId,
+						"indicatorId": geoRef.referencedGeoresourceId,
 						"referenceDescription": geoRef.referencedGeoresourceDescription
 					});
 				}
@@ -977,6 +977,8 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 						}
 					  ]
 				};
+
+				metadataExport.defaultClassificationMapping = defaultClassificationMapping;
 			
 
 			var metadataJSON = JSON.stringify(metadataExport);
