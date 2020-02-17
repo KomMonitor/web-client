@@ -160,6 +160,10 @@ angular
         return self.barChartOptions;
       };
 
+      this.getGeoMapChartOptions = function () {
+        return self.geoMapChartOptions;
+      };
+
       this.getHistogramChartOptions = function () {
         return self.histogramChartOptions;
       };
@@ -168,7 +172,7 @@ angular
         return self.lineChartOptions;
       };
 
-      this.prepareAllDiagramResources = function (indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, ) {
+      this.prepareAllDiagramResources = function (indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue) {
 
         self.indicatorPropertyName = INDICATOR_DATE_PREFIX + date;
 
@@ -241,6 +245,8 @@ angular
         setLineChartOptions(indicatorMetadataAndGeoJSON, indicatorTimeSeriesDatesArray, indicatorTimeSeriesAverageArray, spatialUnitName, date);
 
         setBarChartOptions(indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray, spatialUnitName, date);
+
+        setGeoMapChartOptions(indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue);
       };
 
       var compareFeaturesByIndicatorValue = function (featureA, featureB) {
@@ -394,6 +400,354 @@ angular
 
         // use configuration item and data specified to show chart
         self.barChartOptions = barOption;
+      };
+
+      var containsNegativeValues = function (geoJSON, date) {
+
+        var propertyName = date;
+
+        if(! propertyName.includes(kommonitorDataExchangeService.indicatorDatePrefix)){
+          propertyName = kommonitorDataExchangeService.indicatorDatePrefix + propertyName;
+        }
+
+        var containsNegativeValues = false;
+        for (var i = 0; i < geoJSON.features.length; i++) {
+          if (geoJSON.features[i].properties[propertyName] < 0) {
+            containsNegativeValues = true;
+            break;
+          }
+        }
+
+        return containsNegativeValues;
+      };
+
+      var containsZeroValues = function (geoJSON, date) {
+
+        var propertyName = date;
+
+        if(! propertyName.includes(kommonitorDataExchangeService.indicatorDatePrefix)){
+          propertyName = kommonitorDataExchangeService.indicatorDatePrefix + propertyName;
+        }
+
+        var containsZeroValues = false;
+        for (var i = 0; i < geoJSON.features.length; i++) {
+          if (geoJSON.features[i].properties[propertyName] === 0 || geoJSON.features[i].properties[propertyName] === "0") {
+            containsZeroValues = true;
+            break;
+          }
+        }
+
+        return containsZeroValues;
+      };
+
+      var setupGeoMapLegend = function(indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue){
+        /*
+        pieces: [
+              // Range of a piece can be specified by property min and max,
+              // where min will be set as -Infinity if ignored,
+              // and max will be set as Infinity if ignored.
+              {min: 1500},
+              {min: 900, max: 1500},
+              {min: 310, max: 1000},
+              {min: 200, max: 300},
+              // Label of the piece can be specified.
+              {min: 10, max: 200, label: '10 to 200 (custom label) '},
+              // Color of the piece can be specified.
+              {value: 123, label: '123 (custom special color) ', color: 'grey'},
+              {max: 5}
+          ]
+        */
+
+        var indicatorType = indicatorMetadataAndGeoJSON.indicatorType;
+
+        var pieces = [];
+
+        if(containsZeroValues(indicatorMetadataAndGeoJSON.geoJSON, date)){
+          pieces.push({
+            min: 0,       
+            max: 0,           
+            color: defaultColorForZeroValues
+          });
+        }
+
+        if(isMeasureOfValueChecked){
+          // measure of value brew
+          var gtBreaks = gtMeasureOfValueBrew.breaks;
+          var gtColors = gtMeasureOfValueBrew.colors;
+          var ltBreaks = ltMeasureOfValueBrew.breaks;
+          var ltColors = ltMeasureOfValueBrew.colors;
+
+              for (var j = 0; j < gtColors.length; j++) {
+
+                var legendItem_gtMov = {
+                  min: gtBreaks[j],                  
+                  color: gtColors[j]
+                };
+                if(gtBreaks[j + 1]){
+                  legendItem_gtMov.max = gtBreaks[j + 1];
+                }
+
+                pieces.push(legendItem_gtMov);
+
+              }
+
+              for (var j = 0; j < ltColors.length; j++) {
+
+                var legendItem_ltMov = {
+                  min: ltBreaks[j],                  
+                  color: ltColors[ltColors.length - 1 - j]
+                };
+                if(ltBreaks[j + 1]){
+                  legendItem_ltMov.max = ltBreaks[j + 1];
+                }
+
+                pieces.push(legendItem_ltMov);
+
+              }
+        }
+        else if(indicatorType.includes("DYNAMIC")){
+          // dynamic brew
+
+          if(dynamicIncreaseBrew){
+              var dynamicIncreaseBreaks = dynamicIncreaseBrew.breaks;
+              var dynamicIncreaseColors = dynamicIncreaseBrew.colors;
+
+              for (var j = 0; j < dynamicIncreaseColors.length; j++) {
+
+                var legendItem_dynamicIncreaseMov = {
+                  min: dynamicIncreaseBreaks[j],                  
+                  color: dynamicIncreaseColors[j]
+                };
+                if(dynamicIncreaseBreaks[j + 1]){
+                  legendItem_dynamicIncreaseMov.max = dynamicIncreaseBreaks[j + 1];
+                }
+
+                pieces.push(legendItem_dynamicIncreaseMov);
+
+              }
+          }
+
+          if(dynamicDecreaseBrew){
+              var dynamicDecreaseBreaks = dynamicDecreaseBrew.breaks;
+              var dynamicDecreaseColors = dynamicDecreaseBrew.colors;
+
+              for (var j = 0; j < dynamicDecreaseColors.length; j++) {
+
+                var legendItem_dynamicDecreaseMov = {
+                  min: dynamicDecreaseBreaks[j],                  
+                  color: dynamicDecreaseColors[dynamicDecreaseColors.length - 1 - j]
+                };
+                if(dynamicDecreaseBreaks[j + 1]){
+                  legendItem_dynamicDecreaseMov.max = dynamicDecreaseBreaks[j + 1];
+                }
+
+                pieces.push(legendItem_dynamicDecreaseMov);
+
+              }
+          }          
+        }
+        else {
+          // default brew
+
+          if(containsNegativeValues(indicatorMetadataAndGeoJSON.geoJSON, date)){
+            // dynamic brew
+            if(dynamicIncreaseBrew){
+              var dynamicIncreaseBreaks = dynamicIncreaseBrew.breaks;
+              var dynamicIncreaseColors = dynamicIncreaseBrew.colors;
+
+              for (var j = 0; j < dynamicIncreaseColors.length; j++) {
+
+                var legendItem_dynamicIncreaseMov = {
+                  min: dynamicIncreaseBreaks[j],                  
+                  color: dynamicIncreaseColors[j]
+                };
+                if(dynamicIncreaseBreaks[j + 1]){
+                  legendItem_dynamicIncreaseMov.max = dynamicIncreaseBreaks[j + 1];
+                }
+
+                pieces.push(legendItem_dynamicIncreaseMov);
+
+              }
+          }
+
+          if(dynamicDecreaseBrew){
+              var dynamicDecreaseBreaks = dynamicDecreaseBrew.breaks;
+              var dynamicDecreaseColors = dynamicDecreaseBrew.colors;
+
+              for (var j = 0; j < dynamicDecreaseColors.length; j++) {
+
+                var legendItem_dynamicDecreaseMov = {
+                  min: dynamicDecreaseBreaks[j],                  
+                  color: dynamicDecreaseColors[dynamicDecreaseColors.length - 1 - j]
+                };
+                if(dynamicDecreaseBreaks[j + 1]){
+                  legendItem_dynamicDecreaseMov.max = dynamicDecreaseBreaks[j + 1];
+                }
+
+                pieces.push(legendItem_dynamicDecreaseMov);
+
+              }
+          }       
+          }
+          else{
+            var breaks = defaultBrew.getBreaks();
+            var colors = defaultBrew.getColors();
+
+              for (var j = 0; j < colors.length; j++) {
+
+                var legendItem_default = {
+                  min: breaks[j],
+                  max: breaks[j + 1],
+                  color: colors[j]
+                };
+
+                pieces.push(legendItem_default);
+
+              }     
+          }
+
+          
+        }
+
+        return pieces;
+
+      };
+
+      var setGeoMapChartOptions = function (indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue) {
+
+        indicatorMetadataAndGeoJSON.geoJSON.features.forEach(feature => {
+          feature.properties.name= feature.properties[kommonitorDataExchangeService.FEATURE_NAME_PROPERTY_NAME];
+        });
+
+        var uniqueMapRef = 'geoMapChart';
+
+        echarts.registerMap(uniqueMapRef, indicatorMetadataAndGeoJSON.geoJSON);
+
+        // specify chart configuration item and data
+
+        var legendConfig = setupGeoMapLegend(indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue);
+
+        // default fontSize of echarts
+        var fontSize = 18;
+        var geoMapChartTitel = indicatorMetadataAndGeoJSON.indicatorName + ' - ' + spatialUnitName + ' - ' + date;
+
+        var seriesData = [];
+
+        for (let index = 0; index < featureNamesArray.length; index++) {
+          var featureName = featureNamesArray[index];
+
+          /*
+          var seriesItem = {
+            value: indicatorValue,
+            itemStyle: {
+              color: color
+              // borderWidth: 1,
+              // borderColor: 'black'
+            }
+          };
+          */
+          var featureValue = indicatorValueBarChartArray[index].value;
+          
+          seriesData.push({
+            name: featureName,
+            value: featureValue
+          });
+        }
+
+        var geoMapOption = {
+          // grid get rid of whitespace around chart
+          // grid: {
+          //   left: '7%',
+          //   top: 32,
+          //   right: '5%',
+          //   bottom: 32
+          // },
+          title: {
+            text: geoMapChartTitel,
+            left: 'center',
+            textStyle: {
+              fontSize: fontSize
+            },
+            show: false
+            // top: 15
+          },
+          tooltip: {
+            trigger: 'item',
+            confine: 'true',
+            showDelay: 0,
+            transitionDuration: 0.2,
+            formatter: function (params) {
+              var value = kommonitorDataExchangeService.getIndicatorValue_asFormattedText(params.value);
+              return "" + params.name + ": " + value + " [" + indicatorMetadataAndGeoJSON.unit + "]";
+            }           
+          },
+          toolbox: {
+            show: true,
+            right: '15',
+            feature: {
+              // mark : {show: true},
+              dataView: {
+                show: true, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Geo Map Chart', 'schlie&szlig;en', 'refresh'], optionToContent: function (opt) {
+
+                  var dataTableId = "geoMapDataTable_" + Math.random();
+                  var tableExportName = indicatorMetadataAndGeoJSON.indicatorName + " - " + opt.title[0].text;
+
+                  var htmlString = '<table id="' + dataTableId + '" class="table table-bordered table-condensed" style="width:100%;text-align:center;">';
+                  htmlString += "<thead>";
+                  htmlString += "<tr>";
+                  htmlString += "<th style='text-align:center;'>Feature-Name</th>";
+                  htmlString += "<th style='text-align:center;'>" + indicatorMetadataAndGeoJSON.indicatorName + " [" + indicatorMetadataAndGeoJSON.indicatorName + "]</th>";
+                  htmlString += "</tr>";
+                  htmlString += "</thead>";
+
+                  htmlString += "<tbody>";
+
+                  for (var i = 0; i < seriesData.length; i++) {
+                    var value = kommonitorDataExchangeService.getIndicatorValue_asNumber(seriesData[i].value);
+                    htmlString += "<tr>";
+                    htmlString += "<td>" + seriesData[i].name + "</td>";
+                    htmlString += "<td>" + value + "</td>";
+                    htmlString += "</tr>";
+                  }
+
+                  htmlString += "</tbody>";
+                  htmlString += "</table>";
+
+                  $rootScope.$broadcast("AppendExportButtonsForTable", dataTableId, tableExportName);
+
+                  return htmlString;
+                }
+              },
+              restore: { show: false, title: "Erneuern" },
+              saveAsImage: { show: true, title: "Export" }
+            }
+          },
+          // legend: {
+          // 		//data:[indicatorMetadataAndGeoJSON.indicatorName]
+          // },
+          visualMap: {
+            left: 'left',
+            type: "piecewise",
+            pieces: legendConfig,
+            // selectedMode: 'multiple',
+            precision: 2
+        },
+          series: [{
+            name: indicatorMetadataAndGeoJSON.indicatorName,
+            type: 'map',
+            roam: true,
+            map: uniqueMapRef,
+            emphasis: {
+                label: {
+                    show: true
+                }
+            },
+            data: seriesData
+          }]
+        };
+
+        // use configuration item and data specified to show chart
+        self.geoMapChartOptions = geoMapOption;
       };
 
 
