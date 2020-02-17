@@ -464,11 +464,21 @@ angular
 
         if(containsZeroValues(indicatorMetadataAndGeoJSON.geoJSON, date)){
           pieces.push({
-            min: 0,       
+            min: 0,  
+            opacity: 0.8,     
             max: 0,           
             color: defaultColorForZeroValues
           });
         }
+
+        // if(containsOutlierValues(indicatorMetadataAndGeoJSON.geoJSON, date)){
+        //   pieces.push({
+        //     min: 0,  
+        //     opacity: 0.8,     
+        //     max: 0,           
+        //     color: defaultColorForZeroValues
+        //   });
+        // }
 
         if(isMeasureOfValueChecked){
           // measure of value brew
@@ -480,7 +490,8 @@ angular
               for (var j = 0; j < gtColors.length; j++) {
 
                 var legendItem_gtMov = {
-                  min: gtBreaks[j],                  
+                  min: gtBreaks[j],     
+                  opacity: 0.8,             
                   color: gtColors[j]
                 };
                 if(gtBreaks[j + 1]){
@@ -494,7 +505,8 @@ angular
               for (var j = 0; j < ltColors.length; j++) {
 
                 var legendItem_ltMov = {
-                  min: ltBreaks[j],                  
+                  min: ltBreaks[j],         
+                  opacity: 0.8,         
                   color: ltColors[ltColors.length - 1 - j]
                 };
                 if(ltBreaks[j + 1]){
@@ -515,7 +527,8 @@ angular
               for (var j = 0; j < dynamicIncreaseColors.length; j++) {
 
                 var legendItem_dynamicIncreaseMov = {
-                  min: dynamicIncreaseBreaks[j],                  
+                  min: dynamicIncreaseBreaks[j],   
+                  opacity: 0.8,               
                   color: dynamicIncreaseColors[j]
                 };
                 if(dynamicIncreaseBreaks[j + 1]){
@@ -535,6 +548,7 @@ angular
 
                 var legendItem_dynamicDecreaseMov = {
                   min: dynamicDecreaseBreaks[j],                  
+                  opacity: 0.8,
                   color: dynamicDecreaseColors[dynamicDecreaseColors.length - 1 - j]
                 };
                 if(dynamicDecreaseBreaks[j + 1]){
@@ -558,7 +572,8 @@ angular
               for (var j = 0; j < dynamicIncreaseColors.length; j++) {
 
                 var legendItem_dynamicIncreaseMov = {
-                  min: dynamicIncreaseBreaks[j],                  
+                  min: dynamicIncreaseBreaks[j], 
+                  opacity: 0.8,                 
                   color: dynamicIncreaseColors[j]
                 };
                 if(dynamicIncreaseBreaks[j + 1]){
@@ -577,7 +592,8 @@ angular
               for (var j = 0; j < dynamicDecreaseColors.length; j++) {
 
                 var legendItem_dynamicDecreaseMov = {
-                  min: dynamicDecreaseBreaks[j],                  
+                  min: dynamicDecreaseBreaks[j],
+                  opacity: 0.8,                  
                   color: dynamicDecreaseColors[dynamicDecreaseColors.length - 1 - j]
                 };
                 if(dynamicDecreaseBreaks[j + 1]){
@@ -597,6 +613,7 @@ angular
 
                 var legendItem_default = {
                   min: breaks[j],
+                  opacity: 0.8,
                   max: breaks[j + 1],
                   color: colors[j]
                 };
