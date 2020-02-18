@@ -33,8 +33,8 @@
 								</div>
 							</div>
 							<div class="row" style="margin-top:5px">
-								<button class="btn btn-warning" ng-click="configureIndicator()"><i class="fas fa-pencil-alt"></i></button>
-								<button class="btn btn-danger" ng-click="removeIndicator()"><i class="fa fa-trash"></i></button>
+								<button class="btn btn-warning" ng-click="configureIndicator()"><i class="fas fa-pencil-alt"></i>&nbsp;&nbsp;Bearbeiten</button>
+								<button class="btn btn-danger" ng-click="removeIndicator()"><i class="fa fa-trash"></i>&nbsp;&nbsp;Entfernen</button>
 							</div>
 						</div>
 						<div class="col-md-9">
@@ -56,6 +56,7 @@
 								<button type="button" class="btn btn-primary pull-left" style="margin-right:5px"><i class="fa fa-plus"></i>&nbsp;&nbsp;Seite hinzufügen</button>
 								<button type="button" class="btn btn-primary pull-left" style="margin-right:5px"><i class="fa fa-minus"></i>&nbsp;&nbsp;Seite entfernen</button>
 								<button type="button" class="btn btn-primary pull-left" style="margin-right:5px"><i class="fa fa-sync"></i>&nbsp;&nbsp;Seitenreihenfolge ändern</button>
+								<button type="button" class="btn btn-danger pull-right" ng-click="resetModal()"><i class="fas fa-exclamation-triangle"></i></i>&nbsp;&nbsp;Ansicht zurücksetzen</button>
 							</div>
 						</div>
 					</div>
@@ -63,7 +64,10 @@
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-primary pull-left" ng-click="saveSettings()"><i class="fa fa-save"></i>&nbsp;&nbsp;Einstellungen exportieren</button>
-				<button type="button" class="btn btn-primary pull-left" ng-click="loadSettings()"><i class="fa fa-file-download"></i>&nbsp;&nbsp;Einstellungen importieren</button>
+				<label for="reporting-load-settings-button" class="btn btn-primary pull-left">
+					<input type="file" id="reporting-load-settings-button"></input>
+					<i class="fa fa-file-download"></i>&nbsp;&nbsp;Einstellungen importieren
+				</label>
 				<button type="button" class="btn btn-success pull-right" ng-click="generateReport()"><i class="fa fa-copy"></i>&nbsp;&nbsp;Report erzeugen</button>
 			</div>
 		</div>

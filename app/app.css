@@ -1977,3 +1977,15 @@ input:checked + .switchslider:before {
 .grid-stack > .grid-stack-item > .ui-resizable-w {
 	left: 0;
 }
+
+#reporting-metadata-table {
+	font-size:8pt;
+}
+
+#reporting-metadata-table td {
+	margin-bottom: 4px;
+}
+
+#reporting-load-settings-button {
+	display:none;
+}

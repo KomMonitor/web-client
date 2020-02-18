@@ -10,6 +10,7 @@ angular.module('reportingAddIndicatorModal').component('reportingAddIndicatorMod
 
 		$scope.indicator = undefined;
 		$scope.selectedSpatialUnit = undefined;
+		$scope.selectedSpatialUnitId = undefined;
 		$scope.selectedAreas = undefined;
 		$scope.selectedTimestamps = undefined;
 		$scope.allAreasForSelectedSpatialUnitNames = [];
@@ -173,10 +174,12 @@ angular.module('reportingAddIndicatorModal').component('reportingAddIndicatorMod
 					return false
 				}
 			});
+
 			if (spatialUnitId === undefined) {
 				console.error("selectedSpatialUnit not found in indicator.applicableSpatialUnits")
 			}
 
+			$scope.selectedSpatialUnitId = spatialUnitId;
 			// build request
 			var url = kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI +
 						"/indicators/" + indicatorId + "/" + spatialUnitId
@@ -188,6 +191,11 @@ angular.module('reportingAddIndicatorModal').component('reportingAddIndicatorMod
 					// this callback will be called asynchronously
 					// when the response is available
 
+					// add geoJSON property to indicator
+					// by doing this now we don't need to query the data amangement api
+					// again when adding the indicator
+					$scope.indicator.geoJSON = response.data
+					
 					//clear scope
 					$scope.allAreasForSelectedSpatialUnitNames = [];
 
@@ -475,7 +483,10 @@ angular.module('reportingAddIndicatorModal').component('reportingAddIndicatorMod
 					elementTimelineIsChecked: $scope.elementTimelineIsChecked,
 					elementMetadataIsChecked: $scope.elementMetadataIsChecked,
 					elementDataTableIsChecked: $scope.elementDataTableIsChecked
-				}
+				},
+				// the following properties are needed in the main modal after adding the indicator
+				tiles: {},
+				selectedSpatialUnitId: $scope.selectedSpatialUnitId
 			}
 			return conf;
 		}

@@ -214,7 +214,8 @@ angular
             left: '7%',
             top: 32,
             right: '5%',
-            bottom: 32
+            bottom: 32,
+            containLabel: true
           },
           title: {
             text: barChartTitel,
@@ -337,7 +338,8 @@ angular
             left: '7%',
             top: 32,
             right: '5%',
-            bottom: 55
+            bottom: 55,
+            containLabel: true
           },
           title: {
             text: 'Zeitreihe - ' + spatialUnitName,
@@ -509,7 +511,8 @@ angular
             left: '7%',
             top: 32,
             right: '7%',
-            bottom: 35
+            bottom: 35,
+            containLabel: true
           },
           title: {
             text: histogramChartTitel,
