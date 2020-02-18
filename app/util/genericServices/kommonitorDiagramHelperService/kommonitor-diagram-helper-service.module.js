@@ -182,6 +182,8 @@ angular
 
         var indicatorTimeSeriesDatesArray = indicatorMetadataAndGeoJSON.applicableDates;
         var indicatorTimeSeriesAverageArray = new Array(indicatorTimeSeriesDatesArray.length);
+        var indicatorTimeSeriesMaxArray = new Array(indicatorTimeSeriesDatesArray.length);
+        var indicatorTimeSeriesMinArray = new Array(indicatorTimeSeriesDatesArray.length);
         var indicatorTimeSeriesCountArray = new Array(indicatorTimeSeriesDatesArray.length);
 
         // initialize timeSeries arrays
@@ -231,6 +233,26 @@ angular
               // indicatorTimeSeriesAverageArray[i] += selectedFeature.properties[datePropertyName];
               indicatorTimeSeriesAverageArray[i] += cartographicFeature.properties[datePropertyName];
               indicatorTimeSeriesCountArray[i]++;
+
+              // min stack
+              if (indicatorTimeSeriesMinArray[i] === undefined || indicatorTimeSeriesMinArray[i] === null){
+                indicatorTimeSeriesMinArray[i] = cartographicFeature.properties[datePropertyName];
+              }
+              else{
+                if(cartographicFeature.properties[datePropertyName] < indicatorTimeSeriesMinArray[i]){
+                  indicatorTimeSeriesMinArray[i] = cartographicFeature.properties[datePropertyName];
+                }
+              }
+
+              // max stack
+              if (indicatorTimeSeriesMaxArray[i] === undefined || indicatorTimeSeriesMaxArray[i] === null){
+                indicatorTimeSeriesMaxArray[i] = cartographicFeature.properties[datePropertyName];
+              }
+              else{
+                if(cartographicFeature.properties[datePropertyName] > indicatorTimeSeriesMaxArray[i]){
+                  indicatorTimeSeriesMaxArray[i] = cartographicFeature.properties[datePropertyName];
+                }
+              }
             }
           }
         }
@@ -242,7 +264,7 @@ angular
 
         setHistogramChartOptions(indicatorMetadataAndGeoJSON, indicatorValueArray, spatialUnitName, date);
 
-        setLineChartOptions(indicatorMetadataAndGeoJSON, indicatorTimeSeriesDatesArray, indicatorTimeSeriesAverageArray, spatialUnitName, date);
+        setLineChartOptions(indicatorMetadataAndGeoJSON, indicatorTimeSeriesDatesArray, indicatorTimeSeriesAverageArray, indicatorTimeSeriesMaxArray, indicatorTimeSeriesMinArray, spatialUnitName, date);
 
         setBarChartOptions(indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray, spatialUnitName, date);
 
@@ -768,7 +790,7 @@ angular
       };
 
 
-      var setLineChartOptions = function (indicatorMetadataAndGeoJSON, indicatorTimeSeriesDatesArray, indicatorTimeSeriesAverageArray, spatialUnitName, date) {
+      var setLineChartOptions = function (indicatorMetadataAndGeoJSON, indicatorTimeSeriesDatesArray, indicatorTimeSeriesAverageArray, indicatorTimeSeriesMaxArray, indicatorTimeSeriesMinArray, spatialUnitName, date) {
 
         var lineOption = {
           // grid get rid of whitespace around chart
@@ -897,7 +919,64 @@ angular
             //     show: true
             // }
           },
-          series: [{
+          series: [
+          {
+            name: "Min",
+            type: 'line',
+            data: indicatorTimeSeriesMinArray,
+            stack: "MinMax",
+            areaStyle:{
+              color: "#d6d6d6"
+            },
+            lineStyle: {
+              opacity: 0
+            },
+            itemStyle: {
+              opacity: 0
+            },
+            // lineStyle: {
+            //   normal: {
+            //     color: 'gray',
+            //     width: 2,
+            //     type: 'dashed'
+            //   }
+            // },
+            // itemStyle: {
+            //   normal: {
+            //     borderWidth: 3,
+            //     color: 'gray'
+            //   }
+            // }
+          },
+          {
+            name: "Max",
+            type: 'line',
+            data: indicatorTimeSeriesMaxArray,
+            stack: "MinMax",
+            areaStyle:{
+              color: "#d6d6d6"
+            },
+            lineStyle: {
+              opacity: 0
+            },
+            itemStyle: {
+              opacity: 0
+            },
+            // lineStyle: {
+            //   normal: {
+            //     color: 'gray',
+            //     width: 2,
+            //     type: 'dashed'
+            //   }
+            // },
+            // itemStyle: {
+            //   normal: {
+            //     borderWidth: 3,
+            //     color: 'gray'
+            //   }
+            // }
+          },
+          {
             name: "Arithmetisches Mittel",
             type: 'line',
             data: indicatorTimeSeriesAverageArray,
