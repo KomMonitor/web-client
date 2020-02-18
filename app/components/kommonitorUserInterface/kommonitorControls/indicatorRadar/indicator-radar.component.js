@@ -109,15 +109,18 @@ angular
 								var indicatorProperties = indicatorsForRadar[i].indicatorProperties;
 								sampleProperties = indicatorsForRadar[i].indicatorProperties;
 
+								var closestApplicableTimestamp = kommonitorDiagramHelperService.findClostestTimestamForTargetDate(indicatorsForRadar[i], $scope.date);
+								indicatorsForRadar[i].closestTimestamp = closestApplicableTimestamp;
+
 								var sample = indicatorProperties[0];
-								var maxValue = sample[DATE_PREFIX + $scope.date];
-								var minValue = sample[DATE_PREFIX + $scope.date];
+								var maxValue = sample[DATE_PREFIX + closestApplicableTimestamp];
+								var minValue = sample[DATE_PREFIX + closestApplicableTimestamp];
 								var valueSum = 0;
 
 								for (var indicatorPropertyInstance of indicatorProperties) {
 									// for average only apply real numeric values
-									if (!kommonitorDataExchangeService.indicatorValueIsNoData(indicatorPropertyInstance[DATE_PREFIX + $scope.date])) {
-										var value = kommonitorDataExchangeService.getIndicatorValueFromArray_asNumber(indicatorPropertyInstance, $scope.date)
+									if (!kommonitorDataExchangeService.indicatorValueIsNoData(indicatorPropertyInstance[DATE_PREFIX + closestApplicableTimestamp])) {
+										var value = kommonitorDataExchangeService.getIndicatorValueFromArray_asNumber(indicatorPropertyInstance, closestApplicableTimestamp)
 										valueSum += value;
 
 										if (value > maxValue)
@@ -332,6 +335,7 @@ angular
 							$scope.radarChart.hideLoading();
 							setTimeout(function () {
 								$scope.radarChart.resize();
+								$scope.$apply();
 							}, 350);
 							registerEventsIfNecessary();
 
@@ -419,11 +423,12 @@ angular
 							if (kommonitorDiagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime[i].isSelected) {
 								// make object to hold indicatorName, max value and average value
 								var indicatorProperties = kommonitorDiagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime[i].indicatorProperties;
+								var closestTimestamp = kommonitorDiagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime[i].closestTimestamp;
 
 								for (var indicatorPropertyInstance of indicatorProperties) {
 									if (indicatorPropertyInstance[__env.FEATURE_NAME_PROPERTY_NAME] === featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]) {
-										if (!kommonitorDataExchangeService.indicatorValueIsNoData(indicatorPropertyInstance[DATE_PREFIX + $scope.date])) {
-											featureSeries.value.push(kommonitorDataExchangeService.getIndicatorValueFromArray_asNumber(indicatorPropertyInstance, $scope.date));
+										if (!kommonitorDataExchangeService.indicatorValueIsNoData(indicatorPropertyInstance[DATE_PREFIX + closestTimestamp])) {
+											featureSeries.value.push(kommonitorDataExchangeService.getIndicatorValueFromArray_asNumber(indicatorPropertyInstance, closestTimestamp));
 										}
 										else {
 											featureSeries.value.push(null);
@@ -525,6 +530,7 @@ angular
 						console.log("Filtering indicator radar");
 
 						modifyRadarContent(kommonitorDiagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime);
+
 					}
 
 					this.selectAllIndicatorsForRadar = function () {

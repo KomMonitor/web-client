@@ -1,21 +1,260 @@
 <div id="adminIndicatorsContent">
+
+	<div align="center">
+		<div class="loading-overlay-admin-panel ng-hide" ng-show="loadingData">
+					<span class="glyphicon glyphicon-refresh icon-spin"></span>
+		</div>
+	</div>
+
 	<!-- Content Header (Page header) -->
 	<section class="content-header">
-		<h1>
-			Indikatorenverwaltung
-			<small>Info</small>
-		</h1>
+			<h1>
+				Verwalten der Indikatoren
+				<small>Info</small>
+			</h1>
+
+			<div class="adminTableButtonWrapper">
+				<button class="btn btn-success btn-sm" type="button" data-toggle="modal" data-target="#modal-add-indicator"><i class="fas fa-plus"></i>&nbsp;&nbsp;Erstellen</button>
+				<!-- edit metadata -->
+
+				<!-- edit features -->
+
+				<!-- delete selected completely -->
+				<button class="btn btn-danger btn-sm" type="button" data-toggle="modal" data-target="#modal-delete-indicators" ng-click="onClickDeleteDatasets()"><i class="fas fa-trash"></i>&nbsp;&nbsp;L&ouml;schen</button>
+
+				<!-- delete b timestamp -->
+			</div>
 	</section>
 
 	<!-- Main content -->
 	<section class="content container-fluid">
-
-		INDICATORS STUFF
-
 		<!--------------------------
 			| Your Page Content Here |
 			-------------------------->
 
+			<!-- POI -->
+
+			<div class="box box-primary">
+            <div class="box-header">
+              <h3 class="box-title">Indikatoren</h3>
+
+							<div class="box-tools pull-right">
+								<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+								</button>
+							</div>
+						</div>
+
+            <!-- /.box-header -->
+            <div class="box-body">
+
+							<div class="admin-table-wrapper">
+	              <table id="indicatorOverviewTable" datatable="ng" dt-options="$ctrl.kommonitorDataExchangeServiceInstance.datatablesOptions" class="table table-bordered table-condensed table-striped" style="width:100%; overflow:auto; font-size: 11px;">
+	                <thead>
+	                <tr>
+	                  <th><input type="checkbox" ng-model="selectIndicatorEntriesInput" ng-change="onChangeSelectIndicatorEntries()"></input></th>
+										<th>Editierfunktionen</th>
+										<th>Id</th>
+	                  					<th>Name</th>
+										<th>K&uuml;rzel/Kennzeichen</th>
+										<th>Leitindikator</th>
+										<th>Indikator-Typ</th>
+										<th>Merkmal</th>
+										<th>Art der Fortf&uuml;hrung</th>
+										<th>Einheit</th>
+										<th>Beschreibung</th>
+										<th>Interpretation</th>
+										<th>Methodik</th>
+										<th>Datenquelle</th>
+										<th>Datengrundlage</th>
+										<th>Tags/Stichworte</th>
+										<th>Themenhierarchie</th>
+										<th>Verf&uuml;gbare Raumeinheiten</th>
+										<th>Verf&uuml;gbare Zeitpunkte</th>
+										<th>Referenzierte Indikatoren</th>
+										<th>Referenzierte Georessourcen</th>
+										<th>Datenhalter und Kontakt</th>
+										<th>zuletzt aktualisiert am</th>
+										<th>Koordinatensystem</th>
+										<th>Aktualisierungszyklus</th>
+										<th>Quellen / Literatur</th>
+										<th>Bemerkung</th>
+										<th>Niedrigste Raumeinheit f&uuml;r Berechnung</th>
+										<th>Klassifizierung</th>										
+										<th>OGC Dienste</th>
+	                </tr>
+	                </thead>
+
+	                <tbody>
+					<tr
+						ng-repeat="indicatorDataset in availableIndicatorDatasets | filter:filterIndicators() | filter:filterIndicatorsByTopic() | filter:indicatorNameFilter">
+						<td><input type="checkbox" ng-model="indicatorDataset.isSelected"
+								ng-change="onChangeSelectindicatorDataset(indicatorDataset)"></input></td>
+						<td>
+							<div class="btn-group btn-group-sm">
+								<button class="btn btn-warning btn-sm" type="button" data-toggle="modal"
+									data-target="#modal-edit-indicator-metadata" ng-click="onClickEditMetadata(indicatorDataset)"
+									title="Metadaten editieren"><i class="fas fa-pencil-alt"></i></button>
+								<button class="btn btn-warning btn-sm" type="button" data-toggle="modal"
+									data-target="#modal-edit-indicator-features" ng-click="onClickEditFeatures(indicatorDataset)"
+									title="Features fortf&uuml;hren"><i class="fas fa-draw-polygon"></i></button>
+								<!-- <button class="btn btn-danger btn-sm" type="button" data-toggle="modal" data-target="#modal-delete-spatial-units" ng-click="onClickDeleteDatasets(indicatorDataset)" title="Datensatz l&ouml;schen"><i class="fas fa-trash"></i></button> -->
+							</div>
+						</td>
+						<td>{{indicatorDataset.indicatorId}}</td>
+						<td>{{indicatorDataset.indicatorName}}</td>
+						<td>{{indicatorDataset.abbreviation}}</td>
+						<td>{{indicatorDataset.isHeadlineIndicator}}</td>
+						<td>{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorStringFromIndicatorType(indicatorDataset.indicatorType)}}</td>
+						<td ng-bind-html="indicatorDataset.characteristicValue"></td>
+						<td ng-bind-html="indicatorDataset.creationType"></td>
+						<td ng-bind-html="indicatorDataset.unit"></td>
+						<td ng-bind-html="indicatorDataset.metadata.description"></td>
+						<td ng-bind-html="indicatorDataset.interpretation"></td>
+						<td ng-bind-html="indicatorDataset.processDescription"></td>
+						<td ng-bind-html="indicatorDataset.metadata.datasource"></td>
+						<td ng-bind-html="indicatorDataset.metadata.databasis"></td>
+						<td ng-bind-html="indicatorDataset.tags"></td>
+						<td><p>{{
+							$ctrl.kommonitorDataExchangeServiceInstance.getTopicHierarchyDisplayString(indicatorDataset.topicReference)}}</p></td>
+						<td>
+							<ul style="columns: 2; 	-webkit-columns: 2;	-moz-columns: 2;">
+								<li style="margin-right: 15px;" ng-repeat="spatialUnitName in indicatorDataset.applicableSpatialUnits">
+									{{spatialUnitName}}
+								</li>
+							</ul>
+						</td>
+						<td>
+							<ul style="columns: 3; 	-webkit-columns: 3;	-moz-columns: 3;">
+								<li style="margin-right: 15px;" ng-repeat="timestamp in indicatorDataset.applicableDates">
+									{{timestamp}}
+								</li>
+							</ul>
+
+						</td>
+						<!-- <td ng-bind-html="indicatorDataset.applicableDates"></td> -->
+						<td>
+							<ul style="columns: 2; 	-webkit-columns: 2;	-moz-columns: 2;">
+								<li style="margin-right: 15px;" ng-repeat="indicatorReference in indicatorDataset.referencedIndicators">
+									<!-- <ul>
+										<li>
+											<b>Ref. IndikatorId: </b> {{indicatorReference.referencedIndicatorId}}
+										</li>
+										<li>
+											<b>Ref. Indikator-Name: </b> {{indicatorReference.referencedIndicatorName}}
+										</li>
+										<li>
+											<b>Beschreibung: </b>{{indicatorReference.referencedIndicatorDescription}}
+										</li>
+									</ul> -->
+									{{indicatorReference.referencedIndicatorName}}
+								</li>
+							</ul>
+						</td>
+						<td>
+							<ul style="columns: 2; 	-webkit-columns: 2;	-moz-columns: 2;">
+								<li style="margin-right: 15px;" ng-repeat="georesourceReference in indicatorDataset.referencedGeoresources">
+									<!-- <ul>
+										<li>
+											<b>Ref. GeoressourcenId: </b> {{georesourceReference.referencedGeoresourceId}}
+										</li>
+										<li>
+											<b>Ref. Georessourcen-Name: </b> {{georesourceReference.referencedGeoresourceName}}
+										</li>
+										<li>
+											<b>Beschreibung: </b> {{georesourceReference.referencedGeoresourceDescription}}
+										</li>
+									</ul> -->
+									{{georesourceReference.referencedGeoresourceName}}
+								</li>
+							</ul>
+						</td>						
+						<td ng-bind-html="indicatorDataset.metadata.contact"></td>
+						<td>{{indicatorDataset.metadata.lastUpdate}}</td>
+						<td>EPSG:{{indicatorDataset.metadata.sridEPSG}}</td>
+						<td>{{indicatorDataset.metadata.updateInterval}}</td>
+						<td ng-bind-html="indicatorDataset.metadata.literature"></td>
+						<td ng-bind-html="indicatorDataset.metadata.note"></td>
+						<td>{{indicatorDataset.lowestSpatialUnitForComputation}}</td>
+						<td>
+							ColorBrewerSchemaName: {{indicatorDataset.defaultClassificationMapping.colorBrewerSchemeName}}
+
+							<!-- <ul>
+								<li ng-repeat="classificationMappingItem in indicatorDataset.defaultClassificationMapping.items">
+									<ul>
+										<li>
+											<b>Farbe: </b>{{classificationMappingItem.defaultColorAsHex}}
+										</li>
+										<li>
+											<b>Bewertung: </b>{{classificationMappingItem.defaultCustomRating}}
+										</li>
+									</ul>
+								</li>
+							</ul> -->
+						</td>
+						<td >
+							<ul style="columns: 2; 	-webkit-columns: 2;	-moz-columns: 2;">
+								<li style="margin-right: 15px;" ng-repeat="ogcService in indicatorDataset.ogcServices">
+									<ul>
+										<li>
+											<b>Raumeinheit: </b> {{ogcService.spatialUnit}}
+										</li>
+										<li>
+											<b>WMS: </b> {{ogcService.wmsUrl}}
+										</li>
+										<li>
+											<b>WFS: </b> {{ogcService.wfsUrl}}
+										</li>
+									</ul>
+								</li>
+							</ul>
+						</td>
+					</tr>
+
+	                </tbody>
+
+	                <tfoot>
+	                <tr>
+										<th>alle selektieren</th>
+										<th>Editierfunktionen</th>
+										<th>Id</th>
+	                  					<th>Name</th>
+										<th>K&uuml;rzel/Kennzeichen</th>
+										<th>Leitindikator</th>
+										<th>Indikator-Typ</th>
+										<th>Merkmal</th>
+										<th>Art der Fortf&uuml;hrung</th>
+										<th>Einheit</th>
+										<th>Beschreibung</th>
+										<th>Interpretation</th>
+										<th>Methodik</th>
+										<th>Datenquelle</th>
+										<th>Datengrundlage</th>
+										<th>Tags/Stichworte</th>
+										<th>Themenhierarchie</th>
+										<th>Verf&uuml;gbare Raumeinheiten</th>
+										<th>Verf&uuml;gbare Zeitpunkte</th>
+										<th>Referenzierte Indikatoren</th>
+										<th>Referenzierte Georessourcen</th>
+										<th>Datenhalter und Kontakt</th>
+										<th>zuletzt aktualisiert am</th>
+										<th>Koordinatensystem</th>
+										<th>Aktualisierungszyklus</th>
+										<th>Quellen / Literatur</th>
+										<th>Bemerkung</th>
+										<th>Niedrigste Raumeinheit f&uuml;r Berechnung</th>
+										<th>Klassifizierung</th>										
+										<th>OGC Dienste</th>
+	                </tr>
+	                </tfoot>
+	              </table>
+
+							</div>
+            </div>
+            <!-- /.box-body -->
+          </div>
+          <!-- /.box -->
+
 	</section>
 <!-- /.content -->
+
 </div>

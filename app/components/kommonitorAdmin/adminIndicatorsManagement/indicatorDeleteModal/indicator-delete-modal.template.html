@@ -1,0 +1,181 @@
+<div class="modal fade" id="modal-delete-indicators" role="dialog">
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content">
+
+			<div align="center">
+				<div class="loading-overlay-admin-panel ng-hide" ng-show="loadingData">
+							<span class="glyphicon glyphicon-refresh icon-spin"></span>
+				</div>
+			</div>
+
+
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Georessourcen l&ouml;schen</h4>
+			</div>
+			<div class="modal-body">
+
+				<h4><b>Sollen die folgenden Georessourcen wirklich gel&ouml;scht werden?</b></h4>
+
+				<div ng-if="! datasetsToDelete.length > 0">
+					<pre>kein Datensatz zum L&ouml;schen markiert. Mindestens ein Datensatz muss markiert werden.</pre>
+				</div>
+
+				<div ng-if="(datasetsToDelete | filter:{isPOI:'true'}).length > 0">
+					<h4>Points of Interest</h4>
+					<ul>
+	            <li ng-repeat="dataset in datasetsToDelete | filter:{isPOI:'true'}">{{dataset.datasetName}}</li>
+					</ul>
+				</div>
+
+				<div ng-if="(datasetsToDelete | filter:{isLOI:'true'}).length > 0">
+					<h4>Lines of Interest</h4>
+					<ul>
+	            <li ng-repeat="dataset in datasetsToDelete | filter:{isLOI:'true'}">{{dataset.datasetName}}</li>
+					</ul>
+				</div>
+
+				<div ng-if="(datasetsToDelete | filter:{isAOI:'true'}).length > 0">
+					<h4>Areas of Interest</h4>
+					<ul>
+	            <li ng-repeat="dataset in datasetsToDelete | filter:{isAOI:'true'}">{{dataset.datasetName}}</li>
+					</ul>
+				</div>
+
+				<br/>
+
+				<div ng-if="datasetsToDelete.length > 0">
+					<h3>ACHTUNG!</h3>
+					<p>Dabei werden auch s&auml;mtliche <b>Indikatoren-Referenzen</b> auf die betroffenen Georessourcen dauerhaft aus dem System entfernt. Etwaige <b>Skripte</b>, in denen die betroffenen Georessourcen als Berechnungsgrundlage verwendet werden, werden ebenfalls ung&uuml;ltig und daher aus dem System gel&ouml;scht</p>
+					<h4>Betroffene Indikatorenreferenzen</h4>
+					<div ng-if="! affectedIndicatorReferences.length > 0">
+						<p>keine</p>
+					</div>
+					<div ng-if="affectedIndicatorReferences.length > 0">
+						<table class="table table-bordered table-condensed" style="width:100%; overflow:auto; font-size: 11px;">
+							<thead>
+							<tr>
+								<th>IndikatorenReferenz-ID</th>
+								<th>IndikatorenReferenz-Name</th>
+								<th>IndikatorenReferenz-Beschreibung</th>
+							</tr>
+							</thead>
+
+							<tbody>
+								<tr ng-repeat="reference in affectedIndicatorReferences">
+									<td>{{reference.referencedGeoresourceId}}</td>
+									<td>{{reference.referencedGeoresourceName}}</td>
+									<td>{{reference.referencedGeoresourceDescription}}</td>
+								</tr>
+
+							</tbody>
+						</table>
+					</div>
+
+					<h4>Betroffene Skripte</h4>
+					<div ng-if="! affectedScripts.length > 0">
+						<p>keine</p>
+					</div>
+					<div ng-if="affectedScripts.length > 0">
+						<table class="table table-bordered table-condensed" style="width:100%; overflow:auto; font-size: 11px;">
+							<thead>
+							<tr>
+								<th>Skript-ID</th>
+								<th>Skript-Name</th>
+								<th>Skript-Beschreibung</th>
+								<th>ID des berechneten Indikators</th>
+							</tr>
+							</thead>
+
+							<tbody>
+								<tr ng-repeat="script in affectedScripts">
+									<td>{{script.scriptId}}</td>
+									<td>{{script.name}}</td>
+									<td>{{script.description}}</td>
+									<td>{{script.indicatorId}}</td>
+								</tr>
+
+							</tbody>
+						</table>
+					</div>
+				</div>
+
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
+					<button type="button" class="btn btn-danger" ng-click="deleteGeoresources()" ng-disabled="! datasetsToDelete.length > 0">Georessourcen unwiderruflich l&ouml;schen</button>
+			</div>
+
+			<div id="georesourcesDeleteSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden class="alert alert-success alert-dismissable">
+                <button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
+								<h4><i class="icon fa fa-check"></i>Folgende Georessourcen sowie assoziierte Indikatorenreferenzen und Skripte, bei denen die Georessource als Berechnungsgrundlage verwendet wurde, wurden erfolgreich gel&ouml;scht</h4>
+
+								<div ng-if="(successfullyDeletedDatasets | filter:{isPOI:'true'}).length > 0">
+									<h4>Points of Interest</h4>
+									<ul>
+					            <li ng-repeat="dataset in successfullyDeletedDatasets | filter:{isPOI:'true'}">{{dataset.datasetName}}</li>
+									</ul>
+								</div>
+
+								<div ng-if="(successfullyDeletedDatasets | filter:{isLOI:'true'}).length > 0">
+									<h4>Lines of Interest</h4>
+									<ul>
+					            <li ng-repeat="dataset in successfullyDeletedDatasets | filter:{isLOI:'true'}">{{dataset.datasetName}}</li>
+									</ul>
+								</div>
+
+								<div ng-if="(successfullyDeletedDatasets | filter:{isAOI:'true'}).length > 0">
+									<h4>Areas of Interest</h4>
+									<ul>
+					            <li ng-repeat="dataset in successfullyDeletedDatasets | filter:{isAOI:'true'}">{{dataset.datasetName}}</li>
+									</ul>
+								</div>
+
+								<div ng-if="affectedScripts.length > 0">
+									<h4>Skripte</h4>
+									<ul>
+					            <li ng-repeat="script in affectedScripts">{{script.name}}</li>
+									</ul>
+								</div>
+
+								<div ng-if="affectedIndicatorReferences.length > 0">
+									<h4>Skripte</h4>
+									<ul>
+					            <li ng-repeat="reference in affectedIndicatorReferences">{{reference.referencedGeoresourceName}}</li>
+									</ul>
+								</div>
+
+      </div>
+
+			<div id="georesourcesDeleteErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden class="alert alert-danger alert-dismissable">
+                <button type="button" class="close" ng-click="hideErrorAlert()" aria-hidden="true">&times;</button>
+                <h4><i class="icon fa fa-ban"></i>L&ouml;schen gescheitert</h4>
+                Folgende Datens&auml;tze konnten nicht gel&ouml;scht werden.
+								<br/>
+
+								<table class="table table-bordered table-condensed" style="width:100%; overflow:auto; font-size: 11px;">
+	                <thead>
+	                <tr>
+	                  <th>Name</th>
+	                  <th>Fehlermeldung</th>
+	                </tr>
+	                </thead>
+
+	                <tbody>
+		                <tr ng-repeat="dataset in failedDatasetsAndErrors">
+		                  <td>{{dataset[0].datasetName}}</td>
+		                  <td>{{dataset[1]}}</td>
+		                </tr>
+
+	                </tbody>
+	              </table>
+
+      </div>
+
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->

@@ -122,6 +122,9 @@ angular
 					this.kommonitorMapServiceInstance = kommonitorMapService;
 
           this.updateIntervalOptions = __env.updateIntervalOptions;
+          this.indicatorTypeOptions = __env.indicatorTypeOptions;
+          this.indicatorUnitOptions = __env.indicatorUnitOptions.sort();
+          this.indicatorCreationTypeOptions = __env.indicatorCreationTypeOptions;
           this.geodataSourceFormats = __env.geodataSourceFormats;
 
           this.anySideBarIsShown = false;
@@ -216,7 +219,31 @@ angular
 					this.setTopics = function(topicsArray){
 						this.availableTopics = topicsArray;
           };
-          
+
+          this.getIndicatorMetadataById = function(indicatorId){
+            for (const indicatorMetadata of this.availableIndicators) {
+              if(indicatorMetadata.indicatorId === indicatorId){
+                return indicatorMetadata;
+              }
+            }
+          };
+
+          this.getGeoresourceMetadataById = function(georesourceId){
+            for (const georesourceMetadata of this.availableGeoresources) {
+              if(georesourceMetadata.georesourceId === georesourceId){
+                return georesourceMetadata;
+              }
+            }
+          };
+
+          this.getIndicatorAbbreviationFromIndicatorId = function(indicatorId){
+            for (var indicatorMetadata of this.availableIndicators) {
+              if (indicatorMetadata.indicatorId === indicatorId){
+                return indicatorMetadata.abbreviation;
+              }
+            }
+          };
+
           this.getTopicHierarchyForTopicId = function(topicReferenceId){
             // create an array respresenting the topic hierarchy
             // i.e. [mainTopic_firstTier, subTopic_secondTier, subTopic_thirdTier, ...]
@@ -243,7 +270,7 @@ angular
           this.findIdInAnySubTopicHierarchy = function(topicReferenceId, subTopicsArray){
             for (let index = 0; index < subTopicsArray.length; index++) {
               const subTopicCandidate = subTopicsArray[index];
-              
+
               if(subTopicCandidate.topicId === topicReferenceId){
                 return true;
               }
@@ -259,7 +286,7 @@ angular
           this.addSubTopicHierarchy = function(topicHierarchyArray, topicReferenceId, subTopicsArray){
             for (let index = 0; index < subTopicsArray.length; index++) {
               const subTopicCandidate = subTopicsArray[index];
-              
+
               if(subTopicCandidate.topicId === topicReferenceId){
                 topicHierarchyArray.push(subTopicCandidate);
                 break;
@@ -528,7 +555,7 @@ angular
 						}
 
 						return value;
-					}
+					};
 
 					this.getIndicatorValue_asFormattedText = function(indicatorValue){
 						var value;
@@ -540,7 +567,47 @@ angular
 						}
 
 						return value;
-					}
+          };
+          
+          this.getTopicHierarchyDisplayString = function(topicReferenceId){
+            var topicHierarchyArray = this.getTopicHierarchyForTopicId(topicReferenceId);
+           
+            var topicsString = "";
+            for (let index = 0; index < topicHierarchyArray.length; index++) {
+              if (index === 0) {
+                // mainTopic --> first tier
+                topicsString += topicHierarchyArray[index].topicName;
+              }
+              else {
+                var numberOfWhitespaces = 2 * index;
+                var whitespaceString = "";
+                for (let k = 0; k < numberOfWhitespaces; k++) {
+                  whitespaceString += " ";
+                }
+                topicsString += whitespaceString + topicHierarchyArray[index].topicName;
+              }
+  
+              if (index < topicHierarchyArray.length - 1) {
+                topicsString += "\n";
+              }
+  
+            }
+
+            return topicsString;
+          };
+
+          this.getIndicatorStringFromIndicatorType = function (indicatorType) {
+            var indicatorTypeString;
+
+            for (const indicatorTypeOption of this.indicatorTypeOptions) {
+              if (indicatorType.includes(indicatorTypeOption.apiName)) {
+                indicatorTypeString = indicatorTypeOption.displayName;
+                break;
+              }
+            }
+
+            return indicatorTypeString;
+          };
 
           this.getColorForFeature = function(feature, indicatorMetadataAndGeoJSON, targetDate, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue){
             var color;

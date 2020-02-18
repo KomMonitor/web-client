@@ -211,6 +211,8 @@ angular
 									}
 								});
 
+
+
 								$scope.getAllIndicatorPropertiesSortedBySpatialUnitFeatureName = function(){
 									for(var i=0; i<kommonitorDiagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime.length; i++){
 											// make object to hold indicatorName, max value and average value
@@ -238,6 +240,10 @@ angular
 									for (var [index, indicator] of kommonitorDiagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime.entries()){
 										if(indicator.indicatorMetadata.indicatorName === indicatorName){
 											await kommonitorDiagramHelperService.fetchIndicatorPropertiesIfNotExists(index);
+
+											var closestApplicableTimestamp = kommonitorDiagramHelperService.findClostestTimestamForTargetDate(indicator, kommonitorDataExchangeService.selectedDate);
+											indicator.closestTimestamp = closestApplicableTimestamp;
+
 											return indicator.indicatorProperties;
 										}
 									}
@@ -265,24 +271,27 @@ angular
 									var indicatorPropertiesArrayForXAxis = await $scope.getPropertiesForIndicatorName($scope.selectedIndicatorForXAxis.indicatorMetadata.indicatorName);
 									var indicatorPropertiesArrayForYAxis = await $scope.getPropertiesForIndicatorName($scope.selectedIndicatorForYAxis.indicatorMetadata.indicatorName);
 
+									var closestApplicableTimestamp_xAxis = $scope.selectedIndicatorForXAxis.closestTimestamp;
+									var closestApplicableTimestamp_yAxis = $scope.selectedIndicatorForYAxis.closestTimestamp;
+
 									for (var i=0; i<indicatorPropertiesArrayForXAxis.length; i++){
 
 										// + sign turns output into number!
 										var xAxisDataElement;
 										var yAxisDataElement
 
-										if (kommonitorDataExchangeService.indicatorValueIsNoData(indicatorPropertiesArrayForXAxis[i][DATE_PREFIX + kommonitorDataExchangeService.selectedDate])){
+										if (kommonitorDataExchangeService.indicatorValueIsNoData(indicatorPropertiesArrayForXAxis[i][DATE_PREFIX + closestApplicableTimestamp_xAxis])){
 											xAxisDataElement = null;
 										}
 										else{
-											xAxisDataElement = kommonitorDataExchangeService.getIndicatorValue_asNumber(indicatorPropertiesArrayForXAxis[i][DATE_PREFIX + kommonitorDataExchangeService.selectedDate]);
+											xAxisDataElement = kommonitorDataExchangeService.getIndicatorValue_asNumber(indicatorPropertiesArrayForXAxis[i][DATE_PREFIX + closestApplicableTimestamp_xAxis]);
 										}
 
-										if (kommonitorDataExchangeService.indicatorValueIsNoData(indicatorPropertiesArrayForYAxis[i][DATE_PREFIX + kommonitorDataExchangeService.selectedDate])){
+										if (kommonitorDataExchangeService.indicatorValueIsNoData(indicatorPropertiesArrayForYAxis[i][DATE_PREFIX + closestApplicableTimestamp_yAxis])){
 											yAxisDataElement = null;
 										}
 										else{
-											yAxisDataElement = kommonitorDataExchangeService.getIndicatorValue_asNumber(indicatorPropertiesArrayForYAxis[i][DATE_PREFIX + kommonitorDataExchangeService.selectedDate]);
+											yAxisDataElement = kommonitorDataExchangeService.getIndicatorValue_asNumber(indicatorPropertiesArrayForYAxis[i][DATE_PREFIX + closestApplicableTimestamp_yAxis]);
 										}
 
 										$scope.data.push([xAxisDataElement, yAxisDataElement]);

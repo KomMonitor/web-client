@@ -1,4 +1,4 @@
-<div class="modal fade" id="modal-edit-georesource-features" role="dialog">
+<div class="modal fade" id="modal-edit-indicator-features" role="dialog">
 	<div class="modal-dialog modal-xl">
 		<div class="modal-content">
 
@@ -123,8 +123,8 @@
 
 										<div class="form-group">
 											<label>Schema*</label>
-											<select ng-model="schema" ng-change="onChangeSchema(schema)" ng-options="schema for schema in converter.schemas"
-												class="form-control" required>
+											<select ng-model="schema" ng-options="schema for schema in converter.schemas"
+												ng-init="schema = converter.schemas[0]" class="form-control" required>
 												<option disabled selected value> -- Schema w&auml;hlen -- </option>
 											</select>
 											<div class="help-block with-errors"></div>
@@ -241,7 +241,7 @@
 												<i class="far fa-calendar-alt"></i>
 											</div>
 											<input type="text" ng-model="periodOfValidity.startDate" ng-change="checkPeriodOfValidity()"
-												class="form-control pull-right" id="georesourceEditFeaturesDatepickerStart" placeholder="YYYY-MM-DD" required>
+												class="form-control pull-right" id="georesourceEditFeaturesDatepickerStart" required>
 										</div>
 										<div class="help-block">
 											<p>Eintrag ist immer erforderlich, selbst wenn die r&auml;umlichen Features &uuml;ber ein
@@ -262,7 +262,7 @@
 												<i class="far fa-calendar-alt"></i>
 											</div>
 											<input type="text" ng-model="periodOfValidity.endDate" ng-change="checkPeriodOfValidity()"
-												class="form-control pull-right" id="georesourceEditFeaturesDatepickerEnd" placeholder="YYYY-MM-DD">
+												class="form-control pull-right" id="georesourceEditFeaturesDatepickerEnd">
 										</div>
 										<div class="help-block">
 											<p>Eintrag ist erforderlich, falls die r&auml;umlichen Features nicht selbst &uuml;ber ein

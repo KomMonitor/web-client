@@ -171,7 +171,7 @@ angular
             continue;
 
           // check if is outlier, then do not use within classification, as it will be marked on map with special color
-          if (geoJSON.features[i].properties[outlierPropertyName] !== outlierPropertyValue_no && kommonitorDataExchangeService.useOutlierDetectionOnIndicator) {
+          if (geoJSON.features[i].properties[outlierPropertyName] && geoJSON.features[i].properties[outlierPropertyName] !== outlierPropertyValue_no && kommonitorDataExchangeService.useOutlierDetectionOnIndicator) {
             continue;
           }
 
@@ -341,7 +341,7 @@ angular
             continue;
 
           // check if is outlier, then do not use within classification, as it will be marked on map with special color
-          if (geoJSON.features[i].properties[outlierPropertyName] !== outlierPropertyValue_no && kommonitorDataExchangeService.useOutlierDetectionOnIndicator) {
+          if (geoJSON.features[i].properties[outlierPropertyName] && geoJSON.features[i].properties[outlierPropertyName] !== outlierPropertyValue_no && kommonitorDataExchangeService.useOutlierDetectionOnIndicator) {
             continue;
           }
 
@@ -528,9 +528,22 @@ angular
         }
       };
 
+      this.setOpacity = function(opacity){
+
+        opacity = Number(opacity);
+
+        defaultFillOpacity = opacity;
+        defaultFillOpacityForOutliers_low = opacity;
+        defaultFillOpacityForOutliers_high = opacity;
+        defaultFillOpacityForZeroFeatures = opacity;
+        defaultFillOpacityForNoDataValues = opacity;
+        defaultFillOpacityForFilteredFeatures = opacity;
+      };
+
       // style function to return
       // fill color based on defaultBrew.getColorInRange() method
       this.styleDefault = function(feature, defaultBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, propertyName, useTransparencyOnIndicator, datasetContainsNegativeValues) {
+
         // check if feature is NoData
         if (kommonitorDataExchangeService.indicatorValueIsNoData(feature.properties[propertyName])) {
           return this.styleNoData(feature);
@@ -667,6 +680,7 @@ angular
 
       this.styleMeasureOfValue = function(feature, gtMeasureOfValueBrew, ltMeasureOfValueBrew, propertyName, useTransparencyOnIndicator) {
 
+
         // check if feature is NoData
         if (kommonitorDataExchangeService.indicatorValueIsNoData(feature.properties[propertyName])) {
           return this.styleNoData(feature);
@@ -783,6 +797,8 @@ angular
       };
 
       this.styleDynamicIndicator = function(feature, dynamicIncreaseBrew, dynamicDecreaseBrew, propertyName, useTransparencyOnIndicator) {
+
+
 
         // check if feature is NoData
         if (kommonitorDataExchangeService.indicatorValueIsNoData(feature.properties[propertyName])) {
