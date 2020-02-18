@@ -4,6 +4,13 @@
 		z-index: 99999;
 }
 
+.featurePropertyPopupContent{
+	font-size: 11px;
+	max-width: 300px;
+	max-height: 300px;
+	overflow: auto;
+}
+
 /*
 MULTI STEP FORM
 */

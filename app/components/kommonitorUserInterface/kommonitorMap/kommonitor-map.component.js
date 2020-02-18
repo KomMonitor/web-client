@@ -2107,10 +2107,18 @@ angular.module('kommonitorMap').component(
           layer.on({
             click: function () {
 
-              var propertiesString = "<pre>" + JSON.stringify(feature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
+              // var propertiesString = "<pre>" + JSON.stringify(feature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
 
-              if (propertiesString)
-                layer.bindPopup(propertiesString);
+              var popupContent = '<div class="spatialUnitInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
+              for (var p in feature.properties) {
+                  popupContent += '<tr><td>' + p + '</td><td>'+ feature.properties[p] + '</td></tr>';
+              }
+              popupContent += '</table></div>';
+
+              layer.bindPopup(popupContent);              
+
+              // if (propertiesString)
+              //   layer.bindPopup(propertiesString);
             }
           });
         }
@@ -2124,10 +2132,18 @@ angular.module('kommonitorMap').component(
           layer.on({
             click: function () {
 
-              var propertiesString = "<pre>" + JSON.stringify(feature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
+              var popupContent = '<div class="georesourceInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
+              for (var p in feature.properties) {
+                  popupContent += '<tr><td>' + p + '</td><td>'+ feature.properties[p] + '</td></tr>';
+              }
+              popupContent += '</table></div>';
 
-              if (propertiesString)
-                layer.bindPopup(propertiesString);
+              layer.bindPopup(popupContent);
+
+              // var propertiesString = "<pre>" + JSON.stringify(feature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
+
+              // if (propertiesString)
+              //   layer.bindPopup(propertiesString);
             }
           });
         }
@@ -2671,19 +2687,26 @@ angular.module('kommonitorMap').component(
             newMarker.feature = poiFeature;
             newMarker.metadataObject = georesourceMetadataAndGeoJSON;
 
-            var propertiesString = "<pre>" + JSON.stringify(poiFeature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
+            // var propertiesString = "<pre>" + JSON.stringify(poiFeature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
+
+            var popupContent = '<div class="poiInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
+              for (var p in poiFeature.properties) {
+                  popupContent += '<tr><td>' + p + '</td><td>'+ poiFeature.properties[p] + '</td></tr>';
+              }
+              popupContent += '</table></div>';
 
             if (poiFeature.properties.name) {
-              newMarker.bindPopup(poiFeature.properties.name + "\n\n" + propertiesString);
+              newMarker.bindPopup(poiFeature.properties.name + "\n\n" + popupContent);
             }
             else if (poiFeature.properties.NAME) {
-              newMarker.bindPopup(poiFeature.properties.NAME + "\n\n" + propertiesString);
+              newMarker.bindPopup(poiFeature.properties.NAME + "\n\n" + popupContent);
             }
             else if (poiFeature.properties[__env.FEATURE_NAME_PROPERTY_NAME]) {
-              newMarker.bindPopup(poiFeature.properties[__env.FEATURE_NAME_PROPERTY_NAME] + "\n\n" + propertiesString);
+              newMarker.bindPopup(poiFeature.properties[__env.FEATURE_NAME_PROPERTY_NAME] + "\n\n" + popupContent);
             }
             else {
-              newMarker.bindPopup(propertiesString);
+              // newMarker.bindPopup(propertiesString);
+              newMarker.bindPopup(popupContent);
             }
             markers.addLayer(newMarker);
           });
@@ -2937,11 +2960,18 @@ angular.module('kommonitorMap').component(
             });
 
             wfsLayer.on('click', function (event) {
-              var propertiesString = "<pre>" + JSON.stringify(event.layer.feature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
+              // var propertiesString = "<pre>" + JSON.stringify(event.layer.feature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
+
+              var popupContent = '<div class="wfsInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
+              for (var p in event.layer.feature.properties) {
+                  popupContent += '<tr><td>' + p + '</td><td>'+ event.layer.feature.properties[p] + '</td></tr>';
+              }
+              popupContent += '</table></div>';
+
               var popup = L.popup();
               popup
                 .setLatLng(event.latlng)
-                .setContent(propertiesString)
+                .setContent(popupContent)
                 .openOn($scope.map);
             });
             $scope.layerControl.addOverlay(wfsLayer, dataset.title, wfsLayerGroupName);
@@ -3040,10 +3070,16 @@ angular.module('kommonitorMap').component(
                 layer.on({
                   click: function () {
 
-                    var propertiesString = "<pre>" + JSON.stringify(feature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
+                    // var propertiesString = "<pre>" + JSON.stringify(feature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
 
-                    if (propertiesString)
-                      layer.bindPopup(propertiesString);
+                    var popupContent = '<div class="fileInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
+                    for (var p in feature.properties) {
+                        popupContent += '<tr><td>' + p + '</td><td>'+ feature.properties[p] + '</td></tr>';
+                    }
+                    popupContent += '</table></div>';
+
+                    if (popupContent)
+                      layer.bindPopup(popupContent);
                   }
                 });
               }
@@ -3069,10 +3105,16 @@ angular.module('kommonitorMap').component(
                     layer.on({
                       click: function () {
 
-                        var propertiesString = "<pre>" + JSON.stringify(feature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
+                        // var propertiesString = "<pre>" + JSON.stringify(feature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
 
-                        if (propertiesString)
-                          layer.bindPopup(propertiesString);
+                        var popupContent = '<div class="fileInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
+                        for (var p in feature.properties) {
+                            popupContent += '<tr><td>' + p + '</td><td>'+ feature.properties[p] + '</td></tr>';
+                        }
+                        popupContent += '</table></div>';
+
+                        if (popupContent)
+                          layer.bindPopup(popupContent);
                       }
                     });
                   }
