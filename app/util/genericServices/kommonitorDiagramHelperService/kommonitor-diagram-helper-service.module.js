@@ -389,7 +389,8 @@ angular
             axisLabel: {
               rotate: 90,
               interval: 0,
-              inside: true
+              inside: true,
+              show: false
             },
             z: 6,
             zlevel: 6,
@@ -415,10 +416,10 @@ angular
           }]
         };
 
-        if (indicatorMetadataAndGeoJSON.geoJSON.features.length > 50) {
-          // barOption.xAxis.data = undefined;
-          barOption.xAxis.axisLabel.show = false;
-        }
+        // if (indicatorMetadataAndGeoJSON.geoJSON.features.length > 50) {
+        //   // barOption.xAxis.data = undefined;
+        //   barOption.xAxis.axisLabel.show = false;
+        // }
 
         // use configuration item and data specified to show chart
         self.barChartOptions = barOption;
