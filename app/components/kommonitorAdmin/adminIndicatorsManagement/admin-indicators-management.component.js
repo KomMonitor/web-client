@@ -1,6 +1,7 @@
 angular.module('adminIndicatorsManagement').component('adminIndicatorsManagement', {
 	templateUrl : "components/kommonitorAdmin/adminIndicatorsManagement/admin-indicators-management.template.html",
-	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '__env', '$http', function IndicatorsManagementController(kommonitorDataExchangeService, $scope, $rootScope, __env, $http) {
+	controller : ['kommonitorDataExchangeService', '$scope', '$timeout', '$rootScope', '__env', '$http', 
+	function IndicatorsManagementController(kommonitorDataExchangeService, $scope, $timeout, $rootScope, __env, $http) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 		// initialize any adminLTE box widgets
@@ -13,7 +14,11 @@ angular.module('adminIndicatorsManagement').component('adminIndicatorsManagement
 
 		$scope.$on("initialMetadataLoadingCompleted", function (event) {
 
-			$scope.initializeOrRefreshOverviewTable();
+			
+			$timeout(function(){
+				
+				$scope.initializeOrRefreshOverviewTable();
+			}, 250);
 
 		});
 

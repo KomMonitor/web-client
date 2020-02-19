@@ -355,17 +355,19 @@ angular
           };
 
           var onMetadataLoadingCompleted = function(){
-            if(fetchedUsersInitially && fetchedRolesInitially && fetchedTopicsInitially && fetchedIndicatorsInitially && fetchedGeoresourcesInitially && fetchedSpatialUnitsInitially){
-
+            
+            setTimeout(() => {
               $rootScope.$broadcast("initialMetadataLoadingCompleted");
 
-              $timeout(function () {
-                   $("option").each(function (index, element) {
+                  $timeout(function () {
+                    $("option").each(function (index, element) {
                       var text = $(element).text();
                       $(element).attr("title", text);
-                   });
-              });
-            }
+                    });
+              }, 1000);
+            }, 1000);
+
+              
 
           };
 
