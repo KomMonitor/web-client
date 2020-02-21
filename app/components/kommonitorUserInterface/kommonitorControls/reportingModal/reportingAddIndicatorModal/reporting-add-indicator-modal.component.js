@@ -244,10 +244,11 @@ angular.module('reportingAddIndicatorModal').component('reportingAddIndicatorMod
 			if(isValid) {
 
 				//create configuration object
-				var conf = createConfigurationObject()
+				var conf = createConfigurationObject();
+				
 				$scope.allIndicatorsConfigSave.push(conf);
-
-				$rootScope.$broadcast("indicatorAdded", $scope.allIndicatorsConfigSave)
+				
+				$rootScope.$broadcast("reportingIndicatorAdded", $scope.allIndicatorsConfigSave)
 
 				//hide modal, triggers resetModal()
 				$('#reporting-add-indicator-modal').modal('hide');
@@ -289,7 +290,7 @@ angular.module('reportingAddIndicatorModal').component('reportingAddIndicatorMod
 					console.err("configuration not found in $scope.allIndicatorConfigurationSave")
 					return;
 				}
-				$rootScope.$broadcast("indicatorModified", $scope.allIndicatorsConfigSave, index)
+				$rootScope.$broadcast("reportingIndicatorModified", $scope.allIndicatorsConfigSave, index)
 
 				//hide modal, triggers resetModal()
 				$('#reporting-add-indicator-modal').modal('hide');
@@ -335,8 +336,8 @@ angular.module('reportingAddIndicatorModal').component('reportingAddIndicatorMod
 				$span.html('');
 			}
 			
-			//TODO write own function for sub-checkbox handeling if additional checkboxes are required
 			//manage legend and scale for map
+			/*
 			mapLegendChb = $("#reportingMapLegendCheckbox")[0]
 			mapScaleChb = $("#reportingMapScaleCheckbox")[0]
 			if ($this[0].id == "reportingMapCheckbox") {
@@ -370,6 +371,7 @@ angular.module('reportingAddIndicatorModal').component('reportingAddIndicatorMod
 					}
 				}
 			}
+			*/
 		}
 
 		/**
@@ -505,5 +507,18 @@ angular.module('reportingAddIndicatorModal').component('reportingAddIndicatorMod
 				$parse(key).assign($scope, value);
 			});
 		}
+
+		$rootScope.$on("reportingIndicatorRemoved", function(event, indicatorId) {
+			for (var i=$scope.allIndicatorsConfigSave.length-1;i>=0;i--) {
+				if($scope.allIndicatorsConfigSave[i].indicator.indicatorId === indicatorId) {
+					$scope.allIndicatorsConfigSave.splice(i,1)
+				}
+			}
+
+		});
+
+		$rootScope.$on("reportingResetModal", function() {
+			$scope.allIndicatorsConfigSave = [];
+		});
 	}
 ]});

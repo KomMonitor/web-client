@@ -20,7 +20,10 @@ angular.module('reportingModal').component('reportingModal', {
 
 		$scope.pagesArray = [];
 		$scope.gridsArray = [];
+		$scope.echartInstances = [];
 		$scope.generatingReport = false;
+
+		var gridIdAtDragStart = undefined; // needed to check if a tile was dragged between grids
 
 		//initialize
 		$('#reporting-modal').on('show.bs.modal', function () {
@@ -82,13 +85,25 @@ angular.module('reportingModal').component('reportingModal', {
 			// find all elements where data-gs-id attribute contains the indicator id and remove them
 			$(document).find("[data-gs-id*='" + indicatorId + "']").remove(); 
 
+			//remove from echartInstances
+			$scope.echartInstances = $scope.echartInstances.filter( el => {
+				if(el.getDom().id.includes(indicatorId)) {
+					el.dispose();
+					return false;
+				} else {
+					return true;
+				}
+			});
+
 			//remove from addedIndicatorsNames
 			$scope.addedIndicatorsNames = $scope.addedIndicatorsNames.filter( 
-				el => el !== indicator.indicatorName);
+				el => el !== indicator.indicatorName
+			);
 
 			//remove from addedIndicators
 			$scope.addedIndicators = $scope.addedIndicators.filter( 
-				el => el !== indicator);
+				el => el !== indicator
+			);
 
 			//add back to available indicators and availableIndicatorsNames
 			$scope.availableIndicators.push($scope.addedIndicatorsBoxSelection);
@@ -96,10 +111,44 @@ angular.module('reportingModal').component('reportingModal', {
 
 			//delete config
 			$scope.allAddedIndicatorsConfig = $scope.allAddedIndicatorsConfig.filter( 
-				el => el.indicator.indicatorName !== indicator.indicatorName);
+				el => el.indicator.indicatorName !== indicator.indicatorName
+			);
+			$rootScope.$broadcast("reportingIndicatorRemoved", indicatorId);
 
 			//reset box selection
 			$scope.addedIndicatorsBoxSelection = undefined;
+
+			//remove empty pages
+			var pages = $(document).find("div[id^=reporting-page-]");
+			
+			// iterate pages in reverse because removing a page lowers the oage number of
+			// all following pages leading to incorrect results in a normal iteration
+			$(pages.get().reverse()).each( (index, el) => {
+				//get grid
+				var $grid = $(el).find("div[id^=grid-]");
+				//if empty
+				if($grid.children().length == 0) {
+					//remove from pages array
+					var pNumber = $grid.attr("id").split("-")[1];
+					$scope.removePage(pNumber);
+				}
+			});
+			
+			$timeout( function() {
+				//if all pages were removed create a placeholder page
+				pages = $(document).find("div[id^=reporting-page-]");
+				if(pages.length == 0) {
+					$scope.createPlaceholderPage();
+				}
+
+				$(".draggable").draggable({
+					revert: "invalid",
+					revertDuration: 0,
+					appendTo: $('#reporting-modal .modal-content'),
+					scroll: false,
+					helper: "clone"
+				});
+			});
 		}
 
 		$scope.configureIndicator = function() {
@@ -203,7 +252,6 @@ angular.module('reportingModal').component('reportingModal', {
 
 			//parse to json
 			var json = JSON.parse(fileContent);
-			console.log(json);
 			// reset modal
 			$scope.resetModal();
 			//set variables
@@ -215,22 +263,13 @@ angular.module('reportingModal').component('reportingModal', {
 			$scope.allAddedIndicatorsConfig = json.variables.allAddedIndicatorsConfig;
 			$scope.modifiedIndicatorConfigSave = json.variables.modifiedIndicatorConfigSave;
 			// $scope.gridsArray = josn.variables.gridsArray
-			$scope.pagesArray = json.variables.pagesArray
+			$scope.pagesArray = json.variables.pagesArray;
 			$scope.generatingReport = json.variables.generatingReport;
 			$($scope.allAddedIndicatorsConfig).each( (index, el) => {
 				el.tiles = {};
 			});
 			$scope.$apply();
-			console.log('$scope.availableIndicators = ', json.variables.availableIndicators);
-			console.log('$scope.availableIndicatorsNames = ', json.variables.availableIndicatorsNames);
-			console.log('$scope.addedIndicators = ', json.variables.addedIndicators);
-			console.log('$scope.addedIndicatorsNames = ', json.variables.addedIndicatorsNames);
-			console.log('$scope.addedIndicatorsBoxSelection = ', json.variables.addedIndicatorsBoxSelection);
-			console.log('$scope.allAddedIndicatorsConfig = ', json.variables.allAddedIndicatorsConfig);
-			console.log('$scope.modifiedIndicatorConfigSave = ', json.variables.modifiedIndicatorConfigSave);
-			// $scope.gridsArray = josn.variables.gridsArray
-			console.log('$scope.pagesArray = ', json.variables.pagesArray);
-			console.log('$scope.generatingReport = ', json.variables.generatingReport);
+
 
 			//iterate pages
 			$($scope.pagesArray).each( (index, el) => {
@@ -334,7 +373,7 @@ angular.module('reportingModal').component('reportingModal', {
 			});
 		};
 
-		$rootScope.$on("indicatorAdded", function(event, allAddedIndicatorsConfig) {
+		$rootScope.$on("reportingIndicatorAdded", function(event, allAddedIndicatorsConfig) {
 
 			//save the config
 			$scope.allAddedIndicatorsConfig = allAddedIndicatorsConfig;
@@ -371,10 +410,13 @@ angular.module('reportingModal').component('reportingModal', {
 					// get all tiles for the current timestamp
 					var properties = Object.getOwnPropertyNames(addedIndicatorConfig.tiles)
 					var tileIds = properties.filter( el => el.includes(timestamp));
-					console.log("tileIds: ", tileIds)
+
 					// for each tile
 					for (var i=0;i<tileIds.length;i++) {
-						fillTileContent(tileIds[i]);
+						//only fill tile if it is not already filled with content
+						if( $("div[data-gs-id=" + tileIds[i] + "] " + ".grid-stack-item-content").children().length == 0) {
+							fillTileContent(tileIds[i]);
+						}
 					}
 				});
 				
@@ -394,9 +436,13 @@ angular.module('reportingModal').component('reportingModal', {
 						// get all tiles for the current timestamp
 						var properties = Object.getOwnPropertyNames(addedIndicatorConfig.tiles)
 						var tileIds = properties.filter( el => el.includes(timestamp));
+
 						// for each tile
 						for (var i=0;i<tileIds.length;i++) {
-							fillTileContent(tileIds[i]);
+							//only fill tile if it is not already filled with content
+							if( $("div[data-gs-id=" + tileIds[i] + "] " + ".grid-stack-item-content").children().length == 0) {
+								fillTileContent(tileIds[i]);
+							}
 						}
 					});
 				}
@@ -418,7 +464,10 @@ angular.module('reportingModal').component('reportingModal', {
 						var tileIds = properties.filter( el => el.includes(timestamp));
 						// for each tile
 						for (var i=0;i<tileIds.length;i++) {
-							fillTileContent(tileIds[i]);
+							//only fill tile if it is not already filled with content
+							if( $("div[data-gs-id=" + tileIds[i] + "] " + ".grid-stack-item-content").children().length == 0) {
+								fillTileContent(tileIds[i]);
+							}
 						}
 					});
 				}
@@ -439,7 +488,10 @@ angular.module('reportingModal').component('reportingModal', {
 						var tileIds = properties.filter( el => el.includes(timestamp));
 						// for each tile
 						for (var i=0;i<tileIds.length;i++) {
-							fillTileContent(tileIds[i]);
+							//only fill tile if it is not already filled with content
+							if( $("div[data-gs-id=" + tileIds[i] + "] " + ".grid-stack-item-content").children().length == 0) {
+								fillTileContent(tileIds[i]);
+							}
 						}
 					});
 				}
@@ -456,7 +508,7 @@ angular.module('reportingModal').component('reportingModal', {
 				el => el !== addedIndicatorConfig.indicator.indicatorName);
 		});
 
-		$scope.$on("indicatorModified", function(event, allAddedIndicatorsConfig, index) {
+		$rootScope.$on("reportingIndicatorModified", function(event, allAddedIndicatorsConfig, index) {
 			$scope.allAddedIndicatorsConfig = allAddedIndicatorsConfig;
 			var changedIndicatorConfigNew = allAddedIndicatorsConfig[index];
 			var changedIndicatorConfigOld = $scope.modifiedIndicatorConfigSave;
@@ -474,8 +526,10 @@ angular.module('reportingModal').component('reportingModal', {
 		 * stores the indicatornames separately.
 		 */
 		function loadIndicators() {
-			//clear names to prevent error when modal is opened more than once
-			$scope.availableIndicatorsNames = []
+
+
+			$scope.availableIndicators = [];
+			$scope.availableIndicatorsNames = [];
 
 			$scope.availableIndicators = kommonitorDataExchangeService.availableIndicators
 			//get names
@@ -564,7 +618,6 @@ angular.module('reportingModal').component('reportingModal', {
 
 			var arrayLength = $scope.pagesArray.length;
 			if (arrayLength < pNumber) {
-				console.log("pNumber was greater than the current number of pages. Appending page as last page.")
 				page.pNumber = arrayLength+1;
 				$scope.pagesArray.push(page)
 			} else {
@@ -611,10 +664,21 @@ angular.module('reportingModal').component('reportingModal', {
 			$scope.modifiedIndicatorConfigSave = {};
 			$scope.pagesArray = [];
 			$scope.gridsArray = [];
+			$scope.echartInstances = [];
 			$scope.generatingReport = false;
+			$rootScope.$broadcast("reportingResetModal");
 
 			$scope.createPlaceholderPage();
 			loadIndicators();
+			$timeout( function() {
+				$(".draggable").draggable({
+					revert: "invalid",
+					revertDuration: 0,
+					appendTo: $('#reporting-modal .modal-content'),
+					scroll: false,
+					helper: "clone"
+				});
+			});
 		}
 
 		/**
@@ -650,10 +714,14 @@ angular.module('reportingModal').component('reportingModal', {
 			});
 
 			$grid.on('gsresizestop', function(event, elem) {
-				//TODO
+
 				var id = $(elem).attr('data-gs-id')
 
-				if (id.includes("featureComparison")) {
+				if (id.includes("map")) {
+					var chartId = id + "_map";
+					var chart = echarts.init(document.getElementById(chartId))
+					chart.resize();
+				} else if (id.includes("featureComparison")) {
 					var chartId = id + "_barChart";
 					var chart = echarts.init(document.getElementById(chartId))
 					chart.resize();
@@ -669,6 +737,102 @@ angular.module('reportingModal').component('reportingModal', {
 				
 			});
 
+			/* 
+			 * dragging widgets between two grids is somewhat buggy by default
+			 * by overwriting the start and stop events we try to get the desired behaviour
+			 */
+			$( () => {
+				// when user starts to drag a widget
+				$grid.on('dragstart', function(event, elem) {
+					gridIdAtDragStart = event.currentTarget.id
+				});
+
+				// when user stops to drag a widget
+				// does not occur when a tile is transfered between two grids
+				// $grid.on('dragstop', function(event, elem) {
+
+				// });
+
+				$grid.on('change', function(event, items) {
+					//check if grid ids match
+					//prevent this code from running on a resize operation by checking
+					//if gridIdAtDragStart is defined first
+					if (gridIdAtDragStart) {
+						if (gridIdAtDragStart == event.currentTarget.id) {
+							//console.log("dragged on one grid");
+							//do nothing
+						} else {
+							// console.log("dragged between grids");
+							/*
+							destroy the tile and create a new one in the same place
+							the new tile belongs to the other grid
+							*/
+							//get the two grids
+							var oldGrid = undefined;
+							var newGrid = undefined;
+							$($scope.gridsArray).each( (index, el) => {
+								if (gridIdAtDragStart == el.container[0].id) {
+									oldGrid = el;
+								};
+
+								if (event.currentTarget.id == el.container[0].id) {
+									newGrid = el;
+								};
+							});
+
+							// get tile id
+							var tileId = $(items[0].el[0]).attr("data-gs-id");
+
+							// get tile by id
+							var $tile = $($(document).find("[data-gs-id='" + tileId + "']")[0]);
+
+							//if tile contains an echarts component dispose it to avoid conflicts when recreating
+							//get the last part of the id
+							var typeOfChart = $($tile).find("div[id^=" + tileId + "]").attr("id").split("_")[3];
+							//concat both parts
+							var chartId = tileId + "_" + typeOfChart;
+							//get the chart with this id
+							var charts = $scope.echartInstances.filter( (el) => { return el.getDom().id === chartId });
+							//charts.length is zero if the tile did not contain a diagram
+							if (charts.length == 1) {
+								//dispose
+								charts[0].dispose();
+							}
+
+							// destroy tile in both grids
+							oldGrid.removeWidget($tile);
+							newGrid.removeWidget($tile);
+							//destroy placeholders
+							$(document).find(".grid-stack-placeholder").remove();
+
+							var options = {
+								x: $tile.attr("data-gs-x"),
+								y: $tile.attr("data-gs-y"),
+								width: $tile.attr("data-gs-width"),
+								height: $tile.attr("data-gs-height"),
+								id: $tile.attr("data-gs-id")
+							}
+
+							var item = getEmptyTileHTML();
+							newGrid.addWidget(item, options);
+							//replace tile in config by new one
+							//get config
+							t = $(document).find("[data-gs-id='" + options.id + "']")[0];
+							var config = undefined;
+							$($scope.addedIndicators).each( (index, el) => {
+								if(el.indicatorId === options.id.split("_")[0]) {
+									config = $scope.getIndicatorConfigByName(el.indicatorName)
+								}
+							});
+							config.tiles[options.id] = t;
+							fillTileContent(options.id)
+							//set gridIdAtDragStart back to undefined
+							gridIdAtDragStart = undefined;
+						}
+					}
+				});
+			});
+			
 			var grid = $grid.data('gridstack');
 			$scope.gridsArray.push(grid);
 		};
@@ -846,9 +1010,8 @@ angular.module('reportingModal').component('reportingModal', {
 
 		/**
 		 * inserts content (map, diagrams, ...) in tiles.
-		 * tiles are saved in config
-		 * @param {obj} config config for an indicator
-		 * @param {string} timestamp timestamp for which the diagrams are created.
+		 * gets all needed information (indicator, timestamp and content type) from the tile id.
+		 * @param {string} tileId
 		 */
 		function fillTileContent(tileId) {
 			//get config
@@ -859,20 +1022,26 @@ angular.module('reportingModal').component('reportingModal', {
 					indicatorName = el.indicatorName;
 				}
 			});
+
 			var config = $scope.getIndicatorConfigByName(indicatorName);
+
 			//get timestamp
 			var timestamp = tileId.split("_")[1]
 
-			//setup brew
 			var geoJSON = config.indicator.geoJSON;
 			var timestampPref = __env.indicatorDatePrefix + timestamp;
 			var numClasses = config.indicator.defaultClassificationMapping.items.length;
-			var colorCode = config.indicator.defaultClassificationMapping.colorBrewerSchemeName;
+			var colorCodePositiveValues = config.indicator.defaultClassificationMapping.colorBrewerSchemeName;
+			var colorCodeNegativeValues = "Blues";
 			var classifyMethod = __env.defaultClassifyMethod;
+			//setup brew
+			var defaultBrew = kommonitorVisualStyleHelperService.setupDefaultBrew(geoJSON, timestampPref, numClasses, colorCodePositiveValues, classifyMethod);
+			var dynamicBrewsArray = kommonitorVisualStyleHelperService.setupDynamicIndicatorBrew(geoJSON, timestampPref, colorCodePositiveValues, colorCodeNegativeValues, classifyMethod)
+			var dynamicIncreaseBrew = dynamicBrewsArray[0];
+			var dynamicDecreaseBrew = dynamicBrewsArray[1];
 
-			var defaultBrew = kommonitorVisualStyleHelperService.setupDefaultBrew(geoJSON, timestampPref, numClasses, colorCode, classifyMethod);
 			//setup diagram resources
-			kommonitorDiagramHelperService.prepareAllDiagramResources(config.indicator, config.selectedSpatialUnit, timestamp, defaultBrew, undefined, undefined, undefined, undefined, false, 0);
+			kommonitorDiagramHelperService.prepareAllDiagramResources(config.indicator, config.selectedSpatialUnit, timestamp, defaultBrew, undefined, undefined, dynamicIncreaseBrew, dynamicDecreaseBrew, false, 0);
 			
 			//fill the tile with different content
 			//the id shows what type of content is needed
@@ -880,6 +1049,18 @@ angular.module('reportingModal').component('reportingModal', {
 			var $tileContent = $(config.tiles[tileId]).children().first();
 
 			if (contentType === "map") {
+
+				var html = $.parseHTML(
+					"<div class='chart' style='width:100%;height:100%'>" +
+						"<div id='" + tileId + "_map' style='width:100%;height:100%;'>" +
+						"</div>" +
+					"</div>");
+				$tileContent.append(html[0]);
+				var map = echarts.init(document.getElementById(tileId + "_map"));
+				var options = kommonitorDiagramHelperService.getGeoMapChartOptions();
+				map.setOption(options);
+				map.resize();
+				$scope.echartInstances.push(map);
 
 			} else if (contentType === "description") {
 				//variables
@@ -967,6 +1148,8 @@ angular.module('reportingModal').component('reportingModal', {
 				var options = kommonitorDiagramHelperService.getBarChartOptions();
 				options.xAxis.name = ""; //remove title
 				barChart.setOption(options);
+				barChart.resize();
+				$scope.echartInstances.push(barChart);
 
 			} else if (contentType === "history") {
 
@@ -980,7 +1163,9 @@ angular.module('reportingModal').component('reportingModal', {
 				var options = kommonitorDiagramHelperService.getHistogramChartOptions();
 				options.xAxis[0].name = ""; //remove title
 				histogramChart.setOption(options);
-
+				histogramChart.resize();
+				$scope.echartInstances.push(histogramChart);
+				
 			} else if (contentType === "timeline") {
 
 				var html = $.parseHTML(
@@ -993,11 +1178,12 @@ angular.module('reportingModal').component('reportingModal', {
 				var options = kommonitorDiagramHelperService.getLineChartOptions();
 				options.xAxis.name = ""; //remove title
 				lineChart.setOption(options);
+				lineChart.resize();
+				$scope.echartInstances.push(lineChart);
 
 			} else if (contentType === "metadata") {
 				var jspdf = kommonitorDataExchangeService.createMetadataPDF(config.indicator)
 				// TODO create an image to show in the tile
-				console.log(jspdf);
 				var dataUrl = jspdf.output('dataurlstring')
 				
 				$obj = $('<object>');
@@ -1028,7 +1214,6 @@ angular.module('reportingModal').component('reportingModal', {
 				for (var key in config.selectedAreas) {
 					var el = config.selectedAreas[key];
 					if(name === el.name) {
-						console.log("area found")
 						return true;
 					}
 					
@@ -1076,6 +1261,11 @@ angular.module('reportingModal').component('reportingModal', {
 			});
 			config.tiles[tile.tileId] = t;
 		}
+
+		$scope.filterIndicators = function() {
+
+			return kommonitorDataExchangeService.filterIndicators();
+		};
 	}
 ]});
 

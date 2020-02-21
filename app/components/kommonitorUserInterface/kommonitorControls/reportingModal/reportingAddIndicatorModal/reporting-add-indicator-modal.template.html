@@ -43,6 +43,7 @@
 						<span class="switchslider round text-left" style="line-height:25px;"></span>
 					</label>
 					<label for="reportingMapCheckbox">Karte</label>
+					<!--
 					<br />
 					<label class="switch" style="margin-left:30px;">
 						<input id="reportingMapLegendCheckbox" ng-click="elementChbClicked($event)"
@@ -59,6 +60,7 @@
 						<span class="switchslider round text-left" style="line-height:25px;"></span>
 					</label>
 					<label for="reportingMapScaleCheckbox">Maßstabsleiste</label>
+					-->
 					<br />
 					<label class="switch">
 						<input id="reportingDescriptionCheckbox" class="elementCheckbox" type="checkbox"
@@ -74,7 +76,7 @@
 							ng-checked="elementHistoryIsChecked">
 						<span class="switchslider round text-left" style="line-height:25px;"></span>
 					</label>
-					<label for="reportingHistoryCheckbox">Historie</label>
+					<label for="reportingHistoryCheckbox">Histogramm</label>
 					<br />
 					<label class="switch">
 						<input id="reportingFeatureComparisonCheckbox" class="elementCheckbox" type="checkbox"
@@ -99,14 +101,16 @@
 						<span class="switchslider round text-left" style="line-height:25px;"></span>
 					</label>
 					<label for="reportingMetadataCheckbox">Metadatenblatt</label>
+					<!--
 					<br />
 					<label class="switch">
 						<input id="reportingDataTableCheckbox" class="elementCheckbox" type="checkbox"
 							ng-model="elementDataTableIsChecked" ng-click="elementChbClicked($event)"
-							ng-checked="elementDataTableIsChecked">
+							ng-checked="elementDataTableIsChecked" ng-disabled="true">
 						<span class="switchslider round text-left" style="line-height:25px;"></span>
 					</label>
 					<label for="reportingDataTableCheckbox">Datentabelle</label>
+					-->
 				</div>
 				
 

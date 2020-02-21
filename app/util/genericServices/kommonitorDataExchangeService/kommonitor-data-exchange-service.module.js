@@ -698,7 +698,7 @@ angular
               if(indicatorMetadataAndGeoJSON.indicatorType.includes('DYNAMIC')){
 
                 if(feature.properties[targetDate] < 0){
-
+                  
                   for (var index=0; index < dynamicDecreaseBrew.breaks.length; index++){
                     if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) == +Number(dynamicDecreaseBrew.breaks[index]).toFixed(numberOfDecimals)){
                       if(index < dynamicDecreaseBrew.breaks.length -1){

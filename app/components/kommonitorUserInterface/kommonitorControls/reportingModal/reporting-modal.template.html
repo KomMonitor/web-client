@@ -17,7 +17,7 @@
 								<!-- indicator selection box-->
 								<div id="indicatorSelectionBox" style="height:410px; border:solid black 1px; overflow:auto; white-space: nowrap;">
 									<div style="cursor:pointer; margin-left:5px; margin-right:5px" 
-											class="draggable" ng-repeat="indicator in availableIndicators | orderBy: 'indicatorName'" data-indicator={{indicator}}>
+											class="draggable" ng-repeat="indicator in availableIndicators | filter:filterIndicators() | filter:filterIndicatorsByTopic() | orderBy: 'indicatorName'" data-indicator={{indicator}}>
 										{{indicator.indicatorName}}
 									</div>
 								</div>
@@ -33,7 +33,7 @@
 								</div>
 							</div>
 							<div class="row" style="margin-top:5px">
-								<button class="btn btn-warning" ng-click="configureIndicator()"><i class="fas fa-pencil-alt"></i>&nbsp;&nbsp;Bearbeiten</button>
+								<button class="btn btn-warning" ng-click="configureIndicator()" ng-disabled="true"><i class="fas fa-pencil-alt"></i>&nbsp;&nbsp;Bearbeiten</button>
 								<button class="btn btn-danger" ng-click="removeIndicator()"><i class="fa fa-trash"></i>&nbsp;&nbsp;Entfernen</button>
 							</div>
 						</div>
@@ -53,9 +53,9 @@
 								</div>
 							</div>
 							<div class="row" style="margin:0;margin-top:5px;">
-								<button type="button" class="btn btn-primary pull-left" style="margin-right:5px"><i class="fa fa-plus"></i>&nbsp;&nbsp;Seite hinzufügen</button>
-								<button type="button" class="btn btn-primary pull-left" style="margin-right:5px"><i class="fa fa-minus"></i>&nbsp;&nbsp;Seite entfernen</button>
-								<button type="button" class="btn btn-primary pull-left" style="margin-right:5px"><i class="fa fa-sync"></i>&nbsp;&nbsp;Seitenreihenfolge ändern</button>
+								<button type="button" class="btn btn-primary pull-left" style="margin-right:5px" ng-disabled="true"><i class="fa fa-plus"></i>&nbsp;&nbsp;Seite hinzufügen</button>
+								<button type="button" class="btn btn-primary pull-left" style="margin-right:5px" ng-disabled="true"><i class="fa fa-minus"></i>&nbsp;&nbsp;Seite entfernen</button>
+								<button type="button" class="btn btn-primary pull-left" style="margin-right:5px" ng-disabled="true"><i class="fa fa-sync"></i>&nbsp;&nbsp;Seitenreihenfolge ändern</button>
 								<button type="button" class="btn btn-danger pull-right" ng-click="resetModal()"><i class="fas fa-exclamation-triangle"></i></i>&nbsp;&nbsp;Ansicht zurücksetzen</button>
 							</div>
 						</div>
