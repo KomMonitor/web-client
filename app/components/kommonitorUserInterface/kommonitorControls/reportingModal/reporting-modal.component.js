@@ -23,7 +23,7 @@ angular.module('reportingModal').component('reportingModal', {
 		$scope.echartInstances = [];
 		$scope.generatingReport = false;
 
-		var gridIdAtDragStart = undefined; // needed to check if a tile was dragged between grids
+		var elementPositionAtDragStart = undefined;
 
 		//initialize
 		$('#reporting-modal').on('show.bs.modal', function () {
@@ -79,7 +79,7 @@ angular.module('reportingModal').component('reportingModal', {
 			if($.isEmptyObject(indicator)) {
 				return;
 			}
-
+			
 			// remove grid tiles from DOM
 			var indicatorId = indicator.indicatorId;
 			// find all elements where data-gs-id attribute contains the indicator id and remove them
@@ -94,7 +94,7 @@ angular.module('reportingModal').component('reportingModal', {
 					return true;
 				}
 			});
-
+			
 			//remove from addedIndicatorsNames
 			$scope.addedIndicatorsNames = $scope.addedIndicatorsNames.filter( 
 				el => el !== indicator.indicatorName
@@ -105,23 +105,33 @@ angular.module('reportingModal').component('reportingModal', {
 				el => el !== indicator
 			);
 
+			//these two lines cause a short delay when using the program after an indicator was removed.
+			//resetting the modal fixes this
+			
 			//add back to available indicators and availableIndicatorsNames
-			$scope.availableIndicators.push($scope.addedIndicatorsBoxSelection);
-			$scope.availableIndicatorsNames.push(indicator.indicatorName);
+			//console.log($scope.addedIndicatorsBoxSelection);
+			//console.log(indicator.indicatorName);
+			//console.log($scope.availableIndicators.length);
+			//console.log($scope.availableIndicatorsNames.length);
+			$scope.availableIndicators[$scope.availableIndicators.length] = $scope.addedIndicatorsBoxSelection;
+			$scope.availableIndicatorsNames[$scope.availableIndicatorsNames.length] = indicator.indicatorName;
+			//console.log($scope.availableIndicators.length);
+			//console.log($scope.availableIndicatorsNames.length);
+
 
 			//delete config
 			$scope.allAddedIndicatorsConfig = $scope.allAddedIndicatorsConfig.filter( 
 				el => el.indicator.indicatorName !== indicator.indicatorName
 			);
 			$rootScope.$broadcast("reportingIndicatorRemoved", indicatorId);
-
+			
 			//reset box selection
 			$scope.addedIndicatorsBoxSelection = undefined;
 
 			//remove empty pages
 			var pages = $(document).find("div[id^=reporting-page-]");
 			
-			// iterate pages in reverse because removing a page lowers the oage number of
+			// iterate pages in reverse because removing a page lowers the page number of
 			// all following pages leading to incorrect results in a normal iteration
 			$(pages.get().reverse()).each( (index, el) => {
 				//get grid
@@ -152,6 +162,7 @@ angular.module('reportingModal').component('reportingModal', {
 		}
 
 		$scope.configureIndicator = function() {
+
 			var indicator =  $scope.addedIndicatorsBoxSelection;
 			if($.isEmptyObject(indicator)) {
 				return;
@@ -743,8 +754,23 @@ angular.module('reportingModal').component('reportingModal', {
 			 */
 			$( () => {
 				// when user starts to drag a widget
-				$grid.on('dragstart', function(event, elem) {
-					gridIdAtDragStart = event.currentTarget.id
+				$grid.on('dragstart', function(event, ui) {
+					var gridId = event.currentTarget.id;
+					var $element = $(event.target);
+					elementPositionAtDragStart = {
+						gridId: gridId,
+						x: $element.attr("data-gs-x"),
+						y: $element.attr("data-gs-y"),
+						width: $element.attr("data-gs-width"),
+						height: $element.attr("data-gs-height")
+					}
+					//lock all other elements
+					$($scope.gridsArray).each( (index, element) => {
+						nodes = element.grid.nodes;
+						for(var i=0;i<nodes.length;i++) {
+							element.locked(nodes[i].el, true)
+						}
+					});
 				});
 
 				// when user stops to drag a widget
@@ -756,9 +782,9 @@ angular.module('reportingModal').component('reportingModal', {
 				$grid.on('change', function(event, items) {
 					//check if grid ids match
 					//prevent this code from running on a resize operation by checking
-					//if gridIdAtDragStart is defined first
-					if (gridIdAtDragStart) {
-						if (gridIdAtDragStart == event.currentTarget.id) {
+					//if elementPositionAtDragStart.grid is defined
+					if (elementPositionAtDragStart) {
+						if (elementPositionAtDragStart.gridId == event.currentTarget.id) {
 							//console.log("dragged on one grid");
 							//do nothing
 						} else {
@@ -767,11 +793,12 @@ angular.module('reportingModal').component('reportingModal', {
 							destroy the tile and create a new one in the same place
 							the new tile belongs to the other grid
 							*/
+
 							//get the two grids
 							var oldGrid = undefined;
 							var newGrid = undefined;
 							$($scope.gridsArray).each( (index, el) => {
-								if (gridIdAtDragStart == el.container[0].id) {
+								if (elementPositionAtDragStart.gridId == el.container[0].id) {
 									oldGrid = el;
 								};
 
@@ -788,22 +815,34 @@ angular.module('reportingModal').component('reportingModal', {
 
 							//if tile contains an echarts component dispose it to avoid conflicts when recreating
 							//get the last part of the id
-							var typeOfChart = $($tile).find("div[id^=" + tileId + "]").attr("id").split("_")[3];
-							//concat both parts
-							var chartId = tileId + "_" + typeOfChart;
-							//get the chart with this id
-							var charts = $scope.echartInstances.filter( (el) => { return el.getDom().id === chartId });
-							//charts.length is zero if the tile did not contain a diagram
-							if (charts.length == 1) {
-								//dispose
-								charts[0].dispose();
+							var echartsDiv = $($tile).find("div[id^=" + tileId + "]");
+							var splittedId = undefined;
+							if(echartsDiv.length == 1) {
+								splittedId = echartsDiv.attr("id").split("_");
+							} else {
+								splittedId = [];
+							}
+							
+							var typeOfChart = undefined;
+							// 4 if div contains an echart
+							// 0 otherwise
+							if(splittedId.length == 4) {
+								typeOfChart = splittedId[3]
 							}
 
-							// destroy tile in both grids
-							oldGrid.removeWidget($tile);
-							newGrid.removeWidget($tile);
-							//destroy placeholders
-							$(document).find(".grid-stack-placeholder").remove();
+							if(typeOfChart) {
+								//concat both parts
+								var chartId = tileId + "_" + typeOfChart;
+								//get the chart with this id
+								var charts = $scope.echartInstances.filter( (el) => { return el.getDom().id === chartId });
+								//charts.length is zero if the tile did not contain a diagram
+								if (charts.length == 1) {
+									//dispose
+									charts[0].dispose();
+								}
+							}
+							
+							
 
 							var options = {
 								x: $tile.attr("data-gs-x"),
@@ -814,7 +853,16 @@ angular.module('reportingModal').component('reportingModal', {
 							}
 
 							var item = getEmptyTileHTML();
+
+							//remove tile if it exists
+							$(newGrid.grid.nodes).each( (index, element) => {
+								var $el = $(element.el);
+								if($el.attr("data-gs-id") === $tile.attr("data-gs-id")) {
+									newGrid.removeWidget($tile);
+								}
+							});
 							newGrid.addWidget(item, options);
+
 							//replace tile in config by new one
 							//get config
 							t = $(document).find("[data-gs-id='" + options.id + "']")[0];
@@ -825,11 +873,26 @@ angular.module('reportingModal').component('reportingModal', {
 								}
 							});
 							config.tiles[options.id] = t;
-							fillTileContent(options.id)
-							//set gridIdAtDragStart back to undefined
-							gridIdAtDragStart = undefined;
+							fillTileContent(options.id);
+
+							//destroy placeholders
+							$(document).find(".grid-stack-placeholder").remove();
+
+							//set elementPositionAtDragStart back to undefined
+							elementPositionAtDragStart = undefined;
+							oldGrid = undefined;
+							newGrid = undefined;
 						}
 					}
+
+					//unlock all elements
+					//lock all other elements
+					$($scope.gridsArray).each( (index, element) => {
+						nodes = element.grid.nodes;
+						for(var i=0;i<nodes.length;i++) {
+							element.locked(nodes[i].el, false)
+						}
+					});
 				});
 			});
 			
@@ -1066,14 +1129,14 @@ angular.module('reportingModal').component('reportingModal', {
 				//variables
 				var ind = config.indicator;
 				var meta = ind.metadata;
-				
+
 				var name = ind.indicatorName ? ind.indicatorName : "";
-				var category = "<span style='color:red'>TODO</span>";
-				var type = "<span style='color:red'>TODO</span>";
+				var category = ind.isHeadlineIndicator ? ind.isHeadlineIndicator : "";
+				var type = ind.indicatorType ? ind.indicatorType : "";
 				var description = meta.description ? meta.description : "";
 				var unit = ind.unit ? ind.unit : "";
-				var method = "<span style='color:red'>TODO</span>";
-				var interpretation = "<span style='color:red'>TODO</span>";
+				var method = ind.processDescription ? ind.processDescription : "";
+				var interpretation = ind.interpretation ? ind.interpretation : "";
 				var datasource = meta.datasource ? meta.datasource : "";
 				var contact = meta.contact ? meta.contact : "";
 				var note = meta.note ? meta.note : "";
