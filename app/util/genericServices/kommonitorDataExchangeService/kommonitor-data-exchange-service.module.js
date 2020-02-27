@@ -1202,32 +1202,32 @@ angular
               creator: 'KomMonitor'
             });
             
-            return jspdf
-          }
-
-          this.getIndicatorStringFromIndicatorType = function (indicator) {
-            var indicatorTypeString;
-            if (indicator.indicatorType.includes("DYNAMIC_ABSOLUTE")) {
-              indicatorTypeString = "Dynamik-Indikator (absolute)";
-            }
-            else if (indicator.indicatorType.includes("DYNAMIC_RELATIVE")) {
-              indicatorTypeString = "Dynamik-Indikator (relativ)";
-            }
-            else if (indicator.indicatorType.includes("DYNAMIC_STANDARDIZED")) {
-              indicatorTypeString = "Dynamik-Indikator (standardisiert)";
-            }
-            else if (indicator.indicatorType.includes("STATUS_ABSOLUTE")) {
-              indicatorTypeString = "Status-Indikator (absolut)";
-            }
-            else if (indicator.indicatorType.includes("STATUS_RELATIVE")) {
-              indicatorTypeString = "Status-Indikator (relativ)";
-            }
-            else if (indicator.indicatorType.includes("STATUS_STANDARDIZED")) {
-              indicatorTypeString = "Status-Indikator (standardisiert)";
-            }
-  
-            return indicatorTypeString;
+            return jspdf;
           };
+
+          // this.getIndicatorStringFromIndicatorType = function (indicator) {
+          //   var indicatorTypeString;
+          //   if (indicator.indicatorType.includes("DYNAMIC_ABSOLUTE")) {
+          //     indicatorTypeString = "Dynamik-Indikator (absolute)";
+          //   }
+          //   else if (indicator.indicatorType.includes("DYNAMIC_RELATIVE")) {
+          //     indicatorTypeString = "Dynamik-Indikator (relativ)";
+          //   }
+          //   else if (indicator.indicatorType.includes("DYNAMIC_STANDARDIZED")) {
+          //     indicatorTypeString = "Dynamik-Indikator (standardisiert)";
+          //   }
+          //   else if (indicator.indicatorType.includes("STATUS_ABSOLUTE")) {
+          //     indicatorTypeString = "Status-Indikator (absolut)";
+          //   }
+          //   else if (indicator.indicatorType.includes("STATUS_RELATIVE")) {
+          //     indicatorTypeString = "Status-Indikator (relativ)";
+          //   }
+          //   else if (indicator.indicatorType.includes("STATUS_STANDARDIZED")) {
+          //     indicatorTypeString = "Status-Indikator (standardisiert)";
+          //   }
+  
+          //   return indicatorTypeString;
+          // };
 
           this.dateToTS = function(date) {
             return date.valueOf();
