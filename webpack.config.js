@@ -26,6 +26,7 @@ module.exports = {
           { from: nodeModulePathConstant + 'tableexport/dist', to: 'tableexport' },
           { from: nodeModulePathConstant + 'leaflet-draw/dist', to: 'leaflet-draw/' },
           { from: nodeModulePathConstant + 'jquery/dist', to: 'jquery/' },
+          { from: nodeModulePathConstant + 'jquery-ui-dist', to: 'jquery-ui/' },
           { from: nodeModulePathConstant + 'angular/angular.min.js', to: 'angular/angular.min.js' },
           { from: nodeModulePathConstant + 'angular-route/angular-route.min.js', to: 'angular-route/angular-route.min.js' },
           { from: nodeModulePathConstant + 'classybrew/build/classybrew.min.js', to: 'classybrew/classybrew.min.js' },
@@ -77,6 +78,11 @@ module.exports = {
           { from: nodeModulePathConstant + 'angular-datatables/dist', to: 'angular-datatables/' },
           { from: nodeModulePathConstant + 'angular-ui-bootstrap/dist', to: 'angular-ui-bootstrap/' },
           { from: nodeModulePathConstant + 'bootstrap-iconpicker/bootstrap-iconpicker', to: 'bootstrap-iconpicker/' },
+          { from: './customizedExternalLibs/Excalibur-Dual-List/dist', to: 'excalibur-duallist/' },
+          { from: './customizedExternalLibs/Excalibur-Dual-List/excalibur-duallist.html', to: 'excalibur-duallist/excalibur-duallist.html' },
+          { from: nodeModulePathConstant + 'gridstack/dist', to: 'gridstack/' },
+          { from: nodeModulePathConstant + 'html2canvas/dist', to: 'html2canvas/' },
+          { from: nodeModulePathConstant + 'html2pdf.js/dist', to: 'html2pdf/' },
           { from: nodeModulePathConstant + 'jquery.easing/jquery.easing.min.js', to: 'jquery.easing/' },
           { from: './customizedExternalLibs/colorbrewer.js', to: 'colorbrewer/' }
 

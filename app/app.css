@@ -448,8 +448,8 @@ MULTI STEP FORM
 	text-align: center;
 	valign: center;
 	color: "#d6d6d6";
-  width:  60%;
-  height: 40%;
+    width:  60%;
+    height: 40%;
 
 	cursor: pointer;
 	opacity: 0.7;
@@ -1018,6 +1018,12 @@ MULTI STEP FORM
 
 .modal {
 	z-index: 9999;
+	/*
+	 * this prevents a modal from loosing scrollability
+	 * after opening and closing a second modal (opened
+	 * in the first modal)
+	 */
+	overflow: auto !important; 
 }
 
 @media (min-width: 992px){
@@ -1636,15 +1642,15 @@ transition: opacity 0.3s;
 
 .btn-custom {
 	background-color: #337ab7;
-  color: white;
+	color: white;
 	position: absolute;
 	z-index: 1003;
 }
 
 .btn-custom:hover {
 	background-color: white;
-  color: black;
-  border: 2px solid #337ab7;
+	color: black;
+	border: 2px solid #337ab7;
 	position: absolute;
 	z-index: 1003;
 }
@@ -1655,7 +1661,7 @@ transition: opacity 0.3s;
 
 .btn-custom-docked {
 	background-color: rgb(236,240,245);
-  color: black;
+	color: black;
 	position: absolute;
 	z-index: 1003;
 }
@@ -1931,6 +1937,65 @@ hr {
   -ms-transform-origin:50% 50%; /* IE 9 */
 }
 
+.loading-overlay-reporting {
+  width: 640px;
+  height: 390px;
+  position: absolute;
+  background-color: rgb(128,128,128);
+  border-radius: 5px;
+  opacity: 0.8;
+  z-index: 1002;
+}
+
+.loading-overlay-reporting .icon-spin {
+  font-size: 25px;
+  width: 25px;
+  height: 25px;
+  position: absolute;
+  top: 195px;
+  left: 320px;
+  margin: -12.5px 0 0 -12.5px;
+  
+  -webkit-animation: spin 1s infinite linear;
+  -moz-animation: spin 1s infinite linear;
+  -o-animation: spin 1s infinite linear;
+  animation: spin 1s infinite linear;
+  -webkit-transform-origin: 50% 50%;
+  transform-origin:50% 50%;
+  -ms-transform-origin:50% 50%; /* IE 9 */
+}
+
+.loading-config-overlay-reporting {
+	width: 670px;
+	height: 1532px;
+	position: absolute;
+	background-color: rgb(128,128,128);
+	border-radius: 5px;
+	opacity: 0.8;
+	z-index: 1002;
+  }
+
+.loading-config-overlay-reporting .icon-spin {
+	font-size: 25px;
+	width: 25px;
+	height: 25px;
+	position: absolute;
+	top: 766px;
+	left: 335px;
+	margin: -12.5px 0 0 -12.5px;
+	
+	-webkit-animation: spin 1s infinite linear;
+	-moz-animation: spin 1s infinite linear;
+	-o-animation: spin 1s infinite linear;
+	animation: spin 1s infinite linear;
+	-webkit-transform-origin: 50% 50%;
+	transform-origin:50% 50%;
+	-ms-transform-origin:50% 50%; /* IE 9 */
+  }
+
+
+  
+
 @-moz-keyframes spin {
   from {
     -moz-transform: rotate(0deg);
@@ -2020,4 +2085,107 @@ input:checked + .switchslider:before {
 
 .switchslider.round:before {
   border-radius: 50%;
+}
+
+/* Reporting */
+#reporting-modal .modal-content > .ui-draggable-dragging {
+	background-color:white;
+	border: solid gray 1px;
+	padding: 3px;
+}
+
+.reporting-selected-added-indicator {
+	color: white;
+	background-color: #0078d7;
+}
+
+/* this overrides the css in the duallist component css file */
+.duallistLabelDiv {
+	color:white;
+	background-color:#337ab7;
+	margin:0;
+	padding:0;
+}
+
+.duallistLabel {
+	margin:0;
+	margin-left:3px;
+}
+
+.duallistSearchInput {
+	border: none;
+	border-bottom: 1px dotted #999;
+	width:100%;
+}
+
+.dualmultiselect .list {
+	border: none;
+	border-bottom: 1px dotted #999;
+}
+
+.duallistButtonDiv {
+	border: none;
+	text-align: center;
+}
+
+.duallistButton {
+	background-color:#337ab7;
+	color:white;
+	height: 2.5em;
+	margin: 1px;
+}
+
+.reporting-page {
+	background-color:white;
+	border: solid gray 1px;
+	margin: 0 auto;
+	margin-top: 10px;
+	margin-bottom:10px;
+	padding:15px;
+}
+
+.reporting-page-landscape {
+	/* aspect ratio 1/sqrt(2) */
+	width: calc(1120px/1.4); /* TODO dynamisch an nutzerbildschirm anpassen, dann über javascript */
+	height: calc(790px/1.4);
+}
+
+.reporting-page-portrait {
+	/* aspect ratio 1/sqrt(2) */
+	width: calc(790px/1.4); /* TODO dynamisch an nutzerbildschirm anpassen, dann über javascript */
+	height: calc(1120px/1.4);
+}
+
+.grid-stack-item {
+	background-color:white;
+	border: dashed gray 1px;
+}
+
+.grid-stack-item-content {
+	left:0 !important;
+	right:0 !important;
+}
+
+.grid-stack > .grid-stack-item > .ui-resizable-s {
+	left: 0;
+}
+
+.grid-stack > .grid-stack-item > .ui-resizable-e {
+	right: 0;
+}
+
+.grid-stack > .grid-stack-item > .ui-resizable-w {
+	left: 0;
+}
+
+#reporting-metadata-table {
+	font-size:8pt;
+}
+
+#reporting-metadata-table td {
+	margin-bottom: 4px;
+}
+
+#reporting-load-settings-button {
+	display:none;
 }
