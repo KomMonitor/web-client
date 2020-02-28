@@ -165,7 +165,7 @@
 									    <uib-tab index="1" heading="Alphabetische Liste">
 												<div class="just-padding">
 													<select style="font-size: 12px;"
-														size="30" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter: filterIndicators()"
+														size="30" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter: filterIndicators() | filter:indicatorNameFilter"
 														ng-change="onChangeSelectedIndicator()" class="form-control" required>
 														<option disabled selected value> -- Indikator w&auml;hlen -- </option>
 													</select>
