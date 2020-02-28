@@ -1038,7 +1038,7 @@ angular
             jspdf.autoTable({
               head: [['Themenfeld', 'Kategorie', 'Typ', 'Kennzeichen']],
               body: [
-                [topicsString, category, this.getIndicatorStringFromIndicatorType(indicator), indicator.abbreviation ? indicator.abbreviation : "-"]
+                [topicsString, category, this.getIndicatorStringFromIndicatorType(indicator.indicatorType), indicator.abbreviation ? indicator.abbreviation : "-"]
                 // ...
               ],
               theme: 'grid',
