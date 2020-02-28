@@ -239,7 +239,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 
 			$scope.datasetName = undefined;
 			$scope.indicatorAbbreviation = undefined;
-			$scope.indicatorType = undefined;
+			$scope.indicatorType = kommonitorDataExchangeService.indicatorTypeOptions[0];
 			$scope.indicatorCharacteristicValue = undefined;
 			$scope.isHeadlineIndicator = false;
 			$scope.indicatorUnit = undefined;
@@ -247,7 +247,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			$scope.indicatorProcessDescription = undefined;
 			$scope.indicatorTagsString_withCommas = undefined;
 			$scope.indicatorInterpretation = undefined;
-			$scope.indicatorCreationType = undefined;
+			$scope.indicatorCreationType = kommonitorDataExchangeService.indicatorCreationTypeOptions[0];
 			$scope.indicatorLowestSpatialUnitMetadataObjectForComputation = undefined;
 			$scope.enableLowestSpatialUnitSelect = false;
 
@@ -274,7 +274,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 
 			$scope.numClassesArray = [3,4,5,6,7,8];
 			$scope.numClasses = $scope.numClassesArray[2];
-			$scope.selectedColorBrewerPaletteEntry = undefined;
+			$scope.selectedColorBrewerPaletteEntry = $scope.colorbrewerPalettes[13];
 
 			$scope.spatialUnitRefKeyProperty = undefined;
 			$scope.targetSpatialUnitMetadata = undefined;

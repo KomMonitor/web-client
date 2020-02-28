@@ -155,12 +155,19 @@
 											<label>Indikatoren-Typ*</label>
 											<select ng-model="indicatorType"
 												ng-options="type as type.displayName for type in $ctrl.kommonitorDataExchangeServiceInstance.indicatorTypeOptions"
+												ng-init="indicatorType = $ctrl.kommonitorDataExchangeServiceInstance.indicatorTypeOptions[0]"
 												class="form-control" required>
 												<option disabled selected value> -- Indikatorentyp w&auml;hlen --
 												</option>
 											</select>
 											<div class="help-block with-errors"></div>
+											<div class="help-block">
+												<p>'Status'-Indikatoren enthalten Werte für je einen einzelnen Zeitpunkt.</p>
+												<p>'Dynamik'-Indikatoren enthalten Werte, die sich auf eine Zeitperiode beziehen (bspw. Ver&auml;nderung innerhalb der letzten 5 Jahre), somit Zu- oder Abnahmen des Indikators.
+												</p>
+											</div>
 										</div>
+
 									</div>
 									<div class="col-md-3 col-sm-6 col-xs-12">
 										<div class="form-group">
@@ -257,6 +264,7 @@
 											<label>Fortf&uuml;hrungstyp*</label>
 											<select ng-model="indicatorCreationType" ng-change="onChangeCreationType()"
 												ng-options="type as type.displayName for type in $ctrl.kommonitorDataExchangeServiceInstance.indicatorCreationTypeOptions"
+												ng-init="indicatorCreationType = $ctrl.kommonitorDataExchangeServiceInstance.indicatorCreationTypeOptions[0]"
 												class="form-control" required>
 												<option disabled selected value> -- Fortf&uuml;hrungstyp w&auml;hlen --
 												</option>
