@@ -195,7 +195,11 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 
 		$scope.loadingData = false;
 
+		$scope.colorbrewerSchemes = colorbrewer;
+		$scope.colorbreweSchemeName_dynamicIncrease = __env.defaultColorBrewerPaletteForBalanceIncreasingValues;
+		$scope.colorbreweSchemeName_dynamicDecrease = __env.defaultColorBrewerPaletteForBalanceDecreasingValues;
 		$scope.colorbrewerPalettes = [];
+
 
 		$scope.instantiateColorBrewerPalettes = function(){
 			for (const key in colorbrewer) {
@@ -210,6 +214,9 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 					$scope.colorbrewerPalettes.push(paletteEntry);
 				}
 			}
+
+			// instantiate with palette 'Blues'
+			$scope.selectedColorBrewerPaletteEntry = $scope.colorbrewerPalettes[13];
 
 		};
 
