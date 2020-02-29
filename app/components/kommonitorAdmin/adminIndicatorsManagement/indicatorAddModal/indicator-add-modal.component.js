@@ -44,9 +44,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 		*/
 
 		//Date picker
-    $('#indicatorAddDatepickerStart').datepicker(kommonitorDataExchangeService.datePickerOptions);
-		$('#indicatorAddDatepickerEnd').datepicker(kommonitorDataExchangeService.datePickerOptions);
-		$('#indicatorAddLastUpdateDatepicker').datepicker(kommonitorDataExchangeService.datePickerOptions);
+    	$('#indicatorAddLastUpdateDatepicker').datepicker(kommonitorDataExchangeService.datePickerOptions);
 
 		$('#indicatorAddDirectTimestampDatepicker').datepicker(kommonitorDataExchangeService.datePickerOptions);
 
@@ -472,6 +470,15 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			setTimeout(() => {
 				$scope.$apply();
 			}, 250);
+		};
+
+		$scope.onChangeUseTimeseriesAsProperty = function(){
+			if($scope.useTimeseriesAsProperty){
+				$scope.tmpTimeseriesMapping_directTimestamp = undefined;
+			}
+			else{			
+				$scope.tmpTimeseriesMapping_timestampPropertyName = undefined;
+			}
 		};
 
 		$scope.onClickEditTimeseriesMapping = function(timeseriesMappingEntry_adminView){
