@@ -317,7 +317,7 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 							// all good, really execute the request to import data against data management API
 							
 						var updateSpatialUnitResponse = await kommonitorImporterHelperService.updateSpatialUnit($scope.converterDefinition, $scope.datasourceTypeDefinition, $scope.propertyMappingDefinition, $scope.currentSpatialUnitDataset.spatialUnitId, $scope.putBody_spatialUnits, false);
-							$scope.successMessagePart = $scope.postBody_spatialUnits.spatialUnitLevel;
+							$scope.successMessagePart = $scope.putBody_spatialUnits.spatialUnitLevel;
 							$scope.importedFeatures = kommonitorImporterHelperService.getImportedFeaturesFromImporterResponse(updateSpatialUnitResponse);
 
 							$rootScope.$broadcast("refreshSpatialUnitOverviewTable");
