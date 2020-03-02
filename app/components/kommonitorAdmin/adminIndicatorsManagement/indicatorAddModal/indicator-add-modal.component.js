@@ -190,6 +190,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 
 		$scope.successMessagePart = undefined;
 		$scope.errorMessagePart = undefined;
+		$scope.importerErrors = undefined;
 
 		$scope.loadingData = false;
 
@@ -221,6 +222,11 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 		$scope.instantiateColorBrewerPalettes();
 
 		$scope.resetIndicatorAddForm = function(){
+
+			$scope.importerErrors = undefined;
+				$scope.successMessagePart = undefined;
+				$scope.errorMessagePart = undefined;
+
 			$scope.datasetName = undefined;
 			$scope.datasetNameInvalid = false;
 
@@ -724,6 +730,10 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 
 		$scope.addIndicator = async function(){
 
+			$scope.importerErrors = undefined;
+				$scope.successMessagePart = undefined;
+				$scope.errorMessagePart = undefined;
+
 			/*
 					now collect data and build request for importer
 				*/
@@ -748,21 +758,44 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 
 					$scope.loadingData = true;
 
+					var newIndicatorResponse_dryRun = undefined;
 					try {
-						var newIndicatorResponse = await kommonitorImporterHelperService.registerNewIndicator($scope.converterDefinition, $scope.datasourceTypeDefinition, $scope.propertyMappingDefinition, $scope.postBody_indicators);
+						newIndicatorResponse_dryRun = await kommonitorImporterHelperService.registerNewIndicator($scope.converterDefinition, $scope.datasourceTypeDefinition, $scope.propertyMappingDefinition, $scope.postBody_indicators, true);
+
+					if(! kommonitorImporterHelperService.importerResponseContainsErrors(newIndicatorResponse_dryRun)){
+						// all good, really execute the request to import data against data management API
+						var newIndicatorResponse = await kommonitorImporterHelperService.registerNewIndicator($scope.converterDefinition, $scope.datasourceTypeDefinition, $scope.propertyMappingDefinition, $scope.postBody_indicators, false);
 
 						$rootScope.$broadcast("refreshIndicatorOverviewTable");
 
-					// refresh all admin dashboard diagrams due to modified metadata
-					$rootScope.$broadcast("refreshAdminDashboardDiagrams");
+						// refresh all admin dashboard diagrams due to modified metadata
+						$rootScope.$broadcast("refreshAdminDashboardDiagrams");
 
-					$scope.successMessagePart = $scope.datasetName;
+						$scope.successMessagePart = $scope.datasetName;
+						$scope.importedFeatures = kommonitorImporterHelperService.getImportedFeaturesFromImporterResponse(newIndicatorResponse_dryRun);
 
-					$("#indicatorAddSuccessAlert").show();
+						$("#indicatorAddSuccessAlert").show();
 
-					$scope.loadingData = false;
+						$scope.loadingData = false;
+
+					}
+					else{
+						// errors ocurred
+						// show them 
+						$scope.errorMessagePart = "Einige der zu importierenden Features des Datensatzes weisen kritische Fehler auf";
+						$scope.importerErrors = kommonitorImporterHelperService.getErrorsFromImporterResponse(newIndicatorResponse_dryRun);
+
+						$("#spatialUnitAddErrorAlert").show();
+						$scope.loadingData = false;
+
+						setTimeout(() => {
+							$scope.$apply();
+						}, 250);
+
+					}
 					} catch (error) {
-						$scope.errorMessagePart = error;
+						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+						$scope.importerErrors = kommonitorImporterHelperService.getErrorsFromImporterResponse(newSpatialUnitResponse_dryRun);
 
 						$("#indicatorAddErrorAlert").show();
 						$scope.loadingData = false;

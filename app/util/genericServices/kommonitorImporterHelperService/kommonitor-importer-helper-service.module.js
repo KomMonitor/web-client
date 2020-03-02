@@ -266,14 +266,15 @@ angular
         };
       };
 
-      this.registerNewSpatialUnit = async function(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, spatiaUnitPostBody_managementAPI){
+      this.registerNewSpatialUnit = async function(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, spatiaUnitPostBody_managementAPI, isDryRun){
         console.log("Trying to POST to importer service to register new spatial unit.");
 
         var postBody = {
           "converter": converterDefinition,
           "dataSource": datasourceTypeDefinition,
           "propertyMapping": propertyMappingDefinition,
-          "spatialUnitPostBody": spatiaUnitPostBody_managementAPI
+          "spatialUnitPostBody": spatiaUnitPostBody_managementAPI,
+          "dryRun": isDryRun
         };        
 
         return await $http({
@@ -298,7 +299,7 @@ angular
         });        
       };
 
-      this.updateSpatialUnit = async function(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, spatialUnitId, spatiaUnitPutBody_managementAPI){
+      this.updateSpatialUnit = async function(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, spatialUnitId, spatiaUnitPutBody_managementAPI, isDryRun){
         console.log("Trying to POST to importer service to update spatial unit with id '" + spatialUnitId + "'.");
 
         var postBody = {
@@ -306,7 +307,8 @@ angular
           "dataSource": datasourceTypeDefinition,
           "propertyMapping": propertyMappingDefinition,
           "spatialUnitId": spatialUnitId,
-          "spatialUnitPutBody": spatiaUnitPutBody_managementAPI
+          "spatialUnitPutBody": spatiaUnitPutBody_managementAPI,
+          "dryRun": isDryRun
         };        
 
         return await $http({
@@ -333,14 +335,15 @@ angular
 
 
 
-      this.registerNewGeoresource = async function(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, georesourcePostBody_managementAPI){
+      this.registerNewGeoresource = async function(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, georesourcePostBody_managementAPI, isDryRun){
         console.log("Trying to POST to importer service to register new georesource.");
 
         var postBody = {
           "converter": converterDefinition,
           "dataSource": datasourceTypeDefinition,
           "propertyMapping": propertyMappingDefinition,
-          "georesourcePostBody": georesourcePostBody_managementAPI
+          "georesourcePostBody": georesourcePostBody_managementAPI,
+          "dryRun": isDryRun
         };        
 
         return await $http({
@@ -365,7 +368,7 @@ angular
         });        
       };
 
-      this.updateGeoresource = async function(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, georesourceId, georesourcePutBody_managementAPI){
+      this.updateGeoresource = async function(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, georesourceId, georesourcePutBody_managementAPI, isDryRun){
         console.log("Trying to POST to importer service to update georesource with id '" + georesourceId + "'.");
 
         var postBody = {
@@ -373,7 +376,8 @@ angular
           "dataSource": datasourceTypeDefinition,
           "propertyMapping": propertyMappingDefinition,
           "georesourceId": georesourceId,
-          "georesourcePutBody": georesourcePutBody_managementAPI
+          "georesourcePutBody": georesourcePutBody_managementAPI,
+          "dryRun": isDryRun
         };        
 
         return await $http({
@@ -400,14 +404,15 @@ angular
 
 
 
-      this.registerNewIndicator = async function(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, indicatorPostBody_managementAPI){
+      this.registerNewIndicator = async function(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, indicatorPostBody_managementAPI, isDryRun){
         console.log("Trying to POST to importer service to register new indicator.");
 
         var postBody = {
           "converter": converterDefinition,
           "dataSource": datasourceTypeDefinition,
           "propertyMapping": propertyMappingDefinition,
-          "indicatorPostBody": indicatorPostBody_managementAPI
+          "indicatorPostBody": indicatorPostBody_managementAPI,
+          "dryRun": isDryRun
         };        
 
         return await $http({
@@ -432,7 +437,7 @@ angular
         });        
       };
 
-      this.updateIndicator = async function(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, indicatorId, indicatorPutBody_managementAPI){
+      this.updateIndicator = async function(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, indicatorId, indicatorPutBody_managementAPI, isDryRun){
         console.log("Trying to POST to importer service to update indicator with id '" + indicatorId + "'.");
 
         var postBody = {
@@ -440,7 +445,8 @@ angular
           "dataSource": datasourceTypeDefinition,
           "propertyMapping": propertyMappingDefinition,
           "indicatorId": indicatorId,
-          "indicatorPutBody": indicatorPutBody_managementAPI
+          "indicatorPutBody": indicatorPutBody_managementAPI,
+          "dryRun": isDryRun
         };        
 
         return await $http({
@@ -463,6 +469,34 @@ angular
             console.error("Error while posting to importer service.");
             throw response;
         });        
+      };
+
+      this.importerResponseContainsErrors = function (importerResponse){
+        if (importerResponse.errors && importerResponse.errors.length > 0){
+          return true;
+        }
+        return false;
+      };
+
+      this.getIdFromImporterResponse = function (importerResponse){
+        if (importerResponse.uri){
+          return importerResponse.uri;
+        }
+        return undefined;
+      };
+
+      this.getErrorsFromImporterResponse = function (importerResponse){
+        if (importerResponse.errors){
+          return importerResponse.errors;
+        }
+        return undefined;
+      };
+
+      this.getImportedFeaturesFromImporterResponse = function (importerResponse){
+        if (importerResponse.importedFeatures){
+          return importerResponse.importedFeatures;
+        }
+        return undefined;
       };
 
 

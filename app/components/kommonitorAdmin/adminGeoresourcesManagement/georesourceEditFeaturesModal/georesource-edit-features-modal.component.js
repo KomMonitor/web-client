@@ -52,6 +52,7 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 
 		$scope.successMessagePart = undefined;
 		$scope.errorMessagePart = undefined;
+		$scope.importerErrors = undefined;
 
 		$scope.$on("onEditGeoresourceFeatures", function (event, georesourceDataset) {
 
@@ -163,6 +164,7 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 
 			$scope.successMessagePart = undefined;
 			$scope.errorMessagePart = undefined;
+			$scope.importerErrors = undefined;
 
 			$("#georesourceEditFeaturesSuccessAlert").hide();
 			$("#georesourceEditFeaturesErrorAlert").hide();
@@ -259,6 +261,10 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 
 		$scope.editGeoresourceFeatures = async function(){
 
+			$scope.importerErrors = undefined;
+				$scope.successMessagePart = undefined;
+				$scope.errorMessagePart = undefined;
+
 			/*
 					now collect data and build request for importer
 				*/
@@ -283,21 +289,46 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 
 					$scope.loadingData = true;
 
+					var updateGeoresourceResponse_dryRun = undefined;
 					try {
-						var updateGeoresourceResponse = await kommonitorImporterHelperService.updateGeoresource($scope.converterDefinition, $scope.datasourceTypeDefinition, $scope.propertyMappingDefinition, $scope.currentGeoresourceDataset.georesourceId, $scope.putBody_georesources);
+						updateGeoresourceResponse_dryRun = await kommonitorImporterHelperService.updateGeoresource($scope.converterDefinition, $scope.datasourceTypeDefinition, $scope.propertyMappingDefinition, $scope.currentGeoresourceDataset.georesourceId, $scope.putBody_georesources, true);
 
 						// this callback will be called asynchronously
 						// when the response is available
 
-						$rootScope.$broadcast("refreshGeoresourceOverviewTable");
-					// $scope.refreshGeoresourceEditFeaturesOverviewTable();
 
-					$scope.successMessagePart = $scope.currentGeoresourceDataset.datasetName;
 
-					$("#georesourceEditFeaturesSuccessAlert").show();
-					$scope.loadingData = false;
+
+						if(! kommonitorImporterHelperService.importerResponseContainsErrors(updateGeoresourceResponse_dryRun)){
+							// all good, really execute the request to import data against data management API
+							var updateGeoresourceResponse = await kommonitorImporterHelperService.updateGeoresource($scope.converterDefinition, $scope.datasourceTypeDefinition, $scope.propertyMappingDefinition, $scope.currentGeoresourceDataset.georesourceId, $scope.putBody_georesources, false);						
+
+							$rootScope.$broadcast("refreshGeoresourceOverviewTable");
+							// $scope.refreshGeoresourceEditFeaturesOverviewTable();
+
+							$scope.successMessagePart = $scope.currentGeoresourceDataset.datasetName;
+							$scope.importedFeatures = kommonitorImporterHelperService.getImportedFeaturesFromImporterResponse(updateGeoresourceResponse);
+
+							$("#georesourceEditFeaturesSuccessAlert").show();
+							$scope.loadingData = false;
+						}
+						else{
+							// errors ocurred
+							// show them 
+							$scope.errorMessagePart = "Einige der zu importierenden Features des Datensatzes weisen kritische Fehler auf";
+							$scope.importerErrors = kommonitorImporterHelperService.getErrorsFromImporterResponse(updateGeoresourceResponse_dryRun);
+
+							$("#spatialUnitAddErrorAlert").show();
+							$scope.loadingData = false;
+
+							setTimeout(() => {
+								$scope.$apply();
+							}, 250);
+
+						}
 					} catch (error) {
-						$scope.errorMessagePart = error;
+						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+						$scope.importerErrors = kommonitorImporterHelperService.getErrorsFromImporterResponse(updateGeoresourceResponse_dryRun);
 
 						$("#georesourceEditFeaturesErrorAlert").show();
 						$scope.loadingData = false;

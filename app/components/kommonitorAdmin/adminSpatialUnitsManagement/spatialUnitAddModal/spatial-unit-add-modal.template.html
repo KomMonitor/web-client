@@ -377,7 +377,9 @@
 			<div id="spatialUnitAddSucessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden class="alert alert-success alert-dismissable">
                 <button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
                 <h4><i class="icon fa fa-check"></i>Raumeinheit registriert</h4>
-                Eine neue Raumeinheit mit Namen {{successMessagePart}} wurde in KomMonitor registriert und in die &Uuml;bersichtstabelle eingetragen.
+				<p>Eine neue Raumeinheit mit Namen {{successMessagePart}} wurde in KomMonitor registriert und in die &Uuml;bersichtstabelle eingetragen.
+					{{importedFeatures.length}} Features wurden dabei importiert.
+				</p>
       </div>
 
 			<div id="spatialUnitAddErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden class="alert alert-danger alert-dismissable">
@@ -385,7 +387,17 @@
                 <h4><i class="icon fa fa-ban"></i>Registrierung gescheitert</h4>
                 Bei der Registrierung der Raumeinheit ist ein Fehler aufgetreten. Fehlermeldung:
 								<br/>
-								<pre>{{errorMessagePart}}</pre>.
+								<pre style="overflow:auto; max-height:500px;" ng-bind-html="errorMessagePart"></pre>
+								<br/>
+								<br/>
+
+								<div ng-show="importerErrors">
+									<p>Bei den {{importerErrors.length}} Features mit folgenden IDs scheitert der Import:</p>
+									<ul style="columns: 4; 	-webkit-columns: 4;	-moz-columns: 4;">
+										<li ng-repeat="error in importerErrors">{{error}}</li>
+									</ul>
+									<p>Bitte beheben Sie die angezeigten Fehler im Datensatz und wiederholen den Prozess.</p>
+								</div>
       </div>
 
 			<div id="spatialUnitMetadataImportErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden class="alert alert-danger alert-dismissable">
@@ -393,8 +405,8 @@
                 <h4><i class="icon fa fa-ban"></i>Metadata Import gescheitert</h4>
                 Beim Import der Metadaten aus einer Datei ist ein Fehler aufgetreten. Fehlermeldung:
 								<br/>
-								<pre>{{spatialUnitMetadataImportError}}</pre>
-								<br/>
+								<pre>{{spatialUnitMetadataImportError}}</pre>								
+								<br/>								
 								<br/>
 								<p>Bitte stellen Sie sicher, dass folgendes JSON-Format eingehalten wird:</p>
 								<pre id="spatialUnitsAddMetadataPre" style="overflow:auto; max-height:500px;"></pre>

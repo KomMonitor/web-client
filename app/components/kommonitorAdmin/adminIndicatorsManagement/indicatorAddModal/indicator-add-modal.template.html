@@ -1138,8 +1138,10 @@
 				class="alert alert-success alert-dismissable">
 				<button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
 				<h4><i class="icon fa fa-check"></i>Indikator registriert</h4>
-				Eine neuer Indikator mit Namen {{successMessagePart}} wurde in KomMonitor registriert und in die
-				&Uuml;bersichtstabelle eingetragen.
+				<p>Eine neuer Indikator mit Namen {{successMessagePart}} wurde in KomMonitor registriert und in die
+					&Uuml;bersichtstabelle eingetragen.
+					{{importedFeatures.length}} Features wurden dabei importiert.
+				</p>
 			</div>
 
 			<div id="indicatorAddErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
@@ -1147,8 +1149,18 @@
 				<button type="button" class="close" ng-click="hideErrorAlert()" aria-hidden="true">&times;</button>
 				<h4><i class="icon fa fa-ban"></i>Registrierung gescheitert</h4>
 				Bei der Registrierung des Indikators ist ein Fehler aufgetreten. Fehlermeldung:
-				<br />
-				<pre>{{errorMessagePart}}</pre>.
+				<br/>
+								<pre style="overflow:auto; max-height:500px;" ng-bind-html="errorMessagePart"></pre>
+								<br/>
+								<br/>
+
+								<div ng-show="importerErrors">
+									<p>Bei den {{importerErrors.length}} Features mit folgenden IDs scheitert der Import:</p>
+									<ul style="columns: 4; 	-webkit-columns: 4;	-moz-columns: 4;">
+										<li ng-repeat="error in importerErrors">{{error}}</li>
+									</ul>
+									<p>Bitte beheben Sie die angezeigten Fehler im Datensatz und wiederholen den Prozess.</p>
+								</div>
 			</div>
 
 			<div id="indicatorAddMetadataImportErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden

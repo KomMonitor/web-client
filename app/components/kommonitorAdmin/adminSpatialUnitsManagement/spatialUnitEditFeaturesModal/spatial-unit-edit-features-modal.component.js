@@ -68,8 +68,9 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 			$scope.validityEndDate_perFeature = undefined;
 			$scope.validityStartDate_perFeature = undefined;
 
-		$scope.successMessagePart = undefined;
-		$scope.errorMessagePart = undefined;
+			$scope.importerErrors = undefined;
+			$scope.successMessagePart = undefined;
+			$scope.errorMessagePart = undefined;
 
 		$scope.$on("onEditSpatialUnitFeatures", function (event, spatialUnitDataset) {
 
@@ -186,6 +187,7 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 			$scope.validityEndDate_perFeature = undefined;
 			$scope.validityStartDate_perFeature = undefined;
 
+			$scope.importerErrors = undefined;
 			$scope.successMessagePart = undefined;
 			$scope.errorMessagePart = undefined;
 
@@ -280,6 +282,10 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 
 		$scope.editSpatialUnitFeatures = async function(){
 
+			$scope.importerErrors = undefined;
+				$scope.successMessagePart = undefined;
+				$scope.errorMessagePart = undefined;
+
 			/*
 					now collect data and build request for importer
 				*/
@@ -303,22 +309,43 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 					// TODO Create and perform POST Request with loading screen
 
 					$scope.loadingData = true;
-
+					var updateSpatialUnitResponse_dryRun = undefined;
 					try {
-						var updateSpatialUnitResponse = await kommonitorImporterHelperService.updateSpatialUnit($scope.converterDefinition, $scope.datasourceTypeDefinition, $scope.propertyMappingDefinition, $scope.currentSpatialUnitDataset.spatialUnitId, $scope.putBody_spatialUnits);
+						updateSpatialUnitResponse_dryRun = await kommonitorImporterHelperService.updateSpatialUnit($scope.converterDefinition, $scope.datasourceTypeDefinition, $scope.propertyMappingDefinition, $scope.currentSpatialUnitDataset.spatialUnitId, $scope.putBody_spatialUnits, true);
 
-						// this callback will be called asynchronously
-						// when the response is available
+						if(! kommonitorImporterHelperService.importerResponseContainsErrors(updateSpatialUnitResponse_dryRun)){
+							// all good, really execute the request to import data against data management API
+							
+						var updateSpatialUnitResponse = await kommonitorImporterHelperService.updateSpatialUnit($scope.converterDefinition, $scope.datasourceTypeDefinition, $scope.propertyMappingDefinition, $scope.currentSpatialUnitDataset.spatialUnitId, $scope.putBody_spatialUnits, false);
+							$scope.successMessagePart = $scope.postBody_spatialUnits.spatialUnitLevel;
+							$scope.importedFeatures = kommonitorImporterHelperService.getImportedFeaturesFromImporterResponse(updateSpatialUnitResponse);
 
-						$rootScope.$broadcast("refreshSpatialUnitOverviewTable");
-						// $scope.refreshSpatialUnitEditFeaturesOverviewTable();
+							$rootScope.$broadcast("refreshSpatialUnitOverviewTable");
+							// $scope.refreshSpatialUnitEditFeaturesOverviewTable();
 
-						$scope.successMessagePart = $scope.currentSpatialUnitDataset.spatialUnitLevel;
+							$scope.successMessagePart = $scope.currentSpatialUnitDataset.spatialUnitLevel;
 
-						$("#spatialUnitEditFeaturesSuccessAlert").show();
-						$scope.loadingData = false;
+							$("#spatialUnitEditFeaturesSuccessAlert").show();
+							$scope.loadingData = false;
+						}
+						else{
+							// errors ocurred
+							// show them 
+							$scope.errorMessagePart = "Einige der zu importierenden Features des Datensatzes weisen kritische Fehler auf";
+							$scope.importerErrors = kommonitorImporterHelperService.getErrorsFromImporterResponse(updateSpatialUnitResponse_dryRun);
+
+							$("#spatialUnitEditFeaturesErrorAlert").show();
+							$scope.loadingData = false;
+
+							setTimeout(() => {
+								$scope.$apply();
+							}, 250);
+
+						}
+						
 					} catch (error) {
-						$scope.errorMessagePart = response;
+						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+						$scope.importerErrors = kommonitorImporterHelperService.getErrorsFromImporterResponse(updateSpatialUnitResponse_dryRun);
 
 						$("#spatialUnitEditFeaturesErrorAlert").show();
 						$scope.loadingData = false;

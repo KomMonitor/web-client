@@ -296,15 +296,27 @@
 			<div id="georesourceEditFeaturesSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden class="alert alert-success alert-dismissable">
                 <button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
                 <h4><i class="icon fa fa-check"></i>Features erfolgreich fortgef&uuml;hrt</h4>
-                Fortf&uuml;hren der Features der Georessource mit Namen {{successMessagePart}} war erfolgreich.
+				<p>Fortf&uuml;hren der Features der Georessource mit Namen {{successMessagePart}} war erfolgreich.
+					{{importedFeatures.length}} Features wurden dabei importiert.
+				</p>
       </div>
 
 			<div id="georesourceEditFeaturesErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden class="alert alert-danger alert-dismissable">
                 <button type="button" class="close" ng-click="hideErrorAlert()" aria-hidden="true">&times;</button>
                 <h4><i class="icon fa fa-ban"></i>Features fortf&uuml;hren gescheitert</h4>
                 Beim Fortf&uuml;hren der Features ist ein Fehler aufgetreten. Fehlermeldung:
-								<br/>
-								<pre>{{errorMessagePart}}</pre>
+				<br/>
+				<pre style="overflow:auto; max-height:500px;" ng-bind-html="errorMessagePart"></pre>
+				<br/>
+				<br/>
+
+				<div ng-show="importerErrors">
+					<p>Bei den {{importerErrors.length}} Features mit folgenden IDs scheitert der Import:</p>
+					<ul style="columns: 4; 	-webkit-columns: 4;	-moz-columns: 4;">
+						<li ng-repeat="error in importerErrors">{{error}}</li>
+					</ul>
+					<p>Bitte beheben Sie die angezeigten Fehler im Datensatz und wiederholen den Prozess.</p>
+				</div>
       </div>
 
 		</div>
