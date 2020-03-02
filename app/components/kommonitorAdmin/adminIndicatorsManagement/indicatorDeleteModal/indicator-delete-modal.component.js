@@ -144,8 +144,8 @@ angular.module('indicatorDeleteModal').component('indicatorDeleteModal', {
 							  kommonitorDataExchangeService.availableGeoresources.splice(index, 1);
 							}
 
-					}, function errorCallback(response) {
-						$scope.failedDatasetsAndErrors.push([dataset, response]);
+					}, function errorCallback(error) {
+						$scope.failedDatasetsAndErrors.push([dataset, kommonitorDataExchangeService.syntaxHighlightJSON(error.data)]);
 				});
 			};
 

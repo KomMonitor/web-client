@@ -101,8 +101,8 @@ angular.module('spatialUnitDeleteModal').component('spatialUnitDeleteModal', {
 							  kommonitorDataExchangeService.availableSpatialUnits.splice(index, 1);
 							}
 
-					}, function errorCallback(response) {
-						$scope.failedDatasetsAndErrors.push([dataset, response]);
+					}, function errorCallback(error) {
+						$scope.failedDatasetsAndErrors.push([dataset, kommonitorDataExchangeService.syntaxHighlightJSON(error.data)]);
 				});
 			};
 
