@@ -772,7 +772,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 						$rootScope.$broadcast("refreshAdminDashboardDiagrams");
 
 						$scope.successMessagePart = $scope.datasetName;
-						$scope.importedFeatures = kommonitorImporterHelperService.getImportedFeaturesFromImporterResponse(newIndicatorResponse_dryRun);
+						$scope.importedFeatures = kommonitorImporterHelperService.getImportedFeaturesFromImporterResponse(newIndicatorResponse);
 
 						$("#indicatorAddSuccessAlert").show();
 
@@ -800,7 +800,10 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 						else{
 							$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
 						}
-						$scope.importerErrors = kommonitorImporterHelperService.getErrorsFromImporterResponse(newSpatialUnitResponse_dryRun);
+
+						if(newIndicatorResponse_dryRun){
+							$scope.importerErrors = kommonitorImporterHelperService.getErrorsFromImporterResponse(newIndicatorResponse_dryRun);
+						}
 
 						$("#indicatorAddErrorAlert").show();
 						$scope.loadingData = false;

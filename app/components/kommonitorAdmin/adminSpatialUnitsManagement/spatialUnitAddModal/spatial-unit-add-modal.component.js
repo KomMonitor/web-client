@@ -332,7 +332,10 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 						else{
 							$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
 						}
-						$scope.importerErrors = kommonitorImporterHelperService.getErrorsFromImporterResponse(newSpatialUnitResponse_dryRun);
+
+						if(newSpatialUnitResponse_dryRun){
+							$scope.importerErrors = kommonitorImporterHelperService.getErrorsFromImporterResponse(newSpatialUnitResponse_dryRun);
+						}
 
 						$("#spatialUnitAddErrorAlert").show();
 						$scope.loadingData = false;

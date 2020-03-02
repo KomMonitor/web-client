@@ -461,7 +461,10 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 						else{
 							$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
 						}
-						$scope.importerErrors = kommonitorImporterHelperService.getErrorsFromImporterResponse(newGeoresourceResponse_dryRun);
+
+						if(newGeoresourceResponse_dryRun){
+							$scope.importerErrors = kommonitorImporterHelperService.getErrorsFromImporterResponse(newGeoresourceResponse_dryRun);
+						}						
 
 						$("#georesourceAddErrorAlert").show();
 						$scope.loadingData = false;

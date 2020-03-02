@@ -333,8 +333,10 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 						else{
 							$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
 						}
-						$scope.importerErrors = kommonitorImporterHelperService.getErrorsFromImporterResponse(updateGeoresourceResponse_dryRun);
-
+						if(updateGeoresourceResponse_dryRun){
+							$scope.importerErrors = kommonitorImporterHelperService.getErrorsFromImporterResponse(updateGeoresourceResponse_dryRun);
+						}
+						
 						$("#georesourceEditFeaturesErrorAlert").show();
 						$scope.loadingData = false;
 
