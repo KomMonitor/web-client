@@ -210,8 +210,8 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 					$("#spatialUnitEditMetadataSuccessAlert").show();
 					$scope.loadingData = false;
 
-				}, function errorCallback(response) {
-					$scope.errorMessagePart = response;
+				}, function errorCallback(error) {
+					$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
 
 					$("#spatialUnitEditMetadataErrorAlert").show();
 					$scope.loadingData = false;

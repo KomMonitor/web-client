@@ -309,8 +309,8 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 					$("#georesourceEditMetadataSuccessAlert").show();
 					$scope.loadingData = false;
 
-				}, function errorCallback(response) {
-					$scope.errorMessagePart = response;
+				}, function errorCallback(error) {
+					$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
 
 					$("#georesourceEditMetadataErrorAlert").show();
 					$scope.loadingData = false;

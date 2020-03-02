@@ -232,7 +232,7 @@
                 <h4><i class="icon fa fa-ban"></i>Aktualisierung gescheitert</h4>
                 Bei der Aktualisierung der Metadaten der Raumeinheit ist ein Fehler aufgetreten. Fehlermeldung:
 								<br/>
-								<pre>{{errorMessagePart}}</pre>.
+								<pre style="overflow:auto; max-height:500px;" ng-bind-html="errorMessagePart"></pre>
       </div>
 
 			<div id="spatialUnitEditMetadataImportErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden class="alert alert-danger alert-dismissable">
