@@ -433,7 +433,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 							// refresh all admin dashboard diagrams due to modified metadata
 							$rootScope.$broadcast("refreshAdminDashboardDiagrams");
 		
-							$scope.successMessagePart = $scope.postBody_spatialUnits.spatialUnitLevel;
+							$scope.successMessagePart = $scope.postBody_georesources.datasetName;
 							$scope.importedFeatures = kommonitorImporterHelperService.getImportedFeaturesFromImporterResponse(newGeoresourceResponse);
 		
 							$("#georesourceAddSuccessAlert").show();

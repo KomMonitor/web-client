@@ -771,7 +771,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 						// refresh all admin dashboard diagrams due to modified metadata
 						$rootScope.$broadcast("refreshAdminDashboardDiagrams");
 
-						$scope.successMessagePart = $scope.datasetName;
+						$scope.successMessagePart = $scope.postBody_indicators.datasetName;
 						$scope.importedFeatures = kommonitorImporterHelperService.getImportedFeaturesFromImporterResponse(newIndicatorResponse);
 
 						$("#indicatorAddSuccessAlert").show();
