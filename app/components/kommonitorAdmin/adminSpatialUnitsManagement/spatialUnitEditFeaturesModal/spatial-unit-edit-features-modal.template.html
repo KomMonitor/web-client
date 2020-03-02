@@ -350,9 +350,11 @@
 
 								<div ng-show="importerErrors">
 									<p>Bei den {{importerErrors.length}} Features mit folgenden IDs scheitert der Import:</p>
-									<ul style="columns: 4; 	-webkit-columns: 4;	-moz-columns: 4;">
-										<li ng-repeat="error in importerErrors">{{error}}</li>
-									</ul>
+									<pre style="overflow:auto; max-height:500px;">
+										<ul>
+											<li ng-repeat="error in importerErrors">{{error}}</li>
+										</ul>
+									</pre>	
 									<p>Bitte beheben Sie die angezeigten Fehler im Datensatz und wiederholen den Prozess.</p>
 								</div>
 			</div>
