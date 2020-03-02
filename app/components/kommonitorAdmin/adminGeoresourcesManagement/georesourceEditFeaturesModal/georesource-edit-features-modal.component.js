@@ -318,7 +318,7 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 							$scope.errorMessagePart = "Einige der zu importierenden Features des Datensatzes weisen kritische Fehler auf";
 							$scope.importerErrors = kommonitorImporterHelperService.getErrorsFromImporterResponse(updateGeoresourceResponse_dryRun);
 
-							$("#spatialUnitAddErrorAlert").show();
+							$("#georesourceEditFeaturesErrorAlert").show();
 							$scope.loadingData = false;
 
 							setTimeout(() => {

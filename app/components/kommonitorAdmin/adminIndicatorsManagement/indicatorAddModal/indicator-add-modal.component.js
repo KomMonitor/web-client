@@ -785,7 +785,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 						$scope.errorMessagePart = "Einige der zu importierenden Features des Datensatzes weisen kritische Fehler auf";
 						$scope.importerErrors = kommonitorImporterHelperService.getErrorsFromImporterResponse(newIndicatorResponse_dryRun);
 
-						$("#spatialUnitAddErrorAlert").show();
+						$("#indicatorAddErrorAlert").show();
 						$scope.loadingData = false;
 
 						setTimeout(() => {
