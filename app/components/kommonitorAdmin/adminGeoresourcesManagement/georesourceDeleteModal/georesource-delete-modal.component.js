@@ -145,7 +145,12 @@ angular.module('georesourceDeleteModal').component('georesourceDeleteModal', {
 							}
 
 					}, function errorCallback(error) {
-						$scope.failedDatasetsAndErrors.push([dataset, kommonitorDataExchangeService.syntaxHighlightJSON(error.data)]);
+						if(error.data){							
+							$scope.failedDatasetsAndErrors.push([dataset, kommonitorDataExchangeService.syntaxHighlightJSON(error.data)]);
+						}
+						else{
+							$scope.failedDatasetsAndErrors.push([dataset, kommonitorDataExchangeService.syntaxHighlightJSON(error)]);
+						}
 				});
 			};
 

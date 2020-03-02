@@ -211,7 +211,12 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 					$scope.loadingData = false;
 
 				}, function errorCallback(error) {
-					$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+					if(error.data){							
+						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+					}
+					else{
+						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
+					}
 
 					$("#spatialUnitEditMetadataErrorAlert").show();
 					$scope.loadingData = false;

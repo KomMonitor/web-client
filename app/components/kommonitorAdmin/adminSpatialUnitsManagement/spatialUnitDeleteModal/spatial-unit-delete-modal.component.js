@@ -102,7 +102,13 @@ angular.module('spatialUnitDeleteModal').component('spatialUnitDeleteModal', {
 							}
 
 					}, function errorCallback(error) {
-						$scope.failedDatasetsAndErrors.push([dataset, kommonitorDataExchangeService.syntaxHighlightJSON(error.data)]);
+						if(error.data){							
+							$scope.failedDatasetsAndErrors.push([dataset, kommonitorDataExchangeService.syntaxHighlightJSON(error.data)]);
+						}
+						else{
+							$scope.failedDatasetsAndErrors.push([dataset, kommonitorDataExchangeService.syntaxHighlightJSON(error)]);
+						}
+						
 				});
 			};
 

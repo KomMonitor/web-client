@@ -344,7 +344,12 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 						}
 						
 					} catch (error) {
-						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+						if(error.data){							
+							$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+						}
+						else{
+							$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
+						}
 						$scope.importerErrors = kommonitorImporterHelperService.getErrorsFromImporterResponse(updateSpatialUnitResponse_dryRun);
 
 						$("#spatialUnitEditFeaturesErrorAlert").show();
