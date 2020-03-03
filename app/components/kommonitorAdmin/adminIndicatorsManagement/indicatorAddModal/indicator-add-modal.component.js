@@ -7,40 +7,100 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 		this.kommonitorImporterHelperServiceInstance = kommonitorImporterHelperService;
 
 		/*	POST BODY
-		{
-				"isLOI": false,
-				"metadata": {
-					"note": "note",
-					"literature": "literature",
-					"updateInterval": "ARBITRARY",
-					"sridEPSG": 0.8008281904610115,
-					"datasource": "datasource",
-					"contact": "contact",
-					"lastUpdate": "2000-01-23",
-					"description": "description",
-					"databasis": "databasis"
-				},
-				"allowedRoles": [
-					"allowedRoles",
-					"allowedRoles"
-				],
-				"datasetName": "datasetName",
-				"poiSymbolBootstrap3Name": "poiSymbolBootstrap3Name",
-				"poiSymbolColor": "white",
-				"isAOI": false,
-				"loiDashArrayString": "loiDashArrayString",
-				"geoJsonString": "geoJsonString",
-				"topicReference": "topicReference",
-				"poiMarkerColor": "white",
-				"jsonSchema": "jsonSchema",
-				"periodOfValidity": {
-					"endDate": "2000-01-23",
-					"startDate": "2000-01-23"
-				},
-				"isPOI": false,
-				"loiColor": "loiColor",
-				"aoiColor": "aoiColor"
-			}
+			{
+						"indicatorValues": [
+							{
+							"spatialReferenceKey": "spatialReferenceKey",
+							"valueMapping": [
+								{
+								"indicatorValue": 0.8008282,
+								"timestamp": "2000-01-23"
+								},
+								{
+								"indicatorValue": 0.8008282,
+								"timestamp": "2000-01-23"
+								}
+							]
+							},
+							{
+							"spatialReferenceKey": "spatialReferenceKey",
+							"valueMapping": [
+								{
+								"indicatorValue": 0.8008282,
+								"timestamp": "2000-01-23"
+								},
+								{
+								"indicatorValue": 0.8008282,
+								"timestamp": "2000-01-23"
+								}
+							]
+							}
+						],
+						"refrencesToOtherIndicators": [
+							{
+							"referenceDescription": "referenceDescription",
+							"indicatorId": "indicatorId"
+							},
+							{
+							"referenceDescription": "referenceDescription",
+							"indicatorId": "indicatorId"
+							}
+						],
+						"metadata": {
+							"note": "note",
+							"literature": "literature",
+							"updateInterval": "ARBITRARY",
+							"sridEPSG": 0.8008281904610115,
+							"datasource": "datasource",
+							"contact": "contact",
+							"lastUpdate": "2000-01-23",
+							"description": "description",
+							"databasis": "databasis"
+						},
+						"allowedRoles": [
+							"allowedRoles",
+							"allowedRoles"
+						],
+						"datasetName": "datasetName",
+						"applicableSpatialUnit": "applicableSpatialUnit",
+						"abbreviation": "abbreviation",
+						"characteristicValue": "characteristicValue",
+						"tags": [
+							"tags",
+							"tags"
+						],
+						"creationType": "INSERTION",
+						"unit": "unit",
+						"topicReference": "topicReference",
+						"refrencesToGeoresources": [
+							{
+							"referenceDescription": "referenceDescription",
+							"georesourceId": "georesourceId"
+							},
+							{
+							"referenceDescription": "referenceDescription",
+							"georesourceId": "georesourceId"
+							}
+						],
+						"indicatorType": "STATUS_ABSOLUTE",
+						"interpretation": "interpretation",
+						"isHeadlineIndicator": false,
+						"processDescription": "processDescription",
+						"lowestSpatialUnitForComputation": "lowestSpatialUnitForComputation",
+						"defaultClassificationMapping": {
+							"colorBrewerSchemeName": "colorBrewerSchemeName",
+							"items": [
+							{
+								"defaultCustomRating": "defaultCustomRating",
+								"defaultColorAsHex": "defaultColorAsHex"
+							},
+							{
+								"defaultCustomRating": "defaultCustomRating",
+								"defaultColorAsHex": "defaultColorAsHex"
+							}
+							]
+						}
+					}
 		*/
 
 		//Date picker
@@ -128,7 +188,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			$scope.indicatorTagsString_withCommas = undefined;
 			$scope.indicatorInterpretation = undefined;
 			$scope.indicatorCreationType = undefined;
-			$scope.indicatorLowestSpatialUnitMetadataObjectForComputation = undefined;
+			$scope.indicatorLowestSpatialUnitMetadataObjectForComputation = kommonitorDataExchangeService.availableSpatialUnits[0];
 			$scope.enableLowestSpatialUnitSelect = false;
 
 			$scope.indicatorTopic_mainTopic = undefined;
@@ -163,13 +223,6 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			$scope.tmpTimeseriesMapping_timestampPropertyName = undefined;
 			$scope.tmpTimeseriesMapping_directTimestamp = undefined;
 			$scope.timeseriesMappings_adminView = [];
-
-
-
-		$scope.periodOfValidity = {};
-		$scope.periodOfValidity.startDate = undefined;
-		$scope.periodOfValidity.endDate = undefined;
-		$scope.periodOfValidityInvalid = false;
 
 		$scope.indicatorDataSourceIdProperty = undefined;
 		$scope.indicatorDataSourceNameProperty = undefined;
@@ -252,7 +305,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			$scope.indicatorTagsString_withCommas = undefined;
 			$scope.indicatorInterpretation = undefined;
 			$scope.indicatorCreationType = kommonitorDataExchangeService.indicatorCreationTypeOptions[0];
-			$scope.indicatorLowestSpatialUnitMetadataObjectForComputation = undefined;
+			$scope.indicatorLowestSpatialUnitMetadataObjectForComputation = kommonitorDataExchangeService.availableSpatialUnits[0];
 			$scope.enableLowestSpatialUnitSelect = false;
 
 			$scope.indicatorTopic_mainTopic = undefined;
@@ -558,19 +611,6 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			});
 		};
 
-		$scope.checkPeriodOfValidity = function(){
-			$scope.periodOfValidityInvalid = false;
-			if ($scope.periodOfValidity.startDate && $scope.periodOfValidity.endDate){
-				var startDate = new Date($scope.periodOfValidity.startDate);
-				var endDate = new Date($scope.periodOfValidity.endDate);
-
-				if ((startDate === endDate) || startDate > endDate){
-					// failure
-					$scope.periodOfValidityInvalid = true;
-				}
-			}
-		};
-
 		$scope.buildImporterObjects = async function(){
 			$scope.converterDefinition = $scope.buildConverterDefinition();
 			$scope.datasourceTypeDefinition = await $scope.buildDatasourceTypeDefinition();
@@ -647,7 +687,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 				  "interpretation": $scope.indicatorInterpretation || "",
 				  "isHeadlineIndicator": $scope.isHeadlineIndicator || false,
 				  "processDescription": $scope.indicatorProcessDescription || "",
-				  "lowestSpatialUnitForComputation": $scope.indicatorLowestSpatialUnitMetadataObjectForComputation || null,
+				  "lowestSpatialUnitForComputation": $scope.indicatorLowestSpatialUnitMetadataObjectForComputation.spatialUnitLevel || null,
 				  "defaultClassificationMapping": {
 					"colorBrewerSchemeName": $scope.selectedColorBrewerPaletteEntry.paletteName,
 					"items": [
@@ -941,7 +981,16 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 				}
 
 				$scope.indicatorInterpretation = $scope.metadataImportSettings.interpretation;
-				$scope.indicatorLowestSpatialUnitMetadataObjectForComputation = $scope.metadataImportSettings.lowestSpatialUnitForComputation;
+				$scope.indicatorLowestSpatialUnitMetadataObjectForComputation = kommonitorDataExchangeService.availableSpatialUnits[0];
+
+				for (let i = 0; i < kommonitorDataExchangeService.availableSpatialUnits.length; i++) {
+					const spatialUnitMetadata = kommonitorDataExchangeService.availableSpatialUnits[i];
+	
+					if(spatialUnitMetadata.spatialUnitLevel === $scope.metadataImportSettings.lowestSpatialUnitForComputation){
+						$scope.indicatorLowestSpatialUnitMetadataObjectForComputation = spatialUnitMetadata;
+						break;
+					}				
+				}
 				
 				var topicHierarchy = kommonitorDataExchangeService.getTopicHierarchyForTopicId($scope.metadataImportSettings.topicReference);
 
@@ -1003,7 +1052,8 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 
 				$scope.numClassesArray = [3,4,5,6,7,8];
 				$scope.numClasses = $scope.numClassesArray[2];
-				$scope.selectedColorBrewerPaletteEntry = undefined;
+				// instantiate with palette 'Blues'
+				$scope.selectedColorBrewerPaletteEntry = $scope.colorbrewerPalettes[13];
 
 				for (const colorbrewerPalette of $scope.colorbrewerPalettes) {
 					if (colorbrewerPalette.paletteName === $scope.metadataImportSettings.defaultClassificationMapping.colorBrewerSchemeName){
@@ -1062,7 +1112,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			}
 				
 			metadataExport.interpretation = $scope.indicatorInterpretation || "";
-			metadataExport.lowestSpatialUnitForComputation = $scope.indicatorLowestSpatialUnitMetadataObjectForComputation || "";
+			metadataExport.lowestSpatialUnitForComputation = $scope.indicatorLowestSpatialUnitMetadataObjectForComputation.spatialUnitLevel || "";
 
 			if($scope.indicatorTopic_subsubsubTopic){
 				metadataExport.topicReference = $scope.indicatorTopic_subsubsubTopic.topicId;
