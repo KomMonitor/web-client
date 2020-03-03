@@ -288,7 +288,7 @@
 										<div ng-show="enableLowestSpatialUnitSelect" class="form-group">
 											<label>Niedrigste Raumebene für automatisierte Berechnung</label>
 											<select ng-model="indicatorLowestSpatialUnitMetadataObjectForComputation"
-												ng-options="spatialUnitLevel as spatialUnit.spatialUnitLevel for spatialUnit in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits"
+												ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits"																							
 												class="form-control">
 												<option disabled selected value> -- Raumeinheit w&auml;hlen --
 												</option>
