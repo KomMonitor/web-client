@@ -168,6 +168,9 @@
 												<div class="help-block">
 													<p>{{parameter.description}}</p>
 												</div>
+												<div ng-if="parameter.name === 'CRS'" class="help-block with-errors" style="color: red;">
+													<p>CRS aufmerksam setzen. Falsche Angaben f&uuml;hren zur fehlerhaften Koordinaten der Features</p>
+												</div>
 												<div class="help-block with-errors"></div>
 											</div>
 										</div>
