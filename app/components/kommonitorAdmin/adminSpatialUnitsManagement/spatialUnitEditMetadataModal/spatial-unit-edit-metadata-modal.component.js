@@ -312,6 +312,26 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 				$scope.$apply();
 		}
 
+		$scope.onExportSpatialUnitEditMetadataTemplate = function(){
+
+			var metadataJSON = JSON.stringify($scope.spatialUnitMetadataStructure);
+
+			var fileName = "Raumeinheit_Metadaten_Vorlage_Export.json";
+
+			var blob = new Blob([metadataJSON], {type: "application/json"});
+			var data  = URL.createObjectURL(blob);
+
+			var a = document.createElement('a');
+			a.download    = fileName;
+			a.href        = data;
+			a.textContent = "JSON";
+			a.target = "_blank";
+			a.rel = "noopener noreferrer";
+			a.click();
+
+			a.remove();
+		};
+
 		$scope.onExportSpatialUnitEditMetadata = function(){
 			var metadataExport = $scope.spatialUnitMetadataStructure;
 

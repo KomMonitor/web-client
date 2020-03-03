@@ -1129,8 +1129,10 @@
 				<button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" ng-disabled=""
 					ng-click="onExportIndicatorAddMetadata()" title="Exportieren der Metadaten in eine Datei"><i
 						class="fas fa-file-export"></i>&nbsp;&nbsp;Metadaten-Export</button>
-				<button type="button" class="btn btn-success"
+				<button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" ng-disabled="" ng-click="onExportIndicatorAddMetadataTemplate()" title="Exportieren einer Metadaten-Vorlage in eine Datei"><i class="fas fa-file-export"></i>&nbsp;&nbsp;Metadaten-Export Vorlage</button>
 				
+
+				<button type="button" class="btn btn-success"				
 					ng-disabled="!datasetName || !metadata.description || !metadata.datasource || !metadata.contact || !metadata.updateInterval || !metadata.lastUpdate || !indicatorType|| !indicatorCreationType || !indicatorInterpretation || !indicatorTopic_mainTopic || datasetNameInvalid || !indicatorUnit || !converter || !datasourceType || !targetSpatialUnitMetadata || !spatialUnitRefKeyProperty"
 					ng-click="addIndicator()">Indikator registrieren</button>
 				<button type="button" class="btn btn-danger"

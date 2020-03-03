@@ -1073,6 +1073,26 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 				$scope.$apply();
 		};
 
+		$scope.onExportIndicatorAddMetadataTemplate = function(){
+
+			var metadataJSON = JSON.stringify($scope.indicatorMetadataStructure);
+
+			var fileName = "Indikator_Metadaten_Vorlage_Export.json";
+
+			var blob = new Blob([metadataJSON], {type: "application/json"});
+			var data  = URL.createObjectURL(blob);
+
+			var a = document.createElement('a');
+			a.download    = fileName;
+			a.href        = data;
+			a.textContent = "JSON";
+			a.target = "_blank";
+			a.rel = "noopener noreferrer";
+			a.click();
+
+			a.remove();
+		};
+
 		$scope.onExportIndicatorAddMetadata = function(){
 			var metadataExport = $scope.indicatorMetadataStructure;
 
