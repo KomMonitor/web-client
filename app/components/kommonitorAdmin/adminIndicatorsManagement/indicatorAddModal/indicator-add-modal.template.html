@@ -1145,7 +1145,9 @@
 				<h4><i class="icon fa fa-check"></i>Indikator registriert</h4>
 				<p>Eine neuer Indikator mit Namen {{successMessagePart}} wurde in KomMonitor registriert und in die
 					&Uuml;bersichtstabelle eingetragen.
-					{{importedFeatures.length}} Features wurden dabei importiert.
+					<div ng-if="importedFeatures && importedFeatures.length > 0">
+						{{importedFeatures.length}} Features wurden dabei importiert.
+					</div>
 				</p>
 			</div>
 

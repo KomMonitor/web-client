@@ -337,7 +337,9 @@
 				<button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
 				<h4><i class="icon fa fa-check"></i>Features erfolgreich fortgef&uuml;hrt</h4>
 				<p>Fortf&uuml;hren der Features der Raumeinheit mit Namen {{successMessagePart}} war erfolgreich.
-					{{importedFeatures.length}} Features wurden dabei importiert.
+					<div ng-if="importedFeatures && importedFeatures.length > 0">
+						{{importedFeatures.length}} Features wurden dabei importiert.
+					</div>
 				</p>
 			</div>
 
