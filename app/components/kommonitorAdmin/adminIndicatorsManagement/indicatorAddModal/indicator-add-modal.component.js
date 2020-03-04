@@ -758,7 +758,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 
 				for (const geoRef of $scope.georesourceReferences_adminView) {
 					postBody.refrencesToGeoresources.push({
-						"indicatorId": geoRef.referencedGeoresourceId,
+						"georesourceId": geoRef.referencedGeoresourceId,
 						"referenceDescription": geoRef.referencedGeoresourceDescription
 					});
 				}
@@ -1170,7 +1170,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 
 				for (const geoRef of $scope.georesourceReferences_adminView) {
 					metadataExport.refrencesToGeoresources.push({
-						"indicatorId": geoRef.referencedGeoresourceId,
+						"georesourceId": geoRef.referencedGeoresourceId,
 						"referenceDescription": geoRef.referencedGeoresourceDescription
 					});
 				}

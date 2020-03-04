@@ -656,7 +656,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 
 				for (const geoRef of $scope.georesourceReferences_adminView) {
 					patchBody.refrencesToGeoresources.push({
-						"indicatorId": geoRef.referencedGeoresourceId,
+						"georesourceId": geoRef.referencedGeoresourceId,
 						"referenceDescription": geoRef.referencedGeoresourceDescription
 					});
 				}
@@ -1021,7 +1021,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 
 				for (const geoRef of $scope.georesourceReferences_adminView) {
 					metadataExport.refrencesToGeoresources.push({
-						"indicatorId": geoRef.referencedGeoresourceId,
+						"georesourceId": geoRef.referencedGeoresourceId,
 						"referenceDescription": geoRef.referencedGeoresourceDescription
 					});
 				}
