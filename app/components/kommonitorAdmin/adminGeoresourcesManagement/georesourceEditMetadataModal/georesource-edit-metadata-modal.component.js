@@ -359,6 +359,8 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 					$scope.georesourceMetadataImportError = "Uploaded Metadata File cannot be parsed correctly";
 					document.getElementById("georesourcesEditMetadataPre").innerHTML = $scope.georesourceMetadataStructure_pretty;
 					$("#georesourceEditMetadataImportErrorAlert").show();
+
+					$scope.$apply();
 				}
 
 			};
@@ -376,6 +378,8 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 				$scope.georesourceMetadataImportError = "Struktur der Datei stimmt nicht mit erwartetem Muster &uuml;berein.";
 				document.getElementById("georesourcesEditMetadataPre").innerHTML = $scope.georesourceMetadataStructure_pretty;
 				$("#georesourceEditMetadataImportErrorAlert").show();
+
+				$scope.$apply();
 			}
 
 				$scope.metadata = {};

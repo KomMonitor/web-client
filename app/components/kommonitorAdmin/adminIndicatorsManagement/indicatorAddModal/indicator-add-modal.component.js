@@ -908,6 +908,8 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 				$scope.indicatorMetadataImportError = "Struktur der Datei stimmt nicht mit erwartetem Muster &uuml;berein.";
 				document.getElementById("indicatorsAddMetadataPre").innerHTML = $scope.indicatorMetadataStructure_pretty;
 				$("#indicatorAddMetadataImportErrorAlert").show();
+
+				$scope.$apply();
 			}
 
 				$scope.metadata = {};

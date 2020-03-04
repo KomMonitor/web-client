@@ -381,6 +381,8 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 					$scope.spatialUnitMetadataImportError = "Uploaded Metadata File cannot be parsed correctly";
 					document.getElementById("spatialUnitsAddMetadataPre").innerHTML = $scope.spatialUnitMetadataStructure_pretty;
 					$("#spatialUnitMetadataImportErrorAlert").show();
+
+					$scope.$apply();
 				}
 
 			};
@@ -398,6 +400,8 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 				$scope.spatialUnitMetadataImportError = "Struktur der Datei stimmt nicht mit erwartetem Muster &uuml;berein.";
 				document.getElementById("spatialUnitsAddMetadataPre").innerHTML = $scope.spatialUnitMetadataStructure_pretty;
 				$("#spatialUnitMetadataImportErrorAlert").show();
+
+				$scope.$apply();
 			}
 
 				$scope.metadata = {};

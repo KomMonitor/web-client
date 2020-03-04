@@ -743,6 +743,8 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 					$scope.indicatorMetadataImportError = "Uploaded Metadata File cannot be parsed correctly";
 					document.getElementById("indicatorsEditMetadataPre").innerHTML = $scope.indicatorMetadataStructure_pretty;
 					$("#indicatorEditMetadataImportErrorAlert").show();
+
+					$scope.$apply();
 				}
 
 			};
@@ -760,6 +762,8 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 				$scope.indicatorMetadataImportError = "Struktur der Datei stimmt nicht mit erwartetem Muster &uuml;berein.";
 				document.getElementById("indicatorsAddMetadataPre").innerHTML = $scope.indicatorMetadataStructure_pretty;
 				$("#indicatorAddMetadataImportErrorAlert").show();
+
+				$scope.$apply();
 			}
 
 				$scope.metadata = {};
