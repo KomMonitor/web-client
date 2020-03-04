@@ -89,7 +89,7 @@
 							</thead>
 
 							<tbody>
-								<tr ng-repeat="script in affectedScripts">
+								<tr ng-repeat="script in affectedScripts track by $index">
 									<td>{{script.scriptId}}</td>
 									<td>{{script.name}}</td>
 									<td>{{script.description}}</td>
@@ -135,7 +135,7 @@
 								<div ng-if="affectedScripts.length > 0">
 									<h4>Skripte</h4>
 									<ul>
-					            <li ng-repeat="script in affectedScripts">{{script.name}}</li>
+					            <li ng-repeat="script in affectedScripts track by $index">{{script.name}}</li>
 									</ul>
 								</div>
 
