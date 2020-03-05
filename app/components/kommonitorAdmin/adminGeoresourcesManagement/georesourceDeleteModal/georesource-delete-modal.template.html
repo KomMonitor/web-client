@@ -60,17 +60,22 @@
 								<th>Indikatoren-Name</th>
 								<th>Indikatoren-Merkmal</th>
 								<th>Indikatoren-Typ</th>
-								<th>Indikatoren-Beschreibung</th>
+								<th>referenzierte Georessource - ID</th>
+								<th>referenzierte Georessource - Name</th>
+								<th>referenzierte Georessource - Beschreibung</th>
 							</tr>
 							</thead>
 
 							<tbody>
-								<tr ng-repeat="indicator in affectedIndicatorReferences">
-									<td>{{indicator.indicatorId}}</td>
-									<td>{{indicator.indicatorName}}</td>
-									<td>{{indicator.characteristicValue}}</td>
-									<td>{{indicator.indicatorType}}</td>
-									<td>{{indicator.description}}</td>
+								<tr ng-repeat="entry in affectedIndicatorReferences">
+									<td>{{entry.indicatorMetadata.indicatorId}}</td>
+									<td>{{entry.indicatorMetadata.indicatorName}}</td>
+									<td>{{entry.indicatorMetadata.characteristicValue}}</td>
+									<td>{{entry.indicatorMetadata.indicatorType}}</td>
+									<td>{{entry.indicatorMetadata.description}}</td>
+									<td>{{entry.georesourceReference.referencedGeoresourceId}}</td>
+									<td>{{entry.georesourceReference.referencedGeoresourceName}}</td>
+									<td>{{entry.georesourceReference.referencedGeoresourceDescription}}</td>
 								</tr>
 
 							</tbody>

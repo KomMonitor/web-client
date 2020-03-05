@@ -65,7 +65,10 @@ angular.module('georesourceDeleteModal').component('georesourceDeleteModal', {
 					for(var k=0; k < $scope.datasetsToDelete.length; k++){
 						var datasetToDelete = $scope.datasetsToDelete[k];
 						if(georesourceReference.referencedGeoresourceId === datasetToDelete.georesourceId){
-							$scope.affectedIndicatorReferences.push(indicator);
+							$scope.affectedIndicatorReferences.push({
+								"indicatorMetadata": indicator,
+								"georesourceReference": georesourceReference
+							});
 							break;
 						}
 					}
