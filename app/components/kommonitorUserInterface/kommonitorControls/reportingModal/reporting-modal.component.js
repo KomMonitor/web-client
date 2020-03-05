@@ -343,7 +343,7 @@ angular.module('reportingModal').component('reportingModal', {
 						console.log("pdf pageWidth: ", pageWidth);
 						console.log("pdf pageHeight: ", pageHeight);
 						var imgData = data[i].toDataURL('image/png');
-						doc.addImage(imgData, 'PNG', 0, 0, pageWidth, pageHeight); 
+						doc.addImage(imgData, 'PNG', 0, 0, pageWidth, pageHeight, '', 'FAST'); 
 					}
 					
 
