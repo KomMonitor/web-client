@@ -1092,6 +1092,10 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 				$("#indicatorEditMetadataErrorAlert").hide();
 			};
 
+			$scope.hideMetadataErrorAlert = function(){
+				$("#indicatorEditMetadataImportErrorAlert").hide();
+			};
+
 			/*
 			MULTI STEP FORM STUFF
 			*/
