@@ -105,19 +105,9 @@ angular.module('reportingModal').component('reportingModal', {
 				el => el !== indicator
 			);
 
-			//these two lines cause a short delay when using the program after an indicator was removed.
-			//resetting the modal fixes this
-			
 			//add back to available indicators and availableIndicatorsNames
-			//console.log($scope.addedIndicatorsBoxSelection);
-			//console.log(indicator.indicatorName);
-			//console.log($scope.availableIndicators.length);
-			//console.log($scope.availableIndicatorsNames.length);
 			$scope.availableIndicators[$scope.availableIndicators.length] = $scope.addedIndicatorsBoxSelection;
 			$scope.availableIndicatorsNames[$scope.availableIndicatorsNames.length] = indicator.indicatorName;
-			//console.log($scope.availableIndicators.length);
-			//console.log($scope.availableIndicatorsNames.length);
-
 
 			//delete config
 			$scope.allAddedIndicatorsConfig = $scope.allAddedIndicatorsConfig.filter( 
@@ -316,24 +306,20 @@ angular.module('reportingModal').component('reportingModal', {
 			//a higher number will lead to higher quality images.
 			//but it will also increase the time needed to generate a pdf and the file size
 			window.devicePixelRatio = 2;
-
 			var pages2canvasArray = []
 			for(var i=1;i<=$scope.pagesArray.length;i++) {
 				pages2canvasArray.push(html2canvas(document.getElementById("reporting-page-" + i.toString()), {
 					//htm2canvas options can be placed here
 				}))
 			}
-			
 			//create html2canvas
 			Promise.all(pages2canvasArray).then(data => {
-
 					var orientation = ""
 					if (data[0].width > data[0].height) {
 						orientation = "landscape"
 					} else {
-						orientation = "portarait"
+						orientation = "portrait"
 					}
-
 					//create pdf document
 					var doc = new jsPDF({
 						margin: 0,	
@@ -341,9 +327,7 @@ angular.module('reportingModal').component('reportingModal', {
 						format: 'a4',
 						orientation: orientation
 					});
-
 					for(var i=0;i<data.length;i++) {
-			
 						//pdf page for first page already exists
 						if(i!==0) {
 							//for all other pages add a page in landscape or portrait
@@ -353,17 +337,16 @@ angular.module('reportingModal').component('reportingModal', {
 								doc.addPage('a4', 'portrait');
 							}
 						}
-
 						//scale image to a4
 						var pageWidth = doc.internal.pageSize.getWidth();
 						var pageHeight = doc.internal.pageSize.getHeight();
 						console.log("pdf pageWidth: ", pageWidth);
 						console.log("pdf pageHeight: ", pageHeight);
-
 						var imgData = data[i].toDataURL('image/png');
-
 						doc.addImage(imgData, 'PNG', 0, 0, pageWidth, pageHeight); 
 					}
+					
+
 					
 					//get current date and time
 					var now = getCurrentDateAndTime();
@@ -666,10 +649,6 @@ angular.module('reportingModal').component('reportingModal', {
 		 * resets the modal state back to the initial state.
 		 */
 		$scope.resetModal = function() {
-			$($scope.gridsArray).each( (index, element) => {
-				nodes = element.grid.nodes;
-				console.log(element.id, nodes);
-			});
 			$scope.availableIndicators = [];
 			$scope.availableIndicatorsNames = [];
 			$scope.addedIndicators = [];
