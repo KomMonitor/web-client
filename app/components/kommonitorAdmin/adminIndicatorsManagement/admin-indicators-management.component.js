@@ -69,21 +69,21 @@ angular.module('adminIndicatorsManagement').component('adminIndicatorsManagement
 
 		};
 
-		$scope.onClickDeleteDatasets = function(){
-			$scope.loadingData = true;
+		// $scope.onClickDeleteDatasets = function(){
+		// 	$scope.loadingData = true;
 
-			var markedEntriesForDeletion = [];
-			$scope.availableIndicatorDatasets.forEach(function(dataset){
-				if(dataset.isSelected){
-					markedEntriesForDeletion.push(dataset);
-				}
-			});
+		// 	var markedEntriesForDeletion = [];
+		// 	$scope.availableIndicatorDatasets.forEach(function(dataset){
+		// 		if(dataset.isSelected){
+		// 			markedEntriesForDeletion.push(dataset);
+		// 		}
+		// 	});
 
-			// submit selected spatial units to modal controller
-			$rootScope.$broadcast("onDeleteIndicators", markedEntriesForDeletion);
+		// 	// submit selected spatial units to modal controller
+		// 	$rootScope.$broadcast("onDeleteIndicators", markedEntriesForDeletion);
 
-			$scope.loadingData = false;
-		};
+		// 	$scope.loadingData = false;
+		// };
 
 		$scope.onClickEditMetadata = function(indicatorDataset){
 			// submit selected spatial unit to modal controller

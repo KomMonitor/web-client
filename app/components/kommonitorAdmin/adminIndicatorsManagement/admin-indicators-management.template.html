@@ -51,7 +51,7 @@
 	              <table id="indicatorOverviewTable" datatable="ng" dt-options="$ctrl.kommonitorDataExchangeServiceInstance.datatablesOptions" class="table table-bordered table-condensed table-striped" style="width:100%; overflow:auto; font-size: 11px;">
 	                <thead>
 	                <tr>
-	                  <th><input type="checkbox" ng-model="selectIndicatorEntriesInput" ng-change="onChangeSelectIndicatorEntries()"></input></th>
+	                  <!-- <th><input type="checkbox" ng-model="selectIndicatorEntriesInput" ng-change="onChangeSelectIndicatorEntries()"></input></th> -->
 										<th>Editierfunktionen</th>
 										<th>Id</th>
 	                  					<th>Name</th>
@@ -87,8 +87,9 @@
 	                <tbody>
 					<tr
 						ng-repeat="indicatorDataset in availableIndicatorDatasets | filter:filterIndicators() | filter:filterIndicatorsByTopic() | filter:indicatorNameFilter">
-						<td><input type="checkbox" ng-model="indicatorDataset.isSelected"
+						<!-- <td><input type="checkbox" ng-model="indicatorDataset.isSelected"
 								ng-change="onChangeSelectindicatorDataset(indicatorDataset)"></input></td>
+						-->		
 						<td>
 							<div class="btn-group btn-group-sm">
 								<button class="btn btn-warning btn-sm" type="button" data-toggle="modal"
@@ -191,7 +192,7 @@
 
 	                <tfoot>
 	                <tr>
-										<th>alle selektieren</th>
+										<!-- <th>alle selektieren</th> -->
 										<th>Editierfunktionen</th>
 										<th>Id</th>
 	                  					<th>Name</th>
