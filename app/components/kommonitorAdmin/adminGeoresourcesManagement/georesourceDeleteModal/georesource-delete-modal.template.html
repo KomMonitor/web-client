@@ -56,17 +56,21 @@
 						<table class="table table-bordered table-condensed" style="width:100%; overflow:auto; font-size: 11px;">
 							<thead>
 							<tr>
-								<th>IndikatorenReferenz-ID</th>
-								<th>IndikatorenReferenz-Name</th>
-								<th>IndikatorenReferenz-Beschreibung</th>
+								<th>Indikatoren-ID</th>
+								<th>Indikatoren-Name</th>
+								<th>Indikatoren-Merkmal</th>
+								<th>Indikatoren-Typ</th>
+								<th>Indikatoren-Beschreibung</th>
 							</tr>
 							</thead>
 
 							<tbody>
-								<tr ng-repeat="reference in affectedIndicatorReferences">
-									<td>{{reference.referencedGeoresourceId}}</td>
-									<td>{{reference.referencedGeoresourceName}}</td>
-									<td>{{reference.referencedGeoresourceDescription}}</td>
+								<tr ng-repeat="indicator in affectedIndicatorReferences">
+									<td>{{indicator.indicatorId}}</td>
+									<td>{{indicator.indicatorName}}</td>
+									<td>{{indicator.characteristicValue}}</td>
+									<td>{{indicator.indicatorType}}</td>
+									<td>{{indicator.description}}</td>
 								</tr>
 
 							</tbody>
@@ -140,9 +144,9 @@
 								</div>
 
 								<div ng-if="affectedIndicatorReferences.length > 0">
-									<h4>Skripte</h4>
+									<h4>Referenzen zu Indikatoren</h4>
 									<ul>
-					            <li ng-repeat="reference in affectedIndicatorReferences">{{reference.referencedGeoresourceName}}</li>
+					            <li ng-repeat="indicator in affectedIndicatorReferences">{{indicator.indicatorName}}</li>
 									</ul>
 								</div>
 
