@@ -296,7 +296,7 @@ angular.module('indicatorDeleteModal').component('indicatorDeleteModal', {
 			$scope.currentApplicableSpatialUnits.forEach(function(applicableSpatialUnit){
 				$scope.currentApplicableDates.forEach(function(applicableDate){
 					if(applicableDate.isSelected){					
-						deletePromises.push($scope.getDeleteTimestampPromise(applicableDate.timestamp, applicableSpatialUnit.spatialUnitMetadata.spatialUnitId));
+						deletePromises.push($scope.getDeleteTimestampPromise(applicableDate, applicableSpatialUnit.spatialUnitMetadata.spatialUnitId));
 					}
 				});
 			});
