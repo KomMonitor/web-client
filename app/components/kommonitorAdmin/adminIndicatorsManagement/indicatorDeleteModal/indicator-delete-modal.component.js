@@ -37,6 +37,14 @@ angular.module('indicatorDeleteModal').component('indicatorDeleteModal', {
 		$scope.affectedGeoresourceReferences = [];
 
 		$scope.onChangeSelectIndicatorTimestampEntries = function(){
+
+			if(!$scope.selectIndicatorTimestampsInput){
+				$scope.selectIndicatorTimestampsInput = true;
+			}
+			else{
+				$scope.selectIndicatorTimestampsInput = false;
+			}
+
 			if ($scope.selectIndicatorTimestampsInput){
 				$scope.currentApplicableDates.forEach(function(applicableDate){
 					applicableDate.isSelected = true;
@@ -51,6 +59,14 @@ angular.module('indicatorDeleteModal').component('indicatorDeleteModal', {
 		};
 
 		$scope.onChangeSelectIndicatorSpatialUnitsEntries = function(){
+
+			if(!$scope.selectIndicatorSpatialUnitsInput){
+				$scope.selectIndicatorSpatialUnitsInput = true;
+			}
+			else{
+				$scope.selectIndicatorSpatialUnitsInput = false;
+			}
+
 			if ($scope.selectIndicatorSpatialUnitsInput){
 				$scope.currentApplicableSpatialUnits.forEach(function(applicableSpatialUnit){
 					applicableSpatialUnit.isSelected = true;
@@ -216,15 +232,15 @@ angular.module('indicatorDeleteModal').component('indicatorDeleteModal', {
 
 			// depending on deleteType we must execute different DELETE requests
 
-			if ($scope.indicatorDeleteType === "indicatorDataset"){
+			if ($scope.indicatorDeleteType.apiName === "indicatorDataset"){
 				// delete complete dataset
 				$scope.deleteWholeIndicatorDataset();
 			}
-			else if ($scope.indicatorDeleteType === "indicatorTimestamp"){
+			else if ($scope.indicatorDeleteType.apiName === "indicatorTimestamp"){
 				// delete all selected timestamps from indicator
 				$scope.deleteSelectedIndicatorTimestamps();
 			}
-			else if ($scope.indicatorDeleteType === "indicatorSpatialUnit"){
+			else if ($scope.indicatorDeleteType.apiName === "indicatorSpatialUnit"){
 				// delete all selected spatial units from indicator
 				$scope.deleteSelectedIndicatorSpatialUnits();
 			}
@@ -254,7 +270,7 @@ angular.module('indicatorDeleteModal').component('indicatorDeleteModal', {
 
 					$scope.loadingData = false;
 
-					$scope.resetIndicatorsDeleteForm();
+					// $scope.resetIndicatorsDeleteForm();
 
 				}, function errorCallback(error) {
 					if(error.data){							
@@ -310,7 +326,7 @@ angular.module('indicatorDeleteModal').component('indicatorDeleteModal', {
 
 							$scope.loadingData = false;
 
-							$scope.resetIndicatorsDeleteForm();
+							// $scope.resetIndicatorsDeleteForm();
 						}
 				}, function errorCallback(errorArray) {
 
@@ -359,7 +375,7 @@ angular.module('indicatorDeleteModal').component('indicatorDeleteModal', {
 
 							$scope.loadingData = false;
 
-							$scope.resetIndicatorsDeleteForm();
+							// $scope.resetIndicatorsDeleteForm();
 						}
 				}, function errorCallback(errorArray) {
 
