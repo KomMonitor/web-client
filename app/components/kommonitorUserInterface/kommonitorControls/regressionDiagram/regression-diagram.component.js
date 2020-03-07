@@ -434,7 +434,8 @@ angular
 											  left: '10%',
 											  top: 10,
 											  right: '10%',
-											  bottom: 55
+											  bottom: 55,
+											  containLabel: true
 											},
 										    title: {
 										        text: 'Lineare Regression - ' + $scope.spatialUnitName + ' - ' + $scope.date,

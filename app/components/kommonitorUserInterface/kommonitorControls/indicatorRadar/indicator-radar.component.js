@@ -178,7 +178,8 @@ angular
 									left: '5%',
 									top: 0,
 									right: '5%',
-									bottom: 30
+									bottom: 30,
+									containLabel: true
 								},
 								title: {
 									text: 'Indikatorenradar - ' + $scope.spatialUnitName + ' - ' + $scope.date,
