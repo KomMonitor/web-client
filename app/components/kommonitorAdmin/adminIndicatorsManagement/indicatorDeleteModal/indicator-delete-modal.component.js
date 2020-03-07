@@ -223,6 +223,8 @@ angular.module('indicatorDeleteModal').component('indicatorDeleteModal', {
 
 		$scope.deleteIndicatorData = function(){
 
+			$scope.loadingData = true;
+
 			$scope.successfullyDeletedDatasets = [];
 				$scope.successfullyDeletedTimestamps = [];
 				$scope.successfullyDeletedSpatialUnits = [];
