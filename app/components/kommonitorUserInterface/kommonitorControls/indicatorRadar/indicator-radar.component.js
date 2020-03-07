@@ -175,9 +175,9 @@ angular
 
 							$scope.radarOption = {
 								grid: {
-									left: '5%',
+									left: '4%',
 									top: 0,
-									right: '5%',
+									right: '4%',
 									bottom: 30,
 									containLabel: true
 								},

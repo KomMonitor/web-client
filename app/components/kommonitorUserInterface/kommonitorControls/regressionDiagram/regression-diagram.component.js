@@ -433,7 +433,7 @@ angular
 											grid: {
 											  left: '10%',
 											  top: 10,
-											  right: '10%',
+											  right: '5%',
 											  bottom: 55,
 											  containLabel: true
 											},

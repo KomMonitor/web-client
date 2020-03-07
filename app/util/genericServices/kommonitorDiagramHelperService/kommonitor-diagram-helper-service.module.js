@@ -307,9 +307,9 @@ angular
         var barOption = {
           // grid get rid of whitespace around chart
           grid: {
-            left: '7%',
+            left: '4%',
             top: 32,
-            right: '5%',
+            right: '4%',
             bottom: 32,
             containLabel: true
           },
@@ -698,10 +698,11 @@ angular
         var geoMapOption = {
           // grid get rid of whitespace around chart
           // grid: {
-          //   left: '7%',
+          //   left: '4%',
           //   top: 32,
-          //   right: '5%',
-          //   bottom: 32
+          //   right: '4%',
+          //   bottom: 32,
+          //   containLabel: true
           // },
           title: {
             text: geoMapChartTitel,
@@ -797,9 +798,9 @@ angular
         var lineOption = {
           // grid get rid of whitespace around chart
           grid: {
-            left: '7%',
+            left: '4%',
             top: 32,
-            right: '5%',
+            right: '4%',
             bottom: 55,
             containLabel: true
           },
@@ -1027,9 +1028,9 @@ angular
         var histogramOption = {
           // grid get rid of whitespace around chart
           grid: {
-            left: '7%',
+            left: '4%',
             top: 32,
-            right: '7%',
+            right: '4%',
             bottom: 35,
             containLabel: true
           },
