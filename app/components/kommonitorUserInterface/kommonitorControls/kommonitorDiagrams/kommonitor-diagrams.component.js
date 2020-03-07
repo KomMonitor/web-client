@@ -99,6 +99,9 @@ angular
 
 						showLoadingIcons();
 
+						$scope.spatialUnitName = spatialUnitName;
+						$scope.date = date;
+
 						kommonitorDiagramHelperService.prepareAllDiagramResources(indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue);
 
 						updateHistogramChart();
