@@ -45,7 +45,7 @@
 									class="form-control" required>
 								</select>
 								<div class="help-block">
-									<p>Diese Auswahl bestimmt, welche Details des Indikators gel&ouml;scht werden sollen.</p>
+									<p>Diese Auswahl bestimmt, welche Aspekte des Indikators gel&ouml;scht werden sollen.</p>
 								</div>
 								<div class="help-block with-errors"></div>
 							</div>
@@ -432,11 +432,17 @@
 								</div>
 
 								<div ng-if="(successfullyDeletedTimestamps).length > 0">
-
+									<h4>Zeitschnitte</h4>
+										<ul>
+									<li ng-repeat="timestamp in successfullyDeletedTimestamps">{{timestamp.timestamp}}</li>
+										</ul>
 								</div>
 
 								<div ng-if="(successfullyDeletedSpatialUnits).length > 0">
-
+									<h4>Raumebenen</h4>
+										<ul>
+									<li ng-repeat="spatialUnit in successfullyDeletedSpatialUnits">{{spatialUnit.spatialUnitMetadata.spatialUnitLevel}}</li>
+										</ul>
 								</div>
 
 								
