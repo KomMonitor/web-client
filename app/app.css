@@ -979,8 +979,11 @@ MULTI STEP FORM
   /* right: 40px; */
 }
 
-/*
-					table, th, td {
+table, th, td {
+	font-size: 100% !important;
+}
+
+					/* table, th, td {
 						border: inherit !important;
 						border-collapse:inherit !important;
 						font-family: arial;
