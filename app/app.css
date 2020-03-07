@@ -983,6 +983,18 @@ table, th, td {
 	font-size: 100% !important;
 }
 
+					table, th, td {
+						font-size: 100% !important;
+						color: #555 !important;
+					}
+					th, td {
+						valign: top !important;
+						text-align: left !important;
+					}
+					th {
+						background-color: white !important;
+					}
+
 					/* table, th, td {
 						border: inherit !important;
 						border-collapse:inherit !important;
