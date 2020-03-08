@@ -154,7 +154,7 @@
 								</div>
 
 								<div ng-show="georesourceType === 'loi'" class="row vertical-align">
-									<div class="col-md-6 col-sm-6 col-xs-12">
+									<div class="col-md-4 col-sm-4 col-xs-12">
 										<div class="form-group" align="center">
 											<label>Linienfarbe*</label>
 											<div id="loiColorPicker" class="input-group" style="width: 50px;">
@@ -169,7 +169,15 @@
 
 										</div>
 									</div>
-									<div class="col-md-6 col-sm-6 col-xs-12">
+									<div class="col-md-4 col-sm-4 col-xs-12">
+										<div class="form-group" align="center">
+											<label>Linienbreite*</label>
+											<br/>
+											<input style="width: auto;" type="number" ng-model="loiWidth" min="1" max="5" step="1">
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-4 col-sm-4 col-xs-12">
 										<div class="form-group" align="center">
 											<label>Linienmuster*</label>
 											<div class="dropdown">

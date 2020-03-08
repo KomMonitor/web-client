@@ -2522,7 +2522,7 @@ angular.module('kommonitorMap').component(
           var style = {
             color: georesourceMetadataAndGeoJSON.loiColor,
             dashArray: georesourceMetadataAndGeoJSON.loiDashArrayString,
-            weight: 3,
+            weight: georesourceMetadataAndGeoJSON.loiWidth || 3,
             opacity: 1
           };
 

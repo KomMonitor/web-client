@@ -39,6 +39,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 				},
 				"isPOI": false,
 				"loiColor": "loiColor",
+				"loiWidth": "loiWidth",
 				"aoiColor": "aoiColor"
 			}
 		*/
@@ -69,6 +70,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			"loiDashArrayString": "dash array string value - e.g. 20 20",
 			"poiMarkerColor": "'white'|'red'|'orange'|'beige'|'green'|'blue'|'purple'|'pink'|'gray'|'black'",
 			"loiColor": "color for lines of interest dataset",
+			"loiWidth": "width for lines of interest dataset",
 			"aoiColor": "color for area of interest dataset"
 		};
 
@@ -100,6 +102,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 		$scope.selectedPoiSymbolColor = kommonitorDataExchangeService.availablePoiMarkerColors[1];
 		$scope.selectedLoiDashArrayObject = kommonitorDataExchangeService.availableLoiDashArrayObjects[0];
 		$scope.loiColor = "#bf3d2c";
+		$scope.loiWidth = 3;
 		$scope.aoiColor = "#bf3d2c";
 		$scope.selectedPoiIconName = "home";
 
@@ -210,6 +213,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			$scope.selectedPoiSymbolColor = kommonitorDataExchangeService.availablePoiMarkerColors[1];
 			$scope.selectedLoiDashArrayObject = kommonitorDataExchangeService.availableLoiDashArrayObjects[0];
 			$scope.loiColor = "#bf3d2c";
+			$scope.loiWidth = 3;
 			$scope.aoiColor = "#bf3d2c";
 			$scope.selectedPoiIconName = "home";
 			$("#poiSymbolPicker").val("").iconpicker('setIcon', 'glyphicon-' + $scope.selectedPoiIconName);
@@ -362,6 +366,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 
 				postBody["loiDashArrayString"] = null;
 				postBody["loiColor"] = null;
+				postBody["loiWidth"] = null;
 
 				postBody["aoiColor"] = null;
 			}
@@ -372,6 +377,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 
 				postBody["loiDashArrayString"] = $scope.selectedLoiDashArrayObject.dashArrayValue;
 				postBody["loiColor"] = $scope.loiColor;
+				postBody["loiWidth"] = $scope.loiWidth;
 
 				postBody["aoiColor"] = null;
 			}
@@ -382,6 +388,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 
 				postBody["loiDashArrayString"] = null;
 				postBody["loiColor"] = null;
+				postBody["loiWidth"] = null;
 
 				postBody["aoiColor"] = $scope.aoiColor;
 			}
@@ -581,6 +588,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 					}
 				});
 				$scope.loiColor = $scope.metadataImportSettings.loiColor;
+				$scope.loiWidth = $scope.metadataImportSettings.loiWidth;
 				$scope.aoiColor = $scope.metadataImportSettings.aoiColor;
 				$scope.selectedPoiIconName = $scope.metadataImportSettings.poiSymbolBootstrap3Name;
 
@@ -644,6 +652,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 
 				metadataExport["loiDashArrayString"] = "";
 				metadataExport["loiColor"] = "";
+				metadataExport["loiWidth"] = "";
 
 				metadataExport["aoiColor"] = "";
 			}
@@ -654,6 +663,8 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 
 				metadataExport["loiDashArrayString"] = $scope.selectedLoiDashArrayObject.dashArrayValue;
 				metadataExport["loiColor"] = $scope.loiColor;
+				metadataExport["loiWidth"] = $scope.loiWidth;
+				
 
 				metadataExport["aoiColor"] = "";
 			}
@@ -664,6 +675,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 
 				metadataExport["loiDashArrayString"] = "";
 				metadataExport["loiColor"] = "";
+				metadataExport["loiWidth"] = "";
 
 				metadataExport["aoiColor"] = $scope.aoiColor;
 			}
