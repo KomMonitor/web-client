@@ -886,6 +886,7 @@ MULTI STEP FORM
 	width: 100%;
 	max-width: 100%;
 	overflow: auto;
+	font-size: 11px;
 }
 
 .adminTableButtonWrapper {
