@@ -24,6 +24,7 @@ angular.module('topicEditModal').component('topicEditModal', {
 			  "topicName": topic.topicName,
 			  "topicDescription": topic.topicDescription,
 			  "topicType": topic.topicType,
+			  "topicResource": topic.topicResource,
 			  "subTopics": topic.subTopics
 			};
 
