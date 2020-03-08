@@ -316,6 +316,107 @@
 									<input type="button" name="previous"
 									class="previous previous_editGeoresourceMetadata action-button-previous"
 									value="Voriger Schritt" />
+									<input type="button" name="next" class="next next_editGeoresourceMetadata action-button" value="N&auml;chster Schritt"/>
+							</fieldset>
+
+							<fieldset>
+								<h2 class="fs-title">Themenhierarchie</h2>
+								<h3 class="fs-subtitle">Angaben &uuml;ber die Themenhierarchie der Georessource</h3>								
+
+								<p><b><i>* = Pflichtfeld</i></b></p>
+								<p>Angabe der Themenhierarchie. Mindestens das Hauptthema muss gew&auml;hlt werden. Vorhandene Unterthemen erscheinen nach Auswahl eines Hauptthemas. Bis zu vier Themen-Ebenen sind erlaubt.</p>
+
+								<p>Das Aufklappen der unteren Box erm&ouml;glicht die Verwaltung des Themenkatalogs.</p>
+
+								<div class="row vertical-align">
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Hauptthema*</label>
+											<select ng-model="georesourceTopic_mainTopic"
+												ng-options="mainTopic as mainTopic.topicName for mainTopic in $ctrl.kommonitorDataExchangeServiceInstance.availableTopics | filter:{topicType:'main'} | filter:{topicResource:'georesource'}"
+												class="form-control" required>
+												<option disabled selected value> -- Hauptthema w&auml;hlen --
+												</option>
+											</select>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div ng-show="georesourceTopic_mainTopic.subTopics.length > 0" class="form-group">
+											<label>Unterthema - erste Ebene</label>
+											<select ng-model="georesourceTopic_subTopic"
+												ng-options="subTopic as subTopic.topicName for subTopic in georesourceTopic_mainTopic.subTopics"
+												class="form-control" >
+												<option disabled selected value> -- Unterthema w&auml;hlen --
+												</option>
+											</select>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div ng-show="georesourceTopic_subTopic.subTopics.length > 0" class="form-group">
+											<label>Unterthema - zweite Ebene</label>
+											<select ng-model="georesourceTopic_subsubTopic"
+												ng-options="subsubTopic as subsubTopic.topicName for subsubTopic in georesourceTopic_subTopic.subTopics"
+												class="form-control" >
+												<option disabled selected value> -- Unterthema w&auml;hlen --
+												</option>
+											</select>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div ng-show="georesourceTopic_subsubTopic.subTopics.length > 0" class="form-group">
+											<label>Unterthema - dritte Ebene</label>
+											<select ng-model="georesourceTopic_subsubsubTopic"
+												ng-options="subsubsubTopic as subsubsubTopic.topicName for subsubsubTopic in georesourceTopic_subsubTopic.subTopics"
+												class="form-control" >
+												<option disabled selected value> -- Unterthema w&auml;hlen --
+												</option>
+											</select>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+								</div>
+
+								<hr>
+
+								<br/>
+
+								<div class="row vertical-align">
+									<div class="col-md-10 col-sm-12 col-xs-12">
+										<div style="text-align: left;">
+											<div id="georesourceEditAdmin_topicsManagement" class="box box-primary collapsed-box" style="background: #ebf0fd;">
+												<div class="box-header">
+												  <h3 class="box-title">Themenkatalog</h3>
+
+													<div class="box-tools pull-right">
+														<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+														</button>
+													</div>
+												</div>
+												<!-- /.box-header -->
+												<div class="box-body">
+
+													<style>
+														#georesourceEditAdmin_topicsManagement #indicatorTopicsManagement{
+															display: none;
+														}
+													</style>
+
+													<admin-topics-management></admin-topics-management>
+												</div>
+												<!-- /.box-body -->
+											  </div>
+											  <!-- /.box -->
+
+										</div>
+									</div>
+								</div>
+								
+
+								<input type="button" name="previous" class="previous previous_editGeoresourceMetadata action-button-previous" value="Voriger Schritt"/>								
+
 							</fieldset>
 
 

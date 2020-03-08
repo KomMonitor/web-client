@@ -418,7 +418,7 @@
 										<div class="form-group">
 											<label>Hauptthema*</label>
 											<select ng-model="indicatorTopic_mainTopic"
-												ng-options="mainTopic as mainTopic.topicName for mainTopic in $ctrl.kommonitorDataExchangeServiceInstance.availableTopics"
+												ng-options="mainTopic as mainTopic.topicName for mainTopic in $ctrl.kommonitorDataExchangeServiceInstance.availableTopics | filter:{topicType:'main'} | filter:{topicResource:'indicator'}"
 												class="form-control" required>
 												<option disabled selected value> -- Hauptthema w&auml;hlen --
 												</option>
@@ -452,7 +452,7 @@
 									</div>
 									<div class="col-md-3 col-sm-6 col-xs-12">
 										<div ng-show="indicatorTopic_subsubTopic.subTopics.length > 0" class="form-group">
-											<label>Unterthema - zweite Ebene</label>
+											<label>Unterthema - dritte Ebene</label>
 											<select ng-model="indicatorTopic_subsubsubTopic"
 												ng-options="subsubsubTopic as subsubsubTopic.topicName for subsubsubTopic in indicatorTopic_subsubTopic.subTopics"
 												class="form-control" >
@@ -471,7 +471,7 @@
 								<div class="row vertical-align">
 									<div class="col-md-10 col-sm-12 col-xs-12">
 										<div style="text-align: left;">
-											<div class="box box-primary collapsed-box" style="background: #ebf0fd;">
+											<div id="indicatorAddAdmin_topicsManagement" class="box box-primary collapsed-box" style="background: #ebf0fd;">
 												<div class="box-header">
 												  <h3 class="box-title">Themenkatalog</h3>
 
@@ -482,6 +482,13 @@
 												</div>
 												<!-- /.box-header -->
 												<div class="box-body">
+
+													<style>
+														#indicatorAddAdmin_topicsManagement #georesourceTopicsManagement{
+															display: none;
+														}
+													</style>
+
 													<admin-topics-management></admin-topics-management>
 												</div>
 												<!-- /.box-body -->

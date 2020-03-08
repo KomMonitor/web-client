@@ -88,6 +88,11 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 		$scope.metadata.lastUpdate = undefined;
 		$scope.metadata.description = undefined;
 
+		$scope.georesourceTopic_mainTopic = undefined;
+		$scope.georesourceTopic_subTopic = undefined;
+		$scope.georesourceTopic_subsubTopic = undefined;
+		$scope.georesourceTopic_subsubsubTopic = undefined;
+
 		$scope.georesourceType = "poi";
 		$scope.isPOI = true;
 		$scope.isLOI = false;
@@ -214,6 +219,21 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 			$scope.aoiColor = $scope.currentGeoresourceDataset.aoiColor;
 			$scope.selectedPoiIconName = $scope.currentGeoresourceDataset.poiSymbolBootstrap3Name;
 
+			var topicHierarchy = kommonitorDataExchangeService.getTopicHierarchyForTopicId($scope.currentGeoresourceDataset.topicReference);
+
+				if(topicHierarchy && topicHierarchy[0]){
+					$scope.georesourceTopic_mainTopic = topicHierarchy[0];
+				}
+				if(topicHierarchy && topicHierarchy[1]){
+					$scope.georesourceTopic_subTopic = topicHierarchy[1];
+				}
+				if(topicHierarchy && topicHierarchy[2]){
+					$scope.georesourceTopic_subsubTopic = topicHierarchy[2];
+				}
+				if(topicHierarchy && topicHierarchy[3]){
+					$scope.georesourceTopic_subsubsubTopic = topicHierarchy[3];
+				}
+
 			setTimeout(function(){
 				$("#poiSymbolEditPicker").val("").iconpicker('setIcon', 'glyphicon-' + $scope.currentGeoresourceDataset.poiSymbolBootstrap3Name);
 				// $("#poiSymbolPicker i").css('glyphicon glyphicon-' + $scope.metadataImportSettings.poiSymbolBootstrap3Name);
@@ -291,6 +311,23 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 				patchBody["loiWidth"] = null;
 
 				patchBody["aoiColor"] = $scope.aoiColor;
+			}
+
+			// TOPIC REFERENCE
+			if($scope.georesourceTopic_subsubsubTopic){
+				patchBody.topicReference = $scope.georesourceTopic_subsubsubTopic.topicId;
+			}
+			else if($scope.georesourceTopic_subsubTopic){
+				patchBody.topicReference = $scope.georesourceTopic_subsubTopic.topicId;
+			}
+			else if($scope.georesourceTopic_subTopic){
+				patchBody.topicReference = $scope.georesourceTopic_subTopic.topicId;
+			}
+			else if($scope.georesourceTopic_mainTopic){
+				patchBody.topicReference = $scope.georesourceTopic_mainTopic.topicId;
+			}
+			else {
+				patchBody.topicReference = "";
 			}
 
 			// TODO verify input
@@ -441,6 +478,21 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 				$scope.aoiColor = $scope.metadataImportSettings.aoiColor;
 				$scope.selectedPoiIconName = $scope.metadataImportSettings.poiSymbolBootstrap3Name;
 
+				var topicHierarchy = kommonitorDataExchangeService.getTopicHierarchyForTopicId($scope.metadataImportSettings.topicReference);
+
+				if(topicHierarchy && topicHierarchy[0]){
+					$scope.georesourceTopic_mainTopic = topicHierarchy[0];
+				}
+				if(topicHierarchy && topicHierarchy[1]){
+					$scope.georesourceTopic_subTopic = topicHierarchy[1];
+				}
+				if(topicHierarchy && topicHierarchy[2]){
+					$scope.georesourceTopic_subsubTopic = topicHierarchy[2];
+				}
+				if(topicHierarchy && topicHierarchy[3]){
+					$scope.georesourceTopic_subsubsubTopic = topicHierarchy[3];
+				}
+
 				setTimeout(function(){
 					$("#poiSymbolEditPicker").val("").iconpicker('setIcon', 'glyphicon-' + $scope.metadataImportSettings.poiSymbolBootstrap3Name);
 					// $("#poiSymbolPicker i").css('glyphicon glyphicon-' + $scope.metadataImportSettings.poiSymbolBootstrap3Name);
@@ -526,6 +578,22 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 				metadataExport["loiWidth"] = "";
 
 				metadataExport["aoiColor"] = $scope.aoiColor;
+			}
+
+			if($scope.georesourceTopic_subsubsubTopic){
+				metadataExport.topicReference = $scope.georesourceTopic_subsubsubTopic.topicId;
+			}
+			else if($scope.georesourceTopic_subsubTopic){
+				metadataExport.topicReference = $scope.georesourceTopic_subsubTopic.topicId;
+			}
+			else if($scope.georesourceTopic_subTopic){
+				metadataExport.topicReference = $scope.georesourceTopic_subTopic.topicId;
+			}
+			else if($scope.georesourceTopic_mainTopic){
+				metadataExport.topicReference = $scope.georesourceTopic_mainTopic.topicId;
+			}
+			else {
+				metadataExport.topicReference = "";
 			}
 
 
