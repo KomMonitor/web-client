@@ -1229,6 +1229,17 @@ select {
   overflow: auto;
 }
 
+.georesourceInputForm{
+	padding: 5px;
+	height: auto !important;
+	max-height: 750px;
+	max-width: 100%;
+	font-size: 12px;
+	/* border: 2px solid gray;
+	border-radius: 8px; */
+	overflow: auto;
+}
+
 #poiInputForm {
 	padding: 5px;
 	height: auto !important;
@@ -1288,6 +1299,13 @@ select {
 	height: auto !important;
 	max-height: 450px;
   overflow: auto;
+	font: 12px/14px Arial, Helvetica, sans-serif;
+}
+
+#georesourceHierarchySelection{
+	height: auto !important;
+	max-height: 750px;
+  	overflow: auto;
 	font: 12px/14px Arial, Helvetica, sans-serif;
 }
 
