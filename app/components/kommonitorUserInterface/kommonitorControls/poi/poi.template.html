@@ -407,10 +407,14 @@
 									</div> -->
 								</div>
 								<!-- end main Topics -->
-		
-		
-							</div>
 
+								<div  class="list-group-item list-group-item-default" style="background: #2171b5; color: white;">
+									<a id="noHierarchyGeoresourceDatasets" href="" ng-attr-title="Georessourcen-Daten ohne Hierarchie" class="collapseTrigger" style="color: white;" ng-click="isCollapsed_noTopic = !isCollapsed_noTopic" ng-init="isCollapsed_noTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>ohne Hierarchie</a>
+								</div>
+	
+	
+								<div class="list-group collapse" uib-collapse="isCollapsed_noTopic">
+									
 							<div class="georesourceInputForm" ng-if="(($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:null} ).length > 0)">
 
 								<table class="table table-condensed" style="margin-bottom:0px;">
@@ -507,6 +511,11 @@
 								 </table>	
 
 							</div>
+								</div>	
+		
+		
+							</div>
+
 		
 					</div>
 		
