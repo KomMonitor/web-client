@@ -1232,7 +1232,7 @@ select {
 .georesourceInputForm{
 	padding: 5px;
 	height: auto !important;
-	max-height: 750px;
+	max-height: 500px;
 	max-width: 100%;
 	font-size: 12px;
 	/* border: 2px solid gray;
