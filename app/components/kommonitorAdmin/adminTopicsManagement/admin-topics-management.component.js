@@ -148,6 +148,7 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 			var putBody = {
 			  "topicName": mainTopic.topicName,
 			  "topicDescription": mainTopic.topicDescription,
+			  "topicResource": resourceType,
 			  "topicType": mainTopic.topicType,
 			  "subTopics": mainTopic.subTopics
 			};
@@ -229,6 +230,7 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 			var putBody = {
 			  "topicName": subTopic.topicName,
 			  "topicDescription": subTopic.topicDescription,
+			  "topicResource": resourceType,
 			  "topicType": subTopic.topicType,
 			  "subTopics": subTopic.subTopics
 			};
@@ -301,6 +303,7 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 			var putBody = {
 			  "topicName": subTopic.topicName,
 			  "topicDescription": subTopic.topicDescription,
+			  "topicResource": resourceType,
 			  "topicType": subTopic.topicType,
 			  "subTopics": subTopic.subTopics
 			};
