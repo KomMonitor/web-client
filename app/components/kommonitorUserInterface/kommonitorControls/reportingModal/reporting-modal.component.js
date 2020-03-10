@@ -1025,11 +1025,12 @@ angular.module('reportingModal').component('reportingModal', {
 			var geoJSON = config.indicator.geoJSON;
 			var timestampPref = __env.indicatorDatePrefix + timestamp;
 			var numClasses = config.indicator.defaultClassificationMapping.items.length;
-			var colorCodePositiveValues = config.indicator.defaultClassificationMapping.colorBrewerSchemeName;
-			var colorCodeNegativeValues = "Blues";
+			var colorCodeStandard = config.indicator.defaultClassificationMapping.colorBrewerSchemeName;
+			var colorCodePositiveValues = __env.defaultColorBrewerPaletteForBalanceIncreasingValues
+			var colorCodeNegativeValues = __env.defaultColorBrewerPaletteForBalanceDecreasingValues;
 			var classifyMethod = __env.defaultClassifyMethod;
 			//setup brew
-			var defaultBrew = kommonitorVisualStyleHelperService.setupDefaultBrew(geoJSON, timestampPref, numClasses, colorCodePositiveValues, classifyMethod);
+			var defaultBrew = kommonitorVisualStyleHelperService.setupDefaultBrew(geoJSON, timestampPref, numClasses, colorCodeStandard, classifyMethod);
 			var dynamicBrewsArray = kommonitorVisualStyleHelperService.setupDynamicIndicatorBrew(geoJSON, timestampPref, colorCodePositiveValues, colorCodeNegativeValues, classifyMethod)
 			var dynamicIncreaseBrew = dynamicBrewsArray[0];
 			var dynamicDecreaseBrew = dynamicBrewsArray[1];
