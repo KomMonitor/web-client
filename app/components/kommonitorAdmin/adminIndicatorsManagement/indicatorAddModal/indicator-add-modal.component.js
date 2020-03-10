@@ -687,7 +687,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 				  "interpretation": $scope.indicatorInterpretation || "",
 				  "isHeadlineIndicator": $scope.isHeadlineIndicator || false,
 				  "processDescription": $scope.indicatorProcessDescription || "",
-				  "lowestSpatialUnitForComputation": $scope.indicatorLowestSpatialUnitMetadataObjectForComputation.spatialUnitLevel || null,
+				  "lowestSpatialUnitForComputation": $scope.indicatorLowestSpatialUnitMetadataObjectForComputation? $scope.indicatorLowestSpatialUnitMetadataObjectForComputation.spatialUnitLevel : null,
 				  "defaultClassificationMapping": {
 					"colorBrewerSchemeName": $scope.selectedColorBrewerPaletteEntry.paletteName,
 					"items": [
@@ -1134,7 +1134,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			}
 				
 			metadataExport.interpretation = $scope.indicatorInterpretation || "";
-			metadataExport.lowestSpatialUnitForComputation = $scope.indicatorLowestSpatialUnitMetadataObjectForComputation.spatialUnitLevel || "";
+			metadataExport.lowestSpatialUnitForComputation = $scope.indicatorLowestSpatialUnitMetadataObjectForComputation? $scope.indicatorLowestSpatialUnitMetadataObjectForComputation.spatialUnitLevel : "";
 
 			if($scope.indicatorTopic_subsubsubTopic){
 				metadataExport.topicReference = $scope.indicatorTopic_subsubsubTopic.topicId;
