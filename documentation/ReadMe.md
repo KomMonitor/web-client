@@ -8,6 +8,7 @@ The objective of this guide is to give you the knowledge needed to extend KomMon
     - [Folder Structure](#folder-structure)
     - [Project fundamental Libraries](#project-fundamental-libraries)
         - [Bootstrap](#bootstrap)
+        - [Leaflet](#leaflet)
         - [AngularJS](#angularjs)
             - [MVC Pattern](#mvc-pattern)
             - [Angular Component Structure](#angular-component-structure)
@@ -18,7 +19,7 @@ The objective of this guide is to give you the knowledge needed to extend KomMon
 
 ## Folder Structure
 
-If you downloaded or cloned the Web Client the main folder contains the subfolders "app", "customizedExternalLibs", "documentation" and "misc" as well as some files. Most of these files are used in the building process. During the build process another folder named "node_modules" is created. This folder contains ...
+After you downloaded or cloned the Web Client the main folder contains the subfolders "app", "customizedExternalLibs", "documentation" and "misc" as well as some files. Most of these files are used in the building process. During the build process another folder named "node_modules" is created. This folder contains ...
 Some third-party libraries had to be modified or extended. To differentiate them form unmodified libraries they are placed in a separate folder ("customizedExternalLibs"). The "app" folder is the most important folder, because it contains most of the source code.
 The "app" folder contains the "components", "iconsFromPngTree", "logos", "util" and (after the build process) "dependencies" subfolders. You can also find the index.html app.css files here. The "index.html" file is the starting point of the application. It is mainly used to load all needed scripts. All CSS rules (besides very few inline CSS declarations) can be found in the "app.css" file. "env.js" (an abbreviation for "environment") is a configuration file for important variables. E.g. it contains the list of predefined WMS layers (window.__env.wmsDatasets), which could be edited if you wanted to add a specific WMS layer permanently.
 The folders "logos" and "iconsFromPngTree" contain various images used in different locations of the Web Client. The data-exchange-service, an AngularJS service, can be found in the "util" folder.
@@ -28,14 +29,18 @@ For the main application the "kommonitor-user-interface" component defines the s
 
 ## Fundamental Libraries
 
-The KomMonitor web client uses many third-party libraries. While most of them are only used in specific parts of the application (e.g. [TableExport.js](https://github.com/clarketm/TableExport) to export html-tables as .xlsx, .csv or .txt files) there are a few libraries that are used heavily. These fundamental libraries also change the way the project is organized. It is therefore important to have a basic understanding of what they are used for and how they work.
-The scope of this document is to give a short introduction. You can read about each library in detail by following the links at the end of each tutorial.
+The KomMonitor web client uses many third-party libraries. While most of them are only used in specific parts of the application (e.g. [TableExport.js](https://github.com/clarketm/TableExport) to export html-tables as .xlsx, .csv or .txt files) there are a few libraries that are used heavily. These fundamental libraries also change the way the project is organized. It is therefore important to have a basic understanding of how they work and what they are used for.
+The scope of this document is to give a short introduction. You can read about each library in detail by following the links at the end of each section.
 
 ### Bootstrap
 
-Bootstrap is a front end framework to develop responsive websites.
+Bootstrap is a front end framework to develop responsive websites. It uses the mobile-first-approach, meaning that websites or applications created with bootstrap are designed for vieweing them from a mobile device in the first place. The interface has the ability to scale if the screen size is larger.
+
+KomMonitor uses Bootstrap3.
 
 <b>Further reading</b>
+[Official documentation](https://getbootstrap.com/docs/3.3/)
+[W3schools tutorial](https://www.w3schools.com/bootstrap/)
 
 ### Leaflet
 
@@ -48,7 +53,7 @@ Bootstrap is a front end framework to develop responsive websites.
 AngularJS is maybe the most important library used in the web client. It fundamentally changes the coding style and the folder structure.
 Note that there is a difference between Angular and AngularJS. Essentially, AngularJS is an old but not compatible version of Angular. You can read more about the differences [in this blogpost](https://www.simplilearn.com/angularjs-vs-angular-2-vs-angular-4-differences-article).
 
-AngularJS is a lightweight framework for 
+AngularJS is a lightweight framework for single-page-applications.
 
 #### MVC Pattern
 
@@ -66,19 +71,111 @@ You can read more about the MVC pattern [here](http://researchhubs.com/post/comp
 
 An AngularJS component is
 
-The AngularJS component structure reflects the MVC pattern. Although it is possible to define a component in a single file
+The AngularJS component structure reflects the MVC pattern. Although it is possible to define a component in a single file, normally it consists of three files:
 
-TODO
+1. the module
+2. the component
+3. the HTML-template (view)
 
 You can read more about AngularJS components [here](https://docs.angularjs.org/guide/component).
 
 #### Working with AngularJS Services
 
+A Service is a function or object, that is only available within a specific application. There are two different kinds of services.
+
+##### Build-in Services
+Build-in Services are provided by AngularJS. They act as a kind of wrapper around different functionalities, making sure that changes are processed correctly throughout the application. If a build-in Service is available, it is always preferred to use it instead of manually handling things. Here is an example:
+
+The \$http service is a function to communicate with a remote HTTP server.
+As an Example, let's say we have the following JSON file on an arbitrary HTTP server.
+
+    {
+      "products": [
+        {
+          "id": "12345",
+          "name": "foo"
+        }, {
+          "id": "54321",
+          "name": "bar"
+        }
+      ]
+    }
+
+In our HTML-template we want to show the details for on of the two products when the user clicks on a button. Clicking the button sends a request to the server. Without using the /$http service it could look like this:
+
+    $scope.sendRequest = function() {
+      var xmlHttp = new XMLHttpRequest();
+	  xmlHttp.onreadystatechange = function() { 
+		if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+		  $scope.productDetails = xmlHttp.responseText
+		}
+	  }
+      var url = www.someServer.com/products/12345
+	  xmlHttp.open("GET", url, true);
+	  xmlHttp.send(null);
+	}
+
+The scope is updated as soon as the response is available. However, this approach will not work. Even though we get the correct response and update the variable productDetails, our HTML-template is not updated. The reason for this is that angularJS does not get notified about the update. We could fix this by notifying angularJS manually, but this is exactly what the \$http service is for. Let's see what our example looks like with the \$http service.
+The code below is (slightly modified) taken from the [\$http service documentation](https://docs.angularjs.org/api/ng/service/$http).
+
+    $http({
+        method: 'GET',
+        url: 'http://someServer.com/products/12345'
+    }).then(function successCallback(response) {
+
+        $scope.productDetails= response.data
+
+    }, function errorCallback(response) {
+        //do nothing
+    });
+
+Our HTML template is updated as soon as the response is available.
+
+##### Own Services
+
+Is is possible to create your own services as well. Methods and variables owned by a service are available to all components this service is injected in. In KomMonitor this is used to provide variables and methods usable across multiple components. Note that services are always singleton objects, meaning that there can only be one instance of each service. 
+
+Own services can be created in two ways:
+
+1. By using the factory method
+2. By using the service method
+
+In KomMonitor services are created by using the service method, which is why we will focus on this method. Services are part of modules. You can decide if you create an extra module just for your service or if you add a service to an existing module.
+The most important service in KomMonitor is the kommonitorDataExchangeService. 
+
+    angular
+	  .module('kommonitorDataExchange', ['datatables'])
+	  .service(
+	    'kommonitorDataExchangeService', ['$rootScope', '$timeout', 'kommonitorMapService', '$http', '__env', 'DTOptionsBuilder', '$q',
+	      function($rootScope, $timeout, kommonitorMapService, $http, __env, DTOptionsBuilder, $q) {
+
+                //variables and methods provided by the service can be placed here
+
+          }
+        ]
+      )
+
+As you can see, dependencies are added to a service in the same way they are added to a component. They can then be used inside the service in the same way.
+
+In contrast to components, services do not have a scope. The purpose of a scope is to connect the presentation (view) with the logic inside a controller. Since a service has no HTML template (no view), a scope is useless here.
+This leads to the question how to assign variables and methods to a service. Instead of \$scope it is possible to use "this"
+
+    this.indicators = [ ... ]
+    this.filterIndicators = function() {
+        ...
+    };
+
+You can read more about AngularJS Services [here](https://docs.angularjs.org/guide/services)
+
+<br />
+<br />
 <b>Further reading</b>
 [API Documentation](https://docs.angularjs.org/api)
 [Official Tutorial](https://docs.angularjs.org/tutorial)
 [FAQ](https://docs.angularjs.org/misc/faq)
 
 ## Adding new Libraries
+
+
 
 ## Adding new Functionalities
