@@ -247,7 +247,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 		$scope.buildPostBody_spatialUnits = function(){
 			var postBody =
 			{
-				"geoJsonString": undefined, // will be set by importer
+				"geoJsonString": "", // will be set by importer
 				"metadata": {
 					"note": $scope.metadata.note,
 					"literature": $scope.metadata.literature,

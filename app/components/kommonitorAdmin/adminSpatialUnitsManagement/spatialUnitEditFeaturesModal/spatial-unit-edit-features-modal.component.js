@@ -288,7 +288,7 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 		$scope.buildPutBody_spatialUnits = function(){
 			var putBody =
 			{
-				"geoJsonString": undefined, // will be set by importer
+				"geoJsonString": "", // will be set by importer
 				"periodOfValidity": {
 					"endDate": $scope.periodOfValidity.endDate,
 					"startDate": $scope.periodOfValidity.startDate

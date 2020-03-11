@@ -267,7 +267,7 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 		$scope.buildPutBody_georesources = function(){
 			var putBody =
 			{
-				"geoJsonString": undefined,
+				"geoJsonString": "",
 				"periodOfValidity": {
 					"endDate": $scope.periodOfValidity.endDate,
 					"startDate": $scope.periodOfValidity.startDate
