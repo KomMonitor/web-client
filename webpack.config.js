@@ -77,7 +77,7 @@ module.exports = {
           { from: nodeModulePathConstant + 'bootstrap-datepicker/dist/locales/bootstrap-datepicker.de.min.js', to: 'bootstrap-datepicker/js' },
           { from: nodeModulePathConstant + 'angular-datatables/dist', to: 'angular-datatables/' },
           { from: nodeModulePathConstant + 'angular-ui-bootstrap/dist', to: 'angular-ui-bootstrap/' },
-          { from: nodeModulePathConstant + 'bootstrap-iconpicker/bootstrap-iconpicker', to: 'bootstrap-iconpicker/' },
+          { from: './customizedExternalLibs/bootstrap-iconpicker', to: 'bootstrap-iconpicker/' },
           { from: './customizedExternalLibs/Excalibur-Dual-List/dist', to: 'excalibur-duallist/' },
           { from: './customizedExternalLibs/Excalibur-Dual-List/excalibur-duallist.html', to: 'excalibur-duallist/excalibur-duallist.html' },
           { from: nodeModulePathConstant + 'gridstack/dist', to: 'gridstack/' },

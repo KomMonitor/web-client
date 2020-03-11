@@ -145,22 +145,22 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 
 		$scope.iconPickerOptions = {
 			align: 'center', // Only in div tag
-	    arrowClass: 'btn-default',
-	    arrowPrevIconClass: 'fas fa-angle-left',
-	    arrowNextIconClass: 'fas fa-angle-right',
-	    cols: 10,
-	    footer: true,
-	    header: true,
-	    icon: 'glyphicon-' + $scope.selectedPoiIconName,
-	    iconset: 'glyphicon',
-	    labelHeader: '{0} von {1} Seiten',
-	    labelFooter: '{0} - {1} von {2} Icons',
-	    placement: 'bottom', // Only in button tag
-	    rows: 6,
-	    search: true,
-	    searchText: 'Stichwortsuche (Bootstrap Glyphicons)',
-	    selectedClass: 'btn-success',
-	    unselectedClass: ''
+			arrowClass: 'btn-default',
+			arrowPrevIconClass: 'fas fa-angle-left',
+			arrowNextIconClass: 'fas fa-angle-right',
+			cols: 10,
+			footer: true,
+			header: true,
+			icon: 'glyphicon-' + $scope.selectedPoiIconName,
+			iconset: 'glyphicon',
+			labelHeader: '{0} von {1} Seiten',
+			labelFooter: '{0} - {1} von {2} Icons',
+			placement: 'bottom', // Only in button tag
+			rows: 6,
+			search: true,
+			searchText: 'Stichwortsuche (Bootstrap Glyphicons)',
+			selectedClass: 'btn-success',
+			unselectedClass: ''
 		};
 
 		$('#poiSymbolPicker').iconpicker($scope.iconPickerOptions);
