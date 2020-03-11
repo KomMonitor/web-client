@@ -207,12 +207,12 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 			  };
   
 			  if(resourceType === "indicator"){
-				  subTopic.topicName = subTopic.newSubTopicTitle_indicator;
-				  subTopic.topicDescription = subTopic.newSubTopicDescription_indicator;
+				subSubSubTopic.topicName = subTopic.newSubTopicTitle_indicator;
+				subSubSubTopic.topicDescription = subTopic.newSubTopicDescription_indicator;
 			  }
 			  else{
-				  subTopic.topicName = subTopic.newSubTopicTitle_georesource;
-				  subTopic.topicDescription = subTopic.newSubTopicDescription_georesource;
+				subSubSubTopic.topicName = subTopic.newSubTopicTitle_georesource;
+				subSubSubTopic.topicDescription = subTopic.newSubTopicDescription_georesource;
 			  }
 
 			// check if subTopic already exists, then abort - add to mainTopic otherwise
@@ -280,12 +280,12 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 			  };
   
 			  if(resourceType === "indicator"){
-				  subTopic.topicName = subTopic.newSubTopicTitle_indicator;
-				  subTopic.topicDescription = subTopic.newSubTopicDescription_indicator;
+				subSubTopic.topicName = subTopic.newSubTopicTitle_indicator;
+				subSubTopic.topicDescription = subTopic.newSubTopicDescription_indicator;
 			  }
 			  else{
-				  subTopic.topicName = subTopic.newSubTopicTitle_georesource;
-				  subTopic.topicDescription = subTopic.newSubTopicDescription_georesource;
+				subSubTopic.topicName = subTopic.newSubTopicTitle_georesource;
+				subSubTopic.topicDescription = subTopic.newSubTopicDescription_georesource;
 			  }
 
 			// check if subTopic already exists, then abort - add to mainTopic otherwise
