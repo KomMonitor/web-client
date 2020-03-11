@@ -583,7 +583,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 							//1. $scope.scale $scope.previous_fs from 80% to 100%
 							$scope.scale = 0.8 + (1 - now) * 0.2;
 							//2. take current_fs to the right(50%) - from 0%
-							left = ((1-now) * 50)+"%";
+							// left = ((1-now) * 50)+"%";
 							//3. increase $scope.opacity of $scope.previous_fs to 1 as it moves in
 							$scope.opacity = 1 - now;
 							// current_fs.css({'left': left});
