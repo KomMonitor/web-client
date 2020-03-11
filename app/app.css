@@ -1526,7 +1526,7 @@ transition: opacity 0.3s;
 	margin-top: 1%;
 	font-size: 12px;
 	z-index: 1000;
-	height: 99%;
+	/* height: 99%; */
 	max-height: 99%;
 	overflow: auto;
 }
