@@ -142,8 +142,13 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 	
 						$scope.loadingData = false;
 	
-					}, function errorCallback(response) {
-						$scope.errorMessagePart = response;
+					}, function errorCallback(error) {
+						if(error.data){							
+							$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+						}
+						else{
+							$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
+						}
 	
 						$("#indicatorEditFeaturesErrorAlert").show();
 						$scope.loadingData = false;
@@ -172,8 +177,13 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 					$("#indicatorEditFeaturesSuccessAlert").show();
 					$scope.loadingData = false;
 	
-					}, function errorCallback(response) {
-						$scope.errorMessagePart = response;
+					}, function errorCallback(error) {
+						if(error.data){							
+							$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+						}
+						else{
+							$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
+						}
 	
 						$("#indicatorEditFeaturesErrorAlert").show();
 						$scope.loadingData = false;
@@ -367,7 +377,12 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 				try {
 					return await kommonitorImporterHelperService.buildDatasourceTypeDefinition($scope.datasourceType, 'datasourceTypeParameter_indicatorEditFeatures_', 'indicatorDataSourceInput_editFeatures');			
 				} catch (error) {
-					$scope.errorMessagePart = error;
+					if(error.data){							
+						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+					}
+					else{
+						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
+					}
 	
 					$("#indicatorEditFeaturesErrorAlert").show();
 					$scope.loadingData = false;

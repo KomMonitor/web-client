@@ -117,8 +117,13 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 
 					$scope.loadingData = false;
 
-				}, function errorCallback(response) {
-					$scope.errorMessagePart = response;
+				}, function errorCallback(error) {
+					if(error.data){							
+						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+					}
+					else{
+						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
+					}
 
 					$("#spatialUnitEditFeaturesErrorAlert").show();
 					$scope.loadingData = false;
@@ -147,8 +152,13 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 				$("#spatialUnitEditFeaturesSuccessAlert").show();
 				$scope.loadingData = false;
 
-				}, function errorCallback(response) {
-					$scope.errorMessagePart = response;
+				}, function errorCallback(error) {
+					if(error.data){							
+						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+					}
+					else{
+						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
+					}
 
 					$("#spatialUnitEditFeaturesErrorAlert").show();
 					$scope.loadingData = false;
@@ -257,7 +267,12 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 			try {
 				return await kommonitorImporterHelperService.buildDatasourceTypeDefinition($scope.datasourceType, 'datasourceTypeParameter_spatialUnitEditFeatures_', 'spatialUnitDataSourceInput_editFeatures');			
 			} catch (error) {
-				$scope.errorMessagePart = error;
+				if(error.data){							
+					$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+				}
+				else{
+					$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
+				}
 
 				$("#spatialUnitEditFeaturesErrorAlert").show();
 				$scope.loadingData = false;

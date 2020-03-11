@@ -48,8 +48,13 @@ angular.module('topicEditModal').component('topicEditModal', {
 					//
 					// $scope.refreshTopicsOverview();
 
-				}, async function errorCallback(response) {
-					$scope.errorMessagePart = response;
+				}, async function errorCallback(error) {
+					if(error.data){							
+							$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+						}
+						else{
+							$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
+						}
 
 					$("#topicEditMetadataErrorAlert").show();
 					$scope.loadingData = false;

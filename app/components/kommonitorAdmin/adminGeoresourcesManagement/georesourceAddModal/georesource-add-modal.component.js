@@ -333,7 +333,12 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			try {
 				return await kommonitorImporterHelperService.buildDatasourceTypeDefinition($scope.datasourceType, 'datasourceTypeParameter_georesourceAdd_', 'georesourceDataSourceInput_add');			
 			} catch (error) {
-				$scope.errorMessagePart = error;
+				if(error.data){							
+					$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+				}
+				else{
+					$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
+				}
 
 				$("#georesourceAddErrorAlert").show();
 				$scope.loadingData = false;

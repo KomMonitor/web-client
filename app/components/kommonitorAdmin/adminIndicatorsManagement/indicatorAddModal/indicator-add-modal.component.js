@@ -637,7 +637,12 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			try {
 				return await kommonitorImporterHelperService.buildDatasourceTypeDefinition($scope.datasourceType, 'datasourceTypeParameter_indicatorAdd_', 'indicatorDataSourceInput_add');			
 			} catch (error) {
-				$scope.errorMessagePart = error;
+				if(error.data){							
+					$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+				}
+				else{
+					$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
+				}
 
 				$("#indicatorAddErrorAlert").show();
 				$scope.loadingData = false;

@@ -95,8 +95,13 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 
 					$scope.loadingData = false;
 
-				}, function errorCallback(response) {
-					$scope.errorMessagePart = response;
+				}, function errorCallback(error) {
+					if(error.data){							
+						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+					}
+					else{
+						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
+					}
 
 					$("#georesourceEditFeaturesErrorAlert").show();
 					$scope.loadingData = false;
@@ -125,8 +130,13 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 				$("#georesourceEditFeaturesSuccessAlert").show();
 				$scope.loadingData = false;
 
-				}, function errorCallback(response) {
-					$scope.errorMessagePart = response;
+				}, function errorCallback(error) {
+					if(error.data){							
+						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+					}
+					else{
+						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
+					}
 
 					$("#georesourceEditFeaturesErrorAlert").show();
 					$scope.loadingData = false;
@@ -236,7 +246,12 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 			try {
 				return await kommonitorImporterHelperService.buildDatasourceTypeDefinition($scope.datasourceType, 'datasourceTypeParameter_georesourceEditFeatures_', 'georesourceDataSourceInput_editFeatures');			
 			} catch (error) {
-				$scope.errorMessagePart = error;
+				if(error.data){							
+					$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+				}
+				else{
+					$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
+				}
 
 				$("#georesourceEditFeaturesErrorAlert").show();
 				$scope.loadingData = false;
