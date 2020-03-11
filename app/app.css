@@ -516,8 +516,9 @@ MULTI STEP FORM
 	height: auto;
 }
 
+/* display above loading screen */
 #infoModal {
-	z-index: 9999;
+	z-index: 100001;
 	overflow: auto;
 }
 
@@ -1860,7 +1861,7 @@ hr {
   left: 0;
   border-radius: 5px;
   opacity: 0.8;
-  z-index: 999999;
+  z-index: 100000;
 }
 
 .loading-overlay-admin-panel .icon-spin {
@@ -1890,7 +1891,7 @@ hr {
   left: 0;
   border-radius: 5px;
   opacity: 0.8;
-  z-index: 999999;
+  z-index: 100000;
 }
 
 .loading-overlay-sidebar .icon-spin {
@@ -1920,7 +1921,7 @@ hr {
   left: 0;
   border-radius: 5px;
   opacity: 0.8;
-  z-index: 999999;
+  z-index: 100000;
 }
 
 .loading-overlay-sidebar-small .icon-spin {
@@ -1950,7 +1951,7 @@ hr {
   left: 0;
   border-radius: 5px;
   opacity: 0.8;
-  z-index: 999999;
+  z-index: 100000;
 }
 
 .loading-overlay .icon-spin {
@@ -1978,7 +1979,7 @@ hr {
   background-color: rgb(128,128,128);
   border-radius: 5px;
   opacity: 0.8;
-  z-index: 999999;
+  z-index: 100000;
 }
 
 .loading-overlay-reporting .icon-spin {
@@ -2006,7 +2007,7 @@ hr {
 	background-color: rgb(128,128,128);
 	border-radius: 5px;
 	opacity: 0.8;
-	z-index: 999999;
+	z-index: 100000;
   }
 
 .loading-config-overlay-reporting .icon-spin {
