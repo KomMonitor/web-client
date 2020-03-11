@@ -85,12 +85,14 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 		$scope.periodOfValidityInvalid = false;
 
 		$scope.converter = undefined;
+		$scope.schema = undefined;
 		$scope.datasourceType = undefined;
 		$scope.spatialUnitDataSourceIdProperty = undefined;
 		$scope.spatialUnitDataSourceNameProperty = undefined;
 
 		$scope.successMessagePart = undefined;
 		$scope.errorMessagePart = undefined;
+		$scope.importerErrors = undefined;
 
 		$scope.converterDefinition = undefined;
 		$scope.datasourceTypeDefinition = undefined;
@@ -102,6 +104,10 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 
 
 		$scope.resetSpatialUnitAddForm = function(){
+			$scope.importerErrors = undefined;
+			$scope.successMessagePart = undefined;
+			$scope.errorMessagePart = undefined;
+
 			$scope.spatialUnitLevel = undefined;
 			$scope.spatialUnitLevelInvalid = false;
 
@@ -126,6 +132,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 			$scope.periodOfValidityInvalid = false;
 
 			$scope.converter = undefined;
+			$scope.schema = undefined;
 			$scope.datasourceType = undefined;
 			$scope.spatialUnitDataSourceIdProperty = undefined;
 			$scope.spatialUnitDataSourceNameProperty = undefined;
@@ -137,6 +144,14 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 
 			$scope.validityEndDate_perFeature = undefined;
 			$scope.validityStartDate_perFeature = undefined;
+
+			setTimeout(() => {
+				$scope.$apply();	
+			}, 250);
+		};
+
+		$scope.onChangeSchema = function(schema){
+			$scope.schema = schema;
 		};
 
 		$scope.checkSpatialUnitName = function(){
@@ -211,7 +226,12 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 			try {
 				return await kommonitorImporterHelperService.buildDatasourceTypeDefinition($scope.datasourceType, 'datasourceTypeParameter_spatialUnitAdd_', 'spatialUnitDataSourceInput');			
 			} catch (error) {
-				$scope.errorMessagePart = error;
+				if(error.data){							
+					$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+				}
+				else{
+					$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
+				}
 
 				$("#spatialUnitAddErrorAlert").show();
 				$scope.loadingData = false;
@@ -227,7 +247,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 		$scope.buildPostBody_spatialUnits = function(){
 			var postBody =
 			{
-				"geoJsonString": undefined, // will be set by importer
+				"geoJsonString": "", // will be set by importer
 				"metadata": {
 					"note": $scope.metadata.note,
 					"literature": $scope.metadata.literature,
@@ -254,6 +274,10 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 
 			$scope.addSpatialUnit = async function () {
 
+				$scope.importerErrors = undefined;
+				$scope.successMessagePart = undefined;
+				$scope.errorMessagePart = undefined;
+
 				/*
 					now collect data and build request for importer
 				*/
@@ -277,19 +301,50 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 					// TODO Create and perform POST Request with loading screen
 
 					$scope.loadingData = true;
-
+					var newSpatialUnitResponse_dryRun = undefined;
 					try {
-						var newSpatialUnitResponse = await kommonitorImporterHelperService.registerNewSpatialUnit($scope.converterDefinition, $scope.datasourceTypeDefinition, $scope.propertyMappingDefinition, $scope.postBody_spatialUnits);
+						newSpatialUnitResponse_dryRun = await kommonitorImporterHelperService.registerNewSpatialUnit($scope.converterDefinition, $scope.datasourceTypeDefinition, $scope.propertyMappingDefinition, $scope.postBody_spatialUnits, true);
 
-						$rootScope.$broadcast("refreshSpatialUnitOverviewTable");
+						if(! kommonitorImporterHelperService.importerResponseContainsErrors(newSpatialUnitResponse_dryRun)){
+							// all good, really execute the request to import data against data management API
+							var newSpatialUnitResponse = await kommonitorImporterHelperService.registerNewSpatialUnit($scope.converterDefinition, $scope.datasourceTypeDefinition, $scope.propertyMappingDefinition, $scope.postBody_spatialUnits, false);
 
-						// refresh all admin dashboard diagrams due to modified metadata
-						$rootScope.$broadcast("refreshAdminDashboardDiagrams");
+							$rootScope.$broadcast("refreshSpatialUnitOverviewTable");
 
-						$("#spatialUnitAddSucessAlert").show();
-						$scope.loadingData = false;
+							// refresh all admin dashboard diagrams due to modified metadata
+							$rootScope.$broadcast("refreshAdminDashboardDiagrams");
+
+							$scope.successMessagePart = $scope.postBody_spatialUnits.spatialUnitLevel;
+							$scope.importedFeatures = kommonitorImporterHelperService.getImportedFeaturesFromImporterResponse(newSpatialUnitResponse);
+
+							$("#spatialUnitAddSucessAlert").show();
+							$scope.loadingData = false;
+						}
+						else{
+							// errors ocurred
+							// show them 
+							$scope.errorMessagePart = "Einige der zu importierenden Features des Datensatzes weisen kritische Fehler auf";
+							$scope.importerErrors = kommonitorImporterHelperService.getErrorsFromImporterResponse(newSpatialUnitResponse_dryRun);
+
+							$("#spatialUnitAddErrorAlert").show();
+							$scope.loadingData = false;
+
+							setTimeout(() => {
+								$scope.$apply();
+							}, 250);
+
+						}
 					} catch (error) {
-						$scope.errorMessagePart = error;
+						if(error.data){							
+							$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+						}
+						else{
+							$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
+						}
+
+						if(newSpatialUnitResponse_dryRun){
+							$scope.importerErrors = kommonitorImporterHelperService.getErrorsFromImporterResponse(newSpatialUnitResponse_dryRun);
+						}
 
 						$("#spatialUnitAddErrorAlert").show();
 						$scope.loadingData = false;
@@ -335,6 +390,8 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 					$scope.spatialUnitMetadataImportError = "Uploaded Metadata File cannot be parsed correctly";
 					document.getElementById("spatialUnitsAddMetadataPre").innerHTML = $scope.spatialUnitMetadataStructure_pretty;
 					$("#spatialUnitMetadataImportErrorAlert").show();
+
+					$scope.$apply();
 				}
 
 			};
@@ -352,6 +409,8 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 				$scope.spatialUnitMetadataImportError = "Struktur der Datei stimmt nicht mit erwartetem Muster &uuml;berein.";
 				document.getElementById("spatialUnitsAddMetadataPre").innerHTML = $scope.spatialUnitMetadataStructure_pretty;
 				$("#spatialUnitMetadataImportErrorAlert").show();
+
+				$scope.$apply();
 			}
 
 				$scope.metadata = {};
@@ -385,6 +444,26 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 				$scope.spatialUnitLevel = $scope.metadataImportSettings.spatialUnitLevel;
 
 				$scope.$apply();
+		};
+
+		$scope.onExportSpatialUnitAddMetadataTemplate = function(){
+
+			var metadataJSON = JSON.stringify($scope.spatialUnitMetadataStructure);
+
+			var fileName = "Raumeinheit_Metadaten_Vorlage_Export.json";
+
+			var blob = new Blob([metadataJSON], {type: "application/json"});
+			var data  = URL.createObjectURL(blob);
+
+			var a = document.createElement('a');
+			a.download    = fileName;
+			a.href        = data;
+			a.textContent = "JSON";
+			a.target = "_blank";
+			a.rel = "noopener noreferrer";
+			a.click();
+
+			a.remove();
 		};
 
 		$scope.onExportSpatialUnitAddMetadata = function(){

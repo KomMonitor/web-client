@@ -59,9 +59,10 @@
 							data-toggle="validator" data-disable="true" style="margin-bottom: 0px;">
 							<!-- progressbar -->
 							<ul id="progressbar">
-								<li style="width: 33.33%;" class="active">Metadaten der Georessource</li>
-								<li style="width: 33.33%;">Allgemeine Metadaten</li>
-								<li style="width: 33.33%;">R&auml;umlicher Datensatz</li>
+								<li style="width: 25%;" class="active">Metadaten der Georessource</li>
+								<li style="width: 25%;">Allgemeine Metadaten</li>
+								<li style="width: 25%;">Themenhierarchie</li>
+								<li style="width: 25%;">R&auml;umlicher Datensatz</li>
 							</ul>
 							<!-- fieldsets -->
 							
@@ -154,7 +155,7 @@
 								</div>
 
 								<div ng-show="georesourceType === 'loi'" class="row vertical-align">
-									<div class="col-md-6 col-sm-6 col-xs-12">
+									<div class="col-md-4 col-sm-4 col-xs-12">
 										<div class="form-group" align="center">
 											<label>Linienfarbe*</label>
 											<div id="loiColorPicker" class="input-group" style="width: 50px;">
@@ -169,13 +170,21 @@
 
 										</div>
 									</div>
-									<div class="col-md-6 col-sm-6 col-xs-12">
+									<div class="col-md-4 col-sm-4 col-xs-12">
+										<div class="form-group" align="center">
+											<label>Linienbreite*</label>
+											<br/>
+											<input style="width: auto;" type="number" ng-model="loiWidth" min="1" max="5" step="1">
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-4 col-sm-4 col-xs-12">
 										<div class="form-group" align="center">
 											<label>Linienmuster*</label>
 											<div class="dropdown">
 												<button type="button" width="200px" class="btn btn-info dropdown-toggle"
 													data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-													<div id="loiDashArrayDropdownButton">
+													<div id="loiDashArrayDropdownButton_addGeoresource">
 
 													</div> <span class="caret"></span>
 												</button>
@@ -280,7 +289,7 @@
 												</div>
 												<input type="text" ng-model="metadata.lastUpdate"
 													class="form-control pull-right"
-													id="georesourceAddLastUpdateDatepicker" required>
+													id="georesourceAddLastUpdateDatepicker" placeholder="YYYY-MM-DD" required>
 											</div>
 											<div class="help-block with-errors"></div>
 										</div>
@@ -308,6 +317,106 @@
 								<input type="button" name="next" class="next next_addGeoresource action-button" value="N&auml;chster Schritt"/>
 							</fieldset>
 
+							<fieldset>
+								<h2 class="fs-title">Themenhierarchie</h2>
+								<h3 class="fs-subtitle">Angaben &uuml;ber die Themenhierarchie der Georessource</h3>								
+
+								<p><b><i>* = Pflichtfeld</i></b></p>
+								<p>Angabe der Themenhierarchie. Mindestens das Hauptthema muss gew&auml;hlt werden. Vorhandene Unterthemen erscheinen nach Auswahl eines Hauptthemas. Bis zu vier Themen-Ebenen sind erlaubt.</p>
+
+								<p>Das Aufklappen der unteren Box erm&ouml;glicht die Verwaltung des Themenkatalogs.</p>
+
+								<div class="row vertical-align">
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Hauptthema*</label>
+											<select ng-model="georesourceTopic_mainTopic"
+												ng-options="mainTopic as mainTopic.topicName for mainTopic in $ctrl.kommonitorDataExchangeServiceInstance.availableTopics | filter:{topicType:'main'} | filter:{topicResource:'georesource'}"
+												class="form-control" required>
+												<option disabled selected value> -- Hauptthema w&auml;hlen --
+												</option>
+											</select>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div ng-show="georesourceTopic_mainTopic.subTopics.length > 0" class="form-group">
+											<label>Unterthema - erste Ebene</label>
+											<select ng-model="georesourceTopic_subTopic"
+												ng-options="subTopic as subTopic.topicName for subTopic in georesourceTopic_mainTopic.subTopics"
+												class="form-control" >
+												<option disabled selected value> -- Unterthema w&auml;hlen --
+												</option>
+											</select>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div ng-show="georesourceTopic_subTopic.subTopics.length > 0" class="form-group">
+											<label>Unterthema - zweite Ebene</label>
+											<select ng-model="georesourceTopic_subsubTopic"
+												ng-options="subsubTopic as subsubTopic.topicName for subsubTopic in georesourceTopic_subTopic.subTopics"
+												class="form-control" >
+												<option disabled selected value> -- Unterthema w&auml;hlen --
+												</option>
+											</select>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div ng-show="georesourceTopic_subsubTopic.subTopics.length > 0" class="form-group">
+											<label>Unterthema - dritte Ebene</label>
+											<select ng-model="georesourceTopic_subsubsubTopic"
+												ng-options="subsubsubTopic as subsubsubTopic.topicName for subsubsubTopic in georesourceTopic_subsubTopic.subTopics"
+												class="form-control" >
+												<option disabled selected value> -- Unterthema w&auml;hlen --
+												</option>
+											</select>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+								</div>
+
+								<hr>
+
+								<br/>
+
+								<div class="row vertical-align">
+									<div class="col-md-10 col-sm-12 col-xs-12">
+										<div style="text-align: left;">
+											<div id="georesourceAddAdmin_topicsManagement" class="box box-primary collapsed-box" style="background: #ebf0fd;">
+												<div class="box-header">
+												  <h3 class="box-title">Themenkatalog</h3>
+
+													<div class="box-tools pull-right">
+														<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+														</button>
+													</div>
+												</div>
+												<!-- /.box-header -->
+												<div class="box-body">
+
+													<style>
+														#georesourceAddAdmin_topicsManagement #indicatorTopicsManagement{
+															display: none;
+														}
+													</style>
+
+													<admin-topics-management></admin-topics-management>
+												</div>
+												<!-- /.box-body -->
+											  </div>
+											  <!-- /.box -->
+
+										</div>
+									</div>
+								</div>
+								
+
+								<input type="button" name="previous" class="previous previous_addGeoresource action-button-previous" value="Voriger Schritt"/>
+								<input type="button" name="next" class="next next_addGeoresource action-button" value="N&auml;chster Schritt"/>
+
+							</fieldset>
 
 							<fieldset>
 								<h2 class="fs-title">R&auml;umlicher Datensatz</h2>
@@ -330,8 +439,8 @@
 
 											<div class="form-group">
 												<label>Schema*</label>
-												<select ng-model="schema" ng-options="schema for schema in converter.schemas"
-													ng-init="schema = converter.schemas[0]" class="form-control" required>
+												<select ng-model="schema" ng-change="onChangeSchema(schema)" ng-options="schema for schema in converter.schemas"
+													class="form-control" required>
 													<option disabled selected value> -- Schema w&auml;hlen -- </option>
 												</select>
 												<div class="help-block with-errors"></div>
@@ -346,6 +455,9 @@
 													placeholder="{{parameter.name}}" required>
 												<div class="help-block">
 													<p>{{parameter.description}}</p>
+												</div>
+												<div ng-if="parameter.name === 'CRS'" class="help-block with-errors" style="color: red;">
+													<p>CRS aufmerksam setzen. Falsche Angaben f&uuml;hren zur fehlerhaften Koordinaten der Features</p>
 												</div>
 												<div class="help-block with-errors"></div>
 											</div>
@@ -448,7 +560,7 @@
 													<i class="far fa-calendar-alt"></i>
 												</div>
 												<input type="text" ng-model="periodOfValidity.startDate" ng-change="checkPeriodOfValidity()"
-													class="form-control pull-right" id="georesourceAddDatepickerStart" required>
+													class="form-control pull-right" id="georesourceAddDatepickerStart" placeholder="YYYY-MM-DD" required>
 											</div>
 											<div class="help-block">
 												<p>Eintrag ist immer erforderlich, selbst wenn die r&auml;umlichen Features &uuml;ber ein
@@ -469,7 +581,7 @@
 													<i class="far fa-calendar-alt"></i>
 												</div>
 												<input type="text" ng-model="periodOfValidity.endDate" ng-change="checkPeriodOfValidity()"
-													class="form-control pull-right" id="georesourceAddDatepickerEnd">
+													class="form-control pull-right" id="georesourceAddDatepickerEnd" placeholder="YYYY-MM-DD">
 											</div>
 											<div class="help-block">
 												<p>Eintrag ist erforderlich, falls die r&auml;umlichen Features nicht selbst &uuml;ber ein
@@ -503,8 +615,11 @@
 				<button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" ng-disabled=""
 					ng-click="onExportGeoresourceAddMetadata()" title="Exportieren der Metadaten in eine Datei"><i
 						class="fas fa-file-export"></i>&nbsp;&nbsp;Metadaten-Export</button>
-				<button type="button" class="btn btn-success"
-				
+				<button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" ng-disabled="" ng-click="onExportGeoresourceAddMetadataTemplate()" title="Exportieren einer Metadaten-Vorlage in eine Datei"><i class="fas fa-file-export"></i>&nbsp;&nbsp;Metadaten-Export Vorlage</button>
+						
+
+
+				<button type="button" class="btn btn-success"				
 					ng-disabled="!datasetName || !metadata.description || !metadata.datasource || !metadata.contact || !metadata.updateInterval || !metadata.lastUpdate || !georesourceDataSourceIdProperty || !georesourceDataSourceNameProperty || !periodOfValidity.startDate || datasetNameInvalid || periodOfValidityInvalid || !converter || !datasourceType"
 					ng-click="addGeoresource()">Georessource registrieren</button>
 				<button type="button" class="btn btn-danger"
@@ -515,8 +630,11 @@
 				class="alert alert-success alert-dismissable">
 				<button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
 				<h4><i class="icon fa fa-check"></i>Georessource registriert</h4>
-				Eine neue Georessource mit Namen {{successMessagePart}} wurde in KomMonitor registriert und in die
-				&Uuml;bersichtstabelle eingetragen.
+				<p>Eine neue Georessource mit Namen {{successMessagePart}} wurde in KomMonitor registriert und in die &Uuml;bersichtstabelle eingetragen.
+					<div ng-if="importedFeatures && importedFeatures.length > 0">
+						{{importedFeatures.length}} Features wurden dabei importiert.
+					</div>
+				</p>
 			</div>
 
 			<div id="georesourceAddErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
@@ -524,8 +642,20 @@
 				<button type="button" class="close" ng-click="hideErrorAlert()" aria-hidden="true">&times;</button>
 				<h4><i class="icon fa fa-ban"></i>Registrierung gescheitert</h4>
 				Bei der Registrierung der Georessource ist ein Fehler aufgetreten. Fehlermeldung:
-				<br />
-				<pre>{{errorMessagePart}}</pre>.
+				<br />				
+								<pre style="overflow:auto; max-height:500px;" ng-bind-html="errorMessagePart"></pre>
+								<br/>
+								<br/>
+
+								<div ng-show="importerErrors">
+									<p>Bei den {{importerErrors.length}} Features mit folgenden IDs scheitert der Import:</p>
+									<pre style="overflow:auto; max-height:500px;">
+										<ul>
+											<li ng-repeat="error in importerErrors">{{error}}</li>
+										</ul>
+									</pre>	
+									<p>Bitte beheben Sie die angezeigten Fehler im Datensatz und wiederholen den Prozess.</p>
+								</div>
 			</div>
 
 			<div id="georesourceMetadataImportErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden

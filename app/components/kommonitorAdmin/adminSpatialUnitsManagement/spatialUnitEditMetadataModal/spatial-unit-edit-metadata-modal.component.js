@@ -128,6 +128,10 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 			$scope.errorMessagePart = undefined;
 			$("#spatialUnitEditMetadataSuccessAlert").hide();
 			$("#spatialUnitEditMetadataErrorAlert").hide();
+
+			setTimeout(() => {
+				$scope.$apply();	
+			}, 250);
 		};
 
 		$scope.checkSpatialUnitName = function(){
@@ -210,8 +214,13 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 					$("#spatialUnitEditMetadataSuccessAlert").show();
 					$scope.loadingData = false;
 
-				}, function errorCallback(response) {
-					$scope.errorMessagePart = response;
+				}, function errorCallback(error) {
+					if(error.data){							
+						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+					}
+					else{
+						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
+					}
 
 					$("#spatialUnitEditMetadataErrorAlert").show();
 					$scope.loadingData = false;
@@ -255,6 +264,8 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 					$scope.spatialUnitMetadataImportError = "Uploaded Metadata File cannot be parsed correctly";
 					document.getElementById("spatialUnitsEditMetadataPre").innerHTML = $scope.spatialUnitMetadataStructure_pretty;
 					$("#spatialUnitEditMetadataImportErrorAlert").show();
+
+					$scope.$apply();
 				}
 
 			};
@@ -272,6 +283,8 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 				$scope.spatialUnitMetadataImportError = "Struktur der Datei stimmt nicht mit erwartetem Muster &uuml;berein.";
 				document.getElementById("spatialUnitsEditMetadataPre").innerHTML = $scope.spatialUnitMetadataStructure_pretty;
 				$("#spatialUnitEditMetadataImportErrorAlert").show();
+
+				$scope.$apply();
 			}
 
 				$scope.metadata = {};
@@ -306,6 +319,26 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 
 				$scope.$apply();
 		}
+
+		$scope.onExportSpatialUnitEditMetadataTemplate = function(){
+
+			var metadataJSON = JSON.stringify($scope.spatialUnitMetadataStructure);
+
+			var fileName = "Raumeinheit_Metadaten_Vorlage_Export.json";
+
+			var blob = new Blob([metadataJSON], {type: "application/json"});
+			var data  = URL.createObjectURL(blob);
+
+			var a = document.createElement('a');
+			a.download    = fileName;
+			a.href        = data;
+			a.textContent = "JSON";
+			a.target = "_blank";
+			a.rel = "noopener noreferrer";
+			a.click();
+
+			a.remove();
+		};
 
 		$scope.onExportSpatialUnitEditMetadata = function(){
 			var metadataExport = $scope.spatialUnitMetadataStructure;

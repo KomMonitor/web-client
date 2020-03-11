@@ -51,7 +51,7 @@
 	              <table id="indicatorOverviewTable" datatable="ng" dt-options="$ctrl.kommonitorDataExchangeServiceInstance.datatablesOptions" class="table table-bordered table-condensed table-striped" style="width:100%; overflow:auto; font-size: 11px;">
 	                <thead>
 	                <tr>
-	                  <th><input type="checkbox" ng-model="selectIndicatorEntriesInput" ng-change="onChangeSelectIndicatorEntries()"></input></th>
+	                  <!-- <th><input type="checkbox" ng-model="selectIndicatorEntriesInput" ng-change="onChangeSelectIndicatorEntries()"></input></th> -->
 										<th>Editierfunktionen</th>
 										<th>Id</th>
 	                  					<th>Name</th>
@@ -70,8 +70,8 @@
 										<th>Themenhierarchie</th>
 										<th>Verf&uuml;gbare Raumeinheiten</th>
 										<th>Verf&uuml;gbare Zeitpunkte</th>
-										<th>Referenzierte Indikatoren</th>
-										<th>Referenzierte Georessourcen</th>
+										<!-- <th>Referenzierte Indikatoren</th>
+										<th>Referenzierte Georessourcen</th> -->
 										<th>Datenhalter und Kontakt</th>
 										<th>zuletzt aktualisiert am</th>
 										<th>Koordinatensystem</th>
@@ -80,15 +80,16 @@
 										<th>Bemerkung</th>
 										<th>Niedrigste Raumeinheit f&uuml;r Berechnung</th>
 										<th>Klassifizierung</th>										
-										<th>OGC Dienste</th>
+										<!-- <th>OGC Dienste</th> -->
 	                </tr>
 	                </thead>
 
 	                <tbody>
 					<tr
 						ng-repeat="indicatorDataset in availableIndicatorDatasets | filter:filterIndicators() | filter:filterIndicatorsByTopic() | filter:indicatorNameFilter">
-						<td><input type="checkbox" ng-model="indicatorDataset.isSelected"
+						<!-- <td><input type="checkbox" ng-model="indicatorDataset.isSelected"
 								ng-change="onChangeSelectindicatorDataset(indicatorDataset)"></input></td>
+						-->		
 						<td>
 							<div class="btn-group btn-group-sm">
 								<button class="btn btn-warning btn-sm" type="button" data-toggle="modal"
@@ -131,43 +132,20 @@
 							</ul>
 
 						</td>
-						<!-- <td ng-bind-html="indicatorDataset.applicableDates"></td> -->
-						<td>
+						<!-- <td>
 							<ul style="columns: 2; 	-webkit-columns: 2;	-moz-columns: 2;">
 								<li style="margin-right: 15px;" ng-repeat="indicatorReference in indicatorDataset.referencedIndicators">
-									<!-- <ul>
-										<li>
-											<b>Ref. IndikatorId: </b> {{indicatorReference.referencedIndicatorId}}
-										</li>
-										<li>
-											<b>Ref. Indikator-Name: </b> {{indicatorReference.referencedIndicatorName}}
-										</li>
-										<li>
-											<b>Beschreibung: </b>{{indicatorReference.referencedIndicatorDescription}}
-										</li>
-									</ul> -->
 									{{indicatorReference.referencedIndicatorName}}
 								</li>
 							</ul>
-						</td>
-						<td>
+						</td> -->
+						<!-- <td>
 							<ul style="columns: 2; 	-webkit-columns: 2;	-moz-columns: 2;">
 								<li style="margin-right: 15px;" ng-repeat="georesourceReference in indicatorDataset.referencedGeoresources">
-									<!-- <ul>
-										<li>
-											<b>Ref. GeoressourcenId: </b> {{georesourceReference.referencedGeoresourceId}}
-										</li>
-										<li>
-											<b>Ref. Georessourcen-Name: </b> {{georesourceReference.referencedGeoresourceName}}
-										</li>
-										<li>
-											<b>Beschreibung: </b> {{georesourceReference.referencedGeoresourceDescription}}
-										</li>
-									</ul> -->
 									{{georesourceReference.referencedGeoresourceName}}
 								</li>
 							</ul>
-						</td>						
+						</td>						 -->
 						<td ng-bind-html="indicatorDataset.metadata.contact"></td>
 						<td>{{indicatorDataset.metadata.lastUpdate}}</td>
 						<td>EPSG:{{indicatorDataset.metadata.sridEPSG}}</td>
@@ -191,7 +169,7 @@
 								</li>
 							</ul> -->
 						</td>
-						<td >
+						<!-- <td >
 							<ul style="columns: 2; 	-webkit-columns: 2;	-moz-columns: 2;">
 								<li style="margin-right: 15px;" ng-repeat="ogcService in indicatorDataset.ogcServices">
 									<ul>
@@ -207,14 +185,14 @@
 									</ul>
 								</li>
 							</ul>
-						</td>
+						</td> -->
 					</tr>
 
 	                </tbody>
 
 	                <tfoot>
 	                <tr>
-										<th>alle selektieren</th>
+										<!-- <th>alle selektieren</th> -->
 										<th>Editierfunktionen</th>
 										<th>Id</th>
 	                  					<th>Name</th>
@@ -233,8 +211,8 @@
 										<th>Themenhierarchie</th>
 										<th>Verf&uuml;gbare Raumeinheiten</th>
 										<th>Verf&uuml;gbare Zeitpunkte</th>
-										<th>Referenzierte Indikatoren</th>
-										<th>Referenzierte Georessourcen</th>
+										<!-- <th>Referenzierte Indikatoren</th>
+										<th>Referenzierte Georessourcen</th> -->
 										<th>Datenhalter und Kontakt</th>
 										<th>zuletzt aktualisiert am</th>
 										<th>Koordinatensystem</th>
@@ -243,7 +221,7 @@
 										<th>Bemerkung</th>
 										<th>Niedrigste Raumeinheit f&uuml;r Berechnung</th>
 										<th>Klassifizierung</th>										
-										<th>OGC Dienste</th>
+										<!-- <th>OGC Dienste</th> -->
 	                </tr>
 	                </tfoot>
 	              </table>

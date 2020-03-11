@@ -1,6 +1,7 @@
 angular.module('adminIndicatorsManagement').component('adminIndicatorsManagement', {
 	templateUrl : "components/kommonitorAdmin/adminIndicatorsManagement/admin-indicators-management.template.html",
-	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '__env', '$http', function IndicatorsManagementController(kommonitorDataExchangeService, $scope, $rootScope, __env, $http) {
+	controller : ['kommonitorDataExchangeService', '$scope', '$timeout', '$rootScope', '__env', '$http', 
+	function IndicatorsManagementController(kommonitorDataExchangeService, $scope, $timeout, $rootScope, __env, $http) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 		// initialize any adminLTE box widgets
@@ -13,7 +14,11 @@ angular.module('adminIndicatorsManagement').component('adminIndicatorsManagement
 
 		$scope.$on("initialMetadataLoadingCompleted", function (event) {
 
-			$scope.initializeOrRefreshOverviewTable();
+			
+			$timeout(function(){
+				
+				$scope.initializeOrRefreshOverviewTable();
+			}, 250);
 
 		});
 
@@ -64,21 +69,21 @@ angular.module('adminIndicatorsManagement').component('adminIndicatorsManagement
 
 		};
 
-		$scope.onClickDeleteDatasets = function(){
-			$scope.loadingData = true;
+		// $scope.onClickDeleteDatasets = function(){
+		// 	$scope.loadingData = true;
 
-			var markedEntriesForDeletion = [];
-			$scope.availableIndicatorDatasets.forEach(function(dataset){
-				if(dataset.isSelected){
-					markedEntriesForDeletion.push(dataset);
-				}
-			});
+		// 	var markedEntriesForDeletion = [];
+		// 	$scope.availableIndicatorDatasets.forEach(function(dataset){
+		// 		if(dataset.isSelected){
+		// 			markedEntriesForDeletion.push(dataset);
+		// 		}
+		// 	});
 
-			// submit selected spatial units to modal controller
-			$rootScope.$broadcast("onDeleteIndicators", markedEntriesForDeletion);
+		// 	// submit selected spatial units to modal controller
+		// 	$rootScope.$broadcast("onDeleteIndicators", markedEntriesForDeletion);
 
-			$scope.loadingData = false;
-		};
+		// 	$scope.loadingData = false;
+		// };
 
 		$scope.onClickEditMetadata = function(indicatorDataset){
 			// submit selected spatial unit to modal controller

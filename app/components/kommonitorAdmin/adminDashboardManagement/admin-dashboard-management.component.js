@@ -1,6 +1,7 @@
 angular.module('adminDashboardManagement').component('adminDashboardManagement', {
 	templateUrl : "components/kommonitorAdmin/adminDashboardManagement/admin-dashboard-management.template.html",
-	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '__env', '$http', function DashboardManagementController(kommonitorDataExchangeService, $scope, $rootScope, __env, $http) {
+	controller : ['kommonitorDataExchangeService', '$scope', '$timeout', '$rootScope', '__env', '$http', 
+	function DashboardManagementController(kommonitorDataExchangeService, $scope, $timeout, $rootScope, __env, $http) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
@@ -77,7 +78,10 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 
 			console.log("refresh admin overview");
 
-			$scope.refreshAdminDashboardDiagrams();
+			$timeout(function(){
+				
+				$scope.refreshAdminDashboardDiagrams();
+			}, 250);
 
 		});
 

@@ -123,8 +123,8 @@
 
 										<div class="form-group">
 											<label>Schema*</label>
-											<select ng-model="schema" ng-options="schema for schema in converter.schemas"
-												ng-init="schema = converter.schemas[0]" class="form-control" required>
+											<select ng-model="schema" ng-change="onChangeSchema(schema)" ng-options="schema for schema in converter.schemas"
+												class="form-control" required>
 												<option disabled selected value> -- Schema w&auml;hlen -- </option>
 											</select>
 											<div class="help-block with-errors"></div>
@@ -139,6 +139,9 @@
 												placeholder="{{parameter.name}}" required>
 											<div class="help-block">
 												<p>{{parameter.description}}</p>
+											</div>
+											<div ng-if="parameter.name === 'CRS'" class="help-block with-errors" style="color: red;">
+												<p>CRS aufmerksam setzen. Falsche Angaben f&uuml;hren zur fehlerhaften Koordinaten der Features</p>
 											</div>
 											<div class="help-block with-errors"></div>
 										</div>
@@ -241,7 +244,7 @@
 												<i class="far fa-calendar-alt"></i>
 											</div>
 											<input type="text" ng-model="periodOfValidity.startDate" ng-change="checkPeriodOfValidity()"
-												class="form-control pull-right" id="georesourceEditFeaturesDatepickerStart" required>
+												class="form-control pull-right" id="georesourceEditFeaturesDatepickerStart" placeholder="YYYY-MM-DD" required>
 										</div>
 										<div class="help-block">
 											<p>Eintrag ist immer erforderlich, selbst wenn die r&auml;umlichen Features &uuml;ber ein
@@ -262,7 +265,7 @@
 												<i class="far fa-calendar-alt"></i>
 											</div>
 											<input type="text" ng-model="periodOfValidity.endDate" ng-change="checkPeriodOfValidity()"
-												class="form-control pull-right" id="georesourceEditFeaturesDatepickerEnd">
+												class="form-control pull-right" id="georesourceEditFeaturesDatepickerEnd" placeholder="YYYY-MM-DD">
 										</div>
 										<div class="help-block">
 											<p>Eintrag ist erforderlich, falls die r&auml;umlichen Features nicht selbst &uuml;ber ein
@@ -296,15 +299,31 @@
 			<div id="georesourceEditFeaturesSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden class="alert alert-success alert-dismissable">
                 <button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
                 <h4><i class="icon fa fa-check"></i>Features erfolgreich fortgef&uuml;hrt</h4>
-                Fortf&uuml;hren der Features der Georessource mit Namen {{successMessagePart}} war erfolgreich.
+				<p>Fortf&uuml;hren der Features der Georessource mit Namen {{successMessagePart}} war erfolgreich.
+					<div ng-if="importedFeatures && importedFeatures.length > 0">
+						{{importedFeatures.length}} Features wurden dabei importiert.
+					</div>
+				</p>
       </div>
 
 			<div id="georesourceEditFeaturesErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden class="alert alert-danger alert-dismissable">
                 <button type="button" class="close" ng-click="hideErrorAlert()" aria-hidden="true">&times;</button>
                 <h4><i class="icon fa fa-ban"></i>Features fortf&uuml;hren gescheitert</h4>
                 Beim Fortf&uuml;hren der Features ist ein Fehler aufgetreten. Fehlermeldung:
-								<br/>
-								<pre>{{errorMessagePart}}</pre>
+				<br/>
+				<pre style="overflow:auto; max-height:500px;" ng-bind-html="errorMessagePart"></pre>
+				<br/>
+				<br/>
+
+				<div ng-show="importerErrors">
+					<p>Bei den {{importerErrors.length}} Features mit folgenden IDs scheitert der Import:</p>
+					<pre style="overflow:auto; max-height:500px;">
+						<ul>
+							<li ng-repeat="error in importerErrors">{{error}}</li>
+						</ul>
+					</pre>	
+					<p>Bitte beheben Sie die angezeigten Fehler im Datensatz und wiederholen den Prozess.</p>
+				</div>
       </div>
 
 		</div>

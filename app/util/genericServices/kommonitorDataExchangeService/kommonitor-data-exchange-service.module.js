@@ -111,11 +111,11 @@ angular
             },
             {
               "svgString" : '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black" stroke-dasharray="20 10 5 10"/></svg>',
-              "dashArrayValue" : "20"
+              "dashArrayValue" : "20 10 5 10"
             },
             {
               "svgString" : '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black" stroke-dasharray="5"/></svg>',
-              "dashArrayValue" : "20"
+              "dashArrayValue" : "5"
             }
           ];
 
@@ -164,7 +164,11 @@ angular
 
 					this.setSpatialUnits = function(spatialUnitsArray){
 						this.availableSpatialUnits = spatialUnitsArray;
-					};
+          };
+          
+          // REPORTING
+
+          this.reportingIndicatorConfig = [];
 
 					// GEORESOURCES
 
@@ -191,7 +195,15 @@ angular
 
 					this.selectedIndicatorLegendURL;
 
-					this.measureOfValue = 51;
+          this.measureOfValue = 51;
+          
+          // updateInterval (from kommonitor data management api) = ['ARBITRARY', 'MONTHLY', 'QUARTERLY', 'HALF_YEARLY', 'YEARLY']
+          this.updateInterval = new Map();
+          this.updateInterval.set("ARBITRARY", "beliebig");
+          this.updateInterval.set("YEARLY", "jährlich");
+          this.updateInterval.set("HALF_YEARLY", "halbjährig");
+          this.updateInterval.set("MONTHLY", "monatlich");
+          this.updateInterval.set("QUARTERLY", "vierteljährlich");
 
 					this.setIndicators = function(indicatorsArray){
 						this.availableIndicators = indicatorsArray;
@@ -212,6 +224,14 @@ angular
             for (const indicatorMetadata of this.availableIndicators) {
               if(indicatorMetadata.indicatorId === indicatorId){
                 return indicatorMetadata;
+              }
+            }
+          };
+
+          this.getGeoresourceMetadataById = function(georesourceId){
+            for (const georesourceMetadata of this.availableGeoresources) {
+              if(georesourceMetadata.georesourceId === georesourceId){
+                return georesourceMetadata;
               }
             }
           };
@@ -347,17 +367,19 @@ angular
           };
 
           var onMetadataLoadingCompleted = function(){
-            if(fetchedUsersInitially && fetchedRolesInitially && fetchedTopicsInitially && fetchedIndicatorsInitially && fetchedGeoresourcesInitially && fetchedSpatialUnitsInitially){
-
+            
+            setTimeout(() => {
               $rootScope.$broadcast("initialMetadataLoadingCompleted");
 
-              $timeout(function () {
-                   $("option").each(function (index, element) {
+                  $timeout(function () {
+                    $("option").each(function (index, element) {
                       var text = $(element).text();
                       $(element).attr("title", text);
-                   });
-              });
-            }
+                    });
+              }, 1000);
+            }, 1000);
+
+              
 
           };
 
@@ -678,7 +700,7 @@ angular
               if(indicatorMetadataAndGeoJSON.indicatorType.includes('DYNAMIC')){
 
                 if(feature.properties[targetDate] < 0){
-
+                  
                   for (var index=0; index < dynamicDecreaseBrew.breaks.length; index++){
                     if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) == +Number(dynamicDecreaseBrew.breaks[index]).toFixed(numberOfDecimals)){
                       if(index < dynamicDecreaseBrew.breaks.length -1){
@@ -919,5 +941,322 @@ angular
               }
             };
           };
+
+          /**
+           * creates and returns a pdf for the indicator given as parameter
+           */
+          this.createMetadataPDF = function(indicator) {
+
+            var jspdf = new jsPDF();
+            jspdf.setFontSize(16);
+            // jspdf.text("Metadatenblatt", 70, 6);
+  
+            //insert logo
+            var img = new Image();
+            img.src = '/logos/KM_Logo1.png';
+            jspdf.addImage(img, 'PNG', 193, 5, 12, 12);
+  
+            jspdf.setFontSize(16);
+            jspdf.setFontStyle('bolditalic');
+            var titleArray = jspdf.splitTextToSize(indicator.indicatorName, 180);
+            jspdf.text(titleArray, 14, 25);
+  
+            if (indicator.characteristicValue && indicator.characteristicValue != "-" && indicator.characteristicValue != "") {
+              jspdf.setFontSize(14);
+              jspdf.text(indicator.characteristicValue, 14, 25);
+            }
+  
+  
+            jspdf.setFontSize(11);
+  
+            var initialStartY = 30;
+  
+            if (titleArray.length > 1) {
+              titleArray.forEach(function (item) {
+                initialStartY += 5;
+              });
+            }
+            if (indicator.characteristicValue && indicator.characteristicValue != "-" && indicator.characteristicValue != "") {
+              initialStartY += 5;
+            }
+  
+            var headStyles = {
+              fontStyle: 'bold',
+              fontSize: 12,
+              fillColor: '#337ab7',
+              // auto or wrap
+              cellWidth: 'auto'
+            };
+  
+            var bodyStyles = {
+              fontStyle: 'normal',
+              fontSize: 11,
+              // auto or wrap or number
+              cellWidth: 'auto'
+            };
+  
+            // first column with fixed width
+            var columnStyles = {
+              0: { cellWidth: 45, fontStyle: 'bold' },
+              1: { fontStyle: 'normal' }
+            };
+  
+            var topicsString = "";
+  
+            var topicReferenceId = indicator.topicReference;
+  
+            // will be an array representing the topic hierarchy
+            // i.e. [mainTopic, subTopicFirstTier, subTopicSecondTier, ...]
+            var topicHierarchyArray = this.getTopicHierarchyForTopicId(topicReferenceId);
+  
+            for (let index = 0; index < topicHierarchyArray.length; index++) {
+              if (index === 0) {
+                // mainTopic --> first tier
+                topicsString += topicHierarchyArray[index].topicName;
+              }
+              else {
+                var numberOfWhitespaces = 2 * index;
+                var whitespaceString = "";
+                for (let k = 0; k < numberOfWhitespaces; k++) {
+                  whitespaceString += " ";
+                }
+                topicsString += whitespaceString + topicHierarchyArray[index].topicName;
+              }
+  
+              if (index < topicHierarchyArray.length - 1) {
+                topicsString += "\n";
+              }
+  
+            }
+  
+            var category = "Subindikator";
+            if (indicator.isHeadingIndicator) {
+              category = "Leitindikator";
+            }
+  
+            // Or JavaScript:
+            jspdf.autoTable({
+              head: [['Themenfeld', 'Kategorie', 'Typ', 'Kennzeichen']],
+              body: [
+                [topicsString, category, this.getIndicatorStringFromIndicatorType(indicator.indicatorType), indicator.abbreviation ? indicator.abbreviation : "-"]
+                // ...
+              ],
+              theme: 'grid',
+              headStyles: headStyles,
+              bodyStyles: bodyStyles,
+              startY: initialStartY
+            });
+  
+            var linkedIndicatorsString = "";
+  
+            for (var [index, linkedIndicator] of indicator.referencedIndicators.entries()) {
+              linkedIndicatorsString += linkedIndicator.referencedIndicatorName + " - \n   " + linkedIndicator.referencedIndicatorDescription;
+  
+              if (index < indicator.referencedIndicators.length - 1) {
+                linkedIndicatorsString += "\n\n";
+              }
+            }
+  
+            if (linkedIndicatorsString === "") {
+              linkedIndicatorsString = "-";
+            }
+  
+            var linkedGeoresourcesString = "";
+  
+            for (var [k, linkedGeoresource] of indicator.referencedGeoresources.entries()) {
+              linkedGeoresourcesString += linkedGeoresource.referencedGeoresourceName + " - \n   " + linkedGeoresource.referencedGeoresourceDescription;
+  
+              if (k < indicator.referencedGeoresources.length - 1) {
+                linkedGeoresourcesString += "\n\n";
+              }
+            }
+  
+            if (linkedGeoresourcesString === "") {
+              linkedGeoresourcesString = "-";
+            }
+  
+            // jspdf.autoTable({
+            //     head: [],
+            //     body: [
+            //         ["Beschreibung", indicator.metadata.description],
+            //         ["Maßeinheit", indicator.unit],
+            //         ["Definition des Leitindikators", "-"],
+            //         ["Klassifizierung", "-"],
+            //         ["Interpretation", "-"],
+            //         ["Verknüpfte Indikatoren", linkedIndicatorsString],
+            //         ["Verknüpfte Geodaten", linkedGeoresourcesString]
+            //         // ...
+            //     ],
+            //     startY: jspdf.autoTable.previous.finalY + 20,
+            // });
+  
+            var spatialUnitsString = "";
+            var processedSpatialUnits = 0;
+  
+            for (var availableSpatialUnit of this.availableSpatialUnits) {
+  
+              for (var applicableSpatialUnit of indicator.applicableSpatialUnits) {
+  
+                if (availableSpatialUnit.spatialUnitLevel === applicableSpatialUnit) {
+                  spatialUnitsString += applicableSpatialUnit;
+                  processedSpatialUnits++;
+  
+                  if (processedSpatialUnits < indicator.applicableSpatialUnits.length) {
+                    spatialUnitsString += "\n";
+                  }
+                }
+  
+              }
+            }
+  
+            var datesString = "";
+  
+            for (var [j, date] of indicator.applicableDates.entries()) {
+  
+              var dateComponents = date.split("-");
+              var asDate = new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]));
+  
+              datesString += this.tsToDate_fullYear(this.dateToTS(asDate));
+  
+              if (j < indicator.applicableDates.length - 1) {
+                datesString += "\n";
+              }
+            }
+  
+            jspdf.autoTable({
+              head: [],
+              body: [
+                ["Beschreibung", indicator.metadata.description],
+                ["Maßeinheit", indicator.unit],
+                ["Methodik", indicator.processDescription ? indicator.processDescription : "-"],
+                // ["Klassifizierung", "-"],
+                ["Interpretation", indicator.interpretation ? indicator.interpretation : "-"],
+                ["Tags", indicator.tags ? JSON.stringify(indicator.tags) : "-"],
+                ["Verknüpfte Indikatoren", linkedIndicatorsString],
+                ["Verknüpfte Geodaten", linkedGeoresourcesString]
+              ],
+              theme: 'grid',
+              headStyles: headStyles,
+              bodyStyles: bodyStyles,
+              columnStyles: columnStyles,
+              startY: jspdf.autoTable.previous.finalY + 10
+            });
+  
+            // // linked elements
+            // jspdf.autoTable({
+            //     head: [],
+            //     body: [
+            //         ["Verknüpfte Indikatoren", linkedIndicatorsString],
+            //         ["Verknüpfte Geodaten", linkedGeoresourcesString]
+            //     ],
+            //     theme: 'grid',
+            //     headStyles: headStyles,
+            //     bodyStyles: bodyStyles,
+            //     columnStyles: columnStyles,
+            //     startY: jspdf.autoTable.previous.finalY + 10
+            // });
+  
+            // linked elements
+            jspdf.autoTable({
+              head: [],
+              body: [
+                ["Datengrundlage", indicator.metadata.databasis ? indicator.metadata.databasis : "-"],
+                ["Datenquelle", indicator.metadata.datasource ? indicator.metadata.datasource : "-"],
+                ["Datenhalter und Kontakt", indicator.metadata.contact ? indicator.metadata.contact : "-"],
+                ["Bemerkung", indicator.metadata.note ? indicator.metadata.note : "-"],
+                ["Raumbezug", spatialUnitsString],
+                // $scope.updateInteval is a map mapping the english KEYs to german expressions
+                ["Zeitbezug / Fortführungsintervall", this.updateInterval.get(indicator.metadata.updateInterval.toUpperCase())],
+                ["Verfügbare Zeitreihen", datesString],
+                ["Datum der letzten Aktualisierung", indicator.metadata.lastUpdate],
+                ["Quellen / Literatur", indicator.metadata.literature ? indicator.metadata.literature : "-"]
+              ],
+              theme: 'grid',
+              headStyles: headStyles,
+              bodyStyles: bodyStyles,
+              columnStyles: columnStyles,
+              startY: jspdf.autoTable.previous.finalY + 10
+            });
+  
+            //
+            // jspdf.autoTable({
+            //     head: [],
+            //     body: [
+            //         ["Quellen / Literatur", indicator.metadata.literature ? indicator.metadata.literature : "-"]
+            //         // ...
+            //     ],
+            //     theme: 'grid',
+            //     headStyles: headStyles,
+            //     bodyStyles: bodyStyles,
+            //     columnStyles: columnStyles,
+            //     startY: jspdf.autoTable.previous.finalY + 10
+            // });
+  
+            var pdfName = indicator.indicatorName + ".pdf";
+  
+            jspdf.setProperties({
+              title: 'KomMonitor Indikatorenblatt',
+              subject: pdfName,
+              author: 'KomMonitor',
+              keywords: 'Indikator, Metadatenblatt',
+              creator: 'KomMonitor'
+            });
+            
+            return jspdf;
+          };
+
+          // this.getIndicatorStringFromIndicatorType = function (indicator) {
+          //   var indicatorTypeString;
+          //   if (indicator.indicatorType.includes("DYNAMIC_ABSOLUTE")) {
+          //     indicatorTypeString = "Dynamik-Indikator (absolute)";
+          //   }
+          //   else if (indicator.indicatorType.includes("DYNAMIC_RELATIVE")) {
+          //     indicatorTypeString = "Dynamik-Indikator (relativ)";
+          //   }
+          //   else if (indicator.indicatorType.includes("DYNAMIC_STANDARDIZED")) {
+          //     indicatorTypeString = "Dynamik-Indikator (standardisiert)";
+          //   }
+          //   else if (indicator.indicatorType.includes("STATUS_ABSOLUTE")) {
+          //     indicatorTypeString = "Status-Indikator (absolut)";
+          //   }
+          //   else if (indicator.indicatorType.includes("STATUS_RELATIVE")) {
+          //     indicatorTypeString = "Status-Indikator (relativ)";
+          //   }
+          //   else if (indicator.indicatorType.includes("STATUS_STANDARDIZED")) {
+          //     indicatorTypeString = "Status-Indikator (standardisiert)";
+          //   }
+  
+          //   return indicatorTypeString;
+          // };
+
+          this.dateToTS = function(date) {
+            return date.valueOf();
+          }
+  
+          this.tsToDate = function(ts) {
+            var date = new Date(ts);
+  
+            return date.toLocaleDateString("de-DE", {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            });
+          }
+  
+          this.tsToDate_fullYear = function(ts) {
+            var date = new Date(ts);
+  
+            /**
+            * TODO FIXME dateSLider formatter will return only year for now to prevent misleading month and day settings
+            */
+  
+            return date.getFullYear();
+  
+            // return date.toLocaleDateString("de-DE", {
+            // 		year: 'numeric',
+            // 		month: 'long',
+            // 		day: 'numeric'
+            // });
+          }
 
 				}]);
