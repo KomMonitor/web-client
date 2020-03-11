@@ -212,6 +212,8 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 			kommonitorDataExchangeService.availableLoiDashArrayObjects.forEach(function(option){
 				if(option.dashArrayValue === $scope.currentGeoresourceDataset.loiDashArrayString){
 					$scope.selectedLoiDashArrayObject = option;
+
+					$scope.onChangeLoiDashArray($scope.selectedLoiDashArrayObject);
 				}
 			});
 			$scope.loiColor = $scope.currentGeoresourceDataset.loiColor;
@@ -475,6 +477,7 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 				kommonitorDataExchangeService.availableLoiDashArrayObjects.forEach(function(option){
 					if(option.dashArrayValue === $scope.metadataImportSettings.loiDashArrayString){
 						$scope.selectedLoiDashArrayObject = option;
+						$scope.onChangeLoiDashArray($scope.selectedLoiDashArrayObject);
 					}
 				});
 				$scope.loiColor = $scope.metadataImportSettings.loiColor;
@@ -635,8 +638,7 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 
 		$scope.onChangeLoiDashArray = function(loiDashArrayObject){
 			$scope.selectedLoiDashArrayObject = loiDashArrayObject;
-
-			$("#loiDashArrayDropdownButton").html(loiDashArrayObject.svgString);
+			$("#loiDashArrayEditDropdownButton").html(loiDashArrayObject.svgString);
 		};
 
 			$scope.hideSuccessAlert = function(){
