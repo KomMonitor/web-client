@@ -111,11 +111,11 @@ angular
             },
             {
               "svgString" : '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black" stroke-dasharray="20 10 5 10"/></svg>',
-              "dashArrayValue" : "20"
+              "dashArrayValue" : "20 10 5 10"
             },
             {
               "svgString" : '<svg width=150 height=10 xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="5" x2="150" y2="5" stroke="black" stroke-dasharray="5"/></svg>',
-              "dashArrayValue" : "20"
+              "dashArrayValue" : "5"
             }
           ];
 
