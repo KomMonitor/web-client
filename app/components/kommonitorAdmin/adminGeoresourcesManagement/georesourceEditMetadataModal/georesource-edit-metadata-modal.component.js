@@ -219,6 +219,9 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 			$scope.loiColor = $scope.currentGeoresourceDataset.loiColor;
 			$scope.loiWidth = $scope.currentGeoresourceDataset.loiWidth || 3;
 			$scope.aoiColor = $scope.currentGeoresourceDataset.aoiColor;
+			$('#loiColorEditPicker').colorpicker('setValue', $scope.loiColor);
+			$('#aoiColorEditPicker').colorpicker('setValue', $scope.aoiColor);
+
 			$scope.selectedPoiIconName = $scope.currentGeoresourceDataset.poiSymbolBootstrap3Name;
 
 			var topicHierarchy = kommonitorDataExchangeService.getTopicHierarchyForTopicId($scope.currentGeoresourceDataset.topicReference);
@@ -483,6 +486,10 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 				$scope.loiColor = $scope.metadataImportSettings.loiColor;
 				$scope.loiWidth = $scope.metadataImportSettings.loiWidth;
 				$scope.aoiColor = $scope.metadataImportSettings.aoiColor;
+
+				$('#loiColorEditPicker').colorpicker('setValue', $scope.loiColor);
+				$('#aoiColorEditPicker').colorpicker('setValue', $scope.aoiColor);
+
 				$scope.selectedPoiIconName = $scope.metadataImportSettings.poiSymbolBootstrap3Name;
 
 				var topicHierarchy = kommonitorDataExchangeService.getTopicHierarchyForTopicId($scope.metadataImportSettings.topicReference);
