@@ -144,6 +144,10 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 
 			$scope.validityEndDate_perFeature = undefined;
 			$scope.validityStartDate_perFeature = undefined;
+
+			setTimeout(() => {
+				$scope.$apply();	
+			}, 250);
 		};
 
 		$scope.onChangeSchema = function(schema){

@@ -157,7 +157,7 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 
 		$scope.resetSpatialUnitEditFeaturesForm = function(){
 
-			$scope.georesourceFeaturesGeoJSON = undefined;
+			$scope.spatialUnitFeaturesGeoJSON = undefined;
 			$scope.remainingFeatureHeaders = undefined;
 
 			$scope.periodOfValidity = {};
@@ -193,6 +193,10 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 
 			$("#spatialUnitEditFeaturesSuccessAlert").hide();
 			$("#spatialUnitEditFeaturesErrorAlert").hide();
+
+			setTimeout(() => {
+				$scope.$apply();	
+			}, 250);
 		};
 
 		$scope.filterByKomMonitorProperties = function() {

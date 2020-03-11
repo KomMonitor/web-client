@@ -244,6 +244,10 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 			$scope.errorMessagePart = undefined;
 			$("#georesourceEditMetadataSuccessAlert").hide();
 			$("#georesourceEditMetadataErrorAlert").hide();
+
+			setTimeout(() => {
+				$scope.$apply();	
+			}, 250);
 		};
 
 		$scope.checkDatasetName = function(){

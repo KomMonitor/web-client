@@ -252,6 +252,10 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 
 			$scope.georesourceDataSourceIdProperty = undefined;
 			$scope.georesourceDataSourceNameProperty = undefined;
+
+			setTimeout(() => {
+				$scope.$apply();	
+			}, 250);
 		};
 
 		$scope.onChangeSchema = function(schema){
@@ -376,7 +380,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 
 				postBody["loiDashArrayString"] = null;
 				postBody["loiColor"] = null;
-				postBody["loiWidth"] = null;
+				postBody["loiWidth"] = 3;
 
 				postBody["aoiColor"] = null;
 			}
@@ -398,7 +402,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 
 				postBody["loiDashArrayString"] = null;
 				postBody["loiColor"] = null;
-				postBody["loiWidth"] = null;
+				postBody["loiWidth"] = 3;
 
 				postBody["aoiColor"] = $scope.aoiColor;
 			}

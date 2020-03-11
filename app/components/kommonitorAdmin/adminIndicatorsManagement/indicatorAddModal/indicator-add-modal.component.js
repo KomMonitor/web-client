@@ -363,6 +363,10 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 
 			$scope.indicatorDataSourceIdProperty = undefined;
 			$scope.indicatorDataSourceNameProperty = undefined;
+
+			setTimeout(() => {
+				$scope.$apply();	
+			}, 250);
 		};
 
 		$scope.onChangeSchema = function(schema){

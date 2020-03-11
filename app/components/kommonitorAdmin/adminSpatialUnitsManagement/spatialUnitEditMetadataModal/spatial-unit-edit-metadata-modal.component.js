@@ -128,6 +128,10 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 			$scope.errorMessagePart = undefined;
 			$("#spatialUnitEditMetadataSuccessAlert").hide();
 			$("#spatialUnitEditMetadataErrorAlert").hide();
+
+			setTimeout(() => {
+				$scope.$apply();	
+			}, 250);
 		};
 
 		$scope.checkSpatialUnitName = function(){

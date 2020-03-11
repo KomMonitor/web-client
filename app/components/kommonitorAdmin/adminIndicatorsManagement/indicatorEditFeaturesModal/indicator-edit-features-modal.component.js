@@ -224,6 +224,11 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 	
 				$("#indicatorEditFeaturesSuccessAlert").hide();
 				$("#indicatorEditFeaturesErrorAlert").hide();
+
+				setTimeout(() => {
+					$scope.$apply();	
+				}, 250);
+				
 			};
 	
 			$scope.onChangeSchema = function(schema){

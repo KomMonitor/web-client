@@ -168,6 +168,10 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 
 			$("#georesourceEditFeaturesSuccessAlert").hide();
 			$("#georesourceEditFeaturesErrorAlert").hide();
+
+			setTimeout(() => {
+				$scope.$apply();	
+			}, 250);
 		};
 
 		$scope.onChangeSchema = function(schema){
