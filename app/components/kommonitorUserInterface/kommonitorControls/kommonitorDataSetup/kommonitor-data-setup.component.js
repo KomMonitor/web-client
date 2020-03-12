@@ -64,8 +64,14 @@ angular
 
 								$scope.getNumberOfIndicators = function(topic, indicatorNameFilter){
 									var numberOfIndicators = 0;
+
+									var filteredIndicators = kommonitorDataExchangeService.availableIndicators;
 									
-									for (const indicatorMetadata of kommonitorDataExchangeService.availableIndicators) {
+									if(indicatorNameFilter && indicatorNameFilter != ""){
+										filteredIndicators = filterArrayObjectsByValue(kommonitorDataExchangeService.availableIndicators, indicatorNameFilter);									
+									}
+									
+									for (const indicatorMetadata of filteredIndicators) {
 										if (kommonitorDataExchangeService.topicHierarchyContainsIndicator(topic, indicatorMetadata)){
 											numberOfIndicators++;
 										}
@@ -73,6 +79,15 @@ angular
 
 									return numberOfIndicators;
 								};
+
+								var filterArrayObjectsByValue = function (array, string) {
+										return array.filter(o => { 
+											return Object.keys(o).some(k => { 
+												if (typeof o[k] === 'string') 
+													return o[k].toLowerCase().includes(string.toLowerCase()); 
+											}); 
+										});
+								};	
 
 								this.addGeopackage = function(){
 									this.kommonitorMapServiceInstance.addSpatialUnitGeopackage();

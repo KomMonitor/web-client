@@ -140,7 +140,7 @@
 															<div ng-show="($ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators() | filter:{topicReference:mainTopic.topicId} | filter:indicatorNameFilter).length > 0">
 																<div class="list-group collapse" uib-collapse="isCollapsed_mainTopic">
 																	<div id="indicatorHierarchyElement-{{indicatorMetadata.indicatorId}}" ng-repeat="indicatorMetadata in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators() | filter:{topicReference:mainTopic.topicId} | filter:indicatorNameFilter" class="list-group-item list-group-item-default">
-																	 	<p style="cursor:pointer;" ng-attr-title="{{indicatorMetadata.indicatorName}}" ng-click="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;{{indicatorMetadata.indicatorName}}</p>
+																	 	<p style="cursor:pointer;" ng-attr-title="{{indicatorMetadata.indicatorName}}" ng-click="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;{{indicatorMetadata.indicatorName}} test</p>
 																	</div>
 																</div>
 															</div>
