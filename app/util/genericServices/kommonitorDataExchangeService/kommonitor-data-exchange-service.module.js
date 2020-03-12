@@ -220,6 +220,91 @@ angular
 						this.availableTopics = topicsArray;
           };
 
+          this.topicHierarchyContainsGeoresource = function(topic, georesourceMetadata){
+            // luckily, the topicReference is defined exactly like for indicators
+            // hence we can simply refer to that method
+
+            return this.topicHierarchyContainsIndicator(topic, georesourceMetadata);
+          };
+
+          this.topicHierarchyContainsIndicator = function(topic, indicatorMetadata){
+            if (topic.topicId === indicatorMetadata.topicReference){
+              return true;
+            }
+            else{
+              return this.anySubTopicContainsIndicator(topic, indicatorMetadata);
+            }
+          };
+
+          this.anySubTopicContainsIndicator = function(topic, indicatorMetadata){
+            var isContained = false;
+
+            for (const subTopic of topic.subTopics) {
+              isContained = this.topicHierarchyContainsIndicator(subTopic, indicatorMetadata);
+
+              if(isContained){
+                break;
+              }
+            }
+
+            return isContained;
+          };
+
+          this.getNumberOfGeoresources = function(topic, georesourceNameFilter){
+            var numberOfGeoresources = 0;
+
+            var filteredGeoresources = this.availableGeoresources;
+            
+            if(georesourceNameFilter && georesourceNameFilter != ""){
+              filteredGeoresources = filterArrayObjectsByValue(this.availableGeoresources, georesourceNameFilter);									
+            }
+            
+            for (const georesourceMetadata of filteredGeoresources) {
+              if (this.topicHierarchyContainsGeoresource(topic, georesourceMetadata)){
+                numberOfGeoresources++;
+              }
+            }
+
+            return numberOfGeoresources;
+          };
+
+          this.getNumberOfIndicators = function(topic, indicatorNameFilter){
+            var numberOfIndicators = 0;
+
+            var filteredIndicators = this.availableIndicators;
+            
+            if(indicatorNameFilter && indicatorNameFilter != ""){
+              filteredIndicators = filterArrayObjectsByValue(this.availableIndicators, indicatorNameFilter);									
+            }
+            
+            filteredIndicators = filterByIndicatorNamesToHide(filteredIndicators);
+            
+            for (const indicatorMetadata of filteredIndicators) {
+              if (this.topicHierarchyContainsIndicator(topic, indicatorMetadata)){
+                numberOfIndicators++;
+              }
+            }
+
+            return numberOfIndicators;
+          };
+
+          var filterByIndicatorNamesToHide = function(filteredIndicators){
+            var arrayOfNameSubstringsForHidingIndicators = __env.arrayOfNameSubstringsForHidingIndicators;
+
+            return filteredIndicators.filter(indicatorMetadata => { 
+              return isDisplayableIndicator(indicatorMetadata);
+            });
+          };
+
+          var filterArrayObjectsByValue = function (array, string) {
+              return array.filter(o => { 
+                return Object.keys(o).some(k => { 
+                  if (typeof o[k] === 'string') 
+                    return o[k].toLowerCase().includes(string.toLowerCase()); 
+                }); 
+              });
+          };
+
           this.getIndicatorMetadataById = function(indicatorId){
             for (const indicatorMetadata of this.availableIndicators) {
               if(indicatorMetadata.indicatorId === indicatorId){
@@ -881,35 +966,39 @@ angular
           this.filterIndicators = function (){
             return function( item ) {
 
-              // var arrayOfNameSubstringsForHidingIndicators = ["Standardabweichung", "Prozentuale Ver"];
-              var arrayOfNameSubstringsForHidingIndicators = __env.arrayOfNameSubstringsForHidingIndicators;
-
-              // this is an item from i.e. indicatorRadar, that has a different structure
-              if(item.indicatorMetadata){
-                if(item.indicatorMetadata.applicableDates == undefined || item.indicatorMetadata.applicableDates.length === 0)
-                  return false;
-
-                  var isIndicatorThatShallNotBeDisplayed = arrayOfNameSubstringsForHidingIndicators.some(substring => String(item.indicatorMetadata.indicatorName).includes(substring));
-
-                  if(isIndicatorThatShallNotBeDisplayed){
-                    return false;
-                  }
-                return true;
-              }
-              else{
-                //
-                if(item.applicableDates == undefined || item.applicableDates.length === 0)
-                  return false;
-
-                  // var isIndicatorThatShallNotBeDisplayed = item.indicatorName.includes("Standardabweichung") || item.indicatorName.includes("Prozentuale Ver");
-                  var isIndicatorThatShallNotBeDisplayed = arrayOfNameSubstringsForHidingIndicators.some(substring => String(item.indicatorName).includes(substring));
-
-                  if(isIndicatorThatShallNotBeDisplayed){
-                    return false;
-                  }
-                return true;
-              }
+              return isDisplayableIndicator(item);
             };
+          };
+
+          var isDisplayableIndicator = function(item){
+             // var arrayOfNameSubstringsForHidingIndicators = ["Standardabweichung", "Prozentuale Ver"];
+             var arrayOfNameSubstringsForHidingIndicators = __env.arrayOfNameSubstringsForHidingIndicators;
+
+             // this is an item from i.e. indicatorRadar, that has a different structure
+             if(item.indicatorMetadata){
+               if(item.indicatorMetadata.applicableDates == undefined || item.indicatorMetadata.applicableDates.length === 0)
+                 return false;
+
+                 var isIndicatorThatShallNotBeDisplayed = arrayOfNameSubstringsForHidingIndicators.some(substring => String(item.indicatorMetadata.indicatorName).includes(substring));
+
+                 if(isIndicatorThatShallNotBeDisplayed){
+                   return false;
+                 }
+               return true;
+             }
+             else{
+               //
+               if(item.applicableDates == undefined || item.applicableDates.length === 0)
+                 return false;
+
+                 // var isIndicatorThatShallNotBeDisplayed = item.indicatorName.includes("Standardabweichung") || item.indicatorName.includes("Prozentuale Ver");
+                 var isIndicatorThatShallNotBeDisplayed = arrayOfNameSubstringsForHidingIndicators.some(substring => String(item.indicatorName).includes(substring));
+
+                 if(isIndicatorThatShallNotBeDisplayed){
+                   return false;
+                 }
+               return true;
+             }
           };
 
           this.filterGeoresourcesByPoi = function(){
