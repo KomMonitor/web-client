@@ -96,6 +96,8 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 					// refresh all admin dashboard diagrams due to modified metadata
 					$rootScope.$broadcast("refreshAdminDashboardDiagrams");
 
+					$scope.loadingData = false;
+
 				}, function errorCallback(error) {
 					if(error.data){							
 						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
@@ -175,6 +177,8 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 
 					// refresh all admin dashboard diagrams due to modified metadata
 					$rootScope.$broadcast("refreshAdminDashboardDiagrams");
+
+					$scope.loadingData = false;
 
 				}, function errorCallback(error) {
 					if(error.data){							
@@ -263,6 +267,8 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 					// refresh all admin dashboard diagrams due to modified metadata
 					$rootScope.$broadcast("refreshAdminDashboardDiagrams");
 
+					$scope.loadingData = false;
+
 				}, function errorCallback(error) {
 					if(error.data){							
 						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
@@ -341,6 +347,8 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 					// refresh all admin dashboard diagrams due to modified metadata
 					$rootScope.$broadcast("refreshAdminDashboardDiagrams");
 
+					$scope.loadingData = false;
+
 				}, function errorCallback(error) {
 					if(error.data){							
 						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
@@ -380,6 +388,8 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 					await kommonitorDataExchangeService.fetchTopicsMetadata();
 
 					$scope.refreshTopicsOverview();
+
+					$scope.loadingData = false;
 
 				}, function errorCallback(error) {
 					if(error.data){							
