@@ -62,6 +62,18 @@ angular
 
 								$scope.selectedDate;
 
+								$scope.getNumberOfIndicators = function(topic, indicatorNameFilter){
+									var numberOfIndicators = 0;
+									
+									for (const indicatorMetadata of kommonitorDataExchangeService.availableIndicators) {
+										if (kommonitorDataExchangeService.topicHierarchyContainsIndicator(topic, indicatorMetadata)){
+											numberOfIndicators++;
+										}
+									}
+
+									return numberOfIndicators;
+								};
+
 								this.addGeopackage = function(){
 									this.kommonitorMapServiceInstance.addSpatialUnitGeopackage();
 								}

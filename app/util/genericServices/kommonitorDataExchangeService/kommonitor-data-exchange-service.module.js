@@ -220,6 +220,29 @@ angular
 						this.availableTopics = topicsArray;
           };
 
+          this.topicHierarchyContainsIndicator = function(topic, indicatorMetadata){
+            if (topic.topicId === indicatorMetadata.topicReference){
+              return true;
+            }
+            else{
+              return this.anySubTopicContainsIndicator(topic, indicatorMetadata);
+            }
+          };
+
+          this.anySubTopicContainsIndicator = function(topic, indicatorMetadata){
+            var isContained = false;
+
+            for (const subTopic of topic.subTopics) {
+              isContained = this.topicHierarchyContainsIndicator(subTopic, indicatorMetadata);
+
+              if(isContained){
+                break;
+              }
+            }
+
+            return isContained;
+          };
+
           this.getIndicatorMetadataById = function(indicatorId){
             for (const indicatorMetadata of this.availableIndicators) {
               if(indicatorMetadata.indicatorId === indicatorId){
