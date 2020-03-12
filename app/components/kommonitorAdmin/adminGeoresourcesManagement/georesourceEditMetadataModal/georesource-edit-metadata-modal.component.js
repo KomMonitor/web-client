@@ -686,7 +686,7 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 						//1. $scope.scale current_fs down to 80%
 						$scope.scale = 1 - (1 - now) * 0.2;
 						//2. bring $scope.next_fs from the right(50%)
-						left = (now * 50)+"%";
+						// left = (now * 50)+"%";
 						//3. increase $scope.opacity of $scope.next_fs to 1 as it moves in
 						$scope.opacity = 1 - now;
 						$scope.current_fs.css({
