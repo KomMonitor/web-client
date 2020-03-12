@@ -121,7 +121,7 @@ angular
 									var day = dateComps[2];
 
 									// var url = kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + poi.georesourceId + "/" + year + "/" + month + "/" + day;
-									var url = kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + poi.georesourceId;
+									var url = kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + poi.georesourceId + "/allFeatures";
 									var fileName = poi.datasetName + "-" + year + "-" + month + "-" + day;
 
 									$http({
@@ -231,7 +231,7 @@ angular
 									var day = dateComps[2];
 
 									// var url = kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + aoi.georesourceId + "/" + year + "/" + month + "/" + day;
-									var url = kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + aoi.georesourceId;
+									var url = kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + aoi.georesourceId + "/allFeatures";
 									var fileName = aoi.datasetName + "-" + year + "-" + month + "-" + day;
 
 									$http({
@@ -337,7 +337,8 @@ angular
 										var month = dateComps[1];
 										var day = dateComps[2];
 
-										var url = kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + aoi.georesourceId + "/" + year + "/" + month + "/" + day;
+										// var url = kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + aoi.georesourceId + "/" + year + "/" + month + "/" + day;
+										var url = kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + aoi.georesourceId + "/allFeatures";
 										var fileName = aoi.datasetName + "-" + year + "-" + month + "-" + day;
 
 										$http({

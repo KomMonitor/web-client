@@ -60,7 +60,7 @@ angular
 								$scope.dateSlider;
 								$scope.datesAsMs;
 
-								$scope.selectedDate;
+								$scope.selectedDate;								
 
 								this.addGeopackage = function(){
 									this.kommonitorMapServiceInstance.addSpatialUnitGeopackage();

@@ -1,8 +1,10 @@
 angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 	templateUrl : "components/kommonitorAdmin/adminSpatialUnitsManagement/spatialUnitAddModal/spatial-unit-add-modal.template.html",
-	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '$http', '__env',function SpatialUnitAddModalController(kommonitorDataExchangeService, $scope, $rootScope, $http, __env) {
+	controller : ['kommonitorDataExchangeService', 'kommonitorImporterHelperService', '$scope', '$rootScope', '$http', '__env',
+		function SpatialUnitAddModalController(kommonitorDataExchangeService, kommonitorImporterHelperService, $scope, $rootScope, $http, __env) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
+		this.kommonitorImporterHelperServiceInstance = kommonitorImporterHelperService;
 
 		/*	POST BODY
 				{
@@ -66,7 +68,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 		$scope.metadata.note = undefined;
 		$scope.metadata.literature = undefined;
 		$scope.metadata.updateInterval = undefined;
-		$scope.metadata.sridEPSG = undefined;
+		$scope.metadata.sridEPSG = 4326;
 		$scope.metadata.datasource = undefined;
 		$scope.metadata.databasis = undefined;
 		$scope.metadata.contact = undefined;
@@ -82,23 +84,30 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 		$scope.periodOfValidity.endDate = undefined;
 		$scope.periodOfValidityInvalid = false;
 
-		$scope.geoJsonString = undefined;
-		$scope.spatialUnit_asGeoJson = undefined;
-
-		$scope.spatialUnitDataSourceInputInvalidReason = undefined;
-		$scope.spatialUnitDataSourceInputInvalid = false;
-		$scope.spatialResourceConfigured = false;
-		$scope.idPropertyNotFound = false;
-		$scope.namePropertyNotFound = false;
-		$scope.geodataSourceFormat = undefined;
+		$scope.converter = undefined;
+		$scope.schema = undefined;
+		$scope.datasourceType = undefined;
 		$scope.spatialUnitDataSourceIdProperty = undefined;
 		$scope.spatialUnitDataSourceNameProperty = undefined;
 
 		$scope.successMessagePart = undefined;
 		$scope.errorMessagePart = undefined;
+		$scope.importerErrors = undefined;
+
+		$scope.converterDefinition = undefined;
+		$scope.datasourceTypeDefinition = undefined;
+		$scope.propertyMappingDefinition = undefined;
+		$scope.postBody_spatialUnits = undefined;
+
+		$scope.validityEndDate_perFeature = undefined;
+		$scope.validityStartDate_perFeature = undefined;
 
 
 		$scope.resetSpatialUnitAddForm = function(){
+			$scope.importerErrors = undefined;
+			$scope.successMessagePart = undefined;
+			$scope.errorMessagePart = undefined;
+
 			$scope.spatialUnitLevel = undefined;
 			$scope.spatialUnitLevelInvalid = false;
 
@@ -106,7 +115,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 			$scope.metadata.note = undefined;
 			$scope.metadata.literature = undefined;
 			$scope.metadata.updateInterval = undefined;
-			$scope.metadata.sridEPSG = undefined;
+			$scope.metadata.sridEPSG = 4326;
 			$scope.metadata.datasource = undefined;
 			$scope.metadata.databasis = undefined;
 			$scope.metadata.contact = undefined;
@@ -122,17 +131,27 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 			$scope.periodOfValidity.endDate = undefined;
 			$scope.periodOfValidityInvalid = false;
 
-			$scope.geoJsonString = undefined;
-			$scope.spatialUnit_asGeoJson = undefined;
-
-			$scope.spatialUnitDataSourceInputInvalidReason = undefined;
-			$scope.spatialUnitDataSourceInputInvalid = false;
-			$scope.idPropertyNotFound = false;
-			$scope.namePropertyNotFound = false;
-			$scope.spatialResourceConfigured = false;
-			$scope.geodataSourceFormat = undefined;
+			$scope.converter = undefined;
+			$scope.schema = undefined;
+			$scope.datasourceType = undefined;
 			$scope.spatialUnitDataSourceIdProperty = undefined;
 			$scope.spatialUnitDataSourceNameProperty = undefined;
+
+			$scope.converterDefinition = undefined;
+			$scope.datasourceTypeDefinition = undefined;
+			$scope.propertyMappingDefinition = undefined;
+			$scope.postBody_spatialUnits = undefined;
+
+			$scope.validityEndDate_perFeature = undefined;
+			$scope.validityStartDate_perFeature = undefined;
+
+			setTimeout(() => {
+				$scope.$apply();	
+			}, 250);
+		};
+
+		$scope.onChangeSchema = function(schema){
+			$scope.schema = schema;
 		};
 
 		$scope.checkSpatialUnitName = function(){
@@ -185,11 +204,50 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 			}
 		};
 
-		$scope.addSpatialUnit = function(){
+		$scope.buildImporterObjects = async function(){
+			$scope.converterDefinition = $scope.buildConverterDefinition();
+			$scope.datasourceTypeDefinition = await $scope.buildDatasourceTypeDefinition();
+			$scope.propertyMappingDefinition = $scope.buildPropertyMappingDefinition();
+			$scope.postBody_spatialUnits = $scope.buildPostBody_spatialUnits();
 
+			if(!$scope.converterDefinition || !$scope.datasourceTypeDefinition || !$scope.propertyMappingDefinition || !$scope.postBody_spatialUnits){
+				return false;
+			}
+
+			return true;
+		};
+
+		$scope.buildConverterDefinition = function(){
+
+			return kommonitorImporterHelperService.buildConverterDefinition($scope.converter, "converterParameter_spatialUnitAdd_", $scope.schema);			
+		};
+
+		$scope.buildDatasourceTypeDefinition = async function(){
+			try {
+				return await kommonitorImporterHelperService.buildDatasourceTypeDefinition($scope.datasourceType, 'datasourceTypeParameter_spatialUnitAdd_', 'spatialUnitDataSourceInput');			
+			} catch (error) {
+				if(error.data){							
+					$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+				}
+				else{
+					$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
+				}
+
+				$("#spatialUnitAddErrorAlert").show();
+				$scope.loadingData = false;
+				return null;
+			}			
+		};
+
+		$scope.buildPropertyMappingDefinition = function(){
+			// arsion from is undefined currently
+			return kommonitorImporterHelperService.buildPropertyMapping_spatialResource($scope.spatialUnitDataSourceNameProperty, $scope.spatialUnitDataSourceIdProperty, $scope.validityStartDate_perFeature, $scope.validityEndDate_perFeature, undefined);
+		};
+
+		$scope.buildPostBody_spatialUnits = function(){
 			var postBody =
 			{
-				"geoJsonString": $scope.geoJsonString,
+				"geoJsonString": "", // will be set by importer
 				"metadata": {
 					"note": $scope.metadata.note,
 					"literature": $scope.metadata.literature,
@@ -199,122 +257,105 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 					"contact": $scope.metadata.contact,
 					"lastUpdate": $scope.metadata.lastUpdate,
 					"description": $scope.metadata.description,
-					"databasis": $scope.metadata.databasis,
-					"sridEPSG": 4326
+					"databasis": $scope.metadata.databasis
 				},
-				"jsonSchema": null,
-				"nextLowerHierarchyLevel": $scope.nextLowerHierarchySpatialUnit ? $scope.nextLowerHierarchySpatialUnit.spatialUnitLevel : null,
+				"jsonSchema": undefined,
+				"nextLowerHierarchyLevel": $scope.nextLowerHierarchySpatialUnit ? $scope.nextLowerHierarchySpatialUnit.spatialUnitLevel : undefined,
 				"spatialUnitLevel": $scope.spatialUnitLevel,
 				"periodOfValidity": {
 					"endDate": $scope.periodOfValidity.endDate,
 					"startDate": $scope.periodOfValidity.startDate
 				},
-				"nextUpperHierarchyLevel": $scope.nextUpperHierarchySpatialUnit ? $scope.nextUpperHierarchySpatialUnit.spatialUnitLevel : null
+				"nextUpperHierarchyLevel": $scope.nextUpperHierarchySpatialUnit ? $scope.nextUpperHierarchySpatialUnit.spatialUnitLevel : undefined
 			};
 
-			// TODO verify input
-
-			// TODO Create and perform POST Request with loading screen
-
-			$scope.loadingData = true;
-
-			$http({
-				url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/spatial-units",
-				method: "POST",
-				data: postBody
-				// headers: {
-				//    'Content-Type': undefined
-				// }
-			}).then(function successCallback(response) {
-					// this callback will be called asynchronously
-					// when the response is available
-
-					$rootScope.$broadcast("refreshSpatialUnitOverviewTable");
-
-					// refresh all admin dashboard diagrams due to modified metadata
-					$rootScope.$broadcast("refreshAdminDashboardDiagrams");
-
-					$("#spatialUnitAddSucessAlert").show();
-
-					$scope.loadingData = false;
-
-				}, function errorCallback(response) {
-					$scope.errorMessagePart = response;
-
-					$("#spatialUnitAddErrorAlert").show();
-					$scope.loadingData = false;
-
-					// setTimeout(function() {
-					// 		$("#spatialUnitAddSucessAlert").hide();
-					// }, 3000);
-			});
+			return postBody;
 		};
 
-		$(document).on("change", "#spatialUnitDataSourceInput" ,function(){
-				// TODO validate file input and
-				$scope.spatialUnitDataSourceInputInvalidReason = undefined;
-				$scope.spatialUnitDataSourceInputInvalid = false;
+			$scope.addSpatialUnit = async function () {
 
-				$scope.geoJsonString = undefined;
-				$scope.spatialUnit_asGeoJson = undefined;
+				$scope.importerErrors = undefined;
+				$scope.successMessagePart = undefined;
+				$scope.errorMessagePart = undefined;
 
-				// get the file
-				var file = document.getElementById('spatialUnitDataSourceInput').files[0];
+				/*
+					now collect data and build request for importer
+				*/
 
-				var fileEnding = file.name.split('.').pop();
+				/*
+					if any required importer data is missing --> cancel request and highlight required errors 
+				*/
+				var allDataSpecified = await $scope.buildImporterObjects();
 
-				if(fileEnding.toUpperCase() === "json".toUpperCase() || fileEnding.toUpperCase() === "geojson".toUpperCase()){
-					console.log("Potential GeoJSON file identified")
-					$scope.processFileInput_geoJson(file);
+				if (!allDataSpecified) {
+
+					$("#spatialUnitAddForm").validator("update");
+					$("#spatialUnitAddForm").validator("validate");
+					return;
 				}
-		});
+				else {
 
-		$scope.processFileInput_geoJson = function(file){
-			var fileReader = new FileReader();
 
-			fileReader.onload = function(event) {
-				// $scope.geoJsonString = event.target.result;
-				$scope.spatialUnit_asGeoJson = JSON.parse(event.target.result);
+					// TODO verify input
 
-				if(! $scope.spatialUnit_asGeoJson.features){
-					console.error("uploaded GeoJSON is not a valid FeatureCollection");
-					$scope.spatialUnitDataSourceInputInvalidReason = "GeoJSON ist keine valide FeatureCollection.";
-					$scope.spatialUnitDataSourceInputInvalid = true;
+					// TODO Create and perform POST Request with loading screen
+
+					$scope.loadingData = true;
+					var newSpatialUnitResponse_dryRun = undefined;
+					try {
+						newSpatialUnitResponse_dryRun = await kommonitorImporterHelperService.registerNewSpatialUnit($scope.converterDefinition, $scope.datasourceTypeDefinition, $scope.propertyMappingDefinition, $scope.postBody_spatialUnits, true);
+
+						if(! kommonitorImporterHelperService.importerResponseContainsErrors(newSpatialUnitResponse_dryRun)){
+							// all good, really execute the request to import data against data management API
+							var newSpatialUnitResponse = await kommonitorImporterHelperService.registerNewSpatialUnit($scope.converterDefinition, $scope.datasourceTypeDefinition, $scope.propertyMappingDefinition, $scope.postBody_spatialUnits, false);
+
+							$rootScope.$broadcast("refreshSpatialUnitOverviewTable");
+
+							// refresh all admin dashboard diagrams due to modified metadata
+							$rootScope.$broadcast("refreshAdminDashboardDiagrams");
+
+							$scope.successMessagePart = $scope.postBody_spatialUnits.spatialUnitLevel;
+							$scope.importedFeatures = kommonitorImporterHelperService.getImportedFeaturesFromImporterResponse(newSpatialUnitResponse);
+
+							$("#spatialUnitAddSucessAlert").show();
+							$scope.loadingData = false;
+						}
+						else{
+							// errors ocurred
+							// show them 
+							$scope.errorMessagePart = "Einige der zu importierenden Features des Datensatzes weisen kritische Fehler auf";
+							$scope.importerErrors = kommonitorImporterHelperService.getErrorsFromImporterResponse(newSpatialUnitResponse_dryRun);
+
+							$("#spatialUnitAddErrorAlert").show();
+							$scope.loadingData = false;
+
+							setTimeout(() => {
+								$scope.$apply();
+							}, 250);
+
+						}
+					} catch (error) {
+						if(error.data){							
+							$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+						}
+						else{
+							$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
+						}
+
+						if(newSpatialUnitResponse_dryRun){
+							$scope.importerErrors = kommonitorImporterHelperService.getErrorsFromImporterResponse(newSpatialUnitResponse_dryRun);
+						}
+
+						$("#spatialUnitAddErrorAlert").show();
+						$scope.loadingData = false;
+
+						setTimeout(() => {
+							$scope.$apply();
+						}, 250);
+					}
 				}
 
-				$scope.checkSpatialUnitDataSource();
 			};
-
-			// Read in the image file as a data URL.
-			fileReader.readAsText(file);
-		};
-
-		$scope.checkSpatialUnitDataSource = function(){
-			$scope.idPropertyNotFound = false;
-			$scope.namePropertyNotFound = false;
-			$scope.spatialResourceConfigured = false;
-			if($scope.spatialUnit_asGeoJson && $scope.spatialUnitDataSourceIdProperty && $scope.spatialUnitDataSourceNameProperty){
-
-					 $scope.spatialUnit_asGeoJson.features.forEach(function(feature){
-						 if(! feature.properties[$scope.spatialUnitDataSourceIdProperty]){
-							 $scope.idPropertyNotFound = true;
-							 return;
-						 }
-						 if(! feature.properties[$scope.spatialUnitDataSourceNameProperty]){
-							 $scope.namePropertyNotFound = true;
-							 return;
-						 }
-
-						 // else everything fine
-						 // append ID and NAME properties using KomMOnitor required property names
-						 feature.properties[__env.FEATURE_ID_PROPERTY_NAME] = feature.properties[$scope.spatialUnitDataSourceIdProperty];
-						 feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] = feature.properties[$scope.spatialUnitDataSourceNameProperty];
-					 });
-
-					 $scope.geoJsonString = JSON.stringify($scope.spatialUnit_asGeoJson);
-					 $scope.spatialResourceConfigured = true;
-			}
-		};
 
 		$scope.onImportSpatialUnitAddMetadata = function(){
 
@@ -349,6 +390,8 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 					$scope.spatialUnitMetadataImportError = "Uploaded Metadata File cannot be parsed correctly";
 					document.getElementById("spatialUnitsAddMetadataPre").innerHTML = $scope.spatialUnitMetadataStructure_pretty;
 					$("#spatialUnitMetadataImportErrorAlert").show();
+
+					$scope.$apply();
 				}
 
 			};
@@ -366,6 +409,8 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 				$scope.spatialUnitMetadataImportError = "Struktur der Datei stimmt nicht mit erwartetem Muster &uuml;berein.";
 				document.getElementById("spatialUnitsAddMetadataPre").innerHTML = $scope.spatialUnitMetadataStructure_pretty;
 				$("#spatialUnitMetadataImportErrorAlert").show();
+
+				$scope.$apply();
 			}
 
 				$scope.metadata = {};
@@ -399,7 +444,27 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 				$scope.spatialUnitLevel = $scope.metadataImportSettings.spatialUnitLevel;
 
 				$scope.$apply();
-		}
+		};
+
+		$scope.onExportSpatialUnitAddMetadataTemplate = function(){
+
+			var metadataJSON = JSON.stringify($scope.spatialUnitMetadataStructure);
+
+			var fileName = "Raumeinheit_Metadaten_Vorlage_Export.json";
+
+			var blob = new Blob([metadataJSON], {type: "application/json"});
+			var data  = URL.createObjectURL(blob);
+
+			var a = document.createElement('a');
+			a.download    = fileName;
+			a.href        = data;
+			a.textContent = "JSON";
+			a.target = "_blank";
+			a.rel = "noopener noreferrer";
+			a.click();
+
+			a.remove();
+		};
 
 		$scope.onExportSpatialUnitAddMetadata = function(){
 			var metadataExport = $scope.spatialUnitMetadataStructure;
@@ -468,6 +533,98 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 			$scope.hideMetadataErrorAlert = function(){
 				$("#spatialUnitMetadataImportErrorAlert").hide();
 			};
+
+
+			/*
+			MULTI STEP FORM STUFF
+			*/
+			//jQuery time
+			$scope.current_fs; 
+			$scope.next_fs; 
+			$scope.previous_fs; //fieldsets
+			$scope.opacity; 
+			$scope.scale; //fieldset properties which we will animate
+			$scope.animating; //flag to prevent quick multi-click glitches
+
+			$(".next_addSpatialUnit").click(function(){
+				if($scope.animating) return false;
+				$scope.animating = true;
+				
+				$scope.current_fs = $(this).parent();
+				$scope.next_fs = $(this).parent().next();
+				
+				//activate next step on progressbar using the index of $scope.next_fs
+				$("#progressbar li").eq($("fieldset").index($scope.next_fs)).addClass("active");
+				
+				//show the next fieldset
+				$scope.next_fs.show(); 
+				//hide the current fieldset with style
+				$scope.current_fs.animate({opacity: 0}, {
+					step: function(now, mx) {
+						//as the $scope.opacity of current_fs reduces to 0 - stored in "now"
+						//1. $scope.scale current_fs down to 80%
+						$scope.scale = 1 - (1 - now) * 0.2;
+						//2. bring $scope.next_fs from the right(50%)
+						// left = (now * 50)+"%";
+						//3. increase $scope.opacity of $scope.next_fs to 1 as it moves in
+						$scope.opacity = 1 - now;
+						$scope.current_fs.css({
+							'position': 'absolute'
+						});
+						// $scope.next_fs.css({'left': left, '$scope.opacity': $scope.opacity});
+						$scope.next_fs.css({'opacity': $scope.opacity});
+					}, 
+					duration: 200, 
+					complete: function(){
+						$scope.current_fs.hide();
+						$scope.animating = false;
+					}, 
+					//this comes from the custom easing plugin
+					easing: 'easeInOutBack'
+				});
+			});
+
+			$(".previous_addSpatialUnit").click(function(){
+				if($scope.animating) return false;
+				$scope.animating = true;
+				
+				$scope.current_fs = $(this).parent();
+				$scope.previous_fs = $(this).parent().prev();
+				
+				//de-activate current step on progressbar
+				$("#progressbar li").eq($("fieldset").index($scope.current_fs)).removeClass("active");
+				
+				//show the previous fieldset
+				$scope.previous_fs.show(); 
+				//hide the current fieldset with style
+				$scope.current_fs.animate({opacity: 0}, {
+					step: function(now, mx) {
+						//as the $scope.opacity of current_fs reduces to 0 - stored in "now"
+						//1. $scope.scale $scope.previous_fs from 80% to 100%
+						$scope.scale = 0.8 + (1 - now) * 0.2;
+						//2. take current_fs to the right(50%) - from 0%
+						// left = ((1-now) * 50)+"%";
+						//3. increase $scope.opacity of $scope.previous_fs to 1 as it moves in
+						$scope.opacity = 1 - now;
+						// current_fs.css({'left': left});
+						// $scope.previous_fs.css({'transform': '$scope.scale('+$scope.scale+')', '$scope.opacity': $scope.opacity});
+						$scope.previous_fs.css({
+							'position': 'absolute'
+						});
+						$scope.previous_fs.css({'opacity': $scope.opacity});
+					}, 
+					duration: 200, 
+					complete: function(){
+						$scope.current_fs.hide();
+						$scope.previous_fs.css({
+							'position': 'relative'
+						});
+						$scope.animating = false;
+					}, 
+					//this comes from the custom easing plugin
+					easing: 'easeInOutBack'
+				});
+			});
 
 	}
 ]});

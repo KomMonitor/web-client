@@ -8,10 +8,9 @@
 
 	<p></p>
 
-<!-- POINTS OF INTEREST -->
 	<div class="box box-primary">
 		<div class="box-header with-border">
-			<h3 class="box-title">Points of Interest</h3>
+			<h3 class="box-title">Georessourcenauswahl</h3>
 
 			<div class="box-tools pull-right">
 				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
@@ -20,193 +19,736 @@
 		</div>
 		<div class="box-body">
 
-			<div class="" >
-
-					<!-- <p>Selektieren eines Eintrags aus unten stehender Liste f&uuml;gt den entsprechenden Punkt-Layer der Kartendarstellung hinzu. Deselektion entfernt den entsprechenden Layer aus der Kartendarstellung.</p> -->
-
-					<div class="input-group">
-						<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-						<input type="text" class="form-control input-sm" placeholder="Filtern nach POI-Name" ng-model="poiNameFilter">
-					</div>
-
-					<br/>
-
-					<div  id="poiInputForm">
-
-						<table class="table table-condensed" style="margin-bottom:0px;">
-					    <thead>
-					      <tr>
-					        <th>Datensatz</th>
-					        <th>Export</th>
-					      </tr>
-					    </thead>
-
-							<tbody>
-
-								<tr ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:poiNameFilter'>
-									<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
-									<td>
-										<label class='checkbox-inline' ><input type="checkbox" value="poi.datasetName" ng-model="poi.isSelected" ng-change="handlePoiOnMap(poi)">
-											<i class="awesome-marker-legend awesome-marker-legend-icon-{{poi.poiMarkerColor}}">
-												<span style="margin-left:3px; font-size:0.7em; color:{{poi.poiSymbolColor}};" align="center" class="glyphicon glyphicon-{{poi.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
-											</i>
-
-											<b>&nbsp;&nbsp;{{poi.datasetName}}</b> &mdash; {{poi.metadata.description}}
-										</label>
-									</td>
-									<td>
-										<a href="" ng-click="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
-										<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
-									</td>
-								</tr>
-							</tbody>
-						</table>
-						</div>
-
-						<br/>
-
-						<div align="center">
-
-							<b title="Checkbox zur Wahl, ob die einzelnen Punkte eines POI Layers geclustered werden sollen">Kartenstandorte clustern</b> (Zusammenfassung mehrerer Punkte je nach Zoomstufe)
-							&nbsp;
-							<label class="switch">
-								<input type="checkbox" value="useCluster" ng-model="useCluster" ng-change="refreshPoiLayers()" checked>
-								<span class="switchslider round"></span>
-							</label>
-
-						</div>
+			<div align="center">
+		
+				<b title="Checkbox zur Wahl, ob die einzelnen Punkte eines POI Layers geclustered werden sollen">Points of Interest clustern</b> (Zusammenfassung mehrerer Punkte je nach Zoomstufe)
+				&nbsp;
+				<label class="switch">
+					<input type="checkbox" value="useCluster" ng-model="useCluster" ng-change="refreshPoiLayers()" checked>
+					<span class="switchslider round"></span>
+				</label>
 
 			</div>
 
-		</div>
-		<!-- /.box-body -->
+			<br/>
 
-	</div>
-	<!-- /.box -->
-
-
-	<!-- LINES OF INTEREST -->
-		<div class="box box-primary collapsed-box">
-			<div class="box-header with-border">
-				<h3 class="box-title">Lines of Interest</h3>
-
-				<div class="box-tools pull-right">
-					<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
-					</button>
-				</div>
-			</div>
-			<div class="box-body">
-
-				<div class="" >
-
-						<!-- <p>Selektieren eines Eintrags aus unten stehender Liste f&uuml;gt den entsprechenden Punkt-Layer der Kartendarstellung hinzu. Deselektion entfernt den entsprechenden Layer aus der Kartendarstellung.</p> -->
-
-						<div class="input-group">
-							<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-							<input type="text" class="form-control input-sm" placeholder="Filtern nach LOI-Name" ng-model="loiNameFilter">
-						</div>
-
-						<br/>
-
-						<div  id="loiInputForm">
-
-							<table class="table table-condensed" style="margin-bottom:0px;">
-								<thead>
-									<tr>
-										<th>Datensatz</th>
-										<th>Export</th>
-									</tr>
-								</thead>
-
-								<tbody>
-
-									<tr ng-repeat='loi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isLOI:true} | filter:loiNameFilter'>
-										<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
-										<td>
-											<label class='checkbox-inline' ><input type="checkbox" value="loi.datasetName" ng-model="loi.isSelected" ng-change="handleLoiOnMap(loi)">
-												<i style="width:15px; height:15px; background:{{loi.loiColor}}; display:inherit;">
-												</i>
-
-												<b>&nbsp;&nbsp;{{loi.datasetName}}</b> &mdash; {{loi.metadata.description}}
-											</label>
-										</td>
-										<td>
-											<a href="" ng-click="getExportLinkForLoi(loi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
-											<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
-										</td>
-									</tr>
-								</tbody>
-							</table>
-							</div>
-
-				</div>
-
-			</div>
-			<!-- /.box-body -->
-		</div>
-		<!-- /.box -->
-
-
-		<!-- AREAS OF INTEREST -->
-			<div class="box box-primary collapsed-box">
-				<div class="box-header with-border">
-					<h3 class="box-title">Areas of Interest</h3>
-
-					<div class="box-tools pull-right">
-						<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
-						</button>
-					</div>
-				</div>
-				<div class="box-body">
-
-					<div class="" >
-
-							<!-- <p>Selektieren eines Eintrags aus unten stehender Liste f&uuml;gt den entsprechenden Punkt-Layer der Kartendarstellung hinzu. Deselektion entfernt den entsprechenden Layer aus der Kartendarstellung.</p> -->
+			<uib-tabset active="activeJustified" justified="true">
+				<uib-tab index="0" heading="Datenkatalog">
+		
+						<div class="just-padding">
 
 							<div class="input-group">
 								<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-								<input type="text" class="form-control input-sm" placeholder="Filtern nach AOI-Name" ng-model="aoiNameFilter">
+								<input type="text" class="form-control input-sm" placeholder="Filtern nach Georessourcen-Name" ng-model="georesourceNameFilter">
 							</div>
 
 							<br/>
+		
+							<div id="georesourceHierarchySelection" class="list-group list-group-root well">
+		
+								<div ng-repeat="mainTopic in $ctrl.kommonitorDataExchangeServiceInstance.availableTopics | filter:{topicType:'main'} | filter:{topicResource:'georesource'}">
+									<div  class="list-group-item list-group-item-default" style="background: #2171b5; color: white;">
+										<a id="{{mainTopic.topicId}}" href="" ng-attr-title="{{mainTopic.topicDescription}}" class="collapseTrigger" style="color: white;" ng-click="isCollapsed_mainTopic = !isCollapsed_mainTopic" ng-init="isCollapsed_mainTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{mainTopic.topicName}} ({{$ctrl.kommonitorDataExchangeServiceInstance.getNumberOfGeoresources(mainTopic, georesourceNameFilter)}})</a>
+									</div>
+		
+		
+									<div ng-repeat="subTopic in mainTopic.subTopics" class="list-group collapse" uib-collapse="isCollapsed_mainTopic">
+		
+										<div  class="list-group-item list-group-item-default" style="background: #6baed6; color: white;">
+											<a id="{{subTopic.topicId}}" class="collapseTrigger" style="color: white;" ng-attr-title="{{subTopic.topicDescription}}" href="" ng-click="isCollapsed_subTopic = !isCollapsed_subTopic" ng-init="isCollapsed_subTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{subTopic.topicName}} ({{$ctrl.kommonitorDataExchangeServiceInstance.getNumberOfGeoresources(subTopic, georesourceNameFilter)}})</a>
+										</div>
+		
+										<div ng-repeat="subsubTopic in subTopic.subTopics" class="list-group collapse" uib-collapse="isCollapsed_subTopic">
+		
+											<div  class="list-group-item list-group-item-default" style="background: #bdd7e7; color: white;">
+												<a id="{{subsubTopic.topicId}}" class="collapseTrigger" style="color: white;" ng-attr-title="{{subsubTopic.topicDescription}}" href="" ng-click="isCollapsed_subsubTopic = !isCollapsed_subsubTopic" ng-init="isCollapsed_subsubTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{subsubTopic.topicName}} ({{$ctrl.kommonitorDataExchangeServiceInstance.getNumberOfGeoresources(subsubTopic, georesourceNameFilter)}})</a>
+											</div>
+		
+											<div ng-repeat="subsubsubTopic in subsubTopic.subTopics" class="list-group collapse" uib-collapse="isCollapsed_subsubTopic">
+		
+												<div  class="list-group-item list-group-item-default" style="background: #eff3ff; color: white;">
+													<a id="{{subsubsubTopic.topicId}}" class="collapseTrigger" style="color: white;" ng-attr-title="{{subsubsubTopic.topicDescription}}">{{subsubsubTopic.topicName}} ({{$ctrl.kommonitorDataExchangeServiceInstance.getNumberOfGeoresources(subsubsubTopic, georesourceNameFilter)}})</a>
+												</div>
+		
+											</div>
+											<!-- end sub sub sub topics -->
+		
+		
+											<div ng-show="($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter).length > 0">
+												<div class="list-group collapse" uib-collapse="isCollapsed_subsubTopic">
+													<div class="list-group-item list-group-item-default georesourceInputForm">
 
-							<div  id="aoiInputForm">
+														 <table class="table table-condensed " style="margin-bottom:0px;">
+															<thead>
+															  <tr>
+																 <th>Typ</th> 
+																<th>Datensatz</th>
+																<th>Beschreibung</th>
+																<th>Legende</th>
+																<th>Export</th>
+															  </tr>
+															</thead>
+
+															<tbody>
+
+																<!-- POIs -->
+																<tr ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter '>
+																	<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
+																	<td>
+																		<i class="fas fa-map-marker-alt"></i>
+																	</td>
+																	<td>
+																		<label class='checkbox-inline' ><input type="checkbox" value="poi.datasetName" ng-model="poi.isSelected" ng-change="handlePoiOnMap(poi)">											
+								
+																			<b>&nbsp;&nbsp;{{poi.datasetName}}</b>
+																		</label>
+																	</td>
+																	<td>
+																		<p>{{poi.metadata.description}}</p>
+																	</td>
+																	<td>
+																		<i class="awesome-marker-legend awesome-marker-legend-icon-{{poi.poiMarkerColor}}">
+																			<span style="margin-left:3px; padding-right: 3px; font-size:0.7em; color:{{poi.poiSymbolColor}};" class="glyphicon glyphicon-{{poi.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
+																		</i>
+																	</td>
+																	<td>
+																		<a href="" ng-click="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
+																		<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
+																	</td>
+																</tr>
+
+																<!-- LOIs -->
+																<tr ng-repeat='loi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isLOI:true} | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter'>
+																	<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
+																	<td>
+																		<i class="fas fa-minus"></i>
+																	</td>
+																	<td>
+																		<label class='checkbox-inline' ><input type="checkbox" value="loi.datasetName" ng-model="loi.isSelected" ng-change="handleLoiOnMap(loi)">												
+							
+																			<b>&nbsp;&nbsp;{{loi.datasetName}}</b>
+																		</label>
+																	</td>
+																	<td>
+																		<p>{{loi.metadata.description}}</p>
+																	</td>
+																	<td>
+																		<i style="width:15px; height:15px; background:{{loi.loiColor}}; display:inherit;">
+																		</i>
+																	</td>
+																	<td>
+																		<a href="" ng-click="getExportLinkForLoi(loi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
+																		<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
+																	</td>
+																</tr>
+
+																<!-- AOIs -->
+																<tr ng-repeat='aoi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isAOI:true} | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter'>
+																	<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
+																	<td>
+																		<i class="far fa-square"></i>
+																	</td>
+																	<td>
+																		<label class='checkbox-inline' ><input type="checkbox" value="aoi.datasetName" ng-model="aoi.isSelected" ng-change="handleAoiOnMap(aoi)">													
+						
+																			<b>&nbsp;&nbsp;{{aoi.datasetName}}</b> 
+																		</label>
+																	</td>
+																	<td>
+																		<p>{{aoi.metadata.description}}</p>
+																	</td>
+																	<td>
+																		<i style="width:15px; height:15px; background:{{aoi.aoiColor}}; display:inherit;">
+																		</i>
+																	</td>
+																	<td>
+																		<a href="" ng-click="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
+																		<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
+																	</td>
+																</tr>
+
+															</tbody>
+
+														 </table>	
+													
+														</div>
+												</div>
+											</div>
+											<div ng-show="!(($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter).length > 0)">
+												<div class="list-group collapse" uib-collapse="isCollapsed_subsubTopic">
+													<div class="list-group-item list-group-item-default" style="background: #eb9c98;">
+														 <p><i class="fas fa-ban"></i> &nbsp;&nbsp;- keine Georessourcen in dieser Hierarchieebene -</p>
+													</div>
+												</div>
+											</div>
+		
+		
+										</div>
+										<!-- end sub sub opics -->
+		
+		
+		
+										<div ng-show="($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter).length > 0">
+											<div class="list-group collapse" uib-collapse="isCollapsed_subTopic">
+												<div class="list-group-item list-group-item-default georesourceInputForm">
+												
+													<table class="table table-condensed " style="margin-bottom:0px;">
+														<thead>
+														  <tr>
+															 <th>Typ</th> 
+															<th>Datensatz</th>
+															<th>Beschreibung</th>
+															<th>Legende</th>
+															<th>Export</th>
+														  </tr>
+														</thead>
+
+														<tbody>
+
+															<!-- POIs -->
+															<tr ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter'>
+																<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
+																<td>
+																	<i class="fas fa-map-marker-alt"></i>
+																</td>
+																<td>
+																	<label class='checkbox-inline' ><input type="checkbox" value="poi.datasetName" ng-model="poi.isSelected" ng-change="handlePoiOnMap(poi)">											
+							
+																		<b>&nbsp;&nbsp;{{poi.datasetName}}</b>
+																	</label>
+																</td>
+																<td>
+																	<p>{{poi.metadata.description}}</p>
+																</td>
+																<td>
+																	<i class="awesome-marker-legend awesome-marker-legend-icon-{{poi.poiMarkerColor}}">
+																		<span style="margin-left:3px; padding-right: 3px; font-size:0.7em; color:{{poi.poiSymbolColor}};" class="glyphicon glyphicon-{{poi.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
+																	</i>
+																</td>
+																<td>
+																	<a href="" ng-click="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
+																	<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
+																</td>
+															</tr>
+
+															<!-- LOIs -->
+															<tr ng-repeat='loi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isLOI:true} | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter'>
+																<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
+																<td>
+																	<i class="fas fa-minus"></i>
+																</td>
+																<td>
+																	<label class='checkbox-inline' ><input type="checkbox" value="loi.datasetName" ng-model="loi.isSelected" ng-change="handleLoiOnMap(loi)">												
+						
+																		<b>&nbsp;&nbsp;{{loi.datasetName}}</b>
+																	</label>
+																</td>
+																<td>
+																	<p>{{loi.metadata.description}}</p>
+																</td>
+																<td>
+																	<i style="width:15px; height:15px; background:{{loi.loiColor}}; display:inherit;">
+																	</i>
+																</td>
+																<td>
+																	<a href="" ng-click="getExportLinkForLoi(loi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
+																	<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
+																</td>
+															</tr>
+
+															<!-- AOIs -->
+															<tr ng-repeat='aoi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isAOI:true} | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter'>
+																<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
+																<td>
+																	<i class="far fa-square"></i>
+																</td>
+																<td>
+																	<label class='checkbox-inline' ><input type="checkbox" value="aoi.datasetName" ng-model="aoi.isSelected" ng-change="handleAoiOnMap(aoi)">													
+					
+																		<b>&nbsp;&nbsp;{{aoi.datasetName}}</b> 
+																	</label>
+																</td>
+																<td>
+																	<p>{{aoi.metadata.description}}</p>
+																</td>
+																<td>
+																	<i style="width:15px; height:15px; background:{{aoi.aoiColor}}; display:inherit;">
+																	</i>
+																</td>
+																<td>
+																	<a href="" ng-click="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
+																	<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
+																</td>
+															</tr>
+
+														</tbody>
+
+													 </table>		
+												
+												</div>
+											</div>
+										</div>
+										<div ng-show="!(($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter).length > 0)">
+											<div class="list-group collapse" uib-collapse="isCollapsed_subTopic">
+												<div class="list-group-item list-group-item-default" style="background: #eb9c98;">
+													 <p><i class="fas fa-ban"></i> &nbsp;&nbsp;- keine Georessourcen in dieser Hierarchieebene -</p>
+												</div>
+											</div>
+										</div>
+		
+		
+		
+		
+									</div>
+									<!-- end sub topics -->
+									<div ng-show="($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter).length > 0">
+										<div class="list-group collapse" uib-collapse="isCollapsed_mainTopic">
+											<div class="list-group-item list-group-item-default georesourceInputForm">
+												 
+												<table class="table table-condensed " style="margin-bottom:0px;">
+													<thead>
+													  <tr>
+														 <th>Typ</th> 
+														<th>Datensatz</th>
+														<th>Beschreibung</th>
+														<th>Legende</th>
+														<th>Export</th>
+													  </tr>
+													</thead>
+
+													<tbody>
+
+														<!-- POIs -->
+														<tr ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter'>
+															<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
+															<td>
+																<i class="fas fa-map-marker-alt"></i>
+															</td>
+															<td>
+																<label class='checkbox-inline' ><input type="checkbox" value="poi.datasetName" ng-model="poi.isSelected" ng-change="handlePoiOnMap(poi)">											
+						
+																	<b>&nbsp;&nbsp;{{poi.datasetName}}</b>
+																</label>
+															</td>
+															<td>
+																<p>{{poi.metadata.description}}</p>
+															</td>
+															<td>
+																<i class="awesome-marker-legend awesome-marker-legend-icon-{{poi.poiMarkerColor}}">
+																	<span style="margin-left:3px; padding-right: 3px; font-size:0.7em; color:{{poi.poiSymbolColor}};" class="glyphicon glyphicon-{{poi.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
+																</i>
+															</td>
+															<td>
+																<a href="" ng-click="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
+																<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
+															</td>
+														</tr>
+
+														<!-- LOIs -->
+														<tr ng-repeat='loi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isLOI:true} | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter'>
+															<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
+															<td>
+																<i class="fas fa-minus"></i>
+															</td>
+															<td>
+																<label class='checkbox-inline' ><input type="checkbox" value="loi.datasetName" ng-model="loi.isSelected" ng-change="handleLoiOnMap(loi)">												
+					
+																	<b>&nbsp;&nbsp;{{loi.datasetName}}</b>
+																</label>
+															</td>
+															<td>
+																<p>{{loi.metadata.description}}</p>
+															</td>
+															<td>
+																<i style="width:15px; height:15px; background:{{loi.loiColor}}; display:inherit;">
+																</i>
+															</td>
+															<td>
+																<a href="" ng-click="getExportLinkForLoi(loi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
+																<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
+															</td>
+														</tr>
+
+														<!-- AOIs -->
+														<tr ng-repeat='aoi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isAOI:true} | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter'>
+															<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
+															<td>
+																<i class="far fa-square"></i>
+															</td>
+															<td>
+																<label class='checkbox-inline' ><input type="checkbox" value="aoi.datasetName" ng-model="aoi.isSelected" ng-change="handleAoiOnMap(aoi)">													
+				
+																	<b>&nbsp;&nbsp;{{aoi.datasetName}}</b> 
+																</label>
+															</td>
+															<td>
+																<p>{{aoi.metadata.description}}</p>
+															</td>
+															<td>
+																<i style="width:15px; height:15px; background:{{aoi.aoiColor}}; display:inherit;">
+																</i>
+															</td>
+															<td>
+																<a href="" ng-click="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
+																<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
+															</td>
+														</tr>
+
+													</tbody>
+
+												 </table>	
+										
+											</div>
+										</div>
+									</div>
+									<div ng-show="!(($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter).length > 0)">
+										<div class="list-group collapse" uib-collapse="isCollapsed_mainTopic">
+											<div class="list-group-item list-group-item-default" style="background: #eb9c98;">
+												 <p><i class="fas fa-ban"></i> &nbsp;&nbsp;- keine Georessourcen in dieser Hierarchieebene -</p>
+											</div>
+										</div>
+									</div>
+		
+		
+									<!-- <div ng-repeat="georesourceMetadata in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:mainTopic.topicId} ">
+									</div> -->
+								</div>
+								<!-- end main Topics -->
+
+								<div  class="list-group-item list-group-item-default" style="background: #2171b5; color: white;">
+									<a id="noHierarchyGeoresourceDatasets" href="" ng-attr-title="Georessourcen-Daten ohne Hierarchie" class="collapseTrigger" style="color: white;" ng-click="isCollapsed_noTopic = !isCollapsed_noTopic" ng-init="isCollapsed_noTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>ohne Hierarchie ({{($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:null} | filter:georesourceNameFilter).length}})</a>
+								</div>
+	
+	
+								<div class="list-group collapse" uib-collapse="isCollapsed_noTopic">
+									
+							<div class="georesourceInputForm" ng-if="(($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:null} | filter:georesourceNameFilter).length > 0)">
 
 								<table class="table table-condensed" style="margin-bottom:0px;">
-							    <thead>
-							      <tr>
-							        <th>Datensatz</th>
-							        <th>Export</th>
-							      </tr>
-							    </thead>
+									<thead>
+									  <tr>
+										 <th>Typ</th> 
+										<th>Datensatz</th>
+										<th>Beschreibung</th>
+										<th>Legende</th>
+										<th>Export</th>
+									  </tr>
+									</thead>
 
 									<tbody>
 
-										<tr ng-repeat='aoi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isAOI:true} | filter:aoiNameFilter'>
+										<!-- POIs -->
+										<tr ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:{topicReference:null} | filter:georesourceNameFilter'>
 											<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 											<td>
-												<label class='checkbox-inline' ><input type="checkbox" value="aoi.datasetName" ng-model="aoi.isSelected" ng-change="handleAoiOnMap(aoi)">
-													<i style="width:15px; height:15px; background:{{aoi.aoiColor}}; display:inherit;">
-													</i>
-
-													<b>&nbsp;&nbsp;{{aoi.datasetName}}</b> &mdash; {{aoi.metadata.description}}
+												<i class="fas fa-map-marker-alt"></i>
+											</td>
+											<td>
+												<label class='checkbox-inline' ><input type="checkbox" value="poi.datasetName" ng-model="poi.isSelected" ng-change="handlePoiOnMap(poi)">											
+		
+													<b>&nbsp;&nbsp;{{poi.datasetName}}</b>
 												</label>
+											</td>
+											<td>
+												<p>{{poi.metadata.description}}</p>
+											</td>
+											<td>
+												<i class="awesome-marker-legend awesome-marker-legend-icon-{{poi.poiMarkerColor}}">
+													<span style="margin-left:3px; padding-right: 3px; font-size:0.7em; color:{{poi.poiSymbolColor}};" class="glyphicon glyphicon-{{poi.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
+												</i>
+											</td>
+											<td>
+												<a href="" ng-click="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
+												<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
+											</td>
+										</tr>
+
+										<!-- LOIs -->
+										<tr ng-repeat='loi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isLOI:true} | filter:{topicReference:null}'>
+											<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
+											<td>
+												<i class="fas fa-minus"></i>
+											</td>
+											<td>
+												<label class='checkbox-inline' ><input type="checkbox" value="loi.datasetName" ng-model="loi.isSelected" ng-change="handleLoiOnMap(loi)">												
+	
+													<b>&nbsp;&nbsp;{{loi.datasetName}}</b>
+												</label>
+											</td>
+											<td>
+												<p>{{loi.metadata.description}}</p>
+											</td>
+											<td>
+												<i style="width:15px; height:15px; background:{{loi.loiColor}}; display:inherit;">
+												</i>
+											</td>
+											<td>
+												<a href="" ng-click="getExportLinkForLoi(loi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
+												<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
+											</td>
+										</tr>
+
+										<!-- AOIs -->
+										<tr ng-repeat='aoi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isAOI:true} | filter:{topicReference:null}'>
+											<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
+											<td>
+												<i class="far fa-square"></i>
+											</td>
+											<td>
+												<label class='checkbox-inline' ><input type="checkbox" value="aoi.datasetName" ng-model="aoi.isSelected" ng-change="handleAoiOnMap(aoi)">													
+
+													<b>&nbsp;&nbsp;{{aoi.datasetName}}</b> 
+												</label>
+											</td>
+											<td>
+												<p>{{aoi.metadata.description}}</p>
+											</td>
+											<td>
+												<i style="width:15px; height:15px; background:{{aoi.aoiColor}}; display:inherit;">
+												</i>
 											</td>
 											<td>
 												<a href="" ng-click="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 												<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
 											</td>
 										</tr>
+
+									</tbody>
+
+								 </table>	
+
+							</div>
+								</div>	
+		
+		
+							</div>
+
+		
+					</div>
+		
+					</uib-tab>
+				<uib-tab index="1" heading="Alphabetische Listen">
+						<div class="just-padding">
+							
+							<!-- POINTS OF INTEREST -->
+			<div class="box box-primary">
+				<div class="box-header with-border">
+					<h3 class="box-title">Points of Interest</h3>
+		
+					<div class="box-tools pull-right">
+						<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+						</button>
+					</div>
+				</div>
+				<div class="box-body">
+		
+					<div class="" >
+		
+							<!-- <p>Selektieren eines Eintrags aus unten stehender Liste f&uuml;gt den entsprechenden Punkt-Layer der Kartendarstellung hinzu. Deselektion entfernt den entsprechenden Layer aus der Kartendarstellung.</p> -->
+		
+							<div class="input-group">
+								<span class="input-group-addon"><i class="fas fa-filter"></i></span>
+								<input type="text" class="form-control input-sm" placeholder="Filtern nach POI-Name" ng-model="poiNameFilter">
+							</div>
+		
+							<br/>
+		
+							<div  id="poiInputForm">
+		
+								<table class="table table-condensed" style="margin-bottom:0px;">
+								<thead>
+								  <tr>
+									<th>Datensatz</th>
+									<th>Beschreibung</th>
+									<th>Legende</th>
+									<th>Export</th>
+								  </tr>
+								</thead>
+		
+									<tbody>
+		
+										<tr ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:poiNameFilter'>
+											<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
+											<td>
+												<label class='checkbox-inline' ><input type="checkbox" value="poi.datasetName" ng-model="poi.isSelected" ng-change="handlePoiOnMap(poi)">											
+		
+													<b>&nbsp;&nbsp;{{poi.datasetName}}</b>
+												</label>
+											</td>
+											<td>
+												<p>{{poi.metadata.description}}</p>
+											</td>
+											<td>
+												<i class="awesome-marker-legend awesome-marker-legend-icon-{{poi.poiMarkerColor}}">
+													<span style="margin-left:3px; padding-right: 3px; font-size:0.7em; color:{{poi.poiSymbolColor}};" class="glyphicon glyphicon-{{poi.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
+												</i>
+											</td>
+											<td>
+												<a href="" ng-click="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
+												<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
+											</td>
+										</tr>
 									</tbody>
 								</table>
 								</div>
-
+		
+								<br/>
+		
+								
+		
 					</div>
-
+		
 				</div>
 				<!-- /.box-body -->
+		
 			</div>
 			<!-- /.box -->
+		
+		
+			<!-- LINES OF INTEREST -->
+				<div class="box box-primary collapsed-box">
+					<div class="box-header with-border">
+						<h3 class="box-title">Lines of Interest</h3>
+		
+						<div class="box-tools pull-right">
+							<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+							</button>
+						</div>
+					</div>
+					<div class="box-body">
+		
+						<div class="" >
+		
+								<!-- <p>Selektieren eines Eintrags aus unten stehender Liste f&uuml;gt den entsprechenden Punkt-Layer der Kartendarstellung hinzu. Deselektion entfernt den entsprechenden Layer aus der Kartendarstellung.</p> -->
+		
+								<div class="input-group">
+									<span class="input-group-addon"><i class="fas fa-filter"></i></span>
+									<input type="text" class="form-control input-sm" placeholder="Filtern nach LOI-Name" ng-model="loiNameFilter">
+								</div>
+		
+								<br/>
+		
+								<div  id="loiInputForm">
+		
+									<table class="table table-condensed" style="margin-bottom:0px;">
+										<thead>
+											<tr>
+												<th>Datensatz</th>
+												<th>Beschreibung</th>
+												<th>Legende</th>
+												<th>Export</th>
+											</tr>
+										</thead>
+		
+										<tbody>
+		
+											<tr ng-repeat='loi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isLOI:true} | filter:loiNameFilter'>
+												<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
+												<td>
+													<label class='checkbox-inline' ><input type="checkbox" value="loi.datasetName" ng-model="loi.isSelected" ng-change="handleLoiOnMap(loi)">												
+		
+														<b>&nbsp;&nbsp;{{loi.datasetName}}</b>
+													</label>
+												</td>
+												<td>
+													<p>{{loi.metadata.description}}</p>
+												</td>
+												<td>
+													<i style="width:15px; height:15px; background:{{loi.loiColor}}; display:inherit;">
+													</i>
+												</td>
+												<td>
+													<a href="" ng-click="getExportLinkForLoi(loi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
+													<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
+												</td>
+											</tr>
+										</tbody>
+									</table>
+									</div>
+		
+						</div>
+		
+					</div>
+					<!-- /.box-body -->
+				</div>
+				<!-- /.box -->
+		
+		
+				<!-- AREAS OF INTEREST -->
+					<div class="box box-primary collapsed-box">
+						<div class="box-header with-border">
+							<h3 class="box-title">Areas of Interest</h3>
+		
+							<div class="box-tools pull-right">
+								<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+								</button>
+							</div>
+						</div>
+						<div class="box-body">
+		
+							<div class="" >
+		
+									<!-- <p>Selektieren eines Eintrags aus unten stehender Liste f&uuml;gt den entsprechenden Punkt-Layer der Kartendarstellung hinzu. Deselektion entfernt den entsprechenden Layer aus der Kartendarstellung.</p> -->
+		
+									<div class="input-group">
+										<span class="input-group-addon"><i class="fas fa-filter"></i></span>
+										<input type="text" class="form-control input-sm" placeholder="Filtern nach AOI-Name" ng-model="aoiNameFilter">
+									</div>
+		
+									<br/>
+		
+									<div  id="aoiInputForm">
+		
+										<table class="table table-condensed" style="margin-bottom:0px;">
+										<thead>
+										  <tr>
+											<th>Datensatz</th>
+											<th>Beschreibung</th>
+											<th>Legende</th>
+											<th>Export</th>
+										  </tr>
+										</thead>
+		
+											<tbody>
+		
+												<tr ng-repeat='aoi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isAOI:true} | filter:aoiNameFilter'>
+													<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
+													<td>
+														<label class='checkbox-inline' ><input type="checkbox" value="aoi.datasetName" ng-model="aoi.isSelected" ng-change="handleAoiOnMap(aoi)">													
+		
+															<b>&nbsp;&nbsp;{{aoi.datasetName}}</b> 
+														</label>
+													</td>
+													<td>
+														<p>{{aoi.metadata.description}}</p>
+													</td>
+													<td>
+														<i style="width:15px; height:15px; background:{{aoi.aoiColor}}; display:inherit;">
+														</i>
+													</td>
+													<td>
+														<a href="" ng-click="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
+														<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
+													</td>
+												</tr>
+											</tbody>
+										</table>
+										</div>
+		
+							</div>
+		
+						</div>
+						<!-- /.box-body -->
+					</div>
+					<!-- /.box -->
+		
+		
+						</div>
+					</uib-tab>
+			  </uib-tabset>
 
+		</div>
+		
+	</div>	
 
 </div>

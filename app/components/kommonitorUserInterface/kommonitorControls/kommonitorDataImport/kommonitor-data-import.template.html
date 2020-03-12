@@ -69,7 +69,12 @@
 																</div>
 															</td>
 															<td>
-																<img src="{{dataset.url}}service=WMS&REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&LAYER={{dataset.layerName}}">
+																<div ng-if="! dataset.showLegend">
+																	<button class="btn btn-sm btn-primary" ng-click="dataset.showLegend = true;">Legende laden</button>
+																</div>
+																<div ng-if="dataset.showLegend">
+																	<img src="{{dataset.url}}service=WMS&REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&LAYER={{dataset.layerName}}">
+																</div>
 															</td>
 														</tr>
 													</tbody>
