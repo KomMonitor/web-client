@@ -1,1 +1,1 @@
-angular.module('spatialUnitEditFeaturesModal', ['datatables']);
+angular.module('spatialUnitEditFeaturesModal', ['datatables', 'kommonitorImporterHelper']);

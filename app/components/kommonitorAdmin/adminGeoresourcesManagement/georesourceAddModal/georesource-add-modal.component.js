@@ -1,8 +1,10 @@
 angular.module('georesourceAddModal').component('georesourceAddModal', {
 	templateUrl : "components/kommonitorAdmin/adminGeoresourcesManagement/georesourceAddModal/georesource-add-modal.template.html",
-	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '$http', '__env',function GeoresourceAddModalAddModalController(kommonitorDataExchangeService, $scope, $rootScope, $http, __env) {
+	controller : ['kommonitorDataExchangeService', 'kommonitorImporterHelperService', '$scope', '$rootScope', '$http', '__env',
+		function GeoresourceAddModalAddModalController(kommonitorDataExchangeService, kommonitorImporterHelperService, $scope, $rootScope, $http, __env) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
+		this.kommonitorImporterHelperServiceInstance = kommonitorImporterHelperService;
 
 		/*	POST BODY
 		{
@@ -37,6 +39,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 				},
 				"isPOI": false,
 				"loiColor": "loiColor",
+				"loiWidth": "loiWidth",
 				"aoiColor": "aoiColor"
 			}
 		*/
@@ -67,6 +70,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			"loiDashArrayString": "dash array string value - e.g. 20 20",
 			"poiMarkerColor": "'white'|'red'|'orange'|'beige'|'green'|'blue'|'purple'|'pink'|'gray'|'black'",
 			"loiColor": "color for lines of interest dataset",
+			"loiWidth": "width for lines of interest dataset",
 			"aoiColor": "color for area of interest dataset"
 		};
 
@@ -90,6 +94,11 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 		$scope.metadata.lastUpdate = undefined;
 		$scope.metadata.description = undefined;
 
+		$scope.georesourceTopic_mainTopic = undefined;
+		$scope.georesourceTopic_subTopic = undefined;
+		$scope.georesourceTopic_subsubTopic = undefined;
+		$scope.georesourceTopic_subsubsubTopic = undefined;
+
 		$scope.georesourceType = "poi";
 		$scope.isPOI = true;
 		$scope.isLOI = false;
@@ -98,6 +107,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 		$scope.selectedPoiSymbolColor = kommonitorDataExchangeService.availablePoiMarkerColors[1];
 		$scope.selectedLoiDashArrayObject = kommonitorDataExchangeService.availableLoiDashArrayObjects[0];
 		$scope.loiColor = "#bf3d2c";
+		$scope.loiWidth = 3;
 		$scope.aoiColor = "#bf3d2c";
 		$scope.selectedPoiIconName = "home";
 
@@ -111,34 +121,46 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 
 		$scope.georesourceDataSourceInputInvalidReason = undefined;
 		$scope.georesourceDataSourceInputInvalid = false;
-		$scope.spatialResourceConfigured = false;
-		$scope.idPropertyNotFound = false;
-		$scope.namePropertyNotFound = false;
-		$scope.geodataSourceFormat = undefined;
+
 		$scope.georesourceDataSourceIdProperty = undefined;
 		$scope.georesourceDataSourceNameProperty = undefined;
 
+		$scope.converter = undefined;
+		$scope.schema = undefined;
+			$scope.datasourceType = undefined;
+			$scope.georesourceDataSourceIdProperty = undefined;
+			$scope.georesourceDataSourceNameProperty = undefined;
+
+			$scope.converterDefinition = undefined;
+			$scope.datasourceTypeDefinition = undefined;
+			$scope.propertyMappingDefinition = undefined;
+			$scope.postBody_georesources = undefined;
+
+			$scope.validityEndDate_perFeature = undefined;
+			$scope.validityStartDate_perFeature = undefined;
+
 		$scope.successMessagePart = undefined;
 		$scope.errorMessagePart = undefined;
+		$scope.importerErrors = undefined;
 
 		$scope.iconPickerOptions = {
 			align: 'center', // Only in div tag
-	    arrowClass: 'btn-default',
-	    arrowPrevIconClass: 'fas fa-angle-left',
-	    arrowNextIconClass: 'fas fa-angle-right',
-	    cols: 10,
-	    footer: true,
-	    header: true,
-	    icon: 'glyphicon-' + $scope.selectedPoiIconName,
-	    iconset: 'glyphicon',
-	    labelHeader: '{0} von {1} Seiten',
-	    labelFooter: '{0} - {1} von {2} Icons',
-	    placement: 'bottom', // Only in button tag
-	    rows: 6,
-	    search: true,
-	    searchText: 'Stichwortsuche (Bootstrap Glyphicons)',
-	    selectedClass: 'btn-success',
-	    unselectedClass: ''
+			arrowClass: 'btn-default',
+			arrowPrevIconClass: 'fas fa-angle-left',
+			arrowNextIconClass: 'fas fa-angle-right',
+			cols: 10,
+			footer: true,
+			header: true,
+			icon: 'glyphicon-' + $scope.selectedPoiIconName,
+			iconset: 'glyphicon',
+			labelHeader: '{0} von {1} Seiten',
+			labelFooter: '{0} - {1} von {2} Icons',
+			placement: 'bottom', // Only in button tag
+			rows: 6,
+			search: true,
+			searchText: 'Stichwortsuche (Bootstrap Glyphicons)',
+			selectedClass: 'btn-success',
+			unselectedClass: ''
 		};
 
 		$('#poiSymbolPicker').iconpicker($scope.iconPickerOptions);
@@ -159,7 +181,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 				$("#loiDashArrayDropdownItem-" + i).html(kommonitorDataExchangeService.availableLoiDashArrayObjects[i].svgString);
 			}
 
-			$("#loiDashArrayDropdownButton").html($scope.selectedLoiDashArrayObject.svgString);
+			$("#loiDashArrayDropdownButton_addGeoresource").html($scope.selectedLoiDashArrayObject.svgString);
 		},1000);
 
 
@@ -170,6 +192,10 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 
 
 		$scope.resetGeoresourceAddForm = function(){
+			$scope.importerErrors = undefined;
+			$scope.successMessagePart = undefined;
+			$scope.errorMessagePart = undefined;
+
 			$scope.datasetName = undefined;
 			$scope.datasetNameInvalid = false;
 
@@ -184,6 +210,11 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			$scope.metadata.lastUpdate = undefined;
 			$scope.metadata.description = undefined;
 
+			$scope.georesourceTopic_mainTopic = undefined;
+			$scope.georesourceTopic_subTopic = undefined;
+			$scope.georesourceTopic_subsubTopic = undefined;
+			$scope.georesourceTopic_subsubsubTopic = undefined;
+
 			$scope.georesourceType = "poi";
 			$scope.isPOI = true;
 			$scope.isLOI = false;
@@ -192,6 +223,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			$scope.selectedPoiSymbolColor = kommonitorDataExchangeService.availablePoiMarkerColors[1];
 			$scope.selectedLoiDashArrayObject = kommonitorDataExchangeService.availableLoiDashArrayObjects[0];
 			$scope.loiColor = "#bf3d2c";
+			$scope.loiWidth = 3;
 			$scope.aoiColor = "#bf3d2c";
 			$scope.selectedPoiIconName = "home";
 			$("#poiSymbolPicker").val("").iconpicker('setIcon', 'glyphicon-' + $scope.selectedPoiIconName);
@@ -201,17 +233,33 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			$scope.periodOfValidity.endDate = undefined;
 			$scope.periodOfValidityInvalid = false;
 
-			$scope.geoJsonString = undefined;
-			$scope.georesource_asGeoJson = undefined;
-
 			$scope.georesourceDataSourceInputInvalidReason = undefined;
 			$scope.georesourceDataSourceInputInvalid = false;
-			$scope.idPropertyNotFound = false;
-			$scope.namePropertyNotFound = false;
-			$scope.spatialResourceConfigured = false;
-			$scope.geodataSourceFormat = undefined;
+	
+			$scope.converter = undefined;
+			$scope.schema = undefined;
+			$scope.datasourceType = undefined;
 			$scope.georesourceDataSourceIdProperty = undefined;
 			$scope.georesourceDataSourceNameProperty = undefined;
+
+			$scope.converterDefinition = undefined;
+			$scope.datasourceTypeDefinition = undefined;
+			$scope.propertyMappingDefinition = undefined;
+			$scope.postBody_georesources = undefined;
+
+			$scope.validityEndDate_perFeature = undefined;
+			$scope.validityStartDate_perFeature = undefined;
+
+			$scope.georesourceDataSourceIdProperty = undefined;
+			$scope.georesourceDataSourceNameProperty = undefined;
+
+			setTimeout(() => {
+				$scope.$apply();	
+			}, 250);
+		};
+
+		$scope.onChangeSchema = function(schema){
+			$scope.schema = schema;
 		};
 
 		$scope.onChangeGeoresourceType = function(){
@@ -263,8 +311,47 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			}
 		};
 
-		$scope.addGeoresource = function(){
+		$scope.buildImporterObjects = async function(){
+			$scope.converterDefinition = $scope.buildConverterDefinition();
+			$scope.datasourceTypeDefinition = await $scope.buildDatasourceTypeDefinition();
+			$scope.propertyMappingDefinition = $scope.buildPropertyMappingDefinition();
+			$scope.postBody_georesources = $scope.buildPostBody_georesources();
 
+			if(!$scope.converterDefinition || !$scope.datasourceTypeDefinition || !$scope.propertyMappingDefinition || !$scope.postBody_georesources){
+				return false;
+			}
+
+			return true;
+		};
+
+		$scope.buildConverterDefinition = function(){
+
+			return kommonitorImporterHelperService.buildConverterDefinition($scope.converter, "converterParameter_georesourceAdd_", $scope.schema);			
+		};
+
+		$scope.buildDatasourceTypeDefinition = async function(){
+			try {
+				return await kommonitorImporterHelperService.buildDatasourceTypeDefinition($scope.datasourceType, 'datasourceTypeParameter_georesourceAdd_', 'georesourceDataSourceInput_add');			
+			} catch (error) {
+				if(error.data){							
+					$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+				}
+				else{
+					$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
+				}
+
+				$("#georesourceAddErrorAlert").show();
+				$scope.loadingData = false;
+				return null;
+			}			
+		};
+
+		$scope.buildPropertyMappingDefinition = function(){
+			// arsion from is undefined currently
+			return kommonitorImporterHelperService.buildPropertyMapping_spatialResource($scope.georesourceDataSourceNameProperty, $scope.georesourceDataSourceIdProperty, $scope.validityStartDate_perFeature, $scope.validityEndDate_perFeature, undefined);
+		};
+
+		$scope.buildPostBody_georesources = function(){
 			var postBody =
 			{
 				"geoJsonString": $scope.geoJsonString,
@@ -298,6 +385,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 
 				postBody["loiDashArrayString"] = null;
 				postBody["loiColor"] = null;
+				postBody["loiWidth"] = 3;
 
 				postBody["aoiColor"] = null;
 			}
@@ -308,6 +396,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 
 				postBody["loiDashArrayString"] = $scope.selectedLoiDashArrayObject.dashArrayValue;
 				postBody["loiColor"] = $scope.loiColor;
+				postBody["loiWidth"] = $scope.loiWidth;
 
 				postBody["aoiColor"] = null;
 			}
@@ -318,114 +407,117 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 
 				postBody["loiDashArrayString"] = null;
 				postBody["loiColor"] = null;
+				postBody["loiWidth"] = 3;
 
 				postBody["aoiColor"] = $scope.aoiColor;
 			}
 
-			// TODO verify input
-
-			// TODO Create and perform POST Request with loading screen
-
-			$scope.loadingData = true;
-
-			$http({
-				url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources",
-				method: "POST",
-				data: postBody
-				// headers: {
-				//    'Content-Type': undefined
-				// }
-			}).then(function successCallback(response) {
-					// this callback will be called asynchronously
-					// when the response is available
-
-					$rootScope.$broadcast("refreshGeoresourceOverviewTable");
-
-					// refresh all admin dashboard diagrams due to modified metadata
-					$rootScope.$broadcast("refreshAdminDashboardDiagrams");
-
-					$scope.successMessagePart = $scope.datasetName;
-
-					$("#georesourceAddSuccessAlert").show();
-
-					$scope.loadingData = false;
-
-				}, function errorCallback(response) {
-					$scope.errorMessagePart = response;
-
-					$("#georesourceAddErrorAlert").show();
-					$scope.loadingData = false;
-
-					// setTimeout(function() {
-					// 		$("#georesourceAddSucessAlert").hide();
-					// }, 3000);
-			});
-		};
-
-		$(document).on("change", "#georesourceDataSourceInput" ,function(){
-				// TODO validate file input and
-				$scope.georesourceDataSourceInputInvalidReason = undefined;
-				$scope.georesourceDataSourceInputInvalid = false;
-
-				$scope.geoJsonString = undefined;
-				$scope.georesource_asGeoJson = undefined;
-
-				// get the file
-				var file = document.getElementById('georesourceDataSourceInput').files[0];
-
-				var fileEnding = file.name.split('.').pop();
-
-				if(fileEnding.toUpperCase() === "json".toUpperCase() || fileEnding.toUpperCase() === "geojson".toUpperCase()){
-					console.log("Potential GeoJSON file identified")
-					$scope.processFileInput_geoJson(file);
-				}
-		});
-
-		$scope.processFileInput_geoJson = function(file){
-			var fileReader = new FileReader();
-
-			fileReader.onload = function(event) {
-				// $scope.geoJsonString = event.target.result;
-				$scope.georesource_asGeoJson = JSON.parse(event.target.result);
-
-				if(! $scope.georesource_asGeoJson.features){
-					console.error("uploaded GeoJSON is not a valid FeatureCollection");
-					$scope.georesourceDataSourceInputInvalidReason = "GeoJSON ist keine valide FeatureCollection.";
-					$scope.georesourceDataSourceInputInvalid = true;
-				}
-
-				$scope.checkGeoresourceDataSource();
-			};
-
-			// Read in the image file as a data URL.
-			fileReader.readAsText(file);
-		};
-
-		$scope.checkGeoresourceDataSource = function(){
-			$scope.idPropertyNotFound = false;
-			$scope.namePropertyNotFound = false;
-			$scope.spatialResourceConfigured = false;
-			if($scope.georesource_asGeoJson && $scope.georesourceDataSourceIdProperty && $scope.georesourceDataSourceNameProperty){
-
-					 $scope.georesource_asGeoJson.features.forEach(function(feature){
-						 if(! feature.properties[$scope.georesourceDataSourceIdProperty]){
-							 $scope.idPropertyNotFound = true;
-							 return;
-						 }
-						 if(! feature.properties[$scope.georesourceDataSourceNameProperty]){
-							 $scope.namePropertyNotFound = true;
-							 return;
-						 }
-
-						 // else everything fine
-						 // append ID and NAME properties using KomMOnitor required property names
-						 feature.properties[__env.FEATURE_ID_PROPERTY_NAME] = feature.properties[$scope.georesourceDataSourceIdProperty];
-						 feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] = feature.properties[$scope.georesourceDataSourceNameProperty];
-					 });
-
-					 $scope.geoJsonString = JSON.stringify($scope.georesource_asGeoJson);
-					 $scope.spatialResourceConfigured = true;
+			// TOPIC REFERENCE
+			if($scope.georesourceTopic_subsubsubTopic){
+				postBody.topicReference = $scope.georesourceTopic_subsubsubTopic.topicId;
 			}
+			else if($scope.georesourceTopic_subsubTopic){
+				postBody.topicReference = $scope.georesourceTopic_subsubTopic.topicId;
+			}
+			else if($scope.georesourceTopic_subTopic){
+				postBody.topicReference = $scope.georesourceTopic_subTopic.topicId;
+			}
+			else if($scope.georesourceTopic_mainTopic){
+				postBody.topicReference = $scope.georesourceTopic_mainTopic.topicId;
+			}
+			else {
+				postBody.topicReference = "";
+			}
+
+			return postBody;
+		};
+
+		$scope.addGeoresource = async function(){
+
+			$scope.importerErrors = undefined;
+			$scope.successMessagePart = undefined;
+			$scope.errorMessagePart = undefined;
+
+			/*
+					now collect data and build request for importer
+				*/
+
+				/*
+					if any required importer data is missing --> cancel request and highlight required errors 
+				*/
+				var allDataSpecified = await $scope.buildImporterObjects();
+
+				if (!allDataSpecified) {
+
+					$("#georesourceAddForm").validator("update");
+					$("#georesourceAddForm").validator("validate");
+					return;
+				}
+				else {
+
+
+					// TODO verify input
+
+					// TODO Create and perform POST Request with loading screen
+
+					$scope.loadingData = true;					
+
+					var newGeoresourceResponse_dryRun = undefined;
+					try {
+						newGeoresourceResponse_dryRun = await kommonitorImporterHelperService.registerNewGeoresource($scope.converterDefinition, $scope.datasourceTypeDefinition, $scope.propertyMappingDefinition, $scope.postBody_georesources, true);
+
+
+						if(! kommonitorImporterHelperService.importerResponseContainsErrors(newGeoresourceResponse_dryRun)){
+							// all good, really execute the request to import data against data management API
+							var newGeoresourceResponse = await kommonitorImporterHelperService.registerNewGeoresource($scope.converterDefinition, $scope.datasourceTypeDefinition, $scope.propertyMappingDefinition, $scope.postBody_georesources, false);
+
+							$rootScope.$broadcast("refreshGeoresourceOverviewTable");
+
+							// refresh all admin dashboard diagrams due to modified metadata
+							$rootScope.$broadcast("refreshAdminDashboardDiagrams");
+		
+							$scope.successMessagePart = $scope.postBody_georesources.datasetName;
+							$scope.importedFeatures = kommonitorImporterHelperService.getImportedFeaturesFromImporterResponse(newGeoresourceResponse);
+		
+							$("#georesourceAddSuccessAlert").show();
+		
+							$scope.loadingData = false;
+						}
+						else{
+							// errors ocurred
+							// show them 
+							$scope.errorMessagePart = "Einige der zu importierenden Features des Datensatzes weisen kritische Fehler auf";
+							$scope.importerErrors = kommonitorImporterHelperService.getErrorsFromImporterResponse(newGeoresourceResponse_dryRun);
+
+							$("#georesourceAddErrorAlert").show();
+							$scope.loadingData = false;
+
+							setTimeout(() => {
+								$scope.$apply();
+							}, 250);
+
+						}
+					} catch (error) {
+						if(error.data){							
+							$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+						}
+						else{
+							$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
+						}
+
+						if(newGeoresourceResponse_dryRun){
+							$scope.importerErrors = kommonitorImporterHelperService.getErrorsFromImporterResponse(newGeoresourceResponse_dryRun);
+						}						
+
+						$("#georesourceAddErrorAlert").show();
+						$scope.loadingData = false;
+
+						setTimeout(() => {
+							$scope.$apply();
+						}, 250);
+					}
+				}
+
 		};
 
 		$scope.onImportGeoresourceAddMetadata = function(){
@@ -461,6 +553,8 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 					$scope.georesourceMetadataImportError = "Uploaded Metadata File cannot be parsed correctly";
 					document.getElementById("georesourcesAddMetadataPre").innerHTML = $scope.georesourceMetadataStructure_pretty;
 					$("#georesourceMetadataImportErrorAlert").show();
+
+					$scope.$apply();
 				}
 
 			};
@@ -478,6 +572,8 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 				$scope.georesourceMetadataImportError = "Struktur der Datei stimmt nicht mit erwartetem Muster &uuml;berein.";
 				document.getElementById("georesourcesAddMetadataPre").innerHTML = $scope.georesourceMetadataStructure_pretty;
 				$("#georesourceMetadataImportErrorAlert").show();
+
+				$scope.$apply();
 			}
 
 				$scope.metadata = {};
@@ -525,11 +621,28 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 				kommonitorDataExchangeService.availableLoiDashArrayObjects.forEach(function(option){
 					if(option.dashArrayValue === $scope.metadataImportSettings.loiDashArrayString){
 						$scope.selectedLoiDashArrayObject = option;
+						$scope.onChangeLoiDashArray($scope.selectedLoiDashArrayObject);
 					}
 				});
 				$scope.loiColor = $scope.metadataImportSettings.loiColor;
+				$scope.loiWidth = $scope.metadataImportSettings.loiWidth;
 				$scope.aoiColor = $scope.metadataImportSettings.aoiColor;
 				$scope.selectedPoiIconName = $scope.metadataImportSettings.poiSymbolBootstrap3Name;
+
+				var topicHierarchy = kommonitorDataExchangeService.getTopicHierarchyForTopicId($scope.metadataImportSettings.topicReference);
+
+				if(topicHierarchy && topicHierarchy[0]){
+					$scope.georesourceTopic_mainTopic = topicHierarchy[0];
+				}
+				if(topicHierarchy && topicHierarchy[1]){
+					$scope.georesourceTopic_subTopic = topicHierarchy[1];
+				}
+				if(topicHierarchy && topicHierarchy[2]){
+					$scope.georesourceTopic_subsubTopic = topicHierarchy[2];
+				}
+				if(topicHierarchy && topicHierarchy[3]){
+					$scope.georesourceTopic_subsubsubTopic = topicHierarchy[3];
+				}
 
 				setTimeout(function(){
 					$("#poiSymbolPicker").val("").iconpicker('setIcon', 'glyphicon-' + $scope.metadataImportSettings.poiSymbolBootstrap3Name);
@@ -539,6 +652,26 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 
 				$scope.$apply();
 		}
+
+		$scope.onExportGeoresourceAddMetadataTemplate = function(){
+
+			var metadataJSON = JSON.stringify($scope.georesourceMetadataStructure);
+
+			var fileName = "Georessource_Metadaten_Vorlage_Export.json";
+
+			var blob = new Blob([metadataJSON], {type: "application/json"});
+			var data  = URL.createObjectURL(blob);
+
+			var a = document.createElement('a');
+			a.download    = fileName;
+			a.href        = data;
+			a.textContent = "JSON";
+			a.target = "_blank";
+			a.rel = "noopener noreferrer";
+			a.click();
+
+			a.remove();
+		};
 
 		$scope.onExportGeoresourceAddMetadata = function(){
 			var metadataExport = $scope.georesourceMetadataStructure;
@@ -571,6 +704,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 
 				metadataExport["loiDashArrayString"] = "";
 				metadataExport["loiColor"] = "";
+				metadataExport["loiWidth"] = "";
 
 				metadataExport["aoiColor"] = "";
 			}
@@ -581,6 +715,8 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 
 				metadataExport["loiDashArrayString"] = $scope.selectedLoiDashArrayObject.dashArrayValue;
 				metadataExport["loiColor"] = $scope.loiColor;
+				metadataExport["loiWidth"] = $scope.loiWidth;
+				
 
 				metadataExport["aoiColor"] = "";
 			}
@@ -591,8 +727,25 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 
 				metadataExport["loiDashArrayString"] = "";
 				metadataExport["loiColor"] = "";
+				metadataExport["loiWidth"] = "";
 
 				metadataExport["aoiColor"] = $scope.aoiColor;
+			}
+
+			if($scope.georesourceTopic_subsubsubTopic){
+				metadataExport.topicReference = $scope.georesourceTopic_subsubsubTopic.topicId;
+			}
+			else if($scope.georesourceTopic_subsubTopic){
+				metadataExport.topicReference = $scope.georesourceTopic_subsubTopic.topicId;
+			}
+			else if($scope.georesourceTopic_subTopic){
+				metadataExport.topicReference = $scope.georesourceTopic_subTopic.topicId;
+			}
+			else if($scope.georesourceTopic_mainTopic){
+				metadataExport.topicReference = $scope.georesourceTopic_mainTopic.topicId;
+			}
+			else {
+				metadataExport.topicReference = "";
 			}
 
 
@@ -631,7 +784,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 		$scope.onChangeLoiDashArray = function(loiDashArrayObject){
 			$scope.selectedLoiDashArrayObject = loiDashArrayObject;
 
-			$("#loiDashArrayDropdownButton").html(loiDashArrayObject.svgString);
+			$("#loiDashArrayDropdownButton_addGeoresource").html(loiDashArrayObject.svgString);
 		};
 
 
@@ -646,6 +799,97 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			$scope.hideMetadataErrorAlert = function(){
 				$("#georesourceMetadataImportErrorAlert").hide();
 			};
+
+			/*
+			MULTI STEP FORM STUFF
+			*/
+			//jQuery time
+			$scope.current_fs; 
+			$scope.next_fs; 
+			$scope.previous_fs; //fieldsets
+			$scope.opacity; 
+			$scope.scale; //fieldset properties which we will animate
+			$scope.animating; //flag to prevent quick multi-click glitches
+
+			$(".next_addGeoresource").click(function(){
+				if($scope.animating) return false;
+				$scope.animating = true;
+				
+				$scope.current_fs = $(this).parent();
+				$scope.next_fs = $(this).parent().next();
+				
+				//activate next step on progressbar using the index of $scope.next_fs
+				$("#progressbar li").eq($("fieldset").index($scope.next_fs)).addClass("active");
+				
+				//show the next fieldset
+				$scope.next_fs.show(); 
+				//hide the current fieldset with style
+				$scope.current_fs.animate({opacity: 0}, {
+					step: function(now, mx) {
+						//as the $scope.opacity of current_fs reduces to 0 - stored in "now"
+						//1. $scope.scale current_fs down to 80%
+						$scope.scale = 1 - (1 - now) * 0.2;
+						//2. bring $scope.next_fs from the right(50%)
+						// left = (now * 50)+"%";
+						//3. increase $scope.opacity of $scope.next_fs to 1 as it moves in
+						$scope.opacity = 1 - now;
+						$scope.current_fs.css({
+							'position': 'absolute'
+						});
+						// $scope.next_fs.css({'left': left, '$scope.opacity': $scope.opacity});
+						$scope.next_fs.css({'opacity': $scope.opacity});
+					}, 
+					duration: 200, 
+					complete: function(){
+						$scope.current_fs.hide();
+						$scope.animating = false;
+					}, 
+					//this comes from the custom easing plugin
+					easing: 'easeInOutBack'
+				});
+			});
+
+			$(".previous_addGeoresource").click(function(){
+				if($scope.animating) return false;
+				$scope.animating = true;
+				
+				$scope.current_fs = $(this).parent();
+				$scope.previous_fs = $(this).parent().prev();
+				
+				//de-activate current step on progressbar
+				$("#progressbar li").eq($("fieldset").index($scope.current_fs)).removeClass("active");
+				
+				//show the previous fieldset
+				$scope.previous_fs.show(); 
+				//hide the current fieldset with style
+				$scope.current_fs.animate({opacity: 0}, {
+					step: function(now, mx) {
+						//as the $scope.opacity of current_fs reduces to 0 - stored in "now"
+						//1. $scope.scale $scope.previous_fs from 80% to 100%
+						$scope.scale = 0.8 + (1 - now) * 0.2;
+						//2. take current_fs to the right(50%) - from 0%
+						// left = ((1-now) * 50)+"%";
+						//3. increase $scope.opacity of $scope.previous_fs to 1 as it moves in
+						$scope.opacity = 1 - now;
+						// current_fs.css({'left': left});
+						// $scope.previous_fs.css({'transform': '$scope.scale('+$scope.scale+')', '$scope.opacity': $scope.opacity});
+						$scope.previous_fs.css({
+							'position': 'absolute'
+						});
+						$scope.previous_fs.css({'opacity': $scope.opacity});
+					}, 
+					duration: 200, 
+					complete: function(){
+						$scope.current_fs.hide();
+						$scope.previous_fs.css({
+							'position': 'relative'
+						});
+						$scope.animating = false;
+					}, 
+					//this comes from the custom easing plugin
+					easing: 'easeInOutBack'
+				});
+			});
 
 	}
 ]});

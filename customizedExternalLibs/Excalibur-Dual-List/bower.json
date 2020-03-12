@@ -1,0 +1,17 @@
+{
+  "name": "excalibur-duallist",
+  "description": "[![duallistGif.gif](https://s21.postimg.org/qk4uaqfw7/duallist_Gif.gif)]",
+  "main": "dist/js/dualListDirective.js",
+  "authors": [
+    "Mike Lima"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/mikemajesty/Excalibur-Dual-List",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

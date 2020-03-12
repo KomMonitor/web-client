@@ -56,17 +56,26 @@
 						<table class="table table-bordered table-condensed" style="width:100%; overflow:auto; font-size: 11px;">
 							<thead>
 							<tr>
-								<th>IndikatorenReferenz-ID</th>
-								<th>IndikatorenReferenz-Name</th>
-								<th>IndikatorenReferenz-Beschreibung</th>
+								<th>Indikatoren-ID</th>
+								<th>Indikatoren-Name</th>
+								<th>Indikatoren-Merkmal</th>
+								<th>Indikatoren-Typ</th>
+								<th>referenzierte Georessource - ID</th>
+								<th>referenzierte Georessource - Name</th>
+								<th>referenzierte Georessource - Beschreibung</th>
 							</tr>
 							</thead>
 
 							<tbody>
-								<tr ng-repeat="reference in affectedIndicatorReferences">
-									<td>{{reference.referencedGeoresourceId}}</td>
-									<td>{{reference.referencedGeoresourceName}}</td>
-									<td>{{reference.referencedGeoresourceDescription}}</td>
+								<tr ng-repeat="entry in affectedIndicatorReferences">
+									<td>{{entry.indicatorMetadata.indicatorId}}</td>
+									<td>{{entry.indicatorMetadata.indicatorName}}</td>
+									<td>{{entry.indicatorMetadata.characteristicValue}}</td>
+									<td>{{entry.indicatorMetadata.indicatorType}}</td>
+									<td>{{entry.indicatorMetadata.description}}</td>
+									<td>{{entry.georesourceReference.referencedGeoresourceId}}</td>
+									<td>{{entry.georesourceReference.referencedGeoresourceName}}</td>
+									<td>{{entry.georesourceReference.referencedGeoresourceDescription}}</td>
 								</tr>
 
 							</tbody>
@@ -89,7 +98,7 @@
 							</thead>
 
 							<tbody>
-								<tr ng-repeat="script in affectedScripts">
+								<tr ng-repeat="script in affectedScripts track by $index">
 									<td>{{script.scriptId}}</td>
 									<td>{{script.name}}</td>
 									<td>{{script.description}}</td>
@@ -135,14 +144,14 @@
 								<div ng-if="affectedScripts.length > 0">
 									<h4>Skripte</h4>
 									<ul>
-					            <li ng-repeat="script in affectedScripts">{{script.name}}</li>
+					            <li ng-repeat="script in affectedScripts track by $index">{{script.name}}</li>
 									</ul>
 								</div>
 
 								<div ng-if="affectedIndicatorReferences.length > 0">
-									<h4>Skripte</h4>
+									<h4>Referenzen zu Indikatoren</h4>
 									<ul>
-					            <li ng-repeat="reference in affectedIndicatorReferences">{{reference.referencedGeoresourceName}}</li>
+					            <li ng-repeat="indicator in affectedIndicatorReferences">{{indicator.indicatorMetadata.indicatorName}}</li>
 									</ul>
 								</div>
 
@@ -165,7 +174,7 @@
 	                <tbody>
 		                <tr ng-repeat="dataset in failedDatasetsAndErrors">
 		                  <td>{{dataset[0].datasetName}}</td>
-		                  <td>{{dataset[1]}}</td>
+		                  <td ng-bind-html="dataset[1]"></td>
 		                </tr>
 
 	                </tbody>
