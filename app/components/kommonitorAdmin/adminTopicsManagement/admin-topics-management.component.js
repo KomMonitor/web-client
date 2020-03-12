@@ -4,8 +4,11 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
-		$scope.newMainTopicTitle;
-		$scope.newMainTopicDescription;
+		$scope.newMainTopicTitle_indicator;
+		$scope.newMainTopicDescription_indicator;
+
+		$scope.newMainTopicTitle_georesource;
+		$scope.newMainTopicDescription_georesource;
 
 		$scope.unCollapsedTopicIds = [];
 
@@ -56,14 +59,22 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 			$scope.refreshTopicsOverview();
 		});
 
-		$scope.onAddMainTopic = function(){
+		$scope.onAddMainTopic = function(resourceType){
 
 			var postBody = {
-			  "topicName": $scope.newMainTopicTitle,
-			  "topicDescription": $scope.newMainTopicDescription,
+			  "topicResource": resourceType,
 			  "topicType": "main",
 			  "subTopics": []
 			};
+
+			if(resourceType === "indicator"){
+				postBody.topicName = $scope.newMainTopicTitle_indicator;
+				postBody.topicDescription = $scope.newMainTopicDescription_indicator;
+			}
+			else{
+				postBody.topicName = $scope.newMainTopicTitle_georesource;
+				postBody.topicDescription = $scope.newMainTopicDescription_georesource;
+			}
 
 			$scope.loadingData = true;
 
@@ -85,8 +96,13 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 					// refresh all admin dashboard diagrams due to modified metadata
 					$rootScope.$broadcast("refreshAdminDashboardDiagrams");
 
-				}, function errorCallback(response) {
-					$scope.errorMessagePart = response;
+				}, function errorCallback(error) {
+					if(error.data){							
+						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+					}
+					else{
+						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
+					}
 
 					$("#topicsErrorAlert").show();
 					$scope.loadingData = false;
@@ -96,21 +112,31 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 					// }, 3000);
 			});
 
-			$scope.newMainTopicTitle = undefined;
-			$scope.newMainTopicDescription = undefined;
+			$scope.newMainTopicTitle_indicator = undefined;
+			$scope.newMainTopicDescription_indicator = undefined;
+			$scope.newMainTopicTitle_georesource = undefined;
+			$scope.newMainTopicDescription_georesource = undefined;
 		};
 
-		$scope.onAddSubTopic = function(mainTopic){
+		$scope.onAddSubTopic = function(mainTopic, resourceType){
 
 			$scope.loadingData = true;
 			var topicId = mainTopic.topicId;
 
 			var subTopic = {
-			  "topicName": mainTopic.newSubTopicTitle,
-			  "topicDescription": mainTopic.newSubTopicDescription,
+			  "topicResource": resourceType,
 			  "topicType": "sub",
 			  "subTopics": []
 			};
+
+			if(resourceType === "indicator"){
+				subTopic.topicName = mainTopic.newSubTopicTitle_indicator;
+				subTopic.topicDescription = mainTopic.newSubTopicDescription_indicator;
+			}
+			else{
+				subTopic.topicName = mainTopic.newSubTopicTitle_georesource;
+				subTopic.topicDescription = mainTopic.newSubTopicDescription_georesource;
+			}
 
 			// check if subTopic already exists, then abort - add to mainTopic otherwise
 			if($scope.alreadyInSubtopics(subTopic, mainTopic.subTopics)){
@@ -127,6 +153,7 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 			var putBody = {
 			  "topicName": mainTopic.topicName,
 			  "topicDescription": mainTopic.topicDescription,
+			  "topicResource": resourceType,
 			  "topicType": mainTopic.topicType,
 			  "subTopics": mainTopic.subTopics
 			};
@@ -149,8 +176,13 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 					// refresh all admin dashboard diagrams due to modified metadata
 					$rootScope.$broadcast("refreshAdminDashboardDiagrams");
 
-				}, function errorCallback(response) {
-					$scope.errorMessagePart = response;
+				}, function errorCallback(error) {
+					if(error.data){							
+						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+					}
+					else{
+						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
+					}
 
 					$("#topicsErrorAlert").show();
 					$scope.loadingData = false;
@@ -160,8 +192,8 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 					// }, 3000);
 			});
 
-			delete mainTopic.newSubTopicTitle;
-			delete mainTopic.newSubTopicDescription;
+			delete mainTopic.newSubTopicTitle_indicator;
+			delete mainTopic.newSubTopicDescription_indicator;
 		};
 
 		$scope.alreadyInSubtopics = function(subTopicCandidate, subTopics){
@@ -173,17 +205,25 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 			return false;
 		};
 
-		$scope.onAddSubSubSubTopic = function(subTopic){
+		$scope.onAddSubSubSubTopic = function(subTopic, resourceType){
 
 			$scope.loadingData = true;
 			var topicId = subTopic.topicId;
 
 			var subSubSubTopic = {
-			  "topicName": subTopic.newSubTopicTitle,
-			  "topicDescription": subTopic.newSubTopicDescription,
-			  "topicType": "sub",
-			  "subTopics": []
-			};
+				"topicResource": resourceType,
+				"topicType": "sub",
+				"subTopics": []
+			  };
+  
+			  if(resourceType === "indicator"){
+				subSubSubTopic.topicName = subTopic.newSubTopicTitle_indicator;
+				subSubSubTopic.topicDescription = subTopic.newSubTopicDescription_indicator;
+			  }
+			  else{
+				subSubSubTopic.topicName = subTopic.newSubTopicTitle_georesource;
+				subSubSubTopic.topicDescription = subTopic.newSubTopicDescription_georesource;
+			  }
 
 			// check if subTopic already exists, then abort - add to mainTopic otherwise
 			if($scope.alreadyInSubtopics(subSubSubTopic, subTopic.subTopics)){
@@ -200,6 +240,7 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 			var putBody = {
 			  "topicName": subTopic.topicName,
 			  "topicDescription": subTopic.topicDescription,
+			  "topicResource": resourceType,
 			  "topicType": subTopic.topicType,
 			  "subTopics": subTopic.subTopics
 			};
@@ -222,8 +263,13 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 					// refresh all admin dashboard diagrams due to modified metadata
 					$rootScope.$broadcast("refreshAdminDashboardDiagrams");
 
-				}, function errorCallback(response) {
-					$scope.errorMessagePart = response;
+				}, function errorCallback(error) {
+					if(error.data){							
+						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+					}
+					else{
+						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
+					}
 
 					$("#topicsErrorAlert").show();
 					$scope.loadingData = false;
@@ -233,21 +279,29 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 					// }, 3000);
 			});
 
-			delete subTopic.newSubTopicTitle;
-			delete subTopic.newSubTopicDescription;
+			delete subTopic.newSubTopicTitle_indicator;
+			delete subTopic.newSubTopicDescription_indicator;
 		};
 
-		$scope.onAddSubSubTopic = function(subTopic){
+		$scope.onAddSubSubTopic = function(subTopic, resourceType){
 
 			$scope.loadingData = true;
 			var topicId = subTopic.topicId;
 
 			var subSubTopic = {
-			  "topicName": subTopic.newSubTopicTitle,
-			  "topicDescription": subTopic.newSubTopicDescription,
-			  "topicType": "sub",
-			  "subTopics": []
-			};
+				"topicResource": resourceType,
+				"topicType": "sub",
+				"subTopics": []
+			  };
+  
+			  if(resourceType === "indicator"){
+				subSubTopic.topicName = subTopic.newSubTopicTitle_indicator;
+				subSubTopic.topicDescription = subTopic.newSubTopicDescription_indicator;
+			  }
+			  else{
+				subSubTopic.topicName = subTopic.newSubTopicTitle_georesource;
+				subSubTopic.topicDescription = subTopic.newSubTopicDescription_georesource;
+			  }
 
 			// check if subTopic already exists, then abort - add to mainTopic otherwise
 			if($scope.alreadyInSubtopics(subSubTopic, subTopic.subTopics)){
@@ -264,6 +318,7 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 			var putBody = {
 			  "topicName": subTopic.topicName,
 			  "topicDescription": subTopic.topicDescription,
+			  "topicResource": resourceType,
 			  "topicType": subTopic.topicType,
 			  "subTopics": subTopic.subTopics
 			};
@@ -286,8 +341,13 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 					// refresh all admin dashboard diagrams due to modified metadata
 					$rootScope.$broadcast("refreshAdminDashboardDiagrams");
 
-				}, function errorCallback(response) {
-					$scope.errorMessagePart = response;
+				}, function errorCallback(error) {
+					if(error.data){							
+						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+					}
+					else{
+						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
+					}
 
 					$("#topicsErrorAlert").show();
 					$scope.loadingData = false;
@@ -297,8 +357,8 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 					// }, 3000);
 			});
 
-			delete subTopic.newSubTopicTitle;
-			delete subTopic.newSubTopicDescription;
+			delete subTopic.newSubTopicTitle_indicator;
+			delete subTopic.newSubTopicDescription_indicator;
 		};
 
 		$scope.deleteTopic = function(topic){
@@ -321,8 +381,13 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 
 					$scope.refreshTopicsOverview();
 
-				}, function errorCallback(response) {
-					$scope.errorMessagePart = response;
+				}, function errorCallback(error) {
+					if(error.data){							
+						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+					}
+					else{
+						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
+					}
 
 					$("#topicsErrorAlert").show();
 					$scope.loadingData = false;

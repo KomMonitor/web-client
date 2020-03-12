@@ -1,1 +1,1 @@
-angular.module('georesourceEditFeaturesModal', ['datatables']);
+angular.module('georesourceEditFeaturesModal', ['datatables', 'kommonitorImporterHelper']);

@@ -117,7 +117,7 @@ angular
             continue;
 
           // check if is outlier, then do not use within classification, as it will be marked on map with special color
-          if (geoJSON.features[i].properties[outlierPropertyName] !== outlierPropertyValue_no && kommonitorDataExchangeService.useOutlierDetectionOnIndicator) {
+          if (geoJSON.features[i].properties[outlierPropertyName] && geoJSON.features[i].properties[outlierPropertyName] !== outlierPropertyValue_no && kommonitorDataExchangeService.useOutlierDetectionOnIndicator) {
             continue;
           }
 
@@ -171,7 +171,7 @@ angular
             continue;
 
           // check if is outlier, then do not use within classification, as it will be marked on map with special color
-          if (geoJSON.features[i].properties[outlierPropertyName] !== outlierPropertyValue_no && kommonitorDataExchangeService.useOutlierDetectionOnIndicator) {
+          if (geoJSON.features[i].properties[outlierPropertyName] && geoJSON.features[i].properties[outlierPropertyName] !== outlierPropertyValue_no && kommonitorDataExchangeService.useOutlierDetectionOnIndicator) {
             continue;
           }
 
@@ -341,7 +341,7 @@ angular
             continue;
 
           // check if is outlier, then do not use within classification, as it will be marked on map with special color
-          if (geoJSON.features[i].properties[outlierPropertyName] !== outlierPropertyValue_no && kommonitorDataExchangeService.useOutlierDetectionOnIndicator) {
+          if (geoJSON.features[i].properties[outlierPropertyName] && geoJSON.features[i].properties[outlierPropertyName] !== outlierPropertyValue_no && kommonitorDataExchangeService.useOutlierDetectionOnIndicator) {
             continue;
           }
 

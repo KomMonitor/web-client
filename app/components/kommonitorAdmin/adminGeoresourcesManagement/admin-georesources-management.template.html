@@ -58,6 +58,7 @@
 										<th>Symbolfarbe</th>
 										<th>Symbolname</th>
 										<th>Markerfarbe</th>
+										<th>Themenhierarchie</th>
 	                  <th>G&uuml;ltigkeitszeitraum</th>
 										<th>Beschreibung</th>
 										<th>Bemerkung</th>
@@ -88,6 +89,8 @@
 										<td>{{poiDataset.poiSymbolColor}}</td>
 										<td>{{poiDataset.poiSymbolBootstrap3Name}} <br/><br/> <span class="glyphicon glyphicon-{{poiDataset.poiSymbolBootstrap3Name}}"></span> </td>
 										<td>{{poiDataset.poiMarkerColor}}</td>
+										<td><p>{{
+											$ctrl.kommonitorDataExchangeServiceInstance.getTopicHierarchyDisplayString(poiDataset.topicReference)}}</p></td>
 	                  <td>
 											<ul>
 												<li ng-repeat="periodOfValidity in poiDataset.availablePeriodsOfValidity">
@@ -120,6 +123,7 @@
 										<th>Symbolfarbe</th>
 										<th>Symbolname</th>
 										<th>Markerfarbe</th>
+										<th>Themenhierarchie</th>
 	                  <th>G&uuml;ltigkeitszeitraum</th>
 										<th>Beschreibung</th>
 										<th>Bemerkung</th>
@@ -165,7 +169,9 @@
 												<th>Id</th>
 												<th>Name</th>
 												<th>Linienfarbe</th>
+												<th>Linienbreite</th>
 												<th>Linienmuster</th>
+												<th>Themenhierarchie</th>
 												<th>G&uuml;ltigkeitszeitraum</th>
 												<th>Beschreibung</th>
 												<th>Bemerkung</th>
@@ -194,7 +200,10 @@
 												<td>{{loiDataset.georesourceId}}</td>
 												<td>{{loiDataset.datasetName}}</td>
 												<td>{{loiDataset.loiColor}}</td>
+												<td>{{loiDataset.loiWidth}}</td>
 												<td>{{loiDataset.loiDashArrayString}}</td>
+												<td><p>{{
+													$ctrl.kommonitorDataExchangeServiceInstance.getTopicHierarchyDisplayString(loiDataset.topicReference)}}</p></td>
 												<td>
 													<ul>
 														<li ng-repeat="periodOfValidity in loiDataset.availablePeriodsOfValidity">
@@ -225,7 +234,9 @@
 												<th>Id</th>
 												<th>Name</th>
 												<th>Linienfarbe</th>
+												<th>Linienbreite</th>
 												<th>Linienmuster</th>
+												<th>Themenhierarchie</th>
 												<th>G&uuml;ltigkeitszeitraum</th>
 												<th>Beschreibung</th>
 												<th>Bemerkung</th>
@@ -272,6 +283,7 @@
 														<th>Id</th>
 														<th>Name</th>
 														<th>Polygonfarbe</th>
+														<th>Themenhierarchie</th>
 														<th>G&uuml;ltigkeitszeitraum</th>
 														<th>Beschreibung</th>
 														<th>Bemerkung</th>
@@ -300,6 +312,8 @@
 														<td>{{aoiDataset.georesourceId}}</td>
 														<td>{{aoiDataset.datasetName}}</td>
 														<td>{{aoiDataset.aoiColor}}</td>
+														<td><p>{{
+															$ctrl.kommonitorDataExchangeServiceInstance.getTopicHierarchyDisplayString(aoiDataset.topicReference)}}</p></td>
 														<td>
 															<ul>
 																<li ng-repeat="periodOfValidity in aoiDataset.availablePeriodsOfValidity">
@@ -330,6 +344,7 @@
 														<th>Id</th>
 														<th>Name</th>
 														<th>Polygonfarbe</th>
+														<th>Themenhierarchie</th>
 														<th>G&uuml;ltigkeitszeitraum</th>
 														<th>Beschreibung</th>
 														<th>Bemerkung</th>

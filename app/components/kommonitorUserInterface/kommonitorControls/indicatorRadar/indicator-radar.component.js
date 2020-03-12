@@ -175,10 +175,11 @@ angular
 
 							$scope.radarOption = {
 								grid: {
-									left: '5%',
+									left: '4%',
 									top: 0,
-									right: '5%',
-									bottom: 30
+									right: '4%',
+									bottom: 30,
+									containLabel: true
 								},
 								title: {
 									text: 'Indikatorenradar - ' + $scope.spatialUnitName + ' - ' + $scope.date,

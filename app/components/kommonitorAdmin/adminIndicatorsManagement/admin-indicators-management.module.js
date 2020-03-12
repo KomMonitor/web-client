@@ -1,1 +1,1 @@
-angular.module('adminIndicatorsManagement', ['kommonitorDataExchange']);
+angular.module('adminIndicatorsManagement', ['kommonitorDataExchange', 'datatables']);
