@@ -36,38 +36,45 @@
 				<uib-tab index="0" heading="Datenkatalog">
 		
 						<div class="just-padding">
+
+							<div class="input-group">
+								<span class="input-group-addon"><i class="fas fa-filter"></i></span>
+								<input type="text" class="form-control input-sm" placeholder="Filtern nach Georessourcen-Name" ng-model="georesourceNameFilter">
+							</div>
+
+							<br/>
 		
 							<div id="georesourceHierarchySelection" class="list-group list-group-root well">
 		
 								<div ng-repeat="mainTopic in $ctrl.kommonitorDataExchangeServiceInstance.availableTopics | filter:{topicType:'main'} | filter:{topicResource:'georesource'}">
 									<div  class="list-group-item list-group-item-default" style="background: #2171b5; color: white;">
-										<a id="{{mainTopic.topicId}}" href="" ng-attr-title="{{mainTopic.topicDescription}}" class="collapseTrigger" style="color: white;" ng-click="isCollapsed_mainTopic = !isCollapsed_mainTopic" ng-init="isCollapsed_mainTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{mainTopic.topicName}}</a>
+										<a id="{{mainTopic.topicId}}" href="" ng-attr-title="{{mainTopic.topicDescription}}" class="collapseTrigger" style="color: white;" ng-click="isCollapsed_mainTopic = !isCollapsed_mainTopic" ng-init="isCollapsed_mainTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{mainTopic.topicName}} ({{$ctrl.kommonitorDataExchangeServiceInstance.getNumberOfGeoresources(mainTopic, georesourceNameFilter)}})</a>
 									</div>
 		
 		
 									<div ng-repeat="subTopic in mainTopic.subTopics" class="list-group collapse" uib-collapse="isCollapsed_mainTopic">
 		
 										<div  class="list-group-item list-group-item-default" style="background: #6baed6; color: white;">
-											<a id="{{subTopic.topicId}}" class="collapseTrigger" style="color: white;" ng-attr-title="{{subTopic.topicDescription}}" href="" ng-click="isCollapsed_subTopic = !isCollapsed_subTopic" ng-init="isCollapsed_subTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{subTopic.topicName}}</a>
+											<a id="{{subTopic.topicId}}" class="collapseTrigger" style="color: white;" ng-attr-title="{{subTopic.topicDescription}}" href="" ng-click="isCollapsed_subTopic = !isCollapsed_subTopic" ng-init="isCollapsed_subTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{subTopic.topicName}} ({{$ctrl.kommonitorDataExchangeServiceInstance.getNumberOfGeoresources(subTopic, georesourceNameFilter)}})</a>
 										</div>
 		
 										<div ng-repeat="subsubTopic in subTopic.subTopics" class="list-group collapse" uib-collapse="isCollapsed_subTopic">
 		
 											<div  class="list-group-item list-group-item-default" style="background: #bdd7e7; color: white;">
-												<a id="{{subsubTopic.topicId}}" class="collapseTrigger" style="color: white;" ng-attr-title="{{subsubTopic.topicDescription}}" href="" ng-click="isCollapsed_subsubTopic = !isCollapsed_subsubTopic" ng-init="isCollapsed_subsubTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{subsubTopic.topicName}}</a>
+												<a id="{{subsubTopic.topicId}}" class="collapseTrigger" style="color: white;" ng-attr-title="{{subsubTopic.topicDescription}}" href="" ng-click="isCollapsed_subsubTopic = !isCollapsed_subsubTopic" ng-init="isCollapsed_subsubTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{subsubTopic.topicName}} ({{$ctrl.kommonitorDataExchangeServiceInstance.getNumberOfGeoresources(subsubTopic, georesourceNameFilter)}})</a>
 											</div>
 		
 											<div ng-repeat="subsubsubTopic in subsubTopic.subTopics" class="list-group collapse" uib-collapse="isCollapsed_subsubTopic">
 		
 												<div  class="list-group-item list-group-item-default" style="background: #eff3ff; color: white;">
-													<a id="{{subsubsubTopic.topicId}}" class="collapseTrigger" style="color: white;" ng-attr-title="{{subsubsubTopic.topicDescription}}">{{subsubsubTopic.topicName}}</a>
+													<a id="{{subsubsubTopic.topicId}}" class="collapseTrigger" style="color: white;" ng-attr-title="{{subsubsubTopic.topicDescription}}">{{subsubsubTopic.topicName}} ({{$ctrl.kommonitorDataExchangeServiceInstance.getNumberOfGeoresources(subsubsubTopic, georesourceNameFilter)}})</a>
 												</div>
 		
 											</div>
 											<!-- end sub sub sub topics -->
 		
 		
-											<div ng-show="($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:subsubTopic.topicId} ).length > 0">
+											<div ng-show="($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter).length > 0">
 												<div class="list-group collapse" uib-collapse="isCollapsed_subsubTopic">
 													<div class="list-group-item list-group-item-default georesourceInputForm">
 
@@ -85,7 +92,7 @@
 															<tbody>
 
 																<!-- POIs -->
-																<tr ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:{topicReference:subsubTopic.topicId} '>
+																<tr ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter '>
 																	<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 																	<td>
 																		<i class="fas fa-map-marker-alt"></i>
@@ -111,7 +118,7 @@
 																</tr>
 
 																<!-- LOIs -->
-																<tr ng-repeat='loi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isLOI:true} | filter:{topicReference:subsubTopic.topicId}'>
+																<tr ng-repeat='loi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isLOI:true} | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter'>
 																	<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 																	<td>
 																		<i class="fas fa-minus"></i>
@@ -136,7 +143,7 @@
 																</tr>
 
 																<!-- AOIs -->
-																<tr ng-repeat='aoi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isAOI:true} | filter:{topicReference:subsubTopic.topicId}'>
+																<tr ng-repeat='aoi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isAOI:true} | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter'>
 																	<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 																	<td>
 																		<i class="far fa-square"></i>
@@ -167,7 +174,7 @@
 														</div>
 												</div>
 											</div>
-											<div ng-show="!(($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:subsubTopic.topicId} ).length > 0)">
+											<div ng-show="!(($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter).length > 0)">
 												<div class="list-group collapse" uib-collapse="isCollapsed_subsubTopic">
 													<div class="list-group-item list-group-item-default" style="background: #eb9c98;">
 														 <p><i class="fas fa-ban"></i> &nbsp;&nbsp;- keine Georessourcen in dieser Hierarchieebene -</p>
@@ -181,7 +188,7 @@
 		
 		
 		
-										<div ng-show="($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:subTopic.topicId} ).length > 0">
+										<div ng-show="($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter).length > 0">
 											<div class="list-group collapse" uib-collapse="isCollapsed_subTopic">
 												<div class="list-group-item list-group-item-default georesourceInputForm">
 												
@@ -199,7 +206,7 @@
 														<tbody>
 
 															<!-- POIs -->
-															<tr ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:{topicReference:subTopic.topicId}'>
+															<tr ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter'>
 																<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 																<td>
 																	<i class="fas fa-map-marker-alt"></i>
@@ -225,7 +232,7 @@
 															</tr>
 
 															<!-- LOIs -->
-															<tr ng-repeat='loi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isLOI:true} | filter:{topicReference:subTopic.topicId}'>
+															<tr ng-repeat='loi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isLOI:true} | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter'>
 																<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 																<td>
 																	<i class="fas fa-minus"></i>
@@ -250,7 +257,7 @@
 															</tr>
 
 															<!-- AOIs -->
-															<tr ng-repeat='aoi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isAOI:true} | filter:{topicReference:subTopic.topicId}'>
+															<tr ng-repeat='aoi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isAOI:true} | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter'>
 																<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 																<td>
 																	<i class="far fa-square"></i>
@@ -281,7 +288,7 @@
 												</div>
 											</div>
 										</div>
-										<div ng-show="!(($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:subTopic.topicId} ).length > 0)">
+										<div ng-show="!(($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter).length > 0)">
 											<div class="list-group collapse" uib-collapse="isCollapsed_subTopic">
 												<div class="list-group-item list-group-item-default" style="background: #eb9c98;">
 													 <p><i class="fas fa-ban"></i> &nbsp;&nbsp;- keine Georessourcen in dieser Hierarchieebene -</p>
@@ -294,7 +301,7 @@
 		
 									</div>
 									<!-- end sub topics -->
-									<div ng-show="($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:mainTopic.topicId} ).length > 0">
+									<div ng-show="($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter).length > 0">
 										<div class="list-group collapse" uib-collapse="isCollapsed_mainTopic">
 											<div class="list-group-item list-group-item-default georesourceInputForm">
 												 
@@ -312,7 +319,7 @@
 													<tbody>
 
 														<!-- POIs -->
-														<tr ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:{topicReference:mainTopic.topicId}'>
+														<tr ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter'>
 															<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 															<td>
 																<i class="fas fa-map-marker-alt"></i>
@@ -338,7 +345,7 @@
 														</tr>
 
 														<!-- LOIs -->
-														<tr ng-repeat='loi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isLOI:true} | filter:{topicReference:mainTopic.topicId}'>
+														<tr ng-repeat='loi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isLOI:true} | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter'>
 															<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 															<td>
 																<i class="fas fa-minus"></i>
@@ -363,7 +370,7 @@
 														</tr>
 
 														<!-- AOIs -->
-														<tr ng-repeat='aoi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isAOI:true} | filter:{topicReference:mainTopic.topicId}'>
+														<tr ng-repeat='aoi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isAOI:true} | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter'>
 															<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 															<td>
 																<i class="far fa-square"></i>
@@ -394,7 +401,7 @@
 											</div>
 										</div>
 									</div>
-									<div ng-show="!(($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:mainTopic.topicId} ).length > 0)">
+									<div ng-show="!(($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter).length > 0)">
 										<div class="list-group collapse" uib-collapse="isCollapsed_mainTopic">
 											<div class="list-group-item list-group-item-default" style="background: #eb9c98;">
 												 <p><i class="fas fa-ban"></i> &nbsp;&nbsp;- keine Georessourcen in dieser Hierarchieebene -</p>
@@ -409,13 +416,13 @@
 								<!-- end main Topics -->
 
 								<div  class="list-group-item list-group-item-default" style="background: #2171b5; color: white;">
-									<a id="noHierarchyGeoresourceDatasets" href="" ng-attr-title="Georessourcen-Daten ohne Hierarchie" class="collapseTrigger" style="color: white;" ng-click="isCollapsed_noTopic = !isCollapsed_noTopic" ng-init="isCollapsed_noTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>ohne Hierarchie</a>
+									<a id="noHierarchyGeoresourceDatasets" href="" ng-attr-title="Georessourcen-Daten ohne Hierarchie" class="collapseTrigger" style="color: white;" ng-click="isCollapsed_noTopic = !isCollapsed_noTopic" ng-init="isCollapsed_noTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>ohne Hierarchie ({{($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:null} | filter:georesourceNameFilter).length}})</a>
 								</div>
 	
 	
 								<div class="list-group collapse" uib-collapse="isCollapsed_noTopic">
 									
-							<div class="georesourceInputForm" ng-if="(($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:null} ).length > 0)">
+							<div class="georesourceInputForm" ng-if="(($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:null} | filter:georesourceNameFilter).length > 0)">
 
 								<table class="table table-condensed" style="margin-bottom:0px;">
 									<thead>
@@ -431,7 +438,7 @@
 									<tbody>
 
 										<!-- POIs -->
-										<tr ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:{topicReference:null}'>
+										<tr ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:{topicReference:null} | filter:georesourceNameFilter'>
 											<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 											<td>
 												<i class="fas fa-map-marker-alt"></i>

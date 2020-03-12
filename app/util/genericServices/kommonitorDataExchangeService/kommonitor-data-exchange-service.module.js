@@ -220,6 +220,13 @@ angular
 						this.availableTopics = topicsArray;
           };
 
+          this.topicHierarchyContainsGeoresource = function(topic, georesourceMetadata){
+            // luckily, the topicReference is defined exactly like for indicators
+            // hence we can simply refer to that method
+
+            return this.topicHierarchyContainsIndicator(topic, georesourceMetadata);
+          };
+
           this.topicHierarchyContainsIndicator = function(topic, indicatorMetadata){
             if (topic.topicId === indicatorMetadata.topicReference){
               return true;
@@ -241,6 +248,24 @@ angular
             }
 
             return isContained;
+          };
+
+          this.getNumberOfGeoresources = function(topic, georesourceNameFilter){
+            var numberOfGeoresources = 0;
+
+            var filteredGeoresources = this.availableGeoresources;
+            
+            if(georesourceNameFilter && georesourceNameFilter != ""){
+              filteredGeoresources = filterArrayObjectsByValue(this.availableGeoresources, georesourceNameFilter);									
+            }
+            
+            for (const georesourceMetadata of filteredGeoresources) {
+              if (this.topicHierarchyContainsGeoresource(topic, georesourceMetadata)){
+                numberOfGeoresources++;
+              }
+            }
+
+            return numberOfGeoresources;
           };
 
           this.getNumberOfIndicators = function(topic, indicatorNameFilter){
