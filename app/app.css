@@ -4,6 +4,11 @@
 		z-index: 99999;
 }
 
+.box{
+	border-left: 1px solid #d2d6de;
+	border-right: 1px solid #d2d6de;
+}
+
 .featurePropertyPopupContent{
 	font-size: 11px;
 	max-width: 300px;
