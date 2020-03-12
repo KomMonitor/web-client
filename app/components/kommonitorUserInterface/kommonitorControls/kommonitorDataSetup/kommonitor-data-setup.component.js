@@ -60,34 +60,7 @@ angular
 								$scope.dateSlider;
 								$scope.datesAsMs;
 
-								$scope.selectedDate;
-
-								$scope.getNumberOfIndicators = function(topic, indicatorNameFilter){
-									var numberOfIndicators = 0;
-
-									var filteredIndicators = kommonitorDataExchangeService.availableIndicators;
-									
-									if(indicatorNameFilter && indicatorNameFilter != ""){
-										filteredIndicators = filterArrayObjectsByValue(kommonitorDataExchangeService.availableIndicators, indicatorNameFilter);									
-									}
-									
-									for (const indicatorMetadata of filteredIndicators) {
-										if (kommonitorDataExchangeService.topicHierarchyContainsIndicator(topic, indicatorMetadata)){
-											numberOfIndicators++;
-										}
-									}
-
-									return numberOfIndicators;
-								};
-
-								var filterArrayObjectsByValue = function (array, string) {
-										return array.filter(o => { 
-											return Object.keys(o).some(k => { 
-												if (typeof o[k] === 'string') 
-													return o[k].toLowerCase().includes(string.toLowerCase()); 
-											}); 
-										});
-								};	
+								$scope.selectedDate;								
 
 								this.addGeopackage = function(){
 									this.kommonitorMapServiceInstance.addSpatialUnitGeopackage();

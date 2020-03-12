@@ -243,6 +243,33 @@ angular
             return isContained;
           };
 
+          this.getNumberOfIndicators = function(topic, indicatorNameFilter){
+            var numberOfIndicators = 0;
+
+            var filteredIndicators = this.availableIndicators;
+            
+            if(indicatorNameFilter && indicatorNameFilter != ""){
+              filteredIndicators = filterArrayObjectsByValue(this.availableIndicators, indicatorNameFilter);									
+            }
+            
+            for (const indicatorMetadata of filteredIndicators) {
+              if (this.topicHierarchyContainsIndicator(topic, indicatorMetadata)){
+                numberOfIndicators++;
+              }
+            }
+
+            return numberOfIndicators;
+          };
+
+          var filterArrayObjectsByValue = function (array, string) {
+              return array.filter(o => { 
+                return Object.keys(o).some(k => { 
+                  if (typeof o[k] === 'string') 
+                    return o[k].toLowerCase().includes(string.toLowerCase()); 
+                }); 
+              });
+          };
+
           this.getIndicatorMetadataById = function(indicatorId){
             for (const indicatorMetadata of this.availableIndicators) {
               if(indicatorMetadata.indicatorId === indicatorId){
