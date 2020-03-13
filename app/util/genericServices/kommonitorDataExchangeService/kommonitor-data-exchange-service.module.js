@@ -227,6 +227,20 @@ angular
             return this.topicHierarchyContainsIndicator(topic, georesourceMetadata);
           };
 
+          this.topicHierarchyContainsWms = function(topic, wmsMetadata){
+            // luckily, the topicReference is defined exactly like for indicators
+            // hence we can simply refer to that method
+
+            return this.topicHierarchyContainsIndicator(topic, wmsMetadata);
+          };
+
+          this.topicHierarchyContainsWfs = function(topic, wfsMetadata){
+            // luckily, the topicReference is defined exactly like for indicators
+            // hence we can simply refer to that method
+
+            return this.topicHierarchyContainsIndicator(topic, wfsMetadata);
+          };
+
           this.topicHierarchyContainsIndicator = function(topic, indicatorMetadata){
             if (topic.topicId === indicatorMetadata.topicReference){
               return true;
@@ -251,12 +265,22 @@ angular
           };
 
           this.getNumberOfGeoresources = function(topic, georesourceNameFilter){
+
+            var numberOfAvailableGeoresources = this.getNumberOfAvailableGeoresources(topic, georesourceNameFilter); 
+            var numberOfWmsDatasets = this.getNumberOfAvailableWmsDatasets(topic, georesourceNameFilter);
+            var numberOfWfsDatasets = this.getNumberOfAvailableWfsDatasets(topic, georesourceNameFilter);
+            
+            var numberOfResources = numberOfAvailableGeoresources + numberOfWmsDatasets + numberOfWfsDatasets;
+            return numberOfResources;
+          };
+
+          this.getNumberOfAvailableGeoresources = function(topic, georesourceNameFilter){
             var numberOfGeoresources = 0;
 
             var filteredGeoresources = this.availableGeoresources;
             
             if(georesourceNameFilter && georesourceNameFilter != ""){
-              filteredGeoresources = filterArrayObjectsByValue(this.availableGeoresources, georesourceNameFilter);									
+              filteredGeoresources = filterArrayObjectsByValue(filteredGeoresources, georesourceNameFilter);									
             }
             
             for (const georesourceMetadata of filteredGeoresources) {
@@ -266,6 +290,42 @@ angular
             }
 
             return numberOfGeoresources;
+          };
+
+          this.getNumberOfAvailableWmsDatasets = function(topic, georesourceNameFilter){
+            var numberOfWmsDatasets = 0;
+
+            var filteredWmsDatasets = this.wmsDatasets;
+            
+            if(georesourceNameFilter && georesourceNameFilter != ""){
+              filteredWmsDatasets = filterArrayObjectsByValue(filteredWmsDatasets, georesourceNameFilter);									
+            }
+            
+            for (const wmsMetadata of filteredWmsDatasets) {
+              if (this.topicHierarchyContainsWms(topic, wmsMetadata)){
+                numberOfWmsDatasets++;
+              }
+            }
+
+            return numberOfWmsDatasets;
+          };
+
+          this.getNumberOfAvailableWfsDatasets = function(topic, georesourceNameFilter){
+            var numberOfWfsDatasets = 0;
+
+            var filteredWfsDatasets = this.wfsDatasets;
+            
+            if(georesourceNameFilter && georesourceNameFilter != ""){
+              filteredWfsDatasets = filterArrayObjectsByValue(filteredWfsDatasets, georesourceNameFilter);									
+            }
+            
+            for (const wfsMetadata of filteredWfsDatasets) {
+              if (this.topicHierarchyContainsWfs(topic, wfsMetadata)){
+                numberOfWfsDatasets++;
+              }
+            }
+
+            return numberOfWfsDatasets;
           };
 
           this.getNumberOfIndicators = function(topic, indicatorNameFilter){
