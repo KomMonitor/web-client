@@ -1237,10 +1237,10 @@ select {
 
 .georesourceInputForm{
 	padding: 5px;
-	height: auto !important;
-	max-height: 500px;
+	/* height: auto !important;
+	max-height: 500px; */
 	max-width: 100%;
-	font-size: 12px;
+	font-size: 11px;
 	/* border: 2px solid gray;
 	border-radius: 8px; */
 	overflow: auto;
@@ -1309,9 +1309,9 @@ select {
 }
 
 #georesourceHierarchySelection{
-	height: auto !important;
+	/* height: auto !important;
 	max-height: 750px;
-  	overflow: auto;
+  	overflow: auto; */
 	font: 12px/14px Arial, Helvetica, sans-serif;
 }
 
