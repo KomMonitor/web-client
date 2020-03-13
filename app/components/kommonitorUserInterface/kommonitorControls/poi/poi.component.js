@@ -34,6 +34,18 @@ angular
 
 								var numberOfDecimals = __env.numberOfDecimals;
 
+								// initialize colorpicker after some time
+								// wait to ensure that elements ar available on DOM
+								setTimeout(function() {
+
+									var colorPickerInputs = $('.input-group.colorpicker-component')
+									colorPickerInputs.colorpicker();
+
+									// $('.input-group.colorpicker-component').each(function (index, value){
+									// 	$(this).colorpicker();
+									// });
+								}, 3000);
+
 								$scope.handlePoiOnMap = function(poi){
 
 									if(poi.isSelected){
@@ -368,6 +380,62 @@ angular
 										});
 
 								};
+
+
+								$scope.handleWmsOnMap = function(dataset){
+									kommonitorDataExchangeService.wmsLegendImage = undefined;
+									console.log("Toggle WMS: " + dataset.title);
+
+									if(dataset.isSelected){
+										//display on Map
+										var opacity = 1 - dataset.transparency;
+										kommonitorMapService.addWmsLayerToMap(dataset, opacity);
+
+									}
+									else{
+										//remove WMS layer from map
+										kommonitorMapService.removeWmsLayerFromMap(dataset);
+
+									}
+								};
+
+								$scope.adjustWMSLayerTransparency = function(dataset){
+
+									var opacity = 1 - dataset.transparency;
+
+									kommonitorMapService.adjustOpacityForWmsLayer(dataset, opacity);
+								};
+
+								$scope.handleWfsOnMap = function(dataset){
+									console.log("Toggle WFS: " + dataset.title);
+
+									if(dataset.isSelected){
+										//display on Map
+										var opacity = 1 - dataset.transparency;
+										kommonitorMapService.addWfsLayerToMap(dataset, opacity);
+
+									}
+									else{
+										//remove WMS layer from map
+										kommonitorMapService.removeWfsLayerFromMap(dataset);
+
+									}
+								};
+
+								$scope.adjustWFSLayerTransparency = function(dataset){
+
+									var opacity = 1 - dataset.transparency;
+
+									kommonitorMapService.adjustOpacityForWfsLayer(dataset, opacity);
+								};
+
+								$scope.adjustWfsLayerColor = function(dataset){
+
+									var color = dataset.displayColor;
+
+									kommonitorMapService.adjustColorForWfsLayer(dataset, color);
+								};
+
 
 							} ]
 				});
