@@ -996,7 +996,7 @@ table, th, td {
 					}
 					th, td {
 						valign: top !important;
-						text-align: left !important;
+						/* text-align: left !important; */
 					}
 					th {
 						background-color: white !important;
