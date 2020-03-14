@@ -22,6 +22,12 @@ angular
 								$scope.loiNameFilter = undefined;
 								$scope.aoiNameFilter = undefined;
 
+								$scope.showPOI = true;
+								$scope.showLOI = true;
+								$scope.showAOI = true;
+								$scope.showWMS = true;
+								$scope.showWFS = true;
+
 								$scope.currentPoiGeoresource;
 								$scope.currentLoiGeoresource;
 								$scope.currentAoiGeoresource;
@@ -45,6 +51,71 @@ angular
 									// 	$(this).colorpicker();
 									// });
 								}, 3000);
+
+								$scope.onChangeShowPOI = function(){
+									if ($scope.showPOI){
+										$scope.showPOI = false;
+									}
+									else{
+										$scope.showPOI = true;
+									}
+
+									setTimeout(() => {
+										$scope.$apply();
+									}, 500);
+								};
+
+								$scope.onChangeShowLOI = function(){
+									if ($scope.showLOI){
+										$scope.showLOI = false;
+									}
+									else{
+										$scope.showLOI = true;
+									}
+
+									setTimeout(() => {
+										$scope.$apply();
+									}, 500);
+								};
+
+								$scope.onChangeShowAOI = function(){
+									if ($scope.showAOI){
+										$scope.showAOI = false;
+									}
+									else{
+										$scope.showAOI = true;
+									}
+
+									setTimeout(() => {
+										$scope.$apply();
+									}, 500);
+								};
+
+								$scope.onChangeShowWMS = function(){
+									if ($scope.showWMS){
+										$scope.showWMS = false;
+									}
+									else{
+										$scope.showWMS = true;
+									}
+
+									setTimeout(() => {
+										$scope.$apply();
+									}, 500);
+								};
+
+								$scope.onChangeShowWFS = function(){
+									if ($scope.showWFS){
+										$scope.showWFS = false;
+									}
+									else{
+										$scope.showWFS = true;
+									}
+
+									setTimeout(() => {
+										$scope.$apply();
+									}, 500);
+								};
 
 								$scope.handlePoiOnMap = function(poi){
 
