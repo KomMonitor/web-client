@@ -406,6 +406,13 @@ angular
 									kommonitorMapService.adjustOpacityForWmsLayer(dataset, opacity);
 								};
 
+								$scope.adjustAOILayerTransparency = function(dataset){
+
+									var opacity = 1 - dataset.transparency;
+
+									kommonitorMapService.adjustOpacityForAoiLayer(dataset, opacity);
+								};
+
 								$scope.handleWfsOnMap = function(dataset){
 									console.log("Toggle WFS: " + dataset.title);
 

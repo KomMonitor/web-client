@@ -2632,6 +2632,19 @@ angular.module('kommonitorMap').component(
           });
         });
 
+        $scope.$on("adjustOpacityForAoiLayer", function (event, dataset, opacity) {
+          var layerName = dataset.datasetName;
+
+          $scope.layerControl._layers.forEach(function (layer) {
+            if (layer.group.name === aoiLayerGroupName && layer.name.includes(layerName)) {
+              layer.layer.setStyle({
+                fillOpacity:opacity,
+                opacity:opacity
+              });
+            }
+          });
+        });
+
         $scope.$on("removeWmsLayerFromMap", function (event, dataset) {
 
           var layerName = dataset.title;
