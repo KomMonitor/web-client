@@ -242,6 +242,15 @@ angular
           };
 
           this.topicHierarchyContainsIndicator = function(topic, indicatorMetadata){
+            if(topic === null){
+              if (indicatorMetadata.topicReference === null){
+                return true;
+              }
+              else{
+                return false;
+              }
+            }
+
             if (topic.topicId === indicatorMetadata.topicReference){
               return true;
             }
@@ -264,6 +273,7 @@ angular
             return isContained;
           };
 
+          // topic may be null
           this.getNumberOfGeoresources = function(topic, georesourceNameFilter, showPOI, showLOI, showAOI, showWMS, showWFS){
 
             var numberOfAvailableGeoresources = this.getNumberOfAvailableGeoresources(topic, georesourceNameFilter, showPOI, showLOI, showAOI); 
@@ -285,7 +295,7 @@ angular
 
             filteredGeoresources = filterGeoresourcesByTypes(filteredGeoresources, showPOI, showLOI, showAOI);
             
-            for (const georesourceMetadata of filteredGeoresources) {
+            for (const georesourceMetadata of filteredGeoresources) {              
               if (this.topicHierarchyContainsGeoresource(topic, georesourceMetadata)){
                 numberOfGeoresources++;
               }
