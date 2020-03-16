@@ -10,6 +10,8 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 		$scope.newMainTopicTitle_georesource;
 		$scope.newMainTopicDescription_georesource;
 
+		$scope.showTopicIds = false;
+
 		$scope.unCollapsedTopicIds = [];
 
 		$scope.errorMessagePart;

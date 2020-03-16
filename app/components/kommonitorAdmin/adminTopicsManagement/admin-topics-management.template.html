@@ -21,6 +21,15 @@
 			| Your Page Content Here |
 			-------------------------->
 
+			<b>Zeige IDs</b>
+				&nbsp;
+			<label class="switch">
+				<input type="checkbox" ng-model="showTopicIds"></input>
+			  <span class="switchslider round"></span>
+			</label>
+
+			<br/>
+
 			<div class="box box-primary" id="indicatorTopicsManagement">
 				<div class="box-header with-border">
 				  <h3 class="box-title">Themenhierarchie - Indikatoren</h3>
@@ -47,6 +56,8 @@
 										ng-click="isCollapsed_mainTopic = !isCollapsed_mainTopic"
 										ng-init="isCollapsed_mainTopic=true"><i
 											class="glyphicon glyphicon-chevron-right"></i>{{mainTopic.topicName}}</a>
+
+									<div ng-if="showTopicIds" style="display: inline-block;">(ID: {{mainTopic.topicId}})</div>		
 				
 									<div class="btn-group btn-group-sm" style="margin-left: 30px;">
 										<button type="button" class="btn btn-warning" ng-click="onClickEditTopic(mainTopic)"
@@ -67,6 +78,9 @@
 											ng-click="isCollapsed_subTopic = !isCollapsed_subTopic"
 											ng-init="isCollapsed_subTopic=true"><i
 												class="glyphicon glyphicon-chevron-right"></i>{{subTopic.topicName}}</a>
+
+										<div ng-if="showTopicIds" style="display: inline-block;">(ID: {{subTopic.topicId}})</div>
+
 										<div class="btn-group btn-group-sm" style="margin-left: 30px;">
 											<button type="button" class="btn btn-warning" ng-click="onClickEditTopic(subTopic)"
 												data-toggle="modal" data-target="#modal-edit-topic"><i
@@ -86,6 +100,9 @@
 												ng-click="isCollapsed_subsubTopic = !isCollapsed_subsubTopic"
 												ng-init="isCollapsed_subsubTopic=true"><i
 													class="glyphicon glyphicon-chevron-right"></i>{{subsubTopic.topicName}}</a>
+
+											<div ng-if="showTopicIds" style="display: inline-block;">(ID: {{subsubTopic.topicId}})</div>	
+
 											<div class="btn-group btn-group-sm" style="margin-left: 30px;">
 												<button type="button" class="btn btn-warning" ng-click="onClickEditTopic(subsubTopic)"
 													data-toggle="modal" data-target="#modal-edit-topic"><i
@@ -103,6 +120,9 @@
 												style="background: #eff3ff; color: white;">
 												<a id="{{subsubsubTopic.topicId}}" class="collapseTrigger" style="color: white;"
 													ng-attr-title="{{subsubsubTopic.topicDescription}}">{{subsubsubTopic.topicName}}</a>
+
+												<div ng-if="showTopicIds" style="display: inline-block;">(ID: {{subsubsubTopic.topicId}})</div>
+												
 												<div class="btn-group btn-group-sm" style="margin-left: 30px;">
 													<button type="button" class="btn btn-warning"
 														ng-click="onClickEditTopic(subsubsubTopic)" data-toggle="modal"
@@ -263,6 +283,8 @@
 											ng-click="isCollapsed_mainTopic = !isCollapsed_mainTopic"
 											ng-init="isCollapsed_mainTopic=true"><i
 												class="glyphicon glyphicon-chevron-right"></i>{{mainTopic.topicName}}</a>
+
+										<div ng-if="showTopicIds" style="display: inline-block;">(ID: {{mainTopic.topicId}})</div>
 					
 										<div class="btn-group btn-group-sm" style="margin-left: 30px;">
 											<button type="button" class="btn btn-warning" ng-click="onClickEditTopic(mainTopic)"
@@ -283,6 +305,9 @@
 												ng-click="isCollapsed_subTopic = !isCollapsed_subTopic"
 												ng-init="isCollapsed_subTopic=true"><i
 													class="glyphicon glyphicon-chevron-right"></i>{{subTopic.topicName}}</a>
+
+											<div ng-if="showTopicIds" style="display: inline-block;">(ID: {{subTopic.topicId}})</div>
+
 											<div class="btn-group btn-group-sm" style="margin-left: 30px;">
 												<button type="button" class="btn btn-warning" ng-click="onClickEditTopic(subTopic)"
 													data-toggle="modal" data-target="#modal-edit-topic"><i
@@ -302,6 +327,9 @@
 													ng-click="isCollapsed_subsubTopic = !isCollapsed_subsubTopic"
 													ng-init="isCollapsed_subsubTopic=true"><i
 														class="glyphicon glyphicon-chevron-right"></i>{{subsubTopic.topicName}}</a>
+
+												<div ng-if="showTopicIds" style="display: inline-block;">(ID: {{subsubTopic.topicId}})</div>
+
 												<div class="btn-group btn-group-sm" style="margin-left: 30px;">
 													<button type="button" class="btn btn-warning" ng-click="onClickEditTopic(subsubTopic)"
 														data-toggle="modal" data-target="#modal-edit-topic"><i
@@ -319,6 +347,9 @@
 													style="background: #eff3ff; color: white;">
 													<a id="{{subsubsubTopic.topicId}}" class="collapseTrigger" style="color: white;"
 														ng-attr-title="{{subsubsubTopic.topicDescription}}">{{subsubsubTopic.topicName}}</a>
+
+													<div ng-if="showTopicIds" style="display: inline-block;">(ID: {{subsubsubTopic.topicId}})</div>
+
 													<div class="btn-group btn-group-sm" style="margin-left: 30px;">
 														<button type="button" class="btn btn-warning"
 															ng-click="onClickEditTopic(subsubsubTopic)" data-toggle="modal"
