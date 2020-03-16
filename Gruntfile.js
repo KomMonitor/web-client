@@ -73,10 +73,10 @@ module.exports = function (grunt) {
             'app/components/kommonitorUserInterface/kommonitorControls/poi/poi.component.js',
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorDataImport/kommonitor-data-import.module.js',
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorDataImport/kommonitor-data-import.component.js',
-            'app/components/kommonitorUserInterface/kommonitorControls/kommonitorDataImport/wmsModal/wms-modal.module.js',
-            'app/components/kommonitorUserInterface/kommonitorControls/kommonitorDataImport/wmsModal/wms-modal.component.js',
-            'app/components/kommonitorUserInterface/kommonitorControls/kommonitorDataImport/wfsModal/wfs-modal.module.js',
-            'app/components/kommonitorUserInterface/kommonitorControls/kommonitorDataImport/wfsModal/wfs-modal.component.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/poi/wmsModal/wms-modal.module.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/poi/wmsModal/wms-modal.component.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/poi/wfsModal/wfs-modal.module.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/poi/wfsModal/wfs-modal.component.js',
             'app/components/kommonitorUserInterface/kommonitorMap/kommonitor-map.module.js',
             'app/components/kommonitorUserInterface/kommonitorMap/kommonitor-map.component.js',
             'app/components/kommonitorUserInterface/kommonitorControls/infoModal/info-modal.module.js',
@@ -100,7 +100,7 @@ module.exports = function (grunt) {
             'dependencies/**/*',
             'iconsFromPngTree/**/*',
             'logos/**/*',
-			      'components/**/*.template.html'
+			'components/**/*.template.html'
         ],
 
         // babel: {
