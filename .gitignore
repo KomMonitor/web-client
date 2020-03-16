@@ -9,6 +9,5 @@ dependencies/
 tmp
 .DS_Store
 .idea
-dist
 build
 package-lock.json

@@ -16,7 +16,7 @@
 			</div>
 			<div class="modal-body">
 
-				<p><b><i>* = Pflichtfeld</i></b></p>
+				
 
 				<!-- {
 						  "metadata": {
@@ -35,123 +35,178 @@
 						}
 			 -->
 
-			 <form role="form" class="form-group" data-toggle="validator" style="margin-bottom: 0px;">
-				<h4>Allgemeine Metadaten</h4>
+			 <!-- MultiStep Form -->
+			 <div class="row">
+				<div class="col-md-12">
 
-					<div class="row vertical-align">
-                <div class="col-md-3 col-sm-6 col-xs-12">
-									<div class="form-group">
-										<label >Beschreibung*</label>
-										<textarea rows="3" class="form-control" ng-model="metadata.description" placeholder="Datensatz Beschreibung" required></textarea>
-										<div class="help-block with-errors"></div>
-									</div>
-								</div>
-								<div class="col-md-3 col-sm-6 col-xs-12">
-									<div class="form-group">
-										<label >Datenbasis</label>
-										<textarea rows="3" class="form-control" ng-model="metadata.databasis" placeholder="optionale Beschreibung etwaiger grundlegender Daten, die zur Erzeugung des Datensatzes beitragen"></textarea>
-										<div class="help-block with-errors"></div>
-									</div>
-								</div>
-								<div class="col-md-3 col-sm-6 col-xs-12">
-									<div class="form-group">
-										<label >Datenquelle*</label>
-										<textarea rows="3" class="form-control" ng-model="metadata.datasource" placeholder="Beschreibung der Datenquelle" required></textarea>
-										<div class="help-block with-errors"></div>
-									</div>
-								</div>
-								<div class="col-md-3 col-sm-6 col-xs-12">
-									<div class="form-group">
-										<label >Datenhalter und Kontakt*</label>
-										<textarea rows="3" class="form-control" ng-model="metadata.contact" placeholder="Beschreibung des Datenhalters und etwaiger Kontaktinformationen" required></textarea>
-										<div class="help-block with-errors"></div>
-									</div>
-								</div>
-					</div>
+					<form role="form" class="multiStepForm form-group" data-toggle="validator" style="margin-bottom: 0px;">
+						
+						<!-- progressbar -->
+						<ul id="progressbar">
+							<li style="width: 50%;" class="active">Metadaten der Raumeinheit</li>
+							<li style="width: 50%;">Allgemeine Metadaten</li>
+						</ul>
 
-					<div class="row vertical-align">
-                <div class="col-md-3 col-sm-6 col-xs-12">
+						
+						<fieldset>
+							<h2 class="fs-title">Metadaten der Raumeinheit</h2>
+							<h3 class="fs-subtitle">Angaben &uuml;ber die neue Raumeinheit</h3>
+
+							<p><b><i>* = Pflichtfeld</i></b></p>
+							
+							<div class="row vertical-align">
+								<div class="col-md-4 col-sm-6 col-xs-12">
 									<div class="form-group">
-										<label >Aktualisierungszyklus*</label>
-										<select ng-model="metadata.updateInterval" ng-options="value as value.displayName for value in $ctrl.kommonitorDataExchangeServiceInstance.updateIntervalOptions" class="form-control" required>
+										<label>Name der Raumeinheit*</label>
+										<input type="text" class="form-control" ng-model="spatialUnitLevel" ng-change="checkSpatialUnitName()"
+											placeholder="eindeutiger Name" required disabled></input>
+										<div class="help-block">
+											<p>nicht editierbar</p>
+										</div>
+										<div class="help-block with-errors"></div>
+										<div ng-if="spatialUnitLevelInvalid" style="color: red;">
+											<p>Eingabe ung&uuml;ltig. Es existiert bereits eine Raumeinheit mit gleichem Namen.</p>
+										</div>
+									</div>
+								</div>
+								<div class="col-md-4 col-sm-6 col-xs-12">
+									<div class="form-group">
+										<label>Hierarchie: n&auml;chst niedrigere Ebene</label>
+										<select ng-model="nextLowerHierarchySpatialUnit" ng-change="checkSpatialUnitHierarchy()"
+											class="form-control">
+											<option disabled selected value> -- Raumeinheit w&auml;hlen -- </option>
+											<option value> -- keine (neue oberste Ebene) -- </option>
+											<option ng-repeat="value in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits"
+												ng-value="value"> {{value.spatialUnitLevel}} </option>
+										</select>
+										<div class="help-block">
+											<p>Eintrag kann im Nachhinein mittels Metadaten-Editier-Funktion gesetzt werden</p>
+										</div>
+										<div class="help-block with-errors"></div>
+										<div ng-if="hierarchyInvalid" style="color: red;">
+											<p>Eingabe ung&uuml;ltig. Definierte Hierarchie ist nicht erlaubt.</p>
+										</div>
+									</div>
+								</div>
+								<div class="col-md-4 col-sm-6 col-xs-12">
+									<div class="form-group">
+										<label>Hierarchie: n&auml;chst h&ouml;here Ebene</label>
+										<select ng-model="nextUpperHierarchySpatialUnit" ng-change="checkSpatialUnitHierarchy()"
+											class="form-control">
+											<option disabled selected value> -- Raumeinheit w&auml;hlen -- </option>
+											<option value> -- keine (neue oberste Ebene) -- </option>
+											<option ng-repeat="value in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits"
+												ng-value="value"> {{value.spatialUnitLevel}} </option>
+										</select>
+										<div class="help-block">
+											<p>Eintrag kann im Nachhinein mittels Metadaten-Editier-Funktion gesetzt werden</p>
+										</div>
+										<div class="help-block with-errors"></div>
+										<div ng-if="hierarchyInvalid" style="color: red;">
+											<p>Eingabe ung&uuml;ltig. Definierte Hierarchie ist nicht erlaubt.</p>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<input type="button" name="next" class="next next_editSpatialUnit action-button" value="N&auml;chster Schritt"/>
+
+						</fieldset>	
+
+						<fieldset>
+							<h2 class="fs-title">Allgemeine Metadaten</h2>
+							<h3 class="fs-subtitle">Angaben &uuml;ber allgemeine Metadaten in KomMonitor</h3>
+
+							<p><b><i>* = Pflichtfeld</i></b></p>
+							
+							<div class="row vertical-align">
+								<div class="col-md-3 col-sm-6 col-xs-12">
+									<div class="form-group">
+										<label>Beschreibung*</label>
+										<textarea rows="3" class="form-control" ng-model="metadata.description" placeholder="Datensatz Beschreibung"
+											required></textarea>
+										<div class="help-block with-errors"></div>
+									</div>
+								</div>
+								<div class="col-md-3 col-sm-6 col-xs-12">
+									<div class="form-group">
+										<label>Datenbasis</label>
+										<textarea rows="3" class="form-control" ng-model="metadata.databasis"
+											placeholder="optionale Beschreibung etwaiger grundlegender Daten, die zur Erzeugung des Datensatzes beitragen"></textarea>
+										<div class="help-block with-errors"></div>
+									</div>
+								</div>
+								<div class="col-md-3 col-sm-6 col-xs-12">
+									<div class="form-group">
+										<label>Datenquelle*</label>
+										<textarea rows="3" class="form-control" ng-model="metadata.datasource"
+											placeholder="Beschreibung der Datenquelle" required></textarea>
+										<div class="help-block with-errors"></div>
+									</div>
+								</div>
+								<div class="col-md-3 col-sm-6 col-xs-12">
+									<div class="form-group">
+										<label>Datenhalter und Kontakt*</label>
+										<textarea rows="3" class="form-control" ng-model="metadata.contact"
+											placeholder="Beschreibung des Datenhalters und etwaiger Kontaktinformationen" required></textarea>
+										<div class="help-block with-errors"></div>
+									</div>
+								</div>
+							</div>
+							
+							<div class="row vertical-align">
+								<div class="col-md-3 col-sm-6 col-xs-12">
+									<div class="form-group">
+										<label>Aktualisierungszyklus*</label>
+										<select ng-model="metadata.updateInterval"
+											ng-options="value as value.displayName for value in $ctrl.kommonitorDataExchangeServiceInstance.updateIntervalOptions"
+											class="form-control" required>
 											<option disabled selected value> -- Aktualisierungszyklus w&auml;hlen -- </option>
-	                  </select>
+										</select>
 										<div class="help-block with-errors"></div>
 									</div>
 								</div>
 								<div class="col-md-3 col-sm-6 col-xs-12">
 									<div class="form-group">
-										<label >Datum der letzten Aktualisierung*</label>
+										<label>Datum der letzten Aktualisierung*</label>
 										<div class="input-group date">
 											<div class="input-group-addon">
 												<i class="far fa-calendar-alt"></i>
 											</div>
-											<input type="text" ng-model="metadata.lastUpdate" class="form-control pull-right" id="spatialUnitEditMetadataLastUpdateDatepicker" required>
+											<input type="text" ng-model="metadata.lastUpdate" class="form-control pull-right"
+												id="spatialUnitEditMetadataLastUpdateDatepicker" placeholder="YYYY-MM-DD" required>
 										</div>
 										<div class="help-block with-errors"></div>
 									</div>
 								</div>
 								<div class="col-md-3 col-sm-6 col-xs-12">
 									<div class="form-group">
-										<label >Literatur</label>
-										<textarea rows="3" class="form-control" ng-model="metadata.literature" placeholder="optionale Angaben zu Literatur"></textarea>
+										<label>Literatur</label>
+										<textarea rows="3" class="form-control" ng-model="metadata.literature"
+											placeholder="optionale Angaben zu Literatur"></textarea>
 										<div class="help-block with-errors"></div>
 									</div>
 								</div>
 								<div class="col-md-3 col-sm-6 col-xs-12">
 									<div class="form-group">
-										<label >Bemerkung</label>
-										<textarea rows="3" class="form-control" ng-model="metadata.note" placeholder="optionale Bemerkung"></textarea>
+										<label>Bemerkung</label>
+										<textarea rows="3" class="form-control" ng-model="metadata.note"
+											placeholder="optionale Bemerkung"></textarea>
 										<div class="help-block with-errors"></div>
 									</div>
 								</div>
+							</div>
+
+							
+							<input type="button" name="previous" class="previous previous_editSpatialUnit action-button-previous" value="Voriger Schritt"/>
+						</fieldset>	
+
+
+						</form>
+					
 					</div>
-
-					<hr>
-
-					<h4>Metadaten der neuen Raumeinheit</h4>
-
-						<div class="row vertical-align">
-	                <div class="col-md-4 col-sm-6 col-xs-12">
-										<div class="form-group">
-											<label >Name der Raumeinheit*</label>
-											<input type="text" class="form-control" ng-model="spatialUnitLevel" ng-change="checkSpatialUnitName()" placeholder="eindeutiger Name" required></input>
-											<div class="help-block"><p>nicht editierbar</p></div>
-											<div class="help-block with-errors"></div>
-											<div ng-if="spatialUnitLevelInvalid" style="color: red;">
-												<p>Eingabe ung&uuml;ltig. Es existiert bereits eine Raumeinheit mit gleichem Namen.</p>
-											</div>
-										</div>
-									</div>
-									<div class="col-md-4 col-sm-6 col-xs-12">
-										<div class="form-group">
-											<label >Hierarchie: n&auml;chst niedrigere Ebene</label>
-											<select ng-model="nextLowerHierarchySpatialUnit" ng-change="checkSpatialUnitHierarchy()" ng-options="value as value.spatialUnitLevel for value in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits" class="form-control">
-												<option disabled selected value> -- Raumeinheit w&auml;hlen -- </option>
-		                  </select>
-											<div class="help-block"><p>Eintrag kann im Nachhinein mittels Metadaten-Editier-Funktion gesetzt werden</p></div>
-											<div class="help-block with-errors"></div>
-											<div ng-if="hierarchyInvalid" style="color: red;">
-												<p>Eingabe ung&uuml;ltig. Definierte Hierarchie ist nicht erlaubt.</p>
-											</div>
-										</div>
-									</div>
-									<div class="col-md-4 col-sm-6 col-xs-12">
-										<div class="form-group">
-											<label >Hierarchie: n&auml;chst h&ouml;here Ebene</label>
-											<select ng-model="nextUpperHierarchySpatialUnit" ng-change="checkSpatialUnitHierarchy()" ng-options="value as value.spatialUnitLevel for value in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits" class="form-control">
-												<option disabled selected value> -- Raumeinheit w&auml;hlen -- </option>
-		                  </select>
-											<div class="help-block"><p>Eintrag kann im Nachhinein mittels Metadaten-Editier-Funktion gesetzt werden</p></div>
-											<div class="help-block with-errors"></div>
-											<div ng-if="hierarchyInvalid" style="color: red;">
-												<p>Eingabe ung&uuml;ltig. Definierte Hierarchie ist nicht erlaubt.</p>
-											</div>
-										</div>
-									</div>
-						</div>
-
-				</form>
+				</div>
+				<!-- /.MultiStep Form -->
 
 				<!-- ng-disabled="((!customWfsTitle) || (!customWfsDescription) || (!customWfsUrl) || (!customWfsLayerName))" -->
 
@@ -161,9 +216,11 @@
 				<button type="button" class="btn btn-info pull-left" ng-click="onImportSpatialUnitEditMetadata()" title="Importieren der Metadaten aus einer Datei"><i class="fas fa-file-import"></i>&nbsp;&nbsp;Metadaten-Import</button>
 				<input style="display:none;" class="pull-left" type="file" class="form-control" id="spatialUnitEditMetadataImportFile" accept=".json,"></input>
 				<button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" ng-disabled="" ng-click="onExportSpatialUnitEditMetadata()" title="Exportieren der Metadaten in eine Datei"><i class="fas fa-file-export"></i>&nbsp;&nbsp;Metadaten-Export</button>
+				<button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" ng-disabled="" ng-click="onExportSpatialUnitEditMetadataTemplate()" title="Exportieren einer Metadaten-Vorlage in eine Datei"><i class="fas fa-file-export"></i>&nbsp;&nbsp;Metadaten-Export Vorlage</button>
+				
 
-					<button type="button" class="btn btn-success" ng-disabled="!spatialUnitLevel || spatialUnitLevelInvalid || !metadata.description || !metadata.datasource || !metadata.contact || !metadata.updateInterval || !metadata.lastUpdate || hierarchyInvalid" ng-click="editSpatialUnitMetadata()">Metadaten aktualisieren</button>
-					<button type="button" class="btn btn-danger" ng-click="resetSpatialUnitEditMetadataForm()">Zur&uuml;cksetzen</button>
+				<button type="button" class="btn btn-success" ng-disabled="!spatialUnitLevel || spatialUnitLevelInvalid || !metadata.description || !metadata.datasource || !metadata.contact || !metadata.updateInterval || !metadata.lastUpdate || hierarchyInvalid" ng-click="editSpatialUnitMetadata()">Metadaten aktualisieren</button>
+				<button type="button" class="btn btn-danger" ng-click="resetSpatialUnitEditMetadataForm()">Zur&uuml;cksetzen</button>
 			</div>
 
 			<div id="spatialUnitEditMetadataSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden class="alert alert-success alert-dismissable">
@@ -177,7 +234,7 @@
                 <h4><i class="icon fa fa-ban"></i>Aktualisierung gescheitert</h4>
                 Bei der Aktualisierung der Metadaten der Raumeinheit ist ein Fehler aufgetreten. Fehlermeldung:
 								<br/>
-								<pre>{{errorMessagePart}}</pre>.
+								<pre style="overflow:auto; max-height:500px;" ng-bind-html="errorMessagePart"></pre>
       </div>
 
 			<div id="spatialUnitEditMetadataImportErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden class="alert alert-danger alert-dismissable">

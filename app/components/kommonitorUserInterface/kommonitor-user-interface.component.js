@@ -762,7 +762,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				kommonitorDataExchangeService.guidedTour.redraw();
 			}
 		});
-
+		
 		$scope.init();
 
 	}

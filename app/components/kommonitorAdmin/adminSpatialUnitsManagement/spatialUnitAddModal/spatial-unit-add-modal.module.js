@@ -1,1 +1,1 @@
-angular.module('spatialUnitAddModal', []);
+angular.module('spatialUnitAddModal', ['kommonitorImporterHelper']);

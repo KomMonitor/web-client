@@ -1,1 +1,1 @@
-angular.module('regressionDiagram', [ 'kommonitorDataExchange']);
+angular.module('regressionDiagram', [ 'kommonitorDataExchange', 'kommonitorDiagramHelper']);

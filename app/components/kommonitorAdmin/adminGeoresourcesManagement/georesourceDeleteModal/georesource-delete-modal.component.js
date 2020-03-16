@@ -65,7 +65,10 @@ angular.module('georesourceDeleteModal').component('georesourceDeleteModal', {
 					for(var k=0; k < $scope.datasetsToDelete.length; k++){
 						var datasetToDelete = $scope.datasetsToDelete[k];
 						if(georesourceReference.referencedGeoresourceId === datasetToDelete.georesourceId){
-							$scope.affectedIndicatorReferences.push(georesourceReference);
+							$scope.affectedIndicatorReferences.push({
+								"indicatorMetadata": indicator,
+								"georesourceReference": georesourceReference
+							});
 							break;
 						}
 					}
@@ -144,8 +147,13 @@ angular.module('georesourceDeleteModal').component('georesourceDeleteModal', {
 							  kommonitorDataExchangeService.availableGeoresources.splice(index, 1);
 							}
 
-					}, function errorCallback(response) {
-						$scope.failedDatasetsAndErrors.push([dataset, response]);
+					}, function errorCallback(error) {
+						if(error.data){							
+							$scope.failedDatasetsAndErrors.push([dataset, kommonitorDataExchangeService.syntaxHighlightJSON(error.data)]);
+						}
+						else{
+							$scope.failedDatasetsAndErrors.push([dataset, kommonitorDataExchangeService.syntaxHighlightJSON(error)]);
+						}
 				});
 			};
 

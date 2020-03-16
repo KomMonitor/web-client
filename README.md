@@ -40,7 +40,7 @@ This software is part of a spatial data infrastructure called [KomMonitor](http:
 The project is funded from Feb 2017 - Feb 2020. The resulting software components, are published as Open-Source software to continue maintenance and development beyond the funding period.
 
 ### Architecture Overview
-![Conceptual KomMonitor Architecture and Idea](./misc/KomMonitor-Architecture.png "Conceptual KomMonitor Architecture and Idea")
+![Conceptual KomMonitor Architecture and Idea](./documentation/KomMonitor-Architecture.png "Conceptual KomMonitor Architecture and Idea")
 
 As a spatial decision support system, the main idea behind KomMonitor is to take (geo-)data from local authorities, import them to the *Data Management* component, process them (i.e. compute indicators based on georesurces and maybe other indicators via the *Processing Engine*; or compute waypath routing and reachability isochrones via *Reachability Service*) and finally publish, display and analyze them within a *Web-Client*.     
 
@@ -214,7 +214,7 @@ The **KomMonitor Web Client** can also be build and deployed as Docker image (i.
 The exemplar [docker-compose.yml](./docker-compose.yml) file specifies only the `kommonitor-web-client` service as all required connections to the respective components of KomMonitor are configured in `./app/env.js` (connection details to other services etc. according to the [Configuration section](#configuration) mentioned above).
 
 ## User Guide
-TODO
+The User Guide is written in a separate [ReadMe](./documentation/README.md).
 
 ## Contribution - Developer Information
 This section contains information for developers.
