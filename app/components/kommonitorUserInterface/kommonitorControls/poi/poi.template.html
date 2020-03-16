@@ -37,9 +37,56 @@
 		
 						<div class="just-padding">
 
+							<!-- <label>Filtern nach Typ</label>
+							<br/> -->
+
+							<!-- <div class="btn-group btn-group-justified"> -->
+								<table class="table" style="width:100%;">
+									<tr>
+									  <th class="text-center"><b>POI</b></th>
+									  <th class="text-center"><b>LOI</b></th>
+									  <th class="text-center"><b>AOI</b></th>
+									  <th class="text-center"><b>WMS</b></th>
+									  <th class="text-center"><b>WFS</b></th>
+									</tr>
+									<tr>
+										<td class="text-center">
+											<label class="switch">
+												<input type="checkbox" ng-model="showPOI" checked>
+												<span class="switchslider round"></span>
+											</label>
+										</td>
+										<td class="text-center">
+											<label class="switch">
+												<input type="checkbox" ng-model="showLOI" checked>
+												<span class="switchslider round"></span>
+											</label>
+										</td>
+										<td class="text-center">
+											<label class="switch">
+												<input type="checkbox" ng-model="showAOI" checked>
+												<span class="switchslider round"></span>
+											</label>
+										</td>
+										<td class="text-center">
+											<label class="switch">
+												<input type="checkbox" ng-model="showWMS" ng-change="onChangeShowWMS()" checked>
+												<span class="switchslider round"></span>
+											</label>
+										</td>
+										<td class="text-center">
+											<label class="switch">
+												<input type="checkbox" ng-model="showWFS" checked>
+												<span class="switchslider round"></span>
+											</label>
+										</td>
+									</tr>
+								  </table>
+							<!-- </div> -->
+
 							<div class="input-group">
 								<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-								<input type="text" class="form-control input-sm" placeholder="Filtern nach Georessourcen-Name" ng-model="georesourceNameFilter">
+								<input type="text" class="form-control input-sm" placeholder="Filtern nach Georessourcen-Name" ng-model="georesourceNameFilter.value">
 							</div>
 
 							<br/>
@@ -48,33 +95,37 @@
 		
 								<div ng-repeat="mainTopic in $ctrl.kommonitorDataExchangeServiceInstance.availableTopics | filter:{topicType:'main'} | filter:{topicResource:'georesource'}">
 									<div  class="list-group-item list-group-item-default" style="background: #2171b5; color: white;">
-										<a id="{{mainTopic.topicId}}" href="" ng-attr-title="{{mainTopic.topicDescription}}" class="collapseTrigger" style="color: white;" ng-click="isCollapsed_mainTopic = !isCollapsed_mainTopic" ng-init="isCollapsed_mainTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{mainTopic.topicName}} ({{$ctrl.kommonitorDataExchangeServiceInstance.getNumberOfGeoresources(mainTopic, georesourceNameFilter)}})</a>
+										<a id="{{mainTopic.topicId}}" href="" ng-attr-title="{{mainTopic.topicDescription}}" class="collapseTrigger" style="color: white;" ng-click="isCollapsed_mainTopic = !isCollapsed_mainTopic" ng-init="isCollapsed_mainTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{mainTopic.topicName}} ({{$ctrl.kommonitorDataExchangeServiceInstance.getNumberOfGeoresources(mainTopic, georesourceNameFilter.value, showPOI, showLOI, showAOI, showWMS, showWFS)}})</a></a>
+										&nbsp;&nbsp; <input type="checkbox" ng-model="mainTopic.isSelected" value="mainTopic.isSelected" id="showAllForTopic_{{mainTopic.topicId}}" ng-change="handleShowAllOnTopic(mainTopic)">
 									</div>
 		
 		
 									<div ng-repeat="subTopic in mainTopic.subTopics" class="list-group collapse" uib-collapse="isCollapsed_mainTopic">
 		
 										<div  class="list-group-item list-group-item-default" style="background: #6baed6; color: white;">
-											<a id="{{subTopic.topicId}}" class="collapseTrigger" style="color: white;" ng-attr-title="{{subTopic.topicDescription}}" href="" ng-click="isCollapsed_subTopic = !isCollapsed_subTopic" ng-init="isCollapsed_subTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{subTopic.topicName}} ({{$ctrl.kommonitorDataExchangeServiceInstance.getNumberOfGeoresources(subTopic, georesourceNameFilter)}})</a>
+											<a id="{{subTopic.topicId}}" class="collapseTrigger" style="color: white;" ng-attr-title="{{subTopic.topicDescription}}" href="" ng-click="isCollapsed_subTopic = !isCollapsed_subTopic" ng-init="isCollapsed_subTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{subTopic.topicName}} ({{$ctrl.kommonitorDataExchangeServiceInstance.getNumberOfGeoresources(subTopic, georesourceNameFilter.value, showPOI, showLOI, showAOI, showWMS, showWFS)}})</a>
+											&nbsp;&nbsp; <input type="checkbox" ng-model="subTopic.isSelected" value="subTopic.isSelected" id="showAllForTopic_{{subTopic.topicId}}" ng-change="handleShowAllOnTopic(subTopic)">
 										</div>
 		
 										<div ng-repeat="subsubTopic in subTopic.subTopics" class="list-group collapse" uib-collapse="isCollapsed_subTopic">
 		
 											<div  class="list-group-item list-group-item-default" style="background: #bdd7e7; color: white;">
-												<a id="{{subsubTopic.topicId}}" class="collapseTrigger" style="color: white;" ng-attr-title="{{subsubTopic.topicDescription}}" href="" ng-click="isCollapsed_subsubTopic = !isCollapsed_subsubTopic" ng-init="isCollapsed_subsubTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{subsubTopic.topicName}} ({{$ctrl.kommonitorDataExchangeServiceInstance.getNumberOfGeoresources(subsubTopic, georesourceNameFilter)}})</a>
+												<a id="{{subsubTopic.topicId}}" class="collapseTrigger" style="color: white;" ng-attr-title="{{subsubTopic.topicDescription}}" href="" ng-click="isCollapsed_subsubTopic = !isCollapsed_subsubTopic" ng-init="isCollapsed_subsubTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{subsubTopic.topicName}} ({{$ctrl.kommonitorDataExchangeServiceInstance.getNumberOfGeoresources(subsubTopic, georesourceNameFilter.value, showPOI, showLOI, showAOI, showWMS, showWFS)}})</a>
+												&nbsp;&nbsp; <input type="checkbox" ng-model="subsubTopic.isSelected" value="subsubTopic.isSelected" id="showAllForTopic_{{subsubTopic.topicId}}" ng-change="handleShowAllOnTopic(subsubTopic)">
 											</div>
 		
 											<div ng-repeat="subsubsubTopic in subsubTopic.subTopics" class="list-group collapse" uib-collapse="isCollapsed_subsubTopic">
 		
 												<div  class="list-group-item list-group-item-default" style="background: #eff3ff; color: white;">
-													<a id="{{subsubsubTopic.topicId}}" class="collapseTrigger" style="color: white;" ng-attr-title="{{subsubsubTopic.topicDescription}}">{{subsubsubTopic.topicName}} ({{$ctrl.kommonitorDataExchangeServiceInstance.getNumberOfGeoresources(subsubsubTopic, georesourceNameFilter)}})</a>
+													<a id="{{subsubsubTopic.topicId}}" class="collapseTrigger" style="color: white;" ng-attr-title="{{subsubsubTopic.topicDescription}}">{{subsubsubTopic.topicName}} ({{$ctrl.kommonitorDataExchangeServiceInstance.getNumberOfGeoresources(subsubsubTopic, georesourceNameFilter.value, showPOI, showLOI, showAOI, showWMS, showWFS)}})</a>
+													&nbsp;&nbsp; <input type="checkbox" ng-model="subsubsubTopic.isSelected" value="subsubsubTopic.isSelected" id="showAllForTopic_{{subsubsubTopic.topicId}}" ng-change="handleShowAllOnTopic(subsubsubTopic)">
 												</div>
 		
 											</div>
 											<!-- end sub sub sub topics -->
 		
 		
-											<div ng-show="($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter).length > 0">
+											<div ng-show="(($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter.value).length > 0) || (($ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter.value).length > 0) || (($ctrl.kommonitorDataExchangeServiceInstance.wfsDatasets | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter.value).length > 0)">
 												<div class="list-group collapse" uib-collapse="isCollapsed_subsubTopic">
 													<div class="list-group-item list-group-item-default georesourceInputForm">
 
@@ -84,6 +135,7 @@
 																 <th>Typ</th> 
 																<th>Datensatz</th>
 																<th>Beschreibung</th>
+																<th>Layer Transparenz</th>
 																<th>Legende</th>
 																<th>Export</th>
 															  </tr>
@@ -92,7 +144,7 @@
 															<tbody>
 
 																<!-- POIs -->
-																<tr ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter '>
+																<tr ng-if="showPOI" ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter.value '>
 																	<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 																	<td>
 																		<i class="fas fa-map-marker-alt"></i>
@@ -107,8 +159,11 @@
 																		<p>{{poi.metadata.description}}</p>
 																	</td>
 																	<td>
+																		-
+																	</td>
+																	<td>
 																		<i class="awesome-marker-legend awesome-marker-legend-icon-{{poi.poiMarkerColor}}">
-																			<span style="margin-left:3px;  font-size:0.7em; color:{{poi.poiSymbolColor}};" class="glyphicon glyphicon-{{poi.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
+																			<span style="margin-left:3px; padding-right:3px;  font-size:0.7em; color:{{poi.poiSymbolColor}};" class="glyphicon glyphicon-{{poi.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
 																		</i>
 																	</td>
 																	<td>
@@ -118,7 +173,7 @@
 																</tr>
 
 																<!-- LOIs -->
-																<tr ng-repeat='loi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isLOI:true} | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter'>
+																<tr ng-if="showLOI" ng-repeat='loi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isLOI:true} | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter.value'>
 																	<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 																	<td>
 																		<i class="fas fa-minus"></i>
@@ -133,6 +188,9 @@
 																		<p>{{loi.metadata.description}}</p>
 																	</td>
 																	<td>
+																		-
+																	</td>
+																	<td>
 																		<i style="width:15px; height:15px; background:{{loi.loiColor}}; display:inherit;">
 																		</i>
 																	</td>
@@ -143,7 +201,7 @@
 																</tr>
 
 																<!-- AOIs -->
-																<tr ng-repeat='aoi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isAOI:true} | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter'>
+																<tr ng-if="showAOI" ng-repeat='aoi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isAOI:true} | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter.value'>
 																	<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 																	<td>
 																		<i class="far fa-square"></i>
@@ -158,12 +216,109 @@
 																		<p>{{aoi.metadata.description}}</p>
 																	</td>
 																	<td>
+																		<div class="form-group" align="center">
+		
+																			<input class=" input-sm" ng-model="aoi.transparency" ng-init="aoi.transparency=0.3" ng-change="adjustAOILayerTransparency(aoi)" type="range"  min="0" max="1" step="0.01">
+		
+																			<br/>
+		
+																			<label>{{aoi.transparency}}</label>
+																		</div>
+																	</td>
+																	<td>
 																		<i style="width:15px; height:15px; background:{{aoi.aoiColor}}; display:inherit;">
 																		</i>
 																	</td>
 																	<td>
 																		<a href="" ng-click="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 																		<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
+																	</td>
+																</tr>
+
+																<!-- WMS -->
+																<tr ng-if="showWMS" ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter.value | orderBy:"title"'>
+																	<td>
+																		<b>WMS</b>
+																	</td>
+																	<td>
+																		<label class='checkbox-inline' ><input type="checkbox" value="dataset.title" ng-model="dataset.isSelected" ng-change="handleWmsOnMap(dataset)">
+		
+																			<b ng-bind-html="dataset.title"></b>
+																		</label>
+																	</td>
+																	<td>
+																		<p ng-bind-html="dataset.description"></p>
+																	</td>
+																	<td>
+																		<div class="form-group" align="center">
+		
+																			<input class=" input-sm" ng-model="dataset.transparency" ng-init="dataset.transparency=0" ng-change="adjustWMSLayerTransparency(dataset)" type="range"  min="0" max="1" step="0.01">
+		
+																			<br/>
+		
+																			<label>{{dataset.transparency}}</label>
+																		</div>
+																	</td>																	
+																	<td>
+																		<div ng-if="! dataset.showLegend">
+																			<button class="btn btn-sm btn-primary" ng-click="dataset.showLegend = true;">Legende laden</button>
+																		</div>
+																		<div ng-if="dataset.showLegend">
+																			<img src="{{dataset.url}}service=WMS&REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&LAYER={{dataset.layerName}}">
+																		</div>
+																	</td>
+																	<td>
+																		<div align="center">
+																		<a href="{{dataset.url}}service=WMS&request=GetCapabilities&version=1.3.0" title="WMS GetCapabilities URL" rel='noopener noreferrer' target='_blank'><i class="fas fa-cloud-download-alt"></i></a>
+																		</div>
+																	</td>
+																</tr>
+
+																<!-- WFS -->
+																<tr ng-if="showWFS" ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.wfsDatasets | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter.value  | orderBy:"title"'>
+																	<td>
+																		<b>WFS</b>
+																	</td>
+																	<td>
+																		<label class='checkbox-inline' ><input type="checkbox" value="dataset.title" ng-model="dataset.isSelected" ng-change="handleWfsOnMap(dataset)">
+
+																			<b ng-bind-html="dataset.title"></b>
+																		</label>
+																	</td>
+																	<td>
+																		<p ng-bind-html="dataset.description"></p>
+																	</td>
+																	<td>
+																		<div class="form-group" align="center">
+
+																			<input class=" input-sm" ng-model="dataset.transparency" ng-init="dataset.transparency=0" ng-change="adjustWFSLayerTransparency(dataset)" type="range"  min="0" max="1" step="0.01">
+
+																			<br/>
+
+																			<label>{{dataset.transparency}}</label>
+																		</div>
+																	</td>
+																	<!-- <td>
+																		<label class="switch">
+																			<input id="filterCheckbox" type="checkbox" ng-model="dataset.filterFeaturesToMapBBOX" ng-checked="dataset.filterFeaturesToMapBBOX"></input>
+																		  <span class="switchslider round"></span>
+																		</label>
+																	</td> -->
+																	
+																	<td>
+																		<div>
+																			<div class="input-group colorpicker-component">
+																				<input type="text" style="display:none;" class="form-control input-sm" ng-model="dataset.displayColor" ng-change="adjustWfsLayerColor(dataset)" placeholder="WFS Darstellungsfarbe"  required />
+																				<span title="Klicken, um die Farbe anzupassen" style="border: 1px solid #ccc;" class="input-group-addon"><i></i></span>
+																			</div>
+																			<!-- value="{{dataset.displayColor}}" -->
+																			<!-- <i style="background-color:{{dataset.displayColor}}; margin-left: 12px; width: 18px; height: 18px; float: left;"></i> -->
+																		</div>
+																	</td>
+																	<td>
+																		<div align="center">
+																		<a href="{{dataset.url}}service=WFS&request=GetCapabilities&version=1.1.0" title="WFS GetCapabilities URL" rel='noopener noreferrer' target='_blank'><i class="fas fa-cloud-download-alt"></i></a>
+																		</div>
 																	</td>
 																</tr>
 
@@ -174,11 +329,11 @@
 														</div>
 												</div>
 											</div>
-											<div ng-show="!(($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter).length > 0)">
+											<div ng-show="!(($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter.value).length > 0) && !(($ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter.value).length > 0) && !(($ctrl.kommonitorDataExchangeServiceInstance.wfsDatasets | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter.value).length > 0)">
 												<div class="list-group collapse" uib-collapse="isCollapsed_subsubTopic">
-													<div class="list-group-item list-group-item-default" style="background: #eb9c98;">
+													<!-- <div class="list-group-item list-group-item-default" style="background: #eb9c98;">
 														 <p><i class="fas fa-ban"></i> &nbsp;&nbsp;- keine Georessourcen in dieser Hierarchieebene -</p>
-													</div>
+													</div> -->
 												</div>
 											</div>
 		
@@ -188,7 +343,7 @@
 		
 		
 		
-										<div ng-show="($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter).length > 0">
+										<div ng-show="(($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter.value).length > 0) || (($ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter.value).length > 0) || (($ctrl.kommonitorDataExchangeServiceInstance.wfsDatasets | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter.value).length > 0)">
 											<div class="list-group collapse" uib-collapse="isCollapsed_subTopic">
 												<div class="list-group-item list-group-item-default georesourceInputForm">
 												
@@ -198,6 +353,7 @@
 															 <th>Typ</th> 
 															<th>Datensatz</th>
 															<th>Beschreibung</th>
+															<th>Layer Transparenz</th>
 															<th>Legende</th>
 															<th>Export</th>
 														  </tr>
@@ -206,7 +362,7 @@
 														<tbody>
 
 															<!-- POIs -->
-															<tr ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter'>
+															<tr ng-if="showPOI" ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter.value'>
 																<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 																<td>
 																	<i class="fas fa-map-marker-alt"></i>
@@ -221,8 +377,11 @@
 																	<p>{{poi.metadata.description}}</p>
 																</td>
 																<td>
+																	-
+																</td>
+																<td>
 																	<i class="awesome-marker-legend awesome-marker-legend-icon-{{poi.poiMarkerColor}}">
-																		<span style="margin-left:3px;  font-size:0.7em; color:{{poi.poiSymbolColor}};" class="glyphicon glyphicon-{{poi.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
+																		<span style="margin-left:3px; padding-right:3px;  font-size:0.7em; color:{{poi.poiSymbolColor}};" class="glyphicon glyphicon-{{poi.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
 																	</i>
 																</td>
 																<td>
@@ -232,7 +391,7 @@
 															</tr>
 
 															<!-- LOIs -->
-															<tr ng-repeat='loi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isLOI:true} | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter'>
+															<tr ng-if="showLOI" ng-repeat='loi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isLOI:true} | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter.value'>
 																<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 																<td>
 																	<i class="fas fa-minus"></i>
@@ -247,6 +406,9 @@
 																	<p>{{loi.metadata.description}}</p>
 																</td>
 																<td>
+																	-
+																</td>
+																<td>
 																	<i style="width:15px; height:15px; background:{{loi.loiColor}}; display:inherit;">
 																	</i>
 																</td>
@@ -257,7 +419,7 @@
 															</tr>
 
 															<!-- AOIs -->
-															<tr ng-repeat='aoi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isAOI:true} | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter'>
+															<tr ng-if="showAOI" ng-repeat='aoi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isAOI:true} | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter.value'>
 																<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 																<td>
 																	<i class="far fa-square"></i>
@@ -272,12 +434,110 @@
 																	<p>{{aoi.metadata.description}}</p>
 																</td>
 																<td>
+																	<div class="form-group" align="center">
+	
+																		<input class=" input-sm" ng-model="aoi.transparency" ng-init="aoi.transparency=0.3" ng-change="adjustAOILayerTransparency(aoi)" type="range"  min="0" max="1" step="0.01">
+	
+																		<br/>
+	
+																		<label>{{aoi.transparency}}</label>
+																	</div>
+																</td>
+																<td>
 																	<i style="width:15px; height:15px; background:{{aoi.aoiColor}}; display:inherit;">
 																	</i>
 																</td>
 																<td>
 																	<a href="" ng-click="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 																	<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
+																</td>
+															</tr>
+
+															<!-- WMS -->
+															<tr ng-if="showWMS" ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter.value | orderBy:"title"'>
+																<td>
+																	<b>WMS</b>
+																</td>
+																<td>
+																	<label class='checkbox-inline' ><input type="checkbox" value="dataset.title" ng-model="dataset.isSelected" ng-change="handleWmsOnMap(dataset)">
+	
+																		<b ng-bind-html="dataset.title"></b>
+																	</label>
+																</td>
+																<td>
+																	<p ng-bind-html="dataset.description"></p>
+																</td>
+																<td>
+																	<div class="form-group" align="center">
+	
+																		<input class=" input-sm" ng-model="dataset.transparency" ng-init="dataset.transparency=0" ng-change="adjustWMSLayerTransparency(dataset)" type="range"  min="0" max="1" step="0.01">
+	
+																		<br/>
+	
+																		<label>{{dataset.transparency}}</label>
+																	</div>
+																</td>
+																
+																<td>
+																	<div ng-if="! dataset.showLegend">
+																		<button class="btn btn-sm btn-primary" ng-click="dataset.showLegend = true;">Legende laden</button>
+																	</div>
+																	<div ng-if="dataset.showLegend">
+																		<img src="{{dataset.url}}service=WMS&REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&LAYER={{dataset.layerName}}">
+																	</div>
+																</td>
+																<td>
+																	<div align="center">
+																	<a href="{{dataset.url}}service=WMS&request=GetCapabilities&version=1.3.0" title="WMS GetCapabilities URL" rel='noopener noreferrer' target='_blank'><i class="fas fa-cloud-download-alt"></i></a>
+																	</div>
+																</td>
+															</tr>
+
+															<!-- WFS -->
+															<tr ng-if="showWFS" ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.wfsDatasets | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter.value  | orderBy:"title"'>
+																<td>
+																	<b>WFS</b>
+																</td>
+																<td>
+																	<label class='checkbox-inline' ><input type="checkbox" value="dataset.title" ng-model="dataset.isSelected" ng-change="handleWfsOnMap(dataset)">
+
+																		<b ng-bind-html="dataset.title"></b>
+																	</label>
+																</td>
+																<td>
+																	<p ng-bind-html="dataset.description"></p>
+																</td>
+																<td>
+																	<div class="form-group" align="center">
+
+																		<input class=" input-sm" ng-model="dataset.transparency" ng-init="dataset.transparency=0" ng-change="adjustWFSLayerTransparency(dataset)" type="range"  min="0" max="1" step="0.01">
+
+																		<br/>
+
+																		<label>{{dataset.transparency}}</label>
+																	</div>
+																</td>
+																<!-- <td>
+																	<label class="switch">
+																		<input id="filterCheckbox" type="checkbox" ng-model="dataset.filterFeaturesToMapBBOX" ng-checked="dataset.filterFeaturesToMapBBOX"></input>
+																	  <span class="switchslider round"></span>
+																	</label>
+																</td> -->
+																
+																<td>
+																	<div>
+																		<div class="input-group colorpicker-component">
+																			<input type="text" style="display:none;" class="form-control input-sm" ng-model="dataset.displayColor" ng-change="adjustWfsLayerColor(dataset)" placeholder="WFS Darstellungsfarbe"  required />
+																			<span title="Klicken, um die Farbe anzupassen" style="border: 1px solid #ccc;" class="input-group-addon"><i></i></span>
+																		</div>
+																		<!-- value="{{dataset.displayColor}}" -->
+																		<!-- <i style="background-color:{{dataset.displayColor}}; margin-left: 12px; width: 18px; height: 18px; float: left;"></i> -->
+																	</div>
+																</td>
+																<td>
+																	<div align="center">
+																	<a href="{{dataset.url}}service=WFS&request=GetCapabilities&version=1.1.0" title="WFS GetCapabilities URL" rel='noopener noreferrer' target='_blank'><i class="fas fa-cloud-download-alt"></i></a>
+																	</div>
 																</td>
 															</tr>
 
@@ -288,11 +548,11 @@
 												</div>
 											</div>
 										</div>
-										<div ng-show="!(($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter).length > 0)">
+										<div ng-show="!(($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter.value).length > 0) && !(($ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter.value).length > 0) && !(($ctrl.kommonitorDataExchangeServiceInstance.wfsDatasets | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter.value).length > 0)">
 											<div class="list-group collapse" uib-collapse="isCollapsed_subTopic">
-												<div class="list-group-item list-group-item-default" style="background: #eb9c98;">
+												<!-- <div class="list-group-item list-group-item-default" style="background: #eb9c98;">
 													 <p><i class="fas fa-ban"></i> &nbsp;&nbsp;- keine Georessourcen in dieser Hierarchieebene -</p>
-												</div>
+												</div> -->
 											</div>
 										</div>
 		
@@ -301,7 +561,7 @@
 		
 									</div>
 									<!-- end sub topics -->
-									<div ng-show="($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter).length > 0">
+									<div ng-show="(($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter.value).length > 0) || (($ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter.value).length > 0) || (($ctrl.kommonitorDataExchangeServiceInstance.wfsDatasets | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter.value).length > 0)">
 										<div class="list-group collapse" uib-collapse="isCollapsed_mainTopic">
 											<div class="list-group-item list-group-item-default georesourceInputForm">
 												 
@@ -311,6 +571,7 @@
 														 <th>Typ</th> 
 														<th>Datensatz</th>
 														<th>Beschreibung</th>
+														<th>Layer Transparenz</th>
 														<th>Legende</th>
 														<th>Export</th>
 													  </tr>
@@ -319,7 +580,7 @@
 													<tbody>
 
 														<!-- POIs -->
-														<tr ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter'>
+														<tr ng-if="showPOI" ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter.value'>
 															<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 															<td>
 																<i class="fas fa-map-marker-alt"></i>
@@ -334,8 +595,11 @@
 																<p>{{poi.metadata.description}}</p>
 															</td>
 															<td>
+																-
+															</td>
+															<td>
 																<i class="awesome-marker-legend awesome-marker-legend-icon-{{poi.poiMarkerColor}}">
-																	<span style="margin-left:3px;  font-size:0.7em; color:{{poi.poiSymbolColor}};" class="glyphicon glyphicon-{{poi.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
+																	<span style="margin-left:3px; padding-right:3px;  font-size:0.7em; color:{{poi.poiSymbolColor}};" class="glyphicon glyphicon-{{poi.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
 																</i>
 															</td>
 															<td>
@@ -345,7 +609,7 @@
 														</tr>
 
 														<!-- LOIs -->
-														<tr ng-repeat='loi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isLOI:true} | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter'>
+														<tr ng-if="showLOI" ng-repeat='loi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isLOI:true} | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter.value'>
 															<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 															<td>
 																<i class="fas fa-minus"></i>
@@ -355,6 +619,9 @@
 					
 																	<b>&nbsp;&nbsp;{{loi.datasetName}}</b>
 																</label>
+															</td>
+															<td>
+																-
 															</td>
 															<td>
 																<p>{{loi.metadata.description}}</p>
@@ -370,7 +637,7 @@
 														</tr>
 
 														<!-- AOIs -->
-														<tr ng-repeat='aoi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isAOI:true} | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter'>
+														<tr ng-if="showAOI" ng-repeat='aoi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isAOI:true} | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter.value'>
 															<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 															<td>
 																<i class="far fa-square"></i>
@@ -385,12 +652,110 @@
 																<p>{{aoi.metadata.description}}</p>
 															</td>
 															<td>
+																<div class="form-group" align="center">
+
+																	<input class=" input-sm" ng-model="aoi.transparency" ng-init="aoi.transparency=0.3" ng-change="adjustAOILayerTransparency(aoi)" type="range"  min="0" max="1" step="0.01">
+
+																	<br/>
+
+																	<label>{{aoi.transparency}}</label>
+																</div>
+															</td>
+															<td>
 																<i style="width:15px; height:15px; background:{{aoi.aoiColor}}; display:inherit;">
 																</i>
 															</td>
 															<td>
 																<a href="" ng-click="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 																<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
+															</td>
+														</tr>
+
+														<!-- WMS -->
+														<tr ng-if="showWMS" ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter.value | orderBy:"title"'>
+															<td>
+																<b>WMS</b>
+															</td>
+															<td>
+																<label class='checkbox-inline' ><input type="checkbox" value="dataset.title" ng-model="dataset.isSelected" ng-change="handleWmsOnMap(dataset)">
+
+																	<b ng-bind-html="dataset.title"></b>
+																</label>
+															</td>
+															<td>
+																<p ng-bind-html="dataset.description"></p>
+															</td>
+															<td>
+																<div class="form-group" align="center">
+
+																	<input class=" input-sm" ng-model="dataset.transparency" ng-init="dataset.transparency=0" ng-change="adjustWMSLayerTransparency(dataset)" type="range"  min="0" max="1" step="0.01">
+
+																	<br/>
+
+																	<label>{{dataset.transparency}}</label>
+																</div>
+															</td>
+															
+															<td>
+																<div ng-if="! dataset.showLegend">
+																	<button class="btn btn-sm btn-primary" ng-click="dataset.showLegend = true;">Legende laden</button>
+																</div>
+																<div ng-if="dataset.showLegend">
+																	<img src="{{dataset.url}}service=WMS&REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&LAYER={{dataset.layerName}}">
+																</div>
+															</td>
+															<td>
+																<div align="center">
+																<a href="{{dataset.url}}service=WMS&request=GetCapabilities&version=1.3.0" title="WMS GetCapabilities URL" rel='noopener noreferrer' target='_blank'><i class="fas fa-cloud-download-alt"></i></a>
+																</div>
+															</td>
+														</tr>
+
+														<!-- WFS -->
+														<tr ng-if="showWFS" ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.wfsDatasets | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter.value  | orderBy:"title"'>
+															<td>
+																<b>WFS</b>
+															</td>
+															<td>
+																<label class='checkbox-inline' ><input type="checkbox" value="dataset.title" ng-model="dataset.isSelected" ng-change="handleWfsOnMap(dataset)">
+
+																	<b ng-bind-html="dataset.title"></b>
+																</label>
+															</td>
+															<td>
+																<p ng-bind-html="dataset.description"></p>
+															</td>
+															<td>
+																<div class="form-group" align="center">
+
+																	<input class=" input-sm" ng-model="dataset.transparency" ng-init="dataset.transparency=0" ng-change="adjustWFSLayerTransparency(dataset)" type="range"  min="0" max="1" step="0.01">
+
+																	<br/>
+
+																	<label>{{dataset.transparency}}</label>
+																</div>
+															</td>
+															<!-- <td>
+																<label class="switch">
+																	<input id="filterCheckbox" type="checkbox" ng-model="dataset.filterFeaturesToMapBBOX" ng-checked="dataset.filterFeaturesToMapBBOX"></input>
+																  <span class="switchslider round"></span>
+																</label>
+															</td> -->
+															
+															<td>
+																<div>
+																	<div class="input-group colorpicker-component">
+																		<input type="text" style="display:none;" class="form-control input-sm" ng-model="dataset.displayColor" ng-change="adjustWfsLayerColor(dataset)" placeholder="WFS Darstellungsfarbe"  required />
+																		<span title="Klicken, um die Farbe anzupassen" style="border: 1px solid #ccc;" class="input-group-addon"><i></i></span>
+																	</div>
+																	<!-- value="{{dataset.displayColor}}" -->
+																	<!-- <i style="background-color:{{dataset.displayColor}}; margin-left: 12px; width: 18px; height: 18px; float: left;"></i> -->
+																</div>
+															</td>
+															<td>
+																<div align="center">
+																<a href="{{dataset.url}}service=WFS&request=GetCapabilities&version=1.1.0" title="WFS GetCapabilities URL" rel='noopener noreferrer' target='_blank'><i class="fas fa-cloud-download-alt"></i></a>
+																</div>
 															</td>
 														</tr>
 
@@ -401,11 +766,11 @@
 											</div>
 										</div>
 									</div>
-									<div ng-show="!(($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter).length > 0)">
+									<div ng-show="!(($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter.value).length > 0) && !(($ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter.value).length > 0) && !(($ctrl.kommonitorDataExchangeServiceInstance.wfsDatasets | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter.value).length > 0)">
 										<div class="list-group collapse" uib-collapse="isCollapsed_mainTopic">
-											<div class="list-group-item list-group-item-default" style="background: #eb9c98;">
+											<!-- <div class="list-group-item list-group-item-default" style="background: #eb9c98;">
 												 <p><i class="fas fa-ban"></i> &nbsp;&nbsp;- keine Georessourcen in dieser Hierarchieebene -</p>
-											</div>
+											</div> -->
 										</div>
 									</div>
 		
@@ -416,13 +781,14 @@
 								<!-- end main Topics -->
 
 								<div  class="list-group-item list-group-item-default" style="background: #2171b5; color: white;">
-									<a id="noHierarchyGeoresourceDatasets" href="" ng-attr-title="Georessourcen-Daten ohne Hierarchie" class="collapseTrigger" style="color: white;" ng-click="isCollapsed_noTopic = !isCollapsed_noTopic" ng-init="isCollapsed_noTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>ohne Hierarchie ({{($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:null} | filter:georesourceNameFilter).length}})</a>
+									<a id="noHierarchyGeoresourceDatasets" href="" ng-attr-title="Georessourcen-Daten ohne Hierarchie" class="collapseTrigger" style="color: white;" ng-click="isCollapsed_noTopic = !isCollapsed_noTopic" ng-init="isCollapsed_noTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>ohne Hierarchie ({{$ctrl.kommonitorDataExchangeServiceInstance.getNumberOfGeoresources(null, georesourceNameFilter.value, showPOI, showLOI, showAOI, showWMS, showWFS)}})</a>
+									&nbsp;&nbsp; <input type="checkbox" value="showAllForTopic_null" ng-model="showAllForTopic_null" ng-change="handleShowAllOnTopic(null)">
 								</div>
 	
 	
 								<div class="list-group collapse" uib-collapse="isCollapsed_noTopic">
 									
-							<div class="georesourceInputForm" ng-if="(($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:null} | filter:georesourceNameFilter).length > 0)">
+							<div class="georesourceInputForm" ng-if="(($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:null} | filter:georesourceNameFilter.value).length > 0) || (($ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:{topicReference:null} | filter:georesourceNameFilter.value).length > 0) || (($ctrl.kommonitorDataExchangeServiceInstance.wfsDatasets | filter:{topicReference:null} | filter:georesourceNameFilter.value).length > 0)">
 
 								<table class="table table-condensed" style="margin-bottom:0px;">
 									<thead>
@@ -430,6 +796,7 @@
 										 <th>Typ</th> 
 										<th>Datensatz</th>
 										<th>Beschreibung</th>
+										<th>Layer Transparenz</th>
 										<th>Legende</th>
 										<th>Export</th>
 									  </tr>
@@ -438,7 +805,7 @@
 									<tbody>
 
 										<!-- POIs -->
-										<tr ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:{topicReference:null} | filter:georesourceNameFilter'>
+										<tr ng-if="showPOI" ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:{topicReference:null} | filter:georesourceNameFilter.value'>
 											<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 											<td>
 												<i class="fas fa-map-marker-alt"></i>
@@ -453,8 +820,11 @@
 												<p>{{poi.metadata.description}}</p>
 											</td>
 											<td>
+												-
+											</td>
+											<td>
 												<i class="awesome-marker-legend awesome-marker-legend-icon-{{poi.poiMarkerColor}}">
-													<span style="margin-left:3px;  font-size:0.7em; color:{{poi.poiSymbolColor}};" class="glyphicon glyphicon-{{poi.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
+													<span style="margin-left:3px; padding-right:3px;  font-size:0.7em; color:{{poi.poiSymbolColor}};" class="glyphicon glyphicon-{{poi.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
 												</i>
 											</td>
 											<td>
@@ -464,7 +834,7 @@
 										</tr>
 
 										<!-- LOIs -->
-										<tr ng-repeat='loi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isLOI:true} | filter:{topicReference:null}'>
+										<tr ng-if="showLOI" ng-repeat='loi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isLOI:true} | filter:{topicReference:null}'>
 											<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 											<td>
 												<i class="fas fa-minus"></i>
@@ -479,6 +849,9 @@
 												<p>{{loi.metadata.description}}</p>
 											</td>
 											<td>
+												-
+											</td>
+											<td>
 												<i style="width:15px; height:15px; background:{{loi.loiColor}}; display:inherit;">
 												</i>
 											</td>
@@ -489,7 +862,7 @@
 										</tr>
 
 										<!-- AOIs -->
-										<tr ng-repeat='aoi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isAOI:true} | filter:{topicReference:null}'>
+										<tr ng-if="showAOI" ng-repeat='aoi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isAOI:true} | filter:{topicReference:null}'>
 											<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 											<td>
 												<i class="far fa-square"></i>
@@ -504,12 +877,110 @@
 												<p>{{aoi.metadata.description}}</p>
 											</td>
 											<td>
+												<div class="form-group" align="center">
+
+													<input class=" input-sm" ng-model="aoi.transparency" ng-init="aoi.transparency=0.3" ng-change="adjustAOILayerTransparency(aoi)" type="range"  min="0" max="1" step="0.01">
+
+													<br/>
+
+													<label>{{aoi.transparency}}</label>
+												</div>
+											</td>
+											<td>
 												<i style="width:15px; height:15px; background:{{aoi.aoiColor}}; display:inherit;">
 												</i>
 											</td>
 											<td>
 												<a href="" ng-click="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 												<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
+											</td>
+										</tr>
+
+										<!-- WMS -->
+										<tr ng-if="showWMS" ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:georesourceNameFilter.value | filter:{topicReference:null} | orderBy:"title"'>
+											<td>
+												<b>WMS</b>
+											</td>
+											<td>
+												<label class='checkbox-inline' ><input type="checkbox" value="dataset.title" ng-model="dataset.isSelected" ng-change="handleWmsOnMap(dataset)">
+
+													<b ng-bind-html="dataset.title"></b>
+												</label>
+											</td>
+											<td>
+												<p ng-bind-html="dataset.description"></p>
+											</td>
+											<td>
+												<div class="form-group" align="center">
+
+													<input class=" input-sm" ng-model="dataset.transparency" ng-init="dataset.transparency=0" ng-change="adjustWMSLayerTransparency(dataset)" type="range"  min="0" max="1" step="0.01">
+
+													<br/>
+
+													<label>{{dataset.transparency}}</label>
+												</div>
+											</td>
+											
+											<td>
+												<div ng-if="! dataset.showLegend">
+													<button class="btn btn-sm btn-primary" ng-click="dataset.showLegend = true;">Legende laden</button>
+												</div>
+												<div ng-if="dataset.showLegend">
+													<img src="{{dataset.url}}service=WMS&REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&LAYER={{dataset.layerName}}">
+												</div>
+											</td>
+											<td>
+												<div align="center">
+												<a href="{{dataset.url}}service=WMS&request=GetCapabilities&version=1.3.0" title="WMS GetCapabilities URL" rel='noopener noreferrer' target='_blank'><i class="fas fa-cloud-download-alt"></i></a>
+												</div>
+											</td>
+										</tr>
+
+										<!-- WFS -->
+										<tr ng-if="showWFS" ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.wfsDatasets | filter:{topicReference:null} | filter:georesourceNameFilter.value  | orderBy:"title"'>
+											<td>
+												<b>WFS</b>
+											</td>
+											<td>
+												<label class='checkbox-inline' ><input type="checkbox" value="dataset.title" ng-model="dataset.isSelected" ng-change="handleWfsOnMap(dataset)">
+
+													<b ng-bind-html="dataset.title"></b>
+												</label>
+											</td>
+											<td>
+												<p ng-bind-html="dataset.description"></p>
+											</td>
+											<td>
+												<div class="form-group" align="center">
+
+													<input class=" input-sm" ng-model="dataset.transparency" ng-init="dataset.transparency=0" ng-change="adjustWFSLayerTransparency(dataset)" type="range"  min="0" max="1" step="0.01">
+
+													<br/>
+
+													<label>{{dataset.transparency}}</label>
+												</div>
+											</td>
+											<!-- <td>
+												<label class="switch">
+													<input id="filterCheckbox" type="checkbox" ng-model="dataset.filterFeaturesToMapBBOX" ng-checked="dataset.filterFeaturesToMapBBOX"></input>
+												  <span class="switchslider round"></span>
+												</label>
+											</td> -->
+											
+											<td>
+												<div>
+													<div class="input-group colorpicker-component">
+														<input type="text" style="display:none;" class="form-control input-sm" ng-model="dataset.displayColor" ng-change="adjustWfsLayerColor(dataset)" placeholder="WFS Darstellungsfarbe"  required />
+														<span title="Klicken, um die Farbe anzupassen" style="border: 1px solid #ccc;" class="input-group-addon"><i></i></span>
+													</div>
+													<!-- value="{{dataset.displayColor}}" -->
+													<!-- <i style="background-color:{{dataset.displayColor}}; margin-left: 12px; width: 18px; height: 18px; float: left;"></i> -->
+												</div>
+											</td>
+											<td>
+												<div align="center">
+												<a href="{{dataset.url}}service=WFS&request=GetCapabilities&version=1.1.0" title="WFS GetCapabilities URL" rel='noopener noreferrer' target='_blank'><i class="fas fa-cloud-download-alt"></i></a>
+												</div>
 											</td>
 										</tr>
 
@@ -531,12 +1002,12 @@
 						<div class="just-padding">
 							
 							<!-- POINTS OF INTEREST -->
-			<div class="box box-primary">
+			<div class="box box-primary collapsed-box">
 				<div class="box-header with-border">
 					<h3 class="box-title">Points of Interest</h3>
 		
 					<div class="box-tools pull-right">
-						<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+						<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
 						</button>
 					</div>
 				</div>
@@ -580,7 +1051,7 @@
 											</td>
 											<td>
 												<i class="awesome-marker-legend awesome-marker-legend-icon-{{poi.poiMarkerColor}}">
-													<span style="margin-left:3px;  font-size:0.7em; color:{{poi.poiSymbolColor}};" class="glyphicon glyphicon-{{poi.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
+													<span style="margin-left:3px; padding-right:3px;  font-size:0.7em; color:{{poi.poiSymbolColor}};" class="glyphicon glyphicon-{{poi.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
 												</i>
 											</td>
 											<td>
@@ -704,6 +1175,7 @@
 										  <tr>
 											<th>Datensatz</th>
 											<th>Beschreibung</th>
+											<th>Layer Transparenz</th>
 											<th>Legende</th>
 											<th>Export</th>
 										  </tr>
@@ -721,6 +1193,16 @@
 													</td>
 													<td>
 														<p>{{aoi.metadata.description}}</p>
+													</td>
+													<td>
+														<div class="form-group" align="center">
+
+															<input class=" input-sm" ng-model="aoi.transparency" ng-init="aoi.transparency=0.3" ng-change="adjustAOILayerTransparency(aoi)" type="range"  min="0" max="1" step="0.01">
+
+															<br/>
+
+															<label>{{aoi.transparency}}</label>
+														</div>
 													</td>
 													<td>
 														<i style="width:15px; height:15px; background:{{aoi.aoiColor}}; display:inherit;">
@@ -741,6 +1223,191 @@
 						<!-- /.box-body -->
 					</div>
 					<!-- /.box -->
+
+
+					<!-- WMS -->
+				<div class="box box-primary collapsed-box">
+					<div class="box-header with-border">
+						<h3 class="box-title">Web Map Service (WMS)</h3>
+
+						<div class="box-tools pull-right">
+							<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+							</button>
+						</div>
+					</div>
+					<div class="box-body">
+
+											<div class="input-group">
+												<span class="input-group-addon"><i class="fas fa-filter"></i></span>
+												<input type="text" class="form-control input-sm" placeholder="Filtern nach WMS-Name" ng-model="wmsNameFilter">
+											</div>
+
+											<br/>
+
+											<div  id="wmsInputForm">
+
+												<table class="table table-condensed" style="margin-bottom:0px;">
+											    <thead>
+											      <tr>
+											        <th>Datensatz</th>
+											        <th>Beschreibung</th>
+															<th>Layer Transparenz</th>
+															<th>WMS URL</th>
+															<th>Legende</th>
+											      </tr>
+											    </thead>
+
+													<tbody>
+
+														<tr ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:wmsNameFilter | orderBy:"title"'>
+															<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
+															<td>
+																<label class='checkbox-inline' ><input type="checkbox" value="dataset.title" ng-model="dataset.isSelected" ng-change="handleWmsOnMap(dataset)">
+
+																	<b ng-bind-html="dataset.title"></b>
+																</label>
+															</td>
+															<td>
+																<p ng-bind-html="dataset.description"></p>
+															</td>
+															<td>
+																<div class="form-group" align="center">
+
+																	<input class=" input-sm" ng-model="dataset.transparency" ng-init="dataset.transparency=0" ng-change="adjustWMSLayerTransparency(dataset)" type="range"  min="0" max="1" step="0.01">
+
+																	<br/>
+
+																	<label>{{dataset.transparency}}</label>
+																</div>
+															</td>
+															<td>
+																<div align="center">
+																<a href="{{dataset.url}}service=WMS&request=GetCapabilities&version=1.3.0" title="WMS GetCapabilities URL" rel='noopener noreferrer' target='_blank'><i class="fas fa-cloud-download-alt"></i></a>
+																</div>
+															</td>
+															<td>
+																<div ng-if="! dataset.showLegend">
+																	<button class="btn btn-sm btn-primary" ng-click="dataset.showLegend = true;">Legende laden</button>
+																</div>
+																<div ng-if="dataset.showLegend">
+																	<img src="{{dataset.url}}service=WMS&REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&LAYER={{dataset.layerName}}">
+																</div>
+															</td>
+														</tr>
+													</tbody>
+												</table>
+												</div>
+
+												<br/>
+
+											<div align="center">
+
+												<button class="btn btn-success" type="button" data-toggle="modal" data-target="#modal-add-wms">Eigenen WMS hinzuladen</button>
+
+											</div>
+
+	              </div>
+	              <!-- /.box-body -->
+
+						</div>
+						<!-- /.box -->
+
+						<!-- WfS -->
+							<div class="box box-primary collapsed-box">
+								<div class="box-header with-border">
+									<h3 class="box-title">Web Feature Service (WFS)</h3>
+
+									<div class="box-tools pull-right">
+										<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+										</button>
+									</div>
+								</div>
+								<div class="box-body">
+
+														<p>Hinzuladen eines WFS kann je nach Objektanzahl und -komplexität einige Moment dauern. Die Features werden zudem nach dem aktuellen Raumausschnitt der Kartendarstellung gefiltert abgefragt.</p>
+
+														<div class="input-group">
+															<span class="input-group-addon"><i class="fas fa-filter"></i></span>
+															<input type="text" class="form-control input-sm" placeholder="Filtern nach WFS-Name" ng-model="wfsNameFilter">
+														</div>
+
+														<br/>
+
+														<div  id="wfsInputForm">
+
+															<table class="table table-condensed" style="margin-bottom:0px;">
+														    <thead>
+														      <tr>
+														        <th>Datensatz</th>
+														        <th>Beschreibung</th>
+																		<th>Layer Transparenz</th>
+																		<th>auf aktuellen Raumausschnitt beschr&auml;nken</th>
+																		<th>WFS URL</th>
+																		<th>Legende</th>
+														      </tr>
+														    </thead>
+
+																<tbody>
+
+																	<tr ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.wfsDatasets | filter:wfsNameFilter | orderBy:"title"'>
+																		<td>
+																			<label class='checkbox-inline' ><input type="checkbox" value="dataset.title" ng-model="dataset.isSelected" ng-change="handleWfsOnMap(dataset)">
+
+																				<b ng-bind-html="dataset.title"></b>
+																			</label>
+																		</td>
+																		<td>
+																			<p ng-bind-html="dataset.description"></p>
+																		</td>
+																		<td>
+																			<div class="form-group" align="center">
+
+																				<input class=" input-sm" ng-model="dataset.transparency" ng-init="dataset.transparency=0" ng-change="adjustWFSLayerTransparency(dataset)" type="range"  min="0" max="1" step="0.01">
+
+																				<br/>
+
+																				<label>{{dataset.transparency}}</label>
+																			</div>
+																		</td>
+																		<td>
+																			<label class="switch">
+																				<input id="filterCheckbox" type="checkbox" ng-model="dataset.filterFeaturesToMapBBOX" ng-checked="dataset.filterFeaturesToMapBBOX"></input>
+																			  <span class="switchslider round"></span>
+																			</label>
+																		</td>
+																		<td>
+																			<div align="center">
+																			<a href="{{dataset.url}}service=WFS&request=GetCapabilities&version=1.1.0" title="WFS GetCapabilities URL" rel='noopener noreferrer' target='_blank'><i class="fas fa-cloud-download-alt"></i></a>
+																			</div>
+																		</td>
+																		<td>
+																			<div>
+																				<div class="input-group colorpicker-component">
+																				    <input type="text" style="display:none;" class="form-control input-sm" ng-model="dataset.displayColor" ng-change="adjustWfsLayerColor(dataset)" placeholder="WFS Darstellungsfarbe"  required />
+																				    <span title="Klicken, um die Farbe anzupassen" style="border: 1px solid #ccc;" class="input-group-addon"><i></i></span>
+																				</div>
+																				<!-- value="{{dataset.displayColor}}" -->
+																				<!-- <i style="background-color:{{dataset.displayColor}}; margin-left: 12px; width: 18px; height: 18px; float: left;"></i> -->
+																			</div>
+																		</td>
+																	</tr>
+																</tbody>
+															</table>
+															</div>
+
+															<br/>
+
+														<div align="center">
+
+															<button class="btn btn-success" type="button" data-toggle="modal" data-target="#modal-add-wfs">Eigenen WFS hinzuladen</button>
+
+														</div>
+
+				              </div>
+				              <!-- /.box-body -->
+
+									</div>
+									<!-- /.box -->
 		
 		
 						</div>

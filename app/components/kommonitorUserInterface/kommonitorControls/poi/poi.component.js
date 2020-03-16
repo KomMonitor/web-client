@@ -22,9 +22,15 @@ angular
 								$scope.loiNameFilter = undefined;
 								$scope.aoiNameFilter = undefined;
 
-								$scope.currentPoiGeoresource;
-								$scope.currentLoiGeoresource;
-								$scope.currentAoiGeoresource;
+								$scope.georesourceNameFilter = {value: undefined};
+
+								$scope.showPOI = true;
+								$scope.showLOI = true;
+								$scope.showAOI = true;
+								$scope.showWMS = true;
+								$scope.showWFS = true;
+
+								$scope.showAllForTopic_null = false;
 
 
 								// initialize any adminLTE box widgets
@@ -33,6 +39,213 @@ angular
 								const DATE_PREFIX = __env.indicatorDatePrefix;
 
 								var numberOfDecimals = __env.numberOfDecimals;
+
+								// initialize colorpicker after some time
+								// wait to ensure that elements ar available on DOM
+								setTimeout(function() {
+
+									var colorPickerInputs = $('.input-group.colorpicker-component')
+									colorPickerInputs.colorpicker();
+
+									// $('.input-group.colorpicker-component').each(function (index, value){
+									// 	$(this).colorpicker();
+									// });
+								}, 3000);
+
+								$scope.onChangeShowPOI = function(){
+									if ($scope.showPOI){
+										$scope.showPOI = false;
+									}
+									else{
+										$scope.showPOI = true;
+									}
+
+									setTimeout(() => {
+										$scope.$apply();
+									}, 500);
+								};
+
+								$scope.onChangeShowLOI = function(){
+									if ($scope.showLOI){
+										$scope.showLOI = false;
+									}
+									else{
+										$scope.showLOI = true;
+									}
+
+									setTimeout(() => {
+										$scope.$apply();
+									}, 500);
+								};
+
+								$scope.onChangeShowAOI = function(){
+									if ($scope.showAOI){
+										$scope.showAOI = false;
+									}
+									else{
+										$scope.showAOI = true;
+									}
+
+									setTimeout(() => {
+										$scope.$apply();
+									}, 500);
+								};
+
+								$scope.onChangeShowWMS = function(){
+									if ($scope.showWMS){
+										$scope.showWMS = false;
+									}
+									else{
+										$scope.showWMS = true;
+									}
+
+									setTimeout(() => {
+										$scope.$apply();
+									}, 500);
+								};
+
+								$scope.onChangeShowWFS = function(){
+									if ($scope.showWFS){
+										$scope.showWFS = false;
+									}
+									else{
+										$scope.showWFS = true;
+									}
+
+									setTimeout(() => {
+										$scope.$apply();
+									}, 500);
+								};
+
+								$scope.handleShowAllOnTopic = function(topic){
+									// if (topic.isSelected){
+									// 	topic.isSelected = false;
+									// }
+									// else{
+									// 	topic.isSelected = true;
+									// }
+
+									var relevantDatasets = kommonitorDataExchangeService.getGeoresourceDatasets(topic, $scope.georesourceNameFilter.value, $scope.showPOI, $scope.showLOI, $scope.showAOI, $scope.showWMS, $scope.showWFS);
+
+									if(topic === null){
+										// if ($scope.showAllForTopic_null){
+										// 	$scope.showAllForTopic_null = false;
+										// }
+										// else{
+										// 	$scope.showAllForTopic_null = true;
+										// }
+										if($scope.showAllForTopic_null){
+											relevantDatasets.forEach(element => {
+												if(! element.isSelected){
+													element.isSelected = true;
+	
+													if (element.isPOI){
+														$scope.handlePoiOnMap(element);
+													}
+													else if (element.isLOI){
+														$scope.handleLoiOnMap(element);
+													}
+													else if (element.isAOI){
+														$scope.handleAoiOnMap(element);
+													}
+													else if (element.layerName){
+														$scope.handleWmsOnMap(element);
+													}
+													else if (element.featureTypeName){
+														$scope.handleWfsOnMap(element);
+													}
+													else{
+														console.error("unknown dataset: " + element);
+													}
+												}										
+										
+											});
+										}
+										else{
+											relevantDatasets.forEach(element => {
+												if(element.isSelected){
+													element.isSelected = true;
+	
+													if (element.isPOI){
+														$scope.handlePoiOnMap(element);
+													}
+													else if (element.isLOI){
+														$scope.handleLoiOnMap(element);
+													}
+													else if (element.isAOI){
+														$scope.handleAoiOnMap(element);
+													}
+													else if (element.layerName){
+														$scope.handleWmsOnMap(element);
+													}
+													else if (element.featureTypeName){
+														$scope.handleWfsOnMap(element);
+													}
+													else{
+														console.error("unknown dataset: " + element);
+													}
+												}										
+										
+											});
+										}
+									}
+
+									else if(topic.isSelected){
+										relevantDatasets.forEach(element => {
+											if(! element.isSelected){
+												element.isSelected = true;
+
+												if (element.isPOI){
+													$scope.handlePoiOnMap(element);
+												}
+												else if (element.isLOI){
+													$scope.handleLoiOnMap(element);
+												}
+												else if (element.isAOI){
+													$scope.handleAoiOnMap(element);
+												}
+												else if (element.layerName){
+													$scope.handleWmsOnMap(element);
+												}
+												else if (element.featureTypeName){
+													$scope.handleWfsOnMap(element);
+												}
+												else{
+													console.error("unknown dataset: " + element);
+												}
+											}										
+									
+										});
+									}
+									else if(! topic.isSelected){
+										relevantDatasets.forEach(element => {
+											if(element.isSelected){
+												element.isSelected = false;
+
+												if (element.isPOI){
+													$scope.handlePoiOnMap(element);
+												}
+												else if (element.isLOI){
+													$scope.handleLoiOnMap(element);
+												}
+												else if (element.isAOI){
+													$scope.handleAoiOnMap(element);
+												}
+												else if (element.layerName){
+													$scope.handleWmsOnMap(element);
+												}
+												else if (element.featureTypeName){
+													$scope.handleWfsOnMap(element);
+												}
+												else{
+													console.error("unknown dataset: " + element);
+												}
+											}										
+									
+										});
+									}
+
+								};
 
 								$scope.handlePoiOnMap = function(poi){
 
@@ -50,8 +263,6 @@ angular
 								$scope.addPoiLayerToMap = async function(poiGeoresource, useCluster) {
 									$scope.loadingData = true;
 									$rootScope.$broadcast("showLoadingIconOnMap");
-
-									$scope.currentPoiGeoresource = poiGeoresource;
 
 									var id = poiGeoresource.georesourceId;
 
@@ -72,9 +283,9 @@ angular
 											// when the response is available
 											var geoJSON = response.data;
 
-											$scope.currentPoiGeoresource.geoJSON = geoJSON;
+											poiGeoresource.geoJSON = geoJSON;
 
-											kommonitorMapService.addPoiGeoresourceGeoJSON($scope.currentPoiGeoresource, $scope.date, useCluster);
+											kommonitorMapService.addPoiGeoresourceGeoJSON(poiGeoresource, $scope.date, useCluster);
 											$scope.loadingData = false;
 											$rootScope.$broadcast("hideLoadingIconOnMap");
 
@@ -91,9 +302,9 @@ angular
 									$scope.loadingData = true;
 									$rootScope.$broadcast("showLoadingIconOnMap");
 
-									$scope.currentPoiGeoresource = poiGeoresource;
+									poiGeoresource = poiGeoresource;
 
-									kommonitorMapService.removePoiGeoresource($scope.currentPoiGeoresource);
+									kommonitorMapService.removePoiGeoresource(poiGeoresource);
 									$scope.loadingData = false;
 									$rootScope.$broadcast("hideLoadingIconOnMap");
 
@@ -173,8 +384,6 @@ angular
 									$scope.loadingData = true;
 									$rootScope.$broadcast("showLoadingIconOnMap");
 
-									$scope.currentAoiGeoresource = aoiGeoresource;
-
 									var id = aoiGeoresource.georesourceId;
 
 									$scope.date = kommonitorDataExchangeService.selectedDate;
@@ -194,9 +403,9 @@ angular
 											// when the response is available
 											var geoJSON = response.data;
 
-											$scope.currentAoiGeoresource.geoJSON = geoJSON;
+											aoiGeoresource.geoJSON = geoJSON;
 
-											kommonitorMapService.addAoiGeoresourceGeoJSON($scope.currentAoiGeoresource, $scope.date);
+											kommonitorMapService.addAoiGeoresourceGeoJSON(aoiGeoresource, $scope.date);
 											$scope.loadingData = false;
 											$rootScope.$broadcast("hideLoadingIconOnMap");
 
@@ -213,9 +422,9 @@ angular
 									$scope.loadingData = true;
 									$rootScope.$broadcast("showLoadingIconOnMap");
 
-									$scope.currentAoiGeoresource = aoiGeoresource;
+									aoiGeoresource = aoiGeoresource;
 
-									kommonitorMapService.removeAoiGeoresource($scope.currentAoiGeoresource);
+									kommonitorMapService.removeAoiGeoresource(aoiGeoresource);
 									$scope.loadingData = false;
 									$rootScope.$broadcast("hideLoadingIconOnMap");
 
@@ -260,7 +469,7 @@ angular
 											$rootScope.$broadcast("hideLoadingIconOnMap");
 									});
 
-								}
+								};
 
 									////////// LOI
 									$scope.handleLoiOnMap = function(loi){
@@ -279,8 +488,6 @@ angular
 									$scope.addLoiLayerToMap = async function(loiGeoresource) {
 										$scope.loadingData = true;
 										$rootScope.$broadcast("showLoadingIconOnMap");
-
-										$scope.currentLoiGeoresource = loiGeoresource;
 
 										var id = loiGeoresource.georesourceId;
 
@@ -301,9 +508,9 @@ angular
 												// when the response is available
 												var geoJSON = response.data;
 
-												$scope.currentLoiGeoresource.geoJSON = geoJSON;
+												loiGeoresource.geoJSON = geoJSON;
 
-												kommonitorMapService.addLoiGeoresourceGeoJSON($scope.currentLoiGeoresource, $scope.date);
+												kommonitorMapService.addLoiGeoresourceGeoJSON(loiGeoresource, $scope.date);
 												$scope.loadingData = false;
 												$rootScope.$broadcast("hideLoadingIconOnMap");
 
@@ -320,9 +527,9 @@ angular
 										$scope.loadingData = true;
 										$rootScope.$broadcast("showLoadingIconOnMap");
 
-										$scope.currentLoiGeoresource = loiGeoresource;
+										loiGeoresource = loiGeoresource;
 
-										kommonitorMapService.removeLoiGeoresource($scope.currentLoiGeoresource);
+										kommonitorMapService.removeLoiGeoresource(loiGeoresource);
 										$scope.loadingData = false;
 										$rootScope.$broadcast("hideLoadingIconOnMap");
 
@@ -368,6 +575,69 @@ angular
 										});
 
 								};
+
+
+								$scope.handleWmsOnMap = function(dataset){
+									kommonitorDataExchangeService.wmsLegendImage = undefined;
+									console.log("Toggle WMS: " + dataset.title);
+
+									if(dataset.isSelected){
+										//display on Map
+										var opacity = 1 - dataset.transparency;
+										kommonitorMapService.addWmsLayerToMap(dataset, opacity);
+
+									}
+									else{
+										//remove WMS layer from map
+										kommonitorMapService.removeWmsLayerFromMap(dataset);
+
+									}
+								};
+
+								$scope.adjustWMSLayerTransparency = function(dataset){
+
+									var opacity = 1 - dataset.transparency;
+
+									kommonitorMapService.adjustOpacityForWmsLayer(dataset, opacity);
+								};
+
+								$scope.adjustAOILayerTransparency = function(dataset){
+
+									var opacity = 1 - dataset.transparency;
+
+									kommonitorMapService.adjustOpacityForAoiLayer(dataset, opacity);
+								};
+
+								$scope.handleWfsOnMap = function(dataset){
+									console.log("Toggle WFS: " + dataset.title);
+
+									if(dataset.isSelected){
+										//display on Map
+										var opacity = 1 - dataset.transparency;
+										kommonitorMapService.addWfsLayerToMap(dataset, opacity);
+
+									}
+									else{
+										//remove WMS layer from map
+										kommonitorMapService.removeWfsLayerFromMap(dataset);
+
+									}
+								};
+
+								$scope.adjustWFSLayerTransparency = function(dataset){
+
+									var opacity = 1 - dataset.transparency;
+
+									kommonitorMapService.adjustOpacityForWfsLayer(dataset, opacity);
+								};
+
+								$scope.adjustWfsLayerColor = function(dataset){
+
+									var color = dataset.displayColor;
+
+									kommonitorMapService.adjustColorForWfsLayer(dataset, color);
+								};
+
 
 							} ]
 				});
