@@ -22,6 +22,8 @@ angular
 								$scope.loiNameFilter = undefined;
 								$scope.aoiNameFilter = undefined;
 
+								$scope.georesourceNameFilter = {value: undefined};
+
 								$scope.showPOI = true;
 								$scope.showLOI = true;
 								$scope.showAOI = true;
@@ -123,7 +125,7 @@ angular
 									// 	topic.isSelected = true;
 									// }
 
-									var relevantDatasets = kommonitorDataExchangeService.getGeoresourceDatasets(topic, $scope.georesourceNameFilter, $scope.showPOI, $scope.showLOI, $scope.showAOI, $scope.showWMS, $scope.showWFS);
+									var relevantDatasets = kommonitorDataExchangeService.getGeoresourceDatasets(topic, $scope.georesourceNameFilter.value, $scope.showPOI, $scope.showLOI, $scope.showAOI, $scope.showWMS, $scope.showWFS);
 
 									if(topic === null){
 										// if ($scope.showAllForTopic_null){
@@ -467,7 +469,7 @@ angular
 											$rootScope.$broadcast("hideLoadingIconOnMap");
 									});
 
-								}
+								};
 
 									////////// LOI
 									$scope.handleLoiOnMap = function(loi){
