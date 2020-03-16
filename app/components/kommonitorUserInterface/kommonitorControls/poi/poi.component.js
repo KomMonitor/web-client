@@ -28,9 +28,7 @@ angular
 								$scope.showWMS = true;
 								$scope.showWFS = true;
 
-								$scope.currentPoiGeoresource;
-								$scope.currentLoiGeoresource;
-								$scope.currentAoiGeoresource;
+								$scope.showAllForTopic_null = false;
 
 
 								// initialize any adminLTE box widgets
@@ -117,6 +115,136 @@ angular
 									}, 500);
 								};
 
+								$scope.handleShowAllOnTopic = function(topic){
+									// if (topic.isSelected){
+									// 	topic.isSelected = false;
+									// }
+									// else{
+									// 	topic.isSelected = true;
+									// }
+
+									var relevantDatasets = kommonitorDataExchangeService.getGeoresourceDatasets(topic, $scope.georesourceNameFilter, $scope.showPOI, $scope.showLOI, $scope.showAOI, $scope.showWMS, $scope.showWFS);
+
+									if(topic === null){
+										// if ($scope.showAllForTopic_null){
+										// 	$scope.showAllForTopic_null = false;
+										// }
+										// else{
+										// 	$scope.showAllForTopic_null = true;
+										// }
+										if($scope.showAllForTopic_null){
+											relevantDatasets.forEach(element => {
+												if(! element.isSelected){
+													element.isSelected = true;
+	
+													if (element.isPOI){
+														$scope.handlePoiOnMap(element);
+													}
+													else if (element.isLOI){
+														$scope.handleLoiOnMap(element);
+													}
+													else if (element.isAOI){
+														$scope.handleAoiOnMap(element);
+													}
+													else if (element.layerName){
+														$scope.handleWmsOnMap(element);
+													}
+													else if (element.featureTypeName){
+														$scope.handleWfsOnMap(element);
+													}
+													else{
+														console.error("unknown dataset: " + element);
+													}
+												}										
+										
+											});
+										}
+										else{
+											relevantDatasets.forEach(element => {
+												if(element.isSelected){
+													element.isSelected = true;
+	
+													if (element.isPOI){
+														$scope.handlePoiOnMap(element);
+													}
+													else if (element.isLOI){
+														$scope.handleLoiOnMap(element);
+													}
+													else if (element.isAOI){
+														$scope.handleAoiOnMap(element);
+													}
+													else if (element.layerName){
+														$scope.handleWmsOnMap(element);
+													}
+													else if (element.featureTypeName){
+														$scope.handleWfsOnMap(element);
+													}
+													else{
+														console.error("unknown dataset: " + element);
+													}
+												}										
+										
+											});
+										}
+									}
+
+									else if(topic.isSelected){
+										relevantDatasets.forEach(element => {
+											if(! element.isSelected){
+												element.isSelected = true;
+
+												if (element.isPOI){
+													$scope.handlePoiOnMap(element);
+												}
+												else if (element.isLOI){
+													$scope.handleLoiOnMap(element);
+												}
+												else if (element.isAOI){
+													$scope.handleAoiOnMap(element);
+												}
+												else if (element.layerName){
+													$scope.handleWmsOnMap(element);
+												}
+												else if (element.featureTypeName){
+													$scope.handleWfsOnMap(element);
+												}
+												else{
+													console.error("unknown dataset: " + element);
+												}
+											}										
+									
+										});
+									}
+									else if(! topic.isSelected){
+										relevantDatasets.forEach(element => {
+											if(element.isSelected){
+												element.isSelected = false;
+
+												if (element.isPOI){
+													$scope.handlePoiOnMap(element);
+												}
+												else if (element.isLOI){
+													$scope.handleLoiOnMap(element);
+												}
+												else if (element.isAOI){
+													$scope.handleAoiOnMap(element);
+												}
+												else if (element.layerName){
+													$scope.handleWmsOnMap(element);
+												}
+												else if (element.featureTypeName){
+													$scope.handleWfsOnMap(element);
+												}
+												else{
+													console.error("unknown dataset: " + element);
+												}
+											}										
+									
+										});
+									}
+
+								};
+
 								$scope.handlePoiOnMap = function(poi){
 
 									if(poi.isSelected){
@@ -133,8 +261,6 @@ angular
 								$scope.addPoiLayerToMap = async function(poiGeoresource, useCluster) {
 									$scope.loadingData = true;
 									$rootScope.$broadcast("showLoadingIconOnMap");
-
-									$scope.currentPoiGeoresource = poiGeoresource;
 
 									var id = poiGeoresource.georesourceId;
 
@@ -155,9 +281,9 @@ angular
 											// when the response is available
 											var geoJSON = response.data;
 
-											$scope.currentPoiGeoresource.geoJSON = geoJSON;
+											poiGeoresource.geoJSON = geoJSON;
 
-											kommonitorMapService.addPoiGeoresourceGeoJSON($scope.currentPoiGeoresource, $scope.date, useCluster);
+											kommonitorMapService.addPoiGeoresourceGeoJSON(poiGeoresource, $scope.date, useCluster);
 											$scope.loadingData = false;
 											$rootScope.$broadcast("hideLoadingIconOnMap");
 
@@ -174,9 +300,9 @@ angular
 									$scope.loadingData = true;
 									$rootScope.$broadcast("showLoadingIconOnMap");
 
-									$scope.currentPoiGeoresource = poiGeoresource;
+									poiGeoresource = poiGeoresource;
 
-									kommonitorMapService.removePoiGeoresource($scope.currentPoiGeoresource);
+									kommonitorMapService.removePoiGeoresource(poiGeoresource);
 									$scope.loadingData = false;
 									$rootScope.$broadcast("hideLoadingIconOnMap");
 
@@ -256,8 +382,6 @@ angular
 									$scope.loadingData = true;
 									$rootScope.$broadcast("showLoadingIconOnMap");
 
-									$scope.currentAoiGeoresource = aoiGeoresource;
-
 									var id = aoiGeoresource.georesourceId;
 
 									$scope.date = kommonitorDataExchangeService.selectedDate;
@@ -277,9 +401,9 @@ angular
 											// when the response is available
 											var geoJSON = response.data;
 
-											$scope.currentAoiGeoresource.geoJSON = geoJSON;
+											aoiGeoresource.geoJSON = geoJSON;
 
-											kommonitorMapService.addAoiGeoresourceGeoJSON($scope.currentAoiGeoresource, $scope.date);
+											kommonitorMapService.addAoiGeoresourceGeoJSON(aoiGeoresource, $scope.date);
 											$scope.loadingData = false;
 											$rootScope.$broadcast("hideLoadingIconOnMap");
 
@@ -296,9 +420,9 @@ angular
 									$scope.loadingData = true;
 									$rootScope.$broadcast("showLoadingIconOnMap");
 
-									$scope.currentAoiGeoresource = aoiGeoresource;
+									aoiGeoresource = aoiGeoresource;
 
-									kommonitorMapService.removeAoiGeoresource($scope.currentAoiGeoresource);
+									kommonitorMapService.removeAoiGeoresource(aoiGeoresource);
 									$scope.loadingData = false;
 									$rootScope.$broadcast("hideLoadingIconOnMap");
 
@@ -363,8 +487,6 @@ angular
 										$scope.loadingData = true;
 										$rootScope.$broadcast("showLoadingIconOnMap");
 
-										$scope.currentLoiGeoresource = loiGeoresource;
-
 										var id = loiGeoresource.georesourceId;
 
 										$scope.date = kommonitorDataExchangeService.selectedDate;
@@ -384,9 +506,9 @@ angular
 												// when the response is available
 												var geoJSON = response.data;
 
-												$scope.currentLoiGeoresource.geoJSON = geoJSON;
+												loiGeoresource.geoJSON = geoJSON;
 
-												kommonitorMapService.addLoiGeoresourceGeoJSON($scope.currentLoiGeoresource, $scope.date);
+												kommonitorMapService.addLoiGeoresourceGeoJSON(loiGeoresource, $scope.date);
 												$scope.loadingData = false;
 												$rootScope.$broadcast("hideLoadingIconOnMap");
 
@@ -403,9 +525,9 @@ angular
 										$scope.loadingData = true;
 										$rootScope.$broadcast("showLoadingIconOnMap");
 
-										$scope.currentLoiGeoresource = loiGeoresource;
+										loiGeoresource = loiGeoresource;
 
-										kommonitorMapService.removeLoiGeoresource($scope.currentLoiGeoresource);
+										kommonitorMapService.removeLoiGeoresource(loiGeoresource);
 										$scope.loadingData = false;
 										$rootScope.$broadcast("hideLoadingIconOnMap");
 

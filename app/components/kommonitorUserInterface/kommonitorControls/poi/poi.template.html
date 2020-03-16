@@ -95,7 +95,8 @@
 		
 								<div ng-repeat="mainTopic in $ctrl.kommonitorDataExchangeServiceInstance.availableTopics | filter:{topicType:'main'} | filter:{topicResource:'georesource'}">
 									<div  class="list-group-item list-group-item-default" style="background: #2171b5; color: white;">
-										<a id="{{mainTopic.topicId}}" href="" ng-attr-title="{{mainTopic.topicDescription}}" class="collapseTrigger" style="color: white;" ng-click="isCollapsed_mainTopic = !isCollapsed_mainTopic" ng-init="isCollapsed_mainTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{mainTopic.topicName}} ({{$ctrl.kommonitorDataExchangeServiceInstance.getNumberOfGeoresources(mainTopic, georesourceNameFilter, showPOI, showLOI, showAOI, showWMS, showWFS)}})</a>
+										<a id="{{mainTopic.topicId}}" href="" ng-attr-title="{{mainTopic.topicDescription}}" class="collapseTrigger" style="color: white;" ng-click="isCollapsed_mainTopic = !isCollapsed_mainTopic" ng-init="isCollapsed_mainTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{mainTopic.topicName}} ({{$ctrl.kommonitorDataExchangeServiceInstance.getNumberOfGeoresources(mainTopic, georesourceNameFilter, showPOI, showLOI, showAOI, showWMS, showWFS)}})</a></a>
+										&nbsp;&nbsp; <input type="checkbox" ng-model="mainTopic.isSelected" value="mainTopic.isSelected" id="showAllForTopic_{{mainTopic.topicId}}" ng-change="handleShowAllOnTopic(mainTopic)">
 									</div>
 		
 		
@@ -103,18 +104,21 @@
 		
 										<div  class="list-group-item list-group-item-default" style="background: #6baed6; color: white;">
 											<a id="{{subTopic.topicId}}" class="collapseTrigger" style="color: white;" ng-attr-title="{{subTopic.topicDescription}}" href="" ng-click="isCollapsed_subTopic = !isCollapsed_subTopic" ng-init="isCollapsed_subTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{subTopic.topicName}} ({{$ctrl.kommonitorDataExchangeServiceInstance.getNumberOfGeoresources(subTopic, georesourceNameFilter, showPOI, showLOI, showAOI, showWMS, showWFS)}})</a>
+											&nbsp;&nbsp; <input type="checkbox" ng-model="subTopic.isSelected" value="subTopic.isSelected" id="showAllForTopic_{{subTopic.topicId}}" ng-change="handleShowAllOnTopic(subTopic)">
 										</div>
 		
 										<div ng-repeat="subsubTopic in subTopic.subTopics" class="list-group collapse" uib-collapse="isCollapsed_subTopic">
 		
 											<div  class="list-group-item list-group-item-default" style="background: #bdd7e7; color: white;">
 												<a id="{{subsubTopic.topicId}}" class="collapseTrigger" style="color: white;" ng-attr-title="{{subsubTopic.topicDescription}}" href="" ng-click="isCollapsed_subsubTopic = !isCollapsed_subsubTopic" ng-init="isCollapsed_subsubTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{subsubTopic.topicName}} ({{$ctrl.kommonitorDataExchangeServiceInstance.getNumberOfGeoresources(subsubTopic, georesourceNameFilter, showPOI, showLOI, showAOI, showWMS, showWFS)}})</a>
+												&nbsp;&nbsp; <input type="checkbox" ng-model="subsubTopic.isSelected" value="subsubTopic.isSelected" id="showAllForTopic_{{subsubTopic.topicId}}" ng-change="handleShowAllOnTopic(subsubTopic)">
 											</div>
 		
 											<div ng-repeat="subsubsubTopic in subsubTopic.subTopics" class="list-group collapse" uib-collapse="isCollapsed_subsubTopic">
 		
 												<div  class="list-group-item list-group-item-default" style="background: #eff3ff; color: white;">
 													<a id="{{subsubsubTopic.topicId}}" class="collapseTrigger" style="color: white;" ng-attr-title="{{subsubsubTopic.topicDescription}}">{{subsubsubTopic.topicName}} ({{$ctrl.kommonitorDataExchangeServiceInstance.getNumberOfGeoresources(subsubsubTopic, georesourceNameFilter, showPOI, showLOI, showAOI, showWMS, showWFS)}})</a>
+													&nbsp;&nbsp; <input type="checkbox" ng-model="subsubsubTopic.isSelected" value="subsubsubTopic.isSelected" id="showAllForTopic_{{subsubsubTopic.topicId}}" ng-change="handleShowAllOnTopic(subsubsubTopic)">
 												</div>
 		
 											</div>
@@ -778,6 +782,7 @@
 
 								<div  class="list-group-item list-group-item-default" style="background: #2171b5; color: white;">
 									<a id="noHierarchyGeoresourceDatasets" href="" ng-attr-title="Georessourcen-Daten ohne Hierarchie" class="collapseTrigger" style="color: white;" ng-click="isCollapsed_noTopic = !isCollapsed_noTopic" ng-init="isCollapsed_noTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>ohne Hierarchie ({{$ctrl.kommonitorDataExchangeServiceInstance.getNumberOfGeoresources(null, georesourceNameFilter, showPOI, showLOI, showAOI, showWMS, showWFS)}})</a>
+									&nbsp;&nbsp; <input type="checkbox" value="showAllForTopic_null" ng-model="showAllForTopic_null" ng-change="handleShowAllOnTopic(null)">
 								</div>
 	
 	
