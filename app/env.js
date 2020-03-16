@@ -31,7 +31,7 @@
   window.__env.targetUrlToReachabilityService_ORS = 'https://ors5.fbg-hsbo.de';
 
   // Data Imporert URL
-  window.__env.targetUrlToImporterService = 'http://localhost:8087/';
+  window.__env.targetUrlToImporterService = 'http://kommonitor.fbg-hsbo.de/importer/';
 
   // optional geometry simplification (a feature of Data Management API)
   window.__env.simplifyGeometriesParameterName = "simplifyGeometries";
