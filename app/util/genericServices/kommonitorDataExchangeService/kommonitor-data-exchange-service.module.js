@@ -227,7 +227,30 @@ angular
             return this.topicHierarchyContainsIndicator(topic, georesourceMetadata);
           };
 
+          this.topicHierarchyContainsWms = function(topic, wmsMetadata){
+            // luckily, the topicReference is defined exactly like for indicators
+            // hence we can simply refer to that method
+
+            return this.topicHierarchyContainsIndicator(topic, wmsMetadata);
+          };
+
+          this.topicHierarchyContainsWfs = function(topic, wfsMetadata){
+            // luckily, the topicReference is defined exactly like for indicators
+            // hence we can simply refer to that method
+
+            return this.topicHierarchyContainsIndicator(topic, wfsMetadata);
+          };
+
           this.topicHierarchyContainsIndicator = function(topic, indicatorMetadata){
+            if(topic === null){
+              if (indicatorMetadata.topicReference === null){
+                return true;
+              }
+              else{
+                return false;
+              }
+            }
+
             if (topic.topicId === indicatorMetadata.topicReference){
               return true;
             }
@@ -250,22 +273,145 @@ angular
             return isContained;
           };
 
-          this.getNumberOfGeoresources = function(topic, georesourceNameFilter){
-            var numberOfGeoresources = 0;
+          // topic may be null
+          this.getGeoresourceDatasets = function(topic, georesourceNameFilter, showPOI, showLOI, showAOI, showWMS, showWFS){
+            var availableGeoresources = this.getAvailableGeoresources(topic, georesourceNameFilter, showPOI, showLOI, showAOI); 
+            var wmsDatasets = this.getAvailableWmsDatasets(topic, georesourceNameFilter, showWMS);
+            var wfsDatasets = this.getAvailableWfsDatasets(topic, georesourceNameFilter, showWFS);
+            
+            var datasets = availableGeoresources.concat(wmsDatasets).concat(wfsDatasets);
+            return datasets;
+          };
+
+          this.getNumberOfGeoresources = function(topic, georesourceNameFilter, showPOI, showLOI, showAOI, showWMS, showWFS){
+
+            var numberOfAvailableGeoresources = this.getNumberOfAvailableGeoresources(topic, georesourceNameFilter, showPOI, showLOI, showAOI); 
+            var numberOfWmsDatasets = this.getNumberOfAvailableWmsDatasets(topic, georesourceNameFilter, showWMS);
+            var numberOfWfsDatasets = this.getNumberOfAvailableWfsDatasets(topic, georesourceNameFilter, showWFS);
+            
+            var numberOfResources = numberOfAvailableGeoresources + numberOfWmsDatasets + numberOfWfsDatasets;
+            return numberOfResources;
+          };
+
+          var filterGeoresourcesByTypes = function(georesourceMetadataArray, showPOI, showLOI, showAOI){
+
+            if(!showPOI && !showLOI && !showAOI){
+              return [];
+            }
+
+            return georesourceMetadataArray.filter(georesourceMetadata => { 
+              if(georesourceMetadata.isPOI){
+                if(showPOI){
+                  return true;
+                }
+                else{
+                  return false;
+                }
+              }
+              else if(georesourceMetadata.isLOI){
+                if(showLOI){
+                  return true;
+                }
+                else{
+                  return false;
+                }
+              }
+              else if(georesourceMetadata.isAOI){
+                if(showAOI){
+                  return true;
+                }
+                else{
+                  return false;
+                }
+              }
+              else{
+                return false;
+              }
+            });
+          };
+
+          this.getAvailableGeoresources = function(topic, georesourceNameFilter, showPOI, showLOI, showAOI){
+            var georesources = [];
 
             var filteredGeoresources = this.availableGeoresources;
             
             if(georesourceNameFilter && georesourceNameFilter != ""){
-              filteredGeoresources = filterArrayObjectsByValue(this.availableGeoresources, georesourceNameFilter);									
+              filteredGeoresources = filterArrayObjectsByValue(filteredGeoresources, georesourceNameFilter);									
             }
+
+            filteredGeoresources = filterGeoresourcesByTypes(filteredGeoresources, showPOI, showLOI, showAOI);
             
-            for (const georesourceMetadata of filteredGeoresources) {
+            for (const georesourceMetadata of filteredGeoresources) {              
               if (this.topicHierarchyContainsGeoresource(topic, georesourceMetadata)){
-                numberOfGeoresources++;
+                georesources.push(georesourceMetadata);
               }
             }
 
-            return numberOfGeoresources;
+            return georesources;
+          }; 
+
+          this.getNumberOfAvailableGeoresources = function(topic, georesourceNameFilter, showPOI, showLOI, showAOI){
+            return this.getAvailableGeoresources(topic, georesourceNameFilter, showPOI, showLOI, showAOI).length;
+          };          
+
+          this.getAvailableWmsDatasets = function(topic, georesourceNameFilter, showWMS){
+            if(!showWMS){
+              return [];
+            }
+
+            var wmsDatasets = [];
+
+            var filteredWmsDatasets = this.wmsDatasets;
+            
+            if(georesourceNameFilter && georesourceNameFilter != ""){
+              filteredWmsDatasets = filterArrayObjectsByValue(filteredWmsDatasets, georesourceNameFilter);									
+            }
+            
+            for (const wmsMetadata of filteredWmsDatasets) {
+              if (this.topicHierarchyContainsWms(topic, wmsMetadata)){
+                wmsDatasets.push(wmsMetadata);
+              }
+            }
+
+            return wmsDatasets;
+          };
+
+          this.getNumberOfAvailableWmsDatasets = function(topic, georesourceNameFilter, showWMS){
+            if(!showWMS){
+              return 0;
+            }
+
+            return this.getAvailableWmsDatasets(topic, georesourceNameFilter, showWMS).length;
+          };
+
+          this.getAvailableWfsDatasets = function(topic, georesourceNameFilter, showWFS){
+            if(!showWFS){
+              return [];
+            }
+
+            var wfsDatasets = [];
+
+            var filteredWfsDatasets = this.wfsDatasets;
+            
+            if(georesourceNameFilter && georesourceNameFilter != ""){
+              filteredWfsDatasets = filterArrayObjectsByValue(filteredWfsDatasets, georesourceNameFilter);									
+            }
+            
+            for (const wfsMetadata of filteredWfsDatasets) {
+              if (this.topicHierarchyContainsWms(topic, wfsMetadata)){
+                wfsDatasets.push(wfsMetadata);
+              }
+            }
+
+            return wfsDatasets;
+          };
+
+          this.getNumberOfAvailableWfsDatasets = function(topic, georesourceNameFilter, showWFS){
+            if(!showWFS){
+              return 0;
+            }
+
+            return this.getAvailableWfsDatasets(topic, georesourceNameFilter, showWFS).length;
           };
 
           this.getNumberOfIndicators = function(topic, indicatorNameFilter){

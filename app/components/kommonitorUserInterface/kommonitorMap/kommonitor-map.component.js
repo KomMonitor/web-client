@@ -2415,36 +2415,49 @@ angular.module('kommonitorMap').component(
           georesourceMetadataAndGeoJSON.geoJSON.features.forEach(function (poiFeature) {
             // index 0 should be longitude and index 1 should be latitude
             //.bindPopup( poiFeature.properties.name )
-            var newMarker = L.marker([Number(poiFeature.geometry.coordinates[1]), Number(poiFeature.geometry.coordinates[0])], { icon: customMarker });
+            var newMarker;
+            if(poiFeature.geometry.type === "Point"){              
+              // LAT LON order
+              newMarker = L.marker([Number(poiFeature.geometry.coordinates[1]), Number(poiFeature.geometry.coordinates[0])], { icon: customMarker });
 
-            //populate the original geoJSOn feature to the marker layer!
-            newMarker.feature = poiFeature;
-            newMarker.metadataObject = georesourceMetadataAndGeoJSON;
+              //populate the original geoJSOn feature to the marker layer!
+              newMarker.feature = poiFeature;
+              newMarker.metadataObject = georesourceMetadataAndGeoJSON;
 
-            // var propertiesString = "<pre>" + JSON.stringify(poiFeature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
+              markers = addPoiMarker(markers, newMarker);
+            }
+            else if (poiFeature.geometry.type === "MultiPoint"){
 
-            var popupContent = '<div class="poiInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
-              for (var p in poiFeature.properties) {
-                  popupContent += '<tr><td>' + p + '</td><td>'+ poiFeature.properties[p] + '</td></tr>';
-              }
-              popupContent += '</table></div>';
+              // make a marker for each point of MultiPoint
+              // for (var index=0; index < poiFeature.geometry.coordinates.length; index++) {
+              //   // LAT LON order
+              //   newMarker = L.marker([Number(poiFeature.geometry.coordinates[index][1]), Number(poiFeature.geometry.coordinates[index][0])], { icon: customMarker });
 
-            if (poiFeature.properties.name) {
-              newMarker.bindPopup(poiFeature.properties.name + "\n\n" + popupContent);
+              //   //populate the original geoJSOn feature to the marker layer!
+              //   newMarker.feature = poiFeature;
+              //   newMarker.metadataObject = georesourceMetadataAndGeoJSON;
+
+              //   markers = addPoiMarker(markers, newMarker);
+              // }
+
+
+              // simply take the first point as feature reference POI
+              // LAT LON order
+              newMarker = L.marker([Number(poiFeature.geometry.coordinates[0][1]), Number(poiFeature.geometry.coordinates[0][0])], { icon: customMarker });
+
+              //populate the original geoJSOn feature to the marker layer!
+              newMarker.feature = poiFeature;
+              newMarker.metadataObject = georesourceMetadataAndGeoJSON;
+
+              markers = addPoiMarker(markers, newMarker);
             }
-            else if (poiFeature.properties.NAME) {
-              newMarker.bindPopup(poiFeature.properties.NAME + "\n\n" + popupContent);
+            else{
+              console.error("NO POI object: instead got feature of type " + poiFeature.geometry.type);
             }
-            else if (poiFeature.properties[__env.FEATURE_NAME_PROPERTY_NAME]) {
-              newMarker.bindPopup(poiFeature.properties[__env.FEATURE_NAME_PROPERTY_NAME] + "\n\n" + popupContent);
-            }
-            else {
-              // newMarker.bindPopup(propertiesString);
-              newMarker.bindPopup(popupContent);
-            }
-            markers.addLayer(newMarker);
+            
+
+            
           });
-
 
           // markers.StyledLayerControl = {
           //   removable : false,
@@ -2457,6 +2470,34 @@ angular.module('kommonitorMap').component(
           // $scope.map.addLayer( markers );
           $scope.map.invalidateSize(true);
         });
+
+        var addPoiMarker = function(markers, poiMarker){
+            
+          // var propertiesString = "<pre>" + JSON.stringify(poiMarker.feature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
+
+          var popupContent = '<div class="poiInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
+            for (var p in poiMarker.feature.properties) {
+                popupContent += '<tr><td>' + p + '</td><td>'+ poiMarker.feature.properties[p] + '</td></tr>';
+            }
+            popupContent += '</table></div>';
+
+          if (poiMarker.feature.properties.name) {
+            poiMarker.bindPopup(poiMarker.feature.properties.name + "\n\n" + popupContent);
+          }
+          else if (poiMarker.feature.properties.NAME) {
+            poiMarker.bindPopup(poiMarker.feature.properties.NAME + "\n\n" + popupContent);
+          }
+          else if (poiMarker.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME]) {
+            poiMarker.bindPopup(poiMarker.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] + "\n\n" + popupContent);
+          }
+          else {
+            // poiMarker.bindPopup(propertiesString);
+            poiMarker.bindPopup(popupContent);
+          }
+          markers.addLayer(poiMarker);
+
+          return markers;
+      }
 
         $scope.$on("removePoiGeoresource", function (event, georesourceMetadataAndGeoJSON) {
 
@@ -2628,6 +2669,19 @@ angular.module('kommonitorMap').component(
           $scope.layerControl._layers.forEach(function (layer) {
             if (layer.group.name === wmsLayerGroupName && layer.name.includes(layerName)) {
               layer.layer.setOpacity(opacity);
+            }
+          });
+        });
+
+        $scope.$on("adjustOpacityForAoiLayer", function (event, dataset, opacity) {
+          var layerName = dataset.datasetName;
+
+          $scope.layerControl._layers.forEach(function (layer) {
+            if (layer.group.name === aoiLayerGroupName && layer.name.includes(layerName)) {
+              layer.layer.setStyle({
+                fillOpacity:opacity,
+                opacity:opacity
+              });
             }
           });
         });

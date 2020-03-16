@@ -46,60 +46,7 @@ angular
 
 								var numberOfDecimals = __env.numberOfDecimals;
 
-								$scope.handleWmsOnMap = function(dataset){
-									kommonitorDataExchangeService.wmsLegendImage = undefined;
-									console.log("Toggle WMS: " + dataset.title);
-
-									if(dataset.isSelected){
-										//display on Map
-										var opacity = 1 - dataset.transparency;
-										kommonitorMapService.addWmsLayerToMap(dataset, opacity);
-
-									}
-									else{
-										//remove WMS layer from map
-										kommonitorMapService.removeWmsLayerFromMap(dataset);
-
-									}
-								};
-
-								$scope.adjustWMSLayerTransparency = function(dataset){
-
-									var opacity = 1 - dataset.transparency;
-
-									kommonitorMapService.adjustOpacityForWmsLayer(dataset, opacity);
-								};
-
-								$scope.handleWfsOnMap = function(dataset){
-									console.log("Toggle WFS: " + dataset.title);
-
-									if(dataset.isSelected){
-										//display on Map
-										var opacity = 1 - dataset.transparency;
-										kommonitorMapService.addWfsLayerToMap(dataset, opacity);
-
-									}
-									else{
-										//remove WMS layer from map
-										kommonitorMapService.removeWfsLayerFromMap(dataset);
-
-									}
-								};
-
-								$scope.adjustWFSLayerTransparency = function(dataset){
-
-									var opacity = 1 - dataset.transparency;
-
-									kommonitorMapService.adjustOpacityForWfsLayer(dataset, opacity);
-								};
-
-								$scope.adjustWfsLayerColor = function(dataset){
-
-									var color = dataset.displayColor;
-
-									kommonitorMapService.adjustColorForWfsLayer(dataset, color);
-								};
-
+								
 								$scope.dropHandler = function(ev) {
 									$scope.fileLayerError = undefined;
 									$("#fileErrorAlert").hide();

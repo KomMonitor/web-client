@@ -139,6 +139,11 @@ angular.module('kommonitorMap').service(
       this.adjustOpacityForWmsLayer = function (dataset, opacity) {
         $rootScope.$broadcast("adjustOpacityForWmsLayer",
             dataset, opacity);
+	  };
+
+	  this.adjustOpacityForAoiLayer = function (dataset, opacity) {
+        $rootScope.$broadcast("adjustOpacityForAoiLayer",
+            dataset, opacity);
       };
 
       this.removeWmsLayerFromMap = function (dataset) {
