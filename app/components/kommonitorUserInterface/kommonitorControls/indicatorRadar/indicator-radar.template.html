@@ -53,18 +53,21 @@
 
 								<div ng-show="$ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime">
 
-									<div class="input-group">
-										<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-										<input type="text" class="form-control input-sm" placeholder="Filtern nach Indikatorenname" ng-model="indicatorNameFilter">
-									</div>
-
-									<p></p>
-
-									<label class="switch">
-										<input type="checkbox" ng-model="filter.filterSameUnitAndSameTime" ng-change="onChangeFilterSameUnitAndSameTime()"></input>
-									  <span class="switchslider round"></span>
-									</label>
-									<strong>Filtern nach gleicher Raumebene und gleichem Jahr</strong>
+									<div class="row" style="margin-left: 0px; margin-right: 0px;">
+										<div class="col-xs-12 col-md-7">
+											<div class="input-group">
+												<span class="input-group-addon"><i class="fas fa-filter"></i></span>
+												<input type="text" class="form-control input-sm" placeholder="Filtern nach Indikatorenname" ng-model="indicatorNameFilter">
+											</div>
+										</div>
+										<div class="col-xs-12 col-md-5">
+											<label class="switch">
+												<input type="checkbox" ng-model="filter.filterSameUnitAndSameTime" ng-change="onChangeFilterSameUnitAndSameTime()"></input>
+											  <span class="switchslider round"></span>
+											</label>
+											<strong>gleiche Raumebene und gleiches Jahr</strong>
+										</div>
+									</div>									
 
 									<p></p>
 
