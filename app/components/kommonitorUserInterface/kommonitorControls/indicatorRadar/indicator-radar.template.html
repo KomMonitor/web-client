@@ -60,19 +60,55 @@
 
 									<p></p>
 
+									<label class="switch">
+										<input type="checkbox" ng-model="filter.filterSameUnitAndSameTime" ng-change="onChangeFilterSameUnitAndSameTime()"></input>
+									  <span class="switchslider round"></span>
+									</label>
+									<strong>Filtern nach gleicher Raumebene und gleichem Jahr</strong>
+
+									<p></p>
+
 									<!-- <div align="center">
 										<input type="button" class="btn btn-xs btn-primary" value="alle Indikatoren zur Radardarstellung hinzufügen" ng-click="$ctrl.selectAllIndicatorsForRadar()"></input>
 										<input type="button" class="btn btn-xs btn-danger" value="alle Indikatoren aus Radardarstellung entfernen" ng-click="$ctrl.deselectAllIndicatorsForRadar()"></input>
 									</div> -->
 
 									<div id="radarInputForm">
-										<div ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime | filter:filterIndicators() | filter:indicatorNameFilter'>
-											<label class='checkbox-inline input-sm' ><input type="checkbox" value="input.indicatorMetadata.indicatorName" ng-model="input.isSelected" ng-change="$ctrl.filterDisplayedIndicatorsOnRadar()">{{input.indicatorMetadata.indicatorName}}  {{input.closestTimestamp}}</label>
-											<br/>
-										</div>
-										</div>
 
+										<table class="table table-condensed " style="margin-bottom:0px;">
+												<thead>
+													<th>
+														Indikator											
+													</th>
+													<th>
+														Zeitschnitt
+													</th>
+												</thead>
+												<tbody>
+													<tr ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime | filter:filterIndicators() | filter:indicatorNameFilter'>
+														<td>
+															<label class='checkbox-inline input-sm' ><input type="checkbox" value="input.indicatorMetadata.indicatorName" ng-model="input.isSelected" ng-change="$ctrl.filterDisplayedIndicatorsOnRadar()">{{input.indicatorMetadata.indicatorName}}  {{input.closestTimestamp}}</label>											
+														</td>
+														<td>
+															<select style="font-size: 11px; width:135px; padding: 0px;"
+																ng-model="input.selectedDate" ng-change="onChangeSelectedDate(input)" ng-options="date as date for date in input.indicatorMetadata.applicableDates" ng-init="input.selectedDate = input.indicatorMetadata.applicableDates[input.indicatorMetadata.applicableDates.length - 1]"
+																class="form-control" required>
+															</select>
+														</td>
+													
+													</tr>	
+												</tbody>												
+											</tr>
+											
+										</table>
+										<!-- <div ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime | filter:filterIndicators() | filter:indicatorNameFilter'>
+											<label class='checkbox-inline input-sm' ><input type="checkbox" value="input.indicatorMetadata.indicatorName" ng-model="input.isSelected" ng-change="$ctrl.filterDisplayedIndicatorsOnRadar()">{{input.indicatorMetadata.indicatorName}}  {{input.closestTimestamp}}</label>
+											
+											<br/>
+										</div> -->
 									</div>
+
+								</div>
 
 							</div>
 							<!-- /.box-body -->
