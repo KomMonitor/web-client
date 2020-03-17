@@ -95,6 +95,12 @@ angular
 						modifyRadarContent(kommonitorDiagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime);
 					};
 
+					$scope.onChangeSelectedDate = function(input){
+						if(input.isSelected){
+							modifyRadarContent(kommonitorDiagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime);
+						}
+					};
+
 					var wait = ms => new Promise((r, j) => setTimeout(r, ms));
 
 					$scope.$on("allIndicatorPropertiesForCurrentSpatialUnitAndTime setup completed", async function (event) {
@@ -153,7 +159,7 @@ angular
 								// HENCE ONLY ADD VALUES TO DEFAULT IF THEY SHOW MEANINGFUL VALUES
 								// if(valueSum != null){
 								indicatorArrayForRadarChart.push({
-									name: indicatorsForRadar[i].indicatorMetadata.indicatorName,
+									name: indicatorsForRadar[i].indicatorMetadata.indicatorName + " - " + indicatorsForRadar[i].selectedDate,
 									unit: indicatorsForRadar[i].indicatorMetadata.unit,
 									max: maxValue,
 									min: minValue
