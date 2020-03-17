@@ -117,6 +117,24 @@ angular
 									}, 500);
 								};
 
+								$scope.filterByNoTopic = function(){
+									return function( item ) {
+
+										try{
+											if (! item.topicReference || item.topicReference === ""){
+												return true;
+											}
+											if(! kommonitorDataExchangeService.referencedTopicIdExists(item.topicReference)){
+												return true;
+											}
+											return false;
+										}
+										catch(error){
+											return false;
+										}
+								  };
+								};
+
 								$scope.handleShowAllOnTopic = function(topic){
 									// if (topic.isSelected){
 									// 	topic.isSelected = false;
