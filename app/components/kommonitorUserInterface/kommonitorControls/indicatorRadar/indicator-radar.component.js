@@ -42,10 +42,6 @@ angular
 
 					$scope.setupCompleted = false;
 
-					$scope.filter = {
-						filterSameUnitAndSameTime : false
-					};
-
 					$scope.onChangeFilterSameUnitAndSameTime = function(){
 						if($scope.radarChart){
 							$scope.radarChart.dispose();
@@ -53,7 +49,7 @@ angular
 						}
 						kommonitorDiagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime = [];
 						
-						kommonitorDiagramHelperService.setupIndicatorPropertiesForCurrentSpatialUnitAndTime($scope.filter.filterSameUnitAndSameTime);
+						kommonitorDiagramHelperService.setupIndicatorPropertiesForCurrentSpatialUnitAndTime(kommonitorDiagramHelperService.filterSameUnitAndSameTime);
 					};
 
 					$scope.date;

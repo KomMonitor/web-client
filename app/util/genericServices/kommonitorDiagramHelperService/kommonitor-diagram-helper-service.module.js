@@ -103,6 +103,8 @@ angular
       // an array of only the properties and metadata of all indicatorFeatures
       this.indicatorPropertiesForCurrentSpatialUnitAndTime;
 
+      this.filterSameUnitAndSameTime = false;
+
       this.setupIndicatorPropertiesForCurrentSpatialUnitAndTime = function (filterBySameUnitAndSameTime) {
         this.indicatorPropertiesForCurrentSpatialUnitAndTime = [];
 
