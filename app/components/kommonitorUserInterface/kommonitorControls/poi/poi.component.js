@@ -284,17 +284,17 @@ angular
 
 									var id = poiGeoresource.georesourceId;
 
-									$scope.date = kommonitorDataExchangeService.selectedDate;
+									var date = poiGeoresource.selectedDate.startDate;
 
-									var dateComps = $scope.date.split("-");
+									var dateComps = date.split("-");
 
 									var year = dateComps[0];
 									var month = dateComps[1];
 									var day = dateComps[2];
 
 									await $http({
-										// url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + id + "/" + year + "/" + month + "/" + day,
-											url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + id + "/allFeatures",
+										url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + id + "/" + year + "/" + month + "/" + day,
+											// url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + id + "/allFeatures",
 										method: "GET"
 									}).then(function successCallback(response) {
 											// this callback will be called asynchronously
@@ -341,16 +341,16 @@ angular
 								};
 
 								$scope.getExportLinkForPoi = function(poi){
-									$scope.date = kommonitorDataExchangeService.selectedDate;
+									var date = poi.selectedDate.startDate;
 
-									var dateComps = $scope.date.split("-");
+									var dateComps = date.split("-");
 
 									var year = dateComps[0];
 									var month = dateComps[1];
 									var day = dateComps[2];
 
-									// var url = kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + poi.georesourceId + "/" + year + "/" + month + "/" + day;
-									var url = kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + poi.georesourceId + "/allFeatures";
+									var url = kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + poi.georesourceId + "/" + year + "/" + month + "/" + day;
+									// var url = kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + poi.georesourceId + "/allFeatures";
 									var fileName = poi.datasetName + "-" + year + "-" + month + "-" + day;
 
 									$http({
@@ -404,17 +404,17 @@ angular
 
 									var id = aoiGeoresource.georesourceId;
 
-									$scope.date = kommonitorDataExchangeService.selectedDate;
+									var date = aoiGeoresource.selectedDate.startDate;
 
-									var dateComps = $scope.date.split("-");
+									var dateComps = date.split("-");
 
 									var year = dateComps[0];
 									var month = dateComps[1];
 									var day = dateComps[2];
 
 									await $http({
-										// url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + id + "/" + year + "/" + month + "/" + day,
-											url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + id + "/allFeatures",
+										url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + id + "/" + year + "/" + month + "/" + day,
+											// url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + id + "/allFeatures",
 										method: "GET"
 									}).then(function successCallback(response) {
 											// this callback will be called asynchronously
@@ -449,16 +449,16 @@ angular
 								};
 
 								$scope.getExportLinkForAoi = function(aoi){
-									$scope.date = kommonitorDataExchangeService.selectedDate;
+									var date = aoi.selectedDate.startDate;
 
-									var dateComps = $scope.date.split("-");
+									var dateComps = date.split("-");
 
 									var year = dateComps[0];
 									var month = dateComps[1];
 									var day = dateComps[2];
 
-									// var url = kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + aoi.georesourceId + "/" + year + "/" + month + "/" + day;
-									var url = kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + aoi.georesourceId + "/allFeatures";
+									var url = kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + aoi.georesourceId + "/" + year + "/" + month + "/" + day;
+									// var url = kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + aoi.georesourceId + "/allFeatures";
 									var fileName = aoi.datasetName + "-" + year + "-" + month + "-" + day;
 
 									$http({
@@ -509,17 +509,17 @@ angular
 
 										var id = loiGeoresource.georesourceId;
 
-										$scope.date = kommonitorDataExchangeService.selectedDate;
+										var date = loiGeoresource.selectedDate.startDate;
 
-										var dateComps = $scope.date.split("-");
+										var dateComps = date.split("-");
 
 										var year = dateComps[0];
 										var month = dateComps[1];
 										var day = dateComps[2];
 
 										await $http({
-											// url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + id + "/" + year + "/" + month + "/" + day,
-												url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + id + "/allFeatures",
+											url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + id + "/" + year + "/" + month + "/" + day,
+												// url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + id + "/allFeatures",
 											method: "GET"
 										}).then(function successCallback(response) {
 												// this callback will be called asynchronously
@@ -554,16 +554,16 @@ angular
 									};
 
 									$scope.getExportLinkForLoi = function(aoi){
-										$scope.date = kommonitorDataExchangeService.selectedDate;
+										var date = aoi.selectedDate.startDate;
 
-										var dateComps = $scope.date.split("-");
+										var dateComps = date.split("-");
 
 										var year = dateComps[0];
 										var month = dateComps[1];
 										var day = dateComps[2];
 
-										// var url = kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + aoi.georesourceId + "/" + year + "/" + month + "/" + day;
-										var url = kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + aoi.georesourceId + "/allFeatures";
+										var url = kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + aoi.georesourceId + "/" + year + "/" + month + "/" + day;
+										// var url = kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + aoi.georesourceId + "/allFeatures";
 										var fileName = aoi.datasetName + "-" + year + "-" + month + "-" + day;
 
 										$http({
