@@ -168,8 +168,8 @@
 																		</i>
 																	</td>
 																	<td>
-																		<select style="font-size: 11px; width:150px;"
-																				ng-model="poi.selectedDate" ng-options="date as date.startDate + ' - ' + date.endDate for date in poi.availablePeriodsOfValidity" ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]"
+																		<select style="font-size: 11px; width:135px; padding: 0px;"
+																				ng-model="poi.selectedDate" ng-change="onChangeSelectedDate(poi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in poi.availablePeriodsOfValidity" ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]"
 																				class="form-control" required>
 																			</select>
 																	</td>
@@ -202,8 +202,8 @@
 																		</i>
 																	</td>
 																	<td>
-																		<select style="font-size: 11px; width:150px;"
-																				ng-model="loi.selectedDate" ng-options="date as date.startDate + ' - ' + date.endDate for date in loi.availablePeriodsOfValidity" ng-init="loi.selectedDate = loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]"
+																		<select style="font-size: 11px; width:135px; padding: 0px;"
+																				ng-model="loi.selectedDate" ng-change="onChangeSelectedDate(loi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in loi.availablePeriodsOfValidity" ng-init="loi.selectedDate = loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]"
 																				class="form-control" required>
 																			</select>
 																	</td>
@@ -243,8 +243,8 @@
 																		</i>
 																	</td>
 																	<td>
-																		<select style="font-size: 11px; width:150px;"
-																				ng-model="aoi.selectedDate" ng-options="date as date.startDate + ' - ' + date.endDate for date in aoi.availablePeriodsOfValidity" ng-init="aoi.selectedDate = aoi.availablePeriodsOfValidity[aoi.availablePeriodsOfValidity.length - 1]"
+																		<select style="font-size: 11px; width:135px; padding: 0px;"
+																				ng-model="aoi.selectedDate" ng-change="onChangeSelectedDate(aoi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in aoi.availablePeriodsOfValidity" ng-init="aoi.selectedDate = aoi.availablePeriodsOfValidity[aoi.availablePeriodsOfValidity.length - 1]"
 																				class="form-control" required>
 																			</select>
 																	</td>
@@ -411,8 +411,8 @@
 																	</i>
 																</td>
 																<td>
-																	<select style="font-size: 11px; width:150px;"
-																			ng-model="poi.selectedDate" ng-options="date as date.startDate + ' - ' + date.endDate for date in poi.availablePeriodsOfValidity" ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]"
+																	<select style="font-size: 11px; width:135px; padding: 0px;"
+																			ng-model="poi.selectedDate" ng-change="onChangeSelectedDate(poi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in poi.availablePeriodsOfValidity" ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]"
 																			class="form-control" required>
 																		</select>
 																</td>
@@ -445,8 +445,8 @@
 																	</i>
 																</td>
 																<td>
-																	<select style="font-size: 11px; width:150px;"
-																			ng-model="loi.selectedDate" ng-options="date as date.startDate + ' - ' + date.endDate for date in loi.availablePeriodsOfValidity" ng-init="loi.selectedDate = loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]"
+																	<select style="font-size: 11px; width:135px; padding: 0px;"
+																			ng-model="loi.selectedDate" ng-change="onChangeSelectedDate(loi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in loi.availablePeriodsOfValidity" ng-init="loi.selectedDate = loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]"
 																			class="form-control" required>
 																		</select>
 																</td>
@@ -486,8 +486,8 @@
 																	</i>
 																</td>
 																<td>
-																	<select style="font-size: 11px; width:150px;"
-																			ng-model="aoi.selectedDate" ng-options="date as date.startDate + ' - ' + date.endDate for date in aoi.availablePeriodsOfValidity" ng-init="aoi.selectedDate = aoi.availablePeriodsOfValidity[aoi.availablePeriodsOfValidity.length - 1]"
+																	<select style="font-size: 11px; width:135px; padding: 0px;"
+																			ng-model="aoi.selectedDate" ng-change="onChangeSelectedDate(aoi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in aoi.availablePeriodsOfValidity" ng-init="aoi.selectedDate = aoi.availablePeriodsOfValidity[aoi.availablePeriodsOfValidity.length - 1]"
 																			class="form-control" required>
 																		</select>
 																</td>
@@ -654,8 +654,8 @@
 																</i>
 															</td>
 															<td>
-																<select style="font-size: 11px; width:150px;"
-																		ng-model="poi.selectedDate" ng-options="date as date.startDate + ' - ' + date.endDate for date in poi.availablePeriodsOfValidity" ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]"
+																<select style="font-size: 11px; width:135px; padding: 0px;"
+																		ng-model="poi.selectedDate" ng-change="onChangeSelectedDate(poi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in poi.availablePeriodsOfValidity" ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]"
 																		class="form-control" required>
 																	</select>
 															</td>
@@ -688,8 +688,8 @@
 																</i>
 															</td>
 															<td>
-																<select style="font-size: 11px; width:150px;"
-																		ng-model="loi.selectedDate" ng-options="date as date.startDate + ' - ' + date.endDate for date in loi.availablePeriodsOfValidity" ng-init="loi.selectedDate = loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]"
+																<select style="font-size: 11px; width:135px; padding: 0px;"
+																		ng-model="loi.selectedDate" ng-change="onChangeSelectedDate(loi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in loi.availablePeriodsOfValidity" ng-init="loi.selectedDate = loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]"
 																		class="form-control" required>
 																	</select>
 															</td>
@@ -729,8 +729,8 @@
 																</i>
 															</td>
 															<td>
-																<select style="font-size: 11px; width:150px;"
-																		ng-model="aoi.selectedDate" ng-options="date as date.startDate + ' - ' + date.endDate for date in aoi.availablePeriodsOfValidity" ng-init="aoi.selectedDate = aoi.availablePeriodsOfValidity[aoi.availablePeriodsOfValidity.length - 1]"
+																<select style="font-size: 11px; width:135px; padding: 0px;"
+																		ng-model="aoi.selectedDate" ng-change="onChangeSelectedDate(aoi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in aoi.availablePeriodsOfValidity" ng-init="aoi.selectedDate = aoi.availablePeriodsOfValidity[aoi.availablePeriodsOfValidity.length - 1]"
 																		class="form-control" required>
 																	</select>
 															</td>
@@ -906,8 +906,8 @@
 												</i>
 											</td>
 											<td>
-												<select style="font-size: 11px; width:150px;"
-														ng-model="poi.selectedDate" ng-options="date as date.startDate + ' - ' + date.endDate for date in poi.availablePeriodsOfValidity" ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]"
+												<select style="font-size: 11px; width:135px; padding: 0px;"
+														ng-model="poi.selectedDate" ng-change="onChangeSelectedDate(poi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in poi.availablePeriodsOfValidity" ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]"
 														class="form-control" required>
 													</select>
 											</td>
@@ -940,8 +940,8 @@
 												</i>
 											</td>
 											<td>
-												<select style="font-size: 11px; width:150px;"
-														ng-model="loi.selectedDate" ng-options="date as date.startDate + ' - ' + date.endDate for date in loi.availablePeriodsOfValidity" ng-init="loi.selectedDate = loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]"
+												<select style="font-size: 11px; width:135px; padding: 0px;"
+														ng-model="loi.selectedDate" ng-change="onChangeSelectedDate(loi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in loi.availablePeriodsOfValidity" ng-init="loi.selectedDate = loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]"
 														class="form-control" required>
 													</select>
 											</td>
@@ -981,8 +981,8 @@
 												</i>
 											</td>
 											<td>
-												<select style="font-size: 11px; width:150px;"
-														ng-model="aoi.selectedDate" ng-options="date as date.startDate + ' - ' + date.endDate for date in aoi.availablePeriodsOfValidity" ng-init="aoi.selectedDate = aoi.availablePeriodsOfValidity[aoi.availablePeriodsOfValidity.length - 1]"
+												<select style="font-size: 11px; width:135px; padding: 0px;"
+														ng-model="aoi.selectedDate" ng-change="onChangeSelectedDate(aoi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in aoi.availablePeriodsOfValidity" ng-init="aoi.selectedDate = aoi.availablePeriodsOfValidity[aoi.availablePeriodsOfValidity.length - 1]"
 														class="form-control" required>
 													</select>
 											</td>
@@ -1158,8 +1158,8 @@
 												</i>
 											</td>
 											<td>
-												<select style="font-size: 11px; width:150px;"
-														ng-model="poi.selectedDate" ng-options="date as date.startDate + ' - ' + date.endDate for date in poi.availablePeriodsOfValidity" ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]"
+												<select style="font-size: 11px; width:135px; padding: 0px;"
+														ng-model="poi.selectedDate" ng-change="onChangeSelectedDate(poi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in poi.availablePeriodsOfValidity" ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]"
 														class="form-control" required>
 													</select>
 											</td>
@@ -1239,8 +1239,8 @@
 													</i>
 												</td>
 												<td>
-													<select style="font-size: 11px; width:150px;"
-															ng-model="loi.selectedDate" ng-options="date as date.startDate + ' - ' + date.endDate for date in loi.availablePeriodsOfValidity" ng-init="loi.selectedDate = loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]"
+													<select style="font-size: 11px; width:135px; padding: 0px;"
+															ng-model="loi.selectedDate" ng-change="onChangeSelectedDate(loi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in loi.availablePeriodsOfValidity" ng-init="loi.selectedDate = loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]"
 															class="form-control" required>
 														</select>
 												</td>
@@ -1326,8 +1326,8 @@
 														</i>
 													</td>
 													<td>
-														<select style="font-size: 11px; width:150px;"
-																ng-model="aoi.selectedDate" ng-options="date as date.startDate + ' - ' + date.endDate for date in aoi.availablePeriodsOfValidity" ng-init="aoi.selectedDate = aoi.availablePeriodsOfValidity[aoi.availablePeriodsOfValidity.length - 1]"
+														<select style="font-size: 11px; width:135px; padding: 0px;"
+																ng-model="aoi.selectedDate" ng-change="onChangeSelectedDate(aoi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in aoi.availablePeriodsOfValidity" ng-init="aoi.selectedDate = aoi.availablePeriodsOfValidity[aoi.availablePeriodsOfValidity.length - 1]"
 																class="form-control" required>
 															</select>
 													</td>

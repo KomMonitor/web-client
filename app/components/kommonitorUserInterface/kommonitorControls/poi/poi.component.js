@@ -265,6 +265,30 @@ angular
 
 								};
 
+								$scope.onChangeSelectedDate = function(georesourceDataset){
+									// only if it s already selected, we must modify the shown dataset 
+
+
+									if(georesourceDataset.isSelected){
+										// depending on type we must call different methods
+										if (georesourceDataset.isPOI){
+											$scope.removePoiLayerFromMap(georesourceDataset);
+											$scope.addPoiLayerToMap(georesourceDataset, $scope.useCluster);
+										}
+										else if (georesourceDataset.isLOI){
+											$scope.removeLoiLayerFromMap(georesourceDataset);
+											$scope.addLoiLayerToMap(georesourceDataset);
+										}
+										else if (georesourceDataset.isAOI){
+											$scope.removeAoiLayerFromMap(georesourceDataset);
+											$scope.addAoiLayerToMap(georesourceDataset);
+										}
+										else{
+											console.error("unknown dataset: " + georesourceDataset);
+										}
+									}
+								};
+
 								$scope.handlePoiOnMap = function(poi){
 
 									if(poi.isSelected){
