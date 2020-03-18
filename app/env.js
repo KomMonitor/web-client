@@ -374,6 +374,17 @@
       displayColor: "#00aabb",
       filterFeaturesToMapBBOX: false,
       topicReference: "68f49954-8cb9-4d33-b478-dbad949be0e1"
+    },
+    {
+      title: "Bäckereien",
+      description: "Standorte von Bäckereien",
+      url: "https://geoserver.kartenportal.org/geoserver/smartdemography/ows?",
+      featureTypeNamespace: "smartdemography",
+      featureTypeName: "sd_baeckerei_p",
+      featureTypeGeometryName: "the_geom",
+      displayColor: "#00aabb",
+      filterFeaturesToMapBBOX: false,
+      topicReference: "68f49954-8cb9-4d33-b478-dbad949be0e1"
     }
     // {
     //   title: "Verwaltungsgrenzen Kreise und kreisfreie St&auml;dte",
