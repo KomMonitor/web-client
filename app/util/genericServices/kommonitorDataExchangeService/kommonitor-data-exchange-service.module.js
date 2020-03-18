@@ -242,8 +242,8 @@ angular
           };
 
           this.topicHierarchyContainsIndicator = function(topic, indicatorMetadata){
-            if(topic === null){
-              if (indicatorMetadata.topicReference === null){
+            if(topic === null || topic === ""){
+              if (indicatorMetadata.topicReference === null || indicatorMetadata.topicReference === ""){
                 return true;
               }
               else{
@@ -472,6 +472,17 @@ angular
               if (indicatorMetadata.indicatorId === indicatorId){
                 return indicatorMetadata.abbreviation;
               }
+            }
+          };
+
+          this.referencedTopicIdExists = function(topicId){
+            var topicHierarchy = this.getTopicHierarchyForTopicId(topicId);
+
+            if(topicHierarchy.length === 0){
+              return false;
+            }
+            else{
+              return true;
             }
           };
 

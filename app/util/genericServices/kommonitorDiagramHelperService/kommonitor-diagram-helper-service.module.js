@@ -103,7 +103,9 @@ angular
       // an array of only the properties and metadata of all indicatorFeatures
       this.indicatorPropertiesForCurrentSpatialUnitAndTime;
 
-      this.setupIndicatorPropertiesForCurrentSpatialUnitAndTime = function () {
+      this.filterSameUnitAndSameTime = false;
+
+      this.setupIndicatorPropertiesForCurrentSpatialUnitAndTime = function (filterBySameUnitAndSameTime) {
         this.indicatorPropertiesForCurrentSpatialUnitAndTime = [];
 
         kommonitorDataExchangeService.availableIndicators.forEach(indicatorMetadata => {
@@ -114,15 +116,40 @@ angular
           });
 
 
-          if (indicatorCandidateYears.includes(targetYear) && indicatorMetadata.applicableSpatialUnits.includes(kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel)) {
-            var selectableIndicatorEntry = {};
-            selectableIndicatorEntry.indicatorProperties = null;
-            // per default show no indicators on radar
-            selectableIndicatorEntry.isSelected = false;
-            selectableIndicatorEntry.indicatorMetadata = indicatorMetadata;
-            selectableIndicatorEntry.closestTimestamp = undefined;
+          // if (indicatorCandidateYears.includes(targetYear) && indicatorMetadata.applicableSpatialUnits.includes(kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel)) {
+          //   var selectableIndicatorEntry = {};
+          //   selectableIndicatorEntry.indicatorProperties = null;
+          //   // per default show no indicators on radar
+          //   selectableIndicatorEntry.isSelected = false;
+          //   selectableIndicatorEntry.indicatorMetadata = indicatorMetadata;
+          //   selectableIndicatorEntry.closestTimestamp = undefined;
 
-            this.indicatorPropertiesForCurrentSpatialUnitAndTime.push(selectableIndicatorEntry);
+          //   this.indicatorPropertiesForCurrentSpatialUnitAndTime.push(selectableIndicatorEntry);
+          // }
+          
+          if (indicatorMetadata.applicableSpatialUnits.includes(kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel)) {
+            var canBeAdded = true;
+
+            if(filterBySameUnitAndSameTime){
+              if(indicatorCandidateYears.includes(targetYear)){
+                canBeAdded = true;
+              }
+              else{
+                canBeAdded = false;
+              }
+            }
+
+            if (canBeAdded){
+              var selectableIndicatorEntry = {};
+              selectableIndicatorEntry.indicatorProperties = null;
+              // per default show no indicators on radar
+              selectableIndicatorEntry.isSelected = false;
+              selectableIndicatorEntry.indicatorMetadata = indicatorMetadata;
+              // selectableIndicatorEntry.closestTimestamp = undefined;
+
+              this.indicatorPropertiesForCurrentSpatialUnitAndTime.push(selectableIndicatorEntry);
+            }
+            
           }
         });
 
