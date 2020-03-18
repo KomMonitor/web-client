@@ -99,7 +99,7 @@
 																	<div ng-show="($ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators() | filter:{topicReference:subsubTopic.topicId} | filter:indicatorNameFilter).length > 0">
 																		<div class="list-group collapse" uib-collapse="isCollapsed_subsubTopic">
 																			<div id="indicatorHierarchyElement-{{indicatorMetadata.indicatorId}}" ng-repeat="indicatorMetadata in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators() | filter:{topicReference:subsubTopic.topicId} | filter:indicatorNameFilter" class="list-group-item list-group-item-default">
-																			 	<p style="cursor:pointer;" ng-attr-title="{{indicatorMetadata.indicatorName}}" style="color: white;" ng-click="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;{{indicatorMetadata.indicatorName}}</p>
+																			 	<p style="cursor:pointer;" ng-attr-title="<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]" style="color: white;" ng-click="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]</p>
 																			</div>
 																		</div>
 																	</div>
@@ -120,7 +120,7 @@
 																<div ng-show="($ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators() | filter:{topicReference:subTopic.topicId} | filter:indicatorNameFilter).length > 0">
 																	<div class="list-group collapse" uib-collapse="isCollapsed_subTopic">
 																		<div id="indicatorHierarchyElement-{{indicatorMetadata.indicatorId}}" ng-repeat="indicatorMetadata in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators() | filter:{topicReference:subTopic.topicId} | filter:indicatorNameFilter" class="list-group-item list-group-item-default">
-																		 	<p style="cursor:pointer;" ng-attr-title="{{indicatorMetadata.indicatorName}}" ng-click="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;{{indicatorMetadata.indicatorName}}</p>
+																		 	<p style="cursor:pointer;" ng-attr-title="<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]" ng-click="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]</p>
 																		</div>
 																	</div>
 																</div>
@@ -140,7 +140,7 @@
 															<div ng-show="($ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators() | filter:{topicReference:mainTopic.topicId} | filter:indicatorNameFilter).length > 0">
 																<div class="list-group collapse" uib-collapse="isCollapsed_mainTopic">
 																	<div id="indicatorHierarchyElement-{{indicatorMetadata.indicatorId}}" ng-repeat="indicatorMetadata in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators() | filter:{topicReference:mainTopic.topicId} | filter:indicatorNameFilter" class="list-group-item list-group-item-default">
-																	 	<p style="cursor:pointer;" ng-attr-title="{{indicatorMetadata.indicatorName}}" ng-click="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;{{indicatorMetadata.indicatorName}}</p>
+																	 	<p style="cursor:pointer;" ng-attr-title="<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]" ng-click="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]</p>
 																	</div>
 																</div>
 															</div>
@@ -167,7 +167,7 @@
 									    <uib-tab index="1" heading="Alphabetische Liste">
 												<div class="just-padding">
 													<select style="font-size: 12px;"
-														size="30" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter: filterIndicators() | filter:indicatorNameFilter"
+														size="30" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator" ng-options="indicator as indicator.indicatorName + ' [' + indicator.unit + ']' for indicator in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter: filterIndicators() | filter:indicatorNameFilter"
 														ng-change="onChangeSelectedIndicator()" class="form-control" required>
 														<option disabled selected value> -- Indikator w&auml;hlen -- </option>
 													</select>
