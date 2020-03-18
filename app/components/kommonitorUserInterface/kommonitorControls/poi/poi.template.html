@@ -43,9 +43,13 @@
 							<!-- <div class="btn-group btn-group-justified"> -->
 								<table class="table" style="width:100%;">
 									<tr>
-									  <th class="text-center"><b>POI</b></th>
-									  <th class="text-center"><b>LOI</b></th>
-									  <th class="text-center"><b>AOI</b></th>
+										<th colspan="3" class="text-center"><b>Infrastruktur</b></th>
+										<th colspan="2" class="text-center"><b>Geodaten-Dienste</b></th>
+									  </tr>
+									<tr>
+									  <th class="text-center"><b>Points</b></th>
+									  <th class="text-center"><b>Lines</b></th>
+									  <th class="text-center"><b>Areas</b></th>
 									  <th class="text-center"><b>WMS</b></th>
 									  <th class="text-center"><b>WFS</b></th>
 									</tr>
@@ -137,6 +141,7 @@
 																<th>Beschreibung</th>
 																<th>Layer Transparenz</th>
 																<th>Legende</th>
+																<th>Zeitschnitt</th>
 																<th>Export</th>
 															  </tr>
 															</thead>
@@ -167,6 +172,12 @@
 																		</i>
 																	</td>
 																	<td>
+																		<select style="font-size: 11px; width:135px; padding: 0px;"
+																				ng-model="poi.selectedDate" ng-change="onChangeSelectedDate(poi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in poi.availablePeriodsOfValidity" ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]"
+																				class="form-control" required>
+																			</select>
+																	</td>
+																	<td>
 																		<a href="" ng-click="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 																		<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
 																	</td>
@@ -193,6 +204,12 @@
 																	<td>
 																		<i style="width:15px; height:15px; background:{{loi.loiColor}}; display:inherit;">
 																		</i>
+																	</td>
+																	<td>
+																		<select style="font-size: 11px; width:135px; padding: 0px;"
+																				ng-model="loi.selectedDate" ng-change="onChangeSelectedDate(loi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in loi.availablePeriodsOfValidity" ng-init="loi.selectedDate = loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]"
+																				class="form-control" required>
+																			</select>
 																	</td>
 																	<td>
 																		<a href="" ng-click="getExportLinkForLoi(loi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
@@ -230,6 +247,12 @@
 																		</i>
 																	</td>
 																	<td>
+																		<select style="font-size: 11px; width:135px; padding: 0px;"
+																				ng-model="aoi.selectedDate" ng-change="onChangeSelectedDate(aoi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in aoi.availablePeriodsOfValidity" ng-init="aoi.selectedDate = aoi.availablePeriodsOfValidity[aoi.availablePeriodsOfValidity.length - 1]"
+																				class="form-control" required>
+																			</select>
+																	</td>
+																	<td>
 																		<a href="" ng-click="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 																		<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
 																	</td>
@@ -261,11 +284,14 @@
 																	</td>																	
 																	<td>
 																		<div ng-if="! dataset.showLegend">
-																			<button class="btn btn-sm btn-primary" ng-click="dataset.showLegend = true;">Legende laden</button>
+																			<button class="btn btn-sm btn-primary" ng-click="dataset.showLegend = true;">laden</button>
 																		</div>
 																		<div ng-if="dataset.showLegend">
 																			<img src="{{dataset.url}}service=WMS&REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&LAYER={{dataset.layerName}}">
 																		</div>
+																	</td>
+																	<td>
+																		-
 																	</td>
 																	<td>
 																		<div align="center">
@@ -316,6 +342,9 @@
 																		</div>
 																	</td>
 																	<td>
+																		-
+																	</td>
+																	<td>
 																		<div align="center">
 																		<a href="{{dataset.url}}service=WFS&request=GetCapabilities&version=1.1.0" title="WFS GetCapabilities URL" rel='noopener noreferrer' target='_blank'><i class="fas fa-cloud-download-alt"></i></a>
 																		</div>
@@ -355,6 +384,7 @@
 															<th>Beschreibung</th>
 															<th>Layer Transparenz</th>
 															<th>Legende</th>
+															<th>Zeitschnitt</th>
 															<th>Export</th>
 														  </tr>
 														</thead>
@@ -385,6 +415,12 @@
 																	</i>
 																</td>
 																<td>
+																	<select style="font-size: 11px; width:135px; padding: 0px;"
+																			ng-model="poi.selectedDate" ng-change="onChangeSelectedDate(poi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in poi.availablePeriodsOfValidity" ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]"
+																			class="form-control" required>
+																		</select>
+																</td>
+																<td>
 																	<a href="" ng-click="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 																	<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
 																</td>
@@ -411,6 +447,12 @@
 																<td>
 																	<i style="width:15px; height:15px; background:{{loi.loiColor}}; display:inherit;">
 																	</i>
+																</td>
+																<td>
+																	<select style="font-size: 11px; width:135px; padding: 0px;"
+																			ng-model="loi.selectedDate" ng-change="onChangeSelectedDate(loi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in loi.availablePeriodsOfValidity" ng-init="loi.selectedDate = loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]"
+																			class="form-control" required>
+																		</select>
 																</td>
 																<td>
 																	<a href="" ng-click="getExportLinkForLoi(loi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
@@ -448,6 +490,12 @@
 																	</i>
 																</td>
 																<td>
+																	<select style="font-size: 11px; width:135px; padding: 0px;"
+																			ng-model="aoi.selectedDate" ng-change="onChangeSelectedDate(aoi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in aoi.availablePeriodsOfValidity" ng-init="aoi.selectedDate = aoi.availablePeriodsOfValidity[aoi.availablePeriodsOfValidity.length - 1]"
+																			class="form-control" required>
+																		</select>
+																</td>
+																<td>
 																	<a href="" ng-click="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 																	<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
 																</td>
@@ -480,11 +528,14 @@
 																
 																<td>
 																	<div ng-if="! dataset.showLegend">
-																		<button class="btn btn-sm btn-primary" ng-click="dataset.showLegend = true;">Legende laden</button>
+																		<button class="btn btn-sm btn-primary" ng-click="dataset.showLegend = true;">laden</button>
 																	</div>
 																	<div ng-if="dataset.showLegend">
 																		<img src="{{dataset.url}}service=WMS&REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&LAYER={{dataset.layerName}}">
 																	</div>
+																</td>
+																<td>
+																	-
 																</td>
 																<td>
 																	<div align="center">
@@ -535,6 +586,9 @@
 																	</div>
 																</td>
 																<td>
+																	-
+																</td>
+																<td>
 																	<div align="center">
 																	<a href="{{dataset.url}}service=WFS&request=GetCapabilities&version=1.1.0" title="WFS GetCapabilities URL" rel='noopener noreferrer' target='_blank'><i class="fas fa-cloud-download-alt"></i></a>
 																	</div>
@@ -573,6 +627,7 @@
 														<th>Beschreibung</th>
 														<th>Layer Transparenz</th>
 														<th>Legende</th>
+														<th>Zeitschnitt</th>
 														<th>Export</th>
 													  </tr>
 													</thead>
@@ -603,6 +658,12 @@
 																</i>
 															</td>
 															<td>
+																<select style="font-size: 11px; width:135px; padding: 0px;"
+																		ng-model="poi.selectedDate" ng-change="onChangeSelectedDate(poi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in poi.availablePeriodsOfValidity" ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]"
+																		class="form-control" required>
+																	</select>
+															</td>
+															<td>
 																<a href="" ng-click="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 																<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
 															</td>
@@ -629,6 +690,12 @@
 															<td>
 																<i style="width:15px; height:15px; background:{{loi.loiColor}}; display:inherit;">
 																</i>
+															</td>
+															<td>
+																<select style="font-size: 11px; width:135px; padding: 0px;"
+																		ng-model="loi.selectedDate" ng-change="onChangeSelectedDate(loi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in loi.availablePeriodsOfValidity" ng-init="loi.selectedDate = loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]"
+																		class="form-control" required>
+																	</select>
 															</td>
 															<td>
 																<a href="" ng-click="getExportLinkForLoi(loi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
@@ -666,6 +733,12 @@
 																</i>
 															</td>
 															<td>
+																<select style="font-size: 11px; width:135px; padding: 0px;"
+																		ng-model="aoi.selectedDate" ng-change="onChangeSelectedDate(aoi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in aoi.availablePeriodsOfValidity" ng-init="aoi.selectedDate = aoi.availablePeriodsOfValidity[aoi.availablePeriodsOfValidity.length - 1]"
+																		class="form-control" required>
+																	</select>
+															</td>
+															<td>
 																<a href="" ng-click="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 																<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
 															</td>
@@ -698,11 +771,14 @@
 															
 															<td>
 																<div ng-if="! dataset.showLegend">
-																	<button class="btn btn-sm btn-primary" ng-click="dataset.showLegend = true;">Legende laden</button>
+																	<button class="btn btn-sm btn-primary" ng-click="dataset.showLegend = true;">laden</button>
 																</div>
 																<div ng-if="dataset.showLegend">
 																	<img src="{{dataset.url}}service=WMS&REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&LAYER={{dataset.layerName}}">
 																</div>
+															</td>
+															<td>
+																-
 															</td>
 															<td>
 																<div align="center">
@@ -753,6 +829,9 @@
 																</div>
 															</td>
 															<td>
+																-
+															</td>
+															<td>
 																<div align="center">
 																<a href="{{dataset.url}}service=WFS&request=GetCapabilities&version=1.1.0" title="WFS GetCapabilities URL" rel='noopener noreferrer' target='_blank'><i class="fas fa-cloud-download-alt"></i></a>
 																</div>
@@ -788,7 +867,7 @@
 	
 								<div class="list-group collapse" uib-collapse="isCollapsed_noTopic">
 									
-							<div class="georesourceInputForm" ng-if="(($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:null} | filter:georesourceNameFilter.value).length > 0) || (($ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:{topicReference:null} | filter:georesourceNameFilter.value).length > 0) || (($ctrl.kommonitorDataExchangeServiceInstance.wfsDatasets | filter:{topicReference:null} | filter:georesourceNameFilter.value).length > 0)">
+							<div class="georesourceInputForm" ng-if="(($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:filterByNoTopic() | filter:georesourceNameFilter.value).length > 0) || (($ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:filterByNoTopic() | filter:georesourceNameFilter.value).length > 0) || (($ctrl.kommonitorDataExchangeServiceInstance.wfsDatasets | filter:filterByNoTopic() | filter:georesourceNameFilter.value).length > 0)">
 
 								<table class="table table-condensed" style="margin-bottom:0px;">
 									<thead>
@@ -796,8 +875,10 @@
 										 <th>Typ</th> 
 										<th>Datensatz</th>
 										<th>Beschreibung</th>
+										
 										<th>Layer Transparenz</th>
 										<th>Legende</th>
+										<th>Zeitschnitt</th>
 										<th>Export</th>
 									  </tr>
 									</thead>
@@ -805,7 +886,7 @@
 									<tbody>
 
 										<!-- POIs -->
-										<tr ng-if="showPOI" ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:{topicReference:null} | filter:georesourceNameFilter.value'>
+										<tr ng-if="showPOI" ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:filterByNoTopic() | filter:georesourceNameFilter.value'>
 											<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 											<td>
 												<i class="fas fa-map-marker-alt"></i>
@@ -819,6 +900,7 @@
 											<td>
 												<p>{{poi.metadata.description}}</p>
 											</td>
+											
 											<td>
 												-
 											</td>
@@ -828,13 +910,19 @@
 												</i>
 											</td>
 											<td>
+												<select style="font-size: 11px; width:135px; padding: 0px;"
+														ng-model="poi.selectedDate" ng-change="onChangeSelectedDate(poi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in poi.availablePeriodsOfValidity" ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]"
+														class="form-control" required>
+													</select>
+											</td>
+											<td>
 												<a href="" ng-click="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 												<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
 											</td>
 										</tr>
 
 										<!-- LOIs -->
-										<tr ng-if="showLOI" ng-repeat='loi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isLOI:true} | filter:{topicReference:null}'>
+										<tr ng-if="showLOI" ng-repeat='loi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isLOI:true} | filter:filterByNoTopic()'>
 											<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 											<td>
 												<i class="fas fa-minus"></i>
@@ -856,13 +944,19 @@
 												</i>
 											</td>
 											<td>
+												<select style="font-size: 11px; width:135px; padding: 0px;"
+														ng-model="loi.selectedDate" ng-change="onChangeSelectedDate(loi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in loi.availablePeriodsOfValidity" ng-init="loi.selectedDate = loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]"
+														class="form-control" required>
+													</select>
+											</td>
+											<td>
 												<a href="" ng-click="getExportLinkForLoi(loi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 												<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
 											</td>
 										</tr>
 
 										<!-- AOIs -->
-										<tr ng-if="showAOI" ng-repeat='aoi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isAOI:true} | filter:{topicReference:null}'>
+										<tr ng-if="showAOI" ng-repeat='aoi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isAOI:true} | filter:filterByNoTopic()'>
 											<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 											<td>
 												<i class="far fa-square"></i>
@@ -891,13 +985,19 @@
 												</i>
 											</td>
 											<td>
+												<select style="font-size: 11px; width:135px; padding: 0px;"
+														ng-model="aoi.selectedDate" ng-change="onChangeSelectedDate(aoi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in aoi.availablePeriodsOfValidity" ng-init="aoi.selectedDate = aoi.availablePeriodsOfValidity[aoi.availablePeriodsOfValidity.length - 1]"
+														class="form-control" required>
+													</select>
+											</td>
+											<td>
 												<a href="" ng-click="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 												<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
 											</td>
 										</tr>
 
 										<!-- WMS -->
-										<tr ng-if="showWMS" ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:georesourceNameFilter.value | filter:{topicReference:null} | orderBy:"title"'>
+										<tr ng-if="showWMS" ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:georesourceNameFilter.value | filter:filterByNoTopic() | orderBy:"title"'>
 											<td>
 												<b>WMS</b>
 											</td>
@@ -923,11 +1023,14 @@
 											
 											<td>
 												<div ng-if="! dataset.showLegend">
-													<button class="btn btn-sm btn-primary" ng-click="dataset.showLegend = true;">Legende laden</button>
+													<button class="btn btn-sm btn-primary" ng-click="dataset.showLegend = true;">laden</button>
 												</div>
 												<div ng-if="dataset.showLegend">
 													<img src="{{dataset.url}}service=WMS&REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&LAYER={{dataset.layerName}}">
 												</div>
+											</td>
+											<td>
+												-
 											</td>
 											<td>
 												<div align="center">
@@ -937,7 +1040,7 @@
 										</tr>
 
 										<!-- WFS -->
-										<tr ng-if="showWFS" ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.wfsDatasets | filter:{topicReference:null} | filter:georesourceNameFilter.value  | orderBy:"title"'>
+										<tr ng-if="showWFS" ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.wfsDatasets | filter:filterByNoTopic() | filter:georesourceNameFilter.value  | orderBy:"title"'>
 											<td>
 												<b>WFS</b>
 											</td>
@@ -976,6 +1079,9 @@
 													<!-- value="{{dataset.displayColor}}" -->
 													<!-- <i style="background-color:{{dataset.displayColor}}; margin-left: 12px; width: 18px; height: 18px; float: left;"></i> -->
 												</div>
+											</td>
+											<td>
+												-
 											</td>
 											<td>
 												<div align="center">
@@ -1032,6 +1138,7 @@
 									<th>Datensatz</th>
 									<th>Beschreibung</th>
 									<th>Legende</th>
+									<th>Zeitschnitt</th>
 									<th>Export</th>
 								  </tr>
 								</thead>
@@ -1053,6 +1160,12 @@
 												<i class="awesome-marker-legend awesome-marker-legend-icon-{{poi.poiMarkerColor}}">
 													<span style="margin-left:3px; padding-right:3px;  font-size:0.7em; color:{{poi.poiSymbolColor}};" class="glyphicon glyphicon-{{poi.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
 												</i>
+											</td>
+											<td>
+												<select style="font-size: 11px; width:135px; padding: 0px;"
+														ng-model="poi.selectedDate" ng-change="onChangeSelectedDate(poi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in poi.availablePeriodsOfValidity" ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]"
+														class="form-control" required>
+													</select>
 											</td>
 											<td>
 												<a href="" ng-click="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
@@ -1107,6 +1220,7 @@
 												<th>Datensatz</th>
 												<th>Beschreibung</th>
 												<th>Legende</th>
+												<th>Zeitschnitt</th>
 												<th>Export</th>
 											</tr>
 										</thead>
@@ -1127,6 +1241,12 @@
 												<td>
 													<i style="width:15px; height:15px; background:{{loi.loiColor}}; display:inherit;">
 													</i>
+												</td>
+												<td>
+													<select style="font-size: 11px; width:135px; padding: 0px;"
+															ng-model="loi.selectedDate" ng-change="onChangeSelectedDate(loi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in loi.availablePeriodsOfValidity" ng-init="loi.selectedDate = loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]"
+															class="form-control" required>
+														</select>
 												</td>
 												<td>
 													<a href="" ng-click="getExportLinkForLoi(loi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
@@ -1177,6 +1297,7 @@
 											<th>Beschreibung</th>
 											<th>Layer Transparenz</th>
 											<th>Legende</th>
+											<th>Zeitschnitt</th>
 											<th>Export</th>
 										  </tr>
 										</thead>
@@ -1207,6 +1328,12 @@
 													<td>
 														<i style="width:15px; height:15px; background:{{aoi.aoiColor}}; display:inherit;">
 														</i>
+													</td>
+													<td>
+														<select style="font-size: 11px; width:135px; padding: 0px;"
+																ng-model="aoi.selectedDate" ng-change="onChangeSelectedDate(aoi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in aoi.availablePeriodsOfValidity" ng-init="aoi.selectedDate = aoi.availablePeriodsOfValidity[aoi.availablePeriodsOfValidity.length - 1]"
+																class="form-control" required>
+															</select>
 													</td>
 													<td>
 														<a href="" ng-click="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
@@ -1287,7 +1414,7 @@
 															</td>
 															<td>
 																<div ng-if="! dataset.showLegend">
-																	<button class="btn btn-sm btn-primary" ng-click="dataset.showLegend = true;">Legende laden</button>
+																	<button class="btn btn-sm btn-primary" ng-click="dataset.showLegend = true;">laden</button>
 																</div>
 																<div ng-if="dataset.showLegend">
 																	<img src="{{dataset.url}}service=WMS&REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&LAYER={{dataset.layerName}}">
