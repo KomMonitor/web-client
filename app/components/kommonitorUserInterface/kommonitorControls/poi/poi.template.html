@@ -43,9 +43,13 @@
 							<!-- <div class="btn-group btn-group-justified"> -->
 								<table class="table" style="width:100%;">
 									<tr>
-									  <th class="text-center"><b>POI</b></th>
-									  <th class="text-center"><b>LOI</b></th>
-									  <th class="text-center"><b>AOI</b></th>
+										<th colspan="3" class="text-center"><b>Infrastruktur</b></th>
+										<th colspan="2" class="text-center"><b>Geodaten-Dienste</b></th>
+									  </tr>
+									<tr>
+									  <th class="text-center"><b>Points</b></th>
+									  <th class="text-center"><b>Lines</b></th>
+									  <th class="text-center"><b>Areas</b></th>
 									  <th class="text-center"><b>WMS</b></th>
 									  <th class="text-center"><b>WFS</b></th>
 									</tr>
@@ -86,7 +90,7 @@
 
 							<div class="input-group">
 								<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-								<input type="text" class="form-control input-sm" placeholder="Filtern nach Georessourcen-Name" ng-model="georesourceNameFilter">
+								<input type="text" class="form-control input-sm" placeholder="Filtern nach Georessourcen-Name" ng-model="georesourceNameFilter.value">
 							</div>
 
 							<br/>
@@ -95,33 +99,37 @@
 		
 								<div ng-repeat="mainTopic in $ctrl.kommonitorDataExchangeServiceInstance.availableTopics | filter:{topicType:'main'} | filter:{topicResource:'georesource'}">
 									<div  class="list-group-item list-group-item-default" style="background: #2171b5; color: white;">
-										<a id="{{mainTopic.topicId}}" href="" ng-attr-title="{{mainTopic.topicDescription}}" class="collapseTrigger" style="color: white;" ng-click="isCollapsed_mainTopic = !isCollapsed_mainTopic" ng-init="isCollapsed_mainTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{mainTopic.topicName}} ({{$ctrl.kommonitorDataExchangeServiceInstance.getNumberOfGeoresources(mainTopic, georesourceNameFilter, showPOI, showLOI, showAOI, showWMS, showWFS)}})</a>
+										<a id="{{mainTopic.topicId}}" href="" ng-attr-title="{{mainTopic.topicDescription}}" class="collapseTrigger" style="color: white;" ng-click="isCollapsed_mainTopic = !isCollapsed_mainTopic" ng-init="isCollapsed_mainTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{mainTopic.topicName}} ({{$ctrl.kommonitorDataExchangeServiceInstance.getNumberOfGeoresources(mainTopic, georesourceNameFilter.value, showPOI, showLOI, showAOI, showWMS, showWFS)}})</a></a>
+										&nbsp;&nbsp; <input type="checkbox" ng-model="mainTopic.isSelected" value="mainTopic.isSelected" id="showAllForTopic_{{mainTopic.topicId}}" ng-change="handleShowAllOnTopic(mainTopic)">
 									</div>
 		
 		
 									<div ng-repeat="subTopic in mainTopic.subTopics" class="list-group collapse" uib-collapse="isCollapsed_mainTopic">
 		
 										<div  class="list-group-item list-group-item-default" style="background: #6baed6; color: white;">
-											<a id="{{subTopic.topicId}}" class="collapseTrigger" style="color: white;" ng-attr-title="{{subTopic.topicDescription}}" href="" ng-click="isCollapsed_subTopic = !isCollapsed_subTopic" ng-init="isCollapsed_subTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{subTopic.topicName}} ({{$ctrl.kommonitorDataExchangeServiceInstance.getNumberOfGeoresources(subTopic, georesourceNameFilter, showPOI, showLOI, showAOI, showWMS, showWFS)}})</a>
+											<a id="{{subTopic.topicId}}" class="collapseTrigger" style="color: white;" ng-attr-title="{{subTopic.topicDescription}}" href="" ng-click="isCollapsed_subTopic = !isCollapsed_subTopic" ng-init="isCollapsed_subTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{subTopic.topicName}} ({{$ctrl.kommonitorDataExchangeServiceInstance.getNumberOfGeoresources(subTopic, georesourceNameFilter.value, showPOI, showLOI, showAOI, showWMS, showWFS)}})</a>
+											&nbsp;&nbsp; <input type="checkbox" ng-model="subTopic.isSelected" value="subTopic.isSelected" id="showAllForTopic_{{subTopic.topicId}}" ng-change="handleShowAllOnTopic(subTopic)">
 										</div>
 		
 										<div ng-repeat="subsubTopic in subTopic.subTopics" class="list-group collapse" uib-collapse="isCollapsed_subTopic">
 		
 											<div  class="list-group-item list-group-item-default" style="background: #bdd7e7; color: white;">
-												<a id="{{subsubTopic.topicId}}" class="collapseTrigger" style="color: white;" ng-attr-title="{{subsubTopic.topicDescription}}" href="" ng-click="isCollapsed_subsubTopic = !isCollapsed_subsubTopic" ng-init="isCollapsed_subsubTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{subsubTopic.topicName}} ({{$ctrl.kommonitorDataExchangeServiceInstance.getNumberOfGeoresources(subsubTopic, georesourceNameFilter, showPOI, showLOI, showAOI, showWMS, showWFS)}})</a>
+												<a id="{{subsubTopic.topicId}}" class="collapseTrigger" style="color: white;" ng-attr-title="{{subsubTopic.topicDescription}}" href="" ng-click="isCollapsed_subsubTopic = !isCollapsed_subsubTopic" ng-init="isCollapsed_subsubTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{subsubTopic.topicName}} ({{$ctrl.kommonitorDataExchangeServiceInstance.getNumberOfGeoresources(subsubTopic, georesourceNameFilter.value, showPOI, showLOI, showAOI, showWMS, showWFS)}})</a>
+												&nbsp;&nbsp; <input type="checkbox" ng-model="subsubTopic.isSelected" value="subsubTopic.isSelected" id="showAllForTopic_{{subsubTopic.topicId}}" ng-change="handleShowAllOnTopic(subsubTopic)">
 											</div>
 		
 											<div ng-repeat="subsubsubTopic in subsubTopic.subTopics" class="list-group collapse" uib-collapse="isCollapsed_subsubTopic">
 		
 												<div  class="list-group-item list-group-item-default" style="background: #eff3ff; color: white;">
-													<a id="{{subsubsubTopic.topicId}}" class="collapseTrigger" style="color: white;" ng-attr-title="{{subsubsubTopic.topicDescription}}">{{subsubsubTopic.topicName}} ({{$ctrl.kommonitorDataExchangeServiceInstance.getNumberOfGeoresources(subsubsubTopic, georesourceNameFilter, showPOI, showLOI, showAOI, showWMS, showWFS)}})</a>
+													<a id="{{subsubsubTopic.topicId}}" class="collapseTrigger" style="color: white;" ng-attr-title="{{subsubsubTopic.topicDescription}}">{{subsubsubTopic.topicName}} ({{$ctrl.kommonitorDataExchangeServiceInstance.getNumberOfGeoresources(subsubsubTopic, georesourceNameFilter.value, showPOI, showLOI, showAOI, showWMS, showWFS)}})</a>
+													&nbsp;&nbsp; <input type="checkbox" ng-model="subsubsubTopic.isSelected" value="subsubsubTopic.isSelected" id="showAllForTopic_{{subsubsubTopic.topicId}}" ng-change="handleShowAllOnTopic(subsubsubTopic)">
 												</div>
 		
 											</div>
 											<!-- end sub sub sub topics -->
 		
 		
-											<div ng-show="(($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter).length > 0) || (($ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter).length > 0) || (($ctrl.kommonitorDataExchangeServiceInstance.wfsDatasets | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter).length > 0)">
+											<div ng-show="(($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter.value).length > 0) || (($ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter.value).length > 0) || (($ctrl.kommonitorDataExchangeServiceInstance.wfsDatasets | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter.value).length > 0)">
 												<div class="list-group collapse" uib-collapse="isCollapsed_subsubTopic">
 													<div class="list-group-item list-group-item-default georesourceInputForm">
 
@@ -133,6 +141,7 @@
 																<th>Beschreibung</th>
 																<th>Layer Transparenz</th>
 																<th>Legende</th>
+																<th>Zeitschnitt</th>
 																<th>Export</th>
 															  </tr>
 															</thead>
@@ -140,7 +149,7 @@
 															<tbody>
 
 																<!-- POIs -->
-																<tr ng-if="showPOI" ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter '>
+																<tr ng-if="showPOI" ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter.value '>
 																	<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 																	<td>
 																		<i class="fas fa-map-marker-alt"></i>
@@ -163,13 +172,19 @@
 																		</i>
 																	</td>
 																	<td>
+																		<select style="font-size: 11px; width:135px; padding: 0px;"
+																				ng-model="poi.selectedDate" ng-change="onChangeSelectedDate(poi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in poi.availablePeriodsOfValidity" ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]"
+																				class="form-control" required>
+																			</select>
+																	</td>
+																	<td>
 																		<a href="" ng-click="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 																		<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
 																	</td>
 																</tr>
 
 																<!-- LOIs -->
-																<tr ng-if="showLOI" ng-repeat='loi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isLOI:true} | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter'>
+																<tr ng-if="showLOI" ng-repeat='loi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isLOI:true} | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter.value'>
 																	<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 																	<td>
 																		<i class="fas fa-minus"></i>
@@ -191,13 +206,19 @@
 																		</i>
 																	</td>
 																	<td>
+																		<select style="font-size: 11px; width:135px; padding: 0px;"
+																				ng-model="loi.selectedDate" ng-change="onChangeSelectedDate(loi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in loi.availablePeriodsOfValidity" ng-init="loi.selectedDate = loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]"
+																				class="form-control" required>
+																			</select>
+																	</td>
+																	<td>
 																		<a href="" ng-click="getExportLinkForLoi(loi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 																		<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
 																	</td>
 																</tr>
 
 																<!-- AOIs -->
-																<tr ng-if="showAOI" ng-repeat='aoi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isAOI:true} | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter'>
+																<tr ng-if="showAOI" ng-repeat='aoi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isAOI:true} | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter.value'>
 																	<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 																	<td>
 																		<i class="far fa-square"></i>
@@ -226,13 +247,19 @@
 																		</i>
 																	</td>
 																	<td>
+																		<select style="font-size: 11px; width:135px; padding: 0px;"
+																				ng-model="aoi.selectedDate" ng-change="onChangeSelectedDate(aoi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in aoi.availablePeriodsOfValidity" ng-init="aoi.selectedDate = aoi.availablePeriodsOfValidity[aoi.availablePeriodsOfValidity.length - 1]"
+																				class="form-control" required>
+																			</select>
+																	</td>
+																	<td>
 																		<a href="" ng-click="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 																		<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
 																	</td>
 																</tr>
 
 																<!-- WMS -->
-																<tr ng-if="showWMS" ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter | orderBy:"title"'>
+																<tr ng-if="showWMS" ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter.value | orderBy:"title"'>
 																	<td>
 																		<b>WMS</b>
 																	</td>
@@ -257,11 +284,14 @@
 																	</td>																	
 																	<td>
 																		<div ng-if="! dataset.showLegend">
-																			<button class="btn btn-sm btn-primary" ng-click="dataset.showLegend = true;">Legende laden</button>
+																			<button class="btn btn-sm btn-primary" ng-click="dataset.showLegend = true;">laden</button>
 																		</div>
 																		<div ng-if="dataset.showLegend">
 																			<img src="{{dataset.url}}service=WMS&REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&LAYER={{dataset.layerName}}">
 																		</div>
+																	</td>
+																	<td>
+																		-
 																	</td>
 																	<td>
 																		<div align="center">
@@ -271,7 +301,7 @@
 																</tr>
 
 																<!-- WFS -->
-																<tr ng-if="showWFS" ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.wfsDatasets | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter  | orderBy:"title"'>
+																<tr ng-if="showWFS" ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.wfsDatasets | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter.value  | orderBy:"title"'>
 																	<td>
 																		<b>WFS</b>
 																	</td>
@@ -312,6 +342,9 @@
 																		</div>
 																	</td>
 																	<td>
+																		-
+																	</td>
+																	<td>
 																		<div align="center">
 																		<a href="{{dataset.url}}service=WFS&request=GetCapabilities&version=1.1.0" title="WFS GetCapabilities URL" rel='noopener noreferrer' target='_blank'><i class="fas fa-cloud-download-alt"></i></a>
 																		</div>
@@ -325,7 +358,7 @@
 														</div>
 												</div>
 											</div>
-											<div ng-show="!(($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter).length > 0) && !(($ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter).length > 0) && !(($ctrl.kommonitorDataExchangeServiceInstance.wfsDatasets | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter).length > 0)">
+											<div ng-show="!(($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter.value).length > 0) && !(($ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter.value).length > 0) && !(($ctrl.kommonitorDataExchangeServiceInstance.wfsDatasets | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter.value).length > 0)">
 												<div class="list-group collapse" uib-collapse="isCollapsed_subsubTopic">
 													<!-- <div class="list-group-item list-group-item-default" style="background: #eb9c98;">
 														 <p><i class="fas fa-ban"></i> &nbsp;&nbsp;- keine Georessourcen in dieser Hierarchieebene -</p>
@@ -339,7 +372,7 @@
 		
 		
 		
-										<div ng-show="(($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter).length > 0) || (($ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter).length > 0) || (($ctrl.kommonitorDataExchangeServiceInstance.wfsDatasets | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter).length > 0)">
+										<div ng-show="(($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter.value).length > 0) || (($ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter.value).length > 0) || (($ctrl.kommonitorDataExchangeServiceInstance.wfsDatasets | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter.value).length > 0)">
 											<div class="list-group collapse" uib-collapse="isCollapsed_subTopic">
 												<div class="list-group-item list-group-item-default georesourceInputForm">
 												
@@ -351,6 +384,7 @@
 															<th>Beschreibung</th>
 															<th>Layer Transparenz</th>
 															<th>Legende</th>
+															<th>Zeitschnitt</th>
 															<th>Export</th>
 														  </tr>
 														</thead>
@@ -358,7 +392,7 @@
 														<tbody>
 
 															<!-- POIs -->
-															<tr ng-if="showPOI" ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter'>
+															<tr ng-if="showPOI" ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter.value'>
 																<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 																<td>
 																	<i class="fas fa-map-marker-alt"></i>
@@ -381,13 +415,19 @@
 																	</i>
 																</td>
 																<td>
+																	<select style="font-size: 11px; width:135px; padding: 0px;"
+																			ng-model="poi.selectedDate" ng-change="onChangeSelectedDate(poi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in poi.availablePeriodsOfValidity" ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]"
+																			class="form-control" required>
+																		</select>
+																</td>
+																<td>
 																	<a href="" ng-click="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 																	<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
 																</td>
 															</tr>
 
 															<!-- LOIs -->
-															<tr ng-if="showLOI" ng-repeat='loi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isLOI:true} | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter'>
+															<tr ng-if="showLOI" ng-repeat='loi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isLOI:true} | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter.value'>
 																<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 																<td>
 																	<i class="fas fa-minus"></i>
@@ -409,13 +449,19 @@
 																	</i>
 																</td>
 																<td>
+																	<select style="font-size: 11px; width:135px; padding: 0px;"
+																			ng-model="loi.selectedDate" ng-change="onChangeSelectedDate(loi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in loi.availablePeriodsOfValidity" ng-init="loi.selectedDate = loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]"
+																			class="form-control" required>
+																		</select>
+																</td>
+																<td>
 																	<a href="" ng-click="getExportLinkForLoi(loi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 																	<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
 																</td>
 															</tr>
 
 															<!-- AOIs -->
-															<tr ng-if="showAOI" ng-repeat='aoi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isAOI:true} | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter'>
+															<tr ng-if="showAOI" ng-repeat='aoi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isAOI:true} | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter.value'>
 																<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 																<td>
 																	<i class="far fa-square"></i>
@@ -444,13 +490,19 @@
 																	</i>
 																</td>
 																<td>
+																	<select style="font-size: 11px; width:135px; padding: 0px;"
+																			ng-model="aoi.selectedDate" ng-change="onChangeSelectedDate(aoi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in aoi.availablePeriodsOfValidity" ng-init="aoi.selectedDate = aoi.availablePeriodsOfValidity[aoi.availablePeriodsOfValidity.length - 1]"
+																			class="form-control" required>
+																		</select>
+																</td>
+																<td>
 																	<a href="" ng-click="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 																	<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
 																</td>
 															</tr>
 
 															<!-- WMS -->
-															<tr ng-if="showWMS" ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter | orderBy:"title"'>
+															<tr ng-if="showWMS" ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter.value | orderBy:"title"'>
 																<td>
 																	<b>WMS</b>
 																</td>
@@ -476,11 +528,14 @@
 																
 																<td>
 																	<div ng-if="! dataset.showLegend">
-																		<button class="btn btn-sm btn-primary" ng-click="dataset.showLegend = true;">Legende laden</button>
+																		<button class="btn btn-sm btn-primary" ng-click="dataset.showLegend = true;">laden</button>
 																	</div>
 																	<div ng-if="dataset.showLegend">
 																		<img src="{{dataset.url}}service=WMS&REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&LAYER={{dataset.layerName}}">
 																	</div>
+																</td>
+																<td>
+																	-
 																</td>
 																<td>
 																	<div align="center">
@@ -490,7 +545,7 @@
 															</tr>
 
 															<!-- WFS -->
-															<tr ng-if="showWFS" ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.wfsDatasets | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter  | orderBy:"title"'>
+															<tr ng-if="showWFS" ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.wfsDatasets | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter.value  | orderBy:"title"'>
 																<td>
 																	<b>WFS</b>
 																</td>
@@ -531,6 +586,9 @@
 																	</div>
 																</td>
 																<td>
+																	-
+																</td>
+																<td>
 																	<div align="center">
 																	<a href="{{dataset.url}}service=WFS&request=GetCapabilities&version=1.1.0" title="WFS GetCapabilities URL" rel='noopener noreferrer' target='_blank'><i class="fas fa-cloud-download-alt"></i></a>
 																	</div>
@@ -544,7 +602,7 @@
 												</div>
 											</div>
 										</div>
-										<div ng-show="!(($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter).length > 0) && !(($ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter).length > 0) && !(($ctrl.kommonitorDataExchangeServiceInstance.wfsDatasets | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter).length > 0)">
+										<div ng-show="!(($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter.value).length > 0) && !(($ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter.value).length > 0) && !(($ctrl.kommonitorDataExchangeServiceInstance.wfsDatasets | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter.value).length > 0)">
 											<div class="list-group collapse" uib-collapse="isCollapsed_subTopic">
 												<!-- <div class="list-group-item list-group-item-default" style="background: #eb9c98;">
 													 <p><i class="fas fa-ban"></i> &nbsp;&nbsp;- keine Georessourcen in dieser Hierarchieebene -</p>
@@ -557,7 +615,7 @@
 		
 									</div>
 									<!-- end sub topics -->
-									<div ng-show="(($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter).length > 0) || (($ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter).length > 0) || (($ctrl.kommonitorDataExchangeServiceInstance.wfsDatasets | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter).length > 0)">
+									<div ng-show="(($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter.value).length > 0) || (($ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter.value).length > 0) || (($ctrl.kommonitorDataExchangeServiceInstance.wfsDatasets | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter.value).length > 0)">
 										<div class="list-group collapse" uib-collapse="isCollapsed_mainTopic">
 											<div class="list-group-item list-group-item-default georesourceInputForm">
 												 
@@ -569,6 +627,7 @@
 														<th>Beschreibung</th>
 														<th>Layer Transparenz</th>
 														<th>Legende</th>
+														<th>Zeitschnitt</th>
 														<th>Export</th>
 													  </tr>
 													</thead>
@@ -576,7 +635,7 @@
 													<tbody>
 
 														<!-- POIs -->
-														<tr ng-if="showPOI" ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter'>
+														<tr ng-if="showPOI" ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter.value'>
 															<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 															<td>
 																<i class="fas fa-map-marker-alt"></i>
@@ -599,13 +658,19 @@
 																</i>
 															</td>
 															<td>
+																<select style="font-size: 11px; width:135px; padding: 0px;"
+																		ng-model="poi.selectedDate" ng-change="onChangeSelectedDate(poi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in poi.availablePeriodsOfValidity" ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]"
+																		class="form-control" required>
+																	</select>
+															</td>
+															<td>
 																<a href="" ng-click="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 																<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
 															</td>
 														</tr>
 
 														<!-- LOIs -->
-														<tr ng-if="showLOI" ng-repeat='loi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isLOI:true} | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter'>
+														<tr ng-if="showLOI" ng-repeat='loi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isLOI:true} | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter.value'>
 															<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 															<td>
 																<i class="fas fa-minus"></i>
@@ -615,16 +680,22 @@
 					
 																	<b>&nbsp;&nbsp;{{loi.datasetName}}</b>
 																</label>
+															</td>															
+															<td>
+																<p>{{loi.metadata.description}}</p>
 															</td>
 															<td>
 																-
 															</td>
 															<td>
-																<p>{{loi.metadata.description}}</p>
-															</td>
-															<td>
 																<i style="width:15px; height:15px; background:{{loi.loiColor}}; display:inherit;">
 																</i>
+															</td>
+															<td>
+																<select style="font-size: 11px; width:135px; padding: 0px;"
+																		ng-model="loi.selectedDate" ng-change="onChangeSelectedDate(loi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in loi.availablePeriodsOfValidity" ng-init="loi.selectedDate = loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]"
+																		class="form-control" required>
+																	</select>
 															</td>
 															<td>
 																<a href="" ng-click="getExportLinkForLoi(loi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
@@ -633,7 +704,7 @@
 														</tr>
 
 														<!-- AOIs -->
-														<tr ng-if="showAOI" ng-repeat='aoi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isAOI:true} | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter'>
+														<tr ng-if="showAOI" ng-repeat='aoi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isAOI:true} | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter.value'>
 															<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 															<td>
 																<i class="far fa-square"></i>
@@ -662,13 +733,19 @@
 																</i>
 															</td>
 															<td>
+																<select style="font-size: 11px; width:135px; padding: 0px;"
+																		ng-model="aoi.selectedDate" ng-change="onChangeSelectedDate(aoi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in aoi.availablePeriodsOfValidity" ng-init="aoi.selectedDate = aoi.availablePeriodsOfValidity[aoi.availablePeriodsOfValidity.length - 1]"
+																		class="form-control" required>
+																	</select>
+															</td>
+															<td>
 																<a href="" ng-click="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 																<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
 															</td>
 														</tr>
 
 														<!-- WMS -->
-														<tr ng-if="showWMS" ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter | orderBy:"title"'>
+														<tr ng-if="showWMS" ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter.value | orderBy:"title"'>
 															<td>
 																<b>WMS</b>
 															</td>
@@ -694,11 +771,14 @@
 															
 															<td>
 																<div ng-if="! dataset.showLegend">
-																	<button class="btn btn-sm btn-primary" ng-click="dataset.showLegend = true;">Legende laden</button>
+																	<button class="btn btn-sm btn-primary" ng-click="dataset.showLegend = true;">laden</button>
 																</div>
 																<div ng-if="dataset.showLegend">
 																	<img src="{{dataset.url}}service=WMS&REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&LAYER={{dataset.layerName}}">
 																</div>
+															</td>
+															<td>
+																-
 															</td>
 															<td>
 																<div align="center">
@@ -708,7 +788,7 @@
 														</tr>
 
 														<!-- WFS -->
-														<tr ng-if="showWFS" ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.wfsDatasets | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter  | orderBy:"title"'>
+														<tr ng-if="showWFS" ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.wfsDatasets | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter.value  | orderBy:"title"'>
 															<td>
 																<b>WFS</b>
 															</td>
@@ -749,6 +829,9 @@
 																</div>
 															</td>
 															<td>
+																-
+															</td>
+															<td>
 																<div align="center">
 																<a href="{{dataset.url}}service=WFS&request=GetCapabilities&version=1.1.0" title="WFS GetCapabilities URL" rel='noopener noreferrer' target='_blank'><i class="fas fa-cloud-download-alt"></i></a>
 																</div>
@@ -762,7 +845,7 @@
 											</div>
 										</div>
 									</div>
-									<div ng-show="!(($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter).length > 0) && !(($ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter).length > 0) && !(($ctrl.kommonitorDataExchangeServiceInstance.wfsDatasets | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter).length > 0)">
+									<div ng-show="!(($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter.value).length > 0) && !(($ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter.value).length > 0) && !(($ctrl.kommonitorDataExchangeServiceInstance.wfsDatasets | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter.value).length > 0)">
 										<div class="list-group collapse" uib-collapse="isCollapsed_mainTopic">
 											<!-- <div class="list-group-item list-group-item-default" style="background: #eb9c98;">
 												 <p><i class="fas fa-ban"></i> &nbsp;&nbsp;- keine Georessourcen in dieser Hierarchieebene -</p>
@@ -777,13 +860,14 @@
 								<!-- end main Topics -->
 
 								<div  class="list-group-item list-group-item-default" style="background: #2171b5; color: white;">
-									<a id="noHierarchyGeoresourceDatasets" href="" ng-attr-title="Georessourcen-Daten ohne Hierarchie" class="collapseTrigger" style="color: white;" ng-click="isCollapsed_noTopic = !isCollapsed_noTopic" ng-init="isCollapsed_noTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>ohne Hierarchie ({{$ctrl.kommonitorDataExchangeServiceInstance.getNumberOfGeoresources(null, georesourceNameFilter, showPOI, showLOI, showAOI, showWMS, showWFS)}})</a>
+									<a id="noHierarchyGeoresourceDatasets" href="" ng-attr-title="Georessourcen-Daten ohne Hierarchie" class="collapseTrigger" style="color: white;" ng-click="isCollapsed_noTopic = !isCollapsed_noTopic" ng-init="isCollapsed_noTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>ohne Hierarchie ({{$ctrl.kommonitorDataExchangeServiceInstance.getNumberOfGeoresources(null, georesourceNameFilter.value, showPOI, showLOI, showAOI, showWMS, showWFS)}})</a>
+									&nbsp;&nbsp; <input type="checkbox" value="showAllForTopic_null" ng-model="showAllForTopic_null" ng-change="handleShowAllOnTopic(null)">
 								</div>
 	
 	
 								<div class="list-group collapse" uib-collapse="isCollapsed_noTopic">
 									
-							<div class="georesourceInputForm" ng-if="(($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:null} | filter:georesourceNameFilter).length > 0) || (($ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:{topicReference:null} | filter:georesourceNameFilter).length > 0) || (($ctrl.kommonitorDataExchangeServiceInstance.wfsDatasets | filter:{topicReference:null} | filter:georesourceNameFilter).length > 0)">
+							<div class="georesourceInputForm" ng-if="(($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:filterByNoTopic() | filter:georesourceNameFilter.value).length > 0) || (($ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:filterByNoTopic() | filter:georesourceNameFilter.value).length > 0) || (($ctrl.kommonitorDataExchangeServiceInstance.wfsDatasets | filter:filterByNoTopic() | filter:georesourceNameFilter.value).length > 0)">
 
 								<table class="table table-condensed" style="margin-bottom:0px;">
 									<thead>
@@ -791,8 +875,10 @@
 										 <th>Typ</th> 
 										<th>Datensatz</th>
 										<th>Beschreibung</th>
+										
 										<th>Layer Transparenz</th>
 										<th>Legende</th>
+										<th>Zeitschnitt</th>
 										<th>Export</th>
 									  </tr>
 									</thead>
@@ -800,7 +886,7 @@
 									<tbody>
 
 										<!-- POIs -->
-										<tr ng-if="showPOI" ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:{topicReference:null} | filter:georesourceNameFilter'>
+										<tr ng-if="showPOI" ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:filterByNoTopic() | filter:georesourceNameFilter.value'>
 											<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 											<td>
 												<i class="fas fa-map-marker-alt"></i>
@@ -814,6 +900,7 @@
 											<td>
 												<p>{{poi.metadata.description}}</p>
 											</td>
+											
 											<td>
 												-
 											</td>
@@ -823,13 +910,19 @@
 												</i>
 											</td>
 											<td>
+												<select style="font-size: 11px; width:135px; padding: 0px;"
+														ng-model="poi.selectedDate" ng-change="onChangeSelectedDate(poi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in poi.availablePeriodsOfValidity" ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]"
+														class="form-control" required>
+													</select>
+											</td>
+											<td>
 												<a href="" ng-click="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 												<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
 											</td>
 										</tr>
 
 										<!-- LOIs -->
-										<tr ng-if="showLOI" ng-repeat='loi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isLOI:true} | filter:{topicReference:null}'>
+										<tr ng-if="showLOI" ng-repeat='loi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isLOI:true} | filter:filterByNoTopic()'>
 											<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 											<td>
 												<i class="fas fa-minus"></i>
@@ -851,13 +944,19 @@
 												</i>
 											</td>
 											<td>
+												<select style="font-size: 11px; width:135px; padding: 0px;"
+														ng-model="loi.selectedDate" ng-change="onChangeSelectedDate(loi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in loi.availablePeriodsOfValidity" ng-init="loi.selectedDate = loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]"
+														class="form-control" required>
+													</select>
+											</td>
+											<td>
 												<a href="" ng-click="getExportLinkForLoi(loi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 												<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
 											</td>
 										</tr>
 
 										<!-- AOIs -->
-										<tr ng-if="showAOI" ng-repeat='aoi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isAOI:true} | filter:{topicReference:null}'>
+										<tr ng-if="showAOI" ng-repeat='aoi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isAOI:true} | filter:filterByNoTopic()'>
 											<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 											<td>
 												<i class="far fa-square"></i>
@@ -886,13 +985,19 @@
 												</i>
 											</td>
 											<td>
+												<select style="font-size: 11px; width:135px; padding: 0px;"
+														ng-model="aoi.selectedDate" ng-change="onChangeSelectedDate(aoi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in aoi.availablePeriodsOfValidity" ng-init="aoi.selectedDate = aoi.availablePeriodsOfValidity[aoi.availablePeriodsOfValidity.length - 1]"
+														class="form-control" required>
+													</select>
+											</td>
+											<td>
 												<a href="" ng-click="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 												<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
 											</td>
 										</tr>
 
 										<!-- WMS -->
-										<tr ng-if="showWMS" ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:georesourceNameFilter | filter:{topicReference:null} | orderBy:"title"'>
+										<tr ng-if="showWMS" ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:georesourceNameFilter.value | filter:filterByNoTopic() | orderBy:"title"'>
 											<td>
 												<b>WMS</b>
 											</td>
@@ -918,11 +1023,14 @@
 											
 											<td>
 												<div ng-if="! dataset.showLegend">
-													<button class="btn btn-sm btn-primary" ng-click="dataset.showLegend = true;">Legende laden</button>
+													<button class="btn btn-sm btn-primary" ng-click="dataset.showLegend = true;">laden</button>
 												</div>
 												<div ng-if="dataset.showLegend">
 													<img src="{{dataset.url}}service=WMS&REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&LAYER={{dataset.layerName}}">
 												</div>
+											</td>
+											<td>
+												-
 											</td>
 											<td>
 												<div align="center">
@@ -932,7 +1040,7 @@
 										</tr>
 
 										<!-- WFS -->
-										<tr ng-if="showWFS" ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.wfsDatasets | filter:{topicReference:null} | filter:georesourceNameFilter  | orderBy:"title"'>
+										<tr ng-if="showWFS" ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.wfsDatasets | filter:filterByNoTopic() | filter:georesourceNameFilter.value  | orderBy:"title"'>
 											<td>
 												<b>WFS</b>
 											</td>
@@ -971,6 +1079,9 @@
 													<!-- value="{{dataset.displayColor}}" -->
 													<!-- <i style="background-color:{{dataset.displayColor}}; margin-left: 12px; width: 18px; height: 18px; float: left;"></i> -->
 												</div>
+											</td>
+											<td>
+												-
 											</td>
 											<td>
 												<div align="center">
@@ -1027,6 +1138,7 @@
 									<th>Datensatz</th>
 									<th>Beschreibung</th>
 									<th>Legende</th>
+									<th>Zeitschnitt</th>
 									<th>Export</th>
 								  </tr>
 								</thead>
@@ -1048,6 +1160,12 @@
 												<i class="awesome-marker-legend awesome-marker-legend-icon-{{poi.poiMarkerColor}}">
 													<span style="margin-left:3px; padding-right:3px;  font-size:0.7em; color:{{poi.poiSymbolColor}};" class="glyphicon glyphicon-{{poi.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
 												</i>
+											</td>
+											<td>
+												<select style="font-size: 11px; width:135px; padding: 0px;"
+														ng-model="poi.selectedDate" ng-change="onChangeSelectedDate(poi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in poi.availablePeriodsOfValidity" ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]"
+														class="form-control" required>
+													</select>
 											</td>
 											<td>
 												<a href="" ng-click="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
@@ -1102,6 +1220,7 @@
 												<th>Datensatz</th>
 												<th>Beschreibung</th>
 												<th>Legende</th>
+												<th>Zeitschnitt</th>
 												<th>Export</th>
 											</tr>
 										</thead>
@@ -1122,6 +1241,12 @@
 												<td>
 													<i style="width:15px; height:15px; background:{{loi.loiColor}}; display:inherit;">
 													</i>
+												</td>
+												<td>
+													<select style="font-size: 11px; width:135px; padding: 0px;"
+															ng-model="loi.selectedDate" ng-change="onChangeSelectedDate(loi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in loi.availablePeriodsOfValidity" ng-init="loi.selectedDate = loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]"
+															class="form-control" required>
+														</select>
 												</td>
 												<td>
 													<a href="" ng-click="getExportLinkForLoi(loi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
@@ -1172,6 +1297,7 @@
 											<th>Beschreibung</th>
 											<th>Layer Transparenz</th>
 											<th>Legende</th>
+											<th>Zeitschnitt</th>
 											<th>Export</th>
 										  </tr>
 										</thead>
@@ -1202,6 +1328,12 @@
 													<td>
 														<i style="width:15px; height:15px; background:{{aoi.aoiColor}}; display:inherit;">
 														</i>
+													</td>
+													<td>
+														<select style="font-size: 11px; width:135px; padding: 0px;"
+																ng-model="aoi.selectedDate" ng-change="onChangeSelectedDate(aoi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in aoi.availablePeriodsOfValidity" ng-init="aoi.selectedDate = aoi.availablePeriodsOfValidity[aoi.availablePeriodsOfValidity.length - 1]"
+																class="form-control" required>
+															</select>
 													</td>
 													<td>
 														<a href="" ng-click="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
@@ -1282,7 +1414,7 @@
 															</td>
 															<td>
 																<div ng-if="! dataset.showLegend">
-																	<button class="btn btn-sm btn-primary" ng-click="dataset.showLegend = true;">Legende laden</button>
+																	<button class="btn btn-sm btn-primary" ng-click="dataset.showLegend = true;">laden</button>
 																</div>
 																<div ng-if="dataset.showLegend">
 																	<img src="{{dataset.url}}service=WMS&REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&LAYER={{dataset.layerName}}">

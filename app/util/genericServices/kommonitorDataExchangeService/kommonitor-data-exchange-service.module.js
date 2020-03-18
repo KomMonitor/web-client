@@ -242,8 +242,8 @@ angular
           };
 
           this.topicHierarchyContainsIndicator = function(topic, indicatorMetadata){
-            if(topic === null){
-              if (indicatorMetadata.topicReference === null){
+            if(topic === null || topic === ""){
+              if (indicatorMetadata.topicReference === null || indicatorMetadata.topicReference === ""){
                 return true;
               }
               else{
@@ -274,6 +274,15 @@ angular
           };
 
           // topic may be null
+          this.getGeoresourceDatasets = function(topic, georesourceNameFilter, showPOI, showLOI, showAOI, showWMS, showWFS){
+            var availableGeoresources = this.getAvailableGeoresources(topic, georesourceNameFilter, showPOI, showLOI, showAOI); 
+            var wmsDatasets = this.getAvailableWmsDatasets(topic, georesourceNameFilter, showWMS);
+            var wfsDatasets = this.getAvailableWfsDatasets(topic, georesourceNameFilter, showWFS);
+            
+            var datasets = availableGeoresources.concat(wmsDatasets).concat(wfsDatasets);
+            return datasets;
+          };
+
           this.getNumberOfGeoresources = function(topic, georesourceNameFilter, showPOI, showLOI, showAOI, showWMS, showWFS){
 
             var numberOfAvailableGeoresources = this.getNumberOfAvailableGeoresources(topic, georesourceNameFilter, showPOI, showLOI, showAOI); 
@@ -282,26 +291,6 @@ angular
             
             var numberOfResources = numberOfAvailableGeoresources + numberOfWmsDatasets + numberOfWfsDatasets;
             return numberOfResources;
-          };
-
-          this.getNumberOfAvailableGeoresources = function(topic, georesourceNameFilter, showPOI, showLOI, showAOI){
-            var numberOfGeoresources = 0;
-
-            var filteredGeoresources = this.availableGeoresources;
-            
-            if(georesourceNameFilter && georesourceNameFilter != ""){
-              filteredGeoresources = filterArrayObjectsByValue(filteredGeoresources, georesourceNameFilter);									
-            }
-
-            filteredGeoresources = filterGeoresourcesByTypes(filteredGeoresources, showPOI, showLOI, showAOI);
-            
-            for (const georesourceMetadata of filteredGeoresources) {              
-              if (this.topicHierarchyContainsGeoresource(topic, georesourceMetadata)){
-                numberOfGeoresources++;
-              }
-            }
-
-            return numberOfGeoresources;
           };
 
           var filterGeoresourcesByTypes = function(georesourceMetadataArray, showPOI, showLOI, showAOI){
@@ -341,12 +330,36 @@ angular
             });
           };
 
-          this.getNumberOfAvailableWmsDatasets = function(topic, georesourceNameFilter, showWMS){
-            if(!showWMS){
-              return 0;
+          this.getAvailableGeoresources = function(topic, georesourceNameFilter, showPOI, showLOI, showAOI){
+            var georesources = [];
+
+            var filteredGeoresources = this.availableGeoresources;
+            
+            if(georesourceNameFilter && georesourceNameFilter != ""){
+              filteredGeoresources = filterArrayObjectsByValue(filteredGeoresources, georesourceNameFilter);									
             }
 
-            var numberOfWmsDatasets = 0;
+            filteredGeoresources = filterGeoresourcesByTypes(filteredGeoresources, showPOI, showLOI, showAOI);
+            
+            for (const georesourceMetadata of filteredGeoresources) {              
+              if (this.topicHierarchyContainsGeoresource(topic, georesourceMetadata)){
+                georesources.push(georesourceMetadata);
+              }
+            }
+
+            return georesources;
+          }; 
+
+          this.getNumberOfAvailableGeoresources = function(topic, georesourceNameFilter, showPOI, showLOI, showAOI){
+            return this.getAvailableGeoresources(topic, georesourceNameFilter, showPOI, showLOI, showAOI).length;
+          };          
+
+          this.getAvailableWmsDatasets = function(topic, georesourceNameFilter, showWMS){
+            if(!showWMS){
+              return [];
+            }
+
+            var wmsDatasets = [];
 
             var filteredWmsDatasets = this.wmsDatasets;
             
@@ -356,20 +369,27 @@ angular
             
             for (const wmsMetadata of filteredWmsDatasets) {
               if (this.topicHierarchyContainsWms(topic, wmsMetadata)){
-                numberOfWmsDatasets++;
+                wmsDatasets.push(wmsMetadata);
               }
             }
 
-            return numberOfWmsDatasets;
+            return wmsDatasets;
           };
 
-          this.getNumberOfAvailableWfsDatasets = function(topic, georesourceNameFilter, showWFS){
-            if(!showWFS){
+          this.getNumberOfAvailableWmsDatasets = function(topic, georesourceNameFilter, showWMS){
+            if(!showWMS){
               return 0;
             }
-            
 
-            var numberOfWfsDatasets = 0;
+            return this.getAvailableWmsDatasets(topic, georesourceNameFilter, showWMS).length;
+          };
+
+          this.getAvailableWfsDatasets = function(topic, georesourceNameFilter, showWFS){
+            if(!showWFS){
+              return [];
+            }
+
+            var wfsDatasets = [];
 
             var filteredWfsDatasets = this.wfsDatasets;
             
@@ -378,12 +398,20 @@ angular
             }
             
             for (const wfsMetadata of filteredWfsDatasets) {
-              if (this.topicHierarchyContainsWfs(topic, wfsMetadata)){
-                numberOfWfsDatasets++;
+              if (this.topicHierarchyContainsWms(topic, wfsMetadata)){
+                wfsDatasets.push(wfsMetadata);
               }
             }
 
-            return numberOfWfsDatasets;
+            return wfsDatasets;
+          };
+
+          this.getNumberOfAvailableWfsDatasets = function(topic, georesourceNameFilter, showWFS){
+            if(!showWFS){
+              return 0;
+            }
+
+            return this.getAvailableWfsDatasets(topic, georesourceNameFilter, showWFS).length;
           };
 
           this.getNumberOfIndicators = function(topic, indicatorNameFilter){
@@ -444,6 +472,17 @@ angular
               if (indicatorMetadata.indicatorId === indicatorId){
                 return indicatorMetadata.abbreviation;
               }
+            }
+          };
+
+          this.referencedTopicIdExists = function(topicId){
+            var topicHierarchy = this.getTopicHierarchyForTopicId(topicId);
+
+            if(topicHierarchy.length === 0){
+              return false;
+            }
+            else{
+              return true;
             }
           };
 
