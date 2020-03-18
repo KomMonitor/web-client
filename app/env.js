@@ -352,6 +352,28 @@
       displayColor: "#00aabb",
       filterFeaturesToMapBBOX: false,
       topicReference: null
+    },
+    {
+      title: "Supermärkte",
+      description: "Standorte von Supermärkten",
+      url: "https://geoserver.kartenportal.org/geoserver/smartdemography/ows?",
+      featureTypeNamespace: "smartdemography",
+      featureTypeName: "sd_supermarkt_p",
+      featureTypeGeometryName: "the_geom",
+      displayColor: "#00aabb",
+      filterFeaturesToMapBBOX: false,
+      topicReference: "68f49954-8cb9-4d33-b478-dbad949be0e1"
+    },
+    {
+      title: "Einkaufszentren",
+      description: "Standorte von Einkaufszentren",
+      url: "https://geoserver.kartenportal.org/geoserver/smartdemography/ows?",
+      featureTypeNamespace: "smartdemography",
+      featureTypeName: "sd_einkaufszentrum_p",
+      featureTypeGeometryName: "the_geom",
+      displayColor: "#00aabb",
+      filterFeaturesToMapBBOX: false,
+      topicReference: "68f49954-8cb9-4d33-b478-dbad949be0e1"
     }
     // {
     //   title: "Verwaltungsgrenzen Kreise und kreisfreie St&auml;dte",
