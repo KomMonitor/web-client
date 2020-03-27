@@ -2804,21 +2804,38 @@ angular.module('kommonitorMap').component(
               // layer.layer.setOpacity(opacity);
               var newStyle = getWfsStyle(dataset, opacity);
               // layer.layer.options.style = newStyle;
-              layer.layer.setStyle(newStyle);
+              if(layer.layer._layers){
+                for(var layerId in layer.layer._layers){
 
-              if(dataset.geometryType === "POI"){
-                layer.layer.setOpacity(opacity);
-              }
+  
+                  if(dataset.geometryType === "POI"){
+                    layer.layer._layers[layerId].setOpacity(opacity);
+                  }
+                  else{
+                    layer.layer._layers[layerId].setStyle(newStyle);
+                  }
+                }
+              }   
+              else{                
+
+                if(dataset.geometryType === "POI"){
+                  layer.layer.setOpacity(opacity);
+                }
+                else{
+                  layer.layer.setStyle(newStyle);
+                }
+              }           
+              
             }
           });
         });
 
-        $scope.$on("adjustColorForWfsLayer", function (event, dataset) {
+        $scope.$on("adjustColorForWfsLayer", function (event, dataset, opacity) {
           var layerName = dataset.title;
 
           $scope.layerControl._layers.forEach(function (layer) {
             if (layer.group.name === wfsLayerGroupName && layer.name.includes(layerName)) {
-              var newStyle = getWfsStyle(dataset);
+              var newStyle = getWfsStyle(dataset, opacity);
 
               layer.layer.setStyle(newStyle);
             }
