@@ -359,6 +359,24 @@
       aoiColor: "#00aabb",
       filterFeaturesToMapBBOX: false,
       topicReference: null
+    },
+    {
+      title: "Bäckereien",
+      description: "Standorte von Bäckereien",
+      url: "https://geoserver.kartenportal.org/geoserver/smartdemography/ows?",
+      featureTypeNamespace: "smartdemography",
+      featureTypeName: "sd_baeckerei_p",
+      featureTypeGeometryName: "the_geom",
+      geometryType: "POI", // POI|LOI|AOI
+      poiSymbolColor: "white", // ['white', 'red', 'orange', 'beige', 'green', 'blue', 'purple', 'pink', 'gray', 'black']
+      poiMarkerColor: "red", // ['white', 'red', 'orange', 'beige', 'green', 'blue', 'purple', 'pink', 'gray', 'black']
+      poiSymbolBootstrap3Name: "home",
+      loiColor: "#00aabb",
+      loiWidth: 3,
+      loiDashArrayString: "",
+      aoiColor: "#00aabb",
+      filterFeaturesToMapBBOX: false,
+      topicReference: "68f49954-8cb9-4d33-b478-dbad949be0e1"
     }
   ];
 

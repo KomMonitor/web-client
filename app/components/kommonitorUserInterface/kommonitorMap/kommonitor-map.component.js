@@ -2734,20 +2734,29 @@ angular.module('kommonitorMap').component(
             typeName: dataset.featureTypeName,
             geometryField: dataset.featureTypeGeometryName,
             maxFeatures: null,
-            style: getWfsStyle(dataset)
+            style: getWfsStyle(dataset, opacity)
           };
-
-          if(dataset.geometryType === "POI"){
-            wfsLayerOptions.pointToLayer = function (featureData, latlng) {
-              return createCustomMarker(featureData, dataset.poiSymbolColor, dataset.poiMarkerColor, dataset.poiSymbolBootstrap3Name, dataset);
-            };
-          }
 
           if (dataset.filterFeaturesToMapBBOX) {
             wfsLayerOptions.filter = new L.Filter.BBox(dataset.featureTypeGeometryName, $scope.map.getBounds(), L.CRS.EPSG3857);
           }
 
-          var wfsLayer = new L.WFS(wfsLayerOptions);
+          var wfsLayer;
+
+          if(dataset.geometryType === "POI"){
+
+            wfsLayer = new L.WFS(wfsLayerOptions, new L.Format.GeoJSON({
+              crs: L.CRS.EPSG3857,
+              pointToLayer(geoJsonPoint, latlng) {
+                geoJsonPoint.geometry.coordinates[0] = latlng.lng;
+                geoJsonPoint.geometry.coordinates[1] = latlng.lat; 
+                return createCustomMarker(geoJsonPoint, dataset.poiSymbolColor, dataset.poiMarkerColor, dataset.poiSymbolBootstrap3Name, dataset);
+              },
+            }));
+          }
+          else{
+            wfsLayer = new L.WFS(wfsLayerOptions);
+          }
 
           try {
             wfsLayer.once('load', function () {
@@ -2793,7 +2802,7 @@ angular.module('kommonitorMap').component(
           $scope.layerControl._layers.forEach(function (layer) {
             if (layer.group.name === wfsLayerGroupName && layer.name.includes(layerName)) {
               // layer.layer.setOpacity(opacity);
-              var newStyle = getWfsStyle(dataset);
+              var newStyle = getWfsStyle(dataset, opacity);
               // layer.layer.options.style = newStyle;
               layer.layer.setStyle(newStyle);
 
