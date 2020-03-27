@@ -574,6 +574,13 @@ MULTI STEP FORM
 }
 
 /* Colors */
+
+.awesome-marker-legend {
+	width:20px;
+	height:20px;
+	text-align: center;
+}
+
 .awesome-marker-legend-icon-red {
   /* background: url('dependencies/leaflet-awesome-markers/images/markers-soft.png') no-repeat -10px -50px; */
 	background-color: rgb(205,59,40);
