@@ -675,9 +675,7 @@ angular
 
 								$scope.adjustWfsLayerColor = function(dataset){
 
-									var color = dataset.displayColor;
-
-									kommonitorMapService.adjustColorForWfsLayer(dataset, color);
+									kommonitorMapService.adjustColorForWfsLayer(dataset);
 								};
 
 

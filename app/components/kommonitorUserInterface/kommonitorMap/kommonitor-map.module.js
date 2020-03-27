@@ -161,9 +161,9 @@ angular.module('kommonitorMap').service(
             dataset, opacity);
       };
 
-      this.adjustColorForWfsLayer = function (dataset, color) {
+      this.adjustColorForWfsLayer = function (dataset) {
         $rootScope.$broadcast("adjustColorForWfsLayer",
-            dataset, color);
+            dataset);
       };
 
       this.removeWfsLayerFromMap = function (dataset) {

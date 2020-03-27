@@ -317,6 +317,7 @@
 																	<td>
 																		<div class="form-group" align="center">
 
+
 																			<input class=" input-sm" ng-model="dataset.transparency" ng-init="dataset.transparency=0" ng-change="adjustWFSLayerTransparency(dataset)" type="range"  min="0" max="1" step="0.01">
 
 																			<br/>
@@ -332,13 +333,22 @@
 																	</td> -->
 																	
 																	<td>
-																		<div>
+																		<div ng-show="dataset.geometryType==='AOI'">
 																			<div class="input-group colorpicker-component">
-																				<input type="text" style="display:none;" class="form-control input-sm" ng-model="dataset.displayColor" ng-change="adjustWfsLayerColor(dataset)" placeholder="WFS Darstellungsfarbe"  required />
+																				<input type="text" style="display:none;" class="form-control input-sm" ng-model="dataset.aoiColor" ng-change="adjustWfsLayerColor(dataset)" placeholder="WFS Darstellungsfarbe"  required />
 																				<span title="Klicken, um die Farbe anzupassen" style="border: 1px solid #ccc;" class="input-group-addon"><i></i></span>
 																			</div>
-																			<!-- value="{{dataset.displayColor}}" -->
-																			<!-- <i style="background-color:{{dataset.displayColor}}; margin-left: 12px; width: 18px; height: 18px; float: left;"></i> -->
+																		</div>
+																		<div ng-show="dataset.geometryType==='LOI'">
+																			<div class="input-group colorpicker-component">
+																				<input type="text" style="display:none;" class="form-control input-sm" ng-model="dataset.loiColor" ng-change="adjustWfsLayerColor(dataset)" placeholder="WFS Darstellungsfarbe"  required />
+																				<span title="Klicken, um die Farbe anzupassen" style="border: 1px solid #ccc;" class="input-group-addon"><i></i></span>
+																			</div>
+																		</div>
+																		<div ng-show="dataset.geometryType==='POI'">
+																			<i class="awesome-marker-legend awesome-marker-legend-icon-{{dataset.poiMarkerColor}}">
+																				<span style="margin-left:3px; padding-right:3px;  font-size:0.7em; color:{{dataset.poiSymbolColor}};" class="glyphicon glyphicon-{{dataset.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
+																			</i>
 																		</div>
 																	</td>
 																	<td>
@@ -577,12 +587,23 @@
 																
 																<td>
 																	<div>
-																		<div class="input-group colorpicker-component">
-																			<input type="text" style="display:none;" class="form-control input-sm" ng-model="dataset.displayColor" ng-change="adjustWfsLayerColor(dataset)" placeholder="WFS Darstellungsfarbe"  required />
-																			<span title="Klicken, um die Farbe anzupassen" style="border: 1px solid #ccc;" class="input-group-addon"><i></i></span>
+																		<div ng-show="dataset.geometryType==='AOI'">
+																			<div class="input-group colorpicker-component">
+																				<input type="text" style="display:none;" class="form-control input-sm" ng-model="dataset.aoiColor" ng-change="adjustWfsLayerColor(dataset)" placeholder="WFS Darstellungsfarbe"  required />
+																				<span title="Klicken, um die Farbe anzupassen" style="border: 1px solid #ccc;" class="input-group-addon"><i></i></span>
+																			</div>
 																		</div>
-																		<!-- value="{{dataset.displayColor}}" -->
-																		<!-- <i style="background-color:{{dataset.displayColor}}; margin-left: 12px; width: 18px; height: 18px; float: left;"></i> -->
+																		<div ng-show="dataset.geometryType==='LOI'">
+																			<div class="input-group colorpicker-component">
+																				<input type="text" style="display:none;" class="form-control input-sm" ng-model="dataset.loiColor" ng-change="adjustWfsLayerColor(dataset)" placeholder="WFS Darstellungsfarbe"  required />
+																				<span title="Klicken, um die Farbe anzupassen" style="border: 1px solid #ccc;" class="input-group-addon"><i></i></span>
+																			</div>
+																		</div>
+																		<div ng-show="dataset.geometryType==='POI'">
+																			<i class="awesome-marker-legend awesome-marker-legend-icon-{{dataset.poiMarkerColor}}">
+																				<span style="margin-left:3px; padding-right:3px;  font-size:0.7em; color:{{dataset.poiSymbolColor}};" class="glyphicon glyphicon-{{dataset.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
+																			</i>
+																		</div>	
 																	</div>
 																</td>
 																<td>
@@ -820,12 +841,23 @@
 															
 															<td>
 																<div>
-																	<div class="input-group colorpicker-component">
-																		<input type="text" style="display:none;" class="form-control input-sm" ng-model="dataset.displayColor" ng-change="adjustWfsLayerColor(dataset)" placeholder="WFS Darstellungsfarbe"  required />
-																		<span title="Klicken, um die Farbe anzupassen" style="border: 1px solid #ccc;" class="input-group-addon"><i></i></span>
+																	<div ng-show="dataset.geometryType==='AOI'">
+																		<div class="input-group colorpicker-component">
+																			<input type="text" style="display:none;" class="form-control input-sm" ng-model="dataset.aoiColor" ng-change="adjustWfsLayerColor(dataset)" placeholder="WFS Darstellungsfarbe"  required />
+																			<span title="Klicken, um die Farbe anzupassen" style="border: 1px solid #ccc;" class="input-group-addon"><i></i></span>
+																		</div>
 																	</div>
-																	<!-- value="{{dataset.displayColor}}" -->
-																	<!-- <i style="background-color:{{dataset.displayColor}}; margin-left: 12px; width: 18px; height: 18px; float: left;"></i> -->
+																	<div ng-show="dataset.geometryType==='LOI'">
+																		<div class="input-group colorpicker-component">
+																			<input type="text" style="display:none;" class="form-control input-sm" ng-model="dataset.loiColor" ng-change="adjustWfsLayerColor(dataset)" placeholder="WFS Darstellungsfarbe"  required />
+																			<span title="Klicken, um die Farbe anzupassen" style="border: 1px solid #ccc;" class="input-group-addon"><i></i></span>
+																		</div>
+																	</div>
+																	<div ng-show="dataset.geometryType==='POI'">
+																		<i class="awesome-marker-legend awesome-marker-legend-icon-{{dataset.poiMarkerColor}}">
+																			<span style="margin-left:3px; padding-right:3px;  font-size:0.7em; color:{{dataset.poiSymbolColor}};" class="glyphicon glyphicon-{{dataset.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
+																		</i>
+																	</div>	
 																</div>
 															</td>
 															<td>
@@ -1072,12 +1104,23 @@
 											
 											<td>
 												<div>
-													<div class="input-group colorpicker-component">
-														<input type="text" style="display:none;" class="form-control input-sm" ng-model="dataset.displayColor" ng-change="adjustWfsLayerColor(dataset)" placeholder="WFS Darstellungsfarbe"  required />
-														<span title="Klicken, um die Farbe anzupassen" style="border: 1px solid #ccc;" class="input-group-addon"><i></i></span>
+													<div ng-show="dataset.geometryType==='AOI'">
+														<div class="input-group colorpicker-component">
+															<input type="text" style="display:none;" class="form-control input-sm" ng-model="dataset.aoiColor" ng-change="adjustWfsLayerColor(dataset)" placeholder="WFS Darstellungsfarbe"  required />
+															<span title="Klicken, um die Farbe anzupassen" style="border: 1px solid #ccc;" class="input-group-addon"><i></i></span>
+														</div>
 													</div>
-													<!-- value="{{dataset.displayColor}}" -->
-													<!-- <i style="background-color:{{dataset.displayColor}}; margin-left: 12px; width: 18px; height: 18px; float: left;"></i> -->
+													<div ng-show="dataset.geometryType==='LOI'">
+														<div class="input-group colorpicker-component">
+															<input type="text" style="display:none;" class="form-control input-sm" ng-model="dataset.loiColor" ng-change="adjustWfsLayerColor(dataset)" placeholder="WFS Darstellungsfarbe"  required />
+															<span title="Klicken, um die Farbe anzupassen" style="border: 1px solid #ccc;" class="input-group-addon"><i></i></span>
+														</div>
+													</div>
+													<div ng-show="dataset.geometryType==='POI'">
+														<i class="awesome-marker-legend awesome-marker-legend-icon-{{dataset.poiMarkerColor}}">
+															<span style="margin-left:3px; padding-right:3px;  font-size:0.7em; color:{{dataset.poiSymbolColor}};" class="glyphicon glyphicon-{{dataset.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
+														</i>
+													</div>	
 												</div>
 											</td>
 											<td>
@@ -1509,12 +1552,23 @@
 																		</td>
 																		<td>
 																			<div>
-																				<div class="input-group colorpicker-component">
-																				    <input type="text" style="display:none;" class="form-control input-sm" ng-model="dataset.displayColor" ng-change="adjustWfsLayerColor(dataset)" placeholder="WFS Darstellungsfarbe"  required />
-																				    <span title="Klicken, um die Farbe anzupassen" style="border: 1px solid #ccc;" class="input-group-addon"><i></i></span>
+																				<div ng-show="dataset.geometryType==='AOI'">
+																					<div class="input-group colorpicker-component">
+																						<input type="text" style="display:none;" class="form-control input-sm" ng-model="dataset.aoiColor" ng-change="adjustWfsLayerColor(dataset)" placeholder="WFS Darstellungsfarbe"  required />
+																						<span title="Klicken, um die Farbe anzupassen" style="border: 1px solid #ccc;" class="input-group-addon"><i></i></span>
+																					</div>
 																				</div>
-																				<!-- value="{{dataset.displayColor}}" -->
-																				<!-- <i style="background-color:{{dataset.displayColor}}; margin-left: 12px; width: 18px; height: 18px; float: left;"></i> -->
+																				<div ng-show="dataset.geometryType==='LOI'">
+																					<div class="input-group colorpicker-component">
+																						<input type="text" style="display:none;" class="form-control input-sm" ng-model="dataset.loiColor" ng-change="adjustWfsLayerColor(dataset)" placeholder="WFS Darstellungsfarbe"  required />
+																						<span title="Klicken, um die Farbe anzupassen" style="border: 1px solid #ccc;" class="input-group-addon"><i></i></span>
+																					</div>
+																				</div>
+																				<div ng-show="dataset.geometryType==='POI'">
+																					<i class="awesome-marker-legend awesome-marker-legend-icon-{{dataset.poiMarkerColor}}">
+																						<span style="margin-left:3px; padding-right:3px;  font-size:0.7em; color:{{dataset.poiSymbolColor}};" class="glyphicon glyphicon-{{dataset.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
+																					</i>
+																				</div>	
 																			</div>
 																		</td>
 																	</tr>

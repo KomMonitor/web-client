@@ -2369,6 +2369,50 @@ angular.module('kommonitorMap').component(
           $scope.map.invalidateSize(true);
         });
 
+        var createCustomMarker = function(poiFeature, poiSymbolColor, poiMarkerColor, poiSymbolBootstrap3Name, metadataObject){
+          var customMarker;
+          try {
+            customMarker = L.AwesomeMarkers.icon({
+              icon: poiSymbolBootstrap3Name,
+              iconColor: poiSymbolColor,
+              markerColor: poiMarkerColor
+            });
+          } catch (err) {
+            customMarker = L.AwesomeMarkers.icon({
+              icon: 'home', // default back to home
+              iconColor: poiSymbolColor,
+              markerColor: poiMarkerColor
+            });
+          }
+
+          var newMarker;
+
+          if(poiFeature.geometry.type === "Point"){              
+            // LAT LON order
+            newMarker = L.marker([Number(poiFeature.geometry.coordinates[1]), Number(poiFeature.geometry.coordinates[0])], { icon: customMarker });
+
+            //populate the original geoJSOn feature to the marker layer!
+            newMarker.feature = poiFeature;
+            newMarker.metadataObject = metadataObject;
+          }
+          else if (poiFeature.geometry.type === "MultiPoint"){
+
+            // simply take the first point as feature reference POI
+            // LAT LON order
+            newMarker = L.marker([Number(poiFeature.geometry.coordinates[0][1]), Number(poiFeature.geometry.coordinates[0][0])], { icon: customMarker });
+
+            //populate the original geoJSOn feature to the marker layer!
+            newMarker.feature = poiFeature;
+            newMarker.metadataObject = metadataObject;
+          }
+          else{
+            console.error("NO POI object: instead got feature of type " + poiFeature.geometry.type);
+          }
+          
+          return newMarker;
+
+        };
+
         $scope.$on("addPoiGeoresourceAsGeoJSON", function (event, georesourceMetadataAndGeoJSON, date, useCluster) {
 
           // use leaflet.markercluster to cluster markers!
@@ -2396,67 +2440,14 @@ angular.module('kommonitorMap').component(
           }
           else {
             markers = L.layerGroup();
-          }
-          var customMarker;
-          try {
-            customMarker = L.AwesomeMarkers.icon({
-              icon: georesourceMetadataAndGeoJSON.poiSymbolBootstrap3Name,
-              iconColor: georesourceMetadataAndGeoJSON.poiSymbolColor,
-              markerColor: georesourceMetadataAndGeoJSON.poiMarkerColor
-            });
-          } catch (err) {
-            customMarker = L.AwesomeMarkers.icon({
-              icon: 'home', // default back to home
-              iconColor: georesourceMetadataAndGeoJSON.poiSymbolColor,
-              markerColor: georesourceMetadataAndGeoJSON.poiMarkerColor
-            });
-          }
+          }          
 
           georesourceMetadataAndGeoJSON.geoJSON.features.forEach(function (poiFeature) {
             // index 0 should be longitude and index 1 should be latitude
             //.bindPopup( poiFeature.properties.name )
-            var newMarker;
-            if(poiFeature.geometry.type === "Point"){              
-              // LAT LON order
-              newMarker = L.marker([Number(poiFeature.geometry.coordinates[1]), Number(poiFeature.geometry.coordinates[0])], { icon: customMarker });
-
-              //populate the original geoJSOn feature to the marker layer!
-              newMarker.feature = poiFeature;
-              newMarker.metadataObject = georesourceMetadataAndGeoJSON;
-
-              markers = addPoiMarker(markers, newMarker);
-            }
-            else if (poiFeature.geometry.type === "MultiPoint"){
-
-              // make a marker for each point of MultiPoint
-              // for (var index=0; index < poiFeature.geometry.coordinates.length; index++) {
-              //   // LAT LON order
-              //   newMarker = L.marker([Number(poiFeature.geometry.coordinates[index][1]), Number(poiFeature.geometry.coordinates[index][0])], { icon: customMarker });
-
-              //   //populate the original geoJSOn feature to the marker layer!
-              //   newMarker.feature = poiFeature;
-              //   newMarker.metadataObject = georesourceMetadataAndGeoJSON;
-
-              //   markers = addPoiMarker(markers, newMarker);
-              // }
-
-
-              // simply take the first point as feature reference POI
-              // LAT LON order
-              newMarker = L.marker([Number(poiFeature.geometry.coordinates[0][1]), Number(poiFeature.geometry.coordinates[0][0])], { icon: customMarker });
-
-              //populate the original geoJSOn feature to the marker layer!
-              newMarker.feature = poiFeature;
-              newMarker.metadataObject = georesourceMetadataAndGeoJSON;
-
-              markers = addPoiMarker(markers, newMarker);
-            }
-            else{
-              console.error("NO POI object: instead got feature of type " + poiFeature.geometry.type);
-            }
+            var newMarker = createCustomMarker(poiFeature, georesourceMetadataAndGeoJSON.poiSymbolColor, georesourceMetadataAndGeoJSON.poiMarkerColor, georesourceMetadataAndGeoJSON.poiSymbolBootstrap3Name, georesourceMetadataAndGeoJSON);            
             
-
-            
+            markers = addPoiMarker(markers, newMarker);
           });
 
           // markers.StyledLayerControl = {
@@ -2497,7 +2488,7 @@ angular.module('kommonitorMap').component(
           markers.addLayer(poiMarker);
 
           return markers;
-      }
+      };
 
         $scope.$on("removePoiGeoresource", function (event, georesourceMetadataAndGeoJSON) {
 
@@ -2698,6 +2689,43 @@ angular.module('kommonitorMap').component(
           });
         });
 
+        var getWfsStyle = function(dataset, opacity){
+
+          if(dataset.geometryType === "POI"){
+            return {
+              weight: 1,
+              opacity: opacity,
+              color: dataset.poiMarkerColor,
+              dashArray: '',
+              fillOpacity: opacity,
+              fillColor: dataset.poiMarkerColor
+            };
+          }
+
+          else if (dataset.geometryType === "LOI"){
+            return {
+              weight: dataset.loiWidth,
+              opacity: opacity,
+              color: dataset.loiColor,
+              dashArray: dataset.loiDashArrayString,
+              fillOpacity: opacity,
+              fillColor: dataset.loiColor
+            };
+          }
+
+          else{
+            return {
+              weight: 1,
+              opacity: opacity,
+              color: dataset.aoiColor,
+              dashArray: '',
+              fillOpacity: opacity,
+              fillColor: dataset.aoiColor
+            };
+          }
+
+        };
+
         $scope.$on("addWfsLayerToMap", function (event, dataset, opacity) {
           var wfsLayerOptions = {
             url: dataset.url,
@@ -2706,15 +2734,14 @@ angular.module('kommonitorMap').component(
             typeName: dataset.featureTypeName,
             geometryField: dataset.featureTypeGeometryName,
             maxFeatures: null,
-            style: {
-              weight: 1,
-              opacity: opacity,
-              color: defaultBorderColor,
-              dashArray: '',
-              fillOpacity: 1,
-              fillColor: dataset.displayColor
-            }
+            style: getWfsStyle(dataset)
           };
+
+          if(dataset.geometryType === "POI"){
+            wfsLayerOptions.pointToLayer = function (featureData, latlng) {
+              return createCustomMarker(featureData, dataset.poiSymbolColor, dataset.poiMarkerColor, dataset.poiSymbolBootstrap3Name, dataset);
+            };
+          }
 
           if (dataset.filterFeaturesToMapBBOX) {
             wfsLayerOptions.filter = new L.Filter.BBox(dataset.featureTypeGeometryName, $scope.map.getBounds(), L.CRS.EPSG3857);
@@ -2730,19 +2757,6 @@ angular.module('kommonitorMap').component(
 
               console.log("Tried fit bounds on wfsLayer");
 
-              //var geoJSON = layer.layertoGeoJSON();
-              var firstLayersPropertyName = Object.keys(wfsLayer._layers)[0];
-              if (firstLayersPropertyName) {
-                var geoJSON_exmaple = wfsLayer._layers[firstLayersPropertyName].toGeoJSON();
-                if (isLinearGeoJSON(geoJSON_exmaple)) {
-                  var newStyle = {
-                    color: dataset.displayColor
-                  };
-
-                  wfsLayer.setStyle(newStyle);
-
-                }
-              }
               $scope.map.invalidateSize(true);
               // $scope.loadingData = false;
             });
@@ -2779,16 +2793,13 @@ angular.module('kommonitorMap').component(
           $scope.layerControl._layers.forEach(function (layer) {
             if (layer.group.name === wfsLayerGroupName && layer.name.includes(layerName)) {
               // layer.layer.setOpacity(opacity);
-              var newStyle = {
-                weight: 1,
-                opacity: opacity,
-                color: defaultBorderColor,
-                dashArray: '',
-                fillOpacity: opacity,
-                fillColor: dataset.displayColor
-              };
+              var newStyle = getWfsStyle(dataset);
               // layer.layer.options.style = newStyle;
               layer.layer.setStyle(newStyle);
+
+              if(dataset.geometryType === "POI"){
+                layer.layer.setOpacity(opacity);
+              }
             }
           });
         });
@@ -2798,21 +2809,7 @@ angular.module('kommonitorMap').component(
 
           $scope.layerControl._layers.forEach(function (layer) {
             if (layer.group.name === wfsLayerGroupName && layer.name.includes(layerName)) {
-              var newStyle = {
-                weight: 1,
-                color: defaultBorderColor,
-                dashArray: '',
-                fillColor: dataset.displayColor
-              };
-
-              //var geoJSON = layer.layertoGeoJSON();
-              var firstLayersPropertyName = Object.keys(layer.layer._layers)[0];
-              if (firstLayersPropertyName) {
-                var geoJSON_exmaple = layer.layer._layers[firstLayersPropertyName].toGeoJSON();
-                if (isLinearGeoJSON(geoJSON_exmaple)) {
-                  newStyle.color = dataset.displayColor;
-                }
-              }
+              var newStyle = getWfsStyle(dataset);
 
               layer.layer.setStyle(newStyle);
             }
