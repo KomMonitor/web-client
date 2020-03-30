@@ -97,7 +97,7 @@
 
 
 																	<div ng-show="($ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators() | filter:{topicReference:subsubTopic.topicId} | filter:indicatorNameFilter).length > 0">
-																		<div class="list-group collapse" uib-collapse="isCollapsed_subsubTopic">
+																		<div class="list-group collapse indicatorInputForm" uib-collapse="isCollapsed_subsubTopic">
 																			<div id="indicatorHierarchyElement-{{indicatorMetadata.indicatorId}}" ng-repeat="indicatorMetadata in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators() | filter:{topicReference:subsubTopic.topicId} | filter:indicatorNameFilter" class="list-group-item list-group-item-default">
 																			 	<p style="cursor:pointer;" ng-attr-title="<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]" style="color: white;" ng-click="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]</p>
 																			</div>
@@ -118,7 +118,7 @@
 
 
 																<div ng-show="($ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators() | filter:{topicReference:subTopic.topicId} | filter:indicatorNameFilter).length > 0">
-																	<div class="list-group collapse" uib-collapse="isCollapsed_subTopic">
+																	<div class="list-group collapse indicatorInputForm" uib-collapse="isCollapsed_subTopic">
 																		<div id="indicatorHierarchyElement-{{indicatorMetadata.indicatorId}}" ng-repeat="indicatorMetadata in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators() | filter:{topicReference:subTopic.topicId} | filter:indicatorNameFilter" class="list-group-item list-group-item-default">
 																		 	<p style="cursor:pointer;" ng-attr-title="<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]" ng-click="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]</p>
 																		</div>
@@ -138,7 +138,7 @@
 															</div>
 															<!-- end sub topics -->
 															<div ng-show="($ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators() | filter:{topicReference:mainTopic.topicId} | filter:indicatorNameFilter).length > 0">
-																<div class="list-group collapse" uib-collapse="isCollapsed_mainTopic">
+																<div class="list-group collapse indicatorInputForm" uib-collapse="isCollapsed_mainTopic">
 																	<div id="indicatorHierarchyElement-{{indicatorMetadata.indicatorId}}" ng-repeat="indicatorMetadata in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators() | filter:{topicReference:mainTopic.topicId} | filter:indicatorNameFilter" class="list-group-item list-group-item-default">
 																	 	<p style="cursor:pointer;" ng-attr-title="<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]" ng-click="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]</p>
 																	</div>
