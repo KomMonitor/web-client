@@ -47,11 +47,11 @@
 										<th colspan="2" class="text-center"><b>Geodaten-Dienste</b></th>
 									  </tr>
 									<tr>
-									  <th class="text-center"><b>Points</b></th>
-									  <th class="text-center"><b>Lines</b></th>
-									  <th class="text-center"><b>Areas</b></th>
-									  <th class="text-center"><b>WMS</b></th>
-									  <th class="text-center"><b>WFS</b></th>
+									  <th class="text-center"><b>Punktdaten</b></th>
+									  <th class="text-center"><b>Liniendaten</b></th>
+									  <th class="text-center"><b>Fl&auml;chendaten</b></th>
+									  <th class="text-center"><b>WMS-Daten</b></th>
+									  <th class="text-center"><b>WFS-Daten</b></th>
 									</tr>
 									<tr>
 										<td class="text-center">
@@ -90,7 +90,7 @@
 
 							<div class="input-group">
 								<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-								<input type="text" class="form-control input-sm" placeholder="Filtern nach Georessourcen-Name" ng-model="georesourceNameFilter.value">
+								<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="georesourceNameFilter.value">
 							</div>
 
 							<br/>
@@ -892,7 +892,7 @@
 								<!-- end main Topics -->
 
 								<div  class="list-group-item list-group-item-default" style="background: #2171b5; color: white;">
-									<a id="noHierarchyGeoresourceDatasets" href="" ng-attr-title="Georessourcen-Daten ohne Hierarchie" class="collapseTrigger" style="color: white;" ng-click="isCollapsed_noTopic = !isCollapsed_noTopic" ng-init="isCollapsed_noTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>ohne Hierarchie ({{$ctrl.kommonitorDataExchangeServiceInstance.getNumberOfGeoresources(null, georesourceNameFilter.value, showPOI, showLOI, showAOI, showWMS, showWFS)}})</a>
+									<a id="noHierarchyGeoresourceDatasets" href="" ng-attr-title="Georessourcen-Daten ohne Themenbezug" class="collapseTrigger" style="color: white;" ng-click="isCollapsed_noTopic = !isCollapsed_noTopic" ng-init="isCollapsed_noTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>ohne Themenbezug ({{$ctrl.kommonitorDataExchangeServiceInstance.getNumberOfGeoresources(null, georesourceNameFilter.value, showPOI, showLOI, showAOI, showWMS, showWFS)}})</a>
 									&nbsp;&nbsp; <input type="checkbox" value="showAllForTopic_null" ng-model="showAllForTopic_null" ng-change="handleShowAllOnTopic(null)">
 								</div>
 	
@@ -1168,7 +1168,7 @@
 		
 							<div class="input-group">
 								<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-								<input type="text" class="form-control input-sm" placeholder="Filtern nach POI-Name" ng-model="poiNameFilter">
+								<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="poiNameFilter">
 							</div>
 		
 							<br/>
@@ -1250,7 +1250,7 @@
 		
 								<div class="input-group">
 									<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-									<input type="text" class="form-control input-sm" placeholder="Filtern nach LOI-Name" ng-model="loiNameFilter">
+									<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="loiNameFilter">
 								</div>
 		
 								<br/>
@@ -1326,7 +1326,7 @@
 		
 									<div class="input-group">
 										<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-										<input type="text" class="form-control input-sm" placeholder="Filtern nach AOI-Name" ng-model="aoiNameFilter">
+										<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="aoiNameFilter">
 									</div>
 		
 									<br/>
@@ -1409,7 +1409,7 @@
 
 											<div class="input-group">
 												<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-												<input type="text" class="form-control input-sm" placeholder="Filtern nach WMS-Name" ng-model="wmsNameFilter">
+												<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="wmsNameFilter">
 											</div>
 
 											<br/>
@@ -1498,7 +1498,7 @@
 
 														<div class="input-group">
 															<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-															<input type="text" class="form-control input-sm" placeholder="Filtern nach WFS-Name" ng-model="wfsNameFilter">
+															<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="wfsNameFilter">
 														</div>
 
 														<br/>
