@@ -578,7 +578,8 @@ MULTI STEP FORM
 .awesome-marker-legend {
 	width:20px;
 	height:20px;
-	text-align: center;
+	/* try to center it with margin-left */
+	margin-left: 30%;
 }
 
 .awesome-marker-legend-icon-red {
@@ -1277,7 +1278,7 @@ select {
 	height: auto !important;
 	max-height: 500px;
 	max-width: 100%;
-	font-size: 12px;
+	font-size: 11px;
 	border: 2px solid gray;
   border-radius: 8px;
   overflow: auto;
@@ -1288,7 +1289,7 @@ select {
 	height: auto !important;
 	max-height: 500px;
 	max-width: 100%;
-	font-size: 12px;
+	font-size: 11px;
 	border: 2px solid gray;
   border-radius: 8px;
   overflow: auto;
@@ -1299,7 +1300,7 @@ select {
 	height: auto !important;
 	max-height: 500px;
 	max-width: 100%;
-	font-size: 12px;
+	font-size: 11px;
 	border: 2px solid gray;
   border-radius: 8px;
   overflow: auto;

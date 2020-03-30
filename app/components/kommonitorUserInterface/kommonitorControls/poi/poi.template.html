@@ -185,7 +185,7 @@
 																				class="form-control" required>
 																			</select>
 																	</td>
-																	<td>
+																	<td class="text-center">
 																		<a href="" ng-click="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 																		<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
 																	</td>
@@ -227,7 +227,7 @@
 																				class="form-control" required>
 																			</select>
 																	</td>
-																	<td>
+																	<td class="text-center">
 																		<a href="" ng-click="getExportLinkForLoi(loi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 																		<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
 																	</td>
@@ -268,7 +268,7 @@
 																				class="form-control" required>
 																			</select>
 																	</td>
-																	<td>
+																	<td class="text-center">
 																		<a href="" ng-click="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 																		<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
 																	</td>
@@ -277,7 +277,7 @@
 																<!-- WMS -->
 																<tr ng-if="showWMS" ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter.value | orderBy:"title"'>
 																	<td>
-																		<b>WMS</b>
+																		<b><i>WMS</i></b>
 																	</td>
 																	<td>
 																		<label class='checkbox-inline' ><input type="checkbox" value="dataset.title" ng-model="dataset.isSelected" ng-change="handleWmsOnMap(dataset)">
@@ -309,7 +309,7 @@
 																	<td>
 																		-
 																	</td>
-																	<td>
+																	<td class="text-center">
 																		<div align="center">
 																		<a href="{{dataset.url}}service=WMS&request=GetCapabilities&version=1.3.0" title="WMS GetCapabilities URL" rel='noopener noreferrer' target='_blank'><i class="fas fa-cloud-download-alt"></i></a>
 																		</div>
@@ -319,7 +319,7 @@
 																<!-- WFS -->
 																<tr ng-if="showWFS" ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.wfsDatasets | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter.value  | orderBy:"title"'>
 																	<td>
-																		<b>WFS</b>
+																		<b><i>WFS</i></b>
 																	</td>
 																	<td>
 																		<label class='checkbox-inline' ><input type="checkbox" value="dataset.title" ng-model="dataset.isSelected" ng-change="handleWfsOnMap(dataset)">
@@ -370,7 +370,7 @@
 																	<td>
 																		-
 																	</td>
-																	<td>
+																	<td class="text-center">
 																		<div align="center">
 																		<a href="{{dataset.url}}service=WFS&request=GetCapabilities&version=1.1.0" title="WFS GetCapabilities URL" rel='noopener noreferrer' target='_blank'><i class="fas fa-cloud-download-alt"></i></a>
 																		</div>
@@ -454,7 +454,7 @@
 																			class="form-control" required>
 																		</select>
 																</td>
-																<td>
+																<td class="text-center">
 																	<a href="" ng-click="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 																	<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
 																</td>
@@ -496,7 +496,7 @@
 																			class="form-control" required>
 																		</select>
 																</td>
-																<td>
+																<td class="text-center">
 																	<a href="" ng-click="getExportLinkForLoi(loi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 																	<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
 																</td>
@@ -537,7 +537,7 @@
 																			class="form-control" required>
 																		</select>
 																</td>
-																<td>
+																<td class="text-center">
 																	<a href="" ng-click="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 																	<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
 																</td>
@@ -546,7 +546,7 @@
 															<!-- WMS -->
 															<tr ng-if="showWMS" ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter.value | orderBy:"title"'>
 																<td>
-																	<b>WMS</b>
+																	<b><i>WMS</i></b>
 																</td>
 																<td>
 																	<label class='checkbox-inline' ><input type="checkbox" value="dataset.title" ng-model="dataset.isSelected" ng-change="handleWmsOnMap(dataset)">
@@ -579,7 +579,7 @@
 																<td>
 																	-
 																</td>
-																<td>
+																<td class="text-center">
 																	<div align="center">
 																	<a href="{{dataset.url}}service=WMS&request=GetCapabilities&version=1.3.0" title="WMS GetCapabilities URL" rel='noopener noreferrer' target='_blank'><i class="fas fa-cloud-download-alt"></i></a>
 																	</div>
@@ -589,7 +589,7 @@
 															<!-- WFS -->
 															<tr ng-if="showWFS" ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.wfsDatasets | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter.value  | orderBy:"title"'>
 																<td>
-																	<b>WFS</b>
+																	<b><i>WFS</i></b>
 																</td>
 																<td>
 																	<label class='checkbox-inline' ><input type="checkbox" value="dataset.title" ng-model="dataset.isSelected" ng-change="handleWfsOnMap(dataset)">
@@ -641,7 +641,7 @@
 																<td>
 																	-
 																</td>
-																<td>
+																<td class="text-center">
 																	<div align="center">
 																	<a href="{{dataset.url}}service=WFS&request=GetCapabilities&version=1.1.0" title="WFS GetCapabilities URL" rel='noopener noreferrer' target='_blank'><i class="fas fa-cloud-download-alt"></i></a>
 																	</div>
@@ -724,7 +724,7 @@
 																		class="form-control" required>
 																	</select>
 															</td>
-															<td>
+															<td class="text-center">
 																<a href="" ng-click="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 																<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
 															</td>
@@ -766,7 +766,7 @@
 																		class="form-control" required>
 																	</select>
 															</td>
-															<td>
+															<td class="text-center">
 																<a href="" ng-click="getExportLinkForLoi(loi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 																<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
 															</td>
@@ -807,7 +807,7 @@
 																		class="form-control" required>
 																	</select>
 															</td>
-															<td>
+															<td class="text-center">
 																<a href="" ng-click="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 																<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
 															</td>
@@ -816,7 +816,7 @@
 														<!-- WMS -->
 														<tr ng-if="showWMS" ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter.value | orderBy:"title"'>
 															<td>
-																<b>WMS</b>
+																<b><i>WMS</i></b>
 															</td>
 															<td>
 																<label class='checkbox-inline' ><input type="checkbox" value="dataset.title" ng-model="dataset.isSelected" ng-change="handleWmsOnMap(dataset)">
@@ -849,7 +849,7 @@
 															<td>
 																-
 															</td>
-															<td>
+															<td class="text-center">
 																<div align="center">
 																<a href="{{dataset.url}}service=WMS&request=GetCapabilities&version=1.3.0" title="WMS GetCapabilities URL" rel='noopener noreferrer' target='_blank'><i class="fas fa-cloud-download-alt"></i></a>
 																</div>
@@ -859,7 +859,7 @@
 														<!-- WFS -->
 														<tr ng-if="showWFS" ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.wfsDatasets | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter.value  | orderBy:"title"'>
 															<td>
-																<b>WFS</b>
+																<b><i>WFS</i></b>
 															</td>
 															<td>
 																<label class='checkbox-inline' ><input type="checkbox" value="dataset.title" ng-model="dataset.isSelected" ng-change="handleWfsOnMap(dataset)">
@@ -911,7 +911,7 @@
 															<td>
 																-
 															</td>
-															<td>
+															<td class="text-center">
 																<div align="center">
 																<a href="{{dataset.url}}service=WFS&request=GetCapabilities&version=1.1.0" title="WFS GetCapabilities URL" rel='noopener noreferrer' target='_blank'><i class="fas fa-cloud-download-alt"></i></a>
 																</div>
@@ -1003,7 +1003,7 @@
 														class="form-control" required>
 													</select>
 											</td>
-											<td>
+											<td class="text-center">
 												<a href="" ng-click="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 												<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
 											</td>
@@ -1045,7 +1045,7 @@
 														class="form-control" required>
 													</select>
 											</td>
-											<td>
+											<td class="text-center">
 												<a href="" ng-click="getExportLinkForLoi(loi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 												<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
 											</td>
@@ -1086,7 +1086,7 @@
 														class="form-control" required>
 													</select>
 											</td>
-											<td>
+											<td class="text-center">
 												<a href="" ng-click="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 												<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
 											</td>
@@ -1095,7 +1095,7 @@
 										<!-- WMS -->
 										<tr ng-if="showWMS" ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:georesourceNameFilter.value | filter:filterByNoTopic() | orderBy:"title"'>
 											<td>
-												<b>WMS</b>
+												<b><i>WMS</i></b>
 											</td>
 											<td>
 												<label class='checkbox-inline' ><input type="checkbox" value="dataset.title" ng-model="dataset.isSelected" ng-change="handleWmsOnMap(dataset)">
@@ -1128,7 +1128,7 @@
 											<td>
 												-
 											</td>
-											<td>
+											<td class="text-center">
 												<div align="center">
 												<a href="{{dataset.url}}service=WMS&request=GetCapabilities&version=1.3.0" title="WMS GetCapabilities URL" rel='noopener noreferrer' target='_blank'><i class="fas fa-cloud-download-alt"></i></a>
 												</div>
@@ -1138,7 +1138,7 @@
 										<!-- WFS -->
 										<tr ng-if="showWFS" ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.wfsDatasets | filter:filterByNoTopic() | filter:georesourceNameFilter.value  | orderBy:"title"'>
 											<td>
-												<b>WFS</b>
+												<b><i>WFS</i></b>
 											</td>
 											<td>
 												<label class='checkbox-inline' ><input type="checkbox" value="dataset.title" ng-model="dataset.isSelected" ng-change="handleWfsOnMap(dataset)">
@@ -1190,7 +1190,7 @@
 											<td>
 												-
 											</td>
-											<td>
+											<td class="text-center">
 												<div align="center">
 												<a href="{{dataset.url}}service=WFS&request=GetCapabilities&version=1.1.0" title="WFS GetCapabilities URL" rel='noopener noreferrer' target='_blank'><i class="fas fa-cloud-download-alt"></i></a>
 												</div>
@@ -1286,7 +1286,7 @@
 														class="form-control" required>
 													</select>
 											</td>
-											<td>
+											<td class="text-center">
 												<a href="" ng-click="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 												<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
 											</td>
@@ -1379,7 +1379,7 @@
 															class="form-control" required>
 														</select>
 												</td>
-												<td>
+												<td class="text-center">
 													<a href="" ng-click="getExportLinkForLoi(loi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 													<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
 												</td>
@@ -1466,7 +1466,7 @@
 																class="form-control" required>
 															</select>
 													</td>
-													<td>
+													<td class="text-center">
 														<a href="" ng-click="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 														<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
 													</td>
@@ -1538,7 +1538,7 @@
 																	<label>{{dataset.transparency}}</label>
 																</div>
 															</td>
-															<td>
+															<td class="text-center">
 																<div align="center">
 																<a href="{{dataset.url}}service=WMS&request=GetCapabilities&version=1.3.0" title="WMS GetCapabilities URL" rel='noopener noreferrer' target='_blank'><i class="fas fa-cloud-download-alt"></i></a>
 																</div>
@@ -1633,7 +1633,7 @@
 																			  <span class="switchslider round"></span>
 																			</label>
 																		</td>
-																		<td>
+																		<td class="text-center">
 																			<div align="center">
 																			<a href="{{dataset.url}}service=WFS&request=GetCapabilities&version=1.1.0" title="WFS GetCapabilities URL" rel='noopener noreferrer' target='_blank'><i class="fas fa-cloud-download-alt"></i></a>
 																			</div>
