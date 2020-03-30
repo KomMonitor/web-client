@@ -578,8 +578,6 @@ MULTI STEP FORM
 .awesome-marker-legend {
 	width:20px;
 	height:20px;
-	/* try to center it with margin-left */
-	margin-left: 30%;
 }
 
 .awesome-marker-legend-icon-red {

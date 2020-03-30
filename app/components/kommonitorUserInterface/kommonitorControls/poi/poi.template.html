@@ -174,10 +174,12 @@
 																			<label>{{dataset.transparency}}</label>
 																		</div>
 																	</td>
-																	<td>
-																		<div class="awesome-marker-legend awesome-marker-legend-icon-{{poi.poiMarkerColor}}">
-																			<span style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{poi.poiSymbolColor}};" class="glyphicon glyphicon-{{poi.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
-																		</div>
+																	<td class="text-center">
+																		<div align="center">
+																			<div class="awesome-marker-legend awesome-marker-legend-icon-{{poi.poiMarkerColor}}">
+																				<span style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{poi.poiSymbolColor}};" class="glyphicon glyphicon-{{poi.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
+																			</div>
+																		</div>																		
 																	</td>
 																	<td>
 																		<select style="font-size: 11px; width:135px; padding: 0px;"
@@ -217,9 +219,12 @@
 																			<label>{{dataset.transparency}}</label>
 																		</div>
 																	</td>
-																	<td>
-																		<i style="width:15px; height:15px; background:{{loi.loiColor}}; display:inherit;">
-																		</i>
+																	<td class="text-center">
+																		<div align="center">
+																			<i style="width:15px; height:15px; background:{{loi.loiColor}}; display:inherit;">
+																			</i>
+																		</div>
+																		
 																	</td>
 																	<td>
 																		<select style="font-size: 11px; width:135px; padding: 0px;"
@@ -258,9 +263,11 @@
 																			<label>{{aoi.transparency}}</label>
 																		</div>
 																	</td>
-																	<td>
-																		<i style="width:15px; height:15px; background:{{aoi.aoiColor}}; display:inherit;">
-																		</i>
+																	<td class="text-center">
+																		<div align="center">
+																			<i style="width:15px; height:15px; background:{{aoi.aoiColor}}; display:inherit;">
+																			</i>
+																		</div>
 																	</td>
 																	<td>
 																		<select style="font-size: 11px; width:135px; padding: 0px;"
@@ -298,7 +305,7 @@
 																			<label>{{dataset.transparency}}</label>
 																		</div>
 																	</td>																	
-																	<td>
+																	<td  class="text-center">
 																		<div ng-if="! dataset.showLegend">
 																			<button class="btn btn-sm btn-primary" ng-click="dataset.showLegend = true;">laden</button>
 																		</div>
@@ -348,7 +355,7 @@
 																		</label>
 																	</td> -->
 																	
-																	<td>
+																	<td class="text-center">
 																		<div ng-show="dataset.geometryType==='AOI'">
 																			<div class="input-group colorpicker-component">
 																				<input type="text" style="display:none;" class="form-control input-sm" ng-model="dataset.aoiColor" ng-change="adjustWfsLayerColor(dataset)" placeholder="WFS Darstellungsfarbe"  required />
@@ -362,9 +369,11 @@
 																			</div>
 																		</div>
 																		<div ng-show="dataset.geometryType==='POI'">
-																			<div class="awesome-marker-legend awesome-marker-legend-icon-{{dataset.poiMarkerColor}}">
-																				<span style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{dataset.poiSymbolColor}};" class="glyphicon glyphicon-{{dataset.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
-																			</div>
+																			<div align="center">
+																				<div class="awesome-marker-legend awesome-marker-legend-icon-{{dataset.poiMarkerColor}}">
+																					<span style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{dataset.poiSymbolColor}};" class="glyphicon glyphicon-{{dataset.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
+																				</div>
+																			</div>	
 																		</div>
 																	</td>
 																	<td>
@@ -443,10 +452,12 @@
 																		<label>{{dataset.transparency}}</label>
 																	</div>
 																</td>
-																<td>
-																	<div class="awesome-marker-legend awesome-marker-legend-icon-{{poi.poiMarkerColor}}">
-																		<span style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{poi.poiSymbolColor}};" class="glyphicon glyphicon-{{poi.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
-																	</div>
+																<td  class="text-center">
+																	<div align="center">
+																		<div class="awesome-marker-legend awesome-marker-legend-icon-{{poi.poiMarkerColor}}">
+																			<span style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{poi.poiSymbolColor}};" class="glyphicon glyphicon-{{poi.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
+																		</div>
+																	</div>	
 																</td>
 																<td>
 																	<select style="font-size: 11px; width:135px; padding: 0px;"
@@ -486,9 +497,11 @@
 																		<label>{{dataset.transparency}}</label>
 																	</div>
 																</td>
-																<td>
-																	<i style="width:15px; height:15px; background:{{loi.loiColor}}; display:inherit;">
-																	</i>
+																<td class="text-center">
+																	<div align="center">
+																		<i style="width:15px; height:15px; background:{{loi.loiColor}}; display:inherit;">
+																		</i>
+																	</div>
 																</td>
 																<td>
 																	<select style="font-size: 11px; width:135px; padding: 0px;"
@@ -527,9 +540,11 @@
 																		<label>{{aoi.transparency}}</label>
 																	</div>
 																</td>
-																<td>
-																	<i style="width:15px; height:15px; background:{{aoi.aoiColor}}; display:inherit;">
-																	</i>
+																<td class="text-center">
+																	<div align="center">
+																		<i style="width:15px; height:15px; background:{{aoi.aoiColor}}; display:inherit;">
+																		</i>
+																	</div>
 																</td>
 																<td>
 																	<select style="font-size: 11px; width:135px; padding: 0px;"
@@ -568,7 +583,7 @@
 																	</div>
 																</td>
 																
-																<td>
+																<td class="text-center">
 																	<div ng-if="! dataset.showLegend">
 																		<button class="btn btn-sm btn-primary" ng-click="dataset.showLegend = true;">laden</button>
 																	</div>
@@ -617,7 +632,7 @@
 																	</label>
 																</td> -->
 																
-																<td>
+																<td class="text-center">
 																	<div>
 																		<div ng-show="dataset.geometryType==='AOI'">
 																			<div class="input-group colorpicker-component">
@@ -632,9 +647,11 @@
 																			</div>
 																		</div>
 																		<div ng-show="dataset.geometryType==='POI'">
-																			<div class="awesome-marker-legend awesome-marker-legend-icon-{{dataset.poiMarkerColor}}">
-																				<span style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{dataset.poiSymbolColor}};" class="glyphicon glyphicon-{{dataset.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
-																			</div>
+																			<div align="center">
+																				<div class="awesome-marker-legend awesome-marker-legend-icon-{{dataset.poiMarkerColor}}">
+																					<span style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{dataset.poiSymbolColor}};" class="glyphicon glyphicon-{{dataset.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
+																				</div>
+																			</div>	
 																		</div>	
 																	</div>
 																</td>
@@ -713,10 +730,12 @@
 																	<label>{{dataset.transparency}}</label>
 																</div>
 															</td>
-															<td>
-																<div class="awesome-marker-legend awesome-marker-legend-icon-{{poi.poiMarkerColor}}">
-																	<span style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{poi.poiSymbolColor}};" class="glyphicon glyphicon-{{poi.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
-																</div>
+															<td class="text-center">
+																<div align="center">
+																	<div class="awesome-marker-legend awesome-marker-legend-icon-{{poi.poiMarkerColor}}">
+																		<span style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{poi.poiSymbolColor}};" class="glyphicon glyphicon-{{poi.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
+																	</div>
+																</div>	
 															</td>
 															<td>
 																<select style="font-size: 11px; width:135px; padding: 0px;"
@@ -756,9 +775,11 @@
 																	<label>{{dataset.transparency}}</label>
 																</div>
 															</td>
-															<td>
-																<i style="width:15px; height:15px; background:{{loi.loiColor}}; display:inherit;">
-																</i>
+															<td class="text-center">
+																<div align="center">
+																	<i style="width:15px; height:15px; background:{{loi.loiColor}}; display:inherit;">
+																	</i>
+																</div>
 															</td>
 															<td>
 																<select style="font-size: 11px; width:135px; padding: 0px;"
@@ -797,9 +818,11 @@
 																	<label>{{aoi.transparency}}</label>
 																</div>
 															</td>
-															<td>
-																<i style="width:15px; height:15px; background:{{aoi.aoiColor}}; display:inherit;">
-																</i>
+															<td class="text-center">
+																<div align="center">
+																	<i style="width:15px; height:15px; background:{{aoi.aoiColor}}; display:inherit;">
+																	</i>
+																</div>
 															</td>
 															<td>
 																<select style="font-size: 11px; width:135px; padding: 0px;"
@@ -838,7 +861,7 @@
 																</div>
 															</td>
 															
-															<td>
+															<td class="text-center">
 																<div ng-if="! dataset.showLegend">
 																	<button class="btn btn-sm btn-primary" ng-click="dataset.showLegend = true;">laden</button>
 																</div>
@@ -887,7 +910,7 @@
 																</label>
 															</td> -->
 															
-															<td>
+															<td class="text-center">
 																<div>
 																	<div ng-show="dataset.geometryType==='AOI'">
 																		<div class="input-group colorpicker-component">
@@ -902,9 +925,11 @@
 																		</div>
 																	</div>
 																	<div ng-show="dataset.geometryType==='POI'">
-																		<div class="awesome-marker-legend awesome-marker-legend-icon-{{dataset.poiMarkerColor}}">
-																			<span style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{dataset.poiSymbolColor}};" class="glyphicon glyphicon-{{dataset.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
-																		</div>
+																		<div align="center">
+																			<div class="awesome-marker-legend awesome-marker-legend-icon-{{dataset.poiMarkerColor}}">
+																				<span style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{dataset.poiSymbolColor}};" class="glyphicon glyphicon-{{dataset.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
+																			</div>
+																		</div>	
 																	</div>	
 																</div>
 															</td>
@@ -992,10 +1017,12 @@
 													<label>{{dataset.transparency}}</label>
 												</div>
 											</td>
-											<td>
-												<div class="awesome-marker-legend awesome-marker-legend-icon-{{poi.poiMarkerColor}}">
-													<span style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{poi.poiSymbolColor}};" class="glyphicon glyphicon-{{poi.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
-												</div>
+											<td class="text-center">
+												<div align="center">
+													<div class="awesome-marker-legend awesome-marker-legend-icon-{{poi.poiMarkerColor}}">
+														<span style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{poi.poiSymbolColor}};" class="glyphicon glyphicon-{{poi.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
+													</div>
+												</div>	
 											</td>
 											<td>
 												<select style="font-size: 11px; width:135px; padding: 0px;"
@@ -1035,9 +1062,11 @@
 													<label>{{dataset.transparency}}</label>
 												</div>
 											</td>
-											<td>
-												<i style="width:15px; height:15px; background:{{loi.loiColor}}; display:inherit;">
-												</i>
+											<td class="text-center">
+												<div align="center">
+													<i style="width:15px; height:15px; background:{{loi.loiColor}}; display:inherit;">
+													</i>
+												</div>
 											</td>
 											<td>
 												<select style="font-size: 11px; width:135px; padding: 0px;"
@@ -1076,9 +1105,11 @@
 													<label>{{aoi.transparency}}</label>
 												</div>
 											</td>
-											<td>
-												<i style="width:15px; height:15px; background:{{aoi.aoiColor}}; display:inherit;">
-												</i>
+											<td class="text-center">
+												<div align="center">
+													<i style="width:15px; height:15px; background:{{aoi.aoiColor}}; display:inherit;">
+													</i>
+												</div>
 											</td>
 											<td>
 												<select style="font-size: 11px; width:135px; padding: 0px;"
@@ -1117,7 +1148,7 @@
 												</div>
 											</td>
 											
-											<td>
+											<td class="text-center">
 												<div ng-if="! dataset.showLegend">
 													<button class="btn btn-sm btn-primary" ng-click="dataset.showLegend = true;">laden</button>
 												</div>
@@ -1166,7 +1197,7 @@
 												</label>
 											</td> -->
 											
-											<td>
+											<td class="text-center">
 												<div>
 													<div ng-show="dataset.geometryType==='AOI'">
 														<div class="input-group colorpicker-component">
@@ -1181,9 +1212,11 @@
 														</div>
 													</div>
 													<div ng-show="dataset.geometryType==='POI'">
-														<div class="awesome-marker-legend awesome-marker-legend-icon-{{dataset.poiMarkerColor}}">
-															<span style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{dataset.poiSymbolColor}};" class="glyphicon glyphicon-{{dataset.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
-														</div>
+														<div align="center">
+															<div class="awesome-marker-legend awesome-marker-legend-icon-{{dataset.poiMarkerColor}}">
+																<span style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{dataset.poiSymbolColor}};" class="glyphicon glyphicon-{{dataset.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
+															</div>
+														</div>	
 													</div>	
 												</div>
 											</td>
@@ -1275,10 +1308,12 @@
 													<label>{{dataset.transparency}}</label>
 												</div>
 											</td>
-											<td>
-												<div class="awesome-marker-legend awesome-marker-legend-icon-{{poi.poiMarkerColor}}">
-													<span style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{poi.poiSymbolColor}};" class="glyphicon glyphicon-{{poi.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
-												</div>
+											<td class="text-center">
+												<div align="center">
+													<div class="awesome-marker-legend awesome-marker-legend-icon-{{poi.poiMarkerColor}}">
+														<span style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{poi.poiSymbolColor}};" class="glyphicon glyphicon-{{poi.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
+													</div>
+												</div>	
 											</td>
 											<td>
 												<select style="font-size: 11px; width:135px; padding: 0px;"
@@ -1369,9 +1404,11 @@
 														<label>{{dataset.transparency}}</label>
 													</div>
 												</td>
-												<td>
-													<i style="width:15px; height:15px; background:{{loi.loiColor}}; display:inherit;">
-													</i>
+												<td class="text-center">
+													<div align="center">
+														<i style="width:15px; height:15px; background:{{loi.loiColor}}; display:inherit;">
+														</i>
+													</div>
 												</td>
 												<td>
 													<select style="font-size: 11px; width:135px; padding: 0px;"
@@ -1456,9 +1493,11 @@
 															<label>{{aoi.transparency}}</label>
 														</div>
 													</td>
-													<td>
-														<i style="width:15px; height:15px; background:{{aoi.aoiColor}}; display:inherit;">
-														</i>
+													<td class="text-center">
+														<div align="center">
+															<i style="width:15px; height:15px; background:{{aoi.aoiColor}}; display:inherit;">
+															</i>
+														</div>
 													</td>
 													<td>
 														<select style="font-size: 11px; width:135px; padding: 0px;"
@@ -1543,7 +1582,7 @@
 																<a href="{{dataset.url}}service=WMS&request=GetCapabilities&version=1.3.0" title="WMS GetCapabilities URL" rel='noopener noreferrer' target='_blank'><i class="fas fa-cloud-download-alt"></i></a>
 																</div>
 															</td>
-															<td>
+															<td class="text-center">
 																<div ng-if="! dataset.showLegend">
 																	<button class="btn btn-sm btn-primary" ng-click="dataset.showLegend = true;">laden</button>
 																</div>
@@ -1638,7 +1677,7 @@
 																			<a href="{{dataset.url}}service=WFS&request=GetCapabilities&version=1.1.0" title="WFS GetCapabilities URL" rel='noopener noreferrer' target='_blank'><i class="fas fa-cloud-download-alt"></i></a>
 																			</div>
 																		</td>
-																		<td>
+																		<td class="text-center">
 																			<div>
 																				<div ng-show="dataset.geometryType==='AOI'">
 																					<div class="input-group colorpicker-component">
@@ -1653,9 +1692,11 @@
 																					</div>
 																				</div>
 																				<div ng-show="dataset.geometryType==='POI'">
-																					<div class="awesome-marker-legend awesome-marker-legend-icon-{{dataset.poiMarkerColor}}">
-																						<span style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{dataset.poiSymbolColor}};" class="glyphicon glyphicon-{{dataset.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
-																					</div>
+																					<div align="center">
+																						<div class="awesome-marker-legend awesome-marker-legend-icon-{{dataset.poiMarkerColor}}">
+																							<span style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{dataset.poiSymbolColor}};" class="glyphicon glyphicon-{{dataset.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
+																						</div>
+																					</div>	
 																				</div>	
 																			</div>
 																		</td>
