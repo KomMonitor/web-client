@@ -2677,6 +2677,42 @@ angular.module('kommonitorMap').component(
           });
         });
 
+        $scope.$on("adjustOpacityForLoiLayer", function (event, dataset, opacity) {
+          var layerName = dataset.datasetName;
+
+          $scope.layerControl._layers.forEach(function (layer) {
+            if (layer.group.name === loiLayerGroupName && layer.name.includes(layerName)) {
+              layer.layer.setStyle({
+                fillOpacity:opacity,
+                opacity:opacity
+              });
+            }
+          });
+        });
+
+        $scope.$on("adjustOpacityForPoiLayer", function (event, dataset, opacity) {
+          var layerName = dataset.datasetName;
+
+          $scope.layerControl._layers.forEach(function (layer) {
+            if (layer.group.name === poiLayerGroupName && layer.name.includes(layerName)) {
+
+              if(layer.layer._layers){
+                for(var layerId in layer.layer._layers){
+                  layer.layer._layers[layerId].setOpacity(opacity);
+                }
+              } 
+              else if(layer.layer._featureGroup){
+                for(var layerId in layer.layer._featureGroup._layers){
+                  layer.layer._featureGroup._layers[layerId].setOpacity(opacity);
+                }
+              }   
+              else{                
+                layer.layer.setOpacity(opacity);
+              } 
+            }
+          });
+        });
+
         $scope.$on("removeWmsLayerFromMap", function (event, dataset) {
 
           var layerName = dataset.title;

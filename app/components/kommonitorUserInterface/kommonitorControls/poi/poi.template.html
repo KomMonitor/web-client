@@ -164,7 +164,15 @@
 																		<p>{{poi.metadata.description}}</p>
 																	</td>
 																	<td>
-																		-
+																		<div class="form-group" align="center">
+
+
+																			<input class=" input-sm" ng-model="dataset.transparency" ng-init="dataset.transparency=0" ng-change="adjustPOILayerTransparency(dataset)" type="range"  min="0" max="1" step="0.01">
+
+																			<br/>
+
+																			<label>{{dataset.transparency}}</label>
+																		</div>
 																	</td>
 																	<td>
 																		<div class="awesome-marker-legend awesome-marker-legend-icon-{{poi.poiMarkerColor}}">
@@ -199,7 +207,15 @@
 																		<p>{{loi.metadata.description}}</p>
 																	</td>
 																	<td>
-																		-
+																		<div class="form-group" align="center">
+
+
+																			<input class=" input-sm" ng-model="dataset.transparency" ng-init="dataset.transparency=0" ng-change="adjustLOILayerTransparency(dataset)" type="range"  min="0" max="1" step="0.01">
+
+																			<br/>
+
+																			<label>{{dataset.transparency}}</label>
+																		</div>
 																	</td>
 																	<td>
 																		<i style="width:15px; height:15px; background:{{loi.loiColor}}; display:inherit;">
@@ -417,7 +433,15 @@
 																	<p>{{poi.metadata.description}}</p>
 																</td>
 																<td>
-																	-
+																	<div class="form-group" align="center">
+
+
+																		<input class=" input-sm" ng-model="dataset.transparency" ng-init="dataset.transparency=0" ng-change="adjustPOILayerTransparency(dataset)" type="range"  min="0" max="1" step="0.01">
+
+																		<br/>
+
+																		<label>{{dataset.transparency}}</label>
+																	</div>
 																</td>
 																<td>
 																	<div class="awesome-marker-legend awesome-marker-legend-icon-{{poi.poiMarkerColor}}">
@@ -452,7 +476,15 @@
 																	<p>{{loi.metadata.description}}</p>
 																</td>
 																<td>
-																	-
+																	<div class="form-group" align="center">
+
+
+																		<input class=" input-sm" ng-model="dataset.transparency" ng-init="dataset.transparency=0" ng-change="adjustLOILayerTransparency(dataset)" type="range"  min="0" max="1" step="0.01">
+
+																		<br/>
+
+																		<label>{{dataset.transparency}}</label>
+																	</div>
 																</td>
 																<td>
 																	<i style="width:15px; height:15px; background:{{loi.loiColor}}; display:inherit;">
@@ -671,7 +703,15 @@
 																<p>{{poi.metadata.description}}</p>
 															</td>
 															<td>
-																-
+																<div class="form-group" align="center">
+
+
+																	<input class=" input-sm" ng-model="dataset.transparency" ng-init="dataset.transparency=0" ng-change="adjustPOILayerTransparency(dataset)" type="range"  min="0" max="1" step="0.01">
+
+																	<br/>
+
+																	<label>{{dataset.transparency}}</label>
+																</div>
 															</td>
 															<td>
 																<div class="awesome-marker-legend awesome-marker-legend-icon-{{poi.poiMarkerColor}}">
@@ -706,7 +746,15 @@
 																<p>{{loi.metadata.description}}</p>
 															</td>
 															<td>
-																-
+																<div class="form-group" align="center">
+
+
+																	<input class=" input-sm" ng-model="dataset.transparency" ng-init="dataset.transparency=0" ng-change="adjustLOILayerTransparency(dataset)" type="range"  min="0" max="1" step="0.01">
+
+																	<br/>
+
+																	<label>{{dataset.transparency}}</label>
+																</div>
 															</td>
 															<td>
 																<i style="width:15px; height:15px; background:{{loi.loiColor}}; display:inherit;">
@@ -934,7 +982,15 @@
 											</td>
 											
 											<td>
-												-
+												<div class="form-group" align="center">
+
+
+													<input class=" input-sm" ng-model="dataset.transparency" ng-init="dataset.transparency=0" ng-change="adjustPOILayerTransparency(dataset)" type="range"  min="0" max="1" step="0.01">
+
+													<br/>
+
+													<label>{{dataset.transparency}}</label>
+												</div>
 											</td>
 											<td>
 												<div class="awesome-marker-legend awesome-marker-legend-icon-{{poi.poiMarkerColor}}">
@@ -969,7 +1025,15 @@
 												<p>{{loi.metadata.description}}</p>
 											</td>
 											<td>
-												-
+												<div class="form-group" align="center">
+
+
+													<input class=" input-sm" ng-model="dataset.transparency" ng-init="dataset.transparency=0" ng-change="adjustLOILayerTransparency(dataset)" type="range"  min="0" max="1" step="0.01">
+
+													<br/>
+
+													<label>{{dataset.transparency}}</label>
+												</div>
 											</td>
 											<td>
 												<i style="width:15px; height:15px; background:{{loi.loiColor}}; display:inherit;">
@@ -1180,6 +1244,7 @@
 								  <tr>
 									<th>Datensatz</th>
 									<th>Beschreibung</th>
+									<th>Layer Transparenz</th>
 									<th>Legende</th>
 									<th>Zeitschnitt</th>
 									<th>Export</th>
@@ -1198,6 +1263,17 @@
 											</td>
 											<td>
 												<p>{{poi.metadata.description}}</p>
+											</td>
+											<td>
+												<div class="form-group" align="center">
+
+
+													<input class=" input-sm" ng-model="dataset.transparency" ng-init="dataset.transparency=0" ng-change="adjustPOILayerTransparency(dataset)" type="range"  min="0" max="1" step="0.01">
+
+													<br/>
+
+													<label>{{dataset.transparency}}</label>
+												</div>
 											</td>
 											<td>
 												<div class="awesome-marker-legend awesome-marker-legend-icon-{{poi.poiMarkerColor}}">
@@ -1262,6 +1338,7 @@
 											<tr>
 												<th>Datensatz</th>
 												<th>Beschreibung</th>
+												<th>Layer Transparenz</th>
 												<th>Legende</th>
 												<th>Zeitschnitt</th>
 												<th>Export</th>
@@ -1280,6 +1357,17 @@
 												</td>
 												<td>
 													<p>{{loi.metadata.description}}</p>
+												</td>
+												<td>
+													<div class="form-group" align="center">
+
+
+														<input class=" input-sm" ng-model="dataset.transparency" ng-init="dataset.transparency=0" ng-change="adjustLOILayerTransparency(dataset)" type="range"  min="0" max="1" step="0.01">
+
+														<br/>
+
+														<label>{{dataset.transparency}}</label>
+													</div>
 												</td>
 												<td>
 													<i style="width:15px; height:15px; background:{{loi.loiColor}}; display:inherit;">
