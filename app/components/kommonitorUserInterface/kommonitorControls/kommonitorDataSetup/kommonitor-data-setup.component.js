@@ -244,41 +244,71 @@ angular
 									$scope.$apply();
 								};
 
+								$scope.$on("initialMetadataLoadingFailed", function (event, errorArray) {
+
+									$scope.loadingData = false;
+									$scope.$broadcast("hideLoadingIconOnMap");
+						
+								});
+
 								// load exemplar indicator
 								$scope.$on("initialMetadataLoadingCompleted", function (event) {
 
 									console.log("Load an initial example indicator");
 
-									var indicatorIndex = undefined;
+									if (kommonitorDataExchangeService.availableIndicators == null || kommonitorDataExchangeService.availableIndicators == undefined || kommonitorDataExchangeService.availableIndicators.length === 0){
+										console.error("Kein darstellbarer Indikator konnte gefunden werden.");
 
-									for (var index=0; index < kommonitorDataExchangeService.availableIndicators.length; index++){
-										if (kommonitorDataExchangeService.availableIndicators[index].indicatorId === initialIndicatorId){
-											indicatorIndex = index;
-											break;
+										kommonitorDataExchangeService.displayMapApplicationError("Kein darstellbarer Indikator konnte gefunden werden.");										
+										$scope.loadingData = false;
+										$scope.$broadcast("hideLoadingIconOnMap");
+
+										return;
+									}
+
+									try{
+										var indicatorIndex = undefined;
+
+										for (var index=0; index < kommonitorDataExchangeService.availableIndicators.length; index++){
+											if (kommonitorDataExchangeService.availableIndicators[index].indicatorId === initialIndicatorId){
+												indicatorIndex = index;
+												break;
+											}
 										}
-									}
 
-									if( indicatorIndex === undefined){
-											indicatorIndex = getRandomInt(0, kommonitorDataExchangeService.availableIndicators.length - 1);
-									}
-
-									kommonitorDataExchangeService.selectedIndicator = kommonitorDataExchangeService.availableIndicators[indicatorIndex];
-									// create Backup which is used when currently selected indicator is filtered out in select
-									kommonitorDataExchangeService.selectedIndicatorBackup = kommonitorDataExchangeService.selectedIndicator;
-
-									// set spatialUnit
-									for (var spatialUnitEntry of kommonitorDataExchangeService.availableSpatialUnits){
-										if(spatialUnitEntry.spatialUnitLevel === initialSpatialUnitName){
-											kommonitorDataExchangeService.selectedSpatialUnit = spatialUnitEntry;
-											break;
+										if( indicatorIndex === undefined){
+												indicatorIndex = getRandomInt(0, kommonitorDataExchangeService.availableIndicators.length - 1);
 										}
-									};
-									if(!kommonitorDataExchangeService.selectedSpatialUnit){
-											kommonitorDataExchangeService.selectedSpatialUnit = $scope.getFirstSpatialUnitForSelectedIndicator();
+
+										kommonitorDataExchangeService.selectedIndicator = kommonitorDataExchangeService.availableIndicators[indicatorIndex];
+										// create Backup which is used when currently selected indicator is filtered out in select
+										kommonitorDataExchangeService.selectedIndicatorBackup = kommonitorDataExchangeService.selectedIndicator;
+
+										// set spatialUnit
+										for (var spatialUnitEntry of kommonitorDataExchangeService.availableSpatialUnits){
+											if(spatialUnitEntry.spatialUnitLevel === initialSpatialUnitName){
+												kommonitorDataExchangeService.selectedSpatialUnit = spatialUnitEntry;
+												break;
+											}
+										}
+										if(!kommonitorDataExchangeService.selectedSpatialUnit){
+												kommonitorDataExchangeService.selectedSpatialUnit = $scope.getFirstSpatialUnitForSelectedIndicator();
+										}
+
+										$scope.onChangeSelectedIndicator();
+
+									}
+									catch(error){
+										console.error("Kein darstellbarer Indikator konnte gefunden werden.");
+
+										kommonitorDataExchangeService.displayMapApplicationError("Kein darstellbarer Indikator konnte gefunden werden.");										
+										$scope.loadingData = false;
+										$scope.$broadcast("hideLoadingIconOnMap");
+
+										return;
 									}
 
-									$scope.onChangeSelectedIndicator();
-
+									
 								});
 
 								/**
