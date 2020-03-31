@@ -22,6 +22,12 @@ angular.module('adminIndicatorsManagement').component('adminIndicatorsManagement
 
 		});
 
+		$scope.$on("initialMetadataLoadingFailed", function (event, errorArray) {
+
+			$scope.loadingData = false;
+
+		});
+
 		$scope.initializeOrRefreshOverviewTable = function(){
 			$scope.loadingData = true;
 			$scope.availableIndicatorDatasets = JSON.parse(JSON.stringify(kommonitorDataExchangeService.availableIndicators));

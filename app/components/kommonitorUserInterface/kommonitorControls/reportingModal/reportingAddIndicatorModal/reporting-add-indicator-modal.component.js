@@ -100,9 +100,9 @@ angular.module('reportingAddIndicatorModal').component('reportingAddIndicatorMod
 					function(unselectedItem) {
 						return !$scope.duallistAreasOptions.selectedItems.find(
 							function(selectedItem) {
-								return unselectedItem.name === selectedItem.name
+								return unselectedItem.name === selectedItem.name;
 							}
-						)
+						);
 					}
 				);
 
@@ -117,9 +117,9 @@ angular.module('reportingAddIndicatorModal').component('reportingAddIndicatorMod
 					function(unselectedItem) {
 						return !$scope.duallistTimestampsOptions.selectedItems.find(
 							function(selectedItem) {
-								return unselectedItem.name === selectedItem.name
+								return unselectedItem.name === selectedItem.name;
 							}
-						)
+						);
 					}
 				);
 				$scope.loadingConfig = false;
@@ -134,25 +134,29 @@ angular.module('reportingAddIndicatorModal').component('reportingAddIndicatorMod
 		 */
 		$scope.loadDefaultState = function() {
 			//select last spatial unit
-			var $spatialUnitSelect = $('#reporting-spatial-unit-select')
-			var lastSpatialUnit = $spatialUnitSelect.children().last().get(0)
-			$scope.selectedSpatialUnit = lastSpatialUnit.textContent;
+			// var $spatialUnitSelect = $('#reporting-spatial-unit-select');
+			// var children = $spatialUnitSelect.children();
+			// var lastSpatialUnit = children.last().get(0);
+			// $scope.selectedSpatialUnit = lastSpatialUnit.textContent;
+
+			$scope.selectedSpatialUnit = $scope.indicator.applicableSpatialUnits[0];
+
 			//update areas
 			$scope.updateAreas().then( () => {
 				//move all areas to right side
-				var $button = $('.duallistButton:eq(0)') //first button of first dual list
+				var $button = $('.duallistButton:eq(0)'); //first button of first dual list
 				$button.click();
 			});
 
 			//fill left side with all timestamps
 			var timestampsInput = createDualListInputArray($scope.indicator.applicableDates);
 			$scope.duallistTimestampsOptions.items = timestampsInput;
-			$scope.$apply()
+			$scope.$apply();
 
 			//if just one timestamp exists, move it to right side
-			var $list = $('.unselected-items-list:eq(1) li a') //all elements of second dual list left side
+			var $list = $('.unselected-items-list:eq(1) li a'); //all elements of second dual list left side
 			if($list.length == 1) {
-				item = $list.get(0)
+				item = $list.get(0);
 				item.click();
 			}
 		};
@@ -213,10 +217,11 @@ angular.module('reportingAddIndicatorModal').component('reportingAddIndicatorMod
 
 					$scope.loadingData = false;
 
-				}, function errorCallback(response) {
+				}, function errorCallback(error) {
 					// called asynchronously if an error occurs
 					// or server returns response with an error status.
 					$scope.loadingData = false;
+					kommonitorDataExchangeService.displayMapApplicationError(error);
 					console.error(response.statusText);
 			});
 			

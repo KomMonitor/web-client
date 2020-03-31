@@ -155,7 +155,30 @@ angular
 
 					this.setProcessScripts = function(scriptsArray){
 						this.availableProcessScripts = scriptsArray;
-					};
+          };
+
+
+          // ERROR HANDLING
+          this.errorMessage = undefined;
+          this.hideErrorAlert = function(){
+            $(".mapApplicationErrorAlert").hide();
+          };
+
+          this.displayMapApplicationError = function(error){
+            if(error.data){							
+              this.errorMessage = this.syntaxHighlightJSON(error.data);
+            }
+            else{
+              this.errorMessage = this.syntaxHighlightJSON(error);
+            }
+
+            // $rootScope.$apply();
+            $rootScope.$broadcast("hideLoadingIconOnMap");
+
+            $(".mapApplicationErrorAlert").show();
+          };
+          
+          // SPATIAL UNITS
 
 					this.availableSpatialUnits = [];
 
@@ -243,7 +266,7 @@ angular
 
           this.topicHierarchyContainsIndicator = function(topic, indicatorMetadata){
             if(topic === null || topic === ""){
-              if (indicatorMetadata.topicReference === null || indicatorMetadata.topicReference === ""){
+              if (indicatorMetadata.topicReference === null || indicatorMetadata.topicReference === "" || ! this.referencedTopicIdExists(indicatorMetadata.topicReference)){
                 return true;
               }
               else{
@@ -599,11 +622,13 @@ angular
             var metadataPromises = [topicsPromise, usersPromise, rolesPromise, spatialUnitsPromise, georesourcesPromise, indicatorsPromise, scriptsPromise];
 
             $q.all(metadataPromises).then(function successCallback(successArray) {
+
                   console.log("Metadata fetched. Call initialize event.");
       						onMetadataLoadingCompleted();
       				}, function errorCallback(errorArray) {
                 // todo error handling
-
+                self.displayMapApplicationError("Beim Laden der erforderlichen Anwendungsdaten ist ein Fehler aufgetreten. Bitte wenden Sie sich an Ihren Administrator.");
+                $rootScope.$broadcast("initialMetadataLoadingFailed", errorArray);
       			});
 
           };
@@ -636,11 +661,7 @@ angular
                 self.availableRoles = response.data;
                 fetchedRolesInitially = true;
 
-              }, function errorCallback(response) {
-                // called asynchronously if an error occurs
-                // or server returns response with an error status.
-                //$scope.error = response.statusText;
-            });
+              });
           };
 
           this.fetchUsersMetadata = function(){
@@ -654,11 +675,7 @@ angular
                 self.availableUsers=response.data;
                 fetchedUsersInitially = true;
 
-              }, function errorCallback(response) {
-                // called asynchronously if an error occurs
-                // or server returns response with an error status.
-                //$scope.error = response.statusText;
-            });
+              });
           };
 
           this.fetchTopicsMetadata = function(){
@@ -672,11 +689,7 @@ angular
                 self.setTopics(response.data);
                 fetchedTopicsInitially = true;
 
-              }, function errorCallback(response) {
-                // called asynchronously if an error occurs
-                // or server returns response with an error status.
-                //$scope.error = response.statusText;
-            });
+              });
           };
 
           this.fetchSpatialUnitsMetadata = function(){
@@ -690,11 +703,7 @@ angular
                 self.setSpatialUnits(response.data);
                 fetchedSpatialUnitsInitially = true;
 
-              }, function errorCallback(response) {
-                // called asynchronously if an error occurs
-                // or server returns response with an error status.
-                //$scope.error = response.statusText;
-            });
+              });
           };
 
           this.fetchGeoresourcesMetadata = function(){
@@ -708,11 +717,7 @@ angular
                 self.setGeoresources(response.data);
                 fetchedGeoresourcesInitially = true;
 
-              }, function errorCallback(response) {
-                // called asynchronously if an error occurs
-                // or server returns response with an error status.
-                //$scope.error = response.statusText;
-            });
+              });
           };
 
           this.fetchIndicatorsMetadata = function(){
@@ -726,11 +731,7 @@ angular
                 self.setIndicators(response.data);
                 fetchedIndicatorsInitially = true;
 
-              }, function errorCallback(response) {
-                // called asynchronously if an error occurs
-                // or server returns response with an error status.
-                //$scope.error = response.statusText;
-            });
+              });
           };
 
           this.fetchIndicatorScriptsMetadata = function(){
@@ -743,11 +744,7 @@ angular
 
                 self.setProcessScripts(response.data);
 
-              }, function errorCallback(response) {
-                // called asynchronously if an error occurs
-                // or server returns response with an error status.
-                //$scope.error = response.statusText;
-            });
+              });
           };
 
 					this.indicatorValueIsNoData = function(indicatorValue){
@@ -755,7 +752,7 @@ angular
 							return true;
 						}
 						return false;
-					}
+					};
 
 					this.getIndicatorValueFromArray_asNumber = function(propertiesArray, targetDateString){
 						if(!targetDateString.includes(DATE_PREFIX)){

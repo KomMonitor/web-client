@@ -208,6 +208,16 @@
 						<span style="font-size:1.5em;" class="glyphicon glyphicon-list-alt" aria-hidden="true"></span>
 				</button>
 
-    </div>
+	</div>
+	
+	<div style="position: absolute; left: 12%; top: 200px; width: 75%;" hidden
+				class="alert alert-danger alert-dismissable mapApplicationErrorAlert">
+				<button type="button" class="close" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.hideErrorAlert()"
+					aria-hidden="true">&times;</button>
+				<h4><i class="icon fa fa-ban"></i>Achtung</h4>
+				Es ist ein Fehler bei der Datenverarbeitung aufgetreten. Die Fehlermeldung lautet:
+				<br />
+				<pre ng-bind-html="$ctrl.kommonitorDataExchangeServiceInstance.errorMessage"></pre>
+	</div>
 
 	</div>

@@ -364,7 +364,7 @@ angular
 						kommonitorMapService
 							.removeReachabilityLayers();
 						$scope.currentIsochronesGeoJSON = undefined;
-						kommonitorDataExchangeService.isochroneLegend = undefined
+						kommonitorDataExchangeService.isochroneLegend = undefined;
 						$scope.loadingData = false;
 						$rootScope
 							.$broadcast('hideLoadingIconOnMap');
@@ -719,13 +719,14 @@ angular
 									$scope.loadingData = false;
 									$scope.pointSourceConfigured = true;
 
-								}, function errorCallback(response) {
+								}, function errorCallback(error) {
 									// called asynchronously if an error occurs
 									// or server returns response with an error status.
 									$scope.pointSourceConfigured = false;
 									$scope.loadingData = false;
-									console.error(response.statusText);
-									$scope.error = response.statusText;
+									console.error(error.statusText);
+									kommonitorDataExchangeService.displayMapApplicationError(error);
+									$scope.error = error.statusText;
 							});
 						}
 
@@ -806,15 +807,17 @@ angular
 										$rootScope.$broadcast('hideLoadingIconOnMap');
 									},
 									function errorCallback(
-										response) {
+										error) {
 										// called asynchronously
 										// if an error occurs
 										// or server returns
 										// response with an
 										// error status.
-										console.error(response.data.error.message);
-										$scope.error = response.data.error.message;
+										console.error(error.data.error.message);
+										$scope.error = error.data.error.message;
+
 										$scope.loadingData = false;
+										kommonitorDataExchangeService.displayMapApplicationError(error);
 										$rootScope.$broadcast("hideLoadingIconOnMap");
 									});
 					};
@@ -974,15 +977,16 @@ angular
 
 								},
 								function errorCallback(
-									response) {
+									error) {
 									// called asynchronously
 									// if an error occurs
 									// or server returns
 									// response with an
 									// error status.
-									console.error(response.data.error.message);
-									$scope.error = response.data.error.message;
+									console.error(error.data.error.message);
+									$scope.error = error.data.error.message;
 									$scope.loadingData = false;
+									kommonitorDataExchangeService.displayMapApplicationError(error);
 									$rootScope.$broadcast("hideLoadingIconOnMap");
 								});
 					};
@@ -1084,466 +1088,3 @@ angular
 				}
 			]
 		});
-
-// $scope.downloadGeoJSON = function(){
-//
-// var geoJSON_string =
-// JSON.stringify($scope.computedCustomizedIndicatorGeoJSON);
-//
-// filename =
-// $scope.targetIndicator.indicatorName + '_' +
-// $scope.targetSpatialUnit.spatialUnitLevel +
-// '_' + $scope.targetDate + '_CUSTOM.geojson';
-//
-// if
-// (!geoJSON_string.match(/^data:application\/vnd.geo+json/i))
-// {
-// geoJSON_string =
-// 'data:application/vnd.geo+json;charset=utf-8,'
-// + geoJSON_string;
-// }
-// data = encodeURI(geoJSON_string);
-//
-// link = document.createElement('a');
-// link.setAttribute('href', data);
-// link.setAttribute('download', filename);
-//
-// document.body.appendChild(link);
-//
-// console.log('Trigger download');
-//
-// link.click();
-// }
-
-// /**
-// * Prebuild calculation.
-// */
-// $scope.runChildDemo = function() {
-//
-// $scope.loadingData = true;
-// $rootScope
-// .$broadcast('showLoadingIconOnMap');
-//
-// $scope.transitMode = 'Fußgänger (Kind)';
-// $scope.reachProfile = 'foot-walking';
-// $scope.speedInKilometersPerHour = 3;
-// $scope.reachMode = 'Zeit';
-// $scope.locationsArray = [ [ 7.049869894,
-// 51.42055331 ] ];
-// $scope.rangeArray = [ 300, 600, 900 ];
-// $scope.useMultipleStartPoints = false;
-//
-// var url = createORSIsochroneRequest(
-// $scope.reachProfile,
-// $scope.locationsArray,
-// $scope.rangeArray,
-// $scope.speedInKilometersPerHour);
-//
-// var req = {
-// method : 'GET',
-// url : url,
-// headers : {
-// // 'Accept': 'application/json'
-// }
-// }
-//
-// $http(req)
-// .then(
-// function successCallback(
-// response) {
-// // this callback will be
-// // called asynchronously
-// // when the response is
-// // available
-// $scope.currentIsochronesGeoJSON = response.data;
-//
-// kommonitorMapService
-// .replaceIsochroneMarker($scope.locationsArray);
-// kommonitorMapService
-// .replaceIsochroneGeoJSON(
-// $scope.currentIsochronesGeoJSON,
-// $scope.transitMode,
-// $scope.reachMode,
-// $scope.rangeArray,
-// $scope.useMultipleStartPoints);
-// $scope
-// .prepareDownloadGeoJSON();
-// $scope.loadingData = false;
-// $rootScope
-// .$broadcast('hideLoadingIconOnMap');
-//
-// },
-// function errorCallback(
-// response) {
-// // called asynchronously
-// // if an error occurs
-// // or server returns
-// // response with an
-// // error status.
-// $scope.loadingData = false;
-// $rootScope
-// .$broadcast('hideLoadingIconOnMap');
-// });
-// };
-//
-// /**
-// * Prebuild calculation.
-// */
-// $scope.runPedestrianDemo = function() {
-//
-// $scope.loadingData = true;
-// $rootScope
-// .$broadcast('showLoadingIconOnMap');
-//
-// $scope.transitMode = 'Fußgänger (Erwachsener)';
-// $scope.reachMode = 'Zeit';
-// $scope.locationsArray = [ [ 7.049869894,
-// 51.42055331 ] ];
-// $scope.rangeArray = [ 300, 600, 900 ];
-// $scope.reachProfile = 'foot-walking';
-// $scope.speedInKilometersPerHour = 5;
-// $scope.useMultipleStartPoints = false;
-//
-// var url = createORSIsochroneRequest(
-// $scope.reachProfile,
-// $scope.locationsArray,
-// $scope.rangeArray,
-// $scope.speedInKilometersPerHour);
-//
-// var req = {
-// method : 'GET',
-// url : url,
-// headers : {
-// // 'Accept': 'application/json'
-// }
-// }
-//
-// $http(req)
-// .then(
-// function successCallback(
-// response) {
-// // this callback will be
-// // called asynchronously
-// // when the response is
-// // available
-// $scope.currentIsochronesGeoJSON = response.data;
-//
-// kommonitorMapService
-// .replaceIsochroneMarker($scope.locationsArray);
-// kommonitorMapService
-// .replaceIsochroneGeoJSON(
-// $scope.currentIsochronesGeoJSON,
-// $scope.transitMode,
-// $scope.reachMode,
-// $scope.rangeArray,
-// $scope.useMultipleStartPoints);
-// $scope
-// .prepareDownloadGeoJSON();
-// $scope.loadingData = false;
-// $rootScope
-// .$broadcast('hideLoadingIconOnMap');
-//
-// },
-// function errorCallback(
-// response) {
-// // called asynchronously
-// // if an error occurs
-// // or server returns
-// // response with an
-// // error status.
-// $scope.loadingData = false;
-// $rootScope
-// .$broadcast('hideLoadingIconOnMap');
-// });
-// };
-//
-// /**
-// * Prebuild calculation.
-// */
-// $scope.runBicycleDemo = function() {
-//
-// $scope.loadingData = true;
-// $rootScope
-// .$broadcast('showLoadingIconOnMap');
-//
-// $scope.transitMode = 'Fahrrad';
-// $scope.reachMode = 'Zeit';
-// $scope.locationsArray = [ [ 7.049869894,
-// 51.42055331 ] ];
-// $scope.rangeArray = [ 300, 600, 900 ];
-// $scope.reachProfile = 'cycling-regular';
-// $scope.speedInKilometersPerHour = 15;
-// $scope.useMultipleStartPoints = false;
-//
-// var url = createORSIsochroneRequest(
-// $scope.reachProfile,
-// $scope.locationsArray,
-// $scope.rangeArray,
-// $scope.speedInKilometersPerHour);
-//
-// var req = {
-// method : 'GET',
-// url : url,
-// headers : {
-// // 'Accept': 'application/json'
-// }
-// }
-//
-// $http(req)
-// .then(
-// function successCallback(
-// response) {
-// // this callback will be
-// // called asynchronously
-// // when the response is
-// // available
-// $scope.currentIsochronesGeoJSON = response.data;
-//
-// kommonitorMapService
-// .replaceIsochroneMarker($scope.locationsArray);
-// kommonitorMapService
-// .replaceIsochroneGeoJSON(
-// $scope.currentIsochronesGeoJSON,
-// $scope.transitMode,
-// $scope.reachMode,
-// $scope.rangeArray,
-// $scope.useMultipleStartPoints);
-// $scope
-// .prepareDownloadGeoJSON();
-// $scope.loadingData = false;
-// $rootScope
-// .$broadcast('hideLoadingIconOnMap');
-//
-// },
-// function errorCallback(
-// response) {
-// // called asynchronously
-// // if an error occurs
-// // or server returns
-// // response with an
-// // error status.
-// $scope.loadingData = false;
-// $rootScope
-// .$broadcast('hideLoadingIconOnMap');
-// });
-// };
-//
-// /**
-// * Prebuild calculation.
-// */
-// $scope.runCarDemo = function() {
-//
-// $scope.loadingData = true;
-// $rootScope
-// .$broadcast('showLoadingIconOnMap');
-//
-// $scope.transitMode = 'PKW';
-// $scope.reachMode = 'Zeit';
-// $scope.locationsArray = [ [ 7.049869894,
-// 51.42055331 ] ];
-// $scope.rangeArray = [ 300, 600, 900 ];
-// $scope.reachProfile = 'driving-car';
-// $scope.speedInKilometersPerHour = 130;
-// $scope.useMultipleStartPoints = false;
-//
-// var url = createORSIsochroneRequest(
-// $scope.reachProfile,
-// $scope.locationsArray,
-// $scope.rangeArray,
-// $scope.speedInKilometersPerHour);
-//
-// var req = {
-// method : 'GET',
-// url : url,
-// headers : {
-// // 'Accept': 'application/json'
-// }
-// }
-//
-// $http(req)
-// .then(
-// function successCallback(
-// response) {
-// // this callback will be
-// // called asynchronously
-// // when the response is
-// // available
-// $scope.currentIsochronesGeoJSON = response.data;
-//
-// kommonitorMapService
-// .replaceIsochroneMarker($scope.locationsArray);
-// kommonitorMapService
-// .replaceIsochroneGeoJSON(
-// $scope.currentIsochronesGeoJSON,
-// $scope.transitMode,
-// $scope.reachMode,
-// $scope.rangeArray,
-// $scope.useMultipleStartPoints);
-// $scope
-// .prepareDownloadGeoJSON();
-// $scope.loadingData = false;
-// $rootScope
-// .$broadcast('hideLoadingIconOnMap');
-//
-// },
-// function errorCallback(
-// response) {
-// // called asynchronously
-// // if an error occurs
-// // or server returns
-// // response with an
-// // error status.
-// $scope.loadingData = false;
-// $rootScope
-// .$broadcast('hideLoadingIconOnMap');
-// });
-// };
-//
-// /**
-// * Prebuild calculation.
-// */
-// $scope.runBicycleDemoWithMultipleStartPoints = function() {
-//
-// $scope.loadingData = true;
-// $rootScope
-// .$broadcast('showLoadingIconOnMap');
-//
-// $scope.transitMode = 'Fahrrad';
-// $scope.reachMode = 'Zeit';
-// $scope.locationsArray = [
-// [ 7.049869894, 51.42055331 ],
-// [ 7.0382865, 51.4234454 ],
-// [ 7.0403425, 51.4258269 ] ];
-// $scope.rangeArray = [ 300, 600, 900 ];
-// $scope.reachProfile = 'cycling-regular';
-// $scope.speedInKilometersPerHour = 15;
-// $scope.useMultipleStartPoints = true;
-//
-// var url = createORSIsochroneRequest(
-// $scope.reachProfile,
-// $scope.locationsArray,
-// $scope.rangeArray,
-// $scope.speedInKilometersPerHour);
-//
-// var req = {
-// method : 'GET',
-// url : url,
-// headers : {
-// // 'Accept': 'application/json'
-// }
-// }
-//
-// $http(req)
-// .then(
-// function successCallback(
-// response) {
-// // this callback will be
-// // called asynchronously
-// // when the response is
-// // available
-// $scope.currentIsochronesGeoJSON = response.data;
-//
-// kommonitorMapService
-// .replaceIsochroneMarker($scope.locationsArray);
-// kommonitorMapService
-// .replaceIsochroneGeoJSON(
-// $scope.currentIsochronesGeoJSON,
-// $scope.transitMode,
-// $scope.reachMode,
-// $scope.rangeArray,
-// $scope.useMultipleStartPoints);
-// $scope
-// .prepareDownloadGeoJSON();
-// $scope.loadingData = false;
-// $rootScope
-// .$broadcast('hideLoadingIconOnMap');
-//
-// },
-// function errorCallback(
-// response) {
-// // called asynchronously
-// // if an error occurs
-// // or server returns
-// // response with an
-// // error status.
-// $scope.loadingData = false;
-// $rootScope
-// .$broadcast('hideLoadingIconOnMap');
-// });
-// };
-//
-// /**
-// * Prebuild calculation.
-// */
-// $scope.runPedestrianKitaRellinghausenDemoWithMultipleStartPoints = function()
-// {
-//
-// $scope.loadingData = true;
-// $rootScope
-// .$broadcast('showLoadingIconOnMap');
-//
-// $scope.transitMode = 'Fußgänger (Kind)';
-// $scope.reachMode = 'Zeit';
-// // $scope.locationsArray =
-// // [[7.049869894,51.42055331],[7.0394219,51.4232979],[7.040197,51.4254453]];
-// $scope.locationsArray = [
-// [ 7.049869894, 51.42055331 ],
-// [ 7.0382865, 51.4234454 ],
-// [ 7.0403425, 51.4258269 ] ];
-// $scope.rangeArray = [ 300, 600, 900 ];
-// $scope.reachProfile = 'foot-walking';
-// $scope.speedInKilometersPerHour = 3;
-// $scope.useMultipleStartPoints = true;
-//
-// var url = createORSIsochroneRequest(
-// $scope.reachProfile,
-// $scope.locationsArray,
-// $scope.rangeArray,
-// $scope.speedInKilometersPerHour);
-//
-// var req = {
-// method : 'GET',
-// url : url,
-// headers : {
-// // 'Accept': 'application/json'
-// }
-// }
-//
-// $http(req)
-// .then(
-// function successCallback(
-// response) {
-// // this callback will be
-// // called asynchronously
-// // when the response is
-// // available
-// $scope.currentIsochronesGeoJSON = response.data;
-//
-// kommonitorMapService
-// .replaceIsochroneMarker($scope.locationsArray);
-// kommonitorMapService
-// .replaceIsochroneGeoJSON(
-// $scope.currentIsochronesGeoJSON,
-// $scope.transitMode,
-// $scope.reachMode,
-// $scope.rangeArray,
-// $scope.useMultipleStartPoints);
-// $scope
-// .prepareDownloadGeoJSON();
-// $scope.loadingData = false;
-// $rootScope
-// .$broadcast('hideLoadingIconOnMap');
-//
-// },
-// function errorCallback(
-// response) {
-// // called asynchronously
-// // if an error occurs
-// // or server returns
-// // response with an
-// // error status.
-// $scope.loadingData = false;
-// $rootScope
-// .$broadcast('hideLoadingIconOnMap');
-// });
-// };
