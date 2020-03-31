@@ -593,7 +593,7 @@ angular.module('reportingModal').component('reportingModal', {
 				return;
 			}
 
-			page = {};
+			var page = {};
 			page.pFormat = format;
 			return page;
 		}
