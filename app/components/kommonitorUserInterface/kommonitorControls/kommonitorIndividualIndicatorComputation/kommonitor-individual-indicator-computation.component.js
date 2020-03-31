@@ -638,10 +638,12 @@ angular
 
 											// $scope.downloadGeoJSON(geoJSON_string);
 
-										}, function errorCallback(response) {
+										}, function errorCallback(error) {
 											// called asynchronously if an error occurs
 											// or server returns response with an error status.
-											$scope.error = response.statusText;
+											$scope.error = error.statusText;
+
+											kommonitorDataExchangeService.displayMapApplicationError(error);
 
 											$scope.loadingData = false;
 									});
@@ -663,10 +665,12 @@ angular
 									if(response.data.progress)
 										$scope.updateProgressBar(response.data.progress);
 
-								}, function errorCallback(response) {
+								}, function errorCallback(error) {
 									// called asynchronously if an error occurs
 									// or server returns response with an error status.
-									$scope.error = response.data.error;
+									$scope.error = error.data.error;
+
+									kommonitorDataExchangeService.displayMapApplicationError(error);
 
 									$scope.loadingData = false;
 							});
@@ -714,11 +718,12 @@ angular
 											// $scope.$apply();
 										}
 
-									}, function errorCallback(response) {
+									}, function errorCallback(error) {
 										// called asynchronously if an error occurs
 										// or server returns response with an error status.
-										$scope.error = response.data.error;
-										console.error(response.data.error);
+										$scope.error = error.data.error;
+										console.error(error.data.error);
+										kommonitorDataExchangeService.displayMapApplicationError(error);
 										$scope.stopLoop = true;
 										$scope.loadingData = false;
 										return;

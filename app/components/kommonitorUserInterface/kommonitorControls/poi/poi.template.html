@@ -47,11 +47,11 @@
 										<th colspan="2" class="text-center"><b>Geodaten-Dienste</b></th>
 									  </tr>
 									<tr>
-									  <th class="text-center"><b>Points</b></th>
-									  <th class="text-center"><b>Lines</b></th>
-									  <th class="text-center"><b>Areas</b></th>
-									  <th class="text-center"><b>WMS</b></th>
-									  <th class="text-center"><b>WFS</b></th>
+									  <th class="text-center"><b>Punktdaten</b></th>
+									  <th class="text-center"><b>Liniendaten</b></th>
+									  <th class="text-center"><b>Fl&auml;chendaten</b></th>
+									  <th class="text-center"><b>WMS-Daten</b></th>
+									  <th class="text-center"><b>WFS-Daten</b></th>
 									</tr>
 									<tr>
 										<td class="text-center">
@@ -90,7 +90,7 @@
 
 							<div class="input-group">
 								<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-								<input type="text" class="form-control input-sm" placeholder="Filtern nach Georessourcen-Name" ng-model="georesourceNameFilter.value">
+								<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="georesourceNameFilter.value">
 							</div>
 
 							<br/>
@@ -164,20 +164,30 @@
 																		<p>{{poi.metadata.description}}</p>
 																	</td>
 																	<td>
-																		-
+																		<div class="form-group" align="center">
+
+
+																			<input class=" input-sm" ng-model="dataset.transparency" ng-init="dataset.transparency=0" ng-change="adjustPOILayerTransparency(dataset)" type="range"  min="0" max="1" step="0.01">
+
+																			<br/>
+
+																			<label>{{dataset.transparency}}</label>
+																		</div>
 																	</td>
-																	<td>
-																		<i class="awesome-marker-legend awesome-marker-legend-icon-{{poi.poiMarkerColor}}">
-																			<span style="margin-left:3px; padding-right:3px;  font-size:0.7em; color:{{poi.poiSymbolColor}};" class="glyphicon glyphicon-{{poi.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
-																		</i>
+																	<td class="text-center">
+																		<div align="center">
+																			<div class="awesome-marker-legend awesome-marker-legend-icon-{{poi.poiMarkerColor}}">
+																				<span style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{poi.poiSymbolColor}};" class="glyphicon glyphicon-{{poi.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
+																			</div>
+																		</div>																		
 																	</td>
 																	<td>
 																		<select style="font-size: 11px; width:135px; padding: 0px;"
-																				ng-model="poi.selectedDate" ng-change="onChangeSelectedDate(poi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in poi.availablePeriodsOfValidity" ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]"
+																				ng-model="poi.selectedDate" ng-change="onChangeSelectedDate(poi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in poi.availablePeriodsOfValidity | orderBy: 'startDate'" ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]"
 																				class="form-control" required>
 																			</select>
 																	</td>
-																	<td>
+																	<td class="text-center">
 																		<a href="" ng-click="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 																		<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
 																	</td>
@@ -199,19 +209,30 @@
 																		<p>{{loi.metadata.description}}</p>
 																	</td>
 																	<td>
-																		-
+																		<div class="form-group" align="center">
+
+
+																			<input class=" input-sm" ng-model="dataset.transparency" ng-init="dataset.transparency=0" ng-change="adjustLOILayerTransparency(dataset)" type="range"  min="0" max="1" step="0.01">
+
+																			<br/>
+
+																			<label>{{dataset.transparency}}</label>
+																		</div>
 																	</td>
-																	<td>
-																		<i style="width:15px; height:15px; background:{{loi.loiColor}}; display:inherit;">
-																		</i>
+																	<td class="text-center">
+																		<div align="center">
+																			<i style="width:15px; height:15px; background:{{loi.loiColor}}; display:inherit;">
+																			</i>
+																		</div>
+																		
 																	</td>
 																	<td>
 																		<select style="font-size: 11px; width:135px; padding: 0px;"
-																				ng-model="loi.selectedDate" ng-change="onChangeSelectedDate(loi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in loi.availablePeriodsOfValidity" ng-init="loi.selectedDate = loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]"
+																				ng-model="loi.selectedDate" ng-change="onChangeSelectedDate(loi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in loi.availablePeriodsOfValidity | orderBy: 'startDate'" ng-init="loi.selectedDate = loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]"
 																				class="form-control" required>
 																			</select>
 																	</td>
-																	<td>
+																	<td class="text-center">
 																		<a href="" ng-click="getExportLinkForLoi(loi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 																		<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
 																	</td>
@@ -242,17 +263,19 @@
 																			<label>{{aoi.transparency}}</label>
 																		</div>
 																	</td>
-																	<td>
-																		<i style="width:15px; height:15px; background:{{aoi.aoiColor}}; display:inherit;">
-																		</i>
+																	<td class="text-center">
+																		<div align="center">
+																			<i style="width:15px; height:15px; background:{{aoi.aoiColor}}; display:inherit;">
+																			</i>
+																		</div>
 																	</td>
 																	<td>
 																		<select style="font-size: 11px; width:135px; padding: 0px;"
-																				ng-model="aoi.selectedDate" ng-change="onChangeSelectedDate(aoi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in aoi.availablePeriodsOfValidity" ng-init="aoi.selectedDate = aoi.availablePeriodsOfValidity[aoi.availablePeriodsOfValidity.length - 1]"
+																				ng-model="aoi.selectedDate" ng-change="onChangeSelectedDate(aoi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in aoi.availablePeriodsOfValidity | orderBy: 'startDate'" ng-init="aoi.selectedDate = aoi.availablePeriodsOfValidity[aoi.availablePeriodsOfValidity.length - 1]"
 																				class="form-control" required>
 																			</select>
 																	</td>
-																	<td>
+																	<td class="text-center">
 																		<a href="" ng-click="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 																		<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
 																	</td>
@@ -261,7 +284,7 @@
 																<!-- WMS -->
 																<tr ng-if="showWMS" ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter.value | orderBy:"title"'>
 																	<td>
-																		<b>WMS</b>
+																		<b><i>WMS</i></b>
 																	</td>
 																	<td>
 																		<label class='checkbox-inline' ><input type="checkbox" value="dataset.title" ng-model="dataset.isSelected" ng-change="handleWmsOnMap(dataset)">
@@ -282,7 +305,7 @@
 																			<label>{{dataset.transparency}}</label>
 																		</div>
 																	</td>																	
-																	<td>
+																	<td  class="text-center">
 																		<div ng-if="! dataset.showLegend">
 																			<button class="btn btn-sm btn-primary" ng-click="dataset.showLegend = true;">laden</button>
 																		</div>
@@ -293,7 +316,7 @@
 																	<td>
 																		-
 																	</td>
-																	<td>
+																	<td class="text-center">
 																		<div align="center">
 																		<a href="{{dataset.url}}service=WMS&request=GetCapabilities&version=1.3.0" title="WMS GetCapabilities URL" rel='noopener noreferrer' target='_blank'><i class="fas fa-cloud-download-alt"></i></a>
 																		</div>
@@ -303,7 +326,7 @@
 																<!-- WFS -->
 																<tr ng-if="showWFS" ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.wfsDatasets | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter.value  | orderBy:"title"'>
 																	<td>
-																		<b>WFS</b>
+																		<b><i>WFS</i></b>
 																	</td>
 																	<td>
 																		<label class='checkbox-inline' ><input type="checkbox" value="dataset.title" ng-model="dataset.isSelected" ng-change="handleWfsOnMap(dataset)">
@@ -316,6 +339,7 @@
 																	</td>
 																	<td>
 																		<div class="form-group" align="center">
+
 
 																			<input class=" input-sm" ng-model="dataset.transparency" ng-init="dataset.transparency=0" ng-change="adjustWFSLayerTransparency(dataset)" type="range"  min="0" max="1" step="0.01">
 
@@ -331,20 +355,31 @@
 																		</label>
 																	</td> -->
 																	
-																	<td>
-																		<div>
+																	<td class="text-center">
+																		<div ng-show="dataset.geometryType==='AOI'">
 																			<div class="input-group colorpicker-component">
-																				<input type="text" style="display:none;" class="form-control input-sm" ng-model="dataset.displayColor" ng-change="adjustWfsLayerColor(dataset)" placeholder="WFS Darstellungsfarbe"  required />
+																				<input type="text" style="display:none;" class="form-control input-sm" ng-model="dataset.aoiColor" ng-change="adjustWfsLayerColor(dataset)" placeholder="WFS Darstellungsfarbe"  required />
 																				<span title="Klicken, um die Farbe anzupassen" style="border: 1px solid #ccc;" class="input-group-addon"><i></i></span>
 																			</div>
-																			<!-- value="{{dataset.displayColor}}" -->
-																			<!-- <i style="background-color:{{dataset.displayColor}}; margin-left: 12px; width: 18px; height: 18px; float: left;"></i> -->
+																		</div>
+																		<div ng-show="dataset.geometryType==='LOI'">
+																			<div class="input-group colorpicker-component">
+																				<input type="text" style="display:none;" class="form-control input-sm" ng-model="dataset.loiColor" ng-change="adjustWfsLayerColor(dataset)" placeholder="WFS Darstellungsfarbe"  required />
+																				<span title="Klicken, um die Farbe anzupassen" style="border: 1px solid #ccc;" class="input-group-addon"><i></i></span>
+																			</div>
+																		</div>
+																		<div ng-show="dataset.geometryType==='POI'">
+																			<div align="center">
+																				<div class="awesome-marker-legend awesome-marker-legend-icon-{{dataset.poiMarkerColor}}">
+																					<span style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{dataset.poiSymbolColor}};" class="glyphicon glyphicon-{{dataset.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
+																				</div>
+																			</div>	
 																		</div>
 																	</td>
 																	<td>
 																		-
 																	</td>
-																	<td>
+																	<td class="text-center">
 																		<div align="center">
 																		<a href="{{dataset.url}}service=WFS&request=GetCapabilities&version=1.1.0" title="WFS GetCapabilities URL" rel='noopener noreferrer' target='_blank'><i class="fas fa-cloud-download-alt"></i></a>
 																		</div>
@@ -407,20 +442,30 @@
 																	<p>{{poi.metadata.description}}</p>
 																</td>
 																<td>
-																	-
+																	<div class="form-group" align="center">
+
+
+																		<input class=" input-sm" ng-model="dataset.transparency" ng-init="dataset.transparency=0" ng-change="adjustPOILayerTransparency(dataset)" type="range"  min="0" max="1" step="0.01">
+
+																		<br/>
+
+																		<label>{{dataset.transparency}}</label>
+																	</div>
 																</td>
-																<td>
-																	<i class="awesome-marker-legend awesome-marker-legend-icon-{{poi.poiMarkerColor}}">
-																		<span style="margin-left:3px; padding-right:3px;  font-size:0.7em; color:{{poi.poiSymbolColor}};" class="glyphicon glyphicon-{{poi.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
-																	</i>
+																<td  class="text-center">
+																	<div align="center">
+																		<div class="awesome-marker-legend awesome-marker-legend-icon-{{poi.poiMarkerColor}}">
+																			<span style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{poi.poiSymbolColor}};" class="glyphicon glyphicon-{{poi.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
+																		</div>
+																	</div>	
 																</td>
 																<td>
 																	<select style="font-size: 11px; width:135px; padding: 0px;"
-																			ng-model="poi.selectedDate" ng-change="onChangeSelectedDate(poi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in poi.availablePeriodsOfValidity" ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]"
+																			ng-model="poi.selectedDate" ng-change="onChangeSelectedDate(poi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in poi.availablePeriodsOfValidity | orderBy: 'startDate'" ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]"
 																			class="form-control" required>
 																		</select>
 																</td>
-																<td>
+																<td class="text-center">
 																	<a href="" ng-click="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 																	<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
 																</td>
@@ -442,19 +487,29 @@
 																	<p>{{loi.metadata.description}}</p>
 																</td>
 																<td>
-																	-
+																	<div class="form-group" align="center">
+
+
+																		<input class=" input-sm" ng-model="dataset.transparency" ng-init="dataset.transparency=0" ng-change="adjustLOILayerTransparency(dataset)" type="range"  min="0" max="1" step="0.01">
+
+																		<br/>
+
+																		<label>{{dataset.transparency}}</label>
+																	</div>
 																</td>
-																<td>
-																	<i style="width:15px; height:15px; background:{{loi.loiColor}}; display:inherit;">
-																	</i>
+																<td class="text-center">
+																	<div align="center">
+																		<i style="width:15px; height:15px; background:{{loi.loiColor}}; display:inherit;">
+																		</i>
+																	</div>
 																</td>
 																<td>
 																	<select style="font-size: 11px; width:135px; padding: 0px;"
-																			ng-model="loi.selectedDate" ng-change="onChangeSelectedDate(loi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in loi.availablePeriodsOfValidity" ng-init="loi.selectedDate = loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]"
+																			ng-model="loi.selectedDate" ng-change="onChangeSelectedDate(loi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in loi.availablePeriodsOfValidity | orderBy: 'startDate'" ng-init="loi.selectedDate = loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]"
 																			class="form-control" required>
 																		</select>
 																</td>
-																<td>
+																<td class="text-center">
 																	<a href="" ng-click="getExportLinkForLoi(loi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 																	<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
 																</td>
@@ -485,17 +540,19 @@
 																		<label>{{aoi.transparency}}</label>
 																	</div>
 																</td>
-																<td>
-																	<i style="width:15px; height:15px; background:{{aoi.aoiColor}}; display:inherit;">
-																	</i>
+																<td class="text-center">
+																	<div align="center">
+																		<i style="width:15px; height:15px; background:{{aoi.aoiColor}}; display:inherit;">
+																		</i>
+																	</div>
 																</td>
 																<td>
 																	<select style="font-size: 11px; width:135px; padding: 0px;"
-																			ng-model="aoi.selectedDate" ng-change="onChangeSelectedDate(aoi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in aoi.availablePeriodsOfValidity" ng-init="aoi.selectedDate = aoi.availablePeriodsOfValidity[aoi.availablePeriodsOfValidity.length - 1]"
+																			ng-model="aoi.selectedDate" ng-change="onChangeSelectedDate(aoi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in aoi.availablePeriodsOfValidity | orderBy: 'startDate'" ng-init="aoi.selectedDate = aoi.availablePeriodsOfValidity[aoi.availablePeriodsOfValidity.length - 1]"
 																			class="form-control" required>
 																		</select>
 																</td>
-																<td>
+																<td class="text-center">
 																	<a href="" ng-click="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 																	<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
 																</td>
@@ -504,7 +561,7 @@
 															<!-- WMS -->
 															<tr ng-if="showWMS" ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter.value | orderBy:"title"'>
 																<td>
-																	<b>WMS</b>
+																	<b><i>WMS</i></b>
 																</td>
 																<td>
 																	<label class='checkbox-inline' ><input type="checkbox" value="dataset.title" ng-model="dataset.isSelected" ng-change="handleWmsOnMap(dataset)">
@@ -526,7 +583,7 @@
 																	</div>
 																</td>
 																
-																<td>
+																<td class="text-center">
 																	<div ng-if="! dataset.showLegend">
 																		<button class="btn btn-sm btn-primary" ng-click="dataset.showLegend = true;">laden</button>
 																	</div>
@@ -537,7 +594,7 @@
 																<td>
 																	-
 																</td>
-																<td>
+																<td class="text-center">
 																	<div align="center">
 																	<a href="{{dataset.url}}service=WMS&request=GetCapabilities&version=1.3.0" title="WMS GetCapabilities URL" rel='noopener noreferrer' target='_blank'><i class="fas fa-cloud-download-alt"></i></a>
 																	</div>
@@ -547,7 +604,7 @@
 															<!-- WFS -->
 															<tr ng-if="showWFS" ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.wfsDatasets | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter.value  | orderBy:"title"'>
 																<td>
-																	<b>WFS</b>
+																	<b><i>WFS</i></b>
 																</td>
 																<td>
 																	<label class='checkbox-inline' ><input type="checkbox" value="dataset.title" ng-model="dataset.isSelected" ng-change="handleWfsOnMap(dataset)">
@@ -575,20 +632,33 @@
 																	</label>
 																</td> -->
 																
-																<td>
+																<td class="text-center">
 																	<div>
-																		<div class="input-group colorpicker-component">
-																			<input type="text" style="display:none;" class="form-control input-sm" ng-model="dataset.displayColor" ng-change="adjustWfsLayerColor(dataset)" placeholder="WFS Darstellungsfarbe"  required />
-																			<span title="Klicken, um die Farbe anzupassen" style="border: 1px solid #ccc;" class="input-group-addon"><i></i></span>
+																		<div ng-show="dataset.geometryType==='AOI'">
+																			<div class="input-group colorpicker-component">
+																				<input type="text" style="display:none;" class="form-control input-sm" ng-model="dataset.aoiColor" ng-change="adjustWfsLayerColor(dataset)" placeholder="WFS Darstellungsfarbe"  required />
+																				<span title="Klicken, um die Farbe anzupassen" style="border: 1px solid #ccc;" class="input-group-addon"><i></i></span>
+																			</div>
 																		</div>
-																		<!-- value="{{dataset.displayColor}}" -->
-																		<!-- <i style="background-color:{{dataset.displayColor}}; margin-left: 12px; width: 18px; height: 18px; float: left;"></i> -->
+																		<div ng-show="dataset.geometryType==='LOI'">
+																			<div class="input-group colorpicker-component">
+																				<input type="text" style="display:none;" class="form-control input-sm" ng-model="dataset.loiColor" ng-change="adjustWfsLayerColor(dataset)" placeholder="WFS Darstellungsfarbe"  required />
+																				<span title="Klicken, um die Farbe anzupassen" style="border: 1px solid #ccc;" class="input-group-addon"><i></i></span>
+																			</div>
+																		</div>
+																		<div ng-show="dataset.geometryType==='POI'">
+																			<div align="center">
+																				<div class="awesome-marker-legend awesome-marker-legend-icon-{{dataset.poiMarkerColor}}">
+																					<span style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{dataset.poiSymbolColor}};" class="glyphicon glyphicon-{{dataset.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
+																				</div>
+																			</div>	
+																		</div>	
 																	</div>
 																</td>
 																<td>
 																	-
 																</td>
-																<td>
+																<td class="text-center">
 																	<div align="center">
 																	<a href="{{dataset.url}}service=WFS&request=GetCapabilities&version=1.1.0" title="WFS GetCapabilities URL" rel='noopener noreferrer' target='_blank'><i class="fas fa-cloud-download-alt"></i></a>
 																	</div>
@@ -650,20 +720,30 @@
 																<p>{{poi.metadata.description}}</p>
 															</td>
 															<td>
-																-
+																<div class="form-group" align="center">
+
+
+																	<input class=" input-sm" ng-model="dataset.transparency" ng-init="dataset.transparency=0" ng-change="adjustPOILayerTransparency(dataset)" type="range"  min="0" max="1" step="0.01">
+
+																	<br/>
+
+																	<label>{{dataset.transparency}}</label>
+																</div>
 															</td>
-															<td>
-																<i class="awesome-marker-legend awesome-marker-legend-icon-{{poi.poiMarkerColor}}">
-																	<span style="margin-left:3px; padding-right:3px;  font-size:0.7em; color:{{poi.poiSymbolColor}};" class="glyphicon glyphicon-{{poi.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
-																</i>
+															<td class="text-center">
+																<div align="center">
+																	<div class="awesome-marker-legend awesome-marker-legend-icon-{{poi.poiMarkerColor}}">
+																		<span style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{poi.poiSymbolColor}};" class="glyphicon glyphicon-{{poi.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
+																	</div>
+																</div>	
 															</td>
 															<td>
 																<select style="font-size: 11px; width:135px; padding: 0px;"
-																		ng-model="poi.selectedDate" ng-change="onChangeSelectedDate(poi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in poi.availablePeriodsOfValidity" ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]"
+																		ng-model="poi.selectedDate" ng-change="onChangeSelectedDate(poi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in poi.availablePeriodsOfValidity | orderBy: 'startDate'" ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]"
 																		class="form-control" required>
 																	</select>
 															</td>
-															<td>
+															<td class="text-center">
 																<a href="" ng-click="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 																<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
 															</td>
@@ -685,19 +765,29 @@
 																<p>{{loi.metadata.description}}</p>
 															</td>
 															<td>
-																-
+																<div class="form-group" align="center">
+
+
+																	<input class=" input-sm" ng-model="dataset.transparency" ng-init="dataset.transparency=0" ng-change="adjustLOILayerTransparency(dataset)" type="range"  min="0" max="1" step="0.01">
+
+																	<br/>
+
+																	<label>{{dataset.transparency}}</label>
+																</div>
 															</td>
-															<td>
-																<i style="width:15px; height:15px; background:{{loi.loiColor}}; display:inherit;">
-																</i>
+															<td class="text-center">
+																<div align="center">
+																	<i style="width:15px; height:15px; background:{{loi.loiColor}}; display:inherit;">
+																	</i>
+																</div>
 															</td>
 															<td>
 																<select style="font-size: 11px; width:135px; padding: 0px;"
-																		ng-model="loi.selectedDate" ng-change="onChangeSelectedDate(loi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in loi.availablePeriodsOfValidity" ng-init="loi.selectedDate = loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]"
+																		ng-model="loi.selectedDate" ng-change="onChangeSelectedDate(loi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in loi.availablePeriodsOfValidity | orderBy: 'startDate'" ng-init="loi.selectedDate = loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]"
 																		class="form-control" required>
 																	</select>
 															</td>
-															<td>
+															<td class="text-center">
 																<a href="" ng-click="getExportLinkForLoi(loi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 																<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
 															</td>
@@ -728,17 +818,19 @@
 																	<label>{{aoi.transparency}}</label>
 																</div>
 															</td>
-															<td>
-																<i style="width:15px; height:15px; background:{{aoi.aoiColor}}; display:inherit;">
-																</i>
+															<td class="text-center">
+																<div align="center">
+																	<i style="width:15px; height:15px; background:{{aoi.aoiColor}}; display:inherit;">
+																	</i>
+																</div>
 															</td>
 															<td>
 																<select style="font-size: 11px; width:135px; padding: 0px;"
-																		ng-model="aoi.selectedDate" ng-change="onChangeSelectedDate(aoi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in aoi.availablePeriodsOfValidity" ng-init="aoi.selectedDate = aoi.availablePeriodsOfValidity[aoi.availablePeriodsOfValidity.length - 1]"
+																		ng-model="aoi.selectedDate" ng-change="onChangeSelectedDate(aoi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in aoi.availablePeriodsOfValidity | orderBy: 'startDate'" ng-init="aoi.selectedDate = aoi.availablePeriodsOfValidity[aoi.availablePeriodsOfValidity.length - 1]"
 																		class="form-control" required>
 																	</select>
 															</td>
-															<td>
+															<td class="text-center">
 																<a href="" ng-click="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 																<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
 															</td>
@@ -747,7 +839,7 @@
 														<!-- WMS -->
 														<tr ng-if="showWMS" ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter.value | orderBy:"title"'>
 															<td>
-																<b>WMS</b>
+																<b><i>WMS</i></b>
 															</td>
 															<td>
 																<label class='checkbox-inline' ><input type="checkbox" value="dataset.title" ng-model="dataset.isSelected" ng-change="handleWmsOnMap(dataset)">
@@ -769,7 +861,7 @@
 																</div>
 															</td>
 															
-															<td>
+															<td class="text-center">
 																<div ng-if="! dataset.showLegend">
 																	<button class="btn btn-sm btn-primary" ng-click="dataset.showLegend = true;">laden</button>
 																</div>
@@ -780,7 +872,7 @@
 															<td>
 																-
 															</td>
-															<td>
+															<td class="text-center">
 																<div align="center">
 																<a href="{{dataset.url}}service=WMS&request=GetCapabilities&version=1.3.0" title="WMS GetCapabilities URL" rel='noopener noreferrer' target='_blank'><i class="fas fa-cloud-download-alt"></i></a>
 																</div>
@@ -790,7 +882,7 @@
 														<!-- WFS -->
 														<tr ng-if="showWFS" ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.wfsDatasets | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter.value  | orderBy:"title"'>
 															<td>
-																<b>WFS</b>
+																<b><i>WFS</i></b>
 															</td>
 															<td>
 																<label class='checkbox-inline' ><input type="checkbox" value="dataset.title" ng-model="dataset.isSelected" ng-change="handleWfsOnMap(dataset)">
@@ -818,20 +910,33 @@
 																</label>
 															</td> -->
 															
-															<td>
+															<td class="text-center">
 																<div>
-																	<div class="input-group colorpicker-component">
-																		<input type="text" style="display:none;" class="form-control input-sm" ng-model="dataset.displayColor" ng-change="adjustWfsLayerColor(dataset)" placeholder="WFS Darstellungsfarbe"  required />
-																		<span title="Klicken, um die Farbe anzupassen" style="border: 1px solid #ccc;" class="input-group-addon"><i></i></span>
+																	<div ng-show="dataset.geometryType==='AOI'">
+																		<div class="input-group colorpicker-component">
+																			<input type="text" style="display:none;" class="form-control input-sm" ng-model="dataset.aoiColor" ng-change="adjustWfsLayerColor(dataset)" placeholder="WFS Darstellungsfarbe"  required />
+																			<span title="Klicken, um die Farbe anzupassen" style="border: 1px solid #ccc;" class="input-group-addon"><i></i></span>
+																		</div>
 																	</div>
-																	<!-- value="{{dataset.displayColor}}" -->
-																	<!-- <i style="background-color:{{dataset.displayColor}}; margin-left: 12px; width: 18px; height: 18px; float: left;"></i> -->
+																	<div ng-show="dataset.geometryType==='LOI'">
+																		<div class="input-group colorpicker-component">
+																			<input type="text" style="display:none;" class="form-control input-sm" ng-model="dataset.loiColor" ng-change="adjustWfsLayerColor(dataset)" placeholder="WFS Darstellungsfarbe"  required />
+																			<span title="Klicken, um die Farbe anzupassen" style="border: 1px solid #ccc;" class="input-group-addon"><i></i></span>
+																		</div>
+																	</div>
+																	<div ng-show="dataset.geometryType==='POI'">
+																		<div align="center">
+																			<div class="awesome-marker-legend awesome-marker-legend-icon-{{dataset.poiMarkerColor}}">
+																				<span style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{dataset.poiSymbolColor}};" class="glyphicon glyphicon-{{dataset.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
+																			</div>
+																		</div>	
+																	</div>	
 																</div>
 															</td>
 															<td>
 																-
 															</td>
-															<td>
+															<td class="text-center">
 																<div align="center">
 																<a href="{{dataset.url}}service=WFS&request=GetCapabilities&version=1.1.0" title="WFS GetCapabilities URL" rel='noopener noreferrer' target='_blank'><i class="fas fa-cloud-download-alt"></i></a>
 																</div>
@@ -860,7 +965,7 @@
 								<!-- end main Topics -->
 
 								<div  class="list-group-item list-group-item-default" style="background: #2171b5; color: white;">
-									<a id="noHierarchyGeoresourceDatasets" href="" ng-attr-title="Georessourcen-Daten ohne Hierarchie" class="collapseTrigger" style="color: white;" ng-click="isCollapsed_noTopic = !isCollapsed_noTopic" ng-init="isCollapsed_noTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>ohne Hierarchie ({{$ctrl.kommonitorDataExchangeServiceInstance.getNumberOfGeoresources(null, georesourceNameFilter.value, showPOI, showLOI, showAOI, showWMS, showWFS)}})</a>
+									<a id="noHierarchyGeoresourceDatasets" href="" ng-attr-title="Georessourcen-Daten ohne Themenbezug" class="collapseTrigger" style="color: white;" ng-click="isCollapsed_noTopic = !isCollapsed_noTopic" ng-init="isCollapsed_noTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>ohne Themenbezug ({{$ctrl.kommonitorDataExchangeServiceInstance.getNumberOfGeoresources(null, georesourceNameFilter.value, showPOI, showLOI, showAOI, showWMS, showWFS)}})</a>
 									&nbsp;&nbsp; <input type="checkbox" value="showAllForTopic_null" ng-model="showAllForTopic_null" ng-change="handleShowAllOnTopic(null)">
 								</div>
 	
@@ -902,20 +1007,30 @@
 											</td>
 											
 											<td>
-												-
+												<div class="form-group" align="center">
+
+
+													<input class=" input-sm" ng-model="dataset.transparency" ng-init="dataset.transparency=0" ng-change="adjustPOILayerTransparency(dataset)" type="range"  min="0" max="1" step="0.01">
+
+													<br/>
+
+													<label>{{dataset.transparency}}</label>
+												</div>
 											</td>
-											<td>
-												<i class="awesome-marker-legend awesome-marker-legend-icon-{{poi.poiMarkerColor}}">
-													<span style="margin-left:3px; padding-right:3px;  font-size:0.7em; color:{{poi.poiSymbolColor}};" class="glyphicon glyphicon-{{poi.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
-												</i>
+											<td class="text-center">
+												<div align="center">
+													<div class="awesome-marker-legend awesome-marker-legend-icon-{{poi.poiMarkerColor}}">
+														<span style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{poi.poiSymbolColor}};" class="glyphicon glyphicon-{{poi.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
+													</div>
+												</div>	
 											</td>
 											<td>
 												<select style="font-size: 11px; width:135px; padding: 0px;"
-														ng-model="poi.selectedDate" ng-change="onChangeSelectedDate(poi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in poi.availablePeriodsOfValidity" ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]"
+														ng-model="poi.selectedDate" ng-change="onChangeSelectedDate(poi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in poi.availablePeriodsOfValidity | orderBy: 'startDate'" ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]"
 														class="form-control" required>
 													</select>
 											</td>
-											<td>
+											<td class="text-center">
 												<a href="" ng-click="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 												<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
 											</td>
@@ -937,19 +1052,29 @@
 												<p>{{loi.metadata.description}}</p>
 											</td>
 											<td>
-												-
+												<div class="form-group" align="center">
+
+
+													<input class=" input-sm" ng-model="dataset.transparency" ng-init="dataset.transparency=0" ng-change="adjustLOILayerTransparency(dataset)" type="range"  min="0" max="1" step="0.01">
+
+													<br/>
+
+													<label>{{dataset.transparency}}</label>
+												</div>
 											</td>
-											<td>
-												<i style="width:15px; height:15px; background:{{loi.loiColor}}; display:inherit;">
-												</i>
+											<td class="text-center">
+												<div align="center">
+													<i style="width:15px; height:15px; background:{{loi.loiColor}}; display:inherit;">
+													</i>
+												</div>
 											</td>
 											<td>
 												<select style="font-size: 11px; width:135px; padding: 0px;"
-														ng-model="loi.selectedDate" ng-change="onChangeSelectedDate(loi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in loi.availablePeriodsOfValidity" ng-init="loi.selectedDate = loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]"
+														ng-model="loi.selectedDate" ng-change="onChangeSelectedDate(loi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in loi.availablePeriodsOfValidity | orderBy: 'startDate'" ng-init="loi.selectedDate = loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]"
 														class="form-control" required>
 													</select>
 											</td>
-											<td>
+											<td class="text-center">
 												<a href="" ng-click="getExportLinkForLoi(loi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 												<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
 											</td>
@@ -980,17 +1105,19 @@
 													<label>{{aoi.transparency}}</label>
 												</div>
 											</td>
-											<td>
-												<i style="width:15px; height:15px; background:{{aoi.aoiColor}}; display:inherit;">
-												</i>
+											<td class="text-center">
+												<div align="center">
+													<i style="width:15px; height:15px; background:{{aoi.aoiColor}}; display:inherit;">
+													</i>
+												</div>
 											</td>
 											<td>
 												<select style="font-size: 11px; width:135px; padding: 0px;"
-														ng-model="aoi.selectedDate" ng-change="onChangeSelectedDate(aoi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in aoi.availablePeriodsOfValidity" ng-init="aoi.selectedDate = aoi.availablePeriodsOfValidity[aoi.availablePeriodsOfValidity.length - 1]"
+														ng-model="aoi.selectedDate" ng-change="onChangeSelectedDate(aoi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in aoi.availablePeriodsOfValidity | orderBy: 'startDate'" ng-init="aoi.selectedDate = aoi.availablePeriodsOfValidity[aoi.availablePeriodsOfValidity.length - 1]"
 														class="form-control" required>
 													</select>
 											</td>
-											<td>
+											<td class="text-center">
 												<a href="" ng-click="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 												<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
 											</td>
@@ -999,7 +1126,7 @@
 										<!-- WMS -->
 										<tr ng-if="showWMS" ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:georesourceNameFilter.value | filter:filterByNoTopic() | orderBy:"title"'>
 											<td>
-												<b>WMS</b>
+												<b><i>WMS</i></b>
 											</td>
 											<td>
 												<label class='checkbox-inline' ><input type="checkbox" value="dataset.title" ng-model="dataset.isSelected" ng-change="handleWmsOnMap(dataset)">
@@ -1021,7 +1148,7 @@
 												</div>
 											</td>
 											
-											<td>
+											<td class="text-center">
 												<div ng-if="! dataset.showLegend">
 													<button class="btn btn-sm btn-primary" ng-click="dataset.showLegend = true;">laden</button>
 												</div>
@@ -1032,7 +1159,7 @@
 											<td>
 												-
 											</td>
-											<td>
+											<td class="text-center">
 												<div align="center">
 												<a href="{{dataset.url}}service=WMS&request=GetCapabilities&version=1.3.0" title="WMS GetCapabilities URL" rel='noopener noreferrer' target='_blank'><i class="fas fa-cloud-download-alt"></i></a>
 												</div>
@@ -1042,7 +1169,7 @@
 										<!-- WFS -->
 										<tr ng-if="showWFS" ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.wfsDatasets | filter:filterByNoTopic() | filter:georesourceNameFilter.value  | orderBy:"title"'>
 											<td>
-												<b>WFS</b>
+												<b><i>WFS</i></b>
 											</td>
 											<td>
 												<label class='checkbox-inline' ><input type="checkbox" value="dataset.title" ng-model="dataset.isSelected" ng-change="handleWfsOnMap(dataset)">
@@ -1070,20 +1197,33 @@
 												</label>
 											</td> -->
 											
-											<td>
+											<td class="text-center">
 												<div>
-													<div class="input-group colorpicker-component">
-														<input type="text" style="display:none;" class="form-control input-sm" ng-model="dataset.displayColor" ng-change="adjustWfsLayerColor(dataset)" placeholder="WFS Darstellungsfarbe"  required />
-														<span title="Klicken, um die Farbe anzupassen" style="border: 1px solid #ccc;" class="input-group-addon"><i></i></span>
+													<div ng-show="dataset.geometryType==='AOI'">
+														<div class="input-group colorpicker-component">
+															<input type="text" style="display:none;" class="form-control input-sm" ng-model="dataset.aoiColor" ng-change="adjustWfsLayerColor(dataset)" placeholder="WFS Darstellungsfarbe"  required />
+															<span title="Klicken, um die Farbe anzupassen" style="border: 1px solid #ccc;" class="input-group-addon"><i></i></span>
+														</div>
 													</div>
-													<!-- value="{{dataset.displayColor}}" -->
-													<!-- <i style="background-color:{{dataset.displayColor}}; margin-left: 12px; width: 18px; height: 18px; float: left;"></i> -->
+													<div ng-show="dataset.geometryType==='LOI'">
+														<div class="input-group colorpicker-component">
+															<input type="text" style="display:none;" class="form-control input-sm" ng-model="dataset.loiColor" ng-change="adjustWfsLayerColor(dataset)" placeholder="WFS Darstellungsfarbe"  required />
+															<span title="Klicken, um die Farbe anzupassen" style="border: 1px solid #ccc;" class="input-group-addon"><i></i></span>
+														</div>
+													</div>
+													<div ng-show="dataset.geometryType==='POI'">
+														<div align="center">
+															<div class="awesome-marker-legend awesome-marker-legend-icon-{{dataset.poiMarkerColor}}">
+																<span style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{dataset.poiSymbolColor}};" class="glyphicon glyphicon-{{dataset.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
+															</div>
+														</div>	
+													</div>	
 												</div>
 											</td>
 											<td>
 												-
 											</td>
-											<td>
+											<td class="text-center">
 												<div align="center">
 												<a href="{{dataset.url}}service=WFS&request=GetCapabilities&version=1.1.0" title="WFS GetCapabilities URL" rel='noopener noreferrer' target='_blank'><i class="fas fa-cloud-download-alt"></i></a>
 												</div>
@@ -1125,7 +1265,7 @@
 		
 							<div class="input-group">
 								<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-								<input type="text" class="form-control input-sm" placeholder="Filtern nach POI-Name" ng-model="poiNameFilter">
+								<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="poiNameFilter">
 							</div>
 		
 							<br/>
@@ -1137,6 +1277,7 @@
 								  <tr>
 									<th>Datensatz</th>
 									<th>Beschreibung</th>
+									<th>Layer Transparenz</th>
 									<th>Legende</th>
 									<th>Zeitschnitt</th>
 									<th>Export</th>
@@ -1157,17 +1298,30 @@
 												<p>{{poi.metadata.description}}</p>
 											</td>
 											<td>
-												<i class="awesome-marker-legend awesome-marker-legend-icon-{{poi.poiMarkerColor}}">
-													<span style="margin-left:3px; padding-right:3px;  font-size:0.7em; color:{{poi.poiSymbolColor}};" class="glyphicon glyphicon-{{poi.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
-												</i>
+												<div class="form-group" align="center">
+
+
+													<input class=" input-sm" ng-model="dataset.transparency" ng-init="dataset.transparency=0" ng-change="adjustPOILayerTransparency(dataset)" type="range"  min="0" max="1" step="0.01">
+
+													<br/>
+
+													<label>{{dataset.transparency}}</label>
+												</div>
+											</td>
+											<td class="text-center">
+												<div align="center">
+													<div class="awesome-marker-legend awesome-marker-legend-icon-{{poi.poiMarkerColor}}">
+														<span style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{poi.poiSymbolColor}};" class="glyphicon glyphicon-{{poi.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
+													</div>
+												</div>	
 											</td>
 											<td>
 												<select style="font-size: 11px; width:135px; padding: 0px;"
-														ng-model="poi.selectedDate" ng-change="onChangeSelectedDate(poi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in poi.availablePeriodsOfValidity" ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]"
+														ng-model="poi.selectedDate" ng-change="onChangeSelectedDate(poi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in poi.availablePeriodsOfValidity | orderBy: 'startDate'" ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]"
 														class="form-control" required>
 													</select>
 											</td>
-											<td>
+											<td class="text-center">
 												<a href="" ng-click="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 												<!-- <a ng-href="getExportLinkForPoi(poi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
 											</td>
@@ -1207,7 +1361,7 @@
 		
 								<div class="input-group">
 									<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-									<input type="text" class="form-control input-sm" placeholder="Filtern nach LOI-Name" ng-model="loiNameFilter">
+									<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="loiNameFilter">
 								</div>
 		
 								<br/>
@@ -1219,6 +1373,7 @@
 											<tr>
 												<th>Datensatz</th>
 												<th>Beschreibung</th>
+												<th>Layer Transparenz</th>
 												<th>Legende</th>
 												<th>Zeitschnitt</th>
 												<th>Export</th>
@@ -1239,16 +1394,29 @@
 													<p>{{loi.metadata.description}}</p>
 												</td>
 												<td>
-													<i style="width:15px; height:15px; background:{{loi.loiColor}}; display:inherit;">
-													</i>
+													<div class="form-group" align="center">
+
+
+														<input class=" input-sm" ng-model="dataset.transparency" ng-init="dataset.transparency=0" ng-change="adjustLOILayerTransparency(dataset)" type="range"  min="0" max="1" step="0.01">
+
+														<br/>
+
+														<label>{{dataset.transparency}}</label>
+													</div>
+												</td>
+												<td class="text-center">
+													<div align="center">
+														<i style="width:15px; height:15px; background:{{loi.loiColor}}; display:inherit;">
+														</i>
+													</div>
 												</td>
 												<td>
 													<select style="font-size: 11px; width:135px; padding: 0px;"
-															ng-model="loi.selectedDate" ng-change="onChangeSelectedDate(loi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in loi.availablePeriodsOfValidity" ng-init="loi.selectedDate = loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]"
+															ng-model="loi.selectedDate" ng-change="onChangeSelectedDate(loi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in loi.availablePeriodsOfValidity | orderBy: 'startDate'" ng-init="loi.selectedDate = loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]"
 															class="form-control" required>
 														</select>
 												</td>
-												<td>
+												<td class="text-center">
 													<a href="" ng-click="getExportLinkForLoi(loi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 													<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
 												</td>
@@ -1283,7 +1451,7 @@
 		
 									<div class="input-group">
 										<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-										<input type="text" class="form-control input-sm" placeholder="Filtern nach AOI-Name" ng-model="aoiNameFilter">
+										<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="aoiNameFilter">
 									</div>
 		
 									<br/>
@@ -1325,17 +1493,19 @@
 															<label>{{aoi.transparency}}</label>
 														</div>
 													</td>
-													<td>
-														<i style="width:15px; height:15px; background:{{aoi.aoiColor}}; display:inherit;">
-														</i>
+													<td class="text-center">
+														<div align="center">
+															<i style="width:15px; height:15px; background:{{aoi.aoiColor}}; display:inherit;">
+															</i>
+														</div>
 													</td>
 													<td>
 														<select style="font-size: 11px; width:135px; padding: 0px;"
-																ng-model="aoi.selectedDate" ng-change="onChangeSelectedDate(aoi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in aoi.availablePeriodsOfValidity" ng-init="aoi.selectedDate = aoi.availablePeriodsOfValidity[aoi.availablePeriodsOfValidity.length - 1]"
+																ng-model="aoi.selectedDate" ng-change="onChangeSelectedDate(aoi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in aoi.availablePeriodsOfValidity | orderBy: 'startDate'" ng-init="aoi.selectedDate = aoi.availablePeriodsOfValidity[aoi.availablePeriodsOfValidity.length - 1]"
 																class="form-control" required>
 															</select>
 													</td>
-													<td>
+													<td class="text-center">
 														<a href="" ng-click="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a>
 														<!-- <a ng-href="getExportLinkForAoi(aoi)" title="Download as GeoJSON"><i class="fas fa-file-download"></i></a> -->
 													</td>
@@ -1366,7 +1536,7 @@
 
 											<div class="input-group">
 												<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-												<input type="text" class="form-control input-sm" placeholder="Filtern nach WMS-Name" ng-model="wmsNameFilter">
+												<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="wmsNameFilter">
 											</div>
 
 											<br/>
@@ -1407,12 +1577,12 @@
 																	<label>{{dataset.transparency}}</label>
 																</div>
 															</td>
-															<td>
+															<td class="text-center">
 																<div align="center">
 																<a href="{{dataset.url}}service=WMS&request=GetCapabilities&version=1.3.0" title="WMS GetCapabilities URL" rel='noopener noreferrer' target='_blank'><i class="fas fa-cloud-download-alt"></i></a>
 																</div>
 															</td>
-															<td>
+															<td class="text-center">
 																<div ng-if="! dataset.showLegend">
 																	<button class="btn btn-sm btn-primary" ng-click="dataset.showLegend = true;">laden</button>
 																</div>
@@ -1455,7 +1625,7 @@
 
 														<div class="input-group">
 															<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-															<input type="text" class="form-control input-sm" placeholder="Filtern nach WFS-Name" ng-model="wfsNameFilter">
+															<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="wfsNameFilter">
 														</div>
 
 														<br/>
@@ -1502,19 +1672,32 @@
 																			  <span class="switchslider round"></span>
 																			</label>
 																		</td>
-																		<td>
+																		<td class="text-center">
 																			<div align="center">
 																			<a href="{{dataset.url}}service=WFS&request=GetCapabilities&version=1.1.0" title="WFS GetCapabilities URL" rel='noopener noreferrer' target='_blank'><i class="fas fa-cloud-download-alt"></i></a>
 																			</div>
 																		</td>
-																		<td>
+																		<td class="text-center">
 																			<div>
-																				<div class="input-group colorpicker-component">
-																				    <input type="text" style="display:none;" class="form-control input-sm" ng-model="dataset.displayColor" ng-change="adjustWfsLayerColor(dataset)" placeholder="WFS Darstellungsfarbe"  required />
-																				    <span title="Klicken, um die Farbe anzupassen" style="border: 1px solid #ccc;" class="input-group-addon"><i></i></span>
+																				<div ng-show="dataset.geometryType==='AOI'">
+																					<div class="input-group colorpicker-component">
+																						<input type="text" style="display:none;" class="form-control input-sm" ng-model="dataset.aoiColor" ng-change="adjustWfsLayerColor(dataset)" placeholder="WFS Darstellungsfarbe"  required />
+																						<span title="Klicken, um die Farbe anzupassen" style="border: 1px solid #ccc;" class="input-group-addon"><i></i></span>
+																					</div>
 																				</div>
-																				<!-- value="{{dataset.displayColor}}" -->
-																				<!-- <i style="background-color:{{dataset.displayColor}}; margin-left: 12px; width: 18px; height: 18px; float: left;"></i> -->
+																				<div ng-show="dataset.geometryType==='LOI'">
+																					<div class="input-group colorpicker-component">
+																						<input type="text" style="display:none;" class="form-control input-sm" ng-model="dataset.loiColor" ng-change="adjustWfsLayerColor(dataset)" placeholder="WFS Darstellungsfarbe"  required />
+																						<span title="Klicken, um die Farbe anzupassen" style="border: 1px solid #ccc;" class="input-group-addon"><i></i></span>
+																					</div>
+																				</div>
+																				<div ng-show="dataset.geometryType==='POI'">
+																					<div align="center">
+																						<div class="awesome-marker-legend awesome-marker-legend-icon-{{dataset.poiMarkerColor}}">
+																							<span style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{dataset.poiSymbolColor}};" class="glyphicon glyphicon-{{dataset.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
+																						</div>
+																					</div>	
+																				</div>	
 																			</div>
 																		</td>
 																	</tr>

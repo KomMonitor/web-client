@@ -574,6 +574,12 @@ MULTI STEP FORM
 }
 
 /* Colors */
+
+.awesome-marker-legend {
+	width:20px;
+	height:20px;
+}
+
 .awesome-marker-legend-icon-red {
   /* background: url('dependencies/leaflet-awesome-markers/images/markers-soft.png') no-repeat -10px -50px; */
 	background-color: rgb(205,59,40);
@@ -1244,11 +1250,21 @@ select {
   overflow: auto;
 }
 
+.indicatorInputForm{
+	padding: 5px;
+	max-width: 100%;
+	max-height: 400px;
+	/* border: 2px solid gray;
+	border-radius: 8px; */
+	overflow: auto;
+}
+
 .georesourceInputForm{
 	padding: 5px;
 	/* height: auto !important;
 	max-height: 500px; */
 	max-width: 100%;
+	max-height: 400px;
 	font-size: 11px;
 	/* border: 2px solid gray;
 	border-radius: 8px; */
@@ -1260,7 +1276,7 @@ select {
 	height: auto !important;
 	max-height: 500px;
 	max-width: 100%;
-	font-size: 12px;
+	font-size: 11px;
 	border: 2px solid gray;
   border-radius: 8px;
   overflow: auto;
@@ -1271,7 +1287,7 @@ select {
 	height: auto !important;
 	max-height: 500px;
 	max-width: 100%;
-	font-size: 12px;
+	font-size: 11px;
 	border: 2px solid gray;
   border-radius: 8px;
   overflow: auto;
@@ -1282,7 +1298,7 @@ select {
 	height: auto !important;
 	max-height: 500px;
 	max-width: 100%;
-	font-size: 12px;
+	font-size: 11px;
 	border: 2px solid gray;
   border-radius: 8px;
   overflow: auto;
@@ -1311,9 +1327,9 @@ select {
 }
 
 #indicatorHierarchySelection{
-	height: auto !important;
+	/* height: auto !important;
 	max-height: 450px;
-  overflow: auto;
+  overflow: auto; */
 	font: 12px/14px Arial, Helvetica, sans-serif;
 }
 
@@ -1325,22 +1341,22 @@ select {
 }
 
 #indicatorMetadataOverview {
-	height: auto !important;
+	/* height: auto !important;
 	max-height: 400px;
-  overflow: auto;
+  overflow: auto; */
 	font: 12px/14px Arial, Helvetica, sans-serif;
 }
 
 #referencedIndicatorOverview {
 	height: auto !important;
-	max-height: 200px;
+	max-height: 300px;
   overflow: auto;
 	font: 12px/14px Arial, Helvetica, sans-serif;
 }
 
 #referencedGeoresourcesOverview {
 	height: auto !important;
-	max-height: 200px;
+	max-height: 300px;
   overflow: auto;
 	font: 12px/14px Arial, Helvetica, sans-serif;
 }

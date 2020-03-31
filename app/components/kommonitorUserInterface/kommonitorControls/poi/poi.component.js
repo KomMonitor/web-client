@@ -331,10 +331,11 @@ angular
 											$scope.loadingData = false;
 											$rootScope.$broadcast("hideLoadingIconOnMap");
 
-										}, function errorCallback(response) {
+										}, function errorCallback(error) {
 											// called asynchronously if an error occurs
 											// or server returns response with an error status.
 											$scope.loadingData = false;
+											kommonitorDataExchangeService.displayMapApplicationError(error);
 											$rootScope.$broadcast("hideLoadingIconOnMap");
 									});
 
@@ -396,10 +397,11 @@ angular
 
 											document.body.removeChild(element);
 
-										}, function errorCallback(response) {
+										}, function errorCallback(error) {
 											// called asynchronously if an error occurs
 											// or server returns response with an error status.
 											$scope.loadingData = false;
+											kommonitorDataExchangeService.displayMapApplicationError(error);
 											$rootScope.$broadcast("hideLoadingIconOnMap");
 									});
 
@@ -451,10 +453,11 @@ angular
 											$scope.loadingData = false;
 											$rootScope.$broadcast("hideLoadingIconOnMap");
 
-										}, function errorCallback(response) {
+										}, function errorCallback(error) {
 											// called asynchronously if an error occurs
 											// or server returns response with an error status.
 											$scope.loadingData = false;
+											kommonitorDataExchangeService.displayMapApplicationError(error);
 											$rootScope.$broadcast("hideLoadingIconOnMap");
 									});
 
@@ -504,10 +507,11 @@ angular
 
 											document.body.removeChild(element);
 
-										}, function errorCallback(response) {
+										}, function errorCallback(error) {
 											// called asynchronously if an error occurs
 											// or server returns response with an error status.
 											$scope.loadingData = false;
+											kommonitorDataExchangeService.displayMapApplicationError(error);
 											$rootScope.$broadcast("hideLoadingIconOnMap");
 									});
 
@@ -556,10 +560,11 @@ angular
 												$scope.loadingData = false;
 												$rootScope.$broadcast("hideLoadingIconOnMap");
 
-											}, function errorCallback(response) {
+											}, function errorCallback(error) {
 												// called asynchronously if an error occurs
 												// or server returns response with an error status.
 												$scope.loadingData = false;
+												kommonitorDataExchangeService.displayMapApplicationError(error);
 												$rootScope.$broadcast("hideLoadingIconOnMap");
 										});
 
@@ -609,10 +614,11 @@ angular
 
 												document.body.removeChild(element);
 
-											}, function errorCallback(response) {
+											}, function errorCallback(error) {
 												// called asynchronously if an error occurs
 												// or server returns response with an error status.
 												$scope.loadingData = false;
+												kommonitorDataExchangeService.displayMapApplicationError(error);
 												$rootScope.$broadcast("hideLoadingIconOnMap");
 										});
 
@@ -649,6 +655,20 @@ angular
 
 									kommonitorMapService.adjustOpacityForAoiLayer(dataset, opacity);
 								};
+								
+								$scope.adjustPOILayerTransparency = function(dataset){
+
+									var opacity = 1 - dataset.transparency;
+
+									kommonitorMapService.adjustOpacityForPoiLayer(dataset, opacity);
+								};
+
+								$scope.adjustLOILayerTransparency = function(dataset){
+
+									var opacity = 1 - dataset.transparency;
+
+									kommonitorMapService.adjustOpacityForLoiLayer(dataset, opacity);
+								};
 
 								$scope.handleWfsOnMap = function(dataset){
 									console.log("Toggle WFS: " + dataset.title);
@@ -675,9 +695,9 @@ angular
 
 								$scope.adjustWfsLayerColor = function(dataset){
 
-									var color = dataset.displayColor;
+									var opacity = 1 - dataset.transparency;
 
-									kommonitorMapService.adjustColorForWfsLayer(dataset, color);
+									kommonitorMapService.adjustColorForWfsLayer(dataset, opacity);
 								};
 
 

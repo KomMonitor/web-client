@@ -24,6 +24,12 @@ angular.module('adminGeoresourcesManagement').component('adminGeoresourcesManage
 
 		});
 
+		$scope.$on("initialMetadataLoadingFailed", function (event, errorArray) {
+
+			$scope.loadingData = false;
+
+		});
+
 		$scope.initializeOrRefreshOverviewTable = function(){
 			$scope.loadingData = true;
 			$scope.availableGeoresourceDatasets = JSON.parse(JSON.stringify(kommonitorDataExchangeService.availableGeoresources));
