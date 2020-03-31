@@ -345,30 +345,37 @@
       featureTypeNamespace: "ms",
       featureTypeName: "bplan_stand",
       featureTypeGeometryName: "geom",
-      displayColor: "#00aabb",
+      geometryType: "AOI", // POI|LOI|AOI
+      poiSymbolColor: "white", // ['white', 'red', 'orange', 'beige', 'green', 'blue', 'purple', 'pink', 'gray', 'black']
+      poiMarkerColor: "red", // ['white', 'red', 'orange', 'beige', 'green', 'blue', 'purple', 'pink', 'gray', 'black']
+      poiSymbolBootstrap3Name: "home",
+      loiColor: "#00aabb",
+      loiWidth: 3,
+      loiDashArrayString: "",
+      aoiColor: "#00aabb",
       filterFeaturesToMapBBOX: false,
       topicReference: null
+    },
+    {
+      title: "Bäckereien",
+      description: "Standorte von Bäckereien",
+      url: "https://geoserver.kartenportal.org/geoserver/smartdemography/ows?",
+      featureTypeNamespace: "smartdemography",
+      featureTypeName: "sd_baeckerei_p",
+      featureTypeGeometryName: "the_geom",
+      geometryType: "POI", // POI|LOI|AOI
+      poiSymbolColor: "white", // ['white', 'red', 'orange', 'beige', 'green', 'blue', 'purple', 'pink', 'gray', 'black']
+      poiMarkerColor: "red", // ['white', 'red', 'orange', 'beige', 'green', 'blue', 'purple', 'pink', 'gray', 'black']
+      poiSymbolBootstrap3Name: "home",
+      loiColor: "#00aabb",
+      loiWidth: 3,
+      loiDashArrayString: "",
+      aoiColor: "#00aabb",
+      filterFeaturesToMapBBOX: false,
+      topicReference: "68f49954-8cb9-4d33-b478-dbad949be0e1"
     }
-    // {
-    //   title: "Verwaltungsgrenzen Kreise und kreisfreie St&auml;dte",
-    //   description: "Verwaltungsgrenzen gem&auml;ß Bezirksregierung K&ouml;ln",
-    //   url: "https://www.wfs.nrw.de/geobasis/wfs_nw_dvg?",
-    //   featureTypeNamespace: "dvg",
-    //   featureTypeName: "nw_dvg1_gem",
-    //   featureTypeGeometryName: "msGeometry",
-    //   displayColor: "#00aabb",
-    //   filterFeaturesToMapBBOX: true
-    // },
-    // {
-    //   title: "Freizeitkataster",
-    //   description: "Freizeitkataster gem&auml;ß Bezirksregierung K&ouml;ln",
-    //   url: "https://www.wfs.nrw.de/geobasis/wfs_nw_fzk?",
-    //   featureTypeNamespace: "fzk",
-    //   featureTypeName: "POI_p",
-    //   featureTypeGeometryName: "msGeometry",
-    //   displayColor: null,
-    //   filterFeaturesToMapBBOX: true
-    // }
   ];
+
+
 
 // }(this));

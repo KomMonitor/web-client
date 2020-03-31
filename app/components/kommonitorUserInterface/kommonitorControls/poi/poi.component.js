@@ -649,6 +649,20 @@ angular
 
 									kommonitorMapService.adjustOpacityForAoiLayer(dataset, opacity);
 								};
+								
+								$scope.adjustPOILayerTransparency = function(dataset){
+
+									var opacity = 1 - dataset.transparency;
+
+									kommonitorMapService.adjustOpacityForPoiLayer(dataset, opacity);
+								};
+
+								$scope.adjustLOILayerTransparency = function(dataset){
+
+									var opacity = 1 - dataset.transparency;
+
+									kommonitorMapService.adjustOpacityForLoiLayer(dataset, opacity);
+								};
 
 								$scope.handleWfsOnMap = function(dataset){
 									console.log("Toggle WFS: " + dataset.title);
@@ -675,9 +689,9 @@ angular
 
 								$scope.adjustWfsLayerColor = function(dataset){
 
-									var color = dataset.displayColor;
+									var opacity = 1 - dataset.transparency;
 
-									kommonitorMapService.adjustColorForWfsLayer(dataset, color);
+									kommonitorMapService.adjustColorForWfsLayer(dataset, opacity);
 								};
 
 
