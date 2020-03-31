@@ -155,7 +155,29 @@ angular
 
 					this.setProcessScripts = function(scriptsArray){
 						this.availableProcessScripts = scriptsArray;
-					};
+          };
+
+
+          // ERROR HANDLING
+          this.errorMessage = undefined;
+          this.hideErrorAlert = function(){
+            $("#mapApplicationErrorAlert").hide();
+          };
+
+          this.displayMapApplicationError = function(error){
+            if(error.data){							
+              this.errorMessage = this.syntaxHighlightJSON(error.data);
+            }
+            else{
+              this.errorMessage = this.syntaxHighlightJSON(error);
+            }
+
+            $rootScope.$apply();
+
+            $("#mapApplicationErrorAlert").show();
+          };
+          
+          // SPATIAL UNITS
 
 					this.availableSpatialUnits = [];
 
@@ -603,7 +625,8 @@ angular
       						onMetadataLoadingCompleted();
       				}, function errorCallback(errorArray) {
                 // todo error handling
-
+                self.displayMapApplicationError(errorArray);
+                $rootScope.$broadcast("initialMetadataLoadingCompleted");
       			});
 
           };
@@ -636,10 +659,12 @@ angular
                 self.availableRoles = response.data;
                 fetchedRolesInitially = true;
 
-              }, function errorCallback(response) {
+              }, function errorCallback(error) {
                 // called asynchronously if an error occurs
                 // or server returns response with an error status.
                 //$scope.error = response.statusText;
+                self.displayMapApplicationError(error);
+                $rootScope.$broadcast("initialMetadataLoadingCompleted");
             });
           };
 
@@ -654,10 +679,12 @@ angular
                 self.availableUsers=response.data;
                 fetchedUsersInitially = true;
 
-              }, function errorCallback(response) {
+              }, function errorCallback(error) {
                 // called asynchronously if an error occurs
                 // or server returns response with an error status.
                 //$scope.error = response.statusText;
+                self.displayMapApplicationError(error);
+                $rootScope.$broadcast("initialMetadataLoadingCompleted");
             });
           };
 
@@ -672,10 +699,12 @@ angular
                 self.setTopics(response.data);
                 fetchedTopicsInitially = true;
 
-              }, function errorCallback(response) {
+              }, function errorCallback(error) {
                 // called asynchronously if an error occurs
                 // or server returns response with an error status.
                 //$scope.error = response.statusText;
+                self.displayMapApplicationError(error);
+                $rootScope.$broadcast("initialMetadataLoadingCompleted");
             });
           };
 
@@ -690,10 +719,12 @@ angular
                 self.setSpatialUnits(response.data);
                 fetchedSpatialUnitsInitially = true;
 
-              }, function errorCallback(response) {
+              }, function errorCallback(error) {
                 // called asynchronously if an error occurs
                 // or server returns response with an error status.
                 //$scope.error = response.statusText;
+                self.displayMapApplicationError(error);
+                $rootScope.$broadcast("initialMetadataLoadingCompleted");
             });
           };
 
@@ -708,10 +739,12 @@ angular
                 self.setGeoresources(response.data);
                 fetchedGeoresourcesInitially = true;
 
-              }, function errorCallback(response) {
+              }, function errorCallback(error) {
                 // called asynchronously if an error occurs
                 // or server returns response with an error status.
                 //$scope.error = response.statusText;
+                self.displayMapApplicationError(error);
+                $rootScope.$broadcast("initialMetadataLoadingCompleted");
             });
           };
 
@@ -726,10 +759,12 @@ angular
                 self.setIndicators(response.data);
                 fetchedIndicatorsInitially = true;
 
-              }, function errorCallback(response) {
+              }, function errorCallback(error) {
                 // called asynchronously if an error occurs
                 // or server returns response with an error status.
                 //$scope.error = response.statusText;
+                self.displayMapApplicationError(error);
+                $rootScope.$broadcast("initialMetadataLoadingCompleted");
             });
           };
 
@@ -743,10 +778,12 @@ angular
 
                 self.setProcessScripts(response.data);
 
-              }, function errorCallback(response) {
+              }, function errorCallback(error) {
                 // called asynchronously if an error occurs
                 // or server returns response with an error status.
                 //$scope.error = response.statusText;
+                self.displayMapApplicationError(error);
+                $rootScope.$broadcast("initialMetadataLoadingCompleted");
             });
           };
 

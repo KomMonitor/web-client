@@ -324,10 +324,11 @@ angular
 											$scope.loadingData = false;
 											$rootScope.$broadcast("hideLoadingIconOnMap");
 
-										}, function errorCallback(response) {
+										}, function errorCallback(error) {
 											// called asynchronously if an error occurs
 											// or server returns response with an error status.
 											$scope.loadingData = false;
+											kommonitorDataExchangeService.displayMapApplicationError(error);
 											$rootScope.$broadcast("hideLoadingIconOnMap");
 									});
 								};
@@ -378,10 +379,11 @@ angular
 											$scope.loadingData = false;
 											$rootScope.$broadcast("hideLoadingIconOnMap");
 
-										}, function errorCallback(response) {
+										}, function errorCallback(error) {
 											// called asynchronously if an error occurs
 											// or server returns response with an error status.
 											$scope.loadingData = false;
+											kommonitorDataExchangeService.displayMapApplicationError(error);
 											$rootScope.$broadcast("hideLoadingIconOnMap");
 									});
 
@@ -510,6 +512,7 @@ angular
 											console.error(error);
 											$scope.loadingData = false;
 											$rootScope.$broadcast("hideLoadingIconOnMap");
+											kommonitorDataExchangeService.displayMapApplicationError(error);
 											return;
 										}
 
@@ -564,10 +567,11 @@ angular
 
 											return kommonitorDataExchangeService.selectedIndicator;
 
-										}, function errorCallback(response) {
+										}, function errorCallback(error) {
 											// called asynchronously if an error occurs
 											// or server returns response with an error status.
 											$scope.loadingData = false;
+											kommonitorDataExchangeService.displayMapApplicationError(error);
 											$rootScope.$broadcast("hideLoadingIconOnMap");
 
 											return kommonitorDataExchangeService.selectedIndicator;
@@ -592,6 +596,7 @@ angular
 											console.error(error);
 											$scope.loadingData = false;
 											$rootScope.$broadcast("hideLoadingIconOnMap");
+											kommonitorDataExchangeService.displayMapApplicationError(error);
 											return;
 										}
 
@@ -638,6 +643,7 @@ angular
 											console.error(error);
 											$scope.loadingData = false;
 											$rootScope.$broadcast("hideLoadingIconOnMap");
+											kommonitorDataExchangeService.displayMapApplicationError(error);
 											return;
 										}
 

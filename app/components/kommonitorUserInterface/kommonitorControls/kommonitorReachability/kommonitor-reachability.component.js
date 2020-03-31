@@ -719,13 +719,14 @@ angular
 									$scope.loadingData = false;
 									$scope.pointSourceConfigured = true;
 
-								}, function errorCallback(response) {
+								}, function errorCallback(error) {
 									// called asynchronously if an error occurs
 									// or server returns response with an error status.
 									$scope.pointSourceConfigured = false;
 									$scope.loadingData = false;
-									console.error(response.statusText);
-									$scope.error = response.statusText;
+									console.error(error.statusText);
+									kommonitorDataExchangeService.displayMapApplicationError(error);
+									$scope.error = error.statusText;
 							});
 						}
 
@@ -806,15 +807,17 @@ angular
 										$rootScope.$broadcast('hideLoadingIconOnMap');
 									},
 									function errorCallback(
-										response) {
+										error) {
 										// called asynchronously
 										// if an error occurs
 										// or server returns
 										// response with an
 										// error status.
-										console.error(response.data.error.message);
-										$scope.error = response.data.error.message;
+										console.error(error.data.error.message);
+										$scope.error = error.data.error.message;
+
 										$scope.loadingData = false;
+										kommonitorDataExchangeService.displayMapApplicationError(error);
 										$rootScope.$broadcast("hideLoadingIconOnMap");
 									});
 					};
@@ -974,15 +977,16 @@ angular
 
 								},
 								function errorCallback(
-									response) {
+									error) {
 									// called asynchronously
 									// if an error occurs
 									// or server returns
 									// response with an
 									// error status.
-									console.error(response.data.error.message);
-									$scope.error = response.data.error.message;
+									console.error(error.data.error.message);
+									$scope.error = error.data.error.message;
 									$scope.loadingData = false;
+									kommonitorDataExchangeService.displayMapApplicationError(error);
 									$rootScope.$broadcast("hideLoadingIconOnMap");
 								});
 					};

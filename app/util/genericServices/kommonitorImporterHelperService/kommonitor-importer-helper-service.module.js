@@ -61,6 +61,7 @@ angular
             // or server returns response with an error status.
             //$scope.error = response.statusText;
             console.error("Error while fetching converters from importer.");
+            
         });
       };
 
@@ -219,6 +220,7 @@ angular
           } catch (error) {
             console.error("Error while uploading file to importer.");
             console.error(error);
+            kommonitorDataExchangeService.displayMapApplicationError(error);
             throw error;
           }
   
