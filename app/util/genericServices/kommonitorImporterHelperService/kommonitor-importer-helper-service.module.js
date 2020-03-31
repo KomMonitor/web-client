@@ -19,14 +19,21 @@ angular
       this.targetUrlToImporterService = __env.targetUrlToImporterService;
       this.prefix_converterName = "org.n52.kommonitor.importer.converter.";
 
-      this.availableConverters = [];
+      this.availableConverters = undefined;
 
-      this.availableDatasourceTypes = [];
+      this.availableDatasourceTypes = undefined;
 
       this.fetchResourcesFromImporter = async function(){
         console.log("Trying to fetch converters and datasourceTypes from importer service");
         this.availableConverters = await this.fetchConverters();
         this.availableDatasourceTypes = await this.fetchDatasourceTypes();
+
+        if(! this.availableConverters || ! this.availableDatasourceTypes){
+
+          kommonitorDataExchangeService.displayMapApplicationError("Notwendige Anbindung an Importer-Service ist fehlerhaft. Bitte wenden Sie sich an Ihren Administrator.");
+
+          return;
+        }
 
         for (let index = 0; index < this.availableConverters.length; index++) {
           var converter = this.availableConverters[index];
@@ -56,12 +63,13 @@ angular
   
             return response.data;
   
-          }, function errorCallback(response) {
+          }, function errorCallback(error) {
             // called asynchronously if an error occurs
             // or server returns response with an error status.
             //$scope.error = response.statusText;
             console.error("Error while fetching converters from importer.");
-            
+            kommonitorDataExchangeService.displayMapApplicationError(error);
+
         });
       };
 
@@ -80,6 +88,7 @@ angular
             // or server returns response with an error status.
             //$scope.error = response.statusText;
             console.error("Error while fetching converter for name '" + converter.name + "' from importer.");
+
         });
       };
 
@@ -93,11 +102,12 @@ angular
   
             return response.data;
   
-          }, function errorCallback(response) {
+          }, function errorCallback(error) {
             // called asynchronously if an error occurs
             // or server returns response with an error status.
             //$scope.error = response.statusText;
             console.error("Error while fetching datasourceTypes from importer.");
+            kommonitorDataExchangeService.displayMapApplicationError(error);
         });
       };
 
