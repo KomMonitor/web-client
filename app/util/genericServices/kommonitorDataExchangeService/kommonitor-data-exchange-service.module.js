@@ -266,7 +266,7 @@ angular
 
           this.topicHierarchyContainsIndicator = function(topic, indicatorMetadata){
             if(topic === null || topic === ""){
-              if (indicatorMetadata.topicReference === null || indicatorMetadata.topicReference === ""){
+              if (indicatorMetadata.topicReference === null || indicatorMetadata.topicReference === "" || ! this.referencedTopicIdExists(indicatorMetadata.topicReference)){
                 return true;
               }
               else{
