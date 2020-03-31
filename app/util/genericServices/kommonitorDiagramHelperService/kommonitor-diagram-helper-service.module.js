@@ -177,11 +177,12 @@ angular
           // when the response is available
           return response.data;
 
-        }, function errorCallback(response) {
+        }, function errorCallback(error) {
           // called asynchronously if an error occurs
           // or server returns response with an error status.
+					kommonitorDataExchangeService.displayMapApplicationError(error);
         });
-      }
+      };
 
       this.getBarChartOptions = function () {
         return self.barChartOptions;
@@ -1050,6 +1051,7 @@ angular
         }
         catch (error) {
           console.log("Histogram chart cannot be drawn - error in bins creation");
+          kommonitorDataExchangeService.displayMapApplicationError(error);
         }
 
         // default fontSize of echarts title

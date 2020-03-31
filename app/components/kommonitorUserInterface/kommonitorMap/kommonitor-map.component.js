@@ -595,6 +595,8 @@ angular.module('kommonitorMap').component(
             console.log("Error while exporting map view.");
             console.error(error);
 
+            kommonitorDataExchangeService.displayMapApplicationError(error);
+
             $(".leaflet-left").css("display", "");
           }
 
@@ -609,6 +611,7 @@ angular.module('kommonitorMap').component(
                 $scope.searchControl = undefined;
               }
               catch (error) {
+                kommonitorDataExchangeService.displayMapApplicationError(error);
               }
             }
 
@@ -1025,6 +1028,7 @@ angular.module('kommonitorMap').component(
               toggleInfoControl();
             }
             catch (error) {
+              kommonitorDataExchangeService.displayMapApplicationError(error);
             }
           }
 
@@ -1034,6 +1038,7 @@ angular.module('kommonitorMap').component(
               $scope.infoControl = undefined;
             }
             catch (error) {
+              kommonitorDataExchangeService.displayMapApplicationError(error);
             }
           }
 
@@ -1138,6 +1143,7 @@ angular.module('kommonitorMap').component(
               toggleInfoControl();
             }
             catch (error) {
+              kommonitorDataExchangeService.displayMapApplicationError(error);
             }
           }
 
@@ -1147,6 +1153,7 @@ angular.module('kommonitorMap').component(
               $scope.infoControl = undefined;
             }
             catch (error) {
+              kommonitorDataExchangeService.displayMapApplicationError(error);
             }
           }
 
@@ -1371,6 +1378,7 @@ angular.module('kommonitorMap').component(
               toggleLegendControl();
             }
             catch (error) {
+              kommonitorDataExchangeService.displayMapApplicationError(error);
             }
           }
 
@@ -1380,6 +1388,7 @@ angular.module('kommonitorMap').component(
               $scope.legendControl = undefined;
             }
             catch (error) {
+              kommonitorDataExchangeService.displayMapApplicationError(error);
             }
           }
 
@@ -1541,6 +1550,7 @@ angular.module('kommonitorMap').component(
               toggleLegendControl();
             }
             catch (error) {
+              kommonitorDataExchangeService.displayMapApplicationError(error);
             }
           }
 
@@ -1550,6 +1560,7 @@ angular.module('kommonitorMap').component(
               $scope.legendControl = undefined;
             }
             catch (error) {
+              kommonitorDataExchangeService.displayMapApplicationError(error);
             }
           }
 
@@ -1685,6 +1696,7 @@ angular.module('kommonitorMap').component(
               toggleLegendControl();
             }
             catch (error) {
+              kommonitorDataExchangeService.displayMapApplicationError(error);
             }
           }
 
@@ -1694,6 +1706,7 @@ angular.module('kommonitorMap').component(
               $scope.legendControl = undefined;
             }
             catch (error) {
+              kommonitorDataExchangeService.displayMapApplicationError(error);
             }
           }
 
@@ -2827,7 +2840,8 @@ angular.module('kommonitorMap').component(
 
           }
           catch (error) {
-            // $scope.loadingData = false;
+            $scope.loadingData = false;
+            kommonitorDataExchangeService.displayMapApplicationError(error);
           }
 
         });
@@ -4030,12 +4044,12 @@ angular.module('kommonitorMap').component(
         $scope.$on("disablePointDrawTool", function (event) {
 
           try {
-            $scope.map.removeLayer($scope.drawnPointFeatures);
-            $scope.map.removeControl($scope.drawPointControl);
             $scope.drawPointControl = undefined;
+            $scope.map.removeLayer($scope.drawnPointFeatures);
+            $scope.map.removeControl($scope.drawPointControl);            
           }
           catch (error) {
-
+            // kommonitorDataExchangeService.displayMapApplicationError(error);
           }
 
         });

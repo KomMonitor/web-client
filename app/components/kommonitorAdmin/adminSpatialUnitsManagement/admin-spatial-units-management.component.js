@@ -22,6 +22,12 @@ angular.module('adminSpatialUnitsManagement').component('adminSpatialUnitsManage
 
 		});
 
+		$scope.$on("initialMetadataLoadingFailed", function (event, errorArray) {
+
+			$scope.loadingData = false;
+
+		});
+
 		$scope.initializeOrRefreshOverviewTable = function(){
 			$scope.loadingData = true;
 			$scope.availableSpatialUnitDatasets = JSON.parse(JSON.stringify(kommonitorDataExchangeService.availableSpatialUnits));

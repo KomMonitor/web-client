@@ -74,6 +74,12 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 
 		});
 
+		$scope.$on("initialMetadataLoadingFailed", function (event, errorArray) {
+
+			$scope.loadingData = false;
+
+		});
+
 		$scope.$on("initialMetadataLoadingCompleted", function (event) {
 
 			console.log("refresh admin overview");
