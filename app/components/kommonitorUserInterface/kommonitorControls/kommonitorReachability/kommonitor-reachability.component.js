@@ -364,7 +364,7 @@ angular
 						kommonitorMapService
 							.removeReachabilityLayers();
 						$scope.currentIsochronesGeoJSON = undefined;
-						kommonitorDataExchangeService.isochroneLegend = undefined
+						kommonitorDataExchangeService.isochroneLegend = undefined;
 						$scope.loadingData = false;
 						$rootScope
 							.$broadcast('hideLoadingIconOnMap');

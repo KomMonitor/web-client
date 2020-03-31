@@ -4044,12 +4044,12 @@ angular.module('kommonitorMap').component(
         $scope.$on("disablePointDrawTool", function (event) {
 
           try {
-            $scope.map.removeLayer($scope.drawnPointFeatures);
-            $scope.map.removeControl($scope.drawPointControl);
             $scope.drawPointControl = undefined;
+            $scope.map.removeLayer($scope.drawnPointFeatures);
+            $scope.map.removeControl($scope.drawPointControl);            
           }
           catch (error) {
-            kommonitorDataExchangeService.displayMapApplicationError(error);
+            // kommonitorDataExchangeService.displayMapApplicationError(error);
           }
 
         });
