@@ -169,7 +169,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 		    console.log(e.icon);
 				// split up due to current data management request structure where we expect only the last name of Bootstrap 3.3.7 glyphicon name
 				// i.e. "home" for "glyphicon-home"
-				$scope.selectedPoiIconName = e.icon.split("-")[1];
+				$scope.selectedPoiIconName = e.icon.substring(e.icon.indexOf('-')+1);
 				console.log($scope.selectedPoiIconName);
 		});
 
