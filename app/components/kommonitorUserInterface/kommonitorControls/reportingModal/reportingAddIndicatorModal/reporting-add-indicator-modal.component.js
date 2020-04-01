@@ -26,10 +26,10 @@ angular.module('reportingAddIndicatorModal').component('reportingAddIndicatorMod
 		$scope.elementMetadataIsChecked = false;
 		$scope.elementDataTableIsChecked = false;
 
-		$scope.duallistAreasOptions = {}
-		$scope.duallistAreasOptions["items"] = []
-		$scope.duallistTimestampsOptions= {}
-		$scope.duallistTimestampsOptions["items"] = []
+		$scope.duallistAreasOptions = {};
+		$scope.duallistAreasOptions["items"] = [];
+		$scope.duallistTimestampsOptions= {};
+		$scope.duallistTimestampsOptions["items"] = [];
 
 		
 		
@@ -39,7 +39,7 @@ angular.module('reportingAddIndicatorModal').component('reportingAddIndicatorMod
 		 * this code executes if the user ckicks the 'x' in the top right corner, too
 		 */
 		$('#reporting-add-indicator-modal').on('hidden.bs.modal', function () {
-			resetModal()
+			resetModal();
 		});
 
 
@@ -76,7 +76,7 @@ angular.module('reportingAddIndicatorModal').component('reportingAddIndicatorMod
 					$scope.loadDefaultState();
 				}
 			});
-		}
+		};
 
 		/**
 		 * loads a configuration previously defined by the user 
@@ -89,7 +89,7 @@ angular.module('reportingAddIndicatorModal').component('reportingAddIndicatorMod
 			$timeout( function() {
 
 				//fill left side with all areas
-				var dataArray = createDualListInputArray($scope.allAreasForSelectedSpatialUnitNames)
+				var dataArray = createDualListInputArray($scope.allAreasForSelectedSpatialUnitNames);
 				$scope.duallistAreasOptions.items = dataArray;
 
 				// move areas saved in conf (and now also in $scope) to right side
@@ -156,7 +156,7 @@ angular.module('reportingAddIndicatorModal').component('reportingAddIndicatorMod
 			//if just one timestamp exists, move it to right side
 			var $list = $('.unselected-items-list:eq(1) li a'); //all elements of second dual list left side
 			if($list.length == 1) {
-				item = $list.get(0);
+				var item = $list.get(0);
 				item.click();
 			}
 		};
@@ -171,22 +171,22 @@ angular.module('reportingAddIndicatorModal').component('reportingAddIndicatorMod
 			var indicatorId = $scope.indicator.indicatorId;
 
 			// get spatial unit id
-			var spatialUnitId = undefined
+			var spatialUnitId = undefined;
 			$(kommonitorDataExchangeService.availableSpatialUnits).each( (id, obj) => {
 				if (obj.spatialUnitLevel === $scope.selectedSpatialUnit) {
-					spatialUnitId = obj.spatialUnitId
-					return false
+					spatialUnitId = obj.spatialUnitId;
+					return false;
 				}
 			});
 
 			if (spatialUnitId === undefined) {
-				console.error("selectedSpatialUnit not found in indicator.applicableSpatialUnits")
+				console.error("selectedSpatialUnit not found in indicator.applicableSpatialUnits");
 			}
 
 			$scope.selectedSpatialUnitId = spatialUnitId;
 			// build request
 			var url = kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI +
-						"/indicators/" + indicatorId + "/" + spatialUnitId
+						"/indicators/" + indicatorId + "/" + spatialUnitId;
 			// send request
 			await $http({
 				url: url,
@@ -198,7 +198,7 @@ angular.module('reportingAddIndicatorModal').component('reportingAddIndicatorMod
 					// add geoJSON property to indicator
 					// by doing this now we don't need to query the data amangement api
 					// again when adding the indicator
-					$scope.indicator.geoJSON = response.data
+					$scope.indicator.geoJSON = response.data;
 					
 					//clear scope
 					$scope.allAreasForSelectedSpatialUnitNames = [];
@@ -212,7 +212,7 @@ angular.module('reportingAddIndicatorModal').component('reportingAddIndicatorMod
 					$scope.duallistAreasOptions.selectedItems = [];
 
 					//update dual list
-					var dataArray = createDualListInputArray($scope.allAreasForSelectedSpatialUnitNames)
+					var dataArray = createDualListInputArray($scope.allAreasForSelectedSpatialUnitNames);
 					$scope.duallistAreasOptions.items = dataArray;
 
 					$scope.loadingData = false;
@@ -226,7 +226,7 @@ angular.module('reportingAddIndicatorModal').component('reportingAddIndicatorMod
 			});
 			
 			
-		}
+		};
 
 		/**
 		 * add indicator
@@ -253,7 +253,7 @@ angular.module('reportingAddIndicatorModal').component('reportingAddIndicatorMod
 				
 				$scope.allIndicatorsConfigSave.push(conf);
 				
-				$rootScope.$broadcast("reportingIndicatorAdded", $scope.allIndicatorsConfigSave)
+				$rootScope.$broadcast("reportingIndicatorAdded", $scope.allIndicatorsConfigSave);
 
 				//hide modal, triggers resetModal()
 				$('#reporting-add-indicator-modal').modal('hide');
@@ -292,15 +292,15 @@ angular.module('reportingAddIndicatorModal').component('reportingAddIndicatorMod
 				if($scope.allIndicatorsConfigSave[index]) {
 					$scope.allIndicatorsConfigSave[index] = conf;
 				} else {
-					console.err("configuration not found in $scope.allIndicatorConfigurationSave")
+					console.err("configuration not found in $scope.allIndicatorConfigurationSave");
 					return;
 				}
-				$rootScope.$broadcast("reportingIndicatorModified", $scope.allIndicatorsConfigSave, index)
+				$rootScope.$broadcast("reportingIndicatorModified", $scope.allIndicatorsConfigSave, index);
 
 				//hide modal, triggers resetModal()
 				$('#reporting-add-indicator-modal').modal('hide');
 			}
-		}
+		};
 		
 		/**
 		 * initializes the two dual lists for area and timestamp selection
@@ -325,16 +325,16 @@ angular.module('reportingAddIndicatorModal').component('reportingAddIndicatorMod
 				selectedItems: []
 			};
 
-		};
+		}
 		
 		/**
 		 * adds a check mark inside the toggle when user activates it.
 		 * removes the check mark again when user deactivates the toggle
 		 */
 		$scope.elementChbClicked = function($event) {
-			$this = $($event.currentTarget);
+			var $this = $($event.currentTarget);
 			if ($this[0].checked) {
-				var $span = $($this[0].nextElementSibling)
+				var $span = $($this[0].nextElementSibling);
 				$span.html('&nbsp;&nbsp;<i class="fa fa-check" style="color:white;" aria-hidden="true"></i>');
 			} else {
 				var $span = $($this[0].nextElementSibling)
@@ -377,7 +377,7 @@ angular.module('reportingAddIndicatorModal').component('reportingAddIndicatorMod
 				}
 			}
 			*/
-		}
+		};
 
 		/**
 		 * creates an array of objects from an array of strings.
@@ -391,10 +391,10 @@ angular.module('reportingAddIndicatorModal').component('reportingAddIndicatorMod
 			var result = [];
 
 			for (var i=0;i<array.length;i++) {
-				var obj = {}
+				var obj = {};
 				obj["category"] = array[i];
 				obj["name"] = array[i];
-				result.push(obj)
+				result.push(obj);
 			}
 			return result;
 		}
@@ -411,12 +411,12 @@ angular.module('reportingAddIndicatorModal').component('reportingAddIndicatorMod
 			$scope.selectedSpatialUnit = undefined;
 			$scope.selectedAreas = undefined;
 			$scope.selectedTimestamps = undefined;
-			$scope.allAreasForSelectedSpatialUnitNames = []
+			$scope.allAreasForSelectedSpatialUnitNames = [];
 
-			$scope.duallistAreasOptions = {}
-			$scope.duallistAreasOptions["items"] = []
-			$scope.duallistTimestampsOptions= {}
-			$scope.duallistTimestampsOptions["items"] = []
+			$scope.duallistAreasOptions = {};
+			$scope.duallistAreasOptions["items"] = [];
+			$scope.duallistTimestampsOptions= {};
+			$scope.duallistTimestampsOptions["items"] = [];
 
 			$scope.elementMapIsChecked = false;
 			$scope.elementMapLegendIsChecked = false;
@@ -438,21 +438,21 @@ angular.module('reportingAddIndicatorModal').component('reportingAddIndicatorMod
 		function validateUserInput() {
 			//validate spatialUnit
 			if($scope.selectedSpatialUnit == undefined) {
-				alert("Keine Raumebene ausgewählt.")
+				alert("Keine Raumebene ausgewählt.");
 				return false;
 			}
 
 			//validate areas
 			if($scope.selectedAreas == undefined ||
 				$scope.selectedAreas.length == 0) {
-					alert("Kein(e) Gebiet(e) ausgewählt.")
+					alert("Kein(e) Gebiet(e) ausgewählt.");
 					return false;
 			}
 
 			//validate timestamps
 			if($scope.selectedTimestamps == undefined ||
 				$scope.selectedTimestamps.length == 0) {
-					alert("Kein(e) Zeitpunkt(e) ausgewählt.")
+					alert("Kein(e) Zeitpunkt(e) ausgewählt.");
 					return false;
 			}
 
@@ -494,7 +494,7 @@ angular.module('reportingAddIndicatorModal').component('reportingAddIndicatorMod
 				// the following properties are needed in the main modal after adding the indicator
 				tiles: {},
 				selectedSpatialUnitId: $scope.selectedSpatialUnitId
-			}
+			};
 			return conf;
 		}
 
@@ -516,7 +516,7 @@ angular.module('reportingAddIndicatorModal').component('reportingAddIndicatorMod
 		$rootScope.$on("reportingIndicatorRemoved", function(event, indicatorId) {
 			for (var i=$scope.allIndicatorsConfigSave.length-1;i>=0;i--) {
 				if($scope.allIndicatorsConfigSave[i].indicator.indicatorId === indicatorId) {
-					$scope.allIndicatorsConfigSave.splice(i,1)
+					$scope.allIndicatorsConfigSave.splice(i,1);
 				}
 			}
 
