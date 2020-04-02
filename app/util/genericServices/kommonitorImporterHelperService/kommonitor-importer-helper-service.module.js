@@ -23,6 +23,25 @@ angular
 
       this.availableDatasourceTypes = undefined;
 
+      this.attributeMapping_attributeTypes = [
+        {
+          displayName: "Text/String",
+          apiName: "string"
+        },
+        {
+          displayName: "Ganzzahl",
+          apiName: "integer"
+        },
+        {
+          displayName: "Gleitkommazahl",
+          apiName: "float"
+        },
+        {
+          displayName: "Datum",
+          apiName: "date"
+        },
+      ];
+
       this.fetchResourcesFromImporter = async function(){
         console.log("Trying to fetch converters and datasourceTypes from importer service");
         this.availableConverters = await this.fetchConverters();
@@ -261,14 +280,30 @@ angular
         return datasourceTypeDefinition;
       };
 
-      this.buildPropertyMapping_spatialResource = function(nameProperty, idPropety, validStartDateProperty, validEndDateProperty, arisenFromProperty){
-        return {
+      this.buildPropertyMapping_spatialResource = function(nameProperty, idPropety, validStartDateProperty, validEndDateProperty, arisenFromProperty, keepAttributes, attributeMappings_adminView){
+        var propertyMapping = {
           "arisenFromProperty": arisenFromProperty,
           "identifierProperty": idPropety,
           "nameProperty": nameProperty,
           "validEndDateProperty": validStartDateProperty,
-          "validStartDateProperty": validEndDateProperty
+          "validStartDateProperty": validEndDateProperty,
+          "keepAttributes": keepAttributes,
+          "attributes": []
         };
+
+        if (! keepAttributes){
+          // add attribute mappings
+          attributeMappings_adminView.forEach(attributeMapping_adminView => {
+            propertyMapping.attributes.push({
+              name: attributeMapping_adminView.sourceName,
+              mappingName: attributeMapping_adminView.destinationName,
+              type: attributeMapping_adminView.dataType.apiName
+            }); 
+          });
+        }
+
+        return propertyMapping;
+
       };
 
       this.buildPropertyMapping_indicatorResource = function(spatialReferenceKeyProperty, timeseriesMappings){

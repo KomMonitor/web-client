@@ -596,6 +596,96 @@
 										</div>
 									</div>
 								</div>
+								
+								<hr>
+								<br/>
+
+								<div class="row vertical-align">
+									<div class="col-md-6 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Import weiterer Attribute*</label>
+
+											<br/>	
+											<label class="switch">
+												<input type="checkbox" value="keepAttributes" ng-model="keepAttributes">
+												<span class="switchslider round"></span>
+											</label>
+
+
+											<div class="help-block">
+												<p>Angabe, ob alle sonstigen Attribute des importierten Datensatzes mit gleichem Namen &uuml;bernommen werden sollen. 
+													Falls nicht, so lassen sich einzelne Attribut-Importe definieren.</p>
+											</div>
+										</div>
+
+									</div>
+								</div>
+								
+								<div ng-show="! keepAttributes" class="row vertical-align">
+									<div class="col-md-6 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Attributname im zu importierenden Datensatz*</label>
+											<input type="text" class="form-control input-sm" placeholder="Quell-Attributname" ng-model="attributeMapping_sourceAttributeName">
+											<div class="help-block with-errors"></div>
+										</div>
+
+										<div class="form-group">
+											<label>Ziel-Attributname in Datenbank nach Import*</label>
+											<input type="text" class="form-control input-sm" placeholder="Ziel-Attributname" ng-model="attributeMapping_destinationAttributeName">
+											<div class="help-block with-errors"></div>
+										</div>
+
+										<div class="form-group">
+											<label>Datentyp*</label>
+
+											<select ng-model="attributeMapping_attributeType"
+												ng-options="type as type.displayName for type in $ctrl.kommonitorImporterHelperServiceInstance.attributeMapping_attributeTypes"
+												ng-init="attributeMapping_attributeType = $ctrl.kommonitorImporterHelperServiceInstance.attributeMapping_attributeTypes[0]"
+												class="form-control" required>
+												<option disabled selected value> -- Datentyp w&auml;hlen --
+												</option>
+											</select>
+											
+											<div class="help-block with-errors"></div>
+										</div>
+
+										<div class="form-group">
+											<button class="btn btn-success btn-sm" ng-disabled="!attributeMapping_sourceAttributeName || ! attributeMapping_destinationAttributeName || ! attributeMapping_attributeType" ng-click="onAddOrUpdateAttributeMapping()">Hinzuf&uuml;gen/Editieren</button>
+											<div class="help-block with-errors"></div>
+										</div>
+
+									</div>
+									<div class="col-md-6 col-sm-6 col-xs-12">
+										
+										<label>&Uuml;bersicht der definierten Attribut-Mappings</label>
+										<table class="table table-condensed">
+											<thead>
+												<tr>
+													<th>Editierfunktionen</th>
+													<th>Quell-Attributname im Datensatz</th>
+													<th>Ziel-Attributname nach Import</th>
+													<th>Datentyp</th>
+												</tr>
+											</thead>
+											<tbody>
+												<tr ng-repeat="attributeMappingEntry in attributeMappings_adminView">
+													<td>
+														<div class="btn-group btn-group-sm">
+															<button class="btn btn-warning btn-sm" type="button" ng-click="onClickEditAttributeMapping(attributeMappingEntry)"
+																title="Referenz editieren"><i class="fas fa-pencil-alt"></i></button>
+															<button class="btn btn-danger btn-sm" type="button" ng-click="onClickDeleteAttributeMapping(attributeMappingEntry)"
+																title="Referenz l&ouml;schen"><i class="fas fa-trash"></i></button>
+														</div>
+													</td>
+													<td>{{attributeMappingEntry.sourceName}}</td>
+													<td>{{attributeMappingEntry.destinationName}}</td>
+													<td>{{attributeMappingEntry.dataType.displayName}}</td>
+												</tr>
+											</tbody>
+										</table>
+
+									</div>
+								</div>
 
 								<input type="button" name="previous" class="previous previous_addGeoresource action-button-previous" value="Voriger Schritt"/>
 

@@ -68,6 +68,13 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 			$scope.validityEndDate_perFeature = undefined;
 			$scope.validityStartDate_perFeature = undefined;
 
+			$scope.attributeMapping_sourceAttributeName = undefined;
+			$scope.attributeMapping_destinationAttributeName = undefined;
+			$scope.attributeMapping_data = undefined;
+			$scope.attributeMapping_attributeType = kommonitorImporterHelperService.attributeMapping_attributeTypes[0];
+			$scope.attributeMappings_adminView = [];
+			$scope.keepAttributes = true;
+
 			$scope.importerErrors = undefined;
 			$scope.successMessagePart = undefined;
 			$scope.errorMessagePart = undefined;
@@ -197,6 +204,13 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 			$scope.validityEndDate_perFeature = undefined;
 			$scope.validityStartDate_perFeature = undefined;
 
+			$scope.attributeMapping_sourceAttributeName = undefined;
+			$scope.attributeMapping_destinationAttributeName = undefined;
+			$scope.attributeMapping_data = undefined;
+			$scope.attributeMapping_attributeType = kommonitorImporterHelperService.attributeMapping_attributeTypes[0];
+			$scope.attributeMappings_adminView = [];
+			$scope.keepAttributes = true;
+
 			$scope.importerErrors = undefined;
 			$scope.successMessagePart = undefined;
 			$scope.errorMessagePart = undefined;
@@ -245,6 +259,65 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 			}
 		};
 
+		$scope.onAddOrUpdateAttributeMapping = function(){
+			var tmpAttributeMapping_adminView = {
+				"sourceName": $scope.attributeMapping_sourceAttributeName,
+				"destinationName": $scope.attributeMapping_destinationAttributeName,
+				"dataType": $scope.attributeMapping_attributeType
+			};
+
+			var processed = false;
+
+			for (let index = 0; index < $scope.attributeMappings_adminView.length; index++) {
+				var attributeMappingEntry_adminView = $scope.attributeMappings_adminView[index];
+				
+				if (attributeMappingEntry_adminView.sourceName === tmpAttributeMapping_adminView.sourceName){
+					// replace object
+					$scope.attributeMappings_adminView[index] = tmpAttributeMapping_adminView;
+					processed = true;
+					break;
+				}
+			}			
+
+			if(! processed){
+				// new entry
+				$scope.attributeMappings_adminView.push(tmpAttributeMapping_adminView);
+			}
+
+			$scope.attributeMapping_sourceAttributeName = undefined;
+			$scope.attributeMapping_destinationAttributeName = undefined;
+			$scope.attributeMapping_attributeType = kommonitorImporterHelperService.attributeMapping_attributeTypes[0];
+
+			setTimeout(() => {
+				$scope.$apply();
+			}, 250);
+		};
+
+		$scope.onClickEditAttributeMapping = function(attributeMappingEntry){
+			$scope.attributeMapping_sourceAttributeName = attributeMappingEntry.sourceName;
+			$scope.attributeMapping_destinationAttributeName = attributeMappingEntry.destinationName;
+			$scope.attributeMapping_attributeType = attributeMappingEntry.dataType;			
+
+			setTimeout(() => {
+				$scope.$apply();
+			}, 250);
+		};
+
+		$scope.onClickDeleteAttributeMapping = function(attributeMappingEntry){
+			for (let index = 0; index < $scope.attributeMappings_adminView.length; index++) {
+				
+				if ($scope.attributeMappings_adminView[index].sourceName === attributeMappingEntry.sourceName){
+					// remove object
+					$scope.attributeMappings_adminView.splice(index, 1);
+					break;
+				}
+			}				
+
+			setTimeout(() => {
+				$scope.$apply();
+			}, 250);
+		};
+
 		$scope.buildImporterObjects = async function(){
 			$scope.converterDefinition = $scope.buildConverterDefinition();
 			$scope.datasourceTypeDefinition = await $scope.buildDatasourceTypeDefinition();
@@ -282,7 +355,7 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 
 		$scope.buildPropertyMappingDefinition = function(){
 			// arsion from is undefined currently
-			return kommonitorImporterHelperService.buildPropertyMapping_spatialResource($scope.spatialUnitDataSourceNameProperty, $scope.spatialUnitDataSourceIdProperty, $scope.validityStartDate_perFeature, $scope.validityEndDate_perFeature, undefined);
+			return kommonitorImporterHelperService.buildPropertyMapping_spatialResource($scope.spatialUnitDataSourceNameProperty, $scope.spatialUnitDataSourceIdProperty, $scope.validityStartDate_perFeature, $scope.validityEndDate_perFeature, undefined, $scope.keepAttributes, $scope.attributeMappings_adminView);
 		};
 
 		$scope.buildPutBody_spatialUnits = function(){
