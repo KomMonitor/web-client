@@ -912,6 +912,12 @@
 							</fieldset>
 
 							<fieldset>
+								<div style="position: absolute;">
+									<button type="button" class="btn btn-info pull-left" ng-click="onImportIndicatorAddMappingConfig()" title="Importieren der Mapping-Konfigurationen aus einer Datei"><i class="fas fa-file-import"></i>&nbsp;&nbsp;Mapping-Import</button>
+									<input style="display:none;" class="pull-left" type="file" class="form-control" id="indicatorMappingConfigAddImportFile" accept=".json,"></input>
+									<button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" ng-click="onExportIndicatorAddMappingConfig()" title="Exportieren der Mapping-Konfigurationen in eine Datei"><i class="fas fa-file-export"></i>&nbsp;&nbsp;Mapping-Export</button>								
+								</div>
+
 								<h2 class="fs-title">Zeitreihen-Import</h2>
 								<h3 class="fs-subtitle">Angaben &uuml;ber den Datensatz, aus dem die
 									Indikatoren-Zeitreihen-Werte importiert werden</h3>
@@ -1193,6 +1199,18 @@
 				<p>Bitte stellen Sie sicher, dass folgendes JSON-Format eingehalten wird:</p>
 				<pre id="indicatorsAddMetadataPre" style="overflow:auto; max-height:500px;"></pre>
 			</div>
+
+			<div id="indicatorMappingConfigImportErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden class="alert alert-danger alert-dismissable">
+                <button type="button" class="close" ng-click="hideMappingConfigErrorAlert()" aria-hidden="true">&times;</button>
+                <h4><i class="icon fa fa-ban"></i>Mapping-Konfiguration Import gescheitert</h4>
+                Beim Import der Mapping-Konfiguration aus einer Datei ist ein Fehler aufgetreten. Fehlermeldung:
+								<br/>
+								<pre ng-bind-html="indicatorMappingConfigImportError"></pre>								
+								<br/>								
+								<br/>
+								<p>Bitte stellen Sie sicher, dass folgendes JSON-Format eingehalten wird:</p>
+								<pre id="indicatorsAddMappingConfigPre" style="overflow:auto; max-height:500px;"></pre>
+      		</div>
 
 		</div>
 		<!-- /.modal-content -->

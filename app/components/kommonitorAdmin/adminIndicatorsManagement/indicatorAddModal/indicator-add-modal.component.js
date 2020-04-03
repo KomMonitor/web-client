@@ -158,10 +158,13 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 		};
 
 		$scope.indicatorMetadataStructure_pretty = kommonitorDataExchangeService.syntaxHighlightJSON($scope.indicatorMetadataStructure);
+		$scope.indicatorMappingConfigStructure_pretty = kommonitorDataExchangeService.syntaxHighlightJSON(kommonitorImporterHelperService.mappingConfigStructure_indicator);
+
 
 		$scope.metadataImportSettings;
 		$scope.indicatorMetadataImportError;
 		$scope.indicatorAddMetadataImportErrorAlert;
+		$scope.indicatorMappingConfigImportError;
 
 		$scope.datasetName = undefined;
 		$scope.datasetNameInvalid = false;
@@ -894,6 +897,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 					$scope.parseFromMetadataFile(event);
 				}
 				catch(error){
+					console.error(error);
 					console.error("Uploaded Metadata File cannot be parsed.");
 					$scope.indicatorMetadataImportError = "Uploaded Metadata File cannot be parsed correctly";
 					document.getElementById("indicatorsAddMetadataPre").innerHTML = $scope.indicatorMetadataStructure_pretty;
@@ -1240,6 +1244,170 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			a.remove();
 		};
 
+		$scope.onImportIndicatorAddMappingConfig = function(){
+
+			$scope.indicatorMappingConfigImportError = "";
+
+			$("#indicatorMappingConfigAddImportFile").files = [];
+
+			// trigger file chooser
+			$("#indicatorMappingConfigAddImportFile").click();
+
+		};
+
+		$(document).on("change", "#indicatorMappingConfigAddImportFile" ,function(){
+
+			console.log("Importing Importer Mapping Config for Add Indicator Form");
+
+			// get the file
+			var file = document.getElementById('indicatorMappingConfigAddImportFile').files[0];
+			$scope.parseMappingConfigFromFile(file);
+		});
+
+		$scope.parseMappingConfigFromFile = function(file){
+			var fileReader = new FileReader();
+
+			fileReader.onload = function(event) {
+
+				try{
+					$scope.parseFromMappingConfigFile(event);
+				}
+				catch(error){
+					console.error(error);
+					console.error("Uploaded MappingConfig File cannot be parsed.");
+					$scope.indicatorMappingConfigImportError = "Uploaded MappingConfig File cannot be parsed correctly";
+					document.getElementById("indicatorsAddMappingConfigPre").innerHTML = $scope.indicatorMappingConfigStructure_pretty;
+					$("#indicatorMappingConfigImportErrorAlert").show();
+
+					$scope.$apply();
+				}
+
+			};
+
+			// Read in the image file as a data URL.
+			fileReader.readAsText(file);
+		};
+
+		$scope.parseFromMappingConfigFile = function(event){
+			$scope.mappingConfigImportSettings = JSON.parse(event.target.result);
+
+			if(! $scope.mappingConfigImportSettings.converter || ! $scope.mappingConfigImportSettings.dataSource || ! $scope.mappingConfigImportSettings.propertyMapping){
+				console.error("uploaded MappingConfig File cannot be parsed - wrong structure.");
+				$scope.indicatorMetadataImportError = "Struktur der Datei stimmt nicht mit erwartetem Muster &uuml;berein.";
+				document.getElementById("indicatorsAddMappingConfigPre").innerHTML = $scope.indicatorMappingConfigStructure_pretty;
+				$("#indicatorMappingConfigImportErrorAlert").show();
+
+				$scope.$apply();
+			}
+			
+			  $scope.converter = undefined;
+			for(var converter of kommonitorImporterHelperService.availableConverters){
+				if (converter.name === $scope.mappingConfigImportSettings.converter.name){
+					$scope.converter = converter;					
+					break;
+				}
+			}	
+			
+				$scope.schema = undefined;
+				if ($scope.converter && $scope.converter.schemas && $scope.mappingConfigImportSettings.converter.schema){
+					for (var schema of $scope.converter.schemas) {
+						if (schema === $scope.mappingConfigImportSettings.converter.schema){
+							$scope.schema = schema;
+						}
+					}
+				}		
+				
+				$scope.datasourceType = undefined;
+				for(var datasourceType of kommonitorImporterHelperService.availableDatasourceTypes){
+					if (datasourceType.type === $scope.mappingConfigImportSettings.dataSource.type){
+						$scope.datasourceType = datasourceType;					
+						break;
+					}
+				}
+
+				$scope.$apply();
+
+				// converter parameters
+				if ($scope.converter){
+					for (var convParameter of $scope.mappingConfigImportSettings.converter.parameters) {
+            			$("#converterParameter_indicatorAdd_" + convParameter.name).val(convParameter.value);
+					}
+				}	
+
+				// datasourceTypes parameters
+				if ($scope.datasourceType){
+					for (var dsParameter of $scope.mappingConfigImportSettings.dataSource.parameters) {
+            			$("#datasourceTypeParameter_indicatorAdd_" + dsParameter.name).val(dsParameter.value);
+					}
+				}
+				
+				// property Mapping
+				$scope.spatialUnitRefKeyProperty = $scope.mappingConfigImportSettings.propertyMapping.spatialReferenceKeyProperty; 
+				$scope.timeseriesMappings_adminView = [];
+
+				for (var timeseriesMapping of $scope.mappingConfigImportSettings.propertyMapping.timeseriesMappings) {
+					var tmpEntry = {
+						"indicatorValuesPropertyName": timeseriesMapping.indicatorValueProperty,
+						"timestampPropertyName": timeseriesMapping.timestampProperty,
+						"timestampDirect": timeseriesMapping.timestamp
+					};
+
+					$scope.timeseriesMappings_adminView.push(tmpEntry);
+				}	
+				
+				if($scope.mappingConfigImportSettings.targetSpatialUnitName){
+					for (const spatialUnitMetadata of kommonitorDataExchangeService.availableSpatialUnits) {
+						if(spatialUnitMetadata.spatialUnitLevel === $scope.mappingConfigImportSettings.targetSpatialUnitName){
+							$scope.targetSpatialUnitMetadata = spatialUnitMetadata;
+						}
+					
+					}	
+				}
+				
+				$scope.$apply();
+		};
+
+		$scope.onExportIndicatorAddMappingConfig = async function(){
+			var converterDefinition = $scope.buildConverterDefinition();
+			var datasourceTypeDefinition = await $scope.buildDatasourceTypeDefinition();
+			var propertyMappingDefinition = $scope.buildPropertyMappingDefinition();			
+
+			var mappingConfigExport = {
+				"converter": converterDefinition,
+				"dataSource": datasourceTypeDefinition,
+				"propertyMapping": propertyMappingDefinition,
+				"targetSpatialUnitName": $scope.targetSpatialUnitMetadata.spatialUnitLevel
+			};
+
+			mappingConfigExport.periodOfValidity = $scope.periodOfValidity;
+
+			var name = $scope.datasetName;
+
+			var metadataJSON = JSON.stringify(mappingConfigExport);
+
+			var fileName = "KomMonitor-Import-Mapping-Konfiguration_Export";
+
+			if (name){
+				fileName += "-" + name;
+			}
+
+			fileName += ".json";
+
+			var blob = new Blob([metadataJSON], {type: "application/json"});
+			var data  = URL.createObjectURL(blob);
+
+			var a = document.createElement('a');
+			a.download    = fileName;
+			a.href        = data;
+			a.textContent = "JSON";
+			a.target = "_blank";
+			a.rel = "noopener noreferrer";
+			a.click();
+
+			a.remove();
+		};
+
+
 
 			$scope.hideSuccessAlert = function(){
 				$("#indicatorAddSuccessAlert").hide();
@@ -1251,6 +1419,10 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 
 			$scope.hideMetadataErrorAlert = function(){
 				$("#indicatorAddMetadataImportErrorAlert").hide();
+			};
+
+			$scope.hideMappingConfigErrorAlert = function(){
+				$("#indicatorMappingConfigImportErrorAlert").hide();
 			};
 
 			/*
