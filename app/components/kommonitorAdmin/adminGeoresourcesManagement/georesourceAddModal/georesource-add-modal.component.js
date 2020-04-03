@@ -75,10 +75,13 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 		};
 
 		$scope.georesourceMetadataStructure_pretty = kommonitorDataExchangeService.syntaxHighlightJSON($scope.georesourceMetadataStructure);
+		$scope.georesourceMappingConfigStructure_pretty = kommonitorDataExchangeService.syntaxHighlightJSON(kommonitorImporterHelperService.mappingConfigStructure);
+
 
 		$scope.metadataImportSettings;
 		$scope.georesourceMetadataImportError;
 		$scope.georesourceMetadataImportErrorAlert;
+		$scope.georesourceMappingConfigImportError;
 
 		$scope.datasetName = undefined;
 		$scope.datasetNameInvalid = false;
@@ -622,6 +625,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 					$scope.parseFromMetadataFile(event);
 				}
 				catch(error){
+					console.error(error);
 					console.error("Uploaded Metadata File cannot be parsed.");
 					$scope.georesourceMetadataImportError = "Uploaded Metadata File cannot be parsed correctly";
 					document.getElementById("georesourcesAddMetadataPre").innerHTML = $scope.georesourceMetadataStructure_pretty;
@@ -860,6 +864,184 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			$("#loiDashArrayDropdownButton_addGeoresource").html(loiDashArrayObject.svgString);
 		};
 
+		$scope.onImportGeoresourceAddMappingConfig = function(){
+
+			$scope.georesourceMappingConfigImportError = "";
+
+			$("#georesourceMappingConfigAddImportFile").files = [];
+
+			// trigger file chooser
+			$("#georesourceMappingConfigAddImportFile").click();
+
+		};
+
+		$(document).on("change", "#georesourceMappingConfigAddImportFile" ,function(){
+
+			console.log("Importing Importer Mapping Config for Add Georesource Form");
+
+			// get the file
+			var file = document.getElementById('georesourceMappingConfigAddImportFile').files[0];
+			$scope.parseMappingConfigFromFile(file);
+		});
+
+		$scope.parseMappingConfigFromFile = function(file){
+			var fileReader = new FileReader();
+
+			fileReader.onload = function(event) {
+
+				try{
+					$scope.parseFromMappingConfigFile(event);
+				}
+				catch(error){
+					console.error(error);
+					console.error("Uploaded MappingConfig File cannot be parsed.");
+					$scope.georesourceMappingConfigImportError = "Uploaded MappingConfig File cannot be parsed correctly";
+					document.getElementById("georesourcesAddMappingConfigPre").innerHTML = $scope.georesourceMappingConfigStructure_pretty;
+					$("#georesourceMappingConfigImportErrorAlert").show();
+
+					$scope.$apply();
+				}
+
+			};
+
+			// Read in the image file as a data URL.
+			fileReader.readAsText(file);
+		};
+
+		$scope.parseFromMappingConfigFile = function(event){
+			$scope.mappingConfigImportSettings = JSON.parse(event.target.result);
+
+			if(! $scope.mappingConfigImportSettings.converter || ! $scope.mappingConfigImportSettings.dataSource || ! $scope.mappingConfigImportSettings.propertyMapping){
+				console.error("uploaded MappingConfig File cannot be parsed - wrong structure.");
+				$scope.georesourceMetadataImportError = "Struktur der Datei stimmt nicht mit erwartetem Muster &uuml;berein.";
+				document.getElementById("georesourcesAddMappingConfigPre").innerHTML = $scope.georesourceMappingConfigStructure_pretty;
+				$("#georesourceMappingConfigImportErrorAlert").show();
+
+				$scope.$apply();
+			}
+			
+			  $scope.converter = undefined;
+			for(var converter of kommonitorImporterHelperService.availableConverters){
+				if (converter.name === $scope.mappingConfigImportSettings.converter.name){
+					$scope.converter = converter;					
+					break;
+				}
+			}	
+			
+				$scope.schema = undefined;
+				if ($scope.converter && $scope.converter.schemas && $scope.mappingConfigImportSettings.converter.schema){
+					for (var schema of $scope.converter.schemas) {
+						if (schema === $scope.mappingConfigImportSettings.converter.schema){
+							$scope.schema = schema;
+						}
+					}
+				}		
+				
+				$scope.datasourceType = undefined;
+				for(var datasourceType of kommonitorImporterHelperService.availableDatasourceTypes){
+					if (datasourceType.type === $scope.mappingConfigImportSettings.dataSource.type){
+						$scope.datasourceType = datasourceType;					
+						break;
+					}
+				}
+
+				$scope.$apply();
+
+				// converter parameters
+				if ($scope.converter){
+					for (var convParameter of $scope.mappingConfigImportSettings.converter.parameters) {
+            			$("#converterParameter_georesourceAdd_" + convParameter.name).val(convParameter.value);
+					}
+				}	
+
+				// datasourceTypes parameters
+				if ($scope.datasourceType){
+					for (var dsParameter of $scope.mappingConfigImportSettings.dataSource.parameters) {
+            			$("#datasourceTypeParameter_georesourceAdd_" + dsParameter.name).val(dsParameter.value);
+					}
+				}
+				
+				// property Mapping
+				$scope.georesourceDataSourceNameProperty = $scope.mappingConfigImportSettings.propertyMapping.nameProperty; 
+				$scope.georesourceDataSourceIdProperty = $scope.mappingConfigImportSettings.propertyMapping.identifierProperty; 
+				$scope.validityStartDate_perFeature  = $scope.mappingConfigImportSettings.propertyMapping.validStartDateProperty;
+				$scope.validityEndDate_perFeature  = $scope.mappingConfigImportSettings.propertyMapping.validEndDateProperty;
+				$scope.keepAttributes  = $scope.mappingConfigImportSettings.propertyMapping.keepAttributes;
+				$scope.attributeMappings_adminView = [];
+
+				for (var attributeMapping of $scope.mappingConfigImportSettings.propertyMapping.attributes) {
+					var tmpEntry = {
+						"sourceName": attributeMapping.name,
+						"destinationName": attributeMapping.mappingName
+					};
+
+					for (const dataType of kommonitorImporterHelperService.attributeMapping_attributeTypes) {
+						if (dataType.apiName === attributeMapping.type){
+							tmpEntry.dataType = dataType;
+						}
+					}
+
+					$scope.attributeMappings_adminView.push(tmpEntry);
+				}
+
+				if ($scope.mappingConfigImportSettings.periodOfValidity){
+					$scope.periodOfValidity = {};
+					$scope.periodOfValidity.startDate = $scope.mappingConfigImportSettings.periodOfValidity.startDate;
+					$scope.periodOfValidity.endDate = $scope.mappingConfigImportSettings.periodOfValidity.endDate;
+					$scope.periodOfValidityInvalid = false;
+
+					// update datePickers
+					if ($scope.periodOfValidity.startDate){						
+						$("#georesourceAddDatepickerStart").datepicker('setDate', $scope.periodOfValidity.startDate);
+					}
+					if ($scope.periodOfValidity.endDate){						
+						$("#georesourceAddDatepickerEnd").datepicker('setDate', $scope.periodOfValidity.endDate);
+					}
+				}				
+				
+				$scope.$apply();
+		};
+
+		$scope.onExportGeoresourceAddMappingConfig = async function(){
+			var converterDefinition = $scope.buildConverterDefinition();
+			var datasourceTypeDefinition = await $scope.buildDatasourceTypeDefinition();
+			var propertyMappingDefinition = $scope.buildPropertyMappingDefinition();			
+
+			var mappingConfigExport = {
+				"converter": converterDefinition,
+				"dataSource": datasourceTypeDefinition,
+				"propertyMapping": propertyMappingDefinition,
+			};
+
+			mappingConfigExport.periodOfValidity = $scope.periodOfValidity;
+
+			var name = $scope.georesourceLevel;
+
+			var metadataJSON = JSON.stringify(mappingConfigExport);
+
+			var fileName = "KomMonitor-Import-Mapping-Konfiguration_Export";
+
+			if (name){
+				fileName += "-" + name;
+			}
+
+			fileName += ".json";
+
+			var blob = new Blob([metadataJSON], {type: "application/json"});
+			var data  = URL.createObjectURL(blob);
+
+			var a = document.createElement('a');
+			a.download    = fileName;
+			a.href        = data;
+			a.textContent = "JSON";
+			a.target = "_blank";
+			a.rel = "noopener noreferrer";
+			a.click();
+
+			a.remove();
+		};
+
+
 
 			$scope.hideSuccessAlert = function(){
 				$("#georesourceAddSuccessAlert").hide();
@@ -871,6 +1053,10 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 
 			$scope.hideMetadataErrorAlert = function(){
 				$("#georesourceMetadataImportErrorAlert").hide();
+			};
+
+			$scope.hideMappingConfigErrorAlert = function(){
+				$("#georesourceMappingConfigImportErrorAlert").hide();
 			};
 
 			/*

@@ -56,10 +56,12 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 		};
 
 		$scope.spatialUnitMetadataStructure_pretty = kommonitorDataExchangeService.syntaxHighlightJSON($scope.spatialUnitMetadataStructure);
+		$scope.spatialUnitMappingConfigStructure_pretty = kommonitorDataExchangeService.syntaxHighlightJSON(kommonitorImporterHelperService.mappingConfigStructure);
 
 		$scope.metadataImportSettings;
 		$scope.spatialUnitMetadataImportError;
 		$scope.spatialUnitMetadataImportErrorAlert;
+		$scope.spatialUnitMappingConfigImportError;
 
 		$scope.spatialUnitLevel = undefined;
 		$scope.spatialUnitLevelInvalid = false;
@@ -459,6 +461,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 					$scope.parseFromMetadataFile(event);
 				}
 				catch(error){
+					console.error(error);
 					console.error("Uploaded Metadata File cannot be parsed.");
 					$scope.spatialUnitMetadataImportError = "Uploaded Metadata File cannot be parsed correctly";
 					document.getElementById("spatialUnitsAddMetadataPre").innerHTML = $scope.spatialUnitMetadataStructure_pretty;
@@ -594,6 +597,183 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 			a.remove();
 		};
 
+		$scope.onImportSpatialUnitAddMappingConfig = function(){
+
+			$scope.spatialUnitMappingConfigImportError = "";
+
+			$("#spatialUnitMappingConfigAddImportFile").files = [];
+
+			// trigger file chooser
+			$("#spatialUnitMappingConfigAddImportFile").click();
+
+		};
+
+		$(document).on("change", "#spatialUnitMappingConfigAddImportFile" ,function(){
+
+			console.log("Importing Importer Mapping Config for Add SpatialUnit Form");
+
+			// get the file
+			var file = document.getElementById('spatialUnitMappingConfigAddImportFile').files[0];
+			$scope.parseMappingConfigFromFile(file);
+		});
+
+		$scope.parseMappingConfigFromFile = function(file){
+			var fileReader = new FileReader();
+
+			fileReader.onload = function(event) {
+
+				try{
+					$scope.parseFromMappingConfigFile(event);
+				}
+				catch(error){
+					console.error(error);
+					console.error("Uploaded MappingConfig File cannot be parsed.");
+					$scope.spatialUnitMappingConfigImportError = "Uploaded MappingConfig File cannot be parsed correctly";
+					document.getElementById("spatialUnitsAddMappingConfigPre").innerHTML = $scope.spatialUnitMappingConfigStructure_pretty;
+					$("#spatialUnitMappingConfigImportErrorAlert").show();
+
+					$scope.$apply();
+				}
+
+			};
+
+			// Read in the image file as a data URL.
+			fileReader.readAsText(file);
+		};
+
+		$scope.parseFromMappingConfigFile = function(event){
+			$scope.mappingConfigImportSettings = JSON.parse(event.target.result);
+
+			if(! $scope.mappingConfigImportSettings.converter || ! $scope.mappingConfigImportSettings.dataSource || ! $scope.mappingConfigImportSettings.propertyMapping){
+				console.error("uploaded MappingConfig File cannot be parsed - wrong structure.");
+				$scope.spatialUnitMetadataImportError = "Struktur der Datei stimmt nicht mit erwartetem Muster &uuml;berein.";
+				document.getElementById("spatialUnitsAddMappingConfigPre").innerHTML = $scope.spatialUnitMappingConfigStructure_pretty;
+				$("#spatialUnitMappingConfigImportErrorAlert").show();
+
+				$scope.$apply();
+			}
+			
+			  $scope.converter = undefined;
+			for(var converter of kommonitorImporterHelperService.availableConverters){
+				if (converter.name === $scope.mappingConfigImportSettings.converter.name){
+					$scope.converter = converter;					
+					break;
+				}
+			}	
+			
+				$scope.schema = undefined;
+				if ($scope.converter && $scope.converter.schemas && $scope.mappingConfigImportSettings.converter.schema){
+					for (var schema of $scope.converter.schemas) {
+						if (schema === $scope.mappingConfigImportSettings.converter.schema){
+							$scope.schema = schema;
+						}
+					}
+				}		
+				
+				$scope.datasourceType = undefined;
+				for(var datasourceType of kommonitorImporterHelperService.availableDatasourceTypes){
+					if (datasourceType.type === $scope.mappingConfigImportSettings.dataSource.type){
+						$scope.datasourceType = datasourceType;					
+						break;
+					}
+				}
+
+				$scope.$apply();
+
+				// converter parameters
+				if ($scope.converter){
+					for (var convParameter of $scope.mappingConfigImportSettings.converter.parameters) {
+            			$("#converterParameter_spatialUnitAdd_" + convParameter.name).val(convParameter.value);
+					}
+				}	
+
+				// datasourceTypes parameters
+				if ($scope.datasourceType){
+					for (var dsParameter of $scope.mappingConfigImportSettings.dataSource.parameters) {
+            			$("#datasourceTypeParameter_spatialUnitAdd_" + dsParameter.name).val(dsParameter.value);
+					}
+				}
+				
+				// property Mapping
+				$scope.spatialUnitDataSourceNameProperty = $scope.mappingConfigImportSettings.propertyMapping.nameProperty; 
+				$scope.spatialUnitDataSourceIdProperty = $scope.mappingConfigImportSettings.propertyMapping.identifierProperty; 
+				$scope.validityStartDate_perFeature  = $scope.mappingConfigImportSettings.propertyMapping.validStartDateProperty;
+				$scope.validityEndDate_perFeature  = $scope.mappingConfigImportSettings.propertyMapping.validEndDateProperty;
+				$scope.keepAttributes  = $scope.mappingConfigImportSettings.propertyMapping.keepAttributes;
+				$scope.attributeMappings_adminView = [];
+
+				for (var attributeMapping of $scope.mappingConfigImportSettings.propertyMapping.attributes) {
+					var tmpEntry = {
+						"sourceName": attributeMapping.name,
+						"destinationName": attributeMapping.mappingName
+					};
+
+					for (const dataType of kommonitorImporterHelperService.attributeMapping_attributeTypes) {
+						if (dataType.apiName === attributeMapping.type){
+							tmpEntry.dataType = dataType;
+						}
+					}
+
+					$scope.attributeMappings_adminView.push(tmpEntry);
+				}
+
+				if ($scope.mappingConfigImportSettings.periodOfValidity){
+					$scope.periodOfValidity = {};
+					$scope.periodOfValidity.startDate = $scope.mappingConfigImportSettings.periodOfValidity.startDate;
+					$scope.periodOfValidity.endDate = $scope.mappingConfigImportSettings.periodOfValidity.endDate;
+					$scope.periodOfValidityInvalid = false;
+
+					// update datePickers
+					if ($scope.periodOfValidity.startDate){						
+						$("#spatialUnitAddDatepickerStart").datepicker('setDate', $scope.periodOfValidity.startDate);
+					}
+					if ($scope.periodOfValidity.endDate){						
+						$("#spatialUnitAddDatepickerEnd").datepicker('setDate', $scope.periodOfValidity.endDate);
+					}
+				}				
+				
+				$scope.$apply();
+		};
+
+		$scope.onExportSpatialUnitAddMappingConfig = async function(){
+			var converterDefinition = $scope.buildConverterDefinition();
+			var datasourceTypeDefinition = await $scope.buildDatasourceTypeDefinition();
+			var propertyMappingDefinition = $scope.buildPropertyMappingDefinition();			
+
+			var mappingConfigExport = {
+				"converter": converterDefinition,
+				"dataSource": datasourceTypeDefinition,
+				"propertyMapping": propertyMappingDefinition,
+			};
+
+			mappingConfigExport.periodOfValidity = $scope.periodOfValidity;
+
+			var name = $scope.spatialUnitLevel;
+
+			var metadataJSON = JSON.stringify(mappingConfigExport);
+
+			var fileName = "KomMonitor-Import-Mapping-Konfiguration_Export";
+
+			if (name){
+				fileName += "-" + name;
+			}
+
+			fileName += ".json";
+
+			var blob = new Blob([metadataJSON], {type: "application/json"});
+			var data  = URL.createObjectURL(blob);
+
+			var a = document.createElement('a');
+			a.download    = fileName;
+			a.href        = data;
+			a.textContent = "JSON";
+			a.target = "_blank";
+			a.rel = "noopener noreferrer";
+			a.click();
+
+			a.remove();
+		};
+
 
 			$scope.hideSuccessAlert = function(){
 				$("#spatialUnitAddSucessAlert").hide();
@@ -605,6 +785,10 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 
 			$scope.hideMetadataErrorAlert = function(){
 				$("#spatialUnitMetadataImportErrorAlert").hide();
+			};
+
+			$scope.hideMappingConfigErrorAlert = function(){
+				$("#spatialUnitMappingConfigImportErrorAlert").hide();
 			};
 
 

@@ -42,6 +42,49 @@ angular
         },
       ];
 
+      this.mappingConfigStructure = {
+          "converter": {
+            "encoding": "string",
+            "mimeType": "string",
+            "name": "string",
+            "parameters": [
+            {
+              "name": "string",
+              "value": "string"
+            }
+            ],
+            "schema": "string"
+          },
+          "dataSource": {
+            "parameters": [
+            {
+              "name": "string",
+              "value": "string"
+            }
+            ],
+            "type": "FILE" // FILE|HTTP|INLINE
+          },
+          "propertyMapping": {
+            "arisenFromProperty": "string",
+            "attributes": [
+            {
+              "mappingName": "string", // target name
+              "name": "string", // source name
+              "type": "string" // dataType, [string|integer|float|date]
+            }
+            ],
+            "identifierProperty": "string",
+            "keepAttributes": true, // if true, then mapping under attributes is ignored and all attributes are imported with the same attribute name
+            "nameProperty": "string",
+            "validEndDateProperty": "string",
+            "validStartDateProperty": "string"
+          },
+          "periodOfValidity":{
+            "startDate": "yyy-mm-tt",
+            "endDate": "yyy-mm-tt"
+          }
+        };
+
       this.fetchResourcesFromImporter = async function(){
         console.log("Trying to fetch converters and datasourceTypes from importer service");
         this.availableConverters = await this.fetchConverters();
@@ -281,6 +324,16 @@ angular
       };
 
       this.buildPropertyMapping_spatialResource = function(nameProperty, idPropety, validStartDateProperty, validEndDateProperty, arisenFromProperty, keepAttributes, attributeMappings_adminView){
+        if(validStartDateProperty === ""){
+          validStartDateProperty = undefined;
+        }
+        if(validEndDateProperty === ""){
+          validEndDateProperty = undefined;
+        }
+        if(arisenFromProperty === ""){
+          arisenFromProperty = undefined;
+        }
+        
         var propertyMapping = {
           "arisenFromProperty": arisenFromProperty,
           "identifierProperty": idPropety,
