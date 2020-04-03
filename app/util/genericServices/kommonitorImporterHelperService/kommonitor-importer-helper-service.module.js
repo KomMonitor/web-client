@@ -85,6 +85,48 @@ angular
           }
         };
 
+        this.mappingConfigStructure_indicator = {
+          "converter": {
+            "encoding": "string",
+            "mimeType": "string",
+            "name": "string",
+            "parameters": [
+            {
+              "name": "string",
+              "value": "string"
+            }
+            ],
+            "schema": "string"
+          },
+          "dataSource": {
+            "parameters": [
+            {
+              "name": "string",
+              "value": "string"
+            }
+            ],
+            "type": "FILE" // FILE|HTTP|INLINE
+          },
+          "propertyMapping": {
+            "attributeMappings": [
+              {
+                "mappingName": "string",
+                "name": "string",
+                "type": "string"
+              }
+            ],
+            "spatialReferenceKeyProperty": "string",
+            "timeseriesMappings": [
+              {
+                "indicatorValueProperty": "string",
+                "timestamp": "string",
+                "timestampProperty": "string"
+              }
+            ]
+          },
+          "targetSpatialUnitName": "string"
+        }; 
+
       this.fetchResourcesFromImporter = async function(){
         console.log("Trying to fetch converters and datasourceTypes from importer service");
         this.availableConverters = await this.fetchConverters();
@@ -360,9 +402,12 @@ angular
       };
 
       this.buildPropertyMapping_indicatorResource = function(spatialReferenceKeyProperty, timeseriesMappings){
+
+        // attributeMapping is undefined for indicators
         return {
           "spatialReferenceKeyProperty": spatialReferenceKeyProperty,
-          "timeseriesMappings": timeseriesMappings
+          "timeseriesMappings": timeseriesMappings,
+          "attributeMappings": undefined
         };
       };
 

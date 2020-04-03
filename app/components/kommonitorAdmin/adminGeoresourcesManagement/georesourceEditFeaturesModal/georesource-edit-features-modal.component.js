@@ -593,7 +593,7 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 
 			mappingConfigExport.periodOfValidity = $scope.periodOfValidity;
 
-			var name = $scope.georesourceLevel;
+			var name = $scope.datasetName;
 
 			var metadataJSON = JSON.stringify(mappingConfigExport);
 

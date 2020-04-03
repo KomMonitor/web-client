@@ -1015,7 +1015,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 
 			mappingConfigExport.periodOfValidity = $scope.periodOfValidity;
 
-			var name = $scope.georesourceLevel;
+			var name = $scope.datasetName;
 
 			var metadataJSON = JSON.stringify(mappingConfigExport);
 
