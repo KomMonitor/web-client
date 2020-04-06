@@ -1,0 +1,40 @@
+<div class="dualmultiselect">
+	<div class="row">
+		<div class="col-lg-6 col-md-6 col-sm-6">
+			<div style="border:solid #337ab7 1px;">
+				<div class="duallistLabelDiv">
+					<p class="duallistLabel">verfügbare {{options.label}}:</p>
+				</div>
+				<input class="duallistSearchInput" ng-model="searchLeft.$" placeholder="Suchen...">
+				<div class="list" ng-class="options.boxItemsHeight">
+					<ul class="unselected-items-list">
+						<li ng-repeat="item in options.items | filter: searchLeft | orderBy: 'name'">
+							<a href="" ng-click="transfer(options.items, options.selectedItems, options.items.indexOf(item))">{{item.name}}&nbsp;&rArr;</a>
+						</li>
+					</ul>
+				</div>
+				<div class="duallistButtonDiv">
+					<button class="duallistButton btn-info btn btn-default btn-xs" type="button" ng-click="transfer(options.items, options.selectedItems, -1)"> {{options.button.leftText}} -&#187; </button>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-lg-6 col-md-6 col-sm-6">
+			<div style="border:solid #337ab7 1px;">
+				<div class="duallistLabelDiv">
+					<p class="duallistLabel">ausgewählte {{options.label}}:</p>
+				</div>
+				<input class="duallistSearchInput" ng-model="searchRight.$" placeholder="Suchen...">
+				<div class="list" ng-class="options.boxItemsHeight">
+					<ul class="selected-items-list">
+						<li ng-repeat="item in options.selectedItems | filter: searchRight | orderBy: 'name'">
+							<a href="" ng-click="transfer(options.selectedItems, options.items, options.selectedItems.indexOf(item))"> &lArr;&nbsp;{{item.name}} </a>
+						</li>
+					</ul>
+				</div>
+				<div class="duallistButtonDiv">
+					<button class="duallistButton btn-info btn btn-default btn-xs" type="button" ng-click="transfer(options.selectedItems, options.items, -1)"> &#171;- {{options.button.rightText}} </button>
+				</div>
+			</div>
+		</div>
+	</div>

@@ -8,193 +8,16 @@
 
 	<p></p>
 
-			<!-- WMS -->
-				<div class="box box-primary">
-					<div class="box-header with-border">
-						<h3 class="box-title">Web Map Service (WMS)</h3>
-
-						<div class="box-tools pull-right">
-							<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-							</button>
-						</div>
-					</div>
-					<div class="box-body">
-
-											<div class="input-group">
-												<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-												<input type="text" class="form-control input-sm" placeholder="Filtern nach WMS-Name" ng-model="wmsNameFilter">
-											</div>
-
-											<br/>
-
-											<div  id="wmsInputForm">
-
-												<table class="table table-condensed" style="margin-bottom:0px;">
-											    <thead>
-											      <tr>
-											        <th>Datensatz</th>
-											        <th>Beschreibung</th>
-															<th>Layer Transparenz</th>
-															<th>WMS URL</th>
-															<th>Legende</th>
-											      </tr>
-											    </thead>
-
-													<tbody>
-
-														<tr ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:wmsNameFilter | orderBy:"title"'>
-															<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
-															<td>
-																<label class='checkbox-inline' ><input type="checkbox" value="dataset.title" ng-model="dataset.isSelected" ng-change="handleWmsOnMap(dataset)">
-
-																	<b ng-bind-html="dataset.title"></b>
-																</label>
-															</td>
-															<td>
-																<p ng-bind-html="dataset.description"></p>
-															</td>
-															<td>
-																<div class="form-group" align="center">
-
-																	<input class=" input-sm" ng-model="dataset.transparency" ng-init="dataset.transparency=0" ng-change="adjustWMSLayerTransparency(dataset)" type="range"  min="0" max="1" step="0.01">
-
-																	<br/>
-
-																	<label>{{dataset.transparency}}</label>
-																</div>
-															</td>
-															<td>
-																<div align="center">
-																<a href="{{dataset.url}}service=WMS&request=GetCapabilities&version=1.3.0" title="WMS GetCapabilities URL" rel='noopener noreferrer' target='_blank'><i class="fas fa-cloud-download-alt"></i></a>
-																</div>
-															</td>
-															<td>
-																<img src="{{dataset.url}}service=WMS&REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&LAYER={{dataset.layerName}}">
-															</td>
-														</tr>
-													</tbody>
-												</table>
-												</div>
-
-												<br/>
-
-											<div align="center">
-
-												<button class="btn btn-success" type="button" data-toggle="modal" data-target="#modal-add-wms">Eigenen WMS hinzuladen</button>
-
-											</div>
-
-	              </div>
-	              <!-- /.box-body -->
-
-						</div>
-						<!-- /.box -->
-
-						<!-- WfS -->
-							<div class="box box-primary collapsed-box">
-								<div class="box-header with-border">
-									<h3 class="box-title">Web Feature Service (WFS)</h3>
-
-									<div class="box-tools pull-right">
-										<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
-										</button>
-									</div>
-								</div>
-								<div class="box-body">
-
-														<p>Hinzuladen eines WFS kann je nach Objektanzahl und -komplexität einige Moment dauern. Die Features werden zudem nach dem aktuellen Raumausschnitt der Kartendarstellung gefiltert abgefragt.</p>
-
-														<div class="input-group">
-															<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-															<input type="text" class="form-control input-sm" placeholder="Filtern nach WFS-Name" ng-model="wfsNameFilter">
-														</div>
-
-														<br/>
-
-														<div  id="wfsInputForm">
-
-															<table class="table table-condensed" style="margin-bottom:0px;">
-														    <thead>
-														      <tr>
-														        <th>Datensatz</th>
-														        <th>Beschreibung</th>
-																		<th>Layer Transparenz</th>
-																		<th>auf aktuellen Raumausschnitt beschr&auml;nken</th>
-																		<th>WFS URL</th>
-																		<th>Legende</th>
-														      </tr>
-														    </thead>
-
-																<tbody>
-
-																	<tr ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.wfsDatasets | filter:wfsNameFilter | orderBy:"title"'>
-																		<td>
-																			<label class='checkbox-inline' ><input type="checkbox" value="dataset.title" ng-model="dataset.isSelected" ng-change="handleWfsOnMap(dataset)">
-
-																				<b ng-bind-html="dataset.title"></b>
-																			</label>
-																		</td>
-																		<td>
-																			<p ng-bind-html="dataset.description"></p>
-																		</td>
-																		<td>
-																			<div class="form-group" align="center">
-
-																				<input class=" input-sm" ng-model="dataset.transparency" ng-init="dataset.transparency=0" ng-change="adjustWFSLayerTransparency(dataset)" type="range"  min="0" max="1" step="0.01">
-
-																				<br/>
-
-																				<label>{{dataset.transparency}}</label>
-																			</div>
-																		</td>
-																		<td>
-																			<label class="switch">
-																				<input id="filterCheckbox" type="checkbox" ng-model="dataset.filterFeaturesToMapBBOX" ng-checked="dataset.filterFeaturesToMapBBOX"></input>
-																			  <span class="switchslider round"></span>
-																			</label>
-																		</td>
-																		<td>
-																			<div align="center">
-																			<a href="{{dataset.url}}service=WFS&request=GetCapabilities&version=1.1.0" title="WFS GetCapabilities URL" rel='noopener noreferrer' target='_blank'><i class="fas fa-cloud-download-alt"></i></a>
-																			</div>
-																		</td>
-																		<td>
-																			<div>
-																				<div class="input-group colorpicker-component">
-																				    <input type="text" style="display:none;" class="form-control input-sm" ng-model="dataset.displayColor" ng-change="adjustWfsLayerColor(dataset)" placeholder="WFS Darstellungsfarbe"  required />
-																				    <span title="Klicken, um die Farbe anzupassen" style="border: 1px solid #ccc;" class="input-group-addon"><i></i></span>
-																				</div>
-																				<!-- value="{{dataset.displayColor}}" -->
-																				<!-- <i style="background-color:{{dataset.displayColor}}; margin-left: 12px; width: 18px; height: 18px; float: left;"></i> -->
-																			</div>
-																		</td>
-																	</tr>
-																</tbody>
-															</table>
-															</div>
-
-															<br/>
-
-														<div align="center">
-
-															<button class="btn btn-success" type="button" data-toggle="modal" data-target="#modal-add-wfs">Eigenen WFS hinzuladen</button>
-
-														</div>
-
-				              </div>
-				              <!-- /.box-body -->
-
-									</div>
-									<!-- /.box -->
+			
 
 
 									<!-- CUSTOM DATA GEOJSON OR SHAPE -->
-										<div class="box box-primary collapsed-box">
+										<div class="box box-primary">
 											<div class="box-header with-border">
 												<h3 class="box-title">Layer aus Datei importieren</h3>
 
 												<div class="box-tools pull-right">
-													<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+													<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
 													</button>
 												</div>
 											</div>
@@ -251,7 +74,7 @@
 
 																<div class="input-group">
 																	<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-																	<input type="text" class="form-control input-sm" placeholder="Filtern nach Dateilayer-Name" ng-model="fileNameFilter">
+																	<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="fileNameFilter">
 																</div>
 
 																<br/>

@@ -1,6 +1,7 @@
 angular.module('adminGeoresourcesManagement').component('adminGeoresourcesManagement', {
 	templateUrl : "components/kommonitorAdmin/adminGeoresourcesManagement/admin-georesources-management.template.html",
-	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '__env', '$http', function GeoresourcesManagementController(kommonitorDataExchangeService, $scope, $rootScope, __env, $http) {
+	controller : ['kommonitorDataExchangeService', '$scope', '$timeout', '$rootScope', '__env', '$http', 
+	function GeoresourcesManagementController(kommonitorDataExchangeService, $scope, $timeout, $rootScope, __env, $http) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 		// initialize any adminLTE box widgets
@@ -15,7 +16,17 @@ angular.module('adminGeoresourcesManagement').component('adminGeoresourcesManage
 
 		$scope.$on("initialMetadataLoadingCompleted", function (event) {
 
-			$scope.initializeOrRefreshOverviewTable();
+			$timeout(function(){
+				
+				$scope.initializeOrRefreshOverviewTable();
+			}, 250);
+			
+
+		});
+
+		$scope.$on("initialMetadataLoadingFailed", function (event, errorArray) {
+
+			$scope.loadingData = false;
 
 		});
 

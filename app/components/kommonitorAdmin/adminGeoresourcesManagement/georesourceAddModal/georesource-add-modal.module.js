@@ -1,1 +1,1 @@
-angular.module('georesourceAddModal', []);
+angular.module('georesourceAddModal', ['kommonitorImporterHelper']);

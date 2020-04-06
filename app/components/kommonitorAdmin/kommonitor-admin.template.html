@@ -137,12 +137,34 @@
 
 
       <!-- Modal -->
+      <indicator-add-modal></indicator-add-modal>
+
+      <!-- Modal -->
+      <indicator-edit-features-modal></indicator-edit-features-modal>
+
+      <!-- Modal -->
+      <indicator-edit-metadata-modal></indicator-edit-metadata-modal>
+
+      <!-- Modal -->
+      <indicator-delete-modal></indicator-delete-modal>
+
+
+      <!-- Modal -->
       <topic-edit-modal></topic-edit-modal>
 
       <!-- Modal -->
       <topic-delete-modal></topic-delete-modal>
 
-
+      <div style="position: absolute; left: 12%; top: 200px; width: 75%;" hidden
+				class="alert alert-danger alert-dismissable mapApplicationErrorAlert">
+				<button type="button" class="close" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.hideErrorAlert()"
+					aria-hidden="true">&times;</button>
+				<h4><i class="icon fa fa-ban"></i>Achtung</h4>
+				Es ist ein Fehler bei der Datenverarbeitung aufgetreten. Die Fehlermeldung lautet:
+				<br />
+				<pre ng-bind-html="$ctrl.kommonitorDataExchangeServiceInstance.errorMessage"></pre>
+	    </div>
+      
     </div>
   </div>
   <!-- /.content-wrapper -->

@@ -33,6 +33,7 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 		"poiMarkerColor": "white",
 		"isPOI": false,
 		"loiColor": "loiColor",
+		"loiWidth": "loiWidth",
 		"aoiColor": "aoiColor"
 		}
 		*/
@@ -63,6 +64,7 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 			"loiDashArrayString": "dash array string value - e.g. 20 20",
 			"poiMarkerColor": "'white'|'red'|'orange'|'beige'|'green'|'blue'|'purple'|'pink'|'gray'|'black'",
 			"loiColor": "color for lines of interest dataset",
+			"loiWidth": "width for lines of interest dataset",
 			"aoiColor": "color for area of interest dataset"
 		};
 
@@ -86,6 +88,11 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 		$scope.metadata.lastUpdate = undefined;
 		$scope.metadata.description = undefined;
 
+		$scope.georesourceTopic_mainTopic = undefined;
+		$scope.georesourceTopic_subTopic = undefined;
+		$scope.georesourceTopic_subsubTopic = undefined;
+		$scope.georesourceTopic_subsubsubTopic = undefined;
+
 		$scope.georesourceType = "poi";
 		$scope.isPOI = true;
 		$scope.isLOI = false;
@@ -94,6 +101,7 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 		$scope.selectedPoiSymbolColor = kommonitorDataExchangeService.availablePoiMarkerColors[1];
 		$scope.selectedLoiDashArrayObject = kommonitorDataExchangeService.availableLoiDashArrayObjects[0];
 		$scope.loiColor = "#bf3d2c";
+		$scope.loiWidth = 3;
 		$scope.aoiColor = "#bf3d2c";
 		$scope.selectedPoiIconName = "home";
 
@@ -123,7 +131,7 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 		    console.log(e.icon);
 				// split up due to current data management request structure where we expect only the last name of Bootstrap 3.3.7 glyphicon name
 				// i.e. "home" for "glyphicon-home"
-				$scope.selectedPoiIconName = e.icon.split("-")[1];
+				$scope.selectedPoiIconName = e.icon.substring(e.icon.indexOf('-')+1);
 				console.log($scope.selectedPoiIconName);
 		});
 
@@ -204,11 +212,32 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 			kommonitorDataExchangeService.availableLoiDashArrayObjects.forEach(function(option){
 				if(option.dashArrayValue === $scope.currentGeoresourceDataset.loiDashArrayString){
 					$scope.selectedLoiDashArrayObject = option;
+
+					$scope.onChangeLoiDashArray($scope.selectedLoiDashArrayObject);
 				}
 			});
 			$scope.loiColor = $scope.currentGeoresourceDataset.loiColor;
+			$scope.loiWidth = $scope.currentGeoresourceDataset.loiWidth || 3;
 			$scope.aoiColor = $scope.currentGeoresourceDataset.aoiColor;
+			$('#loiColorEditPicker').colorpicker('setValue', $scope.loiColor);
+			$('#aoiColorEditPicker').colorpicker('setValue', $scope.aoiColor);
+
 			$scope.selectedPoiIconName = $scope.currentGeoresourceDataset.poiSymbolBootstrap3Name;
+
+			var topicHierarchy = kommonitorDataExchangeService.getTopicHierarchyForTopicId($scope.currentGeoresourceDataset.topicReference);
+
+				if(topicHierarchy && topicHierarchy[0]){
+					$scope.georesourceTopic_mainTopic = topicHierarchy[0];
+				}
+				if(topicHierarchy && topicHierarchy[1]){
+					$scope.georesourceTopic_subTopic = topicHierarchy[1];
+				}
+				if(topicHierarchy && topicHierarchy[2]){
+					$scope.georesourceTopic_subsubTopic = topicHierarchy[2];
+				}
+				if(topicHierarchy && topicHierarchy[3]){
+					$scope.georesourceTopic_subsubsubTopic = topicHierarchy[3];
+				}
 
 			setTimeout(function(){
 				$("#poiSymbolEditPicker").val("").iconpicker('setIcon', 'glyphicon-' + $scope.currentGeoresourceDataset.poiSymbolBootstrap3Name);
@@ -220,6 +249,10 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 			$scope.errorMessagePart = undefined;
 			$("#georesourceEditMetadataSuccessAlert").hide();
 			$("#georesourceEditMetadataErrorAlert").hide();
+
+			setTimeout(() => {
+				$scope.$apply();	
+			}, 250);
 		};
 
 		$scope.checkDatasetName = function(){
@@ -262,6 +295,7 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 
 				patchBody["loiDashArrayString"] = null;
 				patchBody["loiColor"] = null;
+				patchBody["loiWidth"] = null;
 
 				patchBody["aoiColor"] = null;
 			}
@@ -272,6 +306,7 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 
 				patchBody["loiDashArrayString"] = $scope.selectedLoiDashArrayObject.dashArrayValue;
 				patchBody["loiColor"] = $scope.loiColor;
+				patchBody["loiWidth"] = $scope.loiWidth;
 
 				patchBody["aoiColor"] = null;
 			}
@@ -282,8 +317,26 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 
 				patchBody["loiDashArrayString"] = null;
 				patchBody["loiColor"] = null;
+				patchBody["loiWidth"] = null;
 
 				patchBody["aoiColor"] = $scope.aoiColor;
+			}
+
+			// TOPIC REFERENCE
+			if($scope.georesourceTopic_subsubsubTopic){
+				patchBody.topicReference = $scope.georesourceTopic_subsubsubTopic.topicId;
+			}
+			else if($scope.georesourceTopic_subsubTopic){
+				patchBody.topicReference = $scope.georesourceTopic_subsubTopic.topicId;
+			}
+			else if($scope.georesourceTopic_subTopic){
+				patchBody.topicReference = $scope.georesourceTopic_subTopic.topicId;
+			}
+			else if($scope.georesourceTopic_mainTopic){
+				patchBody.topicReference = $scope.georesourceTopic_mainTopic.topicId;
+			}
+			else {
+				patchBody.topicReference = "";
 			}
 
 			// TODO verify input
@@ -309,8 +362,13 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 					$("#georesourceEditMetadataSuccessAlert").show();
 					$scope.loadingData = false;
 
-				}, function errorCallback(response) {
-					$scope.errorMessagePart = response;
+				}, function errorCallback(error) {
+					if(error.data){							
+						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+					}
+					else{
+						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
+					}
 
 					$("#georesourceEditMetadataErrorAlert").show();
 					$scope.loadingData = false;
@@ -354,6 +412,8 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 					$scope.georesourceMetadataImportError = "Uploaded Metadata File cannot be parsed correctly";
 					document.getElementById("georesourcesEditMetadataPre").innerHTML = $scope.georesourceMetadataStructure_pretty;
 					$("#georesourceEditMetadataImportErrorAlert").show();
+
+					$scope.$apply();
 				}
 
 			};
@@ -371,6 +431,8 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 				$scope.georesourceMetadataImportError = "Struktur der Datei stimmt nicht mit erwartetem Muster &uuml;berein.";
 				document.getElementById("georesourcesEditMetadataPre").innerHTML = $scope.georesourceMetadataStructure_pretty;
 				$("#georesourceEditMetadataImportErrorAlert").show();
+
+				$scope.$apply();
 			}
 
 				$scope.metadata = {};
@@ -418,11 +480,32 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 				kommonitorDataExchangeService.availableLoiDashArrayObjects.forEach(function(option){
 					if(option.dashArrayValue === $scope.metadataImportSettings.loiDashArrayString){
 						$scope.selectedLoiDashArrayObject = option;
+						$scope.onChangeLoiDashArray($scope.selectedLoiDashArrayObject);
 					}
 				});
 				$scope.loiColor = $scope.metadataImportSettings.loiColor;
+				$scope.loiWidth = $scope.metadataImportSettings.loiWidth;
 				$scope.aoiColor = $scope.metadataImportSettings.aoiColor;
+
+				$('#loiColorEditPicker').colorpicker('setValue', $scope.loiColor);
+				$('#aoiColorEditPicker').colorpicker('setValue', $scope.aoiColor);
+
 				$scope.selectedPoiIconName = $scope.metadataImportSettings.poiSymbolBootstrap3Name;
+
+				var topicHierarchy = kommonitorDataExchangeService.getTopicHierarchyForTopicId($scope.metadataImportSettings.topicReference);
+
+				if(topicHierarchy && topicHierarchy[0]){
+					$scope.georesourceTopic_mainTopic = topicHierarchy[0];
+				}
+				if(topicHierarchy && topicHierarchy[1]){
+					$scope.georesourceTopic_subTopic = topicHierarchy[1];
+				}
+				if(topicHierarchy && topicHierarchy[2]){
+					$scope.georesourceTopic_subsubTopic = topicHierarchy[2];
+				}
+				if(topicHierarchy && topicHierarchy[3]){
+					$scope.georesourceTopic_subsubsubTopic = topicHierarchy[3];
+				}
 
 				setTimeout(function(){
 					$("#poiSymbolEditPicker").val("").iconpicker('setIcon', 'glyphicon-' + $scope.metadataImportSettings.poiSymbolBootstrap3Name);
@@ -432,6 +515,26 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 
 				$scope.$apply();
 		}
+
+		$scope.onExportGeoresourceEditMetadataTemplate = function(){
+
+			var metadataJSON = JSON.stringify($scope.georesourceMetadataStructure);
+
+			var fileName = "Georessource_Metadaten_Vorlage_Export.json";
+
+			var blob = new Blob([metadataJSON], {type: "application/json"});
+			var data  = URL.createObjectURL(blob);
+
+			var a = document.createElement('a');
+			a.download    = fileName;
+			a.href        = data;
+			a.textContent = "JSON";
+			a.target = "_blank";
+			a.rel = "noopener noreferrer";
+			a.click();
+
+			a.remove();
+		};
 
 		$scope.onExportGeoresourceEditMetadata = function(){
 			var metadataExport = $scope.georesourceMetadataStructure;
@@ -464,6 +567,7 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 
 				metadataExport["loiDashArrayString"] = "";
 				metadataExport["loiColor"] = "";
+				metadataExport["loiWidth"] = "";
 
 				metadataExport["aoiColor"] = "";
 			}
@@ -474,6 +578,7 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 
 				metadataExport["loiDashArrayString"] = $scope.selectedLoiDashArrayObject.dashArrayValue;
 				metadataExport["loiColor"] = $scope.loiColor;
+				metadataExport["loiWidth"] = $scope.loiWidth;
 
 				metadataExport["aoiColor"] = "";
 			}
@@ -484,8 +589,25 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 
 				metadataExport["loiDashArrayString"] = "";
 				metadataExport["loiColor"] = "";
+				metadataExport["loiWidth"] = "";
 
 				metadataExport["aoiColor"] = $scope.aoiColor;
+			}
+
+			if($scope.georesourceTopic_subsubsubTopic){
+				metadataExport.topicReference = $scope.georesourceTopic_subsubsubTopic.topicId;
+			}
+			else if($scope.georesourceTopic_subsubTopic){
+				metadataExport.topicReference = $scope.georesourceTopic_subsubTopic.topicId;
+			}
+			else if($scope.georesourceTopic_subTopic){
+				metadataExport.topicReference = $scope.georesourceTopic_subTopic.topicId;
+			}
+			else if($scope.georesourceTopic_mainTopic){
+				metadataExport.topicReference = $scope.georesourceTopic_mainTopic.topicId;
+			}
+			else {
+				metadataExport.topicReference = "";
 			}
 
 
@@ -523,8 +645,7 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 
 		$scope.onChangeLoiDashArray = function(loiDashArrayObject){
 			$scope.selectedLoiDashArrayObject = loiDashArrayObject;
-
-			$("#loiDashArrayDropdownButton").html(loiDashArrayObject.svgString);
+			$("#loiDashArrayEditDropdownButton").html(loiDashArrayObject.svgString);
 		};
 
 			$scope.hideSuccessAlert = function(){
@@ -534,6 +655,97 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 			$scope.hideErrorAlert = function(){
 				$("#georesourceEditMetadataErrorAlert").hide();
 			};
+
+			/*
+			MULTI STEP FORM STUFF
+			*/
+			//jQuery time
+			$scope.current_fs; 
+			$scope.next_fs; 
+			$scope.previous_fs; //fieldsets
+			$scope.opacity; 
+			$scope.scale; //fieldset properties which we will animate
+			$scope.animating; //flag to prevent quick multi-click glitches
+
+			$(".next_editGeoresourceMetadata").click(function(){
+				if($scope.animating) return false;
+				$scope.animating = true;
+				
+				$scope.current_fs = $(this).parent();
+				$scope.next_fs = $(this).parent().next();
+				
+				//activate next step on progressbar using the index of $scope.next_fs
+				$("#progressbar li").eq($("fieldset").index($scope.next_fs)).addClass("active");
+				
+				//show the next fieldset
+				$scope.next_fs.show(); 
+				//hide the current fieldset with style
+				$scope.current_fs.animate({opacity: 0}, {
+					step: function(now, mx) {
+						//as the $scope.opacity of current_fs reduces to 0 - stored in "now"
+						//1. $scope.scale current_fs down to 80%
+						$scope.scale = 1 - (1 - now) * 0.2;
+						//2. bring $scope.next_fs from the right(50%)
+						// left = (now * 50)+"%";
+						//3. increase $scope.opacity of $scope.next_fs to 1 as it moves in
+						$scope.opacity = 1 - now;
+						$scope.current_fs.css({
+							'position': 'absolute'
+						});
+						// $scope.next_fs.css({'left': left, '$scope.opacity': $scope.opacity});
+						$scope.next_fs.css({'opacity': $scope.opacity});
+					}, 
+					duration: 200, 
+					complete: function(){
+						$scope.current_fs.hide();
+						$scope.animating = false;
+					}, 
+					//this comes from the custom easing plugin
+					easing: 'easeInOutBack'
+				});
+			});
+
+			$(".previous_editGeoresourceMetadata").click(function(){
+				if($scope.animating) return false;
+				$scope.animating = true;
+				
+				$scope.current_fs = $(this).parent();
+				$scope.previous_fs = $(this).parent().prev();
+				
+				//de-activate current step on progressbar
+				$("#progressbar li").eq($("fieldset").index($scope.current_fs)).removeClass("active");
+				
+				//show the previous fieldset
+				$scope.previous_fs.show(); 
+				//hide the current fieldset with style
+				$scope.current_fs.animate({opacity: 0}, {
+					step: function(now, mx) {
+						//as the $scope.opacity of current_fs reduces to 0 - stored in "now"
+						//1. $scope.scale $scope.previous_fs from 80% to 100%
+						$scope.scale = 0.8 + (1 - now) * 0.2;
+						//2. take current_fs to the right(50%) - from 0%
+						// left = ((1-now) * 50)+"%";
+						//3. increase $scope.opacity of $scope.previous_fs to 1 as it moves in
+						$scope.opacity = 1 - now;
+						// current_fs.css({'left': left});
+						// $scope.previous_fs.css({'transform': '$scope.scale('+$scope.scale+')', '$scope.opacity': $scope.opacity});
+						$scope.previous_fs.css({
+							'position': 'absolute'
+						});
+						$scope.previous_fs.css({'opacity': $scope.opacity});
+					}, 
+					duration: 200, 
+					complete: function(){
+						$scope.current_fs.hide();
+						$scope.previous_fs.css({
+							'position': 'relative'
+						});
+						$scope.animating = false;
+					}, 
+					//this comes from the custom easing plugin
+					easing: 'easeInOutBack'
+				});
+			});
 
 	}
 ]});

@@ -1,0 +1,4 @@
+.dualmultiselect label{margin:10px}.dualmultiselect .btn{margin:10px}.dualmultiselect .list{border:1px solid #999;border-radius:4px;padding:10px;margin:5px;height:150px;overflow-y:scroll}
+.dualmultiselect .list ul{list-style:none;padding-left:0}.dualmultiselect .list ul li{width:100%;padding:4px 8px 4px 4px;border-bottom:1px dotted #cfcfcf}
+.dualmultiselect .list ul li a:hover{text-decoration:none}.dualmultiselect .xs{height:150px}
+.dualmultiselect .sm{height:225px}.dualmultiselect .md{height:300px}.dualmultiselect .lg{height:450px}

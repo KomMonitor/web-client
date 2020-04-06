@@ -224,14 +224,6 @@ angular.module('kommonitorMap').component(
           value: "quantile"
         }];
 
-        // updateInterval (from kommonitor data management api) = ['ARBITRARY', 'MONTHLY', 'QUARTERLY', 'HALF_YEARLY', 'YEARLY']
-        $scope.updateInterval = new Map();
-        $scope.updateInterval.set("ARBITRARY", "beliebig");
-        $scope.updateInterval.set("YEARLY", "jährlich");
-        $scope.updateInterval.set("HALF_YEARLY", "halbjährig");
-        $scope.updateInterval.set("MONTHLY", "monatlich");
-        $scope.updateInterval.set("QUARTERLY", "vierteljährlich");
-
         $scope.classifyMethod = __env.defaultClassifyMethod || "jenks";
 
         $scope.filteredStyle = kommonitorVisualStyleHelperService.filteredStyle;
@@ -603,6 +595,8 @@ angular.module('kommonitorMap').component(
             console.log("Error while exporting map view.");
             console.error(error);
 
+            kommonitorDataExchangeService.displayMapApplicationError(error);
+
             $(".leaflet-left").css("display", "");
           }
 
@@ -617,6 +611,7 @@ angular.module('kommonitorMap').component(
                 $scope.searchControl = undefined;
               }
               catch (error) {
+                kommonitorDataExchangeService.displayMapApplicationError(error);
               }
             }
 
@@ -856,36 +851,6 @@ angular.module('kommonitorMap').component(
         //   return innerHTMLString;
         // };
 
-        function dateToTS(date) {
-          return date.valueOf();
-        }
-
-        function tsToDate(ts) {
-          var date = new Date(ts);
-
-          return date.toLocaleDateString("de-DE", {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-          });
-        }
-
-        function tsToDate_fullYear(ts) {
-          var date = new Date(ts);
-
-          /**
-          * TODO FIXME dateSLider formatter will return only year for now to prevent misleading month and day settings
-          */
-
-          return date.getFullYear();
-
-          // return date.toLocaleDateString("de-DE", {
-          // 		year: 'numeric',
-          // 		month: 'long',
-          // 		day: 'numeric'
-          // });
-        }
-
         var toggleInfoControl = function () {
           if ($scope.showInfoControl === true) {
             /* use jquery to select your DOM elements that has the class 'legend' */
@@ -1043,262 +1008,8 @@ angular.module('kommonitorMap').component(
         $(document).on('click', '#downloadMetadata', function (e) {
           // create PDF from currently selected/displayed indicator!
           var indicatorMetadata = kommonitorDataExchangeService.selectedIndicator;
-
-          var jspdf = new jsPDF();
-          jspdf.setFontSize(16);
-          // jspdf.text("Metadatenblatt", 70, 6);
-
-          //insert logo
-          var img = new Image();
-          img.src = '/logos/KM_Logo1.png';
-          jspdf.addImage(img, 'PNG', 193, 5, 12, 12);
-
-          jspdf.setFontSize(16);
-          jspdf.setFontStyle('bolditalic');
-          var titleArray = jspdf.splitTextToSize(indicatorMetadata.indicatorName, 180);
-          jspdf.text(titleArray, 14, 25);
-
-          if (indicatorMetadata.characteristicValue && indicatorMetadata.characteristicValue != "-" && indicatorMetadata.characteristicValue != "") {
-            jspdf.setFontSize(14);
-            jspdf.text(indicatorMetadata.characteristicValue, 14, 25);
-          }
-
-
-          jspdf.setFontSize(11);
-
-          var initialStartY = 30;
-
-          if (titleArray.length > 1) {
-            titleArray.forEach(function (item) {
-              initialStartY += 5;
-            });
-          }
-          if (indicatorMetadata.characteristicValue && indicatorMetadata.characteristicValue != "-" && indicatorMetadata.characteristicValue != "") {
-            initialStartY += 5;
-          }
-
-          var headStyles = {
-            fontStyle: 'bold',
-            fontSize: 12,
-            fillColor: '#337ab7',
-            // auto or wrap
-            cellWidth: 'auto'
-          };
-
-          var bodyStyles = {
-            fontStyle: 'normal',
-            fontSize: 11,
-            // auto or wrap or number
-            cellWidth: 'auto'
-          };
-
-          // first column with fixed width
-          var columnStyles = {
-            0: { cellWidth: 45, fontStyle: 'bold' },
-            1: { fontStyle: 'normal' }
-          };
-
-          var topicsString = "";
-
-          var topicReferenceId = indicatorMetadata.topicReference;
-
-          // will be an array representing the topic hierarchy
-          // i.e. [mainTopic, subTopicFirstTier, subTopicSecondTier, ...]
-          var topicHierarchyArray = kommonitorDataExchangeService.getTopicHierarchyForTopicId(topicReferenceId);
-
-          for (let index = 0; index < topicHierarchyArray.length; index++) {
-            if (index === 0) {
-              // mainTopic --> first tier
-              topicsString += topicHierarchyArray[index].topicName;
-            }
-            else {
-              var numberOfWhitespaces = 2 * index;
-              var whitespaceString = "";
-              for (let k = 0; k < numberOfWhitespaces; k++) {
-                whitespaceString += " ";
-              }
-              topicsString += whitespaceString + topicHierarchyArray[index].topicName;
-            }
-
-            if (index < topicHierarchyArray.length - 1) {
-              topicsString += "\n";
-            }
-
-          }
-
-          var category = "Subindikator";
-          if (indicatorMetadata.isHeadingIndicator) {
-            category = "Leitindikator";
-          }
-
-          // Or JavaScript:
-          jspdf.autoTable({
-            head: [['Themenfeld', 'Kategorie', 'Typ', 'Kennzeichen']],
-            body: [
-              [topicsString, category, $scope.getIndicatorStringFromIndicatorType(), indicatorMetadata.abbreviation ? indicatorMetadata.abbreviation : "-"]
-              // ...
-            ],
-            theme: 'grid',
-            headStyles: headStyles,
-            bodyStyles: bodyStyles,
-            startY: initialStartY
-          });
-
-          var linkedIndicatorsString = "";
-
-          for (var [index, linkedIndicator] of indicatorMetadata.referencedIndicators.entries()) {
-            linkedIndicatorsString += linkedIndicator.referencedIndicatorName + " - \n   " + linkedIndicator.referencedIndicatorDescription;
-
-            if (index < indicatorMetadata.referencedIndicators.length - 1) {
-              linkedIndicatorsString += "\n\n";
-            }
-          }
-
-          if (linkedIndicatorsString === "") {
-            linkedIndicatorsString = "-";
-          }
-
-          var linkedGeoresourcesString = "";
-
-          for (var [k, linkedGeoresource] of indicatorMetadata.referencedGeoresources.entries()) {
-            linkedGeoresourcesString += linkedGeoresource.referencedGeoresourceName + " - \n   " + linkedGeoresource.referencedGeoresourceDescription;
-
-            if (k < indicatorMetadata.referencedGeoresources.length - 1) {
-              linkedGeoresourcesString += "\n\n";
-            }
-          }
-
-          if (linkedGeoresourcesString === "") {
-            linkedGeoresourcesString = "-";
-          }
-
-          // jspdf.autoTable({
-          //     head: [],
-          //     body: [
-          //         ["Beschreibung", indicatorMetadata.metadata.description],
-          //         ["Maßeinheit", indicatorMetadata.unit],
-          //         ["Definition des Leitindikators", "-"],
-          //         ["Klassifizierung", "-"],
-          //         ["Interpretation", "-"],
-          //         ["Verknüpfte Indikatoren", linkedIndicatorsString],
-          //         ["Verknüpfte Geodaten", linkedGeoresourcesString]
-          //         // ...
-          //     ],
-          //     startY: jspdf.autoTable.previous.finalY + 20,
-          // });
-
-          var spatialUnitsString = "";
-          var processedSpatialUnits = 0;
-
-          for (var availableSpatialUnit of kommonitorDataExchangeService.availableSpatialUnits) {
-
-            for (var applicableSpatialUnit of indicatorMetadata.applicableSpatialUnits) {
-
-              if (availableSpatialUnit.spatialUnitLevel === applicableSpatialUnit) {
-                spatialUnitsString += applicableSpatialUnit;
-                processedSpatialUnits++;
-
-                if (processedSpatialUnits < indicatorMetadata.applicableSpatialUnits.length) {
-                  spatialUnitsString += "\n";
-                }
-              }
-
-            }
-          }
-
-          var datesString = "";
-
-          for (var [j, date] of indicatorMetadata.applicableDates.entries()) {
-
-            var dateComponents = date.split("-");
-            var asDate = new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]));
-
-            datesString += tsToDate_fullYear(dateToTS(asDate));
-
-            if (j < indicatorMetadata.applicableDates.length - 1) {
-              datesString += "\n";
-            }
-          }
-
-          jspdf.autoTable({
-            head: [],
-            body: [
-              ["Beschreibung", indicatorMetadata.metadata.description],
-              ["Maßeinheit", indicatorMetadata.unit],
-              ["Methodik", indicatorMetadata.processDescription ? indicatorMetadata.processDescription : "-"],
-              // ["Klassifizierung", "-"],
-              ["Interpretation", indicatorMetadata.interpretation ? indicatorMetadata.interpretation : "-"],
-              ["Tags", indicatorMetadata.tags ? JSON.stringify(indicatorMetadata.tags) : "-"],
-              ["Verknüpfte Indikatoren", linkedIndicatorsString],
-              ["Verknüpfte Geodaten", linkedGeoresourcesString]
-            ],
-            theme: 'grid',
-            headStyles: headStyles,
-            bodyStyles: bodyStyles,
-            columnStyles: columnStyles,
-            startY: jspdf.autoTable.previous.finalY + 10
-          });
-
-          // // linked elements
-          // jspdf.autoTable({
-          //     head: [],
-          //     body: [
-          //         ["Verknüpfte Indikatoren", linkedIndicatorsString],
-          //         ["Verknüpfte Geodaten", linkedGeoresourcesString]
-          //     ],
-          //     theme: 'grid',
-          //     headStyles: headStyles,
-          //     bodyStyles: bodyStyles,
-          //     columnStyles: columnStyles,
-          //     startY: jspdf.autoTable.previous.finalY + 10
-          // });
-
-          // linked elements
-          jspdf.autoTable({
-            head: [],
-            body: [
-              ["Datengrundlage", indicatorMetadata.metadata.databasis ? indicatorMetadata.metadata.databasis : "-"],
-              ["Datenquelle", indicatorMetadata.metadata.datasource ? indicatorMetadata.metadata.datasource : "-"],
-              ["Datenhalter und Kontakt", indicatorMetadata.metadata.contact ? indicatorMetadata.metadata.contact : "-"],
-              ["Bemerkung", indicatorMetadata.metadata.note ? indicatorMetadata.metadata.note : "-"],
-              ["Raumbezug", spatialUnitsString],
-              // $scope.updateInteval is a map mapping the english KEYs to german expressions
-              ["Zeitbezug / Fortführungsintervall", $scope.updateInterval.get(indicatorMetadata.metadata.updateInterval.toUpperCase())],
-              ["Verfügbare Zeitreihen", datesString],
-              ["Datum der letzten Aktualisierung", indicatorMetadata.metadata.lastUpdate],
-              ["Quellen / Literatur", indicatorMetadata.metadata.literature ? indicatorMetadata.metadata.literature : "-"]
-            ],
-            theme: 'grid',
-            headStyles: headStyles,
-            bodyStyles: bodyStyles,
-            columnStyles: columnStyles,
-            startY: jspdf.autoTable.previous.finalY + 10
-          });
-
-          //
-          // jspdf.autoTable({
-          //     head: [],
-          //     body: [
-          //         ["Quellen / Literatur", indicatorMetadata.metadata.literature ? indicatorMetadata.metadata.literature : "-"]
-          //         // ...
-          //     ],
-          //     theme: 'grid',
-          //     headStyles: headStyles,
-          //     bodyStyles: bodyStyles,
-          //     columnStyles: columnStyles,
-          //     startY: jspdf.autoTable.previous.finalY + 10
-          // });
-
+          var jspdf = kommonitorDataExchangeService.createMetadataPDF(indicatorMetadata);
           var pdfName = indicatorMetadata.indicatorName + ".pdf";
-
-          jspdf.setProperties({
-            title: 'KomMonitor Indikatorenblatt',
-            subject: pdfName,
-            author: 'KomMonitor',
-            keywords: 'Indikator, Metadatenblatt',
-            creator: 'KomMonitor'
-          });
-
           jspdf.save(pdfName);
         });
 
@@ -1317,6 +1028,7 @@ angular.module('kommonitorMap').component(
               toggleInfoControl();
             }
             catch (error) {
+              kommonitorDataExchangeService.displayMapApplicationError(error);
             }
           }
 
@@ -1326,6 +1038,7 @@ angular.module('kommonitorMap').component(
               $scope.infoControl = undefined;
             }
             catch (error) {
+              kommonitorDataExchangeService.displayMapApplicationError(error);
             }
           }
 
@@ -1353,7 +1066,7 @@ angular.module('kommonitorMap').component(
             this._div.innerHTML += '<b>Methodik: </b> ' + $scope.currentIndicatorMetadataAndGeoJSON.processDescription + '<br/>';
             this._div.innerHTML += '<b>Datenquelle: </b> ' + $scope.currentIndicatorMetadataAndGeoJSON.metadata.datasource + '<br/>';
             this._div.innerHTML += '<b>Kontakt: </b> ' + $scope.currentIndicatorMetadataAndGeoJSON.metadata.contact + '<br/>';
-            // this._div.innerHTML += '<b>Aktualisierungszyklus: </b> ' + $scope.updateInterval.get($scope.currentIndicatorMetadataAndGeoJSON.metadata.updateInterval.toUpperCase()) + '<br/>';
+            // this._div.innerHTML += '<b>Aktualisierungszyklus: </b> ' + kommonitorDataExchangeService.updateInterval.get($scope.currentIndicatorMetadataAndGeoJSON.metadata.updateInterval.toUpperCase()) + '<br/>';
             // this._div.innerHTML += '<b>zuletzt aktualisiert am: </b> ' + tsToDate(dateToTS(lastUpdateAsDate)) + '<br/><br/>';
             this._div.innerHTML += $scope.appendSpatialUnitOptions();
             // this._div.innerHTML += $scope.appendTransparencyCheckbox();
@@ -1430,6 +1143,7 @@ angular.module('kommonitorMap').component(
               toggleInfoControl();
             }
             catch (error) {
+              kommonitorDataExchangeService.displayMapApplicationError(error);
             }
           }
 
@@ -1439,6 +1153,7 @@ angular.module('kommonitorMap').component(
               $scope.infoControl = undefined;
             }
             catch (error) {
+              kommonitorDataExchangeService.displayMapApplicationError(error);
             }
           }
 
@@ -1656,30 +1371,6 @@ angular.module('kommonitorMap').component(
           });
         };
 
-        $scope.getIndicatorStringFromIndicatorType = function () {
-          var indicatorTypeString;
-          if ($scope.currentIndicatorMetadataAndGeoJSON.indicatorType.includes("DYNAMIC_ABSOLUTE")) {
-            indicatorTypeString = "Dynamik-Indikator (absolute)";
-          }
-          else if ($scope.currentIndicatorMetadataAndGeoJSON.indicatorType.includes("DYNAMIC_RELATIVE")) {
-            indicatorTypeString = "Dynamik-Indikator (relativ)";
-          }
-          else if ($scope.currentIndicatorMetadataAndGeoJSON.indicatorType.includes("DYNAMIC_STANDARDIZED")) {
-            indicatorTypeString = "Dynamik-Indikator (standardisiert)";
-          }
-          else if ($scope.currentIndicatorMetadataAndGeoJSON.indicatorType.includes("STATUS_ABSOLUTE")) {
-            indicatorTypeString = "Status-Indikator (absolut)";
-          }
-          else if ($scope.currentIndicatorMetadataAndGeoJSON.indicatorType.includes("STATUS_RELATIVE")) {
-            indicatorTypeString = "Status-Indikator (relativ)";
-          }
-          else if ($scope.currentIndicatorMetadataAndGeoJSON.indicatorType.includes("STATUS_STANDARDIZED")) {
-            indicatorTypeString = "Status-Indikator (standardisiert)";
-          }
-
-          return indicatorTypeString;
-        };
-
         $scope.makeDefaultLegend = function (defaultClassificationMapping, containsNegativeValues) {
 
           if (!$scope.showLegendControl) {
@@ -1687,6 +1378,7 @@ angular.module('kommonitorMap').component(
               toggleLegendControl();
             }
             catch (error) {
+              kommonitorDataExchangeService.displayMapApplicationError(error);
             }
           }
 
@@ -1696,6 +1388,7 @@ angular.module('kommonitorMap').component(
               $scope.legendControl = undefined;
             }
             catch (error) {
+              kommonitorDataExchangeService.displayMapApplicationError(error);
             }
           }
 
@@ -1726,7 +1419,7 @@ angular.module('kommonitorMap').component(
             //         labels[i] + (labels[i + 1] ? ' &ndash; &lt; ' + labels[i + 1] + '<br>' : '+');
             // }
 
-            $scope.div.innerHTML += "<h4><b>Indikatorenlegende</b><br/>" + $scope.getIndicatorStringFromIndicatorType() + "</h4><br/><em>Darstellung der Indikatorenwerte zum gew&auml;hlten Zeitpunkt " + tsToDate_fullYear(dateToTS(dateAsDate)) + "</em><br/><br/>";
+            $scope.div.innerHTML += "<h4><b>Indikatorenlegende</b><br/>" + kommonitorDataExchangeService.getIndicatorStringFromIndicatorType($scope.currentIndicatorMetadataAndGeoJSON.indicatorType) + "</h4><br/><em>Darstellung der Indikatorenwerte zum gew&auml;hlten Zeitpunkt " + kommonitorDataExchangeService.tsToDate_fullYear(kommonitorDataExchangeService.dateToTS(dateAsDate)) + "</em><br/><br/>";
 
             $scope.div.innerHTML += $scope.appendClassifyRadioOptions();
 
@@ -1857,6 +1550,7 @@ angular.module('kommonitorMap').component(
               toggleLegendControl();
             }
             catch (error) {
+              kommonitorDataExchangeService.displayMapApplicationError(error);
             }
           }
 
@@ -1866,6 +1560,7 @@ angular.module('kommonitorMap').component(
               $scope.legendControl = undefined;
             }
             catch (error) {
+              kommonitorDataExchangeService.displayMapApplicationError(error);
             }
           }
 
@@ -1885,14 +1580,14 @@ angular.module('kommonitorMap').component(
             $scope.div.innerHTML += '<div>';
 
             if ($scope.currentIndicatorMetadataAndGeoJSON['fromDate']) {
-              $scope.div.innerHTML += "<h4><b>Indikatorenlegende</b><br/>" + $scope.getIndicatorStringFromIndicatorType() + "</h4><br/>";
+              $scope.div.innerHTML += "<h4><b>Indikatorenlegende</b><br/>" + kommonitorDataExchangeService.getIndicatorStringFromIndicatorType($scope.currentIndicatorMetadataAndGeoJSON.indicatorType) + "</h4><br/>";
               $scope.div.innerHTML += "<em>Bilanzierung " + $scope.currentIndicatorMetadataAndGeoJSON['fromDate'] + " - " + $scope.currentIndicatorMetadataAndGeoJSON['toDate'] + "</em><br/><br/>";
             }
             else {
 
               var dateComponents = $scope.date.split("-");
               var dateAsDate = new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]));
-              $scope.div.innerHTML += "<h4><b>Indikatorenlegende</b><br/>" + $scope.getIndicatorStringFromIndicatorType() + "</h4><br/><em>Darstellung der zeitlichen Entwicklung zum gew&auml;hlten Zeitpunkt " + tsToDate_fullYear(dateToTS(dateAsDate)) + "</em><br/><br/>";
+              $scope.div.innerHTML += "<h4><b>Indikatorenlegende</b><br/>" + kommonitorDataExchangeService.getIndicatorStringFromIndicatorType($scope.currentIndicatorMetadataAndGeoJSON.indicatorType) + "</h4><br/><em>Darstellung der zeitlichen Entwicklung zum gew&auml;hlten Zeitpunkt " + kommonitorDataExchangeService.tsToDate_fullYear(kommonitorDataExchangeService.dateToTS(dateAsDate)) + "</em><br/><br/>";
             }
 
             $scope.div.innerHTML += $scope.appendClassifyRadioOptions();
@@ -2001,6 +1696,7 @@ angular.module('kommonitorMap').component(
               toggleLegendControl();
             }
             catch (error) {
+              kommonitorDataExchangeService.displayMapApplicationError(error);
             }
           }
 
@@ -2010,6 +1706,7 @@ angular.module('kommonitorMap').component(
               $scope.legendControl = undefined;
             }
             catch (error) {
+              kommonitorDataExchangeService.displayMapApplicationError(error);
             }
           }
 
@@ -2031,7 +1728,7 @@ angular.module('kommonitorMap').component(
             $scope.div.innerHTML = $scope.appendLegendCloseButton();
             $scope.div.innerHTML += '<div>';
 
-            $scope.div.innerHTML += "<h4><b>Indikatorenlegende</b><br/>" + $scope.getIndicatorStringFromIndicatorType() + "</h4><br/><em>Schwellwert-Klassifizierung<br/>Gew&auml;hlter Zeitpunkt: " + tsToDate_fullYear(dateToTS(dateAsDate)) + "</em><br/>";
+            $scope.div.innerHTML += "<h4><b>Indikatorenlegende</b><br/>" + kommonitorDataExchangeService.getIndicatorStringFromIndicatorType($scope.currentIndicatorMetadataAndGeoJSON.indicatorType) + "</h4><br/><em>Schwellwert-Klassifizierung<br/>Gew&auml;hlter Zeitpunkt: " + kommonitorDataExchangeService.tsToDate_fullYear(kommonitorDataExchangeService.dateToTS(dateAsDate)) + "</em><br/>";
 
             $scope.div.innerHTML += "<em>aktueller Schwellwert: </em> " + kommonitorDataExchangeService.measureOfValue + "<br/><br/>";
 
@@ -2157,10 +1854,18 @@ angular.module('kommonitorMap').component(
           layer.on({
             click: function () {
 
-              var propertiesString = "<pre>" + JSON.stringify(feature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
+              // var propertiesString = "<pre>" + JSON.stringify(feature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
 
-              if (propertiesString)
-                layer.bindPopup(propertiesString);
+              var popupContent = '<div class="spatialUnitInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
+              for (var p in feature.properties) {
+                  popupContent += '<tr><td>' + p + '</td><td>'+ feature.properties[p] + '</td></tr>';
+              }
+              popupContent += '</table></div>';
+
+              layer.bindPopup(popupContent);              
+
+              // if (propertiesString)
+              //   layer.bindPopup(propertiesString);
             }
           });
         }
@@ -2174,10 +1879,18 @@ angular.module('kommonitorMap').component(
           layer.on({
             click: function () {
 
-              var propertiesString = "<pre>" + JSON.stringify(feature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
+              var popupContent = '<div class="georesourceInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
+              for (var p in feature.properties) {
+                  popupContent += '<tr><td>' + p + '</td><td>'+ feature.properties[p] + '</td></tr>';
+              }
+              popupContent += '</table></div>';
 
-              if (propertiesString)
-                layer.bindPopup(propertiesString);
+              layer.bindPopup(popupContent);
+
+              // var propertiesString = "<pre>" + JSON.stringify(feature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
+
+              // if (propertiesString)
+              //   layer.bindPopup(propertiesString);
             }
           });
         }
@@ -2669,6 +2382,50 @@ angular.module('kommonitorMap').component(
           $scope.map.invalidateSize(true);
         });
 
+        var createCustomMarker = function(poiFeature, poiSymbolColor, poiMarkerColor, poiSymbolBootstrap3Name, metadataObject){
+          var customMarker;
+          try {
+            customMarker = L.AwesomeMarkers.icon({
+              icon: poiSymbolBootstrap3Name,
+              iconColor: poiSymbolColor,
+              markerColor: poiMarkerColor
+            });
+          } catch (err) {
+            customMarker = L.AwesomeMarkers.icon({
+              icon: 'home', // default back to home
+              iconColor: poiSymbolColor,
+              markerColor: poiMarkerColor
+            });
+          }
+
+          var newMarker;
+
+          if(poiFeature.geometry.type === "Point"){              
+            // LAT LON order
+            newMarker = L.marker([Number(poiFeature.geometry.coordinates[1]), Number(poiFeature.geometry.coordinates[0])], { icon: customMarker });
+
+            //populate the original geoJSOn feature to the marker layer!
+            newMarker.feature = poiFeature;
+            newMarker.metadataObject = metadataObject;
+          }
+          else if (poiFeature.geometry.type === "MultiPoint"){
+
+            // simply take the first point as feature reference POI
+            // LAT LON order
+            newMarker = L.marker([Number(poiFeature.geometry.coordinates[0][1]), Number(poiFeature.geometry.coordinates[0][0])], { icon: customMarker });
+
+            //populate the original geoJSOn feature to the marker layer!
+            newMarker.feature = poiFeature;
+            newMarker.metadataObject = metadataObject;
+          }
+          else{
+            console.error("NO POI object: instead got feature of type " + poiFeature.geometry.type);
+          }
+          
+          return newMarker;
+
+        };
+
         $scope.$on("addPoiGeoresourceAsGeoJSON", function (event, georesourceMetadataAndGeoJSON, date, useCluster) {
 
           // use leaflet.markercluster to cluster markers!
@@ -2696,48 +2453,15 @@ angular.module('kommonitorMap').component(
           }
           else {
             markers = L.layerGroup();
-          }
-          var customMarker;
-          try {
-            customMarker = L.AwesomeMarkers.icon({
-              icon: georesourceMetadataAndGeoJSON.poiSymbolBootstrap3Name,
-              iconColor: georesourceMetadataAndGeoJSON.poiSymbolColor,
-              markerColor: georesourceMetadataAndGeoJSON.poiMarkerColor
-            });
-          } catch (err) {
-            customMarker = L.AwesomeMarkers.icon({
-              icon: 'home', // default back to home
-              iconColor: georesourceMetadataAndGeoJSON.poiSymbolColor,
-              markerColor: georesourceMetadataAndGeoJSON.poiMarkerColor
-            });
-          }
+          }          
 
           georesourceMetadataAndGeoJSON.geoJSON.features.forEach(function (poiFeature) {
             // index 0 should be longitude and index 1 should be latitude
             //.bindPopup( poiFeature.properties.name )
-            var newMarker = L.marker([Number(poiFeature.geometry.coordinates[1]), Number(poiFeature.geometry.coordinates[0])], { icon: customMarker });
-
-            //populate the original geoJSOn feature to the marker layer!
-            newMarker.feature = poiFeature;
-            newMarker.metadataObject = georesourceMetadataAndGeoJSON;
-
-            var propertiesString = "<pre>" + JSON.stringify(poiFeature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
-
-            if (poiFeature.properties.name) {
-              newMarker.bindPopup(poiFeature.properties.name + "\n\n" + propertiesString);
-            }
-            else if (poiFeature.properties.NAME) {
-              newMarker.bindPopup(poiFeature.properties.NAME + "\n\n" + propertiesString);
-            }
-            else if (poiFeature.properties[__env.FEATURE_NAME_PROPERTY_NAME]) {
-              newMarker.bindPopup(poiFeature.properties[__env.FEATURE_NAME_PROPERTY_NAME] + "\n\n" + propertiesString);
-            }
-            else {
-              newMarker.bindPopup(propertiesString);
-            }
-            markers.addLayer(newMarker);
+            var newMarker = createCustomMarker(poiFeature, georesourceMetadataAndGeoJSON.poiSymbolColor, georesourceMetadataAndGeoJSON.poiMarkerColor, georesourceMetadataAndGeoJSON.poiSymbolBootstrap3Name, georesourceMetadataAndGeoJSON);            
+            
+            markers = addPoiMarker(markers, newMarker);
           });
-
 
           // markers.StyledLayerControl = {
           //   removable : false,
@@ -2750,6 +2474,34 @@ angular.module('kommonitorMap').component(
           // $scope.map.addLayer( markers );
           $scope.map.invalidateSize(true);
         });
+
+        var addPoiMarker = function(markers, poiMarker){
+            
+          // var propertiesString = "<pre>" + JSON.stringify(poiMarker.feature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
+
+          var popupContent = '<div class="poiInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
+            for (var p in poiMarker.feature.properties) {
+                popupContent += '<tr><td>' + p + '</td><td>'+ poiMarker.feature.properties[p] + '</td></tr>';
+            }
+            popupContent += '</table></div>';
+
+          if (poiMarker.feature.properties.name) {
+            poiMarker.bindPopup(poiMarker.feature.properties.name + "\n\n" + popupContent);
+          }
+          else if (poiMarker.feature.properties.NAME) {
+            poiMarker.bindPopup(poiMarker.feature.properties.NAME + "\n\n" + popupContent);
+          }
+          else if (poiMarker.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME]) {
+            poiMarker.bindPopup(poiMarker.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] + "\n\n" + popupContent);
+          }
+          else {
+            // poiMarker.bindPopup(propertiesString);
+            poiMarker.bindPopup(popupContent);
+          }
+          markers.addLayer(poiMarker);
+
+          return markers;
+      };
 
         $scope.$on("removePoiGeoresource", function (event, georesourceMetadataAndGeoJSON) {
 
@@ -2815,7 +2567,7 @@ angular.module('kommonitorMap').component(
           var style = {
             color: georesourceMetadataAndGeoJSON.loiColor,
             dashArray: georesourceMetadataAndGeoJSON.loiDashArrayString,
-            weight: 3,
+            weight: georesourceMetadataAndGeoJSON.loiWidth || 3,
             opacity: 1
           };
 
@@ -2925,6 +2677,55 @@ angular.module('kommonitorMap').component(
           });
         });
 
+        $scope.$on("adjustOpacityForAoiLayer", function (event, dataset, opacity) {
+          var layerName = dataset.datasetName;
+
+          $scope.layerControl._layers.forEach(function (layer) {
+            if (layer.group.name === aoiLayerGroupName && layer.name.includes(layerName)) {
+              layer.layer.setStyle({
+                fillOpacity:opacity,
+                opacity:opacity
+              });
+            }
+          });
+        });
+
+        $scope.$on("adjustOpacityForLoiLayer", function (event, dataset, opacity) {
+          var layerName = dataset.datasetName;
+
+          $scope.layerControl._layers.forEach(function (layer) {
+            if (layer.group.name === loiLayerGroupName && layer.name.includes(layerName)) {
+              layer.layer.setStyle({
+                fillOpacity:opacity,
+                opacity:opacity
+              });
+            }
+          });
+        });
+
+        $scope.$on("adjustOpacityForPoiLayer", function (event, dataset, opacity) {
+          var layerName = dataset.datasetName;
+
+          $scope.layerControl._layers.forEach(function (layer) {
+            if (layer.group.name === poiLayerGroupName && layer.name.includes(layerName)) {
+
+              if(layer.layer._layers){
+                for(var layerId in layer.layer._layers){
+                  layer.layer._layers[layerId].setOpacity(opacity);
+                }
+              } 
+              else if(layer.layer._featureGroup){
+                for(var layerId in layer.layer._featureGroup._layers){
+                  layer.layer._featureGroup._layers[layerId].setOpacity(opacity);
+                }
+              }   
+              else{                
+                layer.layer.setOpacity(opacity);
+              } 
+            }
+          });
+        });
+
         $scope.$on("removeWmsLayerFromMap", function (event, dataset) {
 
           var layerName = dataset.title;
@@ -2937,6 +2738,43 @@ angular.module('kommonitorMap').component(
           });
         });
 
+        var getWfsStyle = function(dataset, opacity){
+
+          if(dataset.geometryType === "POI"){
+            return {
+              weight: 1,
+              opacity: opacity,
+              color: dataset.poiMarkerColor,
+              dashArray: '',
+              fillOpacity: opacity,
+              fillColor: dataset.poiMarkerColor
+            };
+          }
+
+          else if (dataset.geometryType === "LOI"){
+            return {
+              weight: dataset.loiWidth,
+              opacity: opacity,
+              color: dataset.loiColor,
+              dashArray: dataset.loiDashArrayString,
+              fillOpacity: opacity,
+              fillColor: dataset.loiColor
+            };
+          }
+
+          else{
+            return {
+              weight: 1,
+              opacity: opacity,
+              color: dataset.aoiColor,
+              dashArray: '',
+              fillOpacity: opacity,
+              fillColor: dataset.aoiColor
+            };
+          }
+
+        };
+
         $scope.$on("addWfsLayerToMap", function (event, dataset, opacity) {
           var wfsLayerOptions = {
             url: dataset.url,
@@ -2945,21 +2783,29 @@ angular.module('kommonitorMap').component(
             typeName: dataset.featureTypeName,
             geometryField: dataset.featureTypeGeometryName,
             maxFeatures: null,
-            style: {
-              weight: 1,
-              opacity: opacity,
-              color: defaultBorderColor,
-              dashArray: '',
-              fillOpacity: 1,
-              fillColor: dataset.displayColor
-            }
+            style: getWfsStyle(dataset, opacity)
           };
 
           if (dataset.filterFeaturesToMapBBOX) {
             wfsLayerOptions.filter = new L.Filter.BBox(dataset.featureTypeGeometryName, $scope.map.getBounds(), L.CRS.EPSG3857);
           }
 
-          var wfsLayer = new L.WFS(wfsLayerOptions);
+          var wfsLayer;
+
+          if(dataset.geometryType === "POI"){
+
+            wfsLayer = new L.WFS(wfsLayerOptions, new L.Format.GeoJSON({
+              crs: L.CRS.EPSG3857,
+              pointToLayer(geoJsonPoint, latlng) {
+                geoJsonPoint.geometry.coordinates[0] = latlng.lng;
+                geoJsonPoint.geometry.coordinates[1] = latlng.lat; 
+                return createCustomMarker(geoJsonPoint, dataset.poiSymbolColor, dataset.poiMarkerColor, dataset.poiSymbolBootstrap3Name, dataset);
+              },
+            }));
+          }
+          else{
+            wfsLayer = new L.WFS(wfsLayerOptions);
+          }
 
           try {
             wfsLayer.once('load', function () {
@@ -2969,29 +2815,23 @@ angular.module('kommonitorMap').component(
 
               console.log("Tried fit bounds on wfsLayer");
 
-              //var geoJSON = layer.layertoGeoJSON();
-              var firstLayersPropertyName = Object.keys(wfsLayer._layers)[0];
-              if (firstLayersPropertyName) {
-                var geoJSON_exmaple = wfsLayer._layers[firstLayersPropertyName].toGeoJSON();
-                if (isLinearGeoJSON(geoJSON_exmaple)) {
-                  var newStyle = {
-                    color: dataset.displayColor
-                  };
-
-                  wfsLayer.setStyle(newStyle);
-
-                }
-              }
               $scope.map.invalidateSize(true);
               // $scope.loadingData = false;
             });
 
             wfsLayer.on('click', function (event) {
-              var propertiesString = "<pre>" + JSON.stringify(event.layer.feature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
+              // var propertiesString = "<pre>" + JSON.stringify(event.layer.feature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
+
+              var popupContent = '<div class="wfsInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
+              for (var p in event.layer.feature.properties) {
+                  popupContent += '<tr><td>' + p + '</td><td>'+ event.layer.feature.properties[p] + '</td></tr>';
+              }
+              popupContent += '</table></div>';
+
               var popup = L.popup();
               popup
                 .setLatLng(event.latlng)
-                .setContent(propertiesString)
+                .setContent(popupContent)
                 .openOn($scope.map);
             });
             $scope.layerControl.addOverlay(wfsLayer, dataset.title, wfsLayerGroupName);
@@ -3000,7 +2840,8 @@ angular.module('kommonitorMap').component(
 
           }
           catch (error) {
-            // $scope.loadingData = false;
+            $scope.loadingData = false;
+            kommonitorDataExchangeService.displayMapApplicationError(error);
           }
 
         });
@@ -3011,40 +2852,40 @@ angular.module('kommonitorMap').component(
           $scope.layerControl._layers.forEach(function (layer) {
             if (layer.group.name === wfsLayerGroupName && layer.name.includes(layerName)) {
               // layer.layer.setOpacity(opacity);
-              var newStyle = {
-                weight: 1,
-                opacity: opacity,
-                color: defaultBorderColor,
-                dashArray: '',
-                fillOpacity: opacity,
-                fillColor: dataset.displayColor
-              };
+              var newStyle = getWfsStyle(dataset, opacity);
               // layer.layer.options.style = newStyle;
-              layer.layer.setStyle(newStyle);
+              if(layer.layer._layers){
+                for(var layerId in layer.layer._layers){
+
+  
+                  if(dataset.geometryType === "POI"){
+                    layer.layer._layers[layerId].setOpacity(opacity);
+                  }
+                  else{
+                    layer.layer._layers[layerId].setStyle(newStyle);
+                  }
+                }
+              }   
+              else{                
+
+                if(dataset.geometryType === "POI"){
+                  layer.layer.setOpacity(opacity);
+                }
+                else{
+                  layer.layer.setStyle(newStyle);
+                }
+              }           
+              
             }
           });
         });
 
-        $scope.$on("adjustColorForWfsLayer", function (event, dataset) {
+        $scope.$on("adjustColorForWfsLayer", function (event, dataset, opacity) {
           var layerName = dataset.title;
 
           $scope.layerControl._layers.forEach(function (layer) {
             if (layer.group.name === wfsLayerGroupName && layer.name.includes(layerName)) {
-              var newStyle = {
-                weight: 1,
-                color: defaultBorderColor,
-                dashArray: '',
-                fillColor: dataset.displayColor
-              };
-
-              //var geoJSON = layer.layertoGeoJSON();
-              var firstLayersPropertyName = Object.keys(layer.layer._layers)[0];
-              if (firstLayersPropertyName) {
-                var geoJSON_exmaple = layer.layer._layers[firstLayersPropertyName].toGeoJSON();
-                if (isLinearGeoJSON(geoJSON_exmaple)) {
-                  newStyle.color = dataset.displayColor;
-                }
-              }
+              var newStyle = getWfsStyle(dataset, opacity);
 
               layer.layer.setStyle(newStyle);
             }
@@ -3090,10 +2931,16 @@ angular.module('kommonitorMap').component(
                 layer.on({
                   click: function () {
 
-                    var propertiesString = "<pre>" + JSON.stringify(feature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
+                    // var propertiesString = "<pre>" + JSON.stringify(feature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
 
-                    if (propertiesString)
-                      layer.bindPopup(propertiesString);
+                    var popupContent = '<div class="fileInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
+                    for (var p in feature.properties) {
+                        popupContent += '<tr><td>' + p + '</td><td>'+ feature.properties[p] + '</td></tr>';
+                    }
+                    popupContent += '</table></div>';
+
+                    if (popupContent)
+                      layer.bindPopup(popupContent);
                   }
                 });
               }
@@ -3119,10 +2966,16 @@ angular.module('kommonitorMap').component(
                     layer.on({
                       click: function () {
 
-                        var propertiesString = "<pre>" + JSON.stringify(feature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
+                        // var propertiesString = "<pre>" + JSON.stringify(feature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
 
-                        if (propertiesString)
-                          layer.bindPopup(propertiesString);
+                        var popupContent = '<div class="fileInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
+                        for (var p in feature.properties) {
+                            popupContent += '<tr><td>' + p + '</td><td>'+ feature.properties[p] + '</td></tr>';
+                        }
+                        popupContent += '</table></div>';
+
+                        if (popupContent)
+                          layer.bindPopup(popupContent);
                       }
                     });
                   }
@@ -3898,7 +3751,7 @@ angular.module('kommonitorMap').component(
             else {
 
               if ($scope.indicatorTypeOfCurrentLayer.includes('DYNAMIC')) {
-                var dynamicIndicatorBrewArray = kommonitorVisualStyleHelperService.setupDynamicIndicatorBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, defaultColorBrewerPaletteForBalanceIncreasingValues, defaultColorBrewerPaletteForBalanceDecreasingValues, $scope.classifyMethod);
+                var dynamicIndicatorBrewArray = kommonitorVisualStyleHelperService.setupDynamicIndicatorBrew($scope.currentIndicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, defaultColorBrewerPaletteForBalanceIncreasingValues, defaultColorBrewerPaletteForBalanceDecreasingValues, $scope.classifyMethod);
                 $scope.dynamicIncreaseBrew = dynamicIndicatorBrewArray[0];
                 $scope.dynamicDecreaseBrew = dynamicIndicatorBrewArray[1];
 
@@ -3918,7 +3771,7 @@ angular.module('kommonitorMap').component(
               else {
                 $scope.datasetContainsNegativeValues = $scope.containsNegativeValues($scope.currentGeoJSONOfCurrentLayer);
                 if ($scope.datasetContainsNegativeValues) {
-                  var dynamicIndicatorBrewArray = kommonitorVisualStyleHelperService.setupDynamicIndicatorBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, defaultColorBrewerPaletteForBalanceIncreasingValues, defaultColorBrewerPaletteForBalanceDecreasingValues, $scope.classifyMethod);
+                  var dynamicIndicatorBrewArray = kommonitorVisualStyleHelperService.setupDynamicIndicatorBrew($scope.currentIndicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, defaultColorBrewerPaletteForBalanceIncreasingValues, defaultColorBrewerPaletteForBalanceDecreasingValues, $scope.classifyMethod);
                   $scope.dynamicIncreaseBrew = dynamicIndicatorBrewArray[0];
                   $scope.dynamicDecreaseBrew = dynamicIndicatorBrewArray[1];
                 }
@@ -4191,12 +4044,12 @@ angular.module('kommonitorMap').component(
         $scope.$on("disablePointDrawTool", function (event) {
 
           try {
-            $scope.map.removeLayer($scope.drawnPointFeatures);
-            $scope.map.removeControl($scope.drawPointControl);
             $scope.drawPointControl = undefined;
+            $scope.map.removeLayer($scope.drawnPointFeatures);
+            $scope.map.removeControl($scope.drawPointControl);            
           }
           catch (error) {
-
+            // kommonitorDataExchangeService.displayMapApplicationError(error);
           }
 
         });

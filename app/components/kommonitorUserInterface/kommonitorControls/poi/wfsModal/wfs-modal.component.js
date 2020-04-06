@@ -1,5 +1,5 @@
 angular.module('wfsModal').component('wfsModal', {
-	templateUrl : "components/kommonitorUserInterface/kommonitorControls/kommonitorDataImport/wfsModal/wfs-modal.template.html",
+	templateUrl : "components/kommonitorUserInterface/kommonitorControls/poi/wfsModal/wfs-modal.template.html",
 	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', function WfsModalController(kommonitorDataExchangeService, $scope, $rootScope) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;

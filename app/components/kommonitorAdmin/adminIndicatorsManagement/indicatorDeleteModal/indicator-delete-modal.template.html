@@ -1,0 +1,532 @@
+<div class="modal fade" id="modal-delete-indicators" role="dialog">
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content">
+
+			<div align="center">
+				<div class="loading-overlay-admin-panel ng-hide" ng-show="loadingData">
+							<span class="glyphicon glyphicon-refresh icon-spin"></span>
+				</div>
+			</div>
+
+
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Indikatoren l&ouml;schen</h4>
+			</div>
+			<div class="modal-body">
+
+					<div style="text-align: center;">
+						<h2 class="fs-title">Indikatoren-Daten l&ouml;schen</h2>
+						<h3 class="fs-subtitle">Hier k&ouml;nnen einzelne Zeitschnitte oder Raumebenen sowie ganze Indikatoren-Datens&auml;tze aus dem System entfernt werden.</h3>
+					</div>
+					
+
+					<div class="row vertical-align">
+						<div class="col-md-6 col-sm-6 col-xs-12">
+							<div class="input-group">
+				                <span class="input-group-addon"><i class="fas fa-filter"></i></span>
+				                <input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="indicatorNameFilter">
+							  </div>
+							 <br/> 
+							<div>
+								<select style="font-size: 12px;" ng-model="selectedIndicatorDataset" ng-change="onChangeSelectedIndicator()"
+									size="8" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter: filterIndicators() | filter:indicatorNameFilter"
+									class="form-control" required>
+									<option disabled selected value> -- Indikator w&auml;hlen -- </option>
+								</select>
+							</div>
+						</div>
+						<div class="col-md-6 col-sm-6 col-xs-12">
+							<div class="form-group">
+								<label>Typ*</label>
+								<select ng-model="indicatorDeleteType"
+									ng-options="indicatorDeleteType as indicatorDeleteType.displayName for indicatorDeleteType in indicatorDeleteTypes"
+									class="form-control" required>
+								</select>
+								<div class="help-block">
+									<p>Diese Auswahl bestimmt, welche Aspekte des Indikators gel&ouml;scht werden sollen.</p>
+								</div>
+								<div class="help-block with-errors"></div>
+							</div>
+						</div>
+					</div>
+
+					<br/>
+					<br/>
+
+					<div ng-if="selectedIndicatorDataset" class="row vertical-align">
+						<div class="col-md-10 col-sm-12 col-xs-12">
+
+							<div class="box box-info collapsed-box" style="background: #ebf0fd;">
+								<div class="box-header">
+								  <h3 class="box-title">Metadaten des selektierten Indikators</h3>
+		
+									<div class="box-tools pull-right">
+										<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+										</button>
+									</div>
+								</div>
+								<!-- /.box-header -->
+								<div class="box-body">
+		
+											<div class="admin-table-wrapper">
+				
+												<table class="table table-bordered table-condensed table-striped"
+													style="width:100%; overflow:auto; font-size: 11px;">
+													<thead>
+														<tr>
+															<th>Id</th>
+															<th>Name</th>
+															<th>K&uuml;rzel/Kennzeichen</th>
+															<th>Leitindikator</th>
+															<th>Indikator-Typ</th>
+															<th>Merkmal</th>
+															<th>Art der Fortf&uuml;hrung</th>
+															<th>Einheit</th>
+															<th>Beschreibung</th>
+															<th>Interpretation</th>
+															<th>Methodik</th>
+															<th>Datenquelle</th>
+															<th>Datengrundlage</th>
+															<th>Tags/Stichworte</th>
+															<th>Themenhierarchie</th>
+															<th>Verf&uuml;gbare Raumeinheiten</th>
+															<th>Verf&uuml;gbare Zeitpunkte</th>
+															<!-- <th>Referenzierte Indikatoren</th>
+																							  <th>Referenzierte Georessourcen</th> -->
+															<th>Datenhalter und Kontakt</th>
+															<th>zuletzt aktualisiert am</th>
+															<th>Koordinatensystem</th>
+															<th>Aktualisierungszyklus</th>
+															<th>Quellen / Literatur</th>
+															<th>Bemerkung</th>
+															<th>Niedrigste Raumeinheit f&uuml;r Berechnung</th>
+															<th>Klassifizierung</th>
+															<!-- <th>OGC Dienste</th> -->
+														</tr>
+													</thead>
+											
+													<tbody>
+														<tr>
+															<td>{{selectedIndicatorDataset.indicatorId}}</td>
+															<td>{{selectedIndicatorDataset.indicatorName}}</td>
+															<td>{{selectedIndicatorDataset.abbreviation}}</td>
+															<td>{{selectedIndicatorDataset.isHeadlineIndicator}}</td>
+															<td>{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorStringFromIndicatorType(selectedIndicatorDataset.indicatorType)}}
+															</td>
+															<td ng-bind-html="selectedIndicatorDataset.characteristicValue"></td>
+															<td ng-bind-html="selectedIndicatorDataset.creationType"></td>
+															<td ng-bind-html="selectedIndicatorDataset.unit"></td>
+															<td ng-bind-html="selectedIndicatorDataset.metadata.description"></td>
+															<td ng-bind-html="selectedIndicatorDataset.interpretation"></td>
+															<td ng-bind-html="selectedIndicatorDataset.processDescription"></td>
+															<td ng-bind-html="selectedIndicatorDataset.metadata.datasource"></td>
+															<td ng-bind-html="selectedIndicatorDataset.metadata.databasis"></td>
+															<td ng-bind-html="selectedIndicatorDataset.tags"></td>
+															<td>
+																<p>{{
+																				  $ctrl.kommonitorDataExchangeServiceInstance.getTopicHierarchyDisplayString(selectedIndicatorDataset.topicReference)}}
+																</p>
+															</td>
+															<td>
+																<ul style="columns: 2; 	-webkit-columns: 2;	-moz-columns: 2;">
+																	<li style="margin-right: 15px;"
+																		ng-repeat="spatialUnitName in selectedIndicatorDataset.applicableSpatialUnits">
+																		{{spatialUnitName}}
+																	</li>
+																</ul>
+															</td>
+															<td>
+																<ul style="columns: 3; 	-webkit-columns: 3;	-moz-columns: 3;">
+																	<li style="margin-right: 15px;" ng-repeat="timestamp in selectedIndicatorDataset.applicableDates">
+																		{{timestamp}}
+																	</li>
+																</ul>
+											
+															</td>
+															<!-- <td>
+																				  <ul style="columns: 2; 	-webkit-columns: 2;	-moz-columns: 2;">
+																					  <li style="margin-right: 15px;" ng-repeat="indicatorReference in selectedIndicatorDataset.referencedIndicators">
+																						  {{indicatorReference.referencedIndicatorName}}
+																					  </li>
+																				  </ul>
+																			  </td> -->
+															<!-- <td>
+																				  <ul style="columns: 2; 	-webkit-columns: 2;	-moz-columns: 2;">
+																					  <li style="margin-right: 15px;" ng-repeat="georesourceReference in selectedIndicatorDataset.referencedGeoresources">
+																						  {{georesourceReference.referencedGeoresourceName}}
+																					  </li>
+																				  </ul>
+																			  </td>						 -->
+															<td ng-bind-html="selectedIndicatorDataset.metadata.contact"></td>
+															<td>{{selectedIndicatorDataset.metadata.lastUpdate}}</td>
+															<td>EPSG:{{selectedIndicatorDataset.metadata.sridEPSG}}</td>
+															<td>{{selectedIndicatorDataset.metadata.updateInterval}}</td>
+															<td ng-bind-html="selectedIndicatorDataset.metadata.literature"></td>
+															<td ng-bind-html="selectedIndicatorDataset.metadata.note"></td>
+															<td>{{selectedIndicatorDataset.lowestSpatialUnitForComputation}}</td>
+															<td>
+																ColorBrewerSchemaName: {{selectedIndicatorDataset.defaultClassificationMapping.colorBrewerSchemeName}}
+											
+																<!-- <ul>
+																					  <li ng-repeat="classificationMappingItem in selectedIndicatorDataset.defaultClassificationMapping.items">
+																						  <ul>
+																							  <li>
+																								  <b>Farbe: </b>{{classificationMappingItem.defaultColorAsHex}}
+																							  </li>
+																							  <li>
+																								  <b>Bewertung: </b>{{classificationMappingItem.defaultCustomRating}}
+																							  </li>
+																						  </ul>
+																					  </li>
+																				  </ul> -->
+															</td>
+															<!-- <td >
+																				  <ul style="columns: 2; 	-webkit-columns: 2;	-moz-columns: 2;">
+																					  <li style="margin-right: 15px;" ng-repeat="ogcService in selectedIndicatorDataset.ogcServices">
+																						  <ul>
+																							  <li>
+																								  <b>Raumeinheit: </b> {{ogcService.spatialUnit}}
+																							  </li>
+																							  <li>
+																								  <b>WMS: </b> {{ogcService.wmsUrl}}
+																							  </li>
+																							  <li>
+																								  <b>WFS: </b> {{ogcService.wfsUrl}}
+																							  </li>
+																						  </ul>
+																					  </li>
+																				  </ul>
+																			  </td> -->
+														</tr>
+											
+													</tbody>
+											
+												</table>
+											
+											</div>
+		
+								</div>
+								<!-- Box Body -->
+							</div>	
+							<!-- Box -->
+
+						</div>
+
+					</div>						
+
+					<form class="multiStepForm form-group" id="indicatorDeleteForm" role="form"
+							data-toggle="validator" data-disable="true" style="margin-bottom: 0px;">
+
+						<fieldset ng-if="selectedIndicatorDataset">
+							
+							<div ng-if="selectedIndicatorDataset && indicatorDeleteType.apiName === 'indicatorDataset'">
+
+								<h4>Vollst&auml;ndigen Datensatz entfernen</h4>
+								<p style="color: red;">Durch bet&auml;tigen des L&ouml;schen-Buttons wird der gesamte Indikatoren-Datensatz aus dem System unwiderruflich entfernt (Metadaten sowie alle Indikatoren-Werte aller Raumebenen und Zeitschnitte)</p>								
+		
+								<h3>ACHTUNG!</h3>
+								<p>Dabei werden auch s&auml;mtliche <b>Indikatoren-Referenzen</b> und <b>Georessourcen-Referenzen</b> auf den betroffene Indikator dauerhaft aus dem System entfernt. Etwaige <b>Skripte</b>, in denen der betroffene Indikator als Berechnungsgrundlage verwendet werden, werden ebenfalls ung&uuml;ltig und daher aus dem System gel&ouml;scht</p>
+								<h4>Betroffene Georessourcen-Referenzen</h4>
+								<div ng-if="! affectedGeoresourceReferences.length > 0">
+									<p>keine</p>
+								</div>
+								<div ng-if="affectedGeoresourceReferences.length > 0">
+									<table class="table table-bordered table-condensed" style="width:100%; overflow:auto; font-size: 11px;">
+										<thead>
+										<tr>
+											<th>referenzierte Georessource - ID</th>
+											<th>referenzierte Georessource - Name</th>
+											<th>referenzierte Georessource - Beschreibung</th>
+										</tr>
+										</thead>
+
+										<tbody>
+											<tr ng-repeat="entry in affectedGeoresourceReferences">
+												<td>{{entry.georesourceReference.referencedGeoresourceId}}</td>
+												<td>{{entry.georesourceReference.referencedGeoresourceName}}</td>
+												<td>{{entry.georesourceReference.referencedGeoresourceDescription}}</td>
+											</tr>
+
+										</tbody>
+									</table>
+								</div>
+
+								<h4>Betroffene Indikator-Referenzen</h4>
+								<div ng-if="! affectedIndicatorReferences.length > 0">
+									<p>keine</p>
+								</div>
+								<div ng-if="affectedIndicatorReferences.length > 0">
+									<table class="table table-bordered table-condensed" style="width:100%; overflow:auto; font-size: 11px;">
+										<thead>
+										<tr>
+											<th>referenzierter Indikator - ID</th>
+											<th>referenzierter Indikator - Name</th>
+											<th>referenzierter Indikator - Beschreibung</th>
+										</tr>
+										</thead>
+
+										<tbody>
+											<tr ng-repeat="entry in affectedIndicatorReferences">
+												<td>{{entry.indicatorReference.referencedIndicatorId}}</td>
+												<td>{{entry.indicatorReference.referencedIndicatorName}}</td>
+												<td>{{entry.indicatorReference.referencedIndicatorDescription}}</td>
+											</tr>
+
+										</tbody>
+									</table>
+								</div>
+
+								<h4>Betroffene Skripte</h4>
+								<div ng-if="! affectedScripts.length > 0">
+									<p>keine</p>
+								</div>
+								<div ng-if="affectedScripts.length > 0">
+									<table class="table table-bordered table-condensed" style="width:100%; overflow:auto; font-size: 11px;">
+										<thead>
+										<tr>
+											<th>Skript-ID</th>
+											<th>Skript-Name</th>
+											<th>Skript-Beschreibung</th>
+											<th>ID des berechneten Indikators</th>
+										</tr>
+										</thead>
+
+										<tbody>
+											<tr ng-repeat="script in affectedScripts track by $index">
+												<td>{{script.scriptId}}</td>
+												<td>{{script.name}}</td>
+												<td>{{script.description}}</td>
+												<td>{{script.indicatorId}}</td>
+											</tr>
+
+										</tbody>
+									</table>
+								</div>
+
+								<!-- <h4 style="color: red;">Die Indikatoren-Werte werden hierbei f&uuml;r s&auml;mtliche dargestellte Raumebenen und Zeitpunkte entfernt und k&ouml;nnen nicht wiederhergestellt werden.</h4> -->
+		
+							</div>
+
+							<div ng-if="selectedIndicatorDataset && indicatorDeleteType.apiName === 'indicatorTimestamp'">
+								<h4>Einzelne Zeitschnitte entfernen</h4>
+								<p>Selektieren Sie Zeitschnitte, die f&uuml;r den selektierten Indikator aus dem System entfernt werden sollen, und bet&auml;tigen dann den L&ouml;schen-Button.</p>
+								
+								<div ng-if="selectedIndicatorDataset" class="row vertical-align">
+									<div class="col-md-6 col-sm-12 col-xs-12">
+										<div class="admin-table-wrapper">
+											<table class="table table-bordered table-condensed table-striped"
+												style="width:100%; overflow:auto; font-size: 11px;">
+												<thead>
+													<tr>
+														<th class="text-center"><input type="checkbox" ng-model="selectIndicatorTimestampsInput" ng-change="onChangeSelectIndicatorTimestampEntries()"></input></th>
+														<th class="text-center">Zeitschnitt</th>												
+													</tr>
+												</thead>
+										
+												<tbody>
+													<tr ng-repeat="indicatorTimestamp in currentApplicableDates">
+														<td><input type="checkbox" ng-model="indicatorTimestamp.isSelected"></input></td>
+														<td>{{indicatorTimestamp.timestamp}}</td>												
+													</tr>
+										
+												</tbody>
+										
+												<!-- <tfoot>
+													<tr>
+														<th><input type="checkbox" ng-model="selectIndicatorTimestampsInput" ng-change="onChangeSelectIndicatorTimestampEntries()"></input></th>
+														<th>Zeitschnitt</th>
+													</tr>
+												</tfoot> -->
+											</table>
+										
+										</div>
+									</div>
+								</div>		
+		
+								<h4 style="color: red;">Die Indikatoren-Werte der selektierten Zeitschnitte werden hierbei f&uuml;r s&auml;mtliche Raumebenen des Indikators entfernt und k&ouml;nnen nicht wiederhergestellt werden.</h4>
+		
+							</div>
+
+							<div ng-if="selectedIndicatorDataset && indicatorDeleteType.apiName === 'indicatorSpatialUnit'">
+								<h4>Einzelne Raumebenen entfernen</h4>
+								<p>Selektieren Sie Raumebenen, die f&uuml;r den selektierten Indikator aus dem System entfernt werden sollen, und bet&auml;tigen dann den L&ouml;schen-Button.</p>
+								
+								<div ng-if="selectedIndicatorDataset" class="row vertical-align">
+									<div class="col-md-6 col-sm-12 col-xs-12">
+										<div class="admin-table-wrapper">
+											<table class="table table-bordered table-condensed table-striped"
+												style="width:100%; overflow:auto; font-size: 11px;">
+												<thead>
+													<tr>
+														<th class="text-center"><input type="checkbox" ng-model="selectIndicatorSpatialUnitsInput" ng-change="onChangeSelectIndicatorSpatialUnitsEntries()"></input></th>
+														<th class="text-center">Raumebene</th>												
+													</tr>
+												</thead>
+										
+												<tbody>
+													<tr ng-repeat="indicatorSpatialUnit in currentApplicableSpatialUnits">
+														<td><input type="checkbox" ng-model="indicatorSpatialUnit.isSelected"></input></td>
+														<td>{{indicatorSpatialUnit.spatialUnitMetadata.spatialUnitLevel}}</td>												
+													</tr>
+										
+												</tbody>
+										
+												<!-- <tfoot>
+													<tr>
+														<th><input type="checkbox" ng-model="selectIndicatorSpatialUnitsInput" ng-change="onChangeSelectIndicatorSpatialUnitsEntries()"></input></th>
+														<th>Raumebene</th>
+													</tr>
+												</tfoot> -->
+											</table>
+										
+										</div>
+									</div>
+								</div>	
+		
+								<h4 style="color: red;">Die Indikatoren-Werte der selektierten Zeitschnitte werden hierbei f&uuml;r s&auml;mtliche Raumebenen des Indikators entfernt und k&ouml;nnen nicht wiederhergestellt werden.</h4>
+							</div>
+
+						</fieldset>
+
+						</form>
+
+
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
+					<button type="button" class="btn btn-danger" ng-click="deleteIndicatorData()">Indikatoren-Daten unwiderruflich l&ouml;schen</button>
+			</div>
+
+			<div id="indicatorsDeleteSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden class="alert alert-success alert-dismissable">
+                <button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
+								<h4><i class="icon fa fa-check"></i>Folgende Indikatoren-Daten sowie assoziierte Indikatoren- und Georessourcen-Referenzen und Skripte, bei denen Indikatoren als Berechnungsgrundlage verwendet werden, wurden erfolgreich gel&ouml;scht</h4>
+
+								<div ng-if="(successfullyDeletedDatasets).length > 0">
+									<h4>Gesamter Indikatorendatensatz (Metadaten sowie alle Zeitreihen-Werte und Raumeinheiten)</h4>
+									<ul>
+					            <li ng-repeat="dataset in successfullyDeletedDatasets">{{dataset.indicatorName}}</li>
+									</ul>
+
+									<div ng-if="affectedScripts.length > 0">
+										<h4>Skripte</h4>
+										<ul>
+									<li ng-repeat="script in affectedScripts">{{script.name}}</li>
+										</ul>
+									</div>
+	
+									<div ng-if="affectedGeoresourceReferences.length > 0">
+										<h4>Referenzen zu Georessourcen</h4>
+										<ul>
+									<li ng-repeat="reference in affectedIndicatorReferences">{{reference.georesourceReference.referencedGeoresourceName}}</li>
+										</ul>
+									</div>
+	
+									<div ng-if="affectedIndicatorReferences.length > 0">
+										<h4>Referenzen zu anderen Indikatoren</h4>
+										<ul>
+									<li ng-repeat="reference in affectedIndicatorReferences">{{reference.indicatorReference.referencedIndicatorName}}</li>
+										</ul>
+									</div>
+								</div>
+
+								<div ng-if="(successfullyDeletedTimestamps).length > 0">
+									<h4>Zeitschnitte</h4>
+										<ul>
+									<li ng-repeat="timestamp in successfullyDeletedTimestamps">{{timestamp.timestamp}}</li>
+										</ul>
+								</div>
+
+								<div ng-if="(successfullyDeletedSpatialUnits).length > 0">
+									<h4>Raumebenen</h4>
+										<ul>
+									<li ng-repeat="spatialUnit in successfullyDeletedSpatialUnits">{{spatialUnit.spatialUnitMetadata.spatialUnitLevel}}</li>
+										</ul>
+								</div>
+
+								
+
+
+
+      </div>
+
+			<div id="indicatorsDeleteErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden class="alert alert-danger alert-dismissable">
+                <button type="button" class="close" ng-click="hideErrorAlert()" aria-hidden="true">&times;</button>
+                <h4><i class="icon fa fa-ban"></i>L&ouml;schen gescheitert</h4>
+                Folgende Datens&auml;tze konnten nicht gel&ouml;scht werden.
+								<br/>
+
+					<div ng-if="failedDatasetsAndErrors">
+
+						<table class="table table-bordered table-condensed" style="width:100%; overflow:auto; font-size: 11px;">
+							<thead>
+							<tr>
+							  <th>Name</th>
+							  <th>Fehlermeldung</th>
+							</tr>
+							</thead>
+		
+							<tbody>
+								<tr ng-repeat="dataset in failedDatasetsAndErrors">
+								  <td>{{dataset[0].indicatorName}}</td>
+								  <td ng-bind-html="dataset[1]"></td>
+								</tr>
+		
+							</tbody>
+						  </table>
+
+					</div>	
+					
+					<div ng-if="failedTimestampsAndErrors">
+
+						<table class="table table-bordered table-condensed" style="width:100%; overflow:auto; font-size: 11px;">
+							<thead>
+							<tr>
+							  <th>Zeitschnitt</th>
+							  <th>Fehlermeldung</th>
+							</tr>
+							</thead>
+		
+							<tbody>
+								<tr ng-repeat="dataset in failedTimestampsAndErrors">
+								  <td>{{dataset[0].timestamp}}</td>
+								  <td ng-bind-html="dataset[1]"></td>
+								</tr>
+		
+							</tbody>
+						  </table>
+
+					</div>	
+
+					<div ng-if="failedSpatialUnitsAndErrors">
+
+						<table class="table table-bordered table-condensed" style="width:100%; overflow:auto; font-size: 11px;">
+							<thead>
+							<tr>
+							  <th>Raumeinheit</th>
+							  <th>Fehlermeldung</th>
+							</tr>
+							</thead>
+		
+							<tbody>
+								<tr ng-repeat="dataset in failedSpatialUnitsAndErrors">
+								  <td>{{dataset[0].spatialUnitMetadata.spatialUnitLevel}}</td>
+								  <td ng-bind-html="dataset[1]"></td>
+								</tr>
+		
+							</tbody>
+						  </table>
+
+					</div>	
+
+					
+
+      </div>
+
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->

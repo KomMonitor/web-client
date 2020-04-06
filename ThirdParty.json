@@ -1,5 +1,5 @@
 {
-  "@fortawesome/fontawesome-free@5.5.0": {
+  "@fortawesome/fontawesome-free@5.11.2": {
     "licenses": "(CC-BY-4.0 AND OFL-1.1 AND MIT)",
     "repository": "https://github.com/FortAwesome/Font-Awesome",
     "publisher": "Dave Gandy",
@@ -998,12 +998,34 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\acorn-dynamic-import",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\acorn-dynamic-import\\LICENSE"
   },
+  "acorn-dynamic-import@4.0.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/kesne/acorn-dynamic-import",
+    "publisher": "Jordan Gensler",
+    "email": "jordangens@gmail.com",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\acorn-node\\node_modules\\acorn-dynamic-import",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\acorn-node\\node_modules\\acorn-dynamic-import\\LICENSE"
+  },
   "acorn-globals@1.0.9": {
     "licenses": "MIT",
     "repository": "https://github.com/ForbesLindesay/acorn-globals",
     "publisher": "ForbesLindesay",
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\acorn-globals",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\acorn-globals\\LICENSE"
+  },
+  "acorn-node@1.7.0": {
+    "licenses": "Apache-2.0",
+    "repository": "https://github.com/browserify/acorn-node",
+    "publisher": "Renée Kooi",
+    "email": "renee@kooi.me",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\acorn-node",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\acorn-node\\LICENSE.md"
+  },
+  "acorn-walk@6.2.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/acornjs/acorn",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\acorn-walk",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\acorn-walk\\LICENSE"
   },
   "acorn@2.7.0": {
     "licenses": "MIT",
@@ -1017,12 +1039,24 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\acorn",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\acorn\\LICENSE"
   },
+  "acorn@6.2.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/acornjs/acorn",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\acorn-node\\node_modules\\acorn",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\acorn-node\\node_modules\\acorn\\LICENSE"
+  },
   "adler-32@1.2.0": {
     "licenses": "Apache-2.0",
     "repository": "https://github.com/SheetJS/js-adler32",
     "publisher": "sheetjs",
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\js-xlsx\\node_modules\\adler-32",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\js-xlsx\\node_modules\\adler-32\\LICENSE"
+  },
+  "admin-lte@2.4.15": {
+    "licenses": "MIT",
+    "repository": "https://github.com/ColorlibHQ/AdminLTE",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\admin-lte",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\admin-lte\\LICENSE"
   },
   "ajv-errors@1.0.0": {
     "licenses": "MIT",
@@ -1077,7 +1111,36 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\amdefine",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\amdefine\\LICENSE"
   },
-  "angular@1.7.7": {
+  "angular-datatables@0.6.2": {
+    "licenses": "MIT*",
+    "publisher": "l-lin",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\angular-datatables",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\angular-datatables\\README.md"
+  },
+  "angular-route@1.7.8": {
+    "licenses": "MIT",
+    "repository": "https://github.com/angular/angular.js",
+    "publisher": "Angular Core Team",
+    "email": "angular-core+npm@google.com",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\angular-route",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\angular-route\\LICENSE.md"
+  },
+  "angular-sanitize@1.7.8": {
+    "licenses": "MIT",
+    "repository": "https://github.com/angular/angular.js",
+    "publisher": "Angular Core Team",
+    "email": "angular-core+npm@google.com",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\angular-sanitize",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\angular-sanitize\\LICENSE.md"
+  },
+  "angular-ui-bootstrap@2.5.6": {
+    "licenses": "MIT",
+    "repository": "https://github.com/angular-ui/bootstrap",
+    "publisher": "https://github.com/angular-ui/bootstrap/graphs/contributors",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\angular-ui-bootstrap",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\angular-ui-bootstrap\\LICENSE"
+  },
+  "angular@1.7.8": {
     "licenses": "MIT",
     "repository": "https://github.com/angular/angular.js",
     "publisher": "Angular Core Team",
@@ -1250,6 +1313,15 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\array-equal",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\array-equal\\LICENSE"
   },
+  "array-filter@0.0.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/juliangruber/array-filter",
+    "publisher": "Julian Gruber",
+    "email": "mail@juliangruber.com",
+    "url": "http://juliangruber.com",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\array-filter",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\array-filter\\README.md"
+  },
   "array-find-index@1.0.2": {
     "licenses": "MIT",
     "repository": "https://github.com/sindresorhus/array-find-index",
@@ -1258,6 +1330,24 @@
     "url": "sindresorhus.com",
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\array-find-index",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\array-find-index\\license"
+  },
+  "array-map@0.0.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/substack/array-map",
+    "publisher": "James Halliday",
+    "email": "mail@substack.net",
+    "url": "http://substack.net",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\array-map",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\array-map\\LICENSE"
+  },
+  "array-reduce@0.0.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/substack/array-reduce",
+    "publisher": "James Halliday",
+    "email": "mail@substack.net",
+    "url": "http://substack.net",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\array-reduce",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\array-reduce\\LICENSE"
   },
   "array-union@1.0.2": {
     "licenses": "MIT",
@@ -1455,6 +1545,22 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\babel-code-frame",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\babel-code-frame\\README.md"
   },
+  "babel-code-frame@6.26.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel/tree/master/packages/babel-code-frame",
+    "publisher": "Sebastian McKenzie",
+    "email": "sebmck@gmail.com",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-code-frame",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-code-frame\\README.md"
+  },
+  "babel-core@6.26.3": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel/tree/master/packages/babel-core",
+    "publisher": "Sebastian McKenzie",
+    "email": "sebmck@gmail.com",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-core",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-core\\README.md"
+  },
   "babel-generator@6.11.4": {
     "licenses": "MIT",
     "repository": "https://github.com/babel/babel/tree/master/packages/babel-generator",
@@ -1462,6 +1568,96 @@
     "email": "sebmck@gmail.com",
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\babel-generator",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\babel-generator\\README.md"
+  },
+  "babel-generator@6.26.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel/tree/master/packages/babel-generator",
+    "publisher": "Sebastian McKenzie",
+    "email": "sebmck@gmail.com",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-generator",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-generator\\README.md"
+  },
+  "babel-helper-builder-binary-assignment-operator-visitor@6.24.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel/tree/master/packages/babel-helper-builder-binary-assignment-operator-visitor",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-helper-builder-binary-assignment-operator-visitor",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-helper-builder-binary-assignment-operator-visitor\\README.md"
+  },
+  "babel-helper-call-delegate@6.24.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel/tree/master/packages/babel-helper-call-delegate",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-helper-call-delegate",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-helper-call-delegate\\README.md"
+  },
+  "babel-helper-define-map@6.26.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel/tree/master/packages/babel-helper-define-map",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-helper-define-map",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-helper-define-map\\README.md"
+  },
+  "babel-helper-explode-assignable-expression@6.24.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel/tree/master/packages/babel-helper-explode-assignable-expression",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-helper-explode-assignable-expression",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-helper-explode-assignable-expression\\README.md"
+  },
+  "babel-helper-function-name@6.24.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel/tree/master/packages/babel-helper-function-name",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-helper-function-name",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-helper-function-name\\README.md"
+  },
+  "babel-helper-get-function-arity@6.24.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel/tree/master/packages/babel-helper-get-function-arity",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-helper-get-function-arity",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-helper-get-function-arity\\README.md"
+  },
+  "babel-helper-hoist-variables@6.24.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel/tree/master/packages/babel-helper-hoist-variables",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-helper-hoist-variables",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-helper-hoist-variables\\README.md"
+  },
+  "babel-helper-optimise-call-expression@6.24.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel/tree/master/packages/babel-helper-optimise-call-expression",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-helper-optimise-call-expression",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-helper-optimise-call-expression\\README.md"
+  },
+  "babel-helper-regex@6.26.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel/tree/master/packages/babel-helper-regex",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-helper-regex",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-helper-regex\\README.md"
+  },
+  "babel-helper-remap-async-to-generator@6.24.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel/tree/master/packages/babel-helper-remap-async-to-generator",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-helper-remap-async-to-generator",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-helper-remap-async-to-generator\\README.md"
+  },
+  "babel-helper-replace-supers@6.24.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel/tree/master/packages/babel-helper-replace-supers",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-helper-replace-supers",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-helper-replace-supers\\README.md"
+  },
+  "babel-helpers@6.24.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel/tree/master/packages/babel-helpers",
+    "publisher": "Sebastian McKenzie",
+    "email": "sebmck@gmail.com",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-helpers",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-helpers\\README.md"
+  },
+  "babel-messages@6.23.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel/tree/master/packages/babel-messages",
+    "publisher": "Sebastian McKenzie",
+    "email": "sebmck@gmail.com",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-messages",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-messages\\README.md"
   },
   "babel-messages@6.8.0": {
     "licenses": "MIT",
@@ -1471,6 +1667,220 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\babel-messages",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\babel-messages\\README.md"
   },
+  "babel-plugin-check-es2015-constants@6.22.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel/tree/master/packages/babel-plugin-check-es2015-constants",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-check-es2015-constants",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-check-es2015-constants\\README.md"
+  },
+  "babel-plugin-syntax-async-functions@6.13.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel/tree/master/packages/babel-plugin-syntax-async-functions",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-syntax-async-functions",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-syntax-async-functions\\README.md"
+  },
+  "babel-plugin-syntax-exponentiation-operator@6.13.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel/tree/master/packages/babel-plugin-syntax-exponentation-operator",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-syntax-exponentiation-operator",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-syntax-exponentiation-operator\\README.md"
+  },
+  "babel-plugin-syntax-trailing-function-commas@6.22.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel/tree/master/packages/babel-plugin-syntax-trailing-function-commas",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-syntax-trailing-function-commas",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-syntax-trailing-function-commas\\README.md"
+  },
+  "babel-plugin-transform-async-to-generator@6.24.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel/tree/master/packages/babel-plugin-transform-async-to-generator",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-transform-async-to-generator",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-transform-async-to-generator\\README.md"
+  },
+  "babel-plugin-transform-es2015-arrow-functions@6.22.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel/tree/master/packages/babel-plugin-transform-es2015-arrow-functions",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-transform-es2015-arrow-functions",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-transform-es2015-arrow-functions\\README.md"
+  },
+  "babel-plugin-transform-es2015-block-scoped-functions@6.22.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel/tree/master/packages/babel-plugin-transform-es2015-block-scoped-functions",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-transform-es2015-block-scoped-functions",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-transform-es2015-block-scoped-functions\\README.md"
+  },
+  "babel-plugin-transform-es2015-block-scoping@6.26.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel/tree/master/packages/babel-plugin-transform-es2015-block-scoping",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-transform-es2015-block-scoping",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-transform-es2015-block-scoping\\README.md"
+  },
+  "babel-plugin-transform-es2015-classes@6.24.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel/tree/master/packages/babel-plugin-transform-es2015-classes",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-transform-es2015-classes",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-transform-es2015-classes\\README.md"
+  },
+  "babel-plugin-transform-es2015-computed-properties@6.24.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel/tree/master/packages/babel-plugin-transform-es2015-computed-properties",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-transform-es2015-computed-properties",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-transform-es2015-computed-properties\\README.md"
+  },
+  "babel-plugin-transform-es2015-destructuring@6.23.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel/tree/master/packages/babel-plugin-transform-es2015-destructuring",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-transform-es2015-destructuring",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-transform-es2015-destructuring\\README.md"
+  },
+  "babel-plugin-transform-es2015-duplicate-keys@6.24.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel/tree/master/packages/babel-plugin-transform-es2015-duplicate-keys",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-transform-es2015-duplicate-keys",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-transform-es2015-duplicate-keys\\README.md"
+  },
+  "babel-plugin-transform-es2015-for-of@6.23.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel/tree/master/packages/babel-plugin-transform-es2015-for-of",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-transform-es2015-for-of",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-transform-es2015-for-of\\README.md"
+  },
+  "babel-plugin-transform-es2015-function-name@6.24.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel/tree/master/packages/babel-plugin-transform-es2015-function-name",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-transform-es2015-function-name",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-transform-es2015-function-name\\README.md"
+  },
+  "babel-plugin-transform-es2015-literals@6.22.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel/tree/master/packages/babel-plugin-transform-es2015-literals",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-transform-es2015-literals",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-transform-es2015-literals\\README.md"
+  },
+  "babel-plugin-transform-es2015-modules-amd@6.24.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel/tree/master/packages/babel-plugin-transform-es2015-modules-amd",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-transform-es2015-modules-amd",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-transform-es2015-modules-amd\\README.md"
+  },
+  "babel-plugin-transform-es2015-modules-commonjs@6.26.2": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel/tree/master/packages/babel-plugin-transform-es2015-modules-commonjs",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-transform-es2015-modules-commonjs",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-transform-es2015-modules-commonjs\\README.md"
+  },
+  "babel-plugin-transform-es2015-modules-systemjs@6.24.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel/tree/master/packages/babel-plugin-transform-es2015-modules-systemjs",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-transform-es2015-modules-systemjs",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-transform-es2015-modules-systemjs\\README.md"
+  },
+  "babel-plugin-transform-es2015-modules-umd@6.24.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel/tree/master/packages/babel-plugin-transform-es2015-modules-umd",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-transform-es2015-modules-umd",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-transform-es2015-modules-umd\\README.md"
+  },
+  "babel-plugin-transform-es2015-object-super@6.24.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel/tree/master/packages/babel-plugin-transform-es2015-object-super",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-transform-es2015-object-super",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-transform-es2015-object-super\\README.md"
+  },
+  "babel-plugin-transform-es2015-parameters@6.24.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel/tree/master/packages/babel-plugin-transform-es2015-parameters",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-transform-es2015-parameters",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-transform-es2015-parameters\\README.md"
+  },
+  "babel-plugin-transform-es2015-shorthand-properties@6.24.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel/tree/master/packages/babel-plugin-transform-es2015-shorthand-properties",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-transform-es2015-shorthand-properties",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-transform-es2015-shorthand-properties\\README.md"
+  },
+  "babel-plugin-transform-es2015-spread@6.22.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel/tree/master/packages/babel-plugin-transform-es2015-spread",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-transform-es2015-spread",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-transform-es2015-spread\\README.md"
+  },
+  "babel-plugin-transform-es2015-sticky-regex@6.24.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel/tree/master/packages/babel-plugin-transform-es2015-sticky-regex",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-transform-es2015-sticky-regex",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-transform-es2015-sticky-regex\\README.md"
+  },
+  "babel-plugin-transform-es2015-template-literals@6.22.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel/tree/master/packages/babel-plugin-transform-es2015-template-literals",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-transform-es2015-template-literals",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-transform-es2015-template-literals\\README.md"
+  },
+  "babel-plugin-transform-es2015-typeof-symbol@6.23.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel/tree/master/packages/babel-plugin-transform-es2015-typeof-symbol",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-transform-es2015-typeof-symbol",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-transform-es2015-typeof-symbol\\README.md"
+  },
+  "babel-plugin-transform-es2015-unicode-regex@6.24.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel/tree/master/packages/babel-plugin-transform-es2015-unicode-regex",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-transform-es2015-unicode-regex",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-transform-es2015-unicode-regex\\README.md"
+  },
+  "babel-plugin-transform-exponentiation-operator@6.24.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel/tree/master/packages/babel-plugin-transform-exponentiation-operator",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-transform-exponentiation-operator",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-transform-exponentiation-operator\\README.md"
+  },
+  "babel-plugin-transform-regenerator@6.26.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel/tree/master/packages/babel-plugin-transform-regenerator",
+    "publisher": "Ben Newman",
+    "email": "bn@cs.stanford.edu",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-transform-regenerator",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-transform-regenerator\\README.md"
+  },
+  "babel-plugin-transform-strict-mode@6.24.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel/tree/master/packages/babel-plugin-transform-strict-mode",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-transform-strict-mode",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-plugin-transform-strict-mode\\README.md"
+  },
+  "babel-polyfill@6.26.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel/tree/master/packages/babel-polyfill",
+    "publisher": "Sebastian McKenzie",
+    "email": "sebmck@gmail.com",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-polyfill",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-polyfill\\README.md"
+  },
+  "babel-preset-env@1.7.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel-preset-env",
+    "publisher": "Henry Zhu",
+    "email": "hi@henryzoo.com",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-preset-env",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-preset-env\\LICENSE"
+  },
+  "babel-register@6.26.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel/tree/master/packages/babel-register",
+    "publisher": "Sebastian McKenzie",
+    "email": "sebmck@gmail.com",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-register",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-register\\README.md"
+  },
+  "babel-runtime@6.26.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel/tree/master/packages/babel-runtime",
+    "publisher": "Sebastian McKenzie",
+    "email": "sebmck@gmail.com",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-runtime",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-runtime\\README.md"
+  },
   "babel-runtime@6.9.2": {
     "licenses": "MIT",
     "repository": "https://github.com/babel/babel/tree/master/packages/babel-runtime",
@@ -1478,6 +1888,14 @@
     "email": "sebmck@gmail.com",
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\babel-runtime",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\babel-runtime\\README.md"
+  },
+  "babel-template@6.26.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel/tree/master/packages/babel-template",
+    "publisher": "Sebastian McKenzie",
+    "email": "sebmck@gmail.com",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-template",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-template\\README.md"
   },
   "babel-template@6.9.0": {
     "licenses": "MIT",
@@ -1495,6 +1913,14 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\babel-traverse",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\babel-traverse\\README.md"
   },
+  "babel-traverse@6.26.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel/tree/master/packages/babel-traverse",
+    "publisher": "Sebastian McKenzie",
+    "email": "sebmck@gmail.com",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-traverse",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-traverse\\README.md"
+  },
   "babel-types@6.11.1": {
     "licenses": "MIT",
     "repository": "https://github.com/babel/babel/tree/master/packages/babel-types",
@@ -1502,6 +1928,22 @@
     "email": "sebmck@gmail.com",
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\babel-types",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\babel-types\\README.md"
+  },
+  "babel-types@6.26.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel/tree/master/packages/babel-types",
+    "publisher": "Sebastian McKenzie",
+    "email": "sebmck@gmail.com",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-types",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-types\\README.md"
+  },
+  "babylon@6.18.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babylon",
+    "publisher": "Sebastian McKenzie",
+    "email": "sebmck@gmail.com",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babylon",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babylon\\LICENSE"
   },
   "babylon@6.8.4": {
     "licenses": "MIT",
@@ -1535,6 +1977,15 @@
     "publisher": "Niklas von Hertzen",
     "email": "niklasvh@gmail.com",
     "url": "http://hertzen.com",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\jspdf\\node_modules\\base64-arraybuffer",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\jspdf\\node_modules\\base64-arraybuffer\\LICENSE-MIT"
+  },
+  "base64-arraybuffer@0.2.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/niklasvh/base64-arraybuffer",
+    "publisher": "Niklas von Hertzen",
+    "email": "niklasvh@gmail.com",
+    "url": "https://hertzen.com",
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\base64-arraybuffer",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\base64-arraybuffer\\LICENSE-MIT"
   },
@@ -1629,6 +2080,46 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\phantomjs-prebuilt\\node_modules\\cryptiles\\node_modules\\boom",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\phantomjs-prebuilt\\node_modules\\cryptiles\\node_modules\\boom\\LICENSE"
   },
+  "bootstrap-colorpicker@2.5.3": {
+    "licenses": "Apache-2.0",
+    "repository": "https://github.com/itsjavi/bootstrap-colorpicker",
+    "publisher": "Javier Aguilar",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\bootstrap-colorpicker",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\bootstrap-colorpicker\\LICENSE"
+  },
+  "bootstrap-datepicker@1.9.0": {
+    "licenses": "Apache-2.0",
+    "repository": "https://github.com/uxsolutions/bootstrap-datepicker",
+    "publisher": "Andrew Rowls",
+    "email": "eternicode@gmail.com",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\bootstrap-datepicker",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\bootstrap-datepicker\\LICENSE"
+  },
+  "bootstrap-daterangepicker@2.1.30": {
+    "licenses": "MIT",
+    "repository": "https://github.com/dangrossman/bootstrap-daterangepicker",
+    "publisher": "Dan Grossman",
+    "email": "dan@dangrossman.info",
+    "url": "http://www.dangrossman.info",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\bootstrap-daterangepicker",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\bootstrap-daterangepicker\\README.md"
+  },
+  "bootstrap-slider@9.10.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/seiyria/bootstrap-slider",
+    "publisher": "bootstrap-slider",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\bootstrap-slider",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\bootstrap-slider\\LICENSE.md"
+  },
+  "bootstrap-timepicker@0.5.2": {
+    "licenses": "MIT",
+    "repository": "https://github.com/jdewit/bootstrap-timepicker",
+    "publisher": "Joris de Wit",
+    "email": "joris.w.dewit@gmail.com",
+    "url": "http://jorisdewit.ca",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\bootstrap-timepicker",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\bootstrap-timepicker\\LICENSE"
+  },
   "bootstrap-tour@0.12.0": {
     "licenses": "MIT",
     "repository": "https://github.com/sorich87/bootstrap-tour",
@@ -1638,12 +2129,26 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\bootstrap-tour",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\bootstrap-tour\\LICENSE"
   },
+  "bootstrap-validator@0.11.9": {
+    "licenses": "MIT",
+    "repository": "https://github.com/1000hz/bootstrap-validator",
+    "publisher": "Cina Saffary",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\bootstrap-validator",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\bootstrap-validator\\LICENSE"
+  },
   "bootstrap@3.3.6": {
     "licenses": "MIT",
     "repository": "https://github.com/twbs/bootstrap",
     "publisher": "Twitter, Inc.",
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\bootstrap",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\bootstrap\\LICENSE"
+  },
+  "bootstrap@3.4.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/twbs/bootstrap",
+    "publisher": "Twitter, Inc.",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\admin-lte\\node_modules\\bootstrap",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\admin-lte\\node_modules\\bootstrap\\LICENSE"
   },
   "brace-expansion@1.1.11": {
     "licenses": "MIT",
@@ -1686,6 +2191,23 @@
     "email": "fedor@indutny.com",
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\brorand",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\brorand\\README.md"
+  },
+  "browser-pack@6.1.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/browserify/browser-pack",
+    "publisher": "James Halliday",
+    "email": "mail@substack.net",
+    "url": "http://substack.net",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\browser-pack",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\browser-pack\\LICENSE"
+  },
+  "browser-resolve@1.11.3": {
+    "licenses": "MIT",
+    "repository": "https://github.com/shtylman/node-browser-resolve",
+    "publisher": "Roman Shtylman",
+    "email": "shtylman@gmail.com",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\browser-resolve",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\browser-resolve\\LICENSE"
   },
   "browserify-aes@1.2.0": {
     "licenses": "MIT",
@@ -1734,8 +2256,25 @@
     "repository": "https://github.com/devongovett/browserify-zlib",
     "publisher": "Devon Govett",
     "email": "devongovett@gmail.com",
-    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\node-libs-browser\\node_modules\\browserify-zlib",
-    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\node-libs-browser\\node_modules\\browserify-zlib\\LICENSE"
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\browserify\\node_modules\\browserify-zlib",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\browserify\\node_modules\\browserify-zlib\\LICENSE"
+  },
+  "browserify@16.4.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/browserify/browserify",
+    "publisher": "James Halliday",
+    "email": "mail@substack.net",
+    "url": "http://substack.net",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\browserify",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\browserify\\LICENSE"
+  },
+  "browserslist@3.2.8": {
+    "licenses": "MIT",
+    "repository": "https://github.com/browserslist/browserslist",
+    "publisher": "Andrey Sitnik",
+    "email": "andrey@sitnik.ru",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\browserslist",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\browserslist\\LICENSE"
   },
   "buffer-crc32@0.2.13": {
     "licenses": "MIT",
@@ -1766,6 +2305,15 @@
     "url": "http://feross.org",
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\buffer",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\buffer\\LICENSE"
+  },
+  "buffer@5.2.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/feross/buffer",
+    "publisher": "Feross Aboukhadijeh",
+    "email": "feross@feross.org",
+    "url": "http://feross.org",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\browserify\\node_modules\\buffer",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\browserify\\node_modules\\buffer\\LICENSE"
   },
   "builtin-modules@1.1.1": {
     "licenses": "MIT",
@@ -1827,6 +2375,12 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\cache-base",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\cache-base\\LICENSE"
   },
+  "cached-path-relative@1.0.2": {
+    "licenses": "MIT",
+    "repository": "https://github.com/ashaffer/cached-path-relative",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\cached-path-relative",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\cached-path-relative\\Readme.md"
+  },
   "caching-transform@1.0.1": {
     "licenses": "MIT",
     "repository": "https://github.com/jamestalmage/caching-transform",
@@ -1880,6 +2434,15 @@
     "url": "sindresorhus.com",
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\yargs-parser\\node_modules\\camelcase",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\yargs-parser\\node_modules\\camelcase\\license"
+  },
+  "caniuse-lite@1.0.30000989": {
+    "licenses": "CC-BY-4.0",
+    "repository": "https://github.com/ben-eb/caniuse-lite",
+    "publisher": "Ben Briggs",
+    "email": "beneb.info@gmail.com",
+    "url": "http://beneb.info",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\caniuse-lite",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\caniuse-lite\\LICENSE"
   },
   "canvg@1.5.3": {
     "licenses": "MIT",
@@ -1938,6 +2501,21 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\license-checker\\node_modules\\chalk",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\license-checker\\node_modules\\chalk\\license"
   },
+  "charm@0.1.2": {
+    "licenses": "MIT*",
+    "repository": "https://github.com/substack/node-charm",
+    "publisher": "James Halliday",
+    "email": "mail@substack.net",
+    "url": "http://substack.net",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\charm",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\charm\\README.markdown"
+  },
+  "chart.js@1.0.2": {
+    "licenses": "MIT*",
+    "repository": "https://github.com/nnnick/Chart.js",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\chart.js",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\chart.js\\LICENSE.md"
+  },
   "chokidar@2.0.4": {
     "licenses": "MIT",
     "repository": "https://github.com/paulmillr/chokidar",
@@ -1979,6 +2557,14 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\cipher-base",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\cipher-base\\LICENSE"
   },
+  "ckeditor@4.12.1": {
+    "licenses": "(GPL-2.0 OR LGPL-2.1 OR MPL-1.1)",
+    "repository": "https://github.com/ckeditor/ckeditor-releases",
+    "publisher": "CKSource",
+    "url": "http://cksource.com/",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\ckeditor",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\ckeditor\\LICENSE.md"
+  },
   "class-utils@0.3.6": {
     "licenses": "MIT",
     "repository": "https://github.com/jonschlinkert/class-utils",
@@ -1986,6 +2572,15 @@
     "url": "https://github.com/jonschlinkert",
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\class-utils",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\class-utils\\LICENSE"
+  },
+  "classie@1.0.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/yawetse/classie",
+    "publisher": "Yaw Joseph Etse",
+    "email": "yaw.etse@gmail.com",
+    "url": "https://github.com/yawetse",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\classie",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\classie\\README.md"
   },
   "classybrew@0.0.3": {
     "licenses": "MIT",
@@ -2162,6 +2757,15 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\colors",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\colors\\LICENSE"
   },
+  "combine-source-map@0.8.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/thlorenz/combine-source-map",
+    "publisher": "Thorsten Lorenz",
+    "email": "thlorenz@gmx.de",
+    "url": "http://thlorenz.com",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\combine-source-map",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\combine-source-map\\LICENSE"
+  },
   "combined-stream@1.0.5": {
     "licenses": "MIT",
     "repository": "https://github.com/felixge/node-combined-stream",
@@ -2256,8 +2860,8 @@
     "repository": "https://github.com/maxogden/concat-stream",
     "publisher": "Max Ogden",
     "email": "max@maxogden.com",
-    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\js-xlsx\\node_modules\\concat-stream",
-    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\js-xlsx\\node_modules\\concat-stream\\LICENSE"
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\insert-module-globals\\node_modules\\concat-stream",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\insert-module-globals\\node_modules\\concat-stream\\LICENSE"
   },
   "concaveman@1.1.1": {
     "licenses": "ISC",
@@ -2300,6 +2904,15 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\content-type",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\content-type\\LICENSE"
   },
+  "convert-source-map@1.1.3": {
+    "licenses": "MIT",
+    "repository": "https://github.com/thlorenz/convert-source-map",
+    "publisher": "Thorsten Lorenz",
+    "email": "thlorenz@gmx.de",
+    "url": "http://thlorenz.com",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\convert-source-map",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\convert-source-map\\LICENSE"
+  },
   "convert-source-map@1.3.0": {
     "licenses": "MIT",
     "repository": "https://github.com/thlorenz/convert-source-map",
@@ -2308,6 +2921,15 @@
     "url": "http://thlorenz.com",
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\convert-source-map",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\convert-source-map\\LICENSE"
+  },
+  "convert-source-map@1.6.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/thlorenz/convert-source-map",
+    "publisher": "Thorsten Lorenz",
+    "email": "thlorenz@gmx.de",
+    "url": "http://thlorenz.com",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-core\\node_modules\\convert-source-map",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-core\\node_modules\\convert-source-map\\LICENSE"
   },
   "copy-concurrently@1.0.5": {
     "licenses": "ISC",
@@ -2338,6 +2960,12 @@
     "repository": "https://github.com/zloirock/core-js",
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\core-js",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\core-js\\LICENSE"
+  },
+  "core-js@2.6.9": {
+    "licenses": "MIT",
+    "repository": "https://github.com/zloirock/core-js",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\core-js",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\core-js\\LICENSE"
   },
   "core-util-is@1.0.2": {
     "licenses": "MIT",
@@ -2458,6 +3086,15 @@
     "publisher": "Niklas von Hertzen",
     "email": "niklasvh@gmail.com",
     "url": "https://hertzen.com",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\jspdf\\node_modules\\css-line-break",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\jspdf\\node_modules\\css-line-break\\LICENSE"
+  },
+  "css-line-break@1.1.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/niklasvh/css-line-break",
+    "publisher": "Niklas von Hertzen",
+    "email": "niklasvh@gmail.com",
+    "url": "https://hertzen.com",
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\css-line-break",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\css-line-break\\LICENSE"
   },
@@ -2524,6 +3161,14 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\d3-voronoi",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\d3-voronoi\\LICENSE"
   },
+  "dash-ast@1.0.0": {
+    "licenses": "Apache-2.0",
+    "repository": "https://github.com/goto-bus-stop/dash-ast",
+    "publisher": "Renée Kooi",
+    "email": "renee@kooi.me",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\dash-ast",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\dash-ast\\LICENSE.md"
+  },
   "dashdash@1.14.1": {
     "licenses": "MIT",
     "repository": "https://github.com/trentm/node-dashdash",
@@ -2532,6 +3177,38 @@
     "url": "http://trentm.com",
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\dashdash",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\dashdash\\LICENSE.txt"
+  },
+  "datatables.net-bs@1.10.19": {
+    "licenses": "MIT",
+    "repository": "https://github.com/DataTables/Dist-DataTables-Bootstrap",
+    "publisher": "SpryMedia Ltd",
+    "url": "http://datatables.net",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\admin-lte\\node_modules\\datatables.net-bs",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\admin-lte\\node_modules\\datatables.net-bs\\License.txt"
+  },
+  "datatables.net-bs@2.1.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/DataTables/Dist-DataTables-Bootstrap",
+    "publisher": "SpryMedia Ltd",
+    "url": "http://datatables.net",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\datatables.net-bs",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\datatables.net-bs\\Readme.md"
+  },
+  "datatables.net-dt@1.10.19": {
+    "licenses": "MIT",
+    "repository": "https://github.com/DataTables/Dist-DataTables-DataTables",
+    "publisher": "SpryMedia Ltd",
+    "url": "http://datatables.net",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\datatables.net-dt",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\datatables.net-dt\\License.txt"
+  },
+  "datatables.net@1.10.19": {
+    "licenses": "MIT",
+    "repository": "https://github.com/DataTables/Dist-DataTables",
+    "publisher": "SpryMedia Ltd",
+    "url": "http://datatables.net",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\datatables.net",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\datatables.net\\License.txt"
   },
   "date-now@0.1.4": {
     "licenses": "MIT",
@@ -2673,6 +3350,15 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\define-property",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\define-property\\LICENSE"
   },
+  "defined@1.0.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/substack/defined",
+    "publisher": "James Halliday",
+    "email": "mail@substack.net",
+    "url": "http://substack.net",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\defined",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\defined\\LICENSE"
+  },
   "delayed-stream@1.0.0": {
     "licenses": "MIT",
     "repository": "https://github.com/felixge/node-delayed-stream",
@@ -2703,6 +3389,15 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\depd",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\depd\\LICENSE"
   },
+  "deps-sort@2.0.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/substack/deps-sort",
+    "publisher": "James Halliday",
+    "email": "mail@substack.net",
+    "url": "http://substack.net",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\deps-sort",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\deps-sort\\LICENSE"
+  },
   "des.js@1.0.0": {
     "licenses": "MIT",
     "repository": "https://github.com/indutny/des.js",
@@ -2720,6 +3415,15 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\detect-indent",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\detect-indent\\license"
   },
+  "detect-indent@4.0.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/sindresorhus/detect-indent",
+    "publisher": "Sindre Sorhus",
+    "email": "sindresorhus@gmail.com",
+    "url": "sindresorhus.com",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\detect-indent",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\detect-indent\\license"
+  },
   "detect-libc@1.0.3": {
     "licenses": "Apache-2.0",
     "repository": "https://github.com/lovell/detect-libc",
@@ -2727,6 +3431,15 @@
     "email": "npm@lovell.info",
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\sqlite3\\node_modules\\detect-libc",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\sqlite3\\node_modules\\detect-libc\\LICENSE"
+  },
+  "detective@5.2.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/browserify/detective",
+    "publisher": "James Halliday",
+    "email": "mail@substack.net",
+    "url": "http://substack.net",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\detective",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\detective\\LICENSE"
   },
   "dezalgo@1.0.3": {
     "licenses": "ISC",
@@ -2767,6 +3480,14 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\dom-serializer",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\dom-serializer\\LICENSE"
   },
+  "dom-to-image@2.6.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/tsayen/dom-to-image",
+    "publisher": "Anatolii Saienko",
+    "email": "anatoly.sayenko@gmail.com",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\dom-to-image",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\dom-to-image\\LICENSE"
+  },
   "domain-browser@1.2.0": {
     "licenses": "MIT",
     "repository": "https://github.com/bevry/domain-browser",
@@ -2800,6 +3521,12 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\domhandler",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\domhandler\\LICENSE"
   },
+  "domhelper@0.9.1": {
+    "licenses": "MIT*",
+    "repository": "https://github.com/yawetse/domhelper",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\domhelper",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\domhelper\\LICENSE"
+  },
   "domutils@1.5.1": {
     "licenses": "BSD*",
     "repository": "https://github.com/FB55/domutils",
@@ -2807,6 +3534,15 @@
     "email": "me@feedic.com",
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\domutils",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\domutils\\LICENSE"
+  },
+  "duplexer2@0.1.4": {
+    "licenses": "BSD-3-Clause",
+    "repository": "https://github.com/deoxxa/duplexer2",
+    "publisher": "Conrad Pankoff",
+    "email": "deoxxa@fknsrs.biz",
+    "url": "http://www.fknsrs.biz/",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\duplexer2",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\duplexer2\\LICENSE.md"
   },
   "duplexer@0.1.1": {
     "licenses": "MIT",
@@ -2871,6 +3607,13 @@
     "url": "http://jongleberry.com",
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\ee-first",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\ee-first\\LICENSE"
+  },
+  "electron-to-chromium@1.3.244": {
+    "licenses": "ISC",
+    "repository": "https://github.com/kilian/electron-to-chromium",
+    "publisher": "Kilian Valkhof",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\electron-to-chromium",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\electron-to-chromium\\LICENSE"
   },
   "elliptic@6.4.1": {
     "licenses": "MIT",
@@ -2946,6 +3689,14 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\es6-promise",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\es6-promise\\LICENSE"
   },
+  "es6-promise@4.2.8": {
+    "licenses": "MIT",
+    "repository": "https://github.com/stefanpenner/es6-promise",
+    "publisher": "Yehuda Katz, Tom Dale, Stefan Penner and contributors",
+    "url": "Conversion to ES6 API by Jake Archibald",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\html2pdf.js\\node_modules\\es6-promise",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\html2pdf.js\\node_modules\\es6-promise\\LICENSE"
+  },
   "escape-string-regexp@1.0.5": {
     "licenses": "MIT",
     "repository": "https://github.com/sindresorhus/escape-string-regexp",
@@ -3001,6 +3752,15 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\esutils",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\esutils\\LICENSE.BSD"
   },
+  "eve-raphael@0.5.0": {
+    "licenses": "Apache*",
+    "repository": "https://github.com/tomasAlabes/eve",
+    "publisher": "Dmitry Baranovskiy",
+    "email": "dmitry@baranovskiy.com",
+    "url": "http://dmitry.baranovskiy.com",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\eve-raphael",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\eve-raphael\\LICENSE"
+  },
   "event-stream@3.3.5": {
     "licenses": "MIT",
     "repository": "https://github.com/dominictarr/event-stream",
@@ -3042,6 +3802,15 @@
     "url": "http://jeditoolkit.com",
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\events",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\events\\LICENSE"
+  },
+  "events@2.1.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/Gozala/events",
+    "publisher": "Irakli Gozalishvili",
+    "email": "rfobic@gmail.com",
+    "url": "http://jeditoolkit.com",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\browserify\\node_modules\\events",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\browserify\\node_modules\\events\\LICENSE"
   },
   "evp_bytestokey@1.0.3": {
     "licenses": "MIT",
@@ -3203,6 +3972,14 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\fast-levenshtein",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\fast-levenshtein\\LICENSE.md"
   },
+  "fastclick@1.0.6": {
+    "licenses": "MIT",
+    "repository": "https://github.com/ftlabs/fastclick",
+    "publisher": "Rowan Beentje",
+    "email": "rowan.beentje@ft.com",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\fastclick",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\fastclick\\LICENSE"
+  },
   "faye-websocket@0.10.0": {
     "licenses": "MIT",
     "repository": "https://github.com/faye/faye-websocket-node",
@@ -3352,6 +4129,11 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\findup-sync",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\findup-sync\\LICENSE-MIT"
   },
+  "flot@0.8.3": {
+    "licenses": "MIT*",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\flot",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\flot\\LICENSE.txt"
+  },
   "flush-write-stream@1.0.3": {
     "licenses": "MIT",
     "repository": "https://github.com/mafintosh/flush-write-stream",
@@ -3359,6 +4141,15 @@
     "url": "@mafintosh",
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\flush-write-stream",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\flush-write-stream\\LICENSE"
+  },
+  "font-awesome@4.7.0": {
+    "licenses": "(OFL-1.1 AND MIT)",
+    "repository": "https://github.com/FortAwesome/Font-Awesome",
+    "publisher": "Dave Gandy",
+    "email": "dave@fontawesome.io",
+    "url": "http://twitter.com/davegandy",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\font-awesome",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\font-awesome\\README.md"
   },
   "for-in@0.1.5": {
     "licenses": "MIT",
@@ -3504,6 +4295,23 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\fs.realpath",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\fs.realpath\\LICENSE"
   },
+  "fullcalendar@3.10.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/fullcalendar/fullcalendar",
+    "publisher": "Adam Shaw",
+    "email": "arshaw@arshaw.com",
+    "url": "http://arshaw.com/",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\fullcalendar",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\fullcalendar\\LICENSE.txt"
+  },
+  "function-bind@1.1.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/Raynos/function-bind",
+    "publisher": "Raynos",
+    "email": "raynos2@gmail.com",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\function-bind",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\function-bind\\LICENSE"
+  },
   "gauge@2.7.4": {
     "licenses": "ISC",
     "repository": "https://github.com/iarna/gauge",
@@ -3556,6 +4364,14 @@
     "publisher": "Tom MacWright",
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\geojson-stream",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\geojson-stream\\README.md"
+  },
+  "get-assigned-identifiers@1.2.0": {
+    "licenses": "Apache-2.0",
+    "repository": "https://github.com/goto-bus-stop/get-assigned-identifiers",
+    "publisher": "Renée Kooi",
+    "email": "renee@kooi.me",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\get-assigned-identifiers",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\get-assigned-identifiers\\LICENSE.md"
   },
   "get-caller-file@1.0.1": {
     "licenses": "ISC",
@@ -3695,8 +4511,8 @@
     "publisher": "Isaac Z. Schlueter",
     "email": "i@izs.me",
     "url": "http://blog.izs.me/",
-    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\read-package-json\\node_modules\\glob",
-    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\read-package-json\\node_modules\\glob\\LICENSE"
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\browserify\\node_modules\\glob",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\browserify\\node_modules\\glob\\LICENSE"
   },
   "global-modules-path@2.3.1": {
     "licenses": "Apache-2.0",
@@ -3714,6 +4530,15 @@
     "url": "http://sindresorhus.com",
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\globals",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\globals\\license"
+  },
+  "globals@9.18.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/sindresorhus/globals",
+    "publisher": "Sindre Sorhus",
+    "email": "sindresorhus@gmail.com",
+    "url": "http://sindresorhus.com",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\globals",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\globals\\license"
   },
   "globby@7.1.1": {
     "licenses": "MIT",
@@ -3750,6 +4575,23 @@
     "publisher": "zhiyelee",
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\graceful-readlink",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\graceful-readlink\\LICENSE"
+  },
+  "gridstack@0.6.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/gridstack/gridstack.js",
+    "publisher": "Pavel Reznikov",
+    "email": "pashka.reznikov@gmail.com",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\gridstack",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\gridstack\\LICENSE"
+  },
+  "grunt-babel@7.0.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/grunt-babel",
+    "publisher": "Sindre Sorhus",
+    "email": "sindresorhus@gmail.com",
+    "url": "sindresorhus.com",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\grunt-babel",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\grunt-babel\\license"
   },
   "grunt-cli@1.2.0": {
     "licenses": "MIT",
@@ -4029,6 +4871,14 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\has-values",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\has-values\\LICENSE"
   },
+  "has@1.0.3": {
+    "licenses": "MIT",
+    "repository": "https://github.com/tarruda/has",
+    "publisher": "Thiago de Arruda",
+    "email": "tpadilha84@gmail.com",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\has",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\has\\LICENSE-MIT"
+  },
   "hash-base@3.0.4": {
     "licenses": "MIT",
     "repository": "https://github.com/crypto-browserify/hash-base",
@@ -4101,6 +4951,15 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\phantomjs-prebuilt\\node_modules\\hoek",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\phantomjs-prebuilt\\node_modules\\hoek\\LICENSE"
   },
+  "home-or-tmp@2.0.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/sindresorhus/home-or-tmp",
+    "publisher": "Sindre Sorhus",
+    "email": "sindresorhus@gmail.com",
+    "url": "sindresorhus.com",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\home-or-tmp",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\home-or-tmp\\license"
+  },
   "hooker@0.2.3": {
     "licenses": "MIT",
     "repository": "https://github.com/cowboy/javascript-hooker",
@@ -4133,8 +4992,34 @@
     "publisher": "Niklas von Hertzen",
     "email": "niklasvh@gmail.com",
     "url": "https://hertzen.com",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\jspdf\\node_modules\\html2canvas",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\jspdf\\node_modules\\html2canvas\\LICENSE"
+  },
+  "html2canvas@1.0.0-rc.5": {
+    "licenses": "MIT",
+    "repository": "https://github.com/niklasvh/html2canvas",
+    "publisher": "Niklas von Hertzen",
+    "email": "niklasvh@gmail.com",
+    "url": "https://hertzen.com",
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\html2canvas",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\html2canvas\\LICENSE"
+  },
+  "html2pdf.js@0.9.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/eKoopmans/html2pdf",
+    "publisher": "Erik Koopmans",
+    "email": "erik@erik-koopmans.com",
+    "url": "https://www.erik-koopmans.com",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\html2pdf.js",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\html2pdf.js\\LICENSE"
+  },
+  "htmlescape@1.1.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/zertosh/htmlescape",
+    "publisher": "Andres Suarez",
+    "email": "zertosh@gmail.com",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\htmlescape",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\htmlescape\\LICENSE"
   },
   "htmlparser2@3.8.3": {
     "licenses": "MIT",
@@ -4255,6 +5140,12 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\ignore",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\ignore\\README.md"
   },
+  "immediate@3.0.6": {
+    "licenses": "MIT",
+    "repository": "https://github.com/calvinmetcalf/immediate",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\immediate",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\immediate\\LICENSE.txt"
+  },
   "import-local@2.0.0": {
     "licenses": "MIT",
     "repository": "https://github.com/sindresorhus/import-local",
@@ -4308,8 +5199,8 @@
   "inherits@2.0.1": {
     "licenses": "ISC",
     "repository": "https://github.com/isaacs/inherits",
-    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\inherits",
-    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\inherits\\LICENSE"
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\assert\\node_modules\\inherits",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\assert\\node_modules\\inherits\\LICENSE"
   },
   "inherits@2.0.3": {
     "licenses": "ISC",
@@ -4326,6 +5217,23 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\sqlite3\\node_modules\\ini",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\sqlite3\\node_modules\\ini\\LICENSE"
   },
+  "inline-source-map@0.6.2": {
+    "licenses": "MIT",
+    "repository": "https://github.com/thlorenz/inline-source-map",
+    "publisher": "Thorsten Lorenz",
+    "email": "thlorenz@gmx.de",
+    "url": "http://thlorenz.com",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\inline-source-map",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\inline-source-map\\LICENSE"
+  },
+  "inputmask@3.3.11": {
+    "licenses": "MIT",
+    "repository": "https://github.com/RobinHerbots/Inputmask",
+    "publisher": "Robin Herbots",
+    "url": "https://github.com/RobinHerbots",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\inputmask",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\inputmask\\LICENSE.txt"
+  },
   "inquirer@1.2.3": {
     "licenses": "MIT",
     "repository": "https://github.com/SBoudrias/Inquirer.js",
@@ -4333,6 +5241,15 @@
     "email": "admin@simonboudrias.com",
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\inquirer",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\inquirer\\README.md"
+  },
+  "insert-module-globals@7.2.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/browserify/insert-module-globals",
+    "publisher": "James Halliday",
+    "email": "mail@substack.net",
+    "url": "http://substack.net",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\insert-module-globals",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\insert-module-globals\\LICENSE"
   },
   "interpret@1.1.0": {
     "licenses": "MIT",
@@ -4349,6 +5266,14 @@
     "email": "zertosh@gmail.com",
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\invariant",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\invariant\\README.md"
+  },
+  "invariant@2.2.4": {
+    "licenses": "MIT",
+    "repository": "https://github.com/zertosh/invariant",
+    "publisher": "Andres Suarez",
+    "email": "zertosh@gmail.com",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\invariant",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\invariant\\LICENSE"
   },
   "invert-kv@1.0.0": {
     "licenses": "MIT",
@@ -4376,6 +5301,14 @@
     "url": "IonDen",
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\ion-rangeslider",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\ion-rangeslider\\License.md"
+  },
+  "ionicons@3.0.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/driftyco/ionicons",
+    "publisher": "Ben Sperry",
+    "url": "https://twitter.com/bensperry",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\ionicons",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\ionicons\\LICENSE"
   },
   "is-accessor-descriptor@0.1.6": {
     "licenses": "MIT",
@@ -4434,8 +5367,8 @@
     "publisher": "Sindre Sorhus",
     "email": "sindresorhus@gmail.com",
     "url": "sindresorhus.com",
-    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\is-builtin-module",
-    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\is-builtin-module\\license"
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\is-builtin-module",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\is-builtin-module\\license"
   },
   "is-data-descriptor@0.1.4": {
     "licenses": "MIT",
@@ -4660,8 +5593,8 @@
     "licenses": "MIT",
     "repository": "https://github.com/wayfind/is-utf8",
     "publisher": "wayfind",
-    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\is-utf8",
-    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\is-utf8\\LICENSE"
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\is-utf8",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\is-utf8\\LICENSE"
   },
   "is-windows@1.0.2": {
     "licenses": "MIT",
@@ -4796,6 +5729,47 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\jpeg-js",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\jpeg-js\\LICENSE"
   },
+  "jquery-knob@1.2.11": {
+    "licenses": "MIT",
+    "repository": "https://github.com/aterrien/jQuery-Knob",
+    "publisher": "Anthony Terrien",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\jquery-knob",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\jquery-knob\\LICENSE"
+  },
+  "jquery-slimscroll@1.3.8": {
+    "licenses": [
+      "MIT",
+      "GPL"
+    ],
+    "repository": "https://github.com/rochal/jQuery-slimScroll",
+    "publisher": "Piotr Rochala",
+    "url": "http://rocha.la/",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\jquery-slimscroll",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\jquery-slimscroll\\README.md"
+  },
+  "jquery-sparkline@2.4.0": {
+    "licenses": "BSD-2-Clause",
+    "repository": "https://github.com/imsky/jquery.sparkline",
+    "publisher": "gwatts",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\jquery-sparkline",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\jquery-sparkline\\README.md"
+  },
+  "jquery-ui-dist@1.12.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/jquery/jquery-ui",
+    "publisher": "jQuery Foundation and other contributors",
+    "url": "https://github.com/jquery/jquery-ui/blob/1.12.1/AUTHORS.txt",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\jquery-ui-dist",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\jquery-ui-dist\\LICENSE.txt"
+  },
+  "jquery-ui@1.12.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/jquery/jquery-ui",
+    "publisher": "jQuery Foundation and other contributors",
+    "url": "https://github.com/jquery/jquery-ui/blob/1.12.1/AUTHORS.txt",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\jquery-ui",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\jquery-ui\\LICENSE.txt"
+  },
   "jquery@2.2.4": {
     "licenses": "MIT",
     "repository": "https://github.com/jquery/jquery",
@@ -4803,6 +5777,14 @@
     "url": "https://github.com/jquery/jquery/blob/2.2.4/AUTHORS.txt",
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\jquery",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\jquery\\LICENSE.txt"
+  },
+  "jquery@3.4.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/jquery/jquery",
+    "publisher": "JS Foundation and other contributors",
+    "url": "https://github.com/jquery/jquery/blob/3.4.1/AUTHORS.txt",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\admin-lte\\node_modules\\jquery",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\admin-lte\\node_modules\\jquery\\LICENSE.txt"
   },
   "js-tokens@1.0.3": {
     "licenses": "MIT",
@@ -4817,6 +5799,13 @@
     "publisher": "Simon Lydell",
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\js-tokens",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\js-tokens\\LICENSE"
+  },
+  "js-tokens@3.0.2": {
+    "licenses": "MIT",
+    "repository": "https://github.com/lydell/js-tokens",
+    "publisher": "Simon Lydell",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\js-tokens",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\js-tokens\\LICENSE"
   },
   "js-xlsx@0.8.22": {
     "licenses": "Apache-2.0",
@@ -4853,6 +5842,22 @@
     "repository": "https://github.com/tmpvar/jsdom",
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\jsdom",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\jsdom\\LICENSE.txt"
+  },
+  "jsesc@0.5.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/mathiasbynens/jsesc",
+    "publisher": "Mathias Bynens",
+    "url": "http://mathiasbynens.be/",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\regjsparser\\node_modules\\jsesc",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\regjsparser\\node_modules\\jsesc\\LICENSE-MIT.txt"
+  },
+  "jsesc@1.3.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/mathiasbynens/jsesc",
+    "publisher": "Mathias Bynens",
+    "url": "https://mathiasbynens.be/",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\jsesc",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\jsesc\\LICENSE-MIT.txt"
   },
   "jshint@2.9.5": {
     "licenses": "(MIT AND JSON)",
@@ -4895,6 +5900,15 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\json-schema",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\json-schema\\README.md"
   },
+  "json-stable-stringify@0.0.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/substack/json-stable-stringify",
+    "publisher": "James Halliday",
+    "email": "mail@substack.net",
+    "url": "http://substack.net",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\json-stable-stringify",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\json-stable-stringify\\LICENSE"
+  },
   "json-stringify-safe@5.0.1": {
     "licenses": "ISC",
     "repository": "https://github.com/isaacs/json-stringify-safe",
@@ -4919,6 +5933,14 @@
     "email": "jprichardson@gmail.com",
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\jsonfile",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\jsonfile\\LICENSE"
+  },
+  "jsonify@0.0.0": {
+    "licenses": "Public Domain",
+    "repository": "https://github.com/substack/jsonify",
+    "publisher": "Douglas Crockford",
+    "url": "http://crockford.com/",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\jsonify",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\jsonify\\README.markdown"
   },
   "jsonparse@1.3.1": {
     "licenses": "MIT",
@@ -4981,6 +6003,13 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\shp-write\\node_modules\\jszip",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\shp-write\\node_modules\\jszip\\LICENSE.markdown"
   },
+  "jvectormap@1.2.2": {
+    "licenses": "MIT",
+    "publisher": "Kirill Lebedev",
+    "email": "echo.bjornd@gmail.com",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\jvectormap",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\jvectormap\\README.md"
+  },
   "kew@0.7.0": {
     "licenses": "Apache-2.0",
     "repository": "https://github.com/Medium/kew",
@@ -5040,6 +6069,15 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\LICENSE"
   },
+  "labeled-stream-splicer@2.0.2": {
+    "licenses": "MIT",
+    "repository": "https://github.com/browserify/labeled-stream-splicer",
+    "publisher": "James Halliday",
+    "email": "mail@substack.net",
+    "url": "http://substack.net",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\labeled-stream-splicer",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\labeled-stream-splicer\\LICENSE"
+  },
   "lazy-cache@1.0.4": {
     "licenses": "MIT",
     "repository": "https://github.com/jonschlinkert/lazy-cache",
@@ -5089,12 +6127,52 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\leaflet-draw",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\leaflet-draw\\README.md"
   },
+  "leaflet-easyprint@2.1.9": {
+    "licenses": "MIT",
+    "repository": "https://github.com/rowanwins/leaflet-easyPrint",
+    "publisher": "Rowan Winsemius",
+    "email": "rowanwins@yahoo.com.au",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\leaflet-easyprint",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\leaflet-easyprint\\LICENSE"
+  },
+  "leaflet-geosearch@2.7.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/smeijer/leaflet-geosearch",
+    "publisher": "Stephan Meijer",
+    "email": "stephan@meijer.ws",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\leaflet-geosearch",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\leaflet-geosearch\\LICENSE"
+  },
   "leaflet-groupedlayercontrol@0.6.1": {
     "licenses": "MIT",
     "repository": "https://github.com/ismyrnow/leaflet-groupedlayercontrol",
     "publisher": "Ishmael Smyrnow",
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\leaflet-groupedlayercontrol",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\leaflet-groupedlayercontrol\\LICENSE.txt"
+  },
+  "leaflet-measure@3.1.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/ljagis/leaflet-measure",
+    "publisher": "LJA Engineering, Inc - GIS",
+    "email": "gisdev@ljaengineering.com",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\leaflet-measure",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\leaflet-measure\\LICENSE"
+  },
+  "leaflet-search@2.9.8": {
+    "licenses": "MIT",
+    "repository": "https://github.com/stefanocudini/leaflet-search",
+    "publisher": "Stefano Cudini",
+    "email": "stefano.cudini@gmail.com",
+    "url": "http://labs.easyblog.it/",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\leaflet-search",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\leaflet-search\\license.txt"
+  },
+  "leaflet-wfst@2.0.1-beta.21": {
+    "licenses": "MIT",
+    "repository": "https://github.com/Flexberry/Leaflet-WFST",
+    "publisher": "New Platform Ltd",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\leaflet-wfst",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\leaflet-wfst\\LICENSE.md"
   },
   "leaflet.awesome-markers@2.0.5": {
     "licenses": "ISC",
@@ -5120,7 +6198,7 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\leaflet.pattern\\node_modules\\leaflet",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\leaflet.pattern\\node_modules\\leaflet\\LICENSE"
   },
-  "leaflet@1.3.4": {
+  "leaflet@1.5.1": {
     "licenses": "BSD-2-Clause",
     "repository": "https://github.com/Leaflet/Leaflet",
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\leaflet",
@@ -5142,6 +6220,12 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\license-checker",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\license-checker\\LICENSE"
   },
+  "lie@3.3.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/calvinmetcalf/lie",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\lie",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\lie\\license.md"
+  },
   "lineclip@1.1.5": {
     "licenses": "ISC",
     "repository": "https://github.com/mapbox/lineclip",
@@ -5161,8 +6245,8 @@
     "publisher": "Sindre Sorhus",
     "email": "sindresorhus@gmail.com",
     "url": "sindresorhus.com",
-    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\load-json-file",
-    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\load-json-file\\license"
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\load-json-file",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\load-json-file\\license"
   },
   "loader-runner@2.3.1": {
     "licenses": "MIT",
@@ -5232,6 +6316,15 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\lodash.keys",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\lodash.keys\\LICENSE"
   },
+  "lodash.memoize@3.0.4": {
+    "licenses": "MIT",
+    "repository": "https://github.com/lodash/lodash",
+    "publisher": "John-David Dalton",
+    "email": "john.david.dalton@gmail.com",
+    "url": "http://allyoucanleet.com/",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\lodash.memoize",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\lodash.memoize\\LICENSE.txt"
+  },
   "lodash.rest@4.0.3": {
     "licenses": "MIT",
     "repository": "https://github.com/lodash/lodash",
@@ -5286,6 +6379,14 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\@ngageoint\\geopackage\\node_modules\\lodash",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\@ngageoint\\geopackage\\node_modules\\lodash\\LICENSE"
   },
+  "lodash@4.17.15": {
+    "licenses": "MIT",
+    "repository": "https://github.com/lodash/lodash",
+    "publisher": "John-David Dalton",
+    "email": "john.david.dalton@gmail.com",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\leaflet-measure\\node_modules\\lodash",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\leaflet-measure\\node_modules\\lodash\\LICENSE"
+  },
   "lodash@4.17.5": {
     "licenses": "MIT",
     "repository": "https://github.com/lodash/lodash",
@@ -5326,6 +6427,14 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\loose-envify",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\loose-envify\\README.md"
   },
+  "loose-envify@1.4.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/zertosh/loose-envify",
+    "publisher": "Andres Suarez",
+    "email": "zertosh@gmail.com",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\loose-envify",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\loose-envify\\LICENSE"
+  },
   "loud-rejection@1.6.0": {
     "licenses": "MIT",
     "repository": "https://github.com/sindresorhus/loud-rejection",
@@ -5334,6 +6443,14 @@
     "url": "sindresorhus.com",
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\loud-rejection",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\loud-rejection\\license"
+  },
+  "lru-cache@2.7.3": {
+    "licenses": "ISC",
+    "repository": "https://github.com/isaacs/node-lru-cache",
+    "publisher": "Isaac Z. Schlueter",
+    "email": "i@izs.me",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\shpjs\\node_modules\\lru-cache",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\shpjs\\node_modules\\lru-cache\\LICENSE"
   },
   "lru-cache@4.0.1": {
     "licenses": "ISC",
@@ -5577,8 +6694,8 @@
     "publisher": "James Halliday",
     "email": "mail@substack.net",
     "url": "http://substack.net",
-    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\minimist",
-    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\minimist\\LICENSE"
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\mkdirp\\node_modules\\minimist",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\mkdirp\\node_modules\\minimist\\LICENSE"
   },
   "minimist@1.2.0": {
     "licenses": "MIT",
@@ -5647,12 +6764,38 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\mkdirp",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\mkdirp\\LICENSE"
   },
+  "module-deps@6.2.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/browserify/module-deps",
+    "publisher": "James Halliday",
+    "email": "mail@substack.net",
+    "url": "http://substack.net",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\module-deps",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\module-deps\\LICENSE"
+  },
+  "moment@2.24.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/moment/moment",
+    "publisher": "Iskren Ivov Chernev",
+    "email": "iskren.chernev@gmail.com",
+    "url": "https://github.com/ichernev",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\moment",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\moment\\LICENSE"
+  },
   "monotone-convex-hull-2d@1.0.1": {
     "licenses": "MIT",
     "repository": "https://github.com/mikolalysenko/monotone-convex-hull-2d",
     "publisher": "Mikola Lysenko",
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\monotone-convex-hull-2d",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\monotone-convex-hull-2d\\LICENSE"
+  },
+  "morris.js@0.5.1": {
+    "licenses": "BSD-2-Clause",
+    "repository": "https://github.com/morrisjs/morris.js",
+    "publisher": "Olly Smith",
+    "email": "olly@oesmith.co.uk",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\morris.js",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\morris.js\\README.md"
   },
   "move-concurrently@1.0.1": {
     "licenses": "ISC",
@@ -5738,6 +6881,13 @@
     "email": "dane@mapbox.com",
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\sqlite3\\node_modules\\node-pre-gyp",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\sqlite3\\node_modules\\node-pre-gyp\\LICENSE"
+  },
+  "nodent-runtime@3.2.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/MatAtBread/nodent-runtime",
+    "publisher": "matatbread",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nodent-runtime",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nodent-runtime\\LICENSE"
   },
   "nodeunit@0.9.5": {
     "licenses": "MIT",
@@ -6148,6 +7298,14 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\p-try",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\p-try\\license"
   },
+  "pace@0.0.4": {
+    "licenses": "MIT*",
+    "repository": "https://github.com/cpsubrian/pace",
+    "publisher": "Brian Link",
+    "email": "cpsubrian@gmail.com",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\pace",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\pace\\README.md"
+  },
   "package@1.0.1": {
     "licenses": "MIT*",
     "repository": "https://github.com/vesln/package",
@@ -6162,6 +7320,12 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\pako",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\pako\\LICENSE"
   },
+  "pako@1.0.10": {
+    "licenses": "(MIT AND Zlib)",
+    "repository": "https://github.com/nodeca/pako",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\browserify\\node_modules\\pako",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\browserify\\node_modules\\pako\\LICENSE"
+  },
   "pako@1.0.7": {
     "licenses": "(MIT AND Zlib)",
     "repository": "https://github.com/nodeca/pako",
@@ -6175,6 +7339,15 @@
     "email": "mathiasbuus@gmail.com",
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\parallel-transform",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\parallel-transform\\LICENSE"
+  },
+  "parents@1.0.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/substack/node-parents",
+    "publisher": "James Halliday",
+    "email": "mail@substack.net",
+    "url": "http://substack.net",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\parents",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\parents\\LICENSE"
   },
   "parse-asn1@5.1.1": {
     "licenses": "ISC",
@@ -6196,8 +7369,8 @@
     "publisher": "Sindre Sorhus",
     "email": "sindresorhus@gmail.com",
     "url": "sindresorhus.com",
-    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\parse-json",
-    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\parse-json\\license"
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\parse-json",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\parse-json\\license"
   },
   "parse5@1.5.1": {
     "licenses": "MIT",
@@ -6207,6 +7380,13 @@
     "url": "https://github.com/inikulin",
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\parse5",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\parse5\\LICENSE"
+  },
+  "parsedbf@1.0.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/calvinmetcalf/parseDBF",
+    "publisher": "Calvin Metcalf",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\parsedbf",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\parsedbf\\LICENSE"
   },
   "parseurl@1.3.2": {
     "licenses": "MIT",
@@ -6291,14 +7471,31 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\path-parse",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\path-parse\\README.md"
   },
+  "path-parse@1.0.6": {
+    "licenses": "MIT",
+    "repository": "https://github.com/jbgutierrez/path-parse",
+    "publisher": "Javier Blanco",
+    "email": "http://jbgutierrez.info",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\path-parse",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\path-parse\\LICENSE"
+  },
+  "path-platform@0.11.15": {
+    "licenses": "MIT",
+    "repository": "https://github.com/tjfontaine/node-path-platform",
+    "publisher": "Timothy J Fontaine",
+    "email": "tjfontaine@gmail.com",
+    "url": "http://atxconsulting.com",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\path-platform",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\path-platform\\LICENSE"
+  },
   "path-type@1.1.0": {
     "licenses": "MIT",
     "repository": "https://github.com/sindresorhus/path-type",
     "publisher": "Sindre Sorhus",
     "email": "sindresorhus@gmail.com",
     "url": "sindresorhus.com",
-    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\path-type",
-    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\path-type\\license"
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\path-type",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\path-type\\license"
   },
   "path-type@3.0.0": {
     "licenses": "MIT",
@@ -6359,8 +7556,8 @@
     "publisher": "Sindre Sorhus",
     "email": "sindresorhus@gmail.com",
     "url": "sindresorhus.com",
-    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\pify",
-    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\pify\\license"
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\pify",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\pify\\license"
   },
   "pify@3.0.0": {
     "licenses": "MIT",
@@ -6487,6 +7684,14 @@
     "publisher": "sheetjs",
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\printj",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\printj\\LICENSE"
+  },
+  "private@0.1.8": {
+    "licenses": "MIT",
+    "repository": "https://github.com/benjamn/private",
+    "publisher": "Ben Newman",
+    "email": "bn@cs.stanford.edu",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\private",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\private\\LICENSE"
   },
   "process-nextick-args@2.0.0": {
     "licenses": "MIT",
@@ -6699,6 +7904,13 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\rangeslide.js",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\rangeslide.js\\LICENSE"
   },
+  "raphael@2.2.8": {
+    "licenses": "MIT",
+    "repository": "https://github.com/DmitryBaranovskiy/raphael",
+    "publisher": "Dmitry Baranovskiy",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\raphael",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\raphael\\license.txt"
+  },
   "raw-body@2.1.7": {
     "licenses": "MIT",
     "repository": "https://github.com/stream-utils/raw-body",
@@ -6733,6 +7945,15 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\read-installed",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\read-installed\\LICENSE"
   },
+  "read-only-stream@2.0.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/substack/read-only-stream",
+    "publisher": "James Halliday",
+    "email": "mail@substack.net",
+    "url": "http://substack.net",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\read-only-stream",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\read-only-stream\\LICENSE"
+  },
   "read-package-json@2.0.13": {
     "licenses": "ISC",
     "repository": "https://github.com/npm/read-package-json",
@@ -6748,8 +7969,8 @@
     "publisher": "Sindre Sorhus",
     "email": "sindresorhus@gmail.com",
     "url": "sindresorhus.com",
-    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\read-pkg-up",
-    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\read-pkg-up\\license"
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\read-pkg-up",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\read-pkg-up\\license"
   },
   "read-pkg@1.1.0": {
     "licenses": "MIT",
@@ -6757,8 +7978,8 @@
     "publisher": "Sindre Sorhus",
     "email": "sindresorhus@gmail.com",
     "url": "sindresorhus.com",
-    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\read-pkg",
-    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\read-pkg\\license"
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\read-pkg",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\read-pkg\\license"
   },
   "readable-stream@1.1.14": {
     "licenses": "MIT",
@@ -6787,6 +8008,12 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\through2\\node_modules\\readable-stream",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\through2\\node_modules\\readable-stream\\LICENSE"
   },
+  "readable-stream@3.4.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/nodejs/readable-stream",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\browserify\\node_modules\\stream-http\\node_modules\\readable-stream",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\browserify\\node_modules\\stream-http\\node_modules\\readable-stream\\LICENSE"
+  },
   "readdir-scoped-modules@1.1.0": {
     "licenses": "ISC",
     "repository": "https://github.com/npm/readdir-scoped-modules",
@@ -6814,12 +8041,44 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\redent",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\redent\\license"
   },
+  "regenerate@1.4.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/mathiasbynens/regenerate",
+    "publisher": "Mathias Bynens",
+    "url": "https://mathiasbynens.be/",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\regenerate",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\regenerate\\LICENSE-MIT.txt"
+  },
+  "regenerator-runtime@0.10.5": {
+    "licenses": "MIT",
+    "repository": "https://github.com/facebook/regenerator/tree/master/packages/regenerator-runtime",
+    "publisher": "Ben Newman",
+    "email": "bn@cs.stanford.edu",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-polyfill\\node_modules\\regenerator-runtime",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-polyfill\\node_modules\\regenerator-runtime\\README.md"
+  },
+  "regenerator-runtime@0.11.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/facebook/regenerator/tree/master/packages/regenerator-runtime",
+    "publisher": "Ben Newman",
+    "email": "bn@cs.stanford.edu",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\regenerator-runtime",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\regenerator-runtime\\README.md"
+  },
   "regenerator-runtime@0.9.5": {
     "licenses": "MIT",
     "repository": "https://github.com/facebook/regenerator/tree/master/packages/regenerator-runtime",
     "publisher": "Ben Newman",
     "email": "bn@cs.stanford.edu",
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\regenerator-runtime"
+  },
+  "regenerator-transform@0.10.1": {
+    "licenses": "BSD*",
+    "repository": "https://github.com/facebook/regenerator/tree/master/packages/regenerator-transform",
+    "publisher": "Ben Newman",
+    "email": "bn@cs.stanford.edu",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\regenerator-transform",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\regenerator-transform\\README.md"
   },
   "regex-cache@0.4.3": {
     "licenses": "MIT",
@@ -6836,6 +8095,31 @@
     "url": "https://github.com/jonschlinkert",
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\regex-not",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\regex-not\\LICENSE"
+  },
+  "regexpu-core@2.0.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/mathiasbynens/regexpu-core",
+    "publisher": "Mathias Bynens",
+    "url": "https://mathiasbynens.be/",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\regexpu-core",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\regexpu-core\\LICENSE-MIT.txt"
+  },
+  "regjsgen@0.2.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/d10/regjsgen",
+    "publisher": "Benjamin Tan",
+    "email": "demoneaux@gmail.com",
+    "url": "https://d10.github.io/",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\regjsgen",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\regjsgen\\LICENSE.txt"
+  },
+  "regjsparser@0.1.5": {
+    "licenses": "BSD*",
+    "repository": "https://github.com/jviereck/regjsparser",
+    "publisher": "'Julian Viereck'",
+    "email": "julian.viereck@gmail.com",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\regjsparser",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\regjsparser\\LICENSE.BSD"
   },
   "remove-trailing-separator@1.1.0": {
     "licenses": "ISC",
@@ -6993,6 +8277,15 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\resolve",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\resolve\\LICENSE"
   },
+  "resolve@1.12.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/browserify/resolve",
+    "publisher": "James Halliday",
+    "email": "mail@substack.net",
+    "url": "http://substack.net",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\module-deps\\node_modules\\resolve",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\module-deps\\node_modules\\resolve\\LICENSE"
+  },
   "restore-cursor@1.0.1": {
     "licenses": "MIT",
     "repository": "https://github.com/sindresorhus/restore-cursor",
@@ -7130,6 +8423,15 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\md5.js\\node_modules\\safe-buffer",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\md5.js\\node_modules\\safe-buffer\\LICENSE"
   },
+  "safe-buffer@5.2.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/feross/safe-buffer",
+    "publisher": "Feross Aboukhadijeh",
+    "email": "feross@feross.org",
+    "url": "http://feross.org",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\browserify\\node_modules\\safe-buffer",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\browserify\\node_modules\\safe-buffer\\LICENSE"
+  },
   "safe-regex@1.1.0": {
     "licenses": "MIT",
     "repository": "https://github.com/substack/safe-regex",
@@ -7163,6 +8465,14 @@
     "url": "https://github.com/webpack-contrib",
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\terser-webpack-plugin\\node_modules\\schema-utils",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\terser-webpack-plugin\\node_modules\\schema-utils\\LICENSE"
+  },
+  "select2@4.0.8": {
+    "licenses": "MIT",
+    "repository": "https://github.com/select2/select2",
+    "publisher": "Kevin Brown",
+    "url": "https://github.com/kevin-brown",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\select2",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\select2\\LICENSE.md"
   },
   "semver@5.3.0": {
     "licenses": "ISC",
@@ -7224,6 +8534,15 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\sha.js",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\sha.js\\LICENSE"
   },
+  "shasum@1.0.2": {
+    "licenses": "MIT",
+    "repository": "https://github.com/dominictarr/shasum",
+    "publisher": "'Dominic Tarr'",
+    "email": "dominic.tarr@gmail.com",
+    "url": "http://dominictarr.com",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\shasum",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\shasum\\LICENSE"
+  },
   "shebang-command@1.2.0": {
     "licenses": "MIT",
     "repository": "https://github.com/kevva/shebang-command",
@@ -7242,6 +8561,15 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\shebang-regex",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\shebang-regex\\license"
   },
+  "shell-quote@1.6.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/substack/node-shell-quote",
+    "publisher": "James Halliday",
+    "email": "mail@substack.net",
+    "url": "http://substack.net",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\shell-quote",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\shell-quote\\LICENSE"
+  },
   "shelljs@0.3.0": {
     "licenses": "BSD*",
     "repository": "https://github.com/arturadib/shelljs",
@@ -7256,6 +8584,13 @@
     "publisher": "Tom MacWright",
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\shp-write",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\shp-write\\LICENSE"
+  },
+  "shpjs@3.4.3": {
+    "licenses": "MIT",
+    "repository": "https://github.com/calvinmetcalf/shapefile-js",
+    "publisher": "Calvin Metcalf",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\shpjs",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\shpjs\\README.md"
   },
   "signal-exit@2.1.2": {
     "licenses": "ISC",
@@ -7280,6 +8615,15 @@
     "email": "ben@npmjs.com",
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\signal-exit",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\signal-exit\\LICENSE.txt"
+  },
+  "simple-concat@1.0.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/feross/simple-concat",
+    "publisher": "Feross Aboukhadijeh",
+    "email": "feross@feross.org",
+    "url": "http://feross.org/",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\simple-concat",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\simple-concat\\LICENSE"
   },
   "skmeans@0.9.7": {
     "licenses": "MIT",
@@ -7306,6 +8650,12 @@
     "url": "http://blog.izs.me/",
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\slide",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\slide\\LICENSE"
+  },
+  "slimscroll@0.9.1": {
+    "licenses": "MIT*",
+    "repository": "https://github.com/yawetse/slimscroll",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\slimscroll",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\slimscroll\\LICENSE"
   },
   "snapdragon-node@2.1.1": {
     "licenses": "MIT",
@@ -7363,6 +8713,12 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\source-map-resolve",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\source-map-resolve\\LICENSE"
   },
+  "source-map-support@0.4.18": {
+    "licenses": "MIT",
+    "repository": "https://github.com/evanw/node-source-map-support",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-register\\node_modules\\source-map-support",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\babel-register\\node_modules\\source-map-support\\LICENSE.md"
+  },
   "source-map-support@0.5.9": {
     "licenses": "MIT",
     "repository": "https://github.com/evanw/node-source-map-support",
@@ -7381,8 +8737,8 @@
     "repository": "https://github.com/mozilla/source-map",
     "publisher": "Nick Fitzgerald",
     "email": "nfitzgerald@mozilla.com",
-    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\clean-css\\node_modules\\source-map",
-    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\clean-css\\node_modules\\source-map\\README.md"
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\handlebars\\node_modules\\source-map",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\handlebars\\node_modules\\source-map\\README.md"
   },
   "source-map@0.5.6": {
     "licenses": "BSD-3-Clause",
@@ -7439,8 +8795,8 @@
     "publisher": "Kyle E. Mitchell",
     "email": "kyle@kemitchell.com",
     "url": "https://kemitchell.com",
-    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\spdx-correct",
-    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\spdx-correct\\LICENSE"
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\spdx-correct",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\spdx-correct\\LICENSE"
   },
   "spdx-correct@3.1.0": {
     "licenses": "Apache-2.0",
@@ -7655,6 +9011,15 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\stream-browserify",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\stream-browserify\\LICENSE"
   },
+  "stream-combiner2@1.1.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/substack/stream-combiner2",
+    "publisher": "'Dominic Tarr'",
+    "email": "dominic.tarr@gmail.com",
+    "url": "http://dominictarr.com",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\stream-combiner2",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\stream-combiner2\\LICENSE"
+  },
   "stream-combiner@0.2.2": {
     "licenses": "MIT",
     "repository": "https://github.com/dominictarr/stream-combiner",
@@ -7679,6 +9044,13 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\stream-http",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\stream-http\\LICENSE"
   },
+  "stream-http@3.1.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/jhiesey/stream-http",
+    "publisher": "John Hiesey",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\browserify\\node_modules\\stream-http",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\browserify\\node_modules\\stream-http\\LICENSE"
+  },
   "stream-shift@1.0.0": {
     "licenses": "MIT",
     "repository": "https://github.com/mafintosh/stream-shift",
@@ -7686,6 +9058,15 @@
     "url": "@mafintosh",
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\stream-shift",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\stream-shift\\LICENSE"
+  },
+  "stream-splicer@2.0.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/browserify/stream-splicer",
+    "publisher": "James Halliday",
+    "email": "mail@substack.net",
+    "url": "http://substack.net",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\stream-splicer",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\stream-splicer\\LICENSE"
   },
   "stream-to-array@2.3.0": {
     "licenses": "MIT",
@@ -7741,6 +9122,12 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\through2\\node_modules\\string_decoder",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\through2\\node_modules\\string_decoder\\LICENSE"
   },
+  "string_decoder@1.3.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/nodejs/string_decoder",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\browserify\\node_modules\\string_decoder",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\browserify\\node_modules\\string_decoder\\LICENSE"
+  },
   "stringstream@0.0.5": {
     "licenses": "MIT",
     "repository": "https://github.com/mhart/StringStream",
@@ -7774,8 +9161,8 @@
     "publisher": "Sindre Sorhus",
     "email": "sindresorhus@gmail.com",
     "url": "sindresorhus.com",
-    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\strip-bom",
-    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\strip-bom\\license"
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\strip-bom",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\strip-bom\\license"
   },
   "strip-eof@1.0.0": {
     "licenses": "MIT",
@@ -7813,6 +9200,15 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\sqlite3\\node_modules\\strip-json-comments",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\sqlite3\\node_modules\\strip-json-comments\\license"
   },
+  "subarg@1.0.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/substack/subarg",
+    "publisher": "James Halliday",
+    "email": "mail@substack.net",
+    "url": "http://substack.net",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\subarg",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\subarg\\LICENSE"
+  },
   "supports-color@2.0.0": {
     "licenses": "MIT",
     "repository": "https://github.com/chalk/supports-color",
@@ -7847,6 +9243,15 @@
     "email": "joris@jorisvanderwel.com",
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\symbol-tree",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\symbol-tree\\LICENSE"
+  },
+  "syntax-error@1.4.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/substack/node-syntax-error",
+    "publisher": "James Halliday",
+    "email": "mail@substack.net",
+    "url": "http://substack.net",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\syntax-error",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\syntax-error\\LICENSE"
   },
   "tableexport@5.0.5": {
     "licenses": "Apache-2.0",
@@ -7937,6 +9342,14 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\test-exclude",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\test-exclude\\LICENSE.txt"
   },
+  "text-encoding-polyfill@0.6.7": {
+    "licenses": "Unlicense",
+    "repository": "https://github.com/inexorabletash/text-encoding",
+    "publisher": "Joshua Bell",
+    "email": "inexorabletash@gmail.com",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\text-encoding-polyfill",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\text-encoding-polyfill\\LICENSE.md"
+  },
   "throttleit@1.0.0": {
     "licenses": "MIT",
     "repository": "https://github.com/component/throttle",
@@ -7960,6 +9373,15 @@
     "url": "dominictarr.com",
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\through",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\through\\LICENSE.APACHE2"
+  },
+  "timers-browserify@1.4.2": {
+    "licenses": "MIT",
+    "repository": "https://github.com/jryans/timers-browserify",
+    "publisher": "J. Ryan Stinnett",
+    "email": "jryans@gmail.com",
+    "url": "http://convolv.es/",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\browserify\\node_modules\\timers-browserify",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\browserify\\node_modules\\timers-browserify\\LICENSE.md"
   },
   "timers-browserify@2.0.10": {
     "licenses": "MIT",
@@ -8016,6 +9438,15 @@
     "url": "sindresorhus.com",
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\to-fast-properties",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\to-fast-properties\\license"
+  },
+  "to-fast-properties@1.0.3": {
+    "licenses": "MIT",
+    "repository": "https://github.com/sindresorhus/to-fast-properties",
+    "publisher": "Sindre Sorhus",
+    "email": "sindresorhus@gmail.com",
+    "url": "sindresorhus.com",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\to-fast-properties",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\to-fast-properties\\license"
   },
   "to-object-path@0.3.0": {
     "licenses": "MIT",
@@ -8089,6 +9520,15 @@
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\trim-newlines",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\trim-newlines\\license"
   },
+  "trim-right@1.0.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/sindresorhus/trim-right",
+    "publisher": "Sindre Sorhus",
+    "email": "sindresorhus@gmail.com",
+    "url": "sindresorhus.com",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\trim-right",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\trim-right\\license"
+  },
   "tslib@1.9.3": {
     "licenses": "Apache-2.0",
     "repository": "https://github.com/Microsoft/tslib",
@@ -8104,6 +9544,15 @@
     "url": "http://substack.net",
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\tty-browserify",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\tty-browserify\\LICENSE"
+  },
+  "tty-browserify@0.0.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/browserify/tty-browserify",
+    "publisher": "James Halliday",
+    "email": "mail@substack.net",
+    "url": "http://substack.net",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\browserify\\node_modules\\tty-browserify",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\browserify\\node_modules\\tty-browserify\\LICENSE"
   },
   "tunnel-agent@0.4.3": {
     "licenses": "Apache-2.0",
@@ -8208,6 +9657,21 @@
     "publisher": "ForbesLindesay",
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\uglify-to-browserify",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\uglify-to-browserify\\LICENSE"
+  },
+  "umd@3.0.3": {
+    "licenses": "MIT",
+    "repository": "https://github.com/ForbesLindesay/umd",
+    "publisher": "ForbesLindesay",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\umd",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\umd\\LICENSE"
+  },
+  "undeclared-identifiers@1.1.3": {
+    "licenses": "Apache-2.0",
+    "repository": "https://github.com/goto-bus-stop/undeclared-identifiers",
+    "publisher": "Renée Kooi",
+    "email": "renee@kooi.me",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\undeclared-identifiers",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\undeclared-identifiers\\LICENSE.md"
   },
   "underscore.string@3.2.3": {
     "licenses": "MIT",
@@ -8377,8 +9841,8 @@
     "publisher": "Kyle E. Mitchell",
     "email": "kyle@kemitchell.com",
     "url": "https://kemitchell.com",
-    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\validate-npm-package-license",
-    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\validate-npm-package-license\\LICENSE"
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\validate-npm-package-license",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\nyc\\node_modules\\validate-npm-package-license\\LICENSE"
   },
   "verror@1.10.0": {
     "licenses": "MIT",
@@ -8394,6 +9858,15 @@
     "url": "http://substack.net",
     "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\vm-browserify",
     "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\vm-browserify\\LICENSE"
+  },
+  "vm-browserify@1.1.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/substack/vm-browserify",
+    "publisher": "James Halliday",
+    "email": "mail@substack.net",
+    "url": "http://substack.net",
+    "path": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\browserify\\node_modules\\vm-browserify",
+    "licenseFile": "C:\\Users\\CDB\\Documents\\git\\kommonitor-webclient\\node_modules\\browserify\\node_modules\\vm-browserify\\LICENSE"
   },
   "voc@1.1.0": {
     "licenses": "Apache-2.0",

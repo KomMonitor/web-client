@@ -58,8 +58,13 @@ angular.module('topicDeleteModal').component('topicDeleteModal', {
 
 					$scope.showSuccessAlert();
 
-				}, function errorCallback(response) {
-					$scope.errorMessagePart = response;
+				}, function errorCallback(error) {
+					if(error.data){							
+						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+					}
+					else{
+						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
+					}
 
 					$("#topicsErrorAlert").show();
 					$scope.loadingData = false;

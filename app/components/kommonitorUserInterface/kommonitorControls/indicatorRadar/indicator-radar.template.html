@@ -8,26 +8,104 @@
 
 	<p></p>
 
+	<!-- RADAR CHART CONFIG -->
+	<div  class="box box-primary">
+		<div class="box-header with-border">
+			<h3 class="box-title">Auswahl der darzustellenden Indikatoren</h3>
+
+			<div class="box-tools pull-right">
+				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+				</button>
+			</div>
+		</div>
+		<div class="box-body">
+
+			<div ng-show="$ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime">
+
+				<div class="row" style="margin-left: 0px; margin-right: 0px;">
+					<div class="col-xs-12 col-md-7">
+						<div class="input-group">
+							<span class="input-group-addon"><i class="fas fa-filter"></i></span>
+							<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="indicatorNameFilter">
+						</div>
+					</div>
+					<div class="col-xs-12 col-md-5">
+						<label class="switch">
+							<input type="checkbox" ng-model="$ctrl.kommonitorDiagramHelperServiceInstance.filterSameUnitAndSameTime" ng-change="onChangeFilterSameUnitAndSameTime()"></input>
+						  <span class="switchslider round"></span>
+						</label>
+						<strong>nur gleicher Zeitschnitt</strong>
+					</div>
+				</div>									
+
+				<p></p>
+
+				<!-- <div align="center">
+					<input type="button" class="btn btn-xs btn-primary" value="alle Indikatoren zur Radardarstellung hinzufügen" ng-click="$ctrl.selectAllIndicatorsForRadar()"></input>
+					<input type="button" class="btn btn-xs btn-danger" value="alle Indikatoren aus Radardarstellung entfernen" ng-click="$ctrl.deselectAllIndicatorsForRadar()"></input>
+				</div> -->
+
+				<div id="radarInputForm">
+
+					<table class="table table-condensed " style="margin-bottom:0px;">
+							<thead>
+								<th>
+									Indikator											
+								</th>
+								<th>
+									Zeitschnitt
+								</th>
+							</thead>
+							<tbody>
+								<tr ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime | filter:filterIndicators() | filter:indicatorNameFilter'>
+									<td>
+										<label class='checkbox-inline input-sm' ><input type="checkbox" value="input.indicatorMetadata.indicatorName" ng-model="input.isSelected" ng-change="$ctrl.filterDisplayedIndicatorsOnRadar()">{{input.indicatorMetadata.indicatorName}}  {{input.closestTimestamp}}</label>											
+									</td>
+									<td>
+										<select style="font-size: 11px; width:135px; padding: 0px;"
+											ng-model="input.selectedDate" ng-change="onChangeSelectedDate(input)" ng-options="date as date for date in input.indicatorMetadata.applicableDates" ng-init="input.selectedDate = input.indicatorMetadata.applicableDates[input.indicatorMetadata.applicableDates.length - 1]"
+											class="form-control" required>
+										</select>
+									</td>
+								
+								</tr>	
+							</tbody>												
+						
+					</table>
+					<!-- <div ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime | filter:filterIndicators() | filter:indicatorNameFilter'>
+						<label class='checkbox-inline input-sm' ><input type="checkbox" value="input.indicatorMetadata.indicatorName" ng-model="input.isSelected" ng-change="$ctrl.filterDisplayedIndicatorsOnRadar()">{{input.indicatorMetadata.indicatorName}}  {{input.closestTimestamp}}</label>
+						
+						<br/>
+					</div> -->
+				</div>
+
+			</div>
+
+		</div>
+		<!-- /.box-body -->
+	</div>
+	<!-- /.box -->
+
 	<!-- RADAR CHART -->
-				<div ng-show="radarChart"  class="box box-success">
+				<div ng-show="radarChart" style="margin-bottom: 0px;" class="box box-success">
 					<div class="box-header with-border">
 						<h3 class="box-title">Indikatorenradar - {{spatialUnitName}} - {{date}}</h3>
 
-						<!-- <div class="box-tools pull-right">
+						<div class="box-tools pull-right">
 							<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
 							</button>
-						</div> -->
+						</div>
 					</div>
 					<div class="box-body">
 						<div class="chart">
-							<div id="radarDiagram" style="width:100%; min-height:490px;"></div>
+							<div id="radarDiagram" style="width:100%; min-height:600px;"></div>
 						</div>
 					</div>
 					<!-- /.box-body -->
 				</div>
 				<!-- /.box -->
 
-			<div ng-show="!radarChart" style="width:100%; min-height:575px; height: 575px;">
+			<div ng-show="!radarChart" style="width:100%; min-height:300px; height: 300px;">
 
 				<div text-align="center" align="center" class="hiddenTable">
 					<div class="hiddenTableCell">
@@ -39,44 +117,6 @@
 
 			</div>
 
-			<!-- RADAR CHART CONFIG -->
-						<div style="margin-bottom: 0px;" class="box box-primary">
-							<div class="box-header with-border">
-								<h3 class="box-title">Auswahl der darzustellenden Indikatoren</h3>
-
-								<!-- <div class="box-tools pull-right">
-									<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-									</button>
-								</div> -->
-							</div>
-							<div class="box-body">
-
-								<div ng-show="$ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime">
-
-									<div class="input-group">
-										<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-										<input type="text" class="form-control input-sm" placeholder="Filtern nach Indikatorenname" ng-model="indicatorNameFilter">
-									</div>
-
-									<p></p>
-
-									<!-- <div align="center">
-										<input type="button" class="btn btn-xs btn-primary" value="alle Indikatoren zur Radardarstellung hinzufügen" ng-click="$ctrl.selectAllIndicatorsForRadar()"></input>
-										<input type="button" class="btn btn-xs btn-danger" value="alle Indikatoren aus Radardarstellung entfernen" ng-click="$ctrl.deselectAllIndicatorsForRadar()"></input>
-									</div> -->
-
-									<div id="radarInputForm">
-										<div ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime | filter:filterIndicators() | filter:indicatorNameFilter'>
-											<label class='checkbox-inline input-sm' ><input type="checkbox" value="input.indicatorMetadata.indicatorName" ng-model="input.isSelected" ng-change="$ctrl.filterDisplayedIndicatorsOnRadar()">{{input.indicatorMetadata.indicatorName}}  {{input.closestTimestamp}}</label>
-											<br/>
-										</div>
-										</div>
-
-									</div>
-
-							</div>
-							<!-- /.box-body -->
-						</div>
-						<!-- /.box -->
+			
 
 </div>

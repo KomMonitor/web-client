@@ -1,6 +1,7 @@
 angular.module('adminSpatialUnitsManagement').component('adminSpatialUnitsManagement', {
 	templateUrl : "components/kommonitorAdmin/adminSpatialUnitsManagement/admin-spatial-units-management.template.html",
-	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '__env', '$http', function SpatialUnitsManagementController(kommonitorDataExchangeService, $scope, $rootScope, __env, $http) {
+	controller : ['kommonitorDataExchangeService', '$scope', '$timeout', '$rootScope', '__env', '$http', 
+	function SpatialUnitsManagementController(kommonitorDataExchangeService, $scope, $timeout, $rootScope, __env, $http) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 		// initialize any adminLTE box widgets
@@ -13,7 +14,17 @@ angular.module('adminSpatialUnitsManagement').component('adminSpatialUnitsManage
 
 		$scope.$on("initialMetadataLoadingCompleted", function (event) {
 
-			$scope.initializeOrRefreshOverviewTable();
+			
+			$timeout(function(){
+				
+				$scope.initializeOrRefreshOverviewTable();
+			}, 250);
+
+		});
+
+		$scope.$on("initialMetadataLoadingFailed", function (event, errorArray) {
+
+			$scope.loadingData = false;
 
 		});
 

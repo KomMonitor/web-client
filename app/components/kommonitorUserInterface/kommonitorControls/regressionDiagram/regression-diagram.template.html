@@ -13,13 +13,20 @@
 					<div class="box-header with-border">
 						<h3 class="box-title">Lineare Regression zwischen zwei Indikatoren</h3>
 
-						<!-- <div class="box-tools pull-right">
+						<div class="box-tools pull-right">
 							<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
 							</button>
-						</div> -->
+						</div>
 					</div>
 					<div class="box-body">
 
+						<label class="switch">
+							<input type="checkbox" ng-model="$ctrl.kommonitorDiagramHelperServiceInstance.filterSameUnitAndSameTime" ng-change="onChangeFilterSameUnitAndSameTime()"></input>
+						  <span class="switchslider round"></span>
+						</label>
+						<strong>nur gleicher Zeitschnitt</strong>
+
+						<p></p>
 								<div text-align="center" align="center" class="hiddenTable">
 
 									<!-- <label  for="sel1">verf&uuml;gbare Indikatoren</label> -->
@@ -33,16 +40,46 @@
 
 											<div class="input-group">
 												<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-												<input type="text" class="form-control input-sm" placeholder="X-Achse - Filtern nach Indikatorenname" ng-model="indicatorNameFilterForXAxis">
+												<input type="text" class="form-control input-sm" placeholder="X-Achse - Stichwortfilter" ng-model="indicatorNameFilterForXAxis">
 											</div>
 
 											<p></p>
 
-												<select style="font-size: 12px;"
+												<!-- <select style="font-size: 12px;"
 													size="10" ng-model="selectedIndicatorForXAxis" ng-options="indicator as indicator.indicatorMetadata.indicatorName + '   ' + indicator.closestTimestamp for indicator in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime | filter:filterIndicators() | filter:indicatorNameFilterForXAxis"
 													ng-change="onChangeSelectedIndicators()" class="form-control" required>
 													<option disabled selected value> -- Indikator f&uuml;r X-Achse w&auml;hlen -- </option>
-												</select>
+												</select> -->
+
+												<div class="regressionInputForm">
+													<table class="table table-condensed " style="margin-bottom:0px;">
+														<thead>
+															<th>
+																Indikator											
+															</th>
+															<th>
+																Zeitschnitt
+															</th>
+														</thead>
+														<tbody>
+															<tr ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime | filter:filterIndicators() | filter:indicatorNameFilterForXAxis'>
+																<td>
+																	<div class="radio" style="margin-top: 0px; margin-bottom: 0px;">
+																		<label><input type="radio" name="regressionX" ng-value="input" ng-model="selection.selectedIndicatorForXAxis" ng-change="onChangeSelectedIndicators()">{{input.indicatorMetadata.indicatorName}}</label>
+																	</div>
+																</td>
+																<td>
+																	<select style="font-size: 11px; width:135px; padding: 0px;"
+																		ng-model="input.selectedDate" ng-change="onChangeSelectedDate(input)" ng-options="date as date for date in input.indicatorMetadata.applicableDates" ng-init="input.selectedDate = input.indicatorMetadata.applicableDates[input.indicatorMetadata.applicableDates.length - 1]"
+																		class="form-control" required>
+																	</select>
+																</td>
+															
+															</tr>	
+														</tbody>												
+													
+													</table>
+												</div>												
 										</div>
 
 									</div>
@@ -56,16 +93,47 @@
 
 											<div class="input-group">
 												<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-												<input type="text" class="form-control input-sm" placeholder="Y-Achse - Filtern nach Indikatorenname" ng-model="indicatorNameFilterForYAxis">
+												<input type="text" class="form-control input-sm" placeholder="Y-Achse - Stichwortfilter" ng-model="indicatorNameFilterForYAxis">
 											</div>
 
 											<p></p>
 
-												<select style="font-size: 12px;"
+												<!-- <select style="font-size: 12px;"
 													size="10" ng-model="selectedIndicatorForYAxis" ng-options="indicator as indicator.indicatorMetadata.indicatorName + '   ' + indicator.closestTimestamp for indicator in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime | filter:filterIndicators() | filter:indicatorNameFilterForYAxis"
 													ng-change="onChangeSelectedIndicators()" class="form-control" required>
 													<option disabled selected value> -- Indikator f&uuml;r Y-Achse w&auml;hlen -- </option>
-												</select>
+												</select> -->
+
+												<div class="regressionInputForm">
+													<table class="table table-condensed " style="margin-bottom:0px;">
+														<thead>
+															<th>
+																Indikator											
+															</th>
+															<th>
+																Zeitschnitt
+															</th>
+														</thead>
+														<tbody>
+															<tr ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime | filter:filterIndicators() | filter:indicatorNameFilterForYAxis'>
+																<td>
+																	<div class="radio" style="margin-top: 0px; margin-bottom: 0px;">
+																		<label><input type="radio" name="regressionY" ng-value="input" ng-model="selection.selectedIndicatorForYAxis" ng-change="onChangeSelectedIndicators()">{{input.indicatorMetadata.indicatorName}}</label>
+																	</div>
+																</td>
+																<td>
+																	<select style="font-size: 11px; width:135px; padding: 0px;"
+																		ng-model="input.selectedDate" ng-change="onChangeSelectedDate(input)" ng-options="date as date for date in input.indicatorMetadata.applicableDates" ng-init="input.selectedDate = input.indicatorMetadata.applicableDates[input.indicatorMetadata.applicableDates.length - 1]"
+																		class="form-control" required>
+																	</select>
+																</td>
+															
+															</tr>	
+														</tbody>												
+														
+													</table>
+
+												</div>
 										</div>
 
 									</div>
@@ -83,14 +151,14 @@
 							<div class="box-header with-border">
 								<h3 class="box-title">Lineare Regression - {{spatialUnitName}} - {{date}}</h3>
 
-								<!-- <div class="box-tools pull-right">
+								<div class="box-tools pull-right">
 									<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
 									</button>
-								</div> -->
+								</div>
 							</div>
 							<div class="box-body">
 								<div class="chart">
-									<div id="regressionDiagram" style="width:100%; min-height:455px;"></div>
+									<div id="regressionDiagram" style="width:100%; min-height:600px;"></div>
 								</div>
 
 									<b>Korrelationskoeffizient nach Pearson:</b> {{correlation}}

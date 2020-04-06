@@ -16,7 +16,7 @@
 			 <a target="_blank" rel="noopener noreferrer" href="http://kommonitor.de"><img style="float: left; width: 35px; height: 35px; margin-right: 0.5%;" src="logos/KM_Logo1.svg"></img></a>
 			 <img src="logos/city-logo.png" style="float: left; width: 35px; height: 35px; margin-right: 0.5%;"></img>
 
-			 <!-- witch back to KomMonitor Main Application -->
+			 <!-- switch back to KomMonitor Main Application -->
 			<a id="userLogin" ng-mouseover="showUserLogin = true" ng-init="showUserLogin = false" title="Useristration" style="font-size:1.2em; float: right; margin-right: 2%; margin-left: 2%; margin-top: 0.5%;"><i class="fas fa-user-cog"></i></a>
 			<div id="userLoginForm" ng-show="showUserLogin" ng-mouseleave="showUserLogin = false" class="userFormWrapper">
 				<div id="userForm">
@@ -37,9 +37,9 @@
 				</div>
 			</div>
 			<a data-toggle="modal" data-target="#infoModal" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Information&nbsp;&nbsp;"><span class="glyphicon glyphicon-info-sign"></span></a>
-			<a data-toggle="modal" data-target="#feedbackModal" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;  cursor:pointer;" title="Feedback&nbsp;&nbsp;"><span class="glyphicon glyphicon-envelope"></span></a>
+			<!-- <a data-toggle="modal" data-target="#feedbackModal" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;  cursor:pointer;" title="Feedback&nbsp;&nbsp;"><span class="glyphicon glyphicon-envelope"></span></a> -->
 			<a ng-click="startGuidedTour()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;  cursor:pointer;" title="Guided Tour&nbsp;&nbsp;"><span class="glyphicon glyphicon-play"></span></a>
-
+			<a data-toggle="modal" data-target="#reporting-modal" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;  cursor:pointer;" title="Report erstellen&nbsp;&nbsp;"><span class="glyphicon glyphicon-print"></span></a>
 			<p style="clear: both;"></p>
 
 		</div>
@@ -48,10 +48,16 @@
 
 	<!-- Modal -->
 	<info-modal></info-modal>
-
+	
 	<!-- Modal -->
 	<feedback-modal></feedback-modal>
 
+	<!-- Modal -->
+	<reporting-modal></reporting-modal>
+
+	<!-- Modal -->
+	<reporting-add-indicator-modal></reporting-add-indicator-modal>
+	
 	<!-- Modal -->
 	<wms-modal></wms-modal>
 
@@ -120,24 +126,23 @@
 						</button>
 
 						<button type="button" style="top: 70px;" id="sidebarPoiCollapse"
-							ng-click="onSidebarPoiButtonClick()" ng-class="buttonPoiClass" data-toggle="tooltip" title="Points of Interest">
+							ng-click="onSidebarPoiButtonClick()" ng-class="buttonPoiClass" data-toggle="tooltip" title="Infrastrukturdaten">
 								<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 								<i style="font-size:1.8em;" class="fas fa-map-marker-alt"></i>
 						</button>
 
-						<button type="button" style="top: 130px;" id="sidebarDataImportCollapse"
+						<!-- <button type="button" style="top: 130px;" id="sidebarDataImportCollapse"
 							ng-click="onSidebarDataImportButtonClick()" ng-class="buttonDataImportClass" data-toggle="tooltip" title="Datenimport">
-								<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 								<i style="font-size:1.8em;" class="fas fa-file-import"></i>
-						</button>
+						</button> -->
 
-						<button type="button" style="top: 190px;" id="sidebarFilterCollapse"
+						<button type="button" style="top: 130px;" id="sidebarFilterCollapse"
 							ng-click="onSidebarFilterButtonClick()" ng-class="buttonFilterClass" data-toggle="tooltip" title="Darstellungsfilter">
 								<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 								<i style="font-size:1.8em;" class="fas fa-filter"></i>
 						</button>
 
-						<button type="button" style="top: 250px;" id="sidebarBalanceCollapse"
+						<button type="button" style="top: 190px;" id="sidebarBalanceCollapse"
 							ng-click="onSidebarBalanceButtonClick()" ng-class="buttonBalanceClass" data-toggle="tooltip" title="zeitliche Bilanzierung">
 								<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-sort" aria-hidden="true"></span> -->
 								<i style="font-size:1.8em;" class="fas fa-chart-line"></i>
@@ -203,6 +208,16 @@
 						<span style="font-size:1.5em;" class="glyphicon glyphicon-list-alt" aria-hidden="true"></span>
 				</button>
 
-    </div>
+	</div>
+	
+	<div style="position: absolute; left: 12%; top: 200px; width: 75%;" hidden
+				class="alert alert-danger alert-dismissable mapApplicationErrorAlert">
+				<button type="button" class="close" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.hideErrorAlert()"
+					aria-hidden="true">&times;</button>
+				<h4><i class="icon fa fa-ban"></i>Achtung</h4>
+				Es ist ein Fehler bei der Datenverarbeitung aufgetreten. Die Fehlermeldung lautet:
+				<br />
+				<pre ng-bind-html="$ctrl.kommonitorDataExchangeServiceInstance.errorMessage"></pre>
+	</div>
 
 	</div>

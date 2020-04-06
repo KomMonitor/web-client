@@ -7,6 +7,8 @@ angular
 					controller : ['kommonitorDataExchangeService', '$location', "$rootScope", '$scope', function kommonitorAdminController(
 							kommonitorDataExchangeService, $location, $rootScope, $scope) {
 
+								this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
+
 								this.selectedResourceType = 'spatialUnits';
 
 								$scope.activeItemBackupId = "adminDashboardNavItem";
@@ -32,7 +34,7 @@ angular
 								};
 
 								this.init = function(){
-									this.checkAuthorizationOnStartup();
+									// this.checkAuthorizationOnStartup();
 									kommonitorDataExchangeService.fetchAllMetadata();
 								};
 

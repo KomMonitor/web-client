@@ -32,8 +32,9 @@ angular
 									}, 350);
 								});
 
-								$scope.indicatorNameFilterForXAxis = undefined;
-								$scope.indicatorNameFilterForYAxis = undefined;
+								$scope.selection = {};
+								$scope.selection.indicatorNameFilterForXAxis = undefined;
+								$scope.selection.indicatorNameFilterForYAxis = undefined;
 
 								const DATE_PREFIX = __env.indicatorDatePrefix;
 								var numberOfDecimals = __env.numberOfDecimals;
@@ -53,10 +54,10 @@ angular
 								$scope.setupCompleted = false;
 
 								//$scope.allIndicatorProperties;
-								$scope.selectedIndicatorForXAxis;
-								$scope.selectedIndicatorForXAxis_backup;
-								$scope.selectedIndicatorForYAxis;
-								$scope.selectedIndicatorForYAxis_backup;
+								$scope.selection.selectedIndicatorForXAxis;
+								$scope.selection.selectedIndicatorForXAxis_backup;
+								$scope.selection.selectedIndicatorForYAxis;
+								$scope.selection.selectedIndicatorForYAxis_backup;
 								$scope.correlation;
 								$scope.linearRegression;
 								$scope.regressionOption;
@@ -100,6 +101,20 @@ angular
 									$scope.$apply();
 								});
 
+								$scope.onChangeSelectedDate = function(input){
+									$scope.onChangeSelectedIndicators();
+								};
+
+								$scope.onChangeFilterSameUnitAndSameTime = function(){
+									if($scope.regressionChart){
+										$scope.regressionChart.dispose();
+										$scope.regressionChart = echarts.init(document.getElementById('regressionDiagram'));
+									}
+									kommonitorDiagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime = [];
+									
+									kommonitorDiagramHelperService.setupIndicatorPropertiesForCurrentSpatialUnitAndTime(kommonitorDiagramHelperService.filterSameUnitAndSameTime);
+								};
+
 								$scope.$on("updateDiagrams", function (event, indicatorMetadataAndGeoJSON, spatialUnitName, spatialUnitId, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, justRestyling) {
 
 									$scope.correlation = undefined;
@@ -133,8 +148,8 @@ angular
 
 										$scope.setupCompleted = false;
 
-										$scope.selectedIndicatorForXAxis = undefined;
-										$scope.selectedIndicatorForYAxis = undefined;
+										$scope.selection.selectedIndicatorForXAxis = undefined;
+										$scope.selection.selectedIndicatorForYAxis = undefined;
 
 										$timeout(function () {
 								         $("option").each(function (index, element) {
@@ -241,8 +256,8 @@ angular
 										if(indicator.indicatorMetadata.indicatorName === indicatorName){
 											await kommonitorDiagramHelperService.fetchIndicatorPropertiesIfNotExists(index);
 
-											var closestApplicableTimestamp = kommonitorDiagramHelperService.findClostestTimestamForTargetDate(indicator, kommonitorDataExchangeService.selectedDate);
-											indicator.closestTimestamp = closestApplicableTimestamp;
+											// var closestApplicableTimestamp = kommonitorDiagramHelperService.findClostestTimestamForTargetDate(indicator, kommonitorDataExchangeService.selectedDate);
+											// indicator.closestTimestamp = closestApplicableTimestamp;
 
 											return indicator.indicatorProperties;
 										}
@@ -268,11 +283,11 @@ angular
 									$scope.data = new Array();
 									$scope.dataWithLabels = new Array();
 
-									var indicatorPropertiesArrayForXAxis = await $scope.getPropertiesForIndicatorName($scope.selectedIndicatorForXAxis.indicatorMetadata.indicatorName);
-									var indicatorPropertiesArrayForYAxis = await $scope.getPropertiesForIndicatorName($scope.selectedIndicatorForYAxis.indicatorMetadata.indicatorName);
+									var indicatorPropertiesArrayForXAxis = await $scope.getPropertiesForIndicatorName($scope.selection.selectedIndicatorForXAxis.indicatorMetadata.indicatorName);
+									var indicatorPropertiesArrayForYAxis = await $scope.getPropertiesForIndicatorName($scope.selection.selectedIndicatorForYAxis.indicatorMetadata.indicatorName);
 
-									var closestApplicableTimestamp_xAxis = $scope.selectedIndicatorForXAxis.closestTimestamp;
-									var closestApplicableTimestamp_yAxis = $scope.selectedIndicatorForYAxis.closestTimestamp;
+									var timestamp_xAxis = $scope.selection.selectedIndicatorForXAxis.selectedDate;
+									var timestamp_yAxis = $scope.selection.selectedIndicatorForYAxis.selectedDate;
 
 									for (var i=0; i<indicatorPropertiesArrayForXAxis.length; i++){
 
@@ -280,18 +295,18 @@ angular
 										var xAxisDataElement;
 										var yAxisDataElement
 
-										if (kommonitorDataExchangeService.indicatorValueIsNoData(indicatorPropertiesArrayForXAxis[i][DATE_PREFIX + closestApplicableTimestamp_xAxis])){
+										if (kommonitorDataExchangeService.indicatorValueIsNoData(indicatorPropertiesArrayForXAxis[i][DATE_PREFIX + timestamp_xAxis])){
 											xAxisDataElement = null;
 										}
 										else{
-											xAxisDataElement = kommonitorDataExchangeService.getIndicatorValue_asNumber(indicatorPropertiesArrayForXAxis[i][DATE_PREFIX + closestApplicableTimestamp_xAxis]);
+											xAxisDataElement = kommonitorDataExchangeService.getIndicatorValue_asNumber(indicatorPropertiesArrayForXAxis[i][DATE_PREFIX + timestamp_xAxis]);
 										}
 
-										if (kommonitorDataExchangeService.indicatorValueIsNoData(indicatorPropertiesArrayForYAxis[i][DATE_PREFIX + closestApplicableTimestamp_yAxis])){
+										if (kommonitorDataExchangeService.indicatorValueIsNoData(indicatorPropertiesArrayForYAxis[i][DATE_PREFIX + timestamp_yAxis])){
 											yAxisDataElement = null;
 										}
 										else{
-											yAxisDataElement = kommonitorDataExchangeService.getIndicatorValue_asNumber(indicatorPropertiesArrayForYAxis[i][DATE_PREFIX + closestApplicableTimestamp_yAxis]);
+											yAxisDataElement = kommonitorDataExchangeService.getIndicatorValue_asNumber(indicatorPropertiesArrayForYAxis[i][DATE_PREFIX + timestamp_yAxis]);
 										}
 
 										$scope.data.push([xAxisDataElement, yAxisDataElement]);
@@ -382,21 +397,21 @@ angular
 
 								$scope.onChangeSelectedIndicators = async function(){
 
-									if($scope.selectedIndicatorForXAxis){
-										$scope.selectedIndicatorForXAxis_backup = $scope.selectedIndicatorForXAxis;
+									if($scope.selection.selectedIndicatorForXAxis){
+										$scope.selection.selectedIndicatorForXAxis_backup = $scope.selection.selectedIndicatorForXAxis;
 									}
-									else if ($scope.selectedIndicatorForXAxis_backup){
-										$scope.selectedIndicatorForXAxis = $scope.selectedIndicatorForXAxis_backup;
-									}
-
-									if($scope.selectedIndicatorForYAxis){
-										$scope.selectedIndicatorForYAxis_backup = $scope.selectedIndicatorForYAxis;
-									}
-									else if ($scope.selectedIndicatorForYAxis_backup){
-										$scope.selectedIndicatorForYAxis = $scope.selectedIndicatorForYAxis_backup;
+									else if ($scope.selection.selectedIndicatorForXAxis_backup){
+										$scope.selection.selectedIndicatorForXAxis = $scope.selection.selectedIndicatorForXAxis_backup;
 									}
 
-									if($scope.selectedIndicatorForXAxis && $scope.selectedIndicatorForYAxis){
+									if($scope.selection.selectedIndicatorForYAxis){
+										$scope.selection.selectedIndicatorForYAxis_backup = $scope.selection.selectedIndicatorForYAxis;
+									}
+									else if ($scope.selection.selectedIndicatorForYAxis_backup){
+										$scope.selection.selectedIndicatorForYAxis = $scope.selection.selectedIndicatorForYAxis_backup;
+									}
+
+									if($scope.selection.selectedIndicatorForXAxis && $scope.selection.selectedIndicatorForYAxis){
 
 										$scope.eventsRegistered = false;
 
@@ -433,8 +448,9 @@ angular
 											grid: {
 											  left: '10%',
 											  top: 10,
-											  right: '10%',
-											  bottom: 55
+											  right: '5%',
+											  bottom: 55,
+											  containLabel: true
 											},
 										    title: {
 										        text: 'Lineare Regression - ' + $scope.spatialUnitName + ' - ' + $scope.date,
@@ -453,13 +469,13 @@ angular
 																			}
 																				var string = "" + params.name + "<br/>";
 
-																				string += $scope.selectedIndicatorForXAxis.indicatorMetadata.indicatorName + ": " + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(params.value[0]) + " [" + $scope.selectedIndicatorForXAxis.indicatorMetadata.unit + "]<br/>";
-																				string += $scope.selectedIndicatorForYAxis.indicatorMetadata.indicatorName + ": " + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(params.value[1]) + " [" + $scope.selectedIndicatorForYAxis.indicatorMetadata.unit + "]<br/>";
+																				string += $scope.selection.selectedIndicatorForXAxis.indicatorMetadata.indicatorName + ": " + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(params.value[0]) + " [" + $scope.selection.selectedIndicatorForXAxis.indicatorMetadata.unit + "]<br/>";
+																				string += $scope.selection.selectedIndicatorForYAxis.indicatorMetadata.indicatorName + ": " + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(params.value[1]) + " [" + $scope.selection.selectedIndicatorForYAxis.indicatorMetadata.unit + "]<br/>";
 						                            return string;
 						                           }
 										    },
 										    xAxis: {
-														name: kommonitorDataExchangeService.formatIndiatorNameForLabel($scope.selectedIndicatorForXAxis.indicatorMetadata.indicatorName + " [" + $scope.selectedIndicatorForXAxis.indicatorMetadata.unit + "]", 100),
+														name: kommonitorDataExchangeService.formatIndiatorNameForLabel($scope.selection.selectedIndicatorForXAxis.indicatorMetadata.indicatorName + " - " + $scope.selection.selectedIndicatorForXAxis.selectedDate + " [" + $scope.selection.selectedIndicatorForXAxis.indicatorMetadata.unit + "]", 100),
 														nameLocation: 'center',
 														nameGap: 22,
 		                        scale: true,
@@ -471,7 +487,7 @@ angular
 										        },
 										    },
 										    yAxis: {
-														name: kommonitorDataExchangeService.formatIndiatorNameForLabel($scope.selectedIndicatorForYAxis.indicatorMetadata.indicatorName + " [" + $scope.selectedIndicatorForYAxis.indicatorMetadata.unit + "]", 75),
+														name: kommonitorDataExchangeService.formatIndiatorNameForLabel($scope.selection.selectedIndicatorForYAxis.indicatorMetadata.indicatorName + " - " + $scope.selection.selectedIndicatorForYAxis.selectedDate + " [" + $scope.selection.selectedIndicatorForYAxis.indicatorMetadata.unit + "]", 75),
 														nameLocation: 'center',
 														nameGap: 50,
 										        type: 'value',
