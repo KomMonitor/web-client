@@ -22,9 +22,7 @@
             <!-- /.box-header -->
 
 						<div class="box-body">
-							<label for="TODO">Berechnungsaufgabe:</label>
-
-							<br />
+							<!-- <label for="TODO">Berechnungsaufgabe:</label> -->
 
 							<div class="btn-group btn-group-justified" data-toggle="buttons">
 								<label class="btn btn-primary active">
@@ -37,10 +35,9 @@
 							<!--
 								<label>showIsochrones= {{showIsochrones}}, transitMode= {{transitMode}}</label>
 							 -->
-							<br />
 
 							<div ng-show="showIsochrones" class="ng-show" id="isochoneCalculation">
-							<label for="TODO">Verkehrsmittel</label>
+							<!-- <label for="TODO">Verkehrsmittel</label> -->
 							<br />
 								<div class="btn-group btn-group-justified" data-toggle="buttons">
 									<label class="btn btn-primary active">
@@ -62,9 +59,8 @@
 								<!--
 									<label>{{transitMode}}</label>
 							 	-->
-								<br />
 
-								<label for="TODO">Analysefokus</label>
+								<!-- <label for="TODO">Analysefokus</label> -->
 
 								<br />
 
@@ -205,6 +201,7 @@
 
 							</div>
 							<div ng-hide="showIsochrones" class="ng-hide" id="routing">
+								<br/>
 									<div class="form-group">
 									    <label for="transitModeList">Verkehrsmittel</label>
 									    <select class="form-control" id="transitModeList" ng-change="changeTransitMode()" ng-model="transitMode">
