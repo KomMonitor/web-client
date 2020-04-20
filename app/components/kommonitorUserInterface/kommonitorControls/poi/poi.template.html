@@ -28,6 +28,22 @@
 					<span class="switchslider round"></span>
 				</label>
 
+				<label>Art der Datumsdefinition zum Abruf eines Datensatzes</label>
+				<div class="form-group">
+					<label class="radio-inline"><input type="radio" name="dateSelectionType"  ng-value="dateSelectionType_valueIndicator" ng-model="dateSelectionType.selectedDateType">Datum des aktuellen Indikators</label>
+					<label class="radio-inline"><input type="radio" name="dateSelectionType"  ng-value="dateSelectionType_valueManual" ng-model="dateSelectionType.selectedDateType">manuelles Datum
+						<div class="input-group date">
+							<div class="input-group-addon">
+								<i class="far fa-calendar-alt"></i>
+							</div>
+							<input type="text" ng-model="selectedDate_manual" ng-disabled="!(dateSelectionType.selectedDateType === dateSelectionType_valueManual)"
+								class="form-control pull-right" placeholder="YYYY-MM-DD"
+								id="manualDateDatepicker" required>
+						</div>
+					</label>
+					<label class="radio-inline"><input type="radio" name="dateSelectionType"  ng-value="dateSelectionType_valuePerDataset" ng-model="dateSelectionType.selectedDateType">pro Datensatz</label>
+				</div>
+
 			</div>
 
 			<br/>
@@ -141,7 +157,7 @@
 																<th>Beschreibung</th>
 																<th>Layer Transparenz</th>
 																<th>Legende</th>
-																<th>Zeitschnitt</th>
+																<th ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">Zeitschnitt</th>
 																<th>Export</th>
 															  </tr>
 															</thead>
@@ -181,7 +197,7 @@
 																			</div>
 																		</div>																		
 																	</td>
-																	<td>
+																	<td ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
 																		<select style="font-size: 11px; width:135px; padding: 0px;"
 																				ng-model="poi.selectedDate" ng-change="onChangeSelectedDate(poi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in poi.availablePeriodsOfValidity | orderBy: 'startDate'" ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]"
 																				class="form-control" required>
@@ -226,7 +242,7 @@
 																		</div>
 																		
 																	</td>
-																	<td>
+																	<td ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
 																		<select style="font-size: 11px; width:135px; padding: 0px;"
 																				ng-model="loi.selectedDate" ng-change="onChangeSelectedDate(loi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in loi.availablePeriodsOfValidity | orderBy: 'startDate'" ng-init="loi.selectedDate = loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]"
 																				class="form-control" required>
@@ -269,7 +285,7 @@
 																			</i>
 																		</div>
 																	</td>
-																	<td>
+																	<td ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
 																		<select style="font-size: 11px; width:135px; padding: 0px;"
 																				ng-model="aoi.selectedDate" ng-change="onChangeSelectedDate(aoi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in aoi.availablePeriodsOfValidity | orderBy: 'startDate'" ng-init="aoi.selectedDate = aoi.availablePeriodsOfValidity[aoi.availablePeriodsOfValidity.length - 1]"
 																				class="form-control" required>
@@ -419,7 +435,7 @@
 															<th>Beschreibung</th>
 															<th>Layer Transparenz</th>
 															<th>Legende</th>
-															<th>Zeitschnitt</th>
+															<th ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">Zeitschnitt</th>
 															<th>Export</th>
 														  </tr>
 														</thead>
@@ -459,7 +475,7 @@
 																		</div>
 																	</div>	
 																</td>
-																<td>
+																<td ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
 																	<select style="font-size: 11px; width:135px; padding: 0px;"
 																			ng-model="poi.selectedDate" ng-change="onChangeSelectedDate(poi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in poi.availablePeriodsOfValidity | orderBy: 'startDate'" ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]"
 																			class="form-control" required>
@@ -503,7 +519,7 @@
 																		</i>
 																	</div>
 																</td>
-																<td>
+																<td ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
 																	<select style="font-size: 11px; width:135px; padding: 0px;"
 																			ng-model="loi.selectedDate" ng-change="onChangeSelectedDate(loi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in loi.availablePeriodsOfValidity | orderBy: 'startDate'" ng-init="loi.selectedDate = loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]"
 																			class="form-control" required>
@@ -697,7 +713,7 @@
 														<th>Beschreibung</th>
 														<th>Layer Transparenz</th>
 														<th>Legende</th>
-														<th>Zeitschnitt</th>
+														<th ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">Zeitschnitt</th>
 														<th>Export</th>
 													  </tr>
 													</thead>
@@ -737,7 +753,7 @@
 																	</div>
 																</div>	
 															</td>
-															<td>
+															<td ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
 																<select style="font-size: 11px; width:135px; padding: 0px;"
 																		ng-model="poi.selectedDate" ng-change="onChangeSelectedDate(poi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in poi.availablePeriodsOfValidity | orderBy: 'startDate'" ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]"
 																		class="form-control" required>
@@ -781,7 +797,7 @@
 																	</i>
 																</div>
 															</td>
-															<td>
+															<td ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
 																<select style="font-size: 11px; width:135px; padding: 0px;"
 																		ng-model="loi.selectedDate" ng-change="onChangeSelectedDate(loi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in loi.availablePeriodsOfValidity | orderBy: 'startDate'" ng-init="loi.selectedDate = loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]"
 																		class="form-control" required>
@@ -824,7 +840,7 @@
 																	</i>
 																</div>
 															</td>
-															<td>
+															<td ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
 																<select style="font-size: 11px; width:135px; padding: 0px;"
 																		ng-model="aoi.selectedDate" ng-change="onChangeSelectedDate(aoi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in aoi.availablePeriodsOfValidity | orderBy: 'startDate'" ng-init="aoi.selectedDate = aoi.availablePeriodsOfValidity[aoi.availablePeriodsOfValidity.length - 1]"
 																		class="form-control" required>
@@ -983,7 +999,7 @@
 										
 										<th>Layer Transparenz</th>
 										<th>Legende</th>
-										<th>Zeitschnitt</th>
+										<th ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">Zeitschnitt</th>
 										<th>Export</th>
 									  </tr>
 									</thead>
@@ -1024,7 +1040,7 @@
 													</div>
 												</div>	
 											</td>
-											<td>
+											<td ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
 												<select style="font-size: 11px; width:135px; padding: 0px;"
 														ng-model="poi.selectedDate" ng-change="onChangeSelectedDate(poi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in poi.availablePeriodsOfValidity | orderBy: 'startDate'" ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]"
 														class="form-control" required>
@@ -1068,7 +1084,7 @@
 													</i>
 												</div>
 											</td>
-											<td>
+											<td ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
 												<select style="font-size: 11px; width:135px; padding: 0px;"
 														ng-model="loi.selectedDate" ng-change="onChangeSelectedDate(loi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in loi.availablePeriodsOfValidity | orderBy: 'startDate'" ng-init="loi.selectedDate = loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]"
 														class="form-control" required>
@@ -1111,7 +1127,7 @@
 													</i>
 												</div>
 											</td>
-											<td>
+											<td ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
 												<select style="font-size: 11px; width:135px; padding: 0px;"
 														ng-model="aoi.selectedDate" ng-change="onChangeSelectedDate(aoi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in aoi.availablePeriodsOfValidity | orderBy: 'startDate'" ng-init="aoi.selectedDate = aoi.availablePeriodsOfValidity[aoi.availablePeriodsOfValidity.length - 1]"
 														class="form-control" required>
@@ -1279,7 +1295,7 @@
 									<th>Beschreibung</th>
 									<th>Layer Transparenz</th>
 									<th>Legende</th>
-									<th>Zeitschnitt</th>
+									<th ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">Zeitschnitt</th>
 									<th>Export</th>
 								  </tr>
 								</thead>
@@ -1315,7 +1331,7 @@
 													</div>
 												</div>	
 											</td>
-											<td>
+											<td ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
 												<select style="font-size: 11px; width:135px; padding: 0px;"
 														ng-model="poi.selectedDate" ng-change="onChangeSelectedDate(poi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in poi.availablePeriodsOfValidity | orderBy: 'startDate'" ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]"
 														class="form-control" required>
@@ -1375,7 +1391,7 @@
 												<th>Beschreibung</th>
 												<th>Layer Transparenz</th>
 												<th>Legende</th>
-												<th>Zeitschnitt</th>
+												<th ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">Zeitschnitt</th>
 												<th>Export</th>
 											</tr>
 										</thead>
@@ -1410,7 +1426,7 @@
 														</i>
 													</div>
 												</td>
-												<td>
+												<td ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
 													<select style="font-size: 11px; width:135px; padding: 0px;"
 															ng-model="loi.selectedDate" ng-change="onChangeSelectedDate(loi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in loi.availablePeriodsOfValidity | orderBy: 'startDate'" ng-init="loi.selectedDate = loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]"
 															class="form-control" required>
@@ -1465,7 +1481,7 @@
 											<th>Beschreibung</th>
 											<th>Layer Transparenz</th>
 											<th>Legende</th>
-											<th>Zeitschnitt</th>
+											<th ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">Zeitschnitt</th>
 											<th>Export</th>
 										  </tr>
 										</thead>
@@ -1499,7 +1515,7 @@
 															</i>
 														</div>
 													</td>
-													<td>
+													<td ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
 														<select style="font-size: 11px; width:135px; padding: 0px;"
 																ng-model="aoi.selectedDate" ng-change="onChangeSelectedDate(aoi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in aoi.availablePeriodsOfValidity | orderBy: 'startDate'" ng-init="aoi.selectedDate = aoi.availablePeriodsOfValidity[aoi.availablePeriodsOfValidity.length - 1]"
 																class="form-control" required>
