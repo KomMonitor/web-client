@@ -983,9 +983,9 @@ angular
 
 						// range in meters
 						for (const range of $scope.rangeArray) {
-							var geoJSON_buffered = turf.buffer(startingPoints_geoJSON, Number(range)/1000, {units: 'kilometers', steps: 128});
+							var geoJSON_buffered = turf.buffer(startingPoints_geoJSON, Number(range)/1000, {units: 'kilometers', steps: 12});
 
-							if(! $scope.useMultipleStartPoints){
+							if(! geoJSON_buffered.features){
 								// transform single feature to featureCollection
 								geoJSON_buffered = turf.featureCollection([
 									geoJSON_buffered
