@@ -37,167 +37,206 @@
 							 -->
 
 							<div ng-show="showIsochrones" class="ng-show" id="isochoneCalculation">
-							<!-- <label for="TODO">Verkehrsmittel</label> -->
-							<br />
-								<div class="btn-group btn-group-justified" data-toggle="buttons">
-									<label class="btn btn-primary active">
-										<input type="radio" name="options" id="optBuffer" autocomplete="off" checked ng-change="changeType()" ng-model="transitMode" value="buffer"> <i class="far fa-dot-circle"></i> Puffer</input>
-									</label>
-									<label class="btn btn-primary">
-										<input type="radio" name="options" id="optFeet" autocomplete="off" checked ng-change="changeType()" ng-model="transitMode" value="foot-walking"> <i class="fas fa-walking"></i> Fu&szlig;g&aumlnger </input>
-									</label>
-									<label class="btn btn-primary">
-										<input type="radio" name="options" id="optBike" autocomplete="off" ng-change="changeType()" ng-model="transitMode" value="cycling-regular"> <i class="fas fa-biking"></i> Fahrrad </input>
-									</label>
-									<label class="btn btn-primary">
-										<input type="radio" name="options" id="optCar" autocomplete="off" ng-change="changeType()" ng-model="transitMode" value="driving-car"> <i class="fas fa-car"></i> PKW </input>
-									</label>
-									<label class="btn btn-primary">
-										<input type="radio" name="options" id="optWheelchair" autocomplete="off" ng-change="changeType()" ng-model="transitMode" value="wheelchair"> <i class="fab fa-accessible-icon"></i> Barrierefrei </input>
-									</label>
-								</div>
-								<!--
-									<label>{{transitMode}}</label>
-							 	-->
 
-								<!-- <label for="TODO">Analysefokus</label> -->
+								<br/>
 
-								<br />
+								<uib-tabset active="activeJustified" justified="true">
+									<uib-tab index="0" heading="Einzugsgebiet definieren und berechnen">
 
-								<div class="btn-group btn-group-justified" data-toggle="buttons">
-									<label class="btn btn-primary active">
-										<input type="radio" name="options" id="focus_distance" autocomplete="off" checked ng-change="changeFocus()" ng-model="focus" value="distance"> <i class="fas fa-ruler"></i> Distanz
-									</label>
-									<label class="btn btn-primary" ng-disabled="transitMode === 'buffer'">
-										<input type="radio" name="options" id="focus_time" autocomplete="off" ng-change="changeFocus()" ng-model="focus" value="time"><i class="far fa-clock"></i> Zeit
-									</label>
-								</div>
-
-								<!--
-									<label>Fokus= {{focus}}, Time= {{isTime}}</label>
-								-->
-
-								<br />
-								<hr>
-								<br />
-
-								<div class="rangeslider">
-									<label for="TODO">Distanz / Zeit</label>
-
-									<div class="row vertical-align" style="margin-right:0px;">
-						        <div class="col-md-4 col-sm-4 col-xs-4">
-											<input type="range" min="1" max={{max_value}} value="1" class="myslider" id="timeOrDistSlider" ng-model="currentTODValue">
-											<br />
-											<label>Wert: {{currentTODValue}} {{unit}}</label>
-
-											<label>Maximum: {{max_value}} {{unit}}</label>
+										<div class="just-padding">
+											<!-- <label for="TODO">Verkehrsmittel</label> -->
+										<br />
+										<div class="btn-group btn-group-justified" data-toggle="buttons">
+											<label class="btn btn-primary active">
+												<input type="radio" name="options" id="optBuffer" autocomplete="off" checked ng-change="changeType()" ng-model="transitMode" value="buffer"> <i class="far fa-dot-circle"></i> Puffer</input>
+											</label>
+											<label class="btn btn-primary">
+												<input type="radio" name="options" id="optFeet" autocomplete="off" checked ng-change="changeType()" ng-model="transitMode" value="foot-walking"> <i class="fas fa-walking"></i> Fu&szlig;g&aumlnger </input>
+											</label>
+											<label class="btn btn-primary">
+												<input type="radio" name="options" id="optBike" autocomplete="off" ng-change="changeType()" ng-model="transitMode" value="cycling-regular"> <i class="fas fa-biking"></i> Fahrrad </input>
+											</label>
+											<label class="btn btn-primary">
+												<input type="radio" name="options" id="optCar" autocomplete="off" ng-change="changeType()" ng-model="transitMode" value="driving-car"> <i class="fas fa-car"></i> PKW </input>
+											</label>
+											<label class="btn btn-primary">
+												<input type="radio" name="options" id="optWheelchair" autocomplete="off" ng-change="changeType()" ng-model="transitMode" value="wheelchair"> <i class="fab fa-accessible-icon"></i> Barrierefrei </input>
+											</label>
 										</div>
-										<div class="col-md-8 col-sm-8 col-xs-8">
-											<p>F&uuml;r die Definition mehrerer Isochronen nutzen Sie bitte das nachfolgende Textfeld. Geben Sie die gew&uuml;nschten Isochronengrenzen kommagetrennt ein (Beispiel: '100,200,300' in Metern oder '5,10,20' f&uuml;r Minuten).</p>
-											<div class="horizontal-align">
-												<input id="isoInputText" type="text" onkeypress="isInputAllowed(event)">
-											</div>
+										<!--
+											<label>{{transitMode}}</label>
+										-->
 
-											<script>
-												function isInputAllowed(evt) {
-													var code = (evt.keyCode ? evt.keyCode : evt.which);
-													if (code == 8) { //Backspace key press
-														return true;
-													} else {
-														var ch = String.fromCharCode(evt.which);
-														if (!(/[0-9,]/.test(ch))) {
-															evt.preventDefault();
+										<!-- <label for="TODO">Analysefokus</label> -->
+
+										<br />
+
+										<div class="btn-group btn-group-justified" data-toggle="buttons">
+											<label class="btn btn-primary active">
+												<input type="radio" name="options" id="focus_distance" autocomplete="off" checked ng-change="changeFocus()" ng-model="focus" value="distance"> <i class="fas fa-ruler"></i> Distanz
+											</label>
+											<label class="btn btn-primary" ng-disabled="transitMode === 'buffer'">
+												<input type="radio" name="options" id="focus_time" autocomplete="off" ng-change="changeFocus()" ng-model="focus" value="time"><i class="far fa-clock"></i> Zeit
+											</label>
+										</div>
+
+										<!--
+											<label>Fokus= {{focus}}, Time= {{isTime}}</label>
+										-->
+
+										<br />
+										<hr>
+										<br />
+
+										<div class="rangeslider">
+											<label for="TODO">Distanz / Zeit</label>
+
+											<div class="row vertical-align" style="margin-right:0px;">
+										<div class="col-md-4 col-sm-4 col-xs-4">
+													<input type="range" min="1" max={{max_value}} value="1" class="myslider" id="timeOrDistSlider" ng-model="currentTODValue">
+													<br />
+													<label>Wert: {{currentTODValue}} {{unit}}</label>
+
+													<label>Maximum: {{max_value}} {{unit}}</label>
+												</div>
+												<div class="col-md-8 col-sm-8 col-xs-8">
+													<p>F&uuml;r die Definition mehrerer Isochronen nutzen Sie bitte das nachfolgende Textfeld. Geben Sie die gew&uuml;nschten Isochronengrenzen kommagetrennt ein (Beispiel: '100,200,300' in Metern oder '5,10,20' f&uuml;r Minuten).</p>
+													<div class="horizontal-align">
+														<input id="isoInputText" type="text" onkeypress="isInputAllowed(event)">
+													</div>
+
+													<script>
+														function isInputAllowed(evt) {
+															var code = (evt.keyCode ? evt.keyCode : evt.which);
+															if (code == 8) { //Backspace key press
+																return true;
+															} else {
+																var ch = String.fromCharCode(evt.which);
+																if (!(/[0-9,]/.test(ch))) {
+																	evt.preventDefault();
+																}
+															}
 														}
-													}
-												}
-											</script>
-										</div>
-									</div>
-									<!-- <br />
-									<br /> -->
-
-								</div>
-
-								<br />
-
-								<div ng-show="isTime && !(transitMode == 'buffer')" class="ng-show" class="rangeslider">
-									<label for="TODO">Maximalgeschwindigkeit</label>
-									<br />
-									<br />
-									<input type="range" min={{minSpeedInKilometersPerHour}} max={{maxSpeedInKilometersPerHour}} value={{minSpeedInKilometersPerHour}} class="myslider" id="tempoSlider" ng-model="speedInKilometersPerHour">
-									<br />
-									<label>Wert: {{speedInKilometersPerHour}} km/h; Maximum: {{maxSpeedInKilometersPerHour}} km/h</label>
-									<br />
-									<br />
-								</div>
-
-								<hr>
-								<br/>
-
-								<label for="TODO">Startpunkte</label>
-
-								<br />
-
-								<div class="btn-group btn-group-justified " data-toggle="buttons">
-									<label class="btn btn-primary active">
-										<input type="radio" name="options" id="startPointsSource_layer" autocomplete="off" checked ng-change="changeStartPointsSource()" ng-model="startPointsSource" value="fromLayer"><i class="fas fa-layer-group"></i> aus Punkt-Layer</input>
-									</label>
-									<label class="btn btn-primary">
-										<input type="radio" name="options" id="startPointsSource_draw" autocomplete="off" ng-change="changeStartPointsSource()" ng-model="startPointsSource" value="manual"><i class="fas fa-map-marked-alt"></i> Punkte zeichnen</input>
-									</label>
-								</div>
-
-								<!--
-									<label>Fokus= {{focus}}, Time= {{isTime}}</label>
-								-->
-
-								<br />
-
-								<div ng-show="startPointsSource === 'fromLayer'">
-
-									<div class="row vertical-align" style="margin-right:0px;">
-						        <div class="col-md-6 col-sm-6 col-xs-6">
-											<div class="horizontal-align" ng-show="selectedStartPointLayer.geoJSON">
-												<p><b>{{selectedStartPointLayer.geoJSON.features.length}}</b> Startpunkte im selektierten Layer</p>
+													</script>
+												</div>
 											</div>
+											<!-- <br />
+											<br /> -->
 
-											<div class="horizontal-align" ng-hide="selectedStartPointLayer">
-												<p>noch kein Layer selektiert</p>
+										</div>
+
+										<br />
+
+										<div ng-show="isTime && !(transitMode == 'buffer')" class="ng-show" class="rangeslider">
+											<label for="TODO">Maximalgeschwindigkeit</label>
+											<br />
+											<br />
+											<input type="range" min={{minSpeedInKilometersPerHour}} max={{maxSpeedInKilometersPerHour}} value={{minSpeedInKilometersPerHour}} class="myslider" id="tempoSlider" ng-model="speedInKilometersPerHour">
+											<br />
+											<label>Wert: {{speedInKilometersPerHour}} km/h; Maximum: {{maxSpeedInKilometersPerHour}} km/h</label>
+											<br />
+											<br />
+										</div>
+
+										<hr>
+										<br/>
+
+										<label for="TODO">Startpunkte</label>
+
+										<br />
+
+										<div class="btn-group btn-group-justified " data-toggle="buttons">
+											<label class="btn btn-primary active">
+												<input type="radio" name="options" id="startPointsSource_layer" autocomplete="off" checked ng-change="changeStartPointsSource()" ng-model="startPointsSource" value="fromLayer"><i class="fas fa-layer-group"></i> aus Punkt-Layer</input>
+											</label>
+											<label class="btn btn-primary">
+												<input type="radio" name="options" id="startPointsSource_draw" autocomplete="off" ng-change="changeStartPointsSource()" ng-model="startPointsSource" value="manual"><i class="fas fa-map-marked-alt"></i> Punkte zeichnen</input>
+											</label>
+										</div>
+
+										<!--
+											<label>Fokus= {{focus}}, Time= {{isTime}}</label>
+										-->
+
+										<br />
+
+										<div ng-show="startPointsSource === 'fromLayer'">
+
+											<div class="row vertical-align" style="margin-right:0px;">
+										<div class="col-md-6 col-sm-6 col-xs-6">
+													<div class="horizontal-align" ng-show="selectedStartPointLayer.geoJSON">
+														<p><b>{{selectedStartPointLayer.geoJSON.features.length}}</b> Startpunkte im selektierten Layer</p>
+													</div>
+
+													<div class="horizontal-align" ng-hide="selectedStartPointLayer">
+														<p>noch kein Layer selektiert</p>
+													</div>
+												</div>
+												<div class="col-md-6 col-sm-6 col-xs-6">
+													<select style="font-size: 12px;"
+														ng-model="selectedStartPointLayer" ng-options="poi as poi.datasetName for poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois()"
+														ng-change="onChangeSelectedStartPointLayer()" class="form-control" required>
+														<option disabled selected value> -- Punkt-Layer w&auml;hlen -- </option>
+													</select>
+												</div>
 											</div>
 										</div>
+
+										<div ng-show="startPointsSource === 'manual'">
+
+											<p>Zeichnen Sie selbst Punkte in die Karte. Dazu nutzen Sie bitte das Zeichen-Werkzeug in der unteren linken Ecke der Karte.</p>
+
+											<div class="row vertical-align" style="margin-right:0px;">
 										<div class="col-md-6 col-sm-6 col-xs-6">
-											<select style="font-size: 12px;"
-												ng-model="selectedStartPointLayer" ng-options="poi as poi.datasetName for poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois()"
-												ng-change="onChangeSelectedStartPointLayer()" class="form-control" required>
-												<option disabled selected value> -- Punkt-Layer w&auml;hlen -- </option>
-											</select>
+													<div class="horizontal-align" ng-show="manualStartPoints.features.length > 0">
+													<p><b>{{manualStartPoints.features.length}}</b> Startpunkte gezeichnet</p>
+												</div>
+
+												<div class="horizontal-align" ng-hide="manualStartPoints.features.length > 0">
+													<p>noch keine Start-Punkte gezeichnet</p>
+												</div>
 										</div>
-									</div>
-								</div>
+												<div class="col-md-6 col-sm-6 col-xs-6">
+										<button type="button" class="btn btn-danger btn-sm" ng-click="removeAllDrawnPoints()" >Punkte entfernen</button>
+										</div>
+											</div>
+										</div>
 
-								<div ng-show="startPointsSource === 'manual'">
+										<br/>
+										<hr>
+										<br/>
 
-									<p>Zeichnen Sie selbst Punkte in die Karte. Dazu nutzen Sie bitte das Zeichen-Werkzeug in der unteren linken Ecke der Karte.</p>
+										<div align="center">
 
-									<div class="row vertical-align" style="margin-right:0px;">
-						        <div class="col-md-6 col-sm-6 col-xs-6">
-											<div class="horizontal-align" ng-show="manualStartPoints.features.length > 0">
- 	 										<p><b>{{manualStartPoints.features.length}}</b> Startpunkte gezeichnet</p>
- 	 									</div>
+											<div ng-show="showIsochrones">
+												<b>Isochronen vereinigen</b> (erh&ouml;ht die Laufzeit der Berechnung)
+												&nbsp;
+												<label class="switch">
+													<input type="checkbox" value="dissolveIsochrones" ng-model="dissolveIsochrones" checked>
+													<span class="switchslider round"></span>
+												</label>
+												<br/>
+												<br/>
+											</div>
+			
+											<input type="button" class="btn btn-s btn-info" value="Analyse starten!" ng-disabled="!(pointSourceConfigured && showIsochrones)" ng-click="startAnalysis()"></input>
+											<input type="button" class="btn btn-s btn-danger" value="Zur&uuml;cksetzen" ng-click="resetForm()"></input>
+										</div>
 
- 	 									<div class="horizontal-align" ng-hide="manualStartPoints.features.length > 0">
- 	 										<p>noch keine Start-Punkte gezeichnet</p>
- 	 									</div>
-						        </div>
-										<div class="col-md-6 col-sm-6 col-xs-6">
-						         <button type="button" class="btn btn-danger btn-sm" ng-click="removeAllDrawnPoints()" >Punkte entfernen</button>
-						        </div>
-									</div>
-								</div>
+										</div>									
+									</uib-tab>
+									<uib-tab index="1" heading="Georessourcen im Einzugsgebiet">
+										<div class="just-padding">
 
-								<br/>
-								<hr>
-								<br/>
+										</div>
+									</uib-tab>
+									<uib-tab index="2" heading="Indikatorenanalyse im Einzugsgebiet">
+										<div class="just-padding">
+											
+										</div>
+									</uib-tab>
+								</uib-tabset>
+
 
 							</div>
 							<div ng-hide="showIsochrones" class="ng-hide" id="routing">
@@ -300,28 +339,14 @@
 									</div>
 
 								<!-- </div> -->
-
-							</div>
-
-							<div ng-hide="showIsochrones">
 								<br />
-							</div>
 
-							<div align="center">
-
-								<div ng-show="showIsochrones">
-									<b>Isochronen vereinigen</b> (erh&ouml;ht die Laufzeit der Berechnung)
-									&nbsp;
-									<label class="switch">
-										<input type="checkbox" value="dissolveIsochrones" ng-model="dissolveIsochrones" checked>
-										<span class="switchslider round"></span>
-									</label>
-									<br/>
-									<br/>
+								<div align="center">
+	
+									<input type="button" class="btn btn-s btn-info" value="Analyse starten!" ng-disabled="!(routingStartPoint && routingEndPoint && !showIsochrones)" ng-click="startAnalysis()"></input>
+									<input type="button" class="btn btn-s btn-danger" value="Zur&uuml;cksetzen" ng-click="resetForm()"></input>
 								</div>
 
-								<input type="button" class="btn btn-s btn-info" value="Analyse starten!" ng-disabled="!(pointSourceConfigured && showIsochrones) && !(routingStartPoint && routingEndPoint && !showIsochrones)" ng-click="startAnalysis()"></input>
-								<input type="button" class="btn btn-s btn-danger" value="Zur&uuml;cksetzen" ng-click="resetForm()"></input>
 							</div>
 
 							<div ng-show="error">
