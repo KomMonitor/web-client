@@ -2060,6 +2060,9 @@ angular.module('kommonitorMap').component(
 
           var transitModeValue = "Passant";
           switch (transitMode) {
+            case "buffer":
+              transitModeValue = "Puffer (Luftlinie)";
+              break;
             case "cycling-regular":
               transitModeValue = "Fahrrad";
               break;

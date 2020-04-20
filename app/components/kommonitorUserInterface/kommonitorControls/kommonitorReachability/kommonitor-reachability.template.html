@@ -28,7 +28,7 @@
 
 							<div class="btn-group btn-group-justified" data-toggle="buttons">
 								<label class="btn btn-primary active">
-									<input type="radio" name="btn_show_iso" id="btn_isochrones" ng-change="showIso()" autocomplete="off" checked ng-model="showIsochrones" value="true"><i class="far fa-dot-circle"></i> Isochronenberechnung</input>
+									<input type="radio" name="btn_show_iso" id="btn_isochrones" ng-change="showIso()" autocomplete="off" checked ng-model="showIsochrones" value="true"><i class="far fa-dot-circle"></i> Einzugsgebiet</input>
 								</label>
 								<label class="btn btn-primary">
 									<input type="radio" name="btn_show_rout" id="btn_routing" ng-change="showRouting()" autocomplete="off" ng-model="showIsochrones" value="false"><i class="fas fa-route"></i> Routing</input>
@@ -44,6 +44,9 @@
 							<br />
 								<div class="btn-group btn-group-justified" data-toggle="buttons">
 									<label class="btn btn-primary active">
+										<input type="radio" name="options" id="optBuffer" autocomplete="off" checked ng-change="changeType()" ng-model="transitMode" value="buffer"> <i class="far fa-dot-circle"></i> Puffer</input>
+									</label>
+									<label class="btn btn-primary">
 										<input type="radio" name="options" id="optFeet" autocomplete="off" checked ng-change="changeType()" ng-model="transitMode" value="foot-walking"> <i class="fas fa-walking"></i> Fu&szlig;g&aumlnger </input>
 									</label>
 									<label class="btn btn-primary">
@@ -69,7 +72,7 @@
 									<label class="btn btn-primary active">
 										<input type="radio" name="options" id="focus_distance" autocomplete="off" checked ng-change="changeFocus()" ng-model="focus" value="distance"> <i class="fas fa-ruler"></i> Distanz
 									</label>
-									<label class="btn btn-primary">
+									<label class="btn btn-primary" ng-disabled="transitMode === 'buffer'">
 										<input type="radio" name="options" id="focus_time" autocomplete="off" ng-change="changeFocus()" ng-model="focus" value="time"><i class="far fa-clock"></i> Zeit
 									</label>
 								</div>
@@ -121,7 +124,7 @@
 
 								<br />
 
-								<div ng-show="isTime" class="ng-show" class="rangeslider">
+								<div ng-show="isTime && !(transitMode == 'buffer')" class="ng-show" class="rangeslider">
 									<label for="TODO">Maximalgeschwindigkeit</label>
 									<br />
 									<br />

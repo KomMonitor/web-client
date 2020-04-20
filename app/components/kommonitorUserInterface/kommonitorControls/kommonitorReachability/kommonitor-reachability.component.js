@@ -100,7 +100,7 @@ angular
 					 * foot-hiking
 					 * wheelchair
 					 */
-					$scope.transitMode = 'foot-walking';
+					$scope.transitMode = 'buffer';
 
 					/**
 					 * The focus of the analysis. Valid values are:
@@ -296,8 +296,8 @@ angular
 						$scope.showIsochrones = true;
 						$scope.dissolveIsochrones = true;
 						document.getElementById("btn_isochrones").click();
-						$scope.transitMode = 'foot-walking';
-						document.getElementById("optFeet").click();
+						$scope.transitMode = 'buffer';
+						document.getElementById("optBuffer").click();
 						$scope.focus = 'distance';
 						document.getElementById("focus_distance").click();
 						$scope.startPointsSource = "fromLayer";
@@ -579,6 +579,15 @@ angular
 					 * selected vehicle type.
 					 */
 					$scope.changeValues = function() {
+						if ($scope.transitMode == 'buffer'){
+							$scope.focus = 'distance';
+							$("#focus_distance").click();
+							if ($scope.focus == 'distance')
+								$scope.max_value = 5000;
+							else
+								$scope.max_value = 25;
+						}
+
 						if ($scope.transitMode == 'foot-walking'){
 							if ($scope.focus == 'distance')
 								$scope.max_value = 5000;
@@ -669,6 +678,8 @@ angular
 						} else {
 							$scope.rangeArray = [$scope.currentTODValue];
 						}
+
+						$scope.rangeArray.sort(function(a, b){return a-b;});
 					};
 
 					/**
@@ -851,7 +862,7 @@ angular
 
 						$scope.checkArrayInput();
 
-						$scope.locationsArray = $scope.makeLocationsArrayFromStartPoints();
+						$scope.locationsArray = $scope.makeLocationsArrayFromStartPoints();	
 
 						// SWITCH THE VALUE DEPENDING ON THE LENGTH
 						// OF THE LOCATIONS ARRAY
@@ -859,52 +870,17 @@ angular
 							$scope.useMultipleStartPoints = true;
 						else
 							$scope.useMultipleStartPoints = false;
+						
+						var resultIsochrones;
 
-						console.log('Calculating isochrones for ' +
-							$scope.locationsArray.length +
-							' start points.');
+						if($scope.transitMode === 'buffer'){
+							resultIsochrones = await $scope.createBuffers();
+						}
+						else{
+							resultIsochrones = await $scope.createIsochrones();
+						}
 
-							var maxLocationsForORSRequest = 150;
-
-						console.log("Number of Isochrone starting points is greater than the maximum number of locations (" + maxLocationsForORSRequest + "). Must split up starting points to make multiple requests. Result will contain all isochrones though.");
-				    var resultIsochrones;
-
-				    var featureIndex = 0;
-				    // log progress for each 10% of features
-				    var logProgressIndexSeparator = Math.round($scope.locationsArray.length / 100 * 10);
-
-				    var countFeatures = 0;
-				    var tempStartPointsArray = [];
-				    for (var pointIndex=0; pointIndex < $scope.locationsArray.length; pointIndex++){
-				      tempStartPointsArray.push($scope.locationsArray[pointIndex]);
-				      countFeatures++;
-
-				      // if maxNumber of locations is reached or the last starting point is reached
-				      if(countFeatures === maxLocationsForORSRequest || pointIndex ===  $scope.locationsArray.length -1){
-				        // make request, collect results
-
-				        // responses will be GeoJSON FeatureCollections
-				        var tempIsochrones = await $scope.fetchIsochrones(tempStartPointsArray);
-
-				        if (! resultIsochrones){
-				          resultIsochrones = tempIsochrones;
-				        }
-				        else{
-				          // apend results of tempIsochrones to resultIsochrones
-				          resultIsochrones.features = resultIsochrones.features.concat(tempIsochrones.features);
-				        }
-				          // increment featureIndex
-				          featureIndex++;
-				          if(featureIndex % logProgressIndexSeparator === 0){
-				              console.log("PROGRESS: Computed isochrones for '" + featureIndex + "' of total '" + $scope.locationsArray.length + "' starting points.");
-				          }
-
-				        // reset temp vars
-				        tempStartPointsArray = [];
-				        countFeatures = 0;
-
-				      } // end if
-				    } // end for
+						
 
 						$scope.currentIsochronesGeoJSON = resultIsochrones;
 
@@ -945,7 +921,7 @@ angular
 							headers: {
 								// 'Accept': 'application/json'
 							}
-						}
+						};
 
 						return await $http(req)
 							.then(
@@ -989,6 +965,113 @@ angular
 									kommonitorDataExchangeService.displayMapApplicationError(error);
 									$rootScope.$broadcast("hideLoadingIconOnMap");
 								});
+					};
+
+					$scope.createBuffers = function(){
+						var resultIsochrones;
+
+						var startingPoints_geoJSON;
+						// create Buffers for each input and range definition
+						if($scope.startPointsSource === "manual"){
+							// establish from drawn points
+							startingPoints_geoJSON = $scope.manualStartPoints;
+						}
+						else{
+							// establish from chosen layer
+							startingPoints_geoJSON = $scope.selectedStartPointLayer.geoJSON;
+						}
+
+						// range in meters
+						for (const range of $scope.rangeArray) {
+							var geoJSON_buffered = turf.buffer(startingPoints_geoJSON, Number(range)/1000, {units: 'kilometers', steps: 128});
+
+							if(! $scope.useMultipleStartPoints){
+								// transform single feature to featureCollection
+								geoJSON_buffered = turf.featureCollection([
+									geoJSON_buffered
+								  ]);
+							}
+
+							if ($scope.dissolveIsochrones){
+								try {
+									geoJSON_buffered = turf.dissolve(geoJSON_buffered);
+								} catch (e) {
+									console.error("Dissolving Isochrones failed with error: " + e);
+									console.error("Will return undissolved isochrones");
+								} finally {
+
+								}
+
+							}
+
+							// add property: value --> range
+							if (geoJSON_buffered.features && geoJSON_buffered.features.length > 0){
+								for (const feature of geoJSON_buffered.features) {
+									feature.properties.value = range;
+								}
+							}
+
+							if(! resultIsochrones){
+								resultIsochrones = geoJSON_buffered;
+							}
+							else{
+								resultIsochrones.features = resultIsochrones.features.concat(geoJSON_buffered.features);
+							}
+						}
+
+						return resultIsochrones;
+					};
+
+					$scope.createIsochrones = async function(){
+						var resultIsochrones;
+
+						console.log('Calculating isochrones for ' +
+							$scope.locationsArray.length +
+							' start points.');
+
+							var maxLocationsForORSRequest = 150;
+
+						console.log("Number of Isochrone starting points is greater than the maximum number of locations (" + maxLocationsForORSRequest + "). Must split up starting points to make multiple requests. Result will contain all isochrones though.");
+	
+						var featureIndex = 0;
+						// log progress for each 10% of features
+						var logProgressIndexSeparator = Math.round($scope.locationsArray.length / 100 * 10);
+
+						var countFeatures = 0;
+						var tempStartPointsArray = [];
+						for (var pointIndex=0; pointIndex < $scope.locationsArray.length; pointIndex++){
+						tempStartPointsArray.push($scope.locationsArray[pointIndex]);
+						countFeatures++;
+
+						// if maxNumber of locations is reached or the last starting point is reached
+						if(countFeatures === maxLocationsForORSRequest || pointIndex ===  $scope.locationsArray.length -1){
+							// make request, collect results
+
+							// responses will be GeoJSON FeatureCollections
+							var tempIsochrones = await $scope.fetchIsochrones(tempStartPointsArray);
+
+							if (! resultIsochrones){
+							resultIsochrones = tempIsochrones;
+							}
+							else{
+							// apend results of tempIsochrones to resultIsochrones
+							resultIsochrones.features = resultIsochrones.features.concat(tempIsochrones.features);
+							}
+							// increment featureIndex
+							featureIndex++;
+							if(featureIndex % logProgressIndexSeparator === 0){
+								console.log("PROGRESS: Computed isochrones for '" + featureIndex + "' of total '" + $scope.locationsArray.length + "' starting points.");
+							}
+
+							// reset temp vars
+							tempStartPointsArray = [];
+							countFeatures = 0;
+
+						} // end if
+						} // end for
+
+						return resultIsochrones;
+
 					};
 
 					$scope.onChangeRoutingStartPoint = function(){
