@@ -259,9 +259,85 @@
 
 						</div>
 					</uib-tab>
-					<uib-tab index="1" heading="Georessourcen im Einzugsgebiet" disable="! currentIsochronesGeoJSON" style="font-size: 14px;">
+					<uib-tab index="1" heading="Punktobjekte im Einzugsgebiet" disable="! currentIsochronesGeoJSON" style="font-size: 14px;">
 						<div class="just-padding">
-							georesource content
+							
+							<div class="" >
+
+								<label>Art der Datumsdefinition zum Abruf eines Datensatzes</label>
+								<div class="form-group">
+									<label class="radio-inline"><input type="radio" name="settings.dateSelectionType"  ng-value="settings.dateSelectionType_valueIndicator" ng-model="settings.dateSelectionType.selectedDateType">Datum des aktuellen Indikators</label>
+									<label class="radio-inline"><input type="radio" name="settings.dateSelectionType"  ng-value="settings.dateSelectionType_valueManual" ng-model="settings.dateSelectionType.selectedDateType">manuelles Datum
+										<div class="input-group date">
+											<div class="input-group-addon">
+												<i class="far fa-calendar-alt"></i>
+											</div>
+											<input type="text" ng-model="settings.selectedDate_manual" ng-disabled="!(settings.dateSelectionType.selectedDateType === settings.dateSelectionType_valueManual)"
+												class="form-control pull-right" placeholder="YYYY-MM-DD"
+												id="manualDateDatepicker_reachabilityAnalysis" required>
+										</div>
+									</label>
+									<label class="radio-inline"><input type="radio" name="settings.dateSelectionType"  ng-value="settings.dateSelectionType_valuePerDataset" ng-model="settings.dateSelectionType.selectedDateType">pro Datensatz</label>
+								</div>
+		
+								<!-- <p>Selektieren eines Eintrags aus unten stehender Liste f&uuml;gt den entsprechenden Punkt-Layer der Kartendarstellung hinzu. Deselektion entfernt den entsprechenden Layer aus der Kartendarstellung.</p> -->
+			
+								<div class="input-group">
+									<span class="input-group-addon"><i class="fas fa-filter"></i></span>
+									<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="poiNameFilter_reachabilityAnalysis">
+								</div>
+			
+								<br/>
+			
+								<div  id="poiInputForm_reachabilityAnalysis">
+			
+									<table class="table table-condensed" style="margin-bottom:0px;">
+									<thead>
+									  <tr>
+										<th>Datensatz</th>
+										<th>Beschreibung</th>
+										<th>Legende</th>
+										<th ng-if="settings.dateSelectionType.selectedDateType === settings.dateSelectionType_valuePerDataset">Zeitschnitt</th>
+									  </tr>
+									</thead>
+			
+										<tbody>
+			
+											<tr ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:poiNameFilter_reachabilityAnalysis'>
+												<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
+												<td>
+													<label class='checkbox-inline' ><input type="checkbox" value="poi.datasetName" ng-model="poi.isSelected_reachabilityAnalysis" ng-change="handlePoiForAnalysis(poi)">											
+			
+														<b>&nbsp;&nbsp;{{poi.datasetName}}</b>
+													</label>
+												</td>
+												<td>
+													<p>{{poi.metadata.description}}</p>
+												</td>
+												<td class="text-center">
+													<div align="center">
+														<div class="awesome-marker-legend awesome-marker-legend-icon-{{poi.poiMarkerColor}}">
+															<span style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{poi.poiSymbolColor}};" class="glyphicon glyphicon-{{poi.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
+														</div>
+													</div>	
+												</td>
+												<td ng-if="settings.dateSelectionType.selectedDateType === settings.dateSelectionType_valuePerDataset">
+													<select style="font-size: 11px; width:135px; padding: 0px;"
+															ng-model="poi.selectedDate" ng-change="onChangeSelectedDate(poi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in poi.availablePeriodsOfValidity | orderBy: 'startDate'" ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]"
+															class="form-control" required>
+														</select>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+									</div>
+			
+									<br/>
+			
+									
+			
+							</div>
+
 						</div>
 					</uib-tab>
 					<uib-tab index="2" heading="Indikatorenanalyse im Einzugsgebiet" disable="! currentIsochronesGeoJSON" style="font-size: 14px;">

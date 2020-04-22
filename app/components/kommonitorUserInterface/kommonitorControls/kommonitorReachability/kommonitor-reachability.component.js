@@ -46,6 +46,17 @@ angular
 
 					$scope.settings = {};
 
+					$scope.settings.dateSelectionType_valueIndicator = "date_indicator";
+								$scope.settings.dateSelectionType_valueManual = "date_manual";
+								$scope.settings.dateSelectionType_valuePerDataset = "date_perDataset";
+								$scope.settings.dateSelectionType = {
+									selectedDateType: $scope.settings.dateSelectionType_valueIndicator
+								};
+
+					$scope.settings.selectedDate_manual = undefined;
+					$('#manualDateDatepicker_reachabilityAnalysis').datepicker(kommonitorDataExchangeService.datePickerOptions);
+
+
 					$scope.routeDistance_km = undefined;
 					$scope.routeDuration_minutes = undefined;
 					$scope.routeAvgSpeed_kmh = undefined;
@@ -1173,6 +1184,229 @@ angular
 						// hide geosearch results to minimize page height
 						$scope.geosearchResults_endPoint = undefined;
 					};
+
+
+					//////////////////////////// SECTION FOR GORESOURCE AND INSICATOR ANALYSIS
+					$scope.onChangeSelectedDate = async function(georesourceDataset){
+						// only if it s already selected, we must modify the shown dataset 
+
+
+						if(georesourceDataset.isSelected_reachabilityAnalysis){
+							// depending on type we must call different methods
+							if (georesourceDataset.isPOI){
+								$scope.removePoiLayerFromMap(georesourceDataset);
+								georesourceDataset = await $scope.fetchGeoJSONForDate(georesourceDataset);
+								$scope.addPoiLayerToMap(georesourceDataset);
+							}
+							else{
+								console.error("unknown dataset: " + georesourceDataset);
+							}
+						}
+					};
+
+					$scope.getQueryDate = function(resource){
+						if ($scope.settings.dateSelectionType.selectedDateType === $scope.settings.dateSelectionType_valueIndicator){
+							return kommonitorDataExchangeService.selectedDate;
+						}
+						else if($scope.settings.dateSelectionType.selectedDateType === $scope.settings.dateSelectionType_valueManual){
+							return $scope.settings.selectedDate_manual;
+						}
+						else if($scope.settings.dateSelectionType.selectedDateType === $scope.settings.dateSelectionType_valuePerDataset){
+							return resource.selectedDate.startDate;
+						}
+						else{
+							return kommonitorDataExchangeService.selectedDate;
+						}
+					};
+
+					$scope.handlePoiForAnalysis = async function(poi){
+						$scope.loadingData = true;
+						$rootScope.$broadcast("showLoadingIconOnMap");
+
+						try {
+							if(poi.isSelected_reachabilityAnalysis){
+								poi = await $scope.fetchGeoJSONForDate(poi);
+							}
+	
+							await $scope.handlePoiOnDiagram(poi);
+	
+							$scope.handlePoiOnMap(poi);
+						} catch (error) {
+							console.error();
+						}
+						
+						$scope.loadingData = false;
+						$rootScope.$broadcast("hideLoadingIconOnMap");
+
+						// as method is async we may call angular digest cycle
+						setTimeout(() => {
+							$scope.$apply();
+						}, 250);
+					};
+
+					$scope.fetchGeoJSONForDate = function(poiGeoresource){
+						var id = poiGeoresource.georesourceId;
+
+						var date = $scope.getQueryDate(poiGeoresource);
+
+						var dateComps = date.split("-");
+
+						var year = dateComps[0];
+						var month = dateComps[1];
+						var day = dateComps[2];
+
+						return $http({
+							url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + id + "/" + year + "/" + month + "/" + day,
+								// url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + id + "/allFeatures",
+							method: "GET"
+						}).then(function successCallback(response) {
+								// this callback will be called asynchronously
+								// when the response is available
+								var geoJSON = response.data;
+
+								poiGeoresource.geoJSON = geoJSON;
+
+								return poiGeoresource;
+
+							}, function errorCallback(error) {
+								// called asynchronously if an error occurs
+								// or server returns response with an error status.
+								$scope.loadingData = false;
+								kommonitorDataExchangeService.displayMapApplicationError(error);
+								$rootScope.$broadcast("hideLoadingIconOnMap");
+						});
+					};
+
+					$scope.handlePoiOnDiagram = async function(poi){
+						if(poi.isSelected_reachabilityAnalysis){
+							// maps range value to result GeoJSON
+							var pointsPerIsochroneRangeMap = await $scope.computePoisWithinIsochrones(poi);
+							$scope.addOrReplaceWithinDiagrams(poi, pointsPerIsochroneRangeMap);
+						}
+						else{
+							//remove POI layer from map
+							$scope.removePoiLayerFromMap(poi);
+						}
+					};
+
+					$scope.computePoisWithinIsochrones = async function(poi){
+						var pointsPerIsochroneRangeMap = $scope.initializeMapWithRangeKeys();
+						if (! poi.geoJSON){
+							poi = await $scope.fetchGeoJSONForDate(poi);
+						}
+
+						// as there might be mutliple isochrone ranges
+						// we must perform point in polygon for each range
+						var keyIter = pointsPerIsochroneRangeMap.keys();
+
+						var nextKey = keyIter.next();
+
+						while(nextKey.value){
+							var nextKeyValue = nextKey.value;
+
+							var geoJSON_featureCollection = $scope.computePoisWithinIsochrone(nextKeyValue, poi);
+							pointsPerIsochroneRangeMap.set(nextKeyValue, geoJSON_featureCollection);
+							nextKey = keyIter.next();
+						}
+						
+						return pointsPerIsochroneRangeMap;
+					};
+
+					$scope.computePoisWithinIsochrone = function(rangeValue, poi){
+						// create clones of poi geoJSON and isochrone geoJSON
+						var isochrones_geoJSON_clone = JSON.parse(JSON.stringify($scope.currentIsochronesGeoJSON));
+						var poi_geoJSON_clone = JSON.parse(JSON.stringify(poi.geoJSON));
+					
+						// filter isochrone geoJSON clone by range value
+						isochrones_geoJSON_clone.features = isochrones_geoJSON_clone.features.filter(feature => {
+							return String(feature.properties.value) === String(rangeValue);
+						});
+
+						// filter poi geoJSON clone by spatial within isochrone
+						var pointsWithinIsochrones = turf.pointsWithinPolygon(poi_geoJSON_clone, isochrones_geoJSON_clone);
+						
+						return pointsWithinIsochrones;
+					};
+
+
+					$scope.initializeMapWithRangeKeys = function(){
+						var map = new Map();
+
+						for (const feature of $scope.currentIsochronesGeoJSON.features) {
+							map.set(feature.properties.value, null);
+						}
+
+						return map;
+					};
+
+					$scope.addOrReplaceWithinDiagrams = function(poi, pointsPerIsochroneRangeMap){
+						var mapEntries = pointsPerIsochroneRangeMap.entries();
+						
+						var nextEntry = mapEntries.next();
+						while(nextEntry.value){
+							
+							var nextEntry_keyRange = nextEntry.value[0];
+							var nextEntry_valueGeoJSON = nextEntry.value[1];
+							var numberOfFeatures = 0;
+
+							if(nextEntry_valueGeoJSON){
+								numberOfFeatures = nextEntry_valueGeoJSON.features.length;
+							}
+							console.log("Number of Points wihtin Range '" + nextEntry_keyRange + "' is '" + numberOfFeatures + "'");
+							nextEntry = mapEntries.next();
+						}
+					};
+
+					$scope.handlePoiOnMap = function(poi){
+
+						if(poi.isSelected_reachabilityAnalysis){
+							//display on Map
+							$scope.addPoiLayerToMap(poi);
+						}
+						else{
+							//remove POI layer from map
+							$scope.removePoiLayerFromMap(poi);
+						}
+
+					};
+
+					$scope.addPoiLayerToMap = function(poiGeoresource) {
+						$scope.loadingData = true;
+						$rootScope.$broadcast("showLoadingIconOnMap");
+
+						// fale --> useCluster = false 
+						kommonitorMapService.addPoiGeoresourceGeoJSON(poiGeoresource, $scope.date, false);
+								$scope.loadingData = false;
+								$rootScope.$broadcast("hideLoadingIconOnMap");
+
+					};
+
+					$scope.removePoiLayerFromMap = function(poiGeoresource) {
+						$scope.loadingData = true;
+						$rootScope.$broadcast("showLoadingIconOnMap");
+
+						poiGeoresource = poiGeoresource;
+
+						kommonitorMapService.removePoiGeoresource(poiGeoresource);
+						$scope.loadingData = false;
+						$rootScope.$broadcast("hideLoadingIconOnMap");
+
+					};
+
+					$scope.refreshPoiLayers = async function(){
+						for (var poi of kommonitorDataExchangeService.availableGeoresources){
+							if (poi.isSelected_reachabilityAnalysis){
+								//remove POI layer from map
+								$scope.removePoiLayerFromMap(poi);
+
+								poi = await $scope.fetchGeoJSONForDate(poi);
+
+								// remove layer and add layer again
+								$scope.addPoiLayerToMap(poi);
+							}
+						}
+					};
+
 
 				}
 			]
