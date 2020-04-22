@@ -44,11 +44,14 @@ angular
 					$scope.geosearchResults_startingPoint;
 					$scope.geosearchResults_endPoint;
 
+					$scope.settings = {};
+
 					$scope.routeDistance_km = undefined;
 					$scope.routeDuration_minutes = undefined;
 					$scope.routeAvgSpeed_kmh = undefined;
 					$scope.routeTotalAscent = undefined;
 					$scope.routeTotalDescent = undefined;
+
 
 					/**
 					 * Show the isochrone-calculation-div if this
@@ -58,7 +61,7 @@ angular
 					 */
 					$scope.showIsochrones = true;
 
-					$scope.dissolveIsochrones = true;
+					$scope.settings.dissolveIsochrones = true;
 
 					/**
 					 * TODO : Folgende drei Variablen werden fuer den
@@ -74,8 +77,8 @@ angular
 					$scope.longitudeStart = 7.049869894;
 					$scope.latitudeEnd = 51.42055331+0.05;
 					$scope.longitudeEnd = 7.049869894+0.05;
-					$scope.routingStartPointInput = undefined;
-					$scope.routingEndPointInput = undefined;
+					$scope.settings.routingStartPointInput = undefined;
+					$scope.settings.routingEndPointInput = undefined;
 
 					/**
 					 * The range array (for isochrone calculation)
@@ -100,7 +103,7 @@ angular
 					 * foot-hiking
 					 * wheelchair
 					 */
-					$scope.transitMode = 'buffer';
+					$scope.settings.transitMode = 'buffer';
 
 					/**
 					 * The focus of the analysis. Valid values are:
@@ -108,18 +111,18 @@ angular
 					 * Ueberschneidung mit der Variablen 'focus',
 					 * die im Grunde genau das gleiche speichert.
 					 */
-					$scope.focus = 'distance';
+					$scope.settings.focus = 'distance';
 
 					/**
 					 * config of starting points source (layer or manual draw) for isochrones
 					 */
-					$scope.startPointsSource = "fromLayer";
+					$scope.settings.startPointsSource = "fromLayer";
 
 					/**
 					* selected start point layer for isochrone computation
 					* GeoJSON within property .geoJSON
 					*/
-					$scope.selectedStartPointLayer = undefined;
+					$scope.settings.selectedStartPointLayer = undefined;
 
 					/**
 					* start points that were drawn manually
@@ -136,7 +139,7 @@ angular
 					 * The analysis speed (for the current vehicle)
 					 * in km/h.
 					 */
-					$scope.speedInKilometersPerHour = 3;
+					$scope.settings.speedInKilometersPerHour = 3;
 
 					/**
 					 * Indicator if multiple starting-points shall
@@ -183,7 +186,7 @@ angular
 					 * represents value of the slider in the GUI and
 					 * handed to the routing API.
 					 */
-					$scope.currentTODValue = 1;
+					$scope.settings.currentTODValue = 1;
 
 					/**
 					 * Variable that stores 'true' if the speed-selection
@@ -199,7 +202,7 @@ angular
 					 * - "shortest"
 					 * - "recommended"
 					 */
-					$scope.preference = "fastest";
+					$scope.settings.preference = "fastest";
 
 					/*
 					 * array of arrays of lon, lat
@@ -256,7 +259,7 @@ angular
 								var cValue = rangeArray[i];
 
 								// CALCULATE SECONDS FROM MINUTE VALUES IF TIME-ANALYSIS IS WANTED
-								if($scope.focus=='time')
+								if($scope.settings.focus=='time')
 									cValue = cValue*60;
 								rangeString += cValue;
 
@@ -271,7 +274,7 @@ angular
 						// encode pipe symbol manually via %7C
 
 						var constantParameters = '&smoothing=0&units=m&location_type=start&range_type=' +
-								$scope.focus+'&attributes=area%7Creachfactor';
+								$scope.settings.focus+'&attributes=area%7Creachfactor';
 
 						var getRequest = $scope.targetUrlToReachabilityService_ORS +
 							'/isochrones?profile=' +
@@ -293,25 +296,27 @@ angular
 
 						$scope.error = undefined;
 
+						$scope.settings = {};
+
 						$scope.showIsochrones = true;
-						$scope.dissolveIsochrones = true;
+						$scope.settings.dissolveIsochrones = true;
 						document.getElementById("btn_isochrones").click();
-						$scope.transitMode = 'buffer';
+						$scope.settings.transitMode = 'buffer';
 						document.getElementById("optBuffer").click();
-						$scope.focus = 'distance';
+						$scope.settings.focus = 'distance';
 						document.getElementById("focus_distance").click();
-						$scope.startPointsSource = "fromLayer";
-						$scope.changeStartPointsSource();
+						$scope.settings.startPointsSource = "fromLayer";
+						$scope.changeStartPointsSource_fromLayer();
 						document.getElementById("startPointsSource_layer").click();
-						$scope.selectedStartPointLayer = undefined;
+						$scope.settings.selectedStartPointLayer = undefined;
 						$scope.pointSourceConfigured = false;
-						$scope.speedInKilometersPerHour = 3;
+						$scope.settings.speedInKilometersPerHour = 3;
 						$scope.useMultipleStartPoints = false;
 						$scope.loadingData = false;
 						$scope.unit = 'Meter';
-						$scope.currentTODValue = 1;
+						$scope.settings.currentTODValue = 1;
 						$scope.isTime = false;
-						$scope.preference = "fastest";
+						$scope.settings.preference = "fastest";
 						$scope.locationsArray = [];
 
 						$scope.rangeArray = [];
@@ -338,8 +343,8 @@ angular
 						$scope.routingStartPoint = undefined;
 						$scope.routingEndPoint = undefined;
 
-						$scope.routingStartPointInput = undefined;
-						$scope.routingEndPointInput = undefined;
+						$scope.settings.routingStartPointInput = undefined;
+						$scope.settings.routingEndPointInput = undefined;
 
 						setTimeout(function(){
 							$scope.$apply();
@@ -412,9 +417,9 @@ angular
 							.stringify($scope.currentIsochronesGeoJSON);
 
 						var fileName = 'Erreichbarkeitsisochronen_via-' +
-							$scope.transitMode +
+							$scope.settings.transitMode +
 							'_Abbruchkriterium-' +
-							$scope.focus + '.geojson';
+							$scope.settings.focus + '.geojson';
 
 						var blob = new Blob([geoJSON_string], {
 							type: 'application/json'
@@ -483,11 +488,11 @@ angular
 					$scope.changeFocus = function() {
 						$scope.resetSlider();
 
-						if ($scope.focus=='distance'){
+						if ($scope.settings.focus=='distance'){
 							$scope.isTime=false;
 							$scope.unit = 'Meter';
 						}
-						else if ($scope.focus=='time'){
+						else if ($scope.settings.focus=='time'){
 							$scope.unit = 'Minuten';
 							$scope.isTime=true;
 						}
@@ -500,15 +505,16 @@ angular
 					 * Changes the start points source of the analysis between
 					 * fromLayer and manualDraw.
 					 */
-					$scope.changeStartPointsSource = function() {
+					$scope.changeStartPointsSource_fromLayer = function() {
 
-						if ($scope.startPointsSource === 'manual'){
-							$scope.enablePointDrawTool();
-						}
+						$scope.disablePointDrawTool();	
+						$scope.settings.startPointsSource = "fromLayer";					
 
-						else{
-							$scope.disablePointDrawTool();
-						}
+					};
+					$scope.changeStartPointsSource_manual = function() {
+
+						$scope.enablePointDrawTool();
+						$scope.settings.startPointsSource = "manual";
 
 					};
 
@@ -552,8 +558,8 @@ angular
 					 * speed to initial values.
 					 */
 					$scope.resetSlider = function() {
-						$scope.speedInKilometersPerHour = $scope.minSpeedInKilometersPerHour;
-						$scope.currentTODValue = 1;
+						$scope.settings.speedInKilometersPerHour = $scope.minSpeedInKilometersPerHour;
+						$scope.settings.currentTODValue = 1;
 					};
 
 					/**
@@ -571,7 +577,7 @@ angular
 					 * transitModeList-GUI-elements current selection.
 					 */
 					$scope.changeTransitMode = function(){
-						$scope.transitMode = document.getElementById('transitModeList').value;
+						$scope.settings.transitMode = document.getElementById('transitModeList').value;
 					};
 
 					/**
@@ -579,40 +585,40 @@ angular
 					 * selected vehicle type.
 					 */
 					$scope.changeValues = function() {
-						if ($scope.transitMode == 'buffer'){
-							$scope.focus = 'distance';
+						if ($scope.settings.transitMode == 'buffer'){
+							$scope.settings.focus = 'distance';
 							$("#focus_distance").click();
-							if ($scope.focus == 'distance')
+							if ($scope.settings.focus == 'distance')
 								$scope.max_value = 5000;
 							else
 								$scope.max_value = 25;
 						}
 
-						if ($scope.transitMode == 'foot-walking'){
-							if ($scope.focus == 'distance')
+						if ($scope.settings.transitMode == 'foot-walking'){
+							if ($scope.settings.focus == 'distance')
 								$scope.max_value = 5000;
 							else
 								$scope.max_value = 25;
 						}
 
 
-						if ($scope.transitMode == 'cycling-regular'){
-							if ($scope.focus == 'distance')
+						if ($scope.settings.transitMode == 'cycling-regular'){
+							if ($scope.settings.focus == 'distance')
 								$scope.max_value = 5000;
 							else
 								$scope.max_value = 20;
 						}
 
 
-						if ($scope.transitMode == 'driving-car'){
-							if ($scope.focus == 'distance')
+						if ($scope.settings.transitMode == 'driving-car'){
+							if ($scope.settings.focus == 'distance')
 								$scope.max_value = 5000;
 							else
 								$scope.max_value = 15;
 						}
 
-						if ($scope.transitMode == 'wheelchair'){
-							if ($scope.focus == 'distance')
+						if ($scope.settings.transitMode == 'wheelchair'){
+							if ($scope.settings.focus == 'distance')
 								$scope.max_value = 5000;
 							else
 								$scope.max_value = 25;
@@ -626,24 +632,24 @@ angular
 					 * selected vehicle type.
 					 */
 					$scope.changeMinMaxSpeed = function() {
-						if ($scope.transitMode == 'foot-walking') {
+						if ($scope.settings.transitMode == 'foot-walking') {
 							$scope.minSpeedInKilometersPerHour = 1;
 							$scope.maxSpeedInKilometersPerHour = 6;
 						}
-						if ($scope.transitMode == 'cycling-regular') {
+						if ($scope.settings.transitMode == 'cycling-regular') {
 							$scope.minSpeedInKilometersPerHour = 10;
 							$scope.maxSpeedInKilometersPerHour = 25;
 						}
-						if ($scope.transitMode == 'driving-car') {
+						if ($scope.settings.transitMode == 'driving-car') {
 							$scope.minSpeedInKilometersPerHour = 30;
 							$scope.maxSpeedInKilometersPerHour = 130;
 						}
-						if ($scope.transitMode == 'wheelchair') {
+						if ($scope.settings.transitMode == 'wheelchair') {
 							$scope.minSpeedInKilometersPerHour = 1;
 							$scope.maxSpeedInKilometersPerHour = 6;
 						}
 
-						$scope.speedInKilometersPerHour = $scope.minSpeedInKilometersPerHour;
+						$scope.settings.speedInKilometersPerHour = $scope.minSpeedInKilometersPerHour;
 					};
 
 					/**
@@ -661,7 +667,7 @@ angular
 						var split = document
 							.getElementById('isoInputText').value
 							.split(',');
-						var actVal = $scope.currentTODValue;
+						var actVal = $scope.settings.currentTODValue;
 						if (split.length > 0) {
 							for (var a = 0; a < split.length; a++) {
 								if (!isNaN(split[a])) {
@@ -671,12 +677,12 @@ angular
 										.push(actVal);
 								}
 							}
-							if ($scope.rangeArray[$scope.rangeArray.length - 1] != $scope.currentTODValue) {
+							if ($scope.rangeArray[$scope.rangeArray.length - 1] != $scope.settings.currentTODValue) {
 								$scope.rangeArray
-									.push($scope.currentTODValue);
+									.push($scope.settings.currentTODValue);
 							}
 						} else {
-							$scope.rangeArray = [$scope.currentTODValue];
+							$scope.rangeArray = [$scope.settings.currentTODValue];
 						}
 
 						$scope.rangeArray.sort(function(a, b){return a-b;});
@@ -701,13 +707,13 @@ angular
 
 						// if not then fetch it!
 
-						if($scope.selectedStartPointLayer.geoJSON){
+						if($scope.settings.selectedStartPointLayer.geoJSON){
 							$scope.pointSourceConfigured = true;
 							return;
 						}
 						else{
 							$scope.loadingData = true;
-							var id = $scope.selectedStartPointLayer.georesourceId;
+							var id = $scope.settings.selectedStartPointLayer.georesourceId;
 
 							var date = kommonitorDataExchangeService.selectedDate;
 
@@ -725,7 +731,7 @@ angular
 									// when the response is available
 									var geoJSON = response.data;
 
-									$scope.selectedStartPointLayer.geoJSON = geoJSON;
+									$scope.settings.selectedStartPointLayer.geoJSON = geoJSON;
 
 									$scope.loadingData = false;
 									$scope.pointSourceConfigured = true;
@@ -783,7 +789,7 @@ angular
 						var startPointString = $scope.routingStartPoint.longitude + "," + $scope.routingStartPoint.latitude;
 						var endPointString = $scope.routingEndPoint.longitude + "," + $scope.routingEndPoint.latitude;
 
-						var url = createRoutingRequest($scope.transitMode, $scope.preference, startPointString, endPointString);
+						var url = createRoutingRequest($scope.settings.transitMode, $scope.settings.preference, startPointString, endPointString);
 
 						console.log("execute OpenRouteService routing request: " + url);
 
@@ -811,8 +817,8 @@ angular
 										kommonitorMapService
 											.replaceRouteGeoJSON(
 												$scope.currentRouteGeoJSON,
-												$scope.transitMode,
-												$scope.preference, $scope.routingStartPoint, $scope.routingEndPoint);
+												$scope.settings.transitMode,
+												$scope.settings.preference, $scope.routingStartPoint, $scope.routingEndPoint);
 										$scope.prepareDownloadGeoJSON();
 										$scope.loadingData = false;
 										$rootScope.$broadcast('hideLoadingIconOnMap');
@@ -837,7 +843,7 @@ angular
 						// array of arrays of lon,lat
 						$scope.locationsArray = [];
 
-						if($scope.startPointsSource === "manual"){
+						if($scope.settings.startPointsSource === "manual"){
 							// establish from drawn points
 							$scope.manualStartPoints.features.forEach(function(feature){
 								$scope.locationsArray.push(feature.geometry.coordinates);
@@ -845,7 +851,7 @@ angular
 						}
 						else{
 							// establish from chosen layer
-							$scope.selectedStartPointLayer.geoJSON.features.forEach(function(feature){
+							$scope.settings.selectedStartPointLayer.geoJSON.features.forEach(function(feature){
 								$scope.locationsArray.push(feature.geometry.coordinates);
 							});
 						}
@@ -873,7 +879,7 @@ angular
 						
 						var resultIsochrones;
 
-						if($scope.transitMode === 'buffer'){
+						if($scope.settings.transitMode === 'buffer'){
 							resultIsochrones = await $scope.createBuffers();
 						}
 						else{
@@ -888,11 +894,11 @@ angular
 						kommonitorMapService
 							.replaceIsochroneGeoJSON(
 								$scope.currentIsochronesGeoJSON,
-								$scope.transitMode,
-								$scope.focus,
+								$scope.settings.transitMode,
+								$scope.settings.focus,
 								$scope.rangeArray,
 								$scope.useMultipleStartPoints,
-								$scope.dissolveIsochrones);
+								$scope.settings.dissolveIsochrones);
 						$scope
 							.prepareDownloadGeoJSON();
 
@@ -910,10 +916,10 @@ angular
 
 					$scope.fetchIsochrones = async function(tempStartPointsArray){
 						var url = createORSIsochroneRequest(
-							$scope.transitMode,
+							$scope.settings.transitMode,
 							tempStartPointsArray,
 							$scope.rangeArray,
-							$scope.speedInKilometersPerHour);
+							$scope.settings.speedInKilometersPerHour);
 
 						var req = {
 							method: 'GET',
@@ -934,7 +940,7 @@ angular
 									// available
 
 									// dissolve features
-									if ($scope.dissolveIsochrones){
+									if ($scope.settings.dissolveIsochrones){
 										try {
 											var dissolved = turf.dissolve(response.data, {propertyName: 'value'});
 											return dissolved;
@@ -972,13 +978,13 @@ angular
 
 						var startingPoints_geoJSON;
 						// create Buffers for each input and range definition
-						if($scope.startPointsSource === "manual"){
+						if($scope.settings.startPointsSource === "manual"){
 							// establish from drawn points
 							startingPoints_geoJSON = $scope.manualStartPoints;
 						}
 						else{
 							// establish from chosen layer
-							startingPoints_geoJSON = $scope.selectedStartPointLayer.geoJSON;
+							startingPoints_geoJSON = $scope.settings.selectedStartPointLayer.geoJSON;
 						}
 
 						// range in meters
@@ -992,7 +998,7 @@ angular
 								  ]);
 							}
 
-							if ($scope.dissolveIsochrones){
+							if ($scope.settings.dissolveIsochrones){
 								try {
 									geoJSON_buffered = turf.dissolve(geoJSON_buffered);
 								} catch (e) {
@@ -1085,9 +1091,9 @@ angular
 
 				    // Make a new timeout set to go off in 800ms
 				    $scope.delay = setTimeout(function () {
-				        console.log('Geosearch for Input String: ', $scope.routingStartPointInput);
+				        console.log('Geosearch for Input String: ', $scope.settings.routingStartPointInput);
 
-								$scope.openStreetMapProvider.search({ query: $scope.routingStartPointInput })
+								$scope.openStreetMapProvider.search({ query: $scope.settings.routingStartPointInput })
 								.then(function(result){
 										$scope.geosearchResults_startingPoint = result;
 
@@ -1132,9 +1138,9 @@ angular
 
 				    // Make a new timeout set to go off in 800ms
 				    $scope.delay = setTimeout(function () {
-				        console.log('Geosearch for Input String: ', $scope.routingEndPointInput);
+				        console.log('Geosearch for Input String: ', $scope.settings.routingEndPointInput);
 
-								$scope.openStreetMapProvider.search({ query: $scope.routingEndPointInput })
+								$scope.openStreetMapProvider.search({ query: $scope.settings.routingEndPointInput })
 								.then(function(result){
 										$scope.geosearchResults_endPoint = result;
 

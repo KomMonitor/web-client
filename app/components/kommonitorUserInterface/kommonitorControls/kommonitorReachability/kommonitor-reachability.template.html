@@ -36,7 +36,7 @@
 				</label>
 			</div>
 			<!--
-								<label>showIsochrones= {{showIsochrones}}, transitMode= {{transitMode}}</label>
+								<label>showIsochrones= {{showIsochrones}}, transitMode= {{settings.transitMode}}</label>
 							 -->
 
 			<div ng-show="showIsochrones" class="ng-show" id="isochoneCalculation">
@@ -52,32 +52,32 @@
 							<div class="btn-group btn-group-justified" data-toggle="buttons">
 								<label class="btn btn-primary active">
 									<input type="radio" name="options" id="optBuffer" autocomplete="off" checked
-										ng-change="changeType()" ng-model="transitMode" value="buffer"> <i
+										ng-change="changeType()" ng-model="settings.transitMode" value="buffer"> <i
 										class="far fa-dot-circle"></i> Puffer</input>
 								</label>
 								<label class="btn btn-primary">
 									<input type="radio" name="options" id="optFeet" autocomplete="off" checked
-										ng-change="changeType()" ng-model="transitMode" value="foot-walking"> <i
+										ng-change="changeType()" ng-model="settings.transitMode" value="foot-walking"> <i
 										class="fas fa-walking"></i> Fu&szlig;g&aumlnger </input>
 								</label>
 								<label class="btn btn-primary">
 									<input type="radio" name="options" id="optBike" autocomplete="off"
-										ng-change="changeType()" ng-model="transitMode" value="cycling-regular"> <i
+										ng-change="changeType()" ng-model="settings.transitMode" value="cycling-regular"> <i
 										class="fas fa-biking"></i> Fahrrad </input>
 								</label>
 								<label class="btn btn-primary">
 									<input type="radio" name="options" id="optCar" autocomplete="off"
-										ng-change="changeType()" ng-model="transitMode" value="driving-car"> <i
+										ng-change="changeType()" ng-model="settings.transitMode" value="driving-car"> <i
 										class="fas fa-car"></i> PKW </input>
 								</label>
 								<label class="btn btn-primary">
 									<input type="radio" name="options" id="optWheelchair" autocomplete="off"
-										ng-change="changeType()" ng-model="transitMode" value="wheelchair"> <i
+										ng-change="changeType()" ng-model="settings.transitMode" value="wheelchair"> <i
 										class="fab fa-accessible-icon"></i> Barrierefrei </input>
 								</label>
 							</div>
 							<!--
-											<label>{{transitMode}}</label>
+											<label>{{settings.transitMode}}</label>
 										-->
 
 							<!-- <label for="TODO">Analysefokus</label> -->
@@ -87,18 +87,18 @@
 							<div class="btn-group btn-group-justified" data-toggle="buttons">
 								<label class="btn btn-primary active">
 									<input type="radio" name="options" id="focus_distance" autocomplete="off" checked
-										ng-change="changeFocus()" ng-model="focus" value="distance"> <i
+										ng-change="changeFocus()" ng-model="settings.focus" value="distance"> <i
 										class="fas fa-ruler"></i> Distanz
 								</label>
-								<label class="btn btn-primary" ng-disabled="transitMode === 'buffer'">
+								<label class="btn btn-primary" ng-disabled="settings.transitMode === 'buffer'">
 									<input type="radio" name="options" id="focus_time" autocomplete="off"
-										ng-change="changeFocus()" ng-model="focus" value="time"><i
+										ng-change="changeFocus()" ng-model="settings.focus" value="time"><i
 										class="far fa-clock"></i> Zeit
 								</label>
 							</div>
 
 							<!--
-											<label>Fokus= {{focus}}, Time= {{isTime}}</label>
+											<label>Fokus= {{settings.focus}}, Time= {{isTime}}</label>
 										-->
 
 							<br />
@@ -111,9 +111,9 @@
 								<div class="row vertical-align" style="margin-right:0px;">
 									<div class="col-md-4 col-sm-4 col-xs-4">
 										<input type="range" min="1" max={{max_value}} value="1" class="myslider"
-											id="timeOrDistSlider" ng-model="currentTODValue">
+											id="timeOrDistSlider" ng-model="settings.currentTODValue">
 										<br />
-										<label>Wert: {{currentTODValue}} {{unit}}</label>
+										<label>Wert: {{settings.currentTODValue}} {{unit}}</label>
 
 										<label>Maximum: {{max_value}} {{unit}}</label>
 									</div>
@@ -147,15 +147,15 @@
 
 							<br />
 
-							<div ng-show="isTime && !(transitMode == 'buffer')" class="ng-show" class="rangeslider">
+							<div ng-show="isTime && !(settings.transitMode == 'buffer')" class="ng-show" class="rangeslider">
 								<label for="TODO">Maximalgeschwindigkeit</label>
 								<br />
 								<br />
 								<input type="range" min={{minSpeedInKilometersPerHour}}
 									max={{maxSpeedInKilometersPerHour}} value={{minSpeedInKilometersPerHour}}
-									class="myslider" id="tempoSlider" ng-model="speedInKilometersPerHour">
+									class="myslider" id="tempoSlider" ng-model="settings.speedInKilometersPerHour">
 								<br />
-								<label>Wert: {{speedInKilometersPerHour}} km/h; Maximum: {{maxSpeedInKilometersPerHour}}
+								<label>Wert: {{settings.speedInKilometersPerHour}} km/h; Maximum: {{maxSpeedInKilometersPerHour}}
 									km/h</label>
 								<br />
 								<br />
@@ -171,37 +171,37 @@
 							<div class="btn-group btn-group-justified " data-toggle="buttons">
 								<label class="btn btn-primary active">
 									<input type="radio" name="options" id="startPointsSource_layer" autocomplete="off"
-										checked ng-change="changeStartPointsSource()" ng-model="startPointsSource"
+										checked ng-change="changeStartPointsSource_fromLayer()" ng-model="settings.startPointsSource"
 										value="fromLayer"><i class="fas fa-layer-group"></i> aus Punkt-Layer</input>
 								</label>
 								<label class="btn btn-primary">
 									<input type="radio" name="options" id="startPointsSource_draw" autocomplete="off"
-										ng-change="changeStartPointsSource()" ng-model="startPointsSource"
+										ng-change="changeStartPointsSource_manual()" ng-model="settings.startPointsSource"
 										value="manual"><i class="fas fa-map-marked-alt"></i> Punkte zeichnen</input>
 								</label>
 							</div>
 
 							<!--
-											<label>Fokus= {{focus}}, Time= {{isTime}}</label>
+											<label>Fokus= {{settings.focus}}, Time= {{isTime}}</label>
 										-->
 
 							<br />
 
-							<div ng-show="startPointsSource === 'fromLayer'">
+							<div ng-show="settings.startPointsSource === 'fromLayer'">
 
 								<div class="row vertical-align" style="margin-right:0px;">
 									<div class="col-md-6 col-sm-6 col-xs-6">
-										<div class="horizontal-align" ng-show="selectedStartPointLayer.geoJSON">
-											<p><b>{{selectedStartPointLayer.geoJSON.features.length}}</b> Startpunkte im
+										<div class="horizontal-align" ng-show="settings.selectedStartPointLayer.geoJSON">
+											<p><b>{{settings.selectedStartPointLayer.geoJSON.features.length}}</b> Startpunkte im
 												selektierten Layer</p>
 										</div>
 
-										<div class="horizontal-align" ng-hide="selectedStartPointLayer">
+										<div class="horizontal-align" ng-hide="settings.selectedStartPointLayer">
 											<p>noch kein Layer selektiert</p>
 										</div>
 									</div>
 									<div class="col-md-6 col-sm-6 col-xs-6">
-										<select style="font-size: 12px;" ng-model="selectedStartPointLayer"
+										<select style="font-size: 12px;" ng-model="settings.selectedStartPointLayer"
 											ng-options="poi as poi.datasetName for poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois()"
 											ng-change="onChangeSelectedStartPointLayer()" class="form-control" required>
 											<option disabled selected value> -- Punkt-Layer w&auml;hlen -- </option>
@@ -210,7 +210,7 @@
 								</div>
 							</div>
 
-							<div ng-show="startPointsSource === 'manual'">
+							<div ng-show="settings.startPointsSource === 'manual'">
 
 								<p>Zeichnen Sie selbst Punkte in die Karte. Dazu nutzen Sie bitte das Zeichen-Werkzeug
 									in der unteren linken Ecke der Karte.</p>
@@ -242,7 +242,7 @@
 									<b>Isochronen vereinigen</b> (erh&ouml;ht die Laufzeit der Berechnung)
 									&nbsp;
 									<label class="switch">
-										<input type="checkbox" value="dissolveIsochrones" ng-model="dissolveIsochrones"
+										<input type="checkbox" value="settings.dissolveIsochrones" ng-model="settings.dissolveIsochrones"
 											checked>
 										<span class="switchslider round"></span>
 									</label>
@@ -278,7 +278,7 @@
 				<div class="form-group">
 					<label for="transitModeList">Verkehrsmittel</label>
 					<select class="form-control" id="transitModeList" ng-change="changeTransitMode()"
-						ng-model="transitMode">
+						ng-model="settings.transitMode">
 						<option value="driving-car">PKW</option>
 						<!-- <option value="driving-hgv">LKW</option> -->
 						<option value="cycling-regular">Fahrrad</option>
@@ -297,19 +297,19 @@
 				<div class="btn-group btn-group-justified btn-group-sm" data-toggle="buttons">
 					<label class="btn btn-primary active">
 						<input type="radio" name="options" id="optFastest" autocomplete="off" checked
-							ng-model="preference" value="fastest">Schnellste
+							ng-model="settings.preference" value="fastest">Schnellste
 					</label>
 					<label class="btn btn-primary">
-						<input type="radio" name="options" id="optShortest" autocomplete="off" ng-model="preference"
+						<input type="radio" name="options" id="optShortest" autocomplete="off" ng-model="settings.preference"
 							value="shortest">K&uuml;rzeste
 					</label>
 					<label class="btn btn-primary">
-						<input type="radio" name="options" id="optRecommended" autocomplete="off" ng-model="preference"
+						<input type="radio" name="options" id="optRecommended" autocomplete="off" ng-model="settings.preference"
 							value="recommended">Empfohlene
 					</label>
 				</div>
 				<!--
-										<label>{{preference}}</label>
+										<label>{{settings.preference}}</label>
 									-->
 
 				<br />
@@ -320,7 +320,7 @@
 					style="margin-right:0px; border: 1px solid #ccc!important; border-radius: 6px; padding:4px;">
 					<div class="col-md-6 col-sm-6 col-xs-6">
 						<label for="TODO"><i class="fas fa-thumbtack"></i> Addresssuche:</label>
-						<input id="startInput" type="text" ng-model="routingStartPointInput"
+						<input id="startInput" type="text" ng-model="settings.routingStartPointInput"
 							ng-change="onChangeRoutingStartPoint()" placeholder="Addresse eingeben ...">
 
 						<div ng-show="geosearchResults_startingPoint.length > 0" class="leaflet-control-geosearch"
@@ -357,7 +357,7 @@
 					style="margin-right:0px; border: 1px solid #ccc!important; border-radius: 6px; padding:4px;">
 					<div class="col-md-6 col-sm-6 col-xs-6">
 						<label for="TODO"><i class="fas fa-thumbtack"></i> Addresssuche:</label>
-						<input id="endInput" type="text" ng-model="routingEndPointInput"
+						<input id="endInput" type="text" ng-model="settings.routingEndPointInput"
 							ng-change="onChangeRoutingEndPoint()" placeholder="Addresse eingeben ...">
 
 						<div ng-show="geosearchResults_endPoint.length > 0" class="leaflet-control-geosearch"
@@ -434,8 +434,8 @@
 					<label>Fortbewegungsart:
 					</label>&nbsp; {{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.transitMode}}
 					<br />
-					<div ng-show="focus === 'time'">
-						<label>maximale Geschwindigkeit: </label>&nbsp; {{speedInKilometersPerHour}} km/h
+					<div ng-show="settings.focus === 'time'">
+						<label>maximale Geschwindigkeit: </label>&nbsp; {{settings.speedInKilometersPerHour}} km/h
 						<br />
 					</div>
 					<label>Abbruchkriterium: </label>&nbsp;
