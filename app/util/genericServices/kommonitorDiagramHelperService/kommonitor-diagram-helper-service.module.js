@@ -1051,7 +1051,7 @@ angular
         }
         catch (error) {
           console.log("Histogram chart cannot be drawn - error in bins creation");
-          kommonitorDataExchangeService.displayMapApplicationError(error);
+          // kommonitorDataExchangeService.displayMapApplicationError(error);          
         }
 
         // default fontSize of echarts title
@@ -1195,7 +1195,7 @@ angular
               y: 2,
               tooltip: [0, 1, 2]
             },
-            data: bins.customData
+            data: bins ? bins.customData : undefined
           }]
         };
 
