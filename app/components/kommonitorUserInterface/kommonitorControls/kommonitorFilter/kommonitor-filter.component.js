@@ -80,6 +80,11 @@ angular
 									}
 								});
 
+								if(values.length === 0){
+									console.warn("Filter range slider cannot be created, as there is no valid indicator value on the selected dataset for the selected date.");
+									return ;
+								}
+
 								//sort ascending order
 								values.sort(function(a, b){return a-b});
 
@@ -106,7 +111,7 @@ angular
 										prettify_enabled: true,
 										prettify_separator: "",
 										onChange: onChangeRangeFilter
-						    });
+						    	});
 
 								$scope.rangeSliderForFilter = $("#rangeSliderForFiltering").data("ionRangeSlider");
 								// make sure that tha handles are properly set to min and max values
