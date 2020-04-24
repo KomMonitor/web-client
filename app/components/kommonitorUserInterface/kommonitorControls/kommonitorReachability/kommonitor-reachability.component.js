@@ -13,13 +13,14 @@ angular
 				'$http',
 				'kommonitorMapService',
 				'kommonitorDataExchangeService',
+				'kommonitorDiagramHelperService',
 				'__env',
 				/**
 				 * TODO
 				 */
 				function kommonitorReachabilityController($scope,
 					$rootScope, $http, kommonitorMapService,
-					kommonitorDataExchangeService, __env) {
+					kommonitorDataExchangeService, kommonitorDiagramHelperService,__env) {
 
 					//$("[data-toggle=tooltip]").tooltip();
 
@@ -28,6 +29,7 @@ angular
 
 					const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
 					this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
+					this.kommonitorDiagramHelperServiceInstance = kommonitorDiagramHelperService;
 					this.kommonitorMapServiceInstance = kommonitorMapService;
 					$scope.targetUrlToReachabilityService_ORS = __env.targetUrlToReachabilityService_ORS;
 					var numberOfDecimals = __env.numberOfDecimals;
@@ -877,6 +879,8 @@ angular
 						$scope.loadingData = true;
 						$rootScope.$broadcast('showLoadingIconOnMap');
 
+						
+
 						$scope.checkArrayInput();
 
 						$scope.locationsArray = $scope.makeLocationsArrayFromStartPoints();	
@@ -1355,6 +1359,24 @@ angular
 							console.log("Number of Points wihtin Range '" + nextEntry_keyRange + "' is '" + numberOfFeatures + "'");
 							nextEntry = mapEntries.next();
 						}
+
+						if (!$scope.pieChart_demo)
+							$scope.pieChart_demo = echarts.init(document.getElementById('reachability_pieDiagram_demo'));
+						else {
+							// explicitly kill and reinstantiate bar diagram to avoid zombie states
+							$scope.pieChart_demo.dispose();
+							$scope.pieChart_demo = echarts.init(document.getElementById('reachability_pieDiagram_demo'));
+						}
+
+						// use configuration item and data specified to show chart
+						$scope.pieOption = kommonitorDiagramHelperService.createInitialReachabilityAnalysisPieOptions(poi, pointsPerIsochroneRangeMap);
+						$scope.pieChart_demo.setOption($scope.pieOption);
+
+						$scope.pieChart_demo.hideLoading();
+
+						setTimeout(function () {
+							$scope.pieChart_demo.resize();
+						}, 350);
 					};
 
 					$scope.handlePoiOnMap = function(poi){

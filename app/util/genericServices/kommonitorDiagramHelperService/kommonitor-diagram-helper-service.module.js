@@ -1344,4 +1344,53 @@ angular
         }, 350);
       };
 
+      this.createInitialReachabilityAnalysisPieOptions = function(poiGeoresource, pointsPerIsochroneRangeMap){
+        var option = {
+          tooltip: {
+              trigger: 'item',
+              formatter: '{a} <br/>{b}: {c} ({d}%)'
+          },
+          legend: {
+              orient: 'vertical',
+              left: 10,
+              data: ['Test1', 'Test2', 'Test3', 'Test4', 'Test5']
+          },
+          series: [
+              {
+                  name: 'Test1234',
+                  type: 'pie',
+                  radius: ['50%', '70%'],
+                  avoidLabelOverlap: true,
+                  label: {
+                      show: false,
+                      position: 'center'
+                  },
+                  emphasis: {
+                      label: {
+                          show: true,
+                          fontSize: '30',
+                          fontWeight: 'bold'
+                      }
+                  },
+                  labelLine: {
+                      show: true
+                  },
+                  data: [
+                      {value: 0, name: 'Test1'},
+                      {value: 1, name: 'Test2'},
+                      {value: 2, name: 'Test3'},
+                      {value: 3, name: 'Test4'},
+                      {value: 4, name: 'Test5'}
+                  ]
+              }
+          ]
+        };
+
+        return option;
+      };
+
+      this.appendToOrReplaceReachabilityAnalysisPieOptions = function(poiGeoresource, pointsPerIsochroneRangeMap){
+
+      };
+
     }]);
