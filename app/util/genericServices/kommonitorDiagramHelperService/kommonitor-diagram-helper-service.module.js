@@ -971,9 +971,9 @@ angular
             type: 'line',
             data: indicatorTimeSeriesMinArray,
             stack: "MinMax",
-            areaStyle:{
-              color: "#d6d6d6"
-            },
+            // areaStyle:{
+            //   color: "#d6d6d6"
+            // },
             lineStyle: {
               opacity: 0
             },
