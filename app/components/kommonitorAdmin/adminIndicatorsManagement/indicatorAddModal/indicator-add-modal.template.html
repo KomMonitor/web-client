@@ -907,7 +907,7 @@
 								</div>
 
 								<input type="button" name="previous" class="previous previous_addIndicator action-button-previous" value="Voriger Schritt"/>
-								<input type="button" name="next" class="next next_addIndicator action-button" value="N&auml;chster Schritt"/>
+								<input ng-if="indicatorCreationType.apiName != 'COMPUTATION'" type="button" name="next" class="next next_addIndicator action-button" value="N&auml;chster Schritt"/>
 
 							</fieldset>
 
