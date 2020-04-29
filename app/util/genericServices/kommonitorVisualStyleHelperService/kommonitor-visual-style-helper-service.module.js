@@ -63,7 +63,7 @@ angular
         y: 5,
         radius: 1,
         fill: true,
-        color: defaultColorForNoDataValues
+        color: kommonitorDataExchangeService.selectedSpatialUnitIsRaster() ? undefined : defaultColorForNoDataValues
       });
       this.noDataFillPattern = new L.Pattern({ width: 8, height: 8 });
       this.noDataFillPattern.addShape(shape);
@@ -74,7 +74,7 @@ angular
       this.outlierStyle_high = {
         weight: 1,
         opacity: 1,
-        color: defaultBorderColorForOutliers_high,
+        color: kommonitorDataExchangeService.selectedSpatialUnitIsRaster() ? undefined : defaultBorderColorForOutliers_high,
         dashArray: '',
         fillOpacity: defaultFillOpacityForOutliers_high,
         fillColor: defaultColorForOutliers_high,
@@ -84,7 +84,7 @@ angular
       this.outlierStyle_low = {
         weight: 1,
         opacity: 1,
-        color: defaultBorderColorForOutliers_low,
+        color: kommonitorDataExchangeService.selectedSpatialUnitIsRaster() ? undefined : defaultBorderColorForOutliers_low,
         dashArray: '',
         fillOpacity: defaultFillOpacityForOutliers_low,
         fillColor: defaultColorForOutliers_low,
@@ -94,7 +94,7 @@ angular
       this.noDataStyle = {
         weight: 1,
         opacity: 1,
-        color: defaultBorderColorForNoDataValues,
+        color: kommonitorDataExchangeService.selectedSpatialUnitIsRaster() ? undefined : defaultBorderColorForNoDataValues,
         dashArray: '',
         fillOpacity: defaultFillOpacityForNoDataValues,
         fillColor: defaultColorForNoDataValues,
@@ -104,7 +104,7 @@ angular
       this.filteredStyle = {
         weight: 1,
         opacity: 1,
-        color: defaultBorderColorForFilteredValues,
+        color: kommonitorDataExchangeService.selectedSpatialUnitIsRaster() ? undefined : defaultBorderColorForFilteredValues,
         dashArray: '',
         fillOpacity: defaultFillOpacityForFilteredFeatures,
         fillColor: defaultColorForFilteredValues
@@ -607,7 +607,7 @@ angular
               return {
                 weight: 1,
                 opacity: 1,
-                color: defaultBorderColor,
+                color: kommonitorDataExchangeService.selectedSpatialUnitIsRaster() ? undefined : defaultBorderColor,
                 dashArray: '',
                 fillOpacity: fillOpacity,
                 fillColor: fillColor,
@@ -654,7 +654,7 @@ angular
               return {
                 weight: 1,
                 opacity: 1,
-                color: defaultBorderColor,
+                color: kommonitorDataExchangeService.selectedSpatialUnitIsRaster() ? undefined : defaultBorderColor,
                 dashArray: '',
                 fillOpacity: fillOpacity,
                 fillColor: fillColor,
@@ -670,7 +670,7 @@ angular
         return {
           weight: 1,
           opacity: 1,
-          color: defaultBorderColor,
+          color: kommonitorDataExchangeService.selectedSpatialUnitIsRaster() ? undefined : defaultBorderColor,
           dashArray: '',
           fillOpacity: fillOpacity,
           fillColor: fillColor,
@@ -740,7 +740,7 @@ angular
           return {
             weight: 1,
             opacity: 1,
-            color: defaultBorderColor,
+            color: kommonitorDataExchangeService.selectedSpatialUnitIsRaster() ? undefined : defaultBorderColor,
             dashArray: '',
             fillOpacity: fillOpacity,
             fillColor: fillColor,
@@ -786,7 +786,7 @@ angular
           return {
             weight: 1,
             opacity: 1,
-            color: defaultBorderColor,
+            color: kommonitorDataExchangeService.selectedSpatialUnitIsRaster() ? undefined : defaultBorderColor,
             dashArray: '',
             fillOpacity: fillOpacity,
             fillColor: fillColor,
@@ -855,7 +855,7 @@ angular
           return {
             weight: 1,
             opacity: 1,
-            color: defaultBorderColor,
+            color: kommonitorDataExchangeService.selectedSpatialUnitIsRaster() ? undefined : defaultBorderColor,
             dashArray: '',
             fillOpacity: fillOpacity,
             fillColor: fillColor,
@@ -901,7 +901,7 @@ angular
           return {
             weight: 1,
             opacity: 1,
-            color: defaultBorderColor,
+            color: kommonitorDataExchangeService.selectedSpatialUnitIsRaster() ? undefined : defaultBorderColor,
             dashArray: '',
             fillOpacity: fillOpacity,
             fillColor: fillColor,

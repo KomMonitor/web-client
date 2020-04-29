@@ -3526,9 +3526,10 @@ angular.module('kommonitorMap').component(
           // omitting display border in style
           */
 
-          if(spatialUnitName.includes("raster") || spatialUnitName.includes("Raster") || spatialUnitName.includes("grid") || spatialUnitName.includes("Grid")){
+          if(kommonitorDataExchangeService.selectedSpatialUnitIsRaster()){
+            isRaster = true;
             indicatorMetadataAndGeoJSON.geoJSON.features = indicatorMetadataAndGeoJSON.geoJSON.features.filter(feature => {
-              if (kommonitorDataExchangeService.indicatorValueIsNoData(indicatorMetadataAndGeoJSON.geoJSON.features[i].properties[$scope.indicatorPropertyName])) {
+              if (kommonitorDataExchangeService.indicatorValueIsNoData(feature.properties[$scope.indicatorPropertyName])) {
                 return false;
               }
               return true;
@@ -3601,9 +3602,9 @@ angular.module('kommonitorMap').component(
 
           }
 
-          if(spatialUnitName.includes("raster") || spatialUnitName.includes("Raster") || spatialUnitName.includes("grid") || spatialUnitName.includes("Grid")){
-            layer.style.color = undefined;
-          }
+          // if(spatialUnitName.includes("raster") || spatialUnitName.includes("Raster") || spatialUnitName.includes("grid") || spatialUnitName.includes("Grid")){
+          //   layer.style.color = undefined;
+          // }
 
           $scope.currentIndicatorLayer = layer;
 
