@@ -200,7 +200,7 @@ angular
         return self.lineChartOptions;
       };
 
-      this.prepareAllDiagramResources = function (indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue) {
+      this.prepareAllDiagramResources = function (indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, filterOutFutureDates) {
 
         self.indicatorPropertyName = INDICATOR_DATE_PREFIX + date;
 
@@ -209,16 +209,19 @@ angular
         var indicatorValueBarChartArray = new Array();
 
         var indicatorTimeSeriesDatesArray = indicatorMetadataAndGeoJSON.applicableDates;
-        // remove all timestamps that are newer than the given date
-        var dateInDateFormat = Date.parse(date);
-        indicatorTimeSeriesDatesArray = indicatorTimeSeriesDatesArray.filter( t => {
-          var tInDateFormat = Date.parse(t);
-          if (tInDateFormat <= dateInDateFormat) {
-            return true;
-          } else {
-            return false;
-          }
-        });
+
+        if(filterOutFutureDates){
+          // remove all timestamps that are newer than the given date
+          var dateInDateFormat = Date.parse(date);
+          indicatorTimeSeriesDatesArray = indicatorTimeSeriesDatesArray.filter( t => {
+            var tInDateFormat = Date.parse(t);
+            if (tInDateFormat <= dateInDateFormat) {
+              return true;
+            } else {
+              return false;
+            }
+          });
+        }        
 
         var indicatorTimeSeriesAverageArray = new Array(indicatorTimeSeriesDatesArray.length);
         var indicatorTimeSeriesMaxArray = new Array(indicatorTimeSeriesDatesArray.length);
@@ -968,9 +971,9 @@ angular
             type: 'line',
             data: indicatorTimeSeriesMinArray,
             stack: "MinMax",
-            areaStyle:{
-              color: "#d6d6d6"
-            },
+            // areaStyle:{
+            //   color: "#d6d6d6"
+            // },
             lineStyle: {
               opacity: 0
             },
@@ -1051,7 +1054,7 @@ angular
         }
         catch (error) {
           console.log("Histogram chart cannot be drawn - error in bins creation");
-          kommonitorDataExchangeService.displayMapApplicationError(error);
+          // kommonitorDataExchangeService.displayMapApplicationError(error);          
         }
 
         // default fontSize of echarts title
@@ -1195,7 +1198,7 @@ angular
               y: 2,
               tooltip: [0, 1, 2]
             },
-            data: bins.customData
+            data: bins ? bins.customData : undefined
           }]
         };
 

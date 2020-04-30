@@ -125,6 +125,14 @@
         apiName: "MONTHLY"
     },
     {
+      displayName: "wöchentlich",
+      apiName: "WEEKLY"
+    },
+    {
+      displayName: "täglich",
+      apiName: "DAILY"
+    },
+    {
         displayName: "beliebig",
         apiName: "ARBITRARY"
     }
