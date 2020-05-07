@@ -92,7 +92,7 @@
 										<td><p>{{
 											$ctrl.kommonitorDataExchangeServiceInstance.getTopicHierarchyDisplayString(poiDataset.topicReference)}}</p></td>
 	                  <td>
-											<ul style="columns: 3; 	-webkit-columns: 3;	-moz-columns: 3;">
+											<ul style="columns: 10; 	-webkit-columns: 10;	-moz-columns: 10;">
 												<li style="margin-right: 15px;" ng-repeat="periodOfValidity in poiDataset.availablePeriodsOfValidity">
 													<p ng-show="periodOfValidity.endDate">{{periodOfValidity.startDate}} - {{periodOfValidity.endDate}}</p>
 													<p ng-show="! periodOfValidity.endDate">{{periodOfValidity.startDate}} - heute </p>
