@@ -396,6 +396,14 @@ MULTI STEP FORM
     margin-left: 60px;
 }
 
+.list-group.list-group-root > div > div > div > div > div > div > .list-group-item {
+    margin-left: 75px;
+}
+
+.list-group.list-group-root > div > div > div > div > div > .list-group-item-success {
+    margin-left: 75px;
+}
+
 .list-group-item .glyphicon {
     margin-right: 5px;
 }
