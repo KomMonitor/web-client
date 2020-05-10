@@ -89,8 +89,24 @@
 																	<div ng-repeat="subsubsubTopic in subsubTopic.subTopics" class="list-group collapse" uib-collapse="isCollapsed_subsubTopic">
 
 																		<div  class="list-group-item list-group-item-default" style="background: #eff3ff; color: white;">
-																			<a id="{{subsubsubTopic.topicId}}" class="collapseTrigger" style="color: black;" ng-attr-title="{{subsubsubTopic.topicDescription}}">{{subsubsubTopic.topicName}}   ({{$ctrl.kommonitorDataExchangeServiceInstance.getNumberOfIndicators(subsubsubTopic, indicatorNameFilter)}})</a>
+																			<a id="{{subsubsubTopic.topicId}}" class="collapseTrigger" style="color: black;" ng-attr-title="{{subsubsubTopic.topicDescription}}" href="" ng-click="isCollapsed_subsubsubTopic = !isCollapsed_subsubsubTopic" ng-init="isCollapsed_subsubsubTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{subsubsubTopic.topicName}}   ({{$ctrl.kommonitorDataExchangeServiceInstance.getNumberOfIndicators(subsubsubTopic, indicatorNameFilter)}})</a>
 																		</div>
+
+																		<div ng-show="($ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators() | filter:{topicReference:subsubsubTopic.topicId} | filter:indicatorNameFilter).length > 0">
+																			<div class="list-group collapse indicatorInputForm" uib-collapse="isCollapsed_subsubsubTopic">
+																				<div id="indicatorHierarchyElement-{{indicatorMetadata.indicatorId}}" ng-repeat="indicatorMetadata in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators() | filter:{topicReference:subsubsubTopic.topicId} | filter:indicatorNameFilter" class="list-group-item list-group-item-default">
+																					 <p style="cursor:pointer;" ng-attr-title="<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]" style="color: white;" ng-click="onClickHierarchyIndicator(indicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]</p>
+																				</div>
+																			</div>
+																		</div>
+																		<div ng-show="!(($ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators() | filter:{topicReference:subsubsubTopic.topicId} | filter:indicatorNameFilter).length > 0)">
+																			<div class="list-group collapse" uib-collapse="isCollapsed_subsubsubTopic">
+																				<!-- <div class="list-group-item list-group-item-default" style="background: #eb9c98;">
+																					 <p><i class="fas fa-sitemap"></i> &nbsp;&nbsp;- keine Indikatoren in dieser Hierarchieebene -</p>
+																				</div> -->
+																			</div>
+																		</div>
+
 
 																	</div>
 																	<!-- end sub sub sub topics -->
