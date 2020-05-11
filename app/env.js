@@ -102,6 +102,8 @@
   // e.g. set ["entwicklung"] to hide all indicators whose name contains the substring "entwicklung"
   window.__env.arrayOfNameSubstringsForHidingIndicators = ["Standardabweichung", "Bevölkerung - ", "Soziale Lage - ", "Soziale Lage (Leitindikator)", "Sterberisiko", "mittlerer Bodenversiegelungsgrad"];
   // window.__env.arrayOfNameSubstringsForHidingIndicators = [];
+  
+  window.__env.arrayOfNameSubstringsForHidingGeoresources = [];
 
   // e-mail recipient for feedback mail
   window.__env.feedbackMailRecipient = "thomas.blasche@amt62.essen.de";

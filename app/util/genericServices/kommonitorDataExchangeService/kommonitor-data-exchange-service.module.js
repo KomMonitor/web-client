@@ -357,6 +357,8 @@ angular
             var georesources = [];
 
             var filteredGeoresources = this.availableGeoresources;
+
+            filteredGeoresources = filterByGeoresourceNamesToHide(filteredGeoresources);
             
             if(georesourceNameFilter && georesourceNameFilter != ""){
               filteredGeoresources = filterArrayObjectsByValue(filteredGeoresources, georesourceNameFilter);									
@@ -458,10 +460,16 @@ angular
           };
 
           var filterByIndicatorNamesToHide = function(filteredIndicators){
-            var arrayOfNameSubstringsForHidingIndicators = __env.arrayOfNameSubstringsForHidingIndicators;
 
             return filteredIndicators.filter(indicatorMetadata => { 
               return isDisplayableIndicator(indicatorMetadata);
+            });
+          };
+
+          var filterByGeoresourceNamesToHide = function(filteredGeoresources){
+
+            return filteredGeoresources.filter(georesourceMetadata => { 
+              return isDisplayableGeoresource(georesourceMetadata);
             });
           };
 
@@ -1123,6 +1131,27 @@ angular
               return isDisplayableIndicator(item);
             };
           };
+
+          this.filterGeoresources = function (){
+            return function( item ) {
+
+              return isDisplayableGeoresource(item);
+            };
+          };
+
+          var isDisplayableGeoresource = function(item){
+            var arrayOfNameSubstringsForHidingGeoresources = __env.arrayOfNameSubstringsForHidingGeoresources;
+
+              if(item.availablePeriodsOfValidity == undefined || item.availablePeriodsOfValidity.length === 0)
+                return false;
+
+                var isGeoresourceThatShallNotBeDisplayed = arrayOfNameSubstringsForHidingGeoresources.some(substring => String(item.datasetName).includes(substring));
+
+                if(isGeoresourceThatShallNotBeDisplayed){
+                  return false;
+                }
+              return true;
+         };
 
           var isDisplayableIndicator = function(item){
              // var arrayOfNameSubstringsForHidingIndicators = ["Standardabweichung", "Prozentuale Ver"];
