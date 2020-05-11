@@ -1412,13 +1412,6 @@ angular.module('kommonitorMap').component(
 
             $scope.div.innerHTML += '<div>';
 
-            // loop through our density intervals and generate a label with a colored square for each interval
-            // for (var i = 0; i < labels.length; i++) {
-            //     $scope.div.innerHTML +=
-            //         '<i style="background:' + $scope.defaultBrew.getColorInRange(labels[i] + 1) + '"></i> ' +
-            //         labels[i] + (labels[i + 1] ? ' &ndash; &lt; ' + labels[i + 1] + '<br>' : '+');
-            // }
-
             $scope.div.innerHTML += "<h4><b>Indikatorenlegende</b><br/>" + kommonitorDataExchangeService.getIndicatorStringFromIndicatorType($scope.currentIndicatorMetadataAndGeoJSON.indicatorType) + "</h4><br/><em>Darstellung der Indikatorenwerte zum gew&auml;hlten Zeitpunkt " + kommonitorDataExchangeService.tsToDate_fullYear(kommonitorDataExchangeService.dateToTS(dateAsDate)) + "</em><br/><br/>";
 
             $scope.div.innerHTML += $scope.appendClassifyRadioOptions();
@@ -1521,15 +1514,15 @@ angular.module('kommonitorMap').component(
                 $scope.div.innerHTML += '<br/>';
               }
 
-              var labels = $scope.defaultBrew.getBreaks();
-              var colors = $scope.defaultBrew.getColors();
+              var labels = $scope.defaultBrew.breaks;
+              var colors = $scope.defaultBrew.colors;
 
               for (var j = 0; j < colors.length; j++) {
                 $scope.div.innerHTML +=
                   // '<i style="background:' + colors[i] + '"></i> ' +
                   // defaultClassificationMapping.items[defaultClassificationMapping.items.length - 1 - i].defaultCustomRating + ' (' + (+labels[i].toFixed(numberOfDecimals)) + ((+labels[i + 1]) ? ' &ndash; &lt; ' + (+labels[i + 1].toFixed(numberOfDecimals)) + ') <br>' : '+');
                   '<i style="background:' + colors[j] + '; opacity: ' + opacity + ';"></i> ' +
-                  kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labels[j]) + (kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labels[j + 1]) ? ' &ndash; &lt; ' + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labels[j + 1]) + ' <br>' : '+');
+                  kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labels[j]) + (labels[j + 1] ? ' &ndash; &lt; ' + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labels[j + 1]) + ' <br>' : '');
               }
             }
 
@@ -1786,28 +1779,11 @@ angular.module('kommonitorMap').component(
               $scope.div.innerHTML += '<br/>';
             }
 
-            // loop through our density intervals and generate a label with a colored square for each interval
-            // for (var i = 0; i < labels.length; i++) {
-            //     $scope.div.innerHTML +=
-            //         '<i style="background:' + $scope.defaultBrew.getColorInRange(labels[i] + 1) + '"></i> ' +
-            //         labels[i] + (labels[i + 1] ? ' &ndash; &lt; ' + labels[i + 1] + '<br>' : '+');
-            // }
-
             if ($scope.ltMeasureOfValueBrew) {
               var labelsLtMeasureOfValue = $scope.ltMeasureOfValueBrew.breaks;
               var colorsLtMeasureOfValue = $scope.ltMeasureOfValueBrew.colors;
               $scope.div.innerHTML += "<label>Features < Schwellwert</label><br/>";
 
-              // var labelArray_below = ["deutlich kleiner Schwellwert", "moderat kleiner Schwellwert", "geringfügig kleiner Schwellwert"];
-              // var labelArray_upper = ["geringfügig über Schwellwert", "moderat über Schwellwert", "deutlich über Schwellwert"];
-
-              // invert color labeling as colorization of lT features is also inverted
-              // for (var i = 0; i < colorsLtMeasureOfValue.length; i++) {
-              //     $scope.div.innerHTML +=
-              //         '<i style="background:' + colorsLtMeasureOfValue[colorsLtMeasureOfValue.length - 1 - i] + '"></i> ' +
-              //         //(+labelsLtMeasureOfValue[i].toFixed(4)) + ((+labelsLtMeasureOfValue[i + 1].toFixed(4)) ? ' &ndash; &lt; ' + (+labelsLtMeasureOfValue[i + 1].toFixed(4)) + '<br>' : '+');
-              //         labelArray_below[i] + ' (' + (+labelsLtMeasureOfValue[i].toFixed(numberOfDecimals)) + ((+labelsLtMeasureOfValue[i + 1]) ? ' &ndash; &lt; ' + (+labelsLtMeasureOfValue[i + 1].toFixed(numberOfDecimals)) + ') <br>' : '+');
-              // }
               for (var i = 0; i < colorsLtMeasureOfValue.length; i++) {
                 $scope.div.innerHTML +=
                   '<i style="background:' + colorsLtMeasureOfValue[colorsLtMeasureOfValue.length - 1 - i] + '; opacity: ' + opacity + ';"></i> ' +
@@ -3500,6 +3476,8 @@ angular.module('kommonitorMap').component(
           // identify and mark outliers prior to setting up of styling
           // in styling methods, outliers should be removed from classification!
           $scope.currentIndicatorMetadataAndGeoJSON = markOutliers($scope.currentIndicatorMetadataAndGeoJSON, $scope.indicatorPropertyName);
+
+          kommonitorDataExchangeService.setTotalFeaturesProperty(indicatorMetadataAndGeoJSON, $scope.indicatorPropertyName);
 
           $scope.currentGeoJSONOfCurrentLayer = $scope.currentIndicatorMetadataAndGeoJSON.geoJSON;
 
