@@ -1079,7 +1079,31 @@ angular
                   }
                 }
                 else{
-                  color = defaultBrew.getColorInRange(this.getIndicatorValue_asNumber(feature.properties[targetDate]));
+                  for (var index=0; index < defaultBrew.breaks.length; index++){
+                    if(this.getIndicatorValue_asNumber(feature.properties[targetDate]) == this.getIndicatorValue_asNumber(defaultBrew.breaks[index])){
+                      if(index < defaultBrew.breaks.length -1){
+                        // min value
+                        color =  defaultBrew.colors[index];
+                        break;
+                      }
+                      else {
+                        //max value
+                        if (defaultBrew.colors[index]){
+                          color =  defaultBrew.colors[index];
+                        }
+                        else{
+                          color =  defaultBrew.colors[index - 1];
+                        }
+                        break;
+                      }
+                    }
+                    else{
+                      if(this.getIndicatorValue_asNumber(feature.properties[targetDate]) < this.getIndicatorValue_asNumber(defaultBrew.breaks[index + 1])) {
+                        color =  defaultBrew.colors[index];
+                        break;
+                      }
+                    }
+                  }                  
                 }
               }
             }

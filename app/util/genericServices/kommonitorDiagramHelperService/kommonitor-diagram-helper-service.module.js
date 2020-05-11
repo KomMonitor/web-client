@@ -672,8 +672,8 @@ angular
           }       
           }
           else{
-            var breaks = defaultBrew.getBreaks();
-            var colors = defaultBrew.getColors();
+            var breaks = defaultBrew.breaks;
+            var colors = defaultBrew.colors;
 
               for (var j = 0; j < colors.length; j++) {
 
