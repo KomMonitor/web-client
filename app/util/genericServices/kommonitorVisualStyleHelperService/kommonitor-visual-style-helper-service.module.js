@@ -63,7 +63,7 @@ angular
         y: 5,
         radius: 1,
         fill: true,
-        color: defaultColorForNoDataValues
+        color: kommonitorDataExchangeService.selectedSpatialUnitIsRaster() ? undefined : defaultColorForNoDataValues
       });
       this.noDataFillPattern = new L.Pattern({ width: 8, height: 8 });
       this.noDataFillPattern.addShape(shape);
@@ -74,7 +74,7 @@ angular
       this.outlierStyle_high = {
         weight: 1,
         opacity: 1,
-        color: defaultBorderColorForOutliers_high,
+        color: kommonitorDataExchangeService.selectedSpatialUnitIsRaster() ? undefined : defaultBorderColorForOutliers_high,
         dashArray: '',
         fillOpacity: defaultFillOpacityForOutliers_high,
         fillColor: defaultColorForOutliers_high,
@@ -84,7 +84,7 @@ angular
       this.outlierStyle_low = {
         weight: 1,
         opacity: 1,
-        color: defaultBorderColorForOutliers_low,
+        color: kommonitorDataExchangeService.selectedSpatialUnitIsRaster() ? undefined : defaultBorderColorForOutliers_low,
         dashArray: '',
         fillOpacity: defaultFillOpacityForOutliers_low,
         fillColor: defaultColorForOutliers_low,
@@ -94,7 +94,7 @@ angular
       this.noDataStyle = {
         weight: 1,
         opacity: 1,
-        color: defaultBorderColorForNoDataValues,
+        color: kommonitorDataExchangeService.selectedSpatialUnitIsRaster() ? undefined : defaultBorderColorForNoDataValues,
         dashArray: '',
         fillOpacity: defaultFillOpacityForNoDataValues,
         fillColor: defaultColorForNoDataValues,
@@ -104,7 +104,7 @@ angular
       this.filteredStyle = {
         weight: 1,
         opacity: 1,
-        color: defaultBorderColorForFilteredValues,
+        color: kommonitorDataExchangeService.selectedSpatialUnitIsRaster() ? undefined : defaultBorderColorForFilteredValues,
         dashArray: '',
         fillOpacity: defaultFillOpacityForFilteredFeatures,
         fillColor: defaultColorForFilteredValues
@@ -121,25 +121,12 @@ angular
             continue;
           }
 
-          values.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
+          if(! values.includes(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]))){            
+            values.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
+          }
         }
 
-        var colorBrewer = new classyBrew();
-
-        // pass array to our classyBrew series
-        colorBrewer.setSeries(values);
-
-        // define number of classes
-        colorBrewer.setNumClasses(numClasses);
-
-        // set color ramp code
-        colorBrewer.setColorCode(colorCode);
-
-        // classify by passing in statistical method
-        // i.e. equal_interval, jenks, quantile
-        colorBrewer.classify(classifyMethod);
-
-        return colorBrewer;
+        return setupClassyBrew_usingFeatureCount(values, colorCode, classifyMethod, numClasses);
       };
 
       /**
@@ -175,10 +162,16 @@ angular
             continue;
           }
 
-          else if (kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]) >= kommonitorDataExchangeService.getIndicatorValue_asNumber(measureOfValue))
-            greaterThanValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
-          else
-            lesserThanValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
+          else if (kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]) >= kommonitorDataExchangeService.getIndicatorValue_asNumber(measureOfValue)){
+            if(! greaterThanValues.includes(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]))){            
+              greaterThanValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
+            }
+          }
+          else{
+            if(! lesserThanValues.includes(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]))){            
+              lesserThanValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
+            }
+          }
         }
 
         var gtMeasureOfValueBrew = this.setupGtMeasureOfValueBrew(greaterThanValues, colorCodeForGreaterThanValues, classifyMethod);
@@ -187,130 +180,72 @@ angular
         return [gtMeasureOfValueBrew, ltMeasureOfValueBrew];
       };
 
-      this.setupGtMeasureOfValueBrew = function (greaterThanValues, colorCodeForGreaterThanValues, classifyMethod) {
-        var tempBrew = new classyBrew();
-        var gtMeasureOfValueBrew = new classyBrew();
+      function setupClassyBrew_usingFeatureCount(valuesArray, colorCode, classifyMethod, maxNumberOfClasses){
 
-        if (greaterThanValues.length === 4 || greaterThanValues.length >= 5) {
+        var tempBrew = new classyBrew();
+        var colorBrewerInstance = new classyBrew();
+
+        if (valuesArray.length >= 5) {
           // pass array to our classyBrew series
-          tempBrew.setSeries(greaterThanValues);
+          tempBrew.setSeries(valuesArray);
           // define number of classes
-          tempBrew.setNumClasses(3);
+          tempBrew.setNumClasses(maxNumberOfClasses);
           // set color ramp code
-          tempBrew.setColorCode(colorCodeForGreaterThanValues);
+          tempBrew.setColorCode(colorCode);
           // classify by passing in statistical method
           // i.e. equal_interval, jenks, quantile
           tempBrew.classify(classifyMethod);
 
-          gtMeasureOfValueBrew.colors = tempBrew.getColors();
-          gtMeasureOfValueBrew.breaks = tempBrew.getBreaks();
+          colorBrewerInstance.colors = tempBrew.getColors();
+          colorBrewerInstance.breaks = tempBrew.getBreaks();
         }
 
-        else if (greaterThanValues.length === 3) {
-          greaterThanValues.sort((a, b) => a - b);
+        else if (valuesArray.length === 4) {
+          valuesArray.sort((a, b) => a - b);
 
-          gtMeasureOfValueBrew.colors = tempBrew.colorSchemes[colorCodeForGreaterThanValues]['3'];
-          gtMeasureOfValueBrew.breaks = greaterThanValues;
+          colorBrewerInstance.colors = tempBrew.colorSchemes[colorCode]['4'];
+          colorBrewerInstance.breaks = valuesArray;
         }
-        else if (greaterThanValues.length === 2) {
-          greaterThanValues.sort((a, b) => a - b);
 
-          gtMeasureOfValueBrew.colors = tempBrew.colorSchemes[colorCodeForGreaterThanValues]['3'];
-          gtMeasureOfValueBrew.breaks = greaterThanValues;
+        else if (valuesArray.length === 3) {
+          valuesArray.sort((a, b) => a - b);
 
-          gtMeasureOfValueBrew.colors.shift(); // remove first element of array
+          colorBrewerInstance.colors = tempBrew.colorSchemes[colorCode]['3'];
+          colorBrewerInstance.breaks = valuesArray;
         }
-        else if (greaterThanValues.length === 1) {
-          greaterThanValues.sort((a, b) => a - b);
+        else if (valuesArray.length === 2) {
+          valuesArray.sort((a, b) => a - b);
 
-          gtMeasureOfValueBrew.colors = tempBrew.colorSchemes[colorCodeForGreaterThanValues]['3'];
-          gtMeasureOfValueBrew.breaks = greaterThanValues;
+          colorBrewerInstance.colors = tempBrew.colorSchemes[colorCode]['3'];
+          colorBrewerInstance.breaks = valuesArray;
 
-          gtMeasureOfValueBrew.colors.shift(); // remove first element of array
-          gtMeasureOfValueBrew.colors.shift(); // remove first element of array
+          colorBrewerInstance.colors.shift(); // remove first element of array
+        }
+        else if (valuesArray.length === 1) {
+          valuesArray.sort((a, b) => a - b);
+
+          colorBrewerInstance.colors = tempBrew.colorSchemes[colorCode]['3'];
+          colorBrewerInstance.breaks = valuesArray;
+
+          colorBrewerInstance.colors.shift(); // remove first element of array
+          colorBrewerInstance.colors.shift(); // remove first element of array
         }
         else {
           // no positive values
-          gtMeasureOfValueBrew = undefined;
+          colorBrewerInstance = undefined;
         }
 
-        return gtMeasureOfValueBrew;
+        return colorBrewerInstance;
+      }
+
+      this.setupGtMeasureOfValueBrew = function (greaterThanValues, colorCodeForGreaterThanValues, classifyMethod) {        
+
+        return setupClassyBrew_usingFeatureCount(greaterThanValues, colorCodeForGreaterThanValues, classifyMethod, 3);
+
       };
 
       this.setupLtMeasureOfValueBrew = function (lesserThanValues, colorCodeForLesserThanValues, classifyMethod) {
-        var tempBrew = new classyBrew();
-        var ltMeasureOfValueBrew = new classyBrew();
-        // if(lesserThanValues.length > 5){
-        //   // pass array to our classyBrew series
-        //   tempBrew.setSeries(lesserThanValues);
-        //   // define number of classes
-        //   tempBrew.setNumClasses(5);
-        //   // set color ramp code
-        //   tempBrew.setColorCode(colorCodeForLesserThanValues);
-        //   // classify by passing in statistical method
-        //   // i.e. equal_interval, jenks, quantile
-        //   tempBrew.classify(classifyMethod);
-        //
-        //   ltMeasureOfValueBrew.colors = tempBrew.getColors();
-        //   ltMeasureOfValueBrew.breaks = tempBrew.getBreaks();
-        // }
-        // else if(lesserThanValues.length === 4 || lesserThanValues.length === 5){
-        //   // pass array to our classyBrew series
-        //   tempBrew.setSeries(lesserThanValues);
-        //   // define number of classes
-        //   tempBrew.setNumClasses(3);
-        //   // set color ramp code
-        //   tempBrew.setColorCode(colorCodeForLesserThanValues);
-        //   // classify by passing in statistical method
-        //   // i.e. equal_interval, jenks, quantile
-        //   tempBrew.classify(classifyMethod);
-        //
-        //   ltMeasureOfValueBrew.colors = tempBrew.getColors();
-        //   ltMeasureOfValueBrew.breaks = tempBrew.getBreaks();
-        // }
-        if (lesserThanValues.length === 4 || lesserThanValues.length >= 5) {
-          // pass array to our classyBrew series
-          tempBrew.setSeries(lesserThanValues);
-          // define number of classes
-          tempBrew.setNumClasses(3);
-          // set color ramp code
-          tempBrew.setColorCode(colorCodeForLesserThanValues);
-          // classify by passing in statistical method
-          // i.e. equal_interval, jenks, quantile
-          tempBrew.classify(classifyMethod);
-
-          ltMeasureOfValueBrew.colors = tempBrew.getColors();
-          ltMeasureOfValueBrew.breaks = tempBrew.getBreaks();
-        }
-        else if (lesserThanValues.length === 3) {
-          lesserThanValues.sort((a, b) => a - b);
-
-          ltMeasureOfValueBrew.colors = tempBrew.colorSchemes[colorCodeForLesserThanValues]['3'];
-          ltMeasureOfValueBrew.breaks = lesserThanValues;
-        }
-        else if (lesserThanValues.length === 2) {
-          lesserThanValues.sort((a, b) => a - b);
-
-          ltMeasureOfValueBrew.colors = tempBrew.colorSchemes[colorCodeForLesserThanValues]['3'];
-          ltMeasureOfValueBrew.breaks = lesserThanValues;
-
-          ltMeasureOfValueBrew.colors.shift(); // remove first element of array
-        }
-        else if (lesserThanValues.length === 1) {
-          lesserThanValues.sort((a, b) => a - b);
-
-          ltMeasureOfValueBrew.colors = tempBrew.colorSchemes[colorCodeForLesserThanValues]['3'];
-          ltMeasureOfValueBrew.breaks = lesserThanValues;
-
-          ltMeasureOfValueBrew.colors.shift(); // remove first element of array
-          ltMeasureOfValueBrew.colors.shift(); // remove first element of array
-        }
-        else {
-          // no positive values
-          ltMeasureOfValueBrew = undefined;
-        }
-
-        return ltMeasureOfValueBrew;
+        return setupClassyBrew_usingFeatureCount(lesserThanValues, colorCodeForLesserThanValues, classifyMethod, 3);
       };
 
       /**
@@ -345,10 +280,16 @@ angular
             continue;
           }
 
-          else if (kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]) > 0)
-            positiveValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
-          else if (kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]) < 0)
-            negativeValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
+          else if (kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]) > 0){
+            if(! positiveValues.includes(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]))){            
+              positiveValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
+            }
+          }
+          else if (kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]) < 0){
+            if(! negativeValues.includes(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]))){            
+              negativeValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
+            }
+          }
         }
 
         var dynamicIncreaseBrew = setupDynamicIncreaseBrew(positiveValues, colorCodeForPositiveValues, classifyMethod);
@@ -358,159 +299,11 @@ angular
       };
 
       function setupDynamicIncreaseBrew(positiveValues, colorCodeForPositiveValues, classifyMethod) {
-        // analyse length of value arrays
-
-        var tempBrew = new classyBrew();
-        var dynamicIncreaseBrew = new classyBrew();
-        // if(positiveValues.length > 5){
-        //   // pass array to our classyBrew series
-        //   tempBrew.setSeries(positiveValues);
-        //   // define number of classes
-        //   tempBrew.setNumClasses(5);
-        //   // set color ramp code
-        //   tempBrew.setColorCode(colorCodeForPositiveValues);
-        //   // classify by passing in statistical method
-        //   // i.e. equal_interval, jenks, quantile
-        //   tempBrew.classify(classifyMethod);
-        //
-        //   dynamicIncreaseBrew.colors = tempBrew.getColors();
-        //   dynamicIncreaseBrew.breaks = tempBrew.getBreaks();
-        // }
-        // else if(positiveValues.length === 4 || positiveValues.length === 5){
-        //   // pass array to our classyBrew series
-        //   tempBrew.setSeries(positiveValues);
-        //   // define number of classes
-        //   tempBrew.setNumClasses(3);
-        //   // set color ramp code
-        //   tempBrew.setColorCode(colorCodeForPositiveValues);
-        //   // classify by passing in statistical method
-        //   // i.e. equal_interval, jenks, quantile
-        //   tempBrew.classify(classifyMethod);
-        //
-        //   dynamicIncreaseBrew.colors = tempBrew.getColors();
-        //   dynamicIncreaseBrew.breaks = tempBrew.getBreaks();
-        // }
-        if (positiveValues.length === 4 || positiveValues.length >= 5) {
-          // pass array to our classyBrew series
-          tempBrew.setSeries(positiveValues);
-          // define number of classes
-          tempBrew.setNumClasses(3);
-          // set color ramp code
-          tempBrew.setColorCode(colorCodeForPositiveValues);
-          // classify by passing in statistical method
-          // i.e. equal_interval, jenks, quantile
-          tempBrew.classify(classifyMethod);
-
-          dynamicIncreaseBrew.colors = tempBrew.getColors();
-          dynamicIncreaseBrew.breaks = tempBrew.getBreaks();
-        }
-        else if (positiveValues.length === 3) {
-          positiveValues.sort((a, b) => a - b);
-
-          dynamicIncreaseBrew.colors = tempBrew.colorSchemes[colorCodeForPositiveValues]['3'];
-          dynamicIncreaseBrew.breaks = positiveValues;
-        }
-        else if (positiveValues.length === 2) {
-          positiveValues.sort((a, b) => a - b);
-
-          dynamicIncreaseBrew.colors = tempBrew.colorSchemes[colorCodeForPositiveValues]['3'];
-          dynamicIncreaseBrew.breaks = positiveValues;
-
-          dynamicIncreaseBrew.colors.shift(); // remove first element of array
-        }
-        else if (positiveValues.length === 1) {
-          positiveValues.sort((a, b) => a - b);
-
-          dynamicIncreaseBrew.colors = tempBrew.colorSchemes[colorCodeForPositiveValues]['3'];
-          dynamicIncreaseBrew.breaks = positiveValues;
-
-          dynamicIncreaseBrew.colors.shift(); // remove first element of array
-          dynamicIncreaseBrew.colors.shift(); // remove first element of array
-        }
-        else {
-          // no positive values
-          dynamicIncreaseBrew = undefined;
-        }
-
-        return dynamicIncreaseBrew;
+        return setupClassyBrew_usingFeatureCount(positiveValues, colorCodeForPositiveValues, classifyMethod, 3);
       }
 
       function setupDynamicDecreaseBrew(negativeValues, colorCodeForNegativeValues, classifyMethod) {
-        var tempBrew = new classyBrew();
-        var dynamicDecreaseBrew = new classyBrew();
-        // analyse length of value arrays
-        // if(negativeValues.length > 5){
-        //   // pass array to our classyBrew series
-        //   tempBrew.setSeries(negativeValues);
-        //   // define number of classes
-        //   tempBrew.setNumClasses(5);
-        //   // set color ramp code
-        //   tempBrew.setColorCode(colorCodeForNegativeValues);
-        //   // classify by passing in statistical method
-        //   // i.e. equal_interval, jenks, quantile
-        //   tempBrew.classify(classifyMethod);
-        //
-        //   dynamicDecreaseBrew.colors = tempBrew.getColors();
-        //   dynamicDecreaseBrew.breaks = tempBrew.getBreaks();
-        // }
-        // else if(negativeValues.length === 4 || negativeValues.length === 5){
-        //   // pass array to our classyBrew series
-        //   tempBrew.setSeries(negativeValues);
-        //   // define number of classes
-        //   tempBrew.setNumClasses(3);
-        //   // set color ramp code
-        //   tempBrew.setColorCode(colorCodeForNegativeValues);
-        //   // classify by passing in statistical method
-        //   // i.e. equal_interval, jenks, quantile
-        //   tempBrew.classify(classifyMethod);
-        //
-        //   dynamicDecreaseBrew.colors = tempBrew.getColors();
-        //   dynamicDecreaseBrew.breaks = tempBrew.getBreaks();
-        // }
-        if (negativeValues.length === 4 || negativeValues.length >= 5) {
-          // pass array to our classyBrew series
-          tempBrew.setSeries(negativeValues);
-          // define number of classes
-          tempBrew.setNumClasses(3);
-          // set color ramp code
-          tempBrew.setColorCode(colorCodeForNegativeValues);
-          // classify by passing in statistical method
-          // i.e. equal_interval, jenks, quantile
-          tempBrew.classify(classifyMethod);
-
-          dynamicDecreaseBrew.colors = tempBrew.getColors();
-          dynamicDecreaseBrew.breaks = tempBrew.getBreaks();
-        }
-        else if (negativeValues.length === 3) {
-
-          negativeValues.sort((a, b) => a - b);
-
-          dynamicDecreaseBrew.colors = tempBrew.colorSchemes[colorCodeForNegativeValues]['3'];
-          dynamicDecreaseBrew.breaks = negativeValues;
-        }
-        else if (negativeValues.length === 2) {
-          negativeValues.sort((a, b) => a - b);
-
-          dynamicDecreaseBrew.colors = tempBrew.colorSchemes[colorCodeForNegativeValues]['3'];
-          dynamicDecreaseBrew.breaks = negativeValues;
-
-          dynamicDecreaseBrew.colors.shift(); // remove first element of array
-        }
-        else if (negativeValues.length === 1) {
-          negativeValues.sort((a, b) => a - b);
-
-          dynamicDecreaseBrew.colors = tempBrew.colorSchemes[colorCodeForNegativeValues]['3'];
-          dynamicDecreaseBrew.breaks = negativeValues;
-
-          dynamicDecreaseBrew.colors.shift(); // remove first element of array
-          dynamicDecreaseBrew.colors.shift(); // remove first element of array
-        }
-        else {
-          // no negative values
-          dynamicDecreaseBrew = undefined;
-        }
-
-        return dynamicDecreaseBrew;
+        return setupClassyBrew_usingFeatureCount(negativeValues, colorCodeForNegativeValues, classifyMethod, 3);
       }
 
       this.styleNoData = function(feature) {
@@ -541,7 +334,6 @@ angular
       };
 
       // style function to return
-      // fill color based on defaultBrew.getColorInRange() method
       this.styleDefault = function(feature, defaultBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, propertyName, useTransparencyOnIndicator, datasetContainsNegativeValues) {
 
         // check if feature is NoData
@@ -607,7 +399,7 @@ angular
               return {
                 weight: 1,
                 opacity: 1,
-                color: defaultBorderColor,
+                color: kommonitorDataExchangeService.selectedSpatialUnitIsRaster() ? undefined : defaultBorderColor,
                 dashArray: '',
                 fillOpacity: fillOpacity,
                 fillColor: fillColor,
@@ -654,7 +446,7 @@ angular
               return {
                 weight: 1,
                 opacity: 1,
-                color: defaultBorderColor,
+                color: kommonitorDataExchangeService.selectedSpatialUnitIsRaster() ? undefined : defaultBorderColor,
                 dashArray: '',
                 fillOpacity: fillOpacity,
                 fillColor: fillColor,
@@ -663,14 +455,38 @@ angular
             }
           }
           else {
-            fillColor = defaultBrew.getColorInRange(kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]));
+            for (var index = 0; index < defaultBrew.breaks.length; index++) {
+              if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == kommonitorDataExchangeService.getIndicatorValue_asNumber(defaultBrew.breaks[index])) {
+                if (index < defaultBrew.breaks.length - 1) {
+                  // min value
+                  fillColor = defaultBrew.colors[index];
+                  break;
+                }
+                else {
+                  //max value
+                  if (defaultBrew.colors[index]) {
+                    fillColor = defaultBrew.colors[index];
+                  }
+                  else {
+                    fillColor = defaultBrew.colors[index - 1];
+                  }
+                  break;
+                }
+              }
+              else {
+                if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) < kommonitorDataExchangeService.getIndicatorValue_asNumber(defaultBrew.breaks[index + 1])) {
+                  fillColor = defaultBrew.colors[index];
+                  break;
+                }
+              }
+            }
           }
         }
 
         return {
           weight: 1,
           opacity: 1,
-          color: defaultBorderColor,
+          color: kommonitorDataExchangeService.selectedSpatialUnitIsRaster() ? undefined : defaultBorderColor,
           dashArray: '',
           fillOpacity: fillOpacity,
           fillColor: fillColor,
@@ -740,7 +556,7 @@ angular
           return {
             weight: 1,
             opacity: 1,
-            color: defaultBorderColor,
+            color: kommonitorDataExchangeService.selectedSpatialUnitIsRaster() ? undefined : defaultBorderColor,
             dashArray: '',
             fillOpacity: fillOpacity,
             fillColor: fillColor,
@@ -786,7 +602,7 @@ angular
           return {
             weight: 1,
             opacity: 1,
-            color: defaultBorderColor,
+            color: kommonitorDataExchangeService.selectedSpatialUnitIsRaster() ? undefined : defaultBorderColor,
             dashArray: '',
             fillOpacity: fillOpacity,
             fillColor: fillColor,
@@ -855,7 +671,7 @@ angular
           return {
             weight: 1,
             opacity: 1,
-            color: defaultBorderColor,
+            color: kommonitorDataExchangeService.selectedSpatialUnitIsRaster() ? undefined : defaultBorderColor,
             dashArray: '',
             fillOpacity: fillOpacity,
             fillColor: fillColor,
@@ -901,7 +717,7 @@ angular
           return {
             weight: 1,
             opacity: 1,
-            color: defaultBorderColor,
+            color: kommonitorDataExchangeService.selectedSpatialUnitIsRaster() ? undefined : defaultBorderColor,
             dashArray: '',
             fillOpacity: fillOpacity,
             fillColor: fillColor,

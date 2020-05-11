@@ -28,8 +28,28 @@
 					<span class="switchslider round"></span>
 				</label>
 
+				<hr>
+				<br/>
+
+				<label>Art der Datumsdefinition zum Abruf eines Datensatzes</label>
+				<div class="form-group">
+					<label class="radio-inline"><input type="radio" name="dateSelectionType"  ng-value="dateSelectionType_valueIndicator" ng-model="dateSelectionType.selectedDateType">Datum des aktuellen Indikators</label>
+					<label class="radio-inline"><input type="radio" name="dateSelectionType"  ng-value="dateSelectionType_valueManual" ng-model="dateSelectionType.selectedDateType">manuelles Datum
+						<div ng-hide="!(dateSelectionType.selectedDateType === dateSelectionType_valueManual)" class="input-group date">
+							<div class="input-group-addon">
+								<i class="far fa-calendar-alt"></i>
+							</div>
+							<input type="text" ng-model="selectedDate_manual"
+								class="form-control pull-right" placeholder="YYYY-MM-DD"
+								id="manualDateDatepicker" required>
+						</div>
+					</label>
+					<label class="radio-inline"><input type="radio" name="dateSelectionType"  ng-value="dateSelectionType_valuePerDataset" ng-model="dateSelectionType.selectedDateType">pro Datensatz</label>
+				</div>
+
 			</div>
 
+			<hr>
 			<br/>
 
 			<uib-tabset active="activeJustified" justified="true">
@@ -129,7 +149,7 @@
 											<!-- end sub sub sub topics -->
 		
 		
-											<div ng-show="(($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter.value).length > 0) || (($ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter.value).length > 0) || (($ctrl.kommonitorDataExchangeServiceInstance.wfsDatasets | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter.value).length > 0)">
+											<div ng-show="(($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresources() | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter.value).length > 0) || (($ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter.value).length > 0) || (($ctrl.kommonitorDataExchangeServiceInstance.wfsDatasets | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter.value).length > 0)">
 												<div class="list-group collapse" uib-collapse="isCollapsed_subsubTopic">
 													<div class="list-group-item list-group-item-default georesourceInputForm">
 
@@ -141,7 +161,7 @@
 																<th>Beschreibung</th>
 																<th>Layer Transparenz</th>
 																<th>Legende</th>
-																<th>Zeitschnitt</th>
+																<th ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">Zeitschnitt</th>
 																<th>Export</th>
 															  </tr>
 															</thead>
@@ -149,7 +169,7 @@
 															<tbody>
 
 																<!-- POIs -->
-																<tr ng-if="showPOI" ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter.value '>
+																<tr ng-if="showPOI" ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresources() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter.value '>
 																	<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 																	<td>
 																		<i class="fas fa-map-marker-alt"></i>
@@ -181,7 +201,7 @@
 																			</div>
 																		</div>																		
 																	</td>
-																	<td>
+																	<td ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
 																		<select style="font-size: 11px; width:135px; padding: 0px;"
 																				ng-model="poi.selectedDate" ng-change="onChangeSelectedDate(poi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in poi.availablePeriodsOfValidity | orderBy: 'startDate'" ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]"
 																				class="form-control" required>
@@ -194,7 +214,7 @@
 																</tr>
 
 																<!-- LOIs -->
-																<tr ng-if="showLOI" ng-repeat='loi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isLOI:true} | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter.value'>
+																<tr ng-if="showLOI" ng-repeat='loi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresources() | filter:{isLOI:true} | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter.value'>
 																	<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 																	<td>
 																		<i class="fas fa-minus"></i>
@@ -226,7 +246,7 @@
 																		</div>
 																		
 																	</td>
-																	<td>
+																	<td ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
 																		<select style="font-size: 11px; width:135px; padding: 0px;"
 																				ng-model="loi.selectedDate" ng-change="onChangeSelectedDate(loi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in loi.availablePeriodsOfValidity | orderBy: 'startDate'" ng-init="loi.selectedDate = loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]"
 																				class="form-control" required>
@@ -239,7 +259,7 @@
 																</tr>
 
 																<!-- AOIs -->
-																<tr ng-if="showAOI" ng-repeat='aoi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isAOI:true} | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter.value'>
+																<tr ng-if="showAOI" ng-repeat='aoi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresources() | filter:{isAOI:true} | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter.value'>
 																	<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 																	<td>
 																		<i class="far fa-square"></i>
@@ -269,7 +289,7 @@
 																			</i>
 																		</div>
 																	</td>
-																	<td>
+																	<td ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
 																		<select style="font-size: 11px; width:135px; padding: 0px;"
 																				ng-model="aoi.selectedDate" ng-change="onChangeSelectedDate(aoi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in aoi.availablePeriodsOfValidity | orderBy: 'startDate'" ng-init="aoi.selectedDate = aoi.availablePeriodsOfValidity[aoi.availablePeriodsOfValidity.length - 1]"
 																				class="form-control" required>
@@ -419,7 +439,7 @@
 															<th>Beschreibung</th>
 															<th>Layer Transparenz</th>
 															<th>Legende</th>
-															<th>Zeitschnitt</th>
+															<th ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">Zeitschnitt</th>
 															<th>Export</th>
 														  </tr>
 														</thead>
@@ -427,7 +447,7 @@
 														<tbody>
 
 															<!-- POIs -->
-															<tr ng-if="showPOI" ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter.value'>
+															<tr ng-if="showPOI" ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresources() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter.value'>
 																<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 																<td>
 																	<i class="fas fa-map-marker-alt"></i>
@@ -459,7 +479,7 @@
 																		</div>
 																	</div>	
 																</td>
-																<td>
+																<td ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
 																	<select style="font-size: 11px; width:135px; padding: 0px;"
 																			ng-model="poi.selectedDate" ng-change="onChangeSelectedDate(poi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in poi.availablePeriodsOfValidity | orderBy: 'startDate'" ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]"
 																			class="form-control" required>
@@ -472,7 +492,7 @@
 															</tr>
 
 															<!-- LOIs -->
-															<tr ng-if="showLOI" ng-repeat='loi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isLOI:true} | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter.value'>
+															<tr ng-if="showLOI" ng-repeat='loi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresources() | filter:{isLOI:true} | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter.value'>
 																<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 																<td>
 																	<i class="fas fa-minus"></i>
@@ -503,7 +523,7 @@
 																		</i>
 																	</div>
 																</td>
-																<td>
+																<td ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
 																	<select style="font-size: 11px; width:135px; padding: 0px;"
 																			ng-model="loi.selectedDate" ng-change="onChangeSelectedDate(loi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in loi.availablePeriodsOfValidity | orderBy: 'startDate'" ng-init="loi.selectedDate = loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]"
 																			class="form-control" required>
@@ -516,7 +536,7 @@
 															</tr>
 
 															<!-- AOIs -->
-															<tr ng-if="showAOI" ng-repeat='aoi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isAOI:true} | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter.value'>
+															<tr ng-if="showAOI" ng-repeat='aoi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresources() | filter:{isAOI:true} | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter.value'>
 																<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 																<td>
 																	<i class="far fa-square"></i>
@@ -697,7 +717,7 @@
 														<th>Beschreibung</th>
 														<th>Layer Transparenz</th>
 														<th>Legende</th>
-														<th>Zeitschnitt</th>
+														<th ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">Zeitschnitt</th>
 														<th>Export</th>
 													  </tr>
 													</thead>
@@ -705,7 +725,7 @@
 													<tbody>
 
 														<!-- POIs -->
-														<tr ng-if="showPOI" ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter.value'>
+														<tr ng-if="showPOI" ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresources() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter.value'>
 															<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 															<td>
 																<i class="fas fa-map-marker-alt"></i>
@@ -737,7 +757,7 @@
 																	</div>
 																</div>	
 															</td>
-															<td>
+															<td ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
 																<select style="font-size: 11px; width:135px; padding: 0px;"
 																		ng-model="poi.selectedDate" ng-change="onChangeSelectedDate(poi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in poi.availablePeriodsOfValidity | orderBy: 'startDate'" ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]"
 																		class="form-control" required>
@@ -750,7 +770,7 @@
 														</tr>
 
 														<!-- LOIs -->
-														<tr ng-if="showLOI" ng-repeat='loi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isLOI:true} | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter.value'>
+														<tr ng-if="showLOI" ng-repeat='loi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresources() | filter:{isLOI:true} | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter.value'>
 															<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 															<td>
 																<i class="fas fa-minus"></i>
@@ -781,7 +801,7 @@
 																	</i>
 																</div>
 															</td>
-															<td>
+															<td ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
 																<select style="font-size: 11px; width:135px; padding: 0px;"
 																		ng-model="loi.selectedDate" ng-change="onChangeSelectedDate(loi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in loi.availablePeriodsOfValidity | orderBy: 'startDate'" ng-init="loi.selectedDate = loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]"
 																		class="form-control" required>
@@ -794,7 +814,7 @@
 														</tr>
 
 														<!-- AOIs -->
-														<tr ng-if="showAOI" ng-repeat='aoi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isAOI:true} | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter.value'>
+														<tr ng-if="showAOI" ng-repeat='aoi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresources() | filter:{isAOI:true} | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter.value'>
 															<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 															<td>
 																<i class="far fa-square"></i>
@@ -824,7 +844,7 @@
 																	</i>
 																</div>
 															</td>
-															<td>
+															<td ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
 																<select style="font-size: 11px; width:135px; padding: 0px;"
 																		ng-model="aoi.selectedDate" ng-change="onChangeSelectedDate(aoi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in aoi.availablePeriodsOfValidity | orderBy: 'startDate'" ng-init="aoi.selectedDate = aoi.availablePeriodsOfValidity[aoi.availablePeriodsOfValidity.length - 1]"
 																		class="form-control" required>
@@ -983,7 +1003,7 @@
 										
 										<th>Layer Transparenz</th>
 										<th>Legende</th>
-										<th>Zeitschnitt</th>
+										<th ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">Zeitschnitt</th>
 										<th>Export</th>
 									  </tr>
 									</thead>
@@ -991,7 +1011,7 @@
 									<tbody>
 
 										<!-- POIs -->
-										<tr ng-if="showPOI" ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:filterByNoTopic() | filter:georesourceNameFilter.value'>
+										<tr ng-if="showPOI" ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresources() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:filterByNoTopic() | filter:georesourceNameFilter.value'>
 											<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 											<td>
 												<i class="fas fa-map-marker-alt"></i>
@@ -1024,7 +1044,7 @@
 													</div>
 												</div>	
 											</td>
-											<td>
+											<td ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
 												<select style="font-size: 11px; width:135px; padding: 0px;"
 														ng-model="poi.selectedDate" ng-change="onChangeSelectedDate(poi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in poi.availablePeriodsOfValidity | orderBy: 'startDate'" ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]"
 														class="form-control" required>
@@ -1037,7 +1057,7 @@
 										</tr>
 
 										<!-- LOIs -->
-										<tr ng-if="showLOI" ng-repeat='loi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isLOI:true} | filter:filterByNoTopic()'>
+										<tr ng-if="showLOI" ng-repeat='loi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresources() | filter:{isLOI:true} | filter:filterByNoTopic()'>
 											<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 											<td>
 												<i class="fas fa-minus"></i>
@@ -1068,7 +1088,7 @@
 													</i>
 												</div>
 											</td>
-											<td>
+											<td ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
 												<select style="font-size: 11px; width:135px; padding: 0px;"
 														ng-model="loi.selectedDate" ng-change="onChangeSelectedDate(loi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in loi.availablePeriodsOfValidity | orderBy: 'startDate'" ng-init="loi.selectedDate = loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]"
 														class="form-control" required>
@@ -1081,7 +1101,7 @@
 										</tr>
 
 										<!-- AOIs -->
-										<tr ng-if="showAOI" ng-repeat='aoi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isAOI:true} | filter:filterByNoTopic()'>
+										<tr ng-if="showAOI" ng-repeat='aoi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresources() | filter:{isAOI:true} | filter:filterByNoTopic()'>
 											<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 											<td>
 												<i class="far fa-square"></i>
@@ -1111,7 +1131,7 @@
 													</i>
 												</div>
 											</td>
-											<td>
+											<td ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
 												<select style="font-size: 11px; width:135px; padding: 0px;"
 														ng-model="aoi.selectedDate" ng-change="onChangeSelectedDate(aoi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in aoi.availablePeriodsOfValidity | orderBy: 'startDate'" ng-init="aoi.selectedDate = aoi.availablePeriodsOfValidity[aoi.availablePeriodsOfValidity.length - 1]"
 														class="form-control" required>
@@ -1279,14 +1299,14 @@
 									<th>Beschreibung</th>
 									<th>Layer Transparenz</th>
 									<th>Legende</th>
-									<th>Zeitschnitt</th>
+									<th ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">Zeitschnitt</th>
 									<th>Export</th>
 								  </tr>
 								</thead>
 		
 									<tbody>
 		
-										<tr ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:poiNameFilter'>
+										<tr ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresources() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:poiNameFilter'>
 											<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 											<td>
 												<label class='checkbox-inline' ><input type="checkbox" value="poi.datasetName" ng-model="poi.isSelected" ng-change="handlePoiOnMap(poi)">											
@@ -1315,7 +1335,7 @@
 													</div>
 												</div>	
 											</td>
-											<td>
+											<td ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
 												<select style="font-size: 11px; width:135px; padding: 0px;"
 														ng-model="poi.selectedDate" ng-change="onChangeSelectedDate(poi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in poi.availablePeriodsOfValidity | orderBy: 'startDate'" ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]"
 														class="form-control" required>
@@ -1375,14 +1395,14 @@
 												<th>Beschreibung</th>
 												<th>Layer Transparenz</th>
 												<th>Legende</th>
-												<th>Zeitschnitt</th>
+												<th ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">Zeitschnitt</th>
 												<th>Export</th>
 											</tr>
 										</thead>
 		
 										<tbody>
 		
-											<tr ng-repeat='loi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isLOI:true} | filter:loiNameFilter'>
+											<tr ng-repeat='loi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresources() | filter:{isLOI:true} | filter:loiNameFilter'>
 												<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 												<td>
 													<label class='checkbox-inline' ><input type="checkbox" value="loi.datasetName" ng-model="loi.isSelected" ng-change="handleLoiOnMap(loi)">												
@@ -1410,7 +1430,7 @@
 														</i>
 													</div>
 												</td>
-												<td>
+												<td ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
 													<select style="font-size: 11px; width:135px; padding: 0px;"
 															ng-model="loi.selectedDate" ng-change="onChangeSelectedDate(loi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in loi.availablePeriodsOfValidity | orderBy: 'startDate'" ng-init="loi.selectedDate = loi.availablePeriodsOfValidity[loi.availablePeriodsOfValidity.length - 1]"
 															class="form-control" required>
@@ -1465,14 +1485,14 @@
 											<th>Beschreibung</th>
 											<th>Layer Transparenz</th>
 											<th>Legende</th>
-											<th>Zeitschnitt</th>
+											<th ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">Zeitschnitt</th>
 											<th>Export</th>
 										  </tr>
 										</thead>
 		
 											<tbody>
 		
-												<tr ng-repeat='aoi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isAOI:true} | filter:aoiNameFilter'>
+												<tr ng-repeat='aoi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresources() | filter:{isAOI:true} | filter:aoiNameFilter'>
 													<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 													<td>
 														<label class='checkbox-inline' ><input type="checkbox" value="aoi.datasetName" ng-model="aoi.isSelected" ng-change="handleAoiOnMap(aoi)">													
@@ -1499,7 +1519,7 @@
 															</i>
 														</div>
 													</td>
-													<td>
+													<td ng-if="dateSelectionType.selectedDateType === dateSelectionType_valuePerDataset">
 														<select style="font-size: 11px; width:135px; padding: 0px;"
 																ng-model="aoi.selectedDate" ng-change="onChangeSelectedDate(aoi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in aoi.availablePeriodsOfValidity | orderBy: 'startDate'" ng-init="aoi.selectedDate = aoi.availablePeriodsOfValidity[aoi.availablePeriodsOfValidity.length - 1]"
 																class="form-control" required>

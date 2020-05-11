@@ -79,8 +79,8 @@
 	                  <td>{{spatialUnitDataset.nextLowerHierarchyLevel}}</td>
 										<td>{{spatialUnitDataset.nextUpperHierarchyLevel}}</td>
 	                  <td>
-											<ul>
-												<li ng-repeat="periodOfValidity in spatialUnitDataset.availablePeriodsOfValidity">
+											<ul style="columns: 3; 	-webkit-columns: 3;	-moz-columns: 3;">
+												<li style="margin-right: 15px;" ng-repeat="periodOfValidity in spatialUnitDataset.availablePeriodsOfValidity">
 													<p ng-show="periodOfValidity.endDate">{{periodOfValidity.startDate}} - {{periodOfValidity.endDate}}</p>
 													<p ng-show="! periodOfValidity.endDate">{{periodOfValidity.startDate}} - heute </p>
 												</li>

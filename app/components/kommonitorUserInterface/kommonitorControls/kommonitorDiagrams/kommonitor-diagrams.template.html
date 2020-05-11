@@ -54,6 +54,7 @@
 					<div class="box-header with-border">
 						<h3 ng-if="date" class="box-title">Feature-Vergleich - {{spatialUnitName}} - {{date}}</h3>
 						<h3 ng-if="fromDate && toDate" class="box-title">Feature-Vergleich - {{spatialUnitName}} - Bilanz {{fromDate}} - {{toDate}}</h3>
+						<h4>{{$ctrl.kommonitorDataExchangeServiceInstance.totalFeaturesPropertyLabel}}: {{$ctrl.kommonitorDataExchangeServiceInstance.totalFeaturesPropertyValue}} [{{$ctrl.kommonitorDataExchangeServiceInstance.totalFeaturesPropertyUnit}}]</h4>
 
 						<!-- <div class="box-tools pull-right">
 							<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
@@ -62,7 +63,7 @@
 					</div>
 					<div class="box-body">
 						<div class="chart">
-							<div  id="barDiagram" style="width:100%; min-height:255px;"></div>
+							<div  id="barDiagram" style="width:100%; min-height:235px;"></div>
 						</div>
 					</div>
 					<!-- /.box-body -->

@@ -124,7 +124,7 @@
 								<li style="width: 16.66%;">Themenhierarchie</li>
 								<li style="width: 16.66%;">Referenzen zu Indikatoren/Georessourcen</li>
 								<li style="width: 16.66%;">Klassifizierungsoptionen</li>
-								<li style="width: 16.66%;">Zeitreihen-Import</li>
+								<li ng-if="indicatorCreationType.apiName != 'COMPUTATION'" style="width: 16.66%;">Zeitreihen-Import</li>
 							</ul>
 							<!-- fieldsets -->
 							
@@ -907,11 +907,11 @@
 								</div>
 
 								<input type="button" name="previous" class="previous previous_addIndicator action-button-previous" value="Voriger Schritt"/>
-								<input type="button" name="next" class="next next_addIndicator action-button" value="N&auml;chster Schritt"/>
+								<input ng-if="indicatorCreationType.apiName != 'COMPUTATION'" type="button" name="next" class="next next_addIndicator action-button" value="N&auml;chster Schritt"/>
 
 							</fieldset>
 
-							<fieldset>
+							<fieldset ng-if="indicatorCreationType.apiName != 'COMPUTATION'">
 								<div style="position: absolute;">
 									<button type="button" class="btn btn-info pull-left" ng-click="onImportIndicatorAddMappingConfig()" title="Importieren der Mapping-Konfigurationen aus einer Datei"><i class="fas fa-file-import"></i>&nbsp;&nbsp;Mapping-Import</button>
 									<input style="display:none;" class="pull-left" type="file" class="form-control" id="indicatorMappingConfigAddImportFile" accept=".json,"></input>
@@ -1146,7 +1146,7 @@
 				
 
 				<button type="button" class="btn btn-success"				
-					ng-disabled="!datasetName || !metadata.description || !metadata.datasource || !metadata.contact || !metadata.updateInterval || !metadata.lastUpdate || !indicatorType|| !indicatorCreationType || !indicatorInterpretation || !indicatorTopic_mainTopic || datasetNameInvalid || !indicatorUnit || !converter || !datasourceType || !targetSpatialUnitMetadata || !spatialUnitRefKeyProperty"
+					ng-disabled="!datasetName || !metadata.description || !metadata.datasource || !metadata.contact || !metadata.updateInterval || !metadata.lastUpdate || !indicatorType|| !indicatorCreationType || !indicatorInterpretation || !indicatorTopic_mainTopic || datasetNameInvalid || !indicatorUnit || (indicatorCreationType.apiName != 'COMPUTATION' && (!converter || !datasourceType || !targetSpatialUnitMetadata || !spatialUnitRefKeyProperty))"
 					ng-click="addIndicator()">Indikator registrieren</button>
 				<button type="button" class="btn btn-danger"
 					ng-click="resetIndicatorAddForm()">Zur&uuml;cksetzen</button>

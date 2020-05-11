@@ -447,13 +447,13 @@ angular
 									* TODO FIXME dateSLider formatter will return only year for now to prevent misleading month and day settings
 									*/
 
-									return date.getFullYear();
+									// return date.getFullYear();
 
-										// return date.toLocaleDateString("de-DE", {
-										// 		year: 'numeric',
-										// 		month: 'long',
-										// 		day: 'numeric'
-										// });
+										return date.toLocaleDateString("de-DE", {
+												year: 'numeric',
+												month: 'long',
+												day: 'numeric'
+										});
 								}
 
 								function dateToDateString (date) {
@@ -462,13 +462,13 @@ angular
 									* TODO FIXME dateSLider formatter will return only year for now to prevent misleading month and day settings
 									*/
 
-									return date.getFullYear();
+									// return date.getFullYear();
 
-										// return date.toLocaleDateString("de-DE", {
-										// 		year: 'numeric',
-										// 		month: 'long',
-										// 		day: 'numeric'
-										// });
+										return date.toLocaleDateString("de-DE", {
+												year: 'numeric',
+												month: 'long',
+												day: 'numeric'
+										});
 								}
 
 								function createDatesFromIndicatorDates(indicatorDates) {

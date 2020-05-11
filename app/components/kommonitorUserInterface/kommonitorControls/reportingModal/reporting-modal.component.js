@@ -1039,7 +1039,7 @@ angular.module('reportingModal').component('reportingModal', {
 			var dynamicDecreaseBrew = dynamicBrewsArray[1];
 
 			//setup diagram resources
-			kommonitorDiagramHelperService.prepareAllDiagramResources(config.indicator, config.selectedSpatialUnit, timestamp, defaultBrew, undefined, undefined, dynamicIncreaseBrew, dynamicDecreaseBrew, false, 0);
+			kommonitorDiagramHelperService.prepareAllDiagramResources(config.indicator, config.selectedSpatialUnit, timestamp, defaultBrew, undefined, undefined, dynamicIncreaseBrew, dynamicDecreaseBrew, false, 0, true);
 			
 			//fill the tile with different content
 			//the id shows what type of content is needed
