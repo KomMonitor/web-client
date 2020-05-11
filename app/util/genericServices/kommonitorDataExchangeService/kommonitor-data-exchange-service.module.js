@@ -858,6 +858,34 @@ angular
             return indicatorTypeString;
           };
 
+          this.totalFeaturesPropertyValue;
+          this.totalFeaturesPropertyUnit;
+          this.totalFeaturesPropertyLabel;
+
+          this.setTotalFeaturesProperty = function(indicatorMetadataAndGeoJSON, propertyName){
+            var sum = 0;
+            var count = 0;
+
+            for (const feature of indicatorMetadataAndGeoJSON.geoJSON.features) {
+              if(! this.indicatorValueIsNoData(feature.properties[propertyName])){
+                sum += this.getIndicatorValueFromArray_asNumber(feature.properties, propertyName);
+                count++;
+              }
+            }
+
+            this.totalFeaturesPropertyUnit = indicatorMetadataAndGeoJSON.unit;
+
+            if(indicatorMetadataAndGeoJSON.indicatorType.includes("ABSOLUTE") || indicatorMetadataAndGeoJSON.indicatorType.includes("DYNAMIC")){
+              this.totalFeaturesPropertyValue = this.getIndicatorValue_asFormattedText(sum);
+              this.totalFeaturesPropertyLabel = "Summe aller Features";
+            }
+            else{
+              this.totalFeaturesPropertyValue = this.getIndicatorValue_asFormattedText(sum / count);     
+              this.totalFeaturesPropertyLabel = "Arithmetisches Mittel aller Features";         
+            }            
+            
+          };
+
           this.getColorForFeature = function(feature, indicatorMetadataAndGeoJSON, targetDate, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue){
             var color;
 

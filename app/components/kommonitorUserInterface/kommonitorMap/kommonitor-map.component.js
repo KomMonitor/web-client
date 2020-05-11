@@ -3477,6 +3477,8 @@ angular.module('kommonitorMap').component(
           // in styling methods, outliers should be removed from classification!
           $scope.currentIndicatorMetadataAndGeoJSON = markOutliers($scope.currentIndicatorMetadataAndGeoJSON, $scope.indicatorPropertyName);
 
+          kommonitorDataExchangeService.setTotalFeaturesProperty(indicatorMetadataAndGeoJSON, $scope.indicatorPropertyName);
+
           $scope.currentGeoJSONOfCurrentLayer = $scope.currentIndicatorMetadataAndGeoJSON.geoJSON;
 
           for (var i = 0; i < indicatorMetadataAndGeoJSON.geoJSON.features.length; i++) {
