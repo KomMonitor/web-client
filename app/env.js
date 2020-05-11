@@ -18,26 +18,26 @@
 
   // Data Management API URL
   // window.__env.apiUrl = 'http://kommonitor.fbg-hsbo.de/';
-  window.__env.apiUrl = 'https://kommonitor.essen.de/kommonitor-data-management-api/';
+  window.__env.apiUrl = 'https://cm.essen.de/kommonitor-data-management-api/';
   // Base url
   window.__env.basePath = 'management';
 
   // Processing Engine URL
   // window.__env.apiUrl = 'http://kommonitor.fbg-hsbo.de/processing';
-  window.__env.targetUrlToProcessingEngine = 'https://kommonitor.essen.de/processing/';
+  window.__env.targetUrlToProcessingEngine = 'https://cm.essen.de/processing/';
 
   // Open Route Service URL
     // window.__env.apiUrl = 'http://kommonitor.fbg-hsbo.de/openrouteservice';
-  // window.__env.targetUrlToReachabilityService_ORS = 'https://kommonitor.essen.de/openrouteservice';
+  // window.__env.targetUrlToReachabilityService_ORS = 'https://cm.essen.de/openrouteservice';
   window.__env.targetUrlToReachabilityService_ORS = 'https://ors5.fbg-hsbo.de';
 
     // Open Trip Planner URL - currently not integrated
   // window.__env.apiUrl = 'http://kommonitor.fbg-hsbo.de/opentripplanner';
-  window.__env.targetUrlToReachabilityService_OTP = 'https://kommonitor.essen.de/opentripplanner';
+  window.__env.targetUrlToReachabilityService_OTP = 'https://cm.essen.de/opentripplanner';
 
 
   // Data Imporert URL
-  window.__env.targetUrlToImporterService = 'https://kommonitor.essen.de/importer/';
+  window.__env.targetUrlToImporterService = 'https://cm.essen.de/importer/';
 
   // optional geometry simplification (a feature of Data Management API)
   window.__env.simplifyGeometriesParameterName = "simplifyGeometries";
