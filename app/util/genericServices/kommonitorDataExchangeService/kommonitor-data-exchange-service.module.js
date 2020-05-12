@@ -357,6 +357,8 @@ angular
             var georesources = [];
 
             var filteredGeoresources = this.availableGeoresources;
+
+            filteredGeoresources = filterByGeoresourceNamesToHide(filteredGeoresources);
             
             if(georesourceNameFilter && georesourceNameFilter != ""){
               filteredGeoresources = filterArrayObjectsByValue(filteredGeoresources, georesourceNameFilter);									
@@ -458,10 +460,16 @@ angular
           };
 
           var filterByIndicatorNamesToHide = function(filteredIndicators){
-            var arrayOfNameSubstringsForHidingIndicators = __env.arrayOfNameSubstringsForHidingIndicators;
 
             return filteredIndicators.filter(indicatorMetadata => { 
               return isDisplayableIndicator(indicatorMetadata);
+            });
+          };
+
+          var filterByGeoresourceNamesToHide = function(filteredGeoresources){
+
+            return filteredGeoresources.filter(georesourceMetadata => { 
+              return isDisplayableGeoresource(georesourceMetadata);
             });
           };
 
@@ -850,6 +858,34 @@ angular
             return indicatorTypeString;
           };
 
+          this.totalFeaturesPropertyValue;
+          this.totalFeaturesPropertyUnit;
+          this.totalFeaturesPropertyLabel;
+
+          this.setTotalFeaturesProperty = function(indicatorMetadataAndGeoJSON, propertyName){
+            var sum = 0;
+            var count = 0;
+
+            for (const feature of indicatorMetadataAndGeoJSON.geoJSON.features) {
+              if(! this.indicatorValueIsNoData(feature.properties[propertyName])){
+                sum += this.getIndicatorValueFromArray_asNumber(feature.properties, propertyName);
+                count++;
+              }
+            }
+
+            this.totalFeaturesPropertyUnit = indicatorMetadataAndGeoJSON.unit;
+
+            if(indicatorMetadataAndGeoJSON.indicatorType.includes("ABSOLUTE") || indicatorMetadataAndGeoJSON.indicatorType.includes("DYNAMIC")){
+              this.totalFeaturesPropertyValue = this.getIndicatorValue_asFormattedText(sum);
+              this.totalFeaturesPropertyLabel = "Summe aller Features";
+            }
+            else{
+              this.totalFeaturesPropertyValue = this.getIndicatorValue_asFormattedText(sum / count);     
+              this.totalFeaturesPropertyLabel = "Arithmetisches Mittel aller Features";         
+            }            
+            
+          };
+
           this.getColorForFeature = function(feature, indicatorMetadataAndGeoJSON, targetDate, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue){
             var color;
 
@@ -1071,7 +1107,31 @@ angular
                   }
                 }
                 else{
-                  color = defaultBrew.getColorInRange(this.getIndicatorValue_asNumber(feature.properties[targetDate]));
+                  for (var index=0; index < defaultBrew.breaks.length; index++){
+                    if(this.getIndicatorValue_asNumber(feature.properties[targetDate]) == this.getIndicatorValue_asNumber(defaultBrew.breaks[index])){
+                      if(index < defaultBrew.breaks.length -1){
+                        // min value
+                        color =  defaultBrew.colors[index];
+                        break;
+                      }
+                      else {
+                        //max value
+                        if (defaultBrew.colors[index]){
+                          color =  defaultBrew.colors[index];
+                        }
+                        else{
+                          color =  defaultBrew.colors[index - 1];
+                        }
+                        break;
+                      }
+                    }
+                    else{
+                      if(this.getIndicatorValue_asNumber(feature.properties[targetDate]) < this.getIndicatorValue_asNumber(defaultBrew.breaks[index + 1])) {
+                        color =  defaultBrew.colors[index];
+                        break;
+                      }
+                    }
+                  }                  
                 }
               }
             }
@@ -1123,6 +1183,27 @@ angular
               return isDisplayableIndicator(item);
             };
           };
+
+          this.filterGeoresources = function (){
+            return function( item ) {
+
+              return isDisplayableGeoresource(item);
+            };
+          };
+
+          var isDisplayableGeoresource = function(item){
+            var arrayOfNameSubstringsForHidingGeoresources = __env.arrayOfNameSubstringsForHidingGeoresources;
+
+              if(item.availablePeriodsOfValidity == undefined || item.availablePeriodsOfValidity.length === 0)
+                return false;
+
+                var isGeoresourceThatShallNotBeDisplayed = arrayOfNameSubstringsForHidingGeoresources.some(substring => String(item.datasetName).includes(substring));
+
+                if(isGeoresourceThatShallNotBeDisplayed){
+                  return false;
+                }
+              return true;
+         };
 
           var isDisplayableIndicator = function(item){
              // var arrayOfNameSubstringsForHidingIndicators = ["Standardabweichung", "Prozentuale Ver"];
@@ -1493,13 +1574,13 @@ angular
             * TODO FIXME dateSLider formatter will return only year for now to prevent misleading month and day settings
             */
   
-            return date.getFullYear();
+            // return date.getFullYear();
   
-            // return date.toLocaleDateString("de-DE", {
-            // 		year: 'numeric',
-            // 		month: 'long',
-            // 		day: 'numeric'
-            // });
-          }
+            return date.toLocaleDateString("de-DE", {
+            		year: 'numeric',
+            		month: 'long',
+            		day: 'numeric'
+            });
+          };
 
 				}]);

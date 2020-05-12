@@ -291,104 +291,75 @@ angular.module('indicatorDeleteModal').component('indicatorDeleteModal', {
 			});
 		};
 
-		$scope.deleteSelectedIndicatorTimestamps = function(){
-			var deletePromises = [];
+		$scope.deleteSelectedIndicatorTimestamps = async function(){
 
 			// iterate over all appicableSpatialUnits and selected applicableDates
-			$scope.currentApplicableSpatialUnits.forEach(function(applicableSpatialUnit){
-				$scope.currentApplicableDates.forEach(function(applicableDate){
-					if(applicableDate.isSelected){					
-						deletePromises.push($scope.getDeleteTimestampPromise(applicableDate, applicableSpatialUnit.spatialUnitMetadata.spatialUnitId));
-					}
-				});
-			});
+			for (const applicableSpatialUnit of $scope.currentApplicableSpatialUnits) {
+				for (const applicableDate of $scope.currentApplicableDates) {
+					await $scope.getDeleteTimestampPromise(applicableDate, applicableSpatialUnit.spatialUnitMetadata.spatialUnitId);
+				}
+			}
 
-			$q.all(deletePromises).then(async function successCallback(successArray) {
-						//
+			if($scope.failedTimestampsAndErrors.length > 0){
+				// error handling
+				$("#indicatorsDeleteErrorAlert").show();
+				// if ($scope.successfullyDeletedDatasets.length > 0){
+				// 	$("#indicatorsDeleteSuccessAlert").show();
+				// }
 
-						if($scope.failedTimestampsAndErrors.length > 0){
-							// error handling
-							$("#indicatorsDeleteErrorAlert").show();
-							// if ($scope.successfullyDeletedDatasets.length > 0){
-							// 	$("#indicatorsDeleteSuccessAlert").show();
-							// }
+				$scope.loadingData = false;
+			}
+			if($scope.successfullyDeletedTimestamps.length > 0){
+				$("#indicatorsDeleteSuccessAlert").show();
 
-							$scope.loadingData = false;
-						}
-						if($scope.successfullyDeletedTimestamps.length > 0){
-							$("#indicatorsDeleteSuccessAlert").show();
+				// fetch indicatorMetada again as a georesource was deleted
+				await kommonitorDataExchangeService.fetchIndicatorsMetadata();
+				// refresh overview table
+				$rootScope.$broadcast("refreshIndicatorOverviewTable");
 
-							// fetch indicatorMetada again as a georesource was deleted
-							await kommonitorDataExchangeService.fetchIndicatorsMetadata();
-							// refresh overview table
-							$rootScope.$broadcast("refreshIndicatorOverviewTable");
+				// refresh all admin dashboard diagrams due to modified metadata
+				$rootScope.$broadcast("refreshAdminDashboardDiagrams");
 
-							// refresh all admin dashboard diagrams due to modified metadata
-							$rootScope.$broadcast("refreshAdminDashboardDiagrams");
+				$scope.loadingData = false;
 
-							$scope.loadingData = false;
+				// $scope.resetIndicatorsDeleteForm();
+			}
 
-							// $scope.resetIndicatorsDeleteForm();
-						}
-				}, function errorCallback(errorArray) {
-
-					$("#indicatorsDeleteErrorAlert").show();
-					// if ($scope.successfullyDeletedDatasets.length > 0){
-					// 	$("#indicatorsDeleteSuccessAlert").show();
-					// }
-
-					$rootScope.$broadcast("refreshIndicatorOverviewTable");
-					$scope.loadingData = false;
-			});
 		};
 
-		$scope.deleteSelectedIndicatorSpatialUnits = function(){
-			var deletePromises = [];
+		$scope.deleteSelectedIndicatorSpatialUnits = async function(){
 
-			// iterate over all appicableSpatialUnits and selected applicableDates
-			$scope.currentApplicableSpatialUnits.forEach(function(applicableSpatialUnit){
+			// iterate over all appicableSpatialUnits
+			for (const applicableSpatialUnit of $scope.currentApplicableSpatialUnits) {
 				if(applicableSpatialUnit.isSelected){					
-					deletePromises.push($scope.getDeleteSpatialUnitPromise(applicableSpatialUnit));
+					 await $scope.getDeleteSpatialUnitPromise(applicableSpatialUnit);
 				}
-			});
+			}
 
-			$q.all(deletePromises).then(async function successCallback(successArray) {
-						//
+			if($scope.failedSpatialUnitsAndErrors.length > 0){
+				// error handling
+				$("#indicatorsDeleteErrorAlert").show();
+				// if ($scope.successfullyDeletedDatasets.length > 0){
+				// 	$("#indicatorsDeleteSuccessAlert").show();
+				// }
 
-						if($scope.failedSpatialUnitsAndErrors.length > 0){
-							// error handling
-							$("#indicatorsDeleteErrorAlert").show();
-							// if ($scope.successfullyDeletedDatasets.length > 0){
-							// 	$("#indicatorsDeleteSuccessAlert").show();
-							// }
+				$scope.loadingData = false;
+			}
+			if($scope.successfullyDeletedSpatialUnits.length > 0){
+				$("#indicatorsDeleteSuccessAlert").show();
 
-							$scope.loadingData = false;
-						}
-						if($scope.successfullyDeletedSpatialUnits.length > 0){
-							$("#indicatorsDeleteSuccessAlert").show();
+				// fetch indicatorMetada again as a georesource was deleted
+				await kommonitorDataExchangeService.fetchIndicatorsMetadata();
+				// refresh overview table
+				$rootScope.$broadcast("refreshIndicatorOverviewTable");
 
-							// fetch indicatorMetada again as a georesource was deleted
-							await kommonitorDataExchangeService.fetchIndicatorsMetadata();
-							// refresh overview table
-							$rootScope.$broadcast("refreshIndicatorOverviewTable");
+				// refresh all admin dashboard diagrams due to modified metadata
+				$rootScope.$broadcast("refreshAdminDashboardDiagrams");
 
-							// refresh all admin dashboard diagrams due to modified metadata
-							$rootScope.$broadcast("refreshAdminDashboardDiagrams");
+				$scope.loadingData = false;
 
-							$scope.loadingData = false;
-
-							// $scope.resetIndicatorsDeleteForm();
-						}
-				}, function errorCallback(errorArray) {
-
-					$("#indicatorsDeleteErrorAlert").show();
-					// if ($scope.successfullyDeletedDatasets.length > 0){
-					// 	$("#indicatorsDeleteSuccessAlert").show();
-					// }
-
-					$rootScope.$broadcast("refreshIndicatorOverviewTable");
-					$scope.loadingData = false;
-			});
+				// $scope.resetIndicatorsDeleteForm();
+			}
 		};
 
 			$scope.getDeleteTimestampPromise = function(applicableDate, spatialUnitId){
