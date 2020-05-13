@@ -13,13 +13,14 @@ angular
 				'$http',
 				'kommonitorMapService',
 				'kommonitorDataExchangeService',
+				'kommonitorDiagramHelperService',
 				'__env',
 				/**
 				 * TODO
 				 */
 				function kommonitorReachabilityController($scope,
 					$rootScope, $http, kommonitorMapService,
-					kommonitorDataExchangeService, __env) {
+					kommonitorDataExchangeService, kommonitorDiagramHelperService,__env) {
 
 					//$("[data-toggle=tooltip]").tooltip();
 
@@ -28,6 +29,7 @@ angular
 
 					const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
 					this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
+					this.kommonitorDiagramHelperServiceInstance = kommonitorDiagramHelperService;
 					this.kommonitorMapServiceInstance = kommonitorMapService;
 					$scope.targetUrlToReachabilityService_ORS = __env.targetUrlToReachabilityService_ORS;
 					var numberOfDecimals = __env.numberOfDecimals;
@@ -35,6 +37,8 @@ angular
 					$scope.currentIsochronesGeoJSON = undefined;
 					$scope.currentRouteGeoJSON = undefined;
 					$scope.error = undefined;
+
+					$scope.echartsInstances_reachabilityAnalysis = new Map();
 
 					/**
 					* a delay object for geosearch input
@@ -44,11 +48,25 @@ angular
 					$scope.geosearchResults_startingPoint;
 					$scope.geosearchResults_endPoint;
 
+					$scope.settings = {};
+
+					$scope.settings.dateSelectionType_valueIndicator = "date_indicator";
+								$scope.settings.dateSelectionType_valueManual = "date_manual";
+								$scope.settings.dateSelectionType_valuePerDataset = "date_perDataset";
+								$scope.settings.dateSelectionType = {
+									selectedDateType: $scope.settings.dateSelectionType_valueIndicator
+								};
+
+					$scope.settings.selectedDate_manual = undefined;
+					$('#manualDateDatepicker_reachabilityAnalysis').datepicker(kommonitorDataExchangeService.datePickerOptions);
+
+
 					$scope.routeDistance_km = undefined;
 					$scope.routeDuration_minutes = undefined;
 					$scope.routeAvgSpeed_kmh = undefined;
 					$scope.routeTotalAscent = undefined;
 					$scope.routeTotalDescent = undefined;
+
 
 					/**
 					 * Show the isochrone-calculation-div if this
@@ -58,7 +76,7 @@ angular
 					 */
 					$scope.showIsochrones = true;
 
-					$scope.dissolveIsochrones = true;
+					$scope.settings.dissolveIsochrones = true;
 
 					/**
 					 * TODO : Folgende drei Variablen werden fuer den
@@ -74,8 +92,8 @@ angular
 					$scope.longitudeStart = 7.049869894;
 					$scope.latitudeEnd = 51.42055331+0.05;
 					$scope.longitudeEnd = 7.049869894+0.05;
-					$scope.routingStartPointInput = undefined;
-					$scope.routingEndPointInput = undefined;
+					$scope.settings.routingStartPointInput = undefined;
+					$scope.settings.routingEndPointInput = undefined;
 
 					/**
 					 * The range array (for isochrone calculation)
@@ -100,7 +118,7 @@ angular
 					 * foot-hiking
 					 * wheelchair
 					 */
-					$scope.transitMode = 'foot-walking';
+					$scope.settings.transitMode = 'buffer';
 
 					/**
 					 * The focus of the analysis. Valid values are:
@@ -108,18 +126,18 @@ angular
 					 * Ueberschneidung mit der Variablen 'focus',
 					 * die im Grunde genau das gleiche speichert.
 					 */
-					$scope.focus = 'distance';
+					$scope.settings.focus = 'distance';
 
 					/**
 					 * config of starting points source (layer or manual draw) for isochrones
 					 */
-					$scope.startPointsSource = "fromLayer";
+					$scope.settings.startPointsSource = "fromLayer";
 
 					/**
 					* selected start point layer for isochrone computation
 					* GeoJSON within property .geoJSON
 					*/
-					$scope.selectedStartPointLayer = undefined;
+					$scope.settings.selectedStartPointLayer = undefined;
 
 					/**
 					* start points that were drawn manually
@@ -136,7 +154,7 @@ angular
 					 * The analysis speed (for the current vehicle)
 					 * in km/h.
 					 */
-					$scope.speedInKilometersPerHour = 3;
+					$scope.settings.speedInKilometersPerHour = 3;
 
 					/**
 					 * Indicator if multiple starting-points shall
@@ -183,7 +201,7 @@ angular
 					 * represents value of the slider in the GUI and
 					 * handed to the routing API.
 					 */
-					$scope.currentTODValue = 1;
+					$scope.settings.currentTODValue = 1;
 
 					/**
 					 * Variable that stores 'true' if the speed-selection
@@ -199,7 +217,7 @@ angular
 					 * - "shortest"
 					 * - "recommended"
 					 */
-					$scope.preference = "fastest";
+					$scope.settings.preference = "fastest";
 
 					/*
 					 * array of arrays of lon, lat
@@ -256,7 +274,7 @@ angular
 								var cValue = rangeArray[i];
 
 								// CALCULATE SECONDS FROM MINUTE VALUES IF TIME-ANALYSIS IS WANTED
-								if($scope.focus=='time')
+								if($scope.settings.focus=='time')
 									cValue = cValue*60;
 								rangeString += cValue;
 
@@ -271,7 +289,7 @@ angular
 						// encode pipe symbol manually via %7C
 
 						var constantParameters = '&smoothing=0&units=m&location_type=start&range_type=' +
-								$scope.focus+'&attributes=area%7Creachfactor';
+								$scope.settings.focus+'&attributes=area%7Creachfactor';
 
 						var getRequest = $scope.targetUrlToReachabilityService_ORS +
 							'/isochrones?profile=' +
@@ -291,27 +309,32 @@ angular
 					$scope.resetForm = function(){
 						$scope.resetSlider();
 
+						$scope.echartsInstances_reachabilityAnalysis = new Map();
+						document.getElementById("reachability_diagrams_section").innerHTML = "";
+
 						$scope.error = undefined;
 
+						$scope.settings = {};
+
 						$scope.showIsochrones = true;
-						$scope.dissolveIsochrones = true;
+						$scope.settings.dissolveIsochrones = true;
 						document.getElementById("btn_isochrones").click();
-						$scope.transitMode = 'foot-walking';
-						document.getElementById("optFeet").click();
-						$scope.focus = 'distance';
+						$scope.settings.transitMode = 'buffer';
+						document.getElementById("optBuffer").click();
+						$scope.settings.focus = 'distance';
 						document.getElementById("focus_distance").click();
-						$scope.startPointsSource = "fromLayer";
-						$scope.changeStartPointsSource();
+						$scope.settings.startPointsSource = "fromLayer";
+						$scope.changeStartPointsSource_fromLayer();
 						document.getElementById("startPointsSource_layer").click();
-						$scope.selectedStartPointLayer = undefined;
+						$scope.settings.selectedStartPointLayer = undefined;
 						$scope.pointSourceConfigured = false;
-						$scope.speedInKilometersPerHour = 3;
+						$scope.settings.speedInKilometersPerHour = 3;
 						$scope.useMultipleStartPoints = false;
 						$scope.loadingData = false;
 						$scope.unit = 'Meter';
-						$scope.currentTODValue = 1;
+						$scope.settings.currentTODValue = 1;
 						$scope.isTime = false;
-						$scope.preference = "fastest";
+						$scope.settings.preference = "fastest";
 						$scope.locationsArray = [];
 
 						$scope.rangeArray = [];
@@ -338,8 +361,8 @@ angular
 						$scope.routingStartPoint = undefined;
 						$scope.routingEndPoint = undefined;
 
-						$scope.routingStartPointInput = undefined;
-						$scope.routingEndPointInput = undefined;
+						$scope.settings.routingStartPointInput = undefined;
+						$scope.settings.routingEndPointInput = undefined;
 
 						setTimeout(function(){
 							$scope.$apply();
@@ -412,9 +435,9 @@ angular
 							.stringify($scope.currentIsochronesGeoJSON);
 
 						var fileName = 'Erreichbarkeitsisochronen_via-' +
-							$scope.transitMode +
+							$scope.settings.transitMode +
 							'_Abbruchkriterium-' +
-							$scope.focus + '.geojson';
+							$scope.settings.focus + '.geojson';
 
 						var blob = new Blob([geoJSON_string], {
 							type: 'application/json'
@@ -483,11 +506,11 @@ angular
 					$scope.changeFocus = function() {
 						$scope.resetSlider();
 
-						if ($scope.focus=='distance'){
+						if ($scope.settings.focus=='distance'){
 							$scope.isTime=false;
 							$scope.unit = 'Meter';
 						}
-						else if ($scope.focus=='time'){
+						else if ($scope.settings.focus=='time'){
 							$scope.unit = 'Minuten';
 							$scope.isTime=true;
 						}
@@ -500,15 +523,16 @@ angular
 					 * Changes the start points source of the analysis between
 					 * fromLayer and manualDraw.
 					 */
-					$scope.changeStartPointsSource = function() {
+					$scope.changeStartPointsSource_fromLayer = function() {
 
-						if ($scope.startPointsSource === 'manual'){
-							$scope.enablePointDrawTool();
-						}
+						$scope.disablePointDrawTool();	
+						$scope.settings.startPointsSource = "fromLayer";					
 
-						else{
-							$scope.disablePointDrawTool();
-						}
+					};
+					$scope.changeStartPointsSource_manual = function() {
+
+						$scope.enablePointDrawTool();
+						$scope.settings.startPointsSource = "manual";
 
 					};
 
@@ -552,8 +576,8 @@ angular
 					 * speed to initial values.
 					 */
 					$scope.resetSlider = function() {
-						$scope.speedInKilometersPerHour = $scope.minSpeedInKilometersPerHour;
-						$scope.currentTODValue = 1;
+						$scope.settings.speedInKilometersPerHour = $scope.minSpeedInKilometersPerHour;
+						$scope.settings.currentTODValue = 1;
 					};
 
 					/**
@@ -571,7 +595,7 @@ angular
 					 * transitModeList-GUI-elements current selection.
 					 */
 					$scope.changeTransitMode = function(){
-						$scope.transitMode = document.getElementById('transitModeList').value;
+						$scope.settings.transitMode = document.getElementById('transitModeList').value;
 					};
 
 					/**
@@ -579,31 +603,40 @@ angular
 					 * selected vehicle type.
 					 */
 					$scope.changeValues = function() {
-						if ($scope.transitMode == 'foot-walking'){
-							if ($scope.focus == 'distance')
+						if ($scope.settings.transitMode == 'buffer'){
+							$scope.settings.focus = 'distance';
+							$("#focus_distance").click();
+							if ($scope.settings.focus == 'distance')
+								$scope.max_value = 5000;
+							else
+								$scope.max_value = 25;
+						}
+
+						if ($scope.settings.transitMode == 'foot-walking'){
+							if ($scope.settings.focus == 'distance')
 								$scope.max_value = 5000;
 							else
 								$scope.max_value = 25;
 						}
 
 
-						if ($scope.transitMode == 'cycling-regular'){
-							if ($scope.focus == 'distance')
+						if ($scope.settings.transitMode == 'cycling-regular'){
+							if ($scope.settings.focus == 'distance')
 								$scope.max_value = 5000;
 							else
 								$scope.max_value = 20;
 						}
 
 
-						if ($scope.transitMode == 'driving-car'){
-							if ($scope.focus == 'distance')
+						if ($scope.settings.transitMode == 'driving-car'){
+							if ($scope.settings.focus == 'distance')
 								$scope.max_value = 5000;
 							else
 								$scope.max_value = 15;
 						}
 
-						if ($scope.transitMode == 'wheelchair'){
-							if ($scope.focus == 'distance')
+						if ($scope.settings.transitMode == 'wheelchair'){
+							if ($scope.settings.focus == 'distance')
 								$scope.max_value = 5000;
 							else
 								$scope.max_value = 25;
@@ -617,24 +650,24 @@ angular
 					 * selected vehicle type.
 					 */
 					$scope.changeMinMaxSpeed = function() {
-						if ($scope.transitMode == 'foot-walking') {
+						if ($scope.settings.transitMode == 'foot-walking') {
 							$scope.minSpeedInKilometersPerHour = 1;
 							$scope.maxSpeedInKilometersPerHour = 6;
 						}
-						if ($scope.transitMode == 'cycling-regular') {
+						if ($scope.settings.transitMode == 'cycling-regular') {
 							$scope.minSpeedInKilometersPerHour = 10;
 							$scope.maxSpeedInKilometersPerHour = 25;
 						}
-						if ($scope.transitMode == 'driving-car') {
+						if ($scope.settings.transitMode == 'driving-car') {
 							$scope.minSpeedInKilometersPerHour = 30;
 							$scope.maxSpeedInKilometersPerHour = 130;
 						}
-						if ($scope.transitMode == 'wheelchair') {
+						if ($scope.settings.transitMode == 'wheelchair') {
 							$scope.minSpeedInKilometersPerHour = 1;
 							$scope.maxSpeedInKilometersPerHour = 6;
 						}
 
-						$scope.speedInKilometersPerHour = $scope.minSpeedInKilometersPerHour;
+						$scope.settings.speedInKilometersPerHour = $scope.minSpeedInKilometersPerHour;
 					};
 
 					/**
@@ -652,7 +685,7 @@ angular
 						var split = document
 							.getElementById('isoInputText').value
 							.split(',');
-						var actVal = $scope.currentTODValue;
+						var actVal = $scope.settings.currentTODValue;
 						if (split.length > 0) {
 							for (var a = 0; a < split.length; a++) {
 								if (!isNaN(split[a])) {
@@ -662,13 +695,15 @@ angular
 										.push(actVal);
 								}
 							}
-							if ($scope.rangeArray[$scope.rangeArray.length - 1] != $scope.currentTODValue) {
+							if ($scope.rangeArray[$scope.rangeArray.length - 1] != $scope.settings.currentTODValue) {
 								$scope.rangeArray
-									.push($scope.currentTODValue);
+									.push($scope.settings.currentTODValue);
 							}
 						} else {
-							$scope.rangeArray = [$scope.currentTODValue];
+							$scope.rangeArray = [$scope.settings.currentTODValue];
 						}
+
+						$scope.rangeArray.sort(function(a, b){return a-b;});
 					};
 
 					/**
@@ -690,13 +725,13 @@ angular
 
 						// if not then fetch it!
 
-						if($scope.selectedStartPointLayer.geoJSON){
+						if($scope.settings.selectedStartPointLayer.geoJSON){
 							$scope.pointSourceConfigured = true;
 							return;
 						}
 						else{
 							$scope.loadingData = true;
-							var id = $scope.selectedStartPointLayer.georesourceId;
+							var id = $scope.settings.selectedStartPointLayer.georesourceId;
 
 							var date = kommonitorDataExchangeService.selectedDate;
 
@@ -714,7 +749,7 @@ angular
 									// when the response is available
 									var geoJSON = response.data;
 
-									$scope.selectedStartPointLayer.geoJSON = geoJSON;
+									$scope.settings.selectedStartPointLayer.geoJSON = geoJSON;
 
 									$scope.loadingData = false;
 									$scope.pointSourceConfigured = true;
@@ -772,7 +807,7 @@ angular
 						var startPointString = $scope.routingStartPoint.longitude + "," + $scope.routingStartPoint.latitude;
 						var endPointString = $scope.routingEndPoint.longitude + "," + $scope.routingEndPoint.latitude;
 
-						var url = createRoutingRequest($scope.transitMode, $scope.preference, startPointString, endPointString);
+						var url = createRoutingRequest($scope.settings.transitMode, $scope.settings.preference, startPointString, endPointString);
 
 						console.log("execute OpenRouteService routing request: " + url);
 
@@ -800,8 +835,8 @@ angular
 										kommonitorMapService
 											.replaceRouteGeoJSON(
 												$scope.currentRouteGeoJSON,
-												$scope.transitMode,
-												$scope.preference, $scope.routingStartPoint, $scope.routingEndPoint);
+												$scope.settings.transitMode,
+												$scope.settings.preference, $scope.routingStartPoint, $scope.routingEndPoint);
 										$scope.prepareDownloadGeoJSON();
 										$scope.loadingData = false;
 										$rootScope.$broadcast('hideLoadingIconOnMap');
@@ -826,7 +861,7 @@ angular
 						// array of arrays of lon,lat
 						$scope.locationsArray = [];
 
-						if($scope.startPointsSource === "manual"){
+						if($scope.settings.startPointsSource === "manual"){
 							// establish from drawn points
 							$scope.manualStartPoints.features.forEach(function(feature){
 								$scope.locationsArray.push(feature.geometry.coordinates);
@@ -834,7 +869,7 @@ angular
 						}
 						else{
 							// establish from chosen layer
-							$scope.selectedStartPointLayer.geoJSON.features.forEach(function(feature){
+							$scope.settings.selectedStartPointLayer.geoJSON.features.forEach(function(feature){
 								$scope.locationsArray.push(feature.geometry.coordinates);
 							});
 						}
@@ -849,9 +884,11 @@ angular
 						$scope.loadingData = true;
 						$rootScope.$broadcast('showLoadingIconOnMap');
 
+						
+
 						$scope.checkArrayInput();
 
-						$scope.locationsArray = $scope.makeLocationsArrayFromStartPoints();
+						$scope.locationsArray = $scope.makeLocationsArrayFromStartPoints();	
 
 						// SWITCH THE VALUE DEPENDING ON THE LENGTH
 						// OF THE LOCATIONS ARRAY
@@ -859,52 +896,17 @@ angular
 							$scope.useMultipleStartPoints = true;
 						else
 							$scope.useMultipleStartPoints = false;
+						
+						var resultIsochrones;
 
-						console.log('Calculating isochrones for ' +
-							$scope.locationsArray.length +
-							' start points.');
+						if($scope.settings.transitMode === 'buffer'){
+							resultIsochrones = await $scope.createBuffers();
+						}
+						else{
+							resultIsochrones = await $scope.createIsochrones();
+						}
 
-							var maxLocationsForORSRequest = 150;
-
-						console.log("Number of Isochrone starting points is greater than the maximum number of locations (" + maxLocationsForORSRequest + "). Must split up starting points to make multiple requests. Result will contain all isochrones though.");
-				    var resultIsochrones;
-
-				    var featureIndex = 0;
-				    // log progress for each 10% of features
-				    var logProgressIndexSeparator = Math.round($scope.locationsArray.length / 100 * 10);
-
-				    var countFeatures = 0;
-				    var tempStartPointsArray = [];
-				    for (var pointIndex=0; pointIndex < $scope.locationsArray.length; pointIndex++){
-				      tempStartPointsArray.push($scope.locationsArray[pointIndex]);
-				      countFeatures++;
-
-				      // if maxNumber of locations is reached or the last starting point is reached
-				      if(countFeatures === maxLocationsForORSRequest || pointIndex ===  $scope.locationsArray.length -1){
-				        // make request, collect results
-
-				        // responses will be GeoJSON FeatureCollections
-				        var tempIsochrones = await $scope.fetchIsochrones(tempStartPointsArray);
-
-				        if (! resultIsochrones){
-				          resultIsochrones = tempIsochrones;
-				        }
-				        else{
-				          // apend results of tempIsochrones to resultIsochrones
-				          resultIsochrones.features = resultIsochrones.features.concat(tempIsochrones.features);
-				        }
-				          // increment featureIndex
-				          featureIndex++;
-				          if(featureIndex % logProgressIndexSeparator === 0){
-				              console.log("PROGRESS: Computed isochrones for '" + featureIndex + "' of total '" + $scope.locationsArray.length + "' starting points.");
-				          }
-
-				        // reset temp vars
-				        tempStartPointsArray = [];
-				        countFeatures = 0;
-
-				      } // end if
-				    } // end for
+						
 
 						$scope.currentIsochronesGeoJSON = resultIsochrones;
 
@@ -912,11 +914,11 @@ angular
 						kommonitorMapService
 							.replaceIsochroneGeoJSON(
 								$scope.currentIsochronesGeoJSON,
-								$scope.transitMode,
-								$scope.focus,
+								$scope.settings.transitMode,
+								$scope.settings.focus,
 								$scope.rangeArray,
 								$scope.useMultipleStartPoints,
-								$scope.dissolveIsochrones);
+								$scope.settings.dissolveIsochrones);
 						$scope
 							.prepareDownloadGeoJSON();
 
@@ -934,10 +936,10 @@ angular
 
 					$scope.fetchIsochrones = async function(tempStartPointsArray){
 						var url = createORSIsochroneRequest(
-							$scope.transitMode,
+							$scope.settings.transitMode,
 							tempStartPointsArray,
 							$scope.rangeArray,
-							$scope.speedInKilometersPerHour);
+							$scope.settings.speedInKilometersPerHour);
 
 						var req = {
 							method: 'GET',
@@ -945,7 +947,7 @@ angular
 							headers: {
 								// 'Accept': 'application/json'
 							}
-						}
+						};
 
 						return await $http(req)
 							.then(
@@ -958,7 +960,7 @@ angular
 									// available
 
 									// dissolve features
-									if ($scope.dissolveIsochrones){
+									if ($scope.settings.dissolveIsochrones){
 										try {
 											var dissolved = turf.dissolve(response.data, {propertyName: 'value'});
 											return dissolved;
@@ -991,6 +993,113 @@ angular
 								});
 					};
 
+					$scope.createBuffers = function(){
+						var resultIsochrones;
+
+						var startingPoints_geoJSON;
+						// create Buffers for each input and range definition
+						if($scope.settings.startPointsSource === "manual"){
+							// establish from drawn points
+							startingPoints_geoJSON = $scope.manualStartPoints;
+						}
+						else{
+							// establish from chosen layer
+							startingPoints_geoJSON = $scope.settings.selectedStartPointLayer.geoJSON;
+						}
+
+						// range in meters
+						for (const range of $scope.rangeArray) {
+							var geoJSON_buffered = turf.buffer(startingPoints_geoJSON, Number(range)/1000, {units: 'kilometers', steps: 12});
+
+							if(! geoJSON_buffered.features){
+								// transform single feature to featureCollection
+								geoJSON_buffered = turf.featureCollection([
+									geoJSON_buffered
+								  ]);
+							}
+
+							if ($scope.settings.dissolveIsochrones){
+								try {
+									geoJSON_buffered = turf.dissolve(geoJSON_buffered);
+								} catch (e) {
+									console.error("Dissolving Isochrones failed with error: " + e);
+									console.error("Will return undissolved isochrones");
+								} finally {
+
+								}
+
+							}
+
+							// add property: value --> range
+							if (geoJSON_buffered.features && geoJSON_buffered.features.length > 0){
+								for (const feature of geoJSON_buffered.features) {
+									feature.properties.value = range;
+								}
+							}
+
+							if(! resultIsochrones){
+								resultIsochrones = geoJSON_buffered;
+							}
+							else{
+								resultIsochrones.features = resultIsochrones.features.concat(geoJSON_buffered.features);
+							}
+						}
+
+						return resultIsochrones;
+					};
+
+					$scope.createIsochrones = async function(){
+						var resultIsochrones;
+
+						console.log('Calculating isochrones for ' +
+							$scope.locationsArray.length +
+							' start points.');
+
+							var maxLocationsForORSRequest = 150;
+
+						console.log("Number of Isochrone starting points is greater than the maximum number of locations (" + maxLocationsForORSRequest + "). Must split up starting points to make multiple requests. Result will contain all isochrones though.");
+	
+						var featureIndex = 0;
+						// log progress for each 10% of features
+						var logProgressIndexSeparator = Math.round($scope.locationsArray.length / 100 * 10);
+
+						var countFeatures = 0;
+						var tempStartPointsArray = [];
+						for (var pointIndex=0; pointIndex < $scope.locationsArray.length; pointIndex++){
+						tempStartPointsArray.push($scope.locationsArray[pointIndex]);
+						countFeatures++;
+
+						// if maxNumber of locations is reached or the last starting point is reached
+						if(countFeatures === maxLocationsForORSRequest || pointIndex ===  $scope.locationsArray.length -1){
+							// make request, collect results
+
+							// responses will be GeoJSON FeatureCollections
+							var tempIsochrones = await $scope.fetchIsochrones(tempStartPointsArray);
+
+							if (! resultIsochrones){
+							resultIsochrones = tempIsochrones;
+							}
+							else{
+							// apend results of tempIsochrones to resultIsochrones
+							resultIsochrones.features = resultIsochrones.features.concat(tempIsochrones.features);
+							}
+							// increment featureIndex
+							featureIndex++;
+							if(featureIndex % logProgressIndexSeparator === 0){
+								console.log("PROGRESS: Computed isochrones for '" + featureIndex + "' of total '" + $scope.locationsArray.length + "' starting points.");
+							}
+
+							// reset temp vars
+							tempStartPointsArray = [];
+							countFeatures = 0;
+
+						} // end if
+						} // end for
+
+						return resultIsochrones;
+
+					};
+
 					$scope.onChangeRoutingStartPoint = function(){
 
 						// Clear the timeout if it has already been set.
@@ -1002,9 +1111,9 @@ angular
 
 				    // Make a new timeout set to go off in 800ms
 				    $scope.delay = setTimeout(function () {
-				        console.log('Geosearch for Input String: ', $scope.routingStartPointInput);
+				        console.log('Geosearch for Input String: ', $scope.settings.routingStartPointInput);
 
-								$scope.openStreetMapProvider.search({ query: $scope.routingStartPointInput })
+								$scope.openStreetMapProvider.search({ query: $scope.settings.routingStartPointInput })
 								.then(function(result){
 										$scope.geosearchResults_startingPoint = result;
 
@@ -1049,9 +1158,9 @@ angular
 
 				    // Make a new timeout set to go off in 800ms
 				    $scope.delay = setTimeout(function () {
-				        console.log('Geosearch for Input String: ', $scope.routingEndPointInput);
+				        console.log('Geosearch for Input String: ', $scope.settings.routingEndPointInput);
 
-								$scope.openStreetMapProvider.search({ query: $scope.routingEndPointInput })
+								$scope.openStreetMapProvider.search({ query: $scope.settings.routingEndPointInput })
 								.then(function(result){
 										$scope.geosearchResults_endPoint = result;
 
@@ -1084,6 +1193,324 @@ angular
 						// hide geosearch results to minimize page height
 						$scope.geosearchResults_endPoint = undefined;
 					};
+
+
+					//////////////////////////// SECTION FOR GORESOURCE AND INDICATOR ANALYSIS
+					$scope.onChangeSelectedDate = async function(georesourceDataset){
+						// only if it s already selected, we must modify the shown dataset 
+
+
+						if(georesourceDataset.isSelected_reachabilityAnalysis){
+							// depending on type we must call different methods
+							if (georesourceDataset.isPOI){
+								$scope.removePoiLayerFromMap(georesourceDataset);
+								georesourceDataset = await $scope.fetchGeoJSONForDate(georesourceDataset);
+								$scope.addPoiLayerToMap(georesourceDataset);
+							}
+							else{
+								console.error("unknown dataset: " + georesourceDataset);
+							}
+						}
+					};
+
+					$scope.getQueryDate = function(resource){
+						if ($scope.settings.dateSelectionType.selectedDateType === $scope.settings.dateSelectionType_valueIndicator){
+							return kommonitorDataExchangeService.selectedDate;
+						}
+						else if($scope.settings.dateSelectionType.selectedDateType === $scope.settings.dateSelectionType_valueManual){
+							return $scope.settings.selectedDate_manual;
+						}
+						else if($scope.settings.dateSelectionType.selectedDateType === $scope.settings.dateSelectionType_valuePerDataset){
+							return resource.selectedDate.startDate;
+						}
+						else{
+							return kommonitorDataExchangeService.selectedDate;
+						}
+					};
+
+					$scope.handlePoiForAnalysis = async function(poi){
+						$scope.loadingData = true;
+						$rootScope.$broadcast("showLoadingIconOnMap");
+
+						try {
+							if(poi.isSelected_reachabilityAnalysis){
+								poi = await $scope.fetchGeoJSONForDate(poi);
+							}
+	
+							poi = await $scope.handlePoiOnDiagram(poi);
+	
+							$scope.handlePoiOnMap(poi);
+						} catch (error) {
+							console.error(error);
+						}
+						
+						$scope.loadingData = false;
+						$rootScope.$broadcast("hideLoadingIconOnMap");
+
+						// as method is async we may call angular digest cycle
+						setTimeout(() => {
+							$scope.$apply();
+						}, 250);
+					};
+
+					$scope.fetchGeoJSONForDate = function(poiGeoresource){
+						var id = poiGeoresource.georesourceId;
+
+						var date = $scope.getQueryDate(poiGeoresource);
+
+						var dateComps = date.split("-");
+
+						var year = dateComps[0];
+						var month = dateComps[1];
+						var day = dateComps[2];
+
+						return $http({
+							url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + id + "/" + year + "/" + month + "/" + day,
+								// url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + id + "/allFeatures",
+							method: "GET"
+						}).then(function successCallback(response) {
+								// this callback will be called asynchronously
+								// when the response is available
+								var geoJSON = response.data;
+
+								poiGeoresource.geoJSON = geoJSON;
+
+								return poiGeoresource;
+
+							}, function errorCallback(error) {
+								// called asynchronously if an error occurs
+								// or server returns response with an error status.
+								$scope.loadingData = false;
+								kommonitorDataExchangeService.displayMapApplicationError(error);
+								$rootScope.$broadcast("hideLoadingIconOnMap");
+						});
+					};
+
+					$scope.handlePoiOnDiagram = async function(poi){
+						if(poi.isSelected_reachabilityAnalysis){
+							// maps range value to result GeoJSON
+							var pointsPerIsochroneRangeMap = await $scope.computePoisWithinIsochrones(poi);
+							$scope.addOrReplaceWithinDiagrams(poi, pointsPerIsochroneRangeMap);
+							// now filter the geoJSON to only include those datasets that are actually inside any isochrone
+							poi = filterGeoJSONPointsInsideLargestIsochrone(poi, pointsPerIsochroneRangeMap);
+						}
+						else{
+							//remove POI layer from map
+							$scope.removePoiFromDiagram(poi);
+						}
+
+						return poi;
+					};
+
+					function filterGeoJSONPointsInsideLargestIsochrone(poi, pointsPerIsochroneRangeMap){
+						var keyIter = pointsPerIsochroneRangeMap.keys();
+
+						var nextKey = keyIter.next();
+
+						var largestRange;
+
+						while(nextKey.value){
+							var nextRange = nextKey.value;
+							if (! largestRange){
+								largestRange = Number(nextRange);
+							}
+							else if (largestRange < Number(nextRange)){
+								largestRange = Number(nextRange);
+							}
+							
+							nextKey = keyIter.next();
+						}
+
+						poi.geoJSON = pointsPerIsochroneRangeMap.get(largestRange);
+
+						return poi;
+					}
+
+					$scope.computePoisWithinIsochrones = async function(poi){
+						var pointsPerIsochroneRangeMap = $scope.initializeMapWithRangeKeys();
+						if (! poi.geoJSON){
+							poi = await $scope.fetchGeoJSONForDate(poi);
+						}
+
+						// as there might be mutliple isochrone ranges
+						// we must perform point in polygon for each range
+						var keyIter = pointsPerIsochroneRangeMap.keys();
+
+						var nextKey = keyIter.next();
+
+						while(nextKey.value){
+							var nextKeyValue = nextKey.value;
+
+							var geoJSON_featureCollection = $scope.computePoisWithinIsochrone(nextKeyValue, poi);
+							pointsPerIsochroneRangeMap.set(nextKeyValue, geoJSON_featureCollection);
+							nextKey = keyIter.next();
+						}
+						
+						return pointsPerIsochroneRangeMap;
+					};
+
+					$scope.computePoisWithinIsochrone = function(rangeValue, poi){
+						// create clones of poi geoJSON and isochrone geoJSON
+						var isochrones_geoJSON_clone = JSON.parse(JSON.stringify($scope.currentIsochronesGeoJSON));
+						var poi_geoJSON_clone = JSON.parse(JSON.stringify(poi.geoJSON));
+					
+						// filter isochrone geoJSON clone by range value
+						isochrones_geoJSON_clone.features = isochrones_geoJSON_clone.features.filter(feature => {
+							return String(feature.properties.value) === String(rangeValue);
+						});
+
+						// filter poi geoJSON clone by spatial within isochrone
+						var pointsWithinIsochrones = turf.pointsWithinPolygon(poi_geoJSON_clone, isochrones_geoJSON_clone);
+						
+						return pointsWithinIsochrones;
+					};
+
+
+					$scope.initializeMapWithRangeKeys = function(){
+						var map = new Map();
+
+						for (const feature of $scope.currentIsochronesGeoJSON.features) {
+							map.set(feature.properties.value, null);
+						}
+
+						return map;
+					};
+
+					
+
+					$scope.addOrReplaceWithinDiagrams = function(poi, pointsPerIsochroneRangeMap){
+						var mapEntries = pointsPerIsochroneRangeMap.entries();
+						
+						var nextEntry = mapEntries.next();
+						while(nextEntry.value){
+							
+							var nextEntry_keyRange = nextEntry.value[0];
+							var nextEntry_valueGeoJSON = nextEntry.value[1];
+							var numberOfFeatures = 0;
+
+							if(nextEntry_valueGeoJSON){
+								numberOfFeatures = nextEntry_valueGeoJSON.features.length;
+							}
+							console.log("Number of Points wihtin Range '" + nextEntry_keyRange + "' is '" + numberOfFeatures + "'");
+							
+							if ($scope.echartsInstances_reachabilityAnalysis && $scope.echartsInstances_reachabilityAnalysis.has(nextEntry_keyRange)){
+								// append to diagram
+
+								var echartsInstance = $scope.echartsInstances_reachabilityAnalysis.get(nextEntry_keyRange);
+								var echartsOptions = echartsInstance.getOption();
+								echartsOptions = kommonitorDiagramHelperService.appendToReachabilityAnalysisOptions(poi, nextEntry_valueGeoJSON, echartsOptions);
+								echartsInstance.setOption(echartsOptions);
+								$scope.echartsInstances_reachabilityAnalysis.set(nextEntry_keyRange, echartsInstance);
+							}
+							else{
+								var reachabilityDiagramsSectionNode = document.getElementById("reachability_diagrams_section");
+								var newChartNode = document.createElement("div");
+								newChartNode.innerHTML = '<hr><h4>Analyse Einzugsgebiet ' + nextEntry_keyRange + ' [' + kommonitorDataExchangeService.isochroneLegend.cutOffUnit + ']</h4><br/><br/><div class="chart"><div  id="reachability_pieDiagram_range_' + nextEntry_keyRange + '" style="width:100%; min-height:200px;"></div></div>';
+								reachabilityDiagramsSectionNode.appendChild(newChartNode);
+
+								// init new echarts instance
+								var echartsInstance = echarts.init(document.getElementById('reachability_pieDiagram_range_' + nextEntry_keyRange + ''));
+								// use configuration item and data specified to show chart
+								var echartsOptions = kommonitorDiagramHelperService.createInitialReachabilityAnalysisPieOptions(poi, nextEntry_valueGeoJSON, nextEntry_keyRange);
+								echartsInstance.setOption(echartsOptions);
+
+								echartsInstance.hideLoading();
+
+								$scope.echartsInstances_reachabilityAnalysis.set(nextEntry_keyRange, echartsInstance);
+
+								setTimeout(function () {
+									echartsInstance.resize();
+								}, 350);
+							}
+							
+							nextEntry = mapEntries.next();
+						}
+					};
+
+					$scope.removePoiFromDiagram = function(poiGeoresource){
+						var chart_entries = $scope.echartsInstances_reachabilityAnalysis.entries();
+
+						var nextChartInstanceEntry = chart_entries.next();
+						while(nextChartInstanceEntry.value){
+
+							var nextChartInstance = nextChartInstanceEntry.value[1];
+							var nextChartOptions = nextChartInstance.getOption();
+
+							nextChartOptions = kommonitorDiagramHelperService.removePoiFromReachabilityAnalysisOption(nextChartOptions, poiGeoresource);
+							nextChartInstance.setOption(nextChartOptions);
+
+							$scope.echartsInstances_reachabilityAnalysis.set(nextChartInstanceEntry.value[0], nextChartInstance);							
+
+							nextChartInstanceEntry = chart_entries.next();
+						}
+					};
+
+					$scope.handlePoiOnMap = function(poi){
+
+						if(poi.isSelected_reachabilityAnalysis){
+							//display on Map
+							$scope.addPoiLayerToMap(poi);
+						}
+						else{
+							//remove POI layer from map
+							$scope.removePoiLayerFromMap(poi);
+						}
+
+					};
+
+					$scope.addPoiLayerToMap = function(poiGeoresource) {
+						$scope.loadingData = true;
+						$rootScope.$broadcast("showLoadingIconOnMap");
+
+						// fale --> useCluster = false 
+						kommonitorMapService.addPoiGeoresourceGeoJSON(poiGeoresource, $scope.date, false);
+								$scope.loadingData = false;
+								$rootScope.$broadcast("hideLoadingIconOnMap");
+
+					};
+
+					$scope.removePoiLayerFromMap = function(poiGeoresource) {
+						$scope.loadingData = true;
+						$rootScope.$broadcast("showLoadingIconOnMap");
+
+						poiGeoresource = poiGeoresource;
+
+						kommonitorMapService.removePoiGeoresource(poiGeoresource);
+						$scope.loadingData = false;
+						$rootScope.$broadcast("hideLoadingIconOnMap");
+
+					};
+
+					$scope.refreshPoiLayers = async function(){
+						for (var poi of kommonitorDataExchangeService.availableGeoresources){
+							if (poi.isSelected_reachabilityAnalysis){
+								//remove POI layer from map
+								$scope.removePoiLayerFromMap(poi);
+
+								poi = await $scope.fetchGeoJSONForDate(poi);
+
+								// remove layer and add layer again
+								$scope.addPoiLayerToMap(poi);
+							}
+						}
+					};
+
+					$(window).on('resize', function () {
+						var chart_entries = $scope.echartsInstances_reachabilityAnalysis.entries();
+
+						var nextChartInstanceEntry = chart_entries.next();
+						while(nextChartInstanceEntry.value){
+
+							var nextChartInstance = nextChartInstanceEntry.value[1];
+							if (nextChartInstance != null && nextChartInstance != undefined) {
+								nextChartInstance.resize();
+							}
+							nextChartInstanceEntry = chart_entries.next();
+						}
+
+						
+					});
+
 
 				}
 			]

@@ -1347,4 +1347,100 @@ angular
         }, 350);
       };
 
+      this.createInitialReachabilityAnalysisPieOptions = function(poiGeoresource, geoJSONFeatureCollection, rangeValue){
+        var option = {
+          grid: {
+            left: '4%',
+						top: 0,
+						right: '4%',
+						bottom: 30,
+						containLabel: true
+          },
+          title: {
+            text: 'Analyse Einzugsgebiet ' + rangeValue,
+            left: 'center',
+            show: false
+            // top: 15
+          },
+          toolbox: {
+            show: true,
+            right: '15',
+            feature: {
+              // mark : {show: true},
+              dataView: {
+                show: true, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Punkte im Einzugsgebiet', 'schlie&szlig;en', 'refresh']
+              },
+              restore: { show: false, title: "Erneuern" },
+              saveAsImage: { show: true, title: "Export" }
+            }
+          },
+          tooltip: {
+              trigger: 'item',
+              formatter: '{a} <br/>{b}: {c} ({d}%)',
+              confine: true
+          },
+          legend: {
+              orient: 'vertical',
+              type: "scroll",
+              left: 0,
+              data: [poiGeoresource.datasetName + " (" + geoJSONFeatureCollection.features.length + ")"]
+              // data: [legendText]
+          },
+          series: [
+              {
+                  name: "Punkte im Einzugsgebiet " + rangeValue,
+                  type: 'pie',
+                  radius: ['50%', '70%'],
+                  center: ["70%", "50%"],
+                  avoidLabelOverlap: true,
+                  label: {
+                      show: false,
+                      position: 'center'
+                  },
+                  
+                  emphasis: {
+                      label: {
+                          show: true,
+                          fontSize: '10',
+                          // fontWeight: 'bold'
+                      }
+                  },
+                  labelLine: {
+                      show: true
+                  },
+                  data: [
+                      {value: geoJSONFeatureCollection.features.length, name: poiGeoresource.datasetName + " (" + geoJSONFeatureCollection.features.length + ")"}
+                  ]
+              }
+          ]
+        };
+
+        return option;
+      };
+
+      this.appendToReachabilityAnalysisOptions = function(poiGeoresource, geoJSONFeatureCollection, eChartsOptions){
+        eChartsOptions.legend[0].data.push(poiGeoresource.datasetName + " (" + geoJSONFeatureCollection.features.length + ")");
+        eChartsOptions.series[0].data.push({value: geoJSONFeatureCollection.features.length, name: poiGeoresource.datasetName + " (" + geoJSONFeatureCollection.features.length + ")"});
+
+        return eChartsOptions;
+      };
+
+      this.removePoiFromReachabilityAnalysisOption = function(eChartOptions, poiGeoresource){
+        for (let index = 0; index < eChartOptions.legend[0].data.length; index++) {
+          const legendItem = eChartOptions.legend[0].data[index];
+          if(legendItem.includes(poiGeoresource.datasetName)){
+            eChartOptions.legend[0].data.splice(index, 1);
+          }
+        }
+
+        for (let index2 = 0; index2 < eChartOptions.series[0].data.length; index2++) {
+          const dataItem = eChartOptions.series[0].data[index2];
+          if(dataItem.name.includes(poiGeoresource.datasetName)){
+            eChartOptions.series[0].data.splice(index2, 1);
+          }
+        }
+        
+        return eChartOptions;
+      };
+
     }]);

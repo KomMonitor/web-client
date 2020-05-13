@@ -45,7 +45,7 @@
   window.__env.simplifyGeometriesOptions = [{"label": "nein", "value": "original"}, {"label": "schwach", "value": "weak"}, {"label": "mittel", "value": "medium"}, {"label": "stark", "value": "strong"}];
   // use strong as default to minimize size of queried features
   // for display, strong simplification is okay
-  window.__env.simplifyGeometries = "strong";
+  window.__env.simplifyGeometries = "original";
 
   // number of decimals for display of numeric values in app
   window.__env.numberOfDecimals = 2;
@@ -60,7 +60,7 @@
 
   // starting indicator and spatial unit
   // if faulty values are provided, a random indicator will be displayed
-  window.__env.initialIndicatorId = "362a498e-66ca-4996-aec6-835a8810ece1";
+  window.__env.initialIndicatorId = "48a18455-6a52-4e74-bdbf-99237187fc5c";
   window.__env.initialSpatialUnitName = "Stadtteilebene";
 
  // various color settings
@@ -102,8 +102,9 @@
   // e.g. set ["entwicklung"] to hide all indicators whose name contains the substring "entwicklung"
   // window.__env.arrayOfNameSubstringsForHidingIndicators = ["Standardabweichung", "Bevölkerung - ", "Soziale Lage - ", "Soziale Lage (Leitindikator)", "Sterberisiko", "mittlerer Bodenversiegelungsgrad"];
   window.__env.arrayOfNameSubstringsForHidingIndicators = [];
-
-  window.__env.arrayOfNameSubstringsForHidingGeoresources = ["Covid", "Verstorben"];
+  // window.__env.arrayOfNameSubstringsForHidingIndicators = [];
+  
+  window.__env.arrayOfNameSubstringsForHidingGeoresources = [];
 
   // e-mail recipient for feedback mail
   window.__env.feedbackMailRecipient = "thomas.blasche@amt62.essen.de";
