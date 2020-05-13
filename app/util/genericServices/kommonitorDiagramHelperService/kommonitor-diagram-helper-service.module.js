@@ -1391,7 +1391,7 @@ angular
                   name: "Punkte im Einzugsgebiet " + rangeValue,
                   type: 'pie',
                   radius: ['50%', '70%'],
-                  center: ["70", "50"],
+                  center: ["70%", "50%"],
                   avoidLabelOverlap: true,
                   label: {
                       show: false,
