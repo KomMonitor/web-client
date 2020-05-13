@@ -41,7 +41,7 @@
   window.__env.simplifyGeometriesOptions = [{"label": "nein", "value": "original"}, {"label": "schwach", "value": "weak"}, {"label": "mittel", "value": "medium"}, {"label": "stark", "value": "strong"}];
   // use strong as default to minimize size of queried features
   // for display, strong simplification is okay
-  window.__env.simplifyGeometries = "strong";
+  window.__env.simplifyGeometries = "original";
 
   // number of decimals for display of numeric values in app
   window.__env.numberOfDecimals = 2;
