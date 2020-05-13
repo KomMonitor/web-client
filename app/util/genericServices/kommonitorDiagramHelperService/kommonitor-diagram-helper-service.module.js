@@ -1348,14 +1348,13 @@ angular
       };
 
       this.createInitialReachabilityAnalysisPieOptions = function(poiGeoresource, geoJSONFeatureCollection, rangeValue){
-        var legendText = "" + poiGeoresource.datasetName + " (" + geoJSONFeatureCollection.features.length + ")";
         var option = {
           grid: {
             left: '4%',
-            top: 32,
-            right: '4%',
-            bottom: 55,
-            containLabel: true
+						top: 0,
+						right: '4%',
+						bottom: 30,
+						containLabel: true
           },
           title: {
             text: 'Analyse Einzugsgebiet ' + rangeValue,
@@ -1381,33 +1380,36 @@ angular
               confine: true
           },
           legend: {
-              orient: 'horizontal',
+              orient: 'vertical',
+              type: "scroll",
               left: 0,
-              // data: []
-              data: [legendText]
+              data: [poiGeoresource.datasetName + " (" + geoJSONFeatureCollection.features.length + ")"]
+              // data: [legendText]
           },
           series: [
               {
                   name: "Punkte im Einzugsgebiet " + rangeValue,
                   type: 'pie',
                   radius: ['50%', '70%'],
+                  center: ["70", "50"],
                   avoidLabelOverlap: true,
                   label: {
                       show: false,
                       position: 'center'
                   },
+                  
                   emphasis: {
                       label: {
                           show: true,
                           fontSize: '10',
-                          fontWeight: 'bold'
+                          // fontWeight: 'bold'
                       }
                   },
                   labelLine: {
                       show: true
                   },
                   data: [
-                      {value: geoJSONFeatureCollection.features.length, name: poiGeoresource.datasetName}
+                      {value: geoJSONFeatureCollection.features.length, name: poiGeoresource.datasetName + " (" + geoJSONFeatureCollection.features.length + ")"}
                   ]
               }
           ]
@@ -1418,7 +1420,7 @@ angular
 
       this.appendToReachabilityAnalysisOptions = function(poiGeoresource, geoJSONFeatureCollection, eChartsOptions){
         eChartsOptions.legend[0].data.push(poiGeoresource.datasetName + " (" + geoJSONFeatureCollection.features.length + ")");
-        eChartsOptions.series[0].data.push({value: geoJSONFeatureCollection.features.length, name: poiGeoresource.datasetName});
+        eChartsOptions.series[0].data.push({value: geoJSONFeatureCollection.features.length, name: poiGeoresource.datasetName + " (" + geoJSONFeatureCollection.features.length + ")"});
 
         return eChartsOptions;
       };
