@@ -1347,20 +1347,48 @@ angular
         }, 350);
       };
 
-      this.createInitialReachabilityAnalysisPieOptions = function(poiGeoresource, pointsPerIsochroneRangeMap){
+      this.createInitialReachabilityAnalysisPieOptions = function(poiGeoresource, geoJSONFeatureCollection, rangeValue){
+        var legendText = "" + poiGeoresource.datasetName + " (" + geoJSONFeatureCollection.features.length + ")";
         var option = {
+          grid: {
+            left: '4%',
+            top: 32,
+            right: '4%',
+            bottom: 55,
+            containLabel: true
+          },
+          title: {
+            text: 'Analyse Einzugsgebiet ' + rangeValue,
+            left: 'center',
+            show: false
+            // top: 15
+          },
+          toolbox: {
+            show: true,
+            right: '15',
+            feature: {
+              // mark : {show: true},
+              dataView: {
+                show: true, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Punkte im Einzugsgebiet', 'schlie&szlig;en', 'refresh']
+              },
+              restore: { show: false, title: "Erneuern" },
+              saveAsImage: { show: true, title: "Export" }
+            }
+          },
           tooltip: {
               trigger: 'item',
-              formatter: '{a} <br/>{b}: {c} ({d}%)'
+              formatter: '{a} <br/>{b}: {c} ({d}%)',
+              confine: true
           },
           legend: {
-              orient: 'vertical',
-              left: 10,
-              data: ['Test1', 'Test2', 'Test3', 'Test4', 'Test5']
+              orient: 'horizontal',
+              left: 0,
+              // data: []
+              data: [legendText]
           },
           series: [
               {
-                  name: 'Test1234',
+                  name: "Punkte im Einzugsgebiet " + rangeValue,
                   type: 'pie',
                   radius: ['50%', '70%'],
                   avoidLabelOverlap: true,
@@ -1371,7 +1399,7 @@ angular
                   emphasis: {
                       label: {
                           show: true,
-                          fontSize: '30',
+                          fontSize: '10',
                           fontWeight: 'bold'
                       }
                   },
@@ -1379,11 +1407,7 @@ angular
                       show: true
                   },
                   data: [
-                      {value: 0, name: 'Test1'},
-                      {value: 1, name: 'Test2'},
-                      {value: 2, name: 'Test3'},
-                      {value: 3, name: 'Test4'},
-                      {value: 4, name: 'Test5'}
+                      {value: geoJSONFeatureCollection.features.length, name: poiGeoresource.datasetName}
                   ]
               }
           ]
@@ -1392,8 +1416,29 @@ angular
         return option;
       };
 
-      this.appendToOrReplaceReachabilityAnalysisPieOptions = function(poiGeoresource, pointsPerIsochroneRangeMap){
+      this.appendToReachabilityAnalysisOptions = function(poiGeoresource, geoJSONFeatureCollection, eChartsOptions){
+        eChartsOptions.legend[0].data.push(poiGeoresource.datasetName + " (" + geoJSONFeatureCollection.features.length + ")");
+        eChartsOptions.series[0].data.push({value: geoJSONFeatureCollection.features.length, name: poiGeoresource.datasetName});
 
+        return eChartsOptions;
+      };
+
+      this.removePoiFromReachabilityAnalysisOption = function(eChartOptions, poiGeoresource){
+        for (let index = 0; index < eChartOptions.legend[0].data.length; index++) {
+          const legendItem = eChartOptions.legend[0].data[index];
+          if(legendItem.includes(poiGeoresource.datasetName)){
+            eChartOptions.legend[0].data.splice(index, 1);
+          }
+        }
+
+        for (let index2 = 0; index2 < eChartOptions.series[0].data.length; index2++) {
+          const dataItem = eChartOptions.series[0].data[index2];
+          if(dataItem.name.includes(poiGeoresource.datasetName)){
+            eChartOptions.series[0].data.splice(index2, 1);
+          }
+        }
+        
+        return eChartOptions;
       };
 
     }]);

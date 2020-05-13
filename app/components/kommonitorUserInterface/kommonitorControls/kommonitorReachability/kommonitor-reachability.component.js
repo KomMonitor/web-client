@@ -38,6 +38,8 @@ angular
 					$scope.currentRouteGeoJSON = undefined;
 					$scope.error = undefined;
 
+					$scope.echartsInstances_reachabilityAnalysis = new Map();
+
 					/**
 					* a delay object for geosearch input
 					*/
@@ -306,6 +308,9 @@ angular
 
 					$scope.resetForm = function(){
 						$scope.resetSlider();
+
+						$scope.echartsInstances_reachabilityAnalysis = new Map();
+						document.getElementById("reachability_diagrams_section").innerHTML = "";
 
 						$scope.error = undefined;
 
@@ -1190,7 +1195,7 @@ angular
 					};
 
 
-					//////////////////////////// SECTION FOR GORESOURCE AND INSICATOR ANALYSIS
+					//////////////////////////// SECTION FOR GORESOURCE AND INDICATOR ANALYSIS
 					$scope.onChangeSelectedDate = async function(georesourceDataset){
 						// only if it s already selected, we must modify the shown dataset 
 
@@ -1236,7 +1241,7 @@ angular
 	
 							$scope.handlePoiOnMap(poi);
 						} catch (error) {
-							console.error();
+							console.error(error);
 						}
 						
 						$scope.loadingData = false;
@@ -1289,7 +1294,7 @@ angular
 						}
 						else{
 							//remove POI layer from map
-							$scope.removePoiLayerFromMap(poi);
+							$scope.removePoiFromDiagram(poi);
 						}
 					};
 
@@ -1343,6 +1348,8 @@ angular
 						return map;
 					};
 
+					
+
 					$scope.addOrReplaceWithinDiagrams = function(poi, pointsPerIsochroneRangeMap){
 						var mapEntries = pointsPerIsochroneRangeMap.entries();
 						
@@ -1357,26 +1364,57 @@ angular
 								numberOfFeatures = nextEntry_valueGeoJSON.features.length;
 							}
 							console.log("Number of Points wihtin Range '" + nextEntry_keyRange + "' is '" + numberOfFeatures + "'");
+							
+							if ($scope.echartsInstances_reachabilityAnalysis && $scope.echartsInstances_reachabilityAnalysis.has(nextEntry_keyRange)){
+								// append to diagram
+
+								var echartsInstance = $scope.echartsInstances_reachabilityAnalysis.get(nextEntry_keyRange);
+								var echartsOptions = echartsInstance.getOption();
+								echartsOptions = kommonitorDiagramHelperService.appendToReachabilityAnalysisOptions(poi, nextEntry_valueGeoJSON, echartsOptions);
+								echartsInstance.setOption(echartsOptions);
+								$scope.echartsInstances_reachabilityAnalysis.set(nextEntry_keyRange, echartsInstance);
+							}
+							else{
+								var reachabilityDiagramsSectionNode = document.getElementById("reachability_diagrams_section");
+								var newChartNode = document.createElement("div");
+								newChartNode.innerHTML = '<hr><h4>Analyse Einzugsgebiet ' + nextEntry_keyRange + ' [' + kommonitorDataExchangeService.isochroneLegend.cutOffUnit + ']</h4><br/><br/><div class="chart"><div  id="reachability_pieDiagram_range_' + nextEntry_keyRange + '" style="width:100%; min-height:200px;"></div></div>';
+								reachabilityDiagramsSectionNode.appendChild(newChartNode);
+
+								// init new echarts instance
+								var echartsInstance = echarts.init(document.getElementById('reachability_pieDiagram_range_' + nextEntry_keyRange + ''));
+								// use configuration item and data specified to show chart
+								var echartsOptions = kommonitorDiagramHelperService.createInitialReachabilityAnalysisPieOptions(poi, nextEntry_valueGeoJSON, nextEntry_keyRange);
+								echartsInstance.setOption(echartsOptions);
+
+								echartsInstance.hideLoading();
+
+								$scope.echartsInstances_reachabilityAnalysis.set(nextEntry_keyRange, echartsInstance);
+
+								setTimeout(function () {
+									echartsInstance.resize();
+								}, 350);
+							}
+							
 							nextEntry = mapEntries.next();
 						}
+					};
 
-						if (!$scope.pieChart_demo)
-							$scope.pieChart_demo = echarts.init(document.getElementById('reachability_pieDiagram_demo'));
-						else {
-							// explicitly kill and reinstantiate bar diagram to avoid zombie states
-							$scope.pieChart_demo.dispose();
-							$scope.pieChart_demo = echarts.init(document.getElementById('reachability_pieDiagram_demo'));
+					$scope.removePoiFromDiagram = function(poiGeoresource){
+						var chart_entries = $scope.echartsInstances_reachabilityAnalysis.entries();
+
+						var nextChartInstanceEntry = chart_entries.next();
+						while(nextChartInstanceEntry.value){
+
+							var nextChartInstance = nextChartInstanceEntry.value[1];
+							var nextChartOptions = nextChartInstance.getOption();
+
+							nextChartOptions = kommonitorDiagramHelperService.removePoiFromReachabilityAnalysisOption(nextChartOptions, poiGeoresource);
+							nextChartInstance.setOption(nextChartOptions);
+
+							$scope.echartsInstances_reachabilityAnalysis.set(nextChartInstanceEntry.value[0], nextChartInstance);							
+
+							nextChartInstanceEntry = chart_entries.next();
 						}
-
-						// use configuration item and data specified to show chart
-						$scope.pieOption = kommonitorDiagramHelperService.createInitialReachabilityAnalysisPieOptions(poi, pointsPerIsochroneRangeMap);
-						$scope.pieChart_demo.setOption($scope.pieOption);
-
-						$scope.pieChart_demo.hideLoading();
-
-						setTimeout(function () {
-							$scope.pieChart_demo.resize();
-						}, 350);
 					};
 
 					$scope.handlePoiOnMap = function(poi){
@@ -1428,6 +1466,22 @@ angular
 							}
 						}
 					};
+
+					$(window).on('resize', function () {
+						var chart_entries = $scope.echartsInstances_reachabilityAnalysis.entries();
+
+						var nextChartInstanceEntry = chart_entries.next();
+						while(nextChartInstanceEntry.value){
+
+							var nextChartInstance = nextChartInstanceEntry.value[1];
+							if (nextChartInstance != null && nextChartInstance != undefined) {
+								nextChartInstance.resize();
+							}
+							nextChartInstanceEntry = chart_entries.next();
+						}
+
+						
+					});
 
 
 				}
