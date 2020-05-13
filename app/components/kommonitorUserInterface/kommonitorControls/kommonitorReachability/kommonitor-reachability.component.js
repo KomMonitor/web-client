@@ -1237,7 +1237,7 @@ angular
 								poi = await $scope.fetchGeoJSONForDate(poi);
 							}
 	
-							await $scope.handlePoiOnDiagram(poi);
+							poi = await $scope.handlePoiOnDiagram(poi);
 	
 							$scope.handlePoiOnMap(poi);
 						} catch (error) {
@@ -1291,12 +1291,40 @@ angular
 							// maps range value to result GeoJSON
 							var pointsPerIsochroneRangeMap = await $scope.computePoisWithinIsochrones(poi);
 							$scope.addOrReplaceWithinDiagrams(poi, pointsPerIsochroneRangeMap);
+							// now filter the geoJSON to only include those datasets that are actually inside any isochrone
+							poi = filterGeoJSONPointsInsideLargestIsochrone(poi, pointsPerIsochroneRangeMap);
 						}
 						else{
 							//remove POI layer from map
 							$scope.removePoiFromDiagram(poi);
 						}
+
+						return poi;
 					};
+
+					function filterGeoJSONPointsInsideLargestIsochrone(poi, pointsPerIsochroneRangeMap){
+						var keyIter = pointsPerIsochroneRangeMap.keys();
+
+						var nextKey = keyIter.next();
+
+						var largestRange;
+
+						while(nextKey.value){
+							var nextRange = nextKey.value;
+							if (! largestRange){
+								largestRange = Number(nextRange);
+							}
+							else if (largestRange < Number(nextRange)){
+								largestRange = Number(nextRange);
+							}
+							
+							nextKey = keyIter.next();
+						}
+
+						poi.geoJSON = pointsPerIsochroneRangeMap.get(largestRange);
+
+						return poi;
+					}
 
 					$scope.computePoisWithinIsochrones = async function(poi){
 						var pointsPerIsochroneRangeMap = $scope.initializeMapWithRangeKeys();
