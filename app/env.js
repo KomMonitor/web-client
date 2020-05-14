@@ -61,7 +61,7 @@
   // starting indicator and spatial unit
   // if faulty values are provided, a random indicator will be displayed
   window.__env.initialIndicatorId = "48a18455-6a52-4e74-bdbf-99237187fc5c";
-  window.__env.initialSpatialUnitName = "Stadtteilebene";
+  window.__env.initialSpatialUnitName = "Wohnviertelebene";
 
  // various color settings
   window.__env.defaultColorForNoDataValues = "black";
@@ -89,8 +89,8 @@
   // default color for specific classification as ColorBrewer palette name
   // i.e. balance mode
   // i.e. measure of value classification (German: Schwellwertklassifizierung)
-  window.__env.defaultColorBrewerPaletteForBalanceIncreasingValues = "Purples";
-  window.__env.defaultColorBrewerPaletteForBalanceDecreasingValues = "YlOrBr";
+  window.__env.defaultColorBrewerPaletteForBalanceIncreasingValues = "YlOrBr";
+  window.__env.defaultColorBrewerPaletteForBalanceDecreasingValues = "Purples";
   window.__env.defaultColorBrewerPaletteForGtMovValues = "YlOrBr";
   window.__env.defaultColorBrewerPaletteForLtMovValues = "Blues";
 
