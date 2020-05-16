@@ -439,11 +439,6 @@ angular
 
 										$scope.linearRegression = ecStat.regression('linear', data);
 
-										for(var i=0; i<$scope.linearRegression.points.length; i++){
-											$scope.linearRegression.points[i][0] = kommonitorDataExchangeService.getIndicatorValue_asNumber($scope.linearRegression.points[i][0]);
-											$scope.linearRegression.points[i][1] = kommonitorDataExchangeService.getIndicatorValue_asNumber($scope.linearRegression.points[i][1]);
-										}
-
 										$scope.regressionOption = {
 											grid: {
 											  left: '10%',
