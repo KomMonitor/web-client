@@ -62,8 +62,8 @@
 
   // starting indicator and spatial unit
   // if faulty values are provided, a random indicator will be displayed
-  window.__env.initialIndicatorId = "362a498e-66ca-4996-aec6-835a8810ece1";
-  window.__env.initialSpatialUnitName = "Stadtteilebene";
+  window.__env.initialIndicatorId = "48a18455-6a52-4e74-bdbf-99237187fc5c";
+  window.__env.initialSpatialUnitName = "Wohnviertelebene";
 
  // various color settings
   window.__env.defaultColorForNoDataValues = "black";
@@ -91,8 +91,8 @@
   // default color for specific classification as ColorBrewer palette name
   // i.e. balance mode
   // i.e. measure of value classification (German: Schwellwertklassifizierung)
-  window.__env.defaultColorBrewerPaletteForBalanceIncreasingValues = "Purples";
-  window.__env.defaultColorBrewerPaletteForBalanceDecreasingValues = "YlOrBr";
+  window.__env.defaultColorBrewerPaletteForBalanceIncreasingValues = "YlOrBr";
+  window.__env.defaultColorBrewerPaletteForBalanceDecreasingValues = "Purples";
   window.__env.defaultColorBrewerPaletteForGtMovValues = "YlOrBr";
   window.__env.defaultColorBrewerPaletteForLtMovValues = "Blues";
 
@@ -104,8 +104,9 @@
   // e.g. set ["entwicklung"] to hide all indicators whose name contains the substring "entwicklung"
   // window.__env.arrayOfNameSubstringsForHidingIndicators = ["Standardabweichung", "Bevölkerung - ", "Soziale Lage - ", "Soziale Lage (Leitindikator)", "Sterberisiko", "mittlerer Bodenversiegelungsgrad"];
   window.__env.arrayOfNameSubstringsForHidingIndicators = [];
-
-  window.__env.arrayOfNameSubstringsForHidingGeoresources = ["Covid", "Verstorben"];
+  // window.__env.arrayOfNameSubstringsForHidingIndicators = [];
+  
+  window.__env.arrayOfNameSubstringsForHidingGeoresources = [];
 
   // e-mail recipient for feedback mail
   window.__env.feedbackMailRecipient = "thomas.blasche@amt62.essen.de";
