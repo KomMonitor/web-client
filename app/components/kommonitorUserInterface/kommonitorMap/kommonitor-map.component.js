@@ -799,7 +799,7 @@ angular.module('kommonitorMap').component(
 
           var innerHTMLString = '<div class="row" style="margin-right: 0px;">';
           innerHTMLString += "<div class='col-sm-3'><div class='text-left'><label>Raumebene:   </label></div></div>";
-          innerHTMLString += "<div class='col-sm-9'><div class='text-left'><div id='selectSpatialUnitViaInfoControl' class='dropup'>";
+          innerHTMLString += "<div class='col-sm-9'><div class='text-left'><div id='selectSpatialUnitViaInfoControl' class='dropdown'>";
           innerHTMLString += '<button class="btn btn-primary btn-xs dropdown-toggle" type="button" data-toggle="dropdown"><span id="selectSpatialUnitViaInfoControl_text">' + kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel + '&nbsp;&nbsp;&nbsp;</span><span class="caret"></span></button>';
           innerHTMLString += '<ul id="spatialUnitInfoControlDropdown" class="dropdown-menu">';
 
@@ -1021,64 +1021,18 @@ angular.module('kommonitorMap').component(
           return '<div id="legend_close" class="btn btn-link" style="right: 0px; position: relative; float: right;" title="beenden"><span class="glyphicon glyphicon-remove"></span></div>';
         };
 
-        $scope.makeInfoControl = function (date, isCustomComputation) {
-
-          if (!$scope.showInfoControl) {
-            try {
-              toggleInfoControl();
-            }
-            catch (error) {
-              kommonitorDataExchangeService.displayMapApplicationError(error);
-            }
-          }
-
-          if ($scope.infoControl) {
-            try {
-              $scope.map.removeControl($scope.infoControl);
-              $scope.infoControl = undefined;
-            }
-            catch (error) {
-              kommonitorDataExchangeService.displayMapApplicationError(error);
-            }
-          }
-
-          $scope.infoControl = L.control({ position: 'topright' });
-
-          $scope.infoControl.onAdd = function (map) {
-            this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
-
-            this._div.id = "infoControl";
-            // [year, month, day]
-            var lastUpdateComponents = $scope.currentIndicatorMetadataAndGeoJSON.metadata.lastUpdate.split("-");
-            var lastUpdateAsDate = new Date(Number(lastUpdateComponents[0]), Number(lastUpdateComponents[1]) - 1, Number(lastUpdateComponents[2]));
-
-            this._div.innerHTML = $scope.appendInfoCloseButton();
-            this._div.innerHTML += '<div>';
+        $scope.appendIndicatorInformation = function(isCustomComputation){
+          var indicatorInfoHTML = '<div>';
             var titel = $scope.indicatorName;
 
             if (isCustomComputation) {
               titel += " - <i>individuelles Berechnungsergebnis</i>";
             }
 
-            this._div.innerHTML += '<h4><b>Indikatoreninformation</b><br/>' + $scope.indicatorName + '</h4><br/>';
-            // this._div.innerHTML += '<p>' + $scope.indicatorDescription + '</p>'
-            this._div.innerHTML += '<b>Beschreibung: </b> ' + $scope.indicatorDescription + '<br/>';
-            this._div.innerHTML += '<b>Methodik: </b> ' + $scope.currentIndicatorMetadataAndGeoJSON.processDescription + '<br/>';
-            this._div.innerHTML += '<b>Datenquelle: </b> ' + $scope.currentIndicatorMetadataAndGeoJSON.metadata.datasource + '<br/>';
-            this._div.innerHTML += '<b>Kontakt: </b> ' + $scope.currentIndicatorMetadataAndGeoJSON.metadata.contact + '<br/>';
-            // this._div.innerHTML += '<b>Aktualisierungszyklus: </b> ' + kommonitorDataExchangeService.updateInterval.get($scope.currentIndicatorMetadataAndGeoJSON.metadata.updateInterval.toUpperCase()) + '<br/>';
-            // this._div.innerHTML += '<b>zuletzt aktualisiert am: </b> ' + tsToDate(dateToTS(lastUpdateAsDate)) + '<br/><br/>';
-            this._div.innerHTML += $scope.appendSpatialUnitOptions();
-            // this._div.innerHTML += $scope.appendTransparencyCheckbox();
-
-            // <form class="form-inline">
-            // <div class="form-group" align="center">
-            //
-            //   <input class="form-control" id="indicatorTransparencyInput" type="range"  min="0" max="1" step="0.01">
-            //
-            //   <label id="">0.3</label>
-            // </div>
-            // </form>
+            indicatorInfoHTML += '<h4><b>Indikatoreninformation</b><br/>' + titel + '</h4><br/>';
+            indicatorInfoHTML += '<b>Beschreibung: </b> ' + $scope.indicatorDescription + '<br/>';
+            indicatorInfoHTML += '<b>Datenquelle: </b> ' + $scope.currentIndicatorMetadataAndGeoJSON.metadata.datasource + '<br/>';
+            indicatorInfoHTML += $scope.appendSpatialUnitOptions();
 
             var transparencyDomString = "";
             transparencyDomString += '<br/><div class="row vertical-align" style="margin-right:0px;">';
@@ -1099,7 +1053,7 @@ angular.module('kommonitorMap').component(
             transparencyDomString += '</div>';
             transparencyDomString += '</div>';
 
-            this._div.innerHTML += transparencyDomString;
+            indicatorInfoHTML += transparencyDomString;
 
             var exportDomString = '<br/><div class="btn-group">';
             exportDomString += "<label><i class='fa fa-file-download'></i>&nbsp;&nbsp;&nbsp;Export</label>";
@@ -1111,31 +1065,15 @@ angular.module('kommonitorMap').component(
             exportDomString += '<a style="color:white;pointer-events: none;cursor: default;" class="btn btn-primary btn-xs disabled" href="' + kommonitorDataExchangeService.wfsUrlForSelectedIndicator + '" target="_blank" rel="noopener noreferrer" id="downloadWFS"><span title="WFS Link in Zukunft abrufbar">WFS</span></a>';
             exportDomString += "</div>";
 
-            this._div.innerHTML += exportDomString;
+            indicatorInfoHTML += exportDomString;
 
-            // this._div.innerHTML += $scope.appendSimplifyGeometriesOptions();
-            return this._div;
-          };
+            indicatorInfoHTML += "<br/><br/><hr><br/>";
 
-          $scope.infoControl.addTo($scope.map);
-
-          // Disable dragging when user's cursor enters the element
-          $scope.infoControl.getContainer().addEventListener('mouseover', function () {
-            $scope.map.dragging.disable();
-            $scope.map.touchZoom.disable();
-            $scope.map.doubleClickZoom.disable();
-            $scope.map.scrollWheelZoom.disable();
-          });
-
-          // Re-enable dragging when user's cursor leaves the element
-          $scope.infoControl.getContainer().addEventListener('mouseout', function () {
-            $scope.map.dragging.enable();
-            $scope.map.touchZoom.enable();
-            $scope.map.doubleClickZoom.enable();
-            $scope.map.scrollWheelZoom.enable();
-          });
+            // indicatorInfoHTML += $scope.appendSimplifyGeometriesOptions();
+            return indicatorInfoHTML;
         };
 
+        
         $scope.makeCustomInfoControl = function (date) {
 
           if (!$scope.showInfoControl) {
@@ -1371,7 +1309,7 @@ angular.module('kommonitorMap').component(
           });
         };
 
-        $scope.makeDefaultLegend = function (defaultClassificationMapping, containsNegativeValues) {
+        $scope.makeDefaultLegend = function (defaultClassificationMapping, containsNegativeValues, isCustomComputation) {
 
           if (!$scope.showLegendControl) {
             try {
@@ -1395,7 +1333,7 @@ angular.module('kommonitorMap').component(
           var dateComponents = $scope.date.split("-");
           var dateAsDate = new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]));
 
-          $scope.legendControl = L.control({ position: 'bottomright' });
+          $scope.legendControl = L.control({ position: 'topright' });
 
           $scope.legendControl.onAdd = function (map) {
 
@@ -1405,6 +1343,9 @@ angular.module('kommonitorMap').component(
             $scope.div.id = "legendControl";
 
             $scope.div.innerHTML = $scope.appendLegendCloseButton();
+
+            $scope.div.innerHTML += $scope.appendIndicatorInformation(isCustomComputation);
+
             var opacity = 1;
             if ($scope.useTransparencyOnIndicator) {
               opacity = defaultFillOpacity;
@@ -1536,7 +1477,7 @@ angular.module('kommonitorMap').component(
           $scope.registerEventListenersForLegend();
         };
 
-        $scope.makeDynamicIndicatorLegend = function () {
+        $scope.makeDynamicIndicatorLegend = function (isCustomComputation) {
 
           if (!$scope.showLegendControl) {
             try {
@@ -1562,7 +1503,7 @@ angular.module('kommonitorMap').component(
             opacity = defaultFillOpacity;
           }
 
-          $scope.legendControl = L.control({ position: 'bottomright' });
+          $scope.legendControl = L.control({ position: 'topright' });
 
           $scope.legendControl.onAdd = function (map) {
 
@@ -1570,6 +1511,9 @@ angular.module('kommonitorMap').component(
             $scope.div.id = "legendControl";
 
             $scope.div.innerHTML = $scope.appendLegendCloseButton();
+
+            $scope.div.innerHTML += $scope.appendIndicatorInformation(isCustomComputation);
+
             $scope.div.innerHTML += '<div>';
 
             if ($scope.currentIndicatorMetadataAndGeoJSON['fromDate']) {
@@ -1682,7 +1626,7 @@ angular.module('kommonitorMap').component(
 
         };
 
-        $scope.makeMeasureOfValueLegend = function () {
+        $scope.makeMeasureOfValueLegend = function (isCustomComputation) {
 
           if (!$scope.showLegendControl) {
             try {
@@ -1711,7 +1655,7 @@ angular.module('kommonitorMap').component(
           var dateComponents = $scope.date.split("-");
           var dateAsDate = new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]));
 
-          $scope.legendControl = L.control({ position: 'bottomright' });
+          $scope.legendControl = L.control({ position: 'topright' });
 
           $scope.legendControl.onAdd = function (map) {
 
@@ -1719,6 +1663,9 @@ angular.module('kommonitorMap').component(
             $scope.div.id = "legendControl";
 
             $scope.div.innerHTML = $scope.appendLegendCloseButton();
+
+            $scope.div.innerHTML += $scope.appendIndicatorInformation(isCustomComputation);
+
             $scope.div.innerHTML += '<div>';
 
             $scope.div.innerHTML += "<h4><b>Indikatorenlegende</b><br/>" + kommonitorDataExchangeService.getIndicatorStringFromIndicatorType($scope.currentIndicatorMetadataAndGeoJSON.indicatorType) + "</h4><br/><em>Schwellwert-Klassifizierung<br/>Gew&auml;hlter Zeitpunkt: " + kommonitorDataExchangeService.tsToDate_fullYear(kommonitorDataExchangeService.dateToTS(dateAsDate)) + "</em><br/>";
@@ -3535,8 +3482,7 @@ angular.module('kommonitorMap').component(
               onEachFeature: onEachFeatureIndicator
             });
 
-            $scope.makeInfoControl(date, isCustomComputation);
-            $scope.makeMeasureOfValueLegend();
+            $scope.makeMeasureOfValueLegend(isCustomComputation);
 
           }
           else {
@@ -3560,8 +3506,7 @@ angular.module('kommonitorMap').component(
                 },
                 onEachFeature: onEachFeatureIndicator
               });
-              $scope.makeInfoControl(date, isCustomComputation);
-              $scope.makeDefaultLegend(indicatorMetadataAndGeoJSON.defaultClassificationMapping, $scope.datasetContainsNegativeValues);
+              $scope.makeDefaultLegend(indicatorMetadataAndGeoJSON.defaultClassificationMapping, $scope.datasetContainsNegativeValues, isCustomComputation);
             }
             else if (indicatorMetadataAndGeoJSON.indicatorType.includes("DYNAMIC")) {
               var dynamicIndicatorBrewArray = kommonitorVisualStyleHelperService.setupDynamicIndicatorBrew(indicatorMetadataAndGeoJSON.geoJSON, $scope.indicatorPropertyName, defaultColorBrewerPaletteForBalanceIncreasingValues, defaultColorBrewerPaletteForBalanceDecreasingValues, $scope.classifyMethod);
@@ -3576,8 +3521,7 @@ angular.module('kommonitorMap').component(
                 },
                 onEachFeature: onEachFeatureIndicator
               });
-              $scope.makeInfoControl(date, isCustomComputation);
-              $scope.makeDynamicIndicatorLegend();
+              $scope.makeDynamicIndicatorLegend(isCustomComputation);
             }
 
 
@@ -3671,8 +3615,7 @@ angular.module('kommonitorMap').component(
           layer.addTo($scope.map);
           $scope.updateSearchControl();
 
-          $scope.makeCustomInfoControl(date);
-          $scope.makeDefaultLegend(indicatorMetadataAndGeoJSON.defaultClassificationMapping, $scope.datasetContainsNegativeValues);
+          $scope.makeDefaultLegend(indicatorMetadataAndGeoJSON.defaultClassificationMapping, $scope.datasetContainsNegativeValues, true);
 
           $scope.map.invalidateSize(true);
         });
