@@ -369,31 +369,7 @@ angular
                 }
               }
               else {
-                for (var index = 0; index < dynamicIncreaseBrew.breaks.length; index++) {
-                  if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == kommonitorDataExchangeService.getIndicatorValue_asNumber(dynamicIncreaseBrew.breaks[index])) {
-                    if (index < dynamicIncreaseBrew.breaks.length - 1) {
-                      // min value
-                      fillColor = dynamicIncreaseBrew.colors[index];
-                      break;
-                    }
-                    else {
-                      //max value
-                      if (dynamicIncreaseBrew.colors[index]) {
-                        fillColor = dynamicIncreaseBrew.colors[index];
-                      }
-                      else {
-                        fillColor = dynamicIncreaseBrew.colors[index - 1];
-                      }
-                      break;
-                    }
-                  }
-                  else {
-                    if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) < kommonitorDataExchangeService.getIndicatorValue_asNumber(dynamicIncreaseBrew.breaks[index + 1])) {
-                      fillColor = dynamicIncreaseBrew.colors[index];
-                      break;
-                    }
-                  }
-                }
+                fillColor = findColorInRange(feature, propertyName, dynamicIncreaseBrew);
               }
 
               return {
@@ -416,31 +392,7 @@ angular
               }
               else {
                 // invert colors, so that lowest values will become strong colored!
-                for (var k = 0; k < dynamicDecreaseBrew.breaks.length; k++) {
-                  if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == kommonitorDataExchangeService.getIndicatorValue_asNumber(dynamicDecreaseBrew.breaks[k])) {
-                    if (k < dynamicDecreaseBrew.breaks.length - 1) {
-                      // min value
-                      fillColor = dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - k - 1];
-                      break;
-                    }
-                    else {
-                      //max value
-                      if (dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - k]) {
-                        fillColor = dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - k];
-                      }
-                      else {
-                        fillColor = dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - k - 1];
-                      }
-                      break;
-                    }
-                  }
-                  else {
-                    if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) < kommonitorDataExchangeService.getIndicatorValue_asNumber(dynamicDecreaseBrew.breaks[k + 1])) {
-                      fillColor = dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - k - 1];
-                      break;
-                    }
-                  }
-                }
+                fillColor = findColorInRange_invertedColorGradient(feature, propertyName, dynamicDecreaseBrew);
               }
 
               return {
@@ -455,31 +407,7 @@ angular
             }
           }
           else {
-            for (var index = 0; index < defaultBrew.breaks.length; index++) {
-              if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == kommonitorDataExchangeService.getIndicatorValue_asNumber(defaultBrew.breaks[index])) {
-                if (index < defaultBrew.breaks.length - 1) {
-                  // min value
-                  fillColor = defaultBrew.colors[index];
-                  break;
-                }
-                else {
-                  //max value
-                  if (defaultBrew.colors[index]) {
-                    fillColor = defaultBrew.colors[index];
-                  }
-                  else {
-                    fillColor = defaultBrew.colors[index - 1];
-                  }
-                  break;
-                }
-              }
-              else {
-                if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) < kommonitorDataExchangeService.getIndicatorValue_asNumber(defaultBrew.breaks[index + 1])) {
-                  fillColor = defaultBrew.colors[index];
-                  break;
-                }
-              }
-            }
+            fillColor = findColorInRange(feature, propertyName, defaultBrew);            
           }
         }
 
@@ -493,6 +421,70 @@ angular
           fillPattern: undefined
         };
       };
+
+      function findColorInRange(feature, propertyName, colorBrewInstance){
+        var color;
+
+        for (var index = 0; index < colorBrewInstance.breaks.length; index++) {
+          if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == kommonitorDataExchangeService.getIndicatorValue_asNumber(colorBrewInstance.breaks[index])) {
+            if (index < colorBrewInstance.breaks.length - 1) {
+              // min value
+              color = colorBrewInstance.colors[index];
+              break;
+            }
+            else {
+              //max value
+              if (colorBrewInstance.colors[index]) {
+                color = colorBrewInstance.colors[index];
+              }
+              else {
+                color = colorBrewInstance.colors[index - 1];
+              }
+              break;
+            }
+          }
+          else {
+            if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) < kommonitorDataExchangeService.getIndicatorValue_asNumber(colorBrewInstance.breaks[index + 1])) {
+              color = colorBrewInstance.colors[index];
+              break;
+            }
+          }
+        }
+
+        return color;
+      }
+
+      function findColorInRange_invertedColorGradient(feature, propertyName, colorBrewInstance){
+        var color;
+
+        for (var k = 0; k < colorBrewInstance.breaks.length; k++) {
+          if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == kommonitorDataExchangeService.getIndicatorValue_asNumber(colorBrewInstance.breaks[k])) {
+            if (k < colorBrewInstance.breaks.length - 1) {
+              // min value
+              color = colorBrewInstance.colors[colorBrewInstance.colors.length - k - 1];
+              break;
+            }
+            else {
+              //max value
+              if (colorBrewInstance.colors[colorBrewInstance.colors.length - k]) {
+                color = colorBrewInstance.colors[colorBrewInstance.colors.length - k];
+              }
+              else {
+                color = colorBrewInstance.colors[colorBrewInstance.colors.length - k - 1];
+              }
+              break;
+            }
+          }
+          else {
+            if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) < kommonitorDataExchangeService.getIndicatorValue_asNumber(colorBrewInstance.breaks[k + 1])) {
+              color = colorBrewInstance.colors[colorBrewInstance.colors.length - k - 1];
+              break;
+            }
+          }
+        }
+
+        return color;
+      }
 
       this.styleMeasureOfValue = function(feature, gtMeasureOfValueBrew, ltMeasureOfValueBrew, propertyName, useTransparencyOnIndicator) {
 
@@ -523,34 +515,7 @@ angular
           }
           else {
 
-
-
-            for (var index = 0; index < gtMeasureOfValueBrew.breaks.length; index++) {
-
-              if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == kommonitorDataExchangeService.getIndicatorValue_asNumber(gtMeasureOfValueBrew.breaks[index])) {
-                if (index < gtMeasureOfValueBrew.breaks.length - 1) {
-                  // min value
-                  fillColor = gtMeasureOfValueBrew.colors[index];
-                  break;
-                }
-                else {
-                  //max value
-                  if (gtMeasureOfValueBrew.colors[index]) {
-                    fillColor = gtMeasureOfValueBrew.colors[index];
-                  }
-                  else {
-                    fillColor = gtMeasureOfValueBrew.colors[index - 1];
-                  }
-                  break;
-                }
-              }
-              else {
-                if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) < kommonitorDataExchangeService.getIndicatorValue_asNumber(gtMeasureOfValueBrew.breaks[index + 1])) {
-                  fillColor = gtMeasureOfValueBrew.colors[index];
-                  break;
-                }
-              }
-            }
+            fillColor = findColorInRange(feature, propertyName, gtMeasureOfValueBrew);
           }
 
           return {
@@ -572,31 +537,7 @@ angular
           }
           else {
             // invert colors, so that lowest values will become strong colored!
-            for (var j = 0; j < ltMeasureOfValueBrew.breaks.length; j++) {
-              if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == kommonitorDataExchangeService.getIndicatorValue_asNumber(ltMeasureOfValueBrew.breaks[j])) {
-                if (j < ltMeasureOfValueBrew.breaks.length - 1) {
-                  // min value
-                  fillColor = ltMeasureOfValueBrew.colors[ltMeasureOfValueBrew.colors.length - j - 1];
-                  break;
-                }
-                else {
-                  //max value
-                  if (ltMeasureOfValueBrew.colors[ltMeasureOfValueBrew.colors.length - j]) {
-                    fillColor = ltMeasureOfValueBrew.colors[ltMeasureOfValueBrew.colors.length - j];
-                  }
-                  else {
-                    fillColor = ltMeasureOfValueBrew.colors[ltMeasureOfValueBrew.colors.length - j - 1];
-                  }
-                  break;
-                }
-              }
-              else {
-                if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) < kommonitorDataExchangeService.getIndicatorValue_asNumber(ltMeasureOfValueBrew.breaks[j + 1])) {
-                  fillColor = ltMeasureOfValueBrew.colors[ltMeasureOfValueBrew.colors.length - j - 1];
-                  break;
-                }
-              }
-            }
+            fillColor = findColorInRange_invertedColorGradient(feature, propertyName, ltMeasureOfValueBrew);
           }
 
           return {
@@ -641,31 +582,7 @@ angular
             }
           }
           else {
-            for (var index = 0; index < dynamicIncreaseBrew.breaks.length; index++) {
-              if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == kommonitorDataExchangeService.getIndicatorValue_asNumber(dynamicIncreaseBrew.breaks[index])) {
-                if (index < dynamicIncreaseBrew.breaks.length - 1) {
-                  // min value
-                  fillColor = dynamicIncreaseBrew.colors[index];
-                  break;
-                }
-                else {
-                  //max value
-                  if (dynamicIncreaseBrew.colors[index]) {
-                    fillColor = dynamicIncreaseBrew.colors[index];
-                  }
-                  else {
-                    fillColor = dynamicIncreaseBrew.colors[index - 1];
-                  }
-                  break;
-                }
-              }
-              else {
-                if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) < kommonitorDataExchangeService.getIndicatorValue_asNumber(dynamicIncreaseBrew.breaks[index + 1])) {
-                  fillColor = dynamicIncreaseBrew.colors[index];
-                  break;
-                }
-              }
-            }
+            fillColor = findColorInRange(feature, propertyName, dynamicIncreaseBrew);
           }
 
           return {
@@ -687,31 +604,7 @@ angular
           }
           else {
             // invert colors, so that lowest values will become strong colored!
-            for (var l = 0; l < dynamicDecreaseBrew.breaks.length; l++) {
-              if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == kommonitorDataExchangeService.getIndicatorValue_asNumber(dynamicDecreaseBrew.breaks[l])) {
-                if (l < dynamicDecreaseBrew.breaks.length - 1) {
-                  // min value
-                  fillColor = dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - l - 1];
-                  break;
-                }
-                else {
-                  //max value
-                  if (dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - l]) {
-                    fillColor = dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - l];
-                  }
-                  else {
-                    fillColor = dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - l - 1];
-                  }
-                  break;
-                }
-              }
-              else {
-                if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) < kommonitorDataExchangeService.getIndicatorValue_asNumber(dynamicDecreaseBrew.breaks[l + 1])) {
-                  fillColor = dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - l - 1];
-                  break;
-                }
-              }
-            }
+            fillColor = findColorInRange_invertedColorGradient(feature, propertyName, dynamicDecreaseBrew);
           }
 
           return {
