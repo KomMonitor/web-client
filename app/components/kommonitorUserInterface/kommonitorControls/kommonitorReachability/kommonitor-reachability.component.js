@@ -11,6 +11,7 @@ angular
 				'$scope',
 				'$rootScope',
 				'$http',
+				'$timeout',
 				'kommonitorMapService',
 				'kommonitorDataExchangeService',
 				'kommonitorDiagramHelperService',
@@ -19,7 +20,7 @@ angular
 				 * TODO
 				 */
 				function kommonitorReachabilityController($scope,
-					$rootScope, $http, kommonitorMapService,
+					$rootScope, $http, $timeout, kommonitorMapService,
 					kommonitorDataExchangeService, kommonitorDiagramHelperService,__env) {
 
 					//$("[data-toggle=tooltip]").tooltip();
@@ -168,7 +169,7 @@ angular
 					 * GUI on 'standby' until the progress is
 					 * completed.
 					 */
-					$scope.loadingData = false;
+					$scope.settings.loadingData = false;
 
 					/**
 					 * The calculation unit-indicator.
@@ -330,7 +331,7 @@ angular
 						$scope.pointSourceConfigured = false;
 						$scope.settings.speedInKilometersPerHour = 3;
 						$scope.useMultipleStartPoints = false;
-						$scope.loadingData = false;
+						$scope.settings.loadingData = false;
 						$scope.unit = 'Meter';
 						$scope.settings.currentTODValue = 1;
 						$scope.isTime = false;
@@ -380,7 +381,7 @@ angular
 					 * TODO
 					 */
 					$scope.removeReachabilityLayers = function() {
-						$scope.loadingData = true;
+						$scope.settings.loadingData = true;
 						$rootScope
 							.$broadcast('showLoadingIconOnMap');
 
@@ -388,13 +389,13 @@ angular
 							.removeReachabilityLayers();
 						$scope.currentIsochronesGeoJSON = undefined;
 						kommonitorDataExchangeService.isochroneLegend = undefined;
-						$scope.loadingData = false;
+						$scope.settings.loadingData = false;
 						$rootScope
 							.$broadcast('hideLoadingIconOnMap');
 					};
 
 					$scope.removeRoutingLayers = function() {
-						$scope.loadingData = true;
+						$scope.settings.loadingData = true;
 						$rootScope
 							.$broadcast('showLoadingIconOnMap');
 
@@ -402,7 +403,7 @@ angular
 							.removeRoutingLayers();
 						$scope.currentRouteGeoJSON = undefined;
 						kommonitorDataExchangeService.routingLegend = undefined;
-						$scope.loadingData = false;
+						$scope.settings.loadingData = false;
 						$rootScope
 							.$broadcast('hideLoadingIconOnMap');
 					};
@@ -650,6 +651,10 @@ angular
 					 * selected vehicle type.
 					 */
 					$scope.changeMinMaxSpeed = function() {
+						if ($scope.settings.transitMode == 'buffer') {
+							$scope.minSpeedInKilometersPerHour = 1;
+							$scope.maxSpeedInKilometersPerHour = 6;
+						}
 						if ($scope.settings.transitMode == 'foot-walking') {
 							$scope.minSpeedInKilometersPerHour = 1;
 							$scope.maxSpeedInKilometersPerHour = 6;
@@ -730,7 +735,7 @@ angular
 							return;
 						}
 						else{
-							$scope.loadingData = true;
+							$scope.settings.loadingData = true;
 							var id = $scope.settings.selectedStartPointLayer.georesourceId;
 
 							var date = kommonitorDataExchangeService.selectedDate;
@@ -751,14 +756,14 @@ angular
 
 									$scope.settings.selectedStartPointLayer.geoJSON = geoJSON;
 
-									$scope.loadingData = false;
+									$scope.settings.loadingData = false;
 									$scope.pointSourceConfigured = true;
 
 								}, function errorCallback(error) {
 									// called asynchronously if an error occurs
 									// or server returns response with an error status.
 									$scope.pointSourceConfigured = false;
-									$scope.loadingData = false;
+									$scope.settings.loadingData = false;
 									console.error(error.statusText);
 									kommonitorDataExchangeService.displayMapApplicationError(error);
 									$scope.error = error.statusText;
@@ -789,12 +794,22 @@ angular
 					 */
 					$scope.startAnalysis = function() {
 
-						$scope.error = undefined;
+						$timeout(function(){ 
+							// Any code in here will automatically have an $scope.apply() run afterwards 
+							$scope.settings.loadingData = true;
+							$rootScope.$broadcast("showLoadingIconOnMap");
+							// And it just works! 
+						  }, 50);
+
+						  $timeout(function(){ 
+							$scope.error = undefined;
 
 							if ($scope.showIsochrones)
 								$scope.startIsochroneCalculation();
 							else
 								$scope.startRoutingCalculation();
+						  }, 150);
+
 					};
 
 					/**
@@ -802,7 +817,7 @@ angular
 					 */
 					$scope.startRoutingCalculation = function() {
 
-						$scope.loadingData = true;
+						$scope.settings.loadingData = true;
 						$rootScope.$broadcast("showLoadingIconOnMap");
 						var startPointString = $scope.routingStartPoint.longitude + "," + $scope.routingStartPoint.latitude;
 						var endPointString = $scope.routingEndPoint.longitude + "," + $scope.routingEndPoint.latitude;
@@ -838,7 +853,7 @@ angular
 												$scope.settings.transitMode,
 												$scope.settings.preference, $scope.routingStartPoint, $scope.routingEndPoint);
 										$scope.prepareDownloadGeoJSON();
-										$scope.loadingData = false;
+										$scope.settings.loadingData = false;
 										$rootScope.$broadcast('hideLoadingIconOnMap');
 									},
 									function errorCallback(
@@ -851,7 +866,7 @@ angular
 										console.error(error.data.error.message);
 										$scope.error = error.data.error.message;
 
-										$scope.loadingData = false;
+										$scope.settings.loadingData = false;
 										kommonitorDataExchangeService.displayMapApplicationError(error);
 										$rootScope.$broadcast("hideLoadingIconOnMap");
 									});
@@ -881,7 +896,7 @@ angular
 					 * Starts an isochrone-calculation.
 					 */
 					$scope.startIsochroneCalculation = async function() {
-						$scope.loadingData = true;
+						$scope.settings.loadingData = true;
 						$rootScope.$broadcast('showLoadingIconOnMap');
 
 						
@@ -922,7 +937,7 @@ angular
 						$scope
 							.prepareDownloadGeoJSON();
 
-							$scope.loadingData = false;
+							$scope.settings.loadingData = false;
 							$rootScope.$broadcast('hideLoadingIconOnMap');
 
 							$scope.$apply();
@@ -987,7 +1002,7 @@ angular
 									// error status.
 									console.error(error.data.error.message);
 									$scope.error = error.data.error.message;
-									$scope.loadingData = false;
+									$scope.settings.loadingData = false;
 									kommonitorDataExchangeService.displayMapApplicationError(error);
 									$rootScope.$broadcast("hideLoadingIconOnMap");
 								});
@@ -1229,7 +1244,7 @@ angular
 					};
 
 					$scope.handlePoiForAnalysis = async function(poi){
-						$scope.loadingData = true;
+						$scope.settings.loadingData = true;
 						$rootScope.$broadcast("showLoadingIconOnMap");
 
 						try {
@@ -1244,7 +1259,7 @@ angular
 							console.error(error);
 						}
 						
-						$scope.loadingData = false;
+						$scope.settings.loadingData = false;
 						$rootScope.$broadcast("hideLoadingIconOnMap");
 
 						// as method is async we may call angular digest cycle
@@ -1280,7 +1295,7 @@ angular
 							}, function errorCallback(error) {
 								// called asynchronously if an error occurs
 								// or server returns response with an error status.
-								$scope.loadingData = false;
+								$scope.settings.loadingData = false;
 								kommonitorDataExchangeService.displayMapApplicationError(error);
 								$rootScope.$broadcast("hideLoadingIconOnMap");
 						});
@@ -1459,24 +1474,24 @@ angular
 					};
 
 					$scope.addPoiLayerToMap = function(poiGeoresource) {
-						$scope.loadingData = true;
+						$scope.settings.loadingData = true;
 						$rootScope.$broadcast("showLoadingIconOnMap");
 
 						// fale --> useCluster = false 
 						kommonitorMapService.addPoiGeoresourceGeoJSON(poiGeoresource, $scope.date, false);
-								$scope.loadingData = false;
+								$scope.settings.loadingData = false;
 								$rootScope.$broadcast("hideLoadingIconOnMap");
 
 					};
 
 					$scope.removePoiLayerFromMap = function(poiGeoresource) {
-						$scope.loadingData = true;
+						$scope.settings.loadingData = true;
 						$rootScope.$broadcast("showLoadingIconOnMap");
 
 						poiGeoresource = poiGeoresource;
 
 						kommonitorMapService.removePoiGeoresource(poiGeoresource);
-						$scope.loadingData = false;
+						$scope.settings.loadingData = false;
 						$rootScope.$broadcast("hideLoadingIconOnMap");
 
 					};
