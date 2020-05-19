@@ -1311,24 +1311,14 @@ angular.module('kommonitorMap').component(
 
         $scope.appendNoDataLegendItem = function(){
 
-          /*
-          
-          <div class="row">
-            <div class="col-sm-4">.col-sm-4</div>
-            <div class="col-sm-4">.col-sm-4</div>
-            <div class="col-sm-4">.col-sm-4</div>
-          </div>
-          
-          */
-
           var noDataHtml = '<div class="row"><div class="col-md-3 ">' + '<i>' + $scope.svgString_noData + '</i> </div>' +
-          '<div class="col-sm-5 ">Leerwert</div> <div class="col-sm-5 ">' + kommonitorVisualStyleHelperService.featuresPerNoData + '</div></div>';
+          '<div class="col-md-6 ">Leerwert</div> <div class="col-md-3 ">' + kommonitorVisualStyleHelperService.featuresPerNoData + '</div></div>';
            return  noDataHtml;
         };
 
         $scope.appendOutlierHighItem = function(){
           var outlierHighHtml = '<div class="row"><div class="col-md-3 ">' + '<i>' + $scope.svgString_outlierHigh + '</i> </div>' +
-          '<div class="col-sm-5 ">obere Ausrei&szlig;er ' + makeOutliersHighLegendString($scope.outliers_high) + '</div> <div class="col-sm-4 ">' + 
+          '<div class="col-md-6 ">obere Ausrei&szlig;er ' + makeOutliersHighLegendString($scope.outliers_high) + '</div> <div class="col-md-3 ">' + 
           kommonitorVisualStyleHelperService.featuresPerOutlierHigh + '</div></div>';
 
           return outlierHighHtml;
@@ -1336,7 +1326,7 @@ angular.module('kommonitorMap').component(
 
         $scope.appendOutlierLowItem = function(){
           var outlierLowHtml = '<div class="row"><div class="col-md-3 ">' + '<i>' + $scope.svgString_outlierLow + '</i> </div>' +
-          '<div class="col-sm-5 ">untere Ausrei&szlig;er ' + makeOutliersLowLegendString($scope.outliers_low) + '</div> <div class="col-sm-4 ">' + 
+          '<div class="col-md-6 ">untere Ausrei&szlig;er ' + makeOutliersLowLegendString($scope.outliers_low) + '</div> <div class="col-md-3 ">' + 
           kommonitorVisualStyleHelperService.featuresPerOutlierLow + '</div></div>';
 
           return outlierLowHtml;
@@ -1344,7 +1334,7 @@ angular.module('kommonitorMap').component(
 
         $scope.appendFilteredFeaturesItem = function(opacity){
           var html = '<div class="row"><div class="col-md-3 ">' + '<i style="background:' + defaultColorForFilteredValues + '; border: 2px solid ' + defaultBorderColorForFilteredValues + '; opacity: ' + opacity + ';"></i> </div>' +
-          '<div class="col-sm-5 ">gefilterte Features </div>' + '<div class="col-sm-4 ">' + 
+          '<div class="col-md-6 ">gefilterte Features </div>' + '<div class="col-md-3 ">' + 
           $scope.filteredIndicatorFeatureNames.length + '</div></div>';
 
           return html;
@@ -1352,7 +1342,7 @@ angular.module('kommonitorMap').component(
 
         $scope.appendZeroItem = function(opacity){
           var html = '<div class="row"><div class="col-md-3 "><i style="background:' + $scope.defaultColorForZeroValues + '; opacity: ' + opacity + ';"></i> </div>' +
-                  '<div class="col-sm-5 ">0</div>' + '<div class="col-sm-4 ">' + 
+                  '<div class="col-md-6 ">0</div>' + '<div class="col-md-3 ">' + 
                   kommonitorVisualStyleHelperService.featuresPerZero + '</div></div>';
 
           return html;
@@ -1369,8 +1359,8 @@ angular.module('kommonitorMap').component(
               for (var k = 0; k < colorsIncrease.length; k++) {
                 html +=
                   '<div class="row"><div class="col-md-3 "><i style="background:' + colorsIncrease[k] + '; opacity: ' + opacity + ';"></i> </div>' +
-                  '<div class="col-sm-5 ">' + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labelsIncrease[k]) + (typeof labelsIncrease[k + 1] === 'undefined' ? '' : ' &ndash; &lt; ' + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labelsIncrease[k + 1]) + '</div>' + 
-                  '<div class="col-sm-4 ">' + 
+                  '<div class="col-md-6 ">' + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labelsIncrease[k]) + (typeof labelsIncrease[k + 1] === 'undefined' ? '' : ' &ndash; &lt; ' + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labelsIncrease[k + 1]) + '</div>' + 
+                  '<div class="col-md-3 ">' + 
                   kommonitorVisualStyleHelperService.featuresPerColorMap.get(colorsIncrease[k]) + '</div></div>');
               }
               html += "<br/>";
@@ -1389,7 +1379,7 @@ angular.module('kommonitorMap').component(
               for (var i = 0; i < colorsDecrease.length; i++) {
                 html +=
                   '<div class="row"><div class="col-md-3 "><i style="background:' + colorsDecrease[colorsDecrease.length - 1 - i] + '; opacity: ' + opacity + ';"></i> </div>' +
-                  '<div class="col-sm-5 ">' + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labelsDecrease[i]) + (typeof labelsDecrease[i + 1] != 'undefined' ? ' &ndash; &lt; ' + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labelsDecrease[i + 1]) : ' &ndash; &lt; 0') + '</div>' + '<div class="col-sm-4 ">' + 
+                  '<div class="col-md-6 ">' + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labelsDecrease[i]) + (typeof labelsDecrease[i + 1] != 'undefined' ? ' &ndash; &lt; ' + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labelsDecrease[i + 1]) : ' &ndash; &lt; 0') + '</div>' + '<div class="col-md-3 ">' + 
                   kommonitorVisualStyleHelperService.featuresPerColorMap.get(colorsDecrease[i]) + '</div></div>';
               }
               html += "<br/>";
@@ -1399,7 +1389,7 @@ angular.module('kommonitorMap').component(
 
         $scope.appendColorLegendHeaders = function(){
           var html = '<div class="row"><div class="col-md-3"><b>Symbolik</b></div>' +
-          '<div class="col-sm-5"><b>Wertebereich</b></div> <div class="col-sm-4"><b>Fallzahl</b></div><br/>';
+          '<div class="col-md-6"><b>Wertebereich</b></div> <div class="col-md-3"><b>Fallzahl</b></div><br/>';
 
           return html;
         };
@@ -1489,7 +1479,7 @@ angular.module('kommonitorMap').component(
             if (containsNegativeValues) {
               // dynamic legend creation depending on number of positive and negative classes
               if ($scope.dynamicDecreaseBrew) {
-                $scope.div.innerHTML = $scope.appendDecreasingItems($scope.dynamicDecreaseBrew, opacity);
+                $scope.div.innerHTML += $scope.appendDecreasingItems($scope.dynamicDecreaseBrew, opacity);
 
               }
 
@@ -1620,7 +1610,7 @@ angular.module('kommonitorMap').component(
 
             // dynamic legend creation depending on number of positive and negative classes
             if ($scope.dynamicDecreaseBrew) {
-              $scope.div.innerHTML = $scope.appendDecreasingItems($scope.dynamicDecreaseBrew, opacity);
+              $scope.div.innerHTML += $scope.appendDecreasingItems($scope.dynamicDecreaseBrew, opacity);
 
             }
 
@@ -1734,7 +1724,7 @@ angular.module('kommonitorMap').component(
             }
 
             if ($scope.ltMeasureOfValueBrew) {
-              $scope.div.innerHTML = $scope.appendDecreasingItems($scope.ltMeasureOfValueBrew, opacity);
+              $scope.div.innerHTML += $scope.appendDecreasingItems($scope.ltMeasureOfValueBrew, opacity);
             }
 
             if ($scope.gtMeasureOfValueBrew) {
