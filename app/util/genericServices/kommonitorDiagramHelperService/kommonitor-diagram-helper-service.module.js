@@ -1347,7 +1347,11 @@ angular
         }, 350);
       };
 
-      this.createInitialReachabilityAnalysisPieOptions = function(poiGeoresource, geoJSONFeatureCollection, rangeValue){
+      this.makeFeatureNameForPoiInIsochroneDiagram = function(poiGeoresource, geoJSONFeatureCollection, date){
+        return poiGeoresource.datasetName + " - " + date + " (" + geoJSONFeatureCollection.features.length + ")";
+      };
+
+      this.createInitialReachabilityAnalysisPieOptions = function(poiGeoresource, geoJSONFeatureCollection, rangeValue, date){
         var option = {
           grid: {
             left: '4%',
@@ -1413,7 +1417,7 @@ angular
               orient: 'vertical',
               type: "scroll",
               left: 0,
-              data: [poiGeoresource.datasetName + " (" + geoJSONFeatureCollection.features.length + ")"]
+              data: [this.makeFeatureNameForPoiInIsochroneDiagram(poiGeoresource, geoJSONFeatureCollection, date)]
               // data: [legendText]
           },
           series: [
@@ -1439,7 +1443,7 @@ angular
                       show: true
                   },
                   data: [
-                      {value: geoJSONFeatureCollection.features.length, name: poiGeoresource.datasetName + " (" + geoJSONFeatureCollection.features.length + ")"}
+                      {value: geoJSONFeatureCollection.features.length, name: this.makeFeatureNameForPoiInIsochroneDiagram(poiGeoresource, geoJSONFeatureCollection, date)}
                   ]
               }
           ]
@@ -1448,9 +1452,9 @@ angular
         return option;
       };
 
-      this.appendToReachabilityAnalysisOptions = function(poiGeoresource, geoJSONFeatureCollection, eChartsOptions){
-        eChartsOptions.legend[0].data.push(poiGeoresource.datasetName + " (" + geoJSONFeatureCollection.features.length + ")");
-        eChartsOptions.series[0].data.push({value: geoJSONFeatureCollection.features.length, name: poiGeoresource.datasetName + " (" + geoJSONFeatureCollection.features.length + ")"});
+      this.appendToReachabilityAnalysisOptions = function(poiGeoresource, geoJSONFeatureCollection, eChartsOptions, date){
+        eChartsOptions.legend[0].data.push(this.makeFeatureNameForPoiInIsochroneDiagram(poiGeoresource, geoJSONFeatureCollection, date));
+        eChartsOptions.series[0].data.push({value: geoJSONFeatureCollection.features.length, name: this.makeFeatureNameForPoiInIsochroneDiagram(poiGeoresource, geoJSONFeatureCollection, date)});
 
         return eChartsOptions;
       };

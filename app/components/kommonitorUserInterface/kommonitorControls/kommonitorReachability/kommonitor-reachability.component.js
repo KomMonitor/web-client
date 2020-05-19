@@ -1431,13 +1431,15 @@ angular
 								numberOfFeatures = nextEntry_valueGeoJSON.features.length;
 							}
 							console.log("Number of Points wihtin Range '" + nextEntry_keyRange + "' is '" + numberOfFeatures + "'");
+
+							var date = $scope.getQueryDate(poi);
 							
 							if ($scope.echartsInstances_reachabilityAnalysis && $scope.echartsInstances_reachabilityAnalysis.has(nextEntry_keyRange)){
 								// append to diagram
 
 								var echartsInstance = $scope.echartsInstances_reachabilityAnalysis.get(nextEntry_keyRange);
 								var echartsOptions = echartsInstance.getOption();
-								echartsOptions = kommonitorDiagramHelperService.appendToReachabilityAnalysisOptions(poi, nextEntry_valueGeoJSON, echartsOptions);
+								echartsOptions = kommonitorDiagramHelperService.appendToReachabilityAnalysisOptions(poi, nextEntry_valueGeoJSON, echartsOptions, date);
 								echartsInstance.setOption(echartsOptions);
 								$scope.echartsInstances_reachabilityAnalysis.set(nextEntry_keyRange, echartsInstance);
 							}
@@ -1450,7 +1452,7 @@ angular
 								// init new echarts instance
 								var echartsInstance = echarts.init(document.getElementById('reachability_pieDiagram_range_' + nextEntry_keyRange + ''));
 								// use configuration item and data specified to show chart
-								var echartsOptions = kommonitorDiagramHelperService.createInitialReachabilityAnalysisPieOptions(poi, nextEntry_valueGeoJSON, nextEntry_keyRange);
+								var echartsOptions = kommonitorDiagramHelperService.createInitialReachabilityAnalysisPieOptions(poi, nextEntry_valueGeoJSON, nextEntry_keyRange, date);
 								echartsInstance.setOption(echartsOptions);
 
 								echartsInstance.hideLoading();
