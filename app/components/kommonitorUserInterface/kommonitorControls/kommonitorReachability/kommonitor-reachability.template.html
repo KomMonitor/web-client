@@ -498,12 +498,12 @@
 	<!-- /.box -->
 
 
-	<div class="box box-danger" ng-show="$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend">
+	<div class="box box-danger collapsed-box">
 		<div class="box-header with-border">
 			<h3 class="box-title">Isochronen Legende und Optionen</h3>
 
 			<div class="box-tools pull-right">
-				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
 				</button>
 			</div>
 		</div>
@@ -511,7 +511,13 @@
 
 		<div class="box-body">
 
-			<div align="center">
+			<div align="center" ng-show="! $ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend">
+				<p>
+					Bitte f&uuml;hren Sie zuerst eine Isochronenberechnung durch. 
+				</p>
+			</div>
+
+			<div align="center" ng-show="$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend">
 				<div class="legend" align="left">
 					<h4>Legende</h4>
 					<label>Fortbewegungsart:
@@ -549,12 +555,12 @@
 	</div>
 	<!-- /.box -->
 
-	<div class="box box-danger" ng-show="$ctrl.kommonitorDataExchangeServiceInstance.routingLegend">
+	<div class="box box-danger collapsed-box">
 		<div class="box-header with-border">
 			<h3 class="box-title">Routing Legende und Optionen</h3>
 
 			<div class="box-tools pull-right">
-				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
 				</button>
 			</div>
 		</div>
@@ -562,7 +568,13 @@
 
 		<div class="box-body">
 
-			<div align="center">
+			<div align="center" ng-show="! $ctrl.kommonitorDataExchangeServiceInstance.routingLegend">
+				<p>
+					Bitte f&uuml;hren Sie zuerst eine Routingberechnung durch. 
+				</p>
+			</div>
+
+			<div align="center" ng-show="$ctrl.kommonitorDataExchangeServiceInstance.routingLegend">
 				<div class="legend" style="width:unset; max-width:unset" align="left">
 					<h4>Legende</h4>
 					<label>Fortbewegungsart:
