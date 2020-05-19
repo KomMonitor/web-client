@@ -1379,7 +1379,7 @@ angular.module('kommonitorMap').component(
 
               // invert color labeling as colorization of lT features is also inverted
               for (var i = 0; i < colorsDecrease.length; i++) {
-                var count = kommonitorVisualStyleHelperService.featuresPerColorMap.get(colorsDecrease[i]) ? kommonitorVisualStyleHelperService.featuresPerColorMap.get(colorsIncrease[k]) : 0;
+                var count = kommonitorVisualStyleHelperService.featuresPerColorMap.get(colorsDecrease[i]) ? kommonitorVisualStyleHelperService.featuresPerColorMap.get(colorsDecrease[i]) : 0;
 
                 html +=
                   '<div class="row"><div class="col-md-3 "><i style="background:' + colorsDecrease[colorsDecrease.length - 1 - i] + '; opacity: ' + opacity + ';"></i> </div>' +
