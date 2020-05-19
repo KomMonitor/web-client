@@ -1361,9 +1361,9 @@ angular.module('kommonitorMap').component(
                 var count = kommonitorVisualStyleHelperService.featuresPerColorMap.get(colorsIncrease[k]) ? kommonitorVisualStyleHelperService.featuresPerColorMap.get(colorsIncrease[k]) : 0;
                 html +=
                   '<div class="row"><div class="col-md-3 "><i style="background:' + colorsIncrease[k] + '; opacity: ' + opacity + ';"></i> </div>' +
-                  '<div class="col-md-6 ">' + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labelsIncrease[k]) + (typeof labelsIncrease[k + 1] === 'undefined' ? '' : ' &ndash; &lt; ' + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labelsIncrease[k + 1]) + '</div>' + 
+                  '<div class="col-md-6 ">' + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labelsIncrease[k]) + (typeof labelsIncrease[k + 1] === 'undefined' ? '' : ' &ndash; &lt; ' + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labelsIncrease[k + 1])) + '</div>' + 
                   '<div class="col-md-3 ">' + 
-                  count + '</div></div>');
+                  count + '</div></div>';
               }
               html += "<br/>";
 
