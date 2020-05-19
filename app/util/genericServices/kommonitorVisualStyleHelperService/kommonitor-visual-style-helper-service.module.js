@@ -429,7 +429,7 @@ angular
               }
               else {
                 // invert colors, so that lowest values will become strong colored!
-                fillColor = findColorInRange_invertedColorGradient(feature, propertyName, dynamicDecreaseBrew);
+                fillColor = this.findColorInRange_invertedColorGradient(feature, propertyName, dynamicDecreaseBrew);
               }
 
               return {
@@ -493,7 +493,7 @@ angular
         return color;
       };
 
-      function findColorInRange_invertedColorGradient(feature, propertyName, colorBrewInstance){
+      this.findColorInRange_invertedColorGradient = function (feature, propertyName, colorBrewInstance){
         var color;
 
         for (var k = 0; k < colorBrewInstance.breaks.length; k++) {
@@ -525,7 +525,7 @@ angular
         this.incrementFeaturesPerColor(color);
 
         return color;
-      }
+      };
 
       this.styleMeasureOfValue = function(feature, gtMeasureOfValueBrew, ltMeasureOfValueBrew, propertyName, useTransparencyOnIndicator) {
 
@@ -578,7 +578,7 @@ angular
           }
           else {
             // invert colors, so that lowest values will become strong colored!
-            fillColor = findColorInRange_invertedColorGradient(feature, propertyName, ltMeasureOfValueBrew);
+            fillColor = this.findColorInRange_invertedColorGradient(feature, propertyName, ltMeasureOfValueBrew);
           }
 
           return {
@@ -645,7 +645,7 @@ angular
           }
           else {
             // invert colors, so that lowest values will become strong colored!
-            fillColor = findColorInRange_invertedColorGradient(feature, propertyName, dynamicDecreaseBrew);
+            fillColor = this.findColorInRange_invertedColorGradient(feature, propertyName, dynamicDecreaseBrew);
           }
 
           return {
