@@ -23,6 +23,16 @@ angular
 								$scope.aoiNameFilter = undefined;
 
 								$scope.georesourceNameFilter = {value: undefined};
+								
+								$scope.dateSelectionType_valueIndicator = "date_indicator";
+								$scope.dateSelectionType_valueManual = "date_manual";
+								$scope.dateSelectionType_valuePerDataset = "date_perDataset";
+								$scope.dateSelectionType = {
+									selectedDateType: $scope.dateSelectionType_valueIndicator
+								};
+
+								$scope.selectedDate_manual = undefined;
+								$('#manualDateDatepicker').datepicker(kommonitorDataExchangeService.datePickerOptions);
 
 								$scope.showPOI = true;
 								$scope.showLOI = true;
@@ -289,6 +299,21 @@ angular
 									}
 								};
 
+								$scope.getQueryDate = function(resource){
+									if ($scope.dateSelectionType.selectedDateType === $scope.dateSelectionType_valueIndicator){
+										return kommonitorDataExchangeService.selectedDate;
+									}
+									else if($scope.dateSelectionType.selectedDateType === $scope.dateSelectionType_valueManual){
+										return $scope.selectedDate_manual;
+									}
+									else if($scope.dateSelectionType.selectedDateType === $scope.dateSelectionType_valuePerDataset){
+										return resource.selectedDate.startDate;
+									}
+									else{
+										return kommonitorDataExchangeService.selectedDate;
+									}
+								};
+
 								$scope.handlePoiOnMap = function(poi){
 
 									if(poi.isSelected){
@@ -308,7 +333,7 @@ angular
 
 									var id = poiGeoresource.georesourceId;
 
-									var date = poiGeoresource.selectedDate.startDate;
+									var date = $scope.getQueryDate(poiGeoresource);
 
 									var dateComps = date.split("-");
 
@@ -366,7 +391,7 @@ angular
 								};
 
 								$scope.getExportLinkForPoi = function(poi){
-									var date = poi.selectedDate.startDate;
+									var date = $scope.getQueryDate(poi);
 
 									var dateComps = date.split("-");
 
@@ -430,7 +455,7 @@ angular
 
 									var id = aoiGeoresource.georesourceId;
 
-									var date = aoiGeoresource.selectedDate.startDate;
+									var date = $scope.getQueryDate(aoiGeoresource);
 
 									var dateComps = date.split("-");
 
@@ -476,7 +501,7 @@ angular
 								};
 
 								$scope.getExportLinkForAoi = function(aoi){
-									var date = aoi.selectedDate.startDate;
+									var date = $scope.getQueryDate(aoi);
 
 									var dateComps = date.split("-");
 
@@ -537,7 +562,7 @@ angular
 
 										var id = loiGeoresource.georesourceId;
 
-										var date = loiGeoresource.selectedDate.startDate;
+										var date = $scope.getQueryDate(loiGeoresource);
 
 										var dateComps = date.split("-");
 
@@ -583,7 +608,7 @@ angular
 									};
 
 									$scope.getExportLinkForLoi = function(aoi){
-										var date = aoi.selectedDate.startDate;
+										var date = $scope.getQueryDate(aoi);
 
 										var dateComps = date.split("-");
 
