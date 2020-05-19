@@ -1207,6 +1207,11 @@ select {
     margin-bottom: 90px;
 }
 
+/* .col-centered{
+    float: none;
+    margin: 0 auto;
+} */
+
 .legendMap {
 		padding: 6px 8px;
 		font: 12px/14px Arial, Helvetica, sans-serif;

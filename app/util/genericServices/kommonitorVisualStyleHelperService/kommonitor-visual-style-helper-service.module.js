@@ -110,7 +110,37 @@ angular
         fillColor: defaultColorForFilteredValues
       };
 
+      this.featuresPerColorMap = new Map();
+      this.featuresPerNoData = 0;
+      this.featuresPerZero = 0;
+      this.featuresPerOutlierHigh = 0;
+      this.featuresPerOutlierLow = 0;
+
+      this.resetFeaturesPerColorObjects = function(){
+        this.featuresPerColorMap = new Map();
+        this.featuresPerNoData = 0;
+        this.featuresPerZero = 0;
+        this.featuresPerOutlierLow = 0;
+        this.featuresPerOutlierHigh = 0;
+      };
+
+      this.incrementFeaturesPerColor = function(color){
+        if(this.featuresPerColorMap.has(color)){
+          this.featuresPerColorMap.set(color, this.featuresPerColorMap.get(color) + 1);
+        }
+        else{
+          this.featuresPerColorMap.set(color, 1);
+        }
+      };
+
+      this.getFillColorForZero = function(){
+        this.featuresPerZero ++;
+        return defaultColorForZeroValues;
+      };
+
       this.setupDefaultBrew = function (geoJSON, propertyName, numClasses, colorCode, classifyMethod) {
+        this.resetFeaturesPerColorObjects();
+
         var values = [];
         for (var i = 0; i < geoJSON.features.length; i++) {
           if (kommonitorDataExchangeService.indicatorValueIsNoData(geoJSON.features[i].properties[propertyName]) || geoJSON.features[i].properties[propertyName] == 0 || geoJSON.features[i].properties[propertyName] == "0")
@@ -148,6 +178,8 @@ angular
         --> implement special cases (0, 1 or 2 negative/positive values --> apply colors manually)
         --> treat all other cases equally to measureOfValue
         */
+
+       this.resetFeaturesPerColorObjects();
 
         var greaterThanValues = [];
         var lesserThanValues = [];
@@ -268,6 +300,8 @@ angular
         --> treat all other cases equally to measureOfValue
         */
 
+       this.resetFeaturesPerColorObjects();
+
         var positiveValues = [];
         var negativeValues = [];
 
@@ -307,16 +341,19 @@ angular
       }
 
       this.styleNoData = function(feature) {
+        this.featuresPerNoData ++;
         return this.noDataStyle;
       };
 
       this.styleOutlier = function(feature) {
         if ((feature.properties[outlierPropertyName] === outlierPropertyValue_low_soft) || (feature.properties[outlierPropertyName] === outlierPropertyValue_low_extreme)) {
 
+          this.featuresPerOutlierLow ++;
           return this.outlierStyle_low;
         }
         else {
 
+          this.featuresPerOutlierHigh ++;
           return this.outlierStyle_high;
         }
       };
@@ -353,7 +390,7 @@ angular
 
         var fillColor;
         if (feature.properties[propertyName] == 0 || feature.properties[propertyName] == "0") {
-          fillColor = defaultColorForZeroValues;
+          fillColor = this.getFillColorForZero();
           if (useTransparencyOnIndicator) {
             fillOpacity = defaultFillOpacityForZeroFeatures;
           }
@@ -363,13 +400,13 @@ angular
           if (datasetContainsNegativeValues) {
             if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) >= 0) {
               if (feature.properties[propertyName] == 0 || feature.properties[propertyName] == "0") {
-                fillColor = defaultColorForZeroValues;
+                fillColor = this.getFillColorForZero();
                 if (useTransparencyOnIndicator) {
                   fillOpacity = defaultFillOpacityForZeroFeatures;
                 }
               }
               else {
-                fillColor = findColorInRange(feature, propertyName, dynamicIncreaseBrew);
+                fillColor = this.findColorInRange(feature, propertyName, dynamicIncreaseBrew);
               }
 
               return {
@@ -385,7 +422,7 @@ angular
             else {
 
               if (feature.properties[propertyName] == 0 || feature.properties[propertyName] == "0") {
-                fillColor = defaultColorForZeroValues;
+                fillColor = this.getFillColorForZero();
                 if (useTransparencyOnIndicator) {
                   fillOpacity = defaultFillOpacityForZeroFeatures;
                 }
@@ -407,7 +444,7 @@ angular
             }
           }
           else {
-            fillColor = findColorInRange(feature, propertyName, defaultBrew);            
+            fillColor = this.findColorInRange(feature, propertyName, defaultBrew);            
           }
         }
 
@@ -422,7 +459,7 @@ angular
         };
       };
 
-      function findColorInRange(feature, propertyName, colorBrewInstance){
+      this.findColorInRange = function(feature, propertyName, colorBrewInstance){
         var color;
 
         for (var index = 0; index < colorBrewInstance.breaks.length; index++) {
@@ -451,8 +488,10 @@ angular
           }
         }
 
+        this.incrementFeaturesPerColor(color);
+
         return color;
-      }
+      };
 
       function findColorInRange_invertedColorGradient(feature, propertyName, colorBrewInstance){
         var color;
@@ -483,6 +522,8 @@ angular
           }
         }
 
+        this.incrementFeaturesPerColor(color);
+
         return color;
       }
 
@@ -508,14 +549,14 @@ angular
         if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) >= kommonitorDataExchangeService.measureOfValue) {
 
           if (feature.properties[propertyName] == 0 || feature.properties[propertyName] == "0") {
-            fillColor = defaultColorForZeroValues;
+            fillColor = this.getFillColorForZero();
             if (useTransparencyOnIndicator) {
               fillOpacity = defaultFillOpacityForZeroFeatures;
             }
           }
           else {
 
-            fillColor = findColorInRange(feature, propertyName, gtMeasureOfValueBrew);
+            fillColor = this.findColorInRange(feature, propertyName, gtMeasureOfValueBrew);
           }
 
           return {
@@ -530,7 +571,7 @@ angular
         }
         else {
           if (feature.properties[propertyName] == 0 || feature.properties[propertyName] == "0") {
-            fillColor = defaultColorForZeroValues;
+            fillColor = this.getFillColorForZero();
             if (useTransparencyOnIndicator) {
               fillOpacity = defaultFillOpacityForZeroFeatures;
             }
@@ -576,13 +617,13 @@ angular
         if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) >= 0) {
 
           if (feature.properties[propertyName] == 0 || feature.properties[propertyName] == "0") {
-            fillColor = defaultColorForZeroValues;
+            fillColor = this.getFillColorForZero();
             if (useTransparencyOnIndicator) {
               fillOpacity = defaultFillOpacityForZeroFeatures;
             }
           }
           else {
-            fillColor = findColorInRange(feature, propertyName, dynamicIncreaseBrew);
+            fillColor = this.findColorInRange(feature, propertyName, dynamicIncreaseBrew);
           }
 
           return {
@@ -597,7 +638,7 @@ angular
         }
         else {
           if (feature.properties[propertyName] == 0 || feature.properties[propertyName] == "0") {
-            fillColor = defaultColorForZeroValues;
+            fillColor = this.getFillColorForZero();
             if (useTransparencyOnIndicator) {
               fillOpacity = defaultFillOpacityForZeroFeatures;
             }
