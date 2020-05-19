@@ -1368,7 +1368,37 @@ angular
             feature: {
               // mark : {show: true},
               dataView: {
-                show: true, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Punkte im Einzugsgebiet', 'schlie&szlig;en', 'refresh']
+                show: true, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Punkte im Einzugsgebiet' + rangeValue, 'schlie&szlig;en', 'refresh'], optionToContent: function (opt) {
+
+                  var poiData = opt.series[0].data;
+
+                  var dataTableId = "poiInIsochroneTable_" + Math.random();
+                  var tableExportName = opt.title[0].text;
+
+                  var htmlString = '<table id="' + dataTableId + '" class="table table-bordered table-condensed" style="width:100%;text-align:center;">';
+                  htmlString += "<thead>";
+                  htmlString += "<tr>";
+                  htmlString += "<th style='text-align:center;'>Punktlayer</th>";
+                  htmlString += "<th style='text-align:center;'>Anzahl Punkte im Einzugsgebiet</th>";
+                  htmlString += "</tr>";
+                  htmlString += "</thead>";
+
+                  htmlString += "<tbody>";
+
+                  for (var i = 0; i < poiData.length; i++) {
+                    htmlString += "<tr>";
+                    htmlString += "<td>" + poiData[i].name + "</td>";
+                    htmlString += "<td>" + poiData[i].value + "</td>";
+                    htmlString += "</tr>";
+                  }
+
+                  htmlString += "</tbody>";
+                  htmlString += "</table>";
+
+                  $rootScope.$broadcast("AppendExportButtonsForTable", dataTableId, tableExportName);
+
+                  return htmlString;
+                }
               },
               restore: { show: false, title: "Erneuern" },
               saveAsImage: { show: true, title: "Export" }
