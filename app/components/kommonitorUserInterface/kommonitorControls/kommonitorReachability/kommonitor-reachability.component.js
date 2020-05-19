@@ -51,6 +51,8 @@ angular
 
 					$scope.settings = {};
 
+					$scope.settings.usePreconfigRanges_500_1000 = false;
+
 					$scope.settings.dateSelectionType_valueIndicator = "date_indicator";
 								$scope.settings.dateSelectionType_valueManual = "date_manual";
 								$scope.settings.dateSelectionType_valuePerDataset = "date_perDataset";
@@ -319,6 +321,13 @@ angular
 						}
 					};
 
+					$scope.onChangeUsePreconfigRanges500And1000 = function(){
+						document
+							.getElementById('isoInputText').value = "500";
+
+						$scope.settings.currentTODValue = 1000;	
+					};
+
 					$scope.resetForm = function(){
 						$scope.resetSlider();
 
@@ -327,6 +336,8 @@ angular
 						$scope.error = undefined;
 
 						$scope.settings = {};
+
+						$scope.settings.usePreconfigRanges_500_1000 = false;
 
 						$scope.showIsochrones = true;
 						$scope.settings.dissolveIsochrones = true;
