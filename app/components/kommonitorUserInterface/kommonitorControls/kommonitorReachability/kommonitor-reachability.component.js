@@ -305,13 +305,24 @@ angular
 
 						console.log(getRequest);
 						return getRequest;
-					}
+					};
+
+					$scope.resetPoisInIsochrone = function(){
+						$scope.echartsInstances_reachabilityAnalysis = new Map();
+						document.getElementById("reachability_diagrams_section").innerHTML = "";
+						for (var poi of kommonitorDataExchangeService.availableGeoresources){							
+							if (poi.isSelected_reachabilityAnalysis){
+								poi.isSelected_reachabilityAnalysis = false;
+								//remove POI layer from map
+								$scope.removePoiLayerFromMap(poi);
+							}
+						}
+					};
 
 					$scope.resetForm = function(){
 						$scope.resetSlider();
 
-						$scope.echartsInstances_reachabilityAnalysis = new Map();
-						document.getElementById("reachability_diagrams_section").innerHTML = "";
+						$scope.resetPoisInIsochrone();
 
 						$scope.error = undefined;
 
@@ -389,6 +400,8 @@ angular
 							.removeReachabilityLayers();
 						$scope.currentIsochronesGeoJSON = undefined;
 						kommonitorDataExchangeService.isochroneLegend = undefined;
+						// remove any diagram
+						$scope.resetPoisInIsochrone();
 						$scope.settings.loadingData = false;
 						$rootScope
 							.$broadcast('hideLoadingIconOnMap');
