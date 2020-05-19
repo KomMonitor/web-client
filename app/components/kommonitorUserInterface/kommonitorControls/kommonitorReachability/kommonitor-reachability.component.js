@@ -51,6 +51,8 @@ angular
 
 					$scope.settings = {};
 
+					$scope.settings.usePreconfigRanges_500_1000 = false;
+
 					$scope.settings.dateSelectionType_valueIndicator = "date_indicator";
 								$scope.settings.dateSelectionType_valueManual = "date_manual";
 								$scope.settings.dateSelectionType_valuePerDataset = "date_perDataset";
@@ -305,17 +307,37 @@ angular
 
 						console.log(getRequest);
 						return getRequest;
-					}
+					};
+
+					$scope.resetPoisInIsochrone = function(){
+						$scope.echartsInstances_reachabilityAnalysis = new Map();
+						document.getElementById("reachability_diagrams_section").innerHTML = "";
+						for (var poi of kommonitorDataExchangeService.availableGeoresources){							
+							if (poi.isSelected_reachabilityAnalysis){
+								poi.isSelected_reachabilityAnalysis = false;
+								//remove POI layer from map
+								$scope.removePoiLayerFromMap(poi);
+							}
+						}
+					};
+
+					$scope.onChangeUsePreconfigRanges500And1000 = function(){
+						document
+							.getElementById('isoInputText').value = "500";
+
+						$scope.settings.currentTODValue = 1000;	
+					};
 
 					$scope.resetForm = function(){
 						$scope.resetSlider();
 
-						$scope.echartsInstances_reachabilityAnalysis = new Map();
-						document.getElementById("reachability_diagrams_section").innerHTML = "";
+						$scope.resetPoisInIsochrone();
 
 						$scope.error = undefined;
 
 						$scope.settings = {};
+
+						$scope.settings.usePreconfigRanges_500_1000 = false;
 
 						$scope.showIsochrones = true;
 						$scope.settings.dissolveIsochrones = true;
@@ -389,6 +411,8 @@ angular
 							.removeReachabilityLayers();
 						$scope.currentIsochronesGeoJSON = undefined;
 						kommonitorDataExchangeService.isochroneLegend = undefined;
+						// remove any diagram
+						$scope.resetPoisInIsochrone();
 						$scope.settings.loadingData = false;
 						$rootScope
 							.$broadcast('hideLoadingIconOnMap');
@@ -1407,26 +1431,28 @@ angular
 								numberOfFeatures = nextEntry_valueGeoJSON.features.length;
 							}
 							console.log("Number of Points wihtin Range '" + nextEntry_keyRange + "' is '" + numberOfFeatures + "'");
+
+							var date = $scope.getQueryDate(poi);
 							
 							if ($scope.echartsInstances_reachabilityAnalysis && $scope.echartsInstances_reachabilityAnalysis.has(nextEntry_keyRange)){
 								// append to diagram
 
 								var echartsInstance = $scope.echartsInstances_reachabilityAnalysis.get(nextEntry_keyRange);
 								var echartsOptions = echartsInstance.getOption();
-								echartsOptions = kommonitorDiagramHelperService.appendToReachabilityAnalysisOptions(poi, nextEntry_valueGeoJSON, echartsOptions);
+								echartsOptions = kommonitorDiagramHelperService.appendToReachabilityAnalysisOptions(poi, nextEntry_valueGeoJSON, echartsOptions, date);
 								echartsInstance.setOption(echartsOptions);
 								$scope.echartsInstances_reachabilityAnalysis.set(nextEntry_keyRange, echartsInstance);
 							}
 							else{
 								var reachabilityDiagramsSectionNode = document.getElementById("reachability_diagrams_section");
 								var newChartNode = document.createElement("div");
-								newChartNode.innerHTML = '<hr><h4>Analyse Einzugsgebiet ' + nextEntry_keyRange + ' [' + kommonitorDataExchangeService.isochroneLegend.cutOffUnit + ']</h4><br/><br/><div class="chart"><div  id="reachability_pieDiagram_range_' + nextEntry_keyRange + '" style="width:100%; min-height:200px;"></div></div>';
+								newChartNode.innerHTML = '<hr><h4>Analyse Einzugsgebiet ' + nextEntry_keyRange + ' [' + kommonitorDataExchangeService.isochroneLegend.cutOffUnit + ']</h4><br/><br/><div class="chart"><div  id="reachability_pieDiagram_range_' + nextEntry_keyRange + '" style="width:100%; min-height:150px;"></div></div>';
 								reachabilityDiagramsSectionNode.appendChild(newChartNode);
 
 								// init new echarts instance
 								var echartsInstance = echarts.init(document.getElementById('reachability_pieDiagram_range_' + nextEntry_keyRange + ''));
 								// use configuration item and data specified to show chart
-								var echartsOptions = kommonitorDiagramHelperService.createInitialReachabilityAnalysisPieOptions(poi, nextEntry_valueGeoJSON, nextEntry_keyRange);
+								var echartsOptions = kommonitorDiagramHelperService.createInitialReachabilityAnalysisPieOptions(poi, nextEntry_valueGeoJSON, nextEntry_keyRange, date);
 								echartsInstance.setOption(echartsOptions);
 
 								echartsInstance.hideLoading();
