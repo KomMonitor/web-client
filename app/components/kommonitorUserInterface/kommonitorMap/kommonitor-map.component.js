@@ -1350,7 +1350,7 @@ angular.module('kommonitorMap').component(
         };
 
         $scope.appendIncreasingItems = function(colorBrewInstance, opacity){
-          var html = "<br/>";
+          var html = "";
               var labelsIncrease = colorBrewInstance.breaks;
               var colorsIncrease = colorBrewInstance.colors;
 
@@ -1488,11 +1488,12 @@ angular.module('kommonitorMap').component(
               }
 
               if ($scope.currentIndicatorContainsZeroValues) {
-                $scope.div.innerHTML += "<br/>";
+                // $scope.div.innerHTML += "<br/>";
                 $scope.div.innerHTML += $scope.appendZeroItem(opacity);
               }
 
               if ($scope.dynamicIncreaseBrew) {
+                // $scope.div.innerHTML += "<br/>";
                 $scope.div.innerHTML += $scope.appendIncreasingItems($scope.dynamicIncreaseBrew, opacity);
               }
 
@@ -1625,6 +1626,7 @@ angular.module('kommonitorMap').component(
             }
 
             if ($scope.dynamicIncreaseBrew) {
+              $scope.div.innerHTML += '<br/>';
               $scope.div.innerHTML += $scope.appendIncreasingItems($scope.dynamicIncreaseBrew, opacity);
             }
 
@@ -1734,6 +1736,7 @@ angular.module('kommonitorMap').component(
             }
 
             if ($scope.gtMeasureOfValueBrew) {
+              $scope.div.innerHTML += '<br/>';
               $scope.div.innerHTML += $scope.appendIncreasingItems($scope.gtMeasureOfValueBrew, opacity);
             }
 
@@ -3436,7 +3439,7 @@ angular.module('kommonitorMap').component(
 
             layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
               style: function (feature) {
-                return kommonitorVisualStyleHelperService.styleMeasureOfValue(featue, $scope.gtMeasureOfValueBrew, $scope.ltMeasureOfValueBrew, $scope.propertyName, $scope.useTransparencyOnIndicator);
+                return kommonitorVisualStyleHelperService.styleMeasureOfValue(feature, $scope.gtMeasureOfValueBrew, $scope.ltMeasureOfValueBrew, $scope.propertyName, $scope.useTransparencyOnIndicator);
               },
               onEachFeature: onEachFeatureIndicator
             });
