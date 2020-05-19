@@ -1220,7 +1220,7 @@ select {
 		width: auto;
 		max-width: 350px;
 		height: auto !important;
-		max-height: 400px;
+		max-height: 750px;
 	  overflow: auto;
 		display: inline-block
 }
