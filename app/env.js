@@ -18,7 +18,7 @@
 
   // Data Management API URL
   // window.__env.apiUrl = 'http://kommonitor.fbg-hsbo.de/';
-  window.__env.apiUrl = 'https://cm.essen.de/management/';
+  window.__env.apiUrl = 'https://cm.essen.de/management';
   // Base url
   window.__env.basePath = '';
 
