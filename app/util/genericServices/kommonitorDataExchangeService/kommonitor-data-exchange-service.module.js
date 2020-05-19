@@ -792,7 +792,7 @@ angular
 						}
 
 						return value;
-					}
+					};
 
 					this.getIndicatorValue_asNumber = function(indicatorValue){
 						var value;
@@ -801,7 +801,12 @@ angular
 						}
 						else{
 							value = +Number(indicatorValue).toFixed(numberOfDecimals);
-						}
+            }
+            
+            // if the original value is greater than zero but would be rounded as 0 then we must return the original result
+            if(Number(value) == 0 && indicatorValue > 0){
+              value = Number(indicatorValue);
+            } 
 
 						return value;
 					};
@@ -813,7 +818,12 @@ angular
 						}
 						else{
 						 	value = Number(indicatorValue).toLocaleString('de-DE', {maximumFractionDigits: numberOfDecimals});
-						}
+            }
+            
+            // if the original value is greater than zero but would be rounded as 0 then we must return the original result
+            if(Number(value) == 0 && indicatorValue > 0){
+              value = Number(indicatorValue).toLocaleString('de-DE');
+            } 
 
 						return value;
           };

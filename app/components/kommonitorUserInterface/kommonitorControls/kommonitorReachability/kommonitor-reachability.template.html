@@ -41,11 +41,6 @@
 
 			<div ng-show="showIsochrones" class="ng-show" id="isochoneCalculation">
 
-				<br />
-
-				<uib-tabset active="activeJustified" justified="true">
-					<uib-tab index="0" heading="Einzugsgebiet definieren und berechnen" style="font-size: 14px;">
-
 						<div class="just-padding">
 							<!-- <label for="TODO">Verkehrsmittel</label> -->
 							<br />
@@ -139,6 +134,11 @@
 											}
 										</script>
 									</div>
+								</div>
+								<div>
+									<div class="checkbox">
+										<label><input type="checkbox" ng-model="settings.usePreconfigRanges_500_1000" ng-change="onChangeUsePreconfigRanges500And1000()">Voreinstellung 500, 1000 Meter Isochronen</label>
+									  </div>
 								</div>
 								<!-- <br />
 											<br /> -->
@@ -257,228 +257,135 @@
 									ng-click="resetForm()"></input>
 							</div>
 
-						</div>
-					</uib-tab>
-					<uib-tab index="1" heading="Punktobjekte im Einzugsgebiet" disable="! currentIsochronesGeoJSON" style="font-size: 14px;">
-						<div class="just-padding">
-							
-							<div class="" >
-
-								<label>Art der Datumsdefinition zum Abruf eines Datensatzes</label>
-								<div class="form-group">
-									<label class="radio-inline"><input type="radio" name="settings.dateSelectionType"  ng-value="settings.dateSelectionType_valueIndicator" ng-model="settings.dateSelectionType.selectedDateType">Datum des aktuellen Indikators</label>
-									<label class="radio-inline"><input type="radio" name="settings.dateSelectionType"  ng-value="settings.dateSelectionType_valueManual" ng-model="settings.dateSelectionType.selectedDateType">manuelles Datum
-										<div ng-hide="!(settings.dateSelectionType.selectedDateType === settings.dateSelectionType_valueManual)" class="input-group date">
-											<div class="input-group-addon">
-												<i class="far fa-calendar-alt"></i>
-											</div>
-											<input type="text" ng-model="settings.selectedDate_manual"
-												class="form-control pull-right" placeholder="YYYY-MM-DD"
-												id="manualDateDatepicker_reachabilityAnalysis" required>
-										</div>
-									</label>
-									<label class="radio-inline"><input type="radio" name="settings.dateSelectionType"  ng-value="settings.dateSelectionType_valuePerDataset" ng-model="settings.dateSelectionType.selectedDateType">pro Datensatz</label>
-								</div>
-		
-								<!-- <p>Selektieren eines Eintrags aus unten stehender Liste f&uuml;gt den entsprechenden Punkt-Layer der Kartendarstellung hinzu. Deselektion entfernt den entsprechenden Layer aus der Kartendarstellung.</p> -->
-			
-								<div class="input-group">
-									<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-									<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="poiNameFilter_reachabilityAnalysis">
-								</div>
-			
-								<br/>
-			
-								<div  id="poiInputForm_reachabilityAnalysis">
-			
-									<table class="table table-condensed" style="margin-bottom:0px;">
-									<thead>
-									  <tr>
-										<th>Datensatz</th>
-										<th>Beschreibung</th>
-										<th>Legende</th>
-										<th ng-if="settings.dateSelectionType.selectedDateType === settings.dateSelectionType_valuePerDataset">Zeitschnitt</th>
-									  </tr>
-									</thead>
-			
-										<tbody>
-			
-											<tr ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:poiNameFilter_reachabilityAnalysis'>
-												<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
-												<td>
-													<label class='checkbox-inline' ><input type="checkbox" value="poi.datasetName" ng-model="poi.isSelected_reachabilityAnalysis" ng-change="handlePoiForAnalysis(poi)">											
-			
-														<b>&nbsp;&nbsp;{{poi.datasetName}}</b>
-													</label>
-												</td>
-												<td>
-													<p>{{poi.metadata.description}}</p>
-												</td>
-												<td class="text-center">
-													<div align="center">
-														<div class="awesome-marker-legend awesome-marker-legend-icon-{{poi.poiMarkerColor}}">
-															<span style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{poi.poiSymbolColor}};" class="glyphicon glyphicon-{{poi.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
-														</div>
-													</div>	
-												</td>
-												<td ng-if="settings.dateSelectionType.selectedDateType === settings.dateSelectionType_valuePerDataset">
-													<select style="font-size: 11px; width:135px; padding: 0px;"
-															ng-model="poi.selectedDate" ng-change="onChangeSelectedDate(poi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in poi.availablePeriodsOfValidity | orderBy: 'startDate'" ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]"
-															class="form-control" required>
-														</select>
-												</td>
-											</tr>
-										</tbody>
-									</table>
-
-									<br/>
-
-								</div>
-			
-									<br/>
-
-									
-									<div id="reachability_diagrams_section">
-
-									</div>
-									
-			
-							</div>
-
-						</div>
-					</uib-tab>
-					<!-- <uib-tab index="2" heading="Indikatorenanalyse im Einzugsgebiet" disable="! currentIsochronesGeoJSON" style="font-size: 14px;">
-						<div class="just-padding">
-							indicator content
-						</div>
-					</uib-tab> -->
-				</uib-tabset>
-
+						</div>						
 
 			</div>
 			<div ng-hide="showIsochrones" class="ng-hide" id="routing">
-				<br />
-				<div class="form-group">
-					<label for="transitModeList">Verkehrsmittel</label>
-					<select class="form-control" id="transitModeList" ng-change="changeTransitMode()"
-						ng-model="settings.transitMode">
-						<option value="driving-car">PKW</option>
-						<!-- <option value="driving-hgv">LKW</option> -->
-						<option value="cycling-regular">Fahrrad</option>
-						<!-- <option value="cycling-road">Fahrrad asphaltiert</option>
-									      <option value="cycling-safe">Fahrrad separiert</option>
-									      <option value="cycling-mountain">Farrad offroad</option>
-									      <option value="cycling-tour">Fahrrad tour</option>
-									      <option value="cycling-electric">Fahrrad elektrisch</option> -->
-						<option value="foot-walking">Fu&szlig;g&auml;nger</option>
-						<option value="wheelchair">Barrierefrei</option>
-						<!-- <option value="foot-hiking">Wandern</option>
-									      <option value="wheelchair">Rollstuhl</option> -->
-					</select>
-				</div>
-
-				<div class="btn-group btn-group-justified btn-group-sm" data-toggle="buttons">
-					<label class="btn btn-primary active">
-						<input type="radio" name="options" id="optFastest" autocomplete="off" checked
-							ng-model="settings.preference" value="fastest">Schnellste
-					</label>
-					<label class="btn btn-primary">
-						<input type="radio" name="options" id="optShortest" autocomplete="off" ng-model="settings.preference"
-							value="shortest">K&uuml;rzeste
-					</label>
-					<label class="btn btn-primary">
-						<input type="radio" name="options" id="optRecommended" autocomplete="off" ng-model="settings.preference"
-							value="recommended">Empfohlene
-					</label>
-				</div>
-				<!--
-										<label>{{settings.preference}}</label>
-									-->
-
-				<br />
-
-				<label for="TODO">Startpunkt:</label>
-
-				<div class="row vertical-align"
-					style="margin-right:0px; border: 1px solid #ccc!important; border-radius: 6px; padding:4px;">
-					<div class="col-md-6 col-sm-6 col-xs-6">
-						<label for="TODO"><i class="fas fa-thumbtack"></i> Addresssuche:</label>
-						<input id="startInput" type="text" ng-model="settings.routingStartPointInput"
-							ng-change="onChangeRoutingStartPoint()" placeholder="Addresse eingeben ...">
-
-						<div ng-show="geosearchResults_startingPoint.length > 0" class="leaflet-control-geosearch"
-							style="overflow:auto; border: 1px solid #ccc!important; border-radius: 6px; padding:4px;">
-							<div class="results active" style="overflow:auto;">
-								<div class="" ng-repeat="geosearchResult in geosearchResults_startingPoint"
-									ng-click="onClickGeosearchResult_startingPoint(geosearchResult)"
-									style="overflow:unset;">
-									{{geosearchResult.label}}
+				
+				<div class="just-padding">
+					<div class="form-group">
+						<label for="transitModeList">Verkehrsmittel</label>
+						<select class="form-control" id="transitModeList" ng-change="changeTransitMode()"
+							ng-model="settings.transitMode">
+							<option value="driving-car">PKW</option>
+							<!-- <option value="driving-hgv">LKW</option> -->
+							<option value="cycling-regular">Fahrrad</option>
+							<!-- <option value="cycling-road">Fahrrad asphaltiert</option>
+											  <option value="cycling-safe">Fahrrad separiert</option>
+											  <option value="cycling-mountain">Farrad offroad</option>
+											  <option value="cycling-tour">Fahrrad tour</option>
+											  <option value="cycling-electric">Fahrrad elektrisch</option> -->
+							<option value="foot-walking">Fu&szlig;g&auml;nger</option>
+							<option value="wheelchair">Barrierefrei</option>
+							<!-- <option value="foot-hiking">Wandern</option>
+											  <option value="wheelchair">Rollstuhl</option> -->
+						</select>
+					</div>
+	
+					<div class="btn-group btn-group-justified btn-group-sm" data-toggle="buttons">
+						<label class="btn btn-primary active">
+							<input type="radio" name="options" id="optFastest" autocomplete="off" checked
+								ng-model="settings.preference" value="fastest">Schnellste
+						</label>
+						<label class="btn btn-primary">
+							<input type="radio" name="options" id="optShortest" autocomplete="off" ng-model="settings.preference"
+								value="shortest">K&uuml;rzeste
+						</label>
+						<label class="btn btn-primary">
+							<input type="radio" name="options" id="optRecommended" autocomplete="off" ng-model="settings.preference"
+								value="recommended">Empfohlene
+						</label>
+					</div>
+					<!--
+											<label>{{settings.preference}}</label>
+										-->
+	
+					<br />
+	
+					<label for="TODO">Startpunkt:</label>
+	
+					<div class="row vertical-align"
+						style="margin-right:0px; border: 1px solid #ccc!important; border-radius: 6px; padding:4px;">
+						<div class="col-md-6 col-sm-6 col-xs-6">
+							<label for="TODO"><i class="fas fa-thumbtack"></i> Addresssuche:</label>
+							<input id="startInput" type="text" ng-model="settings.routingStartPointInput"
+								ng-change="onChangeRoutingStartPoint()" placeholder="Addresse eingeben ...">
+	
+							<div ng-show="geosearchResults_startingPoint.length > 0" class="leaflet-control-geosearch"
+								style="overflow:auto; border: 1px solid #ccc!important; border-radius: 6px; padding:4px;">
+								<div class="results active" style="overflow:auto;">
+									<div class="" ng-repeat="geosearchResult in geosearchResults_startingPoint"
+										ng-click="onClickGeosearchResult_startingPoint(geosearchResult)"
+										style="overflow:unset;">
+										{{geosearchResult.label}}
+									</div>
 								</div>
 							</div>
+	
 						</div>
-
-					</div>
-					<div class="col-md-6 col-sm-6 col-xs-6">
-						<div ng-show="routingStartPoint.longitude && routingStartPoint.latitude">
-							<label for="TODO"><i class="fas fa-map-marker-alt"></i> Longitude, Latitude:</label>
-							<p>{{routingStartPoint.longitude}}, {{routingStartPoint.latitude}}</p>
-						</div>
-
-						<div ng-show="routingStartPoint.label">
-							<label for="TODO">Bezeichner:</label>
-							<p>{{routingStartPoint.label}}</p>
-						</div>
-					</div>
-
-				</div>
-
-				<br />
-
-				<label for="TODO">Zielpunkt:</label>
-
-				<div class="row vertical-align"
-					style="margin-right:0px; border: 1px solid #ccc!important; border-radius: 6px; padding:4px;">
-					<div class="col-md-6 col-sm-6 col-xs-6">
-						<label for="TODO"><i class="fas fa-thumbtack"></i> Addresssuche:</label>
-						<input id="endInput" type="text" ng-model="settings.routingEndPointInput"
-							ng-change="onChangeRoutingEndPoint()" placeholder="Addresse eingeben ...">
-
-						<div ng-show="geosearchResults_endPoint.length > 0" class="leaflet-control-geosearch"
-							style="overflow:auto; border: 1px solid #ccc!important; border-radius: 6px; padding:4px;">
-							<div class="results active" style="overflow:auto;">
-								<div class="" ng-repeat="geosearchResult in geosearchResults_endPoint"
-									ng-click="onClickGeosearchResult_endPoint(geosearchResult)" style="overflow:unset;">
-									{{geosearchResult.label}}
-								</div>
+						<div class="col-md-6 col-sm-6 col-xs-6">
+							<div ng-show="routingStartPoint.longitude && routingStartPoint.latitude">
+								<label for="TODO"><i class="fas fa-map-marker-alt"></i> Longitude, Latitude:</label>
+								<p>{{routingStartPoint.longitude}}, {{routingStartPoint.latitude}}</p>
+							</div>
+	
+							<div ng-show="routingStartPoint.label">
+								<label for="TODO">Bezeichner:</label>
+								<p>{{routingStartPoint.label}}</p>
 							</div>
 						</div>
-
+	
 					</div>
-					<div class="col-md-6 col-sm-6 col-xs-6">
-						<div ng-show="routingEndPoint.longitude && routingEndPoint.latitude">
-							<label for="TODO"><i class="fas fa-map-marker-alt"></i> Longitude, Latitude:</label>
-							<p>{{routingEndPoint.longitude}}, {{routingEndPoint.latitude}}</p>
+	
+					<br />
+	
+					<label for="TODO">Zielpunkt:</label>
+	
+					<div class="row vertical-align"
+						style="margin-right:0px; border: 1px solid #ccc!important; border-radius: 6px; padding:4px;">
+						<div class="col-md-6 col-sm-6 col-xs-6">
+							<label for="TODO"><i class="fas fa-thumbtack"></i> Addresssuche:</label>
+							<input id="endInput" type="text" ng-model="settings.routingEndPointInput"
+								ng-change="onChangeRoutingEndPoint()" placeholder="Addresse eingeben ...">
+	
+							<div ng-show="geosearchResults_endPoint.length > 0" class="leaflet-control-geosearch"
+								style="overflow:auto; border: 1px solid #ccc!important; border-radius: 6px; padding:4px;">
+								<div class="results active" style="overflow:auto;">
+									<div class="" ng-repeat="geosearchResult in geosearchResults_endPoint"
+										ng-click="onClickGeosearchResult_endPoint(geosearchResult)" style="overflow:unset;">
+										{{geosearchResult.label}}
+									</div>
+								</div>
+							</div>
+	
 						</div>
-
-						<div ng-show="routingEndPoint.label">
-							<label for="TODO">Bezeichner:</label>
-							<p>{{routingEndPoint.label}}</p>
+						<div class="col-md-6 col-sm-6 col-xs-6">
+							<div ng-show="routingEndPoint.longitude && routingEndPoint.latitude">
+								<label for="TODO"><i class="fas fa-map-marker-alt"></i> Longitude, Latitude:</label>
+								<p>{{routingEndPoint.longitude}}, {{routingEndPoint.latitude}}</p>
+							</div>
+	
+							<div ng-show="routingEndPoint.label">
+								<label for="TODO">Bezeichner:</label>
+								<p>{{routingEndPoint.label}}</p>
+							</div>
 						</div>
+	
 					</div>
-
+	
+					<!-- </div> -->
+					<br />
+	
+					<div align="center">
+	
+						<input type="button" class="btn btn-s btn-info" value="Analyse starten!"
+							ng-disabled="!(routingStartPoint && routingEndPoint && !showIsochrones)"
+							ng-click="startAnalysis()"></input>
+						<input type="button" class="btn btn-s btn-danger" value="Zur&uuml;cksetzen"
+							ng-click="resetForm()"></input>
+					</div>
 				</div>
-
-				<!-- </div> -->
-				<br />
-
-				<div align="center">
-
-					<input type="button" class="btn btn-s btn-info" value="Analyse starten!"
-						ng-disabled="!(routingStartPoint && routingEndPoint && !showIsochrones)"
-						ng-click="startAnalysis()"></input>
-					<input type="button" class="btn btn-s btn-danger" value="Zur&uuml;cksetzen"
-						ng-click="resetForm()"></input>
-				</div>
+				
 
 			</div>
 
@@ -497,13 +404,12 @@
 	</div>
 	<!-- /.box -->
 
-
-	<div class="box box-danger" ng-show="$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend">
+	<div class="box box-primary collapsed-box">
 		<div class="box-header with-border">
-			<h3 class="box-title">Isochronen Legende und Optionen</h3>
+			<h3 class="box-title">Punktobjekte im Einzugsgebiet</h3>
 
 			<div class="box-tools pull-right">
-				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
 				</button>
 			</div>
 		</div>
@@ -511,7 +417,133 @@
 
 		<div class="box-body">
 
-			<div align="center">
+			<div align="center" ng-show="! currentIsochronesGeoJSON">
+				<p>
+					Bitte f&uuml;hren Sie zuerst eine Isochronenberechnung durch.
+				</p>
+			</div>
+
+			<div align="center" ng-show="currentIsochronesGeoJSON">
+				<div class="just-padding">
+							
+					<div class="" >
+
+						<p>Bestimmen Sie ein Referenzdatum und selektieren relevante Punktlayer in der Tabelle. F&uuml;r jeden Punktlayer werden gem&auml;&szlig; des Referenzdatums 
+							die g&uuml;ltigen Punktobjekte geladen und mit den zuvor berechneten Isochronen verschnitten.
+						</p>
+
+						<label>Art der Datumsdefinition zum Abruf eines Datensatzes</label>
+						<div class="form-group">
+							<label class="radio-inline"><input type="radio" name="settings.dateSelectionType"  ng-value="settings.dateSelectionType_valueIndicator" ng-model="settings.dateSelectionType.selectedDateType">Datum des aktuellen Indikators</label>
+							<label class="radio-inline"><input type="radio" name="settings.dateSelectionType"  ng-value="settings.dateSelectionType_valueManual" ng-model="settings.dateSelectionType.selectedDateType">manuelles Datum
+								<div ng-hide="!(settings.dateSelectionType.selectedDateType === settings.dateSelectionType_valueManual)" class="input-group date">
+									<div class="input-group-addon">
+										<i class="far fa-calendar-alt"></i>
+									</div>
+									<input type="text" ng-model="settings.selectedDate_manual"
+										class="form-control pull-right" placeholder="YYYY-MM-DD"
+										id="manualDateDatepicker_reachabilityAnalysis" required>
+								</div>
+							</label>
+							<label class="radio-inline"><input type="radio" name="settings.dateSelectionType"  ng-value="settings.dateSelectionType_valuePerDataset" ng-model="settings.dateSelectionType.selectedDateType">pro Datensatz</label>
+						</div>
+
+						<!-- <p>Selektieren eines Eintrags aus unten stehender Liste f&uuml;gt den entsprechenden Punkt-Layer der Kartendarstellung hinzu. Deselektion entfernt den entsprechenden Layer aus der Kartendarstellung.</p> -->
+	
+						<div class="input-group">
+							<span class="input-group-addon"><i class="fas fa-filter"></i></span>
+							<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="poiNameFilter_reachabilityAnalysis">
+						</div>
+	
+						<br/>
+	
+						<div  id="poiInputForm_reachabilityAnalysis">
+	
+							<table class="table table-condensed" style="margin-bottom:0px;">
+							<thead>
+							  <tr>
+								<th>Datensatz</th>
+								<th>Beschreibung</th>
+								<th>Legende</th>
+								<th ng-if="settings.dateSelectionType.selectedDateType === settings.dateSelectionType_valuePerDataset">Zeitschnitt</th>
+							  </tr>
+							</thead>
+	
+								<tbody>
+	
+									<tr ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:poiNameFilter_reachabilityAnalysis'>
+										<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
+										<td>
+											<label class='checkbox-inline' ><input type="checkbox" value="poi.datasetName" ng-model="poi.isSelected_reachabilityAnalysis" ng-change="handlePoiForAnalysis(poi)">											
+	
+												<b>&nbsp;&nbsp;{{poi.datasetName}}</b>
+											</label>
+										</td>
+										<td>
+											<p>{{poi.metadata.description}}</p>
+										</td>
+										<td class="text-center">
+											<div align="center">
+												<div class="awesome-marker-legend awesome-marker-legend-icon-{{poi.poiMarkerColor}}">
+													<span style="margin-left:3px; margin-right:3px; margin-top: 2px;  font-size:1.2em; color:{{poi.poiSymbolColor}};" class="glyphicon glyphicon-{{poi.poiSymbolBootstrap3Name}}" aria-hidden="true"></span>
+												</div>
+											</div>	
+										</td>
+										<td ng-if="settings.dateSelectionType.selectedDateType === settings.dateSelectionType_valuePerDataset">
+											<select style="font-size: 11px; width:135px; padding: 0px;"
+													ng-model="poi.selectedDate" ng-change="onChangeSelectedDate(poi)" ng-options="date as date.startDate + ' - ' + date.endDate for date in poi.availablePeriodsOfValidity | orderBy: 'startDate'" ng-init="poi.selectedDate = poi.availablePeriodsOfValidity[poi.availablePeriodsOfValidity.length - 1]"
+													class="form-control" required>
+												</select>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+
+							<br/>
+
+						</div>
+	
+							<br/>
+
+							
+							<div id="reachability_diagrams_section">
+
+							</div>
+							
+	
+					</div>
+
+				</div>
+
+			</div>
+
+		</div>
+		<!-- /.box-body -->
+
+	</div>
+	<!-- /.box -->
+
+
+	<div class="box box-danger collapsed-box">
+		<div class="box-header with-border">
+			<h3 class="box-title">Isochronen Legende und Optionen</h3>
+
+			<div class="box-tools pull-right">
+				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+				</button>
+			</div>
+		</div>
+		<!-- /.box-header -->
+
+		<div class="box-body">
+
+			<div align="center" ng-show="! $ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend">
+				<p>
+					Bitte f&uuml;hren Sie zuerst eine Isochronenberechnung durch. 
+				</p>
+			</div>
+
+			<div align="center" ng-show="$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend">
 				<div class="legend" align="left">
 					<h4>Legende</h4>
 					<label>Fortbewegungsart:
@@ -549,12 +581,12 @@
 	</div>
 	<!-- /.box -->
 
-	<div class="box box-danger" ng-show="$ctrl.kommonitorDataExchangeServiceInstance.routingLegend">
+	<div class="box box-danger collapsed-box">
 		<div class="box-header with-border">
 			<h3 class="box-title">Routing Legende und Optionen</h3>
 
 			<div class="box-tools pull-right">
-				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
 				</button>
 			</div>
 		</div>
@@ -562,7 +594,13 @@
 
 		<div class="box-body">
 
-			<div align="center">
+			<div align="center" ng-show="! $ctrl.kommonitorDataExchangeServiceInstance.routingLegend">
+				<p>
+					Bitte f&uuml;hren Sie zuerst eine Routingberechnung durch. 
+				</p>
+			</div>
+
+			<div align="center" ng-show="$ctrl.kommonitorDataExchangeServiceInstance.routingLegend">
 				<div class="legend" style="width:unset; max-width:unset" align="left">
 					<h4>Legende</h4>
 					<label>Fortbewegungsart:
