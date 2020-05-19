@@ -270,7 +270,7 @@ angular
 								value = null;
 							}
 							else {
-								value = +Number(featureProperties[INDICATOR_DATE_PREFIX + date]).toFixed(numberOfDecimals)
+								value = kommonitorDataExchangeService.getIndicatorValue_asNumber(featureProperties[INDICATOR_DATE_PREFIX + date]);
 							}
 							featureSeries.data.push(value);
 						}

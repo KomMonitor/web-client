@@ -165,7 +165,7 @@ angular
 									min: minValue
 								});
 
-								defaultSeriesValueArray.push(Number(Number(valueSum / indicatorProperties.length).toFixed(numberOfDecimals)));
+								defaultSeriesValueArray.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(Number(valueSum / indicatorProperties.length)));
 								// }
 							}
 

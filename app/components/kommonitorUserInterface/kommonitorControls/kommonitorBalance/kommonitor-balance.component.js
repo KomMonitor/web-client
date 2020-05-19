@@ -251,7 +251,7 @@ angular
 								var toDateValue = kommonitorDataExchangeService.getIndicatorValue_asNumber(kommonitorDataExchangeService.selectedIndicator.geoJSON.features[index].properties[toDateAsPropertyString]);
 								var fromDateValue = kommonitorDataExchangeService.getIndicatorValue_asNumber(kommonitorDataExchangeService.selectedIndicator.geoJSON.features[index].properties[fromDateAsPropertyString]);
 
-								kommonitorDataExchangeService.indicatorAndMetadataAsBalance.geoJSON.features[index].properties[$scope.targetIndicatorProperty] = +Number(toDateValue - fromDateValue).toFixed(numberOfDecimals);
+								kommonitorDataExchangeService.indicatorAndMetadataAsBalance.geoJSON.features[index].properties[$scope.targetIndicatorProperty] = kommonitorDataExchangeService.getIndicatorValue_asNumber(toDateValue - fromDateValue);
 							}
 							kommonitorDataExchangeService.indicatorAndMetadataAsBalance['fromDate'] = dateToDateString(fromDate);
 							kommonitorDataExchangeService.indicatorAndMetadataAsBalance['toDate'] = dateToDateString(toDate);
