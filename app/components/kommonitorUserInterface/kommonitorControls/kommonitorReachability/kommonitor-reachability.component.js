@@ -1420,7 +1420,7 @@ angular
 							else{
 								var reachabilityDiagramsSectionNode = document.getElementById("reachability_diagrams_section");
 								var newChartNode = document.createElement("div");
-								newChartNode.innerHTML = '<hr><h4>Analyse Einzugsgebiet ' + nextEntry_keyRange + ' [' + kommonitorDataExchangeService.isochroneLegend.cutOffUnit + ']</h4><br/><br/><div class="chart"><div  id="reachability_pieDiagram_range_' + nextEntry_keyRange + '" style="width:100%; min-height:200px;"></div></div>';
+								newChartNode.innerHTML = '<hr><h4>Analyse Einzugsgebiet ' + nextEntry_keyRange + ' [' + kommonitorDataExchangeService.isochroneLegend.cutOffUnit + ']</h4><br/><br/><div class="chart"><div  id="reachability_pieDiagram_range_' + nextEntry_keyRange + '" style="width:100%; min-height:150px;"></div></div>';
 								reachabilityDiagramsSectionNode.appendChild(newChartNode);
 
 								// init new echarts instance
