@@ -1383,7 +1383,7 @@ angular.module('kommonitorMap').component(
 
                 html +=
                   '<div class="row"><div class="col-md-3 "><i style="background:' + colorsDecrease[colorsDecrease.length - 1 - i] + '; opacity: ' + opacity + ';"></i> </div>' +
-                  '<div class="col-md-6 ">' + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labelsDecrease[i]) + (typeof labelsDecrease[i + 1] != 'undefined' ? ' &ndash; &lt; ' + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labelsDecrease[i + 1]) : ' &ndash; &lt; 0') + '</div>' + '<div class="col-md-3 ">' + 
+                  '<div class="col-md-6 ">' + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labelsDecrease[i]) + (typeof labelsDecrease[i + 1] != 'undefined' ? ' &ndash; &lt; ' + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labelsDecrease[i + 1]) : '') + '</div>' + '<div class="col-md-3 ">' + 
                   count + '</div></div>';
               }
 
