@@ -1347,4 +1347,134 @@ angular
         }, 350);
       };
 
+      this.makeFeatureNameForPoiInIsochroneDiagram = function(poiGeoresource, geoJSONFeatureCollection, date){
+        return poiGeoresource.datasetName + " - " + date + " (" + geoJSONFeatureCollection.features.length + ")";
+      };
+
+      this.createInitialReachabilityAnalysisPieOptions = function(poiGeoresource, geoJSONFeatureCollection, rangeValue, date){
+        var option = {
+          grid: {
+            left: '4%',
+						top: 0,
+						right: '4%',
+						bottom: 30,
+						containLabel: true
+          },
+          title: {
+            text: 'Analyse Einzugsgebiet ' + rangeValue,
+            left: 'center',
+            show: false
+            // top: 15
+          },
+          toolbox: {
+            show: true,
+            right: '15',
+            feature: {
+              // mark : {show: true},
+              dataView: {
+                show: true, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Punkte im Einzugsgebiet' + rangeValue, 'schlie&szlig;en', 'refresh'], optionToContent: function (opt) {
+
+                  var poiData = opt.series[0].data;
+
+                  var dataTableId = "poiInIsochroneTable_" + Math.random();
+                  var tableExportName = opt.title[0].text;
+
+                  var htmlString = '<table id="' + dataTableId + '" class="table table-bordered table-condensed" style="width:100%;text-align:center;">';
+                  htmlString += "<thead>";
+                  htmlString += "<tr>";
+                  htmlString += "<th style='text-align:center;'>Punktlayer</th>";
+                  htmlString += "<th style='text-align:center;'>Anzahl Punkte im Einzugsgebiet</th>";
+                  htmlString += "</tr>";
+                  htmlString += "</thead>";
+
+                  htmlString += "<tbody>";
+
+                  for (var i = 0; i < poiData.length; i++) {
+                    htmlString += "<tr>";
+                    htmlString += "<td>" + poiData[i].name + "</td>";
+                    htmlString += "<td>" + poiData[i].value + "</td>";
+                    htmlString += "</tr>";
+                  }
+
+                  htmlString += "</tbody>";
+                  htmlString += "</table>";
+
+                  $rootScope.$broadcast("AppendExportButtonsForTable", dataTableId, tableExportName);
+
+                  return htmlString;
+                }
+              },
+              restore: { show: false, title: "Erneuern" },
+              saveAsImage: { show: true, title: "Export" }
+            }
+          },
+          tooltip: {
+              trigger: 'item',
+              formatter: '{a} <br/>{b}: {c} ({d}%)',
+              confine: true
+          },
+          legend: {
+              orient: 'vertical',
+              type: "scroll",
+              left: 0,
+              data: [this.makeFeatureNameForPoiInIsochroneDiagram(poiGeoresource, geoJSONFeatureCollection, date)]
+              // data: [legendText]
+          },
+          series: [
+              {
+                  name: "Punkte im Einzugsgebiet " + rangeValue,
+                  type: 'pie',
+                  radius: ['50%', '70%'],
+                  center: ["70%", "50%"],
+                  avoidLabelOverlap: true,
+                  label: {
+                      show: false,
+                      position: 'center'
+                  },
+                  
+                  emphasis: {
+                      label: {
+                          show: true,
+                          fontSize: '10',
+                          // fontWeight: 'bold'
+                      }
+                  },
+                  labelLine: {
+                      show: true
+                  },
+                  data: [
+                      {value: geoJSONFeatureCollection.features.length, name: this.makeFeatureNameForPoiInIsochroneDiagram(poiGeoresource, geoJSONFeatureCollection, date)}
+                  ]
+              }
+          ]
+        };
+
+        return option;
+      };
+
+      this.appendToReachabilityAnalysisOptions = function(poiGeoresource, geoJSONFeatureCollection, eChartsOptions, date){
+        eChartsOptions.legend[0].data.push(this.makeFeatureNameForPoiInIsochroneDiagram(poiGeoresource, geoJSONFeatureCollection, date));
+        eChartsOptions.series[0].data.push({value: geoJSONFeatureCollection.features.length, name: this.makeFeatureNameForPoiInIsochroneDiagram(poiGeoresource, geoJSONFeatureCollection, date)});
+
+        return eChartsOptions;
+      };
+
+      this.removePoiFromReachabilityAnalysisOption = function(eChartOptions, poiGeoresource){
+        for (let index = 0; index < eChartOptions.legend[0].data.length; index++) {
+          const legendItem = eChartOptions.legend[0].data[index];
+          if(legendItem.includes(poiGeoresource.datasetName)){
+            eChartOptions.legend[0].data.splice(index, 1);
+          }
+        }
+
+        for (let index2 = 0; index2 < eChartOptions.series[0].data.length; index2++) {
+          const dataItem = eChartOptions.series[0].data[index2];
+          if(dataItem.name.includes(poiGeoresource.datasetName)){
+            eChartOptions.series[0].data.splice(index2, 1);
+          }
+        }
+        
+        return eChartOptions;
+      };
+
     }]);

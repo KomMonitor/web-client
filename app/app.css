@@ -1297,6 +1297,17 @@ select {
   overflow: auto;
 }
 
+#poiInputForm_reachabilityAnalysis {
+	padding: 5px;
+	height: auto !important;
+	max-height: 500px;
+	max-width: 100%;
+	font-size: 11px;
+	border: 2px solid gray;
+  border-radius: 8px;
+  overflow: auto;
+}
+
 #aoiInputForm {
 	padding: 5px;
 	height: auto !important;
