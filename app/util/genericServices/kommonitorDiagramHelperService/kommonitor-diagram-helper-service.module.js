@@ -249,7 +249,7 @@ angular
             indicatorValue = null;
           }
           else {
-            indicatorValue = +Number(cartographicFeature.properties[self.indicatorPropertyName]).toFixed(numberOfDecimals);
+            indicatorValue = kommonitorDataExchangeService.getIndicatorValue_asNumber(cartographicFeature.properties[self.indicatorPropertyName]);  
           }
 
           featureNamesArray.push(cartographicFeature.properties[__env.FEATURE_NAME_PROPERTY_NAME]);
@@ -301,7 +301,7 @@ angular
 
         // finish timeSeries arrays by computing averages of all time series values
         for (var i = 0; i < indicatorTimeSeriesDatesArray.length; i++) {
-          indicatorTimeSeriesAverageArray[i] = +Number(indicatorTimeSeriesAverageArray[i] / indicatorTimeSeriesCountArray[i]).toFixed(numberOfDecimals);
+          indicatorTimeSeriesAverageArray[i] = kommonitorDataExchangeService.getIndicatorValue_asNumber(indicatorTimeSeriesAverageArray[i] / indicatorTimeSeriesCountArray[i]);
         }
 
         setHistogramChartOptions(indicatorMetadataAndGeoJSON, indicatorValueArray, spatialUnitName, date);
@@ -1296,7 +1296,7 @@ angular
             value = null;
           }
           else {
-            value = +Number(featureProperties[INDICATOR_DATE_PREFIX + date]).toFixed(numberOfDecimals)
+            value = kommonitorDataExchangeService.getIndicatorValue_asNumber(featureProperties[INDICATOR_DATE_PREFIX + date]);
           }
           featureSeries.data.push(value);
         }
