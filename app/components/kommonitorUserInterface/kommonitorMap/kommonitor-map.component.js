@@ -997,6 +997,7 @@ angular.module('kommonitorMap').component(
         });
 
         $(document).on('input change', '#indicatorTransparencyInput', function (e) {
+          e.stopImmediatePropagation();
           var indicatorMetadata = kommonitorDataExchangeService.selectedIndicator;
 
           var transparency = document.getElementById("indicatorTransparencyInput").value;
@@ -1043,12 +1044,12 @@ angular.module('kommonitorMap').component(
             transparencyDomString += '</div>';
             transparencyDomString += '<div class="col-sm-7">';
             transparencyDomString += '<div class="text-left">';
-            transparencyDomString += '<input style="width:100%;" id="indicatorTransparencyInput" type="range" value="' + (1 - defaultFillOpacity).toFixed(numberOfDecimals) + '" min="0" max="1" step="0.01">';
+            transparencyDomString += '<input style="width:100%;" id="indicatorTransparencyInput" type="range" value="' + (1 - kommonitorVisualStyleHelperService.getOpacity()).toFixed(numberOfDecimals) + '" min="0" max="1" step="0.01">';
             transparencyDomString += '</div>';
             transparencyDomString += '</div>';
             transparencyDomString += '<div class="col-sm-2">';
             transparencyDomString += '<div class="text-left">';
-            transparencyDomString += '<label id="indicatorTransparencyLabel">' + (1 - defaultFillOpacity).toFixed(numberOfDecimals) + '</label>';
+            transparencyDomString += '<label id="indicatorTransparencyLabel">' + (1 - kommonitorVisualStyleHelperService.getOpacity()).toFixed(numberOfDecimals) + '</label>';
             transparencyDomString += '</div>';
             transparencyDomString += '</div>';
             transparencyDomString += '</div>';
@@ -1365,13 +1366,12 @@ angular.module('kommonitorMap').component(
                   '<div class="col-md-3 ">' + 
                   count + '</div></div>';
               }
-              html += "<br/>";
 
               return html;
         };
 
         $scope.appendDecreasingItems = function(colorBrewInstance, opacity){
-          var html = "<br/>";
+          var html = "";
               var labelsDecrease = colorBrewInstance.breaks;
               var colorsDecrease = colorBrewInstance.colors;
 
@@ -1386,7 +1386,6 @@ angular.module('kommonitorMap').component(
                   '<div class="col-md-6 ">' + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labelsDecrease[i]) + (typeof labelsDecrease[i + 1] != 'undefined' ? ' &ndash; &lt; ' + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labelsDecrease[i + 1]) : ' &ndash; &lt; 0') + '</div>' + '<div class="col-md-3 ">' + 
                   count + '</div></div>';
               }
-              html += "<br/>";
 
               return html;
         };
@@ -1415,7 +1414,8 @@ angular.module('kommonitorMap').component(
               $scope.legendControl = undefined;
             }
             catch (error) {
-              kommonitorDataExchangeService.displayMapApplicationError(error);
+              console.error("Error while trying to remove existing legendControl. Will abort method execution.");
+              return;
             }
           }
 
@@ -1437,7 +1437,7 @@ angular.module('kommonitorMap').component(
 
             var opacity = 1;
             if ($scope.useTransparencyOnIndicator) {
-              opacity = defaultFillOpacity;
+              opacity = kommonitorVisualStyleHelperService.getOpacity();
             }
 
             $scope.div.innerHTML += '<div>';
@@ -1539,13 +1539,14 @@ angular.module('kommonitorMap').component(
               $scope.legendControl = undefined;
             }
             catch (error) {
-              kommonitorDataExchangeService.displayMapApplicationError(error);
+              console.error("Error while trying to remove existing legendControl. Will abort method execution.");
+              return;
             }
           }
 
           var opacity = 1;
           if ($scope.useTransparencyOnIndicator) {
-            opacity = defaultFillOpacity;
+            opacity = kommonitorVisualStyleHelperService.getOpacity();
           }
 
           $scope.legendControl = L.control({ position: 'topright' });
@@ -1655,13 +1656,14 @@ angular.module('kommonitorMap').component(
               $scope.legendControl = undefined;
             }
             catch (error) {
-              kommonitorDataExchangeService.displayMapApplicationError(error);
+              console.error("Error while trying to remove existing legendControl. Will abort method execution.");
+              return;
             }
           }
 
           var opacity = 1;
           if ($scope.useTransparencyOnIndicator) {
-            opacity = defaultFillOpacity;
+            opacity = kommonitorVisualStyleHelperService.getOpacity();
           }
 
           var dateComponents = $scope.date.split("-");

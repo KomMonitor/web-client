@@ -358,6 +358,11 @@ angular
         }
       };
 
+      this.getOpacity = function(opacity){
+
+        return defaultFillOpacity;
+      };
+
       this.setOpacity = function(opacity){
 
         opacity = Number(opacity);
