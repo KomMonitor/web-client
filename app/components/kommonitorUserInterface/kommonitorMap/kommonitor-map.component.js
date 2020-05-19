@@ -3428,6 +3428,21 @@ angular.module('kommonitorMap').component(
             }
           }
 
+          /* ///////////////////////////////// RASTER SPECIAL TREATMENT
+          // improve Raster display by eliminiating NoData cells and 
+          // omitting display border in style
+          */
+
+          if(kommonitorDataExchangeService.selectedSpatialUnitIsRaster()){
+            isRaster = true;
+            indicatorMetadataAndGeoJSON.geoJSON.features = indicatorMetadataAndGeoJSON.geoJSON.features.filter(feature => {
+              if (kommonitorDataExchangeService.indicatorValueIsNoData(feature.properties[$scope.indicatorPropertyName])) {
+                return false;
+              }
+              return true;
+            });
+          }
+
           var layer;
 
           $scope.indicatorTypeOfCurrentLayer = indicatorMetadataAndGeoJSON.indicatorType;
@@ -3490,6 +3505,10 @@ angular.module('kommonitorMap').component(
 
 
           }
+
+          // if(spatialUnitName.includes("raster") || spatialUnitName.includes("Raster") || spatialUnitName.includes("grid") || spatialUnitName.includes("Grid")){
+          //   layer.style.color = undefined;
+          // }
 
           $scope.currentIndicatorLayer = layer;
 
