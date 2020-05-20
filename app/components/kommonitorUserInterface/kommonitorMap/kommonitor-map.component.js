@@ -1367,7 +1367,7 @@ angular.module('kommonitorMap').component(
         $scope.appendFilteredFeaturesItem = function(opacity){
           var html = '<div class="row"><div class="col-md-3 ">' + '<i style="background:' + defaultColorForFilteredValues + '; border: 2px solid ' + defaultBorderColorForFilteredValues + '; opacity: ' + opacity + ';"></i> </div>' +
           '<div class="col-md-6 ">gefilterte Features </div>' + '<div class="col-md-3 ">' + 
-          $scope.filteredIndicatorFeatureNames.length + '</div></div>';
+          kommonitorDataExchangeService.filteredIndicatorFeatureNames.length + '</div></div>';
 
           return html;
         };
