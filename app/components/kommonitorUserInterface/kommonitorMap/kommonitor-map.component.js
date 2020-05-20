@@ -1030,7 +1030,7 @@ angular.module('kommonitorMap').component(
               titel += " - <i>individuelles Berechnungsergebnis</i>";
             }
 
-            indicatorInfoHTML += '<h4><b>Indikatoreninformation</b><br/>' + titel + '</h4><br/>';
+            indicatorInfoHTML += '<h4>' + titel + '</h4><br/>';
             indicatorInfoHTML += '<b>Beschreibung: </b> ' + $scope.indicatorDescription + '<br/>';
             indicatorInfoHTML += '<b>Datenquelle: </b> ' + $scope.currentIndicatorMetadataAndGeoJSON.metadata.datasource + '<br/>';
             indicatorInfoHTML += $scope.appendSpatialUnitOptions();
@@ -1473,7 +1473,7 @@ angular.module('kommonitorMap').component(
 
             $scope.div.innerHTML += '<div>';
 
-            $scope.div.innerHTML += "<h4><b>Indikatorenlegende</b><br/>" + kommonitorDataExchangeService.getIndicatorStringFromIndicatorType($scope.currentIndicatorMetadataAndGeoJSON.indicatorType) + "</h4><br/><em>Darstellung der Indikatorenwerte zum gew&auml;hlten Zeitpunkt " + kommonitorDataExchangeService.tsToDate_fullYear(kommonitorDataExchangeService.dateToTS(dateAsDate)) + "</em><br/><br/>";
+            $scope.div.innerHTML += "<h4>" + kommonitorDataExchangeService.getIndicatorStringFromIndicatorType($scope.currentIndicatorMetadataAndGeoJSON.indicatorType) + "</h4><em>Darstellung der Indikatorenwerte zum gew&auml;hlten Zeitpunkt " + kommonitorDataExchangeService.tsToDate_fullYear(kommonitorDataExchangeService.dateToTS(dateAsDate)) + "</em><br/><br/>";
 
             $scope.div.innerHTML += $scope.appendClassifyRadioOptions();
 
@@ -1599,14 +1599,14 @@ angular.module('kommonitorMap').component(
             $scope.div.innerHTML += '<div>';
 
             if ($scope.currentIndicatorMetadataAndGeoJSON['fromDate']) {
-              $scope.div.innerHTML += "<h4><b>Indikatorenlegende</b><br/>" + kommonitorDataExchangeService.getIndicatorStringFromIndicatorType($scope.currentIndicatorMetadataAndGeoJSON.indicatorType) + "</h4><br/>";
+              $scope.div.innerHTML += "<h4>" + kommonitorDataExchangeService.getIndicatorStringFromIndicatorType($scope.currentIndicatorMetadataAndGeoJSON.indicatorType) + "</h4>";
               $scope.div.innerHTML += "<em>Bilanzierung " + $scope.currentIndicatorMetadataAndGeoJSON['fromDate'] + " - " + $scope.currentIndicatorMetadataAndGeoJSON['toDate'] + "</em><br/><br/>";
             }
             else {
 
               var dateComponents = $scope.date.split("-");
               var dateAsDate = new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]));
-              $scope.div.innerHTML += "<h4><b>Indikatorenlegende</b><br/>" + kommonitorDataExchangeService.getIndicatorStringFromIndicatorType($scope.currentIndicatorMetadataAndGeoJSON.indicatorType) + "</h4><br/><em>Darstellung der zeitlichen Entwicklung zum gew&auml;hlten Zeitpunkt " + kommonitorDataExchangeService.tsToDate_fullYear(kommonitorDataExchangeService.dateToTS(dateAsDate)) + "</em><br/><br/>";
+              $scope.div.innerHTML += "<h4>" + kommonitorDataExchangeService.getIndicatorStringFromIndicatorType($scope.currentIndicatorMetadataAndGeoJSON.indicatorType) + "</h4><em>Darstellung der zeitlichen Entwicklung zum gew&auml;hlten Zeitpunkt " + kommonitorDataExchangeService.tsToDate_fullYear(kommonitorDataExchangeService.dateToTS(dateAsDate)) + "</em><br/><br/>";
             }
 
             $scope.div.innerHTML += $scope.appendClassifyRadioOptions();
@@ -1723,7 +1723,7 @@ angular.module('kommonitorMap').component(
 
             $scope.div.innerHTML += '<div>';
 
-            $scope.div.innerHTML += "<h4><b>Indikatorenlegende</b><br/>" + kommonitorDataExchangeService.getIndicatorStringFromIndicatorType($scope.currentIndicatorMetadataAndGeoJSON.indicatorType) + "</h4><br/><em>Schwellwert-Klassifizierung<br/>Gew&auml;hlter Zeitpunkt: " + kommonitorDataExchangeService.tsToDate_fullYear(kommonitorDataExchangeService.dateToTS(dateAsDate)) + "</em><br/>";
+            $scope.div.innerHTML += "<h4>" + kommonitorDataExchangeService.getIndicatorStringFromIndicatorType($scope.currentIndicatorMetadataAndGeoJSON.indicatorType) + "</h4><em>Schwellwert-Klassifizierung<br/>Gew&auml;hlter Zeitpunkt: " + kommonitorDataExchangeService.tsToDate_fullYear(kommonitorDataExchangeService.dateToTS(dateAsDate)) + "</em><br/>";
 
             $scope.div.innerHTML += "<em>aktueller Schwellwert: </em> " + kommonitorDataExchangeService.measureOfValue + "<br/><br/>";
 
