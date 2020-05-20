@@ -98,7 +98,7 @@ angular
         dashArray: '',
         fillOpacity: defaultFillOpacityForNoDataValues,
         fillColor: defaultColorForNoDataValues,
-        fillPattern: this.noDataFillPattern
+        // fillPattern: this.noDataFillPattern
       };
 
       this.filteredStyle = {

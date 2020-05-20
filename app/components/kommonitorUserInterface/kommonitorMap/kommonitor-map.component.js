@@ -1343,7 +1343,7 @@ angular.module('kommonitorMap').component(
 
         $scope.appendNoDataLegendItem = function(){
 
-          var noDataHtml = '<div class="row"><div class="col-md-3 ">' + '<i>' + $scope.svgString_noData + '</i> </div>' +
+          var noDataHtml = '<div class="row"><div class="col-md-3 ">' + '<i style="background:' + defaultColorForNoDataValues + '; border: 2px solid ' + defaultBorderColorForNoDataValues + '; opacity: ' + opacity + ';"></i> </div>' +
           '<div class="col-md-6 ">Leerwert</div> <div class="col-md-3 ">' + kommonitorVisualStyleHelperService.featuresPerNoData + '</div></div>';
            return  noDataHtml;
         };
