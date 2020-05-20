@@ -772,11 +772,11 @@ angular
 							value = "NoData";
 						}
 						else{
-							value = +Number(indicatorValue).toFixed(numberOfDecimals);
+							value = this.getIndicatorValue_asNumber(indicatorValue);
 						}
 
 						return value;
-					}
+					};
 
 					this.getIndicatorValueFromArray_asFormattedText = function(propertiesArray, targetDateString){
 						if(!targetDateString.includes(DATE_PREFIX)){
@@ -788,7 +788,7 @@ angular
 							value = "NoData";
 						}
 						else{
-						 	value = Number(indicatorValue).toLocaleString('de-DE', {maximumFractionDigits: numberOfDecimals});
+						 	value = this.getIndicatorValue_asFormattedText(indicatorValue);
 						}
 
 						return value;
@@ -896,7 +896,7 @@ angular
 
                 for (var index=0; index < gtMeasureOfValueBrew.breaks.length; index++){
 
-                  if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) == +Number(gtMeasureOfValueBrew.breaks[index]).toFixed(numberOfDecimals)){
+                  if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) == this.getIndicatorValue_asNumber(gtMeasureOfValueBrew.breaks[index])){
                     if(index < gtMeasureOfValueBrew.breaks.length -1){
                       // min value
                       color =  gtMeasureOfValueBrew.colors[index];
@@ -914,7 +914,7 @@ angular
                     }
                   }
                   else{
-                    if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) < +Number(gtMeasureOfValueBrew.breaks[index + 1]).toFixed(numberOfDecimals)) {
+                    if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) < this.getIndicatorValue_asNumber(gtMeasureOfValueBrew.breaks[index + 1])) {
                       color =  gtMeasureOfValueBrew.colors[index];
                       break;
                     }
@@ -925,7 +925,7 @@ angular
 
                 // invert colors, so that lowest values will become strong colored!
                 for (var index=0; index < ltMeasureOfValueBrew.breaks.length; index++){
-                  if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) == +Number(ltMeasureOfValueBrew.breaks[index]).toFixed(numberOfDecimals)){
+                  if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) == this.getIndicatorValue_asNumber(ltMeasureOfValueBrew.breaks[index])){
                     if(index < ltMeasureOfValueBrew.breaks.length -1){
                       // min value
                       color =  ltMeasureOfValueBrew.colors[ltMeasureOfValueBrew.colors.length - index - 1];
@@ -943,7 +943,7 @@ angular
                     }
                   }
                   else{
-                    if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) < +Number(ltMeasureOfValueBrew.breaks[index + 1]).toFixed(numberOfDecimals)) {
+                    if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) < this.getIndicatorValue_asNumber(ltMeasureOfValueBrew.breaks[index + 1])) {
                       color =  ltMeasureOfValueBrew.colors[ltMeasureOfValueBrew.colors.length - index - 1];
                       break;
                     }
@@ -959,7 +959,7 @@ angular
                 if(feature.properties[targetDate] < 0){
                   
                   for (var index=0; index < dynamicDecreaseBrew.breaks.length; index++){
-                    if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) == +Number(dynamicDecreaseBrew.breaks[index]).toFixed(numberOfDecimals)){
+                    if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) == this.getIndicatorValue_asNumber(dynamicDecreaseBrew.breaks[index])){
                       if(index < dynamicDecreaseBrew.breaks.length -1){
                         // min value
                         color =  dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - index - 1];
@@ -977,7 +977,7 @@ angular
                       }
                     }
                     else{
-                      if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) < +Number(dynamicDecreaseBrew.breaks[index + 1]).toFixed(numberOfDecimals)) {
+                      if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) < this.getIndicatorValue_asNumber(dynamicDecreaseBrew.breaks[index + 1])) {
                         color =  dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - index - 1];
                         break;
                       }
@@ -986,7 +986,7 @@ angular
                 }
                 else{
                   for (var index=0; index < dynamicIncreaseBrew.breaks.length; index++){
-                    if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) == +Number(dynamicIncreaseBrew.breaks[index]).toFixed(numberOfDecimals)){
+                    if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) == this.getIndicatorValue_asNumber(dynamicIncreaseBrew.breaks[index])){
                       if(index < dynamicIncreaseBrew.breaks.length -1){
                         // min value
                         color =  dynamicIncreaseBrew.colors[index];
@@ -1004,7 +1004,7 @@ angular
                       }
                     }
                     else{
-                      if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) < +Number(dynamicIncreaseBrew.breaks[index + 1]).toFixed(numberOfDecimals)) {
+                      if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) < this.getIndicatorValue_asNumber(dynamicIncreaseBrew.breaks[index + 1])) {
                         color =  dynamicIncreaseBrew.colors[index];
                         break;
                       }
