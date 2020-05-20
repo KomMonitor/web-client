@@ -1380,7 +1380,7 @@ angular.module('kommonitorMap').component(
           return html;
         };
 
-        $scope.appendIncreasingItems = function(colorBrewInstance, opacity){
+        $scope.appendColorGradientLegendItems = function(colorBrewInstance, opacity){
           var html = "";
               var labelsIncrease = colorBrewInstance.breaks;
               var colorsIncrease = colorBrewInstance.colors;
@@ -1401,25 +1401,25 @@ angular.module('kommonitorMap').component(
               return html;
         };
 
-        $scope.appendDecreasingItems = function(colorBrewInstance, opacity){
-          var html = "";
-              var labelsDecrease = colorBrewInstance.breaks;
-              var colorsDecrease = colorBrewInstance.colors;
+        // $scope.appendDecreasingItems = function(colorBrewInstance, opacity){
+        //   var html = "";
+        //       var labelsDecrease = colorBrewInstance.breaks;
+        //       var colorsDecrease = colorBrewInstance.colors;
 
-              // html += "<label>Zunahme</label><br/>";
+        //       // html += "<label>Zunahme</label><br/>";
 
-              // invert color labeling as colorization of lT features is also inverted
-              for (var i = 0; i < colorsDecrease.length; i++) {
-                var count = kommonitorVisualStyleHelperService.featuresPerColorMap.get(colorsDecrease[i]) ? kommonitorVisualStyleHelperService.featuresPerColorMap.get(colorsDecrease[i]) : 0;
+        //       // invert color labeling as colorization of lT features is also inverted
+        //       for (var i = 0; i < colorsDecrease.length; i++) {
+        //         var count = kommonitorVisualStyleHelperService.featuresPerColorMap.get(colorsDecrease[i]) ? kommonitorVisualStyleHelperService.featuresPerColorMap.get(colorsDecrease[i]) : 0;
 
-                html +=
-                  '<div class="row"><div class="col-md-3 "><i style="background:' + colorsDecrease[colorsDecrease.length - 1 - i] + '; opacity: ' + opacity + ';"></i> </div>' +
-                  '<div class="col-md-6 ">' + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labelsDecrease[i]) + (typeof labelsDecrease[i + 1] != 'undefined' ? ' &ndash; &lt; ' + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labelsDecrease[i + 1]) : '') + '</div>' + '<div class="col-md-3 ">' + 
-                  count + '</div></div>';
-              }
+        //         html +=
+        //           '<div class="row"><div class="col-md-3 "><i style="background:' + colorsDecrease[colorsDecrease.length - 1 - i] + '; opacity: ' + opacity + ';"></i> </div>' +
+        //           '<div class="col-md-6 ">' + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labelsDecrease[i]) + (typeof labelsDecrease[i + 1] != 'undefined' ? ' &ndash; &lt; ' + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labelsDecrease[i + 1]) : '') + '</div>' + '<div class="col-md-3 ">' + 
+        //           count + '</div></div>';
+        //       }
 
-              return html;
-        };
+        //       return html;
+        // };
 
         $scope.appendColorLegendHeaders = function(){
           var html = '<div class="row"><div class="col-md-3"><b>Symbolik</b></div>' +
@@ -1518,7 +1518,7 @@ angular.module('kommonitorMap').component(
             if (containsNegativeValues) {
               // dynamic legend creation depending on number of positive and negative classes
               if ($scope.dynamicDecreaseBrew) {
-                $scope.div.innerHTML += $scope.appendDecreasingItems($scope.dynamicDecreaseBrew, opacity);
+                $scope.div.innerHTML += $scope.appendColorGradientLegendItems($scope.dynamicDecreaseBrew, opacity);
 
               }
 
@@ -1529,7 +1529,7 @@ angular.module('kommonitorMap').component(
 
               if ($scope.dynamicIncreaseBrew) {
                 // $scope.div.innerHTML += "<br/>";
-                $scope.div.innerHTML += $scope.appendIncreasingItems($scope.dynamicIncreaseBrew, opacity);
+                $scope.div.innerHTML += $scope.appendColorGradientLegendItems($scope.dynamicIncreaseBrew, opacity);
               }
 
             }
@@ -1545,7 +1545,7 @@ angular.module('kommonitorMap').component(
                 $scope.div.innerHTML += '<br/>';
               }
 
-              $scope.div.innerHTML += $scope.appendIncreasingItems($scope.defaultBrew, opacity);
+              $scope.div.innerHTML += $scope.appendColorGradientLegendItems($scope.defaultBrew, opacity);
             }
 
             $scope.div.innerHTML += '</div>';
@@ -1655,7 +1655,7 @@ angular.module('kommonitorMap').component(
 
             // dynamic legend creation depending on number of positive and negative classes
             if ($scope.dynamicDecreaseBrew) {
-              $scope.div.innerHTML += $scope.appendDecreasingItems($scope.dynamicDecreaseBrew, opacity);
+              $scope.div.innerHTML += $scope.appendColorGradientLegendItems($scope.dynamicDecreaseBrew, opacity);
 
             }
 
@@ -1666,7 +1666,7 @@ angular.module('kommonitorMap').component(
 
             if ($scope.dynamicIncreaseBrew) {
               $scope.div.innerHTML += '<br/>';
-              $scope.div.innerHTML += $scope.appendIncreasingItems($scope.dynamicIncreaseBrew, opacity);
+              $scope.div.innerHTML += $scope.appendColorGradientLegendItems($scope.dynamicIncreaseBrew, opacity);
             }
 
             $scope.div.innerHTML += '</div>';
@@ -1775,12 +1775,12 @@ angular.module('kommonitorMap').component(
             }
 
             if ($scope.ltMeasureOfValueBrew) {
-              $scope.div.innerHTML += $scope.appendDecreasingItems($scope.ltMeasureOfValueBrew, opacity);
+              $scope.div.innerHTML += $scope.appendColorGradientLegendItems($scope.ltMeasureOfValueBrew, opacity);
             }
 
             if ($scope.gtMeasureOfValueBrew) {
               $scope.div.innerHTML += '<br/>';
-              $scope.div.innerHTML += $scope.appendIncreasingItems($scope.gtMeasureOfValueBrew, opacity);
+              $scope.div.innerHTML += $scope.appendColorGradientLegendItems($scope.gtMeasureOfValueBrew, opacity);
             }
 
             $scope.div.innerHTML += '</div>';

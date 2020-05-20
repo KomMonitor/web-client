@@ -869,6 +869,38 @@ angular
             return indicatorTypeString;
           };
 
+          this.getColorFromBrewInstance = function(brewInstance, feature, targetDate){
+            var color;
+            for (var index=0; index < brewInstance.breaks.length; index++){
+
+              if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) == this.getIndicatorValue_asNumber(brewInstance.breaks[index])){
+                if(index < brewInstance.breaks.length -1){
+                  // min value
+                  color =  brewInstance.colors[index];
+                  break;
+                }
+                else {
+                  //max value
+                  if (brewInstance.colors[index]){
+                    color =  brewInstance.colors[index];
+                  }
+                  else{
+                    color =  brewInstance.colors[index - 1];
+                  }
+                  break;
+                }
+              }
+              else{
+                if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) < this.getIndicatorValue_asNumber(brewInstance.breaks[index + 1])) {
+                  color =  brewInstance.colors[index];
+                  break;
+                }
+              }
+            }
+
+            return color;
+          };
+
           this.getColorForFeature = function(feature, indicatorMetadataAndGeoJSON, targetDate, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue){
             var color;
 
@@ -894,63 +926,10 @@ angular
             else if(isMeasureOfValueChecked){
 
               if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) >= +Number(measureOfValue).toFixed(numberOfDecimals)){
-
-                for (var index=0; index < gtMeasureOfValueBrew.breaks.length; index++){
-
-                  if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) == this.getIndicatorValue_asNumber(gtMeasureOfValueBrew.breaks[index])){
-                    if(index < gtMeasureOfValueBrew.breaks.length -1){
-                      // min value
-                      color =  gtMeasureOfValueBrew.colors[index];
-                      break;
-                    }
-                    else {
-                      //max value
-                      if (gtMeasureOfValueBrew.colors[index]){
-                        color =  gtMeasureOfValueBrew.colors[index];
-                      }
-                      else{
-                        color =  gtMeasureOfValueBrew.colors[index - 1];
-                      }
-                      break;
-                    }
-                  }
-                  else{
-                    if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) < this.getIndicatorValue_asNumber(gtMeasureOfValueBrew.breaks[index + 1])) {
-                      color =  gtMeasureOfValueBrew.colors[index];
-                      break;
-                    }
-                  }
-                }
+                color = this.getColorFromBrewInstance(gtMeasureOfValueBrew, feature, targetDate);                
               }
               else {
-
-                // invert colors, so that lowest values will become strong colored!
-                for (var index=0; index < ltMeasureOfValueBrew.breaks.length; index++){
-                  if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) == this.getIndicatorValue_asNumber(ltMeasureOfValueBrew.breaks[index])){
-                    if(index < ltMeasureOfValueBrew.breaks.length -1){
-                      // min value
-                      color =  ltMeasureOfValueBrew.colors[ltMeasureOfValueBrew.colors.length - index - 1];
-                      break;
-                    }
-                    else {
-                      //max value
-                      if (ltMeasureOfValueBrew.colors[ltMeasureOfValueBrew.colors.length - index]){
-                        color =  ltMeasureOfValueBrew.colors[ltMeasureOfValueBrew.colors.length - index];
-                      }
-                      else{
-                        color =  ltMeasureOfValueBrew.colors[ltMeasureOfValueBrew.colors.length - index - 1];
-                      }
-                      break;
-                    }
-                  }
-                  else{
-                    if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) < this.getIndicatorValue_asNumber(ltMeasureOfValueBrew.breaks[index + 1])) {
-                      color =  ltMeasureOfValueBrew.colors[ltMeasureOfValueBrew.colors.length - index - 1];
-                      break;
-                    }
-                  }
-                }
-
+                color = this.getColorFromBrewInstance(ltMeasureOfValueBrew, feature, targetDate);
               }
 
             }
@@ -959,58 +938,10 @@ angular
 
                 if(feature.properties[targetDate] < 0){
                   
-                  for (var index=0; index < dynamicDecreaseBrew.breaks.length; index++){
-                    if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) == this.getIndicatorValue_asNumber(dynamicDecreaseBrew.breaks[index])){
-                      if(index < dynamicDecreaseBrew.breaks.length -1){
-                        // min value
-                        color =  dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - index - 1];
-                        break;
-                      }
-                      else {
-                        //max value
-                        if (dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - index]){
-                          color =  dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - index];
-                        }
-                        else{
-                          color =  dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - index - 1];
-                        }
-                        break;
-                      }
-                    }
-                    else{
-                      if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) < this.getIndicatorValue_asNumber(dynamicDecreaseBrew.breaks[index + 1])) {
-                        color =  dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - index - 1];
-                        break;
-                      }
-                    }
-                  }
+                  color = this.getColorFromBrewInstance(dynamicDecreaseBrew, feature, targetDate);
                 }
                 else{
-                  for (var index=0; index < dynamicIncreaseBrew.breaks.length; index++){
-                    if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) == this.getIndicatorValue_asNumber(dynamicIncreaseBrew.breaks[index])){
-                      if(index < dynamicIncreaseBrew.breaks.length -1){
-                        // min value
-                        color =  dynamicIncreaseBrew.colors[index];
-                        break;
-                      }
-                      else {
-                        //max value
-                        if (dynamicIncreaseBrew.colors[index]){
-                          color =  dynamicIncreaseBrew.colors[index];
-                        }
-                        else{
-                          color =  dynamicIncreaseBrew.colors[index - 1];
-                        }
-                        break;
-                      }
-                    }
-                    else{
-                      if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) < this.getIndicatorValue_asNumber(dynamicIncreaseBrew.breaks[index + 1])) {
-                        color =  dynamicIncreaseBrew.colors[index];
-                        break;
-                      }
-                    }
-                  }
+                  color = this.getColorFromBrewInstance(dynamicIncreaseBrew, feature, targetDate);
                 }
 
               }
@@ -1025,31 +956,7 @@ angular
                       }
                     }
                     else{
-                      for (var index=0; index < dynamicIncreaseBrew.breaks.length; index++){
-                        if(this.getIndicatorValue_asNumber(feature.properties[targetDate]) == this.getIndicatorValue_asNumber(dynamicIncreaseBrew.breaks[index])){
-                          if(index < dynamicIncreaseBrew.breaks.length -1){
-                            // min value
-                            color =  dynamicIncreaseBrew.colors[index];
-                            break;
-                          }
-                          else {
-                            //max value
-                            if (dynamicIncreaseBrew.colors[index]){
-                              color =  dynamicIncreaseBrew.colors[index];
-                            }
-                            else{
-                              color =  dynamicIncreaseBrew.colors[index - 1];
-                            }
-                            break;
-                          }
-                        }
-                        else{
-                          if(this.getIndicatorValue_asNumber(feature.properties[targetDate]) < this.getIndicatorValue_asNumber(dynamicIncreaseBrew.breaks[index + 1])) {
-                            color =  dynamicIncreaseBrew.colors[index];
-                            break;
-                          }
-                        }
-                      }
+                      color = this.getColorFromBrewInstance(dynamicIncreaseBrew, feature, targetDate);
                     }
                   }
                   else{
@@ -1060,61 +967,12 @@ angular
                       }
                     }
                     else{
-                      // invert colors, so that lowest values will become strong colored!
-                      for (var index=0; index < dynamicDecreaseBrew.breaks.length; index++){
-                        if(this.getIndicatorValue_asNumber(feature.properties[targetDate]) == this.getIndicatorValue_asNumber(dynamicDecreaseBrew.breaks[index])){
-                          if(index < dynamicDecreaseBrew.breaks.length -1){
-                            // min value
-                            color =  dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - index - 1];
-                            break;
-                          }
-                          else {
-                            //max value
-                            if (dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - index]){
-                              color =  dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - index];
-                            }
-                            else{
-                              color =  dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - index - 1];
-                            }
-                            break;
-                          }
-                        }
-                        else{
-                          if(this.getIndicatorValue_asNumber(feature.properties[targetDate]) < this.getIndicatorValue_asNumber(dynamicDecreaseBrew.breaks[index + 1])) {
-                            color =  dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - index - 1];
-                            break;
-                          }
-                        }
-                      }
+                      color = this.getColorFromBrewInstance(dynamicDecreaseBrew, feature, targetDate);
                     }
                   }
                 }
                 else{
-                  for (var index=0; index < defaultBrew.breaks.length; index++){
-                    if(this.getIndicatorValue_asNumber(feature.properties[targetDate]) == this.getIndicatorValue_asNumber(defaultBrew.breaks[index])){
-                      if(index < defaultBrew.breaks.length -1){
-                        // min value
-                        color =  defaultBrew.colors[index];
-                        break;
-                      }
-                      else {
-                        //max value
-                        if (defaultBrew.colors[index]){
-                          color =  defaultBrew.colors[index];
-                        }
-                        else{
-                          color =  defaultBrew.colors[index - 1];
-                        }
-                        break;
-                      }
-                    }
-                    else{
-                      if(this.getIndicatorValue_asNumber(feature.properties[targetDate]) < this.getIndicatorValue_asNumber(defaultBrew.breaks[index + 1])) {
-                        color =  defaultBrew.colors[index];
-                        break;
-                      }
-                    }
-                  }                  
+                  color = this.getColorFromBrewInstance(defaultBrew, feature, targetDate);                 
                 }
               }
             }
