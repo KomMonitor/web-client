@@ -151,7 +151,8 @@ angular
 					this.availableProcessScripts = [];
           this.isochroneLegend;
 
-          this.useOutlierDetectionOnIndicator = true;
+          this.useOutlierDetectionOnIndicator = __env.useOutlierDetectionOnIndicator;
+          this.classifyZeroSeparately = __env.classifyZeroSeparately;
 
 					this.setProcessScripts = function(scriptsArray){
 						this.availableProcessScripts = scriptsArray;
@@ -881,7 +882,7 @@ angular
             else if(this.filteredIndicatorFeatureNames.includes(feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])){
               color = defaultColorForFilteredValues;
             }
-            else if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) === 0 ){
+            else if(this.classifyZeroSeparately && this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) === 0 ){
               color = defaultColorForZeroValues;
             }
             else if(feature.properties["outlier"] !== undefined && feature.properties["outlier"].includes("low") && this.useOutlierDetectionOnIndicator){
@@ -1017,7 +1018,7 @@ angular
 
                 if(containsNegativeValues(indicatorMetadataAndGeoJSON.geoJSON, targetDate)){
                   if(this.getIndicatorValue_asNumber(feature.properties[targetDate]) >= 0){
-                    if(feature.properties[targetDate] == 0 || feature.properties[targetDate] == "0"){
+                    if(this.classifyZeroSeparately && (feature.properties[targetDate] == 0 || feature.properties[targetDate] == "0")){
                       color = defaultColorForZeroValues;
                       if(useTransparencyOnIndicator){
                         fillOpacity = defaultFillOpacityForZeroFeatures;
@@ -1052,7 +1053,7 @@ angular
                     }
                   }
                   else{
-                    if(feature.properties[targetDate] == 0 || feature.properties[targetDate] == "0"){
+                    if(this.classifyZeroSeparately && (feature.properties[targetDate] == 0 || feature.properties[targetDate] == "0")){
                       color = defaultColorForZeroValues;
                       if(useTransparencyOnIndicator){
                         fillOpacity = defaultFillOpacityForZeroFeatures;

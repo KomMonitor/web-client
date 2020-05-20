@@ -1163,6 +1163,20 @@ angular.module('kommonitorMap').component(
           preserveHighlightedFeatures();
         });
 
+        $(document).on('click', '#controlIndicatorZeroClassifyOption', function (e) {
+          var zeroClassifyCheckbox = document.getElementById('controlIndicatorZeroClassifyOption');
+          if (zeroClassifyCheckbox.checked) {
+            kommonitorDataExchangeService.classifyZeroSeparately = true;
+          }
+          else {
+            kommonitorDataExchangeService.classifyZeroSeparately = false;
+          }
+          $rootScope.$broadcast("restyleCurrentLayer", false);
+
+          // ensure that highlighted features remain highlighted
+          preserveHighlightedFeatures();
+        });
+
         $scope.$on("changeClassifyMethod", function (event, method) {
           $scope.classifyMethod = method;
 
@@ -1262,6 +1276,23 @@ angular.module('kommonitorMap').component(
           innerHTMLString += "<label class='switch' title='Ausreißer gesondert darstellen'>";
           innerHTMLString += "<input id='controlIndicatorOutlierDetection' type='checkbox' value='useOutlierDetection'";
           if (kommonitorDataExchangeService.useOutlierDetectionOnIndicator) {
+            innerHTMLString += " checked";
+          }
+          innerHTMLString += ">";
+          innerHTMLString += "<span class='switchslider round'></span>";
+          innerHTMLString += '</label>';
+          innerHTMLString += '<br/>';
+          innerHTMLString += '<br/>';
+
+          return innerHTMLString;
+        };
+
+        $scope.appendZeroClassifyCheckbox = function () {
+
+          var innerHTMLString = '<strong>Wert "0" als separate Klasse darstellen</strong> &nbsp;';
+          innerHTMLString += "<label class='switch' title='0 als separate Klasse darstellen'>";
+          innerHTMLString += "<input id='controlIndicatorZeroClassifyOption' type='checkbox' value='useSeparateZeroClass'";
+          if (kommonitorDataExchangeService.classifyZeroSeparately) {
             innerHTMLString += " checked";
           }
           innerHTMLString += ">";
@@ -1456,6 +1487,10 @@ angular.module('kommonitorMap').component(
               $scope.div.innerHTML += $scope.appendOutliersCheckbox();
             }
 
+            if ($scope.currentIndicatorContainsZeroValues) {
+              $scope.div.innerHTML += $scope.appendZeroClassifyCheckbox();
+            }
+
             $scope.div.innerHTML += $scope.appendColorLegendHeaders();
 
             if ($scope.currentIndicatorContainsNoDataValues) {
@@ -1487,7 +1522,7 @@ angular.module('kommonitorMap').component(
 
               }
 
-              if ($scope.currentIndicatorContainsZeroValues) {
+              if (kommonitorDataExchangeService.classifyZeroSeparately && $scope.currentIndicatorContainsZeroValues) {
                 // $scope.div.innerHTML += "<br/>";
                 $scope.div.innerHTML += $scope.appendZeroItem(opacity);
               }
@@ -1501,7 +1536,7 @@ angular.module('kommonitorMap').component(
             else {
               //TODO FIXME defaultCustomRating comes in the wrong order! inspect that behaviour server-side
 
-              if ($scope.currentIndicatorContainsZeroValues) {
+              if (kommonitorDataExchangeService.classifyZeroSeparately && $scope.currentIndicatorContainsZeroValues) {
                 $scope.div.innerHTML += $scope.appendZeroItem(opacity);
                 useFilteredOrZeroOrOutlierValues = true;
               }
@@ -1586,6 +1621,10 @@ angular.module('kommonitorMap').component(
               $scope.div.innerHTML += $scope.appendOutliersCheckbox();
             }
 
+            if ($scope.currentIndicatorContainsZeroValues) {
+              $scope.div.innerHTML += $scope.appendZeroClassifyCheckbox();
+            }
+
             $scope.div.innerHTML += $scope.appendColorLegendHeaders();
 
             if ($scope.currentIndicatorContainsNoDataValues) {
@@ -1620,7 +1659,7 @@ angular.module('kommonitorMap').component(
 
             }
 
-            if ($scope.currentIndicatorContainsZeroValues) {
+            if (kommonitorDataExchangeService.classifyZeroSeparately && $scope.currentIndicatorContainsZeroValues) {
               $scope.div.innerHTML += "<br/>";
               $scope.div.innerHTML += $scope.appendZeroItem(opacity);
             }
@@ -1698,6 +1737,10 @@ angular.module('kommonitorMap').component(
               $scope.div.innerHTML += $scope.appendOutliersCheckbox();
             }
 
+            if ($scope.currentIndicatorContainsZeroValues) {
+              $scope.div.innerHTML += $scope.appendZeroClassifyCheckbox();
+            }
+
             $scope.div.innerHTML += $scope.appendColorLegendHeaders();
 
             if ($scope.currentIndicatorContainsNoDataValues) {
@@ -1722,7 +1765,7 @@ angular.module('kommonitorMap').component(
               useFilteredOrZeroOrOutlierValues = true;
             }
 
-            if ($scope.currentIndicatorContainsZeroValues) {
+            if (kommonitorDataExchangeService.classifyZeroSeparately && $scope.currentIndicatorContainsZeroValues) {
               $scope.div.innerHTML += $scope.appendZeroItem(opacity);
               useFilteredOrZeroOrOutlierValues = true;
             }

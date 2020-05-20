@@ -85,6 +85,7 @@
   window.__env.defaultFillOpacityForHighlightedFeatures = "0.8";
   window.__env.useTransparencyOnIndicator = true;
   window.__env.useOutlierDetectionOnIndicator = true;
+  window.__env.classifyZeroSeparately = true;
 
   // default color for specific classification as ColorBrewer palette name
   // i.e. balance mode
