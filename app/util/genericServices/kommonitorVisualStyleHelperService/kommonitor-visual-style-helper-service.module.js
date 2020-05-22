@@ -141,7 +141,19 @@ angular
       this.setupDefaultBrew = function (geoJSON, propertyName, numClasses, colorCode, classifyMethod) {
         this.resetFeaturesPerColorObjects();
 
-        var values = [];
+        var values = new Array();
+
+        if(kommonitorDataExchangeService.classifyUsingWholeTimeseries){
+          values = this.setupDefaultBrewValues_wholeTimeseries(geoJSON, values);
+        }
+        else{
+          values = this.setupDefaultBrewValues_singleTimestamp(geoJSON, propertyName, values);
+        }
+
+        return setupClassyBrew_usingFeatureCount(values, colorCode, classifyMethod, numClasses);
+      };
+
+      this.setupDefaultBrewValues_singleTimestamp = function(geoJSON, propertyName, values){
         for (var i = 0; i < geoJSON.features.length; i++) {
           if (kommonitorDataExchangeService.indicatorValueIsNoData(geoJSON.features[i].properties[propertyName]))
             continue;
@@ -160,7 +172,18 @@ angular
           }
         }
 
-        return setupClassyBrew_usingFeatureCount(values, colorCode, classifyMethod, numClasses);
+        return values;
+      };
+
+      this.setupDefaultBrewValues_wholeTimeseries = function(geoJSON, values){
+        var indicatorTimeSeriesDatesArray = kommonitorDataExchangeService.selectedIndicator.applicableDates;
+
+          for (const date of indicatorTimeSeriesDatesArray) {
+            var propertyName = __env.indicatorDatePrefix + date;
+            values = this.setupDefaultBrewValues_singleTimestamp(geoJSON, propertyName, values);
+          }          
+
+        return values;
       };
 
       /**
@@ -185,9 +208,23 @@ angular
 
        this.resetFeaturesPerColorObjects();
 
-        var greaterThanValues = [];
-        var lesserThanValues = [];
+       this.greaterThanValues = [];
+       this.lesserThanValues = [];
 
+        if(kommonitorDataExchangeService.classifyUsingWholeTimeseries){
+          this.setupMovBrewValues_wholeTimeseries(geoJSON, measureOfValue);
+        }
+        else{
+          this.setupMovBrewValues_singleTimestamp(geoJSON, propertyName, measureOfValue);
+        }        
+
+        var gtMeasureOfValueBrew = this.setupGtMeasureOfValueBrew(this.greaterThanValues, colorCodeForGreaterThanValues, classifyMethod);
+        var ltMeasureOfValueBrew = this.setupLtMeasureOfValueBrew(this.lesserThanValues, colorCodeForLesserThanValues, classifyMethod);
+
+        return [gtMeasureOfValueBrew, ltMeasureOfValueBrew];
+      };
+
+      this.setupMovBrewValues_singleTimestamp = function(geoJSON, propertyName, measureOfValue){
         for (var i = 0; i < geoJSON.features.length; i++) {
 
           if (kommonitorDataExchangeService.indicatorValueIsNoData(geoJSON.features[i].properties[propertyName]))
@@ -203,21 +240,25 @@ angular
           }
 
           else if (kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]) >= kommonitorDataExchangeService.getIndicatorValue_asNumber(measureOfValue)){
-            if(! greaterThanValues.includes(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]))){            
-              greaterThanValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
+            if(! this.greaterThanValues.includes(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]))){            
+              this.greaterThanValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
             }
           }
           else{
-            if(! lesserThanValues.includes(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]))){            
-              lesserThanValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
+            if(! this.lesserThanValues.includes(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]))){            
+              this.lesserThanValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
             }
           }
         }
+      };
 
-        var gtMeasureOfValueBrew = this.setupGtMeasureOfValueBrew(greaterThanValues, colorCodeForGreaterThanValues, classifyMethod);
-        var ltMeasureOfValueBrew = this.setupLtMeasureOfValueBrew(lesserThanValues, colorCodeForLesserThanValues, classifyMethod);
+      this.setupMovBrewValues_wholeTimeseries = function(geoJSON, measureOfValue){
+        var indicatorTimeSeriesDatesArray = kommonitorDataExchangeService.selectedIndicator.applicableDates;
 
-        return [gtMeasureOfValueBrew, ltMeasureOfValueBrew];
+          for (const date of indicatorTimeSeriesDatesArray) {
+            var propertyName = __env.indicatorDatePrefix + date;
+            this.setupMovBrewValues_singleTimestamp(geoJSON, propertyName, measureOfValue);
+          }    
       };
 
       function setupClassyBrew_usingFeatureCount(valuesArray, colorCode, classifyMethod, maxNumberOfClasses){
@@ -315,9 +356,18 @@ angular
 
        this.resetFeaturesPerColorObjects();
 
-        var positiveValues = [];
-        var negativeValues = [];
+        this.positiveValues = [];
+        this.negativeValues = [];
+        
+        this.setupDynamicBrewValues_singleTimestamp(geoJSON, propertyName);
 
+        var dynamicIncreaseBrew = setupDynamicIncreaseBrew(this.positiveValues, colorCodeForPositiveValues, classifyMethod);
+        var dynamicDecreaseBrew = setupDynamicDecreaseBrew(this.negativeValues, colorCodeForNegativeValues, classifyMethod);
+
+        return [dynamicIncreaseBrew, dynamicDecreaseBrew];
+      };
+
+      this.setupDynamicBrewValues_singleTimestamp = function(geoJSON, propertyName){
         for (var i = 0; i < geoJSON.features.length; i++) {
           if (kommonitorDataExchangeService.indicatorValueIsNoData(geoJSON.features[i].properties[propertyName]))
             continue;
@@ -332,21 +382,16 @@ angular
           }
 
           else if (kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]) >= 0){
-            if(! positiveValues.includes(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]))){            
-              positiveValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
+            if(! this.positiveValues.includes(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]))){            
+              this.positiveValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
             }
           }
           else if (kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]) < 0){
-            if(! negativeValues.includes(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]))){            
-              negativeValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
+            if(! this.negativeValues.includes(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]))){            
+              this.negativeValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
             }
           }
         }
-
-        var dynamicIncreaseBrew = setupDynamicIncreaseBrew(positiveValues, colorCodeForPositiveValues, classifyMethod);
-        var dynamicDecreaseBrew = setupDynamicDecreaseBrew(negativeValues, colorCodeForNegativeValues, classifyMethod);
-
-        return [dynamicIncreaseBrew, dynamicDecreaseBrew];
       };
 
       function setupDynamicIncreaseBrew(positiveValues, colorCodeForPositiveValues, classifyMethod) {

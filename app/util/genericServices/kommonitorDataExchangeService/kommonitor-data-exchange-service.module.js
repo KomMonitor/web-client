@@ -153,6 +153,7 @@ angular
 
           this.useOutlierDetectionOnIndicator = __env.useOutlierDetectionOnIndicator;
           this.classifyZeroSeparately = __env.classifyZeroSeparately;
+          this.classifyUsingWholeTimeseries = __env.classifyUsingWholeTimeseries;
 
 					this.setProcessScripts = function(scriptsArray){
 						this.availableProcessScripts = scriptsArray;

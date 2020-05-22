@@ -1177,6 +1177,20 @@ angular.module('kommonitorMap').component(
           preserveHighlightedFeatures();
         });
 
+        $(document).on('click', '#controlIndicatorClassifyOption_wholeTimeseries', function (e) {
+          var wholeTimeseriesClassificationCheckbox = document.getElementById('controlIndicatorClassifyOption_wholeTimeseries');
+          if (wholeTimeseriesClassificationCheckbox.checked) {
+            kommonitorDataExchangeService.classifyUsingWholeTimeseries = true;
+          }
+          else {
+            kommonitorDataExchangeService.classifyUsingWholeTimeseries = false;
+          }
+          $rootScope.$broadcast("restyleCurrentLayer", false);
+
+          // ensure that highlighted features remain highlighted
+          preserveHighlightedFeatures();
+        });        
+
         $scope.$on("changeClassifyMethod", function (event, method) {
           $scope.classifyMethod = method;
 
@@ -1293,6 +1307,23 @@ angular.module('kommonitorMap').component(
           innerHTMLString += "<label class='switch' title='0 als separate Klasse darstellen'>";
           innerHTMLString += "<input id='controlIndicatorZeroClassifyOption' type='checkbox' value='useSeparateZeroClass'";
           if (kommonitorDataExchangeService.classifyZeroSeparately) {
+            innerHTMLString += " checked";
+          }
+          innerHTMLString += ">";
+          innerHTMLString += "<span class='switchslider round'></span>";
+          innerHTMLString += '</label>';
+          innerHTMLString += '<br/>';
+          innerHTMLString += '<br/>';
+
+          return innerHTMLString;
+        };
+
+        $scope.appendWholeTimeseriesClassificationCheckbox = function () {
+
+          var innerHTMLString = '<strong>Klassifizierung &uuml;ber die gesamte Zeitreihe</strong> &nbsp;';
+          innerHTMLString += "<label class='switch' title='Klassifizierung &uuml;ber die gesamte Zeitreihe'>";
+          innerHTMLString += "<input id='controlIndicatorClassifyOption_wholeTimeseries' type='checkbox' value='useWholeTimeseriesClassification'";
+          if (kommonitorDataExchangeService.classifyUsingWholeTimeseries) {
             innerHTMLString += " checked";
           }
           innerHTMLString += ">";
@@ -1490,6 +1521,8 @@ angular.module('kommonitorMap').component(
             if ($scope.currentIndicatorContainsZeroValues) {
               $scope.div.innerHTML += $scope.appendZeroClassifyCheckbox();
             }
+            
+            $scope.div.innerHTML += $scope.appendWholeTimeseriesClassificationCheckbox();
 
             $scope.div.innerHTML += $scope.appendColorLegendHeaders();
 
@@ -1740,6 +1773,8 @@ angular.module('kommonitorMap').component(
             if ($scope.currentIndicatorContainsZeroValues) {
               $scope.div.innerHTML += $scope.appendZeroClassifyCheckbox();
             }
+
+            $scope.div.innerHTML += $scope.appendWholeTimeseriesClassificationCheckbox();
 
             $scope.div.innerHTML += $scope.appendColorLegendHeaders();
 
