@@ -10,35 +10,6 @@
 
 	<p></p>
 
-	<div ng-show="!histogramCanBeDisplayed">
-		<br/>
-		<br/>
-		<br/>
-		<h4>Keine Histogramm-Darstellung m&ouml;glich.</h4>
-		<br/>
-		<br/>
-		<br/>
-	</div>
-
-	<!-- HISTOGRAM CHART -->
-				<div ng-show="histogramCanBeDisplayed" style="margin-bottom: 10px;" class="box box-success">
-					<div class="box-header with-border">
-						<h3 class="box-title">Histogramm - {{spatialUnitName}} - {{date}}</h3>
-
-						<!-- <div class="box-tools pull-right">
-							<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-							</button>
-						</div> -->
-					</div>
-					<div class="box-body">
-						<div class="chart">
-							<div id="histogramDiagram" style="width:100%; min-height:170px;"></div>
-						</div>
-					</div>
-					<!-- /.box-body -->
-				</div>
-				<!-- /.box -->
-
 	<div ng-show="isTooManyFeatures">
 		<br/>
 		<br/>
@@ -63,7 +34,7 @@
 					</div>
 					<div class="box-body">
 						<div class="chart">
-							<div  id="barDiagram" style="width:100%; min-height:235px;"></div>
+							<div  id="barDiagram" style="width:100%; min-height:350px;"></div>
 						</div>
 					</div>
 					<!-- /.box-body -->
@@ -82,7 +53,7 @@
 						</div>
 						<div class="box-body">
 							<div class="chart">
-								<div id="lineDiagram" style="width:100%; min-height:200px;"></div>
+								<div id="lineDiagram" style="width:100%; min-height:350px;"></div>
 							</div>
 						</div>
 						<!-- /.box-body -->

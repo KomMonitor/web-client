@@ -304,7 +304,7 @@ angular
           indicatorTimeSeriesAverageArray[i] = kommonitorDataExchangeService.getIndicatorValue_asNumber(indicatorTimeSeriesAverageArray[i] / indicatorTimeSeriesCountArray[i]);
         }
 
-        setHistogramChartOptions(indicatorMetadataAndGeoJSON, indicatorValueArray, spatialUnitName, date);
+        // setHistogramChartOptions(indicatorMetadataAndGeoJSON, indicatorValueArray, spatialUnitName, date);
 
         setLineChartOptions(indicatorMetadataAndGeoJSON, indicatorTimeSeriesDatesArray, indicatorTimeSeriesAverageArray, indicatorTimeSeriesMaxArray, indicatorTimeSeriesMinArray, spatialUnitName, date);
 
