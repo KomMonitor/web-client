@@ -104,7 +104,7 @@ angular
 
 						kommonitorDiagramHelperService.prepareAllDiagramResources(indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, false);
 
-						updateHistogramChart();
+						// updateHistogramChart();
 
 						updateLineChart();
 
