@@ -1221,9 +1221,9 @@ select {
 		border-radius: 5px;
     line-height: 18px;
     color: #555;
-		min-width: 25vw;
+		min-width: 20vw;
 		width: auto;
-		max-width: 25vw;
+		max-width: 20vw;
 		height: auto !important;
 		max-height: 75vh;
 	  overflow: auto;
