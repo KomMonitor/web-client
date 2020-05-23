@@ -1691,13 +1691,13 @@ transition: opacity 0.3s;
 }
 
 .btn-circle {
-  width: 50px;
-  height: 50px;
+  width: 5vh;
+  height: 5vh;
   text-align: center;
   padding: 6px 0;
   font-size: 12px;
   line-height: 1.42;
-  border-radius: 25px;
+  border-radius: 2.5vh;
 	left: 10px;
 	z-index: 1003;
 }
@@ -1707,8 +1707,8 @@ transition: opacity 0.3s;
 	filter: progid:DXImageTransform.Microsoft.BasicImage(invert=1);
 	-ms-filter: 'progid:DXImageTransform.Microsoft.BasicImage(invert=1)';
 	filter: invert(1);
-	width:25px;
-	height:25px;
+	width:3vh;
+	height:3vh;
 }
 
 .btn-docked {
@@ -1716,19 +1716,19 @@ transition: opacity 0.3s;
   left: 0px;
   transition: 0.3s;
   padding: 6px 0;
-  width: 75px;
-	height: 55px;
+  width: 6vh;
+	height: 5vh;
   text-decoration: none;
   font-size: 14px;
   color: white;
-  border-radius: 0 5px 5px 0;
+  border-radius: 0 3vh 2.5vh 0;
 	background-color: rgb(236,240,245);
 	z-index: 1003;
 }
 
 .btn-docked img {
-	width:30px;
-	height:30px;
+	width:3vh;
+	height:3vh;
 }
 
 .btn-custom {
