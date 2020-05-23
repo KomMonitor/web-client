@@ -278,7 +278,7 @@ angular
 								$scope.onClickUseIndicatorTimestamp = function(){
 									$scope.dateSelectionType.selectedDateType = $scope.dateSelectionType_valueIndicator;
 
-									$rootScope.$broadcast("selectedIndicatorDateHasChanged");
+									$scope.refreshSelectedGeoresources();
 								};
 
 								$scope.timeout_manualdate;

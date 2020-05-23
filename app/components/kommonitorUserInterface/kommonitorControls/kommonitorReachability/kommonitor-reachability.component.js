@@ -1536,6 +1536,100 @@ angular
 						}
 					};
 
+					$scope.onClickUseIndicatorTimestamp = function(){
+						$scope.settings.dateSelectionType.selectedDateType = $scope.settings.dateSelectionType_valueIndicator;
+
+						$scope.refreshSelectedGeoresources();
+					};
+
+					$scope.timeout_manualdate;
+
+					$scope.onChangeManualDate = function(){
+						// check if date is an actual date
+						// if so then refresh selected layers
+
+						 // Clear the timeout if it has already been set.
+						// This will prevent the previous task from executing
+						// if it has been less than <MILLISECONDS>
+						clearTimeout($scope.timeout_manualdate);
+
+						// Make a new timeout set to go off in 1000ms (1 second)
+						$scope.timeout_manualdate = setTimeout(function () {
+							var dateCandidate = $scope.settings.selectedDate_manual;
+
+							var dateComps = dateCandidate.split("-");
+
+							if (dateComps.length === 3 && new Date($scope.settings.selectedDate_manual)){
+								$timeout(function(){
+	
+									$scope.loadingData = true;
+									$rootScope.$broadcast("showLoadingIconOnMap");
+								});
+
+								$timeout(function(){
+			
+									$scope.refreshSelectedGeoresources();
+								}, 25);	
+							}
+						}, 1000);
+
+					};
+
+					$scope.$on("selectedIndicatorDateHasChanged", function (event) {
+
+						console.log("refresh selected georesource layers according to new date");
+
+						// only refresh georesources if sync with indicator timestamp is selected
+						if(! $scope.settings.dateSelectionType.selectedDateType.includes($scope.settings.dateSelectionType_valueIndicator)){
+							return;
+						}
+			
+						$timeout(function(){
+	
+							$scope.loadingData = true;
+							$rootScope.$broadcast("showLoadingIconOnMap");
+						});
+
+						$timeout(function(){
+	
+							$scope.refreshSelectedGeoresources();
+						}, 25);							
+					});
+
+					$scope.refreshSelectedGeoresources = async function(){
+						for (const georesource of kommonitorDataExchangeService.availableGeoresources) {
+							if (georesource.isSelected_reachabilityAnalysis){
+
+								if(georesource.isPOI){
+									georesource.isSelected_reachabilityAnalysis = false;
+									await $scope.handlePoiForAnalysis(georesource);
+									georesource.isSelected_reachabilityAnalysis = true;
+									await $scope.handlePoiForAnalysis(georesource);
+								}										
+
+							}
+						}
+
+						$scope.loadingData = false;
+						$rootScope.$broadcast("hideLoadingIconOnMap");
+					};
+
+					$scope.onChangeSelectedDate = async function(georesourceDataset){
+						// only if it s already selected, we must modify the shown dataset 
+
+
+						if(georesourceDataset.isSelected_reachabilityAnalysis){
+							// depending on type we must call different methods
+							if (georesourceDataset.isPOI){
+								georesource.isSelected_reachabilityAnalysis = false;
+								await $scope.handlePoiForAnalysis(georesource);
+								georesource.isSelected_reachabilityAnalysis = true;
+								await $scope.handlePoiForAnalysis(georesource);
+							}
+						}
+					};
+
+
 					$(window).on('resize', function () {
 						var chart_entries = $scope.echartsInstances_reachabilityAnalysis.entries();
 
