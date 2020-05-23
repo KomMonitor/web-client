@@ -1528,6 +1528,25 @@ angular
 
 					$scope.timeout_manualdate;
 
+					function isNoValidDate(dateCandidate){
+						var dateComps = dateCandidate.split("-");
+
+						if(dateComps.length < 3){
+							return true;
+						}
+						else if(! dateComps[0] || ! dateComps[1] || ! dateComps[2]){
+							return true;
+						}
+						else if(isNaN(dateComps[0]) || isNaN(dateComps[1]) || isNaN(dateComps[2])){
+							return true;
+						}
+						else if(Number(dateComps[1]) > 12 || Number(dateComps[2]) > 31){
+							return true;
+						}
+
+						return false;
+					}
+
 					$scope.onChangeManualDate = function(){
 						// check if date is an actual date
 						// if so then refresh selected layers
@@ -1541,20 +1560,20 @@ angular
 						$scope.timeout_manualdate = setTimeout(function () {
 							var dateCandidate = $scope.settings.selectedDate_manual;
 
-							var dateComps = dateCandidate.split("-");
-
-							if (dateComps.length === 3 && new Date($scope.settings.selectedDate_manual)){
-								$timeout(function(){
-	
-									$scope.loadingData = true;
-									$rootScope.$broadcast("showLoadingIconOnMap");
-								});
-
-								$timeout(function(){
-			
-									$scope.refreshSelectedGeoresources();
-								}, 25);	
+							if(isNoValidDate(dateCandidate)){
+								return;
 							}
+
+							$timeout(function(){
+	
+								$scope.loadingData = true;
+								$rootScope.$broadcast("showLoadingIconOnMap");
+							});
+
+							$timeout(function(){
+		
+								$scope.refreshSelectedGeoresources();
+							}, 25);	
 						}, 1000);
 
 					};

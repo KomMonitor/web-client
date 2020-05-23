@@ -283,35 +283,54 @@ angular
 
 								$scope.timeout_manualdate;
 
+								function isNoValidDate(dateCandidate){
+									var dateComps = dateCandidate.split("-");
+			
+									if(dateComps.length < 3){
+										return true;
+									}
+									else if(! dateComps[0] || ! dateComps[1] || ! dateComps[2]){
+										return true;
+									}
+									else if(isNaN(dateComps[0]) || isNaN(dateComps[1]) || isNaN(dateComps[2])){
+										return true;
+									}
+									else if(Number(dateComps[1]) > 12 || Number(dateComps[2]) > 31){
+										return true;
+									}
+			
+									return false;
+								}
+			
 								$scope.onChangeManualDate = function(){
 									// check if date is an actual date
 									// if so then refresh selected layers
-
+			
 									 // Clear the timeout if it has already been set.
 									// This will prevent the previous task from executing
 									// if it has been less than <MILLISECONDS>
 									clearTimeout($scope.timeout_manualdate);
-
+			
 									// Make a new timeout set to go off in 1000ms (1 second)
 									$scope.timeout_manualdate = setTimeout(function () {
 										var dateCandidate = $scope.selectedDate_manual;
-
-										var dateComps = dateCandidate.split("-");
-
-										if (dateComps.length === 3 && new Date($scope.selectedDate_manual)){
-											$timeout(function(){
-				
-												$scope.loadingData = true;
-												$rootScope.$broadcast("showLoadingIconOnMap");
-											});
-		
-											$timeout(function(){
-						
-												$scope.refreshSelectedGeoresources();
-											}, 25);	
+			
+										if(isNoValidDate(dateCandidate)){
+											return;
 										}
+			
+										$timeout(function(){
+				
+											$scope.loadingData = true;
+											$rootScope.$broadcast("showLoadingIconOnMap");
+										});
+			
+										$timeout(function(){
+					
+											$scope.refreshSelectedGeoresources();
+										}, 25);	
 									}, 1000);
-
+			
 								};
 
 								$scope.$on("selectedIndicatorDateHasChanged", function (event) {
