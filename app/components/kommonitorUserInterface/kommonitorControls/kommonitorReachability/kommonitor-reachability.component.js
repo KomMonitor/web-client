@@ -1235,22 +1235,6 @@ angular
 
 
 					//////////////////////////// SECTION FOR GORESOURCE AND INDICATOR ANALYSIS
-					$scope.onChangeSelectedDate = async function(georesourceDataset){
-						// only if it s already selected, we must modify the shown dataset 
-
-
-						if(georesourceDataset.isSelected_reachabilityAnalysis){
-							// depending on type we must call different methods
-							if (georesourceDataset.isPOI){
-								$scope.removePoiLayerFromMap(georesourceDataset);
-								georesourceDataset = await $scope.fetchGeoJSONForDate(georesourceDataset);
-								$scope.addPoiLayerToMap(georesourceDataset);
-							}
-							else{
-								console.error("unknown dataset: " + georesourceDataset);
-							}
-						}
-					};
 
 					$scope.getQueryDate = function(resource){
 						if ($scope.settings.dateSelectionType.selectedDateType === $scope.settings.dateSelectionType_valueIndicator){
@@ -1621,10 +1605,10 @@ angular
 						if(georesourceDataset.isSelected_reachabilityAnalysis){
 							// depending on type we must call different methods
 							if (georesourceDataset.isPOI){
-								georesource.isSelected_reachabilityAnalysis = false;
-								await $scope.handlePoiForAnalysis(georesource);
-								georesource.isSelected_reachabilityAnalysis = true;
-								await $scope.handlePoiForAnalysis(georesource);
+								georesourceDataset.isSelected_reachabilityAnalysis = false;
+								await $scope.handlePoiForAnalysis(georesourceDataset);
+								georesourceDataset.isSelected_reachabilityAnalysis = true;
+								await $scope.handlePoiForAnalysis(georesourceDataset);
 							}
 						}
 					};
