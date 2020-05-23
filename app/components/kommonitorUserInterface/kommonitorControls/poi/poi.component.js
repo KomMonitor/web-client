@@ -6,9 +6,9 @@ angular
 					templateUrl : "components/kommonitorUserInterface/kommonitorControls/poi/poi.template.html",
 
 					controller : [
-							'kommonitorDataExchangeService', 'kommonitorMapService', '$scope', '$rootScope', '$http', '__env',
+							'kommonitorDataExchangeService', 'kommonitorMapService', '$scope', '$rootScope', '$http', '__env', '$timeout',
 							function indicatorRadarController(
-									kommonitorDataExchangeService, kommonitorMapService, $scope, $rootScope, $http, __env) {
+									kommonitorDataExchangeService, kommonitorMapService, $scope, $rootScope, $http, __env, $timeout) {
 								/*
 								 * reference to kommonitorDataExchangeService instances
 								 */
@@ -275,6 +275,69 @@ angular
 
 								};
 
+								$scope.onClickUseIndicatorTimestamp = function(){
+									$scope.dateSelectionType.selectedDateType = $scope.dateSelectionType_valueIndicator;
+
+									$rootScope.$broadcast("selectedIndicatorDateHasChanged");
+								};
+
+								$scope.$on("selectedIndicatorDateHasChanged", function (event) {
+
+									console.log("refresh selected georesource layers according to new date");
+
+									// only refresh georesources if sync with indicator timestamp is selected
+									if(! $scope.dateSelectionType.selectedDateType.includes($scope.dateSelectionType_valueIndicator)){
+										return;
+									}
+						
+									$timeout(function(){
+				
+										$scope.loadingData = true;
+										$rootScope.$broadcast("showLoadingIconOnMap");
+									});
+
+									$timeout(function(){
+				
+										$scope.refreshSelectedGeoresources();
+									}, 25);
+
+									// $timeout(function(){
+				
+									// 	$scope.loadingData = false;
+									// 	$rootScope.$broadcast("hideLoadingIconOnMap");
+									// }, 550);								
+								});
+
+								$scope.refreshSelectedGeoresources = function(){
+									for (const georesource of kommonitorDataExchangeService.availableGeoresources) {
+										if (georesource.isSelected){
+
+											if(georesource.isPOI){
+												georesource.isSelected = false;
+												$scope.handlePoiOnMap(georesource);
+												georesource.isSelected = true;
+												$scope.handlePoiOnMap(georesource);
+											}
+											else if(georesource.isLOI){
+												georesource.isSelected = false;
+												$scope.handleLoiOnMap(georesource);
+												georesource.isSelected = true;
+												$scope.handleLoiOnMap(georesource);
+											}
+											else if(georesource.isAOI){
+												georesource.isSelected = false;
+												$scope.handleAoiOnMap(georesource);
+												georesource.isSelected = true;
+												$scope.handleAoiOnMap(georesource);
+											}											
+
+										}
+									}
+
+									$scope.loadingData = false;
+									$rootScope.$broadcast("hideLoadingIconOnMap");
+								};
+
 								$scope.onChangeSelectedDate = function(georesourceDataset){
 									// only if it s already selected, we must modify the shown dataset 
 
@@ -352,7 +415,7 @@ angular
 
 											poiGeoresource.geoJSON = geoJSON;
 
-											kommonitorMapService.addPoiGeoresourceGeoJSON(poiGeoresource, $scope.date, useCluster);
+											kommonitorMapService.addPoiGeoresourceGeoJSON(poiGeoresource, date, useCluster);
 											$scope.loadingData = false;
 											$rootScope.$broadcast("hideLoadingIconOnMap");
 
@@ -474,7 +537,7 @@ angular
 
 											aoiGeoresource.geoJSON = geoJSON;
 
-											kommonitorMapService.addAoiGeoresourceGeoJSON(aoiGeoresource, $scope.date);
+											kommonitorMapService.addAoiGeoresourceGeoJSON(aoiGeoresource, date);
 											$scope.loadingData = false;
 											$rootScope.$broadcast("hideLoadingIconOnMap");
 
@@ -581,7 +644,7 @@ angular
 
 												loiGeoresource.geoJSON = geoJSON;
 
-												kommonitorMapService.addLoiGeoresourceGeoJSON(loiGeoresource, $scope.date);
+												kommonitorMapService.addLoiGeoresourceGeoJSON(loiGeoresource, date);
 												$scope.loadingData = false;
 												$rootScope.$broadcast("hideLoadingIconOnMap");
 

@@ -550,6 +550,7 @@ angular
 
 										$scope.loadingData = false;
 										$rootScope.$broadcast("hideLoadingIconOnMap");
+										$rootScope.$broadcast("selectedIndicatorDateHasChanged");
 										$scope.$apply();
 									}
 								};
@@ -698,6 +699,8 @@ angular
 											kommonitorDataExchangeService.selectedIndicator = kommonitorDataExchangeService.selectedIndicatorBackup;
 										}
 									}
+
+									$rootScope.$broadcast("selectedIndicatorDateHasChanged");
 								}
 
 
