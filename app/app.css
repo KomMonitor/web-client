@@ -767,19 +767,19 @@ MULTI STEP FORM
 
 /* MAP UTIL BUTTONS */
 #recenterMapButton {
-	left: 80px;
+	left: 70px;
 	top: 10px;
 	z-index: 1003;
 }
 
 #unselectFeaturesButton {
-	left: 130px;
+	left: 120px;
 	top: 10px;
 	z-index: 1003;
 }
 
 #exportMapButton {
-	left: 180px;
+	left: 170px;
 	top: 10px;
 	z-index: 1003;
 }
@@ -814,7 +814,7 @@ MULTI STEP FORM
   /* display: inline-block; */
   /* float: none; */
 	position: absolute;
-	left: 70px;
+	left: 6vh;
 	top: 100px;
 	z-index: 1003;
 }
@@ -822,7 +822,7 @@ MULTI STEP FORM
 .leaflet-left .leaflet-control-search {
   /* float: none; */
 	position: absolute;
-	left: 70px;
+	left: 6vh;
 	top: 50px;
 	z-index: 1003;
 }
@@ -832,7 +832,7 @@ MULTI STEP FORM
 	/* display: inline-block; */
 	/* float: none; */
 	position: absolute;
-	left: 70px;
+	left: 6vh;
 	top: 150px;
 	z-index: 1003;
 }
@@ -850,7 +850,7 @@ MULTI STEP FORM
   /* display: inline-block; */
   /* float: none; */
 	position: absolute;
-	left: 70px;
+	left: 6vh;
 	bottom: 100px;
 	z-index: 1003;
 }
