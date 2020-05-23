@@ -1221,11 +1221,11 @@ select {
 		border-radius: 5px;
     line-height: 18px;
     color: #555;
-		min-width: 315px;
+		min-width: 25vw;
 		width: auto;
-		max-width: 350px;
+		max-width: 25vw;
 		height: auto !important;
-		max-height: 750px;
+		max-height: 75vh;
 	  overflow: auto;
 		display: inline-block
 }
