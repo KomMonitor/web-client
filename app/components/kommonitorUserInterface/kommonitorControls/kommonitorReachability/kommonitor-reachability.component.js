@@ -1504,7 +1504,7 @@ angular
 						$rootScope.$broadcast("showLoadingIconOnMap");
 
 						// fale --> useCluster = false 
-						kommonitorMapService.addPoiGeoresourceGeoJSON(poiGeoresource, $scope.date, false);
+						kommonitorMapService.addPoiGeoresourceGeoJSON_reachabilityAnalysis(poiGeoresource, $scope.getQueryDate(poiGeoresource), false);
 								$scope.settings.loadingData = false;
 								$rootScope.$broadcast("hideLoadingIconOnMap");
 
@@ -1516,7 +1516,7 @@ angular
 
 						poiGeoresource = poiGeoresource;
 
-						kommonitorMapService.removePoiGeoresource(poiGeoresource);
+						kommonitorMapService.removePoiGeoresource_reachabilityAnalysis(poiGeoresource);
 						$scope.settings.loadingData = false;
 						$rootScope.$broadcast("hideLoadingIconOnMap");
 

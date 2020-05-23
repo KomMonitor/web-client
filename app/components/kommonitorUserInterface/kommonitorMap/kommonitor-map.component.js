@@ -2461,6 +2461,55 @@ angular.module('kommonitorMap').component(
           $scope.map.invalidateSize(true);
         });
 
+        $scope.$on("addPoiGeoresourceAsGeoJSON_reachabilityAnalysis", function (event, georesourceMetadataAndGeoJSON, date, useCluster) {
+
+          // use leaflet.markercluster to cluster markers!
+          var markers;
+          if (useCluster) {
+            markers = L.markerClusterGroup({
+              iconCreateFunction: function (cluster) {
+                var childCount = cluster.getChildCount();
+
+                var c = 'cluster-';
+                if (childCount < 10) {
+                  c += 'small';
+                } else if (childCount < 30) {
+                  c += 'medium';
+                } else {
+                  c += 'large';
+                }
+
+                var className = "marker-cluster " + c + " awesome-marker-legend-TransparentIcon-" + georesourceMetadataAndGeoJSON.poiMarkerColor;
+
+                //'marker-cluster' + c + ' ' +
+                return new L.DivIcon({ html: '<div class="awesome-marker-legend-icon-' + georesourceMetadataAndGeoJSON.poiMarkerColor + '" ><span>' + childCount + '</span></div>', className: className, iconSize: new L.Point(40, 40) });
+              }
+            });
+          }
+          else {
+            markers = L.layerGroup();
+          }          
+
+          georesourceMetadataAndGeoJSON.geoJSON.features.forEach(function (poiFeature) {
+            // index 0 should be longitude and index 1 should be latitude
+            //.bindPopup( poiFeature.properties.name )
+            var newMarker = createCustomMarker(poiFeature, georesourceMetadataAndGeoJSON.poiSymbolColor, georesourceMetadataAndGeoJSON.poiMarkerColor, georesourceMetadataAndGeoJSON.poiSymbolBootstrap3Name, georesourceMetadataAndGeoJSON);            
+            
+            markers = addPoiMarker(markers, newMarker);
+          });
+
+          // markers.StyledLayerControl = {
+          //   removable : false,
+          //   visible : true
+          // };
+
+          $scope.layerControl.addOverlay(markers, georesourceMetadataAndGeoJSON.datasetName + "_" + date + "_inEinzugsgebiet", reachabilityLayerGroupName);
+          markers.addTo($scope.map);
+          $scope.updateSearchControl();
+          // $scope.map.addLayer( markers );
+          $scope.map.invalidateSize(true);
+        });
+
         var addPoiMarker = function(markers, poiMarker){
             
           // var propertiesString = "<pre>" + JSON.stringify(poiMarker.feature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
@@ -2495,6 +2544,19 @@ angular.module('kommonitorMap').component(
 
           $scope.layerControl._layers.forEach(function (layer) {
             if (layer.group.name === poiLayerGroupName && layer.name.includes(layerName + "_")) {
+              $scope.layerControl.removeLayer(layer.layer);
+              $scope.map.removeLayer(layer.layer);
+              $scope.updateSearchControl();
+            }
+          });
+        });
+
+        $scope.$on("removePoiGeoresource_reachabilityAnalysis", function (event, georesourceMetadataAndGeoJSON) {
+
+          var layerName = georesourceMetadataAndGeoJSON.datasetName;
+
+          $scope.layerControl._layers.forEach(function (layer) {
+            if (layer.group.name === reachabilityLayerGroupName && layer.name.includes(layerName + "_")) {
               $scope.layerControl.removeLayer(layer.layer);
               $scope.map.removeLayer(layer.layer);
               $scope.updateSearchControl();
