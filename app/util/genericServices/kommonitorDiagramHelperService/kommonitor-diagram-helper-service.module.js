@@ -1528,6 +1528,8 @@ angular
 
           var trendLine = ecStat.regression('linear', trendData);
 
+          timeseriesOptions.legend.data.push("Trendlinie");
+
           timeseriesOptions.series.push({
             name: 'Trendlinie',
             type: 'line',
@@ -1535,7 +1537,7 @@ angular
             data: trendLine.points,
             lineStyle: {
               normal: {
-                color: 'red',
+                // color: 'red',
                 width: 4,
                 type: 'dashed'
               }

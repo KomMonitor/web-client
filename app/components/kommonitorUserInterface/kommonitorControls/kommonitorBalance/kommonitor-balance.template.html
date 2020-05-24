@@ -71,6 +71,33 @@
 						<div class="chart">
 							<div id="trendDiagram_allFeatures" style="width:100%; min-height:30vh;"></div>
 						</div>
+
+					<h3 >Statistische Merkmale</h3>
+					<div>
+						<div class="row">
+							<div class="col-md-2">
+								<label>Min: </label> <i>{{trendAnalysis_allFeatures.min}}</i>
+								<br/>
+								<label>Max: </label> <i>{{trendAnalysis_allFeatures.max}}</i>
+							</div>
+							<div class="col-md-3">
+								<label>Durchschnitt: </label> <i>{{trendAnalysis_allFeatures.mean}}</i>
+								<br/>
+								<label>Median: </label> <i>{{trendAnalysis_allFeatures.median}}</i>
+							</div>
+							<div class="col-md-4">
+								<label>Standardabweichung: </label> <i>{{trendAnalysis_allFeatures.deviation}}</i>
+								<br/>
+								<label>Varianz: </label> <i>{{trendAnalysis_allFeatures.variance}}</i>
+							</div>
+							<div class="col-md-3">
+								<label>Bilanz: </label> <i>{{trendAnalysis_allFeatures.balance}}</i>
+								<br/>
+								<label>Trend: </label> <i>{{trendAnalysis_allFeatures.trend}}</i>
+							</div>
+
+						</div>
+					</div>	
 				</div>						
 
 			</div>

@@ -8,8 +8,8 @@ angular
 					 * injected with a modules service method that manages
 					 * enabled tabs
 					 */
-					controller : ['$scope', '$rootScope', 'kommonitorMapService', 'kommonitorDataExchangeService', 'kommonitorDiagramHelperService', '__env', 
-					function kommonitorBalanceController($scope, $rootScope, kommonitorMapService, kommonitorDataExchangeService, kommonitorDiagramHelperService, __env) {
+					controller : ['$scope', '$rootScope', 'kommonitorMapService', 'kommonitorDataExchangeService', 'kommonitorDiagramHelperService', '__env', '$timeout',
+					function kommonitorBalanceController($scope, $rootScope, kommonitorMapService, kommonitorDataExchangeService, kommonitorDiagramHelperService, __env, $timeout) {
 
 						const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
 						this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
@@ -70,7 +70,10 @@ angular
 								}
 								var data = $scope.rangeSliderForBalance.options;
 								computeAndSetBalance(data);
-								$scope.updateTrendChart(kommonitorDataExchangeService.selectedIndicator, data);
+								$timeout(function(){
+								
+									$scope.updateTrendChart(kommonitorDataExchangeService.selectedIndicator, data);	
+								});
 								kommonitorMapService.replaceIndicatorGeoJSON(kommonitorDataExchangeService.indicatorAndMetadataAsBalance, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, $scope.targetDate, true);
 							}
 							else{
@@ -133,6 +136,10 @@ angular
 
 							var fromDateAsPropertyString = getFromDate_asPropertyString(datePeriodSliderData);
 							var toDateAsPropertyString = getToDate_asPropertyString(datePeriodSliderData);
+							var fromDateString = getFromDate_asDateString(datePeriodSliderData);
+							var fromDate_date = new Date(fromDateString);
+							var toDateString = getToDate_asDateString(datePeriodSliderData);
+          					var toDate_date = new Date(toDateString);  
 
 							// based on prepared DOM, initialize echarts instance
 							if (!$scope.trendChart_allFeatures)
@@ -151,6 +158,41 @@ angular
 							setTimeout(function () {
 								$scope.trendChart_allFeatures.resize();
 							}, 350);
+
+							var trendData = [];
+							var timeseriesData = $scope.trendOption.series[2].data;
+
+							for (let index = 0; index < timeseriesData.length; index++) {
+								var dateCandidate = new Date(indicatorMetadata.applicableDates[index]);
+								if(dateCandidate >= fromDate_date && dateCandidate <= toDate_date){
+									trendData.push(timeseriesData[index]);
+								}            
+							}
+
+							var balanceValue = kommonitorDataExchangeService.getIndicatorValue_asFormattedText(trendData[trendData.length - 1] - trendData[0]);
+							var balanceValue_numeric = kommonitorDataExchangeService.getIndicatorValue_asNumber(trendData[trendData.length - 1] - trendData[0]);
+							var trendValue = "";
+							if(Number(balanceValue_numeric) == 0){
+								trendValue = "gleichbleibend";
+							}
+							else if(Number(balanceValue_numeric) > 0){
+								trendValue = "steigend";
+							}
+							else {
+								trendValue = "sinkend";
+							}
+
+							$scope.trendAnalysis_allFeatures = {
+								min: kommonitorDataExchangeService.getIndicatorValue_asFormattedText(ecStat.statistics.min(trendData)),
+								max: kommonitorDataExchangeService.getIndicatorValue_asFormattedText(ecStat.statistics.max(trendData)),
+								deviation: kommonitorDataExchangeService.getIndicatorValue_asFormattedText(ecStat.statistics.deviation(trendData)),
+								variance: kommonitorDataExchangeService.getIndicatorValue_asFormattedText(ecStat.statistics.sampleVariance(trendData)),
+								mean: kommonitorDataExchangeService.getIndicatorValue_asFormattedText(ecStat.statistics.mean(trendData)),
+								median: kommonitorDataExchangeService.getIndicatorValue_asFormattedText(ecStat.statistics.median(trendData)),
+								balance: balanceValue,
+								trend: trendValue
+							};
+							
 						};
 
 						$(window).on('resize', function () {
@@ -288,8 +330,11 @@ angular
 							// create balance GeoJSON and broadcast "replaceIndicatorAsGeoJSON"
 							// Called every time handle position is changed
 							computeAndSetBalance(data);
-
-							$scope.updateTrendChart(kommonitorDataExchangeService.selectedIndicator, data);
+						
+							$timeout(function(){
+								
+								$scope.updateTrendChart(kommonitorDataExchangeService.selectedIndicator, data);	
+							});
 							// we must call replaceIndicatorGeoJSON because the feature vaues have changed. calling restyle will not work as it only restyles the old numbers
 							kommonitorMapService.replaceIndicatorGeoJSON(kommonitorDataExchangeService.indicatorAndMetadataAsBalance, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, $scope.targetDate, true);
 						};
