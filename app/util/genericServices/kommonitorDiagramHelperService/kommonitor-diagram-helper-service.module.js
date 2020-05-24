@@ -1477,4 +1477,93 @@ angular
         return eChartOptions;
       };
 
+      this.makeTrendChartOptions_forAllFeatures = function(indicatorMetadataAndGeoJSON, fromDateAsPropertyString, toDateAsPropertyString){
+          // we may base on the the precomputed timeseries lineOptions and modify that from a cloned instance
+
+          var timeseriesOptions = JSON.parse(JSON.stringify(this.getLineChartOptions()));
+
+          // add markedAreas for periods out of scope
+
+          var fromDateString = fromDateAsPropertyString.split(__env.indicatorDatePrefix)[1];
+          var fromDate_date = new Date(fromDateString);
+          var toDateString = toDateAsPropertyString.split(__env.indicatorDatePrefix)[1];
+          var toDate_date = new Date(toDateString);
+          
+          timeseriesOptions.series[2].markArea = {
+                silent: true,
+                itemStyle: {
+                    color: '#b50b0b',
+                    opacity: 0.3
+                },
+                data: [[{
+                    xAxis: indicatorMetadataAndGeoJSON.applicableDates[0]
+                }, {
+                    xAxis: fromDateString
+                }],
+                [{
+                    xAxis: toDateString
+                }, {
+                    xAxis: indicatorMetadataAndGeoJSON.applicableDates[indicatorMetadataAndGeoJSON.applicableDates.length - 1]
+                }]]
+          };
+
+          // hide data points
+          timeseriesOptions.series[2].itemStyle.normal.opacity = 0;
+          timeseriesOptions.series[2].lineStyle.normal.width = 3;
+          timeseriesOptions.series[2].lineStyle.normal.type = "solid";
+
+          // add regression line according to option
+          var trendData = [];
+
+          var timeseriesData = timeseriesOptions.series[2].data;
+          for (let index = 0; index < timeseriesData.length; index++) {
+            var dateCandidate = new Date(indicatorMetadataAndGeoJSON.applicableDates[index]);
+            if(dateCandidate >= fromDate_date && dateCandidate <= toDate_date){
+              const value = timeseriesData[index];
+              // const date = indicatorMetadataAndGeoJSON.applicableDates[index];
+
+              trendData.push([index, value]);
+            }            
+          }
+
+          var trendLine = ecStat.regression('linear', trendData);
+
+          timeseriesOptions.series.push({
+            name: 'Trendlinie',
+            type: 'line',
+            showSymbol: false,
+            data: trendLine.points,
+            lineStyle: {
+              normal: {
+                color: 'red',
+                width: 4,
+                type: 'dashed'
+              }
+            },
+            markPoint: {
+                itemStyle: {
+                    normal: {
+                        color: 'transparent'
+                    }
+                },
+                // label: {
+                //     normal: {
+                //         show: true,
+                //         position: 'left',
+                //         formatter: trendLine.expression,
+                //         textStyle: {
+                //             color: '#333',
+                //             fontSize: 14
+                //         }
+                //     }
+                // },
+                data: [{
+                    coord: trendLine.points[trendLine.points.length - 1]
+                }]
+            }
+        });
+
+          return timeseriesOptions;
+      };
+
     }]);
