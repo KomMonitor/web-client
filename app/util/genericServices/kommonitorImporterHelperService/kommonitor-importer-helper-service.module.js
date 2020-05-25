@@ -80,8 +80,8 @@ angular
             "validStartDateProperty": "string"
           },
           "periodOfValidity":{
-            "startDate": "yyy-mm-tt",
-            "endDate": "yyy-mm-tt"
+            "startDate": "yyyy-mm-tt",
+            "endDate": "yyyy-mm-tt"
           }
         };
 

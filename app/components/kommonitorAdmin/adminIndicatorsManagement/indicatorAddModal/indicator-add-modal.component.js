@@ -687,7 +687,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 				"refrencesToOtherIndicators": [], // filled directly after
 				  "allowedRoles": [],
 				  "datasetName": $scope.datasetName,
-				  "applicableSpatialUnit": $scope.targetSpatialUnitMetadata.spatialUnitLevel,
+				  "applicableSpatialUnit": $scope.targetSpatialUnitMetadata ? $scope.targetSpatialUnitMetadata.spatialUnitLevel : null,
 				  "abbreviation": $scope.indicatorAbbreviation || null,
 				  "characteristicValue": $scope.indicatorCharacteristicValue || null,
 				  "tags": [], // filled directly after
@@ -780,7 +780,60 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			return postBody;
 		};
 
+		$scope.addComputableIndicatorMetadata = async function(){
+			$scope.loadingData = true;
+
+			var postBody = $scope.buildPostBody_indicators();
+
+			return await $http({
+				url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/indicators",
+				method: "POST",
+				data: postBody,
+				headers: {
+				  'Content-Type': "application/json"
+				}
+			  }).then(function successCallback(response) {
+				  // this callback will be called asynchronously
+				  // when the response is available
+						  				  
+				  var response = response.data;
+
+				  $rootScope.$broadcast("refreshIndicatorOverviewTable");
+
+						// refresh all admin dashboard diagrams due to modified metadata
+						$rootScope.$broadcast("refreshAdminDashboardDiagrams");
+
+						$scope.successMessagePart = $scope.datasetName;
+						$scope.importedFeatures = [];
+
+						$("#indicatorAddSuccessAlert").show();
+
+						$scope.loadingData = false;
+		
+				}, function errorCallback(error) {
+				  console.error("Error while adding computable indicatorMetadata service.");
+				  if(error.data){							
+					$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+					}
+					else{
+						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
+					}
+
+						$("#indicatorAddErrorAlert").show();
+						$scope.loadingData = false;
+
+						setTimeout(() => {
+							$scope.$apply();
+						}, 250);
+			  }); 
+		};
+
 		$scope.addIndicator = async function(){
+
+			if($scope.indicatorCreationType.apiName.includes("COMPUTATION")){
+				// send direct request to Data Management
+				return $scope.addComputableIndicatorMetadata();
+			}
 
 			$scope.importerErrors = undefined;
 				$scope.successMessagePart = undefined;
