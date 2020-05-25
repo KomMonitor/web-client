@@ -4,7 +4,23 @@ angular.module('infoModal').component('infoModal', {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
-		$('#infoModal').modal('show');
+		$scope.isHideGreetings = false;
+
+		if(! (localStorage.getItem("hideKomMonitorAppGreeting") === "true")) {
+			$('#infoModal').modal('show');			
+		}
+		else{
+			$scope.isHideGreetings = true;
+		}
+
+		$scope.onChangeHideGreetings = function(){
+			if($scope.isHideGreetings){
+				localStorage.setItem("hideKomMonitorAppGreeting", "true");
+			}
+			else{
+				localStorage.setItem("hideKomMonitorAppGreeting", "false");
+			}
+		};
 
 		$scope.callStartGuidedTour = function(){
 			$('#infoModal').modal('hide');
