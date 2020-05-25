@@ -1,4 +1,4 @@
-angular.module('kommonitorBalance', ['kommonitorDataExchange', 'kommonitorMap'])
+angular.module('kommonitorBalance', ['kommonitorDataExchange', 'kommonitorDiagramHelper', 'kommonitorMap'])
 
 .directive('stringToNumber', function() {
   return {

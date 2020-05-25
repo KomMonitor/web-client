@@ -92,8 +92,8 @@ angular
 								$scope.valueRangeMinValue = values[0];
 								$scope.valueRangeMaxValue = values[values.length - 1];
 
-								$scope.valueRangeMinValue = +$scope.valueRangeMinValue.toFixed(numberOfDecimals);
-								$scope.valueRangeMaxValue = +$scope.valueRangeMaxValue.toFixed(numberOfDecimals);
+								$scope.valueRangeMinValue = kommonitorDataExchangeService.getIndicatorValue_asNumber($scope.valueRangeMinValue);
+								$scope.valueRangeMaxValue = kommonitorDataExchangeService.getIndicatorValue_asNumber($scope.valueRangeMaxValue);
 
 								$scope.currentLowerFilterValue = $scope.valueRangeMinValue;
 								$scope.currentHigherFilterValue = $scope.valueRangeMaxValue;
