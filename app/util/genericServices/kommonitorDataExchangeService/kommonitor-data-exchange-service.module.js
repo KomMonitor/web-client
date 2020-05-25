@@ -151,7 +151,9 @@ angular
 					this.availableProcessScripts = [];
           this.isochroneLegend;
 
-          this.useOutlierDetectionOnIndicator = true;
+          this.useOutlierDetectionOnIndicator = __env.useOutlierDetectionOnIndicator;
+          this.classifyZeroSeparately = __env.classifyZeroSeparately;
+          this.classifyUsingWholeTimeseries = __env.classifyUsingWholeTimeseries;
 
 					this.setProcessScripts = function(scriptsArray){
 						this.availableProcessScripts = scriptsArray;
@@ -357,6 +359,8 @@ angular
             var georesources = [];
 
             var filteredGeoresources = this.availableGeoresources;
+
+            filteredGeoresources = filterByGeoresourceNamesToHide(filteredGeoresources);
             
             if(georesourceNameFilter && georesourceNameFilter != ""){
               filteredGeoresources = filterArrayObjectsByValue(filteredGeoresources, georesourceNameFilter);									
@@ -458,10 +462,16 @@ angular
           };
 
           var filterByIndicatorNamesToHide = function(filteredIndicators){
-            var arrayOfNameSubstringsForHidingIndicators = __env.arrayOfNameSubstringsForHidingIndicators;
 
             return filteredIndicators.filter(indicatorMetadata => { 
               return isDisplayableIndicator(indicatorMetadata);
+            });
+          };
+
+          var filterByGeoresourceNamesToHide = function(filteredGeoresources){
+
+            return filteredGeoresources.filter(georesourceMetadata => { 
+              return isDisplayableGeoresource(georesourceMetadata);
             });
           };
 
@@ -764,11 +774,11 @@ angular
 							value = "NoData";
 						}
 						else{
-							value = +Number(indicatorValue).toFixed(numberOfDecimals);
+							value = this.getIndicatorValue_asNumber(indicatorValue);
 						}
 
 						return value;
-					}
+					};
 
 					this.getIndicatorValueFromArray_asFormattedText = function(propertiesArray, targetDateString){
 						if(!targetDateString.includes(DATE_PREFIX)){
@@ -780,11 +790,11 @@ angular
 							value = "NoData";
 						}
 						else{
-						 	value = Number(indicatorValue).toLocaleString('de-DE', {maximumFractionDigits: numberOfDecimals});
+						 	value = this.getIndicatorValue_asFormattedText(indicatorValue);
 						}
 
 						return value;
-					}
+					};
 
 					this.getIndicatorValue_asNumber = function(indicatorValue){
 						var value;
@@ -793,7 +803,12 @@ angular
 						}
 						else{
 							value = +Number(indicatorValue).toFixed(numberOfDecimals);
-						}
+            }
+            
+            // if the original value is greater than zero but would be rounded as 0 then we must return the original result
+            if(Number(value) == 0 && indicatorValue > 0){
+              value = Number(indicatorValue);
+            } 
 
 						return value;
 					};
@@ -805,7 +820,12 @@ angular
 						}
 						else{
 						 	value = Number(indicatorValue).toLocaleString('de-DE', {maximumFractionDigits: numberOfDecimals});
-						}
+            }
+            
+            // if the original value is greater than zero but would be rounded as 0 then we must return the original result
+            if(Number(value) == 0 && indicatorValue > 0){
+              value = Number(indicatorValue).toLocaleString('de-DE');
+            } 
 
 						return value;
           };
@@ -850,6 +870,66 @@ angular
             return indicatorTypeString;
           };
 
+          this.totalFeaturesPropertyValue;
+          this.totalFeaturesPropertyUnit;
+          this.totalFeaturesPropertyLabel;
+
+          this.setTotalFeaturesProperty = function(indicatorMetadataAndGeoJSON, propertyName){
+            var sum = 0;
+            var count = 0;
+
+            for (const feature of indicatorMetadataAndGeoJSON.geoJSON.features) {
+              if(! this.indicatorValueIsNoData(feature.properties[propertyName])){
+                sum += this.getIndicatorValueFromArray_asNumber(feature.properties, propertyName);
+                count++;
+              }
+            }
+
+            this.totalFeaturesPropertyUnit = indicatorMetadataAndGeoJSON.unit;
+
+            if(indicatorMetadataAndGeoJSON.indicatorType.includes("ABSOLUTE") || indicatorMetadataAndGeoJSON.indicatorType.includes("DYNAMIC")){
+              this.totalFeaturesPropertyValue = this.getIndicatorValue_asFormattedText(sum);
+              this.totalFeaturesPropertyLabel = "Summe aller Features";
+            }
+            else{
+              this.totalFeaturesPropertyValue = this.getIndicatorValue_asFormattedText(sum / count);     
+              this.totalFeaturesPropertyLabel = "Arithmetisches Mittel aller Features";         
+            }  
+            
+          };
+            
+          this.getColorFromBrewInstance = function(brewInstance, feature, targetDate){
+            var color;
+            for (var index=0; index < brewInstance.breaks.length; index++){
+
+              if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) == this.getIndicatorValue_asNumber(brewInstance.breaks[index])){
+                if(index < brewInstance.breaks.length -1){
+                  // min value
+                  color =  brewInstance.colors[index];
+                  break;
+                }
+                else {
+                  //max value
+                  if (brewInstance.colors[index]){
+                    color =  brewInstance.colors[index];
+                  }
+                  else{
+                    color =  brewInstance.colors[index - 1];
+                  }
+                  break;
+                }
+              }
+              else{
+                if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) < this.getIndicatorValue_asNumber(brewInstance.breaks[index + 1])) {
+                  color =  brewInstance.colors[index];
+                  break;
+                }
+              }
+            }
+
+            return color;
+          };
+
           this.getColorForFeature = function(feature, indicatorMetadataAndGeoJSON, targetDate, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue){
             var color;
 
@@ -863,7 +943,7 @@ angular
             else if(this.filteredIndicatorFeatureNames.includes(feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])){
               color = defaultColorForFilteredValues;
             }
-            else if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) === 0 ){
+            else if(this.classifyZeroSeparately && this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) === 0 ){
               color = defaultColorForZeroValues;
             }
             else if(feature.properties["outlier"] !== undefined && feature.properties["outlier"].includes("low") && this.useOutlierDetectionOnIndicator){
@@ -875,63 +955,10 @@ angular
             else if(isMeasureOfValueChecked){
 
               if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) >= +Number(measureOfValue).toFixed(numberOfDecimals)){
-
-                for (var index=0; index < gtMeasureOfValueBrew.breaks.length; index++){
-
-                  if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) == +Number(gtMeasureOfValueBrew.breaks[index]).toFixed(numberOfDecimals)){
-                    if(index < gtMeasureOfValueBrew.breaks.length -1){
-                      // min value
-                      color =  gtMeasureOfValueBrew.colors[index];
-                      break;
-                    }
-                    else {
-                      //max value
-                      if (gtMeasureOfValueBrew.colors[index]){
-                        color =  gtMeasureOfValueBrew.colors[index];
-                      }
-                      else{
-                        color =  gtMeasureOfValueBrew.colors[index - 1];
-                      }
-                      break;
-                    }
-                  }
-                  else{
-                    if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) < +Number(gtMeasureOfValueBrew.breaks[index + 1]).toFixed(numberOfDecimals)) {
-                      color =  gtMeasureOfValueBrew.colors[index];
-                      break;
-                    }
-                  }
-                }
+                color = this.getColorFromBrewInstance(gtMeasureOfValueBrew, feature, targetDate);                
               }
               else {
-
-                // invert colors, so that lowest values will become strong colored!
-                for (var index=0; index < ltMeasureOfValueBrew.breaks.length; index++){
-                  if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) == +Number(ltMeasureOfValueBrew.breaks[index]).toFixed(numberOfDecimals)){
-                    if(index < ltMeasureOfValueBrew.breaks.length -1){
-                      // min value
-                      color =  ltMeasureOfValueBrew.colors[ltMeasureOfValueBrew.colors.length - index - 1];
-                      break;
-                    }
-                    else {
-                      //max value
-                      if (ltMeasureOfValueBrew.colors[ltMeasureOfValueBrew.colors.length - index]){
-                        color =  ltMeasureOfValueBrew.colors[ltMeasureOfValueBrew.colors.length - index];
-                      }
-                      else{
-                        color =  ltMeasureOfValueBrew.colors[ltMeasureOfValueBrew.colors.length - index - 1];
-                      }
-                      break;
-                    }
-                  }
-                  else{
-                    if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) < +Number(ltMeasureOfValueBrew.breaks[index + 1]).toFixed(numberOfDecimals)) {
-                      color =  ltMeasureOfValueBrew.colors[ltMeasureOfValueBrew.colors.length - index - 1];
-                      break;
-                    }
-                  }
-                }
-
+                color = this.getColorFromBrewInstance(ltMeasureOfValueBrew, feature, targetDate);
               }
 
             }
@@ -940,58 +967,10 @@ angular
 
                 if(feature.properties[targetDate] < 0){
                   
-                  for (var index=0; index < dynamicDecreaseBrew.breaks.length; index++){
-                    if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) == +Number(dynamicDecreaseBrew.breaks[index]).toFixed(numberOfDecimals)){
-                      if(index < dynamicDecreaseBrew.breaks.length -1){
-                        // min value
-                        color =  dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - index - 1];
-                        break;
-                      }
-                      else {
-                        //max value
-                        if (dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - index]){
-                          color =  dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - index];
-                        }
-                        else{
-                          color =  dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - index - 1];
-                        }
-                        break;
-                      }
-                    }
-                    else{
-                      if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) < +Number(dynamicDecreaseBrew.breaks[index + 1]).toFixed(numberOfDecimals)) {
-                        color =  dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - index - 1];
-                        break;
-                      }
-                    }
-                  }
+                  color = this.getColorFromBrewInstance(dynamicDecreaseBrew, feature, targetDate);
                 }
                 else{
-                  for (var index=0; index < dynamicIncreaseBrew.breaks.length; index++){
-                    if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) == +Number(dynamicIncreaseBrew.breaks[index]).toFixed(numberOfDecimals)){
-                      if(index < dynamicIncreaseBrew.breaks.length -1){
-                        // min value
-                        color =  dynamicIncreaseBrew.colors[index];
-                        break;
-                      }
-                      else {
-                        //max value
-                        if (dynamicIncreaseBrew.colors[index]){
-                          color =  dynamicIncreaseBrew.colors[index];
-                        }
-                        else{
-                          color =  dynamicIncreaseBrew.colors[index - 1];
-                        }
-                        break;
-                      }
-                    }
-                    else{
-                      if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) < +Number(dynamicIncreaseBrew.breaks[index + 1]).toFixed(numberOfDecimals)) {
-                        color =  dynamicIncreaseBrew.colors[index];
-                        break;
-                      }
-                    }
-                  }
+                  color = this.getColorFromBrewInstance(dynamicIncreaseBrew, feature, targetDate);
                 }
 
               }
@@ -999,79 +978,30 @@ angular
 
                 if(containsNegativeValues(indicatorMetadataAndGeoJSON.geoJSON, targetDate)){
                   if(this.getIndicatorValue_asNumber(feature.properties[targetDate]) >= 0){
-                    if(feature.properties[targetDate] == 0 || feature.properties[targetDate] == "0"){
+                    if(this.classifyZeroSeparately && (feature.properties[targetDate] == 0 || feature.properties[targetDate] == "0")){
                       color = defaultColorForZeroValues;
                       if(useTransparencyOnIndicator){
                         fillOpacity = defaultFillOpacityForZeroFeatures;
                       }
                     }
                     else{
-                      for (var index=0; index < dynamicIncreaseBrew.breaks.length; index++){
-                        if(this.getIndicatorValue_asNumber(feature.properties[targetDate]) == this.getIndicatorValue_asNumber(dynamicIncreaseBrew.breaks[index])){
-                          if(index < dynamicIncreaseBrew.breaks.length -1){
-                            // min value
-                            color =  dynamicIncreaseBrew.colors[index];
-                            break;
-                          }
-                          else {
-                            //max value
-                            if (dynamicIncreaseBrew.colors[index]){
-                              color =  dynamicIncreaseBrew.colors[index];
-                            }
-                            else{
-                              color =  dynamicIncreaseBrew.colors[index - 1];
-                            }
-                            break;
-                          }
-                        }
-                        else{
-                          if(this.getIndicatorValue_asNumber(feature.properties[targetDate]) < this.getIndicatorValue_asNumber(dynamicIncreaseBrew.breaks[index + 1])) {
-                            color =  dynamicIncreaseBrew.colors[index];
-                            break;
-                          }
-                        }
-                      }
+                      color = this.getColorFromBrewInstance(dynamicIncreaseBrew, feature, targetDate);
                     }
                   }
                   else{
-                    if(feature.properties[targetDate] == 0 || feature.properties[targetDate] == "0"){
+                    if(this.classifyZeroSeparately && (feature.properties[targetDate] == 0 || feature.properties[targetDate] == "0")){
                       color = defaultColorForZeroValues;
                       if(useTransparencyOnIndicator){
                         fillOpacity = defaultFillOpacityForZeroFeatures;
                       }
                     }
                     else{
-                      // invert colors, so that lowest values will become strong colored!
-                      for (var index=0; index < dynamicDecreaseBrew.breaks.length; index++){
-                        if(this.getIndicatorValue_asNumber(feature.properties[targetDate]) == this.getIndicatorValue_asNumber(dynamicDecreaseBrew.breaks[index])){
-                          if(index < dynamicDecreaseBrew.breaks.length -1){
-                            // min value
-                            color =  dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - index - 1];
-                            break;
-                          }
-                          else {
-                            //max value
-                            if (dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - index]){
-                              color =  dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - index];
-                            }
-                            else{
-                              color =  dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - index - 1];
-                            }
-                            break;
-                          }
-                        }
-                        else{
-                          if(this.getIndicatorValue_asNumber(feature.properties[targetDate]) < this.getIndicatorValue_asNumber(dynamicDecreaseBrew.breaks[index + 1])) {
-                            color =  dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - index - 1];
-                            break;
-                          }
-                        }
-                      }
+                      color = this.getColorFromBrewInstance(dynamicDecreaseBrew, feature, targetDate);
                     }
                   }
                 }
                 else{
-                  color = defaultBrew.getColorInRange(this.getIndicatorValue_asNumber(feature.properties[targetDate]));
+                  color = this.getColorFromBrewInstance(defaultBrew, feature, targetDate);                 
                 }
               }
             }
@@ -1122,6 +1052,33 @@ angular
 
               return isDisplayableIndicator(item);
             };
+          };
+
+          this.filterGeoresources = function (){
+            return function( item ) {
+
+              return isDisplayableGeoresource(item);
+            };
+          };
+
+          var isDisplayableGeoresource = function(item){
+            var arrayOfNameSubstringsForHidingGeoresources = __env.arrayOfNameSubstringsForHidingGeoresources;
+
+              if(item.availablePeriodsOfValidity == undefined || item.availablePeriodsOfValidity.length === 0)
+                return false;
+
+                var isGeoresourceThatShallNotBeDisplayed = arrayOfNameSubstringsForHidingGeoresources.some(substring => String(item.datasetName).includes(substring));
+
+                if(isGeoresourceThatShallNotBeDisplayed){
+                  return false;
+                }
+              return true;
+         };
+
+          this.selectedSpatialUnitIsRaster = function(){
+            var spatialUnitName = this.selectedSpatialUnit ? this.selectedSpatialUnit.spatialUnitLevel : "";
+
+            return (spatialUnitName.includes("raster") || spatialUnitName.includes("Raster") || spatialUnitName.includes("RASTER") || spatialUnitName.includes("grid") || spatialUnitName.includes("GRID") || spatialUnitName.includes("Grid"));
           };
 
           var isDisplayableIndicator = function(item){
@@ -1493,13 +1450,13 @@ angular
             * TODO FIXME dateSLider formatter will return only year for now to prevent misleading month and day settings
             */
   
-            return date.getFullYear();
+            // return date.getFullYear();
   
-            // return date.toLocaleDateString("de-DE", {
-            // 		year: 'numeric',
-            // 		month: 'long',
-            // 		day: 'numeric'
-            // });
-          }
+            return date.toLocaleDateString("de-DE", {
+            		year: 'numeric',
+            		month: 'long',
+            		day: 'numeric'
+            });
+          };
 
 				}]);

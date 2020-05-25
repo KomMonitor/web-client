@@ -102,9 +102,9 @@ angular
 						$scope.spatialUnitName = spatialUnitName;
 						$scope.date = date;
 
-						kommonitorDiagramHelperService.prepareAllDiagramResources(indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue);
+						kommonitorDiagramHelperService.prepareAllDiagramResources(indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, false);
 
-						updateHistogramChart();
+						// updateHistogramChart();
 
 						updateLineChart();
 
@@ -270,7 +270,7 @@ angular
 								value = null;
 							}
 							else {
-								value = +Number(featureProperties[INDICATOR_DATE_PREFIX + date]).toFixed(numberOfDecimals)
+								value = kommonitorDataExchangeService.getIndicatorValue_asNumber(featureProperties[INDICATOR_DATE_PREFIX + date]);
 							}
 							featureSeries.data.push(value);
 						}
