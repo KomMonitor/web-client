@@ -67,7 +67,7 @@
 
  // various color settings
   window.__env.defaultColorForNoDataValues = "black";
-  window.__env.defaultBorderColorForNoDataValues = "black";
+  window.__env.defaultBorderColorForNoDataValues = "red";
   window.__env.defaultColorForOutliers_high = "#191919";
   window.__env.defaultBorderColorForOutliers_high = "black";
   window.__env.defaultFillOpacityForOutliers_high = "0.7";
@@ -87,6 +87,8 @@
   window.__env.defaultFillOpacityForHighlightedFeatures = "0.8";
   window.__env.useTransparencyOnIndicator = true;
   window.__env.useOutlierDetectionOnIndicator = true;
+  window.__env.classifyZeroSeparately = true;
+  window.__env.classifyUsingWholeTimeseries = true;
 
   // default color for specific classification as ColorBrewer palette name
   // i.e. balance mode
@@ -102,8 +104,7 @@
 
   // array of indicator name substring that shal be used to filter out / hide certain indicators by their name
   // e.g. set ["entwicklung"] to hide all indicators whose name contains the substring "entwicklung"
-  // window.__env.arrayOfNameSubstringsForHidingIndicators = ["Standardabweichung", "Bevölkerung - ", "Soziale Lage - ", "Soziale Lage (Leitindikator)", "Sterberisiko", "mittlerer Bodenversiegelungsgrad"];
-  window.__env.arrayOfNameSubstringsForHidingIndicators = [];
+  window.__env.arrayOfNameSubstringsForHidingIndicators = ["Standardabweichung", "Bevölkerung - ", "Soziale Lage - ", "Soziale Lage (Leitindikator)", "Sterberisiko", "mittlerer Bodenversiegelungsgrad"];
   // window.__env.arrayOfNameSubstringsForHidingIndicators = [];
   
   window.__env.arrayOfNameSubstringsForHidingGeoresources = [];

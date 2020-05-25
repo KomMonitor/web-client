@@ -304,7 +304,7 @@ angular
           indicatorTimeSeriesAverageArray[i] = kommonitorDataExchangeService.getIndicatorValue_asNumber(indicatorTimeSeriesAverageArray[i] / indicatorTimeSeriesCountArray[i]);
         }
 
-        setHistogramChartOptions(indicatorMetadataAndGeoJSON, indicatorValueArray, spatialUnitName, date);
+        // setHistogramChartOptions(indicatorMetadataAndGeoJSON, indicatorValueArray, spatialUnitName, date);
 
         setLineChartOptions(indicatorMetadataAndGeoJSON, indicatorTimeSeriesDatesArray, indicatorTimeSeriesAverageArray, indicatorTimeSeriesMaxArray, indicatorTimeSeriesMinArray, spatialUnitName, date);
 
@@ -1475,6 +1475,155 @@ angular
         }
         
         return eChartOptions;
+      };
+
+      this.makeTrendChartOptions_forAllFeatures = function(indicatorMetadataAndGeoJSON, fromDateAsPropertyString, toDateAsPropertyString, showMinMax, showCompleteTimeseries, computationType){
+          // we may base on the the precomputed timeseries lineOptions and modify that from a cloned instance
+
+          var timeseriesOptions = JSON.parse(JSON.stringify(this.getLineChartOptions()));
+
+          // add markedAreas for periods out of scope
+
+          var fromDateString = fromDateAsPropertyString.split(__env.indicatorDatePrefix)[1];
+          var fromDate_date = new Date(fromDateString);
+          var toDateString = toDateAsPropertyString.split(__env.indicatorDatePrefix)[1];
+          var toDate_date = new Date(toDateString);
+          
+          if(showCompleteTimeseries){
+            timeseriesOptions.series[2].markArea = {
+              silent: true,
+              itemStyle: {
+                  color: '#b50b0b',
+                  opacity: 0.3
+              },
+              data: [[{
+                  xAxis: indicatorMetadataAndGeoJSON.applicableDates[0]
+              }, {
+                  xAxis: fromDateString
+              }],
+              [{
+                  xAxis: toDateString
+              }, {
+                  xAxis: indicatorMetadataAndGeoJSON.applicableDates[indicatorMetadataAndGeoJSON.applicableDates.length - 1]
+              }]]
+            };
+          }          
+
+          // hide data points
+          timeseriesOptions.series[2].itemStyle.normal.opacity = 0;
+          timeseriesOptions.series[2].lineStyle.normal.width = 3;
+          timeseriesOptions.series[2].lineStyle.normal.type = "solid";  
+          
+          var trendData = [];
+
+          var timeseriesData = timeseriesOptions.series[2].data;  
+          var minSeriesData = timeseriesOptions.series[0].data;  
+          var maxSeriesData = timeseriesOptions.series[1].data;           
+
+          if(! showCompleteTimeseries){
+            var xData = [];
+            var timeData = [];
+            var minData = [];
+            var maxData = [];
+            for (let index = 0; index < timeseriesData.length; index++) {
+              var date_candidate = new Date(indicatorMetadataAndGeoJSON.applicableDates[index]);
+              if(date_candidate >= fromDate_date && date_candidate <= toDate_date){
+                const value = timeseriesData[index];
+                // const date = indicatorMetadataAndGeoJSON.applicableDates[index];
+  
+                timeData.push(value);
+                xData.push(indicatorMetadataAndGeoJSON.applicableDates[index]);  
+                minData.push(minSeriesData[index]);
+                maxData.push(maxSeriesData[index]);             
+              }            
+            }
+
+            timeseriesOptions.series[2].data = timeData;
+            timeseriesOptions.series[0].data = minData;
+            timeseriesOptions.series[1].data = maxData;
+
+            timeseriesOptions.xAxis.data = xData;
+          }     
+
+          // update value if it has changed
+          timeseriesData = timeseriesOptions.series[2].data;
+          var xAxisData = timeseriesOptions.xAxis.data;
+          for (let index = 0; index < timeseriesData.length; index++) {
+            var dateCandidate = new Date(xAxisData[index]);
+            if(dateCandidate >= fromDate_date && dateCandidate <= toDate_date){
+              const value = timeseriesData[index];
+              // const date = indicatorMetadataAndGeoJSON.applicableDates[index];
+
+              trendData.push([index, value]);
+            }            
+          }
+
+          // add regression line according to option          
+
+          var trendLine; 
+          if (computationType.includes("linear")){
+            trendLine = ecStat.regression('linear', trendData);
+          }
+          else if (computationType.includes("exponential")){
+            trendLine = ecStat.regression('exponential', trendData);
+          }
+          else if (computationType.includes("polynomial_3")){
+            trendLine = ecStat.regression('polynomial', trendData, 3);
+          }
+          else{
+            trendLine = ecStat.regression('linear', trendData);
+          }
+
+          timeseriesOptions.legend.data.push("Trendlinie");
+
+          timeseriesOptions.series.push({
+            name: 'Trendlinie',
+            type: 'line',
+            showSymbol: false,
+            data: trendLine.points,
+            lineStyle: {
+              normal: {
+                color: 'red',
+                width: 4,
+                type: 'dashed'
+              }
+            },
+            itemStyle: {
+              normal: {
+                borderWidth: 3,
+                color: 'red',
+                opacity: 0
+              }
+            },
+            markPoint: {
+                itemStyle: {
+                    normal: {
+                        color: 'transparent'
+                    }
+                },
+                // label: {
+                //     normal: {
+                //         show: true,
+                //         position: 'left',
+                //         formatter: trendLine.expression,
+                //         textStyle: {
+                //             color: '#333',
+                //             fontSize: 14
+                //         }
+                //     }
+                // },
+                data: [{
+                    coord: trendLine.points[trendLine.points.length - 1]
+                }]
+            }
+        });
+
+        if(! showMinMax){
+          timeseriesOptions.series.splice(0, 1);
+          timeseriesOptions.series.splice(0, 1);
+        }
+
+          return timeseriesOptions;
       };
 
     }]);

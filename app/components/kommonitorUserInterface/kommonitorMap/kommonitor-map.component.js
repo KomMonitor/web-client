@@ -1030,7 +1030,7 @@ angular.module('kommonitorMap').component(
               titel += " - <i>individuelles Berechnungsergebnis</i>";
             }
 
-            indicatorInfoHTML += '<h4><b>Indikatoreninformation</b><br/>' + titel + '</h4><br/>';
+            indicatorInfoHTML += '<h4>' + titel + '</h4><br/>';
             indicatorInfoHTML += '<b>Beschreibung: </b> ' + $scope.indicatorDescription + '<br/>';
             indicatorInfoHTML += '<b>Datenquelle: </b> ' + $scope.currentIndicatorMetadataAndGeoJSON.metadata.datasource + '<br/>';
             indicatorInfoHTML += $scope.appendSpatialUnitOptions();
@@ -1163,6 +1163,34 @@ angular.module('kommonitorMap').component(
           preserveHighlightedFeatures();
         });
 
+        $(document).on('click', '#controlIndicatorZeroClassifyOption', function (e) {
+          var zeroClassifyCheckbox = document.getElementById('controlIndicatorZeroClassifyOption');
+          if (zeroClassifyCheckbox.checked) {
+            kommonitorDataExchangeService.classifyZeroSeparately = true;
+          }
+          else {
+            kommonitorDataExchangeService.classifyZeroSeparately = false;
+          }
+          $rootScope.$broadcast("restyleCurrentLayer", false);
+
+          // ensure that highlighted features remain highlighted
+          preserveHighlightedFeatures();
+        });
+
+        $(document).on('click', '#controlIndicatorClassifyOption_wholeTimeseries', function (e) {
+          var wholeTimeseriesClassificationCheckbox = document.getElementById('controlIndicatorClassifyOption_wholeTimeseries');
+          if (wholeTimeseriesClassificationCheckbox.checked) {
+            kommonitorDataExchangeService.classifyUsingWholeTimeseries = true;
+          }
+          else {
+            kommonitorDataExchangeService.classifyUsingWholeTimeseries = false;
+          }
+          $rootScope.$broadcast("restyleCurrentLayer", false);
+
+          // ensure that highlighted features remain highlighted
+          preserveHighlightedFeatures();
+        });        
+
         $scope.$on("changeClassifyMethod", function (event, method) {
           $scope.classifyMethod = method;
 
@@ -1273,6 +1301,40 @@ angular.module('kommonitorMap').component(
           return innerHTMLString;
         };
 
+        $scope.appendZeroClassifyCheckbox = function () {
+
+          var innerHTMLString = '<strong>Wert "0" als separate Klasse darstellen</strong> &nbsp;';
+          innerHTMLString += "<label class='switch' title='0 als separate Klasse darstellen'>";
+          innerHTMLString += "<input id='controlIndicatorZeroClassifyOption' type='checkbox' value='useSeparateZeroClass'";
+          if (kommonitorDataExchangeService.classifyZeroSeparately) {
+            innerHTMLString += " checked";
+          }
+          innerHTMLString += ">";
+          innerHTMLString += "<span class='switchslider round'></span>";
+          innerHTMLString += '</label>';
+          innerHTMLString += '<br/>';
+          innerHTMLString += '<br/>';
+
+          return innerHTMLString;
+        };
+
+        $scope.appendWholeTimeseriesClassificationCheckbox = function () {
+
+          var innerHTMLString = '<strong>Klassifizierung &uuml;ber die gesamte Zeitreihe</strong> &nbsp;';
+          innerHTMLString += "<label class='switch' title='Klassifizierung &uuml;ber die gesamte Zeitreihe'>";
+          innerHTMLString += "<input id='controlIndicatorClassifyOption_wholeTimeseries' type='checkbox' value='useWholeTimeseriesClassification'";
+          if (kommonitorDataExchangeService.classifyUsingWholeTimeseries) {
+            innerHTMLString += " checked";
+          }
+          innerHTMLString += ">";
+          innerHTMLString += "<span class='switchslider round'></span>";
+          innerHTMLString += '</label>';
+          innerHTMLString += '<br/>';
+          innerHTMLString += '<br/>';
+
+          return innerHTMLString;
+        };
+
         function makeOutliersLowLegendString(outliersArray) {
           if (outliersArray.length > 1) {
 
@@ -1312,7 +1374,7 @@ angular.module('kommonitorMap').component(
 
         $scope.appendNoDataLegendItem = function(){
 
-          var noDataHtml = '<div class="row"><div class="col-md-3 ">' + '<i>' + $scope.svgString_noData + '</i> </div>' +
+          var noDataHtml = '<div class="row"><div class="col-md-3 ">' + '<i style="background:' + defaultColorForNoDataValues + '; border: 2px solid ' + defaultBorderColorForNoDataValues + '; opacity: ' + opacity + ';"></i> </div>' +
           '<div class="col-md-6 ">Leerwert</div> <div class="col-md-3 ">' + kommonitorVisualStyleHelperService.featuresPerNoData + '</div></div>';
            return  noDataHtml;
         };
@@ -1336,7 +1398,7 @@ angular.module('kommonitorMap').component(
         $scope.appendFilteredFeaturesItem = function(opacity){
           var html = '<div class="row"><div class="col-md-3 ">' + '<i style="background:' + defaultColorForFilteredValues + '; border: 2px solid ' + defaultBorderColorForFilteredValues + '; opacity: ' + opacity + ';"></i> </div>' +
           '<div class="col-md-6 ">gefilterte Features </div>' + '<div class="col-md-3 ">' + 
-          $scope.filteredIndicatorFeatureNames.length + '</div></div>';
+          kommonitorDataExchangeService.filteredIndicatorFeatureNames.length + '</div></div>';
 
           return html;
         };
@@ -1349,7 +1411,7 @@ angular.module('kommonitorMap').component(
           return html;
         };
 
-        $scope.appendIncreasingItems = function(colorBrewInstance, opacity){
+        $scope.appendColorGradientLegendItems = function(colorBrewInstance, opacity){
           var html = "";
               var labelsIncrease = colorBrewInstance.breaks;
               var colorsIncrease = colorBrewInstance.colors;
@@ -1370,25 +1432,25 @@ angular.module('kommonitorMap').component(
               return html;
         };
 
-        $scope.appendDecreasingItems = function(colorBrewInstance, opacity){
-          var html = "";
-              var labelsDecrease = colorBrewInstance.breaks;
-              var colorsDecrease = colorBrewInstance.colors;
+        // $scope.appendDecreasingItems = function(colorBrewInstance, opacity){
+        //   var html = "";
+        //       var labelsDecrease = colorBrewInstance.breaks;
+        //       var colorsDecrease = colorBrewInstance.colors;
 
-              // html += "<label>Zunahme</label><br/>";
+        //       // html += "<label>Zunahme</label><br/>";
 
-              // invert color labeling as colorization of lT features is also inverted
-              for (var i = 0; i < colorsDecrease.length; i++) {
-                var count = kommonitorVisualStyleHelperService.featuresPerColorMap.get(colorsDecrease[i]) ? kommonitorVisualStyleHelperService.featuresPerColorMap.get(colorsDecrease[i]) : 0;
+        //       // invert color labeling as colorization of lT features is also inverted
+        //       for (var i = 0; i < colorsDecrease.length; i++) {
+        //         var count = kommonitorVisualStyleHelperService.featuresPerColorMap.get(colorsDecrease[i]) ? kommonitorVisualStyleHelperService.featuresPerColorMap.get(colorsDecrease[i]) : 0;
 
-                html +=
-                  '<div class="row"><div class="col-md-3 "><i style="background:' + colorsDecrease[colorsDecrease.length - 1 - i] + '; opacity: ' + opacity + ';"></i> </div>' +
-                  '<div class="col-md-6 ">' + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labelsDecrease[i]) + (typeof labelsDecrease[i + 1] != 'undefined' ? ' &ndash; &lt; ' + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labelsDecrease[i + 1]) : '') + '</div>' + '<div class="col-md-3 ">' + 
-                  count + '</div></div>';
-              }
+        //         html +=
+        //           '<div class="row"><div class="col-md-3 "><i style="background:' + colorsDecrease[colorsDecrease.length - 1 - i] + '; opacity: ' + opacity + ';"></i> </div>' +
+        //           '<div class="col-md-6 ">' + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labelsDecrease[i]) + (typeof labelsDecrease[i + 1] != 'undefined' ? ' &ndash; &lt; ' + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(labelsDecrease[i + 1]) : '') + '</div>' + '<div class="col-md-3 ">' + 
+        //           count + '</div></div>';
+        //       }
 
-              return html;
-        };
+        //       return html;
+        // };
 
         $scope.appendColorLegendHeaders = function(){
           var html = '<div class="row"><div class="col-md-3"><b>Symbolik</b></div>' +
@@ -1442,7 +1504,7 @@ angular.module('kommonitorMap').component(
 
             $scope.div.innerHTML += '<div>';
 
-            $scope.div.innerHTML += "<h4><b>Indikatorenlegende</b><br/>" + kommonitorDataExchangeService.getIndicatorStringFromIndicatorType($scope.currentIndicatorMetadataAndGeoJSON.indicatorType) + "</h4><br/><em>Darstellung der Indikatorenwerte zum gew&auml;hlten Zeitpunkt " + kommonitorDataExchangeService.tsToDate_fullYear(kommonitorDataExchangeService.dateToTS(dateAsDate)) + "</em><br/><br/>";
+            $scope.div.innerHTML += "<h4>" + kommonitorDataExchangeService.getIndicatorStringFromIndicatorType($scope.currentIndicatorMetadataAndGeoJSON.indicatorType) + "</h4><em>Darstellung der Indikatorenwerte zum gew&auml;hlten Zeitpunkt " + kommonitorDataExchangeService.tsToDate_fullYear(kommonitorDataExchangeService.dateToTS(dateAsDate)) + "</em><br/><br/>";
 
             $scope.div.innerHTML += $scope.appendClassifyRadioOptions();
 
@@ -1455,6 +1517,12 @@ angular.module('kommonitorMap').component(
             if ($scope.containsOutliers_low || $scope.containsOutliers_high) {
               $scope.div.innerHTML += $scope.appendOutliersCheckbox();
             }
+
+            if ($scope.currentIndicatorContainsZeroValues) {
+              $scope.div.innerHTML += $scope.appendZeroClassifyCheckbox();
+            }
+            
+            $scope.div.innerHTML += $scope.appendWholeTimeseriesClassificationCheckbox();
 
             $scope.div.innerHTML += $scope.appendColorLegendHeaders();
 
@@ -1483,25 +1551,25 @@ angular.module('kommonitorMap').component(
             if (containsNegativeValues) {
               // dynamic legend creation depending on number of positive and negative classes
               if ($scope.dynamicDecreaseBrew) {
-                $scope.div.innerHTML += $scope.appendDecreasingItems($scope.dynamicDecreaseBrew, opacity);
+                $scope.div.innerHTML += $scope.appendColorGradientLegendItems($scope.dynamicDecreaseBrew, opacity);
 
               }
 
-              if ($scope.currentIndicatorContainsZeroValues) {
+              if (kommonitorDataExchangeService.classifyZeroSeparately && $scope.currentIndicatorContainsZeroValues) {
                 // $scope.div.innerHTML += "<br/>";
                 $scope.div.innerHTML += $scope.appendZeroItem(opacity);
               }
 
               if ($scope.dynamicIncreaseBrew) {
                 // $scope.div.innerHTML += "<br/>";
-                $scope.div.innerHTML += $scope.appendIncreasingItems($scope.dynamicIncreaseBrew, opacity);
+                $scope.div.innerHTML += $scope.appendColorGradientLegendItems($scope.dynamicIncreaseBrew, opacity);
               }
 
             }
             else {
               //TODO FIXME defaultCustomRating comes in the wrong order! inspect that behaviour server-side
 
-              if ($scope.currentIndicatorContainsZeroValues) {
+              if (kommonitorDataExchangeService.classifyZeroSeparately && $scope.currentIndicatorContainsZeroValues) {
                 $scope.div.innerHTML += $scope.appendZeroItem(opacity);
                 useFilteredOrZeroOrOutlierValues = true;
               }
@@ -1510,7 +1578,7 @@ angular.module('kommonitorMap').component(
                 $scope.div.innerHTML += '<br/>';
               }
 
-              $scope.div.innerHTML += $scope.appendIncreasingItems($scope.defaultBrew, opacity);
+              $scope.div.innerHTML += $scope.appendColorGradientLegendItems($scope.defaultBrew, opacity);
             }
 
             $scope.div.innerHTML += '</div>';
@@ -1564,14 +1632,14 @@ angular.module('kommonitorMap').component(
             $scope.div.innerHTML += '<div>';
 
             if ($scope.currentIndicatorMetadataAndGeoJSON['fromDate']) {
-              $scope.div.innerHTML += "<h4><b>Indikatorenlegende</b><br/>" + kommonitorDataExchangeService.getIndicatorStringFromIndicatorType($scope.currentIndicatorMetadataAndGeoJSON.indicatorType) + "</h4><br/>";
+              $scope.div.innerHTML += "<h4>" + kommonitorDataExchangeService.getIndicatorStringFromIndicatorType($scope.currentIndicatorMetadataAndGeoJSON.indicatorType) + "</h4>";
               $scope.div.innerHTML += "<em>Bilanzierung " + $scope.currentIndicatorMetadataAndGeoJSON['fromDate'] + " - " + $scope.currentIndicatorMetadataAndGeoJSON['toDate'] + "</em><br/><br/>";
             }
             else {
 
               var dateComponents = $scope.date.split("-");
               var dateAsDate = new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]));
-              $scope.div.innerHTML += "<h4><b>Indikatorenlegende</b><br/>" + kommonitorDataExchangeService.getIndicatorStringFromIndicatorType($scope.currentIndicatorMetadataAndGeoJSON.indicatorType) + "</h4><br/><em>Darstellung der zeitlichen Entwicklung zum gew&auml;hlten Zeitpunkt " + kommonitorDataExchangeService.tsToDate_fullYear(kommonitorDataExchangeService.dateToTS(dateAsDate)) + "</em><br/><br/>";
+              $scope.div.innerHTML += "<h4>" + kommonitorDataExchangeService.getIndicatorStringFromIndicatorType($scope.currentIndicatorMetadataAndGeoJSON.indicatorType) + "</h4><em>Darstellung der zeitlichen Entwicklung zum gew&auml;hlten Zeitpunkt " + kommonitorDataExchangeService.tsToDate_fullYear(kommonitorDataExchangeService.dateToTS(dateAsDate)) + "</em><br/><br/>";
             }
 
             $scope.div.innerHTML += $scope.appendClassifyRadioOptions();
@@ -1584,6 +1652,10 @@ angular.module('kommonitorMap').component(
 
             if ($scope.containsOutliers_low || $scope.containsOutliers_high) {
               $scope.div.innerHTML += $scope.appendOutliersCheckbox();
+            }
+
+            if ($scope.currentIndicatorContainsZeroValues) {
+              $scope.div.innerHTML += $scope.appendZeroClassifyCheckbox();
             }
 
             $scope.div.innerHTML += $scope.appendColorLegendHeaders();
@@ -1616,18 +1688,18 @@ angular.module('kommonitorMap').component(
 
             // dynamic legend creation depending on number of positive and negative classes
             if ($scope.dynamicDecreaseBrew) {
-              $scope.div.innerHTML += $scope.appendDecreasingItems($scope.dynamicDecreaseBrew, opacity);
+              $scope.div.innerHTML += $scope.appendColorGradientLegendItems($scope.dynamicDecreaseBrew, opacity);
 
             }
 
-            if ($scope.currentIndicatorContainsZeroValues) {
+            if (kommonitorDataExchangeService.classifyZeroSeparately && $scope.currentIndicatorContainsZeroValues) {
               $scope.div.innerHTML += "<br/>";
               $scope.div.innerHTML += $scope.appendZeroItem(opacity);
             }
 
             if ($scope.dynamicIncreaseBrew) {
               $scope.div.innerHTML += '<br/>';
-              $scope.div.innerHTML += $scope.appendIncreasingItems($scope.dynamicIncreaseBrew, opacity);
+              $scope.div.innerHTML += $scope.appendColorGradientLegendItems($scope.dynamicIncreaseBrew, opacity);
             }
 
             $scope.div.innerHTML += '</div>';
@@ -1684,7 +1756,7 @@ angular.module('kommonitorMap').component(
 
             $scope.div.innerHTML += '<div>';
 
-            $scope.div.innerHTML += "<h4><b>Indikatorenlegende</b><br/>" + kommonitorDataExchangeService.getIndicatorStringFromIndicatorType($scope.currentIndicatorMetadataAndGeoJSON.indicatorType) + "</h4><br/><em>Schwellwert-Klassifizierung<br/>Gew&auml;hlter Zeitpunkt: " + kommonitorDataExchangeService.tsToDate_fullYear(kommonitorDataExchangeService.dateToTS(dateAsDate)) + "</em><br/>";
+            $scope.div.innerHTML += "<h4>" + kommonitorDataExchangeService.getIndicatorStringFromIndicatorType($scope.currentIndicatorMetadataAndGeoJSON.indicatorType) + "</h4><em>Schwellwert-Klassifizierung<br/>Gew&auml;hlter Zeitpunkt: " + kommonitorDataExchangeService.tsToDate_fullYear(kommonitorDataExchangeService.dateToTS(dateAsDate)) + "</em><br/>";
 
             $scope.div.innerHTML += "<em>aktueller Schwellwert: </em> " + kommonitorDataExchangeService.measureOfValue + "<br/><br/>";
 
@@ -1697,6 +1769,12 @@ angular.module('kommonitorMap').component(
             if ($scope.containsOutliers_low || $scope.containsOutliers_high) {
               $scope.div.innerHTML += $scope.appendOutliersCheckbox();
             }
+
+            if ($scope.currentIndicatorContainsZeroValues) {
+              $scope.div.innerHTML += $scope.appendZeroClassifyCheckbox();
+            }
+
+            $scope.div.innerHTML += $scope.appendWholeTimeseriesClassificationCheckbox();
 
             $scope.div.innerHTML += $scope.appendColorLegendHeaders();
 
@@ -1722,7 +1800,7 @@ angular.module('kommonitorMap').component(
               useFilteredOrZeroOrOutlierValues = true;
             }
 
-            if ($scope.currentIndicatorContainsZeroValues) {
+            if (kommonitorDataExchangeService.classifyZeroSeparately && $scope.currentIndicatorContainsZeroValues) {
               $scope.div.innerHTML += $scope.appendZeroItem(opacity);
               useFilteredOrZeroOrOutlierValues = true;
             }
@@ -1732,12 +1810,12 @@ angular.module('kommonitorMap').component(
             }
 
             if ($scope.ltMeasureOfValueBrew) {
-              $scope.div.innerHTML += $scope.appendDecreasingItems($scope.ltMeasureOfValueBrew, opacity);
+              $scope.div.innerHTML += $scope.appendColorGradientLegendItems($scope.ltMeasureOfValueBrew, opacity);
             }
 
             if ($scope.gtMeasureOfValueBrew) {
               $scope.div.innerHTML += '<br/>';
-              $scope.div.innerHTML += $scope.appendIncreasingItems($scope.gtMeasureOfValueBrew, opacity);
+              $scope.div.innerHTML += $scope.appendColorGradientLegendItems($scope.gtMeasureOfValueBrew, opacity);
             }
 
             $scope.div.innerHTML += '</div>';
@@ -2383,6 +2461,55 @@ angular.module('kommonitorMap').component(
           $scope.map.invalidateSize(true);
         });
 
+        $scope.$on("addPoiGeoresourceAsGeoJSON_reachabilityAnalysis", function (event, georesourceMetadataAndGeoJSON, date, useCluster) {
+
+          // use leaflet.markercluster to cluster markers!
+          var markers;
+          if (useCluster) {
+            markers = L.markerClusterGroup({
+              iconCreateFunction: function (cluster) {
+                var childCount = cluster.getChildCount();
+
+                var c = 'cluster-';
+                if (childCount < 10) {
+                  c += 'small';
+                } else if (childCount < 30) {
+                  c += 'medium';
+                } else {
+                  c += 'large';
+                }
+
+                var className = "marker-cluster " + c + " awesome-marker-legend-TransparentIcon-" + georesourceMetadataAndGeoJSON.poiMarkerColor;
+
+                //'marker-cluster' + c + ' ' +
+                return new L.DivIcon({ html: '<div class="awesome-marker-legend-icon-' + georesourceMetadataAndGeoJSON.poiMarkerColor + '" ><span>' + childCount + '</span></div>', className: className, iconSize: new L.Point(40, 40) });
+              }
+            });
+          }
+          else {
+            markers = L.layerGroup();
+          }          
+
+          georesourceMetadataAndGeoJSON.geoJSON.features.forEach(function (poiFeature) {
+            // index 0 should be longitude and index 1 should be latitude
+            //.bindPopup( poiFeature.properties.name )
+            var newMarker = createCustomMarker(poiFeature, georesourceMetadataAndGeoJSON.poiSymbolColor, georesourceMetadataAndGeoJSON.poiMarkerColor, georesourceMetadataAndGeoJSON.poiSymbolBootstrap3Name, georesourceMetadataAndGeoJSON);            
+            
+            markers = addPoiMarker(markers, newMarker);
+          });
+
+          // markers.StyledLayerControl = {
+          //   removable : false,
+          //   visible : true
+          // };
+
+          $scope.layerControl.addOverlay(markers, georesourceMetadataAndGeoJSON.datasetName + "_" + date + "_inEinzugsgebiet", reachabilityLayerGroupName);
+          markers.addTo($scope.map);
+          $scope.updateSearchControl();
+          // $scope.map.addLayer( markers );
+          $scope.map.invalidateSize(true);
+        });
+
         var addPoiMarker = function(markers, poiMarker){
             
           // var propertiesString = "<pre>" + JSON.stringify(poiMarker.feature.properties, null, ' ').replace(/[\{\}"]/g, '') + "</pre>";
@@ -2417,6 +2544,19 @@ angular.module('kommonitorMap').component(
 
           $scope.layerControl._layers.forEach(function (layer) {
             if (layer.group.name === poiLayerGroupName && layer.name.includes(layerName + "_")) {
+              $scope.layerControl.removeLayer(layer.layer);
+              $scope.map.removeLayer(layer.layer);
+              $scope.updateSearchControl();
+            }
+          });
+        });
+
+        $scope.$on("removePoiGeoresource_reachabilityAnalysis", function (event, georesourceMetadataAndGeoJSON) {
+
+          var layerName = georesourceMetadataAndGeoJSON.datasetName;
+
+          $scope.layerControl._layers.forEach(function (layer) {
+            if (layer.group.name === reachabilityLayerGroupName && layer.name.includes(layerName + "_")) {
               $scope.layerControl.removeLayer(layer.layer);
               $scope.map.removeLayer(layer.layer);
               $scope.updateSearchControl();
