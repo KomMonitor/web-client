@@ -61,3 +61,26 @@ angular.element(document).ready(function ($http) {
   });
 
 });
+
+appModule.factory('authInterceptor', function($q, Auth) {
+  return {
+      request: function (config) {
+          var deferred = $q.defer();
+          if (Auth.keycloak.token) {
+              Auth.keycloak.updateToken(5).then(function() {
+                  config.headers = config.headers || {};
+                  config.headers.Authorization = 'Bearer ' + Auth.keycloak.token;
+
+                  deferred.resolve(config);
+              }).catch(function() {
+                      deferred.reject('Failed to refresh token');
+                  });
+          }
+          return deferred.promise;
+      }
+  };
+});
+
+appModule.config(function($httpProvider) {
+  $httpProvider.interceptors.push('authInterceptor');
+});
