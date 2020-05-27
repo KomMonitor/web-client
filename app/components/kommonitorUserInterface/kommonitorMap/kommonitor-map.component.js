@@ -1374,7 +1374,7 @@ angular.module('kommonitorMap').component(
 
         $scope.appendNoDataLegendItem = function(){
 
-          var noDataHtml = '<div class="row"><div class="col-md-3 ">' + '<i style="background:' + defaultColorForNoDataValues + '; border: 2px solid ' + defaultBorderColorForNoDataValues + '; opacity: ' + opacity + ';"></i> </div>' +
+          var noDataHtml = '<div class="row"><div class="col-md-3 ">' + '<i style="background:' + defaultColorForNoDataValues + '; border: 2px solid ' + defaultBorderColorForNoDataValues + '; opacity: ' + defaultFillOpacityForNoDataValues + ';"></i> </div>' +
           '<div class="col-md-6 ">Leerwert</div> <div class="col-md-3 ">' + kommonitorVisualStyleHelperService.featuresPerNoData + '</div></div>';
            return  noDataHtml;
         };
@@ -3577,7 +3577,6 @@ angular.module('kommonitorMap').component(
           */
 
           if(kommonitorDataExchangeService.selectedSpatialUnitIsRaster()){
-            isRaster = true;
             indicatorMetadataAndGeoJSON.geoJSON.features = indicatorMetadataAndGeoJSON.geoJSON.features.filter(feature => {
               if (kommonitorDataExchangeService.indicatorValueIsNoData(feature.properties[$scope.indicatorPropertyName])) {
                 return false;
