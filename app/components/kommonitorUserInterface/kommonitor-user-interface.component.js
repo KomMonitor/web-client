@@ -1,11 +1,12 @@
 angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 	templateUrl : "components/kommonitorUserInterface/kommonitor-user-interface.template.html",
-	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '$location', function UserInterfaceController(kommonitorDataExchangeService, $scope, $rootScope, $location) {
+	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '$location', 'Auth', function UserInterfaceController(kommonitorDataExchangeService, $scope, $rootScope, $location, Auth) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
 		kommonitorDataExchangeService.anySideBarIsShown = false;
 
+		$scope.authenticated = Auth.keycloak.authenticated;
 		$scope.username;
 		$scope.password;
 		$scope.showAdminLogin = false;
@@ -13,6 +14,9 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 		$scope.init = function(){
 			// initialize application
 			console.log("Initialize Application");
+			if($scope.authenticated){
+				console.log("Authetication successfull");
+			}
 			kommonitorDataExchangeService.fetchAllMetadata();
 		};
 
@@ -45,17 +49,26 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			return new Promise(resolve => setTimeout(resolve, ms));
 		}
 
+		Auth.keycloak.onAuthLogout  = function() {console.log("Logout successfull");}
+
+		Auth.keycloak.onAuthSuccess   = function() {console.log("User successfully authenticated");}
+
 		$scope.tryLoginUser = function(){
 			// TODO FIXME make generic user login once user/role concept is implemented
 
 			// currently only simple ADMIN user login is possible
-			console.log("Check user login");
-			if (kommonitorDataExchangeService.adminUserName === $scope.username && kommonitorDataExchangeService.adminPassword === $scope.password){
-				// success login --> currently switch to ADMIN page directly
-				console.log("User Login success - redirect to Admin Page");
-				kommonitorDataExchangeService.adminIsLoggedIn = true;
-				$location.path('/administration');
-			}
+			// console.log("Check user login");
+			// if (kommonitorDataExchangeService.adminUserName === $scope.username && kommonitorDataExchangeService.adminPassword === $scope.password){
+			// 	// success login --> currently switch to ADMIN page directly
+			// 	console.log("User Login success - redirect to Admin Page");
+			// 	kommonitorDataExchangeService.adminIsLoggedIn = true;
+			// 	$location.path('/administration');
+			// }
+			Auth.keycloak.login();
+		};
+
+		$scope.tryLogoutUser = function() {
+			Auth.keycloak.logout();
 		};
 
 		$scope.tryLoginUserByKeypress = function($event){

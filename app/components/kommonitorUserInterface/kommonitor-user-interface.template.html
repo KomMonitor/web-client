@@ -29,7 +29,8 @@
                     <i class="fas fa-lock"></i>
                     <input  placeholder="Password" type="password" ng-model="password" ng-keypress="tryLoginUserByKeypress($event)" name="Password" id="field_password" class='input_field'>
                 </div>
-                <input type="submit" value="Login" id='input_submit' ng-click="tryLoginUser()" class='input_field'>
+				<input type="submit" ng-if="!authenticated" value="Login" id='input_submit' ng-click="tryLoginUser()" class='input_field' >
+				<input type="submit" ng-if="authenticated" value="Logout" id='input_submit' ng-click="tryLogoutUser()" class='input_field input_authenticated' >
                 <!-- <span>Forgot <a href="#"> Username / Password ?</a></span>
                 <span id='create_account'>
                     <a href="#">Create your account ➡ </a>
