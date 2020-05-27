@@ -43,12 +43,18 @@ if (!env.enableDebug) {
   }
 }
 
+var auth = {};
+
 angular.element(document).ready(function ($http) {
-  var keycloak = new Keycloak();
-  keycloak.init({
-    onLoad: 'check-sso',
+  var keycloakAdapter = new Keycloak();
+  keycloakAdapter.init({
+    onLoad: 'login-required',
   }).then(function (authenticated) {
     console.log(authenticated ? 'User is authenticated!' : 'User is not authenticated!');
+    auth.keycloak = keycloakAdapter;
+    appModule.factory('Auth', function () {
+      return auth;
+    })
     angular.bootstrap(document, ["kommonitorClient"]);
   }).catch(function () {
     console.log('Failed to initialize authentication adapter');
