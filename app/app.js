@@ -48,7 +48,7 @@ var auth = {};
 angular.element(document).ready(function ($http) {
   var keycloakAdapter = new Keycloak();
   keycloakAdapter.init({
-    onLoad: 'login-required',
+    onLoad: 'check-sso',
   }).then(function (authenticated) {
     console.log(authenticated ? 'User is authenticated!' : 'User is not authenticated!');
     auth.keycloak = keycloakAdapter;
