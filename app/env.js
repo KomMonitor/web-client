@@ -17,13 +17,13 @@
   window.__env.indicatorDatePrefix = "DATE_";
 
   // Data Management API URL
-  window.__env.apiUrl = 'http://kommonitor-mh.fbg-hsbo.de/';
+  window.__env.apiUrl = 'http://kommonitor.muelheim.de/';
   // window.__env.apiUrl = 'http://localhost:8085/';
   // Base url for Data Management API
   window.__env.basePath = 'management';
 
   // Processing Engine URL
-  window.__env.targetUrlToProcessingEngine = 'http://kommonitor-mh.fbg-hsbo.de/processing/';
+  window.__env.targetUrlToProcessingEngine = 'http://kommonitor.muelheim.de/processing/';
   // window.__env.targetUrlToProcessingEngine = 'http://localhost:8086/processing/';
 
   // Open Route Service URL
@@ -31,11 +31,11 @@
   window.__env.targetUrlToReachabilityService_ORS = 'https://ors5.fbg-hsbo.de';
 
   // Open Trip Planner URL - currently not integrated
-  window.__env.targetUrlToReachabilityService_OTP = 'http://kommonitor-mh.fbg-hsbo.de/opentripplanner';
+  window.__env.targetUrlToReachabilityService_OTP = 'http://kommonitor.muelheim.de/opentripplanner';
   // window.__env.targetUrlToReachabilityService_OTP = 'http://localhost:8090/opentripplanner';
 
   // Data Imporert URL
-  window.__env.targetUrlToImporterService = 'http://kommonitor-mh.fbg-hsbo.de/importer';
+  window.__env.targetUrlToImporterService = 'http://kommonitor.muelheim.de/importer';
 
   // optional geometry simplification (a feature of Data Management API)
   window.__env.simplifyGeometriesParameterName = "simplifyGeometries";
