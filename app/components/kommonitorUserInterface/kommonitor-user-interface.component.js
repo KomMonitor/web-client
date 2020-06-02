@@ -69,7 +69,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			Auth.keycloak.logout();
 		};
 
-		$scope.tryLoginUserByKeypress = function($event){
+		$scope.tryLoginUserByKeypress = function ($event) {
 			var keyCode = $event.which || $event.keyCode;
 			//check for enter key
 	    if (keyCode === 13) {
@@ -91,8 +91,15 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 						}
     				}).catch(function () {
        					console.log('Failed to load user profile');
-    				});
+					});
+				if(Auth.keycloak.tokenParsed.realm_access.roles.includes('administrator')){
+					$scope.showAdminLogin = true;
+				}
 			}
+		}
+
+		$scope.openAdminUI = function () {
+			$location.path('/administration');
 		}
 
 		$scope.undockButtons = function(){

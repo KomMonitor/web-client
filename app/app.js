@@ -28,11 +28,27 @@ appModule.
           template: '<kommonitor-user-interface></kommonitor-user-interface>'
         }).
         when('/administration', {
-          template: '<kommonitor-admin></kommonitor-admin>'
+          template: '<kommonitor-admin></kommonitor-admin>',
+          resolve: {
+            'auth': function(Auth, $q) { 
+              if(Auth.keycloak.authenticated && Auth.keycloak.tokenParsed.realm_access.roles.includes('administrator')) {
+                return true;
+              }
+              else {
+                return $q.reject('Not Authenticated');
+              }
+            }
+          }
         }).
         otherwise('/');
     }
-  ]);
+  ])
+  .run( function($rootScope, $location, Auth) {
+    // register listener to watch route changes
+    $rootScope.$on( "$routeChangeError", function(event, next, current) {
+        $location.path( "/" );
+    });
+  });
 
 // Register environment in AngularJS as constant
 appModule.constant('__env', env);
