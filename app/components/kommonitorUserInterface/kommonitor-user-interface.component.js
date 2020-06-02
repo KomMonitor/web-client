@@ -6,18 +6,20 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 
 		kommonitorDataExchangeService.anySideBarIsShown = false;
 
-		$scope.authenticated = Auth.keycloak.authenticated;
+		
 		$scope.username;
 		$scope.password;
 		$scope.showAdminLogin = false;
 
-		$scope.init = function(){
+		$scope.init = function () {
 			// initialize application
 			console.log("Initialize Application");
-			if($scope.authenticated){
+			if ($scope.authenticated) {
 				console.log("Authetication successfull");
 			}
 			kommonitorDataExchangeService.fetchAllMetadata();
+
+			checkAuthentication();
 		};
 
 		// initialize any adminLTE box widgets
@@ -49,21 +51,17 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			return new Promise(resolve => setTimeout(resolve, ms));
 		}
 
-		Auth.keycloak.onAuthLogout  = function() {console.log("Logout successfull");}
+		Auth.keycloak.onAuthLogout  = function() {
+			console.log("Logout successfull");
+			checkAuthentication();
+		}
 
-		Auth.keycloak.onAuthSuccess   = function() {console.log("User successfully authenticated");}
+		Auth.keycloak.onAuthSuccess   = function() {
+			console.log("User successfully authenticated");
+			checkAuthentication();
+		}
 
 		$scope.tryLoginUser = function(){
-			// TODO FIXME make generic user login once user/role concept is implemented
-
-			// currently only simple ADMIN user login is possible
-			// console.log("Check user login");
-			// if (kommonitorDataExchangeService.adminUserName === $scope.username && kommonitorDataExchangeService.adminPassword === $scope.password){
-			// 	// success login --> currently switch to ADMIN page directly
-			// 	console.log("User Login success - redirect to Admin Page");
-			// 	kommonitorDataExchangeService.adminIsLoggedIn = true;
-			// 	$location.path('/administration');
-			// }
 			Auth.keycloak.login();
 		};
 
@@ -78,6 +76,24 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 	        $scope.tryLoginUser();
 	    }
 		};
+
+		checkAuthentication = function () {		
+			if (Auth.keycloak.authenticated) {
+				$scope.authenticated = Auth.keycloak.authenticated;
+				Auth.keycloak.loadUserProfile()
+    				.then(function (profile) {
+						if (profile.emailVerified) {
+							$scope.username = profile.email;
+							console.log("User logged in with email: " + profile.email);
+						} else {
+							alert("Email not verified. User will be logged out automatically!");
+							$scope.tryLogoutUser();
+						}
+    				}).catch(function () {
+       					console.log('Failed to load user profile');
+    				});
+			}
+		}
 
 		$scope.undockButtons = function(){
 			$scope.buttonIndicatorConfigClass = "btn btn-custom btn-circle";
