@@ -63,7 +63,7 @@ angular
         y: 5,
         radius: 1,
         fill: true,
-        color: defaultColorForNoDataValues
+        color: kommonitorDataExchangeService.selectedSpatialUnitIsRaster() ? undefined : defaultColorForNoDataValues
       });
       this.noDataFillPattern = new L.Pattern({ width: 8, height: 8 });
       this.noDataFillPattern.addShape(shape);
@@ -74,7 +74,7 @@ angular
       this.outlierStyle_high = {
         weight: 1,
         opacity: 1,
-        color: defaultBorderColorForOutliers_high,
+        color: kommonitorDataExchangeService.selectedSpatialUnitIsRaster() ? undefined : defaultBorderColorForOutliers_high,
         dashArray: '',
         fillOpacity: defaultFillOpacityForOutliers_high,
         fillColor: defaultColorForOutliers_high,
@@ -84,7 +84,7 @@ angular
       this.outlierStyle_low = {
         weight: 1,
         opacity: 1,
-        color: defaultBorderColorForOutliers_low,
+        color: kommonitorDataExchangeService.selectedSpatialUnitIsRaster() ? undefined : defaultBorderColorForOutliers_low,
         dashArray: '',
         fillOpacity: defaultFillOpacityForOutliers_low,
         fillColor: defaultColorForOutliers_low,
@@ -94,27 +94,73 @@ angular
       this.noDataStyle = {
         weight: 1,
         opacity: 1,
-        color: defaultBorderColorForNoDataValues,
+        color: kommonitorDataExchangeService.selectedSpatialUnitIsRaster() ? undefined : defaultBorderColorForNoDataValues,
         dashArray: '',
         fillOpacity: defaultFillOpacityForNoDataValues,
         fillColor: defaultColorForNoDataValues,
-        fillPattern: this.noDataFillPattern
+        // fillPattern: this.noDataFillPattern
       };
 
       this.filteredStyle = {
         weight: 1,
         opacity: 1,
-        color: defaultBorderColorForFilteredValues,
+        color: kommonitorDataExchangeService.selectedSpatialUnitIsRaster() ? undefined : defaultBorderColorForFilteredValues,
         dashArray: '',
         fillOpacity: defaultFillOpacityForFilteredFeatures,
         fillColor: defaultColorForFilteredValues
       };
 
+      this.featuresPerColorMap = new Map();
+      this.featuresPerNoData = 0;
+      this.featuresPerZero = 0;
+      this.featuresPerOutlierHigh = 0;
+      this.featuresPerOutlierLow = 0;
+
+      this.resetFeaturesPerColorObjects = function(){
+        this.featuresPerColorMap = new Map();
+        this.featuresPerNoData = 0;
+        this.featuresPerZero = 0;
+        this.featuresPerOutlierLow = 0;
+        this.featuresPerOutlierHigh = 0;
+      };
+
+      this.incrementFeaturesPerColor = function(color){
+        if(this.featuresPerColorMap.has(color)){
+          this.featuresPerColorMap.set(color, this.featuresPerColorMap.get(color) + 1);
+        }
+        else{
+          this.featuresPerColorMap.set(color, 1);
+        }
+      };
+
+      this.getFillColorForZero = function(){
+        this.featuresPerZero ++;
+        return defaultColorForZeroValues;
+      };
+
       this.setupDefaultBrew = function (geoJSON, propertyName, numClasses, colorCode, classifyMethod) {
-        var values = [];
+        this.resetFeaturesPerColorObjects();
+
+        var values = new Array();
+
+        if(kommonitorDataExchangeService.classifyUsingWholeTimeseries){
+          values = this.setupDefaultBrewValues_wholeTimeseries(geoJSON, values);
+        }
+        else{
+          values = this.setupDefaultBrewValues_singleTimestamp(geoJSON, propertyName, values);
+        }
+
+        return setupClassyBrew_usingFeatureCount(values, colorCode, classifyMethod, numClasses);
+      };
+
+      this.setupDefaultBrewValues_singleTimestamp = function(geoJSON, propertyName, values){
         for (var i = 0; i < geoJSON.features.length; i++) {
-          if (kommonitorDataExchangeService.indicatorValueIsNoData(geoJSON.features[i].properties[propertyName]) || geoJSON.features[i].properties[propertyName] == 0 || geoJSON.features[i].properties[propertyName] == "0")
+          if (kommonitorDataExchangeService.indicatorValueIsNoData(geoJSON.features[i].properties[propertyName]))
             continue;
+
+          if(kommonitorDataExchangeService.classifyZeroSeparately && (geoJSON.features[i].properties[propertyName] == 0 || geoJSON.features[i].properties[propertyName] == "0")){
+            continue;
+          }  
 
           // check if is outlier, then do not use within classification, as it will be marked on map with special color
           if (geoJSON.features[i].properties[outlierPropertyName] && geoJSON.features[i].properties[outlierPropertyName] !== outlierPropertyValue_no && kommonitorDataExchangeService.useOutlierDetectionOnIndicator) {
@@ -126,7 +172,18 @@ angular
           }
         }
 
-        return setupClassyBrew_usingFeatureCount(values, colorCode, classifyMethod, numClasses);
+        return values;
+      };
+
+      this.setupDefaultBrewValues_wholeTimeseries = function(geoJSON, values){
+        var indicatorTimeSeriesDatesArray = kommonitorDataExchangeService.selectedIndicator.applicableDates;
+
+          for (const date of indicatorTimeSeriesDatesArray) {
+            var propertyName = __env.indicatorDatePrefix + date;
+            values = this.setupDefaultBrewValues_singleTimestamp(geoJSON, propertyName, values);
+          }          
+
+        return values;
       };
 
       /**
@@ -149,13 +206,33 @@ angular
         --> treat all other cases equally to measureOfValue
         */
 
-        var greaterThanValues = [];
-        var lesserThanValues = [];
+       this.resetFeaturesPerColorObjects();
 
+       this.greaterThanValues = [];
+       this.lesserThanValues = [];
+
+        if(kommonitorDataExchangeService.classifyUsingWholeTimeseries){
+          this.setupMovBrewValues_wholeTimeseries(geoJSON, measureOfValue);
+        }
+        else{
+          this.setupMovBrewValues_singleTimestamp(geoJSON, propertyName, measureOfValue);
+        }        
+
+        var gtMeasureOfValueBrew = this.setupGtMeasureOfValueBrew(this.greaterThanValues, colorCodeForGreaterThanValues, classifyMethod);
+        var ltMeasureOfValueBrew = this.setupLtMeasureOfValueBrew(this.lesserThanValues, colorCodeForLesserThanValues, classifyMethod);
+
+        return [gtMeasureOfValueBrew, ltMeasureOfValueBrew];
+      };
+
+      this.setupMovBrewValues_singleTimestamp = function(geoJSON, propertyName, measureOfValue){
         for (var i = 0; i < geoJSON.features.length; i++) {
 
-          if (kommonitorDataExchangeService.indicatorValueIsNoData(geoJSON.features[i].properties[propertyName]) || geoJSON.features[i].properties[propertyName] == 0 || geoJSON.features[i].properties[propertyName] == "0")
+          if (kommonitorDataExchangeService.indicatorValueIsNoData(geoJSON.features[i].properties[propertyName]))
             continue;
+
+          if(kommonitorDataExchangeService.classifyZeroSeparately && (geoJSON.features[i].properties[propertyName] == 0 || geoJSON.features[i].properties[propertyName] == "0")){
+            continue;
+          }
 
           // check if is outlier, then do not use within classification, as it will be marked on map with special color
           if (geoJSON.features[i].properties[outlierPropertyName] && geoJSON.features[i].properties[outlierPropertyName] !== outlierPropertyValue_no && kommonitorDataExchangeService.useOutlierDetectionOnIndicator) {
@@ -163,21 +240,25 @@ angular
           }
 
           else if (kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]) >= kommonitorDataExchangeService.getIndicatorValue_asNumber(measureOfValue)){
-            if(! greaterThanValues.includes(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]))){            
-              greaterThanValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
+            if(! this.greaterThanValues.includes(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]))){            
+              this.greaterThanValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
             }
           }
           else{
-            if(! lesserThanValues.includes(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]))){            
-              lesserThanValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
+            if(! this.lesserThanValues.includes(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]))){            
+              this.lesserThanValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
             }
           }
         }
+      };
 
-        var gtMeasureOfValueBrew = this.setupGtMeasureOfValueBrew(greaterThanValues, colorCodeForGreaterThanValues, classifyMethod);
-        var ltMeasureOfValueBrew = this.setupLtMeasureOfValueBrew(lesserThanValues, colorCodeForLesserThanValues, classifyMethod);
+      this.setupMovBrewValues_wholeTimeseries = function(geoJSON, measureOfValue){
+        var indicatorTimeSeriesDatesArray = kommonitorDataExchangeService.selectedIndicator.applicableDates;
 
-        return [gtMeasureOfValueBrew, ltMeasureOfValueBrew];
+          for (const date of indicatorTimeSeriesDatesArray) {
+            var propertyName = __env.indicatorDatePrefix + date;
+            this.setupMovBrewValues_singleTimestamp(geoJSON, propertyName, measureOfValue);
+          }    
       };
 
       function setupClassyBrew_usingFeatureCount(valuesArray, colorCode, classifyMethod, maxNumberOfClasses){
@@ -245,7 +326,12 @@ angular
       };
 
       this.setupLtMeasureOfValueBrew = function (lesserThanValues, colorCodeForLesserThanValues, classifyMethod) {
-        return setupClassyBrew_usingFeatureCount(lesserThanValues, colorCodeForLesserThanValues, classifyMethod, 3);
+
+        var brew = setupClassyBrew_usingFeatureCount(lesserThanValues, colorCodeForLesserThanValues, classifyMethod, 3);
+        if(brew && brew.colors && brew.colors.length > 1){        
+          brew.colors = brew.colors.reverse();
+        }
+        return brew;
       };
 
       /**
@@ -268,34 +354,44 @@ angular
         --> treat all other cases equally to measureOfValue
         */
 
-        var positiveValues = [];
-        var negativeValues = [];
+       this.resetFeaturesPerColorObjects();
 
+        this.positiveValues = [];
+        this.negativeValues = [];
+        
+        this.setupDynamicBrewValues_singleTimestamp(geoJSON, propertyName);
+
+        var dynamicIncreaseBrew = setupDynamicIncreaseBrew(this.positiveValues, colorCodeForPositiveValues, classifyMethod);
+        var dynamicDecreaseBrew = setupDynamicDecreaseBrew(this.negativeValues, colorCodeForNegativeValues, classifyMethod);
+
+        return [dynamicIncreaseBrew, dynamicDecreaseBrew];
+      };
+
+      this.setupDynamicBrewValues_singleTimestamp = function(geoJSON, propertyName){
         for (var i = 0; i < geoJSON.features.length; i++) {
-          if (kommonitorDataExchangeService.indicatorValueIsNoData(geoJSON.features[i].properties[propertyName]) || geoJSON.features[i].properties[propertyName] == 0 || geoJSON.features[i].properties[propertyName] == "0")
+          if (kommonitorDataExchangeService.indicatorValueIsNoData(geoJSON.features[i].properties[propertyName]))
             continue;
+
+          if(kommonitorDataExchangeService.classifyZeroSeparately && (geoJSON.features[i].properties[propertyName] == 0 || geoJSON.features[i].properties[propertyName] == "0")){
+            continue;
+          }
 
           // check if is outlier, then do not use within classification, as it will be marked on map with special color
           if (geoJSON.features[i].properties[outlierPropertyName] && geoJSON.features[i].properties[outlierPropertyName] !== outlierPropertyValue_no && kommonitorDataExchangeService.useOutlierDetectionOnIndicator) {
             continue;
           }
 
-          else if (kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]) > 0){
-            if(! positiveValues.includes(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]))){            
-              positiveValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
+          else if (kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]) >= 0){
+            if(! this.positiveValues.includes(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]))){            
+              this.positiveValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
             }
           }
           else if (kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]) < 0){
-            if(! negativeValues.includes(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]))){            
-              negativeValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
+            if(! this.negativeValues.includes(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]))){            
+              this.negativeValues.push(kommonitorDataExchangeService.getIndicatorValue_asNumber(geoJSON.features[i].properties[propertyName]));
             }
           }
         }
-
-        var dynamicIncreaseBrew = setupDynamicIncreaseBrew(positiveValues, colorCodeForPositiveValues, classifyMethod);
-        var dynamicDecreaseBrew = setupDynamicDecreaseBrew(negativeValues, colorCodeForNegativeValues, classifyMethod);
-
-        return [dynamicIncreaseBrew, dynamicDecreaseBrew];
       };
 
       function setupDynamicIncreaseBrew(positiveValues, colorCodeForPositiveValues, classifyMethod) {
@@ -303,22 +399,34 @@ angular
       }
 
       function setupDynamicDecreaseBrew(negativeValues, colorCodeForNegativeValues, classifyMethod) {
-        return setupClassyBrew_usingFeatureCount(negativeValues, colorCodeForNegativeValues, classifyMethod, 3);
+        var brew = setupClassyBrew_usingFeatureCount(negativeValues, colorCodeForNegativeValues, classifyMethod, 3);
+        if(brew && brew.colors && brew.colors.length > 1){        
+          brew.colors = brew.colors.reverse();
+        }
+        return brew;
       }
 
       this.styleNoData = function(feature) {
+        this.featuresPerNoData ++;
         return this.noDataStyle;
       };
 
       this.styleOutlier = function(feature) {
         if ((feature.properties[outlierPropertyName] === outlierPropertyValue_low_soft) || (feature.properties[outlierPropertyName] === outlierPropertyValue_low_extreme)) {
 
+          this.featuresPerOutlierLow ++;
           return this.outlierStyle_low;
         }
         else {
 
+          this.featuresPerOutlierHigh ++;
           return this.outlierStyle_high;
         }
+      };
+
+      this.getOpacity = function(opacity){
+
+        return defaultFillOpacity;
       };
 
       this.setOpacity = function(opacity){
@@ -352,8 +460,8 @@ angular
         }
 
         var fillColor;
-        if (feature.properties[propertyName] == 0 || feature.properties[propertyName] == "0") {
-          fillColor = defaultColorForZeroValues;
+        if (kommonitorDataExchangeService.classifyZeroSeparately && (feature.properties[propertyName] == 0 || feature.properties[propertyName] == "0")) {
+          fillColor = this.getFillColorForZero();
           if (useTransparencyOnIndicator) {
             fillOpacity = defaultFillOpacityForZeroFeatures;
           }
@@ -362,44 +470,20 @@ angular
         else {
           if (datasetContainsNegativeValues) {
             if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) >= 0) {
-              if (feature.properties[propertyName] == 0 || feature.properties[propertyName] == "0") {
-                fillColor = defaultColorForZeroValues;
+              if (kommonitorDataExchangeService.classifyZeroSeparately && (feature.properties[propertyName] == 0 || feature.properties[propertyName] == "0")) {
+                fillColor = this.getFillColorForZero();
                 if (useTransparencyOnIndicator) {
                   fillOpacity = defaultFillOpacityForZeroFeatures;
                 }
               }
               else {
-                for (var index = 0; index < dynamicIncreaseBrew.breaks.length; index++) {
-                  if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == kommonitorDataExchangeService.getIndicatorValue_asNumber(dynamicIncreaseBrew.breaks[index])) {
-                    if (index < dynamicIncreaseBrew.breaks.length - 1) {
-                      // min value
-                      fillColor = dynamicIncreaseBrew.colors[index];
-                      break;
-                    }
-                    else {
-                      //max value
-                      if (dynamicIncreaseBrew.colors[index]) {
-                        fillColor = dynamicIncreaseBrew.colors[index];
-                      }
-                      else {
-                        fillColor = dynamicIncreaseBrew.colors[index - 1];
-                      }
-                      break;
-                    }
-                  }
-                  else {
-                    if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) < kommonitorDataExchangeService.getIndicatorValue_asNumber(dynamicIncreaseBrew.breaks[index + 1])) {
-                      fillColor = dynamicIncreaseBrew.colors[index];
-                      break;
-                    }
-                  }
-                }
+                fillColor = this.findColorInRange(feature, propertyName, dynamicIncreaseBrew);
               }
 
               return {
                 weight: 1,
                 opacity: 1,
-                color: defaultBorderColor,
+                color: kommonitorDataExchangeService.selectedSpatialUnitIsRaster() ? undefined : defaultBorderColor,
                 dashArray: '',
                 fillOpacity: fillOpacity,
                 fillColor: fillColor,
@@ -408,45 +492,21 @@ angular
             }
             else {
 
-              if (feature.properties[propertyName] == 0 || feature.properties[propertyName] == "0") {
-                fillColor = defaultColorForZeroValues;
+              if (kommonitorDataExchangeService.classifyZeroSeparately && (feature.properties[propertyName] == 0 || feature.properties[propertyName] == "0")) {
+                fillColor = this.getFillColorForZero();
                 if (useTransparencyOnIndicator) {
                   fillOpacity = defaultFillOpacityForZeroFeatures;
                 }
               }
               else {
                 // invert colors, so that lowest values will become strong colored!
-                for (var k = 0; k < dynamicDecreaseBrew.breaks.length; k++) {
-                  if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == kommonitorDataExchangeService.getIndicatorValue_asNumber(dynamicDecreaseBrew.breaks[k])) {
-                    if (k < dynamicDecreaseBrew.breaks.length - 1) {
-                      // min value
-                      fillColor = dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - k - 1];
-                      break;
-                    }
-                    else {
-                      //max value
-                      if (dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - k]) {
-                        fillColor = dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - k];
-                      }
-                      else {
-                        fillColor = dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - k - 1];
-                      }
-                      break;
-                    }
-                  }
-                  else {
-                    if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) < kommonitorDataExchangeService.getIndicatorValue_asNumber(dynamicDecreaseBrew.breaks[k + 1])) {
-                      fillColor = dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - k - 1];
-                      break;
-                    }
-                  }
-                }
+                fillColor = this.findColorInRange(feature, propertyName, dynamicDecreaseBrew);
               }
 
               return {
                 weight: 1,
                 opacity: 1,
-                color: defaultBorderColor,
+                color: kommonitorDataExchangeService.selectedSpatialUnitIsRaster() ? undefined : defaultBorderColor,
                 dashArray: '',
                 fillOpacity: fillOpacity,
                 fillColor: fillColor,
@@ -455,44 +515,88 @@ angular
             }
           }
           else {
-            for (var index = 0; index < defaultBrew.breaks.length; index++) {
-              if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == kommonitorDataExchangeService.getIndicatorValue_asNumber(defaultBrew.breaks[index])) {
-                if (index < defaultBrew.breaks.length - 1) {
-                  // min value
-                  fillColor = defaultBrew.colors[index];
-                  break;
-                }
-                else {
-                  //max value
-                  if (defaultBrew.colors[index]) {
-                    fillColor = defaultBrew.colors[index];
-                  }
-                  else {
-                    fillColor = defaultBrew.colors[index - 1];
-                  }
-                  break;
-                }
-              }
-              else {
-                if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) < kommonitorDataExchangeService.getIndicatorValue_asNumber(defaultBrew.breaks[index + 1])) {
-                  fillColor = defaultBrew.colors[index];
-                  break;
-                }
-              }
-            }
+            fillColor = this.findColorInRange(feature, propertyName, defaultBrew);            
           }
         }
 
         return {
           weight: 1,
           opacity: 1,
-          color: defaultBorderColor,
+          color: kommonitorDataExchangeService.selectedSpatialUnitIsRaster() ? undefined : defaultBorderColor,
           dashArray: '',
           fillOpacity: fillOpacity,
           fillColor: fillColor,
           fillPattern: undefined
         };
       };
+
+      this.findColorInRange = function(feature, propertyName, colorBrewInstance){
+        var color;
+
+        for (var index = 0; index < colorBrewInstance.breaks.length; index++) {
+          if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == kommonitorDataExchangeService.getIndicatorValue_asNumber(colorBrewInstance.breaks[index])) {
+            if (index < colorBrewInstance.breaks.length - 1) {
+              // min value
+              color = colorBrewInstance.colors[index];
+              break;
+            }
+            else {
+              //max value
+              if (colorBrewInstance.colors[index]) {
+                color = colorBrewInstance.colors[index];
+              }
+              else {
+                color = colorBrewInstance.colors[index - 1];
+              }
+              break;
+            }
+          }
+          else {
+            if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) < kommonitorDataExchangeService.getIndicatorValue_asNumber(colorBrewInstance.breaks[index + 1])) {
+              color = colorBrewInstance.colors[index];
+              break;
+            }
+          }
+        }
+
+        this.incrementFeaturesPerColor(color);
+
+        return color;
+      };
+
+      // this.findColorInRange_invertedColorGradient = function (feature, propertyName, colorBrewInstance){
+      //   var color;
+
+      //   for (var k = 0; k < colorBrewInstance.breaks.length; k++) {
+      //     if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == kommonitorDataExchangeService.getIndicatorValue_asNumber(colorBrewInstance.breaks[k])) {
+      //       if (k < colorBrewInstance.breaks.length - 1) {
+      //         // min value
+      //         color = colorBrewInstance.colors[colorBrewInstance.colors.length - k - 1];
+      //         break;
+      //       }
+      //       else {
+      //         //max value
+      //         if (colorBrewInstance.colors[colorBrewInstance.colors.length - k]) {
+      //           color = colorBrewInstance.colors[colorBrewInstance.colors.length - k];
+      //         }
+      //         else {
+      //           color = colorBrewInstance.colors[colorBrewInstance.colors.length - k - 1];
+      //         }
+      //         break;
+      //       }
+      //     }
+      //     else {
+      //       if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) < kommonitorDataExchangeService.getIndicatorValue_asNumber(colorBrewInstance.breaks[k + 1])) {
+      //         color = colorBrewInstance.colors[colorBrewInstance.colors.length - k - 1];
+      //         break;
+      //       }
+      //     }
+      //   }
+
+      //   this.incrementFeaturesPerColor(color);
+
+      //   return color;
+      // };
 
       this.styleMeasureOfValue = function(feature, gtMeasureOfValueBrew, ltMeasureOfValueBrew, propertyName, useTransparencyOnIndicator) {
 
@@ -515,48 +619,21 @@ angular
         var fillColor;
         if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) >= kommonitorDataExchangeService.measureOfValue) {
 
-          if (feature.properties[propertyName] == 0 || feature.properties[propertyName] == "0") {
-            fillColor = defaultColorForZeroValues;
+          if (kommonitorDataExchangeService.classifyZeroSeparately && (feature.properties[propertyName] == 0 || feature.properties[propertyName] == "0")) {
+            fillColor = this.getFillColorForZero();
             if (useTransparencyOnIndicator) {
               fillOpacity = defaultFillOpacityForZeroFeatures;
             }
           }
           else {
 
-
-
-            for (var index = 0; index < gtMeasureOfValueBrew.breaks.length; index++) {
-
-              if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == kommonitorDataExchangeService.getIndicatorValue_asNumber(gtMeasureOfValueBrew.breaks[index])) {
-                if (index < gtMeasureOfValueBrew.breaks.length - 1) {
-                  // min value
-                  fillColor = gtMeasureOfValueBrew.colors[index];
-                  break;
-                }
-                else {
-                  //max value
-                  if (gtMeasureOfValueBrew.colors[index]) {
-                    fillColor = gtMeasureOfValueBrew.colors[index];
-                  }
-                  else {
-                    fillColor = gtMeasureOfValueBrew.colors[index - 1];
-                  }
-                  break;
-                }
-              }
-              else {
-                if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) < kommonitorDataExchangeService.getIndicatorValue_asNumber(gtMeasureOfValueBrew.breaks[index + 1])) {
-                  fillColor = gtMeasureOfValueBrew.colors[index];
-                  break;
-                }
-              }
-            }
+            fillColor = this.findColorInRange(feature, propertyName, gtMeasureOfValueBrew);
           }
 
           return {
             weight: 1,
             opacity: 1,
-            color: defaultBorderColor,
+            color: kommonitorDataExchangeService.selectedSpatialUnitIsRaster() ? undefined : defaultBorderColor,
             dashArray: '',
             fillOpacity: fillOpacity,
             fillColor: fillColor,
@@ -564,45 +641,21 @@ angular
           };
         }
         else {
-          if (feature.properties[propertyName] == 0 || feature.properties[propertyName] == "0") {
-            fillColor = defaultColorForZeroValues;
+          if (kommonitorDataExchangeService.classifyZeroSeparately && (feature.properties[propertyName] == 0 || feature.properties[propertyName] == "0")) {
+            fillColor = this.getFillColorForZero();
             if (useTransparencyOnIndicator) {
               fillOpacity = defaultFillOpacityForZeroFeatures;
             }
           }
           else {
             // invert colors, so that lowest values will become strong colored!
-            for (var j = 0; j < ltMeasureOfValueBrew.breaks.length; j++) {
-              if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == kommonitorDataExchangeService.getIndicatorValue_asNumber(ltMeasureOfValueBrew.breaks[j])) {
-                if (j < ltMeasureOfValueBrew.breaks.length - 1) {
-                  // min value
-                  fillColor = ltMeasureOfValueBrew.colors[ltMeasureOfValueBrew.colors.length - j - 1];
-                  break;
-                }
-                else {
-                  //max value
-                  if (ltMeasureOfValueBrew.colors[ltMeasureOfValueBrew.colors.length - j]) {
-                    fillColor = ltMeasureOfValueBrew.colors[ltMeasureOfValueBrew.colors.length - j];
-                  }
-                  else {
-                    fillColor = ltMeasureOfValueBrew.colors[ltMeasureOfValueBrew.colors.length - j - 1];
-                  }
-                  break;
-                }
-              }
-              else {
-                if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) < kommonitorDataExchangeService.getIndicatorValue_asNumber(ltMeasureOfValueBrew.breaks[j + 1])) {
-                  fillColor = ltMeasureOfValueBrew.colors[ltMeasureOfValueBrew.colors.length - j - 1];
-                  break;
-                }
-              }
-            }
+            fillColor = this.findColorInRange(feature, propertyName, ltMeasureOfValueBrew);
           }
 
           return {
             weight: 1,
             opacity: 1,
-            color: defaultBorderColor,
+            color: kommonitorDataExchangeService.selectedSpatialUnitIsRaster() ? undefined : defaultBorderColor,
             dashArray: '',
             fillOpacity: fillOpacity,
             fillColor: fillColor,
@@ -634,44 +687,20 @@ angular
         var fillColor;
         if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) >= 0) {
 
-          if (feature.properties[propertyName] == 0 || feature.properties[propertyName] == "0") {
-            fillColor = defaultColorForZeroValues;
+          if (kommonitorDataExchangeService.classifyZeroSeparately && (feature.properties[propertyName] == 0 || feature.properties[propertyName] == "0")) {
+            fillColor = this.getFillColorForZero();
             if (useTransparencyOnIndicator) {
               fillOpacity = defaultFillOpacityForZeroFeatures;
             }
           }
           else {
-            for (var index = 0; index < dynamicIncreaseBrew.breaks.length; index++) {
-              if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == kommonitorDataExchangeService.getIndicatorValue_asNumber(dynamicIncreaseBrew.breaks[index])) {
-                if (index < dynamicIncreaseBrew.breaks.length - 1) {
-                  // min value
-                  fillColor = dynamicIncreaseBrew.colors[index];
-                  break;
-                }
-                else {
-                  //max value
-                  if (dynamicIncreaseBrew.colors[index]) {
-                    fillColor = dynamicIncreaseBrew.colors[index];
-                  }
-                  else {
-                    fillColor = dynamicIncreaseBrew.colors[index - 1];
-                  }
-                  break;
-                }
-              }
-              else {
-                if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) < kommonitorDataExchangeService.getIndicatorValue_asNumber(dynamicIncreaseBrew.breaks[index + 1])) {
-                  fillColor = dynamicIncreaseBrew.colors[index];
-                  break;
-                }
-              }
-            }
+            fillColor = this.findColorInRange(feature, propertyName, dynamicIncreaseBrew);
           }
 
           return {
             weight: 1,
             opacity: 1,
-            color: defaultBorderColor,
+            color: kommonitorDataExchangeService.selectedSpatialUnitIsRaster() ? undefined : defaultBorderColor,
             dashArray: '',
             fillOpacity: fillOpacity,
             fillColor: fillColor,
@@ -679,45 +708,21 @@ angular
           };
         }
         else {
-          if (feature.properties[propertyName] == 0 || feature.properties[propertyName] == "0") {
-            fillColor = defaultColorForZeroValues;
+          if (kommonitorDataExchangeService.classifyZeroSeparately && (feature.properties[propertyName] == 0 || feature.properties[propertyName] == "0")) {
+            fillColor = this.getFillColorForZero();
             if (useTransparencyOnIndicator) {
               fillOpacity = defaultFillOpacityForZeroFeatures;
             }
           }
           else {
             // invert colors, so that lowest values will become strong colored!
-            for (var l = 0; l < dynamicDecreaseBrew.breaks.length; l++) {
-              if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) == kommonitorDataExchangeService.getIndicatorValue_asNumber(dynamicDecreaseBrew.breaks[l])) {
-                if (l < dynamicDecreaseBrew.breaks.length - 1) {
-                  // min value
-                  fillColor = dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - l - 1];
-                  break;
-                }
-                else {
-                  //max value
-                  if (dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - l]) {
-                    fillColor = dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - l];
-                  }
-                  else {
-                    fillColor = dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - l - 1];
-                  }
-                  break;
-                }
-              }
-              else {
-                if (kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[propertyName]) < kommonitorDataExchangeService.getIndicatorValue_asNumber(dynamicDecreaseBrew.breaks[l + 1])) {
-                  fillColor = dynamicDecreaseBrew.colors[dynamicDecreaseBrew.colors.length - l - 1];
-                  break;
-                }
-              }
-            }
+            fillColor = this.findColorInRange(feature, propertyName, dynamicDecreaseBrew);
           }
 
           return {
             weight: 1,
             opacity: 1,
-            color: defaultBorderColor,
+            color: kommonitorDataExchangeService.selectedSpatialUnitIsRaster() ? undefined : defaultBorderColor,
             dashArray: '',
             fillOpacity: fillOpacity,
             fillColor: fillColor,

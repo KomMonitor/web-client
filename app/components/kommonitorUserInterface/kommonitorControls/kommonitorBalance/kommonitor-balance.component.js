@@ -8,7 +8,8 @@ angular
 					 * injected with a modules service method that manages
 					 * enabled tabs
 					 */
-					controller : ['$scope', '$rootScope', 'kommonitorMapService', 'kommonitorDataExchangeService', '__env', function kommonitorBalanceController($scope, $rootScope, kommonitorMapService, kommonitorDataExchangeService, __env) {
+					controller : ['$scope', '$rootScope', 'kommonitorMapService', 'kommonitorDataExchangeService', 'kommonitorDiagramHelperService', '__env', '$timeout',
+					function kommonitorBalanceController($scope, $rootScope, kommonitorMapService, kommonitorDataExchangeService, kommonitorDiagramHelperService, __env, $timeout) {
 
 						const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
 						this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
@@ -21,6 +22,12 @@ angular
 						$scope.targetIndicatorProperty;
 						$scope.rangeSliderForBalance;
 						$scope.datesAsMs;
+
+						$scope.trendConfig_allFeatures = {
+							showMinMax: true,
+							showCompleteTimeseries: true,
+							trendComputationType: "linear"
+						};
 
 						$scope.$on("DisableBalance", function (event) {
 							kommonitorDataExchangeService.isBalanceChecked = false;
@@ -69,6 +76,10 @@ angular
 								}
 								var data = $scope.rangeSliderForBalance.options;
 								computeAndSetBalance(data);
+								$timeout(function(){
+								
+									$scope.updateTrendChart(kommonitorDataExchangeService.selectedIndicator, data);	
+								});
 								kommonitorMapService.replaceIndicatorGeoJSON(kommonitorDataExchangeService.indicatorAndMetadataAsBalance, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, $scope.targetDate, true);
 							}
 							else{
@@ -81,6 +92,134 @@ angular
 							}
 							$rootScope.$broadcast("updateIndicatorValueRangeFilter", $scope.targetDate);
 						};
+
+						function getFromDate_asPropertyString(datePeriodSliderData){
+							// data.from and data.to are index values, not the actual dates! (because we use "values" for rangeSlider)
+							var fromDate = new Date($scope.datesAsMs[datePeriodSliderData.from]);
+
+							var fromDateAsPropertyString = makePropertyString(fromDate);
+							var fromDateAsString = makeDateString(fromDate);
+							if(!kommonitorDataExchangeService.indicatorAndMetadataAsBalance.applicableDates.includes(fromDateAsString)){
+								fromDateAsPropertyString = snapToNearestUpperDate(fromDate, kommonitorDataExchangeService.indicatorAndMetadataAsBalance.applicableDates);
+							}
+
+							return fromDateAsPropertyString;
+						}
+
+						function getFromDate_asDateString(datePeriodSliderData){
+							// data.from and data.to are index values, not the actual dates! (because we use "values" for rangeSlider)
+							var fromDate = new Date($scope.datesAsMs[datePeriodSliderData.from]);
+
+							var fromDateAsString = makeDateString(fromDate);
+
+							return fromDateAsString;
+						}
+
+						function getToDate_asPropertyString(datePeriodSliderData){
+							// data.from and data.to are index values, not the actual dates! (because we use "values" for rangeSlider)
+							var toDate = new Date($scope.datesAsMs[datePeriodSliderData.to]);
+
+							var toDateAsPropertyString = makePropertyString(toDate);
+							var toDateAsString = makeDateString(toDate);
+							if(!kommonitorDataExchangeService.indicatorAndMetadataAsBalance.applicableDates.includes(toDateAsString)){
+								toDateAsPropertyString = snapToNearestLowerDate(toDate, kommonitorDataExchangeService.indicatorAndMetadataAsBalance.applicableDates);
+							}
+
+							return toDateAsPropertyString;
+						}
+
+						function getToDate_asDateString(datePeriodSliderData){
+							// data.from and data.to are index values, not the actual dates! (because we use "values" for rangeSlider)
+							var toDate = new Date($scope.datesAsMs[datePeriodSliderData.to]);
+
+							var toDateAsString = makeDateString(toDate);
+
+							return toDateAsString;
+						}
+
+						$scope.updateTrendChart = function(indicatorMetadata, datePeriodSliderData){
+							
+
+							var fromDateAsPropertyString = getFromDate_asPropertyString(datePeriodSliderData);
+							var toDateAsPropertyString = getToDate_asPropertyString(datePeriodSliderData);
+							var fromDateString = getFromDate_asDateString(datePeriodSliderData);
+							var fromDate_date = new Date(fromDateString);
+							var toDateString = getToDate_asDateString(datePeriodSliderData);
+          					var toDate_date = new Date(toDateString);  
+
+							// based on prepared DOM, initialize echarts instance
+							if (!$scope.trendChart_allFeatures)
+								$scope.trendChart_allFeatures = echarts.init(document.getElementById('trendDiagram_allFeatures'));
+							else {
+								// explicitly kill and reinstantiate line diagram to avoid zombie states on spatial unit change
+								$scope.trendChart_allFeatures.dispose();
+								$scope.trendChart_allFeatures = echarts.init(document.getElementById('trendDiagram_allFeatures'));
+							}
+
+							// use configuration item and data specified to show chart
+							$scope.trendOption = kommonitorDiagramHelperService.makeTrendChartOptions_forAllFeatures(indicatorMetadata, fromDateAsPropertyString, toDateAsPropertyString, $scope.trendConfig_allFeatures.showMinMax, $scope.trendConfig_allFeatures.showCompleteTimeseries, $scope.trendConfig_allFeatures.trendComputationType);
+							$scope.trendChart_allFeatures.setOption($scope.trendOption);
+
+							$scope.trendChart_allFeatures.hideLoading();
+							setTimeout(function () {
+								$scope.trendChart_allFeatures.resize();
+							}, 350);
+
+							var trendData = [];
+							var timeseriesData; 
+							if($scope.trendConfig_allFeatures.showMinMax){
+								timeseriesData = $scope.trendOption.series[2].data;
+							}
+							else{
+								timeseriesData = $scope.trendOption.series[0].data;
+							}
+
+							if($scope.trendConfig_allFeatures.showCompleteTimeseries){
+								for (let index = 0; index < timeseriesData.length; index++) {
+									var dateCandidate = new Date(indicatorMetadata.applicableDates[index]);
+									if(dateCandidate >= fromDate_date && dateCandidate <= toDate_date){
+										trendData.push(timeseriesData[index]);
+									}            
+								}
+							}
+							else{
+								trendData = timeseriesData;
+							}
+
+							
+
+							var balanceValue = kommonitorDataExchangeService.getIndicatorValue_asFormattedText(trendData[trendData.length - 1] - trendData[0]);
+							var balanceValue_numeric = kommonitorDataExchangeService.getIndicatorValue_asNumber(trendData[trendData.length - 1] - trendData[0]);
+							var trendValue = "";
+							if(Number(balanceValue_numeric) == 0){
+								trendValue = "gleichbleibend";
+							}
+							else if(Number(balanceValue_numeric) > 0){
+								trendValue = "steigend";
+							}
+							else {
+								trendValue = "sinkend";
+							}
+
+							$scope.trendAnalysis_allFeatures = {
+								min: kommonitorDataExchangeService.getIndicatorValue_asFormattedText(ecStat.statistics.min(trendData)),
+								max: kommonitorDataExchangeService.getIndicatorValue_asFormattedText(ecStat.statistics.max(trendData)),
+								deviation: kommonitorDataExchangeService.getIndicatorValue_asFormattedText(ecStat.statistics.deviation(trendData)),
+								variance: kommonitorDataExchangeService.getIndicatorValue_asFormattedText(ecStat.statistics.sampleVariance(trendData)),
+								mean: kommonitorDataExchangeService.getIndicatorValue_asFormattedText(ecStat.statistics.mean(trendData)),
+								median: kommonitorDataExchangeService.getIndicatorValue_asFormattedText(ecStat.statistics.median(trendData)),
+								balance: balanceValue,
+								trend: trendValue
+							};
+							
+						};
+
+						$(window).on('resize', function () {
+	
+							if ($scope.trendChart_allFeatures != null && $scope.trendChart_allFeatures != undefined) {
+								$scope.trendChart_allFeatures.resize();
+							}
+						});
 
 						$scope.$on("updateBalanceSlider", function (event, date) {
 
@@ -210,26 +349,21 @@ angular
 							// create balance GeoJSON and broadcast "replaceIndicatorAsGeoJSON"
 							// Called every time handle position is changed
 							computeAndSetBalance(data);
+						
+							$timeout(function(){
+								
+								$scope.updateTrendChart(kommonitorDataExchangeService.selectedIndicator, data);	
+							});
 							// we must call replaceIndicatorGeoJSON because the feature vaues have changed. calling restyle will not work as it only restyles the old numbers
 							kommonitorMapService.replaceIndicatorGeoJSON(kommonitorDataExchangeService.indicatorAndMetadataAsBalance, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, $scope.targetDate, true);
 						};
 
 						function computeAndSetBalance(data){
 
-							// data.from and data.to are index values, not the actual dates! (because we use "values" for rangeSlider)
-							var fromDate = new Date($scope.datesAsMs[data.from]);
-							var toDate = new Date($scope.datesAsMs[data.to]);
-
-							var fromDateAsPropertyString = makePropertyString(fromDate);
-							var fromDateAsString = makeDateString(fromDate);
-							if(!kommonitorDataExchangeService.indicatorAndMetadataAsBalance.applicableDates.includes(fromDateAsString)){
-								fromDateAsPropertyString = snapToNearestUpperDate(fromDate, kommonitorDataExchangeService.indicatorAndMetadataAsBalance.applicableDates);
-							}
-							var toDateAsPropertyString = makePropertyString(toDate);
-							var toDateAsString = makeDateString(toDate);
-							if(!kommonitorDataExchangeService.indicatorAndMetadataAsBalance.applicableDates.includes(toDateAsString)){
-								toDateAsPropertyString = snapToNearestLowerDate(toDate, kommonitorDataExchangeService.indicatorAndMetadataAsBalance.applicableDates);
-							}
+							var fromDateAsPropertyString = getFromDate_asPropertyString(data);
+							var fromDateAsDateString = getFromDate_asDateString(data);
+							var toDateAsPropertyString = getToDate_asPropertyString(data);
+							var toDateAsDateString = getToDate_asDateString(data);
 
 							// make another copy of selectedIndicator to ensure that feature order matches each other
 							kommonitorDataExchangeService.indicatorAndMetadataAsBalance = jQuery.extend(true, {}, kommonitorDataExchangeService.selectedIndicator);
@@ -251,10 +385,10 @@ angular
 								var toDateValue = kommonitorDataExchangeService.getIndicatorValue_asNumber(kommonitorDataExchangeService.selectedIndicator.geoJSON.features[index].properties[toDateAsPropertyString]);
 								var fromDateValue = kommonitorDataExchangeService.getIndicatorValue_asNumber(kommonitorDataExchangeService.selectedIndicator.geoJSON.features[index].properties[fromDateAsPropertyString]);
 
-								kommonitorDataExchangeService.indicatorAndMetadataAsBalance.geoJSON.features[index].properties[$scope.targetIndicatorProperty] = +Number(toDateValue - fromDateValue).toFixed(numberOfDecimals);
+								kommonitorDataExchangeService.indicatorAndMetadataAsBalance.geoJSON.features[index].properties[$scope.targetIndicatorProperty] = kommonitorDataExchangeService.getIndicatorValue_asNumber(toDateValue - fromDateValue);
 							}
-							kommonitorDataExchangeService.indicatorAndMetadataAsBalance['fromDate'] = dateToDateString(fromDate);
-							kommonitorDataExchangeService.indicatorAndMetadataAsBalance['toDate'] = dateToDateString(toDate);
+							kommonitorDataExchangeService.indicatorAndMetadataAsBalance['fromDate'] = dateToDateString(new Date(fromDateAsDateString));
+							kommonitorDataExchangeService.indicatorAndMetadataAsBalance['toDate'] = dateToDateString(new Date(toDateAsDateString));
 						};
 
 						function snapToNearestLowerDate(toDate, applicableDates){
@@ -343,6 +477,14 @@ angular
 							return INDICATOR_DATE_PREFIX + dateString;
 						};
 
+
+						$scope.onChangeTrendConfig = function(){
+							var data = $scope.rangeSliderForBalance.result;
+								$timeout(function(){
+								
+									$scope.updateTrendChart(kommonitorDataExchangeService.selectedIndicator, data);	
+								});
+						};
 
 					}]
 				});

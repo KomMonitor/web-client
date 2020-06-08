@@ -778,19 +778,19 @@ MULTI STEP FORM
 
 /* MAP UTIL BUTTONS */
 #recenterMapButton {
-	left: 80px;
+	left: 70px;
 	top: 10px;
 	z-index: 1003;
 }
 
 #unselectFeaturesButton {
-	left: 130px;
+	left: 120px;
 	top: 10px;
 	z-index: 1003;
 }
 
 #exportMapButton {
-	left: 180px;
+	left: 170px;
 	top: 10px;
 	z-index: 1003;
 }
@@ -825,7 +825,7 @@ MULTI STEP FORM
   /* display: inline-block; */
   /* float: none; */
 	position: absolute;
-	left: 70px;
+	left: 6vh;
 	top: 100px;
 	z-index: 1003;
 }
@@ -833,7 +833,7 @@ MULTI STEP FORM
 .leaflet-left .leaflet-control-search {
   /* float: none; */
 	position: absolute;
-	left: 70px;
+	left: 6vh;
 	top: 50px;
 	z-index: 1003;
 }
@@ -843,7 +843,7 @@ MULTI STEP FORM
 	/* display: inline-block; */
 	/* float: none; */
 	position: absolute;
-	left: 70px;
+	left: 6vh;
 	top: 150px;
 	z-index: 1003;
 }
@@ -861,7 +861,7 @@ MULTI STEP FORM
   /* display: inline-block; */
   /* float: none; */
 	position: absolute;
-	left: 70px;
+	left: 6vh;
 	bottom: 100px;
 	z-index: 1003;
 }
@@ -1218,6 +1218,11 @@ select {
     margin-bottom: 90px;
 }
 
+/* .col-centered{
+    float: none;
+    margin: 0 auto;
+} */
+
 .legendMap {
 		padding: 6px 8px;
 		font: 12px/14px Arial, Helvetica, sans-serif;
@@ -1227,11 +1232,11 @@ select {
 		border-radius: 5px;
     line-height: 18px;
     color: #555;
-		min-width: 315px;
+		min-width: 20vw;
 		width: auto;
-		max-width: 350px;
+		max-width: 20vw;
 		height: auto !important;
-		max-height: 750px;
+		max-height: 75vh;
 	  overflow: auto;
 		display: inline-block
 }
@@ -1293,6 +1298,17 @@ select {
 }
 
 #poiInputForm {
+	padding: 5px;
+	height: auto !important;
+	max-height: 500px;
+	max-width: 100%;
+	font-size: 11px;
+	border: 2px solid gray;
+  border-radius: 8px;
+  overflow: auto;
+}
+
+#poiInputForm_reachabilityAnalysis {
 	padding: 5px;
 	height: auto !important;
 	max-height: 500px;
@@ -1686,13 +1702,13 @@ transition: opacity 0.3s;
 }
 
 .btn-circle {
-  width: 50px;
-  height: 50px;
+  width: 5vh;
+  height: 5vh;
   text-align: center;
   padding: 6px 0;
   font-size: 12px;
   line-height: 1.42;
-  border-radius: 25px;
+  border-radius: 2.5vh;
 	left: 10px;
 	z-index: 1003;
 }
@@ -1702,8 +1718,8 @@ transition: opacity 0.3s;
 	filter: progid:DXImageTransform.Microsoft.BasicImage(invert=1);
 	-ms-filter: 'progid:DXImageTransform.Microsoft.BasicImage(invert=1)';
 	filter: invert(1);
-	width:25px;
-	height:25px;
+	width:3vh;
+	height:3vh;
 }
 
 .btn-docked {
@@ -1711,19 +1727,19 @@ transition: opacity 0.3s;
   left: 0px;
   transition: 0.3s;
   padding: 6px 0;
-  width: 75px;
-	height: 55px;
+  width: 6vh;
+	height: 5vh;
   text-decoration: none;
   font-size: 14px;
   color: white;
-  border-radius: 0 5px 5px 0;
+  border-radius: 0 3vh 2.5vh 0;
 	background-color: rgb(236,240,245);
 	z-index: 1003;
 }
 
 .btn-docked img {
-	width:30px;
-	height:30px;
+	width:3vh;
+	height:3vh;
 }
 
 .btn-custom {
