@@ -28,11 +28,27 @@ appModule.
           template: '<kommonitor-user-interface></kommonitor-user-interface>'
         }).
         when('/administration', {
-          template: '<kommonitor-admin></kommonitor-admin>'
+          template: '<kommonitor-admin></kommonitor-admin>',
+          resolve: {
+            'auth': function(Auth, $q) { 
+              if(Auth.keycloak.authenticated && Auth.keycloak.tokenParsed.realm_access.roles.includes('administrator')) {
+                return true;
+              }
+              else {
+                return $q.reject('Not Authenticated');
+              }
+            }
+          }
         }).
         otherwise('/');
     }
-  ]);
+  ])
+  .run( function($rootScope, $location, Auth) {
+    // register listener to watch route changes
+    $rootScope.$on( "$routeChangeError", function(event, next, current) {
+        $location.path( "/" );
+    });
+  });
 
 // Register environment in AngularJS as constant
 appModule.constant('__env', env);
@@ -42,3 +58,46 @@ if (!env.enableDebug) {
     window.console.log=function(){};
   }
 }
+
+var auth = {};
+
+angular.element(document).ready(function ($http) {
+  var keycloakAdapter = new Keycloak();
+  keycloakAdapter.init({
+    onLoad: 'check-sso',
+  }).then(function (authenticated) {
+    console.log(authenticated ? 'User is authenticated!' : 'User is not authenticated!');
+    auth.keycloak = keycloakAdapter;
+    appModule.factory('Auth', function () {
+      return auth;
+    })
+    angular.bootstrap(document, ["kommonitorClient"]);
+  }).catch(function () {
+    console.log('Failed to initialize authentication adapter');
+  });
+
+});
+
+appModule.factory('authInterceptor', function ($q, Auth) {
+  return {
+    request: function (config) {
+      var deferred = $q.defer();
+      if (Auth.keycloak.token) {
+        Auth.keycloak.updateToken(5).then(function () {
+          config.headers = config.headers || {};
+          config.headers.Authorization = 'Bearer ' + Auth.keycloak.token;
+          deferred.resolve(config);
+        }).catch(function () {
+          deferred.reject('Failed to refresh token');
+        });
+        return deferred.promise;
+      } else {
+        return config;
+      }
+    }
+  };
+});
+
+appModule.config(function ($httpProvider) {
+  $httpProvider.interceptors.push('authInterceptor');
+});

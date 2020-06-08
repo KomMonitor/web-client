@@ -1,19 +1,25 @@
 angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 	templateUrl : "components/kommonitorUserInterface/kommonitor-user-interface.template.html",
-	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '$location', function UserInterfaceController(kommonitorDataExchangeService, $scope, $rootScope, $location) {
+	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '$location', 'Auth', function UserInterfaceController(kommonitorDataExchangeService, $scope, $rootScope, $location, Auth) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
 		kommonitorDataExchangeService.anySideBarIsShown = false;
 
+		
 		$scope.username;
 		$scope.password;
 		$scope.showAdminLogin = false;
 
-		$scope.init = function(){
+		$scope.init = function () {
 			// initialize application
 			console.log("Initialize Application");
+			if ($scope.authenticated) {
+				console.log("Authetication successfull");
+			}
 			kommonitorDataExchangeService.fetchAllMetadata();
+
+			checkAuthentication();
 		};
 
 		// initialize any adminLTE box widgets
@@ -45,26 +51,56 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			return new Promise(resolve => setTimeout(resolve, ms));
 		}
 
-		$scope.tryLoginUser = function(){
-			// TODO FIXME make generic user login once user/role concept is implemented
+		Auth.keycloak.onAuthLogout  = function() {
+			console.log("Logout successfull");
+			checkAuthentication();
+		}
 
-			// currently only simple ADMIN user login is possible
-			console.log("Check user login");
-			if (kommonitorDataExchangeService.adminUserName === $scope.username && kommonitorDataExchangeService.adminPassword === $scope.password){
-				// success login --> currently switch to ADMIN page directly
-				console.log("User Login success - redirect to Admin Page");
-				kommonitorDataExchangeService.adminIsLoggedIn = true;
-				$location.path('/administration');
-			}
+		Auth.keycloak.onAuthSuccess   = function() {
+			console.log("User successfully authenticated");
+			checkAuthentication();
+		}
+
+		$scope.tryLoginUser = function(){
+			Auth.keycloak.login();
 		};
 
-		$scope.tryLoginUserByKeypress = function($event){
+		$scope.tryLogoutUser = function() {
+			Auth.keycloak.logout();
+		};
+
+		$scope.tryLoginUserByKeypress = function ($event) {
 			var keyCode = $event.which || $event.keyCode;
 			//check for enter key
 	    if (keyCode === 13) {
 	        $scope.tryLoginUser();
 	    }
 		};
+
+		checkAuthentication = function () {		
+			if (Auth.keycloak.authenticated) {
+				$scope.authenticated = Auth.keycloak.authenticated;
+				Auth.keycloak.loadUserProfile()
+    				.then(function (profile) {
+						if (profile.emailVerified) {
+							$scope.username = profile.email;
+							console.log("User logged in with email: " + profile.email);
+						} else {
+							alert("Email not verified. User will be logged out automatically!");
+							$scope.tryLogoutUser();
+						}
+    				}).catch(function () {
+       					console.log('Failed to load user profile');
+					});
+				if(Auth.keycloak.tokenParsed.realm_access.roles.includes('administrator')){
+					$scope.showAdminLogin = true;
+				}
+			}
+		}
+
+		$scope.openAdminUI = function () {
+			$location.path('/administration');
+		}
 
 		$scope.undockButtons = function(){
 			$scope.buttonIndicatorConfigClass = "btn btn-custom btn-circle";
