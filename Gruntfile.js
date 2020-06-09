@@ -100,7 +100,8 @@ module.exports = function (grunt) {
             'dependencies/**/*',
             'iconsFromPngTree/**/*',
             'logos/**/*',
-			'components/**/*.template.html'
+            'components/**/*.template.html',
+            'keycloak.json'
         ],
 
         // babel: {
