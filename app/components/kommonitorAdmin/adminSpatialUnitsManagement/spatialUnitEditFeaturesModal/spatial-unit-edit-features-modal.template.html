@@ -336,6 +336,24 @@
 										</div>
 
 									</div>
+									<div class="col-md-6 col-sm-6 col-xs-12" ng-show="! keepAttributes">
+										<div class="form-group">
+											<label>Fehlende/NULL Werte beibehalten*</label>
+
+											<br/>	
+											<label class="switch">
+												<input type="checkbox" value="keepMissingValues" ng-model="keepMissingValues">
+												<span class="switchslider round"></span>
+											</label>
+
+
+											<div class="help-block">
+												<p>Angabe, ob fehlende Attribute oder leere Attributwerte (<pre>NULL</pre>-Werte) &uuml;bernommen werden. Bei deaktivierter Option 
+													wird bei einem solchen Fall ein Fehler geworfen.</p>
+											</div>
+										</div>
+
+									</div>
 								</div>
 								
 								<div ng-show="! keepAttributes" class="row vertical-align">
