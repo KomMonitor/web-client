@@ -138,7 +138,7 @@
 										</select>
 										<div class="help-block with-errors"></div>
 									</div>
-									<div ng-if="converter.schemas">
+									<div ng-show="converter.schemas">
 
 										<div class="form-group">
 											<label>Schema*</label>
@@ -159,7 +159,7 @@
 											<div class="help-block">
 												<p>{{parameter.description}}</p>
 											</div>
-											<div ng-if="parameter.name === 'CRS'" class="help-block with-errors" style="color: red;">
+											<div ng-show="parameter.name === 'CRS'" class="help-block with-errors" style="color: red;">
 												<p>CRS aufmerksam setzen. Falsche Angaben f&uuml;hren zur fehlerhaften Koordinaten der Features</p>
 											</div>
 											<div class="help-block with-errors"></div>
@@ -204,7 +204,7 @@
 										<!-- <div class="help-block"><p>Features m&uuml;ssen Informationen &uuml;ber eindutige ID und eindeutigen Namen in Attribut namens <code>ID</code> und <code>NAME</code> enthalten, um in KomMonitor verarbeitet werden zu k&ouml;nnen.</p></div> -->
 
 										<div class="help-block with-errors"></div>
-										<div ng-if="indicatorDataSourceInputInvalid" style="color: red;">
+										<div ng-show="indicatorDataSourceInputInvalid" style="color: red;">
 											<p>Eingabe ung&uuml;ltig. Grund: {{indicatorDataSourceInputInvalidReason}}</p>
 										</div>
 									</div>
@@ -217,7 +217,7 @@
 											<p>Name des Attributs, welches den eindeutigen Identifier des Features enth&auml;lt. Dieser muss identisch sein mit den Feature-IDs der selektierten Raumebene</p>
 										</div>
 										<div class="help-block with-errors"></div>
-										<div ng-if="idPropertyNotFound" style="color: red;">
+										<div ng-show="idPropertyNotFound" style="color: red;">
 											<p>Eingabe ung&uuml;ltig. Angegebenes Attribut nicht gefunden oder enth&auml;lt NULL-Werte.</p>
 										</div>
 									</div>
@@ -348,7 +348,7 @@
                 <button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
                 <h4><i class="icon fa fa-check"></i>Features erfolgreich fortgef&uuml;hrt</h4>
 				<p>Fortf&uuml;hren der Features des Indikators mit Namen {{successMessagePart}} war erfolgreich.
-					<div ng-if="importedFeatures && importedFeatures.length > 0">
+					<div ng-show="importedFeatures && importedFeatures.length > 0">
 						{{importedFeatures.length}} Features wurden dabei importiert.
 					</div>
 				</p>
