@@ -1124,6 +1124,28 @@
 									</div>
 								</div>
 
+								<div class="row vertical-align">
+									<div class="col-md-6 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Fehlende/NULL Werte beibehalten (als NoData-Wert)*</label>
+
+											<br/>	
+											<label class="switch">
+												<input type="checkbox" value="keepMissingValues" ng-model="keepMissingValues">
+												<span class="switchslider round"></span>
+											</label>
+
+
+											<div class="help-block">
+												<p>Angabe, ob leere Attributwerte (<code>NULL</code>-Werte) &uuml;bernommen werden. Diese werden wie <i>NoData</i>-Werte behandelt. Bei deaktivierter Option 
+													wird bei einem solchen Fall ein Fehler geworfen.</p>
+											</div>
+										</div>
+
+									</div>
+
+								</div>
+
 								<input type="button" name="previous" class="previous previous_addIndicator action-button-previous" value="Voriger Schritt"/>
 
 							</fieldset>
