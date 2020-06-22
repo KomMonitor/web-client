@@ -105,7 +105,7 @@
   window.__env.arrayOfNameSubstringsForHidingIndicators = ["Standardabweichung", "Bevölkerung - ", "Soziale Lage - ", "Soziale Lage (Leitindikator)", "Sterberisiko", "mittlerer Bodenversiegelungsgrad"];
   // window.__env.arrayOfNameSubstringsForHidingIndicators = [];
   
-  window.__env.arrayOfNameSubstringsForHidingGeoresources = [];
+  window.__env.arrayOfNameSubstringsForHidingGeoresources = ["Einwohnerzahl"];
 
   // e-mail recipient for feedback mail
   window.__env.feedbackMailRecipient = "thomas.blasche@amt62.essen.de";
