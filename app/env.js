@@ -28,7 +28,7 @@
 
   // Open Route Service URL
     // window.__env.apiUrl = 'http://kommonitor.fbg-hsbo.de/openrouteservice';
-  window.__env.targetUrlToReachabilityService_ORS = 'https://ors5.fbg-hsbo.de';
+  window.__env.targetUrlToReachabilityService_ORS = 'https://kommonitor.muelheim-ruhr.de/ors';
 
   // Open Trip Planner URL - currently not integrated
   window.__env.targetUrlToReachabilityService_OTP = 'https://kommonitor.muelheim-ruhr.de/opentripplanner';
