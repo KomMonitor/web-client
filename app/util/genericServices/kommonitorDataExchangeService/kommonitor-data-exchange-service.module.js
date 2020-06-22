@@ -471,7 +471,7 @@ angular
           var filterByGeoresourceNamesToHide = function(filteredGeoresources){
 
             return filteredGeoresources.filter(georesourceMetadata => { 
-              return isDisplayableGeoresource(georesourceMetadata);
+              return self.isDisplayableGeoresource(georesourceMetadata);
             });
           };
 
@@ -1057,11 +1057,11 @@ angular
           this.filterGeoresources = function (){
             return function( item ) {
 
-              return isDisplayableGeoresource(item);
+              return self.isDisplayableGeoresource(item);
             };
           };
 
-          var isDisplayableGeoresource = function(item){
+          this.isDisplayableGeoresource = function(item){
             var arrayOfNameSubstringsForHidingGeoresources = __env.arrayOfNameSubstringsForHidingGeoresources;
 
               if(item.availablePeriodsOfValidity == undefined || item.availablePeriodsOfValidity.length === 0)
