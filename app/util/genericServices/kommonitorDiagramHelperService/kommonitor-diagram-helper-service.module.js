@@ -1353,11 +1353,28 @@ angular
         }, 350);
       };
 
-      this.makeFeatureNameForPoiInIsochroneDiagram = function(poiGeoresource, geoJSONFeatureCollection, date){
-        return poiGeoresource.datasetName + " - " + date + " (" + geoJSONFeatureCollection.features.length + ")";
+      this.makeFeatureNameForPoiInIsochroneDiagram = function(poiGeoresource, value, date){
+        return poiGeoresource.datasetName + " - " + date + " (" + value + ")";
+      };
+
+      this.computeReachabilityAnalysisValue = function(poiGeoresource, geoJSONFeatureCollection){
+        var value = geoJSONFeatureCollection.features.length;
+
+        if (poiGeoresource.datasetName.includes("Einwohnerzahl")){
+          value = 0;
+
+          for (const feature of geoJSONFeatureCollection.features) {
+            value += feature.properties["ANZAHL"];
+          }
+        }
+
+        return value;
       };
 
       this.createInitialReachabilityAnalysisPieOptions = function(poiGeoresource, geoJSONFeatureCollection, rangeValue, date){
+
+        var value = this.computeReachabilityAnalysisValue(poiGeoresource, geoJSONFeatureCollection);
+
         var option = {
           grid: {
             left: '4%',
@@ -1423,7 +1440,7 @@ angular
               orient: 'vertical',
               type: "scroll",
               left: 0,
-              data: [this.makeFeatureNameForPoiInIsochroneDiagram(poiGeoresource, geoJSONFeatureCollection, date)]
+              data: [this.makeFeatureNameForPoiInIsochroneDiagram(poiGeoresource, value, date)]
               // data: [legendText]
           },
           series: [
@@ -1449,7 +1466,7 @@ angular
                       show: true
                   },
                   data: [
-                      {value: geoJSONFeatureCollection.features.length, name: this.makeFeatureNameForPoiInIsochroneDiagram(poiGeoresource, geoJSONFeatureCollection, date)}
+                      {value: value, name: this.makeFeatureNameForPoiInIsochroneDiagram(poiGeoresource, value, date)}
                   ]
               }
           ]
@@ -1459,8 +1476,11 @@ angular
       };
 
       this.appendToReachabilityAnalysisOptions = function(poiGeoresource, geoJSONFeatureCollection, eChartsOptions, date){
-        eChartsOptions.legend[0].data.push(this.makeFeatureNameForPoiInIsochroneDiagram(poiGeoresource, geoJSONFeatureCollection, date));
-        eChartsOptions.series[0].data.push({value: geoJSONFeatureCollection.features.length, name: this.makeFeatureNameForPoiInIsochroneDiagram(poiGeoresource, geoJSONFeatureCollection, date)});
+
+        var value = this.computeReachabilityAnalysisValue(poiGeoresource, geoJSONFeatureCollection);
+
+        eChartsOptions.legend[0].data.push(this.makeFeatureNameForPoiInIsochroneDiagram(poiGeoresource, value, date));
+        eChartsOptions.series[0].data.push({value: value, name: this.makeFeatureNameForPoiInIsochroneDiagram(poiGeoresource, value, date)});
 
         return eChartsOptions;
       };
