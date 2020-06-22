@@ -107,6 +107,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 			$scope.attributeMapping_attributeType = kommonitorImporterHelperService.attributeMapping_attributeTypes[0];
 			$scope.attributeMappings_adminView = [];
 			$scope.keepAttributes = true;
+			$scope.keepMissingValues = true;
 
 		$scope.validityEndDate_perFeature = undefined;
 		$scope.validityStartDate_perFeature = undefined;
@@ -157,6 +158,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 			$scope.attributeMapping_attributeType = kommonitorImporterHelperService.attributeMapping_attributeTypes[0];
 			$scope.attributeMappings_adminView = [];
 			$scope.keepAttributes = true;
+			$scope.keepMissingValues = true;
 
 			$scope.validityEndDate_perFeature = undefined;
 			$scope.validityStartDate_perFeature = undefined;
@@ -316,7 +318,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 
 		$scope.buildPropertyMappingDefinition = function(){
 			// arsion from is undefined currently
-			return kommonitorImporterHelperService.buildPropertyMapping_spatialResource($scope.spatialUnitDataSourceNameProperty, $scope.spatialUnitDataSourceIdProperty, $scope.validityStartDate_perFeature, $scope.validityEndDate_perFeature, undefined, $scope.keepAttributes, $scope.attributeMappings_adminView);
+			return kommonitorImporterHelperService.buildPropertyMapping_spatialResource($scope.spatialUnitDataSourceNameProperty, $scope.spatialUnitDataSourceIdProperty, $scope.validityStartDate_perFeature, $scope.validityEndDate_perFeature, undefined, $scope.keepAttributes, $scope.keepMissingValues, $scope.attributeMappings_adminView);
 		};
 
 		$scope.buildPostBody_spatialUnits = function(){
@@ -700,6 +702,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 				$scope.validityStartDate_perFeature  = $scope.mappingConfigImportSettings.propertyMapping.validStartDateProperty;
 				$scope.validityEndDate_perFeature  = $scope.mappingConfigImportSettings.propertyMapping.validEndDateProperty;
 				$scope.keepAttributes  = $scope.mappingConfigImportSettings.propertyMapping.keepAttributes;
+				$scope.keepMissingValues = $scope.mappingConfigImportSettings.propertyMapping.keepMissingOrNullValueAttributes;
 				$scope.attributeMappings_adminView = [];
 
 				for (var attributeMapping of $scope.mappingConfigImportSettings.propertyMapping.attributes) {
