@@ -1364,7 +1364,7 @@ angular
           value = 0;
 
           for (const feature of geoJSONFeatureCollection.features) {
-            value += feature.properties["ANZAHL"];
+            value += Number(feature.properties["ANZAHL"]);
           }
         }
 
