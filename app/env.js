@@ -20,7 +20,7 @@
   window.__env.apiUrl = 'http://kommonitor-re.fbg-hsbo.de/';
   // window.__env.apiUrl = 'http://localhost:8085/';
   // Base url for Data Management API
-  window.__env.basePath = 'management';
+  window.__env.basePath = 'data-management/management';
 
   // Processing Engine URL
   window.__env.targetUrlToProcessingEngine = 'http://kommonitor-re.fbg-hsbo.de/processing';

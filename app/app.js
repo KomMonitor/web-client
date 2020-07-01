@@ -30,12 +30,19 @@ appModule.
         when('/administration', {
           template: '<kommonitor-admin></kommonitor-admin>',
           resolve: {
-            'auth': function(Auth, $q) { 
-              if(Auth.keycloak.authenticated && Auth.keycloak.tokenParsed.realm_access.roles.includes('administrator')) {
-                return true;
+            'auth': function(Auth, $q, $location) { 
+              if (Auth.keycloak.authenticated) {
+                if (Auth.keycloak.tokenParsed.realm_access.roles.includes('administrator')) {
+                  return true;
+                } else {
+                  return $q.reject('Not Authenticated');
+                }
+                
               }
               else {
-                return $q.reject('Not Authenticated');
+                Auth.keycloak.login({
+                  redirectUri: $location.absUrl()
+                });
               }
             }
           }
@@ -71,7 +78,14 @@ angular.element(document).ready(function ($http) {
     appModule.factory('Auth', function () {
       return auth;
     })
-    angular.bootstrap(document, ["kommonitorClient"]);
+    try {
+      console.debug('Trying to bootstrap application.');
+      angular.bootstrap(document, ["kommonitorClient"]);
+    }
+    catch (e) {
+      console.error('Application bootstrapping failed.');
+      console.error(e);
+    }
   }).catch(function () {
     console.log('Failed to initialize authentication adapter');
   });
