@@ -12,9 +12,9 @@ angular.module('kommonitorDataExchange', ['kommonitorMap']);
 angular
 		.module('kommonitorDataExchange', ['datatables'])
 		.service(
-				'kommonitorDataExchangeService', ['$rootScope', '$timeout', 'kommonitorMapService', '$http', '__env', 'DTOptionsBuilder', '$q',
+				'kommonitorDataExchangeService', ['$rootScope', '$timeout', 'kommonitorMapService', '$http', '__env', 'DTOptionsBuilder', '$q', 'Auth',
 				function($rootScope, $timeout,
-						kommonitorMapService, $http, __env, DTOptionsBuilder, $q) {
+						kommonitorMapService, $http, __env, DTOptionsBuilder, $q, Auth,) {
 
 							var numberOfDecimals = __env.numberOfDecimals;
 							const DATE_PREFIX = __env.indicatorDatePrefix;
@@ -28,6 +28,17 @@ angular
               const defaultColorForOutliers_low = __env.defaultColorForOutliers_low;
               const defaultBorderColorForOutliers_low = __env.defaultBorderColorForOutliers_low;
               const defaultFillOpacityForOutliers_low = __env.defaultFillOpacityForOutliers_low;
+
+              const georesourcesPublicEndpoint = "/public/georesources";
+              const georesourcesProtectedEndpoint = "/georesources";
+              const spatialUnitsPublicEndpoint = "/public/spatial-units";
+              const spatialUnitsProtectedEndpoint = "/spatial-units";
+              const indicatorsPublicEndpoint = "/public/indicators";
+              const indicatorsProtectedEndpoint = "/indicators";
+
+              var georesourcesEndpoint = georesourcesProtectedEndpoint;
+              var spatialUnitsEndpoint = spatialUnitsProtectedEndpoint;
+              var indicatorsEndpoint = indicatorsProtectedEndpoint;
 
           var self = this;
 
@@ -152,6 +163,23 @@ angular
           this.isochroneLegend;
 
           this.useOutlierDetectionOnIndicator = true;
+
+          
+
+          this.checkAuthentication = function() {
+            if (Auth.keycloak.authenticated) {
+              georesourcesEndpoint = georesourcesProtectedEndpoint;
+              spatialUnitsEndpoint = spatialUnitsProtectedEndpoint;
+              indicatorsEndpoint = indicatorsProtectedEndpoint;
+            } else{
+              georesourcesEndpoint = georesourcesPublicEndpoint;
+              spatialUnitsEndpoint = spatialUnitsPublicEndpoint;
+              indicatorsEndpoint = indicatorsPublicEndpoint;
+            }
+
+          }
+
+          self.checkAuthentication();
 
 					this.setProcessScripts = function(scriptsArray){
 						this.availableProcessScripts = scriptsArray;
@@ -619,15 +647,17 @@ angular
           this.fetchAllMetadata = function(){
             console.log("fetching all metadata from management component");
 
-            var topicsPromise = this.fetchTopicsMetadata();
-            var usersPromise = this.fetchUsersMetadata();
-            var rolesPromise = this.fetchRolesMetadata();
+            //TODO revise metadata fecthing for protected endpoints
+            // var topicsPromise = this.fetchTopicsMetadata();
+            // var usersPromise = this.fetchUsersMetadata();
+            // var rolesPromise = this.fetchRolesMetadata();
+            // var scriptsPromise = this.fetchIndicatorScriptsMetadata();
             var spatialUnitsPromise = this.fetchSpatialUnitsMetadata();
             var georesourcesPromise = this.fetchGeoresourcesMetadata();
             var indicatorsPromise = this.fetchIndicatorsMetadata();
-            var scriptsPromise = this.fetchIndicatorScriptsMetadata();
-
-            var metadataPromises = [topicsPromise, usersPromise, rolesPromise, spatialUnitsPromise, georesourcesPromise, indicatorsPromise, scriptsPromise];
+            
+            // var metadataPromises = [topicsPromise, usersPromise, rolesPromise, spatialUnitsPromise, georesourcesPromise, indicatorsPromise, scriptsPromise];
+            var metadataPromises = [spatialUnitsPromise, georesourcesPromise, indicatorsPromise];
 
             $q.all(metadataPromises).then(function successCallback(successArray) {
 
@@ -702,7 +732,7 @@ angular
 
           this.fetchSpatialUnitsMetadata = function(){
             return $http({
-              url: this.baseUrlToKomMonitorDataAPI + "/spatial-units",
+              url: this.baseUrlToKomMonitorDataAPI + spatialUnitsEndpoint,
               method: "GET"
             }).then(function successCallback(response) {
                 // this callback will be called asynchronously
@@ -715,8 +745,9 @@ angular
           };
 
           this.fetchGeoresourcesMetadata = function(){
+            console.log("request: " + this.baseUrlToKomMonitorDataAPI + georesourcesEndpoint);
             return $http({
-              url: this.baseUrlToKomMonitorDataAPI + "/georesources",
+              url: this.baseUrlToKomMonitorDataAPI + georesourcesEndpoint,
               method: "GET"
             }).then(function successCallback(response) {
                 // this callback will be called asynchronously
@@ -730,7 +761,7 @@ angular
 
           this.fetchIndicatorsMetadata = function(){
             return $http({
-              url: this.baseUrlToKomMonitorDataAPI + "/indicators",
+              url: this.baseUrlToKomMonitorDataAPI + indicatorsEndpoint,
               method: "GET"
             }).then(function successCallback(response) {
                 // this callback will be called asynchronously
