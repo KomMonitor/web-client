@@ -185,7 +185,7 @@ angular.module('reportingAddIndicatorModal').component('reportingAddIndicatorMod
 
 			$scope.selectedSpatialUnitId = spatialUnitId;
 			// build request
-			var url = kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI +
+			var url = kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
 						"/indicators/" + indicatorId + "/" + spatialUnitId;
 			// send request
 			await $http({
