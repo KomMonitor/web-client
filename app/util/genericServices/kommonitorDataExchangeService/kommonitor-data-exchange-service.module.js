@@ -35,10 +35,11 @@ angular
               const spatialUnitsProtectedEndpoint = "/spatial-units";
               const indicatorsPublicEndpoint = "/public/indicators";
               const indicatorsProtectedEndpoint = "/indicators";
+              const topicsPublicEndpoint = "/public/topics";
 
               var georesourcesEndpoint = georesourcesProtectedEndpoint;
               var spatialUnitsEndpoint = spatialUnitsProtectedEndpoint;
-              var indicatorsEndpoint = indicatorsProtectedEndpoint;
+              var indicatorsEndpoint = indicatorsProtectedEndpoint;            
 
           var self = this;
 
@@ -650,16 +651,16 @@ angular
             console.log("fetching all metadata from management component");
 
             //TODO revise metadata fecthing for protected endpoints
-            // var topicsPromise = this.fetchTopicsMetadata();
             // var usersPromise = this.fetchUsersMetadata();
             // var rolesPromise = this.fetchRolesMetadata();
             // var scriptsPromise = this.fetchIndicatorScriptsMetadata();
+            var topicsPromise = this.fetchTopicsMetadata();
             var spatialUnitsPromise = this.fetchSpatialUnitsMetadata();
             var georesourcesPromise = this.fetchGeoresourcesMetadata();
             var indicatorsPromise = this.fetchIndicatorsMetadata();
             
             // var metadataPromises = [topicsPromise, usersPromise, rolesPromise, spatialUnitsPromise, georesourcesPromise, indicatorsPromise, scriptsPromise];
-            var metadataPromises = [spatialUnitsPromise, georesourcesPromise, indicatorsPromise];
+            var metadataPromises = [spatialUnitsPromise, georesourcesPromise, indicatorsPromise, topicsPromise];
 
             $q.all(metadataPromises).then(function successCallback(successArray) {
 
@@ -720,7 +721,7 @@ angular
 
           this.fetchTopicsMetadata = function(){
             return $http({
-              url: this.baseUrlToKomMonitorDataAPI + "/topics",
+              url: this.baseUrlToKomMonitorDataAPI + topicsPublicEndpoint,
               method: "GET"
             }).then(function successCallback(response) {
                 // this callback will be called asynchronously
