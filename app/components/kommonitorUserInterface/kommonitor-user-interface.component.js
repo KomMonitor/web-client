@@ -77,7 +77,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 	    }
 		};
 
-		checkAuthentication = function () {		
+		var checkAuthentication = function () {		
 			if (Auth.keycloak.authenticated) {
 				$scope.authenticated = Auth.keycloak.authenticated;
 				Auth.keycloak.loadUserProfile()

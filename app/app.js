@@ -80,7 +80,7 @@ angular.element(document).ready(function ($http) {
     })
     try {
       console.debug('Trying to bootstrap application.');
-      angular.bootstrap(document, ["kommonitorClient"]);
+      angular.bootstrap(document, [appModule.name]);
     }
     catch (e) {
       console.error('Application bootstrapping failed.');
