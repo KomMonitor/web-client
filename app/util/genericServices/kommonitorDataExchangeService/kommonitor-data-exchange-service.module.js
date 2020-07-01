@@ -53,7 +53,7 @@ angular
           this.datatablesOptions = DTOptionsBuilder.newOptions()
       				.withPaginationType('full_numbers')
       				.withDisplayLength(5)
-      				.withLanguageSource('//cdn.datatables.net/plug-ins/1.10.15/i18n/German.json')
+      				.withLanguageSource('./Datatables.Language.German.json')
               .withOption('lengthMenu', [[5, 10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "Alle"]]);
 
           this.datePickerOptions = {
