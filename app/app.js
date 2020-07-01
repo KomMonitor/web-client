@@ -78,7 +78,14 @@ angular.element(document).ready(function ($http) {
     appModule.factory('Auth', function () {
       return auth;
     })
-    angular.bootstrap(document, ["kommonitorClient"]);
+    try {
+      console.debug('Trying to bootstrap application.');
+      angular.bootstrap(document, ["kommonitorClient"]);
+    }
+    catch (e) {
+      console.error('Application bootstrapping failed.');
+      console.error(e);
+    }
   }).catch(function () {
     console.log('Failed to initialize authentication adapter');
   });
