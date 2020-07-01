@@ -170,7 +170,7 @@ angular
 
       this.fetchIndicatorProperties = function (indicatorMetadata, spatialUnitId) {
         return $http({
-          url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/indicators/" + indicatorMetadata.indicatorId + "/" + spatialUnitId + "/without-geometry",
+          url: kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/indicators/" + indicatorMetadata.indicatorId + "/" + spatialUnitId + "/without-geometry",
           method: "GET"
         }).then(function successCallback(response) {
           // this callback will be called asynchronously

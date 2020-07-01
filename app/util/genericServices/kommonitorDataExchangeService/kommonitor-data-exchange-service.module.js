@@ -39,6 +39,7 @@ angular
               var georesourcesEndpoint = georesourcesProtectedEndpoint;
               var spatialUnitsEndpoint = spatialUnitsProtectedEndpoint;
               var indicatorsEndpoint = indicatorsProtectedEndpoint;
+              this.spatialResourceGETUrlPath_forAuthentication = "/public";
 
           var self = this;
 
@@ -166,20 +167,24 @@ angular
           this.classifyZeroSeparately = __env.classifyZeroSeparately;
           this.classifyUsingWholeTimeseries = __env.classifyUsingWholeTimeseries;
 
-          
+          this.getBaseUrlToKomMonitorDataAPI_spatialResource = function(){
+            return this.baseUrlToKomMonitorDataAPI + this.spatialResourceGETUrlPath_forAuthentication;
+          };
 
           this.checkAuthentication = function() {
             if (Auth.keycloak.authenticated) {
               georesourcesEndpoint = georesourcesProtectedEndpoint;
               spatialUnitsEndpoint = spatialUnitsProtectedEndpoint;
               indicatorsEndpoint = indicatorsProtectedEndpoint;
+              this.spatialResourceGETUrlPath_forAuthentication = "";
             } else{
               georesourcesEndpoint = georesourcesPublicEndpoint;
               spatialUnitsEndpoint = spatialUnitsPublicEndpoint;
               indicatorsEndpoint = indicatorsPublicEndpoint;
+              this.spatialResourceGETUrlPath_forAuthentication = "/public";
             }
 
-          }
+          };
 
           self.checkAuthentication();
 
