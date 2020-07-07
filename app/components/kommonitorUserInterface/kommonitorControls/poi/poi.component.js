@@ -810,7 +810,7 @@ angular
 									if(dataset.isSelected){
 										//display on Map
 										var opacity = 1 - dataset.transparency;
-										kommonitorMapService.addWfsLayerToMap(dataset, opacity);
+										kommonitorMapService.addWfsLayerToMap(dataset, opacity, $scope.useCluster);
 
 									}
 									else{
