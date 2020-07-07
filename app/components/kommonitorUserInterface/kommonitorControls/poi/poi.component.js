@@ -497,6 +497,17 @@ angular
 											await $scope.addPoiLayerToMap(poi, $scope.useCluster);
 										}
 									}
+
+									for (var wfs of kommonitorDataExchangeService.wfsDatasets){
+										if (wfs.geometryType == 'POI' && wfs.isSelected){
+											//remove POI layer from map
+											kommonitorMapService.removeWfsLayerFromMap(wfs);
+
+											// remove layer and add layer again
+											var opacity = 1 - wfs.transparency;
+											await kommonitorMapService.addWfsLayerToMap(wfs, opacity, $scope.useCluster);											
+										}
+									}
 								};
 
 								$scope.getExportLinkForPoi = function(poi){
