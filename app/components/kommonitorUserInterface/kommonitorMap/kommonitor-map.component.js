@@ -2823,7 +2823,7 @@ angular.module('kommonitorMap').component(
 
         };
 
-        $scope.$on("addWfsLayerToMap", function (event, dataset, opacity) {
+        $scope.$on("addWfsLayerToMap", function (event, dataset, opacity, useCluster) {
           var wfsLayerOptions = {
             url: dataset.url,
             typeNS: dataset.featureTypeNamespace,
@@ -2839,15 +2839,45 @@ angular.module('kommonitorMap').component(
           }
 
           var wfsLayer;
+          var poiMarkerLayer;
 
           if(dataset.geometryType === "POI"){
+
+            if (useCluster) {
+              poiMarkerLayer = L.markerClusterGroup({
+                iconCreateFunction: function (cluster) {
+                  var childCount = cluster.getChildCount();
+
+                  var c = 'cluster-';
+                  if (childCount < 10) {
+                    c += 'small';
+                  } else if (childCount < 30) {
+                    c += 'medium';
+                  } else {
+                    c += 'large';
+                  }
+
+                  var className = "marker-cluster " + c + " awesome-marker-legend-TransparentIcon-" + dataset.poiMarkerColor;
+
+                  //'marker-cluster' + c + ' ' +
+                  return new L.DivIcon({ html: '<div class="awesome-marker-legend-icon-' + dataset.poiMarkerColor + '" ><span>' + childCount + '</span></div>', className: className, iconSize: new L.Point(40, 40) });
+                }
+              });
+            }
+            else {
+              poiMarkerLayer = L.layerGroup();
+            } 
 
             wfsLayer = new L.WFS(wfsLayerOptions, new L.Format.GeoJSON({
               crs: L.CRS.EPSG3857,
               pointToLayer(geoJsonPoint, latlng) {
                 geoJsonPoint.geometry.coordinates[0] = latlng.lng;
                 geoJsonPoint.geometry.coordinates[1] = latlng.lat; 
-                return createCustomMarker(geoJsonPoint, dataset.poiSymbolColor, dataset.poiMarkerColor, dataset.poiSymbolBootstrap3Name, dataset);
+
+                var customMarker = createCustomMarker(geoJsonPoint, dataset.poiSymbolColor, dataset.poiMarkerColor, dataset.poiSymbolBootstrap3Name, dataset);
+                poiMarkerLayer = addPoiMarker(poiMarkerLayer, customMarker);
+
+                return customMarker;
               },
             }));
           }
@@ -2882,8 +2912,14 @@ angular.module('kommonitorMap').component(
                 .setContent(popupContent)
                 .openOn($scope.map);
             });
-            $scope.layerControl.addOverlay(wfsLayer, dataset.title, wfsLayerGroupName);
-            wfsLayer.addTo($scope.map);
+            if(poiMarkerLayer){
+              $scope.layerControl.addOverlay(poiMarkerLayer, dataset.title, wfsLayerGroupName);
+              poiMarkerLayer.addTo($scope.map);
+            }
+            else{
+              $scope.layerControl.addOverlay(wfsLayer, dataset.title, wfsLayerGroupName);
+              wfsLayer.addTo($scope.map);
+            }            
             $scope.updateSearchControl();
 
           }

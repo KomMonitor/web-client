@@ -1703,13 +1703,6 @@ L.WFS = L.FeatureGroup.extend({
     L.Util.request({
       url: this.options.url,
       data: L.XmlUtil.serializeXmlDocumentString(requestData),
-      method: 'GET',
-      params: {
-        service: 'WFS',
-        version: this.options.version,
-        request: "DescribeFeatureType",
-        typeName: this.options.typeNSName,
-      },
       headers: this.options.headers || {},
       success: function (data) {
         // If some exception occur, WFS-service can response successfully, but with ExceptionReport,
@@ -1764,15 +1757,6 @@ L.WFS = L.FeatureGroup.extend({
     L.Util.request({
       url: this.options.url,
       data: L.XmlUtil.serializeXmlDocumentString(that.getFeature(filter)),
-      method: 'GET',
-      params: {
-        service: 'WFS',
-        version: this.options.version,
-        request: 'GetFeature',
-        typeName: this.options.typeNSName,
-        srsName: this.options.srsName,
-        outputFormat: this.readFormat.outputFormat
-      },
       headers: this.options.headers || {},
       success: function (responseText) {
         // If some exception occur, WFS-service can response successfully, but with ExceptionReport,
@@ -1846,12 +1830,6 @@ L.WFS = L.FeatureGroup.extend({
     L.Util.request({
       url: this.options.url,
       data: L.XmlUtil.serializeXmlDocumentString(requestData),
-      method: 'GET',
-      params: {
-        service: 'WFS',
-        version: this.options.version,
-        request: 'GetCapabilities'
-      },
       headers: this.options.headers || {},
       success: function (data) {
         // If some exception occur, WFS-service can response successfully, but with ExceptionReport,

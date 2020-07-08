@@ -208,7 +208,7 @@ angular
         var indicatorValueArray = new Array();
         var indicatorValueBarChartArray = new Array();
 
-        var indicatorTimeSeriesDatesArray = indicatorMetadataAndGeoJSON.applicableDates;
+        var indicatorTimeSeriesDatesArray = kommonitorDataExchangeService.selectedIndicator.applicableDates;
 
         if(filterOutFutureDates){
           // remove all timestamps that are newer than the given date
@@ -268,31 +268,37 @@ angular
 
           indicatorValueBarChartArray.push(seriesItem);
 
+        }
+
+        // we must use the original selectedIndicator in case balance mode is active
+        // otherwise balance timestamp will have balance values
+        for (var t = 0; t < kommonitorDataExchangeService.selectedIndicator.geoJSON.features.length; t++) {
+          var indicatorFeature = kommonitorDataExchangeService.selectedIndicator.geoJSON.features[t];
           // continue timeSeries arrays by adding and counting all time series values
           for (var i = 0; i < indicatorTimeSeriesDatesArray.length; i++) {
             var datePropertyName = INDICATOR_DATE_PREFIX + indicatorTimeSeriesDatesArray[i];
-            if (!kommonitorDataExchangeService.indicatorValueIsNoData(cartographicFeature.properties[datePropertyName])) {
+            if (!kommonitorDataExchangeService.indicatorValueIsNoData(indicatorFeature.properties[datePropertyName])) {
               // indicatorTimeSeriesAverageArray[i] += selectedFeature.properties[datePropertyName];
-              indicatorTimeSeriesAverageArray[i] += cartographicFeature.properties[datePropertyName];
+              indicatorTimeSeriesAverageArray[i] += indicatorFeature.properties[datePropertyName];
               indicatorTimeSeriesCountArray[i]++;
 
               // min stack
               if (indicatorTimeSeriesMinArray[i] === undefined || indicatorTimeSeriesMinArray[i] === null){
-                indicatorTimeSeriesMinArray[i] = cartographicFeature.properties[datePropertyName];
+                indicatorTimeSeriesMinArray[i] = indicatorFeature.properties[datePropertyName];
               }
               else{
-                if(cartographicFeature.properties[datePropertyName] < indicatorTimeSeriesMinArray[i]){
-                  indicatorTimeSeriesMinArray[i] = cartographicFeature.properties[datePropertyName];
+                if(indicatorFeature.properties[datePropertyName] < indicatorTimeSeriesMinArray[i]){
+                  indicatorTimeSeriesMinArray[i] = indicatorFeature.properties[datePropertyName];
                 }
               }
 
               // max stack
               if (indicatorTimeSeriesMaxArray[i] === undefined || indicatorTimeSeriesMaxArray[i] === null){
-                indicatorTimeSeriesMaxArray[i] = cartographicFeature.properties[datePropertyName];
+                indicatorTimeSeriesMaxArray[i] = indicatorFeature.properties[datePropertyName];
               }
               else{
-                if(cartographicFeature.properties[datePropertyName] > indicatorTimeSeriesMaxArray[i]){
-                  indicatorTimeSeriesMaxArray[i] = cartographicFeature.properties[datePropertyName];
+                if(indicatorFeature.properties[datePropertyName] > indicatorTimeSeriesMaxArray[i]){
+                  indicatorTimeSeriesMaxArray[i] = indicatorFeature.properties[datePropertyName];
                 }
               }
             }

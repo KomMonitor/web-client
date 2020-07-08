@@ -1225,7 +1225,7 @@ select {
 		width: auto;
 		max-width: 20vw;
 		height: auto !important;
-		max-height: 75vh;
+		max-height: 82vh;
 	  overflow: auto;
 		display: inline-block
 }
