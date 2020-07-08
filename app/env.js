@@ -201,7 +201,7 @@
     //   description: "Standorte von Bäckereien",
     //   url: "https://geoserver.kartenportal.org/geoserver/smartdemography/ows?",
     //   featureTypeNamespace: "smartdemography",
-    //   featureTypeName: "sd_baeckerei_p",
+    //   featureTypeName: "sd_infrastruktur_p",
     //   featureTypeGeometryName: "the_geom",
     //   geometryType: "POI", // POI|LOI|AOI
     //   poiSymbolColor: "white", // ['white', 'red', 'orange', 'beige', 'green', 'blue', 'purple', 'pink', 'gray', 'black']
@@ -212,6 +212,12 @@
     //   loiDashArrayString: "",
     //   aoiColor: "#00aabb",
     //   filterFeaturesToMapBBOX: false,
+    //   filterEncoding: {
+    //     PropertyIsEqualTo: {
+    //       propertyName: "beschreibung",
+    //       propertyValue: "Bäckerei"
+    //     }
+    //   },
     //   topicReference: "68f49954-8cb9-4d33-b478-dbad949be0e1"
     // }
   ];

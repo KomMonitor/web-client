@@ -2823,6 +2823,34 @@ angular.module('kommonitorMap').component(
 
         };
 
+        $scope.getFilterEncoding = function(dataset){
+
+          var filterExpressions = [];
+
+          if(dataset.filterEncoding.PropertyIsEqualTo && dataset.filterEncoding.PropertyIsEqualTo.propertyName && dataset.filterEncoding.PropertyIsEqualTo.propertyValue){
+            filterExpressions.push(new L.Filter.EQ(dataset.filterEncoding.PropertyIsEqualTo.propertyName, dataset.filterEncoding.PropertyIsEqualTo.propertyValue));
+          }
+
+          if (dataset.filterFeaturesToMapBBOX) {
+            filterExpressions.push(new L.Filter.BBox(dataset.featureTypeGeometryName, $scope.map.getBounds(), L.CRS.EPSG3857));
+          }
+
+          if (filterExpressions.length < 2){
+            return filterExpressions;
+          }
+          else{
+            // var stringifiedFilterExpressions = [];
+
+            // for (const filterExpr of filterExpressions) {
+            //   stringifiedFilterExpressions.push(L.XmlUtil.serializeXmlDocumentString(filterExpr.toGml()));
+            // }
+
+            // return new L.Filter.And(...stringifiedFilterExpressions);
+            return new L.Filter.And(...filterExpressions);
+          }          
+          
+        };
+
         $scope.$on("addWfsLayerToMap", function (event, dataset, opacity, useCluster) {
           var wfsLayerOptions = {
             url: dataset.url,
@@ -2834,9 +2862,7 @@ angular.module('kommonitorMap').component(
             style: getWfsStyle(dataset, opacity)
           };
 
-          if (dataset.filterFeaturesToMapBBOX) {
-            wfsLayerOptions.filter = new L.Filter.BBox(dataset.featureTypeGeometryName, $scope.map.getBounds(), L.CRS.EPSG3857);
-          }
+          wfsLayerOptions.filter = $scope.getFilterEncoding(dataset);          
 
           var wfsLayer;
           var poiMarkerLayer;
