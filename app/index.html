@@ -3,7 +3,8 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+        <!-- <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport"> -->
+        <meta name="viewport" content="width=device-width, initial-scale=0.5, minimum-scale=0.5, maximum-scale=1, user-scalable=yes">
 
         <!--[if lt IE 11]>
           <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -120,6 +121,9 @@
         <script src="dependencies/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
         <script src="dependencies/bootstrap-datepicker/js/bootstrap-datepicker.de.min.js" type="text/javascript"></script>
         <!-- end lib script tags -->
+
+        <!-- Load environment variables -->
+        <script src="env.js"></script>
         
         <!-- build:js kommonitor-client.min.js -->
         <!-- start client script tags -->
@@ -207,9 +211,7 @@
         <script src="components/kommonitorUserInterface/kommonitorControls/reportingModal/reportingAddIndicatorModal/reporting-add-indicator-modal.module.js" type="text/javascript"></script>
         <script src="components/kommonitorUserInterface/kommonitorControls/reportingModal/reportingAddIndicatorModal/reporting-add-indicator-modal.component.js" type="text/javascript"></script>
         <script src="components/kommonitorUserInterface/kommonitor-user-interface.module.js" type="text/javascript"></script>
-        <script src="components/kommonitorUserInterface/kommonitor-user-interface.component.js" type="text/javascript"></script>
-        <!-- Load environment variables -->
-        <script src="env.js"></script>
+        <script src="components/kommonitorUserInterface/kommonitor-user-interface.component.js" type="text/javascript"></script>        
         <script src="app.js" type="text/javascript"></script>
         <!-- end client script tags -->
         <!-- /build -->

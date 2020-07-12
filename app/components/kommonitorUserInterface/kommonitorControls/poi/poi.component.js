@@ -6,9 +6,9 @@ angular
 					templateUrl : "components/kommonitorUserInterface/kommonitorControls/poi/poi.template.html",
 
 					controller : [
-							'kommonitorDataExchangeService', 'kommonitorMapService', '$scope', '$rootScope', '$http', '__env',
+							'kommonitorDataExchangeService', 'kommonitorMapService', '$scope', '$rootScope', '$http', '__env', '$timeout',
 							function indicatorRadarController(
-									kommonitorDataExchangeService, kommonitorMapService, $scope, $rootScope, $http, __env) {
+									kommonitorDataExchangeService, kommonitorMapService, $scope, $rootScope, $http, __env, $timeout) {
 								/*
 								 * reference to kommonitorDataExchangeService instances
 								 */
@@ -23,6 +23,16 @@ angular
 								$scope.aoiNameFilter = undefined;
 
 								$scope.georesourceNameFilter = {value: undefined};
+								
+								$scope.dateSelectionType_valueIndicator = "date_indicator";
+								$scope.dateSelectionType_valueManual = "date_manual";
+								$scope.dateSelectionType_valuePerDataset = "date_perDataset";
+								$scope.dateSelectionType = {
+									selectedDateType: $scope.dateSelectionType_valueIndicator
+								};
+
+								$scope.selectedDate_manual = undefined;
+								$('#manualDateDatepicker').datepicker(kommonitorDataExchangeService.datePickerOptions);
 
 								$scope.showPOI = true;
 								$scope.showLOI = true;
@@ -265,6 +275,115 @@ angular
 
 								};
 
+								$scope.onClickUseIndicatorTimestamp = function(){
+									$scope.dateSelectionType.selectedDateType = $scope.dateSelectionType_valueIndicator;
+
+									$scope.refreshSelectedGeoresources();
+								};
+
+								$scope.timeout_manualdate;
+
+								function isNoValidDate(dateCandidate){
+									var dateComps = dateCandidate.split("-");
+			
+									if(dateComps.length < 3){
+										return true;
+									}
+									else if(! dateComps[0] || ! dateComps[1] || ! dateComps[2]){
+										return true;
+									}
+									else if(isNaN(dateComps[0]) || isNaN(dateComps[1]) || isNaN(dateComps[2])){
+										return true;
+									}
+									else if(Number(dateComps[1]) > 12 || Number(dateComps[2]) > 31){
+										return true;
+									}
+			
+									return false;
+								}
+			
+								$scope.onChangeManualDate = function(){
+									// check if date is an actual date
+									// if so then refresh selected layers
+			
+									 // Clear the timeout if it has already been set.
+									// This will prevent the previous task from executing
+									// if it has been less than <MILLISECONDS>
+									clearTimeout($scope.timeout_manualdate);
+			
+									// Make a new timeout set to go off in 1000ms (1 second)
+									$scope.timeout_manualdate = setTimeout(function () {
+										var dateCandidate = $scope.selectedDate_manual;
+			
+										if(isNoValidDate(dateCandidate)){
+											return;
+										}
+			
+										$timeout(function(){
+				
+											$scope.loadingData = true;
+											$rootScope.$broadcast("showLoadingIconOnMap");
+										});
+			
+										$timeout(function(){
+					
+											$scope.refreshSelectedGeoresources();
+										}, 25);	
+									}, 1000);
+			
+								};
+
+								$scope.$on("selectedIndicatorDateHasChanged", function (event) {
+
+									console.log("refresh selected georesource layers according to new date");
+
+									// only refresh georesources if sync with indicator timestamp is selected
+									if(! $scope.dateSelectionType.selectedDateType.includes($scope.dateSelectionType_valueIndicator)){
+										return;
+									}
+						
+									$timeout(function(){
+				
+										$scope.loadingData = true;
+										$rootScope.$broadcast("showLoadingIconOnMap");
+									});
+
+									$timeout(function(){
+				
+										$scope.refreshSelectedGeoresources();
+									}, 25);							
+								});
+
+								$scope.refreshSelectedGeoresources = function(){
+									for (const georesource of kommonitorDataExchangeService.availableGeoresources) {
+										if (georesource.isSelected){
+
+											if(georesource.isPOI){
+												georesource.isSelected = false;
+												$scope.handlePoiOnMap(georesource);
+												georesource.isSelected = true;
+												$scope.handlePoiOnMap(georesource);
+											}
+											else if(georesource.isLOI){
+												georesource.isSelected = false;
+												$scope.handleLoiOnMap(georesource);
+												georesource.isSelected = true;
+												$scope.handleLoiOnMap(georesource);
+											}
+											else if(georesource.isAOI){
+												georesource.isSelected = false;
+												$scope.handleAoiOnMap(georesource);
+												georesource.isSelected = true;
+												$scope.handleAoiOnMap(georesource);
+											}											
+
+										}
+									}
+
+									$scope.loadingData = false;
+									$rootScope.$broadcast("hideLoadingIconOnMap");
+								};
+
 								$scope.onChangeSelectedDate = function(georesourceDataset){
 									// only if it s already selected, we must modify the shown dataset 
 
@@ -289,6 +408,21 @@ angular
 									}
 								};
 
+								$scope.getQueryDate = function(resource){
+									if ($scope.dateSelectionType.selectedDateType === $scope.dateSelectionType_valueIndicator){
+										return kommonitorDataExchangeService.selectedDate;
+									}
+									else if($scope.dateSelectionType.selectedDateType === $scope.dateSelectionType_valueManual){
+										return $scope.selectedDate_manual;
+									}
+									else if($scope.dateSelectionType.selectedDateType === $scope.dateSelectionType_valuePerDataset){
+										return resource.selectedDate.startDate;
+									}
+									else{
+										return kommonitorDataExchangeService.selectedDate;
+									}
+								};
+
 								$scope.handlePoiOnMap = function(poi){
 
 									if(poi.isSelected){
@@ -308,7 +442,7 @@ angular
 
 									var id = poiGeoresource.georesourceId;
 
-									var date = poiGeoresource.selectedDate.startDate;
+									var date = $scope.getQueryDate(poiGeoresource);
 
 									var dateComps = date.split("-");
 
@@ -327,7 +461,7 @@ angular
 
 											poiGeoresource.geoJSON = geoJSON;
 
-											kommonitorMapService.addPoiGeoresourceGeoJSON(poiGeoresource, $scope.date, useCluster);
+											kommonitorMapService.addPoiGeoresourceGeoJSON(poiGeoresource, date, useCluster);
 											$scope.loadingData = false;
 											$rootScope.$broadcast("hideLoadingIconOnMap");
 
@@ -363,10 +497,21 @@ angular
 											await $scope.addPoiLayerToMap(poi, $scope.useCluster);
 										}
 									}
+
+									for (var wfs of kommonitorDataExchangeService.wfsDatasets){
+										if (wfs.geometryType == 'POI' && wfs.isSelected){
+											//remove POI layer from map
+											kommonitorMapService.removeWfsLayerFromMap(wfs);
+
+											// remove layer and add layer again
+											var opacity = 1 - wfs.transparency;
+											await kommonitorMapService.addWfsLayerToMap(wfs, opacity, $scope.useCluster);											
+										}
+									}
 								};
 
 								$scope.getExportLinkForPoi = function(poi){
-									var date = poi.selectedDate.startDate;
+									var date = $scope.getQueryDate(poi);
 
 									var dateComps = date.split("-");
 
@@ -430,7 +575,7 @@ angular
 
 									var id = aoiGeoresource.georesourceId;
 
-									var date = aoiGeoresource.selectedDate.startDate;
+									var date = $scope.getQueryDate(aoiGeoresource);
 
 									var dateComps = date.split("-");
 
@@ -449,7 +594,7 @@ angular
 
 											aoiGeoresource.geoJSON = geoJSON;
 
-											kommonitorMapService.addAoiGeoresourceGeoJSON(aoiGeoresource, $scope.date);
+											kommonitorMapService.addAoiGeoresourceGeoJSON(aoiGeoresource, date);
 											$scope.loadingData = false;
 											$rootScope.$broadcast("hideLoadingIconOnMap");
 
@@ -476,7 +621,7 @@ angular
 								};
 
 								$scope.getExportLinkForAoi = function(aoi){
-									var date = aoi.selectedDate.startDate;
+									var date = $scope.getQueryDate(aoi);
 
 									var dateComps = date.split("-");
 
@@ -537,7 +682,7 @@ angular
 
 										var id = loiGeoresource.georesourceId;
 
-										var date = loiGeoresource.selectedDate.startDate;
+										var date = $scope.getQueryDate(loiGeoresource);
 
 										var dateComps = date.split("-");
 
@@ -556,7 +701,7 @@ angular
 
 												loiGeoresource.geoJSON = geoJSON;
 
-												kommonitorMapService.addLoiGeoresourceGeoJSON(loiGeoresource, $scope.date);
+												kommonitorMapService.addLoiGeoresourceGeoJSON(loiGeoresource, date);
 												$scope.loadingData = false;
 												$rootScope.$broadcast("hideLoadingIconOnMap");
 
@@ -583,7 +728,7 @@ angular
 									};
 
 									$scope.getExportLinkForLoi = function(aoi){
-										var date = aoi.selectedDate.startDate;
+										var date = $scope.getQueryDate(aoi);
 
 										var dateComps = date.split("-");
 
@@ -676,7 +821,7 @@ angular
 									if(dataset.isSelected){
 										//display on Map
 										var opacity = 1 - dataset.transparency;
-										kommonitorMapService.addWfsLayerToMap(dataset, opacity);
+										kommonitorMapService.addWfsLayerToMap(dataset, opacity, $scope.useCluster);
 
 									}
 									else{

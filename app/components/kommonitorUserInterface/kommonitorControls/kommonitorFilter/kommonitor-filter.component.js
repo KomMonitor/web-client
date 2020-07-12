@@ -80,6 +80,11 @@ angular
 									}
 								});
 
+								if(values.length === 0){
+									console.warn("Filter range slider cannot be created, as there is no valid indicator value on the selected dataset for the selected date.");
+									return ;
+								}
+
 								//sort ascending order
 								values.sort(function(a, b){return a-b});
 
@@ -87,8 +92,8 @@ angular
 								$scope.valueRangeMinValue = values[0];
 								$scope.valueRangeMaxValue = values[values.length - 1];
 
-								$scope.valueRangeMinValue = +$scope.valueRangeMinValue.toFixed(numberOfDecimals);
-								$scope.valueRangeMaxValue = +$scope.valueRangeMaxValue.toFixed(numberOfDecimals);
+								$scope.valueRangeMinValue = kommonitorDataExchangeService.getIndicatorValue_asNumber($scope.valueRangeMinValue);
+								$scope.valueRangeMaxValue = kommonitorDataExchangeService.getIndicatorValue_asNumber($scope.valueRangeMaxValue);
 
 								$scope.currentLowerFilterValue = $scope.valueRangeMinValue;
 								$scope.currentHigherFilterValue = $scope.valueRangeMaxValue;
@@ -106,7 +111,7 @@ angular
 										prettify_enabled: true,
 										prettify_separator: "",
 										onChange: onChangeRangeFilter
-						    });
+						    	});
 
 								$scope.rangeSliderForFilter = $("#rangeSliderForFiltering").data("ionRangeSlider");
 								// make sure that tha handles are properly set to min and max values

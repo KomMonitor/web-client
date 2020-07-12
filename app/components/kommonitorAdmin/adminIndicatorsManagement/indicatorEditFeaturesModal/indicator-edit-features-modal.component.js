@@ -86,6 +86,8 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 			$scope.propertyMappingDefinition = undefined;
 			$scope.putBody_indicators = undefined;
 
+			$scope.keepMissingValues = true;
+
 			$scope.validityEndDate_perFeature = undefined;
 			$scope.validityStartDate_perFeature = undefined;
 
@@ -225,6 +227,8 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 				$scope.datasourceTypeDefinition = undefined;
 				$scope.propertyMappingDefinition = undefined;
 				$scope.putBody_indicators = undefined;
+
+				$scope.keepMissingValues = true;
 
 				$scope.validityEndDate_perFeature = undefined;
 				$scope.validityStartDate_perFeature = undefined;
@@ -408,7 +412,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 						});
 					}
 				}
-				return kommonitorImporterHelperService.buildPropertyMapping_indicatorResource($scope.spatialUnitRefKeyProperty, timeseriesMappingForImporter);	
+				return kommonitorImporterHelperService.buildPropertyMapping_indicatorResource($scope.spatialUnitRefKeyProperty, timeseriesMappingForImporter, $scope.keepMissingValues);	
 			};
 	
 			$scope.buildPutBody_indicators = function(){
@@ -630,6 +634,8 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 						
 						}	
 					}
+
+					$scope.keepMissingValues = $scope.mappingConfigImportSettings.propertyMapping.keepMissingOrNullValueIndicator;
 					
 					$scope.$apply();
 			};

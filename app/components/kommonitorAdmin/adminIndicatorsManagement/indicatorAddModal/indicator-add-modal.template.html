@@ -124,7 +124,7 @@
 								<li style="width: 16.66%;">Themenhierarchie</li>
 								<li style="width: 16.66%;">Referenzen zu Indikatoren/Georessourcen</li>
 								<li style="width: 16.66%;">Klassifizierungsoptionen</li>
-								<li style="width: 16.66%;">Zeitreihen-Import</li>
+								<li ng-show="indicatorCreationType.apiName != 'COMPUTATION'" style="width: 16.66%;">Zeitreihen-Import</li>
 							</ul>
 							<!-- fieldsets -->
 							
@@ -907,11 +907,11 @@
 								</div>
 
 								<input type="button" name="previous" class="previous previous_addIndicator action-button-previous" value="Voriger Schritt"/>
-								<input type="button" name="next" class="next next_addIndicator action-button" value="N&auml;chster Schritt"/>
+								<input ng-show="indicatorCreationType.apiName != 'COMPUTATION'" type="button" name="next" class="next next_addIndicator action-button" value="N&auml;chster Schritt"/>
 
 							</fieldset>
 
-							<fieldset>
+							<fieldset ng-show="indicatorCreationType.apiName != 'COMPUTATION'">
 								<div style="position: absolute;">
 									<button type="button" class="btn btn-info pull-left" ng-click="onImportIndicatorAddMappingConfig()" title="Importieren der Mapping-Konfigurationen aus einer Datei"><i class="fas fa-file-import"></i>&nbsp;&nbsp;Mapping-Import</button>
 									<input style="display:none;" class="pull-left" type="file" class="form-control" id="indicatorMappingConfigAddImportFile" accept=".json,"></input>
@@ -934,7 +934,7 @@
 											</select>
 											<div class="help-block with-errors"></div>
 										</div>
-										<div ng-if="converter.schemas">
+										<div ng-show="converter.schemas">
 
 											<div class="form-group">
 												<label>Schema*</label>
@@ -955,7 +955,7 @@
 												<div class="help-block">
 													<p>{{parameter.description}}</p>
 												</div>
-												<div ng-if="parameter.name === 'CRS'" class="help-block with-errors" style="color: red;">
+												<div ng-show="parameter.name === 'CRS'" class="help-block with-errors" style="color: red;">
 													<p>CRS aufmerksam setzen. Falsche Angaben f&uuml;hren zur fehlerhaften Koordinaten der Features</p>
 												</div>
 												<div class="help-block with-errors"></div>
@@ -1000,7 +1000,7 @@
 											<!-- <div class="help-block"><p>Features m&uuml;ssen Informationen &uuml;ber eindutige ID und eindeutigen Namen in Attribut namens <code>ID</code> und <code>NAME</code> enthalten, um in KomMonitor verarbeitet werden zu k&ouml;nnen.</p></div> -->
 
 											<div class="help-block with-errors"></div>
-											<div ng-if="indicatorDataSourceInputInvalid" style="color: red;">
+											<div ng-show="indicatorDataSourceInputInvalid" style="color: red;">
 												<p>Eingabe ung&uuml;ltig. Grund: {{indicatorDataSourceInputInvalidReason}}</p>
 											</div>
 										</div>
@@ -1013,7 +1013,7 @@
 												<p>Name des Attributs, welches den eindeutigen Identifier des Features enth&auml;lt. Dieser muss identisch sein mit den Feature-IDs der selektierten Raumebene</p>
 											</div>
 											<div class="help-block with-errors"></div>
-											<div ng-if="idPropertyNotFound" style="color: red;">
+											<div ng-show="idPropertyNotFound" style="color: red;">
 												<p>Eingabe ung&uuml;ltig. Angegebenes Attribut nicht gefunden oder enth&auml;lt NULL-Werte.</p>
 											</div>
 										</div>
@@ -1124,6 +1124,28 @@
 									</div>
 								</div>
 
+								<div class="row vertical-align">
+									<div class="col-md-6 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Fehlende/NULL Werte beibehalten (als NoData-Wert)*</label>
+
+											<br/>	
+											<label class="switch">
+												<input type="checkbox" value="keepMissingValues" ng-model="keepMissingValues">
+												<span class="switchslider round"></span>
+											</label>
+
+
+											<div class="help-block">
+												<p>Angabe, ob leere Attributwerte (<code>NULL</code>-Werte) &uuml;bernommen werden. Diese werden wie <i>NoData</i>-Werte behandelt. Bei deaktivierter Option 
+													wird bei einem solchen Fall ein Fehler geworfen.</p>
+											</div>
+										</div>
+
+									</div>
+
+								</div>
+
 								<input type="button" name="previous" class="previous previous_addIndicator action-button-previous" value="Voriger Schritt"/>
 
 							</fieldset>
@@ -1146,7 +1168,7 @@
 				
 
 				<button type="button" class="btn btn-success"				
-					ng-disabled="!datasetName || !metadata.description || !metadata.datasource || !metadata.contact || !metadata.updateInterval || !metadata.lastUpdate || !indicatorType|| !indicatorCreationType || !indicatorInterpretation || !indicatorTopic_mainTopic || datasetNameInvalid || !indicatorUnit || !converter || !datasourceType || !targetSpatialUnitMetadata || !spatialUnitRefKeyProperty"
+					ng-disabled="!datasetName || !metadata.description || !metadata.datasource || !metadata.contact || !metadata.updateInterval || !metadata.lastUpdate || !indicatorType|| !indicatorCreationType || !indicatorInterpretation || !indicatorTopic_mainTopic || datasetNameInvalid || !indicatorUnit || (indicatorCreationType.apiName != 'COMPUTATION' && (!converter || !datasourceType || !targetSpatialUnitMetadata || !spatialUnitRefKeyProperty))"
 					ng-click="addIndicator()">Indikator registrieren</button>
 				<button type="button" class="btn btn-danger"
 					ng-click="resetIndicatorAddForm()">Zur&uuml;cksetzen</button>
@@ -1158,7 +1180,7 @@
 				<h4><i class="icon fa fa-check"></i>Indikator registriert</h4>
 				<p>Eine neuer Indikator mit Namen {{successMessagePart}} wurde in KomMonitor registriert und in die
 					&Uuml;bersichtstabelle eingetragen.
-					<div ng-if="importedFeatures && importedFeatures.length > 0">
+					<div ng-show="importedFeatures && importedFeatures.length > 0">
 						{{importedFeatures.length}} Features wurden dabei importiert.
 					</div>
 				</p>

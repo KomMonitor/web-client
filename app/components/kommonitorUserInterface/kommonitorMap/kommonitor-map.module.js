@@ -53,6 +53,12 @@ angular.module('kommonitorMap').service(
 						georesourceMetadataAndGeoJSON, date, useCluster);
 			};
 
+	   this.addPoiGeoresourceGeoJSON_reachabilityAnalysis = function (georesourceMetadataAndGeoJSON, date, useCluster) {
+
+				$rootScope.$broadcast("addPoiGeoresourceAsGeoJSON_reachabilityAnalysis",
+						georesourceMetadataAndGeoJSON, date, useCluster);
+			};	
+
       this.addLoiGeoresourceGeoJSON = function (georesourceMetadataAndGeoJSON, date) {
 
 				$rootScope.$broadcast("addLoiGeoresourceAsGeoJSON",
@@ -87,6 +93,12 @@ angular.module('kommonitorMap').service(
 				$rootScope.$broadcast("removePoiGeoresource",
 						georesourceMetadataAndGeoJSON);
 			};
+
+	   this.removePoiGeoresource_reachabilityAnalysis = function (georesourceMetadataAndGeoJSON) {
+
+				$rootScope.$broadcast("removePoiGeoresource_reachabilityAnalysis",
+						georesourceMetadataAndGeoJSON);
+			};		
 
       this.removeLoiGeoresource = function (georesourceMetadataAndGeoJSON) {
 
@@ -161,9 +173,9 @@ angular.module('kommonitorMap').service(
             dataset);
       };
 
-      this.addWfsLayerToMap = function (dataset, opacity) {
+      this.addWfsLayerToMap = function (dataset, opacity, useCluster) {
         $rootScope.$broadcast("addWfsLayerToMap",
-            dataset);
+            dataset, opacity, useCluster);
       };
 
       this.adjustOpacityForWfsLayer = function (dataset, opacity) {
