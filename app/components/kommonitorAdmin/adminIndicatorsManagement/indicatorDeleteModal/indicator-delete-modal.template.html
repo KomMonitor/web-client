@@ -31,7 +31,7 @@
 							 <br/> 
 							<div>
 								<select style="font-size: 12px;" ng-model="selectedIndicatorDataset" ng-change="onChangeSelectedIndicator()"
-									size="8" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter: filterIndicators() | filter:indicatorNameFilter"
+									size="8" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:indicatorNameFilter"
 									class="form-control" required>
 									<option disabled selected value> -- Indikator w&auml;hlen -- </option>
 								</select>
