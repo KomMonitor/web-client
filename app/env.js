@@ -192,7 +192,165 @@
   ];
 
   window.__env.wmsDatasets = [
-    
+    {
+      title: "Lärmkartierung - Flugverkehr 24h-Pegel LDEN",
+      description: "Veröffentlichung der Lärmkarten gemäß Lärmkartierung nach Richtlinie 2002/49/EG - EU-Umgebungslärmrichtlinie <br/><br/><b>Ma&szlig;stabsabh&auml;ngige Darstellung - ggf. zoomen erforderlich</b>",
+      url: "https://www.wms.nrw.de/umwelt/laerm?",
+      topicReference: "e94c8100-3790-4ddd-b977-fe48b4f93e26",
+      layerName: "FLG_DEN"
+    },
+    {
+      title: "Lärmkartierung - Flugverkehr Nachtpegel LNight",
+      description: "Veröffentlichung der Lärmkarten gemäß Lärmkartierung nach Richtlinie 2002/49/EG - EU-Umgebungslärmrichtlinie <br/><br/><b>Ma&szlig;stabsabh&auml;ngige Darstellung - ggf. zoomen erforderlich</b>",
+      url: "https://www.wms.nrw.de/umwelt/laerm?",
+      topicReference: "e94c8100-3790-4ddd-b977-fe48b4f93e26",
+      layerName: "FLG_NGT"
+    },
+    {
+      title: "Lärmkartierung - Industrie 24h-Pegel LDEN",
+      description: "Veröffentlichung der Lärmkarten gemäß Lärmkartierung nach Richtlinie 2002/49/EG - EU-Umgebungslärmrichtlinie <br/><br/><b>Ma&szlig;stabsabh&auml;ngige Darstellung - ggf. zoomen erforderlich</b>",
+      url: "https://www.wms.nrw.de/umwelt/laerm?",
+      topicReference: "e94c8100-3790-4ddd-b977-fe48b4f93e26",
+      layerName: "IND_DEN"
+    },
+    {
+      title: "Lärmkartierung - Industrie Nachtpegel LNight",
+      description: "Veröffentlichung der Lärmkarten gemäß Lärmkartierung nach Richtlinie 2002/49/EG - EU-Umgebungslärmrichtlinie <br/><br/><b>Ma&szlig;stabsabh&auml;ngige Darstellung - ggf. zoomen erforderlich</b>",
+      url: "https://www.wms.nrw.de/umwelt/laerm?",
+      topicReference: "e94c8100-3790-4ddd-b977-fe48b4f93e26",
+      layerName: "IND_NGT"
+    },
+    {
+      title: "Lärmkartierung - Straße 24h-Pegel LDEN",
+      description: "Veröffentlichung der Lärmkarten gemäß Lärmkartierung nach Richtlinie 2002/49/EG - EU-Umgebungslärmrichtlinie <br/><br/><b>Ma&szlig;stabsabh&auml;ngige Darstellung - ggf. zoomen erforderlich</b>",
+      url: "https://www.wms.nrw.de/umwelt/laerm?",
+      topicReference: "e94c8100-3790-4ddd-b977-fe48b4f93e26",
+      layerName: "STR_DEN"
+    },
+    {
+      title: "Lärmkartierung - Straße Nachtpegel LNight",
+      description: "Veröffentlichung der Lärmkarten gemäß Lärmkartierung nach Richtlinie 2002/49/EG - EU-Umgebungslärmrichtlinie <br/><br/><b>Ma&szlig;stabsabh&auml;ngige Darstellung - ggf. zoomen erforderlich</b>",
+      url: "https://www.wms.nrw.de/umwelt/laerm?",
+      topicReference: "e94c8100-3790-4ddd-b977-fe48b4f93e26",
+      layerName: "STR_NGT"
+    },
+    {
+      title: "Lärmkartierung - Schiene sonstige 24h-Pegel LDEN",
+      description: "Veröffentlichung der Lärmkarten gemäß Lärmkartierung nach Richtlinie 2002/49/EG - EU-Umgebungslärmrichtlinie <br/><br/><b>Ma&szlig;stabsabh&auml;ngige Darstellung - ggf. zoomen erforderlich</b>",
+      url: "https://www.wms.nrw.de/umwelt/laerm?",
+      topicReference: "e94c8100-3790-4ddd-b977-fe48b4f93e26",
+      layerName: "SCS_DEN"
+    },
+    {
+      title: "Lärmkartierung - Schiene sonstige Nachtpegel LNight",
+      description: "Veröffentlichung der Lärmkarten gemäß Lärmkartierung nach Richtlinie 2002/49/EG - EU-Umgebungslärmrichtlinie <br/><br/><b>Ma&szlig;stabsabh&auml;ngige Darstellung - ggf. zoomen erforderlich</b>",
+      url: "https://www.wms.nrw.de/umwelt/laerm?",
+      topicReference: "e94c8100-3790-4ddd-b977-fe48b4f93e26",
+      layerName: "SCS_NGT"
+    },
+    {
+      title: "Lärmkartierung - Schiene Bund 24h-Pegel LDEN",
+      description: "Veröffentlichung der Lärmkarten gemäß Lärmkartierung nach Richtlinie 2002/49/EG - EU-Umgebungslärmrichtlinie <br/><br/><b>Ma&szlig;stabsabh&auml;ngige Darstellung - ggf. zoomen erforderlich</b>",
+      url: "https://www.wms.nrw.de/umwelt/laerm?",
+      topicReference: "e94c8100-3790-4ddd-b977-fe48b4f93e26",
+      layerName: "SCB_DEN"
+    },
+    {
+      title: "Lärmkartierung - Schiene Bund Nachtpegel LNight",
+      description: "Veröffentlichung der Lärmkarten gemäß Lärmkartierung nach Richtlinie 2002/49/EG - EU-Umgebungslärmrichtlinie <br/><br/><b>Ma&szlig;stabsabh&auml;ngige Darstellung - ggf. zoomen erforderlich</b>",
+      url: "https://www.wms.nrw.de/umwelt/laerm?",
+      topicReference: "e94c8100-3790-4ddd-b977-fe48b4f93e26",
+      layerName: "SCB_NGT"
+    },
+    // {
+    //   title: "Lärmkartierung - Gebaeude",
+    //   description: "Veröffentlichung der Lärmkarten gemäß Lärmkartierung nach Richtlinie 2002/49/EG - EU-Umgebungslärmrichtlinie <br/><br/><b>Ma&szlig;stabsabh&auml;ngige Darstellung - ggf. zoomen erforderlich</b>",
+    //   url: "https://www.wms.nrw.de/umwelt/laerm?",
+    //   layerName: "Gebaeude"
+    // },
+    // {
+    //   title: "Lärmkartierung - Modell",
+    //   description: "Veröffentlichung der Lärmkarten gemäß Lärmkartierung nach Richtlinie 2002/49/EG - EU-Umgebungslärmrichtlinie <br/><br/><b>Ma&szlig;stabsabh&auml;ngige Darstellung - ggf. zoomen erforderlich</b>",
+    //   url: "https://www.wms.nrw.de/umwelt/laerm?",
+    //   layerName: "Modell"
+    // },
+    {
+      title: "Versiegelungsgrad - 2006 anhand von Copernicus Satellitendaten - 20m Rasterzellen",
+      description: "Mehr Informationen unter <a href='https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness' rel='noopener noreferrer' target='_blank'>https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness</a>",
+      url: "https://image.discomap.eea.europa.eu/arcgis/services/GioLandPublic/HRL_ImperviousnessDensity_2006/MapServer/WMSServer?",
+      topicReference: "c46ecf8b-3f77-4be6-9ec1-851dc48e3eb8",
+      layerName: "0"
+    },
+    {
+      title: "Versiegelungsgrad - 2009 anhand von Copernicus Satellitendaten - 20m Rasterzellen",
+      description: "Mehr Informationen unter <a href='https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness' rel='noopener noreferrer' target='_blank'>https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness</a>",
+      url: "https://image.discomap.eea.europa.eu/arcgis/services/GioLandPublic/HRL_ImperviousnessDensity_2009/MapServer/WMSServer?",
+      topicReference: "c46ecf8b-3f77-4be6-9ec1-851dc48e3eb8",
+      layerName: "0"
+    },
+    {
+      title: "Versiegelungsgrad - 2012 anhand von Copernicus Satellitendaten - 20m Rasterzellen",
+      description: "Mehr Informationen unter <a href='https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness' rel='noopener noreferrer' target='_blank'>https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness</a>",
+      url: "https://image.discomap.eea.europa.eu/arcgis/services/GioLandPublic/HRL_Imperviousness_Density_2012/MapServer/WMSServer?",
+      topicReference: "c46ecf8b-3f77-4be6-9ec1-851dc48e3eb8",
+      layerName: "Imperviousness density 2012 20m"
+    },
+    {
+      title: "Versiegelungsgrad - 2015 anhand von Copernicus Satellitendaten - 20m Rasterzellen",
+      description: "Mehr Informationen unter <a href='https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness' rel='noopener noreferrer' target='_blank'>https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness</a>",
+      url: "https://image.discomap.eea.europa.eu/arcgis/services/GioLandPublic/HRL_ImperviousnessDensity_2015/MapServer/WMSServer?",
+      topicReference: "c46ecf8b-3f77-4be6-9ec1-851dc48e3eb8",
+      layerName: "0"
+    },
+    {
+      title: "Versiegelungsgrad - Ver&auml;nderung 2006-2009 anhand von Copernicus Satellitendaten - 20m Rasterzellen",
+      description: "Mehr Informationen unter <a href='https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness' rel='noopener noreferrer' target='_blank'>https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness</a>",
+      url: "https://image.discomap.eea.europa.eu/arcgis/services/GioLandPublic/HRL_ImperviousnessChange_06_09/MapServer/WMSServer?",
+      topicReference: "c46ecf8b-3f77-4be6-9ec1-851dc48e3eb8",
+      layerName: "0"
+    },
+    {
+      title: "Versiegelungsgrad - Ver&auml;nderung 2009-2012 anhand von Copernicus Satellitendaten - 20m Rasterzellen",
+      description: "Mehr Informationen unter <a href='https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness' rel='noopener noreferrer' target='_blank'>https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness</a>",
+      url: "https://image.discomap.eea.europa.eu/arcgis/services/GioLandPublic/HRL_ImperviousnessChange_09_12/MapServer/WMSServer?",
+      topicReference: "c46ecf8b-3f77-4be6-9ec1-851dc48e3eb8",
+      layerName: "Imperviousness density change 09-12 20m"
+    },
+    {
+      title: "Versiegelungsgrad - Ver&auml;nderung 2012-2015 anhand von Copernicus Satellitendaten - 20m Rasterzellen",
+      description: "Mehr Informationen unter <a href='https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness' rel='noopener noreferrer' target='_blank'>https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness</a>",
+      url: "https://image.discomap.eea.europa.eu/arcgis/services/GioLandPublic/HRL_ImperviousnessChange_12_15/MapServer/WMSServer?",
+      topicReference: "c46ecf8b-3f77-4be6-9ec1-851dc48e3eb8",
+      layerName: "0"
+    },
+    {
+      title: "Versiegelungsgrad - Klassifizierte Ver&auml;nderung 2006-2009 anhand von Copernicus Satellitendaten - 20m Rasterzellen",
+      description: "Mehr Informationen unter <a href='https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness' rel='noopener noreferrer' target='_blank'>https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness</a>",
+      url: "https://image.discomap.eea.europa.eu/arcgis/services/GioLandPublic/HRL_ImperviousnessClassifiedChange_06_09/MapServer/WMSServer?",
+      topicReference: "c46ecf8b-3f77-4be6-9ec1-851dc48e3eb8",
+      layerName: "0"
+    },
+    {
+      title: "Versiegelungsgrad - Klassifizierte Ver&auml;nderung 2009-2012 anhand von Copernicus Satellitendaten - 20m Rasterzellen",
+      description: "Mehr Informationen unter <a href='https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness' rel='noopener noreferrer' target='_blank'>https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness</a>",
+      url: "https://image.discomap.eea.europa.eu/arcgis/services/GioLandPublic/HRL_ImperviousnessClassifiedChange_09_12/MapServer/WMSServer?",
+      topicReference: "c46ecf8b-3f77-4be6-9ec1-851dc48e3eb8",
+      layerName: "0"
+    },
+    {
+      title: "Versiegelungsgrad - Klassifizierte Ver&auml;nderung 2012-2015 anhand von Copernicus Satellitendaten - 20m Rasterzellen",
+      description: "Mehr Informationen unter <a href='https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness' rel='noopener noreferrer' target='_blank'>https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness</a>",
+      url: "https://image.discomap.eea.europa.eu/arcgis/services/GioLandPublic/HRL_ImperviousnessChange_12_15/MapServer/WMSServer?",
+      topicReference: "c46ecf8b-3f77-4be6-9ec1-851dc48e3eb8",
+      layerName: "0"
+    },
+    {
+      title: "Bodennutzung - Bebauungsplanumringe",
+      description: "Umringe der Bebauungspl&auml;ne gem&auml;&szlig; geodaten.metropoleruhr.de",
+      url: "https://geodaten.metropoleruhr.de/inspire/bodennutzung/metropoleruhr?",
+      topicReference: null,
+      layerName: "bplan"
+    }
   ];
 
   window.__env.wfsDatasets = [    
