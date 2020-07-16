@@ -121,12 +121,6 @@ angular.module('indicatorDeleteModal').component('indicatorDeleteModal', {
 			}
 		};
 
-		$scope.filterIndicators = function() {
-
-			return kommonitorDataExchangeService.filterIndicators();
-		};
-
-
 		$scope.resetIndicatorsDeleteForm = function(){
 
 			$scope.selectedIndicatorDataset = undefined;
@@ -294,10 +288,12 @@ angular.module('indicatorDeleteModal').component('indicatorDeleteModal', {
 		$scope.deleteSelectedIndicatorTimestamps = async function(){
 
 			// iterate over all appicableSpatialUnits and selected applicableDates
-			for (const applicableSpatialUnit of $scope.currentApplicableSpatialUnits) {
-				for (const applicableDate of $scope.currentApplicableDates) {
-					await $scope.getDeleteTimestampPromise(applicableDate, applicableSpatialUnit.spatialUnitMetadata.spatialUnitId);
-				}
+			for (const applicableDate of $scope.currentApplicableDates) {
+				if(applicableDate.isSelected){
+					for (const applicableSpatialUnit of $scope.currentApplicableSpatialUnits) {				
+						await $scope.getDeleteTimestampPromise(applicableDate, applicableSpatialUnit.spatialUnitMetadata.spatialUnitId);
+					}
+				}				
 			}
 
 			if($scope.failedTimestampsAndErrors.length > 0){

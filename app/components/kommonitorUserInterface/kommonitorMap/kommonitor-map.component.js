@@ -2368,6 +2368,23 @@ angular.module('kommonitorMap').component(
           $scope.map.invalidateSize(true);
         });
 
+        var createCustomMarkersFromWfsPoints = function(wfsLayer, poiMarkerLayer, dataset){
+          for (var layerPropName in wfsLayer._layers){
+            var geoJSONFeature = wfsLayer._layers[layerPropName].feature;
+            var latlng = wfsLayer._layers[layerPropName]._latlng;
+
+            geoJSONFeature.geometry = {
+              type: "Point",
+              coordinates: [latlng.lng, latlng.lat]
+            };
+
+            var customMarker = createCustomMarker(geoJSONFeature, dataset.poiSymbolColor, dataset.poiMarkerColor, dataset.poiSymbolBootstrap3Name, dataset);
+            poiMarkerLayer = addPoiMarker(poiMarkerLayer, customMarker);
+          }
+
+          return poiMarkerLayer;
+        };
+
         var createCustomMarker = function(poiFeature, poiSymbolColor, poiMarkerColor, poiSymbolBootstrap3Name, metadataObject){
           var customMarker;
           try {
@@ -2894,18 +2911,7 @@ angular.module('kommonitorMap').component(
               poiMarkerLayer = L.layerGroup();
             } 
 
-            wfsLayer = new L.WFS(wfsLayerOptions, new L.Format.GeoJSON({
-              crs: L.CRS.EPSG3857,
-              pointToLayer(geoJsonPoint, latlng) {
-                geoJsonPoint.geometry.coordinates[0] = latlng.lng;
-                geoJsonPoint.geometry.coordinates[1] = latlng.lat; 
-
-                var customMarker = createCustomMarker(geoJsonPoint, dataset.poiSymbolColor, dataset.poiMarkerColor, dataset.poiSymbolBootstrap3Name, dataset);
-                poiMarkerLayer = addPoiMarker(poiMarkerLayer, customMarker);
-
-                return customMarker;
-              },
-            }));
+            wfsLayer = new L.WFS(wfsLayerOptions);
           }
           else{
             wfsLayer = new L.WFS(wfsLayerOptions);
@@ -2913,6 +2919,10 @@ angular.module('kommonitorMap').component(
 
           try {
             wfsLayer.once('load', function () {
+
+              if(dataset.geometryType === "POI"){
+                poiMarkerLayer = createCustomMarkersFromWfsPoints(wfsLayer, poiMarkerLayer, dataset);
+              }
 
               console.log("Try to fit bounds on wfsLayer");
               $scope.map.fitBounds(wfsLayer.getBounds());
