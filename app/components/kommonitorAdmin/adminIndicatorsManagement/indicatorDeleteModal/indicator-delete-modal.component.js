@@ -121,12 +121,6 @@ angular.module('indicatorDeleteModal').component('indicatorDeleteModal', {
 			}
 		};
 
-		$scope.filterIndicators = function() {
-
-			return kommonitorDataExchangeService.filterIndicators();
-		};
-
-
 		$scope.resetIndicatorsDeleteForm = function(){
 
 			$scope.selectedIndicatorDataset = undefined;
