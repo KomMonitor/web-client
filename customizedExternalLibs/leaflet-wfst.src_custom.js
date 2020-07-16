@@ -1771,7 +1771,8 @@ L.WFS = L.FeatureGroup.extend({
         request: 'GetFeature',
         typeName: this.options.typeNSName,
         srsName: this.options.srsName,
-        outputFormat: this.readFormat.outputFormat
+        outputFormat: this.readFormat.outputFormat,
+        filter: L.XmlUtil.serializeXmlDocumentString(L.filter(filter))
       },
       headers: this.options.headers || {},
       success: function (responseText) {
