@@ -167,17 +167,20 @@ angular
           };
 
           this.displayMapApplicationError = function(error){
-            if(error.data){							
-              this.errorMessage = this.syntaxHighlightJSON(error.data);
-            }
-            else{
-              this.errorMessage = this.syntaxHighlightJSON(error);
-            }
+            $timeout(function () {
+                if(error.data){							
+                  self.errorMessage = self.syntaxHighlightJSON(error.data);
+                }
+                else{
+                  self.errorMessage = self.syntaxHighlightJSON(error);
+                }
+    
+                // $rootScope.$apply();
+                $rootScope.$broadcast("hideLoadingIconOnMap");
+    
+                $(".mapApplicationErrorAlert").show();
+              }, 1000);
 
-            // $rootScope.$apply();
-            $rootScope.$broadcast("hideLoadingIconOnMap");
-
-            $(".mapApplicationErrorAlert").show();
           };
           
           // SPATIAL UNITS
