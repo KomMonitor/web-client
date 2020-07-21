@@ -1413,6 +1413,8 @@ angular.module('kommonitorMap').component(
 
         $scope.appendColorGradientLegendItems = function(colorBrewInstance, opacity){
           var html = "";
+
+            if(colorBrewInstance && colorBrewInstance.breaks && colorBrewInstance.colors){
               var labelsIncrease = colorBrewInstance.breaks;
               var colorsIncrease = colorBrewInstance.colors;
 
@@ -1428,8 +1430,10 @@ angular.module('kommonitorMap').component(
                   '<div class="col-md-3 ">' + 
                   count + '</div></div>';
               }
+            }
+              
 
-              return html;
+          return html;
         };
 
         // $scope.appendDecreasingItems = function(colorBrewInstance, opacity){
