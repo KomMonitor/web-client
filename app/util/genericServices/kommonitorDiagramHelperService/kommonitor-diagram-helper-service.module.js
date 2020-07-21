@@ -553,11 +553,11 @@ angular
         // }
 
         if(isMeasureOfValueChecked){
-          // measure of value brew
+
+          if(gtMeasureOfValueBrew && gtMeasureOfValueBrew.breaks && gtMeasureOfValueBrew.colors){
+            // measure of value brew
           var gtBreaks = gtMeasureOfValueBrew.breaks;
-          var gtColors = gtMeasureOfValueBrew.colors;
-          var ltBreaks = ltMeasureOfValueBrew.breaks;
-          var ltColors = ltMeasureOfValueBrew.colors;
+          var gtColors = gtMeasureOfValueBrew.colors;          
 
               for (var j = 0; j < gtColors.length; j++) {
 
@@ -573,21 +573,30 @@ angular
                 pieces.push(legendItem_gtMov);
 
               }
+          }
 
-              for (var j = 0; j < ltColors.length; j++) {
+          if(gtMeasureOfValueBrew && gtMeasureOfValueBrew.breaks && gtMeasureOfValueBrew.colors){
+            var ltBreaks = ltMeasureOfValueBrew.breaks;
+            var ltColors = ltMeasureOfValueBrew.colors;
 
-                var legendItem_ltMov = {
-                  min: ltBreaks[j],         
-                  opacity: 0.8,         
-                  color: ltColors[ltColors.length - 1 - j]
-                };
-                if(ltBreaks[j + 1]){
-                  legendItem_ltMov.max = ltBreaks[j + 1];
-                }
+            for (var j = 0; j < ltColors.length; j++) {
 
-                pieces.push(legendItem_ltMov);
-
+              var legendItem_ltMov = {
+                min: ltBreaks[j],         
+                opacity: 0.8,         
+                color: ltColors[ltColors.length - 1 - j]
+              };
+              if(ltBreaks[j + 1]){
+                legendItem_ltMov.max = ltBreaks[j + 1];
               }
+
+              pieces.push(legendItem_ltMov);
+
+            }
+          }
+          
+
+              
         }
         else if(indicatorType.includes("DYNAMIC")){
           // dynamic brew
@@ -678,21 +687,24 @@ angular
           }       
           }
           else{
-            var breaks = defaultBrew.breaks;
-            var colors = defaultBrew.colors;
-
-              for (var j = 0; j < colors.length; j++) {
-
-                var legendItem_default = {
-                  min: breaks[j],
-                  opacity: 0.8,
-                  max: breaks[j + 1],
-                  color: colors[j]
-                };
-
-                pieces.push(legendItem_default);
-
-              }     
+            if(defaultBrew && defaultBrew.breaks && defaultBrew.colors){
+              var breaks = defaultBrew.breaks;
+              var colors = defaultBrew.colors;
+  
+                for (var j = 0; j < colors.length; j++) {
+  
+                  var legendItem_default = {
+                    min: breaks[j],
+                    opacity: 0.8,
+                    max: breaks[j + 1],
+                    color: colors[j]
+                  };
+  
+                  pieces.push(legendItem_default);
+  
+                } 
+           }
+               
           }
 
           
