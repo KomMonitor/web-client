@@ -208,7 +208,7 @@ angular
         var indicatorValueArray = new Array();
         var indicatorValueBarChartArray = new Array();
 
-        var indicatorTimeSeriesDatesArray = indicatorMetadataAndGeoJSON.applicableDates;
+        var indicatorTimeSeriesDatesArray = kommonitorDataExchangeService.selectedIndicator.applicableDates;
 
         if(filterOutFutureDates){
           // remove all timestamps that are newer than the given date
@@ -268,31 +268,37 @@ angular
 
           indicatorValueBarChartArray.push(seriesItem);
 
+        }
+
+        // we must use the original selectedIndicator in case balance mode is active
+        // otherwise balance timestamp will have balance values
+        for (var t = 0; t < kommonitorDataExchangeService.selectedIndicator.geoJSON.features.length; t++) {
+          var indicatorFeature = kommonitorDataExchangeService.selectedIndicator.geoJSON.features[t];
           // continue timeSeries arrays by adding and counting all time series values
           for (var i = 0; i < indicatorTimeSeriesDatesArray.length; i++) {
             var datePropertyName = INDICATOR_DATE_PREFIX + indicatorTimeSeriesDatesArray[i];
-            if (!kommonitorDataExchangeService.indicatorValueIsNoData(cartographicFeature.properties[datePropertyName])) {
+            if (!kommonitorDataExchangeService.indicatorValueIsNoData(indicatorFeature.properties[datePropertyName])) {
               // indicatorTimeSeriesAverageArray[i] += selectedFeature.properties[datePropertyName];
-              indicatorTimeSeriesAverageArray[i] += cartographicFeature.properties[datePropertyName];
+              indicatorTimeSeriesAverageArray[i] += indicatorFeature.properties[datePropertyName];
               indicatorTimeSeriesCountArray[i]++;
 
               // min stack
               if (indicatorTimeSeriesMinArray[i] === undefined || indicatorTimeSeriesMinArray[i] === null){
-                indicatorTimeSeriesMinArray[i] = cartographicFeature.properties[datePropertyName];
+                indicatorTimeSeriesMinArray[i] = indicatorFeature.properties[datePropertyName];
               }
               else{
-                if(cartographicFeature.properties[datePropertyName] < indicatorTimeSeriesMinArray[i]){
-                  indicatorTimeSeriesMinArray[i] = cartographicFeature.properties[datePropertyName];
+                if(indicatorFeature.properties[datePropertyName] < indicatorTimeSeriesMinArray[i]){
+                  indicatorTimeSeriesMinArray[i] = indicatorFeature.properties[datePropertyName];
                 }
               }
 
               // max stack
               if (indicatorTimeSeriesMaxArray[i] === undefined || indicatorTimeSeriesMaxArray[i] === null){
-                indicatorTimeSeriesMaxArray[i] = cartographicFeature.properties[datePropertyName];
+                indicatorTimeSeriesMaxArray[i] = indicatorFeature.properties[datePropertyName];
               }
               else{
-                if(cartographicFeature.properties[datePropertyName] > indicatorTimeSeriesMaxArray[i]){
-                  indicatorTimeSeriesMaxArray[i] = cartographicFeature.properties[datePropertyName];
+                if(indicatorFeature.properties[datePropertyName] > indicatorTimeSeriesMaxArray[i]){
+                  indicatorTimeSeriesMaxArray[i] = indicatorFeature.properties[datePropertyName];
                 }
               }
             }
@@ -547,11 +553,11 @@ angular
         // }
 
         if(isMeasureOfValueChecked){
-          // measure of value brew
+
+          if(gtMeasureOfValueBrew && gtMeasureOfValueBrew.breaks && gtMeasureOfValueBrew.colors){
+            // measure of value brew
           var gtBreaks = gtMeasureOfValueBrew.breaks;
-          var gtColors = gtMeasureOfValueBrew.colors;
-          var ltBreaks = ltMeasureOfValueBrew.breaks;
-          var ltColors = ltMeasureOfValueBrew.colors;
+          var gtColors = gtMeasureOfValueBrew.colors;          
 
               for (var j = 0; j < gtColors.length; j++) {
 
@@ -567,21 +573,30 @@ angular
                 pieces.push(legendItem_gtMov);
 
               }
+          }
 
-              for (var j = 0; j < ltColors.length; j++) {
+          if(gtMeasureOfValueBrew && gtMeasureOfValueBrew.breaks && gtMeasureOfValueBrew.colors){
+            var ltBreaks = ltMeasureOfValueBrew.breaks;
+            var ltColors = ltMeasureOfValueBrew.colors;
 
-                var legendItem_ltMov = {
-                  min: ltBreaks[j],         
-                  opacity: 0.8,         
-                  color: ltColors[ltColors.length - 1 - j]
-                };
-                if(ltBreaks[j + 1]){
-                  legendItem_ltMov.max = ltBreaks[j + 1];
-                }
+            for (var j = 0; j < ltColors.length; j++) {
 
-                pieces.push(legendItem_ltMov);
-
+              var legendItem_ltMov = {
+                min: ltBreaks[j],         
+                opacity: 0.8,         
+                color: ltColors[ltColors.length - 1 - j]
+              };
+              if(ltBreaks[j + 1]){
+                legendItem_ltMov.max = ltBreaks[j + 1];
               }
+
+              pieces.push(legendItem_ltMov);
+
+            }
+          }
+          
+
+              
         }
         else if(indicatorType.includes("DYNAMIC")){
           // dynamic brew
@@ -672,21 +687,24 @@ angular
           }       
           }
           else{
-            var breaks = defaultBrew.breaks;
-            var colors = defaultBrew.colors;
-
-              for (var j = 0; j < colors.length; j++) {
-
-                var legendItem_default = {
-                  min: breaks[j],
-                  opacity: 0.8,
-                  max: breaks[j + 1],
-                  color: colors[j]
-                };
-
-                pieces.push(legendItem_default);
-
-              }     
+            if(defaultBrew && defaultBrew.breaks && defaultBrew.colors){
+              var breaks = defaultBrew.breaks;
+              var colors = defaultBrew.colors;
+  
+                for (var j = 0; j < colors.length; j++) {
+  
+                  var legendItem_default = {
+                    min: breaks[j],
+                    opacity: 0.8,
+                    max: breaks[j + 1],
+                    color: colors[j]
+                  };
+  
+                  pieces.push(legendItem_default);
+  
+                } 
+           }
+               
           }
 
           
@@ -1347,11 +1365,28 @@ angular
         }, 350);
       };
 
-      this.makeFeatureNameForPoiInIsochroneDiagram = function(poiGeoresource, geoJSONFeatureCollection, date){
-        return poiGeoresource.datasetName + " - " + date + " (" + geoJSONFeatureCollection.features.length + ")";
+      this.makeFeatureNameForPoiInIsochroneDiagram = function(poiGeoresource, value, date){
+        return poiGeoresource.datasetName + " - " + date + " (" + value + ")";
+      };
+
+      this.computeReachabilityAnalysisValue = function(poiGeoresource, geoJSONFeatureCollection){
+        var value = geoJSONFeatureCollection.features.length;
+
+        if (poiGeoresource.datasetName.includes("Einwohnerzahl")){
+          value = 0;
+
+          for (const feature of geoJSONFeatureCollection.features) {
+            value += Number(feature.properties["ANZAHL"]);
+          }
+        }
+
+        return value;
       };
 
       this.createInitialReachabilityAnalysisPieOptions = function(poiGeoresource, geoJSONFeatureCollection, rangeValue, date){
+
+        var value = this.computeReachabilityAnalysisValue(poiGeoresource, geoJSONFeatureCollection);
+
         var option = {
           grid: {
             left: '4%',
@@ -1417,7 +1452,7 @@ angular
               orient: 'vertical',
               type: "scroll",
               left: 0,
-              data: [this.makeFeatureNameForPoiInIsochroneDiagram(poiGeoresource, geoJSONFeatureCollection, date)]
+              data: [this.makeFeatureNameForPoiInIsochroneDiagram(poiGeoresource, value, date)]
               // data: [legendText]
           },
           series: [
@@ -1443,7 +1478,7 @@ angular
                       show: true
                   },
                   data: [
-                      {value: geoJSONFeatureCollection.features.length, name: this.makeFeatureNameForPoiInIsochroneDiagram(poiGeoresource, geoJSONFeatureCollection, date)}
+                      {value: value, name: this.makeFeatureNameForPoiInIsochroneDiagram(poiGeoresource, value, date)}
                   ]
               }
           ]
@@ -1453,8 +1488,11 @@ angular
       };
 
       this.appendToReachabilityAnalysisOptions = function(poiGeoresource, geoJSONFeatureCollection, eChartsOptions, date){
-        eChartsOptions.legend[0].data.push(this.makeFeatureNameForPoiInIsochroneDiagram(poiGeoresource, geoJSONFeatureCollection, date));
-        eChartsOptions.series[0].data.push({value: geoJSONFeatureCollection.features.length, name: this.makeFeatureNameForPoiInIsochroneDiagram(poiGeoresource, geoJSONFeatureCollection, date)});
+
+        var value = this.computeReachabilityAnalysisValue(poiGeoresource, geoJSONFeatureCollection);
+
+        eChartsOptions.legend[0].data.push(this.makeFeatureNameForPoiInIsochroneDiagram(poiGeoresource, value, date));
+        eChartsOptions.series[0].data.push({value: value, name: this.makeFeatureNameForPoiInIsochroneDiagram(poiGeoresource, value, date)});
 
         return eChartsOptions;
       };

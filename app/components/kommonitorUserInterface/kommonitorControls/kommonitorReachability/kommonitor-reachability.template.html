@@ -202,7 +202,7 @@
 									</div>
 									<div class="col-md-6 col-sm-6 col-xs-6">
 										<select style="font-size: 12px;" ng-model="settings.selectedStartPointLayer"
-											ng-options="poi as poi.datasetName for poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois()"
+											ng-options="poi as poi.datasetName for poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresources()"
 											ng-change="onChangeSelectedStartPointLayer()" class="form-control" required>
 											<option disabled selected value> -- Punkt-Layer w&auml;hlen -- </option>
 										</select>
