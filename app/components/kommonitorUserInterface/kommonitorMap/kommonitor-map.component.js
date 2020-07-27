@@ -893,9 +893,20 @@ angular.module('kommonitorMap').component(
 
         $scope.downloadIndicatorAsGeoJSON = function () {
 
-          var geoJSON_string = JSON.stringify(kommonitorDataExchangeService.selectedIndicator.geoJSON);
+          var fileName = kommonitorDataExchangeService.selectedIndicator.indicatorName + "_" + kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel;
 
-          var fileName = kommonitorDataExchangeService.selectedIndicator.indicatorName + "_" + kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel + "_" + kommonitorDataExchangeService.selectedDate + ".geojson";
+          var geoJSON_string;
+
+          if(kommonitorDataExchangeService.isBalanceChecked){
+            geoJSON_string = JSON.stringify(kommonitorDataExchangeService.indicatorAndMetadataAsBalance.geoJSON);
+            fileName += "_Bilanz" + $scope.currentIndicatorMetadataAndGeoJSON['fromDate'] + " - " + $scope.currentIndicatorMetadataAndGeoJSON['toDate'];
+          }
+          else{
+            geoJSON_string = JSON.stringify(kommonitorDataExchangeService.selectedIndicator.geoJSON);
+            fileName += "_" + kommonitorDataExchangeService.selectedDate;
+          }
+
+          fileName += ".geojson";
 
           var blob = new Blob([geoJSON_string], { type: "application/json" });
           var data = URL.createObjectURL(blob);
@@ -927,7 +938,7 @@ angular.module('kommonitorMap').component(
 
         $scope.downloadIndicatorAsShape = function () {
 
-          var folderName = kommonitorDataExchangeService.selectedIndicator.indicatorName + "_" + kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel + "_" + kommonitorDataExchangeService.selectedDate;
+          var folderName = kommonitorDataExchangeService.selectedIndicator.indicatorName + "_" + kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel;
           var polygonName = kommonitorDataExchangeService.selectedIndicator.indicatorName + "_" + kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel;
 
           var options = {
@@ -939,7 +950,16 @@ angular.module('kommonitorMap').component(
             }
           };
 
-          var geoJSON = jQuery.extend(true, {}, kommonitorDataExchangeService.selectedIndicator.geoJSON);
+          var geoJSON;
+
+          if(kommonitorDataExchangeService.isBalanceChecked){
+            geoJSON = jQuery.extend(true, {}, kommonitorDataExchangeService.indicatorAndMetadataAsBalance.geoJSON);
+            folderName += "_Bilanz_" + $scope.currentIndicatorMetadataAndGeoJSON['fromDate'] + " - " + $scope.currentIndicatorMetadataAndGeoJSON['toDate'];
+          }
+          else{
+            geoJSON = jQuery.extend(true, {}, kommonitorDataExchangeService.selectedIndicator.geoJSON);
+            folderName += "_" + kommonitorDataExchangeService.selectedDate;
+          }
 
           for (var feature of geoJSON.features) {
             var properties = feature.properties;
@@ -1413,6 +1433,8 @@ angular.module('kommonitorMap').component(
 
         $scope.appendColorGradientLegendItems = function(colorBrewInstance, opacity){
           var html = "";
+
+            if(colorBrewInstance && colorBrewInstance.breaks && colorBrewInstance.colors){
               var labelsIncrease = colorBrewInstance.breaks;
               var colorsIncrease = colorBrewInstance.colors;
 
@@ -1428,8 +1450,10 @@ angular.module('kommonitorMap').component(
                   '<div class="col-md-3 ">' + 
                   count + '</div></div>';
               }
+            }
+              
 
-              return html;
+          return html;
         };
 
         // $scope.appendDecreasingItems = function(colorBrewInstance, opacity){
