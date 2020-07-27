@@ -16,14 +16,14 @@
   window.__env.indicatorDatePrefix = "DATE_";
 
   // API url
-  window.__env.apiUrl = 'http://kommonitor.fbg-hsbo.de/management';
+  window.__env.apiUrl = 'http://kommonitor.rvr.de/data-management/management';
   // window.__env.apiUrl = 'http://localhost:8085/';
   // Base url
   window.__env.basePath = '';
 
-  window.__env.targetUrlToProcessingEngine = 'http://kommonitor.fbg-hsbo.de/processing/';
+  window.__env.targetUrlToProcessingEngine = 'http://kommonitor.rvr.de/processing-engine/processing';
   // window.__env.targetUrlToProcessingEngine = 'http://localhost:8086/processing/script-engine/customizableIndicatorComputation';
-  window.__env.targetUrlToReachabilityService_OTP = 'http://kommonitor.fbg-hsbo.de/opentripplanner';
+  window.__env.targetUrlToReachabilityService_OTP = 'http://kommonitor.rvr.de/opentripplanner';
 // window.__env.targetUrlToReachabilityService_OTP = 'http://localhost:8090/opentripplanner';
 
   // Open Route Service URL
@@ -31,7 +31,7 @@
   window.__env.targetUrlToReachabilityService_ORS = 'https://ors5.fbg-hsbo.de';
 
   // Data Imporert URL
-  window.__env.targetUrlToImporterService = 'http://kommonitor.fbg-hsbo.de/importer/';
+  window.__env.targetUrlToImporterService = 'http://kommonitor.rvr.de.de/importer/';
 
   // optional geometry simplification (a feature of Data Management API)
   window.__env.simplifyGeometriesParameterName = "simplifyGeometries";
@@ -98,7 +98,7 @@
 
   // array of indicator name substring that shal be used to filter out / hide certain indicators by their name
   // e.g. set ["entwicklung"] to hide all indicators whose name contains the substring "entwicklung"
-  window.__env.arrayOfNameSubstringsForHidingIndicators = ["Standardabweichung", "Bevölkerung - ", "Soziale Lage - ", "Soziale Lage (Leitindikator)", "Sterberisiko", "mittlerer Bodenversiegelungsgrad"];
+  window.__env.arrayOfNameSubstringsForHidingIndicators = ["Standardabweichung", "Bevölkerung - ", "Soziale Lage - ", "Soziale Lage (Leitindikator)", "Sterberisiko", "mittlerer Bodenversiegelungsgrad", "Kinder"];
   // window.__env.arrayOfNameSubstringsForHidingIndicators = [];
   
   window.__env.arrayOfNameSubstringsForHidingGeoresources = [];
