@@ -16,14 +16,14 @@
   window.__env.indicatorDatePrefix = "DATE_";
 
   // API url
-  window.__env.apiUrl = 'http://kommonitor.rvr.de/data-management/management';
+  window.__env.apiUrl = 'https://kommonitor.geoportal.ruhr/datamanagement/management';
   // window.__env.apiUrl = 'http://localhost:8085/';
   // Base url
   window.__env.basePath = '';
 
-  window.__env.targetUrlToProcessingEngine = 'http://kommonitor.rvr.de/processing-engine/processing';
+  window.__env.targetUrlToProcessingEngine = 'https://kommonitor.geoportal.ruhr/dataprocessing/processing/';
   // window.__env.targetUrlToProcessingEngine = 'http://localhost:8086/processing/script-engine/customizableIndicatorComputation';
-  window.__env.targetUrlToReachabilityService_OTP = 'http://kommonitor.rvr.de/opentripplanner';
+  window.__env.targetUrlToReachabilityService_OTP = 'https://kommonitor.geoportal.ruhr/opentripplanner';
 // window.__env.targetUrlToReachabilityService_OTP = 'http://localhost:8090/opentripplanner';
 
   // Open Route Service URL
@@ -31,7 +31,7 @@
   window.__env.targetUrlToReachabilityService_ORS = 'https://ors5.fbg-hsbo.de';
 
   // Data Imporert URL
-  window.__env.targetUrlToImporterService = 'http://kommonitor.rvr.de.de/importer/';
+  window.__env.targetUrlToImporterService = 'https://kommonitor.geoportal.ruhr/importer/';
 
   // optional geometry simplification (a feature of Data Management API)
   window.__env.simplifyGeometriesParameterName = "simplifyGeometries";
@@ -342,8 +342,8 @@
     },
     {
       title: "Bodennutzung - Bebauungsplanumringe",
-      description: "Umringe der Bebauungspl&auml;ne gem&auml;&szlig; geodaten.metropoleruhr.de",
-      url: "https://geodaten.metropoleruhr.de/inspire/bodennutzung/metropoleruhr?",
+      description: "Umringe der Bebauungspl&auml;ne gem&auml;&szlig; geodaten.metropoleruhr",
+      url: "https://geodaten.metropoleruhr/inspire/bodennutzung/metropoleruhr?",
       topicReference: null,
       layerName: "bplan"
     }
