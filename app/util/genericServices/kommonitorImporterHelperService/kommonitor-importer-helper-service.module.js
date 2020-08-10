@@ -365,7 +365,7 @@ angular
         return datasourceTypeDefinition;
       };
 
-      this.buildPropertyMapping_spatialResource = function(nameProperty, idPropety, validStartDateProperty, validEndDateProperty, arisenFromProperty, keepAttributes, attributeMappings_adminView){
+      this.buildPropertyMapping_spatialResource = function(nameProperty, idPropety, validStartDateProperty, validEndDateProperty, arisenFromProperty, keepAttributes, keepMissingValues, attributeMappings_adminView){
         if(validStartDateProperty === ""){
           validStartDateProperty = undefined;
         }
@@ -383,6 +383,7 @@ angular
           "validEndDateProperty": validStartDateProperty,
           "validStartDateProperty": validEndDateProperty,
           "keepAttributes": keepAttributes,
+          "keepMissingOrNullValueAttributes": keepMissingValues,
           "attributes": []
         };
 
@@ -401,12 +402,13 @@ angular
 
       };
 
-      this.buildPropertyMapping_indicatorResource = function(spatialReferenceKeyProperty, timeseriesMappings){
+      this.buildPropertyMapping_indicatorResource = function(spatialReferenceKeyProperty, timeseriesMappings, keepMissingOrNullValueIndicator){
 
         // attributeMapping is undefined for indicators
         return {
           "spatialReferenceKeyProperty": spatialReferenceKeyProperty,
           "timeseriesMappings": timeseriesMappings,
+          "keepMissingOrNullValueIndicator": keepMissingOrNullValueIndicator,
           "attributeMappings": undefined
         };
       };

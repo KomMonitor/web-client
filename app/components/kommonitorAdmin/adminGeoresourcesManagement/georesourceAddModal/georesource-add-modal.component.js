@@ -148,6 +148,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			$scope.attributeMapping_attributeType = kommonitorImporterHelperService.attributeMapping_attributeTypes[0];
 			$scope.attributeMappings_adminView = [];
 			$scope.keepAttributes = true;
+			$scope.keepMissingValues = true;
 
 		$scope.successMessagePart = undefined;
 		$scope.errorMessagePart = undefined;
@@ -269,6 +270,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			$scope.attributeMapping_attributeType = kommonitorImporterHelperService.attributeMapping_attributeTypes[0];
 			$scope.attributeMappings_adminView = [];
 			$scope.keepAttributes = true;
+			$scope.keepMissingValues = true;
 
 			setTimeout(() => {
 				$scope.$apply();	
@@ -424,7 +426,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 
 		$scope.buildPropertyMappingDefinition = function(){
 			// arsion from is undefined currently
-			return kommonitorImporterHelperService.buildPropertyMapping_spatialResource($scope.georesourceDataSourceNameProperty, $scope.georesourceDataSourceIdProperty, $scope.validityStartDate_perFeature, $scope.validityEndDate_perFeature, undefined, $scope.keepAttributes, $scope.attributeMappings_adminView);
+			return kommonitorImporterHelperService.buildPropertyMapping_spatialResource($scope.georesourceDataSourceNameProperty, $scope.georesourceDataSourceIdProperty, $scope.validityStartDate_perFeature, $scope.validityEndDate_perFeature, undefined, $scope.keepAttributes, $scope.keepMissingValues, $scope.attributeMappings_adminView);
 		};
 
 		$scope.buildPostBody_georesources = function(){
@@ -967,6 +969,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 				$scope.validityStartDate_perFeature  = $scope.mappingConfigImportSettings.propertyMapping.validStartDateProperty;
 				$scope.validityEndDate_perFeature  = $scope.mappingConfigImportSettings.propertyMapping.validEndDateProperty;
 				$scope.keepAttributes  = $scope.mappingConfigImportSettings.propertyMapping.keepAttributes;
+				$scope.keepMissingValues = $scope.mappingConfigImportSettings.propertyMapping.keepMissingOrNullValueAttributes;
 				$scope.attributeMappings_adminView = [];
 
 				for (var attributeMapping of $scope.mappingConfigImportSettings.propertyMapping.attributes) {
