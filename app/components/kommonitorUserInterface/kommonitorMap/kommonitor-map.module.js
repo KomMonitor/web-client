@@ -173,9 +173,9 @@ angular.module('kommonitorMap').service(
             dataset);
       };
 
-      this.addWfsLayerToMap = function (dataset, opacity) {
+      this.addWfsLayerToMap = function (dataset, opacity, useCluster) {
         $rootScope.$broadcast("addWfsLayerToMap",
-            dataset);
+            dataset, opacity, useCluster);
       };
 
       this.adjustOpacityForWfsLayer = function (dataset, opacity) {

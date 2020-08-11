@@ -25,7 +25,12 @@ appModule.
     function config($routeProvider) {
       $routeProvider.
         when('/', {
-          template: '<kommonitor-user-interface></kommonitor-user-interface>'
+          template: '<kommonitor-user-interface></kommonitor-user-interface>',
+          resolve: {
+            'ControlsConfigService':function(ControlsConfigService){
+              return ControlsConfigService.promise;
+            }
+          }
         }).
         when('/administration', {
           template: '<kommonitor-admin></kommonitor-admin>',
@@ -37,7 +42,6 @@ appModule.
                 } else {
                   return $q.reject('Not Authenticated');
                 }
-                
               }
               else {
                 Auth.keycloak.login({
@@ -108,6 +112,24 @@ appModule.factory('authInterceptor', function ($q, Auth) {
       } else {
         return config;
       }
+    }
+  };
+});
+
+appModule.service('ControlsConfigService', function($http) {
+  var config = null;
+
+  var promise = $http.get('controls-config.json').then(function (response) {
+    config = response.data;
+  });
+
+  return {
+    promise:promise,
+    setData: function (response) {
+      config = response.data;
+    },
+    getControlsConfig: function () {
+        return config;
     }
   };
 });

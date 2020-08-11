@@ -1262,7 +1262,9 @@ angular
 	
 							poi = await $scope.handlePoiOnDiagram(poi);
 	
-							$scope.handlePoiOnMap(poi);
+							if(kommonitorDataExchangeService.isDisplayableGeoresource(poi)){
+								$scope.handlePoiOnMap(poi);
+							}							
 						} catch (error) {
 							console.error(error);
 						}

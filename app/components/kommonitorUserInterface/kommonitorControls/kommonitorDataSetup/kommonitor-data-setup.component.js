@@ -271,13 +271,26 @@ angular
 
 										for (var index=0; index < kommonitorDataExchangeService.availableIndicators.length; index++){
 											if (kommonitorDataExchangeService.availableIndicators[index].indicatorId === initialIndicatorId){
-												indicatorIndex = index;
-												break;
+												if(kommonitorDataExchangeService.availableIndicators[index].applicableDates.length > 0){
+													indicatorIndex = index;
+													break;
+												}											
 											}
 										}
 
 										if( indicatorIndex === undefined){
-												indicatorIndex = getRandomInt(0, kommonitorDataExchangeService.availableIndicators.length - 1);
+												for(var t=0; t < 75; t++){
+													
+													var randIndex = getRandomInt(0, kommonitorDataExchangeService.availableIndicators.length - 1);
+													if (kommonitorDataExchangeService.availableIndicators[randIndex].applicableDates.length > 0){
+														indicatorIndex = randIndex;
+														break;
+													}													
+												}
+										}
+
+										if( indicatorIndex === undefined){
+											throw Error();
 										}
 
 										kommonitorDataExchangeService.selectedIndicator = kommonitorDataExchangeService.availableIndicators[indicatorIndex];
@@ -299,9 +312,9 @@ angular
 
 									}
 									catch(error){
-										console.error("Kein darstellbarer Indikator konnte gefunden werden.");
+										console.error("Initiales Darstellen eines Indikators ist gescheitert.");
 
-										kommonitorDataExchangeService.displayMapApplicationError("Kein darstellbarer Indikator konnte gefunden werden.");										
+										kommonitorDataExchangeService.displayMapApplicationError("Initiales Darstellen eines Indikators ist gescheitert.");										
 										$scope.loadingData = false;
 										$scope.$broadcast("hideLoadingIconOnMap");
 

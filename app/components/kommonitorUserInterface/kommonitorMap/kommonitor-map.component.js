@@ -893,9 +893,20 @@ angular.module('kommonitorMap').component(
 
         $scope.downloadIndicatorAsGeoJSON = function () {
 
-          var geoJSON_string = JSON.stringify(kommonitorDataExchangeService.selectedIndicator.geoJSON);
+          var fileName = kommonitorDataExchangeService.selectedIndicator.indicatorName + "_" + kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel;
 
-          var fileName = kommonitorDataExchangeService.selectedIndicator.indicatorName + "_" + kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel + "_" + kommonitorDataExchangeService.selectedDate + ".geojson";
+          var geoJSON_string;
+
+          if(kommonitorDataExchangeService.isBalanceChecked){
+            geoJSON_string = JSON.stringify(kommonitorDataExchangeService.indicatorAndMetadataAsBalance.geoJSON);
+            fileName += "_Bilanz" + $scope.currentIndicatorMetadataAndGeoJSON['fromDate'] + " - " + $scope.currentIndicatorMetadataAndGeoJSON['toDate'];
+          }
+          else{
+            geoJSON_string = JSON.stringify(kommonitorDataExchangeService.selectedIndicator.geoJSON);
+            fileName += "_" + kommonitorDataExchangeService.selectedDate;
+          }
+
+          fileName += ".geojson";
 
           var blob = new Blob([geoJSON_string], { type: "application/json" });
           var data = URL.createObjectURL(blob);
@@ -927,7 +938,7 @@ angular.module('kommonitorMap').component(
 
         $scope.downloadIndicatorAsShape = function () {
 
-          var folderName = kommonitorDataExchangeService.selectedIndicator.indicatorName + "_" + kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel + "_" + kommonitorDataExchangeService.selectedDate;
+          var folderName = kommonitorDataExchangeService.selectedIndicator.indicatorName + "_" + kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel;
           var polygonName = kommonitorDataExchangeService.selectedIndicator.indicatorName + "_" + kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel;
 
           var options = {
@@ -939,7 +950,16 @@ angular.module('kommonitorMap').component(
             }
           };
 
-          var geoJSON = jQuery.extend(true, {}, kommonitorDataExchangeService.selectedIndicator.geoJSON);
+          var geoJSON;
+
+          if(kommonitorDataExchangeService.isBalanceChecked){
+            geoJSON = jQuery.extend(true, {}, kommonitorDataExchangeService.indicatorAndMetadataAsBalance.geoJSON);
+            folderName += "_Bilanz_" + $scope.currentIndicatorMetadataAndGeoJSON['fromDate'] + " - " + $scope.currentIndicatorMetadataAndGeoJSON['toDate'];
+          }
+          else{
+            geoJSON = jQuery.extend(true, {}, kommonitorDataExchangeService.selectedIndicator.geoJSON);
+            folderName += "_" + kommonitorDataExchangeService.selectedDate;
+          }
 
           for (var feature of geoJSON.features) {
             var properties = feature.properties;
@@ -1413,6 +1433,8 @@ angular.module('kommonitorMap').component(
 
         $scope.appendColorGradientLegendItems = function(colorBrewInstance, opacity){
           var html = "";
+
+            if(colorBrewInstance && colorBrewInstance.breaks && colorBrewInstance.colors){
               var labelsIncrease = colorBrewInstance.breaks;
               var colorsIncrease = colorBrewInstance.colors;
 
@@ -1428,8 +1450,10 @@ angular.module('kommonitorMap').component(
                   '<div class="col-md-3 ">' + 
                   count + '</div></div>';
               }
+            }
+              
 
-              return html;
+          return html;
         };
 
         // $scope.appendDecreasingItems = function(colorBrewInstance, opacity){
@@ -2368,6 +2392,23 @@ angular.module('kommonitorMap').component(
           $scope.map.invalidateSize(true);
         });
 
+        var createCustomMarkersFromWfsPoints = function(wfsLayer, poiMarkerLayer, dataset){
+          for (var layerPropName in wfsLayer._layers){
+            var geoJSONFeature = wfsLayer._layers[layerPropName].feature;
+            var latlng = wfsLayer._layers[layerPropName]._latlng;
+
+            geoJSONFeature.geometry = {
+              type: "Point",
+              coordinates: [latlng.lng, latlng.lat]
+            };
+
+            var customMarker = createCustomMarker(geoJSONFeature, dataset.poiSymbolColor, dataset.poiMarkerColor, dataset.poiSymbolBootstrap3Name, dataset);
+            poiMarkerLayer = addPoiMarker(poiMarkerLayer, customMarker);
+          }
+
+          return poiMarkerLayer;
+        };
+
         var createCustomMarker = function(poiFeature, poiSymbolColor, poiMarkerColor, poiSymbolBootstrap3Name, metadataObject){
           var customMarker;
           try {
@@ -2823,7 +2864,35 @@ angular.module('kommonitorMap').component(
 
         };
 
-        $scope.$on("addWfsLayerToMap", function (event, dataset, opacity) {
+        $scope.getFilterEncoding = function(dataset){
+
+          var filterExpressions = [];
+
+          if(dataset.filterEncoding.PropertyIsEqualTo && dataset.filterEncoding.PropertyIsEqualTo.propertyName && dataset.filterEncoding.PropertyIsEqualTo.propertyValue){
+            filterExpressions.push(new L.Filter.EQ(dataset.filterEncoding.PropertyIsEqualTo.propertyName, dataset.filterEncoding.PropertyIsEqualTo.propertyValue));
+          }
+
+          if (dataset.filterFeaturesToMapBBOX) {
+            filterExpressions.push(new L.Filter.BBox(dataset.featureTypeGeometryName, $scope.map.getBounds(), L.CRS.EPSG3857));
+          }
+
+          if (filterExpressions.length < 2){
+            return filterExpressions;
+          }
+          else{
+            // var stringifiedFilterExpressions = [];
+
+            // for (const filterExpr of filterExpressions) {
+            //   stringifiedFilterExpressions.push(L.XmlUtil.serializeXmlDocumentString(filterExpr.toGml()));
+            // }
+
+            // return new L.Filter.And(...stringifiedFilterExpressions);
+            return new L.Filter.And(...filterExpressions);
+          }          
+          
+        };
+
+        $scope.$on("addWfsLayerToMap", function (event, dataset, opacity, useCluster) {
           var wfsLayerOptions = {
             url: dataset.url,
             typeNS: dataset.featureTypeNamespace,
@@ -2834,22 +2903,39 @@ angular.module('kommonitorMap').component(
             style: getWfsStyle(dataset, opacity)
           };
 
-          if (dataset.filterFeaturesToMapBBOX) {
-            wfsLayerOptions.filter = new L.Filter.BBox(dataset.featureTypeGeometryName, $scope.map.getBounds(), L.CRS.EPSG3857);
-          }
+          wfsLayerOptions.filter = $scope.getFilterEncoding(dataset);          
 
           var wfsLayer;
+          var poiMarkerLayer;
 
           if(dataset.geometryType === "POI"){
 
-            wfsLayer = new L.WFS(wfsLayerOptions, new L.Format.GeoJSON({
-              crs: L.CRS.EPSG3857,
-              pointToLayer(geoJsonPoint, latlng) {
-                geoJsonPoint.geometry.coordinates[0] = latlng.lng;
-                geoJsonPoint.geometry.coordinates[1] = latlng.lat; 
-                return createCustomMarker(geoJsonPoint, dataset.poiSymbolColor, dataset.poiMarkerColor, dataset.poiSymbolBootstrap3Name, dataset);
-              },
-            }));
+            if (useCluster) {
+              poiMarkerLayer = L.markerClusterGroup({
+                iconCreateFunction: function (cluster) {
+                  var childCount = cluster.getChildCount();
+
+                  var c = 'cluster-';
+                  if (childCount < 10) {
+                    c += 'small';
+                  } else if (childCount < 30) {
+                    c += 'medium';
+                  } else {
+                    c += 'large';
+                  }
+
+                  var className = "marker-cluster " + c + " awesome-marker-legend-TransparentIcon-" + dataset.poiMarkerColor;
+
+                  //'marker-cluster' + c + ' ' +
+                  return new L.DivIcon({ html: '<div class="awesome-marker-legend-icon-' + dataset.poiMarkerColor + '" ><span>' + childCount + '</span></div>', className: className, iconSize: new L.Point(40, 40) });
+                }
+              });
+            }
+            else {
+              poiMarkerLayer = L.layerGroup();
+            } 
+
+            wfsLayer = new L.WFS(wfsLayerOptions);
           }
           else{
             wfsLayer = new L.WFS(wfsLayerOptions);
@@ -2857,6 +2943,10 @@ angular.module('kommonitorMap').component(
 
           try {
             wfsLayer.once('load', function () {
+
+              if(dataset.geometryType === "POI"){
+                poiMarkerLayer = createCustomMarkersFromWfsPoints(wfsLayer, poiMarkerLayer, dataset);
+              }
 
               console.log("Try to fit bounds on wfsLayer");
               $scope.map.fitBounds(wfsLayer.getBounds());
@@ -2882,8 +2972,14 @@ angular.module('kommonitorMap').component(
                 .setContent(popupContent)
                 .openOn($scope.map);
             });
-            $scope.layerControl.addOverlay(wfsLayer, dataset.title, wfsLayerGroupName);
-            wfsLayer.addTo($scope.map);
+            if(poiMarkerLayer){
+              $scope.layerControl.addOverlay(poiMarkerLayer, dataset.title, wfsLayerGroupName);
+              poiMarkerLayer.addTo($scope.map);
+            }
+            else{
+              $scope.layerControl.addOverlay(wfsLayer, dataset.title, wfsLayerGroupName);
+              wfsLayer.addTo($scope.map);
+            }            
             $scope.updateSearchControl();
 
           }

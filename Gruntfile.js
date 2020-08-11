@@ -89,7 +89,6 @@ module.exports = function (grunt) {
             'app/components/kommonitorUserInterface/kommonitorControls/reportingModal/reportingAddIndicatorModal/reporting-add-indicator-modal.component.js',
             'app/components/kommonitorUserInterface/kommonitor-user-interface.module.js',
             'app/components/kommonitorUserInterface/kommonitor-user-interface.component.js',
-            'app/env.js',
             'app/app.js'
         ],
         kommonitor_styles: [
@@ -102,7 +101,9 @@ module.exports = function (grunt) {
             'logos/**/*',
             'components/**/*.template.html',
             'keycloak.json',
-            'Datatables.Language.German.json'
+            'Datatables.Language.German.json',
+            'env.js',
+            'controls-config.json'
         ],
 
         // babel: {
