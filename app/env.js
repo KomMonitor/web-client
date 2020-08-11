@@ -16,22 +16,22 @@
   window.__env.indicatorDatePrefix = "DATE_";
 
   // API url
-  window.__env.apiUrl = 'http://kommonitor.fbg-hsbo.de/management';
-  // window.__env.apiUrl = 'http://localhost:8085/';
+  window.__env.apiUrl = 'https://kommonitor.fbg-hsbo.de/management';
+  // window.__env.apiUrl = 'https://localhost:8085/';
   // Base url
   window.__env.basePath = '';
 
-  window.__env.targetUrlToProcessingEngine = 'http://kommonitor.fbg-hsbo.de/processing/';
-  // window.__env.targetUrlToProcessingEngine = 'http://localhost:8086/processing/script-engine/customizableIndicatorComputation';
-  window.__env.targetUrlToReachabilityService_OTP = 'http://kommonitor.fbg-hsbo.de/opentripplanner';
-// window.__env.targetUrlToReachabilityService_OTP = 'http://localhost:8090/opentripplanner';
+  window.__env.targetUrlToProcessingEngine = 'https://kommonitor.fbg-hsbo.de/processing/';
+  // window.__env.targetUrlToProcessingEngine = 'https://localhost:8086/processing/script-engine/customizableIndicatorComputation';
+  window.__env.targetUrlToReachabilityService_OTP = 'https://kommonitor.fbg-hsbo.de/opentripplanner';
+// window.__env.targetUrlToReachabilityService_OTP = 'https://localhost:8090/opentripplanner';
 
   // Open Route Service URL
-    // window.__env.apiUrl = 'http://kommonitor.fbg-hsbo.de/openrouteservice';
+    // window.__env.apiUrl = 'https://kommonitor.fbg-hsbo.de/openrouteservice';
   window.__env.targetUrlToReachabilityService_ORS = 'https://ors5.fbg-hsbo.de';
 
   // Data Imporert URL
-  window.__env.targetUrlToImporterService = 'http://kommonitor.fbg-hsbo.de/importer/';
+  window.__env.targetUrlToImporterService = 'https://kommonitor.fbg-hsbo.de/importer/';
 
   // optional geometry simplification (a feature of Data Management API)
   window.__env.simplifyGeometriesParameterName = "simplifyGeometries";
