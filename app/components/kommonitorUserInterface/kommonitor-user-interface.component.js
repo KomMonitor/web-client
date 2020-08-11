@@ -1,6 +1,6 @@
 angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 	templateUrl : "components/kommonitorUserInterface/kommonitor-user-interface.template.html",
-	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '$location', 'Auth', function UserInterfaceController(kommonitorDataExchangeService, $scope, $rootScope, $location, Auth) {
+	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '$location', 'Auth', 'ControlsConfigService', function UserInterfaceController(kommonitorDataExchangeService, $scope, $rootScope, $location, Auth, ControlsConfigService) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
@@ -20,6 +20,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			kommonitorDataExchangeService.fetchAllMetadata();
 
 			checkAuthentication();
+			$scope.widgetAccessibility = getWidgetAccessibility();
 		};
 
 		// initialize any adminLTE box widgets
@@ -96,6 +97,34 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 					$scope.showAdminLogin = true;
 				}
 			}
+		}
+
+		var checkWidgetAccessibility = function(id) {
+			var widget = ControlsConfigService.getControlsConfig().filter(widget => widget.id === id)[0];
+			if(widget.roles === undefined || widget.roles.length === 0) {
+				return true;
+			}
+			else if(Auth.keycloak.authenticated) {
+				var hasAllowedRole = false;
+				for (var i = 0; i < widget.roles.length; i++) {
+					if(Auth.keycloak.tokenParsed.realm_access.roles.includes(widget.roles[i])){
+						return true;
+					}	
+				}
+				return hasAllowedRole;
+			} else {
+				return false;
+			}
+		}
+
+		var getWidgetAccessibility = function() {
+			var widgetAccessibility = {};
+			var config = ControlsConfigService.getControlsConfig();
+			config.forEach(widget => {
+				widgetAccessibility[widget.id] = checkWidgetAccessibility(widget.id);
+			});
+			
+			return widgetAccessibility;
 		}
 
 		$scope.openAdminUI = function () {
