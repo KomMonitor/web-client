@@ -102,7 +102,8 @@ module.exports = function (grunt) {
             'components/**/*.template.html',
             'keycloak.json',
             'Datatables.Language.German.json',
-            'env.js'
+            'env.js',
+            'controls-config.json'
         ],
 
         // babel: {
