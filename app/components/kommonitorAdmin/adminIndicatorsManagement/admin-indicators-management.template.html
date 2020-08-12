@@ -119,8 +119,8 @@
 							$ctrl.kommonitorDataExchangeServiceInstance.getTopicHierarchyDisplayString(indicatorDataset.topicReference)}}</p></td>
 						<td>
 							<ul style="columns: 2; 	-webkit-columns: 2;	-moz-columns: 2;">
-								<li style="margin-right: 15px;" ng-repeat="spatialUnitName in indicatorDataset.applicableSpatialUnits">
-									{{spatialUnitName}}
+								<li style="margin-right: 15px;" ng-repeat="applicableSpatialUnit in indicatorDataset.applicableSpatialUnits">
+									{{applicableSpatialUnit.spatialUnitName}}
 								</li>
 							</ul>
 						</td>

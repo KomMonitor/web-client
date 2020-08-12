@@ -199,9 +199,8 @@ angular
 
 										try{
 											var applicableSpatialUnits = kommonitorDataExchangeService.selectedIndicator.applicableSpatialUnits;
-											var spatialUnitName = item.spatialUnitLevel;
-
-											return applicableSpatialUnits.includes(spatialUnitName);
+											
+											return applicableSpatialUnits.some(o => o.spatialUnitName === item.spatialUnitLevel);
 										}
 										catch(error){
 											return false;
@@ -216,11 +215,11 @@ angular
 										var applicableSpatialUnits = kommonitorDataExchangeService.selectedIndicator.applicableSpatialUnits;
 
 										for (const spatialUnitEntry of kommonitorDataExchangeService.availableSpatialUnits){
-											if(applicableSpatialUnits.includes(spatialUnitEntry.spatialUnitLevel)){
+											if(applicableSpatialUnits.some(o => o.spatialUnitName === spatialUnitEntry.spatialUnitLevel)){
 												result = spatialUnitEntry;
 												break;
 											}
-										};
+										}
 
 										return result;
 								};
@@ -678,7 +677,7 @@ angular
 
 										$scope.setupDateSliderForIndicator();
 
-										if(!kommonitorDataExchangeService.selectedSpatialUnit || !kommonitorDataExchangeService.selectedIndicator.applicableSpatialUnits.includes(kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel)){
+										if(!kommonitorDataExchangeService.selectedSpatialUnit || !kommonitorDataExchangeService.selectedIndicator.applicableSpatialUnits.some(o => o.spatialUnitName === kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel)){
 											kommonitorDataExchangeService.selectedSpatialUnit = $scope.getFirstSpatialUnitForSelectedIndicator();
 										}
 

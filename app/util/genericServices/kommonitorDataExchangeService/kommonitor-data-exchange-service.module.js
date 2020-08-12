@@ -1337,7 +1337,7 @@ angular
   
               for (var applicableSpatialUnit of indicator.applicableSpatialUnits) {
   
-                if (availableSpatialUnit.spatialUnitLevel === applicableSpatialUnit) {
+                if (availableSpatialUnit.spatialUnitLevel === applicableSpatialUnit.spatialUnitName) {
                   spatialUnitsString += applicableSpatialUnit;
                   processedSpatialUnits++;
   

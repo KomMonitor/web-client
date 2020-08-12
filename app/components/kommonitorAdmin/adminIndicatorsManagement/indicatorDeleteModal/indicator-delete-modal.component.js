@@ -101,7 +101,7 @@ angular.module('indicatorDeleteModal').component('indicatorDeleteModal', {
 
 				$scope.currentApplicableSpatialUnits = [];
 				for (const spatialUnitMetadata of kommonitorDataExchangeService.availableSpatialUnits) {
-					if($scope.selectedIndicatorDataset.applicableSpatialUnits && $scope.selectedIndicatorDataset.applicableSpatialUnits.includes(spatialUnitMetadata.spatialUnitLevel))
+					if($scope.selectedIndicatorDataset.applicableSpatialUnits && $scope.selectedIndicatorDataset.applicableSpatialUnits.some(o => o.spatialUnitName === spatialUnitMetadata.spatialUnitLevel))
 					
 					$scope.currentApplicableSpatialUnits.push({
 						"spatialUnitMetadata": spatialUnitMetadata,

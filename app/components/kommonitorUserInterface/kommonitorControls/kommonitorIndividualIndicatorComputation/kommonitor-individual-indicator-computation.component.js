@@ -374,10 +374,10 @@ angular
 								var applicableSpatialUnits = $scope.targetIndicator.applicableSpatialUnits;
 
 								for (const spatialUnitEntry of kommonitorDataExchangeService.availableSpatialUnits){
-									if(applicableSpatialUnits.includes(spatialUnitEntry.spatialUnitLevel))
+									if(applicableSpatialUnits.some(o => o.spatialUnitName === spatialUnitEntry.spatialUnitLevel))
 										result = spatialUnitEntry;
 										break;
-								};
+								}
 
 								return result;
 						};

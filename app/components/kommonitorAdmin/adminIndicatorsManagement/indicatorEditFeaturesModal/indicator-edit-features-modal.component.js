@@ -116,7 +116,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 			$scope.filterOverviewTargetSpatialUnits = function(){
 				return function( spatialUnitMetadata ) {
 					if($scope.currentIndicatorDataset){
-						var isIncluded = $scope.currentIndicatorDataset.applicableSpatialUnits.includes(spatialUnitMetadata.spatialUnitLevel);
+						var isIncluded = $scope.currentIndicatorDataset.applicableSpatialUnits.some(o => o.spatialUnitName === spatialUnitMetadata.spatialUnitLevel);
 						return isIncluded;
 					}
 				  };
@@ -203,7 +203,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 
 				$scope.overviewTableTargetSpatialUnitMetadata = undefined;
 				for (const spatialUnitMetadataEntry of kommonitorDataExchangeService.availableSpatialUnits) {
-					if($scope.currentIndicatorDataset.applicableSpatialUnits.includes(spatialUnitMetadataEntry.spatialUnitLevel)){
+					if($scope.currentIndicatorDataset.applicableSpatialUnits.some(o => o.spatialUnitName === spatialUnitMetadataEntry.spatialUnitLevel)){
 						$scope.overviewTableTargetSpatialUnitMetadata = spatialUnitMetadataEntry;
 						break;
 					}					
