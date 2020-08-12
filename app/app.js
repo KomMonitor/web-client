@@ -20,6 +20,26 @@ if(window){
 // Declare app level module which depends on views, and components
 var appModule = angular.module('kommonitorClient', [ 'ngRoute', 'kommonitorUserInterface', 'kommonitorAdmin']);
 
+var controlsServiceName = 'ControlsConfigService';
+
+appModule.service(controlsServiceName, ['$http', function($http) {
+  window.__env.config = null;
+
+  var promise = $http.get('controls-config.json').then(function (response) {
+    window.__env.config = response.data;
+  });
+
+  return {
+    promise:promise,
+    setData: function (response) {
+      window.__env.config = response.data;
+    },
+    getControlsConfig: function () {
+        return window.__env.config;
+    }
+  };
+}]);
+
 appModule.
   config(['$routeProvider',
     function config($routeProvider) {
@@ -27,7 +47,7 @@ appModule.
         when('/', {
           template: '<kommonitor-user-interface></kommonitor-user-interface>',
           resolve: {
-            'ControlsConfigService':function(ControlsConfigService){
+            controlsServiceName: function(ControlsConfigService){
               return ControlsConfigService.promise;
             }
           }
@@ -96,7 +116,7 @@ angular.element(document).ready(function ($http) {
 
 });
 
-appModule.factory('authInterceptor', function ($q, Auth) {
+appModule.factory('authInterceptor', ['$q', 'Auth', function ($q, Auth) {
   return {
     request: function (config) {
       var deferred = $q.defer();
@@ -114,26 +134,8 @@ appModule.factory('authInterceptor', function ($q, Auth) {
       }
     }
   };
-});
+}]);
 
-appModule.service('ControlsConfigService', function($http) {
-  var config = null;
-
-  var promise = $http.get('controls-config.json').then(function (response) {
-    config = response.data;
-  });
-
-  return {
-    promise:promise,
-    setData: function (response) {
-      config = response.data;
-    },
-    getControlsConfig: function () {
-        return config;
-    }
-  };
-});
-
-appModule.config(function ($httpProvider) {
+appModule.config(['$httpProvider', function ($httpProvider) {
   $httpProvider.interceptors.push('authInterceptor');
-});
+}]);
