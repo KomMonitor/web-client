@@ -97,7 +97,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 					$scope.showAdminLogin = true;
 				}
 			}
-		}
+		};
 
 		var checkWidgetAccessibility = function(id) {
 			var widget = ControlsConfigService.getControlsConfig().filter(widget => widget.id === id)[0];
