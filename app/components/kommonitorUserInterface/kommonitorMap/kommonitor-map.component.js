@@ -773,7 +773,7 @@ angular.module('kommonitorMap').component(
           //
           // for (var option of kommonitorDataExchangeService.availableSpatialUnits){
           //
-          //   if (kommonitorDataExchangeService.selectedIndicator.applicableSpatialUnits.includes(option.spatialUnitLevel)){
+          //   if (kommonitorDataExchangeService.selectedIndicator.applicableSpatialUnits.some(o => o.spatialUnitName ===  option.spatialUnitLevel)){
           //     innerHTMLString += ' <option value="' + option.spatialUnitLevel + '" ';
           //     if (kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel === option.spatialUnitLevel){
           //       innerHTMLString +=' selected ';
@@ -805,7 +805,7 @@ angular.module('kommonitorMap').component(
 
           for (var option of kommonitorDataExchangeService.availableSpatialUnits) {
 
-            if (kommonitorDataExchangeService.selectedIndicator.applicableSpatialUnits.includes(option.spatialUnitLevel)) {
+            if (kommonitorDataExchangeService.selectedIndicator.applicableSpatialUnits.some(o => o.spatialUnitName ===  option.spatialUnitLevel)) {
               innerHTMLString += ' <li><p style="cursor: pointer; font-size:12px;">' + option.spatialUnitLevel;
               innerHTMLString += '</p></li>';
             }
