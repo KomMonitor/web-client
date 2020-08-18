@@ -9,7 +9,7 @@
     },
     {
         "id": "dataImport",
-        "roles": ["b05d4724-5ac9-4c3f-842c-e3e9a906defd"]
+        "roles": ["administrator"]
     },
     {
         "id": "filter",
@@ -41,6 +41,6 @@
     },
     {
         "id": "processing",
-        "roles": ["b05d4724-5ac9-4c3f-842c-e3e9a906defd"]
+        "roles": ["administrator", "verwaltung"]
     }
 ]
