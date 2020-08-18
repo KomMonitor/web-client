@@ -35,14 +35,41 @@ angular
               const spatialUnitsProtectedEndpoint = "/spatial-units";
               const indicatorsPublicEndpoint = "/public/indicators";
               const indicatorsProtectedEndpoint = "/indicators";
+              const scriptsPublicEndpoint = "/public/process-scripts";
+              const scriptsProtectedEndpoint = "/process-scripts";
               const topicsPublicEndpoint = "/public/topics";
+              // only resource that has no public endpoint
+              const rolesEndpoint = "/roles";
 
               var georesourcesEndpoint = georesourcesProtectedEndpoint;
               var spatialUnitsEndpoint = spatialUnitsProtectedEndpoint;
               var indicatorsEndpoint = indicatorsProtectedEndpoint;
+              var scriptsEndpoint = scriptsProtectedEndpoint;
               this.spatialResourceGETUrlPath_forAuthentication = "/public";
 
           var self = this;
+
+          this.currentLoginRoles = undefined;
+
+          this.isAllowedSpatialUnitForCurrentIndicator = function(spatialUnitMetadata){
+            var isAllowed = false;
+            
+            var roleMetadataForCurrentLoginRoles = this.availableRoles.filter(role => this.currentLoginRoles.includes(role.roleName));            
+            
+            var filteredApplicableUnits = this.selectedIndicator.applicableSpatialUnits.filter(function (applicableSpatialUnit) {
+              if (applicableSpatialUnit.spatialUnitName ===  spatialUnitMetadata.spatialUnitLevel){
+                if (applicableSpatialUnit.allowedRoles.length == 0){
+                  return true;
+                }
+                else{
+                  return applicableSpatialUnit.allowedRoles.some(allowedRoleId => roleMetadataForCurrentLoginRoles.some(roleMetadata => roleMetadata.roleId === allowedRoleId) );
+                }
+              }              
+              
+            });
+
+            return filteredApplicableUnits.length > 0;
+          };
 
           this.FEATURE_ID_PROPERTY_NAME = __env.FEATURE_ID_PROPERTY_NAME;
           this.FEATURE_NAME_PROPERTY_NAME = __env.FEATURE_NAME_PROPERTY_NAME;
@@ -177,11 +204,13 @@ angular
               georesourcesEndpoint = georesourcesProtectedEndpoint;
               spatialUnitsEndpoint = spatialUnitsProtectedEndpoint;
               indicatorsEndpoint = indicatorsProtectedEndpoint;
+              scriptsEndpoint = scriptsProtectedEndpoint;
               this.spatialResourceGETUrlPath_forAuthentication = "";
             } else{
               georesourcesEndpoint = georesourcesPublicEndpoint;
               spatialUnitsEndpoint = spatialUnitsPublicEndpoint;
               indicatorsEndpoint = indicatorsPublicEndpoint;
+              scriptsEndpoint = scriptsPublicEndpoint;
               this.spatialResourceGETUrlPath_forAuthentication = "/public";
             }
 
@@ -659,16 +688,20 @@ angular
             console.log("fetching all metadata from management component");
 
             //TODO revise metadata fecthing for protected endpoints
-            // var usersPromise = this.fetchUsersMetadata();
-            // var rolesPromise = this.fetchRolesMetadata();
-            // var scriptsPromise = this.fetchIndicatorScriptsMetadata();
+            // var usersPromise = this.fetchUsersMetadata();            
+            var scriptsPromise = this.fetchIndicatorScriptsMetadata();
             var topicsPromise = this.fetchTopicsMetadata();
             var spatialUnitsPromise = this.fetchSpatialUnitsMetadata();
             var georesourcesPromise = this.fetchGeoresourcesMetadata();
             var indicatorsPromise = this.fetchIndicatorsMetadata();
             
             // var metadataPromises = [topicsPromise, usersPromise, rolesPromise, spatialUnitsPromise, georesourcesPromise, indicatorsPromise, scriptsPromise];
-            var metadataPromises = [spatialUnitsPromise, georesourcesPromise, indicatorsPromise, topicsPromise];
+            var metadataPromises = [spatialUnitsPromise, georesourcesPromise, indicatorsPromise, topicsPromise, scriptsPromise];
+
+            if (Auth.keycloak.authenticated){
+              var rolesPromise = this.fetchRolesMetadata();
+              metadataPromises.push(rolesPromise);
+            }
 
             $q.all(metadataPromises).then(function successCallback(successArray) {
 
@@ -701,7 +734,7 @@ angular
 
           this.fetchRolesMetadata = function(){
             return $http({
-              url: this.baseUrlToKomMonitorDataAPI + "/roles",
+              url: this.baseUrlToKomMonitorDataAPI + rolesEndpoint,
               method: "GET"
             }).then(function successCallback(response) {
                 // this callback will be called asynchronously
@@ -786,7 +819,7 @@ angular
 
           this.fetchIndicatorScriptsMetadata = function(){
             return $http({
-              url: this.baseUrlToKomMonitorDataAPI + "/process-scripts",
+              url: this.baseUrlToKomMonitorDataAPI + scriptsEndpoint,
               method: "GET"
             }).then(function successCallback(response) {
                 // this callback will be called asynchronously
