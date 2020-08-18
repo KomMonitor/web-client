@@ -78,13 +78,16 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 	    }
 		};
 
-		var checkAuthentication = function () {		
+		var checkAuthentication = function () {	
+			kommonitorDataExchangeService.currentLoginRoles = undefined;
+
 			if (Auth.keycloak.authenticated) {
 				$scope.authenticated = Auth.keycloak.authenticated;
 				Auth.keycloak.loadUserProfile()
     				.then(function (profile) {
 						if (profile.emailVerified) {
 							$scope.username = profile.email;
+							kommonitorDataExchangeService.currentLoginRoles = Auth.keycloak.tokenParsed.realm_access.roles;
 							console.log("User logged in with email: " + profile.email);
 						} else {
 							alert("Email not verified. User will be logged out automatically!");
