@@ -689,14 +689,14 @@ angular
 
             //TODO revise metadata fecthing for protected endpoints
             // var usersPromise = this.fetchUsersMetadata();            
-            var scriptsPromise = this.fetchIndicatorScriptsMetadata();
+            // var scriptsPromise = this.fetchIndicatorScriptsMetadata();
             var topicsPromise = this.fetchTopicsMetadata();
             var spatialUnitsPromise = this.fetchSpatialUnitsMetadata();
             var georesourcesPromise = this.fetchGeoresourcesMetadata();
             var indicatorsPromise = this.fetchIndicatorsMetadata();
             
             // var metadataPromises = [topicsPromise, usersPromise, rolesPromise, spatialUnitsPromise, georesourcesPromise, indicatorsPromise, scriptsPromise];
-            var metadataPromises = [spatialUnitsPromise, georesourcesPromise, indicatorsPromise, topicsPromise, scriptsPromise];
+            var metadataPromises = [spatialUnitsPromise, georesourcesPromise, indicatorsPromise, topicsPromise];
 
             if (Auth.keycloak.authenticated){
               var rolesPromise = this.fetchRolesMetadata();
