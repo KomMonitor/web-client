@@ -1,0 +1,193 @@
+<div class="modal fade" id="modal-batch-update-georesources" role="dialog">
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content">
+
+			<div align="center">
+				<div class="loading-overlay-admin-panel ng-hide" ng-show="loadingData">
+					<span class="glyphicon glyphicon-refresh icon-spin"></span>
+				</div>
+			</div>
+
+
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Batch-Update</h4>
+			</div>
+			<div class="modal-body">
+				<p>Diese Funktion erm&ouml;glicht es, mehrere Georessoucen gleichzeitig zu aktualisieren.<br />
+					Die Aktualisierung beschr&auml;nkt sich auf den G&uuml;ltigkeitszeitraum, die Datenquelle und die Mappingtabelle.<br />
+					Eine Aktualisierung der Metadaten ist über diese Funktion nicht vorgesehen.
+				</p>
+				<p><b>TODO</b><br />Beschreibung der einzelnen Spalten</p>
+				<!-- TODO gültigkeitszeitraum für all georesourcen setzen -->
+				<div class="col-md-3 col-sm-3 col-xs-6">
+					<div class="form-group">
+						<label>Standard Gültigkeitszeitraum:</label>
+						<div class="input-group date">
+							<div class="input-group-addon">
+								<i class="far fa-calendar-alt"></i>
+							</div>
+							<input id="standardPeriodOfValidityDatePicker" type="text" class="form-control pull-right"
+							ng-model="standardPeriodOfValidity" placeholder="YYYY-MM-DD" ng-change="standardPeriodOfValidityChanged()">
+						</div>
+						<div class="help-block">
+							<p>G&uuml;ltigkeitszeitraum f&uuml;r alle Georessourcen, sofern nicht anders angegeben.
+								<br /><b>Momentan werden noch alle Felder &uuml;berschrieben.</b>
+							</p>
+						</div>
+					</div>
+				</div>
+				
+				<table class="table table-bordered table-condensed table-striped" style="width:100%; overflow:auto; font-size: 11px;">
+					<thead>
+						<tr>
+							<th><input type="checkbox" ng-model="allRowsSelected" ng-change="onChangeSelectAllRows()"></th>
+							<th>Name</th>
+							<th>G&uuml;ltigkeitszeitraum von</th>
+							<th>Datentyp</th>
+							<th>Datenquelle</th>
+							<th>Mappingtabelle</th>
+						</tr>
+					</thead>
+					
+					<tbody>
+						<tr ng-repeat="georesource in batchList">
+							<td>
+								<input type="checkbox" ng-model="georesource.isSelected">
+							</td>
+							<td>
+								<select class="form-control" ng-model="georesource.name" required
+									ng-options="avGeoresource.datasetName as avGeoresource.datasetName for avGeoresource in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources">
+										<option disabled selected value> -- Georessouce w&auml;hlen -- </option>
+								</select>
+							</td>
+							<td>
+								<div class="input-group date">
+									<div class="input-group-addon">
+										<i class="far fa-calendar-alt"></i>
+									</div>
+									<input id="periodOfValidityDatePicker{{$index}}" type="text" class="form-control pull-right" placeholder="YYYY-MM-DD"
+										value={{georesource.periodOfValidity}} required>
+								</div>
+							</td>
+							<td>
+								<select class="form-control" ng-model="georesource.dataType" 
+										ng-options="converter as converter.simpleName for converter in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters"
+										required>
+												<option disabled selected value> -- Quellformat w&auml;hlen -- </option>
+								</select>
+							</td>
+							<td>
+								<!--<div ng-show="georesource.dataType === 'FILE'" class="">
+									<label>Datei*</label>
+									<input type="file" class="form-control" id="georesourceDataSourceInput_add" required="">
+								</div>-->
+								{{georesource.dataSource}}
+								<!--<input type="file" class="form-control"></input>-->
+							</td>
+							<td>
+								<input id="georesourceMappingTable{{$index}}" class="form-control" type="file" ng-model="georesource.mappingTablePath">
+							</div>
+								{{georesource.mappingTable}}
+							</td>
+						</tr>
+					</tbody>
+
+					<tfoot>
+					<tr>
+						<th>Name</th>
+						<th>G&uuml;ltigkeitszeitraum von</th>
+						<th>Datentyp</th>
+						<th>Datenquelle</th>
+						<th>Mappingtabelle</th>
+					</tr>
+					
+	                </tfoot>
+				  </table>
+
+				  <button type="button" class="btn btn-default" ng-click="addNewRowToBatchList()">neue Zeile hinzuf&uuml;gen</button>
+				  <button type="button" class="btn btn-default" ng-click="deleteSelectedRowsFromBatchList()">ausgewählte Zeilen l&ouml;schen</button>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
+				<button type="button" class="btn btn-info pull-left" ng-click="loadGeoresourcesBatchList()"
+					title="Importieren der Batch-Liste aus einer Datei"><i
+						class="fas fa-file-import"></i>&nbsp;&nbsp;Batch-Liste importieren</button>
+				<input style="display:none;" class="pull-left" type="file" class="form-control"
+					id="georesourceBatchImportFile" accept=".json,"></input>
+				<button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" ng-disabled=""
+					ng-click="onBatchImportGeoresourceSaveList()" title="Exportieren der Batch-Liste in eine Datei"><i
+						class="fas fa-file-export"></i>&nbsp;&nbsp;Batch-Liste exportieren</button>
+
+				<button type="button" class="btn btn-success"
+					ng-click="batchUpdateGeoresources()">Update ausführen</button>
+				<button type="button" class="btn btn-danger"
+					ng-click="resetGeoresourceBatchUpdateForm()">Zur&uuml;cksetzen</button>
+			</div>
+
+			<!--<div id="georesourceAddSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+				class="alert alert-success alert-dismissable">
+				<button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
+				<h4><i class="icon fa fa-check"></i>Georessource registriert</h4>
+				<p>Eine neue Georessource mit Namen {{successMessagePart}} wurde in KomMonitor registriert und in die &Uuml;bersichtstabelle eingetragen.
+					<div ng-if="importedFeatures && importedFeatures.length > 0">
+						{{importedFeatures.length}} Features wurden dabei importiert.
+					</div>
+				</p>
+			</div>
+
+			<div id="georesourceAddErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+				class="alert alert-danger alert-dismissable">
+				<button type="button" class="close" ng-click="hideErrorAlert()" aria-hidden="true">&times;</button>
+				<h4><i class="icon fa fa-ban"></i>Registrierung gescheitert</h4>
+				Bei der Registrierung der Georessource ist ein Fehler aufgetreten. Fehlermeldung:
+				<br />				
+								<pre style="overflow:auto; max-height:500px;" ng-bind-html="errorMessagePart"></pre>
+								<br/>
+								<br/>
+
+								<div ng-show="importerErrors">
+									<p>Bei den {{importerErrors.length}} Features mit folgenden IDs scheitert der Import:</p>
+									<pre style="overflow:auto; max-height:500px;">
+										<ul>
+											<li ng-repeat="error in importerErrors">{{error}}</li>
+										</ul>
+									</pre>	
+									<p>Bitte beheben Sie die angezeigten Fehler im Datensatz und wiederholen den Prozess.</p>
+								</div>
+			</div>
+
+			<div id="georesourceMetadataImportErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+				class="alert alert-danger alert-dismissable">
+				<button type="button" class="close" ng-click="hideMetadataErrorAlert()"
+					aria-hidden="true">&times;</button>
+				<h4><i class="icon fa fa-ban"></i>Metadata Import gescheitert</h4>
+				Beim Import der Metadaten aus einer Datei ist ein Fehler aufgetreten. Fehlermeldung:
+				<br />
+				<pre>{{georesourceMetadataImportError}}</pre>
+				<br />
+				<br />
+				<p>Bitte stellen Sie sicher, dass folgendes JSON-Format eingehalten wird:</p>
+				<pre id="georesourcesAddMetadataPre" style="overflow:auto; max-height:500px;"></pre>
+			</div>
+
+			<div id="georesourceMappingConfigImportErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden class="alert alert-danger alert-dismissable">
+                <button type="button" class="close" ng-click="hideMappingConfigErrorAlert()" aria-hidden="true">&times;</button>
+                <h4><i class="icon fa fa-ban"></i>Mapping-Konfiguration Import gescheitert</h4>
+                Beim Import der Mapping-Konfiguration aus einer Datei ist ein Fehler aufgetreten. Fehlermeldung:
+								<br/>
+								<pre ng-bind-html="georesourceMappingConfigImportError"></pre>								
+								<br/>								
+								<br/>
+								<p>Bitte stellen Sie sicher, dass folgendes JSON-Format eingehalten wird:</p>
+								<pre id="georesourcesAddMappingConfigPre" style="overflow:auto; max-height:500px;"></pre>
+			  </div>
+			-->
+
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
