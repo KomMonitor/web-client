@@ -346,7 +346,49 @@
       url: "https://geodaten.metropoleruhr/inspire/bodennutzung/metropoleruhr?",
       topicReference: null,
       layerName: "bplan"
-    }
+    },
+    {
+      title: "Klimaanpassung",
+      description: "Erste Einschätzung der klimatischen Verhältnisse in der Metropole Ruhr anhand vorliegender Geodaten (Flächennutzungskartierung des RVR, Luftbilder, Digitales Geländemodell, städtische Klimaanalysen)",
+      url: "http://geodaten.metropoleruhr.de/klima/klimaanpassung?",
+      topicReference: "f3808c0e-9207-42f6-a26f-b8dbefa44d86",
+      layerName: "OGC:WMS"
+    },    
+    {
+      title: "Höhen (m.ü.NN)",
+      description: "Eine ausgeprägte Reliefstruktur kann einen großen Einfluss auf die Belüftung einer Region haben, sei es in Form einer Tallage mit dadurch bedingter Ablenkung der Hauptwindrichtung oder in Form einer insgesamt schlechten Belüftungssituation im Falle einer Kessellage",
+      url: "http://geodaten.metropoleruhr.de/klima/klimaanpassung?",
+      topicReference: "f3808c0e-9207-42f6-a26f-b8dbefa44d86",
+      layerName: "hoehen"
+    },  
+    {
+      title: "Belüftung",
+      description: "Die Flächen werden in Abhängigkeit von ihrer Belüftungsfunktion in drei Kategorien eingeteilt (gut, mittel, schlecht belüftet). Schlecht belüftete Räume besitzen ein erhöhtes Immissionspotential, wobei insbesondere die bodennahen Emissionen eine Rolle spielen. Die Einstufung in die Belüftungskategorien gibt Auskunft darüber, wie effektiv warme Luftmassen durch kühlere ersetzt werden bzw. inwieweit Luftschadstoffe verdünnt und abtransportiert werden können. Die Einteilung in diese Kategorien erfolgte anhand der Auswertung der Geländehöhe und der Oberflächenrauhigkeit",
+      url: "http://geodaten.metropoleruhr.de/klima/klimaanpassung?",
+      topicReference: "f3808c0e-9207-42f6-a26f-b8dbefa44d86",
+      layerName: "belueftung"
+    },
+    {
+      title: "Jahresmittel der Windgeschwindigkeit (m/s)",
+      description: "Die Ergebnisse zum Windfeld wurden mit Hilfe eines multiplen Regressionsansatzes flächendeckend für das Ruhrgebiet berechnet. Die Abschätzung der mittleren Windgeschwindigkeit [m/s] während nächtlicher Strahlungswetterlagen erfolgte mit dem folgenden Regressionsmodell: Vn = H*0,009222+R12*0,3404-0,386645 mit: vn = Jahresmittel der Windgeschwindigkeit [m/s] H = Geländehöhe über NN [m] R12 = Prozentualer Anteil der Rauhigkeitsklassen 1 und 2 bezogen auf einen Rasterquadrat 500 m [%]",
+      url: "http://geodaten.metropoleruhr.de/klima/klimaanpassung?",
+      topicReference: "f3808c0e-9207-42f6-a26f-b8dbefa44d86",
+      layerName: "windgeschwindigkeit"
+    },
+    {
+      title: "Kaltluftproduktionsflächen > 50 ha",
+      description: "Dargestellt werden die Kaltluftproduktionsflächen über 50 ha, gegliedert in die drei Flächentypen Park, Wald und Freiland",
+      url: "http://geodaten.metropoleruhr.de/klima/klimaanpassung?",
+      topicReference: "f3808c0e-9207-42f6-a26f-b8dbefa44d86",
+      layerName: "kaltluftproduktionsflaechen"
+    },
+    {
+      title: "Klimatope",
+      description: "Klimatope beschreiben Gebiete mit ähnlichen mikroklimatischen Ausprägungen, bestimmt durch die jeweilige Flächennutzung",
+      url: "http://geodaten.metropoleruhr.de/klima/klimaanpassung?",
+      topicReference: "f3808c0e-9207-42f6-a26f-b8dbefa44d86",
+      layerName: "klimatope"
+    }    
   ];
 
   window.__env.wfsDatasets = [    
