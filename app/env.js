@@ -117,25 +117,25 @@
       attributen_html: "Map data © <a href='https://www.bezreg-koeln.nrw.de/brk_internet/geobasis/'>Geobasis NRW</a>", 
       minZoomLevel: window.__env.minZoomLevel, 
       maxZoomLevel: window.__env.maxZoomLevel 
-    },
-    {
-      name: "Stadt Essen - Automatisierte Liegenschaftskarte", 
-      url: "https://geo.essen.de/arcgis/services/basemap/Stadtplanpaket_ALK_grau/MapServer/WMSServer?",
-      layerType: "WMS", 
-      layerName_WMS: "0,1,2,3", 
-      attributen_html: "Stadt Essen: Amt f&uumlr Geoinformation, Vermessung und Kataster", 
-      minZoomLevel: window.__env.minZoomLevel, 
-      maxZoomLevel: window.__env.maxZoomLevel 
-    },
-    {
-      name: "Stadt Essen - Amtliche Basiskarte", 
-      url: "https://geo.essen.de/arcgis/services/basemap/Uebersicht_ABK_Stadtgrundkarte/MapServer/WMSServer?", 
-      layerType: "WMS", 
-      layerName_WMS: "nw_dop_rgb", 
-      attributen_html: "Stadt Essen: Amt f&uumlr Geoinformation, Vermessung und Kataster", 
-      minZoomLevel: window.__env.minZoomLevel, 
-      maxZoomLevel: window.__env.maxZoomLevel 
     }
+    // {
+    //   name: "Stadt Essen - Automatisierte Liegenschaftskarte", 
+    //   url: "https://geo.essen.de/arcgis/services/basemap/Stadtplanpaket_ALK_grau/MapServer/WMSServer?",
+    //   layerType: "WMS", 
+    //   layerName_WMS: "0,1,2,3", 
+    //   attributen_html: "Stadt Essen: Amt f&uumlr Geoinformation, Vermessung und Kataster", 
+    //   minZoomLevel: window.__env.minZoomLevel, 
+    //   maxZoomLevel: window.__env.maxZoomLevel 
+    // },
+    // {
+    //   name: "Stadt Essen - Amtliche Basiskarte", 
+    //   url: "https://geo.essen.de/arcgis/services/basemap/Uebersicht_ABK_Stadtgrundkarte/MapServer/WMSServer?", 
+    //   layerType: "WMS", 
+    //   layerName_WMS: "nw_dop_rgb", 
+    //   attributen_html: "Stadt Essen: Amt f&uumlr Geoinformation, Vermessung und Kataster", 
+    //   minZoomLevel: window.__env.minZoomLevel, 
+    //   maxZoomLevel: window.__env.maxZoomLevel 
+    // }
   ];
 
 
