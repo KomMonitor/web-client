@@ -682,34 +682,34 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 							$("#sidebarReachabilityCollapse").click();
 					}
 				}
-			},
-			{
-				element: "#sidebarProcessingCollapse",
-				title: "Individuelle Indikatoren-Neuberechnung",
-				placement: "right",
-				content: "Ein Klick auf diesen Button &ouml;ffnet ein Fenster zur individuellen Neuberechnung einzelner Indikatoren. <br/><br/><i>Im n&auml;chsten Schritt wird das Men&uuml; automatisch ge&ouml;ffnet.</i>",
-				onNext: function(tour){
-					if($scope.sidebarProcessingClass === "disappear"){
-							$("#sidebarProcessingCollapse").click();
-					}
-				}
-			},
-			{
-				element: "#indicatorProcessing",
-				title: "Individuelle Indikatoren-Neuberechnung",
-				placement: "right",
-				content: "KomMonitor ist mehr als nur ein Darstellungswerkzeug. Es erm&ouml;glicht insbesondere auch die <b>automatisierte Berechnung von Indikatoren</b>. Je nach Berechnungsvorschrift kann es dabei <b>konfigurierbare Parameter</b> geben, die die <i>resultierenden Indikatorenwerte beeinflussen</i> (bspw. eine maximle Distanz bei Erreichbarkeiten oder Gewichtungen grundlegender Eingangsdaten). <br/><br/>Dieses Men&uuml; bietet die M&ouml;glichkeit einer <b>Nutzer-definierten Neuberechnung von Indikatoren</b> mit mindestens einem konfigurierbaren Parameter. Das jeweilige Berechnungsergebnis steht anschlie&szlig;end tempor&auml;r zur Verf&uuml;gung und kann bei Bedarf exportiert werden. <br/><br/>K&uuml;nftig sollen dar&uuml;ber hinaus unmittelbare Vergleiche mit der 'Standard'-Variante des Indikators angeboten werden. Diese sind jedoch zum gegenw&auml;rtigen Zeitpunkt noch nicht in der Anwendung umgesetzt.",
-				onNext: function(tour){
-					if($scope.sidebarProcessingClass !== "disappear"){
-							$("#sidebarProcessingCollapse").click();
-					}
-				},
-				onPrev: function(tour){
-					if($scope.sidebarProcessingClass !== "disappear"){
-							$("#sidebarProcessingCollapse").click();
-					}
-				}
 			}
+			// {
+			// 	element: "#sidebarProcessingCollapse",
+			// 	title: "Individuelle Indikatoren-Neuberechnung",
+			// 	placement: "right",
+			// 	content: "Ein Klick auf diesen Button &ouml;ffnet ein Fenster zur individuellen Neuberechnung einzelner Indikatoren. <br/><br/><i>Im n&auml;chsten Schritt wird das Men&uuml; automatisch ge&ouml;ffnet.</i>",
+			// 	onNext: function(tour){
+			// 		if($scope.sidebarProcessingClass === "disappear"){
+			// 				$("#sidebarProcessingCollapse").click();
+			// 		}
+			// 	}
+			// },
+			// {
+			// 	element: "#indicatorProcessing",
+			// 	title: "Individuelle Indikatoren-Neuberechnung",
+			// 	placement: "right",
+			// 	content: "KomMonitor ist mehr als nur ein Darstellungswerkzeug. Es erm&ouml;glicht insbesondere auch die <b>automatisierte Berechnung von Indikatoren</b>. Je nach Berechnungsvorschrift kann es dabei <b>konfigurierbare Parameter</b> geben, die die <i>resultierenden Indikatorenwerte beeinflussen</i> (bspw. eine maximle Distanz bei Erreichbarkeiten oder Gewichtungen grundlegender Eingangsdaten). <br/><br/>Dieses Men&uuml; bietet die M&ouml;glichkeit einer <b>Nutzer-definierten Neuberechnung von Indikatoren</b> mit mindestens einem konfigurierbaren Parameter. Das jeweilige Berechnungsergebnis steht anschlie&szlig;end tempor&auml;r zur Verf&uuml;gung und kann bei Bedarf exportiert werden. <br/><br/>K&uuml;nftig sollen dar&uuml;ber hinaus unmittelbare Vergleiche mit der 'Standard'-Variante des Indikators angeboten werden. Diese sind jedoch zum gegenw&auml;rtigen Zeitpunkt noch nicht in der Anwendung umgesetzt.",
+			// 	onNext: function(tour){
+			// 		if($scope.sidebarProcessingClass !== "disappear"){
+			// 				$("#sidebarProcessingCollapse").click();
+			// 		}
+			// 	},
+			// 	onPrev: function(tour){
+			// 		if($scope.sidebarProcessingClass !== "disappear"){
+			// 				$("#sidebarProcessingCollapse").click();
+			// 		}
+			// 	}
+			// }
 		]};
 
 		$scope.startGuidedTour = function(){
