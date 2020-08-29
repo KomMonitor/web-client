@@ -149,8 +149,8 @@
   window.__env.initialSpatialUnitName = "Stadtteilebene";
 
  // various color settings
-  window.__env.defaultColorForNoDataValues = "black";
-  window.__env.defaultBorderColorForNoDataValues = "red";
+  window.__env.defaultColorForNoDataValues = "rgba(255,255,255,0)";
+  window.__env.defaultBorderColorForNoDataValues = "black";
   window.__env.defaultColorForOutliers_high = "#191919";
   window.__env.defaultBorderColorForOutliers_high = "black";
   window.__env.defaultFillOpacityForOutliers_high = "0.7";
