@@ -380,8 +380,8 @@ angular
           "arisenFromProperty": arisenFromProperty,
           "identifierProperty": idPropety,
           "nameProperty": nameProperty,
-          "validEndDateProperty": validStartDateProperty,
-          "validStartDateProperty": validEndDateProperty,
+          "validEndDateProperty": validEndDateProperty,
+          "validStartDateProperty": validStartDateProperty,
           "keepAttributes": keepAttributes,
           "keepMissingOrNullValueAttributes": keepMissingValues,
           "attributes": []
