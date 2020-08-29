@@ -258,7 +258,6 @@ angular.module('kommonitorMap').component(
         $scope.showLegend = true;
         $scope.overlays = new Array();
         $scope.baseMaps = new Array();
-        $scope.baseMapLayers = new L.LayerGroup();
         const spatialUnitLayerGroupName = "Raumeinheiten";
         const georesourceLayerGroupName = "Georessourcen";
         const poiLayerGroupName = "Points of Interest";
@@ -356,63 +355,29 @@ angular.module('kommonitorMap').component(
 
           // initialize map referring to div element with id="map"
 
+          var baseLayerDefinitionsMap = new Map();
 
-          // create OSM tile layer with correct attribution
-          var osmUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-          var osmAttrib = 'Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
-          var osm = new L.TileLayer(osmUrl, { minZoom: __env.minZoomLevel, maxZoom: __env.maxZoomLevel, attribution: osmAttrib });
-
-          // var osm_blackWhite = L.tileLayer('https://www.toolserver.org/tiles/bw-mapnik/{z}/{x}/{y}.png', {minZoom: __env.minZoomLevel, maxZoom: __env.maxZoomLevel, attribution: osmAttrib});
-
-          var osm_blackWhite = new L.tileLayer.grayscale(osmUrl, { minZoom: __env.minZoomLevel, maxZoom: __env.maxZoomLevel, attribution: osmAttrib });
-
-          var rvrAttrib = 'Map data © <a href="https://geodaten.metropoleruhr.de">https://geodaten.metropoleruhr.de</a>';
-          var wmsLayerRVR = L.tileLayer.wms('https://geodaten.metropoleruhr.de/spw2?', {
-            layers: 'stadtplan_rvr',
-            minZoom: __env.minZoomLevel, maxZoom: __env.maxZoomLevel,
-            attribution: rvrAttrib
-          });
-          var wmsLayerRVR_test = L.tileLayer.wms('https://geodaten.metropoleruhr.de/spw2?', {
-            layers: 'spw2_graublau',
-            minZoom: __env.minZoomLevel, maxZoom: __env.maxZoomLevel,
-            attribution: rvrAttrib
-          });
-          var geobasisAttrib = 'Map data © <a href="https://www.bezreg-koeln.nrw.de/brk_internet/geobasis/">Geobasis NRW</a>';
-          var wmsLayerDTK = L.tileLayer.wms('https://www.wms.nrw.de/geobasis/wms_nw_dtk?', {
-            layers: 'nw_dtk_pan',
-            minZoom: __env.minZoomLevel, maxZoom: __env.maxZoomLevel,
-            attribution: geobasisAttrib
-          });
-          var wmsLayerDOP = L.tileLayer.wms('https://www.wms.nrw.de/geobasis/wms_nw_dop?', {
-            layers: 'nw_dop_rgb',
-            minZoom: __env.minZoomLevel, maxZoom: __env.maxZoomLevel,
-            attribution: geobasisAttrib
-          });
-
-          //CITY OF ESSEN WMS #1
-          var wms_essen_ALK_grau = L.tileLayer.wms('https://geo.essen.de/arcgis/services/basemap/Stadtplanpaket_ALK_grau/MapServer/WMSServer?',
-            {
-              minZoom: __env.minZoomLevel, maxZoom: __env.maxZoomLevel,
-              layers: "0,1,2,3",
-              attribution: 'Stadt Essen: Amt f&uumlr Geoinformation, Vermessung und Kataster'
-            });
-          // CITY OF ESSEN WMS #2
-          var wms_essen_ABK = L.tileLayer
-            .wms(
-              'https://geo.essen.de/arcgis/services/basemap/Uebersicht_ABK_Stadtgrundkarte/MapServer/WMSServer?',
-              {
-                minZoom: __env.minZoomLevel, maxZoom: __env.maxZoomLevel,
-                layers: "0,1,2,3",
-                attribution: 'Stadt Essen: Amt f&uumlr Geoinformation, Vermessung und Kataster'
-              });
-
+          for (const baseMapEntry of __env.baseLayers) {            
+            if (baseMapEntry.layerType === "TILE_LAYER_GRAYSCALE"){
+              var grayscaleLayer = new L.tileLayer.grayscale(baseMapEntry.url, { minZoom: baseMapEntry.minZoomLevel, maxZoom: baseMapEntry.maxZoomLevel, attribution: baseMapEntry.attribution_html });
+              baseLayerDefinitionsMap.set(baseMapEntry.name, grayscaleLayer);
+            }
+            else if (baseMapEntry.layerType === "TILE_LAYER"){
+              var tileLayer = new L.tileLayer(baseMapEntry.url, { minZoom: baseMapEntry.minZoomLevel, maxZoom: baseMapEntry.maxZoomLevel, attribution: baseMapEntry.attribution_html });
+              baseLayerDefinitionsMap.set(baseMapEntry.name, tileLayer);
+            }
+            else if (baseMapEntry.layerType === "WMS"){
+              var wmsLayer = new L.tileLayer.wms(baseMapEntry.url, { minZoom: baseMapEntry.minZoomLevel, maxZoom: baseMapEntry.maxZoomLevel, attribution: baseMapEntry.attribution_html, layers: baseMapEntry.layerName_WMS });
+              baseLayerDefinitionsMap.set(baseMapEntry.name, wmsLayer);
+            }
+          }
 
           $scope.map = L.map('map', {
             center: [$scope.latCenter, $scope.lonCenter],
             zoom: $scope.zoomLevel,
             zoomDelta: 0.5,
             zoomSnap: 0.5,
-            layers: [osm_blackWhite]
+            layers: [baseLayerDefinitionsMap.get(__env.baseLayers[0].name)]
           });
 
           // execute update search control on layer add and remove
@@ -424,15 +389,11 @@ angular.module('kommonitorMap').component(
           });
 
           $scope.baseMaps = {
-            "Stadt Essen - Automatisierte Liegenschaftskarte": wms_essen_ALK_grau,
-            "Stadt Essen - Amtliche Basiskarte": wms_essen_ABK,
-            "OpenStreetMap - Graustufen": osm_blackWhite,
-            "OpenStreetMap - Farbe": osm,
-            "NRW Digitale Topographische Karte": wmsLayerDTK,
-            "NRW Digitale Orthophotos (Luftbilder)": wmsLayerDOP,
-            "RVR Stadtplan - Farbe": wmsLayerRVR,
-            "RVR Stadtplan - Graublau": wmsLayerRVR_test
-          };
+          };   
+
+          baseLayerDefinitionsMap.forEach(function(value, key, map){
+            $scope.baseMaps[key] = value;
+          });
 
           $scope.groupedOverlays = {
             indicatorLayerGroupName: {
@@ -893,9 +854,20 @@ angular.module('kommonitorMap').component(
 
         $scope.downloadIndicatorAsGeoJSON = function () {
 
-          var geoJSON_string = JSON.stringify(kommonitorDataExchangeService.selectedIndicator.geoJSON);
+          var fileName = kommonitorDataExchangeService.selectedIndicator.indicatorName + "_" + kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel;
 
-          var fileName = kommonitorDataExchangeService.selectedIndicator.indicatorName + "_" + kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel + "_" + kommonitorDataExchangeService.selectedDate + ".geojson";
+          var geoJSON_string;
+
+          if(kommonitorDataExchangeService.isBalanceChecked){
+            geoJSON_string = JSON.stringify(kommonitorDataExchangeService.indicatorAndMetadataAsBalance.geoJSON);
+            fileName += "_Bilanz" + $scope.currentIndicatorMetadataAndGeoJSON['fromDate'] + " - " + $scope.currentIndicatorMetadataAndGeoJSON['toDate'];
+          }
+          else{
+            geoJSON_string = JSON.stringify(kommonitorDataExchangeService.selectedIndicator.geoJSON);
+            fileName += "_" + kommonitorDataExchangeService.selectedDate;
+          }
+
+          fileName += ".geojson";
 
           var blob = new Blob([geoJSON_string], { type: "application/json" });
           var data = URL.createObjectURL(blob);
@@ -927,7 +899,7 @@ angular.module('kommonitorMap').component(
 
         $scope.downloadIndicatorAsShape = function () {
 
-          var folderName = kommonitorDataExchangeService.selectedIndicator.indicatorName + "_" + kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel + "_" + kommonitorDataExchangeService.selectedDate;
+          var folderName = kommonitorDataExchangeService.selectedIndicator.indicatorName + "_" + kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel;
           var polygonName = kommonitorDataExchangeService.selectedIndicator.indicatorName + "_" + kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel;
 
           var options = {
@@ -939,7 +911,16 @@ angular.module('kommonitorMap').component(
             }
           };
 
-          var geoJSON = jQuery.extend(true, {}, kommonitorDataExchangeService.selectedIndicator.geoJSON);
+          var geoJSON;
+
+          if(kommonitorDataExchangeService.isBalanceChecked){
+            geoJSON = jQuery.extend(true, {}, kommonitorDataExchangeService.indicatorAndMetadataAsBalance.geoJSON);
+            folderName += "_Bilanz_" + $scope.currentIndicatorMetadataAndGeoJSON['fromDate'] + " - " + $scope.currentIndicatorMetadataAndGeoJSON['toDate'];
+          }
+          else{
+            geoJSON = jQuery.extend(true, {}, kommonitorDataExchangeService.selectedIndicator.geoJSON);
+            folderName += "_" + kommonitorDataExchangeService.selectedDate;
+          }
 
           for (var feature of geoJSON.features) {
             var properties = feature.properties;
@@ -1413,6 +1394,8 @@ angular.module('kommonitorMap').component(
 
         $scope.appendColorGradientLegendItems = function(colorBrewInstance, opacity){
           var html = "";
+
+            if(colorBrewInstance && colorBrewInstance.breaks && colorBrewInstance.colors){
               var labelsIncrease = colorBrewInstance.breaks;
               var colorsIncrease = colorBrewInstance.colors;
 
@@ -1428,8 +1411,10 @@ angular.module('kommonitorMap').component(
                   '<div class="col-md-3 ">' + 
                   count + '</div></div>';
               }
+            }
+              
 
-              return html;
+          return html;
         };
 
         // $scope.appendDecreasingItems = function(colorBrewInstance, opacity){
@@ -2852,6 +2837,10 @@ angular.module('kommonitorMap').component(
             filterExpressions.push(new L.Filter.BBox(dataset.featureTypeGeometryName, $scope.map.getBounds(), L.CRS.EPSG3857));
           }
 
+          if (filterExpressions.length == 0){
+            return undefined;
+          }
+
           if (filterExpressions.length < 2){
             return filterExpressions;
           }
@@ -2875,11 +2864,15 @@ angular.module('kommonitorMap').component(
             namespaceUri: "http://mapserver.gis.umn.edu/mapserver",
             typeName: dataset.featureTypeName,
             geometryField: dataset.featureTypeGeometryName,
-            maxFeatures: null,
+            // maxFeatures: null,
             style: getWfsStyle(dataset, opacity)
           };
 
-          wfsLayerOptions.filter = $scope.getFilterEncoding(dataset);          
+          var filterEncoding = $scope.getFilterEncoding(dataset);
+          if (filterEncoding){
+            wfsLayerOptions.filter = filterEncoding;
+          }
+                     
 
           var wfsLayer;
           var poiMarkerLayer;

@@ -34,7 +34,7 @@ angular
 								};
 
 								this.init = function(){
-									// this.checkAuthorizationOnStartup();
+									this.checkAuthorizationOnStartup();
 									kommonitorDataExchangeService.fetchAllMetadata();
 								};
 
