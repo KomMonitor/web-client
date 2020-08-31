@@ -23,27 +23,31 @@
 				<div class="col-md-6 col-sm-6 col-xs-12">
 					<div class="col-md-3 col-sm-3 col-xs-6">
 						<div class="form-group">
-							<label>Standard Gültigkeitszeitraum:</label>
+							<label>Standard<br />Gültigkeitszeitraum:</label>
 							<div class="input-group date">
 								<div class="input-group-addon">
 									<i class="far fa-calendar-alt"></i>
 								</div>
-								<input id="standardPeriodOfValidityDatePicker" type="text" class="form-control pull-right"
-								ng-model="standardPeriodOfValidity" placeholder="YYYY-MM-DD" ng-change="standardPeriodOfValidityChanged()">
+								<input id="standardPeriodOfValidityStartDatePicker" type="text" class="form-control pull-right"
+								ng-model="standardPeriodOfValidityStart" placeholder="YYYY-MM-DD" ng-change="standardPeriodOfValidityStartChanged()">
 							</div>
 							<div class="help-block">
 								<p>G&uuml;ltigkeitszeitraum f&uuml;r alle Georessourcen, sofern nicht anders angegeben.</p>
 							</div>
+							<label for="standardPeriodOfValidityStartChb">In allen Zeilen setzen?</label>
+							<input id="standardPeriodOfValidityStartChb" type="checkbox" ng-model="standardPeriodOfValidityStartChb">
 						</div>
 					</div>
 					<div class="col-md-3 col-sm-3 col-xs-6">
 						<div class="form-group">
-							<label>Standard CRS:</label>
+							<label>Standard<br />CRS:</label>
 							<input id="standardCrsInputField" type="text" class="form-control"
 								ng-model="standardCrs" ng-change="standardCrsChanged()">
 							<div class="help-block">
 								<p>CRS f&uuml;r alle Georessourcen, sofern nicht anders angegeben.</p>
 							</div>
+							<label for="standardCrsChb">In allen Zeilen setzen?</label>
+							<input id="standardCrsChb" type="checkbox" ng-model="standardCrsChb">
 						</div>
 					</div>
 				</div>
@@ -52,13 +56,14 @@
 					<thead>
 						<tr>
 							<th><input type="checkbox" ng-model="allRowsSelected" ng-change="onChangeSelectAllRows()"></th>
-							<th>Name</th>
-							<th>G&uuml;ltigkeitszeitraum von</th>
-							<th>Geodaten-Quellformat</th>
-							<th>CRS</th>
-							<th ng-show="checkIfDataFormatIsWfsV1()">Schema</th>
-							<th>Datenquelltyp</th>
+							<th>Name*</th>
 							<th>Mappingtabelle</th>
+							<th>G&uuml;ltigkeitszeitraum von*</th>
+							<th>G&uuml;ltigkeitszeitraum bis</th>
+							<th>Geodaten-Quellformat*</th>
+							<th>CRS*</th>
+							<th ng-show="checkIfDataFormatIsWfsV1()">Schema*</th>
+							<th>Datenquelltyp*</th>
 						</tr>
 					</thead>
 					
@@ -78,16 +83,34 @@
 								</select>
 							</td>
 							
-							<!-- periodOfValidity -->
+							<!-- mappingTablePath -->
+							<td>
+								<input id="georesourceMappingTable{{$index}}" class="form-control" type="file" ng-model="georesource.mappingTablePath">
+								{{georesource.mappingTable}}
+							</td>
+
+							<!-- periodOfValidityStart -->
 							<td>
 								<div class="input-group date">
 									<div class="input-group-addon">
 										<i class="far fa-calendar-alt"></i>
 									</div>
-									<input id="periodOfValidityDatePicker{{$index}}" type="text" class="form-control pull-right" placeholder="YYYY-MM-DD"
-										value={{georesource.periodOfValidity}} required>
+									<input id="periodOfValidityStartDatePicker{{$index}}" class="form-control pull-right" type="text"  placeholder="YYYY-MM-DD"
+										value={{georesource.periodOfValidityStart}} ng-model="georesource.periodOfValidityStart" required>
 								</div>
 							</td>
+
+							<!-- periodOfValidityEnd -->
+							<td>
+								<div class="input-group date">
+									<div class="input-group-addon">
+										<i class="far fa-calendar-alt"></i>
+									</div>
+									<input id="periodOfValidityEndDatePicker{{$index}}" type="text" class="form-control pull-right" placeholder="YYYY-MM-DD"
+										value={{georesource.periodOfValidityEnd}} ng-model="georesource.periodOfValidityEnd" required>
+								</div>
+							</td>
+
 
 							<!-- dataFormat -->
 							<td>
@@ -118,31 +141,22 @@
 										class="form-control" required>
 												<option disabled selected value> -- Quelltyp w&auml;hlen -- </option>
 								</select>
-								<!--<div ng-show="georesource.dataType === 'FILE'" class="">
-									<label>Datei*</label>
-									<input type="file" class="form-control" id="georesourceDataSourceInput_add" required="">
-								</div>-->
-								<!--<input type="file" class="form-control"></input>-->
 							</td>
 
-							<!-- mappingTablePath -->
-							<td>
-								<input id="georesourceMappingTable{{$index}}" class="form-control" type="file" ng-model="georesource.mappingTablePath">
-								{{georesource.mappingTable}}
-							</td>
 						</tr>
 					</tbody>
 
 					<tfoot>
 					<tr>
 						<th><input type="checkbox" ng-model="allRowsSelected" ng-change="onChangeSelectAllRows()"></th>
-						<th>Name</th>
-						<th>G&uuml;ltigkeitszeitraum von</th>
-						<th>Geodaten-Quellformat</th>
-						<th>CRS</th>
-						<th ng-show="checkIfDataFormatIsWfsV1()">Schema</th>
-						<th>Datenquelltyp</th>
+						<th>Name*</th>
 						<th>Mappingtabelle</th>
+						<th>G&uuml;ltigkeitszeitraum von*</th>
+						<th>G&uuml;ltigkeitszeitraum bis</th>
+						<th>Geodaten-Quellformat*</th>
+						<th>CRS*</th>
+						<th ng-show="checkIfDataFormatIsWfsV1()">Schema*</th>
+						<th>Datenquelltyp*</th>
 					</tr>
 					
 					</tfoot>

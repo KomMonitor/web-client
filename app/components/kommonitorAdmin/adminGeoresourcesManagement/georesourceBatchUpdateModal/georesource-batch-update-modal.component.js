@@ -6,9 +6,11 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 		this.kommonitorImporterHelperServiceInstance = kommonitorImporterHelperService;
 
-		$scope.standardPeriodOfValidity; // period of validity for all georessources
+		$scope.standardPeriodOfValidityStart; // period of validity start for all georessources
 		$scope.standardCrs;
 		$scope.allRowsSelected = false
+		$scope.standardPeriodOfValidityStartChb = false;
+		$scope.standardCrsChb = true;
 
 		/*
 		 * Modal:
@@ -34,29 +36,31 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 		// initializes the modal
 		$scope.initialize = function(){
 
-			$('#standardPeriodOfValidityDatePicker').datepicker(kommonitorDataExchangeService.datePickerOptions);
+			$('#standardPeriodOfValidityStartDatePicker').datepicker(kommonitorDataExchangeService.datePickerOptions);
+			//$('#standardPeriodOfValidityEndDatePicker').datepicker(kommonitorDataExchangeService.datePickerOptions);
 			for(var i=0;i<$scope.batchList.length;i++) {
-				$('#periodOfValidityDatePicker' + i).datepicker(kommonitorDataExchangeService.datePickerOptions);
+				$('#periodOfValidityStartDatePicker' + i).datepicker(kommonitorDataExchangeService.datePickerOptions);
+				$('#periodOfValidityEndDatePicker' + i).datepicker(kommonitorDataExchangeService.datePickerOptions);
 			}
 
-			$scope.$apply(); // update scope
+			$scope.$apply();
 		};
 
-		$scope.standardPeriodOfValidityChanged = function() {
-			$scope.batchList.forEach(function(georesource) {
-				georesource.periodOfValidity = $scope.standardPeriodOfValidity;
+		$scope.standardPeriodOfValidityStartChanged = function() {
+			angular.forEach($scope.batchList, function(georesource) {
+				georesource.periodOfValidityStart = $scope.standardPeriodOfValidityStart;
 			});
 		};
 
 		$scope.standardCrsChanged = function() {
-			$scope.batchList.forEach(function(georesource) {
+			angular.forEach($scope.batchList, function(georesource) {
 				georesource.crs = $scope.standardCrs;
 			});
 		};
 
 		$scope.loadGeoresourcesBatchList = function() {
 			// TODO
-			console.log("standardPeriodOfValidity: ", $scope.standardPeriodOfValidity);
+			console.log("standardPeriodOfValidityStart: ", $scope.standardPeriodOfValidityStart);
 			console.log("batchList: ", $scope.batchList);
 			console.log("dataFormat of first entry: ", $scope.batchList[0].dataFormat.simpleName);
 		};
@@ -67,11 +71,11 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 
 		$scope.onChangeSelectAllRows = function() {
 			if($scope.allRowsSelected) {
-				$scope.batchList.forEach( function(georesource) {
+				angular.forEach($scope.batchList, function(georesource) {
 					georesource.isSelected = true;
 				});
 			} else {
-				$scope.batchList.forEach( function(georesource) {
+				angular.forEach($scope.batchList, function(georesource) {
 					georesource.isSelected = false;
 				});
 			}
@@ -89,21 +93,30 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 			$scope.allRowsSelected = false; // in case it was true
 		}
 
+		// loop through batch list and check if condition is true for at least one row
 		$scope.checkIfDataFormatIsWfsV1 = function() {
-			var res = false;
-			//TODO break
-			$scope.batchList.forEach( function(georesource) {
-				if(georesource.dataFormat) {
-					if(georesource.dataFormat.simpleName == "wfs.v1")
-						res=true;
+			var dataFormatIsWfsV1 = false;
+			for(var i=0;i<$scope.batchList.length;i++) {
+				if($scope.batchList[i].dataFormat != null) {
+					if($scope.batchList[i].dataFormat.simpleName == "wfs.v1") {
+						dataFormatIsWfsV1 = true;
+						break;
+					}
 				}
 				
-			});
-
-			return res;
+			}
+			 return dataFormatIsWfsV1;
 		}
 
+
+		/**
+		 * Filters georessources that are already present in the batch list so that they can't be added twice.
+		 * https://stackoverflow.com/questions/11753321/passing-arguments-to-angularjs-filters/17813797
+		 * 
+		 * batchIndex: index of the row where the dropdown menu was opened
+		 */
 		$scope.filterGeoresourcesInBatchList = function(batchIndex) {
+			// avGeoresources is the list of available georesources from the kommonitorDataExchangeService
 			return function (avGeoresource) {
 				// check if georesource is in batchList
 				var isInBatchList = false;
@@ -122,13 +135,6 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 					return true;
 				}
 			};
-			//var resultArray = [];
-			//console.log(resultArray)
-			//for(var i=0;i<kommonitorDataExchangeService.availableGeoresources;i++) {
-			//	resultArray.push(kommonitorDataExchangeService.availableGeoresources[i]);
-			//}
-			//console.log(resultArray)
-			//return resultArray;
 		};
 	}
 ]});
