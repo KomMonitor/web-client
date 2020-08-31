@@ -1,4 +1,4 @@
-angular.module('kommonitorAdmin', ['kommonitorDataExchange', 'adminDashboardManagement', 'adminUserManagement', 'adminTopicsManagement',
+angular.module('kommonitorAdmin', ['kommonitorDataExchange', 'adminDashboardManagement', 'adminRoleManagement', 'adminTopicsManagement',
 'adminSpatialUnitsManagement','adminIndicatorsManagement', 'adminGeoresourcesManagement', 'adminScriptManagement',
 'spatialUnitAddModal','spatialUnitEditMetadataModal', 'spatialUnitEditFeaturesModal','spatialUnitDeleteModal',
 'georesourceDeleteModal','georesourceAddModal', 'georesourceEditFeaturesModal', 'georesourceEditMetadataModal',
