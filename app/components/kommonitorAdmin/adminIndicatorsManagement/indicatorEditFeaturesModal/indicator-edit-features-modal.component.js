@@ -37,6 +37,9 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 						}
 					],
 					"applicableSpatialUnit": "applicableSpatialUnit",
+					"allowedRoles": [
+						
+					]
 					"defaultClassificationMapping": {
 						"colorBrewerSchemeName": "colorBrewerSchemeName",
 						"items": [
@@ -420,7 +423,8 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 				{
 					"indicatorValues": [],
 					"applicableSpatialUnit": $scope.targetSpatialUnitMetadata.spatialUnitLevel,
-					"defaultClassificationMapping": $scope.currentIndicatorDataset.defaultClassificationMapping
+					"defaultClassificationMapping": $scope.currentIndicatorDataset.defaultClassificationMapping,
+					"allowedRoles": []
 					};
 	
 				return putBody;
