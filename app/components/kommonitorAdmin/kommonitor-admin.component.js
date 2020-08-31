@@ -25,16 +25,7 @@ angular
 								//
 			          // });
 
-								this.checkAuthorizationOnStartup = function(){
-									if (! kommonitorDataExchangeService.adminIsLoggedIn){
-										// redirect to main page
-										console.log("No Admin user is logged in - Prevent access to ADMIN panel");
-										$location.path('/');
-									}
-								};
-
 								this.init = function(){
-									this.checkAuthorizationOnStartup();
 									kommonitorDataExchangeService.fetchAllMetadata();
 								};
 
