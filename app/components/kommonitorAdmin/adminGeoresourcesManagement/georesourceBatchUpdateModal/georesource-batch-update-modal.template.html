@@ -20,21 +20,30 @@
 					Eine Aktualisierung der Metadaten ist über diese Funktion nicht vorgesehen.
 				</p>
 				<p><b>TODO</b><br />Beschreibung der einzelnen Spalten</p>
-				<!-- TODO gültigkeitszeitraum für all georesourcen setzen -->
-				<div class="col-md-3 col-sm-3 col-xs-6">
-					<div class="form-group">
-						<label>Standard Gültigkeitszeitraum:</label>
-						<div class="input-group date">
-							<div class="input-group-addon">
-								<i class="far fa-calendar-alt"></i>
+				<div class="col-md-6 col-sm-6 col-xs-12">
+					<div class="col-md-3 col-sm-3 col-xs-6">
+						<div class="form-group">
+							<label>Standard Gültigkeitszeitraum:</label>
+							<div class="input-group date">
+								<div class="input-group-addon">
+									<i class="far fa-calendar-alt"></i>
+								</div>
+								<input id="standardPeriodOfValidityDatePicker" type="text" class="form-control pull-right"
+								ng-model="standardPeriodOfValidity" placeholder="YYYY-MM-DD" ng-change="standardPeriodOfValidityChanged()">
 							</div>
-							<input id="standardPeriodOfValidityDatePicker" type="text" class="form-control pull-right"
-							ng-model="standardPeriodOfValidity" placeholder="YYYY-MM-DD" ng-change="standardPeriodOfValidityChanged()">
+							<div class="help-block">
+								<p>G&uuml;ltigkeitszeitraum f&uuml;r alle Georessourcen, sofern nicht anders angegeben.</p>
+							</div>
 						</div>
-						<div class="help-block">
-							<p>G&uuml;ltigkeitszeitraum f&uuml;r alle Georessourcen, sofern nicht anders angegeben.
-								<br /><b>Momentan werden noch alle Felder &uuml;berschrieben.</b>
-							</p>
+					</div>
+					<div class="col-md-3 col-sm-3 col-xs-6">
+						<div class="form-group">
+							<label>Standard CRS:</label>
+							<input id="standardCrsInputField" type="text" class="form-control"
+								ng-model="standardCrs" ng-change="standardCrsChanged()">
+							<div class="help-block">
+								<p>CRS f&uuml;r alle Georessourcen, sofern nicht anders angegeben.</p>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -45,23 +54,31 @@
 							<th><input type="checkbox" ng-model="allRowsSelected" ng-change="onChangeSelectAllRows()"></th>
 							<th>Name</th>
 							<th>G&uuml;ltigkeitszeitraum von</th>
-							<th>Datentyp</th>
-							<th>Datenquelle</th>
+							<th>Geodaten-Quellformat</th>
+							<th>CRS</th>
+							<th ng-show="checkIfDataFormatIsWfsV1()">Schema</th>
+							<th>Datenquelltyp</th>
 							<th>Mappingtabelle</th>
 						</tr>
 					</thead>
 					
 					<tbody>
 						<tr ng-repeat="georesource in batchList">
+
+							<!-- isSelected -->
 							<td>
 								<input type="checkbox" ng-model="georesource.isSelected">
 							</td>
+
+							<!-- name -->
 							<td>
 								<select class="form-control" ng-model="georesource.name" required
-									ng-options="avGeoresource.datasetName as avGeoresource.datasetName for avGeoresource in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources">
-										<option disabled selected value> -- Georessouce w&auml;hlen -- </option>
+									ng-options="avGeoresource.datasetName as avGeoresource.datasetName for avGeoresource in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:filterGeoresourcesInBatchList({{$index}})">
+										<option disabled selected value> -- Georessource w&auml;hlen -- </option>
 								</select>
 							</td>
+							
+							<!-- periodOfValidity -->
 							<td>
 								<div class="input-group date">
 									<div class="input-group-addon">
@@ -71,24 +88,46 @@
 										value={{georesource.periodOfValidity}} required>
 								</div>
 							</td>
+
+							<!-- dataFormat -->
 							<td>
-								<select class="form-control" ng-model="georesource.dataType" 
+								<select class="form-control" ng-model="georesource.dataFormat" 
 										ng-options="converter as converter.simpleName for converter in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters"
 										required>
 												<option disabled selected value> -- Quellformat w&auml;hlen -- </option>
 								</select>
 							</td>
+
+							<!-- crs -->
 							<td>
+								<input class="form-control" ng-model="georesource.crs" type="text"  required>
+							</td>
+
+							<!-- schema -->
+							<td ng-show="checkIfDataFormatIsWfsV1()">
+								<select class="form-control" ng-model="georesource.schema" ng-disabled="georesource.dataFormat.simpleName != 'wfs.v1'" 
+									ng-options="schema for schema in georesource.dataFormat.schemas">
+									<option disabled selected value> -- Schema w&auml;hlen -- </option>
+								</select>
+							</td>
+
+							<!-- datasourceType -->
+							<td>
+								<select ng-model="georesource.datasourceType"
+										ng-options="datasourceType as datasourceType.type for datasourceType in $ctrl.kommonitorImporterHelperServiceInstance.availableDatasourceTypes"
+										class="form-control" required>
+												<option disabled selected value> -- Quelltyp w&auml;hlen -- </option>
+								</select>
 								<!--<div ng-show="georesource.dataType === 'FILE'" class="">
 									<label>Datei*</label>
 									<input type="file" class="form-control" id="georesourceDataSourceInput_add" required="">
 								</div>-->
-								{{georesource.dataSource}}
 								<!--<input type="file" class="form-control"></input>-->
 							</td>
+
+							<!-- mappingTablePath -->
 							<td>
 								<input id="georesourceMappingTable{{$index}}" class="form-control" type="file" ng-model="georesource.mappingTablePath">
-							</div>
 								{{georesource.mappingTable}}
 							</td>
 						</tr>
@@ -96,18 +135,21 @@
 
 					<tfoot>
 					<tr>
+						<th><input type="checkbox" ng-model="allRowsSelected" ng-change="onChangeSelectAllRows()"></th>
 						<th>Name</th>
 						<th>G&uuml;ltigkeitszeitraum von</th>
-						<th>Datentyp</th>
-						<th>Datenquelle</th>
+						<th>Geodaten-Quellformat</th>
+						<th>CRS</th>
+						<th ng-show="checkIfDataFormatIsWfsV1()">Schema</th>
+						<th>Datenquelltyp</th>
 						<th>Mappingtabelle</th>
 					</tr>
 					
-	                </tfoot>
-				  </table>
+					</tfoot>
+				</table>
 
-				  <button type="button" class="btn btn-default" ng-click="addNewRowToBatchList()">neue Zeile hinzuf&uuml;gen</button>
-				  <button type="button" class="btn btn-default" ng-click="deleteSelectedRowsFromBatchList()">ausgewählte Zeilen l&ouml;schen</button>
+				  <button type="button" class="btn btn-primary" ng-click="addNewRowToBatchList()">neue Zeile hinzuf&uuml;gen</button>
+				  <button type="button" class="btn btn-danger" ng-click="deleteSelectedRowsFromBatchList()">ausgewählte Zeilen l&ouml;schen</button>
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>

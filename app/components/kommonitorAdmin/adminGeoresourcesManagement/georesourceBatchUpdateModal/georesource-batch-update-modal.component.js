@@ -7,8 +7,19 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 		this.kommonitorImporterHelperServiceInstance = kommonitorImporterHelperService;
 
 		$scope.standardPeriodOfValidity; // period of validity for all georessources
+		$scope.standardCrs;
 		$scope.allRowsSelected = false
 
+		/*
+		 * Modal:
+		 *	name
+		 * 	periodOfValidity
+		 * 	dataFormat
+		 * 	crs
+		 * 	datasourceType
+		 * 	mappingTablePath
+		 * 	isSelected
+		 */
 		$scope.batchList = [
 			{/*name: "Schulen", periodOfValidity: "2020-01-01", dataType: "", dataSource: "", mappingTablePath: "", isSelected: false*/},
 			{/*name: "Wohnviertel", periodOfValidity: "", dataType: "", dataSource: "", mappingTablePath: "", isSelected: false*/},
@@ -22,7 +33,6 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 
 		// initializes the modal
 		$scope.initialize = function(){
-			//$scope.availableGeoresourceDatasets = JSON.parse(JSON.stringify(kommonitorDataExchangeService.availableGeoresources));
 
 			$('#standardPeriodOfValidityDatePicker').datepicker(kommonitorDataExchangeService.datePickerOptions);
 			for(var i=0;i<$scope.batchList.length;i++) {
@@ -32,23 +42,23 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 			$scope.$apply(); // update scope
 		};
 
-		$scope.dataSourceFormat = {
-			geoJson: "geoJson",
-			gml: "gml",
-			wfsv1: "wfs.v1"
-		};
-
 		$scope.standardPeriodOfValidityChanged = function() {
 			$scope.batchList.forEach(function(georesource) {
-				// TODO overwrite all for now
 				georesource.periodOfValidity = $scope.standardPeriodOfValidity;
 			});
-		}
+		};
+
+		$scope.standardCrsChanged = function() {
+			$scope.batchList.forEach(function(georesource) {
+				georesource.crs = $scope.standardCrs;
+			});
+		};
 
 		$scope.loadGeoresourcesBatchList = function() {
 			// TODO
 			console.log("standardPeriodOfValidity: ", $scope.standardPeriodOfValidity);
 			console.log("batchList: ", $scope.batchList);
+			console.log("dataFormat of first entry: ", $scope.batchList[0].dataFormat.simpleName);
 		};
 
 		$scope.saveGeoresourcesBatchList = function() {
@@ -78,5 +88,47 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 			});
 			$scope.allRowsSelected = false; // in case it was true
 		}
+
+		$scope.checkIfDataFormatIsWfsV1 = function() {
+			var res = false;
+			//TODO break
+			$scope.batchList.forEach( function(georesource) {
+				if(georesource.dataFormat) {
+					if(georesource.dataFormat.simpleName == "wfs.v1")
+						res=true;
+				}
+				
+			});
+
+			return res;
+		}
+
+		$scope.filterGeoresourcesInBatchList = function(batchIndex) {
+			return function (avGeoresource) {
+				// check if georesource is in batchList
+				var isInBatchList = false;
+				for(var i=0;i<$scope.batchList.length;i++) {
+					if($scope.batchList[i].name == avGeoresource.datasetName && i != batchIndex) {
+						isInBatchList = true;
+						break;
+					}
+				}
+
+				// if yes
+				if(isInBatchList) {
+					// remove it from selectable options
+					return false;
+				} else {
+					return true;
+				}
+			};
+			//var resultArray = [];
+			//console.log(resultArray)
+			//for(var i=0;i<kommonitorDataExchangeService.availableGeoresources;i++) {
+			//	resultArray.push(kommonitorDataExchangeService.availableGeoresources[i]);
+			//}
+			//console.log(resultArray)
+			//return resultArray;
+		};
 	}
 ]});
