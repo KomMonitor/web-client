@@ -1,8 +1,9 @@
 angular.module('adminRoleManagement').component('adminRoleManagement', {
 	templateUrl: "components/kommonitorAdmin/adminRoleManagement/admin-role-management.template.html",
-	controller: ['kommonitorDataExchangeService', 'kommonitorKeycloakHelperService', '$scope', '$rootScope', '__env', '$http', function RoleManagementController(kommonitorDataExchangeService, kommonitorKeycloakHelperService, $scope, $rootScope, __env, $http) {
+	controller: ['kommonitorDataExchangeService', 'kommonitorKeycloakHelperService', '$scope', '$rootScope', '__env', '$http', '$timeout', function RoleManagementController(kommonitorDataExchangeService, kommonitorKeycloakHelperService, $scope, $rootScope, __env, $http, $timeout) {
 
-		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;		
+		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;	
+		this.kommonitorKeycloakHelperServiceInstance = kommonitorKeycloakHelperService;		
 		// initialize any adminLTE box widgets
 		$('.box').boxWidget();
 

@@ -5,18 +5,17 @@
 			Rollenverwaltung
 			<small>Rollen- und Zugriffs-Management via KeyCloak</small>
 		</h1>
-	</section>
-
-	<div class="adminTableButtonWrapper">
-		<button class="btn btn-success btn-sm" type="button" data-toggle="modal"
-			data-target="#modal-add-role"><i class="fas fa-plus"></i>&nbsp;&nbsp;Erstellen</button>
-
-		<!-- delete selected completely -->
-		<button class="btn btn-danger btn-sm" type="button" data-toggle="modal"
-			data-target="#modal-delete-roles" ng-click="onClickDeleteDatasets()"><i
-				class="fas fa-trash"></i>&nbsp;&nbsp;L&ouml;schen</button>
-
-	</div>
+		
+		<div class="adminTableButtonWrapper">
+			<button class="btn btn-success btn-sm" type="button" data-toggle="modal"
+				data-target="#modal-add-role"><i class="fas fa-plus"></i>&nbsp;&nbsp;Erstellen</button>
+	
+			<!-- delete selected completely -->
+			<button class="btn btn-danger btn-sm" type="button" data-toggle="modal"
+				data-target="#modal-delete-roles" ng-click="onClickDeleteDatasets()"><i
+					class="fas fa-trash"></i>&nbsp;&nbsp;L&ouml;schen</button>
+	
+		</div>
 	</section>
 
 	<!-- Main content -->
@@ -32,6 +31,16 @@
 			<!-- /.box-header -->
 			<div class="box-body">
 
+				<p>KomMonitor nutzt die Open Source Software <b>Keycloak</b> zwecks Nutzer- und Rollenmanagement. 
+					Nutzer und Rollen sowie deren Zuordnung kann direkt &uuml;ber die Administrations-Oberfl&auml;che der folgenden Keycloak Instanz erfolgen:</p>
+
+				<h4><a ng-href="{{$ctrl.kommonitorKeycloakHelperServiceInstance.targetUrlToKeycloakInstance}}" target="_blank" rel="noopener noreferrer">{{$ctrl.kommonitorKeycloakHelperServiceInstance.targetUrlToKeycloakInstance}}</a></h4>
+
+				<p>Da die Absicherung der in der KomMonitor Datenbank gespeicherten Raumeinheiten, Indikatoren und sonstiger Georessourcen m&uuml;ssen die <b><u><i>Rollen unter Verwendung des gleichen Namens</i></u></b> auch innerhalb der KomMonitor Datenbank registiert werden.</p>
+
+				<p>Die folgenden Rollen-Metadaten werden aus der KomMonitor Datenbank abgerufen. Gegenw&auml;rtig m&uuml;ssen Sie zuerst Rollen in Keycloak anlegen und anschließend diese Rollen mit gleichem Namen nochmals in KomMonitor definieren.</p>
+				<p><i>Hinweis: Eine automatische Synchronisation bzgl. der Rollen zwischen KomMonitor und Keycloak wird in einer k&uuml;nftigen Version von KomMonitor implementiert.</i></p>
+
 				<div class="admin-table-wrapper">
 					<table id="roleOverviewTable" datatable="ng"
 						dt-options="$ctrl.kommonitorDataExchangeServiceInstance.datatablesOptions"
@@ -44,12 +53,12 @@
 								<th>Editierfunktionen</th>
 								<th>Id</th>
 								<th>Name</th>
-								<th>in KeyCloak registriert</th>
+								<!-- <th>in KeyCloak registriert</th> -->
 							</tr>
 						</thead>
 
 						<tbody>
-							<tr ng-repeat="roleDataset in availableRoles">
+							<tr ng-repeat="roleDataset in availableRoleDatasets">
 								<td><input type="checkbox" ng-model="roleDataset.isSelected"
 										ng-change="onChangeSelectDataset(roleDataset)"></input></td>
 								<td>
@@ -62,7 +71,7 @@
 								</td>
 								<td>{{roleDataset.roleId}}</td>
 								<td>{{roleDataset.roleName}}</td>
-								<td>{{roleDataset.registeredInKeyCloak}}</td>								
+								<!-- <td>{{roleDataset.registeredInKeyCloak}}</td>								 -->
 							</tr>
 
 						</tbody>
@@ -73,7 +82,7 @@
 								<th>Editierfunktionen</th>
 								<th>Id</th>
 								<th>Name</th>
-								<th>in KeyCloak registriert</th>
+								<!-- <th>in KeyCloak registriert</th> -->
 							</tr>
 						</tfoot>
 					</table>
