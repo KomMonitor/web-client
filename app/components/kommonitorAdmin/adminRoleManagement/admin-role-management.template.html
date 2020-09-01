@@ -1,0 +1,90 @@
+<div id="adminRolesContent">
+	<!-- Content Header (Page header) -->
+	<section class="content-header">
+		<h1>
+			Rollenverwaltung
+			<small>Rollen- und Zugriffs-Management via KeyCloak</small>
+		</h1>
+	</section>
+
+	<div class="adminTableButtonWrapper">
+		<button class="btn btn-success btn-sm" type="button" data-toggle="modal"
+			data-target="#modal-add-role"><i class="fas fa-plus"></i>&nbsp;&nbsp;Erstellen</button>
+
+		<!-- delete selected completely -->
+		<button class="btn btn-danger btn-sm" type="button" data-toggle="modal"
+			data-target="#modal-delete-roles" ng-click="onClickDeleteDatasets()"><i
+				class="fas fa-trash"></i>&nbsp;&nbsp;L&ouml;schen</button>
+
+	</div>
+	</section>
+
+	<!-- Main content -->
+	<section class="content container-fluid">
+		<!--------------------------
+	| Your Page Content Here |
+	-------------------------->
+
+		<div class="box box-primary">
+			<div class="box-header">
+				<h3 class="box-title">Rollen</h3>
+			</div>
+			<!-- /.box-header -->
+			<div class="box-body">
+
+				<div class="admin-table-wrapper">
+					<table id="roleOverviewTable" datatable="ng"
+						dt-options="$ctrl.kommonitorDataExchangeServiceInstance.datatablesOptions"
+						class="table table-bordered table-condensed table-striped"
+						style="width:100%; overflow:auto; font-size: 11px;">
+						<thead>
+							<tr>
+								<th><input type="checkbox" ng-model="selectAllEntriesInput"
+										ng-change="onChangeSelectAllEntries()"></input></th>
+								<th>Editierfunktionen</th>
+								<th>Id</th>
+								<th>Name</th>
+								<th>in KeyCloak registriert</th>
+							</tr>
+						</thead>
+
+						<tbody>
+							<tr ng-repeat="roleDataset in availableRoles">
+								<td><input type="checkbox" ng-model="roleDataset.isSelected"
+										ng-change="onChangeSelectDataset(roleDataset)"></input></td>
+								<td>
+									<div class="btn-group btn-group-sm">
+										<button class="btn btn-warning btn-sm" type="button" data-toggle="modal"
+											data-target="#modal-edit-role-metadata"
+											ng-click="onClickEditMetadata(roleDataset)"
+											title="Metadaten editieren"><i class="fas fa-pencil-alt"></i></button>
+									</div>
+								</td>
+								<td>{{roleDataset.roleId}}</td>
+								<td>{{roleDataset.roleName}}</td>
+								<td>{{roleDataset.registeredInKeyCloak}}</td>								
+							</tr>
+
+						</tbody>
+
+						<tfoot>
+							<tr>
+								<th>alle selektieren</th>
+								<th>Editierfunktionen</th>
+								<th>Id</th>
+								<th>Name</th>
+								<th>in KeyCloak registriert</th>
+							</tr>
+						</tfoot>
+					</table>
+
+				</div>
+			</div>
+			<!-- /.box-body -->
+		</div>
+		<!-- /.box -->
+
+
+	</section>
+	<!-- /.content -->
+</div>
