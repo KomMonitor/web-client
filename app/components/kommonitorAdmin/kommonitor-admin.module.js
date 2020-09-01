@@ -3,6 +3,6 @@ angular.module('kommonitorAdmin', ['kommonitorDataExchange', 'adminDashboardMana
 'spatialUnitAddModal','spatialUnitEditMetadataModal', 'spatialUnitEditFeaturesModal','spatialUnitDeleteModal',
 'georesourceDeleteModal','georesourceAddModal', 'georesourceEditFeaturesModal', 'georesourceEditMetadataModal',
 'indicatorDeleteModal','indicatorAddModal', 'indicatorEditFeaturesModal', 'indicatorEditMetadataModal',
-'topicEditModal', 'topicDeleteModal',
+'topicEditModal', 'topicDeleteModal', 'roleAddModal', 'roleDeleteModal', 'roleEditMetadataModal'
 // ,'spatialUnitDeleteModal',,
 ]);
