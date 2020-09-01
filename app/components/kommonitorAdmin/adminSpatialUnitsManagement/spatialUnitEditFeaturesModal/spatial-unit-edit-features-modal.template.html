@@ -167,9 +167,9 @@
 										<div ng-repeat="parameter in converter.parameters">
 
 											<div class="form-group">
-												<label>{{parameter.name}}*</label>
+												<label>{{parameter.name}}<i ng-if="parameter.mandatory">*</i></label>
 												<input type="text" id="converterParameter_spatialUnitEditFeatures_{{parameter.name}}" class="form-control"
-													placeholder="{{parameter.name}}" required>
+													placeholder="{{parameter.name}}" ng-required="parameter.mandatory">
 												<div class="help-block">
 													<p>{{parameter.description}}</p>
 												</div>
