@@ -31,7 +31,14 @@
 								<h3 class="fs-subtitle">Angaben &uuml;ber die neue Rolle</h3>
 								<p><b><i>* = Pflichtfeld</i></b></p>
 
-
+								<div class="row vertical-align">
+									<div class="col-md-5">
+										<label >Name der Rolle*</label>
+										<input style="width:100%;" class="form-control" type="text" placeholder="Rollenname" ng-model="roleName" required></input>
+										<div class="help-block with-errors"></div>
+										<div class="help-block">Eindeutiger Name der Rolle. Der identische Rollenname muss auch in Keycloak definiert werden.</div>
+									</div>				
+								</div>
 
 							</fieldset>
 
@@ -45,11 +52,11 @@
 				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
 
 				<button type="button" class="btn btn-success" type="submit" ng-click="addRole()"
-					ng-disabled="!roleName || !roleId">Rolle registrieren</button>
+					ng-disabled="!roleName">Rolle registrieren</button>
 				<button type="button" class="btn btn-danger" ng-click="resetRoleAddForm()">Zur&uuml;cksetzen</button>
 			</div>
 
-			<div id="roleAddSucessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+			<div id="roleAddSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
 				class="alert alert-success alert-dismissable">
 				<button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
 				<h4><i class="icon fa fa-check"></i>Rolle registriert</h4>
