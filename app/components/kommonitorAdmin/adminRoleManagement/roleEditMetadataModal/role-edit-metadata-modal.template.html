@@ -35,6 +35,19 @@
 
 								<p><b><i>* = Pflichtfeld</i></b></p>
 
+								<div class="row vertical-align">
+									<div class="col-md-5">
+										<label >Id der Rolle</label>
+										<input style="width:100%;" class="form-control" type="text" placeholder="Rollen-Id" ng-model="currentRoleDataset.roleId" disabled></input>
+										<div class="help-block with-errors"></div>
+									</div>
+									<div class="col-md-5">
+										<label >Name der Rolle*</label>
+										<input style="width:100%;" class="form-control" type="text" placeholder="Rollenname" ng-model="currentRoleDataset.roleName" required></input>
+										<div class="help-block with-errors"></div>
+										<div class="help-block">Eindeutiger Name der Rolle. Der identische Rollenname muss auch in Keycloak definiert werden.</div>
+									</div>				
+								</div>
 
 							</fieldset>
 
@@ -45,13 +58,11 @@
 				</div>
 				<!-- /.MultiStep Form -->
 
-				<!-- ng-disabled="((!customWfsTitle) || (!customWfsDescription) || (!customWfsUrl) || (!customWfsLayerName))" -->
-
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
 
-				<button type="button" class="btn btn-success" ng-disabled="!roleName || !roleId"
+				<button type="button" class="btn btn-success" ng-disabled="!currentRoleDataset.roleName || !currentRoleDataset.roleId"
 					ng-click="editRoleMetadata()">Metadaten aktualisieren</button>
 				<button type="button" class="btn btn-danger"
 					ng-click="resetRoleEditMetadataForm()">Zur&uuml;cksetzen</button>
