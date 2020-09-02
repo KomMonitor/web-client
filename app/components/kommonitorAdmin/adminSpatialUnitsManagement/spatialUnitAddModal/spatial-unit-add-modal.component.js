@@ -351,6 +351,10 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 
 			$scope.addSpatialUnit = async function () {
 
+				$timeout(function(){
+					$scope.loadingData = true;
+				});
+
 				$scope.importerErrors = undefined;
 				$scope.successMessagePart = undefined;
 				$scope.errorMessagePart = undefined;
@@ -377,7 +381,6 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 
 					// TODO Create and perform POST Request with loading screen
 
-					$scope.loadingData = true;
 					var newSpatialUnitResponse_dryRun = undefined;
 					try {
 						newSpatialUnitResponse_dryRun = await kommonitorImporterHelperService.registerNewSpatialUnit($scope.converterDefinition, $scope.datasourceTypeDefinition, $scope.propertyMappingDefinition, $scope.postBody_spatialUnits, true);

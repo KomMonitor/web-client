@@ -834,6 +834,10 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 
 		$scope.addIndicator = async function(){
 
+			$timeout(function(){
+				$scope.loadingData = true;
+			});
+
 			if($scope.indicatorCreationType.apiName.includes("COMPUTATION")){
 				// send direct request to Data Management
 				return $scope.addComputableIndicatorMetadata();
@@ -864,8 +868,6 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 					// TODO verify input
 
 					// TODO Create and perform POST Request with loading screen
-
-					$scope.loadingData = true;
 
 					var newIndicatorResponse_dryRun = undefined;
 					try {
