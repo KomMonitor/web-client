@@ -1,7 +1,7 @@
 angular.module('georesourceAddModal').component('georesourceAddModal', {
 	templateUrl : "components/kommonitorAdmin/adminGeoresourcesManagement/georesourceAddModal/georesource-add-modal.template.html",
-	controller : ['kommonitorDataExchangeService', 'kommonitorImporterHelperService', '$scope', '$rootScope', '$http', '__env',
-		function GeoresourceAddModalAddModalController(kommonitorDataExchangeService, kommonitorImporterHelperService, $scope, $rootScope, $http, __env) {
+	controller : ['kommonitorDataExchangeService', 'kommonitorImporterHelperService', '$scope', '$rootScope', '$http', '$timeout', '__env',
+		function GeoresourceAddModalAddModalController(kommonitorDataExchangeService, kommonitorImporterHelperService, $scope, $rootScope, $http, $timeout, __env) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 		this.kommonitorImporterHelperServiceInstance = kommonitorImporterHelperService;
@@ -96,6 +96,17 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 		$scope.metadata.contact = undefined;
 		$scope.metadata.lastUpdate = undefined;
 		$scope.metadata.description = undefined;
+
+		$scope.allowedRoleNames = {selectedItems: []};
+		$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, null, "roleName")};			
+
+		// make sure that initial fetching of availableRoles has happened
+		$scope.$on("initialMetadataLoadingCompleted", function (event) {
+			$timeout(function () {
+				$scope.allowedRoleNames = { selectedItems: [] };
+				$scope.duallist = { duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, null, "roleName") };
+			});
+		});
 
 		$scope.georesourceTopic_mainTopic = undefined;
 		$scope.georesourceTopic_subTopic = undefined;
@@ -220,6 +231,9 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			$scope.metadata.contact = undefined;
 			$scope.metadata.lastUpdate = undefined;
 			$scope.metadata.description = undefined;
+
+			$scope.allowedRoleNames = {selectedItems: []};
+			$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, null, "roleName")};				
 
 			$scope.georesourceTopic_mainTopic = undefined;
 			$scope.georesourceTopic_subTopic = undefined;
@@ -433,6 +447,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			var postBody =
 			{
 				"geoJsonString": $scope.geoJsonString,
+				"allowedRoles": [],
 				"metadata": {
 					"note": $scope.metadata.note,
 					"literature": $scope.metadata.literature,
@@ -455,6 +470,11 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 				"isPOI": $scope.isPOI,
 			  "topicReference": null
 			};
+
+			for (const roleDuallistItem of $scope.allowedRoleNames.selectedItems) {
+				var roleMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleName(roleDuallistItem.name);
+				postBody.allowedRoles.push(roleMetadata.roleId);
+			}
 
 			if($scope.isPOI){
 				postBody["poiSymbolBootstrap3Name"] = $scope.selectedPoiIconName;

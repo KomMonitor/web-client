@@ -148,6 +148,10 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 		$scope.metadata.lastUpdate = undefined;
 		$scope.metadata.description = undefined;
 
+		$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, null, "roleName")};			
+		$scope.allowedRoleNames = {selectedItems: []};
+
+
 		$scope.datasetName = undefined;
 			$scope.indicatorAbbreviation = undefined;
 			$scope.indicatorType = undefined;
@@ -253,6 +257,9 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 				}
 			});
 
+			var selectedRolesMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleIds($scope.currentIndicatorDataset.allowedRoles);			
+			$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, selectedRolesMetadata, "roleName")};			
+			$scope.allowedRoleNames = {selectedItems: $scope.duallist.duallistRoleOptions.selectedItems};
 
 			$scope.indicatorAbbreviation = $scope.currentIndicatorDataset.abbreviation;
 
@@ -612,6 +619,11 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 					  ]
 				  }
 			};
+
+			for (const roleDuallistItem of $scope.allowedRoleNames.selectedItems) {
+				var roleMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleName(roleDuallistItem.name);
+				patchBody.allowedRoles.push(roleMetadata.roleId);
+			}
 
 			// TAGS
 			if($scope.indicatorTagsString_withCommas){
