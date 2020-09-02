@@ -91,6 +91,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 				"description": "description about spatial unit dataset",
 				"databasis": "text about data basis",
 			},
+			"allowedRoles": ['roleId'],
 			"refrencesToOtherIndicators": [
 				{
 				  "referenceDescription": "description about the reference",
@@ -706,6 +707,10 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 
 				$scope.datasetName = $scope.metadataImportSettings.datasetName;
 
+				var selectedRolesMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleIds($scope.metadataImportSettings.allowedRoles);			
+				$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, selectedRolesMetadata, "roleName")};			
+				$scope.allowedRoleNames = {selectedItems: $scope.duallist.duallistRoleOptions.selectedItems};
+
 				// indicator specific properties
 
 				
@@ -873,6 +878,12 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			metadataExport.metadata.description = $scope.metadata.description || "";
 			metadataExport.metadata.databasis = $scope.metadata.databasis || "";
 			metadataExport.datasetName = $scope.datasetName || "";
+
+			metadataExport.allowedRoles = [];
+			for (const roleDuallistItem of $scope.allowedRoleNames.selectedItems) {
+				var roleMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleName(roleDuallistItem.name);
+				metadataExport.allowedRoles.push(roleMetadata.roleId);
+			}
 
 			if($scope.metadata.updateInterval){
 					metadataExport.metadata.updateInterval = $scope.metadata.updateInterval.apiName;
