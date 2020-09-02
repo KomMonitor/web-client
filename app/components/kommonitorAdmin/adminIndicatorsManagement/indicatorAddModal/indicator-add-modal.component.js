@@ -579,7 +579,9 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 
 		$scope.addIndicator = async function(){
 
-			$scope.loadingData = true;
+			$timeout(function(){
+				$scope.loadingData = true;
+			});
 
 			var postBody = $scope.buildPostBody_indicators();
 

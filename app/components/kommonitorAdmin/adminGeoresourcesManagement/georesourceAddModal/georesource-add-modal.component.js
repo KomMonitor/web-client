@@ -532,6 +532,10 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 
 		$scope.addGeoresource = async function(){
 
+			$timeout(function(){
+				$scope.loadingData = true;
+			});
+
 			$scope.importerErrors = undefined;
 			$scope.successMessagePart = undefined;
 			$scope.errorMessagePart = undefined;
@@ -556,9 +560,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 
 					// TODO verify input
 
-					// TODO Create and perform POST Request with loading screen
-
-					$scope.loadingData = true;					
+					// TODO Create and perform POST Request with loading screen					
 
 					var newGeoresourceResponse_dryRun = undefined;
 					try {
