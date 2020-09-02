@@ -88,6 +88,9 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 		$scope.metadata.lastUpdate = undefined;
 		$scope.metadata.description = undefined;
 
+		$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, null, "roleName")};			
+		$scope.allowedRoleNames = {selectedItems: []};
+
 		$scope.georesourceTopic_mainTopic = undefined;
 		$scope.georesourceTopic_subTopic = undefined;
 		$scope.georesourceTopic_subsubTopic = undefined;
@@ -189,6 +192,10 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 				}
 			});
 
+			var selectedRolesMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleIds($scope.currentGeoresourceDataset.allowedRoles);			
+			$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, selectedRolesMetadata, "roleName")};			
+			$scope.allowedRoleNames = {selectedItems: $scope.duallist.duallistRoleOptions.selectedItems};
+
 			$scope.isPOI = $scope.currentGeoresourceDataset.isPOI;
 			$scope.isLOI = $scope.currentGeoresourceDataset.isLOI;
 			$scope.isAOI = $scope.currentGeoresourceDataset.isAOI;
@@ -281,12 +288,18 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 					"databasis": $scope.metadata.databasis,
 					"sridEPSG": 4326
 				},
+				"allowedRoles": [],
 				"datasetName": $scope.datasetName,
 			  "isAOI": $scope.isAOI,
 				"isLOI": $scope.isLOI,
 				"isPOI": $scope.isPOI,
 			  "topicReference": null
 			};
+
+			for (const roleDuallistItem of $scope.allowedRoleNames.selectedItems) {
+				var roleMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleName(roleDuallistItem.name);
+				patchBody.allowedRoles.push(roleMetadata.roleId);
+			}
 
 			if($scope.isPOI){
 				patchBody["poiSymbolBootstrap3Name"] = $scope.selectedPoiIconName;

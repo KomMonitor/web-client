@@ -689,14 +689,14 @@ angular
 
             //TODO revise metadata fecthing for protected endpoints
             // var usersPromise = this.fetchUsersMetadata();            
-            var scriptsPromise = this.fetchIndicatorScriptsMetadata();
+            // var scriptsPromise = this.fetchIndicatorScriptsMetadata();
             var topicsPromise = this.fetchTopicsMetadata();
             var spatialUnitsPromise = this.fetchSpatialUnitsMetadata();
             var georesourcesPromise = this.fetchGeoresourcesMetadata();
             var indicatorsPromise = this.fetchIndicatorsMetadata();
             
             // var metadataPromises = [topicsPromise, usersPromise, rolesPromise, spatialUnitsPromise, georesourcesPromise, indicatorsPromise, scriptsPromise];
-            var metadataPromises = [spatialUnitsPromise, georesourcesPromise, indicatorsPromise, topicsPromise, scriptsPromise];
+            var metadataPromises = [spatialUnitsPromise, georesourcesPromise, indicatorsPromise, topicsPromise];
 
             if (Auth.keycloak.authenticated){
               var rolesPromise = this.fetchRolesMetadata();
@@ -1531,5 +1531,79 @@ angular
             		day: 'numeric'
             });
           };
+
+          /**
+		 * creates an array of objects from an array of strings.
+		 * each object in the result has the properties "category" and "name"
+		 * 
+		 * example:
+		 * convert ["s1", "s2", ...]    ===>    [{category: "s1",name: "s1"}, {category: "s2", name: "s2"}, ...]
+		 * @param {array} array 
+		 */
+		this.createDualListInputArray = function(array, nameProperty) {
+			var result = [];
+
+      if(array && Array.isArray(array)){
+        for (var i=0;i<array.length;i++) {
+          var obj = {};
+          obj["category"] = array[i][nameProperty];
+          obj["name"] = array[i][nameProperty];
+          result.push(obj);
+        }
+      }
+			
+			return result;
+		};
+
+		this.initializeRoleDualListConfig = function(inputArray, selectedArray, nameProperty) {
+			var duallistRoleOptions = {
+				label: 'Rollen',
+				boxItemsHeight: 'md',
+				items: this.createDualListInputArray(inputArray, nameProperty),
+				button: {leftText: "Alle auswählen" , rightText: "Alle entfernen"},
+				selectedItems: this.createDualListInputArray(selectedArray, nameProperty)
+			};
+
+				// remove those timestamps from left side
+				duallistRoleOptions.items = duallistRoleOptions.items.filter(
+					function(unselectedItem) {
+						return !duallistRoleOptions.selectedItems.find(
+							function(selectedItem) {
+								return unselectedItem.name === selectedItem.name;
+							}
+						);
+					}
+        );
+        
+        return duallistRoleOptions;
+    };
+    
+    this.getRoleMetadataForRoleName = function(roleName){
+      for (const roleMetadata of this.availableRoles) {
+        if(roleMetadata.roleName === roleName){
+          return roleMetadata;
+        }
+      }
+    };
+
+    this.getRoleMetadataForRoleId = function(roleId){
+      for (const roleMetadata of this.availableRoles) {
+        if(roleMetadata.roleId === roleId){
+          return roleMetadata;
+        }
+      }
+    };
+
+    this.getRoleMetadataForRoleIds = function(roleIdsArray){
+      var rolesMetadata = [];
+      for (const roleMetadata of this.availableRoles) {
+        if(roleIdsArray.includes(roleMetadata.roleId)){
+          rolesMetadata.push(roleMetadata);
+        }
+      }
+
+      return rolesMetadata;
+    };
+
 
 				}]);

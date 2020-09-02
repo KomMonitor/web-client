@@ -1,7 +1,7 @@
 angular.module('indicatorAddModal').component('indicatorAddModal', {
 	templateUrl : "components/kommonitorAdmin/adminIndicatorsManagement/indicatorAddModal/indicator-add-modal.template.html",
-	controller : ['kommonitorDataExchangeService', 'kommonitorImporterHelperService', '$scope', '$rootScope', '$http', '__env',
-		function IndicatorAddModalAddModalController(kommonitorDataExchangeService, kommonitorImporterHelperService, $scope, $rootScope, $http, __env) {
+	controller : ['kommonitorDataExchangeService', 'kommonitorImporterHelperService', '$scope', '$rootScope', '$http', '$timeout', '__env',
+		function IndicatorAddModalAddModalController(kommonitorDataExchangeService, kommonitorImporterHelperService, $scope, $rootScope, $http, $timeout, __env) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 		this.kommonitorImporterHelperServiceInstance = kommonitorImporterHelperService;
@@ -150,6 +150,17 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 		$scope.metadata.lastUpdate = undefined;
 		$scope.metadata.description = undefined;
 
+		$scope.allowedRoleNames = {selectedItems: []};
+		$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, null, "roleName")};			
+
+		// make sure that initial fetching of availableRoles has happened
+		$scope.$on("initialMetadataLoadingCompleted", function (event) {
+			$timeout(function () {
+				$scope.allowedRoleNames = { selectedItems: [] };
+				$scope.duallist = { duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, null, "roleName") };
+			});
+		});
+
 		$scope.datasetName = undefined;
 			$scope.indicatorAbbreviation = undefined;
 			$scope.indicatorType = undefined;
@@ -241,6 +252,9 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			$scope.metadata.contact = undefined;
 			$scope.metadata.lastUpdate = undefined;
 			$scope.metadata.description = undefined;
+
+			$scope.allowedRoleNames = {selectedItems: []};
+			$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, null, "roleName")};			
 
 			$scope.datasetName = undefined;
 			$scope.indicatorAbbreviation = undefined;
@@ -504,6 +518,11 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 					  ]
 				  }
 			};
+
+			for (const roleDuallistItem of $scope.allowedRoleNames.selectedItems) {
+				var roleMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleName(roleDuallistItem.name);
+				postBody.allowedRoles.push(roleMetadata.roleId);
+			}
 
 			// TAGS
 			if($scope.indicatorTagsString_withCommas){

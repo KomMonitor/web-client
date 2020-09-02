@@ -73,6 +73,10 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 		$scope.metadata.lastUpdate = undefined;
 		$scope.metadata.description = undefined;
 
+		$scope.allowedRoleNames = {selectedItems: []};
+		$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, null, "roleName")};			
+
+
 		$scope.nextLowerHierarchySpatialUnit = undefined;
 		$scope.nextUpperHierarchySpatialUnit = undefined;
 		$scope.hierarchyInvalid = false;
@@ -102,6 +106,10 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 			$scope.metadata.databasis = $scope.currentSpatialUnitDataset.metadata.databasis;
 			$scope.metadata.contact = $scope.currentSpatialUnitDataset.metadata.contact;
 			$scope.metadata.description = $scope.currentSpatialUnitDataset.metadata.description;
+
+			var selectedRolesMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleIds($scope.currentSpatialUnitDataset.allowedRoles);			
+			$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, selectedRolesMetadata, "roleName")};			
+			$scope.allowedRoleNames = {selectedItems: $scope.duallist.duallistRoleOptions.selectedItems};
 
 			$scope.metadata.lastUpdate = $scope.currentSpatialUnitDataset.metadata.lastUpdate;
 			// $('#spatialUnitEditMetadataLastUpdateDatepicker').data({date: $scope.currentSpatialUnitDataset.metadata.lastUpdate});
@@ -187,11 +195,15 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 					"databasis": $scope.metadata.databasis,
 					"sridEPSG": 4326
 				},
+				"allowedRoles": [],
 				"nextLowerHierarchyLevel": $scope.nextLowerHierarchySpatialUnit ? $scope.nextLowerHierarchySpatialUnit.spatialUnitLevel : null,
 				"nextUpperHierarchyLevel": $scope.nextUpperHierarchySpatialUnit ? $scope.nextUpperHierarchySpatialUnit.spatialUnitLevel : null
 			};
 
-			// TODO verify input
+			for (const roleDuallistItem of $scope.allowedRoleNames.selectedItems) {
+				var roleMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleName(roleDuallistItem.name);
+				patchBody.allowedRoles.push(roleMetadata.roleId);
+			}
 
 			// TODO Create and perform POST Request with loading screen
 
