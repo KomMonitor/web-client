@@ -1154,6 +1154,16 @@ angular
             return (spatialUnitName.includes("raster") || spatialUnitName.includes("Raster") || spatialUnitName.includes("RASTER") || spatialUnitName.includes("grid") || spatialUnitName.includes("GRID") || spatialUnitName.includes("Grid"));
           };
 
+          var roleMappingAllowsDisplay = function(indicatorMetadata){
+            var roleMetadataForCurrentLoginRoles = self.availableRoles.filter(role => self.currentLoginRoles.includes(role.roleName));            
+            
+            var filteredApplicableUnits = indicatorMetadata.applicableSpatialUnits.filter(function (applicableSpatialUnit) {
+              return applicableSpatialUnit.allowedRoles.length == 0 || applicableSpatialUnit.allowedRoles.some(allowedRoleId => roleMetadataForCurrentLoginRoles.some(roleMetadata => roleMetadata.roleId === allowedRoleId) );                
+            });
+
+            return filteredApplicableUnits.length > 0;
+          };
+
           var isDisplayableIndicator = function(item){
              // var arrayOfNameSubstringsForHidingIndicators = ["Standardabweichung", "Prozentuale Ver"];
              var arrayOfNameSubstringsForHidingIndicators = __env.arrayOfNameSubstringsForHidingIndicators;
@@ -1168,6 +1178,11 @@ angular
                  if(isIndicatorThatShallNotBeDisplayed){
                    return false;
                  }
+
+                 if(! roleMappingAllowsDisplay(item.indicatorMetadata)){
+                   return false;
+                 }
+
                return true;
              }
              else{
@@ -1181,6 +1196,11 @@ angular
                  if(isIndicatorThatShallNotBeDisplayed){
                    return false;
                  }
+
+                 if(! roleMappingAllowsDisplay(item)){
+                  return false;
+                }
+
                return true;
              }
           };
