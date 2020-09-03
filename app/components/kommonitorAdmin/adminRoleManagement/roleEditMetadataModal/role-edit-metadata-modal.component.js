@@ -5,6 +5,7 @@ angular.module('roleEditMetadataModal').component('roleEditMetadataModal', {
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
 		$scope.currentRoleDataset;
+		$scope.roleNameInvalid = false;
 
 		$scope.loadingData = false;
 
@@ -18,6 +19,16 @@ angular.module('roleEditMetadataModal').component('roleEditMetadataModal', {
 			$scope.resetRoleEditMetadataForm();
 
 		});
+
+		$scope.checkRoleName = function(){
+			$scope.roleNameInvalid = false;
+			kommonitorDataExchangeService.availableRoles.forEach(function(role){
+				if (role.roleName === $scope.currentRoleDataset.roleName && role.roleId != $scope.currentRoleDataset.roleId){
+					$scope.roleNameInvalid = true;
+					return;
+				}
+			});
+		};
 
 
 		$scope.resetRoleEditMetadataForm = function () {

@@ -34,9 +34,14 @@
 								<div class="row vertical-align">
 									<div class="col-md-5">
 										<label >Name der Rolle*</label>
-										<input style="width:100%;" class="form-control" type="text" placeholder="Rollenname" ng-model="roleName" required></input>
+										<input style="width:100%;" class="form-control" type="text" placeholder="Rollenname" ng-model="roleName" 
+										ng-change="checkRoleName()" required></input>
 										<div class="help-block with-errors"></div>
 										<div class="help-block">Eindeutiger Name der Rolle. Der identische Rollenname muss auch in Keycloak definiert werden.</div>
+										<div ng-if="roleNameInvalid" style="color: red;">
+											<p>Eingabe ung&uuml;ltig. Es existiert bereits eine Rolle mit
+												gleichem Namen.</p>
+										</div>
 									</div>				
 								</div>
 
@@ -52,7 +57,7 @@
 				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
 
 				<button type="button" class="btn btn-success" type="submit" ng-click="addRole()"
-					ng-disabled="!roleName">Rolle registrieren</button>
+					ng-disabled="!roleName || roleNameInvalid">Rolle registrieren</button>
 				<button type="button" class="btn btn-danger" ng-click="resetRoleAddForm()">Zur&uuml;cksetzen</button>
 			</div>
 

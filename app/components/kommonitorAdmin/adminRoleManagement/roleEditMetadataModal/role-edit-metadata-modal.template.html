@@ -43,9 +43,14 @@
 									</div>
 									<div class="col-md-5">
 										<label >Name der Rolle*</label>
-										<input style="width:100%;" class="form-control" type="text" placeholder="Rollenname" ng-model="currentRoleDataset.roleName" required></input>
+										<input style="width:100%;" class="form-control" type="text" placeholder="Rollenname" ng-model="currentRoleDataset.roleName" 
+										ng-change="checkRoleName()" required></input>
 										<div class="help-block with-errors"></div>
 										<div class="help-block">Eindeutiger Name der Rolle. Der identische Rollenname muss auch in Keycloak definiert werden.</div>
+										<div ng-if="roleNameInvalid" style="color: red;">
+											<p>Eingabe ung&uuml;ltig. Es existiert bereits eine andere Rolle mit
+												gleichem Namen.</p>
+										</div>
 									</div>				
 								</div>
 
@@ -62,7 +67,7 @@
 			<div class="modal-footer">
 				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
 
-				<button type="button" class="btn btn-success" ng-disabled="!currentRoleDataset.roleName || !currentRoleDataset.roleId"
+				<button type="button" class="btn btn-success" ng-disabled="!currentRoleDataset.roleName || !currentRoleDataset.roleId || roleNameInvalid"
 					ng-click="editRoleMetadata()">Metadaten aktualisieren</button>
 				<button type="button" class="btn btn-danger"
 					ng-click="resetRoleEditMetadataForm()">Zur&uuml;cksetzen</button>

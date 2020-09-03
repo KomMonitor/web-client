@@ -8,8 +8,19 @@ angular.module('roleAddModal').component('roleAddModal', {
 
 			$scope.loadingData = false;
 			$scope.roleName = undefined;
+			$scope.roleNameInvalid = false;
 			$scope.successMessagePart = undefined;
 			$scope.errorMessagePart = undefined;
+
+			$scope.checkRoleName = function(){
+				$scope.roleNameInvalid = false;
+				kommonitorDataExchangeService.availableRoles.forEach(function(role){
+					if (role.roleName === $scope.roleName){
+						$scope.roleNameInvalid = true;
+						return;
+					}
+				});
+			};
 
 			$scope.resetRoleAddForm = function () {
 				$scope.roleName = undefined;
