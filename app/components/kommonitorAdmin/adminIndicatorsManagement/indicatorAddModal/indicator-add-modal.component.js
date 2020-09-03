@@ -1,7 +1,7 @@
 angular.module('indicatorAddModal').component('indicatorAddModal', {
 	templateUrl : "components/kommonitorAdmin/adminIndicatorsManagement/indicatorAddModal/indicator-add-modal.template.html",
-	controller : ['kommonitorDataExchangeService', 'kommonitorImporterHelperService', '$scope', '$rootScope', '$http', '__env',
-		function IndicatorAddModalAddModalController(kommonitorDataExchangeService, kommonitorImporterHelperService, $scope, $rootScope, $http, __env) {
+	controller : ['kommonitorDataExchangeService', 'kommonitorImporterHelperService', '$scope', '$rootScope', '$http', '__env', '$timeout', 
+		function IndicatorAddModalAddModalController(kommonitorDataExchangeService, kommonitorImporterHelperService, $scope, $rootScope, $http, __env, $timeout) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 		this.kommonitorImporterHelperServiceInstance = kommonitorImporterHelperService;
@@ -834,6 +834,10 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 
 		$scope.addIndicator = async function(){
 
+			$timeout(function(){
+				$scope.loadingData = true;
+			});
+
 			if($scope.indicatorCreationType.apiName.includes("COMPUTATION")){
 				// send direct request to Data Management
 				return $scope.addComputableIndicatorMetadata();
@@ -864,8 +868,6 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 					// TODO verify input
 
 					// TODO Create and perform POST Request with loading screen
-
-					$scope.loadingData = true;
 
 					var newIndicatorResponse_dryRun = undefined;
 					try {
