@@ -291,14 +291,21 @@ angular
             var parameterName = parameter.name;
             var parameterValue = $("#" + converterParameterPrefix + parameterName).val();
   
-            if (parameterValue === undefined || parameterValue === null){
+            if(parameter.mandatory){
+
+            }
+
+            if (parameter.mandatory && (parameterValue === undefined || parameterValue === null || parameterValue === "")){
               return null;
             }
             else{
-              converterDefinition.parameters.push({
-                "name": parameterName,
-                "value": parameterValue
-              });
+              if(parameterValue && !(parameterValue === "")){
+                converterDefinition.parameters.push({
+                  "name": parameterName,
+                  "value": parameterValue
+                });
+              }
+              
             }
           }
         }
@@ -380,8 +387,8 @@ angular
           "arisenFromProperty": arisenFromProperty,
           "identifierProperty": idPropety,
           "nameProperty": nameProperty,
-          "validEndDateProperty": validStartDateProperty,
-          "validStartDateProperty": validEndDateProperty,
+          "validEndDateProperty": validEndDateProperty,
+          "validStartDateProperty": validStartDateProperty,
           "keepAttributes": keepAttributes,
           "keepMissingOrNullValueAttributes": keepMissingValues,
           "attributes": []

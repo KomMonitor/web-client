@@ -463,22 +463,6 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				placement: "top",
 				content: "Beim Anwendungsstart sehen Sie zun&auml;chst die <b>kartographische Darstellung</b> eines ausgew&auml;hlten Indikators. In dieser Darstellung k&ouml;nnen Sie in der <b>Karte frei navigieren (zoomen, verschieben)</b> und beim <i>Her&uuml;berfahren mit dem Mauszeiger &uuml;ber eines der Indikator-Geometrien</i> erhalten sie ein <b>Popup mit dem Indikator-Wert</b>.",
 				onNext: function(tour){
-					// make sure that Info control is displayed
-
-					var control = document.getElementById("infoControl");
-					var controlButton = document.getElementById("toggleInfoControlButton");
-					if(control.style.display === "none" || (controlButton.style.display !== undefined && controlButton.style.display !== "none")){
-						$rootScope.$broadcast("toggleInfoControl");
-					}
-
-				},
-			},
-			{
-				element: "#infoControl",
-				title: "Indikatoren-Informationsfenster",
-				placement: "left",
-				content: "Dieses Element enth&auml;lt die wichtigsten <b>Metadaten</b> &uuml;ber den aktuell dargestellten Indikator. Dar&uuml;ber hinaus kann hier die <b>Raumbezugsebene gewechselt</b> werden (in Abh&auml;ngigkeit der verf&uuml;gbaren Raumebenen des gew&auml;hlten Indikators). <br/><br/>Mittels eines <b>Schiebereglers</b> wird zudem die <b>Transparenz des Indikator-Layers</b> bestimmt. Verschiedene <b>Export-Buttons</b> erm&ouml;glichen den Export des Metadatenblatts sowie der Geometrien inklusive Sachdaten in verschiedenen Formaten",
-				onNext: function(tour){
 					// make sure that legend control is displayed
 
 					var control = document.getElementById("legendControl");
@@ -487,23 +471,13 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 						$rootScope.$broadcast("toggleLegendControl");
 					}
 
-				}
+				},
 			},
 			{
 				element: "#legendControl",
 				title: "Indikatorenlegende",
 				placement: "left",
-				content: "Dieses Element repr&auml;sentiert die <b>Legende</b>, sprich die Zuordnung von Indikatorenwertebereichen zu Darstellungsfarben. &Uuml;ber die <b>Radio-Buttons</b> (Jenks, Gleiches Intervall, Quantile) kann die <b>Klassifizierungsmethode</b> ge&auml;ndert werden (f&uuml;r detaillierte Informationen zu den Klassifizierungsmethoden lesen Sie bitte das <b>Popup</b>, das erscheint, wenn Sie mit dem <i>Mauszeiger &uuml;ber eine der drei Optionen fahren</i>). <br/><br/> KomMonitor &uuml;berpr&uuml;ft jeden Indikatorendatensatz auf <b>Ausrei&szlig;er</b>. Werden ein oder mehrere Ausrei&szlig;er erkannt, so enth&auml;t die Legende auch eine <b>Checkbox</b>, mit der <i>Ausrei&szlig;er gesondert markiert und aus der Klassifizierung genommen werden k&ouml;nnen</i>. ",
-				onPrev: function(tour){
-					// make sure that legend control is displayed
-
-					var control = document.getElementById("infoControl");
-					var controlButton = document.getElementById("toggleInfoControlButton");
-					if(control.style.display === "none" || (controlButton.style.display !== undefined && controlButton.style.display !== "none")){
-						$rootScope.$broadcast("toggleInfoControl");
-					}
-
-				},
+				content: "Dieses Element enth&auml;lt die wichtigsten <b>Metadaten</b> &uuml;ber den aktuell dargestellten Indikator. Dar&uuml;ber hinaus kann hier die <b>Raumbezugsebene gewechselt</b> werden (in Abh&auml;ngigkeit der verf&uuml;gbaren Raumebenen des gew&auml;hlten Indikators). <br/><br/>Mittels eines <b>Schiebereglers</b> wird zudem die <b>Transparenz des Indikator-Layers</b> bestimmt. Verschiedene <b>Export-Buttons</b> erm&ouml;glichen den Export des Metadatenblatts sowie der Geometrien inklusive Sachdaten in verschiedenen Formaten. <br/><br/> Weiterhin zeigt die <b>Indikatoren-Legende</b> die Zuordnung von Indikatorenwertebereichen zu Darstellungsfarben. &Uuml;ber die <b>Radio-Buttons</b> (Jenks, Gleiches Intervall, Quantile) kann die <b>Klassifizierungsmethode</b> ge&auml;ndert werden (f&uuml;r detaillierte Informationen zu den Klassifizierungsmethoden lesen Sie bitte das <b>Popup</b>, das erscheint, wenn Sie mit dem <i>Mauszeiger &uuml;ber eine der drei Optionen fahren</i>). <br/><br/> KomMonitor &uuml;berpr&uuml;ft jeden Indikatorendatensatz auf <b>Ausrei&szlig;er</b>. Werden ein oder mehrere Ausrei&szlig;er erkannt, so enth&auml;t die Legende auch eine <b>Checkbox</b>, mit der <i>Ausrei&szlig;er gesondert markiert und aus der Klassifizierung genommen werden k&ouml;nnen</i>. Analog l&auml;sst sich einstellen, ob die Klassifizierung die Indikatorenwerte der gesamten Zeitreihe ber&uuml;cksichtigen soll, oder nur jene des aktuellen Zeitschnitts."				
 			},
 			{
 				element: "#dateSliderWrapper",
@@ -535,7 +509,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			},
 			{
 				element: "#sidebarIndicatorConfigCollapse",
-				title: "Indikatorenkatalog und Verkn&uuml;pfungen zu anderen Indikatoren oder Geodaten",
+				title: "Indikatorenkatalog -metadaten und Verkn&uuml;pfungen zu anderen Indikatoren oder Geodaten",
 				placement: "right",
 				content: "Ein Klick auf diesen Button &ouml;ffnet das Indikatoren-Auswahl-Fenster. <br/><br/><i>Im n&auml;chsten Schritt wird das Men&uuml; automatisch ge&ouml;ffnet.</i>",
 				onNext: function(tour){
@@ -546,7 +520,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			},
 			{
 				element: "#indicatorSetup",
-				title: "Indikatorenkatalog und Verkn&uuml;pfungen zu anderen Indikatoren oder Geodaten",
+				title: "Indikatorenkatalog -metadaten und Verkn&uuml;pfungen zu anderen Indikatoren oder Geodaten",
 				placement: "right",
 				content: "Dieses Men&uuml; enth&auml;lt eine <b>&Uuml;bersicht aller verf&uuml;gbarer Indikatoren</b> sowie die Optionen, den aktuell betrachteten <b>Indikator zu wechseln</b>. <br/><br/>Im obigen <b>Themenfilter</b> kann die &Uuml;bersicht der Indikatoren nach verschiedenen Themenkomplexen gefiltert werden. <br/><br/>Sollte ein Indikator etwaige <b>Verkn&uuml;pfungen</b> zu anderen Indikatoren oder sonstigen Geodaten beinhalten, so werden diese in tabellarischer Form kenntlich gemacht.",
 				onNext: function(tour){
@@ -562,9 +536,9 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			},
 			{
 				element: "#sidebarPoiCollapse",
-				title: "Geometries of Interest",
+				title: "Georessourcen und -dienste",
 				placement: "right",
-				content: "Ein Klick auf diesen Button &ouml;ffnet das Geometries of Interest Fenster. <br/><br/><i>Im n&auml;chsten Schritt wird das Men&uuml; automatisch ge&ouml;ffnet.</i>",
+				content: "Ein Klick auf diesen Button &ouml;ffnet das Georessourcen Fenster. <br/><br/><i>Im n&auml;chsten Schritt wird das Men&uuml; automatisch ge&ouml;ffnet.</i>",
 				onNext: function(tour){
 					if($scope.sidebarPoiClass === "disappear"){
 							$("#sidebarPoiCollapse").click();
@@ -573,9 +547,9 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			},
 			{
 				element: "#poi",
-				title: "Geometries of Interest",
+				title: "Georessourcen und -dienste",
 				placement: "right",
-				content: "Zur &Uuml;berlagerung von fl&auml;chenhaften Indikator-Geometrien mit weiteren relevanten Geodaten k&ouml;nnen hier sogenannte <b>Points of Interest (POI)-Layer</b> zur Karte hinzugef&uuml;gt werden. Hinzuf&uuml;gen und Entfernen der POI-Layer geschieht dabei durch (De-) Selektion der jeweiligen <i>Checkbox</i>. <br/><br/>In der Standardkonfiguration werden die einzelnen Punktgeometrien r&auml;umlich zu sogenannten <b>Cluster-Punkten</b> zusammengefasst, um die Darstellung je nach Zoom-Stufe zu optimieren. &Uuml;ber eine entsprechende <i>Auswahloption</i> k&ouml;nnen jedoch bei jeder Zoomstufe wahlweise auch <b>alle Einzelpunkte dargestellt</b> werden.<br/><br/>Zuk&uuml;nftig sollen hier auch <b>Lines of Interest</b> und <b>Areas of Interest</b> angeboten werden.",
+				content: "Zur &Uuml;berlagerung von fl&auml;chenhaften Indikator-Geometrien mit weiteren relevanten Geodaten k&ouml;nnen hier sogenannte <b>Points/Lines/Areas of Interest Layer sowie Geodatendienste</b> zur Karte hinzugef&uuml;gt werden. Hinzuf&uuml;gen und Entfernen der Layer geschieht dabei durch (De-) Selektion der jeweiligen <i>Checkbox</i>. <br/><br/>In der Standardkonfiguration werden Punktgeometrien r&auml;umlich zu sogenannten <b>Cluster-Punkten</b> zusammengefasst, um die Darstellung je nach Zoom-Stufe zu optimieren. &Uuml;ber eine entsprechende <i>Auswahloption</i> k&ouml;nnen jedoch bei jeder Zoomstufe wahlweise auch <b>alle Einzelpunkte dargestellt</b> werden.<br/><br/> <b>Hinweis zu Zeitbezug der darzustellenden Daten</b><br/>Der Abruf eines Point/Line/Area of Interest Datensatzes bezieht sich immer auf ein Datum. Standardm&auml;&szlig;ig wird der aktuelle Zeitpunkt des dargestellten Indikators verwendet. Diese Option kann jedoch auf ein beliebiges frei definierbares Datum oder eine listenbasierte Auswahl verf&uuml;gbarer Zeitpunkte jedes Datensatzes ge&auml;ndert werden.",
 				onNext: function(tour){
 					if($scope.sidebarPoiClass !== "disappear"){
 							$("#sidebarPoiCollapse").click();
@@ -587,33 +561,33 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 					}
 				}
 			},
-			{
-				element: "#sidebarDataImportCollapse",
-				title: "Datenimport aus externen Quellen",
-				placement: "right",
-				content: "Ein Klick auf diesen Button &ouml;ffnet das Datenimport Fenster. <br/><br/><i>Im n&auml;chsten Schritt wird das Men&uuml; automatisch ge&ouml;ffnet.</i>",
-				onNext: function(tour){
-					if($scope.sidebarDataImportClass === "disappear"){
-							$("#sidebarDataImportCollapse").click();
-					}
-				}
-			},
-			{
-				element: "#dataImport",
-				title: "Datenimport aus externen Quellen",
-				placement: "right",
-				content: "Dieses Fenster bietet Optionen zum <b>Datenimport aus externen Datenquellen</b>, insbesondere mittels <i>Web Map Services</i> und <i>Datei-basierten Quellen wie GeoJSON oder ESRI Shape</i>. <br/><br/>Jeder <b>WMS-Datensatz</b> wird tabellarisch inklusive Titel, Beschreibung, Transparenzschieberegler, URL und Legende dargestellt. Durch Anhaken/Deselektion der Checkbox kann ein Datensatz hinzugef&uuml;gt/entfernt werden. Neben den bereits vorkonfigurierten Datens&auml;tzen lassen sich <i>weitere Quellen &uuml;ber den unten stehenden Button erg&auml;nzen</i>.<br/><br/>Die M&ouml;glichkeit <b>Layer aus einer lokalen Datei einzuladen</b> wird in K&uuml;rze verf&uuml;gbar sein.",
-				onNext: function(tour){
-					if($scope.sidebarDataImportClass !== "disappear"){
-							$("#sidebarDataImportCollapse").click();
-					}
-				},
-				onPrev: function(tour){
-					if($scope.sidebarDataImportClass !== "disappear"){
-							$("#sidebarDataImportCollapse").click();
-					}
-				}
-			},
+			// {
+			// 	element: "#sidebarDataImportCollapse",
+			// 	title: "Datenimport aus externen Quellen",
+			// 	placement: "right",
+			// 	content: "Ein Klick auf diesen Button &ouml;ffnet das Datenimport Fenster. <br/><br/><i>Im n&auml;chsten Schritt wird das Men&uuml; automatisch ge&ouml;ffnet.</i>",
+			// 	onNext: function(tour){
+			// 		if($scope.sidebarDataImportClass === "disappear"){
+			// 				$("#sidebarDataImportCollapse").click();
+			// 		}
+			// 	}
+			// },
+			// {
+			// 	element: "#dataImport",
+			// 	title: "Datenimport aus externen Quellen",
+			// 	placement: "right",
+			// 	content: "Dieses Fenster bietet Optionen zum <b>Datenimport aus externen Datenquellen</b>, insbesondere mittels <i>Web Map Services</i> und <i>Datei-basierten Quellen wie GeoJSON oder ESRI Shape</i>. <br/><br/>Jeder <b>WMS-Datensatz</b> wird tabellarisch inklusive Titel, Beschreibung, Transparenzschieberegler, URL und Legende dargestellt. Durch Anhaken/Deselektion der Checkbox kann ein Datensatz hinzugef&uuml;gt/entfernt werden. Neben den bereits vorkonfigurierten Datens&auml;tzen lassen sich <i>weitere Quellen &uuml;ber den unten stehenden Button erg&auml;nzen</i>.<br/><br/>Die M&ouml;glichkeit <b>Layer aus einer lokalen Datei einzuladen</b> wird in K&uuml;rze verf&uuml;gbar sein.",
+			// 	onNext: function(tour){
+			// 		if($scope.sidebarDataImportClass !== "disappear"){
+			// 				$("#sidebarDataImportCollapse").click();
+			// 		}
+			// 	},
+			// 	onPrev: function(tour){
+			// 		if($scope.sidebarDataImportClass !== "disappear"){
+			// 				$("#sidebarDataImportCollapse").click();
+			// 		}
+			// 	}
+			// },
 			{
 				element: "#sidebarFilterCollapse",
 				title: "Darstellungsfilter",
@@ -657,7 +631,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				element: "#kommonitorBalance",
 				title: "Zeitliche Bilanzierung",
 				placement: "right",
-				content: "Bei der zeitlichen Bilanzierung steht die <b>Wertentwicklung eines Indikators</b> &uuml;ber die Zeit im Fokus (z. B. Wachstum / Schrumpfung). Wird die Bilanzierung mittels der entsprehenden <b>Checkbox</b> aktiviert, so kann &uuml;ber die Zeitleiste ein <b>Zeitraum</b> spezifiziert werden, f&uuml;r den die Wertentwicklung berechnet und dargestellt werden soll. <br/><br/>Die Indikatoren-Legende am unteren rechten Rand der Anwendung zeigt &uuml;ber dies bei aktivierter Checkbox an, dass die Bilanz des Indikators dargestellt wird.<br/><br/>Bitte bachten Sie, dass eine Bilanzierung nur bei Status-Indikatoren m&ouml;glich ist, deren Zeitreihe mehr als einen Eintrag enth&auml;lt.",
+				content: "Bei der zeitlichen Bilanzierung steht die <b>Wertentwicklung eines Indikators</b> &uuml;ber die Zeit im Fokus (z. B. Wachstum / Schrumpfung). Wird die Bilanzierung mittels der entsprehenden <b>Checkbox</b> aktiviert, so kann &uuml;ber die Zeitleiste ein <b>Zeitraum</b> spezifiziert werden, f&uuml;r den die Wertentwicklung berechnet und dargestellt werden soll. <br/><br/>Die Indikatoren-Legende am rechten Rand der Anwendung zeigt &uuml;ber dies bei aktivierter Checkbox an, dass die Bilanz des Indikators dargestellt wird.<br/><br/>Bitte bachten Sie, dass eine Bilanzierung nur bei Status-Indikatoren m&ouml;glich ist, deren Zeitreihe mehr als einen Eintrag enth&auml;lt. <br/><br/>Noch in der Entwicklung befindet sich eine <b>Trenddarstellung</b> &uuml;ber den bilanzierten Zeitraum. Dieses Feature soll k&uuml;nftig weiterentwickelt werden. Derzeit ist nur eine Trenddarstellung &uuml;ber das arithmetische Mittel aller derzeit visualisierten Indikatoren-Features m&ouml;glich.",
 				onNext: function(tour){
 					if($scope.sidebarBalanceClass !== "disappear"){
 							$("#sidebarBalanceCollapse").click();
@@ -684,7 +658,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				element: "#indicatorDiagrams",
 				title: "Statistische Diagramme",
 				placement: "right",
-				content: "Zus&auml;tzlich zur kartographischen Darstellung bieten grundlegende <b>statistische Diagramme</b> hilfreiche Zusatzinformationen zum gew&auml;hlten Indikator. <br/><br/> Das obige <b>Histogramm</b> fokussiert die <b>Werteverteilung</b> und zeigt an, wie viele Elemente der Raumebene in welchem Klassenintervall liegen. <br/><br/>Ein <b>Ranking</b> der jeweiligen Raumeinheiten wird &uuml;ber das mittlere <b>S&auml;ulendiagramm</b> dargestellt.<br/><br/>Das untere <b>Liniendiagramm</b> visualisiert die <b>zeitliche Entwicklung</b> des aktuellen Indikators &uuml;ber alle jeweils verf&uuml;gbaren Zeitschnitte. Standardm&auml;&szlig;ig wird hier der Durchschnittswert &uuml;ber alle Raumeinheiten dargestellt.<br/><br/>Um einzelne Elemente der gew&auml;hlten Raumebene im S&auml;ulen- und Liniendiagramm zu betrachten und <i>hervorzuheben</i>, kann mit dem <i>Mauszeiger</i> entweder &uuml;ber die <i>S&auml;ule innerhalb des S&auml;ulendiagramms</i> oder &uuml;ber das jeweilige <i>Element in der Karte</i> gefahren werden. Eine dauerhafte Selektion durch Klicken auf das kartographische Element oder die dazugeh&ouml;rige S&auml;ule erm&ouml;glicht das simultane Betrachten mehrerer Elemente.<br/><br/>Jedes Diagramm enth&auml;lt in der oberen rechte Ecke eine <b>Toolbox</b>, &uuml;ber die das Diagramm entweder als <b>Bilddatei</b> oder im <b>Tabellenformat</b> <b>exportiert</b> werden kann.",
+				content: "Zus&auml;tzlich zur kartographischen Darstellung bieten grundlegende <b>statistische Diagramme</b> hilfreiche Zusatzinformationen zum gew&auml;hlten Indikator. <br/><br/>Ein <b>Ranking</b> der jeweiligen Raumeinheiten wird &uuml;ber das mittlere <b>S&auml;ulendiagramm</b> dargestellt.<br/><br/>Das untere <b>Liniendiagramm</b> visualisiert die <b>zeitliche Entwicklung</b> des aktuellen Indikators &uuml;ber alle jeweils verf&uuml;gbaren Zeitschnitte. Standardm&auml;&szlig;ig wird hier der Durchschnittswert &uuml;ber alle Raumeinheiten dargestellt.<br/><br/>Um einzelne Elemente der gew&auml;hlten Raumebene im S&auml;ulen- und Liniendiagramm zu betrachten und <i>hervorzuheben</i>, kann mit dem <i>Mauszeiger</i> entweder &uuml;ber die <i>S&auml;ule innerhalb des S&auml;ulendiagramms</i> oder &uuml;ber das jeweilige <i>Element in der Karte</i> gefahren werden. Eine dauerhafte Selektion durch Klicken auf das kartographische Element oder die dazugeh&ouml;rige S&auml;ule erm&ouml;glicht das simultane Betrachten mehrerer Elemente.<br/><br/>Jedes Diagramm enth&auml;lt in der oberen rechte Ecke eine <b>Toolbox</b>, &uuml;ber die das Diagramm entweder als <b>Bilddatei</b> oder im <b>Tabellenformat</b> <b>exportiert</b> werden kann.",
 				onNext: function(tour){
 					if($scope.sidebarDiagramsClass !== "disappear"){
 							$("#sidebarDiagramsCollapse").click();
@@ -765,7 +739,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				element: "#kommonitorReachability",
 				title: "Erreichbarkeitsanalysen",
 				placement: "right",
-				content: "Als GIS-basiertes Werkzeug soll KomMonitor ausgew&auml;hlte <b>r&auml;umliche Analysen</b> unterst&uuml;tzen. Insbesondere stehen <b>Erreichbarkeitsanalysen</b> im Fokus, bei denen, neben reinen <i>Puffer-basierten Ans&auml;tzen</i>, <b>Erreichbarkeiten anhand tats&auml;chlicher Wegenetze</b> f&uuml;r verschiedene <b>Transportmittel (z.B. Fußg&auml;nger, Fahrrad, Auto)</b> berechnet werden k&ouml;nnen. Konkret soll hierbei sowohl ein <b>Routing</b> zwischen einzelnen Punkten sowie die Berechnung von <b>Isochronen (&Auml;quidistanzen und zeitliches Abbruchkriterium)</b> angeboten werden.<br/><br/>Derzeit sind lediglich ausgew&auml;hlte, vordefinierte Demo-Berechnungen durchf&uuml;hrbar. Frei definierbare Erreichbarkeitsanalysen werden in K&uuml;rze implementiert.",
+				content: "Als GIS-basiertes Werkzeug soll KomMonitor ausgew&auml;hlte <b>r&auml;umliche Analysen</b> unterst&uuml;tzen. Insbesondere stehen <b>Erreichbarkeitsanalysen</b> im Fokus, bei denen, neben reinen <i>Puffer-basierten Ans&auml;tzen</i>, <b>Erreichbarkeiten anhand tats&auml;chlicher Wegenetze</b> f&uuml;r verschiedene <b>Transportmittel (z.B. Fußg&auml;nger, Fahrrad, Auto)</b> berechnet werden k&ouml;nnen. Konkret soll hierbei sowohl ein <b>Routing</b> zwischen einzelnen Punkten sowie die Berechnung von <b>Isochronen (&Auml;quidistanzen und zeitliches Abbruchkriterium)</b> angeboten werden.<br/><br/><b>Auswahl der Startpunkte</b><br/>Die Auswahl der Startpunkte kann entweder &uuml;ber die Selektion eines vorhandenen Punktlayers vorgenommen werden oder mittels Einzeichnen eigener beliebiger Punkte in die Karte.<br/><br/><b>Ergebnisdarstellung</b><br/>Sowohl Isochronen- als auch Routing Ergebnisse werden als neuer eigener Layer der Karte hinzugef&uuml;gt. Die jeweilige Legende ist in einer separaten Box des linken Men&uuml;s einsehbar.<br/><br/><b>Punkt in Isochronen Analyse</b><br/>Nachdem eine Isochronenberechnung erfolgt ist, können vorhandene Punktlayer mit den Isochronen r&auml;mlich verschnitten werden, um eine Punkt-in-Polygon Analyse durchzuf&uuml;hren.",
 				onNext: function(tour){
 					if($scope.sidebarReachabilityClass !== "disappear"){
 							$("#sidebarReachabilityCollapse").click();
