@@ -50,6 +50,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 				"description": "description about spatial unit dataset",
 				"databasis": "text about data basis",
 			},
+			"allowedRoles": ['roleId'],
 			"nextLowerHierarchyLevel": "Name of lower hierarchy level",
 			"spatialUnitLevel": "Name of spatial unit dataset",
 			"nextUpperHierarchyLevel": "Name of upper hierarchy level"
@@ -371,6 +372,10 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 
 			$scope.addSpatialUnit = async function () {
 
+				$timeout(function(){
+					$scope.loadingData = true;
+				});
+
 				$scope.importerErrors = undefined;
 				$scope.successMessagePart = undefined;
 				$scope.errorMessagePart = undefined;
@@ -397,7 +402,6 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 
 					// TODO Create and perform POST Request with loading screen
 
-					$scope.loadingData = true;
 					var newSpatialUnitResponse_dryRun = undefined;
 					try {
 						newSpatialUnitResponse_dryRun = await kommonitorImporterHelperService.registerNewSpatialUnit($scope.converterDefinition, $scope.datasourceTypeDefinition, $scope.propertyMappingDefinition, $scope.postBody_spatialUnits, true);
@@ -529,6 +533,10 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 				$scope.metadata.description = $scope.metadataImportSettings.metadata.description;
 				$scope.metadata.databasis = $scope.metadataImportSettings.metadata.databasis;
 
+				var selectedRolesMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleIds($scope.metadataImportSettings.allowedRoles);			
+				$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, selectedRolesMetadata, "roleName")};			
+				$scope.allowedRoleNames = {selectedItems: $scope.duallist.duallistRoleOptions.selectedItems};
+
 				for(var i=0; i<kommonitorDataExchangeService.availableSpatialUnits.length; i++){
 					var spatialUnit = kommonitorDataExchangeService.availableSpatialUnits[i];
 					if (spatialUnit.spatialUnitLevel === $scope.metadataImportSettings.nextLowerHierarchyLevel){
@@ -576,6 +584,12 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 			metadataExport.metadata.description = $scope.metadata.description || "";
 			metadataExport.metadata.databasis = $scope.metadata.databasis || "";
 			metadataExport.spatialUnitLevel = $scope.spatialUnitLevel || "";
+
+			metadataExport.allowedRoles = [];
+			for (const roleDuallistItem of $scope.allowedRoleNames.selectedItems) {
+				var roleMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleName(roleDuallistItem.name);
+				metadataExport.allowedRoles.push(roleMetadata.roleId);
+			}
 
 			if($scope.metadata.updateInterval){
 					metadataExport.metadata.updateInterval = $scope.metadata.updateInterval.apiName;

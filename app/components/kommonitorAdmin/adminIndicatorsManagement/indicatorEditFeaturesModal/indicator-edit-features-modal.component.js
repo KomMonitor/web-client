@@ -59,6 +59,16 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 			//Date picker
 			$('#indicatorEditFeaturesDirectTimestampDatepicker').datepicker(kommonitorDataExchangeService.datePickerOptions);
 
+			$scope.allowedRoleNames = {selectedItems: []};
+			$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, null, "roleName")};			
+
+			// make sure that initial fetching of availableRoles has happened
+			$scope.$on("initialMetadataLoadingCompleted", function (event) {
+				$timeout(function () {
+					$scope.allowedRoleNames = { selectedItems: [] };
+					$scope.duallist = { duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, null, "roleName") };
+				});
+			});
 	
 			$scope.indicatorFeaturesJSON;
 			$scope.currentIndicatorDataset;
@@ -212,6 +222,9 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 					}					
 				}
 	
+				$scope.allowedRoleNames = {selectedItems: []};
+				$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, null, "roleName")};			
+
 				$scope.spatialUnitRefKeyProperty = undefined;
 				$scope.targetSpatialUnitMetadata = undefined;
 				$scope.tmpTimeseriesMapping_indicatorValuesPropertyName = undefined;
@@ -250,6 +263,25 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 					$scope.$apply();	
 				}, 250);
 				
+			};
+
+			$scope.onChangeSelectedSpatialUnit = function(targetSpatialUnitMetadata){
+				
+				var applicableSpatialUnits = $scope.currentIndicatorDataset.applicableSpatialUnits;
+
+				var targetApplicableSpatialUnit;
+
+				for (const applicableSpatialUnit of applicableSpatialUnits) {
+					if (applicableSpatialUnit.spatialUnitId === targetSpatialUnitMetadata.spatialUnitId){
+						targetApplicableSpatialUnit = applicableSpatialUnit;
+						break;
+					}
+				}
+				
+				var selectedRolesMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleIds(targetApplicableSpatialUnit.allowedRoles);			
+				$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, selectedRolesMetadata, "roleName")};			
+				$scope.allowedRoleNames = {selectedItems: $scope.duallist.duallistRoleOptions.selectedItems};
+
 			};
 	
 			$scope.onChangeSchema = function(schema){
@@ -426,12 +458,21 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 					"defaultClassificationMapping": $scope.currentIndicatorDataset.defaultClassificationMapping,
 					"allowedRoles": []
 					};
+
+					for (const roleDuallistItem of $scope.allowedRoleNames.selectedItems) {
+						var roleMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleName(roleDuallistItem.name);
+						putBody.allowedRoles.push(roleMetadata.roleId);
+					}
 	
 				return putBody;
 			};
 	
 	
 			$scope.editIndicatorFeatures = async function(){
+
+				$timeout(function(){
+					$scope.loadingData = true;
+				});
 	
 				$scope.importerErrors = undefined;
 					$scope.successMessagePart = undefined;
@@ -459,17 +500,12 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 	
 						// TODO Create and perform POST Request with loading screen
 	
-						$scope.loadingData = true;
-	
 						var updateIndicatorResponse_dryRun = undefined;
 						try {
 							updateIndicatorResponse_dryRun = await kommonitorImporterHelperService.updateIndicator($scope.converterDefinition, $scope.datasourceTypeDefinition, $scope.propertyMappingDefinition, $scope.currentIndicatorDataset.indicatorId, $scope.putBody_indicators, true);
 	
 							// this callback will be called asynchronously
 							// when the response is available
-	
-	
-	
 	
 							if(! kommonitorImporterHelperService.importerResponseContainsErrors(updateIndicatorResponse_dryRun)){
 								// all good, really execute the request to import data against data management API
@@ -639,6 +675,10 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 						}	
 					}
 
+					var selectedRolesMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleIds($scope.mappingConfigImportSettings.allowedRoles);			
+					$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, selectedRolesMetadata, "roleName")};			
+					$scope.allowedRoleNames = {selectedItems: $scope.duallist.duallistRoleOptions.selectedItems};
+
 					$scope.keepMissingValues = $scope.mappingConfigImportSettings.propertyMapping.keepMissingOrNullValueIndicator;
 					
 					$scope.$apply();
@@ -653,8 +693,15 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 					"converter": converterDefinition,
 					"dataSource": datasourceTypeDefinition,
 					"propertyMapping": propertyMappingDefinition,
-					"targetSpatialUnitName": $scope.targetSpatialUnitMetadata.spatialUnitLevel
+					"targetSpatialUnitName": $scope.targetSpatialUnitMetadata.spatialUnitLevel,
+					"allowedRoles": []
 				};
+
+				mappingConfigExport.allowedRoles = [];
+				for (const roleDuallistItem of $scope.allowedRoleNames.selectedItems) {
+					var roleMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleName(roleDuallistItem.name);
+					mappingConfigExport.allowedRoles.push(roleMetadata.roleId);
+				}
 	
 				mappingConfigExport.periodOfValidity = $scope.periodOfValidity;
 	

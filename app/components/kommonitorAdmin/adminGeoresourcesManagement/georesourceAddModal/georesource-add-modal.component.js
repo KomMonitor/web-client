@@ -61,6 +61,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 				"description": "description about spatial unit dataset",
 				"databasis": "text about data basis",
 			},
+			"allowedRoles": ['roleId'],
 			"datasetName": "Name of georesource dataset",
 			"isPOI": "boolean parameter for point of interest dataset - only one of isPOI, isLOI, isAOI can be true",
 			"isLOI": "boolean parameter for lines of interest dataset - only one of isPOI, isLOI, isAOI can be true",
@@ -532,6 +533,10 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 
 		$scope.addGeoresource = async function(){
 
+			$timeout(function(){
+				$scope.loadingData = true;
+			});
+
 			$scope.importerErrors = undefined;
 			$scope.successMessagePart = undefined;
 			$scope.errorMessagePart = undefined;
@@ -556,9 +561,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 
 					// TODO verify input
 
-					// TODO Create and perform POST Request with loading screen
-
-					$scope.loadingData = true;					
+					// TODO Create and perform POST Request with loading screen			
 
 					var newGeoresourceResponse_dryRun = undefined;
 					try {
@@ -695,6 +698,10 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 
 				$scope.datasetName = $scope.metadataImportSettings.datasetName;
 
+				var selectedRolesMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleIds($scope.metadataImportSettings.allowedRoles);			
+				$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, selectedRolesMetadata, "roleName")};			
+				$scope.allowedRoleNames = {selectedItems: $scope.duallist.duallistRoleOptions.selectedItems};
+
 				// georesource specific properties
 
 				$scope.isPOI = $scope.metadataImportSettings.isPOI;
@@ -784,6 +791,12 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			metadataExport.metadata.description = $scope.metadata.description || "";
 			metadataExport.metadata.databasis = $scope.metadata.databasis || "";
 			metadataExport.datasetName = $scope.datasetName || "";
+
+			metadataExport.allowedRoles = [];
+			for (const roleDuallistItem of $scope.allowedRoleNames.selectedItems) {
+				var roleMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleName(roleDuallistItem.name);
+				metadataExport.allowedRoles.push(roleMetadata.roleId);
+			}
 
 			if($scope.metadata.updateInterval){
 					metadataExport.metadata.updateInterval = $scope.metadata.updateInterval.apiName;
