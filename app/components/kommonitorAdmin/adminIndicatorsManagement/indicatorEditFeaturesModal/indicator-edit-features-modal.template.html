@@ -57,16 +57,16 @@
 										<label >Datenbank-Features holen</label>
 										<button class="btn btn-info" ng-click="refreshIndicatorEditFeaturesOverviewTable()"><i class="fas fa-sync-alt"></i>&nbsp;Zeige alle Features</button>
 	   
-										<div class="help-block"><p>Das Anzeigen aller Features des Indikators kann je nach Anzahl und Komplexität der Objekte einige Zeit in Anspruch nehmen</p></div>
+										<div class="help-block"><p>Das Anzeigen aller Features des Indikators kann je nach Anzahl und Komplexit&auml;t der Objekte einige Zeit in Anspruch nehmen</p></div>
 										<div class="help-block with-errors"></div>
 									</div>
 								</div>
 								<div class="col-md-4 col-sm-4 col-xs-12">
 									<div class="form-group">
 										<label >Datenbank-Features bereinigen</label>
-										<button class="btn btn-danger" ng-click="clearAllIndicatorFeatures()"><i class="fas fa-trash"></i>&nbsp;Lösche Indikator-Features der selektierten Raumebene</button>
+										<button class="btn btn-danger" ng-click="clearAllIndicatorFeatures()"><i class="fas fa-trash"></i>&nbsp;L&ouml;sche Indikator-Features der selektierten Raumebene</button>
 	   
-										<div class="help-block"><p>Das Löschen aller Features des Indikators f&uuml;r die selektierte Raumebene ist unwiderruflich. Der Datensatz als solches (Metadaten) sowie die Indikatorendaten der sonstigen Raumebenen bleiben dabei bestehen.</p></div>
+										<div class="help-block"><p>Das L&ouml;schen aller Features des Indikators f&uuml;r die selektierte Raumebene ist unwiderruflich. Der Datensatz als solches (Metadaten) sowie die Indikatorendaten der sonstigen Raumebenen bleiben dabei bestehen.</p></div>
 										<div class="help-block with-errors"></div>
 									</div>
 								</div>
@@ -227,7 +227,7 @@
 										<label>Ziel-Raumebene*</label>
 										
 										<select ng-model="targetSpatialUnitMetadata" ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits"
-												class="form-control" required>
+												class="form-control" ng-change="onChangeSelectedSpatialUnit(targetSpatialUnitMetadata)" required>
 												<option disabled selected value> -- Ziel-Raumebene w&auml;hlen -- </option>
 											</select>
 											<div class="help-block with-errors"></div>
@@ -235,6 +235,21 @@
 									</div>
 								</div>							
 							</div>
+
+							<hr>
+
+							<br/>
+
+							<h4>Rollenbasierter Zeitreihen-Zugriffsschutz f&uuml;r Raumebene {{targetSpatialUnitMetadata.spatialUnitLevel}} (Optional)</h4>
+
+							<p>Klicken Sie ein oder mehrere der verf&uuml;gbaren Rollen aus der linken &Uuml;bersicht an, um den Zugriff auf die Zeitreihen-Daten des Indikators auf der ausgew&auml;hlten Raumebene f&uuml;r diese Rollen einzuschr&auml;nken. Der Zugriff ist nur f&uuml;r die Rollen erlaubt, die im rechten &Uuml;bersichtsfenster gelistet sind.</p>
+							<p>Wird keine Rolle selektiert, so sind die Zeitreihendaten des Indikator-Datensatzes auf der gew&auml;hlten Raumebene ohne Zugriffsbeschr&auml;nkung abrufbar.</p>
+
+							<div class="row no-margin">
+								<div class="col-md">
+									<excalibur-dual-list ng-model='allowedRoleNames.selectedItems' options="duallist.duallistRoleOptions"></excalibur-dual-list>
+								</div>
+							</div>								
 
 							<hr>
 							
@@ -248,7 +263,7 @@
 								<div class="col-md-4 col-sm-6 col-xs-12">
 									<div class="form-group">
 										<label>Attributname der Indikatorenwerte*</label>
-										<input type="text" class="form-control input-sm" placeholder="Attributname für Indikatorenwerte" ng-model="tmpTimeseriesMapping_indicatorValuesPropertyName">
+										<input type="text" class="form-control input-sm" placeholder="Attributname f&uuml;r Indikatorenwerte" ng-model="tmpTimeseriesMapping_indicatorValuesPropertyName">
 										<div class="help-block with-errors"></div>
 									</div>
 								</div>
@@ -266,7 +281,7 @@
 								<div ng-show="useTimeseriesAsProperty" class="col-md-4 col-sm-6 col-xs-12">												
 									<div class="form-group">
 										<label>Attributname des Zeitstempels</label>
-										<input type="text" class="form-control input-sm" placeholder="Attributname für Zeitstempel" ng-model="tmpTimeseriesMapping_timestampPropertyName">
+										<input type="text" class="form-control input-sm" placeholder="Attributname f&uuml;r Zeitstempel" ng-model="tmpTimeseriesMapping_timestampPropertyName">
 										<div class="help-block with-errors"></div>
 									</div>
 								</div>
