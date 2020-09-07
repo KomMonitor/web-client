@@ -14,13 +14,24 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 
 		/*
 		 * Modal:
-		 *	name
-		 * 	periodOfValidity
-		 * 	dataFormat
-		 * 	crs
-		 * 	datasourceType
-		 * 	mappingTablePath
 		 * 	isSelected
+		 * 	name
+		 * 	mappingTablePath
+		 * 	periodOfValidity
+		 * 	dataFormat.format
+		 * 	dataFormat.crs
+		 * 	dataFormat.separator
+		 * 	dataFormat.yCoordColumn
+		 * 	dataFormat.xCoordColumn
+		 * 	dataFormat.schema
+		 * 	datasourceType.type
+		 * 	datasourceType.file
+		 * 	datasourceType.url
+		 * 	datasourceType.payload
+		 * 	idAttrName
+		 * 	nameAttrName
+		 * 	lifetimeBeginnAttrName
+		 * 	lifetimeEndAttrName
 		 */
 		$scope.batchList = [
 			{/*name: "Schulen", periodOfValidity: "2020-01-01", dataType: "", dataSource: "", mappingTablePath: "", isSelected: false*/},
@@ -62,7 +73,9 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 			// TODO
 			console.log("standardPeriodOfValidityStart: ", $scope.standardPeriodOfValidityStart);
 			console.log("batchList: ", $scope.batchList);
-			console.log("dataFormat of first entry: ", $scope.batchList[0].dataFormat.simpleName);
+			console.log("availableDatasourceTypes: ", kommonitorImporterHelperService.availableDatasourceTypes);
+			console.log("dataFormat of first entry: ", $scope.batchList[0].dataFormat.format.simpleName);
+			
 		};
 
 		$scope.saveGeoresourcesBatchList = function() {
@@ -98,7 +111,7 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 			var dataFormatIsWfsV1 = false;
 			for(var i=0;i<$scope.batchList.length;i++) {
 				if($scope.batchList[i].dataFormat != null) {
-					if($scope.batchList[i].dataFormat.simpleName == "wfs.v1") {
+					if($scope.batchList[i].dataFormat.format.simpleName == "wfs.v1") {
 						dataFormatIsWfsV1 = true;
 						break;
 					}
@@ -106,6 +119,66 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 				
 			}
 			 return dataFormatIsWfsV1;
+		}
+
+		// loop through batch list and check if condition is true for at least one row
+		$scope.checkIfDataFormatIsCsvLatLon = function() {
+			var checkIfDataFormatIsCsvLatLon = false;
+			for(var i=0;i<$scope.batchList.length;i++) {
+				if($scope.batchList[i].dataFormat != null) {
+					if($scope.batchList[i].dataFormat.format.simpleName == "csvLatLon") {
+						checkIfDataFormatIsCsvLatLon = true;
+						break;
+					}
+				}
+				
+			}
+			 return checkIfDataFormatIsCsvLatLon;
+		}
+
+		// loop through batch list and check if condition is true for at least one row
+		$scope.checkIfDatasourceTypeIsFile = function() {
+			var checkIfDatasourceTypeIsFile = false;
+			for(var i=0;i<$scope.batchList.length;i++) {
+				if($scope.batchList[i].datasourceType != null) {
+					if($scope.batchList[i].datasourceType.type.type == "FILE") {
+						checkIfDatasourceTypeIsFile = true;
+						break;
+					}
+				}
+				
+			}
+			 return checkIfDatasourceTypeIsFile;
+		}
+
+		// loop through batch list and check if condition is true for at least one row
+		$scope.checkIfDatasourceTypeIsHttp = function() {
+			var checkIfDatasourceTypeIsHttp = false;
+			for(var i=0;i<$scope.batchList.length;i++) {
+				if($scope.batchList[i].datasourceType != null) {
+					if($scope.batchList[i].datasourceType.type.type == "HTTP") {
+						checkIfDatasourceTypeIsHttp = true;
+						break;
+					}
+				}
+				
+			}
+			 return checkIfDatasourceTypeIsHttp;
+		}
+
+		// loop through batch list and check if condition is true for at least one row
+		$scope.checkIfDatasourceTypeIsInline = function() {
+			var checkIfDatasourceTypeIsInline = false;
+			for(var i=0;i<$scope.batchList.length;i++) {
+				if($scope.batchList[i].datasourceType != null) {
+					if($scope.batchList[i].datasourceType.type.type == "INLINE") {
+						checkIfDatasourceTypeIsInline = true;
+						break;
+					}
+				}
+				
+			}
+			 return checkIfDatasourceTypeIsInline;
 		}
 
 
