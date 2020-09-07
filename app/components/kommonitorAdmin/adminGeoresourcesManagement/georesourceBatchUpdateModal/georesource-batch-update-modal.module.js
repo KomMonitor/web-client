@@ -1,1 +1,1 @@
-angular.module('georesourceBatchUpdateModal', ['kommonitorImporterHelper']);
+angular.module('georesourceBatchUpdateModal', ['kommonitorImporterHelper', 'kommonitorBatchUpdateHelper']);
