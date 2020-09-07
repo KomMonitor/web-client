@@ -35,9 +35,7 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 		 * 	lifetimeEndAttrName
 		 */
 		$scope.batchList = [
-			{/*name: "Schulen", periodOfValidity: "2020-01-01", dataType: "", dataSource: "", mappingTablePath: "", isSelected: false*/},
-			{/*name: "Wohnviertel", periodOfValidity: "", dataType: "", dataSource: "", mappingTablePath: "", isSelected: false*/},
-			{/*name: "Sportstätten", periodOfValidity: "2019-12-03", dataType: "", dataSource: "", mappingTablePath: "", isSelected: true*/}
+			{}
 		];
 
 		// on modal opened
@@ -71,17 +69,60 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 		};
 
 		$scope.loadGeoresourcesBatchList = function() {
-			// TODO
-			console.log("standardPeriodOfValidityStart: ", $scope.standardPeriodOfValidityStart);
-			console.log("batchList: ", $scope.batchList);
-			console.log("availableDatasourceTypes: ", kommonitorImporterHelperService.availableDatasourceTypes);
-			console.log("mappingTablePath of first entry: ", $scope.batchList[0].mappingTablePath);
+
+			$("#georesourceBatchListFile").files = [];
+
+			// trigger file chooser
+			$("#georesourceBatchListFile").click();
+		};
+
+		$(document).on("change", "#georesourceBatchListFile" ,function(){
 			
+			// get the file
+			var file = document.getElementById('georesourceBatchListFile').files[0];
+			$scope.parseBatchListFromFile(file);
+		});
+
+		$scope.parseBatchListFromFile = function(file){
+			var fileReader = new FileReader();
+
+			fileReader.onload = function(event) {
+				$scope.batchList = JSON.parse(event.target.result);
+				$scope.$apply();
+			};
+
+			// Read in the image file as a data URL.
+			fileReader.readAsText(file);
 		};
 
 		$scope.saveGeoresourcesBatchList = function() {
-			// TODO
+			var batchListJSON = JSON.stringify($scope.batchList);
+			console.log(batchListJSON);
+			var fileName = "Georessource_batch_update_batch_list.json";
+
+			var blob = new Blob([batchListJSON], {type: "application/json"});
+			var data  = URL.createObjectURL(blob);
+
+			var a = document.createElement('a');
+			a.download    = fileName;
+			a.href        = data;
+			a.textContent = "JSON";
+			a.target = "_blank";
+			a.rel = "noopener noreferrer";
+			a.click();
+
+			a.remove();
 		};
+
+		$scope.batchUpdateGeoresources = function() {
+			// TODO
+			console.log($scope.batchList);
+		}
+
+		$scope.resetGeoresourceBatchUpdateForm = function() {
+			for(var i=0;i<$scope.batchList.length;i++)
+				$scope.batchList[i] = {};
+		}
 
 		$scope.onChangeSelectAllRows = function() {
 			if($scope.allRowsSelected) {
@@ -100,11 +141,18 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 		}
 
 		$scope.deleteSelectedRowsFromBatchList = function() {
-			$scope.batchList = $scope.batchList.filter( function(georesource) {
-				// remove if selected
-				return !georesource.isSelected
-			});
+			// TODO after removing a row the georesource name selection stops working
+			// loop backwards through $scope.batchList and remove selected rows
+			for (var i = $scope.batchList.length - 1; i >= 0; i--) {
+				if ($scope.batchList[i].isSelected) {
+					$scope.batchList.splice(i, 1);
+					
+				}
+			}
+
 			$scope.allRowsSelected = false; // in case it was true
+
+			
 		}
 
 
@@ -212,6 +260,7 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 				var isInBatchList = false;
 				for(var i=0;i<$scope.batchList.length;i++) {
 					if($scope.batchList[i].name == avGeoresource.datasetName && i != batchIndex) {
+						console.log(batchIndex);
 						isInBatchList = true;
 						break;
 					}
@@ -226,6 +275,9 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 				}
 			};
 		};
+
+
+
 	}
 ]}).directive("fileread", [function () {
 	// workaround to get a selected file in ng-model, see:

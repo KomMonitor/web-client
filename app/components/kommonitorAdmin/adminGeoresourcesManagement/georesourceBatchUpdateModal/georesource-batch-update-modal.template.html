@@ -89,7 +89,7 @@
 							<!-- Name -->
 							<td>
 								<select class="form-control" ng-model="georesource.name" required
-									ng-options="avGeoresource.datasetName as avGeoresource.datasetName for avGeoresource in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:filterGeoresourcesInBatchList({{$index}})">
+									ng-options="avGeoresource.datasetName as avGeoresource.datasetName for avGeoresource in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:filterGeoresourcesInBatchList($index)">
 										<option disabled selected value> -- Georessource w&auml;hlen -- </option>
 								</select>
 							</td>
@@ -246,13 +246,17 @@
 			<div class="modal-footer">
 				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
 				<button type="button" class="btn btn-info pull-left" ng-click="loadGeoresourcesBatchList()"
-					title="Importieren der Batch-Liste aus einer Datei"><i
-						class="fas fa-file-import"></i>&nbsp;&nbsp;Batch-Liste importieren</button>
+					title="Importieren der Batch-Liste aus einer Datei">
+					<i class="fas fa-file-import"></i>&nbsp;&nbsp;Batch-Liste importieren
+				</button>
+
 				<input style="display:none;" class="pull-left" type="file" class="form-control"
-					id="georesourceBatchImportFile" accept=".json,"></input>
+					id="georesourceBatchListFile" accept=".json,"></input>
+
 				<button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" ng-disabled=""
-					ng-click="onBatchImportGeoresourceSaveList()" title="Exportieren der Batch-Liste in eine Datei"><i
-						class="fas fa-file-export"></i>&nbsp;&nbsp;Batch-Liste exportieren</button>
+					ng-click="saveGeoresourcesBatchList()" title="Exportieren der Batch-Liste in eine Datei">
+					<i class="fas fa-file-export"></i>&nbsp;&nbsp;Batch-Liste exportieren
+				</button>
 
 				<button type="button" class="btn btn-success"
 					ng-click="batchUpdateGeoresources()">Update ausführen</button>
