@@ -58,6 +58,7 @@
 							<th><input type="checkbox" ng-model="allRowsSelected" ng-change="onChangeSelectAllRows()"></th>
 							<th>Name*</th>
 							<th>Mappingtabelle</th>
+							<th ng-show="checkIfMappingTableIsSpecified()">Speichern</th>
 							<th>G&uuml;ltigkeitszeitraum von*</th>
 							<th>G&uuml;ltigkeitszeitraum bis</th>
 							<th>Geodaten-Quellformat*</th>
@@ -72,8 +73,8 @@
 							<th ng-show="checkIfDatasourceTypeIsInline()">Payload*</th>
 							<th>ID Attributname*</th>
 							<th>NAME Attributname*</th>
-							<th>Lebenszeit-Beginn Attributname*</th>
-							<th>Lebenszeit-Ende Attributname*</th>
+							<th>Lebenszeit-Beginn Attributname</th>
+							<th>Lebenszeit-Ende Attributname</th>
 						</tr>
 					</thead>
 					
@@ -95,7 +96,14 @@
 							
 							<!-- Mappingtabelle -->
 							<td>
-								<input id="georesourceMappingTable{{$index}}" class="form-control" type="file" ng-model="georesource.mappingTablePath">
+								<input id="mappingTable{{$index}}" class="form-control" type="file" fileread="georesource.mappingTable">
+							</td>
+
+							<!-- Speichern -->
+							<td ng-show="checkIfMappingTableIsSpecified()">
+								<button type="button" class="btn btn-primary fas fa-save" ng-model="georesource.saveToMappingTable"  
+									ng-disabled="georesource.mappingTable == undefined" ng-click="onMappingTableClicked()" >
+								</button>
 							</td>
 
 							<!-- Gültigkeitszeitraum von -->
@@ -210,6 +218,7 @@
 						<th><input type="checkbox" ng-model="allRowsSelected" ng-change="onChangeSelectAllRows()"></th>
 						<th>Name*</th>
 						<th>Mappingtabelle</th>
+						<th ng-show="checkIfMappingTableIsSpecified()">Speichern</th>
 						<th>G&uuml;ltigkeitszeitraum von*</th>
 						<th>G&uuml;ltigkeitszeitraum bis</th>
 						<th>Geodaten-Quellformat*</th>
@@ -224,7 +233,7 @@
 						<th ng-show="checkIfDatasourceTypeIsInline()">Payload*</th>
 						<th>ID Attributname*</th>
 						<th>NAME Attributname*</th>
-						<th>Lebenszeit-Beginn Attributname*</th>
+						<th>Lebenszeit-Beginn Attributname</th>
 						<th>Lebenszeit-Ende Attributname*</th>
 					</tr>
 					

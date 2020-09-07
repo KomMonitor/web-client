@@ -16,7 +16,8 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 		 * Modal:
 		 * 	isSelected
 		 * 	name
-		 * 	mappingTablePath
+		 * 	mappingTable
+		 * 	saveToMappingTable
 		 * 	periodOfValidity
 		 * 	dataFormat.format
 		 * 	dataFormat.crs
@@ -74,7 +75,7 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 			console.log("standardPeriodOfValidityStart: ", $scope.standardPeriodOfValidityStart);
 			console.log("batchList: ", $scope.batchList);
 			console.log("availableDatasourceTypes: ", kommonitorImporterHelperService.availableDatasourceTypes);
-			console.log("dataFormat of first entry: ", $scope.batchList[0].dataFormat.format.simpleName);
+			console.log("mappingTablePath of first entry: ", $scope.batchList[0].mappingTablePath);
 			
 		};
 
@@ -106,11 +107,27 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 			$scope.allRowsSelected = false; // in case it was true
 		}
 
+
+		// loop through batch list and check if condition is true for at least one row
+		$scope.checkIfMappingTableIsSpecified = function() {
+			
+			var mappingTableIsSpecified = false;
+			for(var i=0;i<$scope.batchList.length;i++) {
+				if($scope.batchList[i].mappingTable != undefined) {
+					mappingTableIsSpecified = true;
+					break;
+				}
+			}
+			return mappingTableIsSpecified;
+			
+		}
+
+
 		// loop through batch list and check if condition is true for at least one row
 		$scope.checkIfDataFormatIsWfsV1 = function() {
 			var dataFormatIsWfsV1 = false;
 			for(var i=0;i<$scope.batchList.length;i++) {
-				if($scope.batchList[i].dataFormat != null) {
+				if($scope.batchList[i].dataFormat != undefined) {
 					if($scope.batchList[i].dataFormat.format.simpleName == "wfs.v1") {
 						dataFormatIsWfsV1 = true;
 						break;
@@ -125,7 +142,7 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 		$scope.checkIfDataFormatIsCsvLatLon = function() {
 			var checkIfDataFormatIsCsvLatLon = false;
 			for(var i=0;i<$scope.batchList.length;i++) {
-				if($scope.batchList[i].dataFormat != null) {
+				if($scope.batchList[i].dataFormat != undefined) {
 					if($scope.batchList[i].dataFormat.format.simpleName == "csvLatLon") {
 						checkIfDataFormatIsCsvLatLon = true;
 						break;
@@ -140,7 +157,7 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 		$scope.checkIfDatasourceTypeIsFile = function() {
 			var checkIfDatasourceTypeIsFile = false;
 			for(var i=0;i<$scope.batchList.length;i++) {
-				if($scope.batchList[i].datasourceType != null) {
+				if($scope.batchList[i].datasourceType != undefined) {
 					if($scope.batchList[i].datasourceType.type.type == "FILE") {
 						checkIfDatasourceTypeIsFile = true;
 						break;
@@ -155,7 +172,7 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 		$scope.checkIfDatasourceTypeIsHttp = function() {
 			var checkIfDatasourceTypeIsHttp = false;
 			for(var i=0;i<$scope.batchList.length;i++) {
-				if($scope.batchList[i].datasourceType != null) {
+				if($scope.batchList[i].datasourceType != undefined) {
 					if($scope.batchList[i].datasourceType.type.type == "HTTP") {
 						checkIfDatasourceTypeIsHttp = true;
 						break;
@@ -170,7 +187,7 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 		$scope.checkIfDatasourceTypeIsInline = function() {
 			var checkIfDatasourceTypeIsInline = false;
 			for(var i=0;i<$scope.batchList.length;i++) {
-				if($scope.batchList[i].datasourceType != null) {
+				if($scope.batchList[i].datasourceType != undefined) {
 					if($scope.batchList[i].datasourceType.type.type == "INLINE") {
 						checkIfDatasourceTypeIsInline = true;
 						break;
@@ -210,4 +227,21 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 			};
 		};
 	}
-]});
+]}).directive("fileread", [function () {
+	// workaround to get a selected file in ng-model, see:
+	// https://stackoverflow.com/questions/17063000/ng-model-for-input-type-file-with-directive-demo
+    return {
+        scope: {
+            fileread: "="
+        },
+        link: function (scope, element, attributes) {
+            element.bind("change", function (changeEvent) {
+                scope.$apply(function () {
+                    scope.fileread = changeEvent.target.files[0];
+                    // or all selected files:
+                    // scope.fileread = changeEvent.target.files;
+                });
+            });
+        }
+    }
+}]);
