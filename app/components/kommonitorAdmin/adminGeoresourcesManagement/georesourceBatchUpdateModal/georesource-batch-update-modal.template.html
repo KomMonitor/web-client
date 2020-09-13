@@ -23,7 +23,7 @@
 				<div class="col-md-6 col-sm-6 col-xs-12">
 					<div class="col-md-3 col-sm-3 col-xs-6">
 						<div class="form-group">
-							<label>Standard<br />Gültigkeitszeitraum:</label>
+							<label>Standard<br />Gültigkeitszeitraum von:</label>
 							<div class="input-group date">
 								<div class="input-group-addon">
 									<i class="far fa-calendar-alt"></i>
@@ -96,7 +96,7 @@
 							
 							<!-- Mappingtabelle -->
 							<td>
-								<input id="mappingTable{{$index}}" class="form-control" type="file" fileread="georesource.mappingTable">
+								<input id="mappingTable{{$index}}" class="form-control mappingTableInputField" type="file" accept=".json">
 							</td>
 
 							<!-- Speichern -->
@@ -234,7 +234,7 @@
 						<th>ID Attributname*</th>
 						<th>NAME Attributname*</th>
 						<th>Lebenszeit-Beginn Attributname</th>
-						<th>Lebenszeit-Ende Attributname*</th>
+						<th>Lebenszeit-Ende Attributname</th>
 					</tr>
 					
 					</tfoot>

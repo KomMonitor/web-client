@@ -10,7 +10,7 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 		$scope.standardPeriodOfValidityStart; // period of validity start for all georessources
 		$scope.standardCrs;
 		$scope.allRowsSelected = false
-		$scope.standardPeriodOfValidityStartChb = false;
+		$scope.standardPeriodOfValidityStartChb = true;
 		$scope.standardCrsChb = true;
 
 		/*
@@ -19,7 +19,8 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 		 * 	name
 		 * 	mappingTable
 		 * 	saveToMappingTable
-		 * 	periodOfValidity
+		 * 	periodOfValidityStart
+		 * 	periodOfValidityEnd
 		 * 	dataFormat.format
 		 * 	dataFormat.crs
 		 * 	dataFormat.separator
@@ -36,6 +37,8 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 		 * 	lifetimeEndAttrName
 		 */
 		$scope.batchList = [
+			{},
+			{},
 			{}
 		];
 
@@ -48,21 +51,41 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 		$scope.initialize = function(){
 
 			$('#standardPeriodOfValidityStartDatePicker').datepicker(kommonitorDataExchangeService.datePickerOptions);
-			//$('#standardPeriodOfValidityEndDatePicker').datepicker(kommonitorDataExchangeService.datePickerOptions);
 			for(var i=0;i<$scope.batchList.length;i++) {
 				$('#periodOfValidityStartDatePicker' + i).datepicker(kommonitorDataExchangeService.datePickerOptions);
 				$('#periodOfValidityEndDatePicker' + i).datepicker(kommonitorDataExchangeService.datePickerOptions);
 			}
 
+			$(".mappingTableInputField").change(function(){
+
+				// get index of changed field
+				var index = kommonitorBatchUpdateHelperService.getIndexFromId(this.id)
+
+				// get file
+				var file = this.files[0];
+
+				// read content
+				var reader = new FileReader();
+				var content;
+				reader.addEventListener('load', function(event) {
+					mappingObj = JSON.parse(event.target.result);
+					// update scope variables for row with that index
+					$scope.updateBatchListRow(mappingObj, index);
+				});
+				reader.readAsText(file)
+			});
+
 			$scope.$apply();
 		};
 
+		// TODO move to kommonitorBatchUpdateHelperService if appropriate
 		$scope.standardPeriodOfValidityStartChanged = function() {
 			angular.forEach($scope.batchList, function(georesource) {
 				georesource.periodOfValidityStart = $scope.standardPeriodOfValidityStart;
 			});
 		};
 
+		// TODO move to kommonitorBatchUpdateHelperService if appropriate
 		$scope.standardCrsChanged = function() {
 			angular.forEach($scope.batchList, function(georesource) {
 				georesource.crs = $scope.standardCrs;
@@ -81,83 +104,38 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 			
 			// get the file
 			var file = document.getElementById('georesourceBatchListFile').files[0];
-			$scope.parseBatchListFromFile(file);
+			kommonitorBatchUpdateHelperService.parseBatchListFromFile("georesource", file, $scope);
+			$scope.$apply();
 		});
 
-		$scope.parseBatchListFromFile = function(file){
-			var fileReader = new FileReader();
-
-			fileReader.onload = function(event) {
-				$scope.batchList = JSON.parse(event.target.result);
-				$scope.$apply();
-			};
-
-			// Read in the image file as a data URL.
-			fileReader.readAsText(file);
-		};
-
 		$scope.saveGeoresourcesBatchList = function() {
-			var batchListJSON = JSON.stringify($scope.batchList);
-			console.log(batchListJSON);
-			var fileName = "Georessource_batch_update_batch_list.json";
-
-			var blob = new Blob([batchListJSON], {type: "application/json"});
-			var data  = URL.createObjectURL(blob);
-
-			var a = document.createElement('a');
-			a.download    = fileName;
-			a.href        = data;
-			a.textContent = "JSON";
-			a.target = "_blank";
-			a.rel = "noopener noreferrer";
-			a.click();
-
-			a.remove();
+			kommonitorBatchUpdateHelperService.saveBatchListToFile("georesource", $scope.batchList);
 		};
 
 		$scope.batchUpdateGeoresources = function() {
-			// TODO
-			console.log($scope.batchList);
+			console.log($scope);
+			kommonitorBatchUpdateHelperService.batchUpdateGeoresources(georesource);
 		}
 
 		$scope.resetGeoresourceBatchUpdateForm = function() {
-			for(var i=0;i<$scope.batchList.length;i++)
-				$scope.batchList[i] = {};
+			kommonitorBatchUpdateHelperService.resetBatchUpdateForm($scope.batchList);
 		}
 
 		$scope.onChangeSelectAllRows = function() {
-			if($scope.allRowsSelected) {
-				angular.forEach($scope.batchList, function(georesource) {
-					georesource.isSelected = true;
-				});
-			} else {
-				angular.forEach($scope.batchList, function(georesource) {
-					georesource.isSelected = false;
-				});
-			}
+			kommonitorBatchUpdateHelperService.onChangeSelectAllRows($scope);
 		}
 
 		$scope.addNewRowToBatchList = function() {
-			$scope.batchList.push({});
+			kommonitorBatchUpdateHelperService.addNewRowToBatchList($scope);
 		}
 
 		$scope.deleteSelectedRowsFromBatchList = function() {
-			// TODO after removing a row the georesource name selection stops working
-			// loop backwards through $scope.batchList and remove selected rows
-			for (var i = $scope.batchList.length - 1; i >= 0; i--) {
-				if ($scope.batchList[i].isSelected) {
-					$scope.batchList.splice(i, 1);
-					
-				}
-			}
-
-			$scope.allRowsSelected = false; // in case it was true
-
-			
+			kommonitorBatchUpdateHelperService.deleteSelectedRowsFromBatchList($scope);
 		}
 
-
+	
 		// loop through batch list and check if condition is true for at least one row
+		// TODO move to kommonitorBatchUpdateHelperService
 		$scope.checkIfMappingTableIsSpecified = function() {
 			
 			var mappingTableIsSpecified = false;
@@ -173,6 +151,7 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 
 
 		// loop through batch list and check if condition is true for at least one row
+		// TODO move to kommonitorBatchUpdateHelperService if appropriate
 		$scope.checkIfDataFormatIsWfsV1 = function() {
 			var dataFormatIsWfsV1 = false;
 			for(var i=0;i<$scope.batchList.length;i++) {
@@ -188,6 +167,7 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 		}
 
 		// loop through batch list and check if condition is true for at least one row
+		// TODO move to kommonitorBatchUpdateHelperService if appropriate
 		$scope.checkIfDataFormatIsCsvLatLon = function() {
 			var checkIfDataFormatIsCsvLatLon = false;
 			for(var i=0;i<$scope.batchList.length;i++) {
@@ -199,10 +179,11 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 				}
 				
 			}
-			 return checkIfDataFormatIsCsvLatLon;
+			return checkIfDataFormatIsCsvLatLon;
 		}
 
 		// loop through batch list and check if condition is true for at least one row
+		// TODO move to kommonitorBatchUpdateHelperService if appropriate
 		$scope.checkIfDatasourceTypeIsFile = function() {
 			var checkIfDatasourceTypeIsFile = false;
 			for(var i=0;i<$scope.batchList.length;i++) {
@@ -214,10 +195,11 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 				}
 				
 			}
-			 return checkIfDatasourceTypeIsFile;
+			return checkIfDatasourceTypeIsFile;
 		}
 
 		// loop through batch list and check if condition is true for at least one row
+		// TODO move to kommonitorBatchUpdateHelperService if appropriate
 		$scope.checkIfDatasourceTypeIsHttp = function() {
 			var checkIfDatasourceTypeIsHttp = false;
 			for(var i=0;i<$scope.batchList.length;i++) {
@@ -229,10 +211,11 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 				}
 				
 			}
-			 return checkIfDatasourceTypeIsHttp;
+			return checkIfDatasourceTypeIsHttp;
 		}
 
 		// loop through batch list and check if condition is true for at least one row
+		// TODO move to kommonitorBatchUpdateHelperService if appropriate
 		$scope.checkIfDatasourceTypeIsInline = function() {
 			var checkIfDatasourceTypeIsInline = false;
 			for(var i=0;i<$scope.batchList.length;i++) {
@@ -244,7 +227,7 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 				}
 				
 			}
-			 return checkIfDatasourceTypeIsInline;
+			return checkIfDatasourceTypeIsInline;
 		}
 
 
@@ -261,7 +244,6 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 				var isInBatchList = false;
 				for(var i=0;i<$scope.batchList.length;i++) {
 					if($scope.batchList[i].name == avGeoresource.datasetName && i != batchIndex) {
-						console.log(batchIndex);
 						isInBatchList = true;
 						break;
 					}
@@ -277,24 +259,109 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 			};
 		};
 
+		$scope.resetRowByIndex = function(rowIndex) {
+			$scope.batchList[rowIndex] = {};
+			$scope.batchList[rowIndex].dataFormat = {};
+			$scope.batchList[rowIndex].datasourceType = {};
+		}
 
+		// updates a row in the batch list with the content of the mapping file selected
+		$scope.updateBatchListRow = function(mappingObj, rowIndex) {
+			// reset row
+			$scope.resetRowByIndex(rowIndex);
 
+			// period of validity
+			if(mappingObj.periodOfValidity.hasOwnProperty("startDate"))
+				$scope.batchList[rowIndex].periodOfValidityStart = mappingObj.periodOfValidity.startDate;
+			if(mappingObj.periodOfValidity.hasOwnProperty("endDate"))
+				$scope.batchList[rowIndex].periodOfValidityEnd = mappingObj.periodOfValidity.endDate;
+
+			// converter
+			if(mappingObj.hasOwnProperty("converter"))
+				$scope.batchList[rowIndex].dataFormat.format = $scope.getConverterObjectByName(mappingObj.converter.name)
+
+			// converter parameters
+			if(mappingObj.converter.hasOwnProperty("parameters")) {
+				var parameters = mappingObj.converter.parameters;
+				for (parameter of parameters) {
+					if(parameter.name === "CRS")
+						$scope.batchList[rowIndex].dataFormat.crs = parameter.value;
+
+					if(parameter.name === "xCoordColumn")
+						$scope.batchList[rowIndex].dataFormat.xCoordColumn = parameter.value;
+					
+					if(parameter.name === "yCoordColumn")
+						$scope.batchList[rowIndex].dataFormat.yCoordColumn = parameter.value;
+					
+					if(parameter.name === "separator")
+						$scope.batchList[rowIndex].dataFormat.separator = parameter.value;
+				}
+			}
+
+			// converter schema (only for wfs)
+			if(mappingObj.converter.hasOwnProperty("schema"))
+				$scope.batchList[rowIndex].dataFormat.schema =  mappingObj.converter.schema;
+
+			// datasource
+			if(mappingObj.hasOwnProperty("dataSource"))
+				$scope.batchList[rowIndex].datasourceType.type = $scope.getDatasourceTypeObjectByType(mappingObj.dataSource.type)
+
+			// datasource parameters
+			if(mappingObj.dataSource.hasOwnProperty("parameters")) {
+				var parameters = mappingObj.dataSource.parameters;
+				// contains a single parameter
+				if(parameters[0].name === "NAME") // TODO this should be "FILE"", but it gets exported like this
+					$scope.batchList[rowIndex].datasourceType.file = parameters[0].value;
+				
+				if(parameters[0].name === "URL")
+					$scope.batchList[rowIndex].datasourceType.url = parameters[0].value;
+
+				if(parameters[0].name === "payload")
+					$scope.batchList[rowIndex].datasourceType.payload = parameters[0].value;
+			}
+			
+			if(mappingObj.hasOwnProperty("propertyMapping")) {
+				var mapping = mappingObj.propertyMapping;
+
+				if(mapping.hasOwnProperty("identifierProperty"))
+					$scope.batchList[rowIndex].idAttrName = mapping.identifierProperty;
+
+				if(mapping.hasOwnProperty("nameProperty"))
+					$scope.batchList[rowIndex].nameAttrName = mapping.nameProperty;
+
+				if(mapping.hasOwnProperty("validStartDateProperty"))
+					$scope.batchList[rowIndex].lifetimeBeginnAttrName = mapping.validStartDateProperty;
+
+				if(mapping.hasOwnProperty("validEndDateProperty"))
+					$scope.batchList[rowIndex].lifetimeEndAttrName = mapping.validEndDateProperty;
+			}
+
+			$scope.$apply();
+			console.log($scope.batchList);
+		}
+
+		// helper function to get a converter object by full name.
+		// returns null if no converter was found
+		// TODO is this function needed?
+		$scope.getConverterObjectByName = function(name) {
+			for (converter of kommonitorImporterHelperService.availableConverters) {
+				if(converter.name === name) {
+					return converter;
+				}
+			}
+			return null;
+		}
+
+		// helper function to get a datasourceType object by type.
+		// returns null if no datasourceType was found
+		// TODO is this function needed?
+		$scope.getDatasourceTypeObjectByType = function(type) {
+			for (datasourceType of kommonitorImporterHelperService.availableDatasourceTypes) {
+				if(datasourceType.type === type) {
+					return datasourceType;
+				}
+			}
+			return null;
+		}
 	}
-]}).directive("fileread", [function () {
-	// workaround to get a selected file in ng-model, see:
-	// https://stackoverflow.com/questions/17063000/ng-model-for-input-type-file-with-directive-demo
-    return {
-        scope: {
-            fileread: "="
-        },
-        link: function (scope, element, attributes) {
-            element.bind("change", function (changeEvent) {
-                scope.$apply(function () {
-                    scope.fileread = changeEvent.target.files[0];
-                    // or all selected files:
-                    // scope.fileread = changeEvent.target.files;
-                });
-            });
-        }
-    }
-}]);
+]});
