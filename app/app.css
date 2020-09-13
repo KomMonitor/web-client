@@ -2280,3 +2280,18 @@ input:checked + .switchslider:before {
 #reporting-load-settings-button {
 	display:none;
 }
+
+#georesourceBatchListTableWrapper {
+	max-height: 75vh;
+	overflow-y: auto;
+}
+
+#georesourceBatchListTable .form-control {
+	width: auto;
+}
+
+#georesourceBatchListTable th {
+	position: sticky;
+	top: 0;
+	z-index: 3; /* datepicker fields have a z-index of 2, so this needs to be higher */
+}

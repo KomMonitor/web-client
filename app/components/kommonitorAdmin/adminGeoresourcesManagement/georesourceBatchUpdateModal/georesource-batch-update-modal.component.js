@@ -340,6 +340,21 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 			console.log($scope.batchList);
 		}
 
+		//TODO
+		// saves the current values of this row to the previously selected mapping file
+		$scope.onMappingTableSaveClicked = function() {
+
+			// check if a mapping file is selected for this row
+				// if not show an error message and return
+
+			// read selected file and parse to json, this is needed to get the state of the propertyMapping (keepAttributes, ...)
+
+			// overwrite json properties
+
+			// overwrite file
+
+		}
+
 		// helper function to get a converter object by full name.
 		// returns null if no converter was found
 		// TODO is this function needed?
