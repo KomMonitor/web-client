@@ -36,19 +36,24 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 		 * 	lifetimeBeginnAttrName
 		 * 	lifetimeEndAttrName
 		 */
-		$scope.batchList = [
-			{},
-			{},
-			{}
-		];
+		$scope.batchList = [];
+		
 
 		// on modal opened
 		$('#modal-batch-update-georesources').on('show.bs.modal', function () {
-			$scope.initialize();
+
+			// this check is necessary to avoid running the initialize method on opening datepicker modals
+			if(event.target.id === "button-batch-update-georesources") {
+				$scope.initialize();
+			}
+			
 		});
 
 		// initializes the modal
-		$scope.initialize = function(){
+		$scope.initialize = function() {
+			$scope.addNewRowToBatchList("georesource");
+			$scope.addNewRowToBatchList("georesource");
+			$scope.addNewRowToBatchList("georesource");
 
 			$('#standardPeriodOfValidityStartDatePicker').datepicker(kommonitorDataExchangeService.datePickerOptions);
 			for(var i=0;i<$scope.batchList.length;i++) {
@@ -56,21 +61,19 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 				$('#periodOfValidityEndDatePicker' + i).datepicker(kommonitorDataExchangeService.datePickerOptions);
 			}
 
-			$(".mappingTableInputField").change(function(){
-
+			$(document).delegate(".mappingTableInputField", "change", function(){
 				// get index of changed field
-				var index = kommonitorBatchUpdateHelperService.getIndexFromId(this.id)
-
+				var index = kommonitorBatchUpdateHelperService.getIndexFromId(this.id);
+				
 				// get file
 				var file = this.files[0];
 
 				// read content
 				var reader = new FileReader();
-				var content;
 				reader.addEventListener('load', function(event) {
 					mappingObj = JSON.parse(event.target.result);
 					// update scope variables for row with that index
-					$scope.updateBatchListRow(mappingObj, index);
+					$scope.updateBatchListRow(file, mappingObj, index);
 				});
 				reader.readAsText(file)
 			});
@@ -125,8 +128,13 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 			kommonitorBatchUpdateHelperService.onChangeSelectAllRows($scope);
 		}
 
-		$scope.addNewRowToBatchList = function() {
-			kommonitorBatchUpdateHelperService.addNewRowToBatchList($scope);
+		$scope.addNewRowToBatchList = function(resourceType) {
+			kommonitorBatchUpdateHelperService.addNewRowToBatchList(resourceType, $scope.batchList);
+
+			// last row
+			$('#periodOfValidityStartDatePicker' + $scope.batchList.length-1).datepicker(kommonitorDataExchangeService.datePickerOptions);
+			$('#periodOfValidityEndDatePicker' + $scope.batchList.length-1).datepicker(kommonitorDataExchangeService.datePickerOptions);
+			$scope.$apply();
 		}
 
 		$scope.deleteSelectedRowsFromBatchList = function() {
@@ -189,12 +197,19 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 			for(var i=0;i<$scope.batchList.length;i++) {
 				if($scope.batchList[i].datasourceType != undefined) {
 					if($scope.batchList[i].datasourceType.type.type == "FILE") {
+
+						// clear the other model variables
+						$scope.batchList[i].datasourceType.url = "";
+						$scope.batchList[i].datasourceType.payload = "";
+
 						checkIfDatasourceTypeIsFile = true;
 						break;
 					}
 				}
 				
 			}
+			
+
 			return checkIfDatasourceTypeIsFile;
 		}
 
@@ -206,11 +221,18 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 				if($scope.batchList[i].datasourceType != undefined) {
 					if($scope.batchList[i].datasourceType.type.type == "HTTP") {
 						checkIfDatasourceTypeIsHttp = true;
+
+						// clear the other model variables
+						$scope.batchList[i].datasourceType.file = "";
+						$scope.batchList[i].datasourceType.payload = "";
 						break;
 					}
 				}
 				
 			}
+
+
+
 			return checkIfDatasourceTypeIsHttp;
 		}
 
@@ -222,11 +244,16 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 				if($scope.batchList[i].datasourceType != undefined) {
 					if($scope.batchList[i].datasourceType.type.type == "INLINE") {
 						checkIfDatasourceTypeIsInline = true;
+
+						// clear the other model variables
+						$scope.batchList[i].datasourceType.file = "";
+						$scope.batchList[i].datasourceType.url = "";
 						break;
 					}
 				}
 				
 			}
+
 			return checkIfDatasourceTypeIsInline;
 		}
 
@@ -259,16 +286,37 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 			};
 		};
 
+		// TODO move to service?
 		$scope.resetRowByIndex = function(rowIndex) {
-			$scope.batchList[rowIndex] = {};
+			$scope.batchList[rowIndex].name = "";
+			$scope.batchList[rowIndex].saveToMappingTable = undefined;
+			$scope.batchList[rowIndex].periodOfValidityStart = "";
+			$scope.batchList[rowIndex].periodOfValidityEnd = "";
 			$scope.batchList[rowIndex].dataFormat = {};
+			$scope.batchList[rowIndex].dataFormat.format = "";
+			$scope.batchList[rowIndex].dataFormat.crs = "";
+			$scope.batchList[rowIndex].dataFormat.separator = "";
+			$scope.batchList[rowIndex].dataFormat.yCoordColumn = "";
+			$scope.batchList[rowIndex].dataFormat.xCoordColumn = "";
+			$scope.batchList[rowIndex].dataFormat.schema = "";
 			$scope.batchList[rowIndex].datasourceType = {};
+			$scope.batchList[rowIndex].datasourceType.type = "";
+			$scope.batchList[rowIndex].datasourceType.file = "";
+			$scope.batchList[rowIndex].datasourceType.url = "";
+			$scope.batchList[rowIndex].datasourceType.payload = "";
+			$scope.batchList[rowIndex].idAttrName = "";
+			$scope.batchList[rowIndex].nameAttrName = "";
+			$scope.batchList[rowIndex].lifetimeBeginnAttrName = "";
+			$scope.batchList[rowIndex].lifetimeEndAttrName = "";
 		}
 
 		// updates a row in the batch list with the content of the mapping file selected
-		$scope.updateBatchListRow = function(mappingObj, rowIndex) {
+		$scope.updateBatchListRow = function(file, mappingObj, rowIndex) {
 			// reset row
 			$scope.resetRowByIndex(rowIndex);
+
+			// mappingTable
+			$scope.batchList[rowIndex].mappingTable = file;
 
 			// period of validity
 			if(mappingObj.periodOfValidity.hasOwnProperty("startDate"))
@@ -279,6 +327,7 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 			// converter
 			if(mappingObj.hasOwnProperty("converter"))
 				$scope.batchList[rowIndex].dataFormat.format = $scope.getConverterObjectByName(mappingObj.converter.name)
+
 
 			// converter parameters
 			if(mappingObj.converter.hasOwnProperty("parameters")) {
@@ -337,23 +386,131 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 			}
 
 			$scope.$apply();
-			console.log($scope.batchList);
 		}
 
 		//TODO
 		// saves the current values of this row to the previously selected mapping file
-		$scope.onMappingTableSaveClicked = function() {
+		$scope.onMappingTableSaveClicked = function($event) {
 
-			// check if a mapping file is selected for this row
+			// Check if a mapping file is selected for this row
+			// This function should only be running if a file is selected, else the button is disabled.
+			// This check is just for double safety.
+			var rowIndex = kommonitorBatchUpdateHelperService.getIndexFromId($event.currentTarget.id);
+
+			if(!$scope.batchList[rowIndex].mappingTable) {
 				// if not show an error message and return
+				// TODO show error message
+				return;
+			} else {
+				// read selected file and parse to json, this is needed to get the state of the propertyMapping (keepAttributes, ...)
+				// TODO as soon as propertyMapping is implemented it is better to store the mappingObj in a variable after reading
+				// instead of reading it again here.
 
-			// read selected file and parse to json, this is needed to get the state of the propertyMapping (keepAttributes, ...)
+				// get file
+				var file = $scope.batchList[rowIndex].mappingTable;
 
-			// overwrite json properties
+				// read content
+				var reader = new FileReader();
+				reader.addEventListener('load', function(event) {
+					mappingObj = JSON.parse(event.target.result);
+					// update mapping object with current scope variables
+					mappingObj = $scope.updateMappingObject(mappingObj, rowIndex);
+					// save to file
+					kommonitorBatchUpdateHelperService.saveMappingObjectToFile(mappingObj);
+				});
+				reader.readAsText(file);
+			}
+		};
 
-			// overwrite file
+		// updates the mappingObject with scope variables for the given index in the batch list
+		// TODO move to service?
+		$scope.updateMappingObject = function(mappingObj, rowIndex) {
 
-		}
+			var batchRow = $scope.batchList[rowIndex]
+
+			// period of validity
+			if(mappingObj.hasOwnProperty("periodOfValidity")) {
+				mappingObj.periodOfValidity.startDate = batchRow.periodOfValidityStart;
+				mappingObj.periodOfValidity.endDate = batchRow.periodOfValidityEnd;
+			}
+			
+			// converter
+			if(mappingObj.hasOwnProperty("converter")) {
+				var convObj = $scope.getConverterObjectByName(batchRow.dataFormat.format.name);
+				mappingObj.converter.name = convObj.name;
+				mappingObj.converter.encoding = convObj.encodings[0];
+				mappingObj.converter.mimeType = convObj.mimeTypes[0];
+
+				// converter parameters
+				if(mappingObj.converter.hasOwnProperty("parameters")) {
+					// rebuild array
+					mappingObj.converter.parameters = [];
+
+
+					if(batchRow.dataFormat.crs != undefined && batchRow.dataFormat.crs != "") {
+						var crs = {"name": "CRS", "value": batchRow.dataFormat.crs};
+						mappingObj.converter.parameters.push(crs);
+					}
+
+					if(batchRow.dataFormat.separator != undefined && batchRow.dataFormat.separator != "") {
+						var separator = {"name": "separator", "value": batchRow.dataFormat.separator};
+						mappingObj.converter.parameters.push(separator);
+					}
+					
+					if(batchRow.dataFormat.yCoordColumn != undefined && batchRow.dataFormat.yCoordColumn != "") {
+						var yCoordColumn = {"name": "yCoordColumn", "value": batchRow.dataFormat.yCoordColumn};
+						mappingObj.converter.parameters.push(yCoordColumn);
+					}
+					
+					if(batchRow.dataFormat.xCoordColumn != undefined && batchRow.dataFormat.xCoordColumn != "") {
+						var xCoordColumn = {"name": "xCoordColumn", "value": batchRow.dataFormat.xCoordColumn};
+						mappingObj.converter.parameters.push(xCoordColumn);
+					}
+				}
+
+				// converter schema
+				if(batchRow.dataFormat.schema != undefined)
+					mappingObj.converter.schema = batchRow.dataFormat.schema;
+			}
+
+			// datasource
+			if(mappingObj.hasOwnProperty("dataSource")) {
+				// datasource parameters
+				if(mappingObj.dataSource.hasOwnProperty("parameters")) {
+					// rebuild array
+					mappingObj.dataSource.parameters = [];
+					// contains a single parameter
+					if(batchRow.datasourceType.file) {
+						mappingObj.dataSource.parameters[0] = {"name": "FILE", "value": batchRow.datasourceType.file};
+						mappingObj.dataSource.type = "FILE";
+					} else if (batchRow.datasourceType.url) {
+						mappingObj.dataSource.parameters[0] = {"name": "URL", "value": batchRow.datasourceType.url};
+						mappingObj.dataSource.type = "HTTP";
+					} else if (batchRow.datasourceType.payload) {
+						mappingObj.dataSource.parameters[0] = {"name": "payload", "value": batchRow.datasourceType.payload};
+						mappingObj.dataSource.type = "INLINE";
+					}
+				}
+
+			};
+
+			// property mapping
+			if(mappingObj.hasOwnProperty("propertyMapping")) {
+				if(batchRow.idAttrName != undefined && batchRow.idAttrName != "")
+					mappingObj.propertyMapping.identifierProperty = batchRow.idAttrName;
+
+				if(batchRow.nameAttrName != undefined && batchRow.nameAttrName != "")
+					mappingObj.propertyMapping.nameProperty = batchRow.nameAttrName;
+
+				if(batchRow.lifetimeEndAttrName != undefined && batchRow.lifetimeEndAttrName != "")
+					mappingObj.propertyMapping.validEndDateProperty = batchRow.lifetimeEndAttrName;
+
+				if(batchRow.lifetimeBeginnAttrName != undefined && batchRow.lifetimeBeginnAttrName != "")
+					mappingObj.propertyMapping.validStartDateProperty = batchRow.lifetimeBeginnAttrName;
+			}
+
+			return mappingObj;
+		};
 
 		// helper function to get a converter object by full name.
 		// returns null if no converter was found
@@ -378,5 +535,6 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 			}
 			return null;
 		}
+
 	}
 ]});

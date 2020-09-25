@@ -50,13 +50,32 @@ angular
                     this.saveBatchListToFile = function(resourceType, batchList) {
                         var batchListJSON = JSON.stringify(batchList);
 
-                        var filename;
+                        var fileName;
                         if(resourceType == "georesource")
                             fileName = "Georessource_batch_update_batch_list.json";
                         if(resourceType == "indicator")
                             fileName = "Indicator_batch_update_batch_list.json";
 
                         var blob = new Blob([batchListJSON], {type: "application/json"});
+                        var data  = URL.createObjectURL(blob);
+
+                        var a = document.createElement('a');
+                        a.download    = fileName;
+                        a.href        = data;
+                        a.textContent = "JSON";
+                        a.target = "_blank";
+                        a.rel = "noopener noreferrer";
+                        a.click();
+
+                        a.remove();
+                    }
+
+                    this.saveMappingObjectToFile = function(mappingObj) {
+                        var mappingObjJSON = JSON.stringify(mappingObj);
+                        
+                        var fileName = "KomMonitor-Import-Mapping-Konfiguration_Export.json";
+
+                        var blob = new Blob([mappingObjJSON], {type: "application/json"});
                         var data  = URL.createObjectURL(blob);
 
                         var a = document.createElement('a');
@@ -87,8 +106,40 @@ angular
                         }
                     }
 
-                    this.addNewRowToBatchList = function(scope) {
-                        scope.batchList.push({});
+                    this.addNewRowToBatchList = function(resourceType, batchList) {
+
+                        if(resourceType == "georesource") {
+                            var obj = {};
+                            // initialize properties so that they exist for each row
+                            obj.isSelected = false;
+                            obj.name = undefined;
+                            obj.mappingTable = "";
+                            obj.saveToMappingTable = undefined;
+                            obj.periodOfValidityStart = "";
+                            obj.periodOfValidityEnd = "";
+                            obj.dataFormat = {};
+                            obj.dataFormat.format = "";
+                            obj.dataFormat.crs = "";
+                            obj.dataFormat.separator = "";
+                            obj.dataFormat.yCoordColumn = "";
+                            obj.dataFormat.xCoordColumn = "";
+                            obj.dataFormat.schema = "";
+                            obj.datasourceType = {};
+                            obj.datasourceType.type = "";
+                            obj.datasourceType.file = "";
+                            obj.datasourceType.url = "";
+                            obj.datasourceType.payload = "";
+                            obj.idAttrName = "";
+                            obj.nameAttrName = "";
+                            obj.lifetimeBeginnAttrName = "";
+                            obj.lifetimeEndAttrName = "";
+
+                            batchList.push(obj);
+                        }
+
+                        if(resourceType == "indicator") {
+                            // TODO
+                        }
                     }
 
                     this.deleteSelectedRowsFromBatchList = function(scope) {
@@ -101,18 +152,6 @@ angular
                         }
 
                         scope.allRowsSelected = false; // in case it was true
-                    }
-
-                    this.onMappingTableChanged = function(resourceType, batchList, index) {
-                        //TODO how to get file content
-                        if(resourceType == "georesource") {
-                            //batchList[index].crs = ...
-                        }
-                            
-                        if(resourceType == "indicator") {
-
-                        }
-                            
                     }
 
                     // examples

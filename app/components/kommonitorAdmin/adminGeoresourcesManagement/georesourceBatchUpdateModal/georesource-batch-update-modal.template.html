@@ -102,13 +102,13 @@
 										
 										<!-- Mappingtabelle -->
 										<td>
-											<input id="mappingTable{{$index}}" class="form-control mappingTableInputField" type="file" accept=".json">
+											<input id="mappingTableSelect{{$index}}" class="form-control mappingTableInputField" type="file">
 										</td>
 
 										<!-- Speichern -->
 										<td ng-show="checkIfMappingTableIsSpecified()">
-											<button type="button" class="btn btn-primary fas fa-save" ng-model="georesource.saveToMappingTable"  
-												ng-disabled="georesource.mappingTable == undefined" ng-click="onMappingTableSaveClicked()" >
+											<button id="mappingTableSave{{$index}}" type="button" class="btn btn-primary fas fa-save" ng-model="georesource.saveToMappingTable"  
+												ng-disabled="georesource.mappingTable == undefined" ng-click="onMappingTableSaveClicked($event)" >
 											</button>
 										</td>
 
@@ -130,7 +130,7 @@
 													<i class="far fa-calendar-alt"></i>
 												</div>
 												<input id="periodOfValidityEndDatePicker{{$index}}" type="text" class="form-control pull-right" placeholder="YYYY-MM-DD"
-													value={{georesource.periodOfValidityEnd}} ng-model="georesource.periodOfValidityEnd" required>
+													value={{georesource.periodOfValidityEnd}} ng-model="georesource.periodOfValidityEnd">
 											</div>
 										</td>
 
@@ -151,23 +151,23 @@
 
 										<!-- separator -->
 										<td ng-show="checkIfDataFormatIsCsvLatLon()">
-											<input class="form-control" ng-model="georesource.dataFormat.separator" type="text" ng-disabled="georesource.dataFormat.format.simpleName != 'csvLatLon'">
+											<input class="form-control" ng-model="georesource.dataFormat.separator" type="text" ng-disabled="georesource.dataFormat.format.simpleName != 'csvLatLon'" required>
 										</td>
 
 										<!-- yCoordColumn -->
 										<td ng-show="checkIfDataFormatIsCsvLatLon()">
-											<input class="form-control" ng-model="georesource.dataFormat.yCoordColumn" type="text" ng-disabled="georesource.dataFormat.format.simpleName != 'csvLatLon'">
+											<input class="form-control" ng-model="georesource.dataFormat.yCoordColumn" type="text" ng-disabled="georesource.dataFormat.format.simpleName != 'csvLatLon'" required>
 										</td>
 
 										<!-- xCoordColumn -->
 										<td ng-show="checkIfDataFormatIsCsvLatLon()">
-											<input class="form-control" ng-model="georesource.dataFormat.xCoordColumn" type="text" ng-disabled="georesource.dataFormat.format.simpleName != 'csvLatLon'">
+											<input class="form-control" ng-model="georesource.dataFormat.xCoordColumn" type="text" ng-disabled="georesource.dataFormat.format.simpleName != 'csvLatLon'" required>
 										</td>
 
 										<!-- schema -->
 										<td ng-show="checkIfDataFormatIsWfsV1()">
 											<select class="form-control" ng-model="georesource.dataFormat.schema" ng-disabled="georesource.dataFormat.format.simpleName != 'wfs.v1'" 
-												ng-options="schema for schema in georesource.dataFormat.schemas">
+												ng-options="schema for schema in georesource.dataFormat.format.schemas" required>
 												<option disabled selected value> -- Schema w&auml;hlen -- </option>
 											</select>
 										</td>
@@ -183,17 +183,17 @@
 
 										<!-- Datei -->
 										<td ng-show="checkIfDatasourceTypeIsFile()">
-											<input class="form-control" type="file" ng-model="georesource.datasourceType.file" ng-disabled="georesource.datasourceType.type.type != 'FILE'">
+											<input class="form-control" type="file" ng-model="georesource.datasourceType.file" ng-disabled="georesource.datasourceType.type.type != 'FILE'" required>
 										</td>
 
 										<!-- URL -->
 										<td ng-show="checkIfDatasourceTypeIsHttp()">
-											<input class="form-control" type="text" ng-model="georesource.datasourceType.url" ng-disabled="georesource.datasourceType.type.type != 'HTTP'">
+											<input class="form-control" type="text" ng-model="georesource.datasourceType.url" ng-disabled="georesource.datasourceType.type.type != 'HTTP'" required>
 										</td>
 
 										<!-- Payload -->
 										<td ng-show="checkIfDatasourceTypeIsInline()">
-											<input class="form-control" type="text" ng-model="georesource.datasourceType.payload" ng-disabled="georesource.datasourceType.type.type != 'INLINE'">
+											<input class="form-control" type="text" ng-model="georesource.datasourceType.payload" ng-disabled="georesource.datasourceType.type.type != 'INLINE'" required>
 										</td>
 
 										<!-- ID Attributname -->
@@ -247,7 +247,7 @@
 							</table>
 						</div>
 
-						<button type="button" class="btn btn-primary" ng-click="addNewRowToBatchList()">neue Zeile hinzuf&uuml;gen</button>
+						<button type="button" class="btn btn-primary" ng-click="addNewRowToBatchList('georesource')">neue Zeile hinzuf&uuml;gen</button>
 						<button type="button" class="btn btn-danger" ng-click="deleteSelectedRowsFromBatchList()">ausgewählte Zeilen l&ouml;schen</button>
 					</div>
 				</div>
