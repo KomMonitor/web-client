@@ -33,7 +33,7 @@
     },
     {
         "id": "regressionDiagram",
-        "roles": []
+        "roles": ["administrator", "verwaltung"]
     },
     {
         "id": "reachability",
@@ -41,6 +41,6 @@
     },
     {
         "id": "processing",
-        "roles": ["administrator", "verwaltung"]
+        "roles": ["administrator"]
     }
 ]
