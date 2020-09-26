@@ -705,6 +705,8 @@ angular
 
             $q.all(metadataPromises).then(function successCallback(successArray) {
 
+                  self.modifyIndicatorApplicableSpatialUnitsForLoginRoles();
+
                   console.log("Metadata fetched. Call initialize event.");
       						onMetadataLoadingCompleted();
       				}, function errorCallback(errorArray) {
@@ -713,6 +715,17 @@ angular
                 $rootScope.$broadcast("initialMetadataLoadingFailed", errorArray);
       			});
 
+          };
+
+          this.modifyIndicatorApplicableSpatialUnitsForLoginRoles = function(){
+            var availableSpatialUnitNames = [];
+            for (const spatialUnit of this.availableSpatialUnits) {
+              availableSpatialUnitNames.push(spatialUnit.spatialUnitLevel);
+            }
+            for (const indicator of this.availableIndicators) {
+              indicator.applicableSpatialUnits = indicator.applicableSpatialUnits.filter(applicableSpatialUnit => availableSpatialUnitNames.includes(applicableSpatialUnit.spatialUnitName)); 
+              console.log("huhu");
+            }
           };
 
           var onMetadataLoadingCompleted = function(){
@@ -1173,6 +1186,9 @@ angular
                if(item.indicatorMetadata.applicableDates == undefined || item.indicatorMetadata.applicableDates.length === 0)
                  return false;
 
+               if(item.indicatorMetadata.applicableSpatialUnits == undefined || item.indicatorMetadata.applicableSpatialUnits.length === 0)
+                 return false;  
+
                  var isIndicatorThatShallNotBeDisplayed = arrayOfNameSubstringsForHidingIndicators.some(substring => String(item.indicatorMetadata.indicatorName).includes(substring));
 
                  if(isIndicatorThatShallNotBeDisplayed){
@@ -1189,6 +1205,9 @@ angular
                //
                if(item.applicableDates == undefined || item.applicableDates.length === 0)
                  return false;
+
+               if(item.applicableSpatialUnits == undefined || item.applicableSpatialUnits.length === 0)
+                 return false;    
 
                  // var isIndicatorThatShallNotBeDisplayed = item.indicatorName.includes("Standardabweichung") || item.indicatorName.includes("Prozentuale Ver");
                  var isIndicatorThatShallNotBeDisplayed = arrayOfNameSubstringsForHidingIndicators.some(substring => String(item.indicatorName).includes(substring));
