@@ -49,7 +49,7 @@ angular
 
           var self = this;
 
-          this.currentLoginRoles = undefined;
+          this.currentLoginRoles = [];
 
           this.isAllowedSpatialUnitForCurrentIndicator = function(spatialUnitMetadata){
             var isAllowed = false;
