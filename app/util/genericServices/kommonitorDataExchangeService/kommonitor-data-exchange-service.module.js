@@ -49,12 +49,25 @@ angular
 
           var self = this;
 
-          this.currentLoginRoles = undefined;
+          this.currentKeycloakLoginRoles = [];
+          this.currentKomMonitorLoginRoleNames = [];
+
+          this.setCurrentKomMonitorRoles = function(){
+            var roleMetadataForCurrentKeycloakLoginRoles = this.availableRoles.filter(role => this.currentKeycloakLoginRoles.includes(role.roleName)); 
+
+            var tmpCurrentKomMonitorRoles = [];
+
+            for (const roleMetadata of roleMetadataForCurrentKeycloakLoginRoles) {              
+              tmpCurrentKomMonitorRoles.push(roleMetadata.roleName);
+            }
+            this.currentKomMonitorLoginRoleNames = tmpCurrentKomMonitorRoles;
+          };
 
           this.isAllowedSpatialUnitForCurrentIndicator = function(spatialUnitMetadata){
             var isAllowed = false;
             
-            var roleMetadataForCurrentLoginRoles = this.availableRoles.filter(role => this.currentLoginRoles.includes(role.roleName));            
+            var roleMetadataForCurrentKeycloakLoginRoles = this.availableRoles.filter(role => this.currentKeycloakLoginRoles.includes(role.roleName));
+            this.setCurrentKomMonitorRoles();                     
             
             var filteredApplicableUnits = this.selectedIndicator.applicableSpatialUnits.filter(function (applicableSpatialUnit) {
               if (applicableSpatialUnit.spatialUnitName ===  spatialUnitMetadata.spatialUnitLevel){
@@ -62,7 +75,7 @@ angular
                   return true;
                 }
                 else{
-                  return applicableSpatialUnit.allowedRoles.some(allowedRoleId => roleMetadataForCurrentLoginRoles.some(roleMetadata => roleMetadata.roleId === allowedRoleId) );
+                  return applicableSpatialUnit.allowedRoles.some(allowedRoleId => roleMetadataForCurrentKeycloakLoginRoles.some(roleMetadata => roleMetadata.roleId === allowedRoleId) );
                 }
               }              
               
@@ -1167,10 +1180,10 @@ angular
           };
 
           var roleMappingAllowsDisplay = function(indicatorMetadata){
-            var roleMetadataForCurrentLoginRoles = self.availableRoles.filter(role => self.currentLoginRoles.includes(role.roleName));            
+            var roleMetadataForCurrentKeycloakLoginRoles = self.availableRoles.filter(role => self.currentKeycloakLoginRoles.includes(role.roleName));            
             
             var filteredApplicableUnits = indicatorMetadata.applicableSpatialUnits.filter(function (applicableSpatialUnit) {
-              return applicableSpatialUnit.allowedRoles.length == 0 || applicableSpatialUnit.allowedRoles.some(allowedRoleId => roleMetadataForCurrentLoginRoles.some(roleMetadata => roleMetadata.roleId === allowedRoleId) );                
+              return applicableSpatialUnit.allowedRoles.length == 0 || applicableSpatialUnit.allowedRoles.some(allowedRoleId => roleMetadataForCurrentKeycloakLoginRoles.some(roleMetadata => roleMetadata.roleId === allowedRoleId) );                
             });
 
             return filteredApplicableUnits.length > 0;

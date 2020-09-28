@@ -79,7 +79,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 		};
 
 		var checkAuthentication = function () {	
-			kommonitorDataExchangeService.currentLoginRoles = undefined;
+			kommonitorDataExchangeService.currentKeycloakLoginRoles = [];
 
 			if (Auth.keycloak.authenticated) {
 				$scope.authenticated = Auth.keycloak.authenticated;
@@ -87,7 +87,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
     				.then(function (profile) {
 						if (profile.emailVerified) {
 							$scope.username = profile.email;
-							kommonitorDataExchangeService.currentLoginRoles = Auth.keycloak.tokenParsed.realm_access.roles;
+							kommonitorDataExchangeService.currentKeycloakLoginRoles = Auth.keycloak.tokenParsed.realm_access.roles || [];
 							console.log("User logged in with email: " + profile.email);
 						} else {
 							alert("Email not verified. User will be logged out automatically!");
