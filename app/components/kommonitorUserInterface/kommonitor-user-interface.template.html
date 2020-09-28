@@ -27,7 +27,7 @@
 						<br/>
 						<br/>
 						<span><b>zugewiesene Rollen:</b></span>
-						<span style="word-break: break-all;"><i>{{$ctrl.kommonitorDataExchangeServiceInstance.currentKomMonitorLoginRoleNames}}</i></span>
+						<span><i>{{$ctrl.kommonitorDataExchangeServiceInstance.currentKomMonitorLoginRoleNames}}</i></span>
 					</div>
 					<input type="submit" ng-if="!authenticated" value="Login" id='input_submit' ng-click="tryLoginUser()" class='input_field' >
 					<input type="submit" ng-if="authenticated" value="Logout" id='input_submit' ng-click="tryLogoutUser()" class='input_field input_authenticated' >
