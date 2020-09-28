@@ -724,7 +724,6 @@ angular
             }
             for (const indicator of this.availableIndicators) {
               indicator.applicableSpatialUnits = indicator.applicableSpatialUnits.filter(applicableSpatialUnit => availableSpatialUnitNames.includes(applicableSpatialUnit.spatialUnitName)); 
-              console.log("huhu");
             }
           };
 
