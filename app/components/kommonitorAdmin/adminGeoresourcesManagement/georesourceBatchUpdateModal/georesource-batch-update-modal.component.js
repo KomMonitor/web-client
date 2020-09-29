@@ -62,7 +62,7 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 			//	$('#periodOfValidityEndDatePicker' + i).datepicker(kommonitorDataExchangeService.datePickerOptions);
 			//}
 
-			$(document).delegate(".mappingTableInputField", "change", function(){
+			$(document).on(".mappingTableInputField", "change", function(){
 				// get index of changed field
 				var index = kommonitorBatchUpdateHelperService.getIndexFromId(this.id);
 				
@@ -103,7 +103,7 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 			$("#georesourceBatchListFile").files = [];
 
 			// trigger file chooser
-			$("#georesourceBatchListFile").click();
+			$("#georesourceBatchListFile").trigger("click");
 		};
 
 		$(document).on("change", "#georesourceBatchListFile" ,function(){
