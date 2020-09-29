@@ -57,11 +57,7 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 			$scope.addNewRowToBatchList("georesource");
 
 			$('#standardPeriodOfValidityStartDatePicker').datepicker(kommonitorDataExchangeService.datePickerOptions);
-			//for(var i=0;i<$scope.batchList.length;i++) {
-			//	$('#periodOfValidityStartDatePicker' + i).datepicker(kommonitorDataExchangeService.datePickerOptions);
-			//	$('#periodOfValidityEndDatePicker' + i).datepicker(kommonitorDataExchangeService.datePickerOptions);
-			//}
-
+			
 			$(document).on(".mappingTableInputField", "change", function(){
 				// get index of changed field
 				var index = kommonitorBatchUpdateHelperService.getIndexFromId(this.id);
@@ -134,12 +130,7 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 		$scope.addNewRowToBatchList = function(resourceType) {
 
 			kommonitorBatchUpdateHelperService.addNewRowToBatchList(resourceType, $scope.batchList);
-
-			$timeout(function(){
-				// last row
-				$('#periodOfValidityStartDatePicker' + $scope.batchList.length-1).datepicker(kommonitorDataExchangeService.datePickerOptions);
-				$('#periodOfValidityEndDatePicker' + $scope.batchList.length-1).datepicker(kommonitorDataExchangeService.datePickerOptions);
-			}, 1000);
+			$scope.initializeDatepickerFields();
 		}
 
 		$scope.deleteSelectedRowsFromBatchList = function() {
@@ -526,6 +517,17 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 				}
 			}
 			return null;
+		}
+
+		$scope.initializeDatepickerFields = function() {
+
+			$timeout(function() {
+				for(var i=0;i<$scope.batchList.length;i++) {
+					console.log($('#periodOfValidityStartDatePicker' + i));
+					$('#periodOfValidityStartDatePicker' + i).datepicker(kommonitorDataExchangeService.datePickerOptions);
+					$('#periodOfValidityEndDatePicker' + i).datepicker(kommonitorDataExchangeService.datePickerOptions);
+				};
+			}, 200);
 		}
 
 	}
