@@ -52,6 +52,7 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 
 		// initializes the modal
 		$scope.initialize = function() {
+
 			$scope.addNewRowToBatchList("georesource");
 			$scope.addNewRowToBatchList("georesource");
 			$scope.addNewRowToBatchList("georesource");
@@ -106,16 +107,21 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 			
 			// get the file
 			var file = document.getElementById('georesourceBatchListFile').files[0];
-			kommonitorBatchUpdateHelperService.parseBatchListFromFile("georesource", file, $scope);
-			$scope.$apply();
+			// TODO passing $scope to a service is bad practice, but it keeps the two-way-data-binding
+			kommonitorBatchUpdateHelperService.parseBatchListFromFile("georesource", file, $scope.batchList)
 		});
+
+		$scope.$on('georesourceBatchListParsed', function(event, data) {
+			console.log("new batchList: ", data);
+			$scope.batchList = data.newValue;
+			$scope.$apply();
+		})
 
 		$scope.saveGeoresourcesBatchList = function() {
 			kommonitorBatchUpdateHelperService.saveBatchListToFile("georesource", $scope.batchList);
 		};
 
 		$scope.batchUpdateGeoresources = function() {
-			console.log($scope);
 			kommonitorBatchUpdateHelperService.batchUpdateGeoresources(georesource);
 		}
 
@@ -124,7 +130,7 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 		}
 
 		$scope.onChangeSelectAllRows = function() {
-			kommonitorBatchUpdateHelperService.onChangeSelectAllRows($scope);
+			kommonitorBatchUpdateHelperService.onChangeSelectAllRows($scope.allRowsSelected, $scope.batchList);
 		}
 
 		$scope.addNewRowToBatchList = function(resourceType) {
@@ -134,7 +140,7 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 		}
 
 		$scope.deleteSelectedRowsFromBatchList = function() {
-			kommonitorBatchUpdateHelperService.deleteSelectedRowsFromBatchList($scope);
+			kommonitorBatchUpdateHelperService.deleteSelectedRowsFromBatchList($scope.batchList, $scope.allRowsSelected);
 		}
 
 	
@@ -392,7 +398,6 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 			// This function should only be running if a file is selected, else the button is disabled.
 			// This check is just for double safety.
 			var rowIndex = kommonitorBatchUpdateHelperService.getIndexFromId($event.currentTarget.id);
-			console.log($scope.batchList[rowIndex]);
 			if(!$scope.batchList[rowIndex].mappingTable) {
 				// if not show an error message and return
 				// TODO show proper error message
@@ -523,7 +528,6 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 
 			$timeout(function() {
 				for(var i=0;i<$scope.batchList.length;i++) {
-					console.log($('#periodOfValidityStartDatePicker' + i));
 					$('#periodOfValidityStartDatePicker' + i).datepicker(kommonitorDataExchangeService.datePickerOptions);
 					$('#periodOfValidityEndDatePicker' + i).datepicker(kommonitorDataExchangeService.datePickerOptions);
 				};

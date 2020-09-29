@@ -10,8 +10,7 @@ angular
                     this.batchUpdate = function(resourceType) {
 
                         //TODO check if all data is specified
-                        // buildImporterObjects in service auslagern um es hier nutzen zu können
-                        //var allDataSpecified = await $scope.buildImporterObjects();
+                       // var allDataSpecified = await $scope.buildImporterObjects();
 
                         /*
                         if (!allDataSpecified) {
@@ -41,12 +40,15 @@ angular
                         }
                     };
 
-                    this.parseBatchListFromFile = function(resourceType, file, scope) {
+                    this.parseBatchListFromFile = function(resourceType, file, batchList) {
                         if(resourceType == "georesource") {
                             var fileReader = new FileReader();
 
                             fileReader.onload = function(event) {
-                                scope.batchList = JSON.parse(event.target.result);
+                                batchList = JSON.parse(event.target.result);
+                                $rootScope.$broadcast('georesourceBatchListParsed', {
+                                    newValue: batchList
+                                });
                             };
                 
                             // Read in the image file as a data URL.
@@ -105,13 +107,13 @@ angular
                             batchList[i] = {};
                     }
 
-                    this.onChangeSelectAllRows = function(scope) {
-                        if(scope.allRowsSelected) {
-                            angular.forEach(scope.batchList, function(row) {
+                    this.onChangeSelectAllRows = function(allRowsSelected, batchList) {
+                        if(allRowsSelected) {
+                            angular.forEach(batchList, function(row) {
                                 row.isSelected = true;
                             });
                         } else {
-                            angular.forEach(scope.batchList, function(row) {
+                            angular.forEach(batchList, function(row) {
                                 row.isSelected = false;
                             });
                         }
@@ -154,16 +156,16 @@ angular
                         }
                     }
 
-                    this.deleteSelectedRowsFromBatchList = function(scope) {
+                    this.deleteSelectedRowsFromBatchList = function(batchList, allRowsSelected) {
                         // loop backwards through $scope.batchList and remove selected rows
-                        for (var i = scope.batchList.length - 1; i >= 0; i--) {
-                            if (scope.batchList[i].isSelected) {
-                                scope.batchList.splice(i, 1);
+                        for (var i = batchList.length - 1; i >= 0; i--) {
+                            if (batchList[i].isSelected) {
+                                batchList.splice(i, 1);
                                 
                             }
                         }
 
-                        scope.allRowsSelected = false; // in case it was true
+                        allRowsSelected = false; // in case it was true
                     }
 
                     // examples
@@ -175,5 +177,21 @@ angular
                         var index = id.match(re)[0];
                         return index;
                     }
+
+
+                    /**
+                     * more or less a copy of the scope method in georesource-add-modal.component.js
+                     */
+                    //this.buildImporterObjects = async function(){
+                        // scope.converterDefinition = scope.buildConverterDefinition();
+                        // scope.datasourceTypeDefinition = await scope.buildDatasourceTypeDefinition();
+                        // scope.propertyMappingDefinition = scope.buildPropertyMappingDefinition();
+                        // scope.postBody_georesources = scope.buildPostBody_georesources();
+            
+                        // if(!scope.converterDefinition || !scope.datasourceTypeDefinition || !scope.propertyMappingDefinition || !scope.postBody_georesources){
+                        //     return false;
+                        // }
+                        // return true;
+                    //};
             }
         ]);
