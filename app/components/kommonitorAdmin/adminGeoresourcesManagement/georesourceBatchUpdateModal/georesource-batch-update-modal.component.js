@@ -59,17 +59,16 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 
 			$('#standardPeriodOfValidityStartDatePicker').datepicker(kommonitorDataExchangeService.datePickerOptions);
 			
-			$(document).on(".mappingTableInputField", "change", function(){
+			$(document).delegate(".mappingTableInputField", "change", function(){
 				// get index of changed field
 				var index = kommonitorBatchUpdateHelperService.getIndexFromId(this.id);
 				
 				// get file
 				var file = this.files[0];
-
 				// read content
 				var reader = new FileReader();
 				reader.addEventListener('load', function(event) {
-					mappingObj = JSON.parse(event.target.result);
+					var mappingObj = JSON.parse(event.target.result);
 					// store mappingObj for later use
 					$scope.batchList[index].mappingObj = mappingObj;
 					// update scope variables for row with that index
