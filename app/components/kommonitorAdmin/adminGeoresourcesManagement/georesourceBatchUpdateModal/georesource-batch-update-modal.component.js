@@ -1,7 +1,7 @@
 angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateModal', {
 	templateUrl : "components/kommonitorAdmin/adminGeoresourcesManagement/georesourceBatchUpdateModal/georesource-batch-update-modal.template.html",
-	controller : ['kommonitorDataExchangeService', 'kommonitorImporterHelperService', 'kommonitorBatchUpdateHelperService', '$scope', '$rootScope', '$http', '__env',
-		function GeoresourceModalBatchUpdateModalController(kommonitorDataExchangeService, kommonitorImporterHelperService, kommonitorBatchUpdateHelperService, $scope, $rootScope, $http, __env) {
+	controller : ['kommonitorDataExchangeService', 'kommonitorImporterHelperService', 'kommonitorBatchUpdateHelperService', '$scope', '$rootScope', '$http', '$timeout', '__env',
+		function GeoresourceModalBatchUpdateModalController(kommonitorDataExchangeService, kommonitorImporterHelperService, kommonitorBatchUpdateHelperService, $scope, $rootScope, $http, $timeout, __env) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 		this.kommonitorImporterHelperServiceInstance = kommonitorImporterHelperService;
@@ -14,10 +14,11 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 		$scope.standardCrsChb = true;
 
 		/*
-		 * Modal:
+		 * Model:
 		 * 	isSelected
 		 * 	name
 		 * 	mappingTable
+		 * 	mappingObj // DOM structure of the parsed mapping file
 		 * 	saveToMappingTable
 		 * 	periodOfValidityStart
 		 * 	periodOfValidityEnd
@@ -56,10 +57,10 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 			$scope.addNewRowToBatchList("georesource");
 
 			$('#standardPeriodOfValidityStartDatePicker').datepicker(kommonitorDataExchangeService.datePickerOptions);
-			for(var i=0;i<$scope.batchList.length;i++) {
-				$('#periodOfValidityStartDatePicker' + i).datepicker(kommonitorDataExchangeService.datePickerOptions);
-				$('#periodOfValidityEndDatePicker' + i).datepicker(kommonitorDataExchangeService.datePickerOptions);
-			}
+			//for(var i=0;i<$scope.batchList.length;i++) {
+			//	$('#periodOfValidityStartDatePicker' + i).datepicker(kommonitorDataExchangeService.datePickerOptions);
+			//	$('#periodOfValidityEndDatePicker' + i).datepicker(kommonitorDataExchangeService.datePickerOptions);
+			//}
 
 			$(document).delegate(".mappingTableInputField", "change", function(){
 				// get index of changed field
@@ -72,6 +73,8 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 				var reader = new FileReader();
 				reader.addEventListener('load', function(event) {
 					mappingObj = JSON.parse(event.target.result);
+					// store mappingObj for later use
+					$scope.batchList[index].mappingObj = mappingObj;
 					// update scope variables for row with that index
 					$scope.updateBatchListRow(file, mappingObj, index);
 				});
@@ -129,12 +132,14 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 		}
 
 		$scope.addNewRowToBatchList = function(resourceType) {
+
 			kommonitorBatchUpdateHelperService.addNewRowToBatchList(resourceType, $scope.batchList);
 
-			// last row
-			$('#periodOfValidityStartDatePicker' + $scope.batchList.length-1).datepicker(kommonitorDataExchangeService.datePickerOptions);
-			$('#periodOfValidityEndDatePicker' + $scope.batchList.length-1).datepicker(kommonitorDataExchangeService.datePickerOptions);
-			$scope.$apply();
+			$timeout(function(){
+				// last row
+				$('#periodOfValidityStartDatePicker' + $scope.batchList.length-1).datepicker(kommonitorDataExchangeService.datePickerOptions);
+				$('#periodOfValidityEndDatePicker' + $scope.batchList.length-1).datepicker(kommonitorDataExchangeService.datePickerOptions);
+			}, 1000);
 		}
 
 		$scope.deleteSelectedRowsFromBatchList = function() {
@@ -359,7 +364,7 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 			if(mappingObj.dataSource.hasOwnProperty("parameters")) {
 				var parameters = mappingObj.dataSource.parameters;
 				// contains a single parameter
-				if(parameters[0].name === "NAME") // TODO this should be "FILE"", but it gets exported like this
+				if(parameters[0].name === "NAME")
 					$scope.batchList[rowIndex].datasourceType.file = parameters[0].value;
 				
 				if(parameters[0].name === "URL")
@@ -396,29 +401,16 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 			// This function should only be running if a file is selected, else the button is disabled.
 			// This check is just for double safety.
 			var rowIndex = kommonitorBatchUpdateHelperService.getIndexFromId($event.currentTarget.id);
-
+			console.log($scope.batchList[rowIndex]);
 			if(!$scope.batchList[rowIndex].mappingTable) {
 				// if not show an error message and return
-				// TODO show error message
+				// TODO show proper error message
+				console.log("Save Button was clicked but no mapping file was loaded previously for this row.");
 				return;
 			} else {
-				// read selected file and parse to json, this is needed to get the state of the propertyMapping (keepAttributes, ...)
-				// TODO as soon as propertyMapping is implemented it is better to store the mappingObj in a variable after reading
-				// instead of reading it again here.
-
-				// get file
-				var file = $scope.batchList[rowIndex].mappingTable;
-
-				// read content
-				var reader = new FileReader();
-				reader.addEventListener('load', function(event) {
-					mappingObj = JSON.parse(event.target.result);
-					// update mapping object with current scope variables
-					mappingObj = $scope.updateMappingObject(mappingObj, rowIndex);
-					// save to file
-					kommonitorBatchUpdateHelperService.saveMappingObjectToFile(mappingObj);
-				});
-				reader.readAsText(file);
+				$scope.batchList[rowIndex].mappingObj =
+					$scope.updateMappingObject($scope.batchList[rowIndex].mappingObj, rowIndex);
+				kommonitorBatchUpdateHelperService.saveMappingObjectToFile($scope.batchList[rowIndex].mappingObj);
 			}
 		};
 

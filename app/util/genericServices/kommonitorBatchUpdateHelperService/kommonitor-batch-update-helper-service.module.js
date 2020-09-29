@@ -10,6 +10,17 @@ angular
                     this.batchUpdate = function(resourceType) {
 
                         //TODO check if all data is specified
+                        // buildImporterObjects in service auslagern um es hier nutzen zu können
+                        //var allDataSpecified = await $scope.buildImporterObjects();
+
+                        /*
+                        if (!allDataSpecified) {
+
+                            $("#georesourceAddForm").validator("update");
+                            $("#georesourceAddForm").validator("validate");
+                            return;
+                        }
+                        */
                         // if no, use bootstrap validator
                         // if yes, continue
 
@@ -114,6 +125,7 @@ angular
                             obj.isSelected = false;
                             obj.name = undefined;
                             obj.mappingTable = "";
+                            obj.mappingObj = {};
                             obj.saveToMappingTable = undefined;
                             obj.periodOfValidityStart = "";
                             obj.periodOfValidityEnd = "";
