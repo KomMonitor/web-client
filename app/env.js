@@ -60,14 +60,99 @@
   window.__env.minZoomLevel = 5;
   window.__env.maxZoomLevel = 18;
 
+  window.__env.baseLayers = [ // baseLayers of instance; first will be set as default starting layer
+    // {
+    //   name: "",  // display name
+    //   url: "", // URL to layer
+    //   layerType: "TILE_LAYER", // TILE_LAYER | TILE_LAYER_GRAYSCALE | WMS
+    //   layerName_WMS: "", // only relevant for layers of type WMS - multiple layers comma-separated
+    //   attributen_html: "", // attribution info displayed at the bottom of the map as HTML string
+    //   minZoomLevel: window.__env.minZoomLevel, // min zoom level for this layer (number between 1-20)
+    //   maxZoomLevel: window.__env.maxZoomLevel // max zoom level for this layer (number between 1-20, greater than minZoomLevel)
+    // },
+    {
+      name: "Open Street Map - Graustufen", 
+      url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", 
+      layerType: "TILE_LAYER_GRAYSCALE", 
+      layerName_WMS: "", 
+      attributen_html: "Map data © <a href='http://openstreetmap.org'>OpenStreetMap</a> contributors", 
+      minZoomLevel: window.__env.minZoomLevel, 
+      maxZoomLevel: window.__env.maxZoomLevel 
+    },
+    {
+      name: "Open Street Map - Farbe", 
+      url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+      layerType: "TILE_LAYER", 
+      layerName_WMS: "", 
+      attributen_html: "Map data © <a href='http://openstreetmap.org'>OpenStreetMap</a> contributors", 
+      minZoomLevel: window.__env.minZoomLevel, 
+      maxZoomLevel: window.__env.maxZoomLevel 
+    },    
+    {
+      name: "RVR Stadtplan - Farbe", 
+      url: "https://geodaten.metropoleruhr.de/spw2?", 
+      layerType: "WMS", 
+      layerName_WMS: "stadtplan_rvr", 
+      attributen_html: "Map data © <a href='https://geodaten.metropoleruhr.de'>https://geodaten.metropoleruhr.de</a>", 
+      minZoomLevel: window.__env.minZoomLevel, 
+      maxZoomLevel: window.__env.maxZoomLevel 
+    },
+    {
+      name: "RVR Stadtplan - Graublau", 
+      url: "https://geodaten.metropoleruhr.de/spw2?", 
+      layerType: "WMS", 
+      layerName_WMS: "spw2_graublau",
+      attributen_html: "Map data © <a href='https://geodaten.metropoleruhr.de'>https://geodaten.metropoleruhr.de</a>", 
+      minZoomLevel: window.__env.minZoomLevel, 
+      maxZoomLevel: window.__env.maxZoomLevel 
+    },
+    {
+      name: "NRW Digitale Topographische Karte", 
+      url: "https://www.wms.nrw.de/geobasis/wms_nw_dtk?", 
+      layerType: "WMS", 
+      layerName_WMS: "nw_dtk_col", 
+      attributen_html: "Map data © <a href='https://www.bezreg-koeln.nrw.de/brk_internet/geobasis/'>Geobasis NRW</a>", 
+      minZoomLevel: window.__env.minZoomLevel, 
+      maxZoomLevel: window.__env.maxZoomLevel 
+    },
+    {
+      name: "NRW Digitale Orthophotos (Luftbilder)", 
+      url: "https://www.wms.nrw.de/geobasis/wms_nw_dop?",
+      layerType: "WMS",
+      layerName_WMS: "nw_dop_rgb", 
+      attributen_html: "Map data © <a href='https://www.bezreg-koeln.nrw.de/brk_internet/geobasis/'>Geobasis NRW</a>", 
+      minZoomLevel: window.__env.minZoomLevel, 
+      maxZoomLevel: window.__env.maxZoomLevel 
+    },
+    {
+      name: "Stadt Essen - Automatisierte Liegenschaftskarte", 
+      url: "https://geo.essen.de/arcgis/services/basemap/Stadtplanpaket_ALK_grau/MapServer/WMSServer?",
+      layerType: "WMS", 
+      layerName_WMS: "0,1,2,3", 
+      attributen_html: "Stadt Essen: Amt f&uumlr Geoinformation, Vermessung und Kataster", 
+      minZoomLevel: window.__env.minZoomLevel, 
+      maxZoomLevel: window.__env.maxZoomLevel 
+    },
+    {
+      name: "Stadt Essen - Amtliche Basiskarte", 
+      url: "https://geo.essen.de/arcgis/services/basemap/Uebersicht_ABK_Stadtgrundkarte/MapServer/WMSServer?", 
+      layerType: "WMS", 
+      layerName_WMS: "nw_dop_rgb", 
+      attributen_html: "Stadt Essen: Amt f&uumlr Geoinformation, Vermessung und Kataster", 
+      minZoomLevel: window.__env.minZoomLevel, 
+      maxZoomLevel: window.__env.maxZoomLevel 
+    }
+  ];
+
+
   // starting indicator and spatial unit
   // if faulty values are provided, a random indicator will be displayed
   window.__env.initialIndicatorId = "48a18455-6a52-4e74-bdbf-99237187fc5c";
   window.__env.initialSpatialUnitName = "Wohnviertelebene";
 
  // various color settings
-  window.__env.defaultColorForNoDataValues = "black";
-  window.__env.defaultBorderColorForNoDataValues = "red";
+  window.__env.defaultColorForNoDataValues = "rgba(255,255,255,0)";
+  window.__env.defaultBorderColorForNoDataValues = "black";
   window.__env.defaultColorForOutliers_high = "#191919";
   window.__env.defaultBorderColorForOutliers_high = "black";
   window.__env.defaultFillOpacityForOutliers_high = "0.7";
@@ -205,7 +290,55 @@
 
   window.__env.wfsDatasets = [    
     // {
-    //   title: "Bäckereien",
+    //   title: "Bodennutzung - Bebauungsplanumringe",
+    //   description: "Umringe der Bebauungspl&auml;ne gem&auml;&szlig; geodaten.metropoleruhr.de. <b>WFS-Dienst unterst&uuml;tzt keine r&auml;umllichen Filter. Daher m&uuml;ssen zwingend alle Features abgerufen werden</b>.",
+    //   url: "https://geodaten.metropoleruhr.de/inspire/bodennutzung/metropoleruhr?",
+    //   featureTypeNamespace: "ms",
+    //   featureTypeName: "bplan_stand",
+    //   featureTypeGeometryName: "geom",
+    //   geometryType: "AOI", // POI|LOI|AOI
+    //   poiSymbolColor: "white", // ['white', 'red', 'orange', 'beige', 'green', 'blue', 'purple', 'pink', 'gray', 'black']
+    //   poiMarkerColor: "red", // ['white', 'red', 'orange', 'beige', 'green', 'blue', 'purple', 'pink', 'gray', 'black']
+    //   poiSymbolBootstrap3Name: "home",
+    //   loiColor: "#00aabb",
+    //   loiWidth: 3,
+    //   loiDashArrayString: "",
+    //   aoiColor: "#00aabb",
+    //   filterFeaturesToMapBBOX: false,
+    //   filterEncoding: {
+    //     // PropertyIsEqualTo: {
+    //     //   propertyName: undefined,
+    //     //   propertyValue: undefined
+    //   // }
+    //   },
+    //   topicReference: "c712af89-ff11-40ff-ad84-b3592901e085"
+    // },
+    // {
+    //   title: "Bodennutzung - Bebauungsplanumringe 2",
+    //   description: "Umringe der Bebauungspl&auml;ne gem&auml;&szlig; geodaten.metropoleruhr.de. <b>WFS-Dienst unterst&uuml;tzt keine r&auml;umllichen Filter. Daher m&uuml;ssen zwingend alle Features abgerufen werden</b>.",
+    //   url: "https://geodaten.metropoleruhr.de/inspire/bodennutzung/metropoleruhr?",
+    //   featureTypeNamespace: "ms",
+    //   featureTypeName: "bplan_stand",
+    //   featureTypeGeometryName: "the_geom",
+    //   geometryType: "AOI", // POI|LOI|AOI
+    //   poiSymbolColor: "white", // ['white', 'red', 'orange', 'beige', 'green', 'blue', 'purple', 'pink', 'gray', 'black']
+    //   poiMarkerColor: "red", // ['white', 'red', 'orange', 'beige', 'green', 'blue', 'purple', 'pink', 'gray', 'black']
+    //   poiSymbolBootstrap3Name: "home",
+    //   loiColor: "#00aabb",
+    //   loiWidth: 3,
+    //   loiDashArrayString: "",
+    //   aoiColor: "#00aabb",
+    //   filterFeaturesToMapBBOX: false,
+    //   filterEncoding: {
+    //     // PropertyIsEqualTo: {
+    //     //   propertyName: undefined,
+    //     //   propertyValue: undefined
+    //   // }
+    //   },
+    //   topicReference: "c712af89-ff11-40ff-ad84-b3592901e085"
+    // },
+    // {
+    //   title: "Infr Test",
     //   description: "Standorte von Bäckereien",
     //   url: "https://geoserver.kartenportal.org/geoserver/smartdemography/ows?",
     //   featureTypeNamespace: "smartdemography",
@@ -221,10 +354,10 @@
     //   aoiColor: "#00aabb",
     //   filterFeaturesToMapBBOX: false,
     //   filterEncoding: {
-    //     PropertyIsEqualTo: {
-    //       propertyName: "beschreibung",
-    //       propertyValue: "Bäckerei"
-    //     }
+    //     // PropertyIsEqualTo: {
+    //     //   propertyName: "beschreibung",
+    //     //   propertyValue: "Bäckerei"
+    //     // }
     //   },
     //   topicReference: "68f49954-8cb9-4d33-b478-dbad949be0e1"
     // }
