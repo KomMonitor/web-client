@@ -18,26 +18,26 @@
 
   // Data Management API URL
   // window.__env.apiUrl = 'http://kommonitor.fbg-hsbo.de/';
-  window.__env.apiUrl = 'https://cm.essen.de/management';
+  window.__env.apiUrl = 'https://coronitor.stadt.essen.de/management';
   // Base url
   window.__env.basePath = '';
 
   // Processing Engine URL
   // window.__env.apiUrl = 'http://kommonitor.fbg-hsbo.de/processing';
-  window.__env.targetUrlToProcessingEngine = 'https://cm.essen.de/processing/';
+  window.__env.targetUrlToProcessingEngine = 'https://coronitor.stadt.essen.de/processing/';
 
   // Open Route Service URL
     // window.__env.apiUrl = 'http://kommonitor.fbg-hsbo.de/openrouteservice';
-  // window.__env.targetUrlToReachabilityService_ORS = 'https://cm.essen.de/openrouteservice';
-  window.__env.targetUrlToReachabilityService_ORS = 'https://cm.essen.de/ors';
+  // window.__env.targetUrlToReachabilityService_ORS = 'https://coronitor.stadt.essen.de/openrouteservice';
+  window.__env.targetUrlToReachabilityService_ORS = 'https://coronitor.stadt.essen.de/ors';
 
     // Open Trip Planner URL - currently not integrated
   // window.__env.apiUrl = 'http://kommonitor.fbg-hsbo.de/opentripplanner';
-  window.__env.targetUrlToReachabilityService_OTP = 'https://cm.essen.de/opentripplanner';
+  window.__env.targetUrlToReachabilityService_OTP = 'https://coronitor.stadt.essen.de/opentripplanner';
 
 
   // Data Imporert URL
-  window.__env.targetUrlToImporterService = 'https://cm.essen.de/importer/';
+  window.__env.targetUrlToImporterService = 'https://coronitor.stadt.essen.de/importer/';
 
   // optional geometry simplification (a feature of Data Management API)
   window.__env.simplifyGeometriesParameterName = "simplifyGeometries";
