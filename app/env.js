@@ -48,8 +48,8 @@
 
   // starting viewpoint parameters and zoom level
   window.__env.initialLatitude = 51.4386432;
-  window.__env.initialLongitude = 7.0115552;
-  window.__env.initialZoomLevel = 12;
+  window.__env.initialLongitude = 7.1415552;
+  window.__env.initialZoomLevel = 10;
   // window.__env.minZoomLevel = 11;
   window.__env.minZoomLevel = 5;
   window.__env.maxZoomLevel = 18;
@@ -141,8 +141,8 @@
 
   // starting indicator and spatial unit
   // if faulty values are provided, a random indicator will be displayed
-  window.__env.initialIndicatorId = "baad078b-8e91-4999-aa94-0fee5a50cec6";
-  window.__env.initialSpatialUnitName = "Stadtteilebene";
+  window.__env.initialIndicatorId = "96357e9a-54e3-4c5e-ae45-4fb4fef00543";
+  window.__env.initialSpatialUnitName = "Gemeindegrenzen RVR";
 
  // various color settings
   window.__env.defaultColorForNoDataValues = "rgba(255,255,255,0)";
