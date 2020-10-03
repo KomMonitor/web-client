@@ -428,6 +428,10 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 	
 	
 			$scope.editIndicatorFeatures = async function(){
+
+				$timeout(function(){
+					$scope.loadingData = true;
+				});
 	
 				$scope.importerErrors = undefined;
 					$scope.successMessagePart = undefined;
@@ -454,8 +458,6 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 						// TODO verify input
 	
 						// TODO Create and perform POST Request with loading screen
-	
-						$scope.loadingData = true;
 	
 						var updateIndicatorResponse_dryRun = undefined;
 						try {
