@@ -1,34 +1,133 @@
-angular.module('kommonitorBatchUpdateHelper', ['kommonitorDataExchange']);
+angular.module('kommonitorBatchUpdateHelper', ['kommonitorDataExchange', 'kommonitorImporterHelper']);
 
 angular
     .module('kommonitorBatchUpdateHelper', [])
     .service(
-        'kommonitorBatchUpdateHelperService', ['$rootScope', '$timeout', 'kommonitorDataExchangeService', '$http', '__env',
+        'kommonitorBatchUpdateHelperService', ['$rootScope', '$timeout', 'kommonitorDataExchangeService', 'kommonitorImporterHelperService', '$http', '__env',
             function ($rootScope, $timeout,
-                kommonitorDataExchangeService, $http, __env) {
+                kommonitorDataExchangeService, kommonitorImporterHelperService, $http, __env) {
 
-                    this.batchUpdate = function(resourceType) {
+                    this.batchUpdate = async function(resourceType, batchList) {
+                        //TODO check if all rows are valid, only continue if that is true
+                        
+                        //TODO not working properly
+                        $("#georesourceBatchUpdateForm").validator("update");
+                        $("#georesourceBatchUpdateForm").validator("validate");
 
-                        //TODO check if all data is specified
-                       // var allDataSpecified = await $scope.buildImporterObjects();
+                        // create object to store error messages
+                        var errorMessages = {};
 
-                        /*
-                        if (!allDataSpecified) {
+                        //TODO for each georesource in list
+                        for(var i=0;i<batchList.length;i++) {
+                            var row = batchList[i];
+                            var georesourceId = row.name.georesourceId;
 
-                            $("#georesourceAddForm").validator("update");
-                            $("#georesourceAddForm").validator("validate");
-                            return;
+                            var converterDefinition = row.mappingObj.converter;
+                            console.log("converterDefinition of row " + i + ": ", converterDefinition);
+                            
+                            var datasourceTypeDefinition = row.mappingObj.dataSource;
+                            console.log("datasourceTypeDefinition of row " + i + ": ", datasourceTypeDefinition);
+
+                            //var datasourceFileInputId = "mappingTableSelect" + i;
+                            //await this.uploadFileToImporter(row.mappingObj, datasourceFileInputId);
+                            //console.log("file uploaded");
+
+                            var propertyMappingDefinition = row.mappingObj.propertyMapping;
+                            console.log("propertyMappingDefinition of row " + i + ": ", propertyMappingDefinition);
+
+                            var attributeMappings_adminView = [];
+                            for(var j=0;j<row.mappingObj.propertyMapping.attributes.length;j++) {
+                                let attribute = row.mappingObj.propertyMapping.attributes[j];
+                                var tmpEntry = {
+                                    "sourceName": attribute.name,
+						            "destinationName": attribute.mappingName
+                                };
+
+                                for (const dataType of kommonitorImporterHelperService.attributeMapping_attributeTypes) {
+                                    if (dataType.apiName === attribute.type){
+                                        tmpEntry.dataType = dataType;
+                                    }
+                                }
+
+                                attributeMappings_adminView.push(tmpEntry);
+                            }
+                            propertyMappingDefinition = kommonitorImporterHelperService.buildPropertyMapping_spatialResource(
+                                row.mappingObj.propertyMapping.nameProperty,
+                                row.mappingObj.propertyMapping.identifierProperty,
+                                row.mappingObj.propertyMapping.validStartDateProperty,
+                                row.mappingObj.propertyMapping.validEndDateProperty,
+                                row.mappingObj.propertyMapping.arisenFromProperty,
+                                row.mappingObj.propertyMapping.keepAttributes,
+                                row.mappingObj.propertyMapping.keepMissingOrNullValueAttributes,
+                                attributeMappings_adminView
+                            )
+                            console.log("propertyMappingDefinition of row " + i + " with importerService: ", propertyMappingDefinition);
+                            
+                            var scopeProperties = {
+                                "periodOfValidity": {
+                                    "startDate": row.periodOfValidityStart,
+                                    "endDate": row.periodOfValidityEnd
+                                }
+                            }
+                            console.log(row);
+                            var putBody_georesources = this.buildPutBody_georesources(scopeProperties);
+                            console.log("putBody_georesources of row " + i + ": ", putBody_georesources);
+                            
+                            // send post request and wait for it to complete
+                            var newGeoresourceResponse_dryRun = undefined;
+                            try {
+                                newGeoresourceResponse_dryRun = await kommonitorImporterHelperService.updateGeoresource(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, georesourceId, putBody_georesources, true);
+
+                                if (!kommonitorImporterHelperService.importerResponseContainsErrors(newGeoresourceResponse_dryRun)) {
+                                    // all good, really execute the request to update data against data management API
+                                    var newGeoresourceResponse = await kommonitorImporterHelperService.updateGeoresource(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, georesourceId, putBody_georesources, false);
+
+                                    $rootScope.$broadcast("refreshGeoresourceOverviewTable");
+
+                                    // refresh all admin dashboard diagrams due to modified metadata
+                                    $rootScope.$broadcast("refreshAdminDashboardDiagrams");
+
+                                    //$scope.successMessagePart = $scope.postBody_georesources.datasetName;
+                                    //$scope.importedFeatures = kommonitorImporterHelperService.getImportedFeaturesFromImporterResponse(newGeoresourceResponse);
+
+                                    //$("#georesourceAddSuccessAlert").show();
+
+                                    //$scope.loadingData = false;
+                                } else {
+                                    // errors ocurred
+                                    // show them 
+                                    //$scope.errorMessagePart = "Einige der zu importierenden Features des Datensatzes weisen kritische Fehler auf";
+                                    //$scope.importerErrors = kommonitorImporterHelperService.getErrorsFromImporterResponse(newGeoresourceResponse_dryRun);
+
+                                    //$("#georesourceAddErrorAlert").show();
+                                    //$scope.loadingData = false;
+
+                                    //setTimeout(() => {
+                                    //    $scope.$apply();
+                                    //}, 250);
+
+                                }
+                            } catch (error) {
+                                if (error.data) {
+                                    //$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+                                    console.error(error.data);
+                                } else {
+                                    //$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
+                                    console.error(error);
+                                }
+
+                                //if (newGeoresourceResponse_dryRun) {
+                                    //$scope.importerErrors = kommonitorImporterHelperService.getErrorsFromImporterResponse(newGeoresourceResponse_dryRun);
+                                //}
+
+                                //$("#georesourceAddErrorAlert").show();
+                                //$scope.loadingData = false;
+
+                                //setTimeout(() => {
+                                //    $scope.$apply();
+                                //}, 250);
+                            }
                         }
-                        */
-                        // if no, use bootstrap validator
-                        // if yes, continue
-
-                        //TODO create some object to store error messages
-
-                        //TODO for each georesource/indicator in list
-                            // TODO build a post request for the importer service
-                            // TODO send post request and wait for it to complete
-                            // TODO collect error messages
                         
                         //TODO show error messages
                         if(resourceType == "georesource") {
@@ -39,6 +138,8 @@ angular
 
                         }
                     };
+
+
 
                     this.parseBatchListFromFile = function(resourceType, file, batchList) {
                         if(resourceType == "georesource") {
@@ -178,20 +279,86 @@ angular
                         return index;
                     }
 
+                    /*this.uploadFileToImporter = async function (mappingObj, datasourceFileInputId) {
 
-                    /**
-                     * more or less a copy of the scope method in georesource-add-modal.component.js
-                     */
-                    //this.buildImporterObjects = async function(){
-                        // scope.converterDefinition = scope.buildConverterDefinition();
-                        // scope.datasourceTypeDefinition = await scope.buildDatasourceTypeDefinition();
-                        // scope.propertyMappingDefinition = scope.buildPropertyMappingDefinition();
-                        // scope.postBody_georesources = scope.buildPostBody_georesources();
+                        if (mappingObj.dataSource.type === "FILE") {
+                            // get file if present
+                            var file = document.getElementById(datasourceFileInputId).files[0];
+
+                            if (file === null || file === undefined) {
+                                return null;
+                            }
+
+                            // upload it to importer
+                            //TODO show error message
+                            var fileUploadName;
+                            try {
+                                //fileUploadName = await kommonitorImporterHelperService.uploadNewFile(file, file.name);
+                                fileUploadName = "test";
+                                console.log("fileUploadName: ", fileUploadName);
+                            } catch (error) {
+                                console.error("Error while uploading file to importer.");
+                                console.error(error);
+                                kommonitorDataExchangeService.displayMapApplicationError(error);
+                                throw error;
+                            }
+                        }
+                    }*/
+
+                    this.buildPutBody_georesources = function(scopeProperties) {
+                        //TODO build scopeProperties
+                        console.log(scopeProperties);
+                        var putBody =
+                        {
+                            "geoJsonString": "",
+                            "periodOfValidity": {
+                                "endDate": scopeProperties.periodOfValidity.endDate,
+                                "startDate": scopeProperties.periodOfValidity.startDate
+                            }
+                        };
             
-                        // if(!scope.converterDefinition || !scope.datasourceTypeDefinition || !scope.propertyMappingDefinition || !scope.postBody_georesources){
-                        //     return false;
-                        // }
-                        // return true;
-                    //};
+                        return putBody;
+                        
+                        // Metadata can not be changed in batch-update.
+                        // We get the current metadata for this georesource and pass it directly to the post request
+                        /*var result = null;
+                        for (existGeoresource of kommonitorDataExchangeService.availableGeoresources) {
+
+                            if(existGeoresource.georesourceId == georesourceId) {
+                                var metadata = existGeoresource.metadata;
+                                result = {
+                                    "metadata": {
+                                        "note": metadata.note,
+                                        "literature": metadata.literature,
+                                        "updateInterval": metadata.updateInterval,
+                                        "sridEPSG": metadata.sridEPSG,
+                                        "datasource": metadata.datasource,
+                                        "contact": metadata.contact,
+                                        "lastUpdate": metadata.lastUpdate,
+                                        "description": metadata.description,
+                                        "databasis": metadata.databasis
+                                    },
+                                    "datasetName": existGeoresource.datasetName,
+                                    "isPOI": existGeoresource.isPOI,
+                                    "isLOI": existGeoresource.isLOI,
+                                    "isAOI": existGeoresource.isAOI,
+                                    "poiSymbolBootstrap3Name": existGeoresource.poiSymbolBootstrap3Name,
+                                    "poiSymbolColor": existGeoresource.poiSymbolColor,
+                                    "loiDashArrayString": existGeoresource.loiDashArrayString,
+                                    "poiMarkerColor": existGeoresource.poiMarkerColor,
+                                    "loiColor": existGeoresource.loiColor,
+                                    "loiWidth": existGeoresource.loiWidth,
+                                    "aoiColor": existGeoresource.aoiColor,
+                                    "topicReference": existGeoresource.topicReference
+                                }
+                            }
+                        }
+
+                        if (result == null) {
+                            console.error("Could not access the metadata of the given georesource. No georesource found for the given name.")
+                        }
+
+                        return result;*/
+                    }
             }
         ]);

@@ -96,7 +96,7 @@
 											<!-- Name -->
 											<td>
 												<select class="form-control" ng-model="georesource.name" required
-													ng-options="avGeoresource.datasetName as avGeoresource.datasetName for avGeoresource in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:filterGeoresourcesInBatchList($index)">
+													ng-options="avGeoresource as avGeoresource.datasetName for avGeoresource in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:filterGeoresourcesInBatchList($index)">
 														<option disabled selected value> -- Georessource w&auml;hlen -- </option>
 												</select>
 											</td>
@@ -269,7 +269,7 @@
 				</button>
 
 				<button type="button" class="btn btn-success"
-					ng-click="batchUpdateGeoresources()">Update ausführen</button>
+					ng-click="batchUpdateGeoresources()" ng-disabled="checkIfMappingTableChosenInEachRow()">Update ausführen</button>
 				<button type="button" class="btn btn-danger"
 					ng-click="resetGeoresourceBatchUpdateForm()">Zur&uuml;cksetzen</button>
 			</div>

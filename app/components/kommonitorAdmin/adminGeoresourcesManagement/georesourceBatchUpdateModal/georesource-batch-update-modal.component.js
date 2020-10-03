@@ -54,11 +54,9 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 		$scope.initialize = function() {
 
 			$scope.addNewRowToBatchList("georesource");
-			$scope.addNewRowToBatchList("georesource");
-			$scope.addNewRowToBatchList("georesource");
 
 			$('#standardPeriodOfValidityStartDatePicker').datepicker(kommonitorDataExchangeService.datePickerOptions);
-			
+
 			$(document).delegate(".mappingTableInputField", "change", function(){
 				// get index of changed field
 				var index = kommonitorBatchUpdateHelperService.getIndexFromId(this.id);
@@ -95,7 +93,6 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 		};
 
 		$scope.loadGeoresourcesBatchList = function() {
-
 			$("#georesourceBatchListFile").files = [];
 
 			// trigger file chooser
@@ -106,7 +103,6 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 			
 			// get the file
 			var file = document.getElementById('georesourceBatchListFile').files[0];
-			// TODO passing $scope to a service is bad practice, but it keeps the two-way-data-binding
 			kommonitorBatchUpdateHelperService.parseBatchListFromFile("georesource", file, $scope.batchList)
 		});
 
@@ -121,7 +117,7 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 		};
 
 		$scope.batchUpdateGeoresources = function() {
-			kommonitorBatchUpdateHelperService.batchUpdateGeoresources(georesource);
+			kommonitorBatchUpdateHelperService.batchUpdate("georesource", $scope.batchList);
 		}
 
 		$scope.resetGeoresourceBatchUpdateForm = function() {
@@ -258,6 +254,25 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 			return checkIfDatasourceTypeIsInline;
 		}
 
+		// loop through batch list and check if condition is true for at least one row
+		// TODO move to kommonitorBatchUpdateHelperService if appropriate
+		$scope.checkIfMappingTableChosenInEachRow = function() {
+			if($scope.batchList.length == 0) {
+				return true;
+			}
+
+			var mappingTableChosenInEachRow = true;
+			for(var i=0;i<$scope.batchList.length;i++) {
+				if($scope.batchList[i].mappingTable != undefined) {
+					if($scope.batchList[i].mappingTable == "") {
+						mappingTableChosenInEachRow = false;
+						break;
+					}
+				}
+			}
+
+			return !mappingTableChosenInEachRow;
+		}
 
 		/**
 		 * Filters georessources that are already present in the batch list so that they can't be added twice.
@@ -271,9 +286,11 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 				// check if georesource is in batchList
 				var isInBatchList = false;
 				for(var i=0;i<$scope.batchList.length;i++) {
-					if($scope.batchList[i].name == avGeoresource.datasetName && i != batchIndex) {
-						isInBatchList = true;
-						break;
+					if($scope.batchList[i].name) {
+						if($scope.batchList[i].name.datasetName == avGeoresource.datasetName && i != batchIndex) {
+							isInBatchList = true;
+							break;
+						}
 					}
 				}
 
@@ -289,7 +306,7 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 
 		// TODO move to service?
 		$scope.resetRowByIndex = function(rowIndex) {
-			$scope.batchList[rowIndex].name = "";
+			//$scope.batchList[rowIndex].name = "";
 			$scope.batchList[rowIndex].saveToMappingTable = undefined;
 			$scope.batchList[rowIndex].periodOfValidityStart = "";
 			$scope.batchList[rowIndex].periodOfValidityEnd = "";
