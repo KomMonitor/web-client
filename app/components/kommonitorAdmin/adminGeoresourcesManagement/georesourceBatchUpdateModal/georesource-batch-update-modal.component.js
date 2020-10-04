@@ -17,9 +17,8 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 		 * Model:
 		 * 	isSelected
 		 * 	name
-		 * 	mappingTable
+		 * 	mappingTableName
 		 * 	mappingObj // DOM structure of the parsed mapping file
-		 * 	saveToMappingTable
 		 * 	periodOfValidityStart
 		 * 	periodOfValidityEnd
 		 * 	dataFormat.format
@@ -63,6 +62,7 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 				
 				// get file
 				var file = this.files[0];
+
 				// read content
 				var reader = new FileReader();
 				reader.addEventListener('load', function(event) {
@@ -107,9 +107,91 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 		});
 
 		$scope.$on('georesourceBatchListParsed', function(event, data) {
-			console.log("new batchList: ", data);
-			$scope.batchList = data.newValue;
-			$scope.$apply();
+			$timeout(function() {
+
+				var newBatchList = data.newValue;
+
+				// remove all rows
+				for (var i = 0; i < $scope.batchList.length; i++)
+					$scope.batchList[i].isSelected = true;
+				$scope.deleteSelectedRowsFromBatchList();
+
+				
+				for(let i=0;i<newBatchList.length;i++) {
+					$scope.addNewRowToBatchList("georesource");
+					// isselected
+					$scope.batchList[i].isSelected = newBatchList[i].isSelected;
+
+					// name
+					// The exported batchList does not contain all of the metadata.
+					// We have to use the georesourceId to select the corresponding select option in the "name" column.
+					var georesourceId = newBatchList[i].name;
+					var georesourceObj = $scope.getGeoresourceById(georesourceId);
+					$scope.batchList[i].name = georesourceObj;
+
+					// mappingTableName
+					$scope.batchList[i].mappingTableName = newBatchList[i].mappingTableName;
+
+					// mappingObj
+					$scope.batchList[i].mappingObj = newBatchList[i].mappingObj;
+
+					// periodOfValidityStart
+					$scope.batchList[i].periodOfValidityStart = newBatchList[i].periodOfValidityStart;
+
+					// periodOfValidityEnd
+					$scope.batchList[i].periodOfValidityEnd = newBatchList[i].periodOfValidityEnd;
+
+					// dataFormat.format
+					var converterName = newBatchList[i].dataFormat.format.name;
+					var converterObj = $scope.getConverterObjectByName(converterName);
+					$scope.batchList[i].dataFormat.format = converterObj;
+
+					// dataFormat.crs
+					$scope.batchList[i].dataFormat.crs = newBatchList[i].dataFormat.crs;
+
+					// dataFormat.separator
+					$scope.batchList[i].dataFormat.separator = newBatchList[i].dataFormat.separator;
+
+					// dataFormat.yCoordColumn
+					$scope.batchList[i].dataFormat.yCoordColumn = newBatchList[i].dataFormat.yCoordColumn;
+
+					// dataFormat.xCoordColumn
+					$scope.batchList[i].dataFormat.xCoordColumn = newBatchList[i].dataFormat.xCoordColumn;
+
+					// dataFormat.schema
+					$scope.batchList[i].dataFormat.schema = newBatchList[i].dataFormat.schema;
+
+					// datasourceType.type
+					var datasourceType = newBatchList[i].datasourceType.type.type;
+					var datasource = $scope.getDatasourceTypeObjectByType(datasourceType);
+					$scope.batchList[i].datasourceType.type = datasource;
+
+					// datasourceType.file
+					$scope.batchList[i].datasourceType.file = newBatchList[i].datasourceType.file;
+
+					// datasourceType.url
+					$scope.batchList[i].datasourceType.url = newBatchList[i].datasourceType.url;
+
+					// datasourceType.payload
+					$scope.batchList[i].datasourceType.payload = newBatchList[i].datasourceType.payload;
+
+					// idAttrName
+					$scope.batchList[i].idAttrName = newBatchList[i].idAttrName;
+
+					// nameAttrName
+					$scope.batchList[i].nameAttrName = newBatchList[i].nameAttrName;
+
+					// lifetimeBeginnAttrName
+					$scope.batchList[i].lifetimeBeginnAttrName = newBatchList[i].lifetimeBeginnAttrName;
+
+					// lifetimeEndAttrName
+					$scope.batchList[i].lifetimeEndAttrName = newBatchList[i].lifetimeEndAttrName;
+
+					// set file names in ui, for mappingtable and datasourceType.file
+					//TODO https://stackoverflow.com/questions/5138719/change-default-text-in-input-type-file
+					
+				}
+			});
 		})
 
 		$scope.saveGeoresourcesBatchList = function() {
@@ -145,7 +227,7 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 			
 			var mappingTableIsSpecified = false;
 			for(var i=0;i<$scope.batchList.length;i++) {
-				if($scope.batchList[i].mappingTable != undefined) {
+				if($scope.batchList[i].mappingTableName != undefined) {
 					mappingTableIsSpecified = true;
 					break;
 				}
@@ -263,8 +345,8 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 
 			var mappingTableChosenInEachRow = true;
 			for(var i=0;i<$scope.batchList.length;i++) {
-				if($scope.batchList[i].mappingTable != undefined) {
-					if($scope.batchList[i].mappingTable == "") {
+				if($scope.batchList[i].mappingTableName != undefined) {
+					if($scope.batchList[i].mappingTableName == "") {
 						mappingTableChosenInEachRow = false;
 						break;
 					}
@@ -287,7 +369,7 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 				var isInBatchList = false;
 				for(var i=0;i<$scope.batchList.length;i++) {
 					if($scope.batchList[i].name) {
-						if($scope.batchList[i].name.datasetName == avGeoresource.datasetName && i != batchIndex) {
+						if($scope.batchList[i].name.georesourceId == avGeoresource.georesourceId && i != batchIndex) {
 							isInBatchList = true;
 							break;
 						}
@@ -307,7 +389,6 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 		// TODO move to service?
 		$scope.resetRowByIndex = function(rowIndex) {
 			//$scope.batchList[rowIndex].name = "";
-			$scope.batchList[rowIndex].saveToMappingTable = undefined;
 			$scope.batchList[rowIndex].periodOfValidityStart = "";
 			$scope.batchList[rowIndex].periodOfValidityEnd = "";
 			$scope.batchList[rowIndex].dataFormat = {};
@@ -334,7 +415,7 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 			$scope.resetRowByIndex(rowIndex);
 
 			// mappingTable
-			$scope.batchList[rowIndex].mappingTable = file;
+			$scope.batchList[rowIndex].mappingTableName = file.name;
 
 			// period of validity
 			if(mappingObj.periodOfValidity.hasOwnProperty("startDate"))
@@ -414,7 +495,7 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 			// This function should only be running if a file is selected, else the button is disabled.
 			// This check is just for double safety.
 			var rowIndex = kommonitorBatchUpdateHelperService.getIndexFromId($event.currentTarget.id);
-			if(!$scope.batchList[rowIndex].mappingTable) {
+			if(!$scope.batchList[rowIndex].mappingTableName) {
 				// if not show an error message and return
 				// TODO show proper error message
 				console.log("Save Button was clicked but no mapping file was loaded previously for this row.");
@@ -518,7 +599,6 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 
 		// helper function to get a converter object by full name.
 		// returns null if no converter was found
-		// TODO is this function needed?
 		$scope.getConverterObjectByName = function(name) {
 			for (converter of kommonitorImporterHelperService.availableConverters) {
 				if(converter.name === name) {
@@ -530,11 +610,21 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 
 		// helper function to get a datasourceType object by type.
 		// returns null if no datasourceType was found
-		// TODO is this function needed?
 		$scope.getDatasourceTypeObjectByType = function(type) {
 			for (datasourceType of kommonitorImporterHelperService.availableDatasourceTypes) {
 				if(datasourceType.type === type) {
 					return datasourceType;
+				}
+			}
+			return null;
+		}
+
+		// helper function to get a georesource object by id.
+		// returns null if no georesource object was found
+		$scope.getGeoresourceById = function(id) {
+			for (georesource of kommonitorDataExchangeService.availableGeoresources) {
+				if(georesource.georesourceId === id) {
+					return georesource;
 				}
 			}
 			return null;

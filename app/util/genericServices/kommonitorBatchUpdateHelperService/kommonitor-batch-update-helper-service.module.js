@@ -147,6 +147,7 @@ angular
 
                             fileReader.onload = function(event) {
                                 batchList = JSON.parse(event.target.result);
+                                console.log("parsed batchList: ", batchList);
                                 $rootScope.$broadcast('georesourceBatchListParsed', {
                                     newValue: batchList
                                 });
@@ -162,15 +163,33 @@ angular
                     }
 
                     this.saveBatchListToFile = function(resourceType, batchList) {
-                        var batchListJSON = JSON.stringify(batchList);
 
                         var fileName;
-                        if(resourceType == "georesource")
-                            fileName = "Georessource_batch_update_batch_list.json";
-                        if(resourceType == "indicator")
-                            fileName = "Indicator_batch_update_batch_list.json";
+                        if(resourceType == "georesource") {
+                            // No need to export all of the metadata
+                            // We just need to know which georesource was selected so we can restore it on import
+                            // That ensures that the metadata is up to date (and not parsed from the exported batchList)
+                            // To not affect the $scope, we create a deep copy of batchList to export.
+                            var objToExport = [];
+                            var jsonToExport = "";
+                            Object.assign({}, batchList);
+                            for(var i=0;i<batchList.length;i++) {
+                                objToExport.push({});
+                                Object.assign(objToExport[i], batchList[i]);
 
-                        var blob = new Blob([batchListJSON], {type: "application/json"});
+                                objToExport[i].name = objToExport[i].name.georesourceId;
+                            }
+
+                            jsonToExport = JSON.stringify(objToExport);
+                            fileName = "Georessource_batch_update_batch_list.json";
+                        }
+                            
+                        if(resourceType == "indicator") {
+                            fileName = "Indicator_batch_update_batch_list.json";
+                            jsonToExport = JSON.stringify(batchList);
+                        }
+
+                        var blob = new Blob([jsonToExport], {type: "application/json"});
                         var data  = URL.createObjectURL(blob);
 
                         var a = document.createElement('a');
@@ -204,8 +223,12 @@ angular
                     }
 
                     this.resetBatchUpdateForm = function(batchList) {
-                        for(var i=0;i<batchList.length;i++)
-                            batchList[i] = {};
+                        // select all rows
+                        for (var i = 0; i < batchList.length; i++) {
+                            batchList[i].isSelected = true;
+                        }
+                        this.deleteSelectedRowsFromBatchList(batchList, false);
+                        this.addNewRowToBatchList("georesource", batchList)
                     }
 
                     this.onChangeSelectAllRows = function(allRowsSelected, batchList) {
@@ -227,9 +250,8 @@ angular
                             // initialize properties so that they exist for each row
                             obj.isSelected = false;
                             obj.name = undefined;
-                            obj.mappingTable = "";
+                            obj.mappingTableName = "";
                             obj.mappingObj = {};
-                            obj.saveToMappingTable = undefined;
                             obj.periodOfValidityStart = "";
                             obj.periodOfValidityEnd = "";
                             obj.dataFormat = {};
@@ -278,32 +300,6 @@ angular
                         var index = id.match(re)[0];
                         return index;
                     }
-
-                    /*this.uploadFileToImporter = async function (mappingObj, datasourceFileInputId) {
-
-                        if (mappingObj.dataSource.type === "FILE") {
-                            // get file if present
-                            var file = document.getElementById(datasourceFileInputId).files[0];
-
-                            if (file === null || file === undefined) {
-                                return null;
-                            }
-
-                            // upload it to importer
-                            //TODO show error message
-                            var fileUploadName;
-                            try {
-                                //fileUploadName = await kommonitorImporterHelperService.uploadNewFile(file, file.name);
-                                fileUploadName = "test";
-                                console.log("fileUploadName: ", fileUploadName);
-                            } catch (error) {
-                                console.error("Error while uploading file to importer.");
-                                console.error(error);
-                                kommonitorDataExchangeService.displayMapApplicationError(error);
-                                throw error;
-                            }
-                        }
-                    }*/
 
                     this.buildPutBody_georesources = function(scopeProperties) {
                         //TODO build scopeProperties

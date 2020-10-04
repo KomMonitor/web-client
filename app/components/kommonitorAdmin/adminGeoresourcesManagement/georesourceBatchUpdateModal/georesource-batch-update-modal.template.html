@@ -22,7 +22,7 @@
 				</div>
 				<div class="row">
 					<div class="col-md-8 col-sm-8 col-xs-12">
-						<div class="col-md-4 col-sm-4 col-xs-6">
+						<div class="col-md-4 col-sm-4 col-xs-6" style="margin-right:15px">
 							<div class="form-group">
 								<div class="row">
 									<label>Standard<br /><i>Gültigkeitszeitraum von</i>:</label>
@@ -108,7 +108,7 @@
 
 											<!-- Name -->
 											<td>
-												<select class="form-control" ng-model="georesource.name" required
+												<select id="georesourceSelect{{$index}} class="form-control" ng-model="georesource.name" required
 													ng-options="avGeoresource as avGeoresource.datasetName for avGeoresource in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:filterGeoresourcesInBatchList($index)">
 														<option disabled selected value> -- Georessource w&auml;hlen -- </option>
 												</select>
@@ -121,7 +121,7 @@
 
 											<!-- Speichern -->
 											<td ng-show="checkIfMappingTableIsSpecified()">
-												<button id="mappingTableSave{{$index}}" type="button" class="btn btn-primary fas fa-save" ng-model="georesource.saveToMappingTable"  
+												<button id="mappingTableSave{{$index}}" type="button" class="btn btn-primary fas fa-save" 
 													ng-disabled="georesource.mappingTable == undefined" ng-click="onMappingTableSaveClicked($event)" >
 												</button>
 											</td>
