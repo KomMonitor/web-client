@@ -10,8 +10,8 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 		$scope.standardPeriodOfValidityStart; // period of validity start for all georessources
 		$scope.standardCrs;
 		$scope.allRowsSelected = false
-		$scope.standardPeriodOfValidityStartChb = true;
-		$scope.standardCrsChb = true;
+		$scope.standardPeriodOfValidityStartChb = false;
+		$scope.standardCrsChb = false;
 
 		/*
 		 * Model:

@@ -17,41 +17,54 @@
 			<div class="modal-body">
 				<div class="row">
 					<div class="col-md-12 col-sm-12 col-xs-12">
-						<p>Diese Funktion erm&ouml;glicht es, mehrere Georessoucen gleichzeitig zu aktualisieren.<br />
-							Die Aktualisierung beschr&auml;nkt sich auf den G&uuml;ltigkeitszeitraum, die Datenquelle und die Mappingtabelle.<br />
-							Eine Aktualisierung der Metadaten ist über diese Funktion nicht vorgesehen.
-						</p>
+						<p>Diese Funktion erm&ouml;glicht es, die Mapping-Parameter mehrerer Georessoucen gleichzeitig zu aktualisieren.</p>
 					</div>
 				</div>
 				<div class="row">
-					<div class="col-md-6 col-sm-6 col-xs-12">
-						<div class="col-md-3 col-sm-3 col-xs-6">
+					<div class="col-md-8 col-sm-8 col-xs-12">
+						<div class="col-md-4 col-sm-4 col-xs-6">
 							<div class="form-group">
-								<label>Standard<br />Gültigkeitszeitraum von:</label>
-								<div class="input-group date">
-									<div class="input-group-addon">
-										<i class="far fa-calendar-alt"></i>
+								<div class="row">
+									<label>Standard<br /><i>Gültigkeitszeitraum von</i>:</label>
+									<div class="input-group date">
+										<div class="input-group-addon">
+											<i class="far fa-calendar-alt"></i>
+										</div>
+										<input id="standardPeriodOfValidityStartDatePicker" type="text" class="form-control pull-right"
+										ng-model="standardPeriodOfValidityStart" placeholder="YYYY-MM-DD">
 									</div>
-									<input id="standardPeriodOfValidityStartDatePicker" type="text" class="form-control pull-right"
-									ng-model="standardPeriodOfValidityStart" placeholder="YYYY-MM-DD" ng-change="standardPeriodOfValidityStartChanged()">
+									<label for="standardPeriodOfValidityStartChb">In allen Zeilen setzen?</label>
+									<input id="standardPeriodOfValidityStartChb" type="checkbox" ng-model="standardPeriodOfValidityStartChb">
+									<div class="help-block">
+										<p>
+											Überschreibt alle Werte der Spalte &quot;G&uuml;tigkeitszeitraum von*&quot; sofern die Checkbox aktiviert ist.<br />
+											Ist sie deaktiviert, werden nur leere Tabellenfelder dieser Spalte überschrieben, sodass bereits eingetragene Werte erhalten bleiben.
+										</p>
+									</div>
 								</div>
-								<div class="help-block">
-									<p>G&uuml;ltigkeitszeitraum f&uuml;r alle Georessourcen, sofern nicht anders angegeben.</p>
+								<div class="row">
+									<button type="button" class="btn btn-primary" ng-click="onClickSaveStandardPeriodOfValidity()">Standardwert eintragen</button>
 								</div>
-								<label for="standardPeriodOfValidityStartChb">In allen Zeilen setzen?</label>
-								<input id="standardPeriodOfValidityStartChb" type="checkbox" ng-model="standardPeriodOfValidityStartChb">
 							</div>
 						</div>
-						<div class="col-md-3 col-sm-3 col-xs-6">
+						<div class="col-md-4 col-sm-4 col-xs-6">
 							<div class="form-group">
-								<label>Standard<br />CRS:</label>
-								<input id="standardCrsInputField" type="text" class="form-control"
-									ng-model="standardCrs" ng-change="standardCrsChanged()" placeholder="EPSG:25832">
-								<div class="help-block">
-									<p>CRS f&uuml;r alle Georessourcen, sofern nicht anders angegeben.</p>
+								<div class="row">
+									<label>Standard<br /><i>CRS</i>:</label>
+									<input id="standardCrsInputField" type="text" class="form-control"
+										ng-model="standardCrs" placeholder="EPSG:25832">
+									<label for="standardCrsChb">In allen Zeilen setzen?</label>
+									<input id="standardCrsChb" type="checkbox" ng-model="standardCrsChb">
+									<div class="help-block">
+										<p>
+											Überschreibt alle Werte der Spalte &quot;CRS*&quot; sofern die Checkbox aktiviert ist.<br />
+											Ist sie deaktiviert, werden nur leere Tabellenfelder dieser Spalte überschrieben, sodass bereits eingetragene Werte erhalten bleiben.
+										</p>
+									</div>
 								</div>
-								<label for="standardCrsChb">In allen Zeilen setzen?</label>
-								<input id="standardCrsChb" type="checkbox" ng-model="standardCrsChb">
+								<div class="row">
+									<button type="button" class="btn btn-primary" ng-click="onClickSaveStandardCRS()">Standardwert eintragen</button>
+								</div>
 							</div>
 						</div>
 					</div>
