@@ -550,5 +550,58 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 			}, 200);
 		}
 
+		$scope.onClickSaveStandardPeriodOfValidity = function() {
+
+			var newValue = document.getElementById("standardPeriodOfValidityStartDatePicker").value;
+
+			$timeout(function() {
+				if(newValue.length > 0) {
+				
+					var allRowsChbState = document.getElementById("standardPeriodOfValidityStartChb").checked;
+					if (allRowsChbState) {
+						// if checkbox is true update all rows
+						$scope.batchList.forEach(function(value, index) {
+							value.periodOfValidityStart = newValue;
+						});
+					} else {
+						// else only update empty rows
+						$scope.batchList.forEach(function(value, index) {
+							if (value.periodOfValidityStart == undefined || value.periodOfValidityStart == "") {
+								value.periodOfValidityStart = newValue;
+							}
+						});
+					}
+				}
+			});
+			
+		}
+
+		$scope.onClickSaveStandardCRS = function() {
+			var newValue = document.getElementById("standardCrsInputField").value;
+
+			//TODO validate input
+
+			$timeout(function() {
+				if(newValue.length > 0) {
+				
+					var allRowsChbState = document.getElementById("standardCrsChb").checked;
+					if (allRowsChbState) {
+						// if checkbox is true update all rows
+						$scope.batchList.forEach(function(value, index) {
+							value.dataFormat.crs = newValue;
+						});
+					} else {
+						// else only update empty rows
+						$scope.batchList.forEach(function(value, index) {
+							if (value.dataFormat.crs == undefined || value.dataFormat.crs == "") {
+								value.dataFormat.crs = newValue;
+							}
+						});
+					}
+				}
+			});
+
+		}
+
 	}
 ]});
