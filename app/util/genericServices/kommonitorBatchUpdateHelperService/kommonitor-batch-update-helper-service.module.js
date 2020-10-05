@@ -70,7 +70,7 @@ angular
                                 }
                             }
                             console.log(row);
-                            var putBody_georesources = this.buildPutBody_georesources(scopeProperties);
+                            var putBody_georesources = kommonitorImporterHelperService.buildPutBody_georesources(scopeProperties)
                             console.log("putBody_georesources of row " + i + ": ", putBody_georesources);
                             
                             // send post request and wait for it to complete
@@ -301,60 +301,5 @@ angular
                         return index;
                     }
 
-                    this.buildPutBody_georesources = function(scopeProperties) {
-                        //TODO build scopeProperties
-                        console.log(scopeProperties);
-                        var putBody =
-                        {
-                            "geoJsonString": "",
-                            "periodOfValidity": {
-                                "endDate": scopeProperties.periodOfValidity.endDate,
-                                "startDate": scopeProperties.periodOfValidity.startDate
-                            }
-                        };
-            
-                        return putBody;
-                        
-                        // Metadata can not be changed in batch-update.
-                        // We get the current metadata for this georesource and pass it directly to the post request
-                        /*var result = null;
-                        for (existGeoresource of kommonitorDataExchangeService.availableGeoresources) {
-
-                            if(existGeoresource.georesourceId == georesourceId) {
-                                var metadata = existGeoresource.metadata;
-                                result = {
-                                    "metadata": {
-                                        "note": metadata.note,
-                                        "literature": metadata.literature,
-                                        "updateInterval": metadata.updateInterval,
-                                        "sridEPSG": metadata.sridEPSG,
-                                        "datasource": metadata.datasource,
-                                        "contact": metadata.contact,
-                                        "lastUpdate": metadata.lastUpdate,
-                                        "description": metadata.description,
-                                        "databasis": metadata.databasis
-                                    },
-                                    "datasetName": existGeoresource.datasetName,
-                                    "isPOI": existGeoresource.isPOI,
-                                    "isLOI": existGeoresource.isLOI,
-                                    "isAOI": existGeoresource.isAOI,
-                                    "poiSymbolBootstrap3Name": existGeoresource.poiSymbolBootstrap3Name,
-                                    "poiSymbolColor": existGeoresource.poiSymbolColor,
-                                    "loiDashArrayString": existGeoresource.loiDashArrayString,
-                                    "poiMarkerColor": existGeoresource.poiMarkerColor,
-                                    "loiColor": existGeoresource.loiColor,
-                                    "loiWidth": existGeoresource.loiWidth,
-                                    "aoiColor": existGeoresource.aoiColor,
-                                    "topicReference": existGeoresource.topicReference
-                                }
-                            }
-                        }
-
-                        if (result == null) {
-                            console.error("Could not access the metadata of the given georesource. No georesource found for the given name.")
-                        }
-
-                        return result;*/
-                    }
             }
         ]);

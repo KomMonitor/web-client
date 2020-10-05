@@ -372,6 +372,20 @@ angular
         return datasourceTypeDefinition;
       };
 
+      this.buildPutBody_georesources = function(scopeProperties) {
+
+        var putBody =
+        {
+            "geoJsonString": "",
+            "periodOfValidity": {
+                "endDate": scopeProperties.periodOfValidity.endDate,
+                "startDate": scopeProperties.periodOfValidity.startDate
+            }
+        };
+
+        return putBody;
+    }
+
       this.buildPropertyMapping_spatialResource = function(nameProperty, idPropety, validStartDateProperty, validEndDateProperty, arisenFromProperty, keepAttributes, keepMissingValues, attributeMappings_adminView){
         if(validStartDateProperty === ""){
           validStartDateProperty = undefined;
