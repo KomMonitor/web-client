@@ -414,7 +414,7 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 			// reset row
 			$scope.resetRowByIndex(rowIndex);
 
-			// mappingTable
+			// mappingTableName
 			$scope.batchList[rowIndex].mappingTableName = file.name;
 
 			// period of validity
