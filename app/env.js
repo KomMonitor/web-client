@@ -23,7 +23,7 @@
   window.__env.basePath = 'management';
 
   // Processing Engine URL
-  window.__env.targetUrlToProcessingEngine = 'https://kommonitor.muelheim-ruhr.de/processing/';
+  window.__env.targetUrlToProcessingEngine = 'https://kommonitor.muelheim-ruhr.de/processing-engine/processing/';
   // window.__env.targetUrlToProcessingEngine = 'http://localhost:8086/processing/';
 
   // Open Route Service URL
