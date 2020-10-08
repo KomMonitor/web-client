@@ -12,15 +12,16 @@ angular.module('kommonitorKeycloakHelper', ['kommonitorDataExchange']);
 angular
   .module('kommonitorKeycloakHelper', [])
   .service(
-    'kommonitorKeycloakHelperService', ['$rootScope', '$timeout', 'kommonitorDataExchangeService', '$http', '__env',
+    'kommonitorKeycloakHelperService', ['$rootScope', '$timeout', '$http', '__env',
     function ($rootScope, $timeout,
-      kommonitorDataExchangeService, $http, __env) {
+      $http, __env) {
 
       var self = this;
       this.keycloakRoles = [];
       this.targetUrlToKeycloakInstance = "";
       this.realm = "";
       this.clientId = "";
+      this.adminRoleName = "";
 
       this.init = async function () {
         try {
@@ -29,6 +30,7 @@ angular
             self.targetUrlToKeycloakInstance = keycloakConfig['auth-server-url'];
             self.realm = keycloakConfig['realm'];
             self.clientId = keycloakConfig['resource'];
+            self.adminRoleName = keycloakConfig['admin-rolename'];            
 
             // self.keycloakRoles = await self.fetchRoles();
           });
