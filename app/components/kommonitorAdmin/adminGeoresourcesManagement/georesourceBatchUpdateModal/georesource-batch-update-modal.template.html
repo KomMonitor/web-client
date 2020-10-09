@@ -204,7 +204,7 @@
 
 											<!-- Datei -->
 											<td ng-show="checkIfSelectedDatasourceTypeIsFile()">
-												<input class="form-control" type="file" ng-model="georesource.mappingObj.dataSource.NAME.value" 
+												<input id="dataSourceFileInput{{$index}}" class="form-control" type="file" ng-model="georesource.mappingObj.dataSource.NAME.value" 
 												ng-disabled="!georesource.selectedDatasourceType.type.includes(&quot;FILE&quot;)" required>
 											</td>
 

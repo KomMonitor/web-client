@@ -41,9 +41,22 @@ angular
                         var datasourceTypeDefinition = row.mappingObj.dataSource;
                         console.log("datasourceTypeDefinition of row " + i + ": ", datasourceTypeDefinition);
 
-                        //var datasourceFileInputId = "mappingTableSelect" + i;
-                        //await this.uploadFileToImporter(row.mappingObj, datasourceFileInputId);
-                        //console.log("file uploaded");
+                        var datasourceFileInputId = "dataSourceFileInput" + i;
+
+                        if(datasourceTypeDefinition.type === "FILE") {
+                            try{
+                                var fileUploadName = await this.uploadFileToImporter(datasourceFileInputId);
+                                datasourceTypeDefinition.parameters[0].value = fileUploadName;
+                                console.log("file uploaded. fileUploadName: ", fileUploadName);
+                            } catch (error) {
+                                console.log("error while uploading file in row: " + i);
+                                responses.push({
+                                    name: row.name.datasetName,
+                                    status: "error",
+                                    message: error 
+                                });
+                            }
+                        }
 
                         var propertyMappingDefinition = row.mappingObj.propertyMapping;
                         console.log("propertyMappingDefinition of row " + i + ": ", propertyMappingDefinition);
@@ -656,5 +669,24 @@ angular
 
                     return attributeMappings_adminView;
                 }
+
+                this.uploadFileToImporter = async function(datasourceFileInputId) {
+                    // get file if present
+                    var file = document.getElementById(datasourceFileInputId).files[0];
+                    console.log("file in uploadFileToImporter: ", file);
+                    if(file === null || file === undefined){
+                        return null;
+                    }
+                    // upload it to importer
+                    var fileUploadName;
+                    try {
+                        fileUploadName = await kommonitorImporterHelperService.uploadNewFile(file, file.name);	
+                    } catch (error) {
+                        throw error;
+                    }
+
+                    return fileUploadName;
+                };
+
             }
         ]);
