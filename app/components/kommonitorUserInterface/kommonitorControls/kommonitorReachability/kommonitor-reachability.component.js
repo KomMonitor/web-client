@@ -25,6 +25,9 @@ angular
 
 					//$("[data-toggle=tooltip]").tooltip();
 
+					// initialize any adminLTE box widgets
+					$('.box').boxWidget();
+
 					var OpenStreetMapProvider = window.GeoSearch.OpenStreetMapProvider;
 					$scope.openStreetMapProvider = new OpenStreetMapProvider();
 
