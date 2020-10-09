@@ -2281,17 +2281,51 @@ input:checked + .switchslider:before {
 	display:none;
 }
 
-#georesourceBatchListTableWrapper {
-	max-height: 75vh;
-	overflow-y: auto;
+#georesource-batch-list-table-wrapper {
+	max-height: 75vh !important;
+	overflow-y: auto !important;
 }
 
-#georesourceBatchListTable .form-control {
+#georesource-batch-list-table .form-control {
 	width: auto;
 }
 
-#georesourceBatchListTable th {
+#georesource-batch-list-table th {
 	position: sticky;
 	top: 0;
 	z-index: 3; /* datepicker fields have a z-index of 2, so this needs to be higher */
+}
+
+#georesource-batch-update-result-modal > div {
+	width: 700px;
+	max-height: 75vh;
+}
+
+#georesource-result-table-wrapper {
+	max-height: 50vh !important;
+	overflow-y: auto !important;
+	width: 670px !important;
+}
+
+#georesource-result-table {
+	width: 670px !important;
+	overflow:auto;
+	font-size: 11px;
+}
+
+
+.georesource-result-georesource-name {
+	min-width: 200px;
+	padding: 10px;
+}
+
+.georesource-result-success, .georesource-result-error {
+	padding: 10px;
+}
+
+.georesource-result-error-message {
+	background-color: #c82333;
+	border-color: #bd2130;
+	color: white;
+	padding: 12px;
 }

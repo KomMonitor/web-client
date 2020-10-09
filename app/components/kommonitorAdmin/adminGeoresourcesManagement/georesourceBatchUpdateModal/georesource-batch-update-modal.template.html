@@ -297,65 +297,40 @@
 					ng-click="resetGeoresourceBatchUpdateForm()">Zur&uuml;cksetzen</button>
 			</div>
 
-			<!--<div id="georesourceAddSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
-				class="alert alert-success alert-dismissable">
-				<button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
-				<h4><i class="icon fa fa-check"></i>Georessource registriert</h4>
-				<p>Eine neue Georessource mit Namen {{successMessagePart}} wurde in KomMonitor registriert und in die &Uuml;bersichtstabelle eingetragen.
-					<div ng-if="importedFeatures && importedFeatures.length > 0">
-						{{importedFeatures.length}} Features wurden dabei importiert.
-					</div>
-				</p>
-			</div>
-
-			<div id="georesourceAddErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
-				class="alert alert-danger alert-dismissable">
-				<button type="button" class="close" ng-click="hideErrorAlert()" aria-hidden="true">&times;</button>
-				<h4><i class="icon fa fa-ban"></i>Registrierung gescheitert</h4>
-				Bei der Registrierung der Georessource ist ein Fehler aufgetreten. Fehlermeldung:
-				<br />				
-								<pre style="overflow:auto; max-height:500px;" ng-bind-html="errorMessagePart"></pre>
-								<br/>
-								<br/>
-
-								<div ng-show="importerErrors">
-									<p>Bei den {{importerErrors.length}} Features mit folgenden IDs scheitert der Import:</p>
-									<pre style="overflow:auto; max-height:500px;">
-										<ul>
-											<li ng-repeat="error in importerErrors">{{error}}</li>
-										</ul>
-									</pre>	
-									<p>Bitte beheben Sie die angezeigten Fehler im Datensatz und wiederholen den Prozess.</p>
+			<!-- result modal -->
+			<div class="modal fade" id="georesource-batch-update-result-modal" role="dialog">
+				<div class="modal-dialog modal-xl">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+								<span aria-hidden="true">&times;</span></button>
+							<h4 class="modal-title">Ergebnis des Batch-Updates</h4>
+						</div>
+						<div class="modal-body">
+							<div class="row">
+								<div class="col"></div>
+								<div class="col-md-10 col-sm-10 col-xs-10">
+									<div id="georesource-result-table-wrapper" class="table-responsive">
+										<table id="georesource-result-table" class="table-bordered">
+											<thead>
+												<tr>
+													<th>Georessource</th>
+													<th>Status</th>
+												</tr>
+											</thead>
+											<tbody id="georesource-result-table-tbody">
+											</tbody>
+										</table>
+									</div>
 								</div>
+								<div class="col"></div>
+							</div>
+						</div>
+						<div class="modal-footer">
+						</div>
+					</div>
+				</div>
 			</div>
-
-			<div id="georesourceMetadataImportErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
-				class="alert alert-danger alert-dismissable">
-				<button type="button" class="close" ng-click="hideMetadataErrorAlert()"
-					aria-hidden="true">&times;</button>
-				<h4><i class="icon fa fa-ban"></i>Metadata Import gescheitert</h4>
-				Beim Import der Metadaten aus einer Datei ist ein Fehler aufgetreten. Fehlermeldung:
-				<br />
-				<pre>{{georesourceMetadataImportError}}</pre>
-				<br />
-				<br />
-				<p>Bitte stellen Sie sicher, dass folgendes JSON-Format eingehalten wird:</p>
-				<pre id="georesourcesAddMetadataPre" style="overflow:auto; max-height:500px;"></pre>
-			</div>
-
-			<div id="georesourceMappingConfigImportErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden class="alert alert-danger alert-dismissable">
-                <button type="button" class="close" ng-click="hideMappingConfigErrorAlert()" aria-hidden="true">&times;</button>
-                <h4><i class="icon fa fa-ban"></i>Mapping-Konfiguration Import gescheitert</h4>
-                Beim Import der Mapping-Konfiguration aus einer Datei ist ein Fehler aufgetreten. Fehlermeldung:
-								<br/>
-								<pre ng-bind-html="georesourceMappingConfigImportError"></pre>								
-								<br/>								
-								<br/>
-								<p>Bitte stellen Sie sicher, dass folgendes JSON-Format eingehalten wird:</p>
-								<pre id="georesourcesAddMappingConfigPre" style="overflow:auto; max-height:500px;"></pre>
-			  </div>
-			-->
-
 		</div>
 		<!-- /.modal-content -->
 	</div>

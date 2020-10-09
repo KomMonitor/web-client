@@ -169,6 +169,8 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 
 		$scope.resetGeoresourceBatchUpdateForm = function() {
 			kommonitorBatchUpdateHelperService.resetBatchUpdateForm($scope.batchList);
+			// TODO remove this
+			$rootScope.$broadcast("georesourceBatchUpdateCompleted");
 		}
 
 		$scope.onChangeSelectAllRows = function() {
@@ -475,8 +477,61 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 			}
 		})*/
 
-		$rootScope.$on("georesourceBatchUpdateCompleted", function() {
+		$rootScope.$on("georesourceBatchUpdateCompleted", function(event, data) {
 			$("#georesource-batch-update-result-modal").modal("show");
+
+			var responses = data.value;
+			// populate table
+			for(var i=0;i<responses.length;i++) {
+				const response = responses[i];
+
+				var tableRow = document.createElement("tr");
+				var td1 = document.createElement("td");
+				var td2 = document.createElement("td");
+				
+				td1.classList.add("georesource-result-georesource-name")
+				td1.innerHTML = response.name;
+
+				if(response.status == "success") {
+					td2.classList.add("georesource-result-success");
+					var successBtn = document.createElement("button");
+					successBtn.classList.add("btn", "btn-success");
+					successBtn.type = "button";
+					successBtn.innerHTML = "Erfolg";
+
+					td2.appendChild(successBtn);
+				}
+				if(response.status == "error") {
+					td2.classList.add("georesource-result-error");
+
+					var errorMsgDiv = document.createElement("div");
+					errorMsgDiv.classList.add("card", "card-body", "georesource-result-error-message"+i);
+					errorMsgDiv.innerHTML = response.message;
+
+					var collapseDiv = document.createElement("div");
+					collapseDiv.classList.add("collapse");
+					collapseDiv.id = "georesource-result-error-collapse" + i;
+					collapseDiv.appendChild(errorMsgDiv);
+					
+					var errorBtn = document.createElement("button");
+					errorBtn.classList.add("btn", "btn-danger");
+					errorBtn.type = "button";
+					$(errorBtn).attr("data-toggle", "collapse");
+					$(errorBtn).attr("data-target", "#georesource-result-error-collapse" + i);
+					$(errorBtn).attr("aria-expanded", "false");
+					$(errorBtn).attr("aria-controls", "georesource-result-error-collapse" + i)
+					errorBtn.innerHTML = "Fehler";
+					insertAfter(errorBtn, collapseDiv);
+				}
+
+				tableRow.appendChild(td1);
+				tableRow.appendChild(td2);
+				document.getElementById("georesource-result-table-tbody").appendChild(tableRow);
+			}
+
+			function insertAfter(newNode, referenceNode) {
+				referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
+			}
 		});
 		
 	}
