@@ -17,7 +17,7 @@
   window.__env.indicatorDatePrefix = "DATE_";
 
   // Data Management API URL
-  window.__env.apiUrl = 'https://maps2.smartdemography.de/management';
+  window.__env.apiUrl = 'https://maps2.smartdemography.de/data-management/management';
   // window.__env.apiUrl = 'http://localhost:8085/';
   // Base url for Data Management API
   window.__env.basePath = '';
@@ -35,7 +35,7 @@
   // window.__env.targetUrlToReachabilityService_OTP = 'http://localhost:8090/opentripplanner';
 
   // Data Imporert URL
-  window.__env.targetUrlToImporterService = 'https://maps2.smartdemography.de/importer/';
+  window.__env.targetUrlToImporterService = 'https://maps2.smartdemography.de/importer/importer/';
 
   // optional geometry simplification (a feature of Data Management API)
   window.__env.simplifyGeometriesParameterName = "simplifyGeometries";
