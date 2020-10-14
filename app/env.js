@@ -35,7 +35,7 @@
   // window.__env.targetUrlToReachabilityService_OTP = 'http://localhost:8090/opentripplanner';
 
   // Data Imporert URL
-  window.__env.targetUrlToImporterService = 'https://maps2.smartdemography.de/importer/importer/';
+  window.__env.targetUrlToImporterService = 'https://maps2.smartdemography.de/data-importer/importer/';
 
   // optional geometry simplification (a feature of Data Management API)
   window.__env.simplifyGeometriesParameterName = "simplifyGeometries";
