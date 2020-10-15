@@ -7,12 +7,7 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 		this.kommonitorImporterHelperServiceInstance = kommonitorImporterHelperService;
 		this.kommonitorBatchUpdateHelperServiceInstance = kommonitorBatchUpdateHelperService;
 
-		//$scope.standardPeriodOfValidityStart; // period of validity start for all georessources
-		//$scope.standardCrs;
-		//$scope.allRowsSelected = false
-		//$scope.standardPeriodOfValidityStartChb = false;
-		//$scope.standardCrsChb = false;
-
+		$scope.isFirstStart = true;
 
 		/*
 		{
@@ -65,15 +60,14 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 			}
 		});
 
-		$('#georesourceBatchUpdateFeedbackModal').on('show.bs.modal', function () {
-			console.log(this);
-		});
-
 		// initializes the modal
 		$scope.initialize = function() {
 
-			$scope.addNewRowToBatchList("georesource");
-
+			if($scope.isFirstStart) {
+				$scope.addNewRowToBatchList("georesource");
+				$scope.isFirstStart = false;
+			}
+			
 			$('#standardPeriodOfValidityStartDatePicker').datepicker(kommonitorDataExchangeService.datePickerOptions);
 
 			$(document).delegate(".mappingTableInputField", "change", function(){
