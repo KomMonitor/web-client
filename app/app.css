@@ -2320,12 +2320,14 @@ input:checked + .switchslider:before {
 }
 
 .georesource-result-success, .georesource-result-error {
-	padding: 10px;
+	padding: 10px !important;
 }
 
+/*
 .georesource-result-error-message {
-	background-color: #c82333;
-	border-color: #bd2130;
-	color: white;
-	padding: 12px;
+	background-color: #c82333 !important;
+	border-color: #bd2130 !important;
+	color: white !important;
+	padding: 12px !important;
 }
+*/
