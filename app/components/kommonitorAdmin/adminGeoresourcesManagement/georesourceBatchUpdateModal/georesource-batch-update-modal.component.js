@@ -169,8 +169,6 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 
 		$scope.resetGeoresourceBatchUpdateForm = function() {
 			kommonitorBatchUpdateHelperService.resetBatchUpdateForm($scope.batchList);
-			// TODO remove this
-			$rootScope.$broadcast("georesourceBatchUpdateCompleted");
 		}
 
 		$scope.onChangeSelectAllRows = function() {
@@ -465,17 +463,16 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 			});
 		}
 
-		/*$rootScope.$on("refreshGeoresourceOverviewTableCompleted", function() {
+
+		$rootScope.$on("refreshGeoresourceOverviewTableCompleted", function() {
 			for(let i=0;i<$scope.batchList.length;i++) {
 				var row = $scope.batchList[i];
-				console.log(row.tempGeoresourceId);
 				if(row.tempGeoresourceId) {
 					var georesource = kommonitorBatchUpdateHelperService.getGeoresourceObjectById(row.tempGeoresourceId);
 					row.name = georesource;
-					delete row.tempGeoresourceId;
 				}
 			}
-		})*/
+		})
 
 		$rootScope.$on("georesourceBatchUpdateCompleted", function(event, data) {
 			$("#georesource-batch-update-result-modal").modal("show");

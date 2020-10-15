@@ -101,9 +101,12 @@ angular.module('adminGeoresourcesManagement').component('adminGeoresourcesManage
 
 						$scope.loadingData = false;
 
+						$rootScope.$broadcast("refreshGeoresourceOverviewTableCompleted");
+
 				}, function errorCallback(response) {
 
 					$scope.loadingData = false;
+					$rootScope.$broadcast("refreshGeoresourceOverviewTableCompleted");
 			})
 
 		};

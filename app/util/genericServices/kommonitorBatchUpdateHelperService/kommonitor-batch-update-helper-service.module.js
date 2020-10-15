@@ -93,28 +93,18 @@ angular
                             if (!kommonitorImporterHelperService.importerResponseContainsErrors(updateGeoresourceResponse_dryRun)) {
                                 // all good, really execute the request to update data against data management API
                                 var updateGeoresourceResponse = await kommonitorImporterHelperService.updateGeoresource(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, georesourceId, putBody_georesources, false);
-
-                                //batchList[i].tempGeoresourceId = georesourceId;
+                                
+                                batchList[i].tempGeoresourceId = georesourceId;
                                 $rootScope.$broadcast("refreshGeoresourceOverviewTable");
 
                                 // refresh all admin dashboard diagrams due to modified metadata
                                 $rootScope.$broadcast("refreshAdminDashboardDiagrams");
 
-                                // TODO this won't work if the georesources overview table is not updated after one second...
-                                (function(i, georesourceId) {
-                                    $timeout(function() {
-                                        var georesource = thisService.getGeoresourceObjectById(georesourceId);
-                                        console.log(georesource);
-                                        batchList[i].name = georesource;
-                                        console.log("batchList[i]: ", batchList[i]);
-                                    }, 1000);
-                                })(i, georesourceId);
-
                                 // add success object
                                 responses.push({
                                     name: row.name.datasetName,
                                     status: "success",
-                                    message: undefined
+                                    message: updateGeoresourceResponse
                                 });
 
 
@@ -253,6 +243,10 @@ angular
                                 delete objToExport[i].selectedConverter;
                                 delete objToExport[i].selectedDatasourceType;
                             }
+
+                            if(row.hasOwnProperty("tempGeoresourceId")) {
+                                delete row.tempGeoresourceId;
+                            };
                         }
 
                         jsonToExport = JSON.stringify(objToExport);
