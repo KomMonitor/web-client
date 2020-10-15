@@ -10,19 +10,27 @@ angular
                 this.georesourcesIdArray = [];
 
                 this.batchUpdate = async function (resourceType, batchList) {
-                    //TODO check if all rows are valid, only continue if that is true
 
-                    //TODO not working properly
+                    // clear result modal
+                    document.getElementById("georesource-result-table-tbody").innerHTML = "";
+
+                    // TODO check if all rows are valid, only continue if that is true
+                    // not working properly
                     //$("#georesourceBatchUpdateForm").validator("update");
                     //$("#georesourceBatchUpdateForm").validator("validate");
 
                     // create array to store response messages
                     var responses = [];
 
-                    //TODO for each georesource in list
-                    for (var i = 0; i < batchList.length; i++) {
+                    // deep copy batch list
+                    var batchListCopy = [];
+                    for(let i=0;i<batchList.length;i++) {
+                        batchListCopy.push( $.extend(true, {}, batchList[i]));
+                    }
+
+                    for (var i = 0; i < batchListCopy.length; i++) {
                         // copy row to not change $scope
-                        var row = $.extend(true, {}, batchList[i])
+                        var row = batchListCopy[i];
 
                         var georesourceId = row.name.georesourceId;
 
@@ -33,21 +41,22 @@ angular
 
                         // replace converter and dataSource definitions
                         row.mappingObj.converter = this.buildConverterDefinition(row.selectedConverter, row.mappingObj.converter);
-                        row.mappingObj.dataSource = this.buildDataSourceDefinition(row.selectedDatasourceType, row.mappingObj.dataSource);
+                        row.mappingObj.dataSource = this.buildDataSourceDefinition(row.selectedDatasourceType, row.mappingObj.dataSource, true);
 
                         var converterDefinition = row.mappingObj.converter;
                         console.log("converterDefinition of row " + i + ": ", converterDefinition);
 
                         var datasourceTypeDefinition = row.mappingObj.dataSource;
-                        console.log("datasourceTypeDefinition of row " + i + ": ", datasourceTypeDefinition);
-
-                        var datasourceFileInputId = "dataSourceFileInput" + i;
+                        console.log("datasourceTypeDefinition before file upload: ", datasourceTypeDefinition);
+                        
+                        var datasourceFileInputId = "dataSourceFileInputField" + i;
 
                         if(datasourceTypeDefinition.type === "FILE") {
                             try{
                                 var fileUploadName = await this.uploadFileToImporter(datasourceFileInputId);
-                                datasourceTypeDefinition.parameters[0].value = fileUploadName;
-                                console.log("file uploaded. fileUploadName: ", fileUploadName);
+                                if(fileUploadName)
+                                    datasourceTypeDefinition.parameters[0].value = fileUploadName;
+                                    console.log("datasourceTypeDefinition after file upload: ", datasourceTypeDefinition);
                             } catch (error) {
                                 console.log("error while uploading file in row: " + i);
                                 responses.push({
@@ -55,8 +64,10 @@ angular
                                     status: "error",
                                     message: error 
                                 });
+                                continue;
                             }
                         }
+                        console.log("datasourceTypeDefinition of row " + i + ": ", datasourceTypeDefinition);
 
                         var propertyMappingDefinition = row.mappingObj.propertyMapping;
                         console.log("propertyMappingDefinition of row " + i + ": ", propertyMappingDefinition);
@@ -138,6 +149,7 @@ angular
                             }
                         }
                     }
+                    console.log(responses);
 
                     $rootScope.$broadcast("georesourceBatchUpdateCompleted", {
                         value: responses
@@ -167,32 +179,37 @@ angular
                     }
                 }
 
-                this.saveBatchListToFile = function (resourceType, batchList) {
+                this.saveMappingObjectToFile = function(resourceType, $event, batchList) {
 
-                    var fileName;
-                    if (resourceType == "georesource") {
-                            // No need to export all of the metadata
-                            // We just need to know which georesource was selected so we can restore it on import
-                            // That ensures that the metadata is up to date (and not parsed from the exported batchList)
-                        // To not affect the $scope, we create a deep copy of batchList to export.
-                        var objToExport = [];
-                        var jsonToExport = "";
-                            Object.assign({}, batchList);
-                        for (var i = 0; i < batchList.length; i++) {
-                            objToExport.push({});
-                                Object.assign(objToExport[i], batchList[i]);
+                    var filename;
+                    var jsonToExport;
+                    if(resourceType == "georesource") {
+                        var rowIndex = this.getIndexFromId($event.currentTarget.id);
+                        var row = batchList[rowIndex];
+    
+                        var objToExport = $.extend({}, row.mappingObj);
 
-                                objToExport[i].name = objToExport[i].name.georesourceId;
-                        }
+                        objToExport.converter = this.converterPropertiesToParametersArray(objToExport.converter)
+                        objToExport.dataSource = this.dataSourcePropertyToParametersArray(objToExport.dataSource)
+
+                        // selected converter and DatasouceType might have changed.
+                        // rebuild the corresponding definitions and insert parameter values
+                        objToExport.converter = this.buildConverterDefinition(row.selectedConverter, objToExport.converter);
+                        objToExport.dataSource = this.buildDataSourceDefinition(row.selectedDatasourceType, objToExport.dataSource, false)
 
                         jsonToExport = JSON.stringify(objToExport);
-                        fileName = "Georessource_batch_update_batch_list.json";
+                        if(row.name) {
+                            fileName = "KomMonitor-Import-Mapping-Konfiguration_Export-" + row.name.datasetName + ".json";
+                        } else {
+                            fileName = "KomMonitor-Import-Mapping-Konfiguration_Export.json";
+                        }
+                        
                     }
 
-                    if (resourceType == "indicator") {
-                        fileName = "Indicator_batch_update_batch_list.json";
-                        jsonToExport = JSON.stringify(batchList);
-                    }
+                    // if (resourceType == "indicator") {
+                    //     fileName = ".json";
+                    //     jsonToExport = JSON.stringify(batchList);
+                    // }
 
                     var blob = new Blob([jsonToExport], {
                         type: "application/json"
@@ -213,11 +230,11 @@ angular
                 this.saveBatchListToFile = function (resourceType, batchList) {
 
                     var fileName;
+                    var jsonToExport = "";
                     if (resourceType == "georesource") {
 
                         // To not affect the $scope, we create a deep copy of batchList to export.
                         var objToExport = [];
-                        var jsonToExport = "";
 
                         for (var i = 0; i < batchList.length; i++) {
                             var row = batchList[i];
@@ -237,7 +254,7 @@ angular
 
                                 // replace converter and dataSource definitions
                                 objToExport[i].mappingObj.converter = this.buildConverterDefinition(row.selectedConverter, objToExport[i].mappingObj.converter);
-                                objToExport[i].mappingObj.dataSource = this.buildDataSourceDefinition(row.selectedDatasourceType, objToExport[i].mappingObj.dataSource);
+                                objToExport[i].mappingObj.dataSource = this.buildDataSourceDefinition(row.selectedDatasourceType, objToExport[i].mappingObj.dataSource, false);
 
                                 // No need to export selectedConverter and selectedDatasourceType
                                 delete objToExport[i].selectedConverter;
@@ -296,6 +313,7 @@ angular
                 }
 
                 this.addNewRowToBatchList = function (resourceType, batchList) {
+                    console.log(batchList);
 
                     if (resourceType == "georesource") {
                         var obj = {};
@@ -449,7 +467,7 @@ angular
                     return converterDefinition;
                 }
 
-                this.buildDataSourceDefinition = function (selectedDatasourceType, oldDataSource) {
+                this.buildDataSourceDefinition = function (selectedDatasourceType, oldDataSource, includeFileName) {
                     var dataSourceDefinition = {
                         parameters: [],
                         type: selectedDatasourceType.type
@@ -462,9 +480,12 @@ angular
                         });
                         if (param) {
                             dataSourceDefinition.parameters.push({
-                                name: param.name,
-                                value: param.value
+                                name: param.name
                             });
+                            if(includeFileName)
+                                dataSourceDefinition.parameters[0].value = param.name;
+                            else
+                                dataSourceDefinition.parameters[0].value = ""
                         }
 
                     }
@@ -665,13 +686,15 @@ angular
                 }
 
                 this.uploadFileToImporter = async function(datasourceFileInputId) {
-                    // get file if present
-                    var file = document.getElementById(datasourceFileInputId).files[0];
-                    console.log("file in uploadFileToImporter: ", file);
-                    if(file === null || file === undefined){
-                        return null;
+                    
+                    // this should be defined since the update is only possible if a file was manually selected
+                    var file = $("#" + datasourceFileInputId).get(0).files[0];
+
+                    if(file === null || file === undefined) {
+                        throw new Error("File was not defined. Did not start upload to importer.")
                     }
-                    // upload it to importer
+
+                    // upload file to importer
                     var fileUploadName;
                     try {
                         fileUploadName = await kommonitorImporterHelperService.uploadNewFile(file, file.name);	

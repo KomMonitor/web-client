@@ -85,6 +85,21 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 				reader.readAsText(file)
 			});
 
+			$(document).delegate(".dataSourceFileInputField", "change", function(){
+				// get index of changed field
+				var index = kommonitorBatchUpdateHelperService.getIndexFromId(this.id);
+				
+				// get file
+				var file = this.files[0];
+
+				// read content
+				var reader = new FileReader();
+				reader.addEventListener('load', function(event) {
+					$scope.onDataSourceFileSelected(event, index, file);
+				});
+				reader.readAsText(file)
+			});
+
 			$scope.$apply();
 		};
 
@@ -181,9 +196,7 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 
 	
 		// loop through batch list and check if condition is true for at least one row
-		// TODO move to kommonitorBatchUpdateHelperService
 		$scope.checkIfMappingTableIsSpecified = function() {
-			
 			var mappingTableIsSpecified = false;
 			for(var i=0;i<$scope.batchList.length;i++) {
 				if($scope.batchList[i].mappingTableName != "") {
@@ -196,7 +209,6 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 		}
 
 		// loop through batch list and check if condition is true for at least one row
-		// TODO move to kommonitorBatchUpdateHelperService if appropriate
 		$scope.checkIfSelectedConverterIsCsvLatLon = function() {
 			var selectedConverterIsCsvLatLon = false;
 			for(var i=0;i<$scope.batchList.length;i++) {
@@ -214,7 +226,6 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 		}
 
 		// loop through batch list and check if condition is true for at least one row
-		// TODO move to kommonitorBatchUpdateHelperService if appropriate
 		$scope.checkIfSelectedConverterIsWfsV1 = function() {
 			var selectedConverterIsWfsV1 = false;
 			for (var i = 0; i < $scope.batchList.length; i++) {
@@ -232,7 +243,6 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 		}
 		
 		// loop through batch list and check if condition is true for at least one row
-		// TODO move to kommonitorBatchUpdateHelperService if appropriate
 		$scope.checkIfSelectedDatasourceTypeIsFile = function() {
 			var selectedDatasourceTypeIsFile = false;
 			for (var i = 0; i < $scope.batchList.length; i++) {
@@ -250,7 +260,6 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 		}
 
 		// loop through batch list and check if condition is true for at least one row
-		// TODO move to kommonitorBatchUpdateHelperService if appropriate
 		$scope.checkIfSelectedDatasourceTypeIsHttp = function() {
 			var selectedDatasourceTypeIsHttp = false;
 			for (var i = 0; i < $scope.batchList.length; i++) {
@@ -268,7 +277,6 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 		}
 
 		// loop through batch list and check if condition is true for at least one row
-		// TODO move to kommonitorBatchUpdateHelperService if appropriate
 		$scope.checkIfSelectedDatasourceTypeIsInline = function() {
 			var selectedDatasourceTypeIsInline = false;
 			for (var i = 0; i < $scope.batchList.length; i++) {
@@ -285,24 +293,47 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 			return selectedDatasourceTypeIsInline;
 		}
 
-		// loop through batch list and check if condition is true for at least one row
-		// TODO move to kommonitorBatchUpdateHelperService if appropriate
-		$scope.checkIfMappingTableChosenInEachRow = function() {
+		$scope.checkIfNameAndFilesChosenInEachRow = function() {
+
+			var updateBtn = document.getElementById("georesource-batch-update-btn");
+			
 			if($scope.batchList.length == 0) {
-				return true;
+				updateBtn.title = "Die Batch-Liste is leer."
+				return false;
 			}
 
-			var mappingTableChosenInEachRow = true;
 			for(var i=0;i<$scope.batchList.length;i++) {
-				if($scope.batchList[i].mappingTableName != undefined) {
-					if($scope.batchList[i].mappingTableName == "") {
-						mappingTableChosenInEachRow = false;
-						break;
+
+				if($scope.batchList[i].name == undefined || $scope.batchList[i].name == "") {
+					updateBtn.title = "Die Spalte Name* ist nicht für alle Zeilen gesetzt."
+					return false;
+				}
+
+				let mappingTableName = $scope.batchList[i].mappingTableName;
+				if(mappingTableName == undefined || mappingTableName == "") {
+					updateBtn.title = "Die Spalte Mappingtabelle ist nicht für alle Zeilen gesetzt."
+					return false;
+				}
+					
+
+				if ($scope.batchList[i].selectedDatasourceType) {
+					let datasourceType = $scope.batchList[i].selectedDatasourceType.type;
+					if (datasourceType != undefined && datasourceType.length > 0) {
+
+						if (datasourceType == "FILE") {
+							if($scope.batchList[i].mappingObj.dataSource.NAME) {
+								let value = $scope.batchList[i].mappingObj.dataSource.NAME.value;
+								if(value == undefined || value == "") {
+									updateBtn.title = "Die Spalte Datei* ist nicht für alle Zeilen gesetzt, in denen die Spalte Datenquelltyp* auf FILE gesetzt ist."
+									return false;
+								}
+							}
+						}
 					}
 				}
 			}
 
-			return !mappingTableChosenInEachRow;
+			return true;
 		}
 
 		/**
@@ -337,22 +368,7 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 
 		// saves the current values of this row to the previously selected mapping file
 		$scope.onMappingTableSaveClicked = function($event) {
-			
-			var rowIndex = kommonitorBatchUpdateHelperService.getIndexFromId($event.currentTarget.id);
-			var row = $scope.batchList[rowIndex];
-
-			var objToExport = $.extend({}, row.mappingObj);
-
-			objToExport.converter = kommonitorBatchUpdateHelperService.converterPropertiesToParametersArray(objToExport.converter)
-			objToExport.dataSource = kommonitorBatchUpdateHelperService.dataSourcePropertyToParametersArray(objToExport.dataSource)
-
-			// selected converter and DatasouceType might have changed.
-			// rebuild the corresponding definitions and insert parameter values
-			objToExport.converter = kommonitorBatchUpdateHelperService.buildConverterDefinition(row.selectedConverter, objToExport.converter);
-			objToExport.dataSource = kommonitorBatchUpdateHelperService.buildDataSourceDefinition(row.selectedDatasourceType, objToExport.dataSource)
-
-			// save to file
-			kommonitorBatchUpdateHelperService.saveMappingObjectToFile(objToExport);
+			kommonitorBatchUpdateHelperService.saveMappingObjectToFile("georesource", $event, $scope.batchList);
 		};
 
 		$scope.initializeDatepickerFields = function() {
@@ -425,7 +441,6 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 			var mappingObj = JSON.parse(event.target.result);
 			mappingObj.converter = kommonitorBatchUpdateHelperService.converterParametersArrayToProperties(mappingObj.converter);
 			mappingObj.dataSource = kommonitorBatchUpdateHelperService.dataSourceParametersArrayToProperty(mappingObj.dataSource);
-			
 
 			// set value of column "Geodaten-Quellformat*" by converter name
 			var converterName = mappingObj.converter.name
@@ -451,12 +466,25 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 				}
 			}
 
+			// do not import file name
+			if(mappingObj.dataSource.type == "FILE") {
+				mappingObj.dataSource.NAME.value = "";
+			}
+
 			//apply to scope
 			$timeout(function() {
 				$scope.batchList[rowIndex].mappingObj = mappingObj;
 			});
 		}
 
+		$scope.onDataSourceFileSelected = function(event, rowIndex, file) {
+			// set filename manually
+			var name = file.name;
+
+			$timeout(function() {
+				$scope.batchList[rowIndex].mappingObj.dataSource.NAME.value = name;
+			});
+		}
 
 		$rootScope.$on("refreshGeoresourceOverviewTableCompleted", function() {
 			for(let i=0;i<$scope.batchList.length;i++) {
@@ -496,7 +524,7 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 					td2.classList.add("georesource-result-error");
 
 					var errorMsgDiv = document.createElement("div");
-					errorMsgDiv.classList.add("card", "card-body", "georesource-result-error-message"+i);
+					errorMsgDiv.classList.add("card", "card-body"); //georesource-result-error-message
 					errorMsgDiv.innerHTML = response.message;
 
 					var collapseDiv = document.createElement("div");
@@ -512,6 +540,8 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 					$(errorBtn).attr("aria-expanded", "false");
 					$(errorBtn).attr("aria-controls", "georesource-result-error-collapse" + i)
 					errorBtn.innerHTML = "Fehler";
+					td2.appendChild(errorBtn);
+
 					insertAfter(errorBtn, collapseDiv);
 				}
 

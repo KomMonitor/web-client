@@ -204,7 +204,7 @@
 
 											<!-- Datei -->
 											<td ng-show="checkIfSelectedDatasourceTypeIsFile()">
-												<input id="dataSourceFileInput{{$index}}" class="form-control" type="file" ng-model="georesource.mappingObj.dataSource.NAME.value" 
+												<input id="dataSourceFileInputField{{$index}}" class="form-control dataSourceFileInputField" type="file" 
 												ng-disabled="!georesource.selectedDatasourceType.type.includes(&quot;FILE&quot;)" required>
 											</td>
 
@@ -291,8 +291,8 @@
 					<i class="fas fa-file-export"></i>&nbsp;&nbsp;Batch-Liste exportieren
 				</button>
 
-				<button type="button" class="btn btn-success"
-					ng-click="batchUpdateGeoresources()" ng-disabled="checkIfMappingTableChosenInEachRow()">Update ausführen</button>
+				<button id="georesource-batch-update-btn" type="button" class="btn btn-success"
+					ng-click="batchUpdateGeoresources()" ng-disabled="!checkIfNameAndFilesChosenInEachRow()">Update ausführen</button>
 				<button type="button" class="btn btn-danger"
 					ng-click="resetGeoresourceBatchUpdateForm()">Zur&uuml;cksetzen</button>
 			</div>
@@ -302,7 +302,7 @@
 				<div class="modal-dialog modal-xl">
 					<div class="modal-content">
 						<div class="modal-header">
-							<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<button type="button" class="close" aria-label="Close" id="georesource-batch-update-result-modal-close-btn">
 								<span aria-hidden="true">&times;</span></button>
 							<h4 class="modal-title">Ergebnis des Batch-Updates</h4>
 						</div>
