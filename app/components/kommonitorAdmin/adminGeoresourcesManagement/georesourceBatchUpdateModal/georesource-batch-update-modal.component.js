@@ -529,9 +529,14 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 				document.getElementById("georesource-result-table-tbody").appendChild(tableRow);
 			}
 
-			function insertAfter(newNode, referenceNode) {
+			function insertAfter(referenceNode, newNode) {
 				referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
 			}
+		});
+
+		// only close the result modal instead of all modals
+		$("#georesource-batch-update-result-modal-close-btn").on("click", function() {
+			$("#georesource-batch-update-result-modal").modal("hide");
 		});
 		
 	}
