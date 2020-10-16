@@ -53,6 +53,8 @@ module.exports = function (grunt) {
             'app/components/kommonitorAdmin/adminGeoresourcesManagement/georesourceDeleteModal/georesource-delete-modal.component.js',
             'app/components/kommonitorAdmin/adminScriptManagement/admin-script-management.module.js',
             'app/components/kommonitorAdmin/adminScriptManagement/admin-script-management.component.js',
+            'app/components/kommonitorAdmin/adminScriptExecution/admin-script-execution.module.js',
+            'app/components/kommonitorAdmin/adminScriptExecution/admin-script-execution.component.js',
             'app/components/kommonitorAdmin/kommonitor-admin.module.js',
             'app/components/kommonitorAdmin/kommonitor-admin.component.js',
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorIndividualIndicatorComputation/kommonitor-individual-indicator-computation.module.js',
