@@ -511,6 +511,22 @@ angular
             }
           };
 
+          this.getIndicatorNameFromIndicatorId = function(indicatorId){
+            for (var indicatorMetadata of this.availableIndicators) {
+              if (indicatorMetadata.indicatorId === indicatorId){
+                return indicatorMetadata.indicatorName;
+              }
+            }
+          };
+
+          this.getGeoresourceNameFromGeoresourceId = function(georesourceId){
+            for (var georesourceMetadata of this.availableGeoresources) {
+              if (georesourceMetadata.georesourceId === georesourceId){
+                return georesourceMetadata.datasetName;
+              }
+            }
+          };
+
           this.referencedTopicIdExists = function(topicId){
             var topicHierarchy = this.getTopicHierarchyForTopicId(topicId);
 

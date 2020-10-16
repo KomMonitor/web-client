@@ -5,17 +5,141 @@
 			Skriptverwaltung
 			<small>Steuerung der semi-automatisierten Indikatorenberechnung</small>
 		</h1>
+
+		<div class="adminTableButtonWrapper">
+			<button class="btn btn-success btn-sm" type="button" data-toggle="modal" data-target="#modal-add-script"><i
+					class="fas fa-plus"></i>&nbsp;&nbsp;Erstellen</button>
+			<!-- edit metadata -->
+
+			<!-- edit features -->
+
+			<!-- delete selected completely -->
+			<button class="btn btn-danger btn-sm" type="button" data-toggle="modal" data-target="#modal-delete-scripts"
+				ng-click="onClickDeleteDatasets()"><i class="fas fa-trash"></i>&nbsp;&nbsp;L&ouml;schen</button>
+
+			<!-- delete b timestamp -->
+		</div>
 	</section>
 
 	<!-- Main content -->
 	<section class="content container-fluid">
 
-		SCRIPT STUFF
-
 		<!--------------------------
 			| Your Page Content Here |
 			-------------------------->
+		<div class="box box-primary">
+			<div class="box-header">
+				<h3 class="box-title">Indikatoren-Skripte</h3>
+			</div>
+			<!-- /.box-header -->
+			<div class="box-body">
+
+				<div class="admin-table-wrapper">
+					<table id="scriptOverviewTable" datatable="ng"
+						dt-options="$ctrl.kommonitorDataExchangeServiceInstance.datatablesOptions"
+						class="table table-bordered table-condensed table-striped"
+						style="width:100%; overflow:auto; font-size: 11px;">
+						<thead>
+							<tr>
+								<th><input type="checkbox" ng-model="selectAllEntriesInput"
+										ng-change="onChangeSelectAllEntries()"></input></th>
+								<th>Editierfunktionen</th>
+								<th>Skript-Id</th>
+								<th>SkriptName</th>
+								<th>Ziel-Indikator-Id</th>
+								<th>Ziel-Indikator-Name</th>
+								<th>Beschreibung</th>
+								<th>notwendige Basis-Indikatoren</th>
+								<th>notwendige Basis-Georessourcen</th>
+								<th>Prozessparameter</th>
+							</tr>
+						</thead>
+
+						<tbody>
+							<tr ng-repeat="scriptDataset in availableScriptDatasets">
+								<td><input type="checkbox" ng-model="scriptDataset.isSelected"
+										ng-change="onChangeSelectDataset(scriptDataset)"></input></td>
+								<td>
+									<div class="btn-group btn-group-sm">
+										<button class="btn btn-warning btn-sm" type="button" data-toggle="modal"
+											data-target="#modal-edit-script-metadata"
+											ng-click="onClickEditScript(scriptDataset)"
+											title="Skript editieren"><i class="fas fa-pencil-alt"></i></button>
+									</div>
+								</td>
+								<td>{{scriptDataset.scriptId}}</td>
+								<td>{{scriptDataset.name}}</td>
+								<td>{{scriptDataset.indicatorId}}</td>
+								<td>{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorNameFromIndicatorId(scriptDataset.indicatorId)}}</td>								
+								<td ng-bind-html="scriptDataset.description"></td>
+								<td>
+									<ul style="columns: 3; 	-webkit-columns: 3;	-moz-columns: 3;">
+										<li style="margin-right: 15px;"
+											ng-repeat="baseIndicatorId in scriptDataset.requiredIndicatorIds">
+												<b>Id </b> {{baseIndicatorId}}
+												<br/>
+												<b>Name </b> {{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorNameFromIndicatorId(baseIndicatorId)}}
+											</ul>
+										</li>
+									</ul>
+								</td>
+								<td>
+									<ul style="columns: 3; 	-webkit-columns: 3;	-moz-columns: 3;">
+										<li style="margin-right: 15px;"
+											ng-repeat="georesourceId in scriptDataset.requiredGeoresourceIds">
+											<ul>
+												<b>Id </b> {{georesourceId}}
+												<br/>
+												<b>Name </b> {{$ctrl.kommonitorDataExchangeServiceInstance.getGeoresourceNameFromGeoresourceId(georesourceId)}}
+											</ul>
+										</li>
+									</ul>
+								</td>
+								<td>
+									<ul style="columns: 3; 	-webkit-columns: 3;	-moz-columns: 3;">
+										<li style="margin-right: 15px;"
+											ng-repeat="processParameter in scriptDataset.variableProcessParameters">
+											
+												<b>Name </b> {{processParameter.name}}
+												<br/>
+												<b>Beschreibung </b> {{processParameter.description}}
+												<br/>
+												<b>Datentyp </b> {{processParameter.dataType}}
+												<br/>
+												<b>Standard-Wert </b> {{processParameter.defaultValue}}
+												<br/>
+												<div ng-show="processParameter.dataType == 'double' || processParameter.dataType == 'integer'"><b>erlaubter Wertebereich</b> {{processParameter.minParameterValueForNumericInputs}} - {{processParameter.maxParameterValueForNumericInputs}}</div>
+												
+										</li>
+									</ul>
+								</td>
+
+							</tr>
+
+						</tbody>
+
+						<tfoot>
+							<tr>
+								<th>alle selektieren</th>
+								<th>Editierfunktionen</th>
+								<th>Skript-Id</th>
+								<th>SkriptName</th>
+								<th>Ziel-Indikator-Id</th>
+								<th>Ziel-Indikator-Name</th>
+								<th>Beschreibung</th>
+								<th>notwendige Basis-Indikatoren</th>
+								<th>notwendige Basis-Georessourcen</th>
+								<th>Prozessparameter</th>
+							</tr>
+						</tfoot>
+					</table>
+
+				</div>
+			</div>
+			<!-- /.box-body -->
+		</div>
+		<!-- /.box -->
 
 	</section>
-<!-- /.content -->
+	<!-- /.content -->
 </div>
