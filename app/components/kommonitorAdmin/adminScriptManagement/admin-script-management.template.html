@@ -73,45 +73,58 @@
 								<td>{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorNameFromIndicatorId(scriptDataset.indicatorId)}}</td>								
 								<td ng-bind-html="scriptDataset.description"></td>
 								<td>
-									<ul style="columns: 3; 	-webkit-columns: 3;	-moz-columns: 3;">
-										<li style="margin-right: 15px;"
-											ng-repeat="baseIndicatorId in scriptDataset.requiredIndicatorIds">
-												<b>Id </b> {{baseIndicatorId}}
-												<br/>
-												<b>Name </b> {{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorNameFromIndicatorId(baseIndicatorId)}}
-											</ul>
-										</li>
-									</ul>
+									<table class="table table-condensed">
+										<thead>
+										  <tr>
+											<th>Id</th>
+											<th>Name</th>
+										  </tr>
+										</thead>
+										<tbody>
+										  <tr ng-repeat="baseIndicatorId in scriptDataset.requiredIndicatorIds">
+											<td>{{baseIndicatorId}}</td>
+											<td>{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorNameFromIndicatorId(baseIndicatorId)}}</td>
+										  </tr>
+										 </tbody>
+									</table> 
 								</td>
 								<td>
-									<ul style="columns: 3; 	-webkit-columns: 3;	-moz-columns: 3;">
-										<li style="margin-right: 15px;"
-											ng-repeat="georesourceId in scriptDataset.requiredGeoresourceIds">
-											<ul>
-												<b>Id </b> {{georesourceId}}
-												<br/>
-												<b>Name </b> {{$ctrl.kommonitorDataExchangeServiceInstance.getGeoresourceNameFromGeoresourceId(georesourceId)}}
-											</ul>
-										</li>
-									</ul>
+									<table class="table table-condensed">
+										<thead>
+										  <tr>
+											<th>Id</th>
+											<th>Name</th>
+										  </tr>
+										</thead>
+										<tbody>
+										  <tr ng-repeat="georesourceId in scriptDataset.requiredGeoresourceIds">
+											<td>{{georesourceId}}</td>
+											<td>{{$ctrl.kommonitorDataExchangeServiceInstance.getGeoresourceNameFromGeoresourceId(georesourceId)}}</td>
+										  </tr>
+										 </tbody>
+									</table> 
 								</td>
 								<td>
-									<ul style="columns: 3; 	-webkit-columns: 3;	-moz-columns: 3;">
-										<li style="margin-right: 15px;"
-											ng-repeat="processParameter in scriptDataset.variableProcessParameters">
-											
-												<b>Name </b> {{processParameter.name}}
-												<br/>
-												<b>Beschreibung </b> {{processParameter.description}}
-												<br/>
-												<b>Datentyp </b> {{processParameter.dataType}}
-												<br/>
-												<b>Standard-Wert </b> {{processParameter.defaultValue}}
-												<br/>
-												<div ng-show="processParameter.dataType == 'double' || processParameter.dataType == 'integer'"><b>erlaubter Wertebereich</b> {{processParameter.minParameterValueForNumericInputs}} - {{processParameter.maxParameterValueForNumericInputs}}</div>
-												
-										</li>
-									</ul>
+									<table class="table table-condensed">
+										<thead>
+										  <tr>
+											<th>Name</th>
+											<th>Beschreibung</th>
+											<th>Datentyp</th>
+											<th>Standard-Wert</th>
+											<th>erlaubter Wertebereich</th>
+										  </tr>
+										</thead>
+										<tbody>
+										  <tr ng-repeat="processParameter in scriptDataset.variableProcessParameters">
+											<td>{{processParameter.name}}</td>
+											<td>{{processParameter.description}}</td>
+											<td>{{processParameter.dataType}}</td>
+											<td>{{processParameter.defaultValue}}</td>
+											<td><div ng-show="processParameter.dataType == 'double' || processParameter.dataType == 'integer'"><b>erlaubter Wertebereich</b> {{processParameter.minParameterValueForNumericInputs}} - {{processParameter.maxParameterValueForNumericInputs}}</div></td>
+										  </tr>
+										 </tbody>
+									</table>
 								</td>
 
 							</tr>
