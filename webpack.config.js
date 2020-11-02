@@ -84,7 +84,9 @@ module.exports = {
           { from: nodeModulePathConstant + 'html2canvas/dist', to: 'html2canvas/' },
           { from: nodeModulePathConstant + 'html2pdf.js/dist', to: 'html2pdf/' },
           { from: nodeModulePathConstant + 'jquery.easing/jquery.easing.min.js', to: 'jquery.easing/' },
-          { from: './customizedExternalLibs/colorbrewer.js', to: 'colorbrewer/' }
+          { from: './customizedExternalLibs/colorbrewer.js', to: 'colorbrewer/' },
+          { from: nodeModulePathConstant + 'crypto-js/', to: 'crypto-js/' },
+          { from: nodeModulePathConstant + 'is-base64/is-base64.js', to: 'is-base64/is-base64.js' },
 
       ])
     ]

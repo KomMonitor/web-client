@@ -42,3 +42,70 @@ if (!env.enableDebug) {
     window.console.log=function(){};
   }
 }
+
+var decryptAesCBC = function(encryptedString){
+
+  var hashedKey = CryptoJS.SHA256(env.encryption.password);
+
+    // from BASE64 encoded encrypted string
+    var encryptedWordArray = CryptoJS.enc.Base64.parse(encryptedString);
+
+    // get IV from beginning
+    var iv = CryptoJS.lib.WordArray.create(
+      encryptedWordArray.words.slice(0, (env.encryption.ivLength_byte) / 4 )
+    );
+    
+    var decrypted = CryptoJS.AES.decrypt(
+      {
+        ciphertext: CryptoJS.lib.WordArray.create(
+          encryptedWordArray.words.slice(env.encryption.ivLength_byte / 4)
+        )
+      },
+      hashedKey,
+      {iv: iv}
+    );
+    
+    var decryptedString = decrypted.toString(CryptoJS.enc.Utf8);
+
+    var decryptedJson = JSON.parse(decryptedString);
+
+    // sometimes a response might still be BASE64 encoded in addition
+    // if so, then resolve that
+    if(isBase64(decryptedJson, {allowMime: true})){
+      decryptedJson = CryptoJS.enc.Base64.parse(decryptedJson).toString(CryptoJS.enc.Utf8);
+      decryptedJson = JSON.parse(decryptedJson);
+    }
+
+    return decryptedJson;    
+};
+
+appModule.factory('encryptionInterceptor', ['$q', function ($q) {
+  return {
+    response: function (response) {
+      // if encrypted, then will look like:
+      // {encryptedData: encryptedData}
+      // using AES-GCM
+
+      if(env.encryption.enabled && response.data.encryptedData){
+        try {
+          var encryptedString = response.data.encryptedData;
+
+          var decryptedJson = decryptAesCBC(encryptedString);
+
+          response.data = decryptedJson;
+
+          return response;
+        } catch (error) {
+          console.error(error);
+          return response;
+        }      
+      }
+
+      return response;
+    },
+  };
+}]);
+
+appModule.config(['$httpProvider', function ($httpProvider) {
+  $httpProvider.interceptors.push('encryptionInterceptor');
+}]);
