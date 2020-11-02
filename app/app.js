@@ -43,6 +43,36 @@ if (!env.enableDebug) {
   }
 }
 
+var isBase64 = function(str) {
+  var notBase64 = /[^A-Z0-9+\/=]/i;
+  const isString = (typeof str === 'string' || str instanceof String);
+
+  if (!isString) {
+    let invalidType;
+    if (str === null) {
+      invalidType = 'null';
+    } else {
+      invalidType = typeof str;
+      if (invalidType === 'object' && str.constructor && str.constructor.hasOwnProperty('name')) {
+        invalidType = str.constructor.name;
+      } else {
+        invalidType = `a ${invalidType}`;
+      }
+    }
+    throw new TypeError(`Expected string but received ${invalidType}.`);
+  }
+
+  const len = str.length;
+  if (!len || len % 4 !== 0 || notBase64.test(str)) {
+    return false;
+  }
+  const firstPaddingChar = str.indexOf('=');
+  return firstPaddingChar === -1 ||
+    firstPaddingChar === len - 1 ||
+    (firstPaddingChar === len - 2 && str[len - 1] === '=');
+
+};
+
 var decryptAesCBC = function(encryptedString){
 
   var hashedKey = CryptoJS.SHA256(env.encryption.password);
@@ -71,7 +101,7 @@ var decryptAesCBC = function(encryptedString){
 
     // sometimes a response might still be BASE64 encoded in addition
     // if so, then resolve that
-    if(isBase64(decryptedJson, {allowMime: true})){
+    if((typeof decryptedJson === 'string' || decryptedJson instanceof String) && isBase64(decryptedJson)){
       decryptedJson = CryptoJS.enc.Base64.parse(decryptedJson).toString(CryptoJS.enc.Utf8);
       decryptedJson = JSON.parse(decryptedJson);
     }
