@@ -364,8 +364,8 @@
   ];
 
   window.__env.encryption = {
-    enabled: false,
-    password: "password",
+    enabled: true,
+    password: "JFpoS16PI8xZokceodXG",
     ivLength_byte: 16
   };
 
