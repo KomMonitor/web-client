@@ -528,7 +528,7 @@
   ];
 
   window.__env.encryption = {
-    enabled: true,
+    enabled: false,
     password: "password",
     ivLength_byte: 16
   };
