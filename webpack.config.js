@@ -41,8 +41,8 @@ module.exports = {
           { from: './customizedExternalLibs/leaflet-groupedlayercontrol/leaflet.groupedlayercontrol.js', to: 'leaflet-groupedlayercontrol' },
           { from: './customizedExternalLibs/leaflet-groupedlayercontrol/leaflet.groupedlayercontrol.min.css', to: 'leaflet-groupedlayercontrol' },
           { from: nodeModulePathConstant + '@turf/turf/turf.min.js', to: 'turf' },
-          { from: nodeModulePathConstant + 'bootstrap-tour/build/css/bootstrap-tour.min.css', to: 'bootstrap-tour' },
-          { from: nodeModulePathConstant + 'bootstrap-tour/build/js/bootstrap-tour.min.js', to: 'bootstrap-tour' },
+          { from: nodeModulePathConstant + 'bootstrap-tour/build/css/bootstrap-tour-standalone.min.css', to: 'bootstrap-tour' },
+          { from: nodeModulePathConstant + 'bootstrap-tour/build/js/bootstrap-tour-standalone.min.js', to: 'bootstrap-tour' },
           { from: nodeModulePathConstant + 'jspdf/dist/jspdf.min.js', to: 'jspdf' },
           { from: nodeModulePathConstant + 'jspdf-autotable/dist/jspdf.plugin.autotable.min.js', to: 'jspdf-autotable' },
           { from: './customizedExternalLibs/shpwrite.js', to: 'shp-write' },
@@ -84,7 +84,8 @@ module.exports = {
           { from: nodeModulePathConstant + 'html2canvas/dist', to: 'html2canvas/' },
           { from: nodeModulePathConstant + 'html2pdf.js/dist', to: 'html2pdf/' },
           { from: nodeModulePathConstant + 'jquery.easing/jquery.easing.min.js', to: 'jquery.easing/' },
-          { from: './customizedExternalLibs/colorbrewer.js', to: 'colorbrewer/' }
+          { from: './customizedExternalLibs/colorbrewer.js', to: 'colorbrewer/' },
+          { from: nodeModulePathConstant + 'crypto-js/', to: 'crypto-js/' }
 
       ])
     ]
