@@ -114,7 +114,7 @@ appModule.factory('encryptionInterceptor', ['$q', function ($q) {
     response: function (response) {
       // if encrypted, then will look like:
       // {encryptedData: encryptedData}
-      // using AES-GCM
+      // using AES-CBC
 
       if(env.encryption.enabled && response.data.encryptedData){
         try {
