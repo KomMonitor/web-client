@@ -527,6 +527,10 @@
     }
   ];
 
-
+  window.__env.encryption = {
+    enabled: false,
+    password: "password",
+    ivLength_byte: 16
+  };
 
 // }(this));
