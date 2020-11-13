@@ -40,10 +40,10 @@
 			<div class="box-body">
 
 				<div class="admin-table-wrapper">
-					<table id="jobOverviewTable" datatable="ng"
-						dt-options="$ctrl.kommonitorDataExchangeServiceInstance.datatablesOptions"
-						class="table table-bordered table-condensed table-striped"
-						style="width:100%; overflow:auto; font-size: 11px;">
+					<table id="jobOverviewTable_defaultJobs" datatable="ng"
+					dt-options="$ctrl.kommonitorDataExchangeServiceInstance.datatablesOptions"
+					class="table table-bordered table-condensed table-striped"
+					style="width:100%; overflow:auto; font-size: 11px;">
 						<thead>
 							<tr>
 								<!-- <th><input type="checkbox" ng-model="selectAllEntriesInput_default"
@@ -58,8 +58,8 @@
 
 						<tbody>
 							<tr ng-repeat="jobDataset in availableDefaultComputationJobDatasets | orderBy:jobId:true">
-								<td><input type="checkbox" ng-model="jobDataset.isSelected"
-										ng-change="onChangeSelectDataset(jobDataset)"></input></td>
+								<!-- <td><input type="checkbox" ng-model="jobDataset.isSelected"
+										ng-change="onChangeSelectDataset(jobDataset)"></input></td> -->
 								<td>{{jobDataset.jobId}}</td>
 								<td>{{jobDataset.status}}</td>
 								<td>{{jobDataset.progress}}</td>
@@ -101,7 +101,7 @@
 			<div class="box-body">
 
 				<div class="admin-table-wrapper">
-					<table id="jobOverviewTable" datatable="ng"
+					<table id="jobOverviewTable_customizedJobs" datatable="ng"
 						dt-options="$ctrl.kommonitorDataExchangeServiceInstance.datatablesOptions"
 						class="table table-bordered table-condensed table-striped"
 						style="width:100%; overflow:auto; font-size: 11px;">
@@ -119,8 +119,8 @@
 
 						<tbody>
 							<tr ng-repeat="jobDataset in availableCustomizedComputationJobDatasets | orderBy:jobId:true">
-								<td><input type="checkbox" ng-model="jobDataset.isSelected"
-										ng-change="onChangeSelectDataset(jobDataset)"></input></td>
+								<!-- <td><input type="checkbox" ng-model="jobDataset.isSelected"
+										ng-change="onChangeSelectDataset(jobDataset)"></input></td> -->
 								<td>{{jobDataset.jobId}}</td>
 								<td>{{jobDataset.status}}</td>
 								<td>{{jobDataset.progress}}</td>
