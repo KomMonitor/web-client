@@ -54,6 +54,8 @@ angular.module('scriptGeneric').component('scriptGeneric', {
 			$scope.parameterNumericMaxValue_tmp = 1;
 
 			$scope.scriptCode_readableString = undefined;
+			$scope.scriptCode_readableString_forPreview = undefined;
+			$scope.scriptFileName = undefined;
 
 			$scope.onChangeDefaultValue = function (value) {
 				$scope.parameterDefaultValue_tmp = value;
@@ -92,32 +94,55 @@ angular.module('scriptGeneric').component('scriptGeneric', {
 	
 			};
 	
-			$(document).on("change", "#scriptCodeImportFile" ,function(){
-	
-				console.log("Importing Indicator metadata for Add Indicator Form");
+			$(document).on("change", "#scriptCodeImportFile" ,function(){	
 	
 				// get the file
 				var file = document.getElementById('scriptCodeImportFile').files[0];
-				$scope.parseMetadataFromFile(file);
+				$scope.parseScriptCodeFromFile(file);
 			});
+
+			var fileStringIncludesScriptKeywords = function(string){
+				var keywords = ["KmHelper", "computeIndicator", "aggregateIndicator", "module.exports.computeIndicator"];
+
+				var hasAllKeywords = true;
+
+				for (const keyword of keywords) {
+					if (!string.includes(keyword) ){
+						hasAllKeywords = false;
+						break;
+					}
+				}
+
+				return hasAllKeywords;
+			};
 	
-			$scope.parseMetadataFromFile = function(file){
+			$scope.parseScriptCodeFromFile = function(file){
+				$scope.scriptFileName = file;
+
 				var fileReader = new FileReader();
 	
 				fileReader.onload = function(event) {
-	
-					try{
-						$scope.parseFromMetadataFile(event);
-					}
-					catch(error){
-						console.error(error);
-						console.error("Uploaded Metadata File cannot be parsed.");
-						$scope.indicatorMetadataImportError = "Uploaded Metadata File cannot be parsed correctly";
-						document.getElementById("indicatorsAddMetadataPre").innerHTML = $scope.indicatorMetadataStructure_pretty;
-						$("#indicatorAddMetadataImportErrorAlert").show();
-	
+						if (event.target.result == null || event.target.result == undefined || !fileStringIncludesScriptKeywords(event.target.result)){
+							console.error("Uploaded Script Code File is null or does not follow script template.");
+							$scope.indicatorScriptCodeImportError = "Uploaded Script Code File is null or does not follow script template.";
+							$("#scriptAddScriptCodeImportErrorAlert").show();
+		
+							$scope.$apply();
+							return;
+						}
+
+						$scope.scriptCode_readableString = event.target.result;
+						$scope.scriptCode_readableString_forPreview = event.target.result;
+
 						$scope.$apply();
-					}
+						
+						$timeout(function(){
+
+							$("#scriptCodePreview2").removeClass("prettyprinted");
+				
+							PR.prettyPrint();
+							
+						}, 250);
 	
 				};
 	
@@ -140,8 +165,11 @@ angular.module('scriptGeneric').component('scriptGeneric', {
 		
 					$scope.$apply();
 			};
-	
 
+			$scope.hideScriptCodeErrorAlert = function(){
+				$("#scriptAddScriptCodeImportErrorAlert").hide();
+			};
+	
 		}
 	]
 });

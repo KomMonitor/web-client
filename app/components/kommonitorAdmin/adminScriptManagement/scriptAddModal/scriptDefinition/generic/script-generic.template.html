@@ -526,11 +526,10 @@
 					<div class="col-md-3 col-sm-6 col-xs-12">
 						<div class="form-group">
 							<label>Einladen des Skript Codes aus einer Datei:</label>
-							<button type="button" class="btn btn-info"
-								ng-click="onImportScriptCodeFile()"
+							<!-- <button type="button" class="btn btn-info" ng-click="onImportScriptCodeFile()"
 								title="Importieren des Skript Codes aus einer Datei"><i
-									class="fas fa-file-import"></i>&nbsp;&nbsp;Skript Code Import</button>
-							<input style="display:none;" class="pull-left" type="file" class="form-control"
+									class="fas fa-file-import"></i>&nbsp;&nbsp;Skript Code Import</button> -->
+							<input class="pull-left" type="file" class="form-control"
 								id="scriptCodeImportFile" accept=".js,"></input>
 							<div class="help-block with-errors"></div>
 							<div class="help-block">
@@ -541,12 +540,12 @@
 				</div>
 
 				<div class="row vertical-align">
-					<div class="col-md-3 col-sm-6 col-xs-12">
+					<div class="col-md-12 col-sm-12 col-xs-12">
 						<div class="form-group">
 							<label>Vorschaufenster des Skript-Codes*</label>
-							<textarea rows="25" type="text" class="form-control" ng-model="scriptCode_readableString"
-								placeholder="Beschreibung" required></textarea>
-							<div class="help-block with-errors"></div>
+							<br/>
+							<br/>
+							<pre ng-show="scriptCode_readableString_forPreview" class="prettyprint" style="max-height: 450px; overflow: auto; text-align: left;" id="scriptCodePreview2"><code class="language-javascript" ng-bind-html="scriptCode_readableString_forPreview"></code></pre>
 						</div>
 					</div>
 				</div>
@@ -561,4 +560,18 @@
 
 	</div>
 
+</div>
+
+<div id="scriptAddScriptCodeImportErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+	class="alert alert-danger alert-dismissable">
+	<button type="button" class="close" ng-click="hideScriptCodeErrorAlert()" aria-hidden="true">&times;</button>
+	<h4><i class="icon fa fa-ban"></i>Script Code Import gescheitert</h4>
+	Beim Import des Script Codes aus einer Datei ist ein Fehler aufgetreten. Fehlermeldung:
+	<br />
+	<pre>{{indicatorScriptCodeImportError}}</pre>
+	<br />
+	<br />
+	<p>Bitte stellen Sie sicher, dass <a
+		href="./kommonitor-script-resources/kommonitor-script-template.js"
+		rel='noopener noreferrer' target='_blank'>KomMonitor Skript Template</a> eingehalten wird und die Datei den Code als einfachen String enth&auml;lt</p>
 </div>
