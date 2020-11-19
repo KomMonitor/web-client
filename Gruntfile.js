@@ -7,6 +7,7 @@ module.exports = function (grunt) {
             'app/util/genericServices/kommonitorDataExchangeService/kommonitor-data-exchange-service.module.js',
             'app/util/genericServices/kommonitorDiagramHelperService/kommonitor-diagram-helper-service.module.js',
             'app/util/genericServices/kommonitorImporterHelperService/kommonitor-importer-helper-service.module.js',
+            'app/util/genericServices/kommonitorScriptHelperService/kommonitor-script-helper-service.module.js',
             'app/util/genericServices/kommonitorVisualStyleHelperService/kommonitor-visual-style-helper-service.module.js',
             'app/util/genericServices/kommonitorInfoLegendHelperService/kommonitor-info-legend-helper-service.module.js',
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorDataSetup/kommonitor-data-setup.module.js',
@@ -53,6 +54,10 @@ module.exports = function (grunt) {
             'app/components/kommonitorAdmin/adminGeoresourcesManagement/georesourceDeleteModal/georesource-delete-modal.component.js',
             'app/components/kommonitorAdmin/adminScriptManagement/admin-script-management.module.js',
             'app/components/kommonitorAdmin/adminScriptManagement/admin-script-management.component.js',
+            'app/components/kommonitorAdmin/adminScriptManagement/scriptAddModal/scriptDefinition/generic/script-generic.module.js',
+            'app/components/kommonitorAdmin/adminScriptManagement/scriptAddModal/scriptDefinition/generic/script-generic.component.js',
+            'app/components/kommonitorAdmin/adminScriptManagement/scriptAddModal/script-add-modal.module.js',
+            'app/components/kommonitorAdmin/adminScriptManagement/scriptAddModal/script-add-modal.component.js',
             'app/components/kommonitorAdmin/adminScriptExecution/admin-script-execution.module.js',
             'app/components/kommonitorAdmin/adminScriptExecution/admin-script-execution.component.js',
             'app/components/kommonitorAdmin/kommonitor-admin.module.js',
@@ -99,6 +104,7 @@ module.exports = function (grunt) {
         copy_files: [
             //the path prefix 'app/' will be set in the copy-command itself! Thus is omitted here.
             'dependencies/**/*',
+            'kommonitor-script-resources/**/*',
             'iconsFromPngTree/**/*',
             'logos/**/*',
             'components/**/*.template.html',
