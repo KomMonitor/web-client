@@ -43,12 +43,14 @@ angular
       this.requiredGeoresources_tmp = [];
       this.requiredScriptParameters_tmp = [];
       this.scriptCode_base64String = undefined;
+      this.scriptCode_readableString = undefined;
 
       this.reset = function(){
         this.requiredIndicators_tmp = [];
         this.requiredGeoresources_tmp = [];
         this.requiredScriptParameters_tmp = [];
         this.scriptCode_base64String = undefined;
+        this.scriptCode_readableString = undefined;
       };
 
       this.addBaseIndicator = function(indicatorMetadata){

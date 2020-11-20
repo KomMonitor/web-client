@@ -53,9 +53,7 @@ angular.module('scriptGeneric').component('scriptGeneric', {
 			$scope.parameterNumericMinValue_tmp = 0;
 			$scope.parameterNumericMaxValue_tmp = 1;
 
-			$scope.scriptCode_readableString = undefined;
 			$scope.scriptCode_readableString_forPreview = undefined;
-			$scope.scriptFileName = undefined;
 
 			$scope.onChangeDefaultValue = function (value) {
 				$scope.parameterDefaultValue_tmp = value;
@@ -117,7 +115,6 @@ angular.module('scriptGeneric').component('scriptGeneric', {
 			};
 	
 			$scope.parseScriptCodeFromFile = function(file){
-				$scope.scriptFileName = file;
 
 				var fileReader = new FileReader();
 	
@@ -131,14 +128,14 @@ angular.module('scriptGeneric').component('scriptGeneric', {
 							return;
 						}
 
-						$scope.scriptCode_readableString = event.target.result;
+						kommonitorScriptHelperService.scriptCode_readableString = event.target.result;
 						$scope.scriptCode_readableString_forPreview = event.target.result;
 
 						$scope.$apply();
 						
 						$timeout(function(){
 
-							$("#scriptCodePreview2").removeClass("prettyprinted");
+							$("#scriptCodePreview").removeClass("prettyprinted");
 				
 							PR.prettyPrint();
 							
