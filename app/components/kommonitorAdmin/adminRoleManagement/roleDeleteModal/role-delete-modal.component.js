@@ -178,9 +178,11 @@ angular.module('roleDeleteModal').component('roleDeleteModal', {
 			});
 		};
 
-		$scope.tryDeleteKeycloakRole = function(roleMetadata){
+		$scope.tryDeleteKeycloakRole = async function(roleMetadata){
 			try {
 				kommonitorKeycloakHelperService.deleteRole(roleMetadata.roleName);
+
+				await kommonitorKeycloakHelperService.fetchAndSetKeycloakRoles();
 			} catch (error) {
 				if (error.data) {
 					$scope.failedDatasetsAndErrors.push([dataset, kommonitorDataExchangeService.syntaxHighlightJSON(error.data)]);

@@ -17,7 +17,7 @@ angular
       $http, $httpParamSerializerJQLike, __env) {
 
       var self = this;
-      this.keycloakRoles = [];
+      this.availableKeycloakRoles = [];
       this.targetUrlToKeycloakInstance = "";
       this.realm = "";
       this.clientId = "";
@@ -34,10 +34,10 @@ angular
             self.adminRoleName = keycloakConfig['admin-rolename']; 
             self.adminRolePassword = keycloakConfig["admin-rolepassword"];           
 
-            // self.keycloakRoles = await self.fetchRoles();
+            self.fetchAndSetKeycloakRoles();
           });
         } catch (error) {
-          console.error("Error while initializing kommonitorKeycloakHelperService. Error whil fetching and interpreting config file. Error is: " + error);
+          console.error("Error while initializing kommonitorKeycloakHelperService. Error while fetching and interpreting config file. Error is: " + error);
         }
       };
 
@@ -186,6 +186,30 @@ angular
         });
       };
 
+      this.getAllRoles_withToken = async function(bearerToken){
+
+        return await $http({
+          url: this.targetUrlToKeycloakInstance + "admin/realms/" + this.realm + "/roles",
+          method: 'GET',
+          headers: {
+            'Authorization': "Bearer " + bearerToken // Note the appropriate header
+          }
+        }).then(function successCallback(response) {
+            // this callback will be called asynchronously
+            // when the response is available
+  
+            return response.data;
+  
+          }, function errorCallback(error) {
+            // called asynchronously if an error occurs
+            // or server returns response with an error status.
+            //$scope.error = response.statusText;
+            console.error("Error while deleting role from keycloak.");
+            throw error;
+
+        });
+      };
+
       this.postNewRole = async function(roleName){
         try {
             // first get auth token to make admin requests
@@ -226,6 +250,37 @@ angular
           throw error;
         }
         
+      };
+
+      this.getAllRoles = async function(){
+        try {
+            // first get auth token to make admin requests
+            var tokenResponse = await this.requestToken();
+            var bearerToken = tokenResponse["access_token"];
+
+            // then make admin request
+            return await this.getAllRoles_withToken(bearerToken);  
+        } catch (error) {
+          throw error;
+        }
+        
+      };
+
+      this.setAvailableKeycloakRoles = function(roles){
+        this.availableKeycloakRoles = roles;
+      };
+
+      this.fetchAndSetKeycloakRoles = async function(){
+        this.setAvailableKeycloakRoles(await this.getAllRoles());
+      };
+
+      this.isRoleInKeycloak = function(roleName){
+        for (const keycloakRole of this.availableKeycloakRoles) {
+          if(keycloakRole.name === roleName){
+            return true;
+          }
+        }
+        return false;
       };
 
     }]);

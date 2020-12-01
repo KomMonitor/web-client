@@ -63,6 +63,7 @@ angular.module('roleAddModal').component('roleAddModal', {
 
 						try {							
 							await kommonitorKeycloakHelperService.postNewRole($scope.roleName);	
+							await kommonitorKeycloakHelperService.fetchAndSetKeycloakRoles();
 							$("#keycloakRoleAddSuccessAlert").show();
 						} catch (error) {
 							if (error.data) {
