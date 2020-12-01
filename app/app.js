@@ -116,11 +116,20 @@ angular.element(document).ready(function ($http) {
 
 });
 
+var isNotUrlThatUsesOwnAuth = function(url){
+  // /admin/ is used to make admin requests against keycloak
+  if (url.includes("/admin/")){
+    return false;
+  }
+  
+  return true;
+};
+
 appModule.factory('authInterceptor', ['$q', 'Auth', function ($q, Auth) {
   return {
     request: function (config) {
       var deferred = $q.defer();
-      if (Auth.keycloak.token) {
+      if (Auth.keycloak.token && isNotUrlThatUsesOwnAuth(config.url)) {
         Auth.keycloak.updateToken(5).then(function () {
           config.headers = config.headers || {};
           config.headers.Authorization = 'Bearer ' + Auth.keycloak.token;
