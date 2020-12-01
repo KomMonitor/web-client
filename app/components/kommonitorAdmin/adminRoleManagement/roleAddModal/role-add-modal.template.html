@@ -64,8 +64,8 @@
 			<div id="roleAddSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
 				class="alert alert-success alert-dismissable">
 				<button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
-				<h4><i class="icon fa fa-check"></i>Rolle registriert</h4>
-				<p>Eine neue Rolle mit Namen {{successMessagePart}} wurde in KomMonitor registriert und in die
+				<h4><i class="icon fa fa-check"></i>Rolle in KomMonitor Datenbank registriert</h4>
+				<p>Eine neue Rolle mit Namen {{roleName}} wurde in KomMonitor registriert und in die
 					&Uuml;bersichtstabelle eingetragen.
 				</p>
 			</div>
@@ -73,12 +73,35 @@
 			<div id="roleAddErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
 				class="alert alert-danger alert-dismissable">
 				<button type="button" class="close" ng-click="hideErrorAlert()" aria-hidden="true">&times;</button>
-				<h4><i class="icon fa fa-ban"></i>Registrierung gescheitert</h4>
-				Bei der Registrierung der Rolle ist ein Fehler aufgetreten. Fehlermeldung:
+				<h4><i class="icon fa fa-ban"></i>Registrierung in KomMonitor Datenbank gescheitert</h4>
+				Bei der Registrierung der Rolle in der KomMonitor Datenbank ist ein Fehler aufgetreten. Fehlermeldung:
 				<br />
 				<pre style="overflow:auto; max-height:500px;" ng-bind-html="errorMessagePart"></pre>
 				<br />
 				<br />
+			</div>
+
+			<div id="keycloakRoleAddSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+				class="alert alert-success alert-dismissable">
+				<button type="button" class="close" ng-click="hideKeycloakSuccessAlert()" aria-hidden="true">&times;</button>
+				<h4><i class="icon fa fa-check"></i>Rolle in Keycloak registriert</h4>
+				<p>Eine neue Rolle mit Namen {{roleName}} wurde in Keycloak registriert. Dort k&ouml;nnen nun Nutzer mit der Rolle verkn&uuml;pt werden.
+					<a ng-href="{{$ctrl.kommonitorKeycloakHelperServiceInstance.targetUrlToKeycloakInstance}}" target="_blank" rel="noopener noreferrer">{{$ctrl.kommonitorKeycloakHelperServiceInstance.targetUrlToKeycloakInstance}}</a>
+				</p>
+			</div>
+
+			<div id="keycloakRoleAddErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+				class="alert alert-danger alert-dismissable">
+				<button type="button" class="close" ng-click="hideKeycloakErrorAlert()" aria-hidden="true">&times;</button>
+				<h4><i class="icon fa fa-ban"></i>Registrierung in Keycloak gescheitert</h4>
+				Bei der Registrierung der Rolle in Keycloak ist ein Fehler aufgetreten. Fehlermeldung:
+				<br />
+				<pre style="overflow:auto; max-height:500px;" ng-bind-html="keycloakErrorMessagePart"></pre>
+				<br />
+				<br />
+				Die Rolle kann auch direkt in der Keycloak Administrationsseite angelegt werden. Besuchen Sie dazu				
+					<a ng-href="{{$ctrl.kommonitorKeycloakHelperServiceInstance.targetUrlToKeycloakInstance}}" target="_blank" rel="noopener noreferrer">{{$ctrl.kommonitorKeycloakHelperServiceInstance.targetUrlToKeycloakInstance}}</a>
+					Dort k&ouml;nnen dann auch Nutzer mit der Rolle verkn&uuml;pt werden.
 			</div>
 
 		</div>

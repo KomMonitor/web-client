@@ -3,6 +3,7 @@ angular.module('roleDeleteModal').component('roleDeleteModal', {
 	controller: ['kommonitorDataExchangeService', 'kommonitorKeycloakHelperService', '$scope', '$rootScope', '$http', '__env', '$q', function RoleDeleteModalController(kommonitorDataExchangeService, kommonitorKeycloakHelperService, $scope, $rootScope, $http, __env, $q) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
+		this.kommonitorKeycloakHelperServiceInstance = kommonitorKeycloakHelperService;
 
 		$scope.datasetsToDelete = [];
 
@@ -10,6 +11,8 @@ angular.module('roleDeleteModal').component('roleDeleteModal', {
 
 		$scope.successfullyDeletedDatasets = [];
 		$scope.failedDatasetsAndErrors = [];
+
+		$scope.deleteCorrespondingKeycloakRole = false;
 
 		$scope.affectedSpatialUnits = [];
 		$scope.affectedGeoresources = [];
@@ -160,6 +163,11 @@ angular.module('roleDeleteModal').component('roleDeleteModal', {
 					kommonitorDataExchangeService.availableRoles.splice(index, 1);
 				}
 
+				// delete role in keycloak
+				if($scope.deleteCorrespondingKeycloakRole){
+					$scope.tryDeleteKeycloakRole(dataset);
+				}
+
 			}, function errorCallback(error) {
 				if (error.data) {
 					$scope.failedDatasetsAndErrors.push([dataset, kommonitorDataExchangeService.syntaxHighlightJSON(error.data)]);
@@ -168,6 +176,19 @@ angular.module('roleDeleteModal').component('roleDeleteModal', {
 					$scope.failedDatasetsAndErrors.push([dataset, kommonitorDataExchangeService.syntaxHighlightJSON(error)]);
 				}
 			});
+		};
+
+		$scope.tryDeleteKeycloakRole = function(roleMetadata){
+			try {
+				kommonitorKeycloakHelperService.deleteRole(roleMetadata.roleName);
+			} catch (error) {
+				if (error.data) {
+					$scope.failedDatasetsAndErrors.push([dataset, kommonitorDataExchangeService.syntaxHighlightJSON(error.data)]);
+				}
+				else {
+					$scope.failedDatasetsAndErrors.push([dataset, kommonitorDataExchangeService.syntaxHighlightJSON(error)]);
+				}
+			} 
 		};
 
 		$scope.hideSuccessAlert = function () {

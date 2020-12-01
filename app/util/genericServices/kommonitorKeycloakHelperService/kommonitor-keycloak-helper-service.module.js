@@ -12,9 +12,9 @@ angular.module('kommonitorKeycloakHelper', ['kommonitorDataExchange']);
 angular
   .module('kommonitorKeycloakHelper', [])
   .service(
-    'kommonitorKeycloakHelperService', ['$rootScope', '$timeout', '$http', '__env',
+    'kommonitorKeycloakHelperService', ['$rootScope', '$timeout', '$http', '$httpParamSerializerJQLike', '__env',
     function ($rootScope, $timeout,
-      $http, __env) {
+      $http, $httpParamSerializerJQLike, __env) {
 
       var self = this;
       this.keycloakRoles = [];
@@ -22,6 +22,7 @@ angular
       this.realm = "";
       this.clientId = "";
       this.adminRoleName = "";
+      this.adminRolePassword = "";
 
       this.init = async function () {
         try {
@@ -30,7 +31,8 @@ angular
             self.targetUrlToKeycloakInstance = keycloakConfig['auth-server-url'];
             self.realm = keycloakConfig['realm'];
             self.clientId = keycloakConfig['resource'];
-            self.adminRoleName = keycloakConfig['admin-rolename'];            
+            self.adminRoleName = keycloakConfig['admin-rolename']; 
+            self.adminRolePassword = keycloakConfig["admin-rolepassword"];           
 
             // self.keycloakRoles = await self.fetchRoles();
           });
@@ -38,6 +40,8 @@ angular
           console.error("Error while initializing kommonitorKeycloakHelperService. Error whil fetching and interpreting config file. Error is: " + error);
         }
       };
+
+      this.init();
 
       this.fetchRoles = async function () {
 
@@ -60,8 +64,168 @@ angular
         });
       };
 
-      this.init();
+      this.requestToken = async function(){
+        var parameters = {
+          "username": this.adminRoleName,
+          "password": this.adminRolePassword,
+          "client_id": "admin-cli",
+          "grant_type": "password"
+        };
 
+        return await $http({
+            url: this.targetUrlToKeycloakInstance + "realms/master/protocol/openid-connect/token",
+            method: 'POST',
+            data: $httpParamSerializerJQLike(parameters), // Make sure to inject the service you choose to the controller
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded' // Note the appropriate header
+            }
+          }).then(function successCallback(response) {
+            /*
+            {
+                "access_token": "tokenString",
+                "expires_in": 60,
+                "refresh_expires_in": 1800,
+                "refresh_token": "tokenString",
+                "token_type": "bearer",
+                "not-before-policy": 0,
+                "session_state": "5d9d8418-be24-4641-a47c-3309bb243d8d",
+                "scope": "email profile"
+            }
+          */
+          return response.data;
+  
+          }, function errorCallback(error) {
+            // called asynchronously if an error occurs
+            // or server returns response with an error status.
+            //$scope.error = response.statusText;
+            console.error("Error while requesting auth bearer token from keycloak.");
+            throw error;
 
+        });
+      }; 
+
+      this.postNewRole_withToken = async function(bearerToken, roleName){
+        var rolesBody = {
+          "name": roleName
+        };
+
+        return await $http({
+          url: this.targetUrlToKeycloakInstance + "admin/realms/" + this.realm + "/roles",
+          method: 'POST',
+          data: rolesBody,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': "Bearer " + bearerToken // Note the appropriate header
+          }
+        }).then(function successCallback(response) {
+            // this callback will be called asynchronously
+            // when the response is available
+  
+            return response.data;
+  
+          }, function errorCallback(error) {
+            // called asynchronously if an error occurs
+            // or server returns response with an error status.
+            //$scope.error = response.statusText;
+            console.error("Error while posting role to keycloak.");
+            throw error;
+
+        });
+      };
+
+      this.renameExistingRole_withToken = async function(bearerToken, oldRoleName, newRoleName){
+        var rolesBody = {
+          "name": newRoleName
+        };
+
+        return await $http({
+          url: this.targetUrlToKeycloakInstance + "admin/realms/" + this.realm + "/roles/" + oldRoleName,
+          method: 'PUT',
+          data: rolesBody,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': "Bearer " + bearerToken // Note the appropriate header
+          }
+        }).then(function successCallback(response) {
+            // this callback will be called asynchronously
+            // when the response is available
+  
+            return response.data;
+  
+          }, function errorCallback(error) {
+            // called asynchronously if an error occurs
+            // or server returns response with an error status.
+            //$scope.error = response.statusText;
+            console.error("Error while posting role to keycloak.");
+            throw error;
+
+        });
+      };
+
+      this.deleteRole_withToken = async function(bearerToken, roleName){
+
+        return await $http({
+          url: this.targetUrlToKeycloakInstance + "admin/realms/" + this.realm + "/roles/" + roleName,
+          method: 'DELETE',
+          headers: {
+            'Authorization': "Bearer " + bearerToken // Note the appropriate header
+          }
+        }).then(function successCallback(response) {
+            // this callback will be called asynchronously
+            // when the response is available
+  
+            return response.data;
+  
+          }, function errorCallback(error) {
+            // called asynchronously if an error occurs
+            // or server returns response with an error status.
+            //$scope.error = response.statusText;
+            console.error("Error while deleting role from keycloak.");
+            throw error;
+
+        });
+      };
+
+      this.postNewRole = async function(roleName){
+        try {
+            // first get auth token to make admin requests
+            var tokenResponse = await this.requestToken();
+            var bearerToken = tokenResponse["access_token"];
+
+            // then make admin request
+            return await this.postNewRole_withToken(bearerToken, roleName);  
+        } catch (error) {
+          throw error;
+        }
+        
+      };
+
+      this.renameExistingRole = async function(oldRoleName, newRoleName){
+        try {
+            // first get auth token to make admin requests
+            var tokenResponse = await this.requestToken();
+            var bearerToken = tokenResponse["access_token"];
+
+            // then make admin request
+            return await this.renameExistingRole_withToken(bearerToken, oldRoleName, newRoleName);  
+        } catch (error) {
+          throw error;
+        }
+        
+      };
+
+      this.deleteRole = async function(roleName){
+        try {
+            // first get auth token to make admin requests
+            var tokenResponse = await this.requestToken();
+            var bearerToken = tokenResponse["access_token"];
+
+            // then make admin request
+            return await this.deleteRole_withToken(bearerToken, roleName);  
+        } catch (error) {
+          throw error;
+        }
+        
+      };
 
     }]);
