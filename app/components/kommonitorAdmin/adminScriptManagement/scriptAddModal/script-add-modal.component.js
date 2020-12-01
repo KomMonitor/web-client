@@ -95,7 +95,13 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 				// TODO Create and perform POST Request with loading screen
 
 				try {
-					var addScriptResponse = await kommonitorScriptHelperService.addScript($scope.datasetName, $scope.description, $scope.targetIndicator);
+					var addScriptResponse = await kommonitorScriptHelperService.postNewScript($scope.datasetName, $scope.description, $scope.targetIndicator);					
+
+					$rootScope.$broadcast("refreshScriptOverviewTable");
+
+					// refresh all admin dashboard diagrams due to modified metadata
+					$rootScope.$broadcast("refreshAdminDashboardDiagrams");
+
 					$("#scriptAddSuccessAlert").show();
 					$scope.loadingData = false;
 

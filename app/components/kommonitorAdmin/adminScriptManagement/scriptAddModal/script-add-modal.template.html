@@ -264,7 +264,7 @@
 				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
 
 				<button type="button" class="btn btn-success"
-					ng-disabled="!datasetName || !description || !targetIndicator " ng-click="addScript()">Skript
+					ng-disabled="!datasetName || !description || !targetIndicator || !$ctrl.kommonitorScriptHelperServiceInstance.scriptCode_readableString || (($ctrl.kommonitorScriptHelperServiceInstance.requiredIndicators_tmp.length == 0) && ($ctrl.kommonitorScriptHelperServiceInstance.requiredGeoresources_tmp.length == 0))" ng-click="addScript()">Skript
 					registrieren</button>
 				<button type="button" class="btn btn-danger" ng-click="resetScriptAddForm()">Zur&uuml;cksetzen</button>
 			</div>

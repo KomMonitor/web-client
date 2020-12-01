@@ -55,6 +55,14 @@ angular.module('scriptGeneric').component('scriptGeneric', {
 
 			$scope.scriptCode_readableString_forPreview = undefined;
 
+			$scope.onChangeParameterDataType = function(){
+				$scope.parameterDefaultValue_tmp = undefined;
+
+				if($scope.parameterDataType_tmp.apiName === 'boolean'){
+					$scope.parameterDefaultValue_tmp = false;
+				}
+			};
+
 			$scope.onChangeDefaultValue = function (value) {
 				$scope.parameterDefaultValue_tmp = value;
 			};

@@ -7,7 +7,7 @@ angular
     function ($rootScope, $timeout,
       kommonitorDataExchangeService, $http, __env) {
 
-      this.targetUrlToManagementService = __env.apiUrl + __env.basePath;
+      this.targetUrlToManagementService = __env.apiUrl + __env.basePath + "/";
 
       this.availableScriptDataTypes = [
         {
@@ -125,20 +125,22 @@ angular
           }
         }	
       };
-  
-      this.postNewScript = async function(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, spatiaUnitPostBody_managementAPI, isDryRun){
-        console.log("Trying to POST to importer service to register new spatial unit.");
+
+      this.postNewScript = async function(scriptName, description, targetIndicatorMetadata){
+        console.log("Trying to POST to management service to register new script.");
 
         var postBody = {
-          "converter": converterDefinition,
-          "dataSource": datasourceTypeDefinition,
-          "propertyMapping": propertyMappingDefinition,
-          "spatialUnitPostBody": spatiaUnitPostBody_managementAPI,
-          "dryRun": isDryRun
-        };        
+          "name": scriptName,
+          "description": description,
+          "associatedIndicatorId": targetIndicatorMetadata.indicatorId,
+          "requiredIndicatorIds": this.requiredIndicators_tmp.map(indicatorMetadata => indicatorMetadata.indicatorId),
+          "requiredGeoresourceIds": this.requiredGeoresources_tmp.map(georesourceMetadata => georesourceMetadata.georesourceId),
+          "variableProcessParameters": this.requiredScriptParameters_tmp,
+          "scriptCodeBase64": window.btoa(this.scriptCode_readableString)
+        };             
 
         return await $http({
-          url: this.targetUrlToImporterService + "spatial-units",
+          url: this.targetUrlToManagementService + "process-scripts",
           method: "POST",
           data: postBody,
           headers: {
@@ -156,25 +158,25 @@ angular
             //$scope.error = response.statusText;
             console.error("Error while posting to importer service.");
             throw response;
-        });        
+        });
       };
 
-      this.updateScript = async function(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, spatialUnitId, spatiaUnitPutBody_managementAPI, isDryRun){
+      this.updateScript = async function(scriptName, description, scriptId){
         console.log("Trying to POST to importer service to update spatial unit with id '" + spatialUnitId + "'.");
 
-        var postBody = {
-          "converter": converterDefinition,
-          "dataSource": datasourceTypeDefinition,
-          "propertyMapping": propertyMappingDefinition,
-          "spatialUnitId": spatialUnitId,
-          "spatialUnitPutBody": spatiaUnitPutBody_managementAPI,
-          "dryRun": isDryRun
-        };        
+        var putBody = {
+          "name": scriptName,
+          "description": description,
+          "requiredIndicatorIds": this.requiredIndicators_tmp,
+          "requiredGeoresourceIds": this.requiredGeoresources_tmp,
+          "variableProcessParameters": this.requiredScriptParameters_tmp,
+          "scriptCodeBase64": window.btoa(this.scriptCode_readableString)
+        };       
 
         return await $http({
-          url: this.targetUrlToImporterService + "spatial-units/update",
-          method: "POST",
-          data: postBody,
+          url: this.targetUrlToManagementService + "process-scripts/" + scriptId,
+          method: "PUT",
+          data: putBody,
           headers: {
             'Content-Type': "application/json"
           }

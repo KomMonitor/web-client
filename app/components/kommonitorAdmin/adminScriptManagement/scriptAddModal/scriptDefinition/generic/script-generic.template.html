@@ -305,6 +305,7 @@
 							<label>Datentyp des Parameters*</label>
 							<select ng-model="parameterDataType_tmp" size="5"
 								ng-options="dataType as dataType.displayName for dataType in $ctrl.kommonitorScriptHelperServiceInstance.availableScriptDataTypes"
+								ng-change="onChangeParameterDataType()"
 								class="form-control">
 								<option disabled selected value> -- Parameter-Datentyp w&auml;hlen --
 								</option>
@@ -316,7 +317,7 @@
 						<div class="form-group">
 							<label>Standard-Wert*</label>
 							<div ng-if="parameterDataType_tmp.apiName === 'string'">
-								<input type="text" class="form-control" ng-model="parameterDefaultValue_tmp"
+								<input type="text" class="form-control" ng-model="parameterDefaultValue_tmp" 
 									placeholder="textueller Standard-Wert"
 									ng-change="onChangeDefaultValue(parameterDefaultValue_tmp)" required></input>
 							</div>
@@ -325,13 +326,13 @@
 									ng-change="onChangeDefaultValue(parameterDefaultValue_tmp)" required></input>
 							</div>
 							<div ng-if="parameterDataType_tmp.apiName === 'integer'">
-								<input type="number" step="1" class="form-control" ng-model="parameterDefaultValue_tmp"
+								<input type="number" step="1" class="form-control" ng-model="parameterDefaultValue_tmp" 
 									ng-change="onChangeDefaultValue(parameterDefaultValue_tmp)"
 									placeholder="Ganzzahl Standard-Wert" required></input>
 							</div>
 							<div ng-if="parameterDataType_tmp.apiName === 'double'">
 								<input type="number" step="0.000000001" class="form-control"
-									ng-model="parameterDefaultValue_tmp"
+									ng-model="parameterDefaultValue_tmp" 
 									ng-change="onChangeDefaultValue(parameterDefaultValue_tmp)"
 									placeholder="Gleitkommazahl Standard-Wert" required></input>
 								<div class="help-block">
@@ -426,7 +427,7 @@
 					<div class="col-md-3 col-sm-6 col-xs-12">
 						<div class="form-group">
 							<button class="btn btn-success btn-sm"
-								ng-disabled="!parameterDataType_tmp || !parameterDefaultValue_tmp || !parameterName_tmp || !parameterDescription_tmp"
+								ng-disabled="!parameterDataType_tmp || parameterDefaultValue_tmp == undefined || !parameterName_tmp || !parameterDescription_tmp"
 								ng-click="onAddScriptParameter()">Hinzuf&uuml;gen</button>
 							<div class="help-block with-errors"></div>
 						</div>
