@@ -1,6 +1,6 @@
 angular.module('roleEditMetadataModal').component('roleEditMetadataModal', {
 	templateUrl: "components/kommonitorAdmin/adminRoleManagement/roleEditMetadataModal/role-edit-metadata-modal.template.html",
-	controller: ['kommonitorDataExchangeService', 'kommonitorKeycloakHelperService', '$scope', '$rootScope', '$http', '__env', function RoleEditMetadataModalController(kommonitorDataExchangeService, kommonitorKeycloakHelperService, $scope, $rootScope, $http, __env) {
+	controller: ['kommonitorDataExchangeService', 'kommonitorKeycloakHelperService', '$scope', '$rootScope', '$timeout', '$http', '__env', function RoleEditMetadataModalController(kommonitorDataExchangeService, kommonitorKeycloakHelperService, $scope, $rootScope, $timeout, $http, __env) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 		this.kommonitorKeycloakHelperServiceInstance = kommonitorKeycloakHelperService;
@@ -75,7 +75,8 @@ angular.module('roleEditMetadataModal').component('roleEditMetadataModal', {
 				$scope.loadingData = false;
 
 				try {							
-					await kommonitorKeycloakHelperService.renameExistingRole($scope.oldRoleName);	
+					await kommonitorKeycloakHelperService.renameExistingRole($scope.oldRoleName, $scope.currentRoleDataset.roleName);
+					await kommonitorKeycloakHelperService.fetchAndSetKeycloakRoles();	
 					$("#keycloakRoleEditSuccessAlert").show();
 				} catch (error) {
 					if (error.data) {
@@ -85,8 +86,11 @@ angular.module('roleEditMetadataModal').component('roleEditMetadataModal', {
 						$scope.keycloakErrorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
 					}
 
-					$("#keycloakRoleEditErrorAlert").show();
+					$timeout(function(){
+				
+						$("#keycloakRoleEditErrorAlert").show();
 					$scope.loadingData = false;
+					});
 				}
 
 			}, function errorCallback(error) {

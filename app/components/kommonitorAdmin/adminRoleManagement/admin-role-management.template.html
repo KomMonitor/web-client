@@ -32,14 +32,16 @@
 			<div class="box-body">
 
 				<p>KomMonitor nutzt die Open Source Software <b>Keycloak</b> zwecks Nutzer- und Rollenmanagement. 
-					Nutzer und Rollen sowie deren Zuordnung kann direkt &uuml;ber die Administrations-Oberfl&auml;che der folgenden Keycloak Instanz erfolgen:</p>
+					Die Verwaltung der Nutzer und Rollen sowie deren Zuordnung kann direkt &uuml;ber die Administrations-Oberfl&auml;che der folgenden Keycloak Instanz erfolgen:</p>
 
 				<h4><a ng-href="{{$ctrl.kommonitorKeycloakHelperServiceInstance.targetUrlToKeycloakInstance}}" target="_blank" rel="noopener noreferrer">{{$ctrl.kommonitorKeycloakHelperServiceInstance.targetUrlToKeycloakInstance}}</a></h4>
 
-				<p>Da die Absicherung der in der KomMonitor Datenbank gespeicherten Raumeinheiten, Indikatoren und sonstiger Georessourcen m&uuml;ssen die <b><u><i>Rollen unter Verwendung des gleichen Namens</i></u></b> auch innerhalb der KomMonitor Datenbank registiert werden.</p>
+				<p>Da die Absicherung der in der KomMonitor Datenbank gespeicherten Raumeinheiten, Indikatoren und sonstiger Georessourcen durch Kommunikation zwischen Keycloak und KomMonitor sichergestellt wird, m&uuml;ssen die <b><u><i>Rollen unter Verwendung des gleichen Namens</i></u></b> auch innerhalb der KomMonitor Datenbank registiert werden.</p>
 
-				<p>Die folgenden Rollen-Metadaten werden aus der KomMonitor Datenbank abgerufen. Gegenw&auml;rtig m&uuml;ssen Sie zuerst Rollen in Keycloak anlegen und anschließend diese Rollen mit gleichem Namen nochmals in KomMonitor definieren.</p>
-				<p><i>Hinweis: Eine automatische Synchronisation bzgl. der Rollen zwischen KomMonitor und Keycloak wird in einer k&uuml;nftigen Version von KomMonitor implementiert.</i></p>
+				<p>Die nachfolgend gelisteten Rollen-Metadaten werden aus der KomMonitor Datenbank abgerufen. Die Administrations-Seiten des KomMonitor leiten die Befehle zum Erstellen, Modifizieren und L&ouml;schen der Rollen per REST Request an die Keycloak-Instanz weiter. Beispielsweise wird eine neue Rolle daher sowohl in der KomMOnitor Datenbank angelegt, als auch automatisch 
+					in Keycloak registriert. Dennoch haben Sie jederzeit die M&ouml;glichkeit, die Administrations-Seiten der Keycloak-Instanz &uuml;ber obigen Link aufzurufen, um dort Anpassungen vorzunehmen.
+				</p>
+				<p><i>Wichtiger Hinweis: Die identische Bennenung einer Rolle innerhalb der KomMonitor datenbank und in Keycloak ist die Grundvoraussetzung zur Absicherung einzelner KomMonitor Ressourcen.</i></p>
 
 				<div class="admin-table-wrapper">
 					<table id="roleOverviewTable" datatable="ng"
@@ -53,7 +55,7 @@
 								<th>Editierfunktionen</th>
 								<th>Id</th>
 								<th>Name</th>
-								<!-- <th>in KeyCloak registriert</th> -->
+								<th>in KeyCloak registriert</th>
 							</tr>
 						</thead>
 
@@ -71,7 +73,10 @@
 								</td>
 								<td>{{roleDataset.roleId}}</td>
 								<td>{{roleDataset.roleName}}</td>
-								<!-- <td>{{roleDataset.registeredInKeyCloak}}</td>								 -->
+								<td>
+									<div ng-if="roleDataset.registeredInKeyCloak"><i class="fas fa-check"></i></div>
+									<div ng-if="! roleDataset.registeredInKeyCloak"><i class="fas fa-times"></i></div>
+								</td>								
 							</tr>
 
 						</tbody>
@@ -82,7 +87,7 @@
 								<th>Editierfunktionen</th>
 								<th>Id</th>
 								<th>Name</th>
-								<!-- <th>in KeyCloak registriert</th> -->
+								<th>in KeyCloak registriert</th>
 							</tr>
 						</tfoot>
 					</table>

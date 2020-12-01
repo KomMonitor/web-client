@@ -35,7 +35,7 @@ angular.module('adminRoleManagement').component('adminRoleManagement', {
 			// initialize properties
 			$scope.availableRoleDatasets.forEach(function (dataset) {
 				dataset.isSelected = false;
-				dataset.registeredInKeyCloak = false;
+				dataset.registeredInKeyCloak = kommonitorKeycloakHelperService.isRoleInKeycloak(dataset.roleName);
 			});
 
 			$scope.loadingData = false;
