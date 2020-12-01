@@ -1,7 +1,7 @@
 angular.module('roleAddModal').component('roleAddModal', {
 	templateUrl: "components/kommonitorAdmin/adminRoleManagement/roleAddModal/role-add-modal.template.html",
-	controller: ['kommonitorDataExchangeService', 'kommonitorImporterHelperService', 'kommonitorKeycloakHelperService', '$scope', '$rootScope', '$http', '__env',
-		function SpatialUnitAddModalController(kommonitorDataExchangeService, kommonitorImporterHelperService, kommonitorKeycloakHelperService, $scope, $rootScope, $http, __env) {
+	controller: ['kommonitorDataExchangeService', 'kommonitorImporterHelperService', 'kommonitorKeycloakHelperService', '$scope', '$rootScope', '$timeout', '$http', '__env',
+		function SpatialUnitAddModalController(kommonitorDataExchangeService, kommonitorImporterHelperService, kommonitorKeycloakHelperService, $scope, $rootScope, $timeout, $http, __env) {
 
 			this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 			this.kommonitorImporterHelperServiceInstance = kommonitorImporterHelperService;
@@ -70,10 +70,13 @@ angular.module('roleAddModal').component('roleAddModal', {
 							}
 							else {
 								$scope.keycloakErrorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
-							}
-		
-							$("#keycloakRoleAddErrorAlert").show();
-							$scope.loadingData = false;
+							}		
+
+							$timeout(function(){
+				
+								$("#keycloakRoleAddErrorAlert").show();
+								$scope.loadingData = false;
+							});
 						}
 
 					}, function errorCallback(error) {
@@ -106,7 +109,7 @@ angular.module('roleAddModal').component('roleAddModal', {
 				$("#roleAddErrorAlert").hide();
 			};
 
-			$scope.hideKeycloakErrorAkert = function(){
+			$scope.hideKeycloakErrorAlert = function(){
 				$("#keycloakRoleAddErrorAlert").hide();
 			};
 
