@@ -3,8 +3,10 @@ angular.module('roleEditMetadataModal').component('roleEditMetadataModal', {
 	controller: ['kommonitorDataExchangeService', 'kommonitorKeycloakHelperService', '$scope', '$rootScope', '$http', '__env', function RoleEditMetadataModalController(kommonitorDataExchangeService, kommonitorKeycloakHelperService, $scope, $rootScope, $http, __env) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
+		this.kommonitorKeycloakHelperServiceInstance = kommonitorKeycloakHelperService;
 
 		$scope.currentRoleDataset;
+		$scope.oldRoleName = undefined;
 		$scope.roleNameInvalid = false;
 
 		$scope.loadingData = false;
@@ -15,6 +17,7 @@ angular.module('roleEditMetadataModal').component('roleEditMetadataModal', {
 		$scope.$on("onEditRoleMetadata", function (event, roleDataset) {
 
 			$scope.currentRoleDataset = roleDataset;
+			$scope.oldRoleName = roleDataset.roleName;
 
 			$scope.resetRoleEditMetadataForm();
 
@@ -61,7 +64,7 @@ angular.module('roleEditMetadataModal').component('roleEditMetadataModal', {
 				// headers: {
 				//    'Content-Type': undefined
 				// }
-			}).then(function successCallback(response) {
+			}).then(async function successCallback(response) {
 				// this callback will be called asynchronously
 				// when the response is available
 
@@ -70,6 +73,21 @@ angular.module('roleEditMetadataModal').component('roleEditMetadataModal', {
 				$rootScope.$broadcast("refreshRoleOverviewTable");
 				$("#roleEditMetadataSuccessAlert").show();
 				$scope.loadingData = false;
+
+				try {							
+					await kommonitorKeycloakHelperService.renameExistingRole($scope.oldRoleName);	
+					$("#keycloakRoleEditSuccessAlert").show();
+				} catch (error) {
+					if (error.data) {
+						$scope.keycloakErrorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+					}
+					else {
+						$scope.keycloakErrorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
+					}
+
+					$("#keycloakRoleEditErrorAlert").show();
+					$scope.loadingData = false;
+				}
 
 			}, function errorCallback(error) {
 				if (error.data) {
@@ -91,6 +109,14 @@ angular.module('roleEditMetadataModal').component('roleEditMetadataModal', {
 
 		$scope.hideErrorAlert = function () {
 			$("#roleEditMetadataErrorAlert").hide();
+		};
+
+		$scope.hideKeycloakSuccessAlert = function () {
+			$("#keycloakRoleEditSuccessAlert").hide();
+		};
+
+		$scope.hideKeycloakErrorAlert = function () {
+			$("#keycloakRoleEditErrorAlert").hide();
 		};
 
 

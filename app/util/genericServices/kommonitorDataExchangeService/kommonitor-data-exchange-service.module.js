@@ -1,4 +1,4 @@
-angular.module('kommonitorDataExchange', ['kommonitorMap']);
+angular.module('kommonitorDataExchange', ['kommonitorMap', 'kommonitorKeycloakHelper']);
 
 /**
  * a common serviceInstance that holds all needed properties for a WPS service.
@@ -12,9 +12,9 @@ angular.module('kommonitorDataExchange', ['kommonitorMap']);
 angular
 		.module('kommonitorDataExchange', ['datatables'])
 		.service(
-				'kommonitorDataExchangeService', ['$rootScope', '$timeout', 'kommonitorMapService', '$http', '__env', 'DTOptionsBuilder', '$q', 'Auth',
+				'kommonitorDataExchangeService', ['$rootScope', '$timeout', 'kommonitorMapService', 'kommonitorKeycloakHelperService', '$http', '__env', 'DTOptionsBuilder', '$q', 'Auth',
 				function($rootScope, $timeout,
-						kommonitorMapService, $http, __env, DTOptionsBuilder, $q, Auth,) {
+						kommonitorMapService, kommonitorKeycloakHelperService, $http, __env, DTOptionsBuilder, $q, Auth,) {
 
 							var numberOfDecimals = __env.numberOfDecimals;
 							const DATE_PREFIX = __env.indicatorDatePrefix;
@@ -1180,6 +1180,9 @@ angular
           };
 
           var roleMappingAllowsDisplay = function(indicatorMetadata){
+            if(self.currentKeycloakLoginRoles.includes(kommonitorKeycloakHelperService.adminRoleName)){
+              return true;
+            }            
             var roleMetadataForCurrentKeycloakLoginRoles = self.availableRoles.filter(role => self.currentKeycloakLoginRoles.includes(role.roleName));            
             
             var filteredApplicableUnits = indicatorMetadata.applicableSpatialUnits.filter(function (applicableSpatialUnit) {
