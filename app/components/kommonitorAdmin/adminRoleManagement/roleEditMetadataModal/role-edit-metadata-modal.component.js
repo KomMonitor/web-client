@@ -69,8 +69,7 @@ angular.module('roleEditMetadataModal').component('roleEditMetadataModal', {
 				// when the response is available
 
 				$scope.successMessagePart = $scope.currentRoleDataset.roleName;
-
-				$rootScope.$broadcast("refreshRoleOverviewTable");
+				
 				$("#roleEditMetadataSuccessAlert").show();
 				$scope.loadingData = false;
 
@@ -92,6 +91,8 @@ angular.module('roleEditMetadataModal').component('roleEditMetadataModal', {
 					$scope.loadingData = false;
 					});
 				}
+
+				$rootScope.$broadcast("refreshRoleOverviewTable");
 
 			}, function errorCallback(error) {
 				if (error.data) {

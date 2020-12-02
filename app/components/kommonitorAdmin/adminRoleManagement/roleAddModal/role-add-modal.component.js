@@ -57,9 +57,7 @@ angular.module('roleAddModal').component('roleAddModal', {
 						// this callback will be called asynchronously
 						// when the response is available
 
-						$rootScope.$broadcast("refreshRoleOverviewTable");
 						$("#roleAddSuccessAlert").show();
-						$scope.loadingData = false;
 
 						try {							
 							await kommonitorKeycloakHelperService.postNewRole($scope.roleName);	
@@ -79,6 +77,9 @@ angular.module('roleAddModal').component('roleAddModal', {
 								$scope.loadingData = false;
 							});
 						}
+
+						$rootScope.$broadcast("refreshRoleOverviewTable");						
+						$scope.loadingData = false;
 
 					}, function errorCallback(error) {
 						
