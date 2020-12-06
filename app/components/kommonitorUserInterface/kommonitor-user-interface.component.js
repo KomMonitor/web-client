@@ -62,8 +62,27 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			checkAuthentication();
 		}
 
+		$scope.tryLoginUser_withoutKeycloak = function(){
+			// TODO FIXME make generic user login once user/role concept is implemented
+
+			// currently only simple ADMIN user login is possible
+			console.log("Check user login");
+			if (kommonitorDataExchangeService.adminUserName === $scope.username && kommonitorDataExchangeService.adminPassword === $scope.password){
+				// success login --> currently switch to ADMIN page directly
+				console.log("User Login success - redirect to Admin Page");
+				kommonitorDataExchangeService.adminIsLoggedIn = true;
+				$location.path('/administration');
+			}
+		};
+
 		$scope.tryLoginUser = function(){
-			Auth.keycloak.login();
+			if(kommonitorDataExchangeService.enableKeycloakSecurity){
+				Auth.keycloak.login();
+			}
+			else{
+				$scope.tryLoginUser_withoutKeycloak();
+			}
+			
 		};
 
 		$scope.tryLogoutUser = function() {
@@ -120,7 +139,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			}
 		}
 
-		var getWidgetAccessibility = function() {
+		var getWidgetAccessibility = function() {			
 			var widgetAccessibility = {};
 			var config = ControlsConfigService.getControlsConfig();
 			config.forEach(widget => {
