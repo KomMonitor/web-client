@@ -56,18 +56,24 @@ appModule.
           template: '<kommonitor-admin></kommonitor-admin>',
           resolve: {
             'auth': function(Auth, $q, $location) { 
-              if (Auth.keycloak.authenticated) {
-                if (Auth.keycloak.tokenParsed.realm_access.roles.includes('administrator')) {
-                  return true;
-                } else {
-                  return $q.reject('Not Authenticated');
+              if(window.__env.enableKeycloakSecurity){
+                if (Auth.keycloak.authenticated) {
+                  if (Auth.keycloak.tokenParsed.realm_access.roles.includes('administrator')) {
+                    return true;
+                  } else {
+                    return $q.reject('Not Authenticated');
+                  }
+                }
+                else {
+                  Auth.keycloak.login({
+                    redirectUri: $location.absUrl()
+                  });
                 }
               }
-              else {
-                Auth.keycloak.login({
-                  redirectUri: $location.absUrl()
-                });
+              else{
+
               }
+              
             }
           }
         }).
@@ -93,26 +99,45 @@ if (!env.enableDebug) {
 var auth = {};
 
 angular.element(document).ready(function ($http) {
-  var keycloakAdapter = new Keycloak();
-  keycloakAdapter.init({
-    onLoad: 'check-sso',
-  }).then(function (authenticated) {
-    console.log(authenticated ? 'User is authenticated!' : 'User is not authenticated!');
-    auth.keycloak = keycloakAdapter;
-    appModule.factory('Auth', function () {
-      return auth;
-    })
-    try {
-      console.debug('Trying to bootstrap application.');
-      angular.bootstrap(document, [appModule.name]);
-    }
-    catch (e) {
-      console.error('Application bootstrapping failed.');
-      console.error(e);
-    }
-  }).catch(function () {
-    console.log('Failed to initialize authentication adapter');
-  });
+  if(window.__env.enableKeycloakSecurity){
+    var keycloakAdapter = new Keycloak();  
+    keycloakAdapter.init({
+      onLoad: 'check-sso',
+    }).then(function (authenticated) {
+      console.log(authenticated ? 'User is authenticated!' : 'User is not authenticated!');
+      auth.keycloak = keycloakAdapter;
+      appModule.factory('Auth', function () {
+        return auth;
+      });
+      try {
+        console.debug('Trying to bootstrap application.');
+        angular.bootstrap(document, [appModule.name]);
+      }
+      catch (e) {
+        console.error('Application bootstrapping failed.');
+        console.error(e);
+      }
+    }).catch(function () {      
+      console.log('Failed to initialize authentication adapter');
+    });
+  }
+  else{
+    var keycloakAdapter = new Keycloak();  
+      auth.keycloak = keycloakAdapter;
+      appModule.factory('Auth', function () {
+        return auth;
+      });
+
+      try {
+        console.debug('Trying to bootstrap application.');
+        angular.bootstrap(document, [appModule.name]);
+      }
+      catch (e) {
+        console.error('Application bootstrapping failed.');
+        console.error(e);
+      }  
+  }
+  
 
 });
 
@@ -125,26 +150,28 @@ var isNotUrlThatUsesOwnAuth = function(url){
   return true;
 };
 
-appModule.factory('authInterceptor', ['$q', 'Auth', function ($q, Auth) {
-  return {
-    request: function (config) {
-      var deferred = $q.defer();
-      if (Auth.keycloak.token && isNotUrlThatUsesOwnAuth(config.url)) {
-        Auth.keycloak.updateToken(5).then(function () {
-          config.headers = config.headers || {};
-          config.headers.Authorization = 'Bearer ' + Auth.keycloak.token;
-          deferred.resolve(config);
-        }).catch(function () {
-          deferred.reject('Failed to refresh token');
-        });
-        return deferred.promise;
-      } else {
-        return config;
+if(window.__env.enableKeycloakSecurity){
+  appModule.factory('authInterceptor', ['$q', 'Auth', function ($q, Auth) {
+    return {
+      request: function (config) {
+        var deferred = $q.defer();
+        if (Auth.keycloak.token && isNotUrlThatUsesOwnAuth(config.url)) {
+          Auth.keycloak.updateToken(5).then(function () {
+            config.headers = config.headers || {};
+            config.headers.Authorization = 'Bearer ' + Auth.keycloak.token;
+            deferred.resolve(config);
+          }).catch(function () {
+            deferred.reject('Failed to refresh token');
+          });
+          return deferred.promise;
+        } else {
+          return config;
+        }
       }
-    }
-  };
-}]);
+    };
+  }]);
 
-appModule.config(['$httpProvider', function ($httpProvider) {
-  $httpProvider.interceptors.push('authInterceptor');
-}]);
+  appModule.config(['$httpProvider', function ($httpProvider) {
+    $httpProvider.interceptors.push('authInterceptor');
+  }]);
+}

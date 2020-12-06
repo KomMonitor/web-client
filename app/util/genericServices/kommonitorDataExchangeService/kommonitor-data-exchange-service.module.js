@@ -14,7 +14,7 @@ angular
 		.service(
 				'kommonitorDataExchangeService', ['$rootScope', '$timeout', 'kommonitorMapService', 'kommonitorKeycloakHelperService', '$http', '__env', 'DTOptionsBuilder', '$q', 'Auth',
 				function($rootScope, $timeout,
-						kommonitorMapService, kommonitorKeycloakHelperService, $http, __env, DTOptionsBuilder, $q, Auth,) {
+						kommonitorMapService, kommonitorKeycloakHelperService, $http, __env, DTOptionsBuilder, $q, Auth,) {              
 
 							var numberOfDecimals = __env.numberOfDecimals;
 							const DATE_PREFIX = __env.indicatorDatePrefix;
@@ -49,6 +49,7 @@ angular
 
           var self = this;
 
+          this.enableKeycloakSecurity = __env.enableKeycloakSecurity;
           this.currentKeycloakLoginRoles = [];
           this.currentKomMonitorLoginRoleNames = [];
 
@@ -702,14 +703,14 @@ angular
 
             //TODO revise metadata fecthing for protected endpoints
             // var usersPromise = this.fetchUsersMetadata();            
-            // var scriptsPromise = this.fetchIndicatorScriptsMetadata();
+            var scriptsPromise = this.fetchIndicatorScriptsMetadata();
             var topicsPromise = this.fetchTopicsMetadata();
             var spatialUnitsPromise = this.fetchSpatialUnitsMetadata();
             var georesourcesPromise = this.fetchGeoresourcesMetadata();
             var indicatorsPromise = this.fetchIndicatorsMetadata();
             
             // var metadataPromises = [topicsPromise, usersPromise, rolesPromise, spatialUnitsPromise, georesourcesPromise, indicatorsPromise, scriptsPromise];
-            var metadataPromises = [spatialUnitsPromise, georesourcesPromise, indicatorsPromise, topicsPromise];
+            var metadataPromises = [spatialUnitsPromise, georesourcesPromise, indicatorsPromise, topicsPromise, scriptsPromise];
 
             if (Auth.keycloak.authenticated){
               var rolesPromise = this.fetchRolesMetadata();

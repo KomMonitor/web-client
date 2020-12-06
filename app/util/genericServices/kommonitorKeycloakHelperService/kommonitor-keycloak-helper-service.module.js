@@ -27,14 +27,16 @@ angular
       this.init = async function () {
         try {
           await $http.get('keycloak.json').then(async function (response) {
-            var keycloakConfig = response.data;
+            var keycloakConfig = response.data;            
             self.targetUrlToKeycloakInstance = keycloakConfig['auth-server-url'];
             self.realm = keycloakConfig['realm'];
             self.clientId = keycloakConfig['resource'];
             self.adminRoleName = keycloakConfig['admin-rolename']; 
             self.adminRolePassword = keycloakConfig["admin-rolepassword"];           
 
-            self.fetchAndSetKeycloakRoles();
+            if(__env.enableKeycloakSecurity){
+              self.fetchAndSetKeycloakRoles();
+            }
           });
         } catch (error) {
           console.error("Error while initializing kommonitorKeycloakHelperService. Error while fetching and interpreting config file. Error is: " + error);

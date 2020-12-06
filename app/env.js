@@ -5,6 +5,9 @@
   // Setting this to false will disable console output
   window.__env.enableDebug = true;
 
+  // enable/disable role based access using keycloak
+  window.__env.enableKeycloakSecurity = false;
+
   window.__env.adminUserName = "Admin";
   window.__env.adminPassword = "kmAdmin";
 
