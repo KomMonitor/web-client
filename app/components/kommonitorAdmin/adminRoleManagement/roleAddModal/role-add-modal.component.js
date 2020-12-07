@@ -79,7 +79,10 @@ angular.module('roleAddModal').component('roleAddModal', {
 						}
 
 						$rootScope.$broadcast("refreshRoleOverviewTable");						
-						$scope.loadingData = false;
+						$timeout(function(){
+				
+							$scope.loadingData = false;
+						});	
 
 					}, function errorCallback(error) {
 						

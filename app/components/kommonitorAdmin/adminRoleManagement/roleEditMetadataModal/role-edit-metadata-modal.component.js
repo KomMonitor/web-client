@@ -71,7 +71,10 @@ angular.module('roleEditMetadataModal').component('roleEditMetadataModal', {
 				$scope.successMessagePart = $scope.currentRoleDataset.roleName;
 				
 				$("#roleEditMetadataSuccessAlert").show();
-				$scope.loadingData = false;
+				$timeout(function(){
+				
+					$scope.loadingData = false;
+				});	
 
 				try {							
 					await kommonitorKeycloakHelperService.renameExistingRole($scope.oldRoleName, $scope.currentRoleDataset.roleName);
