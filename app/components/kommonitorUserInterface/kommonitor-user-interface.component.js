@@ -135,9 +135,14 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				}
 				return hasAllowedRole;
 			} else {
-				return false;
+				if(! kommonitorDataExchangeService.enableKeycloakSecurity){
+					return true;
+				}
+				else{
+					return false;
+				}				
 			}
-		}
+		};
 
 		var getWidgetAccessibility = function() {			
 			var widgetAccessibility = {};
@@ -147,11 +152,11 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			});
 			
 			return widgetAccessibility;
-		}
+		};
 
 		$scope.openAdminUI = function () {
 			$location.path('/administration');
-		}
+		};
 
 		$scope.undockButtons = function(){
 			$scope.buttonIndicatorConfigClass = "btn btn-custom btn-circle";
