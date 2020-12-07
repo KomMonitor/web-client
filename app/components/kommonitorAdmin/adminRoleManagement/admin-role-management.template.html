@@ -6,7 +6,7 @@
 			<small>Rollen- und Zugriffs-Management via KeyCloak</small>
 		</h1>
 		
-		<div class="adminTableButtonWrapper">
+		<div class="adminTableButtonWrapper" ng-show="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
 			<button class="btn btn-success btn-sm" type="button" data-toggle="modal"
 				data-target="#modal-add-role"><i class="fas fa-plus"></i>&nbsp;&nbsp;Erstellen</button>
 	
@@ -24,6 +24,24 @@
 	| Your Page Content Here |
 	-------------------------->
 
+	<div ng-show="! $ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
+		<div class="box box-primary">
+			<div class="box-header">
+				<h3 class="box-title">Rollen</h3>
+			</div>
+			<!-- /.box-header -->
+			<div class="box-body">
+
+				<p>KomMonitor nutzt die Open Source Software <b>Keycloak</b> zwecks Nutzer- und Rollenmanagement. 
+					</p>
+				<h4>In der Konfiguration ist der Rollen-basierte Zugriffsschutz jedoch deaktiviert. Es muss zuerst aktiviert und mit einer validen Keycloak-Instanz konfiguriert werden, bevor Rollen verwaltet werden k&ouml;nnen.</h4>	
+			</div>
+			<!-- /.box-body -->
+		</div>
+		<!-- /.box -->
+	</div>
+
+	<div ng-show="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
 		<div class="box box-primary">
 			<div class="box-header">
 				<h3 class="box-title">Rollen</h3>
@@ -97,6 +115,8 @@
 			<!-- /.box-body -->
 		</div>
 		<!-- /.box -->
+	</div>
+		
 
 
 	</section>

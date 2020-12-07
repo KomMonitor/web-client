@@ -98,7 +98,7 @@
 								<button class="btn btn-warning btn-sm" type="button" data-toggle="modal"
 									data-target="#modal-edit-indicator-features" ng-click="onClickEditFeatures(indicatorDataset)"
 									title="Features fortf&uuml;hren"><i class="fas fa-draw-polygon"></i></button>
-								<button class="btn btn-warning btn-sm" type="button" data-toggle="modal"
+								<button class="btn btn-warning btn-sm" type="button" data-toggle="modal" ng-show="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity"
 									data-target="#modal-edit-indicator-spatial-unit-roles" ng-click="onClickEditIndicatorSpatialUnitRoles(indicatorDataset)"
 									ng-disabled="!(indicatorDataset.applicableSpatialUnits.length > 0)"
 									title="Rollenbasierten Zugriffsschutz editieren"><i class="fas fa-user-lock"></i></button>	
