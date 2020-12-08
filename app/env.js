@@ -289,253 +289,58 @@
 
   window.__env.wmsDatasets = [
     {
-      title: "Lärmkartierung - Test",
+      title: "Lärmkartierung",
       description: "Veröffentlichung der Lärmkarten gemäß Lärmkartierung nach Richtlinie 2002/49/EG - EU-Umgebungslärmrichtlinie <br/><br/><b>Maßstabsabhängige Darstellung - ggf. zoomen erforderlich</b>",
-      url: "https://www.wms.nrw.de/umwelt/laerm?",
+      url: "https://www.wms.nrw.de/umwelt/laerm",
       topicReference: "3af3b65e-4792-4998-8531-54616564b5bc",
       layerName:"laerm"	
     },
+    {
+      title: "Flächennutzungskartierung",
+      description: "Die Flächennutzungskartierung (FNK) dokumentiert die Nutzungen der Siedlungs-, Freiflächen und Wirtschaftsflächen im Verbandsgebiet und ist somit eine wichtiges Monitoringinstrument für die Stadt-, Freiraum- und Regionalplanung sowie der Wirtschaftsförderung.<b>Maßstabsabhängige Darstellung - ggf. zoomen erforderlich</b> ",
+      url: "https://geoserver.kartenportal.org/geoserver/regioplaner/ows?",
+      topicReference: "c712af89-ff11-40ff-ad84-b3592901e085",
+      layerName:"fnk_el"	
+    },	
+    {
+      title: "Flächennutzungsplan",
+      description: "Der Flächennutzungsplan (FNP) stellt die beabsichtigte städtebauliche Entwicklung einer Gemeinde für die nächsten 15 bis 20 Jahre dar. Er ist das Ergebnis eines grundsätzlichen politischen sowie fachlichen Planungsprozesses einer Gemeinde.",
+      url: "https://geoserver.kartenportal.org/geoserver/regioplaner/ows?",
+      topicReference: "c712af89-ff11-40ff-ad84-b3592901e085",
+      layerName:"smartd_fnp"	
+    },	
+    {
+      title: "Landesentwicklungsplan NRW",
+      description: "Der LEP NRW ist die fachübergreifende, integrierte Konzeption für die räumliche Entwicklung Nordrhein-Westfalens.",
+      url: "https://geoserver.kartenportal.org/geoserver/regioplaner/ows?",
+      topicReference: "99a41e4d-a8d0-4c5a-83a0-820eb3a6d36d",
+      layerName:"karte_lep_nrw_2017_unkomprimiert"	
+    },	
+    {
+      title: "Regionalplan Teilabschnitt Emscher-Lippe",
+      description: "In Nordrhein-Westfalen werden für die einzelnen Teilräume Regionalpläne (vormals: Gebietsentwicklungspläne) erstellt, die landesplanerische Vorgaben auf Ebene einer Region konkretisieren.",
+      url: "https://geoserver.kartenportal.org/geoserver/regioplaner/ows?",
+      topicReference: "99a41e4d-a8d0-4c5a-83a0-820eb3a6d36d",
+      layerName:"regionalplanEL"	
+    },		
     {
       title: "Unfalldaten 2019",
       description: "Unfalldaten des statistischen Bundesamtes</b>",
       url: "https://www.wms.nrw.de/wms/unfallatlas?",
       topicReference: "7255b83f-feb0-4f01-9dc1-6b355447206d",
-      layerName:"Unfallorte_2019"	
-    },
-    {
-      title: "Lärmkartierung - Flugverkehr 24h-Pegel LDEN",
-      description: "Veröffentlichung der Lärmkarten gemäß Lärmkartierung nach Richtlinie 2002/49/EG - EU-Umgebungslärmrichtlinie <br/><br/><b>Ma&szlig;stabsabh&auml;ngige Darstellung - ggf. zoomen erforderlich</b>",
-      url: "https://www.wms.nrw.de/umwelt/laerm?",
-      topicReference: "e94c8100-3790-4ddd-b977-fe48b4f93e26",
-      layerName: "FLG_DEN"
-    },
-    {
-      title: "Lärmkartierung - Flugverkehr Nachtpegel LNight",
-      description: "Veröffentlichung der Lärmkarten gemäß Lärmkartierung nach Richtlinie 2002/49/EG - EU-Umgebungslärmrichtlinie <br/><br/><b>Ma&szlig;stabsabh&auml;ngige Darstellung - ggf. zoomen erforderlich</b>",
-      url: "https://www.wms.nrw.de/umwelt/laerm?",
-      topicReference: "e94c8100-3790-4ddd-b977-fe48b4f93e26",
-      layerName: "FLG_NGT"
-    },
-    {
-      title: "Lärmkartierung - Industrie 24h-Pegel LDEN",
-      description: "Veröffentlichung der Lärmkarten gemäß Lärmkartierung nach Richtlinie 2002/49/EG - EU-Umgebungslärmrichtlinie <br/><br/><b>Ma&szlig;stabsabh&auml;ngige Darstellung - ggf. zoomen erforderlich</b>",
-      url: "https://www.wms.nrw.de/umwelt/laerm?",
-      topicReference: "e94c8100-3790-4ddd-b977-fe48b4f93e26",
-      layerName: "IND_DEN"
-    },
-    {
-      title: "Lärmkartierung - Industrie Nachtpegel LNight",
-      description: "Veröffentlichung der Lärmkarten gemäß Lärmkartierung nach Richtlinie 2002/49/EG - EU-Umgebungslärmrichtlinie <br/><br/><b>Ma&szlig;stabsabh&auml;ngige Darstellung - ggf. zoomen erforderlich</b>",
-      url: "https://www.wms.nrw.de/umwelt/laerm?",
-      topicReference: "e94c8100-3790-4ddd-b977-fe48b4f93e26",
-      layerName: "IND_NGT"
-    },
-    {
-      title: "Lärmkartierung - Straße 24h-Pegel LDEN",
-      description: "Veröffentlichung der Lärmkarten gemäß Lärmkartierung nach Richtlinie 2002/49/EG - EU-Umgebungslärmrichtlinie <br/><br/><b>Ma&szlig;stabsabh&auml;ngige Darstellung - ggf. zoomen erforderlich</b>",
-      url: "https://www.wms.nrw.de/umwelt/laerm?",
-      topicReference: "e94c8100-3790-4ddd-b977-fe48b4f93e26",
-      layerName: "STR_DEN"
-    },
-    {
-      title: "Lärmkartierung - Straße Nachtpegel LNight",
-      description: "Veröffentlichung der Lärmkarten gemäß Lärmkartierung nach Richtlinie 2002/49/EG - EU-Umgebungslärmrichtlinie <br/><br/><b>Ma&szlig;stabsabh&auml;ngige Darstellung - ggf. zoomen erforderlich</b>",
-      url: "https://www.wms.nrw.de/umwelt/laerm?",
-      topicReference: "e94c8100-3790-4ddd-b977-fe48b4f93e26",
-      layerName: "STR_NGT"
-    },
-    {
-      title: "Lärmkartierung - Schiene sonstige 24h-Pegel LDEN",
-      description: "Veröffentlichung der Lärmkarten gemäß Lärmkartierung nach Richtlinie 2002/49/EG - EU-Umgebungslärmrichtlinie <br/><br/><b>Ma&szlig;stabsabh&auml;ngige Darstellung - ggf. zoomen erforderlich</b>",
-      url: "https://www.wms.nrw.de/umwelt/laerm?",
-      topicReference: "e94c8100-3790-4ddd-b977-fe48b4f93e26",
-      layerName: "SCS_DEN"
-    },
-    {
-      title: "Lärmkartierung - Schiene sonstige Nachtpegel LNight",
-      description: "Veröffentlichung der Lärmkarten gemäß Lärmkartierung nach Richtlinie 2002/49/EG - EU-Umgebungslärmrichtlinie <br/><br/><b>Ma&szlig;stabsabh&auml;ngige Darstellung - ggf. zoomen erforderlich</b>",
-      url: "https://www.wms.nrw.de/umwelt/laerm?",
-      topicReference: "e94c8100-3790-4ddd-b977-fe48b4f93e26",
-      layerName: "SCS_NGT"
-    },
-    {
-      title: "Lärmkartierung - Schiene Bund 24h-Pegel LDEN",
-      description: "Veröffentlichung der Lärmkarten gemäß Lärmkartierung nach Richtlinie 2002/49/EG - EU-Umgebungslärmrichtlinie <br/><br/><b>Ma&szlig;stabsabh&auml;ngige Darstellung - ggf. zoomen erforderlich</b>",
-      url: "https://www.wms.nrw.de/umwelt/laerm?",
-      topicReference: "e94c8100-3790-4ddd-b977-fe48b4f93e26",
-      layerName: "SCB_DEN"
-    },
-    {
-      title: "Lärmkartierung - Schiene Bund Nachtpegel LNight",
-      description: "Veröffentlichung der Lärmkarten gemäß Lärmkartierung nach Richtlinie 2002/49/EG - EU-Umgebungslärmrichtlinie <br/><br/><b>Ma&szlig;stabsabh&auml;ngige Darstellung - ggf. zoomen erforderlich</b>",
-      url: "https://www.wms.nrw.de/umwelt/laerm?",
-      topicReference: "e94c8100-3790-4ddd-b977-fe48b4f93e26",
-      layerName: "SCB_NGT"
-    },
-    // {
-    //   title: "Lärmkartierung - Gebaeude",
-    //   description: "Veröffentlichung der Lärmkarten gemäß Lärmkartierung nach Richtlinie 2002/49/EG - EU-Umgebungslärmrichtlinie <br/><br/><b>Ma&szlig;stabsabh&auml;ngige Darstellung - ggf. zoomen erforderlich</b>",
-    //   url: "https://www.wms.nrw.de/umwelt/laerm?",
-    //   layerName: "Gebaeude"
-    // },
-    // {
-    //   title: "Lärmkartierung - Modell",
-    //   description: "Veröffentlichung der Lärmkarten gemäß Lärmkartierung nach Richtlinie 2002/49/EG - EU-Umgebungslärmrichtlinie <br/><br/><b>Ma&szlig;stabsabh&auml;ngige Darstellung - ggf. zoomen erforderlich</b>",
-    //   url: "https://www.wms.nrw.de/umwelt/laerm?",
-    //   layerName: "Modell"
-    // },
-    {
-      title: "Versiegelungsgrad - 2006 anhand von Copernicus Satellitendaten - 20m Rasterzellen",
-      description: "Mehr Informationen unter <a href='https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness' rel='noopener noreferrer' target='_blank'>https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness</a>",
-      url: "https://image.discomap.eea.europa.eu/arcgis/services/GioLandPublic/HRL_ImperviousnessDensity_2006/MapServer/WMSServer?",
-      topicReference: "c46ecf8b-3f77-4be6-9ec1-851dc48e3eb8",
-      layerName: "0"
-    },
-    {
-      title: "Versiegelungsgrad - 2009 anhand von Copernicus Satellitendaten - 20m Rasterzellen",
-      description: "Mehr Informationen unter <a href='https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness' rel='noopener noreferrer' target='_blank'>https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness</a>",
-      url: "https://image.discomap.eea.europa.eu/arcgis/services/GioLandPublic/HRL_ImperviousnessDensity_2009/MapServer/WMSServer?",
-      topicReference: "c46ecf8b-3f77-4be6-9ec1-851dc48e3eb8",
-      layerName: "0"
-    },
-    {
-      title: "Versiegelungsgrad - 2012 anhand von Copernicus Satellitendaten - 20m Rasterzellen",
-      description: "Mehr Informationen unter <a href='https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness' rel='noopener noreferrer' target='_blank'>https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness</a>",
-      url: "https://image.discomap.eea.europa.eu/arcgis/services/GioLandPublic/HRL_Imperviousness_Density_2012/MapServer/WMSServer?",
-      topicReference: "c46ecf8b-3f77-4be6-9ec1-851dc48e3eb8",
-      layerName: "Imperviousness density 2012 20m"
-    },
-    {
-      title: "Versiegelungsgrad - 2015 anhand von Copernicus Satellitendaten - 20m Rasterzellen",
-      description: "Mehr Informationen unter <a href='https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness' rel='noopener noreferrer' target='_blank'>https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness</a>",
-      url: "https://image.discomap.eea.europa.eu/arcgis/services/GioLandPublic/HRL_ImperviousnessDensity_2015/MapServer/WMSServer?",
-      topicReference: "c46ecf8b-3f77-4be6-9ec1-851dc48e3eb8",
-      layerName: "0"
-    },
-    {
-      title: "Versiegelungsgrad - Ver&auml;nderung 2006-2009 anhand von Copernicus Satellitendaten - 20m Rasterzellen",
-      description: "Mehr Informationen unter <a href='https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness' rel='noopener noreferrer' target='_blank'>https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness</a>",
-      url: "https://image.discomap.eea.europa.eu/arcgis/services/GioLandPublic/HRL_ImperviousnessChange_06_09/MapServer/WMSServer?",
-      topicReference: "c46ecf8b-3f77-4be6-9ec1-851dc48e3eb8",
-      layerName: "0"
-    },
-    {
-      title: "Versiegelungsgrad - Ver&auml;nderung 2009-2012 anhand von Copernicus Satellitendaten - 20m Rasterzellen",
-      description: "Mehr Informationen unter <a href='https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness' rel='noopener noreferrer' target='_blank'>https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness</a>",
-      url: "https://image.discomap.eea.europa.eu/arcgis/services/GioLandPublic/HRL_ImperviousnessChange_09_12/MapServer/WMSServer?",
-      topicReference: "c46ecf8b-3f77-4be6-9ec1-851dc48e3eb8",
-      layerName: "Imperviousness density change 09-12 20m"
-    },
-    {
-      title: "Versiegelungsgrad - Ver&auml;nderung 2012-2015 anhand von Copernicus Satellitendaten - 20m Rasterzellen",
-      description: "Mehr Informationen unter <a href='https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness' rel='noopener noreferrer' target='_blank'>https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness</a>",
-      url: "https://image.discomap.eea.europa.eu/arcgis/services/GioLandPublic/HRL_ImperviousnessChange_12_15/MapServer/WMSServer?",
-      topicReference: "c46ecf8b-3f77-4be6-9ec1-851dc48e3eb8",
-      layerName: "0"
-    },
-    {
-      title: "Versiegelungsgrad - Klassifizierte Ver&auml;nderung 2006-2009 anhand von Copernicus Satellitendaten - 20m Rasterzellen",
-      description: "Mehr Informationen unter <a href='https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness' rel='noopener noreferrer' target='_blank'>https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness</a>",
-      url: "https://image.discomap.eea.europa.eu/arcgis/services/GioLandPublic/HRL_ImperviousnessClassifiedChange_06_09/MapServer/WMSServer?",
-      topicReference: "c46ecf8b-3f77-4be6-9ec1-851dc48e3eb8",
-      layerName: "0"
-    },
-    {
-      title: "Versiegelungsgrad - Klassifizierte Ver&auml;nderung 2009-2012 anhand von Copernicus Satellitendaten - 20m Rasterzellen",
-      description: "Mehr Informationen unter <a href='https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness' rel='noopener noreferrer' target='_blank'>https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness</a>",
-      url: "https://image.discomap.eea.europa.eu/arcgis/services/GioLandPublic/HRL_ImperviousnessClassifiedChange_09_12/MapServer/WMSServer?",
-      topicReference: "c46ecf8b-3f77-4be6-9ec1-851dc48e3eb8",
-      layerName: "0"
-    },
-    {
-      title: "Versiegelungsgrad - Klassifizierte Ver&auml;nderung 2012-2015 anhand von Copernicus Satellitendaten - 20m Rasterzellen",
-      description: "Mehr Informationen unter <a href='https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness' rel='noopener noreferrer' target='_blank'>https://land.copernicus.eu/pan-european/high-resolution-layers/imperviousness</a>",
-      url: "https://image.discomap.eea.europa.eu/arcgis/services/GioLandPublic/HRL_ImperviousnessChange_12_15/MapServer/WMSServer?",
-      topicReference: "c46ecf8b-3f77-4be6-9ec1-851dc48e3eb8",
-      layerName: "0"
+      layerName:"Unfallorte_2019" 
     },
     {
       title: "Bodennutzung - Bebauungsplanumringe",
       description: "Umringe der Bebauungspl&auml;ne gem&auml;&szlig; geodaten.metropoleruhr.de",
       url: "https://geodaten.metropoleruhr.de/inspire/bodennutzung/metropoleruhr?",
-      topicReference: null,
+      topicReference: "c712af89-ff11-40ff-ad84-b3592901e085",
       layerName: "bplan"
     }
+
   ];
 
-  window.__env.wfsDatasets = [    
-    {
-      title: "Bodennutzung - Bebauungsplanumringe",
-      description: "Umringe der Bebauungspl&auml;ne gem&auml;&szlig; geodaten.metropoleruhr.de. <b>WFS-Dienst unterst&uuml;tzt keine r&auml;umllichen Filter. Daher m&uuml;ssen zwingend alle Features abgerufen werden</b>.",
-      url: "https://geodaten.metropoleruhr.de/inspire/bodennutzung/metropoleruhr?",
-      featureTypeNamespace: "ms",
-      featureTypeName: "bplan_stand",
-      featureTypeGeometryName: "geom",
-      geometryType: "AOI", // POI|LOI|AOI
-      poiSymbolColor: "white", // ['white', 'red', 'orange', 'beige', 'green', 'blue', 'purple', 'pink', 'gray', 'black']
-      poiMarkerColor: "red", // ['white', 'red', 'orange', 'beige', 'green', 'blue', 'purple', 'pink', 'gray', 'black']
-      poiSymbolBootstrap3Name: "home",
-      loiColor: "#00aabb",
-      loiWidth: 3,
-      loiDashArrayString: "",
-      aoiColor: "#00aabb",
-      filterFeaturesToMapBBOX: false,
-      filterEncoding: {
-        // PropertyIsEqualTo: {
-        //   propertyName: undefined,
-        //   propertyValue: undefined
-      // }
-      },
-      topicReference: "c712af89-ff11-40ff-ad84-b3592901e085"
-    },
-    {
-      title: "Bodennutzung - Bebauungsplanumringe 2",
-      description: "Umringe der Bebauungspl&auml;ne gem&auml;&szlig; geodaten.metropoleruhr.de. <b>WFS-Dienst unterst&uuml;tzt keine r&auml;umllichen Filter. Daher m&uuml;ssen zwingend alle Features abgerufen werden</b>.",
-      url: "https://geodaten.metropoleruhr.de/inspire/bodennutzung/metropoleruhr?",
-      featureTypeNamespace: "ms",
-      featureTypeName: "bplan_stand",
-      featureTypeGeometryName: "the_geom",
-      geometryType: "AOI", // POI|LOI|AOI
-      poiSymbolColor: "white", // ['white', 'red', 'orange', 'beige', 'green', 'blue', 'purple', 'pink', 'gray', 'black']
-      poiMarkerColor: "red", // ['white', 'red', 'orange', 'beige', 'green', 'blue', 'purple', 'pink', 'gray', 'black']
-      poiSymbolBootstrap3Name: "home",
-      loiColor: "#00aabb",
-      loiWidth: 3,
-      loiDashArrayString: "",
-      aoiColor: "#00aabb",
-      filterFeaturesToMapBBOX: false,
-      filterEncoding: {
-        // PropertyIsEqualTo: {
-        //   propertyName: undefined,
-        //   propertyValue: undefined
-      // }
-      },
-      topicReference: "c712af89-ff11-40ff-ad84-b3592901e085"
-    },
-    {
-      title: "Infr Test",
-      description: "Standorte von Bäckereien",
-      url: "https://geoserver.kartenportal.org/geoserver/smartdemography/ows?",
-      featureTypeNamespace: "smartdemography",
-      featureTypeName: "sd_infrastruktur_p",
-      featureTypeGeometryName: "the_geom",
-      geometryType: "POI", // POI|LOI|AOI
-      poiSymbolColor: "white", // ['white', 'red', 'orange', 'beige', 'green', 'blue', 'purple', 'pink', 'gray', 'black']
-      poiMarkerColor: "red", // ['white', 'red', 'orange', 'beige', 'green', 'blue', 'purple', 'pink', 'gray', 'black']
-      poiSymbolBootstrap3Name: "home",
-      loiColor: "#00aabb",
-      loiWidth: 3,
-      loiDashArrayString: "",
-      aoiColor: "#00aabb",
-      filterFeaturesToMapBBOX: false,
-      filterEncoding: {
-        // PropertyIsEqualTo: {
-        //   propertyName: "beschreibung",
-        //   propertyValue: "Bäckerei"
-        // }
-      },
-      topicReference: "68f49954-8cb9-4d33-b478-dbad949be0e1"
-    }
+  window.__env.wfsDatasets = [ 
   ];
 
 // }(this));
