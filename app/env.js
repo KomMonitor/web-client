@@ -6,7 +6,7 @@
   window.__env.enableDebug = true;
 
   // enable/disable role based access using keycloak
-  window.__env.enableKeycloakSecurity = false;
+  window.__env.enableKeycloakSecurity = true;
 
   // encrypted data transfer from Data Management API settings
   window.__env.encryption = {
