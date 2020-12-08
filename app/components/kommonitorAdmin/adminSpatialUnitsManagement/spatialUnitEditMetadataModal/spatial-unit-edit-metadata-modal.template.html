@@ -42,11 +42,20 @@
 					<form role="form" class="multiStepForm form-group" data-toggle="validator" style="margin-bottom: 0px;">
 						
 						<!-- progressbar -->
-						<ul id="progressbar">
-							<li style="width: 33.33%;" class="active">Metadaten der Raumeinheit</li>
-							<li style="width: 33.33%;">Allgemeine Metadaten</li>
-							<li style="width: 33.33%;">Rollenbasierter Zugriffsschutz</li>							
-						</ul>
+						<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
+							<ul id="progressbar">
+								<li style="width: 33.33%;" class="active">Metadaten der Raumeinheit</li>
+								<li style="width: 33.33%;">Allgemeine Metadaten</li>
+								<li style="width: 33.33%;">Rollenbasierter Zugriffsschutz</li>							
+							</ul>
+						</div>
+						<div ng-if="! $ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
+							<ul id="progressbar">
+								<li style="width: 50%;" class="active">Metadaten der Raumeinheit</li>
+								<li style="width: 50%;">Allgemeine Metadaten</li>						
+							</ul>
+						</div>
+						
 
 						
 						<fieldset>
@@ -200,27 +209,30 @@
 
 							
 							<input type="button" name="previous" class="previous previous_editSpatialUnit action-button-previous" value="Voriger Schritt"/>
-							<input type="button" name="next" class="next next_editSpatialUnit action-button" value="N&auml;chster Schritt"/>
+							<input type="button" name="next" class="next next_editSpatialUnit action-button" value="N&auml;chster Schritt" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity"/>
 						</fieldset>	
 
-						<fieldset>
-							<h2 class="fs-title">Rollenbasierter Zugriffsschutz (Optional)</h2>
-							<h3 class="fs-subtitle">Angabe ob nur ausgew&auml;hlte Rollen Zugriff auf Datensatz-Metadaten und -Features erhalten sollen</h3>
-
-							<p>Klicken Sie ein oder mehrere der verf&uuml;gbaren Rollen aus der linken &Uuml;bersicht an, um den Zugriff auf den Datensatz auf diese Rollen einzuschr&auml;nken.</p>
-
-							<p>Der Zugriff ist nur f&uuml;r die Rollen erlaubt, die im rechten &Uuml;bersichtsfenster gelistet sind.</p>
-
-							<p>Wird keine Rolle selektiert, so ist der Datensatz ohne Zugriffsbeschr&auml;nkung abrufbar.</p>
-
-							<div class="row no-margin">
-								<div class="col-md">
-									<excalibur-dual-list ng-model='allowedRoleNames.selectedItems' options="duallist.duallistRoleOptions"></excalibur-dual-list>
+						<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
+							<fieldset>
+								<h2 class="fs-title">Rollenbasierter Zugriffsschutz (Optional)</h2>
+								<h3 class="fs-subtitle">Angabe ob nur ausgew&auml;hlte Rollen Zugriff auf Datensatz-Metadaten und -Features erhalten sollen</h3>
+	
+								<p>Klicken Sie ein oder mehrere der verf&uuml;gbaren Rollen aus der linken &Uuml;bersicht an, um den Zugriff auf den Datensatz auf diese Rollen einzuschr&auml;nken.</p>
+	
+								<p>Der Zugriff ist nur f&uuml;r die Rollen erlaubt, die im rechten &Uuml;bersichtsfenster gelistet sind.</p>
+	
+								<p>Wird keine Rolle selektiert, so ist der Datensatz ohne Zugriffsbeschr&auml;nkung abrufbar.</p>
+	
+								<div class="row no-margin">
+									<div class="col-md">
+										<excalibur-dual-list ng-model='allowedRoleNames.selectedItems' options="duallist.duallistRoleOptions"></excalibur-dual-list>
+									</div>
 								</div>
-							</div>
-							
-							<input type="button" name="previous" class="previous previous_editSpatialUnit action-button-previous" value="Voriger Schritt"/>
-						</fieldset>
+								
+								<input type="button" name="previous" class="previous previous_editSpatialUnit action-button-previous" value="Voriger Schritt"/>
+							</fieldset>
+						</div>
+						
 
 						</form>
 					

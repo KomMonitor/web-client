@@ -1,16 +1,17 @@
 angular.module('roleAddModal').component('roleAddModal', {
 	templateUrl: "components/kommonitorAdmin/adminRoleManagement/roleAddModal/role-add-modal.template.html",
-	controller: ['kommonitorDataExchangeService', 'kommonitorImporterHelperService', 'kommonitorKeycloakHelperService', '$scope', '$rootScope', '$http', '__env',
-		function SpatialUnitAddModalController(kommonitorDataExchangeService, kommonitorImporterHelperService, kommonitorKeycloakHelperService, $scope, $rootScope, $http, __env) {
+	controller: ['kommonitorDataExchangeService', 'kommonitorImporterHelperService', 'kommonitorKeycloakHelperService', '$scope', '$rootScope', '$timeout', '$http', '__env',
+		function SpatialUnitAddModalController(kommonitorDataExchangeService, kommonitorImporterHelperService, kommonitorKeycloakHelperService, $scope, $rootScope, $timeout, $http, __env) {
 
 			this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 			this.kommonitorImporterHelperServiceInstance = kommonitorImporterHelperService;
+			this.kommonitorKeycloakHelperServiceInstance = kommonitorKeycloakHelperService;
 
 			$scope.loadingData = false;
 			$scope.roleName = undefined;
 			$scope.roleNameInvalid = false;
-			$scope.successMessagePart = undefined;
 			$scope.errorMessagePart = undefined;
+			$scope.keycloakErrorMessagePart = undefined;
 
 			$scope.checkRoleName = function(){
 				$scope.roleNameInvalid = false;
@@ -25,8 +26,8 @@ angular.module('roleAddModal').component('roleAddModal', {
 			$scope.resetRoleAddForm = function () {
 				$scope.roleName = undefined;
 
-				$scope.successMessagePart = undefined;
 				$scope.errorMessagePart = undefined;
+				$scope.keycloakErrorMessagePart = undefined;
 
 				setTimeout(() => {
 					$scope.$apply();
@@ -34,34 +35,59 @@ angular.module('roleAddModal').component('roleAddModal', {
 			};
 
 			$scope.addRole = async function () {
-				$scope.successMessagePart = undefined;
 				$scope.errorMessagePart = undefined;
+				$scope.keycloakErrorMessagePart = undefined;
 
-				var postBody =
-				{
-					"roleName": $scope.roleName
-				};
+				try {
+					var postBody =
+					{
+						"roleName": $scope.roleName
+					};
 
-				$scope.loadingData = true;
+					$scope.loadingData = true;
 
-				$http({
-					url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/roles",
-					method: "POST",
-					data: postBody
-					// headers: {
-					//    'Content-Type': 'application/json'
-					// }
-				}).then(function successCallback(response) {
-					// this callback will be called asynchronously
-					// when the response is available
+					$http({
+						url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/roles",
+						method: "POST",
+						data: postBody
+						// headers: {
+						//    'Content-Type': 'application/json'
+						// }
+					}).then(async function successCallback(response) {
+						// this callback will be called asynchronously
+						// when the response is available
 
-					$scope.successMessagePart = $scope.roleName;
+						$("#roleAddSuccessAlert").show();
 
-					$rootScope.$broadcast("refreshRoleOverviewTable");
-					$("#roleAddSuccessAlert").show();
-					$scope.loadingData = false;
+						try {							
+							await kommonitorKeycloakHelperService.postNewRole($scope.roleName);	
+							await kommonitorKeycloakHelperService.fetchAndSetKeycloakRoles();
+							$("#keycloakRoleAddSuccessAlert").show();
+						} catch (error) {
+							if (error.data) {
+								$scope.keycloakErrorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+							}
+							else {
+								$scope.keycloakErrorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
+							}		
 
-				}, function errorCallback(error) {
+							$timeout(function(){
+				
+								$("#keycloakRoleAddErrorAlert").show();
+								$scope.loadingData = false;
+							});
+						}
+
+						$rootScope.$broadcast("refreshRoleOverviewTable");						
+						$timeout(function(){
+				
+							$scope.loadingData = false;
+						});	
+
+					}, function errorCallback(error) {
+						
+					});
+				} catch (error) {
 					if (error.data) {
 						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
 					}
@@ -69,21 +95,27 @@ angular.module('roleAddModal').component('roleAddModal', {
 						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
 					}
 
-					$("#georesourceEditMetadataErrorAlert").show();
+					$("#roleAddErrorAlert").show();
 					$scope.loadingData = false;
+				}
 
-					// setTimeout(function() {
-					// 		$("#georesourceEditMetadataSuccessAlert").hide();
-					// }, 3000);
-				});
+				
 			};
 
 			$scope.hideSuccessAlert = function () {
 				$("#roleAddSuccessAlert").hide();
 			};
 
+			$scope.hideKeycloakSuccessAlert = function () {
+				$("#keycloakRoleAddSuccessAlert").hide();
+			};
+
 			$scope.hideErrorAlert = function () {
 				$("#roleAddErrorAlert").hide();
+			};
+
+			$scope.hideKeycloakErrorAlert = function(){
+				$("#keycloakRoleAddErrorAlert").hide();
 			};
 
 		}

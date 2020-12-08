@@ -199,6 +199,14 @@ MULTI STEP FORM
     text-align: center;
 }
 
+#userLoginForm_withoutKeycloak{
+    display: block;
+}
+
+#userLoginForm_withoutKeycloak h4, span {
+    text-align: center;
+}
+
 :root {
         --body_gradient_left:#7200D0;
         --body_gradient_right: #C800C1;

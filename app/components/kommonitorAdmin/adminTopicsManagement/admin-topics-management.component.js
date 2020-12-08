@@ -1,6 +1,6 @@
 angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 	templateUrl : "components/kommonitorAdmin/adminTopicsManagement/admin-topics-management.template.html",
-	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '__env', '$http', function TopicsManagementController(kommonitorDataExchangeService, $scope, $rootScope, __env, $http) {
+	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '__env', '$http', '$timeout', function TopicsManagementController(kommonitorDataExchangeService, $scope, $rootScope, __env, $http, $timeout) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
@@ -98,7 +98,10 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 					// refresh all admin dashboard diagrams due to modified metadata
 					$rootScope.$broadcast("refreshAdminDashboardDiagrams");
 
-					$scope.loadingData = false;
+					$timeout(function(){
+				
+						$scope.loadingData = false;
+					});					
 
 				}, function errorCallback(error) {
 					if(error.data){							
@@ -109,7 +112,10 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 					}
 
 					$("#topicsErrorAlert").show();
-					$scope.loadingData = false;
+					$timeout(function(){
+				
+						$scope.loadingData = false;
+					});	
 
 					// setTimeout(function() {
 					// 		$("#spatialUnitAddSucessAlert").hide();
@@ -180,7 +186,10 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 					// refresh all admin dashboard diagrams due to modified metadata
 					$rootScope.$broadcast("refreshAdminDashboardDiagrams");
 
-					$scope.loadingData = false;
+					$timeout(function(){
+				
+						$scope.loadingData = false;
+					});	
 
 				}, function errorCallback(error) {
 					if(error.data){							
@@ -191,7 +200,10 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 					}
 
 					$("#topicsErrorAlert").show();
-					$scope.loadingData = false;
+					$timeout(function(){
+				
+						$scope.loadingData = false;
+					});	
 
 					// setTimeout(function() {
 					// 		$("#spatialUnitAddSucessAlert").hide();
@@ -269,7 +281,10 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 					// refresh all admin dashboard diagrams due to modified metadata
 					$rootScope.$broadcast("refreshAdminDashboardDiagrams");
 
-					$scope.loadingData = false;
+					$timeout(function(){
+				
+						$scope.loadingData = false;
+					});	
 
 				}, function errorCallback(error) {
 					if(error.data){							
@@ -280,7 +295,10 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 					}
 
 					$("#topicsErrorAlert").show();
-					$scope.loadingData = false;
+					$timeout(function(){
+				
+						$scope.loadingData = false;
+					});	
 
 					// setTimeout(function() {
 					// 		$("#spatialUnitAddSucessAlert").hide();
@@ -349,7 +367,10 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 					// refresh all admin dashboard diagrams due to modified metadata
 					$rootScope.$broadcast("refreshAdminDashboardDiagrams");
 
-					$scope.loadingData = false;
+					$timeout(function(){
+				
+						$scope.loadingData = false;
+					});	
 
 				}, function errorCallback(error) {
 					if(error.data){							
@@ -360,7 +381,10 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 					}
 
 					$("#topicsErrorAlert").show();
-					$scope.loadingData = false;
+					$timeout(function(){
+				
+						$scope.loadingData = false;
+					});	
 
 					// setTimeout(function() {
 					// 		$("#spatialUnitAddSucessAlert").hide();
@@ -391,7 +415,10 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 
 					$scope.refreshTopicsOverview();
 
-					$scope.loadingData = false;
+					$timeout(function(){
+				
+						$scope.loadingData = false;
+					});	
 
 				}, function errorCallback(error) {
 					if(error.data){							
@@ -402,7 +429,10 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 					}
 
 					$("#topicsErrorAlert").show();
-					$scope.loadingData = false;
+					$timeout(function(){
+				
+						$scope.loadingData = false;
+					});	
 
 					// setTimeout(function() {
 					// 		$("#spatialUnitAddSucessAlert").hide();

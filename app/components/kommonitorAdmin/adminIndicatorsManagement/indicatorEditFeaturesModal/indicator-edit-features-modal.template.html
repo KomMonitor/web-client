@@ -236,23 +236,26 @@
 								</div>							
 							</div>
 
-							<hr>
+							<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
+								<hr>
+
+								<br/>
+
+								<h4>Rollenbasierter Zeitreihen-Zugriffsschutz f&uuml;r Raumebene {{targetSpatialUnitMetadata.spatialUnitLevel}} (Optional)</h4>
+
+								<p>Klicken Sie ein oder mehrere der verf&uuml;gbaren Rollen aus der linken &Uuml;bersicht an, um den Zugriff auf die Zeitreihen-Daten des Indikators auf der ausgew&auml;hlten Raumebene f&uuml;r diese Rollen einzuschr&auml;nken. Der Zugriff ist nur f&uuml;r die Rollen erlaubt, die im rechten &Uuml;bersichtsfenster gelistet sind.</p>
+								<p>Wird keine Rolle selektiert, so sind die Zeitreihendaten des Indikator-Datensatzes auf der gew&auml;hlten Raumebene ohne Zugriffsbeschr&auml;nkung abrufbar.</p>
+
+								<div class="row no-margin">
+									<div class="col-md">
+										<excalibur-dual-list ng-model='allowedRoleNames.selectedItems' options="duallist.duallistRoleOptions"></excalibur-dual-list>
+									</div>
+								</div>								
 
 							<br/>
 
-							<h4>Rollenbasierter Zeitreihen-Zugriffsschutz f&uuml;r Raumebene {{targetSpatialUnitMetadata.spatialUnitLevel}} (Optional)</h4>
-
-							<p>Klicken Sie ein oder mehrere der verf&uuml;gbaren Rollen aus der linken &Uuml;bersicht an, um den Zugriff auf die Zeitreihen-Daten des Indikators auf der ausgew&auml;hlten Raumebene f&uuml;r diese Rollen einzuschr&auml;nken. Der Zugriff ist nur f&uuml;r die Rollen erlaubt, die im rechten &Uuml;bersichtsfenster gelistet sind.</p>
-							<p>Wird keine Rolle selektiert, so sind die Zeitreihendaten des Indikator-Datensatzes auf der gew&auml;hlten Raumebene ohne Zugriffsbeschr&auml;nkung abrufbar.</p>
-
-							<div class="row no-margin">
-								<div class="col-md">
-									<excalibur-dual-list ng-model='allowedRoleNames.selectedItems' options="duallist.duallistRoleOptions"></excalibur-dual-list>
-								</div>
-							</div>								
-
-							<br/>
-
+							</div>
+							
 							<hr>
 							
 							<br/>
