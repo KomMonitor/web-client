@@ -21,7 +21,7 @@ module.exports = {
           { from: nodeModulePathConstant + 'rangeslide.js/dist', to: 'rangeslide/' },
           { from: nodeModulePathConstant + '@fortawesome/fontawesome-free', to: 'fontawesome/' },
           { from: nodeModulePathConstant + 'font-awesome/', to: 'fontawesome-4.7.0/' },
-          { from: nodeModulePathConstant + 'file-saverjs/FileSaver.min.js', to: 'file-saverjs/FileSaver.min.js' },
+          { from: nodeModulePathConstant + 'file-saver/dist/FileSaver.min.js', to: 'file-saverjs/FileSaver.min.js' },
           { from: nodeModulePathConstant + 'js-xlsx/dist/xlsx.full.min.js', to: 'js-xlsx/xlsx.full.min.js' },
           { from: nodeModulePathConstant + 'tableexport/dist', to: 'tableexport' },
           { from: nodeModulePathConstant + 'leaflet-draw/dist', to: 'leaflet-draw/' },
