@@ -186,8 +186,7 @@
 								<input type="button" name="next" class="next next_addSpatialUnit action-button" value="N&auml;chster Schritt"/>
 							</fieldset>
 							
-							<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
-								<fieldset>
+								<fieldset ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
 									<h2 class="fs-title">Rollenbasierter Zugriffsschutz (Optional)</h2>
 									<h3 class="fs-subtitle">Angabe ob nur ausgew&auml;hlte Rollen Zugriff auf Datensatz-Metadaten und -Features erhalten sollen</h3>
 	
@@ -205,8 +204,7 @@
 									
 									<input type="button" name="previous" class="previous previous_addSpatialUnit action-button-previous" value="Voriger Schritt"/>
 									<input type="button" name="next" class="next next_addSpatialUnit action-button" value="N&auml;chster Schritt"/>
-								</fieldset>
-							</div>							
+								</fieldset>						
 
 							<fieldset>
 								<div style="position: absolute;">
