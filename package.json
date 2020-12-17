@@ -62,7 +62,7 @@
     "bootstrap-validator": "^0.11.9",
     "classybrew": "0.0.3",
     "crypto-js": "^4.0.0",
-    "datatables.net": "^1.10.15",
+    "datatables.net": "^1.10.22",
     "datatables.net-bs": "^2.1.1",
     "echarts": "^4.2.0-rc.2",
     "echarts-stat": "^1.1.1",
