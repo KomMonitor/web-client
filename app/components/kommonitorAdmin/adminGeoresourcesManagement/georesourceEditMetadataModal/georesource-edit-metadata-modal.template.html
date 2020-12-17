@@ -432,8 +432,7 @@
 
 							</fieldset>
 
-							<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
-								<fieldset>
+								<fieldset ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
 									<h2 class="fs-title">Rollenbasierter Zugriffsschutz (Optional)</h2>
 									<h3 class="fs-subtitle">Angabe ob nur ausgew&auml;hlte Rollen Zugriff auf Datensatz-Metadaten und -Features erhalten sollen</h3>
 		
@@ -450,8 +449,7 @@
 									</div>
 									
 									<input type="button" name="previous" class="previous previous_editGeoresourceMetadata action-button-previous" value="Voriger Schritt"/>								
-								</fieldset>
-							</div>							
+								</fieldset>							
 
 						</form>
 					</div>
