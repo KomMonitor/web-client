@@ -4,8 +4,8 @@ angular
 				'kommonitorIndividualIndicatorComputation',
 				{
 					templateUrl : "components/kommonitorUserInterface/kommonitorControls/kommonitorIndividualIndicatorComputation/kommonitor-individual-indicator-computation.template.html",
-					controller : ['kommonitorDataExchangeService', '$rootScope', '$scope', '$http','kommonitorMapService', '__env', function kommonitorIndividualIndicatorComputationController(
-							kommonitorDataExchangeService, $rootScope, $scope, $http, kommonitorMapService, __env) {
+					controller : ['kommonitorDataExchangeService', '$rootScope', '$scope', '$http','kommonitorMapService', '__env', '$timeout', function kommonitorIndividualIndicatorComputationController(
+							kommonitorDataExchangeService, $rootScope, $scope, $http, kommonitorMapService, __env, $timeout) {
 
 						this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 						// initialize any adminLTE box widgets
@@ -374,10 +374,10 @@ angular
 								var applicableSpatialUnits = $scope.targetIndicator.applicableSpatialUnits;
 
 								for (const spatialUnitEntry of kommonitorDataExchangeService.availableSpatialUnits){
-									if(applicableSpatialUnits.includes(spatialUnitEntry.spatialUnitLevel))
+									if(applicableSpatialUnits.some(o => o.spatialUnitName === spatialUnitEntry.spatialUnitLevel))
 										result = spatialUnitEntry;
 										break;
-								};
+								}
 
 								return result;
 						};
@@ -632,7 +632,10 @@ angular
 
 											$scope.showInitialJobStatus(jobId);
 
-											$scope.loadingData = false;
+											$timeout(function(){
+				
+												$scope.loadingData = false;
+											});	
 
 											$scope.pendForResult(jobId);
 
@@ -645,7 +648,10 @@ angular
 
 											kommonitorDataExchangeService.displayMapApplicationError(error);
 
-											$scope.loadingData = false;
+											$timeout(function(){
+				
+												$scope.loadingData = false;
+											});	
 									});
 
 						}

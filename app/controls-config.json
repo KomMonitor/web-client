@@ -1,0 +1,46 @@
+[
+    {
+        "id": "indicatorConfig",
+        "roles": []
+    },
+    {
+        "id": "poi",
+        "roles": []
+    },
+    {
+        "id": "dataImport",
+        "roles": []
+    },
+    {
+        "id": "filter",
+        "roles": []
+    },
+    {
+        "id": "measureOfValueClassification",
+        "roles": []
+    },
+    {
+        "id": "balance",
+        "roles": []
+    },
+    {
+        "id": "diagrams",
+        "roles": []
+    },
+    {
+        "id": "radarDiagram",
+        "roles": []
+    },
+    {
+        "id": "regressionDiagram",
+        "roles": []
+    },
+    {
+        "id": "reachability",
+        "roles": []
+    },
+    {
+        "id": "processing",
+        "roles": []
+    }
+]

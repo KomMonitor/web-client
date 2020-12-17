@@ -139,7 +139,7 @@ angular.module('reportingAddIndicatorModal').component('reportingAddIndicatorMod
 			// var lastSpatialUnit = children.last().get(0);
 			// $scope.selectedSpatialUnit = lastSpatialUnit.textContent;
 
-			$scope.selectedSpatialUnit = $scope.indicator.applicableSpatialUnits[0];
+			$scope.selectedSpatialUnit = $scope.indicator.applicableSpatialUnits[0].spatialUnitName;
 
 			//update areas
 			$scope.updateAreas().then( () => {
@@ -185,7 +185,7 @@ angular.module('reportingAddIndicatorModal').component('reportingAddIndicatorMod
 
 			$scope.selectedSpatialUnitId = spatialUnitId;
 			// build request
-			var url = kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI +
+			var url = kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
 						"/indicators/" + indicatorId + "/" + spatialUnitId;
 			// send request
 			await $http({

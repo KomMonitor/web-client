@@ -5,6 +5,16 @@
   // Setting this to false will disable console output
   window.__env.enableDebug = true;
 
+  // enable/disable role based access using keycloak
+  window.__env.enableKeycloakSecurity = false;
+
+  // encrypted data transfer from Data Management API settings
+  window.__env.encryption = {
+    enabled: false,
+    password: "password",
+    ivLength_byte: 16
+  };
+
   window.__env.adminUserName = "Admin";
   window.__env.adminPassword = "kmAdmin";
 
@@ -35,7 +45,7 @@
   window.__env.targetUrlToReachabilityService_OTP = 'http://localhost:8090/opentripplanner';
 
   // Data Imporert URL
-  window.__env.targetUrlToImporterService = 'http://localhost:8087/';
+  window.__env.targetUrlToImporterService = 'http://localhost:8087/importer/';
 
   // optional geometry simplification (a feature of Data Management API)
   window.__env.simplifyGeometriesParameterName = "simplifyGeometries";
@@ -526,11 +536,5 @@
       topicReference: "68f49954-8cb9-4d33-b478-dbad949be0e1"
     }
   ];
-
-  window.__env.encryption = {
-    enabled: false,
-    password: "password",
-    ivLength_byte: 16
-  };
 
 // }(this));

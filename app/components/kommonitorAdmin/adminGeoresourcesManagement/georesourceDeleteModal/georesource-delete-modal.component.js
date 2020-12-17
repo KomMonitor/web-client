@@ -1,6 +1,6 @@
 angular.module('georesourceDeleteModal').component('georesourceDeleteModal', {
 	templateUrl : "components/kommonitorAdmin/adminGeoresourcesManagement/georesourceDeleteModal/georesource-delete-modal.template.html",
-	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '$http', '__env', '$q',function GeoresourceDeleteModalController(kommonitorDataExchangeService, $scope, $rootScope, $http, __env, $q) {
+	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '$http', '__env', '$q', '$timeout', function GeoresourceDeleteModalController(kommonitorDataExchangeService, $scope, $rootScope, $http, __env, $q, $timeout) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
@@ -98,7 +98,10 @@ angular.module('georesourceDeleteModal').component('georesourceDeleteModal', {
 							// 	$("#georesourcesDeleteSuccessAlert").show();
 							// }
 
-							$scope.loadingData = false;
+							$timeout(function(){
+				
+								$scope.loadingData = false;
+							});							
 						}
 						if($scope.successfullyDeletedDatasets.length > 0){
 							$("#georesourcesDeleteSuccessAlert").show();
@@ -111,7 +114,11 @@ angular.module('georesourceDeleteModal').component('georesourceDeleteModal', {
 							// refresh all admin dashboard diagrams due to modified metadata
 							$rootScope.$broadcast("refreshAdminDashboardDiagrams");
 
-							$scope.loadingData = false;
+							
+							$timeout(function(){
+				
+								$scope.loadingData = false;
+							});	
 						}
 				}, function errorCallback(errorArray) {
 
