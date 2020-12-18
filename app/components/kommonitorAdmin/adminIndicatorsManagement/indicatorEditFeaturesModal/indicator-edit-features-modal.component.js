@@ -140,7 +140,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 				$scope.loadingData = true;
 				// fetch all indicator features
 				$http({
-					url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/indicators/" + $scope.currentIndicatorDataset.indicatorId + "/" + $scope.overviewTableTargetSpatialUnitMetadata.spatialUnitId + "/without-geometry",
+					url: kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/indicators/" + $scope.currentIndicatorDataset.indicatorId + "/" + $scope.overviewTableTargetSpatialUnitMetadata.spatialUnitId + "/without-geometry",
 					method: "GET",
 					// headers: {
 					//    'Content-Type': undefined
