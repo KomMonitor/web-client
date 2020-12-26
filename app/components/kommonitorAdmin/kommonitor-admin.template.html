@@ -42,7 +42,7 @@
         <li class="header">Administration</li>
         <!-- Optionally, you can add icons to the links -->
         <li id="adminDashboardNavItem" class="active" ng-click="onClickOtherAdminPanel('adminDashboardNavItem')"><a data-toggle="tab" data-target="#dashboardWrapper" href=""><i class="fas fa-tachometer-alt"></i> <span>&Uuml;bersicht</span></a></li>
-        <li id="adminUsersNavItem" ng-click="onClickOtherAdminPanel('adminUsersNavItem')"><a data-toggle="tab" data-target="#userWrapper" href=""><i class="fas fa-users"></i> <span>Nutzer- und Rollenverwaltung</span></a></li>
+        <li id="adminUsersNavItem" ng-click="onClickOtherAdminPanel('adminUsersNavItem')"><a data-toggle="tab" data-target="#userWrapper" href=""><i class="fas fa-users"></i> <span>Rollenverwaltung</span></a></li>
         <li id="adminTopicsNavItem" ng-click="onClickOtherAdminPanel('adminTopicsNavItem')"><a data-toggle="tab" data-target="#topicsWrapper" href=""><i class="fas fa-book"></i> <span>Themenverwaltung</span></a></li>
         <li id="adminGeodataWrapperNavItem" class="treeview">
           <a data-toggle="tab" href="" ng-click="onClickGeodataWrapperItem()"><i class="fas fa-globe-americas"></i> <span>Geodatenverwaltung</span>
@@ -78,7 +78,7 @@
 
       <div id="userWrapper" class="tab-pane fade in">
 
-        <admin-user-management></admin-user-management>
+        <admin-role-management></admin-role-management>
 
       </div>
 
@@ -154,6 +154,9 @@
       <indicator-edit-metadata-modal></indicator-edit-metadata-modal>
 
       <!-- Modal -->
+      <indicator-edit-indicator-spatial-unit-roles-modal></indicator-edit-indicator-spatial-unit-roles-modal>
+
+      <!-- Modal -->
       <indicator-delete-modal></indicator-delete-modal>
 
 
@@ -165,6 +168,16 @@
 
       <!-- Modal -->
       <script-add-modal></script-add-modal>
+      
+      <role-add-modal></role-add-modal>
+
+      <!-- Modal -->
+      <role-edit-metadata-modal></role-edit-metadata-modal>
+
+      <!-- Modal -->
+      <role-delete-modal></role-delete-modal>
+
+      
 
       <div style="position: absolute; left: 12%; top: 200px; width: 75%;" hidden
 				class="alert alert-danger alert-dismissable mapApplicationErrorAlert">

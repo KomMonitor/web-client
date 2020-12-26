@@ -1,1 +1,1 @@
-angular.module('indicatorAddModal', ['kommonitorImporterHelper', 'adminTopicsManagement']);
+angular.module('indicatorAddModal', ['kommonitorDataExchange', 'kommonitorImporterHelper', 'adminTopicsManagement', 'excaliburDualList']);

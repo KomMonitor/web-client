@@ -14,7 +14,7 @@
 					<p>{{indicator.indicatorName}}</p>
 					<h4>Raumebene ausw&auml;hlen</h4>
 					<select id="reporting-spatial-unit-select" ng-model="selectedSpatialUnit" 
-							ng-options="spatialUnit for spatialUnit in indicator.applicableSpatialUnits"
+							ng-options="spatialUnit as spatialUnit.spatialUnitName for spatialUnit in indicator.applicableSpatialUnits"
 							ng-change="updateAreas()">
 					</select>
 

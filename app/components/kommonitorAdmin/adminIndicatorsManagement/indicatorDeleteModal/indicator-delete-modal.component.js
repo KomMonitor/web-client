@@ -1,6 +1,6 @@
 angular.module('indicatorDeleteModal').component('indicatorDeleteModal', {
 	templateUrl : "components/kommonitorAdmin/adminIndicatorsManagement/indicatorDeleteModal/indicator-delete-modal.template.html",
-	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '$http', '__env', '$q',function IndicatorDeleteModalController(kommonitorDataExchangeService, $scope, $rootScope, $http, __env, $q) {
+	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '$http', '__env', '$q', '$timeout', function IndicatorDeleteModalController(kommonitorDataExchangeService, $scope, $rootScope, $http, __env, $q, $timeout) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
@@ -101,7 +101,7 @@ angular.module('indicatorDeleteModal').component('indicatorDeleteModal', {
 
 				$scope.currentApplicableSpatialUnits = [];
 				for (const spatialUnitMetadata of kommonitorDataExchangeService.availableSpatialUnits) {
-					if($scope.selectedIndicatorDataset.applicableSpatialUnits && $scope.selectedIndicatorDataset.applicableSpatialUnits.includes(spatialUnitMetadata.spatialUnitLevel))
+					if($scope.selectedIndicatorDataset.applicableSpatialUnits && $scope.selectedIndicatorDataset.applicableSpatialUnits.some(o => o.spatialUnitName === spatialUnitMetadata.spatialUnitLevel))
 					
 					$scope.currentApplicableSpatialUnits.push({
 						"spatialUnitMetadata": spatialUnitMetadata,
@@ -264,7 +264,10 @@ angular.module('indicatorDeleteModal').component('indicatorDeleteModal', {
 					$rootScope.$broadcast("refreshIndicatorOverviewTable");
 					$("#indicatorsDeleteSuccessAlert").show();
 
-					$scope.loadingData = false;
+					$timeout(function(){
+				
+						$scope.loadingData = false;
+					});	
 
 					// $scope.resetIndicatorsDeleteForm();
 

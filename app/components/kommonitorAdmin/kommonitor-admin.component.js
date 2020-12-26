@@ -23,9 +23,9 @@ angular
 								// 		$location.path('/');
 								// 	}
 								//
-			          // });
-
-								this.checkAuthorizationOnStartup = function(){
+					  // });
+					  
+								this.checkAuthorizationOnStartup_withoutKeycloak = function(){
 									if (! kommonitorDataExchangeService.adminIsLoggedIn){
 										// redirect to main page
 										console.log("No Admin user is logged in - Prevent access to ADMIN panel");
@@ -34,7 +34,9 @@ angular
 								};
 
 								this.init = function(){
-									// this.checkAuthorizationOnStartup();
+									if(! kommonitorDataExchangeService.enableKeycloakSecurity){
+										this.checkAuthorizationOnStartup_withoutKeycloak();
+									}
 									kommonitorDataExchangeService.fetchAllMetadata();
 								};
 
