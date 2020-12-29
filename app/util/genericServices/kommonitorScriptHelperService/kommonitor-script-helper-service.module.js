@@ -45,12 +45,17 @@ angular
       this.scriptCode_base64String = undefined;
       this.scriptCode_readableString = undefined;
 
+      this.scriptFormulaHTML = undefined;
+      this.scriptFormulaHTML_overwriteTargetIndicatorMethod = false;
+
       this.reset = function(){
         this.requiredIndicators_tmp = [];
         this.requiredGeoresources_tmp = [];
         this.requiredScriptParameters_tmp = [];
         this.scriptCode_base64String = undefined;
         this.scriptCode_readableString = undefined;
+        this.scriptFormulaHTML = undefined;
+        this.scriptFormulaHTML_overwriteTargetIndicatorMethod = false;
       };
 
       this.addBaseIndicator = function(indicatorMetadata){
@@ -126,8 +131,133 @@ angular
         }	
       };
 
+      this.prettifyScriptCodePreview = function(htmlDomElementId){
+
+        $timeout(function(){
+
+          $(htmlDomElementId).removeClass("prettyprinted");
+    
+          PR.prettyPrint();
+          
+        }, 250);
+
+      };
+
+      this.buildPatchBody_indicators = function(targetIndicatorMetadata){
+        var patchBody =
+          {
+            "metadata": {
+              "note": targetIndicatorMetadata.metadata.note || null,
+              "literature": targetIndicatorMetadata.metadata.literature || null,
+              "updateInterval": targetIndicatorMetadata.metadata.updateInterval,
+              "sridEPSG": targetIndicatorMetadata.metadata.sridEPSG || 4326,
+              "datasource": targetIndicatorMetadata.metadata.datasource,
+              "contact": targetIndicatorMetadata.metadata.contact,
+              "lastUpdate": targetIndicatorMetadata.metadata.lastUpdate,
+              "description": targetIndicatorMetadata.metadata.description || null,
+              "databasis": targetIndicatorMetadata.metadata.databasis || null
+            },
+            "refrencesToOtherIndicators": [], // filled directly after
+              "allowedRoles": targetIndicatorMetadata.allowedRoles,
+              "datasetName": targetIndicatorMetadata.indicatorName,
+              "abbreviation": targetIndicatorMetadata.abbreviation || null,
+              "characteristicValue": targetIndicatorMetadata.characteristicValue || null,
+              "tags": targetIndicatorMetadata.tags, 
+              "creationType": targetIndicatorMetadata.creationType,
+              "unit": targetIndicatorMetadata.unit,
+              "topicReference": targetIndicatorMetadata.topicReference,
+              "refrencesToGeoresources": [], // filled directly after
+              "indicatorType": targetIndicatorMetadata.indicatorType,
+              "interpretation": targetIndicatorMetadata.interpretation || "",
+              "isHeadlineIndicator": targetIndicatorMetadata.isHeadlineIndicator || false,
+              "processDescription": this.scriptFormulaHTML || targetIndicatorMetadata.processDescription,
+              "lowestSpatialUnitForComputation": targetIndicatorMetadata.lowestSpatialUnitForComputation,
+              "defaultClassificationMapping": targetIndicatorMetadata.defaultClassificationMapping
+          };
+
+          // REFERENCES
+
+          if(targetIndicatorMetadata.referencedIndicators && targetIndicatorMetadata.referencedIndicators.length > 0){
+            patchBody.refrencesToOtherIndicators = [];
+
+            for (const indicRef of targetIndicatorMetadata.referencedIndicators) {
+              patchBody.refrencesToOtherIndicators.push({
+                "indicatorId": indicRef.referencedIndicatorId,
+                "referenceDescription": indicRef.referencedIndicatorDescription
+              });
+            }
+          }
+
+          if(targetIndicatorMetadata.referencedGeoresources && targetIndicatorMetadata.referencedGeoresources.length > 0){
+            patchBody.refrencesToGeoresources = [];
+
+            for (const geoRef of targetIndicatorMetadata.referencedGeoresources) {
+              patchBody.refrencesToGeoresources.push({
+                "georesourceId": geoRef.referencedGeoresourceId,
+                "referenceDescription": geoRef.referencedGeoresourceDescription
+              });
+            }
+          }	
+
+          return patchBody;
+      };
+
+      this.replaceMethodMetadataForTargetIndicator = async function(targetIndicatorMetadata){
+        var patchBody = this.buildPatchBody_indicators(targetIndicatorMetadata);
+
+        $http({
+          url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/indicators/" + targetIndicatorMetadata.indicatorId,
+          method: "PATCH",
+          data: patchBody
+          // headers: {
+          //    'Content-Type': undefined
+          // }
+        }).then(function successCallback(response) {
+
+            $rootScope.$broadcast("refreshIndicatorOverviewTable");
+
+          }, function errorCallback(error) {
+
+        });
+      };
+
       this.postNewScript = async function(scriptName, description, targetIndicatorMetadata){
         console.log("Trying to POST to management service to register new script.");
+
+        /*	POST BODY
+				{
+						"scriptCodeBase64": "scriptCodeBase64",
+						"requiredIndicatorIds": [
+							"requiredIndicatorIds",
+							"requiredIndicatorIds"
+						],
+						"variableProcessParameters": [
+							{
+							"minParameterValueForNumericInputs": 6.027456183070403,
+							"maxParameterValueForNumericInputs": 0.8008281904610115,
+							"defaultValue": "defaultValue",
+							"dataType": "string",
+							"name": "name",
+							"description": "description"
+							},
+							{
+							"minParameterValueForNumericInputs": 6.027456183070403,
+							"maxParameterValueForNumericInputs": 0.8008281904610115,
+							"defaultValue": "defaultValue",
+							"dataType": "string",
+							"name": "name",
+							"description": "description"
+							}
+						],
+						"associatedIndicatorId": "associatedIndicatorId",
+						"name": "name",
+						"description": "description",
+						"requiredGeoresourceIds": [
+							"requiredGeoresourceIds",
+							"requiredGeoresourceIds"
+						]
+						}
+			*/
 
         var postBody = {
           "name": scriptName,

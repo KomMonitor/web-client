@@ -246,7 +246,7 @@
 								</div>
 
 								<div ng-if="selectedScriptType.apiName === 'sum'">
-									<p>sum</p>
+									<script-sum></script-sum>
 								</div>
 
 
@@ -282,10 +282,30 @@
 			<div id="scriptAddErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
 				class="alert alert-danger alert-dismissable">
 				<button type="button" class="close" ng-click="hideErrorAlert()" aria-hidden="true">&times;</button>
-				<h4><i class="icon fa fa-ban"></i>Registrierung gescheitert</h4>
+				<h4><i class="icon fa fa-ban"></i>Skript-Registrierung gescheitert</h4>
 				Bei der Registrierung des Skripts ist ein Fehler aufgetreten. Fehlermeldung:
 				<br />
 				<pre style="overflow:auto; max-height:500px;" ng-bind-html="errorMessagePart"></pre>
+			</div>
+
+			<div id="indicatorMetadataEditSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+				class="alert alert-success alert-dismissable">
+				<button type="button" class="close" ng-click="hideSuccessAlert_indicatorMetadata()" aria-hidden="true">&times;</button>
+				<h4><i class="icon fa fa-check"></i>Aktualisierung der Ziel-Indikator Methodik erfolgreich</h4>
+				<p>Der Metadaten-Eintrag für die Berechnungs-Methodik des Ziel-Indikators
+					{{targetIndicator.indicatorName}} wurde in KomMonitor erfolgreich &uuml;berschrieben. Der Eintrag lautet:
+				</p>
+				<pre ng-bind-html="$ctrl.kommonitorScriptHelperServiceInstance.scriptFormulaHTML"></pre>
+			</div>
+
+			<div id="indicatorMetadataEditErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+				class="alert alert-danger alert-dismissable">
+				<button type="button" class="close" ng-click="hideErrorAlert_indicatorMetadata()" aria-hidden="true">&times;</button>
+				<h4><i class="icon fa fa-ban"></i>Aktualisierung der Ziel-Indikator Methodik gescheitert</h4>
+				Bei der Editierung des Metadaten-Eintrags für die Berechnungs-Methodik des Ziel-Indikators
+				{{targetIndicator.indicatorName}} ist ein Fehler aufgetreten. Fehlermeldung:
+				<br />
+				<pre style="overflow:auto; max-height:500px;" ng-bind-html="errorMessagePart_indicatorMetadata"></pre>
 			</div>
 
 		</div>

@@ -1,1 +1,2 @@
-angular.module('scriptAddModal', ['kommonitorDataExchange', 'kommonitorScriptHelper', 'scriptGeneric']);
+angular.module('scriptAddModal', ['kommonitorDataExchange', 'kommonitorScriptHelper', 
+    'scriptGeneric', 'scriptSum']);

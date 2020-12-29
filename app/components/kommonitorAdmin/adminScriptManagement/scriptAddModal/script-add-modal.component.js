@@ -58,6 +58,7 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 
 			$scope.successMessagePart = undefined;
 			$scope.errorMessagePart = undefined;
+			$scope.errorMessagePart_indicatorMetadata = undefined;
 
 			$scope.loadingData = false;
 
@@ -65,6 +66,7 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 
 				$scope.successMessagePart = undefined;
 				$scope.errorMessagePart = undefined;
+				$scope.errorMessagePart_indicatorMetadata = undefined;
 
 				$scope.datasetName = undefined;
 				$scope.description = undefined;
@@ -90,12 +92,36 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 
 				$scope.successMessagePart = undefined;
 				$scope.errorMessagePart = undefined;
+				$scope.errorMessagePart_indicatorMetadata = undefined;
 
 
 				// TODO Create and perform POST Request with loading screen
 
 				try {
 					var addScriptResponse = await kommonitorScriptHelperService.postNewScript($scope.datasetName, $scope.description, $scope.targetIndicator);					
+
+					if(kommonitorScriptHelperService.scriptFormulaHTML_overwriteTargetIndicatorMethod){
+						try {
+							await kommonitorScriptHelperService.replaceMethodMetadataForTargetIndicator($scope.targetIndicator);
+							$("#indicatorMetadataEditSuccessAlert").show();
+						} catch (error) {
+							if (error.data) {
+								$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+							}
+							else {
+								$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
+							}
+		
+							$("#indicatorMetadataEditErrorAlert").show();
+							$scope.loadingData = false;
+		
+							setTimeout(() => {
+								$scope.$apply();
+							}, 250);
+						}
+						
+					}
+					
 
 					$rootScope.$broadcast("refreshScriptOverviewTable");
 
@@ -134,6 +160,14 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 
 			$scope.hideErrorAlert = function () {
 				$("#scriptAddErrorAlert").hide();
+			};
+
+			$scope.hideSuccessAlert_indicatorMetadata = function () {
+				$("#indicatorMetadataEditSuccessAlert").hide();
+			};
+
+			$scope.hideErrorAlert_indicatorMetadata = function () {
+				$("#indicatorMetadataEditErrorAlert").hide();
 			};
 
 			/*

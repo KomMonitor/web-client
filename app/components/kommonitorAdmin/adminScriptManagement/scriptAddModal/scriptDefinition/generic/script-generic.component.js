@@ -55,6 +55,17 @@ angular.module('scriptGeneric').component('scriptGeneric', {
 
 			$scope.scriptCode_readableString_forPreview = undefined;
 
+			$scope.scriptCodeDomElementId = "#scriptCodePreview";
+
+			/*
+			* reset relevant things due to change of script type
+			*/
+			$scope.init = function(){
+				kommonitorScriptHelperService.reset();
+			};
+
+			$scope.init();
+
 			$scope.onChangeParameterDataType = function(){
 				$scope.parameterDefaultValue_tmp = undefined;
 
@@ -140,14 +151,8 @@ angular.module('scriptGeneric').component('scriptGeneric', {
 						$scope.scriptCode_readableString_forPreview = event.target.result;
 
 						$scope.$apply();
-						
-						$timeout(function(){
 
-							$("#scriptCodePreview").removeClass("prettyprinted");
-				
-							PR.prettyPrint();
-							
-						}, 250);
+						kommonitorScriptHelperService.prettifyScriptCodePreview($scope.scriptCodeDomElementId);						
 	
 				};
 	
