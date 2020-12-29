@@ -48,6 +48,8 @@ angular
       this.scriptFormulaHTML = undefined;
       this.scriptFormulaHTML_overwriteTargetIndicatorMethod = false;
 
+      this.targetIndicatorOldProcessDescription = undefined;
+
       this.reset = function(){
         this.requiredIndicators_tmp = [];
         this.requiredGeoresources_tmp = [];
@@ -56,6 +58,7 @@ angular
         this.scriptCode_readableString = undefined;
         this.scriptFormulaHTML = undefined;
         this.scriptFormulaHTML_overwriteTargetIndicatorMethod = false;
+        this.targetIndicatorOldProcessDescription = undefined;
       };
 
       this.addBaseIndicator = function(indicatorMetadata){
@@ -204,6 +207,8 @@ angular
 
       this.replaceMethodMetadataForTargetIndicator = async function(targetIndicatorMetadata){
         var patchBody = this.buildPatchBody_indicators(targetIndicatorMetadata);
+
+        this.targetIndicatorOldProcessDescription = targetIndicatorMetadata.processDescription;
 
         $http({
           url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/indicators/" + targetIndicatorMetadata.indicatorId,

@@ -43,7 +43,7 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 
 			$scope.datasetName = undefined;
 			$scope.description = undefined;
-			$scope.targetIndicator = undefined;
+			kommonitorScriptHelperService.targetIndicator = undefined;
 
 			$scope.availableScriptTypeOptions = [
 				{
@@ -70,7 +70,7 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 
 				$scope.datasetName = undefined;
 				$scope.description = undefined;
-				$scope.targetIndicator = undefined;
+				kommonitorScriptHelperService.targetIndicator = undefined;
 
 				kommonitorScriptHelperService.reset();
 
@@ -98,11 +98,11 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 				// TODO Create and perform POST Request with loading screen
 
 				try {
-					var addScriptResponse = await kommonitorScriptHelperService.postNewScript($scope.datasetName, $scope.description, $scope.targetIndicator);					
+					var addScriptResponse = await kommonitorScriptHelperService.postNewScript($scope.datasetName, $scope.description, kommonitorScriptHelperService.targetIndicator);					
 
 					if(kommonitorScriptHelperService.scriptFormulaHTML_overwriteTargetIndicatorMethod){
 						try {
-							await kommonitorScriptHelperService.replaceMethodMetadataForTargetIndicator($scope.targetIndicator);
+							await kommonitorScriptHelperService.replaceMethodMetadataForTargetIndicator(kommonitorScriptHelperService.targetIndicator);
 							$("#indicatorMetadataEditSuccessAlert").show();
 						} catch (error) {
 							if (error.data) {

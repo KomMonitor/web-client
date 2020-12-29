@@ -137,6 +137,12 @@
 			<div class="box-body">
 
 				<div class="row vertical-align">
+					<div class="col-md-10 col-sm-10 col-xs-12">
+						<p>Der Skript Code ist vordefiniert und kann nicht editiert werden. Dieses Fenster dient lediglich der Vorschau und Nachvollziehbarkeit der Berechnungsschritte.</p>
+					</div>
+				</div>
+
+				<div class="row vertical-align">
 					<div class="col-md-12 col-sm-12 col-xs-12">
 						<div class="form-group">
 							<label>Vorschaufenster des Skript-Codes*</label>
@@ -196,6 +202,8 @@
 							</div>
 						</div>
 					</div>
+
+					<hr>
 	
 					<div class="row vertical-align">
 						<div class="col-md-6 col-sm-6 col-xs-12">
@@ -208,9 +216,16 @@
 									<span class="switchslider round"></span>
 								</label>
 							</div>
-	
 						</div>
-					</div>					
+						<div class="col-md-6 col-sm-6 col-xs-12">
+							<div class="form-group">
+								<label>Derzeitiger Eintrag zum Vergleich</label>
+								<br/>
+								<br/>
+								<p ng-bind-html="$ctrl.kommonitorScriptHelperServiceInstance.targetIndicator.processDescription"></p>
+							</div>
+						</div>
+					</div>		
 	
 				</div>
 				<!-- Box Body -->
