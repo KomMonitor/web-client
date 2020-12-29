@@ -106,10 +106,10 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 							$("#indicatorMetadataEditSuccessAlert").show();
 						} catch (error) {
 							if (error.data) {
-								$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+								$scope.errorMessagePart_indicatorMetadata = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
 							}
 							else {
-								$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
+								$scope.errorMessagePart_indicatorMetadata = kommonitorDataExchangeService.syntaxHighlightJSON(error);
 							}
 		
 							$("#indicatorMetadataEditErrorAlert").show();
