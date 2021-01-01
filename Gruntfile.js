@@ -109,10 +109,8 @@ module.exports = function (grunt) {
             'iconsFromPngTree/**/*',
             'logos/**/*',
             'components/**/*.template.html',
-            'keycloak.json',
-            'Datatables.Language.German.json',
-            'env.js',
-            'controls-config.json'
+            'config/**/*',            
+            'Datatables.Language.German.json',            
         ],
 
         // babel: {

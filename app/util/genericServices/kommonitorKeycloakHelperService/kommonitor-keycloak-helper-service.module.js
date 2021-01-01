@@ -24,10 +24,24 @@ angular
       this.adminRoleName = "";
       this.adminRolePassword = "";
 
+      var self = this;
+
       this.init = async function () {
         try {
-          await $http.get('keycloak.json').then(async function (response) {
-            var keycloakConfig = response.data;            
+          if(window.__env.keycloakConfig){
+            this.configureKeycloakParameters(window.__env.keycloakConfig);
+          }
+          else{
+            await $http.get('./config/keycloak_backup.json').then(async function (response) {
+              self.configureKeycloakParameters(response.data);            
+            });
+          }          
+        } catch (error) {
+          console.error("Error while initializing kommonitorKeycloakHelperService. Error while fetching and interpreting config file. Error is: " + error);
+        }
+      };
+
+      this.configureKeycloakParameters = function(keycloakConfig){           
             self.targetUrlToKeycloakInstance = keycloakConfig['auth-server-url'];
             self.realm = keycloakConfig['realm'];
             self.clientId = keycloakConfig['resource'];
@@ -37,10 +51,6 @@ angular
             if(__env.enableKeycloakSecurity){
               self.fetchAndSetKeycloakRoles();
             }
-          });
-        } catch (error) {
-          console.error("Error while initializing kommonitorKeycloakHelperService. Error while fetching and interpreting config file. Error is: " + error);
-        }
       };
 
       this.init();
