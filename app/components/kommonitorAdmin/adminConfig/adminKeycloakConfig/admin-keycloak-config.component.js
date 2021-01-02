@@ -92,7 +92,7 @@ angular.module('adminKeycloakConfig').component('adminKeycloakConfig', {
 			$scope.errorMessagePart = undefined;
 
 			try {
-				var addScriptResponse = await kommonitorConfigStorageService.postKeycloakConfig($scope.keycloakConfigTmp);	
+				var addConfigResponse = await kommonitorConfigStorageService.postKeycloakConfig($scope.keycloakConfigTmp);	
 				
 				var newCurrentConfig = await kommonitorConfigStorageService.getKeycloakConfig();
 				$timeout(function(){
