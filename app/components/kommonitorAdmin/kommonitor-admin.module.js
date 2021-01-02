@@ -5,5 +5,6 @@ angular.module('kommonitorAdmin', ['kommonitorDataExchange', 'adminDashboardMana
 'indicatorDeleteModal','indicatorAddModal', 'indicatorEditFeaturesModal', 'indicatorEditMetadataModal',
 'topicEditModal', 'topicDeleteModal',
 'scriptAddModal', "scriptDeleteModal",
+'adminAppConfig', 'adminKeycloakConfig', 'adminControlsConfig', 
 // ,'spatialUnitDeleteModal',
 ]);
