@@ -1,7 +1,7 @@
 [
     {
         "id": "indicatorConfig",
-        "roles": []
+        "roles": ["roleName1_hasAccessToThis_whileAnonymousUserHasNoAccess", "roleName2_hasAccessToThis_whileAnonymousUserHasNoAccess"]
     },
     {
         "id": "poi",

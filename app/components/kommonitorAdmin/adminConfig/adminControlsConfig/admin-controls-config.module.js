@@ -1,1 +1,1 @@
-angular.module('adminControlsConfig', ['kommonitorDataExchange']);
+angular.module('adminControlsConfig', ['kommonitorDataExchange', 'kommonitorScriptHelper', 'kommonitorConfigStorage']);
