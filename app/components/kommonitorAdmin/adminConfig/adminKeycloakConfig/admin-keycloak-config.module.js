@@ -1,1 +1,1 @@
-angular.module('adminKeycloakConfig', ['kommonitorDataExchange']);
+angular.module('adminKeycloakConfig', ['kommonitorDataExchange', 'kommonitorScriptHelper', 'kommonitorConfigStorage']);
