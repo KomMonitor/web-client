@@ -86,7 +86,8 @@ module.exports = {
           { from: nodeModulePathConstant + 'jquery.easing/jquery.easing.min.js', to: 'jquery.easing/' },
           { from: './customizedExternalLibs/colorbrewer.js', to: 'colorbrewer/' },
           { from: nodeModulePathConstant + 'keycloak-js/dist', to: 'keycloak/' },
-          { from: nodeModulePathConstant + 'crypto-js/', to: 'crypto-js/' }
+          { from: nodeModulePathConstant + 'crypto-js/', to: 'crypto-js/' },
+          { from: nodeModulePathConstant + 'acorn/dist', to: 'acorn/' }
 
       ])
     ]
