@@ -40,6 +40,7 @@ function ajaxCall_appConfig(configStorageServerConfig) {
       url: configStorageServerConfig.targetUrlToConfigStorageServer_appConfig,
       success: function(result){
         console.log("app config file fetched");
+        window.__env.appConfig = result;
         return;
       }
   });
