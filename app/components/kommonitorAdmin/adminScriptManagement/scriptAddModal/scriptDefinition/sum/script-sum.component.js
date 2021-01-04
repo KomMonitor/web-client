@@ -14,6 +14,8 @@ angular.module('scriptSum').component('scriptSum', {
 			$scope.tmpIndicatorSelection = undefined;
 			$scope.tmpGeoresourceSelection = undefined;
 
+			$scope.baseIndicators = [];
+
 			$scope.parameterName = "COMPUTATION_ID";
 			$scope.parameterDescription = "Komma-separierte Liste aller Indikatoren-IDs zur Summenbildung.";
 			$scope.parameterDefaultValue = undefined;
@@ -84,7 +86,7 @@ angular.module('scriptSum').component('scriptSum', {
 
 			$scope.resetScriptParameter = function(){
 				kommonitorScriptHelperService.requiredScriptParameters_tmp = [];
-				$scope.parameterDefaultValue = $scope.generateParameterValue(kommonitorScriptHelperService.requiredIndicators_tmp);
+				$scope.parameterDefaultValue = $scope.generateParameterValue($scope.baseIndicators);
 				kommonitorScriptHelperService.addScriptParameter($scope.parameterName, $scope.parameterDescription, $scope.parameterDataType, $scope.parameterDefaultValue, $scope.parameterNumericMinValue, $scope.parameterNumericMaxValue);
 			};
 
@@ -94,11 +96,11 @@ angular.module('scriptSum').component('scriptSum', {
 				var formulaHTML = "<b>Berechnung gem&auml;&szlig; Formel<br/><i>";
 				var legendItemsHTML = "<b>Legende zur Formel</b><br/>";
 
-				for (let index = 0; index < kommonitorScriptHelperService.requiredIndicators_tmp.length; index++) {
-					const indicatorMetadata = kommonitorScriptHelperService.requiredIndicators_tmp[index];
+				for (let index = 0; index < $scope.baseIndicators.length; index++) {
+					const indicatorMetadata = $scope.baseIndicators[index];
 					formulaHTML+="I<sub>" + index + "</sub>";
 					legendItemsHTML+="<i>I<sub>" + index + "</sub></i>: " + indicatorMetadata.indicatorName;
-					if(index < kommonitorScriptHelperService.requiredIndicators_tmp.length - 1){
+					if(index < $scope.baseIndicators.length - 1){
 						formulaHTML+=" + ";
 						legendItemsHTML+="<br/>"; 
 					}
@@ -112,6 +114,7 @@ angular.module('scriptSum').component('scriptSum', {
 			$scope.addBaseIndicator = function(tmpIndicatorSelection){
 
 				kommonitorScriptHelperService.addBaseIndicator(tmpIndicatorSelection);
+				$scope.baseIndicators.push(tmpIndicatorSelection);
 
 				//reset the one and only parameter in this case each time a base indicator is added
 				$scope.resetScriptParameter();
@@ -124,6 +127,17 @@ angular.module('scriptSum').component('scriptSum', {
 
 			$scope.removeBaseIndicator = function(baseIndicator){
 				kommonitorScriptHelperService.removeBaseIndicator(baseIndicator);
+
+				var i;
+				for (let index = 0; index < $scope.baseIndicators.length; index++) {
+					const element = $scope.baseIndicators[index];
+					
+					if(baseIndicator.indicatorId == element.indicatorId){
+						i = index;
+						break;
+					}
+				}
+				$scope.baseIndicators.splice(i, 1);
 
 				//reset the one and only parameter in this case each time a base indicator is removed
 				$scope.resetScriptParameter();
