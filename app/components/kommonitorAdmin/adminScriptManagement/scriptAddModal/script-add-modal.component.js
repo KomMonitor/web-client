@@ -45,17 +45,6 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 			$scope.description = undefined;
 			kommonitorScriptHelperService.targetIndicator = undefined;
 
-			$scope.availableScriptTypeOptions = [
-				{
-					"displayName": "Generische Definition",
-					"apiName": "generic"
-				},
-				{
-					"displayName": "Summe aller Indikatoren",
-					"apiName": "sum"
-				}
-			];
-
 			$scope.successMessagePart = undefined;
 			$scope.errorMessagePart = undefined;
 			$scope.errorMessagePart_indicatorMetadata = undefined;

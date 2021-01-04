@@ -35,7 +35,11 @@ angular
 				},
 				{
 					"displayName": "Summe aller Indikatoren",
-					"apiName": "sum"
+					"apiName": "indicator_sum"
+        },
+				{
+					"displayName": "Subtraktion von Basis-Indikatoren von einem Referenzindikator",
+					"apiName": "indicator_subtract"
 				}
 			];
 
@@ -127,6 +131,17 @@ angular
 				for (let index = 0; index < this.requiredScriptParameters_tmp.length; index++) {
 				
           if (this.requiredScriptParameters_tmp[index].name === scriptParameter.name){
+            // remove object
+            this.requiredScriptParameters_tmp.splice(index, 1);
+            break;
+          }
+        }	
+      };
+
+      this.removeScriptParameter_byName = function(scriptParameterName){
+				for (let index = 0; index < this.requiredScriptParameters_tmp.length; index++) {
+				
+          if (this.requiredScriptParameters_tmp[index].name === scriptParameterName){
             // remove object
             this.requiredScriptParameters_tmp.splice(index, 1);
             break;

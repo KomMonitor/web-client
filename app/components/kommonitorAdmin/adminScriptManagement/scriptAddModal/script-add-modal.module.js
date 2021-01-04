@@ -1,2 +1,2 @@
 angular.module('scriptAddModal', ['kommonitorDataExchange', 'kommonitorScriptHelper', 
-    'scriptGeneric', 'scriptSum']);
+    'scriptGeneric', 'scriptSum', 'scriptSubtract']);
