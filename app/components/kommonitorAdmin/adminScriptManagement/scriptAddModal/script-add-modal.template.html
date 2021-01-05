@@ -221,8 +221,15 @@
 									<div class="col-md-6 col-sm-6 col-xs-12">
 										<div class="form-group">
 											<label>Auswahl des Skript-Typen*</label>
+											<div class="input-group">
+												<span class="input-group-addon"><i class="fas fa-filter"></i></span>
+												<input type="text" class="form-control input-sm"
+													placeholder="Stichwortfilter" ng-model="scriptNameFilter"
+													required>
+											</div>
+											<br />
 											<select ng-model="selectedScriptType" size="5"
-												ng-options="scriptType as scriptType.displayName for scriptType in $ctrl.kommonitorScriptHelperServiceInstance.availableScriptTypeOptions | orderBy: 'displayName'"
+												ng-options="scriptType as scriptType.displayName for scriptType in $ctrl.kommonitorScriptHelperServiceInstance.availableScriptTypeOptions | orderBy: 'displayName' | filter:scriptNameFilter"
 												class="form-control">
 												<option disabled selected value> -- Skript-Typ w&auml;hlen --
 												</option>
