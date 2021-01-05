@@ -222,7 +222,7 @@
 										<div class="form-group">
 											<label>Auswahl des Skript-Typen*</label>
 											<select ng-model="selectedScriptType" size="5"
-												ng-options="scriptType as scriptType.displayName for scriptType in $ctrl.kommonitorScriptHelperServiceInstance.availableScriptTypeOptions"
+												ng-options="scriptType as scriptType.displayName for scriptType in $ctrl.kommonitorScriptHelperServiceInstance.availableScriptTypeOptions | orderBy: 'displayName'"
 												class="form-control">
 												<option disabled selected value> -- Skript-Typ w&auml;hlen --
 												</option>
@@ -262,6 +262,10 @@
 
 								<div ng-if="selectedScriptType.apiName === 'indicator_division'">
 									<script-division></script-division>
+								</div>
+
+								<div ng-if="selectedScriptType.apiName === 'indicator_multiplication'">
+									<script-multiplication></script-multiplication>
 								</div>
 
 

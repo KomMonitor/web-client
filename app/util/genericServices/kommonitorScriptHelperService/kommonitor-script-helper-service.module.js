@@ -52,6 +52,10 @@ angular
         {
 					"displayName": "Division (Quotient zweier Indikatoren)",
 					"apiName": "indicator_division"
+        },
+        {
+					"displayName": "Produkt aller Indikatoren",
+					"apiName": "indicator_multiplication"
 				}
 			];
 
