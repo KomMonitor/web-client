@@ -48,6 +48,10 @@ angular
         {
 					"displayName": "Anteil (Quotient zwischen Basis-Indikatoren und einem Referenzindikator)",
 					"apiName": "indicator_share"
+        },
+        {
+					"displayName": "Division (Quotient zweier Indikatoren)",
+					"apiName": "indicator_division"
 				}
 			];
 
