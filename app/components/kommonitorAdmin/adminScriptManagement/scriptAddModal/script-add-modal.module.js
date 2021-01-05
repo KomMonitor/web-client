@@ -1,2 +1,2 @@
 angular.module('scriptAddModal', ['kommonitorDataExchange', 'kommonitorScriptHelper', 
-    'scriptGeneric', 'scriptSum', 'scriptSubtract', 'scriptPercentage']);
+    'scriptGeneric', 'scriptSum', 'scriptSubtract', 'scriptPercentage', 'scriptShare']);

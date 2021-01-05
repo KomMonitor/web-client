@@ -44,6 +44,10 @@ angular
         {
 					"displayName": "Prozentualer Anteil (Quotient zwischen Basis-Indikatoren und einem Referenzindikator)",
 					"apiName": "indicator_percentage"
+        },
+        {
+					"displayName": "Anteil (Quotient zwischen Basis-Indikatoren und einem Referenzindikator)",
+					"apiName": "indicator_share"
 				}
 			];
 
