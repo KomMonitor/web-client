@@ -40,6 +40,10 @@ angular
 				{
 					"displayName": "Subtraktion von Basis-Indikatoren von einem Referenzindikator",
 					"apiName": "indicator_subtract"
+        },
+        {
+					"displayName": "Prozentualer Anteil (Quotient zwischen Basis-Indikatoren und einem Referenzindikator)",
+					"apiName": "indicator_percentage"
 				}
 			];
 

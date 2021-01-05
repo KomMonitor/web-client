@@ -70,6 +70,8 @@ module.exports = function (grunt) {
             'app/components/kommonitorAdmin/adminScriptManagement/scriptAddModal/scriptDefinition/sum/script-sum.component.js',
             'app/components/kommonitorAdmin/adminScriptManagement/scriptAddModal/scriptDefinition/subtract/script-subtract.module.js',
             'app/components/kommonitorAdmin/adminScriptManagement/scriptAddModal/scriptDefinition/subtract/script-subtract.component.js',
+            'app/components/kommonitorAdmin/adminScriptManagement/scriptAddModal/scriptDefinition/percentage/script-percentage.module.js',
+            'app/components/kommonitorAdmin/adminScriptManagement/scriptAddModal/scriptDefinition/percentage/script-percentage.component.js',
             'app/components/kommonitorAdmin/adminScriptManagement/scriptAddModal/script-add-modal.module.js',
             'app/components/kommonitorAdmin/adminScriptManagement/scriptAddModal/script-add-modal.component.js',
             'app/components/kommonitorAdmin/adminScriptManagement/scriptDeleteModal/script-delete-modal.module.js',
