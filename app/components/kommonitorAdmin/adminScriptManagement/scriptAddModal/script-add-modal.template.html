@@ -228,7 +228,7 @@
 													required>
 											</div>
 											<br />
-											<select ng-model="selectedScriptType" size="5"
+											<select ng-model="selectedScriptType" size="10"
 												ng-options="scriptType as scriptType.displayName for scriptType in $ctrl.kommonitorScriptHelperServiceInstance.availableScriptTypeOptions | orderBy: 'displayName' | filter:scriptNameFilter"
 												class="form-control">
 												<option disabled selected value> -- Skript-Typ w&auml;hlen --
@@ -273,6 +273,10 @@
 
 								<div ng-if="selectedScriptType.apiName === 'indicator_multiplication'">
 									<script-multiplication></script-multiplication>
+								</div>
+
+								<div ng-if="selectedScriptType.apiName === 'georesource_pointsInPolygon'">
+									<script-points-in-polygon></script-points-in-polygon>
 								</div>
 
 

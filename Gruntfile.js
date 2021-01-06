@@ -78,6 +78,8 @@ module.exports = function (grunt) {
             'app/components/kommonitorAdmin/adminScriptManagement/scriptAddModal/scriptDefinition/division/script-division.component.js',
             'app/components/kommonitorAdmin/adminScriptManagement/scriptAddModal/scriptDefinition/multiplication/script-multiplication.module.js',
             'app/components/kommonitorAdmin/adminScriptManagement/scriptAddModal/scriptDefinition/multiplication/script-multiplication.component.js',
+            'app/components/kommonitorAdmin/adminScriptManagement/scriptAddModal/scriptDefinition/pointsInPolygon/script-points-in-polygon.module.js',
+            'app/components/kommonitorAdmin/adminScriptManagement/scriptAddModal/scriptDefinition/pointsInPolygon/script-points-in-polygon.component.js',
             'app/components/kommonitorAdmin/adminScriptManagement/scriptAddModal/script-add-modal.module.js',
             'app/components/kommonitorAdmin/adminScriptManagement/scriptAddModal/script-add-modal.component.js',
             'app/components/kommonitorAdmin/adminScriptManagement/scriptDeleteModal/script-delete-modal.module.js',

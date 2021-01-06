@@ -34,28 +34,36 @@ angular
 					"apiName": "generic"
 				},
 				{
-					"displayName": "Summe aller Indikatoren",
+					"displayName": "Indikatoren - Summe aller Indikatoren",
 					"apiName": "indicator_sum"
         },
 				{
-					"displayName": "Subtraktion von Basis-Indikatoren von einem Referenzindikator",
+					"displayName": "Indikatoren - Subtraktion von Basis-Indikatoren von einem Referenzindikator",
 					"apiName": "indicator_subtract"
         },
         {
-					"displayName": "Prozentualer Anteil (Quotient zwischen Basis-Indikatoren und einem Referenzindikator)",
+					"displayName": "Indikatoren - Prozentualer Anteil (Quotient zwischen Basis-Indikatoren und einem Referenzindikator)",
 					"apiName": "indicator_percentage"
         },
         {
-					"displayName": "Anteil (Quotient zwischen Basis-Indikatoren und einem Referenzindikator)",
+					"displayName": "Indikatoren - Anteil (Quotient zwischen Basis-Indikatoren und einem Referenzindikator)",
 					"apiName": "indicator_share"
         },
         {
-					"displayName": "Division (Quotient zweier Indikatoren)",
+					"displayName": "Indikatoren - Division (Quotient zweier Indikatoren)",
 					"apiName": "indicator_division"
         },
         {
-					"displayName": "Produkt aller Indikatoren",
+					"displayName": "Indikatoren - Produkt aller Indikatoren",
 					"apiName": "indicator_multiplication"
+        },
+        {
+					"displayName": "Indikatoren - Produkt aller Indikatoren",
+					"apiName": "indicator_multiplication"
+        },
+        {
+					"displayName": "Georessourcen - Anzahl Punkte in Polygon",
+					"apiName": "georesource_pointsInPolygon"
 				}
 			];
 
