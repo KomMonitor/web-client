@@ -1,3 +1,5 @@
+try {
+  
   window.__env = window.__env || {};
 
   // Whether or not to enable debug mode
@@ -523,3 +525,7 @@
       topicReference: "c712af89-ff11-40ff-ad84-b3592901e085"
     }
   ];
+
+} catch (error) {
+  console.error("Error while evaluating app config. Error is: \n" + error);
+} 
