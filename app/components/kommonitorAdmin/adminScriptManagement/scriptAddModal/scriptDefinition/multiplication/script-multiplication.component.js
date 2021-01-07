@@ -98,8 +98,8 @@ angular.module('scriptMultiplication').component('scriptMultiplication', {
 
 				for (let index = 0; index < $scope.baseIndicators.length; index++) {
 					const indicatorMetadata = $scope.baseIndicators[index];
-					formulaHTML+="I<sub>" + index + "</sub>";
-					legendItemsHTML+="<i>I<sub>" + index + "</sub></i>: " + indicatorMetadata.indicatorName;
+					formulaHTML+="I<sub>" + index + 1 + "</sub>";
+					legendItemsHTML+="<i>I<sub>" + index + 1 + "</sub></i>: " + indicatorMetadata.indicatorName;
 					if(index < $scope.baseIndicators.length - 1){
 						formulaHTML+=" * ";
 						legendItemsHTML+="<br/>"; 
