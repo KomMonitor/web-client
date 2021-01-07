@@ -58,6 +58,21 @@ function ajaxCall_controlsConfig(configStorageServerConfig) {
   });
 }  
 
+
+function loadAppConfigScriptDynamically(scriptUrl){
+  return new Promise(function (res, rej) {
+   let script = document.createElement('script');
+   script.src = scriptUrl;
+   script.type = 'text/javascript';
+   script.onError = rej;
+   script.async = true;
+   script.onload = res;
+   script.addEventListener('error',rej);
+   script.addEventListener('load',res);
+   document.head.appendChild(script);
+  }); 
+}
+
 function ajaxCall_configServerFile() {
   return  $.ajax({
       url: "./config/config-storage-server.json",
@@ -65,12 +80,15 @@ function ajaxCall_configServerFile() {
         window.__env = window.__env || {};
         window.__env.configStorageServerConfig = result;
 
-        console.log("dynamically load env.js");
-  
         // inject script tag dynamically to DOM to load ENV variables
-        var scriptTag = document.createElement("script");
-        scriptTag.src = window.__env.configStorageServerConfig.targetUrlToConfigStorageServer_appConfig;
-        document.body.appendChild(scriptTag);
+        console.log("dynamically load env.js");
+        const event = loadAppConfigScriptDynamically(window.__env.configStorageServerConfig.targetUrlToConfigStorageServer_appConfig)
+          .then(() => { console.log("loaded"); })
+          .catch(() => { 
+            console.log("Error while loading app config from client config storage server. Will use defaults instead"); 
+            alert("Error while loading app config from client config storage server. Will use defaults instead.");
+        });
+    
 
         return $.when(ajaxCall_keycloakConfig(window.__env.configStorageServerConfig), ajaxCall_controlsConfig(window.__env.configStorageServerConfig), ajaxCall_appConfig(window.__env.configStorageServerConfig)).done(function(ajax1Results,ajax2Results, ajax3Results){
           console.log("all configs have been loaded");
