@@ -19,8 +19,9 @@ angular.module('adminKeycloakConfig').component('adminKeycloakConfig', {
 		$scope.configSettingInvalid = false;
 
 		$scope.init = async function(){
-			await $http.get('./config/keycloak_backup.json', {'responseType': 'json'}).then(function (response) {
-				$scope.keycloakConfigTemplate = JSON.stringify(response.data, null, "    ");
+			await $http.get('./config/keycloak_backup_withComments.txt', {'responseType': 'text'}).then(function (response) {
+				// $scope.keycloakConfigTemplate = JSON.stringify(response.data, null, "    ");
+				$scope.keycloakConfigTemplate = response.data;
 
 				kommonitorScriptHelperService.prettifyScriptCodePreview("keycloakConfig_backupTemplate");
 			  });
