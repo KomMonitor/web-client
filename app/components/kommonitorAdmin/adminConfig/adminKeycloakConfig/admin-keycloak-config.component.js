@@ -60,6 +60,19 @@ angular.module('adminKeycloakConfig').component('adminKeycloakConfig', {
 
 		};
 
+		$scope.resetDefaultConfig = async function(){
+			await $http.get('./config/keycloak_backup.json', {'responseType': 'json'}).then(function (response) {
+				$scope.keycloakConfigTmp = JSON.stringify(response.data, null, "    ");
+				$scope.keycloakConfigCurrent = JSON.stringify(response.data, null, "    ");
+				$scope.keycloakConfigNew = JSON.stringify(response.data, null, "    ");
+			  });
+
+			  $scope.onChangeKeycloakConfig();
+
+			  // update config on server
+			$scope.editKeycloakConfig();  
+		};
+
 		$scope.onChangeKeycloakConfig = function(){
 			// check by searching for keywords
 

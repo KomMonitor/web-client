@@ -37,6 +37,17 @@ angular.module('adminControlsConfig').component('adminControlsConfig', {
 			$scope.$apply();
 		};
 
+		$scope.resetDefaultConfig = async function(){
+			$scope.controlsConfigCurrent = JSON.stringify($scope.controlsConfigTemplate, null, "    ");
+			$scope.controlsConfigNew = JSON.stringify($scope.controlsConfigTemplate, null, "    ");
+			$scope.controlsConfigTmp = JSON.stringify($scope.controlsConfigTemplate, null, "    ");
+
+			$scope.onChangeControlsConfig();
+
+			  // update config on server
+			$scope.editControlsConfig();  
+		};
+
 		$scope.isConfigSettingInvalid = function(configString){
 			var isInvalid = true;
 

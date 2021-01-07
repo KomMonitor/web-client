@@ -49,6 +49,17 @@ angular.module('adminAppConfig').component('adminAppConfig', {
 			$scope.$apply();
 		};
 
+		$scope.resetDefaultConfig = async function(){
+			$scope.appConfigCurrent = $scope.appConfigTemplate;
+			$scope.appConfigNew = $scope.appConfigTemplate;
+			$scope.appConfigTmp = $scope.appConfigTemplate;
+
+			$scope.onChangeAppConfig();
+
+			  // update config on server
+			$scope.editAppConfig();  
+		};
+
 		$scope.isConfigSettingInvalid = function(configString){
 			var isInvalid = true;
 
