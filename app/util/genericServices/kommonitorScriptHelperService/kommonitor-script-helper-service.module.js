@@ -58,10 +58,6 @@ angular
 					"apiName": "indicator_multiplication"
         },
         {
-					"displayName": "Indikatoren - Produkt aller Indikatoren",
-					"apiName": "indicator_multiplication"
-        },
-        {
 					"displayName": "Georessourcen - Anzahl Punkte in Polygon",
 					"apiName": "georesource_pointsInPolygon"
 				}
