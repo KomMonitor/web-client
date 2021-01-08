@@ -87,7 +87,9 @@ module.exports = {
           { from: './customizedExternalLibs/colorbrewer.js', to: 'colorbrewer/' },
           { from: nodeModulePathConstant + 'keycloak-js/dist', to: 'keycloak/' },
           { from: nodeModulePathConstant + 'crypto-js/', to: 'crypto-js/' },
-          { from: nodeModulePathConstant + 'acorn/dist', to: 'acorn/' }
+          { from: nodeModulePathConstant + 'codemirror/', to: 'codemirror/' },
+          { from: nodeModulePathConstant + 'jshint/dist', to: 'jshint/' },
+          { from: nodeModulePathConstant + 'jsonlint/web', to: 'jsonlint/' }
 
       ])
     ]
