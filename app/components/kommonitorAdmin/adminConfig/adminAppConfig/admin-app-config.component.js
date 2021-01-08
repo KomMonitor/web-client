@@ -9,8 +9,7 @@ angular.module('adminAppConfig').component('adminAppConfig', {
 		$('.box').boxWidget();
 
 		$scope.loadingData = true;
-
-		$scope.loadingData = true;
+		$scope.codeMirrorEditor = undefined;
 
 		$scope.keywordsInConfig = ["window.__env", "window.__env.enableKeycloakSecurity", "window.__env.encryption", "window.__env.adminUserName", 
 			"window.__env.adminPassword", "window.__env.FEATURE_ID_PROPERTY_NAME", "window.__env.FEATURE_NAME_PROPERTY_NAME", 
@@ -42,11 +41,49 @@ angular.module('adminAppConfig').component('adminAppConfig', {
 			$scope.appConfigTmp = __env.appConfig;
 			$scope.appConfigCurrent = __env.appConfig;
 			$scope.appConfigNew = __env.appConfig;
-			kommonitorScriptHelperService.prettifyScriptCodePreview("appConfig_current");			
+			kommonitorScriptHelperService.prettifyScriptCodePreview("appConfig_current");
+			
+			$scope.initCodeEditor();
 
 			$scope.onChangeAppConfig();
 
 			$scope.$apply();
+		};
+
+		$scope.initCodeEditor = function(){
+			$scope.codeMirrorEditor = CodeMirror.fromTextArea(document.getElementById("appConfigEditor"), {
+				lineNumbers: true,
+				autoRefresh:true,
+				mode: "javascript",
+				gutters: ["CodeMirror-lint-markers"],
+				lint: {
+					"getAnnotations": $scope.validateCode,
+					"async": true 
+				}
+			  });
+
+			 $scope.codeMirrorEditor.setSize(null, 450); 
+
+			 $scope.codeMirrorEditor.on('change',function(cMirror){
+			   // get value right from instance
+			   $scope.appConfigTmp = $scope.codeMirrorEditor.getValue();			   
+			 }); 
+
+			 $scope.codeMirrorEditor.setValue($scope.appConfigCurrent);
+		};
+
+		$scope.validateCode = function(cm, updateLinting, options){
+			// call the built in css linter from addon/lint/css-lint.js
+			try {
+				$scope.lintingIssues = CodeMirror.lint.javascript(cm, options);
+
+				updateLinting($scope.lintingIssues);					
+			} catch (error) {
+				console.error("Error while linting app config script code. Error is: \n" + error);
+			}
+
+			$scope.onChangeAppConfig();
+            
 		};
 
 		$scope.resetDefaultConfig = async function(){
@@ -58,6 +95,8 @@ angular.module('adminAppConfig').component('adminAppConfig', {
 
 			  // update config on server
 			$scope.editAppConfig();  
+
+			$scope.codeMirrorEditor.setValue($scope.appConfigCurrent);
 		};
 
 		$scope.isConfigSettingInvalid = function(configString){
@@ -65,17 +104,14 @@ angular.module('adminAppConfig').component('adminAppConfig', {
 
 			isInvalid = ! $scope.keywordsInConfig.every(keyword => configString.includes(keyword));
 
-			try {
-				var parsedJavascript = acorn.parse(configString);
-
-				console.log();
-
-			} catch (error) {
-				isInvalid = true;
+			if ($scope.lintingIssues && $scope.lintingIssues.length > 0){
+				var errors = $scope.lintingIssues.filter(issue => issue.severity === 'error');
+				if(errors && errors.length > 0){
+					isInvalid = true;
+				}				
 			}
 
 			return isInvalid;
-
 		};
 
 		$scope.onChangeAppConfig = function(){
@@ -93,8 +129,12 @@ angular.module('adminAppConfig').component('adminAppConfig', {
 				// kommonitorScriptHelperService.prettifyScriptCodePreview("appConfig_new");	
 				document.getElementById('appConfig_new').innerHTML = 
 					PR.prettyPrintOne($scope.appConfigNew,
-					'javascript');
+					'javascript', true);
 			}, 250);
+
+			$timeout(function(){
+				$scope.$apply();
+			});
 		};
 
 		$scope.init();
@@ -118,7 +158,7 @@ angular.module('adminAppConfig').component('adminAppConfig', {
 					// kommonitorScriptHelperService.prettifyScriptCodePreview("appConfig_new");	
 					document.getElementById('appConfig_current').innerHTML = 
 						PR.prettyPrintOne($scope.appConfigCurrent,
-						'javascript');
+						'javascript', true);
 				}, 250);
 
 				$("#appConfigEditSuccessAlert").show();

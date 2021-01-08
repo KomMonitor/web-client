@@ -55,7 +55,7 @@
 								<label>Vorlage (Struktur und Standard-Einstellung)</label>
 								<br/>
 								<br/>
-								<pre class="prettyprint" style="max-height: 300px; overflow: auto; text-align: left;" id="keycloakConfig_backupTemplate"><code class="language-javascript" ng-bind-html="keycloakConfigTemplate"></code></pre>
+								<pre class="prettyprint linenums" style="max-height: 300px; overflow: auto; text-align: left;" id="keycloakConfig_backupTemplate"><code class="language-javascript" ng-bind-html="keycloakConfigTemplate"></code></pre>
 							</div>
 						</div>
 						<div class="col-md-6 col-sm-6 col-xs-12">
@@ -63,7 +63,7 @@
 								<label>derzeitige Konfiguration (aktuelle Wertbelegung)</label>
 								<br/>
 								<br/>
-								<pre class="prettyprint" style="max-height: 300px; overflow: auto; text-align: left;" id="keycloakConfig_current"><code class="language-javascript" ng-bind-html="keycloakConfigCurrent"></code></pre>
+								<pre class="prettyprint linenums" style="max-height: 300px; overflow: auto; text-align: left;" id="keycloakConfig_current"><code class="language-javascript" ng-bind-html="keycloakConfigCurrent"></code></pre>
 							</div>
 						</div>
 					</div>
@@ -77,7 +77,7 @@
 								<label>Editierfenster der Keycloak-Einstellungen</label>
 								<br/>
 								<br/>
-								<textarea rows="10" style="min-width: 100%;" ng-model="keycloakConfigTmp" ng-change="onChangeKeycloakConfig()"></textarea>
+								<textarea id="keycloakConfigEditor"></textarea>
 							</div>
 							<div class="help-block with-errors" ng-show="configSettingInvalid">
 								Bitte beachten Sie, dass alle notwendigen Parameter gem&auml;&szlig; der obigen Vorlage definiert werden m&uuml;ssen. Beachten Sie daher die vorgegebene JSON-Struktur. Der Text wird auf Schl&uuml;sselw&ouml;rter gepr&uuml;ft und es wird sichergestellt, dass valides JSON geparsed werden kann.
@@ -88,7 +88,7 @@
 								<label>Vorschaufenster (neue Wertbelegung)</label>
 								<br/>
 								<br/>
-								<pre class="prettyprint" style="max-height: 300px; overflow: auto; text-align: left;" id="keycloakConfig_new"><code class="language-javascript" ng-bind-html="keycloakConfigNew"></code></pre>
+								<pre class="prettyprint linenums" style="max-height: 300px; overflow: auto; text-align: left;" id="keycloakConfig_new"><code class="language-javascript" ng-bind-html="keycloakConfigNew"></code></pre>
 							</div>
 						</div>
 					</div>	

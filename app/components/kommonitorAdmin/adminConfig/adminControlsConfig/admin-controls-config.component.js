@@ -9,6 +9,7 @@ angular.module('adminControlsConfig').component('adminControlsConfig', {
 		$('.box').boxWidget();
 
 		$scope.loadingData = true;
+		$scope.codeMirrorEditor = undefined;
 
 		$scope.keywordsInConfig = ["id", "roles", "indicatorConfig", "poi", "dataImport", "filter", "measureOfValueClassification", "balance", "diagrams", "radarDiagram", "regressionDiagram", "reachability", "processing"];
 
@@ -30,22 +31,62 @@ angular.module('adminControlsConfig').component('adminControlsConfig', {
 			$scope.controlsConfigTmp = JSON.stringify(__env.controlsConfig, null, "    ");
 			$scope.controlsConfigCurrent = JSON.stringify(__env.controlsConfig, null, "    ");
 			$scope.controlsConfigNew = JSON.stringify(__env.controlsConfig, null, "    ");
-			kommonitorScriptHelperService.prettifyScriptCodePreview("controlsConfig_current");			
+			kommonitorScriptHelperService.prettifyScriptCodePreview("controlsConfig_current");	
+			
+			$scope.initCodeEditor();
 
 			$scope.onChangeControlsConfig();
 
 			$scope.$apply();
 		};
 
+		$scope.initCodeEditor = function(){
+			$scope.codeMirrorEditor = CodeMirror.fromTextArea(document.getElementById("controlsConfigEditor"), {
+				lineNumbers: true,
+				autoRefresh:true,
+				mode: "application/json",
+				gutters: ["CodeMirror-lint-markers"],
+				lint: {
+					"getAnnotations": $scope.validateCode,
+					"async": true 
+				}
+			  });
+
+			 $scope.codeMirrorEditor.setSize(null, 300); 
+
+			 $scope.codeMirrorEditor.on('change',function(cMirror){
+			   // get value right from instance
+			   $scope.controlsConfigTmp = $scope.codeMirrorEditor.getValue();			   
+			 }); 
+
+			 $scope.codeMirrorEditor.setValue($scope.controlsConfigCurrent);
+		};
+
+		$scope.validateCode = function(cm, updateLinting, options){
+			// call the built in css linter from addon/lint/css-lint.js
+			try {
+				$scope.lintingIssues = CodeMirror.lint.json(cm, options);
+
+				updateLinting($scope.lintingIssues);					
+			} catch (error) {
+				console.error("Error while linting controls config json code. Error is: \n" + error);
+			}
+
+			$scope.onChangeControlsConfig();
+            
+		};
+
 		$scope.resetDefaultConfig = async function(){
-			$scope.controlsConfigCurrent = JSON.stringify($scope.controlsConfigTemplate, null, "    ");
-			$scope.controlsConfigNew = JSON.stringify($scope.controlsConfigTemplate, null, "    ");
-			$scope.controlsConfigTmp = JSON.stringify($scope.controlsConfigTemplate, null, "    ");
+			$scope.controlsConfigCurrent = $scope.controlsConfigTemplate;
+			$scope.controlsConfigNew = $scope.controlsConfigTemplate;
+			$scope.controlsConfigTmp = $scope.controlsConfigTemplate;
 
 			$scope.onChangeControlsConfig();
 
 			  // update config on server
-			$scope.editControlsConfig();  
+			$scope.editControlsConfig(); 
+			
+			$scope.codeMirrorEditor.setValue($scope.controlsConfigCurrent);
 		};
 
 		$scope.isConfigSettingInvalid = function(configString){
@@ -53,18 +94,8 @@ angular.module('adminControlsConfig').component('adminControlsConfig', {
 
 			isInvalid = ! $scope.keywordsInConfig.every(keyword => configString.includes(keyword));
 
-			try {
-				var json = JSON.parse(configString);
-
-				if(typeof json === 'object' && json !== null){
-					// all good as far as we can tell
-					// at least it can be parsed as any JSON object that is not null 
-				}
-				else{
-					isInvalid = true;
-				}
-			} catch (error) {
-				isInvalid = true;
+			if ($scope.lintingIssues && $scope.lintingIssues.length > 0){
+				isInvalid = true;				
 			}
 
 			return isInvalid;
@@ -90,8 +121,12 @@ angular.module('adminControlsConfig').component('adminControlsConfig', {
 				// kommonitorScriptHelperService.prettifyScriptCodePreview("controlsConfig_new");	
 				document.getElementById('controlsConfig_new').innerHTML = 
 					PR.prettyPrintOne($scope.controlsConfigNew,
-					'javascript');
+					'javascript', true);
 			}, 250);
+
+			$timeout(function(){
+				$scope.$apply();
+			});
 		};
 
 		$scope.init();
@@ -115,7 +150,7 @@ angular.module('adminControlsConfig').component('adminControlsConfig', {
 					// kommonitorScriptHelperService.prettifyScriptCodePreview("controlsConfig_new");	
 					document.getElementById('controlsConfig_current').innerHTML = 
 						PR.prettyPrintOne($scope.controlsConfigCurrent,
-						'javascript');
+						'javascript', true);
 				}, 250);
 
 				$("#controlsConfigEditSuccessAlert").show();

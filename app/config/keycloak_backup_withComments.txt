@@ -1,5 +1,4 @@
-{
-  // COMMENTS NOT ALLOWED IN JSON, BUT USED HERE TO EXPLAIN PROPERTIES
+{ // COMMENTS NOT ALLOWED IN JSON, BUT USED HERE TO EXPLAIN PROPERTIES
   "realm": "kommonitor", // Keycloak Realm name used for all KomMonitor components
   "auth-server-url": "https://keycloak.url/auth/", // keycloak server URL inluding "/auth/"
   "ssl-required": "external",  // SSL Setting, leave it to "external"

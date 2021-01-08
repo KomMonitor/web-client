@@ -343,6 +343,16 @@ MULTI STEP FORM
 .null { color: magenta; }
 .key { color: red; }
 
+pre.CodeMirror-line {
+	outline: none;
+}
+
+.CodeMirror {
+    border: 1px solid black;
+}
+
+.prettyprint ol.linenums > li { list-style-type: decimal; }
+
 .just-padding {
     padding: 15px;
 }

@@ -8,6 +8,7 @@ angular.module('adminKeycloakConfig').component('adminKeycloakConfig', {
 		$('.box').boxWidget();
 
 		$scope.loadingData = true;
+		$scope.codeMirrorEditor = undefined;
 
 		$scope.keywordsInConfig = ["realm", "auth-server-url", "http", "/auth", "resource", "ssl-required", "public-client", "confidential-port", "admin-rolename", "admin-rolepassword"];
 
@@ -30,11 +31,49 @@ angular.module('adminKeycloakConfig').component('adminKeycloakConfig', {
 			$scope.keycloakConfigTmp = JSON.stringify(__env.keycloakConfig, null, "    ");
 			$scope.keycloakConfigCurrent = JSON.stringify(__env.keycloakConfig, null, "    ");
 			$scope.keycloakConfigNew = JSON.stringify(__env.keycloakConfig, null, "    ");
-			kommonitorScriptHelperService.prettifyScriptCodePreview("keycloakConfig_current");			
+			kommonitorScriptHelperService.prettifyScriptCodePreview("keycloakConfig_current");	
+			
+			$scope.initCodeEditor();
 
 			$scope.onChangeKeycloakConfig();
 
 			$scope.$apply();
+		};
+
+		$scope.initCodeEditor = function(){
+			$scope.codeMirrorEditor = CodeMirror.fromTextArea(document.getElementById("keycloakConfigEditor"), {
+				lineNumbers: true,
+				autoRefresh:true,
+				mode: "application/json",
+				gutters: ["CodeMirror-lint-markers"],
+				lint: {
+					"getAnnotations": $scope.validateCode,
+					"async": true 
+				}
+			  });
+
+			 $scope.codeMirrorEditor.setSize(null, 220); 
+
+			 $scope.codeMirrorEditor.on('change',function(cMirror){
+			   // get value right from instance
+			   $scope.keycloakConfigTmp = $scope.codeMirrorEditor.getValue();			   
+			 }); 
+
+			 $scope.codeMirrorEditor.setValue($scope.keycloakConfigCurrent);
+		};
+
+		$scope.validateCode = function(cm, updateLinting, options){
+			// call the built in css linter from addon/lint/css-lint.js
+			try {
+				$scope.lintingIssues = CodeMirror.lint.json(cm, options);
+
+				updateLinting($scope.lintingIssues);					
+			} catch (error) {
+				console.error("Error while linting keycloak config json code. Error is: \n" + error);
+			}
+
+			$scope.onChangeKeycloakConfig();
+            
 		};
 
 		$scope.isConfigSettingInvalid = function(configString){
@@ -42,18 +81,8 @@ angular.module('adminKeycloakConfig').component('adminKeycloakConfig', {
 
 			isInvalid = ! $scope.keywordsInConfig.every(keyword => configString.includes(keyword));
 
-			try {
-				var json = JSON.parse(configString);
-
-				if(typeof json === 'object' && json !== null){
-					// all good as far as we can tell
-					// at least it can be parsed as any JSON object that is not null 
-				}
-				else{
-					isInvalid = true;
-				}
-			} catch (error) {
-				isInvalid = true;
+			if ($scope.lintingIssues && $scope.lintingIssues.length > 0){
+				isInvalid = true;			
 			}
 
 			return isInvalid;
@@ -71,6 +100,8 @@ angular.module('adminKeycloakConfig').component('adminKeycloakConfig', {
 
 			  // update config on server
 			$scope.editKeycloakConfig();  
+
+			$scope.codeMirrorEditor.setValue($scope.keycloakConfigCurrent);
 		};
 
 		$scope.onChangeKeycloakConfig = function(){
@@ -92,8 +123,12 @@ angular.module('adminKeycloakConfig').component('adminKeycloakConfig', {
 				// kommonitorScriptHelperService.prettifyScriptCodePreview("keycloakConfig_new");	
 				document.getElementById('keycloakConfig_new').innerHTML = 
 					PR.prettyPrintOne($scope.keycloakConfigNew,
-					'javascript');
+					'javascript', true);
 			}, 250);
+
+			$timeout(function(){
+				$scope.$apply();
+			});
 		};
 
 		$scope.init();
@@ -117,7 +152,7 @@ angular.module('adminKeycloakConfig').component('adminKeycloakConfig', {
 					// kommonitorScriptHelperService.prettifyScriptCodePreview("keycloakConfig_new");	
 					document.getElementById('keycloakConfig_current').innerHTML = 
 						PR.prettyPrintOne($scope.keycloakConfigCurrent,
-						'javascript');
+						'javascript', true);
 				}, 250);
 
 				$("#keycloakConfigEditSuccessAlert").show();
