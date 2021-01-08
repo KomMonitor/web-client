@@ -43,7 +43,7 @@
 							<tr>
 								<th><input type="checkbox" ng-model="selectAllEntriesInput"
 										ng-change="onChangeSelectAllEntries()"></input></th>
-								<th>Editierfunktionen</th>
+								<!-- <th>Editierfunktionen</th> -->
 								<th>Skript-Id</th>
 								<th>SkriptName</th>
 								<th>Ziel-Indikator-Id</th>
@@ -59,14 +59,14 @@
 							<tr ng-repeat="scriptDataset in availableScriptDatasets">
 								<td><input type="checkbox" ng-model="scriptDataset.isSelected"
 										ng-change="onChangeSelectDataset(scriptDataset)"></input></td>
-								<td>
+								<!-- <td>
 									<div class="btn-group btn-group-sm">
 										<button class="btn btn-warning btn-sm" type="button" data-toggle="modal"
 											data-target="#modal-edit-script-metadata"
 											ng-click="onClickEditScript(scriptDataset)"
 											title="Skript editieren"><i class="fas fa-pencil-alt"></i></button>
 									</div>
-								</td>
+								</td> -->
 								<td>{{scriptDataset.scriptId}}</td>
 								<td>{{scriptDataset.name}}</td>
 								<td>{{scriptDataset.indicatorId}}</td>
@@ -134,7 +134,7 @@
 						<tfoot>
 							<tr>
 								<th>alle selektieren</th>
-								<th>Editierfunktionen</th>
+								<!-- <th>Editierfunktionen</th> -->
 								<th>Skript-Id</th>
 								<th>SkriptName</th>
 								<th>Ziel-Indikator-Id</th>
