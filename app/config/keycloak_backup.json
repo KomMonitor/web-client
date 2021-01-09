@@ -1,6 +1,6 @@
 {
-  "realm": "kommonitor", 
-  "auth-server-url": "https://keycloak.url/auth/", 
+  "realm": "kommonitor-essen", 
+  "auth-server-url": "https://keycloak.fbg-hsbo.de/auth/", 
   "ssl-required": "external", 
   "resource": "kommonitor-web-client",
   "public-client": true, 
