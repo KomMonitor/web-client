@@ -107,7 +107,7 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 			$scope.loadingData = true;
 			// fetch all spatial unit features
 			$http({
-				url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/spatial-units/" + $scope.currentSpatialUnitDataset.spatialUnitId + "/allFeatures",
+				url: kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/spatial-units/" + $scope.currentSpatialUnitDataset.spatialUnitId + "/allFeatures",
 				method: "GET",
 				// headers: {
 				//    'Content-Type': undefined
@@ -379,6 +379,10 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 
 		$scope.editSpatialUnitFeatures = async function(){
 
+			$timeout(function(){
+				$scope.loadingData = true;
+			});
+
 			$scope.importerErrors = undefined;
 				$scope.successMessagePart = undefined;
 				$scope.errorMessagePart = undefined;
@@ -405,7 +409,6 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 
 					// TODO Create and perform POST Request with loading screen
 
-					$scope.loadingData = true;
 					var updateSpatialUnitResponse_dryRun = undefined;
 					try {
 						updateSpatialUnitResponse_dryRun = await kommonitorImporterHelperService.updateSpatialUnit($scope.converterDefinition, $scope.datasourceTypeDefinition, $scope.propertyMappingDefinition, $scope.currentSpatialUnitDataset.spatialUnitId, $scope.putBody_spatialUnits, true);

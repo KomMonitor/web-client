@@ -25,6 +25,9 @@ angular
 
 					//$("[data-toggle=tooltip]").tooltip();
 
+					// initialize any adminLTE box widgets
+					$('.box').boxWidget();
+
 					var OpenStreetMapProvider = window.GeoSearch.OpenStreetMapProvider;
 					$scope.openStreetMapProvider = new OpenStreetMapProvider();
 
@@ -771,7 +774,7 @@ angular
 							var day = dateComps[2];
 
 							await $http({
-								url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + id + "/" + year + "/" + month + "/" + day,
+								url: kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/georesources/" + id + "/" + year + "/" + month + "/" + day,
 								method: "GET"
 							}).then(function successCallback(response) {
 									// this callback will be called asynchronously
@@ -1290,8 +1293,7 @@ angular
 						var day = dateComps[2];
 
 						return $http({
-							url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + id + "/" + year + "/" + month + "/" + day,
-								// url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + id + "/allFeatures",
+							url: kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/georesources/" + id + "/" + year + "/" + month + "/" + day,
 							method: "GET"
 						}).then(function successCallback(response) {
 								// this callback will be called asynchronously

@@ -199,9 +199,8 @@ angular
 
 										try{
 											var applicableSpatialUnits = kommonitorDataExchangeService.selectedIndicator.applicableSpatialUnits;
-											var spatialUnitName = item.spatialUnitLevel;
-
-											return applicableSpatialUnits.includes(spatialUnitName);
+											
+											return applicableSpatialUnits.some(o => o.spatialUnitName === item.spatialUnitLevel);
 										}
 										catch(error){
 											return false;
@@ -216,11 +215,11 @@ angular
 										var applicableSpatialUnits = kommonitorDataExchangeService.selectedIndicator.applicableSpatialUnits;
 
 										for (const spatialUnitEntry of kommonitorDataExchangeService.availableSpatialUnits){
-											if(applicableSpatialUnits.includes(spatialUnitEntry.spatialUnitLevel)){
+											if(applicableSpatialUnits.some(o => o.spatialUnitName === spatialUnitEntry.spatialUnitLevel)){
 												result = spatialUnitEntry;
 												break;
 											}
-										};
+										}
 
 										return result;
 								};
@@ -354,7 +353,7 @@ angular
 									var day = dateComps[2];
 
 									$http({
-										url: this.kommonitorDataExchangeServiceInstance.baseUrlToKomMonitorDataAPI + "/spatial-units/" + id + "/" + year + "/" + month + "/" + day + "?" + kommonitorDataExchangeServiceInstance.simplifyGeometriesParameterName + "=" + kommonitorDataExchangeServiceInstance.simplifyGeometries,
+										url: kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/spatial-units/" + id + "/" + year + "/" + month + "/" + day + "?" + kommonitorDataExchangeService.simplifyGeometriesParameterName + "=" + kommonitorDataExchangeService.simplifyGeometries,
 										method: "GET"
 									}).then(function successCallback(response) {
 											// this callback will be called asynchronously
@@ -409,7 +408,7 @@ angular
 									var day = dateComps[2];
 
 									$http({
-										url: this.kommonitorDataExchangeServiceInstance.baseUrlToKomMonitorDataAPI + "/georesources/" + id + "/" + year + "/" + month + "/" + day  + "?" + kommonitorDataExchangeServiceInstance.simplifyGeometriesParameterName + "=" + kommonitorDataExchangeServiceInstance.simplifyGeometries,
+										url: kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/georesources/" + id + "/" + year + "/" + month + "/" + day  + "?" + kommonitorDataExchangeService.simplifyGeometriesParameterName + "=" + kommonitorDataExchangeService.simplifyGeometries,
 										method: "GET"
 									}).then(function successCallback(response) {
 											// this callback will be called asynchronously
@@ -584,7 +583,7 @@ angular
 									}
 								});
 
-								var wait = ms => new Promise((r, j)=>setTimeout(r, ms))
+								var wait = ms => new Promise((r, j)=>setTimeout(r, ms));
 
 								$scope.tryUpdateMeasureOfValueBarForIndicator = async function(){
 									var indicatorId = kommonitorDataExchangeService.selectedIndicator.indicatorId;
@@ -597,8 +596,13 @@ angular
 									// $scope.selectedDate = $scope.selectedDate;
 									$scope.spatialUnitName = kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel;
 
+									var dateComps = $scope.date.split("-");
+									var year = dateComps[0];
+									var month = dateComps[1];
+									var day = dateComps[2];
+
 									return await $http({
-										url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/indicators/" + indicatorId + "/" + kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitId  + "?" + kommonitorDataExchangeService.simplifyGeometriesParameterName + "=" + kommonitorDataExchangeService.simplifyGeometries,
+										url: kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/indicators/" + indicatorId + "/" + kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitId + "/" + year + "/" + month + "/" + day + "?" + kommonitorDataExchangeService.simplifyGeometriesParameterName + "=" + kommonitorDataExchangeService.simplifyGeometries,
 										method: "GET"
 									}).then(function successCallback(response) {
 											// this callback will be called asynchronously
@@ -678,7 +682,7 @@ angular
 
 										$scope.setupDateSliderForIndicator();
 
-										if(!kommonitorDataExchangeService.selectedSpatialUnit || !kommonitorDataExchangeService.selectedIndicator.applicableSpatialUnits.includes(kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel)){
+										if(!kommonitorDataExchangeService.selectedSpatialUnit || !kommonitorDataExchangeService.selectedIndicator.applicableSpatialUnits.some(o => o.spatialUnitName === kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel)){
 											kommonitorDataExchangeService.selectedSpatialUnit = $scope.getFirstSpatialUnitForSelectedIndicator();
 										}
 

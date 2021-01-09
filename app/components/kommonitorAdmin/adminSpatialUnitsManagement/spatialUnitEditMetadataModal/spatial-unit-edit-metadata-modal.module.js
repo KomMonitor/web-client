@@ -1,1 +1,1 @@
-angular.module('spatialUnitEditMetadataModal', []);
+angular.module('spatialUnitEditMetadataModal', ['excaliburDualList']);

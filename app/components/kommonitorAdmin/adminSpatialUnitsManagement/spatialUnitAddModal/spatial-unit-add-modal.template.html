@@ -21,11 +21,22 @@
 					<div class="col-md-12">
 						<form class="multiStepForm form-group" id="spatialUnitAddForm" role="form" data-toggle="validator" data-disable="true" style="margin-bottom: 0px;">
 							<!-- progressbar -->
-							<ul id="progressbar">
-								<li style="width: 33.33%;" class="active">Metadaten der Raumeinheit</li>
-								<li style="width: 33.33%;">Allgemeine Metadaten</li>
-								<li style="width: 33.33%;">R&auml;umlicher Datensatz</li>
-							</ul>
+							<div ng-if="! $ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
+								<ul id="progressbar">
+									<li style="width: 33.33%;" class="active">Metadaten der Raumeinheit</li>
+									<li style="width: 33.33%;">Allgemeine Metadaten</li>
+									<li style="width: 33.33%;">R&auml;umlicher Datensatz</li>
+								</ul>
+							</div>
+							<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
+								<ul id="progressbar">
+									<li style="width: 25%;" class="active">Metadaten der Raumeinheit</li>
+									<li style="width: 25%;">Allgemeine Metadaten</li>
+									<li style="width: 25%;">Rollenbasierter Zugriffsschutz</li>
+									<li style="width: 25%;">R&auml;umlicher Datensatz</li>
+								</ul>
+							</div>
+							
 							<!-- fieldsets -->
 							<fieldset>
 								<h2 class="fs-title">Metadaten der Raumeinheit</h2>
@@ -175,6 +186,25 @@
 								<input type="button" name="next" class="next next_addSpatialUnit action-button" value="N&auml;chster Schritt"/>
 							</fieldset>
 							
+								<fieldset ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
+									<h2 class="fs-title">Rollenbasierter Zugriffsschutz (Optional)</h2>
+									<h3 class="fs-subtitle">Angabe ob nur ausgew&auml;hlte Rollen Zugriff auf Datensatz-Metadaten und -Features erhalten sollen</h3>
+	
+									<p>Klicken Sie ein oder mehrere der verf&uuml;gbaren Rollen aus der linken &Uuml;bersicht an, um den Zugriff auf den Datensatz auf diese Rollen einzuschr&auml;nken.</p>
+	
+									<p>Der Zugriff ist nur f&uuml;r die Rollen erlaubt, die im rechten &Uuml;bersichtsfenster gelistet sind.</p>
+	
+									<p>Wird keine Rolle selektiert, so ist der Datensatz ohne Zugriffsbeschr&auml;nkung abrufbar.</p>
+	
+									<div class="row no-margin">
+										<div class="col-md">
+											<excalibur-dual-list ng-model='allowedRoleNames.selectedItems' options="duallist.duallistRoleOptions"></excalibur-dual-list>
+										</div>
+									</div>
+									
+									<input type="button" name="previous" class="previous previous_addSpatialUnit action-button-previous" value="Voriger Schritt"/>
+									<input type="button" name="next" class="next next_addSpatialUnit action-button" value="N&auml;chster Schritt"/>
+								</fieldset>						
 
 							<fieldset>
 								<div style="position: absolute;">
@@ -214,9 +244,9 @@
 										<div ng-repeat="parameter in converter.parameters">
 
 											<div class="form-group">
-												<label>{{parameter.name}}*</label>
+												<label>{{parameter.name}}<i ng-if="parameter.mandatory">*</i></label>
 												<input type="text" id="converterParameter_spatialUnitAdd_{{parameter.name}}" class="form-control"
-													placeholder="{{parameter.name}}" required>
+													placeholder="{{parameter.name}}" ng-required="parameter.mandatory">
 												<div class="help-block">
 													<p>{{parameter.description}}</p>
 												</div>
@@ -300,7 +330,7 @@
 											<input type="text" ng-model="validityStartDate_perFeature" class="form-control pull-right">
 											<div class="help-block">
 												<p>Eintrag nur, falls die r&auml;umlichen Features &uuml;ber ein Attribut
-													für den Lebenszeitraum (Beginn) verf&uuml;gen.</p>
+													f&uuml;r den Lebenszeitraum (Beginn) verf&uuml;gen.</p>
 											</div>
 											<div class="help-block with-errors"></div>
 										</div>
@@ -309,7 +339,7 @@
 											<input type="text" ng-model="validityEndDate_perFeature" class="form-control pull-right">
 											<div class="help-block">
 												<p>Eintrag nur, falls die r&auml;umlichen Features &uuml;ber ein Attribut
-													für den Lebenszeitraum (Ende) verf&uuml;gen.</p>
+													f&uuml;r den Lebenszeitraum (Ende) verf&uuml;gen.</p>
 											</div>
 											<div class="help-block with-errors"></div>
 										</div>

@@ -21,7 +21,7 @@ module.exports = {
           { from: nodeModulePathConstant + 'rangeslide.js/dist', to: 'rangeslide/' },
           { from: nodeModulePathConstant + '@fortawesome/fontawesome-free', to: 'fontawesome/' },
           { from: nodeModulePathConstant + 'font-awesome/', to: 'fontawesome-4.7.0/' },
-          { from: nodeModulePathConstant + 'file-saverjs/FileSaver.min.js', to: 'file-saverjs/FileSaver.min.js' },
+          { from: nodeModulePathConstant + 'file-saver/dist/FileSaver.min.js', to: 'file-saverjs/FileSaver.min.js' },
           { from: nodeModulePathConstant + 'js-xlsx/dist/xlsx.full.min.js', to: 'js-xlsx/xlsx.full.min.js' },
           { from: nodeModulePathConstant + 'tableexport/dist', to: 'tableexport' },
           { from: nodeModulePathConstant + 'leaflet-draw/dist', to: 'leaflet-draw/' },
@@ -41,8 +41,8 @@ module.exports = {
           { from: './customizedExternalLibs/leaflet-groupedlayercontrol/leaflet.groupedlayercontrol.js', to: 'leaflet-groupedlayercontrol' },
           { from: './customizedExternalLibs/leaflet-groupedlayercontrol/leaflet.groupedlayercontrol.min.css', to: 'leaflet-groupedlayercontrol' },
           { from: nodeModulePathConstant + '@turf/turf/turf.min.js', to: 'turf' },
-          { from: nodeModulePathConstant + 'bootstrap-tour/build/css/bootstrap-tour.min.css', to: 'bootstrap-tour' },
-          { from: nodeModulePathConstant + 'bootstrap-tour/build/js/bootstrap-tour.min.js', to: 'bootstrap-tour' },
+          { from: nodeModulePathConstant + 'bootstrap-tour/build/css/bootstrap-tour-standalone.min.css', to: 'bootstrap-tour' },
+          { from: nodeModulePathConstant + 'bootstrap-tour/build/js/bootstrap-tour-standalone.min.js', to: 'bootstrap-tour' },
           { from: nodeModulePathConstant + 'jspdf/dist/jspdf.min.js', to: 'jspdf' },
           { from: nodeModulePathConstant + 'jspdf-autotable/dist/jspdf.plugin.autotable.min.js', to: 'jspdf-autotable' },
           { from: './customizedExternalLibs/shpwrite.js', to: 'shp-write' },
@@ -84,7 +84,12 @@ module.exports = {
           { from: nodeModulePathConstant + 'html2canvas/dist', to: 'html2canvas/' },
           { from: nodeModulePathConstant + 'html2pdf.js/dist', to: 'html2pdf/' },
           { from: nodeModulePathConstant + 'jquery.easing/jquery.easing.min.js', to: 'jquery.easing/' },
-          { from: './customizedExternalLibs/colorbrewer.js', to: 'colorbrewer/' }
+          { from: './customizedExternalLibs/colorbrewer.js', to: 'colorbrewer/' },
+          { from: nodeModulePathConstant + 'keycloak-js/dist', to: 'keycloak/' },
+          { from: nodeModulePathConstant + 'crypto-js/', to: 'crypto-js/' },
+          { from: nodeModulePathConstant + 'codemirror/', to: 'codemirror/' },
+          { from: nodeModulePathConstant + 'jshint/dist', to: 'jshint/' },
+          { from: nodeModulePathConstant + 'jsonlint/web', to: 'jsonlint/' }
 
       ])
     ]
