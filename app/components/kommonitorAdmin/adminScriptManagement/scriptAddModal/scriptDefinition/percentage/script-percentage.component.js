@@ -130,8 +130,9 @@ angular.module('scriptPercentage').component('scriptPercentage', {
 				// baseIndicators / computationIndicators
 				for (let index = 0; index < $scope.baseIndicators.length; index++) {
 					const indicatorMetadata = $scope.baseIndicators[index];
-					formulaHTML+="I<sub>" + index + 1 + "</sub>";
-					legendItemsHTML+="<i>I<sub>" + index + 1 + "</sub></i>: " + indicatorMetadata.indicatorName;
+					var indexValue = Number(index + 1);
+					formulaHTML+="I<sub>" + indexValue + "</sub>";
+					legendItemsHTML+="<i>I<sub>" + indexValue + "</sub></i>: " + indicatorMetadata.indicatorName;
 					if(index < $scope.baseIndicators.length - 1){
 						formulaHTML+=" + ";
 						legendItemsHTML+="<br/>"; 
