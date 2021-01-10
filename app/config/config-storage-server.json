@@ -1,5 +1,5 @@
 {
-    "targetUrlToConfigStorageServer_appConfig" : "https://kommonitor.fbg-hsbo.de/client-config/config/client-app-config",
-    "targetUrlToConfigStorageServer_keycloakConfig" : "https://kommonitor.fbg-hsbo.de/client-config/config/client-keycloak-config",
-    "targetUrlToConfigStorageServer_controlsConfig" : "https://kommonitor.fbg-hsbo.de/client-config/config/client-controls-config"
+    "targetUrlToConfigStorageServer_appConfig" : "https://kommonitor.fbg-hsbo.de/client-configconfig/client-app-config",
+    "targetUrlToConfigStorageServer_keycloakConfig" : "https://kommonitor.fbg-hsbo.de/client-configconfig/client-keycloak-config",
+    "targetUrlToConfigStorageServer_controlsConfig" : "https://kommonitor.fbg-hsbo.de/client-configconfig/client-controls-config"
 }
