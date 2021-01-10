@@ -22,9 +22,7 @@ angular
       this.realm = "";
       this.clientId = "";
       this.adminRoleName = "";
-      this.adminRolePassword = "";
-
-      var self = this;
+      this.adminRolePassword = "";      
 
       this.init = async function () {
         try {
@@ -51,9 +49,7 @@ angular
             if(__env.enableKeycloakSecurity){
               self.fetchAndSetKeycloakRoles();
             }
-      };
-
-      this.init();
+      };      
 
       this.fetchRoles = async function () {
 
@@ -294,5 +290,8 @@ angular
         }
         return false;
       };
+
+      var self = this;
+      this.init();
 
     }]);
