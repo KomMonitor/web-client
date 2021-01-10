@@ -266,7 +266,7 @@ function initAngularComponents(){
 
 function bootstrapApplication(){
 
-  var resourcePath = window.__env.keycloakConfig ? window.__env.keycloakConfig : './config/keycloak_backup.json';
+  var resourcePath = window.__env.configStorageServerConfig.targetUrlToConfigStorageServer_keycloakConfig ? window.__env.configStorageServerConfig.targetUrlToConfigStorageServer_keycloakConfig : './config/keycloak_backup.json';
   if(window.__env.enableKeycloakSecurity){
     var keycloakAdapter = new Keycloak(resourcePath);  
     keycloakAdapter.init({
