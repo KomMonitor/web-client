@@ -116,7 +116,7 @@ angular
           });
 
 
-          // if (indicatorCandidateYears.includes(targetYear) && indicatorMetadata.applicableSpatialUnits.includes(kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel)) {
+          // if (indicatorCandidateYears.includes(targetYear) && indicatorMetadata.applicableSpatialUnits.some(o => o.spatialUnitName ===  kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel)) {
           //   var selectableIndicatorEntry = {};
           //   selectableIndicatorEntry.indicatorProperties = null;
           //   // per default show no indicators on radar
@@ -127,7 +127,7 @@ angular
           //   this.indicatorPropertiesForCurrentSpatialUnitAndTime.push(selectableIndicatorEntry);
           // }
           
-          if (indicatorMetadata.applicableSpatialUnits.includes(kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel)) {
+          if (indicatorMetadata.applicableSpatialUnits.some(o => o.spatialUnitName === kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel)) {
             var canBeAdded = true;
 
             if(filterBySameUnitAndSameTime){
@@ -170,7 +170,7 @@ angular
 
       this.fetchIndicatorProperties = function (indicatorMetadata, spatialUnitId) {
         return $http({
-          url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/indicators/" + indicatorMetadata.indicatorId + "/" + spatialUnitId + "/without-geometry",
+          url: kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/indicators/" + indicatorMetadata.indicatorId + "/" + spatialUnitId + "/without-geometry",
           method: "GET"
         }).then(function successCallback(response) {
           // this callback will be called asynchronously

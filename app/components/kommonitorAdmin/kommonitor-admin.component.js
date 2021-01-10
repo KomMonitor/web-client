@@ -23,9 +23,9 @@ angular
 								// 		$location.path('/');
 								// 	}
 								//
-			          // });
-
-								this.checkAuthorizationOnStartup = function(){
+					  // });
+					  
+								this.checkAuthorizationOnStartup_withoutKeycloak = function(){
 									if (! kommonitorDataExchangeService.adminIsLoggedIn){
 										// redirect to main page
 										console.log("No Admin user is logged in - Prevent access to ADMIN panel");
@@ -34,7 +34,9 @@ angular
 								};
 
 								this.init = function(){
-									this.checkAuthorizationOnStartup();
+									if(! kommonitorDataExchangeService.enableKeycloakSecurity){
+										this.checkAuthorizationOnStartup_withoutKeycloak();
+									}
 									kommonitorDataExchangeService.fetchAllMetadata();
 								};
 
@@ -47,9 +49,17 @@ angular
 									document.getElementById('adminGeodataWrapperNavItem').setAttribute("class", "active");
 								};
 
+								$scope.onClickConfigAdminPanel = function(idOfNavBarItem){
+									$scope.activeItemBackupId = idOfNavBarItem;
+									$('.sidebar-menu li').removeClass("active");
+
+									document.getElementById('adminConfigWrapperNavItem').setAttribute("class", "active");
+								};
+
 								$scope.onClickOtherAdminPanel = function(idOfNavBarItem){
 									$scope.activeItemBackupId = idOfNavBarItem;
 									$('#adminGeodataWrapperNavItem ul li').removeClass("active");
+									$('#adminConfigWrapperNavItem ul li').removeClass("active");
 								};
 
 								$scope.onClickGeodataWrapperItem = function(){
@@ -64,42 +74,17 @@ angular
 									}, 40);
 								};
 
-								// this.onClickDataManagement = function(resourceType){
-								// 	this.selectedResourceType = resourceType;
-								//
-								// 	document.getElementById('adminGeodataWrapperNavItem').setAttribute("class", "active");
-								//
-								// 	switch(resourceType) {
-								// 	    case 'spatialUnits':
-								// 					document.getElementById('spatialUnitManagement').setAttribute("class", "active");
-								// 					document.getElementById('georesourceManagement').setAttribute("class", "");
-								// 					document.getElementById('indicatorManagement').setAttribute("class", "");
-								// 					document.getElementById('scriptManagement').setAttribute("class", "");
-								// 	        break;
-								// 	    case 'georesources':
-								// 					document.getElementById('spatialUnitManagement').setAttribute("class", "");
-								// 					document.getElementById('georesourceManagement').setAttribute("class", "active");
-								// 					document.getElementById('indicatorManagement').setAttribute("class", "");
-								// 					document.getElementById('scriptManagement').setAttribute("class", "");
-								// 	        break;
-								// 			case 'indicators':
-								// 					document.getElementById('spatialUnitManagement').setAttribute("class", "");
-								// 					document.getElementById('georesourceManagement').setAttribute("class", "");
-								// 					document.getElementById('indicatorManagement').setAttribute("class", "active");
-								// 					document.getElementById('scriptManagement').setAttribute("class", "");
-								// 		      break;
-								// 			case 'scripts':
-								// 					document.getElementById('spatialUnitManagement').setAttribute("class", "");
-								// 					document.getElementById('georesourceManagement').setAttribute("class", "");
-								// 					document.getElementById('indicatorManagement').setAttribute("class", "");
-								// 					document.getElementById('scriptManagement').setAttribute("class", "active");
-								// 					break;
-								// 	    default:
-								// 					document.getElementById('spatialUnitManagement').setAttribute("class", "active");
-								// 					document.getElementById('georesourceManagement').setAttribute("class", "");
-								// 					document.getElementById('indicatorManagement').setAttribute("class", "");
-								// 	}
-								// };
+								$scope.onClickConfigWrapperItem = function(){
+
+									// $('#adminGeodataWrapperNavItem').toggleClass("active");
+
+									setTimeout(function(){
+										if($scope.activeItemBackupId != 'adminAppConfigNavItem' && $scope.activeItemBackupId != 'adminKeycloakConfigNavItem' && $scope.activeItemBackupId != 'adminControlsConfigNavItem'){
+											// $('#adminGeodataWrapperNavItem').toggleClass("active");
+											$('#'+$scope.activeItemBackupId).addClass("active");
+										}
+									}, 40);
+								};								
 
 					}
 				]});

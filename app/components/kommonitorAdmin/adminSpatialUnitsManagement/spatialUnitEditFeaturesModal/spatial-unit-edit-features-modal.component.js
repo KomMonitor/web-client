@@ -107,7 +107,7 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 			$scope.loadingData = true;
 			// fetch all spatial unit features
 			$http({
-				url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/spatial-units/" + $scope.currentSpatialUnitDataset.spatialUnitId + "/allFeatures",
+				url: kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/spatial-units/" + $scope.currentSpatialUnitDataset.spatialUnitId + "/allFeatures",
 				method: "GET",
 				// headers: {
 				//    'Content-Type': undefined

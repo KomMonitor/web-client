@@ -1,6 +1,6 @@
 angular.module('topicDeleteModal').component('topicDeleteModal', {
 	templateUrl : "components/kommonitorAdmin/adminTopicsManagement/topicDeleteModal/topic-delete-modal.template.html",
-	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '$http', '__env', '$q',function TopicDeleteModalController(kommonitorDataExchangeService, $scope, $rootScope, $http, __env, $q) {
+	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '$http', '__env', '$q', '$timeout',function TopicDeleteModalController(kommonitorDataExchangeService, $scope, $rootScope, $http, __env, $q, $timeout) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
@@ -54,9 +54,11 @@ angular.module('topicDeleteModal').component('topicDeleteModal', {
 					// refresh all admin dashboard diagrams due to modified metadata
 					$rootScope.$broadcast("refreshAdminDashboardDiagrams");
 
-					$scope.loadingData = false;
-
-					$scope.showSuccessAlert();
+					$timeout(function(){
+				
+						$scope.loadingData = false;
+						$scope.showSuccessAlert();
+					});	
 
 				}, function errorCallback(error) {
 					if(error.data){							
@@ -67,7 +69,10 @@ angular.module('topicDeleteModal').component('topicDeleteModal', {
 					}
 
 					$("#topicsErrorAlert").show();
-					$scope.loadingData = false;
+					$timeout(function(){
+				
+						$scope.loadingData = false;
+					});	
 
 					// setTimeout(function() {
 					// 		$("#spatialUnitAddSucessAlert").hide();

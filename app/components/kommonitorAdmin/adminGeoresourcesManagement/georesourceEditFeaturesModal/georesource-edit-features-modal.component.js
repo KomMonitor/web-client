@@ -85,7 +85,7 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 			$scope.loadingData = true;
 			// fetch all georesource features
 			$http({
-				url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + $scope.currentGeoresourceDataset.georesourceId + "/allFeatures",
+				url: kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/georesources/" + $scope.currentGeoresourceDataset.georesourceId + "/allFeatures",
 				method: "GET",
 				// headers: {
 				//    'Content-Type': undefined
