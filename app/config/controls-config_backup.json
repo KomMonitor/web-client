@@ -1,7 +1,7 @@
 [
     {
         "id": "indicatorConfig",
-        "roles": ["roleName1_hasAccessToThis_whileAnonymousUserHasNoAccess", "roleName2_hasAccessToThis_whileAnonymousUserHasNoAccess"]
+        "roles": []
     },
     {
         "id": "poi",
@@ -13,7 +13,7 @@
     },
     {
         "id": "filter",
-        "roles": []
+        "roles": ["roleName1_hasAccessToThis_whileAnonymousUserHasNoAccess", "roleName2_hasAccessToThis_whileAnonymousUserHasNoAccess"]
     },
     {
         "id": "measureOfValueClassification",

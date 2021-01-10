@@ -1,6 +1,6 @@
 {
-  "realm": "kommonitor", 
-  "auth-server-url": "https://keycloak.url/auth/", 
+  "realm": "kommonitor-rvr", 
+  "auth-server-url": "https://keycloak.geoportal.ruhr/auth/", 
   "ssl-required": "external", 
   "resource": "kommonitor-web-client",
   "public-client": true, 
