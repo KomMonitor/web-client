@@ -16,11 +16,12 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			console.log("Initialize Application");
 			if ($scope.authenticated) {
 				console.log("Authetication successfull");
-			}
-			kommonitorDataExchangeService.fetchAllMetadata();
+			}			
 
 			checkAuthentication();
 			$scope.widgetAccessibility = getWidgetAccessibility();
+
+			kommonitorDataExchangeService.fetchAllMetadata();
 		};
 
 		// initialize any adminLTE box widgets
