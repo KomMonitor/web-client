@@ -1,0 +1,10 @@
+{
+  "realm": "kommonitor", 
+  "auth-server-url": "https://keycloak.url/auth/", 
+  "ssl-required": "external", 
+  "resource": "kommonitor-web-client",
+  "public-client": true, 
+  "confidential-port": 0, 
+  "admin-rolename": "administrator", 
+  "admin-rolepassword": "password" 
+}

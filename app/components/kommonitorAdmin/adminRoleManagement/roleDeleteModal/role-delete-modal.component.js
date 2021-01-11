@@ -1,6 +1,6 @@
 angular.module('roleDeleteModal').component('roleDeleteModal', {
 	templateUrl: "components/kommonitorAdmin/adminRoleManagement/roleDeleteModal/role-delete-modal.template.html",
-	controller: ['kommonitorDataExchangeService', 'kommonitorKeycloakHelperService', '$scope', '$rootScope', '$http', '__env', '$q', function RoleDeleteModalController(kommonitorDataExchangeService, kommonitorKeycloakHelperService, $scope, $rootScope, $http, __env, $q) {
+	controller: ['kommonitorDataExchangeService', 'kommonitorKeycloakHelperService', '$scope', '$rootScope', '$http', '__env', '$q', '$timeout', function RoleDeleteModalController(kommonitorDataExchangeService, kommonitorKeycloakHelperService, $scope, $rootScope, $http, __env, $q, $timeout) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 		this.kommonitorKeycloakHelperServiceInstance = kommonitorKeycloakHelperService;
@@ -114,7 +114,10 @@ angular.module('roleDeleteModal').component('roleDeleteModal', {
 					// error handling
 					$("#rolesDeleteErrorAlert").show();
 
-					$scope.loadingData = false;
+					$timeout(function(){
+				
+						$scope.loadingData = false;
+					});	
 				}
 				if ($scope.successfullyDeletedDatasets.length > 0) {
 					$("#rolesDeleteSuccessAlert").show();
@@ -127,7 +130,10 @@ angular.module('roleDeleteModal').component('roleDeleteModal', {
 					// refresh all admin dashboard diagrams due to modified metadata
 					$rootScope.$broadcast("refreshAdminDashboardDiagrams");
 
-					$scope.loadingData = false;
+					$timeout(function(){
+				
+						$scope.loadingData = false;
+					});	
 				}
 			}, function errorCallback(errorArray) {
 

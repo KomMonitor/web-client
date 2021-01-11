@@ -69,10 +69,12 @@ angular.module('roleEditMetadataModal').component('roleEditMetadataModal', {
 				// when the response is available
 
 				$scope.successMessagePart = $scope.currentRoleDataset.roleName;
-
-				$rootScope.$broadcast("refreshRoleOverviewTable");
+				
 				$("#roleEditMetadataSuccessAlert").show();
-				$scope.loadingData = false;
+				$timeout(function(){
+				
+					$scope.loadingData = false;
+				});	
 
 				try {							
 					await kommonitorKeycloakHelperService.renameExistingRole($scope.oldRoleName, $scope.currentRoleDataset.roleName);
@@ -92,6 +94,8 @@ angular.module('roleEditMetadataModal').component('roleEditMetadataModal', {
 					$scope.loadingData = false;
 					});
 				}
+
+				$rootScope.$broadcast("refreshRoleOverviewTable");
 
 			}, function errorCallback(error) {
 				if (error.data) {

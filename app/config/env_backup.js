@@ -1,10 +1,22 @@
-// (function (window) {
+try {
+  
   window.__env = window.__env || {};
 
   // Whether or not to enable debug mode
   // Setting this to false will disable console output
   window.__env.enableDebug = true;
 
+  // enable/disable role based access using keycloak
+  window.__env.enableKeycloakSecurity = false;
+
+  // encrypted data transfer from Data Management API settings
+  window.__env.encryption = {
+    enabled: false,
+    password: "password", // this is shared secret between all components (hence must be set to the exact same value for all participating components)
+    ivLength_byte: 16
+  };
+
+  // admin user credentials to log into admin view in No-Keycloak-Settings
   window.__env.adminUserName = "Admin";
   window.__env.adminPassword = "kmAdmin";
 
@@ -27,7 +39,6 @@
   // window.__env.targetUrlToProcessingEngine = 'http://localhost:8086/processing/';
 
   // Open Route Service URL
-    // window.__env.apiUrl = 'http://kommonitor.fbg-hsbo.de/openrouteservice';
   window.__env.targetUrlToReachabilityService_ORS = 'https://ors5.fbg-hsbo.de';
 
   // Open Trip Planner URL - currently not integrated
@@ -197,6 +208,7 @@
   window.__env.feedbackMailRecipient = "E.Holtmann@kreis-re.de";
   // window.__env.feedbackMailRecipient = "christian.danowski-buhren@hs-bochum.de";
 
+  // config array of available options for choosing update interval of indicators
   window.__env.updateIntervalOptions = [
     {
         displayName: "jährlich",
@@ -228,6 +240,7 @@
     }
   ];
 
+  // config array of available options for choosing creation type of indicators
   window.__env.indicatorCreationTypeOptions = [
     {
         displayName: "manuell",
@@ -239,9 +252,11 @@
     }
   ];
 
+  // config array of available options for choosing indicator's unit
   window.__env.indicatorUnitOptions = [ "Anzahl", "Anteil", "Prozent", "Einwohner", "m", "m²", "km", "km²", "ha", "dimensionslos", "standardisiert", "z-transformierte Werte"
   ];
 
+  // config array of available options for choosing indicator type of indicators
   window.__env.indicatorTypeOptions = [
     {
         displayName: "Status-Indikator (absolut)",
@@ -270,6 +285,7 @@
     
   ];
 
+  // old paramter value  - not used anymore due to importer component
   window.__env.geodataSourceFormats = [
     {
         displayName: "GeoJSON FeatureCollection",
@@ -277,7 +293,15 @@
     }
   ];
 
+  // array of available WMS datasets
   window.__env.wmsDatasets = [
+    // {
+    //   title: "Title of WMS dataset",
+    //   description: "Description as HTML code (HTML tags allowed)",
+    //   url: "URL including '?' as last character (i.e. https://wms.example/myWMS)",
+    //   topicReference: "3af3b65e-4792-4998-8531-54616564b5bc", // id of georesource topic to hang in the WMS entry 
+    //   layerName:"laerm"	// name of WMS layer to display
+    // },
     {
       title: "Lärmkartierung - Test",
       description: "Veröffentlichung der Lärmkarten gemäß Lärmkartierung nach Richtlinie 2002/49/EG - EU-Umgebungslärmrichtlinie <br/><br/><b>Maßstabsabhängige Darstellung - ggf. zoomen erforderlich</b>",
@@ -453,7 +477,32 @@
     }
   ];
 
+  // array if available WFS datasets
   window.__env.wfsDatasets = [    
+    // {
+    //   title: "Title of dataset",
+    //   description: "Description as HTML code (HTML tags allowed)",
+    //   url: "URL of dataset including '?' as last character (i.e. https://wfs.example/myWfS?)",
+    //   featureTypeNamespace: "namespace of featureType",
+    //   featureTypeName: "name of featureType",  // // check GetCapabilities Response
+    //   featureTypeGeometryName: "name of geometry property of feature type", // check DescribeFeature Response
+    //   geometryType: "AOI", // POI|LOI|AOI
+    //   poiSymbolColor: "white", // ['white', 'red', 'orange', 'beige', 'green', 'blue', 'purple', 'pink', 'gray', 'black']
+    //   poiMarkerColor: "red", // ['white', 'red', 'orange', 'beige', 'green', 'blue', 'purple', 'pink', 'gray', 'black']
+    //   poiSymbolBootstrap3Name: "home",
+    //   loiColor: "#00aabb", // color for LOI datasets
+    //   loiWidth: 3, // 1 - 5
+    //   loiDashArrayString: "", // e.g. "20, 20" for equal dash/space visuals
+    //   aoiColor: "#00aabb", // color for AOI datasets
+    //   filterFeaturesToMapBBOX: false, // applies BBOX filter to WFS request - if not supported by WFS may lead to error
+    //   filterEncoding: { // only one filter is currently implemented (PropertyIsEqualTo)
+    //     // PropertyIsEqualTo: {
+    //     //   propertyName: undefined,  // name of property
+    //     //   propertyValue: undefined  // value of property
+    //   // }
+    //   },
+    //   topicReference: "c712af89-ff11-40ff-ad84-b3592901e085"  // id of georesource topic entry which shall be used to display the WFS dataset entry 
+    // },
     {
       title: "Bodennutzung - Bebauungsplanumringe",
       description: "Umringe der Bebauungspl&auml;ne gem&auml;&szlig; geodaten.metropoleruhr.de. <b>WFS-Dienst unterst&uuml;tzt keine r&auml;umllichen Filter. Daher m&uuml;ssen zwingend alle Features abgerufen werden</b>.",
@@ -477,57 +526,9 @@
       // }
       },
       topicReference: "c712af89-ff11-40ff-ad84-b3592901e085"
-    },
-    {
-      title: "Bodennutzung - Bebauungsplanumringe 2",
-      description: "Umringe der Bebauungspl&auml;ne gem&auml;&szlig; geodaten.metropoleruhr.de. <b>WFS-Dienst unterst&uuml;tzt keine r&auml;umllichen Filter. Daher m&uuml;ssen zwingend alle Features abgerufen werden</b>.",
-      url: "https://geodaten.metropoleruhr.de/inspire/bodennutzung/metropoleruhr?",
-      featureTypeNamespace: "ms",
-      featureTypeName: "bplan_stand",
-      featureTypeGeometryName: "the_geom",
-      geometryType: "AOI", // POI|LOI|AOI
-      poiSymbolColor: "white", // ['white', 'red', 'orange', 'beige', 'green', 'blue', 'purple', 'pink', 'gray', 'black']
-      poiMarkerColor: "red", // ['white', 'red', 'orange', 'beige', 'green', 'blue', 'purple', 'pink', 'gray', 'black']
-      poiSymbolBootstrap3Name: "home",
-      loiColor: "#00aabb",
-      loiWidth: 3,
-      loiDashArrayString: "",
-      aoiColor: "#00aabb",
-      filterFeaturesToMapBBOX: false,
-      filterEncoding: {
-        // PropertyIsEqualTo: {
-        //   propertyName: undefined,
-        //   propertyValue: undefined
-      // }
-      },
-      topicReference: "c712af89-ff11-40ff-ad84-b3592901e085"
-    },
-    {
-      title: "Infr Test",
-      description: "Standorte von Bäckereien",
-      url: "https://geoserver.kartenportal.org/geoserver/smartdemography/ows?",
-      featureTypeNamespace: "smartdemography",
-      featureTypeName: "sd_infrastruktur_p",
-      featureTypeGeometryName: "the_geom",
-      geometryType: "POI", // POI|LOI|AOI
-      poiSymbolColor: "white", // ['white', 'red', 'orange', 'beige', 'green', 'blue', 'purple', 'pink', 'gray', 'black']
-      poiMarkerColor: "red", // ['white', 'red', 'orange', 'beige', 'green', 'blue', 'purple', 'pink', 'gray', 'black']
-      poiSymbolBootstrap3Name: "home",
-      loiColor: "#00aabb",
-      loiWidth: 3,
-      loiDashArrayString: "",
-      aoiColor: "#00aabb",
-      filterFeaturesToMapBBOX: false,
-      filterEncoding: {
-        // PropertyIsEqualTo: {
-        //   propertyName: "beschreibung",
-        //   propertyValue: "Bäckerei"
-        // }
-      },
-      topicReference: "68f49954-8cb9-4d33-b478-dbad949be0e1"
     }
   ];
 
-
-
-// }(this));
+} catch (error) {
+  console.error("Error while evaluating app config. Error is: \n" + error);
+} 
