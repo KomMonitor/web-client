@@ -320,9 +320,21 @@ function initAngularComponents(){
 
 function bootstrapApplication(){
 
-  var resourcePath = window.__env.configStorageServerConfig.targetUrlToConfigStorageServer_keycloakConfig ? window.__env.configStorageServerConfig.targetUrlToConfigStorageServer_keycloakConfig : './config/keycloak_backup.json';
+  /*
+    var keycloak = new Keycloak({
+      url: 'http://keycloak-server/auth',
+      realm: 'myrealm',
+      clientId: 'myapp'
+    });
+  */
+  var keycloakConfig_forDirectInit = {
+    "url": window.__env.keycloakConfig["auth-server-url"],
+    "realm": window.__env.keycloakConfig["realm"],
+    "clientId": window.__env.keycloakConfig["resource"]
+  };
+  
   if(window.__env.enableKeycloakSecurity){
-    var keycloakAdapter = new Keycloak(resourcePath);  
+    var keycloakAdapter = new Keycloak(keycloakConfig_forDirectInit);  
     keycloakAdapter.init({
       onLoad: 'check-sso',
     }).then(function (authenticated) {
@@ -340,11 +352,14 @@ function bootstrapApplication(){
         console.error(e);
       }
     }).catch(function () {      
-      console.log('Failed to initialize authentication adapter');
+      console.log('Failed to initialize authentication adapter. Will try to bootstrap application without keycloak security');
+      alert('Failed to initialize keycloak authentication adapter. Will try to bootstrap application without keycloak security');
+      window.__env.enableKeycloakSecurity = false;
+      bootstrapApplication();
     });
   }
   else{
-    var keycloakAdapter = new Keycloak(resourcePath);  
+    var keycloakAdapter = new Keycloak(keycloakConfig_forDirectInit);  
       auth.keycloak = keycloakAdapter;
       appModule.factory('Auth', function () {
         return auth;
