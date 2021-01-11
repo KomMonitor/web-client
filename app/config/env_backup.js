@@ -29,13 +29,13 @@ try {
   window.__env.indicatorDatePrefix = "DATE_";
 
   // Data Management API URL
-  window.__env.apiUrl = 'https://maps2.smartdemography.de/data-management/management';
+  window.__env.apiUrl = 'https://kom2.vestsensoren.de/data-management/management';
   // window.__env.apiUrl = 'http://localhost:8085/';
   // Base url for Data Management API
   window.__env.basePath = '';
 
   // Processing Engine URL
-  window.__env.targetUrlToProcessingEngine = 'https://maps2.smartdemography.de/processing';
+  window.__env.targetUrlToProcessingEngine = 'https://kom2.vestsensoren.de/data-processing/processing';
   // window.__env.targetUrlToProcessingEngine = 'http://localhost:8086/processing/';
 
   // Open Route Service URL
@@ -43,11 +43,11 @@ try {
   window.__env.targetUrlToReachabilityService_ORS = 'https://maps.smartdemography.de/ors';
 
   // Open Trip Planner URL - currently not integrated
-  window.__env.targetUrlToReachabilityService_OTP = 'https://maps2.smartdemography.de/opentripplanner';
+  window.__env.targetUrlToReachabilityService_OTP = 'https://kom2.vestsensoren.de/opentripplanner';
   // window.__env.targetUrlToReachabilityService_OTP = 'http://localhost:8090/opentripplanner';
 
   // Data Imporert URL
-  window.__env.targetUrlToImporterService = 'https://maps2.smartdemography.de/data-importer/importer/importer';
+  window.__env.targetUrlToImporterService = 'https://kom2.vestsensoren.de/data-importer/importer/';
 
   // optional geometry simplification (a feature of Data Management API)
   window.__env.simplifyGeometriesParameterName = "simplifyGeometries";

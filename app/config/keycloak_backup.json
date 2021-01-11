@@ -1,6 +1,6 @@
 {
   "realm": "kommonitor-kreis-re",
-  "auth-server-url": "https://keycloak.smartdemography.de/auth/",
+  "auth-server-url": "https://kom.vestsensoren.de/auth/",
   "ssl-required": "external",
   "resource": "kommonitor-web-client",
   "public-client": true,
