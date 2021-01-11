@@ -588,6 +588,22 @@ angular
             }
           };
 
+          this.getIndicatorNameFromIndicatorId = function(indicatorId){
+            for (var indicatorMetadata of this.availableIndicators) {
+              if (indicatorMetadata.indicatorId === indicatorId){
+                return indicatorMetadata.indicatorName;
+              }
+            }
+          };
+
+          this.getGeoresourceNameFromGeoresourceId = function(georesourceId){
+            for (var georesourceMetadata of this.availableGeoresources) {
+              if (georesourceMetadata.georesourceId === georesourceId){
+                return georesourceMetadata.datasetName;
+              }
+            }
+          };
+
           this.referencedTopicIdExists = function(topicId){
             var topicHierarchy = this.getTopicHierarchyForTopicId(topicId);
 
@@ -742,17 +758,23 @@ angular
           };
 
           var onMetadataLoadingCompleted = function(){
-            
-            setTimeout(() => {
+
+            $timeout(function () {
               $rootScope.$broadcast("initialMetadataLoadingCompleted");
 
-                  $timeout(function () {
-                    $("option").each(function (index, element) {
-                      var text = $(element).text();
-                      $(element).attr("title", text);
-                    });
+              $timeout(function () {
+                $("option").each(function (index, element) {
+                  var text = $(element).text();
+                  $(element).attr("title", text);
+                });
               }, 1000);
             }, 1000);
+            
+            // setTimeout(() => {
+            //   // $rootScope.$broadcast("initialMetadataLoadingCompleted");
+
+                  
+            // }, 1000);
 
               
 

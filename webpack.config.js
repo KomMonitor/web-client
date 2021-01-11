@@ -21,7 +21,7 @@ module.exports = {
           { from: nodeModulePathConstant + 'rangeslide.js/dist', to: 'rangeslide/' },
           { from: nodeModulePathConstant + '@fortawesome/fontawesome-free', to: 'fontawesome/' },
           { from: nodeModulePathConstant + 'font-awesome/', to: 'fontawesome-4.7.0/' },
-          { from: nodeModulePathConstant + 'file-saverjs/FileSaver.min.js', to: 'file-saverjs/FileSaver.min.js' },
+          { from: nodeModulePathConstant + 'file-saver/dist/FileSaver.min.js', to: 'file-saverjs/FileSaver.min.js' },
           { from: nodeModulePathConstant + 'js-xlsx/dist/xlsx.full.min.js', to: 'js-xlsx/xlsx.full.min.js' },
           { from: nodeModulePathConstant + 'tableexport/dist', to: 'tableexport' },
           { from: nodeModulePathConstant + 'leaflet-draw/dist', to: 'leaflet-draw/' },
@@ -86,7 +86,10 @@ module.exports = {
           { from: nodeModulePathConstant + 'jquery.easing/jquery.easing.min.js', to: 'jquery.easing/' },
           { from: './customizedExternalLibs/colorbrewer.js', to: 'colorbrewer/' },
           { from: nodeModulePathConstant + 'keycloak-js/dist', to: 'keycloak/' },
-          { from: nodeModulePathConstant + 'crypto-js/', to: 'crypto-js/' }
+          { from: nodeModulePathConstant + 'crypto-js/', to: 'crypto-js/' },
+          { from: nodeModulePathConstant + 'codemirror/', to: 'codemirror/' },
+          { from: nodeModulePathConstant + 'jshint/dist', to: 'jshint/' },
+          { from: nodeModulePathConstant + 'jsonlint/web', to: 'jsonlint/' }
 
       ])
     ]

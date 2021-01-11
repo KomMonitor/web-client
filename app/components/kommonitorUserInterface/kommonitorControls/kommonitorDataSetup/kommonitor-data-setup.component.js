@@ -583,7 +583,7 @@ angular
 									}
 								});
 
-								var wait = ms => new Promise((r, j)=>setTimeout(r, ms))
+								var wait = ms => new Promise((r, j)=>setTimeout(r, ms));
 
 								$scope.tryUpdateMeasureOfValueBarForIndicator = async function(){
 									var indicatorId = kommonitorDataExchangeService.selectedIndicator.indicatorId;
@@ -596,8 +596,13 @@ angular
 									// $scope.selectedDate = $scope.selectedDate;
 									$scope.spatialUnitName = kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel;
 
+									var dateComps = $scope.date.split("-");
+									var year = dateComps[0];
+									var month = dateComps[1];
+									var day = dateComps[2];
+
 									return await $http({
-										url: kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/indicators/" + indicatorId + "/" + kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitId  + "?" + kommonitorDataExchangeService.simplifyGeometriesParameterName + "=" + kommonitorDataExchangeService.simplifyGeometries,
+										url: kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/indicators/" + indicatorId + "/" + kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitId + "/" + year + "/" + month + "/" + day + "?" + kommonitorDataExchangeService.simplifyGeometriesParameterName + "=" + kommonitorDataExchangeService.simplifyGeometries,
 										method: "GET"
 									}).then(function successCallback(response) {
 											// this callback will be called asynchronously
