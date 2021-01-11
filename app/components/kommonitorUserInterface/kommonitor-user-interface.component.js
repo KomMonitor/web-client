@@ -107,7 +107,12 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
     				.then(function (profile) {
 						if (profile.emailVerified) {
 							$scope.username = profile.email;
-							kommonitorDataExchangeService.currentKeycloakLoginRoles = Auth.keycloak.tokenParsed.realm_access.roles || [];
+							if(Auth.keycloak.tokenParsed && Auth.keycloak.tokenParsed.realm_access && Auth.keycloak.tokenParsed.realm_access.roles){
+								kommonitorDataExchangeService.currentKeycloakLoginRoles = Auth.keycloak.tokenParsed.realm_access.roles;
+							}
+							else{
+								kommonitorDataExchangeService.currentKeycloakLoginRoles = [];
+							}
 							console.log("User logged in with email: " + profile.email);
 						} else {
 							alert("Email not verified. User will be logged out automatically!");
@@ -116,7 +121,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
     				}).catch(function () {
        					console.log('Failed to load user profile');
 					});
-				if(Auth.keycloak.tokenParsed.realm_access.roles.includes('administrator')){
+				if(Auth.keycloak.tokenParsed && Auth.keycloak.tokenParsed.realm_access && Auth.keycloak.tokenParsed.realm_access.roles && Auth.keycloak.tokenParsed.realm_access.roles.includes('administrator')){
 					$scope.showAdminLogin = true;
 				}
 			}
