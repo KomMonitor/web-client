@@ -1,5 +1,5 @@
 {
-    "targetUrlToConfigStorageServer_appConfig" : "https://geoportal.ruhr/clientconfig/config/client-app-config",
-    "targetUrlToConfigStorageServer_keycloakConfig" : "https://geoportal.ruhr/clientconfig/config/client-keycloak-config",
-    "targetUrlToConfigStorageServer_controlsConfig" : "https://geoportal.ruhr/clientconfig/config/client-controls-config"
+    "targetUrlToConfigStorageServer_appConfig" : "https://kommonitor.geoportal.ruhr/clientconfig/config/client-app-config",
+    "targetUrlToConfigStorageServer_keycloakConfig" : "https://kommonitor.geoportal.ruhr/clientconfig/config/client-keycloak-config",
+    "targetUrlToConfigStorageServer_controlsConfig" : "https://kommonitor.geoportal.ruhr/clientconfig/config/client-controls-config"
 }
