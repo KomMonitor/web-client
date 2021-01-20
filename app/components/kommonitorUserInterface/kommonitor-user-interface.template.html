@@ -4,7 +4,7 @@
 
 		<div  style="position:absolute; left:40%;  padding-top: 7px;">
 
-			<h4>KomMonitor (Pilotversion in Entwicklung)
+			<h4>smartdemography - Karten und Daten
 				<!-- <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#infoModal">Information&nbsp;&nbsp;<span class="glyphicon glyphicon-info-sign"></span></button>
 				<button type="button" data-toggle="modal" data-target="#feedbackModal" class="btn btn-danger">Feedback&nbsp;&nbsp;<span class="glyphicon glyphicon-envelope"></span></button>
 				<button type="button" ng-click="startGuidedTour()" class="btn btn-danger">Guided Tour&nbsp;&nbsp;<span class="glyphicon glyphicon-play"></span></button> -->
@@ -14,9 +14,13 @@
 		<div style="padding-left: 10px; padding-top: 7px;">
 
 			 <a target="_blank" rel="noopener noreferrer" href="http://kommonitor.de"><img style="float: left; width: 35px; height: 35px; margin-right: 0.5%;" src="logos/KM_Logo1.svg"></img></a>
-			 <img src="logos/city-logo.png" style="float: left; width: 35px; height: 35px; margin-right: 0.5%;"></img>
+			 <!--img src="logos/city-logo.png" style="float: left; width: 35px; height: 35px; margin-right: 0.5%;"></img-->
+			 <a target="_blank" rel="noopener noreferrer" href="https://www.kreis-re.de"><img style="float: left; width: 70px; height: 38px; margin-right: 0.5%;" src="logos/kreis-recklinghausen.png"title="Kreis Recklinghausen"></img></a>
+			 <a target="_blank" rel="noopener noreferrer" href="https://www.hochschule-bochum.de "><img style="float: left; width: 48px; height: 35px; margin-right: 0.5%;" src="logos/BO-Logo_o_Wortmarke10cmWebHQ.jpg"title="Hochschule Bochum"></img></a>
+			 <img src="logos/ministeriumWIDE.png" style="float: left; width: 166px; height: 30px; margin:5px 10px;" title="gefördert vom Land Nordrhein-Westfalen"></img>
+			 <a target="_blank" rel="noopener noreferrer" href="https://www.smartdemography.de"><img style="float: left; width: 35px; height: 35px; margin-right: 0.5%;" src="logos/logo_smartdemography.jpg"title="Projekt smartdemography"></img></a>
 
-			 <!-- switch back to KomMonitor Main Application -->
+			  <!-- switch back to KomMonitor Main Application -->
 			<a id="userLogin" ng-mouseover="showUserLogin = true" ng-init="showUserLogin = false" title="Useristration" style="font-size:1.2em; float: right; margin-right: 2%; margin-left: 2%; margin-top: 0.5%;"><i class="fas fa-user-cog"></i></a>
 			<div id="userLoginForm" ng-show="showUserLogin && $ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity" ng-mouseleave="showUserLogin = false" class="userFormWrapper">
 				<div id="userForm">
@@ -52,6 +56,7 @@
 				</div>
 			</div>
 			<a ng-if="showAdminLogin" ng-click="openAdminUI()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Admin UI&nbsp;&nbsp;"><span class="fas fa-cogs"></span></a>
+			
 			<a data-toggle="modal" data-target="#infoModal" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Information&nbsp;&nbsp;"><span class="glyphicon glyphicon-info-sign"></span></a>
 			<!-- <a data-toggle="modal" data-target="#feedbackModal" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;  cursor:pointer;" title="Feedback&nbsp;&nbsp;"><span class="glyphicon glyphicon-envelope"></span></a> -->
 			<a ng-click="startGuidedTour()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;  cursor:pointer;" title="Guided Tour&nbsp;&nbsp;"><span class="glyphicon glyphicon-play"></span></a>
@@ -233,3 +238,4 @@
 	</div>
 
 	</div>
+
