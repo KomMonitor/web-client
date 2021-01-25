@@ -129,7 +129,19 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
 			KmHelper.log("WARNING: the feature with featureID '" + featureId + "' does not contain a time series value for targetDate '" + targetDate + "'");
 			KmHelper.log("WARNING: the feature value will thus be set to '0' and computation will continue");
 			denominatorValue = 0;
-			}
+      }
+      
+      if (! map.has(featureId)){
+        KmHelper.log("numeratorValue Indicator feature with id '" + featureId + "' was not computed from computation resources. Will set denominatorValue to null.");				              
+        var mapObject = {
+            featureId: featureId,
+            indicatorValue: undefined,
+            numeratorValue: 0,
+            denominatorValue: 0
+          };
+
+            map.set(featureId, mapObject);    
+        }
     
         var mapEntry = map.get(featureId);  
         mapEntry.denominatorValue = denominatorValue;		
@@ -150,6 +162,18 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
 
         // get spatialUnit feature id as string --> use it to get associated map entry
         var spatialUnitFeatureId = KmHelper.getSpatialUnitFeatureIdValue(spatialUnitFeature);
+
+        if (! map.has(spatialUnitFeatureId)){
+          KmHelper.log("Computation Indicator feature with id '" + spatialUnitFeatureId + "' was not computed from computation resources. Will set nominator and denominator values to null.");				              
+          var mapObject = {
+              featureId: spatialUnitFeatureId,
+              indicatorValue: undefined,
+              numeratorValue: null,
+              denominatorValue: null
+            };
+  
+              map.set(spatialUnitFeatureId, mapObject);    
+          }
 
         var mapEntry = map.get(spatialUnitFeatureId);
 		var indicatorValue = null;
