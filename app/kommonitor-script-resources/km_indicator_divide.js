@@ -164,7 +164,7 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
         var spatialUnitFeatureId = KmHelper.getSpatialUnitFeatureIdValue(spatialUnitFeature);
 
         if (! map.has(spatialUnitFeatureId)){
-          KmHelper.log("Computation Indicator feature with id '" + spatialUnitFeatureId + "' was not computed from computation resources. Will set nominator and denominator values to null.");				              
+          KmHelper.log("Target spatial unit feature with id '" + spatialUnitFeatureId + "' was not computed from computation resources. Will set nominator and denominator values to null.");				              
           var mapObject = {
               featureId: spatialUnitFeatureId,
               indicatorValue: undefined,
