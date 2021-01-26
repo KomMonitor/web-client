@@ -357,7 +357,8 @@ angular.module('kommonitorMap').component(
 
           var baseLayerDefinitionsMap = new Map();
 
-          for (const baseMapEntry of __env.baseLayers) {            
+          for (const baseMapEntry of __env.baseLayers) {              
+            
             if (baseMapEntry.layerType === "TILE_LAYER_GRAYSCALE"){
               var grayscaleLayer = new L.tileLayer.grayscale(baseMapEntry.url, { minZoom: baseMapEntry.minZoomLevel, maxZoom: baseMapEntry.maxZoomLevel, attribution: baseMapEntry.attribution_html });
               baseLayerDefinitionsMap.set(baseMapEntry.name, grayscaleLayer);
@@ -367,7 +368,7 @@ angular.module('kommonitorMap').component(
               baseLayerDefinitionsMap.set(baseMapEntry.name, tileLayer);
             }
             else if (baseMapEntry.layerType === "WMS"){
-              var wmsLayer = new L.tileLayer.wms(baseMapEntry.url, { minZoom: baseMapEntry.minZoomLevel, maxZoom: baseMapEntry.maxZoomLevel, attribution: baseMapEntry.attribution_html, layers: baseMapEntry.layerName_WMS });
+              var wmsLayer = new L.tileLayer.wms(baseMapEntry.url, { minZoom: baseMapEntry.minZoomLevel, maxZoom: baseMapEntry.maxZoomLevel, attribution: baseMapEntry.attribution_html, layers: baseMapEntry.layerName_WMS, format: 'image/png' });
               baseLayerDefinitionsMap.set(baseMapEntry.name, wmsLayer);
             }
           }

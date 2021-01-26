@@ -73,7 +73,7 @@ try {
     //   url: "", // URL to layer
     //   layerType: "TILE_LAYER", // TILE_LAYER | TILE_LAYER_GRAYSCALE | WMS
     //   layerName_WMS: "", // only relevant for layers of type WMS - multiple layers comma-separated
-    //   attributen_html: "", // attribution info displayed at the bottom of the map as HTML string
+    //   attribution_html: "", // attribution info displayed at the bottom of the map as HTML string
     //   minZoomLevel: window.__env.minZoomLevel, // min zoom level for this layer (number between 1-20)
     //   maxZoomLevel: window.__env.maxZoomLevel // max zoom level for this layer (number between 1-20, greater than minZoomLevel)
     // },
@@ -82,7 +82,7 @@ try {
       url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", 
       layerType: "TILE_LAYER_GRAYSCALE", 
       layerName_WMS: "", 
-      attributen_html: "Map data © <a href='http://openstreetmap.org'>OpenStreetMap</a> contributors", 
+      attribution_html: "Map data © <a href='http://openstreetmap.org'>OpenStreetMap</a> contributors", 
       minZoomLevel: window.__env.minZoomLevel, 
       maxZoomLevel: window.__env.maxZoomLevel 
     },
@@ -91,7 +91,7 @@ try {
       url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
       layerType: "TILE_LAYER", 
       layerName_WMS: "", 
-      attributen_html: "Map data © <a href='http://openstreetmap.org'>OpenStreetMap</a> contributors", 
+      attribution_html: "Map data © <a href='http://openstreetmap.org'>OpenStreetMap</a> contributors", 
       minZoomLevel: window.__env.minZoomLevel, 
       maxZoomLevel: window.__env.maxZoomLevel 
     },    
@@ -100,7 +100,7 @@ try {
       url: "https://geodaten.metropoleruhr.de/spw2?", 
       layerType: "WMS", 
       layerName_WMS: "stadtplan_rvr", 
-      attributen_html: "Map data © <a href='https://geodaten.metropoleruhr.de'>https://geodaten.metropoleruhr.de</a>", 
+      attribution_html: "Map data © <a href='https://geodaten.metropoleruhr.de'>https://geodaten.metropoleruhr.de</a>", 
       minZoomLevel: window.__env.minZoomLevel, 
       maxZoomLevel: window.__env.maxZoomLevel 
     },
@@ -109,7 +109,7 @@ try {
       url: "https://geodaten.metropoleruhr.de/spw2?", 
       layerType: "WMS", 
       layerName_WMS: "spw2_graublau",
-      attributen_html: "Map data © <a href='https://geodaten.metropoleruhr.de'>https://geodaten.metropoleruhr.de</a>", 
+      attribution_html: "Map data © <a href='https://geodaten.metropoleruhr.de'>https://geodaten.metropoleruhr.de</a>", 
       minZoomLevel: window.__env.minZoomLevel, 
       maxZoomLevel: window.__env.maxZoomLevel 
     },
@@ -118,7 +118,7 @@ try {
       url: "https://www.wms.nrw.de/geobasis/wms_nw_dtk?", 
       layerType: "WMS", 
       layerName_WMS: "nw_dtk_pan", 
-      attributen_html: "Map data © <a href='https://www.bezreg-koeln.nrw.de/brk_internet/geobasis/'>Geobasis NRW</a>", 
+      attribution_html: "Map data © <a href='https://www.bezreg-koeln.nrw.de/brk_internet/geobasis/'>Geobasis NRW</a>", 
       minZoomLevel: window.__env.minZoomLevel, 
       maxZoomLevel: window.__env.maxZoomLevel 
     },
@@ -127,7 +127,7 @@ try {
       url: "https://www.wms.nrw.de/geobasis/wms_nw_dop?",
       layerType: "WMS",
       layerName_WMS: "nw_dop_rgb", 
-      attributen_html: "Map data © <a href='https://www.bezreg-koeln.nrw.de/brk_internet/geobasis/'>Geobasis NRW</a>", 
+      attribution_html: "Map data © <a href='https://www.bezreg-koeln.nrw.de/brk_internet/geobasis/'>Geobasis NRW</a>", 
       minZoomLevel: window.__env.minZoomLevel, 
       maxZoomLevel: window.__env.maxZoomLevel 
     },
@@ -136,7 +136,7 @@ try {
       url: "https://geo.essen.de/arcgis/services/basemap/Stadtplanpaket_ALK_grau/MapServer/WMSServer?",
       layerType: "WMS", 
       layerName_WMS: "0,1,2,3", 
-      attributen_html: "Stadt Essen: Amt f&uumlr Geoinformation, Vermessung und Kataster", 
+      attribution_html: "Stadt Essen: Amt f&uumlr Geoinformation, Vermessung und Kataster", 
       minZoomLevel: window.__env.minZoomLevel, 
       maxZoomLevel: window.__env.maxZoomLevel 
     },
@@ -145,7 +145,7 @@ try {
       url: "https://geo.essen.de/arcgis/services/basemap/Uebersicht_ABK_Stadtgrundkarte/MapServer/WMSServer?", 
       layerType: "WMS", 
       layerName_WMS: "nw_dop_rgb", 
-      attributen_html: "Stadt Essen: Amt f&uumlr Geoinformation, Vermessung und Kataster", 
+      attribution_html: "Stadt Essen: Amt f&uumlr Geoinformation, Vermessung und Kataster", 
       minZoomLevel: window.__env.minZoomLevel, 
       maxZoomLevel: window.__env.maxZoomLevel 
     }
