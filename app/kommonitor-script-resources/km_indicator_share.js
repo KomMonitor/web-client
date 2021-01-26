@@ -131,7 +131,20 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
 				  partValue = 0;
 				  }
 				  // modify map object (i.e. set value initially, or perform calculations and store modified value)
-				  // key should be unique featureId of the spatial unit feature
+          // key should be unique featureId of the spatial unit feature
+          
+          if (! map.has(featureId)){
+            KmHelper.log("Computation Indicator feature with id '" + featureId + "' was not computed from computation resources. Will set ref value to null.");				  
+            var mapObject = {
+                featureId: featureId,
+                indicatorValue: undefined,
+                refValue: null,
+				        intermediateValue: 0
+                };
+ 
+            map.set(featureId, mapObject);    
+        }  
+
 				  var mapEntry = map.get(featureId);  
 				  mapEntry.intermediateValue = mapEntry.intermediateValue + partValue;
 				  map.set(featureId, mapEntry);
@@ -152,7 +165,19 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
         // get spatialUnit feature id as string --> use it to get associated map entry
         var spatialUnitFeatureId = KmHelper.getSpatialUnitFeatureIdValue(spatialUnitFeature);
 
-        var mapEntry = map.get(spatialUnitFeatureId);
+        if (! map.has(spatialUnitFeatureId)){
+          KmHelper.log("Target spatial unit feature with id '" + spatialUnitFeatureId + "' was not computed from computation resources. Will set indicator value to null.");
+				  var mapObject = {
+              featureId: spatialUnitFeatureId,
+              indicatorValue: undefined,
+              refValue: null,
+              intermediateValue: null
+              };
+
+          map.set(spatialUnitFeatureId, mapObject);    
+      } 
+
+        var mapEntry = map.get(spatialUnitFeatureId); 
 		
 		var indicatorValue = null;
         if(mapEntry.refValue === undefined || mapEntry.refValue === null || mapEntry.refValue === undefined || mapEntry.intermediateValue === null){

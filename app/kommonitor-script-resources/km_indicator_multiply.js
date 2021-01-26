@@ -122,6 +122,16 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
         // get spatialUnit feature id as string --> use it to get associated map entry
         var spatialUnitFeatureId = KmHelper.getSpatialUnitFeatureIdValue(spatialUnitFeature);
 
+        if (! map.has(spatialUnitFeatureId)){
+          KmHelper.log("Target spatial unit feature with id '" + spatialUnitFeatureId + "' was not computed from computation resources. Will set indicator value to null.");
+				  var mapObject = {
+					  featureId: spatialUnitFeatureId,
+					  indicatorValue: null,                
+					  intermediateValue: null
+					  };
+				  map.set(spatialUnitFeatureId, mapObject);					 
+				}
+
         var mapEntry = map.get(spatialUnitFeatureId);
 
        

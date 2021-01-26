@@ -1,8 +1,9 @@
 angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 	templateUrl : "components/kommonitorUserInterface/kommonitor-user-interface.template.html",
-	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '$location', 'Auth', 'ControlsConfigService', function UserInterfaceController(kommonitorDataExchangeService, $scope, $rootScope, $location, Auth, ControlsConfigService) {
+	controller : ['kommonitorDataExchangeService', 'kommonitorKeycloakHelperService', '$scope', '$rootScope', '$location', 'Auth', 'ControlsConfigService', function UserInterfaceController(kommonitorDataExchangeService, kommonitorKeycloakHelperService, $scope, $rootScope, $location, Auth, ControlsConfigService) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
+		this.kommonitorKeycloakHelperServiceInstance = kommonitorKeycloakHelperService;
 
 		kommonitorDataExchangeService.anySideBarIsShown = false;
 
@@ -133,6 +134,10 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				return true;
 			}
 			else if(Auth.keycloak.authenticated) {
+				// admin role user always sees all data and widgets
+				if(kommonitorDataExchangeService.currentKeycloakLoginRoles.includes(kommonitorKeycloakHelperService.adminRoleName)){
+					return true;
+				}
 				var hasAllowedRole = false;
 				for (var i = 0; i < widget.roles.length; i++) {
 					if(Auth.keycloak.tokenParsed.realm_access.roles.includes(widget.roles[i])){
