@@ -1,1 +1,1 @@
-angular.module('georesourceEditMetadataModal', []);
+angular.module('georesourceEditMetadataModal', ['excaliburDualList']);

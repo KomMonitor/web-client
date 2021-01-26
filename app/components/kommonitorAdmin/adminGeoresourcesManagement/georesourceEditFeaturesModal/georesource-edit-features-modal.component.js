@@ -85,7 +85,7 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 			$scope.loadingData = true;
 			// fetch all georesource features
 			$http({
-				url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/georesources/" + $scope.currentGeoresourceDataset.georesourceId + "/allFeatures",
+				url: kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/georesources/" + $scope.currentGeoresourceDataset.georesourceId + "/allFeatures",
 				method: "GET",
 				// headers: {
 				//    'Content-Type': undefined
@@ -358,6 +358,10 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 
 		$scope.editGeoresourceFeatures = async function(){
 
+			$timeout(function(){
+				$scope.loadingData = true;
+			});
+
 			$scope.importerErrors = undefined;
 				$scope.successMessagePart = undefined;
 				$scope.errorMessagePart = undefined;
@@ -383,8 +387,6 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 					// TODO verify input
 
 					// TODO Create and perform POST Request with loading screen
-
-					$scope.loadingData = true;
 
 					var updateGeoresourceResponse_dryRun = undefined;
 					try {

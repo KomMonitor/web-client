@@ -101,6 +101,10 @@ angular.module('adminIndicatorsManagement').component('adminIndicatorsManagement
 			$rootScope.$broadcast("onEditIndicatorFeatures", indicatorDataset);
 		};
 
+		$scope.onClickEditIndicatorSpatialUnitRoles = function(indicatorDataset){
+			$rootScope.$broadcast("onEditIndicatorSpatialUnitRoles", indicatorDataset);
+		};
+
 
 	}
 ]});

@@ -1,6 +1,6 @@
 angular.module('topicEditModal').component('topicEditModal', {
 	templateUrl : "components/kommonitorAdmin/adminTopicsManagement/topicEditModal/topic-edit-modal.template.html",
-	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '$http', '__env',function TopicEditModalController(kommonitorDataExchangeService, $scope, $rootScope, $http, __env) {
+	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '$http', '__env', '$timeout',function TopicEditModalController(kommonitorDataExchangeService, $scope, $rootScope, $http, __env, $timeout) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
@@ -44,7 +44,10 @@ angular.module('topicEditModal').component('topicEditModal', {
 					$rootScope.$broadcast("refreshTopicsOverview");
 
 					$("#topicEditMetadataSuccessAlert").show();
-					$scope.loadingData = false;
+					$timeout(function(){
+				
+						$scope.loadingData = false;
+					});	
 					//
 					// $scope.refreshTopicsOverview();
 
@@ -57,7 +60,10 @@ angular.module('topicEditModal').component('topicEditModal', {
 						}
 
 					$("#topicEditMetadataErrorAlert").show();
-					$scope.loadingData = false;
+					$timeout(function(){
+				
+						$scope.loadingData = false;
+					});	
 
 			});
 		};

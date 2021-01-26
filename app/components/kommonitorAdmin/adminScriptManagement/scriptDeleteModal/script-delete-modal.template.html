@@ -1,0 +1,76 @@
+<div class="modal fade" id="modal-delete-scripts" role="dialog">
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content">
+
+			<div align="center">
+				<div class="loading-overlay-admin-panel ng-hide" ng-show="loadingData">
+							<span class="glyphicon glyphicon-refresh icon-spin"></span>
+				</div>
+			</div>
+
+
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Skripte l&ouml;schen</h4>
+			</div>
+			<div class="modal-body">
+
+				<h4><b>Sollen die folgenden Skripte wirklich gel&ouml;scht werden?</b></h4>
+
+				<p>Der jeweilige Ziel-Indikator kann dann nicht mehr automatisiert durch KomMonitor berechnet werden.</p>
+
+				<div ng-if="datasetsToDelete.length > 0">
+					<ul>
+	            <li ng-repeat="dataset in datasetsToDelete">{{dataset.name}}</li>
+					</ul>
+				</div>
+
+				<div ng-if="! datasetsToDelete.length > 0">
+					<pre>kein Datensatz zum L&ouml;schen markiert. Mindestens ein Datensatz muss markiert werden.</pre>
+				</div>
+
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
+					<button type="button" class="btn btn-danger" ng-click="deleteScripts()" ng-disabled="! datasetsToDelete.length > 0">Skripte unwiderruflich l&ouml;schen</button>
+			</div>
+
+			<div id="scriptsDeleteSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden class="alert alert-success alert-dismissable">
+                <button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
+                <h4><i class="icon fa fa-check"></i>Folgende Skripte wurde erfolgreich gel&ouml;scht</h4>
+								<ul>
+				            <li ng-repeat="dataset in successfullyDeletedDatasets">{{dataset.name}}</li>
+								</ul>
+      </div>
+
+			<div id="scriptsDeleteErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden class="alert alert-danger alert-dismissable">
+                <button type="button" class="close" ng-click="hideErrorAlert()" aria-hidden="true">&times;</button>
+                <h4><i class="icon fa fa-ban"></i>L&ouml;schen gescheitert</h4>
+                Folgende Datens&auml;tze konnten nicht gel&ouml;scht werden.
+								<br/>
+								<table class="table table-bordered table-condensed" style="width:100%; overflow:auto; font-size: 11px;">
+	                <thead>
+	                <tr>
+	                  <th>Name</th>
+	                  <th>Fehlermeldung</th>
+	                </tr>
+	                </thead>
+
+	                <tbody>
+		                <tr ng-repeat="dataset in failedDatasetsAndErrors">
+		                  <td>{{dataset[0].name}}</td>
+		                  <td ng-bind-html="dataset[1]"></td>
+		                </tr>
+
+	                </tbody>
+	              </table>
+
+      </div>
+
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->

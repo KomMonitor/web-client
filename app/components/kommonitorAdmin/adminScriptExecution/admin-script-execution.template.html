@@ -1,0 +1,154 @@
+<div id="adminJobContent">
+	<!-- Content Header (Page header) -->
+	<section class="content-header">
+		<h1>
+			Indikatoren-Berechnung
+			<small>Anzeige und Ausführung von Prozessierungsjobs</small>
+		</h1>
+
+		<div class="adminTableButtonWrapper">
+			<button class="btn btn-success btn-sm" type="button" data-toggle="modal" data-target="#modal-add-job"><i
+					class="fas fa-plus"></i>&nbsp;&nbsp;Berechnung erstellen</button>
+			<!-- edit metadata -->
+
+			<!-- edit features -->
+
+			<!-- delete selected completely -->
+			<!-- <button class="btn btn-danger btn-sm" type="button" data-toggle="modal" data-target="#modal-delete-jobs"
+				ng-click="onClickDeleteDatasets()"><i class="fas fa-trash"></i>&nbsp;&nbsp;L&ouml;schen</button> -->
+
+			<!-- delete b timestamp -->
+		</div>
+	</section>
+
+	<!-- Main content -->
+	<section class="content container-fluid">
+
+		<!--------------------------
+			| Your Page Content Here |
+			-------------------------->
+		<div class="box box-primary collapsed-box">
+			<div class="box-header">
+				<h3 class="box-title">&Uuml;bersicht Berechnungs-Jobs zur Indikatoren-Zeitreihen-fortf&uuml;hrung</h3>
+
+				<div class="box-tools pull-right">
+					<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+					</button>
+				</div>
+			</div>
+			<!-- /.box-header -->
+			<div class="box-body">
+
+				<div class="admin-table-wrapper">
+					<table id="jobOverviewTable_defaultJobs" datatable="ng"
+					dt-options="$ctrl.kommonitorDataExchangeServiceInstance.datatablesOptions"
+					class="table table-bordered table-condensed table-striped"
+					style="width:100%; overflow:auto; font-size: 11px;">
+						<thead>
+							<tr>
+								<!-- <th><input type="checkbox" ng-model="selectAllEntriesInput_default"
+										ng-change="onChangeSelectAllEntries_default()"></input></th> -->
+								<th>Job-Id</th>
+								<th>Job-Status</th>
+								<th>Job-Fortschritt</th>
+								<th>Job-Fehlermeldung</th>
+								<th>Job-Daten</th>
+							</tr>
+						</thead>
+
+						<tbody>
+							<tr ng-repeat="jobDataset in availableDefaultComputationJobDatasets | orderBy:jobId:true">
+								<!-- <td><input type="checkbox" ng-model="jobDataset.isSelected"
+										ng-change="onChangeSelectDataset(jobDataset)"></input></td> -->
+								<td>{{jobDataset.jobId}}</td>
+								<td>{{jobDataset.status}}</td>
+								<td>{{jobDataset.progress}}</td>
+								<td>{{jobDataset.error}}</td>
+								<td ng-bind-html="syntaxHighlightJSON(jobDataset.jobData)"></td>
+
+							</tr>
+
+						</tbody>
+
+						<tfoot>
+							<tr>
+								<!-- <th>alle selektieren</th> -->
+								<th>Job-Id</th>
+								<th>Job-Status</th>
+								<th>Job-Fortschritt</th>
+								<th>Job-Fehlermeldung</th>
+								<th>Job-Daten</th>
+							</tr>
+						</tfoot>
+					</table>
+
+				</div>
+			</div>
+			<!-- /.box-body -->
+		</div>
+		<!-- /.box -->
+
+		<div class="box box-primary collapsed-box">
+			<div class="box-header">
+				<h3 class="box-title">&Uuml;bersicht Berechnungs-Jobs zur individuell-parametrisierten Indikatoren-Berechnung</h3>
+
+				<div class="box-tools pull-right">
+					<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+					</button>
+				</div>
+			</div>
+			<!-- /.box-header -->
+			<div class="box-body">
+
+				<div class="admin-table-wrapper">
+					<table id="jobOverviewTable_customizedJobs" datatable="ng"
+						dt-options="$ctrl.kommonitorDataExchangeServiceInstance.datatablesOptions"
+						class="table table-bordered table-condensed table-striped"
+						style="width:100%; overflow:auto; font-size: 11px;">
+						<thead>
+							<tr>
+								<!-- <th><input type="checkbox" ng-model="selectAllEntriesInput_customized"
+										ng-change="onChangeSelectAllEntries_customized()"></input></th> -->
+								<th>Job-Id</th>
+								<th>Job-Status</th>
+								<th>Job-Fortschritt</th>
+								<th>Job-Fehlermeldung</th>
+								<th>Job-Daten</th>
+							</tr>
+						</thead>
+
+						<tbody>
+							<tr ng-repeat="jobDataset in availableCustomizedComputationJobDatasets | orderBy:jobId:true">
+								<!-- <td><input type="checkbox" ng-model="jobDataset.isSelected"
+										ng-change="onChangeSelectDataset(jobDataset)"></input></td> -->
+								<td>{{jobDataset.jobId}}</td>
+								<td>{{jobDataset.status}}</td>
+								<td>{{jobDataset.progress}}</td>
+								<td>{{jobDataset.error}}</td>
+								<td ng-bind-html="syntaxHighlightJSON(jobDataset.jobData)"></td>
+
+							</tr>
+
+						</tbody>
+
+						<tfoot>
+							<tr>
+								<!-- <th>alle selektieren</th> -->
+								<th>Job-Id</th>
+								<th>Job-Status</th>
+								<th>Job-Fortschritt</th>
+								<th>Job-Fehlermeldung</th>
+								<th>Job-Daten</th>
+							</tr>
+						</tfoot>
+					</table>
+
+				</div>
+			</div>
+			<!-- /.box-body -->
+		</div>
+		<!-- /.box -->
+
+	</section>
+	<!-- /.content -->
+</div>

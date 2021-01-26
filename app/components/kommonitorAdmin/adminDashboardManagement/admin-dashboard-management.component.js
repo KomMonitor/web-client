@@ -434,7 +434,9 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 			var indicatorsPerSpatialUnitMap = new Map();
 
 			kommonitorDataExchangeService.availableIndicators.forEach(function(indicator){
-				indicator.applicableSpatialUnits.forEach(function(spatialUnitName){
+				indicator.applicableSpatialUnits.forEach(function(applicableSpatialUnit){
+
+					var spatialUnitName = applicableSpatialUnit.spatialUnitName;
 
 					if(indicatorsPerSpatialUnitMap.has(spatialUnitName)){
 						// increment by 1
