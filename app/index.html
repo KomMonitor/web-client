@@ -12,7 +12,7 @@
 
         <title>KomMonitor</title>
         <meta name="description"
-              content="Kommunales Raumbeobachtungssystem">
+              content="Kommunales Raumbeobachtungssystem">     
 
         <!-- start lib style tags -->
         <link href="dependencies/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
@@ -63,6 +63,12 @@
         <!-- as we use ngRoute to distuingish between several pages, we embed the ng-view div container here. Its content is
              controlled in app.js config method! -->
         <div ng-view></div>
+
+        <script>
+          MathJax = {
+            tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
+          };
+        </script>
         
         <!-- start lib script tags -->
         <script src="dependencies/babel-polyfill/polyfill.min.js" type="text/javascript"></script>

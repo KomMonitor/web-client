@@ -93,23 +93,28 @@ angular.module('scriptMultiplication').component('scriptMultiplication', {
 			$scope.resetComputationFormulaAndLegend = function(){
 				kommonitorScriptHelperService.scriptFormulaHTML = "";
 
-				var formulaHTML = "<b>Berechnung gem&auml;&szlig; Formel<br/><i>";
+				var formulaHTML = "<b>Berechnung gem&auml;&szlig; Formel<br/>";
 				var legendItemsHTML = "<b>Legende zur Formel</b><br/>";
+
+				formulaHTML += "$ ";				
 
 				for (let index = 0; index < $scope.baseIndicators.length; index++) {
 					const indicatorMetadata = $scope.baseIndicators[index];
-					var indexValue = Number(index + 1);
-					formulaHTML+="I<sub>" + indexValue + "</sub>";
-					legendItemsHTML+="<i>I<sub>" + indexValue + "</sub></i>: " + indicatorMetadata.indicatorName;
+					var letterValue = kommonitorScriptHelperService.getAlphabetLetterFromNumber(index);
+
+					// we can use TEX code as we use MathJax library
+					formulaHTML+=letterValue;
+					legendItemsHTML+="$" + letterValue + "$: " + indicatorMetadata.indicatorName;
 					if(index < $scope.baseIndicators.length - 1){
-						formulaHTML+=" * ";
+						formulaHTML+=" \\times ";
 						legendItemsHTML+="<br/>"; 
 					}
 				}
 
-				formulaHTML += "</i>";
+				formulaHTML += " $";
 
 				kommonitorScriptHelperService.scriptFormulaHTML = formulaHTML + "<br/><br/>" + legendItemsHTML;
+				kommonitorScriptHelperService.styleMathFormula("scriptFormulaOutput");
 			};
 
 			$scope.addBaseIndicator = function(tmpIndicatorSelection){

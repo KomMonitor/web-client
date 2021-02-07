@@ -2,7 +2,10 @@
 
 <p>Mindestens ein (Basis-)Indikator muss angegeben werden. Bei mehreren wird die Gesamtsumme der (Basis-)Indikatoren vom Referenzindikator subtrahiert</p>
 	<p><b><i><u>Berechnung:</u></i></b> Subtraktion der (Basis-)Indikatoren vom Referenzindikator</p>
-	<p><b><i><u>Formel:</u></i></b> I<sub>ref</sub> - (I<sub>1</sub> + ... + I<sub>n</sub>)</p>
+	<!-- <p><b><i><u>Formel:</u></i></b> I<sub>ref</sub> - (I<sub>1</sub> + ... + I<sub>n</sub>)</p> -->
+	<p id="scriptFormulaExplanation" ng-model="$ctrl.kommonitorScriptHelperServiceInstance.scriptFormulaExplanation" ng-init="$ctrl.kommonitorScriptHelperServiceInstance.styleMathFormula_forExplanation('scriptFormulaExplanation')">
+		<b><i><u>Formel:</u></i></b> \( I_{ref} - \sum_{n=1}^{m} I_{n} \)
+	</p>
 
 	<div class="row vertical-align">
 		<div class="col-md-10 col-sm-12 col-xs-12">
@@ -277,7 +280,13 @@
 								<label>Editierfenster des Methodik-Textbausteins (HTML)</label>
 								<br/>
 								<br/>
-								<textarea rows="4" ng-model="$ctrl.kommonitorScriptHelperServiceInstance.scriptFormulaHTML"></textarea>
+								<textarea rows="4" ng-model="$ctrl.kommonitorScriptHelperServiceInstance.scriptFormulaHTML" ng-change="$ctrl.kommonitorScriptHelperServiceInstance.styleMathFormula('scriptFormulaOutput')"></textarea>
+							</div>
+							<div class="help-block">
+								<p>Hinweis: KomMonitor nutzt <a target="_blank" rel="noopener noreferrer" href="https://www.mathjax.org/">MathJax und Tex-Syntax</a>, um Formeln darzustellen.
+									Gem&auml;&szlig; <a target="_blank" rel="noopener noreferrer" href="https://www.mathjax.org/#demo">MathJax Demo Seite</a> wird der Formel-Code von 
+									 <code>$$ ... $$</code> (Anzeige in neuer Zeile) oder <code>$ ... $</code> (Inline-Anzeige) Trennzeichen umschlossen.
+								</p>
 							</div>
 						</div>
 						<div class="col-md-6 col-sm-6 col-xs-12">
@@ -285,7 +294,7 @@
 								<label>Vorschaufenster</label>
 								<br/>
 								<br/>
-								<p ng-bind-html="$ctrl.kommonitorScriptHelperServiceInstance.scriptFormulaHTML"></p>
+								<p id="scriptFormulaOutput"></p>
 							</div>
 						</div>
 					</div>

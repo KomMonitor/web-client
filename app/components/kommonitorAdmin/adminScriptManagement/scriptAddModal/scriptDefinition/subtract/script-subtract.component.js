@@ -121,28 +121,31 @@ angular.module('scriptSubtract').component('scriptSubtract', {
 			$scope.resetComputationFormulaAndLegend = function(){
 				kommonitorScriptHelperService.scriptFormulaHTML = "";
 
-				var formulaHTML = "<b>Berechnung gem&auml;&szlig; Formel<br/><i>";
+				var formulaHTML = "<b>Berechnung gem&auml;&szlig; Formel<br/>";
 				var legendItemsHTML = "<b>Legende zur Formel</b><br/>";
 
 				// referenceIndicator
-				formulaHTML+="I<sub>ref</sub> - (";
-				legendItemsHTML+="<i>I<sub>ref</sub></i>: " + $scope.refIndicatorSelection.indicatorName + "<br/>";
+				formulaHTML+="$ I_{ref} - (";
+				legendItemsHTML+="$ I_{ref} $: " + $scope.refIndicatorSelection.indicatorName + "<br/>";
 
 				// baseIndicators / computationIndicators
 				for (let index = 0; index < $scope.baseIndicators.length; index++) {
 					const indicatorMetadata = $scope.baseIndicators[index];
-					var indexValue = Number(index + 1);
-					formulaHTML+="I<sub>" + indexValue + "</sub>";
-					legendItemsHTML+="<i>I<sub>" + indexValue + "</sub></i>: " + indicatorMetadata.indicatorName;
+					var letterValue = kommonitorScriptHelperService.getAlphabetLetterFromNumber(index);
+
+					// we can use TEX code as we use MathJax library
+					formulaHTML+=letterValue;
+					legendItemsHTML+="$" + letterValue + "$: " + indicatorMetadata.indicatorName;
 					if(index < $scope.baseIndicators.length - 1){
 						formulaHTML+=" + ";
 						legendItemsHTML+="<br/>"; 
 					}
 				}
 
-				formulaHTML += ")</i>";
+				formulaHTML += ") $";
 
 				kommonitorScriptHelperService.scriptFormulaHTML = formulaHTML + "<br/><br/>" + legendItemsHTML;
+				kommonitorScriptHelperService.styleMathFormula("scriptFormulaOutput");
 			};
 
 			$scope.addBaseIndicator = function(tmpIndicatorSelection){

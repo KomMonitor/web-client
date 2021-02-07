@@ -1,7 +1,10 @@
 <h4>Division zweier Indikatoren</h4>
 
 	<p><b><i><u>Berechnung:</u></i></b> Quotient zweier Indikatoren (Divisor / Dividend)</p>
-	<p><b><i><u>Formel:</u></i></b> I<sub>1</sub> / I<sub>2</sub></p>
+	<!-- <p><b><i><u>Formel:</u></i></b> I<sub>1</sub> / I<sub>2</sub></p> -->
+	<p id="scriptFormulaExplanation" ng-model="$ctrl.kommonitorScriptHelperServiceInstance.scriptFormulaExplanation" ng-init="$ctrl.kommonitorScriptHelperServiceInstance.styleMathFormula_forExplanation('scriptFormulaExplanation')">
+		<b><i><u>Formel:</u></i></b> \( \frac{I_{1}}{I_{2}}  \)
+	</p>
 
 	<div class="row vertical-align">
 		<div class="col-md-10 col-sm-12 col-xs-12">
@@ -246,7 +249,13 @@
 								<label>Editierfenster des Methodik-Textbausteins (HTML)</label>
 								<br/>
 								<br/>
-								<textarea rows="4" ng-model="$ctrl.kommonitorScriptHelperServiceInstance.scriptFormulaHTML"></textarea>
+								<textarea rows="4" ng-model="$ctrl.kommonitorScriptHelperServiceInstance.scriptFormulaHTML" ng-change="$ctrl.kommonitorScriptHelperServiceInstance.styleMathFormula('scriptFormulaOutput')"></textarea>
+							</div>
+							<div class="help-block">
+								<p>Hinweis: KomMonitor nutzt <a target="_blank" rel="noopener noreferrer" href="https://www.mathjax.org/">MathJax und Tex-Syntax</a>, um Formeln darzustellen.
+									Gem&auml;&szlig; <a target="_blank" rel="noopener noreferrer" href="https://www.mathjax.org/#demo">MathJax Demo Seite</a> wird der Formel-Code von 
+									 <code>$$ ... $$</code> (Anzeige in neuer Zeile) oder <code>$ ... $</code> (Inline-Anzeige) Trennzeichen umschlossen.
+								</p>
 							</div>
 						</div>
 						<div class="col-md-6 col-sm-6 col-xs-12">
@@ -254,7 +263,7 @@
 								<label>Vorschaufenster</label>
 								<br/>
 								<br/>
-								<p ng-bind-html="$ctrl.kommonitorScriptHelperServiceInstance.scriptFormulaHTML"></p>
+								<p id="scriptFormulaOutput"></p>
 							</div>
 						</div>
 					</div>
