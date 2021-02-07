@@ -89,7 +89,11 @@ module.exports = {
           { from: nodeModulePathConstant + 'crypto-js/', to: 'crypto-js/' },
           { from: nodeModulePathConstant + 'codemirror/', to: 'codemirror/' },
           { from: nodeModulePathConstant + 'jshint/dist', to: 'jshint/' },
-          { from: nodeModulePathConstant + 'jsonlint/web', to: 'jsonlint/' }
+          { from: nodeModulePathConstant + 'jsonlint/web', to: 'jsonlint/' },
+          { from: nodeModulePathConstant + 'mathjax/es5/tex-chtml.js', to: 'mathjax/' },    
+          { from: nodeModulePathConstant + 'code-prettify/loader/run_prettify.js', to: 'code-prettify/' },    
+          
+          
 
       ])
     ]
