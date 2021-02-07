@@ -90,7 +90,8 @@ module.exports = {
           { from: nodeModulePathConstant + 'codemirror/', to: 'codemirror/' },
           { from: nodeModulePathConstant + 'jshint/dist', to: 'jshint/' },
           { from: nodeModulePathConstant + 'jsonlint/web', to: 'jsonlint/' },
-          { from: nodeModulePathConstant + 'mathjax/es5/tex-chtml.js', to: 'mathjax/' },    
+          { from: nodeModulePathConstant + 'mathjax/es5/tex-chtml.js', to: 'mathjax/' },
+          { from: nodeModulePathConstant + 'mathjax/es5/output/', to: 'mathjax/output/' },    
           { from: nodeModulePathConstant + 'code-prettify/loader/run_prettify.js', to: 'code-prettify/' },    
           
           
