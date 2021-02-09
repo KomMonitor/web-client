@@ -72,7 +72,6 @@ angular
       this.scriptCode_readableString = undefined;
 
       this.scriptFormulaHTML = undefined;
-      this.scriptFormulaHTML_styled = undefined;
       this.scriptFormulaHTML_overwriteTargetIndicatorMethod = false;
 
       this.scriptFormulaExplanation = undefined;
@@ -87,7 +86,6 @@ angular
         this.scriptCode_readableString = undefined;
         this.scriptFormulaHTML = undefined;
         this.scriptFormulaHTML_overwriteTargetIndicatorMethod = false;
-        this.scriptFormulaHTML_styled = undefined;
         this.scriptFormulaExplanation = undefined;
         this.targetIndicatorOldProcessDescription = undefined;
       };
@@ -215,7 +213,7 @@ angular
               "indicatorType": targetIndicatorMetadata.indicatorType,
               "interpretation": targetIndicatorMetadata.interpretation || "",
               "isHeadlineIndicator": targetIndicatorMetadata.isHeadlineIndicator || false,
-              "processDescription": this.scriptFormulaHTML_styled || targetIndicatorMetadata.processDescription,
+              "processDescription": this.scriptFormulaHTML || targetIndicatorMetadata.processDescription,
               "lowestSpatialUnitForComputation": targetIndicatorMetadata.lowestSpatialUnitForComputation,
               "defaultClassificationMapping": targetIndicatorMetadata.defaultClassificationMapping
           };
@@ -380,30 +378,24 @@ angular
         var output = document.getElementById(domOutputElementId);
         output.innerHTML = this.scriptFormulaHTML;
 
-        MathJax.texReset();
-        MathJax.typesetClear();
+        // MathJax.texReset();
+        // MathJax.typesetClear();
         MathJax.typesetPromise([output]).then(function(){
-          $timeout(function(){
-            self.scriptFormulaHTML_styled = "" + output.innerHTML;
-            $rootScope.$apply();
-          });
+
         }).catch(function (err) {
           output.innerHTML = '';
           output.appendChild(document.createTextNode(err.message));
           console.error(err);
         }).then(function () {
-          $timeout(function(){
-            self.scriptFormulaHTML_styled = "" + output.innerHTML;
-            $rootScope.$apply();
-          });
+
         });
       };
 
       this.styleMathFormula_forExplanation = function(domOutputElementId){
         var output = document.getElementById(domOutputElementId);
 
-        MathJax.texReset();
-        MathJax.typesetClear();
+        // MathJax.texReset();
+        // MathJax.typesetClear();
         MathJax.typesetPromise([output]).then(function(){
           $timeout(function(){
             self.scriptFormulaExplanation = "" + output.innerHTML;
@@ -419,6 +411,22 @@ angular
             $rootScope.$apply();
           });
         });
+      };
+
+      this.typesetContainerByClass = function(className){
+        var domElements = document.getElementsByClassName(className);
+        
+        for (const domElement of domElements) {
+          MathJax.typesetPromise([domElement]).then(function(){
+            $timeout(function(){
+            });
+          }).catch(function (err) {
+            console.error(err);
+          }).then(function () {
+            $timeout(function(){
+            });
+          });
+        }
       };
 
     }]);

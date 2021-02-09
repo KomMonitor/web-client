@@ -249,7 +249,7 @@
 								<label>Editierfenster des Methodik-Textbausteins (HTML)</label>
 								<br/>
 								<br/>
-								<textarea rows="4" ng-model="$ctrl.kommonitorScriptHelperServiceInstance.scriptFormulaHTML" ng-change="$ctrl.kommonitorScriptHelperServiceInstance.styleMathFormula('scriptFormulaOutput')"></textarea>
+								<textarea rows="4" ng-model="$ctrl.kommonitorScriptHelperServiceInstance.scriptFormulaHTML" ></textarea>
 							</div>
 							<div class="help-block">
 								<p>Hinweis: KomMonitor nutzt <a target="_blank" rel="noopener noreferrer" href="https://www.mathjax.org/">MathJax und Tex-Syntax</a>, um Formeln darzustellen.
@@ -263,7 +263,7 @@
 								<label>Vorschaufenster</label>
 								<br/>
 								<br/>
-								<p id="scriptFormulaOutput"></p>
+								<p mathjax-bind="$ctrl.kommonitorScriptHelperServiceInstance.scriptFormulaHTML"></p>
 							</div>
 						</div>
 					</div>
@@ -287,7 +287,7 @@
 								<label>Derzeitiger Eintrag zum Vergleich</label>
 								<br/>
 								<br/>
-								<p ng-bind-html="$ctrl.kommonitorScriptHelperServiceInstance.targetIndicator.processDescription"></p>
+								<p mathjax-bind="$ctrl.kommonitorScriptHelperServiceInstance.targetIndicator.processDescription"></p>
 							</div>
 						</div>
 					</div>		

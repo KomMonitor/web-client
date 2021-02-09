@@ -4,6 +4,7 @@ angular.module('adminIndicatorsManagement').component('adminIndicatorsManagement
 	function IndicatorsManagementController(kommonitorDataExchangeService, $scope, $timeout, $rootScope, __env, $http) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
+
 		// initialize any adminLTE box widgets
 	  $('.box').boxWidget();
 

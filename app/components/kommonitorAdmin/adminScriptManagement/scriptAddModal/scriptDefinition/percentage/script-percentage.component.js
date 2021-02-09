@@ -145,7 +145,7 @@ angular.module('scriptPercentage').component('scriptPercentage', {
 				legendItemsHTML+="<br/>$ I_{ref} $: " + $scope.refIndicatorSelection.indicatorName + "<br/>";
 
 				kommonitorScriptHelperService.scriptFormulaHTML = formulaHTML + "<br/><br/>" + legendItemsHTML;
-				kommonitorScriptHelperService.styleMathFormula("scriptFormulaOutput");
+				
 			};
 
 			$scope.addBaseIndicator = function(tmpIndicatorSelection){

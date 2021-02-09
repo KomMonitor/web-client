@@ -114,7 +114,7 @@ angular.module('scriptMultiplication').component('scriptMultiplication', {
 				formulaHTML += " $";
 
 				kommonitorScriptHelperService.scriptFormulaHTML = formulaHTML + "<br/><br/>" + legendItemsHTML;
-				kommonitorScriptHelperService.styleMathFormula("scriptFormulaOutput");
+				
 			};
 
 			$scope.addBaseIndicator = function(tmpIndicatorSelection){

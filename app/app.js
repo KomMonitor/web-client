@@ -182,6 +182,24 @@ function initAngularComponents(){
   // Register environment in AngularJS as constant
   appModule.constant('__env', env);
 
+  // MathJx directive
+  appModule.directive("mathjaxBind", function () {
+    return {
+      restrict: "EA",
+      controller: [
+        "$scope",
+        "$element",
+        "$attrs",
+        function ($scope, $element, $attrs) {
+          $scope.$watch($attrs.mathjaxBind, function (texExpression) {
+            $element.html(texExpression);
+            MathJax.typeset([$element[0]]);
+          });
+        },
+      ],
+    };
+  });
+
   // custom unique filter
   appModule.filter('unique', function() {
     return function(collection, primaryKey) { //no need for secondary key
