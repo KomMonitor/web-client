@@ -56,6 +56,10 @@ angular
 					"apiName": "indicator_division"
         },
         {
+					"displayName": "Leitindikator - verkettete Berechnung (Rank, Min-Max-Normalisierung, Aggregation)",
+					"apiName": "indicator_headlineIndicator"
+        },
+        {
 					"displayName": "Indikatoren - Produkt aller Indikatoren",
 					"apiName": "indicator_multiplication"
         },
