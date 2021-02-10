@@ -16,7 +16,7 @@
 
 				<div class="input-group">
 					<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-					<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="indicatorNameFilter">
+					<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="indicatorNameFilter" ng-model-options="{debounce: 500, blur: 0}">
 				</div>
 
 				<p></p>

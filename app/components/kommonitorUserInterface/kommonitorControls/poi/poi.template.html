@@ -110,7 +110,7 @@
 
 							<div class="input-group">
 								<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-								<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="georesourceNameFilter.value">
+								<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="georesourceNameFilter.value" ng-model-options="{debounce: 500, blur: 0}">
 							</div>
 
 							<br/>
@@ -1285,7 +1285,7 @@
 		
 							<div class="input-group">
 								<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-								<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="poiNameFilter">
+								<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="poiNameFilter" ng-model-options="{debounce: 500, blur: 0}">
 							</div>
 		
 							<br/>
@@ -1381,7 +1381,7 @@
 		
 								<div class="input-group">
 									<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-									<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="loiNameFilter">
+									<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="loiNameFilter" ng-model-options="{debounce: 500, blur: 0}">
 								</div>
 		
 								<br/>
@@ -1471,7 +1471,7 @@
 		
 									<div class="input-group">
 										<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-										<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="aoiNameFilter">
+										<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="aoiNameFilter" ng-model-options="{debounce: 500, blur: 0}">
 									</div>
 		
 									<br/>
@@ -1556,7 +1556,7 @@
 
 											<div class="input-group">
 												<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-												<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="wmsNameFilter">
+												<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="wmsNameFilter" ng-model-options="{debounce: 500, blur: 0}">
 											</div>
 
 											<br/>
@@ -1645,7 +1645,7 @@
 
 														<div class="input-group">
 															<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-															<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="wfsNameFilter">
+															<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="wfsNameFilter" ng-model-options="{debounce: 500, blur: 0}">
 														</div>
 
 														<br/>

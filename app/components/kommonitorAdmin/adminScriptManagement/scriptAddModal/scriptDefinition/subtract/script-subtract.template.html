@@ -30,7 +30,7 @@
 								<label>Auswahl des f&uuml;r die Berechnung erforderlichen Referenzindikators</label>
 								<div class="input-group">
 									<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-									<input type="text" class="form-control input-sm" placeholder="Stichwortfilter"
+									<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model-options="{debounce: 500, blur: 0}"
 										ng-model="indicatorNameFilter_refIndicator">
 								</div>
 								<br />
@@ -118,7 +118,7 @@
 							<label>Auswahl der f&uuml;r die Berechnung erforderlichen (Basis-)Indikatoren</label>
 							<div class="input-group">
 								<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-								<input type="text" class="form-control input-sm" placeholder="Stichwortfilter"
+								<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model-options="{debounce: 500, blur: 0}"
 									ng-model="indicatorNameFilter">
 							</div>
 							<br />

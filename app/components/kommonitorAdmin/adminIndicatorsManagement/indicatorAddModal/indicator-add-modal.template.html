@@ -549,7 +549,7 @@
 																<label>Indikator, f&uuml;r den eine Referenz angelegt werden soll</label>
 																<div class="input-group">
 																	<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-																	<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="indicatorNameFilter">
+																	<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="indicatorNameFilter" ng-model-options="{debounce: 500, blur: 0}">
 																  </div>
 																  <br/>
 																<select ng-model="tmpIndicatorReference_selectedIndicatorMetadata" size="5"
@@ -669,7 +669,7 @@
 																<label>Indikator, f&uuml;r den eine Referenz angelegt werden soll</label>
 																<div class="input-group">
 																	<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-																	<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="georesourceNameFilter">
+																	<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="georesourceNameFilter" ng-model-options="{debounce: 500, blur: 0}">
 																  </div>
 																  <br/>
 																<select ng-model="tmpGeoresourceReference_selectedGeoresourceMetadata" size="5"
