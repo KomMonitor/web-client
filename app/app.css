@@ -2309,3 +2309,11 @@ input:checked + .switchslider:before {
 #reporting-load-settings-button {
 	display:none;
 }
+
+.style-simple-indicator {
+	background-color: white;
+}
+
+.style-headline-indicator {
+	background-color: rgb(247,147,30);
+}
