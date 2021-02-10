@@ -127,6 +127,11 @@
         <kommonitor-individual-indicator-computation></kommonitor-individual-indicator-computation>
     </aside>
 
+	<!-- right side legend menu -->
+	<aside id="sidebarLegend" ng-class="sidebarLegendClass" >
+        <kommonitor-legend></kommonitor-legend>
+    </aside>
+
     <!-- Page Content -->
     <div id="content" style="height: 100%; width: 100%; position: relative;">
 
@@ -191,6 +196,11 @@
 						<button type="button" style="top: 73%;" id="sidebarProcessingCollapse"
 							ng-click="onSidebarProcessingClick()" ng-class="buttonProcessingClass" ng-if="widgetAccessibility.processing" data-toggle="tooltip" title="Individuelle Indikatorenberechnung">
 							<i style="font-size:2.5vh;" class="fas fa-sliders-h"></i>
+						</button>
+
+						<button type="button" id="sidebarLegendCollapse"
+							ng-click="onSidebarLegendButtonClick()" ng-class="buttonLegendClass" data-toggle="tooltip" title="Legenden- und Informationsfenster">
+							<i style="font-size:2.5vh;" class="fas fa-info"></i>
 						</button>
 				</div>
 

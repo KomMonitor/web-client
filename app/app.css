@@ -1605,6 +1605,26 @@ transition: opacity 0.3s;
 	opacity: 0;
 }
 
+#sidebarLegend {
+	/* min-width: 35%; */
+	right: 0;
+    position: fixed;
+    top: 54px;
+    z-index: 2000;
+	max-width: 25%;
+	font-size: 11px;
+		height: 83vh;
+		/* min-height: 100vh; */
+		background: rgb(236,240,245);
+		transition: opacity 0.3s;
+		overflow: auto;
+}
+
+#sidebarLegend.disappear {
+	width: 0;
+	opacity: 0;
+}
+
 #indicatorSetup{
 	margin-left: 1%;
 	margin-right: 1%;
@@ -1740,6 +1760,29 @@ transition: opacity 0.3s;
 	height:3vh;
 }
 
+.btn-circle-right {
+	right: 10px;
+    position: fixed;
+    top: 45vh;
+	width: 5vh;
+	height: 5vh;
+	text-align: center;
+	padding: 6px 0;
+	font-size: 12px;
+	line-height: 1.42;
+	border-radius: 2.5vh;
+	  z-index: 1003;
+  }
+  
+  .btn-circle-right img {
+	  -webkit-filter: invert(1);
+	  filter: progid:DXImageTransform.Microsoft.BasicImage(invert=1);
+	  -ms-filter: 'progid:DXImageTransform.Microsoft.BasicImage(invert=1)';
+	  filter: invert(1);
+	  width:3vh;
+	  height:3vh;
+  }
+
 .btn-docked {
 	position: absolute;
   left: 0px;
@@ -1756,6 +1799,27 @@ transition: opacity 0.3s;
 }
 
 .btn-docked img {
+	width:3vh;
+	height:3vh;
+}
+
+.btn-docked-right {
+	right: 25%;
+    position: fixed;
+    top: 45vh;
+  transition: 0.3s;
+  padding: 6px 0;
+  width: 6vh;
+	height: 5vh;
+  text-decoration: none;
+  font-size: 14px;
+  color: white;
+  border-radius: 3vh 0 0 2.5vh;
+	background-color: rgb(236,240,245);
+	z-index: 2003;
+}
+
+.btn-docked-right img {
 	width:3vh;
 	height:3vh;
 }
@@ -1779,10 +1843,35 @@ transition: opacity 0.3s;
 	filter: invert(0);
 }
 
+.btn-custom-right {
+	background-color: #337ab7;
+	color: white;
+	z-index: 1003;
+}
+
+.btn-custom-right:hover {
+	background-color: white;
+	color: black;
+	border: 2px solid #337ab7;
+	position: fixed;
+	z-index: 1003;
+}
+
+.btn-custom-right:hover img{
+	filter: invert(0);
+}
+
 .btn-custom-docked {
 	background-color: rgb(236,240,245);
 	color: black;
 	position: absolute;
+	z-index: 1003;
+}
+
+.btn-custom-docked-right {
+	background-color: rgb(236,240,245);
+	color: black;
+	position: fixed;
 	z-index: 1003;
 }
 

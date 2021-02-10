@@ -39,6 +39,8 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 		$scope.sidebarPoiClass = "disappear";
 		$scope.sidebarDataImportClass = "disappear";
 
+		$scope.sidebarLegendClass = "";
+
 		$scope.buttonIndicatorConfigClass = "btn btn-custom btn-circle";
 		$scope.buttonDiagramsClass = "btn btn-custom btn-circle";
 		$scope.buttonRadarDiagramClass = "btn btn-custom btn-circle";
@@ -49,6 +51,8 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 		$scope.buttonReachabilityClass = "btn btn-custom btn-circle";
 		$scope.buttonPoiClass = "btn btn-custom btn-circle";
 		$scope.buttonDataImportClass = "btn btn-custom btn-circle";
+
+		$scope.buttonLegendClass = "btn btn-custom-docked-right btn-docked-right";
 
 		function sleep(ms) {
 			return new Promise(resolve => setTimeout(resolve, ms));
@@ -451,6 +455,21 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			$rootScope.$broadcast("refreshIndicatorValueRangeSlider");
 			$rootScope.$broadcast("redrawGuidedTourElement");
 		}
+
+		$scope.onSidebarLegendButtonClick = function(){
+			
+			if($scope.sidebarLegendClass === "disappear"){
+				$scope.hideSidebars();
+				$scope.sidebarLegendClass = "";
+				$scope.buttonLegendClass = "btn btn-custom-docked-right btn-docked-right";
+			}
+			else{
+				$scope.sidebarLegendClass = "disappear";
+				$scope.buttonLegendClass = "btn btn-custom-right btn-circle-right";
+			}
+
+			$rootScope.$broadcast("refreshIndicatorValueRangeSlider");
+		};
 
 		$scope.onRecenterMapButtonClick = function(){
 			$rootScope.$broadcast("recenterMapContent");
