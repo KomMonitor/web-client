@@ -187,7 +187,7 @@ angular.module('scriptHeadlineIndicator').component('scriptHeadlineIndicator', {
 
 				formulaHTML += " $";
 
-				kommonitorScriptHelperService.scriptFormulaHTML = legendItemsHTML + "<br/><br/>" + formulaHTML;
+				kommonitorScriptHelperService.scriptFormulaHTML = legendItemsHTML + "<br/><br/>" +  formulaHTML + "<br/><br/>" + aggregationMethodHTML;
 				
 			};
 
