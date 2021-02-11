@@ -357,7 +357,8 @@ angular.module('kommonitorMap').component(
 
           var baseLayerDefinitionsMap = new Map();
 
-          for (const baseMapEntry of __env.baseLayers) {            
+          for (const baseMapEntry of __env.baseLayers) {              
+            
             if (baseMapEntry.layerType === "TILE_LAYER_GRAYSCALE"){
               var grayscaleLayer = new L.tileLayer.grayscale(baseMapEntry.url, { minZoom: baseMapEntry.minZoomLevel, maxZoom: baseMapEntry.maxZoomLevel, attribution: baseMapEntry.attribution_html });
               baseLayerDefinitionsMap.set(baseMapEntry.name, grayscaleLayer);
@@ -367,7 +368,7 @@ angular.module('kommonitorMap').component(
               baseLayerDefinitionsMap.set(baseMapEntry.name, tileLayer);
             }
             else if (baseMapEntry.layerType === "WMS"){
-              var wmsLayer = new L.tileLayer.wms(baseMapEntry.url, { minZoom: baseMapEntry.minZoomLevel, maxZoom: baseMapEntry.maxZoomLevel, attribution: baseMapEntry.attribution_html, layers: baseMapEntry.layerName_WMS });
+              var wmsLayer = new L.tileLayer.wms(baseMapEntry.url, { minZoom: baseMapEntry.minZoomLevel, maxZoom: baseMapEntry.maxZoomLevel, attribution: baseMapEntry.attribution_html, layers: baseMapEntry.layerName_WMS, format: 'image/png' });
               baseLayerDefinitionsMap.set(baseMapEntry.name, wmsLayer);
             }
           }
@@ -734,7 +735,7 @@ angular.module('kommonitorMap').component(
           //
           // for (var option of kommonitorDataExchangeService.availableSpatialUnits){
           //
-          //   if (kommonitorDataExchangeService.selectedIndicator.applicableSpatialUnits.includes(option.spatialUnitLevel)){
+          //   if (kommonitorDataExchangeService.selectedIndicator.applicableSpatialUnits.some(o => o.spatialUnitName ===  option.spatialUnitLevel)){
           //     innerHTMLString += ' <option value="' + option.spatialUnitLevel + '" ';
           //     if (kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel === option.spatialUnitLevel){
           //       innerHTMLString +=' selected ';
@@ -766,7 +767,7 @@ angular.module('kommonitorMap').component(
 
           for (var option of kommonitorDataExchangeService.availableSpatialUnits) {
 
-            if (kommonitorDataExchangeService.selectedIndicator.applicableSpatialUnits.includes(option.spatialUnitLevel)) {
+            if (kommonitorDataExchangeService.isAllowedSpatialUnitForCurrentIndicator(option)) {
               innerHTMLString += ' <li><p style="cursor: pointer; font-size:12px;">' + option.spatialUnitLevel;
               innerHTMLString += '</p></li>';
             }

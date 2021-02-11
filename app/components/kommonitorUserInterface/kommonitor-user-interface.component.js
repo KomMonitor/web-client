@@ -1,18 +1,27 @@
 angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 	templateUrl : "components/kommonitorUserInterface/kommonitor-user-interface.template.html",
-	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '$location', function UserInterfaceController(kommonitorDataExchangeService, $scope, $rootScope, $location) {
+	controller : ['kommonitorDataExchangeService', 'kommonitorKeycloakHelperService', '$scope', '$rootScope', '$location', 'Auth', 'ControlsConfigService', function UserInterfaceController(kommonitorDataExchangeService, kommonitorKeycloakHelperService, $scope, $rootScope, $location, Auth, ControlsConfigService) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
+		this.kommonitorKeycloakHelperServiceInstance = kommonitorKeycloakHelperService;
 
 		kommonitorDataExchangeService.anySideBarIsShown = false;
 
+		
 		$scope.username;
 		$scope.password;
 		$scope.showAdminLogin = false;
 
-		$scope.init = function(){
+		$scope.init = function () {
 			// initialize application
 			console.log("Initialize Application");
+			if ($scope.authenticated) {
+				console.log("Authetication successfull");
+			}			
+
+			checkAuthentication();
+			$scope.widgetAccessibility = getWidgetAccessibility();
+
 			kommonitorDataExchangeService.fetchAllMetadata();
 		};
 
@@ -45,7 +54,17 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			return new Promise(resolve => setTimeout(resolve, ms));
 		}
 
-		$scope.tryLoginUser = function(){
+		Auth.keycloak.onAuthLogout  = function() {
+			console.log("Logout successfull");
+			checkAuthentication();
+		}
+
+		Auth.keycloak.onAuthSuccess   = function() {
+			console.log("User successfully authenticated");
+			checkAuthentication();
+		}
+
+		$scope.tryLoginUser_withoutKeycloak = function(){
 			// TODO FIXME make generic user login once user/role concept is implemented
 
 			// currently only simple ADMIN user login is possible
@@ -58,12 +77,96 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			}
 		};
 
-		$scope.tryLoginUserByKeypress = function($event){
+		$scope.tryLoginUser = function(){
+			if(kommonitorDataExchangeService.enableKeycloakSecurity){
+				Auth.keycloak.login();
+			}
+			else{
+				$scope.tryLoginUser_withoutKeycloak();
+			}
+			
+		};
+
+		$scope.tryLogoutUser = function() {
+			Auth.keycloak.logout();
+		};
+
+		$scope.tryLoginUserByKeypress = function ($event) {
 			var keyCode = $event.which || $event.keyCode;
 			//check for enter key
 	    if (keyCode === 13) {
 	        $scope.tryLoginUser();
 	    }
+		};
+
+		var checkAuthentication = function () {	
+			kommonitorDataExchangeService.currentKeycloakLoginRoles = [];
+
+			if (Auth.keycloak.authenticated) {
+				$scope.authenticated = Auth.keycloak.authenticated;
+				Auth.keycloak.loadUserProfile()
+    				.then(function (profile) {
+						if (profile.emailVerified) {
+							$scope.username = profile.email;
+							if(Auth.keycloak.tokenParsed && Auth.keycloak.tokenParsed.realm_access && Auth.keycloak.tokenParsed.realm_access.roles){
+								kommonitorDataExchangeService.currentKeycloakLoginRoles = Auth.keycloak.tokenParsed.realm_access.roles;
+							}
+							else{
+								kommonitorDataExchangeService.currentKeycloakLoginRoles = [];
+							}
+							console.log("User logged in with email: " + profile.email);
+						} else {
+							alert("Email not verified. User will be logged out automatically!");
+							$scope.tryLogoutUser();
+						}
+    				}).catch(function () {
+       					console.log('Failed to load user profile');
+					});
+				if(Auth.keycloak.tokenParsed && Auth.keycloak.tokenParsed.realm_access && Auth.keycloak.tokenParsed.realm_access.roles && Auth.keycloak.tokenParsed.realm_access.roles.includes('administrator')){
+					$scope.showAdminLogin = true;
+				}
+			}
+		};
+
+		var checkWidgetAccessibility = function(id) {
+			var widget = ControlsConfigService.getControlsConfig().filter(widget => widget.id === id)[0];
+			if(widget.roles === undefined || widget.roles.length === 0) {
+				return true;
+			}
+			else if(Auth.keycloak.authenticated) {
+				// admin role user always sees all data and widgets
+				if(kommonitorDataExchangeService.currentKeycloakLoginRoles.includes(kommonitorKeycloakHelperService.adminRoleName)){
+					return true;
+				}
+				var hasAllowedRole = false;
+				for (var i = 0; i < widget.roles.length; i++) {
+					if(Auth.keycloak.tokenParsed.realm_access.roles.includes(widget.roles[i])){
+						return true;
+					}	
+				}
+				return hasAllowedRole;
+			} else {
+				if(! kommonitorDataExchangeService.enableKeycloakSecurity){
+					return true;
+				}
+				else{
+					return false;
+				}				
+			}
+		};
+
+		var getWidgetAccessibility = function() {			
+			var widgetAccessibility = {};
+			var config = ControlsConfigService.getControlsConfig();
+			config.forEach(widget => {
+				widgetAccessibility[widget.id] = checkWidgetAccessibility(widget.id);
+			});
+			
+			return widgetAccessibility;
+		};
+
+		$scope.openAdminUI = function () {
+			$location.path('/administration');
 		};
 
 		$scope.undockButtons = function(){

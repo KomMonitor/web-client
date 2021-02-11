@@ -1,0 +1,136 @@
+<div id="adminKeycloakConfigContent">
+	<!-- Content Header (Page header) -->
+	<section class="content-header">
+		<h1>
+			Einstellungen zur Keycloak-Anbindung 
+			<small>Konfiguration der Anbindung an Keycloak zwecks Rollen-basiertem Zugriffsschutz auf bestimmte KomMonitor-Ressourcen</small>
+		</h1>
+		
+	</section>
+
+	<!-- Main content -->
+	<section class="content container-fluid">
+		<!--------------------------
+	| Your Page Content Here |
+	-------------------------->
+
+	<!-- <div>
+		<div class="box box-danger collapsed-box">
+			<div class="box-header">
+				<h3 class="box-title">Erl&auml;uternde Hinweise</h3>
+
+				<div class="box-tools pull-right">
+					<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+					</button>
+				</div>
+			</div>
+			<div class="box-body">
+
+				<p>Text 
+					</p>
+				<h4>Content</h4>	
+			</div>
+		</div>
+	</div> -->
+
+	<div>
+		<div class="box box-primary">
+			<div class="box-header">
+				<h3 class="box-title">Keycloak Konfiguration</h3>
+			</div>
+			<!-- /.box-header -->
+			<div class="box-body">
+
+				<p>Setzen Sie nachfolgend die relevanten Parameter zur Anbindung an die Keycloak-Instanz und speichern sie diese. 
+					Dies speichert die Konfiguration im <b>Config Storage Service</b> von KomMonitor, von dem die Daten beim Start der Anwendung geladen werden.
+					Setzen Sie die Werte daher sorgf&auml;ltig.
+					</p>
+
+					<hr>
+					<br/>
+
+					<div class="row vertical-align">
+						<div class="col-md-6 col-sm-6 col-xs-12">
+							<div class="form-group">
+								<label>Vorlage (Struktur und Standard-Einstellung)</label>
+								<br/>
+								<br/>
+								<pre class="prettyprint linenums" style="max-height: 300px; overflow: auto; text-align: left;" id="keycloakConfig_backupTemplate"><code class="language-javascript" ng-bind-html="keycloakConfigTemplate"></code></pre>
+							</div>
+						</div>
+						<div class="col-md-6 col-sm-6 col-xs-12">
+							<div class="form-group">
+								<label>derzeitige Konfiguration (aktuelle Wertbelegung)</label>
+								<br/>
+								<br/>
+								<pre class="prettyprint linenums" style="max-height: 300px; overflow: auto; text-align: left;" id="keycloakConfig_current"><code class="language-javascript" ng-bind-html="keycloakConfigCurrent"></code></pre>
+							</div>
+						</div>
+					</div>
+
+					<hr>
+					<br/>
+
+					<div class="row vertical-align">						
+						<div class="col-md-6 col-sm-6 col-xs-12">
+							<div class="form-group">
+								<label>Editierfenster der Keycloak-Einstellungen</label>
+								<br/>
+								<br/>
+								<textarea id="keycloakConfigEditor"></textarea>
+							</div>
+							<div class="help-block with-errors" ng-show="configSettingInvalid">
+								Bitte beachten Sie, dass alle notwendigen Parameter gem&auml;&szlig; der obigen Vorlage definiert werden m&uuml;ssen. Beachten Sie daher die vorgegebene JSON-Struktur. Der Text wird auf Schl&uuml;sselw&ouml;rter gepr&uuml;ft und es wird sichergestellt, dass valides JSON geparsed werden kann.
+							</div>
+						</div>
+						<div class="col-md-6 col-sm-6 col-xs-12">
+							<div class="form-group">
+								<label>Vorschaufenster (neue Wertbelegung)</label>
+								<br/>
+								<br/>
+								<pre class="prettyprint linenums" style="max-height: 300px; overflow: auto; text-align: left;" id="keycloakConfig_new"><code class="language-javascript" ng-bind-html="keycloakConfigNew"></code></pre>
+							</div>
+						</div>
+					</div>	
+					
+					
+					<div class="row vertical-align">						
+						<div class="col-md-6 col-sm-6 col-xs-12">							
+							<div class="form-group">
+								<button type="button" class="btn btn-warning vertical-align horizontal-align"
+								 ng-click="resetDefaultConfig()">Standard-Einstellungen wiederherstellen</button>
+							</div>
+						</div>
+						<div class="col-md-6 col-sm-6 col-xs-12">
+							<div class="form-group">
+								<button type="button" class="btn btn-success vertical-align horizontal-align"
+								ng-disabled="configSettingInvalid" ng-click="editKeycloakConfig()">Keycloak-Konfiguration speichern</button>
+							</div>
+						</div>
+					</div>
+			</div>
+			<!-- /.box-body -->
+
+			<div id="keycloakConfigEditSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+				class="alert alert-success alert-dismissable">
+				<button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
+				<h4><i class="icon fa fa-check"></i>Keycloak-Konfiguration in Config Storage Server gespeichert</h4>
+				<p>Die neue Parametrisierung wird beim n&auml;chsten Start der Anwendung vom Config Storage Server geladen und verwendet.
+				</p>
+			</div>
+
+			<div id="keycloakConfigEditErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+				class="alert alert-danger alert-dismissable">
+				<button type="button" class="close" ng-click="hideErrorAlert()" aria-hidden="true">&times;</button>
+				<h4><i class="icon fa fa-ban"></i>Speichern der Keycloak-Konfiguration in Config Storage Server gescheitert</h4>
+				Fehlermeldung:
+				<br />
+				<pre style="overflow:auto; max-height:500px;" ng-bind-html="errorMessagePart"></pre>
+			</div>
+		</div>
+		<!-- /.box -->
+	</div>
+
+	</section>
+	<!-- /.content -->
+</div>

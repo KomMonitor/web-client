@@ -4,6 +4,7 @@ angular.module('adminIndicatorsManagement').component('adminIndicatorsManagement
 	function IndicatorsManagementController(kommonitorDataExchangeService, $scope, $timeout, $rootScope, __env, $http) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
+
 		// initialize any adminLTE box widgets
 	  $('.box').boxWidget();
 
@@ -99,6 +100,10 @@ angular.module('adminIndicatorsManagement').component('adminIndicatorsManagement
 		$scope.onClickEditFeatures = function(indicatorDataset){
 			// submit selected spatial unit to modal controller
 			$rootScope.$broadcast("onEditIndicatorFeatures", indicatorDataset);
+		};
+
+		$scope.onClickEditIndicatorSpatialUnitRoles = function(indicatorDataset){
+			$rootScope.$broadcast("onEditIndicatorSpatialUnitRoles", indicatorDataset);
 		};
 
 

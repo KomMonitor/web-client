@@ -1,1 +1,1 @@
-angular.module('indicatorEditMetadataModal', []);
+angular.module('indicatorEditMetadataModal', ['kommonitorDataExchange', 'excaliburDualList']);

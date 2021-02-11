@@ -199,6 +199,14 @@ MULTI STEP FORM
     text-align: center;
 }
 
+#userLoginForm_withoutKeycloak{
+    display: block;
+}
+
+#userLoginForm_withoutKeycloak h4, span {
+    text-align: center;
+}
+
 :root {
         --body_gradient_left:#7200D0;
         --body_gradient_right: #C800C1;
@@ -206,8 +214,10 @@ MULTI STEP FORM
         --input_bg: #E5E5E5;
         --input_hover:#eaeaea;
         --submit_bg: #1FCC44;
-        --submit_hover: #40e263;
-        --icon_color:#6b6b6b;
+		--submit_hover: #40e263;
+		--logout_bg: rgb(216, 0, 0);
+        --logout_hover: #ff7373;
+        --icon_color:#d84a4a;
     }
 
 .userFormWrapper {
@@ -268,8 +278,8 @@ MULTI STEP FORM
         font-size: 1.3rem;
         font-weight: 400;
         padding-left: 30px;
-    }
-
+	}
+	
     .input_field:hover,
     .input_field:focus {
         /* remove the outline */
@@ -282,16 +292,25 @@ MULTI STEP FORM
         padding-left: 0;
         font-weight: bold;
         color: white;
-        text-transform: uppercase;
-    }
-
+		text-transform: uppercase;
+	}
+	
     #input_submit:hover {
         background-color: var(--submit_hover);
         /* simple color transition on hover */
         transition: background-color,
             1s;
         cursor: pointer;
-    }
+	}
+
+	#input_submit.input_authenticated {
+        /* submit button has a different color and different padding */
+        background-color: var(--logout_bg);
+	}
+	
+    #input_submit:hover.input_authenticated {
+        background-color: var(--logout_hover);
+	}
 
 		#userLogin a {
 		        /* remove default underline */
@@ -323,6 +342,16 @@ MULTI STEP FORM
 .boolean { color: blue; }
 .null { color: magenta; }
 .key { color: red; }
+
+pre.CodeMirror-line {
+	outline: none;
+}
+
+.CodeMirror {
+    border: 1px solid black;
+}
+
+.prettyprint ol.linenums > li { list-style-type: decimal; }
 
 .just-padding {
     padding: 15px;
@@ -2331,3 +2360,10 @@ input:checked + .switchslider:before {
 	padding: 12px !important;
 }
 */
+.style-simple-indicator {
+	background-color: white;
+}
+
+.style-headline-indicator {
+	background-color: rgb(247,147,30);
+}

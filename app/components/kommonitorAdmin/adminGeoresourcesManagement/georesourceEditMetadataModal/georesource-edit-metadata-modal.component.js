@@ -1,6 +1,6 @@
 angular.module('georesourceEditMetadataModal').component('georesourceEditMetadataModal', {
 	templateUrl : "components/kommonitorAdmin/adminGeoresourcesManagement/georesourceEditMetadataModal/georesource-edit-metadata-modal.template.html",
-	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '$http', '__env',function GeoresourceEditMetadataModalController(kommonitorDataExchangeService, $scope, $rootScope, $http, __env) {
+	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '$http', '__env', '$timeout', function GeoresourceEditMetadataModalController(kommonitorDataExchangeService, $scope, $rootScope, $http, __env, $timeout) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
@@ -55,6 +55,7 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 				"description": "description about spatial unit dataset",
 				"databasis": "text about data basis",
 			},
+			"allowedRoles": ['roleId'],
 			"datasetName": "Name of georesource dataset",
 			"isPOI": "boolean parameter for point of interest dataset - only one of isPOI, isLOI, isAOI can be true",
 			"isLOI": "boolean parameter for lines of interest dataset - only one of isPOI, isLOI, isAOI can be true",
@@ -87,6 +88,9 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 		$scope.metadata.contact = undefined;
 		$scope.metadata.lastUpdate = undefined;
 		$scope.metadata.description = undefined;
+
+		$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, null, "roleName")};			
+		$scope.allowedRoleNames = {selectedItems: []};
 
 		$scope.georesourceTopic_mainTopic = undefined;
 		$scope.georesourceTopic_subTopic = undefined;
@@ -189,6 +193,10 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 				}
 			});
 
+			var selectedRolesMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleIds($scope.currentGeoresourceDataset.allowedRoles);			
+			$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, selectedRolesMetadata, "roleName")};			
+			$scope.allowedRoleNames = {selectedItems: $scope.duallist.duallistRoleOptions.selectedItems};
+
 			$scope.isPOI = $scope.currentGeoresourceDataset.isPOI;
 			$scope.isLOI = $scope.currentGeoresourceDataset.isLOI;
 			$scope.isAOI = $scope.currentGeoresourceDataset.isAOI;
@@ -281,12 +289,18 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 					"databasis": $scope.metadata.databasis,
 					"sridEPSG": 4326
 				},
+				"allowedRoles": [],
 				"datasetName": $scope.datasetName,
 			  "isAOI": $scope.isAOI,
 				"isLOI": $scope.isLOI,
 				"isPOI": $scope.isPOI,
 			  "topicReference": null
 			};
+
+			for (const roleDuallistItem of $scope.allowedRoleNames.selectedItems) {
+				var roleMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleName(roleDuallistItem.name);
+				patchBody.allowedRoles.push(roleMetadata.roleId);
+			}
 
 			if($scope.isPOI){
 				patchBody["poiSymbolBootstrap3Name"] = $scope.selectedPoiIconName;
@@ -455,6 +469,10 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 
 				$scope.datasetName = $scope.metadataImportSettings.datasetName;
 
+				var selectedRolesMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleIds($scope.metadataImportSettings.allowedRoles);			
+				$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, selectedRolesMetadata, "roleName")};			
+				$scope.allowedRoleNames = {selectedItems: $scope.duallist.duallistRoleOptions.selectedItems};
+
 				// georesource specific properties
 
 				$scope.isPOI = $scope.metadataImportSettings.isPOI;
@@ -548,6 +566,12 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 			metadataExport.metadata.description = $scope.metadata.description || "";
 			metadataExport.metadata.databasis = $scope.metadata.databasis || "";
 			metadataExport.datasetName = $scope.datasetName || "";
+
+			metadataExport.allowedRoles = [];
+			for (const roleDuallistItem of $scope.allowedRoleNames.selectedItems) {
+				var roleMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleName(roleDuallistItem.name);
+				metadataExport.allowedRoles.push(roleMetadata.roleId);
+			}
 
 			if($scope.metadata.updateInterval){
 					metadataExport.metadata.updateInterval = $scope.metadata.updateInterval.apiName;
@@ -667,85 +691,89 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 			$scope.scale; //fieldset properties which we will animate
 			$scope.animating; //flag to prevent quick multi-click glitches
 
-			$(".next_editGeoresourceMetadata").click(function(){
-				if($scope.animating) return false;
-				$scope.animating = true;
+			$timeout(function(){
 				
-				$scope.current_fs = $(this).parent();
-				$scope.next_fs = $(this).parent().next();
-				
-				//activate next step on progressbar using the index of $scope.next_fs
-				$("#progressbar li").eq($("fieldset").index($scope.next_fs)).addClass("active");
-				
-				//show the next fieldset
-				$scope.next_fs.show(); 
-				//hide the current fieldset with style
-				$scope.current_fs.animate({opacity: 0}, {
-					step: function(now, mx) {
-						//as the $scope.opacity of current_fs reduces to 0 - stored in "now"
-						//1. $scope.scale current_fs down to 80%
-						$scope.scale = 1 - (1 - now) * 0.2;
-						//2. bring $scope.next_fs from the right(50%)
-						// left = (now * 50)+"%";
-						//3. increase $scope.opacity of $scope.next_fs to 1 as it moves in
-						$scope.opacity = 1 - now;
-						$scope.current_fs.css({
-							'position': 'absolute'
-						});
-						// $scope.next_fs.css({'left': left, '$scope.opacity': $scope.opacity});
-						$scope.next_fs.css({'opacity': $scope.opacity});
-					}, 
-					duration: 200, 
-					complete: function(){
-						$scope.current_fs.hide();
-						$scope.animating = false;
-					}, 
-					//this comes from the custom easing plugin
-					easing: 'easeInOutBack'
+				$(".next_editGeoresourceMetadata").click(function(){
+					if($scope.animating) return false;
+					$scope.animating = true;
+					
+					$scope.current_fs = $(this).parent();
+					$scope.next_fs = $(this).parent().next();
+					
+					//activate next step on progressbar using the index of $scope.next_fs
+					$("#progressbar li").eq($("fieldset").index($scope.next_fs)).addClass("active");
+					
+					//show the next fieldset
+					$scope.next_fs.show(); 
+					//hide the current fieldset with style
+					$scope.current_fs.animate({opacity: 0}, {
+						step: function(now, mx) {
+							//as the $scope.opacity of current_fs reduces to 0 - stored in "now"
+							//1. $scope.scale current_fs down to 80%
+							$scope.scale = 1 - (1 - now) * 0.2;
+							//2. bring $scope.next_fs from the right(50%)
+							// left = (now * 50)+"%";
+							//3. increase $scope.opacity of $scope.next_fs to 1 as it moves in
+							$scope.opacity = 1 - now;
+							$scope.current_fs.css({
+								'position': 'absolute'
+							});
+							// $scope.next_fs.css({'left': left, '$scope.opacity': $scope.opacity});
+							$scope.next_fs.css({'opacity': $scope.opacity});
+						}, 
+						duration: 200, 
+						complete: function(){
+							$scope.current_fs.hide();
+							$scope.animating = false;
+						}, 
+						//this comes from the custom easing plugin
+						easing: 'easeInOutBack'
+					});
 				});
-			});
-
-			$(".previous_editGeoresourceMetadata").click(function(){
-				if($scope.animating) return false;
-				$scope.animating = true;
-				
-				$scope.current_fs = $(this).parent();
-				$scope.previous_fs = $(this).parent().prev();
-				
-				//de-activate current step on progressbar
-				$("#progressbar li").eq($("fieldset").index($scope.current_fs)).removeClass("active");
-				
-				//show the previous fieldset
-				$scope.previous_fs.show(); 
-				//hide the current fieldset with style
-				$scope.current_fs.animate({opacity: 0}, {
-					step: function(now, mx) {
-						//as the $scope.opacity of current_fs reduces to 0 - stored in "now"
-						//1. $scope.scale $scope.previous_fs from 80% to 100%
-						$scope.scale = 0.8 + (1 - now) * 0.2;
-						//2. take current_fs to the right(50%) - from 0%
-						// left = ((1-now) * 50)+"%";
-						//3. increase $scope.opacity of $scope.previous_fs to 1 as it moves in
-						$scope.opacity = 1 - now;
-						// current_fs.css({'left': left});
-						// $scope.previous_fs.css({'transform': '$scope.scale('+$scope.scale+')', '$scope.opacity': $scope.opacity});
-						$scope.previous_fs.css({
-							'position': 'absolute'
-						});
-						$scope.previous_fs.css({'opacity': $scope.opacity});
-					}, 
-					duration: 200, 
-					complete: function(){
-						$scope.current_fs.hide();
-						$scope.previous_fs.css({
-							'position': 'relative'
-						});
-						$scope.animating = false;
-					}, 
-					//this comes from the custom easing plugin
-					easing: 'easeInOutBack'
+	
+				$(".previous_editGeoresourceMetadata").click(function(){
+					if($scope.animating) return false;
+					$scope.animating = true;
+					
+					$scope.current_fs = $(this).parent();
+					$scope.previous_fs = $(this).parent().prev();
+					
+					//de-activate current step on progressbar
+					$("#progressbar li").eq($("fieldset").index($scope.current_fs)).removeClass("active");
+					
+					//show the previous fieldset
+					$scope.previous_fs.show(); 
+					//hide the current fieldset with style
+					$scope.current_fs.animate({opacity: 0}, {
+						step: function(now, mx) {
+							//as the $scope.opacity of current_fs reduces to 0 - stored in "now"
+							//1. $scope.scale $scope.previous_fs from 80% to 100%
+							$scope.scale = 0.8 + (1 - now) * 0.2;
+							//2. take current_fs to the right(50%) - from 0%
+							// left = ((1-now) * 50)+"%";
+							//3. increase $scope.opacity of $scope.previous_fs to 1 as it moves in
+							$scope.opacity = 1 - now;
+							// current_fs.css({'left': left});
+							// $scope.previous_fs.css({'transform': '$scope.scale('+$scope.scale+')', '$scope.opacity': $scope.opacity});
+							$scope.previous_fs.css({
+								'position': 'absolute'
+							});
+							$scope.previous_fs.css({'opacity': $scope.opacity});
+						}, 
+						duration: 200, 
+						complete: function(){
+							$scope.current_fs.hide();
+							$scope.previous_fs.css({
+								'position': 'relative'
+							});
+							$scope.animating = false;
+						}, 
+						//this comes from the custom easing plugin
+						easing: 'easeInOutBack'
+					});
 				});
-			});
+				
+			}, 500);
 
 	}
 ]});

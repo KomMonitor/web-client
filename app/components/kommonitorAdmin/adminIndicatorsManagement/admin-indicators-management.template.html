@@ -98,6 +98,10 @@
 								<button class="btn btn-warning btn-sm" type="button" data-toggle="modal"
 									data-target="#modal-edit-indicator-features" ng-click="onClickEditFeatures(indicatorDataset)"
 									title="Features fortf&uuml;hren"><i class="fas fa-draw-polygon"></i></button>
+								<button class="btn btn-warning btn-sm" type="button" data-toggle="modal" ng-show="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity"
+									data-target="#modal-edit-indicator-spatial-unit-roles" ng-click="onClickEditIndicatorSpatialUnitRoles(indicatorDataset)"
+									ng-disabled="!(indicatorDataset.applicableSpatialUnits.length > 0)"
+									title="Rollenbasierten Zugriffsschutz editieren"><i class="fas fa-user-lock"></i></button>	
 								<!-- <button class="btn btn-danger btn-sm" type="button" data-toggle="modal" data-target="#modal-delete-spatial-units" ng-click="onClickDeleteDatasets(indicatorDataset)" title="Datensatz l&ouml;schen"><i class="fas fa-trash"></i></button> -->
 							</div>
 						</td>
@@ -111,7 +115,7 @@
 						<td ng-bind-html="indicatorDataset.unit"></td>
 						<td ng-bind-html="indicatorDataset.metadata.description"></td>
 						<td ng-bind-html="indicatorDataset.interpretation"></td>
-						<td ng-bind-html="indicatorDataset.processDescription"></td>
+						<td mathjax-bind="indicatorDataset.processDescription"></td>
 						<td ng-bind-html="indicatorDataset.metadata.datasource"></td>
 						<td ng-bind-html="indicatorDataset.metadata.databasis"></td>
 						<td ng-bind-html="indicatorDataset.tags"></td>
@@ -119,8 +123,8 @@
 							$ctrl.kommonitorDataExchangeServiceInstance.getTopicHierarchyDisplayString(indicatorDataset.topicReference)}}</p></td>
 						<td>
 							<ul style="columns: 2; 	-webkit-columns: 2;	-moz-columns: 2;">
-								<li style="margin-right: 15px;" ng-repeat="spatialUnitName in indicatorDataset.applicableSpatialUnits">
-									{{spatialUnitName}}
+								<li style="margin-right: 15px;" ng-repeat="applicableSpatialUnit in indicatorDataset.applicableSpatialUnits">
+									{{applicableSpatialUnit.spatialUnitName}}
 								</li>
 							</ul>
 						</td>

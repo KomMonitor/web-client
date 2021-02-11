@@ -118,14 +118,26 @@
 						<form class="multiStepForm form-group" id="indicatorAddForm" role="form"
 							data-toggle="validator" data-disable="true" style="margin-bottom: 0px;">
 							<!-- progressbar -->
-							<ul id="progressbar">
-								<li style="width: 16.66%;" class="active">Metadaten des Indikators</li>
-								<li style="width: 16.66%;" >Allgemeine Metadaten</li>
-								<li style="width: 16.66%;">Themenhierarchie</li>
-								<li style="width: 16.66%;">Referenzen zu Indikatoren/Georessourcen</li>
-								<li style="width: 16.66%;">Klassifizierungsoptionen</li>
-								<li ng-show="indicatorCreationType.apiName != 'COMPUTATION'" style="width: 16.66%;">Zeitreihen-Import</li>
-							</ul>
+							<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
+								<ul id="progressbar">
+									<li style="width: 16.66%;" class="active">Metadaten des Indikators</li>
+									<li style="width: 16.66%;" >Allgemeine Metadaten</li>
+									<li style="width: 16.66%;">Themenhierarchie</li>
+									<li style="width: 16.66%;">Referenzen zu Indikatoren/Georessourcen</li>
+									<li style="width: 16.66%;">Klassifizierungsoptionen</li>
+									<li style="width: 16.66%;">Rollenbasierter Zugriffsschutz</li>
+								</ul>
+							</div>
+							<div ng-if="! $ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
+								<ul id="progressbar">
+									<li style="width: 20%;" class="active">Metadaten des Indikators</li>
+									<li style="width: 20%;" >Allgemeine Metadaten</li>
+									<li style="width: 20%;">Themenhierarchie</li>
+									<li style="width: 20%;">Referenzen zu Indikatoren/Georessourcen</li>
+									<li style="width: 20%;">Klassifizierungsoptionen</li>
+								</ul>
+							</div>
+							
 							<!-- fieldsets -->
 							
 							<fieldset>
@@ -166,7 +178,7 @@
 											</select>
 											<div class="help-block with-errors"></div>
 											<div class="help-block">
-												<p>'Status'-Indikatoren enthalten Werte für je einen einzelnen Zeitpunkt.</p>
+												<p>'Status'-Indikatoren enthalten Werte f&uuml;r je einen einzelnen Zeitpunkt.</p>
 												<p>'Dynamik'-Indikatoren enthalten Werte, die sich auf eine Zeitperiode beziehen (bspw. Ver&auml;nderung innerhalb der letzten 5 Jahre), somit Zu- oder Abnahmen des Indikators.
 												</p>
 											</div>
@@ -181,7 +193,7 @@
 											
 											<div class="help-block">
 												<p>Angabe, wenn mehrere Indikatoren mit gleichen Namen, aber unterschiedlichen Merkmals angelegt werden sollen 
-													(bspw. Einwohnerzahl männlich, Einwohnerzahl weiblich, Einwohnerzahl diverse)</p>
+													(bspw. Einwohnerzahl m&auml;nnlich, Einwohnerzahl weiblich, Einwohnerzahl diverse)</p>
 											</div>	
 											<div class="help-block with-errors"></div>
 										</div>
@@ -286,7 +298,7 @@
 									
 									<div class="col-md-3 col-sm-6 col-xs-12">
 										<div ng-show="enableLowestSpatialUnitSelect" class="form-group">
-											<label>Niedrigste Raumebene für automatisierte Berechnung</label>
+											<label>Niedrigste Raumebene f&uuml;r automatisierte Berechnung</label>
 											<select ng-model="indicatorLowestSpatialUnitMetadataObjectForComputation"
 												ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits"																							
 												class="form-control">
@@ -295,8 +307,8 @@
 											</select>
 
 											<div class="help-block">
-												<p>Angabe der niedrigsten Raumebene, für die der automatisiert berechenbare Indikator berechnet werden kann. 
-													Indikatorenwerte für h&ouml;here Raumebenen werden dabei automatisch aus den niedrigeren Ebenen aggregiert berechnet.</p>
+												<p>Angabe der niedrigsten Raumebene, f&uuml;r die der automatisiert berechenbare Indikator berechnet werden kann. 
+													Indikatorenwerte f&uuml;r h&ouml;here Raumebenen werden dabei automatisch aus den niedrigeren Ebenen aggregiert berechnet.</p>
 											</div>	
 											<div class="help-block with-errors"></div>
 										</div>
@@ -537,7 +549,7 @@
 																<label>Indikator, f&uuml;r den eine Referenz angelegt werden soll</label>
 																<div class="input-group">
 																	<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-																	<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="indicatorNameFilter">
+																	<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="indicatorNameFilter" ng-model-options="{debounce: 500, blur: 0}">
 																  </div>
 																  <br/>
 																<select ng-model="tmpIndicatorReference_selectedIndicatorMetadata" size="5"
@@ -657,7 +669,7 @@
 																<label>Indikator, f&uuml;r den eine Referenz angelegt werden soll</label>
 																<div class="input-group">
 																	<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-																	<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="georesourceNameFilter">
+																	<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="georesourceNameFilter" ng-model-options="{debounce: 500, blur: 0}">
 																  </div>
 																  <br/>
 																<select ng-model="tmpGeoresourceReference_selectedGeoresourceMetadata" size="5"
@@ -907,248 +919,31 @@
 								</div>
 
 								<input type="button" name="previous" class="previous previous_addIndicator action-button-previous" value="Voriger Schritt"/>
-								<input ng-show="indicatorCreationType.apiName != 'COMPUTATION'" type="button" name="next" class="next next_addIndicator action-button" value="N&auml;chster Schritt"/>
+								<input type="button" name="next" class="next next_addIndicator action-button" value="N&auml;chster Schritt" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity"/>
 
 							</fieldset>
 
-							<fieldset ng-show="indicatorCreationType.apiName != 'COMPUTATION'">
-								<div style="position: absolute;">
-									<button type="button" class="btn btn-info pull-left" ng-click="onImportIndicatorAddMappingConfig()" title="Importieren der Mapping-Konfigurationen aus einer Datei"><i class="fas fa-file-import"></i>&nbsp;&nbsp;Mapping-Import</button>
-									<input style="display:none;" class="pull-left" type="file" class="form-control" id="indicatorMappingConfigAddImportFile" accept=".json,"></input>
-									<button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" ng-click="onExportIndicatorAddMappingConfig()" title="Exportieren der Mapping-Konfigurationen in eine Datei"><i class="fas fa-file-export"></i>&nbsp;&nbsp;Mapping-Export</button>								
-								</div>
-
-								<h2 class="fs-title">Zeitreihen-Import</h2>
-								<h3 class="fs-subtitle">Angaben &uuml;ber den Datensatz, aus dem die
-									Indikatoren-Zeitreihen-Werte importiert werden</h3>
-								<p><b><i>* = Pflichtfeld</i></b></p>
-
-								<div class="row vertical-align">
-									<div class="col-md-3 col-sm-6 col-xs-12">
-										<div class="form-group">
-											<label>Datensatz-Quellformat*</label>
-											<select ng-model="converter"
-												ng-options="converter as converter.simpleName for converter in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters"
-												class="form-control" required>
-												<option disabled selected value> -- Quellformat w&auml;hlen -- </option>
-											</select>
-											<div class="help-block with-errors"></div>
-										</div>
-										<div ng-show="converter.schemas">
-
-											<div class="form-group">
-												<label>Schema*</label>
-												<select ng-model="schema" ng-options="schema for schema in converter.schemas"
-													ng-change="onChangeSchema(schema)" class="form-control" required>
-													<option disabled selected value> -- Schema w&auml;hlen -- </option>
-												</select>
-												<div class="help-block with-errors"></div>
-											</div>
-										</div>
-
-										<div ng-repeat="parameter in converter.parameters">
-
-											<div class="form-group">
-												<label>{{parameter.name}}<i ng-if="parameter.mandatory">*</i></label>
-												<input type="text" id="converterParameter_indicatorAdd_{{parameter.name}}" class="form-control"
-													placeholder="{{parameter.name}}" ng-required="parameter.mandatory">
-												<div class="help-block">
-													<p>{{parameter.description}}</p>
-												</div>
-												<div ng-show="parameter.name === 'CRS'" class="help-block with-errors" style="color: red;">
-													<p>CRS aufmerksam setzen. Falsche Angaben f&uuml;hren zur fehlerhaften Koordinaten der Features</p>
-												</div>
-												<div class="help-block with-errors"></div>
-											</div>
-										</div>
-
-									</div>
-									<div class="col-md-3 col-sm-6 col-xs-12">
-										<div class="form-group">
-											<div ng-show="!converter">
-												<p>bitte zuerst das Quellformat w&auml;hlen</p>
-											</div>
-											<div ng-show="converter">
-												<div class="form-group">
-													<label>Datenquelltyp*</label>
-													<select ng-model="datasourceType"
-														ng-options="datasourceType as datasourceType.type for datasourceType in $ctrl.kommonitorImporterHelperServiceInstance.availableDatasourceTypes"
-														class="form-control" required>
-														<option disabled selected value> -- Quelltyp w&auml;hlen -- </option>
-													</select>
-													<div class="help-block with-errors"></div>
-												</div>
-
-												<div ng-show="datasourceType.type === 'FILE'">
-													<label>Datei*</label>
-													<input type="file" class="form-control" id="indicatorDataSourceInput_add" required></input>
-												</div>
-												<div ng-show="! (datasourceType.type === 'FILE')">
-													<div ng-repeat="parameter in datasourceType.parameters">
-														<div class="form-group">
-															<label>{{parameter.name}}*</label>
-															<textarea rows="1" id="datasourceTypeParameter_indicatorAdd_{{parameter.name}}"
-																class="form-control" placeholder="{{parameter.name}}" required></textarea>
-															<div class="help-block">
-																<p>{{parameter.description}}</p>
-															</div>
-															<div class="help-block with-errors"></div>
-														</div>
-													</div>
-												</div>
-											</div>
-											<!-- <div class="help-block"><p>Features m&uuml;ssen Informationen &uuml;ber eindutige ID und eindeutigen Namen in Attribut namens <code>ID</code> und <code>NAME</code> enthalten, um in KomMonitor verarbeitet werden zu k&ouml;nnen.</p></div> -->
-
-											<div class="help-block with-errors"></div>
-											<div ng-show="indicatorDataSourceInputInvalid" style="color: red;">
-												<p>Eingabe ung&uuml;ltig. Grund: {{indicatorDataSourceInputInvalidReason}}</p>
-											</div>
+								<fieldset ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
+									<h2 class="fs-title">Rollenbasierter Zugriffsschutz (Optional)</h2>
+									<h3 class="fs-subtitle">Angabe ob nur ausgew&auml;hlte Rollen Zugriff auf Indikatoren-Datensatz-Metadaten erhalten sollen.</h3>
+		
+									<p>Klicken Sie ein oder mehrere der verf&uuml;gbaren Rollen aus der linken &Uuml;bersicht an, um den Zugriff auf die Metadaten des Indikators auf diese Rollen einzuschr&auml;nken.</p>
+		
+									<p>Der Zugriff ist nur f&uuml;r die Rollen erlaubt, die im rechten &Uuml;bersichtsfenster gelistet sind.</p>
+		
+									<p>Wird keine Rolle selektiert, so sind die Metadaten des Indikator-Datensatzes ohne Zugriffsbeschr&auml;nkung abrufbar.</p>
+	
+									<p><strong>Bei Indikatoren gibt es zus&auml;tzlich die M&ouml;glichkeit, f&uuml;r jede verkn&uuml;pfte Raumebene den Abruf der Zeitreihen-Daten f&uuml;r die jeweilige Raumebene abzusichern. Dazu nutzen Sie bitte das Feature-Fortf&uuml;hren-Men&uuml;.</strong></p>
+		
+									<div class="row no-margin">
+										<div class="col-md">
+											<excalibur-dual-list ng-model='allowedRoleNames.selectedItems' options="duallist.duallistRoleOptions"></excalibur-dual-list>
 										</div>
 									</div>
-									<div class="col-md-3 col-sm-6 col-xs-12">
-										<div class="form-group">
-											<label>ID Attributname der Raumeinheiten-Features*</label>
-											<input type="text" class="form-control" ng-model="spatialUnitRefKeyProperty" required></input>
-											<div class="help-block">
-												<p>Name des Attributs, welches den eindeutigen Identifier des Features enth&auml;lt. Dieser muss identisch sein mit den Feature-IDs der selektierten Raumebene</p>
-											</div>
-											<div class="help-block with-errors"></div>
-											<div ng-show="idPropertyNotFound" style="color: red;">
-												<p>Eingabe ung&uuml;ltig. Angegebenes Attribut nicht gefunden oder enth&auml;lt NULL-Werte.</p>
-											</div>
-										</div>
-									</div>
-									<div class="col-md-3 col-sm-6 col-xs-12">
-										<div class="form-group">
-											<label>Ziel-Raumebene*</label>
-											
-											<select ng-model="targetSpatialUnitMetadata" ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits"
-													class="form-control" required>
-													<option disabled selected value> -- Ziel-Raumebene w&auml;hlen -- </option>
-												</select>
-												<div class="help-block with-errors"></div>
-
-										</div>
-									</div>							
-								</div>
-
-								<hr>
-								
-								<br/>
-
-								<h4>Zeitreihen-Mapping</h4>
-								<p>Angabe des Attribut-Mappings f&uuml;r jeden zu importierenden Zeitschnitt. Jedes Mapping umfasst dabei das Attribut, in dem die Indikatoren-Werte hinterlegt sind 
-									sowie entweder einen direkt definierten Zeitstempel oder ein Attribut, welches den Zeitstempel gem&auml;&szlig; ISO8601 enth&auml;lt</p>
-
-								<div class="row vertical-align">
-									<div class="col-md-4 col-sm-6 col-xs-12">
-										<div class="form-group">
-											<label>Attributname der Indikatorenwerte*</label>
-											<input type="text" class="form-control input-sm" placeholder="Attributname für Indikatorenwerte" ng-model="tmpTimeseriesMapping_indicatorValuesPropertyName">
-											<div class="help-block with-errors"></div>
-										</div>
-									</div>
-									<div class="col-md-4 col-sm-6 col-xs-12">												
-										<label></label>
-										<label class="switch">
-											<input type="checkbox" value="useTimeseriesAsProperty" ng-model="useTimeseriesAsProperty" ng-change="onChangeUseTimeseriesAsProperty()">
-											<span class="switchslider round"></span>
-										</label>	
 									
-										<div class="help-block">
-											<p>Angabe, ob der Zeitstempel aus einem Attribut entnommen werden soll</p>
-										</div>
-									</div>
-									<div ng-show="useTimeseriesAsProperty" class="col-md-4 col-sm-6 col-xs-12">												
-										<div class="form-group">
-											<label>Attributname des Zeitstempels</label>
-											<input type="text" class="form-control input-sm" placeholder="Attributname für Zeitstempel" ng-model="tmpTimeseriesMapping_timestampPropertyName">
-											<div class="help-block with-errors"></div>
-										</div>
-									</div>
-									<div ng-show="! useTimeseriesAsProperty" class="col-md-4 col-sm-6 col-xs-12">
-										<div class="form-group">
-											<label>Zeitstempel (direkte Angabe)</label>
-											<div class="input-group date">
-												<div class="input-group-addon">
-													<i class="far fa-calendar-alt"></i>
-												</div>
-												<input type="text" ng-model="tmpTimeseriesMapping_directTimestamp" placeholder="YYYY-MM-DD"
-													class="form-control pull-right" id="indicatorAddDirectTimestampDatepicker">
-											</div>
-										</div>
-									</div>
-								</div>
-
-								<div class="row vertical-align">
-									<div class="col-md-3 col-sm-6 col-xs-12">
-										<div class="form-group">
-											<button class="btn btn-success btn-sm" ng-disabled="!tmpTimeseriesMapping_indicatorValuesPropertyName || (! tmpTimeseriesMapping_timestampPropertyName && !tmpTimeseriesMapping_directTimestamp)" ng-click="onAddOrUpdateTimeseriesMapping()">Hinzuf&uuml;gen/Editieren</button>
-											<div class="help-block with-errors"></div>
-										</div>
-									</div>
-								</div>
-
-								<br/>
-								<br/>
-
-								<!-- Table to display currently specified references -->
-								<div class="row vertical-align">
-									<div class="col-md-12 col-sm-12 col-xs-12">
-										<label>&Uuml;bersicht der definierten Indikatoren-Zeitreihen-Mappings</label>
-										<table class="table table-condensed">
-											<thead>
-												<tr>
-													<th>Editierfunktionen</th>
-													<th>Attributname der Indikatorenwerte</th>
-													<th>Attributname des Zeitstempels</th>
-													<th>Zeitstempel (direkte Angabe)</th>
-												</tr>
-											</thead>
-											<tbody>
-												<tr ng-repeat="timeseriesMappingEntry in timeseriesMappings_adminView">
-													<td>
-														<div class="btn-group btn-group-sm">
-															<button class="btn btn-warning btn-sm" type="button" ng-click="onClickEditTimeseriesMapping(timeseriesMappingEntry)"
-																title="Referenz editieren"><i class="fas fa-pencil-alt"></i></button>
-															<button class="btn btn-danger btn-sm" type="button" ng-click="onClickDeleteTimeseriesMapping(timeseriesMappingEntry)"
-																title="Referenz l&ouml;schen"><i class="fas fa-trash"></i></button>
-														</div>
-													</td>
-													<td>{{timeseriesMappingEntry.indicatorValuesPropertyName}}</td>
-													<td>{{timeseriesMappingEntry.timestampPropertyName}}</td>
-													<td>{{timeseriesMappingEntry.timestampDirect}}</td>
-												</tr>
-											</tbody>
-										</table>
-									</div>
-								</div>
-
-								<div class="row vertical-align">
-									<div class="col-md-6 col-sm-6 col-xs-12">
-										<div class="form-group">
-											<label>Fehlende/NULL Werte beibehalten (als NoData-Wert)*</label>
-
-											<br/>	
-											<label class="switch">
-												<input type="checkbox" value="keepMissingValues" ng-model="keepMissingValues">
-												<span class="switchslider round"></span>
-											</label>
-
-
-											<div class="help-block">
-												<p>Angabe, ob leere Attributwerte (<code>NULL</code>-Werte) &uuml;bernommen werden. Diese werden wie <i>NoData</i>-Werte behandelt. Bei deaktivierter Option 
-													wird bei einem solchen Fall ein Fehler geworfen.</p>
-											</div>
-										</div>
-
-									</div>
-
-								</div>
-
-								<input type="button" name="previous" class="previous previous_addIndicator action-button-previous" value="Voriger Schritt"/>
-
-							</fieldset>
+									<input type="button" name="previous" class="previous previous_addIndicator action-button-previous" value="Voriger Schritt"/>								
+								</fieldset>
+							
 						</form>
 					</div>
 				</div>
@@ -1168,8 +963,8 @@
 				
 
 				<button type="button" class="btn btn-success"				
-					ng-disabled="!datasetName || !metadata.description || !metadata.datasource || !metadata.contact || !metadata.updateInterval || !metadata.lastUpdate || !indicatorType|| !indicatorCreationType || !indicatorInterpretation || !indicatorTopic_mainTopic || datasetNameInvalid || !indicatorUnit || (indicatorCreationType.apiName != 'COMPUTATION' && (!converter || !datasourceType || !targetSpatialUnitMetadata || !spatialUnitRefKeyProperty))"
-					ng-click="addIndicator()">Indikator registrieren</button>
+					ng-disabled="!datasetName || !metadata.description || !metadata.datasource || !metadata.contact || !metadata.updateInterval || !metadata.lastUpdate || !indicatorType|| !indicatorCreationType || !indicatorInterpretation || !indicatorTopic_mainTopic || datasetNameInvalid || !indicatorUnit"
+					ng-click="addIndicator()">Indikator-Metadaten registrieren</button>
 				<button type="button" class="btn btn-danger"
 					ng-click="resetIndicatorAddForm()">Zur&uuml;cksetzen</button>
 			</div>
@@ -1177,12 +972,9 @@
 			<div id="indicatorAddSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
 				class="alert alert-success alert-dismissable">
 				<button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
-				<h4><i class="icon fa fa-check"></i>Indikator registriert</h4>
+				<h4><i class="icon fa fa-check"></i>Indikator-Metadaten registriert</h4>
 				<p>Eine neuer Indikator mit Namen {{successMessagePart}} wurde in KomMonitor registriert und in die
 					&Uuml;bersichtstabelle eingetragen.
-					<div ng-show="importedFeatures && importedFeatures.length > 0">
-						{{importedFeatures.length}} Features wurden dabei importiert.
-					</div>
 				</p>
 			</div>
 
@@ -1195,17 +987,6 @@
 								<pre style="overflow:auto; max-height:500px;" ng-bind-html="errorMessagePart"></pre>
 								<br/>
 								<br/>
-
-								<div ng-show="importerErrors">
-									<p>Bei den {{importerErrors.length}} Features mit folgenden IDs scheitert der Import:</p>
-
-									<pre style="overflow:auto; max-height:500px;">
-										<ul>
-											<li ng-repeat="error in importerErrors">{{error}}</li>
-										</ul>
-									</pre>									
-									<p>Bitte beheben Sie die angezeigten Fehler im Datensatz und wiederholen den Prozess.</p>
-								</div>
 			</div>
 
 			<div id="indicatorAddMetadataImportErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
@@ -1221,18 +1002,6 @@
 				<p>Bitte stellen Sie sicher, dass folgendes JSON-Format eingehalten wird:</p>
 				<pre id="indicatorsAddMetadataPre" style="overflow:auto; max-height:500px;"></pre>
 			</div>
-
-			<div id="indicatorMappingConfigImportErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden class="alert alert-danger alert-dismissable">
-                <button type="button" class="close" ng-click="hideMappingConfigErrorAlert()" aria-hidden="true">&times;</button>
-                <h4><i class="icon fa fa-ban"></i>Mapping-Konfiguration Import gescheitert</h4>
-                Beim Import der Mapping-Konfiguration aus einer Datei ist ein Fehler aufgetreten. Fehlermeldung:
-								<br/>
-								<pre ng-bind-html="indicatorMappingConfigImportError"></pre>								
-								<br/>								
-								<br/>
-								<p>Bitte stellen Sie sicher, dass folgendes JSON-Format eingehalten wird:</p>
-								<pre id="indicatorsAddMappingConfigPre" style="overflow:auto; max-height:500px;"></pre>
-      		</div>
 
 		</div>
 		<!-- /.modal-content -->
