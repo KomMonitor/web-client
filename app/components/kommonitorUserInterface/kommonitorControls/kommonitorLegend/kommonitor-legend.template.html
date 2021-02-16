@@ -135,7 +135,7 @@
 					</button>
 				</div>
 			</div>
-			<div class="box-body boxedLegend">
+			<div class="box-body boxedLegend" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator">
 
 				<h4>{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorStringFromIndicatorType($ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorType)}}</h4>
 				<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorType.includes('STATUS') && ! $ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked">
