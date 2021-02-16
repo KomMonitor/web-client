@@ -202,7 +202,7 @@
 				<!-- Measure of Value legend items -->
 				<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked">
 					<!-- zero -->
-					<div class="row">
+					<div class="row" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.classifyZeroSeparately && containsZeroValues">
 						<div class="col-md-3"><i style="background:{{$ctrl.env.defaultColorForZeroValues}}; opacity: {{$ctrl.kommonitorVisualStyleHelperService.getOpacity()}};"></i></div>
 						<div class="col-md-6">0</div>
 						<div class="col-md-3">{{$ctrl.kommonitorVisualStyleHelperServiceInstance.featuresPerZero}}</div><br>
@@ -243,7 +243,7 @@
 					<br/>
 
 					<!-- zero -->
-					<div class="row">
+					<div class="row" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.classifyZeroSeparately && containsZeroValues">
 						<div class="col-md-3"><i style="background:{{$ctrl.env.defaultColorForZeroValues}}; opacity: {{$ctrl.kommonitorVisualStyleHelperService.getOpacity()}};"></i></div>
 						<div class="col-md-6">0</div>
 						<div class="col-md-3">{{$ctrl.kommonitorVisualStyleHelperServiceInstance.featuresPerZero}}</div><br>
@@ -263,7 +263,7 @@
 				<!-- Static/Status legend items -->
 				<div ng-if="($ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorType.includes('STATUS') && ! containsNegativeValues) && ! $ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked">
 					<!-- zero -->
-					<div class="row">
+					<div class="row" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.classifyZeroSeparately && containsZeroValues">
 						<div class="col-md-3"><i style="background:{{$ctrl.env.defaultColorForZeroValues}}; opacity: {{$ctrl.kommonitorVisualStyleHelperService.getOpacity()}};"></i></div>
 						<div class="col-md-6">0</div>
 						<div class="col-md-3">{{$ctrl.kommonitorVisualStyleHelperServiceInstance.featuresPerZero}}</div><br>
