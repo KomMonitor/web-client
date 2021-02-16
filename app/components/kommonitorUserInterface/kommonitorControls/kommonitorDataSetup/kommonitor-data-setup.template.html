@@ -291,7 +291,7 @@
 													</tr>
 													<tr>
 														<td><b>Beschreibung</b></td>
-														<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.metadata.description}}</td>
+														<td ng-bind-html="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.metadata.description"></td>
 													</tr>
 													<tr>
 														<td><b>Maßeinheit</b></td>
@@ -299,31 +299,31 @@
 													</tr>
 													<tr>
 														<td><b>Methodik</b></td>
-														<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.processDescription}}</td>
+														<td mathjax-bind="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.processDescription"></td>
 													</tr>
 													<tr>
 														<td><b>Interpretation</b></td>
-														<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.interpretation}}</td>
+														<td ng-bind-html="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.interpretation"></td>
 													</tr>
 													<tr>
 														<td><b>Datengrundlage</b></td>
-														<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.metadata.databasis}}</td>
+														<td ng-bind-html="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.metadata.databasis"></td>
 													</tr>
 													<tr>
 														<td><b>Datenquelle</b></td>
-														<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.metadata.datasource}}</td>
+														<td ng-bind-html="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.metadata.datasource"></td>
 													</tr>
 													<tr>
 														<td><b>Datenhalter und Kontakt</b></td>
-														<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.metadata.contact}}</td>
+														<td ng-bind-html="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.metadata.databasis"></td>
 													</tr>
 													<tr>
 														<td><b>Bemerkung</b></td>
-														<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.metadata.note}}</td>
+														<td ng-bind-html="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.metadata.note"></td>
 													</tr>
 													<tr>
 														<td><b>Fortführungsintervall</b></td>
-														<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.metadata.updateInterval}}</td>
+														<td ng-bind-html="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.metadata.updateInterval"></td>
 													</tr>
 												</tbody>
 											</table>
