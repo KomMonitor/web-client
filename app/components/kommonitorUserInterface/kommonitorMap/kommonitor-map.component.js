@@ -935,19 +935,19 @@ angular.module('kommonitorMap').component(
           preserveHighlightedFeatures();
         });
 
-        $(document).on('click', '#controlIndicatorClassifyOption_wholeTimeseries', function (e) {
-          var wholeTimeseriesClassificationCheckbox = document.getElementById('controlIndicatorClassifyOption_wholeTimeseries');
-          if (wholeTimeseriesClassificationCheckbox.checked) {
-            kommonitorDataExchangeService.classifyUsingWholeTimeseries = true;
-          }
-          else {
-            kommonitorDataExchangeService.classifyUsingWholeTimeseries = false;
-          }
-          $rootScope.$broadcast("restyleCurrentLayer", false);
+        // $(document).on('click', '#controlIndicatorClassifyOption_wholeTimeseries', function (e) {
+        //   var wholeTimeseriesClassificationCheckbox = document.getElementById('controlIndicatorClassifyOption_wholeTimeseries');
+        //   if (wholeTimeseriesClassificationCheckbox.checked) {
+        //     kommonitorDataExchangeService.classifyUsingWholeTimeseries = true;
+        //   }
+        //   else {
+        //     kommonitorDataExchangeService.classifyUsingWholeTimeseries = false;
+        //   }
+        //   $rootScope.$broadcast("restyleCurrentLayer", false);
 
-          // ensure that highlighted features remain highlighted
-          preserveHighlightedFeatures();
-        });        
+        //   // ensure that highlighted features remain highlighted
+        //   preserveHighlightedFeatures();
+        // });        
 
         $scope.$on("changeClassifyMethod", function (event, method) {
           kommonitorVisualStyleHelperService.classifyMethod = method;          

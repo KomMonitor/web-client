@@ -383,13 +383,27 @@ angular
         this.positiveValues = [];
         this.negativeValues = [];
         
-        this.setupDynamicBrewValues_singleTimestamp(geoJSON, propertyName);
+        if(kommonitorDataExchangeService.classifyUsingWholeTimeseries){
+          this.setupDynamicBrewValues_wholeTimeseries(geoJSON);
+        }
+        else{
+          this.setupDynamicBrewValues_singleTimestamp(geoJSON, propertyName);
+        }
 
         var dynamicIncreaseBrew = setupDynamicIncreaseBrew(this.positiveValues, colorCodeForPositiveValues, classifyMethod);
         var dynamicDecreaseBrew = setupDynamicDecreaseBrew(this.negativeValues, colorCodeForNegativeValues, classifyMethod);
 
         this.dynamicBrew = [dynamicIncreaseBrew, dynamicDecreaseBrew]; 
         return this.dynamicBrew;
+      };
+
+      this.setupDynamicBrewValues_wholeTimeseries = function(geoJSON){
+        var indicatorTimeSeriesDatesArray = kommonitorDataExchangeService.selectedIndicator.applicableDates;
+
+          for (const date of indicatorTimeSeriesDatesArray) {
+            var propertyName = __env.indicatorDatePrefix + date;
+            this.setupDynamicBrewValues_singleTimestamp(geoJSON, propertyName);
+          }    
       };
 
       this.setupDynamicBrewValues_singleTimestamp = function(geoJSON, propertyName){

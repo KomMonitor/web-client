@@ -66,6 +66,17 @@ angular
 							$rootScope.$broadcast("changeSpatialUnit");
 						};
 
+						$(document).on('click', '#controlIndicatorClassifyOption_wholeTimeseries', function (e) {
+							var wholeTimeseriesClassificationCheckbox = document.getElementById('controlIndicatorClassifyOption_wholeTimeseries');
+							if (wholeTimeseriesClassificationCheckbox.checked) {
+							  kommonitorDataExchangeService.classifyUsingWholeTimeseries = true;
+							}
+							else {
+							  kommonitorDataExchangeService.classifyUsingWholeTimeseries = false;
+							}
+							$rootScope.$broadcast("restyleCurrentLayer", false);
+						  }); 
+
 						$(document).on('input change', '#indicatorTransparencyInput', function (e) {
 							e.stopImmediatePropagation();
 							var indicatorMetadata = kommonitorDataExchangeService.selectedIndicator;
