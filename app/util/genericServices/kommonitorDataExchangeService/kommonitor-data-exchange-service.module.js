@@ -65,6 +65,14 @@ angular
           };
 
           this.isAllowedSpatialUnitForCurrentIndicator = function(spatialUnitMetadata){
+            if(! this.selectedIndicator){
+              return false;
+            }
+
+            if(! spatialUnitMetadata || ! spatialUnitMetadata.spatialUnitLevel){
+              return false;
+            }
+
             var isAllowed = false;
             
             var roleMetadataForCurrentKeycloakLoginRoles = this.availableRoles.filter(role => this.currentKeycloakLoginRoles.includes(role.roleName));
@@ -1580,21 +1588,27 @@ angular
           // };
 
           this.dateToTS = function(date) {
-            return date.valueOf();
-          }
+            if(date){
+              return date.valueOf();
+            }
+            
+          };
   
           this.tsToDate = function(ts) {
-            var date = new Date(ts);
+            if(ts){
+              var date = new Date(ts);
   
             return date.toLocaleDateString("de-DE", {
               year: 'numeric',
               month: 'long',
               day: 'numeric'
             });
-          }
+            }            
+          };
   
           this.tsToDate_fullYear = function(ts) {
-            var date = new Date(ts);
+            if(ts){
+              var date = new Date(ts);
   
             /**
             * TODO FIXME dateSLider formatter will return only year for now to prevent misleading month and day settings
@@ -1607,6 +1621,7 @@ angular
             		month: 'long',
             		day: 'numeric'
             });
+            }            
           };
 
           /**

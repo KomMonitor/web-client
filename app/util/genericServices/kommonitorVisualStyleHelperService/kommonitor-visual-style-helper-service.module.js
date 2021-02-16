@@ -18,6 +18,26 @@ angular
 
       const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
 
+      this.defaultBrew = undefined;
+      this.measureOfValueBrew = undefined;
+      this.dynamicBrew = undefined;
+
+      //allowesValues: equal_interval, quantile, jenks
+      this.classifyMethods = [{
+        name: "Jenks",
+        value: "jenks"
+        }, {
+        name: "Gleiches Intervall",
+        value: "equal_interval"
+        }, {
+        name: "Quantile",
+        value: "quantile"
+        }];
+    
+      this.classifyMethod = __env.defaultClassifyMethod || "jenks";
+
+      this.isCustomComputation = false;
+
       const numberOfDecimals = __env.numberOfDecimals;
       var defaultColorForFilteredValues = __env.defaultColorForFilteredValues;
       var defaultBorderColorForFilteredValues = __env.defaultBorderColorForFilteredValues;
@@ -35,6 +55,8 @@ angular
       var defaultBorderColorForNoDataValues = __env.defaultBorderColorForNoDataValues;
       var defaultColorForNoDataValues = __env.defaultColorForNoDataValues;
       var defaultFillOpacityForNoDataValues = __env.defaultFillOpacityForNoDataValues;
+
+      this.indicatorTransparency = 1 - __env.defaultFillOpacity;
 
       var defaultColorForZeroValues = __env.defaultColorForZeroValues;
 
@@ -150,7 +172,8 @@ angular
           values = this.setupDefaultBrewValues_singleTimestamp(geoJSON, propertyName, values);
         }
 
-        return setupClassyBrew_usingFeatureCount(values, colorCode, classifyMethod, numClasses);
+        this.defaultBrew = setupClassyBrew_usingFeatureCount(values, colorCode, classifyMethod, numClasses);         
+        return this.defaultBrew;
       };
 
       this.setupDefaultBrewValues_singleTimestamp = function(geoJSON, propertyName, values){
@@ -221,7 +244,8 @@ angular
         var gtMeasureOfValueBrew = this.setupGtMeasureOfValueBrew(this.greaterThanValues, colorCodeForGreaterThanValues, classifyMethod);
         var ltMeasureOfValueBrew = this.setupLtMeasureOfValueBrew(this.lesserThanValues, colorCodeForLesserThanValues, classifyMethod);
 
-        return [gtMeasureOfValueBrew, ltMeasureOfValueBrew];
+        this.measureOfValueBrew = [gtMeasureOfValueBrew, ltMeasureOfValueBrew];
+        return this.measureOfValueBrew;
       };
 
       this.setupMovBrewValues_singleTimestamp = function(geoJSON, propertyName, measureOfValue){
@@ -364,7 +388,8 @@ angular
         var dynamicIncreaseBrew = setupDynamicIncreaseBrew(this.positiveValues, colorCodeForPositiveValues, classifyMethod);
         var dynamicDecreaseBrew = setupDynamicDecreaseBrew(this.negativeValues, colorCodeForNegativeValues, classifyMethod);
 
-        return [dynamicIncreaseBrew, dynamicDecreaseBrew];
+        this.dynamicBrew = [dynamicIncreaseBrew, dynamicDecreaseBrew]; 
+        return this.dynamicBrew;
       };
 
       this.setupDynamicBrewValues_singleTimestamp = function(geoJSON, propertyName){
@@ -432,6 +457,7 @@ angular
       this.setOpacity = function(opacity){
 
         opacity = Number(opacity);
+        this.indicatorTransparency = Number((1 - opacity).toFixed(numberOfDecimals));
 
         defaultFillOpacity = opacity;
         defaultFillOpacityForOutliers_low = opacity;
