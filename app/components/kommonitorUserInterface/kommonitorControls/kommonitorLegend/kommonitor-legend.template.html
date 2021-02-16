@@ -215,7 +215,7 @@
 						<div class="col-md-3 "><i style="background:{{color}}; opacity: {{$ctrl.kommonitorVisualStyleHelperService.getOpacity()}};"></i> </div>
 						<div class="col-md-6 " ng-if="$ctrl.kommonitorVisualStyleHelperServiceInstance.measureOfValueBrew[1].breaks[$index + 1]" >{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorVisualStyleHelperServiceInstance.measureOfValueBrew[1].breaks[$index])}} &dash; &lt; {{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorVisualStyleHelperServiceInstance.measureOfValueBrew[1].breaks[$index + 1])}}</div>
 						<div class="col-md-6 " ng-if="! $ctrl.kommonitorVisualStyleHelperServiceInstance.measureOfValueBrew[1].breaks[$index + 1]" >{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorVisualStyleHelperServiceInstance.measureOfValueBrew[1].breaks[$index])}}</div>
-						<div class="col-md-3 ">{{$ctrl.kommonitorVisualStyleHelperServiceInstance.featuresPerColorMap.get(color)}}</div>
+						<div class="col-md-3 ">{{$ctrl.kommonitorVisualStyleHelperServiceInstance.featuresPerColorMap.get(color) || 0}}</div>
 					</div>
 
 					<br/>
@@ -225,7 +225,7 @@
 						<div class="col-md-3 "><i style="background:{{color}}; opacity: {{$ctrl.kommonitorVisualStyleHelperService.getOpacity()}};"></i> </div>
 						<div class="col-md-6 " ng-if="$ctrl.kommonitorVisualStyleHelperServiceInstance.measureOfValueBrew[0].breaks[$index + 1]" >{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorVisualStyleHelperServiceInstance.measureOfValueBrew[0].breaks[$index])}} &dash; &lt; {{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorVisualStyleHelperServiceInstance.measureOfValueBrew[0].breaks[$index + 1])}}</div>
 						<div class="col-md-6 " ng-if="! $ctrl.kommonitorVisualStyleHelperServiceInstance.measureOfValueBrew[0].breaks[$index + 1]" >{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorVisualStyleHelperServiceInstance.measureOfValueBrew[0].breaks[$index])}}</div>
-						<div class="col-md-3 ">{{$ctrl.kommonitorVisualStyleHelperServiceInstance.featuresPerColorMap.get(color)}}</div>
+						<div class="col-md-3 ">{{$ctrl.kommonitorVisualStyleHelperServiceInstance.featuresPerColorMap.get(color) || 0}}</div>
 					</div>
 
 				</div>
@@ -237,7 +237,7 @@
 						<div class="col-md-3 "><i style="background:{{color}}; opacity: {{$ctrl.kommonitorVisualStyleHelperService.getOpacity()}};"></i> </div>
 						<div class="col-md-6 " ng-if="$ctrl.kommonitorVisualStyleHelperServiceInstance.dynamicBrew[1].breaks[$index + 1]" >{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorVisualStyleHelperServiceInstance.dynamicBrew[1].breaks[$index])}} &dash; &lt; {{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorVisualStyleHelperServiceInstance.dynamicBrew[1].breaks[$index + 1])}}</div>
 						<div class="col-md-6 " ng-if="! $ctrl.kommonitorVisualStyleHelperServiceInstance.dynamicBrew[1].breaks[$index + 1]" >{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorVisualStyleHelperServiceInstance.dynamicBrew[1].breaks[$index])}}</div>
-						<div class="col-md-3 ">{{$ctrl.kommonitorVisualStyleHelperServiceInstance.featuresPerColorMap.get(color)}}</div>
+						<div class="col-md-3 ">{{$ctrl.kommonitorVisualStyleHelperServiceInstance.featuresPerColorMap.get(color) || 0}}</div>
 					</div>
 
 					<br/>
@@ -256,7 +256,7 @@
 						<div class="col-md-3 "><i style="background:{{color}}; opacity: {{$ctrl.kommonitorVisualStyleHelperService.getOpacity()}};"></i> </div>
 						<div class="col-md-6 " ng-if="$ctrl.kommonitorVisualStyleHelperServiceInstance.dynamicBrew[0].breaks[$index + 1]" >{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorVisualStyleHelperServiceInstance.dynamicBrew[0].breaks[$index])}} &dash; &lt; {{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorVisualStyleHelperServiceInstance.dynamicBrew[0].breaks[$index + 1])}}</div>
 						<div class="col-md-6 " ng-if="! $ctrl.kommonitorVisualStyleHelperServiceInstance.dynamicBrew[0].breaks[$index + 1]" >{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorVisualStyleHelperServiceInstance.dynamicBrew[0].breaks[$index])}}</div>
-						<div class="col-md-3 ">{{$ctrl.kommonitorVisualStyleHelperServiceInstance.featuresPerColorMap.get(color)}}</div>
+						<div class="col-md-3 ">{{$ctrl.kommonitorVisualStyleHelperServiceInstance.featuresPerColorMap.get(color) || 0}}</div>
 					</div>
 				</div>
 
@@ -276,7 +276,7 @@
 						<div class="col-md-3 "><i style="background:{{color}}; opacity: {{$ctrl.kommonitorVisualStyleHelperService.getOpacity()}};"></i> </div>
 						<div class="col-md-6 " ng-if="$ctrl.kommonitorVisualStyleHelperServiceInstance.defaultBrew.breaks[$index + 1]" >{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorVisualStyleHelperServiceInstance.defaultBrew.breaks[$index])}} &dash; &lt; {{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorVisualStyleHelperServiceInstance.defaultBrew.breaks[$index + 1])}}</div>
 						<div class="col-md-6 " ng-if="! $ctrl.kommonitorVisualStyleHelperServiceInstance.defaultBrew.breaks[$index + 1]" >{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorVisualStyleHelperServiceInstance.defaultBrew.breaks[$index])}}</div>
-						<div class="col-md-3 ">{{$ctrl.kommonitorVisualStyleHelperServiceInstance.featuresPerColorMap.get(color)}}</div>
+						<div class="col-md-3 ">{{$ctrl.kommonitorVisualStyleHelperServiceInstance.featuresPerColorMap.get(color) || 0}}</div>
 					</div>
 				</div>
 
