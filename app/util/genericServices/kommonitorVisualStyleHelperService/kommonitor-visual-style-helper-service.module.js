@@ -479,6 +479,8 @@ angular
         defaultFillOpacityForZeroFeatures = opacity;
         defaultFillOpacityForNoDataValues = opacity;
         defaultFillOpacityForFilteredFeatures = opacity;
+
+        $rootScope.$apply();
       };
 
       // style function to return
