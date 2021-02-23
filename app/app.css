@@ -573,7 +573,7 @@ pre.CodeMirror-line {
 }
 
 .popover-title {
-	background-color: #917d72;
+	background-color: #f58f22;
 	font-weight: bold;
 }
 
@@ -583,7 +583,7 @@ pre.CodeMirror-line {
 }
 
 .popover-navigation {
-	background-color: #917d72;
+	background-color: #006e6e;
 }
 
 .popover.right>.arrow:after{
