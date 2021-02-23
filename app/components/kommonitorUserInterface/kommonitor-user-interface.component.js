@@ -553,13 +553,13 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				onPrev: function(tour){
 					// make sure that legend control is displayed
 
-					var control = document.getElementById("legendControl");
+					var control = document.getElementById("kommonitorLegend");
 					var controlButton = document.getElementById("toggleLegendControlButton");
 					if(control.style.display === "none" || (controlButton.style.display !== undefined && controlButton.style.display !== "none")){
 						$rootScope.$broadcast("toggleLegendControl");
 					}
 
-				},
+				}
 			},
 			{
 				element: "#mapUtilButtons",
@@ -589,7 +589,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 					if($scope.sidebarIndicatorConfigClass === "disappear"){
 							$("#sidebarIndicatorConfigCollapse").click();
 					}
-				},
+				}
 			},
 			{
 				element: "#indicatorSetup",
@@ -615,6 +615,11 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				onNext: function(tour){
 					if($scope.sidebarPoiClass === "disappear"){
 							$("#sidebarPoiCollapse").click();
+					}
+				},
+				onPrev: function(tour){
+					if($scope.sidebarIndicatorConfigClass === "disappear"){
+							$("#sidebarIndicatorConfigCollapse").click();
 					}
 				}
 			},
@@ -676,6 +681,11 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 					if($scope.sidebarFilterClass === "disappear"){
 							$("#sidebarFilterCollapse").click();
 					}
+				},
+				onPrev: function(tour){
+					if($scope.sidebarPoiClass === "disappear"){
+							$("#sidebarPoiCollapse").click();
+					}
 				}
 			},
 			{
@@ -708,6 +718,11 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				onNext: function(tour){
 					if($scope.sidebarBalanceClass === "disappear"){
 							$("#sidebarBalanceCollapse").click();
+					}
+				},
+				onPrev: function(tour){
+					if($scope.sidebarFilterClass === "disappear"){
+							$("#sidebarFilterCollapse").click();
 					}
 				}
 			},
@@ -743,6 +758,11 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 					if($scope.sidebarDiagramsClass === "disappear"){
 							$("#sidebarDiagramsCollapse").click();
 					}
+				},
+				onPrev: function(tour){
+					if($scope.sidebarBalanceClass === "disappear"){
+							$("#sidebarBalanceCollapse").click();
+					}
 				}
 			},
 			{
@@ -777,6 +797,11 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 					if($scope.sidebarRadarDiagramClass === "disappear"){
 							$("#sidebarRadarDiagramCollapse").click();
 					}
+				},
+				onPrev: function(tour){
+					if($scope.sidebarDiagramsClass === "disappear"){
+							$("#sidebarDiagramsCollapse").click();
+					}
 				}
 			},
 			{
@@ -803,6 +828,11 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				onNext: function(tour){
 					if($scope.sidebarRegressionDiagramClass === "disappear"){
 							$("#sidebarRegressionDiagramCollapse").click();
+					}
+				},
+				onPrev: function(tour){
+					if($scope.sidebarRadarDiagramClass === "disappear"){
+							$("#sidebarRadarDiagramCollapse").click();
 					}
 				}
 			},
@@ -831,6 +861,11 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 					if($scope.sidebarReachabilityClass === "disappear"){
 							$("#sidebarReachabilityCollapse").click();
 					}
+				},
+				onPrev: function(tour){
+					if($scope.sidebarRegressionDiagramClass === "disappear"){
+							$("#sidebarRegressionDiagramCollapse").click();
+					}
 				}
 			},
 			{
@@ -857,6 +892,11 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				onNext: function(tour){
 					if($scope.sidebarProcessingClass === "disappear"){
 							$("#sidebarProcessingCollapse").click();
+					}
+				},
+				onPrev: function(tour){
+					if($scope.sidebarReachabilityClass === "disappear"){
+							$("#sidebarReachabilityCollapse").click();
 					}
 				}
 			},
