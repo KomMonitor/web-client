@@ -516,22 +516,31 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				title: "Kartenfenster",
 				placement: "top",
 				content: "Beim Anwendungsstart sehen Sie zun&auml;chst die <b>kartographische Darstellung</b> eines ausgew&auml;hlten Indikators. In dieser Darstellung k&ouml;nnen Sie in der <b>Karte frei navigieren (zoomen, verschieben)</b> und beim <i>Her&uuml;berfahren mit dem Mauszeiger &uuml;ber eines der Indikator-Geometrien</i> erhalten sie ein <b>Popup mit dem Indikator-Wert</b>.",
-				onNext: function(tour){
-					// make sure that legend control is displayed
+				// onNext: function(tour){
+				// 	// make sure that legend control is displayed
 
-					var control = document.getElementById("legendControl");
-					var controlButton = document.getElementById("toggleLegendControlButton");
-					if(control.style.display === "none" || (controlButton.style.display !== undefined && controlButton.style.display !== "none")){
-						$rootScope.$broadcast("toggleLegendControl");
-					}
+				// 	var control = document.getElementById("legendControl");
+				// 	var controlButton = document.getElementById("toggleLegendControlButton");
+				// 	if(control.style.display === "none" || (controlButton.style.display !== undefined && controlButton.style.display !== "none")){
+				// 		$rootScope.$broadcast("toggleLegendControl");
+				// 	}
 
-				},
+				// },
 			},
 			{
-				element: "#legendControl",
+				element: "#kommonitorLegend",
 				title: "Indikatorenlegende",
 				placement: "left",
-				content: "Dieses Element enth&auml;lt die wichtigsten <b>Metadaten</b> &uuml;ber den aktuell dargestellten Indikator. Dar&uuml;ber hinaus kann hier die <b>Raumbezugsebene gewechselt</b> werden (in Abh&auml;ngigkeit der verf&uuml;gbaren Raumebenen des gew&auml;hlten Indikators). <br/><br/>Mittels eines <b>Schiebereglers</b> wird zudem die <b>Transparenz des Indikator-Layers</b> bestimmt. Verschiedene <b>Export-Buttons</b> erm&ouml;glichen den Export des Metadatenblatts sowie der Geometrien inklusive Sachdaten in verschiedenen Formaten. <br/><br/> Weiterhin zeigt die <b>Indikatoren-Legende</b> die Zuordnung von Indikatorenwertebereichen zu Darstellungsfarben. &Uuml;ber die <b>Radio-Buttons</b> (Jenks, Gleiches Intervall, Quantile) kann die <b>Klassifizierungsmethode</b> ge&auml;ndert werden (f&uuml;r detaillierte Informationen zu den Klassifizierungsmethoden lesen Sie bitte das <b>Popup</b>, das erscheint, wenn Sie mit dem <i>Mauszeiger &uuml;ber eine der drei Optionen fahren</i>). <br/><br/> KomMonitor &uuml;berpr&uuml;ft jeden Indikatorendatensatz auf <b>Ausrei&szlig;er</b>. Werden ein oder mehrere Ausrei&szlig;er erkannt, so enth&auml;t die Legende auch eine <b>Checkbox</b>, mit der <i>Ausrei&szlig;er gesondert markiert und aus der Klassifizierung genommen werden k&ouml;nnen</i>. Analog l&auml;sst sich einstellen, ob die Klassifizierung die Indikatorenwerte der gesamten Zeitreihe ber&uuml;cksichtigen soll, oder nur jene des aktuellen Zeitschnitts."				
+				content: "Dieses Element enth&auml;lt die wichtigsten <b>Metadaten</b> &uuml;ber den aktuell dargestellten Indikator. " + 
+				"<br/>Dar&uuml;ber hinaus kann hier die <b>Raumbezugsebene gewechselt</b> werden (in Abh&auml;ngigkeit der verf&uuml;gbaren Raumebenen des gew&auml;hlten Indikators). " + 
+				"<br/><br/>Mittels eines <b>Schiebereglers</b> wird zudem die <b>Transparenz des Indikator-Layers</b> bestimmt. " + 
+				"<br/>Verschiedene <b>Export-Buttons</b> erm&ouml;glichen den Export des Metadatenblatts sowie der Geometrien inklusive Sachdaten in verschiedenen Formaten. " + 
+				"<br/><br/> Weiterhin zeigt die <b>Indikatoren-Legende</b> die Zuordnung von Indikatorenwertebereichen zu Darstellungsfarben. " + 
+				"<br/>&Uuml;ber die <b>Radio-Buttons</b> (Jenks, Gleiches Intervall, Quantile) kann die <b>Klassifizierungsmethode</b> ge&auml;ndert werden " + 
+				"<br/>(f&uuml;r detaillierte Informationen zu den Klassifizierungsmethoden lesen Sie bitte das <b>Popup</b>, das erscheint, wenn Sie mit dem <i>Mauszeiger &uuml;ber eine der drei Optionen fahren</i>). " + 
+				"<br/><br/> KomMonitor &uuml;berpr&uuml;ft jeden Indikatorendatensatz auf <b>Ausrei&szlig;er</b>. Werden ein oder mehrere Ausrei&szlig;er erkannt, so enth&auml;t die Legende auch eine <b>Checkbox</b>, " + 
+				"<br/>mit der <i>Ausrei&szlig;er gesondert markiert und aus der Klassifizierung genommen werden k&ouml;nnen</i>. " + 
+				"<br/>Analog l&auml;sst sich einstellen, ob die Klassifizierung die Indikatorenwerte der gesamten Zeitreihe ber&uuml;cksichtigen soll, oder nur jene des aktuellen Zeitschnitts."				
 			},
 			{
 				element: "#dateSliderWrapper",
