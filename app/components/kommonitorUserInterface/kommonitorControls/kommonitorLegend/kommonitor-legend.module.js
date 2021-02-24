@@ -1,4 +1,5 @@
-angular.module('kommonitorLegend', ['kommonitorDataExchange', 'kommonitorDiagramHelper', 'kommonitorVisualStyleHelper','kommonitorMap'])
+angular.module('kommonitorLegend', ['kommonitorDataExchange', 'kommonitorDiagramHelper', 'kommonitorVisualStyleHelper',
+'kommonitorMap', 'kommonitorElementVisibilityHelper'])
 
 .directive('stringToNumber', function() {
   return {

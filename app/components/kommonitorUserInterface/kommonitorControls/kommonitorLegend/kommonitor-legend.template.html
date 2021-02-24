@@ -52,7 +52,7 @@
 								<div class="text-left"><label id="indicatorTransparencyLabel" >{{$ctrl.kommonitorVisualStyleHelperServiceInstance.indicatorTransparency}}</label></div>
 							</div>
 						</div><br>
-						<div class="btn-group">
+						<div class="btn-group"  id="indicatorLegendExportButtons" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.indicatorLegendExportButtons">
 							<label><i class="fa fa-file-download"></i>&nbsp;&nbsp;&nbsp;Export</label>
 							<br />
 							<button id="downloadMetadata" ng-click="onClickDownloadMetadata()" class="btn btn-default btn-xs">Metadatenblatt</button>

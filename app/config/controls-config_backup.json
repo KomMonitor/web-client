@@ -46,5 +46,9 @@
     {
         "id": "reportingButton",
         "roles": []
-    }
+    },
+    {
+        "id": "indicatorLegendExportButtons",
+        "roles": []
+    }    
 ]
