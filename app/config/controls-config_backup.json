@@ -42,5 +42,9 @@
     {
         "id": "processing",
         "roles": []
+    },
+    {
+        "id": "reportingButton",
+        "roles": []
     }
 ]
