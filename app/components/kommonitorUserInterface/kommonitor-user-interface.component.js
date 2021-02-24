@@ -1,9 +1,13 @@
 angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 	templateUrl : "components/kommonitorUserInterface/kommonitor-user-interface.template.html",
-	controller : ['kommonitorDataExchangeService', 'kommonitorKeycloakHelperService', '$scope', '$rootScope', '$location', 'Auth', 'ControlsConfigService', function UserInterfaceController(kommonitorDataExchangeService, kommonitorKeycloakHelperService, $scope, $rootScope, $location, Auth, ControlsConfigService) {
+	controller : ['kommonitorDataExchangeService', 'kommonitorKeycloakHelperService', 'kommonitorElementVisibilityHelperService', '$scope', 
+	'$rootScope', '$location', 'Auth', 'ControlsConfigService', 
+	function UserInterfaceController(kommonitorDataExchangeService, kommonitorKeycloakHelperService, kommonitorElementVisibilityHelperService, 
+		$scope, $rootScope, $location, Auth, ControlsConfigService) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 		this.kommonitorKeycloakHelperServiceInstance = kommonitorKeycloakHelperService;
+		this.kommonitorElementVisibilityHelperServiceInstance = kommonitorElementVisibilityHelperService;
 
 		kommonitorDataExchangeService.anySideBarIsShown = false;
 
@@ -20,7 +24,6 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			}			
 
 			checkAuthentication();
-			$scope.widgetAccessibility = getWidgetAccessibility();
 
 			kommonitorDataExchangeService.fetchAllMetadata();
 		};
@@ -130,43 +133,6 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 					$scope.showAdminLogin = true;
 				}
 			}
-		};
-
-		var checkWidgetAccessibility = function(id) {
-			var widget = ControlsConfigService.getControlsConfig().filter(widget => widget.id === id)[0];
-			if(widget.roles === undefined || widget.roles.length === 0) {
-				return true;
-			}
-			else if(Auth.keycloak.authenticated) {
-				// admin role user always sees all data and widgets
-				if(kommonitorDataExchangeService.currentKeycloakLoginRoles.includes(kommonitorKeycloakHelperService.adminRoleName)){
-					return true;
-				}
-				var hasAllowedRole = false;
-				for (var i = 0; i < widget.roles.length; i++) {
-					if(Auth.keycloak.tokenParsed.realm_access.roles.includes(widget.roles[i])){
-						return true;
-					}	
-				}
-				return hasAllowedRole;
-			} else {
-				if(! kommonitorDataExchangeService.enableKeycloakSecurity){
-					return true;
-				}
-				else{
-					return false;
-				}				
-			}
-		};
-
-		var getWidgetAccessibility = function() {			
-			var widgetAccessibility = {};
-			var config = ControlsConfigService.getControlsConfig();
-			config.forEach(widget => {
-				widgetAccessibility[widget.id] = checkWidgetAccessibility(widget.id);
-			});
-			
-			return widgetAccessibility;
 		};
 
 		$scope.openAdminUI = function () {
