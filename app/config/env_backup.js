@@ -9,6 +9,9 @@ try {
   // enable/disable role based access using keycloak
   window.__env.enableKeycloakSecurity = false;
 
+  window.__env.isAdvancedMode = true;
+  window.__env.showAdvancedModeSwitch = true;
+
   // encrypted data transfer from Data Management API settings
   window.__env.encryption = {
     enabled: false,
