@@ -772,7 +772,6 @@ pre.CodeMirror-line {
 #map {
 	height: 94vh;
 	position: relative;
-	z-index: 1001;
 }
 
 #legend{
@@ -1634,7 +1633,7 @@ transition: opacity 0.3s;
 	right: 0;
     position: fixed;
     top: 54px;
-    z-index: 2000;
+    z-index: 1000;
 	max-width: 25%;
 	font-size: 11px;
 		height: 83vh;
@@ -1768,7 +1767,7 @@ transition: opacity 0.3s;
 	margin-right: 1%;
 	font-size: 11px;
 	/* margin-top: 1%; */
-	z-index: 2000;
+	z-index: 1000;
 	height: 99%;
 	max-height: 99%;
 	overflow: auto;
