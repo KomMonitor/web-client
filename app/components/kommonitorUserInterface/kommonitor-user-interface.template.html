@@ -55,7 +55,8 @@
 			<a data-toggle="modal" data-target="#infoModal" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Information&nbsp;&nbsp;"><span class="glyphicon glyphicon-info-sign"></span></a>
 			<!-- <a data-toggle="modal" data-target="#feedbackModal" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;  cursor:pointer;" title="Feedback&nbsp;&nbsp;"><span class="glyphicon glyphicon-envelope"></span></a> -->
 			<a ng-click="startGuidedTour()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;  cursor:pointer;" title="Guided Tour&nbsp;&nbsp;"><span class="glyphicon glyphicon-play"></span></a>
-			<a data-toggle="modal" data-target="#reporting-modal" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;  cursor:pointer;" title="Report erstellen&nbsp;&nbsp;"><span class="glyphicon glyphicon-print"></span></a>
+			<!-- hide reporting modal for now, as its functionality must be rechecked -->
+			<!-- <a data-toggle="modal" data-target="#reporting-modal" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;  cursor:pointer;" title="Report erstellen&nbsp;&nbsp;"><span class="glyphicon glyphicon-print"></span></a> -->
 			<p style="clear: both;"></p>
 
 		</div>
@@ -123,9 +124,10 @@
         <kommonitor-reachability></kommonitor-reachability>
     </aside>
 
-		<aside id="sidebarProcessing" ng-class="sidebarProcessingClass" ng-if="widgetAccessibility.processing">
+	<!-- hide processing button and menu, as it must be greatly improved -->
+	<!-- <aside id="sidebarProcessing" ng-class="sidebarProcessingClass" ng-if="widgetAccessibility.processing">
         <kommonitor-individual-indicator-computation></kommonitor-individual-indicator-computation>
-    </aside>
+    </aside> -->
 
 	<!-- right side legend menu -->
 	<aside id="sidebarLegend" ng-class="sidebarLegendClass" >
@@ -193,10 +195,11 @@
 								<!-- <span style="font-size:2.5vh;" class="glyphicon glyphicon-wrench" aria-hidden="true"></span> -->
 						</button>
 
-						<button type="button" style="top: 73%;" id="sidebarProcessingCollapse"
+						<!-- hide processing button and menu, as it must be greatly improved -->
+						<!-- <button type="button" style="top: 73%;" id="sidebarProcessingCollapse"
 							ng-click="onSidebarProcessingClick()" ng-class="buttonProcessingClass" ng-if="widgetAccessibility.processing" data-toggle="tooltip" title="Individuelle Indikatorenberechnung">
 							<i style="font-size:2.5vh;" class="fas fa-sliders-h"></i>
-						</button>
+						</button> -->
 
 						<button type="button" id="sidebarLegendCollapse"
 							ng-click="onSidebarLegendButtonClick()" ng-class="buttonLegendClass" data-toggle="tooltip" title="Legenden- und Informationsfenster">
