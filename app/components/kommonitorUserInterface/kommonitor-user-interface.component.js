@@ -506,11 +506,24 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			template: "<div class='popover tour'> <div class='arrow'></div> <h3 class='popover-title'></h3>  <div class='popover-content'></div><div class='popover-navigation'> <div class='btn-group'> <button class='btn btn-sm btn-default' data-role='prev'>« Zur&uuml;ck</button> <button class='btn btn-sm btn-default' data-role='next'>Weiter »</button> </div> <button class='btn btn-sm btn-default' data-role='end'>Guided Tour beenden</button></div></div>",
 			steps: [
 			{
+				element:"#map",
+				title: "Wilkommen zur Guided Tour von KomMonitor",
+				placement: "left",
+				content: "In dieser Tour werden die Funktionalitäten der Weboberfläche erläutert. Hier werden sie mit den Elementen der Oberfläche sowie den verschiedenen Buttons vertraut gemacht. " + 
+				"</br> Die Tour kann jederzeit über den Button <b>Guided Tour beenden </b> beendet werden. ",
+				onNext: function(tour){
+					if($scope.sidebarLegendClass !== "disappear"){
+							$("#sidebarLegendCollapse").click();
+					}
+				}
+			},
+			{
 				element: "#header",
 				title: "Kopfzeile",
 				placement: "bottom",
-				content: "In der Kopfzeile befinden sich neben dem Titel der Webanwendung ein <b>Info-Button</b>, der das beim Aufruf der Seite erschienene Informationsfenster &ouml;ffnet, ein <b>Feeback-Button</b>, " +
-				"<br/> sowie Button zum (erneuten) <b>Starten der gef&uuml;hrten Tour</b>."
+				content: "In der Kopfzeile befinden sich neben dem Titel der Webanwendung ein <b>Info-Button</b>, der das beim Aufruf der Seite erschienene Informationsfenster &ouml;ffnet, " + 
+				"sowie ein <b>Report Erstellen-Button</b>, mit dem ein generischer Bericht frei konfigurierbarer Inhalte erzeugt werden kann. " +
+				"<br/> Zudem kann mithilfe weiter Buttons die <b>Guided Tour</b> und das <b>Begrüßungsfenster</b> mit den Hintergrundinformationen der Instanz erneut geöffnet werden. " 
 			},
 			{
 				element: "#map",
@@ -528,6 +541,11 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				// 	}
 
 				// },
+				onNext: function(tour){
+					if($scope.sidebarLegendClass === "disappear"){
+							$("#sidebarLegendCollapse").click();
+					}
+				}
 			},
 			{
 				element: "#kommonitorLegend",
@@ -540,9 +558,19 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				"<br/><br/> Weiterhin zeigt die <b>Indikatoren-Legende</b> die Zuordnung von Indikatorenwertebereichen zu Darstellungsfarben. " + 
 				"<br/>&Uuml;ber die <b>Radio-Buttons</b> (Jenks, Gleiches Intervall, Quantile) kann die <b>Klassifizierungsmethode</b> ge&auml;ndert werden " + 
 				"<br/>(f&uuml;r detaillierte Informationen zu den Klassifizierungsmethoden lesen Sie bitte das <b>Popup</b>, das erscheint, wenn Sie mit dem <i>Mauszeiger &uuml;ber eine der drei Optionen fahren</i>). " + 
-				"<br/><br/> KomMonitor &uuml;berpr&uuml;ft jeden Indikatorendatensatz auf <b>Ausrei&szlig;er</b>. Werden ein oder mehrere Ausrei&szlig;er erkannt, so enth&auml;t die Legende auch eine <b>Checkbox</b>, " + 
+				"<br/><br/> KomMonitor &uuml;berpr&uuml;ft jeden Indikatorendatensatz auf <b>Ausrei&szlig;er</b>. Werden ein oder mehrere Ausrei&szlig;er erkannt, so enth&aumll;t die Legende auch eine <b>Checkbox</b>, " + 
 				"<br/>mit der <i>Ausrei&szlig;er gesondert markiert und aus der Klassifizierung genommen werden k&ouml;nnen</i>. " + 
-				"<br/>Analog l&auml;sst sich einstellen, ob die Klassifizierung die Indikatorenwerte der gesamten Zeitreihe ber&uuml;cksichtigen soll, oder nur jene des aktuellen Zeitschnitts."				
+				"<br/>Analog l&auml;sst sich einstellen, ob die Klassifizierung die Indikatorenwerte der gesamten Zeitreihe ber&uuml;cksichtigen soll, oder nur jene des aktuellen Zeitschnitts.",				
+				onNext: function(tour){
+					if($scope.sidebarLegendClass !== "disappear"){
+							$("#sidebarLegendCollapse").click();
+					}
+				},
+				onPrev: function(tour){
+					if($scope.sidebarLegendClass !== "disappear"){
+							$("#sidebarLegendCollapse").click();
+					}
+				}
 			},
 			{
 				element: "#dateSliderWrapper",
@@ -551,14 +579,9 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				content: "Die <b>Zeitleiste</b> am unteren Bildschirmrand enth&auml;lt die <b>verf&uuml;gbaren Zeitschnitte des selektierten Indikators</b>. Standardm&auml;ßig ist der aktuellste Zeitschnitt voreingestellt. "+ 
 				"<br/>  Durch ein <i>Klicken auf einen beliebigen Punkt der Leiste oder durch Verschieben des runden Auswahlknopfs</i> k&ouml;nnen Sie den <b>Zeitschnitt &auml;ndern</b>.",
 				onPrev: function(tour){
-					// make sure that legend control is displayed
-
-					var control = document.getElementById("kommonitorLegend");
-					var controlButton = document.getElementById("toggleLegendControlButton");
-					if(control.style.display === "none" || (controlButton.style.display !== undefined && controlButton.style.display !== "none")){
-						$rootScope.$broadcast("toggleLegendControl");
+					if($scope.sidebarLegendClass === "disappear"){
+							$("#sidebarLegendCollapse").click();
 					}
-
 				}
 			},
 			{
@@ -568,7 +591,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				content: "Diese Buttons bieten Steuerungsm&ouml;glichkeiten f&uuml;r die Kartendarstellung. &Uuml;ber <b>Plus</b> und <b>Minus</b> kann alternativ zur Verwendung des Mausrades hinein- bzw. hinausgezoomt werden. "+
 				"<br/><br/>Der <b>Weltkugel-Button</b> zentriert die Karte und zoomt auf die maximale Ausdehnung des dargestellten Themas. " + 
 				"<br/><br/>Der daneben positionierte Button <b>hebt jegliche benutzerdefinierte Selektionen</b> auf. " + 
-				"<br/><br/>Der Download-Button erlaubt den Export des aktuellen <b>Kartenausschnitts ald Bildatei</b>. " + 
+				"<br/><br/>Der Download-Button erlaubt den Export des aktuellen <b>Kartenausschnitts als Bilddatei</b>. " + 
 				"<br/><br/>Der rechte <b>Layer-Button</b> bietet die M&ouml;glichkeit, einzelne Layer <b>tempor&auml;r auszublenden oder die Hintergrundkarte zu wechseln</b>. " + 
 				"<br/><br/>Der Filterbutton erm&ouml;glicht das <b>Filtern innerhalb dargestellter Vektorlayer anhand des Namens oder der ID der Raumelemente</b>. " + 
 				"<br/><br/>Der darunter positionierte Suchbutton repr&auml;sentiert eine <b>Geolokalisierung von Adressen und Orten</b>. " + 
@@ -578,7 +601,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				element: "#sideBarButtons",
 				title: "Men&uuml;-Buttons",
 				placement: "right",
-				content: "Diese Buttons &ouml;ffnen jeweils ein linkseitig angeordnetets <b>Men&uuml;</b>, um zus&auml;tzliche Funktionen auszuf&uuml;hren. Jedes einzelne Men&uuml; wird in den folgenden Schritten kurz erl&auml;utert."
+				content: "Diese Buttons &ouml;ffnen jeweils ein linksseitig angeordnetets <b>Men&uuml;</b>, um zus&auml;tzliche Funktionen auszuf&uuml;hren. Jedes einzelne Men&uuml; wird in den folgenden Schritten kurz erl&auml;utert."
 			},
 			{
 				element: "#sidebarIndicatorConfigCollapse",
@@ -595,7 +618,11 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				element: "#indicatorSetup",
 				title: "Indikatorenkatalog -metadaten und Verkn&uuml;pfungen zu anderen Indikatoren oder Geodaten",
 				placement: "right",
-				content: "Dieses Men&uuml; enth&auml;lt eine <b>&Uuml;bersicht aller verf&uuml;gbarer Indikatoren</b> sowie die Optionen, den aktuell betrachteten <b>Indikator zu wechseln</b>. <br/><br/>Im obigen <b>Themenfilter</b> kann die &Uuml;bersicht der Indikatoren nach verschiedenen Themenkomplexen gefiltert werden. <br/><br/>Sollte ein Indikator etwaige <b>Verkn&uuml;pfungen</b> zu anderen Indikatoren oder sonstigen Geodaten beinhalten, so werden diese in tabellarischer Form kenntlich gemacht.",
+				content: "Dieses Men&uuml; enth&auml;lt eine <b>&Uuml;bersicht aller verf&uuml;gbarer Indikatoren</b> sowie die Optionen, " + 
+				"den aktuell betrachteten <b>Indikator zu wechseln</b>.<br/><br/> Indikatoren können in Form einer hierarchischen Übersicht im <b>Datenkatalog</b> oder mithilfe einer " + 
+				"<b>alphabetischen Liste</b> betrachtet und selektiert werden." + 
+				"Auch wenn die Metadaten des Indikators können hier detailliert eingesehen werden. " + 
+				"<br/><br/>Sollte ein Indikator etwaige <b>Verkn&uuml;pfungen</b> zu anderen Indikatoren oder sonstigen Geodaten beinhalten, so werden diese in tabellarischer Form kenntlich gemacht.",
 				onNext: function(tour){
 					if($scope.sidebarIndicatorConfigClass !== "disappear"){
 							$("#sidebarIndicatorConfigCollapse").click();
@@ -631,7 +658,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				"zur Karte hinzugef&uuml;gt werden. Hinzuf&uuml;gen und Entfernen der Layer geschieht dabei durch (De-) Selektion der jeweiligen <i>Checkbox</i>. " + 
 				"<br/><br/>In der Standardkonfiguration werden Punktgeometrien r&auml;umlich zu sogenannten <b>Cluster-Punkten</b> zusammengefasst, um die Darstellung je nach Zoom-Stufe zu optimieren. " + 
 				"&Uuml;ber eine entsprechende <i>Auswahloption</i> k&ouml;nnen jedoch bei jeder Zoomstufe wahlweise auch <b>alle Einzelpunkte dargestellt</b> werden. " + 
-				"<br/><br/><b>Hinweis zu Zeitbezug der darzustellenden Daten:</b><br/>Der Abruf eines Point/Line/Area of Interest Datensatzes bezieht sich immer auf ein Datum. " + 
+				"<br/><br/><b>Hinweis zum Zeitbezug der darzustellenden Daten:</b><br/>Der Abruf eines Point/Line/Area of Interest Datensatzes bezieht sich immer auf ein Datum. " + 
 				"Standardm&auml;&szlig;ig wird der aktuelle Zeitpunkt des dargestellten Indikators verwendet. Diese Option kann jedoch auf ein beliebiges frei definierbares Datum oder eine " + 
 				"listenbasierte Auswahl verf&uuml;gbarer Zeitpunkte jedes Datensatzes ge&auml;ndert werden.",
 				onNext: function(tour){
@@ -696,7 +723,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				content: "Hier k&ouml;nnen verschiedene <b>Darstellungsfilter</b> angewendet werden, die sich auf die <i>kartographische Darstellung</i> auswirken. " + 
 				"&Uuml;ber den <b>Wertebereichsfilter</b> k&ouml;nnen die angezeigten Raumeinheiten anhand ihrer Wertauspr&auml;gung gefiltert werden. " + 
 				"Dazu kann der Schieberegler an dem minimalen und maximalen Werten nach rechts/links geschoben werden. " + 
-				"<br/><br/>Eine weitere Option ist die <b>dynamische Schwellwertklassifizierung</b>, bei der ein spezifischer <b>Wert</b> definiert werden kann, " + 
+				"<br/><br/>Eine weitere Option ist die <b>dynamische Schwellenwertklassifizierung</b>, bei der ein spezifischer <b>Wert</b> definiert werden kann, " + 
 				"der die Indikator-Darstellung in <b>zwei Bereiche</b> unterteilt (oberhalb und unterhalb des Schwellwerts) und entsprechend farbig darstellt.",
 				onNext: function(tour){
 					if($scope.sidebarFilterClass !== "disappear"){
@@ -731,12 +758,14 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				title: "Zeitliche Bilanzierung",
 				placement: "right",
 				content: "Bei der zeitlichen Bilanzierung steht die <b>Wertentwicklung eines Indikators</b> &uuml;ber die Zeit im Fokus (z. B. Wachstum / Schrumpfung). " + 
-				"Wird die Bilanzierung mittels der entsprehenden <b>Checkbox</b> aktiviert, so kann &uuml;ber die Zeitleiste ein <b>Zeitraum</b> spezifiziert werden, " + 
+				"Wird die Bilanzierung mittels der entsprechenden <b>Checkbox</b> aktiviert, so kann &uuml;ber die Zeitleiste ein <b>Zeitraum</b> spezifiziert werden, " + 
 				"f&uuml;r den die Wertentwicklung berechnet und dargestellt werden soll. <br/><br/>Die Indikatoren-Legende am rechten Rand der Anwendung zeigt &uuml;ber dies bei aktivierter " + 
-				"Checkbox an, dass die Bilanz des Indikators dargestellt wird.<br/><br/>Bitte bachten Sie, dass eine Bilanzierung nur bei Status-Indikatoren m&ouml;glich ist, " + 
-				"deren Zeitreihe mehr als einen Eintrag enth&auml;lt. <br/><br/>Noch in der Entwicklung befindet sich eine <b>Trenddarstellung</b> &uuml;ber den bilanzierten Zeitraum. " + 
-				"Dieses Feature soll k&uuml;nftig weiterentwickelt werden. Derzeit ist nur eine Trenddarstellung &uuml;ber das arithmetische Mittel aller derzeit visualisierten " + 
-				"Indikatoren-Features m&ouml;glich.",
+				"Checkbox an, dass die Bilanz des Indikators dargestellt wird.<br/><br/> KomMonitor verfügt zudem über eine Darstellung, welche die Trendentwicklung in Form eines " + 
+				"Liniendiagrammes visualisiert. Zur Trendberechnung kann in KomMonitor zwischen einer linearen, exponentiellen und polynomialen Herleitung gewählt werden. " + 
+				"Des Weiteren sind statistische Merkmale der gewählten Trendbetrachtung hinterlegt. Hierzu zählen beispielsweise Standardabweichung, Varianz, Mittelwert und Median sowie " + 
+				"die Art des Trendverlaufes. " + 
+				"<br/><br/>Bitte beachten Sie, dass eine Bilanzierung nur bei Status-Indikatoren m&ouml;glich ist, " + 
+				"deren Zeitreihe mehr als einen Eintrag enth&auml;lt.",
 				onNext: function(tour){
 					if($scope.sidebarBalanceClass !== "disappear"){
 							$("#sidebarBalanceCollapse").click();
@@ -808,7 +837,14 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				element: "#indicatorRadar",
 				title: "Indikatorenradar",
 				placement: "right",
-				content: "Das <b>Indikatorenradar</b> eignet sich insbesondere f&uuml;r die <b>querschnittsorientierte Betrachtung mehrerer Indikatoren</b>. <br/>F&uuml;r die Anzeige eines solchen Diagramms, <i>selektieren Sie bitte mindestens drei Indikatoren</i> aus der unten stehenden Liste. <br/><br/>F&uuml;r jeden gew&auml;hlten Indikator wird im Diagramm eine Achse genutzt, auf der einzelne Raumeinheiten anhand ihrer Wertauspr&auml;gung abgetragen werden. Jede Achse wird dabei durch <b>Minimum und Maximum</b> der Geometrien der betrachteten Raumebene gebildet (daher ist die <b><i>Radarmitte ausdr&uuml;cklich nicht zwingend mit dem Wert '0' gleichzusetzen, sondern mit dem Minimalwert des Indikators</i></b>). <br/><br/>Auch hier ist der Durchschnitt aller Raumeinheiten bereits vorberechnet und einzelne Elemente k&ouml;nnen mittels Selektion innerhalb der Karte dem Radar hinzugef&uuml;gt werden. Die Indikatorenauswahl umfasst dabei nur solche Indikatoren, die die gew&auml;hlte Raumebene und den aktuell gew&auml;hlten Zeitschnitt unterst&uuml;tzen.<br/><br/> Auch das Radardiagramm besitzt in der oberen rechte Ecke eine <b>Toolbox</b>, &uuml;ber die das Diagramm entweder als <b>Bilddatei</b> oder im <b>Tabellenformat</b> <b>exportiert</b> werden kann",
+				content: "Das <b>Indikatorenradar</b> eignet sich insbesondere f&uuml;r die <b>querschnittsorientierte Betrachtung mehrerer Indikatoren</b>. " + 
+				"<br/>F&uuml;r die Anzeige eines solchen Diagramms, <i>selektieren Sie bitte mindestens drei Indikatoren</i> aus der oben stehenden Liste. <br/><br/>" + 
+				"F&uuml;r jeden gew&auml;hlten Indikator wird im Diagramm eine Achse genutzt, auf der einzelne Raumeinheiten anhand ihrer Wertauspr&auml;gung abgetragen werden. " + 
+				"Jede Achse wird dabei durch <b>Minimum und Maximum</b> der Geometrien der betrachteten Raumebene gebildet (daher ist die <b><i>Radarmitte ausdr&uuml;cklich nicht zwingend " + 
+				"mit dem Wert '0' gleichzusetzen, sondern mit dem Minimalwert des Indikators</i></b>). <br/><br/>Auch hier ist der Durchschnitt aller Raumeinheiten bereits vorberechnet und " +
+				"einzelne Elemente k&ouml;nnen mittels Selektion innerhalb der Karte dem Radar hinzugef&uuml;gt werden. Die Indikatorenauswahl umfasst dabei nur solche Indikatoren, " + 
+				"die die gew&auml;hlte Raumebene und den aktuell gew&auml;hlten Zeitschnitt unterst&uuml;tzen.<br/><br/> Auch das Radardiagramm besitzt in der oberen rechte Ecke eine " + 
+				"<b>Toolbox</b>, &uuml;ber die das Diagramm entweder als <b>Bilddatei</b> oder im <b>Tabellenformat</b> <b>exportiert</b> werden kann",
 				onNext: function(tour){
 					if($scope.sidebarRadarDiagramClass !== "disappear"){
 							$("#sidebarRadarDiagramCollapse").click();
@@ -824,7 +860,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				element: "#sidebarRegressionDiagramCollapse",
 				title: "Regressionsdiagramm",
 				placement: "right",
-				content: "Ein Klick auf diesen Button &ouml;ffnet Fenster zur Definition von <b>Regressionsdiagrammen</b>. <br/><br/><i>Im n&auml;chsten Schritt wird das Men&uuml; automatisch ge&ouml;ffnet.</i>",
+				content: "Ein Klick auf diesen Button &ouml;ffnet das Fenster zur Definition von <b>Regressionsdiagrammen</b>. <br/><br/><i>Im n&auml;chsten Schritt wird das Men&uuml; automatisch ge&ouml;ffnet.</i>",
 				onNext: function(tour){
 					if($scope.sidebarRegressionDiagramClass === "disappear"){
 							$("#sidebarRegressionDiagramCollapse").click();
@@ -872,7 +908,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				element: "#kommonitorReachability",
 				title: "Erreichbarkeitsanalysen",
 				placement: "right",
-				content: "Als GIS-basiertes Werkzeug soll KomMonitor ausgew&auml;hlte <b>r&auml;umliche Analysen</b> unterst&uuml;tzen. Insbesondere stehen <b>Erreichbarkeitsanalysen</b> im Fokus, bei denen, neben reinen <i>Puffer-basierten Ans&auml;tzen</i>, <b>Erreichbarkeiten anhand tats&auml;chlicher Wegenetze</b> f&uuml;r verschiedene <b>Transportmittel (z.B. Fußg&auml;nger, Fahrrad, Auto)</b> berechnet werden k&ouml;nnen. Konkret soll hierbei sowohl ein <b>Routing</b> zwischen einzelnen Punkten sowie die Berechnung von <b>Isochronen (&Auml;quidistanzen und zeitliches Abbruchkriterium)</b> angeboten werden.<br/><br/><b>Auswahl der Startpunkte</b><br/>Die Auswahl der Startpunkte kann entweder &uuml;ber die Selektion eines vorhandenen Punktlayers vorgenommen werden oder mittels Einzeichnen eigener beliebiger Punkte in die Karte.<br/><br/><b>Ergebnisdarstellung</b><br/>Sowohl Isochronen- als auch Routing Ergebnisse werden als neuer eigener Layer der Karte hinzugef&uuml;gt. Die jeweilige Legende ist in einer separaten Box des linken Men&uuml;s einsehbar.<br/><br/><b>Punkt in Isochronen Analyse</b><br/>Nachdem eine Isochronenberechnung erfolgt ist, können vorhandene Punktlayer mit den Isochronen r&auml;mlich verschnitten werden, um eine Punkt-in-Polygon Analyse durchzuf&uuml;hren.",
+				content: "Als GIS-basiertes Werkzeug soll KomMonitor ausgew&auml;hlte <b>r&auml;umliche Analysen</b> unterst&uuml;tzen. Insbesondere stehen <b>Erreichbarkeitsanalysen</b> im Fokus, bei denen, neben reinen <i>Puffer-basierten Ans&auml;tzen</i>, <b>Erreichbarkeiten anhand tats&auml;chlicher Wegenetze</b> f&uuml;r verschiedene <b>Transportmittel (z.B. Fußg&auml;nger, Fahrrad, Auto)</b> berechnet werden k&ouml;nnen. Konkret soll hierbei sowohl ein <b>Routing</b> zwischen einzelnen Punkten sowie die Berechnung von <b>Isochronen (&Auml;quidistanzen und zeitliches Abbruchkriterium)</b> angeboten werden.<br/><br/><b>Auswahl der Startpunkte</b><br/>Die Auswahl der Startpunkte kann entweder &uuml;ber die Selektion eines vorhandenen Punktlayers vorgenommen werden oder mittels Einzeichnen eigener beliebiger Punkte in die Karte.<br/><br/><b>Ergebnisdarstellung</b><br/>Sowohl Isochronen- als auch Routing Ergebnisse werden als neuer eigener Layer der Karte hinzugef&uuml;gt. Die jeweilige Legende ist in einer separaten Box des linken Men&uuml;s einsehbar.<br/><br/><b>Punkt in Isochronen Analyse</b><br/>Nachdem eine Isochronenberechnung erfolgt ist, können vorhandene Punktlayer mit den Isochronen r&auml;umlich verschnitten werden, um eine Punkt-in-Polygon Analyse durchzuf&uuml;hren.",
 				onNext: function(tour){
 					if($scope.sidebarReachabilityClass !== "disappear"){
 							$("#sidebarReachabilityCollapse").click();
