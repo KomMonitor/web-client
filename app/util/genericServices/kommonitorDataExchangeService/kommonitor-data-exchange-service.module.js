@@ -1387,7 +1387,7 @@ angular
   
             }
   
-            var category = "Subindikator";
+            var category = "Basisindikator";
             if (indicator.isHeadingIndicator) {
               category = "Leitindikator";
             }
