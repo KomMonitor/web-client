@@ -34,16 +34,8 @@
     "webpack-cli": "^4.5.0"
   },
   "scripts": {
-    "build": "webpack",
-    "prestart": "",
-    "start": "http-server -a localhost -p 8000 -c-1 ./app",
-    "pretest": "npm install",
-    "test": "karma start karma.conf.js",
-    "test-single-run": "karma start karma.conf.js --single-run",
-    "preupdate-webdriver": "npm install",
-    "update-webdriver": "webdriver-manager update",
-    "preprotractor": "npm run update-webdriver",
-    "protractor": "protractor e2e-tests/protractor.conf.js"
+    "build": "npm install && webpack && grunt",
+    "start": "http-server -a localhost -p 8000 -c-1 ./app"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.9.0",
