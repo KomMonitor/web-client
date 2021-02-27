@@ -1635,6 +1635,7 @@ transition: opacity 0.3s;
     top: 54px;
     z-index: 1000;
 	max-width: 25%;
+	min-width: 25%;
 	font-size: 11px;
 		height: 83vh;
 		/* min-height: 100vh; */
