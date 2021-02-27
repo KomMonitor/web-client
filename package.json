@@ -38,7 +38,7 @@
     "webpack-cli": "^4.5.0"
   },
   "scripts": {
-    "build": "npm install && webpack && grunt",
+    "build": "npm install --force && webpack && grunt",
     "start": "http-server -a localhost -p 8000 -c-1 ./app"
   },
   "dependencies": {
