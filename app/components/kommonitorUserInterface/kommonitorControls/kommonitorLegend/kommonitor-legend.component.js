@@ -99,12 +99,10 @@ angular
 							$rootScope.$broadcast("changeClassifyMethod", "equal_interval");
 						  });
 
-						$scope.onClickDownloadMetadata = function(){
+						$scope.onClickDownloadMetadata = async function(){
 							// create PDF from currently selected/displayed indicator!
-							var indicatorMetadata = kommonitorDataExchangeService.selectedIndicator;
-							var jspdf = kommonitorDataExchangeService.createMetadataPDF(indicatorMetadata);
-							var pdfName = indicatorMetadata.indicatorName + ".pdf";
-							jspdf.save(pdfName);
+							var indicatorMetadata = kommonitorDataExchangeService.selectedIndicator;														
+							kommonitorDataExchangeService.createMetadataPDF(indicatorMetadata);
 						};
 
 						$scope.downloadIndicatorAsGeoJSON = function () {
