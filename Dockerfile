@@ -3,7 +3,10 @@ FROM node:alpine as build
 
 
 RUN apk add --no-cache \
-  git
+  git \
+  python \
+  g++ \
+  make
 
 RUN mkdir -p /kommonitor-webclient 
 
