@@ -303,7 +303,7 @@ angular
 									name: {
 										formatter: function (value, indicator) {
 
-											return kommonitorDataExchangeService.formatIndiatorNameForLabel(value, 28);
+											return kommonitorDataExchangeService.formatIndicatorNameForLabel(value, 15);
 										},
 										textStyle: {
 											color: '#525252'
