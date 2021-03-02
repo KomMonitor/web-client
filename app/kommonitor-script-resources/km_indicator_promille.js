@@ -33,7 +33,7 @@ const aggregationTypeEnum = ["SUM", "AVERAGE"];
 * @memberof CONSTANTS
 * @constant
 */
-const aggregationType = "SUM";
+const aggregationType = "AVERAGE";
 
 const parameterName_referenceIndicatorId = "REFERENCE_ID";
 const parameterName_computationIndicatorId = "COMPUTATION_ID";
@@ -92,6 +92,7 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
 
         if(referenceValue === undefined || referenceValue === null){
           KmHelper.log("WARNING: the feature with featureID '" + featureId + "' does not contain a time series value for targetDate '" + targetDate + "'");
+          KmHelper.log("WARNING: process will return");
           referenceValue = 0;
         }
 		// modify map object (i.e. set value initially, or perform calculations and store modified value)
@@ -109,7 +110,7 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
 		var mapEntry = map.get(featureId);
 		mapEntry.refValue = referenceValue;
         map.set(featureId, mapEntry);
-      });	
+        });		
 
       KmHelper.log("Process computation indicator");
 
@@ -128,7 +129,9 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
 				  KmHelper.log("WARNING: the feature with featureID '" + featureId + "' does not contain a time series value for targetDate '" + targetDate + "'");
 				  KmHelper.log("WARNING: the feature value will thus be set to '0' and computation will continue");
 				  partValue = 0;
-          }
+				  }
+				  // modify map object (i.e. set value initially, or perform calculations and store modified value)
+          // key should be unique featureId of the spatial unit feature
           
           if (! map.has(featureId)){
             KmHelper.log("Computation Indicator feature with id '" + featureId + "' was not computed from computation resources. Will set ref value to null.");				  
@@ -142,15 +145,11 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
             map.set(featureId, mapObject);    
         }  
 
-        // modify map object (i.e. set value initially, or perform calculations and store modified value)
-        // key should be unique featureId of the spatial unit feature
-        var mapEntry = map.get(featureId);
-		
-        mapEntry.intermediateValue = mapEntry.intermediateValue + partValue;
-
-        map.set(featureId, mapEntry);
-		});
-		});
+				  var mapEntry = map.get(featureId);  
+				  mapEntry.intermediateValue = mapEntry.intermediateValue + partValue;
+				  map.set(featureId, mapEntry);
+				  });				 
+				  });
       	
       var numFeatures = targetSpatialUnit_geoJSON.features.length;
 
@@ -176,15 +175,22 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
               };
 
           map.set(spatialUnitFeatureId, mapObject);    
-      }  
+      } 
 
         var mapEntry = map.get(spatialUnitFeatureId);
-
-        var indicatorValue = null;
-
-        if(mapEntry && mapEntry.refValue != null && mapEntry.intermediateValue != null){
-          indicatorValue =  mapEntry.refValue - mapEntry.intermediateValue;
-        }
+		
+		var indicatorValue = null;
+        if(mapEntry.refValue === undefined || mapEntry.refValue === null || mapEntry.refValue === undefined || mapEntry.intermediateValue === null){
+          KmHelper.log("WARNING: the feature with featureID '" + spatialUnitFeatureId + "' does not contain a time series value for targetDate '" + targetDate + "'");
+          KmHelper.log("INFO: indicator value is set to null");
+          indicatorValue = null;
+		  } else if(mapEntry.refValue === 0) {
+			  indicatorValue = 0;
+			  KmHelper.log("WARNING: the feature with featureID '" + spatialUnitFeatureId + "' cotains a '0' as numerator value for targetDate '" + targetDate + "'");
+			  KmHelper.log("INFO: indicator value is set to 0");
+			  } else {
+				  indicatorValue = (mapEntry.intermediateValue / mapEntry.refValue) * 1000;
+			  }     
 
         // set aggregationWeight as number of citizens
         KmHelper.setAggregationWeight(spatialUnitFeature, indicatorValue);

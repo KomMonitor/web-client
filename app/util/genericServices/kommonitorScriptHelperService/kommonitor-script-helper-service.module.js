@@ -56,6 +56,10 @@ angular
 					"apiName": "indicator_division"
         },
         {
+					"displayName": "Indikatoren - Promille-Wert (Quotient zwischen Basis-Indikatoren und einem Referenzindikator)",
+					"apiName": "indicator_promille"
+        },        
+        {
 					"displayName": "Leitindikator - verkettete Berechnung (Rank, Min-Max-Normalisierung, Aggregation)",
 					"apiName": "indicator_headlineIndicator"
         },
