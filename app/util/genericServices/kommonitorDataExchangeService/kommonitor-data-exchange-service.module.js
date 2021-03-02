@@ -1151,30 +1151,27 @@ angular
             return containsNegativeValues;
           };
 
-          this.formatIndiatorNameForLabel = function(indicatorName, maxCharsPerLine){
-            var separationSigns = [" ", "-", "_"];
-            var counter = 0;
-            var nextWord = "";
-            var nextChar;
-            var label = "";
-            for(var i=0; i<indicatorName.length; i++){
-              nextChar = indicatorName.charAt(i);
-              nextWord += nextChar;
-              if(counter === maxCharsPerLine){
-                label += "\n";
-                counter = 0;
-              }
-              else if(separationSigns.includes(nextChar)){
-                // add word to label
-                label += nextWord;
-                nextWord = "";
-              }
-              counter++;
+          this.formatIndicatorNameForLabel = function(indicatorName, maxCharsPerLine){
+            var arr = [];
+            var space = /\s/;
+         
+            const words = indicatorName.split(space);
+            // push first word into new array
+            if (words[0].length) {
+              arr.push(words[0]);
             }
-            //append last word
-            label += nextWord;
-            return label;
-          }
+         
+            for (let i = 1; i < words.length; i++) {
+              if (words[i].length + arr[arr.length - 1].length < maxCharsPerLine) {
+                arr[arr.length - 1] = `${arr[arr.length - 1]} ${words[i
+                         ]}`;
+              } 
+              else {
+                arr.push(words[i]);
+              }
+            }
+            return arr.join("\n");
+          };
 
           this.filterIndicators = function (){
             return function( item ) {
