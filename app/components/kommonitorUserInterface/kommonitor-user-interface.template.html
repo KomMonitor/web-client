@@ -14,7 +14,7 @@
 		<div style="padding-left: 10px; padding-top: 7px;">
 
 			 <a target="_blank" rel="noopener noreferrer" href="http://kommonitor.de"><img style="float: left; width: 35px; height: 35px; margin-right: 0.5%;" src="logos/KM_Logo1.svg"></img></a>
-			 <img src="logos/city-logo.png" style="float: left; width: 35px; height: 35px; margin-right: 0.5%;"></img>
+			 <!-- <img src="logos/city-logo.png" style="float: left; width: 35px; height: 35px; margin-right: 0.5%;"></img> -->
 
 			 <!-- switch back to KomMonitor Main Application -->
 			<a id="userLogin" ng-mouseover="showUserLogin = true" ng-init="showUserLogin = false" title="Useristration" style="font-size:1.2em; float: right; margin-right: 2%; margin-left: 2%; margin-top: 0.5%;"><i class="fas fa-user-cog"></i></a>
@@ -55,15 +55,19 @@
 			<a data-toggle="modal" data-target="#infoModal" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Information&nbsp;&nbsp;"><span class="glyphicon glyphicon-info-sign"></span></a>
 			<!-- <a data-toggle="modal" data-target="#feedbackModal" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;  cursor:pointer;" title="Feedback&nbsp;&nbsp;"><span class="glyphicon glyphicon-envelope"></span></a> -->
 			<a ng-click="startGuidedTour()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;  cursor:pointer;" title="Guided Tour&nbsp;&nbsp;"><span class="glyphicon glyphicon-play"></span></a>
-			<div id="reportingButton" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.reportingButton">
+			
+			<!-- hide reporting modal for now, as its functionality must be rechecked -->
+			<!-- <div id="reportingButton" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.reportingButton">
 				<a data-toggle="modal" data-target="#reporting-modal" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;  cursor:pointer;" title="Report erstellen&nbsp;&nbsp;"><span class="glyphicon glyphicon-print"></span></a>
-			</div>
+			</div>			 -->
 			<div id="switchAdvancedMode" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.showAdvancedModeSwitch">
 				<strong>Erweiterte Ansicht</strong> &nbsp;
 				<label class="switch" title="Ein- / Ausblenden von UI Elementen"><input type="checkbox" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.isAdvancedMode" 
 					ng-checked="$ctrl.kommonitorDataExchangeServiceInstance.isAdvancedMode" ><span class="switchslider round"></span></label>
 			</div>
 			
+			
+			<!-- <a data-toggle="modal" data-target="#reporting-modal" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;  cursor:pointer;" title="Report erstellen&nbsp;&nbsp;"><span class="glyphicon glyphicon-print"></span></a> -->
 			<p style="clear: both;"></p>
 
 			
@@ -133,9 +137,10 @@
         <kommonitor-reachability></kommonitor-reachability>
     </aside>
 
-		<aside id="sidebarProcessing" ng-class="sidebarProcessingClass" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.processing">
+		<!-- hide processing button and menu, as it must be greatly improved -->
+		<!-- <aside id="sidebarProcessing" ng-class="sidebarProcessingClass" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.processing">
         <kommonitor-individual-indicator-computation></kommonitor-individual-indicator-computation>
-    </aside>
+    </aside> -->
 
 	<!-- right side legend menu -->
 	<aside id="sidebarLegend" ng-class="sidebarLegendClass" >
@@ -203,10 +208,11 @@
 								<!-- <span style="font-size:2.5vh;" class="glyphicon glyphicon-wrench" aria-hidden="true"></span> -->
 						</button>
 
-						<button type="button" style="top: 73%;" id="sidebarProcessingCollapse"
+						<!-- hide processing button and menu, as it must be greatly improved -->
+						<!-- <button type="button" style="top: 73%;" id="sidebarProcessingCollapse"
 							ng-click="onSidebarProcessingClick()" ng-class="buttonProcessingClass" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.processing" data-toggle="tooltip" title="Individuelle Indikatorenberechnung">
 							<i style="font-size:2.5vh;" class="fas fa-sliders-h"></i>
-						</button>
+						</button> -->
 
 						<button type="button" id="sidebarLegendCollapse"
 							ng-click="onSidebarLegendButtonClick()" ng-class="buttonLegendClass" data-toggle="tooltip" title="Legenden- und Informationsfenster">

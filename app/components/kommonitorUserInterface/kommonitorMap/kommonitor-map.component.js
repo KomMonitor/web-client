@@ -14,6 +14,8 @@ angular.module('kommonitorMap').component(
       '__env',
       function MapController($rootScope, $http, $scope, $timeout, kommonitorMapService, kommonitorDataExchangeService, kommonitorVisualStyleHelperService, kommonitorInfoLegendHelperService, __env) {
 
+        this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
+
         const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
         const numberOfDecimals = __env.numberOfDecimals;
         var defaultColorForFilteredValues = __env.defaultColorForFilteredValues;

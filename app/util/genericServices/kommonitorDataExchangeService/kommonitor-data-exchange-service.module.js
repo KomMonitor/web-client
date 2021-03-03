@@ -1306,7 +1306,7 @@ angular
           /**
            * creates and returns a pdf for the indicator given as parameter
            */
-          this.createMetadataPDF = function(indicator) {
+          this.createMetadataPDF = async function(indicator) {
 
             var jspdf = new jsPDF();
             jspdf.setFontSize(16);
@@ -1390,7 +1390,7 @@ angular
   
             }
   
-            var category = "Subindikator";
+            var category = "Basisindikator";
             if (indicator.isHeadingIndicator) {
               category = "Leitindikator";
             }
@@ -1459,7 +1459,7 @@ angular
               for (var applicableSpatialUnit of indicator.applicableSpatialUnits) {
   
                 if (availableSpatialUnit.spatialUnitLevel === applicableSpatialUnit.spatialUnitName) {
-                  spatialUnitsString += applicableSpatialUnit;
+                  spatialUnitsString += applicableSpatialUnit.spatialUnitName;
                   processedSpatialUnits++;
   
                   if (processedSpatialUnits < indicator.applicableSpatialUnits.length) {
@@ -1483,6 +1483,17 @@ angular
                 datesString += "\n";
               }
             }
+
+            var imgData;
+
+            if(indicator.processDescription && indicator.processDescription.includes("$")){
+              await html2canvas(document.querySelector("#indicatorProcessDescription")).then(canvas => {
+                // document.body.appendChild(canvas)
+  
+                imgData = canvas.toDataURL('image/png');
+            
+              });
+            }            
   
             jspdf.autoTable({
               head: [],
@@ -1500,7 +1511,16 @@ angular
               headStyles: headStyles,
               bodyStyles: bodyStyles,
               columnStyles: columnStyles,
-              startY: jspdf.autoTable.previous.finalY + 10
+              startY: jspdf.autoTable.previous.finalY + 10,
+              didDrawCell: function(data) {
+                if (imgData && data.row.index === 2 && data.column.index === 1 && data.cell.section === 'body') {
+                   var td = data.cell.raw;
+                   var height = data.cell.height - data.cell.padding('vertical');
+                   var width = data.cell.width - data.cell.padding('horizontal');
+                   var textPos = data.cell.textPos;
+                   jspdf.addImage(imgData, "PNG", textPos.x,  textPos.y, width, height);
+                }
+              }
             });
   
             // // linked elements
@@ -1562,7 +1582,8 @@ angular
               keywords: 'Indikator, Metadatenblatt',
               creator: 'KomMonitor'
             });
-            
+
+            jspdf.save(pdfName);
             return jspdf;
           };
 

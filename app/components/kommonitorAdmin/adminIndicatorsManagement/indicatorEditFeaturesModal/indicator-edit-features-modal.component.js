@@ -134,6 +134,15 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 					}
 				  };
 			};
+
+			$scope.filterImporterConverters = function(){
+				return function( converterMetadata ) {
+					if(converterMetadata && converterMetadata.simpleName && converterMetadata.simpleName.includes("LatLon")){
+						return false;
+					}
+					return true;
+				  };
+			};
 	
 			$scope.refreshIndicatorEditFeaturesOverviewTable = function(){
 	

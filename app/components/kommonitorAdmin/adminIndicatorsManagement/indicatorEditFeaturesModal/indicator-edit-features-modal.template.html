@@ -132,7 +132,7 @@
 									<div class="form-group">
 										<label>Datensatz-Quellformat*</label>
 										<select ng-model="converter"
-											ng-options="converter as converter.simpleName for converter in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters"
+											ng-options="converter as converter.simpleName for converter in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters | filter:filterImporterConverters()"
 											class="form-control" required>
 											<option disabled selected value> -- Quellformat w&auml;hlen -- </option>
 										</select>
@@ -150,11 +150,13 @@
 										</div>
 									</div>
 
-									<div ng-repeat="parameter in converter.parameters">
+									<div ng-repeat="parameter in converter.parameters" ng-show="! parameter.name.includes('CRS')">										
 
 										<div class="form-group">
 											<label>{{parameter.name}}<i ng-if="parameter.mandatory">*</i></label>
-											<input type="text" id="converterParameter_indicatorEditFeatures_{{parameter.name}}" class="form-control"
+											<input ng-if="! (parameter.name === 'CRS')" type="text" id="converterParameter_indicatorEditFeatures_{{parameter.name}}" class="form-control"
+												placeholder="{{parameter.name}}" ng-required="parameter.mandatory">
+											<input ng-if="parameter.name === 'CRS'" value="EPSG:4326" type="text" id="converterParameter_indicatorEditFeatures_{{parameter.name}}" class="form-control"
 												placeholder="{{parameter.name}}" ng-required="parameter.mandatory">
 											<div class="help-block">
 												<p>{{parameter.description}}</p>
