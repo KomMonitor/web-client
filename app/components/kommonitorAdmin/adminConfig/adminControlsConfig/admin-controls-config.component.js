@@ -21,7 +21,7 @@ angular.module('adminControlsConfig').component('adminControlsConfig', {
 		$scope.configSettingInvalid = false;
 
 		$scope.init = async function(){
-			await $http.get('./config/controls-config_backup.json', {'responseType': 'json'}).then(function (response) {
+			await $http.get('./config/controls-config_backup_forAdminViewExplanation.json', {'responseType': 'json'}).then(function (response) {
 				$scope.controlsConfigTemplate = JSON.stringify(response.data, null, "    ");
 
 				kommonitorScriptHelperService.prettifyScriptCodePreview("controlsConfig_backupTemplate");

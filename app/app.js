@@ -87,7 +87,7 @@ function ajaxCall_keycloakConfig_localBackup(configStorageServerConfig) {
 
 function ajaxCall_controlsConfig_localBackup(configStorageServerConfig) {
   return  $.ajax({
-    url: "./config/controls-config_backup_allEmpty.json",
+    url: "./config/controls-config_backup.json",
     success: function(result){
       console.log("local controls-config file with default values fetched");
       window.__env.controlsConfig = result;
