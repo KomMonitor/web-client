@@ -20,12 +20,29 @@ angular
       var self = this;
       this.elementVisibility = {};
 
+      this.isAdvancedMode = __env.isAdvancedMode;
+      this.showAdvancedModeSwitch = __env.showAdvancedModeSwitch;
+
+      this.advancedModeRoleName = "fakeAdvancedModeRole"; 
+
       this.initElementVisibility = function () {
         this.elementVisibility = {};
         var config = ControlsConfigService.getControlsConfig();
         config.forEach(element => {
-          this.elementVisibility[element.id] = checkElementVisibility(element.id);
+          self.elementVisibility[element.id] = checkElementVisibility(element.id);
         });
+
+        $timeout(function(){
+          $rootScope.$apply();
+        });
+        
+      };
+
+      this.onChangeIsAdvancedMode = function (){
+
+        this.isAdvancedMode = this.isAdvancedMode;
+
+        this.initElementVisibility();
       };
 
       var checkElementVisibility = function(id) {
@@ -34,20 +51,27 @@ angular
         if(element.roles === undefined || element.roles.length === 0) {
           return true;
         }
+        else if(self.isAdvancedMode && element.roles && element.roles.includes(self.advancedModeRoleName)){
+          return true;
+        }
         else if(Auth.keycloak.authenticated) {
           // admin role user always sees all data and widgets
           if(kommonitorDataExchangeService.currentKeycloakLoginRoles.includes(kommonitorKeycloakHelperService.adminRoleName)){
             return true;
           }
-          var hasAllowedRole = false;
+          var hasAllowedRole = false;          
           for (var i = 0; i < element.roles.length; i++) {
             if(Auth.keycloak.tokenParsed.realm_access.roles.includes(element.roles[i])){
               return true;
             }	
           }
+
           return hasAllowedRole;
         } else {
           if(! kommonitorDataExchangeService.enableKeycloakSecurity){
+            if(element.roles && element.roles.includes(self.advancedModeRoleName)){
+              return false;
+            }
             return true;
           }
           else{

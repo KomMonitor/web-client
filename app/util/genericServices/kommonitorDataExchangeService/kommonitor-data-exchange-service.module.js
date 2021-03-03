@@ -53,9 +53,6 @@ angular
           this.currentKeycloakLoginRoles = [];
           this.currentKomMonitorLoginRoleNames = [];
 
-          this.isAdvancedMode = __env.isAdvancedMode;
-          this.showAdvancedModeSwitch = __env.showAdvancedModeSwitch;
-
           this.setCurrentKomMonitorRoles = function(){
             var roleMetadataForCurrentKeycloakLoginRoles = this.availableRoles.filter(role => this.currentKeycloakLoginRoles.includes(role.roleName)); 
 
