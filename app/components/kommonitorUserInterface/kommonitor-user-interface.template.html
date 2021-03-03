@@ -60,7 +60,8 @@
 			<!-- <div id="reportingButton" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.reportingButton">
 				<a data-toggle="modal" data-target="#reporting-modal" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;  cursor:pointer;" title="Report erstellen&nbsp;&nbsp;"><span class="glyphicon glyphicon-print"></span></a>
 			</div>			 -->
-			<div id="switchAdvancedMode" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.showAdvancedModeSwitch">
+			<div id="switchAdvancedMode" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.showAdvancedModeSwitch" 
+			style="float: right; margin-right: 1%; margin-top: 0.5%; cursor: pointer">
 				<strong>Erweiterte Ansicht</strong> &nbsp;
 				<label class="switch" title="Ein- / Ausblenden von UI Elementen"><input type="checkbox" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.isAdvancedMode" 
 					ng-checked="$ctrl.kommonitorDataExchangeServiceInstance.isAdvancedMode" ><span class="switchslider round"></span></label>
