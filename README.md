@@ -48,7 +48,7 @@ KomMonitor Web client requires
    - a running instance of KomMonitor **Client Config Service** in order to fetch various config files on application startup (app parameters, keycloak connection, role-based element visibility settings) - if non provided/accessible the app will use default backup files stored at `app/config`
    - a running instance of KomMonitor **Importer** in order to perform spatial insert/update operation for *spatial-units*, *georesources* and *indicator data* via administration pages
    - a running instance of KomMonitor **Processing Engine** in order to query and trigger indicator computations 
-   - a running instance of **Open Route Service**, where all KomMonitor-relevant data is managed. The database can be a docker container or an external database server reachable via URL.
+   - a running instance of **Open Route Service** in oder to compute on-the-fly isochrone and routing computations.
    - an optional and configurable connection to a running **Keycloak** server, if role-based data access is activated via configuration of KomMonitor stack
 
 ## Features
@@ -86,6 +86,10 @@ Currently a combination of `npm`, `webpack` and `grunt` is used to build the Ang
 `NOTE: THIS SHOULD BE CHANGED IN THE FUTURE TO ONLY USE ONE BUILD TOOL.`
 
 In short, after downloading the project you should run the following command in that order from project root (you must have `git` installed to fetch all required dependencies):
+
+1. The easiest way to build the client for production usage within one command is `npm run build`. This performs all susequently listed steps as a sequence (`npm install --force && webpack && grunt`)
+
+of course you could perform each step individually, as follows:
 
 1. `npm install` to fetch all required node modules.
 2. `webpack` or `npx webpack` (depending on you system environment) to copy used libraries into `./app/dependencies`, from where they will be linked in `./app/index.html`
