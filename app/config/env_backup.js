@@ -16,6 +16,21 @@ try {
     ivLength_byte: 16
   };
 
+  /*
+  PROPERTIES used within greetings window (infoModal component)
+  to insert custom LOGO by URL with custom width
+  and adjust individual information text
+  as well as contact information
+  */
+ window.__env.customLogoURL = "https://eabg.essen.de/ueber-uns/unsere-partner/logo-stadt-essen.jpg"; // image format allows all types usable within HTML <img> tag
+ window.__env.customLogo_onClickURL = "https://www.essen.de/"; // uses <a> tag to insert clickable link on logo
+ window.__env.customLogoWidth = "35px"; // height is fixed to 35px; so adjust your custom width to keep aspect ratio
+ window.__env.customGreetingsContact_name = "Christian Danowski-Buhren";
+ window.__env.customGreetingsContact_organisation = "Hochschule Bochum, Fachbereich Geod&auml;sie";
+ window.__env.customGreetingsContact_mail = "christian.danowski-buhren@hs-bochum.de";
+ window.__env.customGreetingsTextInfoMessage = ""; // as HTML; only set if you want to give users some extra hints; if empty will be ignored
+  
+
   // admin user credentials to log into admin view in No-Keycloak-Settings
   window.__env.adminUserName = "Admin";
   window.__env.adminPassword = "kmAdmin";

@@ -16,6 +16,14 @@ angular
 				function($rootScope, $timeout,
 						kommonitorMapService, kommonitorKeycloakHelperService, $http, __env, DTOptionsBuilder, $q, Auth,) {              
 
+              this.customLogoURL = __env.customLogoURL;
+              this.customLogo_onClickURL = __env.customLogo_onClickURL;
+              this.customLogoWidth = __env.customLogoWidth; 
+              this.customGreetingsContact_name = __env.customGreetingsContact_name;
+              this.customGreetingsContact_organisation = __env.customGreetingsContact_organisation;
+              this.customGreetingsContact_mail = __env.customGreetingsContact_mail;
+              this.customGreetingsTextInfoMessage = __env.customGreetingsTextInfoMessage; // maybe undefined or empty string
+
 							var numberOfDecimals = __env.numberOfDecimals;
 							const DATE_PREFIX = __env.indicatorDatePrefix;
               var defaultColorForZeroValues = __env.defaultColorForZeroValues;
