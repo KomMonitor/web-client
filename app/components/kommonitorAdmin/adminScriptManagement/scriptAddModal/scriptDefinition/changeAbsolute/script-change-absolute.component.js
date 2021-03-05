@@ -9,7 +9,7 @@ angular.module('scriptChangeAbsolute').component('scriptChangeAbsolute', {
 			// initialize any adminLTE box widgets
 			$('.box').boxWidget();
 
-			$scope.pathToScriptResource = "./kommonitor-script-resources/km_headline_indicator.js";
+			$scope.pathToScriptResource = "./kommonitor-script-resources/km_indicator_absChange_nTemporalItems.js";
 
 			$scope.tmpIndicatorSelection = undefined;
 

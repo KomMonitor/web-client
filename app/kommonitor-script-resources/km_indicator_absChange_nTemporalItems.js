@@ -65,7 +65,7 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
     
     // get the id to be used for calculations
     var computationIndicatorId = KmHelper.getProcessParameterByName_asString(parameterName_computationIndicatorId, processParameters);
-    var temporalType = KmHelper.getProcessParameterByName_asNumber(parameterName_temporalType, processParameters);
+    var temporalType = KmHelper.getProcessParameterByName_asString(parameterName_temporalType, processParameters);
     var numberOfTemporalItems = KmHelper.getProcessParameterByName_asNumber(parameterName_numberOfTemporalItems, processParameters);
     
 	
