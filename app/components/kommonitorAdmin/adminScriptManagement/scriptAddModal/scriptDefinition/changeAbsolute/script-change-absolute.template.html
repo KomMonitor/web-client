@@ -1,146 +1,109 @@
-<h4>Leitindikator</h4>
+<h4>Absolute Ver&auml;nderung bezogen auf Zeitspanne</h4>
 
-<p>Mindestens zwei (Basis-)Indikator m&uuml;ssen angegeben werden, aus dem sich der Ziel-Indikator
-	ableitet. Beliebig viele sind m&ouml;glich.</p>
-	<p ng-bind-html="fixProcessDescription">
+<p>Berechnet die absolute Ver&auml;nderung zwischen zwei Zeitpunkten eines Indikators.</p>
+	<p id="scriptFormulaExplanation" ng-model="$ctrl.kommonitorScriptHelperServiceInstance.scriptFormulaExplanation" ng-init="$ctrl.kommonitorScriptHelperServiceInstance.styleMathFormula_forExplanation('scriptFormulaExplanation')">
+		<b><i><u>Formel:</u></i></b> $ I_{N} - I_{M} $ 
+		<br/>
+		mit 
+		<br/>
+		$N$ = Referenzzeitpunkt
+		<br/>
+		$M$ = Referenzzeitpunkt minus Anzahl Tage/Monate/Jahre 
 	</p>
 
-<div class="row vertical-align">
-	<div class="col-md-10 col-sm-12 col-xs-12">
-		<!-- <div style="text-align: left;"> -->
-		<div class="box box-danger collapsed-box" style="background: #ebf0fd;">
-			<div class="box-header">
-				<h3 class="box-title">Notwendige (Basis-)Indikatoren</h3>
-
-				<div class="box-tools pull-right">
-					<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
-					</button>
+	<div class="row vertical-align">
+		<div class="col-md-10 col-sm-12 col-xs-12">
+			<!-- <div style="text-align: left;"> -->
+			<div class="box box-danger collapsed-box" style="background: #ebf0fd;">
+				<div class="box-header">
+					<h3 class="box-title">Notwendiger Basis-Indikator</h3>
+	
+					<div class="box-tools pull-right">
+						<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+						</button>
+					</div>
 				</div>
-			</div>
-			<!-- /.box-header -->
-			<div class="box-body">
-
-				<!-- Inputs for new reference -->
-
-				<div class="row vertical-align">
-					<div class="col-md-12 col-sm-12 col-xs-12">
-						<div class="form-group">
-							<label>Auswahl der f&uuml;r die Berechnung erforderlichen (Basis-)Indikatoren</label>
-							<div class="input-group">
-								<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-								<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model-options="{debounce: 500, blur: 0}"
-									ng-model="indicatorNameFilter">
+				<!-- /.box-header -->
+				<div class="box-body">
+	
+					<!-- Inputs for new reference -->
+	
+					<div class="row vertical-align">
+						<div class="col-md-12 col-sm-12 col-xs-12">
+							<div class="form-group">
+								<label>Auswahl des f&uuml;r die Berechnung erforderlichen Basis-Indikators</label>
+								<div class="input-group">
+									<span class="input-group-addon"><i class="fas fa-filter"></i></span>
+									<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model-options="{debounce: 500, blur: 0}"
+										ng-model="indicatorNameFilter_compIndicator">
+								</div>
+								<br />
+								<select ng-model="compIndicatorSelection" size="5" ng-change="onChangeComputationIndicator(compIndicatorSelection)"
+									ng-options="indicatorMetadata as indicatorMetadata.indicatorName for indicatorMetadata in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:indicatorNameFilter_compIndicator"
+									class="form-control">
+									<option disabled selected value> -- Indikator als Berechnungsgrundlage w&auml;hlen --
+									</option>
+								</select>
+								<div class="help-block with-errors"></div>
 							</div>
-							<br />
-							<select ng-model="tmpIndicatorSelection" size="5"
-								ng-options="indicatorMetadata as indicatorMetadata.indicatorName for indicatorMetadata in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:indicatorNameFilter"
-								class="form-control">
-								<option disabled selected value> -- Indikator als Berechnungsgrundlage w&auml;hlen --
-								</option>
-							</select>
-							<div class="help-block with-errors"></div>
 						</div>
 					</div>
+	
+					<div class="row vertical-align">
+						<div class="col-md-6 col-sm-6 col-xs-12">
+							<div class="form-group">
+								<label>ID des selektierten Indikators</label>
+								<input type="text" class="form-control input-sm" disabled placeholder="IndikatorenId"
+									ng-model="compIndicatorSelection.indicatorId">
+								<div class="help-block with-errors"></div>
+							</div>
+						</div>
+						<div class="col-md-6 col-sm-6 col-xs-12">
+							<div class="form-group">
+								<label>Name des selektierten Indikators</label>
+								<input type="text" class="form-control input-sm" disabled placeholder="IndikatorenName"
+									ng-model="compIndicatorSelection.indicatorName">
+								<div class="help-block with-errors"></div>
+							</div>
+						</div>
+					</div>
+
+					<div class="row vertical-align">
+						<div class="col-md-6 col-sm-6 col-xs-12">
+							<div class="form-group">
+								<label>Beschreibung des selektierten Indikators</label>
+								<textarea rows="4" class="form-control input-sm" disabled placeholder="IndikatorenBeschreibung"
+									ng-model="compIndicatorSelection.metadata.description"></textarea>
+								<div class="help-block with-errors"></div>
+							</div>
+						</div>
+						<div class="col-md-6 col-sm-6 col-xs-12">
+							<div class="form-group">
+								<label>Einheit des selektierten Indikators</label>
+								<input type="text" class="form-control input-sm" disabled placeholder="IndikatorenEinheit"
+									ng-model="compIndicatorSelection.unit">
+								<div class="help-block with-errors"></div>
+							</div>
+						</div>
+					</div>
+	
 				</div>
-
-				<div class="row vertical-align">
-					<div class="col-md-3 col-sm-6 col-xs-12">
-						<div class="form-group">
-							<label>ID des selektierten Indikators</label>
-							<input type="text" class="form-control input-sm" disabled placeholder="IndikatorenId"
-								ng-model="tmpIndicatorSelection.indicatorId">
-							<div class="help-block with-errors"></div>
-						</div>
-					</div>
-					<div class="col-md-5 col-sm-6 col-xs-12">
-						<div class="form-group">
-							<label>Name des selektierten Indikators</label>
-							<input type="text" class="form-control input-sm" disabled placeholder="IndikatorenName"
-								ng-model="tmpIndicatorSelection.indicatorName">
-							<div class="help-block with-errors"></div>
-						</div>
-					</div>
-					<div class="col-md-4 col-sm-6 col-xs-12">
-						<div class="form-group">
-							<label>Polarit&auml;t f&uuml;r Min-Max-Normalisierung</label>
-							<select ng-model="tmpIndicatorPolarity" size="5"
-								ng-options="polarityOption as polarityOption.displayName for polarityOption in polarityOptions"
-								class="form-control">
-								<option disabled selected value> -- Polarit&auml;t f&uuml;r Min-Max-Normalisierung w&auml;hlen --
-								</option>
-							</select>
-							<div class="help-block with-errors"></div>
-						</div>
-					</div>
-				</div>
-
-				<div class="row vertical-align">
-					<div class="col-md-3 col-sm-6 col-xs-12">
-						<div class="form-group">
-							<button class="btn btn-success btn-sm" ng-disabled="!tmpIndicatorSelection"
-								ng-click="addBaseIndicator(tmpIndicatorSelection)">Hinzuf&uuml;gen</button>
-							<div class="help-block with-errors"></div>
-						</div>
-					</div>
-				</div>
-
-				<br />
-				<br />
-
-				<!-- Table to display currently specified base indicators -->
-				<div class="row vertical-align">
-					<div class="col-md-12 col-sm-12 col-xs-12">
-						<label>&Uuml;bersicht der definierten (Basis-)Indikatoren</label>
-						<table class="table table-condensed">
-							<thead>
-								<tr>
-									<th>Editierfunktionen</th>
-									<th>ID des Indikators</th>
-									<th>Name des Indikators</th>
-									<th>Beschreibung</th>
-									<th>Einheit</th>
-									<th>Polarit&auml;t Min-Max-Normalisierung</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr
-									ng-repeat="baseIndicator in baseIndicators">
-									<td>
-										<div class="btn-group btn-group-sm">
-											<button class="btn btn-danger btn-sm" type="button"
-												ng-click="removeBaseIndicator(baseIndicator)"
-												title="Eintrag l&ouml;schen"><i class="fas fa-trash"></i></button>
-										</div>
-									</td>
-									<td>{{baseIndicator.indicatorId}}</td>
-									<td>{{baseIndicator.indicatorName}}</td>
-									<td>{{baseIndicator.metadata.description}}</td>
-									<td>{{baseIndicator.unit}}</td>
-									<td>{{baseIndicator.polarity.displayName}}</td>
-								</tr>
-							</tbody>
-						</table>
-					</div>
-				</div>
-
-
+				<!-- Box Body -->
 			</div>
-			<!-- Box Body -->
+			<!-- Box -->
+	
+			<!-- </div>	 -->
+	
 		</div>
-		<!-- Box -->
-
-		<!-- </div>	 -->
-
+	
 	</div>
-
-</div>
-
+	
 <div class="row vertical-align">
 	<div class="col-md-10 col-sm-12 col-xs-12">
 		<!-- <div style="text-align: left;"> -->
 		<div class="box box-danger collapsed-box" style="background: #ebf0fd;">
 			<div class="box-header">
-				<h3 class="box-title">Notwendiges Aggregationsverfahren zur Verkn&uuml;pfung der (Basis-)Indikatoren</h3>
+				<h3 class="box-title">Notwendiger zeitlicher Bezug</h3>
 
 				<div class="box-tools pull-right">
 					<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
@@ -153,14 +116,26 @@
 				<!-- Inputs for new reference -->
 
 				<div class="row vertical-align">
-					<div class="col-md-12 col-sm-12 col-xs-12">
+					<div class="col-md-2 col-sm-2 col-xs-12">
 						<div class="form-group">
-							<label>Auswahl des f&uuml;r die Berechnung erforderlichen Aggregationsverfahrens, nach dem die gerankten und normalisierten (Basis-)Indikatoren-Werte verkn&uuml;pft werden. </label>
+							<label>Anzahl</label>
 							<br />
-							<select ng-model="aggregationOption" size="5"
-								ng-options="aggregationOption as aggregationOption.displayName for aggregationOption in aggregationOptions"
+							<input ng-model="numberOfTemporalItems" 
+							type="number" min="{{parameterNumericMinValue_numTemporalItems}}" max="{{parameterNumericMaxValue_numTemporalItems}}" 
+							step="1" class="form-control input-sm"
+							ng-change="onChangeNumTemporalItems()" >
+							<div class="help-block with-errors"></div>
+						</div>
+					</div>
+					<div class="col-md-3 col-sm-3 col-xs-12">
+						<div class="form-group">
+							<label>Art des zeitlichen Bezugs </label>
+							<br />
+							<select ng-model="temporalOption" size="5"
+								ng-options="temporalOption as temporalOption.displayName for temporalOption in temporalOptions"
+								ng-change="onChangeTemporalOption()"
 								class="form-control">
-								<option disabled selected value> -- Aggregationslogik w&auml;hlen --
+								<option disabled selected value> -- Zeitbezug w&auml;hlen --
 								</option>
 							</select>
 							<div class="help-block with-errors"></div>
@@ -185,7 +160,7 @@
 		<!-- <div style="text-align: left;"> -->
 		<div class="box box-danger collapsed-box" style="background: #ebf0fd;">
 			<div class="box-header">
-				<h3 class="box-title">Skript Code - Vorschaufenster (Leitindikator)</h3>
+				<h3 class="box-title">Skript Code - Vorschaufenster (Ver&auml;nderung absolut)</h3>
 
 				<div class="box-tools pull-right">
 					<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>

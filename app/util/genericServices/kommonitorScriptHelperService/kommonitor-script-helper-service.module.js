@@ -56,6 +56,10 @@ angular
 					"apiName": "indicator_division"
         },
         {
+					"displayName": "Indikatoren - Veränderung absolut",
+					"apiName": "indicator_change_absolute"
+        },
+        {
 					"displayName": "Indikatoren - Promille-Wert (Quotient zwischen Basis-Indikatoren und einem Referenzindikator)",
 					"apiName": "indicator_promille"
         },        

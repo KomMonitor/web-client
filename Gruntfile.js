@@ -76,6 +76,8 @@ module.exports = function (grunt) {
             'app/components/kommonitorAdmin/adminScriptManagement/scriptAddModal/scriptDefinition/promille/script-promille.component.js',
             'app/components/kommonitorAdmin/adminScriptManagement/scriptAddModal/scriptDefinition/share/script-share.module.js',
             'app/components/kommonitorAdmin/adminScriptManagement/scriptAddModal/scriptDefinition/share/script-share.component.js',
+            'app/components/kommonitorAdmin/adminScriptManagement/scriptAddModal/scriptDefinition/changeAbsolute/script-change-absolute.module.js',
+            'app/components/kommonitorAdmin/adminScriptManagement/scriptAddModal/scriptDefinition/changeAbsolute/script-change-absolute.component.js',
             'app/components/kommonitorAdmin/adminScriptManagement/scriptAddModal/scriptDefinition/division/script-division.module.js',
             'app/components/kommonitorAdmin/adminScriptManagement/scriptAddModal/scriptDefinition/division/script-division.component.js',
             'app/components/kommonitorAdmin/adminScriptManagement/scriptAddModal/scriptDefinition/headlineIndicator/script-headline-indicator.module.js',
