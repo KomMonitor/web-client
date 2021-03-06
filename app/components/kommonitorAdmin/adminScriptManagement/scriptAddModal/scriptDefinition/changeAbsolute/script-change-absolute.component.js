@@ -25,15 +25,15 @@ angular.module('scriptChangeAbsolute').component('scriptChangeAbsolute', {
 			$scope.temporalOptions = [
 				{
 					"apiName": "YEARS",
-					"displayName": "Jahre"
+					"displayName": "Jahr(e)"
 				},
 				{
 					"apiName": "MONTHS",
-					"displayName": "Monate"
+					"displayName": "Monat(e)"
 				},
 				{
 					"apiName": "DAYS",
-					"displayName": "Tage"
+					"displayName": "Tag(e)"
 				}
 			];
 
