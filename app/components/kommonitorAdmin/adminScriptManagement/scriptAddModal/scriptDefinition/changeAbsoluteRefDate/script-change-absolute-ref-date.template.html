@@ -1,4 +1,4 @@
-<h4>Absolute Ver&auml;nderung bezogen auf Zeitspanne</h4>
+<h4>Absolute Ver&auml;nderung bezogen auf festen Referenz-Zeitpunkt</h4>
 
 <p>Berechnet die absolute Ver&auml;nderung zwischen zwei Zeitpunkten eines Indikators.</p>
 	<p id="scriptFormulaExplanation" ng-model="$ctrl.kommonitorScriptHelperServiceInstance.scriptFormulaExplanation" ng-init="$ctrl.kommonitorScriptHelperServiceInstance.styleMathFormula_forExplanation('scriptFormulaExplanation')">
@@ -8,7 +8,7 @@
 		<br/>
 		$N$ = Ziel-Zeitpunkt
 		<br/>
-		$M$ = Ziel-Zeitpunkt minus Anzahl Tage/Monate/Jahre 
+		$M$ = fester Referenz-Zeitpunkt 
 	</p>
 
 	<div class="row vertical-align">
@@ -116,24 +116,13 @@
 				<!-- Inputs for new reference -->
 
 				<div class="row vertical-align">
-					<div class="col-md-2 col-sm-2 col-xs-12">
-						<div class="form-group">
-							<label>Anzahl</label>
-							<br />
-							<input ng-model="numberOfTemporalItems" 
-							type="number" min="{{parameterNumericMinValue_numTemporalItems}}" max="{{parameterNumericMaxValue_numTemporalItems}}" 
-							step="1" class="form-control input-sm"
-							ng-change="onChangeNumTemporalItems()" >
-							<div class="help-block with-errors"></div>
-						</div>
-					</div>
 					<div class="col-md-3 col-sm-3 col-xs-12">
 						<div class="form-group">
-							<label>Art des zeitlichen Bezugs </label>
+							<label>fester Referenz-Zeitpunkt </label>
 							<br />
-							<select ng-model="temporalOption" size="5"
-								ng-options="temporalOption as temporalOption.displayName for temporalOption in temporalOptions"
-								ng-change="onChangeTemporalOption()"
+							<select ng-model="referenceDate" size="5"
+								ng-options="referenceDate as referenceDate for referenceDate in compIndicatorSelection.applicableDates"
+								ng-change="onChangeReferenceDate()"
 								class="form-control">
 								<option disabled selected value> -- Zeitbezug w&auml;hlen --
 								</option>
@@ -160,7 +149,7 @@
 		<!-- <div style="text-align: left;"> -->
 		<div class="box box-danger collapsed-box" style="background: #ebf0fd;">
 			<div class="box-header">
-				<h3 class="box-title">Skript Code - Vorschaufenster (Ver&auml;nderung absolut)</h3>
+				<h3 class="box-title">Skript Code - Vorschaufenster (Ver&auml;nderung absolut - fester Referenz-Zeitpunkt)</h3>
 
 				<div class="box-tools pull-right">
 					<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>

@@ -152,8 +152,8 @@ angular.module('scriptChangeAbsolute').component('scriptChangeAbsolute', {
 					var legendItemsHTML = "<b>Legende zur Formel</b>";				
 			
 					legendItemsHTML+="<br/> $A$: " + $scope.compIndicatorSelection.indicatorName;
-					legendItemsHTML+="<br/> $N$: Referenzzeitpunkt";
-					legendItemsHTML+="<br/> $M$: Referenzzeitpunkt minus " + $scope.numberOfTemporalItems + " " + $scope.temporalOption.displayName ;
+					legendItemsHTML+="<br/> $N$: Ziel-Zeitpunkt";
+					legendItemsHTML+="<br/> $M$: Ziel-Zeitpunkt minus " + $scope.numberOfTemporalItems + " " + $scope.temporalOption.displayName ;
 
 					kommonitorScriptHelperService.scriptFormulaHTML = formulaHTML + "<br/><br/>" + legendItemsHTML;
 				

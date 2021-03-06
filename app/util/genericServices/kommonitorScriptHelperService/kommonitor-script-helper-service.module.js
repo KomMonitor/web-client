@@ -60,6 +60,10 @@ angular
 					"apiName": "indicator_change_absolute"
         },
         {
+					"displayName": "Indikatoren - Veränderung absolut mit festem Referenz-Zeitpunkt",
+					"apiName": "indicator_change_absolute_refDate"
+        },
+        {
 					"displayName": "Indikatoren - Veränderung prozentual",
 					"apiName": "indicator_change_relative"
         },
