@@ -282,6 +282,10 @@
 									<script-change-absolute-ref-date></script-change-absolute-ref-date>
 								</div>
 
+								<div ng-if="selectedScriptType.apiName === 'indicator_change_relative_refDate'">
+									<script-change-relative-ref-date></script-change-relative-ref-date>
+								</div>
+
 								<div ng-if="selectedScriptType.apiName === 'indicator_change_relative'">
 									<script-change-relative></script-change-relative>
 								</div>
