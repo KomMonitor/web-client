@@ -1,7 +1,7 @@
-angular.module('scriptChangeAbsolute').component('scriptChangeAbsolute', {
-	templateUrl: "components/kommonitorAdmin/adminScriptManagement/scriptAddModal/scriptDefinition/changeAbsolute/script-change-absolute.template.html",
+angular.module('scriptChangeRelative').component('scriptChangeRelative', {
+	templateUrl: "components/kommonitorAdmin/adminScriptManagement/scriptAddModal/scriptDefinition/changeRelative/script-change-relative.template.html",
 	controller: ['kommonitorDataExchangeService', 'kommonitorScriptHelperService', '$scope', '$rootScope', '$http', '__env', '$timeout',
-		function ScriptChangeAbsoluteController(kommonitorDataExchangeService, kommonitorScriptHelperService, $scope, $rootScope, $http, __env, $timeout) {
+		function ScriptChangeRelativeController(kommonitorDataExchangeService, kommonitorScriptHelperService, $scope, $rootScope, $http, __env, $timeout) {
 
 			this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 			this.kommonitorScriptHelperServiceInstance = kommonitorScriptHelperService;
@@ -9,7 +9,7 @@ angular.module('scriptChangeAbsolute').component('scriptChangeAbsolute', {
 			// initialize any adminLTE box widgets
 			$('.box').boxWidget();
 
-			$scope.pathToScriptResource = "./kommonitor-script-resources/km_indicator_absChange_nTemporalItems.js";
+			$scope.pathToScriptResource = "./kommonitor-script-resources/km_indicator_relChange_nTemporalItems.js";
 
 			$scope.tmpIndicatorSelection = undefined;
 
@@ -148,7 +148,7 @@ angular.module('scriptChangeAbsolute').component('scriptChangeAbsolute', {
 					return;
 				}
 
-					var formulaHTML = "<b>Berechnung gem&auml;&szlig; Formel<br/> $ A_{N} - A_{M} $";
+					var formulaHTML = "<b>Berechnung gem&auml;&szlig; Formel<br/> $$ 100 \\times \\frac{A_{N} - A_{M}}{A_{M}} $$";
 					var legendItemsHTML = "<b>Legende zur Formel</b>";				
 			
 					legendItemsHTML+="<br/> $A$: " + $scope.compIndicatorSelection.indicatorName;

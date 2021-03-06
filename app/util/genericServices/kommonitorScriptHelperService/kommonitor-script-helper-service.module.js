@@ -60,6 +60,10 @@ angular
 					"apiName": "indicator_change_absolute"
         },
         {
+					"displayName": "Indikatoren - Veränderung prozentual",
+					"apiName": "indicator_change_relative"
+        },
+        {
 					"displayName": "Indikatoren - Promille-Wert (Quotient zwischen Basis-Indikatoren und einem Referenzindikator)",
 					"apiName": "indicator_promille"
         },        
@@ -103,6 +107,9 @@ angular
       };
 
       this.addBaseIndicator = function(indicatorMetadata){
+        if(!indicatorMetadata){
+          return;
+        }
 				for (const baseIndicator of this.requiredIndicators_tmp) {
 					if (baseIndicator.indicatorId === indicatorMetadata.indicatorId){
 						// already inserted as base indicator, hence add not allowed
