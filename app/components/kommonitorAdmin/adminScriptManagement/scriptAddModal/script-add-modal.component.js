@@ -92,6 +92,7 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 					if(kommonitorScriptHelperService.scriptFormulaHTML_overwriteTargetIndicatorMethod){
 						try {
 							await kommonitorScriptHelperService.replaceMethodMetadataForTargetIndicator(kommonitorScriptHelperService.targetIndicator);
+							kommonitorScriptHelperService.scriptFormulaHTML_successToastDisplay = kommonitorScriptHelperService.scriptFormulaHTML;
 							$("#indicatorMetadataEditSuccessAlert").show();
 						} catch (error) {
 							if (error.data) {

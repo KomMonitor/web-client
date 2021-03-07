@@ -290,6 +290,10 @@
 									<script-change-relative></script-change-relative>
 								</div>
 
+								<div ng-if="selectedScriptType.apiName === 'indicator_trend'">
+									<script-trend></script-trend>
+								</div>
+
 								<div ng-if="selectedScriptType.apiName === 'indicator_headlineIndicator'">
 									<script-headline-indicator></script-headline-indicator>
 								</div>

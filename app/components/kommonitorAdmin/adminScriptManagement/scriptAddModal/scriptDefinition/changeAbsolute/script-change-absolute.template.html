@@ -132,7 +132,7 @@
 							<label>Art des zeitlichen Bezugs </label>
 							<br />
 							<select ng-model="temporalOption" size="5"
-								ng-options="temporalOption as temporalOption.displayName for temporalOption in temporalOptions"
+								ng-options="temporalOption as temporalOption.displayName for temporalOption in $ctrl.kommonitorScriptHelperServiceInstance.temporalOptions"
 								ng-change="onChangeTemporalOption()"
 								class="form-control">
 								<option disabled selected value> -- Zeitbezug w&auml;hlen --

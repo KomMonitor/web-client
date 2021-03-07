@@ -56,6 +56,10 @@ angular
 					"apiName": "indicator_division"
         },
         {
+					"displayName": "Indikatoren - Trend (mittels linearer Regression)",
+					"apiName": "indicator_trend"
+        },
+        {
 					"displayName": "Indikatoren - Veränderung absolut",
 					"apiName": "indicator_change_absolute"
         },
@@ -89,6 +93,21 @@ angular
 				}
 			];
 
+      this.temporalOptions = [
+				{
+					"apiName": "YEARS",
+					"displayName": "Jahr(e)"
+				},
+				{
+					"apiName": "MONTHS",
+					"displayName": "Monat(e)"
+				},
+				{
+					"apiName": "DAYS",
+					"displayName": "Tag(e)"
+				}
+			];
+
       this.requiredIndicators_tmp = [];
       this.requiredGeoresources_tmp = [];
       this.requiredScriptParameters_tmp = [];
@@ -96,6 +115,7 @@ angular
       this.scriptCode_readableString = undefined;
 
       this.scriptFormulaHTML = undefined;
+      this.scriptFormulaHTML_successToastDisplay = this.scriptFormulaHTML;
       this.scriptFormulaHTML_overwriteTargetIndicatorMethod = false;
 
       this.scriptFormulaExplanation = undefined;

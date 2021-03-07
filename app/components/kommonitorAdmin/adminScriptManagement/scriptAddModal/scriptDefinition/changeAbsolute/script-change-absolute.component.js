@@ -22,22 +22,7 @@ angular.module('scriptChangeAbsolute').component('scriptChangeAbsolute', {
 			$scope.parameterNumericMinValue_computationIndicator = 0;
 			$scope.parameterNumericMaxValue_computationIndicator = 1;
 
-			$scope.temporalOptions = [
-				{
-					"apiName": "YEARS",
-					"displayName": "Jahr(e)"
-				},
-				{
-					"apiName": "MONTHS",
-					"displayName": "Monat(e)"
-				},
-				{
-					"apiName": "DAYS",
-					"displayName": "Tag(e)"
-				}
-			];
-
-			$scope.temporalOption = $scope.temporalOptions[0];	
+			$scope.temporalOption = kommonitorScriptHelperService.temporalOptions[0];	
 			
 			$scope.numberOfTemporalItems = 1;
 

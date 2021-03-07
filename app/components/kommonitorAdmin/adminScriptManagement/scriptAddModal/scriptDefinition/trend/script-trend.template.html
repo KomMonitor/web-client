@@ -1,14 +1,21 @@
-<h4>Prozentuale Ver&auml;nderung bezogen auf Zeitspanne</h4>
+<h4>Trendberechnung bezogen auf Zeitspanne</h4>
 
-<p>Berechnet die prozentuale Ver&auml;nderung zwischen zwei Zeitpunkten eines Indikators.</p>
+<p>Berechnet den Trend &uuml;ber eine vergangene Zeitspanne eines Indikators als Steigung b der Geraden bei einer linearen Regression im Verh&auml;ltnis zum Indikatorwert des ersten Jahres.</p>
 	<p id="scriptFormulaExplanation" ng-model="$ctrl.kommonitorScriptHelperServiceInstance.scriptFormulaExplanation" ng-init="$ctrl.kommonitorScriptHelperServiceInstance.styleMathFormula_forExplanation('scriptFormulaExplanation')">
-		<b><i><u>Formel:</u></i></b> $ 100 \times \frac{I_{N} - I_{M}}{I_{M}} $ 
+		<b><i><u>Formel:</u></i></b> $$ T = 100 \times \frac{b}{I_{1}} $$ wobei $$ b = \frac{\sum_{n=1}^{m}((A_{n} - \bar{A}) \times (I_{n} - \bar{I}))}{\sum_{n=1}^{m} (A_{n} - \bar{A})^2} $$ 
+		mit
 		<br/>
-		mit 
+		$T$ = Trend  		
 		<br/>
-		$N$ = Ziel-Zeitpunkt
+		$m$ = Anzahl konsekutiver vergangener Tage/Monate/Jahre 
 		<br/>
-		$M$ = Ziel-Zeitpunkt minus Anzahl Tage/Monate/Jahre 
+		$A_{n}$ = aufeinander folgende Jahre
+		<br/>
+		$\bar{A}$ = arithmetisches Mittel der aufeinander folgenden Jahre
+		<br/>
+		$I_{n}$ = Indikatorenwerte der aufeinander folgenden Jahre
+		<br/>
+		$\bar{I}$ = arithmetisches Mittel der Indikatorenwerte der aufeinander folgenden Jahre
 	</p>
 
 	<div class="row vertical-align">
@@ -160,7 +167,7 @@
 		<!-- <div style="text-align: left;"> -->
 		<div class="box box-danger collapsed-box" style="background: #ebf0fd;">
 			<div class="box-header">
-				<h3 class="box-title">Skript Code - Vorschaufenster (prozentuale Ver&auml;nderung)</h3>
+				<h3 class="box-title">Skript Code - Vorschaufenster (Trend)</h3>
 
 				<div class="box-tools pull-right">
 					<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>

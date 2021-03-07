@@ -1,7 +1,7 @@
-angular.module('scriptChangeRelative').component('scriptChangeRelative', {
-	templateUrl: "components/kommonitorAdmin/adminScriptManagement/scriptAddModal/scriptDefinition/changeRelative/script-change-relative.template.html",
+angular.module('scriptTrend').component('scriptTrend', {
+	templateUrl: "components/kommonitorAdmin/adminScriptManagement/scriptAddModal/scriptDefinition/trend/script-trend.template.html",
 	controller: ['kommonitorDataExchangeService', 'kommonitorScriptHelperService', '$scope', '$rootScope', '$http', '__env', '$timeout',
-		function ScriptChangeRelativeController(kommonitorDataExchangeService, kommonitorScriptHelperService, $scope, $rootScope, $http, __env, $timeout) {
+		function ScriptTrendController(kommonitorDataExchangeService, kommonitorScriptHelperService, $scope, $rootScope, $http, __env, $timeout) {
 
 			this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 			this.kommonitorScriptHelperServiceInstance = kommonitorScriptHelperService;
@@ -9,7 +9,7 @@ angular.module('scriptChangeRelative').component('scriptChangeRelative', {
 			// initialize any adminLTE box widgets
 			$('.box').boxWidget();
 
-			$scope.pathToScriptResource = "./kommonitor-script-resources/km_indicator_relChange_nTemporalItems.js";
+			$scope.pathToScriptResource = "./kommonitor-script-resources/km_indicator_trend_nTemporalItems.js";
 
 			$scope.tmpIndicatorSelection = undefined;
 
@@ -24,7 +24,7 @@ angular.module('scriptChangeRelative').component('scriptChangeRelative', {
 
 			$scope.temporalOption = kommonitorScriptHelperService.temporalOptions[0];	
 			
-			$scope.numberOfTemporalItems = 1;
+			$scope.numberOfTemporalItems = 3;
 
 			$scope.parameterName_temporalOption = "TEMPORAL_TYPE";
 			$scope.parameterDescription_temporalOption = "Angabe des Zeitbezug-Typs. Standard ist 'Jahre'.";
@@ -33,9 +33,9 @@ angular.module('scriptChangeRelative').component('scriptChangeRelative', {
 			$scope.parameterNumericMaxValue_temporalOption = 1;
 
 			$scope.parameterName_numTemporalItems = "NUMBER_OF_TEMPORAL_ITEMS";
-			$scope.parameterDescription_numTemporalItems = "Anzahl der Zeiteinheiten. Standard ist '1'.";
-			$scope.parameterDefaultValue_numTemporalItems = 1;
-			$scope.parameterNumericMinValue_numTemporalItems = 1;
+			$scope.parameterDescription_numTemporalItems = "Anzahl der Zeiteinheiten. Standard ist '3'.";
+			$scope.parameterDefaultValue_numTemporalItems = 3;
+			$scope.parameterNumericMinValue_numTemporalItems = 3;
 			$scope.parameterNumericMaxValue_numTemporalItems = 100000;
 			$scope.parameterDataType_numTemporalItems = kommonitorScriptHelperService.availableScriptDataTypes[3];
 
@@ -133,12 +133,16 @@ angular.module('scriptChangeRelative').component('scriptChangeRelative', {
 					return;
 				}
 
-					var formulaHTML = "<b>Berechnung gem&auml;&szlig; Formel<br/> $$ 100 \\times \\frac{A_{N} - A_{M}}{A_{M}} $$";
+					var formulaHTML = "<b>Berechnung gem&auml;&szlig; Formel<br/> $$ T = 100 \\times \\frac{b}{B_{1}} $$ wobei $$ b = \\frac{\\sum_{n=1}^{m}((A_{n} - \\bar{A}) \\times (B_{n} - \\bar{B}))}{\\sum_{n=1}^{m} (A_{n} - \\bar{A})^2} $$";
 					var legendItemsHTML = "<b>Legende zur Formel</b>";				
 			
-					legendItemsHTML+="<br/> $A$: " + $scope.compIndicatorSelection.indicatorName;
-					legendItemsHTML+="<br/> $N$: Ziel-Zeitpunkt";
-					legendItemsHTML+="<br/> $M$: Ziel-Zeitpunkt minus " + $scope.numberOfTemporalItems + " " + $scope.temporalOption.displayName ;
+					legendItemsHTML+="<br/> $T$: Trend";
+					legendItemsHTML+="<br/> $m$ = " + $scope.numberOfTemporalItems + " konsekutive vergangene " + $scope.temporalOption.displayName;
+					legendItemsHTML+="<br/> $A_{n}$ = aufeinander folgende " + $scope.temporalOption.displayName;
+					legendItemsHTML+="<br/> $\\bar{A}$ = arithmetisches Mittel der aufeinander folgenden " + $scope.temporalOption.displayName;
+					legendItemsHTML+="<br/> $B_{n}$ = Indikatorenwerte der aufeinander folgenden " + $scope.temporalOption.displayName;
+					legendItemsHTML+="<br/> $\\bar{B}$ = arithmetisches Mittel der Indikatorenwerte der aufeinander folgenden " + $scope.temporalOption.displayName;
+					legendItemsHTML+="<br/> $B$ = Indikator '" + $scope.compIndicatorSelection.indicatorName + "'";
 
 					kommonitorScriptHelperService.scriptFormulaHTML = formulaHTML + "<br/><br/>" + legendItemsHTML;
 				

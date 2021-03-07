@@ -84,6 +84,8 @@ module.exports = function (grunt) {
             'app/components/kommonitorAdmin/adminScriptManagement/scriptAddModal/scriptDefinition/changeRelativeRefDate/script-change-relative-ref-date.component.js',
             'app/components/kommonitorAdmin/adminScriptManagement/scriptAddModal/scriptDefinition/changeRelative/script-change-relative.module.js',
             'app/components/kommonitorAdmin/adminScriptManagement/scriptAddModal/scriptDefinition/changeRelative/script-change-relative.component.js',
+            'app/components/kommonitorAdmin/adminScriptManagement/scriptAddModal/scriptDefinition/trend/script-trend.module.js',
+            'app/components/kommonitorAdmin/adminScriptManagement/scriptAddModal/scriptDefinition/trend/script-trend.component.js',
             'app/components/kommonitorAdmin/adminScriptManagement/scriptAddModal/scriptDefinition/division/script-division.module.js',
             'app/components/kommonitorAdmin/adminScriptManagement/scriptAddModal/scriptDefinition/division/script-division.component.js',
             'app/components/kommonitorAdmin/adminScriptManagement/scriptAddModal/scriptDefinition/headlineIndicator/script-headline-indicator.module.js',
