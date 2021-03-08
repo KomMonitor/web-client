@@ -1,0 +1,496 @@
+<div class="modal fade" id="modal-edit-spatial-unit-features" role="dialog">
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content">
+
+			<div align="center">
+				<div class="loading-overlay-admin-panel ng-hide" ng-show="loadingData">
+					<span class="glyphicon glyphicon-refresh icon-spin"></span>
+				</div>
+			</div>
+
+
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Features der Raumeinheit
+					<i><b>{{currentSpatialUnitDataset.spatialUnitLevel}}</b></i> fortf&uuml;hren</h4>
+			</div>
+			<div class="modal-body">
+
+				<!-- {
+						  "geoJsonString": "geoJsonString",
+						  "periodOfValidity": {
+						    "endDate": "2000-01-23",
+						    "startDate": "2000-01-23"
+						  }
+						}
+			 -->
+
+				<!-- MultiStep Form -->
+				<div class="row">
+					<div class="col-md-12">
+
+						<form role="form" id="spatialUnitEditFeaturesForm" class="multiStepForm form-group" data-toggle="validator"
+							style="margin-bottom: 0px;">
+
+							<!-- progressbar -->
+							<ul id="progressbar">
+								<li style="width: 50%;" class="active">Feature &Uuml;bersicht</li>
+								<li style="width: 50%;">R&auml;umlicher Datensatz</li>
+							</ul>
+
+							<fieldset>
+								<h2 class="fs-title">Feature &Uuml;bersicht</h2>
+								<h3 class="fs-subtitle">Optionale Anzeige der Feature-Details</h3>
+
+								<div class="row vertical-align">
+									<div class="col-md-6 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Datenbank-Features holen</label>
+											<button class="btn btn-info"
+												ng-click="refreshSpatialUnitEditFeaturesOverviewTable()"><i
+													class="fas fa-sync-alt"></i>&nbsp;Zeige alle Features</button>
+
+											<div class="help-block">
+												<p>Das Anzeigen aller Features der Raumeinheit kann je nach Anzahl und
+													Komplexität der Objekte einige
+													Zeit in Anspruch nehmen</p>
+											</div>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-6 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Datenbank-Features bereinigen</label>
+											<button class="btn btn-danger" ng-click="clearAllSpatialUnitFeatures()"><i
+													class="fas fa-trash"></i>&nbsp;Lösche alle Features</button>
+
+											<div class="help-block">
+												<p>Das Löschen aller Features der Raumeinheit ist unwiderruflich. Der
+													Datensatz als solches (Metadaten)
+													bleibt dabei bestehen.</p>
+											</div>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+								</div>
+
+								<div class="admin-table-wrapper">
+									<table id="spatialUnitFeatureTable" datatable="ng"
+										dt-options="$ctrl.kommonitorDataExchangeServiceInstance.datatablesOptions"
+										class="table table-bordered table-condensed table-striped"
+										style="width:100%; overflow:auto; font-size: 11px;">
+										<thead>
+											<tr>
+												<th>Id</th>
+												<th>Name</th>
+												<th>G&uuml;ltigkeitszeitraum</th>
+												<th>Koordinatensystem</th>
+												<th ng-repeat="header in remainingFeatureHeaders">{{header}}</th>
+											</tr>
+										</thead>
+
+										<tbody>
+											<tr ng-repeat="spatialUnitFeature in spatialUnitFeaturesGeoJSON.features">
+												<td>{{getFeatureId(spatialUnitFeature)}}</td>
+												<td>{{getFeatureName(spatialUnitFeature)}}</td>
+												<td>
+													<p ng-show="spatialUnitFeature.properties.validEndDate">
+														{{spatialUnitFeature.properties.validStartDate | date:'yyyy-MM-dd'}}
+														-
+														{{spatialUnitFeature.properties.validEndDate | date:'yyyy-MM-dd'}}
+													</p>
+													<p ng-show="! spatialUnitFeature.properties.validEndDate">
+														{{spatialUnitFeature.properties.validStartDate | date:'yyyy-MM-dd'}}
+														- heute </p>
+												</td>
+												<td>4326</td>
+												<td ng-repeat="header in remainingFeatureHeaders">
+													{{spatialUnitFeature.properties[header]}}</td>
+											</tr>
+
+										</tbody>
+
+										<tfoot>
+											<tr>
+												<th>Id</th>
+												<th>Name</th>
+												<th>G&uuml;ltigkeitszeitraum</th>
+												<th>Koordinatensystem</th>
+												<th ng-repeat="header in remainingFeatureHeaders">{{header}}</th>
+											</tr>
+										</tfoot>
+									</table>
+
+								</div>
+
+								<input type="button" name="next" class="next next_editSpatialUnitFeatures action-button"
+									value="N&auml;chster Schritt" />
+
+							</fieldset>
+
+							<fieldset>
+								<div style="position: absolute;">
+									<button type="button" class="btn btn-info pull-left" ng-click="onImportSpatialUnitEditFeaturesMappingConfig()" title="Importieren der Mapping-Konfigurationen aus einer Datei"><i class="fas fa-file-import"></i>&nbsp;&nbsp;Mapping-Import</button>
+									<input style="display:none;" class="pull-left" type="file" class="form-control" id="spatialUnitMappingConfigEditFeaturesImportFile" accept=".json,"></input>
+									<button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" ng-click="onExportSpatialUnitEditFeaturesMappingConfig()" title="Exportieren der Mapping-Konfigurationen in eine Datei"><i class="fas fa-file-export"></i>&nbsp;&nbsp;Mapping-Export</button>								
+								</div>
+								<h2 class="fs-title">R&auml;umlicher Datensatz</h2>
+								<h3 class="fs-subtitle">Angaben &uuml;ber den r&auml;umlichen Datensatz, aus dem die
+									Features importiert werden</h3>
+
+								<p><b><i>* = Pflichtfeld</i></b></p>
+
+								<div class="row vertical-align">
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Geodaten-Quellformat*</label>
+											<select ng-model="converter"
+												ng-options="converter as converter.simpleName for converter in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters"
+												class="form-control" required>
+												<option disabled selected value> -- Quellformat w&auml;hlen -- </option>
+											</select>
+											<div class="help-block with-errors"></div>
+										</div>
+										<div ng-if="converter.schemas">
+
+											<div class="form-group">
+												<label>Schema*</label>
+												<select ng-model="schema" ng-options="schema for schema in converter.schemas"
+													ng-change="onChangeSchema(schema)" class="form-control" required>
+													<option disabled selected value> -- Schema w&auml;hlen -- </option>
+												</select>
+												<div class="help-block with-errors"></div>
+											</div>
+										</div>
+
+										<div ng-repeat="parameter in converter.parameters">
+
+											<div class="form-group">
+												<label>{{parameter.name}}<i ng-if="parameter.mandatory">*</i></label>
+												<input type="text" id="converterParameter_spatialUnitEditFeatures_{{parameter.name}}" class="form-control"
+													placeholder="{{parameter.name}}" ng-required="parameter.mandatory">
+												<div class="help-block">
+													<p>{{parameter.description}}</p>
+												</div>
+												<div ng-if="parameter.name === 'CRS'" class="help-block with-errors" style="color: red;">
+													<p>CRS aufmerksam setzen. Falsche Angaben f&uuml;hren zur fehlerhaften Koordinaten der Features</p>
+												</div>
+												<div class="help-block with-errors"></div>
+											</div>
+										</div>
+
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<div ng-show="!converter">
+												<p>bitte zuerst das Quellformat w&auml;hlen</p>
+											</div>
+											<div ng-show="converter">
+												<div class="form-group">
+													<label>Datenquelltyp*</label>
+													<select ng-model="datasourceType"
+														ng-options="datasourceType as datasourceType.type for datasourceType in $ctrl.kommonitorImporterHelperServiceInstance.availableDatasourceTypes"
+														class="form-control" required>
+														<option disabled selected value> -- Quelltyp w&auml;hlen -- </option>
+													</select>
+													<div class="help-block with-errors"></div>
+												</div>
+
+												<div ng-show="datasourceType.type === 'FILE'">
+													<label>Datei*</label>
+													<input type="file" class="form-control" id="spatialUnitDataSourceInput_editFeatures" required></input>
+												</div>
+												<div ng-show="! (datasourceType.type === 'FILE')">
+													<div ng-repeat="parameter in datasourceType.parameters">
+														<div class="form-group">
+															<label>{{parameter.name}}*</label>
+															<textarea rows="1" id="datasourceTypeParameter_spatialUnitEditFeatures_{{parameter.name}}"
+																class="form-control" placeholder="{{parameter.name}}" required></textarea>
+															<div class="help-block">
+																<p>{{parameter.description}}</p>
+															</div>
+															<div class="help-block with-errors"></div>
+														</div>
+													</div>
+												</div>
+											</div>
+											<!-- <div class="help-block"><p>Features m&uuml;ssen Informationen &uuml;ber eindutige ID und eindeutigen Namen in Attribut namens <code>ID</code> und <code>NAME</code> enthalten, um in KomMonitor verarbeitet werden zu k&ouml;nnen.</p></div> -->
+
+											<div class="help-block with-errors"></div>
+											<div ng-if="spatialUnitDataSourceInputInvalid" style="color: red;">
+												<p>Eingabe ung&uuml;ltig. Grund: {{spatialUnitDataSourceInputInvalidReason}}</p>
+											</div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>ID Attributname*</label>
+											<input type="text" class="form-control" ng-model="spatialUnitDataSourceIdProperty" required></input>
+											<div class="help-block">
+												<p>Name des Attributs, welches den eindeutigen Identifier des Features enth&auml;lt.</p>
+											</div>
+											<div class="help-block with-errors"></div>
+											<div ng-if="idPropertyNotFound" style="color: red;">
+												<p>Eingabe ung&uuml;ltig. Angegebenes Attribut nicht gefunden oder enth&auml;lt NULL-Werte.</p>
+											</div>
+										</div>
+										<div class="form-group">
+											<label>NAME Attributname*</label>
+											<input type="text" class="form-control" ng-model="spatialUnitDataSourceNameProperty" required></input>
+											<div class="help-block">
+												<p>Name des Attributs, welches den eindeutigen Namen des Features enth&auml;lt.</p>
+											</div>
+											<div class="help-block with-errors"></div>
+											<div ng-if="namePropertyNotFound" style="color: red;">
+												<p>Eingabe ung&uuml;ltig. Angegebenes Attribut nicht gefunden oder enth&auml;lt NULL-Werte.</p>
+											</div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Lebenszeit-Beginn Attributname</label>
+											<input type="text" ng-model="validityStartDate_perFeature" class="form-control pull-right">
+											<div class="help-block">
+												<p>Eintrag nur, falls die r&auml;umlichen Features &uuml;ber ein Attribut
+													für den Lebenszeitraum (Beginn) verf&uuml;gen.</p>
+											</div>
+											<div class="help-block with-errors"></div>
+										</div>
+										<div class="form-group">
+											<label>Lebenszeit-Ende Attributname</label>
+											<input type="text" ng-model="validityEndDate_perFeature" class="form-control pull-right">
+											<div class="help-block">
+												<p>Eintrag nur, falls die r&auml;umlichen Features &uuml;ber ein Attribut
+													für den Lebenszeitraum (Ende) verf&uuml;gen.</p>
+											</div>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+								</div>
+								<div class="row vertical-align">
+									<div class="col-md-6 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>G&uuml;ltigkeitszeitraum: g&uuml;ltig seit*</label>
+											<div class="input-group date">
+												<div class="input-group-addon">
+													<i class="far fa-calendar-alt"></i>
+												</div>
+												<input type="text" ng-model="periodOfValidity.startDate" ng-change="checkPeriodOfValidity()"
+													class="form-control pull-right" id="spatialUnitEditFeaturesDatepickerStart" placeholder="YYYY-MM-DD" required>
+											</div>
+											<div class="help-block">
+												<p>Eintrag ist immer erforderlich, selbst wenn die r&auml;umlichen Features &uuml;ber ein
+													Lebenszeitraum-Attribut
+													verf&uuml;gen.</p>
+											</div>
+											<div class="help-block with-errors"></div>
+											<div ng-if="periodOfValidityInvalid" style="color: red;">
+												<p>Eingabe ung&uuml;ltig. Definiertes Zeitintervall ist nicht erlaubt.</p>
+											</div>
+										</div>
+									</div>
+									<div class="col-md-6 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>G&uuml;ltigkeitszeitraum: g&uuml;ltig bis</label>
+											<div class="input-group date">
+												<div class="input-group-addon">
+													<i class="far fa-calendar-alt"></i>
+												</div>
+												<input type="text" ng-model="periodOfValidity.endDate" ng-change="checkPeriodOfValidity()"
+													class="form-control pull-right" id="spatialUnitEditFeaturesDatepickerEnd" placeholder="YYYY-MM-DD">
+											</div>
+											<div class="help-block">
+												<p>Eintrag ist erforderlich, falls die r&auml;umlichen Features nicht selbst &uuml;ber ein
+													Lebenszeitraum-Attribut
+													verf&uuml;gen. Enddatum darf leer sein, um anzuzeigen, dass es sich
+													um aktuell g&uuml;ltige Features handelt.</p>
+											</div>
+											<div class="help-block with-errors"></div>
+											<div ng-if="periodOfValidityInvalid" style="color: red;">
+												<p>Eingabe ung&uuml;ltig. Definiertes Zeitintervall ist nicht erlaubt.</p>
+											</div>
+										</div>
+									</div>
+								</div>
+				
+								<hr>
+								<br/>
+
+								<div class="row vertical-align">
+									<div class="col-md-6 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Import weiterer Attribute*</label>
+
+											<br/>	
+											<label class="switch">
+												<input type="checkbox" value="keepAttributes" ng-model="keepAttributes">
+												<span class="switchslider round"></span>
+											</label>
+
+
+											<div class="help-block">
+												<p>Angabe, ob alle sonstigen Attribute des importierten Datensatzes mit gleichem Namen &uuml;bernommen werden sollen. 
+													Falls nicht, so lassen sich einzelne Attribut-Importe definieren.</p>
+											</div>
+										</div>
+
+									</div>
+									<div class="col-md-6 col-sm-6 col-xs-12" ng-show="! keepAttributes">
+										<div class="form-group">
+											<label>Fehlende/NULL Werte beibehalten*</label>
+
+											<br/>	
+											<label class="switch">
+												<input type="checkbox" value="keepMissingValues" ng-model="keepMissingValues">
+												<span class="switchslider round"></span>
+											</label>
+
+
+											<div class="help-block">
+												<p>Angabe, ob fehlende Attribute oder leere Attributwerte (<code>NULL</code>-Werte) &uuml;bernommen werden. Bei deaktivierter Option 
+													wird bei einem solchen Fall ein Fehler geworfen.</p>
+											</div>
+										</div>
+
+									</div>
+								</div>
+								
+								<div ng-show="! keepAttributes" class="row vertical-align">
+									<div class="col-md-6 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Attributname im zu importierenden Datensatz*</label>
+											<input type="text" class="form-control input-sm" placeholder="Quell-Attributname" ng-model="attributeMapping_sourceAttributeName">
+											<div class="help-block with-errors"></div>
+										</div>
+
+										<div class="form-group">
+											<label>Ziel-Attributname in Datenbank nach Import*</label>
+											<input type="text" class="form-control input-sm" placeholder="Ziel-Attributname" ng-model="attributeMapping_destinationAttributeName">
+											<div class="help-block with-errors"></div>
+										</div>
+
+										<div class="form-group">
+											<label>Datentyp*</label>
+
+											<select ng-model="attributeMapping_attributeType"
+												ng-options="type as type.displayName for type in $ctrl.kommonitorImporterHelperServiceInstance.attributeMapping_attributeTypes"
+												ng-init="attributeMapping_attributeType = $ctrl.kommonitorImporterHelperServiceInstance.attributeMapping_attributeTypes[0]"
+												class="form-control" required>
+												<option disabled selected value> -- Datentyp w&auml;hlen --
+												</option>
+											</select>
+											
+											<div class="help-block with-errors"></div>
+										</div>
+
+										<div class="form-group">
+											<button class="btn btn-success btn-sm" ng-disabled="!attributeMapping_sourceAttributeName || ! attributeMapping_destinationAttributeName || ! attributeMapping_attributeType" ng-click="onAddOrUpdateAttributeMapping()">Hinzuf&uuml;gen/Editieren</button>
+											<div class="help-block with-errors"></div>
+										</div>
+
+									</div>
+									<div class="col-md-6 col-sm-6 col-xs-12">
+										
+										<label>&Uuml;bersicht der definierten Attribut-Mappings</label>
+										<table class="table table-condensed">
+											<thead>
+												<tr>
+													<th>Editierfunktionen</th>
+													<th>Quell-Attributname im Datensatz</th>
+													<th>Ziel-Attributname nach Import</th>
+													<th>Datentyp</th>
+												</tr>
+											</thead>
+											<tbody>
+												<tr ng-repeat="attributeMappingEntry in attributeMappings_adminView">
+													<td>
+														<div class="btn-group btn-group-sm">
+															<button class="btn btn-warning btn-sm" type="button" ng-click="onClickEditAttributeMapping(attributeMappingEntry)"
+																title="Referenz editieren"><i class="fas fa-pencil-alt"></i></button>
+															<button class="btn btn-danger btn-sm" type="button" ng-click="onClickDeleteAttributeMapping(attributeMappingEntry)"
+																title="Referenz l&ouml;schen"><i class="fas fa-trash"></i></button>
+														</div>
+													</td>
+													<td>{{attributeMappingEntry.sourceName}}</td>
+													<td>{{attributeMappingEntry.destinationName}}</td>
+													<td>{{attributeMappingEntry.dataType.displayName}}</td>
+												</tr>
+											</tbody>
+										</table>
+
+									</div>
+								</div>
+
+								<input type="button" name="previous"
+									class="previous previous_editSpatialUnitFeatures action-button-previous"
+									value="Voriger Schritt" />
+
+							</fieldset>
+
+						</form>
+					</div>
+				</div>
+				<!-- /.MultiStep Form -->
+
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
+				
+				<button type="button" class="btn btn-success"
+					ng-disabled="!currentSpatialUnitDataset.spatialUnitLevel || !spatialUnitDataSourceIdProperty || !spatialUnitDataSourceNameProperty || !periodOfValidity.startDate || periodOfValidityInvalid || !converter || !datasourceType"
+					ng-click="editSpatialUnitFeatures()">Features fortf&uuml;hren</button>
+				<button type="button" class="btn btn-danger"
+					ng-click="resetSpatialUnitEditFeaturesForm()">Zur&uuml;cksetzen</button>
+			</div>
+
+			<div id="spatialUnitEditFeaturesSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+				class="alert alert-success alert-dismissable">
+				<button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
+				<h4><i class="icon fa fa-check"></i>Features erfolgreich fortgef&uuml;hrt</h4>
+				<p>Fortf&uuml;hren der Features der Raumeinheit mit Namen {{successMessagePart}} war erfolgreich.
+					<div ng-if="importedFeatures && importedFeatures.length > 0">
+						{{importedFeatures.length}} Features wurden dabei importiert.
+					</div>
+				</p>
+			</div>
+
+			<div id="spatialUnitEditFeaturesErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+				class="alert alert-danger alert-dismissable">
+				<button type="button" class="close" ng-click="hideErrorAlert()" aria-hidden="true">&times;</button>
+				<h4><i class="icon fa fa-ban"></i>Features fortf&uuml;hren gescheitert</h4>
+				Beim Fortf&uuml;hren der Features ist ein Fehler aufgetreten. Fehlermeldung:
+				<br />
+				<pre style="overflow:auto; max-height:500px;" ng-bind-html="errorMessagePart"></pre>
+								<br/>
+								<br/>
+
+								<div ng-show="importerErrors">
+									<p>Bei den {{importerErrors.length}} Features mit folgenden IDs scheitert der Import:</p>
+									<pre style="overflow:auto; max-height:500px;">
+										<ul>
+											<li ng-repeat="error in importerErrors">{{error}}</li>
+										</ul>
+									</pre>	
+									<p>Bitte beheben Sie die angezeigten Fehler im Datensatz und wiederholen den Prozess.</p>
+								</div>
+			</div>
+
+			<div id="spatialUnitEditFeaturesMappingConfigImportErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden class="alert alert-danger alert-dismissable">
+                <button type="button" class="close" ng-click="hideMappingConfigErrorAlert()" aria-hidden="true">&times;</button>
+                <h4><i class="icon fa fa-ban"></i>Mapping-Konfiguration Import gescheitert</h4>
+                Beim Import der Mapping-Konfiguration aus einer Datei ist ein Fehler aufgetreten. Fehlermeldung:
+								<br/>
+								<pre ng-bind-html="spatialUnitEditFeaturesMappingConfigImportError"></pre>								
+								<br/>								
+								<br/>
+								<p>Bitte stellen Sie sicher, dass folgendes JSON-Format eingehalten wird:</p>
+								<pre id="spatialUnitsEditFeaturesMappingConfigPre" style="overflow:auto; max-height:500px;"></pre>
+      		</div>
+
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->

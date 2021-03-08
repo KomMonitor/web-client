@@ -1,0 +1,515 @@
+<div class="modal fade" id="modal-edit-georesource-metadata" role="dialog">
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content">
+
+			<div align="center">
+				<div class="loading-overlay-admin-panel ng-hide" ng-show="loadingData">
+					<span class="glyphicon glyphicon-refresh icon-spin"></span>
+				</div>
+			</div>
+
+
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Metadaten der Georessource
+					<i><b>{{currentGeoresourceDataset.datasetName}}</b></i> editieren</h4>
+			</div>
+			<div class="modal-body">
+
+				<!-- {
+					  "isLOI": false,
+					  "metadata": {
+					    "note": "note",
+					    "literature": "literature",
+					    "updateInterval": "ARBITRARY",
+					    "sridEPSG": 0.8008281904610115,
+					    "datasource": "datasource",
+					    "contact": "contact",
+					    "lastUpdate": "2000-01-23",
+					    "description": "description",
+					    "databasis": "databasis"
+					  },
+					  "allowedRoles": [
+					    "allowedRoles",
+					    "allowedRoles"
+					  ],
+					  "datasetName": "datasetName",
+					  "poiSymbolBootstrap3Name": "poiSymbolBootstrap3Name",
+					  "poiSymbolColor": "white",
+					  "isAOI": false,
+					  "loiDashArrayString": "loiDashArrayString",
+					  "geoJsonString": "geoJsonString",
+					  "topicReference": "topicReference",
+					  "poiMarkerColor": "white",
+					  "jsonSchema": "jsonSchema",
+					  "periodOfValidity": {
+					    "endDate": "2000-01-23",
+					    "startDate": "2000-01-23"
+					  },
+					  "isPOI": false,
+					  "loiColor": "loiColor",
+					  "loiWidth": "loiWidth",
+					  "aoiColor": "aoiColor"
+					}
+			 -->
+
+				<!-- MultiStep Form -->
+				<div class="row">
+					<div class="col-md-12">
+						<form class="multiStepForm form-group" id="georesourceEditMetadataForm" role="form"
+							data-toggle="validator" data-disable="true" style="margin-bottom: 0px;">
+							<!-- progressbar -->
+							<div ng-if="! $ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
+								<ul id="progressbar">
+									<li style="width: 33.33%;" class="active">Metadaten der Georessource</li>
+									<li style="width: 33.33%;" >Allgemeine Metadaten</li>
+									<li style="width: 33.33%;">Themenhierarchie</li>
+								</ul>
+							</div>
+							<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
+								<ul id="progressbar">
+									<li style="width: 25%;" class="active">Metadaten der Georessource</li>
+									<li style="width: 25%;" >Allgemeine Metadaten</li>
+									<li style="width: 25%;">Themenhierarchie</li>
+									<li style="width: 25%;">Rollenbasierter Zugriffsschutz</li>	
+								</ul>
+							</div>
+
+							<!-- fieldsets -->
+							
+							<fieldset>
+								<h2 class="fs-title">Metadaten der Georessource</h2>
+								<h3 class="fs-subtitle">Angaben &uuml;ber Metadaten der Georessource</h3>
+								<p><b><i>* = Pflichtfeld</i></b></p>
+
+								<div class="row vertical-align">
+									<div class="col-md-6 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Name der Georessource*</label>
+											<input type="text" class="form-control" ng-model="datasetName"
+												ng-change="checkDatasetName()" placeholder="eindeutiger Name"
+												required></input>
+											<div class="help-block with-errors"></div>
+											<div ng-if="datasetNameInvalid" style="color: red;">
+												<p>Eingabe ung&uuml;ltig. Es existiert bereits eine Georessource mit
+													gleichem Namen und gleichem Typ.</p>
+											</div>
+										</div>
+									</div>
+									<div class="col-md-6 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Typ*</label>
+											<select ng-model="georesourceType" ng-change="onChangeGeoresourceType()"
+												class="form-control" required>
+												<option selected value="poi">Points of Interest</option>
+												<option value="loi">Lines of Interest</option>
+												<option value="aoi">Areas of Interest</option>
+											</select>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+								</div>
+
+								<div ng-show="georesourceType === 'poi'" class="row vertical-align">
+									<div class="col-md-4 col-sm-6 col-xs-12">
+										<div class="form-group" align="center">
+											<label>Farbe des Punktmarkers*</label>
+											<div class="dropdown customColorPicker">
+												<button type="button" class="btn btn-info dropdown-toggle"
+													data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+													<i style="background: {{selectedPoiMarkerColor.colorValue}};"></i>
+													{{selectedPoiMarkerColor.colorName}} <span class="caret"></span>
+												</button>
+												<ul class="dropdown-menu dropdown-menu-center">
+													<li ng-repeat="markerColor in $ctrl.kommonitorDataExchangeServiceInstance.availablePoiMarkerColors"
+														ng-click="onChangeMarkerColor(markerColor)">
+														<a href=""><i
+																style="background: {{markerColor.colorValue}};"></i>{{markerColor.colorName}}</a>
+													</li>
+												</ul>
+												<div class="help-block with-errors"></div>
+											</div>
+										</div>
+									</div>
+									<div class="col-md-4 col-sm-6 col-xs-12">
+										<div class="form-group" align="center">
+											<label>Symbol*</label>
+											<br />
+											<button id="poiSymbolEditPicker" class="btn btn-info"></button>
+											<!-- <br/>
+														<p><b>Icon Bezeichner: </b>{{selectedPoiIconName}}</p> -->
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-4 col-sm-6 col-xs-12">
+										<div class="form-group" align="center">
+											<label>Farbe des Punktsymbols*</label>
+											<div class="dropdown customColorPicker">
+												<button type="button" class="btn btn-info dropdown-toggle"
+													data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+													<i style="background: {{selectedPoiSymbolColor.colorValue}};"></i>
+													{{selectedPoiSymbolColor.colorName}} <span class="caret"></span>
+												</button>
+												<ul class="dropdown-menu dropdown-menu-center">
+													<li ng-repeat="symbolColor in $ctrl.kommonitorDataExchangeServiceInstance.availablePoiMarkerColors"
+														ng-click="onChangeSymbolColor(symbolColor)">
+
+														<a href=""><i
+																style="background: {{symbolColor.colorValue}};"></i>
+															{{symbolColor.colorName}}</a>
+													</li>
+												</ul>
+												<div class="help-block with-errors"></div>
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<div ng-show="georesourceType === 'loi'" class="row vertical-align">
+									<div class="col-md-4 col-sm-4 col-xs-12">
+										<div class="form-group" align="center">
+											<label>Linienfarbe*</label>
+											<div id="loiColorEditPicker" class="input-group" style="width: 50px;">
+												<input type="text" style="display:none;" class="form-control input-sm"
+													ng-model="loiColor" placeholder="Line of Interest Farbauswahl"
+													value="#bf3d2c" required />
+												<span title="Klicken, um die Farbe anzupassen"
+													style="border: 1px solid #ccc;"
+													class="input-group-addon btn btn-info btn-sm"><i></i></span>
+											</div>
+											<div class="help-block with-errors"></div>
+
+										</div>
+									</div>
+									<div class="col-md-4 col-sm-4 col-xs-12">
+										<div class="form-group" align="center">
+											<label>Linienbreite*</label>
+											<br/>
+											<input style="width: auto;" type="number" ng-model="loiWidth" min="1" max="5" step="1">
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-4 col-sm-4 col-xs-12">
+										<div class="form-group" align="center">
+											<label>Linienmuster*</label>
+											<div class="dropdown">
+												<button type="button" width="200px" class="btn btn-info dropdown-toggle"
+													data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+													<div id="loiDashArrayEditDropdownButton">
+
+													</div> <span class="caret"></span>
+												</button>
+												<ul class="dropdown-menu dropdown-menu-center">
+													<li ng-repeat="loiDashArrayObject in $ctrl.kommonitorDataExchangeServiceInstance.availableLoiDashArrayObjects"
+														ng-click="onChangeLoiDashArray(loiDashArrayObject)">
+														<a href="">
+															<div id="loiDashArrayEditDropdownItem-{{$index}}">
+															</div>
+														</a>
+													</li>
+												</ul>
+												<div class="help-block with-errors"></div>
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<div ng-show="georesourceType === 'aoi'" class="row vertical-align">
+									<div class="col-md-12 col-sm-12 col-xs-12">
+										<div class="form-group" align="center">
+											<label>Objektfarbe*</label>
+											<div id="aoiColorEditPicker" class="input-group" style="width: 50px;">
+												<input type="text" style="display:none;" class="form-control input-sm"
+													ng-model="aoiColor" placeholder="Area of Interest Farbauswahl"
+													value="#bf3d2c" required />
+												<span title="Klicken, um die Farbe anzupassen"
+													style="border: 1px solid #ccc;"
+													class="input-group-addon btn btn-info btn-sm"><i></i></span>
+											</div>
+											<div class="help-block with-errors"></div>
+
+										</div>
+									</div>
+								</div>
+
+								
+								<input type="button" name="next" class="next next_editGeoresourceMetadata action-button"
+									value="N&auml;chster Schritt" />
+
+							</fieldset>
+
+							<fieldset>
+								<h2 class="fs-title">Allgemeine Metadaten</h2>
+								<h3 class="fs-subtitle">Angaben &uuml;ber allgemeine Metadaten in KomMonitor</h3>
+								<p><b><i>* = Pflichtfeld</i></b></p>
+
+								<div class="row vertical-align">
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Beschreibung*</label>
+											<textarea rows="3" class="form-control" ng-model="metadata.description"
+												placeholder="Datensatz Beschreibung" required></textarea>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Datenbasis</label>
+											<textarea rows="3" class="form-control" ng-model="metadata.databasis"
+												placeholder="optionale Beschreibung etwaiger grundlegender Daten, die zur Erzeugung des Datensatzes beitragen"></textarea>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Datenquelle*</label>
+											<textarea rows="3" class="form-control" ng-model="metadata.datasource"
+												placeholder="Beschreibung der Datenquelle" required></textarea>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Datenhalter und Kontakt*</label>
+											<textarea rows="3" class="form-control" ng-model="metadata.contact"
+												placeholder="Beschreibung des Datenhalters und etwaiger Kontaktinformationen"
+												required></textarea>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+								</div>
+
+								<div class="row vertical-align">
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Aktualisierungszyklus*</label>
+											<select ng-model="metadata.updateInterval"
+												ng-options="value as value.displayName for value in $ctrl.kommonitorDataExchangeServiceInstance.updateIntervalOptions"
+												class="form-control" required>
+												<option disabled selected value> -- Aktualisierungszyklus w&auml;hlen --
+												</option>
+											</select>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Datum der letzten Aktualisierung*</label>
+											<div class="input-group date">
+												<div class="input-group-addon">
+													<i class="far fa-calendar-alt"></i>
+												</div>
+												<input type="text" ng-model="metadata.lastUpdate"
+													class="form-control pull-right" placeholder="YYYY-MM-DD"
+													id="georesourceEditLastUpdateDatepicker" required>
+											</div>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Literatur</label>
+											<textarea rows="3" class="form-control" ng-model="metadata.literature"
+												placeholder="optionale Angaben zu Literatur"></textarea>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Bemerkung</label>
+											<textarea rows="3" class="form-control" ng-model="metadata.note"
+												placeholder="optionale Bemerkung"></textarea>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+								</div>
+
+									<input type="button" name="previous"
+									class="previous previous_editGeoresourceMetadata action-button-previous"
+									value="Voriger Schritt" />
+									<input type="button" name="next" class="next next_editGeoresourceMetadata action-button" value="N&auml;chster Schritt"/>
+							</fieldset>
+
+							<fieldset>
+								<h2 class="fs-title">Themenhierarchie</h2>
+								<h3 class="fs-subtitle">Angaben &uuml;ber die Themenhierarchie der Georessource</h3>								
+
+								<p><b><i>* = Pflichtfeld</i></b></p>
+								<p>Angabe der Themenhierarchie. Mindestens das Hauptthema muss gew&auml;hlt werden. Vorhandene Unterthemen erscheinen nach Auswahl eines Hauptthemas. Bis zu vier Themen-Ebenen sind erlaubt.</p>
+
+								<p>Das Aufklappen der unteren Box erm&ouml;glicht die Verwaltung des Themenkatalogs.</p>
+
+								<div class="row vertical-align">
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Hauptthema*</label>
+											<select ng-model="georesourceTopic_mainTopic"
+												ng-options="mainTopic as mainTopic.topicName for mainTopic in $ctrl.kommonitorDataExchangeServiceInstance.availableTopics | filter:{topicType:'main'} | filter:{topicResource:'georesource'}"
+												class="form-control" required>
+												<option disabled selected value> -- Hauptthema w&auml;hlen --
+												</option>
+											</select>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div ng-show="georesourceTopic_mainTopic.subTopics.length > 0" class="form-group">
+											<label>Unterthema - erste Ebene</label>
+											<select ng-model="georesourceTopic_subTopic"
+												ng-options="subTopic as subTopic.topicName for subTopic in georesourceTopic_mainTopic.subTopics"
+												class="form-control" >
+												<option disabled selected value> -- Unterthema w&auml;hlen --
+												</option>
+											</select>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div ng-show="georesourceTopic_subTopic.subTopics.length > 0" class="form-group">
+											<label>Unterthema - zweite Ebene</label>
+											<select ng-model="georesourceTopic_subsubTopic"
+												ng-options="subsubTopic as subsubTopic.topicName for subsubTopic in georesourceTopic_subTopic.subTopics"
+												class="form-control" >
+												<option disabled selected value> -- Unterthema w&auml;hlen --
+												</option>
+											</select>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div ng-show="georesourceTopic_subsubTopic.subTopics.length > 0" class="form-group">
+											<label>Unterthema - dritte Ebene</label>
+											<select ng-model="georesourceTopic_subsubsubTopic"
+												ng-options="subsubsubTopic as subsubsubTopic.topicName for subsubsubTopic in georesourceTopic_subsubTopic.subTopics"
+												class="form-control" >
+												<option disabled selected value> -- Unterthema w&auml;hlen --
+												</option>
+											</select>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+								</div>
+
+								<hr>
+
+								<br/>
+
+								<div class="row vertical-align">
+									<div class="col-md-10 col-sm-12 col-xs-12">
+										<div style="text-align: left;">
+											<div id="georesourceEditAdmin_topicsManagement" class="box box-primary collapsed-box" style="background: #ebf0fd;">
+												<div class="box-header">
+												  <h3 class="box-title">Themenkatalog</h3>
+
+													<div class="box-tools pull-right">
+														<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+														</button>
+													</div>
+												</div>
+												<!-- /.box-header -->
+												<div class="box-body">
+
+													<style>
+														#georesourceEditAdmin_topicsManagement #indicatorTopicsManagement{
+															display: none;
+														}
+													</style>
+
+													<admin-topics-management></admin-topics-management>
+												</div>
+												<!-- /.box-body -->
+											  </div>
+											  <!-- /.box -->
+
+										</div>
+									</div>
+								</div>
+								
+
+								<input type="button" name="previous" class="previous previous_editGeoresourceMetadata action-button-previous" value="Voriger Schritt"/>
+								<input type="button" name="next" class="next next_editGeoresourceMetadata action-button" value="N&auml;chster Schritt" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity"/>								
+
+							</fieldset>
+
+								<fieldset ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
+									<h2 class="fs-title">Rollenbasierter Zugriffsschutz (Optional)</h2>
+									<h3 class="fs-subtitle">Angabe ob nur ausgew&auml;hlte Rollen Zugriff auf Datensatz-Metadaten und -Features erhalten sollen</h3>
+		
+									<p>Klicken Sie ein oder mehrere der verf&uuml;gbaren Rollen aus der linken &Uuml;bersicht an, um den Zugriff auf den Datensatz auf diese Rollen einzuschr&auml;nken.</p>
+		
+									<p>Der Zugriff ist nur f&uuml;r die Rollen erlaubt, die im rechten &Uuml;bersichtsfenster gelistet sind.</p>
+		
+									<p>Wird keine Rolle selektiert, so ist der Datensatz ohne Zugriffsbeschr&auml;nkung abrufbar.</p>
+		
+									<div class="row no-margin">
+										<div class="col-md">
+											<excalibur-dual-list ng-model='allowedRoleNames.selectedItems' options="duallist.duallistRoleOptions"></excalibur-dual-list>
+										</div>
+									</div>
+									
+									<input type="button" name="previous" class="previous previous_editGeoresourceMetadata action-button-previous" value="Voriger Schritt"/>								
+								</fieldset>							
+
+						</form>
+					</div>
+				</div>
+
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
+				<button type="button" class="btn btn-info pull-left" ng-click="onImportGeoresourceEditMetadata()"
+					title="Importieren der Metadaten aus einer Datei"><i
+						class="fas fa-file-import"></i>&nbsp;&nbsp;Metadaten-Import</button>
+				<input style="display:none;" class="pull-left" type="file" class="form-control"
+					id="georesourceEditMetadataImportFile" accept=".json,"></input>
+				<button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" ng-disabled=""
+					ng-click="onExportGeoresourceEditMetadata()" title="Exportieren der Metadaten in eine Datei"><i
+						class="fas fa-file-export"></i>&nbsp;&nbsp;Metadaten-Export</button>
+				<button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" ng-disabled="" ng-click="onExportGeoresourceEditMetadataTemplate()" title="Exportieren einer Metadaten-Vorlage in eine Datei"><i class="fas fa-file-export"></i>&nbsp;&nbsp;Metadaten-Export Vorlage</button>
+						
+
+				<button type="button" class="btn btn-success"
+					ng-disabled="datasetNameInvalid || !metadata.description || !metadata.datasource || !metadata.contact || !metadata.updateInterval || !metadata.lastUpdate"
+					ng-click="editGeoresourceMetadata()">Metadaten aktualisieren</button>
+				<button type="button" class="btn btn-danger"
+					ng-click="resetGeoresourceEditMetadataForm()">Zur&uuml;cksetzen</button>
+			</div>
+
+			<div id="georesourceEditMetadataSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+				class="alert alert-success alert-dismissable">
+				<button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
+				<h4><i class="icon fa fa-check"></i>Raumeinheit aktualisiert</h4>
+				Die Metadaten der Raumeinheit mit Namen {{successMessagePart}} wurden in KomMonitor aktualisiert und in
+				die &Uuml;bersichtstabelle eingetragen.
+			</div>
+
+			<div id="georesourceEditMetadataErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+				class="alert alert-danger alert-dismissable">
+				<button type="button" class="close" ng-click="hideErrorAlert()" aria-hidden="true">&times;</button>
+				<h4><i class="icon fa fa-ban"></i>Aktualisierung gescheitert</h4>
+				Bei der Aktualisierung der Metadaten der Raumeinheit ist ein Fehler aufgetreten. Fehlermeldung:
+				<br />
+				<pre style="overflow:auto; max-height:500px;" ng-bind-html="errorMessagePart"></pre>
+			</div>
+
+			<div id="georesourceEditMetadataImportErrorAlert" style="position: absolute; bottom: 0px; width: 100%;"
+				hidden class="alert alert-danger alert-dismissable">
+				<button type="button" class="close" ng-click="hideMetadataErrorAlert()"
+					aria-hidden="true">&times;</button>
+				<h4><i class="icon fa fa-ban"></i>Metadata Import gescheitert</h4>
+				Beim Import der Metadaten aus einer Datei ist ein Fehler aufgetreten. Fehlermeldung:
+				<br />
+				<pre>{{georesourceEditMetadataImportError}}</pre>
+				<br />
+				<br />
+				<p>Bitte stellen Sie sicher, dass folgendes JSON-Format eingehalten wird:</p>
+				<pre id="georesourcesEditMetadataPre" style="overflow:auto; max-height:500px;"></pre>
+			</div>
+
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->

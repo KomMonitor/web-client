@@ -1,0 +1,263 @@
+<!-- <div class="container-fluid"> -->
+
+	<header id="header" class="main-header">
+
+		<div  style="position:absolute; left:40%;  padding-top: 7px;">
+
+			<h4>KomMonitor (Pilotversion in Entwicklung)
+				<!-- <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#infoModal">Information&nbsp;&nbsp;<span class="glyphicon glyphicon-info-sign"></span></button>
+				<button type="button" data-toggle="modal" data-target="#feedbackModal" class="btn btn-danger">Feedback&nbsp;&nbsp;<span class="glyphicon glyphicon-envelope"></span></button>
+				<button type="button" ng-click="startGuidedTour()" class="btn btn-danger">Guided Tour&nbsp;&nbsp;<span class="glyphicon glyphicon-play"></span></button> -->
+			</h4>
+		</div>
+
+		<div style="padding-left: 10px; padding-top: 7px;">
+
+			 <a target="_blank" rel="noopener noreferrer" href="http://kommonitor.de"><img style="float: left; width: 35px; height: 35px; margin-right: 0.5%;" src="logos/KM_Logo1.svg"></img></a>
+			 <!-- <img src="logos/city-logo.png" style="float: left; width: 35px; height: 35px; margin-right: 0.5%;"></img> -->
+
+			 <!-- switch back to KomMonitor Main Application -->
+			<a id="userLogin" ng-mouseover="showUserLogin = true" ng-init="showUserLogin = false" title="Useristration" style="font-size:1.2em; float: right; margin-right: 2%; margin-left: 2%; margin-top: 0.5%;"><i class="fas fa-user-cog"></i></a>
+			<div id="userLoginForm" ng-show="showUserLogin && $ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity" ng-mouseleave="showUserLogin = false" class="userFormWrapper">
+				<div id="userForm">
+					<h4>User Login</h4>
+					<div ng-if="authenticated" style="margin-bottom: 10px;">
+						<span><b>Nutzer:</b></span>
+						<span style="word-break: break-all;"><i>{{username}}</i></span>
+						<br/>
+						<br/>
+						<span><b>zugewiesene Rollen:</b></span>
+						<span><i>{{$ctrl.kommonitorDataExchangeServiceInstance.currentKomMonitorLoginRoleNames}}</i></span>
+					</div>
+					<input type="submit" ng-if="!authenticated" value="Login" id='input_submit' ng-click="tryLoginUser()" class='input_field' >
+					<input type="submit" ng-if="authenticated" value="Logout" id='input_submit' ng-click="tryLogoutUser()" class='input_field input_authenticated' >
+				</div>
+			</div>
+			<div id="userLoginForm_withoutKeycloak" ng-show="showUserLogin && ! $ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity" ng-mouseleave="showUserLogin = false" class="userFormWrapper">
+				<div id="userForm">
+					<h4>User Login</h4>
+                <div class="input_container">
+                    <i class="fas fa-user"></i>
+                    <input placeholder="Username" type="text" ng-model="username" name="Username" id="field_username" class='input_field'>
+                </div>
+                <div class="input_container">
+                    <i class="fas fa-lock"></i>
+                    <input  placeholder="Password" type="password" ng-model="password" ng-keypress="tryLoginUserByKeypress($event)" name="Password" id="field_password" class='input_field'>
+                </div>
+                <input type="submit" value="Login" id='input_submit' ng-click="tryLoginUser()" class='input_field'>
+                <!-- <span>Forgot <a href="#"> Username / Password ?</a></span>
+                <span id='create_account'>
+                    <a href="#">Create your account ➡ </a>
+                </span> -->
+				</div>
+			</div>
+			<a ng-if="showAdminLogin" ng-click="openAdminUI()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Admin UI&nbsp;&nbsp;"><span class="fas fa-cogs"></span></a>
+			<a data-toggle="modal" data-target="#infoModal" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Information&nbsp;&nbsp;"><span class="glyphicon glyphicon-info-sign"></span></a>
+			<!-- <a data-toggle="modal" data-target="#feedbackModal" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;  cursor:pointer;" title="Feedback&nbsp;&nbsp;"><span class="glyphicon glyphicon-envelope"></span></a> -->
+			<a ng-click="startGuidedTour()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;  cursor:pointer;" title="Guided Tour&nbsp;&nbsp;"><span class="glyphicon glyphicon-play"></span></a>
+			
+			<!-- hide reporting modal for now, as its functionality must be rechecked -->
+			<!-- <div id="reportingButton" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.reportingButton">
+				<a data-toggle="modal" data-target="#reporting-modal" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;  cursor:pointer;" title="Report erstellen&nbsp;&nbsp;"><span class="glyphicon glyphicon-print"></span></a>
+			</div>			 -->
+			<div id="switchAdvancedMode" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.showAdvancedModeSwitch" 
+			style="float: right; margin-right: 1%; margin-top: 0.5%; cursor: pointer">
+				<strong>Erweiterte Ansicht</strong> &nbsp;
+				<label class="switch" title="Ein- / Ausblenden von UI Elementen"><input type="checkbox" ng-model="$ctrl.kommonitorElementVisibilityHelperServiceInstance.isAdvancedMode" 
+					ng-checked="$ctrl.kommonitorElementVisibilityHelperServiceInstance.isAdvancedMode"
+					ng-change="$ctrl.kommonitorElementVisibilityHelperServiceInstance.onChangeIsAdvancedMode()" ><span class="switchslider round"></span></label>
+			</div>
+			
+			
+			<!-- <a data-toggle="modal" data-target="#reporting-modal" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;  cursor:pointer;" title="Report erstellen&nbsp;&nbsp;"><span class="glyphicon glyphicon-print"></span></a> -->
+			<p style="clear: both;"></p>
+
+			
+
+		</div>
+
+	</header>
+
+	<!-- Modal -->
+	<info-modal></info-modal>
+	
+	<!-- Modal -->
+	<feedback-modal></feedback-modal>
+
+	<!-- Modal -->
+	<reporting-modal></reporting-modal>
+
+	<!-- Modal -->
+	<reporting-add-indicator-modal></reporting-add-indicator-modal>
+	
+	<!-- Modal -->
+	<wms-modal></wms-modal>
+
+	<!-- Modal -->
+	<wfs-modal></wfs-modal>
+
+	<div class="kmWrapper">
+
+    <!-- Sidebar -->
+    <aside id="sidebarIndicatorConfig" ng-class="sidebarIndicatorConfigClass" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.indicatorConfig">
+        <kommonitor-data-setup></kommonitor-data-setup>
+    </aside>
+
+		<aside id="sidebarPoi" ng-class="sidebarPoiClass" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.poi">
+        <poi></poi>
+    </aside>
+
+		<aside id="sidebarDataImport" ng-class="sidebarDataImportClass" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.dataImport">
+        <kommonitor-data-import></kommonitor-data-import>
+    </aside>
+
+		<aside id="sidebarFilter" ng-class="sidebarFilterClass" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.filter">
+        <kommonitor-filter></kommonitor-filter>
+    </aside>
+
+		<aside id="sidebarMeasureOfValueClassification" ng-class="sidebarMeasureOfValueClassificationClass" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.measureOfValueClassification">
+        <measure-of-value-classification></measure-of-value-classification>
+    </aside>
+
+		<aside id="sidebarBalance" ng-class="sidebarBalanceClass" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.balance">
+        <kommonitor-balance></kommonitor-balance>
+    </aside>
+
+		<aside id="sidebarDiagrams" ng-class="sidebarDiagramsClass" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.diagrams">
+        <kommonitor-diagrams></kommonitor-diagrams>
+    </aside>
+
+		<aside id="sidebarRadarDiagram" ng-class="sidebarRadarDiagramClass" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.radarDiagram">
+        <indicator-radar></indicator-radar>
+    </aside>
+
+		<aside id="sidebarRegressionDiagram" ng-class="sidebarRegressionDiagramClass" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.regressionDiagram">
+        <regression-diagram></regression-diagram>
+    </aside>
+
+		<aside id="sidebarReachability" ng-class="sidebarReachabilityClass" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.reachability">
+        <kommonitor-reachability></kommonitor-reachability>
+    </aside>
+
+		<!-- hide processing button and menu, as it must be greatly improved -->
+		<!-- <aside id="sidebarProcessing" ng-class="sidebarProcessingClass" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.processing">
+        <kommonitor-individual-indicator-computation></kommonitor-individual-indicator-computation>
+    </aside> -->
+
+	<!-- right side legend menu -->
+	<aside id="sidebarLegend" ng-class="sidebarLegendClass" >
+        <kommonitor-legend></kommonitor-legend>
+    </aside>
+
+    <!-- Page Content -->
+    <div id="content" style="height: 100%; width: 100%; position: relative;">
+
+        <kommonitor-map style="height: 100%; width: 100%; position: absolute;"></kommonitor-map>
+
+				<!-- LEFT-HANDED SIDEBAR BUTTONS -->
+
+				<div id="sideBarButtons">
+						<button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarIndicatorConfigCollapse"
+							ng-click="onSidebarIndicatorButtonClick()" ng-class="buttonIndicatorConfigClass" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.indicatorConfig" data-toggle="tooltip" title="Indikatorenauswahl">
+								<!-- <span style="font-size:2.5vh;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
+								<i style="font-size:2.5vh;" class="fas fa-sitemap"></i>
+						</button>
+
+						<button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarPoiCollapse"
+							ng-click="onSidebarPoiButtonClick()" ng-class="buttonPoiClass" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.poi" data-toggle="tooltip" title="Infrastrukturdaten">
+								<!-- <span style="font-size:2.5vh;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
+								<i style="font-size:2.5vh;" class="fas fa-map-marker-alt"></i>
+						</button>
+
+						<!-- <button type="button" style="top: 130px;" id="sidebarDataImportCollapse"
+							ng-click="onSidebarDataImportButtonClick()" ng-class="buttonDataImportClass"  ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.dataImport" data-toggle="tooltip" title="Datenimport">
+								<i style="font-size:2.5vh;" class="fas fa-file-import"></i>
+						</button> -->
+
+						<button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarFilterCollapse"
+							ng-click="onSidebarFilterButtonClick()" ng-class="buttonFilterClass" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.filter" data-toggle="tooltip" title="Darstellungsfilter">
+								<!-- <span style="font-size:2.5vh;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
+								<i style="font-size:2.5vh;" class="fas fa-filter"></i>
+						</button>
+
+						<button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarBalanceCollapse"
+							ng-click="onSidebarBalanceButtonClick()" ng-class="buttonBalanceClass" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.balance" data-toggle="tooltip" title="zeitliche Bilanzierung">
+								<!-- <span style="font-size:2.5vh;" class="glyphicon glyphicon-sort" aria-hidden="true"></span> -->
+								<i style="font-size:2.5vh;" class="fas fa-chart-line"></i>
+						</button>
+
+						<button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarDiagramsCollapse" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.diagrams"
+							ng-click="onSidebarDiagramsClick()" ng-class="buttonDiagramsClass" data-toggle="tooltip" title="statistische Diagramme">
+								<!-- <span style="font-size:2.5vh;" class="glyphicon glyphicon-stats" aria-hidden="true"></span> -->
+								<i style="font-size:2.5vh;" class="fas fa-chart-bar"></i>
+						</button>
+
+						<button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarRadarDiagramCollapse"
+							ng-click="onSidebarRadarDiagramClick()" ng-class="buttonRadarDiagramClass" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.radarDiagram" data-toggle="tooltip" title="Indikatorenradar">
+								<!-- <span style="font-size:2.5vh;" class="glyphicon glyphicon-star-empty" aria-hidden="true"></span> -->
+								<img src="iconsFromPngTree/radarMap.svg"></img>
+						</button>
+
+						<button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarRegressionDiagramCollapse"
+							ng-click="onSidebarRegressionDiagramClick()" ng-class="buttonRegressionDiagramClass" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.regressionDiagram" data-toggle="tooltip" title="Regressionsdiagramm">
+								<!-- <span style="font-size:2.5vh;" class="glyphicon glyphicon-star-empty" aria-hidden="true"></span> -->
+								<img src="iconsFromPngTree/scatterPlot.svg"></img>
+						</button>
+
+						<button type="button" style="display: block; position: relative; margin-top: 5px;" id="sidebarReachabilityCollapse"
+							ng-click="onSidebarReachabilityButtonClick()" ng-class="buttonReachabilityClass" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.reachability" data-toggle="tooltip" title="Erreichbarkeitsanalyse">
+							<i style="font-size:2.5vh;" class="fas fa-route"></i>
+								<!-- <span style="font-size:2.5vh;" class="glyphicon glyphicon-wrench" aria-hidden="true"></span> -->
+						</button>
+
+						<!-- hide processing button and menu, as it must be greatly improved -->
+						<!-- <button type="button" style="top: 73%;" id="sidebarProcessingCollapse"
+							ng-click="onSidebarProcessingClick()" ng-class="buttonProcessingClass" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.processing" data-toggle="tooltip" title="Individuelle Indikatorenberechnung">
+							<i style="font-size:2.5vh;" class="fas fa-sliders-h"></i>
+						</button> -->
+
+						<button type="button" id="sidebarLegendCollapse"
+							ng-click="onSidebarLegendButtonClick()" ng-class="buttonLegendClass" data-toggle="tooltip" title="Legenden- und Informationsfenster">
+							<i style="font-size:2.5vh;" class="fas fa-info"></i>
+						</button>
+				</div>
+
+				<!-- MAP UTIL BUTTONS -->
+
+				<div id="mapUtilButtons">
+					<button type="button" id="recenterMapButton"
+						ng-click="onRecenterMapButtonClick()" class="btn btn-leaflet-custom" data-toggle="tooltip" title="Karte zentrieren">
+							<span style="font-size:1.5em;left:-5px;" class="glyphicon glyphicon-globe" aria-hidden="true"></span>
+					</button>
+
+					<button type="button" id="unselectFeaturesButton"
+						ng-click="onUnselectFeaturesButtonClick()" class="btn btn-leaflet-custom" data-toggle="tooltip" title="Feature-Selektion aufheben">
+							<span style="font-size:1.5em;left:-5px;" class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span>
+					</button>
+
+					<button type="button" id="exportMapButton"
+						ng-click="onExportMapButtonClick()" class="btn btn-leaflet-custom" data-toggle="tooltip" title="aktuellen Kartenausschnitt exportieren">
+							<i style="font-size:1.5em;margin-left:-5px;" class="fas fa-download"></i>
+					</button>
+				</div>
+
+				<!-- Info and legend Control buttons -->				
+
+				<button type="button" style="top: 120px; right:10px; display:none;" id="toggleLegendControlButton"
+					ng-click="onToggleLegendControlButtonClick()" class="btn btn-leaflet-custom" data-toggle="tooltip" title="Legende einblenden">
+						<span style="font-size:1.3em;" class="glyphicon glyphicon-list-alt" aria-hidden="true"></span>
+				</button>
+
+	</div>
+	
+	<div style="position: absolute; left: 12%; top: 200px; width: 75%;" hidden
+				class="alert alert-danger alert-dismissable mapApplicationErrorAlert">
+				<button type="button" class="close" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.hideErrorAlert()"
+					aria-hidden="true">&times;</button>
+				<h4><i class="icon fa fa-ban"></i>Achtung</h4>
+				Es ist ein Fehler bei der Datenverarbeitung aufgetreten. Die Fehlermeldung lautet:
+				<br />
+				<pre ng-bind-html="$ctrl.kommonitorDataExchangeServiceInstance.errorMessage"></pre>
+	</div>
+
+	</div>

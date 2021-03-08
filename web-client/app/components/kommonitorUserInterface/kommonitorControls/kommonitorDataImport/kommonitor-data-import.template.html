@@ -1,0 +1,137 @@
+<div id="dataImport">
+
+	<div align="center">
+		<div class="loading-overlay-sidebar-small ng-hide" ng-show="loadingData">
+					<span class="glyphicon glyphicon-refresh icon-spin"></span>
+		</div>
+	</div>
+
+	<p></p>
+
+			
+
+
+									<!-- CUSTOM DATA GEOJSON OR SHAPE -->
+										<div class="box box-primary">
+											<div class="box-header with-border">
+												<h3 class="box-title">Layer aus Datei importieren</h3>
+
+												<div class="box-tools pull-right">
+													<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+													</button>
+												</div>
+											</div>
+											<div class="box-body">
+
+												<div class="" >
+<!--
+															<div align="center">
+																<p>Feature-Import aus lokalen Dateien. Gegenw&auml;rtig werden folgende Formate akzeptiert:</p>
+																<ul>
+																	<li>GeoJSON</li>
+																	<li>Shapefile (gezippt oder nur .SHP Datei)</li>
+																</ul>
+															</div> -->
+
+															<div id="fileSucessAlert" hidden class="alert alert-success">
+												                <!-- <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button> -->
+												                <h4><i class="icon fa fa-check"></i> Features aus Datei hinzugef&uuml;gt</h4>
+												                Es wurde eine neuer Kartenlayer <i>{{tmpDatasetName}}</i> erstellt.
+												      </div>
+
+															<div id="fileErrorAlert" hidden class="alert alert-danger ">
+												                <!-- <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button> -->
+												                <h4><i class="icon fa fa-check"></i> Fehler</h4>
+												                Es trat ein Fehler beim Verarbeiten der Datei <i>{{tmpDatasetName}}</i> auf. Fehlermeldung: <i>{{fileLayerError}}</i>
+												      </div>
+
+															<div class="row vertical-align">
+								                <div class="col-xs-10">
+																	<div class="form-group">
+																		<!-- DRAG/DROP Area to insert features from file  -->
+																		<div id="drop_zone" droppable ng-click="openFileDialog()" drop="dropHandler(event);">
+																			<input type="file" id="fileUploadInput" style="display: none" accept=".json, .geojson, .zip"/>
+																			<i style="font-size:4em; margin:5px; color: #d6d6d6;" class="fas fa-file-upload"></i>
+																			<h4 style="vertical-align: middle; color:#d6d6d6; margin-bottom:10px;">GeoJSON (.json oder .geojson) oder Shapefile (ZIP-Archiv mit .shp, .dbf, ggf. .prj)</h4>
+																			<p style="vertical-align: middle; color:#d6d6d6; margin-bottom:5px;">empfohlenes Koordinatensystem ist WGS 84 (EPSG:4326)</p>
+																		</div>
+																	</div>
+								                </div>
+								                <div class="col-xs-2">
+																	<div class="form-group">
+																		<div id="customFileInputColorDiv" class="input-group colorpicker-component">
+																				<!-- <label>Darstellungsfarbe festlegen</label> -->
+																				<input type="text" style="display:none;" class="form-control input-sm" ng-model="customFileInputColor" value="#00AABB" placeholder="Darstellungsfarbe"  required />
+																				<span title="Klicken, um die Farbe anzupassen" style="border: 1px solid #ccc;" class="input-group-addon"><i></i></span>
+																		</div>
+																	</div>
+								                </div>
+								              </div>
+
+															<br/>
+
+															<div ng-show="$ctrl.kommonitorDataExchangeServiceInstance.fileDatasets.length > 0">
+
+																<div class="input-group">
+																	<span class="input-group-addon"><i class="fas fa-filter"></i></span>
+																	<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="fileNameFilter" ng-model-options="{debounce: 500, blur: 0}">
+																</div>
+
+																<br/>
+
+																<div id="fileInputForm">
+
+																	<table class="table table-condensed" style="margin-bottom:0px;">
+																    <thead>
+																      <tr>
+																        <th>Dateiname</th>
+																				<th>Layer Transparenz</th>
+																				<th>Legende</th>
+																      </tr>
+																    </thead>
+
+																		<tbody>
+
+																			<tr ng-repeat='dataset in $ctrl.kommonitorDataExchangeServiceInstance.fileDatasets | filter:fileNameFilter | orderBy:"title"'>
+																				<td>
+																					<label class='checkbox-inline' ><input type="checkbox" value="dataset.title" ng-model="dataset.isSelected" ng-change="handleFileOnMap(dataset)">
+
+																						<b ng-bind-html="dataset.title"></b>
+																					</label>
+																				</td>
+																				<td>
+																					<div class="form-group" align="center">
+
+																						<input class=" input-sm" ng-model="dataset.transparency" ng-init="dataset.transparency=0" ng-change="adjustFileLayerTransparency(dataset)" type="range"  min="0" max="1" step="0.01">
+
+																						<br/>
+
+																						<label>{{dataset.transparency}}</label>
+																					</div>
+																				</td>
+																				<td>
+																					<div>
+																						<div class="input-group colorpicker-component">
+																						    <input type="text" style="display:none;" class="input-sm" ng-model="dataset.displayColor" ng-change="adjustFileLayerColor(dataset)" placeholder="Darstellungsfarbe"  required />
+																						    <span title="Klicken, um die Farbe anzupassen" style="border: 1px solid #ccc;" class="input-group-addon"><i></i></span>
+																						</div>
+																						<!-- value="{{dataset.displayColor}}" -->
+																						<!-- <i style="background-color:{{dataset.displayColor}}; margin-left: 12px; width: 18px; height: 18px; float: left;"></i> -->
+																					</div>
+																				</td>
+																			</tr>
+																		</tbody>
+																	</table>
+															</div>
+
+															</div>
+
+												</div>
+
+														</div>
+														<!-- /.box-body -->
+
+												</div>
+												<!-- /.box -->
+
+</div>

@@ -1,0 +1,108 @@
+<div class="modal fade" id="feedbackModal" role="dialog">
+	<div class="modal-dialog modal-lg">
+
+		<!-- Modal content-->
+		<div class="modal-content">
+			<div class="modal-header" align="center" >
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4 class="modal-title"><b>Feedback-Formular</b></h4>
+			</div>
+			<div id="feedbackModalBody" class="modal-body" style="text-align: justify">
+
+						<!-- <form action="mailto:Thomas.Blasche@amt62.essen.de" method="post"> -->
+						<!-- <form action="mailto:Christian.Danowski-Buhren@hs-bochum.de" method="post"> -->
+						<form role="form" class="form-group" data-toggle="validator" >
+								<p><b><i>* = Pflichtfeld</i></b></p>
+
+								<div align="center" id="feedbackForm">
+
+										<!-- <div class="form-group">
+											<label>Titel</label>
+											<input ng-model="titel" class="form-control" type="text" name="Titel" value="" size="30" maxlength="70" placeholder="Ihr Titel" required/>
+										</div> -->
+										<div class="form-group">
+											<label>Name/Fachbereich</label>
+											<input ng-model="organization" class="form-control input-sm" type="text" name="Fachbereich" value="" size="30" maxlength="50" placeholder="Ihr Name / Ihr Fachbereich"/>
+										</div>
+										<div class="form-group">
+											<label>Ihre E-Mail-Adresse oder Telefonnummer f&uuml;r R&uuml;ckfragen</label>
+											<textarea ng-model="contactDetails" class="form-control input-sm" name="Kontaktdaten" value="" rows="1" cols="50" placeholder="Ihre Kontaktdaten"></textarea>
+										</div>
+
+										<div class="form-group radio-custom">
+											<label for="fbType"><b>Art der Anmerkung*</b></label>
+								      <select ng-model="feedbackType" class="form-control input-sm" id="fbType" required>
+												<option disabled selected value> -- Art des Feedbacks w&auml;hlen -- </option>
+								        <option value="Frage">R&uuml;ckfrage</option>
+								        <option value="Wunsch-Funktion">Wunsch nach weiter Funktionalit&auml;t</option>
+								        <option value="Wunsch-Inhalt">Wunsch nach Erg&auml;nzung konkreter Inhalte</option>
+								        <option value="Kritik-an-Anwendung">Kritik zu Struktur und Bedienung der Web-Oberfl&auml;che</option>
+												<option value="Fehlermeldung">Fehler in der Anwendung</option>
+												<option value="Wunsch-Termin">Bitte um Gespr&auml;ch</option>
+												<option value="sonstiges">sonstiges Feedback</option>
+								      </select>
+											<div class="help-block with-errors"></div>
+										</div>
+
+										<div class="form-group">
+											<label>Ihre Anmerkung*</label>
+											<textarea ng-model="feedbackContent" class="form-control input-sm" name="Kontaktdaten" rows="6" cols="30" value="" placeholder="Ihre Anmerkung" required></textarea>
+											<div class="help-block with-errors"></div>
+										</div>
+
+										<div class="form-group">
+				                <label for="attachment">Optionales Attachment (z. B. ein Screenshot der Anwendung)</label>
+				                <input type="file" class="form-control input-sm" id="attachment" name="files">
+				            </div>
+
+										<div class="form-group radio-custom">
+											<label><b>Wie gef&auml;llt Ihnen KomMonitor bisher?</b></label>
+											<br/>
+											<label><input ng-model="like" value="gut" class="radio-inline" type="radio" name="Bewertung"><span class="glyphicon glyphicon-thumbs-up"></span></label>
+											<label><input ng-model="like" value="schlecht" class="radio-inline" type="radio" name="Bewertung"><span class="glyphicon glyphicon-thumbs-down"></span></label>
+										</div>
+
+										<div align="center">
+											<input class="btn btn-info" type="submit" ng-disabled="!feedbackType || !feedbackContent" ng-click="onSubmit()" name="absenden" value="Absenden" />
+											<button type="button" class="btn btn-danger" ng-click="reset()">Zur&uuml;cksetzen</button>
+										</div>
+
+								</div>
+
+						</form>
+
+						<div id="mailSuccessInfo" align="center" ng-show="success" class="alert alert-success fade in">
+							<button class="close" ng-click="onCloseSuccessAlert()" aria-label="close">&times;</button>
+
+							<br/>
+
+							<p>Ihre Feedback-Mitteilung wurde erfolgreich versendet.</p>
+
+							<br/>
+							<strong>Vielen Dank!</strong>
+
+						</div>
+
+						<div id="mailErrorInfo" align="center" ng-show="error"
+							class="alert alert-danger fade in">
+							<button class="close" ng-click="onCloseErrorAlert()" aria-label="close">&times;</button>
+							<strong>Fehler</strong>
+							Ihre Feedback-Mitteilung konnte leider nicht gesendet werden.
+							<p></p>
+							<p>
+								<strong>Fehlernachricht: </strong>{{error}}
+							</p>
+						</div>
+
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Schlie&szlig;en</button>
+			</div>
+
+		</div>
+
+
+
+		</div>
+
+	</div>
+</div>

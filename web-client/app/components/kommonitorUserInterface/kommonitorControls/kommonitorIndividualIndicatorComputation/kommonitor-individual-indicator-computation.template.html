@@ -1,0 +1,195 @@
+<div align="center" id="indicatorProcessing">
+
+	<p></p>
+
+	<!-- COMPUTATION SETUP -->
+		<div class="box box-primary">
+			<div class="box-header with-border">
+				<h3 class="box-title">Interaktive parametrisierte Neuberechnung eines Indikators</h3>
+
+				<div class="box-tools pull-right">
+					<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+					</button>
+				</div>
+			</div>
+			<div class="box-body">
+
+				<div class="input-group">
+					<span class="input-group-addon"><i class="fas fa-filter"></i></span>
+					<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="indicatorNameFilter" ng-model-options="{debounce: 500, blur: 0}">
+				</div>
+
+				<p></p>
+
+				<div class="row vertical-align" style="margin-left: 0px; margin-right: 0px; display: flex;">
+
+
+						<div class="col-sm-8">
+							<select style="font-size: 12px;"
+								size="5" ng-model="targetIndicator" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators() | filter:{creationType:'COMPUTATION'} | filter:filterComputableIndicators() | filter:indicatorNameFilter"
+								class="form-control" ng-change="onChangeTargetIndicator()" required>
+								<option value="" selected disabled>-- berechenbaren Indikator w&auml;hlen --</option>
+							</select>
+						</div>
+
+
+						<div class="col-sm-4" ng-show="targetIndicator">
+							<!-- simple list of available processes -->
+							<select style="font-size: 12px;"
+								size="5" ng-model="targetSpatialUnit" ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits"
+								ng-change="onChangeTargetSpatialUnit()" class="form-control" required>
+								<option value="" selected disabled>-- Ziel-Raumeinheit w&auml;hlen --</option>
+								<option
+									ng-repeat="spatialUnit in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits"></option>
+							</select>
+						</div>
+
+				</div>
+
+				<br />
+
+				<!-- <div id="dateSliderForComputation" class="rangeslide" ></div> -->
+				<div id="dateSliderForComputationWrapper" ng-show="targetIndicator && targetSpatialUnit">
+			    <input id="dateSliderForComputation" type="text" class="js-range-slider" value=""></input>
+			  </div>
+
+
+				<div ng-show="targetIndicator && targetSpatialUnit && targetDate" id="parameterManagement" align="center">
+
+					<div class="loading-overlay ng-hide" ng-show="loadingData">
+			        	<span class="glyphicon glyphicon-refresh icon-spin"></span>
+			    </div>
+
+					<div>
+						<p>{{targetIndicator.processDescription}}</p>
+					</div>
+
+					<p></p>
+
+						<!-- <label align='left'>individuelle Neuberechung</label> -->
+
+							<div ng-show="processInputs" id="processInputForm">
+								<!-- here the content is filled programatically -->
+
+								<div ng-repeat='input in processInputs' class="slidecontainer">
+									<!-- <label>{{input.parameterData.name}}: {{input.inputElement.value}}</label> -->
+
+									<p><label >{{input.parameterData.name}}:</label>&nbsp;{{input.parameterData.description}}</p>
+
+									<div class="row vertical-align" style="margin-left: 0px; margin-right: 0px; display: flex;">
+									  <div class="col-sm-1">
+											<div class="text-left">
+												<label>{{input.inputElement.min}}</label>
+											</div>
+										</div>
+										<div class="col-sm-7">
+											<div class="text-left">
+												<input id="{{input.parameterData.name}}" style="width:100%;" data-show-value="false" value="{{input.inputElement.value}}" ng-model="input.inputElement.value" type="{{input.inputElement.type}}"  min="{{input.inputElement.min}}" max="{{input.inputElement.max}}" step="{{input.inputElement.step}}">
+											</div>
+										</div>
+										<div class="col-sm-1">
+											<div class="text-left">
+												<label>{{input.inputElement.max}}</label>
+											</div>
+										</div>
+										<div class="col-sm-3 form-inline">
+											<div class="text-left form-group">
+												<input ng-model="input.inputElement.value" type="number" string-to-number min="{{input.inputElement.min}}" max="{{input.inputElement.max}}" step="{{input.inputElement.step}}" style="height:30px; width:80px;" class="form-control input-sm" id="{{input.parameterData.name}}Label">
+												<span class="validity"></span>
+											</div>
+										</div>
+										<!-- <div class="col-sm-1">
+											<div class="text-left">
+												<span class="validity"></span>
+											</div>
+										</div> -->
+											<!-- <label >{{input.parameterData.name}}: {{inputNgModels[input.inputElement.ngModelVariable]}}</label> -->
+
+									</div>
+
+
+									<!-- <input type='{{input.type}}' value='{{ input.value }}'> -->
+									<!-- <form class="form-inline">
+									  <div class="form-group">
+											<label>{{input.inputElement.min}}</label><input id="{{input.parameterData.name}}" class="{{input.inputElement.class}} form-control" ng-model="inputNgModels[input.inputElement.ngModelVariable]" type="{{input.inputElement.type}}"  min="{{input.inputElement.min}}" max="{{input.inputElement.max}}" step="{{input.inputElement.step}}"><label>{{input.inputElement.max}}</label>
+
+										</div>
+									</form> -->
+
+									<br/>
+								</div>
+							</div>
+
+							<br />
+
+						  <button ng-click="calculateCustomIndicator()" class="btn btn-primary">individuelle Neuberechnung starten</button>
+
+							<button type="button" class="btn btn-danger" ng-click="resetComputationForm()">Auswahl zur&uuml;cksetzen</button>
+				</div>
+
+			</div>
+			<!-- /.box-body -->
+		</div>
+		<!-- /.box -->
+
+
+		<!-- COMPUTATION EXECUTION, STATUS AND RESULT -->
+			<div style="margin-bottom: 0px;" ng-show="computationStarted" class="box box-danger">
+				<div class="box-header with-border">
+					<h3 class="box-title">Prozessstatus und Ergebnis</h3>
+
+					<div class="box-tools pull-right">
+						<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+						</button>
+					</div>
+				</div>
+				<div class="box-body">
+					<b>Zielindikator:</b> {{indicatorName}} - {{spatialUnitName}} - {{date}}
+					<p></p>
+					<p>Laufzeit beträgt je nach Komplexität der Berechnung wenige Sekunden bis zu einigen Minuten!</p>
+
+					<div ng-show="jobInfoText || computedCustomizedIndicatorGeoJSON" class="progress">
+					  <div id="customComputationProgressBar" class="progress-bar progress-bar-info progress-bar-striped active" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">
+					    <!-- <span class="sr-only">{{progress}}% Fortschritt</span> -->
+							0% Fortschritt
+					  </div>
+					</div>
+
+					<div ng-show="jobInfoText" class="alert alert-info">
+						<p>{{jobInfoText}}</p>
+					</div>
+
+
+					<div align="center" ng-show="computedCustomizedIndicatorGeoJSON" class="alert alert-success">
+
+						<p>Berechnung erfolgreich abgeschlossen. Das Ergebnis kann entweder auf der Karte dargestellt werden oder als GeoJSON-Datei heruntergeladen werden.</p>
+
+						<br/>
+						<div style="display: inline-block" align="center" id="indicatorOutput">
+							<button ng-click="addComputedIndicatorToMap()" type="button" class="btn btn-default">auf Karte darstellen</button>
+							<!-- another button to download as GeoJSOn will be set programatically within component file -->
+						</div>
+						<!-- <br/>
+						<br/>
+						<button ng-click="" type="button" class="btn btn-default">mit Standard-Berechnung vergleichen (nicht implementiert)</button> -->
+
+					</div>
+
+
+				<div ng-show="error"
+					class="alert alert-danger">
+					<strong>Fehler</strong>
+					Bei der Verarbeitung ist ein Fehler aufgetreten.
+					<p></p>
+					<p>
+						<strong>Fehlernachricht: </strong>{{error}}
+					</p>
+				</div>
+
+				</div>
+				<!-- /.box-body -->
+			</div>
+			<!-- /.box -->
+
+
+</div>
