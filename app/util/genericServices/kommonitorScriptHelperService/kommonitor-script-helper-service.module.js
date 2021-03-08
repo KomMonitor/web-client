@@ -60,6 +60,10 @@ angular
 					"apiName": "indicator_trend"
         },
         {
+					"displayName": "Indikatoren - Kontinuität (mittels Pearson Korrelation)",
+					"apiName": "indicator_continuity"
+        },
+        {
 					"displayName": "Indikatoren - Veränderung absolut",
 					"apiName": "indicator_change_absolute"
         },
