@@ -1509,7 +1509,7 @@ angular
           var toDate_date = new Date(toDateString);
           
           if(showCompleteTimeseries){
-            timeseriesOptions.series[2].markArea = {
+            timeseriesOptions.series[0].markArea = {
               silent: true,
               itemStyle: {
                   color: '#b50b0b',
@@ -1529,15 +1529,15 @@ angular
           }          
 
           // hide data points
-          timeseriesOptions.series[2].itemStyle.normal.opacity = 0;
-          timeseriesOptions.series[2].lineStyle.normal.width = 3;
-          timeseriesOptions.series[2].lineStyle.normal.type = "solid";  
+          timeseriesOptions.series[0].itemStyle.normal.opacity = 0;
+          timeseriesOptions.series[0].lineStyle.normal.width = 3;
+          timeseriesOptions.series[0].lineStyle.normal.type = "solid";  
           
           var trendData = [];
 
-          var timeseriesData = timeseriesOptions.series[2].data;  
-          var minSeriesData = timeseriesOptions.series[0].data;  
-          var maxSeriesData = timeseriesOptions.series[1].data;           
+          var timeseriesData = timeseriesOptions.series[0].data;  
+          var minSeriesData = timeseriesOptions.series[1].data;  
+          var maxSeriesData = timeseriesOptions.series[2].data;           
 
           if(! showCompleteTimeseries){
             var xData = [];
@@ -1557,15 +1557,15 @@ angular
               }            
             }
 
-            timeseriesOptions.series[2].data = timeData;
-            timeseriesOptions.series[0].data = minData;
-            timeseriesOptions.series[1].data = maxData;
+            timeseriesOptions.series[0].data = timeData;
+            timeseriesOptions.series[1].data = minData;
+            timeseriesOptions.series[2].data = maxData;
 
             timeseriesOptions.xAxis.data = xData;
           }     
 
           // update value if it has changed
-          timeseriesData = timeseriesOptions.series[2].data;
+          timeseriesData = timeseriesOptions.series[0].data;
           var xAxisData = timeseriesOptions.xAxis.data;
           for (let index = 0; index < timeseriesData.length; index++) {
             var dateCandidate = new Date(xAxisData[index]);
