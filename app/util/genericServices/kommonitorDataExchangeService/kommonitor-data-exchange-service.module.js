@@ -57,6 +57,8 @@ angular
 
           var self = this;
 
+          this.headlineIndicatorHierarchy = [];
+
           this.enableKeycloakSecurity = __env.enableKeycloakSecurity;
           this.currentKeycloakLoginRoles = [];
           this.currentKomMonitorLoginRoleNames = [];
@@ -753,6 +755,8 @@ angular
 
                   self.modifyIndicatorApplicableSpatialUnitsForLoginRoles();
 
+                  self.buildHeadlineIndicatorHierarchy();
+
                   console.log("Metadata fetched. Call initialize event.");
       						onMetadataLoadingCompleted();
       				}, function errorCallback(errorArray) {
@@ -771,6 +775,58 @@ angular
             for (const indicator of this.availableIndicators) {
               indicator.applicableSpatialUnits = indicator.applicableSpatialUnits.filter(applicableSpatialUnit => availableSpatialUnitNames.includes(applicableSpatialUnit.spatialUnitName)); 
             }
+          };
+
+          this.buildHeadlineIndicatorHierarchy = function(){
+
+            var indicatorsMap = new Map();
+
+            for (const indicatorMetadata of this.availableIndicators) {
+              indicatorsMap.set(indicatorMetadata.indicatorId, indicatorMetadata);
+            }
+            
+            var headlineIndicatorsArray = this.availableIndicators.filter(indicatorMetadata => indicatorMetadata.isHeadlineIndicator == true);
+
+            var headlineIndicatorsIdArray = headlineIndicatorsArray.map(indicatorMetadata => indicatorMetadata.indicatorId);
+
+            var headlineIndicatorsMap = new Map();
+
+            for (const indicatorMetadata of headlineIndicatorsArray) {
+              headlineIndicatorsMap.set(indicatorMetadata.indicatorId, indicatorMetadata);
+            }
+
+            var headlineIndicatorScriptsMap = new Map();
+            for (const scriptMetadata of this.availableProcessScripts) {
+              if(headlineIndicatorsIdArray.includes(scriptMetadata.indicatorId)){                
+                headlineIndicatorScriptsMap.set(scriptMetadata.indicatorId, scriptMetadata);
+              }
+            }
+
+            this.headlineIndicatorHierarchy = [];
+
+            // var item = {
+            //   headlineIndicator: {metadata}
+            //   baseIndicators: [{metadata}]
+            //   maybeSomeAnalysisItems?
+            // }
+
+            for (const headlineIndicatorMetadata of headlineIndicatorsArray) {
+              var item = {};
+              item.headlineIndicator = headlineIndicatorMetadata;
+              item.baseIndicators = [];
+
+              if(headlineIndicatorScriptsMap.has(headlineIndicatorMetadata.indicatorId)){
+                var targetScriptMetadata = headlineIndicatorScriptsMap.get(headlineIndicatorMetadata.indicatorId);
+                for (const requiredIndicatorId of targetScriptMetadata.requiredIndicatorIds) {
+                  if (indicatorsMap.has(requiredIndicatorId)){
+                    item.baseIndicators.push(indicatorsMap.get(requiredIndicatorId));
+                  }                
+                }
+              }              
+
+              this.headlineIndicatorHierarchy.push(item);
+            }            
+
           };
 
           var onMetadataLoadingCompleted = function(){
@@ -1393,7 +1449,7 @@ angular
             }
   
             var category = "Basisindikator";
-            if (indicator.isHeadingIndicator) {
+            if (indicator.isHeadlineIndicator) {
               category = "Leitindikator";
             }
   

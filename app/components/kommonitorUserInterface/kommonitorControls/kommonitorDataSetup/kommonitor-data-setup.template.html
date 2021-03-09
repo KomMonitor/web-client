@@ -237,6 +237,60 @@
 													</select>
 												</div>
 											</uib-tab> -->
+											<uib-tab index="1" heading="Leitindikatoren">
+												<div class="just-padding">
+
+													<div id="headlineIndicatorHierarchySelection" class="list-group list-group-root well">
+
+														<label>Erl&auml;uterungen zur Symbolik </label>														
+
+														<div class="list-group-item list-group-item-default style-headline-indicator">
+															<p style="cursor:pointer; color: white;"
+																	style="color: white;" <i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>Leitindikator (bewertende Aussage)</b>
+																	[Einheitsbezeichnung]</p>
+														</div>
+														<div class="list-group-item list-group-item-default style-simple-indicator">
+															<p style="cursor:pointer; color: black;" <i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>Basis-Indikator als Berechnungsgrundlage des Leitindikators</b>
+																	[Einheitsbezeichnung]</p>
+														</div>
+
+														<br/>
+
+														<label> Leitindikatoren und ihre Basis-Indikatoren </label>
+
+														<div ng-repeat="headlineIndicatorHierarchyItem in $ctrl.kommonitorDataExchangeServiceInstance.headlineIndicatorHierarchy | filter:indicatorNameFilter track by headlineIndicatorHierarchyItem.headlineIndicator.indicatorId">
+															<div  class="list-group-item list-group-item-default" style="background: #2171b5; color: white;">
+																<a id="headlineIndicatorHierarchy_{{headlineIndicatorHierarchyItem.headlineIndicator.indicatorId}}" href="" ng-attr-title="{{headlineIndicatorHierarchyItem.headlineIndicator.metadata.description}}" class="collapseTrigger" style="color: white;" ng-click="isCollapsed_headlineIndicatorHierarchyItem = !isCollapsed_headlineIndicatorHierarchyItem" ng-init="isCollapsed_headlineIndicatorHierarchyItem=true"><i class="glyphicon glyphicon-chevron-right"></i>{{headlineIndicatorHierarchyItem.headlineIndicator.indicatorName}} </a>
+															</div>
+
+															<div class="list-group collapse indicatorInputForm" uib-collapse="isCollapsed_headlineIndicatorHierarchyItem">
+																<div id="headlineIndicatorHierarchyElement-{{headlineIndicatorHierarchyItem.headlineIndicator.indicatorId}}"
+																	class="list-group-item list-group-item-default style-headline-indicator">
+																	<div>
+																		<p style="cursor:pointer; color: white;" ng-attr-title="<b>{{headlineIndicatorHierarchyItem.headlineIndicator.indicatorName}}</b> [{{headlineIndicatorHierarchyItem.headlineIndicator.unit}}]" ng-click="onClickHierarchyIndicator(headlineIndicatorHierarchyItem.headlineIndicator)"><i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>{{headlineIndicatorHierarchyItem.headlineIndicator.indicatorName}}</b> [{{headlineIndicatorHierarchyItem.headlineIndicator.unit}}]</p>
+																
+																	</div> 
+																</div>
+
+																<div id="baseIndicatorHierarchyElement-{{baseIndicatorMetadata.indicatorId}}"
+																	class="list-group-item list-group-item-default style-headline-indicator"
+																	ng-repeat="baseIndicatorMetadata in headlineIndicatorHierarchyItem.baseIndicators | filter:filterIndicators() | filter:indicatorNameFilter track by baseIndicatorMetadata.indicatorId" class="list-group-item list-group-item-default style-simple-indicator">
+																	<div>
+																		<p style="cursor:pointer; color: white;" ng-attr-title="<b>{{baseIndicatorMetadata.indicatorName}}</b> [{{baseIndicatorMetadata.unit}}]" ng-click="onClickHierarchyIndicator(baseIndicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{baseIndicatorMetadata.indicatorName}}</b> [{{baseIndicatorMetadata.unit}}]</p>
+																
+																	</div> 
+																</div>
+															</div>
+
+														</div>
+														<!-- end main Topics -->
+
+
+													</div>
+
+											</div>
+
+											</uib-tab>
 									  </uib-tabset>
 
 								</div>
