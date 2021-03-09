@@ -983,63 +983,7 @@ angular
             //     show: true
             // }
           },
-          series: [
-          {
-            name: "Min",
-            type: 'line',
-            data: indicatorTimeSeriesMinArray,
-            stack: "MinMax",
-            // areaStyle:{
-            //   color: "#d6d6d6"
-            // },
-            lineStyle: {
-              opacity: 0
-            },
-            itemStyle: {
-              opacity: 0
-            },
-            // lineStyle: {
-            //   normal: {
-            //     color: 'gray',
-            //     width: 2,
-            //     type: 'dashed'
-            //   }
-            // },
-            // itemStyle: {
-            //   normal: {
-            //     borderWidth: 3,
-            //     color: 'gray'
-            //   }
-            // }
-          },
-          {
-            name: "Max",
-            type: 'line',
-            data: indicatorTimeSeriesMaxArray,
-            stack: "MinMax",
-            areaStyle:{
-              color: "#d6d6d6"
-            },
-            lineStyle: {
-              opacity: 0
-            },
-            itemStyle: {
-              opacity: 0
-            },
-            // lineStyle: {
-            //   normal: {
-            //     color: 'gray',
-            //     width: 2,
-            //     type: 'dashed'
-            //   }
-            // },
-            // itemStyle: {
-            //   normal: {
-            //     borderWidth: 3,
-            //     color: 'gray'
-            //   }
-            // }
-          },
+          series: [          
           {
             name: "Arithmetisches Mittel",
             type: 'line',
@@ -1059,6 +1003,63 @@ angular
             }
           }]
         };
+
+        // SETTING FOR MIN AND MAX STACK
+
+        // default for min value of 0
+        var minStack = {
+          name: "Min",
+          type: 'line',
+          data: indicatorTimeSeriesMinArray,
+          stack: "MinMax",
+          // areaStyle:{
+          //   color: "#d6d6d6"
+          // },
+          lineStyle: {
+            opacity: 0
+          },
+          itemStyle: {
+            opacity: 0
+          }
+        };
+
+        var maxStack =  {
+          name: "Max",
+          type: 'line',
+          data: indicatorTimeSeriesMaxArray,
+          stack: "MinMax",
+          areaStyle:{
+            color: "#d6d6d6"
+          },
+          lineStyle: {
+            opacity: 0
+          },
+          itemStyle: {
+            opacity: 0
+          }
+        };
+
+        // perform checks if there are negative values or only > 0 values
+        // then stacks must be adjusted to be correcty displayed
+        var minStack_minValue = Math.min(...indicatorTimeSeriesMinArray);
+        if(minStack_minValue < 0){
+          minStack.areaStyle = {
+              color: "#d6d6d6"
+          };
+        }
+        if ((indicatorTimeSeriesMinArray.filter(item => item > 0))){
+          for (let index = 0; index < indicatorTimeSeriesMaxArray.length; index++) {
+
+            if(indicatorTimeSeriesMinArray[index] > 0){
+              indicatorTimeSeriesMaxArray[index] = indicatorTimeSeriesMaxArray[index] - indicatorTimeSeriesMinArray[index];
+            }            
+          }
+          maxStack.data = indicatorTimeSeriesMaxArray;
+        }
+
+        lineOption.series.push(minStack);
+        lineOption.series.push(maxStack);
+        
 
         // use configuration item and data specified to show chart
         self.lineChartOptions = lineOption;
