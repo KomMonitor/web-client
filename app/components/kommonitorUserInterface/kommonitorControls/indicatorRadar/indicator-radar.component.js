@@ -97,6 +97,7 @@ angular
 
 						kommonitorDiagramHelperService.setupIndicatorPropertiesForCurrentSpatialUnitAndTime();
 
+						$scope.activeTab = 0;
 						if(kommonitorDataExchangeService.selectedIndicator.creationType == "COMPUTATION"){
 							$scope.activeTab = 1;
 						}
