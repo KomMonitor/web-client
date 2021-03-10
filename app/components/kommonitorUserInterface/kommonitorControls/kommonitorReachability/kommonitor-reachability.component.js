@@ -878,7 +878,9 @@ angular
 											.replaceRouteGeoJSON(
 												$scope.currentRouteGeoJSON,
 												$scope.settings.transitMode,
-												$scope.settings.preference, $scope.routingStartPoint, $scope.routingEndPoint);
+												$scope.settings.preference, $scope.routingStartPoint, $scope.routingEndPoint,
+												$scope.routeDistance_km, $scope.routeDuration_minutes, $scope.routeAvgSpeed_kmh,
+												$scope.routeTotalAscent, $scope.routeTotalDescent);
 										$scope.prepareDownloadGeoJSON();
 										$scope.settings.loadingData = false;
 										$rootScope.$broadcast('hideLoadingIconOnMap');
@@ -960,7 +962,8 @@ angular
 								$scope.settings.focus,
 								$scope.rangeArray,
 								$scope.useMultipleStartPoints,
-								$scope.settings.dissolveIsochrones);
+								$scope.settings.dissolveIsochrones, 
+								$scope.settings.speedInKilometersPerHour);
 						$scope
 							.prepareDownloadGeoJSON();
 

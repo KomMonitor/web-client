@@ -1787,7 +1787,7 @@ angular.module('kommonitorMap').component(
           $scope.map.invalidateSize(true);
         });
 
-        $scope.$on("replaceIsochronesAsGeoJSON", function (event, geoJSON, transitMode, reachMode, cutOffValues, useMultipleStartPoints, dissolveIsochrones) {
+        $scope.$on("replaceIsochronesAsGeoJSON", function (event, geoJSON, transitMode, reachMode, cutOffValues, useMultipleStartPoints, dissolveIsochrones, speedInKilometersPerHour) {
 
           if ($scope.isochronesLayer) {
             $scope.layerControl.removeLayer($scope.isochronesLayer);
@@ -1825,6 +1825,7 @@ angular.module('kommonitorMap').component(
           kommonitorDataExchangeService.isochroneLegend = {
             transitMode: transitModeValue,
             reachMode: reachModeValue,
+            speedInKilometersPerHour: speedInKilometersPerHour,
             colorValueEntries: [],
             cutOffValues: cutOffValues,
             cutOffUnit: cutOffUnitValue
@@ -1982,7 +1983,9 @@ angular.module('kommonitorMap').component(
           $scope.map.invalidateSize(true);
         });
 
-        $scope.$on("replaceRouteAsGeoJSON", function (event, geoJSON, transitMode, preference, routingStartPoint, routingEndPoint) {
+        $scope.$on("replaceRouteAsGeoJSON", function (event, geoJSON, transitMode, preference, routingStartPoint, routingEndPoint,
+          routeDistance_km, routeDuration_minutes, routeAvgSpeed_kmh,
+				routeTotalAscent, routeTotalDescent) {
 
           if ($scope.routingLayer) {
             $scope.layerControl.removeLayer($scope.routingLayer);
@@ -2012,9 +2015,21 @@ angular.module('kommonitorMap').component(
               transitModeValue = "Passant";
           }
 
+          /*
+          routeDistance_km, routeDuration_minutes, routeAvgSpeed_kmh,
+				routeTotalAscent, routeTotalDescent
+          */
+
           kommonitorDataExchangeService.routingLegend = {
             transitMode: transitModeValue,
-            preference: preferenceValue
+            preference: preferenceValue,
+            routingStartPoint: routingStartPoint,
+            routingEndPoint: routingEndPoint,
+            routeDistance_km: routeDistance_km,
+            routeDuration_minutes: routeDuration_minutes,
+            routeAvgSpeed_kmh: routeAvgSpeed_kmh,
+            routeTotalAscent: routeTotalAscent,
+            routeTotalDescent: routeTotalDescent            
           };
 
           var style = {

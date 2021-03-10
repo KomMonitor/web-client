@@ -257,6 +257,27 @@
 									ng-click="resetForm()"></input>
 							</div>
 
+							<div ng-show="showIsochrones && $ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend">
+								<br/>
+								<br/>
+								<div style="display: inline-block" align="center" id="reachabilityIsochroneButtonSection">
+									<button ng-click="removeReachabilityLayers()" type="button" class="btn btn-danger">Ergebnis
+										verwerfen / Layer entfernen</button>
+									<!-- another button to download as GeoJSOn will be set programatically within component file -->
+								</div>
+							</div>
+
+							<div ng-show="!showIsochrones && $ctrl.kommonitorDataExchangeServiceInstance.routingLegend">
+								<br/>
+								<br/>
+								
+								<div style="display: inline-block" align="center" id="reachabilityRouteButtonSection">
+									<button ng-click="removeRoutingLayers()" type="button" class="btn btn-danger">Ergebnis verwerfen /
+										Layer entfernen</button>
+									<!-- another button to download as GeoJSOn will be set programatically within component file -->
+								</div>
+							</div>
+
 						</div>						
 
 			</div>
@@ -515,147 +536,6 @@
 
 				</div>
 
-			</div>
-
-		</div>
-		<!-- /.box-body -->
-
-	</div>
-	<!-- /.box -->
-
-
-	<div class="box box-danger collapsed-box">
-		<div class="box-header with-border">
-			<h3 class="box-title">Isochronen Legende und Optionen</h3>
-
-			<div class="box-tools pull-right">
-				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
-				</button>
-			</div>
-		</div>
-		<!-- /.box-header -->
-
-		<div class="box-body">
-
-			<div align="center" ng-show="! $ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend">
-				<p>
-					Bitte f&uuml;hren Sie zuerst eine Isochronenberechnung durch. 
-				</p>
-			</div>
-
-			<div align="center" ng-show="$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend">
-				<div class="legend" align="left">
-					<h4>Legende</h4>
-					<label>Fortbewegungsart:
-					</label>&nbsp; {{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.transitMode}}
-					<br />
-					<div ng-show="settings.focus === 'time'">
-						<label>maximale Geschwindigkeit: </label>&nbsp; {{settings.speedInKilometersPerHour}} km/h
-						<br />
-					</div>
-					<label>Abbruchkriterium: </label>&nbsp;
-					{{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.reachMode}}
-					<br />
-					<label>Einheit: </label>&nbsp;
-					{{$ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.cutOffUnit}}
-					<br />
-					<div
-						ng-repeat="entry in $ctrl.kommonitorDataExchangeServiceInstance.isochroneLegend.colorValueEntries">
-						<i style="background: {{entry.color}}; opacity: 0.3;"></i> {{entry.value}}
-					</div>
-				</div>
-
-				<br />
-				<br />
-
-				<div style="display: inline-block" align="center" id="reachabilityIsochroneButtonSection">
-					<button ng-click="removeReachabilityLayers()" type="button" class="btn btn-danger">Ergebnis
-						verwerfen / Layer entfernen</button>
-					<!-- another button to download as GeoJSOn will be set programatically within component file -->
-				</div>
-			</div>
-
-		</div>
-		<!-- /.box-body -->
-
-	</div>
-	<!-- /.box -->
-
-	<div class="box box-danger collapsed-box">
-		<div class="box-header with-border">
-			<h3 class="box-title">Routing Legende und Optionen</h3>
-
-			<div class="box-tools pull-right">
-				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
-				</button>
-			</div>
-		</div>
-		<!-- /.box-header -->
-
-		<div class="box-body">
-
-			<div align="center" ng-show="! $ctrl.kommonitorDataExchangeServiceInstance.routingLegend">
-				<p>
-					Bitte f&uuml;hren Sie zuerst eine Routingberechnung durch. 
-				</p>
-			</div>
-
-			<div align="center" ng-show="$ctrl.kommonitorDataExchangeServiceInstance.routingLegend">
-				<div class="legend" style="width:unset; max-width:unset" align="left">
-					<h4>Legende</h4>
-					<label>Fortbewegungsart:
-					</label>&nbsp; {{$ctrl.kommonitorDataExchangeServiceInstance.routingLegend.transitMode}}
-					<br />
-					<label>Routing-Typ: </label>&nbsp;
-					{{$ctrl.kommonitorDataExchangeServiceInstance.routingLegend.preference}}
-					<br />
-
-					<div>
-						<i style="background: #ed561a; opacity:0.7;"></i> Pfad in Kartendarstellung
-					</div>
-
-					<br />
-					<table class="table table-condensed">
-						<thead>
-							<tr>
-								<th>Startpunkt</th>
-								<th>Endpunkt</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<td>{{routingStartPoint.label}}</td>
-								<td>{{routingEndPoint.label}}</td>
-							</tr>
-						</tbody>
-					</table>
-
-					<table class="table table-condensed">
-						<thead>
-							<tr>
-								<th>Dauer</th>
-								<th>Distanz</th>
-								<th>Durchschnittsgeschwindigkeit</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<td>{{routeDuration_minutes}} Minuten</td>
-								<td>{{routeDistance_km}} km</td>
-								<td>{{routeAvgSpeed_kmh}} km/h</td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-
-				<br />
-				<br />
-
-				<div style="display: inline-block" align="center" id="reachabilityRouteButtonSection">
-					<button ng-click="removeRoutingLayers()" type="button" class="btn btn-danger">Ergebnis verwerfen /
-						Layer entfernen</button>
-					<!-- another button to download as GeoJSOn will be set programatically within component file -->
-				</div>
 			</div>
 
 		</div>
