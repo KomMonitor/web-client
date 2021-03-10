@@ -562,51 +562,6 @@ angular
 						return kommonitorDataExchangeService.filterIndicators();
 					};
 
-					$scope.filterCurrentlySelectedIndicator = function(){
-						return function( item ) {
-
-							if (item.indicatorMetadata.indicatorId === kommonitorDataExchangeService.selectedIndicator.indicatorId){
-								return true;
-							}
-							return false;
-							
-						  };
-					};
-
-					$scope.filterBaseIndicatorsOfCurrentHeadlineIndicator = function(){
-						return function( item ) {
-
-							var headlineIndicatorEntry = kommonitorDataExchangeService.headlineIndicatorHierarchy.filter(element => element.headlineIndicator.indicatorId == kommonitorDataExchangeService.selectedIndicator.indicatorId)[0];
-
-							if(headlineIndicatorEntry){
-								var baseIndicators_filtered = headlineIndicatorEntry.baseIndicators.filter(element => element.indicatorId == item.indicatorMetadata.indicatorId);
-								if (baseIndicators_filtered.length > 0){
-									return true;
-								}
-							}
-
-							return false;
-							
-						  };
-					};
-
-					$scope.filterBaseIndicatorsOfCurrentComputationIndicator = function(){
-						return function( item ) {
-
-							var computationIndicatorEntry = kommonitorDataExchangeService.computationIndicatorHierarchy.filter(element => element.computationIndicator.indicatorId == kommonitorDataExchangeService.selectedIndicator.indicatorId)[0];
-
-							if(computationIndicatorEntry){
-								var baseIndicators_filtered = computationIndicatorEntry.baseIndicators.filter(element => element.indicatorId == item.indicatorMetadata.indicatorId);
-								if (baseIndicators_filtered.length > 0){
-									return true;
-								}
-							}
-
-							return false;
-							
-						  };
-					};
-
 					this.filterDisplayedIndicatorsOnRadar = function () {
 						console.log("Filtering indicator radar");
 

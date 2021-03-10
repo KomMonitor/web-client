@@ -883,6 +883,51 @@ angular
 
           };
 
+          this.filterCurrentlySelectedIndicator = function(){
+						return function( item ) {
+
+							if (item.indicatorMetadata.indicatorId === self.selectedIndicator.indicatorId){
+								return true;
+							}
+							return false;
+							
+						  };
+					};
+
+					this.filterBaseIndicatorsOfCurrentHeadlineIndicator = function(){
+						return function( item ) {
+
+							var headlineIndicatorEntry = self.headlineIndicatorHierarchy.filter(element => element.headlineIndicator.indicatorId == self.selectedIndicator.indicatorId)[0];
+
+							if(headlineIndicatorEntry){
+								var baseIndicators_filtered = headlineIndicatorEntry.baseIndicators.filter(element => element.indicatorId == item.indicatorMetadata.indicatorId);
+								if (baseIndicators_filtered.length > 0){
+									return true;
+								}
+							}
+
+							return false;
+							
+						  };
+					};
+
+					this.filterBaseIndicatorsOfCurrentComputationIndicator = function(){
+						return function( item ) {
+
+							var computationIndicatorEntry = self.computationIndicatorHierarchy.filter(element => element.computationIndicator.indicatorId == self.selectedIndicator.indicatorId)[0];
+
+							if(computationIndicatorEntry){
+								var baseIndicators_filtered = computationIndicatorEntry.baseIndicators.filter(element => element.indicatorId == item.indicatorMetadata.indicatorId);
+								if (baseIndicators_filtered.length > 0){
+									return true;
+								}
+							}
+
+							return false;
+							
+						  };
+					};
+
           var onMetadataLoadingCompleted = function(){
 
             $timeout(function () {
