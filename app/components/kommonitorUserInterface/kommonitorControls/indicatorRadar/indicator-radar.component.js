@@ -6,14 +6,19 @@ angular
 			templateUrl: "components/kommonitorUserInterface/kommonitorControls/indicatorRadar/indicator-radar.template.html",
 
 			controller: [
-				'kommonitorDataExchangeService', 'kommonitorDiagramHelperService', '$scope', '$rootScope', '$http', '__env',
+				'kommonitorDataExchangeService', 'kommonitorDiagramHelperService', '$scope', '$rootScope', '$timeout', '$http', '__env',
 				function indicatorRadarController(
-					kommonitorDataExchangeService, kommonitorDiagramHelperService, $scope, $rootScope, $http, __env) {
+					kommonitorDataExchangeService, kommonitorDiagramHelperService, $scope, $rootScope, $timeout, $http, __env) {
 					/*
 					 * reference to kommonitorDataExchangeService instances
 					 */
 					this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 					this.kommonitorDiagramHelperServiceInstance = kommonitorDiagramHelperService;
+
+					var self = this;
+
+					$scope.activeTab = 0;
+
 					// initialize any adminLTE box widgets
 					$('.box').boxWidget();
 
@@ -92,6 +97,13 @@ angular
 
 						kommonitorDiagramHelperService.setupIndicatorPropertiesForCurrentSpatialUnitAndTime();
 
+						if(kommonitorDataExchangeService.selectedIndicator.creationType == "COMPUTATION"){
+							$scope.activeTab = 1;
+						}
+						if(kommonitorDataExchangeService.selectedIndicator.isHeadlineIndicator){
+							$scope.activeTab = 2;
+						}
+
 						modifyRadarContent(kommonitorDiagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime);
 					};
 
@@ -107,7 +119,13 @@ angular
 
 						await wait(130);
 						$scope.setupCompleted = true;
-						$scope.$apply();
+						
+
+						$timeout(function(){
+							$scope.$apply();
+							self.filterDisplayedIndicatorsOnRadar();
+						}, 500);
+						
 					});
 
 					var modifyRadarContent = async function (indicatorsForRadar) {
@@ -541,6 +559,34 @@ angular
 					$scope.filterIndicators = function () {
 
 						return kommonitorDataExchangeService.filterIndicators();
+					};
+
+					$scope.filterCurrentHeadlineIndicator = function(){
+						return function( item ) {
+
+							if (item.indicatorMetadata.indicatorId === kommonitorDataExchangeService.selectedIndicator.indicatorId){
+								return true;
+							}
+							return false;
+							
+						  };
+					};
+
+					$scope.filterBaseIndicatorsOfCurrentHeadlineIndicator = function(){
+						return function( item ) {
+
+							var headlineIndicatorEntry = kommonitorDataExchangeService.headlineIndicatorHierarchy.filter(element => element.headlineIndicator.indicatorId == kommonitorDataExchangeService.selectedIndicator.indicatorId)[0];
+
+							if(headlineIndicatorEntry){
+								var baseIndicators_filtered = headlineIndicatorEntry.baseIndicators.filter(element => element.indicatorId == item.indicatorMetadata.indicatorId);
+								if (baseIndicators_filtered.length > 0){
+									return true;
+								}
+							}
+
+							return false;
+							
+						  };
 					};
 
 					this.filterDisplayedIndicatorsOnRadar = function () {
