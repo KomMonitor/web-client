@@ -1638,8 +1638,8 @@ angular
         });
 
         if(! showMinMax){
-          timeseriesOptions.series.splice(0, 1);
-          timeseriesOptions.series.splice(0, 1);
+          timeseriesOptions.series.splice(1, 1);
+          timeseriesOptions.series.splice(1, 1);
         }
 
           return timeseriesOptions;
