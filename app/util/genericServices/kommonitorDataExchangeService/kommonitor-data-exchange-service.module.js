@@ -58,6 +58,7 @@ angular
           var self = this;
 
           this.headlineIndicatorHierarchy = [];
+          this.computationIndicatorHierarchy = [];
 
           this.enableKeycloakSecurity = __env.enableKeycloakSecurity;
           this.currentKeycloakLoginRoles = [];
@@ -756,6 +757,7 @@ angular
                   self.modifyIndicatorApplicableSpatialUnitsForLoginRoles();
 
                   self.buildHeadlineIndicatorHierarchy();
+                  self.buildComputationIndicatorHierarchy();
 
                   console.log("Metadata fetched. Call initialize event.");
       						onMetadataLoadingCompleted();
@@ -825,6 +827,58 @@ angular
               }              
 
               this.headlineIndicatorHierarchy.push(item);
+            }            
+
+          };
+
+          this.buildComputationIndicatorHierarchy = function(){
+
+            var indicatorsMap = new Map();
+
+            for (const indicatorMetadata of this.availableIndicators) {
+              indicatorsMap.set(indicatorMetadata.indicatorId, indicatorMetadata);
+            }
+            
+            var computationIndicatorsArray = this.availableIndicators.filter(indicatorMetadata => indicatorMetadata.creationType == "COMPUTATION");
+
+            var computationIndicatorsIdArray = computationIndicatorsArray.map(indicatorMetadata => indicatorMetadata.indicatorId);
+
+            var computationIndicatorsMap = new Map();
+
+            for (const indicatorMetadata of computationIndicatorsArray) {
+              computationIndicatorsMap.set(indicatorMetadata.indicatorId, indicatorMetadata);
+            }
+
+            var computationIndicatorScriptsMap = new Map();
+            for (const scriptMetadata of this.availableProcessScripts) {
+              if(computationIndicatorsIdArray.includes(scriptMetadata.indicatorId)){                
+                computationIndicatorScriptsMap.set(scriptMetadata.indicatorId, scriptMetadata);
+              }
+            }
+
+            this.computationIndicatorHierarchy = [];
+
+            // var item = {
+            //   computationIndicator: {metadata}
+            //   baseIndicators: [{metadata}]
+            //   maybeSomeAnalysisItems?
+            // }
+
+            for (const computationIndicatorMetadata of computationIndicatorsArray) {
+              var item = {};
+              item.computationIndicator = computationIndicatorMetadata;
+              item.baseIndicators = [];
+
+              if(computationIndicatorScriptsMap.has(computationIndicatorMetadata.indicatorId)){
+                var targetScriptMetadata = computationIndicatorScriptsMap.get(computationIndicatorMetadata.indicatorId);
+                for (const requiredIndicatorId of targetScriptMetadata.requiredIndicatorIds) {
+                  if (indicatorsMap.has(requiredIndicatorId)){
+                    item.baseIndicators.push(indicatorsMap.get(requiredIndicatorId));
+                  }                
+                }
+              }              
+
+              this.computationIndicatorHierarchy.push(item);
             }            
 
           };
