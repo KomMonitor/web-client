@@ -30,339 +30,347 @@
 
 						<uib-tabset active="activeTab">
 							<uib-tab index="0" heading="Alphabetische Liste">
+								
+								<div class="just-padding">
+									<div text-align="center" align="center" class="hiddenTable">
 
-								<div text-align="center" align="center" class="hiddenTable">
-
-									<!-- <label  for="sel1">verf&uuml;gbare Indikatoren</label> -->
-
-									<div class="hiddenTableCell">
-
-
-										<div text-align="center" align="center" class="hiddenTableContent">
-
-											<label>X-Achse</label>
-
-											<div class="input-group">
-												<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-												<input type="text" class="form-control input-sm" placeholder="X-Achse - Stichwortfilter" ng-model="indicatorNameFilterForXAxis" ng-model-options="{debounce: 500, blur: 0}">
-											</div>
-
-											<p></p>
-
-												<!-- <select style="font-size: 12px;"
-													size="10" ng-model="selectedIndicatorForXAxis" ng-options="indicator as indicator.indicatorMetadata.indicatorName + '   ' + indicator.closestTimestamp for indicator in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime | filter:filterIndicators() | filter:indicatorNameFilterForXAxis"
-													ng-change="onChangeSelectedIndicators()" class="form-control" required>
-													<option disabled selected value> -- Indikator f&uuml;r X-Achse w&auml;hlen -- </option>
-												</select> -->
-
-												<div class="regressionInputForm">
-													<table class="table table-condensed " style="margin-bottom:0px;">
-														<thead>
-															<th>
-																Indikator											
-															</th>
-															<th>
-																Zeitschnitt
-															</th>
-														</thead>
-														<tbody>
-															<tr ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime | filter:filterIndicators() | filter:indicatorNameFilterForXAxis'>
-																<td>
-																	<div class="radio" style="margin-top: 0px; margin-bottom: 0px;">
-																		<label><input type="radio" name="regressionX" ng-value="input" ng-model="selection.selectedIndicatorForXAxis" ng-change="onChangeSelectedIndicators()">{{input.indicatorMetadata.indicatorName}}</label>
-																	</div>
-																</td>
-																<td>
-																	<select style="font-size: 11px; width:135px; padding: 0px;"
-																		ng-model="input.selectedDate" ng-change="onChangeSelectedDate(input)" ng-options="date as date for date in input.indicatorMetadata.applicableDates" ng-init="input.selectedDate = input.indicatorMetadata.applicableDates[input.indicatorMetadata.applicableDates.length - 1]"
-																		class="form-control" required>
-																	</select>
-																</td>
-															
-															</tr>	
-														</tbody>												
-													
-													</table>
-												</div>												
-										</div>
-
-									</div>
-
-									<div class="hiddenTableCell">
-
-
-										<div text-align="center" align="center" class="hiddenTableContent">
-
-											<label>Y-Achse</label>
-
-											<div class="input-group">
-												<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-												<input type="text" class="form-control input-sm" placeholder="Y-Achse - Stichwortfilter" ng-model="indicatorNameFilterForYAxis" ng-model-options="{debounce: 500, blur: 0}">
-											</div>
-
-											<p></p>
-
-												<!-- <select style="font-size: 12px;"
-													size="10" ng-model="selectedIndicatorForYAxis" ng-options="indicator as indicator.indicatorMetadata.indicatorName + '   ' + indicator.closestTimestamp for indicator in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime | filter:filterIndicators() | filter:indicatorNameFilterForYAxis"
-													ng-change="onChangeSelectedIndicators()" class="form-control" required>
-													<option disabled selected value> -- Indikator f&uuml;r Y-Achse w&auml;hlen -- </option>
-												</select> -->
-
-												<div class="regressionInputForm">
-													<table class="table table-condensed " style="margin-bottom:0px;">
-														<thead>
-															<th>
-																Indikator											
-															</th>
-															<th>
-																Zeitschnitt
-															</th>
-														</thead>
-														<tbody>
-															<tr ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime | filter:filterIndicators() | filter:indicatorNameFilterForYAxis'>
-																<td>
-																	<div class="radio" style="margin-top: 0px; margin-bottom: 0px;">
-																		<label><input type="radio" name="regressionY" ng-value="input" ng-model="selection.selectedIndicatorForYAxis" ng-change="onChangeSelectedIndicators()">{{input.indicatorMetadata.indicatorName}}</label>
-																	</div>
-																</td>
-																<td>
-																	<select style="font-size: 11px; width:135px; padding: 0px;"
-																		ng-model="input.selectedDate" ng-change="onChangeSelectedDate(input)" ng-options="date as date for date in input.indicatorMetadata.applicableDates" ng-init="input.selectedDate = input.indicatorMetadata.applicableDates[input.indicatorMetadata.applicableDates.length - 1]"
-																		class="form-control" required>
-																	</select>
-																</td>
-															
-															</tr>	
-														</tbody>												
-														
-													</table>
-
+										<!-- <label  for="sel1">verf&uuml;gbare Indikatoren</label> -->
+	
+										<div class="hiddenTableCell">
+	
+	
+											<div text-align="center" align="center" class="hiddenTableContent">
+	
+												<label>X-Achse</label>
+	
+												<div class="input-group">
+													<span class="input-group-addon"><i class="fas fa-filter"></i></span>
+													<input type="text" class="form-control input-sm" placeholder="X-Achse - Stichwortfilter" ng-model="indicatorNameFilterForXAxis" ng-model-options="{debounce: 500, blur: 0}">
 												</div>
+	
+												<p></p>
+	
+													<!-- <select style="font-size: 12px;"
+														size="10" ng-model="selectedIndicatorForXAxis" ng-options="indicator as indicator.indicatorMetadata.indicatorName + '   ' + indicator.closestTimestamp for indicator in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime | filter:filterIndicators() | filter:indicatorNameFilterForXAxis"
+														ng-change="onChangeSelectedIndicators()" class="form-control" required>
+														<option disabled selected value> -- Indikator f&uuml;r X-Achse w&auml;hlen -- </option>
+													</select> -->
+	
+													<div class="regressionInputForm">
+														<table class="table table-condensed " style="margin-bottom:0px;">
+															<thead>
+																<th>
+																	Indikator											
+																</th>
+																<th>
+																	Zeitschnitt
+																</th>
+															</thead>
+															<tbody>
+																<tr ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime | filter:filterIndicators() | filter:indicatorNameFilterForXAxis'>
+																	<td>
+																		<div class="radio" style="margin-top: 0px; margin-bottom: 0px;">
+																			<label><input type="radio" name="regressionX" ng-value="input" ng-model="selection.selectedIndicatorForXAxis" ng-change="onChangeSelectedIndicators()">{{input.indicatorMetadata.indicatorName}}</label>
+																		</div>
+																	</td>
+																	<td>
+																		<select style="font-size: 11px; width:135px; padding: 0px;"
+																			ng-model="input.selectedDate" ng-change="onChangeSelectedDate(input)" ng-options="date as date for date in input.indicatorMetadata.applicableDates" ng-init="input.selectedDate = input.indicatorMetadata.applicableDates[input.indicatorMetadata.applicableDates.length - 1]"
+																			class="form-control" required>
+																		</select>
+																	</td>
+																
+																</tr>	
+															</tbody>												
+														
+														</table>
+													</div>												
+											</div>
+	
 										</div>
-
+	
+										<div class="hiddenTableCell">
+	
+	
+											<div text-align="center" align="center" class="hiddenTableContent">
+	
+												<label>Y-Achse</label>
+	
+												<div class="input-group">
+													<span class="input-group-addon"><i class="fas fa-filter"></i></span>
+													<input type="text" class="form-control input-sm" placeholder="Y-Achse - Stichwortfilter" ng-model="indicatorNameFilterForYAxis" ng-model-options="{debounce: 500, blur: 0}">
+												</div>
+	
+												<p></p>
+	
+													<!-- <select style="font-size: 12px;"
+														size="10" ng-model="selectedIndicatorForYAxis" ng-options="indicator as indicator.indicatorMetadata.indicatorName + '   ' + indicator.closestTimestamp for indicator in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime | filter:filterIndicators() | filter:indicatorNameFilterForYAxis"
+														ng-change="onChangeSelectedIndicators()" class="form-control" required>
+														<option disabled selected value> -- Indikator f&uuml;r Y-Achse w&auml;hlen -- </option>
+													</select> -->
+	
+													<div class="regressionInputForm">
+														<table class="table table-condensed " style="margin-bottom:0px;">
+															<thead>
+																<th>
+																	Indikator											
+																</th>
+																<th>
+																	Zeitschnitt
+																</th>
+															</thead>
+															<tbody>
+																<tr ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime | filter:filterIndicators() | filter:indicatorNameFilterForYAxis'>
+																	<td>
+																		<div class="radio" style="margin-top: 0px; margin-bottom: 0px;">
+																			<label><input type="radio" name="regressionY" ng-value="input" ng-model="selection.selectedIndicatorForYAxis" ng-change="onChangeSelectedIndicators()">{{input.indicatorMetadata.indicatorName}}</label>
+																		</div>
+																	</td>
+																	<td>
+																		<select style="font-size: 11px; width:135px; padding: 0px;"
+																			ng-model="input.selectedDate" ng-change="onChangeSelectedDate(input)" ng-options="date as date for date in input.indicatorMetadata.applicableDates" ng-init="input.selectedDate = input.indicatorMetadata.applicableDates[input.indicatorMetadata.applicableDates.length - 1]"
+																			class="form-control" required>
+																		</select>
+																	</td>
+																
+																</tr>	
+															</tbody>												
+															
+														</table>
+	
+													</div>
+											</div>
+	
+										</div>
+	
+	
 									</div>
-
-
 								</div>
 
 							</uib-tab>
 
 							<uib-tab index="1" heading="Auswahl aktueller Indikator" disable="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.creationType != 'COMPUTATION'">
 
-								<div text-align="center" align="center" class="hiddenTable">
+								<div class="just-padding">
+									<div text-align="center" align="center" class="hiddenTable">
 
-									<!-- <label  for="sel1">verf&uuml;gbare Indikatoren</label> -->
-
-									<div class="hiddenTableCell">
-
-
-										<div text-align="center" align="center" class="hiddenTableContent">
-
-											<label>Ziel-Indikator (X-Achse)</label>
-
-											<div class="input-group">
-												<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-												<input type="text" class="form-control input-sm" placeholder="X-Achse - Stichwortfilter" ng-model="indicatorNameFilterForXAxis" ng-model-options="{debounce: 500, blur: 0}">
-											</div>
-
-											<p></p>
-
-												<div class="regressionInputForm">
-													<table class="table table-condensed " style="margin-bottom:0px;">
-														<thead>
-															<th>
-																Indikator											
-															</th>
-															<th>
-																Zeitschnitt
-															</th>
-														</thead>
-														<tbody>
-															<tr ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime | filter:filterIndicators() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterCurrentlySelectedIndicator() | filter:indicatorNameFilterForXAxis'>
-																<td>
-																	<div class="radio" style="margin-top: 0px; margin-bottom: 0px;">
-																		<label><input type="radio" name="regressionX" ng-value="input" ng-model="selection.selectedIndicatorForXAxis" ng-init="selection.selectedIndicatorForXAxis = input" ng-change="onChangeSelectedIndicators()">{{input.indicatorMetadata.indicatorName}}</label>
-																	</div>
-																</td>
-																<td>
-																	<select style="font-size: 11px; width:135px; padding: 0px;"
-																		ng-model="input.selectedDate" ng-change="onChangeSelectedDate(input)" ng-options="date as date for date in input.indicatorMetadata.applicableDates" ng-init="input.selectedDate = input.indicatorMetadata.applicableDates[input.indicatorMetadata.applicableDates.length - 1]"
-																		class="form-control" required>
-																	</select>
-																</td>
-															
-															</tr>	
-														</tbody>												
-													
-													</table>
-												</div>												
-										</div>
-
-									</div>
-
-									<div class="hiddenTableCell">
-
-
-										<div text-align="center" align="center" class="hiddenTableContent">
-
-											<label>Basisindikatoren als Berechnungsgrundlage (Y-Achse)</label>
-
-											<div class="input-group">
-												<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-												<input type="text" class="form-control input-sm" placeholder="Y-Achse - Stichwortfilter" ng-model="indicatorNameFilterForYAxis" ng-model-options="{debounce: 500, blur: 0}">
-											</div>
-
-											<p></p>
-
-												<!-- <select style="font-size: 12px;"
-													size="10" ng-model="selectedIndicatorForYAxis" ng-options="indicator as indicator.indicatorMetadata.indicatorName + '   ' + indicator.closestTimestamp for indicator in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime | filter:filterIndicators() | filter:indicatorNameFilterForYAxis"
-													ng-change="onChangeSelectedIndicators()" class="form-control" required>
-													<option disabled selected value> -- Indikator f&uuml;r Y-Achse w&auml;hlen -- </option>
-												</select> -->
-
-												<div class="regressionInputForm">
-													<table class="table table-condensed " style="margin-bottom:0px;">
-														<thead>
-															<th>
-																Indikator											
-															</th>
-															<th>
-																Zeitschnitt
-															</th>
-														</thead>
-														<tbody>
-															<tr ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime | filter:filterIndicators() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterBaseIndicatorsOfCurrentComputationIndicator() | filter:indicatorNameFilterForYAxis'>
-																<td>
-																	<div class="radio" style="margin-top: 0px; margin-bottom: 0px;">
-																		<label><input type="radio" name="regressionY" ng-value="input" ng-model="selection.selectedIndicatorForYAxis" ng-init="selection.selectedIndicatorForYAxis = input" ng-change="onChangeSelectedIndicators()">{{input.indicatorMetadata.indicatorName}}</label>
-																	</div>
-																</td>
-																<td>
-																	<select style="font-size: 11px; width:135px; padding: 0px;"
-																		ng-model="input.selectedDate" ng-change="onChangeSelectedDate(input)" ng-options="date as date for date in input.indicatorMetadata.applicableDates" ng-init="input.selectedDate = input.indicatorMetadata.applicableDates[input.indicatorMetadata.applicableDates.length - 1]"
-																		class="form-control" required>
-																	</select>
-																</td>
-															
-															</tr>	
-														</tbody>												
-														
-													</table>
-
+										<!-- <label  for="sel1">verf&uuml;gbare Indikatoren</label> -->
+	
+										<div class="hiddenTableCell">
+	
+	
+											<div text-align="center" align="center" class="hiddenTableContent">
+	
+												<label>Ziel-Indikator (X-Achse)</label>
+	
+												<div class="input-group">
+													<span class="input-group-addon"><i class="fas fa-filter"></i></span>
+													<input type="text" class="form-control input-sm" placeholder="X-Achse - Stichwortfilter" ng-model="indicatorNameFilterForXAxis" ng-model-options="{debounce: 500, blur: 0}">
 												</div>
+	
+												<p></p>
+	
+													<div class="regressionInputForm">
+														<table class="table table-condensed " style="margin-bottom:0px;">
+															<thead>
+																<th>
+																	Indikator											
+																</th>
+																<th>
+																	Zeitschnitt
+																</th>
+															</thead>
+															<tbody>
+																<tr ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime | filter:filterIndicators() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterCurrentlySelectedIndicator() | filter:indicatorNameFilterForXAxis'>
+																	<td>
+																		<div class="radio" style="margin-top: 0px; margin-bottom: 0px;">
+																			<label><input type="radio" name="regressionX" ng-value="input" ng-model="selection.selectedIndicatorForXAxis" ng-init="selection.selectedIndicatorForXAxis = input" ng-change="onChangeSelectedIndicators()">{{input.indicatorMetadata.indicatorName}}</label>
+																		</div>
+																	</td>
+																	<td>
+																		<select style="font-size: 11px; width:135px; padding: 0px;"
+																			ng-model="input.selectedDate" ng-change="onChangeSelectedDate(input)" ng-options="date as date for date in input.indicatorMetadata.applicableDates" ng-init="input.selectedDate = input.indicatorMetadata.applicableDates[input.indicatorMetadata.applicableDates.length - 1]"
+																			class="form-control" required>
+																		</select>
+																	</td>
+																
+																</tr>	
+															</tbody>												
+														
+														</table>
+													</div>												
+											</div>
+	
 										</div>
-
+	
+										<div class="hiddenTableCell">
+	
+	
+											<div text-align="center" align="center" class="hiddenTableContent">
+	
+												<label>Basisindikatoren als Berechnungsgrundlage (Y-Achse)</label>
+	
+												<div class="input-group">
+													<span class="input-group-addon"><i class="fas fa-filter"></i></span>
+													<input type="text" class="form-control input-sm" placeholder="Y-Achse - Stichwortfilter" ng-model="indicatorNameFilterForYAxis" ng-model-options="{debounce: 500, blur: 0}">
+												</div>
+	
+												<p></p>
+	
+													<!-- <select style="font-size: 12px;"
+														size="10" ng-model="selectedIndicatorForYAxis" ng-options="indicator as indicator.indicatorMetadata.indicatorName + '   ' + indicator.closestTimestamp for indicator in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime | filter:filterIndicators() | filter:indicatorNameFilterForYAxis"
+														ng-change="onChangeSelectedIndicators()" class="form-control" required>
+														<option disabled selected value> -- Indikator f&uuml;r Y-Achse w&auml;hlen -- </option>
+													</select> -->
+	
+													<div class="regressionInputForm">
+														<table class="table table-condensed " style="margin-bottom:0px;">
+															<thead>
+																<th>
+																	Indikator											
+																</th>
+																<th>
+																	Zeitschnitt
+																</th>
+															</thead>
+															<tbody>
+																<tr ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime | filter:filterIndicators() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterBaseIndicatorsOfCurrentComputationIndicator() | filter:indicatorNameFilterForYAxis'>
+																	<td>
+																		<div class="radio" style="margin-top: 0px; margin-bottom: 0px;">
+																			<label><input type="radio" name="regressionY" ng-value="input" ng-model="selection.selectedIndicatorForYAxis" ng-init="selection.selectedIndicatorForYAxis = input" ng-change="onChangeSelectedIndicators()">{{input.indicatorMetadata.indicatorName}}</label>
+																		</div>
+																	</td>
+																	<td>
+																		<select style="font-size: 11px; width:135px; padding: 0px;"
+																			ng-model="input.selectedDate" ng-change="onChangeSelectedDate(input)" ng-options="date as date for date in input.indicatorMetadata.applicableDates" ng-init="input.selectedDate = input.indicatorMetadata.applicableDates[input.indicatorMetadata.applicableDates.length - 1]"
+																			class="form-control" required>
+																		</select>
+																	</td>
+																
+																</tr>	
+															</tbody>												
+															
+														</table>
+	
+													</div>
+											</div>
+	
+										</div>
+	
+	
 									</div>
-
-
+	
 								</div>
-
+								
 							</uib-tab>
 
 							<uib-tab index="2" heading="Auswahl aktueller Leitindikator" disable="!$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.isHeadlineIndicator">
 
-								<div text-align="center" align="center" class="hiddenTable">
+								<div class="just-padding">
+									<div text-align="center" align="center" class="hiddenTable">
 
-									<!-- <label  for="sel1">verf&uuml;gbare Indikatoren</label> -->
-
-									<div class="hiddenTableCell">
-
-
-										<div text-align="center" align="center" class="hiddenTableContent">
-
-											<label>Leitindikator (X-Achse)</label>
-
-											<div class="input-group">
-												<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-												<input type="text" class="form-control input-sm" placeholder="X-Achse - Stichwortfilter" ng-model="indicatorNameFilterForXAxis" ng-model-options="{debounce: 500, blur: 0}">
-											</div>
-
-											<p></p>
-
-												<div class="regressionInputForm">
-													<table class="table table-condensed " style="margin-bottom:0px;">
-														<thead>
-															<th>
-																Indikator											
-															</th>
-															<th>
-																Zeitschnitt
-															</th>
-														</thead>
-														<tbody>
-															<tr ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime | filter:filterIndicators() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterCurrentlySelectedIndicator() | filter:indicatorNameFilterForXAxis'>
-																<td>
-																	<div class="radio" style="margin-top: 0px; margin-bottom: 0px;">
-																		<label><input type="radio" name="regressionX" ng-value="input" ng-model="selection.selectedIndicatorForXAxis" ng-init="selection.selectedIndicatorForXAxis = input" ng-change="onChangeSelectedIndicators()">{{input.indicatorMetadata.indicatorName}}</label>
-																	</div>
-																</td>
-																<td>
-																	<select style="font-size: 11px; width:135px; padding: 0px;"
-																		ng-model="input.selectedDate" ng-change="onChangeSelectedDate(input)" ng-options="date as date for date in input.indicatorMetadata.applicableDates" ng-init="input.selectedDate = input.indicatorMetadata.applicableDates[input.indicatorMetadata.applicableDates.length - 1]"
-																		class="form-control" required>
-																	</select>
-																</td>
-															
-															</tr>	
-														</tbody>												
-													
-													</table>
-												</div>												
-										</div>
-
-									</div>
-
-									<div class="hiddenTableCell">
-
-
-										<div text-align="center" align="center" class="hiddenTableContent">
-
-											<label>Basisindikatoren als Berechnungsgrundlage (Y-Achse)</label>
-
-											<div class="input-group">
-												<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-												<input type="text" class="form-control input-sm" placeholder="Y-Achse - Stichwortfilter" ng-model="indicatorNameFilterForYAxis" ng-model-options="{debounce: 500, blur: 0}">
-											</div>
-
-											<p></p>
-
-												<div class="regressionInputForm">
-													<table class="table table-condensed " style="margin-bottom:0px;">
-														<thead>
-															<th>
-																Indikator											
-															</th>
-															<th>
-																Zeitschnitt
-															</th>
-														</thead>
-														<tbody>
-															<tr ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime | filter:filterIndicators() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterBaseIndicatorsOfCurrentHeadlineIndicator() | filter:indicatorNameFilterForYAxis'>
-																<td>
-																	<div class="radio" style="margin-top: 0px; margin-bottom: 0px;">
-																		<label><input type="radio" name="regressionY" ng-value="input" ng-model="selection.selectedIndicatorForYAxis" ng-init="selection.selectedIndicatorForYAxis = input" ng-change="onChangeSelectedIndicators()">{{input.indicatorMetadata.indicatorName}}</label>
-																	</div>
-																</td>
-																<td>
-																	<select style="font-size: 11px; width:135px; padding: 0px;"
-																		ng-model="input.selectedDate" ng-change="onChangeSelectedDate(input)" ng-options="date as date for date in input.indicatorMetadata.applicableDates" ng-init="input.selectedDate = input.indicatorMetadata.applicableDates[input.indicatorMetadata.applicableDates.length - 1]"
-																		class="form-control" required>
-																	</select>
-																</td>
-															
-															</tr>	
-														</tbody>												
-														
-													</table>
-
+										<!-- <label  for="sel1">verf&uuml;gbare Indikatoren</label> -->
+	
+										<div class="hiddenTableCell">
+	
+	
+											<div text-align="center" align="center" class="hiddenTableContent">
+	
+												<label>Leitindikator (X-Achse)</label>
+	
+												<div class="input-group">
+													<span class="input-group-addon"><i class="fas fa-filter"></i></span>
+													<input type="text" class="form-control input-sm" placeholder="X-Achse - Stichwortfilter" ng-model="indicatorNameFilterForXAxis" ng-model-options="{debounce: 500, blur: 0}">
 												</div>
+	
+												<p></p>
+	
+													<div class="regressionInputForm">
+														<table class="table table-condensed " style="margin-bottom:0px;">
+															<thead>
+																<th>
+																	Indikator											
+																</th>
+																<th>
+																	Zeitschnitt
+																</th>
+															</thead>
+															<tbody>
+																<tr ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime | filter:filterIndicators() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterCurrentlySelectedIndicator() | filter:indicatorNameFilterForXAxis'>
+																	<td>
+																		<div class="radio" style="margin-top: 0px; margin-bottom: 0px;">
+																			<label><input type="radio" name="regressionX" ng-value="input" ng-model="selection.selectedIndicatorForXAxis" ng-init="selection.selectedIndicatorForXAxis = input" ng-change="onChangeSelectedIndicators()">{{input.indicatorMetadata.indicatorName}}</label>
+																		</div>
+																	</td>
+																	<td>
+																		<select style="font-size: 11px; width:135px; padding: 0px;"
+																			ng-model="input.selectedDate" ng-change="onChangeSelectedDate(input)" ng-options="date as date for date in input.indicatorMetadata.applicableDates" ng-init="input.selectedDate = input.indicatorMetadata.applicableDates[input.indicatorMetadata.applicableDates.length - 1]"
+																			class="form-control" required>
+																		</select>
+																	</td>
+																
+																</tr>	
+															</tbody>												
+														
+														</table>
+													</div>												
+											</div>
+	
 										</div>
-
+	
+										<div class="hiddenTableCell">
+	
+	
+											<div text-align="center" align="center" class="hiddenTableContent">
+	
+												<label>Basisindikatoren als Berechnungsgrundlage (Y-Achse)</label>
+	
+												<div class="input-group">
+													<span class="input-group-addon"><i class="fas fa-filter"></i></span>
+													<input type="text" class="form-control input-sm" placeholder="Y-Achse - Stichwortfilter" ng-model="indicatorNameFilterForYAxis" ng-model-options="{debounce: 500, blur: 0}">
+												</div>
+	
+												<p></p>
+	
+													<div class="regressionInputForm">
+														<table class="table table-condensed " style="margin-bottom:0px;">
+															<thead>
+																<th>
+																	Indikator											
+																</th>
+																<th>
+																	Zeitschnitt
+																</th>
+															</thead>
+															<tbody>
+																<tr ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime | filter:filterIndicators() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterBaseIndicatorsOfCurrentHeadlineIndicator() | filter:indicatorNameFilterForYAxis'>
+																	<td>
+																		<div class="radio" style="margin-top: 0px; margin-bottom: 0px;">
+																			<label><input type="radio" name="regressionY" ng-value="input" ng-model="selection.selectedIndicatorForYAxis" ng-init="selection.selectedIndicatorForYAxis = input" ng-change="onChangeSelectedIndicators()">{{input.indicatorMetadata.indicatorName}}</label>
+																		</div>
+																	</td>
+																	<td>
+																		<select style="font-size: 11px; width:135px; padding: 0px;"
+																			ng-model="input.selectedDate" ng-change="onChangeSelectedDate(input)" ng-options="date as date for date in input.indicatorMetadata.applicableDates" ng-init="input.selectedDate = input.indicatorMetadata.applicableDates[input.indicatorMetadata.applicableDates.length - 1]"
+																			class="form-control" required>
+																		</select>
+																	</td>
+																
+																</tr>	
+															</tbody>												
+															
+														</table>
+	
+													</div>
+											</div>
+	
+										</div>
+	
+	
 									</div>
-
-
+	
 								</div>
-
+								
 							</uib-tab>
 						</uib-tabset>								
 

@@ -49,132 +49,139 @@
 
 					<uib-tabset active="activeTab">
 						<uib-tab index="0" heading="Alphabetische Liste">
-							<table class="table table-condensed " style="margin-bottom:0px;">
-								<thead>
-									<th>
-										Indikator											
-									</th>
-									<th>
-										Zeitschnitt
-									</th>
-								</thead>
-								<tbody>
-									<tr ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime | filter:filterIndicators() | filter:indicatorNameFilter'>
-										<td>
-											<label class='checkbox-inline input-sm' ><input type="checkbox" value="input.indicatorMetadata.indicatorName" ng-model="input.isSelected" ng-change="$ctrl.filterDisplayedIndicatorsOnRadar()">{{input.indicatorMetadata.indicatorName}}  {{input.closestTimestamp}}</label>											
-										</td>
-										<td>
-											<select style="font-size: 11px; width:135px; padding: 0px;"
-												ng-model="input.selectedDate" ng-change="onChangeSelectedDate(input)" ng-options="date as date for date in input.indicatorMetadata.applicableDates" ng-init="input.selectedDate = input.indicatorMetadata.applicableDates[input.indicatorMetadata.applicableDates.length - 1]"
-												class="form-control" required>
-											</select>
-										</td>
-									
-									</tr>	
-								</tbody>												
-							
-						</table>
-						<!-- <div ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime | filter:filterIndicators() | filter:indicatorNameFilter'>
-							<label class='checkbox-inline input-sm' ><input type="checkbox" value="input.indicatorMetadata.indicatorName" ng-model="input.isSelected" ng-change="$ctrl.filterDisplayedIndicatorsOnRadar()">{{input.indicatorMetadata.indicatorName}}  {{input.closestTimestamp}}</label>
-							
-							<br/>
-						</div> -->
+
+							<div class="just-padding">
+								<table class="table table-condensed " style="margin-bottom:0px;">
+									<thead>
+										<th>
+											Indikator											
+										</th>
+										<th>
+											Zeitschnitt
+										</th>
+									</thead>
+									<tbody>
+										<tr ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime | filter:filterIndicators() | filter:indicatorNameFilter'>
+											<td>
+												<label class='checkbox-inline input-sm' ><input type="checkbox" value="input.indicatorMetadata.indicatorName" ng-model="input.isSelected" ng-change="$ctrl.filterDisplayedIndicatorsOnRadar()">{{input.indicatorMetadata.indicatorName}}  {{input.closestTimestamp}}</label>											
+											</td>
+											<td>
+												<select style="font-size: 11px; width:135px; padding: 0px;"
+													ng-model="input.selectedDate" ng-change="onChangeSelectedDate(input)" ng-options="date as date for date in input.indicatorMetadata.applicableDates" ng-init="input.selectedDate = input.indicatorMetadata.applicableDates[input.indicatorMetadata.applicableDates.length - 1]"
+													class="form-control" required>
+												</select>
+											</td>
+										
+										</tr>	
+									</tbody>												
+								
+							</table>
+							</div>
+
 						</uib-tab>
 						<uib-tab index="1" heading="Auswahl aktueller Indikator" disable="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.creationType != 'COMPUTATION'">
-							<table class="table table-condensed " style="margin-bottom:0px;">
-								<thead>
-									<th>
-										Indikator											
-									</th>
-									<th>
-										Typ											
-									</th>
-									<th>
-										Zeitschnitt
-									</th>
-								</thead>
-								<tbody>
-									<tr ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime | filter:filterIndicators() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterCurrentlySelectedIndicator() | filter:indicatorNameFilter'>
-										<td>
-											<label class='checkbox-inline input-sm' ><input type="checkbox" value="input.indicatorMetadata.indicatorName" ng-model="input.isSelected" ng-init="input.isSelected = true" ng-change="$ctrl.filterDisplayedIndicatorsOnRadar()">{{input.indicatorMetadata.indicatorName}}  {{input.closestTimestamp}}</label>											
-										</td>
-										<td>
-											Ziel-Indikator (systemseitig berechnet)
-										</td>
-										<td>
-											<select style="font-size: 11px; width:135px; padding: 0px;"
-												ng-model="input.selectedDate" ng-change="onChangeSelectedDate(input)" ng-options="date as date for date in input.indicatorMetadata.applicableDates" ng-init="input.selectedDate = input.indicatorMetadata.applicableDates[input.indicatorMetadata.applicableDates.length - 1]"
-												class="form-control" required>
-											</select>
-										</td>
-									
-									</tr>
-									<tr ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime | filter:filterIndicators() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterBaseIndicatorsOfCurrentComputationIndicator() | filter:indicatorNameFilter'>
-										<td>
-											<label class='checkbox-inline input-sm' ><input type="checkbox" value="input.indicatorMetadata.indicatorName" ng-model="input.isSelected" ng-init="input.isSelected = true" ng-change="$ctrl.filterDisplayedIndicatorsOnRadar()">{{input.indicatorMetadata.indicatorName}}  {{input.closestTimestamp}}</label>											
-										</td>
-										<td>
-											Basisindikator (Berechnungsgrundlage des Ziel-Indikators)
-										</td>
-										<td>
-											<select style="font-size: 11px; width:135px; padding: 0px;"
-												ng-model="input.selectedDate" ng-change="onChangeSelectedDate(input)" ng-options="date as date for date in input.indicatorMetadata.applicableDates" ng-init="input.selectedDate = input.indicatorMetadata.applicableDates[input.indicatorMetadata.applicableDates.length - 1]"
-												class="form-control" required>
-											</select>
-										</td>
-									
-									</tr>	
-								</tbody>												
 							
-							</table>
+							<div class="just-padding">
+								<table class="table table-condensed " style="margin-bottom:0px;">
+									<thead>
+										<th>
+											Indikator											
+										</th>
+										<th>
+											Typ											
+										</th>
+										<th>
+											Zeitschnitt
+										</th>
+									</thead>
+									<tbody>
+										<tr ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime | filter:filterIndicators() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterCurrentlySelectedIndicator() | filter:indicatorNameFilter'>
+											<td>
+												<label class='checkbox-inline input-sm' ><input type="checkbox" value="input.indicatorMetadata.indicatorName" ng-model="input.isSelected" ng-init="input.isSelected = true" ng-change="$ctrl.filterDisplayedIndicatorsOnRadar()">{{input.indicatorMetadata.indicatorName}}  {{input.closestTimestamp}}</label>											
+											</td>
+											<td>
+												Ziel-Indikator (systemseitig berechnet)
+											</td>
+											<td>
+												<select style="font-size: 11px; width:135px; padding: 0px;"
+													ng-model="input.selectedDate" ng-change="onChangeSelectedDate(input)" ng-options="date as date for date in input.indicatorMetadata.applicableDates" ng-init="input.selectedDate = input.indicatorMetadata.applicableDates[input.indicatorMetadata.applicableDates.length - 1]"
+													class="form-control" required>
+												</select>
+											</td>
+										
+										</tr>
+										<tr ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime | filter:filterIndicators() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterBaseIndicatorsOfCurrentComputationIndicator() | filter:indicatorNameFilter'>
+											<td>
+												<label class='checkbox-inline input-sm' ><input type="checkbox" value="input.indicatorMetadata.indicatorName" ng-model="input.isSelected" ng-init="input.isSelected = true" ng-change="$ctrl.filterDisplayedIndicatorsOnRadar()">{{input.indicatorMetadata.indicatorName}}  {{input.closestTimestamp}}</label>											
+											</td>
+											<td>
+												Basisindikator (Berechnungsgrundlage des Ziel-Indikators)
+											</td>
+											<td>
+												<select style="font-size: 11px; width:135px; padding: 0px;"
+													ng-model="input.selectedDate" ng-change="onChangeSelectedDate(input)" ng-options="date as date for date in input.indicatorMetadata.applicableDates" ng-init="input.selectedDate = input.indicatorMetadata.applicableDates[input.indicatorMetadata.applicableDates.length - 1]"
+													class="form-control" required>
+												</select>
+											</td>
+										
+										</tr>	
+									</tbody>												
+								
+								</table>
+							</div>
+							
 						</uib-tab>
 						<uib-tab index="2" heading="Auswahl aktueller Leitindikator" disable="!$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.isHeadlineIndicator">
-							<table class="table table-condensed " style="margin-bottom:0px;">
-								<thead>
-									<th>
-										Indikator											
-									</th>
-									<th>
-										Typ											
-									</th>
-									<th>
-										Zeitschnitt
-									</th>
-								</thead>
-								<tbody>
-									<tr ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime | filter:filterIndicators() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterCurrentlySelectedIndicator() | filter:indicatorNameFilter'>
-										<td>
-											<label class='checkbox-inline input-sm' ><input type="checkbox" value="input.indicatorMetadata.indicatorName" ng-model="input.isSelected" ng-init="input.isSelected = true" ng-change="$ctrl.filterDisplayedIndicatorsOnRadar()">{{input.indicatorMetadata.indicatorName}}  {{input.closestTimestamp}}</label>											
-										</td>
-										<td>
-											Leitindikator
-										</td>
-										<td>
-											<select style="font-size: 11px; width:135px; padding: 0px;"
-												ng-model="input.selectedDate" ng-change="onChangeSelectedDate(input)" ng-options="date as date for date in input.indicatorMetadata.applicableDates" ng-init="input.selectedDate = input.indicatorMetadata.applicableDates[input.indicatorMetadata.applicableDates.length - 1]"
-												class="form-control" required>
-											</select>
-										</td>
-									
-									</tr>
-									<tr ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime | filter:filterIndicators() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterBaseIndicatorsOfCurrentHeadlineIndicator() | filter:indicatorNameFilter'>
-										<td>
-											<label class='checkbox-inline input-sm' ><input type="checkbox" value="input.indicatorMetadata.indicatorName" ng-model="input.isSelected" ng-init="input.isSelected = true" ng-change="$ctrl.filterDisplayedIndicatorsOnRadar()">{{input.indicatorMetadata.indicatorName}}  {{input.closestTimestamp}}</label>											
-										</td>
-										<td>
-											Basisindikator (Berechnungsgrundlage des Leitindikators)
-										</td>
-										<td>
-											<select style="font-size: 11px; width:135px; padding: 0px;"
-												ng-model="input.selectedDate" ng-change="onChangeSelectedDate(input)" ng-options="date as date for date in input.indicatorMetadata.applicableDates" ng-init="input.selectedDate = input.indicatorMetadata.applicableDates[input.indicatorMetadata.applicableDates.length - 1]"
-												class="form-control" required>
-											</select>
-										</td>
-									
-									</tr>	
-								</tbody>												
+
+							<div class="just-padding">
+								<table class="table table-condensed " style="margin-bottom:0px;">
+									<thead>
+										<th>
+											Indikator											
+										</th>
+										<th>
+											Typ											
+										</th>
+										<th>
+											Zeitschnitt
+										</th>
+									</thead>
+									<tbody>
+										<tr ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime | filter:filterIndicators() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterCurrentlySelectedIndicator() | filter:indicatorNameFilter'>
+											<td>
+												<label class='checkbox-inline input-sm' ><input type="checkbox" value="input.indicatorMetadata.indicatorName" ng-model="input.isSelected" ng-init="input.isSelected = true" ng-change="$ctrl.filterDisplayedIndicatorsOnRadar()">{{input.indicatorMetadata.indicatorName}}  {{input.closestTimestamp}}</label>											
+											</td>
+											<td>
+												Leitindikator
+											</td>
+											<td>
+												<select style="font-size: 11px; width:135px; padding: 0px;"
+													ng-model="input.selectedDate" ng-change="onChangeSelectedDate(input)" ng-options="date as date for date in input.indicatorMetadata.applicableDates" ng-init="input.selectedDate = input.indicatorMetadata.applicableDates[input.indicatorMetadata.applicableDates.length - 1]"
+													class="form-control" required>
+												</select>
+											</td>
+										
+										</tr>
+										<tr ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime | filter:filterIndicators() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterBaseIndicatorsOfCurrentHeadlineIndicator() | filter:indicatorNameFilter'>
+											<td>
+												<label class='checkbox-inline input-sm' ><input type="checkbox" value="input.indicatorMetadata.indicatorName" ng-model="input.isSelected" ng-init="input.isSelected = true" ng-change="$ctrl.filterDisplayedIndicatorsOnRadar()">{{input.indicatorMetadata.indicatorName}}  {{input.closestTimestamp}}</label>											
+											</td>
+											<td>
+												Basisindikator (Berechnungsgrundlage des Leitindikators)
+											</td>
+											<td>
+												<select style="font-size: 11px; width:135px; padding: 0px;"
+													ng-model="input.selectedDate" ng-change="onChangeSelectedDate(input)" ng-options="date as date for date in input.indicatorMetadata.applicableDates" ng-init="input.selectedDate = input.indicatorMetadata.applicableDates[input.indicatorMetadata.applicableDates.length - 1]"
+													class="form-control" required>
+												</select>
+											</td>
+										
+										</tr>	
+									</tbody>												
+								
+								</table>
+							</div>
 							
-						</table>
 						</uib-tab>
 					</uib-tabset>
 
