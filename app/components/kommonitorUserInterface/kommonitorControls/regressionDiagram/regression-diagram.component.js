@@ -14,6 +14,11 @@ angular
 								 */
 								this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 								this.kommonitorDiagramHelperServiceInstance = kommonitorDiagramHelperService;
+
+								var self = this;
+
+								$scope.activeTab = 0;
+
 								// initialize any adminLTE box widgets
 								$('.box').boxWidget();
 
@@ -97,8 +102,12 @@ angular
 
 									await wait(100);
 
-									$scope.setupCompleted = true;
-									$scope.$apply();
+									$timeout(function(){
+										$scope.setupCompleted = true;
+										$scope.$apply();
+										$scope.onChangeSelectedIndicators();
+									}, 500);									
+
 								});
 
 								$scope.onChangeSelectedDate = function(input){
@@ -159,6 +168,18 @@ angular
 								    });
 
 									}
+
+									$scope.activeTab = 0;
+									if(kommonitorDataExchangeService.selectedIndicator.creationType == "COMPUTATION"){
+										$scope.activeTab = 1;
+									}
+									if(kommonitorDataExchangeService.selectedIndicator.isHeadlineIndicator){
+										$scope.activeTab = 2;
+									}
+									$timeout(function(){
+										$scope.onChangeSelectedIndicators();
+									}, 500);
+																		
 								});
 
 								$scope.$on("updateDiagramsForHoveredFeature", function (event, featureProperties) {
@@ -651,7 +672,7 @@ angular
 											$scope.$apply();
 										}, 350);
 									}
-								}
+								};
 
 								function registerEventsIfNecessary(){
 									if(!$scope.eventsRegistered){
