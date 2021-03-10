@@ -1,0 +1,239 @@
+<!-- <div class="wrapper hold-transition skin-blue sidebar-mini"> -->
+<div class="wrapper">
+
+  <!-- Main Header -->
+  <header class="main-header">
+
+    <!-- Logo -->
+    <a target="_blank" rel="noopener noreferrer" href="http://kommonitor.de" class="logo">
+      <!-- mini logo for sidebar mini 50x50 pixels -->
+      <span class="logo-mini"><img src="logos/KM_Logo1.svg"></img></span>
+      <!-- logo for regular state and mobile devices -->
+      <span class="logo-lg"><img src="logos/KM_Logo1.svg"></img><b>KomMonitor</b></span>
+    </a>
+
+    <!-- Header Navbar -->
+    <nav class="navbar navbar-static-top" role="navigation">
+      <!-- Sidebar toggle button-->
+      <a href="" class="sidebar-toggle" data-toggle="push-menu" role="button">
+        <span class="sr-only">Toggle navigation</span>
+      </a>
+
+      <!-- witch back to KomMonitor Main Application -->
+      <a href="#!/" class="btn btn-danger" style="margin-top:8px;" ng-click="switchToMapApplication()"><i class="fas fa-user-cog"></i>&nbsp;&nbsp;Administration verlassen</a>
+
+      <!-- Navbar Right Menu -->
+      <div class="navbar-custom-menu">
+        <ul class="nav navbar-nav">
+
+
+        </ul>
+      </div>
+    </nav>
+  </header>
+  <!-- Left side column. contains the logo and sidebar -->
+  <aside class="main-sidebar">
+
+    <!-- sidebar: style can be found in sidebar.less -->
+    <section class="sidebar">
+
+      <!-- Sidebar Menu -->
+      <ul class="sidebar-menu" data-widget="tree">
+        <li class="header">Administration</li>
+        <!-- Optionally, you can add icons to the links -->
+        <li id="adminDashboardNavItem" class="active" ng-click="onClickOtherAdminPanel('adminDashboardNavItem')"><a data-toggle="tab" data-target="#dashboardWrapper" href=""><i class="fas fa-tachometer-alt"></i> <span>&Uuml;bersicht</span></a></li>
+        <li id="adminUsersNavItem" ng-click="onClickOtherAdminPanel('adminUsersNavItem')"><a data-toggle="tab" data-target="#userWrapper" href=""><i class="fas fa-users"></i> <span>Rollenverwaltung</span></a></li>
+        <li id="adminTopicsNavItem" ng-click="onClickOtherAdminPanel('adminTopicsNavItem')"><a data-toggle="tab" data-target="#topicsWrapper" href=""><i class="fas fa-book"></i> <span>Themenverwaltung</span></a></li>
+        <li id="adminGeodataWrapperNavItem" class="treeview">
+          <a data-toggle="tab" href="" ng-click="onClickGeodataWrapperItem()"><i class="fas fa-globe-americas"></i> <span>Geodatenverwaltung</span>
+            <span class="pull-right-container">
+                <i class="fa fa-angle-left pull-right"></i>
+              </span>
+          </a>
+          <ul class="treeview-menu">
+            <li id="adminSpatialUnitsNavItem"><a data-toggle="tab" data-target="#spatialUnitsWrapper" ng-click="onClickGeodataAdminPanel('adminSpatialUnitsNavItem')" href=""><i class="fas fa-layer-group"></i> <span>Raumeinheiten</span></a></li>
+            <li id="adminIndicatorsNavItem"><a data-toggle="tab" data-target="#indicatorsWrapper" ng-click="onClickGeodataAdminPanel('adminIndicatorsNavItem')" href=""><i class="fas fa-sitemap"></i> <span>Indikatoren</span></a></li>
+            <li id="adminGeoresourcesNavItem"><a data-toggle="tab" data-target="#georesourcesWrapper" ng-click="onClickGeodataAdminPanel('adminGeoresourcesNavItem')" href=""><i class="fas fa-map-marked-alt"></i> <span>Georessourcen</span></a></li>
+          </ul>
+        </li>
+        <li id="adminScriptsNavItem" ng-click="onClickOtherAdminPanel('adminScriptsNavItem')"><a data-toggle="tab" data-target="#scriptWrapper" href=""><i class="far fa-file-code"></i> <span>Skriptverwaltung</span></a></li>
+        <li id="adminScriptExecutionNavItem" ng-click="onClickOtherAdminPanel('adminScriptExecutionNavItem')"><a data-toggle="tab" data-target="#scriptExecutionWrapper" href=""><i class="far fa-file-code"></i> <span>Indikatorenberechnung</span></a></li>
+        <li id="adminConfigWrapperNavItem" class="treeview">
+          <a data-toggle="tab" href="" ng-click="onClickConfigWrapperItem()"><i class="fas fa-tools"></i> <span>Einstellungen</span>
+            <span class="pull-right-container">
+                <i class="fa fa-angle-left pull-right"></i>
+              </span>
+          </a>
+          <ul class="treeview-menu">
+            <li id="adminAppConfigNavItem"><a data-toggle="tab" data-target="#appConfigWrapper" ng-click="onClickConfigAdminPanel('adminAppConfigNavItem')" href=""><i class="fas fa-cogs"></i> <span>Allgemeine Einstellungen</span></a></li>
+            <li id="adminKeycloakConfigNavItem"><a data-toggle="tab" data-target="#keycloakConfigWrapper" ng-click="onClickConfigAdminPanel('adminKeycloakConfigNavItem')" href=""><i class="fas fa-users-cog"></i> <span>Keycloak-Konfiguration</span></a></li>
+            <li id="adminControlsConfigNavItem"><a data-toggle="tab" data-target="#controlsConfigWrapper" ng-click="onClickConfigAdminPanel('adminControlsConfigNavItem')" href=""><i class="far fa-eye-slash"></i> <span>Widget-Konfiguration</span></a></li>
+          </ul>
+        </li>
+
+      </ul>
+      <!-- /.sidebar-menu -->
+    </section>
+    <!-- /.sidebar -->
+  </aside>
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+
+    <div class="tab-content">
+
+      <div id="dashboardWrapper" class="tab-pane fade in active">
+
+        <admin-dashboard-management></admin-dashboard-management>
+
+      </div>
+
+      <div id="userWrapper" class="tab-pane fade in">
+
+        <admin-role-management></admin-role-management>
+
+      </div>
+
+      <div id="topicsWrapper" class="tab-pane fade in">
+
+        <admin-topics-management></admin-topics-management>
+
+      </div>
+
+      <div id="spatialUnitsWrapper" class="tab-pane fade in">
+
+        <admin-spatial-units-management></admin-spatial-units-management>
+
+      </div>
+
+      <div id="indicatorsWrapper" class="tab-pane fade in">
+
+        <admin-indicators-management></admin-indicators-management>
+
+      </div>
+
+      <div id="georesourcesWrapper" class="tab-pane fade in">
+
+        <admin-georesources-management></admin-georesources-management>
+
+      </div>
+
+      <div id="scriptWrapper" class="tab-pane fade in">
+
+        <admin-script-management></admin-script-management>
+
+      </div>
+
+      <div id="scriptExecutionWrapper" class="tab-pane fade in">
+
+        <admin-script-execution></admin-script-execution>
+
+      </div>
+
+      <div id="appConfigWrapper" class="tab-pane fade in">
+
+        <admin-app-config></admin-app-config>
+
+      </div>
+
+      <div id="keycloakConfigWrapper" class="tab-pane fade in">
+
+        <admin-keycloak-config></admin-keycloak-config>
+
+      </div>
+
+      <div id="controlsConfigWrapper" class="tab-pane fade in">
+
+        <admin-controls-config></admin-controls-config>
+
+      </div>
+
+      <!-- Modal -->
+      <spatial-unit-add-modal></spatial-unit-add-modal>
+
+      <!-- Modal -->
+      <spatial-unit-edit-metadata-modal></spatial-unit-edit-metadata-modal>
+
+      <!-- Modal -->
+      <spatial-unit-edit-features-modal></spatial-unit-edit-features-modal>
+
+      <!-- Modal -->
+      <spatial-unit-delete-modal></spatial-unit-delete-modal>
+
+
+      <!-- Modal -->
+      <georesource-add-modal></georesource-add-modal>
+
+      <!-- Modal -->
+      <georesource-edit-features-modal></georesource-edit-features-modal>
+
+      <!-- Modal -->
+      <georesource-edit-metadata-modal></georesource-edit-metadata-modal>
+
+      <!-- Modal -->
+      <georesource-delete-modal></georesource-delete-modal>
+
+
+      <!-- Modal -->
+      <indicator-add-modal></indicator-add-modal>
+
+      <!-- Modal -->
+      <indicator-edit-features-modal></indicator-edit-features-modal>
+
+      <!-- Modal -->
+      <indicator-edit-metadata-modal></indicator-edit-metadata-modal>
+
+      <!-- Modal -->
+      <indicator-edit-indicator-spatial-unit-roles-modal></indicator-edit-indicator-spatial-unit-roles-modal>
+
+      <!-- Modal -->
+      <indicator-delete-modal></indicator-delete-modal>
+
+
+      <!-- Modal -->
+      <topic-edit-modal></topic-edit-modal>
+
+      <!-- Modal -->
+      <topic-delete-modal></topic-delete-modal>
+
+      <!-- Modal -->
+      <script-add-modal></script-add-modal>
+
+      <!-- Modal -->
+      <script-delete-modal></script-delete-modal>
+
+      <!-- Modal -->
+      <role-add-modal></role-add-modal>
+
+      <!-- Modal -->
+      <role-edit-metadata-modal></role-edit-metadata-modal>
+
+      <!-- Modal -->
+      <role-delete-modal></role-delete-modal>
+
+      
+
+      <div style="position: absolute; left: 12%; top: 200px; width: 75%;" hidden
+				class="alert alert-danger alert-dismissable mapApplicationErrorAlert">
+				<button type="button" class="close" ng-click="$ctrl.kommonitorDataExchangeServiceInstance.hideErrorAlert()"
+					aria-hidden="true">&times;</button>
+				<h4><i class="icon fa fa-ban"></i>Achtung</h4>
+				Es ist ein Fehler bei der Datenverarbeitung aufgetreten. Die Fehlermeldung lautet:
+				<br />
+				<pre ng-bind-html="$ctrl.kommonitorDataExchangeServiceInstance.errorMessage"></pre>
+	    </div>
+      
+    </div>
+  </div>
+  <!-- /.content-wrapper -->
+
+  <!-- Main Footer -->
+  <footer class="main-footer">
+    <div class="pull-right hidden-xs">
+      Vielen Dank f&uuml;r die Nutzung von KomMonitor
+    </div>
+    <strong>Copyright &copy; 2019 <a href="http://kommonitor.de">KomMonitor-Team</a>.</strong>
+  </footer>
+
+</div>
+<!-- ./wrapper -->

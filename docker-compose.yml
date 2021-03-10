@@ -1,0 +1,35 @@
+version: '2.1'
+
+networks:
+  kommonitor:
+      name: kommonitor
+
+services:
+  # web map client - main user interface of KomMonitor
+    kommonitor-client:       
+      image: 'kommonitor/web-client'
+      container_name: kommonitor-client
+      #restart: unless-stopped
+      volumes:
+       - ./app/config/config-storage-server.json:/usr/share/nginx/html/config/config-storage-server.json    # mount config for client-config-service 
+      ports:
+        - 8089:80
+      networks:
+       - kommonitor
+
+    # simple REST service that stores and serves various config files for KomMonitor clients (i.e. web-client)   
+    kommonitor-client-config:          
+      image: 'kommonitor/client-config'
+      container_name: kommonitor-client-config
+      #restart: unless-stopped
+      ports:
+        - 8088:8088
+      networks:
+       - kommonitor 
+      volumes:
+       - client_config_storage:/code/configStorage        # persist web client config files on disk
+      environment:
+       - PORT=8088  
+
+volumes:
+ client_config_storage:

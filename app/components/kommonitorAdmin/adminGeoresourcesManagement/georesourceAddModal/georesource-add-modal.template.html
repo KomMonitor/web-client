@@ -1,0 +1,838 @@
+<div class="modal fade" id="modal-add-georesource" role="dialog">
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content">
+
+			<div align="center">
+				<div class="loading-overlay-admin-panel ng-hide" ng-show="loadingData">
+					<span class="glyphicon glyphicon-refresh icon-spin"></span>
+				</div>
+			</div>
+
+
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Neue Georessource registrieren</h4>
+			</div>
+			<div class="modal-body">
+
+				<!-- {
+					  "isLOI": false,
+					  "metadata": {
+					    "note": "note",
+					    "literature": "literature",
+					    "updateInterval": "ARBITRARY",
+					    "sridEPSG": 0.8008281904610115,
+					    "datasource": "datasource",
+					    "contact": "contact",
+					    "lastUpdate": "2000-01-23",
+					    "description": "description",
+					    "databasis": "databasis"
+					  },
+					  "allowedRoles": [
+					    "allowedRoles",
+					    "allowedRoles"
+					  ],
+					  "datasetName": "datasetName",
+					  "poiSymbolBootstrap3Name": "poiSymbolBootstrap3Name",
+					  "poiSymbolColor": "white",
+					  "isAOI": false,
+					  "loiDashArrayString": "loiDashArrayString",
+					  "geoJsonString": "geoJsonString",
+					  "topicReference": "topicReference",
+					  "poiMarkerColor": "white",
+					  "jsonSchema": "jsonSchema",
+					  "periodOfValidity": {
+					    "endDate": "2000-01-23",
+					    "startDate": "2000-01-23"
+					  },
+					  "isPOI": false,
+					  "loiColor": "loiColor",
+					  "aoiColor": "aoiColor"
+					}
+			 -->
+
+				<!-- MultiStep Form -->
+				<div class="row">
+					<div class="col-md-12">
+						<form class="multiStepForm form-group" id="georesourceAddForm" role="form"
+							data-toggle="validator" data-disable="true" style="margin-bottom: 0px;">
+							<!-- progressbar -->
+							<div ng-if="! $ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
+								<ul id="progressbar">
+									<li style="width: 25%;" class="active">Metadaten der Georessource</li>
+									<li style="width: 25%;">Allgemeine Metadaten</li>
+									<li style="width: 25%;">Themenhierarchie</li>
+									<li style="width: 25%;">R&auml;umlicher Datensatz</li>
+								</ul>
+							</div>
+							<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
+								<ul id="progressbar" >
+									<li style="width: 20%;" class="active">Metadaten der Georessource</li>
+									<li style="width: 20%;">Allgemeine Metadaten</li>
+									<li style="width: 20%;">Themenhierarchie</li>
+									<li style="width: 20%;">Rollenbasierter Zugriffsschutz</li>	
+									<li style="width: 20%;">R&auml;umlicher Datensatz</li>
+								</ul>
+							</div>
+
+							<!-- fieldsets -->
+							
+							<fieldset>
+								<h2 class="fs-title">Metadaten der Georessource</h2>
+								<h3 class="fs-subtitle">Angaben &uuml;ber Metadaten der Georessource</h3>
+								<p><b><i>* = Pflichtfeld</i></b></p>
+
+								<div class="row vertical-align">
+									<div class="col-md-6 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Name der Georessource*</label>
+											<input type="text" class="form-control" ng-model="datasetName"
+												ng-change="checkDatasetName()" placeholder="eindeutiger Name"
+												required></input>
+											<div class="help-block with-errors"></div>
+											<div ng-if="datasetNameInvalid" style="color: red;">
+												<p>Eingabe ung&uuml;ltig. Es existiert bereits eine Georessource mit
+													gleichem Namen und gleichem Typ.</p>
+											</div>
+										</div>
+									</div>
+									<div class="col-md-6 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Typ*</label>
+											<select ng-model="georesourceType" ng-change="onChangeGeoresourceType()"
+												class="form-control" required>
+												<option selected value="poi">Points of Interest</option>
+												<option value="loi">Lines of Interest</option>
+												<option value="aoi">Areas of Interest</option>
+											</select>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+								</div>
+
+								<div ng-show="georesourceType === 'poi'" class="row vertical-align">
+									<div class="col-md-4 col-sm-6 col-xs-12">
+										<div class="form-group" align="center">
+											<label>Farbe des Punktmarkers*</label>
+											<div class="dropdown customColorPicker">
+												<button type="button" class="btn btn-info dropdown-toggle"
+													data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+													<i style="background: {{selectedPoiMarkerColor.colorValue}};"></i>
+													{{selectedPoiMarkerColor.colorName}} <span class="caret"></span>
+												</button>
+												<ul class="dropdown-menu dropdown-menu-center">
+													<li ng-repeat="markerColor in $ctrl.kommonitorDataExchangeServiceInstance.availablePoiMarkerColors"
+														ng-click="onChangeMarkerColor(markerColor)">
+														<a href=""><i
+																style="background: {{markerColor.colorValue}};"></i>{{markerColor.colorName}}</a>
+													</li>
+												</ul>
+												<div class="help-block with-errors"></div>
+											</div>
+										</div>
+									</div>
+									<div class="col-md-4 col-sm-6 col-xs-12">
+										<div class="form-group" align="center">
+											<label>Symbol*</label>
+											<br />
+											<button id="poiSymbolPicker" class="btn btn-info"></button>
+											<!-- <br/>
+														<p><b>Icon Bezeichner: </b>{{selectedPoiIconName}}</p> -->
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-4 col-sm-6 col-xs-12">
+										<div class="form-group" align="center">
+											<label>Farbe des Punktsymbols*</label>
+											<div class="dropdown customColorPicker">
+												<button type="button" class="btn btn-info dropdown-toggle"
+													data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+													<i style="background: {{selectedPoiSymbolColor.colorValue}};"></i>
+													{{selectedPoiSymbolColor.colorName}} <span class="caret"></span>
+												</button>
+												<ul class="dropdown-menu dropdown-menu-center">
+													<li ng-repeat="symbolColor in $ctrl.kommonitorDataExchangeServiceInstance.availablePoiMarkerColors"
+														ng-click="onChangeSymbolColor(symbolColor)">
+
+														<a href=""><i
+																style="background: {{symbolColor.colorValue}};"></i>
+															{{symbolColor.colorName}}</a>
+													</li>
+												</ul>
+												<div class="help-block with-errors"></div>
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<div ng-show="georesourceType === 'loi'" class="row vertical-align">
+									<div class="col-md-4 col-sm-4 col-xs-12">
+										<div class="form-group" align="center">
+											<label>Linienfarbe*</label>
+											<div id="loiColorPicker" class="input-group" style="width: 50px;">
+												<input type="text" style="display:none;" class="form-control input-sm"
+													ng-model="loiColor" placeholder="Line of Interest Farbauswahl"
+													value="#bf3d2c" required />
+												<span title="Klicken, um die Farbe anzupassen"
+													style="border: 1px solid #ccc;"
+													class="input-group-addon btn btn-info btn-sm"><i></i></span>
+											</div>
+											<div class="help-block with-errors"></div>
+
+										</div>
+									</div>
+									<div class="col-md-4 col-sm-4 col-xs-12">
+										<div class="form-group" align="center">
+											<label>Linienbreite*</label>
+											<br/>
+											<input style="width: auto;" type="number" ng-model="loiWidth" min="1" max="5" step="1">
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-4 col-sm-4 col-xs-12">
+										<div class="form-group" align="center">
+											<label>Linienmuster*</label>
+											<div class="dropdown">
+												<button type="button" width="200px" class="btn btn-info dropdown-toggle"
+													data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+													<div id="loiDashArrayDropdownButton_addGeoresource">
+
+													</div> <span class="caret"></span>
+												</button>
+												<ul class="dropdown-menu dropdown-menu-center">
+													<li ng-repeat="loiDashArrayObject in $ctrl.kommonitorDataExchangeServiceInstance.availableLoiDashArrayObjects"
+														ng-click="onChangeLoiDashArray(loiDashArrayObject)">
+														<a href="">
+															<div id="loiDashArrayDropdownItem-{{$index}}">
+															</div>
+														</a>
+													</li>
+												</ul>
+												<div class="help-block with-errors"></div>
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<div ng-show="georesourceType === 'aoi'" class="row vertical-align">
+									<div class="col-md-12 col-sm-12 col-xs-12">
+										<div class="form-group" align="center">
+											<label>Objektfarbe*</label>
+											<div id="aoiColorPicker" class="input-group" style="width: 50px;">
+												<input type="text" style="display:none;" class="form-control input-sm"
+													ng-model="aoiColor" placeholder="Area of Interest Farbauswahl"
+													value="#bf3d2c" required />
+												<span title="Klicken, um die Farbe anzupassen"
+													style="border: 1px solid #ccc;"
+													class="input-group-addon btn btn-info btn-sm"><i></i></span>
+											</div>
+											<div class="help-block with-errors"></div>
+
+										</div>
+									</div>
+								</div>
+
+								<input type="button" name="next" class="next next_addGeoresource action-button" value="N&auml;chster Schritt"/>
+
+							</fieldset>
+
+
+							<fieldset>
+								<h2 class="fs-title">Allgemeine Metadaten</h2>
+								<h3 class="fs-subtitle">Angaben &uuml;ber allgemeine Metadaten in KomMonitor</h3>
+								<p><b><i>* = Pflichtfeld</i></b></p>
+
+								<div class="row vertical-align">
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Beschreibung*</label>
+											<textarea rows="3" class="form-control" ng-model="metadata.description"
+												placeholder="Datensatz Beschreibung" required></textarea>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Datenbasis</label>
+											<textarea rows="3" class="form-control" ng-model="metadata.databasis"
+												placeholder="optionale Beschreibung etwaiger grundlegender Daten, die zur Erzeugung des Datensatzes beitragen"></textarea>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Datenquelle*</label>
+											<textarea rows="3" class="form-control" ng-model="metadata.datasource"
+												placeholder="Beschreibung der Datenquelle" required></textarea>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Datenhalter und Kontakt*</label>
+											<textarea rows="3" class="form-control" ng-model="metadata.contact"
+												placeholder="Beschreibung des Datenhalters und etwaiger Kontaktinformationen"
+												required></textarea>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+								</div>
+
+								<div class="row vertical-align">
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Aktualisierungszyklus*</label>
+											<select ng-model="metadata.updateInterval"
+												ng-options="value as value.displayName for value in $ctrl.kommonitorDataExchangeServiceInstance.updateIntervalOptions"
+												class="form-control" required>
+												<option disabled selected value> -- Aktualisierungszyklus w&auml;hlen --
+												</option>
+											</select>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Datum der letzten Aktualisierung*</label>
+											<div class="input-group date">
+												<div class="input-group-addon">
+													<i class="far fa-calendar-alt"></i>
+												</div>
+												<input type="text" ng-model="metadata.lastUpdate"
+													class="form-control pull-right"
+													id="georesourceAddLastUpdateDatepicker" placeholder="YYYY-MM-DD" required>
+											</div>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Literatur</label>
+											<textarea rows="3" class="form-control" ng-model="metadata.literature"
+												placeholder="optionale Angaben zu Literatur"></textarea>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Bemerkung</label>
+											<textarea rows="3" class="form-control" ng-model="metadata.note"
+												placeholder="optionale Bemerkung"></textarea>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+								</div>
+
+								
+								<input type="button" name="previous" class="previous previous_addGeoresource action-button-previous" value="Voriger Schritt"/>
+								<input type="button" name="next" class="next next_addGeoresource action-button" value="N&auml;chster Schritt"/>
+							</fieldset>
+
+							<fieldset>
+								<h2 class="fs-title">Themenhierarchie</h2>
+								<h3 class="fs-subtitle">Angaben &uuml;ber die Themenhierarchie der Georessource</h3>								
+
+								<p><b><i>* = Pflichtfeld</i></b></p>
+								<p>Angabe der Themenhierarchie. Mindestens das Hauptthema muss gew&auml;hlt werden. Vorhandene Unterthemen erscheinen nach Auswahl eines Hauptthemas. Bis zu vier Themen-Ebenen sind erlaubt.</p>
+
+								<p>Das Aufklappen der unteren Box erm&ouml;glicht die Verwaltung des Themenkatalogs.</p>
+
+								<div class="row vertical-align">
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Hauptthema*</label>
+											<select ng-model="georesourceTopic_mainTopic"
+												ng-options="mainTopic as mainTopic.topicName for mainTopic in $ctrl.kommonitorDataExchangeServiceInstance.availableTopics | filter:{topicType:'main'} | filter:{topicResource:'georesource'}"
+												class="form-control" required>
+												<option disabled selected value> -- Hauptthema w&auml;hlen --
+												</option>
+											</select>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div ng-show="georesourceTopic_mainTopic.subTopics.length > 0" class="form-group">
+											<label>Unterthema - erste Ebene</label>
+											<select ng-model="georesourceTopic_subTopic"
+												ng-options="subTopic as subTopic.topicName for subTopic in georesourceTopic_mainTopic.subTopics"
+												class="form-control" >
+												<option disabled selected value> -- Unterthema w&auml;hlen --
+												</option>
+											</select>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div ng-show="georesourceTopic_subTopic.subTopics.length > 0" class="form-group">
+											<label>Unterthema - zweite Ebene</label>
+											<select ng-model="georesourceTopic_subsubTopic"
+												ng-options="subsubTopic as subsubTopic.topicName for subsubTopic in georesourceTopic_subTopic.subTopics"
+												class="form-control" >
+												<option disabled selected value> -- Unterthema w&auml;hlen --
+												</option>
+											</select>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div ng-show="georesourceTopic_subsubTopic.subTopics.length > 0" class="form-group">
+											<label>Unterthema - dritte Ebene</label>
+											<select ng-model="georesourceTopic_subsubsubTopic"
+												ng-options="subsubsubTopic as subsubsubTopic.topicName for subsubsubTopic in georesourceTopic_subsubTopic.subTopics"
+												class="form-control" >
+												<option disabled selected value> -- Unterthema w&auml;hlen --
+												</option>
+											</select>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+								</div>
+
+								<hr>
+
+								<br/>
+
+								<div class="row vertical-align">
+									<div class="col-md-10 col-sm-12 col-xs-12">
+										<div style="text-align: left;">
+											<div id="georesourceAddAdmin_topicsManagement" class="box box-primary collapsed-box" style="background: #ebf0fd;">
+												<div class="box-header">
+												  <h3 class="box-title">Themenkatalog</h3>
+
+													<div class="box-tools pull-right">
+														<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+														</button>
+													</div>
+												</div>
+												<!-- /.box-header -->
+												<div class="box-body">
+
+													<style>
+														#georesourceAddAdmin_topicsManagement #indicatorTopicsManagement{
+															display: none;
+														}
+													</style>
+
+													<admin-topics-management></admin-topics-management>
+												</div>
+												<!-- /.box-body -->
+											  </div>
+											  <!-- /.box -->
+
+										</div>
+									</div>
+								</div>
+								
+
+								<input type="button" name="previous" class="previous previous_addGeoresource action-button-previous" value="Voriger Schritt"/>
+								<input type="button" name="next" class="next next_addGeoresource action-button" value="N&auml;chster Schritt"/>
+
+							</fieldset>
+
+								<fieldset ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
+									<h2 class="fs-title">Rollenbasierter Zugriffsschutz (Optional)</h2>
+									<h3 class="fs-subtitle">Angabe ob nur ausgew&auml;hlte Rollen Zugriff auf Datensatz-Metadaten und -Features erhalten sollen</h3>
+		
+									<p>Klicken Sie ein oder mehrere der verf&uuml;gbaren Rollen aus der linken &Uuml;bersicht an, um den Zugriff auf den Datensatz auf diese Rollen einzuschr&auml;nken.</p>
+		
+									<p>Der Zugriff ist nur f&uuml;r die Rollen erlaubt, die im rechten &Uuml;bersichtsfenster gelistet sind.</p>
+		
+									<p>Wird keine Rolle selektiert, so ist der Datensatz ohne Zugriffsbeschr&auml;nkung abrufbar.</p>
+		
+									<div class="row no-margin">
+										<div class="col-md">
+											<excalibur-dual-list ng-model='allowedRoleNames.selectedItems' options="duallist.duallistRoleOptions"></excalibur-dual-list>
+										</div>
+									</div>
+									
+									<input type="button" name="previous" class="previous previous_addGeoresource action-button-previous" value="Voriger Schritt"/>
+									<input type="button" name="next" class="next next_addGeoresource action-button" value="N&auml;chster Schritt"/>
+								</fieldset>						
+
+							<fieldset>
+								<div style="position: absolute;">
+									<button type="button" class="btn btn-info pull-left" ng-click="onImportGeoresourceAddMappingConfig()" title="Importieren der Mapping-Konfigurationen aus einer Datei"><i class="fas fa-file-import"></i>&nbsp;&nbsp;Mapping-Import</button>
+									<input style="display:none;" class="pull-left" type="file" class="form-control" id="georesourceMappingConfigAddImportFile" accept=".json,"></input>
+									<button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" ng-click="onExportGeoresourceAddMappingConfig()" title="Exportieren der Mapping-Konfigurationen in eine Datei"><i class="fas fa-file-export"></i>&nbsp;&nbsp;Mapping-Export</button>								
+								</div>
+								
+								<h2 class="fs-title">R&auml;umlicher Datensatz</h2>
+								<h3 class="fs-subtitle">Angaben &uuml;ber den r&auml;umlichen Datensatz, aus dem die
+									Features importiert werden</h3>
+								<p><b><i>* = Pflichtfeld</i></b></p>
+
+								<div class="row vertical-align">
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Geodaten-Quellformat*</label>
+											<select ng-model="converter"
+												ng-options="converter as converter.simpleName for converter in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters"
+												class="form-control" required>
+												<option disabled selected value> -- Quellformat w&auml;hlen -- </option>
+											</select>
+											<div class="help-block with-errors"></div>
+										</div>
+										<div ng-if="converter.schemas">
+
+											<div class="form-group">
+												<label>Schema*</label>
+												<select ng-model="schema" ng-change="onChangeSchema(schema)" ng-options="schema for schema in converter.schemas"
+													class="form-control" required>
+													<option disabled selected value> -- Schema w&auml;hlen -- </option>
+												</select>
+												<div class="help-block with-errors"></div>
+											</div>
+										</div>
+
+										<div ng-repeat="parameter in converter.parameters">
+
+											<div class="form-group">
+												<label>{{parameter.name}}<i ng-if="parameter.mandatory">*</i></label>
+												<input type="text" id="converterParameter_georesourceAdd_{{parameter.name}}" class="form-control"
+													placeholder="{{parameter.name}}" ng-required="parameter.mandatory">
+												<div class="help-block">
+													<p>{{parameter.description}}</p>
+												</div>
+												<div ng-if="parameter.name === 'CRS'" class="help-block with-errors" style="color: red;">
+													<p>CRS aufmerksam setzen. Falsche Angaben f&uuml;hren zur fehlerhaften Koordinaten der Features</p>
+												</div>
+												<div class="help-block with-errors"></div>
+											</div>
+										</div>
+
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<div ng-show="!converter">
+												<p>bitte zuerst das Quellformat w&auml;hlen</p>
+											</div>
+											<div ng-show="converter">
+												<div class="form-group">
+													<label>Datenquelltyp*</label>
+													<select ng-model="datasourceType"
+														ng-options="datasourceType as datasourceType.type for datasourceType in $ctrl.kommonitorImporterHelperServiceInstance.availableDatasourceTypes"
+														class="form-control" required>
+														<option disabled selected value> -- Quelltyp w&auml;hlen -- </option>
+													</select>
+													<div class="help-block with-errors"></div>
+												</div>
+
+												<div ng-show="datasourceType.type === 'FILE'">
+													<label>Datei*</label>
+													<input type="file" class="form-control" id="georesourceDataSourceInput_add" required></input>
+												</div>
+												<div ng-show="! (datasourceType.type === 'FILE')">
+													<div ng-repeat="parameter in datasourceType.parameters">
+														<div class="form-group">
+															<label>{{parameter.name}}*</label>
+															<textarea rows="1" id="datasourceTypeParameter_georesourceAdd_{{parameter.name}}"
+																class="form-control" placeholder="{{parameter.name}}" required></textarea>
+															<div class="help-block">
+																<p>{{parameter.description}}</p>
+															</div>
+															<div class="help-block with-errors"></div>
+														</div>
+													</div>
+												</div>
+											</div>
+											<!-- <div class="help-block"><p>Features m&uuml;ssen Informationen &uuml;ber eindutige ID und eindeutigen Namen in Attribut namens <code>ID</code> und <code>NAME</code> enthalten, um in KomMonitor verarbeitet werden zu k&ouml;nnen.</p></div> -->
+
+											<div class="help-block with-errors"></div>
+											<div ng-if="georesourceDataSourceInputInvalid" style="color: red;">
+												<p>Eingabe ung&uuml;ltig. Grund: {{georesourceDataSourceInputInvalidReason}}</p>
+											</div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>ID Attributname*</label>
+											<input type="text" class="form-control" ng-model="georesourceDataSourceIdProperty" required></input>
+											<div class="help-block">
+												<p>Name des Attributs, welches den eindeutigen Identifier des Features enth&auml;lt.</p>
+											</div>
+											<div class="help-block with-errors"></div>
+											<div ng-if="idPropertyNotFound" style="color: red;">
+												<p>Eingabe ung&uuml;ltig. Angegebenes Attribut nicht gefunden oder enth&auml;lt NULL-Werte.</p>
+											</div>
+										</div>
+										<div class="form-group">
+											<label>NAME Attributname*</label>
+											<input type="text" class="form-control" ng-model="georesourceDataSourceNameProperty" required></input>
+											<div class="help-block">
+												<p>Name des Attributs, welches den eindeutigen Namen des Features enth&auml;lt.</p>
+											</div>
+											<div class="help-block with-errors"></div>
+											<div ng-if="namePropertyNotFound" style="color: red;">
+												<p>Eingabe ung&uuml;ltig. Angegebenes Attribut nicht gefunden oder enth&auml;lt NULL-Werte.</p>
+											</div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Lebenszeit-Beginn Attributname</label>
+											<input type="text" ng-model="validityStartDate_perFeature" class="form-control pull-right">
+											<div class="help-block">
+												<p>Eintrag nur, falls die r&auml;umlichen Features &uuml;ber ein Attribut
+													für den Lebenszeitraum (Beginn) verf&uuml;gen.</p>
+											</div>
+											<div class="help-block with-errors"></div>
+										</div>
+										<div class="form-group">
+											<label>Lebenszeit-Ende Attributname</label>
+											<input type="text" ng-model="validityEndDate_perFeature" class="form-control pull-right">
+											<div class="help-block">
+												<p>Eintrag nur, falls die r&auml;umlichen Features &uuml;ber ein Attribut
+													für den Lebenszeitraum (Ende) verf&uuml;gen.</p>
+											</div>
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+								</div>
+								<div class="row vertical-align">
+									<div class="col-md-6 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>G&uuml;ltigkeitszeitraum: g&uuml;ltig seit*</label>
+											<div class="input-group date">
+												<div class="input-group-addon">
+													<i class="far fa-calendar-alt"></i>
+												</div>
+												<input type="text" ng-model="periodOfValidity.startDate" ng-change="checkPeriodOfValidity()"
+													class="form-control pull-right" id="georesourceAddDatepickerStart" placeholder="YYYY-MM-DD" required>
+											</div>
+											<div class="help-block">
+												<p>Eintrag ist immer erforderlich, selbst wenn die r&auml;umlichen Features &uuml;ber ein
+													Lebenszeitraum-Attribut
+													verf&uuml;gen.</p>
+											</div>
+											<div class="help-block with-errors"></div>
+											<div ng-if="periodOfValidityInvalid" style="color: red;">
+												<p>Eingabe ung&uuml;ltig. Definiertes Zeitintervall ist nicht erlaubt.</p>
+											</div>
+										</div>
+									</div>
+									<div class="col-md-6 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>G&uuml;ltigkeitszeitraum: g&uuml;ltig bis</label>
+											<div class="input-group date">
+												<div class="input-group-addon">
+													<i class="far fa-calendar-alt"></i>
+												</div>
+												<input type="text" ng-model="periodOfValidity.endDate" ng-change="checkPeriodOfValidity()"
+													class="form-control pull-right" id="georesourceAddDatepickerEnd" placeholder="YYYY-MM-DD">
+											</div>
+											<div class="help-block">
+												<p>Eintrag ist erforderlich, falls die r&auml;umlichen Features nicht selbst &uuml;ber ein
+													Lebenszeitraum-Attribut
+													verf&uuml;gen. Enddatum darf leer sein, um anzuzeigen, dass es sich
+													um aktuell g&uuml;ltige Features handelt.</p>
+											</div>
+											<div class="help-block with-errors"></div>
+											<div ng-if="periodOfValidityInvalid" style="color: red;">
+												<p>Eingabe ung&uuml;ltig. Definiertes Zeitintervall ist nicht erlaubt.</p>
+											</div>
+										</div>
+									</div>
+								</div>
+								
+								<hr>
+								<br/>
+
+								<div class="row vertical-align">									
+									<div class="col-md-6 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Import weiterer Attribute*</label>
+
+											<br/>	
+											<label class="switch">
+												<input type="checkbox" value="keepAttributes" ng-model="keepAttributes">
+												<span class="switchslider round"></span>
+											</label>
+
+
+											<div class="help-block">
+												<p>Angabe, ob alle sonstigen Attribute des importierten Datensatzes mit gleichem Namen &uuml;bernommen werden sollen. 
+													Falls nicht, so lassen sich einzelne Attribut-Importe definieren.</p>
+											</div>
+										</div>
+
+									</div>
+									<div class="col-md-6 col-sm-6 col-xs-12" ng-show="! keepAttributes">
+										<div class="form-group">
+											<label>Fehlende/NULL Werte beibehalten*</label>
+
+											<br/>	
+											<label class="switch">
+												<input type="checkbox" value="keepMissingValues" ng-model="keepMissingValues">
+												<span class="switchslider round"></span>
+											</label>
+
+
+											<div class="help-block">
+												<p>Angabe, ob fehlende Attribute oder leere Attributwerte (<code>NULL</code>-Werte) &uuml;bernommen werden. Bei deaktivierter Option 
+													wird bei einem solchen Fall ein Fehler geworfen.</p>
+											</div>
+										</div>
+
+									</div>
+								</div>
+								
+								<div ng-show="! keepAttributes" class="row vertical-align">
+									<div class="col-md-6 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Attributname im zu importierenden Datensatz*</label>
+											<input type="text" class="form-control input-sm" placeholder="Quell-Attributname" ng-model="attributeMapping_sourceAttributeName">
+											<div class="help-block with-errors"></div>
+										</div>
+
+										<div class="form-group">
+											<label>Ziel-Attributname in Datenbank nach Import*</label>
+											<input type="text" class="form-control input-sm" placeholder="Ziel-Attributname" ng-model="attributeMapping_destinationAttributeName">
+											<div class="help-block with-errors"></div>
+										</div>
+
+										<div class="form-group">
+											<label>Datentyp*</label>
+
+											<select ng-model="attributeMapping_attributeType"
+												ng-options="type as type.displayName for type in $ctrl.kommonitorImporterHelperServiceInstance.attributeMapping_attributeTypes"
+												ng-init="attributeMapping_attributeType = $ctrl.kommonitorImporterHelperServiceInstance.attributeMapping_attributeTypes[0]"
+												class="form-control" required>
+												<option disabled selected value> -- Datentyp w&auml;hlen --
+												</option>
+											</select>
+											
+											<div class="help-block with-errors"></div>
+										</div>
+
+										<div class="form-group">
+											<button class="btn btn-success btn-sm" ng-disabled="!attributeMapping_sourceAttributeName || ! attributeMapping_destinationAttributeName || ! attributeMapping_attributeType" ng-click="onAddOrUpdateAttributeMapping()">Hinzuf&uuml;gen/Editieren</button>
+											<div class="help-block with-errors"></div>
+										</div>
+
+									</div>
+									<div class="col-md-6 col-sm-6 col-xs-12">
+										
+										<label>&Uuml;bersicht der definierten Attribut-Mappings</label>
+										<table class="table table-condensed">
+											<thead>
+												<tr>
+													<th>Editierfunktionen</th>
+													<th>Quell-Attributname im Datensatz</th>
+													<th>Ziel-Attributname nach Import</th>
+													<th>Datentyp</th>
+												</tr>
+											</thead>
+											<tbody>
+												<tr ng-repeat="attributeMappingEntry in attributeMappings_adminView">
+													<td>
+														<div class="btn-group btn-group-sm">
+															<button class="btn btn-warning btn-sm" type="button" ng-click="onClickEditAttributeMapping(attributeMappingEntry)"
+																title="Referenz editieren"><i class="fas fa-pencil-alt"></i></button>
+															<button class="btn btn-danger btn-sm" type="button" ng-click="onClickDeleteAttributeMapping(attributeMappingEntry)"
+																title="Referenz l&ouml;schen"><i class="fas fa-trash"></i></button>
+														</div>
+													</td>
+													<td>{{attributeMappingEntry.sourceName}}</td>
+													<td>{{attributeMappingEntry.destinationName}}</td>
+													<td>{{attributeMappingEntry.dataType.displayName}}</td>
+												</tr>
+											</tbody>
+										</table>
+
+									</div>
+								</div>
+
+								<input type="button" name="previous" class="previous previous_addGeoresource action-button-previous" value="Voriger Schritt"/>
+
+							</fieldset>
+						</form>
+					</div>
+				</div>
+
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
+				<button type="button" class="btn btn-info pull-left" ng-click="onImportGeoresourceAddMetadata()"
+					title="Importieren der Metadaten aus einer Datei"><i
+						class="fas fa-file-import"></i>&nbsp;&nbsp;Metadaten-Import</button>
+				<input style="display:none;" class="pull-left" type="file" class="form-control"
+					id="georesourceMetadataImportFile" accept=".json,"></input>
+				<button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" ng-disabled=""
+					ng-click="onExportGeoresourceAddMetadata()" title="Exportieren der Metadaten in eine Datei"><i
+						class="fas fa-file-export"></i>&nbsp;&nbsp;Metadaten-Export</button>
+				<button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" ng-disabled="" ng-click="onExportGeoresourceAddMetadataTemplate()" title="Exportieren einer Metadaten-Vorlage in eine Datei"><i class="fas fa-file-export"></i>&nbsp;&nbsp;Metadaten-Export Vorlage</button>
+						
+
+
+				<button type="button" class="btn btn-success"				
+					ng-disabled="!datasetName || !metadata.description || !metadata.datasource || !metadata.contact || !metadata.updateInterval || !metadata.lastUpdate || !georesourceDataSourceIdProperty || !georesourceDataSourceNameProperty || !periodOfValidity.startDate || datasetNameInvalid || periodOfValidityInvalid || !converter || !datasourceType"
+					ng-click="addGeoresource()">Georessource registrieren</button>
+				<button type="button" class="btn btn-danger"
+					ng-click="resetGeoresourceAddForm()">Zur&uuml;cksetzen</button>
+			</div>
+
+			<div id="georesourceAddSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+				class="alert alert-success alert-dismissable">
+				<button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
+				<h4><i class="icon fa fa-check"></i>Georessource registriert</h4>
+				<p>Eine neue Georessource mit Namen {{successMessagePart}} wurde in KomMonitor registriert und in die &Uuml;bersichtstabelle eingetragen.
+					<div ng-if="importedFeatures && importedFeatures.length > 0">
+						{{importedFeatures.length}} Features wurden dabei importiert.
+					</div>
+				</p>
+			</div>
+
+			<div id="georesourceAddErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+				class="alert alert-danger alert-dismissable">
+				<button type="button" class="close" ng-click="hideErrorAlert()" aria-hidden="true">&times;</button>
+				<h4><i class="icon fa fa-ban"></i>Registrierung gescheitert</h4>
+				Bei der Registrierung der Georessource ist ein Fehler aufgetreten. Fehlermeldung:
+				<br />				
+								<pre style="overflow:auto; max-height:500px;" ng-bind-html="errorMessagePart"></pre>
+								<br/>
+								<br/>
+
+								<div ng-show="importerErrors">
+									<p>Bei den {{importerErrors.length}} Features mit folgenden IDs scheitert der Import:</p>
+									<pre style="overflow:auto; max-height:500px;">
+										<ul>
+											<li ng-repeat="error in importerErrors">{{error}}</li>
+										</ul>
+									</pre>	
+									<p>Bitte beheben Sie die angezeigten Fehler im Datensatz und wiederholen den Prozess.</p>
+								</div>
+			</div>
+
+			<div id="georesourceMetadataImportErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+				class="alert alert-danger alert-dismissable">
+				<button type="button" class="close" ng-click="hideMetadataErrorAlert()"
+					aria-hidden="true">&times;</button>
+				<h4><i class="icon fa fa-ban"></i>Metadata Import gescheitert</h4>
+				Beim Import der Metadaten aus einer Datei ist ein Fehler aufgetreten. Fehlermeldung:
+				<br />
+				<pre>{{georesourceMetadataImportError}}</pre>
+				<br />
+				<br />
+				<p>Bitte stellen Sie sicher, dass folgendes JSON-Format eingehalten wird:</p>
+				<pre id="georesourcesAddMetadataPre" style="overflow:auto; max-height:500px;"></pre>
+			</div>
+
+			<div id="georesourceMappingConfigImportErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden class="alert alert-danger alert-dismissable">
+                <button type="button" class="close" ng-click="hideMappingConfigErrorAlert()" aria-hidden="true">&times;</button>
+                <h4><i class="icon fa fa-ban"></i>Mapping-Konfiguration Import gescheitert</h4>
+                Beim Import der Mapping-Konfiguration aus einer Datei ist ein Fehler aufgetreten. Fehlermeldung:
+								<br/>
+								<pre ng-bind-html="georesourceMappingConfigImportError"></pre>								
+								<br/>								
+								<br/>
+								<p>Bitte stellen Sie sicher, dass folgendes JSON-Format eingehalten wird:</p>
+								<pre id="georesourcesAddMappingConfigPre" style="overflow:auto; max-height:500px;"></pre>
+      		</div>
+
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->

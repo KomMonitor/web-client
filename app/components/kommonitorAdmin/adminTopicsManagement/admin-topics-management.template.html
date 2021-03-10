@@ -1,0 +1,501 @@
+<div id="adminTopicsContent">
+
+	<div align="center">
+		<div class="loading-overlay-admin-panel ng-hide" ng-show="loadingData">
+					<span class="glyphicon glyphicon-refresh icon-spin"></span>
+		</div>
+	</div>
+
+	<!-- Content Header (Page header) -->
+	<section class="content-header">
+		<h1>
+			Themenverwaltung
+			<small>Management der Themenhierarchien für Indikatoren und Georessourcen</small>
+		</h1>
+	</section>
+
+	<!-- Main content -->
+	<section class="content container-fluid">
+
+		<!--------------------------
+			| Your Page Content Here |
+			-------------------------->
+
+			<b>Zeige IDs</b>
+				&nbsp;
+			<label class="switch">
+				<input type="checkbox" ng-model="showTopicIds"></input>
+			  <span class="switchslider round"></span>
+			</label>
+
+			<br/>
+
+			<div class="box box-primary" id="indicatorTopicsManagement">
+				<div class="box-header with-border">
+				  <h3 class="box-title">Themenhierarchie - Indikatoren</h3>
+	
+								<div class="box-tools pull-right">
+									<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+									</button>
+								</div>
+				</div>
+				<!-- /.box-header -->
+				<!-- form start -->
+	
+				<div class="box-body">
+				
+					<div class="just-padding">
+				
+						<div class="list-group list-group-root well">
+				
+							<div
+								ng-repeat="mainTopic in $ctrl.kommonitorDataExchangeServiceInstance.availableTopics | filter:{topicType:'main'} | filter:{topicResource:'indicator'}">
+								<div class="list-group-item list-group-item-default" style="background: #2171b5; color: white;">
+									<a id="{{mainTopic.topicId}}" href="" ng-attr-title="{{mainTopic.topicDescription}}"
+										class="collapseTrigger" style="color: white;"
+										ng-click="isCollapsed_mainTopic = !isCollapsed_mainTopic"
+										ng-init="isCollapsed_mainTopic=true"><i
+											class="glyphicon glyphicon-chevron-right"></i>{{mainTopic.topicName}}</a>
+
+									<div ng-if="showTopicIds" style="display: inline-block;">(ID: {{mainTopic.topicId}})</div>		
+				
+									<div class="btn-group btn-group-sm" style="margin-left: 30px;">
+										<button type="button" class="btn btn-warning" ng-click="onClickEditTopic(mainTopic)"
+											data-toggle="modal" data-target="#modal-edit-topic"><i
+												class="fas fa-pencil-alt"></i></button>
+										<button type="button" class="btn btn-danger" ng-click="onClickDeleteTopic(mainTopic)"
+											data-toggle="modal" data-target="#modal-delete-topic"><i class="fas fa-trash"></i></button>
+									</div>
+								</div>
+				
+				
+								<div ng-repeat="subTopic in mainTopic.subTopics" class="list-group collapse"
+									uib-collapse="isCollapsed_mainTopic">
+				
+									<div class="list-group-item list-group-item-default" style="background: #6baed6; color: white;">
+										<a id="{{subTopic.topicId}}" class="collapseTrigger" style="color: white;"
+											ng-attr-title="{{subTopic.topicDescription}}" href=""
+											ng-click="isCollapsed_subTopic = !isCollapsed_subTopic"
+											ng-init="isCollapsed_subTopic=true"><i
+												class="glyphicon glyphicon-chevron-right"></i>{{subTopic.topicName}}</a>
+
+										<div ng-if="showTopicIds" style="display: inline-block;">(ID: {{subTopic.topicId}})</div>
+
+										<div class="btn-group btn-group-sm" style="margin-left: 30px;">
+											<button type="button" class="btn btn-warning" ng-click="onClickEditTopic(subTopic)"
+												data-toggle="modal" data-target="#modal-edit-topic"><i
+													class="fas fa-pencil-alt"></i></button>
+											<button type="button" class="btn btn-danger" ng-click="onClickDeleteTopic(subTopic)"
+												data-toggle="modal" data-target="#modal-delete-topic"><i
+													class="fas fa-trash"></i></button>
+										</div>
+									</div>
+				
+									<div ng-repeat="subsubTopic in subTopic.subTopics" class="list-group collapse"
+										uib-collapse="isCollapsed_subTopic">
+				
+										<div class="list-group-item list-group-item-default" style="background: #bdd7e7; color: white;">
+											<a id="{{subsubTopic.topicId}}" class="collapseTrigger" style="color: black;"
+												ng-attr-title="{{subsubTopic.topicDescription}}" href=""
+												ng-click="isCollapsed_subsubTopic = !isCollapsed_subsubTopic"
+												ng-init="isCollapsed_subsubTopic=true"><i
+													class="glyphicon glyphicon-chevron-right"></i>{{subsubTopic.topicName}}</a>
+
+											<div ng-if="showTopicIds" style="display: inline-block; color: black;">(ID: {{subsubTopic.topicId}})</div>	
+
+											<div class="btn-group btn-group-sm" style="margin-left: 30px;">
+												<button type="button" class="btn btn-warning" ng-click="onClickEditTopic(subsubTopic)"
+													data-toggle="modal" data-target="#modal-edit-topic"><i
+														class="fas fa-pencil-alt"></i></button>
+												<button type="button" class="btn btn-danger" ng-click="onClickDeleteTopic(subsubTopic)"
+													data-toggle="modal" data-target="#modal-delete-topic"><i
+														class="fas fa-trash"></i></button>
+											</div>
+										</div>
+				
+										<div ng-repeat="subsubsubTopic in subsubTopic.subTopics" class="list-group collapse"
+											uib-collapse="isCollapsed_subsubTopic">
+				
+											<div class="list-group-item list-group-item-default"
+												style="background: #eff3ff; color: white;">
+												<a id="{{subsubsubTopic.topicId}}" class="collapseTrigger" style="color: black;"
+													ng-attr-title="{{subsubsubTopic.topicDescription}}">{{subsubsubTopic.topicName}}</a>
+
+												<div ng-if="showTopicIds" style="display: inline-block; color: black;">(ID: {{subsubsubTopic.topicId}})</div>
+												
+												<div class="btn-group btn-group-sm" style="margin-left: 30px;">
+													<button type="button" class="btn btn-warning"
+														ng-click="onClickEditTopic(subsubsubTopic)" data-toggle="modal"
+														data-target="#modal-edit-topic"><i class="fas fa-pencil-alt"></i></button>
+													<button type="button" class="btn btn-danger"
+														ng-click="onClickDeleteTopic(subsubsubTopic)" data-toggle="modal"
+														data-target="#modal-delete-topic"><i class="fas fa-trash"></i></button>
+												</div>
+											</div>
+				
+										</div>
+				
+										<div class="list-group-item list-group-item-success" ng-show="!isCollapsed_subsubTopic"
+											style="border-top: double;">
+											<form role="form" class="form-group" data-toggle="validator" style="margin-bottom: 0px;">
+												<div class="row">
+													<div class="col-md-3">
+														<button class="btn btn-success btn-sm"
+															ng-click="onAddSubSubSubTopic(subsubTopic, 'indicator')"
+															ng-disabled="!subsubTopic.newSubTopicTitle_indicator || !subsubTopic.newSubTopicDescription_indicator"><i
+																class="fas fa-plus"></i> &nbsp; &nbsp; Unterthema
+															hinzuf&uuml;gen</button>
+													</div>
+													<div class="col-md-4">
+														<input style="width:100%;" class="form-control" type="text"
+															placeholder="Titel des Unterthemas" ng-model="subsubTopic.newSubTopicTitle_indicator"
+															required></input>
+														<div class="help-block with-errors"></div>
+													</div>
+													<div class="col-md-5">
+														<textarea style="width:100%;" rows="1" class="form-control" type="text"
+															placeholder="Beschreibung des Unterthemas"
+															ng-model="subsubTopic.newSubTopicDescription_indicator" required></textarea>
+														<div class="help-block with-errors"></div>
+													</div>
+				
+												</div>
+				
+											</form>
+										</div>
+				
+									</div>
+				
+									<div class="list-group-item list-group-item-success" ng-show="!isCollapsed_subTopic"
+										style="border-top: double;">
+										<form role="form" class="form-group" data-toggle="validator" style="margin-bottom: 0px;">
+											<div class="row">
+												<div class="col-md-3">
+													<button class="btn btn-success btn-sm" ng-click="onAddSubSubTopic(subTopic, 'indicator')"
+														ng-disabled="!subTopic.newSubTopicTitle_indicator || !subTopic.newSubTopicDescription_indicator"><i
+															class="fas fa-plus"></i> &nbsp; &nbsp; Unterthema hinzuf&uuml;gen</button>
+												</div>
+												<div class="col-md-4">
+													<input style="width:100%;" class="form-control" type="text"
+														placeholder="Titel des Unterthemas" ng-model="subTopic.newSubTopicTitle_indicator"
+														required></input>
+													<div class="help-block with-errors"></div>
+												</div>
+												<div class="col-md-5">
+													<textarea style="width:100%;" rows="1" class="form-control" type="text"
+														placeholder="Beschreibung des Unterthemas"
+														ng-model="subTopic.newSubTopicDescription_indicator" required></textarea>
+													<div class="help-block with-errors"></div>
+												</div>
+				
+											</div>
+				
+										</form>
+									</div>
+				
+								</div>
+				
+								<div class="list-group-item list-group-item-success" ng-show="!isCollapsed_mainTopic"
+									style="border-top: double;">
+									<form role="form" class="form-group" data-toggle="validator" style="margin-bottom: 0px;">
+										<div class="row">
+											<div class="col-md-3">
+												<button class="btn btn-success btn-sm" ng-click="onAddSubTopic(mainTopic, 'indicator')"
+													ng-disabled="!mainTopic.newSubTopicTitle_indicator || !mainTopic.newSubTopicDescription_indicator"><i
+														class="fas fa-plus"></i> &nbsp; &nbsp; Unterthema hinzuf&uuml;gen</button>
+											</div>
+											<div class="col-md-4">
+												<input style="width:100%;" class="form-control" type="text"
+													placeholder="Titel des Unterthemas" ng-model="mainTopic.newSubTopicTitle_indicator"
+													required></input>
+												<div class="help-block with-errors"></div>
+											</div>
+											<div class="col-md-5">
+												<textarea style="width:100%;" rows="1" class="form-control" type="text"
+													placeholder="Beschreibung des Unterthemas"
+													ng-model="mainTopic.newSubTopicDescription_indicator" required></textarea>
+												<div class="help-block with-errors"></div>
+											</div>
+				
+										</div>
+				
+									</form>
+								</div>
+				
+							</div>
+							<div class="list-group-item list-group-item-success" style="border-top: double;">
+								<form role="form" class="form-group" data-toggle="validator" style="margin-bottom: 0px;">
+									<div class="row">
+										<div class="col-md-3">
+											<button class="btn btn-success btn-sm" ng-click="onAddMainTopic('indicator')"
+												ng-disabled="!newMainTopicTitle_indicator || !newMainTopicDescription_indicator"><i class="fas fa-plus"></i>
+												&nbsp; &nbsp; Hauptthema hinzuf&uuml;gen</button>
+										</div>
+										<div class="col-md-4">
+											<input style="width:100%;" class="form-control" type="text"
+												placeholder="Titel des Hauptthemas" ng-model="newMainTopicTitle_indicator" required></input>
+											<div class="help-block with-errors"></div>
+										</div>
+										<div class="col-md-5">
+											<textarea style="width:100%;" rows="1" class="form-control" type="text"
+												placeholder="Beschreibung des Hauptthemas" ng-model="newMainTopicDescription_indicator"
+												required></textarea>
+											<div class="help-block with-errors"></div>
+										</div>
+				
+									</div>
+				
+								</form>
+							</div>
+				
+						</div>
+				
+					</div>
+				
+				</div>
+				</div>
+
+
+
+				<div class="box box-danger" id="georesourceTopicsManagement">
+					<div class="box-header with-border">
+					  <h3 class="box-title">Themenhierarchie - Georessourcen</h3>
+		
+									<div class="box-tools pull-right">
+										<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+										</button>
+									</div>
+					</div>
+					<!-- /.box-header -->
+					<!-- form start -->
+		
+					<div class="box-body">
+					
+						<div class="just-padding">
+					
+							<div class="list-group list-group-root well">
+					
+								<div
+									ng-repeat="mainTopic in $ctrl.kommonitorDataExchangeServiceInstance.availableTopics | filter:{topicType:'main'} | filter:{topicResource:'georesource'}">
+									<div class="list-group-item list-group-item-default" style="background: #2171b5; color: white;">
+										<a id="{{mainTopic.topicId}}" href="" ng-attr-title="{{mainTopic.topicDescription}}"
+											class="collapseTrigger" style="color: white;"
+											ng-click="isCollapsed_mainTopic = !isCollapsed_mainTopic"
+											ng-init="isCollapsed_mainTopic=true"><i
+												class="glyphicon glyphicon-chevron-right"></i>{{mainTopic.topicName}}</a>
+
+										<div ng-if="showTopicIds" style="display: inline-block;">(ID: {{mainTopic.topicId}})</div>
+					
+										<div class="btn-group btn-group-sm" style="margin-left: 30px;">
+											<button type="button" class="btn btn-warning" ng-click="onClickEditTopic(mainTopic)"
+												data-toggle="modal" data-target="#modal-edit-topic"><i
+													class="fas fa-pencil-alt"></i></button>
+											<button type="button" class="btn btn-danger" ng-click="onClickDeleteTopic(mainTopic)"
+												data-toggle="modal" data-target="#modal-delete-topic"><i class="fas fa-trash"></i></button>
+										</div>
+									</div>
+					
+					
+									<div ng-repeat="subTopic in mainTopic.subTopics" class="list-group collapse"
+										uib-collapse="isCollapsed_mainTopic">
+					
+										<div class="list-group-item list-group-item-default" style="background: #6baed6; color: white;">
+											<a id="{{subTopic.topicId}}" class="collapseTrigger" style="color: white;"
+												ng-attr-title="{{subTopic.topicDescription}}" href=""
+												ng-click="isCollapsed_subTopic = !isCollapsed_subTopic"
+												ng-init="isCollapsed_subTopic=true"><i
+													class="glyphicon glyphicon-chevron-right"></i>{{subTopic.topicName}}</a>
+
+											<div ng-if="showTopicIds" style="display: inline-block;">(ID: {{subTopic.topicId}})</div>
+
+											<div class="btn-group btn-group-sm" style="margin-left: 30px;">
+												<button type="button" class="btn btn-warning" ng-click="onClickEditTopic(subTopic)"
+													data-toggle="modal" data-target="#modal-edit-topic"><i
+														class="fas fa-pencil-alt"></i></button>
+												<button type="button" class="btn btn-danger" ng-click="onClickDeleteTopic(subTopic)"
+													data-toggle="modal" data-target="#modal-delete-topic"><i
+														class="fas fa-trash"></i></button>
+											</div>
+										</div>
+					
+										<div ng-repeat="subsubTopic in subTopic.subTopics" class="list-group collapse"
+											uib-collapse="isCollapsed_subTopic">
+					
+											<div class="list-group-item list-group-item-default" style="background: #bdd7e7; color: white;">
+												<a id="{{subsubTopic.topicId}}" class="collapseTrigger" style="color: black;"
+													ng-attr-title="{{subsubTopic.topicDescription}}" href=""
+													ng-click="isCollapsed_subsubTopic = !isCollapsed_subsubTopic"
+													ng-init="isCollapsed_subsubTopic=true"><i
+														class="glyphicon glyphicon-chevron-right"></i>{{subsubTopic.topicName}}</a>
+
+												<div ng-if="showTopicIds" style="display: inline-block; color: black;">(ID: {{subsubTopic.topicId}})</div>
+
+												<div class="btn-group btn-group-sm" style="margin-left: 30px;">
+													<button type="button" class="btn btn-warning" ng-click="onClickEditTopic(subsubTopic)"
+														data-toggle="modal" data-target="#modal-edit-topic"><i
+															class="fas fa-pencil-alt"></i></button>
+													<button type="button" class="btn btn-danger" ng-click="onClickDeleteTopic(subsubTopic)"
+														data-toggle="modal" data-target="#modal-delete-topic"><i
+															class="fas fa-trash"></i></button>
+												</div>
+											</div>
+					
+											<div ng-repeat="subsubsubTopic in subsubTopic.subTopics" class="list-group collapse"
+												uib-collapse="isCollapsed_subsubTopic">
+					
+												<div class="list-group-item list-group-item-default"
+													style="background: #eff3ff; color: white;">
+													<a id="{{subsubsubTopic.topicId}}" class="collapseTrigger" style="color: black;"
+														ng-attr-title="{{subsubsubTopic.topicDescription}}">{{subsubsubTopic.topicName}}</a>
+
+													<div ng-if="showTopicIds" style="display: inline-block; color: black;">(ID: {{subsubsubTopic.topicId}})</div>
+
+													<div class="btn-group btn-group-sm" style="margin-left: 30px;">
+														<button type="button" class="btn btn-warning"
+															ng-click="onClickEditTopic(subsubsubTopic)" data-toggle="modal"
+															data-target="#modal-edit-topic"><i class="fas fa-pencil-alt"></i></button>
+														<button type="button" class="btn btn-danger"
+															ng-click="onClickDeleteTopic(subsubsubTopic)" data-toggle="modal"
+															data-target="#modal-delete-topic"><i class="fas fa-trash"></i></button>
+													</div>
+												</div>
+					
+											</div>
+					
+											<div class="list-group-item list-group-item-success" ng-show="!isCollapsed_subsubTopic"
+												style="border-top: double;">
+												<form role="form" class="form-group" data-toggle="validator" style="margin-bottom: 0px;">
+													<div class="row">
+														<div class="col-md-3">
+															<button class="btn btn-success btn-sm"
+																ng-click="onAddSubSubSubTopic(subsubTopic, 'georesource')"
+																ng-disabled="!subsubTopic.newSubTopicTitle_georesource || !subsubTopic.newSubTopicDescription_georesource"><i
+																	class="fas fa-plus"></i> &nbsp; &nbsp; Unterthema
+																hinzuf&uuml;gen</button>
+														</div>
+														<div class="col-md-4">
+															<input style="width:100%;" class="form-control" type="text"
+																placeholder="Titel des Unterthemas" ng-model="subsubTopic.newSubTopicTitle_georesource"
+																required></input>
+															<div class="help-block with-errors"></div>
+														</div>
+														<div class="col-md-5">
+															<textarea style="width:100%;" rows="1" class="form-control" type="text"
+																placeholder="Beschreibung des Unterthemas"
+																ng-model="subsubTopic.newSubTopicDescription_georesource" required></textarea>
+															<div class="help-block with-errors"></div>
+														</div>
+					
+													</div>
+					
+												</form>
+											</div>
+					
+										</div>
+					
+										<div class="list-group-item list-group-item-success" ng-show="!isCollapsed_subTopic"
+											style="border-top: double;">
+											<form role="form" class="form-group" data-toggle="validator" style="margin-bottom: 0px;">
+												<div class="row">
+													<div class="col-md-3">
+														<button class="btn btn-success btn-sm" ng-click="onAddSubSubTopic(subTopic, 'georesource')"
+															ng-disabled="!subTopic.newSubTopicTitle_georesource || !subTopic.newSubTopicDescription_georesource"><i
+																class="fas fa-plus"></i> &nbsp; &nbsp; Unterthema hinzuf&uuml;gen</button>
+													</div>
+													<div class="col-md-4">
+														<input style="width:100%;" class="form-control" type="text"
+															placeholder="Titel des Unterthemas" ng-model="subTopic.newSubTopicTitle_georesource"
+															required></input>
+														<div class="help-block with-errors"></div>
+													</div>
+													<div class="col-md-5">
+														<textarea style="width:100%;" rows="1" class="form-control" type="text"
+															placeholder="Beschreibung des Unterthemas"
+															ng-model="subTopic.newSubTopicDescription_georesource" required></textarea>
+														<div class="help-block with-errors"></div>
+													</div>
+					
+												</div>
+					
+											</form>
+										</div>
+					
+									</div>
+					
+									<div class="list-group-item list-group-item-success" ng-show="!isCollapsed_mainTopic"
+										style="border-top: double;">
+										<form role="form" class="form-group" data-toggle="validator" style="margin-bottom: 0px;">
+											<div class="row">
+												<div class="col-md-3">
+													<button class="btn btn-success btn-sm" ng-click="onAddSubTopic(mainTopic, 'georesource')"
+														ng-disabled="!mainTopic.newSubTopicTitle_georesource || !mainTopic.newSubTopicDescription_georesource"><i
+															class="fas fa-plus"></i> &nbsp; &nbsp; Unterthema hinzuf&uuml;gen</button>
+												</div>
+												<div class="col-md-4">
+													<input style="width:100%;" class="form-control" type="text"
+														placeholder="Titel des Unterthemas" ng-model="mainTopic.newSubTopicTitle_georesource"
+														required></input>
+													<div class="help-block with-errors"></div>
+												</div>
+												<div class="col-md-5">
+													<textarea style="width:100%;" rows="1" class="form-control" type="text"
+														placeholder="Beschreibung des Unterthemas"
+														ng-model="mainTopic.newSubTopicDescription_georesource" required></textarea>
+													<div class="help-block with-errors"></div>
+												</div>
+					
+											</div>
+					
+										</form>
+									</div>
+					
+								</div>
+								<div class="list-group-item list-group-item-success" style="border-top: double;">
+									<form role="form" class="form-group" data-toggle="validator" style="margin-bottom: 0px;">
+										<div class="row">
+											<div class="col-md-3">
+												<button class="btn btn-success btn-sm" ng-click="onAddMainTopic('georesource')"
+													ng-disabled="!newMainTopicTitle_georesource || !newMainTopicDescription_georesource"><i class="fas fa-plus"></i>
+													&nbsp; &nbsp; Hauptthema hinzuf&uuml;gen</button>
+											</div>
+											<div class="col-md-4">
+												<input style="width:100%;" class="form-control" type="text"
+													placeholder="Titel des Hauptthemas" ng-model="newMainTopicTitle_georesource" required></input>
+												<div class="help-block with-errors"></div>
+											</div>
+											<div class="col-md-5">
+												<textarea style="width:100%;" rows="1" class="form-control" type="text"
+													placeholder="Beschreibung des Hauptthemas" ng-model="newMainTopicDescription_georesource"
+													required></textarea>
+												<div class="help-block with-errors"></div>
+											</div>
+					
+										</div>
+					
+									</form>
+								</div>
+					
+							</div>
+					
+						</div>
+					
+					</div>
+					</div>
+
+
+
+								
+
+            
+
+					<div id="topicsErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden class="alert alert-danger alert-dismissable">
+		                <button type="button" class="close" ng-click="hideErrorAlert()" aria-hidden="true">&times;</button>
+		                <h4><i class="icon fa fa-ban"></i>Request gescheitert</h4>
+		                Fehlermeldung:
+										<br/>
+										<pre>{{errorMessagePart}}</pre>.
+		      </div>
+
+	</section>
+<!-- /.content -->
+</div>

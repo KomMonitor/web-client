@@ -1,0 +1,158 @@
+<div id="kommonitorBalance">
+
+	<p></p>
+
+	<!-- BALANCE  -->
+		<div class="box box-primary">
+			<div class="box-header with-border">
+				<h3 class="box-title">Bilanzierung</h3>
+
+				<div class="box-tools pull-right">
+					<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+					</button>
+				</div>
+			</div>
+			<div class="box-body">
+
+				<div align="center">
+					<p>Zeitliche Trendbetrachtung der Indikatorenentwicklung &uuml;ber eine definierbare Zeitperiode.</p>
+				</div>
+
+				<br/>
+
+				<div align="center">
+
+					<!-- Rounded switch -->
+					<strong>Bilanzierung aktivieren/deaktivieren</strong>
+					&nbsp;
+					<label class="switch">
+						<input id="balanceCheckbox" type="checkbox" ng-change="onChangeUseBalance()" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked" ng-checked="$ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked"></input>
+					  <span class="switchslider round"></span>
+					</label>
+
+
+					<!-- <br/>
+					<br/>
+
+					<strong>relative Bilanzierung aktivieren/deaktivieren (noch nicht implementiert)</strong>
+					&nbsp;
+					<label class="switch">
+						<input id="relativeBalanceCheckbox" type="checkbox" ng-change="onChangeUseRelativeBalance()" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.isRelativeBalanceChecked" ng-checked="$ctrl.kommonitorDataExchangeServiceInstance.isRelativeBalanceChecked"></input>
+						<span class="switchslider round"></span>
+					</label> -->
+
+					<br/>
+					<br/>
+
+					<div id="rangeSliderForBalanceWrapper">
+						<input id="rangeSliderForBalance" type="text" class="js-range-slider" value=""></input>
+					</div>
+
+					<br/>
+					<br/>
+				</div>
+
+				<!-- <div align="center">
+					<p>TODO - Under Development</p>
+					<strong>derzeitig nur absolute Bilanzierung über obigen Zeitstrahl möglich.</strong>
+				</div> -->				
+
+			</div>
+			<!-- /.box-body -->
+		</div>
+		<!-- /.box -->
+
+		<div style="margin-bottom: 0px;" class="box box-danger" ng-show="$ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked">
+			<div class="box-header with-border">
+				<h3 class="box-title">Trenddarstellung &uuml;ber alle Features</h3>
+
+				<div class="box-tools pull-right">
+					<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+					</button>
+				</div>
+			</div>
+			<div class="box-body">
+
+				<!-- CONFIG FOR TREND CALCULATION -->
+				<div align="center">
+					<h4>Diagramm-Konfiguration</h4>
+					
+					<table class="table text-center" style="width:100%;">
+						<tr>
+							<th class="text-center">
+								<b>Zeige Min/Max Bereich</b>
+							</th>
+							<th class="text-center">
+								<b>Zeige gesamte Zeitreihe</b>
+							</th>
+							<th class="text-center">
+								<b>Art der Trendberechnung</b>
+							</th>
+							
+						</tr>
+						<tr>
+							<td class="text-center" >
+								<label class="switch">
+									<input type="checkbox" value="trendConfig_allFeatures.showMinMax" ng-model="trendConfig_allFeatures.showMinMax"
+									ng-change="onChangeTrendConfig()" ng-init="trendConfig_allFeatures.showMinMax = true;" checked>
+									<span class="switchslider round"></span>
+								</label>
+							</td>
+							<td class="text-center">
+								<label class="switch">
+									<input type="checkbox" value="trendConfig_allFeatures.showCompleteTimeseries" ng-model="trendConfig_allFeatures.showCompleteTimeseries"
+									ng-change="onChangeTrendConfig()" ng-init="trendConfig_allFeatures.showCompleteTimeseries = true;" checked>
+									<span class="switchslider round"></span>
+								</label>
+							</td>
+							<td>
+								<select style="font-size: 12px;"
+									ng-model="trendConfig_allFeatures.trendComputationType" ng-init="trendConfig_allFeatures.trendComputationType = 'linear'"
+									ng-change="onChangeTrendConfig()" class="form-control" required>
+									<option disabled selected value> -- Indikator w&auml;hlen -- </option>
+									<option value="linear" selected>Linear</option>
+									<option value="exponential">Exponential</option>
+									<option value="polynomial_3">Polynomial (Grad 3)</option>
+									<!-- <option value="linear">gleitende Mittelwerte</option> -->
+								</select>
+							</td>
+						</tr>
+					</table>
+				</div>
+				
+				<div class="chart">
+					<div id="trendDiagram_allFeatures" style="width:100%; min-height:30vh;"></div>
+				</div>
+
+			<h4 >Statistische Merkmale</h4>
+			<div>
+				<div class="row">
+					<div class="col-md-2">
+						<label>Min: </label> <i>{{trendAnalysis_allFeatures.min}}</i>
+						<br/>
+						<label>Max: </label> <i>{{trendAnalysis_allFeatures.max}}</i>
+					</div>
+					<div class="col-md-3">
+						<label>Durchschnitt: </label> <i>{{trendAnalysis_allFeatures.mean}}</i>
+						<br/>
+						<label>Median: </label> <i>{{trendAnalysis_allFeatures.median}}</i>
+					</div>
+					<div class="col-md-4">
+						<label>Standardabweichung: </label> <i>{{trendAnalysis_allFeatures.deviation}}</i>
+						<br/>
+						<label>Varianz: </label> <i>{{trendAnalysis_allFeatures.variance}}</i>
+					</div>
+					<div class="col-md-3">
+						<label>Bilanz: </label> <i>{{trendAnalysis_allFeatures.balance}}</i>
+						<br/>
+						<label>Trend: </label> <i>{{trendAnalysis_allFeatures.trend}}</i>
+					</div>
+
+				</div>
+			</div>
+			
+			</div>
+		</div>
+
+
+</div>
