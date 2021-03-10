@@ -156,6 +156,9 @@ angular
 								// Called every time handle position is changed
 								kommonitorDataExchangeService.rangeFilterData = data;
 
+								$scope.lowerFilterInputNotValid = false;
+								$scope.higherFilterInputNotValid = false;
+
 								$scope.currentLowerFilterValue = data.from;
 								$scope.currentHigherFilterValue = data.to;
 
