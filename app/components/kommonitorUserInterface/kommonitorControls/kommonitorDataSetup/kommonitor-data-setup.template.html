@@ -62,9 +62,10 @@
 
 										<br/>
 
+										<label>Datenkataloge:</label>
 
 										 <uib-tabset active="0">
-									    <uib-tab index="0" heading="Themenbasierter Datenkatalog">
+									    <uib-tab index="0" heading="Themenhierarchie">
 
 												<div class="just-padding">
 
@@ -84,7 +85,7 @@
 
 														<br/>
 
-														<label> Datenkatalog </label>
+														<label> Themenorientierter Datenkatalog </label>
 
 														<div ng-repeat="mainTopic in $ctrl.kommonitorDataExchangeServiceInstance.availableTopics | filter:{topicType:'main'} | filter:{topicResource:'indicator'}">
 															<div  class="list-group-item list-group-item-default" style="background: #2171b5; color: white;">
@@ -237,7 +238,62 @@
 													</select>
 												</div>
 											</uib-tab> -->
-											<uib-tab index="1" heading="Leitindikatorenbasierter Datenkatalog">
+											<uib-tab index="1" heading="Berechnungshierarchie">
+												<div class="just-padding">
+
+													<div id="computationIndicatorHierarchySelection" class="list-group list-group-root well">
+
+														<label>Erl&auml;uterungen zur Symbolik </label>														
+
+														<div class="list-group-item list-group-item-default style-headline-indicator">
+															<p style="cursor:pointer; color: white;"
+																	style="color: white;" <i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>Ziel-Indikator (berechnet durch KomMonitor)</b>
+																	[Einheitsbezeichnung]</p>
+														</div>
+														<div class="list-group-item list-group-item-default style-simple-indicator">
+															<p style="cursor:pointer; color: black;" <i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>Basis-Indikator als Berechnungsgrundlage des Ziel-Indikators</b>
+																	[Einheitsbezeichnung]</p>
+														</div>
+
+														<br/>
+
+														<label> von KomMonitor berechnete Ziel-Indikatoren und ihre Basis-Indikatoren </label>
+
+														<div ng-repeat="computationIndicatorHierarchyItem in $ctrl.kommonitorDataExchangeServiceInstance.computationIndicatorHierarchy | filter:indicatorNameFilter track by computationIndicatorHierarchyItem.computationIndicator.indicatorId">
+															<div  class="list-group-item list-group-item-default" style="background: #2171b5; color: white;">
+																<a id="computationIndicatorHierarchy_{{computationIndicatorHierarchyItem.computationIndicator.indicatorId}}" href="" ng-attr-title="{{computationIndicatorHierarchyItem.computationIndicator.metadata.description}}" class="collapseTrigger" style="color: white;" ng-click="isCollapsed_computationIndicatorHierarchyItem = !isCollapsed_computationIndicatorHierarchyItem" ng-init="isCollapsed_computationIndicatorHierarchyItem=true"><i class="glyphicon glyphicon-chevron-right"></i>{{computationIndicatorHierarchyItem.computationIndicator.indicatorName}} </a>
+															</div>
+
+															<div class="list-group collapse indicatorInputForm" uib-collapse="isCollapsed_computationIndicatorHierarchyItem">
+																<div id="computationIndicatorHierarchyElement-{{computationIndicatorHierarchyItem.computationIndicator.indicatorId}}"
+																	class="list-group-item list-group-item-default style-headline-indicator">
+																	<div>
+																		<p style="cursor:pointer; color: white;" ng-attr-title="<b>{{computationIndicatorHierarchyItem.computationIndicator.indicatorName}}</b> [{{computationIndicatorHierarchyItem.computationIndicator.unit}}]" ng-click="onClickHierarchyIndicator(computationIndicatorHierarchyItem.computationIndicator)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{computationIndicatorHierarchyItem.computationIndicator.indicatorName}}</b> [{{computationIndicatorHierarchyItem.computationIndicator.unit}}]</p>
+																
+																	</div> 
+																</div>
+
+																<div id="baseIndicatorHierarchyElement-{{baseIndicatorMetadata.indicatorId}}"
+																	class="list-group-item list-group-item-default style-simple-indicator"
+																	ng-repeat="baseIndicatorMetadata in computationIndicatorHierarchyItem.baseIndicators | filter:filterIndicators() | filter:indicatorNameFilter track by baseIndicatorMetadata.indicatorId" >
+																	<div>
+																		<p style="cursor:pointer; color: black;" ng-attr-title="<b>{{baseIndicatorMetadata.indicatorName}}</b> [{{baseIndicatorMetadata.unit}}]" ng-click="onClickHierarchyIndicator(baseIndicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{baseIndicatorMetadata.indicatorName}}</b> [{{baseIndicatorMetadata.unit}}]</p>
+																
+																	</div> 
+																</div>
+															</div>
+
+														</div>
+														<!-- end main Topics -->
+
+
+													</div>
+
+												</div>
+
+											</uib-tab>
+
+											<uib-tab index="2" heading="Leitindikatoren-Hierarchie">
 												<div class="just-padding">
 
 													<div id="headlineIndicatorHierarchySelection" class="list-group list-group-root well">
@@ -288,7 +344,7 @@
 
 													</div>
 
-											</div>
+												</div>
 
 											</uib-tab>
 									  </uib-tabset>
