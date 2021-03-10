@@ -470,7 +470,7 @@ angular
 						                           }
 										    },
 										    xAxis: {
-														name: kommonitorDataExchangeService.formatIndiatorNameForLabel($scope.selection.selectedIndicatorForXAxis.indicatorMetadata.indicatorName + " - " + $scope.selection.selectedIndicatorForXAxis.selectedDate + " [" + $scope.selection.selectedIndicatorForXAxis.indicatorMetadata.unit + "]", 100),
+														name: kommonitorDataExchangeService.formatIndicatorNameForLabel($scope.selection.selectedIndicatorForXAxis.indicatorMetadata.indicatorName + " - " + $scope.selection.selectedIndicatorForXAxis.selectedDate + " [" + $scope.selection.selectedIndicatorForXAxis.indicatorMetadata.unit + "]", 100),
 														nameLocation: 'center',
 														nameGap: 22,
 		                        scale: true,
@@ -482,7 +482,7 @@ angular
 										        },
 										    },
 										    yAxis: {
-														name: kommonitorDataExchangeService.formatIndiatorNameForLabel($scope.selection.selectedIndicatorForYAxis.indicatorMetadata.indicatorName + " - " + $scope.selection.selectedIndicatorForYAxis.selectedDate + " [" + $scope.selection.selectedIndicatorForYAxis.indicatorMetadata.unit + "]", 75),
+														name: kommonitorDataExchangeService.formatIndicatorNameForLabel($scope.selection.selectedIndicatorForYAxis.indicatorMetadata.indicatorName + " - " + $scope.selection.selectedIndicatorForYAxis.selectedDate + " [" + $scope.selection.selectedIndicatorForYAxis.indicatorMetadata.unit + "]", 75),
 														nameLocation: 'center',
 														nameGap: 50,
 										        type: 'value',
