@@ -64,7 +64,18 @@ angular
 								};
 
 					$scope.settings.selectedDate_manual = undefined;
+
+					$scope.settings.isochroneConfig = {};
+					$scope.settings.isochroneConfig.dateSelectionType_valueIndicator = "date_indicator";
+								$scope.settings.isochroneConfig.dateSelectionType_valueManual = "date_manual";
+								$scope.settings.isochroneConfig.dateSelectionType_valuePerDataset = "date_perDataset";
+								$scope.settings.isochroneConfig.dateSelectionType = {
+									selectedDateType: $scope.settings.isochroneConfig.dateSelectionType_valueIndicator
+								};
+
+					$scope.settings.isochroneConfig.selectedDate_manual = undefined;
 					$('#manualDateDatepicker_reachabilityAnalysis').datepicker(kommonitorDataExchangeService.datePickerOptions);
+					$('#manualDateDatepicker_reachabilityConfig').datepicker(kommonitorDataExchangeService.datePickerOptions);
 
 
 					$scope.routeDistance_km = undefined;
@@ -231,6 +242,8 @@ angular
 					 */
 					$scope.locationsArray = [];
 
+					$scope.settings.isochroneInput = undefined;
+
 					/**
 					 * TODO
 					 */
@@ -324,13 +337,6 @@ angular
 						}
 					};
 
-					$scope.onChangeUsePreconfigRanges500And1000 = function(){
-						document
-							.getElementById('isoInputText').value = "500";
-
-						$scope.settings.currentTODValue = 1000;	
-					};
-
 					$scope.resetForm = function(){
 						$scope.resetSlider();
 
@@ -364,8 +370,6 @@ angular
 						$scope.locationsArray = [];
 
 						$scope.rangeArray = [];
-						document.getElementById("isoInputText").text = "";
-						document.getElementById("isoInputText").value = "";
 
 						$scope.removePotentialDrawnStartingPoints();
 
@@ -714,10 +718,8 @@ angular
 					 */
 					$scope.checkArrayInput = function() {
 						$scope.rangeArray = [];
-						var split = document
-							.getElementById('isoInputText').value
-							.split(',');
-						var actVal = $scope.settings.currentTODValue;
+						var split = $scope.settings.isochroneInput.split(',');
+						var actVal;
 						if (split.length > 0) {
 							for (var a = 0; a < split.length; a++) {
 								if (!isNaN(split[a])) {
@@ -727,12 +729,6 @@ angular
 										.push(actVal);
 								}
 							}
-							if ($scope.rangeArray[$scope.rangeArray.length - 1] != $scope.settings.currentTODValue) {
-								$scope.rangeArray
-									.push($scope.settings.currentTODValue);
-							}
-						} else {
-							$scope.rangeArray = [$scope.settings.currentTODValue];
 						}
 
 						$scope.rangeArray.sort(function(a, b){return a-b;});
@@ -752,20 +748,42 @@ angular
 						$scope.showIsochrones = false;
 					};
 
-					$scope.onChangeSelectedStartPointLayer = async function(){
-						// check if dataset already contains geoJSON
+					$scope.onClickPerDataset_isochroneConfig = function(){
+						$timeout(function(){
+							if(! $scope.settings.isochroneConfig.selectedDate){
+								$scope.settings.isochroneConfig.selectedDate = $scope.settings.selectedStartPointLayer.availablePeriodsOfValidity[$scope.settings.selectedStartPointLayer.availablePeriodsOfValidity.length - 1];
+							}
+							$scope.fetchGeoJSONForIsochrones();
+						}, 500);
+					};
 
-						// if not then fetch it!
-
-						if($scope.settings.selectedStartPointLayer.geoJSON){
-							$scope.pointSourceConfigured = true;
+					$scope.fetchGeoJSONForIsochrones = async function(){
+						if(! $scope.settings.selectedStartPointLayer){
 							return;
 						}
-						else{
-							$scope.settings.loadingData = true;
-							var id = $scope.settings.selectedStartPointLayer.georesourceId;
 
-							var date = kommonitorDataExchangeService.selectedDate;
+						// clear any previous results
+						$scope.settings.selectedStartPointLayer.geoJSON = undefined;						
+
+						var date;
+
+						if($scope.settings.isochroneConfig.dateSelectionType.selectedDateType === $scope.settings.isochroneConfig.dateSelectionType_valuePerDataset){
+							date = $scope.settings.isochroneConfig.selectedDate.startDate;
+						}
+						else if($scope.settings.isochroneConfig.dateSelectionType.selectedDateType === $scope.settings.isochroneConfig.dateSelectionType_valueManual){
+							date = $scope.settings.isochroneConfig.selectedDate_manual;
+						}
+						else{
+							date = kommonitorDataExchangeService.selectedDate;
+						}
+
+						if(! date){
+							return;
+						}
+						
+						
+							$scope.settings.loadingData = true;
+							var id = $scope.settings.selectedStartPointLayer.georesourceId;							
 
 							var dateComps = date.split("-");
 
@@ -794,11 +812,17 @@ angular
 									console.error(error.statusText);
 									kommonitorDataExchangeService.displayMapApplicationError(error);
 									$scope.error = error.statusText;
-							});
+							});						
+					};
+
+					$scope.onChangeSelectedStartPointLayer = async function(){
+						$scope.settings.isochroneConfig.selectedDate = undefined;
+
+						if(! $scope.settings.isochroneConfig.selectedDate){
+							$scope.settings.isochroneConfig.selectedDate = $scope.settings.selectedStartPointLayer.availablePeriodsOfValidity[$scope.settings.selectedStartPointLayer.availablePeriodsOfValidity.length - 1];
 						}
 
-
-
+						$scope.fetchGeoJSONForIsochrones();
 					};
 
 					/**
@@ -1584,6 +1608,37 @@ angular
 						}, 1000);
 
 					};
+
+					$scope.onChangeManualDate_isochroneConfig = function(){
+						// check if date is an actual date
+						// if so then refresh selected layers
+
+						 // Clear the timeout if it has already been set.
+						// This will prevent the previous task from executing
+						// if it has been less than <MILLISECONDS>
+						clearTimeout($scope.timeout_manualdate);
+
+						// Make a new timeout set to go off in 1000ms (1 second)
+						$scope.timeout_manualdate = setTimeout(function () {
+							var dateCandidate = $scope.settings.isochroneConfig.selectedDate_manual;
+
+							if(isNoValidDate(dateCandidate)){
+								return;
+							}
+
+							$timeout(function(){
+	
+								$scope.loadingData = true;
+								$rootScope.$broadcast("showLoadingIconOnMap");
+							});
+
+							$timeout(function(){
+		
+								$scope.fetchGeoJSONForIsochrones();
+							}, 25);	
+						}, 1000);
+
+					};					
 
 					$scope.$on("selectedIndicatorDateHasChanged", function (event) {
 

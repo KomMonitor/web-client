@@ -100,24 +100,45 @@
 							<hr>
 							<br />
 
-							<div class="rangeslider">
-								<label for="TODO">Distanz / Zeit</label>
+							<div >
 
-								<div class="row vertical-align" style="margin-right:0px;">
-									<div class="col-md-4 col-sm-4 col-xs-4">
-										<input type="range" min="1" max={{max_value}} value="1" class="myslider"
-											id="timeOrDistSlider" ng-model="settings.currentTODValue">
-										<br />
-										<label>Wert: {{settings.currentTODValue}} {{unit}}</label>
+								
+										<label>Allgemeine Hinweise</label>
 
-										<label>Maximum: {{max_value}} {{unit}}</label>
-									</div>
-									<div class="col-md-8 col-sm-8 col-xs-8">
-										<p>F&uuml;r die Definition mehrerer Isochronen nutzen Sie bitte das nachfolgende
-											Textfeld. Geben Sie die gew&uuml;nschten Isochronengrenzen kommagetrennt ein
+										<p>je h&ouml;her die Anzahl der Startpunkte/Isochonen oder die Distanz/Zeit pro Isochrone, desto l&auml;nger dauert die Analyse</p>																												
+
+										<br/>
+
+										<label>Isochronendefinition</label>
+										<p>Geben Sie die gew&uuml;nschten Isochronengrenzen kommagetrennt ein
 											(Beispiel: '100,200,300' in Metern oder '5,10,20' f&uuml;r Minuten).</p>
-										<div class="horizontal-align">
-											<input id="isoInputText" type="text" onkeypress="isInputAllowed(event)">
+										<div>
+											<input ng-model="settings.isochroneInput" type="text" style="width:95%;" placeholder="Isochronengrenzen angeben" onkeypress="isInputAllowed(event)">
+										</div>
+
+										<br/>
+										<br/>
+
+										<div ng-if="!isTime">
+											<label>Voreinstellungsoptionen</label>
+
+											<br/>
+																						
+												<label class="radio-inline"><input type="radio" name="distances" value="100,200,300,400,500" ng-model="settings.isochroneInput" ng-click="settings.isochroneInput = '100,200,300,400,500'"> 100,200,300,400,500 Meter</label>
+											  												
+												<label class="radio-inline"><input type="radio" name="distances" value="500,1000,1500" ng-model="settings.isochroneInput" ng-click="settings.isochroneInput = '500,1000,1500'"> 500,1000,1500 Meter</label>
+											   
+										</div>
+
+										<div ng-if="isTime">
+											<label>Voreinstellungsoptionen</label>
+
+											<br/>
+																						
+												<label class="radio-inline"><input type="radio" name="times" value="5,10,15" ng-model="settings.isochroneInput" ng-click="settings.isochroneInput = '5,10,15'" > 5,10,15 Minuten</label>
+											  											
+												<label class="radio-inline"><input type="radio" name="times" value="5,10,15,20,25" ng-model="settings.isochroneInput" ng-click="settings.isochroneInput = '5,10,15,20,25'" >5,10,15,20,25 Minuten</label>
+											  
 										</div>
 
 										<script>
@@ -133,33 +154,14 @@
 												}
 											}
 										</script>
-									</div>
-								</div>
-								<div>
-									<div class="checkbox">
-										<label><input type="checkbox" ng-model="settings.usePreconfigRanges_500_1000" ng-change="onChangeUsePreconfigRanges500And1000()">Voreinstellung 500, 1000 Meter Isochronen</label>
-									  </div>
-								</div>
+									<!-- </div>
+								</div>								 -->
 								<!-- <br />
 											<br /> -->
 
 							</div>
 
 							<br />
-
-							<div ng-show="isTime && !(settings.transitMode == 'buffer')" class="ng-show" class="rangeslider">
-								<label for="TODO">Maximalgeschwindigkeit</label>
-								<br />
-								<br />
-								<input type="range" min={{minSpeedInKilometersPerHour}}
-									max={{maxSpeedInKilometersPerHour}} value={{minSpeedInKilometersPerHour}}
-									class="myslider" id="tempoSlider" ng-model="settings.speedInKilometersPerHour">
-								<br />
-								<label>Wert: {{settings.speedInKilometersPerHour}} km/h; Maximum: {{maxSpeedInKilometersPerHour}}
-									km/h</label>
-								<br />
-								<br />
-							</div>
 
 							<hr>
 							<br />
@@ -189,6 +191,24 @@
 
 							<div ng-show="settings.startPointsSource === 'fromLayer'">
 
+								<label>Art der Datumsdefinition zum Abruf eines Datensatzes</label>
+								<div class="form-group">
+									<label class="radio-inline"><input type="radio" name="settings.isochroneConfig.dateSelectionType"  ng-value="settings.isochroneConfig.dateSelectionType_valueIndicator" ng-model="settings.isochroneConfig.dateSelectionType.selectedDateType" ng-change="fetchGeoJSONForIsochrones()" >Datum des aktuellen Indikators</label>
+									<label class="radio-inline"><input type="radio" name="settings.isochroneConfig.dateSelectionType"  ng-value="settings.isochroneConfig.dateSelectionType_valueManual" ng-model="settings.isochroneConfig.dateSelectionType.selectedDateType">manuelles Datum
+										<div ng-hide="!(settings.isochroneConfig.dateSelectionType.selectedDateType === settings.isochroneConfig.dateSelectionType_valueManual)" class="input-group date">
+											<div class="input-group-addon">
+												<i class="far fa-calendar-alt"></i>
+											</div>
+											<input type="text" ng-model="settings.isochroneConfig.selectedDate_manual" ng-change="onChangeManualDate_isochroneConfig()" ng-model-options="{debounce: 500, blur: 0}"
+												class="form-control pull-right" placeholder="YYYY-MM-DD"
+												id="manualDateDatepicker_reachabilityConfig" required>
+										</div>
+									</label>
+									<label class="radio-inline"><input type="radio" name="settings.isochroneConfig.dateSelectionType"  ng-value="settings.isochroneConfig.dateSelectionType_valuePerDataset" ng-model="settings.isochroneConfig.dateSelectionType.selectedDateType" ng-change="onClickPerDataset_isochroneConfig()" >pro Datensatz</label>
+								</div>
+
+								<br/>
+
 								<div class="row vertical-align" style="margin-right:0px;">
 									<div class="col-md-6 col-sm-6 col-xs-6">
 										<div class="horizontal-align" ng-show="settings.selectedStartPointLayer.geoJSON">
@@ -199,6 +219,10 @@
 										<div class="horizontal-align" ng-hide="settings.selectedStartPointLayer">
 											<p>noch kein Layer selektiert</p>
 										</div>
+
+										<div class="horizontal-align" ng-if="settings.selectedStartPointLayer && ! settings.selectedStartPointLayer.geoJSON">
+											<p style="color: red;">zum angegebenen Zeitwert konnten keine validen Feature-Daten abgerufen werden</p>
+										</div>
 									</div>
 									<div class="col-md-6 col-sm-6 col-xs-6">
 										<select style="font-size: 12px;" ng-model="settings.selectedStartPointLayer"
@@ -206,6 +230,13 @@
 											ng-change="onChangeSelectedStartPointLayer()" class="form-control" required>
 											<option disabled selected value> -- Punkt-Layer w&auml;hlen -- </option>
 										</select>
+
+										<div ng-if="settings.selectedStartPointLayer && settings.isochroneConfig.dateSelectionType.selectedDateType === settings.isochroneConfig.dateSelectionType_valuePerDataset">
+											<select style="font-size: 11px; width:135px; padding: 0px;"
+													ng-model="settings.isochroneConfig.selectedDate" ng-change="fetchGeoJSONForIsochrones()" ng-options="date as date.startDate for date in settings.selectedStartPointLayer.availablePeriodsOfValidity | orderBy: 'startDate' | unique: 'startDate'" ng-init="settings.isochroneConfig.selectedDate = settings.selectedStartPointLayer.availablePeriodsOfValidity[settings.selectedStartPointLayer.availablePeriodsOfValidity.length - 1]"
+													class="form-control" required>
+											</select>
+										</div>										
 									</div>
 								</div>
 							</div>
@@ -251,7 +282,7 @@
 								</div>
 
 								<input type="button" class="btn btn-s btn-info" value="Analyse starten!"
-									ng-disabled="!(pointSourceConfigured && showIsochrones)"
+									ng-disabled="!(pointSourceConfigured && settings.isochroneInput && showIsochrones)"
 									ng-click="startAnalysis()"></input>
 								<input type="button" class="btn btn-s btn-danger" value="Zur&uuml;cksetzen"
 									ng-click="resetForm()"></input>
