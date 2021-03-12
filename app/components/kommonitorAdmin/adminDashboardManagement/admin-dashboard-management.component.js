@@ -134,30 +134,14 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 
 			$scope.indicatorsPerTopicChart.showLoading();
 
-			var indicatorsPerTopicMap = new Map();
-
-			kommonitorDataExchangeService.availableIndicators.forEach(function(indicator){
-
-				var mainTopicForCurrentIndicator = findMainTopicNameForTopicReference(indicator.topicReference);
-
-				if(indicatorsPerTopicMap.has(mainTopicForCurrentIndicator)){
-					// increment by 1
-					indicatorsPerTopicMap.set(mainTopicForCurrentIndicator, indicatorsPerTopicMap.get(mainTopicForCurrentIndicator) + 1);
-				}
-				else{
-					indicatorsPerTopicMap.set(mainTopicForCurrentIndicator, 1);
-				}
-
-			});
-
 			var indicatorsPerTopicSeriesData = [];
 
 			//sorted alphabetically
-			kommonitorDataExchangeService.availableTopics.forEach(function(topic){
-				if(indicatorsPerTopicMap.has(topic.topicName)){
+			kommonitorDataExchangeService.availableTopics.forEach(function(mainTopic){
+				if(mainTopic.indicatorCount > 0){
 					indicatorsPerTopicSeriesData.push({
-						name: topic.topicName,
-						value: indicatorsPerTopicMap.get(topic.topicName)
+						name: mainTopic.topicName,
+						value: mainTopic.indicatorCount
 					});
 				}
 			});
@@ -206,46 +190,6 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 
 			$scope.indicatorsPerTopicChart.setOption($scope.indicatorsPerTopicChartOptions);
 			$scope.indicatorsPerTopicChart.hideLoading();
-		};
-
-		var findMainTopicNameForTopicReference = function(topicReference){
-			var mainTopicName;
-			for(var i=0; i < kommonitorDataExchangeService.availableTopics.length; i++){
-
-				var currentTopic = kommonitorDataExchangeService.availableTopics[i];
-
-				if (currentTopic.topicId === topicReference){
-					mainTopicName = currentTopic.topicName;
-					break;
-				}
-				else{
-					var topicReferenceWithinSubTopics = isTopicReferenceWithinSubTopics(topicReference, currentTopic);
-					if (topicReferenceWithinSubTopics){
-						mainTopicName = currentTopic.topicName;
-						break;
-					}
-				}
-			}
-			return mainTopicName;
-		};
-
-		var isTopicReferenceWithinSubTopics = function(topicReference, topic){
-			for(var subI=0; subI < topic.subTopics.length; subI++){
-				var currentSubTopic = topic.subTopics[subI];
-				if(currentSubTopic.topicId === topicReference){
-					return true;
-				}
-				else{
-					if (currentSubTopic.subTopics.length > 0){
-						var topicReferenceWithinSubTopics = isTopicReferenceWithinSubTopics(topicReference, currentSubTopic);
-						if(topicReferenceWithinSubTopics){
-							return true;
-						}
-					}
-				}
-			}
-
-			return false;
 		};
 
 		// GEORESOURCES PER TOPIC
