@@ -59,6 +59,7 @@ angular
 
           this.headlineIndicatorHierarchy = [];
           this.computationIndicatorHierarchy = [];
+          this.topicIndicatorHierarchy = [];
 
           this.enableKeycloakSecurity = __env.enableKeycloakSecurity;
           this.currentKeycloakLoginRoles = [];
@@ -757,6 +758,7 @@ angular
                   self.modifyIndicatorApplicableSpatialUnitsForLoginRoles();
 
                   self.buildHeadlineIndicatorHierarchy();
+                  self.buildTopicIndicatorHierarchy(null);
                   self.buildComputationIndicatorHierarchy();
 
                   console.log("Metadata fetched. Call initialize event.");
@@ -779,15 +781,93 @@ angular
             }
           };
 
+          this.buildTopicsMap = function(indicatorTopics){
+            var topicsMap = new Map();            
+
+            for (const topic of indicatorTopics) {
+              topicsMap.set(topic.topicId, []);
+              if(topic.subTopics.length > 0){
+                topicsMap = this.addSubTopicsToMap(topic.subTopics, topicsMap);
+              }
+            }
+
+            return topicsMap;
+          };
+
+          this.addSubTopicsToMap = function(subTopicsArray, topicsMap){
+
+            for (const subTopic of subTopicsArray) {
+              topicsMap.set(subTopic.topicId, []);
+              if(subTopic.subTopics.length > 0){
+                topicsMap = this.addSubTopicsToMap(subTopic.subTopics, topicsMap);
+              } 
+            } 
+            
+            return topicsMap;
+          };
+
+          this.buildTopicIndicatorHierarchy = function(indicatorNameFilter){
+
+            var indicatorTopics = this.availableTopics.filter(topic => topic.topicResource === "indicator");
+            var topicsMap = this.buildTopicsMap(indicatorTopics);
+
+            var filteredIndicators = this.availableIndicators.filter(item => isDisplayableIndicator(item));
+
+            if(indicatorNameFilter && indicatorNameFilter != ""){
+              filteredIndicators = filterArrayObjectsByValue(filteredIndicators, indicatorNameFilter);									
+            }
+
+            for (const indicatorMetadata of filteredIndicators) {
+              if (topicsMap.has(indicatorMetadata.topicReference)){
+                var indicatorArray = topicsMap.get(indicatorMetadata.topicReference);
+                indicatorArray.push(indicatorMetadata);
+                topicsMap.set(indicatorMetadata.topicReference, indicatorArray);
+              }
+            }
+
+            this.topicIndicatorHierarchy = this.addIndicatorDataToTopicHierarchy(indicatorTopics, topicsMap);
+          };
+
+          this.addIndicatorDataToTopicHierarchy = function(topicsArray, topicsMap){
+            for (var topic of topicsArray) {
+              topic.indicatorData = topicsMap.get(topic.topicId);
+              topic.indicatorCount = topic.indicatorData.length;
+              if(topic.subTopics.length > 0){
+                topic = this.addIndicatorDataToSubTopics(topic, topicsMap);
+              }
+            }
+
+            return topicsArray;
+          };
+
+          this.addIndicatorDataToSubTopics = function(topic, topicsMap){
+            for (var subTopic of topic.subTopics) {
+              subTopic.indicatorData = topicsMap.get(subTopic.topicId);
+              subTopic.indicatorCount = subTopic.indicatorData.length;
+              topic.indicatorCount = topic.indicatorCount + subTopic.indicatorCount;
+              if(subTopic.subTopics.length > 0){
+                subTopic = this.addIndicatorDataToSubTopics(subTopic, topicsMap);
+              }
+            }
+
+            return topic;
+          };
+
+          this.onChangeIndicatorKeywordFilter = function(indicatorNameFilter){
+            this.buildTopicIndicatorHierarchy(indicatorNameFilter);            
+          };
+
           this.buildHeadlineIndicatorHierarchy = function(){
 
             var indicatorsMap = new Map();
 
-            for (const indicatorMetadata of this.availableIndicators) {
+            var filteredIndicators = this.availableIndicators.filter(item => isDisplayableIndicator(item));
+
+            for (const indicatorMetadata of filteredIndicators) {
               indicatorsMap.set(indicatorMetadata.indicatorId, indicatorMetadata);
             }
             
-            var headlineIndicatorsArray = this.availableIndicators.filter(indicatorMetadata => indicatorMetadata.isHeadlineIndicator == true);
+            var headlineIndicatorsArray = filteredIndicators.filter(indicatorMetadata => indicatorMetadata.isHeadlineIndicator == true);
 
             var headlineIndicatorsIdArray = headlineIndicatorsArray.map(indicatorMetadata => indicatorMetadata.indicatorId);
 
@@ -835,11 +915,13 @@ angular
 
             var indicatorsMap = new Map();
 
-            for (const indicatorMetadata of this.availableIndicators) {
+            var filteredIndicators = this.availableIndicators.filter(item => isDisplayableIndicator(item));
+
+            for (const indicatorMetadata of filteredIndicators) {
               indicatorsMap.set(indicatorMetadata.indicatorId, indicatorMetadata);
             }
             
-            var computationIndicatorsArray = this.availableIndicators.filter(indicatorMetadata => indicatorMetadata.creationType == "COMPUTATION");
+            var computationIndicatorsArray = filteredIndicators.filter(indicatorMetadata => indicatorMetadata.creationType == "COMPUTATION");
 
             var computationIndicatorsIdArray = computationIndicatorsArray.map(indicatorMetadata => indicatorMetadata.indicatorId);
 
