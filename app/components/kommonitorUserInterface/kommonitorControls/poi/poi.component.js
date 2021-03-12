@@ -328,7 +328,7 @@ angular
 										$timeout(function(){
 					
 											$scope.refreshSelectedGeoresources();
-										}, 25);	
+										}, 250);	
 									}, 1000);
 			
 								};
@@ -351,7 +351,7 @@ angular
 									$timeout(function(){
 				
 										$scope.refreshSelectedGeoresources();
-									}, 25);							
+									}, 250);							
 								});
 
 								$scope.refreshSelectedGeoresources = function(){

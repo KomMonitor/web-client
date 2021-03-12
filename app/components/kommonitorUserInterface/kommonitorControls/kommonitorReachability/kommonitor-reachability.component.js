@@ -759,6 +759,7 @@ angular
 
 					$scope.fetchGeoJSONForIsochrones = async function(){
 						if(! $scope.settings.selectedStartPointLayer){
+							$scope.settings.loadingData = false;
 							return;
 						}
 
@@ -778,6 +779,7 @@ angular
 						}
 
 						if(! date){
+							$scope.settings.loadingData = false;
 							return;
 						}
 						
@@ -1604,7 +1606,7 @@ angular
 							$timeout(function(){
 		
 								$scope.refreshSelectedGeoresources();
-							}, 25);	
+							}, 250);	
 						}, 1000);
 
 					};
@@ -1626,16 +1628,18 @@ angular
 								return;
 							}
 
-							$timeout(function(){
-	
-								$scope.loadingData = true;
-								$rootScope.$broadcast("showLoadingIconOnMap");
-							});
+							$scope.fetchGeoJSONForIsochrones();
 
-							$timeout(function(){
+							// $timeout(function(){
+	
+							// 	$scope.loadingData = true;
+							// 	$rootScope.$broadcast("showLoadingIconOnMap");
+							// });
+
+							// $timeout(function(){
 		
-								$scope.fetchGeoJSONForIsochrones();
-							}, 25);	
+							// 	$scope.fetchGeoJSONForIsochrones();
+							// }, 250);	
 						}, 1000);
 
 					};					
@@ -1658,7 +1662,7 @@ angular
 						$timeout(function(){
 	
 							$scope.refreshSelectedGeoresources();
-						}, 25);							
+						}, 250);							
 					});
 
 					$scope.refreshSelectedGeoresources = async function(){
