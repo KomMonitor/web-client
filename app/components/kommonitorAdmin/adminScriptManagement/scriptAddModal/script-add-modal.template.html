@@ -122,7 +122,7 @@
 									</div>
 									<div class="col-md-8 col-sm-6 col-xs-12">
 										<div class="form-group">
-											<label>Beschreibung*</label>
+											<label>Skript-Beschreibung*</label>
 											<textarea rows="3" type="text" class="form-control" ng-model="description"
 												placeholder="Beschreibung" required></textarea>
 
@@ -149,7 +149,7 @@
 											</div>
 											<br />
 											<select ng-model="$ctrl.kommonitorScriptHelperServiceInstance.targetIndicator" size="5"
-												ng-options="indicatorMetadata as indicatorMetadata.indicatorName for indicatorMetadata in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter: {creationType: 'COMPUTATION'} | filter:indicatorNameFilter"
+												ng-options="indicatorMetadata as indicatorMetadata.indicatorName + ' [' + indicatorMetadata.unit + ']' for indicatorMetadata in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter: {creationType: 'COMPUTATION'} | filter:indicatorNameFilter"
 												class="form-control">
 												<option disabled selected value> -- Ziel-Indikator w&auml;hlen --
 												</option>
@@ -161,21 +161,50 @@
 											<div class="help-block with-errors"></div>
 										</div>
 									</div>
-									<div class="col-md-3 col-sm-6 col-xs-12">
-										<div class="form-group">
-											<label>ID des selektierten Ziel-Indikators</label>
-											<input type="text" class="form-control input-sm" disabled
-												placeholder="IndikatorenId" ng-model="$ctrl.kommonitorScriptHelperServiceInstance.targetIndicator.indicatorId">
-											<div class="help-block with-errors"></div>
+									<div class="col-md-6 col-sm-6 col-xs-12">
+										<div class="row vertical-align">
+											<div class="col-md-6 col-sm-6 col-xs-12">
+												<div class="form-group">
+													<label>ID des selektierten Ziel-Indikators</label>
+													<input type="text" class="form-control input-sm" disabled
+														placeholder="IndikatorenId" ng-model="$ctrl.kommonitorScriptHelperServiceInstance.targetIndicator.indicatorId">
+													<div class="help-block with-errors"></div>
+												</div>
+											</div>
+
+											<div class="col-md-6 col-sm-6 col-xs-12">
+												<div class="form-group">
+													<label>Name des selektierten Ziel-Indikators</label>
+													<input type="text" class="form-control input-sm" disabled
+														placeholder="IndikatorenName" ng-model="$ctrl.kommonitorScriptHelperServiceInstance.targetIndicator.indicatorName">
+													<div class="help-block with-errors"></div>
+												</div>
+											</div>
+
+
 										</div>
-									</div>
-									<div class="col-md-3 col-sm-6 col-xs-12">
-										<div class="form-group">
-											<label>Name des selektierten Ziel-Indikators</label>
-											<input type="text" class="form-control input-sm" disabled
-												placeholder="IndikatorenName" ng-model="$ctrl.kommonitorScriptHelperServiceInstance.targetIndicator.indicatorName">
-											<div class="help-block with-errors"></div>
+
+										<div class="row vertical-align">
+											<div class="col-md-6 col-sm-6 col-xs-12">
+												<div class="form-group">
+													<label>Beschreibung des selektierten Ziel-Indikators</label>
+													<textarea rows="4" class="form-control input-sm" disabled placeholder="IndikatorenBeschreibung"
+														ng-model="$ctrl.kommonitorScriptHelperServiceInstance.targetIndicator.metadata.description"></textarea>
+													<div class="help-block with-errors"></div>
+												</div>
+											</div>
+											<div class="col-md-6 col-sm-6 col-xs-12">
+												<div class="form-group">
+													<label>Einheit des selektierten Ziel-Indikators</label>
+													<input type="text" class="form-control input-sm" disabled placeholder="IndikatorenEinheit"
+														ng-model="$ctrl.kommonitorScriptHelperServiceInstance.targetIndicator.unit">
+													<div class="help-block with-errors"></div>
+												</div>
+											</div>
+
+
 										</div>
+										
 									</div>
 								</div>
 
