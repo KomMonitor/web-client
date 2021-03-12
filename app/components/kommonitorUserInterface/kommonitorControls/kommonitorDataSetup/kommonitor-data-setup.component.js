@@ -668,6 +668,11 @@ angular
 									$("#indicatorHierarchyElement-" + selectedIndicatorId).addClass('active');
 								};
 
+								$scope.onChangeSelectedIndicator_fromAlphabeticalList = function(indicatorMetadata){
+									kommonitorDataExchangeService.selectedIndicator = indicatorMetadata;
+									$scope.onChangeSelectedIndicator();
+								};
+
 								$scope.onChangeSelectedIndicator = async function(){
 
 									if(kommonitorDataExchangeService.selectedIndicator){
