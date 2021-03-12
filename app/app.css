@@ -2441,3 +2441,7 @@ input:checked + .switchslider:before {
 .style-headline-indicator {
 	background-color: rgb(247,147,30);
 }
+
+.style-computation-indicator {
+	background-color: #6baed6;
+}
