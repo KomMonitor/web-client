@@ -1656,7 +1656,7 @@ angular.module('kommonitorMap').component(
           }
           var tooltipHtml = "<b>" + feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] + "</b><br/>" + indicatorValueText + " [" + kommonitorDataExchangeService.selectedIndicator.unit + "]";
           layer.bindTooltip(tooltipHtml, {
-            sticky: true // If true, the tooltip will follow the mouse instead of being fixed at the feature center.
+            sticky: false // If true, the tooltip will follow the mouse instead of being fixed at the feature center.
           });
           layer.on({
             mouseover: highlightFeature,
