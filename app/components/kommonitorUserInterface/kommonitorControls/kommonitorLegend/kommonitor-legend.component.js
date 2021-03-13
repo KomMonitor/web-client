@@ -35,6 +35,10 @@ angular
 							$scope.dateAsDate = new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]));
 							
 						});
+
+						$scope.onChangeIndicatorDatepickerDate = function(){
+							$rootScope.$broadcast("changeIndicatorDate");
+						};
 						
 						$scope.filterSpatialUnits = function(){
 							return function( item ) {

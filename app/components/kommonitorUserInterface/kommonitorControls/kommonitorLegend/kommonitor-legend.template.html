@@ -27,7 +27,7 @@
 							<p mathjax-bind="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.processDescription"></p>
 						</div>						 -->
 						<br />
-						<div class="row" style="margin-right: 0px;">
+						<!-- <div class="row" style="margin-right: 0px;">
 							<div class="col-sm-3">
 								<div class="text-left"><label>Raumebene: </label></div>
 							</div>
@@ -39,7 +39,26 @@
 									</option>
 								</select>
 							</div>
+						</div><br> -->
+
+						<div class="row" style="margin-right: 0px;">
+							<div class="col-sm-7">
+								<div class="text-left"><label>Raumebene</label></div>
+								<select style="font-size: 12px;" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.selectedSpatialUnit"
+									ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits | filter:filterSpatialUnits()"
+									class="form-control" ng-change="onChangeSelectedSpatialUnit()" required>
+									<option disabled selected value> -- Raumeinheit w&auml;hlen --
+									</option>
+								</select>
+							</div>
+							<div class="col-sm-5">
+								<div class="text-left"><label>Datum</label></div>
+								<input id="indicatorDatePicker" type="text" placeholder="YYYY-MM-DD" 
+								ng-model="$ctrl.kommonitorDataExchangeServiceInstance.selectedDate" ng-change="onChangeIndicatorDatepickerDate()"
+								ng-disabled="$ctrl.kommonitorDataExchangeServiceInstance.disableIndicatorDatePicker">
+							</div>
 						</div><br>
+
 						<div class="row vertical-align" style="margin-right:0px;">
 							<div class="col-sm-3">
 								<div class="text-left"><label>Transparenz</label></div>

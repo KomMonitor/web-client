@@ -2445,3 +2445,13 @@ input:checked + .switchslider:before {
 .style-computation-indicator {
 	background-color: #6baed6;
 }
+
+.disabled-datepicker-item {
+	/* background: indianred !important; */
+	color: #999 !important;
+}
+
+.enabled-datepicker-item {
+	background: darkseagreen !important;
+	color: black !important;
+}

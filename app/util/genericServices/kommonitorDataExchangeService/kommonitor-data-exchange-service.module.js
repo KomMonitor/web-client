@@ -123,6 +123,106 @@ angular
       			format: 'yyyy-mm-dd'
           };
 
+          this.disableIndicatorDatePicker = false;
+
+          this.getLimitedDatePickerOptions = function(availableDates){
+
+            var months = new Map();
+
+            var years = new Map();
+
+            var yearMonths = new Map();
+
+            for (const dateString of availableDates) {
+              var date = new Date(dateString);
+              var month = date.getMonth() + 1;
+              var year = date.getFullYear();
+              var yearMonth = year + "-" + month;  
+
+              months.set(month, month);
+              years.set(year, year);
+              yearMonths.set(yearMonth, yearMonth);
+            }
+
+            var newDatePickerOptions = {
+              autoclose: true,
+              language: 'de',
+              format: 'yyyy-mm-dd',              
+              endDate: new Date(availableDates[availableDates.length - 1]),
+              startDate: new Date(availableDates[0]),
+              defaultViewDate: new Date(availableDates[availableDates.length - 1]),
+              beforeShowDay: function(date) {
+                var dateString = date.getFullYear() + "-" + (date.getMonth()+1) + "-" + date.getDate();
+  
+                if (availableDates.includes(dateString)) {
+  
+                  return "enabled-datepicker-item";
+  
+                } else {
+  
+                  return "disabled disabled-datepicker-item";
+  
+                }
+              },
+              beforeShowMonth: function(date) {
+                var month = date.getMonth()+1;
+                var year = date.getFullYear();
+                var yearMonth = year + "-" + month;  
+  
+                if (yearMonths.has(yearMonth)) {
+  
+                  return "enabled-datepicker-item";
+  
+                } else {
+  
+                  return "disabled disabled-datepicker-item";
+  
+                }               
+              },
+              beforeShowYear: function(date) {
+                var year = date.getFullYear();
+  
+                if (years.has(year)) {
+  
+                  return "enabled-datepicker-item";
+  
+                } else {
+  
+                  return "disabled disabled-datepicker-item";
+  
+                }
+              },
+              beforeShowDecade: function(date) {
+                var year = date.getFullYear();
+  
+                if (years.has(year)) {
+  
+                  return "enabled-datepicker-item";
+  
+                } else {
+  
+                  return "disabled disabled-datepicker-item";
+  
+                }
+              },
+              beforeShowCentury: function(date) {
+                var year = date.getFullYear();
+  
+                if (years.has(year)) {
+  
+                  return "enabled-datepicker-item";
+  
+                } else {
+  
+                  return "disabled disabled-datepicker-item";
+  
+                }
+              }
+            };
+
+            return newDatePickerOptions;
+          };
+
           this.adminUserName = __env.adminUserName;
           this.adminPassword = __env.adminPassword;
           this.adminIsLoggedIn = false;
