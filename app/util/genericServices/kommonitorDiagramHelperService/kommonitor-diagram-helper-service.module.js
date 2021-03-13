@@ -1501,6 +1501,9 @@ angular
 
           var timeseriesOptions = JSON.parse(JSON.stringify(this.getLineChartOptions()));
 
+          // remove any additional lines for concrete features
+          timeseriesOptions.series.length = 3;
+
           // add markedAreas for periods out of scope
 
           var fromDateString = fromDateAsPropertyString.split(__env.indicatorDatePrefix)[1];
