@@ -160,10 +160,10 @@
 
 						<div class="just-padding">
 							<h4>{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorStringFromIndicatorType($ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorType)}}</h4>
-							<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorType.includes('STATUS') && ! $ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked">
+							<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorType.includes('STATUS') && ! $ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked && !$ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked">
 								<em>Darstellung der Indikatorenwerte zum gew&auml;hlten Zeitpunkt {{$ctrl.kommonitorDataExchangeServiceInstance.tsToDate_fullYear($ctrl.kommonitorDataExchangeServiceInstance.dateToTS(dateAsDate))}}</em>
 							</div>
-							<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorType.includes('DYNAMIC') && ! $ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked">
+							<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorType.includes('DYNAMIC') && ! $ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked && !$ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked">
 								<em>Darstellung der zeitlichen Entwicklung zum gew&auml;hlten Zeitpunkt {{$ctrl.kommonitorDataExchangeServiceInstance.tsToDate_fullYear($ctrl.kommonitorDataExchangeServiceInstance.dateToTS(dateAsDate))}}</em>
 							</div>
 							<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked">
@@ -172,7 +172,7 @@
 								<em>aktueller Schwellwert: </em> {{$ctrl.kommonitorDataExchangeServiceInstance.measureOfValue}}
 							</div>
 							<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked">
-								<em>Bilanzierung - {{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator['fromDate']}} - {{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator['toDate']}}</em>
+								<em>Bilanzierung - {{$ctrl.kommonitorDataExchangeServiceInstance.indicatorAndMetadataAsBalance['fromDate']}} - {{$ctrl.kommonitorDataExchangeServiceInstance.indicatorAndMetadataAsBalance['toDate']}}</em>
 							</div>
 							
 							<br />
