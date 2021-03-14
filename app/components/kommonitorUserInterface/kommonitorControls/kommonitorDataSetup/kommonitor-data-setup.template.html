@@ -87,25 +87,25 @@
 
 														<label> Themenorientierter Datenkatalog </label>
 
-														<div ng-repeat="mainTopic in $ctrl.kommonitorDataExchangeServiceInstance.topicIndicatorHierarchy">
+														<div ng-repeat="mainTopic in $ctrl.kommonitorDataExchangeServiceInstance.topicIndicatorHierarchy | orderBy: 'topicName'">
 															<div  class="list-group-item list-group-item-default" style="background: #2171b5; color: white;">
 																<a id="{{mainTopic.topicId}}" href="" ng-attr-title="{{mainTopic.topicDescription}}" class="collapseTrigger" style="color: white;" ng-click="isCollapsed_mainTopic = !isCollapsed_mainTopic" ng-init="isCollapsed_mainTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{mainTopic.topicName}}  ({{mainTopic.indicatorCount}})</a>
 															</div>
 
 
-															<div ng-repeat="subTopic in mainTopic.subTopics" class="list-group collapse" uib-collapse="isCollapsed_mainTopic">
+															<div ng-repeat="subTopic in mainTopic.subTopics | orderBy: 'topicName'" class="list-group collapse" uib-collapse="isCollapsed_mainTopic">
 
 																<div  class="list-group-item list-group-item-default" style="background: #6baed6; color: white;">
 																	<a id="{{subTopic.topicId}}" class="collapseTrigger" style="color: white;" ng-attr-title="{{subTopic.topicDescription}}" href="" ng-click="isCollapsed_subTopic = !isCollapsed_subTopic" ng-init="isCollapsed_subTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{subTopic.topicName}}  ({{subTopic.indicatorCount}})</a>
 																</div>
 
-																<div ng-repeat="subsubTopic in subTopic.subTopics" class="list-group collapse" uib-collapse="isCollapsed_subTopic">
+																<div ng-repeat="subsubTopic in subTopic.subTopics | orderBy: 'topicName'" class="list-group collapse" uib-collapse="isCollapsed_subTopic">
 
 																	<div  class="list-group-item list-group-item-default" style="background: #bdd7e7; color: white;">
 																		<a id="{{subsubTopic.topicId}}" class="collapseTrigger" style="color: black;" ng-attr-title="{{subsubTopic.topicDescription}}" href="" ng-click="isCollapsed_subsubTopic = !isCollapsed_subsubTopic" ng-init="isCollapsed_subsubTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{subsubTopic.topicName}}   ({{subsubTopic.indicatorCount}})</a>
 																	</div>
 
-																	<div ng-repeat="subsubsubTopic in subsubTopic.subTopics" class="list-group collapse" uib-collapse="isCollapsed_subsubTopic">
+																	<div ng-repeat="subsubsubTopic in subsubTopic.subTopics | orderBy: 'topicName'" class="list-group collapse" uib-collapse="isCollapsed_subsubTopic">
 
 																		<div  class="list-group-item list-group-item-default" style="background: #eff3ff; color: white;">
 																			<a id="{{subsubsubTopic.topicId}}" class="collapseTrigger" style="color: black;" ng-attr-title="{{subsubsubTopic.topicDescription}}" href="" ng-click="isCollapsed_subsubsubTopic = !isCollapsed_subsubsubTopic" ng-init="isCollapsed_subsubsubTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{subsubsubTopic.topicName}}   ({{subsubsubTopic.indicatorCount}})</a>
