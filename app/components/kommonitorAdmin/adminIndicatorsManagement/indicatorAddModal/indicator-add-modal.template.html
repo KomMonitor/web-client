@@ -277,6 +277,17 @@
 									</div>
 									<div class="col-md-3 col-sm-6 col-xs-12">
 										<div class="form-group">
+											<label>Hinweistext zu Referenzdatum</label>
+											<textarea rows="3" class="form-control" ng-model="indicatorReferenceDateNote"
+												placeholder="optionaler Hinweistext bzgl. Referenzdatum des Indikators"></textarea>
+											<div class="help-block">
+												<p>Angabe des Referenzdatums oder Hinweise &uuml;ber die Fortf&uuml;hrung des Indikators</p>
+											</div>		
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
 											<label>Fortf&uuml;hrungstyp*</label>
 											<select ng-model="indicatorCreationType" ng-change="onChangeCreationType()"
 												ng-options="type as type.displayName for type in $ctrl.kommonitorDataExchangeServiceInstance.indicatorCreationTypeOptions"
@@ -311,12 +322,6 @@
 													Indikatorenwerte f&uuml;r h&ouml;here Raumebenen werden dabei automatisch aus den niedrigeren Ebenen aggregiert berechnet.</p>
 											</div>	
 											<div class="help-block with-errors"></div>
-										</div>
-									</div>
-									
-									<div class="col-md-3 col-sm-6 col-xs-12">
-										<div class="form-group">
-											
 										</div>
 									</div>
 								</div>

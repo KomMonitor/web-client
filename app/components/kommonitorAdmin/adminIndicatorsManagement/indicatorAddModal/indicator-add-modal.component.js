@@ -43,6 +43,8 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 						"creationType": "INSERTION",
 						"unit": "unit",
 						"topicReference": "topicReference",
+						"referencDateNote": "note",
+						"displayOrder": 0,
 						"refrencesToGeoresources": [
 							{
 							"referenceDescription": "referenceDescription",
@@ -117,6 +119,8 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			"interpretation": "interpretation hints for the user to better understand the indicator values",
 			"isHeadlineIndicator": "boolean parameter to indicate if indicator is a headline indicator",
 			"processDescription": "detailed description about the computation/creation of the indicator",
+			"referenceDateNote": "optional note for indicator reference date",
+			"displayOrder": 0,
 			"lowestSpatialUnitForComputation": "the name of the lowest possible spatial unit for which an indicator of creationType=COMPUTATION may be computed. All other superior spatial units will be aggregated automatically",
 			"defaultClassificationMapping": {
 				"colorBrewerSchemeName": "schema name of colorBrewer colorPalette to use for classification",
@@ -175,6 +179,9 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			$scope.indicatorCreationType = undefined;
 			$scope.indicatorLowestSpatialUnitMetadataObjectForComputation = kommonitorDataExchangeService.availableSpatialUnits[0];
 			$scope.enableLowestSpatialUnitSelect = false;
+
+			$scope.indicatorReferenceDateNote = undefined;
+			$scope.displayOrder = 0;
 
 			$scope.indicatorTopic_mainTopic = undefined;
 			$scope.indicatorTopic_subTopic = undefined;
@@ -270,6 +277,9 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			$scope.indicatorCreationType = kommonitorDataExchangeService.indicatorCreationTypeOptions[0];
 			$scope.indicatorLowestSpatialUnitMetadataObjectForComputation = kommonitorDataExchangeService.availableSpatialUnits[0];
 			$scope.enableLowestSpatialUnitSelect = false;
+
+			$scope.indicatorReferenceDateNote = undefined;
+			$scope.displayOrder = 0;
 
 			$scope.indicatorTopic_mainTopic = undefined;
 			$scope.indicatorTopic_subTopic = undefined;
@@ -492,6 +502,8 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 				  "interpretation": $scope.indicatorInterpretation || "",
 				  "isHeadlineIndicator": $scope.isHeadlineIndicator || false,
 				  "processDescription": $scope.indicatorProcessDescription || "",
+				  "referenceDateNote": $scope.indicatorReferenceDateNote || "",
+				  "displayOrder": $scope.displayOrder,
 				  "lowestSpatialUnitForComputation": $scope.indicatorLowestSpatialUnitMetadataObjectForComputation? $scope.indicatorLowestSpatialUnitMetadataObjectForComputation.spatialUnitLevel : null,
 				  "defaultClassificationMapping": {
 					"colorBrewerSchemeName": $scope.selectedColorBrewerPaletteEntry.paletteName,
@@ -705,6 +717,9 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 				$scope.metadata.description = $scope.metadataImportSettings.metadata.description;
 				$scope.metadata.databasis = $scope.metadataImportSettings.metadata.databasis;
 
+				$scope.indicatorReferenceDateNote = $scope.metadataImportSettings.referenceDateNote;
+				$scope.displayOrder = $scope.metadataImportSettings.displayOrder || 0;
+
 				$scope.datasetName = $scope.metadataImportSettings.datasetName;
 
 				var selectedRolesMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleIds($scope.metadataImportSettings.allowedRoles);			
@@ -878,6 +893,9 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			metadataExport.metadata.description = $scope.metadata.description || "";
 			metadataExport.metadata.databasis = $scope.metadata.databasis || "";
 			metadataExport.datasetName = $scope.datasetName || "";
+
+			metadataExport.referenceDateNote = $scope.indicatorReferenceDateNote || "";
+			metadataExport.displayOrder = $scope.displayOrder || 0;
 
 			metadataExport.allowedRoles = [];
 			for (const roleDuallistItem of $scope.allowedRoleNames.selectedItems) {

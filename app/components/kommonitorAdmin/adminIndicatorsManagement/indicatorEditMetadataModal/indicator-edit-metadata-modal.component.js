@@ -45,6 +45,8 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 						"creationType": "INSERTION",
 						"unit": "unit",
 						"topicReference": "topicReference",
+						"referenceDateNote": "optional note for indicator reference date",
+						"displayOrder": 0,
 						"refrencesToGeoresources": [
 							{
 							"referenceDescription": "referenceDescription",
@@ -118,6 +120,8 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 			"isHeadlineIndicator": "boolean parameter to indicate if indicator is a headline indicator",
 			"processDescription": "detailed description about the computation/creation of the indicator",
 			"lowestSpatialUnitForComputation": "the name of the lowest possible spatial unit for which an indicator of creationType=COMPUTATION may be computed. All other superior spatial units will be aggregated automatically",
+			"referenceDateNote": "optional note for indicator reference date",
+			"displayOrder": 0,
 			"defaultClassificationMapping": {
 				"colorBrewerSchemeName": "schema name of colorBrewer colorPalette to use for classification",
 				"items": [
@@ -166,6 +170,9 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 			$scope.indicatorCreationType = undefined;
 			$scope.indicatorLowestSpatialUnitMetadataObjectForComputation = undefined;
 			$scope.enableLowestSpatialUnitSelect = false;
+
+			$scope.indicatorReferenceDateNote = undefined;
+			$scope.displayOrder = 0;
 
 			$scope.indicatorTopic_mainTopic = undefined;
 			$scope.indicatorTopic_subTopic = undefined;
@@ -238,6 +245,9 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 
 			$scope.datasetName = $scope.currentIndicatorDataset.indicatorName;
 			$scope.datasetNameInvalid = false;
+
+			$scope.indicatorReferenceDateNote = $scope.currentIndicatorDataset.referenceDateNote;
+			$scope.displayOrder = $scope.currentIndicatorDataset.displayOrder;
 
 			$scope.metadata = {};
 			$scope.metadata.note = $scope.currentIndicatorDataset.metadata.note;
@@ -593,6 +603,8 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 				  "interpretation": $scope.indicatorInterpretation || "",
 				  "isHeadlineIndicator": $scope.isHeadlineIndicator || false,
 				  "processDescription": $scope.indicatorProcessDescription || "",
+				  "referenceDateNote": $scope.indicatorReferenceDateNote || "",
+				  "displayOrder": $scope.displayOrder,
 				  "lowestSpatialUnitForComputation": $scope.indicatorLowestSpatialUnitMetadataObjectForComputation? $scope.indicatorLowestSpatialUnitMetadataObjectForComputation.spatialUnitLevel : null,
 				  "defaultClassificationMapping": {
 					"colorBrewerSchemeName": $scope.selectedColorBrewerPaletteEntry.paletteName,
@@ -799,6 +811,9 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 
 				$scope.datasetName = $scope.metadataImportSettings.datasetName;
 
+				$scope.indicatorReferenceDateNote = $scope.metadataImportSettings.referenceDateNote;
+				$scope.displayOrder = $scope.metadataImportSettings.displayOrder;
+
 				var selectedRolesMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleIds($scope.metadataImportSettings.allowedRoles);			
 				$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, selectedRolesMetadata, "roleName")};			
 				$scope.allowedRoleNames = {selectedItems: $scope.duallist.duallistRoleOptions.selectedItems};
@@ -977,6 +992,9 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 			metadataExport.metadata.description = $scope.metadata.description || "";
 			metadataExport.metadata.databasis = $scope.metadata.databasis || "";
 			metadataExport.datasetName = $scope.datasetName || "";
+
+			metadataExport.referenceDateNote = $scope.indicatorReferenceDateNote;
+			metadataExport.displayOrder = $scope.displayOrder;
 
 			metadataExport.allowedRoles = [];
 			for (const roleDuallistItem of $scope.allowedRoleNames.selectedItems) {

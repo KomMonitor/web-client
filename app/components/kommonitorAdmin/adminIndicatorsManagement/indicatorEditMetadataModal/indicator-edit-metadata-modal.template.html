@@ -250,6 +250,17 @@
 									</div>
 									<div class="col-md-3 col-sm-6 col-xs-12">
 										<div class="form-group">
+											<label>Hinweistext zu Referenzdatum</label>
+											<textarea rows="3" class="form-control" ng-model="indicatorReferenceDateNote"
+												placeholder="optionaler Hinweistext bzgl. Referenzdatum des Indikators"></textarea>
+											<div class="help-block">
+												<p>Angabe des Referenzdatums oder Hinweise &uuml;ber die Fortf&uuml;hrung des Indikators</p>
+											</div>		
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
 											<label>Fortf&uuml;hrungstyp*</label>
 											<select ng-model="indicatorCreationType" ng-change="onChangeCreationType()"
 												ng-options="type as type.displayName for type in $ctrl.kommonitorDataExchangeServiceInstance.indicatorCreationTypeOptions"
@@ -285,13 +296,7 @@
 											</div>	
 											<div class="help-block with-errors"></div>
 										</div>
-									</div>
-									
-									<div class="col-md-3 col-sm-6 col-xs-12">
-										<div class="form-group">
-											
-										</div>
-									</div>
+									</div>								
 								</div>
 
 								<input type="button" name="next" class="next next_editIndicatorMetadata action-button" value="N&auml;chster Schritt"/>
@@ -945,8 +950,8 @@
 			<div id="indicatorEditMetadataSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
 				class="alert alert-success alert-dismissable">
 				<button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
-				<h4><i class="icon fa fa-check"></i>Raumeinheit aktualisiert</h4>
-				Die Metadaten der Raumeinheit mit Namen {{successMessagePart}} wurden in KomMonitor aktualisiert und in
+				<h4><i class="icon fa fa-check"></i>Indikator aktualisiert</h4>
+				Die Metadaten des Indikators mit Namen {{successMessagePart}} wurden in KomMonitor aktualisiert und in
 				die &Uuml;bersichtstabelle eingetragen.
 			</div>
 
@@ -954,7 +959,7 @@
 				class="alert alert-danger alert-dismissable">
 				<button type="button" class="close" ng-click="hideErrorAlert()" aria-hidden="true">&times;</button>
 				<h4><i class="icon fa fa-ban"></i>Aktualisierung gescheitert</h4>
-				Bei der Aktualisierung der Metadaten der Raumeinheit ist ein Fehler aufgetreten. Fehlermeldung:
+				Bei der Aktualisierung der Metadaten des Indikators ist ein Fehler aufgetreten. Fehlermeldung:
 				<br />
 				<pre style="overflow:auto; max-height:500px;" ng-bind-html="errorMessagePart"></pre>
 			</div>
