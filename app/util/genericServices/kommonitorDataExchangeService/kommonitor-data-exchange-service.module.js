@@ -153,7 +153,15 @@ angular
               startDate: new Date(availableDates[0]),
               defaultViewDate: new Date(availableDates[availableDates.length - 1]),
               beforeShowDay: function(date) {
-                var dateString = date.getFullYear() + "-" + (date.getMonth()+1) + "-" + date.getDate();
+                var month = (date.getMonth()+1);
+                if (month < 10 ){
+                  month = "0" + month;
+                }
+                var day = (date.getDate());
+                if (day < 10 ){
+                  day = "0" + day;
+                }
+                var dateString = date.getFullYear() + "-" + month + "-" + day;
   
                 if (availableDates.includes(dateString)) {
   
@@ -945,11 +953,11 @@ angular
           this.addIndicatorDataToSubTopics = function(topic, topicsMap){
             for (var subTopic of topic.subTopics) {
               subTopic.indicatorData = topicsMap.get(subTopic.topicId);
-              subTopic.indicatorCount = subTopic.indicatorData.length;
-              topic.indicatorCount = topic.indicatorCount + subTopic.indicatorCount;
+              subTopic.indicatorCount = subTopic.indicatorData.length;              
               if(subTopic.subTopics.length > 0){
                 subTopic = this.addIndicatorDataToSubTopics(subTopic, topicsMap);
               }
+              topic.indicatorCount = topic.indicatorCount + subTopic.indicatorCount;
             }
 
             return topic;
