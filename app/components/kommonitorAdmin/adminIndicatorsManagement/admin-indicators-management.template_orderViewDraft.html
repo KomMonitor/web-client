@@ -1,0 +1,422 @@
+<div id="adminIndicatorsContent">
+
+	<div align="center">
+		<div class="loading-overlay-admin-panel ng-hide" ng-show="loadingData">
+					<span class="glyphicon glyphicon-refresh icon-spin"></span>
+		</div>
+	</div>
+
+	<!-- Content Header (Page header) -->
+	<section class="content-header">
+			<h1>
+				Verwalten der Indikatoren
+				<small>Info</small>
+			</h1>
+
+			<div class="adminTableButtonWrapper">
+				<button class="btn btn-success btn-sm" type="button" data-toggle="modal" data-target="#modal-add-indicator"><i class="fas fa-plus"></i>&nbsp;&nbsp;Erstellen</button>
+				<!-- edit metadata -->
+
+				<!-- edit features -->
+
+				<!-- delete selected completely -->
+				<button class="btn btn-danger btn-sm" type="button" data-toggle="modal" data-target="#modal-delete-indicators" ng-click="onClickDeleteDatasets()"><i class="fas fa-trash"></i>&nbsp;&nbsp;L&ouml;schen</button>
+
+				<!-- delete b timestamp -->
+			</div>
+	</section>
+
+	<!-- Main content -->
+	<section class="content container-fluid">
+		<!--------------------------
+			| Your Page Content Here |
+			-------------------------->
+
+			<!-- POI -->
+
+			<div class="box box-primary">
+            <div class="box-header">
+              <h3 class="box-title">Indikatoren-Metadaten</h3>
+
+							<div class="box-tools pull-right">
+								<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+								</button>
+							</div>
+						</div>
+
+            <!-- /.box-header -->
+            <div class="box-body">
+
+							<div class="admin-table-wrapper">
+	              <table id="indicatorOverviewTable" datatable="ng" dt-options="$ctrl.kommonitorDataExchangeServiceInstance.datatablesOptions" class="table table-bordered table-condensed table-striped" style="width:100%; overflow:auto; font-size: 11px;">
+	                <thead>
+	                <tr>
+	                  <!-- <th><input type="checkbox" ng-model="selectIndicatorEntriesInput" ng-change="onChangeSelectIndicatorEntries()"></input></th> -->
+										<th>Editierfunktionen</th>
+										<th>Id</th>
+	                  					<th>Name</th>
+										<th>K&uuml;rzel/Kennzeichen</th>
+										<th>Leitindikator</th>
+										<th>Indikator-Typ</th>
+										<th>Merkmal</th>
+										<th>Art der Fortf&uuml;hrung</th>
+										<th>Einheit</th>
+										<th>Beschreibung</th>
+										<th>Interpretation</th>
+										<th>Methodik</th>
+										<th>Datenquelle</th>
+										<th>Datengrundlage</th>
+										<th>Tags/Stichworte</th>
+										<th>Themenhierarchie</th>
+										<th>Verf&uuml;gbare Raumeinheiten</th>
+										<th>Verf&uuml;gbare Zeitpunkte</th>
+										<!-- <th>Referenzierte Indikatoren</th>
+										<th>Referenzierte Georessourcen</th> -->
+										<th>Datenhalter und Kontakt</th>
+										<th>zuletzt aktualisiert am</th>
+										<th>Koordinatensystem</th>
+										<th>Aktualisierungszyklus</th>
+										<th>Quellen / Literatur</th>
+										<th>Bemerkung</th>
+										<th>Niedrigste Raumeinheit f&uuml;r Berechnung</th>
+										<th>Klassifizierung</th>										
+										<!-- <th>OGC Dienste</th> -->
+	                </tr>
+	                </thead>
+
+	                <tbody>
+					<tr
+						ng-repeat="indicatorDataset in availableIndicatorDatasets | filter:filterIndicators() | filter:filterIndicatorsByTopic() | filter:indicatorNameFilter">
+						<!-- <td><input type="checkbox" ng-model="indicatorDataset.isSelected"
+								ng-change="onChangeSelectindicatorDataset(indicatorDataset)"></input></td>
+						-->		
+						<td>
+							<div class="btn-group btn-group-sm">
+								<button class="btn btn-warning btn-sm" type="button" data-toggle="modal"
+									data-target="#modal-edit-indicator-metadata" ng-click="onClickEditMetadata(indicatorDataset)"
+									title="Metadaten editieren"><i class="fas fa-pencil-alt"></i></button>
+								<button class="btn btn-warning btn-sm" type="button" data-toggle="modal"
+									data-target="#modal-edit-indicator-features" ng-click="onClickEditFeatures(indicatorDataset)"
+									title="Features fortf&uuml;hren"><i class="fas fa-draw-polygon"></i></button>
+								<button class="btn btn-warning btn-sm" type="button" data-toggle="modal" ng-show="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity"
+									data-target="#modal-edit-indicator-spatial-unit-roles" ng-click="onClickEditIndicatorSpatialUnitRoles(indicatorDataset)"
+									ng-disabled="!(indicatorDataset.applicableSpatialUnits.length > 0)"
+									title="Rollenbasierten Zugriffsschutz editieren"><i class="fas fa-user-lock"></i></button>	
+								<!-- <button class="btn btn-danger btn-sm" type="button" data-toggle="modal" data-target="#modal-delete-spatial-units" ng-click="onClickDeleteDatasets(indicatorDataset)" title="Datensatz l&ouml;schen"><i class="fas fa-trash"></i></button> -->
+							</div>
+						</td>
+						<td>{{indicatorDataset.indicatorId}}</td>
+						<td>{{indicatorDataset.indicatorName}}</td>
+						<td>{{indicatorDataset.abbreviation}}</td>
+						<td>{{indicatorDataset.isHeadlineIndicator}}</td>
+						<td>{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorStringFromIndicatorType(indicatorDataset.indicatorType)}}</td>
+						<td ng-bind-html="indicatorDataset.characteristicValue"></td>
+						<td ng-bind-html="indicatorDataset.creationType"></td>
+						<td ng-bind-html="indicatorDataset.unit"></td>
+						<td ng-bind-html="indicatorDataset.metadata.description"></td>
+						<td ng-bind-html="indicatorDataset.interpretation"></td>
+						<td mathjax-bind="indicatorDataset.processDescription"></td>
+						<td ng-bind-html="indicatorDataset.metadata.datasource"></td>
+						<td ng-bind-html="indicatorDataset.metadata.databasis"></td>
+						<td ng-bind-html="indicatorDataset.tags"></td>
+						<td><p>{{
+							$ctrl.kommonitorDataExchangeServiceInstance.getTopicHierarchyDisplayString(indicatorDataset.topicReference)}}</p></td>
+						<td>
+							<ul style="columns: 2; 	-webkit-columns: 2;	-moz-columns: 2;">
+								<li style="margin-right: 15px;" ng-repeat="applicableSpatialUnit in indicatorDataset.applicableSpatialUnits">
+									{{applicableSpatialUnit.spatialUnitName}}
+								</li>
+							</ul>
+						</td>
+						<td>
+							<ul style="columns: 10; 	-webkit-columns: 10;	-moz-columns: 10;">
+								<li style="margin-right: 15px;" ng-repeat="timestamp in indicatorDataset.applicableDates">
+									{{timestamp}}
+								</li>
+							</ul>
+
+						</td>
+						<!-- <td>
+							<ul style="columns: 2; 	-webkit-columns: 2;	-moz-columns: 2;">
+								<li style="margin-right: 15px;" ng-repeat="indicatorReference in indicatorDataset.referencedIndicators">
+									{{indicatorReference.referencedIndicatorName}}
+								</li>
+							</ul>
+						</td> -->
+						<!-- <td>
+							<ul style="columns: 2; 	-webkit-columns: 2;	-moz-columns: 2;">
+								<li style="margin-right: 15px;" ng-repeat="georesourceReference in indicatorDataset.referencedGeoresources">
+									{{georesourceReference.referencedGeoresourceName}}
+								</li>
+							</ul>
+						</td>						 -->
+						<td ng-bind-html="indicatorDataset.metadata.contact"></td>
+						<td>{{indicatorDataset.metadata.lastUpdate}}</td>
+						<td>EPSG:{{indicatorDataset.metadata.sridEPSG}}</td>
+						<td>{{indicatorDataset.metadata.updateInterval}}</td>
+						<td ng-bind-html="indicatorDataset.metadata.literature"></td>
+						<td ng-bind-html="indicatorDataset.metadata.note"></td>
+						<td>{{indicatorDataset.lowestSpatialUnitForComputation}}</td>
+						<td>
+							ColorBrewerSchemaName: {{indicatorDataset.defaultClassificationMapping.colorBrewerSchemeName}}
+
+							<!-- <ul>
+								<li ng-repeat="classificationMappingItem in indicatorDataset.defaultClassificationMapping.items">
+									<ul>
+										<li>
+											<b>Farbe: </b>{{classificationMappingItem.defaultColorAsHex}}
+										</li>
+										<li>
+											<b>Bewertung: </b>{{classificationMappingItem.defaultCustomRating}}
+										</li>
+									</ul>
+								</li>
+							</ul> -->
+						</td>
+						<!-- <td >
+							<ul style="columns: 2; 	-webkit-columns: 2;	-moz-columns: 2;">
+								<li style="margin-right: 15px;" ng-repeat="ogcService in indicatorDataset.ogcServices">
+									<ul>
+										<li>
+											<b>Raumeinheit: </b> {{ogcService.spatialUnit}}
+										</li>
+										<li>
+											<b>WMS: </b> {{ogcService.wmsUrl}}
+										</li>
+										<li>
+											<b>WFS: </b> {{ogcService.wfsUrl}}
+										</li>
+									</ul>
+								</li>
+							</ul>
+						</td> -->
+					</tr>
+
+	                </tbody>
+
+	                <tfoot>
+	                <tr>
+										<!-- <th>alle selektieren</th> -->
+										<th>Editierfunktionen</th>
+										<th>Id</th>
+	                  					<th>Name</th>
+										<th>K&uuml;rzel/Kennzeichen</th>
+										<th>Leitindikator</th>
+										<th>Indikator-Typ</th>
+										<th>Merkmal</th>
+										<th>Art der Fortf&uuml;hrung</th>
+										<th>Einheit</th>
+										<th>Beschreibung</th>
+										<th>Interpretation</th>
+										<th>Methodik</th>
+										<th>Datenquelle</th>
+										<th>Datengrundlage</th>
+										<th>Tags/Stichworte</th>
+										<th>Themenhierarchie</th>
+										<th>Verf&uuml;gbare Raumeinheiten</th>
+										<th>Verf&uuml;gbare Zeitpunkte</th>
+										<!-- <th>Referenzierte Indikatoren</th>
+										<th>Referenzierte Georessourcen</th> -->
+										<th>Datenhalter und Kontakt</th>
+										<th>zuletzt aktualisiert am</th>
+										<th>Koordinatensystem</th>
+										<th>Aktualisierungszyklus</th>
+										<th>Quellen / Literatur</th>
+										<th>Bemerkung</th>
+										<th>Niedrigste Raumeinheit f&uuml;r Berechnung</th>
+										<th>Klassifizierung</th>										
+										<!-- <th>OGC Dienste</th> -->
+	                </tr>
+	                </tfoot>
+	              </table>
+
+							</div>
+            </div>
+            <!-- /.box-body -->
+          </div>
+          <!-- /.box -->
+
+
+		  <div class="box box-primary collapsed-box">
+            <div class="box-header">
+              <h3 class="box-title">Indikatoren-Reihenfolge in Themenkatalog</h3>
+
+							<div class="box-tools pull-right">
+								<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+								</button>
+							</div>
+						</div>
+
+            <!-- /.box-header -->
+            <div class="box-body">
+
+				<div class="just-padding">
+
+					<div id="indicatorHierarchyOrderView" class="list-group list-group-root well">
+
+						<label>Erl&auml;uterungen zur Symbolik </label>
+						<div class="list-group-item list-group-item-default style-simple-indicator">
+							<p style="cursor:pointer; color: black;" <i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>Standardindikator (numerische Wertverteilung)</b>
+									[Einheitsbezeichnung]</p>
+						</div>
+
+						<div class="list-group-item list-group-item-default style-headline-indicator">
+							<p style="cursor:pointer; color: white;"
+									style="color: white;" <i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>Leitindikator (bewertende Aussage)</b>
+									[Einheitsbezeichnung]</p>
+						</div>
+
+						<br/>
+
+						<label> Themenorientierter Datenkatalog </label>
+
+						<div ng-repeat="mainTopic in $ctrl.kommonitorDataExchangeServiceInstance.topicIndicatorHierarchy_forOrderView | orderBy: 'topicName'">
+							<div  class="list-group-item list-group-item-default" style="background: #2171b5; color: white;">
+								<a id="indicatorOrderView_{{mainTopic.topicId}}" href="" ng-attr-title="{{mainTopic.topicDescription}}" class="collapseTrigger" style="color: white;" ng-click="isCollapsed_mainTopic = !isCollapsed_mainTopic" ng-init="isCollapsed_mainTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{mainTopic.topicName}}  ({{mainTopic.indicatorCount}})</a>
+							</div>
+
+
+							<div ng-repeat="subTopic in mainTopic.subTopics | orderBy: 'topicName'" class="list-group collapse" uib-collapse="isCollapsed_mainTopic">
+
+								<div  class="list-group-item list-group-item-default" style="background: #6baed6; color: white;">
+									<a id="indicatorOrderView_{{subTopic.topicId}}" class="collapseTrigger" style="color: white;" ng-attr-title="{{subTopic.topicDescription}}" href="" ng-click="isCollapsed_subTopic = !isCollapsed_subTopic" ng-init="isCollapsed_subTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{subTopic.topicName}}  ({{subTopic.indicatorCount}})</a>
+								</div>
+
+								<div ng-repeat="subsubTopic in subTopic.subTopics | orderBy: 'topicName'" class="list-group collapse" uib-collapse="isCollapsed_subTopic">
+
+									<div  class="list-group-item list-group-item-default" style="background: #bdd7e7; color: white;">
+										<a id="indicatorOrderView_{{subsubTopic.topicId}}" class="collapseTrigger" style="color: black;" ng-attr-title="{{subsubTopic.topicDescription}}" href="" ng-click="isCollapsed_subsubTopic = !isCollapsed_subsubTopic" ng-init="isCollapsed_subsubTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{subsubTopic.topicName}}   ({{subsubTopic.indicatorCount}})</a>
+									</div>
+
+									<div ng-repeat="subsubsubTopic in subsubTopic.subTopics | orderBy: 'topicName'" class="list-group collapse" uib-collapse="isCollapsed_subsubTopic">
+
+										<div  class="list-group-item list-group-item-default" style="background: #eff3ff; color: white;">
+											<a id="indicatorOrderView_{{subsubsubTopic.topicId}}" class="collapseTrigger" style="color: black;" ng-attr-title="{{subsubsubTopic.topicDescription}}" href="" ng-click="isCollapsed_subsubsubTopic = !isCollapsed_subsubsubTopic" ng-init="isCollapsed_subsubsubTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{subsubsubTopic.topicName}}   ({{subsubsubTopic.indicatorCount}})</a>
+										</div>
+
+										<div ng-show="subsubsubTopic.indicatorCount > 0">
+											<div class="list-group collapse indicatorInputForm" uib-collapse="isCollapsed_subsubsubTopic" sortable>
+												<div id="indicatorOrderView_indicatorHierarchyElement-{{indicatorMetadata.indicatorId}}" ng-class="{'style-headline-indicator': indicatorMetadata.isHeadlineIndicator , 'style-simple-indicator': ! indicatorMetadata.isHeadlineIndicator}" 
+													ng-repeat="indicatorMetadata in subsubsubTopic.indicatorData track by indicatorMetadata.indicatorId" class="list-group-item list-group-item-default">
+													<div ng-if="indicatorMetadata.isHeadlineIndicator">
+														<p style="cursor:pointer; color: white;" ng-attr-title="<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]" style="color: white;" ><i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]</p>																			
+													</div> 
+													<div ng-if="! indicatorMetadata.isHeadlineIndicator">
+														<p style="cursor:pointer;" ng-attr-title="<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]" style="color: white;" ><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]</p>																				
+													</div>
+													</div>
+											</div>
+										</div>
+										<div ng-show="!(subsubsubTopic.indicatorCount > 0)">
+											<div class="list-group collapse" uib-collapse="isCollapsed_subsubsubTopic">
+												<!-- <div class="list-group-item list-group-item-default" style="background: #eb9c98;">
+													 <p><i class="fas fa-sitemap"></i> &nbsp;&nbsp;- keine Indikatoren in dieser Hierarchieebene -</p>
+												</div> -->
+											</div>
+										</div>
+
+
+									</div>
+									<!-- end sub sub sub topics -->
+
+
+									<div ng-show="subsubTopic.indicatorCount > 0">
+										<div class="list-group collapse indicatorInputForm" uib-collapse="isCollapsed_subsubTopic" sortable>
+											<div id="indicatorOrderView_indicatorHierarchyElement-{{indicatorMetadata.indicatorId}}" ng-class="{'style-headline-indicator': indicatorMetadata.isHeadlineIndicator , 'style-simple-indicator': ! indicatorMetadata.isHeadlineIndicator}" 
+												ng-repeat="indicatorMetadata in subsubTopic.indicatorData track by indicatorMetadata.indicatorId" class="list-group-item list-group-item-default">
+												<div ng-if="indicatorMetadata.isHeadlineIndicator">
+													<p style="cursor:pointer; color: white;" ng-attr-title="<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]" style="color: white;" ><i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]</p>
+											
+												</div> 
+												<div ng-if="! indicatorMetadata.isHeadlineIndicator">
+													<p style="cursor:pointer;" ng-attr-title="<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]" style="color: white;" ><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]</p>
+											
+												</div>
+											</div>
+										</div>
+									</div>
+									<div ng-show="!(subsubTopic.indicatorCount > 0)">
+										<div class="list-group collapse" uib-collapse="isCollapsed_subsubTopic">
+											<!-- <div class="list-group-item list-group-item-default" style="background: #eb9c98;">
+												 <p><i class="fas fa-sitemap"></i> &nbsp;&nbsp;- keine Indikatoren in dieser Hierarchieebene -</p>
+											</div> -->
+										</div>
+									</div>
+
+
+								</div>
+								<!-- end sub sub opics -->
+
+
+
+								<div ng-show="subTopic.indicatorCount > 0">
+									<div class="list-group collapse indicatorInputForm" uib-collapse="isCollapsed_subTopic" sortable>
+										<div id="indicatorOrderView_indicatorHierarchyElement-{{indicatorMetadata.indicatorId}}" ng-class="{'style-headline-indicator': indicatorMetadata.isHeadlineIndicator , 'style-simple-indicator': ! indicatorMetadata.isHeadlineIndicator}"
+											ng-repeat="indicatorMetadata in subTopic.indicatorData track by indicatorMetadata.indicatorId" class="list-group-item list-group-item-default">
+											<div ng-if="indicatorMetadata.isHeadlineIndicator">
+												<p style="cursor:pointer; color: white;" ng-attr-title="<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]" ><i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]</p>
+										
+											</div> 
+											<div ng-if="! indicatorMetadata.isHeadlineIndicator">
+												<p style="cursor:pointer;" style="color: white;" ng-attr-title="<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]" ><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]</p>
+										
+											</div>
+										</div>
+									</div>
+								</div>
+								<div ng-show="!(subTopic.indicatorCount > 0)">
+									<div class="list-group collapse" uib-collapse="isCollapsed_subTopic">
+										<!-- <div class="list-group-item list-group-item-default" style="background: #eb9c98;">
+											 <p><i class="fas fa-sitemap"></i> &nbsp;&nbsp;- keine Indikatoren in dieser Hierarchieebene -</p>
+										</div> -->
+									</div>
+								</div>
+
+
+
+
+							</div>
+							<!-- end sub topics -->
+							<div ng-show="mainTopic.indicatorCount > 0">
+								<div class="list-group collapse indicatorInputForm" uib-collapse="isCollapsed_mainTopic" sortable>
+									<div id="indicatorOrderView_indicatorHierarchyElement-{{indicatorMetadata.indicatorId}}" ng-class="{'style-headline-indicator': indicatorMetadata.isHeadlineIndicator, 'style-simple-indicator': !indicatorMetadata.isHeadlineIndicator }"
+										ng-repeat="indicatorMetadata in mainTopic.indicatorData track by indicatorMetadata.indicatorId" class="list-group-item list-group-item-default">
+										<div ng-if="indicatorMetadata.isHeadlineIndicator">
+											<p style="cursor:pointer; color: white;" ng-attr-title="<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]" ><i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]</p>
+									
+										</div> 
+										<div ng-if="! indicatorMetadata.isHeadlineIndicator">
+											<p style="cursor:pointer;" style="color: white;" ng-attr-title="<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]" ><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]</p>
+									
+										</div>
+									</div>
+								</div>
+							</div>
+							<div ng-show="!(mainTopic.indicatorCount > 0)">
+								<div class="list-group collapse" uib-collapse="isCollapsed_mainTopic">
+									<!-- <div class="list-group-item list-group-item-default" style="background: #eb9c98;">
+										 <p><i class="fas fa-sitemap"></i> &nbsp;&nbsp;- keine Indikatoren in dieser Hierarchieebene -</p>
+									</div> -->
+								</div>
+							</div>
+
+
+							<!-- <div ng-repeat="indicatorMetadata in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators()  | filter:{topicReference:mainTopic.topicId}  | filter:indicatorNameFilter">
+							</div> -->
+						</div>
+						<!-- end main Topics -->
+
+
+					</div>
+
+			</div>
+
+            </div>
+            <!-- /.box-body -->
+          </div>
+          <!-- /.box -->
+
+	</section>
+<!-- /.content -->
+
+</div>
