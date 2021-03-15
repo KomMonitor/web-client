@@ -34,12 +34,12 @@
 
 			<!-- POI -->
 
-			<div class="box box-primary">
+			<div class="box box-primary collapsed-box">
             <div class="box-header">
-              <h3 class="box-title">Indikatoren</h3>
+              <h3 class="box-title">Indikatoren-Metadaten</h3>
 
 							<div class="box-tools pull-right">
-								<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+								<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
 								</button>
 							</div>
 						</div>
@@ -231,6 +231,186 @@
 	              </table>
 
 							</div>
+            </div>
+            <!-- /.box-body -->
+          </div>
+          <!-- /.box -->
+
+
+		  <div class="box box-primary collapsed-box">
+            <div class="box-header">
+              <h3 class="box-title">Indikatoren-Reihenfolge in Themenkatalog</h3>
+
+							<div class="box-tools pull-right">
+								<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+								</button>
+							</div>
+						</div>
+
+            <!-- /.box-header -->
+            <div class="box-body">
+
+				<div class="just-padding">
+
+					<div id="indicatorHierarchyOrderView" class="list-group list-group-root well">
+
+						<label>Erl&auml;uterungen zur Symbolik </label>
+						<div class="list-group-item list-group-item-default style-simple-indicator">
+							<p style="cursor:pointer; color: black;" <i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>Standardindikator (numerische Wertverteilung)</b>
+									[Einheitsbezeichnung]</p>
+						</div>
+
+						<div class="list-group-item list-group-item-default style-headline-indicator">
+							<p style="cursor:pointer; color: white;"
+									style="color: white;" <i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>Leitindikator (bewertende Aussage)</b>
+									[Einheitsbezeichnung]</p>
+						</div>
+
+						<br/>
+
+						<label> Themenorientierter Datenkatalog </label>
+
+						<div ng-repeat="mainTopic in $ctrl.kommonitorDataExchangeServiceInstance.topicIndicatorHierarchy_forOrderView | orderBy: 'topicName'">
+							<div  class="list-group-item list-group-item-default" style="background: #2171b5; color: white;">
+								<a id="indicatorOrderView_{{mainTopic.topicId}}" href="" ng-attr-title="{{mainTopic.topicDescription}}" class="collapseTrigger" style="color: white;" ng-click="isCollapsed_mainTopic = !isCollapsed_mainTopic" ng-init="isCollapsed_mainTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{mainTopic.topicName}}  ({{mainTopic.indicatorCount}})</a>
+							</div>
+
+
+							<div ng-repeat="subTopic in mainTopic.subTopics | orderBy: 'topicName'" class="list-group collapse" uib-collapse="isCollapsed_mainTopic">
+
+								<div  class="list-group-item list-group-item-default" style="background: #6baed6; color: white;">
+									<a id="indicatorOrderView_{{subTopic.topicId}}" class="collapseTrigger" style="color: white;" ng-attr-title="{{subTopic.topicDescription}}" href="" ng-click="isCollapsed_subTopic = !isCollapsed_subTopic" ng-init="isCollapsed_subTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{subTopic.topicName}}  ({{subTopic.indicatorCount}})</a>
+								</div>
+
+								<div ng-repeat="subsubTopic in subTopic.subTopics | orderBy: 'topicName'" class="list-group collapse" uib-collapse="isCollapsed_subTopic">
+
+									<div  class="list-group-item list-group-item-default" style="background: #bdd7e7; color: white;">
+										<a id="indicatorOrderView_{{subsubTopic.topicId}}" class="collapseTrigger" style="color: black;" ng-attr-title="{{subsubTopic.topicDescription}}" href="" ng-click="isCollapsed_subsubTopic = !isCollapsed_subsubTopic" ng-init="isCollapsed_subsubTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{subsubTopic.topicName}}   ({{subsubTopic.indicatorCount}})</a>
+									</div>
+
+									<div ng-repeat="subsubsubTopic in subsubTopic.subTopics | orderBy: 'topicName'" class="list-group collapse" uib-collapse="isCollapsed_subsubTopic">
+
+										<div  class="list-group-item list-group-item-default" style="background: #eff3ff; color: white;">
+											<a id="indicatorOrderView_{{subsubsubTopic.topicId}}" class="collapseTrigger" style="color: black;" ng-attr-title="{{subsubsubTopic.topicDescription}}" href="" ng-click="isCollapsed_subsubsubTopic = !isCollapsed_subsubsubTopic" ng-init="isCollapsed_subsubsubTopic=true"><i class="glyphicon glyphicon-chevron-right"></i>{{subsubsubTopic.topicName}}   ({{subsubsubTopic.indicatorCount}})</a>
+										</div>
+
+										<div ng-show="subsubsubTopic.indicatorCount > 0">
+											<div class="list-group collapse indicatorInputForm" uib-collapse="isCollapsed_subsubsubTopic" sortable>
+												<div id="indicatorOrderView_indicatorHierarchyElement-{{indicatorMetadata.indicatorId}}" ng-class="{'style-headline-indicator': indicatorMetadata.isHeadlineIndicator , 'style-simple-indicator': ! indicatorMetadata.isHeadlineIndicator}" 
+													ng-repeat="indicatorMetadata in subsubsubTopic.indicatorData track by indicatorMetadata.indicatorId" class="list-group-item list-group-item-default">
+													<div ng-if="indicatorMetadata.isHeadlineIndicator">
+														<p style="cursor:pointer; color: white;" ng-attr-title="<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]" style="color: white;" ><i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]</p>																			
+													</div> 
+													<div ng-if="! indicatorMetadata.isHeadlineIndicator">
+														<p style="cursor:pointer;" ng-attr-title="<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]" style="color: white;" ><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]</p>																				
+													</div>
+													</div>
+											</div>
+										</div>
+										<div ng-show="!(subsubsubTopic.indicatorCount > 0)">
+											<div class="list-group collapse" uib-collapse="isCollapsed_subsubsubTopic">
+												<!-- <div class="list-group-item list-group-item-default" style="background: #eb9c98;">
+													 <p><i class="fas fa-sitemap"></i> &nbsp;&nbsp;- keine Indikatoren in dieser Hierarchieebene -</p>
+												</div> -->
+											</div>
+										</div>
+
+
+									</div>
+									<!-- end sub sub sub topics -->
+
+
+									<div ng-show="subsubTopic.indicatorCount > 0">
+										<div class="list-group collapse indicatorInputForm" uib-collapse="isCollapsed_subsubTopic" sortable>
+											<div id="indicatorOrderView_indicatorHierarchyElement-{{indicatorMetadata.indicatorId}}" ng-class="{'style-headline-indicator': indicatorMetadata.isHeadlineIndicator , 'style-simple-indicator': ! indicatorMetadata.isHeadlineIndicator}" 
+												ng-repeat="indicatorMetadata in subsubTopic.indicatorData track by indicatorMetadata.indicatorId" class="list-group-item list-group-item-default">
+												<div ng-if="indicatorMetadata.isHeadlineIndicator">
+													<p style="cursor:pointer; color: white;" ng-attr-title="<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]" style="color: white;" ><i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]</p>
+											
+												</div> 
+												<div ng-if="! indicatorMetadata.isHeadlineIndicator">
+													<p style="cursor:pointer;" ng-attr-title="<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]" style="color: white;" ><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]</p>
+											
+												</div>
+											</div>
+										</div>
+									</div>
+									<div ng-show="!(subsubTopic.indicatorCount > 0)">
+										<div class="list-group collapse" uib-collapse="isCollapsed_subsubTopic">
+											<!-- <div class="list-group-item list-group-item-default" style="background: #eb9c98;">
+												 <p><i class="fas fa-sitemap"></i> &nbsp;&nbsp;- keine Indikatoren in dieser Hierarchieebene -</p>
+											</div> -->
+										</div>
+									</div>
+
+
+								</div>
+								<!-- end sub sub opics -->
+
+
+
+								<div ng-show="subTopic.indicatorCount > 0">
+									<div class="list-group collapse indicatorInputForm" uib-collapse="isCollapsed_subTopic" sortable>
+										<div id="indicatorOrderView_indicatorHierarchyElement-{{indicatorMetadata.indicatorId}}" ng-class="{'style-headline-indicator': indicatorMetadata.isHeadlineIndicator , 'style-simple-indicator': ! indicatorMetadata.isHeadlineIndicator}"
+											ng-repeat="indicatorMetadata in subTopic.indicatorData track by indicatorMetadata.indicatorId" class="list-group-item list-group-item-default">
+											<div ng-if="indicatorMetadata.isHeadlineIndicator">
+												<p style="cursor:pointer; color: white;" ng-attr-title="<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]" ><i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]</p>
+										
+											</div> 
+											<div ng-if="! indicatorMetadata.isHeadlineIndicator">
+												<p style="cursor:pointer;" style="color: white;" ng-attr-title="<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]" ><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]</p>
+										
+											</div>
+										</div>
+									</div>
+								</div>
+								<div ng-show="!(subTopic.indicatorCount > 0)">
+									<div class="list-group collapse" uib-collapse="isCollapsed_subTopic">
+										<!-- <div class="list-group-item list-group-item-default" style="background: #eb9c98;">
+											 <p><i class="fas fa-sitemap"></i> &nbsp;&nbsp;- keine Indikatoren in dieser Hierarchieebene -</p>
+										</div> -->
+									</div>
+								</div>
+
+
+
+
+							</div>
+							<!-- end sub topics -->
+							<div ng-show="mainTopic.indicatorCount > 0">
+								<div class="list-group collapse indicatorInputForm" uib-collapse="isCollapsed_mainTopic" sortable>
+									<div id="indicatorOrderView_indicatorHierarchyElement-{{indicatorMetadata.indicatorId}}" ng-class="{'style-headline-indicator': indicatorMetadata.isHeadlineIndicator, 'style-simple-indicator': !indicatorMetadata.isHeadlineIndicator }"
+										ng-repeat="indicatorMetadata in mainTopic.indicatorData track by indicatorMetadata.indicatorId" class="list-group-item list-group-item-default">
+										<div ng-if="indicatorMetadata.isHeadlineIndicator">
+											<p style="cursor:pointer; color: white;" ng-attr-title="<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]" ><i class="fas fa-tachometer-alt"></i> &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]</p>
+									
+										</div> 
+										<div ng-if="! indicatorMetadata.isHeadlineIndicator">
+											<p style="cursor:pointer;" style="color: white;" ng-attr-title="<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]" ><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{indicatorMetadata.indicatorName}}</b> [{{indicatorMetadata.unit}}]</p>
+									
+										</div>
+									</div>
+								</div>
+							</div>
+							<div ng-show="!(mainTopic.indicatorCount > 0)">
+								<div class="list-group collapse" uib-collapse="isCollapsed_mainTopic">
+									<!-- <div class="list-group-item list-group-item-default" style="background: #eb9c98;">
+										 <p><i class="fas fa-sitemap"></i> &nbsp;&nbsp;- keine Indikatoren in dieser Hierarchieebene -</p>
+									</div> -->
+								</div>
+							</div>
+
+
+							<!-- <div ng-repeat="indicatorMetadata in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators()  | filter:{topicReference:mainTopic.topicId}  | filter:indicatorNameFilter">
+							</div> -->
+						</div>
+						<!-- end main Topics -->
+
+
+					</div>
+
+			</div>
+
             </div>
             <!-- /.box-body -->
           </div>

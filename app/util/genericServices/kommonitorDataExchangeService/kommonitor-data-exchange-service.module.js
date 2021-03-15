@@ -60,6 +60,7 @@ angular
           this.headlineIndicatorHierarchy = [];
           this.computationIndicatorHierarchy = [];
           this.topicIndicatorHierarchy = [];
+          this.topicIndicatorHierarchy_forOrderView = [];
 
           this.enableKeycloakSecurity = __env.enableKeycloakSecurity;
           this.currentKeycloakLoginRoles = [];
@@ -859,6 +860,7 @@ angular
 
                   self.buildHeadlineIndicatorHierarchy();
                   self.buildTopicIndicatorHierarchy(null);
+                  self.topicIndicatorHierarchy_forOrderView = JSON.parse(JSON.stringify(self.topicIndicatorHierarchy));
                   self.buildComputationIndicatorHierarchy();
 
                   console.log("Metadata fetched. Call initialize event.");
