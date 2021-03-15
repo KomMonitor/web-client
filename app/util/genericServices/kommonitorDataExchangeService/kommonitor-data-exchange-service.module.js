@@ -152,7 +152,15 @@ angular
               startDate: new Date(availableDates[0]),
               defaultViewDate: new Date(availableDates[availableDates.length - 1]),
               beforeShowDay: function(date) {
-                var dateString = date.getFullYear() + "-" + (date.getMonth()+1) + "-" + date.getDate();
+                var month = (date.getMonth()+1);
+                if (month < 10 ){
+                  month = "0" + month;
+                }
+                var day = (date.getDate());
+                if (day < 10 ){
+                  day = "0" + day;
+                }
+                var dateString = date.getFullYear() + "-" + month + "-" + day;
   
                 if (availableDates.includes(dateString)) {
   

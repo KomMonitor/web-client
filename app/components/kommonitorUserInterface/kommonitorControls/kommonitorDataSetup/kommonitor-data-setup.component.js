@@ -552,8 +552,8 @@ angular
 									$scope.selectedDate = availableDates[availableDates.length - 1];
 									kommonitorDataExchangeService.selectedDate = availableDates[availableDates.length - 1];
 
-									$scope.datePicker = $('#indicatorDatePicker').datepicker(kommonitorDataExchangeService.getLimitedDatePickerOptions(availableDates));
-									$('#indicatorDatePicker').datepicker('update', new Date(kommonitorDataExchangeService.selectedDate));
+									$scope.datePicker = $('#indicatorDatePicker').datepicker(kommonitorDataExchangeService.getLimitedDatePickerOptions(availableDates));																		
+									
 								};
 
 
