@@ -943,11 +943,11 @@ angular
           this.addIndicatorDataToSubTopics = function(topic, topicsMap){
             for (var subTopic of topic.subTopics) {
               subTopic.indicatorData = topicsMap.get(subTopic.topicId);
-              subTopic.indicatorCount = subTopic.indicatorData.length;
-              topic.indicatorCount = topic.indicatorCount + subTopic.indicatorCount;
+              subTopic.indicatorCount = subTopic.indicatorData.length;              
               if(subTopic.subTopics.length > 0){
                 subTopic = this.addIndicatorDataToSubTopics(subTopic, topicsMap);
               }
+              topic.indicatorCount = topic.indicatorCount + subTopic.indicatorCount;
             }
 
             return topic;
