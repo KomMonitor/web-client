@@ -952,7 +952,12 @@ angular.module('kommonitorMap').component(
         // });        
 
         $scope.$on("changeClassifyMethod", function (event, method) {
-          kommonitorVisualStyleHelperService.classifyMethod = method;          
+          kommonitorVisualStyleHelperService.classifyMethod = method;  
+          
+          $timeout(function(){
+            kommonitorVisualStyleHelperService.classifyMethod = method;  
+            $rootScope.$apply();
+          }, 350);
 
           $rootScope.$broadcast("restyleCurrentLayer", false);
         });
