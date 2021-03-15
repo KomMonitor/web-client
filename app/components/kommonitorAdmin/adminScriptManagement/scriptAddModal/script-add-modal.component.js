@@ -65,7 +65,7 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 
 				setTimeout(() => {
 					$scope.$apply();
-				}, 250);
+				}, 1000);
 			};
 
 			$scope.filterIndicators = function () {
@@ -106,8 +106,9 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 							$scope.loadingData = false;
 		
 							setTimeout(() => {
+								$scope.loadingData = false;
 								$scope.$apply();
-							}, 250);
+							}, 1000);
 						}
 						
 					}
@@ -122,8 +123,9 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 					$scope.loadingData = false;
 
 					setTimeout(() => {
+						$scope.loadingData = false;
 						$scope.$apply();
-					}, 250);
+					}, 1000);
 				} catch (error) {
 					if (error.data) {
 						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
@@ -136,8 +138,9 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 					$scope.loadingData = false;
 
 					setTimeout(() => {
+						$scope.loadingData = false;
 						$scope.$apply();
-					}, 250);
+					}, 1000);
 				}
 
 			};
