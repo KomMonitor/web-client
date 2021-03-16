@@ -51,13 +51,13 @@
 							<div
 								ng-repeat="mainTopic in $ctrl.kommonitorDataExchangeServiceInstance.availableTopics | filter:{topicType:'main'} | filter:{topicResource:'indicator'}">
 								<div class="list-group-item list-group-item-default" style="background: #2171b5; color: white;">
-									<a id="{{mainTopic.topicId}}" href="" ng-attr-title="{{mainTopic.topicDescription}}"
+									<a id="{{::mainTopic.topicId}}" href="" ng-attr-title="{{::mainTopic.topicDescription}}"
 										class="collapseTrigger" style="color: white;"
 										ng-click="isCollapsed_mainTopic = !isCollapsed_mainTopic"
 										ng-init="isCollapsed_mainTopic=true"><i
-											class="glyphicon glyphicon-chevron-right"></i>{{mainTopic.topicName}}</a>
+											class="glyphicon glyphicon-chevron-right"></i>{{::mainTopic.topicName}}</a>
 
-									<div ng-if="showTopicIds" style="display: inline-block;">(ID: {{mainTopic.topicId}})</div>		
+									<div ng-if="showTopicIds" style="display: inline-block;">(ID: {{::mainTopic.topicId}})</div>		
 				
 									<div class="btn-group btn-group-sm" style="margin-left: 30px;">
 										<button type="button" class="btn btn-warning" ng-click="onClickEditTopic(mainTopic)"
@@ -73,13 +73,13 @@
 									uib-collapse="isCollapsed_mainTopic">
 				
 									<div class="list-group-item list-group-item-default" style="background: #6baed6; color: white;">
-										<a id="{{subTopic.topicId}}" class="collapseTrigger" style="color: white;"
-											ng-attr-title="{{subTopic.topicDescription}}" href=""
+										<a id="{{::subTopic.topicId}}" class="collapseTrigger" style="color: white;"
+											ng-attr-title="{{::subTopic.topicDescription}}" href=""
 											ng-click="isCollapsed_subTopic = !isCollapsed_subTopic"
 											ng-init="isCollapsed_subTopic=true"><i
-												class="glyphicon glyphicon-chevron-right"></i>{{subTopic.topicName}}</a>
+												class="glyphicon glyphicon-chevron-right"></i>{{::subTopic.topicName}}</a>
 
-										<div ng-if="showTopicIds" style="display: inline-block;">(ID: {{subTopic.topicId}})</div>
+										<div ng-if="showTopicIds" style="display: inline-block;">(ID: {{::subTopic.topicId}})</div>
 
 										<div class="btn-group btn-group-sm" style="margin-left: 30px;">
 											<button type="button" class="btn btn-warning" ng-click="onClickEditTopic(subTopic)"
@@ -95,13 +95,13 @@
 										uib-collapse="isCollapsed_subTopic">
 				
 										<div class="list-group-item list-group-item-default" style="background: #bdd7e7; color: white;">
-											<a id="{{subsubTopic.topicId}}" class="collapseTrigger" style="color: black;"
-												ng-attr-title="{{subsubTopic.topicDescription}}" href=""
+											<a id="{{::subsubTopic.topicId}}" class="collapseTrigger" style="color: black;"
+												ng-attr-title="{{::subsubTopic.topicDescription}}" href=""
 												ng-click="isCollapsed_subsubTopic = !isCollapsed_subsubTopic"
 												ng-init="isCollapsed_subsubTopic=true"><i
-													class="glyphicon glyphicon-chevron-right"></i>{{subsubTopic.topicName}}</a>
+													class="glyphicon glyphicon-chevron-right"></i>{{::subsubTopic.topicName}}</a>
 
-											<div ng-if="showTopicIds" style="display: inline-block; color: black;">(ID: {{subsubTopic.topicId}})</div>	
+											<div ng-if="showTopicIds" style="display: inline-block; color: black;">(ID: {{::subsubTopic.topicId}})</div>	
 
 											<div class="btn-group btn-group-sm" style="margin-left: 30px;">
 												<button type="button" class="btn btn-warning" ng-click="onClickEditTopic(subsubTopic)"
@@ -118,10 +118,10 @@
 				
 											<div class="list-group-item list-group-item-default"
 												style="background: #eff3ff; color: white;">
-												<a id="{{subsubsubTopic.topicId}}" class="collapseTrigger" style="color: black;"
-													ng-attr-title="{{subsubsubTopic.topicDescription}}">{{subsubsubTopic.topicName}}</a>
+												<a id="{{::subsubsubTopic.topicId}}" class="collapseTrigger" style="color: black;"
+													ng-attr-title="{{::subsubsubTopic.topicDescription}}">{{::subsubsubTopic.topicName}}</a>
 
-												<div ng-if="showTopicIds" style="display: inline-block; color: black;">(ID: {{subsubsubTopic.topicId}})</div>
+												<div ng-if="showTopicIds" style="display: inline-block; color: black;">(ID: {{::subsubsubTopic.topicId}})</div>
 												
 												<div class="btn-group btn-group-sm" style="margin-left: 30px;">
 													<button type="button" class="btn btn-warning"
@@ -278,13 +278,13 @@
 								<div
 									ng-repeat="mainTopic in $ctrl.kommonitorDataExchangeServiceInstance.availableTopics | filter:{topicType:'main'} | filter:{topicResource:'georesource'}">
 									<div class="list-group-item list-group-item-default" style="background: #2171b5; color: white;">
-										<a id="{{mainTopic.topicId}}" href="" ng-attr-title="{{mainTopic.topicDescription}}"
+										<a id="{{::mainTopic.topicId}}" href="" ng-attr-title="{{::mainTopic.topicDescription}}"
 											class="collapseTrigger" style="color: white;"
 											ng-click="isCollapsed_mainTopic = !isCollapsed_mainTopic"
 											ng-init="isCollapsed_mainTopic=true"><i
-												class="glyphicon glyphicon-chevron-right"></i>{{mainTopic.topicName}}</a>
+												class="glyphicon glyphicon-chevron-right"></i>{{::mainTopic.topicName}}</a>
 
-										<div ng-if="showTopicIds" style="display: inline-block;">(ID: {{mainTopic.topicId}})</div>
+										<div ng-if="showTopicIds" style="display: inline-block;">(ID: {{::mainTopic.topicId}})</div>
 					
 										<div class="btn-group btn-group-sm" style="margin-left: 30px;">
 											<button type="button" class="btn btn-warning" ng-click="onClickEditTopic(mainTopic)"
@@ -300,13 +300,13 @@
 										uib-collapse="isCollapsed_mainTopic">
 					
 										<div class="list-group-item list-group-item-default" style="background: #6baed6; color: white;">
-											<a id="{{subTopic.topicId}}" class="collapseTrigger" style="color: white;"
-												ng-attr-title="{{subTopic.topicDescription}}" href=""
+											<a id="{{::subTopic.topicId}}" class="collapseTrigger" style="color: white;"
+												ng-attr-title="{{::subTopic.topicDescription}}" href=""
 												ng-click="isCollapsed_subTopic = !isCollapsed_subTopic"
 												ng-init="isCollapsed_subTopic=true"><i
-													class="glyphicon glyphicon-chevron-right"></i>{{subTopic.topicName}}</a>
+													class="glyphicon glyphicon-chevron-right"></i>{{::subTopic.topicName}}</a>
 
-											<div ng-if="showTopicIds" style="display: inline-block;">(ID: {{subTopic.topicId}})</div>
+											<div ng-if="showTopicIds" style="display: inline-block;">(ID: {{::subTopic.topicId}})</div>
 
 											<div class="btn-group btn-group-sm" style="margin-left: 30px;">
 												<button type="button" class="btn btn-warning" ng-click="onClickEditTopic(subTopic)"
@@ -322,13 +322,13 @@
 											uib-collapse="isCollapsed_subTopic">
 					
 											<div class="list-group-item list-group-item-default" style="background: #bdd7e7; color: white;">
-												<a id="{{subsubTopic.topicId}}" class="collapseTrigger" style="color: black;"
-													ng-attr-title="{{subsubTopic.topicDescription}}" href=""
+												<a id="{{::subsubTopic.topicId}}" class="collapseTrigger" style="color: black;"
+													ng-attr-title="{{::subsubTopic.topicDescription}}" href=""
 													ng-click="isCollapsed_subsubTopic = !isCollapsed_subsubTopic"
 													ng-init="isCollapsed_subsubTopic=true"><i
-														class="glyphicon glyphicon-chevron-right"></i>{{subsubTopic.topicName}}</a>
+														class="glyphicon glyphicon-chevron-right"></i>{{::subsubTopic.topicName}}</a>
 
-												<div ng-if="showTopicIds" style="display: inline-block; color: black;">(ID: {{subsubTopic.topicId}})</div>
+												<div ng-if="showTopicIds" style="display: inline-block; color: black;">(ID: {{::subsubTopic.topicId}})</div>
 
 												<div class="btn-group btn-group-sm" style="margin-left: 30px;">
 													<button type="button" class="btn btn-warning" ng-click="onClickEditTopic(subsubTopic)"
@@ -345,10 +345,10 @@
 					
 												<div class="list-group-item list-group-item-default"
 													style="background: #eff3ff; color: white;">
-													<a id="{{subsubsubTopic.topicId}}" class="collapseTrigger" style="color: black;"
-														ng-attr-title="{{subsubsubTopic.topicDescription}}">{{subsubsubTopic.topicName}}</a>
+													<a id="{{::subsubsubTopic.topicId}}" class="collapseTrigger" style="color: black;"
+														ng-attr-title="{{::subsubsubTopic.topicDescription}}">{{::subsubsubTopic.topicName}}</a>
 
-													<div ng-if="showTopicIds" style="display: inline-block; color: black;">(ID: {{subsubsubTopic.topicId}})</div>
+													<div ng-if="showTopicIds" style="display: inline-block; color: black;">(ID: {{::subsubsubTopic.topicId}})</div>
 
 													<div class="btn-group btn-group-sm" style="margin-left: 30px;">
 														<button type="button" class="btn btn-warning"
@@ -493,7 +493,7 @@
 		                <h4><i class="icon fa fa-ban"></i>Request gescheitert</h4>
 		                Fehlermeldung:
 										<br/>
-										<pre>{{errorMessagePart}}</pre>.
+										<pre>{{::errorMessagePart}}</pre>.
 		      </div>
 
 	</section>

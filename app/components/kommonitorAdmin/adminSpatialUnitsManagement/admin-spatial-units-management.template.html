@@ -74,15 +74,15 @@
 												<!-- <button class="btn btn-danger btn-sm" type="button" data-toggle="modal" data-target="#modal-delete-spatial-units" ng-click="onClickDeleteDatasets(spatialUnitDataset)" title="Datensatz l&ouml;schen"><i class="fas fa-trash"></i></button> -->
 											</div>
 										</td>
-	                  <td>{{spatialUnitDataset.spatialUnitId}}</td>
-	                  <td>{{spatialUnitDataset.spatialUnitLevel}}</td>
-	                  <td>{{spatialUnitDataset.nextLowerHierarchyLevel}}</td>
-										<td>{{spatialUnitDataset.nextUpperHierarchyLevel}}</td>
+	                  <td>{{::spatialUnitDataset.spatialUnitId}}</td>
+	                  <td>{{::spatialUnitDataset.spatialUnitLevel}}</td>
+	                  <td>{{::spatialUnitDataset.nextLowerHierarchyLevel}}</td>
+										<td>{{::spatialUnitDataset.nextUpperHierarchyLevel}}</td>
 	                  <td>
 											<ul style="columns: 3; 	-webkit-columns: 3;	-moz-columns: 3;">
 												<li style="margin-right: 15px;" ng-repeat="periodOfValidity in spatialUnitDataset.availablePeriodsOfValidity">
-													<p ng-show="periodOfValidity.endDate">{{periodOfValidity.startDate}} - {{periodOfValidity.endDate}}</p>
-													<p ng-show="! periodOfValidity.endDate">{{periodOfValidity.startDate}} - heute </p>
+													<p ng-show="periodOfValidity.endDate">{{::periodOfValidity.startDate}} - {{::periodOfValidity.endDate}}</p>
+													<p ng-show="! periodOfValidity.endDate">{{::periodOfValidity.startDate}} - heute </p>
 												</li>
 											</ul>
 										</td>
@@ -91,9 +91,9 @@
 										<td ng-bind-html="spatialUnitDataset.metadata.databasis"></td>
 										<td ng-bind-html="spatialUnitDataset.metadata.datasource"></td>
 										<td ng-bind-html="spatialUnitDataset.metadata.contact"></td>
-										<td>{{spatialUnitDataset.metadata.lastUpdate}}</td>
-										<td>EPSG:{{spatialUnitDataset.metadata.sridEPSG}}</td>
-										<td>{{spatialUnitDataset.metadata.updateInterval}}</td>
+										<td>{{::spatialUnitDataset.metadata.lastUpdate}}</td>
+										<td>EPSG:{{::spatialUnitDataset.metadata.sridEPSG}}</td>
+										<td>{{::spatialUnitDataset.metadata.updateInterval}}</td>
 										<td ng-bind-html="spatialUnitDataset.metadata.literature"></td>
 										<td ng-bind-html="spatialUnitDataset.wmsUrl"></td>
 										<td ng-bind-html="spatialUnitDataset.wfsUrl"></td>

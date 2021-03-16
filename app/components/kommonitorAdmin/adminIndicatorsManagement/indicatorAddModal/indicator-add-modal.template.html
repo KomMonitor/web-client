@@ -208,7 +208,7 @@
 												class="form-control" required>
 												<option disabled selected value> -- Einheit w&auml;hlen -- </option>
 												<option>-- Freitext --</option>
-												<option ng-repeat="unit in $ctrl.kommonitorDataExchangeServiceInstance.indicatorUnitOptions">{{unit}}</option>
+												<option ng-repeat="unit in $ctrl.kommonitorDataExchangeServiceInstance.indicatorUnitOptions">{{::unit}}</option>
 												
 											</select>
 											<div ng-hide="! enableFreeTextUnit">
@@ -629,10 +629,10 @@
 																				<!-- <button class="btn btn-danger btn-sm" type="button" data-toggle="modal" data-target="#modal-delete-spatial-units" ng-click="onClickDeleteDatasets(indicatorDataset)" title="Datensatz l&ouml;schen"><i class="fas fa-trash"></i></button> -->
 																			</div>
 																		</td>
-																		<td>{{indicatorReference.referencedIndicatorId}}</td>
-																		<td>{{indicatorReference.referencedIndicatorName}}</td>
-																		<td>{{indicatorReference.referencedIndicatorAbbreviation}}</td>
-																		<td>{{indicatorReference.referencedIndicatorDescription}}</td>
+																		<td>{{::indicatorReference.referencedIndicatorId}}</td>
+																		<td>{{::indicatorReference.referencedIndicatorName}}</td>
+																		<td>{{::indicatorReference.referencedIndicatorAbbreviation}}</td>
+																		<td>{{::indicatorReference.referencedIndicatorDescription}}</td>
 																	</tr>
 																</tbody>
 															</table>
@@ -747,9 +747,9 @@
 																					title="Referenz l&ouml;schen"><i class="fas fa-trash"></i></button>
 																			</div>
 																		</td>
-																		<td>{{georesourceReference.referencedGeoresourceId}}</td>
-																		<td>{{georesourceReference.referencedGeoresourceName}}</td>
-																		<td>{{georesourceReference.referencedGeoresourceDescription}}</td>
+																		<td>{{::georesourceReference.referencedGeoresourceId}}</td>
+																		<td>{{::georesourceReference.referencedGeoresourceName}}</td>
+																		<td>{{::georesourceReference.referencedGeoresourceDescription}}</td>
 																	</tr>
 																</tbody>
 															</table>
@@ -788,7 +788,7 @@
 												<select ng-model="numClasses"											
 													class="form-control" required>
 													<option disabled selected value> -- Anzahl Klassen w&auml;hlen -- </option>
-													<option ng-repeat="numClassesEntry in numClassesArray">{{numClassesEntry}}</option>
+													<option ng-repeat="numClassesEntry in numClassesArray">{{::numClassesEntry}}</option>
 												</select>
 												<div class="help-block with-errors"></div>
 											</div>
@@ -805,7 +805,7 @@
 															<div style="display: inline-block;">
 																<svg width="100" height="20">
 																	
-																		<rect ng-repeat="color in colorPaletteEntry.paletteArrayObject['5']" ng-attr-fill="{{color}}" width="20" height="20" ng-attr-x="{{$index * 20}}"></rect>
+																		<rect ng-repeat="color in colorPaletteEntry.paletteArrayObject['5']" ng-attr-fill="{{::color}}" width="20" height="20" ng-attr-x="{{::$index * 20}}"></rect>
 																													
 																</svg>
 															</div>
@@ -824,7 +824,7 @@
 													<div style="display: inline-block;">
 														<svg width="100" height="20">
 															
-																<rect ng-repeat="color in selectedColorBrewerPaletteEntry.paletteArrayObject['5']" ng-attr-fill="{{color}}" width="20" height="20" ng-attr-x="{{$index * 20}}"></rect>
+																<rect ng-repeat="color in selectedColorBrewerPaletteEntry.paletteArrayObject['5']" ng-attr-fill="{{::color}}" width="20" height="20" ng-attr-x="{{::$index * 20}}"></rect>
 																											
 														</svg>
 													</div>
@@ -841,7 +841,7 @@
 												<select ng-model="numClasses"											
 													class="form-control" required>
 													<option disabled selected value> -- Anzahl Klassen w&auml;hlen -- </option>
-													<option ng-repeat="numClassesEntry in numClassesArray">{{numClassesEntry}}</option>
+													<option ng-repeat="numClassesEntry in numClassesArray">{{::numClassesEntry}}</option>
 												</select>
 												<div class="help-block with-errors"></div>
 											</div>
@@ -853,7 +853,7 @@
 												<div style="display: inline-block;">
 													<svg width="100" height="20">
 														
-															<rect ng-repeat="color in colorbrewerSchemes[colorbreweSchemeName_dynamicDecrease]['5']" ng-attr-fill="{{color}}" width="20" height="20" ng-attr-x="{{$index * 20}}"></rect>
+															<rect ng-repeat="color in colorbrewerSchemes[colorbreweSchemeName_dynamicDecrease]['5']" ng-attr-fill="{{::color}}" width="20" height="20" ng-attr-x="{{::$index * 20}}"></rect>
 																										
 													</svg>
 												</div>
@@ -867,7 +867,7 @@
 												<div style="display: inline-block;">
 													<svg width="100" height="20">
 														
-															<rect ng-repeat="color in colorbrewerSchemes[colorbreweSchemeName_dynamicIncrease]['5']" ng-attr-fill="{{color}}" width="20" height="20" ng-attr-x="{{$index * 20}}"></rect>
+															<rect ng-repeat="color in colorbrewerSchemes[colorbreweSchemeName_dynamicIncrease]['5']" ng-attr-fill="{{::color}}" width="20" height="20" ng-attr-x="{{::$index * 20}}"></rect>
 																										
 													</svg>
 												</div>
@@ -887,7 +887,7 @@
 												<select ng-model="numClasses"											
 													class="form-control" required>
 													<option disabled selected value> -- Anzahl Klassen w&auml;hlen -- </option>
-													<option ng-repeat="numClassesEntry in numClassesArray">{{numClassesEntry}}</option>
+													<option ng-repeat="numClassesEntry in numClassesArray">{{::numClassesEntry}}</option>
 												</select>
 												<div class="help-block with-errors"></div>
 											</div>
@@ -899,7 +899,7 @@
 												<div style="display: inline-block;">
 													<svg width="100" height="20">
 														
-															<rect ng-repeat="color in colorbrewerSchemes[colorbreweSchemeName_dynamicDecrease]['5']" ng-attr-fill="{{color}}" width="20" height="20" ng-attr-x="{{$index * 20}}"></rect>
+															<rect ng-repeat="color in colorbrewerSchemes[colorbreweSchemeName_dynamicDecrease]['5']" ng-attr-fill="{{::color}}" width="20" height="20" ng-attr-x="{{::$index * 20}}"></rect>
 																										
 													</svg>
 												</div>
@@ -913,7 +913,7 @@
 												<div style="display: inline-block;">
 													<svg width="100" height="20">
 														
-															<rect ng-repeat="color in colorbrewerSchemes[colorbreweSchemeName_dynamicIncrease]['5']" ng-attr-fill="{{color}}" width="20" height="20" ng-attr-x="{{$index * 20}}"></rect>
+															<rect ng-repeat="color in colorbrewerSchemes[colorbreweSchemeName_dynamicIncrease]['5']" ng-attr-fill="{{::color}}" width="20" height="20" ng-attr-x="{{::$index * 20}}"></rect>
 																										
 													</svg>
 												</div>
