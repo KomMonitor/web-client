@@ -407,11 +407,13 @@ angular
 					// GEORESOURCES
 
 					this.availableGeoresources = [];
+          this.displayableGeoresources = [];
 
 					this.selectedGeoresource;
 
 					this.setGeoresources = function(georesourcesArray){
 						this.availableGeoresources = georesourcesArray;
+            this.displayableGeoresources = this.availableGeoresources.filter(item => self.isDisplayableGeoresource(item));
 					};
 
 

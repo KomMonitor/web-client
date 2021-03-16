@@ -149,7 +149,7 @@
 											<!-- end sub sub sub topics -->
 		
 		
-											<div ng-show="(($ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresources() | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter.value).length > 0) || (($ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter.value).length > 0) || (($ctrl.kommonitorDataExchangeServiceInstance.wfsDatasets | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter.value).length > 0)">
+											<div ng-show="(($ctrl.kommonitorDataExchangeServiceInstance.displayableGeoresources  | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter.value).length > 0) || (($ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter.value).length > 0) || (($ctrl.kommonitorDataExchangeServiceInstance.wfsDatasets | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter.value).length > 0)">
 												<div class="list-group collapse" uib-collapse="isCollapsed_subsubTopic">
 													<div class="list-group-item list-group-item-default georesourceInputForm">
 
@@ -169,7 +169,7 @@
 															<tbody>
 
 																<!-- POIs -->
-																<tr ng-if="showPOI" ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresources() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter.value '>
+																<tr ng-if="showPOI" ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.displayableGeoresources  | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter.value '>
 																	<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 																	<td>
 																		<i class="fas fa-map-marker-alt"></i>
@@ -214,7 +214,7 @@
 																</tr>
 
 																<!-- LOIs -->
-																<tr ng-if="showLOI" ng-repeat='loi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresources() | filter:{isLOI:true} | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter.value'>
+																<tr ng-if="showLOI" ng-repeat='loi in $ctrl.kommonitorDataExchangeServiceInstance.displayableGeoresources  | filter:{isLOI:true} | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter.value'>
 																	<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 																	<td>
 																		<i class="fas fa-minus"></i>
@@ -259,7 +259,7 @@
 																</tr>
 
 																<!-- AOIs -->
-																<tr ng-if="showAOI" ng-repeat='aoi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresources() | filter:{isAOI:true} | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter.value'>
+																<tr ng-if="showAOI" ng-repeat='aoi in $ctrl.kommonitorDataExchangeServiceInstance.displayableGeoresources  | filter:{isAOI:true} | filter:{topicReference:subsubTopic.topicId} | filter:georesourceNameFilter.value'>
 																	<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 																	<td>
 																		<i class="far fa-square"></i>
@@ -447,7 +447,7 @@
 														<tbody>
 
 															<!-- POIs -->
-															<tr ng-if="showPOI" ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresources() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter.value'>
+															<tr ng-if="showPOI" ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.displayableGeoresources  | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter.value'>
 																<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 																<td>
 																	<i class="fas fa-map-marker-alt"></i>
@@ -492,7 +492,7 @@
 															</tr>
 
 															<!-- LOIs -->
-															<tr ng-if="showLOI" ng-repeat='loi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresources() | filter:{isLOI:true} | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter.value'>
+															<tr ng-if="showLOI" ng-repeat='loi in $ctrl.kommonitorDataExchangeServiceInstance.displayableGeoresources  | filter:{isLOI:true} | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter.value'>
 																<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 																<td>
 																	<i class="fas fa-minus"></i>
@@ -536,7 +536,7 @@
 															</tr>
 
 															<!-- AOIs -->
-															<tr ng-if="showAOI" ng-repeat='aoi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresources() | filter:{isAOI:true} | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter.value'>
+															<tr ng-if="showAOI" ng-repeat='aoi in $ctrl.kommonitorDataExchangeServiceInstance.displayableGeoresources  | filter:{isAOI:true} | filter:{topicReference:subTopic.topicId} | filter:georesourceNameFilter.value'>
 																<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 																<td>
 																	<i class="far fa-square"></i>
@@ -725,7 +725,7 @@
 													<tbody>
 
 														<!-- POIs -->
-														<tr ng-if="showPOI" ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresources() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter.value'>
+														<tr ng-if="showPOI" ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.displayableGeoresources  | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter.value'>
 															<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 															<td>
 																<i class="fas fa-map-marker-alt"></i>
@@ -770,7 +770,7 @@
 														</tr>
 
 														<!-- LOIs -->
-														<tr ng-if="showLOI" ng-repeat='loi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresources() | filter:{isLOI:true} | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter.value'>
+														<tr ng-if="showLOI" ng-repeat='loi in $ctrl.kommonitorDataExchangeServiceInstance.displayableGeoresources  | filter:{isLOI:true} | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter.value'>
 															<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 															<td>
 																<i class="fas fa-minus"></i>
@@ -814,7 +814,7 @@
 														</tr>
 
 														<!-- AOIs -->
-														<tr ng-if="showAOI" ng-repeat='aoi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresources() | filter:{isAOI:true} | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter.value'>
+														<tr ng-if="showAOI" ng-repeat='aoi in $ctrl.kommonitorDataExchangeServiceInstance.displayableGeoresources  | filter:{isAOI:true} | filter:{topicReference:mainTopic.topicId} | filter:georesourceNameFilter.value'>
 															<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 															<td>
 																<i class="far fa-square"></i>
@@ -1011,7 +1011,7 @@
 									<tbody>
 
 										<!-- POIs -->
-										<tr ng-if="showPOI" ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresources() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:filterByNoTopic() | filter:georesourceNameFilter.value'>
+										<tr ng-if="showPOI" ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.displayableGeoresources  | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:filterByNoTopic() | filter:georesourceNameFilter.value'>
 											<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 											<td>
 												<i class="fas fa-map-marker-alt"></i>
@@ -1057,7 +1057,7 @@
 										</tr>
 
 										<!-- LOIs -->
-										<tr ng-if="showLOI" ng-repeat='loi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresources() | filter:{isLOI:true} | filter:filterByNoTopic()'>
+										<tr ng-if="showLOI" ng-repeat='loi in $ctrl.kommonitorDataExchangeServiceInstance.displayableGeoresources  | filter:{isLOI:true} | filter:filterByNoTopic()'>
 											<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 											<td>
 												<i class="fas fa-minus"></i>
@@ -1101,7 +1101,7 @@
 										</tr>
 
 										<!-- AOIs -->
-										<tr ng-if="showAOI" ng-repeat='aoi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresources() | filter:{isAOI:true} | filter:filterByNoTopic()'>
+										<tr ng-if="showAOI" ng-repeat='aoi in $ctrl.kommonitorDataExchangeServiceInstance.displayableGeoresources  | filter:{isAOI:true} | filter:filterByNoTopic()'>
 											<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 											<td>
 												<i class="far fa-square"></i>
@@ -1306,7 +1306,7 @@
 		
 									<tbody>
 		
-										<tr ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresources() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:poiNameFilter'>
+										<tr ng-repeat='poi in $ctrl.kommonitorDataExchangeServiceInstance.displayableGeoresources  | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresourcesByPoi() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterPois() | filter:poiNameFilter'>
 											<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 											<td>
 												<label class='checkbox-inline' ><input type="checkbox" value="poi.datasetName" ng-model="poi.isSelected" ng-change="handlePoiOnMap(poi)">											
@@ -1402,7 +1402,7 @@
 		
 										<tbody>
 		
-											<tr ng-repeat='loi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresources() | filter:{isLOI:true} | filter:loiNameFilter'>
+											<tr ng-repeat='loi in $ctrl.kommonitorDataExchangeServiceInstance.displayableGeoresources  | filter:{isLOI:true} | filter:loiNameFilter'>
 												<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 												<td>
 													<label class='checkbox-inline' ><input type="checkbox" value="loi.datasetName" ng-model="loi.isSelected" ng-change="handleLoiOnMap(loi)">												
@@ -1492,7 +1492,7 @@
 		
 											<tbody>
 		
-												<tr ng-repeat='aoi in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterGeoresources() | filter:{isAOI:true} | filter:aoiNameFilter'>
+												<tr ng-repeat='aoi in $ctrl.kommonitorDataExchangeServiceInstance.displayableGeoresources  | filter:{isAOI:true} | filter:aoiNameFilter'>
 													<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 													<td>
 														<label class='checkbox-inline' ><input type="checkbox" value="aoi.datasetName" ng-model="aoi.isSelected" ng-change="handleAoiOnMap(aoi)">													
