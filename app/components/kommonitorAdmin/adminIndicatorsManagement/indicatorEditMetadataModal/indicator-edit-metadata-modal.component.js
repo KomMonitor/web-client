@@ -410,7 +410,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 			$("#indicatorEditMetadataErrorAlert").hide();
 
 			setTimeout(() => {
-				$scope.$apply();
+				$scope.$digest();
 			}, 250);
 		};
 
@@ -418,7 +418,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 			$scope.selectedColorBrewerPaletteEntry = colorPaletteEntry;
 
 			setTimeout(() => {
-				$scope.$apply();
+				$scope.$digest();
 			}, 250);
 		};
 
@@ -452,7 +452,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 			$scope.tmpIndicatorReference_referenceDescription = undefined;
 
 			setTimeout(() => {
-				$scope.$apply();
+				$scope.$digest();
 			}, 250);
 		};
 
@@ -462,7 +462,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 			$scope.tmpIndicatorReference_referenceDescription = indicatorReference_adminView.referencedIndicatorDescription;
 
 			setTimeout(() => {
-				$scope.$apply();
+				$scope.$digest();
 			}, 250);
 		};
 
@@ -478,7 +478,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 			}				
 
 			setTimeout(() => {
-				$scope.$apply();
+				$scope.$digest();
 			}, 250);
 		};
 
@@ -511,7 +511,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 			$scope.tmpGeoresourceReference_referenceDescription = undefined;
 
 			setTimeout(() => {
-				$scope.$apply();
+				$scope.$digest();
 			}, 250);
 		};
 
@@ -521,7 +521,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 			$scope.tmpGeoresourceReference_referenceDescription = georesourceReference_adminView.referencedGeoresourceDescription;
 
 			setTimeout(() => {
-				$scope.$apply();
+				$scope.$digest();
 			}, 250);
 		};
 
@@ -537,7 +537,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 			}				
 
 			setTimeout(() => {
-				$scope.$apply();
+				$scope.$digest();
 			}, 250);
 		};
 
@@ -769,7 +769,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 					document.getElementById("indicatorsEditMetadataPre").innerHTML = $scope.indicatorMetadataStructure_pretty;
 					$("#indicatorEditMetadataImportErrorAlert").show();
 
-					$scope.$apply();
+					$scope.$digest();
 				}
 
 			};
@@ -788,7 +788,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 				document.getElementById("indicatorsAddMetadataPre").innerHTML = $scope.indicatorMetadataStructure_pretty;
 				$("#indicatorAddMetadataImportErrorAlert").show();
 
-				$scope.$apply();
+				$scope.$digest();
 			}
 
 				$scope.metadata = {};
@@ -957,7 +957,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 				$scope.tmpTimeseriesMapping_directTimestamp = undefined;
 				$scope.timeseriesMappings_adminView = [];
 
-				$scope.$apply();
+				$scope.$digest();
 		};
 
 		$scope.onExportIndicatorEditMetadataTemplate = function(){

@@ -158,7 +158,7 @@ angular.module('scriptPercentage').component('scriptPercentage', {
 				$scope.resetComputationFormulaAndLegend();
 
 				setTimeout(() => {
-					$scope.$apply();
+					$scope.$digest();
 				});
 			};
 
@@ -181,7 +181,7 @@ angular.module('scriptPercentage').component('scriptPercentage', {
 				$scope.resetComputationFormulaAndLegend();
 				
 				setTimeout(() => {
-					$scope.$apply();
+					$scope.$digest();
 				});
 			};
 	

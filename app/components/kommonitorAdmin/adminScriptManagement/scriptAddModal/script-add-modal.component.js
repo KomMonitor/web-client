@@ -64,7 +64,7 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 				kommonitorScriptHelperService.reset();
 
 				setTimeout(() => {
-					$scope.$apply();
+					$scope.$digest();
 				}, 1000);
 			};
 
@@ -107,7 +107,7 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 		
 							setTimeout(() => {
 								$scope.loadingData = false;
-								$scope.$apply();
+								$scope.$digest();
 							}, 1000);
 						}
 						
@@ -124,7 +124,7 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 
 					setTimeout(() => {
 						$scope.loadingData = false;
-						$scope.$apply();
+						$scope.$digest();
 					}, 1000);
 				} catch (error) {
 					if (error.data) {
@@ -139,7 +139,7 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 
 					setTimeout(() => {
 						$scope.loadingData = false;
-						$scope.$apply();
+						$scope.$digest();
 					}, 1000);
 				}
 

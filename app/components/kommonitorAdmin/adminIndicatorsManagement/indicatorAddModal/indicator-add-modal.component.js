@@ -309,7 +309,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			$scope.postBody_indicators = undefined;
 
 			setTimeout(() => {
-				$scope.$apply();	
+				$scope.$digest();	
 			}, 250);
 		};
 
@@ -317,7 +317,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			$scope.selectedColorBrewerPaletteEntry = colorPaletteEntry;
 
 			setTimeout(() => {
-				$scope.$apply();
+				$scope.$digest();
 			}, 250);
 		};
 
@@ -351,7 +351,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			$scope.tmpIndicatorReference_referenceDescription = undefined;
 
 			setTimeout(() => {
-				$scope.$apply();
+				$scope.$digest();
 			}, 250);
 		};
 
@@ -361,7 +361,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			$scope.tmpIndicatorReference_referenceDescription = indicatorReference_adminView.referencedIndicatorDescription;
 
 			setTimeout(() => {
-				$scope.$apply();
+				$scope.$digest();
 			}, 250);
 		};
 
@@ -377,7 +377,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			}				
 
 			setTimeout(() => {
-				$scope.$apply();
+				$scope.$digest();
 			}, 250);
 		};
 
@@ -410,7 +410,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			$scope.tmpGeoresourceReference_referenceDescription = undefined;
 
 			setTimeout(() => {
-				$scope.$apply();
+				$scope.$digest();
 			}, 250);
 		};
 
@@ -420,7 +420,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			$scope.tmpGeoresourceReference_referenceDescription = georesourceReference_adminView.referencedGeoresourceDescription;
 
 			setTimeout(() => {
-				$scope.$apply();
+				$scope.$digest();
 			}, 250);
 		};
 
@@ -436,7 +436,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			}				
 
 			setTimeout(() => {
-				$scope.$apply();
+				$scope.$digest();
 			}, 250);
 		};
 
@@ -636,7 +636,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 						$scope.loadingData = false;
 
 						setTimeout(() => {
-							$scope.$apply();
+							$scope.$digest();
 						}, 250);
 			  });
 
@@ -677,7 +677,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 					document.getElementById("indicatorsAddMetadataPre").innerHTML = $scope.indicatorMetadataStructure_pretty;
 					$("#indicatorAddMetadataImportErrorAlert").show();
 
-					$scope.$apply();
+					$scope.$digest();
 				}
 
 			};
@@ -696,7 +696,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 				document.getElementById("indicatorsAddMetadataPre").innerHTML = $scope.indicatorMetadataStructure_pretty;
 				$("#indicatorAddMetadataImportErrorAlert").show();
 
-				$scope.$apply();
+				$scope.$digest();
 			}
 
 				$scope.metadata = {};
@@ -858,7 +858,7 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 					}
 				}
 
-				$scope.$apply();
+				$scope.$digest();
 		};
 
 		$scope.onExportIndicatorAddMetadataTemplate = function(){

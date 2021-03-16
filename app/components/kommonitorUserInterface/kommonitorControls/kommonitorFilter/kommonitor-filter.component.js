@@ -193,7 +193,7 @@ angular
 								});
 
 								kommonitorMapService.restyleCurrentLayer();
-								$scope.$apply();
+								$scope.$digest();
 							}
 
 

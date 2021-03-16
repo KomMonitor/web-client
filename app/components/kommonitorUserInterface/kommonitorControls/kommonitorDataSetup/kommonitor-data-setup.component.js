@@ -99,7 +99,7 @@ angular
 										kommonitorDataExchangeService.selectedIndicatorBackup = kommonitorDataExchangeService.selectedIndicator;
 									}
 
-									// $scope.$apply();
+									// $scope.$digest();
 								};
 
 								this.unsetTopic = function(){
@@ -115,7 +115,7 @@ angular
 										kommonitorDataExchangeService.selectedIndicator = kommonitorDataExchangeService.selectedIndicatorBackup;
 									}
 
-									// $scope.$apply();
+									// $scope.$digest();
 								};
 
 								$scope.filterGeoresourcesByIndicator = function() {
@@ -241,7 +241,7 @@ angular
 									$scope.selectedDate = date.getFullYear() + "-" + month  + "-" + day;
 									kommonitorDataExchangeService.selectedDate = $scope.selectedDate;
 
-									$scope.$apply();
+									$scope.$digest();
 								};
 
 								$scope.$on("initialMetadataLoadingFailed", function (event, errorArray) {
@@ -723,7 +723,7 @@ angular
 
 										$scope.loadingData = false;
 										$rootScope.$broadcast("hideLoadingIconOnMap");
-										$scope.$apply();
+										$scope.$digest();
 									}
 								}
 
@@ -823,7 +823,7 @@ angular
 
 															kommonitorDataExchangeService.wmsUrlForSelectedIndicator = indicatorWmsUrl;
 															kommonitorDataExchangeService.wfsUrlForSelectedIndicator = indicatorWfsUrl;
-															$scope.$apply();
+															$scope.$digest();
 
 								});
 

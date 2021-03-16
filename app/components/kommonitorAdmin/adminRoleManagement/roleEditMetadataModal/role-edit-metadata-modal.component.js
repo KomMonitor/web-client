@@ -42,7 +42,7 @@ angular.module('roleEditMetadataModal').component('roleEditMetadataModal', {
 			$("#roleEditMetadataErrorAlert").hide();
 
 			setTimeout(() => {
-				$scope.$apply();
+				$scope.$digest();
 			}, 250);
 		};
 

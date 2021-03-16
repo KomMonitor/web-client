@@ -123,7 +123,7 @@ angular
 						
 
 						$timeout(function(){
-							$scope.$apply();
+							$scope.$digest();
 							self.filterDisplayedIndicatorsOnRadar();
 						}, 500);
 						
@@ -371,7 +371,7 @@ angular
 							$scope.radarChart.hideLoading();
 							setTimeout(function () {
 								$scope.radarChart.resize();
-								$scope.$apply();
+								$scope.$digest();
 							}, 350);
 							registerEventsIfNecessary();
 

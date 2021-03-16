@@ -158,7 +158,7 @@ angular.module('scriptPromille').component('scriptPromille', {
 				$scope.resetComputationFormulaAndLegend();
 
 				$timeout(() => {
-					$scope.$apply();
+					$scope.$digest();
 				});
 			};
 
@@ -181,7 +181,7 @@ angular.module('scriptPromille').component('scriptPromille', {
 				$scope.resetComputationFormulaAndLegend();
 				
 				setTimeout(() => {
-					$scope.$apply();
+					$scope.$digest();
 				});
 			};
 	

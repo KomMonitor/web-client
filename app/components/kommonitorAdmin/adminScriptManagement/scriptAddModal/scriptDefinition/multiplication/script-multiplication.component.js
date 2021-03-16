@@ -127,7 +127,7 @@ angular.module('scriptMultiplication').component('scriptMultiplication', {
 				$scope.resetComputationFormulaAndLegend();
 
 				setTimeout(() => {
-					$scope.$apply();
+					$scope.$digest();
 				});
 			};
 
@@ -150,7 +150,7 @@ angular.module('scriptMultiplication').component('scriptMultiplication', {
 				$scope.resetComputationFormulaAndLegend();
 				
 				setTimeout(() => {
-					$scope.$apply();
+					$scope.$digest();
 				});
 			};
 	

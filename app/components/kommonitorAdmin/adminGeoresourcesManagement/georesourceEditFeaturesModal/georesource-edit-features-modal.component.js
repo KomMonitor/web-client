@@ -199,7 +199,7 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 			$("#georesourceEditFeaturesErrorAlert").hide();
 
 			setTimeout(() => {
-				$scope.$apply();	
+				$scope.$digest();	
 			}, 250);
 		};
 
@@ -273,7 +273,7 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 			$scope.attributeMapping_attributeType = kommonitorImporterHelperService.attributeMapping_attributeTypes[0];
 
 			setTimeout(() => {
-				$scope.$apply();
+				$scope.$digest();
 			}, 250);
 		};
 
@@ -283,7 +283,7 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 			$scope.attributeMapping_attributeType = attributeMappingEntry.dataType;			
 
 			setTimeout(() => {
-				$scope.$apply();
+				$scope.$digest();
 			}, 250);
 		};
 
@@ -298,7 +298,7 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 			}				
 
 			setTimeout(() => {
-				$scope.$apply();
+				$scope.$digest();
 			}, 250);
 		};
 
@@ -421,7 +421,7 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 							$scope.loadingData = false;
 
 							setTimeout(() => {
-								$scope.$apply();
+								$scope.$digest();
 							}, 250);
 
 						}
@@ -440,7 +440,7 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 						$scope.loadingData = false;
 
 						setTimeout(() => {
-							$scope.$apply();
+							$scope.$digest();
 						}, 250);
 					}
 				}
@@ -481,7 +481,7 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 					document.getElementById("georesourcesEditFeaturesMappingConfigPre").innerHTML = $scope.georesourceMappingConfigStructure_pretty;
 					$("#georesourceEditFeaturesMappingConfigImportErrorAlert").show();
 
-					$scope.$apply();
+					$scope.$digest();
 				}
 
 			};
@@ -499,7 +499,7 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 				document.getElementById("georesourcesEditFeaturesMappingConfigPre").innerHTML = $scope.georesourceMappingConfigStructure_pretty;
 				$("#georesourceEditFeaturesMappingConfigImportErrorAlert").show();
 
-				$scope.$apply();
+				$scope.$digest();
 			}
 			
 			  $scope.converter = undefined;
@@ -527,7 +527,7 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 					}
 				}
 
-				$scope.$apply();
+				$scope.$digest();
 
 				// converter parameters
 				if ($scope.converter){
@@ -582,7 +582,7 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 					}
 				}				
 				
-				$scope.$apply();
+				$scope.$digest();
 		};
 
 		$scope.onExportGeoresourceEditFeaturesMappingConfig = async function(){

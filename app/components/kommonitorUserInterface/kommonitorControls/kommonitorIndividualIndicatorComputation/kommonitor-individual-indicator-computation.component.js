@@ -116,7 +116,7 @@ angular
 
 							$scope.targetDate = date.getFullYear() + "-" + month  + "-" + day;
 
-							$scope.$apply();
+							$scope.$digest();
 						};
 
 						var updateInputDisplay = function(input){
@@ -324,7 +324,7 @@ angular
 
 							// parameterNode.appendChild(parameterDiv);
 
-							// $scope.$apply();
+							// $scope.$digest();
 						};
 
 						$scope.getScriptMetadataForIndicatorId = function(indicatorId){
@@ -721,7 +721,7 @@ angular
 
 											$scope.prepareDownloadGeoJSON();
 
-											// $scope.$apply();
+											// $scope.$digest();
 										}
 
 									}, function errorCallback(error) {

@@ -395,7 +395,7 @@ angular
 						$scope.settings.routingEndPointInput = undefined;
 
 						setTimeout(function(){
-							$scope.$apply();
+							$scope.$digest();
 						}, 200);
 					};
 
@@ -598,7 +598,7 @@ angular
 						}
 
 						setTimeout(function(){
-								$scope.$apply();
+								$scope.$digest();
 						}, 150);
 					});
 
@@ -994,9 +994,12 @@ angular
 							.prepareDownloadGeoJSON();
 
 							$scope.settings.loadingData = false;
-							$rootScope.$broadcast('hideLoadingIconOnMap');
+							$timeout(function(){
+								$rootScope.$broadcast('hideLoadingIconOnMap');
+							}, 500);
+							
 
-							$scope.$apply();
+							$scope.$digest();
 
 							// setTimeout(function(){
 							//
@@ -1188,7 +1191,7 @@ angular
 								.then(function(result){
 										$scope.geosearchResults_startingPoint = result;
 
-										$scope.$apply();
+										$scope.$digest();
 								});
 
 				    }, 500);
@@ -1235,7 +1238,7 @@ angular
 								.then(function(result){
 										$scope.geosearchResults_endPoint = result;
 
-										$scope.$apply();
+										$scope.$digest();
 								});
 
 				    }, 500);
@@ -1306,7 +1309,7 @@ angular
 
 						// as method is async we may call angular digest cycle
 						setTimeout(() => {
-							$scope.$apply();
+							$scope.$digest();
 						}, 250);
 					};
 

@@ -104,7 +104,7 @@ angular
 
 									$timeout(function(){
 										$scope.setupCompleted = true;
-										$scope.$apply();
+										$scope.$digest();
 										$scope.onChangeSelectedIndicators();
 									}, 500);									
 
@@ -669,7 +669,7 @@ angular
 										$rootScope.$broadcast("preserveHighlightedFeatures");
 
 										setTimeout(function(){
-											$scope.$apply();
+											$scope.$digest();
 										}, 350);
 									}
 								};

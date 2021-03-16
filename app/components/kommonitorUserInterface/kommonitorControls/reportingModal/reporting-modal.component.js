@@ -269,7 +269,7 @@ angular.module('reportingModal').component('reportingModal', {
 			$($scope.allAddedIndicatorsConfig).each( (index, el) => {
 				el.tiles = {};
 			});
-			$scope.$apply();
+			$scope.$digest();
 
 
 			//iterate pages

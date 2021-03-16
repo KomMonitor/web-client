@@ -127,7 +127,7 @@ angular.module('scriptSum').component('scriptSum', {
 				$scope.resetComputationFormulaAndLegend();
 
 				setTimeout(() => {
-					$scope.$apply();
+					$scope.$digest();
 				});
 			};
 
@@ -150,7 +150,7 @@ angular.module('scriptSum').component('scriptSum', {
 				$scope.resetComputationFormulaAndLegend();
 				
 				setTimeout(() => {
-					$scope.$apply();
+					$scope.$digest();
 				});
 			};
 	

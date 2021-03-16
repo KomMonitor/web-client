@@ -670,6 +670,7 @@ angular.module('kommonitorMap').component(
         $scope.$on("hideLoadingIconOnMap", function (event) {
           // console.log("Hide loading icon on map");
           $scope.loadingData = false;
+
         });
 
         $(document).on('click', '#selectSpatialUnitViaInfoControl li p', function () {

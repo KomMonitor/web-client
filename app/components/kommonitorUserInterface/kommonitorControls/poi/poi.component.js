@@ -71,7 +71,7 @@ angular
 									}
 
 									setTimeout(() => {
-										$scope.$apply();
+										$scope.$digest();
 									}, 500);
 								};
 
@@ -84,7 +84,7 @@ angular
 									}
 
 									setTimeout(() => {
-										$scope.$apply();
+										$scope.$digest();
 									}, 500);
 								};
 
@@ -97,7 +97,7 @@ angular
 									}
 
 									setTimeout(() => {
-										$scope.$apply();
+										$scope.$digest();
 									}, 500);
 								};
 
@@ -110,7 +110,7 @@ angular
 									}
 
 									setTimeout(() => {
-										$scope.$apply();
+										$scope.$digest();
 									}, 500);
 								};
 
@@ -123,7 +123,7 @@ angular
 									}
 
 									setTimeout(() => {
-										$scope.$apply();
+										$scope.$digest();
 									}, 500);
 								};
 
