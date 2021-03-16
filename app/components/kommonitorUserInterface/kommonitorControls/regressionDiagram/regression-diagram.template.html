@@ -70,7 +70,7 @@
 																<tr ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime  | filter:indicatorNameFilterForXAxis'>
 																	<td>
 																		<div class="radio" style="margin-top: 0px; margin-bottom: 0px;">
-																			<label><input type="radio" name="regressionX" ng-value="input" ng-model="selection.selectedIndicatorForXAxis" ng-change="onChangeSelectedIndicators()">{{input.indicatorMetadata.indicatorName}}</label>
+																			<label><input type="radio" name="regressionX" ng-value="input" ng-model="selection.selectedIndicatorForXAxis" ng-change="onChangeSelectedIndicators()">{{::input.indicatorMetadata.indicatorName}}</label>
 																		</div>
 																	</td>
 																	<td>
@@ -123,7 +123,7 @@
 																<tr ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime  | filter:indicatorNameFilterForYAxis'>
 																	<td>
 																		<div class="radio" style="margin-top: 0px; margin-bottom: 0px;">
-																			<label><input type="radio" name="regressionY" ng-value="input" ng-model="selection.selectedIndicatorForYAxis" ng-change="onChangeSelectedIndicators()">{{input.indicatorMetadata.indicatorName}}</label>
+																			<label><input type="radio" name="regressionY" ng-value="input" ng-model="selection.selectedIndicatorForYAxis" ng-change="onChangeSelectedIndicators()">{{::input.indicatorMetadata.indicatorName}}</label>
 																		</div>
 																	</td>
 																	<td>
@@ -184,7 +184,7 @@
 																<tr ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime  | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterCurrentlySelectedIndicator() | filter:indicatorNameFilterForXAxis'>
 																	<td>
 																		<div class="radio" style="margin-top: 0px; margin-bottom: 0px;">
-																			<label><input type="radio" name="regressionX" ng-value="input" ng-model="selection.selectedIndicatorForXAxis" ng-init="selection.selectedIndicatorForXAxis = input" ng-change="onChangeSelectedIndicators()">{{input.indicatorMetadata.indicatorName}}</label>
+																			<label><input type="radio" name="regressionX" ng-value="input" ng-model="selection.selectedIndicatorForXAxis" ng-init="selection.selectedIndicatorForXAxis = input" ng-change="onChangeSelectedIndicators()">{{::input.indicatorMetadata.indicatorName}}</label>
 																		</div>
 																	</td>
 																	<td>
@@ -237,7 +237,7 @@
 																<tr ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime  | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterBaseIndicatorsOfCurrentComputationIndicator() | filter:indicatorNameFilterForYAxis'>
 																	<td>
 																		<div class="radio" style="margin-top: 0px; margin-bottom: 0px;">
-																			<label><input type="radio" name="regressionY" ng-value="input" ng-model="selection.selectedIndicatorForYAxis" ng-init="selection.selectedIndicatorForYAxis = input" ng-change="onChangeSelectedIndicators()">{{input.indicatorMetadata.indicatorName}}</label>
+																			<label><input type="radio" name="regressionY" ng-value="input" ng-model="selection.selectedIndicatorForYAxis" ng-init="selection.selectedIndicatorForYAxis = input" ng-change="onChangeSelectedIndicators()">{{::input.indicatorMetadata.indicatorName}}</label>
 																		</div>
 																	</td>
 																	<td>
@@ -299,7 +299,7 @@
 																<tr ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime  | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterCurrentlySelectedIndicator() | filter:indicatorNameFilterForXAxis'>
 																	<td>
 																		<div class="radio" style="margin-top: 0px; margin-bottom: 0px;">
-																			<label><input type="radio" name="regressionX" ng-value="input" ng-model="selection.selectedIndicatorForXAxis" ng-init="selection.selectedIndicatorForXAxis = input" ng-change="onChangeSelectedIndicators()">{{input.indicatorMetadata.indicatorName}}</label>
+																			<label><input type="radio" name="regressionX" ng-value="input" ng-model="selection.selectedIndicatorForXAxis" ng-init="selection.selectedIndicatorForXAxis = input" ng-change="onChangeSelectedIndicators()">{{::input.indicatorMetadata.indicatorName}}</label>
 																		</div>
 																	</td>
 																	<td>
@@ -346,7 +346,7 @@
 																<tr ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime  | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterBaseIndicatorsOfCurrentHeadlineIndicator() | filter:indicatorNameFilterForYAxis'>
 																	<td>
 																		<div class="radio" style="margin-top: 0px; margin-bottom: 0px;">
-																			<label><input type="radio" name="regressionY" ng-value="input" ng-model="selection.selectedIndicatorForYAxis" ng-init="selection.selectedIndicatorForYAxis = input" ng-change="onChangeSelectedIndicators()">{{input.indicatorMetadata.indicatorName}}</label>
+																			<label><input type="radio" name="regressionY" ng-value="input" ng-model="selection.selectedIndicatorForYAxis" ng-init="selection.selectedIndicatorForYAxis = input" ng-change="onChangeSelectedIndicators()">{{::input.indicatorMetadata.indicatorName}}</label>
 																		</div>
 																	</td>
 																	<td>
