@@ -420,6 +420,7 @@ angular
 					this.clickedIndicatorFeatureNames = new Array();
 
 					this.availableIndicators = [];
+          this.displayableIndicators = [];
 
 					this.selectedIndicator;
           // backup used when switching themes --< this might make selectedIndicator undefined due to filtering list of theme-matching indicators
@@ -441,6 +442,7 @@ angular
 
 					this.setIndicators = function(indicatorsArray){
 						this.availableIndicators = indicatorsArray;
+            this.displayableIndicators = this.availableIndicators.filter(item => isDisplayableIndicator(item));
 					};
 
 
@@ -921,7 +923,7 @@ angular
             var indicatorTopics = this.availableTopics.filter(topic => topic.topicResource === "indicator");
             var topicsMap = this.buildTopicsMap(indicatorTopics);
 
-            var filteredIndicators = this.availableIndicators.filter(item => isDisplayableIndicator(item));
+            var filteredIndicators = this.displayableIndicators;
 
             if(indicatorNameFilter && indicatorNameFilter != ""){
               filteredIndicators = filterArrayObjectsByValue(filteredIndicators, indicatorNameFilter);									
@@ -971,7 +973,7 @@ angular
 
             var indicatorsMap = new Map();
 
-            var filteredIndicators = this.availableIndicators.filter(item => isDisplayableIndicator(item));
+            var filteredIndicators = this.displayableIndicators;
 
             for (const indicatorMetadata of filteredIndicators) {
               indicatorsMap.set(indicatorMetadata.indicatorId, indicatorMetadata);
@@ -1025,7 +1027,7 @@ angular
 
             var indicatorsMap = new Map();
 
-            var filteredIndicators = this.availableIndicators.filter(item => isDisplayableIndicator(item));
+            var filteredIndicators = this.displayableIndicators;
 
             for (const indicatorMetadata of filteredIndicators) {
               indicatorsMap.set(indicatorMetadata.indicatorId, indicatorMetadata);

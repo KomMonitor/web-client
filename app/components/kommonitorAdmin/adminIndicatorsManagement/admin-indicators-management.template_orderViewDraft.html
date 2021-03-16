@@ -86,7 +86,7 @@
 
 	                <tbody>
 					<tr
-						ng-repeat="indicatorDataset in availableIndicatorDatasets | filter:filterIndicators() | filter:filterIndicatorsByTopic() | filter:indicatorNameFilter">
+						ng-repeat="indicatorDataset in availableIndicatorDatasets">
 						<!-- <td><input type="checkbox" ng-model="indicatorDataset.isSelected"
 								ng-change="onChangeSelectindicatorDataset(indicatorDataset)"></input></td>
 						-->		
@@ -400,9 +400,6 @@
 								</div>
 							</div>
 
-
-							<!-- <div ng-repeat="indicatorMetadata in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators()  | filter:{topicReference:mainTopic.topicId}  | filter:indicatorNameFilter">
-							</div> -->
 						</div>
 						<!-- end main Topics -->
 

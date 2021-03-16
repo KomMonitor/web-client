@@ -440,11 +440,6 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			}, 250);
 		};
 
-		$scope.filterIndicators = function() {
-
-			return kommonitorDataExchangeService.filterIndicators();
-		};
-
 		$scope.onChangeCreationType = function(){
 			if($scope.indicatorCreationType.apiName === "COMPUTATION"){
 				$scope.enableLowestSpatialUnitSelect = true;

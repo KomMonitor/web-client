@@ -108,7 +108,7 @@ angular
       this.setupIndicatorPropertiesForCurrentSpatialUnitAndTime = function (filterBySameUnitAndSameTime) {
         this.indicatorPropertiesForCurrentSpatialUnitAndTime = [];
 
-        kommonitorDataExchangeService.availableIndicators.forEach(indicatorMetadata => {
+        kommonitorDataExchangeService.displayableIndicators.forEach(indicatorMetadata => {
           var targetYear = kommonitorDataExchangeService.selectedDate.split("-")[0];
           var indicatorCandidateYears = []
           indicatorMetadata.applicableDates.forEach((date, i) => {

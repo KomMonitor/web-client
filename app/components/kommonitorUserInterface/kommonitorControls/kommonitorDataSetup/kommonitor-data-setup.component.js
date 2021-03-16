@@ -166,35 +166,6 @@ angular
 								  };
 								};
 
-								$scope.filterIndicators = function() {
-
-									return kommonitorDataExchangeService.filterIndicators();
-								};
-
-								$scope.filterIndicatorsByTopic = function() {
-								  return function( item ) {
-
-										if(item.applicableDates == undefined || item.applicableDates.length === 0)
-											return false;
-
-										if (kommonitorDataExchangeService.selectedTopic){
-												if(!kommonitorDataExchangeService.selectedIndicator){
-													// kommonitorDataExchangeService.selectedIndicator = kommonitorDataExchangeService.selectedIndicator;
-													kommonitorDataExchangeService.selectedIndicator = kommonitorDataExchangeService.selectedIndicatorBackup;
-												}
-												// else{
-												// 	if(kommonitorDataExchangeService.selectedIndicatorBackup){
-												// 		kommonitorDataExchangeService.selectedIndicator = kommonitorDataExchangeService.selectedIndicatorBackup;
-												// 	}
-												// }
-												return item.applicableTopics.includes(kommonitorDataExchangeService.selectedTopic.topicName);
-										}
-
-
-										return true;
-								  };
-								};
-
 								$scope.filterSpatialUnitsByIndicator = function() {
 								  return function( item ) {
 
@@ -256,7 +227,7 @@ angular
 
 									console.log("Load an initial example indicator");
 
-									if (kommonitorDataExchangeService.availableIndicators == null || kommonitorDataExchangeService.availableIndicators == undefined || kommonitorDataExchangeService.availableIndicators.length === 0){
+									if (kommonitorDataExchangeService.displayableIndicators == null || kommonitorDataExchangeService.displayableIndicators == undefined || kommonitorDataExchangeService.displayableIndicators.length === 0){
 										console.error("Kein darstellbarer Indikator konnte gefunden werden.");
 
 										kommonitorDataExchangeService.displayMapApplicationError("Kein darstellbarer Indikator konnte gefunden werden.");										
@@ -269,9 +240,9 @@ angular
 									try{
 										var indicatorIndex = undefined;
 
-										for (var index=0; index < kommonitorDataExchangeService.availableIndicators.length; index++){
-											if (kommonitorDataExchangeService.availableIndicators[index].indicatorId === initialIndicatorId){
-												if(kommonitorDataExchangeService.availableIndicators[index].applicableDates.length > 0){
+										for (var index=0; index < kommonitorDataExchangeService.displayableIndicators.length; index++){
+											if (kommonitorDataExchangeService.displayableIndicators[index].indicatorId === initialIndicatorId){
+												if(kommonitorDataExchangeService.displayableIndicators[index].applicableDates.length > 0){
 													indicatorIndex = index;
 													break;
 												}											
@@ -281,8 +252,8 @@ angular
 										if( indicatorIndex === undefined){
 												for(var t=0; t < 75; t++){
 													
-													var randIndex = getRandomInt(0, kommonitorDataExchangeService.availableIndicators.length - 1);
-													if (kommonitorDataExchangeService.availableIndicators[randIndex].applicableDates.length > 0){
+													var randIndex = getRandomInt(0, kommonitorDataExchangeService.displayableIndicators.length - 1);
+													if (kommonitorDataExchangeService.displayableIndicators[randIndex].applicableDates.length > 0){
 														indicatorIndex = randIndex;
 														break;
 													}													
@@ -293,7 +264,7 @@ angular
 											throw Error();
 										}
 
-										kommonitorDataExchangeService.selectedIndicator = kommonitorDataExchangeService.availableIndicators[indicatorIndex];
+										kommonitorDataExchangeService.selectedIndicator = kommonitorDataExchangeService.displayableIndicators[indicatorIndex];
 										// create Backup which is used when currently selected indicator is filtered out in select
 										kommonitorDataExchangeService.selectedIndicatorBackup = kommonitorDataExchangeService.selectedIndicator;
 
@@ -730,7 +701,7 @@ angular
 								$scope.markAssociatedHierarchyElement = function(selectedIndicatorMetadata){
 									var selectedIndicatorId = selectedIndicatorMetadata.indicatorId;
 
-									for (var indicator of kommonitorDataExchangeService.availableIndicators) {
+									for (var indicator of kommonitorDataExchangeService.displayableIndicators) {
 										$("#indicatorHierarchyElement-" + indicator.indicatorId).removeClass('active');
 									}
 

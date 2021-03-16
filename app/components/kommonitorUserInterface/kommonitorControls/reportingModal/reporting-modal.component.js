@@ -525,7 +525,7 @@ angular.module('reportingModal').component('reportingModal', {
 			$scope.availableIndicators = [];
 			$scope.availableIndicatorsNames = [];
 
-			$scope.availableIndicators = kommonitorDataExchangeService.availableIndicators;
+			$scope.availableIndicators = kommonitorDataExchangeService.displayableIndicators;
 			//get names
 			$($scope.availableIndicators).each(function(index, indicator) {
 				$scope.availableIndicatorsNames.push(indicator.indicatorName);

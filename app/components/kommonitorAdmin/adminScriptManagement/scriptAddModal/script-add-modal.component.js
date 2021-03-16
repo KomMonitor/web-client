@@ -68,11 +68,6 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 				}, 1000);
 			};
 
-			$scope.filterIndicators = function () {
-
-				return kommonitorDataExchangeService.filterIndicators();
-			};
-
 			$scope.addScript = async function () {
 
 				$timeout(function () {

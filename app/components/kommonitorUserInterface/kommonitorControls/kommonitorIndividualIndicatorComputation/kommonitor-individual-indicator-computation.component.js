@@ -31,18 +31,6 @@ angular
 
 						$scope.dateSliderForComputation;
 
-						$scope.filterIndicators = function() {
-
-							return function(item){
-								if (item.indicatorName.includes("Erreichbar")){
-									return false;
-								}
-								else{
-									return kommonitorDataExchangeService.filterIndicators();
-								}
-							};
-						};
-
 						$scope.filterComputableIndicators = function() {
 							return function( item ) {
 
@@ -394,7 +382,7 @@ angular
 						};
 
 						$scope.fetchBaseIndicatorMetadata = function(baseIndicatorId){
-							for (const indicatorMetadata of kommonitorDataExchangeService.availableIndicators){
+							for (const indicatorMetadata of kommonitorDataExchangeService.displayableIndicators){
 								if(indicatorMetadata.indicatorId === baseIndicatorId)
 									return indicatorMetadata;
 							}

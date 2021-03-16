@@ -391,13 +391,6 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 			};
 	
 	
-	
-			$scope.filterIndicators = function() {
-	
-				return kommonitorDataExchangeService.filterIndicators();
-			};
-	
-	
 			$scope.getFeatureId = function(jsonFeature){
 				return jsonFeature[__env.FEATURE_ID_PROPERTY_NAME];
 			};

@@ -61,7 +61,7 @@
 										</th>
 									</thead>
 									<tbody>
-										<tr ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime | filter:filterIndicators() | filter:indicatorNameFilter'>
+										<tr ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime  | filter:indicatorNameFilter'>
 											<td>
 												<label class='checkbox-inline input-sm' ><input type="checkbox" value="input.indicatorMetadata.indicatorName" ng-model="input.isSelected" ng-change="$ctrl.filterDisplayedIndicatorsOnRadar()">{{input.indicatorMetadata.indicatorName}}  {{input.closestTimestamp}}</label>											
 											</td>
@@ -95,7 +95,7 @@
 										</th>
 									</thead>
 									<tbody>
-										<tr ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime | filter:filterIndicators() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterCurrentlySelectedIndicator() | filter:indicatorNameFilter'>
+										<tr ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime  | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterCurrentlySelectedIndicator() | filter:indicatorNameFilter'>
 											<td>
 												<label class='checkbox-inline input-sm' ><input type="checkbox" value="input.indicatorMetadata.indicatorName" ng-model="input.isSelected" ng-init="input.isSelected = true" ng-change="$ctrl.filterDisplayedIndicatorsOnRadar()">{{input.indicatorMetadata.indicatorName}}  {{input.closestTimestamp}}</label>											
 											</td>
@@ -110,7 +110,7 @@
 											</td>
 										
 										</tr>
-										<tr ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime | filter:filterIndicators() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterBaseIndicatorsOfCurrentComputationIndicator() | filter:indicatorNameFilter'>
+										<tr ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime  | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterBaseIndicatorsOfCurrentComputationIndicator() | filter:indicatorNameFilter'>
 											<td>
 												<label class='checkbox-inline input-sm' ><input type="checkbox" value="input.indicatorMetadata.indicatorName" ng-model="input.isSelected" ng-init="input.isSelected = true" ng-change="$ctrl.filterDisplayedIndicatorsOnRadar()">{{input.indicatorMetadata.indicatorName}}  {{input.closestTimestamp}}</label>											
 											</td>
@@ -147,7 +147,7 @@
 										</th>
 									</thead>
 									<tbody>
-										<tr ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime | filter:filterIndicators() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterCurrentlySelectedIndicator() | filter:indicatorNameFilter'>
+										<tr ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime  | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterCurrentlySelectedIndicator() | filter:indicatorNameFilter'>
 											<td>
 												<label class='checkbox-inline input-sm' ><input type="checkbox" value="input.indicatorMetadata.indicatorName" ng-model="input.isSelected" ng-init="input.isSelected = true" ng-change="$ctrl.filterDisplayedIndicatorsOnRadar()">{{input.indicatorMetadata.indicatorName}}  {{input.closestTimestamp}}</label>											
 											</td>
@@ -162,7 +162,7 @@
 											</td>
 										
 										</tr>
-										<tr ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime | filter:filterIndicators() | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterBaseIndicatorsOfCurrentHeadlineIndicator() | filter:indicatorNameFilter'>
+										<tr ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime  | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterBaseIndicatorsOfCurrentHeadlineIndicator() | filter:indicatorNameFilter'>
 											<td>
 												<label class='checkbox-inline input-sm' ><input type="checkbox" value="input.indicatorMetadata.indicatorName" ng-model="input.isSelected" ng-init="input.isSelected = true" ng-change="$ctrl.filterDisplayedIndicatorsOnRadar()">{{input.indicatorMetadata.indicatorName}}  {{input.closestTimestamp}}</label>											
 											</td>
