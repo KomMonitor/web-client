@@ -878,6 +878,15 @@ angular
 
                   console.log("Metadata fetched. Call initialize event.");
       						onMetadataLoadingCompleted();
+
+                  $timeout(function(){
+                    $('.list-group-item > .collapseTrigger').on('click', function() {
+                      $('.glyphicon', this)
+                        .toggleClass('glyphicon-chevron-right')
+                        .toggleClass('glyphicon-chevron-down');
+      
+                    });
+                  });
       				}, function errorCallback(errorArray) {
                 // todo error handling
                 self.displayMapApplicationError("Beim Laden der erforderlichen Anwendungsdaten ist ein Fehler aufgetreten. Bitte wenden Sie sich an Ihren Administrator.");
@@ -973,7 +982,19 @@ angular
 
             this.buildTopicIndicatorHierarchy();
             this.buildHeadlineIndicatorHierarchy();
-            // this.buildComputationIndicatorHierarchy();            
+            // this.buildComputationIndicatorHierarchy();   
+            
+            // $timeout(function(){
+              
+            //   $('.list-group-item > .collapseTrigger').on('click', function() {
+            //     $('.glyphicon', this)
+            //       .toggleClass('glyphicon-chevron-right')
+            //       .toggleClass('glyphicon-chevron-down');
+
+            //   });
+
+
+            // }, 1000);
           };
 
           this.buildHeadlineIndicatorHierarchy = function(){
