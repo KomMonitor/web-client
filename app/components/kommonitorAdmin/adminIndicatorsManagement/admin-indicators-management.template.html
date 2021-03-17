@@ -113,11 +113,11 @@
 						<td >{{::indicatorDataset.characteristicValue}}</td>
 						<td >{{::indicatorDataset.creationType}}</td>
 						<td >{{::indicatorDataset.unit}}</td>
-						<td ng-bind-html="indicatorDataset.metadata.description"></td>
-						<td ng-bind-html="indicatorDataset.interpretation"></td>
+						<td ng-bind-html="::indicatorDataset.metadata.description"></td>
+						<td ng-bind-html="::indicatorDataset.interpretation"></td>
 						<td mathjax-bind="indicatorDataset.processDescription"></td>
-						<td ng-bind-html="indicatorDataset.metadata.datasource"></td>
-						<td ng-bind-html="indicatorDataset.metadata.databasis"></td>
+						<td ng-bind-html="::indicatorDataset.metadata.datasource"></td>
+						<td ng-bind-html="::indicatorDataset.metadata.databasis"></td>
 						<td >{{::indicatorDataset.tags}}</td>
 						<td><p>{{::
 							$ctrl.kommonitorDataExchangeServiceInstance.getTopicHierarchyDisplayString(indicatorDataset.topicReference)}}</p></td>
@@ -150,12 +150,12 @@
 								</li>
 							</ul>
 						</td>						 -->
-						<td ng-bind-html="indicatorDataset.metadata.contact"></td>
+						<td ng-bind-html="::indicatorDataset.metadata.contact"></td>
 						<td>{{::indicatorDataset.metadata.lastUpdate}}</td>
 						<td>EPSG:{{::indicatorDataset.metadata.sridEPSG}}</td>
 						<td>{{::indicatorDataset.metadata.updateInterval}}</td>
-						<td ng-bind-html="indicatorDataset.metadata.literature"></td>
-						<td ng-bind-html="indicatorDataset.metadata.note"></td>
+						<td ng-bind-html="::indicatorDataset.metadata.literature"></td>
+						<td ng-bind-html="::indicatorDataset.metadata.note"></td>
 						<td>{{::indicatorDataset.lowestSpatialUnitForComputation}}</td>
 						<td>
 							ColorBrewerSchemaName: {{::indicatorDataset.defaultClassificationMapping.colorBrewerSchemeName}}

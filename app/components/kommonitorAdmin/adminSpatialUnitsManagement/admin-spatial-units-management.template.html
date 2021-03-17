@@ -86,17 +86,17 @@
 												</li>
 											</ul>
 										</td>
-										<td ng-bind-html="spatialUnitDataset.metadata.description"></td>
-										<td ng-bind-html="spatialUnitDataset.metadata.note"></td>
-										<td ng-bind-html="spatialUnitDataset.metadata.databasis"></td>
-										<td ng-bind-html="spatialUnitDataset.metadata.datasource"></td>
-										<td ng-bind-html="spatialUnitDataset.metadata.contact"></td>
+										<td ng-bind-html="::spatialUnitDataset.metadata.description"></td>
+										<td ng-bind-html="::spatialUnitDataset.metadata.note"></td>
+										<td ng-bind-html="::spatialUnitDataset.metadata.databasis"></td>
+										<td ng-bind-html="::spatialUnitDataset.metadata.datasource"></td>
+										<td ng-bind-html="::spatialUnitDataset.metadata.contact"></td>
 										<td>{{::spatialUnitDataset.metadata.lastUpdate}}</td>
 										<td>EPSG:{{::spatialUnitDataset.metadata.sridEPSG}}</td>
 										<td>{{::spatialUnitDataset.metadata.updateInterval}}</td>
-										<td ng-bind-html="spatialUnitDataset.metadata.literature"></td>
-										<td ng-bind-html="spatialUnitDataset.wmsUrl"></td>
-										<td ng-bind-html="spatialUnitDataset.wfsUrl"></td>
+										<td ng-bind-html="::spatialUnitDataset.metadata.literature"></td>
+										<td ng-bind-html="::spatialUnitDataset.wmsUrl"></td>
+										<td ng-bind-html="::spatialUnitDataset.wfsUrl"></td>
 	                </tr>
 
 	                </tbody>
