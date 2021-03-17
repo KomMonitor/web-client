@@ -244,7 +244,7 @@
 																	class="list-group-item list-group-item-default style-simple-indicator"
 																	ng-repeat="baseIndicatorMetadata in headlineIndicatorHierarchyItem.baseIndicators  | filter:indicatorNameFilter track by baseIndicatorMetadata.indicatorId" >
 																	<div>
-																		<p style="cursor:pointer; color: black;" ng-attr-title="<b>{{baseIndicatorMetadata.indicatorName}}</b> [{{baseIndicatorMetadata.unit}}]" ng-click="onClickHierarchyIndicator(baseIndicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{baseIndicatorMetadata.indicatorName}}</b> [{{baseIndicatorMetadata.unit}}]</p>
+																		<p style="cursor:pointer; color: black;" ng-attr-title="<b>{{::baseIndicatorMetadata.indicatorName}}</b> [{{::baseIndicatorMetadata.unit}}]" ng-click="onClickHierarchyIndicator(baseIndicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{::baseIndicatorMetadata.indicatorName}}</b> [{{::baseIndicatorMetadata.unit}}]</p>
 																
 																	</div> 
 																</div>
@@ -309,7 +309,7 @@
 																	class="list-group-item list-group-item-default style-simple-indicator"
 																	ng-repeat="baseIndicatorMetadata in computationIndicatorHierarchyItem.baseIndicators  | filter:indicatorNameFilter track by baseIndicatorMetadata.indicatorId" >
 																	<div>
-																		<p style="cursor:pointer; color: black;" ng-attr-title="<b>{{baseIndicatorMetadata.indicatorName}}</b> [{{baseIndicatorMetadata.unit}}]" ng-click="onClickHierarchyIndicator(baseIndicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{baseIndicatorMetadata.indicatorName}}</b> [{{baseIndicatorMetadata.unit}}]</p>
+																		<p style="cursor:pointer; color: black;" ng-attr-title="<b>{{::baseIndicatorMetadata.indicatorName}}</b> [{{::baseIndicatorMetadata.unit}}]" ng-click="onClickHierarchyIndicator(baseIndicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{::baseIndicatorMetadata.indicatorName}}</b> [{{::baseIndicatorMetadata.unit}}]</p>
 																
 																	</div> 
 																</div>
