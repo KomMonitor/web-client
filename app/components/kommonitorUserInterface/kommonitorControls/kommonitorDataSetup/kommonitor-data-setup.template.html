@@ -226,7 +226,7 @@
 
 														<label> Leitindikatoren und ihre Basis-Indikatoren </label>
 
-														<div ng-repeat="headlineIndicatorHierarchyItem in $ctrl.kommonitorDataExchangeServiceInstance.headlineIndicatorHierarchy | filter:indicatorNameFilter track by headlineIndicatorHierarchyItem.headlineIndicator.indicatorId">
+														<div ng-repeat="headlineIndicatorHierarchyItem in $ctrl.kommonitorDataExchangeServiceInstance.headlineIndicatorHierarchy track by headlineIndicatorHierarchyItem.headlineIndicator.indicatorId">
 															<div  class="list-group-item list-group-item-default" style="background: #2171b5; color: white;">
 																<a href="" ng-attr-title="{{::headlineIndicatorHierarchyItem.headlineIndicator.metadata.description}}" class="collapseTrigger" style="color: white;" ng-click="isCollapsed_headlineIndicatorHierarchyItem = !isCollapsed_headlineIndicatorHierarchyItem" ng-init="isCollapsed_headlineIndicatorHierarchyItem=true"><i class="glyphicon glyphicon-chevron-right"></i>{{::headlineIndicatorHierarchyItem.headlineIndicator.indicatorName}} </a>
 															</div>
@@ -242,7 +242,7 @@
 
 																<div 
 																	class="list-group-item list-group-item-default style-simple-indicator"
-																	ng-repeat="baseIndicatorMetadata in headlineIndicatorHierarchyItem.baseIndicators  | filter:indicatorNameFilter track by baseIndicatorMetadata.indicatorId" >
+																	ng-repeat="::baseIndicatorMetadata in headlineIndicatorHierarchyItem.baseIndicators track by baseIndicatorMetadata.indicatorId" >
 																	<div>
 																		<p style="cursor:pointer; color: black;" ng-attr-title="<b>{{::baseIndicatorMetadata.indicatorName}}</b> [{{::baseIndicatorMetadata.unit}}]" ng-click="onClickHierarchyIndicator(baseIndicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{::baseIndicatorMetadata.indicatorName}}</b> [{{::baseIndicatorMetadata.unit}}]</p>
 																
@@ -265,7 +265,7 @@
 													<select style="font-size: 12px;"
 														size="30" class="form-control" required>
 														<option disabled selected value> -- Indikator w&auml;hlen -- </option>
-														<option ng-repeat="indicatorMetadata in $ctrl.kommonitorDataExchangeServiceInstance.displayableIndicators  | filter:indicatorNameFilter track by indicatorMetadata.indicatorId"
+														<option ng-repeat="indicatorMetadata in $ctrl.kommonitorDataExchangeServiceInstance.displayableIndicators_keywordFiltered track by indicatorMetadata.indicatorId"
 														ng-click="onChangeSelectedIndicator_fromAlphabeticalList(indicatorMetadata)"> {{::indicatorMetadata.indicatorName}} [{{::indicatorMetadata.unit}}] </option>
 													</select>
 												</div>
@@ -291,7 +291,7 @@
 
 														<label> von KomMonitor berechnete Ziel-Indikatoren und ihre Basis-Indikatoren </label>
 
-														<div ng-repeat="computationIndicatorHierarchyItem in $ctrl.kommonitorDataExchangeServiceInstance.computationIndicatorHierarchy | filter:indicatorNameFilter track by computationIndicatorHierarchyItem.computationIndicator.indicatorId">
+														<div ng-repeat="computationIndicatorHierarchyItem in $ctrl.kommonitorDataExchangeServiceInstance.computationIndicatorHierarchy track by computationIndicatorHierarchyItem.computationIndicator.indicatorId">
 															<div  class="list-group-item list-group-item-default" style="background: #2171b5; color: white;">
 																<a href="" ng-attr-title="{{::computationIndicatorHierarchyItem.computationIndicator.metadata.description}}" class="collapseTrigger" style="color: white;" ng-click="isCollapsed_computationIndicatorHierarchyItem = !isCollapsed_computationIndicatorHierarchyItem" ng-init="isCollapsed_computationIndicatorHierarchyItem=true"><i class="glyphicon glyphicon-chevron-right"></i>{{::computationIndicatorHierarchyItem.computationIndicator.indicatorName}} </a>
 															</div>
@@ -307,7 +307,7 @@
 
 																<div 
 																	class="list-group-item list-group-item-default style-simple-indicator"
-																	ng-repeat="baseIndicatorMetadata in computationIndicatorHierarchyItem.baseIndicators  | filter:indicatorNameFilter track by baseIndicatorMetadata.indicatorId" >
+																	ng-repeat="baseIndicatorMetadata in computationIndicatorHierarchyItem.baseIndicators track by baseIndicatorMetadata.indicatorId" >
 																	<div>
 																		<p style="cursor:pointer; color: black;" ng-attr-title="<b>{{::baseIndicatorMetadata.indicatorName}}</b> [{{::baseIndicatorMetadata.unit}}]" ng-click="onClickHierarchyIndicator(baseIndicatorMetadata)"><i class="fas fa-sitemap"></i> &nbsp;&nbsp;<b>{{::baseIndicatorMetadata.indicatorName}}</b> [{{::baseIndicatorMetadata.unit}}]</p>
 																

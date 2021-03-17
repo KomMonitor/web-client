@@ -445,6 +445,7 @@ angular
 					this.setIndicators = function(indicatorsArray){
 						this.availableIndicators = indicatorsArray;
             this.displayableIndicators = this.availableIndicators.filter(item => isDisplayableIndicator(item));
+            this.displayableIndicators_keywordFiltered = JSON.parse(JSON.stringify(this.displayableIndicators));
 					};
 
 
@@ -871,9 +872,9 @@ angular
                   self.modifyIndicatorApplicableSpatialUnitsForLoginRoles();
 
                   self.buildHeadlineIndicatorHierarchy();
-                  self.buildTopicIndicatorHierarchy(null);
+                  self.buildTopicIndicatorHierarchy();
                   self.topicIndicatorHierarchy_forOrderView = JSON.parse(JSON.stringify(self.topicIndicatorHierarchy));
-                  self.buildComputationIndicatorHierarchy();
+                  // self.buildComputationIndicatorHierarchy();
 
                   console.log("Metadata fetched. Call initialize event.");
       						onMetadataLoadingCompleted();
@@ -920,16 +921,12 @@ angular
             return topicsMap;
           };
 
-          this.buildTopicIndicatorHierarchy = function(indicatorNameFilter){
+          this.buildTopicIndicatorHierarchy = function(){
 
             var indicatorTopics = this.availableTopics.filter(topic => topic.topicResource === "indicator");
             var topicsMap = this.buildTopicsMap(indicatorTopics);
 
-            var filteredIndicators = this.displayableIndicators;
-
-            if(indicatorNameFilter && indicatorNameFilter != ""){
-              filteredIndicators = filterArrayObjectsByValue(filteredIndicators, indicatorNameFilter);									
-            }
+            var filteredIndicators = this.displayableIndicators_keywordFiltered;
 
             for (const indicatorMetadata of filteredIndicators) {
               if (topicsMap.has(indicatorMetadata.topicReference)){
@@ -968,14 +965,22 @@ angular
           };
 
           this.onChangeIndicatorKeywordFilter = function(indicatorNameFilter){
-            this.buildTopicIndicatorHierarchy(indicatorNameFilter);            
+            this.displayableIndicators_keywordFiltered = JSON.parse(JSON.stringify(this.displayableIndicators));
+
+            if(indicatorNameFilter && indicatorNameFilter != ""){
+              this.displayableIndicators_keywordFiltered = filterArrayObjectsByValue(this.displayableIndicators_keywordFiltered, indicatorNameFilter);									
+            }
+
+            this.buildTopicIndicatorHierarchy();
+            this.buildHeadlineIndicatorHierarchy();
+            // this.buildComputationIndicatorHierarchy();            
           };
 
           this.buildHeadlineIndicatorHierarchy = function(){
 
             var indicatorsMap = new Map();
 
-            var filteredIndicators = this.displayableIndicators;
+            var filteredIndicators = this.displayableIndicators_keywordFiltered;
 
             for (const indicatorMetadata of filteredIndicators) {
               indicatorsMap.set(indicatorMetadata.indicatorId, indicatorMetadata);
@@ -1029,7 +1034,7 @@ angular
 
             var indicatorsMap = new Map();
 
-            var filteredIndicators = this.displayableIndicators;
+            var filteredIndicators = this.displayableIndicators_keywordFiltered;
 
             for (const indicatorMetadata of filteredIndicators) {
               indicatorsMap.set(indicatorMetadata.indicatorId, indicatorMetadata);
