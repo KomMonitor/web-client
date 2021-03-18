@@ -150,9 +150,9 @@
 										ng-change="handleShowAllOnTopic(mainTopic)">
 								</div>
 
-
-								<div ng-repeat="subTopic in mainTopic.subTopics" class="list-group collapse"
-									uib-collapse="isCollapsed_mainTopic">
+								<div class="list-group collapse"
+								uib-collapse="isCollapsed_mainTopic">
+								<div ng-repeat="subTopic in ::mainTopic.subTopics" >
 
 									<div class="list-group-item list-group-item-default"
 										style="background: #6baed6; color: white;">
@@ -167,8 +167,9 @@
 											ng-change="handleShowAllOnTopic(subTopic)">
 									</div>
 
-									<div ng-repeat="subsubTopic in subTopic.subTopics" class="list-group collapse"
-										uib-collapse="isCollapsed_subTopic">
+									<div class="list-group collapse"
+									uib-collapse="isCollapsed_subTopic">
+									<div ng-repeat="subsubTopic in ::subTopic.subTopics" >
 
 										<div class="list-group-item list-group-item-default"
 											style="background: #bdd7e7; color: white;">
@@ -184,8 +185,8 @@
 												ng-change="handleShowAllOnTopic(subsubTopic)">
 										</div>
 
-										<div ng-repeat="subsubsubTopic in subsubTopic.subTopics"
-											class="list-group collapse" uib-collapse="isCollapsed_subsubTopic">
+										<div class="list-group collapse" uib-collapse="isCollapsed_subsubTopic">
+											<div ng-repeat="subsubsubTopic in ::subsubTopic.subTopics">
 
 											<div class="list-group-item list-group-item-default"
 												style="background: #eff3ff; color: white;">
@@ -202,7 +203,7 @@
 											</div>
 
 											<div class="list-group collapse" uib-collapse="isCollapsed_subsubsubTopic">
-												<div ng-if="subsubsubTopic.totalCount > 0"
+												<div ng-if="subsubsubTopic.ownCount > 0"
 													class="list-group-item list-group-item-default georesourceInputForm">
 
 													<table class="table table-condensed " style="margin-bottom:0px;">
@@ -223,7 +224,7 @@
 														<tbody>
 
 															<!-- POIs -->
-															<tr ng-repeat='::poi in subsubsubTopic.poiData '>
+															<tr ng-repeat='poi in ::subsubsubTopic.poiData '>
 																<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 																<td>
 																	<i class="fas fa-map-marker-alt"></i>
@@ -286,7 +287,7 @@
 															</tr>
 
 															<!-- LOIs -->
-															<tr ng-repeat='loi in subsubsubTopic.loiData'>
+															<tr ng-repeat='loi in ::subsubsubTopic.loiData'>
 																<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 																<td>
 																	<i class="fas fa-minus"></i>
@@ -346,7 +347,7 @@
 															</tr>
 
 															<!-- AOIs -->
-															<tr ng-repeat='aoi in subsubsubTopic.aoiData'>
+															<tr ng-repeat='aoi in ::subsubsubTopic.aoiData'>
 																<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 																<td>
 																	<i class="far fa-square"></i>
@@ -404,7 +405,7 @@
 															</tr>
 
 															<!-- WMS -->
-															<tr ng-repeat='dataset in subsubsubTopic.wmsData'>
+															<tr ng-repeat='dataset in ::subsubsubTopic.wmsData'>
 																<td>
 																	<b><i>WMS</i></b>
 																</td>
@@ -458,7 +459,7 @@
 															</tr>
 
 															<!-- WFS -->
-															<tr ng-repeat='dataset in subsubsubTopic.wfsData '>
+															<tr ng-repeat='dataset in ::subsubsubTopic.wfsData '>
 																<td>
 																	<b><i>WFS</i></b>
 																</td>
@@ -561,9 +562,9 @@
 										<!-- end sub sub sub topics -->
 
 
-										<div class="list-group collapse" uib-collapse="isCollapsed_subsubTopic">
+										<div class="list-group" >
 											<div class="list-group-item list-group-item-default georesourceInputForm"
-											ng-if="subsubTopic.totalCount > 0">
+											ng-if="subsubTopic.ownCount > 0">
 
 												<table class="table table-condensed " style="margin-bottom:0px;">
 													<thead>
@@ -583,7 +584,7 @@
 													<tbody>
 
 														<!-- POIs -->
-														<tr ng-repeat='::poi in subsubTopic.poiData '>
+														<tr ng-repeat='poi in ::subsubTopic.poiData '>
 															<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 															<td>
 																<i class="fas fa-map-marker-alt"></i>
@@ -645,7 +646,7 @@
 														</tr>
 
 														<!-- LOIs -->
-														<tr ng-repeat='loi in subsubtopic.loiData'>
+														<tr ng-repeat='loi in ::subsubTopic.loiData'>
 															<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 															<td>
 																<i class="fas fa-minus"></i>
@@ -704,7 +705,7 @@
 														</tr>
 
 														<!-- AOIs -->
-														<tr ng-repeat='aoi in subsubTopic.aoiData'>
+														<tr ng-repeat='aoi in ::subsubTopic.aoiData'>
 															<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 															<td>
 																<i class="far fa-square"></i>
@@ -761,7 +762,7 @@
 														</tr>
 
 														<!-- WMS -->
-														<tr ng-repeat='dataset in subsubTopic.wmsData'>
+														<tr ng-repeat='dataset in ::subsubTopic.wmsData'>
 															<td>
 																<b><i>WMS</i></b>
 															</td>
@@ -815,7 +816,7 @@
 														</tr>
 
 														<!-- WFS -->
-														<tr ng-repeat='dataset in subsubTopic.wfsData '>
+														<tr ng-repeat='dataset in ::subsubTopic.wfsData '>
 															<td>
 																<b><i>WFS</i></b>
 															</td>
@@ -911,17 +912,16 @@
 
 											</div>
 										</div>
-
-
+										</div>
 
 									</div>
 									<!-- end sub sub opics -->
 
 
 
-									<div class="list-group collapse" uib-collapse="isCollapsed_subTopic">
+									<div class="list-group" >
 										<div class="list-group-item list-group-item-default georesourceInputForm"
-										ng-if="subTopic.totalCount > 0">
+										ng-if="subTopic.ownCount > 0">
 
 											<table class="table table-condensed " style="margin-bottom:0px;">
 												<thead>
@@ -941,7 +941,7 @@
 												<tbody>
 
 													<!-- POIs -->
-													<tr ng-repeat='poi in subTopic.poiData '>
+													<tr ng-repeat='poi in ::subTopic.poiData '>
 														<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 														<td>
 															<i class="fas fa-map-marker-alt"></i>
@@ -1001,7 +1001,7 @@
 													</tr>
 
 													<!-- LOIs -->
-													<tr ng-repeat='loi in subTopic.loiData'>
+													<tr ng-repeat='loi in ::subTopic.loiData'>
 														<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 														<td>
 															<i class="fas fa-minus"></i>
@@ -1057,7 +1057,7 @@
 													</tr>
 
 													<!-- AOIs -->
-													<tr ng-repeat='aoi in subTopic.aoiData '>
+													<tr ng-repeat='aoi in ::subTopic.aoiData '>
 														<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 														<td>
 															<i class="far fa-square"></i>
@@ -1111,7 +1111,7 @@
 													</tr>
 
 													<!-- WMS -->
-													<tr ng-repeat='dataset in subTopic.wmsData'>
+													<tr ng-repeat='dataset in ::subTopic.wmsData'>
 														<td>
 															<b><i>WMS</i></b>
 														</td>
@@ -1164,7 +1164,7 @@
 													</tr>
 
 													<!-- WFS -->
-													<tr ng-repeat='dataset in subTopic.wfsData'>
+													<tr ng-repeat='dataset in ::subTopic.wfsData'>
 														<td>
 															<b><i>WFS</i></b>
 														</td>
@@ -1259,15 +1259,16 @@
 
 										</div>
 									</div>
+									</div>
 
 
 
 
 								</div>
 								<!-- end sub topics -->
-								<div class="list-group collapse" uib-collapse="isCollapsed_mainTopic">
+								<div class="list-group" >
 									<div class="list-group-item list-group-item-default georesourceInputForm"
-									ng-if="mainTopic.totalCount > 0">
+									ng-if="mainTopic.ownCount > 0">
 
 										<table class="table table-condensed " style="margin-bottom:0px;">
 											<thead>
@@ -1287,7 +1288,7 @@
 											<tbody>
 
 												<!-- POIs -->
-												<tr ng-repeat='poi in mainTopic.poiData'>
+												<tr ng-repeat='poi in ::mainTopic.poiData'>
 													<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 													<td>
 														<i class="fas fa-map-marker-alt"></i>
@@ -1347,7 +1348,7 @@
 												</tr>
 
 												<!-- LOIs -->
-												<tr ng-repeat='loi in mainTopic.loiData '>
+												<tr ng-repeat='loi in ::mainTopic.loiData '>
 													<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 													<td>
 														<i class="fas fa-minus"></i>
@@ -1403,7 +1404,7 @@
 												</tr>
 
 												<!-- AOIs -->
-												<tr ng-repeat='aoi in mainTopic.aoiData'>
+												<tr ng-repeat='aoi in ::mainTopic.aoiData'>
 													<!-- <span style="font-size:1.8em;" class="glyphicon glyphicon-th" aria-hidden="true"></span> -->
 													<td>
 														<i class="far fa-square"></i>
@@ -1458,7 +1459,7 @@
 												</tr>
 
 												<!-- WMS -->
-												<tr ng-repeat='dataset in mainTopic.wmsData'>
+												<tr ng-repeat='dataset in ::mainTopic.wmsData'>
 													<td>
 														<b><i>WMS</i></b>
 													</td>
@@ -1511,7 +1512,7 @@
 												</tr>
 
 												<!-- WFS -->
-												<tr ng-repeat='dataset in mainTopic.wfsData'>
+												<tr ng-repeat='dataset in ::mainTopic.wfsData'>
 													<td>
 														<b><i>WFS</i></b>
 													</td>
@@ -1603,6 +1604,7 @@
 										</table>
 
 									</div>
+								</div>
 								</div>
 
 								<!-- <div ng-repeat="georesourceMetadata in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources  | filter:{topicReference:mainTopic.topicId} ">

@@ -1154,6 +1154,7 @@ angular
               topic.wfsCount = topicsDataEntry.wfsDatasets.length;
 
               topic.totalCount = topic.poiCount + topic.loiCount + topic.aoiCount + topic.wmsCount + topic.wfsCount;
+              topic.ownCount = topic.poiCount + topic.loiCount + topic.aoiCount + topic.wmsCount + topic.wfsCount;
 
               if(topic.subTopics.length > 0){
                 topic = this.addGeoresourceDataToSubTopics(topic, topicsMap);
@@ -1207,7 +1208,7 @@ angular
               subTopic.wfsCount = topicsDataEntry.wfsDatasets.length;
 
               subTopic.totalCount = subTopic.poiCount + subTopic.loiCount + subTopic.aoiCount + subTopic.wmsCount + subTopic.wfsCount;
-
+              subTopic.ownCount = subTopic.poiCount + subTopic.loiCount + subTopic.aoiCount + subTopic.wmsCount + subTopic.wfsCount;
 
               if(subTopic.subTopics.length > 0){
                 subTopic = this.addGeoresourceDataToSubTopics(subTopic, topicsMap);
