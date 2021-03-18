@@ -193,7 +193,7 @@
 							</div>
 							<div ng-if="containsNoData">
 								<div class="row" style="margin-right: 0px;">
-									<div class="col-md-3"><i style="background:{{$ctrl.env.defaultColorForNoDataValues}}; border: 2px solid {{$ctrl.env.defaultBorderColorForNoDataValues}}; opacity: {{$ctrl.kommonitorVisualStyleHelperServiceInstance.currentIndicatorOpacity}};"></i></div>
+									<div class="col-md-3"><i style="background:{{::$ctrl.env.defaultColorForNoDataValues}}; border: 2px solid {{::$ctrl.env.defaultBorderColorForNoDataValues}}; opacity: {{$ctrl.kommonitorVisualStyleHelperServiceInstance.currentIndicatorOpacity}};"></i></div>
 									<div class="col-md-6">Leerwert</div>
 									<div class="col-md-3">{{$ctrl.kommonitorVisualStyleHelperServiceInstance.featuresPerNoData}}</div><br>
 								</div>				
@@ -214,7 +214,7 @@
 							</div>
 							<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.filteredIndicatorFeatureNames.length > 0">
 								<div class="row" style="margin-right: 0px;">
-									<div class="col-md-3"><i style="background:{{$ctrl.env.defaultColorForFilteredValues}}; border: 2px solid {{$ctrl.env.defaultBorderColorForFilteredValues}}; opacity: {{$ctrl.kommonitorVisualStyleHelperServiceInstance.currentIndicatorOpacity}};"></i></div>
+									<div class="col-md-3"><i style="background:{{::$ctrl.env.defaultColorForFilteredValues}}; border: 2px solid {{::$ctrl.env.defaultBorderColorForFilteredValues}}; opacity: {{$ctrl.kommonitorVisualStyleHelperServiceInstance.currentIndicatorOpacity}};"></i></div>
 									<div class="col-md-6">gefilterte Features</div>
 									<div class="col-md-3">{{$ctrl.kommonitorDataExchangeServiceInstance.filteredIndicatorFeatureNames.length}}</div><br>
 								</div>				
@@ -224,7 +224,7 @@
 							<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked">
 								<!-- zero -->
 								<div class="row" style="margin-right: 0px;" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.classifyZeroSeparately && containsZeroValues">
-									<div class="col-md-3"><i style="background:{{$ctrl.env.defaultColorForZeroValues}}; opacity: {{$ctrl.kommonitorVisualStyleHelperServiceInstance.currentIndicatorOpacity}};"></i></div>
+									<div class="col-md-3"><i style="background:{{::$ctrl.env.defaultColorForZeroValues}}; opacity: {{$ctrl.kommonitorVisualStyleHelperServiceInstance.currentIndicatorOpacity}};"></i></div>
 									<div class="col-md-6">0</div>
 									<div class="col-md-3">{{$ctrl.kommonitorVisualStyleHelperServiceInstance.featuresPerZero}}</div><br>
 								</div>	
@@ -265,7 +265,7 @@
 
 								<!-- zero -->
 								<div class="row" style="margin-right: 0px;" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.classifyZeroSeparately && containsZeroValues">
-									<div class="col-md-3"><i style="background:{{$ctrl.env.defaultColorForZeroValues}}; opacity: {{$ctrl.kommonitorVisualStyleHelperServiceInstance.currentIndicatorOpacity}};"></i></div>
+									<div class="col-md-3"><i style="background:{{::$ctrl.env.defaultColorForZeroValues}}; opacity: {{$ctrl.kommonitorVisualStyleHelperServiceInstance.currentIndicatorOpacity}};"></i></div>
 									<div class="col-md-6">0</div>
 									<div class="col-md-3">{{$ctrl.kommonitorVisualStyleHelperServiceInstance.featuresPerZero}}</div><br>
 								</div>	
@@ -285,7 +285,7 @@
 							<div ng-if="($ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorType.includes('STATUS') && ! containsNegativeValues) && ! $ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked">
 								<!-- zero -->
 								<div class="row" style="margin-right: 0px;" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.classifyZeroSeparately && containsZeroValues">
-									<div class="col-md-3"><i style="background:{{$ctrl.env.defaultColorForZeroValues}}; opacity: {{$ctrl.kommonitorVisualStyleHelperServiceInstance.currentIndicatorOpacity}};"></i></div>
+									<div class="col-md-3"><i style="background:{{::$ctrl.env.defaultColorForZeroValues}}; opacity: {{$ctrl.kommonitorVisualStyleHelperServiceInstance.currentIndicatorOpacity}};"></i></div>
 									<div class="col-md-6">0</div>
 									<div class="col-md-3">{{$ctrl.kommonitorVisualStyleHelperServiceInstance.featuresPerZero}}</div><br>
 								</div>	
