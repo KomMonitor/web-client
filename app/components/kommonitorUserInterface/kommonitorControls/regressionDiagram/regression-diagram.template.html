@@ -163,11 +163,6 @@
 	
 												<label>Ziel-Indikator (X-Achse)</label>
 	
-												<div class="input-group">
-													<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-													<input type="text" class="form-control input-sm" placeholder="X-Achse - Stichwortfilter" ng-model="indicatorNameFilterForXAxis" ng-model-options="{debounce: 500, blur: 0}">
-												</div>
-	
 												<p></p>
 	
 													<div class="regressionInputForm">
@@ -181,7 +176,7 @@
 																</th>
 															</thead>
 															<tbody>
-																<tr ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime  | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterCurrentlySelectedIndicator() | filter:indicatorNameFilterForXAxis'>
+																<tr ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime  | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterCurrentlySelectedIndicator()'>
 																	<td>
 																		<div class="radio" style="margin-top: 0px; margin-bottom: 0px;">
 																			<label><input type="radio" name="regressionX" ng-value="input" ng-model="selection.selectedIndicatorForXAxis" ng-init="selection.selectedIndicatorForXAxis = input" ng-change="onChangeSelectedIndicators()">{{::input.indicatorMetadata.indicatorName}}</label>
@@ -210,11 +205,6 @@
 	
 												<label>Basisindikatoren als Berechnungsgrundlage (Y-Achse)</label>
 	
-												<div class="input-group">
-													<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-													<input type="text" class="form-control input-sm" placeholder="Y-Achse - Stichwortfilter" ng-model="indicatorNameFilterForYAxis" ng-model-options="{debounce: 500, blur: 0}">
-												</div>
-	
 												<p></p>
 	
 													<!-- <select style="font-size: 12px;"
@@ -234,7 +224,7 @@
 																</th>
 															</thead>
 															<tbody>
-																<tr ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime  | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterBaseIndicatorsOfCurrentComputationIndicator() | filter:indicatorNameFilterForYAxis'>
+																<tr ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime  | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterBaseIndicatorsOfCurrentComputationIndicator()'>
 																	<td>
 																		<div class="radio" style="margin-top: 0px; margin-bottom: 0px;">
 																			<label><input type="radio" name="regressionY" ng-value="input" ng-model="selection.selectedIndicatorForYAxis" ng-init="selection.selectedIndicatorForYAxis = input" ng-change="onChangeSelectedIndicators()">{{::input.indicatorMetadata.indicatorName}}</label>
@@ -278,11 +268,6 @@
 	
 												<label>Leitindikator (X-Achse)</label>
 	
-												<div class="input-group">
-													<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-													<input type="text" class="form-control input-sm" placeholder="X-Achse - Stichwortfilter" ng-model="indicatorNameFilterForXAxis" ng-model-options="{debounce: 500, blur: 0}">
-												</div>
-	
 												<p></p>
 	
 													<div class="regressionInputForm">
@@ -296,7 +281,7 @@
 																</th>
 															</thead>
 															<tbody>
-																<tr ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime  | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterCurrentlySelectedIndicator() | filter:indicatorNameFilterForXAxis'>
+																<tr ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime  | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterCurrentlySelectedIndicator()'>
 																	<td>
 																		<div class="radio" style="margin-top: 0px; margin-bottom: 0px;">
 																			<label><input type="radio" name="regressionX" ng-value="input" ng-model="selection.selectedIndicatorForXAxis" ng-init="selection.selectedIndicatorForXAxis = input" ng-change="onChangeSelectedIndicators()">{{::input.indicatorMetadata.indicatorName}}</label>
@@ -325,11 +310,6 @@
 	
 												<label>Basisindikatoren als Berechnungsgrundlage (Y-Achse)</label>
 	
-												<div class="input-group">
-													<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-													<input type="text" class="form-control input-sm" placeholder="Y-Achse - Stichwortfilter" ng-model="indicatorNameFilterForYAxis" ng-model-options="{debounce: 500, blur: 0}">
-												</div>
-	
 												<p></p>
 	
 													<div class="regressionInputForm">
@@ -343,7 +323,7 @@
 																</th>
 															</thead>
 															<tbody>
-																<tr ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime  | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterBaseIndicatorsOfCurrentHeadlineIndicator() | filter:indicatorNameFilterForYAxis'>
+																<tr ng-repeat='input in $ctrl.kommonitorDiagramHelperServiceInstance.indicatorPropertiesForCurrentSpatialUnitAndTime  | filter:$ctrl.kommonitorDataExchangeServiceInstance.filterBaseIndicatorsOfCurrentHeadlineIndicator() '>
 																	<td>
 																		<div class="radio" style="margin-top: 0px; margin-bottom: 0px;">
 																			<label><input type="radio" name="regressionY" ng-value="input" ng-model="selection.selectedIndicatorForYAxis" ng-init="selection.selectedIndicatorForYAxis = input" ng-change="onChangeSelectedIndicators()">{{::input.indicatorMetadata.indicatorName}}</label>
