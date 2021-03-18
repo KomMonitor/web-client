@@ -62,6 +62,10 @@ angular
           this.topicIndicatorHierarchy = [];
           this.topicIndicatorHierarchy_forOrderView = [];
 
+          this.topicGeoresourceHierarchy = [];
+          this.topicGeoresourceHierarchy_unmappedEntries = {};
+          this.georesourceMapKey_forUnmappedTopicReferences = "unmapped";
+
           this.enableKeycloakSecurity = __env.enableKeycloakSecurity;
           this.currentKeycloakLoginRoles = [];
           this.currentKomMonitorLoginRoleNames = [];
@@ -325,8 +329,12 @@ angular
           this.simplifyGeometriesOptions = __env.simplifyGeometriesOptions;
           this.simplifyGeometries = __env.simplifyGeometries;
 
-          this.wmsDatasets = __env.wmsDatasets;
-          this.wfsDatasets = __env.wfsDatasets;
+          this.wmsDatasets = __env.wmsDatasets.sort((a, b) => (a.title > b.title) ? 1 : -1);
+          this.wfsDatasets = __env.wfsDatasets.sort((a, b) => (a.title > b.title) ? 1 : -1);
+          this.wmsDatasets_keywordFiltered = JSON.parse(JSON.stringify(this.wmsDatasets));
+          this.wfsDatasets_keywordFiltered = JSON.parse(JSON.stringify(this.wfsDatasets));
+
+
           this.fileDatasets = [];
 
           this.availableRoles = [];
@@ -408,12 +416,16 @@ angular
 
 					this.availableGeoresources = [];
           this.displayableGeoresources = [];
+          this.displayableGeoresources_keywordFiltered = [];
+          this.displayableGeoresources_keywordFiltered_forAlphabeticalDisplay = [];
 
 					this.selectedGeoresource;
 
 					this.setGeoresources = function(georesourcesArray){
 						this.availableGeoresources = georesourcesArray;
             this.displayableGeoresources = this.availableGeoresources.filter(item => self.isDisplayableGeoresource(item));
+            this.displayableGeoresources_keywordFiltered = JSON.parse(JSON.stringify(this.displayableGeoresources));
+            this.displayableGeoresources_keywordFiltered_forAlphabeticalDisplay = JSON.parse(JSON.stringify(this.displayableGeoresources));
 					};
 
 
@@ -876,6 +888,8 @@ angular
                   self.topicIndicatorHierarchy_forOrderView = JSON.parse(JSON.stringify(self.topicIndicatorHierarchy));
                   self.buildComputationIndicatorHierarchy();
 
+                  self.buildTopicGeoresourceHierarchy();
+
                   console.log("Metadata fetched. Call initialize event.");
       						onMetadataLoadingCompleted();
 
@@ -905,35 +919,170 @@ angular
             }
           };
 
-          this.buildTopicsMap = function(indicatorTopics){
+          this.buildTopicsMap_indicators = function(indicatorTopics){
             var topicsMap = new Map();            
 
             for (const topic of indicatorTopics) {
               topicsMap.set(topic.topicId, []);
               if(topic.subTopics.length > 0){
-                topicsMap = this.addSubTopicsToMap(topic.subTopics, topicsMap);
+                topicsMap = this.addSubTopicsToMap_indicators(topic.subTopics, topicsMap);
               }
             }
 
             return topicsMap;
           };
 
-          this.addSubTopicsToMap = function(subTopicsArray, topicsMap){
+          this.buildTopicsMap_georesources = function(georesourceTopics){
+            var topicsMap = new Map();            
+
+            for (const topic of georesourceTopics) {
+              topicsMap.set(topic.topicId, {
+                poiDatasets: [],
+                loiDatasets: [],
+                aoiDatasets: [],
+                wmsDatasets: [],
+                wfsDatasets: []
+              });
+              if(topic.subTopics.length > 0){
+                topicsMap = this.addSubTopicsToMap_georesources(topic.subTopics, topicsMap);
+              }
+            }
+
+            topicsMap.set(this.georesourceMapKey_forUnmappedTopicReferences, {
+              poiDatasets: [],
+              loiDatasets: [],
+              aoiDatasets: [],
+              wmsDatasets: [],
+              wfsDatasets: []
+            });
+
+            return topicsMap;
+          };
+
+          this.addSubTopicsToMap_indicators = function(subTopicsArray, topicsMap){
 
             for (const subTopic of subTopicsArray) {
               topicsMap.set(subTopic.topicId, []);
               if(subTopic.subTopics.length > 0){
-                topicsMap = this.addSubTopicsToMap(subTopic.subTopics, topicsMap);
+                topicsMap = this.addSubTopicsToMap_indicators(subTopic.subTopics, topicsMap);
               } 
             } 
             
             return topicsMap;
           };
 
+          this.addSubTopicsToMap_georesources = function(subTopicsArray, topicsMap){
+
+            for (const subTopic of subTopicsArray) {
+              topicsMap.set(subTopic.topicId, {
+                poiDatasets: [],
+                loiDatasets: [],
+                aoiDatasets: [],
+                wmsDatasets: [],
+                wfsDatasets: []
+              });
+              if(subTopic.subTopics.length > 0){
+                topicsMap = this.addSubTopicsToMap_georesources(subTopic.subTopics, topicsMap);
+              } 
+            } 
+            
+            return topicsMap;
+          };
+
+          this.buildTopicGeoresourceHierarchy = function(){
+
+            var georesourceTopics = this.availableTopics.filter(topic => topic.topicResource === "georesource");
+            /*
+            topicsMap.set(topic.topicId, {
+                poiDatasets: [],
+                loiDatasets: [],
+                aoiDatasets: [],
+                wmsDatasets: [],
+                wfsDatasets: []
+              })
+
+              + special entry with key "unmapped" for all datasets without valid topic reference
+            */
+            var topicsMap = this.buildTopicsMap_georesources(georesourceTopics);
+            
+
+            // PROCESS GEORESOURCES
+            var filteredGeoresources = this.displayableGeoresources_keywordFiltered;
+
+            for (const georesourceMetadata of filteredGeoresources) {
+              if (topicsMap.has(georesourceMetadata.topicReference)){
+                var georesourceDatasets = topicsMap.get(georesourceMetadata.topicReference);
+                
+                if(georesourceMetadata.isPOI){
+                  georesourceDatasets.poiDatasets.push(georesourceMetadata);
+                }
+                if(georesourceMetadata.isLOI){
+                  georesourceDatasets.loiDatasets.push(georesourceMetadata);
+                }
+                if(georesourceMetadata.isAOI){
+                  georesourceDatasets.aoiDatasets.push(georesourceMetadata);
+                }                
+
+                topicsMap.set(georesourceMetadata.topicReference, georesourceDatasets);
+              }
+              else{
+                var georesourceDatasets_unmapped = topicsMap.get(this.georesourceMapKey_forUnmappedTopicReferences);
+                
+                if(georesourceMetadata.isPOI){
+                  georesourceDatasets_unmapped.poiDatasets.push(georesourceMetadata);
+                }
+                if(georesourceMetadata.isLOI){
+                  georesourceDatasets_unmapped.loiDatasets.push(georesourceMetadata);
+                }
+                if(georesourceMetadata.isAOI){
+                  georesourceDatasets_unmapped.aoiDatasets.push(georesourceMetadata);
+                }                
+
+                topicsMap.set(this.georesourceMapKey_forUnmappedTopicReferences, georesourceDatasets_unmapped);
+              }
+            }
+
+            // PROCESS WMS and WFS
+            for (const wmsMetadata of this.wmsDatasets_keywordFiltered) {
+              if (topicsMap.has(wmsMetadata.topicReference)){
+                var georesourceDatasets = topicsMap.get(wmsMetadata.topicReference);                
+                georesourceDatasets.wmsDatasets.push(wmsMetadata);              
+
+                topicsMap.set(wmsMetadata.topicReference, georesourceDatasets);
+              }
+              else{
+                var georesourceDatasets_unmapped = topicsMap.get(this.georesourceMapKey_forUnmappedTopicReferences);
+                
+                georesourceDatasets_unmapped.wmsDatasets.push(wmsMetadata);               
+
+                topicsMap.set(this.georesourceMapKey_forUnmappedTopicReferences, georesourceDatasets_unmapped);
+              }
+            }
+
+            // PROCESS WMS and WFS
+            for (const wfsMetadata of this.wfsDatasets_keywordFiltered) {
+              if (topicsMap.has(wfsMetadata.topicReference)){
+                var georesourceDatasets = topicsMap.get(wfsMetadata.topicReference);                
+                georesourceDatasets.wfsDatasets.push(wfsMetadata);              
+
+                topicsMap.set(wfsMetadata.topicReference, georesourceDatasets);
+              }
+              else{
+                var georesourceDatasets_unmapped = topicsMap.get(this.georesourceMapKey_forUnmappedTopicReferences);
+                
+                georesourceDatasets_unmapped.wfsDatasets.push(wfsMetadata);               
+
+                topicsMap.set(this.georesourceMapKey_forUnmappedTopicReferences, georesourceDatasets_unmapped);
+              }
+            }
+
+            this.topicGeoresourceHierarchy = this.addGeoresourceDataToTopicHierarchy(georesourceTopics, topicsMap);
+          };
+
           this.buildTopicIndicatorHierarchy = function(){
 
             var indicatorTopics = this.availableTopics.filter(topic => topic.topicResource === "indicator");
-            var topicsMap = this.buildTopicsMap(indicatorTopics);
+            var topicsMap = this.buildTopicsMap_indicators(indicatorTopics);
 
             var filteredIndicators = this.displayableIndicators_keywordFiltered;
 
@@ -973,6 +1122,107 @@ angular
             return topic;
           };
 
+          this.addGeoresourceDataToTopicHierarchy = function(topicsArray, topicsMap){
+
+            /*
+            topicsMap.set(topic.topicId, {
+                poiDatasets: [],
+                loiDatasets: [],
+                aoiDatasets: [],
+                wmsDatasets: [],
+                wfsDatasets: []
+              })
+
+              + special entry with key "unmapped" for all datasets without valid topic reference
+            */
+
+            for (var topic of topicsArray) {
+              var topicsDataEntry = topicsMap.get(topic.topicId);
+              topic.poiData = topicsDataEntry.poiDatasets;
+              topic.poiCount = topicsDataEntry.poiDatasets.length;
+
+              topic.loiData = topicsDataEntry.loiDatasets;
+              topic.loiCount = topicsDataEntry.loiDatasets.length;
+
+              topic.aoiData = topicsDataEntry.aoiDatasets;
+              topic.aoiCount = topicsDataEntry.aoiDatasets.length;
+
+              topic.wmsData = topicsDataEntry.wmsDatasets;
+              topic.wmsCount = topicsDataEntry.wmsDatasets.length;
+
+              topic.wfsData = topicsDataEntry.wfsDatasets;
+              topic.wfsCount = topicsDataEntry.wfsDatasets.length;
+
+              topic.totalCount = topic.poiCount + topic.loiCount + topic.aoiCount + topic.wmsCount + topic.wfsCount;
+
+              if(topic.subTopics.length > 0){
+                topic = this.addGeoresourceDataToSubTopics(topic, topicsMap);
+              }
+            }
+
+            // PROCESS UNMAPPED entries
+            this.topicGeoresourceHierarchy_unmappedEntries = {};
+            var topicsDataEntry_unmapped = topicsMap.get(this.georesourceMapKey_forUnmappedTopicReferences);
+            this.topicGeoresourceHierarchy_unmappedEntries.poiData = topicsDataEntry_unmapped.poiDatasets;
+            this.topicGeoresourceHierarchy_unmappedEntries.poiCount = topicsDataEntry_unmapped.poiDatasets.length;
+
+            this.topicGeoresourceHierarchy_unmappedEntries.loiData = topicsDataEntry_unmapped.loiDatasets;
+            this.topicGeoresourceHierarchy_unmappedEntries.loiCount = topicsDataEntry_unmapped.loiDatasets.length;
+
+            this.topicGeoresourceHierarchy_unmappedEntries.aoiData = topicsDataEntry_unmapped.aoiDatasets;
+            this.topicGeoresourceHierarchy_unmappedEntries.aoiCount = topicsDataEntry_unmapped.aoiDatasets.length;
+
+            this.topicGeoresourceHierarchy_unmappedEntries.wmsData = topicsDataEntry_unmapped.wmsDatasets;
+            this.topicGeoresourceHierarchy_unmappedEntries.wmsCount = topicsDataEntry_unmapped.wmsDatasets.length;
+
+            this.topicGeoresourceHierarchy_unmappedEntries.wfsData = topicsDataEntry_unmapped.wfsDatasets;
+            this.topicGeoresourceHierarchy_unmappedEntries.wfsCount = topicsDataEntry_unmapped.wfsDatasets.length;
+
+            this.topicGeoresourceHierarchy_unmappedEntries.totalCount = this.topicGeoresourceHierarchy_unmappedEntries.poiCount + 
+            this.topicGeoresourceHierarchy_unmappedEntries.loiCount + 
+            this.topicGeoresourceHierarchy_unmappedEntries.aoiCount + 
+            this.topicGeoresourceHierarchy_unmappedEntries.wmsCount + 
+            this.topicGeoresourceHierarchy_unmappedEntries.wfsCount;
+
+            return topicsArray;
+          };
+
+          this.addGeoresourceDataToSubTopics = function(topic, topicsMap){
+            for (var subTopic of topic.subTopics) { 
+              
+              var topicsDataEntry = topicsMap.get(subTopic.topicId);
+              subTopic.poiData = topicsDataEntry.poiDatasets;
+              subTopic.poiCount = topicsDataEntry.poiDatasets.length;
+
+              subTopic.loiData = topicsDataEntry.loiDatasets;
+              subTopic.loiCount = topicsDataEntry.loiDatasets.length;
+
+              subTopic.aoiData = topicsDataEntry.aoiDatasets;
+              subTopic.aoiCount = topicsDataEntry.aoiDatasets.length;
+
+              subTopic.wmsData = topicsDataEntry.wmsDatasets;
+              subTopic.wmsCount = topicsDataEntry.wmsDatasets.length;
+
+              subTopic.wfsData = topicsDataEntry.wfsDatasets;
+              subTopic.wfsCount = topicsDataEntry.wfsDatasets.length;
+
+              subTopic.totalCount = subTopic.poiCount + subTopic.loiCount + subTopic.aoiCount + subTopic.wmsCount + subTopic.wfsCount;
+
+
+              if(subTopic.subTopics.length > 0){
+                subTopic = this.addGeoresourceDataToSubTopics(subTopic, topicsMap);
+              }
+              topic.poiCount = topic.poiCount + subTopic.poiCount;
+              topic.loiCount = topic.loiCount + subTopic.loiCount;
+              topic.aoiCount = topic.aoiCount + subTopic.aoiCount;
+              topic.wmsCount = topic.wmsCount + subTopic.wmsCount;
+              topic.wfsCount = topic.wfsCount + subTopic.wfsCount;
+              topic.totalCount = topic.totalCount + subTopic.totalCount;
+            }
+
+            return topic;
+          };
+
           this.onChangeIndicatorKeywordFilter = function(indicatorNameFilter){
             this.displayableIndicators_keywordFiltered = JSON.parse(JSON.stringify(this.displayableIndicators));
 
@@ -983,6 +1233,54 @@ angular
             this.buildTopicIndicatorHierarchy();
             this.buildHeadlineIndicatorHierarchy();
             this.buildComputationIndicatorHierarchy();             
+          };
+
+          this.onChangeGeoresourceKeywordFilter = function(georesourceNameFilter, showPOI, showLOI, showAOI, showWMS, showWFS){          
+            this.wmsDatasets_keywordFiltered = JSON.parse(JSON.stringify(this.wmsDatasets));
+            this.wfsDatasets_keywordFiltered = JSON.parse(JSON.stringify(this.wfsDatasets));
+
+            this.displayableGeoresources_keywordFiltered = JSON.parse(JSON.stringify(this.displayableGeoresources));
+
+            if(georesourceNameFilter && georesourceNameFilter != ""){
+              this.displayableGeoresources_keywordFiltered = filterArrayObjectsByValue(this.displayableGeoresources_keywordFiltered, georesourceNameFilter);									
+              
+              this.wmsDatasets_keywordFiltered = filterArrayObjectsByValue(this.wmsDatasets_keywordFiltered, georesourceNameFilter);
+              this.wfsDatasets_keywordFiltered = filterArrayObjectsByValue(this.wfsDatasets_keywordFiltered, georesourceNameFilter);
+            }
+
+            this.displayableGeoresources_keywordFiltered_forAlphabeticalDisplay = {
+              poiData: this.displayableGeoresources_keywordFiltered.filter(item => item.isPOI),
+              loiData: this.displayableGeoresources_keywordFiltered.filter(item => item.isLOI),
+              aoiData: this.displayableGeoresources_keywordFiltered.filter(item => item.isAOI),
+              wmsData: JSON.parse(JSON.stringify(this.wmsDatasets_keywordFiltered)),
+              wfsData: JSON.parse(JSON.stringify(this.wfsDatasets_keywordFiltered))
+            };
+
+            if(!showWMS){
+              this.wmsDatasets_keywordFiltered = [];
+            }
+            if(!showWFS){
+              this.wfsDatasets_keywordFiltered = [];
+            }
+
+            if(! (showPOI && showLOI && showAOI)){
+              this.displayableGeoresources_keywordFiltered = this.displayableGeoresources_keywordFiltered.filter(item => {
+                if (! showPOI && item.isPOI){
+                  return false;
+                }
+                if (! showLOI && item.isLOI){
+                  return false;
+                }
+
+                if (! showAOI && item.isAOI){
+                  return false;
+                }
+
+                return true;
+              });
+            }
+
+            this.buildTopicGeoresourceHierarchy();          
           };
 
           this.buildHeadlineIndicatorHierarchy = function(){
