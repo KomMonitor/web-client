@@ -400,7 +400,7 @@
 
 								<tbody>
 
-									<tr ng-repeat="dataset in $ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets | filter:{isSelected:'true'} | orderBy:'title'">										
+									<tr ng-repeat="dataset in $ctrl.kommonitorDataExchangeServiceInstance.wmsDatasets_keywordFiltered | filter:{isSelected:'true'}">										
 										<td>
 											<label ng-bind-html="dataset.title">
 											</label>

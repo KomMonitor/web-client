@@ -417,7 +417,7 @@ angular
 					this.availableGeoresources = [];
           this.displayableGeoresources = [];
           this.displayableGeoresources_keywordFiltered = [];
-          this.displayableGeoresources_keywordFiltered_forAlphabeticalDisplay = [];
+          this.displayableGeoresources_keywordFiltered_forAlphabeticalDisplay = {};
 
 					this.selectedGeoresource;
 
@@ -425,7 +425,17 @@ angular
 						this.availableGeoresources = georesourcesArray;
             this.displayableGeoresources = this.availableGeoresources.filter(item => self.isDisplayableGeoresource(item));
             this.displayableGeoresources_keywordFiltered = JSON.parse(JSON.stringify(this.displayableGeoresources));
-            this.displayableGeoresources_keywordFiltered_forAlphabeticalDisplay = JSON.parse(JSON.stringify(this.displayableGeoresources));
+
+            this.wmsDatasets_keywordFiltered = JSON.parse(JSON.stringify(this.wmsDatasets));
+            this.wfsDatasets_keywordFiltered = JSON.parse(JSON.stringify(this.wfsDatasets));
+
+            this.displayableGeoresources_keywordFiltered_forAlphabeticalDisplay = {
+              poiData: this.displayableGeoresources_keywordFiltered.filter(item => item.isPOI),
+              loiData: this.displayableGeoresources_keywordFiltered.filter(item => item.isLOI),
+              aoiData: this.displayableGeoresources_keywordFiltered.filter(item => item.isAOI),
+              wmsData: this.wmsDatasets_keywordFiltered,
+              wfsData: this.wfsDatasets_keywordFiltered
+            };
 					};
 
 
@@ -1253,8 +1263,8 @@ angular
               poiData: this.displayableGeoresources_keywordFiltered.filter(item => item.isPOI),
               loiData: this.displayableGeoresources_keywordFiltered.filter(item => item.isLOI),
               aoiData: this.displayableGeoresources_keywordFiltered.filter(item => item.isAOI),
-              wmsData: JSON.parse(JSON.stringify(this.wmsDatasets_keywordFiltered)),
-              wfsData: JSON.parse(JSON.stringify(this.wfsDatasets_keywordFiltered))
+              wmsData: this.wmsDatasets_keywordFiltered,
+              wfsData: this.wfsDatasets_keywordFiltered
             };
 
             if(!showWMS){
