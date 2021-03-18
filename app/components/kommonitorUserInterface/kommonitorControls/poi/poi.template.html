@@ -202,7 +202,7 @@
 											</div>
 
 											<div class="list-group collapse" uib-collapse="isCollapsed_subsubsubTopic">
-												<div
+												<div ng-if="subsubsubTopic.totalCount > 0"
 													class="list-group-item list-group-item-default georesourceInputForm">
 
 													<table class="table table-condensed " style="margin-bottom:0px;">
@@ -562,7 +562,8 @@
 
 
 										<div class="list-group collapse" uib-collapse="isCollapsed_subsubTopic">
-											<div class="list-group-item list-group-item-default georesourceInputForm">
+											<div class="list-group-item list-group-item-default georesourceInputForm"
+											ng-if="subsubTopic.totalCount > 0">
 
 												<table class="table table-condensed " style="margin-bottom:0px;">
 													<thead>
@@ -919,7 +920,8 @@
 
 
 									<div class="list-group collapse" uib-collapse="isCollapsed_subTopic">
-										<div class="list-group-item list-group-item-default georesourceInputForm">
+										<div class="list-group-item list-group-item-default georesourceInputForm"
+										ng-if="subTopic.totalCount > 0">
 
 											<table class="table table-condensed " style="margin-bottom:0px;">
 												<thead>
@@ -1264,7 +1266,8 @@
 								</div>
 								<!-- end sub topics -->
 								<div class="list-group collapse" uib-collapse="isCollapsed_mainTopic">
-									<div class="list-group-item list-group-item-default georesourceInputForm">
+									<div class="list-group-item list-group-item-default georesourceInputForm"
+									ng-if="mainTopic.totalCount > 0">
 
 										<table class="table table-condensed " style="margin-bottom:0px;">
 											<thead>
