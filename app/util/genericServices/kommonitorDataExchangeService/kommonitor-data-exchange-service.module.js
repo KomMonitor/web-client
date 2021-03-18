@@ -874,7 +874,7 @@ angular
                   self.buildHeadlineIndicatorHierarchy();
                   self.buildTopicIndicatorHierarchy();
                   self.topicIndicatorHierarchy_forOrderView = JSON.parse(JSON.stringify(self.topicIndicatorHierarchy));
-                  // self.buildComputationIndicatorHierarchy();
+                  self.buildComputationIndicatorHierarchy();
 
                   console.log("Metadata fetched. Call initialize event.");
       						onMetadataLoadingCompleted();
@@ -982,19 +982,7 @@ angular
 
             this.buildTopicIndicatorHierarchy();
             this.buildHeadlineIndicatorHierarchy();
-            // this.buildComputationIndicatorHierarchy();   
-            
-            // $timeout(function(){
-              
-            //   $('.list-group-item > .collapseTrigger').on('click', function() {
-            //     $('.glyphicon', this)
-            //       .toggleClass('glyphicon-chevron-right')
-            //       .toggleClass('glyphicon-chevron-down');
-
-            //   });
-
-
-            // }, 1000);
+            this.buildComputationIndicatorHierarchy();             
           };
 
           this.buildHeadlineIndicatorHierarchy = function(){
