@@ -79,9 +79,16 @@
 
 				<div class="row">
 					<div class="col-md-8">
-						<div class="checkbox">
-							<label><input type="checkbox" value="isHideGreetings" ng-model="isHideGreetings" ng-change="onChangeHideGreetings()">Begr&uuml;&szlig;ungsfenster beim n&auml;chsten Aufruf verbergen</label>
-						 </div>
+						<label>Begr&uuml;&szlig;ungsfenster beim n&auml;chsten Aufruf verbergen</label>		
+							<label class="switch">
+								<input type="checkbox" value="isHideGreetings" ng-model="isHideGreetings" ng-checked="isHideGreetings" ng-change="onChangeHideGreetings()">
+								<span class="switchslider round"></span>
+							</label>	
+							
+							<input type="checkbox" ng-hide="true" ng-change="onChangeHideGreetings()">
+						<!-- <div class="checkbox">
+							<label><input type="checkbox" ng-model="$ctrl.isHideGreetings" ng-change="onChangeHideGreetings()">Begr&uuml;&szlig;ungsfenster beim n&auml;chsten Aufruf verbergen</label>
+						 </div> -->
 					</div>
 					<div class="col-md-2">
 						<button type="button" ng-click="callStartGuidedTour()" class="btn btn-danger">Guided Tour&nbsp;&nbsp;<span class="glyphicon glyphicon-play"></span></button>				
