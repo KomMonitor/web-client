@@ -668,9 +668,9 @@ angular
 
 										$rootScope.$broadcast("preserveHighlightedFeatures");
 
-										setTimeout(function(){
+										$timeout(function(){
 											$scope.$digest();
-										}, 350);
+										}, 500);
 									}
 								};
 
