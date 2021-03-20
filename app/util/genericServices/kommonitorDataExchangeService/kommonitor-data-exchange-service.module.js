@@ -1987,6 +1987,16 @@ angular
             };
           };
 
+          function getImageDimensions(file) {
+            return new Promise (function (resolved, rejected) {
+              var i = new Image();
+              i.onload = function(){
+                resolved({w: i.width, h: i.height})
+              };
+              i.src = file;
+            });
+          }
+
           /**
            * creates and returns a pdf for the indicator given as parameter
            */
@@ -2176,6 +2186,8 @@ angular
             }            
 
             var imgData;
+            var imgWidth;
+            var imgHeight;
 
             if(indicator.processDescription && indicator.processDescription.includes("$")){
               await html2canvas(document.querySelector("#indicatorProcessDescription")).then(canvas => {
@@ -2184,6 +2196,10 @@ angular
                 imgData = canvas.toDataURL('image/png');
             
               });
+
+              var dimensions = await getImageDimensions(imgData);
+              imgWidth = dimensions.w;
+              imgHeight = dimensions.h;
             }            
   
             jspdf.autoTable({
@@ -2203,13 +2219,32 @@ angular
               bodyStyles: bodyStyles,
               columnStyles: columnStyles,
               startY: jspdf.autoTable.previous.finalY + 10,
+              willDrawCell: function(data) {
+                if (imgData && data.row.index === 2 && data.column.index === 1 && data.cell.section === 'body') {                   
+                   data.row.height = 2.5 * data.cell.height;
+                   data.row.maxCellHeight = 2.5 * data.cell.height;
+                   data.cell.height = 2.5 * data.cell.height;
+                   data.cell.text = "";
+                }
+                if (imgData && data.row.index === 2 && data.column.index === 0 && data.cell.section === 'body') {                   
+                  data.row.height = 2.5 * data.cell.height;
+                  data.row.maxCellHeight = 2.5 * data.cell.height;
+                  data.cell.height = 2.5 * data.cell.height;
+               }
+              },
               didDrawCell: function(data) {
                 if (imgData && data.row.index === 2 && data.column.index === 1 && data.cell.section === 'body') {
-                   var td = data.cell.raw;
-                   var height = data.cell.height - data.cell.padding('vertical');
-                   var width = data.cell.width - data.cell.padding('horizontal');
+                   var cellHeight = data.cell.height - data.cell.padding('vertical');
+                   var cellWidth = data.cell.width - data.cell.padding('horizontal');
                    var textPos = data.cell.textPos;
-                   jspdf.addImage(imgData, "PNG", textPos.x,  textPos.y, width, height);
+
+                   imgScale = cellHeight / imgHeight;
+                   var width = imgWidth * imgScale;
+                   if (width > cellWidth){
+                     width = cellWidth;
+                   }
+
+                   jspdf.addImage(imgData, "PNG", textPos.x,  textPos.y, width, cellHeight);
                 }
               }
             });
