@@ -2156,17 +2156,24 @@ angular
   
             var datesString = "";
   
-            for (var [j, date] of indicator.applicableDates.entries()) {
-  
-              var dateComponents = date.split("-");
-              var asDate = new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]));
-  
-              datesString += this.tsToDate_withOptionalUpdateInterval(this.dateToTS(asDate), indicator.metadata.updateInterval);
-  
-              if (j < indicator.applicableDates.length - 1) {
-                datesString += "\n";
+            if(indicator.applicableDates.length < 15){
+              for (var [j, date] of indicator.applicableDates.entries()) {
+                var asDate = new Date(date);
+    
+                datesString += this.tsToDate_withOptionalUpdateInterval(this.dateToTS(asDate), indicator.metadata.updateInterval);
+    
+                if (j < indicator.applicableDates.length - 1) {
+                  datesString += "    ";
+                }
               }
             }
+            else{
+              datesString += "Zeitreihe umfasst insgesamt " + indicator.applicableDates.length + " Zeitpunkte\n\n";
+
+              datesString += "frühester Zeitpunkt: " + this.tsToDate_withOptionalUpdateInterval(this.dateToTS(indicator.applicableDates[0]), indicator.metadata.updateInterval) + "\n";
+              datesString += "spätester Zeitpunkt: " + this.tsToDate_withOptionalUpdateInterval(this.dateToTS(indicator.applicableDates[indicator.applicableDates.length - 1]), indicator.metadata.updateInterval);
+            
+            }            
 
             var imgData;
 
@@ -2232,6 +2239,7 @@ angular
                 ["Raumbezug", spatialUnitsString],
                 // $scope.updateInteval is a map mapping the english KEYs to german expressions
                 ["Zeitbezug / Fortführungsintervall", this.updateInterval.get(indicator.metadata.updateInterval.toUpperCase())],
+                ["Hinweise zum Referenzdatum", indicator.referenceDateNote ? indicator.referenceDateNote : "-"],
                 ["Verfügbare Zeitreihen", datesString],
                 ["Datum der letzten Aktualisierung", this.tsToDate_withOptionalUpdateInterval(this.dateToTS(indicator.metadata.lastUpdate))],
                 ["Quellen / Literatur", indicator.metadata.literature ? indicator.metadata.literature : "-"]
