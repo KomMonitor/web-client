@@ -37,7 +37,7 @@ angular.module('adminControlsConfig').component('adminControlsConfig', {
 
 			$scope.onChangeControlsConfig();
 
-			$scope.$apply();
+			$scope.$digest();
 		};
 
 		$scope.initCodeEditor = function(){
@@ -125,7 +125,7 @@ angular.module('adminControlsConfig').component('adminControlsConfig', {
 			}, 250);
 
 			$timeout(function(){
-				$scope.$apply();
+				$scope.$digest();
 			});
 		};
 
@@ -157,7 +157,7 @@ angular.module('adminControlsConfig').component('adminControlsConfig', {
 				$scope.loadingData = false;
 
 				setTimeout(() => {
-					$scope.$apply();
+					$scope.$digest();
 				}, 250);
 			} catch (error) {
 				if (error.data) {
@@ -171,7 +171,7 @@ angular.module('adminControlsConfig').component('adminControlsConfig', {
 				$scope.loadingData = false;
 
 				setTimeout(() => {
-					$scope.$apply();
+					$scope.$digest();
 				}, 250);
 			}
 

@@ -108,7 +108,7 @@ angular
       this.setupIndicatorPropertiesForCurrentSpatialUnitAndTime = function (filterBySameUnitAndSameTime) {
         this.indicatorPropertiesForCurrentSpatialUnitAndTime = [];
 
-        kommonitorDataExchangeService.availableIndicators.forEach(indicatorMetadata => {
+        kommonitorDataExchangeService.displayableIndicators.forEach(indicatorMetadata => {
           var targetYear = kommonitorDataExchangeService.selectedDate.split("-")[0];
           var indicatorCandidateYears = []
           indicatorMetadata.applicableDates.forEach((date, i) => {
@@ -983,63 +983,7 @@ angular
             //     show: true
             // }
           },
-          series: [
-          {
-            name: "Min",
-            type: 'line',
-            data: indicatorTimeSeriesMinArray,
-            stack: "MinMax",
-            // areaStyle:{
-            //   color: "#d6d6d6"
-            // },
-            lineStyle: {
-              opacity: 0
-            },
-            itemStyle: {
-              opacity: 0
-            },
-            // lineStyle: {
-            //   normal: {
-            //     color: 'gray',
-            //     width: 2,
-            //     type: 'dashed'
-            //   }
-            // },
-            // itemStyle: {
-            //   normal: {
-            //     borderWidth: 3,
-            //     color: 'gray'
-            //   }
-            // }
-          },
-          {
-            name: "Max",
-            type: 'line',
-            data: indicatorTimeSeriesMaxArray,
-            stack: "MinMax",
-            areaStyle:{
-              color: "#d6d6d6"
-            },
-            lineStyle: {
-              opacity: 0
-            },
-            itemStyle: {
-              opacity: 0
-            },
-            // lineStyle: {
-            //   normal: {
-            //     color: 'gray',
-            //     width: 2,
-            //     type: 'dashed'
-            //   }
-            // },
-            // itemStyle: {
-            //   normal: {
-            //     borderWidth: 3,
-            //     color: 'gray'
-            //   }
-            // }
-          },
+          series: [          
           {
             name: "Arithmetisches Mittel",
             type: 'line',
@@ -1059,6 +1003,63 @@ angular
             }
           }]
         };
+
+        // SETTING FOR MIN AND MAX STACK
+
+        // default for min value of 0
+        var minStack = {
+          name: "Min",
+          type: 'line',
+          data: indicatorTimeSeriesMinArray,
+          stack: "MinMax",
+          // areaStyle:{
+          //   color: "#d6d6d6"
+          // },
+          lineStyle: {
+            opacity: 0
+          },
+          itemStyle: {
+            opacity: 0
+          }
+        };
+
+        var maxStack =  {
+          name: "Max",
+          type: 'line',
+          data: indicatorTimeSeriesMaxArray,
+          stack: "MinMax",
+          areaStyle:{
+            color: "#d6d6d6"
+          },
+          lineStyle: {
+            opacity: 0
+          },
+          itemStyle: {
+            opacity: 0
+          }
+        };
+
+        // perform checks if there are negative values or only > 0 values
+        // then stacks must be adjusted to be correcty displayed
+        var minStack_minValue = Math.min(...indicatorTimeSeriesMinArray);
+        if(minStack_minValue < 0){
+          minStack.areaStyle = {
+              color: "#d6d6d6"
+          };
+        }
+        if ((indicatorTimeSeriesMinArray.filter(item => item > 0))){
+          for (let index = 0; index < indicatorTimeSeriesMaxArray.length; index++) {
+
+            if(indicatorTimeSeriesMinArray[index] > 0){
+              indicatorTimeSeriesMaxArray[index] = indicatorTimeSeriesMaxArray[index] - indicatorTimeSeriesMinArray[index];
+            }            
+          }
+          maxStack.data = indicatorTimeSeriesMaxArray;
+        }
+
+        lineOption.series.push(minStack);
+        lineOption.series.push(maxStack);
+        
 
         // use configuration item and data specified to show chart
         self.lineChartOptions = lineOption;
@@ -1500,6 +1501,9 @@ angular
 
           var timeseriesOptions = JSON.parse(JSON.stringify(this.getLineChartOptions()));
 
+          // remove any additional lines for concrete features
+          timeseriesOptions.series.length = 3;
+
           // add markedAreas for periods out of scope
 
           var fromDateString = fromDateAsPropertyString.split(__env.indicatorDatePrefix)[1];
@@ -1508,7 +1512,7 @@ angular
           var toDate_date = new Date(toDateString);
           
           if(showCompleteTimeseries){
-            timeseriesOptions.series[2].markArea = {
+            timeseriesOptions.series[0].markArea = {
               silent: true,
               itemStyle: {
                   color: '#b50b0b',
@@ -1528,15 +1532,15 @@ angular
           }          
 
           // hide data points
-          timeseriesOptions.series[2].itemStyle.normal.opacity = 0;
-          timeseriesOptions.series[2].lineStyle.normal.width = 3;
-          timeseriesOptions.series[2].lineStyle.normal.type = "solid";  
+          timeseriesOptions.series[0].itemStyle.normal.opacity = 0;
+          timeseriesOptions.series[0].lineStyle.normal.width = 3;
+          timeseriesOptions.series[0].lineStyle.normal.type = "solid";  
           
           var trendData = [];
 
-          var timeseriesData = timeseriesOptions.series[2].data;  
-          var minSeriesData = timeseriesOptions.series[0].data;  
-          var maxSeriesData = timeseriesOptions.series[1].data;           
+          var timeseriesData = timeseriesOptions.series[0].data;  
+          var minSeriesData = timeseriesOptions.series[1].data;  
+          var maxSeriesData = timeseriesOptions.series[2].data;           
 
           if(! showCompleteTimeseries){
             var xData = [];
@@ -1556,15 +1560,15 @@ angular
               }            
             }
 
-            timeseriesOptions.series[2].data = timeData;
-            timeseriesOptions.series[0].data = minData;
-            timeseriesOptions.series[1].data = maxData;
+            timeseriesOptions.series[0].data = timeData;
+            timeseriesOptions.series[1].data = minData;
+            timeseriesOptions.series[2].data = maxData;
 
             timeseriesOptions.xAxis.data = xData;
           }     
 
           // update value if it has changed
-          timeseriesData = timeseriesOptions.series[2].data;
+          timeseriesData = timeseriesOptions.series[0].data;
           var xAxisData = timeseriesOptions.xAxis.data;
           for (let index = 0; index < timeseriesData.length; index++) {
             var dateCandidate = new Date(xAxisData[index]);
@@ -1637,8 +1641,8 @@ angular
         });
 
         if(! showMinMax){
-          timeseriesOptions.series.splice(0, 1);
-          timeseriesOptions.series.splice(0, 1);
+          timeseriesOptions.series.splice(1, 1);
+          timeseriesOptions.series.splice(1, 1);
         }
 
           return timeseriesOptions;

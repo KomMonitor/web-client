@@ -98,6 +98,7 @@
     "shp-write": "^0.3.2",
     "shpjs": "^3.4.3",
     "slimscroll": "^0.9.1",
+    "sortablejs": "^1.13.0",
     "tableexport": "^5.0.5"
   },
   "jshintConfig": {

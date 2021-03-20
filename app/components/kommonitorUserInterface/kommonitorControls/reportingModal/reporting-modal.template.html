@@ -17,7 +17,7 @@
 								<!-- indicator selection box-->
 								<div id="indicatorSelectionBox" style="height:410px; border:solid black 1px; overflow:auto; white-space: nowrap;">
 									<div style="cursor:pointer; margin-left:5px; margin-right:5px" 
-											class="draggable" ng-repeat="indicator in availableIndicators | filter:filterIndicators() | filter:filterIndicatorsByTopic() | orderBy: 'indicatorName'" data-indicator={{indicator}}>
+											class="draggable" ng-repeat="indicator in availableIndicators  | orderBy: 'indicatorName'" data-indicator={{indicator}}>
 										{{indicator.indicatorName}}
 									</div>
 								</div>

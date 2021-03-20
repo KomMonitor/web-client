@@ -57,6 +57,7 @@ angular
       var defaultFillOpacityForNoDataValues = __env.defaultFillOpacityForNoDataValues;
 
       this.indicatorTransparency = 1 - __env.defaultFillOpacity;
+      this.currentIndicatorOpacity = __env.defaultFillOpacity;
 
       var defaultColorForZeroValues = __env.defaultColorForZeroValues;
 
@@ -472,6 +473,7 @@ angular
 
         opacity = Number(opacity);
         this.indicatorTransparency = Number((1 - opacity).toFixed(numberOfDecimals));
+        this.currentIndicatorOpacity = opacity;
 
         defaultFillOpacity = opacity;
         defaultFillOpacityForOutliers_low = opacity;
@@ -480,7 +482,9 @@ angular
         defaultFillOpacityForNoDataValues = opacity;
         defaultFillOpacityForFilteredFeatures = opacity;
 
-        $rootScope.$apply();
+        $timeout(function(){
+          $rootScope.$apply();
+        });
       };
 
       // style function to return

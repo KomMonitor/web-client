@@ -269,7 +269,7 @@ angular.module('reportingModal').component('reportingModal', {
 			$($scope.allAddedIndicatorsConfig).each( (index, el) => {
 				el.tiles = {};
 			});
-			$scope.$apply();
+			$scope.$digest();
 
 
 			//iterate pages
@@ -525,7 +525,7 @@ angular.module('reportingModal').component('reportingModal', {
 			$scope.availableIndicators = [];
 			$scope.availableIndicatorsNames = [];
 
-			$scope.availableIndicators = kommonitorDataExchangeService.availableIndicators;
+			$scope.availableIndicators = kommonitorDataExchangeService.displayableIndicators;
 			//get names
 			$($scope.availableIndicators).each(function(index, indicator) {
 				$scope.availableIndicatorsNames.push(indicator.indicatorName);
@@ -1180,7 +1180,7 @@ angular.module('reportingModal').component('reportingModal', {
 				$scope.echartInstances.push(lineChart);
 
 			} else if (contentType === "metadata") {
-				var jspdf = kommonitorDataExchangeService.createMetadataPDF(config.indicator)
+				var jspdf = kommonitorDataExchangeService.createMetadataPDF_indicator(config.indicator)
 				// TODO create an image to show in the tile
 				var dataUrl = jspdf.output('dataurlstring')
 				

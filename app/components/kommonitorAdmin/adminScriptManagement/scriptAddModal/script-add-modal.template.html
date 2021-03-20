@@ -122,7 +122,7 @@
 									</div>
 									<div class="col-md-8 col-sm-6 col-xs-12">
 										<div class="form-group">
-											<label>Beschreibung*</label>
+											<label>Skript-Beschreibung*</label>
 											<textarea rows="3" type="text" class="form-control" ng-model="description"
 												placeholder="Beschreibung" required></textarea>
 
@@ -149,7 +149,7 @@
 											</div>
 											<br />
 											<select ng-model="$ctrl.kommonitorScriptHelperServiceInstance.targetIndicator" size="5"
-												ng-options="indicatorMetadata as indicatorMetadata.indicatorName for indicatorMetadata in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter: {creationType: 'COMPUTATION'} | filter:indicatorNameFilter"
+												ng-options="indicatorMetadata as indicatorMetadata.indicatorName + ' [' + indicatorMetadata.unit + ']' for indicatorMetadata in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter: {creationType: 'COMPUTATION'} | filter:indicatorNameFilter"
 												class="form-control">
 												<option disabled selected value> -- Ziel-Indikator w&auml;hlen --
 												</option>
@@ -161,21 +161,50 @@
 											<div class="help-block with-errors"></div>
 										</div>
 									</div>
-									<div class="col-md-3 col-sm-6 col-xs-12">
-										<div class="form-group">
-											<label>ID des selektierten Ziel-Indikators</label>
-											<input type="text" class="form-control input-sm" disabled
-												placeholder="IndikatorenId" ng-model="$ctrl.kommonitorScriptHelperServiceInstance.targetIndicator.indicatorId">
-											<div class="help-block with-errors"></div>
+									<div class="col-md-6 col-sm-6 col-xs-12">
+										<div class="row vertical-align">
+											<div class="col-md-6 col-sm-6 col-xs-12">
+												<div class="form-group">
+													<label>ID des selektierten Ziel-Indikators</label>
+													<input type="text" class="form-control input-sm" disabled
+														placeholder="IndikatorenId" ng-model="$ctrl.kommonitorScriptHelperServiceInstance.targetIndicator.indicatorId">
+													<div class="help-block with-errors"></div>
+												</div>
+											</div>
+
+											<div class="col-md-6 col-sm-6 col-xs-12">
+												<div class="form-group">
+													<label>Name des selektierten Ziel-Indikators</label>
+													<input type="text" class="form-control input-sm" disabled
+														placeholder="IndikatorenName" ng-model="$ctrl.kommonitorScriptHelperServiceInstance.targetIndicator.indicatorName">
+													<div class="help-block with-errors"></div>
+												</div>
+											</div>
+
+
 										</div>
-									</div>
-									<div class="col-md-3 col-sm-6 col-xs-12">
-										<div class="form-group">
-											<label>Name des selektierten Ziel-Indikators</label>
-											<input type="text" class="form-control input-sm" disabled
-												placeholder="IndikatorenName" ng-model="$ctrl.kommonitorScriptHelperServiceInstance.targetIndicator.indicatorName">
-											<div class="help-block with-errors"></div>
+
+										<div class="row vertical-align">
+											<div class="col-md-6 col-sm-6 col-xs-12">
+												<div class="form-group">
+													<label>Beschreibung des selektierten Ziel-Indikators</label>
+													<textarea rows="4" class="form-control input-sm" disabled placeholder="IndikatorenBeschreibung"
+														ng-model="$ctrl.kommonitorScriptHelperServiceInstance.targetIndicator.metadata.description"></textarea>
+													<div class="help-block with-errors"></div>
+												</div>
+											</div>
+											<div class="col-md-6 col-sm-6 col-xs-12">
+												<div class="form-group">
+													<label>Einheit des selektierten Ziel-Indikators</label>
+													<input type="text" class="form-control input-sm" disabled placeholder="IndikatorenEinheit"
+														ng-model="$ctrl.kommonitorScriptHelperServiceInstance.targetIndicator.unit">
+													<div class="help-block with-errors"></div>
+												</div>
+											</div>
+
+
 										</div>
+										
 									</div>
 								</div>
 
@@ -258,6 +287,10 @@
 									<script-subtract></script-subtract>
 								</div>
 
+								<div ng-if="selectedScriptType.apiName === 'indicator_promille'">
+									<script-promille></script-promille>
+								</div>
+
 								<div ng-if="selectedScriptType.apiName === 'indicator_percentage'">
 									<script-percentage></script-percentage>
 								</div>
@@ -268,6 +301,30 @@
 
 								<div ng-if="selectedScriptType.apiName === 'indicator_division'">
 									<script-division></script-division>
+								</div>
+
+								<div ng-if="selectedScriptType.apiName === 'indicator_change_absolute'">
+									<script-change-absolute></script-change-absolute>
+								</div>
+
+								<div ng-if="selectedScriptType.apiName === 'indicator_change_absolute_refDate'">
+									<script-change-absolute-ref-date></script-change-absolute-ref-date>
+								</div>
+
+								<div ng-if="selectedScriptType.apiName === 'indicator_change_relative_refDate'">
+									<script-change-relative-ref-date></script-change-relative-ref-date>
+								</div>
+
+								<div ng-if="selectedScriptType.apiName === 'indicator_change_relative'">
+									<script-change-relative></script-change-relative>
+								</div>
+
+								<div ng-if="selectedScriptType.apiName === 'indicator_trend'">
+									<script-trend></script-trend>
+								</div>
+
+								<div ng-if="selectedScriptType.apiName === 'indicator_continuity'">
+									<script-continuity></script-continuity>
 								</div>
 
 								<div ng-if="selectedScriptType.apiName === 'indicator_headlineIndicator'">
@@ -331,7 +388,7 @@
 				<p>Alter Eintrag:</p>
 				<pre mathjax-bind="$ctrl.kommonitorScriptHelperServiceInstance.targetIndicatorOldProcessDescription"></pre>
 				<p>Neuer Eintrag:</p>
-				<pre mathjax-bind="$ctrl.kommonitorScriptHelperServiceInstance.scriptFormulaHTML"></pre>				
+				<pre mathjax-bind="$ctrl.kommonitorScriptHelperServiceInstance.scriptFormulaHTML_successToastDisplay"></pre>				
 			</div>
 
 			<div id="indicatorMetadataEditErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden

@@ -14,7 +14,12 @@
 		<div style="padding-left: 10px; padding-top: 7px;">
 
 			 <a target="_blank" rel="noopener noreferrer" href="http://kommonitor.de"><img style="float: left; width: 35px; height: 35px; margin-right: 0.5%;" src="logos/KM_Logo1.svg"></img></a>
-			 <!-- <img src="logos/city-logo.png" style="float: left; width: 35px; height: 35px; margin-right: 0.5%;"></img> -->
+			 <div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.customLogoURL && $ctrl.kommonitorDataExchangeServiceInstance.customLogoWidth">
+				<a target="_blank" rel="noopener noreferrer" href="{{$ctrl.kommonitorDataExchangeServiceInstance.customLogo_onClickURL}}">
+					<img src="{{$ctrl.kommonitorDataExchangeServiceInstance.customLogoURL}}" style="float: left; width: {{$ctrl.kommonitorDataExchangeServiceInstance.customLogoWidth}}; height: 35px; margin-right: 0.5%;"></img>
+				</a>
+				
+			 </div> 			  
 
 			 <!-- switch back to KomMonitor Main Application -->
 			<a id="userLogin" ng-mouseover="showUserLogin = true" ng-init="showUserLogin = false" title="Useristration" style="font-size:1.2em; float: right; margin-right: 2%; margin-left: 2%; margin-top: 0.5%;"><i class="fas fa-user-cog"></i></a>

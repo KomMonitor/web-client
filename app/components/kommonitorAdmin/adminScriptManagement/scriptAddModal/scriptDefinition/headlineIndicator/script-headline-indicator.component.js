@@ -203,7 +203,7 @@ angular.module('scriptHeadlineIndicator').component('scriptHeadlineIndicator', {
 				$scope.resetComputationFormulaAndLegend();
 
 				setTimeout(() => {
-					$scope.$apply();
+					$scope.$digest();
 				});
 			};
 
@@ -226,7 +226,7 @@ angular.module('scriptHeadlineIndicator').component('scriptHeadlineIndicator', {
 				$scope.resetComputationFormulaAndLegend();
 				
 				setTimeout(() => {
-					$scope.$apply();
+					$scope.$digest();
 				});
 			};
 	

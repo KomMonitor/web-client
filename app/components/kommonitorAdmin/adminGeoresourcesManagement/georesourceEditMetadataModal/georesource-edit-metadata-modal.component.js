@@ -259,7 +259,7 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 			$("#georesourceEditMetadataErrorAlert").hide();
 
 			setTimeout(() => {
-				$scope.$apply();	
+				$scope.$digest();	
 			}, 250);
 		};
 
@@ -427,7 +427,7 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 					document.getElementById("georesourcesEditMetadataPre").innerHTML = $scope.georesourceMetadataStructure_pretty;
 					$("#georesourceEditMetadataImportErrorAlert").show();
 
-					$scope.$apply();
+					$scope.$digest();
 				}
 
 			};
@@ -446,7 +446,7 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 				document.getElementById("georesourcesEditMetadataPre").innerHTML = $scope.georesourceMetadataStructure_pretty;
 				$("#georesourceEditMetadataImportErrorAlert").show();
 
-				$scope.$apply();
+				$scope.$digest();
 			}
 
 				$scope.metadata = {};
@@ -531,7 +531,7 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 					// $("#poiSymbolPicker input").css('glyphicon-' + $scope.metadataImportSettings.poiSymbolBootstrap3Name);
 				}, 200);
 
-				$scope.$apply();
+				$scope.$digest();
 		}
 
 		$scope.onExportGeoresourceEditMetadataTemplate = function(){
