@@ -34,15 +34,23 @@ angular
 
         $timeout(function(){
           $rootScope.$apply();
+
         });
+        
         
       };
 
       this.onChangeIsAdvancedMode = function (){
 
-        this.isAdvancedMode = this.isAdvancedMode;
-
         this.initElementVisibility();
+
+        // if any sidebar was previously not displayed we must ensure that it is properly instantiated for current indicator 
+        if(this.isAdvancedMode){
+          $timeout(function(){
+            $rootScope.$broadcast("changeIndicatorDate");
+  
+          }, 500);
+        }
       };
 
       var checkElementVisibility = function(id) {
