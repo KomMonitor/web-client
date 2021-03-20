@@ -788,10 +788,12 @@ pre.CodeMirror-line {
 }
 
 #sideBarButtons{
-	margin-top: 90px;
+    margin-top: 200px;
   width: 90px;
   height: 80vh;
   position: absolute;
+  display: flex;
+  flex-direction: column;
 }
 
 /* MAP UTIL BUTTONS */
