@@ -13,7 +13,7 @@
     },
     {
         "id": "filter",
-        "roles": []
+        "roles": ["fakeAdvancedModeRole"]
     },
     {
         "id": "measureOfValueClassification",
@@ -21,7 +21,7 @@
     },
     {
         "id": "balance",
-        "roles": []
+        "roles": ["fakeAdvancedModeRole"]
     },
     {
         "id": "diagrams",
@@ -29,19 +29,19 @@
     },
     {
         "id": "radarDiagram",
-        "roles": []
+        "roles": ["fakeAdvancedModeRole"]
     },
     {
         "id": "regressionDiagram",
-        "roles": []
+        "roles": ["fakeAdvancedModeRole"]
     },
     {
         "id": "reachability",
-        "roles": []
+        "roles": ["fakeAdvancedModeRole"]
     },
     {
         "id": "processing",
-        "roles": []
+        "roles": ["fakeAdvancedModeRole"]
     },
     {
         "id": "reportingButton",
@@ -50,5 +50,5 @@
     {
         "id": "indicatorLegendExportButtons",
         "roles": ["fakeAdvancedModeRole"]
-    }    
+    }
 ]
