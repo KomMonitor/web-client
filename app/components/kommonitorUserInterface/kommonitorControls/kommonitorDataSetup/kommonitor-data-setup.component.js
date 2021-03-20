@@ -420,39 +420,8 @@ angular
 									}
 								};
 
-								function dateToTS (date) {
-										return date.valueOf();
-								}
-
-								function tsToDateString (dateAsMs) {
-									var date = new Date(dateAsMs);
-
-									/**
-									* TODO FIXME dateSLider formatter will return only year for now to prevent misleading month and day settings
-									*/
-
-									// return date.getFullYear();
-
-										return date.toLocaleDateString("de-DE", {
-												year: 'numeric',
-												month: 'long',
-												day: 'numeric'
-										});
-								}
-
-								function dateToDateString (date) {
-
-									/**
-									* TODO FIXME dateSLider formatter will return only year for now to prevent misleading month and day settings
-									*/
-
-									// return date.getFullYear();
-
-										return date.toLocaleDateString("de-DE", {
-												year: 'numeric',
-												month: 'long',
-												day: 'numeric'
-										});
+								function prettifyDateSliderLabels (dateAsMs) {
+									return kommonitorDataExchangeService.tsToDate_withOptionalUpdateInterval(dateAsMs, kommonitorDataExchangeService.selectedIndicator.metadata.updateInterval);									
 								}
 
 								function createDatesFromIndicatorDates(indicatorDates) {
@@ -462,7 +431,7 @@ angular
 									for (var index=0; index < indicatorDates.length; index++){
 										// year-month-day
 										var dateComponents = indicatorDates[index].split("-");
-										$scope.datesAsMs.push(dateToTS(new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]))));
+										$scope.datesAsMs.push(kommonitorDataExchangeService.dateToTS(new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]))));
 									}
 									return $scope.datesAsMs;
 								}
@@ -494,7 +463,7 @@ angular
 											values: $scope.datesAsMs,
 											from: $scope.datesAsMs.length -1, // index, not the date
 											force_edges: true,
-											prettify: tsToDateString,
+											prettify: prettifyDateSliderLabels,
 											onChange: $scope.onChangeDateSliderItem
 									});
 

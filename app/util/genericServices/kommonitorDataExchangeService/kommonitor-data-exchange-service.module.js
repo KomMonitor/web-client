@@ -346,6 +346,14 @@ angular
           this.classifyZeroSeparately = __env.classifyZeroSeparately;
           this.classifyUsingWholeTimeseries = __env.classifyUsingWholeTimeseries;
 
+          this.getUpdateIntervalDisplayValue = function(apiValue){
+            for (const updateIntervalOption of this.updateIntervalOptions) {
+              if(updateIntervalOption.apiName === apiValue){
+                return updateIntervalOption.displayName
+              }
+            }
+          };
+
           this.getBaseUrlToKomMonitorDataAPI_spatialResource = function(){
             return this.baseUrlToKomMonitorDataAPI + this.spatialResourceGETUrlPath_forAuthentication;
           };
@@ -2153,7 +2161,7 @@ angular
               var dateComponents = date.split("-");
               var asDate = new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]));
   
-              datesString += this.tsToDate_fullYear(this.dateToTS(asDate));
+              datesString += this.tsToDate_withOptionalUpdateInterval(this.dateToTS(asDate), indicator.metadata.updateInterval);
   
               if (j < indicator.applicableDates.length - 1) {
                 datesString += "\n";
@@ -2225,7 +2233,7 @@ angular
                 // $scope.updateInteval is a map mapping the english KEYs to german expressions
                 ["Zeitbezug / Fortführungsintervall", this.updateInterval.get(indicator.metadata.updateInterval.toUpperCase())],
                 ["Verfügbare Zeitreihen", datesString],
-                ["Datum der letzten Aktualisierung", this.tsToDate_fullYear(this.dateToTS(indicator.metadata.lastUpdate))],
+                ["Datum der letzten Aktualisierung", this.tsToDate_withOptionalUpdateInterval(this.dateToTS(indicator.metadata.lastUpdate))],
                 ["Quellen / Literatur", indicator.metadata.literature ? indicator.metadata.literature : "-"]
               ],
               theme: 'grid',
@@ -2354,7 +2362,7 @@ angular
             jspdf.autoTable({
               head: [['Themenfeld', 'Datentyp', 'letzte Aktualisierung']],
               body: [
-                [topicsString, category, this.tsToDate_fullYear(this.dateToTS(georesource.metadata.lastUpdate))]
+                [topicsString, category, this.tsToDate_withOptionalUpdateInterval(this.dateToTS(georesource.metadata.lastUpdate))]
                 // ...
               ],
               theme: 'grid',
@@ -2371,9 +2379,9 @@ angular
                 var startDate = new Date(period.startDate);
                 var endDate = period.endDate? new Date(period.endDate) : undefined;
     
-                datesString += "Zeitspanne: " + this.tsToDate_fullYear(this.dateToTS(startDate));
+                datesString += "Zeitspanne: " + this.tsToDate_withOptionalUpdateInterval(this.dateToTS(startDate));
                 if(endDate){
-                  datesString += " - " + this.tsToDate_fullYear(this.dateToTS(endDate));
+                  datesString += " - " + this.tsToDate_withOptionalUpdateInterval(this.dateToTS(endDate));
                 }
                 else{
                   datesString += "- 'null' (demnach gültig bis auf weiteres)";
@@ -2417,9 +2425,9 @@ angular
                 }
               }
 
-              datesString += "frühestes Startdatum: " + this.tsToDate_fullYear(this.dateToTS(earliestStartDate)) + "\n";
+              datesString += "frühestes Startdatum: " + this.tsToDate_withOptionalUpdateInterval(this.dateToTS(earliestStartDate)) + "\n";
               if(latestEndDate != null && latestEndDate != -1){
-                datesString += "spätestes Enddatum: " + this.tsToDate_fullYear(this.dateToTS(latestEndDate)) + "\n";
+                datesString += "spätestes Enddatum: " + this.tsToDate_withOptionalUpdateInterval(this.dateToTS(latestEndDate)) + "\n";
               }
               else{
                 datesString += "spätestes Enddatum: ohne explizites Enddatum (demnach gültig bis auf weiteres)\n";
@@ -2506,7 +2514,7 @@ angular
             }            
           };
   
-          this.tsToDate_fullYear = function(ts) {
+          this.tsToDate_withOptionalUpdateInterval = function(ts, updateIntervalApiName) {
             if(ts){
               var date = new Date(ts);
   
@@ -2515,12 +2523,64 @@ angular
             */
   
             // return date.getFullYear();
-  
-            return date.toLocaleDateString("de-DE", {
+
+            if(updateIntervalApiName){
+              if(updateIntervalApiName.toLowerCase() === "yearly"){
+                return date.getFullYear();
+              }
+              else if(updateIntervalApiName.toLowerCase() === "half_yearly"){
+                return (date.getMonth() + 1) + "/" +  date.getFullYear();                
+              }
+              else if(updateIntervalApiName.toLowerCase() === "monthly"){
+                return (date.getMonth() + 1) + "/" +  date.getFullYear();
+              }
+              // else if(updateIntervalApiName.toLowerCase() === "weekly"){
+              //   return date.toLocaleDateString("de-DE", {
+              //     year: 'numeric',
+              //     month: 'short',
+              //     day: 'numeric'
+              //   });
+              // }
+              // else if(updateIntervalApiName.toLowerCase() === "daily"){
+              //   return date.toLocaleDateString("de-DE", {
+              //     year: 'numeric',
+              //     month: 'short',
+              //     day: 'numeric'
+              //   });
+              // }
+              else if(updateIntervalApiName.toLowerCase() === "quarterly"){
+                var year = date.getFullYear();
+                var month = date.getMonth();
+                if(month < 4){
+                  return "Q1/" + year;
+                }
+                else if(month < 7){
+                  return "Q2/" + year;
+                }
+                else if(month < 10){
+                  return "Q3/" + year;
+                }
+                else {
+                  return "Q4/" + year;
+                }
+              }
+              else{
+                // includes daily and weekly, as they are presented equally
+                return date.toLocaleDateString("de-DE", {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric'
+                });
+              }
+            }
+            else{
+              return date.toLocaleDateString("de-DE", {
             		year: 'numeric',
-            		month: 'long',
+            		month: 'short',
             		day: 'numeric'
-            });
+              });
+            }
+  
             }            
           };
 

@@ -19,6 +19,8 @@
 						<br />
 						<b>Beschreibung: </b> 
 						<p ng-bind-html="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.metadata.description"></p>
+						<b>Fortf&uuml;hrungsintervall: </b> 
+						<p ng-bind-html="$ctrl.kommonitorDataExchangeServiceInstance.getUpdateIntervalDisplayValue($ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.metadata.updateInterval)"></p>
 						<!-- <br /> -->
 						<!-- <b>Datenquelle: </b> 
 						<p ng-bind-html="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.metadata.datasource"></p> -->
@@ -162,14 +164,17 @@
 						<div class="just-padding">
 							<h4>{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorStringFromIndicatorType($ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorType)}}</h4>
 							<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorType.includes('STATUS') && ! $ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked && !$ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked">
-								<em>Darstellung der Indikatorenwerte zum gew&auml;hlten Zeitpunkt {{$ctrl.kommonitorDataExchangeServiceInstance.tsToDate_fullYear($ctrl.kommonitorDataExchangeServiceInstance.dateToTS(dateAsDate))}}</em>
+								<em>Darstellung der Indikatorenwerte {{$ctrl.kommonitorDataExchangeServiceInstance.tsToDate_withOptionalUpdateInterval($ctrl.kommonitorDataExchangeServiceInstance.dateToTS(dateAsDate, $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.metadata.updateInterval))}}</em>
+								<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.referenceDateNote">
+									<em><b>Hinweis Referenzdatum:</b> {{$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.referenceDateNote}}</em>
+								</div>
 							</div>
 							<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorType.includes('DYNAMIC') && ! $ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked && !$ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked">
-								<em>Darstellung der zeitlichen Entwicklung zum gew&auml;hlten Zeitpunkt {{$ctrl.kommonitorDataExchangeServiceInstance.tsToDate_fullYear($ctrl.kommonitorDataExchangeServiceInstance.dateToTS(dateAsDate))}}</em>
+								<em>Darstellung der zeitlichen Entwicklung zum gew&auml;hlten Zeitpunkt {{$ctrl.kommonitorDataExchangeServiceInstance.tsToDate_withOptionalUpdateInterval($ctrl.kommonitorDataExchangeServiceInstance.dateToTS(dateAsDate, $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.metadata.updateInterval))}}</em>
 							</div>
 							<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked">
-								<em>Schwellwert-Klassifizierzung</em>
-								<em>Gew&auml;hlter Zeitpunkt: </em> {{$ctrl.kommonitorDataExchangeServiceInstance.tsToDate_fullYear($ctrl.kommonitorDataExchangeServiceInstance.dateToTS(dateAsDate))}}
+								<em>Schwellwert-Klassifizierung</em>
+								<em>Gew&auml;hlter Zeitpunkt: </em> {{$ctrl.kommonitorDataExchangeServiceInstance.tsToDate_withOptionalUpdateInterval($ctrl.kommonitorDataExchangeServiceInstance.dateToTS(dateAsDate, $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.metadata.updateInterval))}}
 								<em>aktueller Schwellwert: </em> {{$ctrl.kommonitorDataExchangeServiceInstance.measureOfValue}}
 							</div>
 							<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked">
