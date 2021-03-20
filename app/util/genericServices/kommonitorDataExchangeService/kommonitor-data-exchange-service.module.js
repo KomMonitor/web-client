@@ -2166,7 +2166,7 @@ angular
   
             var datesString = "";
   
-            if(indicator.applicableDates.length < 15){
+            if(indicator.applicableDates.length <= 20){
               for (var [j, date] of indicator.applicableDates.entries()) {
                 var asDate = new Date(date);
     
@@ -2416,7 +2416,7 @@ angular
   
             var datesString = "";
   
-            if(georesource.availablePeriodsOfValidity.length < 10){
+            if(georesource.availablePeriodsOfValidity.length <= 10){
               for (var [j, period] of georesource.availablePeriodsOfValidity.entries()) {
 
                 var startDate = new Date(period.startDate);
