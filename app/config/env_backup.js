@@ -9,8 +9,11 @@ try {
   // enable/disable role based access using keycloak
   window.__env.enableKeycloakSecurity = false;
 
-  window.__env.isAdvancedMode = false;
-  window.__env.showAdvancedModeSwitch = true;
+  // enable and show/hide switch to toggle basic and advanced mode
+  // this feature can hide certain app elements via ID if in basic mode
+  // configure elements in admin page app settings via controls-config file
+  window.__env.isAdvancedMode = false; // controls if advanced mode is activated on startup
+  window.__env.showAdvancedModeSwitch = true; // controls if toggle switch is at all displayed for toggling basinc/advanced mode  
 
   // encrypted data transfer from Data Management API settings
   window.__env.encryption = {
