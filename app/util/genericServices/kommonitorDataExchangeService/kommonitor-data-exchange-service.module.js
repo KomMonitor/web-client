@@ -1982,7 +1982,7 @@ angular
           /**
            * creates and returns a pdf for the indicator given as parameter
            */
-          this.createMetadataPDF = async function(indicator) {
+          this.createMetadataPDF_indicator = async function(indicator) {
 
             var jspdf = new jsPDF();
             jspdf.setFontSize(16);
@@ -1995,7 +1995,7 @@ angular
   
             jspdf.setFontSize(16);
             jspdf.setFontStyle('bolditalic');
-            var titleArray = jspdf.splitTextToSize(indicator.indicatorName, 180);
+            var titleArray = jspdf.splitTextToSize("Indikator: " +indicator.indicatorName, 180);
             jspdf.text(titleArray, 14, 25);
   
             if (indicator.characteristicValue && indicator.characteristicValue != "-" && indicator.characteristicValue != "") {
@@ -2225,7 +2225,7 @@ angular
                 // $scope.updateInteval is a map mapping the english KEYs to german expressions
                 ["Zeitbezug / Fortführungsintervall", this.updateInterval.get(indicator.metadata.updateInterval.toUpperCase())],
                 ["Verfügbare Zeitreihen", datesString],
-                ["Datum der letzten Aktualisierung", indicator.metadata.lastUpdate],
+                ["Datum der letzten Aktualisierung", this.tsToDate_fullYear(this.dateToTS(indicator.metadata.lastUpdate))],
                 ["Quellen / Literatur", indicator.metadata.literature ? indicator.metadata.literature : "-"]
               ],
               theme: 'grid',
@@ -2256,6 +2256,206 @@ angular
               subject: pdfName,
               author: 'KomMonitor',
               keywords: 'Indikator, Metadatenblatt',
+              creator: 'KomMonitor'
+            });
+
+            jspdf.save(pdfName);
+            return jspdf;
+          };
+
+          /**
+           * creates and returns a pdf for the georesource given as parameter
+           */
+           this.createMetadataPDF_georesource = async function(georesource) {
+
+            var jspdf = new jsPDF();
+            jspdf.setFontSize(16);
+            // jspdf.text("Metadatenblatt", 70, 6);
+  
+            //insert logo
+            var img = new Image();
+            img.src = '/logos/KM_Logo1.png';
+            jspdf.addImage(img, 'PNG', 193, 5, 12, 12);
+  
+            jspdf.setFontSize(16);
+            jspdf.setFontStyle('bolditalic');
+            var titleArray = jspdf.splitTextToSize("Geodatensatz: " + georesource.datasetName, 180);
+            jspdf.text(titleArray, 14, 25);
+  
+  
+            jspdf.setFontSize(11);
+  
+            var initialStartY = 30;
+  
+            if (titleArray.length > 1) {
+              titleArray.forEach(function (item) {
+                initialStartY += 5;
+              });
+            }
+  
+            var headStyles = {
+              fontStyle: 'bold',
+              fontSize: 12,
+              fillColor: '#337ab7',
+              // auto or wrap
+              cellWidth: 'auto'
+            };
+  
+            var bodyStyles = {
+              fontStyle: 'normal',
+              fontSize: 11,
+              // auto or wrap or number
+              cellWidth: 'auto'
+            };
+  
+            // first column with fixed width
+            var columnStyles = {
+              0: { cellWidth: 45, fontStyle: 'bold' },
+              1: { fontStyle: 'normal' }
+            };
+  
+            var topicsString = "";
+  
+            var topicReferenceId = georesource.topicReference;
+  
+            // will be an array representing the topic hierarchy
+            // i.e. [mainTopic, subTopicFirstTier, subTopicSecondTier, ...]
+            var topicHierarchyArray = this.getTopicHierarchyForTopicId(topicReferenceId);
+  
+            for (let index = 0; index < topicHierarchyArray.length; index++) {
+              if (index === 0) {
+                // mainTopic --> first tier
+                topicsString += topicHierarchyArray[index].topicName;
+              }
+              else {
+                var numberOfWhitespaces = 2 * index;
+                var whitespaceString = "";
+                for (let k = 0; k < numberOfWhitespaces; k++) {
+                  whitespaceString += " ";
+                }
+                topicsString += whitespaceString + topicHierarchyArray[index].topicName;
+              }
+  
+              if (index < topicHierarchyArray.length - 1) {
+                topicsString += "\n";
+              }
+  
+            }
+  
+            var category = "Punkt";
+            if (georesource.isLOI) {
+              category = "Linie";
+            }
+            else if(georesource.isAOI){
+              category = "Fläche";
+            }
+  
+            // Or JavaScript:
+            jspdf.autoTable({
+              head: [['Themenfeld', 'Datentyp', 'letzte Aktualisierung']],
+              body: [
+                [topicsString, category, this.tsToDate_fullYear(this.dateToTS(georesource.metadata.lastUpdate))]
+                // ...
+              ],
+              theme: 'grid',
+              headStyles: headStyles,
+              bodyStyles: bodyStyles,
+              startY: initialStartY
+            });
+  
+            var datesString = "";
+  
+            if(georesource.availablePeriodsOfValidity.length < 10){
+              for (var [j, period] of georesource.availablePeriodsOfValidity.entries()) {
+
+                var startDate = new Date(period.startDate);
+                var endDate = period.endDate? new Date(period.endDate) : undefined;
+    
+                datesString += "Zeitspanne: " + this.tsToDate_fullYear(this.dateToTS(startDate));
+                if(endDate){
+                  datesString += " - " + this.tsToDate_fullYear(this.dateToTS(endDate));
+                }
+                else{
+                  datesString += "- 'null' (demnach gültig bis auf weiteres)";
+                }
+    
+                if (j < georesource.availablePeriodsOfValidity.length - 1) {
+                  datesString += "\n";
+                }
+              }
+            }
+            else{
+              datesString += "insgesamt " + georesource.availablePeriodsOfValidity.length + " Zeitspannen\n\n";
+
+              var earliestStartDate;
+              var latestEndDate = -1; // my be null --> enc init with -1
+
+              for (var [j, period] of georesource.availablePeriodsOfValidity.entries()) {
+
+                if(! earliestStartDate){
+                  earliestStartDate = new Date(period.startDate);
+                }
+                else{
+                  if(new Date(period.startDate) < earliestStartDate){
+                    earliestStartDate = new Date(period.startDate);
+                  }
+                }
+                
+                if(latestEndDate == -1){
+                  if(period.endDate){
+                    latestEndDate = new Date(period.endDate);
+                  }
+                  else if(period.endDate == null){
+                    latestEndDate = null;
+                  }
+                  
+                }
+                else{
+                  if(latestEndDate && period.endDate && new Date(period.endDate) > latestEndDate){
+                    latestEndDate = new Date(period.endDate);
+                  }
+                }
+              }
+
+              datesString += "frühestes Startdatum: " + this.tsToDate_fullYear(this.dateToTS(earliestStartDate)) + "\n";
+              if(latestEndDate != null && latestEndDate != -1){
+                datesString += "spätestes Enddatum: " + this.tsToDate_fullYear(this.dateToTS(latestEndDate)) + "\n";
+              }
+              else{
+                datesString += "spätestes Enddatum: ohne explizites Enddatum (demnach gültig bis auf weiteres)\n";
+              }
+              
+
+            }            
+  
+            // linked elements
+            jspdf.autoTable({
+              head: [],
+              body: [
+                ["Beschreibung", georesource.metadata.description],
+                ["Datengrundlage", georesource.metadata.databasis ? georesource.metadata.databasis : "-"],
+                ["Datenquelle", georesource.metadata.datasource ? georesource.metadata.datasource : "-"],
+                ["Datenhalter und Kontakt", georesource.metadata.contact ? georesource.metadata.contact : "-"],
+                ["Bemerkung", georesource.metadata.note ? georesource.metadata.note : "-"],
+                // $scope.updateInteval is a map mapping the english KEYs to german expressions
+                ["Zeitbezug / Fortführungsintervall", this.updateInterval.get(georesource.metadata.updateInterval.toUpperCase())],
+                ["Verfügbare Gültigkeitszeiträume", datesString],
+                ["Quellen / Literatur", georesource.metadata.literature ? georesource.metadata.literature : "-"]
+              ],
+              theme: 'grid',
+              headStyles: headStyles,
+              bodyStyles: bodyStyles,
+              columnStyles: columnStyles,
+              startY: jspdf.autoTable.previous.finalY + 10
+            });
+  
+            var pdfName = georesource.datasetName + ".pdf";
+  
+            jspdf.setProperties({
+              title: 'KomMonitor Geodatenblatt',
+              subject: pdfName,
+              author: 'KomMonitor',
+              keywords: 'Geodaten, Metadatenblatt',
               creator: 'KomMonitor'
             });
 

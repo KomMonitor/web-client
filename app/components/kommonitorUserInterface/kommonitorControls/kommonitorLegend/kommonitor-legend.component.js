@@ -106,7 +106,7 @@ angular
 						$scope.onClickDownloadMetadata = async function(){
 							// create PDF from currently selected/displayed indicator!
 							var indicatorMetadata = kommonitorDataExchangeService.selectedIndicator;														
-							kommonitorDataExchangeService.createMetadataPDF(indicatorMetadata);
+							kommonitorDataExchangeService.createMetadataPDF_indicator(indicatorMetadata);
 						};
 
 						$scope.downloadIndicatorAsGeoJSON = function () {

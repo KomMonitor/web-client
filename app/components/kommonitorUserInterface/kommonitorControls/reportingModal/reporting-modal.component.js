@@ -1180,7 +1180,7 @@ angular.module('reportingModal').component('reportingModal', {
 				$scope.echartInstances.push(lineChart);
 
 			} else if (contentType === "metadata") {
-				var jspdf = kommonitorDataExchangeService.createMetadataPDF(config.indicator)
+				var jspdf = kommonitorDataExchangeService.createMetadataPDF_indicator(config.indicator)
 				// TODO create an image to show in the tile
 				var dataUrl = jspdf.output('dataurlstring')
 				
