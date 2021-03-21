@@ -16,6 +16,8 @@ angular
 				function($rootScope, $timeout,
 						kommonitorMapService, kommonitorKeycloakHelperService, $http, __env, DTOptionsBuilder, $q, Auth,) {              
 
+              this.appTitle = __env.appTitle;
+
               this.customLogoURL = __env.customLogoURL;
               this.customLogo_onClickURL = __env.customLogo_onClickURL;
               this.customLogoWidth = __env.customLogoWidth; 
