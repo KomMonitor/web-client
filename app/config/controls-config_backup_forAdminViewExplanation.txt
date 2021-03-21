@@ -1,19 +1,19 @@
-[
+[   // COMMENTS NOT ALLOWED IN JSON, BUT USED HERE TO EXPLAIN PROPERTIES
     {
         "id": "indicatorConfig",
-        "roles": []
+        "roles": []         // access for everyone
     },
     {
         "id": "poi",
-        "roles": ["keycloakRole1", "keycloakRole2", "fakeAdvancedModeRole"]
+        "roles": ["keycloakRole1", "keycloakRole2"]  // access only for users with at least one of the Keycloak-roles
+    },    
+    {
+        "id": "filter",
+        "roles": ["fakeAdvancedModeRole"]       // access only if advanced mode is active - should not be combined with Keycloak role names
     },
     {
         "id": "dataImport",
         "roles": []
-    },
-    {
-        "id": "filter",
-        "roles": ["fakeAdvancedModeRole"]
     },
     {
         "id": "measureOfValueClassification",
