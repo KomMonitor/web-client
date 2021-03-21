@@ -14,7 +14,7 @@ angular.module('adminAppConfig').component('adminAppConfig', {
 		$scope.missingRequiredParameters = [];
 		$scope.missingRequiredParameters_string = "";
 
-		$scope.keywordsInConfig = ["window.__env", "window.__env.enableKeycloakSecurity", "window.__env.encryption", "window.__env.adminUserName", 
+		$scope.keywordsInConfig = ["window.__env", "window.__env.appTitle", "window.__env.enableKeycloakSecurity", "window.__env.encryption", "window.__env.adminUserName", 
 			"window.__env.adminPassword", "window.__env.FEATURE_ID_PROPERTY_NAME", "window.__env.FEATURE_NAME_PROPERTY_NAME", 
 			"window.__env.VALID_START_DATE_PROPERTY_NAME", "window.__env.VALID_END_DATE_PROPERTY_NAME", "window.__env.indicatorDatePrefix",
 			"window.__env.apiUrl", "window.__env.targetUrlToProcessingEngine", "window.__env.targetUrlToReachabilityService_ORS",
@@ -24,7 +24,9 @@ angular.module('adminAppConfig').component('adminAppConfig', {
 			"window.__env.initialSpatialUnitName", "window.__env.useTransparencyOnIndicator", "window.__env.useOutlierDetectionOnIndicator",
 			"window.__env.classifyZeroSeparately", "window.__env.classifyUsingWholeTimeseries", "window.__env.updateIntervalOptions", 
 			"window.__env.indicatorCreationTypeOptions", "window.__env.indicatorUnitOptions", "window.__env.indicatorTypeOptions", 
-			"window.__env.wmsDatasets", "window.__env.wfsDatasets"];
+			"window.__env.wmsDatasets", "window.__env.wfsDatasets", "window.__env.isAdvancedMode", "window.__env.showAdvancedModeSwitch",
+			"window.__env.customLogoURL", "window.__env.customLogo_onClickURL", "window.__env.customLogoWidth", "window.__env.customGreetingsContact_name",
+			"window.__env.customGreetingsContact_organisation", "window.__env.customGreetingsContact_mail"];
 
 		$scope.appConfigTemplate = undefined;
 		$scope.appConfigTmp = undefined;
