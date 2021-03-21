@@ -14,7 +14,9 @@ angular.module('adminControlsConfig').component('adminControlsConfig', {
 		$scope.missingRequiredParameters = [];
 		$scope.missingRequiredParameters_string = "";
 
-		$scope.keywordsInConfig = ["id", "roles", "indicatorConfig", "poi", "dataImport", "filter", "measureOfValueClassification", "balance", "diagrams", "radarDiagram", "regressionDiagram", "reachability", "processing"];
+		$scope.keywordsInConfig = ["id", "roles", "indicatorConfig", "poi", "dataImport", "filter", 
+		"measureOfValueClassification", "balance", "diagrams", "radarDiagram", "regressionDiagram", 
+		"reachability", "processing", "indicatorLegendExportButtons", "reportingButton", "diagramExportButtons"];
 
 		$scope.controlsConfigTemplate = undefined;
 		$scope.controlsConfigTmp = undefined;

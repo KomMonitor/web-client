@@ -26,6 +26,8 @@ angular
               this.customGreetingsContact_mail = __env.customGreetingsContact_mail;
               this.customGreetingsTextInfoMessage = __env.customGreetingsTextInfoMessage; // maybe undefined or empty string
 
+              this.showDiagramExportButtons = true;
+
 							var numberOfDecimals = __env.numberOfDecimals;
 							const DATE_PREFIX = __env.indicatorDatePrefix;
               var defaultColorForZeroValues = __env.defaultColorForZeroValues;

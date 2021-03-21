@@ -242,7 +242,7 @@ angular
 									feature: {
 										// mark : {show: true},
 										dataView: {
-											show: true, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Indikatorenradar', 'schlie&szlig;en', 'refresh'], optionToContent: function (opt) {
+											show: kommonitorDataExchangeService.showDiagramExportButtons, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Indikatorenradar', 'schlie&szlig;en', 'refresh'], optionToContent: function (opt) {
 
 												// 	<table class="table table-condensed table-hover">
 												// 	<thead>

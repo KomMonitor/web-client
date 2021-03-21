@@ -26,6 +26,8 @@ angular
       this.advancedModeRoleName = "fakeAdvancedModeRole"; 
 
       this.initElementVisibility = function () {
+        kommonitorDataExchangeService.showDiagramExportButtons = true;
+
         this.elementVisibility = {};
         var config = ControlsConfigService.getControlsConfig();
         config.forEach(element => {
@@ -45,17 +47,13 @@ angular
         this.initElementVisibility();
 
         // if any sidebar was previously not displayed we must ensure that it is properly instantiated for current indicator 
-        if(this.isAdvancedMode){
-          $timeout(function(){
-            $rootScope.$broadcast("changeIndicatorDate");
-  
-          }, 500);
-        }
+        $rootScope.$broadcast("changeIndicatorDate");
       };
 
       var checkElementVisibility = function(id) {
 
         var element = ControlsConfigService.getControlsConfig().filter(element => element.id === id)[0];
+
         if(element.roles === undefined || element.roles.length === 0) {
           return true;
         }
@@ -74,15 +72,31 @@ angular
             }	
           }
 
+          // special case for diagram export buttons
+          if(! hasAllowedRole && element.id === "diagramExportButtons"){
+            kommonitorDataExchangeService.showDiagramExportButtons = false;
+          }
+
           return hasAllowedRole;
         } else {
           if(! kommonitorDataExchangeService.enableKeycloakSecurity){
             if(element.roles && element.roles.includes(self.advancedModeRoleName)){
+
+              // special case for diagram export buttons
+              if(element.id === "diagramExportButtons"){
+                kommonitorDataExchangeService.showDiagramExportButtons = false;
+              }
+
               return false;
             }
             return true;
           }
           else{
+            // special case for diagram export buttons
+            if(element.id === "diagramExportButtons"){
+              kommonitorDataExchangeService.showDiagramExportButtons = false;
+            }
+
             return false;
           }				
         }

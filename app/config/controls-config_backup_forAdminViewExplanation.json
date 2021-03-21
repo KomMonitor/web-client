@@ -50,5 +50,9 @@
     {
         "id": "indicatorLegendExportButtons",
         "roles": []
-    }    
+    },
+    {
+        "id": "diagramExportButtons",
+        "roles": []
+    } 
 ]

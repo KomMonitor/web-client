@@ -50,5 +50,9 @@
     {
         "id": "indicatorLegendExportButtons",
         "roles": ["fakeAdvancedModeRole"]
+    },
+    {
+        "id": "diagramExportButtons",
+        "roles": ["fakeAdvancedModeRole"]
     }
 ]

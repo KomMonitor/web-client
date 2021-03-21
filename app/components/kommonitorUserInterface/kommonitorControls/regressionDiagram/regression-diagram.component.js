@@ -518,7 +518,7 @@ angular
 														right: '15',
 														feature : {
 																// mark : {show: true},
-																dataView : {show: true, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - lineare Regression', 'schlie&szlig;en', 'refresh'], optionToContent: function(opt){
+																dataView : {show: kommonitorDataExchangeService.showDiagramExportButtons, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - lineare Regression', 'schlie&szlig;en', 'refresh'], optionToContent: function(opt){
 
 																// 	<table class="table table-condensed table-hover">
 																// 	<thead>

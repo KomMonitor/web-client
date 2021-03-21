@@ -390,7 +390,7 @@ angular
             feature: {
               // mark : {show: true},
               dataView: {
-                show: true, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Feature-Vergleich', 'schlie&szlig;en', 'refresh'], optionToContent: function (opt) {
+                show: kommonitorDataExchangeService.showDiagramExportButtons, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Feature-Vergleich', 'schlie&szlig;en', 'refresh'], optionToContent: function (opt) {
 
                   var barData = opt.series[0].data;
                   var featureNames = opt.xAxis[0].data;
@@ -789,7 +789,7 @@ angular
             feature: {
               // mark : {show: true},
               dataView: {
-                show: true, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Geo Map Chart', 'schlie&szlig;en', 'refresh'], optionToContent: function (opt) {
+                show: kommonitorDataExchangeService.showDiagramExportButtons, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Geo Map Chart', 'schlie&szlig;en', 'refresh'], optionToContent: function (opt) {
 
                   var dataTableId = "geoMapDataTable_" + Math.random();
                   var tableExportName = indicatorMetadataAndGeoJSON.indicatorName + " - " + opt.title[0].text;
@@ -898,7 +898,7 @@ angular
             feature: {
               // mark : {show: true},
               dataView: {
-                show: true, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Zeitreihe', 'schlie&szlig;en', 'refresh'], optionToContent: function (opt) {
+                show: kommonitorDataExchangeService.showDiagramExportButtons, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Zeitreihe', 'schlie&szlig;en', 'refresh'], optionToContent: function (opt) {
 
                   // 	<table class="table table-condensed table-hover">
                   // 	<thead>
@@ -1121,7 +1121,7 @@ angular
             feature: {
               // mark : {show: true},
               dataView: {
-                show: true, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Histogramm', 'schlie&szlig;en', 'refresh'], optionToContent: function (opt) {
+                show: kommonitorDataExchangeService.showDiagramExportButtons, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Histogramm', 'schlie&szlig;en', 'refresh'], optionToContent: function (opt) {
 
                   // 	<table class="table table-condensed table-hover">
                   // 	<thead>
@@ -1391,7 +1391,7 @@ angular
             feature: {
               // mark : {show: true},
               dataView: {
-                show: true, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Punkte im Einzugsgebiet' + rangeValue, 'schlie&szlig;en', 'refresh'], optionToContent: function (opt) {
+                show: kommonitorDataExchangeService.showDiagramExportButtons, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Punkte im Einzugsgebiet' + rangeValue, 'schlie&szlig;en', 'refresh'], optionToContent: function (opt) {
 
                   var poiData = opt.series[0].data;
 
