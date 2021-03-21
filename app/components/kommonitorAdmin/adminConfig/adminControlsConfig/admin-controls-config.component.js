@@ -11,6 +11,9 @@ angular.module('adminControlsConfig').component('adminControlsConfig', {
 		$scope.loadingData = true;
 		$scope.codeMirrorEditor = undefined;
 
+		$scope.missingRequiredParameters = [];
+		$scope.missingRequiredParameters_string = "";
+
 		$scope.keywordsInConfig = ["id", "roles", "indicatorConfig", "poi", "dataImport", "filter", "measureOfValueClassification", "balance", "diagrams", "radarDiagram", "regressionDiagram", "reachability", "processing"];
 
 		$scope.controlsConfigTemplate = undefined;
@@ -93,6 +96,8 @@ angular.module('adminControlsConfig').component('adminControlsConfig', {
 			var isInvalid = true;
 
 			isInvalid = ! $scope.keywordsInConfig.every(keyword => configString.includes(keyword));
+			$scope.missingRequiredParameters = $scope.keywordsInConfig.filter(keyword => ! configString.includes(keyword));
+			$scope.missingRequiredParameters_string = JSON.stringify($scope.missingRequiredParameters);	
 
 			if ($scope.lintingIssues && $scope.lintingIssues.length > 0){
 				isInvalid = true;				

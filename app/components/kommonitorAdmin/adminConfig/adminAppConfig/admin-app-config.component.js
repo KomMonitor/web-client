@@ -11,6 +11,9 @@ angular.module('adminAppConfig').component('adminAppConfig', {
 		$scope.loadingData = true;
 		$scope.codeMirrorEditor = undefined;
 
+		$scope.missingRequiredParameters = [];
+		$scope.missingRequiredParameters_string = "";
+
 		$scope.keywordsInConfig = ["window.__env", "window.__env.enableKeycloakSecurity", "window.__env.encryption", "window.__env.adminUserName", 
 			"window.__env.adminPassword", "window.__env.FEATURE_ID_PROPERTY_NAME", "window.__env.FEATURE_NAME_PROPERTY_NAME", 
 			"window.__env.VALID_START_DATE_PROPERTY_NAME", "window.__env.VALID_END_DATE_PROPERTY_NAME", "window.__env.indicatorDatePrefix",
@@ -103,6 +106,8 @@ angular.module('adminAppConfig').component('adminAppConfig', {
 			var isInvalid = true;
 
 			isInvalid = ! $scope.keywordsInConfig.every(keyword => configString.includes(keyword));
+			$scope.missingRequiredParameters = $scope.keywordsInConfig.filter(keyword => ! configString.includes(keyword));
+			$scope.missingRequiredParameters_string = JSON.stringify($scope.missingRequiredParameters);			
 
 			if ($scope.lintingIssues && $scope.lintingIssues.length > 0){
 				var errors = $scope.lintingIssues.filter(issue => issue.severity === 'error');
@@ -119,7 +124,7 @@ angular.module('adminAppConfig').component('adminAppConfig', {
 
 			var configString = $scope.appConfigTmp;				
 
-			$scope.configSettingInvalid = $scope.isConfigSettingInvalid(configString);
+			$scope.configSettingInvalid = $scope.isConfigSettingInvalid(configString);			
 
 			$timeout(function(){
 				$scope.appConfigNew = configString;
