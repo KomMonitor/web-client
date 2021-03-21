@@ -219,13 +219,13 @@ try {
 
   // array of indicator name substring that shal be used to filter out / hide certain indicators by their name
   // e.g. set ["entwicklung"] to hide all indicators whose name contains the substring "entwicklung"
-  window.__env.arrayOfNameSubstringsForHidingIndicators = ["Standardabweichung", "Bevölkerung - ", "Soziale Lage - ", "Soziale Lage (Leitindikator)", "Sterberisiko", "mittlerer Bodenversiegelungsgrad"];
+  window.__env.arrayOfNameSubstringsForHidingIndicators = [];
   // window.__env.arrayOfNameSubstringsForHidingIndicators = [];
   
   window.__env.arrayOfNameSubstringsForHidingGeoresources = [];
 
   // e-mail recipient for feedback mail
-  window.__env.feedbackMailRecipient = "thomas.blasche@amt62.essen.de";
+  window.__env.feedbackMailRecipient = "christian.danowski-buhren@hochschule-bochum.de";
   // window.__env.feedbackMailRecipient = "christian.danowski-buhren@hs-bochum.de";
 
   // config array of available options for choosing update interval of indicators
@@ -303,14 +303,6 @@ try {
         apiName: "DYNAMIC_STANDARDIZED"
     }
     
-  ];
-
-  // old paramter value  - not used anymore due to importer component
-  window.__env.geodataSourceFormats = [
-    {
-        displayName: "GeoJSON FeatureCollection",
-        value: "geojson"
-    }
   ];
 
   // array of available WMS datasets
