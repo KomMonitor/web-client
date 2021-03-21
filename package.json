@@ -47,6 +47,7 @@
     "admin-lte": "^2.4.15",
     "angular": "^1.8.2",
     "angular-datatables": "^0.6.2",
+    "angular-legacy-sortablejs-maintained": "^0.6.2",
     "angular-route": "^1.7.8",
     "angular-sanitize": "^1.7.8",
     "angular-ui-bootstrap": "^2.5.6",

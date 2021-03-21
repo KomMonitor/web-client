@@ -1122,6 +1122,7 @@ angular
           this.addIndicatorDataToTopicHierarchy = function(topicsArray, topicsMap){
             for (var topic of topicsArray) {
               topic.indicatorData = topicsMap.get(topic.topicId);
+              topic.indicatorData.sort((a,b) => (a.displayOrder > b.displayOrder) ? 1 : ((b.displayOrder > a.displayOrder) ? -1 : 0));
               topic.indicatorCount = topic.indicatorData.length;
               if(topic.subTopics.length > 0){
                 topic = this.addIndicatorDataToSubTopics(topic, topicsMap);
@@ -1134,6 +1135,7 @@ angular
           this.addIndicatorDataToSubTopics = function(topic, topicsMap){
             for (var subTopic of topic.subTopics) {
               subTopic.indicatorData = topicsMap.get(subTopic.topicId);
+              subTopic.indicatorData.sort((a,b) => (a.displayOrder > b.displayOrder) ? 1 : ((b.displayOrder > a.displayOrder) ? -1 : 0));
               subTopic.indicatorCount = subTopic.indicatorData.length;              
               if(subTopic.subTopics.length > 0){
                 subTopic = this.addIndicatorDataToSubTopics(subTopic, topicsMap);

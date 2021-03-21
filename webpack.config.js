@@ -94,7 +94,8 @@ module.exports = {
             { from: nodeModulePathConstant + 'mathjax/es5/tex-chtml.js', to: 'mathjax/' },
             { from: nodeModulePathConstant + 'mathjax/es5/output/', to: 'mathjax/output/' },    
             { from: nodeModulePathConstant + 'code-prettify/loader/run_prettify.js', to: 'code-prettify/' }, 
-            { from: nodeModulePathConstant + 'sortablejs/Sortable.min.js', to: 'sortablejs/' },       
+            { from: nodeModulePathConstant + 'sortablejs/Sortable.min.js', to: 'sortablejs/' },
+            { from: nodeModulePathConstant + 'angular-legacy-sortablejs-maintained/angular-legacy-sortable.js', to: 'angular-legacy-sortablejs/' },       
           
           
 
