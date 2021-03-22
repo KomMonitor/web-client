@@ -27,6 +27,7 @@ angular
               this.customGreetingsTextInfoMessage = __env.customGreetingsTextInfoMessage; // maybe undefined or empty string
 
               this.showDiagramExportButtons = true;
+              this.showGeoresourceExportButtons = true;
 
 							var numberOfDecimals = __env.numberOfDecimals;
 							const DATE_PREFIX = __env.indicatorDatePrefix;
@@ -1013,7 +1014,7 @@ angular
 
           this.buildTopicGeoresourceHierarchy = function(){
 
-            var georesourceTopics = this.availableTopics.filter(topic => topic.topicResource === "georesource");
+            var georesourceTopics = JSON.parse(JSON.stringify(this.availableTopics)).filter(topic => topic.topicResource === "georesource");
             /*
             topicsMap.set(topic.topicId, {
                 poiDatasets: [],
@@ -1103,7 +1104,7 @@ angular
 
           this.buildTopicIndicatorHierarchy = function(){
 
-            var indicatorTopics = this.availableTopics.filter(topic => topic.topicResource === "indicator");
+            var indicatorTopics = JSON.parse(JSON.stringify(this.availableTopics)).filter(topic => topic.topicResource === "indicator");
             var topicsMap = this.buildTopicsMap_indicators(indicatorTopics);
 
             var filteredIndicators = this.displayableIndicators_keywordFiltered;
