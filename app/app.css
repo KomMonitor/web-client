@@ -790,7 +790,7 @@ pre.CodeMirror-line {
 #sideBarButtons{
     margin-top: 200px;
   width: 90px;
-  height: 80vh;
+  /* height: 80vh; */
   position: absolute;
   display: flex;
   flex-direction: column;
