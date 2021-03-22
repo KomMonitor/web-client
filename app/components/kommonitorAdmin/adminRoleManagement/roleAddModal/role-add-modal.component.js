@@ -30,7 +30,7 @@ angular.module('roleAddModal').component('roleAddModal', {
 				$scope.keycloakErrorMessagePart = undefined;
 
 				setTimeout(() => {
-					$scope.$apply();
+					$scope.$digest();
 				}, 250);
 			};
 

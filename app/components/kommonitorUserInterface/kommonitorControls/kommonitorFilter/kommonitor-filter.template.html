@@ -29,7 +29,7 @@
                         <span class="input-group-addon">
                           <b>untere Grenze</b>
                         </span>
-                    <input ng-model="currentLowerFilterValue" ng-change="onChangeLowerFilterValue()" string-to-number type="number" min="{{valueRangeMinValue}}" max="{{valueRangeMaxValue}}" step="0.01" class="form-control input-sm">
+                    <input ng-model="currentLowerFilterValue" ng-model-options="{debounce: 500, blur: 0}" ng-change="onChangeLowerFilterValue()" string-to-number type="number" min="{{valueRangeMinValue}}" max="{{valueRangeMaxValue}}" step="0.01" class="form-control input-sm">
 
 									</div>
                   <!-- /input-group -->
@@ -50,7 +50,7 @@
                         <span class="input-group-addon">
                           <b>obere Grenze</b>
                         </span>
-                    <input ng-model="currentHigherFilterValue" ng-change="onChangeHigherFilterValue()" string-to-number type="number" min="{{valueRangeMinValue}}" max="{{valueRangeMaxValue}}" step="0.01" class="form-control input-sm">
+                    <input ng-model="currentHigherFilterValue" ng-model-options="{debounce: 500, blur: 0}" ng-change="onChangeHigherFilterValue()" string-to-number type="number" min="{{valueRangeMinValue}}" max="{{valueRangeMaxValue}}" step="0.01" class="form-control input-sm">
 
 									</div>
                   <!-- /input-group -->
@@ -79,7 +79,7 @@
 
 
 		<!-- RÄUMLICHE FILTER -->
-			<div class="box box-primary collapsed-box">
+			<!-- <div class="box box-primary collapsed-box">
 				<div class="box-header with-border">
 					<h3 class="box-title">R&auml;umliche Filter</h3>
 
@@ -97,18 +97,17 @@
 					</div>
 
 				</div>
-				<!-- /.box-body -->
-			</div>
+			</div> -->
 			<!-- /.box -->
 
 
 			<!-- SCHWELLENWERT FILTER -->
-				<div style="margin-bottom: 0px;" class="box box-primary collapsed-box">
+				<div style="margin-bottom: 0px;" class="box box-primary">
 					<div class="box-header with-border">
 						<h3 class="box-title">Dynamische Schwellenwertklassifizierung</h3>
 
 						<div class="box-tools pull-right">
-							<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+							<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
 							</button>
 						</div>
 					</div>
@@ -146,7 +145,7 @@
 								</div>
 								<div align="center">
 									<br/>
-									<label>Schwellenwert: </label><input ng-model="$ctrl.kommonitorDataExchangeServiceInstance.measureOfValue" ng-change="onMeasureOfValueChangeByText()" min="{{movMinValue}}" max="{{movMaxValue}}" step="0.01" string-to-number type="number" style="width:175px;" class="form-control input-sm" id="measureOfValueTextInput">
+									<label>Schwellenwert: </label><input ng-model="$ctrl.kommonitorDataExchangeServiceInstance.measureOfValue" ng-change="onMeasureOfValueChangeByText()" ng-model-options="{debounce: 500, blur: 0}" min="{{movMinValue}}" max="{{movMaxValue}}" step="0.01" string-to-number type="number" style="width:175px;" class="form-control input-sm" id="measureOfValueTextInput">
 
 									<!-- <div ng-show="inputNotValid">
 										<p>Schwellenwert: {{$ctrl.kommonitorDataExchangeServiceInstance.measureOfValue}}</p>

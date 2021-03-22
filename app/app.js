@@ -87,7 +87,7 @@ function ajaxCall_keycloakConfig_localBackup(configStorageServerConfig) {
 
 function ajaxCall_controlsConfig_localBackup(configStorageServerConfig) {
   return  $.ajax({
-    url: "./config/controls-config_backup_allEmpty.json",
+    url: "./config/controls-config_backup.json",
     success: function(result){
       console.log("local controls-config file with default values fetched");
       window.__env.controlsConfig = result;
@@ -181,6 +181,24 @@ function initAngularComponents(){
 
   // Register environment in AngularJS as constant
   appModule.constant('__env', env);
+
+  // MathJx directive
+  appModule.directive("mathjaxBind", function () {
+    return {
+      restrict: "EA",
+      controller: [
+        "$scope",
+        "$element",
+        "$attrs",
+        function ($scope, $element, $attrs) {
+          $scope.$watch($attrs.mathjaxBind, function (texExpression) {
+            $element.html(texExpression);
+            MathJax.typeset([$element[0]]);
+          });
+        },
+      ],
+    };
+  });
 
   // custom unique filter
   appModule.filter('unique', function() {

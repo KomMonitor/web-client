@@ -127,11 +127,11 @@ angular.module('scriptDivision').component('scriptDivision', {
 				if($scope.refIndicatorSelection && $scope.compIndicatorSelection){
 					kommonitorScriptHelperService.scriptFormulaHTML = "";
 
-					var formulaHTML = "<b>Berechnung gem&auml;&szlig; Formel<br/><i>I<sub>1</sub> / I<sub>2</sub></i>";
+					var formulaHTML = "<b>Berechnung gem&auml;&szlig; Formel<br/> $ \\frac{A}{B}  $";
 					var legendItemsHTML = "<b>Legende zur Formel</b>";				
 			
-					legendItemsHTML+="<br/><i>I<sub>1</sub></i>: " + $scope.compIndicatorSelection.indicatorName;
-					legendItemsHTML+="<br/><i>I<sub>2</sub></i>: " + $scope.refIndicatorSelection.indicatorName;
+					legendItemsHTML+="<br/> $A$: " + $scope.compIndicatorSelection.indicatorName;
+					legendItemsHTML+="<br/> $B$: " + $scope.refIndicatorSelection.indicatorName;
 
 					kommonitorScriptHelperService.scriptFormulaHTML = formulaHTML + "<br/><br/>" + legendItemsHTML;
 				}

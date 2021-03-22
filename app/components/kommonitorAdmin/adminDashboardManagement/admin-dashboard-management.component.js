@@ -28,10 +28,6 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 					}
 		};
 
-		$scope.usersPerRoleChart = echarts.init(document.getElementById('usersPerRoleDiagram'));
-		$scope.usersPerRoleChartOptions;
-		$scope.usersPerRoleChart.showLoading();
-
 		$scope.indicatorsPerTopicChart = echarts.init(document.getElementById('indicatorsPerTopicDiagram'));
 		$scope.indicatorsPerTopicChartOptions;
 		$scope.indicatorsPerTopicChart.showLoading();
@@ -49,9 +45,6 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 	  $('.box').boxWidget();
 
 		$(window).on('resize', function(){
-				if($scope.usersPerRoleChart != null && $scope.usersPerRoleChart != undefined){
-						$scope.usersPerRoleChart.resize();
-				}
 
 				if($scope.indicatorsPerTopicChart != null && $scope.indicatorsPerTopicChart != undefined){
 						$scope.indicatorsPerTopicChart.resize();
@@ -128,88 +121,11 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 
 		$scope.updateCharts = function(){
 
-			$scope.updateUsersPerRoleChart();
-
 			$scope.updateIndicatorsPerTopicChart();
 
 			$scope.updateGeoresourcesPerTypeChart();
 
 			$scope.updateIndicatorsPerSpatialUnitChart();
-		};
-
-		$scope.updateUsersPerRoleChart = function(){
-
-			$scope.usersPerRoleChart.showLoading();
-
-			var usersPerRoleMap = new Map();
-
-			kommonitorDataExchangeService.availableUsers.forEach(function(user){
-				user.roles.forEach(function(userRole){
-					var roleName = userRole.roleName;
-
-					if(usersPerRoleMap.has(roleName)){
-						// increment by 1
-						usersPerRoleMap.set(roleName, usersPerRoleMap.get(roleName) + 1);
-					}
-					else{
-						usersPerRoleMap.set(roleName, 1);
-					}
-				});
-			});
-
-			var userPerRoleSeriesData = [];
-
-			usersPerRoleMap.forEach(function(value, key, map){
-				userPerRoleSeriesData.push({
-					name: key,
-					value: value
-				});
-			});
-
-			$scope.usersPerRoleChartOptions = {
-				// grid get rid of whitespace around chart
-				// grid: {
-				// 	left: '7%',
-				// 	top: 32,
-				// 	right: '5%',
-				// 	bottom: 55
-				// },
-					title: {
-							text: 'Nutzer \npro Rolle',
-							left: 'center',
-							show: true,
-							top: 15,
-							fontSize: 12
-					},
-					tooltip: $scope.pieChartTooltip,
-					series : [
-			        {
-			            name: 'Nutzer pro Rolle',
-			            type: 'pie',
-									//roseType: 'radius',
-			            radius : '90%',
-			            center: ['50%', '50%'],
-			            data: userPerRoleSeriesData,
-			            itemStyle: {
-											normal: {
-													color: '#00c0ef',
-													shadowBlur: 20,
-													shadowColor: 'rgba(0, 0, 0, 0.5)'
-											},
-			                emphasis: {
-			                    shadowBlur: 10,
-			                    shadowOffsetX: 0,
-			                    shadowColor: 'rgba(0, 0, 0, 0.5)'
-			                }
-			            },
-									label: $scope.pieChartLabel
-			        }
-			    ]
-			};
-			// end of chart options
-
-			$scope.usersPerRoleChart.setOption($scope.usersPerRoleChartOptions);
-			$scope.usersPerRoleChart.hideLoading();
 		};
 
 		// INDICATORS PER TOPIC
@@ -218,30 +134,14 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 
 			$scope.indicatorsPerTopicChart.showLoading();
 
-			var indicatorsPerTopicMap = new Map();
-
-			kommonitorDataExchangeService.availableIndicators.forEach(function(indicator){
-
-				var mainTopicForCurrentIndicator = findMainTopicNameForTopicReference(indicator.topicReference);
-
-				if(indicatorsPerTopicMap.has(mainTopicForCurrentIndicator)){
-					// increment by 1
-					indicatorsPerTopicMap.set(mainTopicForCurrentIndicator, indicatorsPerTopicMap.get(mainTopicForCurrentIndicator) + 1);
-				}
-				else{
-					indicatorsPerTopicMap.set(mainTopicForCurrentIndicator, 1);
-				}
-
-			});
-
 			var indicatorsPerTopicSeriesData = [];
 
 			//sorted alphabetically
-			kommonitorDataExchangeService.availableTopics.forEach(function(topic){
-				if(indicatorsPerTopicMap.has(topic.topicName)){
+			kommonitorDataExchangeService.availableTopics.forEach(function(mainTopic){
+				if(mainTopic.indicatorCount > 0){
 					indicatorsPerTopicSeriesData.push({
-						name: topic.topicName,
-						value: indicatorsPerTopicMap.get(topic.topicName)
+						name: mainTopic.topicName,
+						value: mainTopic.indicatorCount
 					});
 				}
 			});
@@ -290,46 +190,6 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 
 			$scope.indicatorsPerTopicChart.setOption($scope.indicatorsPerTopicChartOptions);
 			$scope.indicatorsPerTopicChart.hideLoading();
-		};
-
-		var findMainTopicNameForTopicReference = function(topicReference){
-			var mainTopicName;
-			for(var i=0; i < kommonitorDataExchangeService.availableTopics.length; i++){
-
-				var currentTopic = kommonitorDataExchangeService.availableTopics[i];
-
-				if (currentTopic.topicId === topicReference){
-					mainTopicName = currentTopic.topicName;
-					break;
-				}
-				else{
-					var topicReferenceWithinSubTopics = isTopicReferenceWithinSubTopics(topicReference, currentTopic);
-					if (topicReferenceWithinSubTopics){
-						mainTopicName = currentTopic.topicName;
-						break;
-					}
-				}
-			}
-			return mainTopicName;
-		};
-
-		var isTopicReferenceWithinSubTopics = function(topicReference, topic){
-			for(var subI=0; subI < topic.subTopics.length; subI++){
-				var currentSubTopic = topic.subTopics[subI];
-				if(currentSubTopic.topicId === topicReference){
-					return true;
-				}
-				else{
-					if (currentSubTopic.subTopics.length > 0){
-						var topicReferenceWithinSubTopics = isTopicReferenceWithinSubTopics(topicReference, currentSubTopic);
-						if(topicReferenceWithinSubTopics){
-							return true;
-						}
-					}
-				}
-			}
-
-			return false;
 		};
 
 		// GEORESOURCES PER TOPIC

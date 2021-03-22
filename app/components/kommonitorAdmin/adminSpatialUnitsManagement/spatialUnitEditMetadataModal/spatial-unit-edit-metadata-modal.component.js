@@ -139,7 +139,7 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 			$("#spatialUnitEditMetadataErrorAlert").hide();
 
 			setTimeout(() => {
-				$scope.$apply();	
+				$scope.$digest();	
 			}, 250);
 		};
 
@@ -278,7 +278,7 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 					document.getElementById("spatialUnitsEditMetadataPre").innerHTML = $scope.spatialUnitMetadataStructure_pretty;
 					$("#spatialUnitEditMetadataImportErrorAlert").show();
 
-					$scope.$apply();
+					$scope.$digest();
 				}
 
 			};
@@ -297,7 +297,7 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 				document.getElementById("spatialUnitsEditMetadataPre").innerHTML = $scope.spatialUnitMetadataStructure_pretty;
 				$("#spatialUnitEditMetadataImportErrorAlert").show();
 
-				$scope.$apply();
+				$scope.$digest();
 			}
 
 				$scope.metadata = {};
@@ -334,7 +334,7 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 
 				$scope.spatialUnitLevel = $scope.metadataImportSettings.spatialUnitLevel;
 
-				$scope.$apply();
+				$scope.$digest();
 		}
 
 		$scope.onExportSpatialUnitEditMetadataTemplate = function(){

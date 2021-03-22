@@ -64,13 +64,8 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 				kommonitorScriptHelperService.reset();
 
 				setTimeout(() => {
-					$scope.$apply();
-				}, 250);
-			};
-
-			$scope.filterIndicators = function () {
-
-				return kommonitorDataExchangeService.filterIndicators();
+					$scope.$digest();
+				}, 1000);
 			};
 
 			$scope.addScript = async function () {
@@ -92,6 +87,7 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 					if(kommonitorScriptHelperService.scriptFormulaHTML_overwriteTargetIndicatorMethod){
 						try {
 							await kommonitorScriptHelperService.replaceMethodMetadataForTargetIndicator(kommonitorScriptHelperService.targetIndicator);
+							kommonitorScriptHelperService.scriptFormulaHTML_successToastDisplay = kommonitorScriptHelperService.scriptFormulaHTML;
 							$("#indicatorMetadataEditSuccessAlert").show();
 						} catch (error) {
 							if (error.data) {
@@ -105,8 +101,9 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 							$scope.loadingData = false;
 		
 							setTimeout(() => {
-								$scope.$apply();
-							}, 250);
+								$scope.loadingData = false;
+								$scope.$digest();
+							}, 1000);
 						}
 						
 					}
@@ -121,8 +118,9 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 					$scope.loadingData = false;
 
 					setTimeout(() => {
-						$scope.$apply();
-					}, 250);
+						$scope.loadingData = false;
+						$scope.$digest();
+					}, 1000);
 				} catch (error) {
 					if (error.data) {
 						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
@@ -135,8 +133,9 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 					$scope.loadingData = false;
 
 					setTimeout(() => {
-						$scope.$apply();
-					}, 250);
+						$scope.loadingData = false;
+						$scope.$digest();
+					}, 1000);
 				}
 
 			};

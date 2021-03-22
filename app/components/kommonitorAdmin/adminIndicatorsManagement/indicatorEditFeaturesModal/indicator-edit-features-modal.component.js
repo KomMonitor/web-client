@@ -134,6 +134,15 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 					}
 				  };
 			};
+
+			$scope.filterImporterConverters = function(){
+				return function( converterMetadata ) {
+					if(converterMetadata && converterMetadata.simpleName && converterMetadata.simpleName.includes("LatLon")){
+						return false;
+					}
+					return true;
+				  };
+			};
 	
 			$scope.refreshIndicatorEditFeaturesOverviewTable = function(){
 	
@@ -260,7 +269,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 				$("#indicatorEditFeaturesErrorAlert").hide();
 
 				setTimeout(() => {
-					$scope.$apply();	
+					$scope.$digest();	
 				}, 250);
 				
 			};
@@ -333,7 +342,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 				$scope.tmpTimeseriesMapping_directTimestamp = undefined;
 	
 				setTimeout(() => {
-					$scope.$apply();
+					$scope.$digest();
 				}, 250);
 			};
 	
@@ -361,7 +370,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 				}
 	
 				setTimeout(() => {
-					$scope.$apply();
+					$scope.$digest();
 				}, 250);
 			};
 	
@@ -377,15 +386,8 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 				}				
 	
 				setTimeout(() => {
-					$scope.$apply();
+					$scope.$digest();
 				}, 250);
-			};
-	
-	
-	
-			$scope.filterIndicators = function() {
-	
-				return kommonitorDataExchangeService.filterIndicators();
 			};
 	
 	
@@ -530,7 +532,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 								$scope.loadingData = false;
 	
 								setTimeout(() => {
-									$scope.$apply();
+									$scope.$digest();
 								}, 250);
 	
 							}
@@ -549,7 +551,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 							$scope.loadingData = false;
 	
 							setTimeout(() => {
-								$scope.$apply();
+								$scope.$digest();
 							}, 250);
 						}
 					}
@@ -590,7 +592,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 						document.getElementById("indicatorsEditFeaturesMappingConfigPre").innerHTML = $scope.indicatorMappingConfigStructure_pretty;
 						$("#indicatorEditFeaturesMappingConfigImportErrorAlert").show();
 	
-						$scope.$apply();
+						$scope.$digest();
 					}
 	
 				};
@@ -608,7 +610,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 					document.getElementById("indicatorsEditFeaturesMappingConfigPre").innerHTML = $scope.indicatorMappingConfigStructure_pretty;
 					$("#indicatorEditFeaturesMappingConfigImportErrorAlert").show();
 	
-					$scope.$apply();
+					$scope.$digest();
 				}
 				
 				  $scope.converter = undefined;
@@ -636,7 +638,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 						}
 					}
 	
-					$scope.$apply();
+					$scope.$digest();
 	
 					// converter parameters
 					if ($scope.converter){
@@ -681,7 +683,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 
 					$scope.keepMissingValues = $scope.mappingConfigImportSettings.propertyMapping.keepMissingOrNullValueIndicator;
 					
-					$scope.$apply();
+					$scope.$digest();
 			};
 	
 			$scope.onExportIndicatorEditFeaturesMappingConfig = async function(){

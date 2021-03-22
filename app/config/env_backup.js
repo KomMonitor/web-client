@@ -2,6 +2,8 @@ try {
   
   window.__env = window.__env || {};
 
+  window.__env.appTitle = "KomMonitor (Pilotversion)";
+
   // Whether or not to enable debug mode
   // Setting this to false will disable console output
   window.__env.enableDebug = true;
@@ -9,12 +11,33 @@ try {
   // enable/disable role based access using keycloak
   window.__env.enableKeycloakSecurity = true;
 
+  // enable and show/hide switch to toggle basic and advanced mode
+  // this feature can hide certain app elements via ID if in basic mode
+  // configure elements in admin page app settings via controls-config file
+  window.__env.isAdvancedMode = true; // controls if advanced mode is activated on startup
+  window.__env.showAdvancedModeSwitch = true; // controls if toggle switch is at all displayed for toggling basinc/advanced mode  
+
   // encrypted data transfer from Data Management API settings
   window.__env.encryption = {
     enabled: false,
     password: "password", // this is shared secret between all components (hence must be set to the exact same value for all participating components)
     ivLength_byte: 16
   };
+
+  /*
+  PROPERTIES used within greetings window (infoModal component)
+  to insert custom LOGO by URL with custom width
+  and adjust individual information text
+  as well as contact information
+  */
+ window.__env.customLogoURL = "data:image/png;base64,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"; // image format allows all types usable within HTML <img> tag
+ window.__env.customLogo_onClickURL = "https://www.hochschule-bochum.de/fbg/forschung-und-entwicklung/kommonitor/"; // uses <a> tag to insert clickable link on logo
+ window.__env.customLogoWidth = "35px"; // height is fixed to 35px; so adjust your custom width to keep aspect ratio
+ window.__env.customGreetingsContact_name = "Christian Danowski-Buhren";
+ window.__env.customGreetingsContact_organisation = "Hochschule Bochum, Fachbereich Geod&auml;sie";
+ window.__env.customGreetingsContact_mail = "christian.danowski-buhren@hs-bochum.de";
+ window.__env.customGreetingsTextInfoMessage = ""; // as HTML; only set if you want to give users some extra hints; if empty will be ignored
+  
 
   // admin user credentials to log into admin view in No-Keycloak-Settings
   window.__env.adminUserName = "Admin";
@@ -29,13 +52,13 @@ try {
   window.__env.indicatorDatePrefix = "DATE_";
 
   // Data Management API URL
-  window.__env.apiUrl = 'https://kom2.vestsensoren.de/data-management/management';
+  window.__env.apiUrl = 'https://maps.smartdemography.de/data-management/management';
   // window.__env.apiUrl = 'http://localhost:8085/';
   // Base url for Data Management API
   window.__env.basePath = '';
 
   // Processing Engine URL
-  window.__env.targetUrlToProcessingEngine = 'https://kom2.vestsensoren.de/data-processing/processing';
+  window.__env.targetUrlToProcessingEngine = 'https://maps.smartdemography.de/data-processing/processing';
   // window.__env.targetUrlToProcessingEngine = 'http://localhost:8086/processing/';
 
   // Open Route Service URL
@@ -43,11 +66,11 @@ try {
   window.__env.targetUrlToReachabilityService_ORS = 'https://maps.smartdemography.de/ors';
 
   // Open Trip Planner URL - currently not integrated
-  window.__env.targetUrlToReachabilityService_OTP = 'https://kom2.vestsensoren.de/opentripplanner';
+  window.__env.targetUrlToReachabilityService_OTP = 'https://maps.smartdemography.de/opentripplanner';
   // window.__env.targetUrlToReachabilityService_OTP = 'http://localhost:8090/opentripplanner';
 
   // Data Imporert URL
-  window.__env.targetUrlToImporterService = 'https://kom2.vestsensoren.de/data-importer/importer/';
+  window.__env.targetUrlToImporterService = 'https://maps.smartdemography.de/data-importer/importer/';
 
   // optional geometry simplification (a feature of Data Management API)
   window.__env.simplifyGeometriesParameterName = "simplifyGeometries";
@@ -76,7 +99,7 @@ try {
     //   url: "", // URL to layer
     //   layerType: "TILE_LAYER", // TILE_LAYER | TILE_LAYER_GRAYSCALE | WMS
     //   layerName_WMS: "", // only relevant for layers of type WMS - multiple layers comma-separated
-    //   attributen_html: "", // attribution info displayed at the bottom of the map as HTML string
+    //   attribution_html: "", // attribution info displayed at the bottom of the map as HTML string
     //   minZoomLevel: window.__env.minZoomLevel, // min zoom level for this layer (number between 1-20)
     //   maxZoomLevel: window.__env.maxZoomLevel // max zoom level for this layer (number between 1-20, greater than minZoomLevel)
     // },
@@ -85,7 +108,7 @@ try {
       url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", 
       layerType: "TILE_LAYER_GRAYSCALE", 
       layerName_WMS: "", 
-      attributen_html: "Map data © <a href='http://openstreetmap.org'>OpenStreetMap</a> contributors", 
+      attribution_html: "Map data © <a href='http://openstreetmap.org'>OpenStreetMap</a> contributors", 
       minZoomLevel: window.__env.minZoomLevel, 
       maxZoomLevel: window.__env.maxZoomLevel 
     },
@@ -94,7 +117,7 @@ try {
       url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
       layerType: "TILE_LAYER", 
       layerName_WMS: "", 
-      attributen_html: "Map data © <a href='http://openstreetmap.org'>OpenStreetMap</a> contributors", 
+      attribution_html: "Map data © <a href='http://openstreetmap.org'>OpenStreetMap</a> contributors", 
       minZoomLevel: window.__env.minZoomLevel, 
       maxZoomLevel: window.__env.maxZoomLevel 
     },    
@@ -103,7 +126,7 @@ try {
       url: "https://geodaten.metropoleruhr.de/spw2?", 
       layerType: "WMS", 
       layerName_WMS: "stadtplan_rvr", 
-      attributen_html: "Map data © <a href='https://geodaten.metropoleruhr.de'>https://geodaten.metropoleruhr.de</a>", 
+      attribution_html: "Map data © <a href='https://geodaten.metropoleruhr.de'>https://geodaten.metropoleruhr.de</a>", 
       minZoomLevel: window.__env.minZoomLevel, 
       maxZoomLevel: window.__env.maxZoomLevel 
     },
@@ -112,7 +135,7 @@ try {
       url: "https://geodaten.metropoleruhr.de/spw2?", 
       layerType: "WMS", 
       layerName_WMS: "spw2_graublau",
-      attributen_html: "Map data © <a href='https://geodaten.metropoleruhr.de'>https://geodaten.metropoleruhr.de</a>", 
+      attribution_html: "Map data © <a href='https://geodaten.metropoleruhr.de'>https://geodaten.metropoleruhr.de</a>", 
       minZoomLevel: window.__env.minZoomLevel, 
       maxZoomLevel: window.__env.maxZoomLevel 
     },
@@ -121,7 +144,7 @@ try {
       url: "https://www.wms.nrw.de/geobasis/wms_nw_dtk?", 
       layerType: "WMS", 
       layerName_WMS: "nw_dtk_pan", 
-      attributen_html: "Map data © <a href='https://www.bezreg-koeln.nrw.de/brk_internet/geobasis/'>Geobasis NRW</a>", 
+      attribution_html: "Map data © <a href='https://www.bezreg-koeln.nrw.de/brk_internet/geobasis/'>Geobasis NRW</a>", 
       minZoomLevel: window.__env.minZoomLevel, 
       maxZoomLevel: window.__env.maxZoomLevel 
     },
@@ -130,25 +153,7 @@ try {
       url: "https://www.wms.nrw.de/geobasis/wms_nw_dop?",
       layerType: "WMS",
       layerName_WMS: "nw_dop_rgb", 
-      attributen_html: "Map data © <a href='https://www.bezreg-koeln.nrw.de/brk_internet/geobasis/'>Geobasis NRW</a>", 
-      minZoomLevel: window.__env.minZoomLevel, 
-      maxZoomLevel: window.__env.maxZoomLevel 
-    },
-    {
-      name: "Stadt Essen - Automatisierte Liegenschaftskarte", 
-      url: "https://geo.essen.de/arcgis/services/basemap/Stadtplanpaket_ALK_grau/MapServer/WMSServer?",
-      layerType: "WMS", 
-      layerName_WMS: "0,1,2,3", 
-      attributen_html: "Stadt Essen: Amt f&uumlr Geoinformation, Vermessung und Kataster", 
-      minZoomLevel: window.__env.minZoomLevel, 
-      maxZoomLevel: window.__env.maxZoomLevel 
-    },
-    {
-      name: "Stadt Essen - Amtliche Basiskarte", 
-      url: "https://geo.essen.de/arcgis/services/basemap/Uebersicht_ABK_Stadtgrundkarte/MapServer/WMSServer?", 
-      layerType: "WMS", 
-      layerName_WMS: "nw_dop_rgb", 
-      attributen_html: "Stadt Essen: Amt f&uumlr Geoinformation, Vermessung und Kataster", 
+      attribution_html: "Map data © <a href='https://www.bezreg-koeln.nrw.de/brk_internet/geobasis/'>Geobasis NRW</a>", 
       minZoomLevel: window.__env.minZoomLevel, 
       maxZoomLevel: window.__env.maxZoomLevel 
     }
@@ -199,7 +204,6 @@ try {
 
   // array of indicator name substring that shal be used to filter out / hide certain indicators by their name
   // e.g. set ["entwicklung"] to hide all indicators whose name contains the substring "entwicklung"
-  // window.__env.arrayOfNameSubstringsForHidingIndicators = ["Standardabweichung", "Bevölkerung - ", "Soziale Lage - ", "Soziale Lage (Leitindikator)", "Sterberisiko", "mittlerer Bodenversiegelungsgrad"];
   window.__env.arrayOfNameSubstringsForHidingIndicators = [];
   // window.__env.arrayOfNameSubstringsForHidingIndicators = [];
   
@@ -284,14 +288,6 @@ try {
         apiName: "DYNAMIC_STANDARDIZED"
     }
     
-  ];
-
-  // old paramter value  - not used anymore due to importer component
-  window.__env.geodataSourceFormats = [
-    {
-        displayName: "GeoJSON FeatureCollection",
-        value: "geojson"
-    }
   ];
 
   // array of available WMS datasets

@@ -151,7 +151,7 @@ angular.module('reportingAddIndicatorModal').component('reportingAddIndicatorMod
 			//fill left side with all timestamps
 			var timestampsInput = createDualListInputArray($scope.indicator.applicableDates);
 			$scope.duallistTimestampsOptions.items = timestampsInput;
-			$scope.$apply();
+			$scope.$digest();
 
 			//if just one timestamp exists, move it to right side
 			var $list = $('.unselected-items-list:eq(1) li a'); //all elements of second dual list left side

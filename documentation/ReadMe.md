@@ -88,7 +88,8 @@ Build-in Services are provided by AngularJS. They act as a kind of wrapper aroun
 
 The \$http service is a function to communicate with a remote HTTP server.
 As an Example, let's say we have the following JSON file on an arbitrary HTTP server.
-
+    
+```json
     {
       "products": [
         {
@@ -101,7 +102,11 @@ As an Example, let's say we have the following JSON file on an arbitrary HTTP se
       ]
     }
 
+```
+
 In our HTML-template we want to show the details for on of the two products when the user clicks on a button. Clicking the button sends a request to the server. Without using the /$http service it could look like this:
+
+```javascript
 
     $scope.sendRequest = function() {
       var xmlHttp = new XMLHttpRequest();
@@ -115,8 +120,12 @@ In our HTML-template we want to show the details for on of the two products when
 	  xmlHttp.send(null);
 	}
 
+```
+
 The scope is updated as soon as the response is available. However, this approach will not work. Even though we get the correct response and update the variable productDetails, our HTML-template is not updated. The reason for this is that angularJS does not get notified about the update. We could fix this by notifying angularJS manually, but this is exactly what the \$http service is for. Let's see what our example looks like with the \$http service.
 The code below is (slightly modified) taken from the [\$http service documentation](https://docs.angularjs.org/api/ng/service/$http).
+
+```javascript
 
     $http({
         method: 'GET',
@@ -128,6 +137,8 @@ The code below is (slightly modified) taken from the [\$http service documentati
     }, function errorCallback(response) {
         //do nothing
     });
+
+```
 
 Our HTML template is updated as soon as the response is available.
 
@@ -143,6 +154,8 @@ Own services can be created in two ways:
 In KomMonitor services are created by using the service method, which is why we will focus on this method. Services are part of modules. You can decide if you create an extra module just for your service or if you add a service to an existing module.
 The most important service in KomMonitor is the kommonitorDataExchangeService. 
 
+```javascript
+
     angular
 	  .module('kommonitorDataExchange', ['datatables'])
 	  .service(
@@ -155,15 +168,21 @@ The most important service in KomMonitor is the kommonitorDataExchangeService.
         ]
       )
 
+```
+
 As you can see, dependencies are added to a service in the same way they are added to a component. They can then be used inside the service in the same way.
 
 In contrast to components, services do not have a scope. The purpose of a scope is to connect the presentation (view) with the logic inside a controller. Since a service has no HTML template (no view), a scope is useless here.
 This leads to the question how to assign variables and methods to a service. Instead of \$scope it is possible to use "this"
 
+```javascript
+
     this.indicators = [ ... ]
     this.filterIndicators = function() {
         ...
     };
+
+```
 
 You can read more about AngularJS Services [here](https://docs.angularjs.org/guide/services)
 

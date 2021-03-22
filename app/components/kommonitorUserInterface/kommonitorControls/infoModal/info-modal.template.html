@@ -11,18 +11,26 @@
 				<p>smartdemography setzt zur Darstellung der Ergebnisse das GIS-gest&uuml;tzte, raum-zeitliche Monitoring-Portal "KomMonitor" ein.
 					<br/>
 					Gegenw&auml;rtig befindet sich diese Anwendung in einem kontinuierlichen Entwicklungsstadium.
-					KomMonitor bietet derzeit lediglich ausgew&auml;hlte Inhalte sowie prototypisch umgesetzte Funktionalit&auml;ten, um Ihnen als Endanwender die M&ouml;glichkeit zu er&ouml;ffnen, sich mit den Kernapsekten der Anwendung vertraut zu machen.
-					<br/>
-					Bitte beachten Sie daher, dass es zu fehlerhaften Darstellungen kommen kann und einige Funktionen in dieser Version noch nicht nutzbar sind.
-				</p>
-				<p>
-					Im Sinne eines Testbetriebs k&ouml;nnen Sie die aktuelle Anwendungsversion mit den vorgefertigten Inhalten ausprobieren und wir laden Sie dazu ein, Feedback, Anregungen sowie Ideen f&uuml;r eigene Inhalte oder fehlendene Funktionalit&auml;ten
+					Sollten Sie eine fehlerhafte Darstellung oder unerkl&auml;rliche Anwendungsfehler erhalten, so nehmen Sie bitte Kontakt zum Entwickler-Team auf.
+
+					Im Sinne eines Testbetriebs k&ouml;nnen Sie die aktuelle Anwendungsversion ausprobieren, um eigene Daten erg&auml;nzen und wir laden Sie dazu ein, Feedback, Anregungen sowie Ideen f&uuml;r fehlendene Funktionalit&auml;ten
 					an uns weiterzureichen.
-					<br/>
 					<br/>
 					Wir w&uuml;nschen Ihnen viel Spaß beim Testen!
 					<br/>
 					<img src="logos/unterschrift.png" alt="Unterschrift Projektteam" width="35%" height="35%">
+				</p>
+
+				<br/>
+				<br/>
+
+				<p>
+					Besuchen Sie gerne das <a href="https://github.com/KomMonitor/KomMonitor-Docs/wiki" target="_blank" rel="noopener noreferrer" >KomMonitor Wiki auf GitHub</a> als zentrale Anlaufstelle f&uuml;r Dokumentationen und Hinweise zur Bedienung (derzeit noch im Aufbau)
+
+					Weiterhin bietet die <b>Webseite</b> <a href="https://kommonitor.de" target="_blank" rel="noopener noreferrer" >KomMonitor.de</a> allgemeine Informationen.
+
+					Zuletz sei auf das <b>Forum</b> <a href="https://forum.kommonitor.de/" target="_blank" rel="noopener noreferrer" >https://forum.kommonitor.de/</a> hingewiesen. Tauschen Sie sich dort gerne mit weiteren Anwendern und Entwicklern aus und tragen so zur Weiterentwicklung des System bei.
+				
 				</p>
 
 				<br/>
@@ -44,20 +52,26 @@
 				    </thead> -->
 				    <tbody>
 				      <tr>
-				        <td>Eckhard Holtmann</td>
-				        <td><a href="mailto:E.Holtmann@kreis-re.de">E.Holtmann@kreis-re.de</a></td>
-						<td> Tel. 02361/53-4030</td>
+				        <td ng-bind-html="$ctrl.kommonitorDataExchangeServiceInstance.customGreetingsContact_name"></td>
+				        <td ng-bind-html="$ctrl.kommonitorDataExchangeServiceInstance.customGreetingsContact_organisation"></td>
+				        <td><a href="mailto:{{$ctrl.kommonitorDataExchangeServiceInstance.customGreetingsContact_mail}}">{{$ctrl.kommonitorDataExchangeServiceInstance.customGreetingsContact_mail}}</a></td>
 				      </tr>
 				    </tbody>
 				  </table>
 
 				</div>
 
+				<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.customGreetingsTextInfoMessage && $ctrl.kommonitorDataExchangeServiceInstance.customGreetingsTextInfoMessage != ''">
+					<br/>
+					<b>Zus&auml;tzliche Hinweise</b>
+					<p ng-bind-html="$ctrl.kommonitorDataExchangeServiceInstance.customGreetingsTextInfoMessage"></p>
+				</div>
+
 				<br/>
 				<br/>
-				Entwickelt wird die technische Plattform gemeinsam von der Stadt Essen und den Verbundpartnern Hochschule Bochum, Ruhr-Universität Bochum und Stadt M&uuml;lheim im Rahmen des BMBF-gef&ouml;rderten Forschungsprojekts <a href="http://www.kommonitor.de" target="_blank">KomMonitor<a/>
-				.<br/>
-				KomMonitor ist eine Quell-offene Open-Source-L&ouml;sung und im <a href="https://github.com/kommonitor" target="_blank">GitHub<a/> ver&ouml;ffentlicht.<br/>
+				<p>Entwickelt wird die technische Plattform gemeinsam durch die Hochschule Bochum, Ruhr-Universit&auml;t Bochum und diverse Kommunen und Kreisverwaltugen, im Rahmen des BMBF-gef&ouml;rderten Forschungsprojekts <a href="http://www.kommonitor.de" target="_blank">KomMonitor<a/>
+				</p>
+				<br/>
 
 				<div align='center'>
 					<img src="logos/BMBF.svg"></img>
@@ -69,9 +83,16 @@
 
 				<div class="row">
 					<div class="col-md-8">
-						<div class="checkbox">
-							<label><input type="checkbox" value="isHideGreetings" ng-model="isHideGreetings" ng-change="onChangeHideGreetings()">Begr&uuml;&szlig;ungsfenster beim n&auml;chsten Aufruf verbergen</label>
-						 </div>
+						<label>Begr&uuml;&szlig;ungsfenster beim n&auml;chsten Aufruf verbergen</label>		
+							<label class="switch">
+								<input type="checkbox" value="isHideGreetings" ng-model="isHideGreetings" ng-checked="isHideGreetings" ng-change="onChangeHideGreetings()">
+								<span class="switchslider round"></span>
+							</label>	
+							
+							<input type="checkbox" ng-hide="true" ng-change="onChangeHideGreetings()">
+						<!-- <div class="checkbox">
+							<label><input type="checkbox" ng-model="$ctrl.isHideGreetings" ng-change="onChangeHideGreetings()">Begr&uuml;&szlig;ungsfenster beim n&auml;chsten Aufruf verbergen</label>
+						 </div> -->
 					</div>
 					<div class="col-md-2">
 						<button type="button" ng-click="callStartGuidedTour()" class="btn btn-danger">Guided Tour&nbsp;&nbsp;<span class="glyphicon glyphicon-play"></span></button>				

@@ -1,0 +1,58 @@
+[   // COMMENTS NOT ALLOWED IN JSON, BUT USED HERE TO EXPLAIN PROPERTIES
+    {
+        "id": "indicatorConfig",
+        "roles": []         // access for everyone
+    },
+    {
+        "id": "poi",
+        "roles": ["keycloakRole1", "keycloakRole2"]  // access only for users with at least one of the Keycloak-roles
+    },    
+    {
+        "id": "filter",
+        "roles": ["fakeAdvancedModeRole"]       // access only if advanced mode is active - should not be combined with Keycloak role names
+    },
+    {
+        "id": "dataImport",
+        "roles": ["administrator"]
+    },
+    {
+        "id": "measureOfValueClassification",
+        "roles": []
+    },
+    {
+        "id": "balance",
+        "roles": []
+    },
+    {
+        "id": "diagrams",
+        "roles": []
+    },
+    {
+        "id": "radarDiagram",
+        "roles": []
+    },
+    {
+        "id": "regressionDiagram",
+        "roles": ["administrator", "verwaltung"]
+    },
+    {
+        "id": "reachability",
+        "roles": []
+    },
+    {
+        "id": "processing",
+        "roles": ["administrator"]
+    },
+    {
+        "id": "reportingButton",
+        "roles": []
+    },
+    {
+        "id": "indicatorLegendExportButtons",
+        "roles": []
+    },
+    {
+        "id": "diagramExportButtons",
+        "roles": []
+    } 
+]

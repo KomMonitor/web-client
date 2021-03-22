@@ -1,17 +1,27 @@
 angular.module('infoModal').component('infoModal', {
 	templateUrl : "components/kommonitorUserInterface/kommonitorControls/infoModal/info-modal.template.html",
-	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', function InfoModalController(kommonitorDataExchangeService, $scope, $rootScope) {
+	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '$timeout', function InfoModalController(kommonitorDataExchangeService, $scope, $rootScope, $timeout) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
 		$scope.isHideGreetings = false;
 
-		if(! (localStorage.getItem("hideKomMonitorAppGreeting") === "true")) {
-			$('#infoModal').modal('show');			
-		}
-		else{
-			$scope.isHideGreetings = true;
-		}
+		$scope.init = function(){
+			if(! (localStorage.getItem("hideKomMonitorAppGreeting") === "true")) {
+					
+				$scope.isHideGreetings = false;
+
+				$('#infoModal').modal('show');		
+			}
+			else{
+				$scope.isHideGreetings = true;
+			}
+
+			$timeout(function(){
+				$scope.$digest();
+			}, 250);
+			
+		};
 
 		$scope.onChangeHideGreetings = function(){
 			if($scope.isHideGreetings){
@@ -32,5 +42,6 @@ angular.module('infoModal').component('infoModal', {
 			$('#feedbackModal').modal('show');
 		};
 
+		$scope.init();
 	}
 ]});
