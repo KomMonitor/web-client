@@ -27,6 +27,7 @@ angular
               this.customGreetingsTextInfoMessage = __env.customGreetingsTextInfoMessage; // maybe undefined or empty string
 
               this.showDiagramExportButtons = true;
+              this.showGeoresourceExportButtons = true;
 
 							var numberOfDecimals = __env.numberOfDecimals;
 							const DATE_PREFIX = __env.indicatorDatePrefix;

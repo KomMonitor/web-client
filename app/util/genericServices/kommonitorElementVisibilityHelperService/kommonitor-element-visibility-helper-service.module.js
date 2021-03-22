@@ -27,6 +27,7 @@ angular
 
       this.initElementVisibility = function () {
         kommonitorDataExchangeService.showDiagramExportButtons = true;
+        kommonitorDataExchangeService.showGeoresourceExportButtons = true;
 
         this.elementVisibility = {};
         var config = ControlsConfigService.getControlsConfig();
@@ -76,6 +77,10 @@ angular
           if(! hasAllowedRole && element.id === "diagramExportButtons"){
             kommonitorDataExchangeService.showDiagramExportButtons = false;
           }
+          // special case for georesource export buttons
+          if(! hasAllowedRole && element.id === "georesourceExportButtons"){
+            kommonitorDataExchangeService.showGeoresourceExportButtons = false;
+          }
 
           return hasAllowedRole;
         } else {
@@ -86,6 +91,10 @@ angular
               if(element.id === "diagramExportButtons"){
                 kommonitorDataExchangeService.showDiagramExportButtons = false;
               }
+              // special case for georesource export buttons
+              if(! hasAllowedRole && element.id === "georesourceExportButtons"){
+                kommonitorDataExchangeService.showGeoresourceExportButtons = false;
+              }
 
               return false;
             }
@@ -95,6 +104,10 @@ angular
             // special case for diagram export buttons
             if(element.id === "diagramExportButtons"){
               kommonitorDataExchangeService.showDiagramExportButtons = false;
+            }
+            // special case for georesource export buttons
+            if(! hasAllowedRole && element.id === "georesourceExportButtons"){
+              kommonitorDataExchangeService.showGeoresourceExportButtons = false;
             }
 
             return false;
