@@ -2,7 +2,7 @@ try {
   
   window.__env = window.__env || {};
 
-  window.__env.appTitle = "KomMonitor (Pilotversion)";
+  window.__env.appTitle = "smartdemography - Karten und Daten";
 
   // Whether or not to enable debug mode
   // Setting this to false will disable console output
