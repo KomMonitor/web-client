@@ -669,7 +669,9 @@ angular.module('kommonitorMap').component(
 
         $scope.$on("hideLoadingIconOnMap", function (event) {
           // console.log("Hide loading icon on map");
-          $scope.loadingData = false;
+          $timeout(function(){
+            $scope.loadingData = false;
+          }, 250);
 
         });
 
