@@ -355,7 +355,7 @@ angular
 								});
 
 								$scope.refreshSelectedGeoresources = function(){
-									for (const georesource of kommonitorDataExchangeService.availableGeoresources) {
+									for (const georesource of kommonitorDataExchangeService.displayableGeoresources_keywordFiltered) {
 										if (georesource.isSelected){
 
 											if(georesource.isPOI){
@@ -487,7 +487,7 @@ angular
 								};
 
 								$scope.refreshPoiLayers = async function(){
-									for (var poi of kommonitorDataExchangeService.availableGeoresources){
+									for (var poi of kommonitorDataExchangeService.displayableGeoresources_keywordFiltered){
 										if (poi.isSelected){
 											//remove POI layer from map
 											$scope.removePoiLayerFromMap(poi);
