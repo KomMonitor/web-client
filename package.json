@@ -39,7 +39,7 @@
   },
   "scripts": {
     "build": "npm install --force && webpack && grunt",
-    "start": "http-server -a localhost -p 8000 -c-1 ./app"
+    "start": "http-server -p 8000 -c-1 ./app"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.9.0",
