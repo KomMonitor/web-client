@@ -136,7 +136,7 @@
 						<div id="georesourceHierarchySelection" class="list-group list-group-root well">
 
 							<div
-								ng-repeat="mainTopic in $ctrl.kommonitorDataExchangeServiceInstance.topicGeoresourceHierarchy">
+								ng-repeat="mainTopic in $ctrl.kommonitorDataExchangeServiceInstance.topicGeoresourceHierarchy" ng-if="::mainTopic.totalCount">
 								<div class="list-group-item list-group-item-default"
 									style="background: #2171b5; color: white;">
 									<a id="{{::mainTopic.topicId}}" href=""
@@ -152,7 +152,7 @@
 
 								<div class="list-group collapse"
 								uib-collapse="isCollapsed_mainTopic">
-								<div ng-repeat="subTopic in ::mainTopic.subTopics" >
+								<div ng-repeat="subTopic in ::mainTopic.subTopics" ng-if="::subTopic.totalCount">
 
 									<div class="list-group-item list-group-item-default"
 										style="background: #6baed6; color: white;">
@@ -169,7 +169,7 @@
 
 									<div class="list-group collapse"
 									uib-collapse="isCollapsed_subTopic">
-									<div ng-repeat="subsubTopic in ::subTopic.subTopics" >
+									<div ng-repeat="subsubTopic in ::subTopic.subTopics" ng-if="::subsubTopic.totalCount">
 
 										<div class="list-group-item list-group-item-default"
 											style="background: #bdd7e7; color: white;">
@@ -186,7 +186,7 @@
 										</div>
 
 										<div class="list-group collapse" uib-collapse="isCollapsed_subsubTopic">
-											<div ng-repeat="subsubsubTopic in ::subsubTopic.subTopics">
+											<div ng-repeat="subsubsubTopic in ::subsubTopic.subTopics" ng-if="::subsubsubTopic.totalCount">
 
 											<div class="list-group-item list-group-item-default"
 												style="background: #eff3ff; color: white;">
@@ -1649,7 +1649,7 @@
 							<!-- end main Topics -->
 
 							<div class="list-group-item list-group-item-default"
-								style="background: #2171b5; color: white;">
+								style="background: #2171b5; color: white;" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.topicGeoresourceHierarchy_unmappedEntries.totalCount > 0">
 								<a id="noHierarchyGeoresourceDatasets" href=""
 									ng-attr-title="Georessourcen-Daten ohne Themenbezug" class="collapseTrigger"
 									style="color: white;" ng-click="isCollapsed_noTopic = !isCollapsed_noTopic"
