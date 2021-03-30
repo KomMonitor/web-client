@@ -489,7 +489,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				placement: "bottom",
 				content: "In der Kopfzeile befinden sich neben den Logos und dem Titel der Webanwendung drei Buttons und ein Schalter. </br>" +
 				"Mit dem Schalter kann zwischen einer <b>vereinfachten</b> und einer <b>erweiterten Ansicht</b> gewechselt werden kann. </br>" +
-				"Mit dem <b>kleinen Dreieck</b> kann diese Guided Tour stets erneut aufgerufen werden. </br>" +
+				"Mit <span class='glyphicon glyphicon-play'></span> test <label class='switch'><input disabled type='checkbox'><span class='switchslider round'></span></label>   nextTest <i class='fas fa-user-cog'></i>  kann diese Guided Tour stets erneut aufgerufen werden. </br>" +
 				"Der <b>Info-Button</b> &ouml;ffnet das beim Aufruf der Seite erschienene Informationsfenster und</br>" + 
 				"der letzte Button in der Reihe erm&ouml;glicht den <b>Zugang zur Administrationsoberfläche</b>." 
 			},
