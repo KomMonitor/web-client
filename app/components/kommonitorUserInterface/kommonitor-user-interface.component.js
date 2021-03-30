@@ -487,11 +487,11 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				element: "#header",
 				title: "Kopfzeile",
 				placement: "bottom",
-				content: "In der Kopfzeile befinden sich neben den Logos und dem Titel der Webanwendung drei Buttons und ein Schalter. </br>" +
-				"Mit dem Schalter kann zwischen einer <b>vereinfachten</b> und einer <b>erweiterten Ansicht</b> gewechselt werden kann. </br>" +
-				"Mit <span class='glyphicon glyphicon-play'></span> test <label class='switch'><input disabled type='checkbox'><span class='switchslider round'></span></label>   nextTest <i class='fas fa-user-cog'></i>  kann diese Guided Tour stets erneut aufgerufen werden. </br>" +
-				"Der <b>Info-Button</b> &ouml;ffnet das beim Aufruf der Seite erschienene Informationsfenster und</br>" + 
-				"der letzte Button in der Reihe erm&ouml;glicht den <b>Zugang zur Administrationsoberfläche</b>." 
+				content: "In der Kopfzeile befinden sich neben den Logos und dem Titel der Webanwendung mehrere Buttons. </br>" +
+				"Mit <label class='switch'><input disabled type='checkbox' checked><span class='switchslider round' style='cursor:default'></span></label> kann zwischen einer <b>vereinfachten</b> und einer <b>erweiterten Ansicht</b> gewechselt werden. </br>" +
+				"Diese Guided Tour kann stets erneut mit <span class='glyphicon glyphicon-play'></span> aufgerufen werden. " +
+				"<span class='glyphicon glyphicon-info-sign'></span> &ouml;ffnet das beim Aufruf der Seite erschienene Informationsfenster und</br>" + 
+				"<i class='fas fa-user-cog'></i> erm&ouml;glicht mit entsprechenden Zugangsdaten den <b>Zugang zur Administrationsoberfläche</b>." 
 			},
 			{
 				element: "#map",
@@ -580,10 +580,10 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				placement: "left",
 				content: "Hier kann zwischen den drei <b>Klassifizierungsmethoden</b> <i>Jenks, Gleiches Intervall und Quantile</i> gew&auml;hlt werden </br>" +
 				"<br/>Detaillierte Informationen zu den Klassifizierungsmethoden k&ouml;nnen dem <b>Popup</b> entnommen werden, das beim Herüberfahren mit dem Mauszeiger &uuml;ber eine der drei Optionen erscheint. " + 
-				"<br/>Zudem l&auml;sst sich einstellen, ob die Klassifizierung die Indikatorenwerte der gesamten Zeitreihe ber&uuml;cksichtigen soll, oder nur jene des aktuellen Zeitschnitts. </br>" +
+				"<br/>Zudem l&auml;sst sich per <label class='switch'><input disabled type='checkbox' checked><span class='switchslider round' style='cursor:default'></span></label> einstellen, ob die Klassifizierung die Indikatorenwerte der gesamten Zeitreihe ber&uuml;cksichtigen soll, oder nur jene des aktuellen Zeitschnitts. </br>" +
 				"So kann ein vergleichbares Kartenbild f&uuml;r eine komplette Zeitreihe gew&auml;hrleistet werden. </br>" +
-				"<br/>KomMonitor &uuml;berpr&uuml;ft jeden Indikatorendatensatz auf <b>statistische Ausrei&szlig;er</b>. Werden ein oder mehrere Ausrei&szlig;er erkannt, so enth&auml;t die Legende einen <b>Schalter</b>, " + 
-				"<br/>mit dem <i>Ausrei&szlig;er gesondert markiert und aus der Klassifizierung entfernt werden k&ouml;nnen</i>. Dies kann hilfreich sein,</br> " + 
+				"<br/>KomMonitor &uuml;berpr&uuml;ft jeden Indikatorendatensatz auf <b>statistische Ausrei&szlig;er</b>. Werden ein oder mehrere Ausrei&szlig;er erkannt, so können mit  <label class='switch'><input disabled type='checkbox' checked><span class='switchslider round' style='cursor:default'></span></label> " + 
+				"<i>Ausrei&szlig;er gesondert markiert und </br>aus der Klassifizierung entfernt werden</i>. Dies kann hilfreich sein, " + 
 				"um ein differenzierteres Kartenbild zu erzeugen.",
 				onNext: function(tour){
 					if($scope.sidebarLegendClass !== "disappear"){
@@ -613,14 +613,14 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				element: "#mapUtilButtons",
 				title: "Steuerung der Kartendarstellung",
 				placement: "bottom",
-				content: "Diese Buttons bieten Steuerungsm&ouml;glichkeiten f&uuml;r die Kartendarstellung. &Uuml;ber <b>Plus</b> und <b>Minus</b> kann alternativ zur Verwendung des Mausrades hinein- bzw. hinausgezoomt werden. "+
-				"<br/><br/>Der <b>Weltkugel-Button</b> zentriert die Karte und zoomt auf die maximale Ausdehnung des dargestellten Themas. " + 
-				"<br/><br/>Der daneben positionierte Button <b>hebt jegliche benutzerdefinierte Selektionen</b> auf. " + 
-				"<br/><br/>Der Download-Button erlaubt den Export des aktuellen <b>Kartenausschnitts als Bilddatei</b>. " + 
-				"<br/><br/>Der rechte <b>Layer-Button</b> bietet die M&ouml;glichkeit, einzelne Karteninhalte <b>tempor&auml;r auszublenden oder die Hintergrundkarte zu wechseln</b>. " + 
-				"<br/><br/>Der Filterbutton erm&ouml;glicht das <b>Filtern innerhalb dargestellter Vektorlayer anhand des Namens oder der ID vorhandener Raumelemente</b>. " + 
-				"<br/><br/>Der darunter positionierte Suchbutton repr&auml;sentiert eine <b>Geolokalisierung von Adressen und Orten</b>. " + 
-				"<br/><br/>Dar&uuml;ber hinaus bietet der unterste Button eine <b>Messfunktion für Abst&auml;nde und Fl&auml;chen</b>."
+				content: "Diese Buttons bieten Steuerungsm&ouml;glichkeiten f&uuml;r die Kartendarstellung. &Uuml;ber <i class='fas fa-plus'></i> und <i class='fas fa-minus'></i> kann alternativ zur Verwendung des Mausrades hinein- bzw. hinausgezoomt werden. "+
+				"<br/><br/><span class='glyphicon glyphicon-globe'></span> zentriert die Karte und zoomt auf die maximale Ausdehnung des dargestellten Themas. " + 
+				"<br/><br/><span class='glyphicon glyphicon-ban-circle'></span> <b>hebt jegliche benutzerdefinierte Selektionen</b> auf. " + 
+				"<br/><br/><i class='fas fa-download'></i> erlaubt den Export des aktuellen <b>Kartenausschnitts als Bilddatei</b>. " + 
+				"<br/><br/><i class='fas fa-layer-group'></i> bietet die M&ouml;glichkeit, einzelne Karteninhalte <b>tempor&auml;r auszublenden oder die Hintergrundkarte zu wechseln</b>. " + 
+				"<br/><br/><i class='fas fa-filter'></i> erm&ouml;glicht das <b>Filtern innerhalb dargestellter Vektorlayer anhand des Namens oder der ID vorhandener Raumelemente</b>. " + 
+				"<br/><br/><span class='glyphicon glyphicon-search'></span> repr&auml;sentiert eine <b>Geolokalisierung von Adressen und Orten</b>. " + 
+				"<br/><br/>Dar&uuml;ber hinaus bietet <i class='fas fa-ruler-combined'></i> eine <b>Messfunktion für Abst&auml;nde und Fl&auml;chen</b>."
 			},
 			{
 				element: "#sideBarButtons",
