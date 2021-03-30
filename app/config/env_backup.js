@@ -10,6 +10,8 @@ try {
 
   // enable/disable role based access using keycloak
   window.__env.enableKeycloakSecurity = false;
+  // role name within keycloak kommonitor realm (not master realm) that shall be used as administrator role for kommonitor
+  window.__env.keycloakKommonitorAdminRoleName = "administrator";
 
   // enable and show/hide switch to toggle basic and advanced mode
   // this feature can hide certain app elements via ID if in basic mode

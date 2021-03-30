@@ -63,7 +63,7 @@ angular
         }
         else if(Auth.keycloak.authenticated) {
           // admin role user always sees all data and widgets
-          if(kommonitorDataExchangeService.currentKeycloakLoginRoles.includes(kommonitorKeycloakHelperService.adminRoleName)){
+          if(kommonitorDataExchangeService.currentKeycloakLoginRoles.includes(__env.keycloakKommonitorAdminRoleName)){
             return true;
           }
           var hasAllowedRole = false;          
@@ -92,7 +92,7 @@ angular
                 kommonitorDataExchangeService.showDiagramExportButtons = false;
               }
               // special case for georesource export buttons
-              if(! hasAllowedRole && element.id === "georesourceExportButtons"){
+              if(element.id === "georesourceExportButtons"){
                 kommonitorDataExchangeService.showGeoresourceExportButtons = false;
               }
 
@@ -106,7 +106,7 @@ angular
               kommonitorDataExchangeService.showDiagramExportButtons = false;
             }
             // special case for georesource export buttons
-            if(! hasAllowedRole && element.id === "georesourceExportButtons"){
+            if(element.id === "georesourceExportButtons"){
               kommonitorDataExchangeService.showGeoresourceExportButtons = false;
             }
 
