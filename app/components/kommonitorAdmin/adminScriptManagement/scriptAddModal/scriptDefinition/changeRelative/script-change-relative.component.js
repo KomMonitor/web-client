@@ -136,7 +136,7 @@ angular.module('scriptChangeRelative').component('scriptChangeRelative', {
 					var formulaHTML = "<b>Berechnung gem&auml;&szlig; Formel<br/> $$ 100 \\times \\frac{A_{N} - A_{M}}{A_{M}} $$";
 					var legendItemsHTML = "<b>Legende zur Formel</b>";				
 			
-					legendItemsHTML+="<br/> $A$: " + $scope.compIndicatorSelection.indicatorName;
+					legendItemsHTML+="<br/> $A$: " + $scope.compIndicatorSelection.indicatorName  + " [" + $scope.compIndicatorSelection.unit +  "]";
 					legendItemsHTML+="<br/> $N$: Ziel-Zeitpunkt";
 					legendItemsHTML+="<br/> $M$: Ziel-Zeitpunkt minus " + $scope.numberOfTemporalItems + " " + $scope.temporalOption.displayName ;
 
