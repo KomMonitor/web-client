@@ -1020,6 +1020,10 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			catch(error){
 					kommonitorDataExchangeService.guidedTour.start(true);
 			}
+
+			// tour gotTo() example to jump to step 7 --> index starts from 0
+			// kommonitorDataExchangeService.guidedTour.goTo(6);
+
 		};
 
 		$scope.$on("redrawGuidedTourElement", async function(event){
