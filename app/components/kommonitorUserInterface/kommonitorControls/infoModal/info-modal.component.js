@@ -23,7 +23,7 @@ angular.module('infoModal').component('infoModal', {
 			
 		};
 
-		$scope.onChangeHideGreetings = function(){
+		var onChangeHideGreetings = function(){
 			if($scope.isHideGreetings){
 				localStorage.setItem("hideKomMonitorAppGreeting", "true");
 			}
@@ -32,10 +32,24 @@ angular.module('infoModal').component('infoModal', {
 			}
 		};
 
-		$scope.callStartGuidedTour = function(){
+		$(document).on('click', '#changeHideGreetingsInput', function (e) {
+			if($scope.isHideGreetings){
+				$scope.isHideGreetings = false;
+			}
+			else{
+				$scope.isHideGreetings = true;
+			}
+			onChangeHideGreetings();
+		});
+
+		var callStartGuidedTour = function(){
 			$('#infoModal').modal('hide');
 			$rootScope.$broadcast("startGuidedTour");
 		};
+
+		$(document).on('click', '#callStartGuidedTourButton', function (e) {
+			callStartGuidedTour();
+		  });
 
 		$scope.showFeedbackForm = function(){
 			$('#infoModal').modal('hide');
