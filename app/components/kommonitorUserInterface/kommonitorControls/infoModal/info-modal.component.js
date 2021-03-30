@@ -15,6 +15,7 @@ angular.module('infoModal').component('infoModal', {
 			}
 			else{
 				$scope.isHideGreetings = true;
+				$("#changeHideGreetingsInput").prop('checked', true);
 			}
 
 			$timeout(function(){
@@ -32,7 +33,8 @@ angular.module('infoModal').component('infoModal', {
 			}
 		};
 
-		$(document).on('click', '#changeHideGreetingsInput', function (e) {
+		$('#changeHideGreetingsInput').on('click', function(event) {
+
 			if($scope.isHideGreetings){
 				$scope.isHideGreetings = false;
 			}
@@ -40,7 +42,8 @@ angular.module('infoModal').component('infoModal', {
 				$scope.isHideGreetings = true;
 			}
 			onChangeHideGreetings();
-		});
+			event.stopPropagation();
+	   });
 
 		var callStartGuidedTour = function(){
 			$('#infoModal').modal('hide');
