@@ -551,6 +551,13 @@ pre.CodeMirror-line {
 	opacity: 0.6;
 }
 
+.guided-tour-toc-element {
+	margin-top: 3px;
+	text-decoration: underline;
+	cursor: pointer;
+
+}
+
 #feedbackForm {
 	padding: 5px;
 	overflow: auto;
@@ -576,6 +583,11 @@ pre.CodeMirror-line {
 	background-color: #3c8dbc;
 	font-weight: bold;
 	color: #ffffff;
+}
+
+.popover-title span {
+	cursor: pointer;
+	float: right;
 }
 
 .popover-content {
