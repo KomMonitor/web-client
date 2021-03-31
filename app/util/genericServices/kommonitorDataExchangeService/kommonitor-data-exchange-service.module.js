@@ -2245,7 +2245,7 @@ angular
                    var cellWidth = data.cell.width - data.cell.padding('horizontal');
                    var textPos = data.cell.textPos;
 
-                   imgScale = cellHeight / imgHeight;
+                   var imgScale = cellHeight / imgHeight;
                    var width = imgWidth * imgScale;
                    if (width > cellWidth){
                      width = cellWidth;

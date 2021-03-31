@@ -145,7 +145,7 @@
 								</div>
 								<div align="center">
 									<br/>
-									<label>Schwellenwert: </label><input ng-model="$ctrl.kommonitorDataExchangeServiceInstance.measureOfValue" ng-change="onMeasureOfValueChangeByText()" ng-model-options="{debounce: 500, blur: 0}" min="{{movMinValue}}" max="{{movMaxValue}}" step="0.01" string-to-number type="number" style="width:175px;" class="form-control input-sm" id="measureOfValueTextInput">
+									<label>Schwellenwert: </label><input ng-model="$ctrl.kommonitorDataExchangeServiceInstance.measureOfValue" ng-change="onMeasureOfValueChangeByText()" ng-model-options="{debounce: 1500, blur: 0}" min="{{movMinValue}}" max="{{movMaxValue}}" step="0.01" string-to-number type="number" style="width:175px;" class="form-control input-sm" id="measureOfValueTextInput">
 
 									<!-- <div ng-show="inputNotValid">
 										<p>Schwellenwert: {{$ctrl.kommonitorDataExchangeServiceInstance.measureOfValue}}</p>

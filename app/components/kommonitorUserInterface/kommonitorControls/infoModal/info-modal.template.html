@@ -82,20 +82,16 @@
 			<div class="modal-footer">
 
 				<div class="row">
-					<div class="col-md-8">
-						<label>Begr&uuml;&szlig;ungsfenster beim n&auml;chsten Aufruf verbergen</label>		
-							<label class="switch">
-								<input type="checkbox" value="isHideGreetings" ng-model="isHideGreetings" ng-checked="isHideGreetings" ng-change="onChangeHideGreetings()">
-								<span class="switchslider round"></span>
-							</label>	
+					<div class="col-md-8">						
+							<label>
+								Begr&uuml;&szlig;ungsfenster beim n&auml;chsten Aufruf verbergen								
+							</label>
+							<input type="checkbox" id="changeHideGreetingsInput" name="dismiss">
+						
 							
-							<input type="checkbox" ng-hide="true" ng-change="onChangeHideGreetings()">
-						<!-- <div class="checkbox">
-							<label><input type="checkbox" ng-model="$ctrl.isHideGreetings" ng-change="onChangeHideGreetings()">Begr&uuml;&szlig;ungsfenster beim n&auml;chsten Aufruf verbergen</label>
-						 </div> -->
 					</div>
 					<div class="col-md-2">
-						<button type="button" ng-click="callStartGuidedTour()" class="btn btn-danger">Guided Tour&nbsp;&nbsp;<span class="glyphicon glyphicon-play"></span></button>				
+						<button type="button" id="callStartGuidedTourButton" class="btn btn-danger">Guided Tour&nbsp;&nbsp;<span class="glyphicon glyphicon-play"></span></button>				
 					</div>
 					<div class="col-md-2">
 						<button type="button" class="btn btn-default" data-dismiss="modal">Schlie&szlig;en</button>

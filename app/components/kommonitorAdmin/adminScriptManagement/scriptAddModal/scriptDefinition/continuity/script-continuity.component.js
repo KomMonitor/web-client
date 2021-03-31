@@ -142,7 +142,7 @@ angular.module('scriptContinuity').component('scriptContinuity', {
 					legendItemsHTML+="<br/> $\\bar{A}$ = arithmetisches Mittel der aufeinander folgenden " + $scope.temporalOption.displayName;
 					legendItemsHTML+="<br/> $B_{n}$ = Indikatorenwerte der aufeinander folgenden " + $scope.temporalOption.displayName;
 					legendItemsHTML+="<br/> $\\bar{B}$ = arithmetisches Mittel der Indikatorenwerte der aufeinander folgenden " + $scope.temporalOption.displayName;
-					legendItemsHTML+="<br/> $B$ = Indikator '" + $scope.compIndicatorSelection.indicatorName + "'";
+					legendItemsHTML+="<br/> $B$ = Indikator '" + $scope.compIndicatorSelection.indicatorName +  " [" + $scope.compIndicatorSelection.unit +  "]'";
 
 					kommonitorScriptHelperService.scriptFormulaHTML = formulaHTML + "<br/><br/>" + legendItemsHTML;
 				

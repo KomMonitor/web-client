@@ -55,7 +55,7 @@ angular
 						$scope.makeOutliersLowLegendString = function(outliersArray) {
 							if (outliersArray.length > 1) {
 				  
-							  return "(" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(outliersArray[0]) + " &ndash; " + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(outliersArray[outliersArray.length - 1]) + ")";
+							  return "(" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(outliersArray[0]) + " &dash; " + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(outliersArray[outliersArray.length - 1]) + ")";
 							}
 							else {
 							  return "(" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(outliersArray[0]) + ")";
@@ -64,7 +64,7 @@ angular
 				  
 						  $scope.makeOutliersHighLegendString = function(outliersArray) {
 							if (outliersArray.length > 1) {
-							  return "(" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(outliersArray[0]) + " &ndash; " + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(outliersArray[outliersArray.length - 1]) + ")";
+							  return "(" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(outliersArray[0]) + " &dash; " + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(outliersArray[outliersArray.length - 1]) + ")";
 							}
 							else {
 							  return "(" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(outliersArray[0]) + ")";
@@ -115,15 +115,47 @@ angular
 							kommonitorDataExchangeService.createMetadataPDF_indicator(indicatorMetadata);
 						};
 
+						function prepareBalanceGeoJSON(geoJSON, indicatorMetadataAsBalance){
+							var fromDate = indicatorMetadataAsBalance["fromDate"];
+							var toDate = indicatorMetadataAsBalance["toDate"];
+							var targetDate = kommonitorDataExchangeService.selectedDate;
+
+							for (var feature of geoJSON.features) {
+								var properties = feature.properties;
+
+								var targetValue = properties[kommonitorDataExchangeService.indicatorDatePrefix + targetDate];
+								properties["balance"] = targetValue;
+					
+								// rename all properties due to char limit in shaoefiles
+								var keys = Object.keys(properties);
+					
+								for (var key of keys) {
+								  if (key.toLowerCase().includes("date_")) {
+									// from DATE_2018-01-01
+									// to 20180101
+									delete properties[key];
+								  }
+								}
+					
+								// replace properties with the one with new keys
+								feature.properties = properties;
+							  }
+
+							  return geoJSON;
+						}
+
 						$scope.downloadIndicatorAsGeoJSON = function () {
 
 							var fileName = kommonitorDataExchangeService.selectedIndicator.indicatorName + "_" + kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel;
 				  
 							var geoJSON_string;
+							var geoJSON;
 				  
 							if(kommonitorDataExchangeService.isBalanceChecked){
-							  geoJSON_string = JSON.stringify(kommonitorDataExchangeService.indicatorAndMetadataAsBalance.geoJSON);
-							  fileName += "_Bilanz" + $scope.currentIndicatorMetadataAndGeoJSON['fromDate'] + " - " + $scope.currentIndicatorMetadataAndGeoJSON['toDate'];
+								geoJSON = jQuery.extend(true, {}, kommonitorDataExchangeService.indicatorAndMetadataAsBalance.geoJSON);
+								geoJSON = prepareBalanceGeoJSON(geoJSON, kommonitorDataExchangeService.indicatorAndMetadataAsBalance);							  
+								geoJSON_string = JSON.stringify(geoJSON);
+							  fileName += "_Bilanz" + kommonitorDataExchangeService.indicatorAndMetadataAsBalance['fromDate'] + " - " + kommonitorDataExchangeService.indicatorAndMetadataAsBalance['toDate'];
 							}
 							else{
 							  geoJSON_string = JSON.stringify(kommonitorDataExchangeService.selectedIndicator.geoJSON);
@@ -178,7 +210,8 @@ angular
 				  
 							if(kommonitorDataExchangeService.isBalanceChecked){
 							  geoJSON = jQuery.extend(true, {}, kommonitorDataExchangeService.indicatorAndMetadataAsBalance.geoJSON);
-							  folderName += "_Bilanz_" + $scope.currentIndicatorMetadataAndGeoJSON['fromDate'] + " - " + $scope.currentIndicatorMetadataAndGeoJSON['toDate'];
+							  geoJSON = prepareBalanceGeoJSON(geoJSON, kommonitorDataExchangeService.indicatorAndMetadataAsBalance);
+							  folderName += "_Bilanz_" + kommonitorDataExchangeService.indicatorAndMetadataAsBalance['fromDate'] + " - " + kommonitorDataExchangeService.indicatorAndMetadataAsBalance['toDate'];
 							}
 							else{
 							  geoJSON = jQuery.extend(true, {}, kommonitorDataExchangeService.selectedIndicator.geoJSON);
@@ -232,7 +265,8 @@ angular
 				  
 							if(kommonitorDataExchangeService.isBalanceChecked){
 							  geoJSON = jQuery.extend(true, {}, kommonitorDataExchangeService.indicatorAndMetadataAsBalance.geoJSON);
-							  fileName += "_Bilanz_" + $scope.currentIndicatorMetadataAndGeoJSON['fromDate'] + " - " + $scope.currentIndicatorMetadataAndGeoJSON['toDate'];
+							  geoJSON = prepareBalanceGeoJSON(geoJSON, kommonitorDataExchangeService.indicatorAndMetadataAsBalance);
+							  fileName += "_Bilanz_" + kommonitorDataExchangeService.indicatorAndMetadataAsBalance['fromDate'] + " - " + kommonitorDataExchangeService.indicatorAndMetadataAsBalance['toDate'];
 							}
 							else{
 							  geoJSON = jQuery.extend(true, {}, kommonitorDataExchangeService.selectedIndicator.geoJSON);
