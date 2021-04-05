@@ -82,6 +82,9 @@
 							<div class="help-block with-errors" ng-show="configSettingInvalid">
 								Bitte beachten Sie, dass alle notwendigen Parameter gem&auml;&szlig; der obigen Vorlage definiert werden m&uuml;ssen. Beachten Sie daher die vorgegebene JavaScript-Struktur. Der Text wird auf Schl&uuml;sselw&ouml;rter gepr&uuml;ft und es wird sichergestellt, dass valides JavaScript geparsed werden kann.
 							</div>
+							<div class="help-block with-errors" ng-show="missingRequiredParameters && missingRequiredParameters.length > 0">
+								Fehlende Parameter: {{missingRequiredParameters_string}}
+							</div>
 						</div>
 						<div class="col-md-6 col-sm-6 col-xs-12">
 							<div class="form-group">

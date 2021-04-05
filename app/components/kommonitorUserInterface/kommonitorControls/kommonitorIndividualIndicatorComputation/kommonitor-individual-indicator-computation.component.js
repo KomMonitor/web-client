@@ -31,18 +31,6 @@ angular
 
 						$scope.dateSliderForComputation;
 
-						$scope.filterIndicators = function() {
-
-							return function(item){
-								if (item.indicatorName.includes("Erreichbar")){
-									return false;
-								}
-								else{
-									return kommonitorDataExchangeService.filterIndicators();
-								}
-							};
-						};
-
 						$scope.filterComputableIndicators = function() {
 							return function( item ) {
 
@@ -116,7 +104,7 @@ angular
 
 							$scope.targetDate = date.getFullYear() + "-" + month  + "-" + day;
 
-							$scope.$apply();
+							$scope.$digest();
 						};
 
 						var updateInputDisplay = function(input){
@@ -324,7 +312,7 @@ angular
 
 							// parameterNode.appendChild(parameterDiv);
 
-							// $scope.$apply();
+							// $scope.$digest();
 						};
 
 						$scope.getScriptMetadataForIndicatorId = function(indicatorId){
@@ -394,7 +382,7 @@ angular
 						};
 
 						$scope.fetchBaseIndicatorMetadata = function(baseIndicatorId){
-							for (const indicatorMetadata of kommonitorDataExchangeService.availableIndicators){
+							for (const indicatorMetadata of kommonitorDataExchangeService.displayableIndicators){
 								if(indicatorMetadata.indicatorId === baseIndicatorId)
 									return indicatorMetadata;
 							}
@@ -721,7 +709,7 @@ angular
 
 											$scope.prepareDownloadGeoJSON();
 
-											// $scope.$apply();
+											// $scope.$digest();
 										}
 
 									}, function errorCallback(error) {

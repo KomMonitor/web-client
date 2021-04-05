@@ -11,7 +11,13 @@ angular.module('adminControlsConfig').component('adminControlsConfig', {
 		$scope.loadingData = true;
 		$scope.codeMirrorEditor = undefined;
 
-		$scope.keywordsInConfig = ["id", "roles", "indicatorConfig", "poi", "dataImport", "filter", "measureOfValueClassification", "balance", "diagrams", "radarDiagram", "regressionDiagram", "reachability", "processing"];
+		$scope.missingRequiredParameters = [];
+		$scope.missingRequiredParameters_string = "";
+
+		$scope.keywordsInConfig = ["id", "roles", "indicatorConfig", "poi", "dataImport", "filter", 
+		"measureOfValueClassification", "balance", "diagrams", "radarDiagram", "regressionDiagram", 
+		"reachability", "processing", "indicatorLegendExportButtons", "reportingButton", "diagramExportButtons",
+		"georesourceExportButtons"];
 
 		$scope.controlsConfigTemplate = undefined;
 		$scope.controlsConfigTmp = undefined;
@@ -21,8 +27,8 @@ angular.module('adminControlsConfig').component('adminControlsConfig', {
 		$scope.configSettingInvalid = false;
 
 		$scope.init = async function(){
-			await $http.get('./config/controls-config_backup.json', {'responseType': 'json'}).then(function (response) {
-				$scope.controlsConfigTemplate = JSON.stringify(response.data, null, "    ");
+			await $http.get('./config/controls-config_backup_forAdminViewExplanation.txt', {'responseType': 'text'}).then(function (response) {
+				$scope.controlsConfigTemplate = response.data;
 
 				kommonitorScriptHelperService.prettifyScriptCodePreview("controlsConfig_backupTemplate");
 			  });
@@ -37,7 +43,7 @@ angular.module('adminControlsConfig').component('adminControlsConfig', {
 
 			$scope.onChangeControlsConfig();
 
-			$scope.$apply();
+			$scope.$digest();
 		};
 
 		$scope.initCodeEditor = function(){
@@ -93,6 +99,8 @@ angular.module('adminControlsConfig').component('adminControlsConfig', {
 			var isInvalid = true;
 
 			isInvalid = ! $scope.keywordsInConfig.every(keyword => configString.includes(keyword));
+			$scope.missingRequiredParameters = $scope.keywordsInConfig.filter(keyword => ! configString.includes(keyword));
+			$scope.missingRequiredParameters_string = JSON.stringify($scope.missingRequiredParameters);	
 
 			if ($scope.lintingIssues && $scope.lintingIssues.length > 0){
 				isInvalid = true;				
@@ -125,7 +133,7 @@ angular.module('adminControlsConfig').component('adminControlsConfig', {
 			}, 250);
 
 			$timeout(function(){
-				$scope.$apply();
+				$scope.$digest();
 			});
 		};
 
@@ -157,7 +165,7 @@ angular.module('adminControlsConfig').component('adminControlsConfig', {
 				$scope.loadingData = false;
 
 				setTimeout(() => {
-					$scope.$apply();
+					$scope.$digest();
 				}, 250);
 			} catch (error) {
 				if (error.data) {
@@ -171,7 +179,7 @@ angular.module('adminControlsConfig').component('adminControlsConfig', {
 				$scope.loadingData = false;
 
 				setTimeout(() => {
-					$scope.$apply();
+					$scope.$digest();
 				}, 250);
 			}
 

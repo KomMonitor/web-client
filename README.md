@@ -7,9 +7,9 @@ This project is part of the [KomMonitor](http://kommonitor.de) spatial data infr
 <!-- TOC depthFrom:1 depthTo:6 withLinks:1 updateOnSave:0 orderedList:0 -->
 
 - [KomMonitor Web Client](#kommonitor-web-client)
-	- [Background Information Concerning KomMonitor Spatial Data Infrastructure](#background-information-concerning-kommonitor-spatial-data-infrastructure)
-		- [Architecture Overview](#architecture-overview)
+	- [Quick Links And Further Information on KomMonitor](#quick-links-and-further-information-on-kommonitor)
 	- [Overview](#overview)
+	- [Dependencies to other KomMonitor Components](#dependencies-to-other-kommonitor-components)
 	- [Features](#features)
 	- [Installation / Building Information](#installation-building-information)
 		- [Configuration](#configuration)
@@ -29,25 +29,27 @@ This project is part of the [KomMonitor](http://kommonitor.de) spatial data infr
 
 <!-- /TOC -->
 
-## Background Information Concerning KomMonitor Spatial Data Infrastructure
-This software is part of a spatial data infrastructure called [KomMonitor](http://kommonitor.de), which is a shortcut for German "Kommunales Monitoring" (Municipal monitoring). Funded by the *German Federal Ministry of Education and Research* municipal actors from the cities Essen and Mülheim cooperate with scientists from the Ruhr University Bochum and the Bochum University of Applied Sciences in order to create a monitoring infrastructure to support planning processes within local governments. I.e., by monitoring certain planning aspects from various topics like demography, social, environment, habitation and other, whose spatio-temporal variation and development can be measured in the form of indicators, [KomMonitor](http://kommonitor.de) may act as a *Spatial Decision Support System*. Amongst others, the following goals and key aspects are focused:
-1. cross-sectional data from several topics
-2. variable spatial layers (i.e. administrative layers of a city)
-3. transparency with regard to indicators and how they are computed
-4. cross-sectional interactive analysis and exploration
-5. a complete spatial data infrastructure consisting of data management, geodata processing and indicator computation as well as data display and exploration in webclient
+## Quick Links And Further Information on KomMonitor
+   - [DockerHub repositories of KomMonitor Stack](https://hub.docker.com/orgs/kommonitor/repositories)
+   - [Github Repositories of KomMonitor Stack](https://github.com/KomMonitor)
+   - [Github Wiki for KomMonitor Guidance and central Documentation](https://github.com/KomMonitor/KomMonitor-Docs/wiki)
+   - [Technical Guidance](https://github.com/KomMonitor/KomMonitor-Docs/wiki/Technische-Dokumentation) and [Deployment Information](https://github.com/KomMonitor/KomMonitor-Docs/wiki/Setup-Guide) for complete KomMonitor stack on Github Wiki
+   - [KomMonitor Website](https://kommonitor.de/)  
 
-The project is funded from Feb 2017 - Feb 2020. The resulting software components, are published as Open-Source software to continue maintenance and development beyond the funding period.
-
-### Architecture Overview
-![Conceptual KomMonitor Architecture and Idea](./documentation/KomMonitor-Architecture.png "Conceptual KomMonitor Architecture and Idea")
-
-As a spatial decision support system, the main idea behind KomMonitor is to take (geo-)data from local authorities, import them to the *Data Management* component, process them (i.e. compute indicators based on georesurces and maybe other indicators via the *Processing Engine*; or compute waypath routing and reachability isochrones via *Reachability Service*) and finally publish, display and analyze them within a *Web-Client*.     
 
 ## Overview
 This **Web client** is specially designed to consume the remaining components of the **KomMonitor spatial data infrastructure**, i.e. the [Data Management API](https://gitlab.fbg-hsbo.de/kommonitor/kommonitor-data-management-api) and [Processing Engine](https://gitlab.fbg-hsbo.de/kommonitor/kommonitor-script-execution-api) as well as **Reachability Service - e.g. Open Route Service** and **GeoServer**. With the scope of a spatial decision support system, it consumes the relevant municipal geospatial and statistical data for systematical display, exploration and analyzation. As described in section [Features](#features) dedicated tools are developed to support city planners and other employees of local authorities in their daily work.
 
 The Web client is based on Angular and Bootstrap and hence uses a modular project structure for the implementation of the dedicated tools (i.e. map module for cartographic display; charting tools for bar, line or radar charts; etc...).
+
+## Dependencies to other KomMonitor Components
+KomMonitor Web client requires 
+   - a running instance of KomMonitor **Data Management** for main data retrieval and data modification within administration pages    
+   - a running instance of KomMonitor **Client Config Service** in order to fetch various config files on application startup (app parameters, keycloak connection, role-based element visibility settings) - if non provided/accessible the app will use default backup files stored at `app/config`
+   - a running instance of KomMonitor **Importer** in order to perform spatial insert/update operation for *spatial-units*, *georesources* and *indicator data* via administration pages
+   - a running instance of KomMonitor **Processing Engine** in order to query and trigger indicator computations 
+   - a running instance of **Open Route Service** in oder to compute on-the-fly isochrone and routing computations.
+   - an optional and configurable connection to a running **Keycloak** server, if role-based data access is activated via configuration of KomMonitor stack
 
 ## Features
 
@@ -83,7 +85,11 @@ Currently a combination of `npm`, `webpack` and `grunt` is used to build the Ang
 
 `NOTE: THIS SHOULD BE CHANGED IN THE FUTURE TO ONLY USE ONE BUILD TOOL.`
 
-In short, after downloading the project you should run the following command in that order from project root:
+In short, after downloading the project you should run the following command in that order from project root (you must have `git` installed to fetch all required dependencies):
+
+1. The easiest way to build the client for production usage within one command is `npm run build`. This performs all susequently listed steps as a sequence (`npm install --force && webpack && grunt`)
+
+of course you could perform each step individually, as follows:
 
 1. `npm install` to fetch all required node modules.
 2. `webpack` or `npx webpack` (depending on you system environment) to copy used libraries into `./app/dependencies`, from where they will be linked in `./app/index.html`
@@ -93,94 +99,128 @@ In short, after downloading the project you should run the following command in 
 Even Docker images can be acquired with ease, as described below. However, depending on your environment configuration aspects have to be adjusted first.
 
 ### Configuration
-Similar to other **KomMonitor** components, some settings are required, especially to adjust connection details to other linked services to your local environment. The configuration is done in a file called `env.js` located at project root. When starting the app the key-value pairs are made available globally to populate them to app components.
+Similar to other **KomMonitor** components, some settings are required, especially to adjust connection details to other linked services to your local environment. KomMonitor Web Client uses a separate **Client Config Service** to retrieve config parameters on startup. The connection to this service as well as backup config files if the service cannot be reached are located at `/app/config`.
 
-#### env.js - Configure Deployment Details of other Services and App Properties
-The central configuration file is located at [app/env.js](./app/env.js). Several important aspects must match your target environment when deploying the app. These are:
+#### `/app/config/config-storage-server.json`
+Config file to set the connection to the **Client Config Service** component, from which the subsequent config files are fetched. I.e. in local setup the file has following content (administration pages also allow dynamic modification of the config parameters):
+
+```json
+{
+    "targetUrlToConfigStorageServer_appConfig" : "http://localhost:8088/config/client-app-config",
+    "targetUrlToConfigStorageServer_keycloakConfig" : "http://localhost:8088/config/client-keycloak-config",
+    "targetUrlToConfigStorageServer_controlsConfig" : "http://localhost:8088/config/client-controls-config"
+}
+
+```
+
+#### `/app/config/env_backup.js` - Backup Configuration of Deployment Details of other Services and App Properties
+The main app configuration file is located at [app/config/env_backup.js](./app/config/env_backup.js). The same structure is returned by **Client Config Service** on app startup. So once the previously described `/app/config/config-storage-server.json` is configured, the administration pages of KomMonitor web client allow dynamic modification of the application config files. The most important parameters to setup the connection to other components of the KomMonitor stack are:
+
+- customization of upper left header logo and greetings information
+
+```javascript
+
+  /*
+  PROPERTIES used within greetings window (infoModal component)
+  to insert custom LOGO by URL with custom width
+  and adjust individual information text
+  as well as contact information
+  */
+ window.__env.customLogoURL = "https://eabg.essen.de/ueber-uns/unsere-partner/logo-stadt-essen.jpg"; // image format allows all types usable within HTML <img> tag
+ window.__env.customLogo_onClickURL = "https://www.essen.de/"; // uses <a> tag to insert clickable link on logo
+ window.__env.customLogoWidth = "35px"; // height is fixed to 35px; so adjust your custom width to keep aspect ratio
+ window.__env.customGreetingsContact_name = "Christian Danowski-Buhren";
+ window.__env.customGreetingsContact_organisation = "Hochschule Bochum, Fachbereich Geod&auml;sie";
+ window.__env.customGreetingsContact_mail = "christian.danowski-buhren@hs-bochum.de";
+ window.__env.customGreetingsTextInfoMessage = ""; // as HTML; only set if you want to give users some extra hints; if empty will be ignored
+
+```
 
 - connection to KomMonitor Data Management API:
 ```javascript
-// Data Management API URL
-window.__env.apiUrl = 'http://localhost:8085/';
-// Base url for Data Management API
-window.__env.basePath = 'management';
-// optional geometry simplification (a feature of Data Management API)
-window.__env.simplifyGeometriesParameterName = "simplifyGeometries";
-// allowed values and meaning:
-// ["original" --> no simplification; "weak" --> weak simplification,
-// "medium" --> medium simplification; "strong" --> string simplification]
-window.__env.simplifyGeometriesOptions = [{"label": "nein", "value": "original"}, {"label": "schwach", "value": "weak"}, {"label": "mittel", "value": "medium"}, {"label": "stark", "value": "strong"}];
-// use strong as default to minimize size of queried features
-// for display, strong simplification is okay
-window.__env.simplifyGeometries = "strong";
+
+  // enable/disable role based access using keycloak
+  window.__env.enableKeycloakSecurity = false;
+
+  // encrypted data transfer from Data Management API settings
+  window.__env.encryption = {
+    enabled: false,
+    password: "password", // this is shared secret between all components (hence must be set to the exact same value for all participating components)
+    ivLength_byte: 16
+  };
+
+  // admin user credentials to log into admin view in No-Keycloak-Settings
+  window.__env.adminUserName = "Admin";
+  window.__env.adminPassword = "kmAdmin";
+
+  // property names of feature id and name (relevant for all spatial features) - KomMonitor specific
+  // DO NOT CHANGE THEM - ONLY IF YOU REALLY KNOW WHAT YOU ARE DOING
+  window.__env.FEATURE_ID_PROPERTY_NAME = "ID";
+  window.__env.FEATURE_NAME_PROPERTY_NAME = "NAME";
+  window.__env.VALID_START_DATE_PROPERTY_NAME = "validStartDate";
+  window.__env.VALID_END_DATE_PROPERTY_NAME = "validEndDate";
+  window.__env.indicatorDatePrefix = "DATE_";
+
+  // Data Management API URL
+  // window.__env.apiUrl = 'http://kommonitor.fbg-hsbo.de/';
+  window.__env.apiUrl = 'http://localhost:8085/';
+  // Base url for Data Management API
+  window.__env.basePath = 'management';
+
+  // Processing Engine URL
+  window.__env.targetUrlToProcessingEngine = 'http://localhost:8086/processing/';
+
+  // Open Route Service URL
+  window.__env.targetUrlToReachabilityService_ORS = 'https://ors5.fbg-hsbo.de';
+
+  // Data Imporret URL
+  window.__env.targetUrlToImporterService = 'http://localhost:8087/importer/';
+
+
 ```
-- connection to Open Route Service instance:
-```javascript
-// Open Route Service URL
-window.__env.targetUrlToReachabilityService_ORS = 'http://localhost:8090/openrouteservice-4.7.2';
+
+The config file contains many more items that are explained by comments within the source file [app/config/env_backup.js](./app/config/env_backup.js). Please study it's content for any more information.
+
+#### `/app/config/keycloak_backup.json` - Backup Configuration of Keycloak Connection (only relevant when role-based Data Access via Keycloak is enabled)
+Connection parameters to running Keycloak server are stored in the file [app/config/keycloak_backup.json](./app/config/keycloak_backup.json). It contains the following items (here described via comments for explanatory purposes; note that JSON does not allow comments)
+
+```json
+
+{ // COMMENTS NOT ALLOWED IN JSON, BUT USED HERE TO EXPLAIN PROPERTIES
+  "realm": "kommonitor", // Keycloak Realm name used for all KomMonitor components
+  "auth-server-url": "https://keycloak.url/auth/", // keycloak server URL inluding "/auth/"
+  "ssl-required": "external",  // SSL Setting, leave it to "external"
+  "resource": "kommonitor-web-client",  // Keycloak resource/client name within upper realm
+  "public-client": true, // Keycloak setting that client itself does not require authentication to access page
+  "confidential-port": 0, // Keycloak setting that should not be modifed
+  "admin-rolename": "administrator", // name of a Keycloak master realm user with admin rights for whole Keycloak instance
+  "admin-rolepassword": "password" // password of a Keycloak master realm user with admin rights for whole Keycloak instance
+}
+
 ```
-- required property names of ID and NAME property of KomMonitor features as well as timeseries specific prefixes (**<u>MUST NOT BE CHANGED</u>**) :
-```javascript
-// property names of feature id and name (relevant for all spatial features) - KomMonitor specific
-// DO NOT CHANGE THEM - ONLY IF YOU REALLY KNOW WHAT YOU ARE DOING
-window.__env.FEATURE_ID_PROPERTY_NAME = "ID";
-window.__env.FEATURE_NAME_PROPERTY_NAME = "NAME";
-window.__env.indicatorDatePrefix = "DATE_";
-```
-- initial startup configuration:
-```javascript
-// number of decimals for display of numeric values in app
-window.__env.numberOfDecimals = 2;
-// starting viewpoint parameters and zoom level
-window.__env.initialLatitude = 51.4386432;
-window.__env.initialLongitude = 7.0115552;
-window.__env.initialZoomLevel = 12;
-window.__env.minZoomLevel = 11;
-window.__env.maxZoomLevel = 22;
-// starting indicator and spatial unit
-// if faulty values are provided, a random indicator will be displayed
-window.__env.initialIndicatorId = "d6f447c1-5432-4405-9041-7d5b05fd9ece";
-window.__env.initialSpatialUnitName = "Stadtteilebene";
-```
-- various color and classification settings:
-```javascript
-// various color settings
- window.__env.defaultColorForNoDataValues = "black";
- window.__env.defaultBorderColorForNoDataValues = "black";
- window.__env.defaultColorForOutliers_high = "#191919";
- window.__env.defaultBorderColorForOutliers_high = "black";
- window.__env.defaultFillOpacityForOutliers_high = "0.7";
- window.__env.defaultColorForOutliers_low = "#4f4f4f";
- window.__env.defaultBorderColorForOutliers_low = "black";
- window.__env.defaultFillOpacityForOutliers_low = "0.7";
- window.__env.defaultColorForHoveredFeatures = "#e01414";
- window.__env.defaultColorForClickedFeatures = "#42e5f4";
- window.__env.defaultColorForZeroValues = "#bababa";
- window.__env.defaultBorderColor = "black";
- window.__env.defaultColorForFilteredValues = "rgba(255,255,255,0)";
- window.__env.defaultBorderColorForFilteredValues = "black";
- window.__env.defaultFillOpacity = "0.7";
- window.__env.defaultFillOpacityForFilteredFeatures = "0.7";
- window.__env.defaultFillOpacityForZeroFeatures = "0.7";
- window.__env.defaultFillOpacityForNoDataFeatures = "0.7";
- window.__env.defaultFillOpacityForHighlightedFeatures = "0.8";
- window.__env.useTransparencyOnIndicator = true;
- window.__env.useOutlierDetectionOnIndicator = false;
- // default color for specific classification as ColorBrewer palette name
- // i.e. balance mode
- // i.e. measure of value classification (German: Schwellwertklassifizierung)
- window.__env.defaultColorBrewerPaletteForBalanceIncreasingValues = "Purples";
- window.__env.defaultColorBrewerPaletteForBalanceDecreasingValues = "YlOrBr";
- window.__env.defaultColorBrewerPaletteForGtMovValues = "YlOrBr";
- window.__env.defaultColorBrewerPaletteForLtMovValues = "Blues";
- // classification
- //allowesValues: equal_interval, quantile, jenks
- window.__env.defaultClassifyMethod = "equal_interval";
-```
-- recipient mail address for feedback-form:
-```javascript
-// e-mail recipient for feedback mail
-window.__env.feedbackMailRecipient = "name@mail.example";
+
+#### `/app/config/controls-config_backup.json` - Backup Configuration of role-based Element Visibility (only relevant when role-based Data Access via Keycloak is enabled)
+In a Keycloak-active setup of KomMonitor, certain app elements can be configured to only appear if logged-in users have certain roles. This mapping between HTML element IDs and allowed roles is specifed in the file [app/config/controls-config_backup.json](./app/config/controls-config_backup.json). It contains the following exemplar items demonstrating the basic mechanism. The actual file might include more mapping items (here described via comments for explanatory purposes; note that JSON does not allow comments)
+
+```json
+
+[
+    {
+        "id": "indicatorConfig",   // HTML element id (here left-handed sidebar indicator data catalog)
+        "roles": []  // empty array of roles --> no access restrictions; everyone can see it including anonymous user
+    },
+    {
+        "id": "poi",
+        "roles": ["internalRole1", "internalRole2"]   // as soon as any rolename is set in roles array the element is only visible to users with at leat one of the specified roles 
+    },
+    {
+        "id": "dataImport",
+        "roles": []
+    }
+    
+	// more items exist in actual file but are omitted here
+]
+
 ```
 
 After adjusting the configuration to your target environment, you may continue to build and run the service as described below.
@@ -209,9 +249,54 @@ Either the `dist` folder with all its contents or the `build/kommonitor-webclien
 Assuming the WAR file is named `kommonitor-webclient.WAR` and Tomcat is started locally on port 8080, you may reach the web app via `localhost:8080/kommonitor-webclient`.
 
 ### Docker
-The **KomMonitor Web Client** can also be build and deployed as Docker image (i.e. `docker build -t kommonitor-web-client:latest .`). The project contains the associated `Dockerfile` and an exemplar `docker-compose.yml` on project root level. The Dockerfile relies on an existing `dist` folder, so you must build the project before according to the building steps listed above. Only then the docker image can be created.
+The **KomMonitor Web Client** can also be build and deployed as Docker image (i.e. `docker build -t kommonitor/web-client:latest .`). The project contains the associated `Dockerfile` and an exemplar `docker-compose.yml` on project root level.
 
-The exemplar [docker-compose.yml](./docker-compose.yml) file specifies only the `kommonitor-web-client` service as all required connections to the respective components of KomMonitor are configured in `./app/env.js` (connection details to other services etc. according to the [Configuration section](#configuration) mentioned above).
+The exemplar [docker-compose.yml](./docker-compose.yml) file specifies only the `kommonitor-client` service and `kommonitor-client-config` service as all required connections to the respective components of KomMonitor are configured in `./app/config/env_backup.js` (connection details to other services etc. according to the [Configuration section](#configuration) mentioned above).
+
+## Exemplar docker-compose File with explanatory comments
+
+Only contains subset of whole KomMonitor stack to focus on the config parameters of this component
+
+```yml
+
+version: '2.1'
+
+networks:
+  kommonitor:
+      name: kommonitor
+
+services:
+  # web map client - main user interface of KomMonitor
+    kommonitor-client:       
+      image: 'kommonitor/web-client'
+      container_name: kommonitor-client
+      #restart: unless-stopped
+      volumes:
+       - ./app/config/config-storage-server.json:/usr/share/nginx/html/config/config-storage-server.json    # mount config for client-config-service 
+      ports:
+        - 8089:80
+      networks:
+       - kommonitor
+
+    # simple REST service that stores and serves various config files for KomMonitor clients (i.e. web-client)   
+    kommonitor-client-config:          
+      image: 'kommonitor/client-config'
+      container_name: kommonitor-client-config
+      #restart: unless-stopped
+      ports:
+        - 8088:8088
+      networks:
+       - kommonitor 
+      volumes:
+       - client_config_storage:/code/configStorage        # persist web client config files on disk
+      environment:
+       - PORT=8088  
+
+volumes:
+ client_config_storage:
+
+
+```
 
 ## User Guide
 The User Guide is written in a separate [ReadMe](./documentation/README.md).
@@ -243,15 +328,15 @@ The `master` branch contains latest stable releases. The `develop` branch is the
 We use [license-checker](https://www.npmjs.com/package/license-checker) to gain insight about used third party libs. I.e. install globally via ```npm install -g license-checker```, navigate to root of the project and then perform ```license-checker --json --out ThirdParty.json``` to create/overwrite the respective file in JSON format.
 
 ## Contact
-
 |    Name   |   Organization    |    Mail    |
-| ------------- |-------------| -----|
+| :-------------: |:-------------:| :-----:|
 | Christian Danowski-Buhren | Bochum University of Applied Sciences | christian.danowski-buhren@hs-bochum.de |
 | Andreas Wytzisk  | Bochum University of Applied Sciences | Andreas-Wytzisk@hs-bochum.de |
-| Ulrike Klein | Bochum University of Applied Sciences | christian.danowski-buhren@hs-bochum.de | Ulrike.Klein@hs-bochum.de |
 
 ## Credits and Contributing Organizations
 - Department of Geodesy, Bochum University of Applied Sciences
 - Department for Cadastre and Geoinformation, Essen
 - Department for Geodata Management, Surveying, Cadastre and Housing Promotion, Mülheim an der Ruhr
 - Department of Geography, Ruhr University of Bochum
+- 52°North GmbH, Münster
+- Kreis Recklinghausen

@@ -11,7 +11,10 @@ angular.module('adminAppConfig').component('adminAppConfig', {
 		$scope.loadingData = true;
 		$scope.codeMirrorEditor = undefined;
 
-		$scope.keywordsInConfig = ["window.__env", "window.__env.enableKeycloakSecurity", "window.__env.encryption", "window.__env.adminUserName", 
+		$scope.missingRequiredParameters = [];
+		$scope.missingRequiredParameters_string = "";
+
+		$scope.keywordsInConfig = ["window.__env", "window.__env.appTitle", "window.__env.enableKeycloakSecurity", "window.__env.encryption", "window.__env.adminUserName", 
 			"window.__env.adminPassword", "window.__env.FEATURE_ID_PROPERTY_NAME", "window.__env.FEATURE_NAME_PROPERTY_NAME", 
 			"window.__env.VALID_START_DATE_PROPERTY_NAME", "window.__env.VALID_END_DATE_PROPERTY_NAME", "window.__env.indicatorDatePrefix",
 			"window.__env.apiUrl", "window.__env.targetUrlToProcessingEngine", "window.__env.targetUrlToReachabilityService_ORS",
@@ -21,7 +24,9 @@ angular.module('adminAppConfig').component('adminAppConfig', {
 			"window.__env.initialSpatialUnitName", "window.__env.useTransparencyOnIndicator", "window.__env.useOutlierDetectionOnIndicator",
 			"window.__env.classifyZeroSeparately", "window.__env.classifyUsingWholeTimeseries", "window.__env.updateIntervalOptions", 
 			"window.__env.indicatorCreationTypeOptions", "window.__env.indicatorUnitOptions", "window.__env.indicatorTypeOptions", 
-			"window.__env.wmsDatasets", "window.__env.wfsDatasets"];
+			"window.__env.wmsDatasets", "window.__env.wfsDatasets", "window.__env.isAdvancedMode", "window.__env.showAdvancedModeSwitch",
+			"window.__env.customLogoURL", "window.__env.customLogo_onClickURL", "window.__env.customLogoWidth", "window.__env.customGreetingsContact_name",
+			"window.__env.customGreetingsContact_organisation", "window.__env.customGreetingsContact_mail"];
 
 		$scope.appConfigTemplate = undefined;
 		$scope.appConfigTmp = undefined;
@@ -47,7 +52,7 @@ angular.module('adminAppConfig').component('adminAppConfig', {
 
 			$scope.onChangeAppConfig();
 
-			$scope.$apply();
+			$scope.$digest();
 		};
 
 		$scope.initCodeEditor = function(){
@@ -103,6 +108,8 @@ angular.module('adminAppConfig').component('adminAppConfig', {
 			var isInvalid = true;
 
 			isInvalid = ! $scope.keywordsInConfig.every(keyword => configString.includes(keyword));
+			$scope.missingRequiredParameters = $scope.keywordsInConfig.filter(keyword => ! configString.includes(keyword));
+			$scope.missingRequiredParameters_string = JSON.stringify($scope.missingRequiredParameters);			
 
 			if ($scope.lintingIssues && $scope.lintingIssues.length > 0){
 				var errors = $scope.lintingIssues.filter(issue => issue.severity === 'error');
@@ -119,7 +126,7 @@ angular.module('adminAppConfig').component('adminAppConfig', {
 
 			var configString = $scope.appConfigTmp;				
 
-			$scope.configSettingInvalid = $scope.isConfigSettingInvalid(configString);
+			$scope.configSettingInvalid = $scope.isConfigSettingInvalid(configString);			
 
 			$timeout(function(){
 				$scope.appConfigNew = configString;
@@ -133,7 +140,7 @@ angular.module('adminAppConfig').component('adminAppConfig', {
 			}, 250);
 
 			$timeout(function(){
-				$scope.$apply();
+				$scope.$digest();
 			});
 		};
 
@@ -165,7 +172,7 @@ angular.module('adminAppConfig').component('adminAppConfig', {
 				$scope.loadingData = false;
 
 				setTimeout(() => {
-					$scope.$apply();
+					$scope.$digest();
 				}, 250);
 			} catch (error) {
 				if (error.data) {
@@ -179,7 +186,7 @@ angular.module('adminAppConfig').component('adminAppConfig', {
 				$scope.loadingData = false;
 
 				setTimeout(() => {
-					$scope.$apply();
+					$scope.$digest();
 				}, 250);
 			}
 

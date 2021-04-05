@@ -134,7 +134,7 @@ angular.module('scriptShare').component('scriptShare', {
 
 					// we can use TEX code as we use MathJax library
 					formulaHTML+=letterValue;
-					legendItemsHTML+="$" + letterValue + "$: " + indicatorMetadata.indicatorName;
+					legendItemsHTML+="$" + letterValue + "$: " + indicatorMetadata.indicatorName  + " [" + indicatorMetadata.unit +  "]";
 					if(index < $scope.baseIndicators.length - 1){
 						formulaHTML+=" + ";
 						legendItemsHTML+="<br/>"; 
@@ -142,7 +142,7 @@ angular.module('scriptShare').component('scriptShare', {
 				}
 
 				formulaHTML += "}{ I_{ref}} $$";
-				legendItemsHTML+="<br/>$ I_{ref} $: " + $scope.refIndicatorSelection.indicatorName + "<br/>";
+				legendItemsHTML+="<br/>$ I_{ref} $: " + $scope.refIndicatorSelection.indicatorName  + " [" + $scope.refIndicatorSelection.unit +  "]" + "<br/>";
 
 				kommonitorScriptHelperService.scriptFormulaHTML = formulaHTML + "<br/><br/>" + legendItemsHTML;
 				
@@ -158,7 +158,7 @@ angular.module('scriptShare').component('scriptShare', {
 				$scope.resetComputationFormulaAndLegend();
 
 				setTimeout(() => {
-					$scope.$apply();
+					$scope.$digest();
 				});
 			};
 
@@ -181,7 +181,7 @@ angular.module('scriptShare').component('scriptShare', {
 				$scope.resetComputationFormulaAndLegend();
 				
 				setTimeout(() => {
-					$scope.$apply();
+					$scope.$digest();
 				});
 			};
 	

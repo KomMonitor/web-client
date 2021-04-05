@@ -47,6 +47,11 @@
 					Setzen Sie die Werte daher sorgf&auml;ltig.
 					</p>
 
+					<label>Hinweis zu 'erweiterter Ansicht'</label>
+					<p>Wenn der Toggle-Button zum erweiterten Modus (der zwischen einer vereinfachten Ansicht mit wenig Funktionalit&auml;ten und einer 'Experten-Ansicht', mit allen Funktionen) genutzt wird, 
+						so kann mittels dem festgelegten Rollennamens <code>fakeAdvancedModeRole</code> bestimmt werden, welche Funktionen/Widgets im vereinfachten Modus ausgeblendet werden. Wenn eine Funktion nur
+						f&uuml;r Keycloak-Rollen freigegeben werden sollen, so darf kein Eintrag der <code>fakeAdvancedModeRole</code> zus&auml;tzlich enthalten sein.</p>
+
 					<hr>
 					<br/>
 
@@ -82,6 +87,9 @@
 							</div>
 							<div class="help-block with-errors" ng-show="configSettingInvalid">
 								Bitte beachten Sie, dass alle notwendigen Parameter gem&auml;&szlig; der obigen Vorlage definiert werden m&uuml;ssen. Beachten Sie daher die vorgegebene JSON-Struktur. Der Text wird auf Schl&uuml;sselw&ouml;rter gepr&uuml;ft und es wird sichergestellt, dass valides JSON geparsed werden kann.
+							</div>
+							<div class="help-block with-errors" ng-show="missingRequiredParameters && missingRequiredParameters.length > 0">
+								Fehlende Parameter: {{missingRequiredParameters_string}}
 							</div>
 						</div>
 						<div class="col-md-6 col-sm-6 col-xs-12">

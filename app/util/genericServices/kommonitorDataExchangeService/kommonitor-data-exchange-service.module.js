@@ -16,6 +16,19 @@ angular
 				function($rootScope, $timeout,
 						kommonitorMapService, kommonitorKeycloakHelperService, $http, __env, DTOptionsBuilder, $q, Auth,) {              
 
+              this.appTitle = __env.appTitle;
+
+              this.customLogoURL = __env.customLogoURL;
+              this.customLogo_onClickURL = __env.customLogo_onClickURL;
+              this.customLogoWidth = __env.customLogoWidth; 
+              this.customGreetingsContact_name = __env.customGreetingsContact_name;
+              this.customGreetingsContact_organisation = __env.customGreetingsContact_organisation;
+              this.customGreetingsContact_mail = __env.customGreetingsContact_mail;
+              this.customGreetingsTextInfoMessage = __env.customGreetingsTextInfoMessage; // maybe undefined or empty string
+
+              this.showDiagramExportButtons = true;
+              this.showGeoresourceExportButtons = true;
+
 							var numberOfDecimals = __env.numberOfDecimals;
 							const DATE_PREFIX = __env.indicatorDatePrefix;
               var defaultColorForZeroValues = __env.defaultColorForZeroValues;
@@ -49,6 +62,15 @@ angular
 
           var self = this;
 
+          this.headlineIndicatorHierarchy = [];
+          this.computationIndicatorHierarchy = [];
+          this.topicIndicatorHierarchy = [];
+          this.topicIndicatorHierarchy_forOrderView = [];
+
+          this.topicGeoresourceHierarchy = [];
+          this.topicGeoresourceHierarchy_unmappedEntries = {};
+          this.georesourceMapKey_forUnmappedTopicReferences = "unmapped";
+
           this.enableKeycloakSecurity = __env.enableKeycloakSecurity;
           this.currentKeycloakLoginRoles = [];
           this.currentKomMonitorLoginRoleNames = [];
@@ -65,6 +87,14 @@ angular
           };
 
           this.isAllowedSpatialUnitForCurrentIndicator = function(spatialUnitMetadata){
+            if(! this.selectedIndicator){
+              return false;
+            }
+
+            if(! spatialUnitMetadata || ! spatialUnitMetadata.spatialUnitLevel){
+              return false;
+            }
+
             var isAllowed = false;
             
             var roleMetadataForCurrentKeycloakLoginRoles = this.availableRoles.filter(role => this.currentKeycloakLoginRoles.includes(role.roleName));
@@ -101,6 +131,114 @@ angular
             autoclose: true,
       			language: 'de',
       			format: 'yyyy-mm-dd'
+          };
+
+          this.disableIndicatorDatePicker = false;
+
+          this.getLimitedDatePickerOptions = function(availableDates){
+
+            var months = new Map();
+
+            var years = new Map();
+
+            var yearMonths = new Map();
+
+            for (const dateString of availableDates) {
+              var date = new Date(dateString);
+              var month = date.getMonth() + 1;
+              var year = date.getFullYear();
+              var yearMonth = year + "-" + month;  
+
+              months.set(month, month);
+              years.set(year, year);
+              yearMonths.set(yearMonth, yearMonth);
+            }
+
+            var newDatePickerOptions = {
+              autoclose: true,
+              language: 'de',
+              format: 'yyyy-mm-dd',              
+              endDate: new Date(availableDates[availableDates.length - 1]),
+              startDate: new Date(availableDates[0]),
+              defaultViewDate: new Date(availableDates[availableDates.length - 1]),
+              beforeShowDay: function(date) {
+                var month = (date.getMonth()+1);
+                if (month < 10 ){
+                  month = "0" + month;
+                }
+                var day = (date.getDate());
+                if (day < 10 ){
+                  day = "0" + day;
+                }
+                var dateString = date.getFullYear() + "-" + month + "-" + day;
+  
+                if (availableDates.includes(dateString)) {
+  
+                  return "enabled-datepicker-item";
+  
+                } else {
+  
+                  return "disabled disabled-datepicker-item";
+  
+                }
+              },
+              beforeShowMonth: function(date) {
+                var month = date.getMonth()+1;
+                var year = date.getFullYear();
+                var yearMonth = year + "-" + month;  
+  
+                if (yearMonths.has(yearMonth)) {
+  
+                  return "enabled-datepicker-item";
+  
+                } else {
+  
+                  return "disabled disabled-datepicker-item";
+  
+                }               
+              },
+              beforeShowYear: function(date) {
+                var year = date.getFullYear();
+  
+                if (years.has(year)) {
+  
+                  return "enabled-datepicker-item";
+  
+                } else {
+  
+                  return "disabled disabled-datepicker-item";
+  
+                }
+              },
+              beforeShowDecade: function(date) {
+                var year = date.getFullYear();
+  
+                if (years.has(year)) {
+  
+                  return "enabled-datepicker-item";
+  
+                } else {
+  
+                  return "disabled disabled-datepicker-item";
+  
+                }
+              },
+              beforeShowCentury: function(date) {
+                var year = date.getFullYear();
+  
+                if (years.has(year)) {
+  
+                  return "enabled-datepicker-item";
+  
+                } else {
+  
+                  return "disabled disabled-datepicker-item";
+  
+                }
+              }
+            };
+
+            return newDatePickerOptions;
           };
 
           this.adminUserName = __env.adminUserName;
@@ -196,8 +334,12 @@ angular
           this.simplifyGeometriesOptions = __env.simplifyGeometriesOptions;
           this.simplifyGeometries = __env.simplifyGeometries;
 
-          this.wmsDatasets = __env.wmsDatasets;
-          this.wfsDatasets = __env.wfsDatasets;
+          this.wmsDatasets = __env.wmsDatasets.sort((a, b) => (a.title > b.title) ? 1 : -1);
+          this.wfsDatasets = __env.wfsDatasets.sort((a, b) => (a.title > b.title) ? 1 : -1);
+          this.wmsDatasets_keywordFiltered = JSON.parse(JSON.stringify(this.wmsDatasets));
+          this.wfsDatasets_keywordFiltered = JSON.parse(JSON.stringify(this.wfsDatasets));
+
+
           this.fileDatasets = [];
 
           this.availableRoles = [];
@@ -208,6 +350,14 @@ angular
           this.useOutlierDetectionOnIndicator = __env.useOutlierDetectionOnIndicator;
           this.classifyZeroSeparately = __env.classifyZeroSeparately;
           this.classifyUsingWholeTimeseries = __env.classifyUsingWholeTimeseries;
+
+          this.getUpdateIntervalDisplayValue = function(apiValue){
+            for (const updateIntervalOption of this.updateIntervalOptions) {
+              if(updateIntervalOption.apiName === apiValue){
+                return updateIntervalOption.displayName
+              }
+            }
+          };
 
           this.getBaseUrlToKomMonitorDataAPI_spatialResource = function(){
             return this.baseUrlToKomMonitorDataAPI + this.spatialResourceGETUrlPath_forAuthentication;
@@ -278,11 +428,27 @@ angular
 					// GEORESOURCES
 
 					this.availableGeoresources = [];
+          this.displayableGeoresources = [];
+          this.displayableGeoresources_keywordFiltered = [];
+          this.displayableGeoresources_keywordFiltered_forAlphabeticalDisplay = {};
 
 					this.selectedGeoresource;
 
 					this.setGeoresources = function(georesourcesArray){
 						this.availableGeoresources = georesourcesArray;
+            this.displayableGeoresources = this.availableGeoresources.filter(item => self.isDisplayableGeoresource(item));
+            this.displayableGeoresources_keywordFiltered = JSON.parse(JSON.stringify(this.displayableGeoresources));
+
+            this.wmsDatasets_keywordFiltered = JSON.parse(JSON.stringify(this.wmsDatasets));
+            this.wfsDatasets_keywordFiltered = JSON.parse(JSON.stringify(this.wfsDatasets));
+
+            this.displayableGeoresources_keywordFiltered_forAlphabeticalDisplay = {
+              poiData: this.displayableGeoresources_keywordFiltered.filter(item => item.isPOI),
+              loiData: this.displayableGeoresources_keywordFiltered.filter(item => item.isLOI),
+              aoiData: this.displayableGeoresources_keywordFiltered.filter(item => item.isAOI),
+              wmsData: this.wmsDatasets_keywordFiltered,
+              wfsData: this.wfsDatasets_keywordFiltered
+            };
 					};
 
 
@@ -291,6 +457,7 @@ angular
 					this.clickedIndicatorFeatureNames = new Array();
 
 					this.availableIndicators = [];
+          this.displayableIndicators = [];
 
 					this.selectedIndicator;
           // backup used when switching themes --< this might make selectedIndicator undefined due to filtering list of theme-matching indicators
@@ -312,6 +479,8 @@ angular
 
 					this.setIndicators = function(indicatorsArray){
 						this.availableIndicators = indicatorsArray;
+            this.displayableIndicators = this.availableIndicators.filter(item => isDisplayableIndicator(item));
+            this.displayableIndicators_keywordFiltered = JSON.parse(JSON.stringify(this.displayableIndicators));
 					};
 
 
@@ -737,8 +906,24 @@ angular
 
                   self.modifyIndicatorApplicableSpatialUnitsForLoginRoles();
 
+                  self.buildHeadlineIndicatorHierarchy();
+                  self.buildTopicIndicatorHierarchy();
+                  self.topicIndicatorHierarchy_forOrderView = JSON.parse(JSON.stringify(self.topicIndicatorHierarchy));
+                  self.buildComputationIndicatorHierarchy();
+
+                  self.buildTopicGeoresourceHierarchy();
+
                   console.log("Metadata fetched. Call initialize event.");
       						onMetadataLoadingCompleted();
+
+                  $timeout(function(){
+                    $('.list-group-item > .collapseTrigger').on('click', function() {
+                      $('.glyphicon', this)
+                        .toggleClass('glyphicon-chevron-right')
+                        .toggleClass('glyphicon-chevron-down');
+      
+                    });
+                  });
       				}, function errorCallback(errorArray) {
                 // todo error handling
                 self.displayMapApplicationError("Beim Laden der erforderlichen Anwendungsdaten ist ein Fehler aufgetreten. Bitte wenden Sie sich an Ihren Administrator.");
@@ -756,6 +941,526 @@ angular
               indicator.applicableSpatialUnits = indicator.applicableSpatialUnits.filter(applicableSpatialUnit => availableSpatialUnitNames.includes(applicableSpatialUnit.spatialUnitName)); 
             }
           };
+
+          this.buildTopicsMap_indicators = function(indicatorTopics){
+            var topicsMap = new Map();            
+
+            for (const topic of indicatorTopics) {
+              topicsMap.set(topic.topicId, []);
+              if(topic.subTopics.length > 0){
+                topicsMap = this.addSubTopicsToMap_indicators(topic.subTopics, topicsMap);
+              }
+            }
+
+            return topicsMap;
+          };
+
+          this.buildTopicsMap_georesources = function(georesourceTopics){
+            var topicsMap = new Map();            
+
+            for (const topic of georesourceTopics) {
+              topicsMap.set(topic.topicId, {
+                poiDatasets: [],
+                loiDatasets: [],
+                aoiDatasets: [],
+                wmsDatasets: [],
+                wfsDatasets: []
+              });
+              if(topic.subTopics.length > 0){
+                topicsMap = this.addSubTopicsToMap_georesources(topic.subTopics, topicsMap);
+              }
+            }
+
+            topicsMap.set(this.georesourceMapKey_forUnmappedTopicReferences, {
+              poiDatasets: [],
+              loiDatasets: [],
+              aoiDatasets: [],
+              wmsDatasets: [],
+              wfsDatasets: []
+            });
+
+            return topicsMap;
+          };
+
+          this.addSubTopicsToMap_indicators = function(subTopicsArray, topicsMap){
+
+            for (const subTopic of subTopicsArray) {
+              topicsMap.set(subTopic.topicId, []);
+              if(subTopic.subTopics.length > 0){
+                topicsMap = this.addSubTopicsToMap_indicators(subTopic.subTopics, topicsMap);
+              } 
+            } 
+            
+            return topicsMap;
+          };
+
+          this.addSubTopicsToMap_georesources = function(subTopicsArray, topicsMap){
+
+            for (const subTopic of subTopicsArray) {
+              topicsMap.set(subTopic.topicId, {
+                poiDatasets: [],
+                loiDatasets: [],
+                aoiDatasets: [],
+                wmsDatasets: [],
+                wfsDatasets: []
+              });
+              if(subTopic.subTopics.length > 0){
+                topicsMap = this.addSubTopicsToMap_georesources(subTopic.subTopics, topicsMap);
+              } 
+            } 
+            
+            return topicsMap;
+          };
+
+          this.buildTopicGeoresourceHierarchy = function(){
+
+            var georesourceTopics = JSON.parse(JSON.stringify(this.availableTopics)).filter(topic => topic.topicResource === "georesource");
+            /*
+            topicsMap.set(topic.topicId, {
+                poiDatasets: [],
+                loiDatasets: [],
+                aoiDatasets: [],
+                wmsDatasets: [],
+                wfsDatasets: []
+              })
+
+              + special entry with key "unmapped" for all datasets without valid topic reference
+            */
+            var topicsMap = this.buildTopicsMap_georesources(georesourceTopics);
+            
+
+            // PROCESS GEORESOURCES
+            var filteredGeoresources = this.displayableGeoresources_keywordFiltered;
+
+            for (const georesourceMetadata of filteredGeoresources) {
+              if (topicsMap.has(georesourceMetadata.topicReference)){
+                var georesourceDatasets = topicsMap.get(georesourceMetadata.topicReference);
+                
+                if(georesourceMetadata.isPOI){
+                  georesourceDatasets.poiDatasets.push(georesourceMetadata);
+                }
+                if(georesourceMetadata.isLOI){
+                  georesourceDatasets.loiDatasets.push(georesourceMetadata);
+                }
+                if(georesourceMetadata.isAOI){
+                  georesourceDatasets.aoiDatasets.push(georesourceMetadata);
+                }                
+
+                topicsMap.set(georesourceMetadata.topicReference, georesourceDatasets);
+              }
+              else{
+                var georesourceDatasets_unmapped = topicsMap.get(this.georesourceMapKey_forUnmappedTopicReferences);
+                
+                if(georesourceMetadata.isPOI){
+                  georesourceDatasets_unmapped.poiDatasets.push(georesourceMetadata);
+                }
+                if(georesourceMetadata.isLOI){
+                  georesourceDatasets_unmapped.loiDatasets.push(georesourceMetadata);
+                }
+                if(georesourceMetadata.isAOI){
+                  georesourceDatasets_unmapped.aoiDatasets.push(georesourceMetadata);
+                }                
+
+                topicsMap.set(this.georesourceMapKey_forUnmappedTopicReferences, georesourceDatasets_unmapped);
+              }
+            }
+
+            // PROCESS WMS and WFS
+            for (const wmsMetadata of this.wmsDatasets_keywordFiltered) {
+              if (topicsMap.has(wmsMetadata.topicReference)){
+                var georesourceDatasets = topicsMap.get(wmsMetadata.topicReference);                
+                georesourceDatasets.wmsDatasets.push(wmsMetadata);              
+
+                topicsMap.set(wmsMetadata.topicReference, georesourceDatasets);
+              }
+              else{
+                var georesourceDatasets_unmapped = topicsMap.get(this.georesourceMapKey_forUnmappedTopicReferences);
+                
+                georesourceDatasets_unmapped.wmsDatasets.push(wmsMetadata);               
+
+                topicsMap.set(this.georesourceMapKey_forUnmappedTopicReferences, georesourceDatasets_unmapped);
+              }
+            }
+
+            // PROCESS WMS and WFS
+            for (const wfsMetadata of this.wfsDatasets_keywordFiltered) {
+              if (topicsMap.has(wfsMetadata.topicReference)){
+                var georesourceDatasets = topicsMap.get(wfsMetadata.topicReference);                
+                georesourceDatasets.wfsDatasets.push(wfsMetadata);              
+
+                topicsMap.set(wfsMetadata.topicReference, georesourceDatasets);
+              }
+              else{
+                var georesourceDatasets_unmapped = topicsMap.get(this.georesourceMapKey_forUnmappedTopicReferences);
+                
+                georesourceDatasets_unmapped.wfsDatasets.push(wfsMetadata);               
+
+                topicsMap.set(this.georesourceMapKey_forUnmappedTopicReferences, georesourceDatasets_unmapped);
+              }
+            }
+
+            this.topicGeoresourceHierarchy = this.addGeoresourceDataToTopicHierarchy(georesourceTopics, topicsMap);
+          };
+
+          this.buildTopicIndicatorHierarchy = function(){
+
+            var indicatorTopics = JSON.parse(JSON.stringify(this.availableTopics)).filter(topic => topic.topicResource === "indicator");
+            var topicsMap = this.buildTopicsMap_indicators(indicatorTopics);
+
+            var filteredIndicators = this.displayableIndicators_keywordFiltered;
+
+            for (const indicatorMetadata of filteredIndicators) {
+              if (topicsMap.has(indicatorMetadata.topicReference)){
+                var indicatorArray = topicsMap.get(indicatorMetadata.topicReference);
+                indicatorArray.push(indicatorMetadata);
+                topicsMap.set(indicatorMetadata.topicReference, indicatorArray);
+              }
+            }
+
+            this.topicIndicatorHierarchy = this.addIndicatorDataToTopicHierarchy(indicatorTopics, topicsMap);
+          };
+
+          this.addIndicatorDataToTopicHierarchy = function(topicsArray, topicsMap){
+            for (var topic of topicsArray) {
+              topic.indicatorData = topicsMap.get(topic.topicId);
+              topic.indicatorData.sort((a,b) => (a.displayOrder > b.displayOrder) ? 1 : ((b.displayOrder > a.displayOrder) ? -1 : 0));
+              topic.indicatorCount = topic.indicatorData.length;
+              if(topic.subTopics.length > 0){
+                topic = this.addIndicatorDataToSubTopics(topic, topicsMap);
+              }
+            }
+
+            return topicsArray;
+          };
+
+          this.addIndicatorDataToSubTopics = function(topic, topicsMap){
+            for (var subTopic of topic.subTopics) {
+              subTopic.indicatorData = topicsMap.get(subTopic.topicId);
+              subTopic.indicatorData.sort((a,b) => (a.displayOrder > b.displayOrder) ? 1 : ((b.displayOrder > a.displayOrder) ? -1 : 0));
+              subTopic.indicatorCount = subTopic.indicatorData.length;              
+              if(subTopic.subTopics.length > 0){
+                subTopic = this.addIndicatorDataToSubTopics(subTopic, topicsMap);
+              }
+              topic.indicatorCount = topic.indicatorCount + subTopic.indicatorCount;
+            }
+
+            return topic;
+          };
+
+          this.addGeoresourceDataToTopicHierarchy = function(topicsArray, topicsMap){
+
+            /*
+            topicsMap.set(topic.topicId, {
+                poiDatasets: [],
+                loiDatasets: [],
+                aoiDatasets: [],
+                wmsDatasets: [],
+                wfsDatasets: []
+              })
+
+              + special entry with key "unmapped" for all datasets without valid topic reference
+            */
+
+            for (var topic of topicsArray) {
+              var topicsDataEntry = topicsMap.get(topic.topicId);
+              topic.poiData = topicsDataEntry.poiDatasets;
+              topic.poiCount = topicsDataEntry.poiDatasets.length;
+
+              topic.loiData = topicsDataEntry.loiDatasets;
+              topic.loiCount = topicsDataEntry.loiDatasets.length;
+
+              topic.aoiData = topicsDataEntry.aoiDatasets;
+              topic.aoiCount = topicsDataEntry.aoiDatasets.length;
+
+              topic.wmsData = topicsDataEntry.wmsDatasets;
+              topic.wmsCount = topicsDataEntry.wmsDatasets.length;
+
+              topic.wfsData = topicsDataEntry.wfsDatasets;
+              topic.wfsCount = topicsDataEntry.wfsDatasets.length;
+
+              topic.totalCount = topic.poiCount + topic.loiCount + topic.aoiCount + topic.wmsCount + topic.wfsCount;
+              topic.ownCount = topic.poiCount + topic.loiCount + topic.aoiCount + topic.wmsCount + topic.wfsCount;
+
+              if(topic.subTopics.length > 0){
+                topic = this.addGeoresourceDataToSubTopics(topic, topicsMap);
+              }
+            }
+
+            // PROCESS UNMAPPED entries
+            this.topicGeoresourceHierarchy_unmappedEntries = {};
+            var topicsDataEntry_unmapped = topicsMap.get(this.georesourceMapKey_forUnmappedTopicReferences);
+            this.topicGeoresourceHierarchy_unmappedEntries.poiData = topicsDataEntry_unmapped.poiDatasets;
+            this.topicGeoresourceHierarchy_unmappedEntries.poiCount = topicsDataEntry_unmapped.poiDatasets.length;
+
+            this.topicGeoresourceHierarchy_unmappedEntries.loiData = topicsDataEntry_unmapped.loiDatasets;
+            this.topicGeoresourceHierarchy_unmappedEntries.loiCount = topicsDataEntry_unmapped.loiDatasets.length;
+
+            this.topicGeoresourceHierarchy_unmappedEntries.aoiData = topicsDataEntry_unmapped.aoiDatasets;
+            this.topicGeoresourceHierarchy_unmappedEntries.aoiCount = topicsDataEntry_unmapped.aoiDatasets.length;
+
+            this.topicGeoresourceHierarchy_unmappedEntries.wmsData = topicsDataEntry_unmapped.wmsDatasets;
+            this.topicGeoresourceHierarchy_unmappedEntries.wmsCount = topicsDataEntry_unmapped.wmsDatasets.length;
+
+            this.topicGeoresourceHierarchy_unmappedEntries.wfsData = topicsDataEntry_unmapped.wfsDatasets;
+            this.topicGeoresourceHierarchy_unmappedEntries.wfsCount = topicsDataEntry_unmapped.wfsDatasets.length;
+
+            this.topicGeoresourceHierarchy_unmappedEntries.totalCount = this.topicGeoresourceHierarchy_unmappedEntries.poiCount + 
+            this.topicGeoresourceHierarchy_unmappedEntries.loiCount + 
+            this.topicGeoresourceHierarchy_unmappedEntries.aoiCount + 
+            this.topicGeoresourceHierarchy_unmappedEntries.wmsCount + 
+            this.topicGeoresourceHierarchy_unmappedEntries.wfsCount;
+
+            return topicsArray;
+          };
+
+          this.addGeoresourceDataToSubTopics = function(topic, topicsMap){
+            for (var subTopic of topic.subTopics) { 
+              
+              var topicsDataEntry = topicsMap.get(subTopic.topicId);
+              subTopic.poiData = topicsDataEntry.poiDatasets;
+              subTopic.poiCount = topicsDataEntry.poiDatasets.length;
+
+              subTopic.loiData = topicsDataEntry.loiDatasets;
+              subTopic.loiCount = topicsDataEntry.loiDatasets.length;
+
+              subTopic.aoiData = topicsDataEntry.aoiDatasets;
+              subTopic.aoiCount = topicsDataEntry.aoiDatasets.length;
+
+              subTopic.wmsData = topicsDataEntry.wmsDatasets;
+              subTopic.wmsCount = topicsDataEntry.wmsDatasets.length;
+
+              subTopic.wfsData = topicsDataEntry.wfsDatasets;
+              subTopic.wfsCount = topicsDataEntry.wfsDatasets.length;
+
+              subTopic.totalCount = subTopic.poiCount + subTopic.loiCount + subTopic.aoiCount + subTopic.wmsCount + subTopic.wfsCount;
+              subTopic.ownCount = subTopic.poiCount + subTopic.loiCount + subTopic.aoiCount + subTopic.wmsCount + subTopic.wfsCount;
+
+              if(subTopic.subTopics.length > 0){
+                subTopic = this.addGeoresourceDataToSubTopics(subTopic, topicsMap);
+              }
+              topic.poiCount = topic.poiCount + subTopic.poiCount;
+              topic.loiCount = topic.loiCount + subTopic.loiCount;
+              topic.aoiCount = topic.aoiCount + subTopic.aoiCount;
+              topic.wmsCount = topic.wmsCount + subTopic.wmsCount;
+              topic.wfsCount = topic.wfsCount + subTopic.wfsCount;
+              topic.totalCount = topic.totalCount + subTopic.totalCount;
+            }
+
+            return topic;
+          };
+
+          this.onChangeIndicatorKeywordFilter = function(indicatorNameFilter){
+            this.displayableIndicators_keywordFiltered = JSON.parse(JSON.stringify(this.displayableIndicators));
+
+            if(indicatorNameFilter && indicatorNameFilter != ""){
+              this.displayableIndicators_keywordFiltered = filterArrayObjectsByValue(this.displayableIndicators_keywordFiltered, indicatorNameFilter);									
+            }
+
+            this.buildTopicIndicatorHierarchy();
+            this.buildHeadlineIndicatorHierarchy();
+            this.buildComputationIndicatorHierarchy();             
+          };
+
+          this.onChangeGeoresourceKeywordFilter = function(georesourceNameFilter, showPOI, showLOI, showAOI, showWMS, showWFS){          
+            this.wmsDatasets_keywordFiltered = JSON.parse(JSON.stringify(this.wmsDatasets));
+            this.wfsDatasets_keywordFiltered = JSON.parse(JSON.stringify(this.wfsDatasets));
+
+            this.displayableGeoresources_keywordFiltered = JSON.parse(JSON.stringify(this.displayableGeoresources));
+
+            if(georesourceNameFilter && georesourceNameFilter != ""){
+              this.displayableGeoresources_keywordFiltered = filterArrayObjectsByValue(this.displayableGeoresources_keywordFiltered, georesourceNameFilter);									
+              
+              this.wmsDatasets_keywordFiltered = filterArrayObjectsByValue(this.wmsDatasets_keywordFiltered, georesourceNameFilter);
+              this.wfsDatasets_keywordFiltered = filterArrayObjectsByValue(this.wfsDatasets_keywordFiltered, georesourceNameFilter);
+            }
+
+            this.displayableGeoresources_keywordFiltered_forAlphabeticalDisplay = {
+              poiData: this.displayableGeoresources_keywordFiltered.filter(item => item.isPOI),
+              loiData: this.displayableGeoresources_keywordFiltered.filter(item => item.isLOI),
+              aoiData: this.displayableGeoresources_keywordFiltered.filter(item => item.isAOI),
+              wmsData: this.wmsDatasets_keywordFiltered,
+              wfsData: this.wfsDatasets_keywordFiltered
+            };
+
+            if(!showWMS){
+              this.wmsDatasets_keywordFiltered = [];
+            }
+            if(!showWFS){
+              this.wfsDatasets_keywordFiltered = [];
+            }
+
+            if(! (showPOI && showLOI && showAOI)){
+              this.displayableGeoresources_keywordFiltered = this.displayableGeoresources_keywordFiltered.filter(item => {
+                if (! showPOI && item.isPOI){
+                  return false;
+                }
+                if (! showLOI && item.isLOI){
+                  return false;
+                }
+
+                if (! showAOI && item.isAOI){
+                  return false;
+                }
+
+                return true;
+              });
+            }
+
+            this.buildTopicGeoresourceHierarchy();          
+          };
+
+          this.buildHeadlineIndicatorHierarchy = function(){
+
+            var indicatorsMap = new Map();
+
+            var filteredIndicators = this.displayableIndicators_keywordFiltered;
+
+            for (const indicatorMetadata of filteredIndicators) {
+              indicatorsMap.set(indicatorMetadata.indicatorId, indicatorMetadata);
+            }
+            
+            var headlineIndicatorsArray = filteredIndicators.filter(indicatorMetadata => indicatorMetadata.isHeadlineIndicator == true);
+
+            var headlineIndicatorsIdArray = headlineIndicatorsArray.map(indicatorMetadata => indicatorMetadata.indicatorId);
+
+            var headlineIndicatorsMap = new Map();
+
+            for (const indicatorMetadata of headlineIndicatorsArray) {
+              headlineIndicatorsMap.set(indicatorMetadata.indicatorId, indicatorMetadata);
+            }
+
+            var headlineIndicatorScriptsMap = new Map();
+            for (const scriptMetadata of this.availableProcessScripts) {
+              if(headlineIndicatorsIdArray.includes(scriptMetadata.indicatorId)){                
+                headlineIndicatorScriptsMap.set(scriptMetadata.indicatorId, scriptMetadata);
+              }
+            }
+
+            this.headlineIndicatorHierarchy = [];
+
+            // var item = {
+            //   headlineIndicator: {metadata}
+            //   baseIndicators: [{metadata}]
+            //   maybeSomeAnalysisItems?
+            // }
+
+            for (const headlineIndicatorMetadata of headlineIndicatorsArray) {
+              var item = {};
+              item.headlineIndicator = headlineIndicatorMetadata;
+              item.baseIndicators = [];
+
+              if(headlineIndicatorScriptsMap.has(headlineIndicatorMetadata.indicatorId)){
+                var targetScriptMetadata = headlineIndicatorScriptsMap.get(headlineIndicatorMetadata.indicatorId);
+                for (const requiredIndicatorId of targetScriptMetadata.requiredIndicatorIds) {
+                  if (indicatorsMap.has(requiredIndicatorId)){
+                    item.baseIndicators.push(indicatorsMap.get(requiredIndicatorId));
+                  }                
+                }
+              }              
+
+              this.headlineIndicatorHierarchy.push(item);
+            }            
+
+          };
+
+          this.buildComputationIndicatorHierarchy = function(){
+
+            var indicatorsMap = new Map();
+
+            var filteredIndicators = this.displayableIndicators_keywordFiltered;
+
+            for (const indicatorMetadata of filteredIndicators) {
+              indicatorsMap.set(indicatorMetadata.indicatorId, indicatorMetadata);
+            }
+            
+            var computationIndicatorsArray = filteredIndicators.filter(indicatorMetadata => indicatorMetadata.creationType == "COMPUTATION");
+
+            var computationIndicatorsIdArray = computationIndicatorsArray.map(indicatorMetadata => indicatorMetadata.indicatorId);
+
+            var computationIndicatorsMap = new Map();
+
+            for (const indicatorMetadata of computationIndicatorsArray) {
+              computationIndicatorsMap.set(indicatorMetadata.indicatorId, indicatorMetadata);
+            }
+
+            var computationIndicatorScriptsMap = new Map();
+            for (const scriptMetadata of this.availableProcessScripts) {
+              if(computationIndicatorsIdArray.includes(scriptMetadata.indicatorId)){                
+                computationIndicatorScriptsMap.set(scriptMetadata.indicatorId, scriptMetadata);
+              }
+            }
+
+            this.computationIndicatorHierarchy = [];
+
+            // var item = {
+            //   computationIndicator: {metadata}
+            //   baseIndicators: [{metadata}]
+            //   maybeSomeAnalysisItems?
+            // }
+
+            for (const computationIndicatorMetadata of computationIndicatorsArray) {
+              var item = {};
+              item.computationIndicator = computationIndicatorMetadata;
+              item.baseIndicators = [];
+
+              if(computationIndicatorScriptsMap.has(computationIndicatorMetadata.indicatorId)){
+                var targetScriptMetadata = computationIndicatorScriptsMap.get(computationIndicatorMetadata.indicatorId);
+                for (const requiredIndicatorId of targetScriptMetadata.requiredIndicatorIds) {
+                  if (indicatorsMap.has(requiredIndicatorId)){
+                    item.baseIndicators.push(indicatorsMap.get(requiredIndicatorId));
+                  }                
+                }
+              }              
+
+              this.computationIndicatorHierarchy.push(item);
+            }            
+
+          };
+
+          this.filterCurrentlySelectedIndicator = function(){
+						return function( item ) {
+
+							if (item.indicatorMetadata.indicatorId === self.selectedIndicator.indicatorId){
+								return true;
+							}
+							return false;
+							
+						  };
+					};
+
+					this.filterBaseIndicatorsOfCurrentHeadlineIndicator = function(){
+						return function( item ) {
+
+							var headlineIndicatorEntry = self.headlineIndicatorHierarchy.filter(element => element.headlineIndicator.indicatorId == self.selectedIndicator.indicatorId)[0];
+
+							if(headlineIndicatorEntry){
+								var baseIndicators_filtered = headlineIndicatorEntry.baseIndicators.filter(element => element.indicatorId == item.indicatorMetadata.indicatorId);
+								if (baseIndicators_filtered.length > 0){
+									return true;
+								}
+							}
+
+							return false;
+							
+						  };
+					};
+
+					this.filterBaseIndicatorsOfCurrentComputationIndicator = function(){
+						return function( item ) {
+
+							var computationIndicatorEntry = self.computationIndicatorHierarchy.filter(element => element.computationIndicator.indicatorId == self.selectedIndicator.indicatorId)[0];
+
+							if(computationIndicatorEntry){
+								var baseIndicators_filtered = computationIndicatorEntry.baseIndicators.filter(element => element.indicatorId == item.indicatorMetadata.indicatorId);
+								if (baseIndicators_filtered.length > 0){
+									return true;
+								}
+							}
+
+							return false;
+							
+						  };
+					};
 
           var onMetadataLoadingCompleted = function(){
 
@@ -1143,30 +1848,27 @@ angular
             return containsNegativeValues;
           };
 
-          this.formatIndiatorNameForLabel = function(indicatorName, maxCharsPerLine){
-            var separationSigns = [" ", "-", "_"];
-            var counter = 0;
-            var nextWord = "";
-            var nextChar;
-            var label = "";
-            for(var i=0; i<indicatorName.length; i++){
-              nextChar = indicatorName.charAt(i);
-              nextWord += nextChar;
-              if(counter === maxCharsPerLine){
-                label += "\n";
-                counter = 0;
-              }
-              else if(separationSigns.includes(nextChar)){
-                // add word to label
-                label += nextWord;
-                nextWord = "";
-              }
-              counter++;
+          this.formatIndicatorNameForLabel = function(indicatorName, maxCharsPerLine){
+            var arr = [];
+            var space = /\s/;
+         
+            const words = indicatorName.split(space);
+            // push first word into new array
+            if (words[0].length) {
+              arr.push(words[0]);
             }
-            //append last word
-            label += nextWord;
-            return label;
-          }
+         
+            for (let i = 1; i < words.length; i++) {
+              if (words[i].length + arr[arr.length - 1].length < maxCharsPerLine) {
+                arr[arr.length - 1] = `${arr[arr.length - 1]} ${words[i
+                         ]}`;
+              } 
+              else {
+                arr.push(words[i]);
+              }
+            }
+            return arr.join("\n");
+          };
 
           this.filterIndicators = function (){
             return function( item ) {
@@ -1292,10 +1994,20 @@ angular
             };
           };
 
+          function getImageDimensions(file) {
+            return new Promise (function (resolved, rejected) {
+              var i = new Image();
+              i.onload = function(){
+                resolved({w: i.width, h: i.height})
+              };
+              i.src = file;
+            });
+          }
+
           /**
            * creates and returns a pdf for the indicator given as parameter
            */
-          this.createMetadataPDF = function(indicator) {
+          this.createMetadataPDF_indicator = async function(indicator) {
 
             var jspdf = new jsPDF();
             jspdf.setFontSize(16);
@@ -1308,7 +2020,7 @@ angular
   
             jspdf.setFontSize(16);
             jspdf.setFontStyle('bolditalic');
-            var titleArray = jspdf.splitTextToSize(indicator.indicatorName, 180);
+            var titleArray = jspdf.splitTextToSize("Indikator: " +indicator.indicatorName, 180);
             jspdf.text(titleArray, 14, 25);
   
             if (indicator.characteristicValue && indicator.characteristicValue != "-" && indicator.characteristicValue != "") {
@@ -1379,8 +2091,8 @@ angular
   
             }
   
-            var category = "Subindikator";
-            if (indicator.isHeadingIndicator) {
+            var category = "Basisindikator";
+            if (indicator.isHeadlineIndicator) {
               category = "Leitindikator";
             }
   
@@ -1448,7 +2160,7 @@ angular
               for (var applicableSpatialUnit of indicator.applicableSpatialUnits) {
   
                 if (availableSpatialUnit.spatialUnitLevel === applicableSpatialUnit.spatialUnitName) {
-                  spatialUnitsString += applicableSpatialUnit;
+                  spatialUnitsString += applicableSpatialUnit.spatialUnitName;
                   processedSpatialUnits++;
   
                   if (processedSpatialUnits < indicator.applicableSpatialUnits.length) {
@@ -1461,17 +2173,41 @@ angular
   
             var datesString = "";
   
-            for (var [j, date] of indicator.applicableDates.entries()) {
-  
-              var dateComponents = date.split("-");
-              var asDate = new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]));
-  
-              datesString += this.tsToDate_fullYear(this.dateToTS(asDate));
-  
-              if (j < indicator.applicableDates.length - 1) {
-                datesString += "\n";
+            if(indicator.applicableDates.length <= 20){
+              for (var [j, date] of indicator.applicableDates.entries()) {
+                var asDate = new Date(date);
+    
+                datesString += this.tsToDate_withOptionalUpdateInterval(this.dateToTS(asDate), indicator.metadata.updateInterval);
+    
+                if (j < indicator.applicableDates.length - 1) {
+                  datesString += "    ";
+                }
               }
             }
+            else{
+              datesString += "Zeitreihe umfasst insgesamt " + indicator.applicableDates.length + " Zeitpunkte\n\n";
+
+              datesString += "frühester Zeitpunkt: " + this.tsToDate_withOptionalUpdateInterval(this.dateToTS(indicator.applicableDates[0]), indicator.metadata.updateInterval) + "\n";
+              datesString += "spätester Zeitpunkt: " + this.tsToDate_withOptionalUpdateInterval(this.dateToTS(indicator.applicableDates[indicator.applicableDates.length - 1]), indicator.metadata.updateInterval);
+            
+            }            
+
+            var imgData;
+            var imgWidth;
+            var imgHeight;
+
+            if(indicator.processDescription && indicator.processDescription.includes("$")){
+              await html2canvas(document.querySelector("#indicatorProcessDescription")).then(canvas => {
+                // document.body.appendChild(canvas)
+  
+                imgData = canvas.toDataURL('image/png');
+            
+              });
+
+              var dimensions = await getImageDimensions(imgData);
+              imgWidth = dimensions.w;
+              imgHeight = dimensions.h;
+            }            
   
             jspdf.autoTable({
               head: [],
@@ -1489,7 +2225,35 @@ angular
               headStyles: headStyles,
               bodyStyles: bodyStyles,
               columnStyles: columnStyles,
-              startY: jspdf.autoTable.previous.finalY + 10
+              startY: jspdf.autoTable.previous.finalY + 10,
+              willDrawCell: function(data) {
+                if (imgData && data.row.index === 2 && data.column.index === 1 && data.cell.section === 'body') {                   
+                   data.row.height = 2.5 * data.cell.height;
+                   data.row.maxCellHeight = 2.5 * data.cell.height;
+                   data.cell.height = 2.5 * data.cell.height;
+                   data.cell.text = "";
+                }
+                if (imgData && data.row.index === 2 && data.column.index === 0 && data.cell.section === 'body') {                   
+                  data.row.height = 2.5 * data.cell.height;
+                  data.row.maxCellHeight = 2.5 * data.cell.height;
+                  data.cell.height = 2.5 * data.cell.height;
+               }
+              },
+              didDrawCell: function(data) {
+                if (imgData && data.row.index === 2 && data.column.index === 1 && data.cell.section === 'body') {
+                   var cellHeight = data.cell.height - data.cell.padding('vertical');
+                   var cellWidth = data.cell.width - data.cell.padding('horizontal');
+                   var textPos = data.cell.textPos;
+
+                   var imgScale = cellHeight / imgHeight;
+                   var width = imgWidth * imgScale;
+                   if (width > cellWidth){
+                     width = cellWidth;
+                   }
+
+                   jspdf.addImage(imgData, "PNG", textPos.x,  textPos.y, width, cellHeight);
+                }
+              }
             });
   
             // // linked elements
@@ -1517,8 +2281,9 @@ angular
                 ["Raumbezug", spatialUnitsString],
                 // $scope.updateInteval is a map mapping the english KEYs to german expressions
                 ["Zeitbezug / Fortführungsintervall", this.updateInterval.get(indicator.metadata.updateInterval.toUpperCase())],
+                ["Hinweise zum Referenzdatum", indicator.referenceDateNote ? indicator.referenceDateNote : "-"],
                 ["Verfügbare Zeitreihen", datesString],
-                ["Datum der letzten Aktualisierung", indicator.metadata.lastUpdate],
+                ["Datum der letzten Aktualisierung", this.tsToDate_withOptionalUpdateInterval(this.dateToTS(indicator.metadata.lastUpdate))],
                 ["Quellen / Literatur", indicator.metadata.literature ? indicator.metadata.literature : "-"]
               ],
               theme: 'grid',
@@ -1551,7 +2316,208 @@ angular
               keywords: 'Indikator, Metadatenblatt',
               creator: 'KomMonitor'
             });
-            
+
+            jspdf.save(pdfName);
+            return jspdf;
+          };
+
+          /**
+           * creates and returns a pdf for the georesource given as parameter
+           */
+           this.createMetadataPDF_georesource = async function(georesource) {
+
+            var jspdf = new jsPDF();
+            jspdf.setFontSize(16);
+            // jspdf.text("Metadatenblatt", 70, 6);
+  
+            //insert logo
+            var img = new Image();
+            img.src = '/logos/KM_Logo1.png';
+            jspdf.addImage(img, 'PNG', 193, 5, 12, 12);
+  
+            jspdf.setFontSize(16);
+            jspdf.setFontStyle('bolditalic');
+            var titleArray = jspdf.splitTextToSize("Geodatensatz: " + georesource.datasetName, 180);
+            jspdf.text(titleArray, 14, 25);
+  
+  
+            jspdf.setFontSize(11);
+  
+            var initialStartY = 30;
+  
+            if (titleArray.length > 1) {
+              titleArray.forEach(function (item) {
+                initialStartY += 5;
+              });
+            }
+  
+            var headStyles = {
+              fontStyle: 'bold',
+              fontSize: 12,
+              fillColor: '#337ab7',
+              // auto or wrap
+              cellWidth: 'auto'
+            };
+  
+            var bodyStyles = {
+              fontStyle: 'normal',
+              fontSize: 11,
+              // auto or wrap or number
+              cellWidth: 'auto'
+            };
+  
+            // first column with fixed width
+            var columnStyles = {
+              0: { cellWidth: 45, fontStyle: 'bold' },
+              1: { fontStyle: 'normal' }
+            };
+  
+            var topicsString = "";
+  
+            var topicReferenceId = georesource.topicReference;
+  
+            // will be an array representing the topic hierarchy
+            // i.e. [mainTopic, subTopicFirstTier, subTopicSecondTier, ...]
+            var topicHierarchyArray = this.getTopicHierarchyForTopicId(topicReferenceId);
+  
+            for (let index = 0; index < topicHierarchyArray.length; index++) {
+              if (index === 0) {
+                // mainTopic --> first tier
+                topicsString += topicHierarchyArray[index].topicName;
+              }
+              else {
+                var numberOfWhitespaces = 2 * index;
+                var whitespaceString = "";
+                for (let k = 0; k < numberOfWhitespaces; k++) {
+                  whitespaceString += " ";
+                }
+                topicsString += whitespaceString + topicHierarchyArray[index].topicName;
+              }
+  
+              if (index < topicHierarchyArray.length - 1) {
+                topicsString += "\n";
+              }
+  
+            }
+  
+            var category = "Punkt";
+            if (georesource.isLOI) {
+              category = "Linie";
+            }
+            else if(georesource.isAOI){
+              category = "Fläche";
+            }
+  
+            // Or JavaScript:
+            jspdf.autoTable({
+              head: [['Themenfeld', 'Datentyp', 'letzte Aktualisierung']],
+              body: [
+                [topicsString, category, this.tsToDate_withOptionalUpdateInterval(this.dateToTS(georesource.metadata.lastUpdate))]
+                // ...
+              ],
+              theme: 'grid',
+              headStyles: headStyles,
+              bodyStyles: bodyStyles,
+              startY: initialStartY
+            });
+  
+            var datesString = "";
+  
+            if(georesource.availablePeriodsOfValidity.length <= 10){
+              for (var [j, period] of georesource.availablePeriodsOfValidity.entries()) {
+
+                var startDate = new Date(period.startDate);
+                var endDate = period.endDate? new Date(period.endDate) : undefined;
+    
+                datesString += "Zeitspanne: " + this.tsToDate_withOptionalUpdateInterval(this.dateToTS(startDate));
+                if(endDate){
+                  datesString += " - " + this.tsToDate_withOptionalUpdateInterval(this.dateToTS(endDate));
+                }
+                else{
+                  datesString += "- 'null' (demnach gültig bis auf weiteres)";
+                }
+    
+                if (j < georesource.availablePeriodsOfValidity.length - 1) {
+                  datesString += "\n";
+                }
+              }
+            }
+            else{
+              datesString += "insgesamt " + georesource.availablePeriodsOfValidity.length + " Zeitspannen\n\n";
+
+              var earliestStartDate;
+              var latestEndDate = -1; // my be null --> enc init with -1
+
+              for (var [j, period] of georesource.availablePeriodsOfValidity.entries()) {
+
+                if(! earliestStartDate){
+                  earliestStartDate = new Date(period.startDate);
+                }
+                else{
+                  if(new Date(period.startDate) < earliestStartDate){
+                    earliestStartDate = new Date(period.startDate);
+                  }
+                }
+                
+                if(latestEndDate == -1){
+                  if(period.endDate){
+                    latestEndDate = new Date(period.endDate);
+                  }
+                  else if(period.endDate == null){
+                    latestEndDate = null;
+                  }
+                  
+                }
+                else{
+                  if(latestEndDate && period.endDate && new Date(period.endDate) > latestEndDate){
+                    latestEndDate = new Date(period.endDate);
+                  }
+                }
+              }
+
+              datesString += "frühestes Startdatum: " + this.tsToDate_withOptionalUpdateInterval(this.dateToTS(earliestStartDate)) + "\n";
+              if(latestEndDate != null && latestEndDate != -1){
+                datesString += "spätestes Enddatum: " + this.tsToDate_withOptionalUpdateInterval(this.dateToTS(latestEndDate)) + "\n";
+              }
+              else{
+                datesString += "spätestes Enddatum: ohne explizites Enddatum (demnach gültig bis auf weiteres)\n";
+              }
+              
+
+            }            
+  
+            // linked elements
+            jspdf.autoTable({
+              head: [],
+              body: [
+                ["Beschreibung", georesource.metadata.description],
+                ["Datengrundlage", georesource.metadata.databasis ? georesource.metadata.databasis : "-"],
+                ["Datenquelle", georesource.metadata.datasource ? georesource.metadata.datasource : "-"],
+                ["Datenhalter und Kontakt", georesource.metadata.contact ? georesource.metadata.contact : "-"],
+                ["Bemerkung", georesource.metadata.note ? georesource.metadata.note : "-"],
+                // $scope.updateInteval is a map mapping the english KEYs to german expressions
+                ["Zeitbezug / Fortführungsintervall", this.updateInterval.get(georesource.metadata.updateInterval.toUpperCase())],
+                ["Verfügbare Gültigkeitszeiträume", datesString],
+                ["Quellen / Literatur", georesource.metadata.literature ? georesource.metadata.literature : "-"]
+              ],
+              theme: 'grid',
+              headStyles: headStyles,
+              bodyStyles: bodyStyles,
+              columnStyles: columnStyles,
+              startY: jspdf.autoTable.previous.finalY + 10
+            });
+  
+            var pdfName = georesource.datasetName + ".pdf";
+  
+            jspdf.setProperties({
+              title: 'KomMonitor Geodatenblatt',
+              subject: pdfName,
+              author: 'KomMonitor',
+              keywords: 'Geodaten, Metadatenblatt',
+              creator: 'KomMonitor'
+            });
+
+            jspdf.save(pdfName);
             return jspdf;
           };
 
@@ -1580,33 +2546,92 @@ angular
           // };
 
           this.dateToTS = function(date) {
-            return date.valueOf();
-          }
+            if(date){
+              return date.valueOf();
+            }
+            
+          };
   
           this.tsToDate = function(ts) {
-            var date = new Date(ts);
+            if(ts){
+              var date = new Date(ts);
   
             return date.toLocaleDateString("de-DE", {
               year: 'numeric',
               month: 'long',
               day: 'numeric'
             });
-          }
+            }            
+          };
   
-          this.tsToDate_fullYear = function(ts) {
-            var date = new Date(ts);
+          this.tsToDate_withOptionalUpdateInterval = function(ts, updateIntervalApiName) {
+            if(ts){
+              var date = new Date(ts);
   
             /**
             * TODO FIXME dateSLider formatter will return only year for now to prevent misleading month and day settings
             */
   
             // return date.getFullYear();
-  
-            return date.toLocaleDateString("de-DE", {
+
+            if(updateIntervalApiName){
+              if(updateIntervalApiName.toLowerCase() === "yearly"){
+                return date.getFullYear();
+              }
+              else if(updateIntervalApiName.toLowerCase() === "half_yearly"){
+                return (date.getMonth() + 1) + "/" +  date.getFullYear();                
+              }
+              else if(updateIntervalApiName.toLowerCase() === "monthly"){
+                return (date.getMonth() + 1) + "/" +  date.getFullYear();
+              }
+              // else if(updateIntervalApiName.toLowerCase() === "weekly"){
+              //   return date.toLocaleDateString("de-DE", {
+              //     year: 'numeric',
+              //     month: 'short',
+              //     day: 'numeric'
+              //   });
+              // }
+              // else if(updateIntervalApiName.toLowerCase() === "daily"){
+              //   return date.toLocaleDateString("de-DE", {
+              //     year: 'numeric',
+              //     month: 'short',
+              //     day: 'numeric'
+              //   });
+              // }
+              else if(updateIntervalApiName.toLowerCase() === "quarterly"){
+                var year = date.getFullYear();
+                var month = date.getMonth();
+                if(month < 4){
+                  return "Q1/" + year;
+                }
+                else if(month < 7){
+                  return "Q2/" + year;
+                }
+                else if(month < 10){
+                  return "Q3/" + year;
+                }
+                else {
+                  return "Q4/" + year;
+                }
+              }
+              else{
+                // includes daily and weekly, as they are presented equally
+                return date.toLocaleDateString("de-DE", {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric'
+                });
+              }
+            }
+            else{
+              return date.toLocaleDateString("de-DE", {
             		year: 'numeric',
-            		month: 'long',
+            		month: 'short',
             		day: 'numeric'
-            });
+              });
+            }
+  
+            }            
           };
 
           /**

@@ -42,7 +42,7 @@ angular.module('indicatorEditIndicatorSpatialUnitRolesModal').component('indicat
 			$("#indicatorEditIndicatorSpatialUnitRolesErrorAlert").hide();
 
 			setTimeout(() => {
-				$scope.$apply();
+				$scope.$digest();
 			}, 250);
 		};
 

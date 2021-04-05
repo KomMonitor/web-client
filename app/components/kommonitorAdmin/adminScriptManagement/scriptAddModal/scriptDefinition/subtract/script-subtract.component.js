@@ -126,7 +126,7 @@ angular.module('scriptSubtract').component('scriptSubtract', {
 
 				// referenceIndicator
 				formulaHTML+="$ I_{ref} - (";
-				legendItemsHTML+="$ I_{ref} $: " + $scope.refIndicatorSelection.indicatorName + "<br/>";
+				legendItemsHTML+="$ I_{ref} $: " + $scope.refIndicatorSelection.indicatorName + " [" + $scope.refIndicatorSelection.unit +  "]" + "<br/>";
 
 				// baseIndicators / computationIndicators
 				for (let index = 0; index < $scope.baseIndicators.length; index++) {
@@ -135,7 +135,7 @@ angular.module('scriptSubtract').component('scriptSubtract', {
 
 					// we can use TEX code as we use MathJax library
 					formulaHTML+=letterValue;
-					legendItemsHTML+="$" + letterValue + "$: " + indicatorMetadata.indicatorName;
+					legendItemsHTML+="$" + letterValue + "$: " + indicatorMetadata.indicatorName + " [" + indicatorMetadata.unit +  "]";
 					if(index < $scope.baseIndicators.length - 1){
 						formulaHTML+=" + ";
 						legendItemsHTML+="<br/>"; 
@@ -158,7 +158,7 @@ angular.module('scriptSubtract').component('scriptSubtract', {
 				$scope.resetComputationFormulaAndLegend();
 
 				setTimeout(() => {
-					$scope.$apply();
+					$scope.$digest();
 				});
 			};
 
@@ -181,7 +181,7 @@ angular.module('scriptSubtract').component('scriptSubtract', {
 				$scope.resetComputationFormulaAndLegend();
 				
 				setTimeout(() => {
-					$scope.$apply();
+					$scope.$digest();
 				});
 			};
 	
