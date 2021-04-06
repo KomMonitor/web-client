@@ -983,7 +983,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				"Kritik, Anregungen oder Fragen sind jederzeit willkommen.</b> <i>(siehe Begrüßungsfenster für den Kontakt).</br></br> " + 
 				"<b>Viel Spaß bei der Nutzung von KomMonitor! </b>",
 				onNext: function(tour){
-					kommonitorDataExchangeService.guidedTour = undefined;					
+					kommonitorDataExchangeService.guidedTour = undefined;	// ends the tour				
 				}
 			},
 			{
@@ -1029,11 +1029,17 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 		};
  
 		$scope.generateTableOfContent = function() {
+			let prevStepTitle = undefined;
 			for(var i=0;i<$scope.tourOptions.steps.length;i++) {
 				let step = $scope.tourOptions.steps[i];
-				let html = "<li class='guided-tour-toc-element' ng-click='goToGuidedTourStep($ctrl.kommonitorDataExchangeServiceInstance.guidedTour, " + i + ")'>" + step.title + "</li>";
-				let compiled = $compile(html)($scope) // let angularjs know that there is new html, add the ng-click event
-				angular.element(document.getElementById('guided-tour-toc')).append(compiled);
+				// only show the first guided tour step for each subtheme
+				// specifically exclude "Individuelle Indikatoren-Neuberechnung" for now as it is not shown in the guided tour
+				if (step.title !== prevStepTitle && step.title !== "Individuelle Indikatoren-Neuberechnung") {
+					let html = "<li class='guided-tour-toc-element' ng-click='goToGuidedTourStep($ctrl.kommonitorDataExchangeServiceInstance.guidedTour, " + i + ")'>" + step.title + "</li>";
+					let compiled = $compile(html)($scope) // let angularjs know that there is new html, add the ng-click event
+					angular.element(document.getElementById('guided-tour-toc')).append(compiled);
+				}
+				prevStepTitle = step.title
 			}
 		};
 
