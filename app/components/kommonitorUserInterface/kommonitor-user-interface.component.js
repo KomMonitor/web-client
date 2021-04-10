@@ -1,9 +1,9 @@
 angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 	templateUrl : "components/kommonitorUserInterface/kommonitor-user-interface.template.html",
 	controller : ['kommonitorDataExchangeService', 'kommonitorKeycloakHelperService', 'kommonitorElementVisibilityHelperService', '$scope', 
-	'$rootScope', '$location', 'Auth', 'ControlsConfigService', 
+	'$rootScope', '$location', 'Auth', 'ControlsConfigService', '$compile',
 	function UserInterfaceController(kommonitorDataExchangeService, kommonitorKeycloakHelperService, kommonitorElementVisibilityHelperService, 
-		$scope, $rootScope, $location, Auth, ControlsConfigService) {
+		$scope, $rootScope, $location, Auth, ControlsConfigService, $compile) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 		this.kommonitorKeycloakHelperServiceInstance = kommonitorKeycloakHelperService;
@@ -481,6 +481,20 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 					if($scope.sidebarLegendClass !== "disappear"){
 							$("#sidebarLegendCollapse").click();
 					}
+				}
+			},
+			{
+				element: "#map",
+				title: "Inhaltsverzeichnis",
+				placement: "top",
+				content: "<ol id='guided-tour-toc'></ol>",
+				onNext: function(tour){
+					if($scope.sidebarLegendClass !== "disappear"){
+							$("#sidebarLegendCollapse").click();
+					}
+				},
+				onShown: function(tour) {
+					$scope.generateTableOfContent();
 				}
 			},
 			{
@@ -969,7 +983,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				"Kritik, Anregungen oder Fragen sind jederzeit willkommen.</b> <i>(siehe Begrüßungsfenster für den Kontakt).</br></br> " + 
 				"<b>Viel Spaß bei der Nutzung von KomMonitor! </b>",
 				onNext: function(tour){
-					kommonitorDataExchangeService.guidedTour = undefined;					
+					kommonitorDataExchangeService.guidedTour = undefined;	// ends the tour				
 				}
 			}
 			// {
@@ -1004,7 +1018,40 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			// 		}
 			// 	}
 			// }
-		]};
+		],
+			onShown: function(tour) {
+				// add shortcut to toc to each title
+				let titleElement = document.getElementsByClassName("popover-title").item(0);
+				titleElement.innerHTML +=
+					"<span data-toggle='tooltip' title='zum Inhaltsverzeichnis'>" +
+					"<i class='fas fa-book' ng-click='goToGuidedTourStep($ctrl.kommonitorDataExchangeServiceInstance.guidedTour, 1)'></i></span>";
+				$compile(titleElement)($scope); // let angularjs know that there is new html, add the ng-click event
+			}
+		};
+ 
+		$scope.generateTableOfContent = function() {
+			let prevStepTitle = undefined;
+			for(var i=0;i<$scope.tourOptions.steps.length;i++) {
+				let step = $scope.tourOptions.steps[i];
+				// only show the first guided tour step for each subtheme
+				// specifically exclude "Individuelle Indikatoren-Neuberechnung" for now as it is not shown in the guided tour
+				if (step.title !== prevStepTitle && step.title !== "Individuelle Indikatoren-Neuberechnung") {
+					let html = "<li class='guided-tour-toc-element' ng-click='goToGuidedTourStep($ctrl.kommonitorDataExchangeServiceInstance.guidedTour, " + i + ")'>" + step.title + "</li>";
+					let compiled = $compile(html)($scope); // let angularjs know that there is new html, add the ng-click event
+					angular.element(document.getElementById('guided-tour-toc')).append(compiled);
+				}
+				prevStepTitle = step.title;
+			}
+		};
+
+		$scope.goToGuidedTourStep = function(tour, targetStepIndex) {
+			// The method "goTo" provided by the library jumps directly to the target step, ignoring the "onNext" and "onPrev" methods.
+			// That leads to menues not being opened/closed. To fix this we iterate the steps manually.
+			while(tour.getCurrentStep() < targetStepIndex)
+				tour.next();
+			while(tour.getCurrentStep() > targetStepIndex)
+				tour.prev();
+		};
 
 		$scope.startGuidedTour = function(){
 			// GUIDED TOUR
