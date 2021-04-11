@@ -28,7 +28,7 @@ angular
 								$scope.dateSelectionType_valueManual = "date_manual";
 								$scope.dateSelectionType_valuePerDataset = "date_perDataset";
 								$scope.dateSelectionType = {
-									selectedDateType: $scope.dateSelectionType_valueIndicator
+									selectedDateType: $scope.dateSelectionType_valuePerDataset
 								};
 
 								$scope.selectedDate_manual = undefined;

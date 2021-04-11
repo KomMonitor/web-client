@@ -60,7 +60,7 @@ angular
 								$scope.settings.dateSelectionType_valueManual = "date_manual";
 								$scope.settings.dateSelectionType_valuePerDataset = "date_perDataset";
 								$scope.settings.dateSelectionType = {
-									selectedDateType: $scope.settings.dateSelectionType_valueIndicator
+									selectedDateType: $scope.settings.dateSelectionType_valuePerDataset
 								};
 
 					$scope.settings.selectedDate_manual = undefined;
@@ -70,7 +70,7 @@ angular
 								$scope.settings.isochroneConfig.dateSelectionType_valueManual = "date_manual";
 								$scope.settings.isochroneConfig.dateSelectionType_valuePerDataset = "date_perDataset";
 								$scope.settings.isochroneConfig.dateSelectionType = {
-									selectedDateType: $scope.settings.isochroneConfig.dateSelectionType_valueIndicator
+									selectedDateType: $scope.settings.isochroneConfig.dateSelectionType_valuePerDataset
 								};
 
 					$scope.settings.isochroneConfig.selectedDate_manual = undefined;
