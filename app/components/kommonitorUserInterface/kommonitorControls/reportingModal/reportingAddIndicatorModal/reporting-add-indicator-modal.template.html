@@ -61,22 +61,25 @@
 					</label>
 					<label for="reportingMapScaleCheckbox">Maßstabsleiste</label>
 					-->
-					<br />
+
+					<!-- hide description entry as it is too large for display and in fact, the matadatra sheet lists the same and more details in a more beautiful way; -->
+					<!-- <br />
 					<label class="switch">
 						<input id="reportingDescriptionCheckbox" class="elementCheckbox" type="checkbox"
 							ng-model="elementDescriptionIsChecked" ng-click="elementChbClicked($event)"
 							ng-checked="elementDescriptionIsChecked">
 						<span class="switchslider round text-left" style="line-height:25px;"></span>
 					</label>
-					<label for="reportingDescriptionCheckbox">Indikatorbeschreibung</label>
-					<br />
+					<label for="reportingDescriptionCheckbox">Indikatorbeschreibung</label> -->
+					<!-- as histogram diagram was removed totally from KomMonitor map application -->
+					<!-- <br />
 					<label class="switch">
 						<input id="reportingHistoryCheckbox" class="elementCheckbox" type="checkbox"
 							ng-model="elementHistoryIsChecked" ng-click="elementChbClicked($event)"
 							ng-checked="elementHistoryIsChecked">
 						<span class="switchslider round text-left" style="line-height:25px;"></span>
 					</label>
-					<label for="reportingHistoryCheckbox">Histogramm</label>
+					<label for="reportingHistoryCheckbox">Histogramm</label> -->
 					<br />
 					<label class="switch">
 						<input id="reportingFeatureComparisonCheckbox" class="elementCheckbox" type="checkbox"
@@ -93,14 +96,15 @@
 						<span class="switchslider round text-left" style="line-height:25px;"></span>
 					</label>
 					<label for="reportingMetadataCheckbox">Zeitreihe</label>
-					<br />
+					<!-- hide metadata entry as it cannot be properly inserted; code refactoring required -->
+					<!-- <br />
 					<label class="switch">
 						<input id="reportingMetadataCheckbox" class="elementCheckbox" type="checkbox"
 							ng-model="elementMetadataIsChecked" ng-click="elementChbClicked($event)"
 							ng-checked="elementMetadataIsChecked">
 						<span class="switchslider round text-left" style="line-height:25px;"></span>
 					</label>
-					<label for="reportingMetadataCheckbox">Metadatenblatt</label>
+					<label for="reportingMetadataCheckbox">Metadatenblatt</label> -->
 					<!--
 					<br />
 					<label class="switch">
