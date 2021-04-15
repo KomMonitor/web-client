@@ -1020,6 +1020,16 @@ angular.module('reportingModal').component('reportingModal', {
 				}
 			});
 
+			// set settings classifyUsingWholeTimeseries and useOutlierDetectionOnIndicator to false to have consistent reporting setup
+			// set classifyZeroSeparately to true 
+			var useOutlierDetectionOnIndicator_backup = kommonitorDataExchangeService.useOutlierDetectionOnIndicator;
+			var classifyUsingWholeTimeseries_backup = kommonitorDataExchangeService.classifyUsingWholeTimeseries;
+			var classifyZeroSeparately_backup = kommonitorDataExchangeService.classifyZeroSeparately; 
+
+			kommonitorDataExchangeService.useOutlierDetectionOnIndicator = false;
+			kommonitorDataExchangeService.classifyUsingWholeTimeseries = false;
+			kommonitorDataExchangeService.classifyZeroSeparately = true;
+
 			var config = $scope.getIndicatorConfigByName(indicatorName);
 
 			//get timestamp
@@ -1034,13 +1044,18 @@ angular.module('reportingModal').component('reportingModal', {
 			var classifyMethod = __env.defaultClassifyMethod;
 			//setup brew
 			var defaultBrew = kommonitorVisualStyleHelperService.setupDefaultBrew(geoJSON, timestampPref, numClasses, colorCodeStandard, classifyMethod);
-			var dynamicBrewsArray = kommonitorVisualStyleHelperService.setupDynamicIndicatorBrew(geoJSON, timestampPref, colorCodePositiveValues, colorCodeNegativeValues, classifyMethod)
+			var dynamicBrewsArray = kommonitorVisualStyleHelperService.setupDynamicIndicatorBrew(geoJSON, timestampPref, colorCodePositiveValues, colorCodeNegativeValues, classifyMethod);
 			var dynamicIncreaseBrew = dynamicBrewsArray[0];
 			var dynamicDecreaseBrew = dynamicBrewsArray[1];
 
 			//setup diagram resources
 			kommonitorDiagramHelperService.prepareAllDiagramResources_forReportingIndicator(config.indicator, config.selectedSpatialUnit, timestamp, defaultBrew, undefined, undefined, dynamicIncreaseBrew, dynamicDecreaseBrew, false, 0, true);
 			
+			// set settings classifyUsingWholeTimeseries and useOutlierDetectionOnIndicator and classifyZeroSeparately back to their prior values			
+			kommonitorDataExchangeService.useOutlierDetectionOnIndicator = useOutlierDetectionOnIndicator_backup;
+			kommonitorDataExchangeService.classifyUsingWholeTimeseries = classifyUsingWholeTimeseries_backup;
+			kommonitorDataExchangeService.classifyZeroSeparately = classifyZeroSeparately_backup;
+
 			//fill the tile with different content
 			//the id shows what type of content is needed
 			var contentType = tileId.split("_")[2]; //get the last part ot the id
@@ -1180,9 +1195,9 @@ angular.module('reportingModal').component('reportingModal', {
 				$scope.echartInstances.push(lineChart);
 
 			} else if (contentType === "metadata") {
-				var jspdf = kommonitorDataExchangeService.createMetadataPDF_indicator(config.indicator)
+				var jspdf = kommonitorDataExchangeService.createMetadataPDF_indicator(config.indicator);
 				// TODO create an image to show in the tile
-				var dataUrl = jspdf.output('dataurlstring')
+				var dataUrl = jspdf.output('dataurlstring');
 				
 				var $obj = $('<object>');
 				$obj.attr("data", dataUrl);
