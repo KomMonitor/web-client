@@ -134,12 +134,8 @@ angular.module('reportingAddIndicatorModal').component('reportingAddIndicatorMod
 		 */
 		$scope.loadDefaultState = function() {
 			//select last spatial unit
-			// var $spatialUnitSelect = $('#reporting-spatial-unit-select');
-			// var children = $spatialUnitSelect.children();
-			// var lastSpatialUnit = children.last().get(0);
-			// $scope.selectedSpatialUnit = lastSpatialUnit.textContent;
 
-			$scope.selectedSpatialUnit = $scope.indicator.applicableSpatialUnits[0].spatialUnitName;
+			$scope.selectedSpatialUnit = $scope.indicator.applicableSpatialUnits[0];
 
 			//update areas
 			$scope.updateAreas().then( () => {
@@ -173,7 +169,7 @@ angular.module('reportingAddIndicatorModal').component('reportingAddIndicatorMod
 			// get spatial unit id
 			var spatialUnitId = undefined;
 			$(kommonitorDataExchangeService.availableSpatialUnits).each( (id, obj) => {
-				if (obj.spatialUnitLevel === $scope.selectedSpatialUnit) {
+				if (obj.spatialUnitId === $scope.selectedSpatialUnit.spatialUnitId) {
 					spatialUnitId = obj.spatialUnitId;
 					return false;
 				}
