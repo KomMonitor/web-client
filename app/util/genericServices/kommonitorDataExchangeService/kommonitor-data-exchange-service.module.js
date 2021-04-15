@@ -2306,18 +2306,7 @@ angular
             //     columnStyles: columnStyles,
             //     startY: jspdf.autoTable.previous.finalY + 10
             // });
-  
-            var pdfName = indicator.indicatorName + ".pdf";
-  
-            jspdf.setProperties({
-              title: 'KomMonitor Indikatorenblatt',
-              subject: pdfName,
-              author: 'KomMonitor',
-              keywords: 'Indikator, Metadatenblatt',
-              creator: 'KomMonitor'
-            });
 
-            jspdf.save(pdfName);
             return jspdf;
           };
 
