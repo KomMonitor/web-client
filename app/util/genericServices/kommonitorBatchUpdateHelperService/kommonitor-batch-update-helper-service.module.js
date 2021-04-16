@@ -6,9 +6,6 @@ angular
         'kommonitorBatchUpdateHelperService', ['$rootScope', '$timeout', 'kommonitorDataExchangeService', 'kommonitorImporterHelperService', '$http', '__env',
             function ($rootScope, $timeout, kommonitorDataExchangeService, kommonitorImporterHelperService, $http, __env) {
 
-                var thisService = this; // allows calling service methods from inside other functions, where "this" references something else
-                this.georesourcesIdArray = [];
-
                 this.batchUpdate = async function (resourceType, batchList) {
 
                     // clear result modal
@@ -60,7 +57,7 @@ angular
                             } catch (error) {
                                 console.log("error while uploading file in row: " + i);
                                 responses.push({
-                                    name: row.name.datasetName,
+                                    name: row.name.datasetName, // TODO exists only for georesources, indicator equivalent is indicatorName
                                     status: "error",
                                     message: error 
                                 });
@@ -113,7 +110,7 @@ angular
 
                                 // add success object
                                 responses.push({
-                                    name: row.name.datasetName,
+                                    name: row.name.datasetName, // TODO exists only for georesources, indicator equivalent is indicatorName
                                     status: "success",
                                     message: updateGeoresourceResponse
                                 });
@@ -123,7 +120,7 @@ angular
                                 // errors ocurred
                                 // add them to response array
                                 responses.push({
-                                    name: row.name.datasetName,
+                                    name: row.name.datasetName, // TODO exists only for georesources, indicator equivalent is indicatorName
                                     status: "error",
                                     message: undefined
                                 });
@@ -133,7 +130,7 @@ angular
                             }
                         } catch (error) {
                             responses.push({
-                                name: row.name.datasetName,
+                                name: row.name.datasetName, // TODO exists only for georesources, indicator equivalent is indicatorName
                                 status: "error",
                                 message: undefined
                             });
@@ -160,56 +157,50 @@ angular
 
 
                 this.parseBatchListFromFile = function (resourceType, file, batchList) {
-                    if (resourceType == "georesource") {
-                        var fileReader = new FileReader();
+                    var fileReader = new FileReader();
 
-                        fileReader.onload = function (event) {
-                            batchList = JSON.parse(event.target.result);
+                    fileReader.onload = function (event) {
+                        batchList = JSON.parse(event.target.result);
+                        if (resourceType === "georesource") {
                             $rootScope.$broadcast('georesourceBatchListParsed', {
                                 newValue: batchList
                             });
-                        };
+                        }
+                        if (resourceType === "indicator") {
+                            $rootScope.$broadcast('indicatorBatchListParsed', {
+                                newValue: batchList
+                            });
+                        }
+                    };
 
-                        // Read in the image file as a data URL.
-                        fileReader.readAsText(file);
-                    }
-
-                    if (resourceType == "indicator") {
-                        // TODO
-                    }
+                    fileReader.readAsText(file);
                 }
 
                 this.saveMappingObjectToFile = function(resourceType, $event, batchList) {
 
                     var filename;
                     var jsonToExport;
-                    if(resourceType == "georesource") {
-                        var rowIndex = this.getIndexFromId($event.currentTarget.id);
-                        var row = batchList[rowIndex];
+                    var rowIndex = this.getIndexFromId($event.currentTarget.id);
+                    var row = batchList[rowIndex];
     
-                        var objToExport = $.extend({}, row.mappingObj);
+                    var objToExport = $.extend({}, row.mappingObj);
 
-                        objToExport.converter = this.converterPropertiesToParametersArray(objToExport.converter)
-                        objToExport.dataSource = this.dataSourcePropertyToParametersArray(objToExport.dataSource)
+                    objToExport.converter = this.converterPropertiesToParametersArray(objToExport.converter)
+                    objToExport.dataSource = this.dataSourcePropertyToParametersArray(objToExport.dataSource)
 
-                        // selected converter and DatasouceType might have changed.
-                        // rebuild the corresponding definitions and insert parameter values
-                        objToExport.converter = this.buildConverterDefinition(row.selectedConverter, objToExport.converter);
-                        objToExport.dataSource = this.buildDataSourceDefinition(row.selectedDatasourceType, objToExport.dataSource, false)
+                    // selected converter and DatasouceType might have changed.
+                    // rebuild the corresponding definitions and insert parameter values
+                    objToExport.converter = this.buildConverterDefinition(row.selectedConverter, objToExport.converter);
+                    objToExport.dataSource = this.buildDataSourceDefinition(row.selectedDatasourceType, objToExport.dataSource, false)
 
-                        jsonToExport = JSON.stringify(objToExport);
-                        if(row.name) {
+                    jsonToExport = JSON.stringify(objToExport);
+
+                    fileName = "KomMonitor-Import-Mapping-Konfiguration_Export.json"; // default
+                    if (resourceType === "georesource" && row.name)
                             fileName = "KomMonitor-Import-Mapping-Konfiguration_Export-" + row.name.datasetName + ".json";
-                        } else {
-                            fileName = "KomMonitor-Import-Mapping-Konfiguration_Export.json";
-                        }
-                        
-                    }
-
-                    // if (resourceType == "indicator") {
-                    //     fileName = ".json";
-                    //     jsonToExport = JSON.stringify(batchList);
-                    // }
+                    if (resourceType === "indicator" && row.name)
+                            fileName = "KomMonitor-Import-Mapping-Konfiguration_Export-" + row.name.indicatorName + ".json";
+                    
 
                     var blob = new Blob([jsonToExport], {
                         type: "application/json"
@@ -231,49 +222,46 @@ angular
 
                     var fileName;
                     var jsonToExport = "";
-                    if (resourceType == "georesource") {
+                    var objToExport = [];
 
+                    for (var i = 0; i < batchList.length; i++) {
+                        var row = batchList[i];
+                        objToExport.push({});
                         // To not affect the $scope, we create a deep copy of batchList to export.
-                        var objToExport = [];
+                        objToExport[i] = $.extend(true, objToExport[i], row);
+                        // No need to export all of the metadata
+                        // We just need to know which georesource/indicator was selected so we can restore it on import
+                        // That ensures that the metadata is up to date (and not parsed from the exported batchList)
+                        if (resourceType === "georesource" && objToExport[i].name)
+                            objToExport[i].name = objToExport[i].name.georesourceId;
+                        if (resourceType === "indicator" && objToExport[i].name)
+                            objToExport[i].name = objToExport[i].name.indicatorId;
 
-                        for (var i = 0; i < batchList.length; i++) {
-                            var row = batchList[i];
-                            objToExport.push({});
-                            objToExport[i] = $.extend(true, objToExport[i], row);
-                            // No need to export all of the metadata
-                            // We just need to know which georesource was selected so we can restore it on import
-                            // That ensures that the metadata is up to date (and not parsed from the exported batchList)
-                            if (objToExport[i].name)
-                                objToExport[i].name = objToExport[i].name.georesourceId;
+                        // if mapping table was selected
+                        if (row.mappingTableName.length > 0) {
+                            objToExport[i].mappingObj.converter = this.converterPropertiesToParametersArray(objToExport[i].mappingObj.converter)
+                            objToExport[i].mappingObj.dataSource = this.dataSourcePropertyToParametersArray(objToExport[i].mappingObj.dataSource)
 
-                            // if mapping table was selected
-                            if (row.mappingTableName.length > 0) {
+                            // replace converter and dataSource definitions
+                            objToExport[i].mappingObj.converter = this.buildConverterDefinition(row.selectedConverter, objToExport[i].mappingObj.converter);
+                            objToExport[i].mappingObj.dataSource = this.buildDataSourceDefinition(row.selectedDatasourceType, objToExport[i].mappingObj.dataSource, false);
 
-                                objToExport[i].mappingObj.converter = this.converterPropertiesToParametersArray(objToExport[i].mappingObj.converter)
-                                objToExport[i].mappingObj.dataSource = this.dataSourcePropertyToParametersArray(objToExport[i].mappingObj.dataSource)
-
-                                // replace converter and dataSource definitions
-                                objToExport[i].mappingObj.converter = this.buildConverterDefinition(row.selectedConverter, objToExport[i].mappingObj.converter);
-                                objToExport[i].mappingObj.dataSource = this.buildDataSourceDefinition(row.selectedDatasourceType, objToExport[i].mappingObj.dataSource, false);
-
-                                // No need to export selectedConverter and selectedDatasourceType
-                                delete objToExport[i].selectedConverter;
-                                delete objToExport[i].selectedDatasourceType;
-                            }
-
-                            if(row.hasOwnProperty("tempGeoresourceId")) {
-                                delete row.tempGeoresourceId;
-                            };
+                            // No need to export selectedConverter and selectedDatasourceType
+                            delete objToExport[i].selectedConverter;
+                            delete objToExport[i].selectedDatasourceType;
                         }
 
-                        jsonToExport = JSON.stringify(objToExport);
-                        fileName = "Georessource_batch_update_batch_list.json";
+                        if(row.hasOwnProperty("tempGeoresourceId"))
+                            delete row.tempGeoresourceId;
+                        if(row.hasOwnProperty("tempIndicatorId"))
+                            delete row.tempIndicatorId;
                     }
 
-                    if (resourceType == "indicator") {
-                        fileName = "Indicator_batch_update_batch_list.json";
-                        jsonToExport = JSON.stringify(batchList);
-                    }
+                    jsonToExport = JSON.stringify(objToExport);
+                    if (resourceType === "georesource")
+                        fileName = "Georesource_batch_update_batch_list.json";
+                    if (resourceType === "indicator")
+                    fileName = "Indicator_batch_update_batch_list.json";
 
                     var blob = new Blob([jsonToExport], {
                         type: "application/json"
@@ -291,13 +279,14 @@ angular
                     a.remove();
                 }
 
-                this.resetBatchUpdateForm = function (batchList) {
+                this.resetBatchUpdateForm = function (resourceType, batchList) {
                     // select all rows
                     for (var i = 0; i < batchList.length; i++) {
                         batchList[i].isSelected = true;
                     }
                     this.deleteSelectedRowsFromBatchList(batchList, false);
-                    this.addNewRowToBatchList("georesource", batchList)
+
+                    this.addNewRowToBatchList(resourceType, batchList)
                 }
 
                 this.onChangeSelectAllRows = function (allRowsSelected, batchList) {
@@ -315,12 +304,14 @@ angular
                 this.addNewRowToBatchList = function (resourceType, batchList) {
                     console.log(batchList);
 
-                    if (resourceType == "georesource") {
-                        var obj = {};
-                        // initialize properties so that they exist for each row
-                        obj.isSelected = false;
-                        obj.name = undefined;
-                        obj.mappingTableName = "";
+                    // create new object theat matches the row-scheme
+                    let obj = {}
+                    // initialize properties so that they exist for each row
+                    obj.isSelected = false;
+                    obj.name = undefined;
+                    obj.mappingTableName = "";
+                    // mapping object depends on resource type
+                    if (resourceType === "georesource") {
                         obj.mappingObj = {
                             converter: {
                                 encoding: "",
@@ -348,7 +339,6 @@ angular
                                 type: ""
                             },
                             propertyMapping: {
-                                arisenFromProperty: "",
                                 attributes: [
                                     /*
                                     {
@@ -369,13 +359,55 @@ angular
                                 endDate: ""
                             }
                         };
-
-                        batchList.push(obj);
                     }
 
-                    if (resourceType == "indicator") {
-                        // TODO
+                    if (resourceType === "indicator") {
+                        obj.mappingObj = {
+                            converter: {
+                                encoding: "",
+                                mimeType: "",
+                                name: "",
+                                parameters: [
+                                    /*
+                                        {
+		    		                        "name": "string",
+		    		                        "value": "string"
+                                        }
+                                        */
+                                ],
+                                schema: ""
+                            },
+                            dataSource: {
+                                parameters: [
+                                    /*
+                                        {
+		    		                        "name": "string",
+		    		                        "value": "string"
+                                        }
+                                        */
+                                ],
+                                type: ""
+                            },
+                            propertyMapping: {
+                                timeseriesMapping: [
+                                    /*
+                                    {
+                                        "indicatorValueProperty": "string",
+                                        "timestamp": "date" // direct timestamp
+                                    }, {
+                                        "indicatorValueProperty": "string",
+                                        "timestampProperty": "string"   // attribute column that contains timestamp(s)
+                                    }
+                                    */
+                                ],
+                                spatialReferenceKeyProperty: "",
+                                
+                                keepMissingOrNullValueIndicator: true,
+                            },
+                            targetSpatialUnitName: ""
+                        };
                     }
+                    batchList.push(obj);
                 }
 
                 this.deleteSelectedRowsFromBatchList = function (batchList, allRowsSelected) {
@@ -659,6 +691,17 @@ angular
                     for (georesource of kommonitorDataExchangeService.availableGeoresources) {
                         if (georesource.georesourceId === id) {
                             return georesource;
+                        }
+                    }
+                    return null;
+                }
+
+                // helper function to get a indicator object by id.
+                // returns null if no indicator object was found
+                this.getIndicatorObjectById = function (id) {
+                    for (indicator of kommonitorDataExchangeService.availableIndicators) {
+                        if (indicator.indicatorId === id) {
+                            return indicator;
                         }
                     }
                     return null;

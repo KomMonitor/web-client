@@ -111,9 +111,12 @@ angular.module('adminIndicatorsManagement').component('adminIndicatorsManagement
 
 						$scope.loadingData = false;
 
+						$rootScope.$broadcast("refreshIndicatorOverviewTableCompleted");
+
 				}, function errorCallback(response) {
 
 					$scope.loadingData = false;
+					$rootScope.$broadcast("refreshIndicatorOverviewTableCompleted");
 			});
 
 		};

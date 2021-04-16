@@ -51,10 +51,10 @@
 							<div class="form-group">
 								<div class="row">
 									<label>Standard<br /><i>CRS</i>:</label>
-									<input id="standardCrsInputField" type="text" class="form-control"
+									<input id="georesourceStandardCrsInputField" type="text" class="form-control"
 										ng-model="standardCrs" placeholder="EPSG:25832">
-									<label for="standardCrsChb">In allen Zeilen setzen?</label>
-									<input id="standardCrsChb" type="checkbox" ng-model="standardCrsChb">
+									<label for="georesourceStandardCrsChb">In allen Zeilen setzen?</label>
+									<input id="georesourceStandardCrsChb" type="checkbox" ng-model="standardCrsChb">
 									<div class="help-block">
 										<p>
 											Überschreibt alle Werte der Spalte &quot;CRS*&quot; sofern die Checkbox aktiviert ist.<br />
@@ -72,13 +72,13 @@
 				<div class="row">
 					<div class="col-md-12 col-sm-12 col-xs-12">
 						<form id="georesourceBatchUpdateForm" class="form-group" role="form" data-toggle="validator" data-disable="true">
-							<div id="georesource-batch-list-table-wrapper" class="table-responsive">
-								<table id="georesource-batch-list-table" class="table table-bordered table-condensed table-striped" style="width:100%; overflow:auto; font-size: 11px;">
+							<div class="batch-list-table-wrapper table-responsive">
+								<table class="batch-list-table table table-bordered table-condensed table-striped" style="width:100%; overflow:auto; font-size: 11px;">
 									<thead>
 										<tr>
 											<th><input type="checkbox" ng-model="allRowsSelected" ng-change="onChangeSelectAllRows()"></th>
 											<th>Name*</th>
-											<th>Mappingtabelle</th>
+											<th>Mappingtabelle*</th>
 											<th ng-show="checkIfMappingTableIsSpecified()">Speichern</th>
 											<th ng-show="checkIfMappingTableIsSpecified()">G&uuml;ltigkeitszeitraum von*</th>
 											<th ng-show="checkIfMappingTableIsSpecified()">G&uuml;ltigkeitszeitraum bis</th>
@@ -116,12 +116,12 @@
 											
 											<!-- Mappingtabelle -->
 											<td>
-												<input id="mappingTableSelect{{$index}}" class="form-control mappingTableInputField" type="file">
+												<input id="georesourceMappingTableSelect{{$index}}" class="form-control mappingTableInputField" type="file">
 											</td>
 
 											<!-- Speichern -->
 											<td ng-show="checkIfMappingTableIsSpecified()">
-												<button id="mappingTableSave{{$index}}" type="button" class="btn btn-primary fas fa-save" 
+												<button id="georesourceMappingTableSave{{$index}}" type="button" class="btn btn-primary fas fa-save" 
 													ng-disabled="georesource.mappingTableName == &quot;&quot;" ng-click="onMappingTableSaveClicked($event)" >
 												</button>
 											</td>
@@ -162,7 +162,7 @@
 
 											<!-- CRS -->
 											<td ng-show="checkIfMappingTableIsSpecified()">
-												<input id="crsInputField{{$index}}" class="form-control" ng-model="georesource.mappingObj.converter.CRS.value"
+												<input id="georesourceCrsInputField{{$index}}" class="form-control" ng-model="georesource.mappingObj.converter.CRS.value"
 												type="text" ng-disabled="georesource.mappingTableName == &quot;&quot;" required>
 											</td>
 
@@ -204,7 +204,7 @@
 
 											<!-- Datei -->
 											<td ng-show="checkIfSelectedDatasourceTypeIsFile()">
-												<input id="dataSourceFileInputField{{$index}}" class="form-control dataSourceFileInputField" type="file" 
+												<input id="georesourceDataSourceFileInputField{{$index}}" class="form-control dataSourceFileInputField" type="file" 
 												ng-disabled="!georesource.selectedDatasourceType.type.includes(&quot;FILE&quot;)" required>
 											</td>
 
@@ -247,7 +247,7 @@
 										<tr>
 											<th><input type="checkbox" ng-model="allRowsSelected" ng-change="onChangeSelectAllRows()"></th>
 											<th>Name*</th>
-											<th>Mappingtabelle</th>
+											<th>Mappingtabelle*</th>
 											<th ng-show="checkIfMappingTableIsSpecified()">Speichern</th>
 											<th ng-show="checkIfMappingTableIsSpecified()">G&uuml;ltigkeitszeitraum von*</th>
 											<th ng-show="checkIfMappingTableIsSpecified()">G&uuml;ltigkeitszeitraum bis</th>
@@ -284,7 +284,7 @@
 				</button>
 
 				<input style="display:none;" class="pull-left" type="file" class="form-control"
-					id="georesourceBatchListFile" accept=".json,"></input>
+					id="georesourcesBatchListFile" accept=".json,"></input>
 
 				<button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" ng-disabled=""
 					ng-click="saveGeoresourcesBatchList()" title="Exportieren der Batch-Liste in eine Datei">
@@ -292,13 +292,16 @@
 				</button>
 
 				<button id="georesource-batch-update-btn" type="button" class="btn btn-success"
-					ng-click="batchUpdateGeoresources()" ng-disabled="!checkIfNameAndFilesChosenInEachRow()">Update ausführen</button>
+					ng-click="batchUpdateGeoresources()" ng-disabled="!checkIfNameAndFilesChosenInEachRow()">Update ausführen
+				</button>
+				
 				<button type="button" class="btn btn-danger"
-					ng-click="resetGeoresourceBatchUpdateForm()">Zur&uuml;cksetzen</button>
+					ng-click="resetGeoresourceBatchUpdateForm()">Zur&uuml;cksetzen
+				</button>
 			</div>
 
 			<!-- result modal -->
-			<div class="modal fade" id="georesource-batch-update-result-modal" role="dialog">
+			<div id="georesource-batch-update-result-modal" class="batch-update-result-modal modal fade" role="dialog">
 				<div class="modal-dialog modal-xl">
 					<div class="modal-content">
 						<div class="modal-header">
@@ -310,8 +313,8 @@
 							<div class="row">
 								<div class="col"></div>
 								<div class="col-md-10 col-sm-10 col-xs-10">
-									<div id="georesource-result-table-wrapper" class="table-responsive">
-										<table id="georesource-result-table" class="table-bordered">
+									<div class="batch-update-result-table-wrapper table-responsive">
+										<table class="batch-update-result-table table-bordered">
 											<thead>
 												<tr>
 													<th>Georessource</th>

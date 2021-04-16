@@ -1,0 +1,374 @@
+<div class="modal fade" id="modal-batch-update-indicators" role="dialog">
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content">
+
+			<div align="center">
+				<div class="loading-overlay-admin-panel ng-hide" ng-show="loadingData">
+					<span class="glyphicon glyphicon-refresh icon-spin"></span>
+				</div>
+			</div>
+
+
+
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Batch-Update</h4>
+			</div>
+			
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-md-12 col-sm-12 col-xs-12">
+						<p>Diese Funktion erm&ouml;glicht es, die Mapping-Parameter mehrerer Indikatoren gleichzeitig zu aktualisieren.</p>
+					</div>
+				</div>
+                
+				<div class="row">
+					<div class="col-md-8 col-sm-8 col-xs-12">
+						<div class="col-md-4 col-sm-4 col-xs-6">
+							<div class="form-group">
+								<div class="row">
+									<label>Standard<br /><i>CRS</i>:</label>
+									<input id="indicatorStandardCrsInputField" type="text" class="form-control"
+										ng-model="standardCrs" placeholder="EPSG:25832">
+									<label for="indicatorStandardCrsChb">In allen Zeilen setzen?</label>
+									<input id="indicatorStandardCrsChb" type="checkbox" ng-model="standardCrsChb">
+									<div class="help-block">
+										<p>
+											Überschreibt alle Werte der Spalte &quot;CRS*&quot; sofern die Checkbox aktiviert ist.<br />
+											Ist sie deaktiviert, werden nur leere Tabellenfelder dieser Spalte überschrieben, sodass bereits eingetragene Werte erhalten bleiben.
+										</p>
+									</div>
+								</div>
+								<div class="row">
+									<button type="button" class="btn btn-primary" ng-click="onClickSaveStandardCRS()">Standardwert eintragen</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-12 col-sm-12 col-xs-12">
+						<form id="indicatorBatchUpdateForm" class="form-group" role="form" data-toggle="validator" data-disable="true">
+							<div class="batch-list-table-wrapper table-responsive">
+								<table class="batch-list-table table table-bordered table-condensed table-striped" style="width:100%; overflow:auto; font-size: 11px;">
+									<thead>
+										<tr>
+											<th><input type="checkbox" ng-model="allRowsSelected" ng-change="onChangeSelectAllRows()"></th>
+											<th>Name*</th>
+											<th>Mappingtabelle*</th>
+											<th ng-show="checkIfMappingTableIsSpecified()">Speichern</th>
+											<th ng-show="checkIfMappingTableIsSpecified()">Zeitreihen-Mapping*</th>
+											<th ng-show="checkIfMappingTableIsSpecified()">Datensatz-Quellformat*</th>
+											<th ng-show="checkIfMappingTableIsSpecified()">CRS*</th>
+											<th ng-show="checkIfSelectedConverterIsCsvOnlyIndicator()">separator*</th>
+											<th ng-show="checkIfSelectedConverterIsWfsV1()">Schema*</th>
+											<th ng-show="checkIfMappingTableIsSpecified()">Datenquelltyp*</th>
+											<th ng-show="checkIfSelectedDatasourceTypeIsFile()">Datei*</th>
+											<th ng-show="checkIfSelectedDatasourceTypeIsHttp()">URL*</th>
+											<th ng-show="checkIfSelectedDatasourceTypeIsInline()">Payload*</th>
+											<th ng-show="checkIfMappingTableIsSpecified()">ID Attributname* der Raumeinheiten-Features</th>
+											<th ng-show="checkIfMappingTableIsSpecified()">Ziel-Raumebene*</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr ng-repeat="indicator in batchList">
+
+											<!-- isSelected -->
+											<td>
+												<input type="checkbox" ng-model="indicator.isSelected">
+											</td>
+
+											<!-- Name -->
+											<td>
+												<select id="indicatorSelect{{$index}} class="form-control" ng-model="indicator.name" required
+													ng-options="avIndicator as avIndicator.indicatorName for avIndicator in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicatorsInBatchList($index)">
+														<option disabled selected value> -- Indikator w&auml;hlen -- </option>
+												</select>
+											</td>
+											
+											<!-- Mappingtabelle -->
+											<td>
+												<input id="indicatorMappingTableSelect{{$index}}" class="form-control mappingTableInputField" type="file">
+											</td>
+
+											<!-- Speichern -->
+											<td ng-show="checkIfMappingTableIsSpecified()">
+												<button id="indicatorMappingTableSave{{$index}}" type="button" class="btn btn-primary fas fa-save" 
+													ng-disabled="indicator.mappingTableName == &quot;&quot;" ng-click="onMappingTableSaveClicked($event)" >
+												</button>
+											</td>
+
+											<!-- Zeitreihen Mapping* -->
+											<!-- TODO allow multiple fields -->
+											<td ng-show="checkIfMappingTableIsSpecified()">
+												<button id="indicatorTimeseriesMappingBtn{{$index}}" class="form-control btn btn-success btn-sm" ng-click="onTimeseriesMappingBtnClicked()"
+													ng-disables="indicator.mappingTableName == &quot;&quot;">
+													Hinzufügen/Editieren
+												</button>
+											</td>
+
+											<!-- Attributname der Indikatorenwerte*
+											<td ng-show="checkIfMappingTableIsSpecified()">
+												<input id="attrNameIndicatorValuesInputField{{$index}}" class="form-control" ng-model="indicator.mappingObj.attrNameIndicatorValue"
+												type="text" ng-disabled="indicator.mappingTableName == &quot;&quot;" required>
+											</td>
+											-->
+											<!-- Zeitstempel (direkte Angabe)
+											<td ng-show="checkIfMappingTableIsSpecified()">
+												<div class="input-group date">
+													<div class="input-group-addon">
+														<i class="far fa-calendar-alt"></i>
+													</div>
+													<input id="timestampPicker{{$index}}" type="text" class="form-control pull-right" placeholder="YYYY-MM-DD"
+														value={{indicator.timestamp}} ng-model="georesource.mappingObj.timestamp"
+														ng-disabled="indicator.mappingTableName == &quot;&quot;">
+												</div>
+											</td>
+											-->
+
+
+											<!-- Datensatz-Quellformat -->
+											<td ng-show="checkIfMappingTableIsSpecified()">
+												<select class="form-control" ng-model="indicator.selectedConverter"
+														ng-options="converter as converter.simpleName for converter in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters"
+														ng-disabled="georesource.mappingTableName == &quot;&quot;" required>
+																<option disabled selected value> -- Quellformat w&auml;hlen -- </option>
+												</select>
+											</td>
+
+											<!-- CRS -->
+											<td ng-show="checkIfMappingTableIsSpecified()">
+												<input id="indicatorCrsInputField{{$index}}" class="form-control" ng-model="indicator.mappingObj.converter.CRS.value"
+												type="text" ng-disabled="indicator.mappingTableName == &quot;&quot;" required>
+											</td>
+
+											<!-- separator -->
+											<td ng-show="checkIfSelectedConverterIsCsvOnlyIndicator()">
+												<input class="form-control" ng-model="indicator.mappingObj.converter.separator.value"
+												type="text" ng-disabled="!indicator.selectedConverter.name.includes(&quot;csv_onlyIndicator&quot;)" required>
+											</td>
+
+											<!-- schema -->
+											<td ng-show="checkIfSelectedConverterIsWfsV1()">
+												<select class="form-control" ng-model="indicator.mappingObj.converter.schema" 
+													ng-options="schema for schema in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters[3].schemas"
+													ng-disabled="!indicator.selectedConverter.name.includes(&quot;wfs.v1&quot;)" required>
+													<option disabled selected value> -- Schema w&auml;hlen -- </option>
+												</select>
+											</td>
+
+											<!-- Datenquelltyp -->
+											<td ng-show="checkIfMappingTableIsSpecified()">
+												<select ng-model="indicator.selectedDatasourceType"
+														ng-options="datasourceType as datasourceType.type for datasourceType in $ctrl.kommonitorImporterHelperServiceInstance.availableDatasourceTypes"
+														class="form-control" ng-disabled="indicator.mappingTableName == &quot;&quot;" required>
+																<option disabled selected value> -- Quelltyp w&auml;hlen -- </option>
+												</select>
+											</td>
+
+											<!-- Datei -->
+											<td ng-show="checkIfSelectedDatasourceTypeIsFile()">
+												<input id="indicatorDataSourceFileInputField{{$index}}" class="form-control dataSourceFileInputField" type="file" 
+												ng-disabled="!indicator.selectedDatasourceType.type.includes(&quot;FILE&quot;)" required>
+											</td>
+
+											<!-- URL -->
+											<td ng-show="checkIfSelectedDatasourceTypeIsHttp()">
+												<input class="form-control" type="text" ng-model="indicator.mappingObj.dataSource.URL.value"
+												ng-disabled="!indicator.selectedDatasourceType.type.includes(&quot;HTTP&quot;)" required>
+											</td>
+
+											<!-- Payload -->
+											<td ng-show="checkIfSelectedDatasourceTypeIsInline()">
+												<input class="form-control" type="text" ng-model="indicator.mappingObj.dataSource.payload.value"
+												ng-disabled="!indicator.selectedDatasourceType.type.includes(&quot;INLINE&quot;)" required>
+											</td>
+
+											<!-- ID Attributname* der Raumeinheiten-Features -->
+											<td ng-show="checkIfMappingTableIsSpecified()">
+												<input class="form-control" ng-model="indicator.mappingObj.propertyMapping.spatialReferenceKeyProperty" type="text" ng-disabled="indicator.mappingTableName == &quot;&quot;" required>
+											</td>
+
+											<!-- Ziel-Raumebene -->
+											<td ng-show="checkIfMappingTableIsSpecified()">
+												<input class="form-control" ng-model="indicator.mappingObj.targetSpatialUnitName" type="text" ng-disabled="indicator.mappingTableName == &quot;&quot;" required>
+											</td>
+
+										</tr>
+									</tbody>
+
+									<tfoot>
+										<tr>
+											<th><input type="checkbox" ng-model="allRowsSelected" ng-change="onChangeSelectAllRows()"></th>
+											<th>Name*</th>
+											<th>Mappingtabelle*</th>
+											<th ng-show="checkIfMappingTableIsSpecified()">Speichern</th>
+											<th ng-show="checkIfMappingTableIsSpecified()">Zeitreihen-Mapping*</th>
+											<th ng-show="checkIfMappingTableIsSpecified()">Datensatz-Quellformat*</th>
+											<th ng-show="checkIfMappingTableIsSpecified()">CRS*</th>
+											<th ng-show="checkIfSelectedConverterIsCsvOnlyIndicator()">separator*</th>
+											<th ng-show="checkIfSelectedConverterIsWfsV1()">Schema*</th>
+											<th ng-show="checkIfMappingTableIsSpecified()">Datenquelltyp*</th>
+											<th ng-show="checkIfSelectedDatasourceTypeIsFile()">Datei*</th>
+											<th ng-show="checkIfSelectedDatasourceTypeIsHttp()">URL*</th>
+											<th ng-show="checkIfSelectedDatasourceTypeIsInline()">Payload*</th>
+											<th ng-show="checkIfMappingTableIsSpecified()">ID Attributname* der Raumeinheiten-Features</th>
+											<th ng-show="checkIfMappingTableIsSpecified()">Ziel-Raumebene*</th>
+										</tr>
+									</tfoot>
+								</table>
+							</div>
+
+							<button type="button" class="btn btn-primary" ng-click="addNewRowToBatchList('indicator')">neue Zeile hinzuf&uuml;gen</button>
+							<button type="button" class="btn btn-danger" ng-click="deleteSelectedRowsFromBatchList()">ausgewählte Zeilen l&ouml;schen</button>
+						</div>
+					</form>
+				</div>
+			</div>
+			
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
+				<button type="button" class="btn btn-info pull-left" ng-click="loadIndicatorsBatchList()"
+					title="Importieren der Batch-Liste aus einer Datei">
+					<i class="fas fa-file-import"></i>&nbsp;&nbsp;Batch-Liste importieren
+				</button>
+
+				<input style="display:none;" class="pull-left" type="file" class="form-control"
+					id="indicatorsBatchListFile" accept=".json,"></input>
+
+				<button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" ng-disabled=""
+					ng-click="saveIndicatorsBatchList()" title="Exportieren der Batch-Liste in eine Datei">
+					<i class="fas fa-file-export"></i>&nbsp;&nbsp;Batch-Liste exportieren
+				</button>
+
+				<button id="indicator-batch-update-btn" type="button" class="btn btn-success"
+					ng-click="batchUpdateIndicators()" ng-disabled="!checkIfNameAndFilesChosenInEachRow()">Update ausführen
+				</button>
+				
+				<button type="button" class="btn btn-danger"
+					ng-click="resetIndicatorBatchUpdateForm()">Zur&uuml;cksetzen
+				</button>
+			</div>
+
+			<!-- timeseries mapping modal -->
+			<div class="modal fade" id="indicator-time-series-mapping-modal" role="dialog">
+				<div class="modal-dialog modal-l">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h4 class="modal-title">Zeitreihen-Mapping</h4>
+						</div>
+						<div class="modal-body">
+
+							<div class="row vertical-align">
+								<div class="col-md-4 col-sm-6 col-xs-12">
+									<div class="form-group">
+										<label>Attributname der Indikatorenwerte*</label>
+										<input type="text" class="form-control input-sm ng-pristine ng-untouched ng-valid ng-empty" placeholder="Attributname für Indikatorenwerte" ng-model="tmpTimeseriesMapping_indicatorValuesPropertyName">
+										<div class="help-block with-errors"></div>
+									</div>
+								</div>
+								<div class="col-md-4 col-sm-6 col-xs-12">												
+									<label></label>
+									<label class="switch">
+										<input type="checkbox" value="useTimeseriesAsProperty" ng-model="useTimeseriesAsProperty" ng-change="onChangeUseTimeseriesAsProperty()" class="ng-pristine ng-untouched ng-valid ng-empty">
+										<span class="switchslider round"></span>
+									</label>	
+								
+									<div class="help-block">
+										<p>Angabe, ob der Zeitstempel aus einem Attribut entnommen werden soll</p>
+									</div>
+								</div>
+								<div ng-show="useTimeseriesAsProperty" class="col-md-4 col-sm-6 col-xs-12 ng-hide">												
+									<div class="form-group">
+										<label>Attributname des Zeitstempels</label>
+										<input type="text" class="form-control input-sm ng-pristine ng-untouched ng-valid ng-empty" placeholder="Attributname für Zeitstempel" ng-model="tmpTimeseriesMapping_timestampPropertyName">
+										<div class="help-block with-errors"></div>
+									</div>
+								</div>
+								<div ng-show="! useTimeseriesAsProperty" class="col-md-4 col-sm-6 col-xs-12">
+									<div class="form-group">
+										<label>Zeitstempel (direkte Angabe)</label>
+										<div class="input-group date">
+											<div class="input-group-addon">
+												<i class="far fa-calendar-alt"></i>
+											</div>
+											<input type="text" ng-model="tmpTimeseriesMapping_directTimestamp" placeholder="YYYY-MM-DD" class="form-control pull-right ng-pristine ng-untouched ng-valid ng-empty" id="indicatorEditFeaturesDirectTimestampDatepicker">
+										</div>
+									</div>
+								</div>
+							</div>
+							<!--
+							<div class="row vertical-align">
+								<div class="col-md-3 col-sm-6 col-xs-12">
+									<div class="form-group">
+										<button class="btn btn-success btn-sm" ng-disabled="!tmpTimeseriesMapping_indicatorValuesPropertyName || (! tmpTimeseriesMapping_timestampPropertyName &amp;&amp; !tmpTimeseriesMapping_directTimestamp)" ng-click="onEditFeaturesOrUpdateTimeseriesMapping()" disabled="disabled">Hinzufügen/Editieren</button>
+										<div class="help-block with-errors"></div>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-12 col-sm-12 col-xs-12">
+								<label>Übersicht der definierten Indikatoren-Zeitreihen-Mappings</label>
+								<table class="table table-condensed">
+									<thead>
+										<tr>
+											<th>Editierfunktionen</th>
+											<th>Attributname der Indikatorenwerte</th>
+											<th>Attributname des Zeitstempels</th>
+											<th>Zeitstempel (direkte Angabe)</th>
+										</tr>
+									</thead>
+									<tbody>
+									-->
+										<!-- ngRepeat: timeseriesMappingEntry in timeseriesMappings_adminView -->
+									<!--
+									</tbody>
+								</table>
+							</div>
+						-->
+
+						</div>
+				</div>
+
+			</div>
+
+			<!-- result modal -->
+			<div class="modal fade" id="indicator-batch-update-result-modal" role="dialog">
+				<div class="modal-dialog modal-xl">
+					<div class="modal-content">
+						<div class="modal-header">
+								<span aria-hidden="true">&times;</span>
+							<h4 class="modal-title">Ergebnis des Batch-Updates</h4>
+						</div>
+						<div class="modal-body">
+							<div class="row">
+								<div class="col"></div>
+								<div class="col-md-10 col-sm-10 col-xs-10">
+									<div class="batch-update-result-table-wrapper table-responsive">
+										<table class="batch-update-result-table table-bordered">
+											<thead>
+												<tr>
+													<th>Indikator</th>
+													<th>Status</th>
+												</tr>
+											</thead>
+											<tbody id="indicator-result-table-tbody">
+											</tbody>
+										</table>
+									</div>
+								</div>
+								<div class="col"></div>
+							</div>
+						</div>
+						<div class="modal-footer">
+						</div>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->

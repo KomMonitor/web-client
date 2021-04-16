@@ -2436,45 +2436,45 @@ input:checked + .switchslider:before {
 	display:none;
 }
 
-#georesource-batch-list-table-wrapper {
+.batch-list-table-wrapper {
 	max-height: 75vh !important;
 	overflow-y: auto !important;
 }
 
-#georesource-batch-list-table .form-control {
+.batch-list-table .form-control {
 	width: auto;
 }
 
-#georesource-batch-list-table th {
+.batch-list-table th {
 	position: sticky;
 	top: 0;
 	z-index: 3; /* datepicker fields have a z-index of 2, so this needs to be higher */
 }
 
-#georesource-batch-update-result-modal > div {
+.batch-update-result-modal > div {
 	width: 700px;
 	max-height: 75vh;
 }
 
-#georesource-result-table-wrapper {
+.batch-update-result-table-wrapper {
 	max-height: 50vh !important;
 	overflow-y: auto !important;
 	width: 670px !important;
 }
 
-#georesource-result-table {
+.batch-update-result-table {
 	width: 670px !important;
 	overflow:auto;
 	font-size: 11px;
 }
 
 
-.georesource-result-georesource-name {
+.batch-update-result-td1 {
 	min-width: 200px;
 	padding: 10px;
 }
 
-.georesource-result-success, .georesource-result-error {
+.batch-update-result-td2 {
 	padding: 10px !important;
 }
 
@@ -2486,6 +2486,7 @@ input:checked + .switchslider:before {
 	padding: 12px !important;
 }
 */
+
 .style-simple-indicator {
 	background-color: white;
 }
