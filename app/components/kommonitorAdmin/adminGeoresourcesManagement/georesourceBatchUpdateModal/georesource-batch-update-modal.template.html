@@ -76,7 +76,7 @@
 								<table class="batch-list-table table table-bordered table-condensed table-striped" style="width:100%; overflow:auto; font-size: 11px;">
 									<thead>
 										<tr>
-											<th><input type="checkbox" ng-model="allRowsSelected" ng-change="onChangeSelectAllRows()"></th>
+											<th><input type="checkbox" ng-model="allRowsSelected" ng-change="$ctrl.kommonitorBatchUpdateHelperServiceInstance.onChangeSelectAllRows(this.allRowsSelected, this.batchList)"></th>
 											<th>Name*</th>
 											<th>Mappingtabelle*</th>
 											<th ng-show="checkIfMappingTableIsSpecified()">Speichern</th>
@@ -245,7 +245,7 @@
 
 									<tfoot>
 										<tr>
-											<th><input type="checkbox" ng-model="allRowsSelected" ng-change="onChangeSelectAllRows()"></th>
+											<th><input type="checkbox" ng-model="allRowsSelected" ng-change="$ctrl.kommonitorBatchUpdateHelperServiceInstance.onChangeSelectAllRows(this.allRowsSelected, this.batchList)"></th>
 											<th>Name*</th>
 											<th>Mappingtabelle*</th>
 											<th ng-show="checkIfMappingTableIsSpecified()">Speichern</th>
@@ -270,8 +270,8 @@
 								</table>
 							</div>
 
-							<button type="button" class="btn btn-primary" ng-click="addNewRowToBatchList('georesource')">neue Zeile hinzuf&uuml;gen</button>
-							<button type="button" class="btn btn-danger" ng-click="deleteSelectedRowsFromBatchList()">ausgewählte Zeilen l&ouml;schen</button>
+							<button type="button" class="btn btn-primary" ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.addNewRowToBatchList('georesource', this.batchList)">neue Zeile hinzuf&uuml;gen</button>
+							<button type="button" class="btn btn-danger" ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.deleteSelectedRowsFromBatchList(this.batchList, this.allRowsSelected)">ausgewählte Zeilen l&ouml;schen</button>
 						</div>
 					</form>
 				</div>
@@ -287,16 +287,16 @@
 					id="georesourcesBatchListFile" accept=".json,"></input>
 
 				<button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" ng-disabled=""
-					ng-click="saveGeoresourcesBatchList()" title="Exportieren der Batch-Liste in eine Datei">
+					ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.saveBatchListToFile('georesource', this.batchList)" title="Exportieren der Batch-Liste in eine Datei">
 					<i class="fas fa-file-export"></i>&nbsp;&nbsp;Batch-Liste exportieren
 				</button>
 
 				<button id="georesource-batch-update-btn" type="button" class="btn btn-success"
-					ng-click="batchUpdateGeoresources()" ng-disabled="!checkIfNameAndFilesChosenInEachRow()">Update ausführen
+					ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.batchUpdate('georesource', this.batchList)" ng-disabled="!checkIfNameAndFilesChosenInEachRow()">Update ausführen
 				</button>
 				
 				<button type="button" class="btn btn-danger"
-					ng-click="resetGeoresourceBatchUpdateForm()">Zur&uuml;cksetzen
+				ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.resetBatchUpdateForm('georesource', this.batchList)">Zur&uuml;cksetzen
 				</button>
 			</div>
 

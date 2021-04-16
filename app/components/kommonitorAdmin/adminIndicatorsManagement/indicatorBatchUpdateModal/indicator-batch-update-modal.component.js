@@ -47,7 +47,6 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 			
 	
 			// on modal opened
-			//TODO refactor to batch-update-heltper-service
 			$('#modal-batch-update-indicators').on('show.bs.modal', function () {
 				// this check is necessary to avoid running the initialize method on opening datepicker modals
 				if(event) {
@@ -58,11 +57,10 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 			});
 	
 			// initializes the modal
-			//TODO refactor to batch-update-helper-service, georesources include an additional line for datepicker
 			$scope.initialize = function() {
 	
 				if($scope.isFirstStart) {
-					$scope.addNewRowToBatchList("indicator");
+					kommonitorBatchUpdateHelperService.addNewRowToBatchList("indicator", $scope.batchList)
 					$scope.isFirstStart = false;
 				}
 	
@@ -99,7 +97,6 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 				$scope.$apply();
 			};
 			
-			//TODO refactor to batch-update-helper-service
 			$scope.loadIndicatorsBatchList = function() {
 				$("#indicatorsBatchListFile").files = [];
 	
@@ -107,7 +104,6 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 				$("#indicatorsBatchListFile").trigger("click");
 			};
 	
-			//TODO refactor to batch-update-helper-service
 			$(document).on("change", "#indicatorsBatchListFile" ,function(){
 				
 				// get the file
@@ -115,7 +111,6 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 				kommonitorBatchUpdateHelperService.parseBatchListFromFile("indicator", file, $scope.batchList)
 			});
 	
-			//TODO refractor to batch-update-helper-service
 			$scope.$on('indicatorBatchListParsed', function(event, data) {
 				$timeout(function() {
 	
@@ -129,7 +124,7 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 					
 					for(let i=0;i<newBatchList.length;i++) {
 	
-						$scope.addNewRowToBatchList("indicator");
+						kommonitorBatchUpdateHelperService.addNewRowToBatchList("indicator", $scope.batchList)
 						var row = $scope.batchList[i];
 	
 						// isSelected
@@ -157,37 +152,6 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 					}
 				});
 			})
-	
-			//TODO refractor to batch-update-helper-service
-			$scope.saveIndicatorsBatchList = function() {
-				kommonitorBatchUpdateHelperService.saveBatchListToFile("indicator", $scope.batchList);
-			};
-			
-			//TODO refractor to batch-update-helper-service
-			$scope.batchUpdateIndicators = function() {
-				kommonitorBatchUpdateHelperService.batchUpdate("indicator", $scope.batchList);
-			}
-	
-			//TODO refractor to batch-update-helper-service
-			$scope.resetIndicatorBatchUpdateForm = function() {
-				kommonitorBatchUpdateHelperService.resetBatchUpdateForm("indicator", $scope.batchList);
-			}
-	
-			//TODO refractor to batch-update-helper-service
-			$scope.onChangeSelectAllRows = function() {
-				kommonitorBatchUpdateHelperService.onChangeSelectAllRows($scope.allRowsSelected, $scope.batchList);
-			}
-	
-			//TODO refractor to batch-update-helper-service
-			$scope.addNewRowToBatchList = function(resourceType) {
-	
-				kommonitorBatchUpdateHelperService.addNewRowToBatchList(resourceType, $scope.batchList);
-				//$scope.initializeDatepickerFields();
-			}
-	
-			$scope.deleteSelectedRowsFromBatchList = function() {
-				kommonitorBatchUpdateHelperService.deleteSelectedRowsFromBatchList($scope.batchList, $scope.allRowsSelected);
-			}
 	
 		
 			// loop through batch list and check if condition is true for at least one row

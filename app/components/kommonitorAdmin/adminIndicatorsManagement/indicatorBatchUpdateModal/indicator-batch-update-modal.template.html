@@ -54,7 +54,7 @@
 								<table class="batch-list-table table table-bordered table-condensed table-striped" style="width:100%; overflow:auto; font-size: 11px;">
 									<thead>
 										<tr>
-											<th><input type="checkbox" ng-model="allRowsSelected" ng-change="onChangeSelectAllRows()"></th>
+											<th><input type="checkbox" ng-model="allRowsSelected" ng-change="$ctrl.kommonitorBatchUpdateHelperServiceInstance.onChangeSelectAllRows(this.allRowsSelected, this.batchList)"></th>
 											<th>Name*</th>
 											<th>Mappingtabelle*</th>
 											<th ng-show="checkIfMappingTableIsSpecified()">Speichern</th>
@@ -200,7 +200,7 @@
 
 									<tfoot>
 										<tr>
-											<th><input type="checkbox" ng-model="allRowsSelected" ng-change="onChangeSelectAllRows()"></th>
+											<th><input type="checkbox" ng-model="allRowsSelected" ng-change="$ctrl.kommonitorBatchUpdateHelperServiceInstance.onChangeSelectAllRows(this.allRowsSelected, this.batchList)"></th>
 											<th>Name*</th>
 											<th>Mappingtabelle*</th>
 											<th ng-show="checkIfMappingTableIsSpecified()">Speichern</th>
@@ -220,8 +220,8 @@
 								</table>
 							</div>
 
-							<button type="button" class="btn btn-primary" ng-click="addNewRowToBatchList('indicator')">neue Zeile hinzuf&uuml;gen</button>
-							<button type="button" class="btn btn-danger" ng-click="deleteSelectedRowsFromBatchList()">ausgewählte Zeilen l&ouml;schen</button>
+							<button type="button" class="btn btn-primary" ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.addNewRowToBatchList('indicator', this.batchList)">neue Zeile hinzuf&uuml;gen</button>
+							<button type="button" class="btn btn-danger" ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.deleteSelectedRowsFromBatchList(this.batchList, this.allRowsSelected)">ausgewählte Zeilen l&ouml;schen</button>
 						</div>
 					</form>
 				</div>
@@ -238,23 +238,23 @@
 					id="indicatorsBatchListFile" accept=".json,"></input>
 
 				<button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" ng-disabled=""
-					ng-click="saveIndicatorsBatchList()" title="Exportieren der Batch-Liste in eine Datei">
+					ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.saveBatchListToFile('indicator', this.batchList)" title="Exportieren der Batch-Liste in eine Datei">
 					<i class="fas fa-file-export"></i>&nbsp;&nbsp;Batch-Liste exportieren
 				</button>
 
 				<button id="indicator-batch-update-btn" type="button" class="btn btn-success"
-					ng-click="batchUpdateIndicators()" ng-disabled="!checkIfNameAndFilesChosenInEachRow()">Update ausführen
+					ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.batchUpdate('indicator', this.batchList)" ng-disabled="!checkIfNameAndFilesChosenInEachRow()">Update ausführen
 				</button>
 				
 				<button type="button" class="btn btn-danger"
-					ng-click="resetIndicatorBatchUpdateForm()">Zur&uuml;cksetzen
+					ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.resetBatchUpdateForm('indicator', this.batchList)">Zur&uuml;cksetzen
 				</button>
 			</div>
 
 			<!-- timeseries mapping modal -->
 			<div class="modal fade" id="indicator-time-series-mapping-modal" role="dialog">
-				<div class="modal-dialog modal-l">
-					<div class="modal-content">
+				<div class="modal-dialog modal-xl">
+					<div class="modal-content" style="width:95%">
 						<div class="modal-header">
 							<h4 class="modal-title">Zeitreihen-Mapping</h4>
 						</div>

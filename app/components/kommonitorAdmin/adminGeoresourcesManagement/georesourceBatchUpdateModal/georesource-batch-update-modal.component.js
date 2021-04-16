@@ -64,7 +64,7 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 			$scope.initialize = function() {
 
 				if($scope.isFirstStart) {
-					$scope.addNewRowToBatchList("georesource");
+					kommonitorBatchUpdateHelperService.addNewRowToBatchList("georesource", $scope.batchList)
 					$scope.isFirstStart = false;
 				}
 				
@@ -130,7 +130,7 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 					
 					for(let i=0;i<newBatchList.length;i++) {
 
-						$scope.addNewRowToBatchList("georesource");
+						kommonitorBatchUpdateHelperService.addNewRowToBatchList("georesource", $scope.batchList)
 						var row = $scope.batchList[i];
 
 						// isSelected
@@ -159,33 +159,9 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 				});
 			})
 
-			$scope.saveGeoresourcesBatchList = function() {
-				kommonitorBatchUpdateHelperService.saveBatchListToFile("georesource", $scope.batchList);
-			};
 
-			$scope.batchUpdateGeoresources = function() {
-				kommonitorBatchUpdateHelperService.batchUpdate("georesource", $scope.batchList);
-			}
 
-			$scope.resetGeoresourceBatchUpdateForm = function() {
-				kommonitorBatchUpdateHelperService.resetBatchUpdateForm("georesource", $scope.batchList);
-			}
 
-			$scope.onChangeSelectAllRows = function() {
-				kommonitorBatchUpdateHelperService.onChangeSelectAllRows($scope.allRowsSelected, $scope.batchList);
-			}
-
-			$scope.addNewRowToBatchList = function(resourceType) {
-
-				kommonitorBatchUpdateHelperService.addNewRowToBatchList(resourceType, $scope.batchList);
-				$scope.initializeDatepickerFields();
-			}
-
-			$scope.deleteSelectedRowsFromBatchList = function() {
-				kommonitorBatchUpdateHelperService.deleteSelectedRowsFromBatchList($scope.batchList, $scope.allRowsSelected);
-			}
-
-		
 			// loop through batch list and check if condition is true for at least one row
 			$scope.checkIfMappingTableIsSpecified = function() {
 				var mappingTableIsSpecified = false;
