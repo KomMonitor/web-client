@@ -1049,7 +1049,7 @@ angular.module('reportingModal').component('reportingModal', {
 			var dynamicDecreaseBrew = dynamicBrewsArray[1];
 
 			//setup diagram resources
-			kommonitorDiagramHelperService.prepareAllDiagramResources_forReportingIndicator(config.indicator, config.selectedSpatialUnit.spatialUnitName, timestamp, defaultBrew, undefined, undefined, dynamicIncreaseBrew, dynamicDecreaseBrew, false, 0, true);
+			kommonitorDiagramHelperService.prepareAllDiagramResources_forReportingIndicator(config.indicator, config.selectedSpatialUnit.spatialUnitName, timestamp, defaultBrew, undefined, undefined, dynamicIncreaseBrew, dynamicDecreaseBrew, false, 0, false);
 			
 			// set settings classifyUsingWholeTimeseries and useOutlierDetectionOnIndicator and classifyZeroSeparately back to their prior values			
 			kommonitorDataExchangeService.useOutlierDetectionOnIndicator = useOutlierDetectionOnIndicator_backup;
