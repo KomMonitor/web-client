@@ -858,7 +858,7 @@ angular.module('reportingModal').component('reportingModal', {
 					var options = {
 						x: 0,
 						y: 0,
-						width: 7,
+						width: 12,
 						height: 37,
 						id: id
 					};
