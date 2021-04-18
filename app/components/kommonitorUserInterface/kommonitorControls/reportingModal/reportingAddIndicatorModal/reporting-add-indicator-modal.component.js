@@ -414,15 +414,15 @@ angular.module('reportingAddIndicatorModal').component('reportingAddIndicatorMod
 			$scope.duallistTimestampsOptions= {};
 			$scope.duallistTimestampsOptions["items"] = [];
 
-			$scope.elementMapIsChecked = false;
+			$scope.elementMapIsChecked = true;
 			$scope.elementMapLegendIsChecked = false;
 			$scope.elementMapLegendIsDisabled = true;
 			$scope.elementMapScaleIsChecked = false;
 			$scope.elementMapScaleIsDisabled = true;
 			$scope.elementDescriptionIsChecked = false;
 			$scope.elementHistoryIsChecked = false;
-			$scope.elementFeatureComparisonIsChecked = false;
-			$scope.elementTimelineIsChecked = false;
+			$scope.elementFeatureComparisonIsChecked = true;
+			$scope.elementTimelineIsChecked = true;
 			$scope.elementMetadataIsChecked = false;
 			$scope.elementDataTableIsChecked = false;
 		}

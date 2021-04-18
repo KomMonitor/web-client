@@ -38,7 +38,7 @@
 					<h4 style="margin-top:7%;">Element(e) ausw&auml;hlen</h4>
 					<label class="switch">
 						<input id="reportingMapCheckbox" class="elementCheckbox" type="checkbox"
-								ng-model="elementMapIsChecked" ng-click="elementChbClicked($event)"
+								ng-model="elementMapIsChecked" ng-init="elementMapIsChecked = true" ng-click="elementChbClicked($event)"
 								ng-checked="elementMapIsChecked">
 						<span class="switchslider round text-left" style="line-height:25px;"></span>
 					</label>
@@ -83,7 +83,7 @@
 					<br />
 					<label class="switch">
 						<input id="reportingFeatureComparisonCheckbox" class="elementCheckbox" type="checkbox"
-							ng-model="elementFeatureComparisonIsChecked" ng-click="elementChbClicked($event)"
+							ng-model="elementFeatureComparisonIsChecked" ng-init="elementFeatureComparisonIsChecked = true" ng-click="elementChbClicked($event)"
 							ng-checked="elementFeatureComparisonIsChecked">
 						<span class="switchslider round text-left" style="line-height:25px;"></span>
 					</label>
@@ -91,7 +91,7 @@
 					<br />
 					<label class="switch">
 						<input id="reportingTimelineCheckbox" class="elementCheckbox" type="checkbox"
-							ng-model="elementTimelineIsChecked" ng-click="elementChbClicked($event)"
+							ng-model="elementTimelineIsChecked" ng-init="elementTimelineIsChecked = true" ng-click="elementChbClicked($event)"
 							ng-checked="elementTimelineIsChecked">
 						<span class="switchslider round text-left" style="line-height:25px;"></span>
 					</label>

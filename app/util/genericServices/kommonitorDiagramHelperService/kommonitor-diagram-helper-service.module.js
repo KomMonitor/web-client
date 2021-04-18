@@ -354,7 +354,7 @@ angular
 
         // default fontSize of echarts
         var fontSize = 18;
-        var barChartTitel = 'Feature-Vergleich - ' + spatialUnitName + ' - ';
+        var barChartTitel = 'Ranking - ' + spatialUnitName + ' - ';
         if (indicatorMetadataAndGeoJSON.fromDate) {
           barChartTitel += "Bilanz " + indicatorMetadataAndGeoJSON.fromDate + " - " + indicatorMetadataAndGeoJSON.toDate;
           fontSize = 14;
@@ -450,6 +450,9 @@ angular
               rotate: 90,
               interval: 0,
               inside: true,
+              show: false
+            },
+            axisTick: {
               show: false
             },
             z: 6,
@@ -781,7 +784,7 @@ angular
             textStyle: {
               fontSize: fontSize
             },
-            show: false
+            show: true
             // top: 15
           },
           tooltip: {
@@ -878,7 +881,10 @@ angular
           title: {
             text: 'Zeitreihe - ' + spatialUnitName,
             left: 'center',
-            show: false
+            show: false,
+            textStyle: {
+              fontSize: 18
+            },
             // top: 15
           },
           tooltip: {
@@ -985,6 +991,9 @@ angular
             // z: 6,
             // zlevel: 6,
             type: 'category',
+            axisTick: {
+              show: false
+            },
             data: indicatorTimeSeriesDatesArray
           },
           yAxis: {

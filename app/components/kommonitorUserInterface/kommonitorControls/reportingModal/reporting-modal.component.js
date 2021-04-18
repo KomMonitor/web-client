@@ -1049,7 +1049,7 @@ angular.module('reportingModal').component('reportingModal', {
 			var dynamicDecreaseBrew = dynamicBrewsArray[1];
 
 			//setup diagram resources
-			kommonitorDiagramHelperService.prepareAllDiagramResources_forReportingIndicator(config.indicator, config.selectedSpatialUnit, timestamp, defaultBrew, undefined, undefined, dynamicIncreaseBrew, dynamicDecreaseBrew, false, 0, true);
+			kommonitorDiagramHelperService.prepareAllDiagramResources_forReportingIndicator(config.indicator, config.selectedSpatialUnit.spatialUnitName, timestamp, defaultBrew, undefined, undefined, dynamicIncreaseBrew, dynamicDecreaseBrew, false, 0, true);
 			
 			// set settings classifyUsingWholeTimeseries and useOutlierDetectionOnIndicator and classifyZeroSeparately back to their prior values			
 			kommonitorDataExchangeService.useOutlierDetectionOnIndicator = useOutlierDetectionOnIndicator_backup;
@@ -1071,6 +1071,13 @@ angular.module('reportingModal').component('reportingModal', {
 				$tileContent.append(html[0]);
 				var map = echarts.init(document.getElementById(tileId + "_map"));
 				var options = kommonitorDiagramHelperService.getGeoMapChartOptions();
+				options.title.textStyle.fontSize = 16;
+				options.title.show = true;
+				options.grid = undefined;
+				options.visualMap.axisLabel = {
+					"fontSize": 10
+				};
+				options.toolbox.show = false;
 				map.setOption(options);
 				map.resize();
 				$scope.echartInstances.push(map);
@@ -1160,6 +1167,15 @@ angular.module('reportingModal').component('reportingModal', {
 				var barChart = echarts.init(document.getElementById(tileId + "_barChart"));
 				var options = kommonitorDiagramHelperService.getBarChartOptions();
 				options.xAxis.name = ""; //remove title
+				options.title.textStyle.fontSize = 12;
+				options.title.text = "Ranking";
+				options.yAxis.axisLabel = {
+					"fontSize": 10
+				};
+				options.title.show = true;
+				options.grid.top = 35;
+				options.grid.bottom = 5;
+				options.toolbox.show = false;
 				barChart.setOption(options);
 				barChart.resize();
 				$scope.echartInstances.push(barChart);
@@ -1175,6 +1191,14 @@ angular.module('reportingModal').component('reportingModal', {
 				var histogramChart = echarts.init(document.getElementById(tileId + "_histogramChart"));
 				var options = kommonitorDiagramHelperService.getHistogramChartOptions();
 				options.xAxis[0].name = ""; //remove title
+				options.title.textStyle.fontSize = 12;
+				options.title.show = true;
+				options.grid.top = 35;
+				options.grid.bottom = 5;
+				options.yAxis.axisLabel = {
+					"fontSize": 10
+				};
+				options.toolbox.show = false;
 				histogramChart.setOption(options);
 				histogramChart.resize();
 				$scope.echartInstances.push(histogramChart);
@@ -1190,6 +1214,19 @@ angular.module('reportingModal').component('reportingModal', {
 				var lineChart = echarts.init(document.getElementById(tileId + "_lineChart"));
 				var options = kommonitorDiagramHelperService.getLineChartOptions();
 				options.xAxis.name = ""; //remove title
+				options.title.textStyle.fontSize = 12;
+				options.title.text = "Zeitreihe - Arithm. Mittel";
+				options.yAxis.axisLabel = {
+					"fontSize": 10
+				};
+				options.xAxis.axisLabel = {
+					"fontSize": 10
+				};
+				options.legend.show = false;
+				options.grid.top = 35;
+				options.grid.bottom = 5;
+				options.title.show = true;
+				options.toolbox.show = false;
 				lineChart.setOption(options);
 				lineChart.resize();
 				$scope.echartInstances.push(lineChart);
