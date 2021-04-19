@@ -2469,3 +2469,18 @@ input:checked + .switchslider:before {
 	background: darkseagreen !important;
 	color: black !important;
 }
+
+.spatialFilterDuallist {
+	display: block;
+	margin-top: 10px;
+	margin-bottom: 30px;
+}
+
+#selectionByFeatureSpatialFilterResetSelectionBtn {
+	margin-top: 5px;
+	margin-bottom: 20px;
+}
+
+#manualSelectionSpatialFilterSelectByMapBtn {
+	margin-bottom: 10px;
+}

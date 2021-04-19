@@ -171,13 +171,7 @@ angular.module('reportingAddIndicatorModal').component('reportingAddIndicatorMod
 			var indicatorId = $scope.indicator.indicatorId;
 
 			// get spatial unit id
-			var spatialUnitId = undefined;
-			$(kommonitorDataExchangeService.availableSpatialUnits).each( (id, obj) => {
-				if (obj.spatialUnitLevel === $scope.selectedSpatialUnit) {
-					spatialUnitId = obj.spatialUnitId;
-					return false;
-				}
-			});
+			var spatialUnitId = kommonitorDataExchangeService.getSpatialUnitIdFromSpatialUnitName(selectedSpatialUnit)
 
 			if (spatialUnitId === undefined) {
 				console.error("selectedSpatialUnit not found in indicator.applicableSpatialUnits");

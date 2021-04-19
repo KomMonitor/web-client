@@ -8,7 +8,7 @@ angular
 					 * injected with a modules service method that manages
 					 * enabled tabs
 					 */
-					controller : ['$scope', '$rootScope', 'kommonitorMapService', 'kommonitorDataExchangeService', '__env', function kommonitorFilterController($scope, $rootScope, kommonitorMapService, kommonitorDataExchangeService, __env) {
+					controller : ['$scope', '$rootScope', 'kommonitorMapService', 'kommonitorDataExchangeService', '__env', '$http', function kommonitorFilterController($scope, $rootScope, kommonitorMapService, kommonitorDataExchangeService, __env, $http) {
 
 							const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
 							this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
@@ -32,6 +32,24 @@ angular
 							$scope.movMiddleValue;
 							$scope.movStep;
 							$scope.movRangeSlider;
+
+							$scope.selectionByFeatureSpatialFilterDuallistOptions = {
+								title: {label: 'Gebiete', helpMessage: 'help'},
+								selectOptions: {initialText: "Gebiete"},
+								items: [],
+								button: {leftText: "Alle auswählen" , rightText: "Alle entfernen"},
+								selectedItems: []
+							};
+
+							$scope.manualSelectionSpatialFilterDuallistOptions = {
+								title: {label: 'Gebiete', helpMessage: 'help'},
+								selectOptions: {initialText: "Gebiete"},
+								items: [],
+								button: {leftText: "Alle auswählen" , rightText: "Alle entfernen"},
+								selectedItems: []
+							};
+
+
 
 							$scope.inputNotValid = false;
 
@@ -334,6 +352,75 @@ angular
 								}
 
 							};
+
+							$scope.updateSelectableAreas = async function(selectionType) {
+								//send request to datamanagement API
+								let selectedSpatialUnit = kommonitorDataExchangeService.selectedSpatialUnit
+								let selectedSpatialUnitId = selectedSpatialUnit.spatialUnitId;
+								let upperSpatialUnitId;
+								if (selectedSpatialUnit.nextUpperHierarchyLevel) {
+									nextUpperHierarchyLevel = selectedSpatialUnit.nextUpperHierarchyLevel;
+									//get id for nextUpperHierarchyLevel
+									upperSpatialUnitId = kommonitorDataExchangeService.getSpatialUnitIdFromSpatialUnitName(nextUpperHierarchyLevel);
+								}
+								let selectedIndicatorId = kommonitorDataExchangeService.selectedIndicator.indicatorId;
+
+								//build request
+								let url = kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
+									"/indicators/" + selectedIndicatorId + "/" + selectedSpatialUnitId;
+								
+								if (selectionType === "byFeature" && upperSpatialUnitId)
+									url = kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
+									"/indicators/" + selectedIndicatorId + "/" + upperSpatialUnitId;
+								//send request
+								console.log(url);
+								await $http({
+									url: url,
+									method: "GET"
+								}).then(function successCallback(response) { //TODO add error callback for the case that the combination of indicator and nextUpperHierarchyLevel doesn't exist
+									let areaNames = []
+									$(response.data.features).each( (id, obj) => {
+										areaNames.push({name: obj.properties.NAME})
+									});
+									if (selectionType === "manual") {
+										$scope.manualSelectionSpatialFilterDuallistOptions.selectedItems = [];
+										let dataArray = kommonitorDataExchangeService.createDualListInputArray(areaNames, "name")
+										$scope.manualSelectionSpatialFilterDuallistOptions.items = dataArray;
+									}
+									if (selectionType === "byFeature") {
+										$scope.selectionByFeatureSpatialFilterDuallistOptions.selectedItems = [];
+										let dataArray = kommonitorDataExchangeService.createDualListInputArray(areaNames, "name")
+										$scope.selectionByFeatureSpatialFilterDuallistOptions.items = dataArray;
+									}
+								});
+							}
+
+							$scope.onChangeShowManualSelection = async function() {
+								// return if toggle was deactivated
+								if(!$scope.showManualSelectionSpatialFilter)
+									return
+								else {
+									$scope.updateSelectableAreas("manual");	
+								}
+							}
+
+							$scope.onChangeShowSelectionByFeature = async function() {
+								// return if toggle was deactivated
+								if(!$scope.showSelectionByFeatureSpatialFilter)
+									return
+								else {
+									$scope.updateSelectableAreas("byFeature");
+								}
+							}
+
+							$rootScope.$on("changeSpatialUnit", function() {
+								if ($scope.showSelectionByFeatureSpatialFilter)
+									$scope.updateSelectableAreas("byFeature")
+								if ($scope.showManualSelectionSpatialFilter)
+									$scope.updateSelectableAreas("manual")
+							});
+
+							//TODO on indicator change
 
 					}]
 				});

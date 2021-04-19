@@ -2634,6 +2634,17 @@ angular
             }            
           };
 
+          this.getSpatialUnitIdFromSpatialUnitName = function(name) {
+            let result = null;
+            $(this.availableSpatialUnits).each( (id, obj) => {
+              if (obj.spatialUnitLevel === name) {
+                result = obj.spatialUnitId;
+                return false;
+              }
+            });
+            return result;
+          }
+
           /**
 		 * creates an array of objects from an array of strings.
 		 * each object in the result has the properties "category" and "name"
