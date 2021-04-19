@@ -295,8 +295,10 @@ angular.module('reportingModal').component('reportingModal', {
 			}
 
 			//show loading overlay
-			//$scope.generatingReport = true;
-			document.body.style.cursor = 'wait';
+			$timeout(function(){
+				$scope.generatingReport = true;
+				document.body.style.cursor = 'wait';
+			});						
 
 			//hide all scrollbars temporarily
 			//there is a bug in html2canvas, creating some space on the left side if the page has a scrollbar
@@ -305,11 +307,14 @@ angular.module('reportingModal').component('reportingModal', {
 
 			//a higher number will lead to higher quality images.
 			//but it will also increase the time needed to generate a pdf and the file size
-			window.devicePixelRatio = 2;
+			window.devicePixelRatio = 1;
 			var pages2canvasArray = [];
 			for(var i=1;i<=$scope.pagesArray.length;i++) {
 				pages2canvasArray.push(html2canvas(document.getElementById("reporting-page-" + i.toString()), {
 					//htm2canvas options can be placed here
+					scale: 1
+					// width: 1120 / 1.4,
+					// height: 790 / 1.4
 				}));
 			}
 			//create html2canvas
@@ -352,10 +357,12 @@ angular.module('reportingModal').component('reportingModal', {
 					var now = getCurrentDateAndTime();
 
 					//hide loading overlay
-					//$scope.generatingReport = false;
+					$timeout(function(){
+						$scope.generatingReport = false;
 					//console.log($scope.generatingReport);
 					//create pdf, prompt user to save it
-					document.body.style.cursor = 'default';
+					document.body.style.cursor = 'default';	
+					});
 					window.devicePixelRatio = 1; //reset this
 
 					// unhide scrollbars
