@@ -112,7 +112,18 @@ angular
 						$scope.onClickDownloadMetadata = async function(){
 							// create PDF from currently selected/displayed indicator!
 							var indicatorMetadata = kommonitorDataExchangeService.selectedIndicator;														
-							kommonitorDataExchangeService.createMetadataPDF_indicator(indicatorMetadata);
+							var jspdf = await kommonitorDataExchangeService.createMetadataPDF_indicator(indicatorMetadata);
+
+							var pdfName = indicatorMetadata.indicatorName + ".pdf";
+  
+							jspdf.setProperties({
+							title: 'KomMonitor Indikatorenblatt',
+							subject: pdfName,
+							author: 'KomMonitor',
+							keywords: 'Indikator, Metadatenblatt',
+							creator: 'KomMonitor'
+							});
+            				jspdf.save(pdfName);
 						};
 
 						function prepareBalanceGeoJSON(geoJSON, indicatorMetadataAsBalance){

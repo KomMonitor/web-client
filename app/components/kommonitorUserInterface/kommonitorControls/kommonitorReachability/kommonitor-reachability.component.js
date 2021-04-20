@@ -346,7 +346,28 @@ angular
 
 						$scope.settings = {};
 
+						$scope.settings = {};
+
 						$scope.settings.usePreconfigRanges_500_1000 = false;
+
+						$scope.settings.dateSelectionType_valueIndicator = "date_indicator";
+									$scope.settings.dateSelectionType_valueManual = "date_manual";
+									$scope.settings.dateSelectionType_valuePerDataset = "date_perDataset";
+									$scope.settings.dateSelectionType = {
+										selectedDateType: $scope.settings.dateSelectionType_valuePerDataset
+									};
+
+						$scope.settings.selectedDate_manual = undefined;
+
+						$scope.settings.isochroneConfig = {};
+						$scope.settings.isochroneConfig.dateSelectionType_valueIndicator = "date_indicator";
+									$scope.settings.isochroneConfig.dateSelectionType_valueManual = "date_manual";
+									$scope.settings.isochroneConfig.dateSelectionType_valuePerDataset = "date_perDataset";
+									$scope.settings.isochroneConfig.dateSelectionType = {
+										selectedDateType: $scope.settings.isochroneConfig.dateSelectionType_valuePerDataset
+									};
+
+						$scope.settings.isochroneConfig.selectedDate_manual = undefined;
 
 						$scope.showIsochrones = true;
 						$scope.settings.dissolveIsochrones = true;

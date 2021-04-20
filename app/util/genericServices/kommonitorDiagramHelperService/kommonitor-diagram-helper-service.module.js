@@ -200,6 +200,14 @@ angular
         return self.lineChartOptions;
       };
 
+      this.prepareAllDiagramResources_forCurrentMapIndicator = function (indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, filterOutFutureDates) {        
+        this.prepareAllDiagramResources(indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, filterOutFutureDates);
+      };
+
+      this.prepareAllDiagramResources_forReportingIndicator = function (indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, filterOutFutureDates) {
+        this.prepareAllDiagramResources(indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, filterOutFutureDates);      
+      };
+
       this.prepareAllDiagramResources = function (indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, filterOutFutureDates) {
 
         self.indicatorPropertyName = INDICATOR_DATE_PREFIX + date;
@@ -208,7 +216,7 @@ angular
         var indicatorValueArray = new Array();
         var indicatorValueBarChartArray = new Array();
 
-        var indicatorTimeSeriesDatesArray = kommonitorDataExchangeService.selectedIndicator.applicableDates;
+        var indicatorTimeSeriesDatesArray = indicatorMetadataAndGeoJSON.applicableDates;
 
         if(filterOutFutureDates){
           // remove all timestamps that are newer than the given date
@@ -269,9 +277,9 @@ angular
           indicatorValueBarChartArray.push(seriesItem);
 
         }
-
+      
         // we must use the original selectedIndicator in case balance mode is active
-        // otherwise balance timestamp will have balance values
+        // otherwise balance timestamp will have balance values          
         for (var t = 0; t < kommonitorDataExchangeService.selectedIndicator.geoJSON.features.length; t++) {
           var indicatorFeature = kommonitorDataExchangeService.selectedIndicator.geoJSON.features[t];
           // continue timeSeries arrays by adding and counting all time series values
@@ -343,7 +351,7 @@ angular
 
         // default fontSize of echarts
         var fontSize = 18;
-        var barChartTitel = 'Feature-Vergleich - ' + spatialUnitName + ' - ';
+        var barChartTitel = 'Ranking - ' + spatialUnitName + ' - ';
         if (indicatorMetadataAndGeoJSON.fromDate) {
           barChartTitel += "Bilanz " + indicatorMetadataAndGeoJSON.fromDate + " - " + indicatorMetadataAndGeoJSON.toDate;
           fontSize = 14;
@@ -439,6 +447,9 @@ angular
               rotate: 90,
               interval: 0,
               inside: true,
+              show: false
+            },
+            axisTick: {
               show: false
             },
             z: 6,
@@ -770,7 +781,7 @@ angular
             textStyle: {
               fontSize: fontSize
             },
-            show: false
+            show: true
             // top: 15
           },
           tooltip: {
@@ -867,7 +878,10 @@ angular
           title: {
             text: 'Zeitreihe - ' + spatialUnitName,
             left: 'center',
-            show: false
+            show: false,
+            textStyle: {
+              fontSize: 18
+            },
             // top: 15
           },
           tooltip: {
@@ -974,6 +988,9 @@ angular
             // z: 6,
             // zlevel: 6,
             type: 'category',
+            axisTick: {
+              show: false
+            },
             data: indicatorTimeSeriesDatesArray
           },
           yAxis: {
