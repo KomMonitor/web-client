@@ -200,12 +200,7 @@ angular
         return self.lineChartOptions;
       };
 
-      this.prepareAllDiagramResources_forCurrentMapIndicator = function (indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, filterOutFutureDates) {
-        // we must use the original selectedIndicator in case balance mode is active
-        // otherwise balance timestamp will have balance values  
-        if(kommonitorDataExchangeService.isBalanceChecked){
-          indicatorMetadataAndGeoJSON = kommonitorDataExchangeService.selectedIndicator;
-        }
+      this.prepareAllDiagramResources_forCurrentMapIndicator = function (indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, filterOutFutureDates) {        
         this.prepareAllDiagramResources(indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, filterOutFutureDates);
       };
 
@@ -283,8 +278,10 @@ angular
 
         }
       
-        for (var t = 0; t < indicatorMetadataAndGeoJSON.geoJSON.features.length; t++) {
-          var indicatorFeature = indicatorMetadataAndGeoJSON.geoJSON.features[t];
+        // we must use the original selectedIndicator in case balance mode is active
+        // otherwise balance timestamp will have balance values          
+        for (var t = 0; t < kommonitorDataExchangeService.selectedIndicator.geoJSON.features.length; t++) {
+          var indicatorFeature = kommonitorDataExchangeService.selectedIndicator.geoJSON.features[t];
           // continue timeSeries arrays by adding and counting all time series values
           for (var i = 0; i < indicatorTimeSeriesDatesArray.length; i++) {
             var datePropertyName = INDICATOR_DATE_PREFIX + indicatorTimeSeriesDatesArray[i];

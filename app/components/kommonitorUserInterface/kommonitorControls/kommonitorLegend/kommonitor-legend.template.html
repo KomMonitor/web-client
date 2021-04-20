@@ -257,7 +257,7 @@
 
 							</div>
 							<!-- Dynamic legend items -->
-							<div ng-if="($ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorType.includes('DYNAMIC') || containsNegativeValues) && ! $ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked">					
+							<div ng-if="($ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked || $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorType.includes('DYNAMIC') || containsNegativeValues) && ! $ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked">					
 
 								<!-- < 0 values -->
 								<div class="row" style="margin-right: 0px;" ng-repeat="color in $ctrl.kommonitorVisualStyleHelperServiceInstance.dynamicBrew[1].colors">
@@ -288,7 +288,7 @@
 							</div>
 
 							<!-- Static/Status legend items -->
-							<div ng-if="($ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorType.includes('STATUS') && ! containsNegativeValues) && ! $ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked">
+							<div ng-if="($ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorType.includes('STATUS') && ! containsNegativeValues) && ! $ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked && ! $ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked">
 								<!-- zero -->
 								<div class="row" style="margin-right: 0px;" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.classifyZeroSeparately && containsZeroValues">
 									<div class="col-md-3"><i style="background:{{::$ctrl.env.defaultColorForZeroValues}}; opacity: {{$ctrl.kommonitorVisualStyleHelperServiceInstance.currentIndicatorOpacity}};"></i></div>
