@@ -13,7 +13,7 @@ angular.module('adminKeycloakConfig').component('adminKeycloakConfig', {
 		$scope.missingRequiredParameters = [];
 		$scope.missingRequiredParameters_string = "";
 
-		$scope.keywordsInConfig = ["realm", "auth-server-url", "http", "/auth", "resource", "ssl-required", "public-client", "confidential-port", "admin-rolename", "admin-rolepassword"];
+		$scope.keywordsInConfig = ["realm", "auth-server-url", "http", "/auth", "resource", "ssl-required", "public-client", "confidential-port"];
 
 		$scope.keycloakConfigTemplate = undefined;
 		$scope.keycloakConfigTmp = undefined;

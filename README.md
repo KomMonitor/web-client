@@ -192,9 +192,7 @@ Connection parameters to running Keycloak server are stored in the file [app/con
   "ssl-required": "external",  // SSL Setting, leave it to "external"
   "resource": "kommonitor-web-client",  // Keycloak resource/client name within upper realm
   "public-client": true, // Keycloak setting that client itself does not require authentication to access page
-  "confidential-port": 0, // Keycloak setting that should not be modifed
-  "admin-rolename": "administrator", // name of a Keycloak master realm user with admin rights for whole Keycloak instance
-  "admin-rolepassword": "password" // password of a Keycloak master realm user with admin rights for whole Keycloak instance
+  "confidential-port": 0 // Keycloak setting that should not be modifed
 }
 
 ```
