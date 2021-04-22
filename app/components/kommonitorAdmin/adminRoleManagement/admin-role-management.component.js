@@ -41,6 +41,25 @@ angular.module('adminRoleManagement').component('adminRoleManagement', {
 			$scope.loadingData = false;
 		};
 
+		$scope.onClickSynchronizeKeycloakRoles = async function(){			
+			try {
+				$timeout(function(){
+					$scope.loadingData = true;
+				});
+				await kommonitorKeycloakHelperService.fetchAndSetKeycloakRoles($scope.keycloakAdminUserName, $scope.keycloakAdminUserPassword);
+
+				$scope.initializeOrRefreshOverviewTable();	
+
+				$timeout(function(){
+					$scope.loadingData = false;
+				}, 500);
+			} catch (error) {
+				$timeout(function(){
+					$scope.loadingData = false;
+				});
+			}			
+		};
+
 		$scope.$on("refreshRoleOverviewTable", function (event) {
 			$scope.loadingData = true;
 			$scope.refreshRoleOverviewTable();

@@ -38,10 +38,13 @@
 						einer der zu l&ouml;schenden Rollen. Wird die L&ouml;sch-Operation best&auml;tigt, so wird die
 						Verkn&uuml;pfung
 						zwischen dem jeweiligen Datensatz und der zu l&ouml;schenden Rolle aufgehoben.</p> -->
-						Sollten Ressourcen noch durch die zu l&ouml;schende(n) Rolle(n) abgesichert sein, so schl&auml;gt die L&ouml;sch-Operation 
-						m&ouml;glicherweise fehl. So soll verhindert werden, dass gesch&uuml;tzte Ressourcen durch L&ouml;schen der verkn&uuml;pften Rolle(n) frei zug&auml;nglich werden. 
-						
-						Administratoren m&uuml;ssten vorab die unten gelisteten Verkn&uuml;pfungen zuerst aufheben, um die Rolle tats&auml;chlich l&ouml;schen zu k&ouml;nnen.
+						Sollten Ressourcen noch durch die zu l&ouml;schende(n) Rolle(n) abgesichert sein, so
+						schl&auml;gt die L&ouml;sch-Operation
+						m&ouml;glicherweise fehl. So soll verhindert werden, dass gesch&uuml;tzte Ressourcen durch
+						L&ouml;schen der verkn&uuml;pften Rolle(n) frei zug&auml;nglich werden.
+
+						Administratoren m&uuml;ssten vorab die unten gelisteten Verkn&uuml;pfungen zuerst aufheben, um
+						die Rolle tats&auml;chlich l&ouml;schen zu k&ouml;nnen.
 
 					<h4>Betroffene Raumeinheiten</h4>
 					<div ng-if="! affectedSpatialUnits.length > 0">
@@ -122,70 +125,109 @@
 							</tbody>
 						</table>
 					</div>
-				
+
 				</div>
+
+				<br />
+				<hr>
 
 				<div class="row vertical-align">
 					<div class="col-md-3 col-sm-6 col-xs-12">
 						<div class="form-group">
-							<label>Gleichnamige Keycloak-Rolle mit l&ouml;schen?*</label>		
+							<label>Gleichnamige Keycloak-Rolle mit l&ouml;schen?*</label>
 							<label class="switch">
-								<input type="checkbox" value="deleteCorrespondingKeycloakRole" ng-model="deleteCorrespondingKeycloakRole">
+								<input type="checkbox" value="deleteCorrespondingKeycloakRole"
+									ng-model="deleteCorrespondingKeycloakRole">
 								<span class="switchslider round"></span>
-							</label>	
-						
+							</label>
+
 							<div class="help-block">
-								<p>Angabe, ob die gleichnamige Rolle auch aus der Keycloak-Instanz zu l&ouml;schen ist.</p>
-							</div>	
+								<p>Angabe, ob die gleichnamige Rolle auch aus der Keycloak-Instanz zu l&ouml;schen ist.
+								</p>
+							</div>
 							<div class="help-block with-errors"></div>
 						</div>
 					</div>
 				</div>
 
+				<h4>Keycloak Admin Credentials</h4>
+				<p>Bei g&uuml;ltiger Eingabe von User Credentials eines Keycloak Administrators kann
+					KomMonitor die Rolle auch direkt in Keycloak l&ouml;schen.
+					Bei fehlender Angabe wird nur die Rolle in der KomMonitor Datenbank entfernt. Ein
+					Keycloak-Administrator muss dann in Keycloak die gleichnamige Rolle analog entfernen.</p>
+				<div class="row vertical-align">
+					<div class="col-md-5">
+						<label>Keyloak-Administrator Username</label>
+
+						<div class="input-group">
+							<span class="input-group-addon"><i class="fa fa-user"></i></span>
+							<input style="width:100%;" class="form-control" type="text"
+								placeholder="Keycloak-Admin-Username" ng-model="keycloakAdminUserName"></input>
+						</div>
+
+						<div class="help-block">User Name eines Keycloak Administrators, der im Keycloak
+							Master Realm Admin-Rechte besitzt.</div>
+					</div>
+					<div class="col-md-5">
+						<label>Keyloak-Administrator Password</label>
+						<div class="input-group">
+							<span class="input-group-addon"><i class="fa fa-lock"></i></span>
+							<input style="width:100%;" class="form-control" type="password"
+								placeholder="Keycloak-Admin-Password" ng-model="keycloakAdminUserPassword"></input>
+						</div>
+
+						<div class="help-block">Passwort eines Keycloak Administrators, der im Keycloak
+							Master Realm Admin-Rechte besitzt.</div>
+					</div>
+				</div>
+
+				<hr>
+				<br />
+
 			</div>
-		<div class="modal-footer">
-			<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
-			<button type="button" class="btn btn-danger" ng-click="deleteRoles()"
-				ng-disabled="! datasetsToDelete.length > 0">Rollen unwiderruflich l&ouml;schen</button>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
+				<button type="button" class="btn btn-danger" ng-click="deleteRoles()"
+					ng-disabled="! datasetsToDelete.length > 0">Rollen unwiderruflich l&ouml;schen</button>
+			</div>
+
+			<div id="rolesDeleteSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+				class="alert alert-success alert-dismissable">
+				<button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
+				<h4><i class="icon fa fa-check"></i>Folgende Rollen wurde erfolgreich gel&ouml;scht</h4>
+				<ul>
+					<li ng-repeat="dataset in successfullyDeletedDatasets">{{dataset.roleName}}</li>
+				</ul>
+			</div>
+
+			<div id="rolesDeleteErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+				class="alert alert-danger alert-dismissable">
+				<button type="button" class="close" ng-click="hideErrorAlert()" aria-hidden="true">&times;</button>
+				<h4><i class="icon fa fa-ban"></i>L&ouml;schen gescheitert</h4>
+				Folgende Datens&auml;tze konnten nicht gel&ouml;scht werden.
+				<br />
+				<table class="table table-bordered table-condensed" style="width:100%; overflow:auto; font-size: 11px;">
+					<thead>
+						<tr>
+							<th>Name</th>
+							<th>Fehlermeldung</th>
+						</tr>
+					</thead>
+
+					<tbody>
+						<tr ng-repeat="dataset in failedDatasetsAndErrors">
+							<td>{{dataset[0].roleName}}</td>
+							<td ng-bind-html="dataset[1]"></td>
+						</tr>
+
+					</tbody>
+				</table>
+
+			</div>
+
 		</div>
-
-		<div id="rolesDeleteSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
-			class="alert alert-success alert-dismissable">
-			<button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
-			<h4><i class="icon fa fa-check"></i>Folgende Rollen wurde erfolgreich gel&ouml;scht</h4>
-			<ul>
-				<li ng-repeat="dataset in successfullyDeletedDatasets">{{dataset.roleName}}</li>
-			</ul>
-		</div>
-
-		<div id="rolesDeleteErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
-			class="alert alert-danger alert-dismissable">
-			<button type="button" class="close" ng-click="hideErrorAlert()" aria-hidden="true">&times;</button>
-			<h4><i class="icon fa fa-ban"></i>L&ouml;schen gescheitert</h4>
-			Folgende Datens&auml;tze konnten nicht gel&ouml;scht werden.
-			<br />
-			<table class="table table-bordered table-condensed" style="width:100%; overflow:auto; font-size: 11px;">
-				<thead>
-					<tr>
-						<th>Name</th>
-						<th>Fehlermeldung</th>
-					</tr>
-				</thead>
-
-				<tbody>
-					<tr ng-repeat="dataset in failedDatasetsAndErrors">
-						<td>{{dataset[0].roleName}}</td>
-						<td ng-bind-html="dataset[1]"></td>
-					</tr>
-
-				</tbody>
-			</table>
-
-		</div>
-
+		<!-- /.modal-content -->
 	</div>
-	<!-- /.modal-content -->
-</div>
-<!-- /.modal-dialog -->
+	<!-- /.modal-dialog -->
 </div>
 <!-- /.modal -->

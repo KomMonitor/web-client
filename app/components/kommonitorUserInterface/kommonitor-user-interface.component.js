@@ -434,6 +434,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 				$scope.buttonLegendClass = "btn btn-custom-right btn-circle-right";
 			}
 
+			$rootScope.$broadcast("invalidateMapSize");
 			$rootScope.$broadcast("refreshIndicatorValueRangeSlider");
 		};
 

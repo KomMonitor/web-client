@@ -2546,15 +2546,21 @@ angular.module('kommonitorMap').component(
 
         var wait = ms => new Promise((r, j) => setTimeout(r, ms))
 
-        $scope.recenterMap = async function () {
+        $scope.recenterMap = function () {
           $scope.map.invalidateSize(true);
 
           fitBounds();
 
         };
 
-        $scope.$on("recenterMapContent", async function (event) {
+        $scope.$on("recenterMapContent", function (event) {
           $scope.recenterMap();
+        });
+
+        $scope.$on("invalidateMapSize", function (event) {
+          $timeout(function(){
+            $scope.map.invalidateSize(true);
+          }, 500);          
         });
 
         $scope.$on("recenterMapOnHideSideBar", async function (event) {

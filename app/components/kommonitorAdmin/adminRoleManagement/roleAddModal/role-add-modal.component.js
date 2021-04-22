@@ -13,6 +13,9 @@ angular.module('roleAddModal').component('roleAddModal', {
 			$scope.errorMessagePart = undefined;
 			$scope.keycloakErrorMessagePart = undefined;
 
+			$scope.keycloakAdminUserName = undefined;
+			$scope.keycloakAdminUserPassword = undefined;
+
 			$scope.checkRoleName = function(){
 				$scope.roleNameInvalid = false;
 				kommonitorDataExchangeService.availableRoles.forEach(function(role){
@@ -25,6 +28,9 @@ angular.module('roleAddModal').component('roleAddModal', {
 
 			$scope.resetRoleAddForm = function () {
 				$scope.roleName = undefined;
+
+				$scope.keycloakAdminUserName = undefined;
+				$scope.keycloakAdminUserPassword = undefined;
 
 				$scope.errorMessagePart = undefined;
 				$scope.keycloakErrorMessagePart = undefined;
@@ -60,8 +66,8 @@ angular.module('roleAddModal').component('roleAddModal', {
 						$("#roleAddSuccessAlert").show();
 
 						try {							
-							await kommonitorKeycloakHelperService.postNewRole($scope.roleName);	
-							await kommonitorKeycloakHelperService.fetchAndSetKeycloakRoles();
+							await kommonitorKeycloakHelperService.postNewRole($scope.roleName, $scope.keycloakAdminUserName, $scope.keycloakAdminUserPassword);	
+							await kommonitorKeycloakHelperService.fetchAndSetKeycloakRoles($scope.keycloakAdminUserName, $scope.keycloakAdminUserPassword);
 							$("#keycloakRoleAddSuccessAlert").show();
 						} catch (error) {
 							if (error.data) {
