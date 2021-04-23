@@ -7,6 +7,8 @@ angular
     function ($rootScope, $timeout,
       kommonitorDataExchangeService, $http, __env) {
 
+      var self = this;
+
       this.targetUrlToManagementService = __env.apiUrl + __env.basePath + "/";
 
       this.availableScriptDataTypes = [
@@ -54,12 +56,59 @@ angular
 					"apiName": "indicator_division"
         },
         {
+					"displayName": "Indikatoren - Trend (mittels linearer Regression)",
+					"apiName": "indicator_trend"
+        },
+        {
+					"displayName": "Indikatoren - Kontinuität (mittels Pearson Korrelation)",
+					"apiName": "indicator_continuity"
+        },
+        {
+					"displayName": "Indikatoren - Veränderung absolut",
+					"apiName": "indicator_change_absolute"
+        },
+        {
+					"displayName": "Indikatoren - Veränderung absolut mit festem Referenz-Zeitpunkt",
+					"apiName": "indicator_change_absolute_refDate"
+        },
+        {
+					"displayName": "Indikatoren - Veränderung prozentual mit festem Referenz-Zeitpunkt",
+					"apiName": "indicator_change_relative_refDate"
+        },
+        {
+					"displayName": "Indikatoren - Veränderung prozentual",
+					"apiName": "indicator_change_relative"
+        },
+        {
+					"displayName": "Indikatoren - Promille-Wert (Quotient zwischen Basis-Indikatoren und einem Referenzindikator)",
+					"apiName": "indicator_promille"
+        },        
+        {
+					"displayName": "Leitindikator - verkettete Berechnung (Rank, Min-Max-Normalisierung, Aggregation)",
+					"apiName": "indicator_headlineIndicator"
+        },
+        {
 					"displayName": "Indikatoren - Produkt aller Indikatoren",
 					"apiName": "indicator_multiplication"
         },
         {
 					"displayName": "Georessourcen - Anzahl Punkte in Polygon",
 					"apiName": "georesource_pointsInPolygon"
+				}
+			];
+
+      this.temporalOptions = [
+				{
+					"apiName": "YEARS",
+					"displayName": "Jahr(e)"
+				},
+				{
+					"apiName": "MONTHS",
+					"displayName": "Monat(e)"
+				},
+				{
+					"apiName": "DAYS",
+					"displayName": "Tag(e)"
 				}
 			];
 
@@ -70,7 +119,10 @@ angular
       this.scriptCode_readableString = undefined;
 
       this.scriptFormulaHTML = undefined;
+      this.scriptFormulaHTML_successToastDisplay = this.scriptFormulaHTML;
       this.scriptFormulaHTML_overwriteTargetIndicatorMethod = false;
+
+      this.scriptFormulaExplanation = undefined;
 
       this.targetIndicatorOldProcessDescription = undefined;
 
@@ -82,10 +134,14 @@ angular
         this.scriptCode_readableString = undefined;
         this.scriptFormulaHTML = undefined;
         this.scriptFormulaHTML_overwriteTargetIndicatorMethod = false;
+        this.scriptFormulaExplanation = undefined;
         this.targetIndicatorOldProcessDescription = undefined;
       };
 
       this.addBaseIndicator = function(indicatorMetadata){
+        if(!indicatorMetadata){
+          return;
+        }
 				for (const baseIndicator of this.requiredIndicators_tmp) {
 					if (baseIndicator.indicatorId === indicatorMetadata.indicatorId){
 						// already inserted as base indicator, hence add not allowed
@@ -363,6 +419,65 @@ angular
             console.error("Error while posting to importer service.");
             throw response;
         });        
+      };
+
+      this.getAlphabetLetterFromNumber = function(number){
+        return String.fromCharCode(Number(number) + 'A'.charCodeAt(0));
+      };
+
+      this.styleMathFormula = function(domOutputElementId){
+        var output = document.getElementById(domOutputElementId);
+        output.innerHTML = this.scriptFormulaHTML;
+
+        // MathJax.texReset();
+        // MathJax.typesetClear();
+        MathJax.typesetPromise([output]).then(function(){
+
+        }).catch(function (err) {
+          output.innerHTML = '';
+          output.appendChild(document.createTextNode(err.message));
+          console.error(err);
+        }).then(function () {
+
+        });
+      };
+
+      this.styleMathFormula_forExplanation = function(domOutputElementId){
+        var output = document.getElementById(domOutputElementId);
+
+        // MathJax.texReset();
+        // MathJax.typesetClear();
+        MathJax.typesetPromise([output]).then(function(){
+          $timeout(function(){
+            self.scriptFormulaExplanation = "" + output.innerHTML;
+            $rootScope.$apply();
+          });
+        }).catch(function (err) {
+          output.innerHTML = '';
+          output.appendChild(document.createTextNode(err.message));
+          console.error(err);
+        }).then(function () {
+          $timeout(function(){
+            self.scriptFormulaExplanation = "" + output.innerHTML;
+            $rootScope.$apply();
+          });
+        });
+      };
+
+      this.typesetContainerByClass = function(className){
+        var domElements = document.getElementsByClassName(className);
+        
+        for (const domElement of domElements) {
+          MathJax.typesetPromise([domElement]).then(function(){
+            $timeout(function(){
+            });
+          }).catch(function (err) {
+            console.error(err);
+          }).then(function () {
+            $timeout(function(){
+            });
+          });
+        }
       };
 
     }]);

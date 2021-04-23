@@ -108,7 +108,7 @@ angular
       this.setupIndicatorPropertiesForCurrentSpatialUnitAndTime = function (filterBySameUnitAndSameTime) {
         this.indicatorPropertiesForCurrentSpatialUnitAndTime = [];
 
-        kommonitorDataExchangeService.availableIndicators.forEach(indicatorMetadata => {
+        kommonitorDataExchangeService.displayableIndicators.forEach(indicatorMetadata => {
           var targetYear = kommonitorDataExchangeService.selectedDate.split("-")[0];
           var indicatorCandidateYears = []
           indicatorMetadata.applicableDates.forEach((date, i) => {
@@ -200,7 +200,15 @@ angular
         return self.lineChartOptions;
       };
 
-      this.prepareAllDiagramResources = function (indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, filterOutFutureDates) {
+      this.prepareAllDiagramResources_forCurrentMapIndicator = function (indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, filterOutFutureDates) {        
+        this.prepareAllDiagramResources(indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, filterOutFutureDates, true);
+      };
+
+      this.prepareAllDiagramResources_forReportingIndicator = function (indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, filterOutFutureDates) {
+        this.prepareAllDiagramResources(indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, filterOutFutureDates, false);      
+      };
+
+      this.prepareAllDiagramResources = function (indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, filterOutFutureDates, forceUseSubmittedIndicatorForTimeseries) {
 
         self.indicatorPropertyName = INDICATOR_DATE_PREFIX + date;
 
@@ -208,7 +216,7 @@ angular
         var indicatorValueArray = new Array();
         var indicatorValueBarChartArray = new Array();
 
-        var indicatorTimeSeriesDatesArray = kommonitorDataExchangeService.selectedIndicator.applicableDates;
+        var indicatorTimeSeriesDatesArray = indicatorMetadataAndGeoJSON.applicableDates;
 
         if(filterOutFutureDates){
           // remove all timestamps that are newer than the given date
@@ -269,11 +277,16 @@ angular
           indicatorValueBarChartArray.push(seriesItem);
 
         }
+      
+        let indicatorMetadataForTimeseries = indicatorMetadataAndGeoJSON;
 
+        if(!forceUseSubmittedIndicatorForTimeseries && kommonitorDataExchangeService.isBalanceChecked){
+          indicatorMetadataForTimeseries = kommonitorDataExchangeService.selectedIndicator;
+        }
         // we must use the original selectedIndicator in case balance mode is active
-        // otherwise balance timestamp will have balance values
-        for (var t = 0; t < kommonitorDataExchangeService.selectedIndicator.geoJSON.features.length; t++) {
-          var indicatorFeature = kommonitorDataExchangeService.selectedIndicator.geoJSON.features[t];
+        // otherwise balance timestamp will have balance values          
+        for (var t = 0; t < indicatorMetadataForTimeseries.geoJSON.features.length; t++) {
+          var indicatorFeature = indicatorMetadataForTimeseries.geoJSON.features[t];
           // continue timeSeries arrays by adding and counting all time series values
           for (var i = 0; i < indicatorTimeSeriesDatesArray.length; i++) {
             var datePropertyName = INDICATOR_DATE_PREFIX + indicatorTimeSeriesDatesArray[i];
@@ -343,7 +356,7 @@ angular
 
         // default fontSize of echarts
         var fontSize = 18;
-        var barChartTitel = 'Feature-Vergleich - ' + spatialUnitName + ' - ';
+        var barChartTitel = 'Ranking - ' + spatialUnitName + ' - ';
         if (indicatorMetadataAndGeoJSON.fromDate) {
           barChartTitel += "Bilanz " + indicatorMetadataAndGeoJSON.fromDate + " - " + indicatorMetadataAndGeoJSON.toDate;
           fontSize = 14;
@@ -390,7 +403,7 @@ angular
             feature: {
               // mark : {show: true},
               dataView: {
-                show: true, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Feature-Vergleich', 'schlie&szlig;en', 'refresh'], optionToContent: function (opt) {
+                show: kommonitorDataExchangeService.showDiagramExportButtons, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Feature-Vergleich', 'schlie&szlig;en', 'refresh'], optionToContent: function (opt) {
 
                   var barData = opt.series[0].data;
                   var featureNames = opt.xAxis[0].data;
@@ -439,6 +452,9 @@ angular
               rotate: 90,
               interval: 0,
               inside: true,
+              show: false
+            },
+            axisTick: {
               show: false
             },
             z: 6,
@@ -770,7 +786,7 @@ angular
             textStyle: {
               fontSize: fontSize
             },
-            show: false
+            show: true
             // top: 15
           },
           tooltip: {
@@ -789,7 +805,7 @@ angular
             feature: {
               // mark : {show: true},
               dataView: {
-                show: true, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Geo Map Chart', 'schlie&szlig;en', 'refresh'], optionToContent: function (opt) {
+                show: kommonitorDataExchangeService.showDiagramExportButtons, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Geo Map Chart', 'schlie&szlig;en', 'refresh'], optionToContent: function (opt) {
 
                   var dataTableId = "geoMapDataTable_" + Math.random();
                   var tableExportName = indicatorMetadataAndGeoJSON.indicatorName + " - " + opt.title[0].text;
@@ -867,7 +883,10 @@ angular
           title: {
             text: 'Zeitreihe - ' + spatialUnitName,
             left: 'center',
-            show: false
+            show: false,
+            textStyle: {
+              fontSize: 18
+            },
             // top: 15
           },
           tooltip: {
@@ -898,7 +917,7 @@ angular
             feature: {
               // mark : {show: true},
               dataView: {
-                show: true, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Zeitreihe', 'schlie&szlig;en', 'refresh'], optionToContent: function (opt) {
+                show: kommonitorDataExchangeService.showDiagramExportButtons, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Zeitreihe', 'schlie&szlig;en', 'refresh'], optionToContent: function (opt) {
 
                   // 	<table class="table table-condensed table-hover">
                   // 	<thead>
@@ -974,6 +993,9 @@ angular
             // z: 6,
             // zlevel: 6,
             type: 'category',
+            axisTick: {
+              show: false
+            },
             data: indicatorTimeSeriesDatesArray
           },
           yAxis: {
@@ -983,63 +1005,7 @@ angular
             //     show: true
             // }
           },
-          series: [
-          {
-            name: "Min",
-            type: 'line',
-            data: indicatorTimeSeriesMinArray,
-            stack: "MinMax",
-            // areaStyle:{
-            //   color: "#d6d6d6"
-            // },
-            lineStyle: {
-              opacity: 0
-            },
-            itemStyle: {
-              opacity: 0
-            },
-            // lineStyle: {
-            //   normal: {
-            //     color: 'gray',
-            //     width: 2,
-            //     type: 'dashed'
-            //   }
-            // },
-            // itemStyle: {
-            //   normal: {
-            //     borderWidth: 3,
-            //     color: 'gray'
-            //   }
-            // }
-          },
-          {
-            name: "Max",
-            type: 'line',
-            data: indicatorTimeSeriesMaxArray,
-            stack: "MinMax",
-            areaStyle:{
-              color: "#d6d6d6"
-            },
-            lineStyle: {
-              opacity: 0
-            },
-            itemStyle: {
-              opacity: 0
-            },
-            // lineStyle: {
-            //   normal: {
-            //     color: 'gray',
-            //     width: 2,
-            //     type: 'dashed'
-            //   }
-            // },
-            // itemStyle: {
-            //   normal: {
-            //     borderWidth: 3,
-            //     color: 'gray'
-            //   }
-            // }
-          },
+          series: [          
           {
             name: "Arithmetisches Mittel",
             type: 'line',
@@ -1059,6 +1025,63 @@ angular
             }
           }]
         };
+
+        // SETTING FOR MIN AND MAX STACK
+
+        // default for min value of 0
+        var minStack = {
+          name: "Min",
+          type: 'line',
+          data: indicatorTimeSeriesMinArray,
+          stack: "MinMax",
+          // areaStyle:{
+          //   color: "#d6d6d6"
+          // },
+          lineStyle: {
+            opacity: 0
+          },
+          itemStyle: {
+            opacity: 0
+          }
+        };
+
+        var maxStack =  {
+          name: "Max",
+          type: 'line',
+          data: indicatorTimeSeriesMaxArray,
+          stack: "MinMax",
+          areaStyle:{
+            color: "#d6d6d6"
+          },
+          lineStyle: {
+            opacity: 0
+          },
+          itemStyle: {
+            opacity: 0
+          }
+        };
+
+        // perform checks if there are negative values or only > 0 values
+        // then stacks must be adjusted to be correcty displayed
+        var minStack_minValue = Math.min(...indicatorTimeSeriesMinArray);
+        if(minStack_minValue < 0){
+          minStack.areaStyle = {
+              color: "#d6d6d6"
+          };
+        }
+        if ((indicatorTimeSeriesMinArray.filter(item => item > 0))){
+          for (let index = 0; index < indicatorTimeSeriesMaxArray.length; index++) {
+
+            if(indicatorTimeSeriesMinArray[index] > 0){
+              indicatorTimeSeriesMaxArray[index] = indicatorTimeSeriesMaxArray[index] - indicatorTimeSeriesMinArray[index];
+            }            
+          }
+          maxStack.data = indicatorTimeSeriesMaxArray;
+        }
+
+        lineOption.series.push(minStack);
+        lineOption.series.push(maxStack);
+        
 
         // use configuration item and data specified to show chart
         self.lineChartOptions = lineOption;
@@ -1120,7 +1143,7 @@ angular
             feature: {
               // mark : {show: true},
               dataView: {
-                show: true, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Histogramm', 'schlie&szlig;en', 'refresh'], optionToContent: function (opt) {
+                show: kommonitorDataExchangeService.showDiagramExportButtons, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Histogramm', 'schlie&szlig;en', 'refresh'], optionToContent: function (opt) {
 
                   // 	<table class="table table-condensed table-hover">
                   // 	<thead>
@@ -1390,7 +1413,7 @@ angular
             feature: {
               // mark : {show: true},
               dataView: {
-                show: true, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Punkte im Einzugsgebiet' + rangeValue, 'schlie&szlig;en', 'refresh'], optionToContent: function (opt) {
+                show: kommonitorDataExchangeService.showDiagramExportButtons, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Punkte im Einzugsgebiet' + rangeValue, 'schlie&szlig;en', 'refresh'], optionToContent: function (opt) {
 
                   var poiData = opt.series[0].data;
 
@@ -1500,6 +1523,9 @@ angular
 
           var timeseriesOptions = JSON.parse(JSON.stringify(this.getLineChartOptions()));
 
+          // remove any additional lines for concrete features
+          timeseriesOptions.series.length = 3;
+
           // add markedAreas for periods out of scope
 
           var fromDateString = fromDateAsPropertyString.split(__env.indicatorDatePrefix)[1];
@@ -1508,7 +1534,7 @@ angular
           var toDate_date = new Date(toDateString);
           
           if(showCompleteTimeseries){
-            timeseriesOptions.series[2].markArea = {
+            timeseriesOptions.series[0].markArea = {
               silent: true,
               itemStyle: {
                   color: '#b50b0b',
@@ -1528,15 +1554,15 @@ angular
           }          
 
           // hide data points
-          timeseriesOptions.series[2].itemStyle.normal.opacity = 0;
-          timeseriesOptions.series[2].lineStyle.normal.width = 3;
-          timeseriesOptions.series[2].lineStyle.normal.type = "solid";  
+          timeseriesOptions.series[0].itemStyle.normal.opacity = 0;
+          timeseriesOptions.series[0].lineStyle.normal.width = 3;
+          timeseriesOptions.series[0].lineStyle.normal.type = "solid";  
           
           var trendData = [];
 
-          var timeseriesData = timeseriesOptions.series[2].data;  
-          var minSeriesData = timeseriesOptions.series[0].data;  
-          var maxSeriesData = timeseriesOptions.series[1].data;           
+          var timeseriesData = timeseriesOptions.series[0].data;  
+          var minSeriesData = timeseriesOptions.series[1].data;  
+          var maxSeriesData = timeseriesOptions.series[2].data;           
 
           if(! showCompleteTimeseries){
             var xData = [];
@@ -1556,15 +1582,15 @@ angular
               }            
             }
 
-            timeseriesOptions.series[2].data = timeData;
-            timeseriesOptions.series[0].data = minData;
-            timeseriesOptions.series[1].data = maxData;
+            timeseriesOptions.series[0].data = timeData;
+            timeseriesOptions.series[1].data = minData;
+            timeseriesOptions.series[2].data = maxData;
 
             timeseriesOptions.xAxis.data = xData;
           }     
 
           // update value if it has changed
-          timeseriesData = timeseriesOptions.series[2].data;
+          timeseriesData = timeseriesOptions.series[0].data;
           var xAxisData = timeseriesOptions.xAxis.data;
           for (let index = 0; index < timeseriesData.length; index++) {
             var dateCandidate = new Date(xAxisData[index]);
@@ -1637,8 +1663,8 @@ angular
         });
 
         if(! showMinMax){
-          timeseriesOptions.series.splice(0, 1);
-          timeseriesOptions.series.splice(0, 1);
+          timeseriesOptions.series.splice(1, 1);
+          timeseriesOptions.series.splice(1, 1);
         }
 
           return timeseriesOptions;

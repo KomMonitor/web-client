@@ -6,14 +6,19 @@ angular
 			templateUrl: "components/kommonitorUserInterface/kommonitorControls/indicatorRadar/indicator-radar.template.html",
 
 			controller: [
-				'kommonitorDataExchangeService', 'kommonitorDiagramHelperService', '$scope', '$rootScope', '$http', '__env',
+				'kommonitorDataExchangeService', 'kommonitorDiagramHelperService', '$scope', '$rootScope', '$timeout', '$http', '__env',
 				function indicatorRadarController(
-					kommonitorDataExchangeService, kommonitorDiagramHelperService, $scope, $rootScope, $http, __env) {
+					kommonitorDataExchangeService, kommonitorDiagramHelperService, $scope, $rootScope, $timeout, $http, __env) {
 					/*
 					 * reference to kommonitorDataExchangeService instances
 					 */
 					this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 					this.kommonitorDiagramHelperServiceInstance = kommonitorDiagramHelperService;
+
+					var self = this;
+
+					$scope.activeTab = 0;
+
 					// initialize any adminLTE box widgets
 					$('.box').boxWidget();
 
@@ -92,6 +97,14 @@ angular
 
 						kommonitorDiagramHelperService.setupIndicatorPropertiesForCurrentSpatialUnitAndTime();
 
+						$scope.activeTab = 0;
+						if(kommonitorDataExchangeService.selectedIndicator.creationType == "COMPUTATION"){
+							$scope.activeTab = 1;
+						}
+						if(kommonitorDataExchangeService.selectedIndicator.isHeadlineIndicator){
+							$scope.activeTab = 2;
+						}
+
 						modifyRadarContent(kommonitorDiagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime);
 					};
 
@@ -107,7 +120,13 @@ angular
 
 						await wait(130);
 						$scope.setupCompleted = true;
-						$scope.$apply();
+						
+
+						$timeout(function(){
+							$scope.$digest();
+							self.filterDisplayedIndicatorsOnRadar();
+						}, 500);
+						
 					});
 
 					var modifyRadarContent = async function (indicatorsForRadar) {
@@ -223,7 +242,7 @@ angular
 									feature: {
 										// mark : {show: true},
 										dataView: {
-											show: true, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Indikatorenradar', 'schlie&szlig;en', 'refresh'], optionToContent: function (opt) {
+											show: kommonitorDataExchangeService.showDiagramExportButtons, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Indikatorenradar', 'schlie&szlig;en', 'refresh'], optionToContent: function (opt) {
 
 												// 	<table class="table table-condensed table-hover">
 												// 	<thead>
@@ -303,7 +322,7 @@ angular
 									name: {
 										formatter: function (value, indicator) {
 
-											return kommonitorDataExchangeService.formatIndiatorNameForLabel(value, 28);
+											return kommonitorDataExchangeService.formatIndicatorNameForLabel(value, 15);
 										},
 										textStyle: {
 											color: '#525252'
@@ -352,7 +371,7 @@ angular
 							$scope.radarChart.hideLoading();
 							setTimeout(function () {
 								$scope.radarChart.resize();
-								$scope.$apply();
+								$scope.$digest();
 							}, 350);
 							registerEventsIfNecessary();
 
@@ -536,11 +555,6 @@ angular
 								dataIndex: dataIndex
 							});
 						}
-					};
-
-					$scope.filterIndicators = function () {
-
-						return kommonitorDataExchangeService.filterIndicators();
 					};
 
 					this.filterDisplayedIndicatorsOnRadar = function () {

@@ -14,6 +14,11 @@ angular
 								 */
 								this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 								this.kommonitorDiagramHelperServiceInstance = kommonitorDiagramHelperService;
+
+								var self = this;
+
+								$scope.activeTab = 0;
+
 								// initialize any adminLTE box widgets
 								$('.box').boxWidget();
 
@@ -97,8 +102,12 @@ angular
 
 									await wait(100);
 
-									$scope.setupCompleted = true;
-									$scope.$apply();
+									$timeout(function(){
+										$scope.setupCompleted = true;
+										$scope.$digest();
+										$scope.onChangeSelectedIndicators();
+									}, 500);									
+
 								});
 
 								$scope.onChangeSelectedDate = function(input){
@@ -159,6 +168,18 @@ angular
 								    });
 
 									}
+
+									$scope.activeTab = 0;
+									if(kommonitorDataExchangeService.selectedIndicator.creationType == "COMPUTATION"){
+										$scope.activeTab = 1;
+									}
+									if(kommonitorDataExchangeService.selectedIndicator.isHeadlineIndicator){
+										$scope.activeTab = 2;
+									}
+									$timeout(function(){
+										$scope.onChangeSelectedIndicators();
+									}, 500);
+																		
 								});
 
 								$scope.$on("updateDiagramsForHoveredFeature", function (event, featureProperties) {
@@ -470,7 +491,7 @@ angular
 						                           }
 										    },
 										    xAxis: {
-														name: kommonitorDataExchangeService.formatIndiatorNameForLabel($scope.selection.selectedIndicatorForXAxis.indicatorMetadata.indicatorName + " - " + $scope.selection.selectedIndicatorForXAxis.selectedDate + " [" + $scope.selection.selectedIndicatorForXAxis.indicatorMetadata.unit + "]", 100),
+														name: kommonitorDataExchangeService.formatIndicatorNameForLabel($scope.selection.selectedIndicatorForXAxis.indicatorMetadata.indicatorName + " - " + $scope.selection.selectedIndicatorForXAxis.selectedDate + " [" + $scope.selection.selectedIndicatorForXAxis.indicatorMetadata.unit + "]", 100),
 														nameLocation: 'center',
 														nameGap: 22,
 		                        scale: true,
@@ -482,7 +503,7 @@ angular
 										        },
 										    },
 										    yAxis: {
-														name: kommonitorDataExchangeService.formatIndiatorNameForLabel($scope.selection.selectedIndicatorForYAxis.indicatorMetadata.indicatorName + " - " + $scope.selection.selectedIndicatorForYAxis.selectedDate + " [" + $scope.selection.selectedIndicatorForYAxis.indicatorMetadata.unit + "]", 75),
+														name: kommonitorDataExchangeService.formatIndicatorNameForLabel($scope.selection.selectedIndicatorForYAxis.indicatorMetadata.indicatorName + " - " + $scope.selection.selectedIndicatorForYAxis.selectedDate + " [" + $scope.selection.selectedIndicatorForYAxis.indicatorMetadata.unit + "]", 75),
 														nameLocation: 'center',
 														nameGap: 50,
 										        type: 'value',
@@ -497,7 +518,7 @@ angular
 														right: '15',
 														feature : {
 																// mark : {show: true},
-																dataView : {show: true, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - lineare Regression', 'schlie&szlig;en', 'refresh'], optionToContent: function(opt){
+																dataView : {show: kommonitorDataExchangeService.showDiagramExportButtons, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - lineare Regression', 'schlie&szlig;en', 'refresh'], optionToContent: function(opt){
 
 																// 	<table class="table table-condensed table-hover">
 																// 	<thead>
@@ -647,11 +668,11 @@ angular
 
 										$rootScope.$broadcast("preserveHighlightedFeatures");
 
-										setTimeout(function(){
-											$scope.$apply();
-										}, 350);
+										$timeout(function(){
+											$scope.$digest();
+										}, 500);
 									}
-								}
+								};
 
 								function registerEventsIfNecessary(){
 									if(!$scope.eventsRegistered){

@@ -3,7 +3,10 @@
 <p>Mindestens zwei (Basis-)Indikator m&uuml;ssen angegeben werden, aus dem sich der Ziel-Indikator
 	ableitet. Beliebig viele sind m&ouml;glich.</p>
 	<p><b><i><u>Berechnung:</u></i></b> Produkt aller (Basis-)Indikatoren</p>
-	<p><b><i><u>Formel:</u></i></b> I<sub>1</sub> * I<sub>2</sub> * ... * I<sub>n</sub></p>
+	<!-- <p><b><i><u>Formel:</u></i></b> I<sub>1</sub> * I<sub>2</sub> * ... * I<sub>n</sub></p> -->
+	<p id="scriptFormulaExplanation" ng-model="$ctrl.kommonitorScriptHelperServiceInstance.scriptFormulaExplanation" ng-init="$ctrl.kommonitorScriptHelperServiceInstance.styleMathFormula_forExplanation('scriptFormulaExplanation')">
+		<b><i><u>Formel:</u></i></b> \( \prod_{n=1}^{m} I_{n} \)
+	</p>
 
 <div class="row vertical-align">
 	<div class="col-md-10 col-sm-12 col-xs-12">
@@ -28,7 +31,7 @@
 							<label>Auswahl der f&uuml;r die Berechnung erforderlichen (Basis-)Indikatoren</label>
 							<div class="input-group">
 								<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-								<input type="text" class="form-control input-sm" placeholder="Stichwortfilter"
+								<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model-options="{debounce: 500, blur: 0}"
 									ng-model="indicatorNameFilter">
 							</div>
 							<br />
@@ -190,7 +193,13 @@
 								<label>Editierfenster des Methodik-Textbausteins (HTML)</label>
 								<br/>
 								<br/>
-								<textarea rows="4" ng-model="$ctrl.kommonitorScriptHelperServiceInstance.scriptFormulaHTML"></textarea>
+								<textarea rows="4" ng-model="$ctrl.kommonitorScriptHelperServiceInstance.scriptFormulaHTML" ></textarea>
+							</div>
+							<div class="help-block">
+								<p>Hinweis: KomMonitor nutzt <a target="_blank" rel="noopener noreferrer" href="https://www.mathjax.org/">MathJax und Tex-Syntax</a>, um Formeln darzustellen.
+									Gem&auml;&szlig; <a target="_blank" rel="noopener noreferrer" href="https://www.mathjax.org/#demo">MathJax Demo Seite</a> wird der Formel-Code von 
+									 <code>$$ ... $$</code> (Anzeige in neuer Zeile) oder <code>$ ... $</code> (Inline-Anzeige) Trennzeichen umschlossen.
+								</p>
 							</div>
 						</div>
 						<div class="col-md-6 col-sm-6 col-xs-12">
@@ -198,7 +207,7 @@
 								<label>Vorschaufenster</label>
 								<br/>
 								<br/>
-								<p ng-bind-html="$ctrl.kommonitorScriptHelperServiceInstance.scriptFormulaHTML"></p>
+								<p mathjax-bind="$ctrl.kommonitorScriptHelperServiceInstance.scriptFormulaHTML"></p>
 							</div>
 						</div>
 					</div>
@@ -222,7 +231,7 @@
 								<label>Derzeitiger Eintrag zum Vergleich</label>
 								<br/>
 								<br/>
-								<p ng-bind-html="$ctrl.kommonitorScriptHelperServiceInstance.targetIndicator.processDescription"></p>
+								<p mathjax-bind="$ctrl.kommonitorScriptHelperServiceInstance.targetIndicator.processDescription"></p>
 							</div>
 						</div>
 					</div>		

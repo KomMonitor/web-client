@@ -121,28 +121,31 @@ angular.module('scriptShare').component('scriptShare', {
 			$scope.resetComputationFormulaAndLegend = function(){
 				kommonitorScriptHelperService.scriptFormulaHTML = "";
 
-				var formulaHTML = "<b>Berechnung gem&auml;&szlig; Formel<br/><i>";
+				var formulaHTML = "<b>Berechnung gem&auml;&szlig; Formel<br/>";
 				var legendItemsHTML = "<b>Legende zur Formel</b><br/>";
 
 				// referenceIndicator
-				formulaHTML+="(";				
+				formulaHTML+="$$ \\frac{ ";
 
 				// baseIndicators / computationIndicators
 				for (let index = 0; index < $scope.baseIndicators.length; index++) {
 					const indicatorMetadata = $scope.baseIndicators[index];
-					var indexValue = Number(index + 1);
-					formulaHTML+="I<sub>" + indexValue + "</sub>";
-					legendItemsHTML+="<i>I<sub>" + indexValue + "</sub></i>: " + indicatorMetadata.indicatorName;
+					var letterValue = kommonitorScriptHelperService.getAlphabetLetterFromNumber(index);
+
+					// we can use TEX code as we use MathJax library
+					formulaHTML+=letterValue;
+					legendItemsHTML+="$" + letterValue + "$: " + indicatorMetadata.indicatorName  + " [" + indicatorMetadata.unit +  "]";
 					if(index < $scope.baseIndicators.length - 1){
 						formulaHTML+=" + ";
 						legendItemsHTML+="<br/>"; 
 					}
 				}
 
-				formulaHTML += ") / I<sub>ref</sub></i>";  				
-				legendItemsHTML+="<br/><i>I<sub>ref</sub></i>: " + $scope.refIndicatorSelection.indicatorName + "<br/>";
+				formulaHTML += "}{ I_{ref}} $$";
+				legendItemsHTML+="<br/>$ I_{ref} $: " + $scope.refIndicatorSelection.indicatorName  + " [" + $scope.refIndicatorSelection.unit +  "]" + "<br/>";
 
 				kommonitorScriptHelperService.scriptFormulaHTML = formulaHTML + "<br/><br/>" + legendItemsHTML;
+				
 			};
 
 			$scope.addBaseIndicator = function(tmpIndicatorSelection){
@@ -155,7 +158,7 @@ angular.module('scriptShare').component('scriptShare', {
 				$scope.resetComputationFormulaAndLegend();
 
 				setTimeout(() => {
-					$scope.$apply();
+					$scope.$digest();
 				});
 			};
 
@@ -178,7 +181,7 @@ angular.module('scriptShare').component('scriptShare', {
 				$scope.resetComputationFormulaAndLegend();
 				
 				setTimeout(() => {
-					$scope.$apply();
+					$scope.$digest();
 				});
 			};
 	

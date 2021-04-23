@@ -67,10 +67,10 @@
 											title="Skript editieren"><i class="fas fa-pencil-alt"></i></button>
 									</div>
 								</td> -->
-								<td>{{scriptDataset.scriptId}}</td>
-								<td>{{scriptDataset.name}}</td>
-								<td>{{scriptDataset.indicatorId}}</td>
-								<td>{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorNameFromIndicatorId(scriptDataset.indicatorId)}}</td>								
+								<td>{{::scriptDataset.scriptId}}</td>
+								<td>{{::scriptDataset.name}}</td>
+								<td>{{::scriptDataset.indicatorId}}</td>
+								<td>{{::$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorNameFromIndicatorId(scriptDataset.indicatorId)}}</td>								
 								<td ng-bind-html="scriptDataset.description"></td>
 								<td>
 									<table class="table table-condensed">
@@ -82,8 +82,8 @@
 										</thead>
 										<tbody>
 										  <tr ng-repeat="baseIndicatorId in scriptDataset.requiredIndicatorIds">
-											<td>{{baseIndicatorId}}</td>
-											<td>{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorNameFromIndicatorId(baseIndicatorId)}}</td>
+											<td>{{::baseIndicatorId}}</td>
+											<td>{{::$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorNameFromIndicatorId(baseIndicatorId)}}</td>
 										  </tr>
 										 </tbody>
 									</table> 
@@ -98,8 +98,8 @@
 										</thead>
 										<tbody>
 										  <tr ng-repeat="georesourceId in scriptDataset.requiredGeoresourceIds">
-											<td>{{georesourceId}}</td>
-											<td>{{$ctrl.kommonitorDataExchangeServiceInstance.getGeoresourceNameFromGeoresourceId(georesourceId)}}</td>
+											<td>{{::georesourceId}}</td>
+											<td>{{::$ctrl.kommonitorDataExchangeServiceInstance.getGeoresourceNameFromGeoresourceId(georesourceId)}}</td>
 										  </tr>
 										 </tbody>
 									</table> 
@@ -117,11 +117,11 @@
 										</thead>
 										<tbody>
 										  <tr ng-repeat="processParameter in scriptDataset.variableProcessParameters">
-											<td>{{processParameter.name}}</td>
-											<td>{{processParameter.description}}</td>
-											<td>{{processParameter.dataType}}</td>
-											<td>{{processParameter.defaultValue}}</td>
-											<td><div ng-show="processParameter.dataType == 'double' || processParameter.dataType == 'integer'"><b>erlaubter Wertebereich</b> {{processParameter.minParameterValueForNumericInputs}} - {{processParameter.maxParameterValueForNumericInputs}}</div></td>
+											<td>{{::processParameter.name}}</td>
+											<td>{{::processParameter.description}}</td>
+											<td>{{::processParameter.dataType}}</td>
+											<td>{{::processParameter.defaultValue}}</td>
+											<td><div ng-show="processParameter.dataType == 'double' || processParameter.dataType == 'integer'"><b>erlaubter Wertebereich</b> {{::processParameter.minParameterValueForNumericInputs}} - {{::processParameter.maxParameterValueForNumericInputs}}</div></td>
 										  </tr>
 										 </tbody>
 									</table>

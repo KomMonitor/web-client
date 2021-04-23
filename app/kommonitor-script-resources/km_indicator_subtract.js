@@ -33,7 +33,7 @@ const aggregationTypeEnum = ["SUM", "AVERAGE"];
 * @memberof CONSTANTS
 * @constant
 */
-const aggregationType = "AVERAGE";
+const aggregationType = "SUM";
 
 const parameterName_referenceIndicatorId = "REFERENCE_ID";
 const parameterName_computationIndicatorId = "COMPUTATION_ID";

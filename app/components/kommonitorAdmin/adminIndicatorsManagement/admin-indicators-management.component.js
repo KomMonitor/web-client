@@ -4,6 +4,7 @@ angular.module('adminIndicatorsManagement').component('adminIndicatorsManagement
 	function IndicatorsManagementController(kommonitorDataExchangeService, $scope, $timeout, $rootScope, __env, $http) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
+
 		// initialize any adminLTE box widgets
 	  $('.box').boxWidget();
 
@@ -11,6 +12,48 @@ angular.module('adminIndicatorsManagement').component('adminIndicatorsManagement
 
 		$scope.availableIndicatorDatasets;
 		$scope.selectIndicatorEntriesInput = false;
+
+		$scope.sortableConfig = {
+			onEnd: function (/**Event*/evt) {
+				var updatedIndicatorMetadataEntries = evt.models;
+				
+				// for those models send API request to persist new sort order
+
+				var patchBody = [];
+				for (let index = 0; index < updatedIndicatorMetadataEntries.length; index++) {
+					const indicatorMetadata = updatedIndicatorMetadataEntries[index];
+					
+					patchBody.push({
+						"indicatorId": indicatorMetadata.indicatorId,
+						"displayOrder": index
+					});
+				}
+
+				$http({
+					url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/indicators/display-order",
+					method: "PATCH",
+					data: patchBody
+					// headers: {
+					//    'Content-Type': undefined
+					// }
+				}).then(function successCallback(response) {
+
+	
+					}, function errorCallback(error) {
+						// if(error.data){							
+						// 	$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+						// }
+						// else{
+						// 	$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
+						// }
+	
+						// $("#georesourceEditMetadataErrorAlert").show();
+
+						kommonitorDataExchangeService.displayMapApplicationError(error);
+				});
+
+			}
+		};
 
 		$scope.$on("initialMetadataLoadingCompleted", function (event) {
 

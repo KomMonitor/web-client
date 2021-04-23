@@ -118,7 +118,7 @@ angular
 										};
 
 										kommonitorDataExchangeService.fileDatasets.push(fileDataset);
-										$scope.$apply();
+										$scope.$digest();
 										// initialize colorpicker in table
 										setTimeout(function() {
 												// initialize colorpicker
@@ -149,7 +149,7 @@ angular
 										};
 
 										kommonitorDataExchangeService.fileDatasets.push(fileDataset);
-										$scope.$apply();
+										$scope.$digest();
 										// initialize colorpicker in table
 										setTimeout(function() {
 												// initialize colorpicker
