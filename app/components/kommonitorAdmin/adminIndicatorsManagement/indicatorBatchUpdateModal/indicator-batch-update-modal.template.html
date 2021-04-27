@@ -169,7 +169,7 @@
 
 											<!-- Datei -->
 											<td ng-show="checkIfSelectedDatasourceTypeIsFile()">
-												<input id="indicatorDataSourceFileInputField{{$index}}" class="form-control dataSourceFileInputField" type="file" 
+												<input id="indicatorDataSourceFileInputField{{$index}}" class="form-control indicatorDataSourceFileInputField" type="file" 
 												ng-disabled="!indicator.selectedDatasourceType.type.includes(&quot;FILE&quot;)" required>
 											</td>
 
@@ -264,14 +264,14 @@
 								<div class="col-md-4 col-sm-6 col-xs-12">
 									<div class="form-group">
 										<label>Attributname der Indikatorenwerte*</label>
-										<input type="text" class="form-control input-sm ng-pristine ng-untouched ng-valid ng-empty" placeholder="Attributname für Indikatorenwerte" ng-model="tmpTimeseriesMapping_indicatorValuesPropertyName">
+										<input type="text" class="form-control input-sm" placeholder="Attributname f&uuml;r Indikatorenwerte" ng-model="tmpTimeseriesMapping_indicatorValuesPropertyName">
 										<div class="help-block with-errors"></div>
 									</div>
 								</div>
 								<div class="col-md-4 col-sm-6 col-xs-12">												
 									<label></label>
 									<label class="switch">
-										<input type="checkbox" value="useTimeseriesAsProperty" ng-model="useTimeseriesAsProperty" ng-change="onChangeUseTimeseriesAsProperty()" class="ng-pristine ng-untouched ng-valid ng-empty">
+										<input type="checkbox" value="useTimeseriesAsProperty" ng-model="useTimeseriesAsProperty" ng-change="onChangeUseTimeseriesAsProperty()">
 										<span class="switchslider round"></span>
 									</label>	
 								
@@ -279,10 +279,10 @@
 										<p>Angabe, ob der Zeitstempel aus einem Attribut entnommen werden soll</p>
 									</div>
 								</div>
-								<div ng-show="useTimeseriesAsProperty" class="col-md-4 col-sm-6 col-xs-12 ng-hide">												
+								<div ng-show="useTimeseriesAsProperty" class="col-md-4 col-sm-6 col-xs-12">												
 									<div class="form-group">
 										<label>Attributname des Zeitstempels</label>
-										<input type="text" class="form-control input-sm ng-pristine ng-untouched ng-valid ng-empty" placeholder="Attributname für Zeitstempel" ng-model="tmpTimeseriesMapping_timestampPropertyName">
+										<input type="text" class="form-control input-sm" placeholder="Attributname f&uuml;r Zeitstempel" ng-model="tmpTimeseriesMapping_timestampPropertyName">
 										<div class="help-block with-errors"></div>
 									</div>
 								</div>
@@ -293,79 +293,60 @@
 											<div class="input-group-addon">
 												<i class="far fa-calendar-alt"></i>
 											</div>
-											<input type="text" ng-model="tmpTimeseriesMapping_directTimestamp" placeholder="YYYY-MM-DD" class="form-control pull-right ng-pristine ng-untouched ng-valid ng-empty" id="indicatorEditFeaturesDirectTimestampDatepicker">
+											<input type="text" ng-model="tmpTimeseriesMapping_directTimestamp" placeholder="YYYY-MM-DD"
+												class="form-control pull-right" id="indicatorEditFeaturesDirectTimestampDatepicker">
 										</div>
 									</div>
 								</div>
 							</div>
-							<!--
+
 							<div class="row vertical-align">
 								<div class="col-md-3 col-sm-6 col-xs-12">
 									<div class="form-group">
-										<button class="btn btn-success btn-sm" ng-disabled="!tmpTimeseriesMapping_indicatorValuesPropertyName || (! tmpTimeseriesMapping_timestampPropertyName &amp;&amp; !tmpTimeseriesMapping_directTimestamp)" ng-click="onEditFeaturesOrUpdateTimeseriesMapping()" disabled="disabled">Hinzufügen/Editieren</button>
+										<button class="btn btn-success btn-sm" ng-disabled="!tmpTimeseriesMapping_indicatorValuesPropertyName || (! tmpTimeseriesMapping_timestampPropertyName && !tmpTimeseriesMapping_directTimestamp)" ng-click="onEditFeaturesOrUpdateTimeseriesMapping()">Hinzuf&uuml;gen/Editieren</button>
 										<div class="help-block with-errors"></div>
 									</div>
 								</div>
 							</div>
-							<div class="col-md-12 col-sm-12 col-xs-12">
-								<label>Übersicht der definierten Indikatoren-Zeitreihen-Mappings</label>
-								<table class="table table-condensed">
-									<thead>
-										<tr>
-											<th>Editierfunktionen</th>
-											<th>Attributname der Indikatorenwerte</th>
-											<th>Attributname des Zeitstempels</th>
-											<th>Zeitstempel (direkte Angabe)</th>
-										</tr>
-									</thead>
-									<tbody>
-									-->
-										<!-- ngRepeat: timeseriesMappingEntry in timeseriesMappings_adminView -->
-									<!--
-									</tbody>
-								</table>
-							</div>
-						-->
 
-						</div>
-				</div>
+							<br/>
+							<br/>
 
-			</div>
-
-			<!-- result modal -->
-			<div class="modal fade" id="indicator-batch-update-result-modal" role="dialog">
-				<div class="modal-dialog modal-xl">
-					<div class="modal-content">
-						<div class="modal-header">
-								<span aria-hidden="true">&times;</span>
-							<h4 class="modal-title">Ergebnis des Batch-Updates</h4>
-						</div>
-						<div class="modal-body">
-							<div class="row">
-								<div class="col"></div>
-								<div class="col-md-10 col-sm-10 col-xs-10">
-									<div class="batch-update-result-table-wrapper table-responsive">
-										<table class="batch-update-result-table table-bordered">
-											<thead>
-												<tr>
-													<th>Indikator</th>
-													<th>Status</th>
-												</tr>
-											</thead>
-											<tbody id="indicator-result-table-tbody">
-											</tbody>
-										</table>
-									</div>
+							<!-- Table to display currently specified references -->
+							<div class="row vertical-align">
+								<div class="col-md-12 col-sm-12 col-xs-12">
+									<label>&Uuml;bersicht der definierten Indikatoren-Zeitreihen-Mappings</label>
+									<table class="table table-condensed">
+										<thead>
+											<tr>
+												<th>Editierfunktionen</th>
+												<th>Attributname der Indikatorenwerte</th>
+												<th>Attributname des Zeitstempels</th>
+												<th>Zeitstempel (direkte Angabe)</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr ng-repeat="timeseriesMappingEntry in timeseriesMappings_adminView">
+												<td>
+													<div class="btn-group btn-group-sm">
+														<button class="btn btn-warning btn-sm" type="button" ng-click="onClickEditTimeseriesMapping(timeseriesMappingEntry)"
+															title="Referenz editieren"><i class="fas fa-pencil-alt"></i></button>
+														<button class="btn btn-danger btn-sm" type="button" ng-click="onClickDeleteTimeseriesMapping(timeseriesMappingEntry)"
+															title="Referenz l&ouml;schen"><i class="fas fa-trash"></i></button>
+													</div>
+												</td>
+												<td>{{timeseriesMappingEntry.indicatorValuesPropertyName}}</td>
+												<td>{{timeseriesMappingEntry.timestampPropertyName}}</td>
+												<td>{{timeseriesMappingEntry.timestampDirect}}</td>
+											</tr>
+										</tbody>
+									</table>
 								</div>
-								<div class="col"></div>
 							</div>
 						</div>
-						<div class="modal-footer">
-						</div>
-					</div>
 				</div>
 			</div>
-			
+
 		</div>
 		<!-- /.modal-content -->
 	</div>

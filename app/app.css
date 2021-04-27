@@ -2451,7 +2451,7 @@ input:checked + .switchslider:before {
 	z-index: 3; /* datepicker fields have a z-index of 2, so this needs to be higher */
 }
 
-.batch-update-result-modal > div {
+#modal-batch-update-result > div {
 	width: 700px;
 	max-height: 75vh;
 }

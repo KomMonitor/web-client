@@ -204,7 +204,7 @@
 
 											<!-- Datei -->
 											<td ng-show="checkIfSelectedDatasourceTypeIsFile()">
-												<input id="georesourceDataSourceFileInputField{{$index}}" class="form-control dataSourceFileInputField" type="file" 
+												<input id="georesourceDataSourceFileInputField{{$index}}" class="form-control georesourceDataSourceFileInputField" type="file" 
 												ng-disabled="!georesource.selectedDatasourceType.type.includes(&quot;FILE&quot;)" required>
 											</td>
 
@@ -298,41 +298,6 @@
 				<button type="button" class="btn btn-danger"
 				ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.resetBatchUpdateForm('georesource', this.batchList)">Zur&uuml;cksetzen
 				</button>
-			</div>
-
-			<!-- result modal -->
-			<div id="georesource-batch-update-result-modal" class="batch-update-result-modal modal fade" role="dialog">
-				<div class="modal-dialog modal-xl">
-					<div class="modal-content">
-						<div class="modal-header">
-							<button type="button" class="close" aria-label="Close" id="georesource-batch-update-result-modal-close-btn">
-								<span aria-hidden="true">&times;</span></button>
-							<h4 class="modal-title">Ergebnis des Batch-Updates</h4>
-						</div>
-						<div class="modal-body">
-							<div class="row">
-								<div class="col"></div>
-								<div class="col-md-10 col-sm-10 col-xs-10">
-									<div class="batch-update-result-table-wrapper table-responsive">
-										<table class="batch-update-result-table table-bordered">
-											<thead>
-												<tr>
-													<th>Georessource</th>
-													<th>Status</th>
-												</tr>
-											</thead>
-											<tbody id="georesource-result-table-tbody">
-											</tbody>
-										</table>
-									</div>
-								</div>
-								<div class="col"></div>
-							</div>
-						</div>
-						<div class="modal-footer">
-						</div>
-					</div>
-				</div>
 			</div>
 		</div>
 		<!-- /.modal-content -->

@@ -9,12 +9,7 @@ angular
                 this.batchUpdate = async function (resourceType, batchList) {
 
                     // clear result modal
-                    document.getElementById("georesource-result-table-tbody").innerHTML = "";
-
-                    // TODO check if all rows are valid, only continue if that is true
-                    // not working properly
-                    //$("#georesourceBatchUpdateForm").validator("update");
-                    //$("#georesourceBatchUpdateForm").validator("validate");
+                    document.getElementById("batch-update-result-table-tbody").innerHTML = "";
 
                     // create array to store response messages
                     var responses = [];
@@ -28,8 +23,13 @@ angular
                     for (var i = 0; i < batchListCopy.length; i++) {
                         // copy row to not change $scope
                         var row = batchListCopy[i];
+                        console.log("row: ", row);
 
-                        var georesourceId = row.name.georesourceId;
+                        let resourceId;
+                        if (resourceType === "georesource")
+                            resourceId = row.name.georesourceId;
+                        if (resourceType === "indicator")
+                            resourceId = row.name.indicatorId;
 
                         // converter properties to parameter array
                         row.mappingObj.converter = this.converterPropertiesToParametersArray(row.mappingObj.converter);
@@ -148,7 +148,8 @@ angular
                     }
                     console.log(responses);
 
-                    $rootScope.$broadcast("georesourceBatchUpdateCompleted", {
+                    $rootScope.$broadcast("batchUpdateCompleted", {
+                        resourceType: resourceType,
                         value: responses
                     });
 
@@ -413,10 +414,8 @@ angular
                 this.deleteSelectedRowsFromBatchList = function (batchList, allRowsSelected) {
                     // loop backwards through $scope.batchList and remove selected rows
                     for (var i = batchList.length - 1; i >= 0; i--) {
-                        if (batchList[i].isSelected) {
+                        if (batchList[i].isSelected)
                             batchList.splice(i, 1);
-
-                        }
                     }
 
                     allRowsSelected = false; // in case it was true
