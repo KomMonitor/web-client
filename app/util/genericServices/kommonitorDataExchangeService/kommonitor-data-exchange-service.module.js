@@ -478,9 +478,7 @@ angular
           this.updateInterval.set("QUARTERLY", "vierteljährlich");
 
 					this.setIndicators = function(indicatorsArray){
-						this.availableIndicators = indicatorsArray;
-            this.displayableIndicators = this.availableIndicators.filter(item => isDisplayableIndicator(item));
-            this.displayableIndicators_keywordFiltered = JSON.parse(JSON.stringify(this.displayableIndicators));
+						this.availableIndicators = indicatorsArray;            
 					};
 
 
@@ -940,6 +938,9 @@ angular
             for (const indicator of this.availableIndicators) {
               indicator.applicableSpatialUnits = indicator.applicableSpatialUnits.filter(applicableSpatialUnit => availableSpatialUnitNames.includes(applicableSpatialUnit.spatialUnitName)); 
             }
+
+            this.displayableIndicators = this.availableIndicators.filter(item => isDisplayableIndicator(item));
+            this.displayableIndicators_keywordFiltered = JSON.parse(JSON.stringify(this.displayableIndicators));
           };
 
           this.buildTopicsMap_indicators = function(indicatorTopics){
