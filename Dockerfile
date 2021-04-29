@@ -1,5 +1,5 @@
 # ---- Base build ----
-FROM node:alpine as build
+FROM node:15-alpine as build
 
 
 RUN apk add --no-cache \
