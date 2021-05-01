@@ -29,7 +29,7 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 					"type": "FILE" // FILE|HTTP|INLINE
 				},
 				"propertyMapping": {
-					timeseriesMapping: [
+					timeseriesMappings: [
 						{
 						    "indicatorValueProperty": "string",
 						    "timestamp": "date" // direct timestamp
@@ -44,6 +44,7 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 			}
 			*/
 			$scope.batchList = [];
+			$scope.timeseriesMappingModalOpenForIndex; // temporarily stores for which index of the batch list the timeseries mapping modal is open
 			
 	
 			// on modal opened
@@ -439,9 +440,38 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 			//	$("#modal-batch-update-result").modal("hide");
 			//});
 
-			$scope.onTimeseriesMappingBtnClicked = function() {
-				$("#indicator-time-series-mapping-modal").modal("show");
+			$scope.onTimeseriesMappingBtnClicked = function($event) {
+				$("#indicator-edit-time-series-mapping-modal").modal("show", $event.currentTarget);
 			}
+
+			$('#indicator-edit-time-series-mapping-modal').on('shown.bs.modal', function (event) {
+				
+				// get indicator for which timeseries mapping was opended
+				// use it to check the corresponding element in the batch list
+				let index = kommonitorBatchUpdateHelperService.getIndexFromId(event.relatedTarget.id)
+				$scope.timeseriesMappingModalOpenForIndex = index;
+				let timeseriesMappingProp = $scope.batchList[index].mappingObj.propertyMapping.timeseriesMappings;
+
+				if (timeseriesMappingProp && timeseriesMappingProp.length > 0)
+					$scope.$broadcast('loadTimeseriesMapping', { mapping: timeseriesMappingProp});
+				else
+					$scope.$broadcast('resetTimeseriesMapping');
+			});
+
+			// on timeseries mapping modal closed
+			$('#indicator-edit-time-series-mapping-modal').on('hidden.bs.modal', function () {
+				// store timeseries mapping to mappingObj
+				// adds a variable timeseriesMappingBackup to $scope that holds a reference to the timeseries mapping
+				$scope.$broadcast('getTimeseriesMapping', { varname: "timeseriesMappingBackup"});
+				let index = $scope.timeseriesMappingModalOpenForIndex;
+				// converting to json and back gets rid of the $$hashkey property
+				$scope.batchList[index].mappingObj.propertyMapping.timeseriesMappings = angular.fromJson(angular.toJson($scope.timeseriesMappingBackup));
+				delete $scope.timeseriesMappingBackup;
+				
+				$scope.timeseriesMappingModalOpenForIndex = undefined;
+				// then reset the modal
+				$scope.$broadcast('resetTimeseriesMapping')
+			});
 			
 		}
 ]});
