@@ -747,5 +747,221 @@ angular
                     return fileUploadName;
                 };
 
+                // loop through batch list and check if condition is true for at least one row
+                this.checkIfMappingTableIsSpecified = function(batchList) {
+                    let mappingTableIsSpecified = false;
+                    for(let i=0; i<batchList.length;i++) {
+                        if(batchList[i].mappingTableName != "") {
+                            mappingTableIsSpecified = true;
+                            break;
+                        }
+                    }
+                    return mappingTableIsSpecified;
+                }
+
+                // loop through batch list and check if condition is true for at least one row
+			    this.checkIfSelectedConverterIsWfsV1 = function(batchList) {
+			    	let selectedConverterIsWfsV1 = false;
+			    	for (let i=0; i < batchList.length; i++) {
+			    		if (batchList[i].selectedConverter) {
+			    			let converterName = batchList[i].selectedConverter.name;
+			    			if (converterName != undefined && converterName.length > 0) {
+			    				if (converterName.includes("wfs.v1")) {
+			    					selectedConverterIsWfsV1 = true;
+			    					break;
+			    				}
+			    			}
+			    		}
+			    	}
+			    	return selectedConverterIsWfsV1;
+			    }
+
+
+                // loop through batch list and check if condition is true for at least one row
+			    this.checkIfSelectedDatasourceTypeIsFile = function(batchList) {
+			    	let selectedDatasourceTypeIsFile = false;
+			    	for (let i=0; i<batchList.length; i++) {
+			    		if (batchList[i].selectedDatasourceType) {
+			    			let datasourceType = batchList[i].selectedDatasourceType.type;
+			    			if (datasourceType != undefined && datasourceType.length > 0) {
+			    				if (datasourceType == "FILE") {
+			    					selectedDatasourceTypeIsFile = true;
+			    					break;
+			    				}
+			    			}
+			    		}
+			    	}
+			    	return selectedDatasourceTypeIsFile;
+			    }
+
+                
+			    // loop through batch list and check if condition is true for at least one row
+			    this.checkIfSelectedDatasourceTypeIsHttp = function(batchList) {
+			    	let selectedDatasourceTypeIsHttp = false;
+			    	for (let i=0; i<batchList.length; i++) {
+			    		if (batchList[i].selectedDatasourceType) {
+			    			let datasourceType = batchList[i].selectedDatasourceType.type;
+			    			if (datasourceType != undefined && datasourceType.length > 0) {
+			    				if (datasourceType == "HTTP") {
+			    					selectedDatasourceTypeIsHttp = true;
+			    					break;
+			    				}
+			    			}
+			    		}
+			    	}
+			    	return selectedDatasourceTypeIsHttp;
+			    }
+
+            
+			    // loop through batch list and check if condition is true for at least one row
+			    this.checkIfSelectedDatasourceTypeIsInline = function(batchList) {
+			    	let selectedDatasourceTypeIsInline = false;
+			    	for (let i=0; i<batchList.length; i++) {
+			    		if (batchList[i].selectedDatasourceType) {
+			    			let datasourceType = batchList[i].selectedDatasourceType.type;
+			    			if (datasourceType != undefined && datasourceType.length > 0) {
+			    				if (datasourceType == "INLINE") {
+			    					selectedDatasourceTypeIsInline = true;
+			    					break;
+			    				}
+			    			}
+			    		}
+			    	}
+			    	return selectedDatasourceTypeIsInline;
+			    }
+
+                
+			    this.checkIfNameAndFilesChosenInEachRow = function(resourceType, batchList) {
+                    
+			    	let updateBtn = document.getElementById(resourceType + "-batch-update-btn");
+			    	updateBtn.title = "Update starten" // default title, might get overwritten later
+                
+			    	if(batchList.length == 0) {
+			    		updateBtn.title = "Die Batch-Liste is leer."
+			    		return false;
+			    	}
+                
+			    	for(let i=0; i<batchList.length; i++) {
+                    
+			    		if(batchList[i].name == undefined || batchList[i].name == "") {
+			    			updateBtn.title = "Die Spalte Name* ist nicht für alle Zeilen gesetzt."
+			    			return false;
+			    		}
+                    
+			    		let mappingTableName = batchList[i].mappingTableName;
+			    		if(mappingTableName == undefined || mappingTableName == "") {
+			    			updateBtn.title = "Die Spalte Mappingtabelle ist nicht für alle Zeilen gesetzt."
+			    			return false;
+			    		}
+                    
+                    
+			    		if (batchList[i].selectedDatasourceType) {
+			    			let datasourceType = batchList[i].selectedDatasourceType.type;
+			    			if (datasourceType != undefined && datasourceType.length > 0) {
+                            
+			    				if (datasourceType == "FILE") {
+			    					if(!batchList[i].mappingObj.dataSource.NAME) {
+                                        updateBtn.title = "Die Spalte Datei* ist nicht für alle Zeilen gesetzt, in denen die Spalte Datenquelltyp* auf FILE gesetzt ist."
+			    						return false;
+                                    } else {
+                                        let value = batchList[i].mappingObj.dataSource.NAME.value;
+			    						if(value == undefined || value == "") {
+			    							updateBtn.title = "Die Spalte Datei* ist nicht für alle Zeilen gesetzt, in denen die Spalte Datenquelltyp* auf FILE gesetzt ist."
+			    							return false;
+			    						}
+                                    }
+			    				}
+
+                                if (datasourceType == "HTTP") {
+                                    if(!batchList[i].mappingObj.dataSource.URL) {
+                                        // property does not exist until user uses the input field for the first time
+                                        updateBtn.title = "Die Spalte URL* ist nicht für alle Zeilen gesetzt, in denen die Spalte Datenquelltyp* auf HTTP gesetzt ist."
+			    						return false;
+                                    } else {
+                                        // the field could still be empty (if it had input before)
+                                        let value = batchList[i].mappingObj.dataSource.URL.value;
+			    						if(value == undefined || value == "") {
+			    							updateBtn.title = "Die Spalte URL* ist nicht für alle Zeilen gesetzt, in denen die Spalte Datenquelltyp* auf HTTP gesetzt ist."
+			    							return false;
+                                        }
+                                    }
+                                }
+
+                                if (datasourceType == "INLINE") {
+                                    if(!batchList[i].mappingObj.dataSource.payload) {
+                                        // property does not exist until user uses the input field for the first time
+                                        updateBtn.title = "Die Spalte URL* ist nicht für alle Zeilen gesetzt, in denen die Spalte Datenquelltyp* auf HTTP gesetzt ist."
+			    						return false;
+                                    } else {
+                                         // the field could still be empty (if it had input before)
+                                        let value = batchList[i].mappingObj.dataSource.payload.value;
+			    						if(value == undefined || value == "") {
+			    							updateBtn.title = "Die Spalte Payload* ist nicht für alle Zeilen gesetzt, in denen die Spalte Datenquelltyp* auf INLINE gesetzt ist."
+			    							return false;
+			    						}
+                                    } 
+                                }
+			    			}
+			    		}
+			    	}
+
+			    	return true;
+			    }
+
+
+                this.onDataSourceFileSelected = function(file, rowIndex, batchList) {
+                    // set filename manually
+                    let name = file.name;
+                    $timeout(function() {
+                        batchList[rowIndex].mappingObj.dataSource.NAME.value = name;
+                    });
+                }
+
+
+			    this.onMappingTableSelected = function(event, rowIndex, file, batchList) {
+                
+                    let mappingObj = JSON.parse(event.target.result);
+
+			    	batchList[rowIndex].mappingTableName = file.name;
+            
+			    	mappingObj.converter = this.converterParametersArrayToProperties(mappingObj.converter);
+			    	mappingObj.dataSource = this.dataSourceParametersArrayToProperty(mappingObj.dataSource);
+                
+			    	// set value of column "Datensatz-Quellformat*" by converter name
+			    	let converterName = mappingObj.converter.name
+			    	for(let i=0; i<kommonitorImporterHelperService.availableConverters.length; i++) {
+			    		let avConverterName = kommonitorImporterHelperService.availableConverters[i].name
+			    		if(converterName == avConverterName) {
+			    			$timeout(function() {
+			    				batchList[rowIndex].selectedConverter = kommonitorImporterHelperService.availableConverters[i];
+			    			});
+			    			break;
+			    		}
+			    	}
+                
+			    	// set value of column "Datenquelltyp*" by dataSource type
+			    	var dataSourceType = mappingObj.dataSource.type;
+			    	for(let i=0; i<kommonitorImporterHelperService.availableDatasourceTypes.length; i++) {
+			    		let avDataSourceType = kommonitorImporterHelperService.availableDatasourceTypes[i].type
+			    		if(dataSourceType == avDataSourceType) {
+			    			$timeout(function() {
+			    				batchList[rowIndex].selectedDatasourceType = kommonitorImporterHelperService.availableDatasourceTypes[i];
+			    			});
+			    			break;
+			    		}
+			    	}
+                
+			    	// do not import file name
+			    	if(mappingObj.dataSource.type == "FILE") {
+			    		mappingObj.dataSource.NAME.value = "";
+			    	}
+                
+			    	//apply to scope
+			    	$timeout(function() {
+			    		batchList[rowIndex].mappingObj = mappingObj;
+			    	});
+			    }
+
+
             }
         ]);

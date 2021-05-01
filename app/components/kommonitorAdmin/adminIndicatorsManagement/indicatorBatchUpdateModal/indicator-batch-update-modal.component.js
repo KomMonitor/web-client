@@ -75,7 +75,7 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 					// read content
 					var reader = new FileReader();
 					reader.addEventListener('load', function(event) {
-						$scope.onMappingTableSelected(event, index, file);
+						kommonitorBatchUpdateHelperService.onMappingTableSelected(event, index, file, $scope.batchList);
 					});
 					reader.readAsText(file)
 				});
@@ -89,8 +89,8 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 	
 					// read content
 					var reader = new FileReader();
-					reader.addEventListener('load', function(event) {
-						$scope.onDataSourceFileSelected(event, index, file);
+					reader.addEventListener('load', function() {
+						kommonitorBatchUpdateHelperService.onDataSourceFileSelected(file, index, $scope.batchList);
 					});
 					reader.readAsText(file)
 				});
@@ -155,22 +155,9 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 			})
 	
 		
-			// loop through batch list and check if condition is true for at least one row
-			//TODO refractor to batch-update-helper-service
-			$scope.checkIfMappingTableIsSpecified = function() {
-				var mappingTableIsSpecified = false;
-				for(var i=0;i<$scope.batchList.length;i++) {
-					if($scope.batchList[i].mappingTableName != "") {
-						mappingTableIsSpecified = true;
-						break;
-					}
-				}
-				return mappingTableIsSpecified;
-				
-			}
+			
 	
 			// loop through batch list and check if condition is true for at least one row
-			//TODO refractor to batch-update-helper-service
 			$scope.checkIfSelectedConverterIsCsvOnlyIndicator = function() {
 				var selectedConverterIsCsvOnlyIndicator = false;
 				for(var i=0;i<$scope.batchList.length;i++) {
@@ -186,124 +173,8 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 				}
 				return selectedConverterIsCsvOnlyIndicator;
 			}
-	
-			// loop through batch list and check if condition is true for at least one row
-			//TODO refractor to batch-update-helper-service
-			$scope.checkIfSelectedConverterIsWfsV1 = function() {
-				var selectedConverterIsWfsV1 = false;
-				for (var i = 0; i < $scope.batchList.length; i++) {
-					if ($scope.batchList[i].selectedConverter) {
-						let converterName = $scope.batchList[i].selectedConverter.name;
-						if (converterName != undefined && converterName.length > 0) {
-							if (converterName.includes("wfs.v1")) {
-								selectedConverterIsWfsV1 = true;
-								break;
-							}
-						}
-					}
-				}
-				return selectedConverterIsWfsV1;
-			}
-			
-			// loop through batch list and check if condition is true for at least one row
-			//TODO refractor to batch-update-helper-service
-			$scope.checkIfSelectedDatasourceTypeIsFile = function() {
-				var selectedDatasourceTypeIsFile = false;
-				for (var i = 0; i < $scope.batchList.length; i++) {
-					if ($scope.batchList[i].selectedDatasourceType) {
-						let datasourceType = $scope.batchList[i].selectedDatasourceType.type;
-						if (datasourceType != undefined && datasourceType.length > 0) {
-							if (datasourceType == "FILE") {
-								selectedDatasourceTypeIsFile = true;
-								break;
-							}
-						}
-					}
-				}
-				return selectedDatasourceTypeIsFile;
-			}
-	
-			// loop through batch list and check if condition is true for at least one row
-			//TODO refractor to batch-update-helper-service
-			$scope.checkIfSelectedDatasourceTypeIsHttp = function() {
-				var selectedDatasourceTypeIsHttp = false;
-				for (var i = 0; i < $scope.batchList.length; i++) {
-					if ($scope.batchList[i].selectedDatasourceType) {
-						let datasourceType = $scope.batchList[i].selectedDatasourceType.type;
-						if (datasourceType != undefined && datasourceType.length > 0) {
-							if (datasourceType == "HTTP") {
-								selectedDatasourceTypeIsHttp = true;
-								break;
-							}
-						}
-					}
-				}
-				return selectedDatasourceTypeIsHttp;
-			}
-	
-			// loop through batch list and check if condition is true for at least one row
-			//TODO refractor to batch-update-helper-service
-			$scope.checkIfSelectedDatasourceTypeIsInline = function() {
-				var selectedDatasourceTypeIsInline = false;
-				for (var i = 0; i < $scope.batchList.length; i++) {
-					if ($scope.batchList[i].selectedDatasourceType) {
-						let datasourceType = $scope.batchList[i].selectedDatasourceType.type;
-						if (datasourceType != undefined && datasourceType.length > 0) {
-							if (datasourceType == "INLINE") {
-								selectedDatasourceTypeIsInline = true;
-								break;
-							}
-						}
-					}
-				}
-				return selectedDatasourceTypeIsInline;
-			}
-			
-			//TODO refractor to batch-update-helper-service
-			$scope.checkIfNameAndFilesChosenInEachRow = function() {
-	
-				var updateBtn = document.getElementById("indicator-batch-update-btn");
-				updateBtn.title = "Update starten"
-				
-				if($scope.batchList.length == 0) {
-					updateBtn.title = "Die Batch-Liste is leer."
-					return false;
-				}
-	
-				for(var i=0;i<$scope.batchList.length;i++) {
-	
-					if($scope.batchList[i].name == undefined || $scope.batchList[i].name == "") {
-						updateBtn.title = "Die Spalte Name* ist nicht für alle Zeilen gesetzt."
-						return false;
-					}
-	
-					let mappingTableName = $scope.batchList[i].mappingTableName;
-					if(mappingTableName == undefined || mappingTableName == "") {
-						updateBtn.title = "Die Spalte Mappingtabelle ist nicht für alle Zeilen gesetzt."
-						return false;
-					}
-						
-	
-					if ($scope.batchList[i].selectedDatasourceType) {
-						let datasourceType = $scope.batchList[i].selectedDatasourceType.type;
-						if (datasourceType != undefined && datasourceType.length > 0) {
-	
-							if (datasourceType == "FILE") {
-								if($scope.batchList[i].mappingObj.dataSource.NAME) {
-									let value = $scope.batchList[i].mappingObj.dataSource.NAME.value;
-									if(value == undefined || value == "") {
-										updateBtn.title = "Die Spalte Datei* ist nicht für alle Zeilen gesetzt, in denen die Spalte Datenquelltyp* auf FILE gesetzt ist."
-										return false;
-									}
-								}
-							}
-						}
-					}
-				}
 
-				return true;
-			}
-	
+
 			/**
 			 * Filters indicators that are already present in the batch list so that they can't be added twice.
 			 * https://stackoverflow.com/questions/11753321/passing-arguments-to-angularjs-filters/17813797
@@ -334,12 +205,7 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 					}
 				};
 			};
-	
-			// saves the current values of this row to the previously selected mapping file
-			//TODO refractor to batch-update-helper-service
-			$scope.onMappingTableSaveClicked = function($event) {
-				kommonitorBatchUpdateHelperService.saveMappingObjectToFile("indicator", $event, $scope.batchList);
-			};
+
 	
 			//TODO refractor to batch-update-helper-service
 			$scope.onClickSaveStandardCRS = function() {
@@ -368,59 +234,6 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 				});
 			}
 			
-			//TODO refractor to batch-update-helper-service
-			$scope.onMappingTableSelected = function(event, rowIndex, file) {
-	
-				$scope.batchList[rowIndex].mappingTableName = file.name;
-	
-				var mappingObj = JSON.parse(event.target.result);
-				mappingObj.converter = kommonitorBatchUpdateHelperService.converterParametersArrayToProperties(mappingObj.converter);
-				mappingObj.dataSource = kommonitorBatchUpdateHelperService.dataSourceParametersArrayToProperty(mappingObj.dataSource);
-	
-				// set value of column "Datensatz-Quellformat*" by converter name
-				var converterName = mappingObj.converter.name
-				for(let i=0; i<kommonitorImporterHelperService.availableConverters.length;i++) {
-					let avConverterName = kommonitorImporterHelperService.availableConverters[i].name
-					if(converterName == avConverterName) {
-						$timeout(function() {
-							$scope.batchList[rowIndex].selectedConverter = kommonitorImporterHelperService.availableConverters[i];
-						});
-						break;
-					}
-				}
-	
-				// set value of column "Datenquelltyp*" by dataSource type
-				var dataSourceType = mappingObj.dataSource.type;
-				for(let i=0;i<kommonitorImporterHelperService.availableDatasourceTypes.length;i++) {
-					let avDataSourceType = kommonitorImporterHelperService.availableDatasourceTypes[i].type
-					if(dataSourceType == avDataSourceType) {
-						$timeout(function() {
-							$scope.batchList[rowIndex].selectedDatasourceType = kommonitorImporterHelperService.availableDatasourceTypes[i];
-						});
-						break;
-					}
-				}
-	
-				// do not import file name
-				if(mappingObj.dataSource.type == "FILE") {
-					mappingObj.dataSource.NAME.value = "";
-				}
-	
-				//apply to scope
-				$timeout(function() {
-					$scope.batchList[rowIndex].mappingObj = mappingObj;
-				});
-			}
-	
-			//TODO refractor to batch-update-helper-service
-			$scope.onDataSourceFileSelected = function(event, rowIndex, file) {
-				// set filename manually
-				var name = file.name;
-	
-				$timeout(function() {
-					$scope.batchList[rowIndex].mappingObj.dataSource.NAME.value = name;
-				});
-			}
 	
 			$rootScope.$on("refreshIndicatorOverviewTableCompleted", function() {
 				for(let i=0;i<$scope.batchList.length;i++) {
