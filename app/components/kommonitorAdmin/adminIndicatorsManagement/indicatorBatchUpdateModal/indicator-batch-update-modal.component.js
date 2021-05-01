@@ -444,7 +444,7 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 				$("#indicator-edit-time-series-mapping-modal").modal("show", $event.currentTarget);
 			}
 
-			$('#indicator-edit-time-series-mapping-modal').on('shown.bs.modal', function (event) {
+			$('#indicator-edit-time-series-mapping-modal').on('show.bs.modal', function (event) {
 				
 				// get indicator for which timeseries mapping was opended
 				// use it to check the corresponding element in the batch list
