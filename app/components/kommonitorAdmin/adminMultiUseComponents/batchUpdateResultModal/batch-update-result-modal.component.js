@@ -1,7 +1,7 @@
 angular.module('batchUpdateResultModal').component('batchUpdateResultModal', {
 	templateUrl : "components/kommonitorAdmin/adminMultiUseComponents/batchUpdateResultModal/batch-update-result-modal.template.html",
-	controller : ['kommonitorDataExchangeService', 'kommonitorImporterHelperService', 'kommonitorBatchUpdateHelperService', '$scope', '$rootScope', '$http', '$timeout', '__env',
-		function BatchUpdateResultModalController(kommonitorDataExchangeService, kommonitorImporterHelperService, kommonitorBatchUpdateHelperService, $scope, $rootScope, $http, $timeout, __env) {
+	controller : ['$scope', '$rootScope', '__env',
+		function BatchUpdateResultModalController($scope, $rootScope, __env) {
         
             $rootScope.$on("batchUpdateCompleted", function(event, data) {
 
