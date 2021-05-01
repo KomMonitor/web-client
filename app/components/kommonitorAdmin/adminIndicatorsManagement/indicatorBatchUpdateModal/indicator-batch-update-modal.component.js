@@ -65,7 +65,7 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 					$scope.isFirstStart = false;
 				}
 	
-				$(document).delegate(".mappingTableInputField", "change", function(){
+				$(document).on("change", ".indicatorMappingTableInputField", function(){
 					// get index of changed field
 					var index = kommonitorBatchUpdateHelperService.getIndexFromId(this.id);
 					
@@ -80,7 +80,7 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 					reader.readAsText(file)
 				});
 	
-				$(document).delegate(".indicatorDataSourceFileInputField", "change", function(){
+				$(document).on("change", ".indicatorDataSourceFileInputField", function(){
 					// get index of changed field
 					var index = kommonitorBatchUpdateHelperService.getIndexFromId(this.id);
 					

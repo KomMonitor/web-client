@@ -70,7 +70,7 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 				
 				$('#standardPeriodOfValidityStartDatePicker').datepicker(kommonitorDataExchangeService.datePickerOptions);
 
-				$(document).delegate(".mappingTableInputField", "change", function(){
+				$(document).on("change", ".georesourceMappingTableInputField", function(){
 					// get index of changed field
 					var index = kommonitorBatchUpdateHelperService.getIndexFromId(this.id);
 					
@@ -85,7 +85,7 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 					reader.readAsText(file)
 				});
 
-				$(document).delegate(".georesourceDataSourceFileInputField", "change", function(){
+				$(document).on("change", ".georesourceDataSourceFileInputField", function(){
 					// get index of changed field
 					var index = kommonitorBatchUpdateHelperService.getIndexFromId(this.id);
 					
