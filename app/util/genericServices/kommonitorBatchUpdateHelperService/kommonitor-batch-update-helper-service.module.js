@@ -996,5 +996,20 @@ angular
 			    }
 
 
+                this.filterConverters = function(resourceType) {
+                    // remove csvLatLon for indicators
+                    // and csv_onlyIndicator for georesources
+                    return function (converter) {
+                        if(resourceType === "georesource" && converter.simpleName === "csv_onlyIndicator")
+                            return false
+                        if(resourceType === "indicator" && converter.simpleName === "csvLatLon")
+                            return false
+                        
+                        return true
+                    };
+
+                }
+
+
             }
         ]);

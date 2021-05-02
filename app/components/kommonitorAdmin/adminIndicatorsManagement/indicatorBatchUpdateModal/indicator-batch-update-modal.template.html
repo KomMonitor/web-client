@@ -110,7 +110,7 @@
 											<!-- Datensatz-Quellformat -->
 											<td ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">
 												<select class="form-control" ng-model="indicator.selectedConverter"
-														ng-options="converter as converter.simpleName for converter in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters"
+														ng-options="converter as converter.simpleName for converter in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters | filter:$ctrl.kommonitorBatchUpdateHelperServiceInstance.filterConverters('indicator')"
 														ng-disabled="georesource.mappingTableName == &quot;&quot;" required>
 																<option disabled selected value> -- Quellformat w&auml;hlen -- </option>
 												</select>
