@@ -194,6 +194,9 @@ angular
                     objToExport.converter = this.buildConverterDefinition(row.selectedConverter, objToExport.converter);
                     objToExport.dataSource = this.buildDataSourceDefinition(row.selectedDatasourceType, objToExport.dataSource, false)
 
+                    if(resourceType === "indicator")
+                        objToExport.targetSpatialUnitName = row.selectedTargetSpatialUnit.spatialUnitLevel;
+
                     jsonToExport = JSON.stringify(objToExport);
 
                     fileName = "KomMonitor-Import-Mapping-Konfiguration_Export.json"; // default
@@ -247,9 +250,15 @@ angular
                             objToExport[i].mappingObj.converter = this.buildConverterDefinition(row.selectedConverter, objToExport[i].mappingObj.converter);
                             objToExport[i].mappingObj.dataSource = this.buildDataSourceDefinition(row.selectedDatasourceType, objToExport[i].mappingObj.dataSource, false);
 
-                            // No need to export selectedConverter and selectedDatasourceType
+                            // No need to export these
                             delete objToExport[i].selectedConverter;
                             delete objToExport[i].selectedDatasourceType;
+
+                            if(resourceType === "indicator") {
+                                objToExport[i].mappingObj.targetSpatialUnitName = row.selectedTargetSpatialUnit.spatialUnitLevel;
+                                delete objToExport[i].selectedTargetSpatialUnit; 
+                            }
+                            
                         }
 
                         if(row.hasOwnProperty("tempGeoresourceId"))
@@ -662,6 +671,7 @@ angular
                     return result;
                 }
 
+
                 // helper function to get a converter object by full name.
                 // returns null if no converter was found
                 this.getConverterObjectByName = function (name) {
@@ -673,6 +683,7 @@ angular
                     return null;
                 }
 
+
                 // helper function to get a datasourceType object by type.
                 // returns null if no datasourceType was found
                 this.getDatasourceTypeObjectByType = function (type) {
@@ -683,6 +694,19 @@ angular
                     }
                     return null;
                 }
+
+
+                // helper function to get a spatial unit object by full name.
+                // returns null if no spatial unit was found
+                this.getSpatialUnitObjectByName = function (name) {
+                    for (spatialUnit of kommonitorDataExchangeService.availableSpatialUnits) {
+                        if (spatialUnit.spatialUnitLevel === name) {
+                            return spatialUnit;
+                        }
+                    }
+                    return null;
+                }
+
 
                 // helper function to get a georesource object by id.
                 // returns null if no georesource object was found
@@ -918,7 +942,7 @@ angular
                 }
 
 
-			    this.onMappingTableSelected = function(event, rowIndex, file, batchList) {
+			    this.onMappingTableSelected = function(resourceType, event, rowIndex, file, batchList) {
                 
                     let mappingObj = JSON.parse(event.target.result);
 
@@ -940,7 +964,7 @@ angular
 			    	}
                 
 			    	// set value of column "Datenquelltyp*" by dataSource type
-			    	var dataSourceType = mappingObj.dataSource.type;
+			    	let dataSourceType = mappingObj.dataSource.type;
 			    	for(let i=0; i<kommonitorImporterHelperService.availableDatasourceTypes.length; i++) {
 			    		let avDataSourceType = kommonitorImporterHelperService.availableDatasourceTypes[i].type
 			    		if(dataSourceType == avDataSourceType) {
@@ -950,6 +974,15 @@ angular
 			    			break;
 			    		}
 			    	}
+
+                    if(resourceType === "indicator") {
+                        // set value of column "Ziel-Raumebene*" by target spatial unit name
+                        let targetSpatialUnitName = mappingObj.targetSpatialUnitName;
+                        let spatialUnitObject = this.getSpatialUnitObjectByName(targetSpatialUnitName);
+                        $timeout(function() {
+                            batchList[rowIndex].selectedTargetSpatialUnit = spatialUnitObject;
+                        });
+                    }
                 
 			    	// do not import file name
 			    	if(mappingObj.dataSource.type == "FILE") {

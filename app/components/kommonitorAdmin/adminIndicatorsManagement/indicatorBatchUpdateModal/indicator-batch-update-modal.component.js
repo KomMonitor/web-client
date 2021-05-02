@@ -75,7 +75,7 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 					// read content
 					var reader = new FileReader();
 					reader.addEventListener('load', function(event) {
-						kommonitorBatchUpdateHelperService.onMappingTableSelected(event, index, file, $scope.batchList);
+						kommonitorBatchUpdateHelperService.onMappingTableSelected("indicator", event, index, file, $scope.batchList);
 					});
 					reader.readAsText(file)
 				});
@@ -150,6 +150,8 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 						row.selectedConverter = kommonitorBatchUpdateHelperService.getConverterObjectByName(newBatchList[i].mappingObj.converter.name);
 						// set selectedDatasourceType
 						row.selectedDatasourceType = kommonitorBatchUpdateHelperService.getDatasourceTypeObjectByType(newBatchList[i].mappingObj.dataSource.type);
+						// set selectedTargetSpatialUnit
+						row.selectedTargetSpatialUnit = kommonitorBatchUpdateHelperService.getSpatialUnitObjectByName(newBatchList[i].mappingObj.targetSpatialUnitName);
 					}
 				});
 			})
@@ -203,6 +205,29 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 					} else {
 						return true;
 					}
+				};
+			};
+
+			$scope.filterApplicableSpatialUnits = function(batchIndex) {
+				// avSpatialUnits is the list of available spatial units from the kommonitorDataExchangeService
+				return function (avSpatialUnit) {
+					// get spatial units for current indicator
+					let isValidSpatialUnit = false;
+					if($scope.batchList[batchIndex].name) {
+						let applicableSpatialUnits = $scope.batchList[batchIndex].name.applicableSpatialUnits;
+						for(applicableSpatialUnit of applicableSpatialUnits) {
+							if(avSpatialUnit.spatialUnitLevel === applicableSpatialUnit.spatialUnitName) {
+								isValidSpatialUnit = true;
+								break;
+							}
+						}
+					} else {
+						return true // don't filter anything if no indicator has been selected yet
+					}
+					if(isValidSpatialUnit)
+						return true;
+					else
+						return false;
 				};
 			};
 

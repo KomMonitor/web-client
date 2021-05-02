@@ -107,26 +107,6 @@
 												</button>
 											</td>
 
-											<!-- Attributname der Indikatorenwerte*
-											<td ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">
-												<input id="attrNameIndicatorValuesInputField{{$index}}" class="form-control" ng-model="indicator.mappingObj.attrNameIndicatorValue"
-												type="text" ng-disabled="indicator.mappingTableName == &quot;&quot;" required>
-											</td>
-											-->
-											<!-- Zeitstempel (direkte Angabe)
-											<td ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">
-												<div class="input-group date">
-													<div class="input-group-addon">
-														<i class="far fa-calendar-alt"></i>
-													</div>
-													<input id="timestampPicker{{$index}}" type="text" class="form-control pull-right" placeholder="YYYY-MM-DD"
-														value={{indicator.timestamp}} ng-model="georesource.mappingObj.timestamp"
-														ng-disabled="indicator.mappingTableName == &quot;&quot;">
-												</div>
-											</td>
-											-->
-
-
 											<!-- Datensatz-Quellformat -->
 											<td ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">
 												<select class="form-control" ng-model="indicator.selectedConverter"
@@ -191,7 +171,11 @@
 
 											<!-- Ziel-Raumebene -->
 											<td ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">
-												<input class="form-control" ng-model="indicator.mappingObj.targetSpatialUnitName" type="text" ng-disabled="indicator.mappingTableName == &quot;&quot;" required>
+												<select ng-model="indicator.selectedTargetSpatialUnit"
+														ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits  | filter:filterApplicableSpatialUnits($index)"
+														class="form-control" ng-disabled="indicator.mappingTableName == &quot;&quot;" required>
+																<option disabled selected value> -- Raumeinheit w&auml;hlen -- </option>
+												</select>
 											</td>
 
 										</tr>

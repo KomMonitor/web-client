@@ -80,7 +80,7 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 					// read content
 					var reader = new FileReader();
 					reader.addEventListener('load', function(event) {
-						kommonitorBatchUpdateHelperService.onMappingTableSelected(event, index, file, $scope.batchList);
+						kommonitorBatchUpdateHelperService.onMappingTableSelected("georesource", event, index, file, $scope.batchList);
 					});
 					reader.readAsText(file)
 				});
