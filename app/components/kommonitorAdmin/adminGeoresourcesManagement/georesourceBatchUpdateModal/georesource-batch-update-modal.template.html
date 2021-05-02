@@ -76,8 +76,8 @@
 								<table class="batch-list-table table table-bordered table-condensed table-striped" style="width:100%; overflow:auto; font-size: 11px;">
 									<thead>
 										<tr>
-											<th><input type="checkbox" ng-model="allRowsSelected" ng-change="$ctrl.kommonitorBatchUpdateHelperServiceInstance.onChangeSelectAllRows(this.allRowsSelected, this.batchList)"></th>
-											<th>Name*</th>
+											<th class="batch-list-table-sticky-column batch-list-table-sticky-column-header batch-list-table-sticky-column-1"><input type="checkbox" ng-model="allRowsSelected" ng-change="$ctrl.kommonitorBatchUpdateHelperServiceInstance.onChangeSelectAllRows(this.allRowsSelected, this.batchList)"></th>
+											<th class="batch-list-table-sticky-column batch-list-table-sticky-column-header batch-list-table-sticky-column-2">Name*</th>
 											<th>Mappingtabelle*</th>
 											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">Speichern</th>
 											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">G&uuml;ltigkeitszeitraum von*</th>
@@ -99,15 +99,15 @@
 										</tr>
 									</thead>
 									<tbody>
-										<tr ng-repeat="georesource in batchList">
+										<tr ng-repeat="georesource in batchList" ng-class-odd="'batch-list-odd-rows'" ng-class-even="'batch-list-even-rows'">
 
 											<!-- isSelected -->
-											<td>
+											<td class="batch-list-table-sticky-column batch-list-table-sticky-column-1">
 												<input type="checkbox" ng-model="georesource.isSelected">
 											</td>
 
 											<!-- Name -->
-											<td>
+											<td class="batch-list-table-sticky-column batch-list-table-sticky-column-2">
 												<select id="georesourceSelect{{$index}} class="form-control" ng-model="georesource.name" required
 													ng-options="avGeoresource as avGeoresource.datasetName for avGeoresource in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:filterGeoresourcesInBatchList($index)">
 														<option disabled selected value> -- Georessource w&auml;hlen -- </option>
@@ -245,8 +245,8 @@
 
 									<tfoot>
 										<tr>
-											<th><input type="checkbox" ng-model="allRowsSelected" ng-change="$ctrl.kommonitorBatchUpdateHelperServiceInstance.onChangeSelectAllRows(this.allRowsSelected, this.batchList)"></th>
-											<th>Name*</th>
+											<th class="batch-list-table-sticky-column batch-list-table-sticky-column-footer batch-list-table-sticky-column-1"><input type="checkbox" ng-model="allRowsSelected" ng-change="$ctrl.kommonitorBatchUpdateHelperServiceInstance.onChangeSelectAllRows(this.allRowsSelected, this.batchList)"></th>
+											<th class="batch-list-table-sticky-column batch-list-table-sticky-column-footer batch-list-table-sticky-column-2">Name*</th>
 											<th>Mappingtabelle*</th>
 											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">Speichern</th>
 											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">G&uuml;ltigkeitszeitraum von*</th>

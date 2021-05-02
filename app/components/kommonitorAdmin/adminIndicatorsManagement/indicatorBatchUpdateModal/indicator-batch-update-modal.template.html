@@ -54,8 +54,8 @@
 								<table class="batch-list-table table table-bordered table-condensed table-striped" style="width:100%; overflow:auto; font-size: 11px;">
 									<thead>
 										<tr>
-											<th><input type="checkbox" ng-model="allRowsSelected" ng-change="$ctrl.kommonitorBatchUpdateHelperServiceInstance.onChangeSelectAllRows(this.allRowsSelected, this.batchList)"></th>
-											<th>Name*</th>
+											<th class="batch-list-table-sticky-column batch-list-table-sticky-column-header batch-list-table-sticky-column-1"><input type="checkbox" ng-model="allRowsSelected" ng-change="$ctrl.kommonitorBatchUpdateHelperServiceInstance.onChangeSelectAllRows(this.allRowsSelected, this.batchList)"></th>
+											<th class="batch-list-table-sticky-column batch-list-table-sticky-column-header batch-list-table-sticky-column-2">Name*</th>
 											<th>Mappingtabelle*</th>
 											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">Speichern</th>
 											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">Zeitreihen-Mapping*</th>
@@ -72,15 +72,15 @@
 										</tr>
 									</thead>
 									<tbody>
-										<tr ng-repeat="indicator in batchList">
+										<tr ng-repeat="indicator in batchList"  ng-class-odd="'batch-list-odd-rows'" ng-class-even="'batch-list-even-rows'">
 
 											<!-- isSelected -->
-											<td>
+											<td class="batch-list-table-sticky-column batch-list-table-sticky-column-1">
 												<input type="checkbox" ng-model="indicator.isSelected">
 											</td>
 
 											<!-- Name -->
-											<td>
+											<td class="batch-list-table-sticky-column batch-list-table-sticky-column-2">
 												<select id="indicatorSelect{{$index}} class="form-control" ng-model="indicator.name" required
 													ng-options="avIndicator as avIndicator.indicatorName for avIndicator in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicatorsInBatchList($index)">
 														<option disabled selected value> -- Indikator w&auml;hlen -- </option>
@@ -199,8 +199,8 @@
 
 									<tfoot>
 										<tr>
-											<th><input type="checkbox" ng-model="allRowsSelected" ng-change="$ctrl.kommonitorBatchUpdateHelperServiceInstance.onChangeSelectAllRows(this.allRowsSelected, this.batchList)"></th>
-											<th>Name*</th>
+											<th class="batch-list-table-sticky-column batch-list-table-sticky-column-footer batch-list-table-sticky-column-1"><input type="checkbox" ng-model="allRowsSelected" ng-change="$ctrl.kommonitorBatchUpdateHelperServiceInstance.onChangeSelectAllRows(this.allRowsSelected, this.batchList)"></th>
+											<th class="batch-list-table-sticky-column batch-list-table-sticky-column-footer batch-list-table-sticky-column-2">Name*</th>
 											<th>Mappingtabelle*</th>
 											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">Speichern</th>
 											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">Zeitreihen-Mapping*</th>

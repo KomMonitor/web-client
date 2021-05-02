@@ -2449,6 +2449,34 @@ input:checked + .switchslider:before {
 	position: sticky;
 	top: 0;
 	z-index: 3; /* datepicker fields have a z-index of 2, so this needs to be higher */
+	background: white;
+}
+
+
+.batch-list-odd-rows td:nth-child(-n+2) {
+	background: #f9f9f9 !important;
+}
+
+.batch-list-even-rows td:nth-child(-n+2) {
+	background: white !important;
+}
+
+.batch-list-table-sticky-column {
+	position: sticky;
+	z-index: 4 !important;
+}
+
+.batch-list-table-sticky-column-1 {
+	left:0px;
+}
+
+.batch-list-table-sticky-column-2 {
+	left: 20px;
+}
+
+.batch-list-table-sticky-column-header,
+.batch-list-table-sticky-column-footer {
+	z-index: 5 !important;
 }
 
 #modal-batch-update-result > div {
