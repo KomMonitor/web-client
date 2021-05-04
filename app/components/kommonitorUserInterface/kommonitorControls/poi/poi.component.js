@@ -44,7 +44,10 @@ angular
 
 
 								// initialize any adminLTE box widgets
-								$('.box').boxWidget();
+								$timeout(function(){
+									$('.box').boxWidget();
+								}, 750);
+								
 
 								const DATE_PREFIX = __env.indicatorDatePrefix;
 
