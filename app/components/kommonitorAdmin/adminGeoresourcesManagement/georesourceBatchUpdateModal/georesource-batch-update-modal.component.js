@@ -158,6 +158,8 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 						row.selectedDatasourceType = kommonitorBatchUpdateHelperService.getDatasourceTypeObjectByType(newBatchList[i].mappingObj.dataSource.type);
 					}
 				});
+
+                kommonitorBatchUpdateHelperService.initializeGeoresourceDatepickerFields($scope.batchList);
 			})
 
 
@@ -209,16 +211,6 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 					}
 				};
 			};
-
-			$scope.initializeDatepickerFields = function() {
-
-				$timeout(function() {
-					for(var i=0;i<$scope.batchList.length;i++) {
-						$('#periodOfValidityStartDatePicker' + i).datepicker(kommonitorDataExchangeService.datePickerOptions);
-						$('#periodOfValidityEndDatePicker' + i).datepicker(kommonitorDataExchangeService.datePickerOptions);
-					};
-				}, 200);
-			}
 
 
 			$rootScope.$on("refreshGeoresourceOverviewTableCompleted", function() {

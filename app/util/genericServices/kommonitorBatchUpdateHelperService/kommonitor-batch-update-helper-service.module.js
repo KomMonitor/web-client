@@ -418,6 +418,9 @@ angular
                         };
                     }
                     batchList.push(obj);
+
+                    if(resourceType === "georesource")
+                        this.initializeGeoresourceDatepickerFields(batchList);             
                 }
 
                 this.deleteSelectedRowsFromBatchList = function (batchList, allRowsSelected) {
@@ -992,6 +995,8 @@ angular
 			    	//apply to scope
 			    	$timeout(function() {
 			    		batchList[rowIndex].mappingObj = mappingObj;
+                        if(resourceType === "georesource")
+                            this.initializeGeoresourceDatepickerFields(batchList);
 			    	});
 			    }
 
@@ -1063,6 +1068,16 @@ angular
                         }
                         schema[pList[len-1]] = value;
                     };
+                }
+
+
+                this.initializeGeoresourceDatepickerFields = function(batchList) {
+                    $timeout(function() {
+                        for(let i=0; i<batchList.length; i++) {
+                            $('#georesourcePeriodOfValidityStartDatePicker' + i).datepicker(kommonitorDataExchangeService.datePickerOptions);
+                            $('#georesourcePeriodOfValidityEndDatePicker' + i).datepicker(kommonitorDataExchangeService.datePickerOptions);
+                        };
+                    }, 200)
                 }
             }
         ]);
