@@ -280,7 +280,7 @@ angular
       
         let indicatorMetadataForTimeseries = indicatorMetadataAndGeoJSON;
 
-        if(!forceUseSubmittedIndicatorForTimeseries && kommonitorDataExchangeService.isBalanceChecked){
+        if(!forceUseSubmittedIndicatorForTimeseries || kommonitorDataExchangeService.isBalanceChecked){
           indicatorMetadataForTimeseries = kommonitorDataExchangeService.selectedIndicator;
         }
         // we must use the original selectedIndicator in case balance mode is active
