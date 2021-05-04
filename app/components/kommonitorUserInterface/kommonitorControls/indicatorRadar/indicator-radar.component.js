@@ -462,7 +462,7 @@ angular
 								var date = kommonitorDiagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime[i].selectedDate;
 
 								for (var indicatorPropertyInstance of indicatorProperties) {
-									if (indicatorPropertyInstance[__env.FEATURE_NAME_PROPERTY_NAME] === featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]) {
+									if (indicatorPropertyInstance[__env.FEATURE_NAME_PROPERTY_NAME] == featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]) {
 										if (!kommonitorDataExchangeService.indicatorValueIsNoData(indicatorPropertyInstance[DATE_PREFIX + date])) {
 											featureSeries.value.push(kommonitorDataExchangeService.getIndicatorValueFromArray_asNumber(indicatorPropertyInstance, date));
 										}
@@ -514,7 +514,7 @@ angular
 
 					var getSeriesDataIndexByFeatureName = function (featureName) {
 						for (var index = 0; index < $scope.radarOption.series[0].data.length; index++) {
-							if ($scope.radarOption.series[0].data[index].name === featureName)
+							if ($scope.radarOption.series[0].data[index].name == featureName)
 								return index;
 						}
 

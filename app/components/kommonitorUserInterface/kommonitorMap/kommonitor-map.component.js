@@ -3068,7 +3068,7 @@ angular.module('kommonitorMap').component(
 
           $scope.map.eachLayer(function (layer) {
             if (!done && layer.feature) {
-              if (layer.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] === spatialFeatureName) {
+              if (layer.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] == spatialFeatureName) {
                 highlightFeatureForLayer(layer);
                 done = true;
               }
@@ -3086,7 +3086,7 @@ angular.module('kommonitorMap').component(
 
           $scope.map.eachLayer(function (layer) {
             if (!done && layer.feature) {
-              if (layer.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] === spatialFeatureName) {
+              if (layer.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] == spatialFeatureName) {
                 resetHighlightForLayer(layer);
                 done = true;
               }
@@ -3104,7 +3104,7 @@ angular.module('kommonitorMap').component(
 
           $scope.map.eachLayer(function (layer) {
             if (!done && layer.feature) {
-              if (layer.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] === spatialFeatureName) {
+              if (layer.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] == spatialFeatureName) {
                 switchHighlightFeature(layer);
                 done = true;
               }
