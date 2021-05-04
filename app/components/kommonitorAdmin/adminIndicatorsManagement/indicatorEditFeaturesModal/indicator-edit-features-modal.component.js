@@ -321,7 +321,18 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 				$scope.converterDefinition = $scope.buildConverterDefinition();
 				$scope.datasourceTypeDefinition = await $scope.buildDatasourceTypeDefinition();
 				$scope.propertyMappingDefinition = $scope.buildPropertyMappingDefinition();
-				$scope.putBody_indicators = $scope.buildPutBody_indicators();
+				var scopeProperties = {
+					"targetSpatialUnitMetadata": {
+						"spatialUnitLevel": $scope.targetSpatialUnitMetadata.spatialUnitLevel,	
+					},
+					"currentIndicatorDataset": {
+						"defaultClassificationMapping": $scope.currentIndicatorDataset.defaultClassificationMapping
+					},
+					"allowedRoleNames": {
+						"selectedItems": $scope.allowedRoleNames.selectedItems
+					}
+				}
+				$scope.putBody_indicators = kommonitorImporterHelperService.buildPutBody_indicators(scopeProperties);
 	
 				if(!$scope.converterDefinition || !$scope.datasourceTypeDefinition || !$scope.propertyMappingDefinition || !$scope.putBody_indicators){
 					return false;
@@ -363,22 +374,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 				return kommonitorImporterHelperService.buildPropertyMapping_indicatorResource($scope.spatialUnitRefKeyProperty, timeseriesMappingForImporter, $scope.keepMissingValues);	
 			};
 	
-			$scope.buildPutBody_indicators = function(){
-				var putBody =
-				{
-					"indicatorValues": [],
-					"applicableSpatialUnit": $scope.targetSpatialUnitMetadata.spatialUnitLevel,
-					"defaultClassificationMapping": $scope.currentIndicatorDataset.defaultClassificationMapping,
-					"allowedRoles": []
-					};
-
-					for (const roleDuallistItem of $scope.allowedRoleNames.selectedItems) {
-						var roleMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleName(roleDuallistItem.name);
-						putBody.allowedRoles.push(roleMetadata.roleId);
-					}
-	
-				return putBody;
-			};
+			
 	
 	
 			$scope.editIndicatorFeatures = async function(){

@@ -3,7 +3,7 @@ angular.module('batchUpdateResultModal').component('batchUpdateResultModal', {
 	controller : ['$scope', '$rootScope', '__env',
 		function BatchUpdateResultModalController($scope, $rootScope, __env) {
         
-            $rootScope.$on("batchUpdateCompleted", function(event, data) {
+            $scope.$on("batchUpdateCompleted", function(event, data) {
 
 				$("#modal-batch-update-result").modal("show");
 				console.log(data);
@@ -74,7 +74,6 @@ angular.module('batchUpdateResultModal').component('batchUpdateResultModal', {
 			});
 
 			
-        
         }
     ]
 });

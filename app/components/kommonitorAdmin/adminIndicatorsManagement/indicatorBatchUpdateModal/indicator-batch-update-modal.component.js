@@ -122,8 +122,7 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 						$scope.batchList[i].isSelected = true;
 					kommonitorBatchUpdateHelperService.deleteSelectedRowsFromBatchList($scope.batchList, $scope.allRowsSelected);
 	
-					
-					for(let i=0;i<newBatchList.length;i++) {
+					for(let i=0; i<newBatchList.length; i++) {
 	
 						kommonitorBatchUpdateHelperService.addNewRowToBatchList("indicator", $scope.batchList)
 						var row = $scope.batchList[i];

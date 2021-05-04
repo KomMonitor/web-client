@@ -3,10 +3,15 @@ angular.module('kommonitorBatchUpdateHelper', ['kommonitorDataExchange', 'kommon
 angular
     .module('kommonitorBatchUpdateHelper', [])
     .service(
-        'kommonitorBatchUpdateHelperService', ['$rootScope', '$timeout', 'kommonitorDataExchangeService', 'kommonitorImporterHelperService', '$http', '__env',
-            function ($rootScope, $timeout, kommonitorDataExchangeService, kommonitorImporterHelperService, $http, __env) {
+        'kommonitorBatchUpdateHelperService', ['$rootScope', '$timeout', 'kommonitorDataExchangeService', 'kommonitorImporterHelperService', '__env',
+            function ($rootScope, $timeout, kommonitorDataExchangeService, kommonitorImporterHelperService, __env) {
+
+                thisService = this;
 
                 this.batchUpdate = async function (resourceType, batchList) {
+
+                    let startBtn = document.getElementById(resourceType + "-batch-update-btn")
+                    startBtn.setAttribute("disabled", "disabled");
 
                     // clear result modal
                     document.getElementById("batch-update-result-table-tbody").innerHTML = "";
@@ -16,13 +21,12 @@ angular
 
                     // deep copy batch list
                     var batchListCopy = [];
-                    for(let i=0;i<batchList.length;i++) {
+                    for(let i=0; i<batchList.length; i++) {
                         batchListCopy.push( $.extend(true, {}, batchList[i]));
                     }
 
-                    for (var i = 0; i < batchListCopy.length; i++) {
-                        // copy row to not change $scope
-                        var row = batchListCopy[i];
+                    for (let i=0; i<batchListCopy.length; i++) {
+                        let row = batchListCopy[i];
                         console.log("row: ", row);
 
                         let resourceId;
@@ -46,18 +50,20 @@ angular
                         var datasourceTypeDefinition = row.mappingObj.dataSource;
                         console.log("datasourceTypeDefinition before file upload: ", datasourceTypeDefinition);
                         
-                        var datasourceFileInputId = "dataSourceFileInputField" + i;
+                        var datasourceFileInputId = resourceType + "DataSourceFileInputField" + i;
+                        // upload file to importer
 
                         if(datasourceTypeDefinition.type === "FILE") {
-                            try{
+                            try {
                                 var fileUploadName = await this.uploadFileToImporter(datasourceFileInputId);
-                                if(fileUploadName)
+                                if(fileUploadName) {
                                     datasourceTypeDefinition.parameters[0].value = fileUploadName;
                                     console.log("datasourceTypeDefinition after file upload: ", datasourceTypeDefinition);
+                                }
                             } catch (error) {
                                 console.log("error while uploading file in row: " + i);
                                 responses.push({
-                                    name: row.name.datasetName, // TODO exists only for georesources, indicator equivalent is indicatorName
+                                    name: resourceType === "georesource" ? row.name.datasetName : row.name.indicatorName,
                                     status: "error",
                                     message: error 
                                 });
@@ -66,92 +72,171 @@ angular
                         }
                         console.log("datasourceTypeDefinition of row " + i + ": ", datasourceTypeDefinition);
 
-                        var propertyMappingDefinition = row.mappingObj.propertyMapping;
-                        console.log("propertyMappingDefinition of row " + i + ": ", propertyMappingDefinition);
+                        // ========== for georesource update ========== 
+                        if(resourceType === "georesource") {
+                            var propertyMappingDefinition = row.mappingObj.propertyMapping;
+                            console.log("propertyMappingDefinition of row " + i + ": ", propertyMappingDefinition);
 
-                        var attributeMappings_adminView = this.createAttributeMappingsObject(row);
+                            var propertyMappingDefinition = kommonitorImporterHelperService.buildPropertyMapping_spatialResource(
+                                row.mappingObj.propertyMapping.nameProperty,
+                                row.mappingObj.propertyMapping.identifierProperty,
+                                row.mappingObj.propertyMapping.validStartDateProperty,
+                                row.mappingObj.propertyMapping.validEndDateProperty,
+                                row.mappingObj.propertyMapping.arisenFromProperty,
+                                row.mappingObj.propertyMapping.keepAttributes,
+                                row.mappingObj.propertyMapping.keepMissingOrNullValueAttributes,
+                                this.createAttributeMappingsObject(row)
+                            )
 
-                        propertyMappingDefinition = kommonitorImporterHelperService.buildPropertyMapping_spatialResource(
-                            row.mappingObj.propertyMapping.nameProperty,
-                            row.mappingObj.propertyMapping.identifierProperty,
-                            row.mappingObj.propertyMapping.validStartDateProperty,
-                            row.mappingObj.propertyMapping.validEndDateProperty,
-                            row.mappingObj.propertyMapping.arisenFromProperty,
-                            row.mappingObj.propertyMapping.keepAttributes,
-                            row.mappingObj.propertyMapping.keepMissingOrNullValueAttributes,
-                            attributeMappings_adminView
-                        )
-                        console.log("propertyMappingDefinition of row " + i + " with importerService: ", propertyMappingDefinition);
+                            console.log("propertyMappingDefinition of row " + i + " with importerService: ", propertyMappingDefinition);
 
-                        var scopeProperties = {
-                            "periodOfValidity": {
-                                "startDate": row.mappingObj.periodOfValidity.startDate,
-                                "endDate": row.mappingObj.periodOfValidity.endDate
-                            }
+                             var putBody_georesources = kommonitorImporterHelperService.buildPutBody_georesources(row.mappingObj)
+                             console.log("putBody_georesources of row " + i + ": ", putBody_georesources);
+     
+                             // send post request and wait for it to complete
+                             var updateGeoresourceResponse_dryRun = undefined;
+                             try {
+                                 updateGeoresourceResponse_dryRun = await kommonitorImporterHelperService.updateGeoresource(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, resourceId, putBody_georesources, true);
+     
+                                 if (!kommonitorImporterHelperService.importerResponseContainsErrors(updateGeoresourceResponse_dryRun)) {
+                                     // all good, really execute the request to update data against data management API
+                                     var updateGeoresourceResponse = await kommonitorImporterHelperService.updateGeoresource(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, resourceId, putBody_georesources, false);
+                                     
+                                     batchList[i].tempResourceId = resourceId;
+                                     $rootScope.$broadcast("refreshGeoresourceOverviewTable");
+     
+                                     // refresh all admin dashboard diagrams due to modified metadata
+                                     $rootScope.$broadcast("refreshAdminDashboardDiagrams");
+     
+                                     // add success object
+                                     responses.push({
+                                         name: row.name.datasetName,
+                                         status: "success",
+                                         message: updateGeoresourceResponse
+                                     });
+     
+     
+                                 } else {
+                                     // errors ocurred
+                                     // add them to response array
+                                     responses.push({
+                                         name: row.name.datasetName,
+                                         status: "error",
+                                         message: undefined
+                                     });
+                                     
+                                     responses[i].message = "Einige der zu importierenden Features des Datensatzes weisen kritische Fehler auf.\n";
+                                     responses[i].message += kommonitorImporterHelperService.getErrorsFromImporterResponse(updateGeoresourceResponse_dryRun);
+                                 }
+                             } catch (error) {
+                                 responses.push({
+                                     name: row.name.datasetName,
+                                     status: "error",
+                                     message: undefined
+                                 });
+     
+                                 if (error.data) {
+                                     responses[i].message = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+                                 } else {
+                                     responses[i].message = kommonitorDataExchangeService.syntaxHighlightJSON(error);
+                                 }
+                                 
+                                 if(updateGeoresourceResponse_dryRun){
+                                     error.message = kommonitorImporterHelperService.getErrorsFromImporterResponse(updateGeoresourceResponse_dryRun);
+                                 }
+                             }
                         }
 
-                        var putBody_georesources = kommonitorImporterHelperService.buildPutBody_georesources(scopeProperties)
-                        console.log("putBody_georesources of row " + i + ": ", putBody_georesources);
+                        // ========== for indicator update ========== 
+                        if(resourceType === "indicator") {
+                            var propertyMappingDefinition = row.mappingObj.propertyMapping;
+                            console.log("propertyMappingDefinition of row " + i + ": ", propertyMappingDefinition);
 
-                        // send post request and wait for it to complete
-                        var updateGeoresourceResponse_dryRun = undefined;
-                        try {
-                            updateGeoresourceResponse_dryRun = await kommonitorImporterHelperService.updateGeoresource(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, georesourceId, putBody_georesources, true);
+                            var propertyMappingDefinition = kommonitorImporterHelperService.buildPropertyMapping_indicatorResource(
+                                row.mappingObj.propertyMapping.spatialReferenceKeyProperty,
+                                row.mappingObj.propertyMapping.timeseriesMappings,
+                                row.mappingObj.propertyMapping.keepMissingOrNullValueIndicator,
+                            )
 
-                            if (!kommonitorImporterHelperService.importerResponseContainsErrors(updateGeoresourceResponse_dryRun)) {
-                                // all good, really execute the request to update data against data management API
-                                var updateGeoresourceResponse = await kommonitorImporterHelperService.updateGeoresource(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, georesourceId, putBody_georesources, false);
-                                
-                                batchList[i].tempGeoresourceId = georesourceId;
-                                $rootScope.$broadcast("refreshGeoresourceOverviewTable");
+                            console.log("propertyMappingDefinition of row " + i + " with importerService: ", propertyMappingDefinition);
 
-                                // refresh all admin dashboard diagrams due to modified metadata
-                                $rootScope.$broadcast("refreshAdminDashboardDiagrams");
-
-                                // add success object
-                                responses.push({
-                                    name: row.name.datasetName, // TODO exists only for georesources, indicator equivalent is indicatorName
-                                    status: "success",
-                                    message: updateGeoresourceResponse
-                                });
-
-
-                            } else {
-                                // errors ocurred
-                                // add them to response array
-                                responses.push({
-                                    name: row.name.datasetName, // TODO exists only for georesources, indicator equivalent is indicatorName
-                                    status: "error",
-                                    message: undefined
-                                });
-                                
-                                responses[i].message = "Einige der zu importierenden Features des Datensatzes weisen kritische Fehler auf.\n";
-                                responses[i].message += kommonitorImporterHelperService.getErrorsFromImporterResponse(updateGeoresourceResponse_dryRun);
+                            var scopeProperties = {
+                                "targetSpatialUnitMetadata": {
+                                    "spatialUnitLevel": row.selectedTargetSpatialUnit.spatialUnitLevel	
+                                },
+                                "currentIndicatorDataset": {
+                                    "defaultClassificationMapping": row.name.defaultClassificationMapping
+                                },
+                                "allowedRoleNames": {
+                                    "selectedItems": row.name.allowedRoles
+                                }
                             }
-                        } catch (error) {
-                            responses.push({
-                                name: row.name.datasetName, // TODO exists only for georesources, indicator equivalent is indicatorName
-                                status: "error",
-                                message: undefined
-                            });
-
-                            if (error.data) {
-                                responses[i].message = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
-                            } else {
-                                responses[i].message = kommonitorDataExchangeService.syntaxHighlightJSON(error);
-                            }
-                            
-                            if(updateGeoresourceResponse_dryRun){
-                                error.message = kommonitorImporterHelperService.getErrorsFromImporterResponse(updateGeoresourceResponse_dryRun);
-                            }
-                        }
+                             var putBody_indicators = kommonitorImporterHelperService.buildPutBody_indicators(scopeProperties)
+                             console.log("putBody_indicators of row " + i + ": ", putBody_indicators);
+     
+                             // send post request and wait for it to complete
+                             var updateIndicatorResponse_dryRun = undefined;
+                             try {
+                                 updateIndicatorResponse_dryRun = await kommonitorImporterHelperService.updateIndicator(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, resourceId, putBody_indicators, true);
+     
+                                 if (!kommonitorImporterHelperService.importerResponseContainsErrors(updateIndicatorResponse_dryRun)) {
+                                     // all good, really execute the request to update data against data management API
+                                     var updateIndicatorResponse = await kommonitorImporterHelperService.updateIndicator(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, resourceId, putBody_indicators, false);
+                                     
+                                     batchList[i].tempResourceId = resourceId;
+                                     $rootScope.$broadcast("refreshIndicatorOverviewTable");
+     
+                                     // refresh all admin dashboard diagrams due to modified metadata
+                                     $rootScope.$broadcast("refreshAdminDashboardDiagrams");
+     
+                                     // add success object
+                                     responses.push({
+                                         name: row.name.indicatorName,
+                                         status: "success",
+                                         message: updateIndicatorResponse
+                                     });
+     
+     
+                                 } else {
+                                     // errors ocurred
+                                     // add them to response array
+                                     responses.push({
+                                         name: row.name.indicatorName,
+                                         status: "error",
+                                         message: undefined
+                                     });
+                                     
+                                     responses[i].message = "Einige der zu importierenden Features des Datensatzes weisen kritische Fehler auf.\n";
+                                     responses[i].message += kommonitorImporterHelperService.getErrorsFromImporterResponse(updateIndicatorResponse_dryRun);
+                                 }
+                             } catch (error) {
+                                 responses.push({
+                                     name: row.name.indicatorName,
+                                     status: "error",
+                                     message: undefined
+                                 });
+     
+                                 if (error.data) {
+                                     responses[i].message = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+                                 } else {
+                                     responses[i].message = kommonitorDataExchangeService.syntaxHighlightJSON(error);
+                                 }
+                                 
+                                 if(updateIndicatorResponse_dryRun){
+                                     error.message = kommonitorImporterHelperService.getErrorsFromImporterResponse(updateIndicatorResponse_dryRun);
+                                 }
+                             }
+                        }  
                     }
+
                     console.log(responses);
 
                     $rootScope.$broadcast("batchUpdateCompleted", {
                         resourceType: resourceType,
                         value: responses
                     });
+
+                    startBtn.setAttribute("disabled", false);
 
                 };
 
@@ -261,10 +346,8 @@ angular
                             
                         }
 
-                        if(row.hasOwnProperty("tempGeoresourceId"))
-                            delete row.tempGeoresourceId;
-                        if(row.hasOwnProperty("tempIndicatorId"))
-                            delete row.tempIndicatorId;
+                        if(row.hasOwnProperty("tempResourceId"))
+                            delete row.tempResourceId;
                     }
 
                     jsonToExport = JSON.stringify(objToExport);
@@ -456,9 +539,8 @@ angular
                     }
 
                     if (selectedConverter.name.includes("wfs.v1")) {
-                        if (oldConverter.schema && oldConverter.schema.length > 0) {
+                        if (oldConverter.schema && oldConverter.schema.length > 0)
                             converterDefinition.schema = oldConverter.schema;
-                        }
                     }
 
                     // add crs parameter
@@ -474,7 +556,8 @@ angular
                     }
 
                     // add more parameters for specific converter types
-                    if (selectedConverter.name.includes("csvLatLon")) {
+                    if (selectedConverter.name.includes("csvLatLon") ||
+                        selectedConverter.name.includes("csv_onlyIndicator")) {
 
                         param = oldConverter.parameters.find(obj => {
                             return obj.name == "separator"
@@ -485,7 +568,9 @@ angular
                                 value: param.value
                             });
                         }
+                    }
 
+                    if (selectedConverter.name.includes("csvLatLon")) {
                         param = oldConverter.parameters.find(obj => {
                             return obj.name == "yCoordColumn"
                         });
@@ -734,7 +819,7 @@ angular
                 }
 
                 this.createAttributeMappingsObject = function(row) {
-                    var attributeMappings_adminView = [];
+                    var attributeMapping = [];
                     for (let i = 0; i < row.mappingObj.propertyMapping.attributes.length; i++) {
                         let attribute = row.mappingObj.propertyMapping.attributes[i];
                         var tmpEntry = {
@@ -748,10 +833,10 @@ angular
                             }
                         }
 
-                        attributeMappings_adminView.push(tmpEntry);
+                        attributeMapping.push(tmpEntry);
                     }
 
-                    return attributeMappings_adminView;
+                    return attributeMapping;
                 }
 
                 this.uploadFileToImporter = async function(datasourceFileInputId) {
@@ -996,7 +1081,7 @@ angular
 			    	$timeout(function() {
 			    		batchList[rowIndex].mappingObj = mappingObj;
                         if(resourceType === "georesource")
-                            this.initializeGeoresourceDatepickerFields(batchList);
+                            thisService.initializeGeoresourceDatepickerFields(batchList);
 			    	});
 			    }
 
