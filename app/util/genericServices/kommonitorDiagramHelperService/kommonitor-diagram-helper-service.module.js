@@ -1413,7 +1413,7 @@ angular
             feature: {
               // mark : {show: true},
               dataView: {
-                show: kommonitorDataExchangeService.showDiagramExportButtons, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Punkte im Einzugsgebiet' + rangeValue, 'schlie&szlig;en', 'refresh'], optionToContent: function (opt) {
+                show: kommonitorDataExchangeService.showDiagramExportButtons, readOnly: true, title: "Datenansicht", lang: ['Datenansicht - Punkte im Einzugsgebiet ' + rangeValue, 'schlie&szlig;en', 'refresh'], optionToContent: function (opt) {
 
                   var poiData = opt.series[0].data;
 
