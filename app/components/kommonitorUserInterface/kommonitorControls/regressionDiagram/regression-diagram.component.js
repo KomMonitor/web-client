@@ -86,7 +86,7 @@ angular
 										//
 										// await wait(2000);
 
-										if(item.applicableSpatialUnits.some(o => o.spatialUnitName === kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel)){
+										if(item.applicableSpatialUnits.some(o => o.spatialUnitName == kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel)){
 											return item.applicableDates.includes(kommonitorDataExchangeService.selectedDate);
 										}
 										else{
@@ -194,7 +194,7 @@ angular
 
 									var index = -1;
 									for(var i=0; i<$scope.regressionOption.series[0].data.length; i++){
-										if($scope.regressionOption.series[0].data[i].name === featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]){
+										if($scope.regressionOption.series[0].data[i].name == featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]){
 											index = i;
 											break;
 										}
@@ -225,7 +225,7 @@ angular
 										// highlight the corresponding bar diagram item
 										var index = -1;
 										for(var i=0; i<$scope.regressionOption.series[0].data.length; i++){
-											if($scope.regressionOption.series[0].data[i].name === featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]){
+											if($scope.regressionOption.series[0].data[i].name == featureProperties[__env.FEATURE_NAME_PROPERTY_NAME]){
 												index = i;
 												break;
 											}
@@ -274,7 +274,7 @@ angular
 
 								$scope.getPropertiesForIndicatorName = async function(indicatorName){
 									for (var [index, indicator] of kommonitorDiagramHelperService.indicatorPropertiesForCurrentSpatialUnitAndTime.entries()){
-										if(indicator.indicatorMetadata.indicatorName === indicatorName){
+										if(indicator.indicatorMetadata.indicatorName == indicatorName){
 											await kommonitorDiagramHelperService.fetchIndicatorPropertiesIfNotExists(index);
 
 											// var closestApplicableTimestamp = kommonitorDiagramHelperService.findClostestTimestamForTargetDate(indicator, kommonitorDataExchangeService.selectedDate);
@@ -291,7 +291,7 @@ angular
 
 									for (var index=0; index<$scope.indicatorMetadataAndGeoJSON.geoJSON.features.length; index++){
 										var feature = $scope.indicatorMetadataAndGeoJSON.geoJSON.features[index];
-										if (feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] === featureName){
+										if (feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] == featureName){
 											color = kommonitorDataExchangeService.getColorForFeature(feature, $scope.indicatorMetadataAndGeoJSON, $scope.indicatorPropertyName, $scope.defaultBrew, $scope.gtMeasureOfValueBrew, $scope.ltMeasureOfValueBrew, $scope.dynamicIncreaseBrew, $scope.dynamicDecreaseBrew, $scope.isMeasureOfValueChecked, $scope.measureOfValue);
 											break;
 										}

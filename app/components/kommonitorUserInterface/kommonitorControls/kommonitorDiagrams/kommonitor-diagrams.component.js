@@ -285,7 +285,7 @@ angular
 
 					var findPropertiesForTimeSeries = function (spatialUnitFeatureName) {
 						for (var feature of kommonitorDataExchangeService.selectedIndicator.geoJSON.features) {
-							if (feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] === spatialUnitFeatureName) {
+							if (feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] == spatialUnitFeatureName) {
 								return feature.properties;
 							}
 						}
