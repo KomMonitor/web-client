@@ -1017,12 +1017,9 @@ angular
 
 
                 this.onClickSaveColDefaultValue = function(resourceType, selectedCol, newValue, replaceAll, batchList) {
-                    console.log(newValue);
-                    console.log(newValue.length);
                     if(typeof(newValue != "undefined")) {
                         if(typeof(newValue === "object") || (typeof(newValue) === "string" && newValue.length > 0)) {
                             let fields = angular.element('[ng-model="' + resourceType + '.' + selectedCol + '"]');
-                            console.log(fields);
                             for(let i=0; i<batchList.length; i++) {
                                 // never change disabled fields
                                 let field = fields.get(i);

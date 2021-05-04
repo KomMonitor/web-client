@@ -260,7 +260,7 @@
 										<option value="mappingObj.propertyMapping.validStartDateProperty">Lebenszeit-Beginn Attributname*</option>
 										<option value="mappingObj.propertyMapping.validEndDateProperty">Lebenszeit-Ende Attributname*</option>
 									</select>
-									<label for="colDefaultFunctionColSelectInputGeoresource">Wert:</label>
+									<label>Wert:</label>
 									<!-- default -->
 									<input ng-show="!colDefaultFunctionSelectedColumn" type="text" class="form-control" ng-model="colDefaultFunctionNewValue" disabled placeholder="keine Tabellenspalte ausgew&auml;hlt"></input>
 									<!-- Gültigkeitszeitraum von* -->
@@ -368,16 +368,16 @@
 					id="georesourcesBatchListFile" accept=".json,"></input>
 
 				<button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" ng-disabled=""
-					ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.saveBatchListToFile('georesource', this.batchList)" title="Exportieren der Batch-Liste in eine Datei">
+					ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.saveBatchListToFile('georesource', batchList)" title="Exportieren der Batch-Liste in eine Datei">
 					<i class="fas fa-file-export"></i>&nbsp;&nbsp;Batch-Liste exportieren
 				</button>
 
 				<button id="georesource-batch-update-btn" type="button" class="btn btn-success"
-					ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.batchUpdate('georesource', this.batchList)" ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfNameAndFilesChosenInEachRow('georesource', batchList)">Update ausführen
+					ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.batchUpdate('georesource', batchList)" ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfNameAndFilesChosenInEachRow('georesource', batchList)">Update ausführen
 				</button>
 				
 				<button type="button" class="btn btn-danger"
-				ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.resetBatchUpdateForm('georesource', this.batchList)">Zur&uuml;cksetzen
+				ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.resetBatchUpdateForm('georesource', batchList)">Zur&uuml;cksetzen
 				</button>
 			</div>
 		</div>
