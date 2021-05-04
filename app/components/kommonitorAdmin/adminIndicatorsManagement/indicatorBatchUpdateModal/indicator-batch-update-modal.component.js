@@ -161,12 +161,12 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 	
 			// loop through batch list and check if condition is true for at least one row
 			$scope.checkIfSelectedConverterIsCsvOnlyIndicator = function() {
-				var selectedConverterIsCsvOnlyIndicator = false;
-				for(var i=0;i<$scope.batchList.length;i++) {
+				let selectedConverterIsCsvOnlyIndicator = false;
+				for(let i=0; i<$scope.batchList.length; i++) {
 					if($scope.batchList[i].selectedConverter) {
 						let converterName = $scope.batchList[i].selectedConverter.name;
 						if(converterName != undefined && converterName.length > 0) {
-							if(converterName.includes("csvOnlyIndicator")) {
+							if(converterName.includes("csv_onlyIndicator")) {
 								selectedConverterIsCsvOnlyIndicator = true;
 								break;
 							}
