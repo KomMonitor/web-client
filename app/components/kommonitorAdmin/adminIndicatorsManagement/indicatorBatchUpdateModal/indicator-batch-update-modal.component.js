@@ -270,13 +270,6 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 			})
 	
 
-			
-	
-			// only close the result modal instead of all modals
-			//$("#modal-batch-update-result-close-btn").on("click", function() {
-			//	$("#modal-batch-update-result").modal("hide");
-			//});
-
 			$scope.onTimeseriesMappingBtnClicked = function($event) {
 				$("#indicator-edit-time-series-mapping-modal").modal("show", $event.currentTarget);
 			}

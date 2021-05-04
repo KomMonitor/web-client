@@ -222,10 +222,5 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 					}
 				}
 			})
-
-			// only close the result modal instead of all modals
-			//$("#modal-batch-update-result-close-btn").on("click", function() {
-			//	$("#modal-batch-update-result").modal("hide");
-			//});
 		}
 ]});
