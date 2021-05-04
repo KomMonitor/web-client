@@ -57,7 +57,7 @@
 											<!-- Name -->
 											<td class="batch-list-table-sticky-column batch-list-table-sticky-column-2">
 												<select id="indicatorSelect{{$index}} class="form-control" ng-model="indicator.name" required
-													ng-options="avIndicator as avIndicator.indicatorName for avIndicator in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicatorsInBatchList($index)">
+													ng-options="avIndicator as avIndicator.indicatorName for avIndicator in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators">
 														<option disabled selected value> -- Indikator w&auml;hlen -- </option>
 												</select>
 											</td>

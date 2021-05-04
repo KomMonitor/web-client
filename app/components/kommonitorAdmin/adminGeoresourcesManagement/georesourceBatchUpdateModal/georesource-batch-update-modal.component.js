@@ -179,39 +179,7 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 				}
 				return selectedConverterIsCsvLatLon;
 			}
-
-
-
-			/**
-			 * Filters georesources that are already present in the batch list so that they can't be added twice.
-			 * https://stackoverflow.com/questions/11753321/passing-arguments-to-angularjs-filters/17813797
-			 * 
-			 * batchIndex: index of the row where the dropdown menu was opened
-			 */
-			$scope.filterGeoresourcesInBatchList = function(batchIndex) {
-
-				// avGeoresources is the list of available georesources from the kommonitorDataExchangeService
-				return function (avGeoresources) {
-					// check if georesource is in batchList
-					var isInBatchList = false;
-					for(var i=0;i<$scope.batchList.length;i++) {
-						if($scope.batchList[i].name) {
-							if($scope.batchList[i].name.georesourceId == avGeoresources.georesourceId && i != batchIndex) {
-								isInBatchList = true;
-								break;
-							}
-						}
-					}
-					// if yes
-					if(isInBatchList) {
-						// remove it from selectable options
-						return false;
-					} else {
-						return true;
-					}
-				};
-			};
-
+			
 
 			$rootScope.$on("refreshGeoresourceOverviewTableCompleted", function() {
 				for(let i=0;i<$scope.batchList.length;i++) {

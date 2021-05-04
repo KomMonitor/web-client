@@ -176,37 +176,6 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 			}
 
 
-			/**
-			 * Filters indicators that are already present in the batch list so that they can't be added twice.
-			 * https://stackoverflow.com/questions/11753321/passing-arguments-to-angularjs-filters/17813797
-			 * 
-			 * batchIndex: index of the row where the dropdown menu was opened
-			 */
-			//TODO refactor to batch-update-helper-service
-			$scope.filterIndicatorsInBatchList = function(batchIndex) {
-	
-				// avIndicators is the list of available indicators from the kommonitorDataExchangeService
-				return function (avIndicators) {
-					// check if georesource is in batchList
-					var isInBatchList = false;
-					for(var i=0;i<$scope.batchList.length;i++) {
-						if($scope.batchList[i].name) {
-							if($scope.batchList[i].name.indicatorId == avIndicators.indicatorId && i != batchIndex) {
-								isInBatchList = true;
-								break;
-							}
-						}
-					}
-					// if yes
-					if(isInBatchList) {
-						// remove it from selectable options
-						return false;
-					} else {
-						return true;
-					}
-				};
-			};
-
 			$scope.filterApplicableSpatialUnits = function(batchIndex) {
 				// avSpatialUnits is the list of available spatial units from the kommonitorDataExchangeService
 				return function (avSpatialUnit) {
