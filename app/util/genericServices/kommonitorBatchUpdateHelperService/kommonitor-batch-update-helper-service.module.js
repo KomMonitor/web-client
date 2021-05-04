@@ -1011,5 +1011,58 @@ angular
                 }
 
 
+                this.onClickSaveColDefaultValue = function(resourceType, selectedCol, newValue, replaceAll, batchList) {
+                    console.log(newValue);
+                    console.log(newValue.length);
+                    if(typeof(newValue != "undefined")) {
+                        if(typeof(newValue === "object") || (typeof(newValue) === "string" && newValue.length > 0)) {
+                            let fields = angular.element('[ng-model="' + resourceType + '.' + selectedCol + '"]');
+                            console.log(fields);
+                            for(let i=0; i<batchList.length; i++) {
+                                // never change disabled fields
+                                let field = fields.get(i);
+                                if(field.getAttribute('disabled'))
+                                    continue;
+                                    
+                                if (replaceAll) {
+                                    // if checkbox is true update all rows
+                                    set(batchList[i], selectedCol, newValue)
+                                } else {
+                                    // else only update empty rows
+                                    if (get(batchList[i], selectedCol) == undefined || get(batchList[i], selectedCol) == "")
+                                        set(batchList[i], selectedCol, newValue)   
+                                }
+                            }
+                        }
+                    }
+
+                    // helper function to get nested properties where the path is variable
+                    function get(obj, path) {
+                        var schema = obj; // a moving reference to internal objects within obj
+                        var pList = path.split('.');
+                        var len = pList.length;
+                        for(var i = 0; i < len-1; i++) {
+                            var elem = pList[i];
+                            if( !schema[elem] )
+                                schema[elem] = {}
+                            schema = schema[elem];
+                        }
+                        return schema[pList[len-1]];
+                    };
+
+                    // helper function to set nested properties where the path is variable
+                    function set(obj, path, value) {
+                        var schema = obj;  // a moving reference to internal objects within obj
+                        var pList = path.split('.');
+                        var len = pList.length;
+                        for(var i = 0; i < len-1; i++) {
+                            var elem = pList[i];
+                            if( !schema[elem] )
+                                schema[elem] = {}
+                            schema = schema[elem];
+                        }
+                        schema[pList[len-1]] = value;
+                    };
+                }
             }
         ]);

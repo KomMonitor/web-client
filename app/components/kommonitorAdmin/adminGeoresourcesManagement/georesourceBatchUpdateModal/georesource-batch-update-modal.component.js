@@ -68,7 +68,8 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 					$scope.isFirstStart = false;
 				}
 				
-				$('#standardPeriodOfValidityStartDatePicker').datepicker(kommonitorDataExchangeService.datePickerOptions);
+				$('#georesourceDefaultColumnDatePickerStart').datepicker(kommonitorDataExchangeService.datePickerOptions);
+				$('#georesourceDefaultColumnDatePickerEnd').datepicker(kommonitorDataExchangeService.datePickerOptions);
 
 				$(document).on("change", ".georesourceMappingTableInputField", function(){
 					// get index of changed field
@@ -163,7 +164,7 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 			// loop through batch list and check if condition is true for at least one row
 			$scope.checkIfSelectedConverterIsCsvLatLon = function() {
 				var selectedConverterIsCsvLatLon = false;
-				for(var i=0;i<$scope.batchList.length;i++) {
+				for(let i=0;i<$scope.batchList.length;i++) {
 					if($scope.batchList[i].selectedConverter) {
 						let converterName = $scope.batchList[i].selectedConverter.name;
 						if(converterName != undefined && converterName.length > 0) {
@@ -217,59 +218,6 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 						$('#periodOfValidityEndDatePicker' + i).datepicker(kommonitorDataExchangeService.datePickerOptions);
 					};
 				}, 200);
-			}
-
-			$scope.onClickSaveStandardPeriodOfValidity = function() {
-
-				var newValue = document.getElementById("standardPeriodOfValidityStartDatePicker").value;
-
-				$timeout(function() {
-					if(newValue.length > 0) {
-					
-						var allRowsChbState = document.getElementById("standardPeriodOfValidityStartChb").checked;
-						$scope.batchList.forEach(function(row, index) {
-							// never change disabled fields
-							var field = angular.element(document.getElementById("periodOfValidityStartDatePicker" + index));
-							if(field.prop('disabled'))
-								return;
-
-							if (allRowsChbState) {
-								// if checkbox is true update all rows
-								row.mappingObj.periodOfValidity.startDate = newValue;
-							} else {
-							// else only update empty rows
-								if (row.mappingObj.periodOfValidity.startDate == undefined || row.mappingObj.periodOfValidity.startDate == "")
-									row.mappingObj.periodOfValidity.startDate = newValue;
-							}
-						});
-					}
-				});
-			}
-
-			$scope.onClickSaveStandardCRS = function() {
-
-				var newValue = document.getElementById("georesourceStandardCrsInputField").value;
-
-				$timeout(function() {
-					if(newValue.length > 0) {
-						$scope.batchList.forEach(function(row, index) {
-							// never change disabled fields
-							var field = angular.element(document.getElementById("georesourceCrsInputField" + index));
-							if(field.prop('disabled'))
-								return;
-
-							var allRowsChbState = document.getElementById("georesourceStandardCrsChb").checked;
-							if (allRowsChbState) {
-								// if checkbox is true update all rows
-								row.mappingObj.converter.CRS.value = newValue;
-							} else {
-								// else only update empty rows
-								if (row.mappingObj.converter.CRS.value === undefined || row.mappingObj.converter.CRS.value === "")
-									row.mappingObj.converter.CRS.value = newValue;
-							}
-						});
-					}
-				});
 			}
 
 

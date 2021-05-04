@@ -21,55 +21,6 @@
 					</div>
 				</div>
 				<div class="row">
-					<div class="col-md-8 col-sm-8 col-xs-12">
-						<div class="col-md-4 col-sm-4 col-xs-6" style="margin-right:15px">
-							<div class="form-group">
-								<div class="row">
-									<label>Standard<br /><i>Gültigkeitszeitraum von</i>:</label>
-									<div class="input-group date">
-										<div class="input-group-addon">
-											<i class="far fa-calendar-alt"></i>
-										</div>
-										<input id="standardPeriodOfValidityStartDatePicker" type="text" class="form-control pull-right"
-										ng-model="standardPeriodOfValidityStart" placeholder="YYYY-MM-DD">
-									</div>
-									<label for="standardPeriodOfValidityStartChb">In allen Zeilen setzen?</label>
-									<input id="standardPeriodOfValidityStartChb" type="checkbox" ng-model="standardPeriodOfValidityStartChb">
-									<div class="help-block">
-										<p>
-											Überschreibt alle Werte der Spalte &quot;G&uuml;tigkeitszeitraum von*&quot; sofern die Checkbox aktiviert ist.<br />
-											Ist sie deaktiviert, werden nur leere Tabellenfelder dieser Spalte überschrieben, sodass bereits eingetragene Werte erhalten bleiben.
-										</p>
-									</div>
-								</div>
-								<div class="row">
-									<button type="button" class="btn btn-primary" ng-click="onClickSaveStandardPeriodOfValidity()">Standardwert eintragen</button>
-								</div>
-							</div>
-						</div>
-						<div class="col-md-4 col-sm-4 col-xs-6">
-							<div class="form-group">
-								<div class="row">
-									<label>Standard<br /><i>CRS</i>:</label>
-									<input id="georesourceStandardCrsInputField" type="text" class="form-control"
-										ng-model="standardCrs" placeholder="EPSG:25832">
-									<label for="georesourceStandardCrsChb">In allen Zeilen setzen?</label>
-									<input id="georesourceStandardCrsChb" type="checkbox" ng-model="standardCrsChb">
-									<div class="help-block">
-										<p>
-											Überschreibt alle Werte der Spalte &quot;CRS*&quot; sofern die Checkbox aktiviert ist.<br />
-											Ist sie deaktiviert, werden nur leere Tabellenfelder dieser Spalte überschrieben, sodass bereits eingetragene Werte erhalten bleiben.
-										</p>
-									</div>
-								</div>
-								<div class="row">
-									<button type="button" class="btn btn-primary" ng-click="onClickSaveStandardCRS()">Standardwert eintragen</button>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-				<div class="row">
 					<div class="col-md-12 col-sm-12 col-xs-12">
 						<form id="georesourceBatchUpdateForm" class="form-group" role="form" data-toggle="validator" data-disable="true">
 							<div class="batch-list-table-wrapper table-responsive">
@@ -132,7 +83,7 @@
 													<div class="input-group-addon">
 														<i class="far fa-calendar-alt"></i>
 													</div>
-													<input id="periodOfValidityStartDatePicker{{$index}}" class="form-control pull-right" type="text"  placeholder="YYYY-MM-DD"
+													<input id="georesourcePeriodOfValidityStartDatePicker{{$index}}" class="form-control pull-right" type="text"  placeholder="YYYY-MM-DD"
 														value={{georesource.periodOfValidityStart}} ng-model="georesource.mappingObj.periodOfValidity.startDate" 
 														ng-disabled="georesource.mappingTableName == &quot;&quot;" required>
 												</div>
@@ -144,7 +95,7 @@
 													<div class="input-group-addon">
 														<i class="far fa-calendar-alt"></i>
 													</div>
-													<input id="periodOfValidityEndDatePicker{{$index}}" type="text" class="form-control pull-right" placeholder="YYYY-MM-DD"
+													<input id="georesourcePeriodOfValidityEndDatePicker{{$index}}" type="text" class="form-control pull-right" placeholder="YYYY-MM-DD"
 														value={{georesource.periodOfValidityEnd}} ng-model="georesource.mappingObj.periodOfValidity.endDate"
 														ng-disabled="georesource.mappingTableName == &quot;&quot;">
 												</div>
@@ -274,6 +225,136 @@
 							<button type="button" class="btn btn-danger" ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.deleteSelectedRowsFromBatchList(this.batchList, this.allRowsSelected)">ausgewählte Zeilen l&ouml;schen</button>
 						</div>
 					</form>
+				</div>
+				<div class="row">
+					<div class="col-md-4 col-sm-4 col-xs-6">
+						<div class="form-group">
+							<label>Standardwert-Funktion</label>
+							<div class="help-block">
+								<p>
+									Diese Funktion ermöglicht es, einen Standardwert für alle Zeilen einer variablen Tabellenspalte zu setzen.<br />
+									Sofern die Checkbox aktiviert ist, wird der Wert für alle Zeilen gesetzt.<br />
+									Ist sie deaktiviert, werden nur leere Tabellenfelder überschrieben, sodass bereits eingetragene Werte erhalten bleiben.<br />
+									Gesperrte (ausgegraute) Felder werden ignoriert.
+								</p>
+							</div>
+							<div class="row">
+								<div class="col-md-6 col-sm-6 col-xs-6">
+									<label for="georesourceColDefaultFunctionColSelectInput">Tabellenspalte:</label>
+									<select id="georesourceColDefaultFunctionColSelectInput" class="form-control"
+										ng-model="colDefaultFunctionSelectedColumn" ng-change="colDefaultFunctionNewValue=undefined">
+										<option disabled selected value> -- Tabellenspalte w&auml;hlen -- </option>
+										<option value="mappingObj.periodOfValidity.startDate">G&uuml;ltigkeitszeitraum von*</option>
+										<option value="mappingObj.periodOfValidity.endDate">G&uuml;ltigkeitszeitraum bis</option>
+										<option value="selectedConverter">Geodaten-Quellformat*</option>
+										<option value="mappingObj.converter.CRS.value">CRS*</option>
+										<option value="mappingObj.converter.separator.value">separator*</option>
+										<option value="mappingObj.converter.yCoordColumn.value">yCoordColumn*</option>
+										<option value="mappingObj.converter.xCoordColumn.value">xCoordColumn*</option>
+										<option value="mappingObj.converter.schema">Schema*</option>
+										<option value="selectedDatasourceType">Datenquelltyp*</option>
+										<option value="mappingObj.dataSource.URL.value">URL*</option>
+										<option value="mappingObj.dataSource.payload.value">Payload*</option>
+										<option value="mappingObj.propertyMapping.identifierProperty">ID Attributname*</option>
+										<option value="mappingObj.propertyMapping.nameProperty">NAME Attributname*</option>
+										<option value="mappingObj.propertyMapping.validStartDateProperty">Lebenszeit-Beginn Attributname*</option>
+										<option value="mappingObj.propertyMapping.validEndDateProperty">Lebenszeit-Ende Attributname*</option>
+									</select>
+									<label for="colDefaultFunctionColSelectInputGeoresource">Wert:</label>
+									<!-- default -->
+									<input ng-show="!colDefaultFunctionSelectedColumn" type="text" class="form-control" ng-model="colDefaultFunctionNewValue" disabled placeholder="keine Tabellenspalte ausgew&auml;hlt"></input>
+									<!-- Gültigkeitszeitraum von* -->
+									<div ng-show="colDefaultFunctionSelectedColumn=='mappingObj.periodOfValidity.startDate'"
+										class="input-group date">
+										<div class="input-group-addon">
+											<i class="far fa-calendar-alt"></i>
+										</div>
+										<input id="georesourceDefaultColumnDatePickerStart" class="form-control pull-right" type="text"  placeholder="YYYY-MM-DD"
+											value={{colDefaultFunctionNewValue}} ng-model="colDefaultFunctionNewValue" ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">
+									</div>
+									<!-- Gültigkeitszeitraum bis* -->
+									<div ng-show="colDefaultFunctionSelectedColumn=='mappingObj.periodOfValidity.endDate'"
+										class="input-group date">
+										<div class="input-group-addon">
+											<i class="far fa-calendar-alt"></i>
+										</div>
+										<input id="georesourceDefaultColumnDatePickerEnd" class="form-control pull-right" type="text"  placeholder="YYYY-MM-DD"
+											value={{colDefaultFunctionNewValue}} ng-model="colDefaultFunctionNewValue" ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">
+									</div>
+									<!-- Geodaten-Quellformat* -->
+									<select ng-show="colDefaultFunctionSelectedColumn=='selectedConverter'" class="form-control" ng-model="colDefaultFunctionNewValue"
+										ng-options="converter as converter.simpleName for converter in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters | filter:$ctrl.kommonitorBatchUpdateHelperServiceInstance.filterConverters('georesource')"
+										ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">
+											<option disabled selected value> -- Quellformat w&auml;hlen -- </option>
+									</select>
+									<!-- CRS* -->
+									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.converter.CRS.value'" type="text" class="form-control"
+										ng-model="colDefaultFunctionNewValue" ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">
+									</input>
+									<!-- separator* -->
+									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.converter.separator.value'" type="text" class="form-control"
+										ng-model="colDefaultFunctionNewValue" ng-disabled="!checkIfSelectedConverterIsCsvLatLon()">
+									</input>
+									<!-- yCoordColumn* -->
+									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.converter.yCoordColumn.value'" type="text" class="form-control"
+										ng-model="colDefaultFunctionNewValue" ng-disabled="!checkIfSelectedConverterIsCsvLatLon()">
+									</input>
+									<!-- xCoordColumn* -->
+									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.converter.xCoordColumn.value'" type="text" class="form-control"
+										ng-model="colDefaultFunctionNewValue" ng-disabled="!checkIfSelectedConverterIsCsvLatLon()">
+									</input>
+									<!-- Schema* -->
+									<select ng-show="colDefaultFunctionSelectedColumn=='mappingObj.converter.schema'" class="form-control" ng-model="colDefaultFunctionNewValue" 
+										ng-options="schema for schema in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters[3].schemas"
+										ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedConverterIsWfsV1(batchList)">
+											<option disabled selected value> -- Schema w&auml;hlen -- </option>
+									</select>
+									<!-- Datenquelltyp* -->
+									<select ng-show="colDefaultFunctionSelectedColumn=='selectedDatasourceType'" class="form-control" ng-model="colDefaultFunctionNewValue"
+										ng-options="datasourceType as datasourceType.type for datasourceType in $ctrl.kommonitorImporterHelperServiceInstance.availableDatasourceTypes"
+										ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">
+											<option disabled selected value> -- Quelltyp w&auml;hlen -- </option>
+									</select>
+									<!-- URL* -->
+									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.dataSource.URL.value'" type="text" class="form-control"
+										ng-model="colDefaultFunctionNewValue" ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsHttp(batchList)">
+									</input>
+									<!-- Payload* -->
+									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.dataSource.payload.value'" type="text" class="form-control"
+										ng-model="colDefaultFunctionNewValue" ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsInline(batchList)">
+									</input>
+									<!-- ID Attributname* -->
+									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.propertyMapping.identifierProperty'" type="text" class="form-control"
+										ng-model="colDefaultFunctionNewValue" ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">
+									</input>
+									<!-- NAME Attributname* -->
+									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.propertyMapping.nameProperty'" type="text" class="form-control"
+										ng-model="colDefaultFunctionNewValue" ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">
+									</input>
+									<!-- Lebenszeit-Beginn Attributname* -->
+									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.propertyMapping.validStartDateProperty'" type="text" class="form-control"
+										ng-model="colDefaultFunctionNewValue" ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">
+									</input>
+									<!-- Lebenszeit-Ende Attributname* -->
+									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.propertyMapping.validEndDateProperty'" type="text" class="form-control"
+										ng-model="colDefaultFunctionNewValue" ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">
+									</input>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-12 col-sm-12 col-xs-12">
+									<label for="georesourceColDefaultFunctionAllRowsChb">Vorhandene Werte überschreiben?</label>
+									<input id="georesourceColDefaultFunctionAllRowsChb" type="checkbox" ng-model="colDefaultFunctionAllRowsChb">
+								</div>
+								<div class="col-md-12 col-sm-12 col-xs-12">
+									<button type="button" class="btn btn-primary"
+										ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.onClickSaveColDefaultValue('georesource', colDefaultFunctionSelectedColumn, colDefaultFunctionNewValue, colDefaultFunctionAllRowsChb, batchList)">
+										Standardwert eintragen
+									</button>
+								</div>
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
 			<div class="modal-footer">
