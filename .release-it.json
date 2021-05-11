@@ -6,5 +6,8 @@
             "addUnreleased": false,
             "keepUnreleased": true
         }
+    },
+    "hooks": {
+        "after:bump": "npx auto-changelog -p"
     }
 }
