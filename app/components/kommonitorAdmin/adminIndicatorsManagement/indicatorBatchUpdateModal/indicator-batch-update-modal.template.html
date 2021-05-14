@@ -32,18 +32,18 @@
 											<th class="batch-list-table-sticky-column batch-list-table-sticky-column-header batch-list-table-sticky-column-1"><input type="checkbox" ng-model="allRowsSelected" ng-change="$ctrl.kommonitorBatchUpdateHelperServiceInstance.onChangeSelectAllRows(this.allRowsSelected, this.batchList)"></th>
 											<th class="batch-list-table-sticky-column batch-list-table-sticky-column-header batch-list-table-sticky-column-2">Name*</th>
 											<th>Mappingtabelle*</th>
-											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">Speichern</th>
-											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">Zeitreihen-Mapping*</th>
-											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">Datensatz-Quellformat*</th>
-											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">CRS*</th>
+											<th>Speichern</th>
+											<th>Zeitreihen-Mapping*</th>
+											<th>Datensatz-Quellformat*</th>
+											<th>CRS*</th>
 											<th ng-show="checkIfSelectedConverterIsCsvOnlyIndicator()">separator*</th>
 											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedConverterIsWfsV1(batchList)">Schema*</th>
-											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">Datenquelltyp*</th>
+											<td>Datenquelltyp*</th>
 											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsFile(batchList)">Datei*</th>
 											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsHttp(batchList)">URL*</th>
 											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsInline(batchList)">Payload*</th>
-											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">ID Attributname der Raumeinheiten-Features*</th>
-											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">Ziel-Raumebene*</th>
+											<th>ID Attributname der Raumeinheiten-Features*</th>
+											<th>Ziel-Raumebene*</th>
 										</tr>
 									</thead>
 									<tbody>
@@ -68,33 +68,32 @@
 											</td>
 
 											<!-- Speichern -->
-											<td ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">
+											<td>
 												<button id="indicatorMappingTableSave{{$index}}" type="button" class="btn btn-primary fas fa-save" 
-													ng-disabled="indicator.mappingTableName == &quot;&quot;" ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.saveMappingObjectToFile('indicator', $event, batchList)" >
+													ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.saveMappingObjectToFile('indicator', $event, batchList)" >
 												</button>
 											</td>
 
 											<!-- Zeitreihen Mapping* -->
-											<td ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">
-												<button id="indicatorTimeseriesMappingBtn{{$index}}" class="form-control btn btn-success btn-sm indicatorTimeseriesMappingBtn" ng-click="onTimeseriesMappingBtnClicked($event)"
-													ng-disabled="indicator.mappingTableName == &quot;&quot;" style="background-color: #5cb85c;">
+											<td>
+												<button id="indicatorTimeseriesMappingBtn{{$index}}" class="form-control btn btn-success btn-sm indicatorTimeseriesMappingBtn"
+													ng-click="onTimeseriesMappingBtnClicked($event)" style="background-color: #5cb85c;">
 													Hinzuf&uuml;gen/Editieren
 												</button>
 											</td>
 
 											<!-- Datensatz-Quellformat -->
-											<td ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">
+											<td>
 												<select class="form-control" ng-model="indicator.selectedConverter"
-														ng-options="converter as converter.simpleName for converter in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters | filter:$ctrl.kommonitorBatchUpdateHelperServiceInstance.filterConverters('indicator')"
-														ng-disabled="indicator.mappingTableName == &quot;&quot;" required>
+														ng-options="converter as converter.simpleName for converter in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters | filter:$ctrl.kommonitorBatchUpdateHelperServiceInstance.filterConverters('indicator')" required>
 																<option disabled selected value> -- Quellformat w&auml;hlen -- </option>
 												</select>
 											</td>
 
 											<!-- CRS -->
-											<td ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">
+											<td>
 												<input id="indicatorCrsInputField{{$index}}" class="form-control" ng-model="indicator.mappingObj.converter.CRS.value"
-												type="text" ng-disabled="indicator.mappingTableName == &quot;&quot;" required>
+												type="text" required>
 											</td>
 
 											<!-- separator -->
@@ -113,10 +112,10 @@
 											</td>
 
 											<!-- Datenquelltyp -->
-											<td ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">
+											<td>
 												<select ng-model="indicator.selectedDatasourceType"
 														ng-options="datasourceType as datasourceType.type for datasourceType in $ctrl.kommonitorImporterHelperServiceInstance.availableDatasourceTypes"
-														class="form-control" ng-disabled="indicator.mappingTableName == &quot;&quot;" required>
+														class="form-control" required>
 																<option disabled selected value> -- Quelltyp w&auml;hlen -- </option>
 												</select>
 											</td>
@@ -140,16 +139,15 @@
 											</td>
 
 											<!-- ID Attributname der Raumeinheiten-Features* -->
-											<td ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">
-												<input class="form-control" ng-model="indicator.mappingObj.propertyMapping.spatialReferenceKeyProperty" type="text" ng-disabled="indicator.mappingTableName == &quot;&quot;" required>
+											<td>
+												<input class="form-control" ng-model="indicator.mappingObj.propertyMapping.spatialReferenceKeyProperty" type="text" required>
 											</td>
 
 											<!-- Ziel-Raumebene -->
-											<td ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">
+											<td>
 												<select ng-model="indicator.selectedTargetSpatialUnit"
-														ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits  | filter:filterApplicableSpatialUnits($index)"
-														class="form-control" ng-disabled="indicator.mappingTableName == &quot;&quot;" required>
-																<option disabled selected value> -- Raumeinheit w&auml;hlen -- </option>
+														ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits  | filter:filterApplicableSpatialUnits($index)" class="form-control" required>
+															<option disabled selected value> -- Raumeinheit w&auml;hlen -- </option>
 												</select>
 											</td>
 
@@ -161,18 +159,18 @@
 											<th class="batch-list-table-sticky-column batch-list-table-sticky-column-footer batch-list-table-sticky-column-1"><input type="checkbox" ng-model="allRowsSelected" ng-change="$ctrl.kommonitorBatchUpdateHelperServiceInstance.onChangeSelectAllRows(this.allRowsSelected, this.batchList)"></th>
 											<th class="batch-list-table-sticky-column batch-list-table-sticky-column-footer batch-list-table-sticky-column-2">Name*</th>
 											<th>Mappingtabelle*</th>
-											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">Speichern</th>
-											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">Zeitreihen-Mapping*</th>
-											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">Datensatz-Quellformat*</th>
-											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">CRS*</th>
+											<td>Speichern</th>
+											<td>Zeitreihen-Mapping*</th>
+											<td>Datensatz-Quellformat*</th>
+											<td>CRS*</th>
 											<th ng-show="checkIfSelectedConverterIsCsvOnlyIndicator()">separator*</th>
 											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedConverterIsWfsV1(batchList)">Schema*</th>
-											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">Datenquelltyp*</th>
+											<td>Datenquelltyp*</th>
 											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsFile(batchList)">Datei*</th>
 											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsHttp(batchList)">URL*</th>
 											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsInline(batchList)">Payload*</th>
-											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">ID Attributname der Raumeinheiten-Features*</th>
-											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">Ziel-Raumebene*</th>
+											<td>ID Attributname der Raumeinheiten-Features*</th>
+											<td>Ziel-Raumebene*</th>
 										</tr>
 									</tfoot>
 								</table>
