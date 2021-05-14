@@ -45,7 +45,7 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 			*/
 			$scope.batchList = [];
 			$scope.timeseriesMappingModalOpenForIndex; // temporarily stores for which index of the batch list the timeseries mapping modal is open
-			
+			$scope.defaultTimeseriesMappingSave = [];
 	
 			// on modal opened
 			$('#modal-batch-update-indicators').on('show.bs.modal', function () {
@@ -200,34 +200,6 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 			};
 
 	
-			//TODO refractor to batch-update-helper-service
-			$scope.onClickSaveStandardCRS = function() {
-	
-				var newValue = document.getElementById("indicatorStandardCrsInputField").value;
-	
-				$timeout(function() {
-					if(newValue.length > 0) {
-						$scope.batchList.forEach(function(row, index) {
-							// never change disabled fields
-							var field = angular.element(document.getElementById("indicatorCrsInputField" + index));
-							if(field.prop('disabled'))
-								return;
-	
-							var allRowsChbState = document.getElementById("indicatorStandardCrsChb").checked;
-							if (allRowsChbState) {
-								// if checkbox is true update all rows
-								row.mappingObj.converter.CRS.value = newValue;
-							} else {
-								// else only update empty rows
-								if (row.mappingObj.converter.CRS.value === undefined || row.mappingObj.converter.CRS.value === "")
-									row.mappingObj.converter.CRS.value = newValue;
-							}
-						});
-					}
-				});
-			}
-			
-	
 			$rootScope.$on("refreshIndicatorOverviewTableCompleted", function() {
 				for(let i=0;i<$scope.batchList.length;i++) {
 					var row = $scope.batchList[i];
@@ -241,6 +213,10 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 
 			$scope.onTimeseriesMappingBtnClicked = function($event) {
 				$("#indicator-edit-time-series-mapping-modal").modal("show", $event.currentTarget);
+			}
+
+			$scope.onDefaultTimeseriesMappingBtnClicked = function($event) {
+				$("#indicator-edit-default-time-series-mapping-modal").modal("show", $event.currentTarget);
 			}
 
 			$('#indicator-edit-time-series-mapping-modal').on('show.bs.modal', function (event) {
@@ -257,6 +233,13 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 					$scope.$broadcast('resetTimeseriesMapping');
 			});
 
+			$('#indicator-edit-default-time-series-mapping-modal').on('show.bs.modal', function (event) {
+				if($scope.defaultTimeseriesMappingSave.length >= 1)
+					$scope.$broadcast('loadTimeseriesMapping', { mapping: $scope.defaultTimeseriesMappingSave });
+				else
+					$scope.$broadcast('resetTimeseriesMapping');
+			});
+
 			// on timeseries mapping modal closed
 			$('#indicator-edit-time-series-mapping-modal').on('hidden.bs.modal', function () {
 				// store timeseries mapping to mappingObj
@@ -268,6 +251,16 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 				delete $scope.timeseriesMappingBackup;
 				
 				$scope.timeseriesMappingModalOpenForIndex = undefined;
+				// then reset the modal
+				$scope.$broadcast('resetTimeseriesMapping')
+			});
+
+			// on timeseries mapping modal closed
+			$('#indicator-edit-default-time-series-mapping-modal').on('hidden.bs.modal', function () {
+				// store timeseries mapping to mappingObj
+				// adds a variable timeseriesMappingBackup to $scope that holds a reference to the timeseries mapping
+				$scope.$broadcast('getTimeseriesMapping', { varname: "colDefaultFunctionNewValue" });
+				$scope.defaultTimeseriesMappingSave = $scope.colDefaultFunctionNewValue;
 				// then reset the modal
 				$scope.$broadcast('resetTimeseriesMapping')
 			});

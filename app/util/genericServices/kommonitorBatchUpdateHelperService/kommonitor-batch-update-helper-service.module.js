@@ -1102,22 +1102,59 @@ angular
 
 
                 this.onClickSaveColDefaultValue = function(resourceType, selectedCol, newValue, replaceAll, batchList) {
-                    if(typeof(newValue != "undefined")) {
-                        if(typeof(newValue === "object") || (typeof(newValue) === "string" && newValue.length > 0)) {
-                            let fields = angular.element('[ng-model="' + resourceType + '.' + selectedCol + '"]');
-                            for(let i=0; i<batchList.length; i++) {
+                    // differentiate between timesereis mapping and other columns
+                    if(selectedCol == "mappingObj.propertyMapping.timeseriesMapping") {
+                        if(typeof(newValue != "undefined")) {
+                            console.log(newValue);
+                            let btns = angular.element($('.indicatorTimeseriesMappingBtn'));
+                            console.log(btns);
+                            for (let i=0; i<batchList.length; i++) {
                                 // never change disabled fields
-                                let field = fields.get(i);
-                                if(field.getAttribute('disabled'))
+                                let btn = btns.get(i);
+                                if(btn.getAttribute('disabled'))
                                     continue;
-                                    
-                                if (replaceAll) {
-                                    // if checkbox is true update all rows
-                                    set(batchList[i], selectedCol, newValue)
-                                } else {
-                                    // else only update empty rows
-                                    if (get(batchList[i], selectedCol) == undefined || get(batchList[i], selectedCol) == "")
-                                        set(batchList[i], selectedCol, newValue)   
+
+                                newValue  = angular.fromJson(angular.toJson(newValue));
+                                let oldMapping = batchList[i].mappingObj.propertyMapping.timeseriesMappings
+                                console.log(oldMapping);
+                                // iterate newValue
+                                for (let j=0; j<newValue.length; j++) {
+                                    let exists = false;
+                                    // for each entry check if it exists in oldMapping
+                                    for (let k=0; k<oldMapping.length; k++) {
+                                        if(oldMapping[k].indicatorValueProperty == newValue[j].indicatorValueProperty) {
+                                            exists = true;
+                                            if(replaceAll)
+                                                batchList[i].mappingObj.propertyMapping.timeseriesMappings[j] = newValue[j];
+                                        }
+                                    }
+
+                                    if(!exists) {
+                                        // add mapping
+                                        batchList[i].mappingObj.propertyMapping.timeseriesMappings.push(newValue[j])
+                                    }
+                                }
+                            }
+                        }
+                    
+                    } else {
+                        if(typeof(newValue != "undefined")) {
+                            if(typeof(newValue === "object") || (typeof(newValue) === "string" && newValue.length > 0)) {
+                                let fields = angular.element('[ng-model="' + resourceType + '.' + selectedCol + '"]');
+                                for(let i=0; i<batchList.length; i++) {
+                                    // never change disabled fields
+                                    let field = fields.get(i);
+                                    if(field.getAttribute('disabled'))
+                                        continue;
+                                        
+                                    if (replaceAll) {
+                                        // if checkbox is true update all rows
+                                        set(batchList[i], selectedCol, newValue)
+                                    } else {
+                                        // else only update empty rows
+                                        if (get(batchList[i], selectedCol) == undefined || get(batchList[i], selectedCol) == "")
+                                            set(batchList[i], selectedCol, newValue)   
+                                    }
                                 }
                             }
                         }

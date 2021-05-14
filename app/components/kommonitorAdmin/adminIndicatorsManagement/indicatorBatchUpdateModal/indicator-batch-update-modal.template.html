@@ -76,9 +76,9 @@
 
 											<!-- Zeitreihen Mapping* -->
 											<td ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">
-												<button id="indicatorTimeseriesMappingBtn{{$index}}" class="form-control btn btn-success btn-sm" ng-click="onTimeseriesMappingBtnClicked($event)"
-													ng-disabled="indicator.mappingTableName == &quot;&quot;">
-													Hinzufügen/Editieren
+												<button id="indicatorTimeseriesMappingBtn{{$index}}" class="form-control btn btn-success btn-sm indicatorTimeseriesMappingBtn" ng-click="onTimeseriesMappingBtnClicked($event)"
+													ng-disabled="indicator.mappingTableName == &quot;&quot;" style="background-color: #5cb85c;">
+													Hinzuf&uuml;gen/Editieren
 												</button>
 											</td>
 
@@ -179,7 +179,7 @@
 							</div>
 
 							<button type="button" class="btn btn-primary" ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.addNewRowToBatchList('indicator', this.batchList)">neue Zeile hinzuf&uuml;gen</button>
-							<button type="button" class="btn btn-danger" ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.deleteSelectedRowsFromBatchList(this.batchList, this.allRowsSelected)">ausgewählte Zeilen l&ouml;schen</button>
+							<button type="button" class="btn btn-danger" ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.deleteSelectedRowsFromBatchList(this.batchList, this.allRowsSelected)">ausgew&auml;hlte Zeilen l&ouml;schen</button>
 						</div>
 					</form>
 				</div>
@@ -192,9 +192,9 @@
 							<label>Standardwert-Funktion</label>
 							<div class="help-block">
 								<p>
-									Diese Funktion ermöglicht es, einen Standardwert für alle Zeilen einer variablen Tabellenspalte zu setzen.<br />
-									Sofern die Checkbox aktiviert ist, wird der Wert für alle Zeilen gesetzt.<br />
-									Ist sie deaktiviert, werden nur leere Tabellenfelder überschrieben, sodass bereits eingetragene Werte erhalten bleiben.<br />
+									Diese Funktion erm&ouml;glicht es, einen Standardwert f&uuml;r alle Zeilen einer variablen Tabellenspalte zu setzen.<br />
+									Sofern die Checkbox aktiviert ist, wird der Wert f&uuml;r alle Zeilen gesetzt. Ist sie deaktiviert, werden nur leere Tabellenfelder &uuml;berschrieben, sodass bereits eingetragene Werte erhalten bleiben.<br />
+									Beim Zeitreihen-Mapping kann &uuml;ber die Checkbox festgelegt werden, ob bestehende Mappingeintr&auml;ge f&uuml;r den angegebenen Attributnamen aktualisiert werden sollen. Neue Attributnamen werden unabh&auml;ngig davon f&uuml;r alle Zeilen hinzugef&uuml;gt.<br />
 									Gesperrte (ausgegraute) Felder werden ignoriert.
 								</p>
 							</div>
@@ -204,6 +204,7 @@
 									<select id="indicatorColDefaultFunctionColSelectInput" class="form-control"
 										ng-model="colDefaultFunctionSelectedColumn" ng-change="colDefaultFunctionNewValue=undefined">
 										<option disabled selected value> -- Tabellenspalte w&auml;hlen -- </option>
+										<option value="mappingObj.propertyMapping.timeseriesMapping">Zeitreihen-Mapping*</option>
 										<option value="selectedConverter">Datensatz-Quellformat*</option>
 										<option value="mappingObj.converter.CRS.value">CRS*</option>
 										<option value="mappingObj.converter.separator.value">separator*</option>
@@ -217,6 +218,13 @@
 									<label>Wert:</label>
 									<!-- default -->
 									<input ng-show="!colDefaultFunctionSelectedColumn" type="text" class="form-control" ng-model="colDefaultFunctionNewValue" disabled placeholder="keine Tabellenspalte ausgew&auml;hlt"></input>
+									<!-- Zeitreihen-Mapping* -->
+									<button class="form-control btn btn-success btn-sm" ng-click="onDefaultTimeseriesMappingBtnClicked($event)"
+										ng-show="colDefaultFunctionSelectedColumn=='mappingObj.propertyMapping.timeseriesMapping'"
+										ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)"
+										style="background-color: #5cb85c;">
+											Hinzuf&uuml;gen/Editieren
+									</button>
 									<!-- Datensatz-Quellformat* -->
 									<select ng-show="colDefaultFunctionSelectedColumn=='selectedConverter'" class="form-control" ng-model="colDefaultFunctionNewValue"
 										ng-options="converter as converter.simpleName for converter in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters | filter:$ctrl.kommonitorBatchUpdateHelperServiceInstance.filterConverters('indicator')"
@@ -265,12 +273,12 @@
 							</div>
 							<div class="row">
 								<div class="col-md-12 col-sm-12 col-xs-12">
-									<label for="indicatorColDefaultFunctionAllRowsChb">Vorhandene Werte überschreiben?</label>
+									<label for="indicatorColDefaultFunctionAllRowsChb">Vorhandene Werte &uuml;berschreiben?</label>
 									<input id="indicatorColDefaultFunctionAllRowsChb" type="checkbox" ng-model="colDefaultFunctionAllRowsChb">
 								</div>
 								<div class="col-md-12 col-sm-12 col-xs-12">
 									<button type="button" class="btn btn-primary"
-										ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.onClickSaveColDefaultValue('indicator', colDefaultFunctionSelectedColumn, colDefaultFunctionNewValue, colDefaultFunctionAllRowsChb, batchList)">
+										ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.onClickSaveColDefaultValue('indicator', colDefaultFunctionSelectedColumn, colDefaultFunctionNewValue, colDefaultFunctionAllRowsChb, batchList, defaultTimeseriesMappingSave)">
 										Standardwert eintragen
 									</button>
 								</div>
@@ -278,9 +286,6 @@
 						</div>
 					</div>
 				</div>
-
-
-
 			</div>
 			
 			<div class="modal-footer">
@@ -299,7 +304,7 @@
 				</button>
 
 				<button id="indicator-batch-update-btn" type="button" class="btn btn-success"
-					ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.batchUpdate('indicator', batchList)" ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfNameAndFilesChosenInEachRow('indicator', batchList)">Update ausführen
+					ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.batchUpdate('indicator', batchList)" ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfNameAndFilesChosenInEachRow('indicator', batchList)">Update ausf&uuml;hren
 				</button>
 				
 				<button type="button" class="btn btn-danger"
@@ -321,6 +326,24 @@
 				<h4 class="modal-title">Zeitreihen-Mapping</h4>
 			</div>
 			<div class="modal-body">
+				<indicator-edit-timeseries-mapping></indicator-edit-timeseries-mapping>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- wrapper for default timeseries mapping -->
+<div class="modal fade" id="indicator-edit-default-time-series-mapping-modal" role="dialog">
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content" style="width:95%">
+			<div class="modal-header">
+				<h4 class="modal-title">Zeitreihen-Mapping f&uuml;r alle Zeilen</h4>
+			</div>
+			<div class="modal-body">
+				<p style="color:red">&Auml;nderungen werden erst durch Klick auf den Knopf 'Standardwert eintragen' im Hauptfenster gespeichert.</p>
 				<indicator-edit-timeseries-mapping></indicator-edit-timeseries-mapping>
 			</div>
 			<div class="modal-footer">
