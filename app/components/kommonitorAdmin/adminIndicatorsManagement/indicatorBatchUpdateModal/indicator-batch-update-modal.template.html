@@ -219,19 +219,17 @@
 									<!-- Zeitreihen-Mapping* -->
 									<button class="form-control btn btn-success btn-sm" ng-click="onDefaultTimeseriesMappingBtnClicked($event)"
 										ng-show="colDefaultFunctionSelectedColumn=='mappingObj.propertyMapping.timeseriesMapping'"
-										ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)"
 										style="background-color: #5cb85c;">
 											Hinzuf&uuml;gen/Editieren
 									</button>
 									<!-- Datensatz-Quellformat* -->
 									<select ng-show="colDefaultFunctionSelectedColumn=='selectedConverter'" class="form-control" ng-model="colDefaultFunctionNewValue"
-										ng-options="converter as converter.simpleName for converter in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters | filter:$ctrl.kommonitorBatchUpdateHelperServiceInstance.filterConverters('indicator')"
-										ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">
+										ng-options="converter as converter.simpleName for converter in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters | filter:$ctrl.kommonitorBatchUpdateHelperServiceInstance.filterConverters('indicator')">
 											<option disabled selected value> -- Quellformat w&auml;hlen -- </option>
 									</select>
 									<!-- CRS* -->
 									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.converter.CRS.value'" type="text" class="form-control"
-										ng-model="colDefaultFunctionNewValue" ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">
+										ng-model="colDefaultFunctionNewValue">
 									</input>
 									<!-- separator* -->
 									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.converter.separator.value'" type="text" class="form-control"
@@ -245,8 +243,7 @@
 									</select>
 									<!-- Datenquelltyp* -->
 									<select ng-show="colDefaultFunctionSelectedColumn=='selectedDatasourceType'" class="form-control" ng-model="colDefaultFunctionNewValue"
-										ng-options="datasourceType as datasourceType.type for datasourceType in $ctrl.kommonitorImporterHelperServiceInstance.availableDatasourceTypes"
-										ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">
+										ng-options="datasourceType as datasourceType.type for datasourceType in $ctrl.kommonitorImporterHelperServiceInstance.availableDatasourceTypes">
 											<option disabled selected value> -- Quelltyp w&auml;hlen -- </option>
 									</select>
 									<!-- URL* -->
@@ -259,12 +256,11 @@
 									</input>
 									<!-- ID Attributname der Raumeinheiten-Features* -->
 									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.propertyMapping.spatialReferenceKeyProperty'" type="text" class="form-control"
-										ng-model="colDefaultFunctionNewValue" ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">
+										ng-model="colDefaultFunctionNewValue">
 									</input>
 									<!-- Ziel-Raumebene* -->
 									<select ng-show="colDefaultFunctionSelectedColumn=='selectedTargetSpatialUnit'" class="form-control" ng-model="colDefaultFunctionNewValue"
-										ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits"
-										ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">>
+										ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits">
 											<option disabled selected value> -- Raumeinheit w&auml;hlen -- </option>
 									</select>
 								</div>

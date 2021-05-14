@@ -267,7 +267,7 @@
 											<i class="far fa-calendar-alt"></i>
 										</div>
 										<input id="georesourceDefaultColumnDatePickerStart" class="form-control pull-right" type="text"  placeholder="YYYY-MM-DD"
-											value={{colDefaultFunctionNewValue}} ng-model="colDefaultFunctionNewValue" ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">
+											value={{colDefaultFunctionNewValue}} ng-model="colDefaultFunctionNewValue">
 									</div>
 									<!-- Gültigkeitszeitraum bis* -->
 									<div ng-show="colDefaultFunctionSelectedColumn=='mappingObj.periodOfValidity.endDate'"
@@ -276,17 +276,16 @@
 											<i class="far fa-calendar-alt"></i>
 										</div>
 										<input id="georesourceDefaultColumnDatePickerEnd" class="form-control pull-right" type="text"  placeholder="YYYY-MM-DD"
-											value={{colDefaultFunctionNewValue}} ng-model="colDefaultFunctionNewValue" ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">
+											value={{colDefaultFunctionNewValue}} ng-model="colDefaultFunctionNewValue">
 									</div>
 									<!-- Geodaten-Quellformat* -->
 									<select ng-show="colDefaultFunctionSelectedColumn=='selectedConverter'" class="form-control" ng-model="colDefaultFunctionNewValue"
-										ng-options="converter as converter.simpleName for converter in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters | filter:$ctrl.kommonitorBatchUpdateHelperServiceInstance.filterConverters('georesource')"
-										ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">
+										ng-options="converter as converter.simpleName for converter in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters | filter:$ctrl.kommonitorBatchUpdateHelperServiceInstance.filterConverters('georesource')">
 											<option disabled selected value> -- Quellformat w&auml;hlen -- </option>
 									</select>
 									<!-- CRS* -->
 									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.converter.CRS.value'" type="text" class="form-control"
-										ng-model="colDefaultFunctionNewValue" ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">
+										ng-model="colDefaultFunctionNewValue">
 									</input>
 									<!-- separator* -->
 									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.converter.separator.value'" type="text" class="form-control"
@@ -308,8 +307,7 @@
 									</select>
 									<!-- Datenquelltyp* -->
 									<select ng-show="colDefaultFunctionSelectedColumn=='selectedDatasourceType'" class="form-control" ng-model="colDefaultFunctionNewValue"
-										ng-options="datasourceType as datasourceType.type for datasourceType in $ctrl.kommonitorImporterHelperServiceInstance.availableDatasourceTypes"
-										ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">
+										ng-options="datasourceType as datasourceType.type for datasourceType in $ctrl.kommonitorImporterHelperServiceInstance.availableDatasourceTypes">
 											<option disabled selected value> -- Quelltyp w&auml;hlen -- </option>
 									</select>
 									<!-- URL* -->
@@ -322,19 +320,19 @@
 									</input>
 									<!-- ID Attributname* -->
 									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.propertyMapping.identifierProperty'" type="text" class="form-control"
-										ng-model="colDefaultFunctionNewValue" ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">
+										ng-model="colDefaultFunctionNewValue">
 									</input>
 									<!-- NAME Attributname* -->
 									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.propertyMapping.nameProperty'" type="text" class="form-control"
-										ng-model="colDefaultFunctionNewValue" ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">
+										ng-model="colDefaultFunctionNewValue">
 									</input>
 									<!-- Lebenszeit-Beginn Attributname* -->
 									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.propertyMapping.validStartDateProperty'" type="text" class="form-control"
-										ng-model="colDefaultFunctionNewValue" ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">
+										ng-model="colDefaultFunctionNewValue">
 									</input>
 									<!-- Lebenszeit-Ende Attributname* -->
 									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.propertyMapping.validEndDateProperty'" type="text" class="form-control"
-										ng-model="colDefaultFunctionNewValue" ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfMappingTableIsSpecified(batchList)">
+										ng-model="colDefaultFunctionNewValue">
 									</input>
 								</div>
 							</div>
