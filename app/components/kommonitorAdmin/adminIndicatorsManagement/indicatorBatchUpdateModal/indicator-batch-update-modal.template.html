@@ -38,7 +38,7 @@
 											<th>CRS*</th>
 											<th ng-show="checkIfSelectedConverterIsCsvOnlyIndicator()">separator*</th>
 											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedConverterIsWfsV1(batchList)">Schema*</th>
-											<td>Datenquelltyp*</th>
+											<th>Datenquelltyp*</th>
 											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsFile(batchList)">Datei*</th>
 											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsHttp(batchList)">URL*</th>
 											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsInline(batchList)">Payload*</th>
@@ -56,7 +56,7 @@
 
 											<!-- Name -->
 											<td class="batch-list-table-sticky-column batch-list-table-sticky-column-2">
-												<select id="indicatorSelect{{$index}} class="form-control" ng-model="indicator.name" required
+												<select id="indicatorSelect{{$index}}" class="form-control batch-list-table-name-field" ng-model="indicator.name" required
 													ng-options="avIndicator as avIndicator.indicatorName for avIndicator in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators">
 														<option disabled selected value> -- Indikator w&auml;hlen -- </option>
 												</select>
@@ -159,18 +159,18 @@
 											<th class="batch-list-table-sticky-column batch-list-table-sticky-column-footer batch-list-table-sticky-column-1"><input type="checkbox" ng-model="allRowsSelected" ng-change="$ctrl.kommonitorBatchUpdateHelperServiceInstance.onChangeSelectAllRows(this.allRowsSelected, this.batchList)"></th>
 											<th class="batch-list-table-sticky-column batch-list-table-sticky-column-footer batch-list-table-sticky-column-2">Name*</th>
 											<th>Mappingtabelle*</th>
-											<td>Speichern</th>
-											<td>Zeitreihen-Mapping*</th>
-											<td>Datensatz-Quellformat*</th>
-											<td>CRS*</th>
+											<th>Speichern</th>
+											<th>Zeitreihen-Mapping*</th>
+											<th>Datensatz-Quellformat*</th>
+											<th>CRS*</th>
 											<th ng-show="checkIfSelectedConverterIsCsvOnlyIndicator()">separator*</th>
 											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedConverterIsWfsV1(batchList)">Schema*</th>
-											<td>Datenquelltyp*</th>
+											<th>Datenquelltyp*</th>
 											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsFile(batchList)">Datei*</th>
 											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsHttp(batchList)">URL*</th>
 											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsInline(batchList)">Payload*</th>
-											<td>ID Attributname der Raumeinheiten-Features*</th>
-											<td>Ziel-Raumebene*</th>
+											<th>ID Attributname der Raumeinheiten-Features*</th>
+											<th>Ziel-Raumebene*</th>
 										</tr>
 									</tfoot>
 								</table>
