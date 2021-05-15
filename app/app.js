@@ -196,7 +196,7 @@ function initAngularComponents(){
             // only if texExpression contains the special character '$' which is used to mark tex code
             // then call MathJax function
             if(texExpression && texExpression.includes("$")){
-              MathJax.typeset([$element[0]]);
+              MathJax.typesetPromise([$element[0]]);
             }            
           });
         },

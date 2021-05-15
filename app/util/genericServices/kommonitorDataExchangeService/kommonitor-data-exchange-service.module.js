@@ -125,7 +125,11 @@ angular
       				.withPaginationType('full_numbers')
       				.withDisplayLength(5)
       				.withLanguageSource('./Datatables.Language.German.json')
-              .withOption('lengthMenu', [[5, 10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "Alle"]]);
+              .withOption('lengthMenu', [[5, 10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "Alle"]])
+              .withOption('responsive', true)
+              .withOption('autoWidth', true)
+              .withOption('stateSave', true)
+              .withOption('deferRender', true);
 
           this.datePickerOptions = {
             autoclose: true,
