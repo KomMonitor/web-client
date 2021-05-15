@@ -127,7 +127,8 @@
 								<td>{{::indicatorDataset.unit}}</td>
 								<td ng-bind-html="::indicatorDataset.metadata.description"></td>
 								<td ng-bind-html="::indicatorDataset.interpretation"></td>
-								<td mathjax-bind="indicatorDataset.processDescription"></td>
+								<td ng-if="::indicatorDataset.processDescription.includes('$')" mathjax-bind="::indicatorDataset.processDescription"></td>
+								<td ng-if="::!indicatorDataset.processDescription.includes('$')" ng-bind-html="::indicatorDataset.processDescription"></td>
 								<td ng-bind-html="::indicatorDataset.metadata.datasource"></td>
 								<td ng-bind-html="::indicatorDataset.metadata.databasis"></td>
 								<td>{{::indicatorDataset.tags}}</td>
