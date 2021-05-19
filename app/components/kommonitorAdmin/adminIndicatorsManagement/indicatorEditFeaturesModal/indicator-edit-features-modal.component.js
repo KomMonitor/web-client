@@ -197,7 +197,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 					$scope.indicatorFeaturesJSON = undefined;
 					$scope.remainingFeatureHeaders = undefined;
 	
-					$rootScope.$broadcast("refreshIndicatorOverviewTable");
+					$rootScope.$broadcast("refreshIndicatorOverviewTable", "edit", $scope.currentIndicatorDataset.indicatorId);
 					// $scope.refreshIndicatorEditFeaturesOverviewTable();
 	
 					$scope.successMessagePart = $scope.currentIndicatorDataset.indicatorName;
@@ -513,7 +513,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 								// all good, really execute the request to import data against data management API
 								var updateIndicatorResponse = await kommonitorImporterHelperService.updateIndicator($scope.converterDefinition, $scope.datasourceTypeDefinition, $scope.propertyMappingDefinition, $scope.currentIndicatorDataset.indicatorId, $scope.putBody_indicators, false);						
 	
-								$rootScope.$broadcast("refreshIndicatorOverviewTable");
+								$rootScope.$broadcast("refreshIndicatorOverviewTable", "edit", $scope.currentIndicatorDataset.indicatorId);
 								// $scope.refreshIndicatorEditFeaturesOverviewTable();
 	
 								$scope.successMessagePart = $scope.currentIndicatorDataset.indicatorName;

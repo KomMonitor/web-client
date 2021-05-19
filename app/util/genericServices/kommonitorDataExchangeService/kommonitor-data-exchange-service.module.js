@@ -485,6 +485,32 @@ angular
 						this.availableIndicators = indicatorsArray;            
 					};
 
+          this.addSingleIndicatorMetadata = function(indicatorMetadata){
+            let tmpArray = [indicatorMetadata];
+            Array.prototype.push.apply(tmpArray, this.availableIndicators);
+            this.availableIndicators =  tmpArray;
+          };
+
+          this.replaceSingleIndicatorMetadata = function(indicatorMetadata){
+            for (let index = 0; index < this.availableIndicators.length; index++) {
+              let indicator = this.availableIndicators[index];
+              if(indicator.indicatorId == indicatorMetadata.indicatorId){
+                this.availableIndicators[index] = indicatorMetadata;
+                break;
+              }
+            }
+          };
+
+          this.deleteSingleIndicatorMetadata = function(indicatorId){
+            for (let index = 0; index < this.availableIndicators.length; index++) {
+              const indicator = this.availableIndicators[index];
+              if(indicator.indicatorId == indicatorId){
+                this.availableIndicators.splice(index, 1);
+                break;
+              }              
+            }
+          };
+
 
 					// TOPICS
 
@@ -1571,6 +1597,19 @@ angular
 
                 self.setIndicators(response.data);
                 fetchedIndicatorsInitially = true;
+
+              });
+          };
+
+          this.fetchSingleIndicatorMetadata = function(targetIndicatorId){
+            return $http({
+              url: this.baseUrlToKomMonitorDataAPI + indicatorsEndpoint + "/" + targetIndicatorId,
+              method: "GET"
+            }).then(function successCallback(response) {
+                // this callback will be called asynchronously
+                // when the response is available
+
+                return response.data;
 
               });
           };

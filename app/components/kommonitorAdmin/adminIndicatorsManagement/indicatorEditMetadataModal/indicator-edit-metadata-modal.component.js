@@ -709,7 +709,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 
 					$scope.successMessagePart = $scope.datasetName;
 
-					$rootScope.$broadcast("refreshIndicatorOverviewTable");
+					$rootScope.$broadcast("refreshIndicatorOverviewTable", "edit", $scope.currentIndicatorDataset.indicatorId);
 					$("#indicatorEditMetadataSuccessAlert").show();
 					$scope.loadingData = false;
 

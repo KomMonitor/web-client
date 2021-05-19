@@ -606,10 +606,12 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 						  				  
 				  var response = response.data;
 
-				  $rootScope.$broadcast("refreshIndicatorOverviewTable");
+				  $rootScope.$broadcast("refreshIndicatorOverviewTable", "add", response.headers.location);
 
 						// refresh all admin dashboard diagrams due to modified metadata
-						$rootScope.$broadcast("refreshAdminDashboardDiagrams");
+						$timeout(function(){
+							$rootScope.$broadcast("refreshAdminDashboardDiagrams");
+						}, 500);
 
 						$scope.successMessagePart = $scope.datasetName;
 						$scope.importedFeatures = [];
