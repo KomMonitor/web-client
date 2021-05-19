@@ -47,6 +47,7 @@
     "@fortawesome/fontawesome-free": "^5.9.0",
     "@turf/turf": "^5.1.6",
     "admin-lte": "^2.4.15",
+    "ag-grid-community": "^25.2.1",
     "angular": "^1.8.2",
     "angular-datatables": "^0.6.2",
     "angular-legacy-sortablejs-maintained": "^0.6.2",

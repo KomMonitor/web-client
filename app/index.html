@@ -66,7 +66,8 @@
 
         <script>
           MathJax = {
-            tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
+            tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]},
+            skipStartupTypeset: true
           };
         </script>
         
@@ -121,6 +122,8 @@
         <script src="dependencies/keycloak/keycloak.js"></script>
         <script src="dependencies/sortablejs/Sortable.min.js"></script>
         <script src="dependencies/angular-legacy-sortablejs/angular-legacy-sortable.js"></script>
+        <script src="dependencies/ag-grid-community/ag-grid-community.min.js"></script>
+        
         
         <!-- <script src="dependencies/bootstrap-iconpicker/js/bootstrap-iconpicker.bundle.min.js"></script> -->
         <script src="dependencies/gridstack/gridstack.min.js"></script>
@@ -156,6 +159,7 @@
         <script src="util/genericServices/kommonitorScriptHelperService/kommonitor-script-helper-service.module.js" type="text/javascript"></script>
         <script src="util/genericServices/kommonitorConfigStorageService/kommonitor-config-storage-service.module.js" type="text/javascript"></script>
         <script src="util/genericServices/kommonitorKeycloakHelperService/kommonitor-keycloak-helper-service.module.js" type="text/javascript"></script>
+        <script src="util/genericServices/kommonitorDataGridHelperService/kommonitor-data-grid-helper-service.module.js" type="text/javascript"></script>
         <script src="util/genericServices/kommonitorVisualStyleHelperService/kommonitor-visual-style-helper-service.module.js" type="text/javascript"></script>
         <script src="util/genericServices/kommonitorInfoLegendHelperService/kommonitor-info-legend-helper-service.module.js" type="text/javascript"></script>
         <script src="util/genericServices/kommonitorElementVisibilityHelperService/kommonitor-element-visibility-helper-service.module.js" type="text/javascript"></script>
