@@ -10,6 +10,7 @@ module.exports = function (grunt) {
             'app/util/genericServices/kommonitorScriptHelperService/kommonitor-script-helper-service.module.js',
             'app/util/genericServices/kommonitorConfigStorageService/kommonitor-config-storage-service.module.js',
             'app/util/genericServices/kommonitorKeycloakHelperService/kommonitor-keycloak-helper-service.module.js',
+            'app/util/genericServices/kommonitorDataGridHelperService/kommonitor-data-grid-helper-service.module.js',
             'app/util/genericServices/kommonitorVisualStyleHelperService/kommonitor-visual-style-helper-service.module.js',
             'app/util/genericServices/kommonitorElementVisibilityHelperService/kommonitor-element-visibility-helper-service.module.js',
             'app/util/genericServices/kommonitorInfoLegendHelperService/kommonitor-info-legend-helper-service.module.js',
