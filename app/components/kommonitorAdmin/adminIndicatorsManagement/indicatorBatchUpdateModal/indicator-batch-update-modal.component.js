@@ -201,14 +201,10 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 
 	
 			$rootScope.$on("refreshIndicatorOverviewTableCompleted", function() {
-				for(let i=0;i<$scope.batchList.length;i++) {
-					var row = $scope.batchList[i];
-					if(row.tempIndicatorId) {
-						var indicator = kommonitorBatchUpdateHelperService.getIndicatorObjectById(row.tempIndicatorId);
-						row.name = indicator;
-					}
-				}
-			})
+				kommonitorBatchUpdateHelperService.refreshNameColumn("indicator", $scope.batchList)
+			});
+
+			
 	
 
 			$scope.onTimeseriesMappingBtnClicked = function($event) {

@@ -182,13 +182,7 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 			
 
 			$rootScope.$on("refreshGeoresourceOverviewTableCompleted", function() {
-				for(let i=0;i<$scope.batchList.length;i++) {
-					var row = $scope.batchList[i];
-					if(row.tempGeoresourceId) {
-						var georesource = kommonitorBatchUpdateHelperService.getGeoresourceObjectById(row.tempGeoresourceId);
-						row.name = georesource;
-					}
-				}
-			})
+				kommonitorBatchUpdateHelperService.refreshNameColumn("georesource", $scope.batchList)
+			});
 		}
 ]});

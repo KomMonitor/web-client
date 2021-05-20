@@ -1198,5 +1198,24 @@ angular
                         };
                     }, 200)
                 }
+
+
+                // the variable availableGeoresources / availableIndicators (which is used to fill the ng-options)
+                // changes after each update, causing angularjs to loose the connection.
+                // this function restores the names
+                this.refreshNameColumn = function(resourceType, batchList) {
+                    for(let i=0;i<batchList.length;i++) {
+                        let row = batchList[i];
+                        if(row.tempResourceId) {
+                            let resource;
+                            if (resourceType === "georesource")
+                                resource = this.getGeoresourceObjectById(row.tempResourceId);
+                                if (resourceType === "indicator")
+                                resource = this.getIndicatorObjectById(row.tempResourceId);
+                            
+                            row.name = resource;
+                        }
+                    }
+                }
             }
         ]);
