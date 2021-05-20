@@ -236,7 +236,7 @@ angular
                         value: responses
                     });
 
-                    startBtn.setAttribute("disabled", false);
+                    startBtn.removeAttribute("disabled");
 
                 };
 
