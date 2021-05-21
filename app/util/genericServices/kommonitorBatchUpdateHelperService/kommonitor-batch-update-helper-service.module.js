@@ -6,12 +6,14 @@ angular
         'kommonitorBatchUpdateHelperService', ['$rootScope', '$timeout', 'kommonitorDataExchangeService', 'kommonitorImporterHelperService', '__env',
             function ($rootScope, $timeout, kommonitorDataExchangeService, kommonitorImporterHelperService, __env) {
 
-                thisService = this;
+                let thisService = this; // to enable acces to service methods from inside other functions (e. g. $timeout) where 'this' references something else
 
                 this.batchUpdate = async function (resourceType, batchList) {
 
-                    let startBtn = document.getElementById(resourceType + "-batch-update-btn")
+                    let startBtn = document.getElementById(resourceType + "-batch-update-btn");
+                    startBtn.innerHTML = "Update wird ausgef&uuml;hrt...";
                     startBtn.setAttribute("disabled", "disabled");
+                    
 
                     // clear result modal
                     document.getElementById("batch-update-result-table-tbody").innerHTML = "";
@@ -229,15 +231,14 @@ angular
                         }  
                     }
 
-                    console.log(responses);
-
                     $rootScope.$broadcast("batchUpdateCompleted", {
                         resourceType: resourceType,
                         value: responses
                     });
 
-                    startBtn.removeAttribute("disabled");
 
+                    startBtn.removeAttribute("disabled");
+                    startBtn.innerHTML = "Update starten";
                 };
 
 
