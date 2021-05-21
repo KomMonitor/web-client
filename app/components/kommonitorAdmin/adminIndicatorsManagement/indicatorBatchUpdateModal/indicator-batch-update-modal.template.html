@@ -297,6 +297,10 @@
 					<i class="fas fa-file-export"></i>&nbsp;&nbsp;Batch-Liste exportieren
 				</button>
 
+				<button id="indicator-reopen-results-btn" type="button" class="btn btn-info"
+					ng-click="reopenResultModal()" ng-disabled="lastUpdateResponseObj===undefined">Ergebnis anzeigen
+				</button>
+
 				<button id="indicator-batch-update-btn" type="button" class="btn btn-success"
 					ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.batchUpdate('indicator', batchList)" ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfNameAndFilesChosenInEachRow('indicator', batchList)">Update ausf&uuml;hren
 				</button>

@@ -8,6 +8,7 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 			this.kommonitorBatchUpdateHelperServiceInstance = kommonitorBatchUpdateHelperService;
 	
 			$scope.isFirstStart = true;
+			$scope.lastUpdateResponseObj;
 	
 			/*
 			{
@@ -260,6 +261,19 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 				// then reset the modal
 				$scope.$broadcast('resetTimeseriesMapping')
 			});
-			
+
+
+			$scope.$on("batchUpdateCompleted", function(event, data) {
+				if(data.resourceType === "indicator") {
+					$scope.lastUpdateResponseObj = data;
+				}
+			});
+
+
+			$scope.reopenResultModal = function() {
+				if (typeof $scope.lastUpdateResponseObj !== 'undefined') {
+					$rootScope.$broadcast("reopenBatchUpdateResultModal", $scope.lastUpdateResponseObj);
+				}
+			}
 		}
 ]});

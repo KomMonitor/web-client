@@ -367,6 +367,10 @@
 					<i class="fas fa-file-export"></i>&nbsp;&nbsp;Batch-Liste exportieren
 				</button>
 
+				<button id="georesource-reopen-results-btn" type="button" class="btn btn-info"
+					ng-click="reopenResultModal()" ng-disabled="lastUpdateResponseObj===undefined">Ergebnis anzeigen
+				</button>
+
 				<button id="georesource-batch-update-btn" type="button" class="btn btn-success"
 					ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.batchUpdate('georesource', batchList)" ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfNameAndFilesChosenInEachRow('georesource', batchList)">Update ausführen
 				</button>

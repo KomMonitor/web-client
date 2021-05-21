@@ -8,6 +8,7 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 			this.kommonitorBatchUpdateHelperServiceInstance = kommonitorBatchUpdateHelperService;
 
 			$scope.isFirstStart = true;
+			$scope.lastUpdateResponseObj;
 
 			/*
 			{
@@ -184,5 +185,19 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 			$rootScope.$on("refreshGeoresourceOverviewTableCompleted", function() {
 				kommonitorBatchUpdateHelperService.refreshNameColumn("georesource", $scope.batchList)
 			});
+
+			$scope.$on("batchUpdateCompleted", function(event, data) {
+				if(data.resourceType === "georesource") {
+					$scope.lastUpdateResponseObj = data
+				}
+			});
+
+			$scope.reopenResultModal = function() {
+				if (typeof $scope.lastUpdateResponseObj !== 'undefined') {
+					$rootScope.$broadcast("reopenBatchUpdateResultModal", $scope.lastUpdateResponseObj);
+				}
+			}
 		}
+
+		
 ]});
