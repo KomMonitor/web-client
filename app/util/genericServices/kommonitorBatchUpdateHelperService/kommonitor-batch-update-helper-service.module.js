@@ -29,7 +29,7 @@ angular
 
                     for (let i=0; i<batchListCopy.length; i++) {
                         let row = batchListCopy[i];
-                        console.log("row: ", row);
+                        //console.log("row: ", row);
 
                         let resourceId;
                         if (resourceType === "georesource")
@@ -47,10 +47,10 @@ angular
                         row.mappingObj.dataSource = this.buildDataSourceDefinition(row.selectedDatasourceType, row.mappingObj.dataSource, true);
 
                         var converterDefinition = row.mappingObj.converter;
-                        console.log("converterDefinition of row " + i + ": ", converterDefinition);
+                        //console.log("converterDefinition of row " + i + ": ", converterDefinition);
 
                         var datasourceTypeDefinition = row.mappingObj.dataSource;
-                        console.log("datasourceTypeDefinition before file upload: ", datasourceTypeDefinition);
+                        //console.log("datasourceTypeDefinition before file upload: ", datasourceTypeDefinition);
                         
                         var datasourceFileInputId = resourceType + "DataSourceFileInputField" + i;
                         // upload file to importer
@@ -60,7 +60,7 @@ angular
                                 var fileUploadName = await this.uploadFileToImporter(datasourceFileInputId);
                                 if(fileUploadName) {
                                     datasourceTypeDefinition.parameters[0].value = fileUploadName;
-                                    console.log("datasourceTypeDefinition after file upload: ", datasourceTypeDefinition);
+                                    //console.log("datasourceTypeDefinition after file upload: ", datasourceTypeDefinition);
                                 }
                             } catch (error) {
                                 console.log("error while uploading file in row: " + i);
@@ -72,12 +72,12 @@ angular
                                 continue;
                             }
                         }
-                        console.log("datasourceTypeDefinition of row " + i + ": ", datasourceTypeDefinition);
+                        //console.log("datasourceTypeDefinition of row " + i + ": ", datasourceTypeDefinition);
 
                         // ========== for georesource update ========== 
                         if(resourceType === "georesource") {
                             var propertyMappingDefinition = row.mappingObj.propertyMapping;
-                            console.log("propertyMappingDefinition of row " + i + ": ", propertyMappingDefinition);
+                            //console.log("propertyMappingDefinition of row " + i + ": ", propertyMappingDefinition);
 
                             var propertyMappingDefinition = kommonitorImporterHelperService.buildPropertyMapping_spatialResource(
                                 row.mappingObj.propertyMapping.nameProperty,
@@ -90,10 +90,10 @@ angular
                                 this.createAttributeMappingsObject(row)
                             )
 
-                            console.log("propertyMappingDefinition of row " + i + " with importerService: ", propertyMappingDefinition);
+                            //console.log("propertyMappingDefinition of row " + i + " with importerService: ", propertyMappingDefinition);
 
                              var putBody_georesources = kommonitorImporterHelperService.buildPutBody_georesources(row.mappingObj)
-                             console.log("putBody_georesources of row " + i + ": ", putBody_georesources);
+                             //console.log("putBody_georesources of row " + i + ": ", putBody_georesources);
      
                              // send post request and wait for it to complete
                              var updateGeoresourceResponse_dryRun = undefined;
@@ -152,7 +152,7 @@ angular
                         // ========== for indicator update ========== 
                         if(resourceType === "indicator") {
                             var propertyMappingDefinition = row.mappingObj.propertyMapping;
-                            console.log("propertyMappingDefinition of row " + i + ": ", propertyMappingDefinition);
+                            //console.log("propertyMappingDefinition of row " + i + ": ", propertyMappingDefinition);
 
                             var propertyMappingDefinition = kommonitorImporterHelperService.buildPropertyMapping_indicatorResource(
                                 row.mappingObj.propertyMapping.spatialReferenceKeyProperty,
@@ -160,7 +160,7 @@ angular
                                 row.mappingObj.propertyMapping.keepMissingOrNullValueIndicator,
                             )
 
-                            console.log("propertyMappingDefinition of row " + i + " with importerService: ", propertyMappingDefinition);
+                            //console.log("propertyMappingDefinition of row " + i + " with importerService: ", propertyMappingDefinition);
 
                             var scopeProperties = {
                                 "targetSpatialUnitMetadata": {
@@ -174,7 +174,7 @@ angular
                                 }
                             }
                              var putBody_indicators = kommonitorImporterHelperService.buildPutBody_indicators(scopeProperties)
-                             console.log("putBody_indicators of row " + i + ": ", putBody_indicators);
+                             //console.log("putBody_indicators of row " + i + ": ", putBody_indicators);
      
                              // send post request and wait for it to complete
                              var updateIndicatorResponse_dryRun = undefined;
@@ -396,7 +396,7 @@ angular
                 }
 
                 this.addNewRowToBatchList = function (resourceType, batchList) {
-                    console.log(batchList);
+                    //console.log(batchList);
 
                     // create new object theat matches the row-scheme
                     let obj = {}
@@ -1106,9 +1106,7 @@ angular
                     // differentiate between timesereis mapping and other columns
                     if(selectedCol == "mappingObj.propertyMapping.timeseriesMapping") {
                         if(typeof(newValue != "undefined")) {
-                            console.log(newValue);
                             let btns = angular.element($('.indicatorTimeseriesMappingBtn'));
-                            console.log(btns);
                             for (let i=0; i<batchList.length; i++) {
                                 // never change disabled fields
                                 let btn = btns.get(i);
@@ -1117,7 +1115,6 @@ angular
 
                                 newValue  = angular.fromJson(angular.toJson(newValue));
                                 let oldMapping = batchList[i].mappingObj.propertyMapping.timeseriesMappings
-                                console.log(oldMapping);
                                 // iterate newValue
                                 for (let j=0; j<newValue.length; j++) {
                                     let exists = false;
