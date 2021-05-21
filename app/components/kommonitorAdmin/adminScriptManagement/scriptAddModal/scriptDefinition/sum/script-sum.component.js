@@ -104,7 +104,7 @@ angular.module('scriptSum').component('scriptSum', {
 
 					// we can use TEX code as we use MathJax library
 					formulaHTML+=letterValue;
-					legendItemsHTML+="$" + letterValue + "$: " + indicatorMetadata.indicatorName;
+					legendItemsHTML+="$" + letterValue + "$: " + indicatorMetadata.indicatorName  + " [" + indicatorMetadata.unit +  "]";
 					if(index < $scope.baseIndicators.length - 1){
 						formulaHTML+=" + ";
 						legendItemsHTML+="<br/>"; 
@@ -127,7 +127,7 @@ angular.module('scriptSum').component('scriptSum', {
 				$scope.resetComputationFormulaAndLegend();
 
 				setTimeout(() => {
-					$scope.$apply();
+					$scope.$digest();
 				});
 			};
 
@@ -150,7 +150,7 @@ angular.module('scriptSum').component('scriptSum', {
 				$scope.resetComputationFormulaAndLegend();
 				
 				setTimeout(() => {
-					$scope.$apply();
+					$scope.$digest();
 				});
 			};
 	

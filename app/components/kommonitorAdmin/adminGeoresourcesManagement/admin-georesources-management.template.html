@@ -15,7 +15,7 @@
 
 			<div class="adminTableButtonWrapper">
 				<!-- batch update georesources -->
-				<button id="button-batch-update-georesources" class="btn btn-success btn-sm" type="button" data-toggle="modal" data-target="#modal-batch-update-georesources"><i class="fas fa-plus"></i>&nbsp;&nbsp;Batch-Update</button>
+				<button id="button-batch-update-georesources" class="btn btn-success btn-sm" type="button" data-toggle="modal" data-target="#modal-batch-update-georesources"><i class="fas fa-refresh"></i>&nbsp;&nbsp;Batch-Update</button>
 				<!-- add georesource -->					  		
 				<button class="btn btn-success btn-sm" type="button" data-toggle="modal" data-target="#modal-add-georesource"><i class="fas fa-plus"></i>&nbsp;&nbsp;Erstellen</button>
 				<!-- edit metadata -->
@@ -87,32 +87,32 @@
 												<!-- <button class="btn btn-danger btn-sm" type="button" data-toggle="modal" data-target="#modal-delete-spatial-units" ng-click="onClickDeleteDatasets(poiDataset)" title="Datensatz l&ouml;schen"><i class="fas fa-trash"></i></button> -->
 											</div>
 										</td>
-	                  <td>{{poiDataset.georesourceId}}</td>
-	                  <td>{{poiDataset.datasetName}}</td>
-										<td>{{poiDataset.poiSymbolColor}}</td>
-										<td>{{poiDataset.poiSymbolBootstrap3Name}} <br/><br/> <span class="glyphicon glyphicon-{{poiDataset.poiSymbolBootstrap3Name}}"></span> </td>
-										<td>{{poiDataset.poiMarkerColor}}</td>
-										<td><p>{{
+	                  <td>{{::poiDataset.georesourceId}}</td>
+	                  <td>{{::poiDataset.datasetName}}</td>
+										<td>{{::poiDataset.poiSymbolColor}}</td>
+										<td>{{::poiDataset.poiSymbolBootstrap3Name}} <br/><br/> <span class="glyphicon glyphicon-{{::poiDataset.poiSymbolBootstrap3Name}}"></span> </td>
+										<td>{{::poiDataset.poiMarkerColor}}</td>
+										<td><p>{{::
 											$ctrl.kommonitorDataExchangeServiceInstance.getTopicHierarchyDisplayString(poiDataset.topicReference)}}</p></td>
 	                  <td>
 											<ul style="columns: 10; 	-webkit-columns: 10;	-moz-columns: 10;">
 												<li style="margin-right: 15px;" ng-repeat="periodOfValidity in poiDataset.availablePeriodsOfValidity">
-													<p ng-show="periodOfValidity.endDate">{{periodOfValidity.startDate}} - {{periodOfValidity.endDate}}</p>
-													<p ng-show="! periodOfValidity.endDate">{{periodOfValidity.startDate}} - heute </p>
+													<p ng-show="periodOfValidity.endDate">{{::periodOfValidity.startDate}} - {{::periodOfValidity.endDate}}</p>
+													<p ng-show="! periodOfValidity.endDate">{{::periodOfValidity.startDate}} - heute </p>
 												</li>
 											</ul>
 										</td>
-										<td ng-bind-html="poiDataset.metadata.description"></td>
-										<td ng-bind-html="poiDataset.metadata.note"></td>
-										<td ng-bind-html="poiDataset.metadata.databasis"></td>
-										<td ng-bind-html="poiDataset.metadata.datasource"></td>
-										<td ng-bind-html="poiDataset.metadata.contact"></td>
-										<td>{{poiDataset.metadata.lastUpdate}}</td>
-										<td>EPSG:{{poiDataset.metadata.sridEPSG}}</td>
-										<td>{{poiDataset.metadata.updateInterval}}</td>
-										<td ng-bind-html="poiDataset.metadata.literature"></td>
-										<td ng-bind-html="poiDataset.wmsUrl"></td>
-										<td ng-bind-html="poiDataset.wfsUrl"></td>
+										<td ng-bind-html="::poiDataset.metadata.description"></td>
+										<td ng-bind-html="::poiDataset.metadata.note"></td>
+										<td ng-bind-html="::poiDataset.metadata.databasis"></td>
+										<td ng-bind-html="::poiDataset.metadata.datasource"></td>
+										<td ng-bind-html="::poiDataset.metadata.contact"></td>
+										<td>{{::poiDataset.metadata.lastUpdate}}</td>
+										<td>EPSG:{{::poiDataset.metadata.sridEPSG}}</td>
+										<td>{{::poiDataset.metadata.updateInterval}}</td>
+										<td ng-bind-html="::poiDataset.metadata.literature"></td>
+										<td ng-bind-html="::poiDataset.wmsUrl"></td>
+										<td ng-bind-html="::poiDataset.wfsUrl"></td>
 	                </tr>
 
 	                </tbody>
@@ -200,32 +200,32 @@
 														<!-- <button class="btn btn-danger btn-sm" type="button" data-toggle="modal" data-target="#modal-delete-spatial-units" ng-click="onClickDeleteDatasets(loiDataset)" title="Datensatz l&ouml;schen"><i class="fas fa-trash"></i></button> -->
 													</div>
 												</td>
-												<td>{{loiDataset.georesourceId}}</td>
-												<td>{{loiDataset.datasetName}}</td>
-												<td>{{loiDataset.loiColor}}</td>
-												<td>{{loiDataset.loiWidth}}</td>
-												<td>{{loiDataset.loiDashArrayString}}</td>
-												<td><p>{{
+												<td>{{::loiDataset.georesourceId}}</td>
+												<td>{{::loiDataset.datasetName}}</td>
+												<td>{{::loiDataset.loiColor}}</td>
+												<td>{{::loiDataset.loiWidth}}</td>
+												<td>{{::loiDataset.loiDashArrayString}}</td>
+												<td><p>{{::
 													$ctrl.kommonitorDataExchangeServiceInstance.getTopicHierarchyDisplayString(loiDataset.topicReference)}}</p></td>
 												<td>
 													<ul>
 														<li ng-repeat="periodOfValidity in loiDataset.availablePeriodsOfValidity">
-															<p ng-show="periodOfValidity.endDate">{{periodOfValidity.startDate}} - {{periodOfValidity.endDate}}</p>
-															<p ng-show="! periodOfValidity.endDate">{{periodOfValidity.startDate}} - heute </p>
+															<p ng-show="periodOfValidity.endDate">{{::periodOfValidity.startDate}} - {{::periodOfValidity.endDate}}</p>
+															<p ng-show="! periodOfValidity.endDate">{{::periodOfValidity.startDate}} - heute </p>
 														</li>
 													</ul>
 												</td>
-												<td ng-bind-html="loiDataset.metadata.description"></td>
-												<td ng-bind-html="loiDataset.metadata.note"></td>
-												<td ng-bind-html="loiDataset.metadata.databasis"></td>
-												<td ng-bind-html="loiDataset.metadata.datasource"></td>
-												<td ng-bind-html="loiDataset.metadata.contact"></td>
-												<td>{{loiDataset.metadata.lastUpdate}}</td>
-												<td>EPSG:{{loiDataset.metadata.sridEPSG}}</td>
-												<td>{{loiDataset.metadata.updateInterval}}</td>
-												<td ng-bind-html="loiDataset.metadata.literature"></td>
-												<td ng-bind-html="loiDataset.wmsUrl"></td>
-												<td ng-bind-html="loiDataset.wfsUrl"></td>
+												<td ng-bind-html="::loiDataset.metadata.description"></td>
+												<td ng-bind-html="::loiDataset.metadata.note"></td>
+												<td ng-bind-html="::loiDataset.metadata.databasis"></td>
+												<td ng-bind-html="::loiDataset.metadata.datasource"></td>
+												<td ng-bind-html="::loiDataset.metadata.contact"></td>
+												<td>{{::loiDataset.metadata.lastUpdate}}</td>
+												<td>EPSG:{{::loiDataset.metadata.sridEPSG}}</td>
+												<td>{{::loiDataset.metadata.updateInterval}}</td>
+												<td ng-bind-html="::loiDataset.metadata.literature"></td>
+												<td ng-bind-html="::loiDataset.wmsUrl"></td>
+												<td ng-bind-html="::loiDataset.wfsUrl"></td>
 											</tr>
 
 											</tbody>
@@ -312,30 +312,30 @@
 																<!-- <button class="btn btn-danger btn-sm" type="button" data-toggle="modal" data-target="#modal-delete-spatial-units" ng-click="onClickDeleteDatasets(aoiDataset)" title="Datensatz l&ouml;schen"><i class="fas fa-trash"></i></button> -->
 															</div>
 														</td>
-														<td>{{aoiDataset.georesourceId}}</td>
-														<td>{{aoiDataset.datasetName}}</td>
-														<td>{{aoiDataset.aoiColor}}</td>
-														<td><p>{{
+														<td>{{::aoiDataset.georesourceId}}</td>
+														<td>{{::aoiDataset.datasetName}}</td>
+														<td>{{::aoiDataset.aoiColor}}</td>
+														<td><p>{{::
 															$ctrl.kommonitorDataExchangeServiceInstance.getTopicHierarchyDisplayString(aoiDataset.topicReference)}}</p></td>
 														<td>
 															<ul>
 																<li ng-repeat="periodOfValidity in aoiDataset.availablePeriodsOfValidity">
-																	<p ng-show="periodOfValidity.endDate">{{periodOfValidity.startDate}} - {{periodOfValidity.endDate}}</p>
-																	<p ng-show="! periodOfValidity.endDate">{{periodOfValidity.startDate}} - heute </p>
+																	<p ng-show="periodOfValidity.endDate">{{::periodOfValidity.startDate}} - {{::periodOfValidity.endDate}}</p>
+																	<p ng-show="! periodOfValidity.endDate">{{::periodOfValidity.startDate}} - heute </p>
 																</li>
 															</ul>
 														</td>
-														<td ng-bind-html="aoiDataset.metadata.description"></td>
-														<td ng-bind-html="aoiDataset.metadata.note"></td>
-														<td ng-bind-html="aoiDataset.metadata.databasis"></td>
-														<td ng-bind-html="aoiDataset.metadata.datasource"></td>
-														<td ng-bind-html="aoiDataset.metadata.contact"></td>
-														<td>{{aoiDataset.metadata.lastUpdate}}</td>
-														<td>EPSG:{{aoiDataset.metadata.sridEPSG}}</td>
-														<td>{{aoiDataset.metadata.updateInterval}}</td>
-														<td ng-bind-html="aoiDataset.metadata.literature"></td>
-														<td ng-bind-html="aoiDataset.wmsUrl"></td>
-														<td ng-bind-html="aoiDataset.wfsUrl"></td>
+														<td ng-bind-html="::aoiDataset.metadata.description"></td>
+														<td ng-bind-html="::aoiDataset.metadata.note"></td>
+														<td ng-bind-html="::aoiDataset.metadata.databasis"></td>
+														<td ng-bind-html="::aoiDataset.metadata.datasource"></td>
+														<td ng-bind-html="::aoiDataset.metadata.contact"></td>
+														<td>{{::aoiDataset.metadata.lastUpdate}}</td>
+														<td>EPSG:{{::aoiDataset.metadata.sridEPSG}}</td>
+														<td>{{::aoiDataset.metadata.updateInterval}}</td>
+														<td ng-bind-html="::aoiDataset.metadata.literature"></td>
+														<td ng-bind-html="::aoiDataset.wmsUrl"></td>
+														<td ng-bind-html="::aoiDataset.wfsUrl"></td>
 													</tr>
 
 													</tbody>

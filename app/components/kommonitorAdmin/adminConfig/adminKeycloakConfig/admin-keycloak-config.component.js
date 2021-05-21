@@ -10,6 +10,9 @@ angular.module('adminKeycloakConfig').component('adminKeycloakConfig', {
 		$scope.loadingData = true;
 		$scope.codeMirrorEditor = undefined;
 
+		$scope.missingRequiredParameters = [];
+		$scope.missingRequiredParameters_string = "";
+
 		$scope.keywordsInConfig = ["realm", "auth-server-url", "http", "/auth", "resource", "ssl-required", "public-client", "confidential-port", "admin-rolename", "admin-rolepassword"];
 
 		$scope.keycloakConfigTemplate = undefined;
@@ -37,7 +40,7 @@ angular.module('adminKeycloakConfig').component('adminKeycloakConfig', {
 
 			$scope.onChangeKeycloakConfig();
 
-			$scope.$apply();
+			$scope.$digest();
 		};
 
 		$scope.initCodeEditor = function(){
@@ -80,6 +83,8 @@ angular.module('adminKeycloakConfig').component('adminKeycloakConfig', {
 			var isInvalid = true;
 
 			isInvalid = ! $scope.keywordsInConfig.every(keyword => configString.includes(keyword));
+			$scope.missingRequiredParameters = $scope.keywordsInConfig.filter(keyword => ! configString.includes(keyword));
+			$scope.missingRequiredParameters_string = JSON.stringify($scope.missingRequiredParameters);	
 
 			if ($scope.lintingIssues && $scope.lintingIssues.length > 0){
 				isInvalid = true;			
@@ -127,7 +132,7 @@ angular.module('adminKeycloakConfig').component('adminKeycloakConfig', {
 			}, 250);
 
 			$timeout(function(){
-				$scope.$apply();
+				$scope.$digest();
 			});
 		};
 
@@ -159,7 +164,7 @@ angular.module('adminKeycloakConfig').component('adminKeycloakConfig', {
 				$scope.loadingData = false;
 
 				setTimeout(() => {
-					$scope.$apply();
+					$scope.$digest();
 				}, 250);
 			} catch (error) {
 				if (error.data) {
@@ -173,7 +178,7 @@ angular.module('adminKeycloakConfig').component('adminKeycloakConfig', {
 				$scope.loadingData = false;
 
 				setTimeout(() => {
-					$scope.$apply();
+					$scope.$digest();
 				}, 250);
 			}
 

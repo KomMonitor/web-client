@@ -179,7 +179,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 			$scope.validityStartDate_perFeature = undefined;
 
 			setTimeout(() => {
-				$scope.$apply();	
+				$scope.$digest();	
 			}, 250);
 		};
 
@@ -267,7 +267,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 			$scope.attributeMapping_attributeType = kommonitorImporterHelperService.attributeMapping_attributeTypes[0];
 
 			setTimeout(() => {
-				$scope.$apply();
+				$scope.$digest();
 			}, 250);
 		};
 
@@ -277,7 +277,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 			$scope.attributeMapping_attributeType = attributeMappingEntry.dataType;			
 
 			setTimeout(() => {
-				$scope.$apply();
+				$scope.$digest();
 			}, 250);
 		};
 
@@ -292,7 +292,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 			}				
 
 			setTimeout(() => {
-				$scope.$apply();
+				$scope.$digest();
 			}, 250);
 		};
 
@@ -431,7 +431,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 							$scope.loadingData = false;
 
 							setTimeout(() => {
-								$scope.$apply();
+								$scope.$digest();
 							}, 250);
 
 						}
@@ -451,7 +451,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 						$scope.loadingData = false;
 
 						setTimeout(() => {
-							$scope.$apply();
+							$scope.$digest();
 						}, 250);
 					}
 				}
@@ -493,7 +493,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 					document.getElementById("spatialUnitsAddMetadataPre").innerHTML = $scope.spatialUnitMetadataStructure_pretty;
 					$("#spatialUnitMetadataImportErrorAlert").show();
 
-					$scope.$apply();
+					$scope.$digest();
 				}
 
 			};
@@ -512,7 +512,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 				document.getElementById("spatialUnitsAddMetadataPre").innerHTML = $scope.spatialUnitMetadataStructure_pretty;
 				$("#spatialUnitMetadataImportErrorAlert").show();
 
-				$scope.$apply();
+				$scope.$digest();
 			}
 
 				$scope.metadata = {};
@@ -549,7 +549,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 
 				$scope.spatialUnitLevel = $scope.metadataImportSettings.spatialUnitLevel;
 
-				$scope.$apply();
+				$scope.$digest();
 		};
 
 		$scope.onExportSpatialUnitAddMetadataTemplate = function(){
@@ -668,7 +668,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 					document.getElementById("spatialUnitsAddMappingConfigPre").innerHTML = $scope.spatialUnitMappingConfigStructure_pretty;
 					$("#spatialUnitMappingConfigImportErrorAlert").show();
 
-					$scope.$apply();
+					$scope.$digest();
 				}
 
 			};
@@ -686,7 +686,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 				document.getElementById("spatialUnitsAddMappingConfigPre").innerHTML = $scope.spatialUnitMappingConfigStructure_pretty;
 				$("#spatialUnitMappingConfigImportErrorAlert").show();
 
-				$scope.$apply();
+				$scope.$digest();
 			}
 			
 			  $scope.converter = undefined;
@@ -714,7 +714,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 					}
 				}
 
-				$scope.$apply();
+				$scope.$digest();
 
 				// converter parameters
 				if ($scope.converter){
@@ -769,7 +769,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 					}
 				}				
 				
-				$scope.$apply();
+				$scope.$digest();
 		};
 
 		$scope.onExportSpatialUnitAddMappingConfig = async function(){

@@ -11,3 +11,4 @@ tmp
 .idea
 build
 package-lock.json
+dist

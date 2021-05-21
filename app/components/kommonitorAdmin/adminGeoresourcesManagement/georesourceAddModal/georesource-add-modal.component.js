@@ -288,7 +288,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			$scope.keepMissingValues = true;
 
 			setTimeout(() => {
-				$scope.$apply();	
+				$scope.$digest();	
 			}, 250);
 		};
 
@@ -375,7 +375,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			$scope.attributeMapping_attributeType = kommonitorImporterHelperService.attributeMapping_attributeTypes[0];
 
 			setTimeout(() => {
-				$scope.$apply();
+				$scope.$digest();
 			}, 250);
 		};
 
@@ -385,7 +385,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			$scope.attributeMapping_attributeType = attributeMappingEntry.dataType;			
 
 			setTimeout(() => {
-				$scope.$apply();
+				$scope.$digest();
 			}, 250);
 		};
 
@@ -400,7 +400,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			}				
 
 			setTimeout(() => {
-				$scope.$apply();
+				$scope.$digest();
 			}, 250);
 		};
 
@@ -594,7 +594,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 							$scope.loadingData = false;
 
 							setTimeout(() => {
-								$scope.$apply();
+								$scope.$digest();
 							}, 250);
 
 						}
@@ -614,7 +614,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 						$scope.loadingData = false;
 
 						setTimeout(() => {
-							$scope.$apply();
+							$scope.$digest();
 						}, 250);
 					}
 				}
@@ -656,7 +656,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 					document.getElementById("georesourcesAddMetadataPre").innerHTML = $scope.georesourceMetadataStructure_pretty;
 					$("#georesourceMetadataImportErrorAlert").show();
 
-					$scope.$apply();
+					$scope.$digest();
 				}
 
 			};
@@ -675,7 +675,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 				document.getElementById("georesourcesAddMetadataPre").innerHTML = $scope.georesourceMetadataStructure_pretty;
 				$("#georesourceMetadataImportErrorAlert").show();
 
-				$scope.$apply();
+				$scope.$digest();
 			}
 
 				$scope.metadata = {};
@@ -756,7 +756,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 					// $("#poiSymbolPicker input").css('glyphicon-' + $scope.metadataImportSettings.poiSymbolBootstrap3Name);
 				}, 200);
 
-				$scope.$apply();
+				$scope.$digest();
 		}
 
 		$scope.onExportGeoresourceAddMetadataTemplate = function(){
@@ -934,7 +934,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 					document.getElementById("georesourcesAddMappingConfigPre").innerHTML = $scope.georesourceMappingConfigStructure_pretty;
 					$("#georesourceMappingConfigImportErrorAlert").show();
 
-					$scope.$apply();
+					$scope.$digest();
 				}
 
 			};
@@ -952,7 +952,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 				document.getElementById("georesourcesAddMappingConfigPre").innerHTML = $scope.georesourceMappingConfigStructure_pretty;
 				$("#georesourceMappingConfigImportErrorAlert").show();
 
-				$scope.$apply();
+				$scope.$digest();
 			}
 			
 			  $scope.converter = undefined;
@@ -980,7 +980,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 					}
 				}
 
-				$scope.$apply();
+				$scope.$digest();
 
 				// converter parameters
 				if ($scope.converter){
@@ -1035,7 +1035,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 					}
 				}				
 				
-				$scope.$apply();
+				$scope.$digest();
 		};
 
 		$scope.onExportGeoresourceAddMappingConfig = async function(){

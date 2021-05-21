@@ -179,7 +179,7 @@ angular.module('scriptHeadlineIndicator').component('scriptHeadlineIndicator', {
 					var letterValue = kommonitorScriptHelperService.getAlphabetLetterFromNumber(index);
 
 					// we can use TEX code as we use MathJax library
-					legendItemsHTML+="$" + letterValue + "$: " + indicatorMetadata.indicatorName;
+					legendItemsHTML+="$" + letterValue + "$: " + indicatorMetadata.indicatorName + " [" + indicatorMetadata.unit +  "]";
 					if(index < $scope.baseIndicators.length - 1){
 						legendItemsHTML+="<br/>"; 
 					}
@@ -203,7 +203,7 @@ angular.module('scriptHeadlineIndicator').component('scriptHeadlineIndicator', {
 				$scope.resetComputationFormulaAndLegend();
 
 				setTimeout(() => {
-					$scope.$apply();
+					$scope.$digest();
 				});
 			};
 
@@ -226,7 +226,7 @@ angular.module('scriptHeadlineIndicator').component('scriptHeadlineIndicator', {
 				$scope.resetComputationFormulaAndLegend();
 				
 				setTimeout(() => {
-					$scope.$apply();
+					$scope.$digest();
 				});
 			};
 	

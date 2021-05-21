@@ -71,7 +71,7 @@ angular
 									}
 
 									setTimeout(() => {
-										$scope.$apply();
+										$scope.$digest();
 									}, 500);
 								};
 
@@ -84,7 +84,7 @@ angular
 									}
 
 									setTimeout(() => {
-										$scope.$apply();
+										$scope.$digest();
 									}, 500);
 								};
 
@@ -97,7 +97,7 @@ angular
 									}
 
 									setTimeout(() => {
-										$scope.$apply();
+										$scope.$digest();
 									}, 500);
 								};
 
@@ -110,7 +110,7 @@ angular
 									}
 
 									setTimeout(() => {
-										$scope.$apply();
+										$scope.$digest();
 									}, 500);
 								};
 
@@ -123,7 +123,7 @@ angular
 									}
 
 									setTimeout(() => {
-										$scope.$apply();
+										$scope.$digest();
 									}, 500);
 								};
 
@@ -328,7 +328,7 @@ angular
 										$timeout(function(){
 					
 											$scope.refreshSelectedGeoresources();
-										}, 25);	
+										}, 250);	
 									}, 1000);
 			
 								};
@@ -351,11 +351,11 @@ angular
 									$timeout(function(){
 				
 										$scope.refreshSelectedGeoresources();
-									}, 25);							
+									}, 250);							
 								});
 
 								$scope.refreshSelectedGeoresources = function(){
-									for (const georesource of kommonitorDataExchangeService.availableGeoresources) {
+									for (const georesource of kommonitorDataExchangeService.displayableGeoresources_keywordFiltered) {
 										if (georesource.isSelected){
 
 											if(georesource.isPOI){
@@ -487,7 +487,7 @@ angular
 								};
 
 								$scope.refreshPoiLayers = async function(){
-									for (var poi of kommonitorDataExchangeService.availableGeoresources){
+									for (var poi of kommonitorDataExchangeService.displayableGeoresources_keywordFiltered){
 										if (poi.isSelected){
 											//remove POI layer from map
 											$scope.removePoiLayerFromMap(poi);

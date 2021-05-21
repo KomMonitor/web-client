@@ -3,36 +3,39 @@ angular.module('kommonitorBatchUpdateHelper', ['kommonitorDataExchange', 'kommon
 angular
     .module('kommonitorBatchUpdateHelper', [])
     .service(
-        'kommonitorBatchUpdateHelperService', ['$rootScope', '$timeout', 'kommonitorDataExchangeService', 'kommonitorImporterHelperService', '$http', '__env',
-            function ($rootScope, $timeout, kommonitorDataExchangeService, kommonitorImporterHelperService, $http, __env) {
+        'kommonitorBatchUpdateHelperService', ['$rootScope', '$timeout', 'kommonitorDataExchangeService', 'kommonitorImporterHelperService', '__env',
+            function ($rootScope, $timeout, kommonitorDataExchangeService, kommonitorImporterHelperService, __env) {
 
-                var thisService = this; // allows calling service methods from inside other functions, where "this" references something else
-                this.georesourcesIdArray = [];
+                let thisService = this; // to enable acces to service methods from inside other functions (e. g. $timeout) where 'this' references something else
 
                 this.batchUpdate = async function (resourceType, batchList) {
 
-                    // clear result modal
-                    document.getElementById("georesource-result-table-tbody").innerHTML = "";
+                    let startBtn = document.getElementById(resourceType + "-batch-update-btn");
+                    startBtn.innerHTML = "Update wird ausgef&uuml;hrt...";
+                    startBtn.setAttribute("disabled", "disabled");
+                    
 
-                    // TODO check if all rows are valid, only continue if that is true
-                    // not working properly
-                    //$("#georesourceBatchUpdateForm").validator("update");
-                    //$("#georesourceBatchUpdateForm").validator("validate");
+                    // clear result modal
+                    document.getElementById("batch-update-result-table-tbody").innerHTML = "";
 
                     // create array to store response messages
                     var responses = [];
 
                     // deep copy batch list
                     var batchListCopy = [];
-                    for(let i=0;i<batchList.length;i++) {
+                    for(let i=0; i<batchList.length; i++) {
                         batchListCopy.push( $.extend(true, {}, batchList[i]));
                     }
 
-                    for (var i = 0; i < batchListCopy.length; i++) {
-                        // copy row to not change $scope
-                        var row = batchListCopy[i];
+                    for (let i=0; i<batchListCopy.length; i++) {
+                        let row = batchListCopy[i];
+                        //console.log("row: ", row);
 
-                        var georesourceId = row.name.georesourceId;
+                        let resourceId;
+                        if (resourceType === "georesource")
+                            resourceId = row.name.georesourceId;
+                        if (resourceType === "indicator")
+                            resourceId = row.name.indicatorId;
 
                         // converter properties to parameter array
                         row.mappingObj.converter = this.converterPropertiesToParametersArray(row.mappingObj.converter);
@@ -44,172 +47,250 @@ angular
                         row.mappingObj.dataSource = this.buildDataSourceDefinition(row.selectedDatasourceType, row.mappingObj.dataSource, true);
 
                         var converterDefinition = row.mappingObj.converter;
-                        console.log("converterDefinition of row " + i + ": ", converterDefinition);
+                        //console.log("converterDefinition of row " + i + ": ", converterDefinition);
 
                         var datasourceTypeDefinition = row.mappingObj.dataSource;
-                        console.log("datasourceTypeDefinition before file upload: ", datasourceTypeDefinition);
+                        //console.log("datasourceTypeDefinition before file upload: ", datasourceTypeDefinition);
                         
-                        var datasourceFileInputId = "dataSourceFileInputField" + i;
+                        var datasourceFileInputId = resourceType + "DataSourceFileInputField" + i;
+                        // upload file to importer
 
                         if(datasourceTypeDefinition.type === "FILE") {
-                            try{
+                            try {
                                 var fileUploadName = await this.uploadFileToImporter(datasourceFileInputId);
-                                if(fileUploadName)
+                                if(fileUploadName) {
                                     datasourceTypeDefinition.parameters[0].value = fileUploadName;
-                                    console.log("datasourceTypeDefinition after file upload: ", datasourceTypeDefinition);
+                                    //console.log("datasourceTypeDefinition after file upload: ", datasourceTypeDefinition);
+                                }
                             } catch (error) {
                                 console.log("error while uploading file in row: " + i);
                                 responses.push({
-                                    name: row.name.datasetName,
+                                    name: resourceType === "georesource" ? row.name.datasetName : row.name.indicatorName,
                                     status: "error",
                                     message: error 
                                 });
                                 continue;
                             }
                         }
-                        console.log("datasourceTypeDefinition of row " + i + ": ", datasourceTypeDefinition);
+                        //console.log("datasourceTypeDefinition of row " + i + ": ", datasourceTypeDefinition);
 
-                        var propertyMappingDefinition = row.mappingObj.propertyMapping;
-                        console.log("propertyMappingDefinition of row " + i + ": ", propertyMappingDefinition);
+                        // ========== for georesource update ========== 
+                        if(resourceType === "georesource") {
+                            var propertyMappingDefinition = row.mappingObj.propertyMapping;
+                            //console.log("propertyMappingDefinition of row " + i + ": ", propertyMappingDefinition);
 
-                        var attributeMappings_adminView = this.createAttributeMappingsObject(row);
+                            var propertyMappingDefinition = kommonitorImporterHelperService.buildPropertyMapping_spatialResource(
+                                row.mappingObj.propertyMapping.nameProperty,
+                                row.mappingObj.propertyMapping.identifierProperty,
+                                row.mappingObj.propertyMapping.validStartDateProperty,
+                                row.mappingObj.propertyMapping.validEndDateProperty,
+                                row.mappingObj.propertyMapping.arisenFromProperty,
+                                row.mappingObj.propertyMapping.keepAttributes,
+                                row.mappingObj.propertyMapping.keepMissingOrNullValueAttributes,
+                                this.createAttributeMappingsObject(row)
+                            )
 
-                        propertyMappingDefinition = kommonitorImporterHelperService.buildPropertyMapping_spatialResource(
-                            row.mappingObj.propertyMapping.nameProperty,
-                            row.mappingObj.propertyMapping.identifierProperty,
-                            row.mappingObj.propertyMapping.validStartDateProperty,
-                            row.mappingObj.propertyMapping.validEndDateProperty,
-                            row.mappingObj.propertyMapping.arisenFromProperty,
-                            row.mappingObj.propertyMapping.keepAttributes,
-                            row.mappingObj.propertyMapping.keepMissingOrNullValueAttributes,
-                            attributeMappings_adminView
-                        )
-                        console.log("propertyMappingDefinition of row " + i + " with importerService: ", propertyMappingDefinition);
+                            //console.log("propertyMappingDefinition of row " + i + " with importerService: ", propertyMappingDefinition);
 
-                        var scopeProperties = {
-                            "periodOfValidity": {
-                                "startDate": row.mappingObj.periodOfValidity.startDate,
-                                "endDate": row.mappingObj.periodOfValidity.endDate
-                            }
+                             var putBody_georesources = kommonitorImporterHelperService.buildPutBody_georesources(row.mappingObj)
+                             //console.log("putBody_georesources of row " + i + ": ", putBody_georesources);
+     
+                             // send post request and wait for it to complete
+                             var updateGeoresourceResponse_dryRun = undefined;
+                             try {
+                                 updateGeoresourceResponse_dryRun = await kommonitorImporterHelperService.updateGeoresource(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, resourceId, putBody_georesources, true);
+     
+                                 if (!kommonitorImporterHelperService.importerResponseContainsErrors(updateGeoresourceResponse_dryRun)) {
+                                     // all good, really execute the request to update data against data management API
+                                     var updateGeoresourceResponse = await kommonitorImporterHelperService.updateGeoresource(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, resourceId, putBody_georesources, false);
+                                     
+                                     batchList[i].tempResourceId = resourceId;
+                                     $rootScope.$broadcast("refreshGeoresourceOverviewTable");
+     
+                                     // refresh all admin dashboard diagrams due to modified metadata
+                                     $rootScope.$broadcast("refreshAdminDashboardDiagrams");
+     
+                                     // add success object
+                                     responses.push({
+                                         name: row.name.datasetName,
+                                         status: "success",
+                                         message: updateGeoresourceResponse
+                                     });
+     
+     
+                                 } else {
+                                     // errors ocurred
+                                     // add them to response array
+                                     responses.push({
+                                         name: row.name.datasetName,
+                                         status: "error",
+                                         message: undefined
+                                     });
+                                     
+                                     responses[i].message = "Einige der zu importierenden Features des Datensatzes weisen kritische Fehler auf.\n";
+                                     responses[i].message += kommonitorImporterHelperService.getErrorsFromImporterResponse(updateGeoresourceResponse_dryRun);
+                                 }
+                             } catch (error) {
+                                 responses.push({
+                                     name: row.name.datasetName,
+                                     status: "error",
+                                     message: undefined
+                                 });
+     
+                                 if (error.data) {
+                                     responses[i].message = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+                                 } else {
+                                     responses[i].message = kommonitorDataExchangeService.syntaxHighlightJSON(error);
+                                 }
+                                 
+                                 if(updateGeoresourceResponse_dryRun){
+                                     error.message = kommonitorImporterHelperService.getErrorsFromImporterResponse(updateGeoresourceResponse_dryRun);
+                                 }
+                             }
                         }
 
-                        var putBody_georesources = kommonitorImporterHelperService.buildPutBody_georesources(scopeProperties)
-                        console.log("putBody_georesources of row " + i + ": ", putBody_georesources);
+                        // ========== for indicator update ========== 
+                        if(resourceType === "indicator") {
+                            var propertyMappingDefinition = row.mappingObj.propertyMapping;
+                            //console.log("propertyMappingDefinition of row " + i + ": ", propertyMappingDefinition);
 
-                        // send post request and wait for it to complete
-                        var updateGeoresourceResponse_dryRun = undefined;
-                        try {
-                            updateGeoresourceResponse_dryRun = await kommonitorImporterHelperService.updateGeoresource(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, georesourceId, putBody_georesources, true);
+                            var propertyMappingDefinition = kommonitorImporterHelperService.buildPropertyMapping_indicatorResource(
+                                row.mappingObj.propertyMapping.spatialReferenceKeyProperty,
+                                row.mappingObj.propertyMapping.timeseriesMappings,
+                                row.mappingObj.propertyMapping.keepMissingOrNullValueIndicator,
+                            )
 
-                            if (!kommonitorImporterHelperService.importerResponseContainsErrors(updateGeoresourceResponse_dryRun)) {
-                                // all good, really execute the request to update data against data management API
-                                var updateGeoresourceResponse = await kommonitorImporterHelperService.updateGeoresource(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, georesourceId, putBody_georesources, false);
-                                
-                                batchList[i].tempGeoresourceId = georesourceId;
-                                $rootScope.$broadcast("refreshGeoresourceOverviewTable");
+                            //console.log("propertyMappingDefinition of row " + i + " with importerService: ", propertyMappingDefinition);
 
-                                // refresh all admin dashboard diagrams due to modified metadata
-                                $rootScope.$broadcast("refreshAdminDashboardDiagrams");
-
-                                // add success object
-                                responses.push({
-                                    name: row.name.datasetName,
-                                    status: "success",
-                                    message: updateGeoresourceResponse
-                                });
-
-
-                            } else {
-                                // errors ocurred
-                                // add them to response array
-                                responses.push({
-                                    name: row.name.datasetName,
-                                    status: "error",
-                                    message: undefined
-                                });
-                                
-                                responses[i].message = "Einige der zu importierenden Features des Datensatzes weisen kritische Fehler auf.\n";
-                                responses[i].message += kommonitorImporterHelperService.getErrorsFromImporterResponse(updateGeoresourceResponse_dryRun);
+                            var scopeProperties = {
+                                "targetSpatialUnitMetadata": {
+                                    "spatialUnitLevel": row.selectedTargetSpatialUnit.spatialUnitLevel	
+                                },
+                                "currentIndicatorDataset": {
+                                    "defaultClassificationMapping": row.name.defaultClassificationMapping
+                                },
+                                "allowedRoleNames": {
+                                    "selectedItems": row.name.allowedRoles
+                                }
                             }
-                        } catch (error) {
-                            responses.push({
-                                name: row.name.datasetName,
-                                status: "error",
-                                message: undefined
-                            });
-
-                            if (error.data) {
-                                responses[i].message = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
-                            } else {
-                                responses[i].message = kommonitorDataExchangeService.syntaxHighlightJSON(error);
-                            }
-                            
-                            if(updateGeoresourceResponse_dryRun){
-                                error.message = kommonitorImporterHelperService.getErrorsFromImporterResponse(updateGeoresourceResponse_dryRun);
-                            }
-                        }
+                             var putBody_indicators = kommonitorImporterHelperService.buildPutBody_indicators(scopeProperties)
+                             //console.log("putBody_indicators of row " + i + ": ", putBody_indicators);
+     
+                             // send post request and wait for it to complete
+                             var updateIndicatorResponse_dryRun = undefined;
+                             try {
+                                 updateIndicatorResponse_dryRun = await kommonitorImporterHelperService.updateIndicator(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, resourceId, putBody_indicators, true);
+     
+                                 if (!kommonitorImporterHelperService.importerResponseContainsErrors(updateIndicatorResponse_dryRun)) {
+                                     // all good, really execute the request to update data against data management API
+                                     var updateIndicatorResponse = await kommonitorImporterHelperService.updateIndicator(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, resourceId, putBody_indicators, false);
+                                     
+                                     batchList[i].tempResourceId = resourceId;
+                                     $rootScope.$broadcast("refreshIndicatorOverviewTable");
+     
+                                     // refresh all admin dashboard diagrams due to modified metadata
+                                     $rootScope.$broadcast("refreshAdminDashboardDiagrams");
+     
+                                     // add success object
+                                     responses.push({
+                                         name: row.name.indicatorName,
+                                         status: "success",
+                                         message: updateIndicatorResponse
+                                     });
+     
+     
+                                 } else {
+                                     // errors ocurred
+                                     // add them to response array
+                                     responses.push({
+                                         name: row.name.indicatorName,
+                                         status: "error",
+                                         message: undefined
+                                     });
+                                     
+                                     responses[i].message = "Einige der zu importierenden Features des Datensatzes weisen kritische Fehler auf.\n";
+                                     responses[i].message += kommonitorImporterHelperService.getErrorsFromImporterResponse(updateIndicatorResponse_dryRun);
+                                 }
+                             } catch (error) {
+                                 responses.push({
+                                     name: row.name.indicatorName,
+                                     status: "error",
+                                     message: undefined
+                                 });
+     
+                                 if (error.data) {
+                                     responses[i].message = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+                                 } else {
+                                     responses[i].message = kommonitorDataExchangeService.syntaxHighlightJSON(error);
+                                 }
+                                 
+                                 if(updateIndicatorResponse_dryRun){
+                                     error.message = kommonitorImporterHelperService.getErrorsFromImporterResponse(updateIndicatorResponse_dryRun);
+                                 }
+                             }
+                        }  
                     }
-                    console.log(responses);
 
-                    $rootScope.$broadcast("georesourceBatchUpdateCompleted", {
+                    $rootScope.$broadcast("batchUpdateCompleted", {
+                        resourceType: resourceType,
                         value: responses
                     });
 
+
+                    startBtn.removeAttribute("disabled");
+                    startBtn.innerHTML = "Update starten";
                 };
 
 
 
                 this.parseBatchListFromFile = function (resourceType, file, batchList) {
-                    if (resourceType == "georesource") {
-                        var fileReader = new FileReader();
+                    var fileReader = new FileReader();
 
-                        fileReader.onload = function (event) {
-                            batchList = JSON.parse(event.target.result);
+                    fileReader.onload = function (event) {
+                        batchList = JSON.parse(event.target.result);
+                        if (resourceType === "georesource") {
                             $rootScope.$broadcast('georesourceBatchListParsed', {
                                 newValue: batchList
                             });
-                        };
+                        }
+                        if (resourceType === "indicator") {
+                            $rootScope.$broadcast('indicatorBatchListParsed', {
+                                newValue: batchList
+                            });
+                        }
+                    };
 
-                        // Read in the image file as a data URL.
-                        fileReader.readAsText(file);
-                    }
-
-                    if (resourceType == "indicator") {
-                        // TODO
-                    }
+                    fileReader.readAsText(file);
                 }
 
                 this.saveMappingObjectToFile = function(resourceType, $event, batchList) {
 
                     var filename;
                     var jsonToExport;
-                    if(resourceType == "georesource") {
-                        var rowIndex = this.getIndexFromId($event.currentTarget.id);
-                        var row = batchList[rowIndex];
+                    var rowIndex = this.getIndexFromId($event.currentTarget.id);
+                    var row = batchList[rowIndex];
     
-                        var objToExport = $.extend({}, row.mappingObj);
+                    var objToExport = $.extend({}, row.mappingObj);
 
-                        objToExport.converter = this.converterPropertiesToParametersArray(objToExport.converter)
-                        objToExport.dataSource = this.dataSourcePropertyToParametersArray(objToExport.dataSource)
+                    objToExport.converter = this.converterPropertiesToParametersArray(objToExport.converter)
+                    objToExport.dataSource = this.dataSourcePropertyToParametersArray(objToExport.dataSource)
 
-                        // selected converter and DatasouceType might have changed.
-                        // rebuild the corresponding definitions and insert parameter values
-                        objToExport.converter = this.buildConverterDefinition(row.selectedConverter, objToExport.converter);
-                        objToExport.dataSource = this.buildDataSourceDefinition(row.selectedDatasourceType, objToExport.dataSource, false)
+                    // selected converter and DatasouceType might have changed.
+                    // rebuild the corresponding definitions and insert parameter values
+                    objToExport.converter = this.buildConverterDefinition(row.selectedConverter, objToExport.converter);
+                    objToExport.dataSource = this.buildDataSourceDefinition(row.selectedDatasourceType, objToExport.dataSource, false)
 
-                        jsonToExport = JSON.stringify(objToExport);
-                        if(row.name) {
+                    if(resourceType === "indicator")
+                        objToExport.targetSpatialUnitName = row.selectedTargetSpatialUnit.spatialUnitLevel;
+
+                    jsonToExport = JSON.stringify(objToExport);
+
+                    fileName = "KomMonitor-Import-Mapping-Konfiguration_Export.json"; // default
+                    if (resourceType === "georesource" && row.name)
                             fileName = "KomMonitor-Import-Mapping-Konfiguration_Export-" + row.name.datasetName + ".json";
-                        } else {
-                            fileName = "KomMonitor-Import-Mapping-Konfiguration_Export.json";
-                        }
-                        
-                    }
-
-                    // if (resourceType == "indicator") {
-                    //     fileName = ".json";
-                    //     jsonToExport = JSON.stringify(batchList);
-                    // }
+                    if (resourceType === "indicator" && row.name)
+                            fileName = "KomMonitor-Import-Mapping-Konfiguration_Export-" + row.name.indicatorName + ".json";
+                    
 
                     var blob = new Blob([jsonToExport], {
                         type: "application/json"
@@ -231,49 +312,50 @@ angular
 
                     var fileName;
                     var jsonToExport = "";
-                    if (resourceType == "georesource") {
+                    var objToExport = [];
 
+                    for (var i = 0; i < batchList.length; i++) {
+                        var row = batchList[i];
+                        objToExport.push({});
                         // To not affect the $scope, we create a deep copy of batchList to export.
-                        var objToExport = [];
+                        objToExport[i] = $.extend(true, objToExport[i], row);
+                        // No need to export all of the metadata
+                        // We just need to know which georesource/indicator was selected so we can restore it on import
+                        // That ensures that the metadata is up to date (and not parsed from the exported batchList)
+                        if (resourceType === "georesource" && objToExport[i].name)
+                            objToExport[i].name = objToExport[i].name.georesourceId;
+                        if (resourceType === "indicator" && objToExport[i].name)
+                            objToExport[i].name = objToExport[i].name.indicatorId;
 
-                        for (var i = 0; i < batchList.length; i++) {
-                            var row = batchList[i];
-                            objToExport.push({});
-                            objToExport[i] = $.extend(true, objToExport[i], row);
-                            // No need to export all of the metadata
-                            // We just need to know which georesource was selected so we can restore it on import
-                            // That ensures that the metadata is up to date (and not parsed from the exported batchList)
-                            if (objToExport[i].name)
-                                objToExport[i].name = objToExport[i].name.georesourceId;
+                        // if mapping table was selected
+                        if (row.mappingTableName.length > 0) {
+                            objToExport[i].mappingObj.converter = this.converterPropertiesToParametersArray(objToExport[i].mappingObj.converter)
+                            objToExport[i].mappingObj.dataSource = this.dataSourcePropertyToParametersArray(objToExport[i].mappingObj.dataSource)
 
-                            // if mapping table was selected
-                            if (row.mappingTableName.length > 0) {
+                            // replace converter and dataSource definitions
+                            objToExport[i].mappingObj.converter = this.buildConverterDefinition(row.selectedConverter, objToExport[i].mappingObj.converter);
+                            objToExport[i].mappingObj.dataSource = this.buildDataSourceDefinition(row.selectedDatasourceType, objToExport[i].mappingObj.dataSource, false);
 
-                                objToExport[i].mappingObj.converter = this.converterPropertiesToParametersArray(objToExport[i].mappingObj.converter)
-                                objToExport[i].mappingObj.dataSource = this.dataSourcePropertyToParametersArray(objToExport[i].mappingObj.dataSource)
+                            // No need to export these
+                            delete objToExport[i].selectedConverter;
+                            delete objToExport[i].selectedDatasourceType;
 
-                                // replace converter and dataSource definitions
-                                objToExport[i].mappingObj.converter = this.buildConverterDefinition(row.selectedConverter, objToExport[i].mappingObj.converter);
-                                objToExport[i].mappingObj.dataSource = this.buildDataSourceDefinition(row.selectedDatasourceType, objToExport[i].mappingObj.dataSource, false);
-
-                                // No need to export selectedConverter and selectedDatasourceType
-                                delete objToExport[i].selectedConverter;
-                                delete objToExport[i].selectedDatasourceType;
+                            if(resourceType === "indicator") {
+                                objToExport[i].mappingObj.targetSpatialUnitName = row.selectedTargetSpatialUnit.spatialUnitLevel;
+                                delete objToExport[i].selectedTargetSpatialUnit; 
                             }
-
-                            if(row.hasOwnProperty("tempGeoresourceId")) {
-                                delete row.tempGeoresourceId;
-                            };
+                            
                         }
 
-                        jsonToExport = JSON.stringify(objToExport);
-                        fileName = "Georessource_batch_update_batch_list.json";
+                        if(row.hasOwnProperty("tempResourceId"))
+                            delete row.tempResourceId;
                     }
 
-                    if (resourceType == "indicator") {
-                        fileName = "Indicator_batch_update_batch_list.json";
-                        jsonToExport = JSON.stringify(batchList);
-                    }
+                    jsonToExport = JSON.stringify(objToExport);
+                    if (resourceType === "georesource")
+                        fileName = "Georesource_batch_update_batch_list.json";
+                    if (resourceType === "indicator")
+                    fileName = "Indicator_batch_update_batch_list.json";
 
                     var blob = new Blob([jsonToExport], {
                         type: "application/json"
@@ -291,13 +373,14 @@ angular
                     a.remove();
                 }
 
-                this.resetBatchUpdateForm = function (batchList) {
+                this.resetBatchUpdateForm = function (resourceType, batchList) {
                     // select all rows
                     for (var i = 0; i < batchList.length; i++) {
                         batchList[i].isSelected = true;
                     }
                     this.deleteSelectedRowsFromBatchList(batchList, false);
-                    this.addNewRowToBatchList("georesource", batchList)
+
+                    this.addNewRowToBatchList(resourceType, batchList)
                 }
 
                 this.onChangeSelectAllRows = function (allRowsSelected, batchList) {
@@ -313,14 +396,16 @@ angular
                 }
 
                 this.addNewRowToBatchList = function (resourceType, batchList) {
-                    console.log(batchList);
+                    //console.log(batchList);
 
-                    if (resourceType == "georesource") {
-                        var obj = {};
-                        // initialize properties so that they exist for each row
-                        obj.isSelected = false;
-                        obj.name = undefined;
-                        obj.mappingTableName = "";
+                    // create new object theat matches the row-scheme
+                    let obj = {}
+                    // initialize properties so that they exist for each row
+                    obj.isSelected = false;
+                    obj.name = undefined;
+                    obj.mappingTableName = "";
+                    // mapping object depends on resource type
+                    if (resourceType === "georesource") {
                         obj.mappingObj = {
                             converter: {
                                 encoding: "",
@@ -348,7 +433,6 @@ angular
                                 type: ""
                             },
                             propertyMapping: {
-                                arisenFromProperty: "",
                                 attributes: [
                                     /*
                                     {
@@ -369,22 +453,65 @@ angular
                                 endDate: ""
                             }
                         };
-
-                        batchList.push(obj);
                     }
 
-                    if (resourceType == "indicator") {
-                        // TODO
+                    if (resourceType === "indicator") {
+                        obj.mappingObj = {
+                            converter: {
+                                encoding: "",
+                                mimeType: "",
+                                name: "",
+                                parameters: [
+                                    /*
+                                        {
+		    		                        "name": "string",
+		    		                        "value": "string"
+                                        }
+                                        */
+                                ],
+                                schema: ""
+                            },
+                            dataSource: {
+                                parameters: [
+                                    /*
+                                        {
+		    		                        "name": "string",
+		    		                        "value": "string"
+                                        }
+                                        */
+                                ],
+                                type: ""
+                            },
+                            propertyMapping: {
+                                timeseriesMapping: [
+                                    /*
+                                    {
+                                        "indicatorValueProperty": "string",
+                                        "timestamp": "date" // direct timestamp
+                                    }, {
+                                        "indicatorValueProperty": "string",
+                                        "timestampProperty": "string"   // attribute column that contains timestamp(s)
+                                    }
+                                    */
+                                ],
+                                spatialReferenceKeyProperty: "",
+                                
+                                keepMissingOrNullValueIndicator: true,
+                            },
+                            targetSpatialUnitName: ""
+                        };
                     }
+                    batchList.push(obj);
+
+                    if(resourceType === "georesource")
+                        this.initializeGeoresourceDatepickerFields(batchList);             
                 }
 
                 this.deleteSelectedRowsFromBatchList = function (batchList, allRowsSelected) {
                     // loop backwards through $scope.batchList and remove selected rows
                     for (var i = batchList.length - 1; i >= 0; i--) {
-                        if (batchList[i].isSelected) {
+                        if (batchList[i].isSelected)
                             batchList.splice(i, 1);
-
-                        }
                     }
 
                     allRowsSelected = false; // in case it was true
@@ -413,9 +540,8 @@ angular
                     }
 
                     if (selectedConverter.name.includes("wfs.v1")) {
-                        if (oldConverter.schema && oldConverter.schema.length > 0) {
+                        if (oldConverter.schema && oldConverter.schema.length > 0)
                             converterDefinition.schema = oldConverter.schema;
-                        }
                     }
 
                     // add crs parameter
@@ -431,7 +557,8 @@ angular
                     }
 
                     // add more parameters for specific converter types
-                    if (selectedConverter.name.includes("csvLatLon")) {
+                    if (selectedConverter.name.includes("csvLatLon") ||
+                        selectedConverter.name.includes("csv_onlyIndicator")) {
 
                         param = oldConverter.parameters.find(obj => {
                             return obj.name == "separator"
@@ -442,7 +569,9 @@ angular
                                 value: param.value
                             });
                         }
+                    }
 
+                    if (selectedConverter.name.includes("csvLatLon")) {
                         param = oldConverter.parameters.find(obj => {
                             return obj.name == "yCoordColumn"
                         });
@@ -631,6 +760,7 @@ angular
                     return result;
                 }
 
+
                 // helper function to get a converter object by full name.
                 // returns null if no converter was found
                 this.getConverterObjectByName = function (name) {
@@ -641,6 +771,7 @@ angular
                     }
                     return null;
                 }
+
 
                 // helper function to get a datasourceType object by type.
                 // returns null if no datasourceType was found
@@ -653,6 +784,19 @@ angular
                     return null;
                 }
 
+
+                // helper function to get a spatial unit object by full name.
+                // returns null if no spatial unit was found
+                this.getSpatialUnitObjectByName = function (name) {
+                    for (spatialUnit of kommonitorDataExchangeService.availableSpatialUnits) {
+                        if (spatialUnit.spatialUnitLevel === name) {
+                            return spatialUnit;
+                        }
+                    }
+                    return null;
+                }
+
+
                 // helper function to get a georesource object by id.
                 // returns null if no georesource object was found
                 this.getGeoresourceObjectById = function (id) {
@@ -664,8 +808,19 @@ angular
                     return null;
                 }
 
+                // helper function to get a indicator object by id.
+                // returns null if no indicator object was found
+                this.getIndicatorObjectById = function (id) {
+                    for (indicator of kommonitorDataExchangeService.availableIndicators) {
+                        if (indicator.indicatorId === id) {
+                            return indicator;
+                        }
+                    }
+                    return null;
+                }
+
                 this.createAttributeMappingsObject = function(row) {
-                    var attributeMappings_adminView = [];
+                    var attributeMapping = [];
                     for (let i = 0; i < row.mappingObj.propertyMapping.attributes.length; i++) {
                         let attribute = row.mappingObj.propertyMapping.attributes[i];
                         var tmpEntry = {
@@ -679,10 +834,10 @@ angular
                             }
                         }
 
-                        attributeMappings_adminView.push(tmpEntry);
+                        attributeMapping.push(tmpEntry);
                     }
 
-                    return attributeMappings_adminView;
+                    return attributeMapping;
                 }
 
                 this.uploadFileToImporter = async function(datasourceFileInputId) {
@@ -705,5 +860,360 @@ angular
                     return fileUploadName;
                 };
 
+                // loop through batch list and check if condition is true for at least one row
+                this.checkIfMappingTableIsSpecified = function(batchList) {
+                    let mappingTableIsSpecified = false;
+                    for(let i=0; i<batchList.length;i++) {
+                        if(batchList[i].mappingTableName != "") {
+                            mappingTableIsSpecified = true;
+                            break;
+                        }
+                    }
+                    return mappingTableIsSpecified;
+                }
+
+                // loop through batch list and check if condition is true for at least one row
+			    this.checkIfSelectedConverterIsWfsV1 = function(batchList) {
+			    	let selectedConverterIsWfsV1 = false;
+			    	for (let i=0; i < batchList.length; i++) {
+			    		if (batchList[i].selectedConverter) {
+			    			let converterName = batchList[i].selectedConverter.name;
+			    			if (converterName != undefined && converterName.length > 0) {
+			    				if (converterName.includes("wfs.v1")) {
+			    					selectedConverterIsWfsV1 = true;
+			    					break;
+			    				}
+			    			}
+			    		}
+			    	}
+			    	return selectedConverterIsWfsV1;
+			    }
+
+
+                // loop through batch list and check if condition is true for at least one row
+			    this.checkIfSelectedDatasourceTypeIsFile = function(batchList) {
+			    	let selectedDatasourceTypeIsFile = false;
+			    	for (let i=0; i<batchList.length; i++) {
+			    		if (batchList[i].selectedDatasourceType) {
+			    			let datasourceType = batchList[i].selectedDatasourceType.type;
+			    			if (datasourceType != undefined && datasourceType.length > 0) {
+			    				if (datasourceType == "FILE") {
+			    					selectedDatasourceTypeIsFile = true;
+			    					break;
+			    				}
+			    			}
+			    		}
+			    	}
+			    	return selectedDatasourceTypeIsFile;
+			    }
+
+                
+			    // loop through batch list and check if condition is true for at least one row
+			    this.checkIfSelectedDatasourceTypeIsHttp = function(batchList) {
+			    	let selectedDatasourceTypeIsHttp = false;
+			    	for (let i=0; i<batchList.length; i++) {
+			    		if (batchList[i].selectedDatasourceType) {
+			    			let datasourceType = batchList[i].selectedDatasourceType.type;
+			    			if (datasourceType != undefined && datasourceType.length > 0) {
+			    				if (datasourceType == "HTTP") {
+			    					selectedDatasourceTypeIsHttp = true;
+			    					break;
+			    				}
+			    			}
+			    		}
+			    	}
+			    	return selectedDatasourceTypeIsHttp;
+			    }
+
+            
+			    // loop through batch list and check if condition is true for at least one row
+			    this.checkIfSelectedDatasourceTypeIsInline = function(batchList) {
+			    	let selectedDatasourceTypeIsInline = false;
+			    	for (let i=0; i<batchList.length; i++) {
+			    		if (batchList[i].selectedDatasourceType) {
+			    			let datasourceType = batchList[i].selectedDatasourceType.type;
+			    			if (datasourceType != undefined && datasourceType.length > 0) {
+			    				if (datasourceType == "INLINE") {
+			    					selectedDatasourceTypeIsInline = true;
+			    					break;
+			    				}
+			    			}
+			    		}
+			    	}
+			    	return selectedDatasourceTypeIsInline;
+			    }
+
+                
+			    this.checkIfNameAndFilesChosenInEachRow = function(resourceType, batchList) {
+                    
+			    	let updateBtn = document.getElementById(resourceType + "-batch-update-btn");
+			    	updateBtn.title = "Update starten" // default title, might get overwritten later
+                
+			    	if(batchList.length == 0) {
+			    		updateBtn.title = "Die Batch-Liste is leer."
+			    		return false;
+			    	}
+                
+			    	for(let i=0; i<batchList.length; i++) {
+                    
+			    		if(batchList[i].name == undefined || batchList[i].name == "") {
+			    			updateBtn.title = "Die Spalte Name* ist nicht für alle Zeilen gesetzt."
+			    			return false;
+			    		}
+                    
+			    		let mappingTableName = batchList[i].mappingTableName;
+			    		if(mappingTableName == undefined || mappingTableName == "") {
+			    			updateBtn.title = "Die Spalte Mappingtabelle ist nicht für alle Zeilen gesetzt."
+			    			return false;
+			    		}
+                    
+                    
+			    		if (batchList[i].selectedDatasourceType) {
+			    			let datasourceType = batchList[i].selectedDatasourceType.type;
+			    			if (datasourceType != undefined && datasourceType.length > 0) {
+                            
+			    				if (datasourceType == "FILE") {
+			    					if(!batchList[i].mappingObj.dataSource.NAME) {
+                                        updateBtn.title = "Die Spalte Datei* ist nicht für alle Zeilen gesetzt, in denen die Spalte Datenquelltyp* auf FILE gesetzt ist."
+			    						return false;
+                                    } else {
+                                        let value = batchList[i].mappingObj.dataSource.NAME.value;
+			    						if(value == undefined || value == "") {
+			    							updateBtn.title = "Die Spalte Datei* ist nicht für alle Zeilen gesetzt, in denen die Spalte Datenquelltyp* auf FILE gesetzt ist."
+			    							return false;
+			    						}
+                                    }
+			    				}
+
+                                if (datasourceType == "HTTP") {
+                                    if(!batchList[i].mappingObj.dataSource.URL) {
+                                        // property does not exist until user uses the input field for the first time
+                                        updateBtn.title = "Die Spalte URL* ist nicht für alle Zeilen gesetzt, in denen die Spalte Datenquelltyp* auf HTTP gesetzt ist."
+			    						return false;
+                                    } else {
+                                        // the field could still be empty (if it had input before)
+                                        let value = batchList[i].mappingObj.dataSource.URL.value;
+			    						if(value == undefined || value == "") {
+			    							updateBtn.title = "Die Spalte URL* ist nicht für alle Zeilen gesetzt, in denen die Spalte Datenquelltyp* auf HTTP gesetzt ist."
+			    							return false;
+                                        }
+                                    }
+                                }
+
+                                if (datasourceType == "INLINE") {
+                                    if(!batchList[i].mappingObj.dataSource.payload) {
+                                        // property does not exist until user uses the input field for the first time
+                                        updateBtn.title = "Die Spalte URL* ist nicht für alle Zeilen gesetzt, in denen die Spalte Datenquelltyp* auf HTTP gesetzt ist."
+			    						return false;
+                                    } else {
+                                         // the field could still be empty (if it had input before)
+                                        let value = batchList[i].mappingObj.dataSource.payload.value;
+			    						if(value == undefined || value == "") {
+			    							updateBtn.title = "Die Spalte Payload* ist nicht für alle Zeilen gesetzt, in denen die Spalte Datenquelltyp* auf INLINE gesetzt ist."
+			    							return false;
+			    						}
+                                    } 
+                                }
+			    			}
+			    		}
+			    	}
+
+			    	return true;
+			    }
+
+
+                this.onDataSourceFileSelected = function(file, rowIndex, batchList) {
+                    // set filename manually
+                    let name = file.name;
+                    $timeout(function() {
+                        batchList[rowIndex].mappingObj.dataSource.NAME.value = name;
+                    });
+                }
+
+
+			    this.onMappingTableSelected = function(resourceType, event, rowIndex, file, batchList) {
+                
+                    let mappingObj = JSON.parse(event.target.result);
+
+			    	batchList[rowIndex].mappingTableName = file.name;
+            
+			    	mappingObj.converter = this.converterParametersArrayToProperties(mappingObj.converter);
+			    	mappingObj.dataSource = this.dataSourceParametersArrayToProperty(mappingObj.dataSource);
+                
+			    	// set value of column "Datensatz-Quellformat*" by converter name
+			    	let converterName = mappingObj.converter.name
+			    	for(let i=0; i<kommonitorImporterHelperService.availableConverters.length; i++) {
+			    		let avConverterName = kommonitorImporterHelperService.availableConverters[i].name
+			    		if(converterName == avConverterName) {
+			    			$timeout(function() {
+			    				batchList[rowIndex].selectedConverter = kommonitorImporterHelperService.availableConverters[i];
+			    			});
+			    			break;
+			    		}
+			    	}
+                
+			    	// set value of column "Datenquelltyp*" by dataSource type
+			    	let dataSourceType = mappingObj.dataSource.type;
+			    	for(let i=0; i<kommonitorImporterHelperService.availableDatasourceTypes.length; i++) {
+			    		let avDataSourceType = kommonitorImporterHelperService.availableDatasourceTypes[i].type
+			    		if(dataSourceType == avDataSourceType) {
+			    			$timeout(function() {
+			    				batchList[rowIndex].selectedDatasourceType = kommonitorImporterHelperService.availableDatasourceTypes[i];
+			    			});
+			    			break;
+			    		}
+			    	}
+
+                    if(resourceType === "indicator") {
+                        // set value of column "Ziel-Raumebene*" by target spatial unit name
+                        let targetSpatialUnitName = mappingObj.targetSpatialUnitName;
+                        let spatialUnitObject = this.getSpatialUnitObjectByName(targetSpatialUnitName);
+                        $timeout(function() {
+                            batchList[rowIndex].selectedTargetSpatialUnit = spatialUnitObject;
+                        });
+                    }
+                
+			    	// do not import file name
+			    	if(mappingObj.dataSource.type == "FILE") {
+			    		mappingObj.dataSource.NAME.value = "";
+			    	}
+                
+			    	//apply to scope
+			    	$timeout(function() {
+			    		batchList[rowIndex].mappingObj = mappingObj;
+                        if(resourceType === "georesource")
+                            thisService.initializeGeoresourceDatepickerFields(batchList);
+			    	});
+			    }
+
+
+                this.filterConverters = function(resourceType) {
+                    // remove csvLatLon for indicators
+                    // and csv_onlyIndicator for georesources
+                    return function (converter) {
+                        if(resourceType === "georesource" && converter.simpleName === "csv_onlyIndicator")
+                            return false
+                        if(resourceType === "indicator" && converter.simpleName === "csvLatLon")
+                            return false
+                        
+                        return true
+                    };
+
+                }
+
+
+                this.onClickSaveColDefaultValue = function(resourceType, selectedCol, newValue, replaceAll, batchList) {
+                    // differentiate between timesereis mapping and other columns
+                    if(selectedCol == "mappingObj.propertyMapping.timeseriesMapping") {
+                        if(typeof(newValue != "undefined")) {
+                            let btns = angular.element($('.indicatorTimeseriesMappingBtn'));
+                            for (let i=0; i<batchList.length; i++) {
+                                // never change disabled fields
+                                let btn = btns.get(i);
+                                if(btn.getAttribute('disabled'))
+                                    continue;
+
+                                newValue  = angular.fromJson(angular.toJson(newValue));
+                                let oldMapping = batchList[i].mappingObj.propertyMapping.timeseriesMappings
+                                // iterate newValue
+                                for (let j=0; j<newValue.length; j++) {
+                                    let exists = false;
+                                    // for each entry check if it exists in oldMapping
+                                    for (let k=0; k<oldMapping.length; k++) {
+                                        if(oldMapping[k].indicatorValueProperty == newValue[j].indicatorValueProperty) {
+                                            exists = true;
+                                            if(replaceAll)
+                                                batchList[i].mappingObj.propertyMapping.timeseriesMappings[j] = newValue[j];
+                                        }
+                                    }
+
+                                    if(!exists) {
+                                        // add mapping
+                                        batchList[i].mappingObj.propertyMapping.timeseriesMappings.push(newValue[j])
+                                    }
+                                }
+                            }
+                        }
+                    
+                    } else {
+                        if(typeof(newValue != "undefined")) {
+                            if(typeof(newValue === "object") || (typeof(newValue) === "string" && newValue.length > 0)) {
+                                let fields = angular.element('[ng-model="' + resourceType + '.' + selectedCol + '"]');
+                                for(let i=0; i<batchList.length; i++) {
+                                    // never change disabled fields
+                                    let field = fields.get(i);
+                                    if(field.getAttribute('disabled'))
+                                        continue;
+                                        
+                                    if (replaceAll) {
+                                        // if checkbox is true update all rows
+                                        set(batchList[i], selectedCol, newValue)
+                                    } else {
+                                        // else only update empty rows
+                                        if (get(batchList[i], selectedCol) == undefined || get(batchList[i], selectedCol) == "")
+                                            set(batchList[i], selectedCol, newValue)   
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // helper function to get nested properties where the path is variable
+                    function get(obj, path) {
+                        var schema = obj; // a moving reference to internal objects within obj
+                        var pList = path.split('.');
+                        var len = pList.length;
+                        for(var i = 0; i < len-1; i++) {
+                            var elem = pList[i];
+                            if( !schema[elem] )
+                                schema[elem] = {}
+                            schema = schema[elem];
+                        }
+                        return schema[pList[len-1]];
+                    };
+
+                    // helper function to set nested properties where the path is variable
+                    function set(obj, path, value) {
+                        var schema = obj;  // a moving reference to internal objects within obj
+                        var pList = path.split('.');
+                        var len = pList.length;
+                        for(var i = 0; i < len-1; i++) {
+                            var elem = pList[i];
+                            if( !schema[elem] )
+                                schema[elem] = {}
+                            schema = schema[elem];
+                        }
+                        schema[pList[len-1]] = value;
+                    };
+                }
+
+
+                this.initializeGeoresourceDatepickerFields = function(batchList) {
+                    $timeout(function() {
+                        for(let i=0; i<batchList.length; i++) {
+                            $('#georesourcePeriodOfValidityStartDatePicker' + i).datepicker(kommonitorDataExchangeService.datePickerOptions);
+                            $('#georesourcePeriodOfValidityEndDatePicker' + i).datepicker(kommonitorDataExchangeService.datePickerOptions);
+                        };
+                    }, 200)
+                }
+
+
+                // the variable availableGeoresources / availableIndicators (which is used to fill the ng-options)
+                // changes after each update, causing angularjs to loose the connection.
+                // this function restores the names
+                this.refreshNameColumn = function(resourceType, batchList) {
+                    for(let i=0;i<batchList.length;i++) {
+                        let row = batchList[i];
+                        if(row.tempResourceId) {
+                            let resource;
+                            if (resourceType === "georesource")
+                                resource = this.getGeoresourceObjectById(row.tempResourceId);
+                                if (resourceType === "indicator")
+                                resource = this.getIndicatorObjectById(row.tempResourceId);
+                            
+                            row.name = resource;
+                        }
+                    }
+                }
             }
         ]);

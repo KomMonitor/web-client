@@ -143,14 +143,14 @@ angular.module('scriptGeneric').component('scriptGeneric', {
 							$scope.indicatorScriptCodeImportError = "Uploaded Script Code File is null or does not follow script template.";
 							$("#scriptAddScriptCodeImportErrorAlert").show();
 		
-							$scope.$apply();
+							$scope.$digest();
 							return;
 						}
 
 						kommonitorScriptHelperService.scriptCode_readableString = event.target.result;
 						$scope.scriptCode_readableString_forPreview = event.target.result;
 
-						$scope.$apply();
+						$scope.$digest();
 
 						kommonitorScriptHelperService.prettifyScriptCodePreview($scope.scriptCodeDomElementId);						
 	
@@ -170,10 +170,10 @@ angular.module('scriptGeneric').component('scriptGeneric', {
 					document.getElementById("indicatorsAddMetadataPre").innerHTML = $scope.indicatorMetadataStructure_pretty;
 					$("#indicatorAddMetadataImportErrorAlert").show();
 	
-					$scope.$apply();
+					$scope.$digest();
 				}
 		
-					$scope.$apply();
+					$scope.$digest();
 			};
 
 			$scope.hideScriptCodeErrorAlert = function(){

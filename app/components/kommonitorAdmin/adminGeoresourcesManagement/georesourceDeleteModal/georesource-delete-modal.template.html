@@ -173,8 +173,8 @@
 
 	                <tbody>
 		                <tr ng-repeat="dataset in failedDatasetsAndErrors">
-		                  <td>{{dataset[0].datasetName}}</td>
-		                  <td ng-bind-html="dataset[1]"></td>
+		                  <td>{{::dataset[0].datasetName}}</td>
+		                  <td ng-bind-html="::dataset[1]"></td>
 		                </tr>
 
 	                </tbody>
