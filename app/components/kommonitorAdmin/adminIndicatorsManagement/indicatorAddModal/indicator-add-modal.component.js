@@ -603,10 +603,8 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			  }).then(function successCallback(response) {
 				  // this callback will be called asynchronously
 				  // when the response is available
-						  				  
-				  var response = response.data;
 
-				  $rootScope.$broadcast("refreshIndicatorOverviewTable", "add", response.headers.location);
+				  $rootScope.$broadcast("refreshIndicatorOverviewTable", "add", response.indicatorId);
 
 						// refresh all admin dashboard diagrams due to modified metadata
 						$timeout(function(){
