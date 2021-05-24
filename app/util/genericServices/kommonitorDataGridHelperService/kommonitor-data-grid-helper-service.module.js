@@ -189,6 +189,7 @@ angular
             flex: 1,
             minWidth: 200,
             filter: true,
+            floatingFilter: true,
             // filterParams: {
             //   newRowsAction: 'keep'
             // },
