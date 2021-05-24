@@ -270,7 +270,7 @@ angular
         //     $rootScope.$broadcast("onEditIndicatorMetadata", indicatorMetadata);
         //   });
         // }
-        $(".indicatorEditMetadataBtn").click(function () {
+        $(".indicatorEditMetadataBtn").on("click", function () {
           let indicatorId = this.id.split("_")[3];
 
           let indicatorMetadata = kommonitorDataExchangeService.getIndicatorMetadataById(indicatorId);
@@ -278,7 +278,7 @@ angular
           $rootScope.$broadcast("onEditIndicatorMetadata", indicatorMetadata);
         });
 
-        $(".indicatorEditFeaturesBtn").click(function () {
+        $(".indicatorEditFeaturesBtn").on("click", function () {
           let indicatorId = this.id.split("_")[3];
 
           let indicatorMetadata = kommonitorDataExchangeService.getIndicatorMetadataById(indicatorId);
@@ -286,7 +286,7 @@ angular
           $rootScope.$broadcast("onEditIndicatorFeatures", indicatorMetadata);
         });
 
-        $(".indicatorEditRoleBasedAccessBtn").click(function () {
+        $(".indicatorEditRoleBasedAccessBtn").on("click", function () {
           let indicatorId = this.id.split("_")[3];
 
           let indicatorMetadata = kommonitorDataExchangeService.getIndicatorMetadataById(indicatorId);
