@@ -78,45 +78,21 @@ angular
           { headerName: 'Id', field: "indicatorId", pinned: 'left', maxWidth: 125 },
           { headerName: 'Name', field: "indicatorName", pinned: 'left', minWidth: 300 },
           { headerName: 'Einheit', field: "unit", minWidth: 200 },
-          { headerName: 'Beschreibung', minWidth: 400, cellRenderer: function (params) { return params.data.metadata.description; } },
+          { headerName: 'Beschreibung', minWidth: 400, cellRenderer: function (params) { return params.data.metadata.description; },
+            filter: 'agTextColumnFilter', 
+            filterValueGetter: (params) => {
+              return "" + params.data.metadata.description;
+            }
+          },
           {
             headerName: 'Methodik', minWidth: 400,
             cellRenderer: function (params) {
 
               return params.data.processDescription;
-
-              // if(params.data.processDescription && params.data.processDescription.includes('$')){
-              //   var id="MatJax_container_" + params.data.indicatorId;
-              //     setTimeout(function(){
-              //       let domNode = document.querySelector('#' + id);
-              //       console.log("ID: " + id);
-              //         if(domNode){
-              //           MathJax.typesetPromise(domNode[0]);
-              //         }
-
-
-              //         setTimeout(function(){
-              //           self.dataGridOptions_indicators.api.resetRowHeights();
-              //         }, 250);
-              //       }, 250);
-              //   return "<div id='" + id + "'>" + params.data.processDescription + "</div>";
-              // }
-              // else{
-              //   return params.data.processDescription;
-              // }
-
-              // if(params.data.processDescription && params.data.processDescription.includes('$')){
-              //   setTimeout(function(){
-              //     MathJax.typesetPromise();
-
-              //     setTimeout(function(){
-              //       self.dataGridOptions_indicators.api.resetRowHeights();
-              //     }, 250);
-              //   }, 250);
-              // }
-
-
-              // return params.data.processDescription;
+            },
+            filter: 'agTextColumnFilter', 
+            filterValueGetter: (params) => {
+              return "" + params.data.processDescription;
             }
           },
           {
@@ -138,6 +114,13 @@ angular
               }
               html += '</ul>';
               return html;
+            },
+            filter: 'agTextColumnFilter', 
+            filterValueGetter: (params) => {
+              if (params.data.applicableSpatialUnits && params.data.applicableSpatialUnits.length > 1){
+                return "" + JSON.stringify(params.data.applicableSpatialUnits);
+              }
+              return params.data.applicableSpatialUnits;
             }
           },
           {
@@ -159,11 +142,24 @@ angular
               }
               html += '</ul>';
               return html;
+            },
+            filter: 'agTextColumnFilter', 
+            filterValueGetter: (params) => {
+              if (params.data.applicableDates && params.data.applicableDates.length > 1){
+                return "" + JSON.stringify(params.data.applicableDates);
+              }
+              return params.data.applicableDates;
             }
           },
           { headerName: 'Kürzel', field: "abbreviation" },
           { headerName: 'Leitindikator', field: "isHeadlineIndicator" },
-          { headerName: 'Indikator-Typ', minWidth: 200, cellRenderer: function (params) { return kommonitorDataExchangeService.getIndicatorStringFromIndicatorType(params.data.indicatorType); } },
+          { headerName: 'Indikator-Typ', minWidth: 200, 
+            cellRenderer: function (params) { return kommonitorDataExchangeService.getIndicatorStringFromIndicatorType(params.data.indicatorType); },
+            filter: 'agTextColumnFilter', 
+            filterValueGetter: (params) => {
+              return "" + kommonitorDataExchangeService.getIndicatorStringFromIndicatorType(params.data.indicatorType);
+            } 
+          },
           { headerName: 'Merkmal', field: "characteristicValue", minWidth: 200 },
           { headerName: 'Art der Fortführung', field: "creationType", minWidth: 200 },
           // { headerName: 'Interpretation', minWidth: 400, cellRenderer: function(params){ return params.data.interpretation; } },
