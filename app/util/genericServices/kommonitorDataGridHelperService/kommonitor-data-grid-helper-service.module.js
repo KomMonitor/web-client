@@ -74,9 +74,9 @@ angular
 
       this.buildDataGridColumnConfig_indicators = function (indicatorMetadataArray) {
         const columnDefs = [
-          { headerName: 'Editierfunktionen', pinned: 'left', checkboxSelection: false, filter: false, sortable: false, cellRenderer: 'displayEditButtons_indicators' },
-          { headerName: 'Id', field: "indicatorId", pinned: 'left' },
-          { headerName: 'Name', field: "indicatorName", pinned: 'left' },
+          { headerName: 'Editierfunktionen', pinned: 'left', maxWidth: 150, checkboxSelection: false, filter: false, sortable: false, cellRenderer: 'displayEditButtons_indicators' },
+          { headerName: 'Id', field: "indicatorId", pinned: 'left', maxWidth: 125 },
+          { headerName: 'Name', field: "indicatorName", pinned: 'left', minWidth: 300 },
           { headerName: 'Einheit', field: "unit", minWidth: 200 },
           { headerName: 'Beschreibung', minWidth: 400, cellRenderer: function (params) { return params.data.metadata.description; } },
           {
