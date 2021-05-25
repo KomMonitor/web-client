@@ -46,12 +46,14 @@ angular.module('adminGeoresourcesManagement').component('adminGeoresourcesManage
 				kommonitorDataExchangeService.fetchGeoresourcesMetadata().then(function successCallback(response) {
 
 					$scope.initializeOrRefreshOverviewTable();
+					$rootScope.$broadcast("refreshGeoresourceOverviewTableCompleted");
 
 					$scope.loadingData = false;
 
 					}, function errorCallback(response) {
 
 						$scope.loadingData = false;
+						$rootScope.$broadcast("refreshGeoresourceOverviewTableCompleted");
 				});
 			}
 			else if(crudType && targetGeoresourceId){
@@ -61,12 +63,14 @@ angular.module('adminGeoresourcesManagement').component('adminGeoresourcesManage
 						kommonitorDataExchangeService.addSingleGeoresourceMetadata(data);
 
 						$scope.initializeOrRefreshOverviewTable();
+						$rootScope.$broadcast("refreshGeoresourceOverviewTableCompleted");
 	
 						$scope.loadingData = false;
 	
 						}, function errorCallback(response) {
 	
 							$scope.loadingData = false;
+							$rootScope.$broadcast("refreshGeoresourceOverviewTableCompleted");
 					});
 				}
 				else if(crudType == "edit"){
@@ -75,12 +79,14 @@ angular.module('adminGeoresourcesManagement').component('adminGeoresourcesManage
 						kommonitorDataExchangeService.replaceSingleGeoresourceMetadata(data);
 						
 						$scope.initializeOrRefreshOverviewTable();
+						$rootScope.$broadcast("refreshGeoresourceOverviewTableCompleted");
 	
 						$scope.loadingData = false;
 	
 						}, function errorCallback(response) {
 	
 							$scope.loadingData = false;
+							$rootScope.$broadcast("refreshGeoresourceOverviewTableCompleted");
 					});
 				}				
 				else if(crudType == "delete"){
@@ -89,6 +95,7 @@ angular.module('adminGeoresourcesManagement').component('adminGeoresourcesManage
 						kommonitorDataExchangeService.deleteSingleGeoresourceMetadata(targetGeoresourceId);
 						
 						$scope.initializeOrRefreshOverviewTable();
+						$rootScope.$broadcast("refreshGeoresourceOverviewTableCompleted");
 	
 						$scope.loadingData = false;
 					}
@@ -98,6 +105,7 @@ angular.module('adminGeoresourcesManagement').component('adminGeoresourcesManage
 							kommonitorDataExchangeService.deleteSingleGeoresourceMetadata(id);
 						}
 						$scope.initializeOrRefreshOverviewTable();
+						$rootScope.$broadcast("refreshGeoresourceOverviewTableCompleted");
 	
 						$scope.loadingData = false;
 					}
