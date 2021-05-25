@@ -56,8 +56,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 					}
 			*/
 	
-			//Date picker
-			$('#indicatorEditFeaturesDirectTimestampDatepicker').datepicker(kommonitorDataExchangeService.datePickerOptions);
+			
 
 			$scope.allowedRoleNames = {selectedItems: []};
 			$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, null, "roleName")};			
@@ -82,11 +81,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 	
 			$scope.spatialUnitRefKeyProperty = undefined;
 			$scope.targetSpatialUnitMetadata = undefined;
-			$scope.tmpTimeseriesMapping_indicatorValuesPropertyName = undefined;
-			$scope.useTimeseriesAsProperty = false;
-			$scope.tmpTimeseriesMapping_timestampPropertyName = undefined;
-			$scope.tmpTimeseriesMapping_directTimestamp = undefined;
-			$scope.timeseriesMappings_adminView = [];
+			
 
 			$scope.converter = undefined;
 			$scope.schema = undefined;
@@ -236,11 +231,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 
 				$scope.spatialUnitRefKeyProperty = undefined;
 				$scope.targetSpatialUnitMetadata = undefined;
-				$scope.tmpTimeseriesMapping_indicatorValuesPropertyName = undefined;
-				$scope.useTimeseriesAsProperty = false;
-				$scope.tmpTimeseriesMapping_timestampPropertyName = undefined;
-				$scope.tmpTimeseriesMapping_directTimestamp = undefined;
-				$scope.timeseriesMappings_adminView = [];
+
 		
 				$scope.converter = undefined;
 				$scope.schema = undefined;
@@ -264,6 +255,8 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 				$scope.successMessagePart = undefined;
 				$scope.errorMessagePart = undefined;
 				$scope.importerErrors = undefined;
+
+				$rootScope.$broadcast('resetTimeseriesMapping')
 	
 				$("#indicatorEditFeaturesSuccessAlert").hide();
 				$("#indicatorEditFeaturesErrorAlert").hide();
@@ -312,83 +305,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 				};
 			};
 
-			$scope.onEditFeaturesOrUpdateTimeseriesMapping = function(){
-				var tmpIndicatorTimeseriesMapping_adminView = {
-					"indicatorValuesPropertyName": $scope.tmpTimeseriesMapping_indicatorValuesPropertyName,
-					"timestampPropertyName": $scope.tmpTimeseriesMapping_timestampPropertyName,
-					"timestampDirect": $scope.tmpTimeseriesMapping_directTimestamp
-				};
-	
-				var processed = false;
-	
-				for (let index = 0; index < $scope.timeseriesMappings_adminView.length; index++) {
-					var timeseriesMappingEntry_adminView = $scope.timeseriesMappings_adminView[index];
-					
-					if (timeseriesMappingEntry_adminView.indicatorValuesPropertyName === tmpIndicatorTimeseriesMapping_adminView.indicatorValuesPropertyName){
-						// replace object
-						$scope.timeseriesMappings_adminView[index] = tmpIndicatorTimeseriesMapping_adminView;
-						processed = true;
-						break;
-					}
-				}			
-	
-				if(! processed){
-					// new entry
-					$scope.timeseriesMappings_adminView.push(tmpIndicatorTimeseriesMapping_adminView);
-				}
-	
-				$scope.tmpTimeseriesMapping_indicatorValuesPropertyName = undefined;
-				$scope.tmpTimeseriesMapping_timestampPropertyName = undefined;
-				$scope.tmpTimeseriesMapping_directTimestamp = undefined;
-	
-				setTimeout(() => {
-					$scope.$digest();
-				}, 250);
-			};
-	
-			$scope.onChangeUseTimeseriesAsProperty = function(){
-				if($scope.useTimeseriesAsProperty){
-					$scope.tmpTimeseriesMapping_directTimestamp = undefined;
-				}
-				else{			
-					$scope.tmpTimeseriesMapping_timestampPropertyName = undefined;
-				}
-			};
-	
-			$scope.onClickEditTimeseriesMapping = function(timeseriesMappingEntry_adminView){
-	
-				$scope.tmpTimeseriesMapping_indicatorValuesPropertyName = timeseriesMappingEntry_adminView.indicatorValuesPropertyName;
-				$scope.tmpTimeseriesMapping_timestampPropertyName = timeseriesMappingEntry_adminView.timestampPropertyName;
-				$scope.tmpTimeseriesMapping_directTimestamp = timeseriesMappingEntry_adminView.timestampDirect;			
-	
-				if($scope.tmpTimeseriesMapping_directTimestamp){				
-					$('#indicatorEditFeaturesDirectTimestampDatepicker').datepicker('setDate', $scope.tmpTimeseriesMapping_directTimestamp);
-					$scope.useTimeseriesAsProperty = false;
-				}
-				else{
-					$scope.useTimeseriesAsProperty = true;
-				}
-	
-				setTimeout(() => {
-					$scope.$digest();
-				}, 250);
-			};
-	
-			$scope.onClickDeleteTimeseriesMapping = function(timeseriesMappingEntry_adminView){
-	
-				for (let index = 0; index < $scope.timeseriesMappings_adminView.length; index++) {
-					
-					if ($scope.timeseriesMappings_adminView[index].indicatorValuesPropertyName === timeseriesMappingEntry_adminView.indicatorValuesPropertyName){
-						// remove object
-						$scope.timeseriesMappings_adminView.splice(index, 1);
-						break;
-					}
-				}				
-	
-				setTimeout(() => {
-					$scope.$digest();
-				}, 250);
-			};
+			
 	
 	
 			$scope.getFeatureId = function(jsonFeature){
@@ -404,7 +321,18 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 				$scope.converterDefinition = $scope.buildConverterDefinition();
 				$scope.datasourceTypeDefinition = await $scope.buildDatasourceTypeDefinition();
 				$scope.propertyMappingDefinition = $scope.buildPropertyMappingDefinition();
-				$scope.putBody_indicators = $scope.buildPutBody_indicators();
+				var scopeProperties = {
+					"targetSpatialUnitMetadata": {
+						"spatialUnitLevel": $scope.targetSpatialUnitMetadata.spatialUnitLevel,	
+					},
+					"currentIndicatorDataset": {
+						"defaultClassificationMapping": $scope.currentIndicatorDataset.defaultClassificationMapping
+					},
+					"allowedRoleNames": {
+						"selectedItems": $scope.allowedRoleNames.selectedItems
+					}
+				}
+				$scope.putBody_indicators = kommonitorImporterHelperService.buildPutBody_indicators(scopeProperties);
 	
 				if(!$scope.converterDefinition || !$scope.datasourceTypeDefinition || !$scope.propertyMappingDefinition || !$scope.putBody_indicators){
 					return false;
@@ -437,37 +365,16 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 	
 			$scope.buildPropertyMappingDefinition = function(){
 				// arsion from is undefined currently
-					// arsion from is undefined currently
-				var timeseriesMappingForImporter = [];
-
-				if($scope.timeseriesMappings_adminView && $scope.timeseriesMappings_adminView.length > 0){
-					for (const timeseriesEntry_adminView of $scope.timeseriesMappings_adminView) {
-						timeseriesMappingForImporter.push({
-							"indicatorValueProperty": timeseriesEntry_adminView.indicatorValuesPropertyName,
-							"timestamp": timeseriesEntry_adminView.timestampDirect ? timeseriesEntry_adminView.timestampDirect : undefined,
-							"timestampProperty": timeseriesEntry_adminView.timestampPropertyName ? timeseriesEntry_adminView.timestampPropertyName : undefined,
-						});
-					}
-				}
+				let timeseriesMappingForImporter = [];
+				// adds a variable timeseriesMappingBackup to $scope that holds a reference to the timeseries mapping
+				$scope.$broadcast('getTimeseriesMapping', { varname: "timeseriesMappingBackup"});
+				timeseriesMappingForImporter = $scope.timeseriesMappingBackup;
+				delete $scope.timeseriesMappingBackup;
+				console.log("timeseriesMappingForImporter: ", timeseriesMappingForImporter);
 				return kommonitorImporterHelperService.buildPropertyMapping_indicatorResource($scope.spatialUnitRefKeyProperty, timeseriesMappingForImporter, $scope.keepMissingValues);	
 			};
 	
-			$scope.buildPutBody_indicators = function(){
-				var putBody =
-				{
-					"indicatorValues": [],
-					"applicableSpatialUnit": $scope.targetSpatialUnitMetadata.spatialUnitLevel,
-					"defaultClassificationMapping": $scope.currentIndicatorDataset.defaultClassificationMapping,
-					"allowedRoles": []
-					};
-
-					for (const roleDuallistItem of $scope.allowedRoleNames.selectedItems) {
-						var roleMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleName(roleDuallistItem.name);
-						putBody.allowedRoles.push(roleMetadata.roleId);
-					}
-	
-				return putBody;
-			};
+			
 	
 	
 			$scope.editIndicatorFeatures = async function(){
@@ -656,18 +563,10 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 					
 					// property Mapping
 					$scope.spatialUnitRefKeyProperty = $scope.mappingConfigImportSettings.propertyMapping.spatialReferenceKeyProperty; 
-					$scope.timeseriesMappings_adminView = [];
-	
-					for (var timeseriesMapping of $scope.mappingConfigImportSettings.propertyMapping.timeseriesMappings) {
-						var tmpEntry = {
-							"indicatorValuesPropertyName": timeseriesMapping.indicatorValueProperty,
-							"timestampPropertyName": timeseriesMapping.timestampProperty,
-							"timestampDirect": timeseriesMapping.timestamp
-						};
-	
-						$scope.timeseriesMappings_adminView.push(tmpEntry);
-					}	
 					
+					timeseriesMappingToLoad = $scope.mappingConfigImportSettings.propertyMapping.timeseriesMappings;
+					$scope.$broadcast('loadTimeseriesMapping', { mapping: timeseriesMappingToLoad } )
+
 					if($scope.mappingConfigImportSettings.targetSpatialUnitName){
 						for (const spatialUnitMetadata of kommonitorDataExchangeService.availableSpatialUnits) {
 							if(spatialUnitMetadata.spatialUnitLevel === $scope.mappingConfigImportSettings.targetSpatialUnitName){

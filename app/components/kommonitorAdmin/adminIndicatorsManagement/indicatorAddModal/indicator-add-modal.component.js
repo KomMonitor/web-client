@@ -79,8 +79,6 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 		//Date picker
     	$('#indicatorAddLastUpdateDatepicker').datepicker(kommonitorDataExchangeService.datePickerOptions);
 
-		$('#indicatorAddDirectTimestampDatepicker').datepicker(kommonitorDataExchangeService.datePickerOptions);
-
 		$scope.indicatorMetadataStructure = {
 			"metadata": {
 				"note": "an optional note",

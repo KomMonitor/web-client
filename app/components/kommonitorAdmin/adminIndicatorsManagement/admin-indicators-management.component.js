@@ -107,12 +107,14 @@ angular.module('adminIndicatorsManagement').component('adminIndicatorsManagement
 				kommonitorDataExchangeService.fetchIndicatorsMetadata().then(function successCallback(response) {
 
 					$scope.initializeOrRefreshOverviewTable();
+					$rootScope.$broadcast("refreshIndicatorOverviewTableCompleted");
 
 					$scope.loadingData = false;
 
 					}, function errorCallback(response) {
 
 						$scope.loadingData = false;
+						$rootScope.$broadcast("refreshIndicatorOverviewTableCompleted");
 				});
 			}
 			else if(crudType && targetIndicatorId){
@@ -122,12 +124,14 @@ angular.module('adminIndicatorsManagement').component('adminIndicatorsManagement
 						kommonitorDataExchangeService.addSingleIndicatorMetadata(data);
 
 						$scope.initializeOrRefreshOverviewTable();
+						$rootScope.$broadcast("refreshIndicatorOverviewTableCompleted");
 	
 						$scope.loadingData = false;
 	
 						}, function errorCallback(response) {
 	
 							$scope.loadingData = false;
+							$rootScope.$broadcast("refreshIndicatorOverviewTableCompleted");
 					});
 				}
 				else if(crudType == "edit"){
@@ -136,18 +140,21 @@ angular.module('adminIndicatorsManagement').component('adminIndicatorsManagement
 						kommonitorDataExchangeService.replaceSingleIndicatorMetadata(data);
 						
 						$scope.initializeOrRefreshOverviewTable();
+						$rootScope.$broadcast("refreshIndicatorOverviewTableCompleted");
 	
 						$scope.loadingData = false;
 	
 						}, function errorCallback(response) {
 	
 							$scope.loadingData = false;
+							$rootScope.$broadcast("refreshIndicatorOverviewTableCompleted");
 					});
 				}
 				else if(crudType == "delete"){
 					kommonitorDataExchangeService.deleteSingleIndicatorMetadata(targetIndicatorId);
 						
 						$scope.initializeOrRefreshOverviewTable();
+						$rootScope.$broadcast("refreshIndicatorOverviewTableCompleted");
 	
 						$scope.loadingData = false;
 				}
