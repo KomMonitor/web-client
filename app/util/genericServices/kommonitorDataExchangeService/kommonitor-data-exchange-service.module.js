@@ -315,6 +315,14 @@ angular
             }
           ];
 
+          this.getLoiDashSvgFromStringValue = function(loiDashArrayString){
+            for (const loiDashArrayObject of this.availableLoiDashArrayObjects) {
+              if(loiDashArrayObject.dashArrayValue == loiDashArrayString){
+                return loiDashArrayObject.svgString;
+              }
+            }
+          };
+
 					this.kommonitorMapServiceInstance = kommonitorMapService;
 
           this.updateIntervalOptions = __env.updateIntervalOptions;
@@ -390,6 +398,32 @@ angular
 						this.availableProcessScripts = scriptsArray;
           };
 
+          this.addSingleProcessScriptMetadata = function(processScriptMetadata){
+            let tmpArray = [processScriptMetadata];
+            Array.prototype.push.apply(tmpArray, this.availableProcessScripts);
+            this.availableProcessScripts =  tmpArray;
+          };
+
+          this.replaceSingleProcessScriptMetadata = function(processScriptMetadata){
+            for (let index = 0; index < this.availableProcessScripts.length; index++) {
+              let processScript = this.availableProcessScripts[index];
+              if(processScript.scriptId == processScriptMetadata.scriptId){
+                this.availableProcessScripts[index] = processScriptMetadata;
+                break;
+              }
+            }
+          };
+
+          this.deleteSingleProcessScriptMetadata = function(processScriptId){
+            for (let index = 0; index < this.availableProcessScripts.length; index++) {
+              const processScript = this.availableProcessScripts[index];
+              if(processScript.scriptId == processScriptId){
+                this.availableProcessScripts.splice(index, 1);
+                break;
+              }              
+            }
+          };
+
 
           // ERROR HANDLING
           this.errorMessage = undefined;
@@ -424,6 +458,32 @@ angular
 					this.setSpatialUnits = function(spatialUnitsArray){
 						this.availableSpatialUnits = spatialUnitsArray;
           };
+
+          this.addSingleSpatialUnitMetadata = function(spatialUnitMetadata){
+            let tmpArray = [spatialUnitMetadata];
+            Array.prototype.push.apply(tmpArray, this.availableSpatialUnits);
+            this.availableSpatialUnits =  tmpArray;
+          };
+
+          this.replaceSingleSpatialUnitMetadata = function(spatialUnitMetadata){
+            for (let index = 0; index < this.availableSpatialUnits.length; index++) {
+              let spatialUnit = this.availableSpatialUnits[index];
+              if(spatialUnit.spatialUnitId == spatialUnitMetadata.spatialUnitId){
+                this.availableSpatialUnits[index] = spatialUnitMetadata;
+                break;
+              }
+            }
+          };
+
+          this.deleteSingleSpatialUnitMetadata = function(spatialUnitId){
+            for (let index = 0; index < this.availableSpatialUnits.length; index++) {
+              const spatialUnit = this.availableSpatialUnits[index];
+              if(spatialUnit.spatialUnitId == spatialUnitId){
+                this.availableSpatialUnits.splice(index, 1);
+                break;
+              }              
+            }
+          };
           
           // REPORTING
 
@@ -455,7 +515,31 @@ angular
             };
 					};
 
+          this.addSingleGeoresourceMetadata = function(georesourceMetadata){
+            let tmpArray = [georesourceMetadata];
+            Array.prototype.push.apply(tmpArray, this.availableGeoresources);
+            this.availableGeoresources =  tmpArray;
+          };
 
+          this.replaceSingleGeoresourceMetadata = function(georesourceMetadata){
+            for (let index = 0; index < this.availableGeoresources.length; index++) {
+              let georesource = this.availableGeoresources[index];
+              if(georesource.georesourceId == georesourceMetadata.georesourceId){
+                this.availableGeoresources[index] = georesourceMetadata;
+                break;
+              }
+            }
+          };
+
+          this.deleteSingleGeoresourceMetadata = function(georesourceId){
+            for (let index = 0; index < this.availableGeoresources.length; index++) {
+              const georesource = this.availableGeoresources[index];
+              if(georesource.georesourceId == georesourceId){
+                this.availableGeoresources.splice(index, 1);
+                break;
+              }              
+            }
+          };
 
 					// INDICATORS
 					this.clickedIndicatorFeatureNames = new Array();
@@ -773,6 +857,14 @@ angular
             for (const georesourceMetadata of this.availableGeoresources) {
               if(georesourceMetadata.georesourceId === georesourceId){
                 return georesourceMetadata;
+              }
+            }
+          };
+
+          this.getSpatialUnitMetadataById = function(spatialUnitId){
+            for (const spatialUnitMetadata of this.availableSpatialUnits) {
+              if(spatialUnitMetadata.spatialUnitId === spatialUnitId){
+                return spatialUnitMetadata;
               }
             }
           };
@@ -1572,8 +1664,20 @@ angular
               });
           };
 
+          this.fetchSingleSpatialUnitMetadata = function(targetSpatialUnitId){
+            return $http({
+              url: this.baseUrlToKomMonitorDataAPI + spatialUnitsEndpoint  + "/" + targetSpatialUnitId,
+              method: "GET"
+            }).then(function successCallback(response) {
+                // this callback will be called asynchronously
+                // when the response is available
+
+                return response.data;
+
+              });
+          };
+
           this.fetchGeoresourcesMetadata = function(){
-            console.log("request: " + this.baseUrlToKomMonitorDataAPI + georesourcesEndpoint);
             return $http({
               url: this.baseUrlToKomMonitorDataAPI + georesourcesEndpoint,
               method: "GET"
@@ -1583,6 +1687,19 @@ angular
 
                 self.setGeoresources(response.data);
                 fetchedGeoresourcesInitially = true;
+
+              });
+          };
+
+          this.fetchSingleGeoresourceMetadata = function(targetGeoresourceId){
+            return $http({
+              url: this.baseUrlToKomMonitorDataAPI + georesourcesEndpoint  + "/" + targetGeoresourceId,
+              method: "GET"
+            }).then(function successCallback(response) {
+                // this callback will be called asynchronously
+                // when the response is available
+
+                return response.data;
 
               });
           };
@@ -1623,6 +1740,19 @@ angular
                 // when the response is available
 
                 self.setProcessScripts(response.data);
+
+              });
+          };
+
+          this.fetchSingleIndicatorScriptMetadata = function(targetScriptId){
+            return $http({
+              url: this.baseUrlToKomMonitorDataAPI + scriptsEndpoint  + "/" + targetScriptId,
+              method: "GET"
+            }).then(function successCallback(response) {
+                // this callback will be called asynchronously
+                // when the response is available
+
+                return response.data;
 
               });
           };
@@ -1713,13 +1843,13 @@ angular
                 var numberOfWhitespaces = 2 * index;
                 var whitespaceString = "";
                 for (let k = 0; k < numberOfWhitespaces; k++) {
-                  whitespaceString += " ";
+                  whitespaceString += "&nbsp;";
                 }
                 topicsString += whitespaceString + topicHierarchyArray[index].topicName;
               }
   
-              if (index < topicHierarchyArray.length - 1) {
-                topicsString += "\n";
+              if (index < topicHierarchyArray.length) {
+                topicsString += "<br/>";
               }
   
             }

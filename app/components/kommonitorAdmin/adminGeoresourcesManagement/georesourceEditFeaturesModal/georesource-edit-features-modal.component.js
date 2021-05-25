@@ -133,7 +133,7 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 				$scope.georesourceFeaturesGeoJSON = undefined;
 				$scope.remainingFeatureHeaders = undefined;
 
-				$rootScope.$broadcast("refreshGeoresourceOverviewTable");
+				$rootScope.$broadcast("refreshGeoresourceOverviewTable", "edit", $scope.currentGeoresourceDataset.georesourceId);
 				// $scope.refreshGeoresourceEditFeaturesOverviewTable();
 
 				$scope.successMessagePart = $scope.currentGeoresourceDataset.datasetName;
@@ -402,7 +402,7 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 							// all good, really execute the request to import data against data management API
 							var updateGeoresourceResponse = await kommonitorImporterHelperService.updateGeoresource($scope.converterDefinition, $scope.datasourceTypeDefinition, $scope.propertyMappingDefinition, $scope.currentGeoresourceDataset.georesourceId, $scope.putBody_georesources, false);						
 
-							$rootScope.$broadcast("refreshGeoresourceOverviewTable");
+							$rootScope.$broadcast("refreshGeoresourceOverviewTable", "edit", $scope.currentGeoresourceDataset.georesourceId);
 							// $scope.refreshGeoresourceEditFeaturesOverviewTable();
 
 							$scope.successMessagePart = $scope.currentGeoresourceDataset.datasetName;
