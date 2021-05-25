@@ -4,6 +4,7 @@ angular.module('kommonitorAdmin', ['kommonitorDataExchange', 'adminDashboardMana
 'georesourceDeleteModal','georesourceAddModal', 'georesourceEditFeaturesModal', 'georesourceEditMetadataModal',
 'indicatorDeleteModal','indicatorAddModal', 'indicatorEditFeaturesModal', 'indicatorEditMetadataModal', 
 'indicatorEditIndicatorSpatialUnitRolesModal',
+'georesourceBatchUpdateModal',
 'topicEditModal', 'topicDeleteModal',
 'scriptAddModal', "scriptDeleteModal",
 'adminAppConfig', 'adminKeycloakConfig', 'adminControlsConfig', 

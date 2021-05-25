@@ -2449,6 +2449,56 @@ input:checked + .switchslider:before {
 	display:none;
 }
 
+#georesource-batch-list-table-wrapper {
+	max-height: 75vh !important;
+	overflow-y: auto !important;
+}
+
+#georesource-batch-list-table .form-control {
+	width: auto;
+}
+
+#georesource-batch-list-table th {
+	position: sticky;
+	top: 0;
+	z-index: 3; /* datepicker fields have a z-index of 2, so this needs to be higher */
+}
+
+#georesource-batch-update-result-modal > div {
+	width: 700px;
+	max-height: 75vh;
+}
+
+#georesource-result-table-wrapper {
+	max-height: 50vh !important;
+	overflow-y: auto !important;
+	width: 670px !important;
+}
+
+#georesource-result-table {
+	width: 670px !important;
+	overflow:auto;
+	font-size: 11px;
+}
+
+
+.georesource-result-georesource-name {
+	min-width: 200px;
+	padding: 10px;
+}
+
+.georesource-result-success, .georesource-result-error {
+	padding: 10px !important;
+}
+
+/*
+.georesource-result-error-message {
+	background-color: #c82333 !important;
+	border-color: #bd2130 !important;
+	color: white !important;
+	padding: 12px !important;
+}
+*/
 .style-simple-indicator {
 	background-color: white;
 }

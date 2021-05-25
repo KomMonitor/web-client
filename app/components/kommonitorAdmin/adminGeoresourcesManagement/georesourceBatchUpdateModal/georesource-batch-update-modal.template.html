@@ -1,0 +1,339 @@
+<div class="modal fade" id="modal-batch-update-georesources" role="dialog">
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content">
+
+			<div align="center">
+				<div class="loading-overlay-admin-panel ng-hide" ng-show="loadingData">
+					<span class="glyphicon glyphicon-refresh icon-spin"></span>
+				</div>
+			</div>
+
+
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Batch-Update</h4>
+			</div>
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-md-12 col-sm-12 col-xs-12">
+						<p>Diese Funktion erm&ouml;glicht es, die Mapping-Parameter mehrerer Georessoucen gleichzeitig zu aktualisieren.</p>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-8 col-sm-8 col-xs-12">
+						<div class="col-md-4 col-sm-4 col-xs-6" style="margin-right:15px">
+							<div class="form-group">
+								<div class="row">
+									<label>Standard<br /><i>Gültigkeitszeitraum von</i>:</label>
+									<div class="input-group date">
+										<div class="input-group-addon">
+											<i class="far fa-calendar-alt"></i>
+										</div>
+										<input id="standardPeriodOfValidityStartDatePicker" type="text" class="form-control pull-right"
+										ng-model="standardPeriodOfValidityStart" placeholder="YYYY-MM-DD">
+									</div>
+									<label for="standardPeriodOfValidityStartChb">In allen Zeilen setzen?</label>
+									<input id="standardPeriodOfValidityStartChb" type="checkbox" ng-model="standardPeriodOfValidityStartChb">
+									<div class="help-block">
+										<p>
+											Überschreibt alle Werte der Spalte &quot;G&uuml;tigkeitszeitraum von*&quot; sofern die Checkbox aktiviert ist.<br />
+											Ist sie deaktiviert, werden nur leere Tabellenfelder dieser Spalte überschrieben, sodass bereits eingetragene Werte erhalten bleiben.
+										</p>
+									</div>
+								</div>
+								<div class="row">
+									<button type="button" class="btn btn-primary" ng-click="onClickSaveStandardPeriodOfValidity()">Standardwert eintragen</button>
+								</div>
+							</div>
+						</div>
+						<div class="col-md-4 col-sm-4 col-xs-6">
+							<div class="form-group">
+								<div class="row">
+									<label>Standard<br /><i>CRS</i>:</label>
+									<input id="standardCrsInputField" type="text" class="form-control"
+										ng-model="standardCrs" placeholder="EPSG:25832">
+									<label for="standardCrsChb">In allen Zeilen setzen?</label>
+									<input id="standardCrsChb" type="checkbox" ng-model="standardCrsChb">
+									<div class="help-block">
+										<p>
+											Überschreibt alle Werte der Spalte &quot;CRS*&quot; sofern die Checkbox aktiviert ist.<br />
+											Ist sie deaktiviert, werden nur leere Tabellenfelder dieser Spalte überschrieben, sodass bereits eingetragene Werte erhalten bleiben.
+										</p>
+									</div>
+								</div>
+								<div class="row">
+									<button type="button" class="btn btn-primary" ng-click="onClickSaveStandardCRS()">Standardwert eintragen</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-12 col-sm-12 col-xs-12">
+						<form id="georesourceBatchUpdateForm" class="form-group" role="form" data-toggle="validator" data-disable="true">
+							<div id="georesource-batch-list-table-wrapper" class="table-responsive">
+								<table id="georesource-batch-list-table" class="table table-bordered table-condensed table-striped" style="width:100%; overflow:auto; font-size: 11px;">
+									<thead>
+										<tr>
+											<th><input type="checkbox" ng-model="allRowsSelected" ng-change="onChangeSelectAllRows()"></th>
+											<th>Name*</th>
+											<th>Mappingtabelle</th>
+											<th ng-show="checkIfMappingTableIsSpecified()">Speichern</th>
+											<th ng-show="checkIfMappingTableIsSpecified()">G&uuml;ltigkeitszeitraum von*</th>
+											<th ng-show="checkIfMappingTableIsSpecified()">G&uuml;ltigkeitszeitraum bis</th>
+											<th ng-show="checkIfMappingTableIsSpecified()">Geodaten-Quellformat*</th>
+											<th ng-show="checkIfMappingTableIsSpecified()">CRS*</th>
+											<th ng-show="checkIfSelectedConverterIsCsvLatLon()">separator*</th>
+											<th ng-show="checkIfSelectedConverterIsCsvLatLon()">yCoordColumn*</th>
+											<th ng-show="checkIfSelectedConverterIsCsvLatLon()">xCoordColumn*</th>
+											<th ng-show="checkIfSelectedConverterIsWfsV1()">Schema*</th>
+											<th ng-show="checkIfMappingTableIsSpecified()">Datenquelltyp*</th>
+											<th ng-show="checkIfSelectedDatasourceTypeIsFile()">Datei*</th>
+											<th ng-show="checkIfSelectedDatasourceTypeIsHttp()">URL*</th>
+											<th ng-show="checkIfSelectedDatasourceTypeIsInline()">Payload*</th>
+											<th ng-show="checkIfMappingTableIsSpecified()">ID Attributname*</th>
+											<th ng-show="checkIfMappingTableIsSpecified()">NAME Attributname*</th>
+											<th ng-show="checkIfMappingTableIsSpecified()">Lebenszeit-Beginn Attributname</th>
+											<th ng-show="checkIfMappingTableIsSpecified()">Lebenszeit-Ende Attributname</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr ng-repeat="georesource in batchList">
+
+											<!-- isSelected -->
+											<td>
+												<input type="checkbox" ng-model="georesource.isSelected">
+											</td>
+
+											<!-- Name -->
+											<td>
+												<select id="georesourceSelect{{$index}} class="form-control" ng-model="georesource.name" required
+													ng-options="avGeoresource as avGeoresource.datasetName for avGeoresource in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:filterGeoresourcesInBatchList($index)">
+														<option disabled selected value> -- Georessource w&auml;hlen -- </option>
+												</select>
+											</td>
+											
+											<!-- Mappingtabelle -->
+											<td>
+												<input id="mappingTableSelect{{$index}}" class="form-control mappingTableInputField" type="file">
+											</td>
+
+											<!-- Speichern -->
+											<td ng-show="checkIfMappingTableIsSpecified()">
+												<button id="mappingTableSave{{$index}}" type="button" class="btn btn-primary fas fa-save" 
+													ng-disabled="georesource.mappingTableName == &quot;&quot;" ng-click="onMappingTableSaveClicked($event)" >
+												</button>
+											</td>
+
+											<!-- Gültigkeitszeitraum von -->
+											<td ng-show="checkIfMappingTableIsSpecified()">
+												<div class="input-group date">
+													<div class="input-group-addon">
+														<i class="far fa-calendar-alt"></i>
+													</div>
+													<input id="periodOfValidityStartDatePicker{{$index}}" class="form-control pull-right" type="text"  placeholder="YYYY-MM-DD"
+														value={{georesource.periodOfValidityStart}} ng-model="georesource.mappingObj.periodOfValidity.startDate" 
+														ng-disabled="georesource.mappingTableName == &quot;&quot;" required>
+												</div>
+											</td>
+
+											<!-- Gültigkeitszeitraum bis -->
+											<td ng-show="checkIfMappingTableIsSpecified()">
+												<div class="input-group date">
+													<div class="input-group-addon">
+														<i class="far fa-calendar-alt"></i>
+													</div>
+													<input id="periodOfValidityEndDatePicker{{$index}}" type="text" class="form-control pull-right" placeholder="YYYY-MM-DD"
+														value={{georesource.periodOfValidityEnd}} ng-model="georesource.mappingObj.periodOfValidity.endDate"
+														ng-disabled="georesource.mappingTableName == &quot;&quot;">
+												</div>
+											</td>
+
+
+											<!-- Geodaten-Quellformat -->
+											<td ng-show="checkIfMappingTableIsSpecified()">
+												<select class="form-control" ng-model="georesource.selectedConverter"
+														ng-options="converter as converter.simpleName for converter in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters"
+														ng-disabled="georesource.mappingTableName == &quot;&quot;" required>
+																<option disabled selected value> -- Quellformat w&auml;hlen -- </option>
+												</select>
+											</td>
+
+											<!-- CRS -->
+											<td ng-show="checkIfMappingTableIsSpecified()">
+												<input id="crsInputField{{$index}}" class="form-control" ng-model="georesource.mappingObj.converter.CRS.value"
+												type="text" ng-disabled="georesource.mappingTableName == &quot;&quot;" required>
+											</td>
+
+											<!-- separator -->
+											<td ng-show="checkIfSelectedConverterIsCsvLatLon()">
+												<input class="form-control" ng-model="georesource.mappingObj.converter.separator.value"
+												type="text" ng-disabled="!georesource.selectedConverter.name.includes(&quot;csvLatLon&quot;)" required>
+											</td>
+
+											<!-- yCoordColumn -->
+											<td ng-show="checkIfSelectedConverterIsCsvLatLon()">
+												<input class="form-control" ng-model="georesource.mappingObj.converter.yCoordColumn.value"
+												type="text" ng-disabled="!georesource.selectedConverter.name.includes(&quot;csvLatLon&quot;)" required>
+											</td>
+
+											<!-- xCoordColumn -->
+											<td ng-show="checkIfSelectedConverterIsCsvLatLon()">
+												<input class="form-control" ng-model="georesource.mappingObj.converter.xCoordColumn.value"
+												type="text" ng-disabled="!georesource.selectedConverter.name.includes(&quot;csvLatLon&quot;)" required>
+											</td>
+
+											<!-- schema -->
+											<td ng-show="checkIfSelectedConverterIsWfsV1()">
+												<select class="form-control" ng-model="georesource.mappingObj.converter.schema" 
+													ng-options="schema for schema in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters[2].schemas"
+													ng-disabled="!georesource.selectedConverter.name.includes(&quot;wfs.v1&quot;)" required>
+													<option disabled selected value> -- Schema w&auml;hlen -- </option>
+												</select>
+											</td>
+
+											<!-- Datenquelltyp -->
+											<td ng-show="checkIfMappingTableIsSpecified()">
+												<select ng-model="georesource.selectedDatasourceType"
+														ng-options="datasourceType as datasourceType.type for datasourceType in $ctrl.kommonitorImporterHelperServiceInstance.availableDatasourceTypes"
+														class="form-control" ng-disabled="georesource.mappingTableName == &quot;&quot;" required>
+																<option disabled selected value> -- Quelltyp w&auml;hlen -- </option>
+												</select>
+											</td>
+
+											<!-- Datei -->
+											<td ng-show="checkIfSelectedDatasourceTypeIsFile()">
+												<input id="dataSourceFileInputField{{$index}}" class="form-control dataSourceFileInputField" type="file" 
+												ng-disabled="!georesource.selectedDatasourceType.type.includes(&quot;FILE&quot;)" required>
+											</td>
+
+											<!-- URL -->
+											<td ng-show="checkIfSelectedDatasourceTypeIsHttp()">
+												<input class="form-control" type="text" ng-model="georesource.mappingObj.dataSource.URL.value"
+												ng-disabled="!georesource.selectedDatasourceType.type.includes(&quot;HTTP&quot;)" required>
+											</td>
+
+											<!-- Payload -->
+											<td ng-show="checkIfSelectedDatasourceTypeIsInline()">
+												<input class="form-control" type="text" ng-model="georesource.mappingObj.dataSource.payload.value"
+												ng-disabled="!georesource.selectedDatasourceType.type.includes(&quot;INLINE&quot;)" required>
+											</td>
+
+											<!-- ID Attributname -->
+											<td ng-show="checkIfMappingTableIsSpecified()">
+												<input class="form-control" ng-model="georesource.mappingObj.propertyMapping.identifierProperty" type="text" ng-disabled="georesource.mappingTableName == &quot;&quot;" required>
+											</td>
+
+											<!-- NAME Attributname -->
+											<td ng-show="checkIfMappingTableIsSpecified()">
+												<input class="form-control" ng-model="georesource.mappingObj.propertyMapping.nameProperty" type="text" ng-disabled="georesource.mappingTableName == &quot;&quot;" required>
+											</td>
+
+											<!-- Lebenszeit-Beginn Attributname -->
+											<td ng-show="checkIfMappingTableIsSpecified()">
+												<input class="form-control" ng-model="georesource.mappingObj.propertyMapping.validStartDateProperty" type="text" ng-disabled="georesource.mappingTableName == &quot;&quot;" required>
+											</td>
+
+											<!-- Lebenszeit-Ende Attributname -->
+											<td ng-show="checkIfMappingTableIsSpecified()">
+												<input class="form-control" ng-model="georesource.mappingObj.propertyMapping.validEndDateProperty" type="text" ng-disabled="georesource.mappingTableName == &quot;&quot;" required>
+											</td>
+
+										</tr>
+									</tbody>
+
+									<tfoot>
+										<tr>
+											<th><input type="checkbox" ng-model="allRowsSelected" ng-change="onChangeSelectAllRows()"></th>
+											<th>Name*</th>
+											<th>Mappingtabelle</th>
+											<th ng-show="checkIfMappingTableIsSpecified()">Speichern</th>
+											<th ng-show="checkIfMappingTableIsSpecified()">G&uuml;ltigkeitszeitraum von*</th>
+											<th ng-show="checkIfMappingTableIsSpecified()">G&uuml;ltigkeitszeitraum bis</th>
+											<th ng-show="checkIfMappingTableIsSpecified()">Geodaten-Quellformat*</th>
+											<th ng-show="checkIfMappingTableIsSpecified()">CRS*</th>
+											<th ng-show="checkIfSelectedConverterIsCsvLatLon()">separator*</th>
+											<th ng-show="checkIfSelectedConverterIsCsvLatLon()">yCoordColumn*</th>
+											<th ng-show="checkIfSelectedConverterIsCsvLatLon()">xCoordColumn*</th>
+											<th ng-show="checkIfSelectedConverterIsWfsV1()">Schema*</th>
+											<th ng-show="checkIfMappingTableIsSpecified()">Datenquelltyp*</th>
+											<th ng-show="checkIfSelectedDatasourceTypeIsFile()">Datei*</th>
+											<th ng-show="checkIfSelectedDatasourceTypeIsHttp()">URL*</th>
+											<th ng-show="checkIfSelectedDatasourceTypeIsInline()">Payload*</th>
+											<th ng-show="checkIfMappingTableIsSpecified()">ID Attributname*</th>
+											<th ng-show="checkIfMappingTableIsSpecified()">NAME Attributname*</th>
+											<th ng-show="checkIfMappingTableIsSpecified()">Lebenszeit-Beginn Attributname</th>
+											<th ng-show="checkIfMappingTableIsSpecified()">Lebenszeit-Ende Attributname</th>
+										</tr>
+									</tfoot>
+								</table>
+							</div>
+
+							<button type="button" class="btn btn-primary" ng-click="addNewRowToBatchList('georesource')">neue Zeile hinzuf&uuml;gen</button>
+							<button type="button" class="btn btn-danger" ng-click="deleteSelectedRowsFromBatchList()">ausgewählte Zeilen l&ouml;schen</button>
+						</div>
+					</form>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
+				<button type="button" class="btn btn-info pull-left" ng-click="loadGeoresourcesBatchList()"
+					title="Importieren der Batch-Liste aus einer Datei">
+					<i class="fas fa-file-import"></i>&nbsp;&nbsp;Batch-Liste importieren
+				</button>
+
+				<input style="display:none;" class="pull-left" type="file" class="form-control"
+					id="georesourceBatchListFile" accept=".json,"></input>
+
+				<button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" ng-disabled=""
+					ng-click="saveGeoresourcesBatchList()" title="Exportieren der Batch-Liste in eine Datei">
+					<i class="fas fa-file-export"></i>&nbsp;&nbsp;Batch-Liste exportieren
+				</button>
+
+				<button id="georesource-batch-update-btn" type="button" class="btn btn-success"
+					ng-click="batchUpdateGeoresources()" ng-disabled="!checkIfNameAndFilesChosenInEachRow()">Update ausführen</button>
+				<button type="button" class="btn btn-danger"
+					ng-click="resetGeoresourceBatchUpdateForm()">Zur&uuml;cksetzen</button>
+			</div>
+
+			<!-- result modal -->
+			<div class="modal fade" id="georesource-batch-update-result-modal" role="dialog">
+				<div class="modal-dialog modal-xl">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" aria-label="Close" id="georesource-batch-update-result-modal-close-btn">
+								<span aria-hidden="true">&times;</span></button>
+							<h4 class="modal-title">Ergebnis des Batch-Updates</h4>
+						</div>
+						<div class="modal-body">
+							<div class="row">
+								<div class="col"></div>
+								<div class="col-md-10 col-sm-10 col-xs-10">
+									<div id="georesource-result-table-wrapper" class="table-responsive">
+										<table id="georesource-result-table" class="table-bordered">
+											<thead>
+												<tr>
+													<th>Georessource</th>
+													<th>Status</th>
+												</tr>
+											</thead>
+											<tbody id="georesource-result-table-tbody">
+											</tbody>
+										</table>
+									</div>
+								</div>
+								<div class="col"></div>
+							</div>
+						</div>
+						<div class="modal-footer">
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
