@@ -132,11 +132,9 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 		$('#poiSymbolEditPicker').iconpicker($scope.iconPickerOptions);
 
 		$('#poiSymbolEditPicker').on('change', function(e) {
-		    console.log(e.icon);
 				// split up due to current data management request structure where we expect only the last name of Bootstrap 3.3.7 glyphicon name
 				// i.e. "home" for "glyphicon-home"
 				$scope.selectedPoiIconName = e.icon.substring(e.icon.indexOf('-')+1);
-				console.log($scope.selectedPoiIconName);
 		});
 
 		$scope.loadingData = false;
@@ -372,7 +370,7 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 
 					$scope.successMessagePart = $scope.datasetName;
 
-					$rootScope.$broadcast("refreshGeoresourceOverviewTable");
+					$rootScope.$broadcast("refreshGeoresourceOverviewTable", "edit", $scope.currentGeoresourceDataset.georesourceId);
 					$("#georesourceEditMetadataSuccessAlert").show();
 					$scope.loadingData = false;
 

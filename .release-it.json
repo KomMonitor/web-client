@@ -1,0 +1,13 @@
+{
+    "plugins": {
+        "@release-it/keep-a-changelog": {
+            "strictLatest": false,
+            "filename": "CHANGELOG.md",
+            "addUnreleased": false,
+            "keepUnreleased": true
+        }
+    },
+    "hooks": {
+        "after:bump": "npx auto-changelog -p"
+    }
+}

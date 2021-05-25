@@ -79,8 +79,6 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 		//Date picker
     	$('#indicatorAddLastUpdateDatepicker').datepicker(kommonitorDataExchangeService.datePickerOptions);
 
-		$('#indicatorAddDirectTimestampDatepicker').datepicker(kommonitorDataExchangeService.datePickerOptions);
-
 		$scope.indicatorMetadataStructure = {
 			"metadata": {
 				"note": "an optional note",
@@ -603,13 +601,13 @@ angular.module('indicatorAddModal').component('indicatorAddModal', {
 			  }).then(function successCallback(response) {
 				  // this callback will be called asynchronously
 				  // when the response is available
-						  				  
-				  var response = response.data;
 
-				  $rootScope.$broadcast("refreshIndicatorOverviewTable");
+				  $rootScope.$broadcast("refreshIndicatorOverviewTable", "add", response.indicatorId);
 
 						// refresh all admin dashboard diagrams due to modified metadata
-						$rootScope.$broadcast("refreshAdminDashboardDiagrams");
+						$timeout(function(){
+							$rootScope.$broadcast("refreshAdminDashboardDiagrams");
+						}, 500);
 
 						$scope.successMessagePart = $scope.datasetName;
 						$scope.importedFeatures = [];

@@ -1,0 +1,387 @@
+<div class="modal fade" id="modal-batch-update-georesources" role="dialog">
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content">
+
+			<div align="center">
+				<div class="loading-overlay-admin-panel ng-hide" ng-show="loadingData">
+					<span class="glyphicon glyphicon-refresh icon-spin"></span>
+				</div>
+			</div>
+
+
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Batch-Update</h4>
+			</div>
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-md-12 col-sm-12 col-xs-12">
+						<p>Diese Funktion erm&ouml;glicht es, die Mapping-Parameter mehrerer Georessoucen gleichzeitig zu aktualisieren.</p>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-12 col-sm-12 col-xs-12">
+						<form id="georesourceBatchUpdateForm" class="form-group" role="form" data-toggle="validator" data-disable="true">
+							<div class="batch-list-table-wrapper table-responsive">
+								<table class="batch-list-table table table-bordered table-condensed table-striped" style="width:100%; overflow:auto; font-size: 11px;">
+									<thead>
+										<tr>
+											<th class="batch-list-table-sticky-column batch-list-table-sticky-column-header batch-list-table-sticky-column-1"><input type="checkbox" ng-model="allRowsSelected" ng-change="$ctrl.kommonitorBatchUpdateHelperServiceInstance.onChangeSelectAllRows(this.allRowsSelected, this.batchList)"></th>
+											<th class="batch-list-table-sticky-column batch-list-table-sticky-column-header batch-list-table-sticky-column-2">Name*</th>
+											<th>Mappingtabelle*</th>
+											<th>Speichern</th>
+											<th>G&uuml;ltigkeitszeitraum von*</th>
+											<th>G&uuml;ltigkeitszeitraum bis</th>
+											<th>Geodaten-Quellformat*</th>
+											<th>CRS*</th>
+											<th ng-show="checkIfSelectedConverterIsCsvLatLon()">separator*</th>
+											<th ng-show="checkIfSelectedConverterIsCsvLatLon()">yCoordColumn*</th>
+											<th ng-show="checkIfSelectedConverterIsCsvLatLon()">xCoordColumn*</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedConverterIsWfsV1(batchList)">Schema*</th>
+											<th>Datenquelltyp*</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsFile(batchList)">Datei*</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsHttp(batchList)">URL*</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsInline(batchList)">Payload*</th>
+											<th>ID Attributname*</th>
+											<th>NAME Attributname*</th>
+											<th>Lebenszeit-Beginn Attributname</th>
+											<th>Lebenszeit-Ende Attributname</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr ng-repeat="georesource in batchList" ng-class-odd="'batch-list-odd-rows'" ng-class-even="'batch-list-even-rows'">
+
+											<!-- isSelected -->
+											<td class="batch-list-table-sticky-column batch-list-table-sticky-column-1">
+												<input type="checkbox" ng-model="georesource.isSelected">
+											</td>
+
+											<!-- Name -->
+											<td class="batch-list-table-sticky-column batch-list-table-sticky-column-2">
+												<select id="georesourceSelect{{$index}}" class="form-control batch-list-table-name-field" ng-model="georesource.name" required
+													ng-options="avGeoresource as avGeoresource.datasetName for avGeoresource in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources">
+														<option disabled selected value> -- Georessource w&auml;hlen -- </option>
+												</select>
+											</td>
+											
+											<!-- Mappingtabelle -->
+											<td>
+												<input id="georesourceMappingTableSelect{{$index}}" class="form-control georesourceMappingTableInputField" type="file">
+											</td>
+
+											<!-- Speichern -->
+											<td>
+												<button id="georesourceMappingTableSave{{$index}}" type="button" class="btn btn-primary fas fa-save" 
+													ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.saveMappingObjectToFile('georesource', $event, batchList)" >
+												</button>
+											</td>
+
+											<!-- Gültigkeitszeitraum von -->
+											<td>
+												<div class="input-group date">
+													<div class="input-group-addon">
+														<i class="far fa-calendar-alt"></i>
+													</div>
+													<input id="georesourcePeriodOfValidityStartDatePicker{{$index}}" class="form-control pull-right" type="text"  placeholder="YYYY-MM-DD"
+														value={{georesource.periodOfValidityStart}} ng-model="georesource.mappingObj.periodOfValidity.startDate" required>
+												</div>
+											</td>
+
+											<!-- Gültigkeitszeitraum bis -->
+											<td>
+												<div class="input-group date">
+													<div class="input-group-addon">
+														<i class="far fa-calendar-alt"></i>
+													</div>
+													<input id="georesourcePeriodOfValidityEndDatePicker{{$index}}" type="text" class="form-control pull-right" placeholder="YYYY-MM-DD"
+														value={{georesource.periodOfValidityEnd}} ng-model="georesource.mappingObj.periodOfValidity.endDate">
+												</div>
+											</td>
+
+
+											<!-- Geodaten-Quellformat -->
+											<td>
+												<select class="form-control" ng-model="georesource.selectedConverter"
+														ng-options="converter as converter.simpleName for converter in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters | filter:$ctrl.kommonitorBatchUpdateHelperServiceInstance.filterConverters('georesource')" required>
+																<option disabled selected value> -- Quellformat w&auml;hlen -- </option>
+												</select>
+											</td>
+
+											<!-- CRS -->
+											<td>
+												<input id="georesourceCrsInputField{{$index}}" class="form-control" ng-model="georesource.mappingObj.converter.CRS.value"
+												type="text" required>
+											</td>
+
+											<!-- separator -->
+											<td ng-show="checkIfSelectedConverterIsCsvLatLon()">
+												<input class="form-control" ng-model="georesource.mappingObj.converter.separator.value"
+												type="text" ng-disabled="!georesource.selectedConverter.name.includes(&quot;csvLatLon&quot;)" required>
+											</td>
+
+											<!-- yCoordColumn -->
+											<td ng-show="checkIfSelectedConverterIsCsvLatLon()">
+												<input class="form-control" ng-model="georesource.mappingObj.converter.yCoordColumn.value"
+												type="text" ng-disabled="!georesource.selectedConverter.name.includes(&quot;csvLatLon&quot;)" required>
+											</td>
+
+											<!-- xCoordColumn -->
+											<td ng-show="checkIfSelectedConverterIsCsvLatLon()">
+												<input class="form-control" ng-model="georesource.mappingObj.converter.xCoordColumn.value"
+												type="text" ng-disabled="!georesource.selectedConverter.name.includes(&quot;csvLatLon&quot;)" required>
+											</td>
+
+											<!-- schema -->
+											<td ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedConverterIsWfsV1(batchList)">
+												<select class="form-control" ng-model="georesource.mappingObj.converter.schema" 
+													ng-options="schema for schema in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters[3].schemas"
+													ng-disabled="!georesource.selectedConverter.name.includes(&quot;wfs.v1&quot;)" required>
+													<option disabled selected value> -- Schema w&auml;hlen -- </option>
+												</select>
+											</td>
+
+											<!-- Datenquelltyp -->
+											<td>
+												<select ng-model="georesource.selectedDatasourceType"
+														ng-options="datasourceType as datasourceType.type for datasourceType in $ctrl.kommonitorImporterHelperServiceInstance.availableDatasourceTypes"
+														class="form-control" required>
+																<option disabled selected value> -- Quelltyp w&auml;hlen -- </option>
+												</select>
+											</td>
+
+											<!-- Datei -->
+											<td ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsFile(batchList)">
+												<input id="georesourceDataSourceFileInputField{{$index}}" class="form-control georesourceDataSourceFileInputField" type="file" 
+												ng-disabled="!georesource.selectedDatasourceType.type.includes(&quot;FILE&quot;)" required>
+											</td>
+
+											<!-- URL -->
+											<td ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsHttp(batchList)">
+												<input class="form-control" type="text" ng-model="georesource.mappingObj.dataSource.URL.value"
+												ng-disabled="!georesource.selectedDatasourceType.type.includes(&quot;HTTP&quot;)" required>
+											</td>
+
+											<!-- Payload -->
+											<td ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsInline(batchList)">
+												<input class="form-control" type="text" ng-model="georesource.mappingObj.dataSource.payload.value"
+												ng-disabled="!georesource.selectedDatasourceType.type.includes(&quot;INLINE&quot;)" required>
+											</td>
+
+											<!-- ID Attributname -->
+											<td>
+												<input class="form-control" ng-model="georesource.mappingObj.propertyMapping.identifierProperty" type="text" required>
+											</td>
+
+											<!-- NAME Attributname -->
+											<td>
+												<input class="form-control" ng-model="georesource.mappingObj.propertyMapping.nameProperty" type="text" required>
+											</td>
+
+											<!-- Lebenszeit-Beginn Attributname -->
+											<td>
+												<input class="form-control" ng-model="georesource.mappingObj.propertyMapping.validStartDateProperty" type="text" required>
+											</td>
+
+											<!-- Lebenszeit-Ende Attributname -->
+											<td>
+												<input class="form-control" ng-model="georesource.mappingObj.propertyMapping.validEndDateProperty" type="text" required>
+											</td>
+
+										</tr>
+									</tbody>
+
+									<tfoot>
+										<tr>
+											<th class="batch-list-table-sticky-column batch-list-table-sticky-column-footer batch-list-table-sticky-column-1"><input type="checkbox" ng-model="allRowsSelected" ng-change="$ctrl.kommonitorBatchUpdateHelperServiceInstance.onChangeSelectAllRows(this.allRowsSelected, this.batchList)"></th>
+											<th class="batch-list-table-sticky-column batch-list-table-sticky-column-footer batch-list-table-sticky-column-2">Name*</th>
+											<th>Mappingtabelle*</th>
+											<th>Speichern</th>
+											<th>G&uuml;ltigkeitszeitraum von*</th>
+											<th>G&uuml;ltigkeitszeitraum bis</th>
+											<th>Geodaten-Quellformat*</th>
+											<th>CRS*</th>
+											<th ng-show="checkIfSelectedConverterIsCsvLatLon()">separator*</th>
+											<th ng-show="checkIfSelectedConverterIsCsvLatLon()">yCoordColumn*</th>
+											<th ng-show="checkIfSelectedConverterIsCsvLatLon()">xCoordColumn*</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedConverterIsWfsV1(batchList)">Schema*</th>
+											<th>Datenquelltyp*</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsFile(batchList)">Datei*</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsHttp(batchList)">URL*</th>
+											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsInline(batchList)">Payload*</th>
+											<th>ID Attributname*</th>
+											<th>NAME Attributname*</th>
+											<th>Lebenszeit-Beginn Attributname</th>
+											<th>Lebenszeit-Ende Attributname</th>
+										</tr>
+									</tfoot>
+								</table>
+							</div>
+
+							<button type="button" class="btn btn-primary" ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.addNewRowToBatchList('georesource', this.batchList)">neue Zeile hinzuf&uuml;gen</button>
+							<button type="button" class="btn btn-danger" ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.deleteSelectedRowsFromBatchList(this.batchList, this.allRowsSelected)">ausgewählte Zeilen l&ouml;schen</button>
+						</div>
+					</form>
+				</div>
+				<div class="row">
+					<div class="col-md-4 col-sm-4 col-xs-6">
+						<div class="form-group">
+							<label>Standardwert-Funktion</label>
+							<div class="help-block">
+								<p>
+									Diese Funktion ermöglicht es, einen Standardwert für alle Zeilen einer variablen Tabellenspalte zu setzen.<br />
+									Sofern die Checkbox aktiviert ist, wird der Wert für alle Zeilen gesetzt.<br />
+									Ist sie deaktiviert, werden nur leere Tabellenfelder überschrieben, sodass bereits eingetragene Werte erhalten bleiben.<br />
+									Gesperrte (ausgegraute) Felder werden ignoriert.
+								</p>
+							</div>
+							<div class="row">
+								<div class="col-md-6 col-sm-6 col-xs-6">
+									<label for="georesourceColDefaultFunctionColSelectInput">Tabellenspalte:</label>
+									<select id="georesourceColDefaultFunctionColSelectInput" class="form-control"
+										ng-model="colDefaultFunctionSelectedColumn" ng-change="colDefaultFunctionNewValue=undefined">
+										<option disabled selected value> -- Tabellenspalte w&auml;hlen -- </option>
+										<option value="mappingObj.periodOfValidity.startDate">G&uuml;ltigkeitszeitraum von*</option>
+										<option value="mappingObj.periodOfValidity.endDate">G&uuml;ltigkeitszeitraum bis</option>
+										<option value="selectedConverter">Geodaten-Quellformat*</option>
+										<option value="mappingObj.converter.CRS.value">CRS*</option>
+										<option value="mappingObj.converter.separator.value">separator*</option>
+										<option value="mappingObj.converter.yCoordColumn.value">yCoordColumn*</option>
+										<option value="mappingObj.converter.xCoordColumn.value">xCoordColumn*</option>
+										<option value="mappingObj.converter.schema">Schema*</option>
+										<option value="selectedDatasourceType">Datenquelltyp*</option>
+										<option value="mappingObj.dataSource.URL.value">URL*</option>
+										<option value="mappingObj.dataSource.payload.value">Payload*</option>
+										<option value="mappingObj.propertyMapping.identifierProperty">ID Attributname*</option>
+										<option value="mappingObj.propertyMapping.nameProperty">NAME Attributname*</option>
+										<option value="mappingObj.propertyMapping.validStartDateProperty">Lebenszeit-Beginn Attributname*</option>
+										<option value="mappingObj.propertyMapping.validEndDateProperty">Lebenszeit-Ende Attributname*</option>
+									</select>
+									<label>Wert:</label>
+									<!-- default -->
+									<input ng-show="!colDefaultFunctionSelectedColumn" type="text" class="form-control" ng-model="colDefaultFunctionNewValue" disabled placeholder="keine Tabellenspalte ausgew&auml;hlt"></input>
+									<!-- Gültigkeitszeitraum von* -->
+									<div ng-show="colDefaultFunctionSelectedColumn=='mappingObj.periodOfValidity.startDate'"
+										class="input-group date">
+										<div class="input-group-addon">
+											<i class="far fa-calendar-alt"></i>
+										</div>
+										<input id="georesourceDefaultColumnDatePickerStart" class="form-control pull-right" type="text"  placeholder="YYYY-MM-DD"
+											value={{colDefaultFunctionNewValue}} ng-model="colDefaultFunctionNewValue">
+									</div>
+									<!-- Gültigkeitszeitraum bis* -->
+									<div ng-show="colDefaultFunctionSelectedColumn=='mappingObj.periodOfValidity.endDate'"
+										class="input-group date">
+										<div class="input-group-addon">
+											<i class="far fa-calendar-alt"></i>
+										</div>
+										<input id="georesourceDefaultColumnDatePickerEnd" class="form-control pull-right" type="text"  placeholder="YYYY-MM-DD"
+											value={{colDefaultFunctionNewValue}} ng-model="colDefaultFunctionNewValue">
+									</div>
+									<!-- Geodaten-Quellformat* -->
+									<select ng-show="colDefaultFunctionSelectedColumn=='selectedConverter'" class="form-control" ng-model="colDefaultFunctionNewValue"
+										ng-options="converter as converter.simpleName for converter in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters | filter:$ctrl.kommonitorBatchUpdateHelperServiceInstance.filterConverters('georesource')">
+											<option disabled selected value> -- Quellformat w&auml;hlen -- </option>
+									</select>
+									<!-- CRS* -->
+									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.converter.CRS.value'" type="text" class="form-control"
+										ng-model="colDefaultFunctionNewValue">
+									</input>
+									<!-- separator* -->
+									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.converter.separator.value'" type="text" class="form-control"
+										ng-model="colDefaultFunctionNewValue" ng-disabled="!checkIfSelectedConverterIsCsvLatLon()">
+									</input>
+									<!-- yCoordColumn* -->
+									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.converter.yCoordColumn.value'" type="text" class="form-control"
+										ng-model="colDefaultFunctionNewValue" ng-disabled="!checkIfSelectedConverterIsCsvLatLon()">
+									</input>
+									<!-- xCoordColumn* -->
+									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.converter.xCoordColumn.value'" type="text" class="form-control"
+										ng-model="colDefaultFunctionNewValue" ng-disabled="!checkIfSelectedConverterIsCsvLatLon()">
+									</input>
+									<!-- Schema* -->
+									<select ng-show="colDefaultFunctionSelectedColumn=='mappingObj.converter.schema'" class="form-control" ng-model="colDefaultFunctionNewValue" 
+										ng-options="schema for schema in $ctrl.kommonitorImporterHelperServiceInstance.availableConverters[3].schemas"
+										ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedConverterIsWfsV1(batchList)">
+											<option disabled selected value> -- Schema w&auml;hlen -- </option>
+									</select>
+									<!-- Datenquelltyp* -->
+									<select ng-show="colDefaultFunctionSelectedColumn=='selectedDatasourceType'" class="form-control" ng-model="colDefaultFunctionNewValue"
+										ng-options="datasourceType as datasourceType.type for datasourceType in $ctrl.kommonitorImporterHelperServiceInstance.availableDatasourceTypes">
+											<option disabled selected value> -- Quelltyp w&auml;hlen -- </option>
+									</select>
+									<!-- URL* -->
+									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.dataSource.URL.value'" type="text" class="form-control"
+										ng-model="colDefaultFunctionNewValue" ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsHttp(batchList)">
+									</input>
+									<!-- Payload* -->
+									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.dataSource.payload.value'" type="text" class="form-control"
+										ng-model="colDefaultFunctionNewValue" ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsInline(batchList)">
+									</input>
+									<!-- ID Attributname* -->
+									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.propertyMapping.identifierProperty'" type="text" class="form-control"
+										ng-model="colDefaultFunctionNewValue">
+									</input>
+									<!-- NAME Attributname* -->
+									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.propertyMapping.nameProperty'" type="text" class="form-control"
+										ng-model="colDefaultFunctionNewValue">
+									</input>
+									<!-- Lebenszeit-Beginn Attributname* -->
+									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.propertyMapping.validStartDateProperty'" type="text" class="form-control"
+										ng-model="colDefaultFunctionNewValue">
+									</input>
+									<!-- Lebenszeit-Ende Attributname* -->
+									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.propertyMapping.validEndDateProperty'" type="text" class="form-control"
+										ng-model="colDefaultFunctionNewValue">
+									</input>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-12 col-sm-12 col-xs-12">
+									<label for="georesourceColDefaultFunctionAllRowsChb">Vorhandene Werte überschreiben?</label>
+									<input id="georesourceColDefaultFunctionAllRowsChb" type="checkbox" ng-model="colDefaultFunctionAllRowsChb">
+								</div>
+								<div class="col-md-12 col-sm-12 col-xs-12">
+									<button type="button" class="btn btn-primary"
+										ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.onClickSaveColDefaultValue('georesource', colDefaultFunctionSelectedColumn, colDefaultFunctionNewValue, colDefaultFunctionAllRowsChb, batchList)">
+										Standardwert eintragen
+									</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
+				<button type="button" class="btn btn-info pull-left" ng-click="loadGeoresourcesBatchList()"
+					title="Importieren der Batch-Liste aus einer Datei">
+					<i class="fas fa-file-import"></i>&nbsp;&nbsp;Batch-Liste importieren
+				</button>
+
+				<input style="display:none;" class="pull-left" type="file" class="form-control"
+					id="georesourcesBatchListFile" accept=".json,"></input>
+
+				<button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" ng-disabled=""
+					ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.saveBatchListToFile('georesource', batchList)" title="Exportieren der Batch-Liste in eine Datei">
+					<i class="fas fa-file-export"></i>&nbsp;&nbsp;Batch-Liste exportieren
+				</button>
+
+				<button id="georesource-reopen-results-btn" type="button" class="btn btn-info"
+					ng-click="reopenResultModal()" ng-disabled="lastUpdateResponseObj===undefined">Ergebnis anzeigen
+				</button>
+
+				<button id="georesource-batch-update-btn" type="button" class="btn btn-success"
+					ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.batchUpdate('georesource', batchList)" ng-disabled="!$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfNameAndFilesChosenInEachRow('georesource', batchList)">Update ausführen
+				</button>
+				
+				<button type="button" class="btn btn-danger"
+				ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.resetBatchUpdateForm('georesource', batchList)">Zur&uuml;cksetzen
+				</button>
+			</div>
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->

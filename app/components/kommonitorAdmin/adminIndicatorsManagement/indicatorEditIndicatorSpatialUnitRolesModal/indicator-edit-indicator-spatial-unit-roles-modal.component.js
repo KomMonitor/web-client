@@ -81,7 +81,7 @@ angular.module('indicatorEditIndicatorSpatialUnitRolesModal').component('indicat
 				// this callback will be called asynchronously
 				// when the response is available
 
-				$rootScope.$broadcast("refreshIndicatorOverviewTable");
+				$rootScope.$broadcast("refreshIndicatorOverviewTable", "edit", $scope.currentIndicatorDataset.indicatorId);
 				$("#indicatorEditIndicatorSpatialUnitRolesSuccessAlert").show();
 				$scope.loadingData = false;
 

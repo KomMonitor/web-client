@@ -133,7 +133,7 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 				$scope.georesourceFeaturesGeoJSON = undefined;
 				$scope.remainingFeatureHeaders = undefined;
 
-				$rootScope.$broadcast("refreshGeoresourceOverviewTable");
+				$rootScope.$broadcast("refreshGeoresourceOverviewTable", "edit", $scope.currentGeoresourceDataset.georesourceId);
 				// $scope.refreshGeoresourceEditFeaturesOverviewTable();
 
 				$scope.successMessagePart = $scope.currentGeoresourceDataset.datasetName;
@@ -306,7 +306,14 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 			$scope.converterDefinition = $scope.buildConverterDefinition();
 			$scope.datasourceTypeDefinition = await $scope.buildDatasourceTypeDefinition();
 			$scope.propertyMappingDefinition = $scope.buildPropertyMappingDefinition();
-			$scope.putBody_georesources = $scope.buildPutBody_georesources();
+
+			var scopeProperties = {
+				"periodOfValidity": {
+					"endDate": $scope.periodOfValidity.endDate,
+					"startDate": $scope.periodOfValidity.startDate
+				}
+			}
+			$scope.putBody_georesources = kommonitorImporterHelperService.buildPutBody_georesources(scopeProperties);
 
 			if(!$scope.converterDefinition || !$scope.datasourceTypeDefinition || !$scope.propertyMappingDefinition || !$scope.putBody_georesources){
 				return false;
@@ -341,20 +348,6 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 			// arsion from is undefined currently
 			return kommonitorImporterHelperService.buildPropertyMapping_spatialResource($scope.georesourceDataSourceNameProperty, $scope.georesourceDataSourceIdProperty, $scope.validityStartDate_perFeature, $scope.validityEndDate_perFeature, undefined, $scope.keepAttributes, $scope.keepMissingValues, $scope.attributeMappings_adminView);
 		};
-
-		$scope.buildPutBody_georesources = function(){
-			var putBody =
-			{
-				"geoJsonString": "",
-				"periodOfValidity": {
-					"endDate": $scope.periodOfValidity.endDate,
-					"startDate": $scope.periodOfValidity.startDate
-				}
-			};
-
-			return putBody;
-		};
-
 
 		$scope.editGeoresourceFeatures = async function(){
 
@@ -402,7 +395,7 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 							// all good, really execute the request to import data against data management API
 							var updateGeoresourceResponse = await kommonitorImporterHelperService.updateGeoresource($scope.converterDefinition, $scope.datasourceTypeDefinition, $scope.propertyMappingDefinition, $scope.currentGeoresourceDataset.georesourceId, $scope.putBody_georesources, false);						
 
-							$rootScope.$broadcast("refreshGeoresourceOverviewTable");
+							$rootScope.$broadcast("refreshGeoresourceOverviewTable", "edit", $scope.currentGeoresourceDataset.georesourceId);
 							// $scope.refreshGeoresourceEditFeaturesOverviewTable();
 
 							$scope.successMessagePart = $scope.currentGeoresourceDataset.datasetName;

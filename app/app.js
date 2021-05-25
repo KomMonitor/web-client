@@ -193,7 +193,11 @@ function initAngularComponents(){
         function ($scope, $element, $attrs) {
           $scope.$watch($attrs.mathjaxBind, function (texExpression) {
             $element.html(texExpression);
-            MathJax.typeset([$element[0]]);
+            // only if texExpression contains the special character '$' which is used to mark tex code
+            // then call MathJax function
+            if(texExpression && texExpression.includes("$")){
+              MathJax.typesetPromise([$element[0]]);
+            }            
           });
         },
       ],

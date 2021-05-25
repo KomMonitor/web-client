@@ -2449,6 +2449,93 @@ input:checked + .switchslider:before {
 	display:none;
 }
 
+.batch-list-table-wrapper {
+	max-height: 75vh !important;
+	overflow-y: auto !important;
+}
+
+.batch-list-table .form-control {
+	width: auto;
+}
+
+.batch-list-table th {
+	position: sticky;
+	top: 0;
+	z-index: 3; /* datepicker fields have a z-index of 2, so this needs to be higher */
+	background: white;
+}
+
+
+.batch-list-odd-rows td:nth-child(-n+2) {
+	background: #f9f9f9 !important;
+}
+
+.batch-list-even-rows td:nth-child(-n+2) {
+	background: white !important;
+}
+
+.batch-list-table-sticky-column {
+	position: sticky;
+	z-index: 4 !important;
+}
+
+.batch-list-table-sticky-column-1 {
+	left:0px;
+}
+
+.batch-list-table-sticky-column-2 {
+	left: 20px;
+	width: auto;
+	min-width: 300px;
+	max-width: 500px;
+
+}
+
+.batch-list-table-name-field {
+	width: 100% !important;
+}
+
+.batch-list-table-sticky-column-header,
+.batch-list-table-sticky-column-footer {
+	z-index: 5 !important;
+}
+
+#modal-batch-update-result > div {
+	width: 700px;
+	max-height: 75vh;
+}
+
+.batch-update-result-table-wrapper {
+	max-height: 50vh !important;
+	overflow-y: auto !important;
+	width: 670px !important;
+}
+
+.batch-update-result-table {
+	width: 670px !important;
+	overflow:auto;
+	font-size: 11px;
+}
+
+
+.batch-update-result-td1 {
+	min-width: 200px;
+	padding: 10px;
+}
+
+.batch-update-result-td2 {
+	padding: 10px !important;
+}
+
+/*
+.georesource-result-error-message {
+	background-color: #c82333 !important;
+	border-color: #bd2130 !important;
+	color: white !important;
+	padding: 12px !important;
+}
+*/
+
 .style-simple-indicator {
 	background-color: white;
 }
