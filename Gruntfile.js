@@ -149,6 +149,8 @@ module.exports = function (grunt) {
             'app/components/kommonitorUserInterface/kommonitorMap/kommonitor-map.component.js',
             'app/components/kommonitorUserInterface/kommonitorControls/infoModal/info-modal.module.js',
             'app/components/kommonitorUserInterface/kommonitorControls/infoModal/info-modal.component.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/spatialUnitNotificationModal/spatial-unit-notifiaction-modal.module.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/spatialUnitNotificationModal/spatial-unit-notifiaction-modal.component.js',
             'app/components/kommonitorUserInterface/kommonitorControls/feedbackModal/feedback-modal.module.js',
             'app/components/kommonitorUserInterface/kommonitorControls/feedbackModal/feedback-modal.component.js',
             'app/components/kommonitorUserInterface/kommonitorControls/reportingModal/reporting-modal.module.js',
