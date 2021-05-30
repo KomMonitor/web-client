@@ -960,14 +960,7 @@ angular
 			    			updateBtn.title = "Die Spalte Name* ist nicht für alle Zeilen gesetzt."
 			    			return false;
 			    		}
-                    
-			    		let mappingTableName = batchList[i].mappingTableName;
-			    		if(mappingTableName == undefined || mappingTableName == "") {
-			    			updateBtn.title = "Die Spalte Mappingtabelle ist nicht für alle Zeilen gesetzt."
-			    			return false;
-			    		}
-                    
-                    
+
 			    		if (batchList[i].selectedDatasourceType) {
 			    			let datasourceType = batchList[i].selectedDatasourceType.type;
 			    			if (datasourceType != undefined && datasourceType.length > 0) {
