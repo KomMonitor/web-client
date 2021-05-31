@@ -10,7 +10,7 @@ angular.module('kommonitorDiagramHelper', ['kommonitorMap', 'kommonitorDataExcha
  * parameters for each WPS operation represented by different Angular components
  */
 angular
-  .module('kommonitorDiagramHelper', ['datatables'])
+  .module('kommonitorDiagramHelper', [])
   .service(
     'kommonitorDiagramHelperService', ['$rootScope', '$timeout', 'kommonitorMapService', 'kommonitorDataExchangeService', '$http', '__env', 'DTOptionsBuilder', '$q',
     function ($rootScope, $timeout,

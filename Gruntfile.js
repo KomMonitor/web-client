@@ -169,8 +169,7 @@ module.exports = function (grunt) {
             'iconsFromPngTree/**/*',
             'logos/**/*',
             'components/**/*.template.html',
-            'config/**/*',            
-            'Datatables.Language.German.json',            
+            'config/**/*'           
         ],
 
         // babel: {
