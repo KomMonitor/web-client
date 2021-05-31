@@ -1022,7 +1022,7 @@ angular
       };
 
       this.buildDataGrid_spatialUnits = function (spatialUnitMetadataArray) {
-        // POI
+        
         if (this.dataGridOptions_spatialUnits && this.dataGridOptions_spatialUnits.api) {
 
           this.saveGridStore(this.dataGridOptions_spatialUnits);
@@ -1035,6 +1035,120 @@ angular
           let gridDiv = document.querySelector('#spatialUnitOverviewTable');
           new agGrid.Grid(gridDiv, this.dataGridOptions_spatialUnits);
         }
+      };
+
+      // FEATURE TABLES
+
+      this.buildDataGridColumnConfig_featureTable = function(specificHeadersArray){
+        const columnDefs = [
+          { headerName: 'Id', field: __env.FEATURE_ID_PROPERTY_NAME, pinned: 'left', maxWidth: 125 },
+          { headerName: 'Name', field: __env.FEATURE_NAME_PROPERTY_NAME, pinned: 'left', minWidth: 300 },  
+          // { headerName: 'Id', field: __env.FEATURE_ID_PROPERTY_NAME,  maxWidth: 125 },
+          // { headerName: 'Name', field: __env.FEATURE_NAME_PROPERTY_NAME,  minWidth: 300 },         
+          {
+            headerName: 'Gültigkeitszeitraum', minWidth: 400,
+            cellRenderer: function (params) {
+              let html = '<p>';
+
+              if (params.data.validEndDate){
+                html += params.data.validStartDate + " &dash; " + params.data.validEndDate;
+              }
+              else{
+                html += params.data.validStartDate + " &dash; heute";
+              }
+
+              html += "</p>";
+
+              return html;
+            },
+            filter: 'agTextColumnFilter', 
+            filterValueGetter: (params) => {
+              if (params.data.validEndDate){
+                return "" + params.data.validStartDate + " " + params.data.validEndDate;
+              }
+              return params.data.validStartDate;
+            }
+          }
+        ];
+
+        for (const header of specificHeadersArray) {
+          columnDefs.push({ headerName: "" + header, field: "" + header, minWidth: 200 });
+        }
+
+        return columnDefs;
+      };
+
+      this.buildDataGridRowData_featureTable = function(dataArray){
+        if(dataArray[0] && dataArray[0].properties){
+          return dataArray.map(dataItem => dataItem.properties);
+        }
+        
+        return dataArray;
+      };
+
+      this.buildDataGridOptions_featureTable = function(specificHeadersArray, dataArray){
+          let columnDefs = this.buildDataGridColumnConfig_featureTable(specificHeadersArray);
+          let rowData = this.buildDataGridRowData_featureTable(dataArray);
+  
+          let gridOptions = {
+            defaultColDef: {
+              editable: false,
+              sortable: true,
+              flex: 1,
+              minWidth: 200,
+              filter: true,
+              floatingFilter: true,
+              // filterParams: {
+              //   newRowsAction: 'keep'
+              // },
+              resizable: true,
+              wrapText: true,
+              autoHeight: true,
+              cellStyle: { 'white-space': 'normal !important', "line-height": "20px !important", "word-break": "break-word !important", "padding-top": "17px", "padding-bottom": "17px" },
+              headerComponentParams: {
+                template:
+                  '<div class="ag-cell-label-container" role="presentation">' +
+                  '  <span ref="eMenu" class="ag-header-icon ag-header-cell-menu-button"></span>' +
+                  '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
+                  '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
+                  '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
+                  '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
+                  '    <span ref="eSortNone" class="ag-header-icon ag-sort-none-icon"></span>' +
+                  '    <span ref="eText" class="ag-header-cell-text" role="columnheader" style="white-space: normal;"></span>' +
+                  '    <span ref="eFilter" class="ag-header-icon ag-filter-icon"></span>' +
+                  '  </div>' +
+                  '</div>',
+              },
+            },
+            columnDefs: columnDefs,
+            rowData: rowData,
+            suppressRowClickSelection: true,
+            // rowSelection: 'multiple',
+            enableCellTextSelection: true,
+            ensureDomOrder: true,
+            pagination: true,
+            paginationPageSize: 10,
+            suppressColumnVirtualisation: true,          
+            // onFirstDataRendered: function () {
+            //   headerHeightSetter(this);
+            // },
+            // onColumnResized: function () {
+            //   headerHeightSetter(this);
+            // }
+  
+          };
+  
+          return gridOptions;        
+      };
+
+      this.buildDataGrid_featureTable = function (domElementId, specificHeadersArray, dataArray) {
+        
+          let dataGridOptions_featureTable = this.buildDataGridOptions_featureTable(specificHeadersArray, dataArray);
+          let gridDiv = document.querySelector('#' + domElementId);
+          while (gridDiv.firstChild) {
+            gridDiv.removeChild(gridDiv.firstChild);
+          }
+          new agGrid.Grid(gridDiv, dataGridOptions_featureTable);
       };
 
       this.saveGridStore = function (gridOptions) {
