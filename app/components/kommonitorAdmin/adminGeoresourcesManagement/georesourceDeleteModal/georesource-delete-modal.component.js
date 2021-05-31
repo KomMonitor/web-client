@@ -107,7 +107,7 @@ angular.module('georesourceDeleteModal').component('georesourceDeleteModal', {
 							$("#georesourcesDeleteSuccessAlert").show();
 
 							// refresh spatial unit overview table
-							$rootScope.$broadcast("refreshGeoresourceOverviewTable", "delete", $scope.successfullyDeletedDatasets.filter(dataset => {return dataset.georesourceId;}));
+							$rootScope.$broadcast("refreshGeoresourceOverviewTable", "delete", $scope.successfullyDeletedDatasets.map(dataset => {return dataset.georesourceId;}));
 
 							// refresh all admin dashboard diagrams due to modified metadata
 							$timeout(function(){
