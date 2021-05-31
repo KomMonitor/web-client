@@ -1368,7 +1368,7 @@ angular
                     </table> 
               */
               if(params.data && params.data.requiredIndicatorIds && params.data.requiredIndicatorIds.length > 0){
-                let html = '<table class="table table-condensed"><thead><tr><th>Id</th><th>Name</th></tr></thead><tbody>';
+                let html = '<table class="table table-condensed table-bordered table-striped"><thead><tr><th>Id</th><th>Name</th></tr></thead><tbody>';
 
                 for (const baseIndicatorId of params.data.requiredIndicatorIds) {
                   html += "<tr>";
@@ -1404,7 +1404,7 @@ angular
           },
           { headerName: 'notwendige Basis-Georessourcen', minWidth: 300, cellRenderer: function (params) {
               if(params.data && params.data.requiredGeoresourceIds && params.data.requiredGeoresourceIds.length > 0){
-                let html = '<table class="table table-condensed"><thead><tr><th>Id</th><th>Name</th></tr></thead><tbody>';
+                let html = '<table class="table table-condensed table-bordered table-striped"><thead><tr><th>Id</th><th>Name</th></tr></thead><tbody>';
 
                 for (const baseGeoresourceId of params.data.requiredGeoresourceIds) {
                   html += "<tr>";
@@ -1460,7 +1460,7 @@ angular
 									</table>
               */
                   if(params.data && params.data.variableProcessParameters && params.data.variableProcessParameters.length > 0){
-                    let html = '<table class="table table-condensed"><thead><tr><th>Name</th><th>Beschreibung</th><th>Datentyp</th><th>Standard-Wert</th><th>erlaubter Wertebereich</th></tr></thead><tbody>';
+                    let html = '<table class="table table-condensed table-bordered table-striped"><thead><tr><th>Name</th><th>Beschreibung</th><th>Datentyp</th><th>Standard-Wert</th><th>erlaubter Wertebereich</th></tr></thead><tbody>';
     
                     for (const processParameter of params.data.variableProcessParameters) {
                       html += "<tr>";
