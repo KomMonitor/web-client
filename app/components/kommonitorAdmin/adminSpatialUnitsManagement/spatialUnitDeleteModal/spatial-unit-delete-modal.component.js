@@ -58,7 +58,7 @@ angular.module('spatialUnitDeleteModal').component('spatialUnitDeleteModal', {
 							// fetch indicatorMetada again as a spatialUnit was deleted
 							await kommonitorDataExchangeService.fetchIndicatorsMetadata();
 							// refresh spatial unit overview table
-							$rootScope.$broadcast("refreshSpatialUnitOverviewTable", "delete", $scope.successfullyDeletedDatasets.filter(dataset => {return dataset.spatialUnitId;}));
+							$rootScope.$broadcast("refreshSpatialUnitOverviewTable", "delete", $scope.successfullyDeletedDatasets.map(dataset => {return dataset.spatialUnitId;}));
 
 							// refresh all admin dashboard diagrams due to modified metadata
 							$timeout(function(){

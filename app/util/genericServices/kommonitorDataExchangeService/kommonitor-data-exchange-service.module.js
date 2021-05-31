@@ -10,11 +10,11 @@ angular.module('kommonitorDataExchange', ['kommonitorMap', 'kommonitorKeycloakHe
  * parameters for each WPS operation represented by different Angular components
  */
 angular
-		.module('kommonitorDataExchange', ['datatables'])
+		.module('kommonitorDataExchange', [])
 		.service(
-				'kommonitorDataExchangeService', ['$rootScope', '$timeout', 'kommonitorMapService', 'kommonitorKeycloakHelperService', '$http', '__env', 'DTOptionsBuilder', '$q', 'Auth',
+				'kommonitorDataExchangeService', ['$rootScope', '$timeout', 'kommonitorMapService', 'kommonitorKeycloakHelperService', '$http', '__env', '$q', 'Auth',
 				function($rootScope, $timeout,
-						kommonitorMapService, kommonitorKeycloakHelperService, $http, __env, DTOptionsBuilder, $q, Auth,) {              
+						kommonitorMapService, kommonitorKeycloakHelperService, $http, __env, $q, Auth,) {              
 
               this.appTitle = __env.appTitle;
 
@@ -120,16 +120,6 @@ angular
           this.VALID_START_DATE_PROPERTY_NAME = __env.VALID_START_DATE_PROPERTY_NAME;
           this.VALID_END_DATE_PROPERTY_NAME = __env.VALID_END_DATE_PROPERTY_NAME;
           this.indicatorDatePrefix = __env.indicatorDatePrefix;
-
-          this.datatablesOptions = DTOptionsBuilder.newOptions()
-      				.withPaginationType('full_numbers')
-      				.withDisplayLength(5)
-      				.withLanguageSource('./Datatables.Language.German.json')
-              .withOption('lengthMenu', [[5, 10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "Alle"]])
-              .withOption('responsive', true)
-              .withOption('autoWidth', true)
-              .withOption('stateSave', true)
-              .withOption('deferRender', true);
 
           this.datePickerOptions = {
             autoclose: true,
@@ -421,6 +411,14 @@ angular
                 this.availableProcessScripts.splice(index, 1);
                 break;
               }              
+            }
+          };
+
+          this.getProcessScriptMetadataById = function(scriptId){
+            for (const scriptMetadata of this.availableProcessScripts) {
+              if(scriptMetadata.scriptId === scriptId){
+                return scriptMetadata;
+              }
             }
           };
 
@@ -1620,6 +1618,53 @@ angular
                 fetchedRolesInitially = true;
 
               });
+          };
+
+          this.fetchSingleRoleMetadata = function(targetRoleId){
+            return $http({
+              url: this.baseUrlToKomMonitorDataAPI + rolesEndpoint  + "/" + targetRoleId,
+              method: "GET"
+            }).then(function successCallback(response) {
+                // this callback will be called asynchronously
+                // when the response is available
+
+                return response.data;
+
+              });
+          };
+
+          this.replaceSingleRoleMetadata = function(targetRoleMetadata){
+            for (let index = 0; index < this.availableRoles.length; index++) {
+              let roleMetadata = this.availableRoles[index];
+              if(roleMetadata.roleId == targetRoleMetadata.roleId){
+                this.availableRoles[index] = targetRoleMetadata;
+                break;
+              }
+            }
+          };
+
+          this.addSingleRoleMetadata = function(roleMetadata){
+            let tmpArray = [roleMetadata];
+            Array.prototype.push.apply(tmpArray, this.availableRoles);
+            this.availableRoles =  tmpArray;
+          };
+
+          this.deleteSingleRoleMetadata = function(roleId){
+            for (let index = 0; index < this.availableRoles.length; index++) {
+              const roleMetadata = this.availableRoles[index];
+              if(roleMetadata.roleId == roleId){
+                this.availableRoles.splice(index, 1);
+                break;
+              }              
+            }
+          };
+
+          this.getRoleMetadataById = function(roleId){
+            for (const roleMetadata of this.availableRoles) {
+              if(roleMetadata.roleId === roleId){
+                return roleMetadata;
+              }
+            }
           };
 
           this.fetchUsersMetadata = function(){

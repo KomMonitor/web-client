@@ -1,7 +1,8 @@
 angular.module('georesourceEditFeaturesModal').component('georesourceEditFeaturesModal', {
 	templateUrl : "components/kommonitorAdmin/adminGeoresourcesManagement/georesourceEditFeaturesModal/georesource-edit-features-modal.template.html",
-	controller : ['kommonitorDataExchangeService', 'kommonitorImporterHelperService', '$scope', '$rootScope', '$http', '__env', '$timeout',
-		function GeoresourcesEditFeaturesModalController(kommonitorDataExchangeService, kommonitorImporterHelperService, $scope, $rootScope, $http, __env, $timeout) {
+	controller : ['kommonitorDataExchangeService', 'kommonitorDataGridHelperService', 'kommonitorImporterHelperService', '$scope', '$rootScope', '$http', '__env', '$timeout',
+		function GeoresourcesEditFeaturesModalController(kommonitorDataExchangeService, kommonitorDataGridHelperService, 
+			kommonitorImporterHelperService, $scope, $rootScope, $http, __env, $timeout) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 		this.kommonitorImporterHelperServiceInstance = kommonitorImporterHelperService;
@@ -76,6 +77,9 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 				// $scope.refreshGeoresourceEditFeaturesOverviewTable();
 
 				$scope.resetGeoresourceEditFeaturesForm();
+
+				kommonitorDataGridHelperService.buildDataGrid_featureTable("georesourceFeatureTable", [], []);
+
 			}
 
 		});
@@ -103,6 +107,8 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 				}
 
 				$scope.remainingFeatureHeaders = tmpRemainingHeaders;
+				kommonitorDataGridHelperService.buildDataGrid_featureTable("georesourceFeatureTable", tmpRemainingHeaders, $scope.georesourceFeaturesGeoJSON.features);
+
 
 					$scope.loadingData = false;
 

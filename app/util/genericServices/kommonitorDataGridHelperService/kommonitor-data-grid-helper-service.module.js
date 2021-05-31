@@ -15,6 +15,7 @@ angular
       this.dataGridOptions_georesources_loi;
       this.dataGridOptions_georesources_aoi;
       this.dataGridOptions_spatialUnits;
+      this.dataGridOptions_roles;
 
       function headerHeightGetter() {
         var columnHeaderTexts = [
@@ -74,6 +75,15 @@ angular
         return html;
       };
 
+      var displayEditButtons_roles = function (params) {
+
+        let html = '<div class="btn-group btn-group-sm">';
+        html += '<button id="btn_role_editMetadata_' + params.data.roleId + '" class="btn btn-warning btn-sm roleEditMetadataBtn" type="button" data-toggle="modal" data-target="#modal-edit-role-metadata" title="Metadaten editieren"><i class="fas fa-pencil-alt"></i></button>';
+        html += '</div>';
+
+        return html;
+      };
+
       this.buildDataGridColumnConfig_indicators = function (indicatorMetadataArray) {
         const columnDefs = [
           { headerName: 'Editierfunktionen', pinned: 'left', maxWidth: 150, checkboxSelection: false, filter: false, sortable: false, cellRenderer: 'displayEditButtons_indicators' },
@@ -90,6 +100,15 @@ angular
             headerName: 'Methodik', minWidth: 400,
             cellRenderer: function (params) {
 
+              if(params.data.processDescription && params.data.processDescription.includes("$$")){
+                let splitArray = params.data.processDescription.split("$$");
+
+                for (let index = 0; index < splitArray.length; index++) {
+                  if((index % 2) == 0){
+                    params.data.processDescription += "<br/>";
+                  }                  
+                }                
+              }
               return params.data.processDescription;
             },
             filter: 'agTextColumnFilter', 
@@ -543,6 +562,34 @@ angular
         return spatialUnitsMetadataArray;
       };
 
+      this.getSelectedRolesMetadata = function(){
+        let rolesMetadataArray = [];
+
+        if (this.dataGridOptions_roles && this.dataGridOptions_roles.api){
+          let selectedNodes = this.dataGridOptions_roles.api.getSelectedNodes();
+
+          for (const selectedNode of selectedNodes) {
+            rolesMetadataArray.push(selectedNode.data);
+          }
+        }
+
+        return rolesMetadataArray;
+      };
+
+      this.getSelectedScriptsMetadata = function(){
+        let scriptsMetadataArray = [];
+
+        if (this.dataGridOptions_scripts && this.dataGridOptions_scripts.api){
+          let selectedNodes = this.dataGridOptions_scripts.api.getSelectedNodes();
+
+          for (const selectedNode of selectedNodes) {
+            scriptsMetadataArray.push(selectedNode.data);
+          }
+        }
+
+        return scriptsMetadataArray;
+      };
+
       this.buildDataGridOptions_indicators = function (indicatorMetadataArray) {
         let columnDefs = this.buildDataGridColumnConfig_indicators(indicatorMetadataArray);
         let rowData = this.buildDataGridRowData_indicators(indicatorMetadataArray);
@@ -561,7 +608,7 @@ angular
             resizable: true,
             wrapText: true,
             autoHeight: true,
-            cellStyle: { 'white-space': 'normal !important', "line-height": "20px !important", "word-break": "break-word !important", "padding-top": "17px", "padding-bottom": "17px" },
+            cellStyle: { 'font-size': '12px;', 'white-space': 'normal !important', "line-height": "20px !important", "word-break": "break-word !important", "padding-top": "17px", "padding-bottom": "17px" },
             headerComponentParams: {
               template:
                 '<div class="ag-cell-label-container" role="presentation">' +
@@ -616,11 +663,16 @@ angular
               // if (domNode) {
               //   MathJax.typesetPromise();
               // }
-              MathJax.typesetPromise();
-
-              setTimeout(function () {
+              MathJax.typesetPromise().then(function (){
+                // setTimeout(function () {
+                //   self.dataGridOptions_indicators.api.resetRowHeights();
+                // }, 1000);
                 self.dataGridOptions_indicators.api.resetRowHeights();
-              }, 250);
+              });
+
+              // setTimeout(function () {
+              //   self.dataGridOptions_indicators.api.resetRowHeights();
+              // }, 1000);
             }, 250);        
           },
 
@@ -719,7 +771,7 @@ angular
             resizable: true,
             wrapText: true,
             autoHeight: true,
-            cellStyle: { 'white-space': 'normal !important', "line-height": "20px !important", "word-break": "break-word !important", "padding-top": "17px", "padding-bottom": "17px" },
+            cellStyle: { 'font-size': '12px;', 'white-space': 'normal !important', "line-height": "20px !important", "word-break": "break-word !important", "padding-top": "17px", "padding-bottom": "17px" },
             headerComponentParams: {
               template:
                 '<div class="ag-cell-label-container" role="presentation">' +
@@ -783,7 +835,7 @@ angular
             resizable: true,
             wrapText: true,
             autoHeight: true,
-            cellStyle: { 'white-space': 'normal !important', "line-height": "20px !important", "word-break": "break-word !important", "padding-top": "17px", "padding-bottom": "17px" },
+            cellStyle: { 'font-size': '12px;', 'white-space': 'normal !important', "line-height": "20px !important", "word-break": "break-word !important", "padding-top": "17px", "padding-bottom": "17px" },
             headerComponentParams: {
               template:
                 '<div class="ag-cell-label-container" role="presentation">' +
@@ -847,7 +899,7 @@ angular
             resizable: true,
             wrapText: true,
             autoHeight: true,
-            cellStyle: { 'white-space': 'normal !important', "line-height": "20px !important", "word-break": "break-word !important", "padding-top": "17px", "padding-bottom": "17px" },
+            cellStyle: { 'font-size': '12px;', 'white-space': 'normal !important', "line-height": "20px !important", "word-break": "break-word !important", "padding-top": "17px", "padding-bottom": "17px" },
             headerComponentParams: {
               template:
                 '<div class="ag-cell-label-container" role="presentation">' +
@@ -911,7 +963,7 @@ angular
             resizable: true,
             wrapText: true,
             autoHeight: true,
-            cellStyle: { 'white-space': 'normal !important', "line-height": "20px !important", "word-break": "break-word !important", "padding-top": "17px", "padding-bottom": "17px" },
+            cellStyle: { 'font-size': '12px;', 'white-space': 'normal !important', "line-height": "20px !important", "word-break": "break-word !important", "padding-top": "17px", "padding-bottom": "17px" },
             headerComponentParams: {
               template:
                 '<div class="ag-cell-label-container" role="presentation">' +
@@ -1022,7 +1074,7 @@ angular
       };
 
       this.buildDataGrid_spatialUnits = function (spatialUnitMetadataArray) {
-        // POI
+        
         if (this.dataGridOptions_spatialUnits && this.dataGridOptions_spatialUnits.api) {
 
           this.saveGridStore(this.dataGridOptions_spatialUnits);
@@ -1034,6 +1086,494 @@ angular
           this.dataGridOptions_spatialUnits = this.buildDataGridOptions_spatialUnits(spatialUnitMetadataArray);
           let gridDiv = document.querySelector('#spatialUnitOverviewTable');
           new agGrid.Grid(gridDiv, this.dataGridOptions_spatialUnits);
+        }
+      };
+
+      // FEATURE TABLES
+
+      this.buildDataGridColumnConfig_featureTable = function(specificHeadersArray){
+        const columnDefs = [
+          { headerName: 'Id', field: __env.FEATURE_ID_PROPERTY_NAME, pinned: 'left', maxWidth: 125 },
+          { headerName: 'Name', field: __env.FEATURE_NAME_PROPERTY_NAME, pinned: 'left', minWidth: 300 },  
+          // { headerName: 'Id', field: __env.FEATURE_ID_PROPERTY_NAME,  maxWidth: 125 },
+          // { headerName: 'Name', field: __env.FEATURE_NAME_PROPERTY_NAME,  minWidth: 300 },         
+          {
+            headerName: 'Gültigkeitszeitraum', minWidth: 400,
+            cellRenderer: function (params) {
+              let html = '<p>';
+
+              if (params.data.validEndDate){
+                html += params.data.validStartDate + " &dash; " + params.data.validEndDate;
+              }
+              else{
+                html += params.data.validStartDate + " &dash; heute";
+              }
+
+              html += "</p>";
+
+              return html;
+            },
+            filter: 'agTextColumnFilter', 
+            filterValueGetter: (params) => {
+              if (params.data.validEndDate){
+                return "" + params.data.validStartDate + " " + params.data.validEndDate;
+              }
+              return params.data.validStartDate;
+            }
+          }
+        ];
+
+        for (const header of specificHeadersArray) {
+          columnDefs.push({ headerName: "" + header, field: "" + header, minWidth: 200 });
+        }
+
+        return columnDefs;
+      };
+
+      this.buildDataGridRowData_featureTable = function(dataArray){
+        if(dataArray[0] && dataArray[0].properties){
+          return dataArray.map(dataItem => dataItem.properties);
+        }
+        
+        return dataArray;
+      };
+
+      this.buildDataGridOptions_featureTable = function(specificHeadersArray, dataArray){
+          let columnDefs = this.buildDataGridColumnConfig_featureTable(specificHeadersArray);
+          let rowData = this.buildDataGridRowData_featureTable(dataArray);
+  
+          let gridOptions = {
+            defaultColDef: {
+              editable: false,
+              sortable: true,
+              flex: 1,
+              minWidth: 200,
+              filter: true,
+              floatingFilter: true,
+              // filterParams: {
+              //   newRowsAction: 'keep'
+              // },
+              resizable: true,
+              wrapText: true,
+              autoHeight: true,
+              cellStyle: { 'font-size': '12px;', 'white-space': 'normal !important', "line-height": "20px !important", "word-break": "break-word !important", "padding-top": "17px", "padding-bottom": "17px" },
+              headerComponentParams: {
+                template:
+                  '<div class="ag-cell-label-container" role="presentation">' +
+                  '  <span ref="eMenu" class="ag-header-icon ag-header-cell-menu-button"></span>' +
+                  '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
+                  '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
+                  '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
+                  '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
+                  '    <span ref="eSortNone" class="ag-header-icon ag-sort-none-icon"></span>' +
+                  '    <span ref="eText" class="ag-header-cell-text" role="columnheader" style="white-space: normal;"></span>' +
+                  '    <span ref="eFilter" class="ag-header-icon ag-filter-icon"></span>' +
+                  '  </div>' +
+                  '</div>',
+              },
+            },
+            columnDefs: columnDefs,
+            rowData: rowData,
+            suppressRowClickSelection: true,
+            // rowSelection: 'multiple',
+            enableCellTextSelection: true,
+            ensureDomOrder: true,
+            pagination: true,
+            paginationPageSize: 10,
+            suppressColumnVirtualisation: true,          
+            // onFirstDataRendered: function () {
+            //   headerHeightSetter(this);
+            // },
+            // onColumnResized: function () {
+            //   headerHeightSetter(this);
+            // }
+  
+          };
+  
+          return gridOptions;        
+      };
+
+      this.buildDataGrid_featureTable = function (domElementId, specificHeadersArray, dataArray) {
+        
+          let dataGridOptions_featureTable = this.buildDataGridOptions_featureTable(specificHeadersArray, dataArray);
+          let gridDiv = document.querySelector('#' + domElementId);
+          while (gridDiv.firstChild) {
+            gridDiv.removeChild(gridDiv.firstChild);
+          }
+          new agGrid.Grid(gridDiv, dataGridOptions_featureTable);
+      };
+
+
+      // ROLE OVERVIEW TABLE
+
+      this.buildDataGridColumnConfig_roles = function(){
+        const columnDefs = [
+          { headerName: 'Editierfunktionen', maxWidth: 300, checkboxSelection: true, headerCheckboxSelection: true, 
+          headerCheckboxSelectionFilteredOnly: true, filter: false, sortable: false, cellRenderer: 'displayEditButtons_roles' },
+          { headerName: 'Id', field: "roleId", minWidth: 400 },
+          { headerName: 'Name', field: "roleName", minWidth: 400 },         
+          {
+            headerName: 'In Keycloak registriert', minWidth: 250,
+            cellRenderer: function (params) {
+              if (params.data.registeredInKeyCloak){
+                return '<i class="fas fa-check"></i>';
+              }
+              else{
+                return '<i class="fas fa-times"></i>';
+              }
+            },
+            filter: 'agTextColumnFilter', 
+            filterValueGetter: (params) => {
+              if (params.data.registeredInKeyCloak){
+                return "true1wahr";
+              }
+              return "false0falsch";
+            }
+          }
+        ];
+
+        return columnDefs;
+      };
+
+      this.buildDataGridRowData_roles = function(dataArray){
+        
+        return dataArray;
+      };
+
+      this.buildDataGridOptions_roles = function(rolesArray){
+          let columnDefs = this.buildDataGridColumnConfig_roles();
+          let rowData = this.buildDataGridRowData_roles(rolesArray);
+  
+          let gridOptions = {
+            defaultColDef: {
+              editable: false,
+              sortable: true,
+              flex: 1,
+              minWidth: 200,
+              filter: true,
+              floatingFilter: true,
+              // filterParams: {
+              //   newRowsAction: 'keep'
+              // },
+              resizable: true,
+              wrapText: true,
+              autoHeight: true,
+              cellStyle: { 'font-size': '12px;', 'white-space': 'normal !important', "line-height": "20px !important", "word-break": "break-word !important", "padding-top": "17px", "padding-bottom": "17px" },
+              headerComponentParams: {
+                template:
+                  '<div class="ag-cell-label-container" role="presentation">' +
+                  '  <span ref="eMenu" class="ag-header-icon ag-header-cell-menu-button"></span>' +
+                  '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
+                  '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
+                  '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
+                  '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
+                  '    <span ref="eSortNone" class="ag-header-icon ag-sort-none-icon"></span>' +
+                  '    <span ref="eText" class="ag-header-cell-text" role="columnheader" style="white-space: normal;"></span>' +
+                  '    <span ref="eFilter" class="ag-header-icon ag-filter-icon"></span>' +
+                  '  </div>' +
+                  '</div>',
+              },
+            },
+            components: {
+              displayEditButtons_roles: displayEditButtons_roles
+            },
+            columnDefs: columnDefs,
+            rowData: rowData,
+            suppressRowClickSelection: true,
+            rowSelection: 'multiple',
+            enableCellTextSelection: true,
+            ensureDomOrder: true,
+            pagination: true,
+            paginationPageSize: 10,
+            suppressColumnVirtualisation: true,          
+            onFirstDataRendered: function () {
+              headerHeightSetter(self.dataGridOptions_roles);
+            },
+            onColumnResized: function () {
+              headerHeightSetter(self.dataGridOptions_roles);
+            },        
+            onRowDataChanged: function () {
+              self.registerClickHandler_roles(rolesArray);
+            },   
+            onViewportChanged: function () {
+              self.registerClickHandler_roles(rolesArray);                   
+            },
+  
+          };
+  
+          return gridOptions;        
+      };
+
+      this.registerClickHandler_roles = function (roleMetadataArray) {
+
+        $(".roleEditMetadataBtn").on("click", function () {
+          let roleId = this.id.split("_")[3];
+
+          let roleMetadata = kommonitorDataExchangeService.getRoleMetadataById(roleId);
+
+          $rootScope.$broadcast("onEditRoleMetadata", roleMetadata);
+        });
+      };  
+
+      this.buildDataGrid_roles = function (rolesArray) {
+        
+        if (this.dataGridOptions_roles && this.dataGridOptions_roles.api) {
+
+          this.saveGridStore(this.dataGridOptions_roles);
+          let newRowData = this.buildDataGridRowData_roles(rolesArray);
+          this.dataGridOptions_roles.api.setRowData(newRowData);
+          this.restoreGridStore(this.dataGridOptions_roles);
+        }
+        else {
+          this.dataGridOptions_roles = this.buildDataGridOptions_roles(rolesArray);
+          let gridDiv = document.querySelector('#roleOverviewTable');
+          new agGrid.Grid(gridDiv, this.dataGridOptions_roles);
+        }
+      };
+
+
+      // SCRIPT OVERVIEW TABLE
+
+      this.buildDataGridColumnConfig_scripts = function(){
+        const columnDefs = [
+          { headerName: 'Id', field: "scriptId", pinned: 'left', maxWidth: 125, checkboxSelection: true, headerCheckboxSelection: true, 
+          headerCheckboxSelectionFilteredOnly: true },
+          { headerName: 'Name', field: "name", pinned: 'left', maxWidth: 300 },  
+          { headerName: 'Ziel-Indikatoren-Id', field: "indicatorId", maxWidth: 125 },
+          { headerName: 'Ziel-Indikatoren-Name', minWidth: 200, cellRenderer: function (params) {
+              return kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(params.data.indicatorId);
+            },
+            filter: 'agTextColumnFilter', 
+            filterValueGetter: (params) => {
+              return kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(params.data.indicatorId);
+            } 
+          },       
+          { headerName: 'Beschreibung', field: "description", minWidth: 300 },
+          { headerName: 'notwendige Basis-Indikatoren', minWidth: 300, cellRenderer: function (params) {
+            
+              /*
+                <table class="table table-condensed">
+                      <thead>
+                        <tr>
+                        <th>Id</th>
+                        <th>Name</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr ng-repeat="baseIndicatorId in scriptDataset.requiredIndicatorIds">
+                        <td>{{::baseIndicatorId}}</td>
+                        <td>{{::$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorNameFromIndicatorId(baseIndicatorId)}}</td>
+                        </tr>
+                      </tbody>
+                    </table> 
+              */
+              if(params.data && params.data.requiredIndicatorIds && params.data.requiredIndicatorIds.length > 0){
+                let html = '<table class="table table-condensed table-bordered table-striped"><thead><tr><th>Id</th><th>Name</th></tr></thead><tbody>';
+
+                for (const baseIndicatorId of params.data.requiredIndicatorIds) {
+                  html += "<tr>";
+                  html += "<td>" + baseIndicatorId + "</td>";
+                  html += "<td>" + kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(baseIndicatorId) + "</td>";
+                  html += "</tr>";
+                }
+                
+                html += "</tbody></table>";
+                return html;  
+              }
+              else{
+                return "keine";
+              }
+              
+            },
+            filter: 'agTextColumnFilter', 
+            filterValueGetter: (params) => {
+
+              if(params.data && params.data.requiredIndicatorIds && params.data.requiredIndicatorIds.length > 0){
+                let string = JSON.stringify(params.data.requiredIndicatorIds);
+
+                for (const baseIndicatorId of params.data.requiredIndicatorIds) {
+                  string += kommonitorDataExchangeService.getIndicatorNameFromIndicatorId(baseIndicatorId);
+                }                              
+
+                return string;  
+              }
+              else{
+                return "keine";
+              }
+            }  
+          },
+          { headerName: 'notwendige Basis-Georessourcen', minWidth: 300, cellRenderer: function (params) {
+              if(params.data && params.data.requiredGeoresourceIds && params.data.requiredGeoresourceIds.length > 0){
+                let html = '<table class="table table-condensed table-bordered table-striped"><thead><tr><th>Id</th><th>Name</th></tr></thead><tbody>';
+
+                for (const baseGeoresourceId of params.data.requiredGeoresourceIds) {
+                  html += "<tr>";
+                  html += "<td>" + baseGeoresourceId + "</td>";
+                  html += "<td>" + kommonitorDataExchangeService.getGeoresourceNameFromGeoresourceId(baseGeoresourceId) + "</td>";
+                  html += "</tr>";
+                }
+                
+                html += "</tbody></table>";
+                return html;  
+              }
+              else{
+                return "keine";
+              }
+            },
+            filter: 'agTextColumnFilter', 
+            filterValueGetter: (params) => {
+              if(params.data && params.data.requiredGeoresourceIds && params.data.requiredGeoresourceIds.length > 0){
+                let string = JSON.stringify(params.data.requiredGeoresourceIds);
+
+                for (const baseIndicatorId of params.data.requiredGeoresourceIds) {
+                  string += kommonitorDataExchangeService.getGeoresourceNameFromGeoresourceId(baseIndicatorId);
+                }                              
+
+                return string;  
+              }
+              else{
+                return "keine";
+              }
+            } 
+          },
+          { headerName: 'Prozessparameter', field: "", minWidth: 1000, cellRenderer: function (params) {
+              /*
+                <table class="table table-condensed">
+										<thead>
+										  <tr>
+											<th>Name</th>
+											<th>Beschreibung</th>
+											<th>Datentyp</th>
+											<th>Standard-Wert</th>
+											<th>erlaubter Wertebereich</th>
+										  </tr>
+										</thead>
+										<tbody>
+										  <tr ng-repeat="processParameter in scriptDataset.variableProcessParameters">
+											<td>{{::processParameter.name}}</td>
+											<td>{{::processParameter.description}}</td>
+											<td>{{::processParameter.dataType}}</td>
+											<td>{{::processParameter.defaultValue}}</td>
+											<td><div ng-show="processParameter.dataType == 'double' || processParameter.dataType == 'integer'"><b>erlaubter Wertebereich</b> {{::processParameter.minParameterValueForNumericInputs}} - {{::processParameter.maxParameterValueForNumericInputs}}</div></td>
+										  </tr>
+										 </tbody>
+									</table>
+              */
+                  if(params.data && params.data.variableProcessParameters && params.data.variableProcessParameters.length > 0){
+                    let html = '<table class="table table-condensed table-bordered table-striped"><thead><tr><th>Name</th><th>Beschreibung</th><th>Datentyp</th><th>Standard-Wert</th><th>erlaubter Wertebereich</th></tr></thead><tbody>';
+    
+                    for (const processParameter of params.data.variableProcessParameters) {
+                      html += "<tr>";
+                      html += "<td>" + processParameter.name + "</td>";
+                      html += "<td>" + processParameter.description + "</td>";
+                      html += "<td>" + processParameter.dataType + "</td>";
+                      html += "<td>" + processParameter.defaultValue + "</td>";
+                      html += "<td>" ;
+
+                      if(processParameter.dataType == "integer" || processParameter.dataType == "double"){
+                        html += "<b>erlaubter Wertebereich</b><br/><br/>";
+                        html += "" + processParameter.minParameterValueForNumericInputs + " &dash; " + processParameter.maxParameterValueForNumericInputs;
+                      }
+
+                      html += "</td>";
+                      html += "</tr>";
+                    }
+                    
+                    html += "</tbody></table>";
+                    return html;  
+                  }
+                  else{
+                    return "keine";
+                  }
+            },
+            filter: 'agTextColumnFilter', 
+            filterValueGetter: (params) => {
+              if(params.data && params.data.variableProcessParameters && params.data.variableProcessParameters.length > 0){
+                return JSON.stringify(params.data.variableProcessParameters);
+              }
+              else{
+                return "keine";
+              }
+            } 
+         }          
+        ];
+
+        return columnDefs;
+      };
+
+      this.buildDataGridRowData_scripts = function(dataArray){
+        
+        return dataArray;
+      };
+
+      this.buildDataGridOptions_scripts = function(scriptsArray){
+          let columnDefs = this.buildDataGridColumnConfig_scripts();
+          let rowData = this.buildDataGridRowData_scripts(scriptsArray);
+  
+          let gridOptions = {
+            defaultColDef: {
+              editable: false,
+              sortable: true,
+              flex: 1,
+              minWidth: 200,
+              filter: true,
+              floatingFilter: true,
+              // filterParams: {
+              //   newRowsAction: 'keep'
+              // },
+              resizable: true,
+              wrapText: true,
+              autoHeight: true,
+              cellStyle: { 'font-size': '12px;', 'white-space': 'normal !important', "line-height": "20px !important", "word-break": "break-word !important", "padding-top": "17px", "padding-bottom": "17px" },
+              headerComponentParams: {
+                template:
+                  '<div class="ag-cell-label-container" role="presentation">' +
+                  '  <span ref="eMenu" class="ag-header-icon ag-header-cell-menu-button"></span>' +
+                  '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
+                  '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
+                  '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
+                  '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
+                  '    <span ref="eSortNone" class="ag-header-icon ag-sort-none-icon"></span>' +
+                  '    <span ref="eText" class="ag-header-cell-text" role="columnheader" style="white-space: normal;"></span>' +
+                  '    <span ref="eFilter" class="ag-header-icon ag-filter-icon"></span>' +
+                  '  </div>' +
+                  '</div>',
+              },
+            },
+            columnDefs: columnDefs,
+            rowData: rowData,
+            suppressRowClickSelection: true,
+            rowSelection: 'multiple',
+            enableCellTextSelection: true,
+            ensureDomOrder: true,
+            pagination: true,
+            paginationPageSize: 10,
+            suppressColumnVirtualisation: true,          
+            onFirstDataRendered: function () {
+              headerHeightSetter(self.dataGridOptions_scripts);
+            },
+            onColumnResized: function () {
+              headerHeightSetter(self.dataGridOptions_scripts);
+            }
+  
+          };
+  
+          return gridOptions;        
+      };
+
+      this.buildDataGrid_scripts = function (scriptsArray) {
+        
+        if (this.dataGridOptions_scripts && this.dataGridOptions_scripts.api) {
+
+          this.saveGridStore(this.dataGridOptions_scripts);
+          let newRowData = this.buildDataGridRowData_roles(scriptsArray);
+          this.dataGridOptions_scripts.api.setRowData(newRowData);
+          this.restoreGridStore(this.dataGridOptions_scripts);
+        }
+        else {
+          this.dataGridOptions_scripts = this.buildDataGridOptions_scripts(scriptsArray);
+          let gridDiv = document.querySelector('#scriptOverviewTable');
+          new agGrid.Grid(gridDiv, this.dataGridOptions_scripts);
         }
       };
 
