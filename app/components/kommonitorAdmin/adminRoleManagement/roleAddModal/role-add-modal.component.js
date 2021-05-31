@@ -44,6 +44,7 @@ angular.module('roleAddModal').component('roleAddModal', {
 				$scope.errorMessagePart = undefined;
 				$scope.keycloakErrorMessagePart = undefined;
 
+				let roleId = "";
 				try {
 					var postBody =
 					{
@@ -66,9 +67,11 @@ angular.module('roleAddModal').component('roleAddModal', {
 						$("#roleAddSuccessAlert").show();
 
 						try {							
-							await kommonitorKeycloakHelperService.postNewRole($scope.roleName, $scope.keycloakAdminUserName, $scope.keycloakAdminUserPassword);	
+							let roleResponse = await kommonitorKeycloakHelperService.postNewRole($scope.roleName, $scope.keycloakAdminUserName, $scope.keycloakAdminUserPassword);	
+							roleId = roleResponse.roleId;
 							await kommonitorKeycloakHelperService.fetchAndSetKeycloakRoles($scope.keycloakAdminUserName, $scope.keycloakAdminUserPassword);
 							$("#keycloakRoleAddSuccessAlert").show();
+							
 						} catch (error) {
 							if (error.data) {
 								$scope.keycloakErrorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
@@ -83,8 +86,8 @@ angular.module('roleAddModal').component('roleAddModal', {
 								$scope.loadingData = false;
 							});
 						}
-
-						$rootScope.$broadcast("refreshRoleOverviewTable");						
+						
+						$rootScope.$broadcast("refreshRoleOverviewTable", "add", roleId);
 						$timeout(function(){
 				
 							$scope.loadingData = false;

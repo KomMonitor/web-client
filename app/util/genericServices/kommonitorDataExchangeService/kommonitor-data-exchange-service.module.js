@@ -1622,6 +1622,53 @@ angular
               });
           };
 
+          this.fetchSingleRoleMetadata = function(targetRoleId){
+            return $http({
+              url: this.baseUrlToKomMonitorDataAPI + rolesEndpoint  + "/" + targetRoleId,
+              method: "GET"
+            }).then(function successCallback(response) {
+                // this callback will be called asynchronously
+                // when the response is available
+
+                return response.data;
+
+              });
+          };
+
+          this.replaceSingleRoleMetadata = function(targetRoleMetadata){
+            for (let index = 0; index < this.availableRoles.length; index++) {
+              let roleMetadata = this.availableRoles[index];
+              if(roleMetadata.roleId == targetRoleMetadata.roleId){
+                this.availableRoles[index] = targetRoleMetadata;
+                break;
+              }
+            }
+          };
+
+          this.addSingleRoleMetadata = function(roleMetadata){
+            let tmpArray = [roleMetadata];
+            Array.prototype.push.apply(tmpArray, this.availableRoles);
+            this.availableRoles =  tmpArray;
+          };
+
+          this.deleteSingleRoleMetadata = function(roleId){
+            for (let index = 0; index < this.availableRoles.length; index++) {
+              const roleMetadata = this.availableRoles[index];
+              if(roleMetadata.roleId == roleId){
+                this.availableRoles.splice(index, 1);
+                break;
+              }              
+            }
+          };
+
+          this.getRoleMetadataById = function(roleId){
+            for (const roleMetadata of this.availableRoles) {
+              if(roleMetadata.roleId === roleId){
+                return roleMetadata;
+              }
+            }
+          };
+
           this.fetchUsersMetadata = function(){
             return $http({
               url: this.baseUrlToKomMonitorDataAPI + "/users",

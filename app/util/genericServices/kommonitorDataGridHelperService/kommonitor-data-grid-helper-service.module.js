@@ -15,6 +15,7 @@ angular
       this.dataGridOptions_georesources_loi;
       this.dataGridOptions_georesources_aoi;
       this.dataGridOptions_spatialUnits;
+      this.dataGridOptions_roles;
 
       function headerHeightGetter() {
         var columnHeaderTexts = [
@@ -69,6 +70,15 @@ angular
         let html = '<div class="btn-group btn-group-sm">';
         html += '<button id="btn_spatialUnit_editMetadata_' + params.data.spatialUnitId + '" class="btn btn-warning btn-sm spatialUnitEditMetadataBtn" type="button" data-toggle="modal" data-target="#modal-edit-spatial-unit-metadata" title="Metadaten editieren"><i class="fas fa-pencil-alt"></i></button>';
         html += '<button id="btn_spatialUnit_editFeatures_' + params.data.spatialUnitId + '" class="btn btn-warning btn-sm spatialUnitEditFeaturesBtn" type="button" data-toggle="modal" data-target="#modal-edit-spatial-unit-features" title="Features fortf&uuml;hren"><i class="fas fa-draw-polygon"></i></button>';
+        html += '</div>';
+
+        return html;
+      };
+
+      var displayEditButtons_roles = function (params) {
+
+        let html = '<div class="btn-group btn-group-sm">';
+        html += '<button id="btn_role_editMetadata_' + params.data.roleId + '" class="btn btn-warning btn-sm roleEditMetadataBtn" type="button" data-toggle="modal" data-target="#modal-edit-role-metadata" title="Metadaten editieren"><i class="fas fa-pencil-alt"></i></button>';
         html += '</div>';
 
         return html;
@@ -541,6 +551,20 @@ angular
         }
 
         return spatialUnitsMetadataArray;
+      };
+
+      this.getSelectedRolesMetadata = function(){
+        let rolesMetadataArray = [];
+
+        if (this.dataGridOptions_roles && this.dataGridOptions_roles.api){
+          let selectedNodes = this.dataGridOptions_roles.api.getSelectedNodes();
+
+          for (const selectedNode of selectedNodes) {
+            rolesMetadataArray.push(selectedNode.data);
+          }
+        }
+
+        return rolesMetadataArray;
       };
 
       this.buildDataGridOptions_indicators = function (indicatorMetadataArray) {
@@ -1149,6 +1173,134 @@ angular
             gridDiv.removeChild(gridDiv.firstChild);
           }
           new agGrid.Grid(gridDiv, dataGridOptions_featureTable);
+      };
+
+
+      // ROLE OVERVIEW TABLE
+
+      this.buildDataGridColumnConfig_roles = function(){
+        const columnDefs = [
+          { headerName: 'Editierfunktionen', maxWidth: 300, checkboxSelection: true, headerCheckboxSelection: true, 
+          headerCheckboxSelectionFilteredOnly: true, filter: false, sortable: false, cellRenderer: 'displayEditButtons_roles' },
+          { headerName: 'Id', field: "roleId", minWidth: 400 },
+          { headerName: 'Name', field: "roleName", minWidth: 400 },         
+          {
+            headerName: 'In Keycloak registriert', minWidth: 250,
+            cellRenderer: function (params) {
+              if (params.data.registeredInKeyCloak){
+                return '<i class="fas fa-check"></i>';
+              }
+              else{
+                return '<i class="fas fa-times"></i>';
+              }
+            },
+            filter: 'agTextColumnFilter', 
+            filterValueGetter: (params) => {
+              if (params.data.registeredInKeyCloak){
+                return "true1wahr";
+              }
+              return "false0falsch";
+            }
+          }
+        ];
+
+        return columnDefs;
+      };
+
+      this.buildDataGridRowData_roles = function(dataArray){
+        
+        return dataArray;
+      };
+
+      this.buildDataGridOptions_roles = function(rolesArray){
+          let columnDefs = this.buildDataGridColumnConfig_roles();
+          let rowData = this.buildDataGridRowData_roles(rolesArray);
+  
+          let gridOptions = {
+            defaultColDef: {
+              editable: false,
+              sortable: true,
+              flex: 1,
+              minWidth: 200,
+              filter: true,
+              floatingFilter: true,
+              // filterParams: {
+              //   newRowsAction: 'keep'
+              // },
+              resizable: true,
+              wrapText: true,
+              autoHeight: true,
+              cellStyle: { 'white-space': 'normal !important', "line-height": "20px !important", "word-break": "break-word !important", "padding-top": "17px", "padding-bottom": "17px" },
+              headerComponentParams: {
+                template:
+                  '<div class="ag-cell-label-container" role="presentation">' +
+                  '  <span ref="eMenu" class="ag-header-icon ag-header-cell-menu-button"></span>' +
+                  '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
+                  '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
+                  '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
+                  '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
+                  '    <span ref="eSortNone" class="ag-header-icon ag-sort-none-icon"></span>' +
+                  '    <span ref="eText" class="ag-header-cell-text" role="columnheader" style="white-space: normal;"></span>' +
+                  '    <span ref="eFilter" class="ag-header-icon ag-filter-icon"></span>' +
+                  '  </div>' +
+                  '</div>',
+              },
+            },
+            components: {
+              displayEditButtons_roles: displayEditButtons_roles
+            },
+            columnDefs: columnDefs,
+            rowData: rowData,
+            suppressRowClickSelection: true,
+            rowSelection: 'multiple',
+            enableCellTextSelection: true,
+            ensureDomOrder: true,
+            pagination: true,
+            paginationPageSize: 10,
+            suppressColumnVirtualisation: true,          
+            onFirstDataRendered: function () {
+              headerHeightSetter(self.dataGridOptions_roles);
+            },
+            onColumnResized: function () {
+              headerHeightSetter(self.dataGridOptions_roles);
+            },        
+            onRowDataChanged: function () {
+              self.registerClickHandler_roles(rolesArray);
+            },   
+            onViewportChanged: function () {
+              self.registerClickHandler_roles(rolesArray);                   
+            },
+  
+          };
+  
+          return gridOptions;        
+      };
+
+      this.registerClickHandler_roles = function (roleMetadataArray) {
+
+        $(".roleEditMetadataBtn").on("click", function () {
+          let roleId = this.id.split("_")[3];
+
+          let roleMetadata = kommonitorDataExchangeService.getRoleMetadataById(roleId);
+
+          $rootScope.$broadcast("onEditRoleMetadata", roleMetadata);
+        });
+      };  
+
+      this.buildDataGrid_roles = function (rolesArray) {
+        
+        if (this.dataGridOptions_roles && this.dataGridOptions_roles.api) {
+
+          this.saveGridStore(this.dataGridOptions_roles);
+          let newRowData = this.buildDataGridRowData_roles(rolesArray);
+          this.dataGridOptions_roles.api.setRowData(newRowData);
+          this.restoreGridStore(this.dataGridOptions_roles);
+        }
+        else {
+          this.dataGridOptions_roles = this.buildDataGridOptions_roles(rolesArray);
+          let gridDiv = document.querySelector('#roleOverviewTable');
+          new agGrid.Grid(gridDiv, this.dataGridOptions_roles);
+        }
       };
 
       this.saveGridStore = function (gridOptions) {
