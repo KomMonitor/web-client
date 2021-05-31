@@ -100,6 +100,15 @@ angular
             headerName: 'Methodik', minWidth: 400,
             cellRenderer: function (params) {
 
+              if(params.data.processDescription && params.data.processDescription.includes("$$")){
+                let splitArray = params.data.processDescription.split("$$");
+
+                for (let index = 0; index < splitArray.length; index++) {
+                  if((index % 2) == 0){
+                    params.data.processDescription += "<br/>";
+                  }                  
+                }                
+              }
               return params.data.processDescription;
             },
             filter: 'agTextColumnFilter', 
@@ -599,7 +608,7 @@ angular
             resizable: true,
             wrapText: true,
             autoHeight: true,
-            cellStyle: { 'white-space': 'normal !important', "line-height": "20px !important", "word-break": "break-word !important", "padding-top": "17px", "padding-bottom": "17px" },
+            cellStyle: { 'font-size': '11px;', 'white-space': 'normal !important', "line-height": "20px !important", "word-break": "break-word !important", "padding-top": "17px", "padding-bottom": "17px" },
             headerComponentParams: {
               template:
                 '<div class="ag-cell-label-container" role="presentation">' +
@@ -654,11 +663,16 @@ angular
               // if (domNode) {
               //   MathJax.typesetPromise();
               // }
-              MathJax.typesetPromise();
-
-              setTimeout(function () {
+              MathJax.typesetPromise().then(function (){
+                // setTimeout(function () {
+                //   self.dataGridOptions_indicators.api.resetRowHeights();
+                // }, 1000);
                 self.dataGridOptions_indicators.api.resetRowHeights();
-              }, 250);
+              });
+
+              // setTimeout(function () {
+              //   self.dataGridOptions_indicators.api.resetRowHeights();
+              // }, 1000);
             }, 250);        
           },
 
@@ -757,7 +771,7 @@ angular
             resizable: true,
             wrapText: true,
             autoHeight: true,
-            cellStyle: { 'white-space': 'normal !important', "line-height": "20px !important", "word-break": "break-word !important", "padding-top": "17px", "padding-bottom": "17px" },
+            cellStyle: { 'font-size': '11px;', 'white-space': 'normal !important', "line-height": "20px !important", "word-break": "break-word !important", "padding-top": "17px", "padding-bottom": "17px" },
             headerComponentParams: {
               template:
                 '<div class="ag-cell-label-container" role="presentation">' +
@@ -821,7 +835,7 @@ angular
             resizable: true,
             wrapText: true,
             autoHeight: true,
-            cellStyle: { 'white-space': 'normal !important', "line-height": "20px !important", "word-break": "break-word !important", "padding-top": "17px", "padding-bottom": "17px" },
+            cellStyle: { 'font-size': '11px;', 'white-space': 'normal !important', "line-height": "20px !important", "word-break": "break-word !important", "padding-top": "17px", "padding-bottom": "17px" },
             headerComponentParams: {
               template:
                 '<div class="ag-cell-label-container" role="presentation">' +
@@ -885,7 +899,7 @@ angular
             resizable: true,
             wrapText: true,
             autoHeight: true,
-            cellStyle: { 'white-space': 'normal !important', "line-height": "20px !important", "word-break": "break-word !important", "padding-top": "17px", "padding-bottom": "17px" },
+            cellStyle: { 'font-size': '11px;', 'white-space': 'normal !important', "line-height": "20px !important", "word-break": "break-word !important", "padding-top": "17px", "padding-bottom": "17px" },
             headerComponentParams: {
               template:
                 '<div class="ag-cell-label-container" role="presentation">' +
@@ -949,7 +963,7 @@ angular
             resizable: true,
             wrapText: true,
             autoHeight: true,
-            cellStyle: { 'white-space': 'normal !important', "line-height": "20px !important", "word-break": "break-word !important", "padding-top": "17px", "padding-bottom": "17px" },
+            cellStyle: { 'font-size': '11px;', 'white-space': 'normal !important', "line-height": "20px !important", "word-break": "break-word !important", "padding-top": "17px", "padding-bottom": "17px" },
             headerComponentParams: {
               template:
                 '<div class="ag-cell-label-container" role="presentation">' +
@@ -1142,7 +1156,7 @@ angular
               resizable: true,
               wrapText: true,
               autoHeight: true,
-              cellStyle: { 'white-space': 'normal !important', "line-height": "20px !important", "word-break": "break-word !important", "padding-top": "17px", "padding-bottom": "17px" },
+              cellStyle: { 'font-size': '11px;', 'white-space': 'normal !important', "line-height": "20px !important", "word-break": "break-word !important", "padding-top": "17px", "padding-bottom": "17px" },
               headerComponentParams: {
                 template:
                   '<div class="ag-cell-label-container" role="presentation">' +
@@ -1244,7 +1258,7 @@ angular
               resizable: true,
               wrapText: true,
               autoHeight: true,
-              cellStyle: { 'white-space': 'normal !important', "line-height": "20px !important", "word-break": "break-word !important", "padding-top": "17px", "padding-bottom": "17px" },
+              cellStyle: { 'font-size': '11px;', 'white-space': 'normal !important', "line-height": "20px !important", "word-break": "break-word !important", "padding-top": "17px", "padding-bottom": "17px" },
               headerComponentParams: {
                 template:
                   '<div class="ag-cell-label-container" role="presentation">' +
@@ -1510,7 +1524,7 @@ angular
               resizable: true,
               wrapText: true,
               autoHeight: true,
-              cellStyle: { 'white-space': 'normal !important', "line-height": "20px !important", "word-break": "break-word !important", "padding-top": "17px", "padding-bottom": "17px" },
+              cellStyle: { 'font-size': '11px;', 'white-space': 'normal !important', "line-height": "20px !important", "word-break": "break-word !important", "padding-top": "17px", "padding-bottom": "17px" },
               headerComponentParams: {
                 template:
                   '<div class="ag-cell-label-container" role="presentation">' +
