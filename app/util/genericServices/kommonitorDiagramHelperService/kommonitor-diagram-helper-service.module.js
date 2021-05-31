@@ -12,9 +12,9 @@ angular.module('kommonitorDiagramHelper', ['kommonitorMap', 'kommonitorDataExcha
 angular
   .module('kommonitorDiagramHelper', [])
   .service(
-    'kommonitorDiagramHelperService', ['$rootScope', '$timeout', 'kommonitorMapService', 'kommonitorDataExchangeService', '$http', '__env', 'DTOptionsBuilder', '$q',
+    'kommonitorDiagramHelperService', ['$rootScope', '$timeout', 'kommonitorMapService', 'kommonitorDataExchangeService', '$http', '__env', '$q',
     function ($rootScope, $timeout,
-      kommonitorMapService, kommonitorDataExchangeService, $http, __env, DTOptionsBuilder, $q) {
+      kommonitorMapService, kommonitorDataExchangeService, $http, __env, $q) {
 
       const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
       const defaultColorForHoveredFeatures = __env.defaultColorForHoveredFeatures;
