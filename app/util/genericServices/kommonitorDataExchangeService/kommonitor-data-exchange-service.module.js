@@ -424,6 +424,14 @@ angular
             }
           };
 
+          this.getProcessScriptMetadataById = function(scriptId){
+            for (const scriptMetadata of this.availableProcessScripts) {
+              if(scriptMetadata.scriptId === scriptId){
+                return scriptMetadata;
+              }
+            }
+          };
+
 
           // ERROR HANDLING
           this.errorMessage = undefined;
