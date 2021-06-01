@@ -40,6 +40,12 @@ try {
   window.__env.customGreetingsContact_mail = "christian.danowski-buhren@hs-bochum.de";
   window.__env.customGreetingsTextInfoMessage = ""; // as HTML; only set if you want to give users some extra hints; if empty will be ignored
 
+
+  
+  /*
+  PROPERTIES used within special modal (spatialUnitNotification component)
+  to show a customizable HTMLText only when user selects a certian spatial unit for any indicator
+  */
   window.__env.enableSpatialUnitNotificationSelection = true; // controls if a notification should be shown when selecting certain spatial units
   window.__env.enableSpatialUnitNotificationButton = true; // enables button to manually open spatial unit notification
   window.__env.spatialUnitNotificationSelection = ["Baublockebene", ""]; // unit(s) for which the notification is shown
