@@ -355,69 +355,80 @@ angular
 
 							$scope.updateSelectableAreas = async function(selectionType) {
 								//send request to datamanagement API
-								let selectedSpatialUnit = kommonitorDataExchangeService.selectedSpatialUnit
+								let selectedSpatialUnit = kommonitorDataExchangeService.selectedSpatialUnit;
 								let selectedSpatialUnitId = selectedSpatialUnit.spatialUnitId;
 								let upperSpatialUnitId;
 								if (selectedSpatialUnit.nextUpperHierarchyLevel) {
-									nextUpperHierarchyLevel = selectedSpatialUnit.nextUpperHierarchyLevel;
+									let nextUpperHierarchyLevel = selectedSpatialUnit.nextUpperHierarchyLevel;
 									//get id for nextUpperHierarchyLevel
 									upperSpatialUnitId = kommonitorDataExchangeService.getSpatialUnitIdFromSpatialUnitName(nextUpperHierarchyLevel);
 								}
 								let selectedIndicatorId = kommonitorDataExchangeService.selectedIndicator.indicatorId;
 
+								// example: 2020-12-31
+								let selectedDateComponents = kommonitorDataExchangeService.selectedDate.split("-");
+
 								//build request
+								let datePath = "";
+								if(selectedDateComponents && selectedDateComponents.length && selectedDateComponents.length == 3){
+									datePath = selectedDateComponents[0] + "/" + selectedDateComponents[1] + "/" + selectedDateComponents[2];
+								}
+								else{
+									// fallback option, if no valid date could be used
+									datePath = "allFeatures";
+								}
 								let url = kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
-									"/indicators/" + selectedIndicatorId + "/" + selectedSpatialUnitId;
+									"/spatial-units/" + selectedSpatialUnitId + "/" + datePath;
 								
 								if (selectionType === "byFeature" && upperSpatialUnitId)
 									url = kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
-									"/indicators/" + selectedIndicatorId + "/" + upperSpatialUnitId;
+									"/spatial-units/" + upperSpatialUnitId + "/" + datePath;
 								//send request
 								console.log(url);
 								await $http({
 									url: url,
 									method: "GET"
 								}).then(function successCallback(response) { //TODO add error callback for the case that the combination of indicator and nextUpperHierarchyLevel doesn't exist
-									let areaNames = []
+									let areaNames = [];
 									$(response.data.features).each( (id, obj) => {
-										areaNames.push({name: obj.properties.NAME})
+										areaNames.push({name: obj.properties.NAME});
 									});
 									if (selectionType === "manual") {
 										$scope.manualSelectionSpatialFilterDuallistOptions.selectedItems = [];
-										let dataArray = kommonitorDataExchangeService.createDualListInputArray(areaNames, "name")
+										let dataArray = kommonitorDataExchangeService.createDualListInputArray(areaNames, "name");
 										$scope.manualSelectionSpatialFilterDuallistOptions.items = dataArray;
 									}
 									if (selectionType === "byFeature") {
 										$scope.selectionByFeatureSpatialFilterDuallistOptions.selectedItems = [];
-										let dataArray = kommonitorDataExchangeService.createDualListInputArray(areaNames, "name")
+										let dataArray = kommonitorDataExchangeService.createDualListInputArray(areaNames, "name");
 										$scope.selectionByFeatureSpatialFilterDuallistOptions.items = dataArray;
 									}
 								});
-							}
+							};
 
 							$scope.onChangeShowManualSelection = async function() {
 								// return if toggle was deactivated
 								if(!$scope.showManualSelectionSpatialFilter)
-									return
+									return;
 								else {
 									$scope.updateSelectableAreas("manual");	
 								}
-							}
+							};
 
 							$scope.onChangeShowSelectionByFeature = async function() {
 								// return if toggle was deactivated
 								if(!$scope.showSelectionByFeatureSpatialFilter)
-									return
+									return;
 								else {
 									$scope.updateSelectableAreas("byFeature");
 								}
-							}
+							};
 
 							$rootScope.$on("changeSpatialUnit", function() {
 								if ($scope.showSelectionByFeatureSpatialFilter)
-									$scope.updateSelectableAreas("byFeature")
+									$scope.updateSelectableAreas("byFeature");
 								if ($scope.showManualSelectionSpatialFilter)
-									$scope.updateSelectableAreas("manual")
+									$scope.updateSelectableAreas("manual");
 							});
 
 							//TODO on indicator change
