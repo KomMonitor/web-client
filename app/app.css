@@ -573,6 +573,12 @@ pre.CodeMirror-line {
 	overflow: auto;
 }
 
+/* display above loading screen */
+#spatialUnitNotificationModal {
+	z-index: 100001;
+	overflow: auto;
+}
+
 .popover {
 	min-width: 250px;
 	width: auto;

@@ -149,6 +149,8 @@ module.exports = function (grunt) {
             'app/components/kommonitorUserInterface/kommonitorMap/kommonitor-map.component.js',
             'app/components/kommonitorUserInterface/kommonitorControls/infoModal/info-modal.module.js',
             'app/components/kommonitorUserInterface/kommonitorControls/infoModal/info-modal.component.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/spatialUnitNotificationModal/spatial-unit-notification-modal.module.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/spatialUnitNotificationModal/spatial-unit-notification-modal.component.js',
             'app/components/kommonitorUserInterface/kommonitorControls/feedbackModal/feedback-modal.module.js',
             'app/components/kommonitorUserInterface/kommonitorControls/feedbackModal/feedback-modal.component.js',
             'app/components/kommonitorUserInterface/kommonitorControls/reportingModal/reporting-modal.module.js',
@@ -169,8 +171,7 @@ module.exports = function (grunt) {
             'iconsFromPngTree/**/*',
             'logos/**/*',
             'components/**/*.template.html',
-            'config/**/*',            
-            'Datatables.Language.German.json',            
+            'config/**/*'           
         ],
 
         // babel: {

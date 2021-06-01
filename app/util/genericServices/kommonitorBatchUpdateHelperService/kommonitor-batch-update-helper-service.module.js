@@ -27,218 +27,221 @@ angular
                         batchListCopy.push( $.extend(true, {}, batchList[i]));
                     }
 
-                    for (let i=0; i<batchListCopy.length; i++) {
-                        let row = batchListCopy[i];
-                        //console.log("row: ", row);
-
-                        let resourceId;
-                        if (resourceType === "georesource")
-                            resourceId = row.name.georesourceId;
-                        if (resourceType === "indicator")
-                            resourceId = row.name.indicatorId;
-
-                        // converter properties to parameter array
-                        row.mappingObj.converter = this.converterPropertiesToParametersArray(row.mappingObj.converter);
-                        // datasource property to parameter array
-                        row.mappingObj.dataSource = this.dataSourcePropertyToParametersArray(row.mappingObj.dataSource);
-
-                        // replace converter and dataSource definitions
-                        row.mappingObj.converter = this.buildConverterDefinition(row.selectedConverter, row.mappingObj.converter);
-                        row.mappingObj.dataSource = this.buildDataSourceDefinition(row.selectedDatasourceType, row.mappingObj.dataSource, true);
-
-                        var converterDefinition = row.mappingObj.converter;
-                        //console.log("converterDefinition of row " + i + ": ", converterDefinition);
-
-                        var datasourceTypeDefinition = row.mappingObj.dataSource;
-                        //console.log("datasourceTypeDefinition before file upload: ", datasourceTypeDefinition);
-                        
-                        var datasourceFileInputId = resourceType + "DataSourceFileInputField" + i;
-                        // upload file to importer
-
-                        if(datasourceTypeDefinition.type === "FILE") {
-                            try {
-                                var fileUploadName = await this.uploadFileToImporter(datasourceFileInputId);
-                                if(fileUploadName) {
-                                    datasourceTypeDefinition.parameters[0].value = fileUploadName;
-                                    //console.log("datasourceTypeDefinition after file upload: ", datasourceTypeDefinition);
+                    try {
+                        for (let i=0; i<batchListCopy.length; i++) {
+                            let row = batchListCopy[i];
+                            //console.log("row: ", row);
+    
+                            let resourceId;
+                            if (resourceType === "georesource")
+                                resourceId = row.name.georesourceId;
+                            if (resourceType === "indicator")
+                                resourceId = row.name.indicatorId;
+    
+                            // converter properties to parameter array
+                            row.mappingObj.converter = this.converterPropertiesToParametersArray(row.mappingObj.converter);
+                            // datasource property to parameter array
+                            row.mappingObj.dataSource = this.dataSourcePropertyToParametersArray(row.mappingObj.dataSource);
+    
+                            // replace converter and dataSource definitions
+                            row.mappingObj.converter = this.buildConverterDefinition(row.selectedConverter, row.mappingObj.converter);
+                            row.mappingObj.dataSource = this.buildDataSourceDefinition(row.selectedDatasourceType, row.mappingObj.dataSource, true);
+    
+                            var converterDefinition = row.mappingObj.converter;
+                            //console.log("converterDefinition of row " + i + ": ", converterDefinition);
+    
+                            var datasourceTypeDefinition = row.mappingObj.dataSource;
+                            //console.log("datasourceTypeDefinition before file upload: ", datasourceTypeDefinition);
+                            
+                            var datasourceFileInputId = resourceType + "DataSourceFileInputField" + i;
+                            // upload file to importer
+    
+                            if(datasourceTypeDefinition.type === "FILE") {
+                                try {
+                                    var fileUploadName = await this.uploadFileToImporter(datasourceFileInputId);
+                                    if(fileUploadName) {
+                                        datasourceTypeDefinition.parameters[0].value = fileUploadName;
+                                        //console.log("datasourceTypeDefinition after file upload: ", datasourceTypeDefinition);
+                                    }
+                                } catch (error) {
+                                    console.log("error while uploading file in row: " + i);
+                                    responses.push({
+                                        name: resourceType === "georesource" ? row.name.datasetName : row.name.indicatorName,
+                                        status: "error",
+                                        message: error 
+                                    });
+                                    continue;
                                 }
-                            } catch (error) {
-                                console.log("error while uploading file in row: " + i);
-                                responses.push({
-                                    name: resourceType === "georesource" ? row.name.datasetName : row.name.indicatorName,
-                                    status: "error",
-                                    message: error 
-                                });
-                                continue;
                             }
-                        }
-                        //console.log("datasourceTypeDefinition of row " + i + ": ", datasourceTypeDefinition);
-
-                        // ========== for georesource update ========== 
-                        if(resourceType === "georesource") {
-                            var propertyMappingDefinition = row.mappingObj.propertyMapping;
-                            //console.log("propertyMappingDefinition of row " + i + ": ", propertyMappingDefinition);
-
-                            var propertyMappingDefinition = kommonitorImporterHelperService.buildPropertyMapping_spatialResource(
-                                row.mappingObj.propertyMapping.nameProperty,
-                                row.mappingObj.propertyMapping.identifierProperty,
-                                row.mappingObj.propertyMapping.validStartDateProperty,
-                                row.mappingObj.propertyMapping.validEndDateProperty,
-                                row.mappingObj.propertyMapping.arisenFromProperty,
-                                row.mappingObj.propertyMapping.keepAttributes,
-                                row.mappingObj.propertyMapping.keepMissingOrNullValueAttributes,
-                                this.createAttributeMappingsObject(row)
-                            )
-
-                            //console.log("propertyMappingDefinition of row " + i + " with importerService: ", propertyMappingDefinition);
-
-                             var putBody_georesources = kommonitorImporterHelperService.buildPutBody_georesources(row.mappingObj)
-                             //console.log("putBody_georesources of row " + i + ": ", putBody_georesources);
-     
-                             // send post request and wait for it to complete
-                             var updateGeoresourceResponse_dryRun = undefined;
-                             try {
-                                 updateGeoresourceResponse_dryRun = await kommonitorImporterHelperService.updateGeoresource(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, resourceId, putBody_georesources, true);
-     
-                                 if (!kommonitorImporterHelperService.importerResponseContainsErrors(updateGeoresourceResponse_dryRun)) {
-                                     // all good, really execute the request to update data against data management API
-                                     var updateGeoresourceResponse = await kommonitorImporterHelperService.updateGeoresource(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, resourceId, putBody_georesources, false);
-                                     
-                                     batchList[i].tempResourceId = resourceId;
-                                     $rootScope.$broadcast("refreshGeoresourceOverviewTable");
-     
-                                     // refresh all admin dashboard diagrams due to modified metadata
-                                     $rootScope.$broadcast("refreshAdminDashboardDiagrams");
-     
-                                     // add success object
-                                     responses.push({
-                                         name: row.name.datasetName,
-                                         status: "success",
-                                         message: updateGeoresourceResponse
-                                     });
-     
-     
-                                 } else {
-                                     // errors ocurred
-                                     // add them to response array
+                            //console.log("datasourceTypeDefinition of row " + i + ": ", datasourceTypeDefinition);
+    
+                            // ========== for georesource update ========== 
+                            if(resourceType === "georesource") {
+                                var propertyMappingDefinition = row.mappingObj.propertyMapping;
+                                //console.log("propertyMappingDefinition of row " + i + ": ", propertyMappingDefinition);
+    
+                                var propertyMappingDefinition = kommonitorImporterHelperService.buildPropertyMapping_spatialResource(
+                                    row.mappingObj.propertyMapping.nameProperty,
+                                    row.mappingObj.propertyMapping.identifierProperty,
+                                    row.mappingObj.propertyMapping.validStartDateProperty,
+                                    row.mappingObj.propertyMapping.validEndDateProperty,
+                                    row.mappingObj.propertyMapping.arisenFromProperty,
+                                    row.mappingObj.propertyMapping.keepAttributes,
+                                    row.mappingObj.propertyMapping.keepMissingOrNullValueAttributes,
+                                    this.createAttributeMappingsObject(row)
+                                )
+    
+                                //console.log("propertyMappingDefinition of row " + i + " with importerService: ", propertyMappingDefinition);
+    
+                                 var putBody_georesources = kommonitorImporterHelperService.buildPutBody_georesources(row.mappingObj)
+                                 //console.log("putBody_georesources of row " + i + ": ", putBody_georesources);
+         
+                                 // send post request and wait for it to complete
+                                 var updateGeoresourceResponse_dryRun = undefined;
+                                 try {
+                                     updateGeoresourceResponse_dryRun = await kommonitorImporterHelperService.updateGeoresource(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, resourceId, putBody_georesources, true);
+         
+                                     if (!kommonitorImporterHelperService.importerResponseContainsErrors(updateGeoresourceResponse_dryRun)) {
+                                         // all good, really execute the request to update data against data management API
+                                         var updateGeoresourceResponse = await kommonitorImporterHelperService.updateGeoresource(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, resourceId, putBody_georesources, false);
+                                         
+                                         batchList[i].tempResourceId = resourceId;
+                                         $rootScope.$broadcast("refreshGeoresourceOverviewTable");
+         
+                                         // refresh all admin dashboard diagrams due to modified metadata
+                                         $rootScope.$broadcast("refreshAdminDashboardDiagrams");
+         
+                                         // add success object
+                                         responses.push({
+                                             name: row.name.datasetName,
+                                             status: "success",
+                                             message: updateGeoresourceResponse
+                                         });
+         
+         
+                                     } else {
+                                         // errors ocurred
+                                         // add them to response array
+                                         responses.push({
+                                             name: row.name.datasetName,
+                                             status: "error",
+                                             message: undefined
+                                         });
+                                         
+                                         responses[i].message = "Einige der zu importierenden Features des Datensatzes weisen kritische Fehler auf.\n";
+                                         responses[i].message += kommonitorImporterHelperService.getErrorsFromImporterResponse(updateGeoresourceResponse_dryRun);
+                                     }
+                                 } catch (error) {
                                      responses.push({
                                          name: row.name.datasetName,
                                          status: "error",
                                          message: undefined
                                      });
+         
+                                     if (error.data) {
+                                         responses[i].message = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+                                     } else {
+                                         responses[i].message = kommonitorDataExchangeService.syntaxHighlightJSON(error);
+                                     }
                                      
-                                     responses[i].message = "Einige der zu importierenden Features des Datensatzes weisen kritische Fehler auf.\n";
-                                     responses[i].message += kommonitorImporterHelperService.getErrorsFromImporterResponse(updateGeoresourceResponse_dryRun);
+                                     if(updateGeoresourceResponse_dryRun){
+                                         error.message = kommonitorImporterHelperService.getErrorsFromImporterResponse(updateGeoresourceResponse_dryRun);
+                                     }
                                  }
-                             } catch (error) {
-                                 responses.push({
-                                     name: row.name.datasetName,
-                                     status: "error",
-                                     message: undefined
-                                 });
-     
-                                 if (error.data) {
-                                     responses[i].message = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
-                                 } else {
-                                     responses[i].message = kommonitorDataExchangeService.syntaxHighlightJSON(error);
-                                 }
-                                 
-                                 if(updateGeoresourceResponse_dryRun){
-                                     error.message = kommonitorImporterHelperService.getErrorsFromImporterResponse(updateGeoresourceResponse_dryRun);
-                                 }
-                             }
-                        }
-
-                        // ========== for indicator update ========== 
-                        if(resourceType === "indicator") {
-                            var propertyMappingDefinition = row.mappingObj.propertyMapping;
-                            //console.log("propertyMappingDefinition of row " + i + ": ", propertyMappingDefinition);
-
-                            var propertyMappingDefinition = kommonitorImporterHelperService.buildPropertyMapping_indicatorResource(
-                                row.mappingObj.propertyMapping.spatialReferenceKeyProperty,
-                                row.mappingObj.propertyMapping.timeseriesMappings,
-                                row.mappingObj.propertyMapping.keepMissingOrNullValueIndicator,
-                            )
-
-                            //console.log("propertyMappingDefinition of row " + i + " with importerService: ", propertyMappingDefinition);
-
-                            var scopeProperties = {
-                                "targetSpatialUnitMetadata": {
-                                    "spatialUnitLevel": row.selectedTargetSpatialUnit.spatialUnitLevel	
-                                },
-                                "currentIndicatorDataset": {
-                                    "defaultClassificationMapping": row.name.defaultClassificationMapping
-                                },
-                                "allowedRoleNames": {
-                                    "selectedItems": row.name.allowedRoles
-                                }
                             }
-                             var putBody_indicators = kommonitorImporterHelperService.buildPutBody_indicators(scopeProperties)
-                             //console.log("putBody_indicators of row " + i + ": ", putBody_indicators);
-     
-                             // send post request and wait for it to complete
-                             var updateIndicatorResponse_dryRun = undefined;
-                             try {
-                                 updateIndicatorResponse_dryRun = await kommonitorImporterHelperService.updateIndicator(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, resourceId, putBody_indicators, true);
-     
-                                 if (!kommonitorImporterHelperService.importerResponseContainsErrors(updateIndicatorResponse_dryRun)) {
-                                     // all good, really execute the request to update data against data management API
-                                     var updateIndicatorResponse = await kommonitorImporterHelperService.updateIndicator(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, resourceId, putBody_indicators, false);
-                                     
-                                     batchList[i].tempResourceId = resourceId;
-                                     $rootScope.$broadcast("refreshIndicatorOverviewTable");
-     
-                                     // refresh all admin dashboard diagrams due to modified metadata
-                                     $rootScope.$broadcast("refreshAdminDashboardDiagrams");
-     
-                                     // add success object
-                                     responses.push({
-                                         name: row.name.indicatorName,
-                                         status: "success",
-                                         message: updateIndicatorResponse
-                                     });
-     
-     
-                                 } else {
-                                     // errors ocurred
-                                     // add them to response array
+    
+                            // ========== for indicator update ========== 
+                            if(resourceType === "indicator") {
+                                var propertyMappingDefinition = row.mappingObj.propertyMapping;
+                                //console.log("propertyMappingDefinition of row " + i + ": ", propertyMappingDefinition);
+    
+                                var propertyMappingDefinition = kommonitorImporterHelperService.buildPropertyMapping_indicatorResource(
+                                    row.mappingObj.propertyMapping.spatialReferenceKeyProperty,
+                                    row.mappingObj.propertyMapping.timeseriesMappings,
+                                    row.mappingObj.propertyMapping.keepMissingOrNullValueIndicator,
+                                )
+    
+                                //console.log("propertyMappingDefinition of row " + i + " with importerService: ", propertyMappingDefinition);
+    
+                                var scopeProperties = {
+                                    "targetSpatialUnitMetadata": {
+                                        "spatialUnitLevel": row.selectedTargetSpatialUnit.spatialUnitLevel	
+                                    },
+                                    "currentIndicatorDataset": {
+                                        "defaultClassificationMapping": row.name.defaultClassificationMapping
+                                    },
+                                    "allowedRoleNames": {
+                                        "selectedItems": row.name.allowedRoles
+                                    }
+                                }
+                                 var putBody_indicators = kommonitorImporterHelperService.buildPutBody_indicators(scopeProperties)
+                                 //console.log("putBody_indicators of row " + i + ": ", putBody_indicators);
+         
+                                 // send post request and wait for it to complete
+                                 var updateIndicatorResponse_dryRun = undefined;
+                                 try {
+                                     updateIndicatorResponse_dryRun = await kommonitorImporterHelperService.updateIndicator(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, resourceId, putBody_indicators, true);
+         
+                                     if (!kommonitorImporterHelperService.importerResponseContainsErrors(updateIndicatorResponse_dryRun)) {
+                                         // all good, really execute the request to update data against data management API
+                                         var updateIndicatorResponse = await kommonitorImporterHelperService.updateIndicator(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, resourceId, putBody_indicators, false);
+                                         
+                                         batchList[i].tempResourceId = resourceId;
+                                         $rootScope.$broadcast("refreshIndicatorOverviewTable");
+         
+                                         // refresh all admin dashboard diagrams due to modified metadata
+                                         $rootScope.$broadcast("refreshAdminDashboardDiagrams");
+         
+                                         // add success object
+                                         responses.push({
+                                             name: row.name.indicatorName,
+                                             status: "success",
+                                             message: updateIndicatorResponse
+                                         });
+         
+         
+                                     } else {
+                                         // errors ocurred
+                                         // add them to response array
+                                         responses.push({
+                                             name: row.name.indicatorName,
+                                             status: "error",
+                                             message: undefined
+                                         });
+                                         
+                                         responses[i].message = "Einige der zu importierenden Features des Datensatzes weisen kritische Fehler auf.\n";
+                                         responses[i].message += kommonitorImporterHelperService.getErrorsFromImporterResponse(updateIndicatorResponse_dryRun);
+                                     }
+                                 } catch (error) {
                                      responses.push({
                                          name: row.name.indicatorName,
                                          status: "error",
                                          message: undefined
                                      });
+         
+                                     if (error.data) {
+                                         responses[i].message = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+                                     } else {
+                                         responses[i].message = kommonitorDataExchangeService.syntaxHighlightJSON(error);
+                                     }
                                      
-                                     responses[i].message = "Einige der zu importierenden Features des Datensatzes weisen kritische Fehler auf.\n";
-                                     responses[i].message += kommonitorImporterHelperService.getErrorsFromImporterResponse(updateIndicatorResponse_dryRun);
+                                     if(updateIndicatorResponse_dryRun){
+                                         error.message = kommonitorImporterHelperService.getErrorsFromImporterResponse(updateIndicatorResponse_dryRun);
+                                     }
                                  }
-                             } catch (error) {
-                                 responses.push({
-                                     name: row.name.indicatorName,
-                                     status: "error",
-                                     message: undefined
-                                 });
-     
-                                 if (error.data) {
-                                     responses[i].message = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
-                                 } else {
-                                     responses[i].message = kommonitorDataExchangeService.syntaxHighlightJSON(error);
-                                 }
-                                 
-                                 if(updateIndicatorResponse_dryRun){
-                                     error.message = kommonitorImporterHelperService.getErrorsFromImporterResponse(updateIndicatorResponse_dryRun);
-                                 }
-                             }
-                        }  
+                            }  
+                        }
+    
+                        $rootScope.$broadcast("batchUpdateCompleted", {
+                            resourceType: resourceType,
+                            value: responses
+                        });
+                    } catch (error) {
+                        console.error("An error occurred during the batch update: ", error)
+                    } finally {
+                        startBtn.removeAttribute("disabled");
+                        startBtn.innerHTML = "Update starten";
                     }
-
-                    $rootScope.$broadcast("batchUpdateCompleted", {
-                        resourceType: resourceType,
-                        value: responses
-                    });
-
-
-                    startBtn.removeAttribute("disabled");
-                    startBtn.innerHTML = "Update starten";
                 };
 
 
@@ -960,14 +963,7 @@ angular
 			    			updateBtn.title = "Die Spalte Name* ist nicht für alle Zeilen gesetzt."
 			    			return false;
 			    		}
-                    
-			    		let mappingTableName = batchList[i].mappingTableName;
-			    		if(mappingTableName == undefined || mappingTableName == "") {
-			    			updateBtn.title = "Die Spalte Mappingtabelle ist nicht für alle Zeilen gesetzt."
-			    			return false;
-			    		}
-                    
-                    
+
 			    		if (batchList[i].selectedDatasourceType) {
 			    			let datasourceType = batchList[i].selectedDatasourceType.type;
 			    			if (datasourceType != undefined && datasourceType.length > 0) {
@@ -1015,7 +1011,20 @@ angular
                                     } 
                                 }
 			    			}
-			    		}
+			    		} else {
+                            updateBtn.title = "Die Spalte Datenquelltyp* ist nicht für alle Zeilen gesetzt."
+			    			return false;
+                        }
+
+                        
+                        if (!batchList[i].selectedConverter) {
+                            if(resourceType === "georesource")
+                                updateBtn.title = "Die Spalte Geodaten-Quellformat* ist nicht für alle Zeilen gesetzt."
+                            else
+                                updateBtn.title = "Die Spalte Datensatz-Quellformat* ist nicht für alle Zeilen gesetzt."
+                            
+			    			return false;
+                        }
 			    	}
 
 			    	return true;

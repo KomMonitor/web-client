@@ -1,7 +1,8 @@
 angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesModal', {
 	templateUrl : "components/kommonitorAdmin/adminIndicatorsManagement/indicatorEditFeaturesModal/indicator-edit-features-modal.template.html",
-	controller : ['kommonitorDataExchangeService', 'kommonitorImporterHelperService', '$scope', '$rootScope', '$http', '__env', '$timeout',
-		function IndicatorEditFeaturesModalController(kommonitorDataExchangeService, kommonitorImporterHelperService, $scope, $rootScope, $http, __env, $timeout) {
+	controller : ['kommonitorDataExchangeService', 'kommonitorDataGridHelperService', 'kommonitorImporterHelperService', '$scope', '$rootScope', '$http', '__env', '$timeout',
+		function IndicatorEditFeaturesModalController(kommonitorDataExchangeService, kommonitorDataGridHelperService, 
+			kommonitorImporterHelperService, $scope, $rootScope, $http, __env, $timeout) {
 
 			this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 			this.kommonitorImporterHelperServiceInstance = kommonitorImporterHelperService;
@@ -117,6 +118,8 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 					// $scope.refreshIndicatorEditFeaturesOverviewTable();
 	
 					$scope.resetIndicatorEditFeaturesForm();
+
+					kommonitorDataGridHelperService.buildDataGrid_featureTable("indicatorFeatureTable", [], []);
 				}
 	
 			});
@@ -162,6 +165,8 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 					}
 	
 					$scope.remainingFeatureHeaders = tmpRemainingHeaders;
+					kommonitorDataGridHelperService.buildDataGrid_featureTable("indicatorFeatureTable", tmpRemainingHeaders, $scope.indicatorFeaturesJSON);
+
 	
 						$scope.loadingData = false;
 	

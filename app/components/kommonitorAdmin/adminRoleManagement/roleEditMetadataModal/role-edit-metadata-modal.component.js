@@ -102,7 +102,7 @@ angular.module('roleEditMetadataModal').component('roleEditMetadataModal', {
 					});
 				}
 
-				$rootScope.$broadcast("refreshRoleOverviewTable");
+				$rootScope.$broadcast("refreshRoleOverviewTable", "edit", $scope.currentRoleDataset.roleId);
 
 			}, function errorCallback(error) {
 				if (error.data) {

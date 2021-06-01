@@ -1,7 +1,7 @@
 {
   "name": "kommonitor-client",
   "private": true,
-  "version": "1.0.1",
+  "version": "1.2.0",
   "description": "AngularJS Leaflet Client for KomMonitor",
   "repository": {
     "type": "git",
@@ -49,7 +49,6 @@
     "admin-lte": "^2.4.15",
     "ag-grid-community": "^25.2.1",
     "angular": "^1.8.2",
-    "angular-datatables": "^0.6.2",
     "angular-legacy-sortablejs-maintained": "^0.6.2",
     "angular-route": "^1.7.8",
     "angular-sanitize": "^1.7.8",
@@ -64,8 +63,6 @@
     "code-prettify": "^0.1.0",
     "codemirror": "^5.59.1",
     "crypto-js": "^4.0.0",
-    "datatables.net": "^1.10.15",
-    "datatables.net-bs": "^2.1.1",
     "echarts": "^4.2.0-rc.2",
     "echarts-stat": "^1.1.1",
     "fastclick": "^1.0.6",
