@@ -1,4 +1,4 @@
-angular.module('kommonitorDataExchange', ['kommonitorMap', 'kommonitorKeycloakHelper']);
+angular.module('kommonitorDataExchange', ['kommonitorMap', 'kommonitorKeycloakHelper', 'kommonitorFilterHelper']);
 
 /**
  * a common serviceInstance that holds all needed properties for a WPS service.
@@ -12,9 +12,10 @@ angular.module('kommonitorDataExchange', ['kommonitorMap', 'kommonitorKeycloakHe
 angular
 		.module('kommonitorDataExchange', [])
 		.service(
-				'kommonitorDataExchangeService', ['$rootScope', '$timeout', 'kommonitorMapService', 'kommonitorKeycloakHelperService', '$http', '__env', '$q', 'Auth',
+				'kommonitorDataExchangeService', ['$rootScope', '$timeout', 'kommonitorMapService', 'kommonitorKeycloakHelperService', 'kommonitorFilterHelperService', 
+        '$http', '__env', '$q', 'Auth',
 				function($rootScope, $timeout,
-						kommonitorMapService, kommonitorKeycloakHelperService, $http, __env, $q, Auth,) {              
+						kommonitorMapService, kommonitorKeycloakHelperService, kommonitorFilterHelperService, $http, __env, $q, Auth,) {              
 
               this.appTitle = __env.appTitle;
 
@@ -1985,7 +1986,7 @@ angular
             if(this.indicatorValueIsNoData(feature.properties[targetDate])){
               color = defaultColorForNoDataValues;
             }
-            else if(this.filteredIndicatorFeatureNames.includes(feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])){
+            else if(kommonitorFilterHelperService.filteredIndicatorFeatureNames.includes(feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])){
               color = defaultColorForFilteredValues;
             }
             else if(this.classifyZeroSeparately && this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) === 0 ){

@@ -11,8 +11,10 @@ angular.module('kommonitorMap').component(
       'kommonitorDataExchangeService',
       'kommonitorVisualStyleHelperService',
       'kommonitorInfoLegendHelperService',
+      'kommonitorFilterHelperService', 
       '__env',
-      function MapController($rootScope, $http, $scope, $timeout, kommonitorMapService, kommonitorDataExchangeService, kommonitorVisualStyleHelperService, kommonitorInfoLegendHelperService, __env) {
+      function MapController($rootScope, $http, $scope, $timeout, kommonitorMapService, kommonitorDataExchangeService, kommonitorVisualStyleHelperService, 
+        kommonitorInfoLegendHelperService, kommonitorFilterHelperService, __env) {
 
         this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
@@ -2483,7 +2485,7 @@ angular.module('kommonitorMap').component(
 
           // only restyle feature when not in list of clicked features
           if (!kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(layer.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])) {
-            if (kommonitorDataExchangeService.filteredIndicatorFeatureNames.includes(layer.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])) {
+            if (kommonitorFilterHelperService.filteredIndicatorFeatureNames.includes(layer.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])) {
               layer.setStyle($scope.filteredStyle);
             }
             else if (!kommonitorDataExchangeService.isMeasureOfValueChecked) {
@@ -2514,7 +2516,7 @@ angular.module('kommonitorMap').component(
         function resetHighlightClickedFeature(layer) {
           var style;
           //$scope.currentIndicatorLayer.resetStyle(layer);
-          if (kommonitorDataExchangeService.filteredIndicatorFeatureNames.includes(layer.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])) {
+          if (kommonitorFilterHelperService.filteredIndicatorFeatureNames.includes(layer.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])) {
             layer.setStyle($scope.filteredStyle);
           }
           else if (!kommonitorDataExchangeService.isMeasureOfValueChecked) {
@@ -2751,7 +2753,7 @@ angular.module('kommonitorMap').component(
           if (!justRestyling) {
             // empty layer of possibly selected features
             kommonitorDataExchangeService.clickedIndicatorFeatureNames = [];
-            kommonitorDataExchangeService.filteredIndicatorFeatureNames = [];
+            kommonitorFilterHelperService.filteredIndicatorFeatureNames = [];
 
             $rootScope.$broadcast("checkBalanceMenueAndButton");
           }
@@ -2982,7 +2984,7 @@ angular.module('kommonitorMap').component(
               $scope.ltMeasureOfValueBrew = measureOfValueBrewArray[1];
 
               $scope.currentIndicatorLayer.eachLayer(function (layer) {
-                if (kommonitorDataExchangeService.filteredIndicatorFeatureNames.includes(layer.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])) {
+                if (kommonitorFilterHelperService.filteredIndicatorFeatureNames.includes(layer.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])) {
                   layer.setStyle($scope.filteredStyle);
                 }
                 else {
@@ -3003,7 +3005,7 @@ angular.module('kommonitorMap').component(
                 $scope.dynamicDecreaseBrew = dynamicIndicatorBrewArray[1];
 
                 $scope.currentIndicatorLayer.eachLayer(function (layer) {
-                  if (kommonitorDataExchangeService.filteredIndicatorFeatureNames.includes(layer.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])) {
+                  if (kommonitorFilterHelperService.filteredIndicatorFeatureNames.includes(layer.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])) {
                     layer.setStyle($scope.filteredStyle);
                   }
                   else {
@@ -3027,7 +3029,7 @@ angular.module('kommonitorMap').component(
                 }
 
                 $scope.currentIndicatorLayer.eachLayer(function (layer) {
-                  if (kommonitorDataExchangeService.filteredIndicatorFeatureNames.includes(layer.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])) {
+                  if (kommonitorFilterHelperService.filteredIndicatorFeatureNames.includes(layer.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])) {
                     layer.setStyle($scope.filteredStyle);
                   }
                   else {

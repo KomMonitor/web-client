@@ -8,7 +8,9 @@ angular
 					 * injected with a modules service method that manages
 					 * enabled tabs
 					 */
-					controller : ['$scope', '$rootScope', 'kommonitorMapService', 'kommonitorDataExchangeService', '__env', '$http', function kommonitorFilterController($scope, $rootScope, kommonitorMapService, kommonitorDataExchangeService, __env, $http) {
+					controller : ['$scope', '$rootScope', 'kommonitorMapService', 'kommonitorDataExchangeService', 'kommonitorFilterHelperService', 
+					'__env', '$http', function kommonitorFilterController($scope, $rootScope, kommonitorMapService, kommonitorDataExchangeService, 
+						kommonitorFilterHelperService, __env, $http) {
 
 							const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
 							this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
@@ -185,8 +187,8 @@ angular
 
 							$scope.applyRangeFilter = function(){
 
-								if(!kommonitorDataExchangeService.filteredIndicatorFeatureNames){
-									kommonitorDataExchangeService.filteredIndicatorFeatureNames = [];
+								if(!kommonitorFilterHelperService.filteredIndicatorFeatureNames){
+									kommonitorFilterHelperService.filteredIndicatorFeatureNames = [];
 								}
 
 								var date = INDICATOR_DATE_PREFIX + kommonitorDataExchangeService.selectedDate;
@@ -196,15 +198,15 @@ angular
 
 									if(value >= $scope.currentLowerFilterValue && value <= $scope.currentHigherFilterValue){
 										// feature must not be filtered - make sure it is not marked as filtered
-										if (kommonitorDataExchangeService.filteredIndicatorFeatureNames.includes(feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])){
-											var index = kommonitorDataExchangeService.filteredIndicatorFeatureNames.indexOf(feature.properties[__env.FEATURE_NAME_PROPERTY_NAME]);
-											kommonitorDataExchangeService.filteredIndicatorFeatureNames.splice(index, 1);
+										if (kommonitorFilterHelperService.filteredIndicatorFeatureNames.includes(feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])){
+											var index = kommonitorFilterHelperService.filteredIndicatorFeatureNames.indexOf(feature.properties[__env.FEATURE_NAME_PROPERTY_NAME]);
+											kommonitorFilterHelperService.filteredIndicatorFeatureNames.splice(index, 1);
 										}
 									}
 									else{
 										// feature must be filtered
-										if (!kommonitorDataExchangeService.filteredIndicatorFeatureNames.includes(feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])){
-											kommonitorDataExchangeService.filteredIndicatorFeatureNames.push(feature.properties[__env.FEATURE_NAME_PROPERTY_NAME]);
+										if (!kommonitorFilterHelperService.filteredIndicatorFeatureNames.includes(feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])){
+											kommonitorFilterHelperService.filteredIndicatorFeatureNames.push(feature.properties[__env.FEATURE_NAME_PROPERTY_NAME]);
 										}
 									}
 

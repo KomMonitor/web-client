@@ -15,6 +15,7 @@ module.exports = function (grunt) {
             'app/util/genericServices/kommonitorElementVisibilityHelperService/kommonitor-element-visibility-helper-service.module.js',
             'app/util/genericServices/kommonitorInfoLegendHelperService/kommonitor-info-legend-helper-service.module.js',
             'app/util/genericServices/kommonitorBatchUpdateHelperService/kommonitor-batch-update-helper-service.module.js',
+            'app/util/genericServices/kommonitorFilterHelperService/kommonitor-filter-helper-service.module.js',            
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorDataSetup/kommonitor-data-setup.module.js',
             'app/components/kommonitorUserInterface/kommonitorControls/kommonitorDataSetup/kommonitor-data-setup.component.js',
             'app/components/kommonitorAdmin/adminDashboardManagement/admin-dashboard-management.module.js',
