@@ -572,10 +572,13 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 							// all good, really execute the request to import data against data management API
 							var newGeoresourceResponse = await kommonitorImporterHelperService.registerNewGeoresource($scope.converterDefinition, $scope.datasourceTypeDefinition, $scope.propertyMappingDefinition, $scope.postBody_georesources, false);
 
-							$rootScope.$broadcast("refreshGeoresourceOverviewTable");
+							$rootScope.$broadcast("refreshGeoresourceOverviewTable", "add", kommonitorImporterHelperService.getIdFromImporterResponse(newGeoresourceResponse));
 
 							// refresh all admin dashboard diagrams due to modified metadata
-							$rootScope.$broadcast("refreshAdminDashboardDiagrams");
+							$timeout(function(){
+								$rootScope.$broadcast("refreshAdminDashboardDiagrams");
+							}, 500);
+							
 		
 							$scope.successMessagePart = $scope.postBody_georesources.datasetName;
 							$scope.importedFeatures = kommonitorImporterHelperService.getImportedFeaturesFromImporterResponse(newGeoresourceResponse);

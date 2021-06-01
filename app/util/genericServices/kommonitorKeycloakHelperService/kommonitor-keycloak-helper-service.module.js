@@ -20,9 +20,7 @@ angular
       this.availableKeycloakRoles = [];
       this.targetUrlToKeycloakInstance = "";
       this.realm = "";
-      this.clientId = "";
-      this.adminRoleName = "";
-      this.adminRolePassword = "";      
+      this.clientId = "";     
 
       this.init = async function () {
         try {
@@ -42,13 +40,7 @@ angular
       this.configureKeycloakParameters = function(keycloakConfig){           
             self.targetUrlToKeycloakInstance = keycloakConfig['auth-server-url'];
             self.realm = keycloakConfig['realm'];
-            self.clientId = keycloakConfig['resource'];
-            self.adminRoleName = keycloakConfig['admin-rolename']; 
-            self.adminRolePassword = keycloakConfig["admin-rolepassword"];           
-
-            if(__env.enableKeycloakSecurity){
-              self.fetchAndSetKeycloakRoles();
-            }
+            self.clientId = keycloakConfig['resource'];         
       };      
 
       this.fetchRoles = async function () {
@@ -72,10 +64,10 @@ angular
         });
       };
 
-      this.requestToken = async function(){
+      this.requestToken = async function(username, password){
         var parameters = {
-          "username": this.adminRoleName,
-          "password": this.adminRolePassword,
+          "username": username,
+          "password": password,
           "client_id": "admin-cli",
           "grant_type": "password"
         };
@@ -218,10 +210,10 @@ angular
         });
       };
 
-      this.postNewRole = async function(roleName){
+      this.postNewRole = async function(roleName, username, password){
         try {
             // first get auth token to make admin requests
-            var tokenResponse = await this.requestToken();
+            var tokenResponse = await this.requestToken(username, password);
             var bearerToken = tokenResponse["access_token"];
 
             // then make admin request
@@ -232,10 +224,10 @@ angular
         
       };
 
-      this.renameExistingRole = async function(oldRoleName, newRoleName){
+      this.renameExistingRole = async function(oldRoleName, newRoleName, username, password){
         try {
             // first get auth token to make admin requests
-            var tokenResponse = await this.requestToken();
+            var tokenResponse = await this.requestToken(username, password);
             var bearerToken = tokenResponse["access_token"];
 
             // then make admin request
@@ -246,10 +238,10 @@ angular
         
       };
 
-      this.deleteRole = async function(roleName){
+      this.deleteRole = async function(roleName, username, password){
         try {
             // first get auth token to make admin requests
-            var tokenResponse = await this.requestToken();
+            var tokenResponse = await this.requestToken(username, password);
             var bearerToken = tokenResponse["access_token"];
 
             // then make admin request
@@ -260,10 +252,10 @@ angular
         
       };
 
-      this.getAllRoles = async function(){
+      this.getAllRoles = async function(username, password){
         try {
             // first get auth token to make admin requests
-            var tokenResponse = await this.requestToken();
+            var tokenResponse = await this.requestToken(username, password);
             var bearerToken = tokenResponse["access_token"];
 
             // then make admin request
@@ -278,8 +270,8 @@ angular
         this.availableKeycloakRoles = roles;
       };
 
-      this.fetchAndSetKeycloakRoles = async function(){
-        this.setAvailableKeycloakRoles(await this.getAllRoles());
+      this.fetchAndSetKeycloakRoles = async function(username, password){
+        this.setAvailableKeycloakRoles(await this.getAllRoles(username, password));
       };
 
       this.isRoleInKeycloak = function(roleName){

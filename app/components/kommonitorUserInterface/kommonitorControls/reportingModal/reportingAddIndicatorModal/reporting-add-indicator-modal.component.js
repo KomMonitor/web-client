@@ -134,12 +134,8 @@ angular.module('reportingAddIndicatorModal').component('reportingAddIndicatorMod
 		 */
 		$scope.loadDefaultState = function() {
 			//select last spatial unit
-			// var $spatialUnitSelect = $('#reporting-spatial-unit-select');
-			// var children = $spatialUnitSelect.children();
-			// var lastSpatialUnit = children.last().get(0);
-			// $scope.selectedSpatialUnit = lastSpatialUnit.textContent;
 
-			$scope.selectedSpatialUnit = $scope.indicator.applicableSpatialUnits[0].spatialUnitName;
+			$scope.selectedSpatialUnit = $scope.indicator.applicableSpatialUnits[0];
 
 			//update areas
 			$scope.updateAreas().then( () => {
@@ -171,7 +167,13 @@ angular.module('reportingAddIndicatorModal').component('reportingAddIndicatorMod
 			var indicatorId = $scope.indicator.indicatorId;
 
 			// get spatial unit id
-			var spatialUnitId = kommonitorDataExchangeService.getSpatialUnitIdFromSpatialUnitName(selectedSpatialUnit)
+			var spatialUnitId = undefined;
+			$(kommonitorDataExchangeService.availableSpatialUnits).each( (id, obj) => {
+				if (obj.spatialUnitId === $scope.selectedSpatialUnit.spatialUnitId) {
+					spatialUnitId = obj.spatialUnitId;
+					return false;
+				}
+			});
 
 			if (spatialUnitId === undefined) {
 				console.error("selectedSpatialUnit not found in indicator.applicableSpatialUnits");
@@ -412,15 +414,15 @@ angular.module('reportingAddIndicatorModal').component('reportingAddIndicatorMod
 			$scope.duallistTimestampsOptions= {};
 			$scope.duallistTimestampsOptions["items"] = [];
 
-			$scope.elementMapIsChecked = false;
+			$scope.elementMapIsChecked = true;
 			$scope.elementMapLegendIsChecked = false;
 			$scope.elementMapLegendIsDisabled = true;
 			$scope.elementMapScaleIsChecked = false;
 			$scope.elementMapScaleIsDisabled = true;
 			$scope.elementDescriptionIsChecked = false;
 			$scope.elementHistoryIsChecked = false;
-			$scope.elementFeatureComparisonIsChecked = false;
-			$scope.elementTimelineIsChecked = false;
+			$scope.elementFeatureComparisonIsChecked = true;
+			$scope.elementTimelineIsChecked = true;
 			$scope.elementMetadataIsChecked = false;
 			$scope.elementDataTableIsChecked = false;
 		}

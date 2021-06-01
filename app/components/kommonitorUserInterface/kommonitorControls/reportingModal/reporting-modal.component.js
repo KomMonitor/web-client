@@ -295,8 +295,10 @@ angular.module('reportingModal').component('reportingModal', {
 			}
 
 			//show loading overlay
-			//$scope.generatingReport = true;
-			document.body.style.cursor = 'wait';
+			$timeout(function(){
+				$scope.generatingReport = true;
+				document.body.style.cursor = 'wait';
+			});						
 
 			//hide all scrollbars temporarily
 			//there is a bug in html2canvas, creating some space on the left side if the page has a scrollbar
@@ -305,11 +307,14 @@ angular.module('reportingModal').component('reportingModal', {
 
 			//a higher number will lead to higher quality images.
 			//but it will also increase the time needed to generate a pdf and the file size
-			window.devicePixelRatio = 2;
+			window.devicePixelRatio = 1;
 			var pages2canvasArray = [];
 			for(var i=1;i<=$scope.pagesArray.length;i++) {
 				pages2canvasArray.push(html2canvas(document.getElementById("reporting-page-" + i.toString()), {
 					//htm2canvas options can be placed here
+					scale: 1
+					// width: 1120 / 1.4,
+					// height: 790 / 1.4
 				}));
 			}
 			//create html2canvas
@@ -352,10 +357,12 @@ angular.module('reportingModal').component('reportingModal', {
 					var now = getCurrentDateAndTime();
 
 					//hide loading overlay
-					//$scope.generatingReport = false;
+					$timeout(function(){
+						$scope.generatingReport = false;
 					//console.log($scope.generatingReport);
 					//create pdf, prompt user to save it
-					document.body.style.cursor = 'default';
+					document.body.style.cursor = 'default';	
+					});
 					window.devicePixelRatio = 1; //reset this
 
 					// unhide scrollbars
@@ -858,7 +865,7 @@ angular.module('reportingModal').component('reportingModal', {
 					var options = {
 						x: 0,
 						y: 0,
-						width: 7,
+						width: 12,
 						height: 37,
 						id: id
 					};
@@ -1020,6 +1027,16 @@ angular.module('reportingModal').component('reportingModal', {
 				}
 			});
 
+			// set settings classifyUsingWholeTimeseries and useOutlierDetectionOnIndicator to false to have consistent reporting setup
+			// set classifyZeroSeparately to true 
+			var useOutlierDetectionOnIndicator_backup = kommonitorDataExchangeService.useOutlierDetectionOnIndicator;
+			var classifyUsingWholeTimeseries_backup = kommonitorDataExchangeService.classifyUsingWholeTimeseries;
+			var classifyZeroSeparately_backup = kommonitorDataExchangeService.classifyZeroSeparately; 
+
+			kommonitorDataExchangeService.useOutlierDetectionOnIndicator = false;
+			kommonitorDataExchangeService.classifyUsingWholeTimeseries = false;
+			kommonitorDataExchangeService.classifyZeroSeparately = true;
+
 			var config = $scope.getIndicatorConfigByName(indicatorName);
 
 			//get timestamp
@@ -1034,13 +1051,18 @@ angular.module('reportingModal').component('reportingModal', {
 			var classifyMethod = __env.defaultClassifyMethod;
 			//setup brew
 			var defaultBrew = kommonitorVisualStyleHelperService.setupDefaultBrew(geoJSON, timestampPref, numClasses, colorCodeStandard, classifyMethod);
-			var dynamicBrewsArray = kommonitorVisualStyleHelperService.setupDynamicIndicatorBrew(geoJSON, timestampPref, colorCodePositiveValues, colorCodeNegativeValues, classifyMethod)
+			var dynamicBrewsArray = kommonitorVisualStyleHelperService.setupDynamicIndicatorBrew(geoJSON, timestampPref, colorCodePositiveValues, colorCodeNegativeValues, classifyMethod);
 			var dynamicIncreaseBrew = dynamicBrewsArray[0];
 			var dynamicDecreaseBrew = dynamicBrewsArray[1];
 
 			//setup diagram resources
-			kommonitorDiagramHelperService.prepareAllDiagramResources(config.indicator, config.selectedSpatialUnit, timestamp, defaultBrew, undefined, undefined, dynamicIncreaseBrew, dynamicDecreaseBrew, false, 0, true);
+			kommonitorDiagramHelperService.prepareAllDiagramResources_forReportingIndicator(config.indicator, config.selectedSpatialUnit.spatialUnitName, timestamp, defaultBrew, undefined, undefined, dynamicIncreaseBrew, dynamicDecreaseBrew, false, 0, false);
 			
+			// set settings classifyUsingWholeTimeseries and useOutlierDetectionOnIndicator and classifyZeroSeparately back to their prior values			
+			kommonitorDataExchangeService.useOutlierDetectionOnIndicator = useOutlierDetectionOnIndicator_backup;
+			kommonitorDataExchangeService.classifyUsingWholeTimeseries = classifyUsingWholeTimeseries_backup;
+			kommonitorDataExchangeService.classifyZeroSeparately = classifyZeroSeparately_backup;
+
 			//fill the tile with different content
 			//the id shows what type of content is needed
 			var contentType = tileId.split("_")[2]; //get the last part ot the id
@@ -1056,6 +1078,13 @@ angular.module('reportingModal').component('reportingModal', {
 				$tileContent.append(html[0]);
 				var map = echarts.init(document.getElementById(tileId + "_map"));
 				var options = kommonitorDiagramHelperService.getGeoMapChartOptions();
+				options.title.textStyle.fontSize = 16;
+				options.title.show = true;
+				options.grid = undefined;
+				options.visualMap.axisLabel = {
+					"fontSize": 10
+				};
+				options.toolbox.show = false;
 				map.setOption(options);
 				map.resize();
 				$scope.echartInstances.push(map);
@@ -1145,6 +1174,15 @@ angular.module('reportingModal').component('reportingModal', {
 				var barChart = echarts.init(document.getElementById(tileId + "_barChart"));
 				var options = kommonitorDiagramHelperService.getBarChartOptions();
 				options.xAxis.name = ""; //remove title
+				options.title.textStyle.fontSize = 12;
+				options.title.text = "Ranking";
+				options.yAxis.axisLabel = {
+					"fontSize": 10
+				};
+				options.title.show = true;
+				options.grid.top = 35;
+				options.grid.bottom = 5;
+				options.toolbox.show = false;
 				barChart.setOption(options);
 				barChart.resize();
 				$scope.echartInstances.push(barChart);
@@ -1160,6 +1198,14 @@ angular.module('reportingModal').component('reportingModal', {
 				var histogramChart = echarts.init(document.getElementById(tileId + "_histogramChart"));
 				var options = kommonitorDiagramHelperService.getHistogramChartOptions();
 				options.xAxis[0].name = ""; //remove title
+				options.title.textStyle.fontSize = 12;
+				options.title.show = true;
+				options.grid.top = 35;
+				options.grid.bottom = 5;
+				options.yAxis.axisLabel = {
+					"fontSize": 10
+				};
+				options.toolbox.show = false;
 				histogramChart.setOption(options);
 				histogramChart.resize();
 				$scope.echartInstances.push(histogramChart);
@@ -1175,14 +1221,27 @@ angular.module('reportingModal').component('reportingModal', {
 				var lineChart = echarts.init(document.getElementById(tileId + "_lineChart"));
 				var options = kommonitorDiagramHelperService.getLineChartOptions();
 				options.xAxis.name = ""; //remove title
+				options.title.textStyle.fontSize = 12;
+				options.title.text = "Zeitreihe - Arithm. Mittel";
+				options.yAxis.axisLabel = {
+					"fontSize": 10
+				};
+				options.xAxis.axisLabel = {
+					"fontSize": 10
+				};
+				options.legend.show = false;
+				options.grid.top = 35;
+				options.grid.bottom = 5;
+				options.title.show = true;
+				options.toolbox.show = false;
 				lineChart.setOption(options);
 				lineChart.resize();
 				$scope.echartInstances.push(lineChart);
 
 			} else if (contentType === "metadata") {
-				var jspdf = kommonitorDataExchangeService.createMetadataPDF_indicator(config.indicator)
+				var jspdf = kommonitorDataExchangeService.createMetadataPDF_indicator(config.indicator);
 				// TODO create an image to show in the tile
-				var dataUrl = jspdf.output('dataurlstring')
+				var dataUrl = jspdf.output('dataurlstring');
 				
 				var $obj = $('<object>');
 				$obj.attr("data", dataUrl);

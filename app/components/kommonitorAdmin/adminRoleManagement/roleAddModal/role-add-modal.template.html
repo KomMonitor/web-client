@@ -43,8 +43,38 @@
 												gleichem Namen.</p>
 										</div>
 									</div>				
+								</div>		
+								
+								<br/>
+								<hr>
+
+								<h4>Keycloak Admin Credentials</h4>
+								<p>Bei g&uuml;ltiger Eingabe von User Credentials eines Keycloak Administrators kann KomMonitor die Rolle auch direkt in Keycloak registrieren. 
+									Bei fehlender Angabe wird nur die Rolle in der KomMonitor Datenbank registriert. Ein Keycloak-Administrator muss dann in Keycloak die gleichnamige Rolle anlegen.</p>
+								<div class="row vertical-align">
+									<div class="col-md-5">
+										<label >Keyloak-Administrator Username</label>
+
+										<div class="input-group">
+											<span class="input-group-addon"><i class="fa fa-user"></i></span>
+											<input style="width:100%;" class="form-control" type="text" placeholder="Keycloak-Admin-Username" ng-model="keycloakAdminUserName"></input>
+										  </div>
+							
+										<div class="help-block">User Name eines Keycloak Administrators, der im Keycloak Master Realm Admin-Rechte besitzt.</div>
+									</div>	
+									<div class="col-md-5">
+										<label >Keyloak-Administrator Password</label>
+										<div class="input-group">
+											<span class="input-group-addon"><i class="fa fa-lock"></i></span>
+											<input style="width:100%;" class="form-control" type="password" placeholder="Keycloak-Admin-Password" ng-model="keycloakAdminUserPassword"></input>
+										  </div>
+																				
+										<div class="help-block">Passwort eines Keycloak Administrators, der im Keycloak Master Realm Admin-Rechte besitzt.</div>
+									</div>				
 								</div>
 
+								<hr>
+								<br/>					
 							</fieldset>
 
 						</form>

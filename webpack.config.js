@@ -70,13 +70,9 @@ module.exports = {
             { from: './customizedExternalLibs/L.TileLayer.BetterWMS.js', to: 'leaflet-betterWMS/' },
             { from: nodeModulePathConstant + 'babel-polyfill/dist/polyfill.min.js', to: 'babel-polyfill/' },
             { from: nodeModulePathConstant + 'shpjs/dist/', to: 'shpjs/' },
-            { from: nodeModulePathConstant + 'datatables.net/js/jquery.dataTables.min.js', to: 'datatables.net/' },
-            { from: nodeModulePathConstant + 'datatables.net-bs/js', to: 'datatables.net-bs/js' },
-            { from: nodeModulePathConstant + 'datatables.net-bs/css', to: 'datatables.net-bs/css' },
             { from: nodeModulePathConstant + 'bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css', to: 'bootstrap-datepicker/css' },
             { from: nodeModulePathConstant + 'bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js', to: 'bootstrap-datepicker/js' },
             { from: nodeModulePathConstant + 'bootstrap-datepicker/dist/locales/bootstrap-datepicker.de.min.js', to: 'bootstrap-datepicker/js' },
-            { from: nodeModulePathConstant + 'angular-datatables/dist', to: 'angular-datatables/' },
             { from: nodeModulePathConstant + 'angular-ui-bootstrap/dist', to: 'angular-ui-bootstrap/' },
             { from: './customizedExternalLibs/bootstrap-iconpicker', to: 'bootstrap-iconpicker/' },
             { from: './customizedExternalLibs/Excalibur-Dual-List/dist', to: 'excalibur-duallist/' },
@@ -95,7 +91,8 @@ module.exports = {
             { from: nodeModulePathConstant + 'mathjax/es5/output/', to: 'mathjax/output/' },    
             { from: nodeModulePathConstant + 'code-prettify/loader/run_prettify.js', to: 'code-prettify/' }, 
             { from: nodeModulePathConstant + 'sortablejs/Sortable.min.js', to: 'sortablejs/' },
-            { from: nodeModulePathConstant + 'angular-legacy-sortablejs-maintained/angular-legacy-sortable.js', to: 'angular-legacy-sortablejs/' },       
+            { from: nodeModulePathConstant + 'angular-legacy-sortablejs-maintained/angular-legacy-sortable.js', to: 'angular-legacy-sortablejs/' },
+            { from: nodeModulePathConstant + 'ag-grid-community/dist/ag-grid-community.min.js', to: 'ag-grid-community/' },    
           
           
 

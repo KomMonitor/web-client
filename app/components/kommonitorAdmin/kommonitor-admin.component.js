@@ -35,7 +35,7 @@ angular
 
 								this.init = function(){
 									if(! kommonitorDataExchangeService.enableKeycloakSecurity){
-										 this.checkAuthorizationOnStartup_withoutKeycloak();
+										  this.checkAuthorizationOnStartup_withoutKeycloak();
 									}
 									kommonitorDataExchangeService.fetchAllMetadata();
 								};

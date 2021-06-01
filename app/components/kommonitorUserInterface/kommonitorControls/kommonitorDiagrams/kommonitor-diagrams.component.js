@@ -102,7 +102,7 @@ angular
 						$scope.spatialUnitName = spatialUnitName;
 						$scope.date = date;
 
-						kommonitorDiagramHelperService.prepareAllDiagramResources(indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, false);
+						kommonitorDiagramHelperService.prepareAllDiagramResources_forCurrentMapIndicator(indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, false);
 
 						// updateHistogramChart();
 
@@ -285,7 +285,7 @@ angular
 
 					var findPropertiesForTimeSeries = function (spatialUnitFeatureName) {
 						for (var feature of kommonitorDataExchangeService.selectedIndicator.geoJSON.features) {
-							if (feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] === spatialUnitFeatureName) {
+							if (feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] == spatialUnitFeatureName) {
 								return feature.properties;
 							}
 						}

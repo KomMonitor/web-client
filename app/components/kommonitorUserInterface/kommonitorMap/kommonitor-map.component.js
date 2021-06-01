@@ -2546,15 +2546,21 @@ angular.module('kommonitorMap').component(
 
         var wait = ms => new Promise((r, j) => setTimeout(r, ms))
 
-        $scope.recenterMap = async function () {
+        $scope.recenterMap = function () {
           $scope.map.invalidateSize(true);
 
           fitBounds();
 
         };
 
-        $scope.$on("recenterMapContent", async function (event) {
+        $scope.$on("recenterMapContent", function (event) {
           $scope.recenterMap();
+        });
+
+        $scope.$on("invalidateMapSize", function (event) {
+          $timeout(function(){
+            $scope.map.invalidateSize(true);
+          }, 500);          
         });
 
         $scope.$on("recenterMapOnHideSideBar", async function (event) {
@@ -3062,7 +3068,7 @@ angular.module('kommonitorMap').component(
 
           $scope.map.eachLayer(function (layer) {
             if (!done && layer.feature) {
-              if (layer.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] === spatialFeatureName) {
+              if (layer.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] == spatialFeatureName) {
                 highlightFeatureForLayer(layer);
                 done = true;
               }
@@ -3080,7 +3086,7 @@ angular.module('kommonitorMap').component(
 
           $scope.map.eachLayer(function (layer) {
             if (!done && layer.feature) {
-              if (layer.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] === spatialFeatureName) {
+              if (layer.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] == spatialFeatureName) {
                 resetHighlightForLayer(layer);
                 done = true;
               }
@@ -3098,7 +3104,7 @@ angular.module('kommonitorMap').component(
 
           $scope.map.eachLayer(function (layer) {
             if (!done && layer.feature) {
-              if (layer.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] === spatialFeatureName) {
+              if (layer.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] == spatialFeatureName) {
                 switchHighlightFeature(layer);
                 done = true;
               }

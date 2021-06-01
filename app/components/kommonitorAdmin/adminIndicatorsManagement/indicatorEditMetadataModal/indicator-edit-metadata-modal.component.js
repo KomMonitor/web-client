@@ -709,7 +709,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 
 					$scope.successMessagePart = $scope.datasetName;
 
-					$rootScope.$broadcast("refreshIndicatorOverviewTable");
+					$rootScope.$broadcast("refreshIndicatorOverviewTable", "edit", $scope.currentIndicatorDataset.indicatorId);
 					$("#indicatorEditMetadataSuccessAlert").show();
 					$scope.loadingData = false;
 
@@ -946,12 +946,6 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 
 				$scope.spatialUnitRefKeyProperty = undefined;
 				$scope.targetSpatialUnitMetadata = undefined;
-				$scope.tmpTimeseriesMapping_indicatorValuesPropertyName = undefined;
-				$scope.useTimeseriesAsProperty = false;
-				$scope.tmpTimeseriesMapping_timestampPropertyName = undefined;
-				$scope.tmpTimeseriesMapping_directTimestamp = undefined;
-				$scope.timeseriesMappings_adminView = [];
-
 				$scope.$digest();
 		};
 

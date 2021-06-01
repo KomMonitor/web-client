@@ -410,10 +410,13 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 							// all good, really execute the request to import data against data management API
 							var newSpatialUnitResponse = await kommonitorImporterHelperService.registerNewSpatialUnit($scope.converterDefinition, $scope.datasourceTypeDefinition, $scope.propertyMappingDefinition, $scope.postBody_spatialUnits, false);
 
-							$rootScope.$broadcast("refreshSpatialUnitOverviewTable");
+							$rootScope.$broadcast("refreshSpatialUnitOverviewTable", "add", kommonitorImporterHelperService.getIdFromImporterResponse(newSpatialUnitResponse));
 
 							// refresh all admin dashboard diagrams due to modified metadata
-							$rootScope.$broadcast("refreshAdminDashboardDiagrams");
+							$timeout(function(){
+								$rootScope.$broadcast("refreshAdminDashboardDiagrams");
+							}, 500);
+							
 
 							$scope.successMessagePart = $scope.postBody_spatialUnits.spatialUnitLevel;
 							$scope.importedFeatures = kommonitorImporterHelperService.getImportedFeaturesFromImporterResponse(newSpatialUnitResponse);

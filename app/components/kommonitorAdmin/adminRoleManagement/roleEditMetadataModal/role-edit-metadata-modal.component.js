@@ -9,6 +9,9 @@ angular.module('roleEditMetadataModal').component('roleEditMetadataModal', {
 		$scope.oldRoleName = undefined;
 		$scope.roleNameInvalid = false;
 
+		$scope.keycloakAdminUserName = undefined;
+		$scope.keycloakAdminUserPassword = undefined;
+
 		$scope.loadingData = false;
 
 		$scope.successMessagePart = undefined;
@@ -38,6 +41,10 @@ angular.module('roleEditMetadataModal').component('roleEditMetadataModal', {
 
 			$scope.successMessagePart = undefined;
 			$scope.errorMessagePart = undefined;
+
+			$scope.keycloakAdminUserName = undefined;
+			$scope.keycloakAdminUserPassword = undefined;
+
 			$("#roleEditMetadataSuccessAlert").hide();
 			$("#roleEditMetadataErrorAlert").hide();
 
@@ -77,8 +84,8 @@ angular.module('roleEditMetadataModal').component('roleEditMetadataModal', {
 				});	
 
 				try {							
-					await kommonitorKeycloakHelperService.renameExistingRole($scope.oldRoleName, $scope.currentRoleDataset.roleName);
-					await kommonitorKeycloakHelperService.fetchAndSetKeycloakRoles();	
+					await kommonitorKeycloakHelperService.renameExistingRole($scope.oldRoleName, $scope.currentRoleDataset.roleName, $scope.keycloakAdminUserName, $scope.keycloakAdminUserPassword);
+					await kommonitorKeycloakHelperService.fetchAndSetKeycloakRoles($scope.keycloakAdminUserName, $scope.keycloakAdminUserPassword);	
 					$("#keycloakRoleEditSuccessAlert").show();
 				} catch (error) {
 					if (error.data) {
@@ -95,7 +102,7 @@ angular.module('roleEditMetadataModal').component('roleEditMetadataModal', {
 					});
 				}
 
-				$rootScope.$broadcast("refreshRoleOverviewTable");
+				$rootScope.$broadcast("refreshRoleOverviewTable", "edit", $scope.currentRoleDataset.roleId);
 
 			}, function errorCallback(error) {
 				if (error.data) {

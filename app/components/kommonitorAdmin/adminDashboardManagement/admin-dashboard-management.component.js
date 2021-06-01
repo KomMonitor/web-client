@@ -137,7 +137,7 @@ angular.module('adminDashboardManagement').component('adminDashboardManagement',
 			var indicatorsPerTopicSeriesData = [];
 
 			//sorted alphabetically
-			kommonitorDataExchangeService.availableTopics.forEach(function(mainTopic){
+			kommonitorDataExchangeService.topicIndicatorHierarchy.forEach(function(mainTopic){
 				if(mainTopic.indicatorCount > 0){
 					indicatorsPerTopicSeriesData.push({
 						name: mainTopic.topicName,

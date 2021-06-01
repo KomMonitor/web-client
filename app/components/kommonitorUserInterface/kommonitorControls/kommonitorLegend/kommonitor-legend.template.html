@@ -45,15 +45,15 @@
 
 						<div class="row" style="margin-right: 0px;">
 							<div class="col-sm-7">
-								<div class="text-left"><label>Raumebene</label></div>
-								<select style="font-size: 12px;" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.selectedSpatialUnit"
+								<div class="text-left"><label>Raumebene</label><a ng-show="$ctrl.envInstance.enableSpatialUnitNotificationButton" data-toggle="modal" ng-click="showSpatialUnitNotificationModalIfEnabled()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Information zu Raumeinheiten&nbsp;&nbsp;"><span class="glyphicon glyphicon-info-sign"></span></a></div>
+								<select id="spatialUnitSelectionInput" style="font-size: 12px;" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.selectedSpatialUnit"
 									ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits | filter:filterSpatialUnits()"
 									class="form-control" ng-change="onChangeSelectedSpatialUnit()" required>
 									<option disabled selected value> -- Raumeinheit w&auml;hlen --
 									</option>
 								</select>
 							</div>
-							<div class="col-sm-5">
+							<div class="col-sm-4">
 								<div class="text-left"><label>Datum</label></div>
 								<input id="indicatorDatePicker" type="text" placeholder="YYYY-MM-DD" 
 								ng-model="$ctrl.kommonitorDataExchangeServiceInstance.selectedDate" ng-change="onChangeIndicatorDatepickerDate()"
@@ -257,7 +257,7 @@
 
 							</div>
 							<!-- Dynamic legend items -->
-							<div ng-if="($ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorType.includes('DYNAMIC') || containsNegativeValues) && ! $ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked">					
+							<div ng-if="($ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked || $ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorType.includes('DYNAMIC') || containsNegativeValues) && ! $ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked">					
 
 								<!-- < 0 values -->
 								<div class="row" style="margin-right: 0px;" ng-repeat="color in $ctrl.kommonitorVisualStyleHelperServiceInstance.dynamicBrew[1].colors">
@@ -288,7 +288,7 @@
 							</div>
 
 							<!-- Static/Status legend items -->
-							<div ng-if="($ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorType.includes('STATUS') && ! containsNegativeValues) && ! $ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked">
+							<div ng-if="($ctrl.kommonitorDataExchangeServiceInstance.selectedIndicator.indicatorType.includes('STATUS') && ! containsNegativeValues) && ! $ctrl.kommonitorDataExchangeServiceInstance.isMeasureOfValueChecked && ! $ctrl.kommonitorDataExchangeServiceInstance.isBalanceChecked">
 								<!-- zero -->
 								<div class="row" style="margin-right: 0px;" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.classifyZeroSeparately && containsZeroValues">
 									<div class="col-md-3"><i style="background:{{::$ctrl.env.defaultColorForZeroValues}}; opacity: {{$ctrl.kommonitorVisualStyleHelperServiceInstance.currentIndicatorOpacity}};"></i></div>

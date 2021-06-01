@@ -1,7 +1,8 @@
 angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeaturesModal', {
 	templateUrl : "components/kommonitorAdmin/adminSpatialUnitsManagement/spatialUnitEditFeaturesModal/spatial-unit-edit-features-modal.template.html",
-	controller : ['kommonitorDataExchangeService', 'kommonitorImporterHelperService', '$scope', '$rootScope', '$http', '__env', '$timeout',
-		function SpatialUnitEditFeaturesModalController(kommonitorDataExchangeService, kommonitorImporterHelperService, $scope, $rootScope, $http, __env, $timeout) {
+	controller : ['kommonitorDataExchangeService', 'kommonitorDataGridHelperService', 'kommonitorImporterHelperService', '$scope', '$rootScope', '$http', '__env', '$timeout',
+		function SpatialUnitEditFeaturesModalController(kommonitorDataExchangeService, kommonitorDataGridHelperService, 
+			kommonitorImporterHelperService, $scope, $rootScope, $http, __env, $timeout) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 		this.kommonitorImporterHelperServiceInstance = kommonitorImporterHelperService;
@@ -94,6 +95,8 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 				// $scope.refreshSpatialUnitEditFeaturesOverviewTable();
 
 				$scope.resetSpatialUnitEditFeaturesForm();
+
+				kommonitorDataGridHelperService.buildDataGrid_featureTable("spatialUnitFeatureTable", [], []);
 			}
 
 		});
@@ -126,6 +129,8 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 
 				$scope.remainingFeatureHeaders = tmpRemainingHeaders;
 
+				kommonitorDataGridHelperService.buildDataGrid_featureTable("spatialUnitFeatureTable", tmpRemainingHeaders, $scope.spatialUnitFeaturesGeoJSON.features);
+
 					$scope.loadingData = false;
 
 				}, function errorCallback(error) {
@@ -155,7 +160,7 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 				$scope.spatialUnitFeaturesGeoJSON = undefined;
 				$scope.remainingFeatureHeaders = undefined;
 
-				$rootScope.$broadcast("refreshSpatialUnitOverviewTable");
+				$rootScope.$broadcast("refreshSpatialUnitOverviewTable", "edit", $scope.currentSpatialUnitDataset);
 				// $scope.refreshGeoresourceEditFeaturesOverviewTable();
 
 				$scope.successMessagePart = $scope.currentSpatialUnitDataset.spatialUnitLevel;
@@ -420,7 +425,7 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 							$scope.successMessagePart = $scope.putBody_spatialUnits.spatialUnitLevel;
 							$scope.importedFeatures = kommonitorImporterHelperService.getImportedFeaturesFromImporterResponse(updateSpatialUnitResponse);
 
-							$rootScope.$broadcast("refreshSpatialUnitOverviewTable");
+							$rootScope.$broadcast("refreshSpatialUnitOverviewTable", "edit", $scope.currentSpatialUnitDataset);
 							// $scope.refreshSpatialUnitEditFeaturesOverviewTable();
 
 							$scope.successMessagePart = $scope.currentSpatialUnitDataset.spatialUnitLevel;

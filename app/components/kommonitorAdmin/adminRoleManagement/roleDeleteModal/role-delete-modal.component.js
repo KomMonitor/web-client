@@ -9,6 +9,9 @@ angular.module('roleDeleteModal').component('roleDeleteModal', {
 
 		$scope.loadingData = false;
 
+		$scope.keycloakAdminUserName = undefined;
+		$scope.keycloakAdminUserPassword = undefined;
+
 		$scope.successfullyDeletedDatasets = [];
 		$scope.failedDatasetsAndErrors = [];
 
@@ -28,6 +31,9 @@ angular.module('roleDeleteModal').component('roleDeleteModal', {
 
 
 		$scope.resetRolesDeleteForm = function () {
+
+			$scope.keycloakAdminUserName = undefined;
+			$scope.keycloakAdminUserPassword = undefined;
 
 			$scope.successfullyDeletedDatasets = [];
 			$scope.failedDatasetsAndErrors = [];
@@ -125,7 +131,7 @@ angular.module('roleDeleteModal').component('roleDeleteModal', {
 					// fetch mMetada again as roles were deleted
 					await kommonitorDataExchangeService.fetchRolesMetadata();
 					// refresh role overview table
-					$rootScope.$broadcast("refreshRoleOverviewTable");
+					$rootScope.$broadcast("refreshRoleOverviewTable", "delete", $scope.successfullyDeletedDatasets.map(dataset => dataset.roleId));
 
 					// refresh all admin dashboard diagrams due to modified metadata
 					$rootScope.$broadcast("refreshAdminDashboardDiagrams");
@@ -185,10 +191,10 @@ angular.module('roleDeleteModal').component('roleDeleteModal', {
 		};
 
 		$scope.tryDeleteKeycloakRole = async function(roleMetadata){
-			try {
-				kommonitorKeycloakHelperService.deleteRole(roleMetadata.roleName);
+			try {	
+				kommonitorKeycloakHelperService.deleteRole(roleMetadata.roleName, $scope.keycloakAdminUserName, $scope.keycloakAdminUserPassword);
 
-				await kommonitorKeycloakHelperService.fetchAndSetKeycloakRoles();
+				await kommonitorKeycloakHelperService.fetchAndSetKeycloakRoles($scope.keycloakAdminUserName, $scope.keycloakAdminUserPassword);
 			} catch (error) {
 				if (error.data) {
 					$scope.failedDatasetsAndErrors.push([dataset, kommonitorDataExchangeService.syntaxHighlightJSON(error.data)]);
