@@ -76,6 +76,13 @@ angular
           this.currentKeycloakLoginRoles = [];
           this.currentKomMonitorLoginRoleNames = [];
 
+          // MAP objects for available resource metadata in order to have quick access to datasets by ID
+          this.availableIndicators_map = new Map();
+          this.availableGeoresources_map = new Map();
+          this.availableSpatialUnits_map = new Map();
+          this.availableProcessScripts_map = new Map();
+          this.availableRoles_map = new Map();
+
           this.setCurrentKomMonitorRoles = function(){
             var roleMetadataForCurrentKeycloakLoginRoles = this.availableRoles.filter(role => this.currentKeycloakLoginRoles.includes(role.roleName)); 
 
@@ -387,12 +394,17 @@ angular
 
 					this.setProcessScripts = function(scriptsArray){
 						this.availableProcessScripts = scriptsArray;
+            this.availableProcessScripts_map = new Map();
+            for (const scriptMetadata of scriptsArray) {
+              this.availableProcessScripts_map.set(scriptMetadata.scriptId, scriptMetadata);
+            }
           };
 
           this.addSingleProcessScriptMetadata = function(processScriptMetadata){
             let tmpArray = [processScriptMetadata];
             Array.prototype.push.apply(tmpArray, this.availableProcessScripts);
             this.availableProcessScripts =  tmpArray;
+            this.availableProcessScripts_map.set(processScriptMetadata.scriptId, processScriptMetadata);
           };
 
           this.replaceSingleProcessScriptMetadata = function(processScriptMetadata){
@@ -403,6 +415,7 @@ angular
                 break;
               }
             }
+            this.availableProcessScripts_map.set(processScriptMetadata.scriptId, processScriptMetadata);
           };
 
           this.deleteSingleProcessScriptMetadata = function(processScriptId){
@@ -413,14 +426,11 @@ angular
                 break;
               }              
             }
+            this.availableProcessScripts_map.delete(processScriptId);
           };
 
           this.getProcessScriptMetadataById = function(scriptId){
-            for (const scriptMetadata of this.availableProcessScripts) {
-              if(scriptMetadata.scriptId === scriptId){
-                return scriptMetadata;
-              }
-            }
+            return this.availableProcessScripts_map.get(scriptId);
           };
 
 
@@ -456,12 +466,17 @@ angular
 
 					this.setSpatialUnits = function(spatialUnitsArray){
 						this.availableSpatialUnits = spatialUnitsArray;
+            this.availableSpatialUnits_map = new Map();
+            for (const spatialUnitMetadata of spatialUnitsArray) {
+              this.availableSpatialUnits_map.set(spatialUnitMetadata.spatialUnitId, spatialUnitMetadata);
+            }
           };
 
           this.addSingleSpatialUnitMetadata = function(spatialUnitMetadata){
             let tmpArray = [spatialUnitMetadata];
             Array.prototype.push.apply(tmpArray, this.availableSpatialUnits);
             this.availableSpatialUnits =  tmpArray;
+            this.availableSpatialUnits_map.set(spatialUnitMetadata.spatialUnitId, spatialUnitMetadata);
           };
 
           this.replaceSingleSpatialUnitMetadata = function(spatialUnitMetadata){
@@ -472,6 +487,7 @@ angular
                 break;
               }
             }
+            this.availableSpatialUnits_map.set(spatialUnitMetadata.spatialUnitId, spatialUnitMetadata);
           };
 
           this.deleteSingleSpatialUnitMetadata = function(spatialUnitId){
@@ -482,6 +498,7 @@ angular
                 break;
               }              
             }
+            this.availableSpatialUnits_map.delete(spatialUnitId);
           };
           
           // REPORTING
@@ -499,6 +516,12 @@ angular
 
 					this.setGeoresources = function(georesourcesArray){
 						this.availableGeoresources = georesourcesArray;
+
+            this.availableGeoresources_map = new Map();
+            for (const georesourceMetadata of georesourcesArray) {
+              this.availableGeoresources_map.set(georesourceMetadata.georesourceId, georesourceMetadata);
+            }
+
             this.displayableGeoresources = this.availableGeoresources.filter(item => self.isDisplayableGeoresource(item));
             this.displayableGeoresources_keywordFiltered = JSON.parse(JSON.stringify(this.displayableGeoresources));
 
@@ -518,6 +541,7 @@ angular
             let tmpArray = [georesourceMetadata];
             Array.prototype.push.apply(tmpArray, this.availableGeoresources);
             this.availableGeoresources =  tmpArray;
+            this.availableGeoresources_map.set(georesourceMetadata.georesourceId, georesourceMetadata);
           };
 
           this.replaceSingleGeoresourceMetadata = function(georesourceMetadata){
@@ -528,6 +552,7 @@ angular
                 break;
               }
             }
+            this.availableGeoresources_map.set(georesourceMetadata.georesourceId, georesourceMetadata);
           };
 
           this.deleteSingleGeoresourceMetadata = function(georesourceId){
@@ -538,6 +563,7 @@ angular
                 break;
               }              
             }
+            this.availableGeoresources_map.delete(georesourceId);
           };
 
 					// INDICATORS
@@ -565,13 +591,19 @@ angular
           this.updateInterval.set("QUARTERLY", "vierteljährlich");
 
 					this.setIndicators = function(indicatorsArray){
-						this.availableIndicators = indicatorsArray;            
+						this.availableIndicators = indicatorsArray;
+            this.availableIndicators_map = new Map();
+            
+            for (const indicatorMetadata of indicatorsArray) {
+              this.availableIndicators_map.set(indicatorMetadata.indicatorId, indicatorMetadata);
+            }
 					};
 
           this.addSingleIndicatorMetadata = function(indicatorMetadata){
             let tmpArray = [indicatorMetadata];
             Array.prototype.push.apply(tmpArray, this.availableIndicators);
             this.availableIndicators =  tmpArray;
+            this.availableIndicators_map.set(indicatorMetadata.indicatorId, indicatorMetadata);
           };
 
           this.replaceSingleIndicatorMetadata = function(indicatorMetadata){
@@ -582,6 +614,7 @@ angular
                 break;
               }
             }
+            this.availableIndicators_map.set(indicatorMetadata.indicatorId, indicatorMetadata);
           };
 
           this.deleteSingleIndicatorMetadata = function(indicatorId){
@@ -592,6 +625,7 @@ angular
                 break;
               }              
             }
+            this.availableIndicators_map.delete(indicatorId);
           };
 
 
@@ -845,27 +879,15 @@ angular
           };
 
           this.getIndicatorMetadataById = function(indicatorId){
-            for (const indicatorMetadata of this.availableIndicators) {
-              if(indicatorMetadata.indicatorId === indicatorId){
-                return indicatorMetadata;
-              }
-            }
+            return this.availableIndicators_map.get(indicatorId);
           };
 
           this.getGeoresourceMetadataById = function(georesourceId){
-            for (const georesourceMetadata of this.availableGeoresources) {
-              if(georesourceMetadata.georesourceId === georesourceId){
-                return georesourceMetadata;
-              }
-            }
+            return this.availableGeoresources_map.get(georesourceId);
           };
 
           this.getSpatialUnitMetadataById = function(spatialUnitId){
-            for (const spatialUnitMetadata of this.availableSpatialUnits) {
-              if(spatialUnitMetadata.spatialUnitId === spatialUnitId){
-                return spatialUnitMetadata;
-              }
-            }
+            return this.availableSpatialUnits_map.get(spatialUnitId);
           };
 
           this.getIndicatorAbbreviationFromIndicatorId = function(indicatorId){
@@ -1607,6 +1629,16 @@ angular
 
           };
 
+          this.setRoles = function(rolesArray){
+            self.availableRoles = rolesArray;
+            this.availableRoles_map = new Map();
+            for (const roleMetadata of rolesArray) {
+              this.availableRoles_map.set(roleMetadata.roleId, roleMetadata);
+            }
+
+            fetchedRolesInitially = true;
+          };
+
           this.fetchRolesMetadata = function(){
             return $http({
               url: this.baseUrlToKomMonitorDataAPI + rolesEndpoint,
@@ -1614,10 +1646,7 @@ angular
             }).then(function successCallback(response) {
                 // this callback will be called asynchronously
                 // when the response is available
-
-                self.availableRoles = response.data;
-                fetchedRolesInitially = true;
-
+                self.setRoles(response.data);
               });
           };
 
@@ -1642,12 +1671,14 @@ angular
                 break;
               }
             }
+            this.availableProcessScripts_map.set(targetRoleMetadata.roleId, targetRoleMetadata);
           };
 
           this.addSingleRoleMetadata = function(roleMetadata){
             let tmpArray = [roleMetadata];
             Array.prototype.push.apply(tmpArray, this.availableRoles);
             this.availableRoles =  tmpArray;
+            this.availableProcessScripts_map.set(roleMetadata.roleId, roleMetadata);
           };
 
           this.deleteSingleRoleMetadata = function(roleId){
@@ -1658,14 +1689,11 @@ angular
                 break;
               }              
             }
+            this.availableProcessScripts_map.delete(roleId);
           };
 
           this.getRoleMetadataById = function(roleId){
-            for (const roleMetadata of this.availableRoles) {
-              if(roleMetadata.roleId === roleId){
-                return roleMetadata;
-              }
-            }
+            return this.availableRoles_map.get(roleId);
           };
 
           this.fetchUsersMetadata = function(){
