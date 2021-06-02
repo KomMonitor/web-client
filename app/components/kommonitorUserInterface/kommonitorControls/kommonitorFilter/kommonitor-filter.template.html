@@ -2,6 +2,15 @@
 
 	<p></p>
 
+	<strong>gefilterte Features tempor&auml;r aus Datensatz entfernen</strong>
+	&nbsp;
+	<label class="switch">
+		<input id="controlFilterBehaviourToggle" type="checkbox" ng-change="$ctrl.kommonitorFilterHelperServiceInstance.onChangeFilterBehaviourToggle()"
+			ng-model="$ctrl.kommonitorFilterHelperServiceInstance.completelyRemoveFilteredFeaturesFromDisplay" 
+			ng-checked="$ctrl.kommonitorFilterHelperServiceInstance.completelyRemoveFilteredFeaturesFromDisplay"></input>
+		<span class="switchslider round"></span>
+	</label>
+
 	<!-- DARSTELLUNGSFILTER -->
 	<div class="box box-primary">
 		<div class="box-header with-border">

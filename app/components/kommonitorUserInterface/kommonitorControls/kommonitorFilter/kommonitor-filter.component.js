@@ -15,6 +15,7 @@ angular
 							const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
 							this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 							this.kommonitorMapServiceInstance = kommonitorMapService;
+							this.kommonitorFilterHelperServiceInstance = kommonitorFilterHelperService;
 							var numberOfDecimals = __env.numberOfDecimals;
 							// initialize any adminLTE box widgets
 							$('.box').boxWidget();
@@ -187,30 +188,9 @@ angular
 
 							$scope.applyRangeFilter = function(){
 
-								if(!kommonitorFilterHelperService.filteredIndicatorFeatureNames){
-									kommonitorFilterHelperService.filteredIndicatorFeatureNames = [];
-								}
+								var dateProperty = INDICATOR_DATE_PREFIX + kommonitorDataExchangeService.selectedDate;
 
-								var date = INDICATOR_DATE_PREFIX + kommonitorDataExchangeService.selectedDate;
-
-								$scope.geoJSON.features.forEach(function(feature){
-									var value = +Number(feature.properties[date]).toFixed(numberOfDecimals);
-
-									if(value >= $scope.currentLowerFilterValue && value <= $scope.currentHigherFilterValue){
-										// feature must not be filtered - make sure it is not marked as filtered
-										if (kommonitorFilterHelperService.filteredIndicatorFeatureNames.includes(feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])){
-											var index = kommonitorFilterHelperService.filteredIndicatorFeatureNames.indexOf(feature.properties[__env.FEATURE_NAME_PROPERTY_NAME]);
-											kommonitorFilterHelperService.filteredIndicatorFeatureNames.splice(index, 1);
-										}
-									}
-									else{
-										// feature must be filtered
-										if (!kommonitorFilterHelperService.filteredIndicatorFeatureNames.includes(feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])){
-											kommonitorFilterHelperService.filteredIndicatorFeatureNames.push(feature.properties[__env.FEATURE_NAME_PROPERTY_NAME]);
-										}
-									}
-
-								});
+								kommonitorFilterHelperService.applyRangeFilter($scope.geoJSON.features, dateProperty, $scope.currentLowerFilterValue, $scope.currentHigherFilterValue);
 
 								kommonitorMapService.restyleCurrentLayer();
 								$scope.$digest();
