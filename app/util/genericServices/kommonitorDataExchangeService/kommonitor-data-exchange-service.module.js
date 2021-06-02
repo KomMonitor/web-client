@@ -982,10 +982,6 @@ angular
             return topicHierarchyArray;
           };
 
-					// FILTER
-					this.rangeFilterData;
-					this.filteredIndicatorFeatureNames;
-
           this.syntaxHighlightJSON = function(json) {
       		    if (typeof json != 'string') {
       		         json = JSON.stringify(json, undefined, 2);
@@ -2014,7 +2010,7 @@ angular
             if(this.indicatorValueIsNoData(feature.properties[targetDate])){
               color = defaultColorForNoDataValues;
             }
-            else if(kommonitorFilterHelperService.filteredIndicatorFeatureNames.includes(feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])){
+            else if(kommonitorFilterHelperService.featureIsCurrentlyFiltered(feature.properties[__env.FEATURE_ID_PROPERTY_NAME])){
               color = defaultColorForFilteredValues;
             }
             else if(this.classifyZeroSeparately && this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) === 0 ){

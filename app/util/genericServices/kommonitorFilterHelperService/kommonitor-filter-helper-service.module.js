@@ -9,7 +9,7 @@ angular
 
       var self = this;
       
-      this.filteredIndicatorFeatureNames = [];
+      this.filteredIndicatorFeatureIds = new Map();
 
       this.completelyRemoveFilteredFeaturesFromDisplay = false;
 
@@ -22,24 +22,31 @@ angular
         }
       };
 
+      this.featureIsCurrentlyFiltered = function(featureId){
+        return this.filteredIndicatorFeatureIds.has(featureId);
+      };
+
+      this.clearFilteredFeatures = function(){
+        this.filteredIndicatorFeatureIds = new Map();
+      };
+
       this.applyRangeFilter = function(features, targetDateProperty, minFilterValue, maxFilterValue){
-        if(!this.filteredIndicatorFeatureNames){
-          this.filteredIndicatorFeatureNames = [];
+        if(!this.filteredIndicatorFeatureIds){
+          this.filteredIndicatorFeatureIds = new Map();
         }
         for (const feature of features) {
           var value = +Number(feature.properties[targetDateProperty]).toFixed(__env.numberOfDecimals);
 
           if(value >= minFilterValue && value <= maxFilterValue){
             // feature must not be filtered - make sure it is not marked as filtered
-            if (this.filteredIndicatorFeatureNames.includes(feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])){
-              var index = this.filteredIndicatorFeatureNames.indexOf(feature.properties[__env.FEATURE_NAME_PROPERTY_NAME]);
-              this.filteredIndicatorFeatureNames.splice(index, 1);
+            if (this.filteredIndicatorFeatureIds.has(feature.properties[__env.FEATURE_ID_PROPERTY_NAME])){
+              this.filteredIndicatorFeatureIds.delete(feature.properties[__env.FEATURE_ID_PROPERTY_NAME]);
             }
           }
           else{
             // feature must be filtered
-            if (!this.filteredIndicatorFeatureNames.includes(feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])){
-              this.filteredIndicatorFeatureNames.push(feature.properties[__env.FEATURE_NAME_PROPERTY_NAME]);
+            if (!this.filteredIndicatorFeatureIds.has(feature.properties[__env.FEATURE_ID_PROPERTY_NAME])){
+              this.filteredIndicatorFeatureIds.set(feature.properties[__env.FEATURE_ID_PROPERTY_NAME], feature);
             }
           }
         }
