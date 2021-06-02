@@ -1035,15 +1035,14 @@ angular.module('kommonitorMap').component(
         function switchHighlightFeature(layer) {
           // add or remove feature within a list of "clicked features"
           // those shall be treated specially, i.e. keep being highlighted
-          if (!kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(layer.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])) {
-            kommonitorDataExchangeService.clickedIndicatorFeatureNames.push(layer.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME]);
+          if (!kommonitorFilterHelperService.featureIsCurrentlySelected(layer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
+            kommonitorFilterHelperService.addFeatureToSelection(layer.feature);
             highlightClickedFeature(layer);
           }
 
           else {
             //remove from array
-            var index = kommonitorDataExchangeService.clickedIndicatorFeatureNames.indexOf(layer.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME]);
-            kommonitorDataExchangeService.clickedIndicatorFeatureNames.splice(index, 1);
+            kommonitorFilterHelperService.removeFeatureFromSelection(layer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME]);
             resetHighlightClickedFeature(layer);
           }
         }
@@ -2457,7 +2456,7 @@ angular.module('kommonitorMap').component(
         function preserveHighlightedFeatures() {
           $scope.map.eachLayer(function (layer) {
             if (layer.feature) {
-              if (kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(layer.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])) {
+              if (kommonitorFilterHelperService.featureIsCurrentlySelected(layer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
                 setPermanentlyHighlightedStyle(layer);
                 $rootScope.$broadcast("updateDiagramsForHoveredFeature", layer.feature.properties);
               }
@@ -2473,7 +2472,7 @@ angular.module('kommonitorMap').component(
           var layer = e.target;
           resetHighlightForLayer(layer);
 
-          if (!kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(layer.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])) {
+          if (!kommonitorFilterHelperService.featureIsCurrentlySelected(layer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
             layer.bringToBack();
           }
           //layer.bringToBack();
@@ -2484,7 +2483,7 @@ angular.module('kommonitorMap').component(
           var style;
 
           // only restyle feature when not in list of clicked features
-          if (!kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(layer.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])) {
+          if (!kommonitorFilterHelperService.featureIsCurrentlySelected(layer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
             if (kommonitorFilterHelperService.featureIsCurrentlyFiltered(layer.feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
               layer.setStyle($scope.filteredStyle);
             }
@@ -2541,7 +2540,7 @@ angular.module('kommonitorMap').component(
 
         function resetHighlightCustom(e) {
           $scope.currentCustomIndicatorLayer.resetStyle(e.target);
-          if (!kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(e.target.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])) {
+          if (!kommonitorFilterHelperService.featureIsCurrentlySelected(e.target.feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
             e.target.bringToBack();
           }
         }
@@ -2752,7 +2751,7 @@ angular.module('kommonitorMap').component(
 
           if (!justRestyling) {
             // empty layer of possibly selected features
-            kommonitorDataExchangeService.clickedIndicatorFeatureNames = [];
+            kommonitorFilterHelperService.clearSelectedFeatures();
             kommonitorFilterHelperService.clearFilteredFeatures();
 
             $rootScope.$broadcast("checkBalanceMenueAndButton");
@@ -3118,17 +3117,8 @@ angular.module('kommonitorMap').component(
 
         $scope.$on("unselectAllFeatures", function (event) {
 
-          if (kommonitorDataExchangeService.clickedIndicatorFeatureNames && kommonitorDataExchangeService.clickedIndicatorFeatureNames.length > 0) {
-            $scope.map.eachLayer(function (layer) {
-              if (layer.feature) {
-                if (kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(layer.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])) {
-                  var index = kommonitorDataExchangeService.clickedIndicatorFeatureNames.indexOf(layer.feature.properties[__env.FEATURE_NAME_PROPERTY_NAME]);
-                  kommonitorDataExchangeService.clickedIndicatorFeatureNames.splice(index, 1);
-                  resetHighlightForLayer(layer);
-                }
-              }
-            });
-          }
+          kommonitorFilterHelperService.clearSelectedFeatures();
+          $rootScope.$broadcast("restyleCurrentLayer", false);
         });
 
         $scope.$on("removeAllDrawnPoints", function (event) {

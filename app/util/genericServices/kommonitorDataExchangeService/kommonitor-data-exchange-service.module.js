@@ -566,8 +566,7 @@ angular
             this.availableGeoresources_map.delete(georesourceId);
           };
 
-					// INDICATORS
-					this.clickedIndicatorFeatureNames = new Array();
+					// INDICATORS					
 
 					this.availableIndicators = [];
           this.displayableIndicators = [];

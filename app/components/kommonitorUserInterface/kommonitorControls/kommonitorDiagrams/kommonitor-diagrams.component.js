@@ -9,9 +9,9 @@ angular
 			 * enabled tabs
 			 */
 			controller: [
-				'kommonitorDataExchangeService', 'kommonitorDiagramHelperService',
+				'kommonitorDataExchangeService', 'kommonitorDiagramHelperService', 'kommonitorFilterHelperService', 
 				'$scope', '$rootScope', '__env',
-				function kommonitorDiagramsController(kommonitorDataExchangeService, kommonitorDiagramHelperService,
+				function kommonitorDiagramsController(kommonitorDataExchangeService, kommonitorDiagramHelperService, kommonitorFilterHelperService,
 					$scope, $rootScope, __env) {
 					this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 					this.kommonitorDiagramHelperServiceInstance = kommonitorDiagramHelperService;
@@ -337,7 +337,7 @@ angular
 
 					$scope.$on("updateDiagramsForUnhoveredFeature", function (event, featureProperties) {
 
-						if (!kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME])) {
+						if (!kommonitorFilterHelperService.featureIsCurrentlySelected(featureProperties[__env.FEATURE_ID_PROPERTY_NAME])) {
 							unhighlightFeatureInLineChart(featureProperties);
 
 							removeSeriesFromLineChart(featureProperties);

@@ -10,6 +10,7 @@ angular
       var self = this;
       
       this.filteredIndicatorFeatureIds = new Map();
+      this.selectedIndicatorFeatureIds = new Map();
 
       this.completelyRemoveFilteredFeaturesFromDisplay = false;
 
@@ -21,6 +22,32 @@ angular
 
         }
       };
+
+      // FEATURE SELECTION
+
+      this.featureIsCurrentlySelected = function(featureId){
+        return this.selectedIndicatorFeatureIds.has(featureId);
+      };
+
+      this.clearSelectedFeatures = function(){
+        this.selectedIndicatorFeatureIds = new Map();
+      };
+
+      this.addFeatureToSelection = function(feature){
+        if(feature.properties){
+          this.selectedIndicatorFeatureIds.set(feature.properties[__env.FEATURE_ID_PROPERTY_NAME], feature);
+        }
+        else{
+          this.selectedIndicatorFeatureIds.set(feature[__env.FEATURE_ID_PROPERTY_NAME], feature);
+        }
+      };
+
+      this.removeFeatureFromSelection = function(featureId){
+        this.selectedIndicatorFeatureIds.delete(featureId);
+      };
+
+
+      // FEATURE FILTER      
 
       this.featureIsCurrentlyFiltered = function(featureId){
         return this.filteredIndicatorFeatureIds.has(featureId);
