@@ -953,6 +953,10 @@ pre.CodeMirror-line {
 	overflow:auto;
 }
 
+.featureTableWrapper .ag-root-wrapper.ag-layout-normal {
+	height: 45vh !important;
+}
+
 .admin-table-wrapper{
 	width: 100%;
 	max-width: 100%;
