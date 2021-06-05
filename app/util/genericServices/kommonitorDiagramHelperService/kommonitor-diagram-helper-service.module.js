@@ -10,11 +10,12 @@ angular.module('kommonitorDiagramHelper', ['kommonitorMap', 'kommonitorDataExcha
  * parameters for each WPS operation represented by different Angular components
  */
 angular
-  .module('kommonitorDiagramHelper', [])
+  .module('kommonitorDiagramHelper', ["kommonitorFilterHelper"])
   .service(
-    'kommonitorDiagramHelperService', ['$rootScope', '$timeout', 'kommonitorMapService', 'kommonitorDataExchangeService', '$http', '__env', '$q',
+    'kommonitorDiagramHelperService', ['$rootScope', '$timeout', 'kommonitorMapService', 'kommonitorDataExchangeService', 
+    'kommonitorFilterHelperService', '$http', '__env', '$q',
     function ($rootScope, $timeout,
-      kommonitorMapService, kommonitorDataExchangeService, $http, __env, $q) {
+      kommonitorMapService, kommonitorDataExchangeService, kommonitorFilterHelperService, $http, __env, $q) {
 
       const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
       const defaultColorForHoveredFeatures = __env.defaultColorForHoveredFeatures;
@@ -184,6 +185,117 @@ angular
         });
       };
 
+      this.getColorFromBrewInstance = function(brewInstance, feature, targetDate){
+        var color;
+        for (var index=0; index < brewInstance.breaks.length; index++){
+
+          if(kommonitorDataExchangeService.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) == kommonitorDataExchangeService.getIndicatorValue_asNumber(brewInstance.breaks[index])){
+            if(index < brewInstance.breaks.length -1){
+              // min value
+              color =  brewInstance.colors[index];
+              break;
+            }
+            else {
+              //max value
+              if (brewInstance.colors[index]){
+                color =  brewInstance.colors[index];
+              }
+              else{
+                color =  brewInstance.colors[index - 1];
+              }
+              break;
+            }
+          }
+          else{
+            if(kommonitorDataExchangeService.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) < kommonitorDataExchangeService.getIndicatorValue_asNumber(brewInstance.breaks[index + 1])) {
+              color =  brewInstance.colors[index];
+              break;
+            }
+          }
+        }
+
+        return color;
+      };
+
+      this.getColorForFeature = function(feature, indicatorMetadataAndGeoJSON, targetDate, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue){
+        var color;
+
+        if(!targetDate.includes(INDICATOR_DATE_PREFIX)){
+          targetDate = INDICATOR_DATE_PREFIX + targetDate;
+        }
+
+        if(kommonitorDataExchangeService.indicatorValueIsNoData(feature.properties[targetDate])){
+          color = defaultColorForNoDataValues;
+        }
+        else if(kommonitorFilterHelperService.featureIsCurrentlyFiltered(feature.properties[__env.FEATURE_ID_PROPERTY_NAME])){
+          color = defaultColorForFilteredValues;
+        }
+        else if(kommonitorDataExchangeService.classifyZeroSeparately && kommonitorDataExchangeService.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) === 0 ){
+          color = defaultColorForZeroValues;
+        }
+        else if(feature.properties["outlier"] !== undefined && feature.properties["outlier"].includes("low") && kommonitorDataExchangeService.useOutlierDetectionOnIndicator){
+          color = defaultColorForOutliers_low;
+        }
+        else if(feature.properties["outlier"] !== undefined && feature.properties["outlier"].includes("high") && kommonitorDataExchangeService.useOutlierDetectionOnIndicator){
+          color = defaultColorForOutliers_high;
+        }
+        else if(isMeasureOfValueChecked){
+
+          if(kommonitorDataExchangeService.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) >= +Number(measureOfValue).toFixed(numberOfDecimals)){
+            color = this.getColorFromBrewInstance(gtMeasureOfValueBrew, feature, targetDate);                
+          }
+          else {
+            color = this.getColorFromBrewInstance(ltMeasureOfValueBrew, feature, targetDate);
+          }
+
+        }
+        else{
+          if(indicatorMetadataAndGeoJSON.indicatorType.includes('DYNAMIC')){
+
+            if(feature.properties[targetDate] < 0){
+              
+              color = this.getColorFromBrewInstance(dynamicDecreaseBrew, feature, targetDate);
+            }
+            else{
+              color = this.getColorFromBrewInstance(dynamicIncreaseBrew, feature, targetDate);
+            }
+
+          }
+          else{
+
+            if(containsNegativeValues(indicatorMetadataAndGeoJSON.geoJSON, targetDate)){
+              if(kommonitorDataExchangeService.getIndicatorValue_asNumber(feature.properties[targetDate]) >= 0){
+                if(kommonitorDataExchangeService.classifyZeroSeparately && (feature.properties[targetDate] == 0 || feature.properties[targetDate] == "0")){
+                  color = defaultColorForZeroValues;
+                  // if(__env.useTransparencyOnIndicator){
+                  //   fillOpacity = __env.defaultFillOpacityForZeroFeatures;
+                  // }
+                }
+                else{
+                  color = this.getColorFromBrewInstance(dynamicIncreaseBrew, feature, targetDate);
+                }
+              }
+              else{
+                if(kommonitorDataExchangeService.classifyZeroSeparately && (feature.properties[targetDate] == 0 || feature.properties[targetDate] == "0")){
+                  color = defaultColorForZeroValues;
+                  // if(__env.useTransparencyOnIndicator){
+                  //   fillOpacity = __env.defaultFillOpacityForZeroFeatures;
+                  // }
+                }
+                else{
+                  color = this.getColorFromBrewInstance(dynamicDecreaseBrew, feature, targetDate);
+                }
+              }
+            }
+            else{
+              color = this.getColorFromBrewInstance(defaultBrew, feature, targetDate);                 
+            }
+          }
+        }
+
+        return color;
+      };
+
       this.getBarChartOptions = function () {
         return self.barChartOptions;
       };
@@ -263,7 +375,7 @@ angular
           featureNamesArray.push(cartographicFeature.properties[__env.FEATURE_NAME_PROPERTY_NAME]);
           indicatorValueArray.push(indicatorValue);
 
-          var color = kommonitorDataExchangeService.getColorForFeature(cartographicFeature, indicatorMetadataAndGeoJSON, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue);
+          var color = this.getColorForFeature(cartographicFeature, indicatorMetadataAndGeoJSON, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue);
 
           var seriesItem = {
             value: indicatorValue,

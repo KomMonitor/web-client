@@ -1,4 +1,4 @@
-angular.module('kommonitorDataExchange', ['kommonitorMap', 'kommonitorKeycloakHelper', 'kommonitorFilterHelper']);
+angular.module('kommonitorDataExchange', ['kommonitorMap', 'kommonitorKeycloakHelper']);
 
 /**
  * a common serviceInstance that holds all needed properties for a WPS service.
@@ -12,10 +12,10 @@ angular.module('kommonitorDataExchange', ['kommonitorMap', 'kommonitorKeycloakHe
 angular
 		.module('kommonitorDataExchange', [])
 		.service(
-				'kommonitorDataExchangeService', ['$rootScope', '$timeout', 'kommonitorMapService', 'kommonitorKeycloakHelperService', 'kommonitorFilterHelperService', 
+				'kommonitorDataExchangeService', ['$rootScope', '$timeout', 'kommonitorMapService', 'kommonitorKeycloakHelperService', 
         '$http', '__env', '$q', 'Auth',
 				function($rootScope, $timeout,
-						kommonitorMapService, kommonitorKeycloakHelperService, kommonitorFilterHelperService, $http, __env, $q, Auth,) {              
+						kommonitorMapService, kommonitorKeycloakHelperService, $http, __env, $q, Auth,) {              
 
               this.appTitle = __env.appTitle;
 
@@ -1965,118 +1965,7 @@ angular
               this.totalFeaturesPropertyLabel = "Arithmetisches Mittel aller Features";         
             }  
             
-          };
-            
-          this.getColorFromBrewInstance = function(brewInstance, feature, targetDate){
-            var color;
-            for (var index=0; index < brewInstance.breaks.length; index++){
-
-              if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) == this.getIndicatorValue_asNumber(brewInstance.breaks[index])){
-                if(index < brewInstance.breaks.length -1){
-                  // min value
-                  color =  brewInstance.colors[index];
-                  break;
-                }
-                else {
-                  //max value
-                  if (brewInstance.colors[index]){
-                    color =  brewInstance.colors[index];
-                  }
-                  else{
-                    color =  brewInstance.colors[index - 1];
-                  }
-                  break;
-                }
-              }
-              else{
-                if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) < this.getIndicatorValue_asNumber(brewInstance.breaks[index + 1])) {
-                  color =  brewInstance.colors[index];
-                  break;
-                }
-              }
-            }
-
-            return color;
-          };
-
-          this.getColorForFeature = function(feature, indicatorMetadataAndGeoJSON, targetDate, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue){
-            var color;
-
-            if(!targetDate.includes(DATE_PREFIX)){
-							targetDate = DATE_PREFIX + targetDate;
-						}
-
-            if(this.indicatorValueIsNoData(feature.properties[targetDate])){
-              color = defaultColorForNoDataValues;
-            }
-            else if(kommonitorFilterHelperService.featureIsCurrentlyFiltered(feature.properties[__env.FEATURE_ID_PROPERTY_NAME])){
-              color = defaultColorForFilteredValues;
-            }
-            else if(this.classifyZeroSeparately && this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) === 0 ){
-              color = defaultColorForZeroValues;
-            }
-            else if(feature.properties["outlier"] !== undefined && feature.properties["outlier"].includes("low") && this.useOutlierDetectionOnIndicator){
-              color = defaultColorForOutliers_low;
-            }
-            else if(feature.properties["outlier"] !== undefined && feature.properties["outlier"].includes("high") && this.useOutlierDetectionOnIndicator){
-              color = defaultColorForOutliers_high;
-            }
-            else if(isMeasureOfValueChecked){
-
-              if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) >= +Number(measureOfValue).toFixed(numberOfDecimals)){
-                color = this.getColorFromBrewInstance(gtMeasureOfValueBrew, feature, targetDate);                
-              }
-              else {
-                color = this.getColorFromBrewInstance(ltMeasureOfValueBrew, feature, targetDate);
-              }
-
-            }
-            else{
-              if(indicatorMetadataAndGeoJSON.indicatorType.includes('DYNAMIC')){
-
-                if(feature.properties[targetDate] < 0){
-                  
-                  color = this.getColorFromBrewInstance(dynamicDecreaseBrew, feature, targetDate);
-                }
-                else{
-                  color = this.getColorFromBrewInstance(dynamicIncreaseBrew, feature, targetDate);
-                }
-
-              }
-              else{
-
-                if(containsNegativeValues(indicatorMetadataAndGeoJSON.geoJSON, targetDate)){
-                  if(this.getIndicatorValue_asNumber(feature.properties[targetDate]) >= 0){
-                    if(this.classifyZeroSeparately && (feature.properties[targetDate] == 0 || feature.properties[targetDate] == "0")){
-                      color = defaultColorForZeroValues;
-                      if(useTransparencyOnIndicator){
-                        fillOpacity = defaultFillOpacityForZeroFeatures;
-                      }
-                    }
-                    else{
-                      color = this.getColorFromBrewInstance(dynamicIncreaseBrew, feature, targetDate);
-                    }
-                  }
-                  else{
-                    if(this.classifyZeroSeparately && (feature.properties[targetDate] == 0 || feature.properties[targetDate] == "0")){
-                      color = defaultColorForZeroValues;
-                      if(useTransparencyOnIndicator){
-                        fillOpacity = defaultFillOpacityForZeroFeatures;
-                      }
-                    }
-                    else{
-                      color = this.getColorFromBrewInstance(dynamicDecreaseBrew, feature, targetDate);
-                    }
-                  }
-                }
-                else{
-                  color = this.getColorFromBrewInstance(defaultBrew, feature, targetDate);                 
-                }
-              }
-            }
-
-            return color;
-          };
+          };          
 
           var containsNegativeValues = function(geoJSON, propertyName){
 
