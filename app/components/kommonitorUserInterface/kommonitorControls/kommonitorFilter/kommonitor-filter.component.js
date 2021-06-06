@@ -27,7 +27,7 @@ angular
 							$scope.currentHigherFilterValue;
 							$scope.lowerFilterInputNotValid = false;
 							$scope.higherFilterInputNotValid = false;
-							$scope.geoJSON;
+							$scope.indicatorMetadataAndGeoJSON;
 
 							//measureOfValue stuff
 							$scope.movMinValue;
@@ -35,6 +35,11 @@ angular
 							$scope.movMiddleValue;
 							$scope.movStep;
 							$scope.movRangeSlider;
+
+							// SPATIAL FILTER STUFF
+							$scope.selectedSpatialUnitForFilter;
+							$scope.higherSpatialUnits = undefined;
+							$scope.higherSpatialUnitFilterFeatureGeoJSON;
 
 							$scope.selectionByFeatureSpatialFilterDuallistOptions = {
 								title: {label: 'Gebiete', helpMessage: 'help'},
@@ -53,16 +58,56 @@ angular
 							};
 
 
+							$scope.setupSpatialUnitFilter = function(indicatorMetadataAndGeoJSON, spatialUnitName, date){							
+								
+								$scope.higherSpatialUnits = JSON.parse(JSON.stringify(kommonitorDataExchangeService.availableSpatialUnits));
+								let targetIndex = 0;
+								for (let index = 0; index < $scope.higherSpatialUnits.length; index++) {
+									const spatialUnitMetadata = $scope.higherSpatialUnits[index];
+									
+									if(spatialUnitMetadata.spatialUnitLevel == spatialUnitName){
+										targetIndex = index;
+										break;
+									}
+								}
+
+								$scope.higherSpatialUnits.splice(targetIndex);
+								$scope.selectedSpatialUnitForFilter = $scope.higherSpatialUnits[$scope.higherSpatialUnits.length - 1];
+							};
 
 							$scope.inputNotValid = false;
 
-							$scope.$on("updateIndicatorValueRangeFilter", function (event, date) {
+							$scope.$on("replaceIndicatorAsGeoJSON", function (event, indicatorMetadataAndGeoJSON, spatialUnitName, date, justRestyling, isCustomComputation) {
 
-									$scope.setupRangeSliderForFilter(date);
+
+								$scope.setupSpatialUnitFilter(indicatorMetadataAndGeoJSON, spatialUnitName, date);
+
+								if(! $scope.previouslySelectedIndicator){
+									$scope.previouslySelectedIndicator = kommonitorDataExchangeService.selectedIndicator;
+								}
+								if(! $scope.previouslySelectedSpatialUnit){
+									$scope.previouslySelectedSpatialUnit = kommonitorDataExchangeService.selectedSpatialUnit;
+								}
+
+								if($scope.previouslySelectedIndicator.indicatorId != indicatorMetadataAndGeoJSON.indicatorId || $scope.previouslySelectedSpatialUnit.spatialUnitLevel != spatialUnitName){
+									if ($scope.showSelectionByFeatureSpatialFilter)
+										$scope.updateSelectableAreas("byFeature");
+									if ($scope.showManualSelectionSpatialFilter)
+										$scope.updateSelectableAreas("manual");
+								}
+
+								$scope.previouslySelectedIndicator = kommonitorDataExchangeService.selectedIndicator;
+								$scope.previouslySelectedSpatialUnit = kommonitorDataExchangeService.selectedSpatialUnit;
+								
+							});
+
+							$scope.$on("updateIndicatorValueRangeFilter", function (event, date, indicatorMetadataAndGeoJSON) {
+
+									$scope.setupRangeSliderForFilter(date, indicatorMetadataAndGeoJSON);
 
 							});
 
-							$scope.setupRangeSliderForFilter = function(date){
+							$scope.setupRangeSliderForFilter = function(date, indicatorMetadataAndGeoJSON){
 								date = INDICATOR_DATE_PREFIX + date;
 
 								if($scope.rangeSliderForFilter){
@@ -76,20 +121,11 @@ angular
 									}
 								}
 
-								$scope.geoJSON = kommonitorDataExchangeService.selectedIndicator.geoJSON;
-								if(kommonitorDataExchangeService.isBalanceChecked){
-									//we have to use the geoJSON of balance mode
-									try{
-										$scope.geoJSON = kommonitorDataExchangeService.indicatorAndMetadataAsBalance.geoJSON;
-									}catch(err){
-										$scope.geoJSON = kommonitorDataExchangeService.selectedIndicator.geoJSON;
-									}
-
-								}
+								$scope.indicatorMetadataAndGeoJSON = indicatorMetadataAndGeoJSON;
 
 								var values = [];
 
-								$scope.geoJSON.features.forEach(function(feature){
+								$scope.indicatorMetadataAndGeoJSON.geoJSON.features.forEach(function(feature){
 									// if (feature.properties[date] > movMaxValue)
 									// 	movMaxValue = feature.properties[date];
 									//
@@ -190,9 +226,8 @@ angular
 
 								var dateProperty = INDICATOR_DATE_PREFIX + kommonitorDataExchangeService.selectedDate;
 
-								kommonitorFilterHelperService.applyRangeFilter($scope.geoJSON.features, dateProperty, $scope.currentLowerFilterValue, $scope.currentHigherFilterValue);
+								kommonitorFilterHelperService.applyRangeFilter($scope.indicatorMetadataAndGeoJSON.geoJSON.features, dateProperty, $scope.currentLowerFilterValue, $scope.currentHigherFilterValue);
 
-								kommonitorMapService.restyleCurrentLayer();
 								$scope.$digest();
 							}
 
@@ -204,9 +239,10 @@ angular
 							this.onChangeUseMeasureOfValue = function(){
 								if(kommonitorDataExchangeService.isBalanceChecked){
 									$rootScope.$broadcast("DisableBalance");
-									$rootScope.$broadcast("updateIndicatorValueRangeFilter", kommonitorDataExchangeService.selectedDate);
+									$rootScope.$broadcast("updateIndicatorValueRangeFilter", kommonitorDataExchangeService.selectedDate, kommonitorDataExchangeService.selectedIndicator);
 									//replace displayed indicator on map
-									kommonitorMapService.replaceIndicatorGeoJSON(kommonitorDataExchangeService.selectedIndicator, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, kommonitorDataExchangeService.selectedDate, true);
+									kommonitorFilterHelperService.filterAndReplaceDataset();
+									// kommonitorMapService.replaceIndicatorGeoJSON(kommonitorDataExchangeService.selectedIndicator, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, kommonitorDataExchangeService.selectedDate, true);
 								}
 								else{
 									this.kommonitorMapServiceInstance.restyleCurrentLayer();
@@ -214,17 +250,17 @@ angular
 
 							};
 
-							$scope.$on("updateMeasureOfValueBar", function (event, date) {
+							$scope.$on("updateMeasureOfValueBar", function (event, date, indicatorMetadataAndGeoJSON) {
 
-									$scope.updateMeasureOfValueBar(date);
+									$scope.updateMeasureOfValueBar(date, indicatorMetadataAndGeoJSON);
 
 							});
 
-							$scope.updateMeasureOfValueBar = function(date){
+							$scope.updateMeasureOfValueBar = function(date, indicatorMetadataAndGeoJSON){
 
 								//append date prefix to access correct property!
 								date = INDICATOR_DATE_PREFIX + date;
-								var geoJSON = kommonitorDataExchangeService.selectedIndicator.geoJSON;
+								var geoJSON = indicatorMetadataAndGeoJSON.geoJSON;
 
 								// var measureOfValueInput = document.getElementById("measureOfValueInput");
 
@@ -340,10 +376,8 @@ angular
 								let selectedSpatialUnit = kommonitorDataExchangeService.selectedSpatialUnit;
 								let selectedSpatialUnitId = selectedSpatialUnit.spatialUnitId;
 								let upperSpatialUnitId;
-								if (selectedSpatialUnit.nextUpperHierarchyLevel) {
-									let nextUpperHierarchyLevel = selectedSpatialUnit.nextUpperHierarchyLevel;
-									//get id for nextUpperHierarchyLevel
-									upperSpatialUnitId = kommonitorDataExchangeService.getSpatialUnitIdFromSpatialUnitName(nextUpperHierarchyLevel);
+								if (selectionType === "byFeature") {
+									upperSpatialUnitId = $scope.selectedSpatialUnitForFilter.spatialUnitId;									
 								}
 								let selectedIndicatorId = kommonitorDataExchangeService.selectedIndicator.indicatorId;
 
@@ -381,6 +415,7 @@ angular
 										$scope.manualSelectionSpatialFilterDuallistOptions.items = dataArray;
 									}
 									if (selectionType === "byFeature") {
+										$scope.higherSpatialUnitFilterFeatureGeoJSON = response.data;
 										$scope.selectionByFeatureSpatialFilterDuallistOptions.selectedItems = [];
 										let dataArray = kommonitorDataExchangeService.createDualListInputArray(areaNames, "name");
 										$scope.selectionByFeatureSpatialFilterDuallistOptions.items = dataArray;
@@ -406,12 +441,34 @@ angular
 								}
 							};
 
-							$rootScope.$on("changeSpatialUnit", function() {
+							$scope.onChangeSelectedSpatialUnitForFilter = function(){
 								if ($scope.showSelectionByFeatureSpatialFilter)
 									$scope.updateSelectableAreas("byFeature");
-								if ($scope.showManualSelectionSpatialFilter)
-									$scope.updateSelectableAreas("manual");
-							});
+							};
+
+							$scope.onSelectionByFeatureSpatialFilterSelectBtnPressed = function(){
+								if($scope.selectionByFeatureSpatialFilterDuallistOptions.selectedItems && $scope.selectionByFeatureSpatialFilterDuallistOptions.selectedItems.length > 0){
+									// objects like {category: category, name:name}									
+									//$scope.selectionByFeatureSpatialFilterDuallistOptions.selectedItems
+									let targetFeatureNames = $scope.selectionByFeatureSpatialFilterDuallistOptions.selectedItems.map(object => object.name);
+
+									kommonitorFilterHelperService.applySpatialFilter_higherSpatialUnitFeatures($scope.higherSpatialUnitFilterFeatureGeoJSON, targetFeatureNames);
+								}
+							};
+
+							$scope.onSelectionByFeatureSpatialFilterResetBtnPressed = function(){
+								$scope.updateSelectableAreas("byFeature");
+
+								kommonitorFilterHelperService.clearFilteredFeatures();
+								kommonitorFilterHelperService.filterAndReplaceDataset();
+							};
+
+							// $rootScope.$on("changeSpatialUnit", function() {
+							// 	if ($scope.showSelectionByFeatureSpatialFilter)
+							// 		$scope.updateSelectableAreas("byFeature");
+							// 	if ($scope.showManualSelectionSpatialFilter)
+							// 		$scope.updateSelectableAreas("manual");
+							// });
 
 							//TODO on indicator change
 

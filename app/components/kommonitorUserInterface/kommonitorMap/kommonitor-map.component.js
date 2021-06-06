@@ -2751,8 +2751,8 @@ angular.module('kommonitorMap').component(
 
           if (!justRestyling) {
             // empty layer of possibly selected features
-            kommonitorFilterHelperService.clearSelectedFeatures();
-            kommonitorFilterHelperService.clearFilteredFeatures();
+            // kommonitorFilterHelperService.clearSelectedFeatures();
+            // kommonitorFilterHelperService.clearFilteredFeatures();
 
             $rootScope.$broadcast("checkBalanceMenueAndButton");
           }
@@ -2877,13 +2877,15 @@ angular.module('kommonitorMap').component(
 
           }
 
+          $scope.currentIndicatorLayer = layer;
+
           $rootScope.$broadcast("updateLegendDisplay", $scope.currentIndicatorContainsZeroValues, $scope.datasetContainsNegativeValues, $scope.currentIndicatorContainsNoDataValues, $scope.containsOutliers_high, $scope.containsOutliers_low, $scope.outliers_low, $scope.outliers_high, kommonitorDataExchangeService.selectedDate);
 
           // if(spatialUnitName.includes("raster") || spatialUnitName.includes("Raster") || spatialUnitName.includes("grid") || spatialUnitName.includes("Grid")){
           //   layer.style.color = undefined;
           // }
 
-          $scope.currentIndicatorLayer = layer;
+          
 
           // layer.StyledLayerControl = {
           //   removable : false,
@@ -2944,18 +2946,8 @@ angular.module('kommonitorMap').component(
           var style;
           if ($scope.currentIndicatorLayer) {
 
-            if (!kommonitorDataExchangeService.isBalanceChecked) {
-              // if mode is not balance then we have to make use of "normal" unbalanced indicator values
-              $scope.currentIndicatorMetadataAndGeoJSON = kommonitorDataExchangeService.selectedIndicator;
-              $scope.currentIndicatorMetadataAndGeoJSON = markOutliers($scope.currentIndicatorMetadataAndGeoJSON, $scope.indicatorPropertyName);
-              $scope.currentGeoJSONOfCurrentLayer = kommonitorDataExchangeService.selectedIndicator.geoJSON;
-            }
-            else {
-              // if mode is not balance then we have to make use of "normal" unbalanced indicator values
-              $scope.currentIndicatorMetadataAndGeoJSON = kommonitorDataExchangeService.indicatorAndMetadataAsBalance;
-              $scope.currentIndicatorMetadataAndGeoJSON = markOutliers($scope.currentIndicatorMetadataAndGeoJSON, $scope.indicatorPropertyName);
-              $scope.currentGeoJSONOfCurrentLayer = kommonitorDataExchangeService.indicatorAndMetadataAsBalance.geoJSON;
-            }
+            $scope.currentIndicatorMetadataAndGeoJSON = markOutliers($scope.currentIndicatorMetadataAndGeoJSON, $scope.indicatorPropertyName);
+            $scope.currentGeoJSONOfCurrentLayer = $scope.currentIndicatorMetadataAndGeoJSON.geoJSON;
 
             $scope.currentIndicatorContainsZeroValues = false;
 
@@ -3046,11 +3038,7 @@ angular.module('kommonitorMap').component(
             if (!skipDiagramRefresh) {
               var justRestyling = true;
 
-              var indicatorObjectForDiagramUpdate = kommonitorDataExchangeService.selectedIndicator;
-              if (kommonitorDataExchangeService.isBalanceChecked) {
-                indicatorObjectForDiagramUpdate = $scope.currentIndicatorMetadataAndGeoJSON;
-              }
-              $rootScope.$broadcast("updateDiagrams", indicatorObjectForDiagramUpdate, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitId, $scope.date, $scope.defaultBrew, $scope.gtMeasureOfValueBrew, $scope.ltMeasureOfValueBrew, $scope.dynamicIncreaseBrew, $scope.dynamicDecreaseBrew, kommonitorDataExchangeService.isMeasureOfValueChecked, kommonitorDataExchangeService.measureOfValue, justRestyling);
+              $rootScope.$broadcast("updateDiagrams", $scope.currentIndicatorMetadataAndGeoJSON, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitId, $scope.date, $scope.defaultBrew, $scope.gtMeasureOfValueBrew, $scope.ltMeasureOfValueBrew, $scope.dynamicIncreaseBrew, $scope.dynamicDecreaseBrew, kommonitorDataExchangeService.isMeasureOfValueChecked, kommonitorDataExchangeService.measureOfValue, justRestyling);
             }
 
             //ensure that highlighted feature remain highlighted

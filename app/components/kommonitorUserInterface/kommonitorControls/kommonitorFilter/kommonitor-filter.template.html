@@ -117,10 +117,36 @@
 						ng-checked="showSelectionByFeatureSpatialFilter"></input>
 					<span class="switchslider round"></span>
 				</label>
+
 				<div id="selectionByFeatureSpatialFilter" ng-show="showSelectionByFeatureSpatialFilter">
+
+					<div ng-show="selectedSpatialUnitForFilter.length == 0">
+						Auswahl bei derzeitig visualisierter Raumebene nicht m&ouml;glich - keine &uuml;bergeordneten Raumebenen vorhanden
+					</div>
+
+					<div class="row">
+						<div class="col-sm-12 col-md-5 col-lg-5">
+							<label>Raumebene</label>
+						</div>
+						<div class="col-sm-12 col-md-7 col-lg-7">
+							<select style="font-size: 12px;"
+								ng-model="selectedSpatialUnitForFilter"
+								ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in higherSpatialUnits"
+								class="form-control" ng-change="onChangeSelectedSpatialUnitForFilter()"
+								required>
+								<option disabled selected value> -- Raumeinheit w&auml;hlen --
+								</option>
+							</select>
+						</div>
+					</div>
+
 					<excalibur-dual-list class="spatialFilterDuallist" ng-model='selectionByFeatureSpatialFilterSelectedFeatures'
 						options="selectionByFeatureSpatialFilterDuallistOptions"></excalibur-dual-list>
-					<button class="btn btn-primary" ng-click="onSelectionByFeatureSpatialFilterSelectBtnPressed()">Selektion durchführen</button> <br/>
+					<button class="btn btn-primary" ng-click="onSelectionByFeatureSpatialFilterSelectBtnPressed()"
+						ng-disabled="!selectionByFeatureSpatialFilterDuallistOptions || selectionByFeatureSpatialFilterDuallistOptions.selectedItems.length == 0">
+							Selektion durchführen
+					</button> 
+					<br/>
 					<button id="selectionByFeatureSpatialFilterResetSelectionBtn" class="btn btn-danger" 
 						ng-click="onSelectionByFeatureSpatialFilterResetBtnPressed()">Selektion zurücksetzen</button>
 				</div>

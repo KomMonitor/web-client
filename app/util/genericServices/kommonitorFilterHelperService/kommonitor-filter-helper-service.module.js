@@ -1,11 +1,11 @@
 angular.module('kommonitorFilterHelper', []);
 
 angular
-  .module('kommonitorFilterHelper', [])
+  .module('kommonitorFilterHelper', ['kommonitorMap', 'kommonitorDataExchange'])
   .service(
-    'kommonitorFilterHelperService', ['$rootScope', '$timeout', '__env', 
+    'kommonitorFilterHelperService', ['$rootScope', '$timeout', '__env', 'kommonitorMapService', "kommonitorDataExchangeService",
     function ($rootScope, $timeout,
-      __env) {
+      __env, kommonitorMapService, kommonitorDataExchangeService) {
 
       var self = this;
       
@@ -15,12 +15,7 @@ angular
       this.completelyRemoveFilteredFeaturesFromDisplay = false;
 
       this.onChangeFilterBehaviourToggle = function(){
-        if(this.completelyRemoveFilteredFeaturesFromDisplay){
-
-        }
-        else{
-
-        }
+        this.performFilter();
       };
 
       // FEATURE SELECTION
@@ -77,6 +72,65 @@ angular
             }
           }
         }
+
+        this.performFilter();
+        
+      };
+
+      this.performFilter = function(){        
+        if(! this.completelyRemoveFilteredFeaturesFromDisplay){
+          kommonitorMapService.restyleCurrentLayer();
+        }        
+        else{
+          this.filterAndReplaceDataset();          
+        }
+      };
+
+      this.filterAndReplaceDataset = function(){
+        let indicatorMetadataAndGeoJSON;
+        if(kommonitorDataExchangeService.isBalanceChecked){            
+          let filteredIndicatorFeatures = kommonitorDataExchangeService.indicatorAndMetadataAsBalance.geoJSON.features.filter(feature => !self.filteredIndicatorFeatureIds.has(feature.properties[__env.FEATURE_ID_PROPERTY_NAME]));
+    
+          indicatorMetadataAndGeoJSON = JSON.parse(JSON.stringify(kommonitorDataExchangeService.indicatorAndMetadataAsBalance));
+          indicatorMetadataAndGeoJSON.geoJSON.features = filteredIndicatorFeatures;
+          kommonitorMapService.replaceIndicatorGeoJSON(indicatorMetadataAndGeoJSON, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, kommonitorDataExchangeService.selectedDate, false);
+        
+        }
+        else{
+          let filteredIndicatorFeatures = kommonitorDataExchangeService.selectedIndicator.geoJSON.features.filter(feature => !self.filteredIndicatorFeatureIds.has(feature.properties[__env.FEATURE_ID_PROPERTY_NAME]));
+    
+          indicatorMetadataAndGeoJSON = JSON.parse(JSON.stringify(kommonitorDataExchangeService.selectedIndicator));
+          indicatorMetadataAndGeoJSON.geoJSON.features = filteredIndicatorFeatures;          
+          kommonitorMapService.replaceIndicatorGeoJSON(indicatorMetadataAndGeoJSON, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, kommonitorDataExchangeService.selectedDate, false);
+          
+        }
+        
+        $rootScope.$broadcast("updateIndicatorValueRangeFilter", kommonitorDataExchangeService.selectedDate, indicatorMetadataAndGeoJSON);
+        $rootScope.$broadcast("updateMeasureOfValueBar", kommonitorDataExchangeService.selectedDate, indicatorMetadataAndGeoJSON);
+      };
+
+      this.applySpatialFilter_higherSpatialUnitFeatures = function(higherSpatialUnitFilterFeatureGeoJSON, targetFeatureNames){
+
+        // if(!this.filteredIndicatorFeatureIds){
+          
+        // }
+        this.filteredIndicatorFeatureIds = new Map();
+
+        // manage map of filtered features
+        let targetHigherSpatialUnitFilterFeatures = higherSpatialUnitFilterFeatureGeoJSON.features.filter(feature => targetFeatureNames.includes(feature.properties[__env.FEATURE_NAME_PROPERTY_NAME]));
+          
+        for (const feature of kommonitorDataExchangeService.selectedIndicator.geoJSON.features) {
+          this.filteredIndicatorFeatureIds.set(feature.properties[__env.FEATURE_ID_PROPERTY_NAME], feature);
+          for (const higherSpatialUnitFeature of targetHigherSpatialUnitFilterFeatures) {
+            if(turf.booleanWithin(turf.pointOnFeature(feature), higherSpatialUnitFeature)){
+              this.filteredIndicatorFeatureIds.delete(feature.properties[__env.FEATURE_ID_PROPERTY_NAME]);
+              break;
+            }
+          }          
+        }
+
+        // apply filter
+        this.performFilter();
       };
   
     }]);

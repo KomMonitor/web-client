@@ -703,7 +703,7 @@ angular
               }
           }
 
-          if(gtMeasureOfValueBrew && gtMeasureOfValueBrew.breaks && gtMeasureOfValueBrew.colors){
+          if(ltMeasureOfValueBrew && ltMeasureOfValueBrew.breaks && ltMeasureOfValueBrew.colors){
             var ltBreaks = ltMeasureOfValueBrew.breaks;
             var ltColors = ltMeasureOfValueBrew.colors;
 
