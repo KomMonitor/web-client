@@ -842,6 +842,10 @@ angular
 									kommonitorMapService.adjustColorForWfsLayer(dataset, opacity);
 								};
 
+								$scope.zoomToLayer = function(georesourceMetadata){
+									$rootScope.$broadcast("zoomToGeoresourceLayer", georesourceMetadata);
+								};
+
 
 							} ]
 				});

@@ -218,11 +218,11 @@
 									<div class="col-md-3">{{$ctrl.kommonitorVisualStyleHelperServiceInstance.featuresPerOutlierHigh}}</div><br>
 								</div>				
 							</div>
-							<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.filteredIndicatorFeatureNames.length > 0">
+							<div ng-if="($ctrl.kommonitorFilterHelperServiceInstance.filteredIndicatorFeatureIds.size > 0) && (!$ctrl.kommonitorFilterHelperServiceInstance.completelyRemoveFilteredFeaturesFromDisplay)">
 								<div class="row" style="margin-right: 0px;">
 									<div class="col-md-3"><i style="background:{{::$ctrl.env.defaultColorForFilteredValues}}; border: 2px solid {{::$ctrl.env.defaultBorderColorForFilteredValues}}; opacity: {{$ctrl.kommonitorVisualStyleHelperServiceInstance.currentIndicatorOpacity}};"></i></div>
 									<div class="col-md-6">gefilterte Features</div>
-									<div class="col-md-3">{{$ctrl.kommonitorDataExchangeServiceInstance.filteredIndicatorFeatureNames.length}}</div><br>
+									<div class="col-md-3">{{$ctrl.kommonitorFilterHelperServiceInstance.filteredIndicatorFeatureIds.size}}</div><br>
 								</div>				
 							</div>
 							<br/>
