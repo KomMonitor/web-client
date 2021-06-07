@@ -2774,7 +2774,7 @@ angular
 		 * convert ["s1", "s2", ...]    ===>    [{category: "s1",name: "s1"}, {category: "s2", name: "s2"}, ...]
 		 * @param {array} array 
 		 */
-		this.createDualListInputArray = function(array, nameProperty) {
+		this.createDualListInputArray = function(array, nameProperty, idProperty) {
 			var result = [];
 
       if(array && Array.isArray(array)){
@@ -2782,6 +2782,9 @@ angular
           var obj = {};
           obj["category"] = array[i][nameProperty];
           obj["name"] = array[i][nameProperty];
+          if(idProperty && array[i][idProperty]){
+            obj["id"] = array[i][idProperty];
+          }
           result.push(obj);
         }
       }

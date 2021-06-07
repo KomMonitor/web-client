@@ -181,11 +181,15 @@
 						<div id="manualSelectionSpatialFilterSelectByMapBtn" > 
 							<button class="btn btn-primary" ng-disabled="!manualSelectionSpatialFilterSelectByMap" ng-click="manualSelectionSpatialFilterSelectByMapBtnClicked()">Selektionsbereich zeichnen</button>
 						</div>
-					</div>						 -->
-					
+					</div>						 -->					
 					<button class="btn btn-primary" ng-click="onManualSelectionSpatialFilterSelectBtnPressed()">Selektion durchführen</button>
 					<button class="btn btn-danger"
 					ng-click="onManualSelectionSpatialFilterResetBtnPressed()">Selektion zurücksetzen</button>
+
+					<br/>
+					<br/>
+					<button class="btn btn-primary" ng-disabled="$ctrl.kommonitorFilterHelperServiceInstance.selectedIndicatorFeatureIds.size == 0" ng-click="onManualSelectionBySelectedMapFeaturesBtnPressed()">{{$ctrl.kommonitorFilterHelperServiceInstance.selectedIndicatorFeatureIds.size}} aktuell gew&auml;hlte Kartenobjekte filtern</button>
+					
 				</div>
 			</div>
 

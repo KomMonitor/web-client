@@ -21,7 +21,7 @@ angular
       // FEATURE SELECTION
 
       this.featureIsCurrentlySelected = function(featureId){
-        return this.selectedIndicatorFeatureIds.has(featureId);
+        return this.selectedIndicatorFeatureIds.has("" + featureId);
       };
 
       this.clearSelectedFeatures = function(){
@@ -30,22 +30,24 @@ angular
 
       this.addFeatureToSelection = function(feature){
         if(feature.properties){
-          this.selectedIndicatorFeatureIds.set(feature.properties[__env.FEATURE_ID_PROPERTY_NAME], feature);
+          this.selectedIndicatorFeatureIds.set("" + feature.properties[__env.FEATURE_ID_PROPERTY_NAME], feature);
         }
         else{
-          this.selectedIndicatorFeatureIds.set(feature[__env.FEATURE_ID_PROPERTY_NAME], feature);
+          this.selectedIndicatorFeatureIds.set("" + feature[__env.FEATURE_ID_PROPERTY_NAME], feature);
         }
+        $rootScope.$broadcast("onAddedFeatureToSelection", feature);
       };
 
       this.removeFeatureFromSelection = function(featureId){
-        this.selectedIndicatorFeatureIds.delete(featureId);
+        this.selectedIndicatorFeatureIds.delete("" + featureId);
+        $rootScope.$broadcast("onRemovedFeatureFromSelection", featureId);
       };
 
 
       // FEATURE FILTER      
 
       this.featureIsCurrentlyFiltered = function(featureId){
-        return this.filteredIndicatorFeatureIds.has(featureId);
+        return this.filteredIndicatorFeatureIds.has("" + featureId);
       };
 
       this.clearFilteredFeatures = function(){
@@ -61,14 +63,14 @@ angular
 
           if(value >= minFilterValue && value <= maxFilterValue){
             // feature must not be filtered - make sure it is not marked as filtered
-            if (this.filteredIndicatorFeatureIds.has(feature.properties[__env.FEATURE_ID_PROPERTY_NAME])){
-              this.filteredIndicatorFeatureIds.delete(feature.properties[__env.FEATURE_ID_PROPERTY_NAME]);
+            if (this.filteredIndicatorFeatureIds.has("" + feature.properties[__env.FEATURE_ID_PROPERTY_NAME])){
+              this.filteredIndicatorFeatureIds.delete("" + feature.properties[__env.FEATURE_ID_PROPERTY_NAME]);
             }
           }
           else{
             // feature must be filtered
-            if (!this.filteredIndicatorFeatureIds.has(feature.properties[__env.FEATURE_ID_PROPERTY_NAME])){
-              this.filteredIndicatorFeatureIds.set(feature.properties[__env.FEATURE_ID_PROPERTY_NAME], feature);
+            if (!this.filteredIndicatorFeatureIds.has("" + feature.properties[__env.FEATURE_ID_PROPERTY_NAME])){
+              this.filteredIndicatorFeatureIds.set("" + feature.properties[__env.FEATURE_ID_PROPERTY_NAME], feature);
             }
           }
         }
@@ -97,7 +99,7 @@ angular
       this.filterAndReplaceDataset = function(){
         let indicatorMetadataAndGeoJSON;
         if(kommonitorDataExchangeService.isBalanceChecked){            
-          let filteredIndicatorFeatures = kommonitorDataExchangeService.indicatorAndMetadataAsBalance.geoJSON.features.filter(feature => !self.filteredIndicatorFeatureIds.has(feature.properties[__env.FEATURE_ID_PROPERTY_NAME]));
+          let filteredIndicatorFeatures = kommonitorDataExchangeService.indicatorAndMetadataAsBalance.geoJSON.features.filter(feature => !self.filteredIndicatorFeatureIds.has("" + feature.properties[__env.FEATURE_ID_PROPERTY_NAME]));
     
           indicatorMetadataAndGeoJSON = JSON.parse(JSON.stringify(kommonitorDataExchangeService.indicatorAndMetadataAsBalance));
           indicatorMetadataAndGeoJSON.geoJSON.features = filteredIndicatorFeatures;
@@ -105,7 +107,7 @@ angular
         
         }
         else{
-          let filteredIndicatorFeatures = kommonitorDataExchangeService.selectedIndicator.geoJSON.features.filter(feature => !self.filteredIndicatorFeatureIds.has(feature.properties[__env.FEATURE_ID_PROPERTY_NAME]));
+          let filteredIndicatorFeatures = kommonitorDataExchangeService.selectedIndicator.geoJSON.features.filter(feature => !self.filteredIndicatorFeatureIds.has("" + feature.properties[__env.FEATURE_ID_PROPERTY_NAME]));
     
           indicatorMetadataAndGeoJSON = JSON.parse(JSON.stringify(kommonitorDataExchangeService.selectedIndicator));
           indicatorMetadataAndGeoJSON.geoJSON.features = filteredIndicatorFeatures;          
@@ -128,10 +130,10 @@ angular
         let targetHigherSpatialUnitFilterFeatures = higherSpatialUnitFilterFeatureGeoJSON.features.filter(feature => targetFeatureNames.includes(feature.properties[__env.FEATURE_NAME_PROPERTY_NAME]));
           
         for (const feature of kommonitorDataExchangeService.selectedIndicator.geoJSON.features) {
-          this.filteredIndicatorFeatureIds.set(feature.properties[__env.FEATURE_ID_PROPERTY_NAME], feature);
+          this.filteredIndicatorFeatureIds.set("" + feature.properties[__env.FEATURE_ID_PROPERTY_NAME], feature);
           for (const higherSpatialUnitFeature of targetHigherSpatialUnitFilterFeatures) {
             if(turf.booleanWithin(turf.pointOnFeature(feature), higherSpatialUnitFeature)){
-              this.filteredIndicatorFeatureIds.delete(feature.properties[__env.FEATURE_ID_PROPERTY_NAME]);
+              this.filteredIndicatorFeatureIds.delete("" + feature.properties[__env.FEATURE_ID_PROPERTY_NAME]);
               break;
             }
           }          
@@ -150,7 +152,7 @@ angular
         // manage map of filtered features        
         for (const feature of kommonitorDataExchangeService.selectedIndicator.geoJSON.features) {
           if(!targetFeatureNames.includes(feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])){
-            this.filteredIndicatorFeatureIds.set(feature.properties[__env.FEATURE_ID_PROPERTY_NAME], feature);
+            this.filteredIndicatorFeatureIds.set("" + feature.properties[__env.FEATURE_ID_PROPERTY_NAME], feature);
           }         
         }
 

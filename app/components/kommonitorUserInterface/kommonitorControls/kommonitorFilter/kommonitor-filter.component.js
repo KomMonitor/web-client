@@ -411,17 +411,17 @@ angular
 								}).then(function successCallback(response) { //TODO add error callback for the case that the combination of indicator and nextUpperHierarchyLevel doesn't exist
 									let areaNames = [];
 									$(response.data.features).each( (id, obj) => {
-										areaNames.push({name: obj.properties.NAME});
+										areaNames.push({name: obj.properties[__env.FEATURE_NAME_PROPERTY_NAME], id: obj.properties[__env.FEATURE_ID_PROPERTY_NAME]});
 									});
 									if (selectionType === "manual") {
 										$scope.manualSelectionSpatialFilterDuallistOptions.selectedItems = [];
-										let dataArray = kommonitorDataExchangeService.createDualListInputArray(areaNames, "name");
+										let dataArray = kommonitorDataExchangeService.createDualListInputArray(areaNames, "name", "id");
 										$scope.manualSelectionSpatialFilterDuallistOptions.items = dataArray;
 									}
 									if (selectionType === "byFeature") {
 										$scope.higherSpatialUnitFilterFeatureGeoJSON = response.data;
 										$scope.selectionByFeatureSpatialFilterDuallistOptions.selectedItems = [];
-										let dataArray = kommonitorDataExchangeService.createDualListInputArray(areaNames, "name");
+										let dataArray = kommonitorDataExchangeService.createDualListInputArray(areaNames, "name", "id");
 										$scope.selectionByFeatureSpatialFilterDuallistOptions.items = dataArray;
 									}
 								});
@@ -489,6 +489,30 @@ angular
 								kommonitorFilterHelperService.clearFilteredFeatures();
 								kommonitorFilterHelperService.filterAndReplaceDataset();
 							};
+
+							$scope.onManualSelectionBySelectedMapFeaturesBtnPressed = function(){
+								// manage duallist items display
+								$scope.manageManualDualList_fromMapSelection();
+								
+								// apply spatial filter from selected map features
+								$scope.onManualSelectionSpatialFilterSelectBtnPressed();
+							};
+
+							$scope.manageManualDualList_fromMapSelection = function(){
+								$scope.manualSelectionSpatialFilterDuallistOptions.items = $scope.manualSelectionSpatialFilterDuallistOptions.items.concat($scope.manualSelectionSpatialFilterDuallistOptions.selectedItems);
+								$scope.manualSelectionSpatialFilterDuallistOptions.selectedItems = [];
+
+								$scope.manualSelectionSpatialFilterDuallistOptions.selectedItems = $scope.manualSelectionSpatialFilterDuallistOptions.items.filter(item => kommonitorFilterHelperService.featureIsCurrentlySelected(item.id));								
+								$scope.manualSelectionSpatialFilterDuallistOptions.items = $scope.manualSelectionSpatialFilterDuallistOptions.items.filter(item => ! kommonitorFilterHelperService.featureIsCurrentlySelected(item.id));								
+							};
+
+							$scope.$on("onAddedFeatureToSelection", function (event, feature) {
+								$scope.$digest();
+							});
+
+							$scope.$on("onRemovedFeatureFromSelection", function (event, featureId) {
+								$scope.$digest();
+							});
 
 							// $rootScope.$on("changeSpatialUnit", function() {
 							// 	if ($scope.showSelectionByFeatureSpatialFilter)
