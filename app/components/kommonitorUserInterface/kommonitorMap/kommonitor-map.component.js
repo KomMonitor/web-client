@@ -3292,6 +3292,32 @@ angular.module('kommonitorMap').component(
 
         });
 
+        $scope.$on("zoomToGeoresourceLayer", async function (event, georesourceMetadata) {
+
+          let layerName = georesourceMetadata.datasetName;
+
+          let layerGroupName = undefined;
+
+          if (georesourceMetadata.isPOI){
+            layerGroupName = poiLayerGroupName;
+          }
+          else if(georesourceMetadata.isLOI){
+            layerGroupName = loiLayerGroupName;
+          }
+          else if(georesourceMetadata.isAOI){
+            layerGroupName = aoiLayerGroupName;
+          } 
+
+          $scope.layerControl._layers.forEach(function (layer) {
+            if (layerGroupName && layer.group.name === layerGroupName && layer.name.includes(layerName + "_")) {
+              $scope.map.fitBounds(layer.layer.getBounds());
+            }
+            else if (layer.name.includes(layerName + "_")){
+              $scope.map.fitBounds(layer.layer.getBounds());
+            }
+          });
+        });
+
       }
     ]
   });
