@@ -72,7 +72,7 @@ angular
 
 								$scope.onClickHierarchyIndicator = function(indicatorMetadata){
 									kommonitorDataExchangeService.selectedIndicator = indicatorMetadata;
-									$scope.onChangeSelectedIndicator();
+									$scope.onChangeSelectedIndicator(false);
 								};
 
 								// $scope.$watch('filteredSpatialUnits', function(value){
@@ -279,7 +279,7 @@ angular
 												kommonitorDataExchangeService.selectedSpatialUnit = $scope.getFirstSpatialUnitForSelectedIndicator();
 										}
 
-										$scope.onChangeSelectedIndicator();
+										$scope.onChangeSelectedIndicator(true);										
 
 									}
 									catch(error){
@@ -581,7 +581,7 @@ angular
 
 											kommonitorDataExchangeService.selectedIndicator.geoJSON = geoJSON;
 
-											$rootScope.$broadcast("updateMeasureOfValueBar", $scope.date);
+											$rootScope.$broadcast("updateMeasureOfValueBar", $scope.date, kommonitorDataExchangeService.selectedIndicator);
 
 											// $scope.updateMeasureOfValueBar($scope.date);
 
@@ -679,10 +679,10 @@ angular
 
 								$scope.onChangeSelectedIndicator_fromAlphabeticalList = function(indicatorMetadata){
 									kommonitorDataExchangeService.selectedIndicator = indicatorMetadata;
-									$scope.onChangeSelectedIndicator();
+									$scope.onChangeSelectedIndicator(false);
 								};
 
-								$scope.onChangeSelectedIndicator = async function(){
+								$scope.onChangeSelectedIndicator = async function(recenterMap){
 
 									if(kommonitorDataExchangeService.selectedIndicator){
 
@@ -717,6 +717,11 @@ angular
 
 
 												$scope.loadingData = false;
+
+												if(recenterMap){
+													$rootScope.$broadcast("recenterMapContent");
+												}
+
 												$rootScope.$broadcast("hideLoadingIconOnMap");
 												$scope.changeIndicatorWasClicked = false;
 
@@ -752,7 +757,7 @@ angular
 									};
 
 									$rootScope.$broadcast("updateBalanceSlider", kommonitorDataExchangeService.selectedDate);
-									$rootScope.$broadcast("updateIndicatorValueRangeFilter", kommonitorDataExchangeService.selectedDate);
+									$rootScope.$broadcast("updateIndicatorValueRangeFilter", kommonitorDataExchangeService.selectedDate, kommonitorDataExchangeService.selectedIndicator);
 									$scope.addSelectedIndicatorToMap(changeIndicator);
 
 								}

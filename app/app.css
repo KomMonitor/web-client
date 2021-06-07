@@ -953,6 +953,10 @@ pre.CodeMirror-line {
 	overflow:auto;
 }
 
+.featureTableWrapper .ag-root-wrapper.ag-layout-normal {
+	height: 45vh !important;
+}
+
 .admin-table-wrapper{
 	width: 100%;
 	max-width: 100%;
@@ -2562,4 +2566,19 @@ input:checked + .switchslider:before {
 .enabled-datepicker-item {
 	background: darkseagreen !important;
 	color: black !important;
+}
+
+.spatialFilterDuallist {
+	display: block;
+	margin-top: 10px;
+	margin-bottom: 30px;
+}
+
+#selectionByFeatureSpatialFilterResetSelectionBtn {
+	margin-top: 5px;
+	margin-bottom: 20px;
+}
+
+#manualSelectionSpatialFilterSelectByMapBtn {
+	margin-bottom: 10px;
 }

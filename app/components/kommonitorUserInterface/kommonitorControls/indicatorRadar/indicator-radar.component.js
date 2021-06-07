@@ -6,9 +6,9 @@ angular
 			templateUrl: "components/kommonitorUserInterface/kommonitorControls/indicatorRadar/indicator-radar.template.html",
 
 			controller: [
-				'kommonitorDataExchangeService', 'kommonitorDiagramHelperService', '$scope', '$rootScope', '$timeout', '$http', '__env',
+				'kommonitorDataExchangeService', 'kommonitorDiagramHelperService', 'kommonitorFilterHelperService', '$scope', '$rootScope', '$timeout', '$http', '__env',
 				function indicatorRadarController(
-					kommonitorDataExchangeService, kommonitorDiagramHelperService, $scope, $rootScope, $timeout, $http, __env) {
+					kommonitorDataExchangeService, kommonitorDiagramHelperService, kommonitorFilterHelperService, $scope, $rootScope, $timeout, $http, __env) {
 					/*
 					 * reference to kommonitorDataExchangeService instances
 					 */
@@ -142,6 +142,11 @@ angular
 
 								// make object to hold indicatorName, max value and average value
 								var indicatorProperties = indicatorsForRadar[i].indicatorProperties;
+
+								if(kommonitorFilterHelperService.completelyRemoveFilteredFeaturesFromDisplay && kommonitorFilterHelperService.filteredIndicatorFeatureIds.size > 0){
+									indicatorProperties = indicatorProperties.filter(featureProperties => ! kommonitorFilterHelperService.featureIsCurrentlyFiltered(featureProperties[__env.FEATURE_ID_PROPERTY_NAME]));
+								}
+
 								sampleProperties = indicatorsForRadar[i].indicatorProperties;
 
 								// var closestApplicableTimestamp = kommonitorDiagramHelperService.findClostestTimestamForTargetDate(indicatorsForRadar[i], $scope.date);
@@ -382,7 +387,7 @@ angular
 					var appendSelectedFeaturesIfNecessary = function (sampleProperties) {
 
 						for (var propertiesInstance of sampleProperties) {
-							if (kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(propertiesInstance[__env.FEATURE_NAME_PROPERTY_NAME])) {
+							if (kommonitorFilterHelperService.featureIsCurrentlySelected(propertiesInstance[__env.FEATURE_ID_PROPERTY_NAME])) {
 								appendSeriesToRadarChart(propertiesInstance);
 							}
 						}
@@ -424,7 +429,7 @@ angular
 							return;
 						}
 
-						if (!kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME])) {
+						if (!kommonitorFilterHelperService.featureIsCurrentlySelected(featureProperties[__env.FEATURE_ID_PROPERTY_NAME])) {
 							appendSeriesToRadarChart(featureProperties);
 						}
 
@@ -507,7 +512,7 @@ angular
 
 						unhighlightFeatureInRadarChart(featureProperties);
 
-						if (!kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME])) {
+						if (!kommonitorFilterHelperService.featureIsCurrentlySelected(featureProperties[__env.FEATURE_ID_PROPERTY_NAME])) {
 							removeSeriesFromRadarChart(featureProperties);
 						}
 					});

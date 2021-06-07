@@ -10,16 +10,17 @@ angular
 					 */
 					controller : ['$scope', '$rootScope', 'kommonitorMapService', 'kommonitorVisualStyleHelperService', 
 					'kommonitorDataExchangeService', 'kommonitorDiagramHelperService', 'kommonitorElementVisibilityHelperService', 
-					'__env', '$timeout', '$sce',
+					'kommonitorFilterHelperService', '__env', '$timeout', '$sce',
 					function KommonitorLegendController($scope, $rootScope, kommonitorMapService, 
 						kommonitorVisualStyleHelperService, kommonitorDataExchangeService, kommonitorDiagramHelperService, kommonitorElementVisibilityHelperService, 
-						__env, $timeout, $sce) {
+						kommonitorFilterHelperService, __env, $timeout, $sce) {
 
 						const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
 						this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 						this.kommonitorMapServiceInstance = kommonitorMapService;
 						this.kommonitorVisualStyleHelperServiceInstance = kommonitorVisualStyleHelperService;
 						this.kommonitorElementVisibilityHelperServiceInstance = kommonitorElementVisibilityHelperService;
+						this.kommonitorFilterHelperServiceInstance = kommonitorFilterHelperService;
 						this.envInstance = __env;
 						
 						this.env = __env;

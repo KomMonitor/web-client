@@ -12,7 +12,8 @@ angular.module('kommonitorDataExchange', ['kommonitorMap', 'kommonitorKeycloakHe
 angular
 		.module('kommonitorDataExchange', [])
 		.service(
-				'kommonitorDataExchangeService', ['$rootScope', '$timeout', 'kommonitorMapService', 'kommonitorKeycloakHelperService', '$http', '__env', '$q', 'Auth',
+				'kommonitorDataExchangeService', ['$rootScope', '$timeout', 'kommonitorMapService', 'kommonitorKeycloakHelperService', 
+        '$http', '__env', '$q', 'Auth',
 				function($rootScope, $timeout,
 						kommonitorMapService, kommonitorKeycloakHelperService, $http, __env, $q, Auth,) {              
 
@@ -74,6 +75,13 @@ angular
           this.enableKeycloakSecurity = __env.enableKeycloakSecurity;
           this.currentKeycloakLoginRoles = [];
           this.currentKomMonitorLoginRoleNames = [];
+
+          // MAP objects for available resource metadata in order to have quick access to datasets by ID
+          this.availableIndicators_map = new Map();
+          this.availableGeoresources_map = new Map();
+          this.availableSpatialUnits_map = new Map();
+          this.availableProcessScripts_map = new Map();
+          this.availableRoles_map = new Map();
 
           this.setCurrentKomMonitorRoles = function(){
             var roleMetadataForCurrentKeycloakLoginRoles = this.availableRoles.filter(role => this.currentKeycloakLoginRoles.includes(role.roleName)); 
@@ -386,12 +394,17 @@ angular
 
 					this.setProcessScripts = function(scriptsArray){
 						this.availableProcessScripts = scriptsArray;
+            this.availableProcessScripts_map = new Map();
+            for (const scriptMetadata of scriptsArray) {
+              this.availableProcessScripts_map.set(scriptMetadata.scriptId, scriptMetadata);
+            }
           };
 
           this.addSingleProcessScriptMetadata = function(processScriptMetadata){
             let tmpArray = [processScriptMetadata];
             Array.prototype.push.apply(tmpArray, this.availableProcessScripts);
             this.availableProcessScripts =  tmpArray;
+            this.availableProcessScripts_map.set(processScriptMetadata.scriptId, processScriptMetadata);
           };
 
           this.replaceSingleProcessScriptMetadata = function(processScriptMetadata){
@@ -402,6 +415,7 @@ angular
                 break;
               }
             }
+            this.availableProcessScripts_map.set(processScriptMetadata.scriptId, processScriptMetadata);
           };
 
           this.deleteSingleProcessScriptMetadata = function(processScriptId){
@@ -412,14 +426,11 @@ angular
                 break;
               }              
             }
+            this.availableProcessScripts_map.delete(processScriptId);
           };
 
           this.getProcessScriptMetadataById = function(scriptId){
-            for (const scriptMetadata of this.availableProcessScripts) {
-              if(scriptMetadata.scriptId === scriptId){
-                return scriptMetadata;
-              }
-            }
+            return this.availableProcessScripts_map.get(scriptId);
           };
 
 
@@ -455,12 +466,17 @@ angular
 
 					this.setSpatialUnits = function(spatialUnitsArray){
 						this.availableSpatialUnits = spatialUnitsArray;
+            this.availableSpatialUnits_map = new Map();
+            for (const spatialUnitMetadata of spatialUnitsArray) {
+              this.availableSpatialUnits_map.set(spatialUnitMetadata.spatialUnitId, spatialUnitMetadata);
+            }
           };
 
           this.addSingleSpatialUnitMetadata = function(spatialUnitMetadata){
             let tmpArray = [spatialUnitMetadata];
             Array.prototype.push.apply(tmpArray, this.availableSpatialUnits);
             this.availableSpatialUnits =  tmpArray;
+            this.availableSpatialUnits_map.set(spatialUnitMetadata.spatialUnitId, spatialUnitMetadata);
           };
 
           this.replaceSingleSpatialUnitMetadata = function(spatialUnitMetadata){
@@ -471,6 +487,7 @@ angular
                 break;
               }
             }
+            this.availableSpatialUnits_map.set(spatialUnitMetadata.spatialUnitId, spatialUnitMetadata);
           };
 
           this.deleteSingleSpatialUnitMetadata = function(spatialUnitId){
@@ -481,6 +498,7 @@ angular
                 break;
               }              
             }
+            this.availableSpatialUnits_map.delete(spatialUnitId);
           };
           
           // REPORTING
@@ -498,6 +516,12 @@ angular
 
 					this.setGeoresources = function(georesourcesArray){
 						this.availableGeoresources = georesourcesArray;
+
+            this.availableGeoresources_map = new Map();
+            for (const georesourceMetadata of georesourcesArray) {
+              this.availableGeoresources_map.set(georesourceMetadata.georesourceId, georesourceMetadata);
+            }
+
             this.displayableGeoresources = this.availableGeoresources.filter(item => self.isDisplayableGeoresource(item));
             this.displayableGeoresources_keywordFiltered = JSON.parse(JSON.stringify(this.displayableGeoresources));
 
@@ -517,6 +541,7 @@ angular
             let tmpArray = [georesourceMetadata];
             Array.prototype.push.apply(tmpArray, this.availableGeoresources);
             this.availableGeoresources =  tmpArray;
+            this.availableGeoresources_map.set(georesourceMetadata.georesourceId, georesourceMetadata);
           };
 
           this.replaceSingleGeoresourceMetadata = function(georesourceMetadata){
@@ -527,6 +552,7 @@ angular
                 break;
               }
             }
+            this.availableGeoresources_map.set(georesourceMetadata.georesourceId, georesourceMetadata);
           };
 
           this.deleteSingleGeoresourceMetadata = function(georesourceId){
@@ -537,10 +563,10 @@ angular
                 break;
               }              
             }
+            this.availableGeoresources_map.delete(georesourceId);
           };
 
-					// INDICATORS
-					this.clickedIndicatorFeatureNames = new Array();
+					// INDICATORS					
 
 					this.availableIndicators = [];
           this.displayableIndicators = [];
@@ -564,13 +590,19 @@ angular
           this.updateInterval.set("QUARTERLY", "vierteljährlich");
 
 					this.setIndicators = function(indicatorsArray){
-						this.availableIndicators = indicatorsArray;            
+						this.availableIndicators = indicatorsArray;
+            this.availableIndicators_map = new Map();
+            
+            for (const indicatorMetadata of indicatorsArray) {
+              this.availableIndicators_map.set(indicatorMetadata.indicatorId, indicatorMetadata);
+            }
 					};
 
           this.addSingleIndicatorMetadata = function(indicatorMetadata){
             let tmpArray = [indicatorMetadata];
             Array.prototype.push.apply(tmpArray, this.availableIndicators);
             this.availableIndicators =  tmpArray;
+            this.availableIndicators_map.set(indicatorMetadata.indicatorId, indicatorMetadata);
           };
 
           this.replaceSingleIndicatorMetadata = function(indicatorMetadata){
@@ -581,6 +613,7 @@ angular
                 break;
               }
             }
+            this.availableIndicators_map.set(indicatorMetadata.indicatorId, indicatorMetadata);
           };
 
           this.deleteSingleIndicatorMetadata = function(indicatorId){
@@ -591,6 +624,7 @@ angular
                 break;
               }              
             }
+            this.availableIndicators_map.delete(indicatorId);
           };
 
 
@@ -844,27 +878,15 @@ angular
           };
 
           this.getIndicatorMetadataById = function(indicatorId){
-            for (const indicatorMetadata of this.availableIndicators) {
-              if(indicatorMetadata.indicatorId === indicatorId){
-                return indicatorMetadata;
-              }
-            }
+            return this.availableIndicators_map.get(indicatorId);
           };
 
           this.getGeoresourceMetadataById = function(georesourceId){
-            for (const georesourceMetadata of this.availableGeoresources) {
-              if(georesourceMetadata.georesourceId === georesourceId){
-                return georesourceMetadata;
-              }
-            }
+            return this.availableGeoresources_map.get(georesourceId);
           };
 
           this.getSpatialUnitMetadataById = function(spatialUnitId){
-            for (const spatialUnitMetadata of this.availableSpatialUnits) {
-              if(spatialUnitMetadata.spatialUnitId === spatialUnitId){
-                return spatialUnitMetadata;
-              }
-            }
+            return this.availableSpatialUnits_map.get(spatialUnitId);
           };
 
           this.getIndicatorAbbreviationFromIndicatorId = function(indicatorId){
@@ -958,10 +980,6 @@ angular
 
             return topicHierarchyArray;
           };
-
-					// FILTER
-					this.rangeFilterData;
-					this.filteredIndicatorFeatureNames;
 
           this.syntaxHighlightJSON = function(json) {
       		    if (typeof json != 'string') {
@@ -1606,6 +1624,16 @@ angular
 
           };
 
+          this.setRoles = function(rolesArray){
+            self.availableRoles = rolesArray;
+            this.availableRoles_map = new Map();
+            for (const roleMetadata of rolesArray) {
+              this.availableRoles_map.set(roleMetadata.roleId, roleMetadata);
+            }
+
+            fetchedRolesInitially = true;
+          };
+
           this.fetchRolesMetadata = function(){
             return $http({
               url: this.baseUrlToKomMonitorDataAPI + rolesEndpoint,
@@ -1613,10 +1641,7 @@ angular
             }).then(function successCallback(response) {
                 // this callback will be called asynchronously
                 // when the response is available
-
-                self.availableRoles = response.data;
-                fetchedRolesInitially = true;
-
+                self.setRoles(response.data);
               });
           };
 
@@ -1641,12 +1666,14 @@ angular
                 break;
               }
             }
+            this.availableProcessScripts_map.set(targetRoleMetadata.roleId, targetRoleMetadata);
           };
 
           this.addSingleRoleMetadata = function(roleMetadata){
             let tmpArray = [roleMetadata];
             Array.prototype.push.apply(tmpArray, this.availableRoles);
             this.availableRoles =  tmpArray;
+            this.availableProcessScripts_map.set(roleMetadata.roleId, roleMetadata);
           };
 
           this.deleteSingleRoleMetadata = function(roleId){
@@ -1657,14 +1684,11 @@ angular
                 break;
               }              
             }
+            this.availableProcessScripts_map.delete(roleId);
           };
 
           this.getRoleMetadataById = function(roleId){
-            for (const roleMetadata of this.availableRoles) {
-              if(roleMetadata.roleId === roleId){
-                return roleMetadata;
-              }
-            }
+            return this.availableRoles_map.get(roleId);
           };
 
           this.fetchUsersMetadata = function(){
@@ -1941,118 +1965,7 @@ angular
               this.totalFeaturesPropertyLabel = "Arithmetisches Mittel aller Features";         
             }  
             
-          };
-            
-          this.getColorFromBrewInstance = function(brewInstance, feature, targetDate){
-            var color;
-            for (var index=0; index < brewInstance.breaks.length; index++){
-
-              if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) == this.getIndicatorValue_asNumber(brewInstance.breaks[index])){
-                if(index < brewInstance.breaks.length -1){
-                  // min value
-                  color =  brewInstance.colors[index];
-                  break;
-                }
-                else {
-                  //max value
-                  if (brewInstance.colors[index]){
-                    color =  brewInstance.colors[index];
-                  }
-                  else{
-                    color =  brewInstance.colors[index - 1];
-                  }
-                  break;
-                }
-              }
-              else{
-                if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) < this.getIndicatorValue_asNumber(brewInstance.breaks[index + 1])) {
-                  color =  brewInstance.colors[index];
-                  break;
-                }
-              }
-            }
-
-            return color;
-          };
-
-          this.getColorForFeature = function(feature, indicatorMetadataAndGeoJSON, targetDate, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue){
-            var color;
-
-            if(!targetDate.includes(DATE_PREFIX)){
-							targetDate = DATE_PREFIX + targetDate;
-						}
-
-            if(this.indicatorValueIsNoData(feature.properties[targetDate])){
-              color = defaultColorForNoDataValues;
-            }
-            else if(this.filteredIndicatorFeatureNames.includes(feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])){
-              color = defaultColorForFilteredValues;
-            }
-            else if(this.classifyZeroSeparately && this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) === 0 ){
-              color = defaultColorForZeroValues;
-            }
-            else if(feature.properties["outlier"] !== undefined && feature.properties["outlier"].includes("low") && this.useOutlierDetectionOnIndicator){
-              color = defaultColorForOutliers_low;
-            }
-            else if(feature.properties["outlier"] !== undefined && feature.properties["outlier"].includes("high") && this.useOutlierDetectionOnIndicator){
-              color = defaultColorForOutliers_high;
-            }
-            else if(isMeasureOfValueChecked){
-
-              if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) >= +Number(measureOfValue).toFixed(numberOfDecimals)){
-                color = this.getColorFromBrewInstance(gtMeasureOfValueBrew, feature, targetDate);                
-              }
-              else {
-                color = this.getColorFromBrewInstance(ltMeasureOfValueBrew, feature, targetDate);
-              }
-
-            }
-            else{
-              if(indicatorMetadataAndGeoJSON.indicatorType.includes('DYNAMIC')){
-
-                if(feature.properties[targetDate] < 0){
-                  
-                  color = this.getColorFromBrewInstance(dynamicDecreaseBrew, feature, targetDate);
-                }
-                else{
-                  color = this.getColorFromBrewInstance(dynamicIncreaseBrew, feature, targetDate);
-                }
-
-              }
-              else{
-
-                if(containsNegativeValues(indicatorMetadataAndGeoJSON.geoJSON, targetDate)){
-                  if(this.getIndicatorValue_asNumber(feature.properties[targetDate]) >= 0){
-                    if(this.classifyZeroSeparately && (feature.properties[targetDate] == 0 || feature.properties[targetDate] == "0")){
-                      color = defaultColorForZeroValues;
-                      if(useTransparencyOnIndicator){
-                        fillOpacity = defaultFillOpacityForZeroFeatures;
-                      }
-                    }
-                    else{
-                      color = this.getColorFromBrewInstance(dynamicIncreaseBrew, feature, targetDate);
-                    }
-                  }
-                  else{
-                    if(this.classifyZeroSeparately && (feature.properties[targetDate] == 0 || feature.properties[targetDate] == "0")){
-                      color = defaultColorForZeroValues;
-                      if(useTransparencyOnIndicator){
-                        fillOpacity = defaultFillOpacityForZeroFeatures;
-                      }
-                    }
-                    else{
-                      color = this.getColorFromBrewInstance(dynamicDecreaseBrew, feature, targetDate);
-                    }
-                  }
-                }
-                else{
-                  color = this.getColorFromBrewInstance(defaultBrew, feature, targetDate);                 
-                }
-              }
-            }
-
-            return color;
-          };
+          };          
 
           var containsNegativeValues = function(geoJSON, propertyName){
 
@@ -2842,6 +2755,17 @@ angular
             }            
           };
 
+          this.getSpatialUnitIdFromSpatialUnitName = function(name) {
+            let result = null;
+            $(this.availableSpatialUnits).each( (id, obj) => {
+              if (obj.spatialUnitLevel === name) {
+                result = obj.spatialUnitId;
+                return false;
+              }
+            });
+            return result;
+          }
+
           /**
 		 * creates an array of objects from an array of strings.
 		 * each object in the result has the properties "category" and "name"
@@ -2850,7 +2774,7 @@ angular
 		 * convert ["s1", "s2", ...]    ===>    [{category: "s1",name: "s1"}, {category: "s2", name: "s2"}, ...]
 		 * @param {array} array 
 		 */
-		this.createDualListInputArray = function(array, nameProperty) {
+		this.createDualListInputArray = function(array, nameProperty, idProperty) {
 			var result = [];
 
       if(array && Array.isArray(array)){
@@ -2858,6 +2782,9 @@ angular
           var obj = {};
           obj["category"] = array[i][nameProperty];
           obj["name"] = array[i][nameProperty];
+          if(idProperty && array[i][idProperty]){
+            obj["id"] = array[i][idProperty];
+          }
           result.push(obj);
         }
       }
