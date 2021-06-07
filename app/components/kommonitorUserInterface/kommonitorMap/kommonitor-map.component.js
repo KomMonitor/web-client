@@ -2827,6 +2827,9 @@ angular.module('kommonitorMap').component(
 
             layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
               style: function (feature) {
+                if (kommonitorFilterHelperService.featureIsCurrentlyFiltered(feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
+                  return $scope.filteredStyle;
+                }
                 return kommonitorVisualStyleHelperService.styleMeasureOfValue(feature, $scope.gtMeasureOfValueBrew, $scope.ltMeasureOfValueBrew, $scope.propertyName, $scope.useTransparencyOnIndicator);
               },
               onEachFeature: onEachFeatureIndicator
@@ -2852,6 +2855,9 @@ angular.module('kommonitorMap').component(
 
               layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
                 style: function (feature) {
+                  if (kommonitorFilterHelperService.featureIsCurrentlyFiltered(feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
+                    return $scope.filteredStyle;
+                  }
                   return kommonitorVisualStyleHelperService.styleDefault(feature, $scope.defaultBrew, $scope.dynamicIncreaseBrew, $scope.dynamicDecreaseBrew, $scope.propertyName, $scope.useTransparencyOnIndicator, $scope.datasetContainsNegativeValues);
                 },
                 onEachFeature: onEachFeatureIndicator
@@ -2867,6 +2873,9 @@ angular.module('kommonitorMap').component(
 
               layer = L.geoJSON(indicatorMetadataAndGeoJSON.geoJSON, {
                 style: function(feature){
+                  if (kommonitorFilterHelperService.featureIsCurrentlyFiltered(feature.properties[__env.FEATURE_ID_PROPERTY_NAME])) {
+                    return $scope.filteredStyle;
+                  }
                   return kommonitorVisualStyleHelperService.styleDynamicIndicator(feature, $scope.dynamicIncreaseBrew, $scope.dynamicDecreaseBrew, $scope.propertyName, $scope.useTransparencyOnIndicator);
                 },
                 onEachFeature: onEachFeatureIndicator
