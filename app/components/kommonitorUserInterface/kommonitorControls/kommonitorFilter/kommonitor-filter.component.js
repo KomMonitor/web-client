@@ -467,6 +467,23 @@ angular
 								kommonitorFilterHelperService.filterAndReplaceDataset();
 							};
 
+							$scope.onManualSelectionSpatialFilterSelectBtnPressed = function(){
+								if($scope.manualSelectionSpatialFilterDuallistOptions.selectedItems && $scope.manualSelectionSpatialFilterDuallistOptions.selectedItems.length > 0){
+									// objects like {category: category, name:name}									
+									//$scope.manualSelectionSpatialFilterDuallistOptions.selectedItems
+									let targetFeatureNames = $scope.manualSelectionSpatialFilterDuallistOptions.selectedItems.map(object => object.name);
+
+									kommonitorFilterHelperService.applySpatialFilter_currentSpatialUnitFeatures(targetFeatureNames);
+								}
+							};
+
+							$scope.onManualSelectionSpatialFilterResetBtnPressed = function(){
+								$scope.updateSelectableAreas("manual");
+
+								kommonitorFilterHelperService.clearFilteredFeatures();
+								kommonitorFilterHelperService.filterAndReplaceDataset();
+							};
+
 							// $rootScope.$on("changeSpatialUnit", function() {
 							// 	if ($scope.showSelectionByFeatureSpatialFilter)
 							// 		$scope.updateSelectableAreas("byFeature");

@@ -168,16 +168,21 @@
 				<div id="manualSelectionSpatialFilter" ng-show="showManualSelectionSpatialFilter">
 					<excalibur-dual-list class="spatialFilterDuallist" ng-model='manualSelectionSpatialFilterSelectedFeatures'
 						options="manualSelectionSpatialFilterDuallistOptions"></excalibur-dual-list>
-					<p>Selektion über Kartenbild</p>
-					<label class="switch">
-						<input id="manualSelectionSpatialFilterSelectByMapToggle" type="checkbox" ng-change="onChangeManualSelectionSpatialFilterSelectByMapToggle()"
-							ng-model="manualSelectionSpatialFilterSelectByMap" 
-							ng-checked="manualSelectionSpatialFilterSelectByMap"></input>
-						<span class="switchslider round"></span>
-					</label><br />
-					<div id="manualSelectionSpatialFilterSelectByMapBtn" > 
-						<button class="btn btn-primary" ng-disabled="!manualSelectionSpatialFilterSelectByMap" ng-click="manualSelectionSpatialFilterSelectByMapBtnClicked()">Selektionsbereich zeichnen</button>
-					</div>
+					
+					<!-- selection via any drawable item on map - hidden for now -->
+						<!-- <div>
+						<p>Selektion über Kartenbild</p>
+						<label class="switch">
+							<input id="manualSelectionSpatialFilterSelectByMapToggle" type="checkbox" ng-change="onChangeManualSelectionSpatialFilterSelectByMapToggle()"
+								ng-model="manualSelectionSpatialFilterSelectByMap" 
+								ng-checked="manualSelectionSpatialFilterSelectByMap"></input>
+							<span class="switchslider round"></span>
+						</label><br />
+						<div id="manualSelectionSpatialFilterSelectByMapBtn" > 
+							<button class="btn btn-primary" ng-disabled="!manualSelectionSpatialFilterSelectByMap" ng-click="manualSelectionSpatialFilterSelectByMapBtnClicked()">Selektionsbereich zeichnen</button>
+						</div>
+					</div>						 -->
+					
 					<button class="btn btn-primary" ng-click="onManualSelectionSpatialFilterSelectBtnPressed()">Selektion durchführen</button>
 					<button class="btn btn-danger"
 					ng-click="onManualSelectionSpatialFilterResetBtnPressed()">Selektion zurücksetzen</button>

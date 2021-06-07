@@ -140,5 +140,22 @@ angular
         // apply filter
         this.performSpatialFilter();
       };
+
+      this.applySpatialFilter_currentSpatialUnitFeatures = function(targetFeatureNames){
+         // if(!this.filteredIndicatorFeatureIds){
+          
+        // }
+        this.filteredIndicatorFeatureIds = new Map();
+
+        // manage map of filtered features        
+        for (const feature of kommonitorDataExchangeService.selectedIndicator.geoJSON.features) {
+          if(!targetFeatureNames.includes(feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])){
+            this.filteredIndicatorFeatureIds.set(feature.properties[__env.FEATURE_ID_PROPERTY_NAME], feature);
+          }         
+        }
+
+        // apply filter
+        this.performSpatialFilter();
+      };
   
     }]);
