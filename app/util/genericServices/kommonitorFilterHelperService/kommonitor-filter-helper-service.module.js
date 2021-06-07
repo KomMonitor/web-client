@@ -94,6 +94,24 @@ angular
         else{
           this.filterAndReplaceDataset();          
         }
+
+        this.checkFeatureSelection();
+      };
+
+      this.checkFeatureSelection = function(){
+        // remove any selected items that are not visible in current filtered dataset
+        // only if features are fully removed from dataset
+        if(this.completelyRemoveFilteredFeaturesFromDisplay){
+          let oldSelectionMap = this.selectedIndicatorFeatureIds;
+          
+          for (let key of this.selectedIndicatorFeatureIds.keys()) {
+            if (this.filteredIndicatorFeatureIds.has("" + key)){
+              this.selectedIndicatorFeatureIds.delete("" + key);
+            }
+          }
+        }
+        
+        $rootScope.$broadcast("onRemovedFeatureFromSelection");
       };
 
       this.filterAndReplaceDataset = function(){
