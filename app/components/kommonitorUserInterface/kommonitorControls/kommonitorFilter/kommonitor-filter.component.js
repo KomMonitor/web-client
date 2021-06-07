@@ -92,8 +92,12 @@ angular
 								if($scope.previouslySelectedIndicator.indicatorId != indicatorMetadataAndGeoJSON.indicatorId || $scope.previouslySelectedSpatialUnit.spatialUnitLevel != spatialUnitName){
 									if ($scope.showSelectionByFeatureSpatialFilter)
 										$scope.updateSelectableAreas("byFeature");
+										kommonitorFilterHelperService.clearFilteredFeatures();
+										kommonitorFilterHelperService.clearSelectedFeatures();
 									if ($scope.showManualSelectionSpatialFilter)
 										$scope.updateSelectableAreas("manual");
+										kommonitorFilterHelperService.clearFilteredFeatures();
+										kommonitorFilterHelperService.clearSelectedFeatures();
 								}
 
 								$scope.previouslySelectedIndicator = kommonitorDataExchangeService.selectedIndicator;
