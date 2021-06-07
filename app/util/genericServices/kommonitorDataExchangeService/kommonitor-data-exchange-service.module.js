@@ -1939,9 +1939,11 @@ angular
             return indicatorTypeString;
           };
 
-          this.totalFeaturesPropertyValue;
           this.totalFeaturesPropertyUnit;
-          this.totalFeaturesPropertyLabel;
+          this.totalFeaturesPropertyValue_sum;
+          this.totalFeaturesPropertyLabel_sum;
+          this.totalFeaturesPropertyValue_mean;
+          this.totalFeaturesPropertyLabel_mean;
 
           this.setTotalFeaturesProperty = function(indicatorMetadataAndGeoJSON, propertyName){
             var sum = 0;
@@ -1956,14 +1958,10 @@ angular
 
             this.totalFeaturesPropertyUnit = indicatorMetadataAndGeoJSON.unit;
 
-            if(indicatorMetadataAndGeoJSON.indicatorType.includes("ABSOLUTE") || indicatorMetadataAndGeoJSON.indicatorType.includes("DYNAMIC")){
-              this.totalFeaturesPropertyValue = this.getIndicatorValue_asFormattedText(sum);
-              this.totalFeaturesPropertyLabel = "Summe aller Features";
-            }
-            else{
-              this.totalFeaturesPropertyValue = this.getIndicatorValue_asFormattedText(sum / count);     
-              this.totalFeaturesPropertyLabel = "Arithmetisches Mittel aller Features";         
-            }  
+            this.totalFeaturesPropertyValue_sum = this.getIndicatorValue_asFormattedText(sum);
+            this.totalFeaturesPropertyLabel_sum = "Summe aller " + indicatorMetadataAndGeoJSON.geoJSON.features.length + " Features";
+            this.totalFeaturesPropertyValue_mean = this.getIndicatorValue_asFormattedText(sum / count);     
+              this.totalFeaturesPropertyLabel_mean = "Arithmetisches Mittel aller  " + indicatorMetadataAndGeoJSON.geoJSON.features.length + " Features";   
             
           };          
 

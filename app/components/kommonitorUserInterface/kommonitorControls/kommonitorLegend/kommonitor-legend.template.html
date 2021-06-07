@@ -306,6 +306,21 @@
 									<div class="col-md-3 ">{{$ctrl.kommonitorVisualStyleHelperServiceInstance.featuresPerColorMap.get(color) || 0}}</div>
 								</div>
 							</div>
+
+							<div>
+								<br/>
+								<br/>
+								<div class="row">
+									<div class="col-md-8"><b>{{$ctrl.kommonitorDataExchangeServiceInstance.totalFeaturesPropertyLabel_sum}}</b>:</div>
+									<div class="col-md-4">{{$ctrl.kommonitorDataExchangeServiceInstance.totalFeaturesPropertyValue_sum}}</div>
+								</div>
+								 
+								<div class="row">
+									<div class="col-md-8"><b>{{$ctrl.kommonitorDataExchangeServiceInstance.totalFeaturesPropertyLabel_mean}}</b>:</div>
+									<div class="col-md-4">{{$ctrl.kommonitorDataExchangeServiceInstance.totalFeaturesPropertyValue_mean}}</div>
+								</div>
+								
+							</div>
 						</div>
 				
 					</uib-tab>
