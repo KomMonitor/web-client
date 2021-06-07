@@ -2,15 +2,6 @@
 
 	<p></p>
 
-	<strong>gefilterte Features tempor&auml;r aus Datensatz entfernen</strong>
-	&nbsp;
-	<label class="switch">
-		<input id="controlFilterBehaviourToggle" type="checkbox" ng-change="$ctrl.kommonitorFilterHelperServiceInstance.onChangeFilterBehaviourToggle()"
-			ng-model="$ctrl.kommonitorFilterHelperServiceInstance.completelyRemoveFilteredFeaturesFromDisplay" 
-			ng-checked="$ctrl.kommonitorFilterHelperServiceInstance.completelyRemoveFilteredFeaturesFromDisplay"></input>
-		<span class="switchslider round"></span>
-	</label>
-
 	<!-- DARSTELLUNGSFILTER -->
 	<div class="box box-primary">
 		<div class="box-header with-border">
@@ -108,6 +99,18 @@
 		</div>
 		<div class="box-body">
 
+			<strong>gefilterte Features tempor&auml;r aus Datensatz entfernen</strong>
+			&nbsp;
+			<label class="switch">
+				<input id="controlFilterBehaviourToggle" type="checkbox" ng-change="$ctrl.kommonitorFilterHelperServiceInstance.onChangeFilterBehaviourToggle()"
+					ng-model="$ctrl.kommonitorFilterHelperServiceInstance.completelyRemoveFilteredFeaturesFromDisplay" 
+					ng-checked="$ctrl.kommonitorFilterHelperServiceInstance.completelyRemoveFilteredFeaturesFromDisplay"></input>
+				<span class="switchslider round"></span>
+			</label>
+
+			<br/>
+			<hr>
+
 			<div align="middle">
 				<h4>Wähle untergeordnete Raumeinheiten innerhalb der selektierten Raumeinheit</h4>
 				<p>Durch Auswahl eines Gebiets der übergeordneten Raumeinheit (relativ zur momentan angezeigten) können alle darin enthaltenen Gebiete ausgewählt werden. Die Auswahl erfolgt über eine Zentroidberechnung.</p>
@@ -150,6 +153,9 @@
 					<button id="selectionByFeatureSpatialFilterResetSelectionBtn" class="btn btn-danger" 
 						ng-click="onSelectionByFeatureSpatialFilterResetBtnPressed()">Selektion zurücksetzen</button>
 				</div>
+
+				<br/>
+				<hr>
 
 				<h4>Manuelle Selektion anzuzeigender Features</h4>
 				<p>Gebiete können über ihre Bezeichnung oder über die Karte ausgewählt werden.</p>
