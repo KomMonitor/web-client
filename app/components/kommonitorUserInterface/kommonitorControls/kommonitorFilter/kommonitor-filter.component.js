@@ -430,24 +430,30 @@ angular
 							$scope.onChangeShowManualSelection = async function() {
 								// return if toggle was deactivated
 								if(!$scope.showManualSelectionSpatialFilter)
-									return;
+									$scope.onManualSelectionSpatialFilterResetBtnPressed();									
 								else {
-									$scope.updateSelectableAreas("manual");	
+									$scope.showSelectionByFeatureSpatialFilter = false;
+									$scope.onManualSelectionSpatialFilterResetBtnPressed();										
 								}
 							};
 
 							$scope.onChangeShowSelectionByFeature = async function() {
 								// return if toggle was deactivated
 								if(!$scope.showSelectionByFeatureSpatialFilter)
-									return;
+									$scope.onSelectionByFeatureSpatialFilterResetBtnPressed();
 								else {
-									$scope.updateSelectableAreas("byFeature");
+									$scope.showManualSelectionSpatialFilter = false;
+									$scope.onSelectionByFeatureSpatialFilterResetBtnPressed();									
 								}
 							};
 
 							$scope.onChangeSelectedSpatialUnitForFilter = function(){
 								if ($scope.showSelectionByFeatureSpatialFilter)
 									$scope.updateSelectableAreas("byFeature");
+
+								if($scope.showManualSelectionSpatialFilter){
+									$scope.updateSelectableAreas("manual");
+								}
 							};
 
 							$scope.onSelectionByFeatureSpatialFilterSelectBtnPressed = function(){
