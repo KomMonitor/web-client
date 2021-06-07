@@ -717,6 +717,8 @@ angular
 
 
 												$scope.loadingData = false;
+
+												$rootScope.$broadcast("recenterMapContent");
 												$rootScope.$broadcast("hideLoadingIconOnMap");
 												$scope.changeIndicatorWasClicked = false;
 
