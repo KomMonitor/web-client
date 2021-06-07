@@ -142,6 +142,11 @@ angular
 
 								// make object to hold indicatorName, max value and average value
 								var indicatorProperties = indicatorsForRadar[i].indicatorProperties;
+
+								if(kommonitorFilterHelperService.completelyRemoveFilteredFeaturesFromDisplay && kommonitorFilterHelperService.filteredIndicatorFeatureIds.size > 0){
+									indicatorProperties = indicatorProperties.filter(featureProperties => ! kommonitorFilterHelperService.featureIsCurrentlyFiltered(featureProperties[__env.FEATURE_ID_PROPERTY_NAME]));
+								}
+
 								sampleProperties = indicatorsForRadar[i].indicatorProperties;
 
 								// var closestApplicableTimestamp = kommonitorDiagramHelperService.findClostestTimestamForTargetDate(indicatorsForRadar[i], $scope.date);

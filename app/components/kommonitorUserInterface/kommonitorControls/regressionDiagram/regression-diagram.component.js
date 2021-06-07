@@ -307,6 +307,12 @@ angular
 									var indicatorPropertiesArrayForXAxis = await $scope.getPropertiesForIndicatorName($scope.selection.selectedIndicatorForXAxis.indicatorMetadata.indicatorName);
 									var indicatorPropertiesArrayForYAxis = await $scope.getPropertiesForIndicatorName($scope.selection.selectedIndicatorForYAxis.indicatorMetadata.indicatorName);
 
+									if(kommonitorFilterHelperService.completelyRemoveFilteredFeaturesFromDisplay && kommonitorFilterHelperService.filteredIndicatorFeatureIds.size > 0){
+										indicatorPropertiesArrayForXAxis = indicatorPropertiesArrayForXAxis.filter(featureProperties => ! kommonitorFilterHelperService.featureIsCurrentlyFiltered(featureProperties[__env.FEATURE_ID_PROPERTY_NAME]));
+										indicatorPropertiesArrayForYAxis = indicatorPropertiesArrayForYAxis.filter(featureProperties => ! kommonitorFilterHelperService.featureIsCurrentlyFiltered(featureProperties[__env.FEATURE_ID_PROPERTY_NAME]));						
+									}
+									
+
 									var timestamp_xAxis = $scope.selection.selectedIndicatorForXAxis.selectedDate;
 									var timestamp_yAxis = $scope.selection.selectedIndicatorForYAxis.selectedDate;
 
