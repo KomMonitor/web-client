@@ -12,10 +12,10 @@ angular
       this.filteredIndicatorFeatureIds = new Map();
       this.selectedIndicatorFeatureIds = new Map();
 
-      this.completelyRemoveFilteredFeaturesFromDisplay = false;
+      this.completelyRemoveFilteredFeaturesFromDisplay = true;
 
       this.onChangeFilterBehaviourToggle = function(){
-        this.performFilter();
+        this.performSpatialFilter();
       };
 
       // FEATURE SELECTION
@@ -73,13 +73,21 @@ angular
           }
         }
 
-        this.performFilter();
+        // range filter should only display filtered items as filtered, not remove them totally, as this qould require either
+        // more complicated management of all features or direct update of range min/max values
+        kommonitorMapService.restyleCurrentLayer();
         
       };
 
-      this.performFilter = function(){        
+      this.performSpatialFilter = function(){        
         if(! this.completelyRemoveFilteredFeaturesFromDisplay){
-          kommonitorMapService.restyleCurrentLayer();
+          // kommonitorMapService.restyleCurrentLayer();
+          if(kommonitorDataExchangeService.isBalanceChecked){
+            kommonitorMapService.replaceIndicatorGeoJSON(kommonitorDataExchangeService.indicatorAndMetadataAsBalance, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, kommonitorDataExchangeService.selectedDate, false);        
+          }
+          else{
+            kommonitorMapService.replaceIndicatorGeoJSON(kommonitorDataExchangeService.selectedIndicator, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, kommonitorDataExchangeService.selectedDate, false);        
+          }
         }        
         else{
           this.filterAndReplaceDataset();          
@@ -130,7 +138,7 @@ angular
         }
 
         // apply filter
-        this.performFilter();
+        this.performSpatialFilter();
       };
   
     }]);
