@@ -84,6 +84,8 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 				try {
 					var addScriptResponse = await kommonitorScriptHelperService.postNewScript($scope.datasetName, $scope.description, kommonitorScriptHelperService.targetIndicator);					
 
+					let scriptId = addScriptResponse.scriptId;
+					$rootScope.$broadcast("refreshScriptOverviewTable", "add", scriptId);
 					if(kommonitorScriptHelperService.scriptFormulaHTML_overwriteTargetIndicatorMethod){
 						try {
 							await kommonitorScriptHelperService.replaceMethodMetadataForTargetIndicator(kommonitorScriptHelperService.targetIndicator);
@@ -106,10 +108,7 @@ angular.module('scriptAddModal').component('scriptAddModal', {
 							}, 1000);
 						}
 						
-					}
-					
-
-					$rootScope.$broadcast("refreshScriptOverviewTable");
+					}				
 
 					// refresh all admin dashboard diagrams due to modified metadata
 					$rootScope.$broadcast("refreshAdminDashboardDiagrams");

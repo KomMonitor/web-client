@@ -57,7 +57,7 @@ angular.module('scriptDeleteModal').component('scriptDeleteModal', {
 							$("#scriptsDeleteSuccessAlert").show();
 
 							// refresh script overview table
-							$rootScope.$broadcast("refreshScriptOverviewTable");
+							$rootScope.$broadcast("refreshScriptOverviewTable", "delete", $scope.successfullyDeletedDatasets.map(dataset => dataset.scriptId));
 
 							// refresh all admin dashboard diagrams due to modified metadata
 							$rootScope.$broadcast("refreshAdminDashboardDiagrams");

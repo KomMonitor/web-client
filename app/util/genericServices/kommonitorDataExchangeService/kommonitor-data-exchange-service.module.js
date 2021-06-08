@@ -10,11 +10,12 @@ angular.module('kommonitorDataExchange', ['kommonitorMap', 'kommonitorKeycloakHe
  * parameters for each WPS operation represented by different Angular components
  */
 angular
-		.module('kommonitorDataExchange', ['datatables'])
+		.module('kommonitorDataExchange', [])
 		.service(
-				'kommonitorDataExchangeService', ['$rootScope', '$timeout', 'kommonitorMapService', 'kommonitorKeycloakHelperService', '$http', '__env', 'DTOptionsBuilder', '$q', 'Auth',
+				'kommonitorDataExchangeService', ['$rootScope', '$timeout', 'kommonitorMapService', 'kommonitorKeycloakHelperService', 
+        '$http', '__env', '$q', 'Auth',
 				function($rootScope, $timeout,
-						kommonitorMapService, kommonitorKeycloakHelperService, $http, __env, DTOptionsBuilder, $q, Auth,) {              
+						kommonitorMapService, kommonitorKeycloakHelperService, $http, __env, $q, Auth,) {              
 
               this.appTitle = __env.appTitle;
 
@@ -75,6 +76,13 @@ angular
           this.currentKeycloakLoginRoles = [];
           this.currentKomMonitorLoginRoleNames = [];
 
+          // MAP objects for available resource metadata in order to have quick access to datasets by ID
+          this.availableIndicators_map = new Map();
+          this.availableGeoresources_map = new Map();
+          this.availableSpatialUnits_map = new Map();
+          this.availableProcessScripts_map = new Map();
+          this.availableRoles_map = new Map();
+
           this.setCurrentKomMonitorRoles = function(){
             var roleMetadataForCurrentKeycloakLoginRoles = this.availableRoles.filter(role => this.currentKeycloakLoginRoles.includes(role.roleName)); 
 
@@ -120,12 +128,6 @@ angular
           this.VALID_START_DATE_PROPERTY_NAME = __env.VALID_START_DATE_PROPERTY_NAME;
           this.VALID_END_DATE_PROPERTY_NAME = __env.VALID_END_DATE_PROPERTY_NAME;
           this.indicatorDatePrefix = __env.indicatorDatePrefix;
-
-          this.datatablesOptions = DTOptionsBuilder.newOptions()
-      				.withPaginationType('full_numbers')
-      				.withDisplayLength(5)
-      				.withLanguageSource('./Datatables.Language.German.json')
-              .withOption('lengthMenu', [[5, 10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "Alle"]]);
 
           this.datePickerOptions = {
             autoclose: true,
@@ -311,6 +313,14 @@ angular
             }
           ];
 
+          this.getLoiDashSvgFromStringValue = function(loiDashArrayString){
+            for (const loiDashArrayObject of this.availableLoiDashArrayObjects) {
+              if(loiDashArrayObject.dashArrayValue == loiDashArrayString){
+                return loiDashArrayObject.svgString;
+              }
+            }
+          };
+
 					this.kommonitorMapServiceInstance = kommonitorMapService;
 
           this.updateIntervalOptions = __env.updateIntervalOptions;
@@ -384,6 +394,43 @@ angular
 
 					this.setProcessScripts = function(scriptsArray){
 						this.availableProcessScripts = scriptsArray;
+            this.availableProcessScripts_map = new Map();
+            for (const scriptMetadata of scriptsArray) {
+              this.availableProcessScripts_map.set(scriptMetadata.scriptId, scriptMetadata);
+            }
+          };
+
+          this.addSingleProcessScriptMetadata = function(processScriptMetadata){
+            let tmpArray = [processScriptMetadata];
+            Array.prototype.push.apply(tmpArray, this.availableProcessScripts);
+            this.availableProcessScripts =  tmpArray;
+            this.availableProcessScripts_map.set(processScriptMetadata.scriptId, processScriptMetadata);
+          };
+
+          this.replaceSingleProcessScriptMetadata = function(processScriptMetadata){
+            for (let index = 0; index < this.availableProcessScripts.length; index++) {
+              let processScript = this.availableProcessScripts[index];
+              if(processScript.scriptId == processScriptMetadata.scriptId){
+                this.availableProcessScripts[index] = processScriptMetadata;
+                break;
+              }
+            }
+            this.availableProcessScripts_map.set(processScriptMetadata.scriptId, processScriptMetadata);
+          };
+
+          this.deleteSingleProcessScriptMetadata = function(processScriptId){
+            for (let index = 0; index < this.availableProcessScripts.length; index++) {
+              const processScript = this.availableProcessScripts[index];
+              if(processScript.scriptId == processScriptId){
+                this.availableProcessScripts.splice(index, 1);
+                break;
+              }              
+            }
+            this.availableProcessScripts_map.delete(processScriptId);
+          };
+
+          this.getProcessScriptMetadataById = function(scriptId){
+            return this.availableProcessScripts_map.get(scriptId);
           };
 
 
@@ -419,6 +466,39 @@ angular
 
 					this.setSpatialUnits = function(spatialUnitsArray){
 						this.availableSpatialUnits = spatialUnitsArray;
+            this.availableSpatialUnits_map = new Map();
+            for (const spatialUnitMetadata of spatialUnitsArray) {
+              this.availableSpatialUnits_map.set(spatialUnitMetadata.spatialUnitId, spatialUnitMetadata);
+            }
+          };
+
+          this.addSingleSpatialUnitMetadata = function(spatialUnitMetadata){
+            let tmpArray = [spatialUnitMetadata];
+            Array.prototype.push.apply(tmpArray, this.availableSpatialUnits);
+            this.availableSpatialUnits =  tmpArray;
+            this.availableSpatialUnits_map.set(spatialUnitMetadata.spatialUnitId, spatialUnitMetadata);
+          };
+
+          this.replaceSingleSpatialUnitMetadata = function(spatialUnitMetadata){
+            for (let index = 0; index < this.availableSpatialUnits.length; index++) {
+              let spatialUnit = this.availableSpatialUnits[index];
+              if(spatialUnit.spatialUnitId == spatialUnitMetadata.spatialUnitId){
+                this.availableSpatialUnits[index] = spatialUnitMetadata;
+                break;
+              }
+            }
+            this.availableSpatialUnits_map.set(spatialUnitMetadata.spatialUnitId, spatialUnitMetadata);
+          };
+
+          this.deleteSingleSpatialUnitMetadata = function(spatialUnitId){
+            for (let index = 0; index < this.availableSpatialUnits.length; index++) {
+              const spatialUnit = this.availableSpatialUnits[index];
+              if(spatialUnit.spatialUnitId == spatialUnitId){
+                this.availableSpatialUnits.splice(index, 1);
+                break;
+              }              
+            }
+            this.availableSpatialUnits_map.delete(spatialUnitId);
           };
           
           // REPORTING
@@ -436,6 +516,12 @@ angular
 
 					this.setGeoresources = function(georesourcesArray){
 						this.availableGeoresources = georesourcesArray;
+
+            this.availableGeoresources_map = new Map();
+            for (const georesourceMetadata of georesourcesArray) {
+              this.availableGeoresources_map.set(georesourceMetadata.georesourceId, georesourceMetadata);
+            }
+
             this.displayableGeoresources = this.availableGeoresources.filter(item => self.isDisplayableGeoresource(item));
             this.displayableGeoresources_keywordFiltered = JSON.parse(JSON.stringify(this.displayableGeoresources));
 
@@ -451,10 +537,36 @@ angular
             };
 					};
 
+          this.addSingleGeoresourceMetadata = function(georesourceMetadata){
+            let tmpArray = [georesourceMetadata];
+            Array.prototype.push.apply(tmpArray, this.availableGeoresources);
+            this.availableGeoresources =  tmpArray;
+            this.availableGeoresources_map.set(georesourceMetadata.georesourceId, georesourceMetadata);
+          };
 
+          this.replaceSingleGeoresourceMetadata = function(georesourceMetadata){
+            for (let index = 0; index < this.availableGeoresources.length; index++) {
+              let georesource = this.availableGeoresources[index];
+              if(georesource.georesourceId == georesourceMetadata.georesourceId){
+                this.availableGeoresources[index] = georesourceMetadata;
+                break;
+              }
+            }
+            this.availableGeoresources_map.set(georesourceMetadata.georesourceId, georesourceMetadata);
+          };
 
-					// INDICATORS
-					this.clickedIndicatorFeatureNames = new Array();
+          this.deleteSingleGeoresourceMetadata = function(georesourceId){
+            for (let index = 0; index < this.availableGeoresources.length; index++) {
+              const georesource = this.availableGeoresources[index];
+              if(georesource.georesourceId == georesourceId){
+                this.availableGeoresources.splice(index, 1);
+                break;
+              }              
+            }
+            this.availableGeoresources_map.delete(georesourceId);
+          };
+
+					// INDICATORS					
 
 					this.availableIndicators = [];
           this.displayableIndicators = [];
@@ -479,9 +591,41 @@ angular
 
 					this.setIndicators = function(indicatorsArray){
 						this.availableIndicators = indicatorsArray;
-            this.displayableIndicators = this.availableIndicators.filter(item => isDisplayableIndicator(item));
-            this.displayableIndicators_keywordFiltered = JSON.parse(JSON.stringify(this.displayableIndicators));
+            this.availableIndicators_map = new Map();
+            
+            for (const indicatorMetadata of indicatorsArray) {
+              this.availableIndicators_map.set(indicatorMetadata.indicatorId, indicatorMetadata);
+            }
 					};
+
+          this.addSingleIndicatorMetadata = function(indicatorMetadata){
+            let tmpArray = [indicatorMetadata];
+            Array.prototype.push.apply(tmpArray, this.availableIndicators);
+            this.availableIndicators =  tmpArray;
+            this.availableIndicators_map.set(indicatorMetadata.indicatorId, indicatorMetadata);
+          };
+
+          this.replaceSingleIndicatorMetadata = function(indicatorMetadata){
+            for (let index = 0; index < this.availableIndicators.length; index++) {
+              let indicator = this.availableIndicators[index];
+              if(indicator.indicatorId == indicatorMetadata.indicatorId){
+                this.availableIndicators[index] = indicatorMetadata;
+                break;
+              }
+            }
+            this.availableIndicators_map.set(indicatorMetadata.indicatorId, indicatorMetadata);
+          };
+
+          this.deleteSingleIndicatorMetadata = function(indicatorId){
+            for (let index = 0; index < this.availableIndicators.length; index++) {
+              const indicator = this.availableIndicators[index];
+              if(indicator.indicatorId == indicatorId){
+                this.availableIndicators.splice(index, 1);
+                break;
+              }              
+            }
+            this.availableIndicators_map.delete(indicatorId);
+          };
 
 
 					// TOPICS
@@ -734,19 +878,15 @@ angular
           };
 
           this.getIndicatorMetadataById = function(indicatorId){
-            for (const indicatorMetadata of this.availableIndicators) {
-              if(indicatorMetadata.indicatorId === indicatorId){
-                return indicatorMetadata;
-              }
-            }
+            return this.availableIndicators_map.get(indicatorId);
           };
 
           this.getGeoresourceMetadataById = function(georesourceId){
-            for (const georesourceMetadata of this.availableGeoresources) {
-              if(georesourceMetadata.georesourceId === georesourceId){
-                return georesourceMetadata;
-              }
-            }
+            return this.availableGeoresources_map.get(georesourceId);
+          };
+
+          this.getSpatialUnitMetadataById = function(spatialUnitId){
+            return this.availableSpatialUnits_map.get(spatialUnitId);
           };
 
           this.getIndicatorAbbreviationFromIndicatorId = function(indicatorId){
@@ -840,10 +980,6 @@ angular
 
             return topicHierarchyArray;
           };
-
-					// FILTER
-					this.rangeFilterData;
-					this.filteredIndicatorFeatureNames;
 
           this.syntaxHighlightJSON = function(json) {
       		    if (typeof json != 'string') {
@@ -940,6 +1076,9 @@ angular
             for (const indicator of this.availableIndicators) {
               indicator.applicableSpatialUnits = indicator.applicableSpatialUnits.filter(applicableSpatialUnit => availableSpatialUnitNames.includes(applicableSpatialUnit.spatialUnitName)); 
             }
+
+            this.displayableIndicators = this.availableIndicators.filter(item => isDisplayableIndicator(item));
+            this.displayableIndicators_keywordFiltered = JSON.parse(JSON.stringify(this.displayableIndicators));
           };
 
           this.buildTopicsMap_indicators = function(indicatorTopics){
@@ -1485,6 +1624,16 @@ angular
 
           };
 
+          this.setRoles = function(rolesArray){
+            self.availableRoles = rolesArray;
+            this.availableRoles_map = new Map();
+            for (const roleMetadata of rolesArray) {
+              this.availableRoles_map.set(roleMetadata.roleId, roleMetadata);
+            }
+
+            fetchedRolesInitially = true;
+          };
+
           this.fetchRolesMetadata = function(){
             return $http({
               url: this.baseUrlToKomMonitorDataAPI + rolesEndpoint,
@@ -1492,11 +1641,54 @@ angular
             }).then(function successCallback(response) {
                 // this callback will be called asynchronously
                 // when the response is available
+                self.setRoles(response.data);
+              });
+          };
 
-                self.availableRoles = response.data;
-                fetchedRolesInitially = true;
+          this.fetchSingleRoleMetadata = function(targetRoleId){
+            return $http({
+              url: this.baseUrlToKomMonitorDataAPI + rolesEndpoint  + "/" + targetRoleId,
+              method: "GET"
+            }).then(function successCallback(response) {
+                // this callback will be called asynchronously
+                // when the response is available
+
+                return response.data;
 
               });
+          };
+
+          this.replaceSingleRoleMetadata = function(targetRoleMetadata){
+            for (let index = 0; index < this.availableRoles.length; index++) {
+              let roleMetadata = this.availableRoles[index];
+              if(roleMetadata.roleId == targetRoleMetadata.roleId){
+                this.availableRoles[index] = targetRoleMetadata;
+                break;
+              }
+            }
+            this.availableProcessScripts_map.set(targetRoleMetadata.roleId, targetRoleMetadata);
+          };
+
+          this.addSingleRoleMetadata = function(roleMetadata){
+            let tmpArray = [roleMetadata];
+            Array.prototype.push.apply(tmpArray, this.availableRoles);
+            this.availableRoles =  tmpArray;
+            this.availableProcessScripts_map.set(roleMetadata.roleId, roleMetadata);
+          };
+
+          this.deleteSingleRoleMetadata = function(roleId){
+            for (let index = 0; index < this.availableRoles.length; index++) {
+              const roleMetadata = this.availableRoles[index];
+              if(roleMetadata.roleId == roleId){
+                this.availableRoles.splice(index, 1);
+                break;
+              }              
+            }
+            this.availableProcessScripts_map.delete(roleId);
+          };
+
+          this.getRoleMetadataById = function(roleId){
+            return this.availableRoles_map.get(roleId);
           };
 
           this.fetchUsersMetadata = function(){
@@ -1541,8 +1733,20 @@ angular
               });
           };
 
+          this.fetchSingleSpatialUnitMetadata = function(targetSpatialUnitId){
+            return $http({
+              url: this.baseUrlToKomMonitorDataAPI + spatialUnitsEndpoint  + "/" + targetSpatialUnitId,
+              method: "GET"
+            }).then(function successCallback(response) {
+                // this callback will be called asynchronously
+                // when the response is available
+
+                return response.data;
+
+              });
+          };
+
           this.fetchGeoresourcesMetadata = function(){
-            console.log("request: " + this.baseUrlToKomMonitorDataAPI + georesourcesEndpoint);
             return $http({
               url: this.baseUrlToKomMonitorDataAPI + georesourcesEndpoint,
               method: "GET"
@@ -1552,6 +1756,19 @@ angular
 
                 self.setGeoresources(response.data);
                 fetchedGeoresourcesInitially = true;
+
+              });
+          };
+
+          this.fetchSingleGeoresourceMetadata = function(targetGeoresourceId){
+            return $http({
+              url: this.baseUrlToKomMonitorDataAPI + georesourcesEndpoint  + "/" + targetGeoresourceId,
+              method: "GET"
+            }).then(function successCallback(response) {
+                // this callback will be called asynchronously
+                // when the response is available
+
+                return response.data;
 
               });
           };
@@ -1570,6 +1787,19 @@ angular
               });
           };
 
+          this.fetchSingleIndicatorMetadata = function(targetIndicatorId){
+            return $http({
+              url: this.baseUrlToKomMonitorDataAPI + indicatorsEndpoint + "/" + targetIndicatorId,
+              method: "GET"
+            }).then(function successCallback(response) {
+                // this callback will be called asynchronously
+                // when the response is available
+
+                return response.data;
+
+              });
+          };
+
           this.fetchIndicatorScriptsMetadata = function(){
             return $http({
               url: this.baseUrlToKomMonitorDataAPI + scriptsEndpoint,
@@ -1579,6 +1809,19 @@ angular
                 // when the response is available
 
                 self.setProcessScripts(response.data);
+
+              });
+          };
+
+          this.fetchSingleIndicatorScriptMetadata = function(targetScriptId){
+            return $http({
+              url: this.baseUrlToKomMonitorDataAPI + scriptsEndpoint  + "/" + targetScriptId,
+              method: "GET"
+            }).then(function successCallback(response) {
+                // this callback will be called asynchronously
+                // when the response is available
+
+                return response.data;
 
               });
           };
@@ -1669,13 +1912,13 @@ angular
                 var numberOfWhitespaces = 2 * index;
                 var whitespaceString = "";
                 for (let k = 0; k < numberOfWhitespaces; k++) {
-                  whitespaceString += " ";
+                  whitespaceString += "&nbsp;";
                 }
                 topicsString += whitespaceString + topicHierarchyArray[index].topicName;
               }
   
-              if (index < topicHierarchyArray.length - 1) {
-                topicsString += "\n";
+              if (index < topicHierarchyArray.length) {
+                topicsString += "<br/>";
               }
   
             }
@@ -1696,9 +1939,11 @@ angular
             return indicatorTypeString;
           };
 
-          this.totalFeaturesPropertyValue;
           this.totalFeaturesPropertyUnit;
-          this.totalFeaturesPropertyLabel;
+          this.totalFeaturesPropertyValue_sum;
+          this.totalFeaturesPropertyLabel_sum;
+          this.totalFeaturesPropertyValue_mean;
+          this.totalFeaturesPropertyLabel_mean;
 
           this.setTotalFeaturesProperty = function(indicatorMetadataAndGeoJSON, propertyName){
             var sum = 0;
@@ -1713,127 +1958,12 @@ angular
 
             this.totalFeaturesPropertyUnit = indicatorMetadataAndGeoJSON.unit;
 
-            if(indicatorMetadataAndGeoJSON.indicatorType.includes("ABSOLUTE") || indicatorMetadataAndGeoJSON.indicatorType.includes("DYNAMIC")){
-              this.totalFeaturesPropertyValue = this.getIndicatorValue_asFormattedText(sum);
-              this.totalFeaturesPropertyLabel = "Summe aller Features";
-            }
-            else{
-              this.totalFeaturesPropertyValue = this.getIndicatorValue_asFormattedText(sum / count);     
-              this.totalFeaturesPropertyLabel = "Arithmetisches Mittel aller Features";         
-            }  
+            this.totalFeaturesPropertyValue_sum = this.getIndicatorValue_asFormattedText(sum);
+            this.totalFeaturesPropertyLabel_sum = "Summe aller " + indicatorMetadataAndGeoJSON.geoJSON.features.length + " Features";
+            this.totalFeaturesPropertyValue_mean = this.getIndicatorValue_asFormattedText(sum / count);     
+              this.totalFeaturesPropertyLabel_mean = "Arithmetisches Mittel aller  " + indicatorMetadataAndGeoJSON.geoJSON.features.length + " Features";   
             
-          };
-            
-          this.getColorFromBrewInstance = function(brewInstance, feature, targetDate){
-            var color;
-            for (var index=0; index < brewInstance.breaks.length; index++){
-
-              if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) == this.getIndicatorValue_asNumber(brewInstance.breaks[index])){
-                if(index < brewInstance.breaks.length -1){
-                  // min value
-                  color =  brewInstance.colors[index];
-                  break;
-                }
-                else {
-                  //max value
-                  if (brewInstance.colors[index]){
-                    color =  brewInstance.colors[index];
-                  }
-                  else{
-                    color =  brewInstance.colors[index - 1];
-                  }
-                  break;
-                }
-              }
-              else{
-                if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) < this.getIndicatorValue_asNumber(brewInstance.breaks[index + 1])) {
-                  color =  brewInstance.colors[index];
-                  break;
-                }
-              }
-            }
-
-            return color;
-          };
-
-          this.getColorForFeature = function(feature, indicatorMetadataAndGeoJSON, targetDate, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue){
-            var color;
-
-            if(!targetDate.includes(DATE_PREFIX)){
-							targetDate = DATE_PREFIX + targetDate;
-						}
-
-            if(this.indicatorValueIsNoData(feature.properties[targetDate])){
-              color = defaultColorForNoDataValues;
-            }
-            else if(this.filteredIndicatorFeatureNames.includes(feature.properties[__env.FEATURE_NAME_PROPERTY_NAME])){
-              color = defaultColorForFilteredValues;
-            }
-            else if(this.classifyZeroSeparately && this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) === 0 ){
-              color = defaultColorForZeroValues;
-            }
-            else if(feature.properties["outlier"] !== undefined && feature.properties["outlier"].includes("low") && this.useOutlierDetectionOnIndicator){
-              color = defaultColorForOutliers_low;
-            }
-            else if(feature.properties["outlier"] !== undefined && feature.properties["outlier"].includes("high") && this.useOutlierDetectionOnIndicator){
-              color = defaultColorForOutliers_high;
-            }
-            else if(isMeasureOfValueChecked){
-
-              if(this.getIndicatorValueFromArray_asNumber(feature.properties, targetDate) >= +Number(measureOfValue).toFixed(numberOfDecimals)){
-                color = this.getColorFromBrewInstance(gtMeasureOfValueBrew, feature, targetDate);                
-              }
-              else {
-                color = this.getColorFromBrewInstance(ltMeasureOfValueBrew, feature, targetDate);
-              }
-
-            }
-            else{
-              if(indicatorMetadataAndGeoJSON.indicatorType.includes('DYNAMIC')){
-
-                if(feature.properties[targetDate] < 0){
-                  
-                  color = this.getColorFromBrewInstance(dynamicDecreaseBrew, feature, targetDate);
-                }
-                else{
-                  color = this.getColorFromBrewInstance(dynamicIncreaseBrew, feature, targetDate);
-                }
-
-              }
-              else{
-
-                if(containsNegativeValues(indicatorMetadataAndGeoJSON.geoJSON, targetDate)){
-                  if(this.getIndicatorValue_asNumber(feature.properties[targetDate]) >= 0){
-                    if(this.classifyZeroSeparately && (feature.properties[targetDate] == 0 || feature.properties[targetDate] == "0")){
-                      color = defaultColorForZeroValues;
-                      if(useTransparencyOnIndicator){
-                        fillOpacity = defaultFillOpacityForZeroFeatures;
-                      }
-                    }
-                    else{
-                      color = this.getColorFromBrewInstance(dynamicIncreaseBrew, feature, targetDate);
-                    }
-                  }
-                  else{
-                    if(this.classifyZeroSeparately && (feature.properties[targetDate] == 0 || feature.properties[targetDate] == "0")){
-                      color = defaultColorForZeroValues;
-                      if(useTransparencyOnIndicator){
-                        fillOpacity = defaultFillOpacityForZeroFeatures;
-                      }
-                    }
-                    else{
-                      color = this.getColorFromBrewInstance(dynamicDecreaseBrew, feature, targetDate);
-                    }
-                  }
-                }
-                else{
-                  color = this.getColorFromBrewInstance(defaultBrew, feature, targetDate);                 
-                }
-              }
-            }
-
-            return color;
-          };
+          };          
 
           var containsNegativeValues = function(geoJSON, propertyName){
 
@@ -2623,6 +2753,17 @@ angular
             }            
           };
 
+          this.getSpatialUnitIdFromSpatialUnitName = function(name) {
+            let result = null;
+            $(this.availableSpatialUnits).each( (id, obj) => {
+              if (obj.spatialUnitLevel === name) {
+                result = obj.spatialUnitId;
+                return false;
+              }
+            });
+            return result;
+          }
+
           /**
 		 * creates an array of objects from an array of strings.
 		 * each object in the result has the properties "category" and "name"
@@ -2631,7 +2772,7 @@ angular
 		 * convert ["s1", "s2", ...]    ===>    [{category: "s1",name: "s1"}, {category: "s2", name: "s2"}, ...]
 		 * @param {array} array 
 		 */
-		this.createDualListInputArray = function(array, nameProperty) {
+		this.createDualListInputArray = function(array, nameProperty, idProperty) {
 			var result = [];
 
       if(array && Array.isArray(array)){
@@ -2639,6 +2780,9 @@ angular
           var obj = {};
           obj["category"] = array[i][nameProperty];
           obj["name"] = array[i][nameProperty];
+          if(idProperty && array[i][idProperty]){
+            obj["id"] = array[i][idProperty];
+          }
           result.push(obj);
         }
       }

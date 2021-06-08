@@ -10,16 +10,18 @@ angular
 					 */
 					controller : ['$scope', '$rootScope', 'kommonitorMapService', 'kommonitorVisualStyleHelperService', 
 					'kommonitorDataExchangeService', 'kommonitorDiagramHelperService', 'kommonitorElementVisibilityHelperService', 
-					'__env', '$timeout', '$sce',
+					'kommonitorFilterHelperService', '__env', '$timeout', '$sce',
 					function KommonitorLegendController($scope, $rootScope, kommonitorMapService, 
 						kommonitorVisualStyleHelperService, kommonitorDataExchangeService, kommonitorDiagramHelperService, kommonitorElementVisibilityHelperService, 
-						__env, $timeout, $sce) {
+						kommonitorFilterHelperService, __env, $timeout, $sce) {
 
 						const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
 						this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 						this.kommonitorMapServiceInstance = kommonitorMapService;
 						this.kommonitorVisualStyleHelperServiceInstance = kommonitorVisualStyleHelperService;
 						this.kommonitorElementVisibilityHelperServiceInstance = kommonitorElementVisibilityHelperService;
+						this.kommonitorFilterHelperServiceInstance = kommonitorFilterHelperService;
+						this.envInstance = __env;
 						
 						this.env = __env;
 						$scope.svgString_outlierLow = $sce.trustAsHtml('<svg height="18" width="18"><line x1="10" y1="0" x2="110" y2="100" style="stroke:' + __env.defaultColorForOutliers_low + ';stroke-width:2; stroke-opacity: ' + __env.defaultFillOpacityForOutliers_low + ';" /><line x1="0" y1="0" x2="100" y2="100" style="stroke:' + __env.defaultColorForOutliers_low + ';stroke-width:2; stroke-opacity: ' + __env.defaultFillOpacityForOutliers_low + ';" /><line x1="0" y1="10" x2="100" y2="110" style="stroke:' + __env.defaultColorForOutliers_low + ';stroke-width:2; stroke-opacity: ' + __env.defaultFillOpacityForOutliers_low + ';" />Sorry, your browser does not support inline SVG.</svg>');
@@ -45,6 +47,7 @@ angular
 						$scope.onChangeIndicatorDatepickerDate = function(){
 							$rootScope.$broadcast("changeIndicatorDate");
 						};
+
 						
 						$scope.filterSpatialUnits = function(){
 							return function( item ) {
@@ -55,7 +58,7 @@ angular
 						$scope.makeOutliersLowLegendString = function(outliersArray) {
 							if (outliersArray.length > 1) {
 				  
-							  return "(" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(outliersArray[0]) + " &dash; " + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(outliersArray[outliersArray.length - 1]) + ")";
+							  return "(" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(outliersArray[0]) + " - " + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(outliersArray[outliersArray.length - 1]) + ")";
 							}
 							else {
 							  return "(" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(outliersArray[0]) + ")";
@@ -64,7 +67,7 @@ angular
 				  
 						  $scope.makeOutliersHighLegendString = function(outliersArray) {
 							if (outliersArray.length > 1) {
-							  return "(" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(outliersArray[0]) + " &dash; " + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(outliersArray[outliersArray.length - 1]) + ")";
+							  return "(" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(outliersArray[0]) + " - " + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(outliersArray[outliersArray.length - 1]) + ")";
 							}
 							else {
 							  return "(" + kommonitorDataExchangeService.getIndicatorValue_asFormattedText(outliersArray[0]) + ")";
@@ -74,7 +77,23 @@ angular
 						$scope.onChangeSelectedSpatialUnit = function(){
 
 							$rootScope.$broadcast("changeSpatialUnit");
+
+							if(__env.enableSpatialUnitNotificationSelection) {
+								if(! (localStorage.getItem("hideKomMonitorSpatialUnitNotification") === "true")) {
+									let selectedSpatialUnitName = kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel;
+									if(__env.spatialUnitNotificationSelection.includes(selectedSpatialUnitName)) {
+										$('#spatialUnitNotificationModal').modal('show');	
+									}
+								}
+							}
 						};
+
+
+						$scope.showSpatialUnitNotificationModalIfEnabled = function() {
+							if(__env.enableSpatialUnitNotificationSelection) {
+								$('#spatialUnitNotificationModal').modal('show');	
+							}
+						}
 
 						$(document).on('click', '#controlIndicatorClassifyOption_wholeTimeseries', function (e) {
 							var wholeTimeseriesClassificationCheckbox = document.getElementById('controlIndicatorClassifyOption_wholeTimeseries');

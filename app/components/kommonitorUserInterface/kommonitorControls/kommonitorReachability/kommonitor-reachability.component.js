@@ -1468,6 +1468,12 @@ angular
 							var nextEntry_valueGeoJSON = nextEntry.value[1];
 							var numberOfFeatures = 0;
 
+							var nextEntry_keyRange_label = nextEntry_keyRange;
+							if($scope.settings.focus == 'time'){
+								// compute seconds to minutes for display
+								nextEntry_keyRange_label = nextEntry_keyRange_label / 60;
+							}
+
 							if(nextEntry_valueGeoJSON){
 								numberOfFeatures = nextEntry_valueGeoJSON.features.length;
 							}
@@ -1487,13 +1493,13 @@ angular
 							else{
 								var reachabilityDiagramsSectionNode = document.getElementById("reachability_diagrams_section");
 								var newChartNode = document.createElement("div");
-								newChartNode.innerHTML = '<hr><h4>Analyse Einzugsgebiet ' + nextEntry_keyRange + ' [' + kommonitorDataExchangeService.isochroneLegend.cutOffUnit + ']</h4><br/><br/><div class="chart"><div  id="reachability_pieDiagram_range_' + nextEntry_keyRange + '" style="width:100%; min-height:150px;"></div></div>';
+								newChartNode.innerHTML = '<hr><h4>Analyse Einzugsgebiet ' + nextEntry_keyRange_label + ' [' + kommonitorDataExchangeService.isochroneLegend.cutOffUnit + ']</h4><br/><br/><div class="chart"><div  id="reachability_pieDiagram_range_' + nextEntry_keyRange + '" style="width:100%; min-height:150px;"></div></div>';
 								reachabilityDiagramsSectionNode.appendChild(newChartNode);
 
 								// init new echarts instance
 								var echartsInstance = echarts.init(document.getElementById('reachability_pieDiagram_range_' + nextEntry_keyRange + ''));
 								// use configuration item and data specified to show chart
-								var echartsOptions = kommonitorDiagramHelperService.createInitialReachabilityAnalysisPieOptions(poi, nextEntry_valueGeoJSON, nextEntry_keyRange, date);
+								var echartsOptions = kommonitorDiagramHelperService.createInitialReachabilityAnalysisPieOptions(poi, nextEntry_valueGeoJSON, nextEntry_keyRange_label + " " + $scope.unit, date);
 								echartsInstance.setOption(echartsOptions);
 
 								echartsInstance.hideLoading();

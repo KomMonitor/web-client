@@ -75,52 +75,8 @@
 									</div>
 								</div>
 
-								<div class="admin-table-wrapper">
-									<table id="spatialUnitFeatureTable" datatable="ng"
-										dt-options="$ctrl.kommonitorDataExchangeServiceInstance.datatablesOptions"
-										class="table table-bordered table-condensed table-striped"
-										style="width:100%; overflow:auto; font-size: 11px;">
-										<thead>
-											<tr>
-												<th>Id</th>
-												<th>Name</th>
-												<th>G&uuml;ltigkeitszeitraum</th>
-												<th>Koordinatensystem</th>
-												<th ng-repeat="header in remainingFeatureHeaders">{{header}}</th>
-											</tr>
-										</thead>
-
-										<tbody>
-											<tr ng-repeat="spatialUnitFeature in spatialUnitFeaturesGeoJSON.features">
-												<td>{{getFeatureId(spatialUnitFeature)}}</td>
-												<td>{{getFeatureName(spatialUnitFeature)}}</td>
-												<td>
-													<p ng-show="spatialUnitFeature.properties.validEndDate">
-														{{spatialUnitFeature.properties.validStartDate | date:'yyyy-MM-dd'}}
-														-
-														{{spatialUnitFeature.properties.validEndDate | date:'yyyy-MM-dd'}}
-													</p>
-													<p ng-show="! spatialUnitFeature.properties.validEndDate">
-														{{spatialUnitFeature.properties.validStartDate | date:'yyyy-MM-dd'}}
-														- heute </p>
-												</td>
-												<td>4326</td>
-												<td ng-repeat="header in remainingFeatureHeaders">
-													{{spatialUnitFeature.properties[header]}}</td>
-											</tr>
-
-										</tbody>
-
-										<tfoot>
-											<tr>
-												<th>Id</th>
-												<th>Name</th>
-												<th>G&uuml;ltigkeitszeitraum</th>
-												<th>Koordinatensystem</th>
-												<th ng-repeat="header in remainingFeatureHeaders">{{header}}</th>
-											</tr>
-										</tfoot>
-									</table>
+								<div class="admin-table-wrapper featureTableWrapper" >
+									<table id="spatialUnitFeatureTable" style="height: 50vh; width: 100%;" class="ag-theme-alpine"></table>
 
 								</div>
 

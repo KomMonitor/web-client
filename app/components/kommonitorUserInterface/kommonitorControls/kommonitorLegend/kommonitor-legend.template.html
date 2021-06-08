@@ -45,15 +45,15 @@
 
 						<div class="row" style="margin-right: 0px;">
 							<div class="col-sm-7">
-								<div class="text-left"><label>Raumebene</label></div>
-								<select style="font-size: 12px;" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.selectedSpatialUnit"
+								<div class="text-left"><label>Raumebene</label><a ng-show="$ctrl.envInstance.enableSpatialUnitNotificationButton" data-toggle="modal" ng-click="showSpatialUnitNotificationModalIfEnabled()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Information zu Raumeinheiten&nbsp;&nbsp;"><span class="glyphicon glyphicon-info-sign"></span></a></div>
+								<select id="spatialUnitSelectionInput" style="font-size: 12px;" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.selectedSpatialUnit"
 									ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits | filter:filterSpatialUnits()"
 									class="form-control" ng-change="onChangeSelectedSpatialUnit()" required>
 									<option disabled selected value> -- Raumeinheit w&auml;hlen --
 									</option>
 								</select>
 							</div>
-							<div class="col-sm-5">
+							<div class="col-sm-4">
 								<div class="text-left"><label>Datum</label></div>
 								<input id="indicatorDatePicker" type="text" placeholder="YYYY-MM-DD" 
 								ng-model="$ctrl.kommonitorDataExchangeServiceInstance.selectedDate" ng-change="onChangeIndicatorDatepickerDate()"
@@ -218,11 +218,11 @@
 									<div class="col-md-3">{{$ctrl.kommonitorVisualStyleHelperServiceInstance.featuresPerOutlierHigh}}</div><br>
 								</div>				
 							</div>
-							<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.filteredIndicatorFeatureNames.length > 0">
+							<div ng-if="($ctrl.kommonitorFilterHelperServiceInstance.filteredIndicatorFeatureIds.size > 0) && (!$ctrl.kommonitorFilterHelperServiceInstance.completelyRemoveFilteredFeaturesFromDisplay)">
 								<div class="row" style="margin-right: 0px;">
 									<div class="col-md-3"><i style="background:{{::$ctrl.env.defaultColorForFilteredValues}}; border: 2px solid {{::$ctrl.env.defaultBorderColorForFilteredValues}}; opacity: {{$ctrl.kommonitorVisualStyleHelperServiceInstance.currentIndicatorOpacity}};"></i></div>
 									<div class="col-md-6">gefilterte Features</div>
-									<div class="col-md-3">{{$ctrl.kommonitorDataExchangeServiceInstance.filteredIndicatorFeatureNames.length}}</div><br>
+									<div class="col-md-3">{{$ctrl.kommonitorFilterHelperServiceInstance.filteredIndicatorFeatureIds.size}}</div><br>
 								</div>				
 							</div>
 							<br/>
@@ -305,6 +305,21 @@
 									<div class="col-md-6 " ng-if="! $ctrl.kommonitorVisualStyleHelperServiceInstance.defaultBrew.breaks[$index + 1]" >{{$ctrl.kommonitorDataExchangeServiceInstance.getIndicatorValue_asFormattedText($ctrl.kommonitorVisualStyleHelperServiceInstance.defaultBrew.breaks[$index])}}</div>
 									<div class="col-md-3 ">{{$ctrl.kommonitorVisualStyleHelperServiceInstance.featuresPerColorMap.get(color) || 0}}</div>
 								</div>
+							</div>
+
+							<div>
+								<br/>
+								<br/>
+								<div class="row">
+									<div class="col-md-8"><b>{{$ctrl.kommonitorDataExchangeServiceInstance.totalFeaturesPropertyLabel_sum}}</b>:</div>
+									<div class="col-md-4">{{$ctrl.kommonitorDataExchangeServiceInstance.totalFeaturesPropertyValue_sum}}</div>
+								</div>
+								 
+								<div class="row">
+									<div class="col-md-8"><b>{{$ctrl.kommonitorDataExchangeServiceInstance.totalFeaturesPropertyLabel_mean}}</b>:</div>
+									<div class="col-md-4">{{$ctrl.kommonitorDataExchangeServiceInstance.totalFeaturesPropertyValue_mean}}</div>
+								</div>
+								
 							</div>
 						</div>
 				

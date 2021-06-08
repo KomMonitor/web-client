@@ -310,7 +310,7 @@ angular
           // }
         }).then(function successCallback(response) {
 
-            $rootScope.$broadcast("refreshIndicatorOverviewTable");
+            $rootScope.$broadcast("refreshIndicatorOverviewTable", "edit", targetIndicatorMetadata.indicatorId);
 
           }, function errorCallback(error) {
 

@@ -44,7 +44,10 @@ angular
 
 
 								// initialize any adminLTE box widgets
-								$('.box').boxWidget();
+								$timeout(function(){
+									$('.box').boxWidget();
+								}, 750);
+								
 
 								const DATE_PREFIX = __env.indicatorDatePrefix;
 
@@ -837,6 +840,10 @@ angular
 									var opacity = 1 - dataset.transparency;
 
 									kommonitorMapService.adjustColorForWfsLayer(dataset, opacity);
+								};
+
+								$scope.zoomToLayer = function(georesourceMetadata){
+									$rootScope.$broadcast("zoomToGeoresourceLayer", georesourceMetadata);
 								};
 
 
