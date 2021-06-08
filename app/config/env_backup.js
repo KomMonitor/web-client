@@ -46,11 +46,11 @@ try {
   PROPERTIES used within special modal (spatialUnitNotification component)
   to show a customizable HTMLText only when user selects a certian spatial unit for any indicator
   */
-  window.__env.enableSpatialUnitNotificationSelection = true; // controls if a notification should be shown when selecting certain spatial units
-  window.__env.enableSpatialUnitNotificationButton = true; // enables button to manually open spatial unit notification
-  window.__env.spatialUnitNotificationSelection = ["Baublockebene", ""]; // unit(s) for which the notification is shown
+  window.__env.enableSpatialUnitNotificationSelection = false; // controls if a notification should be shown when selecting certain spatial units
+  window.__env.enableSpatialUnitNotificationButton = false; // enables button to manually open spatial unit notification
+  window.__env.spatialUnitNotificationSelection = ["Baublockebene"]; // unit(s) for which the notification is shown
   window.__env.spatialUnitNotificationTitle = "Informationsverlust auf kleinräumigen Ebenen (Bau- und Mittelblock)"; // title of the notification window
-  window.__env.spatialUnitNotificationMessage = "Alle Daten, die im smartdemography-Portal dargestellt werden, halten die statistische Geheimhaltung ein. Das bedeutet, dass Angaben zu einzelnen Personen nicht offengelegt werden, insbesondere auch, wenn aus aggregierten Werten Rückschlüsse zu Einzelangaben ermöglicht werden. Aus diesem Grund werden Indikatorenwerte, die in einem räumlichen Aggregat eine absolute Fallzahl von < 3 Einwohnern aufweisen, so behandelt, als hätten diese 0 Einwohner.\
+  window.__env.spatialUnitNotificationMessage = "Alle Daten, die im KomMonitor dargestellt werden, halten die statistische Geheimhaltung ein. Das bedeutet, dass Angaben zu einzelnen Personen nicht offengelegt werden, insbesondere auch, wenn aus aggregierten Werten Rückschlüsse zu Einzelangaben ermöglicht werden. Aus diesem Grund werden Indikatorenwerte, die in einem räumlichen Aggregat eine absolute Fallzahl von < 3 Einwohnern aufweisen, so behandelt, als hätten diese 0 Einwohner.\
     Diese Methode der statistischen Geheimhaltung kann zu einem teilweise hohen Informationsverlust auf kleinräumigen Ebenen führen. Stark differenzierte Indikatoren auf kleinräumigen Ebenen, die insgesamt nur wenige Fallzahlen aufweisen, könnten so an vielen Stellen entsprechend bereinigt worden seien und somit keine validen Werte liefern. \
     Dies lässt sich daran erkennen, dass die Fallzahlen insgesamt niedrig sind und viele Gebiete 0-Werte haben. Eine flächendeckendes Bild ist somit nicht möglich. \
     Dennoch bieten diese Indikatoren trotz ungenauer Wertedie Möglichkeit, „Hot-Spots“ und „Cluster“ der jeweiligen Indikatoren zu ermitteln. \
