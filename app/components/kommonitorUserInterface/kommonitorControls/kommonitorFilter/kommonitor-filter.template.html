@@ -2,91 +2,6 @@
 
 	<p></p>
 
-	<!-- DARSTELLUNGSFILTER -->
-	<div class="box box-primary">
-		<div class="box-header with-border">
-			<h3 class="box-title">Wertebereich Filter</h3>
-
-			<div class="box-tools pull-right">
-				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-				</button>
-			</div>
-		</div>
-		<div class="box-body">
-
-			<div align="middle">
-				<p>Einschr&auml;nken der dargestellten Features anhand des Indikatorenwertebereichs. Bewegen der
-					Schieberegler mit Hilfe der Maus oder den Pfeiltasten der Tastatur.</p>
-				<div id="rangeSliderForFilteringWrapper">
-					<input id="rangeSliderForFiltering" type="text" class="js-range-slider" value=""></input>
-				</div>
-			</div>
-
-			<p></p>
-
-			<div class="row">
-				<div class="col-lg-6">
-					<div class="input-group">
-						<span class="input-group-addon">
-							<b>untere Grenze</b>
-						</span>
-						<input ng-model="currentLowerFilterValue" ng-model-options="{debounce: 500, blur: 0}"
-							ng-change="onChangeLowerFilterValue()" string-to-number type="number"
-							min="{{valueRangeMinValue}}" max="{{valueRangeMaxValue}}" step="0.01"
-							class="form-control input-sm">
-
-					</div>
-					<!-- /input-group -->
-					<p></p>
-
-					<div ng-show="lowerFilterInputNotValid" class="alert alert-danger" style="margin-bottom:0px;">
-						<strong><i class="icon fas fa-ban"></i>Untere Filtergrenze ung&uuml;ltig!</strong>
-						<p></p>
-						<p>
-							<strong>Hinweis: </strong>Der Wert muss zwischen {{valueRangeMinValue}} und
-							{{valueRangeMaxValue}} liegen und kleiner als die aktuelle obere Filtergrenze
-							({{currentHigherFilterValue}}) sein.
-						</p>
-					</div>
-				</div>
-				<!-- /.col-lg-6 -->
-				<div class="col-lg-6">
-					<div class="input-group">
-						<span class="input-group-addon">
-							<b>obere Grenze</b>
-						</span>
-						<input ng-model="currentHigherFilterValue" ng-model-options="{debounce: 500, blur: 0}"
-							ng-change="onChangeHigherFilterValue()" string-to-number type="number"
-							min="{{valueRangeMinValue}}" max="{{valueRangeMaxValue}}" step="0.01"
-							class="form-control input-sm">
-
-					</div>
-					<!-- /input-group -->
-
-					<p></p>
-					<div ng-show="higherFilterInputNotValid" class="alert alert-danger" style="margin-bottom:0px;">
-						<strong><i class="icon fas fa-ban"></i>Obere Filtergrenze ung&uuml;ltig!</strong>
-
-						<p></p>
-
-						<p>
-							<strong>Hinweis: </strong>Der Wert muss zwischen {{valueRangeMinValue}} und
-							{{valueRangeMaxValue}} liegen und gr&ouml;ßer als die aktuelle untere Filtergrenze
-							({{currentLowerFilterValue}}) sein.
-						</p>
-					</div>
-				</div>
-				<!-- /.col-lg-6 -->
-			</div>
-			<!-- /.row -->
-
-		</div>
-		<!-- /.box-body -->
-	</div>
-	<!-- /.box -->
-
-
-
 	<!-- RÄUMLICHE FILTER -->
 	<div class="box box-primary">
 		<div class="box-header with-border">
@@ -194,6 +109,89 @@
 			</div>
 
 		</div>
+	</div>
+	<!-- /.box -->
+
+	<!-- DARSTELLUNGSFILTER -->
+	<div class="box box-primary">
+		<div class="box-header with-border">
+			<h3 class="box-title">Wertebereich Filter</h3>
+
+			<div class="box-tools pull-right">
+				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+				</button>
+			</div>
+		</div>
+		<div class="box-body">
+
+			<div align="middle">
+				<p>Einschr&auml;nken der dargestellten Features anhand des Indikatorenwertebereichs. Bewegen der
+					Schieberegler mit Hilfe der Maus oder den Pfeiltasten der Tastatur.</p>
+				<div id="rangeSliderForFilteringWrapper">
+					<input id="rangeSliderForFiltering" type="text" class="js-range-slider" value=""></input>
+				</div>
+			</div>
+
+			<p></p>
+
+			<div class="row">
+				<div class="col-lg-6">
+					<div class="input-group">
+						<span class="input-group-addon">
+							<b>untere Grenze</b>
+						</span>
+						<input ng-model="currentLowerFilterValue" ng-model-options="{debounce: 500, blur: 0}"
+							ng-change="onChangeLowerFilterValue()" string-to-number type="number"
+							min="{{valueRangeMinValue}}" max="{{valueRangeMaxValue}}" step="0.01"
+							class="form-control input-sm">
+
+					</div>
+					<!-- /input-group -->
+					<p></p>
+
+					<div ng-show="lowerFilterInputNotValid" class="alert alert-danger" style="margin-bottom:0px;">
+						<strong><i class="icon fas fa-ban"></i>Untere Filtergrenze ung&uuml;ltig!</strong>
+						<p></p>
+						<p>
+							<strong>Hinweis: </strong>Der Wert muss zwischen {{valueRangeMinValue}} und
+							{{valueRangeMaxValue}} liegen und kleiner als die aktuelle obere Filtergrenze
+							({{currentHigherFilterValue}}) sein.
+						</p>
+					</div>
+				</div>
+				<!-- /.col-lg-6 -->
+				<div class="col-lg-6">
+					<div class="input-group">
+						<span class="input-group-addon">
+							<b>obere Grenze</b>
+						</span>
+						<input ng-model="currentHigherFilterValue" ng-model-options="{debounce: 500, blur: 0}"
+							ng-change="onChangeHigherFilterValue()" string-to-number type="number"
+							min="{{valueRangeMinValue}}" max="{{valueRangeMaxValue}}" step="0.01"
+							class="form-control input-sm">
+
+					</div>
+					<!-- /input-group -->
+
+					<p></p>
+					<div ng-show="higherFilterInputNotValid" class="alert alert-danger" style="margin-bottom:0px;">
+						<strong><i class="icon fas fa-ban"></i>Obere Filtergrenze ung&uuml;ltig!</strong>
+
+						<p></p>
+
+						<p>
+							<strong>Hinweis: </strong>Der Wert muss zwischen {{valueRangeMinValue}} und
+							{{valueRangeMaxValue}} liegen und gr&ouml;ßer als die aktuelle untere Filtergrenze
+							({{currentLowerFilterValue}}) sein.
+						</p>
+					</div>
+				</div>
+				<!-- /.col-lg-6 -->
+			</div>
+			<!-- /.row -->
+
+		</div>
+		<!-- /.box-body -->
 	</div>
 	<!-- /.box -->
 
