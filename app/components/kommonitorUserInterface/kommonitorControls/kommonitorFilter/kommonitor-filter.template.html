@@ -14,7 +14,7 @@
 		</div>
 		<div class="box-body">
 
-			<strong>gefilterte Features tempor&auml;r aus Datensatz entfernen</strong>
+			<strong>R&auml;umlichen Filter f&uuml;r alle Funktionen anwenden</strong>
 			&nbsp;
 			<label class="switch">
 				<input id="controlFilterBehaviourToggle" type="checkbox" ng-change="$ctrl.kommonitorFilterHelperServiceInstance.onChangeFilterBehaviourToggle()"
@@ -22,13 +22,14 @@
 					ng-checked="$ctrl.kommonitorFilterHelperServiceInstance.completelyRemoveFilteredFeaturesFromDisplay"></input>
 				<span class="switchslider round"></span>
 			</label>
+			<p>Diagramme, Datenexport, POIs und Klassifizierung werden mit dieser Einstellung auf den r&auml;umlichen Filter beschr&auml;nkt.</p>
 
 			<br/>
 			<hr>
 
 			<div align="middle">
-				<h4>Wähle untergeordnete Raumeinheiten innerhalb der selektierten Raumeinheit</h4>
-				<p>Durch Auswahl eines Gebiets der übergeordneten Raumeinheit (relativ zur momentan angezeigten) können alle darin enthaltenen Gebiete ausgewählt werden. Die Auswahl erfolgt über eine Zentroidberechnung.</p>
+				<h4>Selektion anhand einer &uuml;bergeordneten Raumeinheit</h4>
+				<p>Durch Auswahl eines Gebiets der übergeordneten Raumeinheit (relativ zur momentan angezeigten) können alle darin enthaltenen Gebiete ausgewählt werden. Die Auswahl erfolgt intern über eine Zentroidberechnung.</p>
 				<label class="switch">
 					<input id="showSelectionByFeatureSpatialFilterToggle" type="checkbox" ng-change="onChangeShowSelectionByFeature()"
 						ng-model="showSelectionByFeatureSpatialFilter" 
