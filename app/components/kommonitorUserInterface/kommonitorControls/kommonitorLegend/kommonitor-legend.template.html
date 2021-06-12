@@ -306,21 +306,6 @@
 									<div class="col-md-3 ">{{$ctrl.kommonitorVisualStyleHelperServiceInstance.featuresPerColorMap.get(color) || 0}}</div>
 								</div>
 							</div>
-
-							<div>
-								<br/>
-								<br/>
-								<div class="row">
-									<div class="col-md-8"><b>{{$ctrl.kommonitorDataExchangeServiceInstance.totalFeaturesPropertyLabel_sum}}</b>:</div>
-									<div class="col-md-4">{{$ctrl.kommonitorDataExchangeServiceInstance.totalFeaturesPropertyValue_sum}}</div>
-								</div>
-								 
-								<div class="row">
-									<div class="col-md-8"><b>{{$ctrl.kommonitorDataExchangeServiceInstance.totalFeaturesPropertyLabel_mean}}</b>:</div>
-									<div class="col-md-4">{{$ctrl.kommonitorDataExchangeServiceInstance.totalFeaturesPropertyValue_mean}}</div>
-								</div>
-								
-							</div>
 						</div>
 				
 					</uib-tab>
@@ -448,10 +433,45 @@
 					</uib-tab>
 
 				
-				</uib-tabset>
+				</uib-tabset>	
+			</div>
+			<!-- /.box-body -->
+		</div>
+		<!-- /.box -->
 
-				
+		<div id="kommonitorsStatisticalValues" class="box box-primary">
+			<div class="box-header with-border">
+				<h3 class="box-title">Statistik</h3>
 
+				<div class="box-tools pull-right">
+					<button id="statisticalValuesCollapse" type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+					</button>
+				</div>
+			</div>
+			<div class="box-body">
+				<div>
+					<div class="row">
+						<div class="col-md-8"><b>{{$ctrl.kommonitorDataExchangeServiceInstance.totalFeaturesPropertyLabel_sum}}</b>:</div>
+						<div class="col-md-4">{{$ctrl.kommonitorDataExchangeServiceInstance.totalFeaturesPropertyValue_sum}}</div>
+					</div>
+					 
+					<div class="row">
+						<div class="col-md-8"><b>{{$ctrl.kommonitorDataExchangeServiceInstance.totalFeaturesPropertyLabel_mean}}</b>:</div>
+						<div class="col-md-4">{{$ctrl.kommonitorDataExchangeServiceInstance.totalFeaturesPropertyValue_mean}}</div>
+					</div>
+
+					<br/>
+					<div class="row">
+						<div class="col-md-8"><b>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesPropertyLabel_sum}}</b>:</div>
+						<div class="col-md-4">{{$ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesPropertyValue_sum}}</div>
+					</div>
+					 
+					<div class="row">
+						<div class="col-md-8"><b>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesPropertyLabel_mean}}</b>:</div>
+						<div class="col-md-4">{{$ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesPropertyValue_mean}}</div>
+					</div>
+					
+				</div>
 			</div>
 			<!-- /.box-body -->
 		</div>

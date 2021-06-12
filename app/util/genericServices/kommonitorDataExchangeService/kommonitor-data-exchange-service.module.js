@@ -17,6 +17,7 @@ angular
 				function($rootScope, $timeout,
 						kommonitorMapService, kommonitorKeycloakHelperService, $http, __env, $q, Auth,) {              
 
+              thisService = this;
               this.appTitle = __env.appTitle;
 
               this.customLogoURL = __env.customLogoURL;
@@ -1944,6 +1945,11 @@ angular
           this.totalFeaturesPropertyLabel_sum;
           this.totalFeaturesPropertyValue_mean;
           this.totalFeaturesPropertyLabel_mean;
+          this.selectedFeaturesPropertyValue_sum;
+          this.selectedFeaturesPropertyLabel_sum;
+          this.selectedFeaturesPropertyValue_mean;
+          this.selectedFeaturesPropertyLabel_mean;
+
 
           this.setTotalFeaturesProperty = function(indicatorMetadataAndGeoJSON, propertyName){
             var sum = 0;
@@ -1957,13 +1963,30 @@ angular
             }
 
             this.totalFeaturesPropertyUnit = indicatorMetadataAndGeoJSON.unit;
-
             this.totalFeaturesPropertyValue_sum = this.getIndicatorValue_asFormattedText(sum);
             this.totalFeaturesPropertyLabel_sum = "Summe aller " + indicatorMetadataAndGeoJSON.geoJSON.features.length + " Features";
             this.totalFeaturesPropertyValue_mean = this.getIndicatorValue_asFormattedText(sum / count);     
-              this.totalFeaturesPropertyLabel_mean = "Arithmetisches Mittel aller  " + indicatorMetadataAndGeoJSON.geoJSON.features.length + " Features";   
-            
-          };          
+            this.totalFeaturesPropertyLabel_mean = "Arithmetisches Mittel aller  " + indicatorMetadataAndGeoJSON.geoJSON.features.length + " Features";
+          };
+
+          
+          this.setSelectedFeatureProperty = function(selectedFeaturesMap, propertyName) {
+            var selected_sum = 0;
+            var selected_count = 0
+
+            selectedFeaturesMap.forEach(function(value, key, map) {
+              if(! thisService.indicatorValueIsNoData(value.properties[propertyName])){
+                selected_count++;
+                selected_sum += thisService.getIndicatorValueFromArray_asNumber(value.properties, propertyName);
+              }
+            });
+
+            this.selectedFeaturesPropertyValue_sum = this.getIndicatorValue_asFormattedText(selected_sum)
+            this.selectedFeaturesPropertyLabel_sum = "Summe der " + selected_count + " selektierten Features:"
+            this.selectedFeaturesPropertyValue_mean = this.getIndicatorValue_asFormattedText(selected_sum / selected_count)
+            this.selectedFeaturesPropertyLabel_mean = "Arithmetisches Mittel der  " + selected_count + " Features";
+            $rootScope.$apply();
+          }
 
           var containsNegativeValues = function(geoJSON, propertyName){
 
@@ -2840,5 +2863,19 @@ angular
       return rolesMetadata;
     };
 
+    $rootScope.$on("onAddedFeatureToSelection", function (event, feature, selectedFeaturesMap) {
+      let propertyName = buildIndicatorPropertyName();
+      thisService.setSelectedFeatureProperty(selectedFeaturesMap, propertyName);
+    });
 
-				}]);
+    $rootScope.$on("onRemovedFeatureFromSelection", function (event, featureId, selectedFeaturesMap) {
+      let propertyName = buildIndicatorPropertyName();
+      thisService.setSelectedFeatureProperty(selectedFeaturesMap, propertyName);
+    });
+
+    function buildIndicatorPropertyName() {
+      const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
+      let propertyName = INDICATOR_DATE_PREFIX + thisService.selectedDate;
+      return propertyName;
+    }
+}]);
