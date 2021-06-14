@@ -714,53 +714,58 @@ angular
                 // Binding to unnamed objects in an array tricky (using the index is not reliable)
                 // It also creates other problems
                 this.dataSourceParametersArrayToProperty = function (dataSource) {
-                    var result = $.extend(true, {}, dataSource);
-                    var array = dataSource.parameters;
-
-                    if (array.length == 1) {
-                        var paramName = array[0].name
-                        var paramValue = array[0].value
-
-                        result[paramName] = {
-                            name: paramName,
-                            value: paramValue
+                    if(dataSource) {
+                        var result = $.extend(true, {}, dataSource);
+                        var array = dataSource.parameters;
+    
+                        if (array.length == 1) {
+                            var paramName = array[0].name
+                            var paramValue = array[0].value
+    
+                            result[paramName] = {
+                                name: paramName,
+                                value: paramValue
+                            }
                         }
+                        delete result.parameters;
+    
+                        return result;
                     }
-                    delete result.parameters;
-
-                    return result;
                 }
 
                 // This reverses the result of the method dataSourceParametersArrayToProperty
                 this.dataSourcePropertyToParametersArray = function (dataSource) {
-                    var result = $.extend(true, {}, dataSource);
-                    result.parameters = [];
-
-                    if (result.hasOwnProperty("NAME")) {
-                        result.parameters.push({
-                            name: "NAME",
-                            value: result.NAME.value
-                        });
-                        delete result.NAME;
+                    if (dataSource) {
+                        var result = $.extend(true, {}, dataSource);
+                        result.parameters = [];
+    
+                        if (result.hasOwnProperty("NAME")) {
+                            result.parameters.push({
+                                name: "NAME",
+                                value: result.NAME.value
+                            });
+                            delete result.NAME;
+                        }
+    
+                        if (result.hasOwnProperty("URL")) {
+                            result.parameters.push({
+                                name: "URL",
+                                value: result.URL.value
+                            });
+                            delete result.URL;
+                        }
+    
+                        if (result.hasOwnProperty("payload")) {
+                            result.parameters.push({
+                                name: "payload",
+                                value: result.payload.value
+                            });
+                            delete result.payload;
+                        }
+    
+                        return result;
                     }
-
-                    if (result.hasOwnProperty("URL")) {
-                        result.parameters.push({
-                            name: "URL",
-                            value: result.URL.value
-                        });
-                        delete result.URL;
-                    }
-
-                    if (result.hasOwnProperty("payload")) {
-                        result.parameters.push({
-                            name: "payload",
-                            value: result.payload.value
-                        });
-                        delete result.payload;
-                    }
-
-                    return result;
+                    
                 }
 
 
@@ -1062,16 +1067,19 @@ angular
 			    	}
                 
 			    	// set value of column "Datenquelltyp*" by dataSource type
-			    	let dataSourceType = mappingObj.dataSource.type;
-			    	for(let i=0; i<kommonitorImporterHelperService.availableDatasourceTypes.length; i++) {
-			    		let avDataSourceType = kommonitorImporterHelperService.availableDatasourceTypes[i].type
-			    		if(dataSourceType == avDataSourceType) {
-			    			$timeout(function() {
-			    				batchList[rowIndex].selectedDatasourceType = kommonitorImporterHelperService.availableDatasourceTypes[i];
-			    			});
-			    			break;
-			    		}
-			    	}
+                    if(mappingObj.dataSource) {
+                        let dataSourceType = mappingObj.dataSource.type;
+                        for(let i=0; i<kommonitorImporterHelperService.availableDatasourceTypes.length; i++) {
+                            let avDataSourceType = kommonitorImporterHelperService.availableDatasourceTypes[i].type
+                            if(dataSourceType == avDataSourceType) {
+                                $timeout(function() {
+                                    batchList[rowIndex].selectedDatasourceType = kommonitorImporterHelperService.availableDatasourceTypes[i];
+                                });
+                                break;
+                            }
+                        }
+                    }
+			    	
 
                     if(resourceType === "indicator") {
                         // set value of column "Ziel-Raumebene*" by target spatial unit name
@@ -1083,9 +1091,11 @@ angular
                     }
                 
 			    	// do not import file name
-			    	if(mappingObj.dataSource.type == "FILE") {
-			    		mappingObj.dataSource.NAME.value = "";
-			    	}
+                    if(mappingObj.dataSource) {
+			    	    if(mappingObj.dataSource.type == "FILE") {
+			    		    mappingObj.dataSource.NAME.value = "";
+			    	    }
+                    }
                 
 			    	//apply to scope
 			    	$timeout(function() {
