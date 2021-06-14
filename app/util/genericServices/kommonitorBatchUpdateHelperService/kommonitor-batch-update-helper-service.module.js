@@ -486,7 +486,7 @@ angular
                                 type: ""
                             },
                             propertyMapping: {
-                                timeseriesMapping: [
+                                timeseriesMappings: [
                                     /*
                                     {
                                         "indicatorValueProperty": "string",
@@ -1122,8 +1122,8 @@ angular
 
 
                 this.onClickSaveColDefaultValue = function(resourceType, selectedCol, newValue, replaceAll, batchList) {
-                    // differentiate between timesereis mapping and other columns
-                    if(selectedCol == "mappingObj.propertyMapping.timeseriesMapping") {
+                    // differentiate between timeseries mapping and other columns
+                    if(selectedCol == "mappingObj.propertyMapping.timeseriesMappings") {
                         if(typeof(newValue != "undefined")) {
                             let btns = angular.element($('.indicatorTimeseriesMappingBtn'));
                             for (let i=0; i<batchList.length; i++) {
