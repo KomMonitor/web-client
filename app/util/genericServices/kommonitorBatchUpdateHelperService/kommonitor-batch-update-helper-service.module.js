@@ -819,7 +819,7 @@ angular
                 // helper function to get a indicator object by id.
                 // returns null if no indicator object was found
                 this.getIndicatorObjectById = function (id) {
-                    for (indicator of kommonitorDataExchangeService.availableIndicators) {
+                    for (let indicator of kommonitorDataExchangeService.availableIndicators) {
                         if (indicator.indicatorId === id) {
                             return indicator;
                         }
@@ -1227,7 +1227,7 @@ angular
                             let resource;
                             if (resourceType === "georesource")
                                 resource = this.getGeoresourceObjectById(row.tempResourceId);
-                                if (resourceType === "indicator")
+                            if (resourceType === "indicator")
                                 resource = this.getIndicatorObjectById(row.tempResourceId);
                             
                             row.name = resource;

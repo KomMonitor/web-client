@@ -184,7 +184,7 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 					let isValidSpatialUnit = false;
 					if($scope.batchList[batchIndex].name) {
 						let applicableSpatialUnits = $scope.batchList[batchIndex].name.applicableSpatialUnits;
-						for(applicableSpatialUnit of applicableSpatialUnits) {
+						for(let applicableSpatialUnit of applicableSpatialUnits) {
 							if(avSpatialUnit.spatialUnitLevel === applicableSpatialUnit.spatialUnitName) {
 								isValidSpatialUnit = true;
 								break;
