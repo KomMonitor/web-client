@@ -35,12 +35,12 @@ angular
         else{
           this.selectedIndicatorFeatureIds.set("" + feature[__env.FEATURE_ID_PROPERTY_NAME], feature);
         }
-        $rootScope.$broadcast("onAddedFeatureToSelection", feature);
+        $rootScope.$broadcast("onAddedFeatureToSelection", this.selectedIndicatorFeatureIds);
       };
 
       this.removeFeatureFromSelection = function(featureId){
         this.selectedIndicatorFeatureIds.delete("" + featureId);
-        $rootScope.$broadcast("onRemovedFeatureFromSelection", featureId);
+        $rootScope.$broadcast("onRemovedFeatureFromSelection", this.selectedIndicatorFeatureIds);
       };
 
 
@@ -111,7 +111,7 @@ angular
           }
         }
         
-        $rootScope.$broadcast("onRemovedFeatureFromSelection");
+        $rootScope.$broadcast("onRemovedFeatureFromSelection", this.selectedIndicatorFeatureIds);
       };
 
       this.filterAndReplaceDataset = function(){

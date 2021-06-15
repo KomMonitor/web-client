@@ -9,8 +9,8 @@ angular
 					 * enabled tabs
 					 */
 					controller : ['$scope', '$rootScope', 'kommonitorMapService', 'kommonitorDataExchangeService', 'kommonitorFilterHelperService', 
-					'__env', '$http', function kommonitorFilterController($scope, $rootScope, kommonitorMapService, kommonitorDataExchangeService, 
-						kommonitorFilterHelperService, __env, $http) {
+					'__env', '$http', '$timeout', function kommonitorFilterController($scope, $rootScope, kommonitorMapService, kommonitorDataExchangeService, 
+						kommonitorFilterHelperService, __env, $http, $timeout) {
 
 							const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
 							this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
@@ -507,11 +507,15 @@ angular
 							};
 
 							$scope.$on("onAddedFeatureToSelection", function (event, feature) {
-								$scope.$digest();
+								$timeout(function() {
+									$scope.$digest();
+								});
 							});
 
 							$scope.$on("onRemovedFeatureFromSelection", function (event, featureId) {
-								$scope.$digest();
+								$timeout(function() {
+									$scope.$digest();
+								});
 							});
 
 							// $rootScope.$on("changeSpatialUnit", function() {
