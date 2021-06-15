@@ -506,14 +506,6 @@ angular
 								$scope.manualSelectionSpatialFilterDuallistOptions.items = $scope.manualSelectionSpatialFilterDuallistOptions.items.filter(item => ! kommonitorFilterHelperService.featureIsCurrentlySelected(item.id));								
 							};
 
-							$scope.$on("onAddedFeatureToSelection", function (event, feature) {
-								$scope.$digest();
-							});
-
-							$scope.$on("onRemovedFeatureFromSelection", function (event, featureId) {
-								$scope.$digest();
-							});
-
 							// $rootScope.$on("changeSpatialUnit", function() {
 							// 	if ($scope.showSelectionByFeatureSpatialFilter)
 							// 		$scope.updateSelectableAreas("byFeature");

@@ -449,29 +449,43 @@
 				</div>
 			</div>
 			<div class="box-body">
-				<div>
-					<div class="row">
-						<div class="col-md-8"><b>{{$ctrl.kommonitorDataExchangeServiceInstance.totalFeaturesPropertyLabel_sum}}</b>:</div>
-						<div class="col-md-4">{{$ctrl.kommonitorDataExchangeServiceInstance.totalFeaturesPropertyValue_sum}}</div>
-					</div>
-					 
-					<div class="row">
-						<div class="col-md-8"><b>{{$ctrl.kommonitorDataExchangeServiceInstance.totalFeaturesPropertyLabel_mean}}</b>:</div>
-						<div class="col-md-4">{{$ctrl.kommonitorDataExchangeServiceInstance.totalFeaturesPropertyValue_mean}}</div>
-					</div>
-
-					<br/>
-					<div class="row">
-						<div class="col-md-8"><b>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesPropertyLabel_sum}}</b>:</div>
-						<div class="col-md-4">{{$ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesPropertyValue_sum}}</div>
-					</div>
-					 
-					<div class="row">
-						<div class="col-md-8"><b>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesPropertyLabel_mean}}</b>:</div>
-						<div class="col-md-4">{{$ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesPropertyValue_mean}}</div>
-					</div>
-					
-				</div>
+				<table class="table table-responsive">
+					<thead>
+						<tr>
+							<th>Metrik</th>
+							<th ng-show="$ctrl.kommonitorFilterHelperServiceInstance.filteredIndicatorFeatureIds.size == 0">{{$ctrl.kommonitorDataExchangeServiceInstance.labelAllFeatures}}</th>
+							<th ng-show="$ctrl.kommonitorFilterHelperServiceInstance.filteredIndicatorFeatureIds.size > 0">{{$ctrl.kommonitorDataExchangeServiceInstance.labelFilteredFeatures}}</th>
+							<th>{{$ctrl.kommonitorDataExchangeServiceInstance.labelSelectedFeatures}}</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>{{$ctrl.kommonitorDataExchangeServiceInstance.labelNumberOfFeatures}}</td>
+							<td>{{$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesNumberOfFeatures}}</td>
+							<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesNumberOfFeatures}}</td>
+						</tr>
+						<tr>
+							<td>{{$ctrl.kommonitorDataExchangeServiceInstance.labelSum}}</td>
+							<td>{{$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesSum}}</td>
+							<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesSum}}</td>
+						</tr>
+       		            <tr>
+       		                <td>{{$ctrl.kommonitorDataExchangeServiceInstance.labelMean}}</td>
+       		                <td>{{$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesMean}}</td>
+							<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesMean}}</td>
+       		            </tr>
+       		            <tr>
+       		                <td>{{$ctrl.kommonitorDataExchangeServiceInstance.labelMin}}</td>
+       		                <td>{{$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesMin}}</td>
+							<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesMin}}</td>
+       		            </tr>
+						<tr>
+							<td>{{$ctrl.kommonitorDataExchangeServiceInstance.labelMax}}</td>
+       		                <td>{{$ctrl.kommonitorDataExchangeServiceInstance.allFeaturesMax}}</td>
+							<td>{{$ctrl.kommonitorDataExchangeServiceInstance.selectedFeaturesMax}}</td>
+						</tr>
+					</tbody>
+				</table>
 			</div>
 			<!-- /.box-body -->
 		</div>
