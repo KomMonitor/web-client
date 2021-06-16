@@ -2582,3 +2582,8 @@ input:checked + .switchslider:before {
 #manualSelectionSpatialFilterSelectByMapBtn {
 	margin-bottom: 10px;
 }
+
+#statisticalValuesDisplayTable td {
+	padding: 0;
+	margin: 0;
+ }

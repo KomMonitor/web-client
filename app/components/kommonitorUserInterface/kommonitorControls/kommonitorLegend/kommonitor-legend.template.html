@@ -449,10 +449,10 @@
 				</div>
 			</div>
 			<div class="box-body">
-				<table class="table table-responsive">
+				<table id="statisticalValuesDisplayTable" class="table">
 					<thead>
 						<tr>
-							<th>Metrik</th>
+							<th></th>
 							<th ng-show="$ctrl.kommonitorFilterHelperServiceInstance.filteredIndicatorFeatureIds.size == 0">{{$ctrl.kommonitorDataExchangeServiceInstance.labelAllFeatures}}</th>
 							<th ng-show="$ctrl.kommonitorFilterHelperServiceInstance.filteredIndicatorFeatureIds.size > 0">{{$ctrl.kommonitorDataExchangeServiceInstance.labelFilteredFeatures}}</th>
 							<th>{{$ctrl.kommonitorDataExchangeServiceInstance.labelSelectedFeatures}}</th>
