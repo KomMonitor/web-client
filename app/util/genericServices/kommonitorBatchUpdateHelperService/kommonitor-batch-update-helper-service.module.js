@@ -772,7 +772,7 @@ angular
                 // helper function to get a converter object by full name.
                 // returns null if no converter was found
                 this.getConverterObjectByName = function (name) {
-                    for (converter of kommonitorImporterHelperService.availableConverters) {
+                    for (const converter of kommonitorImporterHelperService.availableConverters) {
                         if (converter.name === name) {
                             return converter;
                         }
@@ -784,7 +784,7 @@ angular
                 // helper function to get a datasourceType object by type.
                 // returns null if no datasourceType was found
                 this.getDatasourceTypeObjectByType = function (type) {
-                    for (datasourceType of kommonitorImporterHelperService.availableDatasourceTypes) {
+                    for (const datasourceType of kommonitorImporterHelperService.availableDatasourceTypes) {
                         if (datasourceType.type === type) {
                             return datasourceType;
                         }
@@ -808,7 +808,7 @@ angular
                 // helper function to get a georesource object by id.
                 // returns null if no georesource object was found
                 this.getGeoresourceObjectById = function (id) {
-                    for (georesource of kommonitorDataExchangeService.availableGeoresources) {
+                    for (const georesource of kommonitorDataExchangeService.availableGeoresources) {
                         if (georesource.georesourceId === id) {
                             return georesource;
                         }
