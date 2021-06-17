@@ -17,6 +17,7 @@ angular
 				function($rootScope, $timeout,
 						kommonitorMapService, kommonitorKeycloakHelperService, $http, __env, $q, Auth,) {              
 
+              thisService = this;
               this.appTitle = __env.appTitle;
 
               this.customLogoURL = __env.customLogoURL;
@@ -1939,31 +1940,91 @@ angular
             return indicatorTypeString;
           };
 
-          this.totalFeaturesPropertyUnit;
-          this.totalFeaturesPropertyValue_sum;
-          this.totalFeaturesPropertyLabel_sum;
-          this.totalFeaturesPropertyValue_mean;
-          this.totalFeaturesPropertyLabel_mean;
+          
+          this.labelAllFeatures = "alle Features";
+          this.labelFilteredFeatures = "gefilterte Features";
+          this.labelSelectedFeatures = "selektierte Features";
+          this.labelNumberOfFeatures = "Anzahl:"
+          this.labelSum = "Summe:"
+          this.labelMean = "arith. Mittel:"
+          this.labelMin = "Minimalwert:"
+          this.labelMax = "Maximalwert"
 
-          this.setTotalFeaturesProperty = function(indicatorMetadataAndGeoJSON, propertyName){
-            var sum = 0;
-            var count = 0;
+          this.allFeaturesNumberOfFeatures;
+          this.allFeaturesSum;
+          this.allFeaturesMean;
+          this.allFeaturesMin;
+          this.allFeaturesMax;
+          this.selectedFeaturesNumberOfFeatures;
+          this.selectedFeaturesSum;
+          this.selectedFeaturesMean;
+          this.selectedFeaturesMin;
+          this.selectedFeaturesMax;
+          this.allFeaturesPropertyUnit;
+
+          this.setAllFeaturesProperty = function(indicatorMetadataAndGeoJSON, propertyName){
+            let sum = 0;
+            let count = 0;
+            let min = Number.MAX_VALUE;
+            let max = Number.MIN_VALUE;
 
             for (const feature of indicatorMetadataAndGeoJSON.geoJSON.features) {
               if(! this.indicatorValueIsNoData(feature.properties[propertyName])){
-                sum += this.getIndicatorValueFromArray_asNumber(feature.properties, propertyName);
+                let value = this.getIndicatorValueFromArray_asNumber(feature.properties, propertyName)
+                sum += value;
+                if (value < min) min = value;
+                if (value > max) max = value;
                 count++;
               }
             }
 
-            this.totalFeaturesPropertyUnit = indicatorMetadataAndGeoJSON.unit;
+            this.allFeaturesPropertyUnit = indicatorMetadataAndGeoJSON.unit;
+            this.allFeaturesNumberOfFeatures = count;
+            this.allFeaturesSum = this.getIndicatorValue_asFormattedText(sum);
+            // no division by zero
+            if (count > 0) 
+              this.allFeaturesMean = this.getIndicatorValue_asFormattedText(sum / count);
+            else 
+              this.allFeaturesMean = 0;
+            this.allFeaturesMin = this.getIndicatorValue_asFormattedText(min);
+            this.allFeaturesMax = this.getIndicatorValue_asFormattedText(max)
+          };
 
-            this.totalFeaturesPropertyValue_sum = this.getIndicatorValue_asFormattedText(sum);
-            this.totalFeaturesPropertyLabel_sum = "Summe aller " + indicatorMetadataAndGeoJSON.geoJSON.features.length + " Features";
-            this.totalFeaturesPropertyValue_mean = this.getIndicatorValue_asFormattedText(sum / count);     
-              this.totalFeaturesPropertyLabel_mean = "Arithmetisches Mittel aller  " + indicatorMetadataAndGeoJSON.geoJSON.features.length + " Features";   
+          
+          this.setSelectedFeatureProperty = function(selectedFeaturesMap, propertyName) {
+            let sum = 0;
+            let count = 0
+            let min = Number.MAX_VALUE;
+            let max = Number.MIN_VALUE;
             
-          };          
+            selectedFeaturesMap.forEach(function(feature, key, map) {
+              if(! thisService.indicatorValueIsNoData(feature.properties[propertyName])){
+                let value = thisService.getIndicatorValueFromArray_asNumber(feature.properties, propertyName);
+                sum += value;
+                if (value < min) min = value;
+                if (value > max) max = value;
+                count++;
+              }
+            });
+
+            if(count === 0) {
+              // no feature selected, overwrite initial values for min and max
+              min = 0;
+              max = 0;
+            }
+            
+
+            this.selectedFeaturesNumberOfFeatures = count;
+            this.selectedFeaturesSum = this.getIndicatorValue_asFormattedText(sum);
+            // no division by zero
+            if (count > 0) 
+              this.selectedFeaturesMean = this.getIndicatorValue_asFormattedText(sum / count);
+            else 
+              this.selectedFeaturesMean = 0;
+            this.selectedFeaturesMin = this.getIndicatorValue_asFormattedText(min);
+            this.selectedFeaturesMax = this.getIndicatorValue_asFormattedText(max);
+          };
+
 
           var containsNegativeValues = function(geoJSON, propertyName){
 
@@ -2840,5 +2901,25 @@ angular
       return rolesMetadata;
     };
 
+    $rootScope.$on("onAddedFeatureToSelection", function (event, selectedIndicatorFeatureIds) {
+      let propertyName = buildIndicatorPropertyName();
 
-				}]);
+      $timeout(function(params) {
+        thisService.setSelectedFeatureProperty(selectedIndicatorFeatureIds, propertyName);
+      });
+    });
+
+    $rootScope.$on("onRemovedFeatureFromSelection", function (event, selectedIndicatorFeatureIds) {
+      let propertyName = buildIndicatorPropertyName();
+
+      $timeout(function(params) {
+        thisService.setSelectedFeatureProperty(selectedIndicatorFeatureIds, propertyName);
+      });
+    });
+
+    function buildIndicatorPropertyName() {
+      const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
+      let propertyName = INDICATOR_DATE_PREFIX + thisService.selectedDate;
+      return propertyName;
+    }
+}]);

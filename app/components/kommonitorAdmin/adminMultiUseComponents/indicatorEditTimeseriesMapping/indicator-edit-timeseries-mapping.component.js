@@ -140,7 +140,6 @@ angular.module('indicatorEditTimeseriesMapping').component('indicatorEditTimeser
 			$scope.resetTimeseriesMapping = function() {
 				$scope.timeseriesMapping = [];
 				$scope.useTimeseriesAsProperty = false;
-
 				$scope.userInputIndicatorValueProperty = undefined;
 				$scope.userInputTimestamp = undefined;
 				$scope.userInputTimestampProperty = undefined;
@@ -148,7 +147,9 @@ angular.module('indicatorEditTimeseriesMapping').component('indicatorEditTimeser
 
 			// adds a reference to the timeseriesMapping variable to the calling scope
 			$scope.$on('getTimeseriesMapping', function(event, args) {
-				event.targetScope[args.varname] = $scope.timeseriesMapping;
+				if($scope.timeseriesMapping.length > 0) {
+					event.targetScope[args.varname] = JSON.parse(JSON.stringify($scope.timeseriesMapping));	
+				}
 			});
 
 
