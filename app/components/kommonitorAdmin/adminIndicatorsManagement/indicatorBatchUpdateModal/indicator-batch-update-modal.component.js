@@ -184,7 +184,7 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 					let isValidSpatialUnit = false;
 					if($scope.batchList[batchIndex].name) {
 						let applicableSpatialUnits = $scope.batchList[batchIndex].name.applicableSpatialUnits;
-						for(applicableSpatialUnit of applicableSpatialUnits) {
+						for(let applicableSpatialUnit of applicableSpatialUnits) {
 							if(avSpatialUnit.spatialUnitLevel === applicableSpatialUnit.spatialUnitName) {
 								isValidSpatialUnit = true;
 								break;
@@ -220,14 +220,17 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 				
 				// get indicator for which timeseries mapping was opended
 				// use it to check the corresponding element in the batch list
-				let index = kommonitorBatchUpdateHelperService.getIndexFromId(event.relatedTarget.id)
-				$scope.timeseriesMappingModalOpenForIndex = index;
-				let timeseriesMappingProp = $scope.batchList[index].mappingObj.propertyMapping.timeseriesMappings;
-
-				if (timeseriesMappingProp && timeseriesMappingProp.length > 0)
-					$scope.$broadcast('loadTimeseriesMapping', { mapping: timeseriesMappingProp});
-				else
-					$scope.$broadcast('resetTimeseriesMapping');
+				if(event.target.id === "indicator-edit-time-series-mapping-modal") {
+					let index = kommonitorBatchUpdateHelperService.getIndexFromId(event.relatedTarget.id)
+					$scope.timeseriesMappingModalOpenForIndex = index;
+					let timeseriesMappingProp = $scope.batchList[index].mappingObj.propertyMapping.timeseriesMappings;
+	
+					if (timeseriesMappingProp && timeseriesMappingProp.length > 0)
+						$scope.$broadcast('loadTimeseriesMapping', { mapping: timeseriesMappingProp});
+					else
+						$scope.$broadcast('resetTimeseriesMapping');
+				}
+				
 			});
 
 			$('#indicator-edit-default-time-series-mapping-modal').on('show.bs.modal', function (event) {
