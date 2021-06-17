@@ -796,7 +796,7 @@ angular
                 // helper function to get a spatial unit object by full name.
                 // returns null if no spatial unit was found
                 this.getSpatialUnitObjectByName = function (name) {
-                    for (spatialUnit of kommonitorDataExchangeService.availableSpatialUnits) {
+                    for (const spatialUnit of kommonitorDataExchangeService.availableSpatialUnits) {
                         if (spatialUnit.spatialUnitLevel === name) {
                             return spatialUnit;
                         }
