@@ -17,7 +17,7 @@ angular
 				function($rootScope, $timeout,
 						kommonitorMapService, kommonitorKeycloakHelperService, $http, __env, $q, Auth,) {              
 
-              thisService = this;
+              let thisService = this;
               this.appTitle = __env.appTitle;
 
               this.customLogoURL = __env.customLogoURL;
