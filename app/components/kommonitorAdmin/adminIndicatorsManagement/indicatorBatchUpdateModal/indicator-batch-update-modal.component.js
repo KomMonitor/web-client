@@ -9,6 +9,7 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 	
 			$scope.isFirstStart = true;
 			$scope.lastUpdateResponseObj;
+			$scope.timeseriesMappingReference; // gets updated by a broadcast whenever $scope.timeseries mapping in indicatorEditTimeseriesMapping component changes
 	
 			/*
 			{
@@ -234,35 +235,35 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 			});
 
 			$('#indicator-edit-default-time-series-mapping-modal').on('show.bs.modal', function (event) {
-				if($scope.defaultTimeseriesMappingSave.length >= 1)
-					$scope.$broadcast('loadTimeseriesMapping', { mapping: $scope.defaultTimeseriesMappingSave });
-				else
-					$scope.$broadcast('resetTimeseriesMapping');
+				if(event.target.id === "indicator-edit-default-time-series-mapping-modal") {
+					if($scope.defaultTimeseriesMappingSave.length >= 1)
+						$scope.$broadcast('loadTimeseriesMapping', { mapping: $scope.defaultTimeseriesMappingSave });
+					else
+						$scope.$broadcast('resetTimeseriesMapping');
+				}
 			});
 
 			// on timeseries mapping modal closed
-			$('#indicator-edit-time-series-mapping-modal').on('hidden.bs.modal', function () {
-				// store timeseries mapping to mappingObj
-				// adds a variable timeseriesMappingBackup to $scope that holds a reference to the timeseries mapping
-				$scope.$broadcast('getTimeseriesMapping', { varname: "timeseriesMappingBackup"});
-				let index = $scope.timeseriesMappingModalOpenForIndex;
-				// converting to json and back gets rid of the $$hashkey property
-				$scope.batchList[index].mappingObj.propertyMapping.timeseriesMappings = angular.fromJson(angular.toJson($scope.timeseriesMappingBackup));
-				delete $scope.timeseriesMappingBackup;
-				
-				$scope.timeseriesMappingModalOpenForIndex = undefined;
-				// then reset the modal
-				$scope.$broadcast('resetTimeseriesMapping')
+			$('#indicator-edit-time-series-mapping-modal').on('hidden.bs.modal', function (event) {
+				if(event.target.id === "indicator-edit-time-series-mapping-modal") {
+					// store timeseries mapping to mappingObj
+					let index = $scope.timeseriesMappingModalOpenForIndex;
+					// converting to json and back gets rid of the $$hashkey property
+					$scope.batchList[index].mappingObj.propertyMapping.timeseriesMappings = angular.fromJson(angular.toJson($scope.timeseriesMappingReference));
+					$scope.timeseriesMappingModalOpenForIndex = undefined;
+					// then reset the modal
+					$scope.$broadcast('resetTimeseriesMapping')
+				}
 			});
 
-			// on timeseries mapping modal closed
-			$('#indicator-edit-default-time-series-mapping-modal').on('hidden.bs.modal', function () {
-				// store timeseries mapping to mappingObj
-				// adds a variable timeseriesMappingBackup to $scope that holds a reference to the timeseries mapping
-				$scope.$broadcast('getTimeseriesMapping', { varname: "colDefaultFunctionNewValue" });
-				$scope.defaultTimeseriesMappingSave = $scope.colDefaultFunctionNewValue;
-				// then reset the modal
-				$scope.$broadcast('resetTimeseriesMapping')
+			// on default timeseries mapping modal closed
+			$('#indicator-edit-default-time-series-mapping-modal').on('hidden.bs.modal', function (event) {
+				if(event.target.id === "indicator-edit-default-time-series-mapping-modal") {
+					// store timeseries mapping to mappingObj
+					$scope.defaultTimeseriesMappingSave = $scope.timeseriesMappingReference;
+					// then reset the modal
+					//$scope.$broadcast('resetTimeseriesMapping')
+				}
 			});
 
 
@@ -278,5 +279,10 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 					$rootScope.$broadcast("reopenBatchUpdateResultModal", $scope.lastUpdateResponseObj);
 				}
 			}
+
+			$rootScope.$on("timeseriesMappingChanged", function(event, data) {
+				$scope.timeseriesMappingReference = data.mapping;
+			});
+
 		}
 ]});
