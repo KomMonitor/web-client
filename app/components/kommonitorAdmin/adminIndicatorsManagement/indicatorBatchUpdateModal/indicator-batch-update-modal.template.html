@@ -203,7 +203,7 @@
 									<select id="indicatorColDefaultFunctionColSelectInput" class="form-control"
 										ng-model="colDefaultFunctionSelectedColumn" ng-change="colDefaultFunctionNewValue=undefined">
 										<option disabled selected value> -- Tabellenspalte w&auml;hlen -- </option>
-										<option value="mappingObj.propertyMapping.timeseriesMapping">Zeitreihen-Mapping*</option>
+										<option value="mappingObj.propertyMapping.timeseriesMappings">Zeitreihen-Mapping*</option>
 										<option value="selectedConverter">Datensatz-Quellformat*</option>
 										<option value="mappingObj.converter.CRS.value">CRS*</option>
 										<option value="mappingObj.converter.separator.value">separator*</option>
@@ -219,7 +219,7 @@
 									<input ng-show="!colDefaultFunctionSelectedColumn" type="text" class="form-control" ng-model="colDefaultFunctionNewValue" disabled placeholder="keine Tabellenspalte ausgew&auml;hlt"></input>
 									<!-- Zeitreihen-Mapping* -->
 									<button class="form-control btn btn-success btn-sm" ng-click="onDefaultTimeseriesMappingBtnClicked($event)"
-										ng-show="colDefaultFunctionSelectedColumn=='mappingObj.propertyMapping.timeseriesMapping'"
+										ng-show="colDefaultFunctionSelectedColumn=='mappingObj.propertyMapping.timeseriesMappings'"
 										style="background-color: #5cb85c;">
 											Hinzuf&uuml;gen/Editieren
 									</button>

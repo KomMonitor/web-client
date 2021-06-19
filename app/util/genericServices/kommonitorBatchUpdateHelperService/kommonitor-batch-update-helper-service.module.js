@@ -6,7 +6,8 @@ angular
         'kommonitorBatchUpdateHelperService', ['$rootScope', '$timeout', 'kommonitorDataExchangeService', 'kommonitorImporterHelperService', '__env',
             function ($rootScope, $timeout, kommonitorDataExchangeService, kommonitorImporterHelperService, __env) {
 
-                let thisService = this; // to enable acces to service methods from inside other functions (e. g. $timeout) where 'this' references something else
+                let thisService = this; // to enable access to service methods from inside other functions (e. g. $timeout) where 'this' references something else
+                let timeseriesMappingReference;
 
                 this.batchUpdate = async function (resourceType, batchList) {
 
@@ -772,7 +773,7 @@ angular
                 // helper function to get a converter object by full name.
                 // returns null if no converter was found
                 this.getConverterObjectByName = function (name) {
-                    for (converter of kommonitorImporterHelperService.availableConverters) {
+                    for (const converter of kommonitorImporterHelperService.availableConverters) {
                         if (converter.name === name) {
                             return converter;
                         }
@@ -784,7 +785,7 @@ angular
                 // helper function to get a datasourceType object by type.
                 // returns null if no datasourceType was found
                 this.getDatasourceTypeObjectByType = function (type) {
-                    for (datasourceType of kommonitorImporterHelperService.availableDatasourceTypes) {
+                    for (const datasourceType of kommonitorImporterHelperService.availableDatasourceTypes) {
                         if (datasourceType.type === type) {
                             return datasourceType;
                         }
@@ -796,7 +797,7 @@ angular
                 // helper function to get a spatial unit object by full name.
                 // returns null if no spatial unit was found
                 this.getSpatialUnitObjectByName = function (name) {
-                    for (spatialUnit of kommonitorDataExchangeService.availableSpatialUnits) {
+                    for (const spatialUnit of kommonitorDataExchangeService.availableSpatialUnits) {
                         if (spatialUnit.spatialUnitLevel === name) {
                             return spatialUnit;
                         }
@@ -808,7 +809,7 @@ angular
                 // helper function to get a georesource object by id.
                 // returns null if no georesource object was found
                 this.getGeoresourceObjectById = function (id) {
-                    for (georesource of kommonitorDataExchangeService.availableGeoresources) {
+                    for (const georesource of kommonitorDataExchangeService.availableGeoresources) {
                         if (georesource.georesourceId === id) {
                             return georesource;
                         }
@@ -1124,7 +1125,9 @@ angular
                 this.onClickSaveColDefaultValue = function(resourceType, selectedCol, newValue, replaceAll, batchList) {
                     // differentiate between timeseries mapping and other columns
                     if(selectedCol == "mappingObj.propertyMapping.timeseriesMappings") {
-                        if(typeof(newValue != "undefined")) {
+                        // new value is undefined for timeseries mapping.
+                        // instead we get the new mapping from the variable
+                        if(typeof(newValue == "undefined")) {
                             let btns = angular.element($('.indicatorTimeseriesMappingBtn'));
                             for (let i=0; i<batchList.length; i++) {
                                 // never change disabled fields
@@ -1132,28 +1135,29 @@ angular
                                 if(btn.getAttribute('disabled'))
                                     continue;
 
-                                newValue  = angular.fromJson(angular.toJson(newValue));
+                                timeseriesMappingReference  = angular.fromJson(angular.toJson(timeseriesMappingReference));
                                 let oldMapping = batchList[i].mappingObj.propertyMapping.timeseriesMappings
-                                // iterate newValue
-                                for (let j=0; j<newValue.length; j++) {
+                                
+                                // iterate timeseriesMappingReference
+                                for (let j=0; j<timeseriesMappingReference.length; j++) {
                                     let exists = false;
                                     // for each entry check if it exists in oldMapping
                                     for (let k=0; k<oldMapping.length; k++) {
-                                        if(oldMapping[k].indicatorValueProperty == newValue[j].indicatorValueProperty) {
+                                        // check if indicatorValueProperty value property is the same
+                                        if(oldMapping[k].indicatorValueProperty == timeseriesMappingReference[j].indicatorValueProperty) {
                                             exists = true;
                                             if(replaceAll)
-                                                batchList[i].mappingObj.propertyMapping.timeseriesMappings[j] = newValue[j];
+                                                batchList[i].mappingObj.propertyMapping.timeseriesMappings[j] = timeseriesMappingReference[j];
                                         }
                                     }
 
                                     if(!exists) {
                                         // add mapping
-                                        batchList[i].mappingObj.propertyMapping.timeseriesMappings.push(newValue[j])
+                                        batchList[i].mappingObj.propertyMapping.timeseriesMappings.push(timeseriesMappingReference[j])
                                     }
                                 }
                             }
                         }
-                    
                     } else {
                         if(typeof(newValue != "undefined")) {
                             if(typeof(newValue === "object") || (typeof(newValue) === "string" && newValue.length > 0)) {
@@ -1234,5 +1238,10 @@ angular
                         }
                     }
                 }
+
+
+                $rootScope.$on("timeseriesMappingChanged", function(event, data) {
+                    timeseriesMappingReference = data.mapping;
+                });
             }
         ]);
