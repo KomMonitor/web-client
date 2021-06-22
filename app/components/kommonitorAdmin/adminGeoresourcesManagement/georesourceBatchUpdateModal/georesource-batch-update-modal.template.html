@@ -31,7 +31,6 @@
 											<th class="batch-list-table-sticky-column batch-list-table-sticky-column-header batch-list-table-sticky-column-1"><input type="checkbox" ng-model="allRowsSelected" ng-change="$ctrl.kommonitorBatchUpdateHelperServiceInstance.onChangeSelectAllRows(this.allRowsSelected, this.batchList)"></th>
 											<th class="batch-list-table-sticky-column batch-list-table-sticky-column-header batch-list-table-sticky-column-2">Name*</th>
 											<th>Mappingtabelle</th>
-											<th>Speichern</th>
 											<th>G&uuml;ltigkeitszeitraum von*</th>
 											<th>G&uuml;ltigkeitszeitraum bis</th>
 											<th>Geodaten-Quellformat*</th>
@@ -48,6 +47,7 @@
 											<th>NAME Attributname*</th>
 											<th>Lebenszeit-Beginn Attributname</th>
 											<th>Lebenszeit-Ende Attributname</th>
+											<th>Mappingtabelle speichern</th>
 										</tr>
 									</thead>
 									<tbody>
@@ -69,13 +69,6 @@
 											<!-- Mappingtabelle -->
 											<td>
 												<input id="georesourceMappingTableSelect{{$index}}" class="form-control georesourceMappingTableInputField" type="file">
-											</td>
-
-											<!-- Speichern -->
-											<td>
-												<button id="georesourceMappingTableSave{{$index}}" type="button" class="btn btn-primary fas fa-save" 
-													ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.saveMappingObjectToFile('georesource', $event, batchList)" >
-												</button>
 											</td>
 
 											<!-- Gültigkeitszeitraum von -->
@@ -189,6 +182,13 @@
 												<input class="form-control" ng-model="georesource.mappingObj.propertyMapping.validEndDateProperty" type="text" required>
 											</td>
 
+											<!-- Speichern -->
+											<td>
+												<button id="georesourceMappingTableSave{{$index}}" type="button" class="btn btn-primary fas fa-save" 
+													ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.saveMappingObjectToFile('georesource', $event, batchList)" >
+												</button>
+											</td>
+
 										</tr>
 									</tbody>
 
@@ -197,7 +197,6 @@
 											<th class="batch-list-table-sticky-column batch-list-table-sticky-column-footer batch-list-table-sticky-column-1"><input type="checkbox" ng-model="allRowsSelected" ng-change="$ctrl.kommonitorBatchUpdateHelperServiceInstance.onChangeSelectAllRows(this.allRowsSelected, this.batchList)"></th>
 											<th class="batch-list-table-sticky-column batch-list-table-sticky-column-footer batch-list-table-sticky-column-2">Name*</th>
 											<th>Mappingtabelle</th>
-											<th>Speichern</th>
 											<th>G&uuml;ltigkeitszeitraum von*</th>
 											<th>G&uuml;ltigkeitszeitraum bis</th>
 											<th>Geodaten-Quellformat*</th>
@@ -214,6 +213,7 @@
 											<th>NAME Attributname*</th>
 											<th>Lebenszeit-Beginn Attributname</th>
 											<th>Lebenszeit-Ende Attributname</th>
+											<th>Mappingtabelle speichern</th>
 										</tr>
 									</tfoot>
 								</table>

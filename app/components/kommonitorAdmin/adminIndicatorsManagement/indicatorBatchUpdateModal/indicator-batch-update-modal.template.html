@@ -33,7 +33,6 @@
 											<th class="batch-list-table-sticky-column batch-list-table-sticky-column-header batch-list-table-sticky-column-1"><input type="checkbox" ng-model="allRowsSelected" ng-change="$ctrl.kommonitorBatchUpdateHelperServiceInstance.onChangeSelectAllRows(this.allRowsSelected, this.batchList)"></th>
 											<th class="batch-list-table-sticky-column batch-list-table-sticky-column-header batch-list-table-sticky-column-2">Name*</th>
 											<th>Mappingtabelle</th>
-											<th>Speichern</th>
 											<th>Zeitreihen-Mapping*</th>
 											<th>Datensatz-Quellformat*</th>
 											<th>CRS*</th>
@@ -45,6 +44,7 @@
 											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsInline(batchList)">Payload*</th>
 											<th>ID Attributname der Raumeinheiten-Features*</th>
 											<th>Ziel-Raumebene*</th>
+											<th>Mappingtabelle speichern</th>
 										</tr>
 									</thead>
 									<tbody>
@@ -66,13 +66,6 @@
 											<!-- Mappingtabelle -->
 											<td>
 												<input id="indicatorMappingTableSelect{{$index}}" class="form-control indicatorMappingTableInputField" type="file">
-											</td>
-
-											<!-- Speichern -->
-											<td>
-												<button id="indicatorMappingTableSave{{$index}}" type="button" class="btn btn-primary fas fa-save" 
-													ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.saveMappingObjectToFile('indicator', $event, batchList)" >
-												</button>
 											</td>
 
 											<!-- Zeitreihen Mapping* -->
@@ -152,6 +145,13 @@
 												</select>
 											</td>
 
+											<!-- Mappingtabelle speichern -->
+											<td>
+												<button id="indicatorMappingTableSave{{$index}}" type="button" class="btn btn-primary fas fa-save" 
+													ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.saveMappingObjectToFile('indicator', $event, batchList)" >
+												</button>
+											</td>
+
 										</tr>
 									</tbody>
 
@@ -160,7 +160,6 @@
 											<th class="batch-list-table-sticky-column batch-list-table-sticky-column-footer batch-list-table-sticky-column-1"><input type="checkbox" ng-model="allRowsSelected" ng-change="$ctrl.kommonitorBatchUpdateHelperServiceInstance.onChangeSelectAllRows(this.allRowsSelected, this.batchList)"></th>
 											<th class="batch-list-table-sticky-column batch-list-table-sticky-column-footer batch-list-table-sticky-column-2">Name*</th>
 											<th>Mappingtabelle</th>
-											<th>Speichern</th>
 											<th>Zeitreihen-Mapping*</th>
 											<th>Datensatz-Quellformat*</th>
 											<th>CRS*</th>
@@ -172,6 +171,7 @@
 											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsInline(batchList)">Payload*</th>
 											<th>ID Attributname der Raumeinheiten-Features*</th>
 											<th>Ziel-Raumebene*</th>
+											<th>Mappingtabelle speichern</th>
 										</tr>
 									</tfoot>
 								</table>
