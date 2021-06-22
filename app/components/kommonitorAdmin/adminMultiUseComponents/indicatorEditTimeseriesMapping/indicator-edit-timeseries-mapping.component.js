@@ -117,7 +117,7 @@ angular.module('indicatorEditTimeseriesMapping').component('indicatorEditTimeser
 			$scope.loadTimeseriesMapping = function(mapping) {
 				let isValid = true;
 				if(mapping) {
-					for(entry of mapping) {
+					for(const entry of mapping) {
 						if( !(entry.hasOwnProperty("indicatorValueProperty") && 
 							(entry.hasOwnProperty("timestamp") || entry.hasOwnProperty("timestampProperty"))))
 							isValid = false 
