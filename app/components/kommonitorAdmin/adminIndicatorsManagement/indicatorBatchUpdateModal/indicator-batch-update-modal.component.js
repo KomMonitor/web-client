@@ -252,7 +252,8 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 					$scope.batchList[index].mappingObj.propertyMapping.timeseriesMappings = angular.fromJson(angular.toJson($scope.timeseriesMappingReference));
 					$scope.timeseriesMappingModalOpenForIndex = undefined;
 					// then reset the modal
-					$scope.$broadcast('resetTimeseriesMapping')
+					console.log($scope.batchList[index].mappingObj.propertyMapping.timeseriesMappings)
+					//$scope.$broadcast('resetTimeseriesMapping')
 				}
 			});
 
