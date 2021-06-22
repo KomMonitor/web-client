@@ -105,7 +105,7 @@
 											<!-- CRS -->
 											<td>
 												<input id="georesourceCrsInputField{{$index}}" class="form-control" ng-model="georesource.mappingObj.converter.CRS.value"
-												type="text" required>
+												type="text" placeholder="z.B. EPSG:4326" required>
 											</td>
 
 											<!-- separator -->
@@ -286,7 +286,7 @@
 									</select>
 									<!-- CRS* -->
 									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.converter.CRS.value'" type="text" class="form-control"
-										ng-model="colDefaultFunctionNewValue">
+										ng-model="colDefaultFunctionNewValue" placeholder="z.B. EPSG:4326">
 									</input>
 									<!-- separator* -->
 									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.converter.separator.value'" type="text" class="form-control"
