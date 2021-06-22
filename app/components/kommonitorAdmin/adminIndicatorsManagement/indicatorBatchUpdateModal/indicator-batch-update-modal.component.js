@@ -182,7 +182,8 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 				return selectedConverterIsCsvOnlyIndicator;
 			}
 
-
+			/*
+			// can be used to show only applicable spatial units for current indicator.
 			$scope.filterApplicableSpatialUnits = function(batchIndex) {
 				// avSpatialUnits is the list of available spatial units from the kommonitorDataExchangeService
 				return function (avSpatialUnit) {
@@ -205,6 +206,7 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 						return false;
 				};
 			};
+			*/
 
 	
 			$rootScope.$on("refreshIndicatorOverviewTableCompleted", function() {

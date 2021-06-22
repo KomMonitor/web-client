@@ -140,7 +140,7 @@
 											<!-- Ziel-Raumebene -->
 											<td>
 												<select ng-model="indicator.selectedTargetSpatialUnit"
-														ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits  | filter:filterApplicableSpatialUnits($index)" class="form-control" required>
+														ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits" class="form-control" required> <!-- enable filter: | filter:filterApplicableSpatialUnits($index)-->
 															<option disabled selected value> -- Raumeinheit w&auml;hlen -- </option>
 												</select>
 											</td>
