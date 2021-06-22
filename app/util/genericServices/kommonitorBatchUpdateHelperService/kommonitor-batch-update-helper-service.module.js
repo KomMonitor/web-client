@@ -992,15 +992,16 @@ angular
 			    		}
 
 			    		if (batchList[i].selectedDatasourceType) {
-			    			let datasourceType = batchList[i].selectedDatasourceType.type;
+                            let datasourceType = batchList[i].selectedDatasourceType.type;
+			    			let dataSource = batchList[i].mappingObj.dataSource
 			    			if (datasourceType != undefined && datasourceType.length > 0) {
-                            
+
 			    				if (datasourceType == "FILE") {
-			    					if(!batchList[i].mappingObj.dataSource.NAME) {
+			    					if(!dataSource.NAME) {
                                         updateBtn.title = "Die Spalte Datei* ist nicht für alle Zeilen gesetzt, in denen die Spalte Datenquelltyp* auf FILE gesetzt ist."
 			    						return false;
                                     } else {
-                                        let value = batchList[i].mappingObj.dataSource.NAME.value;
+                                        let value = dataSource.NAME.value;
 			    						if(value == undefined || value == "") {
 			    							updateBtn.title = "Die Spalte Datei* ist nicht für alle Zeilen gesetzt, in denen die Spalte Datenquelltyp* auf FILE gesetzt ist."
 			    							return false;
@@ -1009,13 +1010,13 @@ angular
 			    				}
 
                                 if (datasourceType == "HTTP") {
-                                    if(!batchList[i].mappingObj.dataSource.URL) {
+                                    if(!dataSource.URL) {
                                         // property does not exist until user uses the input field for the first time
                                         updateBtn.title = "Die Spalte URL* ist nicht für alle Zeilen gesetzt, in denen die Spalte Datenquelltyp* auf HTTP gesetzt ist."
 			    						return false;
                                     } else {
                                         // the field could still be empty (if it had input before)
-                                        let value = batchList[i].mappingObj.dataSource.URL.value;
+                                        let value = dataSource.URL.value;
 			    						if(value == undefined || value == "") {
 			    							updateBtn.title = "Die Spalte URL* ist nicht für alle Zeilen gesetzt, in denen die Spalte Datenquelltyp* auf HTTP gesetzt ist."
 			    							return false;
@@ -1024,13 +1025,13 @@ angular
                                 }
 
                                 if (datasourceType == "INLINE") {
-                                    if(!batchList[i].mappingObj.dataSource.payload) {
+                                    if(!dataSource.payload) {
                                         // property does not exist until user uses the input field for the first time
-                                        updateBtn.title = "Die Spalte URL* ist nicht für alle Zeilen gesetzt, in denen die Spalte Datenquelltyp* auf HTTP gesetzt ist."
+                                        updateBtn.title = "Die Spalte Payload* ist nicht für alle Zeilen gesetzt, in denen die Spalte Datenquelltyp* auf INLINE gesetzt ist."
 			    						return false;
                                     } else {
                                          // the field could still be empty (if it had input before)
-                                        let value = batchList[i].mappingObj.dataSource.payload.value;
+                                        let value = dataSource.payload.value;
 			    						if(value == undefined || value == "") {
 			    							updateBtn.title = "Die Spalte Payload* ist nicht für alle Zeilen gesetzt, in denen die Spalte Datenquelltyp* auf INLINE gesetzt ist."
 			    							return false;
@@ -1062,7 +1063,11 @@ angular
                     // set filename manually
                     let name = file.name;
                     $timeout(function() {
-                        batchList[rowIndex].mappingObj.dataSource.NAME.value = name;
+                        let dataSource = batchList[rowIndex].mappingObj.dataSource;
+                        dataSource.parameters = [];
+                        dataSource.NAME = {}
+                        dataSource.NAME.value = name
+                        batchList[rowIndex].mappingObj.dataSource = dataSource;
                     });
                 }
 
