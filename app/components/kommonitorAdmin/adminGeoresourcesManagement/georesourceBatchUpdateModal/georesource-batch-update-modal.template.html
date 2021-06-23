@@ -60,10 +60,15 @@
 
 											<!-- Name -->
 											<td class="batch-list-table-sticky-column batch-list-table-sticky-column-2">
-												<select id="georesourceSelect{{$index}}" class="form-control batch-list-table-name-field" ng-model="georesource.name" required
-													ng-options="avGeoresource as avGeoresource.datasetName for avGeoresource in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources">
-														<option disabled selected value> -- Georessource w&auml;hlen -- </option>
-												</select>
+												<ui-select id="georesourceSelect{{$index}}" class="form-control batch-list-table-name-field" ng-model="georesource.name" 
+													ng-change="$ctrl.kommonitorBatchUpdateHelperServiceInstance.resizeNameColumnDropdowns(georesource)" required>
+													<ui-select-match>
+														<span ng-bind="$select.selected.datasetName"></span>
+													</ui-select-match>
+													<ui-select-choices repeat="avGeoresource in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filterGeoresoures: {georesourceName: $select.search}">
+														<span ng-bind="avGeoresource.datasetName"></span>
+													</ui-select-choices>
+												</ui-select>
 											</td>
 											
 											<!-- Mappingtabelle -->

@@ -2494,6 +2494,7 @@ input:checked + .switchslider:before {
 	width: auto;
 	min-width: 300px;
 	max-width: 500px;
+	padding: 0;
 
 }
 
@@ -2504,6 +2505,25 @@ input:checked + .switchslider:before {
 .batch-list-table-sticky-column-header,
 .batch-list-table-sticky-column-footer {
 	z-index: 5 !important;
+}
+
+.ui-select-container {
+	padding: 0;
+}
+
+.ui-select-search {
+	width: 100% !important;
+}
+
+.ui-select-choices {
+	width: auto !important;
+	position: relative;
+	top: 0 !important;
+	z-index: 1111 !important;
+}
+
+.ui-select-choices-row-inner {
+	float: left;
 }
 
 #modal-batch-update-result > div {

@@ -10,6 +10,7 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 			$scope.isFirstStart = true;
 			$scope.lastUpdateResponseObj;
 			$scope.timeseriesMappingReference; // gets updated by a broadcast whenever $scope.timeseries mapping in indicatorEditTimeseriesMapping component changes
+			$scope.selected = { value: kommonitorDataExchangeService.availableIndicators[0] };
 	
 			/*
 			{
@@ -58,7 +59,8 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 					}
 				}
 			});
-	
+
+
 			// initializes the modal
 			$scope.initialize = function() {
 	
@@ -160,6 +162,8 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 							row.selectedTargetSpatialUnit = kommonitorBatchUpdateHelperService.getSpatialUnitObjectByName(newBatchList[i].mappingObj.targetSpatialUnitName);
 					}
 				});
+
+				kommonitorBatchUpdateHelperService.resizeNameColumnDropdowns(null);
 			})
 	
 		
@@ -291,5 +295,6 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 				$scope.timeseriesMappingReference = data.mapping;
 			});
 
+			
 		}
 ]});

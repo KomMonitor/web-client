@@ -57,10 +57,15 @@
 
 											<!-- Name -->
 											<td class="batch-list-table-sticky-column batch-list-table-sticky-column-2">
-												<select id="indicatorSelect{{$index}}" class="form-control batch-list-table-name-field" ng-model="indicator.name" required
-													ng-options="avIndicator as avIndicator.indicatorName for avIndicator in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators">
-														<option disabled selected value> -- Indikator w&auml;hlen -- </option>
-												</select>
+												<ui-select id="indicatorSelect{{$index}}" class="form-control batch-list-table-name-field" ng-model="indicator.name" 
+													ng-change="$ctrl.kommonitorBatchUpdateHelperServiceInstance.resizeNameColumnDropdowns(indicator)" required>
+													<ui-select-match>
+														<span ng-bind="$select.selected.indicatorName"></span>
+													</ui-select-match>
+													<ui-select-choices repeat="avIndicator in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filterIndicators: {indicatorName: $select.search}">
+														<span ng-bind="avIndicator.indicatorName"></span>
+													</ui-select-choices>
+												</ui-select>
 											</td>
 											
 											<!-- Mappingtabelle -->

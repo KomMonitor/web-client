@@ -410,7 +410,8 @@ angular
                 }
 
                 this.addNewRowToBatchList = function (resourceType, batchList) {
-                    //console.log(batchList);
+
+                    console.log(batchList);
 
                     // create new object theat matches the row-scheme
                     let obj = {}
@@ -517,9 +518,11 @@ angular
                     }
                     batchList.push(obj);
 
-                    if(resourceType === "georesource")
+                    if(resourceType === "georesource") {
                         this.initializeGeoresourceDatepickerFields(batchList);
-                    
+                    }
+
+                    this.resizeNameColumnDropdowns(null)
                 }
 
                 this.deleteSelectedRowsFromBatchList = function (batchList, allRowsSelected) {
@@ -1265,9 +1268,25 @@ angular
                     }
                 }
 
+                
+                this.resizeNameColumnDropdowns = function(resource) {
+                    $timeout(function() {
+                        let inputs = $('.ui-select-toggle'); 
+
+                        for(let input of inputs) {
+                            input = $(input);
+                            input.css("background-color", "white");
+                            input.css("border", "none");
+                            input.css("width", '100%');
+                        }
+                    }, 500);     	
+                };
+
 
                 $rootScope.$on("timeseriesMappingChanged", function(event, data) {
                     timeseriesMappingReference = data.mapping;
                 });
+
+
             }
         ]);
