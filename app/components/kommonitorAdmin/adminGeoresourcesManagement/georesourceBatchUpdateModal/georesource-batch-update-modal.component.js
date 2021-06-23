@@ -9,6 +9,7 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 
 			$scope.isFirstStart = true;
 			$scope.lastUpdateResponseObj;
+			$scope.keepMissingValues = true;
 
 			/*
 			{
@@ -165,6 +166,7 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 				});
 
                 kommonitorBatchUpdateHelperService.initializeGeoresourceDatepickerFields($scope.batchList);
+				kommonitorBatchUpdateHelperService.resizeNameColumnDropdowns(null);
 			})
 
 

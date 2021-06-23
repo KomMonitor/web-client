@@ -9,7 +9,7 @@ angular
                 let thisService = this; // to enable access to service methods from inside other functions (e. g. $timeout) where 'this' references something else
                 let timeseriesMappingReference;
 
-                this.batchUpdate = async function (resourceType, batchList) {
+                this.batchUpdate = async function (resourceType, batchList, keepMissingOrNullValueIndicator, keepMissingOrNullValueAttributes) {
 
                     let startBtn = document.getElementById(resourceType + "-batch-update-btn");
                     startBtn.innerHTML = "Update wird ausgef&uuml;hrt...";
@@ -87,7 +87,7 @@ angular
                                     row.mappingObj.propertyMapping.validEndDateProperty,
                                     row.mappingObj.propertyMapping.arisenFromProperty,
                                     row.mappingObj.propertyMapping.keepAttributes,
-                                    row.mappingObj.propertyMapping.keepMissingOrNullValueAttributes,
+                                    keepMissingOrNullValueAttributes,
                                     this.createAttributeMappingsObject(row)
                                 )
     
@@ -158,7 +158,7 @@ angular
                                 var propertyMappingDefinition = kommonitorImporterHelperService.buildPropertyMapping_indicatorResource(
                                     row.mappingObj.propertyMapping.spatialReferenceKeyProperty,
                                     row.mappingObj.propertyMapping.timeseriesMappings,
-                                    row.mappingObj.propertyMapping.keepMissingOrNullValueIndicator,
+                                    keepMissingOrNullValueIndicator,
                                 )
     
                                 //console.log("propertyMappingDefinition of row " + i + " with importerService: ", propertyMappingDefinition);
@@ -410,7 +410,8 @@ angular
                 }
 
                 this.addNewRowToBatchList = function (resourceType, batchList) {
-                    //console.log(batchList);
+
+                    console.log(batchList);
 
                     // create new object theat matches the row-scheme
                     let obj = {}
@@ -517,9 +518,11 @@ angular
                     }
                     batchList.push(obj);
 
-                    if(resourceType === "georesource")
+                    if(resourceType === "georesource") {
                         this.initializeGeoresourceDatepickerFields(batchList);
-                    
+                    }
+
+                    this.resizeNameColumnDropdowns(null)
                 }
 
                 this.deleteSelectedRowsFromBatchList = function (batchList, allRowsSelected) {
@@ -1265,9 +1268,25 @@ angular
                     }
                 }
 
+                
+                this.resizeNameColumnDropdowns = function(resource) {
+                    $timeout(function() {
+                        let inputs = $('.ui-select-toggle'); 
+
+                        for(let input of inputs) {
+                            input = $(input);
+                            input.css("background-color", "white");
+                            input.css("border", "none");
+                            input.css("width", '100%');
+                        }
+                    }, 500);     	
+                };
+
 
                 $rootScope.$on("timeseriesMappingChanged", function(event, data) {
                     timeseriesMappingReference = data.mapping;
                 });
+
+
             }
         ]);

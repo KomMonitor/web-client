@@ -1,0 +1,23 @@
+<div class="ui-select-container selectize-control multi plugin-remove_button" ng-class="{'open': $select.open}">
+  <div class="selectize-input"
+       ng-class="{'focus': $select.open, 'disabled': $select.disabled, 'selectize-focus' : $select.focus}"
+       ng-click="$select.open && !$select.searchEnabled ? $select.toggle($event) : $select.activate()">
+    <div class="ui-select-match"></div>
+    <input type="search" autocomplete="off" tabindex="-1"
+           class="ui-select-search"
+           ng-class="{'ui-select-search-hidden':!$select.searchEnabled}"
+           placeholder="{{$select.getPlaceholder()}}"
+           ng-model="$select.search"
+           ng-disabled="$select.disabled"
+           aria-expanded="{{$select.open}}"
+           aria-label="{{ $select.baseTitle }}"
+           data-disallow-drop=data-disallow-drop>
+  </div>
+  <div ng-show="$select.open" class="ui-select-dropdown selectize-dropdown"
+       ng-class="{'single': !$select.multiple, 'multi': $select.multiple}">
+    <div class="ui-select-header"></div>
+    <div class="ui-select-choices"></div>
+    <div class="ui-select-footer"></div>
+  </div>
+  <div class="ui-select-no-choice"></div>
+</div>
