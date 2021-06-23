@@ -150,13 +150,17 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 						// mappingObj
 						row.mappingObj = newBatchList[i].mappingObj;
 						// converter parameters to properties
-						row.mappingObj.converter = kommonitorBatchUpdateHelperService.converterParametersArrayToProperties(row.mappingObj.converter);
+						if(row.mappingObj.converter)
+							row.mappingObj.converter = kommonitorBatchUpdateHelperService.converterParametersArrayToProperties(row.mappingObj.converter);
 						// dataSource parameters to properties
-						row.mappingObj.dataSource = kommonitorBatchUpdateHelperService.dataSourceParametersArrayToProperty(row.mappingObj.dataSource);
+						if(row.mappingObj.dataSource)
+							row.mappingObj.dataSource = kommonitorBatchUpdateHelperService.dataSourceParametersArrayToProperty(row.mappingObj.dataSource);
 						// set selectedConverter
-						row.selectedConverter = kommonitorBatchUpdateHelperService.getConverterObjectByName(newBatchList[i].mappingObj.converter.name);
+						if(newBatchList[i].mappingObj.converter.hasOwnProperty("name"))
+							row.selectedConverter = kommonitorBatchUpdateHelperService.getConverterObjectByName(newBatchList[i].mappingObj.converter.name);
 						// set selectedDatasourceType
-						row.selectedDatasourceType = kommonitorBatchUpdateHelperService.getDatasourceTypeObjectByType(newBatchList[i].mappingObj.dataSource.type);
+						if(newBatchList[i].mappingObj.dataSource.hasOwnProperty("type"))
+							row.selectedDatasourceType = kommonitorBatchUpdateHelperService.getDatasourceTypeObjectByType(newBatchList[i].mappingObj.dataSource.type);
 					}
 				});
 

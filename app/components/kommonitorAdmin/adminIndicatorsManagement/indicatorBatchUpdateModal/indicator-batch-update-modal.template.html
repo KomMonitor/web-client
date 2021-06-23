@@ -33,7 +33,6 @@
 											<th class="batch-list-table-sticky-column batch-list-table-sticky-column-header batch-list-table-sticky-column-1"><input type="checkbox" ng-model="allRowsSelected" ng-change="$ctrl.kommonitorBatchUpdateHelperServiceInstance.onChangeSelectAllRows(this.allRowsSelected, this.batchList)"></th>
 											<th class="batch-list-table-sticky-column batch-list-table-sticky-column-header batch-list-table-sticky-column-2">Name*</th>
 											<th>Mappingtabelle</th>
-											<th>Speichern</th>
 											<th>Zeitreihen-Mapping*</th>
 											<th>Datensatz-Quellformat*</th>
 											<th>CRS*</th>
@@ -45,6 +44,7 @@
 											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsInline(batchList)">Payload*</th>
 											<th>ID Attributname der Raumeinheiten-Features*</th>
 											<th>Ziel-Raumebene*</th>
+											<th>Mappingtabelle speichern</th>
 										</tr>
 									</thead>
 									<tbody>
@@ -68,13 +68,6 @@
 												<input id="indicatorMappingTableSelect{{$index}}" class="form-control indicatorMappingTableInputField" type="file">
 											</td>
 
-											<!-- Speichern -->
-											<td>
-												<button id="indicatorMappingTableSave{{$index}}" type="button" class="btn btn-primary fas fa-save" 
-													ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.saveMappingObjectToFile('indicator', $event, batchList)" >
-												</button>
-											</td>
-
 											<!-- Zeitreihen Mapping* -->
 											<td>
 												<button id="indicatorTimeseriesMappingBtn{{$index}}" class="form-control btn btn-success btn-sm indicatorTimeseriesMappingBtn"
@@ -94,7 +87,7 @@
 											<!-- CRS -->
 											<td>
 												<input id="indicatorCrsInputField{{$index}}" class="form-control" ng-model="indicator.mappingObj.converter.CRS.value"
-												type="text" required>
+												type="text" placeholder="z.B. EPSG:4326" required>
 											</td>
 
 											<!-- separator -->
@@ -147,9 +140,16 @@
 											<!-- Ziel-Raumebene -->
 											<td>
 												<select ng-model="indicator.selectedTargetSpatialUnit"
-														ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits  | filter:filterApplicableSpatialUnits($index)" class="form-control" required>
+														ng-options="spatialUnit as spatialUnit.spatialUnitLevel for spatialUnit in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits" class="form-control" required> <!-- enable filter: | filter:filterApplicableSpatialUnits($index)-->
 															<option disabled selected value> -- Raumeinheit w&auml;hlen -- </option>
 												</select>
+											</td>
+
+											<!-- Mappingtabelle speichern -->
+											<td>
+												<button id="indicatorMappingTableSave{{$index}}" type="button" class="btn btn-primary fas fa-save" 
+													ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.saveMappingObjectToFile('indicator', $event, batchList)" >
+												</button>
 											</td>
 
 										</tr>
@@ -160,7 +160,6 @@
 											<th class="batch-list-table-sticky-column batch-list-table-sticky-column-footer batch-list-table-sticky-column-1"><input type="checkbox" ng-model="allRowsSelected" ng-change="$ctrl.kommonitorBatchUpdateHelperServiceInstance.onChangeSelectAllRows(this.allRowsSelected, this.batchList)"></th>
 											<th class="batch-list-table-sticky-column batch-list-table-sticky-column-footer batch-list-table-sticky-column-2">Name*</th>
 											<th>Mappingtabelle</th>
-											<th>Speichern</th>
 											<th>Zeitreihen-Mapping*</th>
 											<th>Datensatz-Quellformat*</th>
 											<th>CRS*</th>
@@ -172,6 +171,7 @@
 											<th ng-show="$ctrl.kommonitorBatchUpdateHelperServiceInstance.checkIfSelectedDatasourceTypeIsInline(batchList)">Payload*</th>
 											<th>ID Attributname der Raumeinheiten-Features*</th>
 											<th>Ziel-Raumebene*</th>
+											<th>Mappingtabelle speichern</th>
 										</tr>
 									</tfoot>
 								</table>
@@ -230,7 +230,7 @@
 									</select>
 									<!-- CRS* -->
 									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.converter.CRS.value'" type="text" class="form-control"
-										ng-model="colDefaultFunctionNewValue">
+										ng-model="colDefaultFunctionNewValue" placeholder="z.B. EPSG:4326">
 									</input>
 									<!-- separator* -->
 									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.converter.separator.value'" type="text" class="form-control"

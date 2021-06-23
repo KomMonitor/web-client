@@ -144,15 +144,20 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 						// mappingObj
 						row.mappingObj = newBatchList[i].mappingObj;
 						// converter parameters to properties
-						row.mappingObj.converter = kommonitorBatchUpdateHelperService.converterParametersArrayToProperties(row.mappingObj.converter);
+						if(row.mappingObj.converter)
+							row.mappingObj.converter = kommonitorBatchUpdateHelperService.converterParametersArrayToProperties(row.mappingObj.converter);
 						// dataSource parameters to properties
-						row.mappingObj.dataSource = kommonitorBatchUpdateHelperService.dataSourceParametersArrayToProperty(row.mappingObj.dataSource);
+						if(row.mappingObj.dataSource)
+							row.mappingObj.dataSource = kommonitorBatchUpdateHelperService.dataSourceParametersArrayToProperty(row.mappingObj.dataSource);
 						// set selectedConverter
-						row.selectedConverter = kommonitorBatchUpdateHelperService.getConverterObjectByName(newBatchList[i].mappingObj.converter.name);
+						if(newBatchList[i].mappingObj.converter.hasOwnProperty("name"))
+							row.selectedConverter = kommonitorBatchUpdateHelperService.getConverterObjectByName(newBatchList[i].mappingObj.converter.name);
 						// set selectedDatasourceType
-						row.selectedDatasourceType = kommonitorBatchUpdateHelperService.getDatasourceTypeObjectByType(newBatchList[i].mappingObj.dataSource.type);
+						if(newBatchList[i].mappingObj.dataSource.hasOwnProperty("type"))
+							row.selectedDatasourceType = kommonitorBatchUpdateHelperService.getDatasourceTypeObjectByType(newBatchList[i].mappingObj.dataSource.type);
 						// set selectedTargetSpatialUnit
-						row.selectedTargetSpatialUnit = kommonitorBatchUpdateHelperService.getSpatialUnitObjectByName(newBatchList[i].mappingObj.targetSpatialUnitName);
+						if(newBatchList[i].mappingObj.hasOwnProperty("targetSpatialUnitName"))
+							row.selectedTargetSpatialUnit = kommonitorBatchUpdateHelperService.getSpatialUnitObjectByName(newBatchList[i].mappingObj.targetSpatialUnitName);
 					}
 				});
 			})
@@ -177,7 +182,8 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 				return selectedConverterIsCsvOnlyIndicator;
 			}
 
-
+			/*
+			// can be used to show only applicable spatial units for current indicator.
 			$scope.filterApplicableSpatialUnits = function(batchIndex) {
 				// avSpatialUnits is the list of available spatial units from the kommonitorDataExchangeService
 				return function (avSpatialUnit) {
@@ -200,6 +206,7 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 						return false;
 				};
 			};
+			*/
 
 	
 			$rootScope.$on("refreshIndicatorOverviewTableCompleted", function() {
@@ -252,7 +259,6 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 					$scope.batchList[index].mappingObj.propertyMapping.timeseriesMappings = angular.fromJson(angular.toJson($scope.timeseriesMappingReference));
 					$scope.timeseriesMappingModalOpenForIndex = undefined;
 					// then reset the modal
-					console.log($scope.batchList[index].mappingObj.propertyMapping.timeseriesMappings)
 					//$scope.$broadcast('resetTimeseriesMapping')
 				}
 			});
