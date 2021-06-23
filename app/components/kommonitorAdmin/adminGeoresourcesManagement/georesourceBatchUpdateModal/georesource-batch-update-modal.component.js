@@ -9,6 +9,7 @@ angular.module('georesourceBatchUpdateModal').component('georesourceBatchUpdateM
 
 			$scope.isFirstStart = true;
 			$scope.lastUpdateResponseObj;
+			$scope.keepMissingValues = true;
 
 			/*
 			{

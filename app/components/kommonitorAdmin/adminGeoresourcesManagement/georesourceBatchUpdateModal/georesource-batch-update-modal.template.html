@@ -357,6 +357,22 @@
 						</div>
 					</div>
 				</div>
+				<div class="row">
+					<div class="col-md-4 col-sm-4 col-xs-6">
+						<div class="form-group">
+							<label>Fehlende/NULL Werte beibehalten*</label>
+							<br/>	
+							<label class="switch">
+								<input type="checkbox" value="keepMissingValues" ng-model="keepMissingValues">
+								<span class="switchslider round"></span>
+							</label>
+							<div class="help-block">
+								<p>Angabe, ob fehlende Attribute oder leere Attributwerte (<code>NULL</code>-Werte) &uuml;bernommen werden. Bei deaktivierter Option 
+									wird bei einem solchen Fall ein Fehler geworfen.</p>
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
@@ -369,7 +385,7 @@
 					id="georesourcesBatchListFile" accept=".json,"></input>
 
 				<button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" ng-disabled=""
-					ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.saveBatchListToFile('georesource', batchList)" title="Exportieren der Batch-Liste in eine Datei">
+					ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.saveBatchListToFile('georesource', batchList, true, keepMissingValues)" title="Exportieren der Batch-Liste in eine Datei">
 					<i class="fas fa-file-export"></i>&nbsp;&nbsp;Batch-Liste exportieren
 				</button>
 

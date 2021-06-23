@@ -11,6 +11,7 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 			$scope.lastUpdateResponseObj;
 			$scope.timeseriesMappingReference; // gets updated by a broadcast whenever $scope.timeseries mapping in indicatorEditTimeseriesMapping component changes
 			$scope.selected = { value: kommonitorDataExchangeService.availableIndicators[0] };
+			$scope.keepMissingValues = true;
 	
 			/*
 			{
