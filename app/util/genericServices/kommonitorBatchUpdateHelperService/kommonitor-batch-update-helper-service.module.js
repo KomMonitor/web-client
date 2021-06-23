@@ -171,7 +171,7 @@ angular
                                         "defaultClassificationMapping": row.name.defaultClassificationMapping
                                     },
                                     "allowedRoleNames": {
-                                        "selectedItems": row.name.allowedRoles
+                                        "selectedItems": [] // do not allow to change roles in batch update
                                     }
                                 }
                                  var putBody_indicators = kommonitorImporterHelperService.buildPutBody_indicators(scopeProperties)
