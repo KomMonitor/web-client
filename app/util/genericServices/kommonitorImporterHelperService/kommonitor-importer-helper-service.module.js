@@ -387,7 +387,7 @@ angular
       }
 
       this.buildPutBody_indicators = function(scopeProperties){
-
+        console.log("scope properties in buildPutBody_indicators (390): ", scopeProperties);
         var putBody =
         {
           "indicatorValues": [],
@@ -397,7 +397,9 @@ angular
           };
 
           for (const roleDuallistItem of scopeProperties.allowedRoleNames.selectedItems) {
+            console.log("current roleDuallistItem (400): ", roleDuallistItem);
             var roleMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleName(roleDuallistItem.name);
+            console.log("roleMetadata (402): ", roleMetadata);
             putBody.allowedRoles.push(roleMetadata.roleId);
           }
 
