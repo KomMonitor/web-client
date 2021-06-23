@@ -31,7 +31,6 @@ angular
                     try {
                         for (let i=0; i<batchListCopy.length; i++) {
                             let row = batchListCopy[i];
-                            //console.log("row: ", row);
     
                             let resourceId;
                             if (resourceType === "georesource")
@@ -65,7 +64,7 @@ angular
                                         //console.log("datasourceTypeDefinition after file upload: ", datasourceTypeDefinition);
                                     }
                                 } catch (error) {
-                                    console.log("error while uploading file in row: " + i);
+                                    console.error("error while uploading file in row: " + i);
                                     responses.push({
                                         name: resourceType === "georesource" ? row.name.datasetName : row.name.indicatorName,
                                         status: "error",
@@ -276,6 +275,15 @@ angular
     
                     var objToExport = $.extend({}, row.mappingObj);
 
+                    if(typeof(row.selectedConverter) === undefined) {
+                        if(resourceType === "georesource" )
+                            console.error("Geodaten-Quellformat* is not defined.")
+                        if(resourceType === "indicator" )
+                            console.error("Datensatz-Quellformat* is not defined.")
+                    }
+                        
+                    if(typeof(row.selectedDatasourceType) === undefined)
+                        console.error("Datenquelltyp* is not defined.")
                     objToExport.converter = this.converterPropertiesToParametersArray(objToExport.converter)
                     objToExport.dataSource = this.dataSourcePropertyToParametersArray(objToExport.dataSource)
 
@@ -284,8 +292,12 @@ angular
                     objToExport.converter = this.buildConverterDefinition(row.selectedConverter, objToExport.converter);
                     objToExport.dataSource = this.buildDataSourceDefinition(row.selectedDatasourceType, objToExport.dataSource, false)
 
-                    if(resourceType === "indicator")
+                    if(resourceType === "indicator" ) {
+                        if(typeof(row.selectedTargetSpatialUnit) === undefined)
+                            console.error("Ziel-Raumebene* is not defined.")
                         objToExport.targetSpatialUnitName = row.selectedTargetSpatialUnit.spatialUnitLevel;
+                    }
+                        
 
                     jsonToExport = JSON.stringify(objToExport);
 
@@ -331,24 +343,22 @@ angular
                         if (resourceType === "indicator" && objToExport[i].name)
                             objToExport[i].name = objToExport[i].name.indicatorId;
 
-                        // if mapping table was selected
-                        if (row.mappingTableName.length > 0) {
-                            objToExport[i].mappingObj.converter = this.converterPropertiesToParametersArray(objToExport[i].mappingObj.converter)
-                            objToExport[i].mappingObj.dataSource = this.dataSourcePropertyToParametersArray(objToExport[i].mappingObj.dataSource)
+                        // convert properties to parameters array
+                        objToExport[i].mappingObj.converter = this.converterPropertiesToParametersArray(objToExport[i].mappingObj.converter)
+                        objToExport[i].mappingObj.dataSource = this.dataSourcePropertyToParametersArray(objToExport[i].mappingObj.dataSource)
 
-                            // replace converter and dataSource definitions
-                            objToExport[i].mappingObj.converter = this.buildConverterDefinition(row.selectedConverter, objToExport[i].mappingObj.converter);
-                            objToExport[i].mappingObj.dataSource = this.buildDataSourceDefinition(row.selectedDatasourceType, objToExport[i].mappingObj.dataSource, false);
+                        // replace converter and dataSource definitions
+                        objToExport[i].mappingObj.converter = this.buildConverterDefinition(row.selectedConverter, objToExport[i].mappingObj.converter);
+                        objToExport[i].mappingObj.dataSource = this.buildDataSourceDefinition(row.selectedDatasourceType, objToExport[i].mappingObj.dataSource, false);
 
-                            // No need to export these
-                            delete objToExport[i].selectedConverter;
-                            delete objToExport[i].selectedDatasourceType;
+                        // No need to export these, information is stored in mappingObj
+                        delete objToExport[i].selectedConverter;
+                        delete objToExport[i].selectedDatasourceType;
 
-                            if(resourceType === "indicator") {
-                                objToExport[i].mappingObj.targetSpatialUnitName = row.selectedTargetSpatialUnit.spatialUnitLevel;
-                                delete objToExport[i].selectedTargetSpatialUnit; 
-                            }
-                            
+                        // move information about targetSpatialUnit to mapping mappingObj
+                        if(resourceType === "indicator" && row.selectedTargetSpatialUnit) {
+                            objToExport[i].mappingObj.targetSpatialUnitName = row.selectedTargetSpatialUnit.spatialUnitLevel;
+                            delete objToExport[i].selectedTargetSpatialUnit; 
                         }
 
                         if(row.hasOwnProperty("tempResourceId"))
@@ -508,7 +518,8 @@ angular
                     batchList.push(obj);
 
                     if(resourceType === "georesource")
-                        this.initializeGeoresourceDatepickerFields(batchList);             
+                        this.initializeGeoresourceDatepickerFields(batchList);
+                    
                 }
 
                 this.deleteSelectedRowsFromBatchList = function (batchList, allRowsSelected) {
@@ -534,7 +545,12 @@ angular
                     return index;
                 }
 
+
+                // builds a converter definition with parameters array from the currently selected datasource
+                // selectedConverter = the currently selected converter in the dropdown
+                // oldConverter = the converter property from a mapping object.
                 this.buildConverterDefinition = function (selectedConverter, oldConverter) {
+                    
                     var converterDefinition = {
                         encoding: selectedConverter.encodings[0],
                         mimeType: selectedConverter.mimeTypes[0],
@@ -600,7 +616,12 @@ angular
                     return converterDefinition;
                 }
 
+
+                // builds a datasource definition with parameters array from the currently selected datasource
+                // selectedDatasourceType = the currently selected datasource in the dropdown
+                // oldDataSource = the datasource property from a mapping object.
                 this.buildDataSourceDefinition = function (selectedDatasourceType, oldDataSource, includeFileName) {
+
                     var dataSourceDefinition = {
                         parameters: [],
                         type: selectedDatasourceType.type
@@ -971,15 +992,16 @@ angular
 			    		}
 
 			    		if (batchList[i].selectedDatasourceType) {
-			    			let datasourceType = batchList[i].selectedDatasourceType.type;
+                            let datasourceType = batchList[i].selectedDatasourceType.type;
+			    			let dataSource = batchList[i].mappingObj.dataSource
 			    			if (datasourceType != undefined && datasourceType.length > 0) {
-                            
+
 			    				if (datasourceType == "FILE") {
-			    					if(!batchList[i].mappingObj.dataSource.NAME) {
+			    					if(!dataSource.NAME) {
                                         updateBtn.title = "Die Spalte Datei* ist nicht für alle Zeilen gesetzt, in denen die Spalte Datenquelltyp* auf FILE gesetzt ist."
 			    						return false;
                                     } else {
-                                        let value = batchList[i].mappingObj.dataSource.NAME.value;
+                                        let value = dataSource.NAME.value;
 			    						if(value == undefined || value == "") {
 			    							updateBtn.title = "Die Spalte Datei* ist nicht für alle Zeilen gesetzt, in denen die Spalte Datenquelltyp* auf FILE gesetzt ist."
 			    							return false;
@@ -988,13 +1010,13 @@ angular
 			    				}
 
                                 if (datasourceType == "HTTP") {
-                                    if(!batchList[i].mappingObj.dataSource.URL) {
+                                    if(!dataSource.URL) {
                                         // property does not exist until user uses the input field for the first time
                                         updateBtn.title = "Die Spalte URL* ist nicht für alle Zeilen gesetzt, in denen die Spalte Datenquelltyp* auf HTTP gesetzt ist."
 			    						return false;
                                     } else {
                                         // the field could still be empty (if it had input before)
-                                        let value = batchList[i].mappingObj.dataSource.URL.value;
+                                        let value = dataSource.URL.value;
 			    						if(value == undefined || value == "") {
 			    							updateBtn.title = "Die Spalte URL* ist nicht für alle Zeilen gesetzt, in denen die Spalte Datenquelltyp* auf HTTP gesetzt ist."
 			    							return false;
@@ -1003,13 +1025,13 @@ angular
                                 }
 
                                 if (datasourceType == "INLINE") {
-                                    if(!batchList[i].mappingObj.dataSource.payload) {
+                                    if(!dataSource.payload) {
                                         // property does not exist until user uses the input field for the first time
-                                        updateBtn.title = "Die Spalte URL* ist nicht für alle Zeilen gesetzt, in denen die Spalte Datenquelltyp* auf HTTP gesetzt ist."
+                                        updateBtn.title = "Die Spalte Payload* ist nicht für alle Zeilen gesetzt, in denen die Spalte Datenquelltyp* auf INLINE gesetzt ist."
 			    						return false;
                                     } else {
                                          // the field could still be empty (if it had input before)
-                                        let value = batchList[i].mappingObj.dataSource.payload.value;
+                                        let value = dataSource.payload.value;
 			    						if(value == undefined || value == "") {
 			    							updateBtn.title = "Die Spalte Payload* ist nicht für alle Zeilen gesetzt, in denen die Spalte Datenquelltyp* auf INLINE gesetzt ist."
 			    							return false;
@@ -1041,7 +1063,11 @@ angular
                     // set filename manually
                     let name = file.name;
                     $timeout(function() {
-                        batchList[rowIndex].mappingObj.dataSource.NAME.value = name;
+                        let dataSource = batchList[rowIndex].mappingObj.dataSource;
+                        dataSource.parameters = [];
+                        dataSource.NAME = {}
+                        dataSource.NAME.value = name
+                        batchList[rowIndex].mappingObj.dataSource = dataSource;
                     });
                 }
 
