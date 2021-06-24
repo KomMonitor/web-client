@@ -442,7 +442,9 @@ angular
       };
 
       this.buildPropertyMapping_indicatorResource = function(spatialReferenceKeyProperty, timeseriesMappings, keepMissingOrNullValueIndicator){
-
+        console.log(spatialReferenceKeyProperty);
+        console.log(timeseriesMappings);
+        console.log(keepMissingOrNullValueIndicator);
         // attributeMapping is undefined for indicators
         return {
           "spatialReferenceKeyProperty": spatialReferenceKeyProperty,
