@@ -158,10 +158,10 @@ angular
                                 var propertyMappingDefinition = kommonitorImporterHelperService.buildPropertyMapping_indicatorResource(
                                     row.mappingObj.propertyMapping.spatialReferenceKeyProperty,
                                     row.mappingObj.propertyMapping.timeseriesMappings,
-                                    keepMissingOrNullValueIndicator,
+                                    keepMissingOrNullValueIndicator
                                 )
     
-                                //console.log("propertyMappingDefinition of row " + i + " with importerService: ", propertyMappingDefinition);
+                                console.log("propertyMappingDefinition of row " + i + " with importerService: ", propertyMappingDefinition);
     
                                 var scopeProperties = {
                                     "targetSpatialUnitMetadata": {
