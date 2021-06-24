@@ -387,7 +387,7 @@ angular
       }
 
       this.buildPutBody_indicators = function(scopeProperties){
-
+        
         var putBody =
         {
           "indicatorValues": [],
