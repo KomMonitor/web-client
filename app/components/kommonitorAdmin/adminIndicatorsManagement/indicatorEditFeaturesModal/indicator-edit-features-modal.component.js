@@ -110,7 +110,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 	
 			$scope.$on("onEditIndicatorFeatures", function (event, indicatorDataset) {
 	
-				if($scope.currentIndicatorDataset && $scope.currentIndicatorDataset.indicatorName === indicatorDataset.indicatorName){
+				if($scope.currentIndicatorDataset && $scope.currentIndicatorDataset.indicatorId === indicatorDataset.indicatorId){
 					return;
 				}
 				else{
