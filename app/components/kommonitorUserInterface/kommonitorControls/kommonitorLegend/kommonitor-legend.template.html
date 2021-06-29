@@ -140,6 +140,12 @@
 					<strong>Ausrei&szlig;er gesondert markieren</strong> &nbsp;
 					<label class="switch" title="Ausrei&szlig;er gesondert markieren"><input id="controlIndicatorOutlierDetection" type="checkbox" value="useOutlierDetection" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.useOutlierDetectionOnIndicator" ng-checked="$ctrl.kommonitorDataExchangeServiceInstance.useOutlierDetectionOnIndicator"><span class="switchslider round"></span></label>
 				</div>
+
+				<div ng-if="containsNoData">
+					<strong>NoData-Werte tempor&auml;r aus Datensatz entfernen</strong> &nbsp;
+					<label class="switch" title="NoData-Werte tempor&auml;r aus Datensatz entfernen"><input id="controlNoDataDisplay" type="checkbox" value="useNoDataToggle" ng-model="$ctrl.kommonitorDataExchangeServiceInstance.useNoDataToggle" ng-checked="$ctrl.kommonitorDataExchangeServiceInstance.useNoDataToggle"><span class="switchslider round"></span></label>
+				</div>
+				
 				
 			</div>
 			<!-- /.box-body -->

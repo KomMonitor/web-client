@@ -361,6 +361,7 @@ angular
           this.useOutlierDetectionOnIndicator = __env.useOutlierDetectionOnIndicator;
           this.classifyZeroSeparately = __env.classifyZeroSeparately;
           this.classifyUsingWholeTimeseries = __env.classifyUsingWholeTimeseries;
+          this.useNoDataToggle = __env.useNoDataToggle;
 
           this.getUpdateIntervalDisplayValue = function(apiValue){
             for (const updateIntervalOption of this.updateIntervalOptions) {
