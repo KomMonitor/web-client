@@ -661,6 +661,9 @@ angular
 
 										$scope.modifyExports(false);
 
+										if(document.getElementById('controlNoDataDisplay').checked)
+											$rootScope.$broadcast('applyNoDataDisplay');
+
 										$scope.loadingData = false;
 										$rootScope.$broadcast("hideLoadingIconOnMap");
 										$scope.$digest();
@@ -712,22 +715,24 @@ angular
 											return;
 										}
 
-											$rootScope.$broadcast("DisableBalance");
-												$scope.modifyExports(true);
+										$rootScope.$broadcast("DisableBalance");
+										$scope.modifyExports(true);
 
+										if(document.getElementById('controlNoDataDisplay').checked)
+											$rootScope.$broadcast('applyNoDataDisplay');
 
-												$scope.loadingData = false;
+										$scope.loadingData = false;
 
-												if(recenterMap){
-													$rootScope.$broadcast("recenterMapContent");
-												}
+										if(recenterMap){
+											$rootScope.$broadcast("recenterMapContent");
+										}
 
-												$rootScope.$broadcast("hideLoadingIconOnMap");
-												$scope.changeIndicatorWasClicked = false;
+										$rootScope.$broadcast("hideLoadingIconOnMap");
+										$scope.changeIndicatorWasClicked = false;
 
-												// $rootScope.$broadcast("updateDiagrams", kommonitorDataExchangeService.selectedIndicator, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, $scope.selectedDate);
+										// $rootScope.$broadcast("updateDiagrams", kommonitorDataExchangeService.selectedIndicator, kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel, $scope.selectedDate);
 
-												$rootScope.$apply();
+										$rootScope.$apply();
 
 
 									}
