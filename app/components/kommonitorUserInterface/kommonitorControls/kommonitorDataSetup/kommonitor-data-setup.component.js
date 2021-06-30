@@ -526,6 +526,9 @@ angular
 
 										$scope.modifyExports(false);
 
+										if(document.getElementById('controlNoDataDisplay').checked)
+											$rootScope.$broadcast('applyNoDataDisplay')
+
 										$scope.loadingData = false;
 										$rootScope.$broadcast("hideLoadingIconOnMap");
 										$rootScope.$broadcast("selectedIndicatorDateHasChanged");
@@ -632,6 +635,9 @@ angular
 										}
 
 										$scope.modifyExports(false);
+
+										if(document.getElementById('controlNoDataDisplay').checked)
+											$rootScope.$broadcast('applyNoDataDisplay')	
 
 										$scope.loadingData = false;
 										$rootScope.$broadcast("hideLoadingIconOnMap");
