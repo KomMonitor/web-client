@@ -994,7 +994,7 @@ angular.module('kommonitorMap').component(
           for (var i = 0; i < $scope.featuresWithValues.length; i++) {
             featuresWithValuesNames.push( $scope.featuresWithValues[i].properties["name"]);
           }
-          console.log("featuresWithValuesNames", featuresWithValuesNames);
+
           // store checkbox state
           let completelyRemoveFilteredFeaturesFromDisplayChbState = kommonitorFilterHelperService.completelyRemoveFilteredFeaturesFromDisplay;
           kommonitorFilterHelperService.completelyRemoveFilteredFeaturesFromDisplay = true; // set checkbox true
@@ -1011,8 +1011,6 @@ angular.module('kommonitorMap').component(
 
         $scope.resetNoDataDisplay = function() {
           kommonitorDataExchangeService.useNoDataToggle = false;
-            console.log("$scope.currentIndicatorMetadataAndGeoJSON.geoJSON.features ", $scope.currentIndicatorMetadataAndGeoJSON.geoJSON.features);
-            console.log("$scope.featuresWithoutValues ", $scope.featuresWithoutValues);
             let visibleFeatures = $scope.currentIndicatorMetadataAndGeoJSON.geoJSON.features;
             let visibleAndNoDataFeatures = visibleFeatures.concat($scope.featuresWithoutValues);
 
@@ -1026,7 +1024,6 @@ angular.module('kommonitorMap').component(
             let completelyRemoveFilteredFeaturesFromDisplayChbState = kommonitorFilterHelperService.completelyRemoveFilteredFeaturesFromDisplay;
             kommonitorFilterHelperService.completelyRemoveFilteredFeaturesFromDisplay = true; // set checkbox true
             // perform spatial filter
-            console.log(visibleAndNoDataFeaturesNames);
             kommonitorFilterHelperService.applySpatialFilter_currentSpatialUnitFeatures(visibleAndNoDataFeaturesNames);
             // set checkbox to previous state
             kommonitorFilterHelperService.completelyRemoveFilteredFeaturesFromDisplay = completelyRemoveFilteredFeaturesFromDisplayChbState;
