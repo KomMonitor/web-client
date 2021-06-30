@@ -221,7 +221,7 @@ try {
   window.__env.useOutlierDetectionOnIndicator = true;
   window.__env.classifyZeroSeparately = true;
   window.__env.classifyUsingWholeTimeseries = true;
-  window.__env.useNoDataToggle = true;
+  window.__env.useNoDataToggle = false; // true = hide no data values, false = show no data values
 
   // default color for specific classification as ColorBrewer palette name
   // i.e. balance mode
