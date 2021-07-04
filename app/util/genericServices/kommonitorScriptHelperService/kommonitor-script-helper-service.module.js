@@ -94,7 +94,11 @@ angular
         {
 					"displayName": "Georessourcen - Anzahl Punkte in Polygon",
 					"apiName": "georesource_pointsInPolygon"
-				}
+				},
+        {
+					"displayName": "Georessourcen - Statistiken anhand Objekteigenschaft (Punktdatensätze)",
+					"apiName": "georesource_statistics"
+				}        
 			];
 
       this.temporalOptions = [
@@ -142,12 +146,12 @@ angular
         if(!indicatorMetadata){
           return;
         }
-				for (const baseIndicator of this.requiredIndicators_tmp) {
-					if (baseIndicator.indicatorId === indicatorMetadata.indicatorId){
-						// already inserted as base indicator, hence add not allowed
-						return;
-					}
-				}
+				// for (const baseIndicator of this.requiredIndicators_tmp) {
+				// 	if (baseIndicator.indicatorId === indicatorMetadata.indicatorId){
+				// 		// already inserted as base indicator, hence add not allowed
+				// 		return;
+				// 	}
+				// }
 				this.requiredIndicators_tmp.push(indicatorMetadata);
       };
       
@@ -163,12 +167,12 @@ angular
       };
       
       this.addBaseGeoresource = function(georesourceMetadata){
-				for (const baseGeoresource of this.requiredGeoresources_tmp) {
-					if (baseGeoresource.georesourceId === georesourceMetadata.georesourceId){
-						// already inserted as base georesource, hence add not allowed
-						return;
-					}
-				}
+				// for (const baseGeoresource of this.requiredGeoresources_tmp) {
+				// 	if (baseGeoresource.georesourceId === georesourceMetadata.georesourceId){
+				// 		// already inserted as base georesource, hence add not allowed
+				// 		return;
+				// 	}
+				// }
 				this.requiredGeoresources_tmp.push(georesourceMetadata);
       };
       
