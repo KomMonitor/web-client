@@ -1,6 +1,6 @@
 angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataModal', {
 	templateUrl : "components/kommonitorAdmin/adminIndicatorsManagement/indicatorEditMetadataModal/indicator-edit-metadata-modal.template.html",
-	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '$http', '__env',function IndicatorEditMetadataModalController(kommonitorDataExchangeService, $scope, $rootScope, $http, __env) {
+	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '$http', '__env', '$timeout',function IndicatorEditMetadataModalController(kommonitorDataExchangeService, $scope, $rootScope, $http, __env, $timeout) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
@@ -45,6 +45,8 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 						"creationType": "INSERTION",
 						"unit": "unit",
 						"topicReference": "topicReference",
+						"referenceDateNote": "optional note for indicator reference date",
+						"displayOrder": 0,
 						"refrencesToGeoresources": [
 							{
 							"referenceDescription": "referenceDescription",
@@ -91,6 +93,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 				"description": "description about spatial unit dataset",
 				"databasis": "text about data basis",
 			},
+			"allowedRoles": ['roleId'],
 			"refrencesToOtherIndicators": [
 				{
 				  "referenceDescription": "description about the reference",
@@ -117,6 +120,8 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 			"isHeadlineIndicator": "boolean parameter to indicate if indicator is a headline indicator",
 			"processDescription": "detailed description about the computation/creation of the indicator",
 			"lowestSpatialUnitForComputation": "the name of the lowest possible spatial unit for which an indicator of creationType=COMPUTATION may be computed. All other superior spatial units will be aggregated automatically",
+			"referenceDateNote": "optional note for indicator reference date",
+			"displayOrder": 0,
 			"defaultClassificationMapping": {
 				"colorBrewerSchemeName": "schema name of colorBrewer colorPalette to use for classification",
 				"items": [
@@ -148,6 +153,10 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 		$scope.metadata.lastUpdate = undefined;
 		$scope.metadata.description = undefined;
 
+		$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, null, "roleName")};			
+		$scope.allowedRoleNames = {selectedItems: []};
+
+
 		$scope.datasetName = undefined;
 			$scope.indicatorAbbreviation = undefined;
 			$scope.indicatorType = undefined;
@@ -161,6 +170,9 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 			$scope.indicatorCreationType = undefined;
 			$scope.indicatorLowestSpatialUnitMetadataObjectForComputation = undefined;
 			$scope.enableLowestSpatialUnitSelect = false;
+
+			$scope.indicatorReferenceDateNote = undefined;
+			$scope.displayOrder = 0;
 
 			$scope.indicatorTopic_mainTopic = undefined;
 			$scope.indicatorTopic_subTopic = undefined;
@@ -234,6 +246,9 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 			$scope.datasetName = $scope.currentIndicatorDataset.indicatorName;
 			$scope.datasetNameInvalid = false;
 
+			$scope.indicatorReferenceDateNote = $scope.currentIndicatorDataset.referenceDateNote;
+			$scope.displayOrder = $scope.currentIndicatorDataset.displayOrder;
+
 			$scope.metadata = {};
 			$scope.metadata.note = $scope.currentIndicatorDataset.metadata.note;
 			$scope.metadata.literature = $scope.currentIndicatorDataset.metadata.literature;
@@ -253,6 +268,9 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 				}
 			});
 
+			var selectedRolesMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleIds($scope.currentIndicatorDataset.allowedRoles);			
+			$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, selectedRolesMetadata, "roleName")};			
+			$scope.allowedRoleNames = {selectedItems: $scope.duallist.duallistRoleOptions.selectedItems};
 
 			$scope.indicatorAbbreviation = $scope.currentIndicatorDataset.abbreviation;
 
@@ -392,7 +410,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 			$("#indicatorEditMetadataErrorAlert").hide();
 
 			setTimeout(() => {
-				$scope.$apply();
+				$scope.$digest();
 			}, 250);
 		};
 
@@ -400,7 +418,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 			$scope.selectedColorBrewerPaletteEntry = colorPaletteEntry;
 
 			setTimeout(() => {
-				$scope.$apply();
+				$scope.$digest();
 			}, 250);
 		};
 
@@ -434,7 +452,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 			$scope.tmpIndicatorReference_referenceDescription = undefined;
 
 			setTimeout(() => {
-				$scope.$apply();
+				$scope.$digest();
 			}, 250);
 		};
 
@@ -444,7 +462,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 			$scope.tmpIndicatorReference_referenceDescription = indicatorReference_adminView.referencedIndicatorDescription;
 
 			setTimeout(() => {
-				$scope.$apply();
+				$scope.$digest();
 			}, 250);
 		};
 
@@ -460,7 +478,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 			}				
 
 			setTimeout(() => {
-				$scope.$apply();
+				$scope.$digest();
 			}, 250);
 		};
 
@@ -493,7 +511,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 			$scope.tmpGeoresourceReference_referenceDescription = undefined;
 
 			setTimeout(() => {
-				$scope.$apply();
+				$scope.$digest();
 			}, 250);
 		};
 
@@ -503,7 +521,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 			$scope.tmpGeoresourceReference_referenceDescription = georesourceReference_adminView.referencedGeoresourceDescription;
 
 			setTimeout(() => {
-				$scope.$apply();
+				$scope.$digest();
 			}, 250);
 		};
 
@@ -519,13 +537,8 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 			}				
 
 			setTimeout(() => {
-				$scope.$apply();
+				$scope.$digest();
 			}, 250);
-		};
-
-		$scope.filterIndicators = function() {
-
-			return kommonitorDataExchangeService.filterIndicators();
 		};
 
 		$scope.onChangeCreationType = function(){
@@ -585,6 +598,8 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 				  "interpretation": $scope.indicatorInterpretation || "",
 				  "isHeadlineIndicator": $scope.isHeadlineIndicator || false,
 				  "processDescription": $scope.indicatorProcessDescription || "",
+				  "referenceDateNote": $scope.indicatorReferenceDateNote || "",
+				  "displayOrder": $scope.displayOrder,
 				  "lowestSpatialUnitForComputation": $scope.indicatorLowestSpatialUnitMetadataObjectForComputation? $scope.indicatorLowestSpatialUnitMetadataObjectForComputation.spatialUnitLevel : null,
 				  "defaultClassificationMapping": {
 					"colorBrewerSchemeName": $scope.selectedColorBrewerPaletteEntry.paletteName,
@@ -612,6 +627,11 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 					  ]
 				  }
 			};
+
+			for (const roleDuallistItem of $scope.allowedRoleNames.selectedItems) {
+				var roleMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleName(roleDuallistItem.name);
+				patchBody.allowedRoles.push(roleMetadata.roleId);
+			}
 
 			// TAGS
 			if($scope.indicatorTagsString_withCommas){
@@ -689,7 +709,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 
 					$scope.successMessagePart = $scope.datasetName;
 
-					$rootScope.$broadcast("refreshIndicatorOverviewTable");
+					$rootScope.$broadcast("refreshIndicatorOverviewTable", "edit", $scope.currentIndicatorDataset.indicatorId);
 					$("#indicatorEditMetadataSuccessAlert").show();
 					$scope.loadingData = false;
 
@@ -744,7 +764,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 					document.getElementById("indicatorsEditMetadataPre").innerHTML = $scope.indicatorMetadataStructure_pretty;
 					$("#indicatorEditMetadataImportErrorAlert").show();
 
-					$scope.$apply();
+					$scope.$digest();
 				}
 
 			};
@@ -763,7 +783,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 				document.getElementById("indicatorsAddMetadataPre").innerHTML = $scope.indicatorMetadataStructure_pretty;
 				$("#indicatorAddMetadataImportErrorAlert").show();
 
-				$scope.$apply();
+				$scope.$digest();
 			}
 
 				$scope.metadata = {};
@@ -785,6 +805,13 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 				$scope.metadata.databasis = $scope.metadataImportSettings.metadata.databasis;
 
 				$scope.datasetName = $scope.metadataImportSettings.datasetName;
+
+				$scope.indicatorReferenceDateNote = $scope.metadataImportSettings.referenceDateNote;
+				$scope.displayOrder = $scope.metadataImportSettings.displayOrder;
+
+				var selectedRolesMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleIds($scope.metadataImportSettings.allowedRoles);			
+				$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, selectedRolesMetadata, "roleName")};			
+				$scope.allowedRoleNames = {selectedItems: $scope.duallist.duallistRoleOptions.selectedItems};
 
 				// indicator specific properties
 
@@ -919,13 +946,7 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 
 				$scope.spatialUnitRefKeyProperty = undefined;
 				$scope.targetSpatialUnitMetadata = undefined;
-				$scope.tmpTimeseriesMapping_indicatorValuesPropertyName = undefined;
-				$scope.useTimeseriesAsProperty = false;
-				$scope.tmpTimeseriesMapping_timestampPropertyName = undefined;
-				$scope.tmpTimeseriesMapping_directTimestamp = undefined;
-				$scope.timeseriesMappings_adminView = [];
-
-				$scope.$apply();
+				$scope.$digest();
 		};
 
 		$scope.onExportIndicatorEditMetadataTemplate = function(){
@@ -960,6 +981,15 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 			metadataExport.metadata.description = $scope.metadata.description || "";
 			metadataExport.metadata.databasis = $scope.metadata.databasis || "";
 			metadataExport.datasetName = $scope.datasetName || "";
+
+			metadataExport.referenceDateNote = $scope.indicatorReferenceDateNote;
+			metadataExport.displayOrder = $scope.displayOrder;
+
+			metadataExport.allowedRoles = [];
+			for (const roleDuallistItem of $scope.allowedRoleNames.selectedItems) {
+				var roleMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleName(roleDuallistItem.name);
+				metadataExport.allowedRoles.push(roleMetadata.roleId);
+			}
 
 			if($scope.metadata.updateInterval){
 					metadataExport.metadata.updateInterval = $scope.metadata.updateInterval.apiName;
@@ -1107,85 +1137,89 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 			$scope.scale; //fieldset properties which we will animate
 			$scope.animating; //flag to prevent quick multi-click glitches
 
-			$(".next_editIndicatorMetadata").click(function(){
-				if($scope.animating) return false;
-				$scope.animating = true;
+			$timeout(function(){
 				
-				$scope.current_fs = $(this).parent();
-				$scope.next_fs = $(this).parent().next();
-				
-				//activate next step on progressbar using the index of $scope.next_fs
-				$("#progressbar li").eq($("fieldset").index($scope.next_fs)).addClass("active");
-				
-				//show the next fieldset
-				$scope.next_fs.show(); 
-				//hide the current fieldset with style
-				$scope.current_fs.animate({opacity: 0}, {
-					step: function(now, mx) {
-						//as the $scope.opacity of current_fs reduces to 0 - stored in "now"
-						//1. $scope.scale current_fs down to 80%
-						$scope.scale = 1 - (1 - now) * 0.2;
-						//2. bring $scope.next_fs from the right(50%)
-						// left = (now * 50)+"%";
-						//3. increase $scope.opacity of $scope.next_fs to 1 as it moves in
-						$scope.opacity = 1 - now;
-						$scope.current_fs.css({
-							'position': 'absolute'
-						});
-						// $scope.next_fs.css({'left': left, '$scope.opacity': $scope.opacity});
-						$scope.next_fs.css({'opacity': $scope.opacity});
-					}, 
-					duration: 200, 
-					complete: function(){
-						$scope.current_fs.hide();
-						$scope.animating = false;
-					}, 
-					//this comes from the custom easing plugin
-					easing: 'easeInOutBack'
+				$(".next_editIndicatorMetadata").click(function(){
+					if($scope.animating) return false;
+					$scope.animating = true;
+					
+					$scope.current_fs = $(this).parent();
+					$scope.next_fs = $(this).parent().next();
+					
+					//activate next step on progressbar using the index of $scope.next_fs
+					$("#progressbar li").eq($("fieldset").index($scope.next_fs)).addClass("active");
+					
+					//show the next fieldset
+					$scope.next_fs.show(); 
+					//hide the current fieldset with style
+					$scope.current_fs.animate({opacity: 0}, {
+						step: function(now, mx) {
+							//as the $scope.opacity of current_fs reduces to 0 - stored in "now"
+							//1. $scope.scale current_fs down to 80%
+							$scope.scale = 1 - (1 - now) * 0.2;
+							//2. bring $scope.next_fs from the right(50%)
+							// left = (now * 50)+"%";
+							//3. increase $scope.opacity of $scope.next_fs to 1 as it moves in
+							$scope.opacity = 1 - now;
+							$scope.current_fs.css({
+								'position': 'absolute'
+							});
+							// $scope.next_fs.css({'left': left, '$scope.opacity': $scope.opacity});
+							$scope.next_fs.css({'opacity': $scope.opacity});
+						}, 
+						duration: 200, 
+						complete: function(){
+							$scope.current_fs.hide();
+							$scope.animating = false;
+						}, 
+						//this comes from the custom easing plugin
+						easing: 'easeInOutBack'
+					});
 				});
-			});
-
-			$(".previous_editIndicatorMetadata").click(function(){
-				if($scope.animating) return false;
-				$scope.animating = true;
-				
-				$scope.current_fs = $(this).parent();
-				$scope.previous_fs = $(this).parent().prev();
-				
-				//de-activate current step on progressbar
-				$("#progressbar li").eq($("fieldset").index($scope.current_fs)).removeClass("active");
-				
-				//show the previous fieldset
-				$scope.previous_fs.show(); 
-				//hide the current fieldset with style
-				$scope.current_fs.animate({opacity: 0}, {
-					step: function(now, mx) {
-						//as the $scope.opacity of current_fs reduces to 0 - stored in "now"
-						//1. $scope.scale $scope.previous_fs from 80% to 100%
-						$scope.scale = 0.8 + (1 - now) * 0.2;
-						//2. take current_fs to the right(50%) - from 0%
-						// left = ((1-now) * 50)+"%";
-						//3. increase $scope.opacity of $scope.previous_fs to 1 as it moves in
-						$scope.opacity = 1 - now;
-						// current_fs.css({'left': left});
-						// $scope.previous_fs.css({'transform': '$scope.scale('+$scope.scale+')', '$scope.opacity': $scope.opacity});
-						$scope.previous_fs.css({
-							'position': 'absolute'
-						});
-						$scope.previous_fs.css({'opacity': $scope.opacity});
-					}, 
-					duration: 200, 
-					complete: function(){
-						$scope.current_fs.hide();
-						$scope.previous_fs.css({
-							'position': 'relative'
-						});
-						$scope.animating = false;
-					}, 
-					//this comes from the custom easing plugin
-					easing: 'easeInOutBack'
+	
+				$(".previous_editIndicatorMetadata").click(function(){
+					if($scope.animating) return false;
+					$scope.animating = true;
+					
+					$scope.current_fs = $(this).parent();
+					$scope.previous_fs = $(this).parent().prev();
+					
+					//de-activate current step on progressbar
+					$("#progressbar li").eq($("fieldset").index($scope.current_fs)).removeClass("active");
+					
+					//show the previous fieldset
+					$scope.previous_fs.show(); 
+					//hide the current fieldset with style
+					$scope.current_fs.animate({opacity: 0}, {
+						step: function(now, mx) {
+							//as the $scope.opacity of current_fs reduces to 0 - stored in "now"
+							//1. $scope.scale $scope.previous_fs from 80% to 100%
+							$scope.scale = 0.8 + (1 - now) * 0.2;
+							//2. take current_fs to the right(50%) - from 0%
+							// left = ((1-now) * 50)+"%";
+							//3. increase $scope.opacity of $scope.previous_fs to 1 as it moves in
+							$scope.opacity = 1 - now;
+							// current_fs.css({'left': left});
+							// $scope.previous_fs.css({'transform': '$scope.scale('+$scope.scale+')', '$scope.opacity': $scope.opacity});
+							$scope.previous_fs.css({
+								'position': 'absolute'
+							});
+							$scope.previous_fs.css({'opacity': $scope.opacity});
+						}, 
+						duration: 200, 
+						complete: function(){
+							$scope.current_fs.hide();
+							$scope.previous_fs.css({
+								'position': 'relative'
+							});
+							$scope.animating = false;
+						}, 
+						//this comes from the custom easing plugin
+						easing: 'easeInOutBack'
+					});
 				});
-			});
+				
+			}, 500);
 
 	}
 ]});

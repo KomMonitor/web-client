@@ -16,7 +16,7 @@
 
 				<div class="input-group">
 					<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-					<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="indicatorNameFilter">
+					<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="indicatorNameFilter" ng-model-options="{debounce: 500, blur: 0}">
 				</div>
 
 				<p></p>
@@ -26,7 +26,7 @@
 
 						<div class="col-sm-8">
 							<select style="font-size: 12px;"
-								size="5" ng-model="targetIndicator" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators() | filter:{creationType:'COMPUTATION'} | filter:filterComputableIndicators() | filter:indicatorNameFilter"
+								size="5" ng-model="targetIndicator" ng-options="indicator as indicator.indicatorName for indicator in $ctrl.kommonitorDataExchangeServiceInstance.displayableIndicators | filter:{creationType:'COMPUTATION'} | filter:filterComputableIndicators() | filter:indicatorNameFilter"
 								class="form-control" ng-change="onChangeTargetIndicator()" required>
 								<option value="" selected disabled>-- berechenbaren Indikator w&auml;hlen --</option>
 							</select>

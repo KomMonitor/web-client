@@ -91,13 +91,26 @@
 						<form class="multiStepForm form-group" id="indicatorEditMetadataForm" role="form"
 							data-toggle="validator" data-disable="true" style="margin-bottom: 0px;">
 							<!-- progressbar -->
-							<ul id="progressbar">
-								<li style="width: 20%;" class="active">Metadaten des Indikators</li>
-								<li style="width: 20%;" >Allgemeine Metadaten</li>
-								<li style="width: 20%;">Themenhierarchie</li>
-								<li style="width: 20%;">Referenzen zu Indikatoren/Georessourcen</li>
-								<li style="width: 20%;">Klassifizierungsoptionen</li>
-							</ul>
+							<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
+								<ul id="progressbar">
+									<li style="width: 16.66%;" class="active">Metadaten des Indikators</li>
+									<li style="width: 16.66%;" >Allgemeine Metadaten</li>
+									<li style="width: 16.66%;">Themenhierarchie</li>
+									<li style="width: 16.66%;">Referenzen zu Indikatoren/Georessourcen</li>
+									<li style="width: 16.66%;">Klassifizierungsoptionen</li>
+									<li style="width: 16.66%">Rollenbasierter Zugriffsschutz</li>
+								</ul>
+							</div>
+							<div ng-if="! $ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
+								<ul id="progressbar">
+									<li style="width: 20%;" class="active">Metadaten des Indikators</li>
+									<li style="width: 20%;" >Allgemeine Metadaten</li>
+									<li style="width: 20%;">Themenhierarchie</li>
+									<li style="width: 20%;">Referenzen zu Indikatoren/Georessourcen</li>
+									<li style="width: 20%;">Klassifizierungsoptionen</li>
+								</ul>
+							</div>
+							
 							<!-- fieldsets -->
 							
 							<fieldset>
@@ -230,8 +243,19 @@
 											</label>	
 										
 											<div class="help-block">
-												<p>Angabe, ob der Indikator ein Leitindikator ist. Leitindikatoren aggregieren in der Regel Subindikatoren zu einer h&ouml;herwertigen Aussage</p>
+												<p>Angabe, ob der Indikator ein Leitindikator ist. Leitindikatoren aggregieren in der Regel Basisindikatoren zu einer h&ouml;herwertigen Aussage</p>
 											</div>	
+											<div class="help-block with-errors"></div>
+										</div>
+									</div>
+									<div class="col-md-3 col-sm-6 col-xs-12">
+										<div class="form-group">
+											<label>Hinweistext zu Referenzdatum</label>
+											<textarea rows="3" class="form-control" ng-model="indicatorReferenceDateNote"
+												placeholder="optionaler Hinweistext bzgl. Referenzdatum des Indikators"></textarea>
+											<div class="help-block">
+												<p>Angabe des Referenzdatums oder Hinweise &uuml;ber die Fortf&uuml;hrung des Indikators</p>
+											</div>		
 											<div class="help-block with-errors"></div>
 										</div>
 									</div>
@@ -272,13 +296,7 @@
 											</div>	
 											<div class="help-block with-errors"></div>
 										</div>
-									</div>
-									
-									<div class="col-md-3 col-sm-6 col-xs-12">
-										<div class="form-group">
-											
-										</div>
-									</div>
+									</div>								
 								</div>
 
 								<input type="button" name="next" class="next next_editIndicatorMetadata action-button" value="N&auml;chster Schritt"/>
@@ -483,7 +501,7 @@
 								<!-- <p><b><i>* = Pflichtfeld</i></b></p> -->
 
 								<p>Hier werden Angaben &uuml;ber assoziierte Indikatoren und Georessourcen get&auml;tigt. Sie eignen sich dazu, im System Querverbindungen 
-									zwischen Indikatoren un Georessourcen darzustellen und dem Nutzer so die M&ouml;glichkeit zu geben, einen Themenkomplex, 
+									zwischen Indikatoren und Georessourcen darzustellen und dem Nutzer so die M&ouml;glichkeit zu geben, einen Themenkomplex, 
 									der durch mehrere Datens&auml;tze abgebildet wird, besser zu verstehen.</p>
 
 								<div class="row vertical-align">
@@ -509,11 +527,11 @@
 																<label>Indikator, f&uuml;r den eine Referenz angelegt werden soll</label>
 																<div class="input-group">
 																	<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-																	<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="indicatorNameFilter">
+																	<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="indicatorNameFilter" ng-model-options="{debounce: 500, blur: 0}">
 																  </div>
 																  <br/>
 																<select ng-model="tmpIndicatorReference_selectedIndicatorMetadata" size="5"
-																	ng-options="indicatorMetadata as indicatorMetadata.indicatorName for indicatorMetadata in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:filterIndicators() | filter:indicatorNameFilter"
+																	ng-options="indicatorMetadata as indicatorMetadata.indicatorName for indicatorMetadata in $ctrl.kommonitorDataExchangeServiceInstance.availableIndicators | filter:indicatorNameFilter"
 																	class="form-control" >
 																	<option disabled selected value> -- referenzierten Indikator w&auml;hlen --
 																	</option>
@@ -629,7 +647,7 @@
 																<label>Indikator, f&uuml;r den eine Referenz angelegt werden soll</label>
 																<div class="input-group">
 																	<span class="input-group-addon"><i class="fas fa-filter"></i></span>
-																	<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="georesourceNameFilter">
+																	<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="georesourceNameFilter" ng-model-options="{debounce: 500, blur: 0}">
 																  </div>
 																  <br/>
 																<select ng-model="tmpGeoresourceReference_selectedGeoresourceMetadata" size="5"
@@ -879,9 +897,30 @@
 								</div>
 
 								<input type="button" name="previous" class="previous previous_editIndicatorMetadata action-button-previous" value="Voriger Schritt"/>
+								<input type="button" name="next" class="next next_editIndicatorMetadata action-button" value="N&auml;chster Schritt" ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity"/>
 
 							</fieldset>
 
+								<fieldset ng-if="$ctrl.kommonitorDataExchangeServiceInstance.enableKeycloakSecurity">
+									<h2 class="fs-title">Rollenbasierter Zugriffsschutz (Optional)</h2>
+									<h3 class="fs-subtitle">Angabe ob nur ausgew&auml;hlte Rollen Zugriff auf Indikatoren-Datensatz-Metadaten erhalten sollen.</h3>
+		
+									<p>Klicken Sie ein oder mehrere der verf&uuml;gbaren Rollen aus der linken &Uuml;bersicht an, um den Zugriff auf die Metadaten des Indikators auf diese Rollen einzuschr&auml;nken.</p>
+		
+									<p>Der Zugriff ist nur f&uuml;r die Rollen erlaubt, die im rechten &Uuml;bersichtsfenster gelistet sind.</p>
+		
+									<p>Wird keine Rolle selektiert, so sind die Metadaten des Indikator-Datensatzes ohne Zugriffsbeschr&auml;nkung abrufbar.</p>
+	
+									<p><strong>Bei Indikatoren gibt es zus&auml;tzlich die M&ouml;glichkeit, f&uuml;r jede verkn&uuml;pfte Raumebene den Abruf der Zeitreihen-Daten f&uuml;r die jeweilige Raumebene abzusichern. Dazu nutzen Sie bitte das Feature-Fortf&uuml;hren-Men&uuml;.</strong></p>
+		
+									<div class="row no-margin">
+										<div class="col-md">
+											<excalibur-dual-list ng-model='allowedRoleNames.selectedItems' options="duallist.duallistRoleOptions"></excalibur-dual-list>
+										</div>
+									</div>
+									
+									<input type="button" name="previous" class="previous previous_editIndicatorMetadata action-button-previous" value="Voriger Schritt"/>								
+								</fieldset>						
 
 						</form>
 					</div>
@@ -911,8 +950,8 @@
 			<div id="indicatorEditMetadataSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
 				class="alert alert-success alert-dismissable">
 				<button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
-				<h4><i class="icon fa fa-check"></i>Raumeinheit aktualisiert</h4>
-				Die Metadaten der Raumeinheit mit Namen {{successMessagePart}} wurden in KomMonitor aktualisiert und in
+				<h4><i class="icon fa fa-check"></i>Indikator aktualisiert</h4>
+				Die Metadaten des Indikators mit Namen {{successMessagePart}} wurden in KomMonitor aktualisiert und in
 				die &Uuml;bersichtstabelle eingetragen.
 			</div>
 
@@ -920,7 +959,7 @@
 				class="alert alert-danger alert-dismissable">
 				<button type="button" class="close" ng-click="hideErrorAlert()" aria-hidden="true">&times;</button>
 				<h4><i class="icon fa fa-ban"></i>Aktualisierung gescheitert</h4>
-				Bei der Aktualisierung der Metadaten der Raumeinheit ist ein Fehler aufgetreten. Fehlermeldung:
+				Bei der Aktualisierung der Metadaten des Indikators ist ein Fehler aufgetreten. Fehlermeldung:
 				<br />
 				<pre style="overflow:auto; max-height:500px;" ng-bind-html="errorMessagePart"></pre>
 			</div>

@@ -26,7 +26,7 @@
 						<div class="col-md-6 col-sm-6 col-xs-12">
 							<div class="input-group">
 				                <span class="input-group-addon"><i class="fas fa-filter"></i></span>
-				                <input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="indicatorNameFilter">
+				                <input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model="indicatorNameFilter" ng-model-options="{debounce: 500, blur: 0}">
 							  </div>
 							 <br/> 
 							<div>
@@ -132,8 +132,8 @@
 															<td>
 																<ul style="columns: 2; 	-webkit-columns: 2;	-moz-columns: 2;">
 																	<li style="margin-right: 15px;"
-																		ng-repeat="spatialUnitName in selectedIndicatorDataset.applicableSpatialUnits">
-																		{{spatialUnitName}}
+																		ng-repeat="applicableSpatialUnit in selectedIndicatorDataset.applicableSpatialUnits">
+																		{{applicableSpatialUnit.spatialUnitName}}
 																	</li>
 																</ul>
 															</td>

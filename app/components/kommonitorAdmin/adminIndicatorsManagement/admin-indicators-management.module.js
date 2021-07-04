@@ -1,1 +1,1 @@
-angular.module('adminIndicatorsManagement', ['kommonitorDataExchange', 'datatables']);
+angular.module('adminIndicatorsManagement', ['kommonitorDataExchange', 'kommonitorDataGridHelper', 'ng-sortable']);

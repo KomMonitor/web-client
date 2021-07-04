@@ -1,7 +1,7 @@
 angular.module('georesourceAddModal').component('georesourceAddModal', {
 	templateUrl : "components/kommonitorAdmin/adminGeoresourcesManagement/georesourceAddModal/georesource-add-modal.template.html",
-	controller : ['kommonitorDataExchangeService', 'kommonitorImporterHelperService', '$scope', '$rootScope', '$http', '__env', '$timeout', 
-		function GeoresourceAddModalAddModalController(kommonitorDataExchangeService, kommonitorImporterHelperService, $scope, $rootScope, $http, __env, $timeout) {
+	controller : ['kommonitorDataExchangeService', 'kommonitorImporterHelperService', '$scope', '$rootScope', '$http', '$timeout', '__env',
+		function GeoresourceAddModalAddModalController(kommonitorDataExchangeService, kommonitorImporterHelperService, $scope, $rootScope, $http, $timeout, __env) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 		this.kommonitorImporterHelperServiceInstance = kommonitorImporterHelperService;
@@ -61,6 +61,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 				"description": "description about spatial unit dataset",
 				"databasis": "text about data basis",
 			},
+			"allowedRoles": ['roleId'],
 			"datasetName": "Name of georesource dataset",
 			"isPOI": "boolean parameter for point of interest dataset - only one of isPOI, isLOI, isAOI can be true",
 			"isLOI": "boolean parameter for lines of interest dataset - only one of isPOI, isLOI, isAOI can be true",
@@ -96,6 +97,17 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 		$scope.metadata.contact = undefined;
 		$scope.metadata.lastUpdate = undefined;
 		$scope.metadata.description = undefined;
+
+		$scope.allowedRoleNames = {selectedItems: []};
+		$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, null, "roleName")};			
+
+		// make sure that initial fetching of availableRoles has happened
+		$scope.$on("initialMetadataLoadingCompleted", function (event) {
+			$timeout(function () {
+				$scope.allowedRoleNames = { selectedItems: [] };
+				$scope.duallist = { duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, null, "roleName") };
+			});
+		});
 
 		$scope.georesourceTopic_mainTopic = undefined;
 		$scope.georesourceTopic_subTopic = undefined;
@@ -221,6 +233,9 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			$scope.metadata.lastUpdate = undefined;
 			$scope.metadata.description = undefined;
 
+			$scope.allowedRoleNames = {selectedItems: []};
+			$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, null, "roleName")};				
+
 			$scope.georesourceTopic_mainTopic = undefined;
 			$scope.georesourceTopic_subTopic = undefined;
 			$scope.georesourceTopic_subsubTopic = undefined;
@@ -273,7 +288,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			$scope.keepMissingValues = true;
 
 			setTimeout(() => {
-				$scope.$apply();	
+				$scope.$digest();	
 			}, 250);
 		};
 
@@ -360,7 +375,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			$scope.attributeMapping_attributeType = kommonitorImporterHelperService.attributeMapping_attributeTypes[0];
 
 			setTimeout(() => {
-				$scope.$apply();
+				$scope.$digest();
 			}, 250);
 		};
 
@@ -370,7 +385,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			$scope.attributeMapping_attributeType = attributeMappingEntry.dataType;			
 
 			setTimeout(() => {
-				$scope.$apply();
+				$scope.$digest();
 			}, 250);
 		};
 
@@ -385,7 +400,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			}				
 
 			setTimeout(() => {
-				$scope.$apply();
+				$scope.$digest();
 			}, 250);
 		};
 
@@ -433,6 +448,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			var postBody =
 			{
 				"geoJsonString": $scope.geoJsonString,
+				"allowedRoles": [],
 				"metadata": {
 					"note": $scope.metadata.note,
 					"literature": $scope.metadata.literature,
@@ -455,6 +471,11 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 				"isPOI": $scope.isPOI,
 			  "topicReference": null
 			};
+
+			for (const roleDuallistItem of $scope.allowedRoleNames.selectedItems) {
+				var roleMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleName(roleDuallistItem.name);
+				postBody.allowedRoles.push(roleMetadata.roleId);
+			}
 
 			if($scope.isPOI){
 				postBody["poiSymbolBootstrap3Name"] = $scope.selectedPoiIconName;
@@ -540,7 +561,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 
 					// TODO verify input
 
-					// TODO Create and perform POST Request with loading screen				
+					// TODO Create and perform POST Request with loading screen			
 
 					var newGeoresourceResponse_dryRun = undefined;
 					try {
@@ -551,10 +572,13 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 							// all good, really execute the request to import data against data management API
 							var newGeoresourceResponse = await kommonitorImporterHelperService.registerNewGeoresource($scope.converterDefinition, $scope.datasourceTypeDefinition, $scope.propertyMappingDefinition, $scope.postBody_georesources, false);
 
-							$rootScope.$broadcast("refreshGeoresourceOverviewTable");
+							$rootScope.$broadcast("refreshGeoresourceOverviewTable", "add", kommonitorImporterHelperService.getIdFromImporterResponse(newGeoresourceResponse));
 
 							// refresh all admin dashboard diagrams due to modified metadata
-							$rootScope.$broadcast("refreshAdminDashboardDiagrams");
+							$timeout(function(){
+								$rootScope.$broadcast("refreshAdminDashboardDiagrams");
+							}, 500);
+							
 		
 							$scope.successMessagePart = $scope.postBody_georesources.datasetName;
 							$scope.importedFeatures = kommonitorImporterHelperService.getImportedFeaturesFromImporterResponse(newGeoresourceResponse);
@@ -573,7 +597,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 							$scope.loadingData = false;
 
 							setTimeout(() => {
-								$scope.$apply();
+								$scope.$digest();
 							}, 250);
 
 						}
@@ -593,7 +617,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 						$scope.loadingData = false;
 
 						setTimeout(() => {
-							$scope.$apply();
+							$scope.$digest();
 						}, 250);
 					}
 				}
@@ -635,7 +659,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 					document.getElementById("georesourcesAddMetadataPre").innerHTML = $scope.georesourceMetadataStructure_pretty;
 					$("#georesourceMetadataImportErrorAlert").show();
 
-					$scope.$apply();
+					$scope.$digest();
 				}
 
 			};
@@ -654,7 +678,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 				document.getElementById("georesourcesAddMetadataPre").innerHTML = $scope.georesourceMetadataStructure_pretty;
 				$("#georesourceMetadataImportErrorAlert").show();
 
-				$scope.$apply();
+				$scope.$digest();
 			}
 
 				$scope.metadata = {};
@@ -676,6 +700,10 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 				$scope.metadata.databasis = $scope.metadataImportSettings.metadata.databasis;
 
 				$scope.datasetName = $scope.metadataImportSettings.datasetName;
+
+				var selectedRolesMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleIds($scope.metadataImportSettings.allowedRoles);			
+				$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, selectedRolesMetadata, "roleName")};			
+				$scope.allowedRoleNames = {selectedItems: $scope.duallist.duallistRoleOptions.selectedItems};
 
 				// georesource specific properties
 
@@ -731,7 +759,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 					// $("#poiSymbolPicker input").css('glyphicon-' + $scope.metadataImportSettings.poiSymbolBootstrap3Name);
 				}, 200);
 
-				$scope.$apply();
+				$scope.$digest();
 		}
 
 		$scope.onExportGeoresourceAddMetadataTemplate = function(){
@@ -766,6 +794,12 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			metadataExport.metadata.description = $scope.metadata.description || "";
 			metadataExport.metadata.databasis = $scope.metadata.databasis || "";
 			metadataExport.datasetName = $scope.datasetName || "";
+
+			metadataExport.allowedRoles = [];
+			for (const roleDuallistItem of $scope.allowedRoleNames.selectedItems) {
+				var roleMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleName(roleDuallistItem.name);
+				metadataExport.allowedRoles.push(roleMetadata.roleId);
+			}
 
 			if($scope.metadata.updateInterval){
 					metadataExport.metadata.updateInterval = $scope.metadata.updateInterval.apiName;
@@ -903,7 +937,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 					document.getElementById("georesourcesAddMappingConfigPre").innerHTML = $scope.georesourceMappingConfigStructure_pretty;
 					$("#georesourceMappingConfigImportErrorAlert").show();
 
-					$scope.$apply();
+					$scope.$digest();
 				}
 
 			};
@@ -921,7 +955,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 				document.getElementById("georesourcesAddMappingConfigPre").innerHTML = $scope.georesourceMappingConfigStructure_pretty;
 				$("#georesourceMappingConfigImportErrorAlert").show();
 
-				$scope.$apply();
+				$scope.$digest();
 			}
 			
 			  $scope.converter = undefined;
@@ -949,7 +983,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 					}
 				}
 
-				$scope.$apply();
+				$scope.$digest();
 
 				// converter parameters
 				if ($scope.converter){
@@ -1004,7 +1038,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 					}
 				}				
 				
-				$scope.$apply();
+				$scope.$digest();
 		};
 
 		$scope.onExportGeoresourceAddMappingConfig = async function(){
@@ -1075,85 +1109,90 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			$scope.scale; //fieldset properties which we will animate
 			$scope.animating; //flag to prevent quick multi-click glitches
 
-			$(".next_addGeoresource").click(function(){
-				if($scope.animating) return false;
-				$scope.animating = true;
-				
-				$scope.current_fs = $(this).parent();
-				$scope.next_fs = $(this).parent().next();
-				
-				//activate next step on progressbar using the index of $scope.next_fs
-				$("#progressbar li").eq($("fieldset").index($scope.next_fs)).addClass("active");
-				
-				//show the next fieldset
-				$scope.next_fs.show(); 
-				//hide the current fieldset with style
-				$scope.current_fs.animate({opacity: 0}, {
-					step: function(now, mx) {
-						//as the $scope.opacity of current_fs reduces to 0 - stored in "now"
-						//1. $scope.scale current_fs down to 80%
-						$scope.scale = 1 - (1 - now) * 0.2;
-						//2. bring $scope.next_fs from the right(50%)
-						// left = (now * 50)+"%";
-						//3. increase $scope.opacity of $scope.next_fs to 1 as it moves in
-						$scope.opacity = 1 - now;
-						$scope.current_fs.css({
-							'position': 'absolute'
-						});
-						// $scope.next_fs.css({'left': left, '$scope.opacity': $scope.opacity});
-						$scope.next_fs.css({'opacity': $scope.opacity});
-					}, 
-					duration: 200, 
-					complete: function(){
-						$scope.current_fs.hide();
-						$scope.animating = false;
-					}, 
-					//this comes from the custom easing plugin
-					easing: 'easeInOutBack'
+			$timeout(function(){
+		
+				$(".next_addGeoresource").click(function(){
+					if($scope.animating) return false;
+					$scope.animating = true;
+					
+					$scope.current_fs = $(this).parent();
+					$scope.next_fs = $(this).parent().next();
+					
+					//activate next step on progressbar using the index of $scope.next_fs
+					$("#progressbar li").eq($("fieldset").index($scope.next_fs)).addClass("active");
+					
+					//show the next fieldset
+					$scope.next_fs.show(); 
+					//hide the current fieldset with style
+					$scope.current_fs.animate({opacity: 0}, {
+						step: function(now, mx) {
+							//as the $scope.opacity of current_fs reduces to 0 - stored in "now"
+							//1. $scope.scale current_fs down to 80%
+							$scope.scale = 1 - (1 - now) * 0.2;
+							//2. bring $scope.next_fs from the right(50%)
+							// left = (now * 50)+"%";
+							//3. increase $scope.opacity of $scope.next_fs to 1 as it moves in
+							$scope.opacity = 1 - now;
+							$scope.current_fs.css({
+								'position': 'absolute'
+							});
+							// $scope.next_fs.css({'left': left, '$scope.opacity': $scope.opacity});
+							$scope.next_fs.css({'opacity': $scope.opacity});
+						}, 
+						duration: 200, 
+						complete: function(){
+							$scope.current_fs.hide();
+							$scope.animating = false;
+						}, 
+						//this comes from the custom easing plugin
+						easing: 'easeInOutBack'
+					});
 				});
-			});
+	
+				$(".previous_addGeoresource").click(function(){
+					if($scope.animating) return false;
+					$scope.animating = true;
+					
+					$scope.current_fs = $(this).parent();
+					$scope.previous_fs = $(this).parent().prev();
+					
+					//de-activate current step on progressbar
+					$("#progressbar li").eq($("fieldset").index($scope.current_fs)).removeClass("active");
+					
+					//show the previous fieldset
+					$scope.previous_fs.show(); 
+					//hide the current fieldset with style
+					$scope.current_fs.animate({opacity: 0}, {
+						step: function(now, mx) {
+							//as the $scope.opacity of current_fs reduces to 0 - stored in "now"
+							//1. $scope.scale $scope.previous_fs from 80% to 100%
+							$scope.scale = 0.8 + (1 - now) * 0.2;
+							//2. take current_fs to the right(50%) - from 0%
+							// left = ((1-now) * 50)+"%";
+							//3. increase $scope.opacity of $scope.previous_fs to 1 as it moves in
+							$scope.opacity = 1 - now;
+							// current_fs.css({'left': left});
+							// $scope.previous_fs.css({'transform': '$scope.scale('+$scope.scale+')', '$scope.opacity': $scope.opacity});
+							$scope.previous_fs.css({
+								'position': 'absolute'
+							});
+							$scope.previous_fs.css({'opacity': $scope.opacity});
+						}, 
+						duration: 200, 
+						complete: function(){
+							$scope.current_fs.hide();
+							$scope.previous_fs.css({
+								'position': 'relative'
+							});
+							$scope.animating = false;
+						}, 
+						//this comes from the custom easing plugin
+						easing: 'easeInOutBack'
+					});
+				});
 
-			$(".previous_addGeoresource").click(function(){
-				if($scope.animating) return false;
-				$scope.animating = true;
-				
-				$scope.current_fs = $(this).parent();
-				$scope.previous_fs = $(this).parent().prev();
-				
-				//de-activate current step on progressbar
-				$("#progressbar li").eq($("fieldset").index($scope.current_fs)).removeClass("active");
-				
-				//show the previous fieldset
-				$scope.previous_fs.show(); 
-				//hide the current fieldset with style
-				$scope.current_fs.animate({opacity: 0}, {
-					step: function(now, mx) {
-						//as the $scope.opacity of current_fs reduces to 0 - stored in "now"
-						//1. $scope.scale $scope.previous_fs from 80% to 100%
-						$scope.scale = 0.8 + (1 - now) * 0.2;
-						//2. take current_fs to the right(50%) - from 0%
-						// left = ((1-now) * 50)+"%";
-						//3. increase $scope.opacity of $scope.previous_fs to 1 as it moves in
-						$scope.opacity = 1 - now;
-						// current_fs.css({'left': left});
-						// $scope.previous_fs.css({'transform': '$scope.scale('+$scope.scale+')', '$scope.opacity': $scope.opacity});
-						$scope.previous_fs.css({
-							'position': 'absolute'
-						});
-						$scope.previous_fs.css({'opacity': $scope.opacity});
-					}, 
-					duration: 200, 
-					complete: function(){
-						$scope.current_fs.hide();
-						$scope.previous_fs.css({
-							'position': 'relative'
-						});
-						$scope.animating = false;
-					}, 
-					//this comes from the custom easing plugin
-					easing: 'easeInOutBack'
-				});
-			});
+			}, 500);
+
 
 	}
 ]});

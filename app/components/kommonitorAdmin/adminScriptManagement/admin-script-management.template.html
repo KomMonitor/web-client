@@ -5,17 +5,44 @@
 			Skriptverwaltung
 			<small>Steuerung der semi-automatisierten Indikatorenberechnung</small>
 		</h1>
+
+		<div class="adminTableButtonWrapper">
+			<button class="btn btn-success btn-sm" type="button" data-toggle="modal" data-target="#modal-add-script"><i
+					class="fas fa-plus"></i>&nbsp;&nbsp;Erstellen</button>
+			<!-- edit metadata -->
+
+			<!-- edit features -->
+
+			<!-- delete selected completely -->
+			<button class="btn btn-danger btn-sm" type="button" data-toggle="modal" data-target="#modal-delete-scripts"
+				ng-click="onClickDeleteDatasets()"><i class="fas fa-trash"></i>&nbsp;&nbsp;L&ouml;schen</button>
+
+			<!-- delete b timestamp -->
+		</div>
 	</section>
 
 	<!-- Main content -->
 	<section class="content container-fluid">
 
-		SCRIPT STUFF
-
 		<!--------------------------
 			| Your Page Content Here |
 			-------------------------->
+		<div class="box box-primary">
+			<div class="box-header">
+				<h3 class="box-title">Indikatoren-Skripte</h3>
+			</div>
+			<!-- /.box-header -->
+			<div class="box-body">
+
+				<div class="admin-table-wrapper">
+					<table id="scriptOverviewTable" style="height: 75vh; width: 100%;" class="ag-theme-alpine"></table>
+
+				</div>
+			</div>
+			<!-- /.box-body -->
+		</div>
+		<!-- /.box -->
 
 	</section>
-<!-- /.content -->
+	<!-- /.content -->
 </div>

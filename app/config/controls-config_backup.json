@@ -1,0 +1,62 @@
+[
+    {
+        "id": "indicatorConfig",
+        "roles": []
+    },
+    {
+        "id": "poi",
+        "roles": []
+    },
+    {
+        "id": "dataImport",
+        "roles": []
+    },
+    {
+        "id": "filter",
+        "roles": ["fakeAdvancedModeRole"]
+    },
+    {
+        "id": "measureOfValueClassification",
+        "roles": []
+    },
+    {
+        "id": "balance",
+        "roles": ["fakeAdvancedModeRole"]
+    },
+    {
+        "id": "diagrams",
+        "roles": []
+    },
+    {
+        "id": "radarDiagram",
+        "roles": ["fakeAdvancedModeRole"]
+    },
+    {
+        "id": "regressionDiagram",
+        "roles": ["fakeAdvancedModeRole"]
+    },
+    {
+        "id": "reachability",
+        "roles": ["fakeAdvancedModeRole"]
+    },
+    {
+        "id": "processing",
+        "roles": ["fakeAdvancedModeRole"]
+    },
+    {
+        "id": "reportingButton",
+        "roles": []
+    },
+    {
+        "id": "indicatorLegendExportButtons",
+        "roles": ["fakeAdvancedModeRole"]
+    },
+    {
+        "id": "diagramExportButtons",
+        "roles": ["fakeAdvancedModeRole"]
+    },
+    {
+        "id": "georesourceExportButtons",
+        "roles": ["fakeAdvancedModeRole"]
+    }
+]

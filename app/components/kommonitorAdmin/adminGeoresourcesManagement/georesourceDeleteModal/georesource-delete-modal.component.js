@@ -1,6 +1,6 @@
 angular.module('georesourceDeleteModal').component('georesourceDeleteModal', {
 	templateUrl : "components/kommonitorAdmin/adminGeoresourcesManagement/georesourceDeleteModal/georesource-delete-modal.template.html",
-	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '$http', '__env', '$q',function GeoresourceDeleteModalController(kommonitorDataExchangeService, $scope, $rootScope, $http, __env, $q) {
+	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '$http', '__env', '$q', '$timeout', function GeoresourceDeleteModalController(kommonitorDataExchangeService, $scope, $rootScope, $http, __env, $q, $timeout) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
@@ -98,20 +98,27 @@ angular.module('georesourceDeleteModal').component('georesourceDeleteModal', {
 							// 	$("#georesourcesDeleteSuccessAlert").show();
 							// }
 
-							$scope.loadingData = false;
+							$timeout(function(){
+				
+								$scope.loadingData = false;
+							});							
 						}
 						if($scope.successfullyDeletedDatasets.length > 0){
 							$("#georesourcesDeleteSuccessAlert").show();
 
-							// fetch indicatorMetada again as a georesource was deleted
-							await kommonitorDataExchangeService.fetchIndicatorsMetadata();
 							// refresh spatial unit overview table
-							$rootScope.$broadcast("refreshGeoresourceOverviewTable");
+							$rootScope.$broadcast("refreshGeoresourceOverviewTable", "delete", $scope.successfullyDeletedDatasets.map(dataset => {return dataset.georesourceId;}));
 
 							// refresh all admin dashboard diagrams due to modified metadata
-							$rootScope.$broadcast("refreshAdminDashboardDiagrams");
+							$timeout(function(){
+								$rootScope.$broadcast("refreshAdminDashboardDiagrams");
+							}, 500);
 
-							$scope.loadingData = false;
+							
+							$timeout(function(){
+				
+								$scope.loadingData = false;
+							});	
 						}
 				}, function errorCallback(errorArray) {
 

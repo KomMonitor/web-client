@@ -1,19 +1,30 @@
 angular.module('infoModal').component('infoModal', {
 	templateUrl : "components/kommonitorUserInterface/kommonitorControls/infoModal/info-modal.template.html",
-	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', function InfoModalController(kommonitorDataExchangeService, $scope, $rootScope) {
+	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '$timeout', function InfoModalController(kommonitorDataExchangeService, $scope, $rootScope, $timeout) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
 		$scope.isHideGreetings = false;
 
-		if(! (localStorage.getItem("hideKomMonitorAppGreeting") === "true")) {
-			$('#infoModal').modal('show');			
-		}
-		else{
-			$scope.isHideGreetings = true;
-		}
+		$scope.init = function(){
+			if(! (localStorage.getItem("hideKomMonitorAppGreeting") === "true")) {
+					
+				$scope.isHideGreetings = false;
 
-		$scope.onChangeHideGreetings = function(){
+				$('#infoModal').modal('show');		
+			}
+			else{
+				$scope.isHideGreetings = true;
+				$("#changeHideGreetingsInput").prop('checked', true);
+			}
+
+			$timeout(function(){
+				$scope.$digest();
+			}, 250);
+			
+		};
+
+		var onChangeHideGreetings = function(){
 			if($scope.isHideGreetings){
 				localStorage.setItem("hideKomMonitorAppGreeting", "true");
 			}
@@ -22,15 +33,32 @@ angular.module('infoModal').component('infoModal', {
 			}
 		};
 
-		$scope.callStartGuidedTour = function(){
+		$('#changeHideGreetingsInput').on('click', function(event) {
+
+			if($scope.isHideGreetings){
+				$scope.isHideGreetings = false;
+			}
+			else{
+				$scope.isHideGreetings = true;
+			}
+			onChangeHideGreetings();
+			event.stopPropagation();
+	   });
+
+		var callStartGuidedTour = function(){
 			$('#infoModal').modal('hide');
 			$rootScope.$broadcast("startGuidedTour");
 		};
+
+		$(document).on('click', '#callStartGuidedTourButton', function (e) {
+			callStartGuidedTour();
+		  });
 
 		$scope.showFeedbackForm = function(){
 			$('#infoModal').modal('hide');
 			$('#feedbackModal').modal('show');
 		};
 
+		$scope.init();
 	}
 ]});

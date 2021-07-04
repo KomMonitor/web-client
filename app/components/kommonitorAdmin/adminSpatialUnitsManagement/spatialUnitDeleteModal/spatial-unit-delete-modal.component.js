@@ -1,6 +1,6 @@
 angular.module('spatialUnitDeleteModal').component('spatialUnitDeleteModal', {
 	templateUrl : "components/kommonitorAdmin/adminSpatialUnitsManagement/spatialUnitDeleteModal/spatial-unit-delete-modal.template.html",
-	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '$http', '__env', '$q',function SpatialUnitDeleteModalController(kommonitorDataExchangeService, $scope, $rootScope, $http, __env, $q) {
+	controller : ['kommonitorDataExchangeService', '$scope', '$rootScope', '$http', '__env', '$q', '$timeout', function SpatialUnitDeleteModalController(kommonitorDataExchangeService, $scope, $rootScope, $http, __env, $q, $timeout) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
@@ -51,8 +51,6 @@ angular.module('spatialUnitDeleteModal').component('spatialUnitDeleteModal', {
 							// if ($scope.successfullyDeletedDatasets.length > 0){
 							// 	$("#spatialUnitsDeleteSuccessAlert").show();
 							// }
-
-							$scope.loadingData = false;
 						}
 						if($scope.successfullyDeletedDatasets.length > 0){
 							$("#spatialUnitsDeleteSuccessAlert").show();
@@ -60,13 +58,18 @@ angular.module('spatialUnitDeleteModal').component('spatialUnitDeleteModal', {
 							// fetch indicatorMetada again as a spatialUnit was deleted
 							await kommonitorDataExchangeService.fetchIndicatorsMetadata();
 							// refresh spatial unit overview table
-							$rootScope.$broadcast("refreshSpatialUnitOverviewTable");
+							$rootScope.$broadcast("refreshSpatialUnitOverviewTable", "delete", $scope.successfullyDeletedDatasets.map(dataset => {return dataset.spatialUnitId;}));
 
 							// refresh all admin dashboard diagrams due to modified metadata
-							$rootScope.$broadcast("refreshAdminDashboardDiagrams");
-
-							$scope.loadingData = false;
+							$timeout(function(){
+								$rootScope.$broadcast("refreshAdminDashboardDiagrams");
+							}, 500);
 						}
+
+						$timeout(function(){
+				
+							$scope.loadingData = false;
+						});	
 				}, function errorCallback(errorArray) {
 
 					$("#spatialUnitsDeleteErrorAlert").show();

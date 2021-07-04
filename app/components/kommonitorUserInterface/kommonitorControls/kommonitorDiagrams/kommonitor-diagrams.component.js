@@ -9,9 +9,9 @@ angular
 			 * enabled tabs
 			 */
 			controller: [
-				'kommonitorDataExchangeService', 'kommonitorDiagramHelperService',
+				'kommonitorDataExchangeService', 'kommonitorDiagramHelperService', 'kommonitorFilterHelperService', 
 				'$scope', '$rootScope', '__env',
-				function kommonitorDiagramsController(kommonitorDataExchangeService, kommonitorDiagramHelperService,
+				function kommonitorDiagramsController(kommonitorDataExchangeService, kommonitorDiagramHelperService, kommonitorFilterHelperService,
 					$scope, $rootScope, __env) {
 					this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 					this.kommonitorDiagramHelperServiceInstance = kommonitorDiagramHelperService;
@@ -102,7 +102,7 @@ angular
 						$scope.spatialUnitName = spatialUnitName;
 						$scope.date = date;
 
-						kommonitorDiagramHelperService.prepareAllDiagramResources(indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, false);
+						kommonitorDiagramHelperService.prepareAllDiagramResources_forCurrentMapIndicator(indicatorMetadataAndGeoJSON, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue, false);
 
 						// updateHistogramChart();
 
@@ -285,7 +285,7 @@ angular
 
 					var findPropertiesForTimeSeries = function (spatialUnitFeatureName) {
 						for (var feature of kommonitorDataExchangeService.selectedIndicator.geoJSON.features) {
-							if (feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] === spatialUnitFeatureName) {
+							if (feature.properties[__env.FEATURE_NAME_PROPERTY_NAME] == spatialUnitFeatureName) {
 								return feature.properties;
 							}
 						}
@@ -337,7 +337,7 @@ angular
 
 					$scope.$on("updateDiagramsForUnhoveredFeature", function (event, featureProperties) {
 
-						if (!kommonitorDataExchangeService.clickedIndicatorFeatureNames.includes(featureProperties[__env.FEATURE_NAME_PROPERTY_NAME])) {
+						if (!kommonitorFilterHelperService.featureIsCurrentlySelected(featureProperties[__env.FEATURE_ID_PROPERTY_NAME])) {
 							unhighlightFeatureInLineChart(featureProperties);
 
 							removeSeriesFromLineChart(featureProperties);

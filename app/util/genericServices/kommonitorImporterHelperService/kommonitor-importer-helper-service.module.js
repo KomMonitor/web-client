@@ -239,7 +239,7 @@ angular
 
       this.uploadNewFile = async function(fileData, fileName){
         console.log("Trying to POST to importer service to upload a new file.");
-
+        
         var formdata = new FormData();
         formdata.append("filename", fileName); 
         formdata.append("file", fileData);       
@@ -372,6 +372,38 @@ angular
         return datasourceTypeDefinition;
       };
 
+      this.buildPutBody_georesources = function(scopeProperties) {
+
+        var putBody =
+        {
+            "geoJsonString": "",
+            "periodOfValidity": {
+                "endDate": scopeProperties.periodOfValidity.endDate,
+                "startDate": scopeProperties.periodOfValidity.startDate
+            }
+        };
+
+        return putBody;
+      }
+
+      this.buildPutBody_indicators = function(scopeProperties){
+        
+        var putBody =
+        {
+          "indicatorValues": [],
+          "applicableSpatialUnit": scopeProperties.targetSpatialUnitMetadata.spatialUnitLevel,
+          "defaultClassificationMapping": scopeProperties.currentIndicatorDataset.defaultClassificationMapping,
+          "allowedRoles": []
+          };
+
+          for (const roleDuallistItem of scopeProperties.allowedRoleNames.selectedItems) {
+            var roleMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleName(roleDuallistItem.name);
+            putBody.allowedRoles.push(roleMetadata.roleId);
+          }
+
+        return putBody;
+      };
+
       this.buildPropertyMapping_spatialResource = function(nameProperty, idPropety, validStartDateProperty, validEndDateProperty, arisenFromProperty, keepAttributes, keepMissingValues, attributeMappings_adminView){
         if(validStartDateProperty === ""){
           validStartDateProperty = undefined;
@@ -410,7 +442,9 @@ angular
       };
 
       this.buildPropertyMapping_indicatorResource = function(spatialReferenceKeyProperty, timeseriesMappings, keepMissingOrNullValueIndicator){
-
+        console.log(spatialReferenceKeyProperty);
+        console.log(timeseriesMappings);
+        console.log(keepMissingOrNullValueIndicator);
         // attributeMapping is undefined for indicators
         return {
           "spatialReferenceKeyProperty": spatialReferenceKeyProperty,

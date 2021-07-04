@@ -4,8 +4,8 @@ angular
 				'kommonitorIndividualIndicatorComputation',
 				{
 					templateUrl : "components/kommonitorUserInterface/kommonitorControls/kommonitorIndividualIndicatorComputation/kommonitor-individual-indicator-computation.template.html",
-					controller : ['kommonitorDataExchangeService', '$rootScope', '$scope', '$http','kommonitorMapService', '__env', function kommonitorIndividualIndicatorComputationController(
-							kommonitorDataExchangeService, $rootScope, $scope, $http, kommonitorMapService, __env) {
+					controller : ['kommonitorDataExchangeService', '$rootScope', '$scope', '$http','kommonitorMapService', '__env', '$timeout', function kommonitorIndividualIndicatorComputationController(
+							kommonitorDataExchangeService, $rootScope, $scope, $http, kommonitorMapService, __env, $timeout) {
 
 						this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 						// initialize any adminLTE box widgets
@@ -30,18 +30,6 @@ angular
 						$scope.inputNgModels = {};
 
 						$scope.dateSliderForComputation;
-
-						$scope.filterIndicators = function() {
-
-							return function(item){
-								if (item.indicatorName.includes("Erreichbar")){
-									return false;
-								}
-								else{
-									return kommonitorDataExchangeService.filterIndicators();
-								}
-							};
-						};
 
 						$scope.filterComputableIndicators = function() {
 							return function( item ) {
@@ -116,7 +104,7 @@ angular
 
 							$scope.targetDate = date.getFullYear() + "-" + month  + "-" + day;
 
-							$scope.$apply();
+							$scope.$digest();
 						};
 
 						var updateInputDisplay = function(input){
@@ -324,7 +312,7 @@ angular
 
 							// parameterNode.appendChild(parameterDiv);
 
-							// $scope.$apply();
+							// $scope.$digest();
 						};
 
 						$scope.getScriptMetadataForIndicatorId = function(indicatorId){
@@ -374,10 +362,10 @@ angular
 								var applicableSpatialUnits = $scope.targetIndicator.applicableSpatialUnits;
 
 								for (const spatialUnitEntry of kommonitorDataExchangeService.availableSpatialUnits){
-									if(applicableSpatialUnits.includes(spatialUnitEntry.spatialUnitLevel))
+									if(applicableSpatialUnits.some(o => o.spatialUnitName === spatialUnitEntry.spatialUnitLevel))
 										result = spatialUnitEntry;
 										break;
-								};
+								}
 
 								return result;
 						};
@@ -394,7 +382,7 @@ angular
 						};
 
 						$scope.fetchBaseIndicatorMetadata = function(baseIndicatorId){
-							for (const indicatorMetadata of kommonitorDataExchangeService.availableIndicators){
+							for (const indicatorMetadata of kommonitorDataExchangeService.displayableIndicators){
 								if(indicatorMetadata.indicatorId === baseIndicatorId)
 									return indicatorMetadata;
 							}
@@ -632,7 +620,10 @@ angular
 
 											$scope.showInitialJobStatus(jobId);
 
-											$scope.loadingData = false;
+											$timeout(function(){
+				
+												$scope.loadingData = false;
+											});	
 
 											$scope.pendForResult(jobId);
 
@@ -645,7 +636,10 @@ angular
 
 											kommonitorDataExchangeService.displayMapApplicationError(error);
 
-											$scope.loadingData = false;
+											$timeout(function(){
+				
+												$scope.loadingData = false;
+											});	
 									});
 
 						}
@@ -715,7 +709,7 @@ angular
 
 											$scope.prepareDownloadGeoJSON();
 
-											// $scope.$apply();
+											// $scope.$digest();
 										}
 
 									}, function errorCallback(error) {

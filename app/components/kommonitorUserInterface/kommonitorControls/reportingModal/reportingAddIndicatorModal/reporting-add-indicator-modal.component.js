@@ -134,10 +134,6 @@ angular.module('reportingAddIndicatorModal').component('reportingAddIndicatorMod
 		 */
 		$scope.loadDefaultState = function() {
 			//select last spatial unit
-			// var $spatialUnitSelect = $('#reporting-spatial-unit-select');
-			// var children = $spatialUnitSelect.children();
-			// var lastSpatialUnit = children.last().get(0);
-			// $scope.selectedSpatialUnit = lastSpatialUnit.textContent;
 
 			$scope.selectedSpatialUnit = $scope.indicator.applicableSpatialUnits[0];
 
@@ -151,7 +147,7 @@ angular.module('reportingAddIndicatorModal').component('reportingAddIndicatorMod
 			//fill left side with all timestamps
 			var timestampsInput = createDualListInputArray($scope.indicator.applicableDates);
 			$scope.duallistTimestampsOptions.items = timestampsInput;
-			$scope.$apply();
+			$scope.$digest();
 
 			//if just one timestamp exists, move it to right side
 			var $list = $('.unselected-items-list:eq(1) li a'); //all elements of second dual list left side
@@ -173,7 +169,7 @@ angular.module('reportingAddIndicatorModal').component('reportingAddIndicatorMod
 			// get spatial unit id
 			var spatialUnitId = undefined;
 			$(kommonitorDataExchangeService.availableSpatialUnits).each( (id, obj) => {
-				if (obj.spatialUnitLevel === $scope.selectedSpatialUnit) {
+				if (obj.spatialUnitId === $scope.selectedSpatialUnit.spatialUnitId) {
 					spatialUnitId = obj.spatialUnitId;
 					return false;
 				}
@@ -185,7 +181,7 @@ angular.module('reportingAddIndicatorModal').component('reportingAddIndicatorMod
 
 			$scope.selectedSpatialUnitId = spatialUnitId;
 			// build request
-			var url = kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI +
+			var url = kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
 						"/indicators/" + indicatorId + "/" + spatialUnitId;
 			// send request
 			await $http({
@@ -418,15 +414,15 @@ angular.module('reportingAddIndicatorModal').component('reportingAddIndicatorMod
 			$scope.duallistTimestampsOptions= {};
 			$scope.duallistTimestampsOptions["items"] = [];
 
-			$scope.elementMapIsChecked = false;
+			$scope.elementMapIsChecked = true;
 			$scope.elementMapLegendIsChecked = false;
 			$scope.elementMapLegendIsDisabled = true;
 			$scope.elementMapScaleIsChecked = false;
 			$scope.elementMapScaleIsDisabled = true;
 			$scope.elementDescriptionIsChecked = false;
 			$scope.elementHistoryIsChecked = false;
-			$scope.elementFeatureComparisonIsChecked = false;
-			$scope.elementTimelineIsChecked = false;
+			$scope.elementFeatureComparisonIsChecked = true;
+			$scope.elementTimelineIsChecked = true;
 			$scope.elementMetadataIsChecked = false;
 			$scope.elementDataTableIsChecked = false;
 		}

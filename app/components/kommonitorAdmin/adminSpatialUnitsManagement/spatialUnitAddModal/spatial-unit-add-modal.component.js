@@ -1,7 +1,7 @@
 angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 	templateUrl : "components/kommonitorAdmin/adminSpatialUnitsManagement/spatialUnitAddModal/spatial-unit-add-modal.template.html",
-	controller : ['kommonitorDataExchangeService', 'kommonitorImporterHelperService', '$scope', '$rootScope', '$http', '__env', '$timeout',
-		function SpatialUnitAddModalController(kommonitorDataExchangeService, kommonitorImporterHelperService, $scope, $rootScope, $http, __env, $timeout) {
+	controller : ['kommonitorDataExchangeService', 'kommonitorImporterHelperService', '$scope', '$rootScope', '$timeout', '$http', '__env',
+		function SpatialUnitAddModalController(kommonitorDataExchangeService, kommonitorImporterHelperService, $scope, $rootScope, $timeout, $http, __env) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 		this.kommonitorImporterHelperServiceInstance = kommonitorImporterHelperService;
@@ -50,6 +50,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 				"description": "description about spatial unit dataset",
 				"databasis": "text about data basis",
 			},
+			"allowedRoles": ['roleId'],
 			"nextLowerHierarchyLevel": "Name of lower hierarchy level",
 			"spatialUnitLevel": "Name of spatial unit dataset",
 			"nextUpperHierarchyLevel": "Name of upper hierarchy level"
@@ -76,6 +77,17 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 		$scope.metadata.contact = undefined;
 		$scope.metadata.lastUpdate = undefined;
 		$scope.metadata.description = undefined;
+
+		$scope.allowedRoleNames = {selectedItems: []};
+		$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, null, "roleName")};			
+
+		// make sure that initial fetching of availableRoles has happened
+		$scope.$on("initialMetadataLoadingCompleted", function (event) {
+			$timeout(function () {
+				$scope.allowedRoleNames = { selectedItems: [] };
+				$scope.duallist = { duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, null, "roleName") };
+			});
+		});
 
 		$scope.nextLowerHierarchySpatialUnit = undefined;
 		$scope.nextUpperHierarchySpatialUnit = undefined;
@@ -132,6 +144,9 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 			$scope.metadata.lastUpdate = undefined;
 			$scope.metadata.description = undefined;
 
+			$scope.allowedRoleNames = {selectedItems: []};
+			$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, null, "roleName")};			
+
 			$scope.nextLowerHierarchySpatialUnit = undefined;
 			$scope.nextUpperHierarchySpatialUnit = undefined;
 			$scope.hierarchyInvalid = false;
@@ -164,7 +179,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 			$scope.validityStartDate_perFeature = undefined;
 
 			setTimeout(() => {
-				$scope.$apply();	
+				$scope.$digest();	
 			}, 250);
 		};
 
@@ -252,7 +267,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 			$scope.attributeMapping_attributeType = kommonitorImporterHelperService.attributeMapping_attributeTypes[0];
 
 			setTimeout(() => {
-				$scope.$apply();
+				$scope.$digest();
 			}, 250);
 		};
 
@@ -262,7 +277,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 			$scope.attributeMapping_attributeType = attributeMappingEntry.dataType;			
 
 			setTimeout(() => {
-				$scope.$apply();
+				$scope.$digest();
 			}, 250);
 		};
 
@@ -277,7 +292,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 			}				
 
 			setTimeout(() => {
-				$scope.$apply();
+				$scope.$digest();
 			}, 250);
 		};
 
@@ -337,6 +352,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 					"databasis": $scope.metadata.databasis
 				},
 				"jsonSchema": undefined,
+				"allowedRoles": [],
 				"nextLowerHierarchyLevel": $scope.nextLowerHierarchySpatialUnit ? $scope.nextLowerHierarchySpatialUnit.spatialUnitLevel : undefined,
 				"spatialUnitLevel": $scope.spatialUnitLevel,
 				"periodOfValidity": {
@@ -345,6 +361,11 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 				},
 				"nextUpperHierarchyLevel": $scope.nextUpperHierarchySpatialUnit ? $scope.nextUpperHierarchySpatialUnit.spatialUnitLevel : undefined
 			};
+
+			for (const roleDuallistItem of $scope.allowedRoleNames.selectedItems) {
+				var roleMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleName(roleDuallistItem.name);
+				postBody.allowedRoles.push(roleMetadata.roleId);
+			}
 
 			return postBody;
 		};
@@ -389,10 +410,13 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 							// all good, really execute the request to import data against data management API
 							var newSpatialUnitResponse = await kommonitorImporterHelperService.registerNewSpatialUnit($scope.converterDefinition, $scope.datasourceTypeDefinition, $scope.propertyMappingDefinition, $scope.postBody_spatialUnits, false);
 
-							$rootScope.$broadcast("refreshSpatialUnitOverviewTable");
+							$rootScope.$broadcast("refreshSpatialUnitOverviewTable", "add", kommonitorImporterHelperService.getIdFromImporterResponse(newSpatialUnitResponse));
 
 							// refresh all admin dashboard diagrams due to modified metadata
-							$rootScope.$broadcast("refreshAdminDashboardDiagrams");
+							$timeout(function(){
+								$rootScope.$broadcast("refreshAdminDashboardDiagrams");
+							}, 500);
+							
 
 							$scope.successMessagePart = $scope.postBody_spatialUnits.spatialUnitLevel;
 							$scope.importedFeatures = kommonitorImporterHelperService.getImportedFeaturesFromImporterResponse(newSpatialUnitResponse);
@@ -410,7 +434,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 							$scope.loadingData = false;
 
 							setTimeout(() => {
-								$scope.$apply();
+								$scope.$digest();
 							}, 250);
 
 						}
@@ -430,7 +454,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 						$scope.loadingData = false;
 
 						setTimeout(() => {
-							$scope.$apply();
+							$scope.$digest();
 						}, 250);
 					}
 				}
@@ -472,7 +496,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 					document.getElementById("spatialUnitsAddMetadataPre").innerHTML = $scope.spatialUnitMetadataStructure_pretty;
 					$("#spatialUnitMetadataImportErrorAlert").show();
 
-					$scope.$apply();
+					$scope.$digest();
 				}
 
 			};
@@ -491,7 +515,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 				document.getElementById("spatialUnitsAddMetadataPre").innerHTML = $scope.spatialUnitMetadataStructure_pretty;
 				$("#spatialUnitMetadataImportErrorAlert").show();
 
-				$scope.$apply();
+				$scope.$digest();
 			}
 
 				$scope.metadata = {};
@@ -512,6 +536,10 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 				$scope.metadata.description = $scope.metadataImportSettings.metadata.description;
 				$scope.metadata.databasis = $scope.metadataImportSettings.metadata.databasis;
 
+				var selectedRolesMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleIds($scope.metadataImportSettings.allowedRoles);			
+				$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, selectedRolesMetadata, "roleName")};			
+				$scope.allowedRoleNames = {selectedItems: $scope.duallist.duallistRoleOptions.selectedItems};
+
 				for(var i=0; i<kommonitorDataExchangeService.availableSpatialUnits.length; i++){
 					var spatialUnit = kommonitorDataExchangeService.availableSpatialUnits[i];
 					if (spatialUnit.spatialUnitLevel === $scope.metadataImportSettings.nextLowerHierarchyLevel){
@@ -524,7 +552,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 
 				$scope.spatialUnitLevel = $scope.metadataImportSettings.spatialUnitLevel;
 
-				$scope.$apply();
+				$scope.$digest();
 		};
 
 		$scope.onExportSpatialUnitAddMetadataTemplate = function(){
@@ -559,6 +587,12 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 			metadataExport.metadata.description = $scope.metadata.description || "";
 			metadataExport.metadata.databasis = $scope.metadata.databasis || "";
 			metadataExport.spatialUnitLevel = $scope.spatialUnitLevel || "";
+
+			metadataExport.allowedRoles = [];
+			for (const roleDuallistItem of $scope.allowedRoleNames.selectedItems) {
+				var roleMetadata = kommonitorDataExchangeService.getRoleMetadataForRoleName(roleDuallistItem.name);
+				metadataExport.allowedRoles.push(roleMetadata.roleId);
+			}
 
 			if($scope.metadata.updateInterval){
 					metadataExport.metadata.updateInterval = $scope.metadata.updateInterval.apiName;
@@ -637,7 +671,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 					document.getElementById("spatialUnitsAddMappingConfigPre").innerHTML = $scope.spatialUnitMappingConfigStructure_pretty;
 					$("#spatialUnitMappingConfigImportErrorAlert").show();
 
-					$scope.$apply();
+					$scope.$digest();
 				}
 
 			};
@@ -655,7 +689,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 				document.getElementById("spatialUnitsAddMappingConfigPre").innerHTML = $scope.spatialUnitMappingConfigStructure_pretty;
 				$("#spatialUnitMappingConfigImportErrorAlert").show();
 
-				$scope.$apply();
+				$scope.$digest();
 			}
 			
 			  $scope.converter = undefined;
@@ -683,7 +717,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 					}
 				}
 
-				$scope.$apply();
+				$scope.$digest();
 
 				// converter parameters
 				if ($scope.converter){
@@ -738,7 +772,7 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 					}
 				}				
 				
-				$scope.$apply();
+				$scope.$digest();
 		};
 
 		$scope.onExportSpatialUnitAddMappingConfig = async function(){
@@ -809,85 +843,88 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 			$scope.scale; //fieldset properties which we will animate
 			$scope.animating; //flag to prevent quick multi-click glitches
 
-			$(".next_addSpatialUnit").click(function(){
-				if($scope.animating) return false;
-				$scope.animating = true;
+			$timeout(function(){
 				
-				$scope.current_fs = $(this).parent();
-				$scope.next_fs = $(this).parent().next();
-				
-				//activate next step on progressbar using the index of $scope.next_fs
-				$("#progressbar li").eq($("fieldset").index($scope.next_fs)).addClass("active");
-				
-				//show the next fieldset
-				$scope.next_fs.show(); 
-				//hide the current fieldset with style
-				$scope.current_fs.animate({opacity: 0}, {
-					step: function(now, mx) {
-						//as the $scope.opacity of current_fs reduces to 0 - stored in "now"
-						//1. $scope.scale current_fs down to 80%
-						$scope.scale = 1 - (1 - now) * 0.2;
-						//2. bring $scope.next_fs from the right(50%)
-						// left = (now * 50)+"%";
-						//3. increase $scope.opacity of $scope.next_fs to 1 as it moves in
-						$scope.opacity = 1 - now;
-						$scope.current_fs.css({
-							'position': 'absolute'
-						});
-						// $scope.next_fs.css({'left': left, '$scope.opacity': $scope.opacity});
-						$scope.next_fs.css({'opacity': $scope.opacity});
-					}, 
-					duration: 200, 
-					complete: function(){
-						$scope.current_fs.hide();
-						$scope.animating = false;
-					}, 
-					//this comes from the custom easing plugin
-					easing: 'easeInOutBack'
+				$(".next_addSpatialUnit").click(function(){
+					if($scope.animating) return false;
+					$scope.animating = true;
+					
+					$scope.current_fs = $(this).parent();
+					$scope.next_fs = $(this).parent().next();
+					
+					//activate next step on progressbar using the index of $scope.next_fs
+					$("#progressbar li").eq($("fieldset").index($scope.next_fs)).addClass("active");
+					
+					//show the next fieldset
+					$scope.next_fs.show(); 
+					//hide the current fieldset with style
+					$scope.current_fs.animate({opacity: 0}, {
+						step: function(now, mx) {
+							//as the $scope.opacity of current_fs reduces to 0 - stored in "now"
+							//1. $scope.scale current_fs down to 80%
+							$scope.scale = 1 - (1 - now) * 0.2;
+							//2. bring $scope.next_fs from the right(50%)
+							// left = (now * 50)+"%";
+							//3. increase $scope.opacity of $scope.next_fs to 1 as it moves in
+							$scope.opacity = 1 - now;
+							$scope.current_fs.css({
+								'position': 'absolute'
+							});
+							// $scope.next_fs.css({'left': left, '$scope.opacity': $scope.opacity});
+							$scope.next_fs.css({'opacity': $scope.opacity});
+						}, 
+						duration: 200, 
+						complete: function(){
+							$scope.current_fs.hide();
+							$scope.animating = false;
+						}, 
+						//this comes from the custom easing plugin
+						easing: 'easeInOutBack'
+					});
 				});
-			});
-
-			$(".previous_addSpatialUnit").click(function(){
-				if($scope.animating) return false;
-				$scope.animating = true;
-				
-				$scope.current_fs = $(this).parent();
-				$scope.previous_fs = $(this).parent().prev();
-				
-				//de-activate current step on progressbar
-				$("#progressbar li").eq($("fieldset").index($scope.current_fs)).removeClass("active");
-				
-				//show the previous fieldset
-				$scope.previous_fs.show(); 
-				//hide the current fieldset with style
-				$scope.current_fs.animate({opacity: 0}, {
-					step: function(now, mx) {
-						//as the $scope.opacity of current_fs reduces to 0 - stored in "now"
-						//1. $scope.scale $scope.previous_fs from 80% to 100%
-						$scope.scale = 0.8 + (1 - now) * 0.2;
-						//2. take current_fs to the right(50%) - from 0%
-						// left = ((1-now) * 50)+"%";
-						//3. increase $scope.opacity of $scope.previous_fs to 1 as it moves in
-						$scope.opacity = 1 - now;
-						// current_fs.css({'left': left});
-						// $scope.previous_fs.css({'transform': '$scope.scale('+$scope.scale+')', '$scope.opacity': $scope.opacity});
-						$scope.previous_fs.css({
-							'position': 'absolute'
-						});
-						$scope.previous_fs.css({'opacity': $scope.opacity});
-					}, 
-					duration: 200, 
-					complete: function(){
-						$scope.current_fs.hide();
-						$scope.previous_fs.css({
-							'position': 'relative'
-						});
-						$scope.animating = false;
-					}, 
-					//this comes from the custom easing plugin
-					easing: 'easeInOutBack'
+	
+				$(".previous_addSpatialUnit").click(function(){
+					if($scope.animating) return false;
+					$scope.animating = true;
+					
+					$scope.current_fs = $(this).parent();
+					$scope.previous_fs = $(this).parent().prev();
+					
+					//de-activate current step on progressbar
+					$("#progressbar li").eq($("fieldset").index($scope.current_fs)).removeClass("active");
+					
+					//show the previous fieldset
+					$scope.previous_fs.show(); 
+					//hide the current fieldset with style
+					$scope.current_fs.animate({opacity: 0}, {
+						step: function(now, mx) {
+							//as the $scope.opacity of current_fs reduces to 0 - stored in "now"
+							//1. $scope.scale $scope.previous_fs from 80% to 100%
+							$scope.scale = 0.8 + (1 - now) * 0.2;
+							//2. take current_fs to the right(50%) - from 0%
+							// left = ((1-now) * 50)+"%";
+							//3. increase $scope.opacity of $scope.previous_fs to 1 as it moves in
+							$scope.opacity = 1 - now;
+							// current_fs.css({'left': left});
+							// $scope.previous_fs.css({'transform': '$scope.scale('+$scope.scale+')', '$scope.opacity': $scope.opacity});
+							$scope.previous_fs.css({
+								'position': 'absolute'
+							});
+							$scope.previous_fs.css({'opacity': $scope.opacity});
+						}, 
+						duration: 200, 
+						complete: function(){
+							$scope.current_fs.hide();
+							$scope.previous_fs.css({
+								'position': 'relative'
+							});
+							$scope.animating = false;
+						}, 
+						//this comes from the custom easing plugin
+						easing: 'easeInOutBack'
+					});
 				});
-			});
+			}, 500);			
 
 	}
 ]});
