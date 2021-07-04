@@ -94,7 +94,11 @@ angular
         {
 					"displayName": "Georessourcen - Anzahl Punkte in Polygon",
 					"apiName": "georesource_pointsInPolygon"
-				}
+				},
+        {
+					"displayName": "Georessourcen - Statistiken anhand Objekteigenschaft (Punktdatensätze)",
+					"apiName": "georesource_statistics"
+				}        
 			];
 
       this.temporalOptions = [
