@@ -1582,7 +1582,7 @@ angular
       this.buildDataGridColumnConfig_defaultJobs = function(){
         const columnDefs = [
           { headerName: 'Job-Id', field: "jobId", pinned: 'left', maxWidth: 125, checkboxSelection: true, headerCheckboxSelection: true, 
-          headerCheckboxSelectionFilteredOnly: true },
+          headerCheckboxSelectionFilteredOnly: true, sort: "desc" },
           { headerName: 'Script-Id', field: "jobData.scriptId", pinned: 'left', maxWidth: 125 },
           { headerName: 'Ziel-Indikator', pinned: 'left', maxWidth: 250, cellRenderer: function (params) {
               return kommonitorDataExchangeService.getIndicatorMetadataById(params.data.jobData.targetIndicatorId).indicatorName;
@@ -1689,7 +1689,7 @@ angular
       this.buildDataGridColumnConfig_customizedJobs = function(){
         const columnDefs = [
           { headerName: 'Id', field: "jobId", pinned: 'left', maxWidth: 125, checkboxSelection: true, headerCheckboxSelection: true, 
-          headerCheckboxSelectionFilteredOnly: true },
+          headerCheckboxSelectionFilteredOnly: true, sort: "desc" },
           { headerName: 'Status', field: "status", maxWidth: 125 },
           { headerName: 'Fortschritt', field: "progress", maxWidth: 125 },
           { headerName: 'Fehlermeldung', field: "error", maxWidth: 400 },
