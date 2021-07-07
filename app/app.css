@@ -2638,3 +2638,12 @@ input:checked + .switchslider:before {
 	display: table-cell;
 	vertical-align: middle;
 }
+
+.classificationBoxToogleSlidersWrapper {
+	display: table;
+}
+
+.classificationBoxToogleSlidersLbl {
+	display: table-cell;
+	vertical-align: middle;
+}
