@@ -1673,7 +1673,7 @@ angular
         if (this.dataGridOptions_defaultJobs && this.dataGridOptions_defaultJobs.api) {
 
           this.saveGridStore(this.dataGridOptions_defaultJobs);
-          let newRowData = this.buildDataGridRowData_jobs(jobsArray);
+          let newRowData = this.buildDataGridRowData_defaultJobs(jobsArray);
           this.dataGridOptions_defaultJobs.api.setRowData(newRowData);
           this.restoreGridStore(this.dataGridOptions_defaultJobs);
         }
@@ -1771,7 +1771,7 @@ angular
         if (this.dataGridOptions_customizedJobs && this.dataGridOptions_customizedJobs.api) {
 
           this.saveGridStore(this.dataGridOptions_customizedJobs);
-          let newRowData = this.buildDataGridRowData_jobs(jobsArray);
+          let newRowData = this.buildDataGridRowData_customizedJobs(jobsArray);
           this.dataGridOptions_customizedJobs.api.setRowData(newRowData);
           this.restoreGridStore(this.dataGridOptions_customizedJobs);
         }
