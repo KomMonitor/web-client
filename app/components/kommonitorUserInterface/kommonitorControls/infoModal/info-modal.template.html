@@ -8,72 +8,96 @@
 				<h4 class="modal-title"><b>Wichtige Informationen zum Kartenportal</b></h4>
 			</div>
 			<div class="modal-body" style="text-align: justify">
-				<p>smartdemography setzt zur Darstellung der Ergebnisse das GIS-gest&uuml;tzte, raum-zeitliche Monitoring-Portal "KomMonitor" ein.
-					<br/>
-					Gegenw&auml;rtig befindet sich diese Anwendung in einem kontinuierlichen Entwicklungsstadium.
-					Sollten Sie eine fehlerhafte Darstellung oder unerkl&auml;rliche Anwendungsfehler erhalten, so nehmen Sie bitte Kontakt zum Entwickler-Team auf.
-
-					Im Sinne eines Testbetriebs k&ouml;nnen Sie die aktuelle Anwendungsversion ausprobieren, um eigene Daten erg&auml;nzen und wir laden Sie dazu ein, Feedback, Anregungen sowie Ideen f&uuml;r fehlende Funktionalit&auml;ten
-					an uns weiterzureichen.
-					<br/>
-					Wir w&uuml;nschen Ihnen viel Spaß beim Testen!
-					<br/>
-					<img src="logos/unterschrift.png" alt="Unterschrift Projektteam" width="35%" height="35%">
-				</p>
-
-				<br/>
-				<br/>
-
-				<p>
-					Besuchen Sie gerne das <a href="https://github.com/KomMonitor/KomMonitor-Docs/wiki" target="_blank" rel="noopener noreferrer" >KomMonitor Wiki auf GitHub</a> als zentrale Anlaufstelle f&uuml;r Dokumentationen und Hinweise zur Bedienung (derzeit noch im Aufbau).
-
-					Weiterhin bietet die <b>Webseite</b> <a href="https://kommonitor.de" target="_blank" rel="noopener noreferrer" >KomMonitor.de</a> allgemeine Informationen.
-
-					Zuletzt sei auf das <b>Forum</b> <a href="https://forum.kommonitor.de/" target="_blank" rel="noopener noreferrer" >https://forum.kommonitor.de/</a> hingewiesen. Tauschen Sie sich dort gerne mit weiteren Anwendern und Entwicklern aus und tragen so zur Weiterentwicklung des Systems bei.
-				
-				</p>
-
-				<br/>
-				<br/>
-
-				<div>
-					<b>Kontakt</b>
-					<table class=" table-condensed">
-				    <!-- <thead>
-				      <tr>
-				        <th>Name</th>
-				        <th>Fachbereich</th>
-				        <th>Email</th>
+				<ul class="nav nav-tabs" id="infoModalTabs" role="tablist">
+					<li class="nav-item">
+						<a class="nav-link active" id="infoModalTab1" data-toggle="tab"
+							href="#infoModalTab1Content" role="tab" aria-controls="infoModalTab1Content"
+							aria-selected="true"></a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" id="infoModalTab2" data-toggle="tab"
+							href="#infoModalTab2Content" role="tab" aria-controls="infoModalTab2Content"
+							aria-selected="false"></a>
+					</li>
+				</ul>
+				<div class="tab-content" id="infoModalTabContent">
+					<div class="tab-pane active" id="infoModalTab1Content" role="tabpanel" aria-labelledby="infoModalTab1">
+						
+							<p>smartdemography setzt zur Darstellung der Ergebnisse das GIS-gest&uuml;tzte, raum-zeitliche Monitoring-Portal "KomMonitor" ein.
+							<br/>
+							Gegenw&auml;rtig befindet sich diese Anwendung in einem kontinuierlichen Entwicklungsstadium.
+							Sollten Sie eine fehlerhafte Darstellung oder unerkl&auml;rliche Anwendungsfehler erhalten, so nehmen Sie bitte Kontakt zum Entwickler-Team auf.
+		
+							Im Sinne eines Testbetriebs k&ouml;nnen Sie die aktuelle Anwendungsversion ausprobieren, um eigene Daten erg&auml;nzen und wir laden Sie dazu ein, Feedback, Anregungen sowie Ideen f&uuml;r fehlende Funktionalit&auml;ten
+							an uns weiterzureichen.
+							<br/>
+							Wir w&uuml;nschen Ihnen viel Spaß beim Testen!
+							<br/>
+							<img src="logos/unterschrift.png" alt="Unterschrift Projektteam" width="35%" height="35%">
+						</p>
+		
+						<br/>
+						<br/>
+		
+						<p>
+							Besuchen Sie gerne das <a href="https://github.com/KomMonitor/KomMonitor-Docs/wiki" target="_blank" rel="noopener noreferrer" >KomMonitor Wiki auf GitHub</a> als zentrale Anlaufstelle f&uuml;r Dokumentationen und Hinweise zur Bedienung (derzeit noch im Aufbau).
+		
+							Weiterhin bietet die <b>Webseite</b> <a href="https://kommonitor.de" target="_blank" rel="noopener noreferrer" >KomMonitor.de</a> allgemeine Informationen.
+		
+							Zuletzt sei auf das <b>Forum</b> <a href="https://forum.kommonitor.de/" target="_blank" rel="noopener noreferrer" >https://forum.kommonitor.de/</a> hingewiesen. Tauschen Sie sich dort gerne mit weiteren Anwendern und Entwicklern aus und tragen so zur Weiterentwicklung des Systems bei.
+						
+						</p>
+		
+						<br/>
+						<br/>
+		
+						<div>
+							<b>Kontakt</b>
+							<table class=" table-condensed">
+							<!-- <thead>
+							  <tr>
+								<th>Name</th>
+								<th>Fachbereich</th>
+								<th>Email</th>
 						<th>Telefon</th>
-				      </tr>
-				    </thead> -->
-				    <tbody>
-				      <tr>
-				        <td ng-bind-html="$ctrl.kommonitorDataExchangeServiceInstance.customGreetingsContact_name"></td>
-				        <td ng-bind-html="$ctrl.kommonitorDataExchangeServiceInstance.customGreetingsContact_organisation"></td>
-				        <td><a href="mailto:{{$ctrl.kommonitorDataExchangeServiceInstance.customGreetingsContact_mail}}">{{$ctrl.kommonitorDataExchangeServiceInstance.customGreetingsContact_mail}}</a></td>
-				      </tr>
-				    </tbody>
-				  </table>
+							  </tr>
+							</thead> -->
+							<tbody>
+							  <tr>
+								<td ng-bind-html="$ctrl.kommonitorDataExchangeServiceInstance.customGreetingsContact_name"></td>
+								<td ng-bind-html="$ctrl.kommonitorDataExchangeServiceInstance.customGreetingsContact_organisation"></td>
+								<td><a href="mailto:{{$ctrl.kommonitorDataExchangeServiceInstance.customGreetingsContact_mail}}">{{$ctrl.kommonitorDataExchangeServiceInstance.customGreetingsContact_mail}}</a></td>
+							  </tr>
+							</tbody>
+						  </table>
+		
+						</div>
+		
+						<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.customGreetingsTextInfoMessage && $ctrl.kommonitorDataExchangeServiceInstance.customGreetingsTextInfoMessage != ''">
+							<br/>
+							<b>Zus&auml;tzliche Hinweise</b>
+							<p ng-bind-html="$ctrl.kommonitorDataExchangeServiceInstance.customGreetingsTextInfoMessage"></p>
+						</div>
+		
+						<br/>
+						<br/>
+						<p>Entwickelt wird die technische Plattform gemeinsam durch die Hochschule Bochum, Ruhr-Universit&auml;t Bochum und diverse Kommunen und Kreisverwaltungen, im Rahmen des BMBF-gef&ouml;rderten Forschungsprojekts <a href="http://www.kommonitor.de" target="_blank">KomMonitor</a>.
+						</p>
+						<br/>
+		
+						<div align='center'>
+							<img src="logos/BMBF.svg"></img>
+							<img src="logos/FONA.svg"></img>
+						</div>
 
+					</div>
+					<div class="tab-pane" id="infoModalTab2Content" role="tabpanel" aria-labelledby="infoModalTab2">
+						
+					</div>
 				</div>
 
-				<div ng-if="$ctrl.kommonitorDataExchangeServiceInstance.customGreetingsTextInfoMessage && $ctrl.kommonitorDataExchangeServiceInstance.customGreetingsTextInfoMessage != ''">
-					<br/>
-					<b>Zus&auml;tzliche Hinweise</b>
-					<p ng-bind-html="$ctrl.kommonitorDataExchangeServiceInstance.customGreetingsTextInfoMessage"></p>
-				</div>
 
-				<br/>
-				<br/>
-				<p>Entwickelt wird die technische Plattform gemeinsam durch die Hochschule Bochum, Ruhr-Universit&auml;t Bochum und diverse Kommunen und Kreisverwaltungen, im Rahmen des BMBF-gef&ouml;rderten Forschungsprojekts <a href="http://www.kommonitor.de" target="_blank">KomMonitor</a>.
-				</p>
-				<br/>
-
-				<div align='center'>
-					<img src="logos/BMBF.svg"></img>
-					<img src="logos/FONA.svg"></img>
-				</div>
+				
 
 
 			<div class="modal-footer">
