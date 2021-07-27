@@ -2647,3 +2647,8 @@ input:checked + .switchslider:before {
 	display: table-cell;
 	vertical-align: middle;
 }
+
+
+#infoModalTabs {
+	margin-bottom: 10px;
+}
