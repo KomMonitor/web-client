@@ -56,6 +56,14 @@ try {
     Dennoch bieten diese Indikatoren trotz ungenauer Wertedie Möglichkeit, „Hot-Spots“ und „Cluster“ der jeweiligen Indikatoren zu ermitteln. \
     Zahlen auf kleinräumige Ebenen sollten vor diesem Hintergrund vorsichtig und sorgfältig interpretiert werden."; // message shown when previous spatial unit is selected
 
+  /*
+  PROPERTIES used within extended info  modal (second tab) to show a customizable HTMLText
+  */
+ window.__env.enableExtendedInfoModal = false; // controls if an extra tab should be shown in the info modal. 
+ window.__env.standardInfoModalTabTitle = "Informationen zu KomMonitor" // title of the first tab
+ window.__env.extendedInfoModalTabTitle = "Weitere Informationen"  // title of the second tab
+ window.__env.extendedInfoModalHTMLMessage = "";  // message in the second tab as HTML
+
   // admin user credentials to log into admin view in No-Keycloak-Settings
   window.__env.adminUserName = "Admin";
   window.__env.adminPassword = "kmAdmin";
