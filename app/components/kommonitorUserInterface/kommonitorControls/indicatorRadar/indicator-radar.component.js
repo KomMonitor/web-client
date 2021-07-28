@@ -304,7 +304,7 @@ angular
 											}
 										},
 										restore: { show: false, title: "Darstellung erneuern" },
-										saveAsImage: { show: true, title: "Export" }
+										saveAsImage: { show: true, title: "Export", pixelRatio: 4 }
 									}
 								},
 								legend: {
