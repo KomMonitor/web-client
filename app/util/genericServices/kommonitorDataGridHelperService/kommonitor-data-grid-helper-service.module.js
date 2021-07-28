@@ -1582,7 +1582,7 @@ angular
       this.buildDataGridColumnConfig_defaultJobs = function(){
         const columnDefs = [
           { headerName: 'Job-Id', field: "jobId", pinned: 'left', maxWidth: 125, checkboxSelection: true, headerCheckboxSelection: true, 
-          headerCheckboxSelectionFilteredOnly: true, sort: "desc" },
+          headerCheckboxSelectionFilteredOnly: true, valueFormatter: params => Number(params.data.jobId), sort: "desc" },
           { headerName: 'Script-Id', field: "jobData.scriptId", pinned: 'left', maxWidth: 125 },
           { headerName: 'Ziel-Indikator', pinned: 'left', maxWidth: 250, cellRenderer: function (params) {
               return kommonitorDataExchangeService.getIndicatorMetadataById(params.data.jobData.targetIndicatorId).indicatorName;
@@ -1594,15 +1594,25 @@ angular
           },
           { headerName: 'Job-Status', field: "status", maxWidth: 125 },
           { headerName: 'Job-Fortschritt', field: "progress", maxWidth: 125 },
-          { headerName: 'Job-Fehlermeldung', field: "error", maxWidth: 400 },
-          { headerName: 'Job-Data', minWidth: 200, cellRenderer: function (params) {
+          { headerName: 'Job-Data', maxWidth: 200, cellRenderer: function (params) {
               return kommonitorDataExchangeService.syntaxHighlightJSON(params.data.jobData);
             },
             filter: 'agTextColumnFilter', 
             filterValueGetter: (params) => {
               return params.data.jobData;
             } 
-          }                    
+          },
+          { headerName: 'Job-Logs', minWidth: 500, cellRenderer: function (params) {
+            if(params.data.logs){
+              return kommonitorDataExchangeService.syntaxHighlightJSON(params.data.logs);
+            }  
+            },
+            filter: 'agTextColumnFilter', 
+            filterValueGetter: (params) => {
+              return params.data.logs;
+            } 
+          }
+                              
         ];
 
         return columnDefs;
@@ -1688,19 +1698,28 @@ angular
 
       this.buildDataGridColumnConfig_customizedJobs = function(){
         const columnDefs = [
-          { headerName: 'Id', field: "jobId", pinned: 'left', maxWidth: 125, checkboxSelection: true, headerCheckboxSelection: true, 
-          headerCheckboxSelectionFilteredOnly: true, sort: "desc" },
-          { headerName: 'Status', field: "status", maxWidth: 125 },
-          { headerName: 'Fortschritt', field: "progress", maxWidth: 125 },
-          { headerName: 'Fehlermeldung', field: "error", maxWidth: 400 },
-          { headerName: 'Job Data', minWidth: 200, cellRenderer: function (params) {
-              return kommonitorDataExchangeService.syntaxHighlightJSON(params.data.jobData);
+          { headerName: 'Job-Id', field: "jobId", pinned: 'left', maxWidth: 125, checkboxSelection: true, headerCheckboxSelection: true, 
+          headerCheckboxSelectionFilteredOnly: true, valueFormatter: params => Number(params.data.jobId), sort: "desc" },
+          { headerName: 'Job-Status', field: "status", maxWidth: 125 },
+          { headerName: 'Job-Fortschritt', field: "progress", maxWidth: 125 },
+          { headerName: 'Job-Data', maxWidth: 200, cellRenderer: function (params) {
+            return kommonitorDataExchangeService.syntaxHighlightJSON(params.data.jobData);
+          },
+          filter: 'agTextColumnFilter', 
+          filterValueGetter: (params) => {
+            return params.data.jobData;
+          } 
+          },
+          { headerName: 'Job-Logs', minWidth: 500, cellRenderer: function (params) {
+            if(params.data.logs){
+              return kommonitorDataExchangeService.syntaxHighlightJSON(params.data.logs);
+            }  
             },
             filter: 'agTextColumnFilter', 
             filterValueGetter: (params) => {
-              return params.data.jobData;
+              return params.data.logs;
             } 
-          }                    
+          }                   
         ];
 
         return columnDefs;
