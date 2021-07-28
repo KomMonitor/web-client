@@ -2607,3 +2607,48 @@ input:checked + .switchslider:before {
 	padding: 0;
 	margin: 0;
  }
+
+.scriptAddFormList {
+	margin-left: 20px;
+}
+
+.scriptAddFormChecklistItemWrapper {
+	float:left;
+	height:40px;
+	margin-right: 15px;
+	display: table;
+}
+
+.scriptAddFormChecklistItemWrapper p {
+	display: table-cell;
+	vertical-align: middle;
+}
+.scriptAddFormChecklistItem {
+	margin-bottom: 10px;
+	display: table;
+}
+
+.scriptAddFormListItemIcon {
+	font-size: 24px;
+
+}
+
+.scriptAddFormListText {
+	min-height: 40px;
+	display: table-cell;
+	vertical-align: middle;
+}
+
+.classificationBoxToogleSlidersWrapper {
+	display: table;
+}
+
+.classificationBoxToogleSlidersLbl {
+	display: table-cell;
+	vertical-align: middle;
+}
+
+
+#infoModalTabs {
+	margin-bottom: 10px;
+}
