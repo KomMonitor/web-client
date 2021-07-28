@@ -1010,8 +1010,10 @@ angular
 
               params.forEach(function (paramObj) {
 
-                var value = kommonitorDataExchangeService.getIndicatorValue_asFormattedText(paramObj.value);
-                string += paramObj.seriesName + ": " + value + " [" + indicatorMetadataAndGeoJSON.unit + "]" + "<br/>";
+                if(! paramObj.seriesName.includes("Stack")){
+                  var value = kommonitorDataExchangeService.getIndicatorValue_asFormattedText(paramObj.value);
+                  string += paramObj.seriesName + ": " + value + " [" + indicatorMetadataAndGeoJSON.unit + "]" + "<br/>";
+                }                
               });
 
               return string;
@@ -1142,7 +1144,7 @@ angular
 
         // default for min value of 0
         var minStack = {
-          name: "Min",
+          name: "MinStack",
           type: 'line',
           data: indicatorTimeSeriesMinArray,
           stack: "MinMax",
@@ -1154,11 +1156,25 @@ angular
           },
           itemStyle: {
             opacity: 0
+          },
+          silent: true
+        };
+
+        var minLine = {
+          name: "Min",
+          type: 'line',
+          data: indicatorTimeSeriesMinArray,
+          lineStyle: {
+            opacity: 0,
+            color: "#d6d6d6"
+          },
+          itemStyle: {
+            opacity: 0
           }
         };
 
         var maxStack =  {
-          name: "Max",
+          name: "MaxStack",
           type: 'line',
           data: indicatorTimeSeriesMaxArray,
           stack: "MinMax",
@@ -1167,6 +1183,20 @@ angular
           },
           lineStyle: {
             opacity: 0
+          },
+          itemStyle: {
+            opacity: 0
+          },
+          silent: true
+        };
+
+        var maxLine =  {
+          name: "Max",
+          type: 'line',
+          data: indicatorTimeSeriesMaxArray,
+          lineStyle: {
+            opacity: 0,
+            color: "#d6d6d6"
           },
           itemStyle: {
             opacity: 0
@@ -1181,16 +1211,21 @@ angular
               color: "#d6d6d6"
           };
         }
+
+        let indicatorTimeSeriesMaxArray_copy = JSON.parse(JSON.stringify(indicatorTimeSeriesMaxArray));
+
         if ((indicatorTimeSeriesMinArray.filter(item => item > 0))){
-          for (let index = 0; index < indicatorTimeSeriesMaxArray.length; index++) {
+          for (let index = 0; index < indicatorTimeSeriesMaxArray_copy.length; index++) {
 
             if(indicatorTimeSeriesMinArray[index] > 0){
-              indicatorTimeSeriesMaxArray[index] = indicatorTimeSeriesMaxArray[index] - indicatorTimeSeriesMinArray[index];
+              indicatorTimeSeriesMaxArray_copy[index] = indicatorTimeSeriesMaxArray_copy[index] - indicatorTimeSeriesMinArray[index];
             }            
           }
-          maxStack.data = indicatorTimeSeriesMaxArray;
+          maxStack.data = indicatorTimeSeriesMaxArray_copy;
         }
 
+        lineOption.series.push(minLine);
+        lineOption.series.push(maxLine);
         lineOption.series.push(minStack);
         lineOption.series.push(maxStack);
         
