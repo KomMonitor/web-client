@@ -259,6 +259,29 @@
 								<div class="row vertical-align">
 									<div class="col-md-6 col-sm-6 col-xs-12">
 										<div class="form-group">
+											<label>Partielles Update einzelner Geometrien*</label>
+
+											<br/>	
+											<label class="switch">
+												<input type="checkbox" value="isPartialUpdate" ng-model="isPartialUpdate">
+												<span class="switchslider round"></span>
+											</label>
+
+
+											<div class="help-block">
+												<p>Angabe, ob das Update nur einen Teil der r&auml;lichen Objekte enth&auml;lt (bspw. 20/50 Stadtteilen). Wird der vollst&auml;ndige Datensatz hochgeladen (Schalter deaktiviert), so vergleicht KomMonitor die in der Datenbank befindlichen Objekte und l&ouml;scht solche Objekte, die nicht mehr im hochgeladenen Datensatz enthalten sind, aber im gleichen Lebenzeitintervall liegen.</p>
+											</div>
+										</div>
+
+									</div>
+								</div>
+
+							<hr>
+								<br/>
+
+								<div class="row vertical-align">
+									<div class="col-md-6 col-sm-6 col-xs-12">
+										<div class="form-group">
 											<label>Import weiterer Attribute*</label>
 
 											<br/>	
