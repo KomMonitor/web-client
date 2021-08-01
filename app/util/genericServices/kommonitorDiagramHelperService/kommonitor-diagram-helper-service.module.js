@@ -550,7 +550,7 @@ angular
                 }
               },
               restore: { show: false, title: "Erneuern" },
-              saveAsImage: { show: true, title: "Export" }
+              saveAsImage: { show: true, title: "Export", pixelRatio: 4 }
             }
           },
           // legend: {
@@ -949,7 +949,7 @@ angular
                 }
               },
               restore: { show: false, title: "Erneuern" },
-              saveAsImage: { show: true, title: "Export" }
+              saveAsImage: { show: true, title: "Export", pixelRatio: 4 }
             }
           },
           // legend: {
@@ -1087,7 +1087,7 @@ angular
                 }
               },
               restore: { show: false, title: "Erneuern" },
-              saveAsImage: { show: true, title: "Export" }
+              saveAsImage: { show: true, title: "Export", pixelRatio: 4 }
             }
           },
           legend: {
@@ -1338,7 +1338,7 @@ angular
                 }
               },
               restore: { show: false, title: "Erneuern" },
-              saveAsImage: { show: true, title: "Export" }
+              saveAsImage: { show: true, title: "Export", pixelRatio: 4 }
             }
           },
           xAxis: [{
@@ -1593,7 +1593,7 @@ angular
                 }
               },
               restore: { show: false, title: "Erneuern" },
-              saveAsImage: { show: true, title: "Export" }
+              saveAsImage: { show: true, title: "Export", pixelRatio: 4 }
             }
           },
           tooltip: {

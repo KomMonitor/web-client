@@ -307,7 +307,7 @@ angular.module('reportingModal').component('reportingModal', {
 
 			//a higher number will lead to higher quality images.
 			//but it will also increase the time needed to generate a pdf and the file size
-			window.devicePixelRatio = 1;
+			window.devicePixelRatio = 2;
 			var pages2canvasArray = [];
 			for(var i=1;i<=$scope.pagesArray.length;i++) {
 				pages2canvasArray.push(html2canvas(document.getElementById("reporting-page-" + i.toString()), {
