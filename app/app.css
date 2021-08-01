@@ -953,7 +953,15 @@ pre.CodeMirror-line {
 	overflow:auto;
 }
 
+.admin-table-wrapper .ag-root-wrapper.ag-layout-normal {
+	height: 70vh !important;
+}
+
 .featureTableWrapper .ag-root-wrapper.ag-layout-normal {
+	height: 45vh !important;
+}
+
+#roleOverviewTable .ag-root-wrapper.ag-layout-normal {
 	height: 45vh !important;
 }
 

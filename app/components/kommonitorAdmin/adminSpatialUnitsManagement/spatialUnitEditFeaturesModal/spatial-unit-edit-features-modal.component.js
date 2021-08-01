@@ -375,7 +375,8 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 				"periodOfValidity": {
 					"endDate": $scope.periodOfValidity.endDate,
 					"startDate": $scope.periodOfValidity.startDate
-				}
+				},
+				"isPartialUpdate": $scope.isPartialUpdate
 			};
 
 			return putBody;

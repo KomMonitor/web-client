@@ -81,7 +81,9 @@ angular.module('indicatorDeleteModal').component('indicatorDeleteModal', {
 		};
 
 		$scope.onChangeSelectedIndicator = function(){
-			if ($scope.selectedIndicatorDataset){	
+			if ($scope.selectedIndicatorDataset){
+				
+				$scope.currentIndicatorId = $scope.selectedIndicatorDataset.indicatorId;
 				
 				$scope.successfullyDeletedDatasets = [];
 				$scope.successfullyDeletedTimestamps = [];
@@ -259,7 +261,7 @@ angular.module('indicatorDeleteModal').component('indicatorDeleteModal', {
 					$scope.successfullyDeletedDatasets.push($scope.selectedIndicatorDataset);
 
 					// fetch indicatorMetada again as a indicator was deleted										
-					$rootScope.$broadcast("refreshIndicatorOverviewTable", "delete", $scope.selectedIndicatorDataset.indicatorId);
+					$rootScope.$broadcast("refreshIndicatorOverviewTable", "delete", $scope.currentIndicatorId);
 
 					$timeout(function(){
 						$rootScope.$broadcast("refreshAdminDashboardDiagrams");
@@ -315,7 +317,7 @@ angular.module('indicatorDeleteModal').component('indicatorDeleteModal', {
 				$("#indicatorsDeleteSuccessAlert").show();
 
 				// refresh overview table
-				$rootScope.$broadcast("refreshIndicatorOverviewTable", "edit", $scope.selectedIndicatorDataset.indicatorId);
+				$rootScope.$broadcast("refreshIndicatorOverviewTable", "edit", $scope.currentIndicatorId);
 
 				// refresh all admin dashboard diagrams due to modified metadata
 				$timeout(function(){
@@ -353,7 +355,7 @@ angular.module('indicatorDeleteModal').component('indicatorDeleteModal', {
 				// fetch indicatorMetada again as a georesource was deleted
 				await kommonitorDataExchangeService.fetchIndicatorsMetadata();
 				// refresh overview table
-				$rootScope.$broadcast("refreshIndicatorOverviewTable", "edit", $scope.selectedIndicatorDataset.indicatorId);
+				$rootScope.$broadcast("refreshIndicatorOverviewTable", "edit", $scope.currentIndicatorId);
 
 				// refresh all admin dashboard diagrams due to modified metadata
 				$timeout(function(){
