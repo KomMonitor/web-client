@@ -1602,16 +1602,47 @@ angular
               return params.data.jobData;
             } 
           },
-          { headerName: 'Job-Logs', minWidth: 1000, cellRenderer: function (params) {
+          { headerName: 'Job-Logs', maxWidth: 150, cellRenderer: function (params) {
             if(params.data.logs){
-              return kommonitorDataExchangeService.syntaxHighlightJSON(params.data.logs);
+
+              var logJSON = JSON.stringify(params.data.logs);
+
+              var blob = new Blob([logJSON], {type: "application/json"});
+              var data  = URL.createObjectURL(blob);
+
+              let html = '<a href="' + data + '" download="KomMonitor-Indikatorberechnung-Job-' + params.data.jobId + '-Logs.json" textContent="JSON" target="_blank" rel="noopener noreferrer"><button class="btn btn-warning btn-sm">Download Logs</button></a>';
+              return html;
             }  
             },
             filter: 'agTextColumnFilter', 
             filterValueGetter: (params) => {
               return params.data.logs;
             } 
-          }
+          },
+          { headerName: 'Job-Summary', minWidth: 1000, cellRenderer: function (params) {
+            let html = '<table class="table table-condensed table-bordered table-striped"><thead><tr><th>Raumeinheits-Id</th><th>Raumeinheits-Name</th><th>Anzahl integrierter Indikatoren-Features</th><th>Anzahl integrierter Zeitstempel</th><th>integrierte Zeitstempel</th><th>Fehlermeldung</th></tr></thead><tbody>';
+
+                if(params.data.spatialUnitIntegrationSummary && params.data.spatialUnitIntegrationSummary.length > 0){
+                  for (const item of params.data.spatialUnitIntegrationSummary) {
+                    html += "<tr>";
+                    html += "<td>" + item.spatialUnitId + "</td>";
+                    html += "<td>" + item.spatialUnitName + "</td>";
+                    html += "<td>" + item.numberOfIntegratedIndicatorFeatures + "</td>";
+                    html += "<td>" + item.numberOfIntegratedTargetDates + "</td>";
+                    html += "<td>" + item.integratedTargetDates + "</td>";
+                    html += "<td>" + item.errorOccurred + "</td>";
+                    html += "</tr>";
+                  }
+                }
+                
+                html += "</tbody></table>";
+                return html; 
+          },
+          filter: 'agTextColumnFilter', 
+          filterValueGetter: (params) => {
+            return JSON.stringify(params.data.spatialUnitIntegrationSummary);
+          } 
+        }
                               
         ];
 
@@ -1712,16 +1743,24 @@ angular
             return params.data.jobData;
           } 
           },
-          { headerName: 'Job-Logs', minWidth: 1000, cellRenderer: function (params) {
+          { headerName: 'Job-Logs', maxWidth: 150, cellRenderer: function (params) {
             if(params.data.logs){
-              return kommonitorDataExchangeService.syntaxHighlightJSON(params.data.logs);
+
+              var logJSON = JSON.stringify(params.data.logs);
+
+              var blob = new Blob([logJSON], {type: "application/json"});
+              var data  = URL.createObjectURL(blob);
+
+              let html = '<a href="' + data + '" download="KomMonitor-Indikatorberechnung-individuell-Job-' + params.data.jobId + '-Logs.json" textContent="JSON" target="_blank" rel="noopener noreferrer"><button class="btn btn-warning btn-sm">Download Logs</button></a>';
+              return html;
             }  
             },
             filter: 'agTextColumnFilter', 
             filterValueGetter: (params) => {
               return params.data.logs;
             } 
-          }                   
+          }
+                          
         ];
 
         return columnDefs;
