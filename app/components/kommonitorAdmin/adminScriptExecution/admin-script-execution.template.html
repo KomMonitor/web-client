@@ -44,6 +44,140 @@
 			<!-- /.box-header -->
 			<div class="box-body">
 
+				<div class="row vertical-align">
+					<div class="col-md-3 col-sm-6 col-xs-12">
+				
+						<!-- small box -->
+						<div class="small-box bg-primary">
+							<div class="inner">
+								<h3>{{defaultComputationJobHealth.queueStatus}}</h3>
+				
+								<p>Status der Job-Ausf&uuml;hrung</p>
+							</div>
+							<div class="icon">
+								<i class="fas fa-file-code"></i>
+							</div>
+							<a class="small-box-footer"></a>
+						</div>
+				
+					</div>
+					<!-- ./col -->
+
+					<div class="col-md-3 col-sm-6 col-xs-12">
+				
+						<!-- small box -->
+						<div class="small-box bg-primary">
+							<div class="inner">
+								<h3>{{defaultComputationJobHealth.newestJobId}}</h3>
+				
+								<p>neueste Job-Id</p>
+							</div>
+							<div class="icon">
+								<i class="fas fa-file-code"></i>
+							</div>
+							<a class="small-box-footer"></a>
+						</div>
+				
+					</div>
+					<!-- ./col -->
+					
+					<div class="col-md-3 col-sm-6 col-xs-12">
+				
+						<!-- small box -->
+						<div class="small-box bg-green">
+							<div class="inner">
+								<h3>{{defaultComputationJobHealth.succeededJobs}}</h3>
+				
+								<p>abgeschlossene Jobs</p>
+							</div>
+							<div class="icon">
+								<i class="fas fa-file-code"></i>
+							</div>
+							<a class="small-box-footer"></a>
+						</div>
+				
+					</div>
+					<!-- ./col -->
+					<div class="col-md-3 col-sm-6 col-xs-12">
+				
+						<!-- small box -->
+						<div class="small-box bg-red">
+							<div class="inner">
+								<h3>{{defaultComputationJobHealth.failedJobs}}</h3>
+				
+								<p>gescheiterte Jobs</p>
+							</div>
+							<div class="icon">
+								<i class="fas fa-file-code"></i>
+							</div>
+							<a class="small-box-footer"></a>
+						</div>
+				
+					</div>
+					<!-- ./col -->
+
+				</div>
+				<!-- ./row -->
+
+				<div class="row vertical-align">
+					<div class="col-md-3 col-sm-6 col-xs-12">
+				
+						<!-- small box -->
+						<div class="small-box bg-aqua">
+							<div class="inner">
+								<h3>{{defaultComputationJobHealth.activeJobs}}</h3>
+				
+								<p>laufende Jobs</p>
+							</div>
+							<div class="icon">
+								<i class="fas fa-file-code"></i>
+							</div>
+							<a class="small-box-footer"></a>
+						</div>
+				
+					</div>
+					<!-- ./col -->
+					<div class="col-md-3 col-sm-6 col-xs-12">
+				
+						<!-- small box -->
+						<div class="small-box bg-orange">
+							<div class="inner">
+								<h3>{{defaultComputationJobHealth.waitingJobs}}</h3>
+				
+								<p>wartende Jobs</p>
+							</div>
+							<div class="icon">
+								<i class="fas fa-file-code"></i>
+							</div>
+							<a class="small-box-footer"></a>
+						</div>
+				
+					</div>
+					<!-- ./col -->
+
+					<div class="col-md-3 col-sm-6 col-xs-12">
+				
+						<!-- small box -->
+						<div class="small-box bg-gray">
+							<div class="inner">
+								<h3>{{defaultComputationJobHealth.delayedJobs}}</h3>
+				
+								<p>wartende Jobs</p>
+							</div>
+							<div class="icon">
+								<i class="fas fa-file-code"></i>
+							</div>
+							<a class="small-box-footer"></a>
+						</div>
+				
+					</div>
+					<!-- ./col -->
+
+				</div>
+				<!-- ./row -->
+
+				<br/>
+
 				<div class="admin-table-wrapper">
 
 					<table id="jobExecutionTable_defaultComputation" style="height: 75vh; width: 100%;" class="ag-theme-alpine"></table>
@@ -65,6 +199,139 @@
 			</div>
 			<!-- /.box-header -->
 			<div class="box-body">
+
+				<div class="row vertical-align">
+					<div class="col-md-3 col-sm-6 col-xs-12">
+				
+						<!-- small box -->
+						<div class="small-box bg-primary">
+							<div class="inner">
+								<h3>{{customizedComputationJobHealth.queueStatus}}</h3>
+				
+								<p>Status der Job-Ausf&uuml;hrung</p>
+							</div>
+							<div class="icon">
+								<i class="fas fa-file-code"></i>
+							</div>
+							<a class="small-box-footer"></a>
+						</div>
+				
+					</div>
+					<!-- ./col -->
+
+					<div class="col-md-3 col-sm-6 col-xs-12">
+				
+						<!-- small box -->
+						<div class="small-box bg-primary">
+							<div class="inner">
+								<h3>{{customizedComputationJobHealth.newestJobId}}</h3>
+				
+								<p>neueste Job-Id</p>
+							</div>
+							<div class="icon">
+								<i class="fas fa-file-code"></i>
+							</div>
+							<a class="small-box-footer"></a>
+						</div>
+				
+					</div>
+					<!-- ./col -->
+					
+					<div class="col-md-3 col-sm-6 col-xs-12">
+				
+						<!-- small box -->
+						<div class="small-box bg-green">
+							<div class="inner">
+								<h3>{{customizedComputationJobHealth.succeededJobs}}</h3>
+				
+								<p>abgeschlossene Jobs</p>
+							</div>
+							<div class="icon">
+								<i class="fas fa-file-code"></i>
+							</div>
+							<a class="small-box-footer"></a>
+						</div>
+				
+					</div>
+					<!-- ./col -->
+					<div class="col-md-3 col-sm-6 col-xs-12">
+				
+						<!-- small box -->
+						<div class="small-box bg-red">
+							<div class="inner">
+								<h3>{{customizedComputationJobHealth.failedJobs}}</h3>
+				
+								<p>gescheiterte Jobs</p>
+							</div>
+							<div class="icon">
+								<i class="fas fa-file-code"></i>
+							</div>
+							<a class="small-box-footer"></a>
+						</div>
+				
+					</div>
+					<!-- ./col -->
+
+				</div>
+				<!-- ./row -->
+
+				<div class="row vertical-align">
+					<div class="col-md-3 col-sm-6 col-xs-12">
+				
+						<!-- small box -->
+						<div class="small-box bg-aqua">
+							<div class="inner">
+								<h3>{{customizedComputationJobHealth.activeJobs}}</h3>
+				
+								<p>laufende Jobs</p>
+							</div>
+							<div class="icon">
+								<i class="fas fa-file-code"></i>
+							</div>
+							<a class="small-box-footer"></a>
+						</div>
+				
+					</div>
+					<!-- ./col -->
+					<div class="col-md-3 col-sm-6 col-xs-12">
+				
+						<!-- small box -->
+						<div class="small-box bg-orange">
+							<div class="inner">
+								<h3>{{customizedComputationJobHealth.waitingJobs}}</h3>
+				
+								<p>wartende Jobs</p>
+							</div>
+							<div class="icon">
+								<i class="fas fa-file-code"></i>
+							</div>
+							<a class="small-box-footer"></a>
+						</div>
+				
+					</div>
+					<!-- ./col -->
+
+					<div class="col-md-3 col-sm-6 col-xs-12">
+				
+						<!-- small box -->
+						<div class="small-box bg-gray">
+							<div class="inner">
+								<h3>{{customizedComputationJobHealth.delayedJobs}}</h3>
+				
+								<p>wartende Jobs</p>
+							</div>
+							<div class="icon">
+								<i class="fas fa-file-code"></i>
+							</div>
+							<a class="small-box-footer"></a>
+						</div>
+				
+					</div>
+					<!-- ./col -->
+
+				</div>
+				<!-- ./row -->
+
 
 				<div class="admin-table-wrapper">
 					

@@ -11,6 +11,8 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
 
 		$scope.availableDefaultComputationJobDatasets;
 		$scope.availableCustomizedComputationJobDatasets;
+		$scope.defaultComputationJobHealth;
+		$scope.customizedComputationJobHealth;
 		$scope.selectAllEntriesInput = false;
 
 		$scope.fetchDefaultIndicatorJobs = function(){
@@ -37,12 +39,41 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
                 $scope.availableCustomizedComputationJobDatasets = response.data;
 
               });
-          }; 
+          };
+
+		  $scope.fetchDefaultIndicatorJobHealth = function(){
+			return $http({
+				url: __env.targetUrlToProcessingEngine + "script-engine/defaultIndicatorComputation/health",
+				method: "GET"
+			  }).then(function successCallback(response) {
+				  // this callback will be called asynchronously
+				  // when the response is available
+  
+				  $scope.defaultComputationJobHealth = response.data;
+  
+				});
+		  };
+
+		  $scope.fetchCustomizedIndicatorJobHealth = function(){
+			return $http({
+				url: __env.targetUrlToProcessingEngine + "script-engine/customizableIndicatorComputation/health",
+				method: "GET"
+			  }).then(function successCallback(response) {
+				  // this callback will be called asynchronously
+				  // when the response is available
+  
+				  $scope.customizedComputationJobHealth = response.data;
+  
+				});
+		  };
 
 		$scope.$on("initialMetadataLoadingCompleted", function (event) {
 
 
 			$timeout(async function () {
+
+				await $scope.fetchDefaultIndicatorJobHealth();
+				await $scope.fetchCustomizedIndicatorJobHealth();
 
 				await $scope.fetchDefaultIndicatorJobs();
 				await $scope.fetchCustomizedIndicatorJobs();
@@ -77,6 +108,8 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
 			// refetch all metadata from spatial units to update table
 			await $scope.fetchDefaultIndicatorJobs();
 			await $scope.fetchCustomizedIndicatorJobs();
+			await $scope.fetchCustomizedIndicatorJobHealth();
+			await $scope.fetchDefaultIndicatorJobHealth();
 
 			$scope.initializeOrRefreshOverviewTable();
 
