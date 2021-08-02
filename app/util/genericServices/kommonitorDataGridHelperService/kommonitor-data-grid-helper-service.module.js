@@ -1630,7 +1630,7 @@ angular
                     html += "<td>" + item.numberOfIntegratedIndicatorFeatures + "</td>";
                     html += "<td>" + item.numberOfIntegratedTargetDates + "</td>";
                     html += "<td>" + item.integratedTargetDates + "</td>";
-                    html += "<td>" + kommonitorDataExchangeService.syntaxHighlightJSON(item.errorOccurred) + "</td>";
+                    html += "<td>" + kommonitorDataExchangeService.syntaxHighlightJSON(item.errorsOccurred) + "</td>";
                     html += "</tr>";
                   }
                 }
