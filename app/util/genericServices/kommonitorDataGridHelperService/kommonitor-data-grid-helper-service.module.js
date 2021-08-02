@@ -1613,6 +1613,9 @@ angular
               let html = '<a href="' + data + '" download="KomMonitor-Indikatorberechnung-Job-' + params.data.jobId + '-Logs.json" textContent="JSON" target="_blank" rel="noopener noreferrer"><button class="btn btn-warning btn-sm">Download Logs</button></a>';
               return html;
             }  
+            else{
+              return "Dieser Job umfasst keine Logs";
+            }
             },
             filter: 'agTextColumnFilter', 
             filterValueGetter: (params) => {
@@ -1620,9 +1623,11 @@ angular
             } 
           },
           { headerName: 'Job-Summary', minWidth: 1000, cellRenderer: function (params) {
-            let html = '<table class="table table-condensed table-bordered table-striped"><thead><tr><th>Raumeinheits-Id</th><th>Raumeinheits-Name</th><th>Anzahl integrierter Indikatoren-Features</th><th>Anzahl integrierter Zeitstempel</th><th>integrierte Zeitstempel</th><th>Fehlermeldung</th></tr></thead><tbody>';
-
+            
+            let html = "";
                 if(params.data.spatialUnitIntegrationSummary && params.data.spatialUnitIntegrationSummary.length > 0){
+                  html += '<table class="table table-condensed table-bordered table-striped"><thead><tr><th>Raumeinheits-Id</th><th>Raumeinheits-Name</th><th>Anzahl integrierter Indikatoren-Features</th><th>Anzahl integrierter Zeitstempel</th><th>integrierte Zeitstempel</th><th>Fehlermeldung</th></tr></thead><tbody>';
+
                   for (const item of params.data.spatialUnitIntegrationSummary) {
                     html += "<tr>";
                     html += "<td>" + item.spatialUnitId + "</td>";
@@ -1630,12 +1635,21 @@ angular
                     html += "<td>" + item.numberOfIntegratedIndicatorFeatures + "</td>";
                     html += "<td>" + item.numberOfIntegratedTargetDates + "</td>";
                     html += "<td>" + item.integratedTargetDates + "</td>";
-                    html += "<td>" + kommonitorDataExchangeService.syntaxHighlightJSON(item.errorsOccurred) + "</td>";
+                    if(item.errorsOccurred && item.errorsOccurred.length > 0){
+                      html += "<td>" + kommonitorDataExchangeService.syntaxHighlightJSON(item.errorsOccurred) + "</td>";
+                    }
+                    else{
+                      html += "<td>keine Fehlermeldungen vorhanden</td>";
+                    }
+                    
                     html += "</tr>";
                   }
+                  html += "</tbody></table>";
+                }
+                else{
+                  html += "Dieser Job umfasst keine Informationen zur erfolgreichen/gescheiterten Datenintegration";
                 }
                 
-                html += "</tbody></table>";
                 return html; 
           },
           filter: 'agTextColumnFilter', 
@@ -1753,7 +1767,10 @@ angular
 
               let html = '<a href="' + data + '" download="KomMonitor-Indikatorberechnung-individuell-Job-' + params.data.jobId + '-Logs.json" textContent="JSON" target="_blank" rel="noopener noreferrer"><button class="btn btn-warning btn-sm">Download Logs</button></a>';
               return html;
-            }  
+            } 
+            else{
+              return "Dieser Job umfasst keine Logs";
+            } 
             },
             filter: 'agTextColumnFilter', 
             filterValueGetter: (params) => {
