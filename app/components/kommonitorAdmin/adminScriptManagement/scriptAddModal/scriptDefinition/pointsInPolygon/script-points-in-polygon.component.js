@@ -178,7 +178,7 @@ angular.module('scriptPointsInPolygon').component('scriptPointsInPolygon', {
 			$scope.resetComputationFormulaAndLegend = function(){
 				kommonitorScriptHelperService.scriptFormulaHTML = "";
 				var formulaHTML = "";
-				if ($scope.propertyName !== undefined) {
+				if ($scope.propertyName !== undefined && $scope.operator.apiName !== undefined && $scope.propertyValue != undefined) {
 					formulaHTML = "<b>Berechnung gem&auml;&szlig; Geodatenanalyse<br/><i>Anzahl Punkte des Datensatzes G<sub>1</sub> pro Raumeinheits-Feature, die folgendem Filterkriterium entsprechen:</i> '" + $scope.propertyName + "' '" + $scope.operator.displayName + "' '" + $scope.propertyValue + "'";
 				}
 				else {
