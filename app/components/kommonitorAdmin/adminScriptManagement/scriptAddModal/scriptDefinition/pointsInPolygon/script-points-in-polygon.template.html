@@ -1,14 +1,17 @@
 <h4>Anzahl Punktobjekte pro Gebietsk&ouml;rperschaft</h4>
 
-<p>Auswahl einer punktbasierten Georessource, für die eine Punkt-in-Polygon Analyse gerechnet wird, um die Anzahl der Punkte pro Raumeinheits-Feature zu erhalten.</p>
-	<p><b><i><u>Berechnung:</u></i></b> Summe aller Punkte innerhalb jedes Raumeinheits-Features</p>
+<p>Auswahl einer punktbasierten Georessource, für die eine Punkt-in-Polygon Analyse durchgef&uml;hrt wird, um die Anzahl der Punkte pro Raumeinheits-Feature zu erhalten. 
+	Optional k&ouml;nnen die Punktdaten anhand einer Objekteigenschaft sowie einem Filterwert dieser Objekteigenschaft gefiltert werden 
+	(z. B. Objekteigenschaft: Schulform, Filterwert: Grundschule, Operatoren: gleich/ungleich). Für numerische Werte lassen sich zudem Wertebereiche spezifizieren (z. B.
+	Objekteigenschaft: Anzahl, Filterwert: 50, Operatoren: <, <=, =, >, >=, !=) </p>
+	<p><b><i><u>Berechnung:</u></i></b> Summe aller Punkte innerhalb jedes Raumeinheits-Features. Optional: Anwenden eines Filters anhand einer Objekteigenschaft</p>
 
 	<div class="row vertical-align">
 		<div class="col-md-10 col-sm-12 col-xs-12">
 			<!-- <div style="text-align: left;"> -->
 			<div class="box box-danger collapsed-box" style="background: #ebf0fd;">
 				<div class="box-header">
-					<h3 class="box-title">Notwendige punkthafte Georessource</h3>
+					<h3 class="box-title">Ben&ouml;tigte punktbasierte Georessource</h3>
 	
 					<div class="box-tools pull-right">
 						<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
@@ -23,7 +26,7 @@
 					<div class="row vertical-align">
 						<div class="col-md-12 col-sm-12 col-xs-12">
 							<div class="form-group">
-								<label>Auswahl der f&uuml;r die Berechnung erforderlichen Georessource</label>
+								<label>Auswahl der f&uuml;r die Berechnung erforderliche Georessource</label>
 								<div class="input-group">
 									<span class="input-group-addon"><i class="fas fa-filter"></i></span>
 									<input type="text" class="form-control input-sm" placeholder="Stichwortfilter" ng-model-options="{debounce: 500, blur: 0}"
@@ -33,7 +36,7 @@
 								<select ng-model="georesourceSelection" size="5" ng-change="onChangeGeoresource(georesourceSelection)"
 									ng-options="georesourceMetadata as georesourceMetadata.datasetName for georesourceMetadata in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isPOI:'true'} | filter:georesourceNameFilter"
 									class="form-control">
-									<option disabled selected value> -- Georessource als Berechnungsgrundlage w&auml;hlen --
+									<option disabled selected value> -- Georessource w&auml;hlen --
 									</option>
 								</select>
 								<div class="help-block with-errors"></div>
@@ -82,6 +85,71 @@
 	
 	</div>
 	
+<!-- Box for object property -->
+<div class="row vertical-align">
+	<div class="col-md-10 col-sm-12 col-xs-12">
+		<!-- <div style="text-align: left;"> -->
+		<div class="box box-danger collapsed-box" style="background: #ebf0fd;">
+			<div class="box-header">
+				<h3 class="box-title"> Filter durch eine Objekteigenschaft (Optional)</h3>
+
+				<div class="box-tools pull-right">
+					<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+					</button>
+				</div>
+			</div>
+			<!-- /.box-header -->
+			<div class="box-body">
+
+				<!-- Inputs for new reference -->
+
+				<div class="row vertical-align">
+					<div class="col-md-3 col-sm-2 col-xs-12">
+						<div class="form-group">
+							<label>Name der Objekteigenschaft</label>
+							<br />
+							<input ng-model="propertyName" 
+							type="text" class="form-control input-sm"
+							ng-change="onChangePropertyName()" placeholder="Name der Eigenschaft">
+							<div class="help-block with-errors"></div>
+						</div>
+					</div>
+					<div class="col-md-3 col-sm-2 col-xs-12">
+						<div class="form-group">
+							<label>Operator</label>
+							<br />
+							<select ng-model="operator" size="5"
+								ng-options="operatorOption as operatorOption.displayName for operatorOption in operatorOptions | orderBy: 'displayName'"
+								ng-change="onChangeOperatorOption()"
+								class="form-control">
+								<option disabled selected value> -- Operator w&auml;hlen --
+								</option>
+							</select>
+							<div class="help-block with-errors"></div>
+						</div>
+					</div>
+					<div class="col-md-3 col-sm-2 col-xs-12">
+						<div class="form-group">
+							<label>Filterwert</label>
+							<br />
+							<input ng-model="propertyValue" 
+							type="text" class="form-control input-sm"
+							ng-change="onChangePropertyValue()" placeholder="Filterwert">
+							<div class="help-block with-errors"></div>
+						</div>
+					</div>
+				</div>
+
+			</div>
+			<!-- Box Body -->
+		</div>
+		<!-- Box -->
+
+		<!-- </div>	 -->
+
+	</div>
+
+</div>
 
 <div class="row vertical-align">
 	<div class="col-md-10 col-sm-12 col-xs-12">

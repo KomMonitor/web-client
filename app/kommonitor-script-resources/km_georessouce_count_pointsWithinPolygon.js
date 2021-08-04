@@ -35,6 +35,9 @@ const aggregationTypeEnum = ["SUM", "AVERAGE"];
 */
 const aggregationType = "SUM";
 const computationGeoresourceId_name = "compGeoId";
+const computationFilterProperty_name = "compFilterProp";
+const computationFilterOperator_name = "compFilterOperator";
+const computationFilterPropertyValue_name = "compFilterPropVal";
 
 /**
 * This method computes the indicator for the specified point in time and target spatial unit. To do this, necessary base indicators and/or georesources as well as variable process properties are defined
@@ -61,6 +64,15 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
   var computationGeoresource = KmHelper.getGeoresourceById(computationGeoresourceId, georesourcesMap);
   // create a clone in order to enable object manipulation such as deletion of features without deleting in origin dataset
   computationGeoresource = JSON.parse(JSON.stringify(computationGeoresource));
+  // OPTIONAL retrieve a property and a respective property value which are then used to filter the georessource 
+  var computationFilterProperty = KmHelper.getProcessParameterByName_asString(computationFilterProperty_name, processParameters);
+  var computationFilterOperator = KmHelper.getProcessParameterByName_asString(computationFilterOperator_name, processParameters);
+  var computationFilterPropertyValue = KmHelper.getProcessParameterByName_asString(computationFilterPropertyValue_name, processParameters);
+  if (computationFilterProperty === "" || computationFilterProperty === null || computationFilterProperty === undefined ) {
+    computationFilterProperty = undefined;
+    computationFilterOperator = undefined;
+    computationFilterPropertyValue = undefined;
+  }
 
 KmHelper.log("calculating spatial within check between points and target spatial unit.");
 
@@ -74,7 +86,38 @@ var logProgressIndexSeparator = Math.round(targetSpatialUnit_geoJSON.features.le
 	  
 	  var pointsWithinFeature = KmHelper.pointsWithinPolygon(computationGeoresource, spatialUnitFeat);
       if(pointsWithinFeature && pointsWithinFeature.features && pointsWithinFeature.features.length > 0){
-        KmHelper.setIndicatorValue(spatialUnitFeat, targetDate, pointsWithinFeature.features.length);
+        if (computationFilterProperty !== undefined) {
+          var valueArray = KmHelper.getPropertyValueArray(pointsWithinFeature, computationFilterProperty);
+          var filteredArray = [];
+          switch (computationFilterOperator) {
+            case ("Equal"):
+              filteredArray = valueArray.filter(item => item === computationFilterPropertyValue);
+              break;
+            case ("Greater_than"):
+              filteredArray = valueArray.filter(item => item > computationFilterPropertyValue);
+              break;
+            case ("Greater_than_or_equal"):
+              filteredArray = valueArray.filter(item => item >= computationFilterPropertyValue);
+              break;
+            case ("Less_than"):
+              filteredArray = valueArray.filter(item => item < computationFilterPropertyValue);
+              break;
+            case ("Less_than_or_equal"):
+              filteredArray = valueArray.filter(item => item <= computationFilterPropertyValue);
+              break;
+            case ("Unequal"):
+              filteredArray = valueArray.filter(item => item !== computationFilterPropertyValue);
+              break;
+            default:
+              KmHelper.log("Indicator was not computed from computation resources because no valid filter could be applied. Indicator value is set to null.");
+              KmHelper.setIndicatorValue(spatialUnitFeat, targetDate, null);
+              break;
+              }
+		      KmHelper.setIndicatorValue(spatialUnitFeat, targetDate, filteredArray.length);
+        }
+        else {
+          KmHelper.setIndicatorValue(spatialUnitFeat, targetDate, pointsWithinFeature.features.length);
+        }  
       } 
 	  
 	  if(featureIndex % logProgressIndexSeparator === 0){
