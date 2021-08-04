@@ -65,13 +65,26 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
   // create a clone in order to enable object manipulation such as deletion of features without deleting in origin dataset
   computationGeoresource = JSON.parse(JSON.stringify(computationGeoresource));
   // OPTIONAL retrieve a property and a respective property value which are then used to filter the georessource 
-  var computationFilterProperty = KmHelper.getProcessParameterByName_asString(computationFilterProperty_name, processParameters);
-  var computationFilterOperator = KmHelper.getProcessParameterByName_asString(computationFilterOperator_name, processParameters);
-  var computationFilterPropertyValue = KmHelper.getProcessParameterByName_asString(computationFilterPropertyValue_name, processParameters);
-  if (computationFilterProperty === "" || computationFilterProperty === null || computationFilterProperty === undefined ) {
+  var computationFilterProperty;
+  var computationFilterOperator;
+  var computationFilterPropertyValue;
+  var parameter = undefined;
+
+  processParameters.forEach(function(property){
+    if(property.name === computationFilterProperty_name){
+      parameter = property.value;
+    }
+  });
+
+  if(parameter === undefined) {
     computationFilterProperty = undefined;
     computationFilterOperator = undefined;
     computationFilterPropertyValue = undefined;
+  }
+  else {
+    computationFilterProperty = KmHelper.getProcessParameterByName_asString(computationFilterProperty_name, processParameters);
+    computationFilterOperator = KmHelper.getProcessParameterByName_asString(computationFilterOperator_name, processParameters);
+    computationFilterPropertyValue = KmHelper.getProcessParameterByName_asString(computationFilterPropertyValue_name, processParameters);
   }
 
 KmHelper.log("calculating spatial within check between points and target spatial unit.");
