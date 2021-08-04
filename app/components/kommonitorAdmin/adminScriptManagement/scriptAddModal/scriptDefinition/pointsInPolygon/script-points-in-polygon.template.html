@@ -118,10 +118,9 @@
 						<div class="form-group">
 							<label>Operator</label>
 							<br />
-							<select ng-model="operator" size="5"
+							<select class="form-control" ng-model="operator" 
 								ng-options="operatorOption as operatorOption.displayName for operatorOption in operatorOptions | orderBy: 'displayName'"
-								ng-change="onChangeOperatorOption()"
-								class="form-control">
+								ng-change="onChangeOperatorOption()">
 								<option disabled selected value> -- Operator w&auml;hlen --
 								</option>
 							</select>
