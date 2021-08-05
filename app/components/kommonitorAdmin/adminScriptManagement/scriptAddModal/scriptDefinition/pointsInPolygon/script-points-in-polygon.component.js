@@ -191,7 +191,10 @@ angular.module('scriptPointsInPolygon').component('scriptPointsInPolygon', {
 				kommonitorScriptHelperService.scriptFormulaHTML = "";
 				var formulaHTML = "";
 				if ($scope.propertyName !== undefined && $scope.operator && $scope.operator.apiName !== undefined && $scope.propertyValue != undefined) {
-					formulaHTML = "<b>Berechnung gem&auml;&szlig; Geodatenanalyse<br/><i>Anzahl Punkte des Datensatzes G<sub>1</sub> pro Raumeinheits-Feature, die folgendem Filterkriterium entsprechen:</i> '" + $scope.propertyName + "' '" + $scope.operator.displayName + "' '" + $scope.propertyValue + "'";
+					formulaHTML = "<b>Berechnung gem&auml;&szlig; Geodatenanalyse<br/><i>Anzahl Punkte des Datensatzes G<sub>1</sub> pro Raumeinheits-Feature</i> <br/> <i>Filterkriterium:</i> '" + $scope.propertyName + "' '" + $scope.operator.displayName + "' '" + $scope.propertyValue + "'";
+					if ($scope.operator.apiName === "Range") {
+						formulaHTML = "<b>Berechnung gem&auml;&szlig; Geodatenanalyse<br/><i>Anzahl Punkte des Datensatzes G<sub>1</sub> pro Raumeinheits-Feature</i> <br/> <i>Filterkriterium:</i> '" + $scope.propertyName + "' im '" + $scope.operator.displayName + "' von '>=" +  $scope.propertyValueRange_from + " bis <" + $scope.propertyValueRange_to + "'";
+					}
 				}
 				else {
 					formulaHTML = "<b>Berechnung gem&auml;&szlig; Geodatenanalyse<br/><i>Anzahl Punkte des Datensatzes G<sub>1</sub> pro Raumeinheits-Feature</i>";
@@ -200,11 +203,11 @@ angular.module('scriptPointsInPolygon').component('scriptPointsInPolygon', {
 
 				kommonitorScriptHelperService.scriptFormulaHTML = formulaHTML + "<br/><br/>" + legendItemsHTML;
 			};
-			
-			
+					
 			$scope.onChangePropertyValueRange_range = function() {
 				$scope.propertyValue = $scope.propertyValueRange_from + "-" + $scope.propertyValueRange_to;
 				$scope.resetScriptParameter_filterPropertyValue();
+				$scope.resetComputationFormulaAndLegend();	
 			}
 		}
 	]
