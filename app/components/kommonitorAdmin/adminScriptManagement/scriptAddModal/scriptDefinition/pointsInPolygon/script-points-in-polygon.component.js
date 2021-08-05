@@ -170,7 +170,7 @@ angular.module('scriptPointsInPolygon').component('scriptPointsInPolygon', {
 			};
 
 			$scope.resetScriptParameter_filterPropertyValue = function(){
-				kommonitorScriptHelperService.removeScriptParameter_byName($scope.parameterDefaultValue_computationFilterPropertyValue);
+				kommonitorScriptHelperService.removeScriptParameter_byName($scope.parameterName_computationFilterPropertyValue);
 				$scope.parameterDefaultValue_computationFilterPropertyValue = $scope.propertyValue;
 				kommonitorScriptHelperService.addScriptParameter($scope.parameterName_computationFilterPropertyValue, $scope.parameterDescription_computationFilterPropertyValue, $scope.parameterDataType, $scope.parameterDefaultValue_computationFilterPropertyValue, $scope.parameterNumericMinValue_computationFilterPropertyValue, $scope.parameterNumericMaxValue_computationFilterPropertyValue);
 			};
