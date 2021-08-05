@@ -137,28 +137,27 @@
 							<div class="help-block with-errors"></div>
 						</div>
 					</div>
-
-					<div class="col-md-6 col-sm-2 col-xs-12" ng-show="operator.apiName=='Range'">
+					<div ng-show="operator.apiName=='Range'" class="col-md-5 col-sm-2 col-xs-12">
 						<div class="form-group">
-							<label>untere Grenze</label>
-							<br />
-							<input ng-model="propertyValueRange_from" 
-							type="text" class="form-control input-sm"
-							ng-change="onChangePropertyValueRange_range()" placeholder="untere Grenze definieren">
-							<div class="help-block with-errors"></div>
-						</div>
-
-						<div class="form-group">
-							<label>obere Grenze</label>
-							<br />
-							<input ng-model="propertyValueRange_to" 
-							type="text" class="form-control input-sm"
-							ng-change="onChangePropertyValueRange_range()" placeholder="obere Grenze definieren">
-							<div class="help-block with-errors"></div>
+							<div class="input-group">
+								<div class="col-md-6 col-sm-2 col-xs-12">
+									<label>untere Grenze</label>
+									<br>
+									<input ng-model="propertyValueRange_from" type="text" class="form-control input-sm ng-pristine ng-untouched ng-valid ng-empty" ng-change="onChangePropertyValueRange_range()" placeholder="untere Grenze definieren">
+									<div class="help-block with-errors">
+									</div>
+								</div>						
+								<div class="col-md-6 col-sm-2 col-xs-12">
+									<label>obere Grenze</label>
+									<br>
+									<input ng-model="propertyValueRange_to" type="text" class="form-control input-sm ng-pristine ng-untouched ng-valid ng-empty" ng-change="onChangePropertyValueRange_range()" placeholder="obere Grenze definieren">
+									<div class="help-block with-errors">
+									</div>
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>
-
 			</div>
 			<!-- Box Body -->
 		</div>
