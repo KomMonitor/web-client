@@ -121,6 +121,18 @@ var logProgressIndexSeparator = Math.round(targetSpatialUnit_geoJSON.features.le
             case ("Unequal"):
               filteredArray = valueArray.filter(item => item !== computationFilterPropertyValue);
               break;
+            case ("Contains"):
+              var computationFilterPropertyValueArray = computationFilterPropertyValue.split(",");
+              for (let i=0; i<computationFilterPropertyValueArray.length; i++) {
+                let trimmedElement = computationFilterPropertyValueArray[i].trim();
+                let tmp = valueArray.filter(item => item === trimmedElement);
+                filteredArray = filteredArray.concat(tmp);
+              }
+              break;
+            case ("Range"):
+              var computationFilterPropertyValueArray = computationFilterPropertyValue.split("-").map(el => parseInt(el));
+              filteredArray = valueArray.filter(item => item >= computationFilterPropertyValueArray[0] && item < computationFilterPropertyValueArray[1]);
+              break;
             default:
               KmHelper.log("Indicator was not computed from computation resources because no valid filter could be applied. Indicator value is set to null.");
               KmHelper.setIndicatorValue(spatialUnitFeat, targetDate, null);

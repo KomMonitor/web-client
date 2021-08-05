@@ -35,6 +35,14 @@ angular.module('scriptPointsInPolygon').component('scriptPointsInPolygon', {
 				{
 					"apiName": "Unequal",
 					"displayName": "ungleich",
+				},
+				{
+					"apiName": "Contains",
+					"displayName": "enthält",
+				},
+				{
+					"apiName": "Range",
+					"displayName": "Wertebereich",
 				}
 			];
 
@@ -68,6 +76,10 @@ angular.module('scriptPointsInPolygon').component('scriptPointsInPolygon', {
 			$scope.parameterDefaultValue_computationFilterPropertyValue = undefined;
 			$scope.parameterNumericMinValue_computationFilterPropertyValue = 0;
 			$scope.parameterNumericMaxValue_computationFilterPropertyValue = 1;
+
+			// parameter for property value
+			$scope.parameterDefaultValue_computationFilterPropertyValueRange_from = undefined;
+			$scope.parameterDefaultValue_computationFilterPropertyValueRange_to = undefined;
 
 			/*
 				availableScriptDataTypes = [
@@ -170,9 +182,9 @@ angular.module('scriptPointsInPolygon').component('scriptPointsInPolygon', {
 			};
 
 			$scope.resetScriptParameter_filterPropertyValue = function(){
-				kommonitorScriptHelperService.removeScriptParameter_byName($scope.parameterName_computationFilterPropertyValue);
-				$scope.parameterDefaultValue_computationFilterPropertyValue = $scope.propertyValue;
-				kommonitorScriptHelperService.addScriptParameter($scope.parameterName_computationFilterPropertyValue, $scope.parameterDescription_computationFilterPropertyValue, $scope.parameterDataType, $scope.parameterDefaultValue_computationFilterPropertyValue, $scope.parameterNumericMinValue_computationFilterPropertyValue, $scope.parameterNumericMaxValue_computationFilterPropertyValue);
+					kommonitorScriptHelperService.removeScriptParameter_byName($scope.parameterName_computationFilterPropertyValue);
+					$scope.parameterDefaultValue_computationFilterPropertyValue = $scope.propertyValue;
+					kommonitorScriptHelperService.addScriptParameter($scope.parameterName_computationFilterPropertyValue, $scope.parameterDescription_computationFilterPropertyValue, $scope.parameterDataType, $scope.parameterDefaultValue_computationFilterPropertyValue, $scope.parameterNumericMinValue_computationFilterPropertyValue, $scope.parameterNumericMaxValue_computationFilterPropertyValue);
 			};
 
 			$scope.resetComputationFormulaAndLegend = function(){
@@ -187,7 +199,13 @@ angular.module('scriptPointsInPolygon').component('scriptPointsInPolygon', {
 				var legendItemsHTML = "<b>Legende zur Geodatenanalyse</b><br/>G<sub>1</sub>: " + $scope.georesourceSelection.datasetName;
 
 				kommonitorScriptHelperService.scriptFormulaHTML = formulaHTML + "<br/><br/>" + legendItemsHTML;
-			};	
+			};
+			
+			
+			$scope.onChangePropertyValueRange_range = function() {
+				$scope.propertyValue = $scope.propertyValueRange_from + "-" + $scope.propertyValueRange_to;
+				$scope.resetScriptParameter_filterPropertyValue();
+			}
 		}
 	]
 });

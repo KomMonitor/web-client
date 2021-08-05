@@ -127,13 +127,33 @@
 							<div class="help-block with-errors"></div>
 						</div>
 					</div>
-					<div class="col-md-3 col-sm-2 col-xs-12">
+					<div class="col-md-3 col-sm-2 col-xs-12" ng-show="operator.apiName!='Range'">
 						<div class="form-group">
 							<label>Filterwert</label>
 							<br />
 							<input ng-model="propertyValue" 
 							type="text" class="form-control input-sm"
 							ng-change="onChangePropertyValue()" placeholder="Filterwert definieren">
+							<div class="help-block with-errors"></div>
+						</div>
+					</div>
+
+					<div class="col-md-6 col-sm-2 col-xs-12" ng-show="operator.apiName=='Range'">
+						<div class="form-group">
+							<label>untere Grenze</label>
+							<br />
+							<input ng-model="propertyValueRange_from" 
+							type="text" class="form-control input-sm"
+							ng-change="onChangePropertyValueRange_range()" placeholder="untere Grenze definieren">
+							<div class="help-block with-errors"></div>
+						</div>
+
+						<div class="form-group">
+							<label>obere Grenze</label>
+							<br />
+							<input ng-model="propertyValueRange_to" 
+							type="text" class="form-control input-sm"
+							ng-change="onChangePropertyValueRange_range()" placeholder="obere Grenze definieren">
 							<div class="help-block with-errors"></div>
 						</div>
 					</div>
