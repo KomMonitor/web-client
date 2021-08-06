@@ -1,7 +1,7 @@
 angular.module('scriptPointsInPolygon').component('scriptPointsInPolygon', {
 	templateUrl: "components/kommonitorAdmin/adminScriptManagement/scriptAddModal/scriptDefinition/pointsInPolygon/script-points-in-polygon.template.html",
 	controller: ['kommonitorDataExchangeService', 'kommonitorScriptHelperService', '$scope', '$rootScope', '$http', '__env', '$timeout',
-		function ScriptScriptPointsInPolygonController(kommonitorDataExchangeService, kommonitorScriptHelperService, $scope, $rootScope, $http, __env, $timeout) {
+		function ScriptPointsInPolygonController(kommonitorDataExchangeService, kommonitorScriptHelperService, $scope, $rootScope, $http, __env, $timeout) {
 
 			this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 			this.kommonitorScriptHelperServiceInstance = kommonitorScriptHelperService;
@@ -14,35 +14,35 @@ angular.module('scriptPointsInPolygon').component('scriptPointsInPolygon', {
 			$scope.operatorOptions = [
 				{
 					"apiName": "Equal",
-					"displayName": "gleich",
+					"displayName": "gleich (=)",
 				},
 				{
 					"apiName": "Greater_than",
-					"displayName": "größer als",
+					"displayName": "größer als (>)",
 				},
 				{
 					"apiName": "Greater_than_or_equal",
-					"displayName": "größer als oder gleich",
+					"displayName": "größer als oder gleich (>=)",
 				},
 				{
 					"apiName": "Less_than",
-					"displayName": "kleiner als",
+					"displayName": "kleiner als (<)",
 				},
 				{
 					"apiName": "Less_than_or_equal",
-					"displayName": "kleiner als oder gleich",
+					"displayName": "kleiner als oder gleich (<=)",
 				},
 				{
 					"apiName": "Unequal",
-					"displayName": "ungleich",
+					"displayName": "ungleich (!=)",
 				},
 				{
 					"apiName": "Contains",
-					"displayName": "enthält",
+					"displayName": "enthält (kommaseparierte Liste)",
 				},
 				{
 					"apiName": "Range",
-					"displayName": "Wertebereich",
+					"displayName": "Wertebereich (>=untere Grenze & <obere Grenze)",
 				}
 			];
 

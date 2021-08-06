@@ -58,7 +58,6 @@ const computationFilterPropertyValue_name = "compFilterPropVal";
 */
 async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndicatorsMap, georesourcesMap, processParameters){
   // compute indicator for targetDate and targetSpatialUnitFeatures
-  // compute indicator for targetDate and targetSpatialUnitFeatures
   var computationGeoresourceId = KmHelper.getProcessParameterByName_asString(computationGeoresourceId_name, processParameters)
   // retrieve required baseIndicator using its meaningful name
   var computationGeoresource = KmHelper.getGeoresourceById(computationGeoresourceId, georesourcesMap);
