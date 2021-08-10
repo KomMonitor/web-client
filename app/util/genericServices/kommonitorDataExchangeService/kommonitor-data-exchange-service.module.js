@@ -1775,6 +1775,18 @@ angular
               });
           };
 
+          this.fetchSingleGeoresourceSchema = function(targetGeoresourceId){
+            return $http({
+              url: this.baseUrlToKomMonitorDataAPI + georesourcesEndpoint  + "/" + targetGeoresourceId + "/schema",
+              method: "GET"
+            }).then(function successCallback(response) {
+              // this callback will be called asynchronously
+              // when the response is available
+              return response.data;
+
+            });
+          };
+
           this.fetchIndicatorsMetadata = function(){
             return $http({
               url: this.baseUrlToKomMonitorDataAPI + indicatorsEndpoint,
