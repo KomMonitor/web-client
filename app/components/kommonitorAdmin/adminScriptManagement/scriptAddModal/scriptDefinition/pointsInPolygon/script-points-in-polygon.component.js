@@ -77,6 +77,13 @@ angular.module('scriptPointsInPolygon').component('scriptPointsInPolygon', {
 
 			$scope.scriptFormulaHTML = undefined;
 
+			$scope.propertyValue = [];
+			$scope.stringSettings = { template: '{{option}}', smartButtonTextConverter(skip, option) { return option; }, };
+			$scope.multiSelectEvents = {
+				onItemSelect: $scope.onChangePropertyValue
+			}
+
+
 			/*
 			* reset relevant things due to change of script type
 			*/
@@ -122,7 +129,12 @@ angular.module('scriptPointsInPolygon').component('scriptPointsInPolygon', {
 
 			$scope.onChangeOperatorOption = function(){
 				$scope.resetScriptParameter_operator();
-				$scope.resetComputationFormulaAndLegend();	
+				$scope.resetComputationFormulaAndLegend();
+
+				console.log($scope.parameterDefaultValue_computationFilterOperator);
+				if ($scope.parameterDefaultValue_computationFilterOperator === "Contains") {
+					$scope.propertyValue = [];
+				}
 			};
 
 			$scope.onChangePropertyValue = function(){

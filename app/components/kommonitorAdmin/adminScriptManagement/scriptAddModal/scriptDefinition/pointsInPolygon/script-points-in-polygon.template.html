@@ -147,12 +147,7 @@
 						<div class="form-group">
 							<label>Filterwert</label>
 							<br />
-							<select class="form-control input-sm ng-pristine ng-untouched ng-valid ng-empty" ng-model="propertyValue" 
-								ng-options="propertyValue for propertyValue in propertyValueOptions"
-								ng-change="onChangePropertyValue()" multiple>
-								<option disabled selected value> -- Filterwert w&auml;hlen --
-								</option>
-							</select>
+							<div ng-dropdown-multiselect="" options="propertyValueOptions" selected-model="propertyValue" events="multiSelectEvents" extra-settings="stringSettings"></div>
 							<div class="help-block with-errors"></div>
 						</div>
 					</div>
