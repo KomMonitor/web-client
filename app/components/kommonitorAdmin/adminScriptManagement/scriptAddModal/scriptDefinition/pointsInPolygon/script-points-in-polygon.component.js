@@ -10,41 +10,10 @@ angular.module('scriptPointsInPolygon').component('scriptPointsInPolygon', {
 			$('.box').boxWidget();
 
 			$scope.pathToScriptResource = "./kommonitor-script-resources/km_georessouce_count_pointsWithinPolygon.js";
-
-			$scope.operatorOptions = [
-				{
-					"apiName": "Equal",
-					"displayName": "gleich (=)",
-				},
-				{
-					"apiName": "Greater_than",
-					"displayName": "größer als (>)",
-				},
-				{
-					"apiName": "Greater_than_or_equal",
-					"displayName": "größer als oder gleich (>=)",
-				},
-				{
-					"apiName": "Less_than",
-					"displayName": "kleiner als (<)",
-				},
-				{
-					"apiName": "Less_than_or_equal",
-					"displayName": "kleiner als oder gleich (<=)",
-				},
-				{
-					"apiName": "Unequal",
-					"displayName": "ungleich (!=)",
-				},
-				{
-					"apiName": "Contains",
-					"displayName": "enthält (kommaseparierte Liste)",
-				},
-				{
-					"apiName": "Range",
-					"displayName": "Wertebereich (>=untere Grenze & <obere Grenze)",
-				}
-			];
+			
+			$scope.propertySchema = {};
+			$scope.propertyOptions = undefined;
+			$scope.propertyValueOptions = undefined;
 
 			$scope.georesourceSelection = undefined;
 			$scope.georesourceSelection_old = undefined;
@@ -140,12 +109,15 @@ angular.module('scriptPointsInPolygon').component('scriptPointsInPolygon', {
 
 				//reset the one and only parameter in this case each time a base indicator is added
 				$scope.resetGeoresourceParameter();
+				$scope.resetPropertyOptions();
 				$scope.resetComputationFormulaAndLegend();				
 			};
 
 			$scope.onChangePropertyName = function(){
 				$scope.resetScriptParameter_filterPropertyName();
-				$scope.resetComputationFormulaAndLegend();	
+				$scope.resetComputationFormulaAndLegend();
+				$scope.filterOperatorOptions();
+				$scope.resetPropertyValueOptions();
 			};
 
 			$scope.onChangeOperatorOption = function(){
@@ -169,16 +141,97 @@ angular.module('scriptPointsInPolygon').component('scriptPointsInPolygon', {
 				kommonitorScriptHelperService.addScriptParameter($scope.parameterName_computationGeoresource, $scope.parameterDescription_computationGeoresource, $scope.parameterDataType, $scope.parameterDefaultValue_computationGeoresource, $scope.parameterNumericMinValue_computationGeoresource, $scope.parameterNumericMaxValue_computationGeoresource);
 			};
 
+			$scope.resetPropertyOptions = function(){
+				kommonitorDataExchangeService.fetchSingleGeoresourceSchema($scope.parameterDefaultValue_computationGeoresource)
+				.then((schema) => {
+					for (var prop in schema) {
+						if (schema[prop] !== 'Date') {
+							$scope.propertySchema[prop] = schema[prop];
+						}
+					}
+					$scope.propertyOptions = Object.keys($scope.propertySchema);
+				});
+			};
+
 			$scope.resetScriptParameter_filterPropertyName = function(){
 				kommonitorScriptHelperService.removeScriptParameter_byName($scope.parameterName_computationFilterProperty);
 				$scope.parameterDefaultValue_computationFilterProperty = $scope.propertyName;
 				kommonitorScriptHelperService.addScriptParameter($scope.parameterName_computationFilterProperty, $scope.parameterDescription_computationFilterProperty, $scope.parameterDataType, $scope.parameterDefaultValue_computationFilterProperty, $scope.parameterNumericMinValue_computationFilterProperty, $scope.parameterNumericMaxValue_computationFilterProperty);
 			};
 
+			$scope.filterOperatorOptions = function(){
+				if ($scope.propertySchema[$scope.parameterDefaultValue_computationFilterProperty] === "String"){
+					$scope.operatorOptions = [
+						{
+							"apiName": "Equal",
+							"displayName": "gleich (=)",
+						},
+						{
+							"apiName": "Unequal",
+							"displayName": "ungleich (!=)",
+						},
+						{
+							"apiName": "Contains",
+							"displayName": "enthält (kommaseparierte Liste)",
+						}
+					];
+				} else {
+					$scope.operatorOptions = [
+						{
+							"apiName": "Equal",
+							"displayName": "gleich (=)",
+						},
+						{
+							"apiName": "Greater_than",
+							"displayName": "größer als (>)",
+						},
+						{
+							"apiName": "Greater_than_or_equal",
+							"displayName": "größer als oder gleich (>=)",
+						},
+						{
+							"apiName": "Less_than",
+							"displayName": "kleiner als (<)",
+						},
+						{
+							"apiName": "Less_than_or_equal",
+							"displayName": "kleiner als oder gleich (<=)",
+						},
+						{
+							"apiName": "Unequal",
+							"displayName": "ungleich (!=)",
+						},
+						{
+							"apiName": "Range",
+							"displayName": "Wertebereich (>=untere Grenze & <obere Grenze)",
+						}];
+				}
+			};
+
 			$scope.resetScriptParameter_operator = function(){
 				kommonitorScriptHelperService.removeScriptParameter_byName($scope.parameterName_computationFilterOperator);
 				$scope.parameterDefaultValue_computationFilterOperator = $scope.operator.apiName;
 				kommonitorScriptHelperService.addScriptParameter($scope.parameterName_computationFilterOperator, $scope.parameterDescription_computationFilterOperator, $scope.parameterDataType, $scope.parameterDefaultValue_computationFilterOperator, $scope.parameterNumericMinValue_computationFilterOperator, $scope.parameterNumericMaxValue_computationFilterOperator);
+			};
+
+			$scope.resetPropertyValueOptions = function(){
+				kommonitorDataExchangeService.fetchSingleGeoresourceWithoutGeometry($scope.parameterDefaultValue_computationGeoresource)
+				.then((dataTable) => {
+					var data = dataTable;
+					var tmpArray = data.map(item => {
+						let value = item[$scope.parameterDefaultValue_computationFilterProperty];
+						return value;
+					});
+					if ($scope.propertySchema[$scope.parameterDefaultValue_computationFilterProperty] === "String" || $scope.propertySchema[$scope.parameterDefaultValue_computationFilterProperty] === "Boolean") {
+						// sort strings
+						$scope.propertyValueOptions = Array.from(new Set(tmpArray)).sort();
+					} else {
+						// sort numbers
+						$scope.propertyValueOptions = Array.from(new Set(tmpArray)).sort(function(a,b){
+							return a - b;
+						});
+					}
+				});
 			};
 
 			$scope.resetScriptParameter_filterPropertyValue = function(){
@@ -193,7 +246,7 @@ angular.module('scriptPointsInPolygon').component('scriptPointsInPolygon', {
 				if ($scope.propertyName !== undefined && $scope.operator && $scope.operator.apiName !== undefined && $scope.propertyValue != undefined) {
 					formulaHTML = "<b>Berechnung gem&auml;&szlig; Geodatenanalyse<br/><i>Anzahl Punkte des Datensatzes G<sub>1</sub> pro Raumeinheits-Feature</i> <br/> <i>Filterkriterium:</i> '" + $scope.propertyName + "' '" + $scope.operator.displayName + "' '" + $scope.propertyValue + "'";
 					if ($scope.operator.apiName === "Range") {
-						formulaHTML = "<b>Berechnung gem&auml;&szlig; Geodatenanalyse<br/><i>Anzahl Punkte des Datensatzes G<sub>1</sub> pro Raumeinheits-Feature</i> <br/> <i>Filterkriterium:</i> '" + $scope.propertyName + "' im '" + $scope.operator.displayName + "' von '>=" +  $scope.propertyValueRange_from + " bis <" + $scope.propertyValueRange_to + "'";
+						formulaHTML = "<b>Berechnung gem&auml;&szlig; Geodatenanalyse<br/><i>Anzahl Punkte des Datensatzes G<sub>1</sub> pro Raumeinheits-Feature</i> <br/> <i>Filterkriterium:</i> '" + $scope.propertyName + "' im " +  "Wertebereich von '>=" +  $scope.propertyValueRange_from + " bis <" + $scope.propertyValueRange_to + "'";
 					}
 				}
 				else {
@@ -208,7 +261,7 @@ angular.module('scriptPointsInPolygon').component('scriptPointsInPolygon', {
 				$scope.propertyValue = $scope.propertyValueRange_from + "-" + $scope.propertyValueRange_to;
 				$scope.resetScriptParameter_filterPropertyValue();
 				$scope.resetComputationFormulaAndLegend();	
-			}
+			};
 		}
 	]
 });
