@@ -147,7 +147,9 @@
 						<div class="form-group">
 							<label>Filterwert</label>
 							<br />
-							<div ng-dropdown-multiselect="" options="propertyValueOptions" selected-model="propertyValue" events="multiSelectEvents" extra-settings="stringSettings"></div>
+							<div ng-dropdown-multiselect="" options="propertyValueOptions" selected-model="propertyValueSelection" 
+								extra-settings="dropdownSettings", translation-texts="dropdownTranslations" events="dropdownEvents">
+						   	</div>
 							<div class="help-block with-errors"></div>
 						</div>
 					</div>

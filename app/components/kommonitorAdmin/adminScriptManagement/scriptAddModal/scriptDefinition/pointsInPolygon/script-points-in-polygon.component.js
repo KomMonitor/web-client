@@ -77,11 +77,20 @@ angular.module('scriptPointsInPolygon').component('scriptPointsInPolygon', {
 
 			$scope.scriptFormulaHTML = undefined;
 
-			$scope.propertyValue = [];
-			$scope.stringSettings = { template: '{{option}}', smartButtonTextConverter(skip, option) { return option; }, };
-			$scope.multiSelectEvents = {
+			$scope.propertyValueSelection = [];
+			$scope.dropdownSettings = { 
+				enableSearch: true, clearSearchOnClose: true,
+				scrollableHeight: '200px', scrollable: true,
+				buttonClasses: 'form-control', 
+				template: '{{option}}', smartButtonTextConverter(skip, option) { return option; }
+			};
+			$scope.dropdownEvents = {
 				onItemSelect: $scope.onChangePropertyValue
-			}
+			};
+
+			$scope.dropdownTranslations = {	checkAll: 'Alle auswählen', uncheckAll: 'Nichts auswählen', dynamicButtonTextSuffix: 'ausgewählt',
+								   	buttonDefaultText: 'Objekteigenschaften auswählen', searchPlaceholder: 'Suchen...'
+								};
 
 
 			/*
@@ -130,11 +139,6 @@ angular.module('scriptPointsInPolygon').component('scriptPointsInPolygon', {
 			$scope.onChangeOperatorOption = function(){
 				$scope.resetScriptParameter_operator();
 				$scope.resetComputationFormulaAndLegend();
-
-				console.log($scope.parameterDefaultValue_computationFilterOperator);
-				if ($scope.parameterDefaultValue_computationFilterOperator === "Contains") {
-					$scope.propertyValue = [];
-				}
 			};
 
 			$scope.onChangePropertyValue = function(){
@@ -248,7 +252,11 @@ angular.module('scriptPointsInPolygon').component('scriptPointsInPolygon', {
 
 			$scope.resetScriptParameter_filterPropertyValue = function(){
 					kommonitorScriptHelperService.removeScriptParameter_byName($scope.parameterName_computationFilterPropertyValue);
-					$scope.parameterDefaultValue_computationFilterPropertyValue = $scope.propertyValue;
+					if ($scope.parameterDefaultValue_computationFilterOperator !== "Contains") {
+						$scope.parameterDefaultValue_computationFilterPropertyValue = $scope.propertyValue;
+					} else {
+						$scope.parameterDefaultValue_computationFilterPropertyValue = $scope.propertyValueSelection;
+					}
 					kommonitorScriptHelperService.addScriptParameter($scope.parameterName_computationFilterPropertyValue, $scope.parameterDescription_computationFilterPropertyValue, $scope.parameterDataType, $scope.parameterDefaultValue_computationFilterPropertyValue, $scope.parameterNumericMinValue_computationFilterPropertyValue, $scope.parameterNumericMaxValue_computationFilterPropertyValue);
 			};
 
@@ -259,6 +267,9 @@ angular.module('scriptPointsInPolygon').component('scriptPointsInPolygon', {
 					formulaHTML = "<b>Berechnung gem&auml;&szlig; Geodatenanalyse<br/><i>Anzahl Punkte des Datensatzes G<sub>1</sub> pro Raumeinheits-Feature</i> <br/> <i>Filterkriterium:</i> '" + $scope.propertyName + "' '" + $scope.operator.displayName + "' '" + $scope.propertyValue + "'";
 					if ($scope.operator.apiName === "Range") {
 						formulaHTML = "<b>Berechnung gem&auml;&szlig; Geodatenanalyse<br/><i>Anzahl Punkte des Datensatzes G<sub>1</sub> pro Raumeinheits-Feature</i> <br/> <i>Filterkriterium:</i> '" + $scope.propertyName + "' im " +  "Wertebereich von '>=" +  $scope.propertyValueRange_from + " bis <" + $scope.propertyValueRange_to + "'";
+					}
+					if ($scope.operator.apiName === "Contains") {
+						formulaHTML = "<b>Berechnung gem&auml;&szlig; Geodatenanalyse<br/><i>Anzahl Punkte des Datensatzes G<sub>1</sub> pro Raumeinheits-Feature</i> <br/> <i>Filterkriterium:</i> '" + $scope.propertyName + "' '" + $scope.operator.displayName + "' '" + $scope.propertyValueSelection + "'";
 					}
 				}
 				else {
