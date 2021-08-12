@@ -80,9 +80,10 @@ angular.module('scriptPointsInPolygon').component('scriptPointsInPolygon', {
 			$scope.propertyValueSelection = [];
 			$scope.dropdownSettings = { 
 				enableSearch: true, clearSearchOnClose: true,
-				scrollableHeight: '200px', scrollable: true,
-				buttonClasses: 'form-control input-sm ng-pristine ng-untouched ng-valid ng-empty', 
-				template: '{{option}}', smartButtonTextConverter(skip, option) { return option; }
+				scrollableHeight: '250px', scrollable: true,
+				buttonClasses: 'form-control btn-block', 
+				template: '{{option}}', smartButtonTextConverter(skip, option) { return option; },
+				styleActive: true
 			};
 			$scope.dropdownEvents =  {
 				onItemSelect: function() {
@@ -96,7 +97,7 @@ angular.module('scriptPointsInPolygon').component('scriptPointsInPolygon', {
 				}
 			};
 
-			$scope.dropdownTranslations = {	checkAll: 'Alle auswählen', uncheckAll: 'Nichts auswählen', dynamicButtonTextSuffix: 'ausgewählt',
+			$scope.dropdownTranslations = {	checkAll: 'Alle auswählen', uncheckAll: 'Nichts auswählen', dynamicButtonTextSuffix: 'Werte ausgewählt',
 								   	buttonDefaultText: 'Objekteigenschaften auswählen', searchPlaceholder: 'Suchen...'
 								};
 
@@ -142,9 +143,15 @@ angular.module('scriptPointsInPolygon').component('scriptPointsInPolygon', {
 				$scope.resetComputationFormulaAndLegend();
 				$scope.filterOperatorOptions();
 				$scope.resetPropertyValueOptions();
+				if ($scope.parameterDefaultValue_computationFilterOperator === 'Contains') {
+					$scope.propertyValueSelection = [];
+				}
 			};
 
 			$scope.onChangeOperatorOption = function(){
+				if ($scope.parameterDefaultValue_computationFilterOperator !== 'Contains') {
+					$scope.propertyValueSelection = [];
+				}
 				$scope.resetScriptParameter_operator();
 				$scope.resetComputationFormulaAndLegend();
 			};
@@ -277,7 +284,7 @@ angular.module('scriptPointsInPolygon').component('scriptPointsInPolygon', {
 						formulaHTML = "<b>Berechnung gem&auml;&szlig; Geodatenanalyse<br/><i>Anzahl Punkte des Datensatzes G<sub>1</sub> pro Raumeinheits-Feature</i> <br/> <i>Filterkriterium:</i> '" + $scope.propertyName + "' im " +  "Wertebereich von '>=" +  $scope.propertyValueRange_from + " bis <" + $scope.propertyValueRange_to + "'";
 					}
 					if ($scope.operator.apiName === "Contains") {
-						formulaHTML = "<b>Berechnung gem&auml;&szlig; Geodatenanalyse<br/><i>Anzahl Punkte des Datensatzes G<sub>1</sub> pro Raumeinheits-Feature</i> <br/> <i>Filterkriterium:</i> '" + $scope.propertyName + "' '" + $scope.operator.displayName + "' '" + $scope.propertyValueSelection + "'";
+						formulaHTML = "<b>Berechnung gem&auml;&szlig; Geodatenanalyse<br/><i>Anzahl Punkte des Datensatzes G<sub>1</sub> pro Raumeinheits-Feature</i> <br/> <i>Filterkriterium:</i> '" + $scope.propertyName + "' 'enthält' '" + $scope.propertyValueSelection + "'";
 					}
 				}
 				else {
