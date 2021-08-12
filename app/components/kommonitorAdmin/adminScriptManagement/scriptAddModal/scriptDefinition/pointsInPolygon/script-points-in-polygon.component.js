@@ -81,11 +81,19 @@ angular.module('scriptPointsInPolygon').component('scriptPointsInPolygon', {
 			$scope.dropdownSettings = { 
 				enableSearch: true, clearSearchOnClose: true,
 				scrollableHeight: '200px', scrollable: true,
-				buttonClasses: 'form-control', 
+				buttonClasses: 'form-control input-sm ng-pristine ng-untouched ng-valid ng-empty', 
 				template: '{{option}}', smartButtonTextConverter(skip, option) { return option; }
 			};
-			$scope.dropdownEvents = {
-				onItemSelect: $scope.onChangePropertyValue
+			$scope.dropdownEvents =  {
+				onItemSelect: function() {
+					$scope.onChangePropertyValue();
+				},
+				onItemDeselect: function() {
+					$scope.onChangePropertyValue();
+				},
+				onSelectionChanged: function() {
+					$scope.onChangePropertyValue();
+				}
 			};
 
 			$scope.dropdownTranslations = {	checkAll: 'Alle auswählen', uncheckAll: 'Nichts auswählen', dynamicButtonTextSuffix: 'ausgewählt',
@@ -255,7 +263,7 @@ angular.module('scriptPointsInPolygon').component('scriptPointsInPolygon', {
 					if ($scope.parameterDefaultValue_computationFilterOperator !== "Contains") {
 						$scope.parameterDefaultValue_computationFilterPropertyValue = $scope.propertyValue;
 					} else {
-						$scope.parameterDefaultValue_computationFilterPropertyValue = $scope.propertyValueSelection;
+						$scope.parameterDefaultValue_computationFilterPropertyValue = $scope.propertyValueSelection.join();
 					}
 					kommonitorScriptHelperService.addScriptParameter($scope.parameterName_computationFilterPropertyValue, $scope.parameterDescription_computationFilterPropertyValue, $scope.parameterDataType, $scope.parameterDefaultValue_computationFilterPropertyValue, $scope.parameterNumericMinValue_computationFilterPropertyValue, $scope.parameterNumericMaxValue_computationFilterPropertyValue);
 			};
@@ -263,7 +271,7 @@ angular.module('scriptPointsInPolygon').component('scriptPointsInPolygon', {
 			$scope.resetComputationFormulaAndLegend = function(){
 				kommonitorScriptHelperService.scriptFormulaHTML = "";
 				var formulaHTML = "";
-				if ($scope.propertyName !== undefined && $scope.operator && $scope.operator.apiName !== undefined && $scope.propertyValue != undefined) {
+				if ($scope.propertyName !== undefined && $scope.operator && $scope.operator.apiName !== undefined && ($scope.propertyValue != undefined || $scope.propertyValueSelection != undefined)) {
 					formulaHTML = "<b>Berechnung gem&auml;&szlig; Geodatenanalyse<br/><i>Anzahl Punkte des Datensatzes G<sub>1</sub> pro Raumeinheits-Feature</i> <br/> <i>Filterkriterium:</i> '" + $scope.propertyName + "' '" + $scope.operator.displayName + "' '" + $scope.propertyValue + "'";
 					if ($scope.operator.apiName === "Range") {
 						formulaHTML = "<b>Berechnung gem&auml;&szlig; Geodatenanalyse<br/><i>Anzahl Punkte des Datensatzes G<sub>1</sub> pro Raumeinheits-Feature</i> <br/> <i>Filterkriterium:</i> '" + $scope.propertyName + "' im " +  "Wertebereich von '>=" +  $scope.propertyValueRange_from + " bis <" + $scope.propertyValueRange_to + "'";
