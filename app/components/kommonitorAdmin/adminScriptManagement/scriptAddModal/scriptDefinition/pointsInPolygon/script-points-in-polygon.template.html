@@ -171,7 +171,7 @@
 									<label>obere Grenze</label>
 									<br>
 									<select class="form-control input-sm ng-pristine ng-untouched ng-valid ng-empty" ng-model="propertyValueRange_to"
-									ng-options="propertyValue for propertyValue in propertyValueOptions" ng-change="onChangePropertyValueRange_range()">
+									ng-options="propertyValue for propertyValue in propertyValueOptions| filter: filterPropertyValueRange_toOptions()" ng-change="onChangePropertyValueRange_range()">
 									<option disabled selected value> -- obere Grenze definieren --
 									</option>
 									</select>									

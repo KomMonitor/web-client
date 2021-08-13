@@ -265,7 +265,16 @@ angular.module('scriptPointsInPolygon').component('scriptPointsInPolygon', {
 				});
 			};
 
-			$scope.resetScriptParameter_filterPropertyValue = function(){
+			$scope.filterPropertyValueRange_toOptions = function() {
+				return function(item) {
+					if (item > $scope.propertyValueRange_from) {
+						return true;
+					}
+					return false;
+				};
+			};
+
+			$scope.resetScriptParameter_filterPropertyValue = function() {
 					kommonitorScriptHelperService.removeScriptParameter_byName($scope.parameterName_computationFilterPropertyValue);
 					if ($scope.parameterDefaultValue_computationFilterOperator !== "Contains") {
 						$scope.parameterDefaultValue_computationFilterPropertyValue = $scope.propertyValue;
