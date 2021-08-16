@@ -241,7 +241,9 @@ angular.module('scriptPointsInPolygon').component('scriptPointsInPolygon', {
 
 			$scope.resetScriptParameter_operator = function(){
 				kommonitorScriptHelperService.removeScriptParameter_byName($scope.parameterName_computationFilterOperator);
-				$scope.parameterDefaultValue_computationFilterOperator = $scope.operator.apiName;
+				if ($scope.operator !== null) {
+					$scope.parameterDefaultValue_computationFilterOperator = $scope.operator.apiName;
+				}				
 				kommonitorScriptHelperService.addScriptParameter($scope.parameterName_computationFilterOperator, $scope.parameterDescription_computationFilterOperator, $scope.parameterDataType, $scope.parameterDefaultValue_computationFilterOperator, $scope.parameterNumericMinValue_computationFilterOperator, $scope.parameterNumericMaxValue_computationFilterOperator);
 			};
 
