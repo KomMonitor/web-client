@@ -11,40 +11,9 @@ angular.module('scriptGeoresourceSubsetShare').component('scriptGeoresourceSubse
 
 			$scope.pathToScriptResource = "./kommonitor-script-resources/km_georesource_share_byPropertyValue.js";
 
-			$scope.operatorOptions = [
-				{
-					"apiName": "Equal",
-					"displayName": "gleich (=)",
-				},
-				{
-					"apiName": "Greater_than",
-					"displayName": "größer als (>)",
-				},
-				{
-					"apiName": "Greater_than_or_equal",
-					"displayName": "größer als oder gleich (>=)",
-				},
-				{
-					"apiName": "Less_than",
-					"displayName": "kleiner als (<)",
-				},
-				{
-					"apiName": "Less_than_or_equal",
-					"displayName": "kleiner als oder gleich (<=)",
-				},
-				{
-					"apiName": "Unequal",
-					"displayName": "ungleich (!=)",
-				},
-				{
-					"apiName": "Contains",
-					"displayName": "enthält (kommaseparierte Liste)",
-				},
-				{
-					"apiName": "Range",
-					"displayName": "Wertebereich (>=untere Grenze & <obere Grenze)",
-				}
-			];
+			$scope.propertySchema = {};
+			$scope.propertyOptions = undefined;
+			$scope.propertyValueOptions = undefined;
 
 			$scope.georesourceSelection = undefined;
 			$scope.georesourceSelection_old = undefined;
@@ -108,6 +77,31 @@ angular.module('scriptGeoresourceSubsetShare').component('scriptGeoresourceSubse
 
 			$scope.scriptFormulaHTML = undefined;
 
+			$scope.propertyValueSelection = [];
+			$scope.dropdownSettings = { 
+				enableSearch: true, clearSearchOnClose: true,
+				scrollableHeight: '250px', scrollable: true,
+				buttonClasses: 'form-control btn-block', 
+				template: '{{option}}', smartButtonTextConverter(skip, option) { return option; },
+				styleActive: true
+			};
+			$scope.dropdownEvents =  {
+				onItemSelect: function() {
+					$scope.onChangePropertyValue();
+				},
+				onItemDeselect: function() {
+					$scope.onChangePropertyValue();
+				},
+				onSelectionChanged: function() {
+					$scope.onChangePropertyValue();
+				}
+			};
+
+			$scope.dropdownTranslations = {	checkAll: 'Alle auswählen', uncheckAll: 'Nichts auswählen', dynamicButtonTextSuffix: 'Werte ausgewählt',
+								   	buttonDefaultText: 'Objekteigenschaften auswählen', searchPlaceholder: 'Suchen...'
+								};
+
+
 			/*
 			* reset relevant things due to change of script type
 			*/
@@ -140,17 +134,26 @@ angular.module('scriptGeoresourceSubsetShare').component('scriptGeoresourceSubse
 
 				//reset the one and only parameter in this case each time a base indicator is added
 				$scope.resetGeoresourceParameter();
+				$scope.resetPropertyOptions();
 				$scope.resetComputationFormulaAndLegend();				
 			};
 
 			$scope.onChangePropertyName = function(){
 				$scope.resetScriptParameter_filterPropertyName();
-				$scope.resetComputationFormulaAndLegend();	
+				$scope.resetComputationFormulaAndLegend();
+				$scope.filterOperatorOptions();
+				$scope.resetPropertyValueOptions();
+				if ($scope.parameterDefaultValue_computationFilterOperator === 'Contains') {
+					$scope.propertyValueSelection = [];
+				}
 			};
 
 			$scope.onChangeOperatorOption = function(){
+				if ($scope.parameterDefaultValue_computationFilterOperator !== 'Contains') {
+					$scope.propertyValueSelection = [];
+				}
 				$scope.resetScriptParameter_operator();
-				$scope.resetComputationFormulaAndLegend();	
+				$scope.resetComputationFormulaAndLegend();
 			};
 
 			$scope.onChangePropertyValue = function(){
@@ -169,10 +172,71 @@ angular.module('scriptGeoresourceSubsetShare').component('scriptGeoresourceSubse
 				kommonitorScriptHelperService.addScriptParameter($scope.parameterName_computationGeoresource, $scope.parameterDescription_computationGeoresource, $scope.parameterDataType, $scope.parameterDefaultValue_computationGeoresource, $scope.parameterNumericMinValue_computationGeoresource, $scope.parameterNumericMaxValue_computationGeoresource);
 			};
 
+			$scope.resetPropertyOptions = function(){
+				kommonitorDataExchangeService.fetchSingleGeoresourceSchema($scope.parameterDefaultValue_computationGeoresource)
+				.then((schema) => {
+					for (var prop in schema) {
+						if (schema[prop] !== 'Date') {
+							$scope.propertySchema[prop] = schema[prop];
+						}
+					}
+					$scope.propertyOptions = Object.keys($scope.propertySchema);
+				});
+			};
+
 			$scope.resetScriptParameter_filterPropertyName = function(){
 				kommonitorScriptHelperService.removeScriptParameter_byName($scope.parameterName_computationFilterProperty);
 				$scope.parameterDefaultValue_computationFilterProperty = $scope.propertyName;
 				kommonitorScriptHelperService.addScriptParameter($scope.parameterName_computationFilterProperty, $scope.parameterDescription_computationFilterProperty, $scope.parameterDataType, $scope.parameterDefaultValue_computationFilterProperty, $scope.parameterNumericMinValue_computationFilterProperty, $scope.parameterNumericMaxValue_computationFilterProperty);
+			};
+
+			$scope.filterOperatorOptions = function(){
+				if ($scope.propertySchema[$scope.parameterDefaultValue_computationFilterProperty] === "String"){
+					$scope.operatorOptions = [
+						{
+							"apiName": "Equal",
+							"displayName": "gleich (=)",
+						},
+						{
+							"apiName": "Unequal",
+							"displayName": "ungleich (!=)",
+						},
+						{
+							"apiName": "Contains",
+							"displayName": "enthält (kommaseparierte Liste)",
+						}
+					];
+				} else {
+					$scope.operatorOptions = [
+						{
+							"apiName": "Equal",
+							"displayName": "gleich (=)",
+						},
+						{
+							"apiName": "Greater_than",
+							"displayName": "größer als (>)",
+						},
+						{
+							"apiName": "Greater_than_or_equal",
+							"displayName": "größer als oder gleich (>=)",
+						},
+						{
+							"apiName": "Less_than",
+							"displayName": "kleiner als (<)",
+						},
+						{
+							"apiName": "Less_than_or_equal",
+							"displayName": "kleiner als oder gleich (<=)",
+						},
+						{
+							"apiName": "Unequal",
+							"displayName": "ungleich (!=)",
+						},
+						{
+							"apiName": "Range",
+							"displayName": "Wertebereich (>=untere Grenze & <obere Grenze)",
+						}];
+				}
 			};
 
 			$scope.resetScriptParameter_operator = function(){
@@ -181,19 +245,55 @@ angular.module('scriptGeoresourceSubsetShare').component('scriptGeoresourceSubse
 				kommonitorScriptHelperService.addScriptParameter($scope.parameterName_computationFilterOperator, $scope.parameterDescription_computationFilterOperator, $scope.parameterDataType, $scope.parameterDefaultValue_computationFilterOperator, $scope.parameterNumericMinValue_computationFilterOperator, $scope.parameterNumericMaxValue_computationFilterOperator);
 			};
 
-			$scope.resetScriptParameter_filterPropertyValue = function(){
+			$scope.resetPropertyValueOptions = function(){
+				kommonitorDataExchangeService.fetchSingleGeoresourceWithoutGeometry($scope.parameterDefaultValue_computationGeoresource)
+				.then((dataTable) => {
+					var data = dataTable;
+					var tmpArray = data.map(item => {
+						let value = item[$scope.parameterDefaultValue_computationFilterProperty];
+						return value;
+					});
+					if ($scope.propertySchema[$scope.parameterDefaultValue_computationFilterProperty] === "String" || $scope.propertySchema[$scope.parameterDefaultValue_computationFilterProperty] === "Boolean") {
+						// sort strings
+						$scope.propertyValueOptions = Array.from(new Set(tmpArray)).sort();
+					} else {
+						// sort numbers
+						$scope.propertyValueOptions = Array.from(new Set(tmpArray)).sort(function(a,b){
+							return a - b;
+						});
+					}
+				});
+			};
+
+			$scope.filterPropertyValueRange_toOptions = function() {
+				return function(item) {
+					if (item > $scope.propertyValueRange_from) {
+						return true;
+					}
+					return false;
+				};
+			};
+
+			$scope.resetScriptParameter_filterPropertyValue = function() {
 					kommonitorScriptHelperService.removeScriptParameter_byName($scope.parameterName_computationFilterPropertyValue);
-					$scope.parameterDefaultValue_computationFilterPropertyValue = $scope.propertyValue;
+					if ($scope.parameterDefaultValue_computationFilterOperator !== "Contains") {
+						$scope.parameterDefaultValue_computationFilterPropertyValue = $scope.propertyValue;
+					} else {
+						$scope.parameterDefaultValue_computationFilterPropertyValue = $scope.propertyValueSelection.join();
+					}
 					kommonitorScriptHelperService.addScriptParameter($scope.parameterName_computationFilterPropertyValue, $scope.parameterDescription_computationFilterPropertyValue, $scope.parameterDataType, $scope.parameterDefaultValue_computationFilterPropertyValue, $scope.parameterNumericMinValue_computationFilterPropertyValue, $scope.parameterNumericMaxValue_computationFilterPropertyValue);
 			};
 
 			$scope.resetComputationFormulaAndLegend = function(){
 				kommonitorScriptHelperService.scriptFormulaHTML = "";
 				var formulaHTML = "";
-				if ($scope.propertyName !== undefined && $scope.operator && $scope.operator.apiName !== undefined && $scope.propertyValue != undefined) {
+				if ($scope.propertyName !== undefined && $scope.operator && $scope.operator.apiName !== undefined && ($scope.propertyValue != undefined || $scope.propertyValueSelection != undefined)) {
 					formulaHTML = "<b>Berechnung gem&auml;&szlig; Geodatenanalyse<br/><i>Prozentualer Anteil der Auswahl an allen Punkten des Datensatzes G<sub>1</sub> pro Raumeinheits-Feature</i> <br/> <i>Auswahlkriterium:</i> '" + $scope.propertyName + "' '" + $scope.operator.displayName + "' '" + $scope.propertyValue + "'";
 					if ($scope.operator.apiName === "Range") {
 						formulaHTML = "<b>Berechnung gem&auml;&szlig; Geodatenanalyse<br/><i>Prozentualer Anteil der Auswahl an allen Punkten des Datensatzes G<sub>1</sub> pro Raumeinheits-Feature</i> <br/> <i>Auswahlkriterium:</i> '" + $scope.propertyName + "' im Wertebereich von '>=" +  $scope.propertyValueRange_from + " bis <" + $scope.propertyValueRange_to + "'";
+					}
+					if ($scope.operator.apiName === "Contains") {
+						formulaHTML = "<b>Berechnung gem&auml;&szlig; Geodatenanalyse<br/><i>Prozentualer Anteil der Auswahl an allen Punkten des Datensatzes G<sub>1</sub> pro Raumeinheits-Feature</i> <br/> <i>Filterkriterium:</i> '" + $scope.propertyName + "' 'enthält' '" + $scope.propertyValueSelection + "'";
 					}
 				}
 				else {
