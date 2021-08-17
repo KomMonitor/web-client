@@ -102,7 +102,11 @@ angular
         {
 					"displayName": "Georessourcen - Prozentualer Anteil anhand Objekteigenschaft (Punktdatensätze)",
 					"apiName": "georesource_subsetShare"
-				}              
+				},
+        {
+					"displayName": "Georessourcen - Summierte Linienlänge je Polygon",
+					"apiName": "lineSegmentInPolygon"
+				}             
 			];
 
       this.temporalOptions = [
