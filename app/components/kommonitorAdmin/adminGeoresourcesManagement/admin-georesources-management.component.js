@@ -1,7 +1,7 @@
 angular.module('adminGeoresourcesManagement').component('adminGeoresourcesManagement', {
 	templateUrl : "components/kommonitorAdmin/adminGeoresourcesManagement/admin-georesources-management.template.html",
-	controller : ['kommonitorDataExchangeService', 'kommonitorDataGridHelperService', '$scope', '$timeout', '$rootScope', '__env', '$http', 
-	function GeoresourcesManagementController(kommonitorDataExchangeService, kommonitorDataGridHelperService, $scope, $timeout, $rootScope, __env, $http) {
+	controller : ['kommonitorDataExchangeService', 'kommonitorCacheHelperService', 'kommonitorDataGridHelperService', '$scope', '$timeout', '$rootScope', '__env', '$http', 
+	function GeoresourcesManagementController(kommonitorDataExchangeService, kommonitorCacheHelperService, kommonitorDataGridHelperService, $scope, $timeout, $rootScope, __env, $http) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 		// initialize any adminLTE box widgets
@@ -58,7 +58,7 @@ angular.module('adminGeoresourcesManagement').component('adminGeoresourcesManage
 			}
 			else if(crudType && targetGeoresourceId){
 				if(crudType == "add"){
-					kommonitorDataExchangeService.fetchSingleGeoresourceMetadata(targetGeoresourceId).then(function successCallback(data) {
+					kommonitorCacheHelperService.fetchSingleGeoresourceMetadata(targetGeoresourceId).then(function successCallback(data) {
 
 						kommonitorDataExchangeService.addSingleGeoresourceMetadata(data);
 
@@ -74,7 +74,7 @@ angular.module('adminGeoresourcesManagement').component('adminGeoresourcesManage
 					});
 				}
 				else if(crudType == "edit"){
-					kommonitorDataExchangeService.fetchSingleGeoresourceMetadata(targetGeoresourceId).then(function successCallback(data) {
+					kommonitorCacheHelperService.fetchSingleGeoresourceMetadata(targetGeoresourceId).then(function successCallback(data) {
 
 						kommonitorDataExchangeService.replaceSingleGeoresourceMetadata(data);
 						

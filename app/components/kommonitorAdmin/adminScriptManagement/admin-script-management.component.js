@@ -1,7 +1,7 @@
 angular.module('adminScriptManagement').component('adminScriptManagement', {
 	templateUrl: "components/kommonitorAdmin/adminScriptManagement/admin-script-management.template.html",
-	controller: ['kommonitorDataExchangeService', 'kommonitorDataGridHelperService', '$scope', '$rootScope', '__env', '$timeout', '$http', 
-	function ScriptManagementController(kommonitorDataExchangeService, kommonitorDataGridHelperService, $scope, $rootScope, __env, $timeout, $http) {
+	controller: ['kommonitorDataExchangeService', 'kommonitorCacheHelperService', 'kommonitorDataGridHelperService', '$scope', '$rootScope', '__env', '$timeout', '$http', 
+	function ScriptManagementController(kommonitorDataExchangeService, kommonitorCacheHelperService, kommonitorDataGridHelperService, $scope, $rootScope, __env, $timeout, $http) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 		// initialize any adminLTE box widgets
@@ -85,7 +85,7 @@ angular.module('adminScriptManagement').component('adminScriptManagement', {
 			}
 			else if(crudType && targetScriptId){
 				if(crudType == "add"){
-					kommonitorDataExchangeService.fetchSingleIndicatorScriptMetadata(targetScriptId).then(function successCallback(data) {
+					kommonitorCacheHelperService.fetchSingleIndicatorScriptMetadata(targetScriptId).then(function successCallback(data) {
 
 						kommonitorDataExchangeService.addSingleProcessScriptMetadata(data);
 
@@ -99,7 +99,7 @@ angular.module('adminScriptManagement').component('adminScriptManagement', {
 					});
 				}
 				else if(crudType == "edit"){
-					kommonitorDataExchangeService.fetchSingleIndicatorScriptMetadata(targetScriptId).then(function successCallback(data) {
+					kommonitorCacheHelperService.fetchSingleIndicatorScriptMetadata(targetScriptId).then(function successCallback(data) {
 
 						kommonitorDataExchangeService.replaceSingleProcessScriptMetadata(data);
 						

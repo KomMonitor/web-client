@@ -162,6 +162,77 @@ angular
 
       };
 
+      this.fetchSingleRoleMetadata = function(targetRoleId){
+        return $http({
+          url: this.baseUrlToKomMonitorDataAPI + rolesEndpoint  + "/" + targetRoleId,
+          method: "GET"
+        }).then(function successCallback(response) {
+            // this callback will be called asynchronously
+            // when the response is available
+
+            // let cache be checked, but in the background, do not wait for it
+            self.fetchRolesMetadata();
+            return response.data;
+
+          });
+      };
+
+      this.fetchSingleSpatialUnitMetadata = function(targetSpatialUnitId){
+        return $http({
+          url: this.baseUrlToKomMonitorDataAPI + spatialUnitsEndpoint  + "/" + targetSpatialUnitId,
+          method: "GET"
+        }).then(function successCallback(response) {
+            // this callback will be called asynchronously
+            // when the response is available
+
+            self.fetchSpatialUnitsMetadata();
+            return response.data;
+
+          });
+      };
+
+      this.fetchSingleGeoresourceMetadata = function(targetGeoresourceId){
+        return $http({
+          url: this.baseUrlToKomMonitorDataAPI + georesourcesEndpoint  + "/" + targetGeoresourceId,
+          method: "GET"
+        }).then(function successCallback(response) {
+            // this callback will be called asynchronously
+            // when the response is available
+
+            self.fetchGeoresourceMetadata();
+            return response.data;
+
+          });
+      };
+
+      this.fetchSingleIndicatorMetadata = function(targetIndicatorId){
+        return $http({
+          url: this.baseUrlToKomMonitorDataAPI + indicatorsEndpoint + "/" + targetIndicatorId,
+          method: "GET"
+        }).then(function successCallback(response) {
+            // this callback will be called asynchronously
+            // when the response is available
+
+            self.fetchIndicatorsMetadata();
+            return response.data;
+
+          });
+      };
+
+      this.fetchSingleIndicatorScriptMetadata = function(targetScriptId){
+        return $http({
+          url: this.baseUrlToKomMonitorDataAPI + scriptsEndpoint  + "/" + targetScriptId,
+          method: "GET"
+        }).then(function successCallback(response) {
+            // this callback will be called asynchronously
+            // when the response is available
+
+            self.fetchProcessScriptsMetadata();
+            return response.data;
+
+          });
+      };
+
       this.init = async function(){
         this.checkAuthentication();
 

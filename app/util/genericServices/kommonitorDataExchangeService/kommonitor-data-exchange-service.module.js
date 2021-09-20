@@ -1599,21 +1599,6 @@ angular
               self.setRoles(await kommonitorCacheHelperService.fetchRolesMetadata());
           };
 
-          this.fetchSingleRoleMetadata = function(targetRoleId){
-            return $http({
-              url: this.baseUrlToKomMonitorDataAPI + rolesEndpoint  + "/" + targetRoleId,
-              method: "GET"
-            }).then(function successCallback(response) {
-                // this callback will be called asynchronously
-                // when the response is available
-
-                // let cache be checked, but in the background, do not wait for it
-                kommonitorCacheHelperService.fetchRolesMetadata();
-                return response.data;
-
-              });
-          };
-
           this.replaceSingleRoleMetadata = function(targetRoleMetadata){
             for (let index = 0; index < this.availableRoles.length; index++) {
               let roleMetadata = this.availableRoles[index];
@@ -1656,73 +1641,25 @@ angular
             self.setSpatialUnits(await kommonitorCacheHelperService.fetchSpatialUnitsMetadata());
           };
 
-          this.fetchSingleSpatialUnitMetadata = function(targetSpatialUnitId){
-            return $http({
-              url: this.baseUrlToKomMonitorDataAPI + spatialUnitsEndpoint  + "/" + targetSpatialUnitId,
-              method: "GET"
-            }).then(function successCallback(response) {
-                // this callback will be called asynchronously
-                // when the response is available
-
-                kommonitorCacheHelperService.fetchSpatialUnitsMetadata();
-                return response.data;
-
-              });
-          };
+          
 
           this.fetchGeoresourcesMetadata = async function(){
             self.setGeoresources(await kommonitorCacheHelperService.fetchGeoresourceMetadata());
           };
 
-          this.fetchSingleGeoresourceMetadata = function(targetGeoresourceId){
-            return $http({
-              url: this.baseUrlToKomMonitorDataAPI + georesourcesEndpoint  + "/" + targetGeoresourceId,
-              method: "GET"
-            }).then(function successCallback(response) {
-                // this callback will be called asynchronously
-                // when the response is available
-
-                kommonitorCacheHelperService.fetchGeoresourceMetadata();
-                return response.data;
-
-              });
-          };
+          
 
           this.fetchIndicatorsMetadata = async function(){
             self.setIndicators(await kommonitorCacheHelperService.fetchIndicatorsMetadata());
           };
 
-          this.fetchSingleIndicatorMetadata = function(targetIndicatorId){
-            return $http({
-              url: this.baseUrlToKomMonitorDataAPI + indicatorsEndpoint + "/" + targetIndicatorId,
-              method: "GET"
-            }).then(function successCallback(response) {
-                // this callback will be called asynchronously
-                // when the response is available
-
-                kommonitorCacheHelperService.fetchIndicatorsMetadata();
-                return response.data;
-
-              });
-          };
+          
 
           this.fetchIndicatorScriptsMetadata = async function(){
             self.setProcessScripts(await kommonitorCacheHelperService.fetchProcessScriptsMetadata());
           };
 
-          this.fetchSingleIndicatorScriptMetadata = function(targetScriptId){
-            return $http({
-              url: this.baseUrlToKomMonitorDataAPI + scriptsEndpoint  + "/" + targetScriptId,
-              method: "GET"
-            }).then(function successCallback(response) {
-                // this callback will be called asynchronously
-                // when the response is available
-
-                kommonitorCacheHelperService.fetchProcessScriptsMetadata();
-                return response.data;
-
-              });
-          };
+          
 
 					this.indicatorValueIsNoData = function(indicatorValue){
 						if(Number.isNaN(indicatorValue) || indicatorValue === null || indicatorValue === undefined){

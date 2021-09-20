@@ -1,8 +1,8 @@
 angular.module('adminRoleManagement').component('adminRoleManagement', {
 	templateUrl: "components/kommonitorAdmin/adminRoleManagement/admin-role-management.template.html",
-	controller: ['kommonitorDataExchangeService', 'kommonitorDataGridHelperService', 'kommonitorKeycloakHelperService', 
+	controller: ['kommonitorDataExchangeService', 'kommonitorCacheHelperService', 'kommonitorDataGridHelperService', 'kommonitorKeycloakHelperService', 
 	'$scope', '$rootScope', '__env', '$http', '$timeout', 
-	function RoleManagementController(kommonitorDataExchangeService, kommonitorDataGridHelperService, 
+	function RoleManagementController(kommonitorDataExchangeService, kommonitorCacheHelperService, kommonitorDataGridHelperService, 
 		kommonitorKeycloakHelperService, $scope, $rootScope, __env, $http, $timeout) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;	
@@ -112,7 +112,7 @@ angular.module('adminRoleManagement').component('adminRoleManagement', {
 			}
 			else if(crudType && targetRoleId){
 				if(crudType == "add"){
-					kommonitorDataExchangeService.fetchSingleRoleMetadata(targetRoleId).then(function successCallback(data) {
+					kommonitorCacheHelperService.fetchSingleRoleMetadata(targetRoleId).then(function successCallback(data) {
 
 						kommonitorDataExchangeService.addSingleRoleMetadata(data);
 
@@ -126,7 +126,7 @@ angular.module('adminRoleManagement').component('adminRoleManagement', {
 					});
 				}
 				else if(crudType == "edit"){
-					kommonitorDataExchangeService.fetchSingleRoleMetadata(targetRoleId).then(function successCallback(data) {
+					kommonitorCacheHelperService.fetchSingleRoleMetadata(targetRoleId).then(function successCallback(data) {
 
 						kommonitorDataExchangeService.replaceSingleRoleMetadata(data);
 						

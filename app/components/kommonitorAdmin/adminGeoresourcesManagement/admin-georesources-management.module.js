@@ -1,1 +1,1 @@
-angular.module('adminGeoresourcesManagement', ['kommonitorDataExchange', 'kommonitorDataGridHelper']);
+angular.module('adminGeoresourcesManagement', ['kommonitorDataExchange', 'kommonitorCacheHelper','kommonitorDataGridHelper']);
