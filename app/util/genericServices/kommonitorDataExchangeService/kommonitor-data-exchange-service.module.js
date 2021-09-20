@@ -1596,7 +1596,7 @@ angular
 
           this.fetchRolesMetadata = async function(){          
 
-              self.setRoles(await kommonitorCacheHelperService.fetchRolesMetadata());
+              self.setRoles(await kommonitorCacheHelperService.fetchRolesMetadata(self.currentKeycloakLoginRoles));
           };
 
           this.replaceSingleRoleMetadata = function(targetRoleMetadata){
@@ -1633,30 +1633,30 @@ angular
           };
 
           this.fetchTopicsMetadata = async function(){
-            self.setTopics(await kommonitorCacheHelperService.fetchTopicsMetadata());
+            self.setTopics(await kommonitorCacheHelperService.fetchTopicsMetadata(self.currentKeycloakLoginRoles));
 
           };
 
           this.fetchSpatialUnitsMetadata = async function(){
-            self.setSpatialUnits(await kommonitorCacheHelperService.fetchSpatialUnitsMetadata());
+            self.setSpatialUnits(await kommonitorCacheHelperService.fetchSpatialUnitsMetadata(self.currentKeycloakLoginRoles));
           };
 
           
 
           this.fetchGeoresourcesMetadata = async function(){
-            self.setGeoresources(await kommonitorCacheHelperService.fetchGeoresourceMetadata());
+            self.setGeoresources(await kommonitorCacheHelperService.fetchGeoresourceMetadata(self.currentKeycloakLoginRoles));
           };
 
           
 
           this.fetchIndicatorsMetadata = async function(){
-            self.setIndicators(await kommonitorCacheHelperService.fetchIndicatorsMetadata());
+            self.setIndicators(await kommonitorCacheHelperService.fetchIndicatorsMetadata(self.currentKeycloakLoginRoles));
           };
 
           
 
           this.fetchIndicatorScriptsMetadata = async function(){
-            self.setProcessScripts(await kommonitorCacheHelperService.fetchProcessScriptsMetadata());
+            self.setProcessScripts(await kommonitorCacheHelperService.fetchProcessScriptsMetadata(self.currentKeycloakLoginRoles));
           };
 
           

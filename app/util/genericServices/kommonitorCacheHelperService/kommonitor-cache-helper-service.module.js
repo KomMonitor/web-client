@@ -77,7 +77,7 @@ angular
           });
       };
 
-      this.fetchResource_fromCacheOrServer = async function(localStorageKey, resourceEndpoint, lastModificationResourceName){
+      this.fetchResource_fromCacheOrServer = async function(localStorageKey, resourceEndpoint, lastModificationResourceName, keycloakRolesArray){
         // check if the last modification date within local storage is the same as on the server
 
         // if YES, then try to use data from cache
@@ -87,6 +87,19 @@ angular
         await this.fetchLastDatabaseModificationObject();        
 
         let timestampKey = localStorageKey + "_timestamp";
+        let metadataKey = localStorageKey + "_metadata";
+
+        if(keycloakRolesArray && keycloakRolesArray.length > 0){
+          if(keycloakRolesArray.includes(__env.keycloakKommonitorAdminRoleName)){
+            metadataKey += "_" + __env.keycloakKommonitorAdminRoleName;
+          }
+          else{
+            metadataKey += "_" + JSON.stringify(keycloakRolesArray);
+          }
+        }
+        else{
+          metadataKey += "_public";
+        }
 
         let lastModTimestamp_fromCache_string = localStorage.getItem(timestampKey);
 
@@ -98,7 +111,7 @@ angular
             let lastModTimestamp_fromServer = this.lastDatabaseModificationInfo[lastModificationResourceName]; 
 
             if(lastModTimestamp_fromCache == lastModTimestamp_fromServer){
-              let storageObject_string = localStorage.getItem(localStorageKey);
+              let storageObject_string = localStorage.getItem(metadataKey);
 
               if (storageObject_string){
                 let storageObject = JSON.parse(storageObject_string); 
@@ -120,45 +133,45 @@ angular
             // this callback will be called asynchronously
             // when the response is available
 
-            localStorage.setItem(localStorageKey, JSON.stringify(response.data));
+            localStorage.setItem(metadataKey, JSON.stringify(response.data));
 
             return response.data;
           });
       };
 
-      this.fetchRolesMetadata = async function(){
+      this.fetchRolesMetadata = async function(keycloakRolesArray){
 
-        return await this.fetchResource_fromCacheOrServer(localStorageKey_roles, rolesEndpoint, "roles");
-
-      };
-
-      this.fetchTopicsMetadata = async function(){
-
-        return await this.fetchResource_fromCacheOrServer(localStorageKey_topics, topicsPublicEndpoint, "topics");
+        return await this.fetchResource_fromCacheOrServer(localStorageKey_roles, rolesEndpoint, "roles", keycloakRolesArray);
 
       };
 
-      this.fetchSpatialUnitsMetadata = async function(){
+      this.fetchTopicsMetadata = async function(keycloakRolesArray){
 
-        return await this.fetchResource_fromCacheOrServer(localStorageKey_spatialUnits, spatialUnitsEndpoint, "spatial-units");
-
-      };
-
-      this.fetchIndicatorsMetadata = async function(){
-
-        return await this.fetchResource_fromCacheOrServer(localStorageKey_indicators, indicatorsEndpoint, "indicators");
+        return await this.fetchResource_fromCacheOrServer(localStorageKey_topics, topicsPublicEndpoint, "topics", keycloakRolesArray);
 
       };
 
-      this.fetchGeoresourceMetadata = async function(){
+      this.fetchSpatialUnitsMetadata = async function(keycloakRolesArray){
 
-        return await this.fetchResource_fromCacheOrServer(localStorageKey_georesources, georesourcesEndpoint, "georesources");
+        return await this.fetchResource_fromCacheOrServer(localStorageKey_spatialUnits, spatialUnitsEndpoint, "spatial-units", keycloakRolesArray);
 
       };
 
-      this.fetchProcessScriptsMetadata = async function(){
+      this.fetchIndicatorsMetadata = async function(keycloakRolesArray){
 
-        return await this.fetchResource_fromCacheOrServer(localStorageKey_processScripts, scriptsEndpoint, "process-scripts");
+        return await this.fetchResource_fromCacheOrServer(localStorageKey_indicators, indicatorsEndpoint, "indicators",keycloakRolesArray);
+
+      };
+
+      this.fetchGeoresourceMetadata = async function(keycloakRolesArray){
+
+        return await this.fetchResource_fromCacheOrServer(localStorageKey_georesources, georesourcesEndpoint, "georesources", keycloakRolesArray);
+
+      };
+
+      this.fetchProcessScriptsMetadata = async function(keycloakRolesArray){
+
+        return await this.fetchResource_fromCacheOrServer(localStorageKey_processScripts, scriptsEndpoint, "process-scripts", keycloakRolesArray);
 
       };
 
