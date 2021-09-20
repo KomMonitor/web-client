@@ -1,7 +1,7 @@
 angular.module('adminSpatialUnitsManagement').component('adminSpatialUnitsManagement', {
 	templateUrl : "components/kommonitorAdmin/adminSpatialUnitsManagement/admin-spatial-units-management.template.html",
-	controller : ['kommonitorDataExchangeService', 'kommonitorDataGridHelperService', '$scope', '$timeout', '$rootScope', '__env', '$http', 
-	function SpatialUnitsManagementController(kommonitorDataExchangeService, kommonitorDataGridHelperService, $scope, $timeout, $rootScope, __env, $http) {
+	controller : ['kommonitorDataExchangeService', 'kommonitorCacheHelperService', 'kommonitorDataGridHelperService', '$scope', '$timeout', '$rootScope', '__env', '$http', 
+	function SpatialUnitsManagementController(kommonitorDataExchangeService, kommonitorCacheHelperService, kommonitorDataGridHelperService, $scope, $timeout, $rootScope, __env, $http) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 		// initialize any adminLTE box widgets
@@ -55,7 +55,7 @@ angular.module('adminSpatialUnitsManagement').component('adminSpatialUnitsManage
 			}
 			else if(crudType && targetSpatialUnitId){
 				if(crudType == "add"){
-					kommonitorDataExchangeService.fetchSingleSpatialUnitMetadata(targetSpatialUnitId).then(function successCallback(data) {
+					kommonitorCacheHelperService.fetchSingleSpatialUnitMetadata(targetSpatialUnitId).then(function successCallback(data) {
 
 						kommonitorDataExchangeService.addSingleSpatialUnitMetadata(data);
 
@@ -69,7 +69,7 @@ angular.module('adminSpatialUnitsManagement').component('adminSpatialUnitsManage
 					});
 				}
 				else if(crudType == "edit"){
-					kommonitorDataExchangeService.fetchSingleSpatialUnitMetadata(targetSpatialUnitId).then(function successCallback(data) {
+					kommonitorCacheHelperService.fetchSingleSpatialUnitMetadata(targetSpatialUnitId).then(function successCallback(data) {
 
 						kommonitorDataExchangeService.replaceSingleSpatialUnitMetadata(data);
 						
