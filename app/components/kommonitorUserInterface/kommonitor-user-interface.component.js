@@ -1,9 +1,9 @@
 angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 	templateUrl : "components/kommonitorUserInterface/kommonitor-user-interface.template.html",
 	controller : ['kommonitorDataExchangeService', 'kommonitorKeycloakHelperService', 'kommonitorElementVisibilityHelperService', '$scope', 
-	'$rootScope', '$location', 'Auth', 'ControlsConfigService', '$compile',
+	'$rootScope', '$location', 'Auth', 'ControlsConfigService', '$compile', 'kommonitorShareHelperService', 
 	function UserInterfaceController(kommonitorDataExchangeService, kommonitorKeycloakHelperService, kommonitorElementVisibilityHelperService, 
-		$scope, $rootScope, $location, Auth, ControlsConfigService, $compile) {
+		$scope, $rootScope, $location, Auth, ControlsConfigService, $compile, kommonitorShareHelperService) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 		this.kommonitorKeycloakHelperServiceInstance = kommonitorKeycloakHelperService;
@@ -24,6 +24,8 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 			}			
 
 			checkAuthentication();
+
+			kommonitorShareHelperService.init();
 
 			kommonitorDataExchangeService.fetchAllMetadata();
 		};
