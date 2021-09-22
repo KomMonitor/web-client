@@ -95,14 +95,14 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
           KmHelper.log("WARNING: process will return");
           referenceValue = 0;
         }
-		// modify map object (i.e. set value initially, or perform calculations and store modified value)
+		    // modify map object (i.e. set value initially, or perform calculations and store modified value)
         // key should be unique featureId of the spatial unit feature
         if (! map.has(featureId)){
             var mapObject = {
                 featureId: featureId,
                 indicatorValue: undefined,
                 refValue: 0,
-				intermediateValue: 0
+                intermediateValue: 0
                 };
  
             map.set(featureId, mapObject);    

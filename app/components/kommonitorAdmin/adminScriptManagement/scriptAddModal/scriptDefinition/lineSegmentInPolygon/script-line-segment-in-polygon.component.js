@@ -1,8 +1,8 @@
-angular.module('scriptPointsInPolygon').component('scriptPointsInPolygon', {
-	templateUrl: "components/kommonitorAdmin/adminScriptManagement/scriptAddModal/scriptDefinition/pointsInPolygon/script-points-in-polygon.template.html",
+angular.module('scriptLineSegmentInPolygon').component('scriptLineSegmentInPolygon', {
+	templateUrl: "components/kommonitorAdmin/adminScriptManagement/scriptAddModal/scriptDefinition/lineSegmentInPolygon/script-line-segment-in-polygon.template.html",
 	controller: ['kommonitorDataExchangeService', 'kommonitorScriptHelperService', '$scope', '$rootScope', '$http', '__env', '$timeout',
 		'kommonitorCacheHelperService', 
-		function ScriptPointsInPolygonController(kommonitorDataExchangeService, kommonitorScriptHelperService, $scope, $rootScope, 
+		function ScriptLineSegmentInPolygonController(kommonitorDataExchangeService, kommonitorScriptHelperService, $scope, $rootScope, 
 			$http, __env, $timeout, kommonitorCacheHelperService) {
 
 			this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
@@ -11,7 +11,7 @@ angular.module('scriptPointsInPolygon').component('scriptPointsInPolygon', {
 			// initialize any adminLTE box widgets
 			$('.box').boxWidget();
 
-			$scope.pathToScriptResource = "./kommonitor-script-resources/km_georessouce_count_pointsWithinPolygon.js";
+			$scope.pathToScriptResource = "./kommonitor-script-resources/km_georessouce_length_lineSegmentsWithinPolygon.js";
 			
 			$scope.propertySchema = {};
 			$scope.propertyOptions = undefined;
@@ -22,7 +22,7 @@ angular.module('scriptPointsInPolygon').component('scriptPointsInPolygon', {
 
 			// parameter for georesource dataset
 			$scope.parameterName_computationGeoresource = "compGeoId";
-			$scope.parameterDescription_computationGeoresource = "Georessourcen ID des Punktdatensatzes.";
+			$scope.parameterDescription_computationGeoresource = "Georessourcen ID des Liniendatensatzes.";
 			$scope.parameterDefaultValue_computationGeoresource = undefined;
 			$scope.parameterNumericMinValue_computationGeoresource = 0;
 			$scope.parameterNumericMaxValue_computationGeoresource = 1;
@@ -292,16 +292,16 @@ angular.module('scriptPointsInPolygon').component('scriptPointsInPolygon', {
 				kommonitorScriptHelperService.scriptFormulaHTML = "";
 				var formulaHTML = "";
 				if ($scope.propertyName !== undefined && $scope.operator && $scope.operator.apiName !== undefined && ($scope.propertyValue != undefined || $scope.propertyValueSelection != undefined)) {
-					formulaHTML = "<b>Berechnung gem&auml;&szlig; Geodatenanalyse<br/><i>Anzahl Punkte des Datensatzes G<sub>1</sub> pro Raumeinheits-Feature</i> <br/> <i>Filterkriterium:</i> '" + $scope.propertyName + "' '" + $scope.operator.displayName + "' '" + $scope.propertyValue + "'";
+					formulaHTML = "<b>Berechnung gem&auml;&szlig; Geodatenanalyse<br/><i>Summierte Linienlänge des Datensatzes G<sub>1</sub> pro Raumeinheits-Feature</i> <br/> <i>Filterkriterium:</i> '" + $scope.propertyName + "' '" + $scope.operator.displayName + "' '" + $scope.propertyValue + "'";
 					if ($scope.operator.apiName === "Range") {
-						formulaHTML = "<b>Berechnung gem&auml;&szlig; Geodatenanalyse<br/><i>Anzahl Punkte des Datensatzes G<sub>1</sub> pro Raumeinheits-Feature</i> <br/> <i>Filterkriterium:</i> '" + $scope.propertyName + "' im " +  "Wertebereich von '>=" +  $scope.propertyValueRange_from + " bis <" + $scope.propertyValueRange_to + "'";
+						formulaHTML = "<b>Berechnung gem&auml;&szlig; Geodatenanalyse<br/><i>Summierte Linienlänge des Datensatzes G<sub>1</sub> pro Raumeinheits-Feature</i> <br/> <i>Filterkriterium:</i> '" + $scope.propertyName + "' im " +  "Wertebereich von '>=" +  $scope.propertyValueRange_from + " bis <" + $scope.propertyValueRange_to + "'";
 					}
 					if ($scope.operator.apiName === "Contains") {
 						formulaHTML = "<b>Berechnung gem&auml;&szlig; Geodatenanalyse<br/><i>Anzahl Punkte des Datensatzes G<sub>1</sub> pro Raumeinheits-Feature</i> <br/> <i>Filterkriterium:</i> '" + $scope.propertyName + "' 'enthält' '" + $scope.propertyValueSelection + "'";
 					}
 				}
 				else {
-					formulaHTML = "<b>Berechnung gem&auml;&szlig; Geodatenanalyse<br/><i>Anzahl Punkte des Datensatzes G<sub>1</sub> pro Raumeinheits-Feature</i>";
+					formulaHTML = "<b>Berechnung gem&auml;&szlig; Geodatenanalyse<br/><i>Summierte Linienlänge des Datensatzes G<sub>1</sub> pro Raumeinheits-Feature</i>";
 				}
 				var legendItemsHTML = "<b>Legende zur Geodatenanalyse</b><br/>G<sub>1</sub>: " + $scope.georesourceSelection.datasetName;
 

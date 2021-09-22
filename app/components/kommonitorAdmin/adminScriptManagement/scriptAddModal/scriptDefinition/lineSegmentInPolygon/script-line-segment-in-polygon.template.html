@@ -1,17 +1,17 @@
-<h4>Anzahl Punktobjekte pro Gebietsk&ouml;rperschaft</h4>
+<h4>Summierte Linienl&auml;nge pro Gebietsk&ouml;rperschaft</h4>
 
-<p>Auswahl einer punktbasierten Georessource, für die eine Punkt-in-Polygon Analyse durchgef&uuml;hrt wird, um die Anzahl der Punkte pro Raumeinheits-Feature zu erhalten. 
-	Optional k&ouml;nnen die Punktdaten anhand einer Objekteigenschaft sowie einem Filterwert dieser Objekteigenschaft gefiltert werden 
-	(z. B. Objekteigenschaft: Schulform, Filterwert: Grundschule, Operatoren: gleich/ungleich/enth&auml;lt). Für numerische Werte lassen sich zudem Wertebereiche spezifizieren (z. B.
-	Objekteigenschaft: Anzahl, Filterwert: 50, Operatoren: <, <=, =, >, >=, !=, Wertebereich) </p>
-	<p><b><i><u>Berechnung:</u></i></b> Summe aller Punkte innerhalb jedes Raumeinheits-Features. <b><i><u>Optional:</u></i></b> Anwenden eines Filters anhand einer Objekteigenschaft</p>
+<p>Auswahl einer linienbasierten Georessource, für die eine Liniensegment-in-Polygon Analyse durchgef&uuml;hrt wird, um die L&auml;nge der Linien pro Raumeinheits-Feature zu ermitteln. 
+	Optional k&ouml;nnen die Liniendaten anhand einer Objekteigenschaft sowie eines Filterwerts dieser Objekteigenschaft gefiltert werden 
+	(z. B. Objekteigenschaft: Stra&szlig;entyp, Filterwert: Autobahn, Operatoren: gleich/ungleich/enth&auml;lt). Für numerische Werte lassen sich zudem Wertebereiche spezifizieren (z. B.
+	Objekteigenschaft: Steigung, Filterwert: 15, Operatoren: <, <=, =, >, >=, !=, Wertebereich) </p>
+	<p><b><i><u>Berechnung:</u></i></b> Summe der L&auml;nge aller Linien innerhalb jedes Raumeinheits-Features. <b><i><u>Optional:</u></i></b> Anwenden eines Filters anhand einer Objekteigenschaft</p>
 
 	<div class="row vertical-align">
 		<div class="col-md-10 col-sm-12 col-xs-12">
 			<!-- <div style="text-align: left;"> -->
 			<div class="box box-danger collapsed-box" style="background: #ebf0fd;">
 				<div class="box-header">
-					<h3 class="box-title">Ben&ouml;tigte punktbasierte Georessource</h3>
+					<h3 class="box-title">Ben&ouml;tigte linienbasierte Georessource</h3>
 	
 					<div class="box-tools pull-right">
 						<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
@@ -34,7 +34,7 @@
 								</div>
 								<br />
 								<select ng-model="georesourceSelection" size="5" ng-change="onChangeGeoresource(georesourceSelection)"
-									ng-options="georesourceMetadata as georesourceMetadata.datasetName for georesourceMetadata in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isPOI:'true'} | filter:georesourceNameFilter"
+									ng-options="georesourceMetadata as georesourceMetadata.datasetName for georesourceMetadata in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filter:{isLOI:'true'} | filter:georesourceNameFilter"
 									class="form-control">
 									<option disabled selected value> -- Georessource w&auml;hlen --
 									</option>
@@ -198,7 +198,7 @@
 		<!-- <div style="text-align: left;"> -->
 		<div class="box box-danger collapsed-box" style="background: #ebf0fd;">
 			<div class="box-header">
-				<h3 class="box-title">Skript Code - Vorschaufenster (Anzahl Punkte in Polygon)</h3>
+				<h3 class="box-title">Skript Code - Vorschaufenster (Summierte Linienl&auml;nge je Polygon)</h3>
 
 				<div class="box-tools pull-right">
 					<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>

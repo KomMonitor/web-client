@@ -34,10 +34,10 @@ const aggregationTypeEnum = ["SUM", "AVERAGE"];
 * @constant
 */
 const aggregationType = "SUM";
-const computationGeoresourceId_name = "compGeoId";
 const computationFilterProperty_name = "compFilterProp";
 const computationFilterOperator_name = "compFilterOperator";
 const computationFilterPropertyValue_name = "compFilterPropVal";
+
 
 /**
 * This method computes the indicator for the specified point in time and target spatial unit. To do this, necessary base indicators and/or georesources as well as variable process properties are defined
@@ -57,39 +57,40 @@ const computationFilterPropertyValue_name = "compFilterPropVal";
 * @function
 */
 async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndicatorsMap, georesourcesMap, processParameters){
-  // compute indicator for targetDate and targetSpatialUnitFeatures
-  var computationGeoresourceId = KmHelper.getProcessParameterByName_asString(computationGeoresourceId_name, processParameters)
-  // retrieve required baseIndicator using its meaningful name
-  var computationGeoresource = KmHelper.getGeoresourceById(computationGeoresourceId, georesourcesMap);
-  // create a clone in order to enable object manipulation such as deletion of features without deleting in origin dataset
-  computationGeoresource = JSON.parse(JSON.stringify(computationGeoresource));
-  // OPTIONAL retrieve a property and a respective property value which are then used to filter the georessource 
-  var computationFilterProperty;
-  var computationFilterOperator;
-  var computationFilterPropertyValue;
-  var parameter = undefined;
+	// compute indicator for targetDate and targetSpatialUnitFeatures
+	var computationGeoresourceId = KmHelper.getProcessParameterByName_asString(computationGeoresourceId_name, processParameters)
+	// retrieve required baseIndicator using its meaningful name
+	var computationGeoresource = KmHelper.getGeoresourceById(computationGeoresourceId, georesourcesMap);
+	// create a clone in order to enable object manipulation such as deletion of features without deleting in origin dataset
+	computationGeoresource = JSON.parse(JSON.stringify(computationGeoresource));
+	// OPTIONAL retrieve a property and a respective property value which are then used to filter the georessource 
+	var computationFilterProperty;
+	var computationFilterOperator;
+	var computationFilterPropertyValue;
+	var parameter = undefined;
 
-  processParameters.forEach(function(property){
-    if(property.name === computationFilterProperty_name){
-      parameter = property.value;
-    }
-  });
+	processParameters.forEach(function(property){
+	if(property.name === computationFilterProperty_name){
+		parameter = property.value;
+	}
+	});
 
-  if(parameter === undefined) {
-    computationFilterProperty = undefined;
-    computationFilterOperator = undefined;
-    computationFilterPropertyValue = undefined;
-  }
-  else {
-    computationFilterProperty = KmHelper.getProcessParameterByName_asString(computationFilterProperty_name, processParameters);
-    computationFilterOperator = KmHelper.getProcessParameterByName_asString(computationFilterOperator_name, processParameters);
-    computationFilterPropertyValue = KmHelper.getProcessParameterByName_asString(computationFilterPropertyValue_name, processParameters);
-  }
+	if(parameter === undefined) {
+		computationFilterProperty = undefined;
+		computationFilterOperator = undefined;
+		computationFilterPropertyValue = undefined;
+	}
+	else {
+		computationFilterProperty = KmHelper.getProcessParameterByName_asString(computationFilterProperty_name, processParameters);
+		computationFilterOperator = KmHelper.getProcessParameterByName_asString(computationFilterOperator_name, processParameters);
+		computationFilterPropertyValue = KmHelper.getProcessParameterByName_asString(computationFilterPropertyValue_name, processParameters);
+	}
 
-KmHelper.log("calculating spatial within check between points and target spatial unit.");
+	KmHelper.log("calculating spatial within check between points and target spatial unit.");
 
-// create progress log after each 10th percent of features
-var logProgressIndexSeparator = Math.round(targetSpatialUnit_geoJSON.features.length / 100 * 10);
+
+	// create progress log after each 10th percent of features
+	var logProgressIndexSeparator = Math.round(targetSpatialUnit_geoJSON.features.length / 100 * 10);
 
     for (var featureIndex=0; featureIndex < targetSpatialUnit_geoJSON.features.length; featureIndex++){  
       var spatialUnitFeat = targetSpatialUnit_geoJSON.features[featureIndex];
@@ -137,11 +138,15 @@ var logProgressIndexSeparator = Math.round(targetSpatialUnit_geoJSON.features.le
               KmHelper.setIndicatorValue(spatialUnitFeat, targetDate, null);
               break;
               }
-		      KmHelper.setIndicatorValue(spatialUnitFeat, targetDate, filteredArray.length);
-        }
+          var share = filteredArray.length / valueArray.length * 100;
+          KmHelper.setIndicatorValue(spatialUnitFeat, targetDate, share);        
+			  }
         else {
-          KmHelper.setIndicatorValue(spatialUnitFeat, targetDate, pointsWithinFeature.features.length);
+          KmHelper.log("Indicator was not computed from computation resources because no valid filter has been defined. Indicator value is set to null.");
+          KmHelper.setIndicatorValue(spatialUnitFeat, targetDate, null);
         }  
+      } 
+		  
       } 
 	  
 	  if(featureIndex % logProgressIndexSeparator === 0){
