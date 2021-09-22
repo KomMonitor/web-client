@@ -383,6 +383,20 @@ angular.module('kommonitorMap').component(
             $scope.updateSearchControl();
           });
 
+          // update zoom and extent
+          $scope.map.on('zoomend', function (eo) {
+            let latLng = $scope.map.getCenter();
+            __env.currentLatitude = latLng.lat;
+            __env.currentLongitude = latLng.lng;
+            __env.currentZoomLevel = $scope.map.getZoom();
+          });
+          $scope.map.on('moveend', function (eo) {
+            let latLng = $scope.map.getCenter();
+            __env.currentLatitude = latLng.lat;
+            __env.currentLongitude = latLng.lng;
+            __env.currentZoomLevel = $scope.map.getZoom();
+          });
+
           $scope.baseMaps = {
           };   
 

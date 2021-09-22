@@ -5,6 +5,7 @@ module.exports = function (grunt) {
         context_name: '<%= name %>##<%= pkg.version %>-<%= grunt.template.today("yyyymmddHHMM")%>',
         kommonitor_client: [
             'app/util/genericServices/kommonitorCacheHelperService/kommonitor-cache-helper-service.module.js',
+            'app/util/genericServices/kommonitorShareHelperService/kommonitor-share-helper-service.module.js', 
             'app/util/genericServices/kommonitorDataExchangeService/kommonitor-data-exchange-service.module.js',
             'app/util/genericServices/kommonitorDiagramHelperService/kommonitor-diagram-helper-service.module.js',
             'app/util/genericServices/kommonitorImporterHelperService/kommonitor-importer-helper-service.module.js',
