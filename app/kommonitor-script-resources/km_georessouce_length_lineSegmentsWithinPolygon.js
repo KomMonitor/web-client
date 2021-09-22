@@ -9,6 +9,7 @@
 * to simplify script writing
 */
 const KmHelper = require("kmhelper");
+const turf = require('@turf/turf');
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -39,6 +40,7 @@ const computationFilterProperty_name = "compFilterProp";
 const computationFilterOperator_name = "compFilterOperator";
 const computationFilterPropertyValue_name = "compFilterPropVal";
 
+
 /**
 * This method computes the indicator for the specified point in time and target spatial unit. To do this, necessary base indicators and/or georesources as well as variable process properties are defined
 * as method parameters that can be used within the method body.
@@ -58,7 +60,7 @@ const computationFilterPropertyValue_name = "compFilterPropVal";
 */
 async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndicatorsMap, georesourcesMap, processParameters){
   // compute indicator for targetDate and targetSpatialUnitFeatures
-  var computationGeoresourceId = KmHelper.getProcessParameterByName_asString(computationGeoresourceId_name, processParameters)
+  var computationGeoresourceId = KmHelper.getProcessParameterByName_asString(computationGeoresourceId_name, processParameters);
   // retrieve required baseIndicator using its meaningful name
   var computationGeoresource = KmHelper.getGeoresourceById(computationGeoresourceId, georesourcesMap);
   // create a clone in order to enable object manipulation such as deletion of features without deleting in origin dataset
@@ -86,73 +88,93 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
     computationFilterPropertyValue = KmHelper.getProcessParameterByName_asString(computationFilterPropertyValue_name, processParameters);
   }
 
-KmHelper.log("calculating spatial within check between points and target spatial unit.");
+  KmHelper.log("calculating spatial intersection and within check between lines and target spatial unit.");
 
-// create progress log after each 10th percent of features
-var logProgressIndexSeparator = Math.round(targetSpatialUnit_geoJSON.features.length / 100 * 10);
+  // create progress log after each 10th percent of features
+  var logProgressIndexSeparator = Math.round(targetSpatialUnit_geoJSON.features.length / 100 * 10);
 
-    for (var featureIndex=0; featureIndex < targetSpatialUnit_geoJSON.features.length; featureIndex++){  
-      var spatialUnitFeat = targetSpatialUnit_geoJSON.features[featureIndex];
-      // initialize indicatorValue
-      KmHelper.setIndicatorValue(spatialUnitFeat, targetDate, 0);
-	  
-	  var pointsWithinFeature = KmHelper.pointsWithinPolygon(computationGeoresource, spatialUnitFeat);
-      if(pointsWithinFeature && pointsWithinFeature.features && pointsWithinFeature.features.length > 0){
-        if (computationFilterProperty !== undefined) {
-          var valueArray = KmHelper.getPropertyValueArray(pointsWithinFeature, computationFilterProperty);
-          var filteredArray = [];
-          switch (computationFilterOperator) {
-            case ("Equal"):
-              filteredArray = valueArray.filter(item => item === computationFilterPropertyValue);
-              break;
-            case ("Greater_than"):
-              filteredArray = valueArray.filter(item => item > computationFilterPropertyValue);
-              break;
-            case ("Greater_than_or_equal"):
-              filteredArray = valueArray.filter(item => item >= computationFilterPropertyValue);
-              break;
-            case ("Less_than"):
-              filteredArray = valueArray.filter(item => item < computationFilterPropertyValue);
-              break;
-            case ("Less_than_or_equal"):
-              filteredArray = valueArray.filter(item => item <= computationFilterPropertyValue);
-              break;
-            case ("Unequal"):
-              filteredArray = valueArray.filter(item => item !== computationFilterPropertyValue);
-              break;
-            case ("Contains"):
-              var computationFilterPropertyValueArray = computationFilterPropertyValue.split(",");
-              for (let i=0; i<computationFilterPropertyValueArray.length; i++) {
-                let trimmedElement = computationFilterPropertyValueArray[i].trim();
-                let tmp = valueArray.filter(item => item === trimmedElement);
-                filteredArray = filteredArray.concat(tmp);
-              }
-              break;
-            case ("Range"):
-              var computationFilterPropertyValueArray = computationFilterPropertyValue.split("-").map(el => parseInt(el));
-              filteredArray = valueArray.filter(item => item >= computationFilterPropertyValueArray[0] && item < computationFilterPropertyValueArray[1]);
-              break;
-            default:
-              KmHelper.log("Indicator was not computed from computation resources because no valid filter could be applied. Indicator value is set to null.");
-              KmHelper.setIndicatorValue(spatialUnitFeat, targetDate, null);
-              break;
-              }
-		      KmHelper.setIndicatorValue(spatialUnitFeat, targetDate, filteredArray.length);
-        }
-        else {
-          KmHelper.setIndicatorValue(spatialUnitFeat, targetDate, pointsWithinFeature.features.length);
-        }  
-      } 
-	  
-	  if(featureIndex % logProgressIndexSeparator === 0){
-          KmHelper.log("PROGRESS: Compared '" + featureIndex + "' of total '" + targetSpatialUnit_geoJSON.features.length + "' spatial units to point features.");
+  for (var featureIndex=0; featureIndex < targetSpatialUnit_geoJSON.features.length; featureIndex++){  
+    var spatialUnitFeat = targetSpatialUnit_geoJSON.features[featureIndex];
+    // initialize indicatorValue
+    KmHelper.setIndicatorValue(spatialUnitFeat, targetDate, 0);
+    var linesWithinFeature = KmHelper.intersectLineFeatureCollectionByPolygonFeature(computationGeoresource, spatialUnitFeat);
+    if(linesWithinFeature && linesWithinFeature.features && linesWithinFeature.features.length > 0){
+      var lineSegmentsLengthSum;
+      if (computationFilterProperty !== undefined) {
+        var filteredLineFeatures = [];
+        linesWithinFeature.features.forEach(function(line) {
+          for (var property in line.properties) {
+            switch (computationFilterOperator) {
+              case ("Equal"):
+                if (line.properties[property] === computationFilterPropertyValue) {
+                  filteredLineFeatures.push(line);
+                }
+                break;
+              case ("Greater_than"):
+                if (line.properties[property] > computationFilterPropertyValue) {
+                  filteredLineFeatures.push(line);
+                }
+                break;
+              case ("Greater_than_or_equal"):
+                if (line.properties[property] >= computationFilterPropertyValue) {
+                  filteredLineFeatures.push(line);
+                }
+                break;
+              case ("Less_than"):
+                if (line.properties[property] < computationFilterPropertyValue) {
+                  filteredLineFeatures.push(line);
+                }
+                break;
+              case ("Less_than_or_equal"):
+                if (line.properties[property] <= computationFilterPropertyValue) {
+                  filteredLineFeatures.push(line);
+                }
+                break;
+              case ("Unequal"):
+                if (line.properties[property] !== computationFilterPropertyValue) {
+                  filteredLineFeatures.push(line);
+                }
+                break;
+              case ("Contains"):
+                var computationFilterPropertyValueArray = computationFilterPropertyValue.split(",");
+                for (let i=0; i<computationFilterPropertyValueArray.length; i++) {
+                  let trimmedElement = computationFilterPropertyValueArray[i].trim();
+                  if (line.properties[property] === trimmedElement) {
+                    filteredLineFeatures.push(line);
+                  }
+                }
+                break;
+              case ("Range"):
+                var computationFilterPropertyValueArray = computationFilterPropertyValue.split("-").map(el => parseInt(el));
+                if (line.properties[property] >= computationFilterPropertyValueArray[0] && line.properties[property] < computationFilterPropertyValueArray[1]) {
+                  filteredLineFeatures.push(line);
+                }
+                break;
+              default:
+                KmHelper.log("Indicator was not computed from computation resources because no valid filter could be applied. Indicator value is set to null.");
+                KmHelper.setIndicatorValue(spatialUnitFeat, targetDate, null);
+                break;
+                }
+            }
+          });
+        lineSegmentsLengthSum = KmHelper.summarizeLineSegmentLengths(filteredLineFeatures);
+        KmHelper.setIndicatorValue(spatialUnitFeat, targetDate, lineSegmentsLengthSum);
       }
+      else {
+        lineSegmentsLengthSum = KmHelper.summarizeLineSegmentLengths(linesWithinFeature);
+        KmHelper.setIndicatorValue(spatialUnitFeat, targetDate, lineSegmentsLengthSum);
+      }  
+    } 
+  
+  if(featureIndex % logProgressIndexSeparator === 0){
+        KmHelper.log("PROGRESS: Compared '" + featureIndex + "' of total '" + targetSpatialUnit_geoJSON.features.length + "' spatial units to point features.");
     }
+  }
 
   KmHelper.log("Computation of indicator finished");
 
   return targetSpatialUnit_geoJSON;
-};
+}
 
 /**
 * This method is used to aggregate indicators of a certain spatial unit to the features of a more high-level spatial unit (i.e. aggregate from building blocks to city districts).
@@ -346,7 +368,6 @@ function aggregate_sum(targetDate, targetSpatialUnit_geoJSON, indicator_geoJSON)
 
   return targetSpatialUnit_geoJSON;
 };
-
 
 module.exports.computeIndicator = computeIndicator;
 module.exports.aggregateIndicator = aggregateIndicator;

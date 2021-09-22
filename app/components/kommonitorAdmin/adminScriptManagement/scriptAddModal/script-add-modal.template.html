@@ -383,7 +383,13 @@
 									<script-georesource-statistics></script-georesource-statistics>
 								</div>
 
+								<div ng-if="selectedScriptType.apiName === 'georesource_subsetShare'">
+									<script-georesource-subset-share></script-georesource-subset-share>
+								</div>
 
+								<div ng-if="selectedScriptType.apiName === 'lineSegmentInPolygon'">
+									<script-line-segment-in-polygon></script-line-segment-in-polygon>
+								</div>
 
 								<input type="button" name="previous"
 									class="previous previous_addScript action-button-previous"

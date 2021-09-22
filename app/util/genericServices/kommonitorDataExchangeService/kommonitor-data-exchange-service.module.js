@@ -1641,8 +1641,6 @@ angular
             self.setSpatialUnits(await kommonitorCacheHelperService.fetchSpatialUnitsMetadata(self.currentKeycloakLoginRoles));
           };
 
-          
-
           this.fetchGeoresourcesMetadata = async function(){
             self.setGeoresources(await kommonitorCacheHelperService.fetchGeoresourceMetadata(self.currentKeycloakLoginRoles));
           };

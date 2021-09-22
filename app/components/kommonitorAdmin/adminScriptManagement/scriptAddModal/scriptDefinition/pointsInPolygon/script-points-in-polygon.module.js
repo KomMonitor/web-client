@@ -1,1 +1,2 @@
-angular.module('scriptPointsInPolygon', ['kommonitorDataExchange', 'kommonitorScriptHelper']);
+angular.module('scriptPointsInPolygon', ['kommonitorDataExchange', 'kommonitorScriptHelper', 'angularjs-dropdown-multiselect',
+    'kommonitorCacheHelper']);
