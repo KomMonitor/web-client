@@ -101,13 +101,16 @@
 				<!-- Inputs for new reference -->
 
 				<div class="row vertical-align">
-					<div class="col-md-2 col-sm-2 col-xs-12">
+					<div class="col-md-3 col-sm-2 col-xs-12">
 						<div class="form-group">
-							<label>Name der numerischen Objekteigenschaft</label>
+							<label>Numerische Objekteigenschaft</label>
 							<br />
-							<input ng-model="numericPropertyName" 
-							type="text" class="form-control input-sm"
-							ng-change="onChangeNumericPropertyName()" placeholder="Name der numerischen Eigenschaft">
+							<select class="form-control" ng-model="numericPropertyName" 
+								ng-options="propertyOption for propertyOption in numericPropertyOptions"
+								ng-change="onChangeNumericPropertyName()">
+								<option disabled selected value> -- Objekteigenschaft w&auml;hlen --
+								</option>
+							</select>
 							<div class="help-block with-errors"></div>
 						</div>
 					</div>
@@ -143,7 +146,7 @@
 				<!-- Inputs for new reference -->
 
 				<div class="row vertical-align">
-					<div class="col-md-2 col-sm-2 col-xs-12">
+					<div class="col-md-3 col-sm-2 col-xs-12">
 						<div class="form-group">
 							<label>Auswahl der statistischen Berechnungsmethode</label>
 							<br />
