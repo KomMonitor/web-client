@@ -78,7 +78,10 @@ angular.module('spatialUnitDeleteModal').component('spatialUnitDeleteModal', {
 					// }
 
 					$rootScope.$broadcast("refreshSpatialUnitOverviewTable");
-					$scope.loadingData = false;
+					$timeout(function(){
+				
+						$scope.loadingData = false;
+					});	
 			});
 
 		};

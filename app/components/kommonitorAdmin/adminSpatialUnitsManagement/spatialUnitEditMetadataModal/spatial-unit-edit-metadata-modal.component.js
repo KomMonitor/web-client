@@ -225,7 +225,10 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 
 					$rootScope.$broadcast("refreshSpatialUnitOverviewTable", "edit", $scope.currentSpatialUnitDataset);
 					$("#spatialUnitEditMetadataSuccessAlert").show();
-					$scope.loadingData = false;
+					$timeout(function(){
+				
+						$scope.loadingData = false;
+					});	
 
 				}, function errorCallback(error) {
 					if(error.data){							
@@ -236,7 +239,10 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 					}
 
 					$("#spatialUnitEditMetadataErrorAlert").show();
-					$scope.loadingData = false;
+					$timeout(function(){
+				
+						$scope.loadingData = false;
+					});	
 
 					// setTimeout(function() {
 					// 		$("#spatialUnitEditMetadataSuccessAlert").hide();

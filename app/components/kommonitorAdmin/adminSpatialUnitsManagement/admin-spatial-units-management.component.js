@@ -30,7 +30,10 @@ angular.module('adminSpatialUnitsManagement').component('adminSpatialUnitsManage
 			
 			kommonitorDataGridHelperService.buildDataGrid_spatialUnits(kommonitorDataExchangeService.availableSpatialUnits);
 
-			$scope.loadingData = false;
+			$timeout(function(){
+				
+				$scope.loadingData = false;
+			});	
 		};
 
 		$scope.$on("refreshSpatialUnitOverviewTable", function (event, crudType, targetSpatialUnitId) {
@@ -46,11 +49,17 @@ angular.module('adminSpatialUnitsManagement').component('adminSpatialUnitsManage
 
 					$scope.initializeOrRefreshOverviewTable();
 
-					$scope.loadingData = false;
+					$timeout(function(){
+				
+						$scope.loadingData = false;
+					});	
 
 					}, function errorCallback(response) {
 
-						$scope.loadingData = false;
+						$timeout(function(){
+				
+							$scope.loadingData = false;
+						});	
 				});
 			}
 			else if(crudType && targetSpatialUnitId){
@@ -61,11 +70,17 @@ angular.module('adminSpatialUnitsManagement').component('adminSpatialUnitsManage
 
 						$scope.initializeOrRefreshOverviewTable();
 	
-						$scope.loadingData = false;
+						$timeout(function(){
+				
+							$scope.loadingData = false;
+						});	
 	
 						}, function errorCallback(response) {
 	
-							$scope.loadingData = false;
+							$timeout(function(){
+				
+								$scope.loadingData = false;
+							});	
 					});
 				}
 				else if(crudType == "edit"){
@@ -75,11 +90,17 @@ angular.module('adminSpatialUnitsManagement').component('adminSpatialUnitsManage
 						
 						$scope.initializeOrRefreshOverviewTable();
 	
-						$scope.loadingData = false;
+						$timeout(function(){
+				
+							$scope.loadingData = false;
+						});	
 	
 						}, function errorCallback(response) {
 	
-							$scope.loadingData = false;
+							$timeout(function(){
+				
+								$scope.loadingData = false;
+							});	
 					});
 				}				
 				else if(crudType == "delete"){
@@ -89,7 +110,10 @@ angular.module('adminSpatialUnitsManagement').component('adminSpatialUnitsManage
 						
 						$scope.initializeOrRefreshOverviewTable();
 	
-						$scope.loadingData = false;
+						$timeout(function(){
+				
+							$scope.loadingData = false;
+						});	
 					}
 
 					else if (targetSpatialUnitId && Array.isArray(targetSpatialUnitId)){
@@ -98,7 +122,10 @@ angular.module('adminSpatialUnitsManagement').component('adminSpatialUnitsManage
 						}
 						$scope.initializeOrRefreshOverviewTable();
 	
-						$scope.loadingData = false;
+						$timeout(function(){
+				
+							$scope.loadingData = false;
+						});	
 					}
 					
 				}
@@ -118,7 +145,10 @@ angular.module('adminSpatialUnitsManagement').component('adminSpatialUnitsManage
 			// submit selected spatial units to modal controller
 			$rootScope.$broadcast("onDeleteSpatialUnits", markedEntriesForDeletion);
 
-			$scope.loadingData = false;
+			$timeout(function(){
+				
+				$scope.loadingData = false;
+			});	
 		};
 
 		$scope.onClickEditMetadata = function(spatialUnitDataset){
