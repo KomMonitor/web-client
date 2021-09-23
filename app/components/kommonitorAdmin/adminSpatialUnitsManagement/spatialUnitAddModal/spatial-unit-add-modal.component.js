@@ -327,6 +327,9 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 
 				$("#spatialUnitAddErrorAlert").show();
 				$scope.loadingData = false;
+				setTimeout(() => {
+					$scope.$digest();
+				}, 250);
 				return null;
 			}			
 		};
@@ -423,6 +426,10 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 
 							$("#spatialUnitAddSucessAlert").show();
 							$scope.loadingData = false;
+
+							setTimeout(() => {
+								$scope.$digest();
+							}, 250);
 						}
 						else{
 							// errors ocurred
