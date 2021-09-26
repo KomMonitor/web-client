@@ -982,8 +982,27 @@ angular
           //   self.adminIsLoggedIn = false;
           // });
 
+          this.setKeycloakRoles = async function(){
+            await Auth.keycloak.loadUserProfile()
+    				.then(function (profile) {
+              if(Auth.keycloak.tokenParsed && Auth.keycloak.tokenParsed.realm_access && Auth.keycloak.tokenParsed.realm_access.roles){
+                self.currentKeycloakLoginRoles = Auth.keycloak.tokenParsed.realm_access.roles;
+              }
+              else{
+                self.currentKeycloakLoginRoles = [];
+              }
+              }).catch(function () {
+                  console.log('Failed to load user profile');
+            });
+          };
+
           this.fetchAllMetadata = async function(){
             console.log("fetching all metadata from management component");
+
+            if (Auth.keycloak.authenticated){
+
+              await this.setKeycloakRoles();
+            } 
 
             //TODO revise metadata fecthing for protected endpoints        
             var scriptsPromise = await this.fetchIndicatorScriptsMetadata();
@@ -996,6 +1015,7 @@ angular
             var metadataPromises = [spatialUnitsPromise, georesourcesPromise, indicatorsPromise, topicsPromise, scriptsPromise];
 
             if (Auth.keycloak.authenticated){
+
               var rolesPromise = await this.fetchRolesMetadata();
               metadataPromises.push(rolesPromise);
             }
