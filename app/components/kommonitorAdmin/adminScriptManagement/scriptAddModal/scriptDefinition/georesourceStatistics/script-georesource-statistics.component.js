@@ -1,7 +1,7 @@
 angular.module('scriptGeoresourceStatistics').component('scriptGeoresourceStatistics', {
 	templateUrl: "components/kommonitorAdmin/adminScriptManagement/scriptAddModal/scriptDefinition/georesourceStatistics/script-georesource-statistics.template.html",
-	controller: ['kommonitorDataExchangeService', 'kommonitorScriptHelperService', '$scope', '$rootScope', '$http', '__env', '$timeout',
-		function ScriptGeoresourceStatisticsController(kommonitorDataExchangeService, kommonitorScriptHelperService, $scope, $rootScope, $http, __env, $timeout) {
+	controller: ['kommonitorDataExchangeService', 'kommonitorScriptHelperService', '$scope', '$rootScope', '$http', '__env', '$timeout', 'kommonitorCacheHelperService',
+		function ScriptGeoresourceStatisticsController(kommonitorDataExchangeService, kommonitorScriptHelperService, $scope, $rootScope, $http, __env, $timeout, kommonitorCacheHelperService) {
 
 			this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 			this.kommonitorScriptHelperServiceInstance = kommonitorScriptHelperService;
@@ -10,6 +10,9 @@ angular.module('scriptGeoresourceStatistics').component('scriptGeoresourceStatis
 			$('.box').boxWidget();
 
 			$scope.pathToScriptResource = "./kommonitor-script-resources/km_georesource_miscStatistics.js";
+
+			$scope.propertySchema = {};
+			$scope.numericPropertyOptions = undefined;
 
 			$scope.compOptions = [
 				{
@@ -121,8 +124,22 @@ angular.module('scriptGeoresourceStatistics').component('scriptGeoresourceStatis
 
 				//reset the one and only parameter in this case each time a base indicator is added
 				$scope.resetGeoresourceParameter();
+				$scope.resetNumericPropertyOptions();
 				$scope.resetComputationFormulaAndLegend();				
 
+			};
+
+			$scope.resetNumericPropertyOptions = function(){
+				$scope.propertySchema = {};
+				kommonitorCacheHelperService.fetchSingleGeoresourceSchema($scope.parameterDefaultValue_computationGeoresource)
+				.then((schema) => {
+					for (var prop in schema) {
+						if (schema[prop] === 'Integer' || schema[prop] === 'Double') {
+							$scope.propertySchema[prop] = schema[prop];
+						}
+					}
+					$scope.numericPropertyOptions = Object.keys($scope.propertySchema);
+				});
 			};
 
 			$scope.onChangeNumericPropertyName = function(){
