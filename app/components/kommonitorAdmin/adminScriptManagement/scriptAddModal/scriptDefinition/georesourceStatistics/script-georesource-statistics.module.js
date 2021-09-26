@@ -1,1 +1,1 @@
-angular.module('scriptGeoresourceStatistics', ['kommonitorDataExchange', 'kommonitorScriptHelper']);
+angular.module('scriptGeoresourceStatistics', ['kommonitorDataExchange', 'kommonitorScriptHelper', 'kommonitorCacheHelper']);
