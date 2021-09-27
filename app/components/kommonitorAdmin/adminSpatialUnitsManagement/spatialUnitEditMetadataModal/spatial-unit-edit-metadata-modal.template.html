@@ -85,7 +85,7 @@
 										<select ng-model="nextLowerHierarchySpatialUnit" ng-change="checkSpatialUnitHierarchy()"
 											class="form-control">
 											<option disabled selected value> -- Raumeinheit w&auml;hlen -- </option>
-											<option value> -- keine (neue oberste Ebene) -- </option>
+											<option value> -- keine (neue unterste Ebene) -- </option>
 											<option ng-repeat="value in $ctrl.kommonitorDataExchangeServiceInstance.availableSpatialUnits"
 												ng-value="value"> {{value.spatialUnitLevel}} </option>
 										</select>

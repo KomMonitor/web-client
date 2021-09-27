@@ -31,7 +31,6 @@
 											<th class="batch-list-table-sticky-column batch-list-table-sticky-column-header batch-list-table-sticky-column-1"><input type="checkbox" ng-model="allRowsSelected" ng-change="$ctrl.kommonitorBatchUpdateHelperServiceInstance.onChangeSelectAllRows(this.allRowsSelected, this.batchList)"></th>
 											<th class="batch-list-table-sticky-column batch-list-table-sticky-column-header batch-list-table-sticky-column-2">Name*</th>
 											<th>Mappingtabelle</th>
-											<th>Speichern</th>
 											<th>G&uuml;ltigkeitszeitraum von*</th>
 											<th>G&uuml;ltigkeitszeitraum bis</th>
 											<th>Geodaten-Quellformat*</th>
@@ -48,6 +47,7 @@
 											<th>NAME Attributname*</th>
 											<th>Lebenszeit-Beginn Attributname</th>
 											<th>Lebenszeit-Ende Attributname</th>
+											<th>Mappingtabelle speichern</th>
 										</tr>
 									</thead>
 									<tbody>
@@ -60,22 +60,20 @@
 
 											<!-- Name -->
 											<td class="batch-list-table-sticky-column batch-list-table-sticky-column-2">
-												<select id="georesourceSelect{{$index}}" class="form-control batch-list-table-name-field" ng-model="georesource.name" required
-													ng-options="avGeoresource as avGeoresource.datasetName for avGeoresource in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources">
-														<option disabled selected value> -- Georessource w&auml;hlen -- </option>
-												</select>
+												<ui-select id="georesourceSelect{{$index}}" class="form-control batch-list-table-name-field" ng-model="georesource.name" 
+													ng-change="$ctrl.kommonitorBatchUpdateHelperServiceInstance.resizeNameColumnDropdowns(georesource)" required>
+													<ui-select-match>
+														<span ng-bind="$select.selected.datasetName"></span>
+													</ui-select-match>
+													<ui-select-choices repeat="avGeoresource in $ctrl.kommonitorDataExchangeServiceInstance.availableGeoresources | filterGeoresoures: {georesourceName: $select.search}">
+														<span ng-bind="avGeoresource.datasetName"></span>
+													</ui-select-choices>
+												</ui-select>
 											</td>
 											
 											<!-- Mappingtabelle -->
 											<td>
 												<input id="georesourceMappingTableSelect{{$index}}" class="form-control georesourceMappingTableInputField" type="file">
-											</td>
-
-											<!-- Speichern -->
-											<td>
-												<button id="georesourceMappingTableSave{{$index}}" type="button" class="btn btn-primary fas fa-save" 
-													ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.saveMappingObjectToFile('georesource', $event, batchList)" >
-												</button>
 											</td>
 
 											<!-- Gültigkeitszeitraum von -->
@@ -112,7 +110,7 @@
 											<!-- CRS -->
 											<td>
 												<input id="georesourceCrsInputField{{$index}}" class="form-control" ng-model="georesource.mappingObj.converter.CRS.value"
-												type="text" required>
+												type="text" placeholder="z.B. EPSG:4326" required>
 											</td>
 
 											<!-- separator -->
@@ -189,6 +187,13 @@
 												<input class="form-control" ng-model="georesource.mappingObj.propertyMapping.validEndDateProperty" type="text" required>
 											</td>
 
+											<!-- Speichern -->
+											<td>
+												<button id="georesourceMappingTableSave{{$index}}" type="button" class="btn btn-primary fas fa-save" 
+													ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.saveMappingObjectToFile('georesource', $event, batchList)" >
+												</button>
+											</td>
+
 										</tr>
 									</tbody>
 
@@ -197,7 +202,6 @@
 											<th class="batch-list-table-sticky-column batch-list-table-sticky-column-footer batch-list-table-sticky-column-1"><input type="checkbox" ng-model="allRowsSelected" ng-change="$ctrl.kommonitorBatchUpdateHelperServiceInstance.onChangeSelectAllRows(this.allRowsSelected, this.batchList)"></th>
 											<th class="batch-list-table-sticky-column batch-list-table-sticky-column-footer batch-list-table-sticky-column-2">Name*</th>
 											<th>Mappingtabelle</th>
-											<th>Speichern</th>
 											<th>G&uuml;ltigkeitszeitraum von*</th>
 											<th>G&uuml;ltigkeitszeitraum bis</th>
 											<th>Geodaten-Quellformat*</th>
@@ -214,6 +218,7 @@
 											<th>NAME Attributname*</th>
 											<th>Lebenszeit-Beginn Attributname</th>
 											<th>Lebenszeit-Ende Attributname</th>
+											<th>Mappingtabelle speichern</th>
 										</tr>
 									</tfoot>
 								</table>
@@ -286,7 +291,7 @@
 									</select>
 									<!-- CRS* -->
 									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.converter.CRS.value'" type="text" class="form-control"
-										ng-model="colDefaultFunctionNewValue">
+										ng-model="colDefaultFunctionNewValue" placeholder="z.B. EPSG:4326">
 									</input>
 									<!-- separator* -->
 									<input ng-show="colDefaultFunctionSelectedColumn=='mappingObj.converter.separator.value'" type="text" class="form-control"
@@ -352,6 +357,22 @@
 						</div>
 					</div>
 				</div>
+				<div class="row">
+					<div class="col-md-4 col-sm-4 col-xs-6">
+						<div class="form-group">
+							<label>Fehlende/NULL Werte beibehalten*</label>
+							<br/>	
+							<label class="switch">
+								<input type="checkbox" value="keepMissingValues" ng-model="keepMissingValues">
+								<span class="switchslider round"></span>
+							</label>
+							<div class="help-block">
+								<p>Angabe, ob fehlende Attribute oder leere Attributwerte (<code>NULL</code>-Werte) &uuml;bernommen werden. Bei deaktivierter Option 
+									wird bei einem solchen Fall ein Fehler geworfen.</p>
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
@@ -364,7 +385,7 @@
 					id="georesourcesBatchListFile" accept=".json,"></input>
 
 				<button type="button" style="margin-left: 6px;" class="btn btn-info pull-left" ng-disabled=""
-					ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.saveBatchListToFile('georesource', batchList)" title="Exportieren der Batch-Liste in eine Datei">
+					ng-click="$ctrl.kommonitorBatchUpdateHelperServiceInstance.saveBatchListToFile('georesource', batchList, true, keepMissingValues)" title="Exportieren der Batch-Liste in eine Datei">
 					<i class="fas fa-file-export"></i>&nbsp;&nbsp;Batch-Liste exportieren
 				</button>
 

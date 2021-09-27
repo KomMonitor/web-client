@@ -953,7 +953,15 @@ pre.CodeMirror-line {
 	overflow:auto;
 }
 
+.admin-table-wrapper .ag-root-wrapper.ag-layout-normal {
+	height: 70vh !important;
+}
+
 .featureTableWrapper .ag-root-wrapper.ag-layout-normal {
+	height: 45vh !important;
+}
+
+#roleOverviewTable .ag-root-wrapper.ag-layout-normal {
 	height: 45vh !important;
 }
 
@@ -2498,6 +2506,7 @@ input:checked + .switchslider:before {
 	width: auto;
 	min-width: 300px;
 	max-width: 500px;
+	padding: 0;
 
 }
 
@@ -2508,6 +2517,25 @@ input:checked + .switchslider:before {
 .batch-list-table-sticky-column-header,
 .batch-list-table-sticky-column-footer {
 	z-index: 5 !important;
+}
+
+.ui-select-container {
+	padding: 0;
+}
+
+.ui-select-search {
+	width: 100% !important;
+}
+
+.ui-select-choices {
+	width: auto !important;
+	position: relative;
+	top: 0 !important;
+	z-index: 1111 !important;
+}
+
+.ui-select-choices-row-inner {
+	float: left;
 }
 
 #modal-batch-update-result > div {
@@ -2582,3 +2610,99 @@ input:checked + .switchslider:before {
 #manualSelectionSpatialFilterSelectByMapBtn {
 	margin-bottom: 10px;
 }
+
+#statisticalValuesDisplayTable td {
+	padding: 0;
+	margin: 0;
+ }
+
+.scriptAddFormList {
+	margin-left: 20px;
+}
+
+.scriptAddFormChecklistItemWrapper {
+	float:left;
+	height:40px;
+	margin-right: 15px;
+	display: table;
+}
+
+.scriptAddFormChecklistItemWrapper p {
+	display: table-cell;
+	vertical-align: middle;
+}
+.scriptAddFormChecklistItem {
+	margin-bottom: 10px;
+	display: table;
+}
+
+.scriptAddFormListItemIcon {
+	font-size: 24px;
+
+}
+
+.scriptAddFormListText {
+	min-height: 40px;
+	display: table-cell;
+	vertical-align: middle;
+}
+
+.classificationBoxToogleSlidersWrapper {
+	display: table;
+}
+
+.classificationBoxToogleSlidersLbl {
+	display: table-cell;
+	vertical-align: middle;
+}
+
+
+#infoModalTabs {
+	margin-bottom: 10px;
+}
+
+/* The snackbar - position it at the bottom and in the middle of the screen */
+#snackbar {
+	visibility: hidden; /* Hidden by default. Visible on click */
+	min-width: 250px; /* Set a default minimum width */
+	margin-left: -125px; /* Divide value of min-width by 2 */
+	background-color: #333; /* Black background color */
+	color: #fff; /* White text color */
+	text-align: center; /* Centered text */
+	border-radius: 2px; /* Rounded borders */
+	padding: 16px; /* Padding */
+	position: fixed; /* Sit on top of the screen */
+	z-index: 99999; /* Add a z-index if needed */
+	left: 75%; /* Center the snackbar */
+	bottom: 60vh; /* 50vh from the bottom */
+  }
+  
+  /* Show the snackbar when clicking on a button (class added with JavaScript) */
+  #snackbar.show {
+	visibility: visible; /* Show the snackbar */
+	/* Add animation: Take 0.5 seconds to fade in and out the snackbar.
+	However, delay the fade out process for 2.5 seconds */
+	-webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+	animation: fadein 0.5s, fadeout 0.5s 2.5s;
+  }
+  
+  /* Animations to fade the snackbar in and out */
+  @-webkit-keyframes fadein {
+	from {bottom: 0; opacity: 0;}
+	to {bottom: 60vh; opacity: 1;}
+  }
+  
+  @keyframes fadein {
+	from {bottom: 0; opacity: 0;}
+	to {bottom: 60vh; opacity: 1;}
+  }
+  
+  @-webkit-keyframes fadeout {
+	from {bottom: 60vh; opacity: 1;}
+	to {bottom: 0; opacity: 0;}
+  }
+  
+  @keyframes fadeout {
+	from {bottom: 60vh; opacity: 1;}
+	to {bottom: 0; opacity: 0;}
+  }

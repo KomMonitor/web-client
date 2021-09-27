@@ -1,6 +1,7 @@
 angular.module('adminScriptExecution').component('adminScriptExecution', {
 	templateUrl: "components/kommonitorAdmin/adminScriptExecution/admin-script-execution.template.html",
-	controller: ['kommonitorDataExchangeService', '$scope', '$rootScope', '__env', '$timeout', '$http', function JobExecutionController(kommonitorDataExchangeService, $scope, $rootScope, __env, $timeout, $http) {
+	controller: ['kommonitorDataExchangeService', 'kommonitorDataGridHelperService', '$scope', '$rootScope', '__env', '$timeout', '$http', 
+		function JobExecutionController(kommonitorDataExchangeService, kommonitorDataGridHelperService, $scope, $rootScope, __env, $timeout, $http) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 		// initialize any adminLTE box widgets
@@ -10,6 +11,8 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
 
 		$scope.availableDefaultComputationJobDatasets;
 		$scope.availableCustomizedComputationJobDatasets;
+		$scope.defaultComputationJobHealth;
+		$scope.customizedComputationJobHealth;
 		$scope.selectAllEntriesInput = false;
 
 		$scope.fetchDefaultIndicatorJobs = function(){
@@ -36,12 +39,41 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
                 $scope.availableCustomizedComputationJobDatasets = response.data;
 
               });
-          }; 
+          };
+
+		  $scope.fetchDefaultIndicatorJobHealth = function(){
+			return $http({
+				url: __env.targetUrlToProcessingEngine + "script-engine/defaultIndicatorComputation/health",
+				method: "GET"
+			  }).then(function successCallback(response) {
+				  // this callback will be called asynchronously
+				  // when the response is available
+  
+				  $scope.defaultComputationJobHealth = response.data;
+  
+				});
+		  };
+
+		  $scope.fetchCustomizedIndicatorJobHealth = function(){
+			return $http({
+				url: __env.targetUrlToProcessingEngine + "script-engine/customizableIndicatorComputation/health",
+				method: "GET"
+			  }).then(function successCallback(response) {
+				  // this callback will be called asynchronously
+				  // when the response is available
+  
+				  $scope.customizedComputationJobHealth = response.data;
+  
+				});
+		  };
 
 		$scope.$on("initialMetadataLoadingCompleted", function (event) {
 
 
 			$timeout(async function () {
+
+				await $scope.fetchDefaultIndicatorJobHealth();
+				await $scope.fetchCustomizedIndicatorJobHealth();
 
 				await $scope.fetchDefaultIndicatorJobs();
 				await $scope.fetchCustomizedIndicatorJobs();
@@ -60,14 +92,8 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
 		$scope.initializeOrRefreshOverviewTable = function () {
 			$scope.loadingData = true;
 
-			// initialize properties
-			$scope.availableDefaultComputationJobDatasets.forEach(function (dataset) {
-				dataset.isSelected = false;
-			});
-
-			$scope.availableCustomizedComputationJobDatasets.forEach(function (dataset) {
-				dataset.isSelected = false;
-			});
+			kommonitorDataGridHelperService.buildDataGrid_defaultJobs($scope.availableDefaultComputationJobDatasets);
+			kommonitorDataGridHelperService.buildDataGrid_customizedJobs($scope.availableCustomizedComputationJobDatasets);
 
 			$scope.loadingData = false;
 		};
@@ -77,37 +103,13 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
 			$scope.refreshJobOverviewTable();
 		});
 
-		$scope.onChangeSelectAllEntries_default = function () {
-			if ($scope.selectAllEntriesInput_default) {
-				$scope.availableDefaultComputationJobDatasets.forEach(function (dataset) {
-					dataset.isSelected = true;
-				});
-			}
-			else {
-				$scope.availableDefaultComputationJobDatasets.forEach(function (dataset) {
-					dataset.isSelected = false;
-				});
-			}
-		};
-
-		$scope.onChangeSelectAllEntries_customized = function () {
-			if ($scope.selectAllEntriesInput_customized) {
-				$scope.availableCustomizedComputationJobDatasets.forEach(function (dataset) {
-					dataset.isSelected = true;
-				});
-			}
-			else {
-				$scope.availableCustomizedComputationJobDatasets.forEach(function (dataset) {
-					dataset.isSelected = false;
-				});
-			}
-		};
-
 		$scope.refreshJobOverviewTable = async function () {
 
 			// refetch all metadata from spatial units to update table
 			await $scope.fetchDefaultIndicatorJobs();
 			await $scope.fetchCustomizedIndicatorJobs();
+			await $scope.fetchCustomizedIndicatorJobHealth();
+			await $scope.fetchDefaultIndicatorJobHealth();
 
 			$scope.initializeOrRefreshOverviewTable();
 
@@ -118,12 +120,7 @@ angular.module('adminScriptExecution').component('adminScriptExecution', {
 		$scope.onClickDeleteDatasets = function () {
 			$scope.loadingData = true;
 
-			var markedEntriesForDeletion = [];
-			$scope.availableDefaultComputationJobDatasets.forEach(function (dataset) {
-				if (dataset.isSelected) {
-					markedEntriesForDeletion.push(dataset);
-				}
-			});
+			let markedEntriesForDeletion = kommonitorDataGridHelperService.getSelectedDefaultJobsMetadata();
 
 			// submit selected spatial units to modal controller
 			$rootScope.$broadcast("onDeleteJobs", markedEntriesForDeletion);

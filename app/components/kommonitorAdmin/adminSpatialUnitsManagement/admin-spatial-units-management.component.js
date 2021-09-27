@@ -1,7 +1,7 @@
 angular.module('adminSpatialUnitsManagement').component('adminSpatialUnitsManagement', {
 	templateUrl : "components/kommonitorAdmin/adminSpatialUnitsManagement/admin-spatial-units-management.template.html",
-	controller : ['kommonitorDataExchangeService', 'kommonitorDataGridHelperService', '$scope', '$timeout', '$rootScope', '__env', '$http', 
-	function SpatialUnitsManagementController(kommonitorDataExchangeService, kommonitorDataGridHelperService, $scope, $timeout, $rootScope, __env, $http) {
+	controller : ['kommonitorDataExchangeService', 'kommonitorCacheHelperService', 'kommonitorDataGridHelperService', '$scope', '$timeout', '$rootScope', '__env', '$http', 
+	function SpatialUnitsManagementController(kommonitorDataExchangeService, kommonitorCacheHelperService, kommonitorDataGridHelperService, $scope, $timeout, $rootScope, __env, $http) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 		// initialize any adminLTE box widgets
@@ -30,7 +30,10 @@ angular.module('adminSpatialUnitsManagement').component('adminSpatialUnitsManage
 			
 			kommonitorDataGridHelperService.buildDataGrid_spatialUnits(kommonitorDataExchangeService.availableSpatialUnits);
 
-			$scope.loadingData = false;
+			$timeout(function(){
+				
+				$scope.loadingData = false;
+			});	
 		};
 
 		$scope.$on("refreshSpatialUnitOverviewTable", function (event, crudType, targetSpatialUnitId) {
@@ -46,40 +49,58 @@ angular.module('adminSpatialUnitsManagement').component('adminSpatialUnitsManage
 
 					$scope.initializeOrRefreshOverviewTable();
 
-					$scope.loadingData = false;
+					$timeout(function(){
+				
+						$scope.loadingData = false;
+					});	
 
 					}, function errorCallback(response) {
 
-						$scope.loadingData = false;
+						$timeout(function(){
+				
+							$scope.loadingData = false;
+						});	
 				});
 			}
 			else if(crudType && targetSpatialUnitId){
 				if(crudType == "add"){
-					kommonitorDataExchangeService.fetchSingleSpatialUnitMetadata(targetSpatialUnitId).then(function successCallback(data) {
+					kommonitorCacheHelperService.fetchSingleSpatialUnitMetadata(targetSpatialUnitId).then(function successCallback(data) {
 
 						kommonitorDataExchangeService.addSingleSpatialUnitMetadata(data);
 
 						$scope.initializeOrRefreshOverviewTable();
 	
-						$scope.loadingData = false;
+						$timeout(function(){
+				
+							$scope.loadingData = false;
+						});	
 	
 						}, function errorCallback(response) {
 	
-							$scope.loadingData = false;
+							$timeout(function(){
+				
+								$scope.loadingData = false;
+							});	
 					});
 				}
 				else if(crudType == "edit"){
-					kommonitorDataExchangeService.fetchSingleSpatialUnitMetadata(targetSpatialUnitId).then(function successCallback(data) {
+					kommonitorCacheHelperService.fetchSingleSpatialUnitMetadata(targetSpatialUnitId).then(function successCallback(data) {
 
 						kommonitorDataExchangeService.replaceSingleSpatialUnitMetadata(data);
 						
 						$scope.initializeOrRefreshOverviewTable();
 	
-						$scope.loadingData = false;
+						$timeout(function(){
+				
+							$scope.loadingData = false;
+						});	
 	
 						}, function errorCallback(response) {
 	
-							$scope.loadingData = false;
+							$timeout(function(){
+				
+								$scope.loadingData = false;
+							});	
 					});
 				}				
 				else if(crudType == "delete"){
@@ -89,7 +110,10 @@ angular.module('adminSpatialUnitsManagement').component('adminSpatialUnitsManage
 						
 						$scope.initializeOrRefreshOverviewTable();
 	
-						$scope.loadingData = false;
+						$timeout(function(){
+				
+							$scope.loadingData = false;
+						});	
 					}
 
 					else if (targetSpatialUnitId && Array.isArray(targetSpatialUnitId)){
@@ -98,7 +122,10 @@ angular.module('adminSpatialUnitsManagement').component('adminSpatialUnitsManage
 						}
 						$scope.initializeOrRefreshOverviewTable();
 	
-						$scope.loadingData = false;
+						$timeout(function(){
+				
+							$scope.loadingData = false;
+						});	
 					}
 					
 				}
@@ -118,7 +145,10 @@ angular.module('adminSpatialUnitsManagement').component('adminSpatialUnitsManage
 			// submit selected spatial units to modal controller
 			$rootScope.$broadcast("onDeleteSpatialUnits", markedEntriesForDeletion);
 
-			$scope.loadingData = false;
+			$timeout(function(){
+				
+				$scope.loadingData = false;
+			});	
 		};
 
 		$scope.onClickEditMetadata = function(spatialUnitDataset){

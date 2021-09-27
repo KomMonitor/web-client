@@ -10,13 +10,15 @@ angular.module('kommonitorDataExchange', ['kommonitorMap', 'kommonitorKeycloakHe
  * parameters for each WPS operation represented by different Angular components
  */
 angular
-		.module('kommonitorDataExchange', [])
+		.module('kommonitorDataExchange', ['kommonitorCacheHelper'])
 		.service(
-				'kommonitorDataExchangeService', ['$rootScope', '$timeout', 'kommonitorMapService', 'kommonitorKeycloakHelperService', 
+				'kommonitorDataExchangeService', ['$rootScope', '$timeout', 'kommonitorMapService', 'kommonitorKeycloakHelperService',
+        'kommonitorCacheHelperService', 
         '$http', '__env', '$q', 'Auth',
 				function($rootScope, $timeout,
-						kommonitorMapService, kommonitorKeycloakHelperService, $http, __env, $q, Auth,) {              
+						kommonitorMapService, kommonitorKeycloakHelperService, kommonitorCacheHelperService, $http, __env, $q, Auth,) {              
 
+              let thisService = this;
               this.appTitle = __env.appTitle;
 
               this.customLogoURL = __env.customLogoURL;
@@ -43,23 +45,7 @@ angular
               const defaultBorderColorForOutliers_low = __env.defaultBorderColorForOutliers_low;
               const defaultFillOpacityForOutliers_low = __env.defaultFillOpacityForOutliers_low;
 
-              const georesourcesPublicEndpoint = "/public/georesources";
-              const georesourcesProtectedEndpoint = "/georesources";
-              const spatialUnitsPublicEndpoint = "/public/spatial-units";
-              const spatialUnitsProtectedEndpoint = "/spatial-units";
-              const indicatorsPublicEndpoint = "/public/indicators";
-              const indicatorsProtectedEndpoint = "/indicators";
-              const scriptsPublicEndpoint = "/public/process-scripts";
-              const scriptsProtectedEndpoint = "/process-scripts";
-              const topicsPublicEndpoint = "/public/topics";
-              // only resource that has no public endpoint
-              const rolesEndpoint = "/roles";
-
-              var georesourcesEndpoint = georesourcesProtectedEndpoint;
-              var spatialUnitsEndpoint = spatialUnitsProtectedEndpoint;
-              var indicatorsEndpoint = indicatorsProtectedEndpoint;
-              var scriptsEndpoint = scriptsProtectedEndpoint;
-              this.spatialResourceGETUrlPath_forAuthentication = "/public";
+              
 
           var self = this;
 
@@ -360,6 +346,7 @@ angular
           this.useOutlierDetectionOnIndicator = __env.useOutlierDetectionOnIndicator;
           this.classifyZeroSeparately = __env.classifyZeroSeparately;
           this.classifyUsingWholeTimeseries = __env.classifyUsingWholeTimeseries;
+          this.useNoDataToggle = __env.useNoDataToggle;
 
           this.getUpdateIntervalDisplayValue = function(apiValue){
             for (const updateIntervalOption of this.updateIntervalOptions) {
@@ -370,27 +357,10 @@ angular
           };
 
           this.getBaseUrlToKomMonitorDataAPI_spatialResource = function(){
-            return this.baseUrlToKomMonitorDataAPI + this.spatialResourceGETUrlPath_forAuthentication;
+            return this.baseUrlToKomMonitorDataAPI + kommonitorCacheHelperService.spatialResourceGETUrlPath_forAuthentication;
           };
 
-          this.checkAuthentication = function() {
-            if (Auth.keycloak.authenticated) {
-              georesourcesEndpoint = georesourcesProtectedEndpoint;
-              spatialUnitsEndpoint = spatialUnitsProtectedEndpoint;
-              indicatorsEndpoint = indicatorsProtectedEndpoint;
-              scriptsEndpoint = scriptsProtectedEndpoint;
-              this.spatialResourceGETUrlPath_forAuthentication = "";
-            } else{
-              georesourcesEndpoint = georesourcesPublicEndpoint;
-              spatialUnitsEndpoint = spatialUnitsPublicEndpoint;
-              indicatorsEndpoint = indicatorsPublicEndpoint;
-              scriptsEndpoint = scriptsPublicEndpoint;
-              this.spatialResourceGETUrlPath_forAuthentication = "/public";
-            }
-
-          };
-
-          self.checkAuthentication();
+          
 
 					this.setProcessScripts = function(scriptsArray){
 						this.availableProcessScripts = scriptsArray;
@@ -1007,34 +977,46 @@ angular
           * FETCH INITIAL METADATA ABOUT EACH RESOURCE
           */
 
-          var fetchedTopicsInitially = false;
-          var fetchedSpatialUnitsInitially = false;
-          var fetchedGeoresourcesInitially = false;
-          var fetchedIndicatorsInitially = false;
-          var fetchedUsersInitially = false;
-          var fetchedRolesInitially = false;
-
           // $rootScope.$on("$locationChangeStart", function(event){
           //   self.fetchAllMetadata();
           //   self.adminIsLoggedIn = false;
           // });
 
-          this.fetchAllMetadata = function(){
+          this.setKeycloakRoles = async function(){
+            await Auth.keycloak.loadUserProfile()
+    				.then(function (profile) {
+              if(Auth.keycloak.tokenParsed && Auth.keycloak.tokenParsed.realm_access && Auth.keycloak.tokenParsed.realm_access.roles){
+                self.currentKeycloakLoginRoles = Auth.keycloak.tokenParsed.realm_access.roles;
+              }
+              else{
+                self.currentKeycloakLoginRoles = [];
+              }
+              }).catch(function () {
+                  console.log('Failed to load user profile');
+            });
+          };
+
+          this.fetchAllMetadata = async function(){
             console.log("fetching all metadata from management component");
 
-            //TODO revise metadata fecthing for protected endpoints
-            // var usersPromise = this.fetchUsersMetadata();            
-            var scriptsPromise = this.fetchIndicatorScriptsMetadata();
-            var topicsPromise = this.fetchTopicsMetadata();
-            var spatialUnitsPromise = this.fetchSpatialUnitsMetadata();
-            var georesourcesPromise = this.fetchGeoresourcesMetadata();
-            var indicatorsPromise = this.fetchIndicatorsMetadata();
+            if (Auth.keycloak.authenticated){
+
+              await this.setKeycloakRoles();
+            } 
+
+            //TODO revise metadata fecthing for protected endpoints        
+            var scriptsPromise = await this.fetchIndicatorScriptsMetadata();
+            var topicsPromise = await this.fetchTopicsMetadata();
+            var spatialUnitsPromise = await this.fetchSpatialUnitsMetadata();
+            var georesourcesPromise = await this.fetchGeoresourcesMetadata();
+            var indicatorsPromise = await this.fetchIndicatorsMetadata();
             
             // var metadataPromises = [topicsPromise, usersPromise, rolesPromise, spatialUnitsPromise, georesourcesPromise, indicatorsPromise, scriptsPromise];
             var metadataPromises = [spatialUnitsPromise, georesourcesPromise, indicatorsPromise, topicsPromise, scriptsPromise];
 
             if (Auth.keycloak.authenticated){
-              var rolesPromise = this.fetchRolesMetadata();
+
+              var rolesPromise = await this.fetchRolesMetadata();
               metadataPromises.push(rolesPromise);
             }
 
@@ -1630,32 +1612,11 @@ angular
             for (const roleMetadata of rolesArray) {
               this.availableRoles_map.set(roleMetadata.roleId, roleMetadata);
             }
-
-            fetchedRolesInitially = true;
           };
 
-          this.fetchRolesMetadata = function(){
-            return $http({
-              url: this.baseUrlToKomMonitorDataAPI + rolesEndpoint,
-              method: "GET"
-            }).then(function successCallback(response) {
-                // this callback will be called asynchronously
-                // when the response is available
-                self.setRoles(response.data);
-              });
-          };
+          this.fetchRolesMetadata = async function(){          
 
-          this.fetchSingleRoleMetadata = function(targetRoleId){
-            return $http({
-              url: this.baseUrlToKomMonitorDataAPI + rolesEndpoint  + "/" + targetRoleId,
-              method: "GET"
-            }).then(function successCallback(response) {
-                // this callback will be called asynchronously
-                // when the response is available
-
-                return response.data;
-
-              });
+              self.setRoles(await kommonitorCacheHelperService.fetchRolesMetadata(self.currentKeycloakLoginRoles));
           };
 
           this.replaceSingleRoleMetadata = function(targetRoleMetadata){
@@ -1691,140 +1652,32 @@ angular
             return this.availableRoles_map.get(roleId);
           };
 
-          this.fetchUsersMetadata = function(){
-            return $http({
-              url: this.baseUrlToKomMonitorDataAPI + "/users",
-              method: "GET"
-            }).then(function successCallback(response) {
-                // this callback will be called asynchronously
-                // when the response is available
+          this.fetchTopicsMetadata = async function(){
+            self.setTopics(await kommonitorCacheHelperService.fetchTopicsMetadata(self.currentKeycloakLoginRoles));
 
-                self.availableUsers=response.data;
-                fetchedUsersInitially = true;
-
-              });
           };
 
-          this.fetchTopicsMetadata = function(){
-            return $http({
-              url: this.baseUrlToKomMonitorDataAPI + topicsPublicEndpoint,
-              method: "GET"
-            }).then(function successCallback(response) {
-                // this callback will be called asynchronously
-                // when the response is available
-
-                self.setTopics(response.data);
-                fetchedTopicsInitially = true;
-
-              });
+          this.fetchSpatialUnitsMetadata = async function(){
+            self.setSpatialUnits(await kommonitorCacheHelperService.fetchSpatialUnitsMetadata(self.currentKeycloakLoginRoles));
           };
 
-          this.fetchSpatialUnitsMetadata = function(){
-            return $http({
-              url: this.baseUrlToKomMonitorDataAPI + spatialUnitsEndpoint,
-              method: "GET"
-            }).then(function successCallback(response) {
-                // this callback will be called asynchronously
-                // when the response is available
-
-                self.setSpatialUnits(response.data);
-                fetchedSpatialUnitsInitially = true;
-
-              });
+          this.fetchGeoresourcesMetadata = async function(){
+            self.setGeoresources(await kommonitorCacheHelperService.fetchGeoresourceMetadata(self.currentKeycloakLoginRoles));
           };
 
-          this.fetchSingleSpatialUnitMetadata = function(targetSpatialUnitId){
-            return $http({
-              url: this.baseUrlToKomMonitorDataAPI + spatialUnitsEndpoint  + "/" + targetSpatialUnitId,
-              method: "GET"
-            }).then(function successCallback(response) {
-                // this callback will be called asynchronously
-                // when the response is available
+          
 
-                return response.data;
-
-              });
+          this.fetchIndicatorsMetadata = async function(){
+            self.setIndicators(await kommonitorCacheHelperService.fetchIndicatorsMetadata(self.currentKeycloakLoginRoles));
           };
 
-          this.fetchGeoresourcesMetadata = function(){
-            return $http({
-              url: this.baseUrlToKomMonitorDataAPI + georesourcesEndpoint,
-              method: "GET"
-            }).then(function successCallback(response) {
-                // this callback will be called asynchronously
-                // when the response is available
+          
 
-                self.setGeoresources(response.data);
-                fetchedGeoresourcesInitially = true;
-
-              });
+          this.fetchIndicatorScriptsMetadata = async function(){
+            self.setProcessScripts(await kommonitorCacheHelperService.fetchProcessScriptsMetadata(self.currentKeycloakLoginRoles));
           };
 
-          this.fetchSingleGeoresourceMetadata = function(targetGeoresourceId){
-            return $http({
-              url: this.baseUrlToKomMonitorDataAPI + georesourcesEndpoint  + "/" + targetGeoresourceId,
-              method: "GET"
-            }).then(function successCallback(response) {
-                // this callback will be called asynchronously
-                // when the response is available
-
-                return response.data;
-
-              });
-          };
-
-          this.fetchIndicatorsMetadata = function(){
-            return $http({
-              url: this.baseUrlToKomMonitorDataAPI + indicatorsEndpoint,
-              method: "GET"
-            }).then(function successCallback(response) {
-                // this callback will be called asynchronously
-                // when the response is available
-
-                self.setIndicators(response.data);
-                fetchedIndicatorsInitially = true;
-
-              });
-          };
-
-          this.fetchSingleIndicatorMetadata = function(targetIndicatorId){
-            return $http({
-              url: this.baseUrlToKomMonitorDataAPI + indicatorsEndpoint + "/" + targetIndicatorId,
-              method: "GET"
-            }).then(function successCallback(response) {
-                // this callback will be called asynchronously
-                // when the response is available
-
-                return response.data;
-
-              });
-          };
-
-          this.fetchIndicatorScriptsMetadata = function(){
-            return $http({
-              url: this.baseUrlToKomMonitorDataAPI + scriptsEndpoint,
-              method: "GET"
-            }).then(function successCallback(response) {
-                // this callback will be called asynchronously
-                // when the response is available
-
-                self.setProcessScripts(response.data);
-
-              });
-          };
-
-          this.fetchSingleIndicatorScriptMetadata = function(targetScriptId){
-            return $http({
-              url: this.baseUrlToKomMonitorDataAPI + scriptsEndpoint  + "/" + targetScriptId,
-              method: "GET"
-            }).then(function successCallback(response) {
-                // this callback will be called asynchronously
-                // when the response is available
-
-                return response.data;
-
-              });
-          };
+          
 
 					this.indicatorValueIsNoData = function(indicatorValue){
 						if(Number.isNaN(indicatorValue) || indicatorValue === null || indicatorValue === undefined){
@@ -1939,31 +1792,91 @@ angular
             return indicatorTypeString;
           };
 
-          this.totalFeaturesPropertyUnit;
-          this.totalFeaturesPropertyValue_sum;
-          this.totalFeaturesPropertyLabel_sum;
-          this.totalFeaturesPropertyValue_mean;
-          this.totalFeaturesPropertyLabel_mean;
+          
+          this.labelAllFeatures = "alle Features";
+          this.labelFilteredFeatures = "gefilterte Features";
+          this.labelSelectedFeatures = "selektierte Features";
+          this.labelNumberOfFeatures = "Anzahl:"
+          this.labelSum = "Summe:"
+          this.labelMean = "arith. Mittel:"
+          this.labelMin = "Minimalwert:"
+          this.labelMax = "Maximalwert"
 
-          this.setTotalFeaturesProperty = function(indicatorMetadataAndGeoJSON, propertyName){
-            var sum = 0;
-            var count = 0;
+          this.allFeaturesNumberOfFeatures;
+          this.allFeaturesSum;
+          this.allFeaturesMean;
+          this.allFeaturesMin;
+          this.allFeaturesMax;
+          this.selectedFeaturesNumberOfFeatures;
+          this.selectedFeaturesSum;
+          this.selectedFeaturesMean;
+          this.selectedFeaturesMin;
+          this.selectedFeaturesMax;
+          this.allFeaturesPropertyUnit;
+
+          this.setAllFeaturesProperty = function(indicatorMetadataAndGeoJSON, propertyName){
+            let sum = 0;
+            let count = 0;
+            let min = Number.MAX_VALUE;
+            let max = Number.MIN_VALUE;
 
             for (const feature of indicatorMetadataAndGeoJSON.geoJSON.features) {
               if(! this.indicatorValueIsNoData(feature.properties[propertyName])){
-                sum += this.getIndicatorValueFromArray_asNumber(feature.properties, propertyName);
+                let value = this.getIndicatorValueFromArray_asNumber(feature.properties, propertyName)
+                sum += value;
+                if (value < min) min = value;
+                if (value > max) max = value;
                 count++;
               }
             }
 
-            this.totalFeaturesPropertyUnit = indicatorMetadataAndGeoJSON.unit;
+            this.allFeaturesPropertyUnit = indicatorMetadataAndGeoJSON.unit;
+            this.allFeaturesNumberOfFeatures = count;
+            this.allFeaturesSum = this.getIndicatorValue_asFormattedText(sum);
+            // no division by zero
+            if (count > 0) 
+              this.allFeaturesMean = this.getIndicatorValue_asFormattedText(sum / count);
+            else 
+              this.allFeaturesMean = 0;
+            this.allFeaturesMin = this.getIndicatorValue_asFormattedText(min);
+            this.allFeaturesMax = this.getIndicatorValue_asFormattedText(max)
+          };
 
-            this.totalFeaturesPropertyValue_sum = this.getIndicatorValue_asFormattedText(sum);
-            this.totalFeaturesPropertyLabel_sum = "Summe aller " + indicatorMetadataAndGeoJSON.geoJSON.features.length + " Features";
-            this.totalFeaturesPropertyValue_mean = this.getIndicatorValue_asFormattedText(sum / count);     
-              this.totalFeaturesPropertyLabel_mean = "Arithmetisches Mittel aller  " + indicatorMetadataAndGeoJSON.geoJSON.features.length + " Features";   
+          
+          this.setSelectedFeatureProperty = function(selectedFeaturesMap, propertyName) {
+            let sum = 0;
+            let count = 0
+            let min = Number.MAX_VALUE;
+            let max = Number.MIN_VALUE;
             
-          };          
+            selectedFeaturesMap.forEach(function(feature, key, map) {
+              if(! thisService.indicatorValueIsNoData(feature.properties[propertyName])){
+                let value = thisService.getIndicatorValueFromArray_asNumber(feature.properties, propertyName);
+                sum += value;
+                if (value < min) min = value;
+                if (value > max) max = value;
+                count++;
+              }
+            });
+
+            if(count === 0) {
+              // no feature selected, overwrite initial values for min and max
+              min = 0;
+              max = 0;
+            }
+            
+
+            this.selectedFeaturesNumberOfFeatures = count;
+            this.selectedFeaturesSum = this.getIndicatorValue_asFormattedText(sum);
+            // no division by zero
+            if (count > 0) 
+              this.selectedFeaturesMean = this.getIndicatorValue_asFormattedText(sum / count);
+            else 
+              this.selectedFeaturesMean = 0;
+            this.selectedFeaturesMin = this.getIndicatorValue_asFormattedText(min);
+            this.selectedFeaturesMax = this.getIndicatorValue_asFormattedText(max);
+          };
+
 
           var containsNegativeValues = function(geoJSON, propertyName){
 
@@ -2840,5 +2753,25 @@ angular
       return rolesMetadata;
     };
 
+    $rootScope.$on("onAddedFeatureToSelection", function (event, selectedIndicatorFeatureIds) {
+      let propertyName = buildIndicatorPropertyName();
 
-				}]);
+      $timeout(function(params) {
+        thisService.setSelectedFeatureProperty(selectedIndicatorFeatureIds, propertyName);
+      });
+    });
+
+    $rootScope.$on("onRemovedFeatureFromSelection", function (event, selectedIndicatorFeatureIds) {
+      let propertyName = buildIndicatorPropertyName();
+
+      $timeout(function(params) {
+        thisService.setSelectedFeatureProperty(selectedIndicatorFeatureIds, propertyName);
+      });
+    });
+
+    function buildIndicatorPropertyName() {
+      const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
+      let propertyName = INDICATOR_DATE_PREFIX + thisService.selectedDate;
+      return propertyName;
+    }
+}]);

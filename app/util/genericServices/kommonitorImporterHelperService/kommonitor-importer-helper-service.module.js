@@ -380,14 +380,15 @@ angular
             "periodOfValidity": {
                 "endDate": scopeProperties.periodOfValidity.endDate,
                 "startDate": scopeProperties.periodOfValidity.startDate
-            }
+            },
+            "isPartialUpdate": scopeProperties.isPartialUpdate
         };
 
         return putBody;
       }
 
       this.buildPutBody_indicators = function(scopeProperties){
-
+        
         var putBody =
         {
           "indicatorValues": [],
@@ -442,7 +443,9 @@ angular
       };
 
       this.buildPropertyMapping_indicatorResource = function(spatialReferenceKeyProperty, timeseriesMappings, keepMissingOrNullValueIndicator){
-
+        console.log(spatialReferenceKeyProperty);
+        console.log(timeseriesMappings);
+        console.log(keepMissingOrNullValueIndicator);
         // attributeMapping is undefined for indicators
         return {
           "spatialReferenceKeyProperty": spatialReferenceKeyProperty,
@@ -485,7 +488,7 @@ angular
         });        
       };
 
-      this.updateSpatialUnit = async function(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, spatialUnitId, spatiaUnitPutBody_managementAPI, isDryRun){
+      this.updateSpatialUnit = async function(converterDefinition, datasourceTypeDefinition, propertyMappingDefinition, spatialUnitId, spatialUnitPutBody_managementAPI, isDryRun){
         console.log("Trying to POST to importer service to update spatial unit with id '" + spatialUnitId + "'.");
 
         var postBody = {
@@ -493,7 +496,7 @@ angular
           "dataSource": datasourceTypeDefinition,
           "propertyMapping": propertyMappingDefinition,
           "spatialUnitId": spatialUnitId,
-          "spatialUnitPutBody": spatiaUnitPutBody_managementAPI,
+          "spatialUnitPutBody": spatialUnitPutBody_managementAPI,
           "dryRun": isDryRun
         };        
 

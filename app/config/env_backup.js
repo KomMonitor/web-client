@@ -4,6 +4,10 @@ try {
 
   window.__env.appTitle = "smartdemography - Karten und Daten";
 
+  // a unique prefix for the respective KomMonitor instance
+  // it is used to distuingish between various KomMonitor instances in order to write/read data to/from browser cache
+  window.__env.localStoragePrefix = "kommonitor-develop";
+
   // Whether or not to enable debug mode
   // Setting this to false will disable console output
   window.__env.enableDebug = true;
@@ -46,15 +50,23 @@ try {
   PROPERTIES used within special modal (spatialUnitNotification component)
   to show a customizable HTMLText only when user selects a certian spatial unit for any indicator
   */
-  window.__env.enableSpatialUnitNotificationSelection = true; // controls if a notification should be shown when selecting certain spatial units
-  window.__env.enableSpatialUnitNotificationButton = true; // enables button to manually open spatial unit notification
-  window.__env.spatialUnitNotificationSelection = ["Baublockebene", ""]; // unit(s) for which the notification is shown
+  window.__env.enableSpatialUnitNotificationSelection = false; // controls if a notification should be shown when selecting certain spatial units
+  window.__env.enableSpatialUnitNotificationButton = false; // enables button to manually open spatial unit notification
+  window.__env.spatialUnitNotificationSelection = ["Baublockebene"]; // unit(s) for which the notification is shown
   window.__env.spatialUnitNotificationTitle = "Informationsverlust auf kleinräumigen Ebenen (Bau- und Mittelblock)"; // title of the notification window
-  window.__env.spatialUnitNotificationMessage = "Alle Daten, die im smartdemography-Portal dargestellt werden, halten die statistische Geheimhaltung ein. Das bedeutet, dass Angaben zu einzelnen Personen nicht offengelegt werden, insbesondere auch, wenn aus aggregierten Werten Rückschlüsse zu Einzelangaben ermöglicht werden. Aus diesem Grund werden Indikatorenwerte, die in einem räumlichen Aggregat eine absolute Fallzahl von < 3 Einwohnern aufweisen, so behandelt, als hätten diese 0 Einwohner.\
+  window.__env.spatialUnitNotificationMessage = "Alle Daten, die im KomMonitor dargestellt werden, halten die statistische Geheimhaltung ein. Das bedeutet, dass Angaben zu einzelnen Personen nicht offengelegt werden, insbesondere auch, wenn aus aggregierten Werten Rückschlüsse zu Einzelangaben ermöglicht werden. Aus diesem Grund werden Indikatorenwerte, die in einem räumlichen Aggregat eine absolute Fallzahl von < 3 Einwohnern aufweisen, so behandelt, als hätten diese 0 Einwohner.\
     Diese Methode der statistischen Geheimhaltung kann zu einem teilweise hohen Informationsverlust auf kleinräumigen Ebenen führen. Stark differenzierte Indikatoren auf kleinräumigen Ebenen, die insgesamt nur wenige Fallzahlen aufweisen, könnten so an vielen Stellen entsprechend bereinigt worden seien und somit keine validen Werte liefern. \
     Dies lässt sich daran erkennen, dass die Fallzahlen insgesamt niedrig sind und viele Gebiete 0-Werte haben. Eine flächendeckendes Bild ist somit nicht möglich. \
     Dennoch bieten diese Indikatoren trotz ungenauer Wertedie Möglichkeit, „Hot-Spots“ und „Cluster“ der jeweiligen Indikatoren zu ermitteln. \
     Zahlen auf kleinräumige Ebenen sollten vor diesem Hintergrund vorsichtig und sorgfältig interpretiert werden."; // message shown when previous spatial unit is selected
+
+  /*
+  PROPERTIES used within extended info  modal (second tab) to show a customizable HTMLText
+  */
+ window.__env.enableExtendedInfoModal = false; // controls if an extra tab should be shown in the info modal. 
+ window.__env.standardInfoModalTabTitle = "Informationen zu KomMonitor" // title of the first tab
+ window.__env.extendedInfoModalTabTitle = "Weitere Informationen"  // title of the second tab
+ window.__env.extendedInfoModalHTMLMessage = "";  // message in the second tab as HTML
 
   // admin user credentials to log into admin view in No-Keycloak-Settings
   window.__env.adminUserName = "Admin";
@@ -206,6 +218,7 @@ try {
   window.__env.useOutlierDetectionOnIndicator = true;
   window.__env.classifyZeroSeparately = true;
   window.__env.classifyUsingWholeTimeseries = true;
+  window.__env.useNoDataToggle = false; // true = hide no data values, false = show no data values
 
   // default color for specific classification as ColorBrewer palette name
   // i.e. balance mode

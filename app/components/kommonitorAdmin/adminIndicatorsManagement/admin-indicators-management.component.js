@@ -1,7 +1,7 @@
 angular.module('adminIndicatorsManagement').component('adminIndicatorsManagement', {
 	templateUrl : "components/kommonitorAdmin/adminIndicatorsManagement/admin-indicators-management.template.html",
-	controller : ['kommonitorDataExchangeService', 'kommonitorDataGridHelperService', '$scope', '$timeout', '$rootScope', '__env', '$http', 
-	function IndicatorsManagementController(kommonitorDataExchangeService, kommonitorDataGridHelperService, $scope, $timeout, $rootScope, __env, $http) {
+	controller : ['kommonitorDataExchangeService', 'kommonitorCacheHelperService', 'kommonitorDataGridHelperService', '$scope', '$timeout', '$rootScope', '__env', '$http', 
+	function IndicatorsManagementController(kommonitorDataExchangeService, kommonitorCacheHelperService, kommonitorDataGridHelperService, $scope, $timeout, $rootScope, __env, $http) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 		this.kommonitorDataGridHelperServiceInstance = kommonitorDataGridHelperService;
@@ -119,7 +119,7 @@ angular.module('adminIndicatorsManagement').component('adminIndicatorsManagement
 			}
 			else if(crudType && targetIndicatorId){
 				if(crudType == "add"){
-					kommonitorDataExchangeService.fetchSingleIndicatorMetadata(targetIndicatorId).then(function successCallback(data) {
+					kommonitorCacheHelperService.fetchSingleIndicatorMetadata(targetIndicatorId).then(function successCallback(data) {
 
 						kommonitorDataExchangeService.addSingleIndicatorMetadata(data);
 
@@ -135,7 +135,7 @@ angular.module('adminIndicatorsManagement').component('adminIndicatorsManagement
 					});
 				}
 				else if(crudType == "edit"){
-					kommonitorDataExchangeService.fetchSingleIndicatorMetadata(targetIndicatorId).then(function successCallback(data) {
+					kommonitorCacheHelperService.fetchSingleIndicatorMetadata(targetIndicatorId).then(function successCallback(data) {
 
 						kommonitorDataExchangeService.replaceSingleIndicatorMetadata(data);
 						

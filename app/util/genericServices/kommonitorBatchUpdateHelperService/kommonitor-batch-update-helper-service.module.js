@@ -6,9 +6,10 @@ angular
         'kommonitorBatchUpdateHelperService', ['$rootScope', '$timeout', 'kommonitorDataExchangeService', 'kommonitorImporterHelperService', '__env',
             function ($rootScope, $timeout, kommonitorDataExchangeService, kommonitorImporterHelperService, __env) {
 
-                let thisService = this; // to enable acces to service methods from inside other functions (e. g. $timeout) where 'this' references something else
+                let thisService = this; // to enable access to service methods from inside other functions (e. g. $timeout) where 'this' references something else
+                let timeseriesMappingReference;
 
-                this.batchUpdate = async function (resourceType, batchList) {
+                this.batchUpdate = async function (resourceType, batchList, keepMissingOrNullValueIndicator, keepMissingOrNullValueAttributes) {
 
                     let startBtn = document.getElementById(resourceType + "-batch-update-btn");
                     startBtn.innerHTML = "Update wird ausgef&uuml;hrt...";
@@ -30,7 +31,6 @@ angular
                     try {
                         for (let i=0; i<batchListCopy.length; i++) {
                             let row = batchListCopy[i];
-                            //console.log("row: ", row);
     
                             let resourceId;
                             if (resourceType === "georesource")
@@ -64,7 +64,7 @@ angular
                                         //console.log("datasourceTypeDefinition after file upload: ", datasourceTypeDefinition);
                                     }
                                 } catch (error) {
-                                    console.log("error while uploading file in row: " + i);
+                                    console.error("error while uploading file in row: " + i);
                                     responses.push({
                                         name: resourceType === "georesource" ? row.name.datasetName : row.name.indicatorName,
                                         status: "error",
@@ -87,7 +87,7 @@ angular
                                     row.mappingObj.propertyMapping.validEndDateProperty,
                                     row.mappingObj.propertyMapping.arisenFromProperty,
                                     row.mappingObj.propertyMapping.keepAttributes,
-                                    row.mappingObj.propertyMapping.keepMissingOrNullValueAttributes,
+                                    keepMissingOrNullValueAttributes,
                                     this.createAttributeMappingsObject(row)
                                 )
     
@@ -158,10 +158,10 @@ angular
                                 var propertyMappingDefinition = kommonitorImporterHelperService.buildPropertyMapping_indicatorResource(
                                     row.mappingObj.propertyMapping.spatialReferenceKeyProperty,
                                     row.mappingObj.propertyMapping.timeseriesMappings,
-                                    row.mappingObj.propertyMapping.keepMissingOrNullValueIndicator,
+                                    keepMissingOrNullValueIndicator
                                 )
     
-                                //console.log("propertyMappingDefinition of row " + i + " with importerService: ", propertyMappingDefinition);
+                                console.log("propertyMappingDefinition of row " + i + " with importerService: ", propertyMappingDefinition);
     
                                 var scopeProperties = {
                                     "targetSpatialUnitMetadata": {
@@ -171,7 +171,7 @@ angular
                                         "defaultClassificationMapping": row.name.defaultClassificationMapping
                                     },
                                     "allowedRoleNames": {
-                                        "selectedItems": row.name.allowedRoles
+                                        "selectedItems": [] // do not allow to change roles in batch update
                                     }
                                 }
                                  var putBody_indicators = kommonitorImporterHelperService.buildPutBody_indicators(scopeProperties)
@@ -275,6 +275,15 @@ angular
     
                     var objToExport = $.extend({}, row.mappingObj);
 
+                    if(typeof(row.selectedConverter) === undefined) {
+                        if(resourceType === "georesource" )
+                            console.error("Geodaten-Quellformat* is not defined.")
+                        if(resourceType === "indicator" )
+                            console.error("Datensatz-Quellformat* is not defined.")
+                    }
+                        
+                    if(typeof(row.selectedDatasourceType) === undefined)
+                        console.error("Datenquelltyp* is not defined.")
                     objToExport.converter = this.converterPropertiesToParametersArray(objToExport.converter)
                     objToExport.dataSource = this.dataSourcePropertyToParametersArray(objToExport.dataSource)
 
@@ -283,8 +292,12 @@ angular
                     objToExport.converter = this.buildConverterDefinition(row.selectedConverter, objToExport.converter);
                     objToExport.dataSource = this.buildDataSourceDefinition(row.selectedDatasourceType, objToExport.dataSource, false)
 
-                    if(resourceType === "indicator")
+                    if(resourceType === "indicator" ) {
+                        if(typeof(row.selectedTargetSpatialUnit) === undefined)
+                            console.error("Ziel-Raumebene* is not defined.")
                         objToExport.targetSpatialUnitName = row.selectedTargetSpatialUnit.spatialUnitLevel;
+                    }
+                        
 
                     jsonToExport = JSON.stringify(objToExport);
 
@@ -330,24 +343,22 @@ angular
                         if (resourceType === "indicator" && objToExport[i].name)
                             objToExport[i].name = objToExport[i].name.indicatorId;
 
-                        // if mapping table was selected
-                        if (row.mappingTableName.length > 0) {
-                            objToExport[i].mappingObj.converter = this.converterPropertiesToParametersArray(objToExport[i].mappingObj.converter)
-                            objToExport[i].mappingObj.dataSource = this.dataSourcePropertyToParametersArray(objToExport[i].mappingObj.dataSource)
+                        // convert properties to parameters array
+                        objToExport[i].mappingObj.converter = this.converterPropertiesToParametersArray(objToExport[i].mappingObj.converter)
+                        objToExport[i].mappingObj.dataSource = this.dataSourcePropertyToParametersArray(objToExport[i].mappingObj.dataSource)
 
-                            // replace converter and dataSource definitions
-                            objToExport[i].mappingObj.converter = this.buildConverterDefinition(row.selectedConverter, objToExport[i].mappingObj.converter);
-                            objToExport[i].mappingObj.dataSource = this.buildDataSourceDefinition(row.selectedDatasourceType, objToExport[i].mappingObj.dataSource, false);
+                        // replace converter and dataSource definitions
+                        objToExport[i].mappingObj.converter = this.buildConverterDefinition(row.selectedConverter, objToExport[i].mappingObj.converter);
+                        objToExport[i].mappingObj.dataSource = this.buildDataSourceDefinition(row.selectedDatasourceType, objToExport[i].mappingObj.dataSource, false);
 
-                            // No need to export these
-                            delete objToExport[i].selectedConverter;
-                            delete objToExport[i].selectedDatasourceType;
+                        // No need to export these, information is stored in mappingObj
+                        delete objToExport[i].selectedConverter;
+                        delete objToExport[i].selectedDatasourceType;
 
-                            if(resourceType === "indicator") {
-                                objToExport[i].mappingObj.targetSpatialUnitName = row.selectedTargetSpatialUnit.spatialUnitLevel;
-                                delete objToExport[i].selectedTargetSpatialUnit; 
-                            }
-                            
+                        // move information about targetSpatialUnit to mapping mappingObj
+                        if(resourceType === "indicator" && row.selectedTargetSpatialUnit) {
+                            objToExport[i].mappingObj.targetSpatialUnitName = row.selectedTargetSpatialUnit.spatialUnitLevel;
+                            delete objToExport[i].selectedTargetSpatialUnit; 
                         }
 
                         if(row.hasOwnProperty("tempResourceId"))
@@ -399,7 +410,8 @@ angular
                 }
 
                 this.addNewRowToBatchList = function (resourceType, batchList) {
-                    //console.log(batchList);
+
+                    console.log(batchList);
 
                     // create new object theat matches the row-scheme
                     let obj = {}
@@ -486,7 +498,7 @@ angular
                                 type: ""
                             },
                             propertyMapping: {
-                                timeseriesMapping: [
+                                timeseriesMappings: [
                                     /*
                                     {
                                         "indicatorValueProperty": "string",
@@ -506,8 +518,11 @@ angular
                     }
                     batchList.push(obj);
 
-                    if(resourceType === "georesource")
-                        this.initializeGeoresourceDatepickerFields(batchList);             
+                    if(resourceType === "georesource") {
+                        this.initializeGeoresourceDatepickerFields(batchList);
+                    }
+
+                    this.resizeNameColumnDropdowns(null)
                 }
 
                 this.deleteSelectedRowsFromBatchList = function (batchList, allRowsSelected) {
@@ -533,7 +548,12 @@ angular
                     return index;
                 }
 
+
+                // builds a converter definition with parameters array from the currently selected datasource
+                // selectedConverter = the currently selected converter in the dropdown
+                // oldConverter = the converter property from a mapping object.
                 this.buildConverterDefinition = function (selectedConverter, oldConverter) {
+                    
                     var converterDefinition = {
                         encoding: selectedConverter.encodings[0],
                         mimeType: selectedConverter.mimeTypes[0],
@@ -599,7 +619,12 @@ angular
                     return converterDefinition;
                 }
 
+
+                // builds a datasource definition with parameters array from the currently selected datasource
+                // selectedDatasourceType = the currently selected datasource in the dropdown
+                // oldDataSource = the datasource property from a mapping object.
                 this.buildDataSourceDefinition = function (selectedDatasourceType, oldDataSource, includeFileName) {
+
                     var dataSourceDefinition = {
                         parameters: [],
                         type: selectedDatasourceType.type
@@ -714,60 +739,65 @@ angular
                 // Binding to unnamed objects in an array tricky (using the index is not reliable)
                 // It also creates other problems
                 this.dataSourceParametersArrayToProperty = function (dataSource) {
-                    var result = $.extend(true, {}, dataSource);
-                    var array = dataSource.parameters;
-
-                    if (array.length == 1) {
-                        var paramName = array[0].name
-                        var paramValue = array[0].value
-
-                        result[paramName] = {
-                            name: paramName,
-                            value: paramValue
+                    if(dataSource) {
+                        var result = $.extend(true, {}, dataSource);
+                        var array = dataSource.parameters;
+    
+                        if (array.length == 1) {
+                            var paramName = array[0].name
+                            var paramValue = array[0].value
+    
+                            result[paramName] = {
+                                name: paramName,
+                                value: paramValue
+                            }
                         }
+                        delete result.parameters;
+    
+                        return result;
                     }
-                    delete result.parameters;
-
-                    return result;
                 }
 
                 // This reverses the result of the method dataSourceParametersArrayToProperty
                 this.dataSourcePropertyToParametersArray = function (dataSource) {
-                    var result = $.extend(true, {}, dataSource);
-                    result.parameters = [];
-
-                    if (result.hasOwnProperty("NAME")) {
-                        result.parameters.push({
-                            name: "NAME",
-                            value: result.NAME.value
-                        });
-                        delete result.NAME;
+                    if (dataSource) {
+                        var result = $.extend(true, {}, dataSource);
+                        result.parameters = [];
+    
+                        if (result.hasOwnProperty("NAME")) {
+                            result.parameters.push({
+                                name: "NAME",
+                                value: result.NAME.value
+                            });
+                            delete result.NAME;
+                        }
+    
+                        if (result.hasOwnProperty("URL")) {
+                            result.parameters.push({
+                                name: "URL",
+                                value: result.URL.value
+                            });
+                            delete result.URL;
+                        }
+    
+                        if (result.hasOwnProperty("payload")) {
+                            result.parameters.push({
+                                name: "payload",
+                                value: result.payload.value
+                            });
+                            delete result.payload;
+                        }
+    
+                        return result;
                     }
-
-                    if (result.hasOwnProperty("URL")) {
-                        result.parameters.push({
-                            name: "URL",
-                            value: result.URL.value
-                        });
-                        delete result.URL;
-                    }
-
-                    if (result.hasOwnProperty("payload")) {
-                        result.parameters.push({
-                            name: "payload",
-                            value: result.payload.value
-                        });
-                        delete result.payload;
-                    }
-
-                    return result;
+                    
                 }
 
 
                 // helper function to get a converter object by full name.
                 // returns null if no converter was found
                 this.getConverterObjectByName = function (name) {
-                    for (converter of kommonitorImporterHelperService.availableConverters) {
+                    for (const converter of kommonitorImporterHelperService.availableConverters) {
                         if (converter.name === name) {
                             return converter;
                         }
@@ -779,7 +809,7 @@ angular
                 // helper function to get a datasourceType object by type.
                 // returns null if no datasourceType was found
                 this.getDatasourceTypeObjectByType = function (type) {
-                    for (datasourceType of kommonitorImporterHelperService.availableDatasourceTypes) {
+                    for (const datasourceType of kommonitorImporterHelperService.availableDatasourceTypes) {
                         if (datasourceType.type === type) {
                             return datasourceType;
                         }
@@ -791,7 +821,7 @@ angular
                 // helper function to get a spatial unit object by full name.
                 // returns null if no spatial unit was found
                 this.getSpatialUnitObjectByName = function (name) {
-                    for (spatialUnit of kommonitorDataExchangeService.availableSpatialUnits) {
+                    for (const spatialUnit of kommonitorDataExchangeService.availableSpatialUnits) {
                         if (spatialUnit.spatialUnitLevel === name) {
                             return spatialUnit;
                         }
@@ -803,7 +833,7 @@ angular
                 // helper function to get a georesource object by id.
                 // returns null if no georesource object was found
                 this.getGeoresourceObjectById = function (id) {
-                    for (georesource of kommonitorDataExchangeService.availableGeoresources) {
+                    for (const georesource of kommonitorDataExchangeService.availableGeoresources) {
                         if (georesource.georesourceId === id) {
                             return georesource;
                         }
@@ -814,7 +844,7 @@ angular
                 // helper function to get a indicator object by id.
                 // returns null if no indicator object was found
                 this.getIndicatorObjectById = function (id) {
-                    for (indicator of kommonitorDataExchangeService.availableIndicators) {
+                    for (let indicator of kommonitorDataExchangeService.availableIndicators) {
                         if (indicator.indicatorId === id) {
                             return indicator;
                         }
@@ -965,15 +995,16 @@ angular
 			    		}
 
 			    		if (batchList[i].selectedDatasourceType) {
-			    			let datasourceType = batchList[i].selectedDatasourceType.type;
+                            let datasourceType = batchList[i].selectedDatasourceType.type;
+			    			let dataSource = batchList[i].mappingObj.dataSource
 			    			if (datasourceType != undefined && datasourceType.length > 0) {
-                            
+
 			    				if (datasourceType == "FILE") {
-			    					if(!batchList[i].mappingObj.dataSource.NAME) {
+			    					if(!dataSource.NAME) {
                                         updateBtn.title = "Die Spalte Datei* ist nicht für alle Zeilen gesetzt, in denen die Spalte Datenquelltyp* auf FILE gesetzt ist."
 			    						return false;
                                     } else {
-                                        let value = batchList[i].mappingObj.dataSource.NAME.value;
+                                        let value = dataSource.NAME.value;
 			    						if(value == undefined || value == "") {
 			    							updateBtn.title = "Die Spalte Datei* ist nicht für alle Zeilen gesetzt, in denen die Spalte Datenquelltyp* auf FILE gesetzt ist."
 			    							return false;
@@ -982,13 +1013,13 @@ angular
 			    				}
 
                                 if (datasourceType == "HTTP") {
-                                    if(!batchList[i].mappingObj.dataSource.URL) {
+                                    if(!dataSource.URL) {
                                         // property does not exist until user uses the input field for the first time
                                         updateBtn.title = "Die Spalte URL* ist nicht für alle Zeilen gesetzt, in denen die Spalte Datenquelltyp* auf HTTP gesetzt ist."
 			    						return false;
                                     } else {
                                         // the field could still be empty (if it had input before)
-                                        let value = batchList[i].mappingObj.dataSource.URL.value;
+                                        let value = dataSource.URL.value;
 			    						if(value == undefined || value == "") {
 			    							updateBtn.title = "Die Spalte URL* ist nicht für alle Zeilen gesetzt, in denen die Spalte Datenquelltyp* auf HTTP gesetzt ist."
 			    							return false;
@@ -997,13 +1028,13 @@ angular
                                 }
 
                                 if (datasourceType == "INLINE") {
-                                    if(!batchList[i].mappingObj.dataSource.payload) {
+                                    if(!dataSource.payload) {
                                         // property does not exist until user uses the input field for the first time
-                                        updateBtn.title = "Die Spalte URL* ist nicht für alle Zeilen gesetzt, in denen die Spalte Datenquelltyp* auf HTTP gesetzt ist."
+                                        updateBtn.title = "Die Spalte Payload* ist nicht für alle Zeilen gesetzt, in denen die Spalte Datenquelltyp* auf INLINE gesetzt ist."
 			    						return false;
                                     } else {
                                          // the field could still be empty (if it had input before)
-                                        let value = batchList[i].mappingObj.dataSource.payload.value;
+                                        let value = dataSource.payload.value;
 			    						if(value == undefined || value == "") {
 			    							updateBtn.title = "Die Spalte Payload* ist nicht für alle Zeilen gesetzt, in denen die Spalte Datenquelltyp* auf INLINE gesetzt ist."
 			    							return false;
@@ -1035,7 +1066,11 @@ angular
                     // set filename manually
                     let name = file.name;
                     $timeout(function() {
-                        batchList[rowIndex].mappingObj.dataSource.NAME.value = name;
+                        let dataSource = batchList[rowIndex].mappingObj.dataSource;
+                        dataSource.parameters = [];
+                        dataSource.NAME = {}
+                        dataSource.NAME.value = name
+                        batchList[rowIndex].mappingObj.dataSource = dataSource;
                     });
                 }
 
@@ -1062,16 +1097,19 @@ angular
 			    	}
                 
 			    	// set value of column "Datenquelltyp*" by dataSource type
-			    	let dataSourceType = mappingObj.dataSource.type;
-			    	for(let i=0; i<kommonitorImporterHelperService.availableDatasourceTypes.length; i++) {
-			    		let avDataSourceType = kommonitorImporterHelperService.availableDatasourceTypes[i].type
-			    		if(dataSourceType == avDataSourceType) {
-			    			$timeout(function() {
-			    				batchList[rowIndex].selectedDatasourceType = kommonitorImporterHelperService.availableDatasourceTypes[i];
-			    			});
-			    			break;
-			    		}
-			    	}
+                    if(mappingObj.dataSource) {
+                        let dataSourceType = mappingObj.dataSource.type;
+                        for(let i=0; i<kommonitorImporterHelperService.availableDatasourceTypes.length; i++) {
+                            let avDataSourceType = kommonitorImporterHelperService.availableDatasourceTypes[i].type
+                            if(dataSourceType == avDataSourceType) {
+                                $timeout(function() {
+                                    batchList[rowIndex].selectedDatasourceType = kommonitorImporterHelperService.availableDatasourceTypes[i];
+                                });
+                                break;
+                            }
+                        }
+                    }
+			    	
 
                     if(resourceType === "indicator") {
                         // set value of column "Ziel-Raumebene*" by target spatial unit name
@@ -1083,9 +1121,11 @@ angular
                     }
                 
 			    	// do not import file name
-			    	if(mappingObj.dataSource.type == "FILE") {
-			    		mappingObj.dataSource.NAME.value = "";
-			    	}
+                    if(mappingObj.dataSource) {
+			    	    if(mappingObj.dataSource.type == "FILE") {
+			    		    mappingObj.dataSource.NAME.value = "";
+			    	    }
+                    }
                 
 			    	//apply to scope
 			    	$timeout(function() {
@@ -1112,9 +1152,11 @@ angular
 
 
                 this.onClickSaveColDefaultValue = function(resourceType, selectedCol, newValue, replaceAll, batchList) {
-                    // differentiate between timesereis mapping and other columns
-                    if(selectedCol == "mappingObj.propertyMapping.timeseriesMapping") {
-                        if(typeof(newValue != "undefined")) {
+                    // differentiate between timeseries mapping and other columns
+                    if(selectedCol == "mappingObj.propertyMapping.timeseriesMappings") {
+                        // new value is undefined for timeseries mapping.
+                        // instead we get the new mapping from the variable
+                        if(typeof(newValue == "undefined")) {
                             let btns = angular.element($('.indicatorTimeseriesMappingBtn'));
                             for (let i=0; i<batchList.length; i++) {
                                 // never change disabled fields
@@ -1122,28 +1164,29 @@ angular
                                 if(btn.getAttribute('disabled'))
                                     continue;
 
-                                newValue  = angular.fromJson(angular.toJson(newValue));
+                                timeseriesMappingReference  = angular.fromJson(angular.toJson(timeseriesMappingReference));
                                 let oldMapping = batchList[i].mappingObj.propertyMapping.timeseriesMappings
-                                // iterate newValue
-                                for (let j=0; j<newValue.length; j++) {
+                                
+                                // iterate timeseriesMappingReference
+                                for (let j=0; j<timeseriesMappingReference.length; j++) {
                                     let exists = false;
                                     // for each entry check if it exists in oldMapping
                                     for (let k=0; k<oldMapping.length; k++) {
-                                        if(oldMapping[k].indicatorValueProperty == newValue[j].indicatorValueProperty) {
+                                        // check if indicatorValueProperty value property is the same
+                                        if(oldMapping[k].indicatorValueProperty == timeseriesMappingReference[j].indicatorValueProperty) {
                                             exists = true;
                                             if(replaceAll)
-                                                batchList[i].mappingObj.propertyMapping.timeseriesMappings[j] = newValue[j];
+                                                batchList[i].mappingObj.propertyMapping.timeseriesMappings[j] = timeseriesMappingReference[j];
                                         }
                                     }
 
                                     if(!exists) {
                                         // add mapping
-                                        batchList[i].mappingObj.propertyMapping.timeseriesMappings.push(newValue[j])
+                                        batchList[i].mappingObj.propertyMapping.timeseriesMappings.push(timeseriesMappingReference[j])
                                     }
                                 }
                             }
                         }
-                    
                     } else {
                         if(typeof(newValue != "undefined")) {
                             if(typeof(newValue === "object") || (typeof(newValue) === "string" && newValue.length > 0)) {
@@ -1217,12 +1260,33 @@ angular
                             let resource;
                             if (resourceType === "georesource")
                                 resource = this.getGeoresourceObjectById(row.tempResourceId);
-                                if (resourceType === "indicator")
+                            if (resourceType === "indicator")
                                 resource = this.getIndicatorObjectById(row.tempResourceId);
                             
                             row.name = resource;
                         }
                     }
                 }
+
+                
+                this.resizeNameColumnDropdowns = function(resource) {
+                    $timeout(function() {
+                        let inputs = $('.ui-select-toggle'); 
+
+                        for(let input of inputs) {
+                            input = $(input);
+                            input.css("background-color", "white");
+                            input.css("border", "none");
+                            input.css("width", '100%');
+                        }
+                    }, 500);     	
+                };
+
+
+                $rootScope.$on("timeseriesMappingChanged", function(event, data) {
+                    timeseriesMappingReference = data.mapping;
+                });
+
+
             }
         ]);
