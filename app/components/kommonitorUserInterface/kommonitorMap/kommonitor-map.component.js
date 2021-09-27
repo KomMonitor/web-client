@@ -69,6 +69,10 @@ angular.module('kommonitorMap').component(
         $scope.drawnPointFeatures = undefined;
         $scope.drawPointControl = undefined;
 
+        $scope.featuresWithValues = [];
+        $scope.featuresWithoutValues = [];
+
+
         const MultipleResultsLeafletSearch = L.Control.Search.extend({
 
           _makeUniqueKey: function (featureName, featureId) {
@@ -377,6 +381,20 @@ angular.module('kommonitorMap').component(
           });
           $scope.map.on('overlayremove', function (eo) {
             $scope.updateSearchControl();
+          });
+
+          // update zoom and extent
+          $scope.map.on('zoomend', function (eo) {
+            let latLng = $scope.map.getCenter();
+            __env.currentLatitude = latLng.lat;
+            __env.currentLongitude = latLng.lng;
+            __env.currentZoomLevel = $scope.map.getZoom();
+          });
+          $scope.map.on('moveend', function (eo) {
+            let latLng = $scope.map.getCenter();
+            __env.currentLatitude = latLng.lat;
+            __env.currentLongitude = latLng.lng;
+            __env.currentZoomLevel = $scope.map.getZoom();
           });
 
           $scope.baseMaps = {
@@ -952,6 +970,80 @@ angular.module('kommonitorMap').component(
 
           $rootScope.$broadcast("restyleCurrentLayer", false);
         });
+
+        $(document).on('click', '#controlNoDataDisplay', function (e) {
+          var controlNoDataDisplayCheckbox = document.getElementById('controlNoDataDisplay');
+
+          if (controlNoDataDisplayCheckbox.checked) {
+            $scope.applyNoDataDisplay();
+          } else {
+            $scope.resetNoDataDisplay();
+          }
+
+          $rootScope.$broadcast("restyleCurrentLayer", false);
+
+          // ensure that highlighted features remain highlighted
+          preserveHighlightedFeatures();
+        }); 
+
+
+        $scope.$on("applyNoDataDisplay", function() {
+          $scope.applyNoDataDisplay();
+        });
+        
+        
+        $scope.applyNoDataDisplay = function() {
+          kommonitorDataExchangeService.useNoDataToggle = true;
+          $scope.featuresWithValues = [];
+          for (var i = 0; i < $scope.currentIndicatorMetadataAndGeoJSON.geoJSON.features.length; i++) {
+            if (!kommonitorDataExchangeService.indicatorValueIsNoData($scope.currentIndicatorMetadataAndGeoJSON.geoJSON.features[i].properties[$scope.indicatorPropertyName])) {
+              $scope.featuresWithValues.push($scope.currentIndicatorMetadataAndGeoJSON.geoJSON.features[i])
+            } else {
+              $scope.featuresWithoutValues.push($scope.currentIndicatorMetadataAndGeoJSON.geoJSON.features[i])
+            }
+          }
+          
+          // get feature names array
+          let featuresWithValuesNames = [];
+          for (var i = 0; i < $scope.featuresWithValues.length; i++) {
+            featuresWithValuesNames.push( $scope.featuresWithValues[i].properties["name"]);
+          }
+
+          // store checkbox state
+          let completelyRemoveFilteredFeaturesFromDisplayChbState = kommonitorFilterHelperService.completelyRemoveFilteredFeaturesFromDisplay;
+          kommonitorFilterHelperService.completelyRemoveFilteredFeaturesFromDisplay = true; // set checkbox true
+          // perform spatial filter
+          kommonitorFilterHelperService.applySpatialFilter_currentSpatialUnitFeatures(featuresWithValuesNames);
+          // set checkbox to previous state
+          kommonitorFilterHelperService.completelyRemoveFilteredFeaturesFromDisplay = completelyRemoveFilteredFeaturesFromDisplayChbState;
+        }
+
+
+        $scope.$on("resetNoDataDisplay", function() {
+          $scope.resetNoDataDisplay();
+        });
+
+        $scope.resetNoDataDisplay = function() {
+          kommonitorDataExchangeService.useNoDataToggle = false;
+            let visibleFeatures = $scope.currentIndicatorMetadataAndGeoJSON.geoJSON.features;
+            let visibleAndNoDataFeatures = visibleFeatures.concat($scope.featuresWithoutValues);
+
+            // get feature names array
+            let visibleAndNoDataFeaturesNames = [];
+            for (var i = 0; i < visibleAndNoDataFeatures.length; i++) {
+              visibleAndNoDataFeaturesNames.push( visibleAndNoDataFeatures[i].properties["name"]);
+            }
+
+            // store checkbox state
+            let completelyRemoveFilteredFeaturesFromDisplayChbState = kommonitorFilterHelperService.completelyRemoveFilteredFeaturesFromDisplay;
+            kommonitorFilterHelperService.completelyRemoveFilteredFeaturesFromDisplay = true; // set checkbox true
+            // perform spatial filter
+            kommonitorFilterHelperService.applySpatialFilter_currentSpatialUnitFeatures(visibleAndNoDataFeaturesNames);
+            // set checkbox to previous state
+            kommonitorFilterHelperService.completelyRemoveFilteredFeaturesFromDisplay = completelyRemoveFilteredFeaturesFromDisplayChbState;
+
+            $scope.featuresWithoutValues = [];
+        }
 
         
         /**
@@ -2778,7 +2870,8 @@ angular.module('kommonitorMap').component(
           // in styling methods, outliers should be removed from classification!
           $scope.currentIndicatorMetadataAndGeoJSON = markOutliers($scope.currentIndicatorMetadataAndGeoJSON, $scope.indicatorPropertyName);
 
-          kommonitorDataExchangeService.setTotalFeaturesProperty(indicatorMetadataAndGeoJSON, $scope.indicatorPropertyName);
+          kommonitorDataExchangeService.setAllFeaturesProperty(indicatorMetadataAndGeoJSON, $scope.indicatorPropertyName);
+          kommonitorDataExchangeService.setSelectedFeatureProperty(kommonitorFilterHelperService.selectedIndicatorFeatureIds, $scope.indicatorPropertyName);
 
           $scope.currentGeoJSONOfCurrentLayer = $scope.currentIndicatorMetadataAndGeoJSON.geoJSON;
 

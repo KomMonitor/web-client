@@ -65,37 +65,77 @@
 							<!-- fieldsets -->
 
 							<fieldset>
-
-								<h2 class="fs-title">Einleitende Hinweise</h2>
-								<div>
-									<p>KomMonitor erlaubt die Fortf&uuml;hrung/Berechnung von Indikatoren aus
-										Georessourcen oder anderen
-										(Sub-)Indikatoren. dazu sind zwei Schritte notwendig:</p>
-								
-										<p>
-											<b><u>Erster Schritt:</u></b> Anlegen des zu berechnenden Ziel-Indikators mittels Indikatoren-Verwaltung.
-												Als
-												<i>Fortf&uuml;hrungstyp</i>
-												muss hierbei <i>automatisierte Berechnung durch KomMonitor</i> gesetzt
-												werden.
-												<br/>
-											<b><u>Zweiter Schritt:</u></b>
-												Anlegen des Berechnungs-Skripts mittels Skriptverwaltung unter Auswahl des
-												zuvor definierten
-												Ziel-Indikators.
-										</p>
-
-									<p>Das KomMonitor Gesamtsystem umfasst einen sogegannten <b>Processing
-											Scheduler</b>, der anhand der
-										Skript- und
-										Indikatoren-Metadaten automatisch die Berechnung der
-										Ziel-Indikatoren-Zeitschnitte antriggert.
-										Die Berechnung
-										selbst erfolgt über die <b>Processing Engine</b> Komponente, deren
-										Berechnungs-Jobs unter dem
-										Men&uuml;
-										<i>Indikatorenberechnung</i> eingesehen werden k&ouml;nnen.</p>
+								<div class="row">
+									<div class="col-md-12">
+										<h2 class="fs-title">Einleitende Hinweise</h2>
+										<br />
+										<div class="text-left">
+											<p>KomMonitor erlaubt die automatisierte Fortf&uuml;hrung/Berechnung von Indikatoren aus Georessourcen oder anderen
+												(Sub-)Indikatoren. Dazu sind zwei Schritte notwendig:
+											</p>
+											<ol class="list-unstyled scriptAddFormList">
+												<li>
+													<b><u>Erster Schritt:</u></b>
+													Auswahl / Anlegen des zu berechnenden <b><i>Ziel-Indikators</i></b> mittels Indikatoren-Verwaltung.
+													Dabei m&uuml;ssen folgende Punkte ber&uuml;cksichtigt werden:
+												</li>
+												<br />
+												<li>
+													<ul class="list-unstyled scriptAddFormList">
+														<li class="scriptAddFormChecklistItem">
+															<div class="scriptAddFormChecklistItemWrapper">
+																<p><i class="glyphicon glyphicon-check scriptAddFormListItemIcon"></i></p>
+															</div>
+															<div class="scriptAddFormListText">
+																Der Ziel-Indikator verf&uuml;gt &uuml;ber die Rollenzuweisung &quot;Administrator&quot;.
+																Ohne diese Zuweisung kann die skriptbasiere Berechnung seitens der Adminstarationsoberfl&auml;che nicht angesto&szlig;en werden.
+																Nach erfolgreicher Berechnung kann die Rollenzuweisung nach Belieben geändert werden.
+															</div>
+														</li>
+														<li class="scriptAddFormChecklistItem">
+															<div class="scriptAddFormChecklistItemWrapper">
+																<p><i class="glyphicon glyphicon-check scriptAddFormListItemIcon"></i></p>
+															</div>
+															<div class="scriptAddFormListText">
+																Der Fortf&uuml;hrungstyp des Ziel-Indikators ist auf <b><i>&quot;automatische Berechnung durch KomMonitor&quot;</i></b> eingestellt.<br />
+															</div>
+														</li>
+														<li class="scriptAddFormChecklistItem">
+															<div class="scriptAddFormChecklistItemWrapper">
+																<p><i class="glyphicon glyphicon-check scriptAddFormListItemIcon"></i></p>
+																
+															</div>
+															<div class="scriptAddFormListText">
+																Der Aktualisierungszyklus des Ziel-Indikators ist <b>nicht</b> auf &quot;beliebig&quot; eingestellt.<br />
+															</div>
+														</li>
+														<li class="scriptAddFormChecklistItem">
+															<div class="scriptAddFormChecklistItemWrapper">
+																<p><i class="glyphicon glyphicon-check scriptAddFormListItemIcon"></i></p>
+															</div>
+															<div class="scriptAddFormListText">
+																Die Skriptberechnung erfolgt nur, wenn f&uuml;r den zu berechnenden Zeitpunkt noch keine Features vorliegen.
+																Der Ziel-Indikator darf daher noch nicht &uuml;ber Features f&uuml;r diesen Zeitpunkt verf&uuml;gen.<br />
+															</div>
+														</li>
+													</ul>
+												</li>
+												<br />
+												<li>
+													<b><u>Zweiter Schritt:</u></b>
+													Anlegen des Berechnungs-Skripts mittels Skriptverwaltung unter Auswahl des
+													zuvor definierten Ziel-Indikators.
+												</li>
+											</ol>
+											<br />
+											<p>Das KomMonitor Gesamtsystem umfasst einen sogegannten <b>Processing Scheduler</b>, der anhand der
+												Skript- und Indikatoren-Metadaten automatisch die Berechnung der Ziel-Indikatoren-Zeitschnitte antriggert.
+												Die Berechnung selbst erfolgt &uuml;ber die <b>Processing Engine</b> Komponente.
+											</p>
+										</div>
+									</div>
 								</div>
+								
 
 								<input type="button" name="next" class="next next_addScript action-button"
 									value="N&auml;chster Schritt" />
@@ -339,7 +379,17 @@
 									<script-points-in-polygon></script-points-in-polygon>
 								</div>
 
+								<div ng-if="selectedScriptType.apiName === 'georesource_statistics'">
+									<script-georesource-statistics></script-georesource-statistics>
+								</div>
 
+								<div ng-if="selectedScriptType.apiName === 'georesource_subsetShare'">
+									<script-georesource-subset-share></script-georesource-subset-share>
+								</div>
+
+								<div ng-if="selectedScriptType.apiName === 'lineSegmentInPolygon'">
+									<script-line-segment-in-polygon></script-line-segment-in-polygon>
+								</div>
 
 								<input type="button" name="previous"
 									class="previous previous_addScript action-button-previous"
@@ -363,7 +413,7 @@
 				class="alert alert-success alert-dismissable">
 				<button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
 				<h4><i class="icon fa fa-check"></i>Berechnungsskript registriert</h4>
-				<p>Eine neues Indikatoren-Berechnungsskript mit Namen {{datasetName}} für Ziel-Indikator
+				<p>Eine neues Indikatoren-Berechnungsskript mit Namen {{datasetName}} f&uuml;r Ziel-Indikator
 					{{$ctrl.kommonitorScriptHelperServiceInstance.targetIndicator.indicatorName}} wurde in KomMonitor registriert und in die
 					&Uuml;bersichtstabelle eingetragen.
 				</p>
@@ -382,7 +432,7 @@
 				class="alert alert-success alert-dismissable">
 				<button type="button" class="close" ng-click="hideSuccessAlert_indicatorMetadata()" aria-hidden="true">&times;</button>
 				<h4><i class="icon fa fa-check"></i>Aktualisierung der Ziel-Indikator Methodik erfolgreich</h4>
-				<p>Der Metadaten-Eintrag für die Berechnungs-Methodik des Ziel-Indikators
+				<p>Der Metadaten-Eintrag f&uuml;r die Berechnungs-Methodik des Ziel-Indikators
 					{{$ctrl.kommonitorScriptHelperServiceInstance.targetIndicator.indicatorName}} wurde in KomMonitor erfolgreich &uuml;berschrieben.
 				</p>
 				<p>Alter Eintrag:</p>
@@ -395,7 +445,7 @@
 				class="alert alert-danger alert-dismissable">
 				<button type="button" class="close" ng-click="hideErrorAlert_indicatorMetadata()" aria-hidden="true">&times;</button>
 				<h4><i class="icon fa fa-ban"></i>Aktualisierung der Ziel-Indikator Methodik gescheitert</h4>
-				Bei der Editierung des Metadaten-Eintrags für die Berechnungs-Methodik des Ziel-Indikators
+				Bei der Editierung des Metadaten-Eintrags f&uuml;r die Berechnungs-Methodik des Ziel-Indikators
 				{{$ctrl.kommonitorScriptHelperServiceInstance.targetIndicator.indicatorName}} ist ein Fehler aufgetreten. Fehlermeldung:
 				<br />
 				<pre style="overflow:auto; max-height:500px;" ng-bind-html="errorMessagePart_indicatorMetadata"></pre>

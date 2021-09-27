@@ -1,9 +1,9 @@
 angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 	templateUrl : "components/kommonitorUserInterface/kommonitor-user-interface.template.html",
 	controller : ['kommonitorDataExchangeService', 'kommonitorKeycloakHelperService', 'kommonitorElementVisibilityHelperService', '$scope', 
-	'$rootScope', '$location', 'Auth', 'ControlsConfigService', '$compile',
+	'$rootScope', '$location', 'Auth', 'ControlsConfigService', '$compile', 'kommonitorShareHelperService', '__env',
 	function UserInterfaceController(kommonitorDataExchangeService, kommonitorKeycloakHelperService, kommonitorElementVisibilityHelperService, 
-		$scope, $rootScope, $location, Auth, ControlsConfigService, $compile) {
+		$scope, $rootScope, $location, Auth, ControlsConfigService, $compile, kommonitorShareHelperService, __env) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 		this.kommonitorKeycloakHelperServiceInstance = kommonitorKeycloakHelperService;
@@ -16,14 +16,16 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 		$scope.password;
 		$scope.showAdminLogin = false;
 
-		$scope.init = function () {
+		$scope.init = async function () {
 			// initialize application
 			console.log("Initialize Application");
 			if ($scope.authenticated) {
 				console.log("Authetication successfull");
 			}			
 
-			checkAuthentication();
+			await checkAuthentication();
+
+			kommonitorShareHelperService.init();
 
 			kommonitorDataExchangeService.fetchAllMetadata();
 		};
@@ -106,21 +108,15 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
 	    }
 		};
 
-		var checkAuthentication = function () {	
+		var checkAuthentication = async function () {	
 			kommonitorDataExchangeService.currentKeycloakLoginRoles = [];
 
 			if (Auth.keycloak.authenticated) {
 				$scope.authenticated = Auth.keycloak.authenticated;
-				Auth.keycloak.loadUserProfile()
+				await Auth.keycloak.loadUserProfile()
     				.then(function (profile) {
 						if (profile.emailVerified) {
 							$scope.username = profile.email;
-							if(Auth.keycloak.tokenParsed && Auth.keycloak.tokenParsed.realm_access && Auth.keycloak.tokenParsed.realm_access.roles){
-								kommonitorDataExchangeService.currentKeycloakLoginRoles = Auth.keycloak.tokenParsed.realm_access.roles;
-							}
-							else{
-								kommonitorDataExchangeService.currentKeycloakLoginRoles = [];
-							}
 							console.log("User logged in with email: " + profile.email);
 						} else {
 							alert("Email not verified. User will be logged out automatically!");
@@ -129,7 +125,7 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
     				}).catch(function () {
        					console.log('Failed to load user profile');
 					});
-				if(Auth.keycloak.tokenParsed && Auth.keycloak.tokenParsed.realm_access && Auth.keycloak.tokenParsed.realm_access.roles && Auth.keycloak.tokenParsed.realm_access.roles.includes('administrator')){
+				if(Auth.keycloak.tokenParsed && Auth.keycloak.tokenParsed.realm_access && Auth.keycloak.tokenParsed.realm_access.roles && Auth.keycloak.tokenParsed.realm_access.roles.includes(__env.keycloakKommonitorAdminRoleName)){
 					$scope.showAdminLogin = true;
 				}
 			}

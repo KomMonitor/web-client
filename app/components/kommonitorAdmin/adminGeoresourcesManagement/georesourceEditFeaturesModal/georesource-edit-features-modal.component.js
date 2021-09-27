@@ -30,6 +30,8 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 
 		$scope.loadingData = false;
 
+		$scope.isPartialUpdate = false;
+
 		$scope.periodOfValidity = {};
 		$scope.periodOfValidity.startDate = undefined;
 		$scope.periodOfValidity.endDate = undefined;
@@ -317,7 +319,8 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 				"periodOfValidity": {
 					"endDate": $scope.periodOfValidity.endDate,
 					"startDate": $scope.periodOfValidity.startDate
-				}
+				},
+				"isPartialUpdate": $scope.isPartialUpdate
 			}
 			$scope.putBody_georesources = kommonitorImporterHelperService.buildPutBody_georesources(scopeProperties);
 

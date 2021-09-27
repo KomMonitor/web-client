@@ -106,10 +106,11 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 
 			$scope.loadingData = false;
 
+			$scope.timeseriesMappingReference; // gets updated by a broadcast whenever $scope.timeseries mapping in indicatorEditTimeseriesMapping component changes
 	
 			$scope.$on("onEditIndicatorFeatures", function (event, indicatorDataset) {
 	
-				if($scope.currentIndicatorDataset && $scope.currentIndicatorDataset.indicatorName === indicatorDataset.indicatorName){
+				if($scope.currentIndicatorDataset && $scope.currentIndicatorDataset.indicatorId === indicatorDataset.indicatorId){
 					return;
 				}
 				else{
@@ -371,10 +372,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 			$scope.buildPropertyMappingDefinition = function(){
 				// arsion from is undefined currently
 				let timeseriesMappingForImporter = [];
-				// adds a variable timeseriesMappingBackup to $scope that holds a reference to the timeseries mapping
-				$scope.$broadcast('getTimeseriesMapping', { varname: "timeseriesMappingBackup"});
-				timeseriesMappingForImporter = $scope.timeseriesMappingBackup;
-				delete $scope.timeseriesMappingBackup;
+				timeseriesMappingForImporter = $scope.timeseriesMappingReference;
 				console.log("timeseriesMappingForImporter: ", timeseriesMappingForImporter);
 				return kommonitorImporterHelperService.buildPropertyMapping_indicatorResource($scope.spatialUnitRefKeyProperty, timeseriesMappingForImporter, $scope.keepMissingValues);	
 			};
@@ -739,6 +737,10 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 						//this comes from the custom easing plugin
 						easing: 'easeInOutBack'
 					});
+				});
+
+				$rootScope.$on("timeseriesMappingChanged", function(event, data) {
+					$scope.timeseriesMappingReference = data.mapping;
 				});
 
 	}

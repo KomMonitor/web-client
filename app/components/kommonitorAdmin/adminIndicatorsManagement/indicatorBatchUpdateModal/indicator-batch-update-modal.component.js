@@ -9,6 +9,9 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 	
 			$scope.isFirstStart = true;
 			$scope.lastUpdateResponseObj;
+			$scope.timeseriesMappingReference; // gets updated by a broadcast whenever $scope.timeseries mapping in indicatorEditTimeseriesMapping component changes
+			$scope.selected = { value: kommonitorDataExchangeService.availableIndicators[0] };
+			$scope.keepMissingValues = true;
 	
 			/*
 			{
@@ -57,7 +60,8 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 					}
 				}
 			});
-	
+
+
 			// initializes the modal
 			$scope.initialize = function() {
 	
@@ -143,17 +147,24 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 						// mappingObj
 						row.mappingObj = newBatchList[i].mappingObj;
 						// converter parameters to properties
-						row.mappingObj.converter = kommonitorBatchUpdateHelperService.converterParametersArrayToProperties(row.mappingObj.converter);
+						if(row.mappingObj.converter)
+							row.mappingObj.converter = kommonitorBatchUpdateHelperService.converterParametersArrayToProperties(row.mappingObj.converter);
 						// dataSource parameters to properties
-						row.mappingObj.dataSource = kommonitorBatchUpdateHelperService.dataSourceParametersArrayToProperty(row.mappingObj.dataSource);
+						if(row.mappingObj.dataSource)
+							row.mappingObj.dataSource = kommonitorBatchUpdateHelperService.dataSourceParametersArrayToProperty(row.mappingObj.dataSource);
 						// set selectedConverter
-						row.selectedConverter = kommonitorBatchUpdateHelperService.getConverterObjectByName(newBatchList[i].mappingObj.converter.name);
+						if(newBatchList[i].mappingObj.converter.hasOwnProperty("name"))
+							row.selectedConverter = kommonitorBatchUpdateHelperService.getConverterObjectByName(newBatchList[i].mappingObj.converter.name);
 						// set selectedDatasourceType
-						row.selectedDatasourceType = kommonitorBatchUpdateHelperService.getDatasourceTypeObjectByType(newBatchList[i].mappingObj.dataSource.type);
+						if(newBatchList[i].mappingObj.dataSource.hasOwnProperty("type"))
+							row.selectedDatasourceType = kommonitorBatchUpdateHelperService.getDatasourceTypeObjectByType(newBatchList[i].mappingObj.dataSource.type);
 						// set selectedTargetSpatialUnit
-						row.selectedTargetSpatialUnit = kommonitorBatchUpdateHelperService.getSpatialUnitObjectByName(newBatchList[i].mappingObj.targetSpatialUnitName);
+						if(newBatchList[i].mappingObj.hasOwnProperty("targetSpatialUnitName"))
+							row.selectedTargetSpatialUnit = kommonitorBatchUpdateHelperService.getSpatialUnitObjectByName(newBatchList[i].mappingObj.targetSpatialUnitName);
 					}
 				});
+
+				kommonitorBatchUpdateHelperService.resizeNameColumnDropdowns(null);
 			})
 	
 		
@@ -176,7 +187,8 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 				return selectedConverterIsCsvOnlyIndicator;
 			}
 
-
+			/*
+			// can be used to show only applicable spatial units for current indicator.
 			$scope.filterApplicableSpatialUnits = function(batchIndex) {
 				// avSpatialUnits is the list of available spatial units from the kommonitorDataExchangeService
 				return function (avSpatialUnit) {
@@ -184,7 +196,7 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 					let isValidSpatialUnit = false;
 					if($scope.batchList[batchIndex].name) {
 						let applicableSpatialUnits = $scope.batchList[batchIndex].name.applicableSpatialUnits;
-						for(applicableSpatialUnit of applicableSpatialUnits) {
+						for(let applicableSpatialUnit of applicableSpatialUnits) {
 							if(avSpatialUnit.spatialUnitLevel === applicableSpatialUnit.spatialUnitName) {
 								isValidSpatialUnit = true;
 								break;
@@ -199,6 +211,7 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 						return false;
 				};
 			};
+			*/
 
 	
 			$rootScope.$on("refreshIndicatorOverviewTableCompleted", function() {
@@ -220,46 +233,49 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 				
 				// get indicator for which timeseries mapping was opended
 				// use it to check the corresponding element in the batch list
-				let index = kommonitorBatchUpdateHelperService.getIndexFromId(event.relatedTarget.id)
-				$scope.timeseriesMappingModalOpenForIndex = index;
-				let timeseriesMappingProp = $scope.batchList[index].mappingObj.propertyMapping.timeseriesMappings;
-
-				if (timeseriesMappingProp && timeseriesMappingProp.length > 0)
-					$scope.$broadcast('loadTimeseriesMapping', { mapping: timeseriesMappingProp});
-				else
-					$scope.$broadcast('resetTimeseriesMapping');
+				if(event.target.id === "indicator-edit-time-series-mapping-modal") {
+					let index = kommonitorBatchUpdateHelperService.getIndexFromId(event.relatedTarget.id)
+					$scope.timeseriesMappingModalOpenForIndex = index;
+					let timeseriesMappingProp = $scope.batchList[index].mappingObj.propertyMapping.timeseriesMappings;
+	
+					if (timeseriesMappingProp && timeseriesMappingProp.length > 0)
+						$scope.$broadcast('loadTimeseriesMapping', { mapping: timeseriesMappingProp});
+					else
+						$scope.$broadcast('resetTimeseriesMapping');
+				}
+				
 			});
 
 			$('#indicator-edit-default-time-series-mapping-modal').on('show.bs.modal', function (event) {
-				if($scope.defaultTimeseriesMappingSave.length >= 1)
-					$scope.$broadcast('loadTimeseriesMapping', { mapping: $scope.defaultTimeseriesMappingSave });
-				else
-					$scope.$broadcast('resetTimeseriesMapping');
+				if(event.target.id === "indicator-edit-default-time-series-mapping-modal") {
+					if($scope.defaultTimeseriesMappingSave.length >= 1)
+						$scope.$broadcast('loadTimeseriesMapping', { mapping: $scope.defaultTimeseriesMappingSave });
+					else
+						$scope.$broadcast('resetTimeseriesMapping');
+				}
 			});
 
 			// on timeseries mapping modal closed
-			$('#indicator-edit-time-series-mapping-modal').on('hidden.bs.modal', function () {
-				// store timeseries mapping to mappingObj
-				// adds a variable timeseriesMappingBackup to $scope that holds a reference to the timeseries mapping
-				$scope.$broadcast('getTimeseriesMapping', { varname: "timeseriesMappingBackup"});
-				let index = $scope.timeseriesMappingModalOpenForIndex;
-				// converting to json and back gets rid of the $$hashkey property
-				$scope.batchList[index].mappingObj.propertyMapping.timeseriesMappings = angular.fromJson(angular.toJson($scope.timeseriesMappingBackup));
-				delete $scope.timeseriesMappingBackup;
-				
-				$scope.timeseriesMappingModalOpenForIndex = undefined;
-				// then reset the modal
-				$scope.$broadcast('resetTimeseriesMapping')
+			$('#indicator-edit-time-series-mapping-modal').on('hidden.bs.modal', function (event) {
+				if(event.target.id === "indicator-edit-time-series-mapping-modal") {
+					// store timeseries mapping to mappingObj
+					let index = $scope.timeseriesMappingModalOpenForIndex;
+					// converting to json and back gets rid of the $$hashkey property
+					$scope.batchList[index].mappingObj.propertyMapping.timeseriesMappings = angular.fromJson(angular.toJson($scope.timeseriesMappingReference));
+					$scope.timeseriesMappingModalOpenForIndex = undefined;
+					// then reset the modal
+					//$scope.$broadcast('resetTimeseriesMapping')
+				}
 			});
 
-			// on timeseries mapping modal closed
-			$('#indicator-edit-default-time-series-mapping-modal').on('hidden.bs.modal', function () {
-				// store timeseries mapping to mappingObj
-				// adds a variable timeseriesMappingBackup to $scope that holds a reference to the timeseries mapping
-				$scope.$broadcast('getTimeseriesMapping', { varname: "colDefaultFunctionNewValue" });
-				$scope.defaultTimeseriesMappingSave = $scope.colDefaultFunctionNewValue;
-				// then reset the modal
-				$scope.$broadcast('resetTimeseriesMapping')
+			// on default timeseries mapping modal closed
+			$('#indicator-edit-default-time-series-mapping-modal').on('hidden.bs.modal', function (event) {
+				if(event.target.id === "indicator-edit-default-time-series-mapping-modal") {
+					// store timeseries mapping to mappingObj
+					$scope.defaultTimeseriesMappingSave = $scope.timeseriesMappingReference;
+					// then reset the modal
+					//$scope.$broadcast('resetTimeseriesMapping')
+				}
 			});
 
 
@@ -275,5 +291,11 @@ angular.module('indicatorBatchUpdateModal').component('indicatorBatchUpdateModal
 					$rootScope.$broadcast("reopenBatchUpdateResultModal", $scope.lastUpdateResponseObj);
 				}
 			}
+
+			$rootScope.$on("timeseriesMappingChanged", function(event, data) {
+				$scope.timeseriesMappingReference = data.mapping;
+			});
+
+			
 		}
 ]});

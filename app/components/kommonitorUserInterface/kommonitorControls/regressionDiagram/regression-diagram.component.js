@@ -606,7 +606,7 @@ angular
 															    return htmlString;
 																}},
 																restore : {show: false, title: "Erneuern"},
-																saveAsImage : {show: true, title: "Export"}
+																saveAsImage : {show: true, title: "Export", pixelRatio: 4}
 														}
 												},
 										    series: [{

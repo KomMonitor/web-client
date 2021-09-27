@@ -1,1 +1,1 @@
-angular.module('adminScriptManagement', ['kommonitorDataExchange', 'kommonitorDataGridHelper']);
+angular.module('adminScriptManagement', ['kommonitorDataExchange', 'kommonitorCacheHelper', 'kommonitorDataGridHelper']);

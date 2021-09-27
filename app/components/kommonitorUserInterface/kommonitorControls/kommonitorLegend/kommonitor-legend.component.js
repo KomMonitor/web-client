@@ -10,10 +10,10 @@ angular
 					 */
 					controller : ['$scope', '$rootScope', 'kommonitorMapService', 'kommonitorVisualStyleHelperService', 
 					'kommonitorDataExchangeService', 'kommonitorDiagramHelperService', 'kommonitorElementVisibilityHelperService', 
-					'kommonitorFilterHelperService', '__env', '$timeout', '$sce',
+					'kommonitorFilterHelperService', '__env', '$timeout', '$sce', 'kommonitorShareHelperService',
 					function KommonitorLegendController($scope, $rootScope, kommonitorMapService, 
 						kommonitorVisualStyleHelperService, kommonitorDataExchangeService, kommonitorDiagramHelperService, kommonitorElementVisibilityHelperService, 
-						kommonitorFilterHelperService, __env, $timeout, $sce) {
+						kommonitorFilterHelperService, __env, $timeout, $sce, kommonitorShareHelperService) {
 
 						const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
 						this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
@@ -21,6 +21,7 @@ angular
 						this.kommonitorVisualStyleHelperServiceInstance = kommonitorVisualStyleHelperService;
 						this.kommonitorElementVisibilityHelperServiceInstance = kommonitorElementVisibilityHelperService;
 						this.kommonitorFilterHelperServiceInstance = kommonitorFilterHelperService;
+						this.kommonitorShareHelperServiceInstance = kommonitorShareHelperService;
 						this.envInstance = __env;
 						
 						this.env = __env;
@@ -401,6 +402,30 @@ angular
 								}
 							}
 						}
+
+						$scope.onClickShareLinkButton = function(){
+
+							kommonitorShareHelperService.generateCurrentShareLink();
+							
+							/* Copy to clipboard */
+							if(navigator && navigator.clipboard){
+								navigator.clipboard.writeText(kommonitorShareHelperService.currentShareLink);
+
+								// Get the snackbar DIV
+								var x = document.getElementById("snackbar");
+
+								// Add the "show" class to DIV
+								x.className = "show";
+
+								// After 3 seconds, remove the show class from DIV
+								setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+							}
+							else{
+								// open in new tab
+								window.open(kommonitorShareHelperService.currentShareLink, '_blank');
+							}
+  							
+						};
 				  
 
 					}]

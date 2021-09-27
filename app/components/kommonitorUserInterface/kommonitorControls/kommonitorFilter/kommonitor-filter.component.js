@@ -430,10 +430,10 @@ angular
 							$scope.onChangeShowManualSelection = async function() {
 								// return if toggle was deactivated
 								if(!$scope.showManualSelectionSpatialFilter)
-									$scope.onManualSelectionSpatialFilterResetBtnPressed();									
+									$scope.onManualSelectionSpatialFilterResetBtnPressed();						
 								else {
 									$scope.showSelectionByFeatureSpatialFilter = false;
-									$scope.onManualSelectionSpatialFilterResetBtnPressed();										
+									$scope.onManualSelectionSpatialFilterResetBtnPressed();								
 								}
 							};
 
@@ -443,7 +443,7 @@ angular
 									$scope.onSelectionByFeatureSpatialFilterResetBtnPressed();
 								else {
 									$scope.showManualSelectionSpatialFilter = false;
-									$scope.onSelectionByFeatureSpatialFilterResetBtnPressed();									
+									$scope.onSelectionByFeatureSpatialFilterResetBtnPressed();								
 								}
 							};
 
@@ -471,6 +471,8 @@ angular
 
 								kommonitorFilterHelperService.clearFilteredFeatures();
 								kommonitorFilterHelperService.filterAndReplaceDataset();
+								if(document.getElementById('controlNoDataDisplay').checked)
+									$rootScope.$broadcast('applyNoDataDisplay')	
 							};
 
 							$scope.onManualSelectionSpatialFilterSelectBtnPressed = function(){
@@ -488,6 +490,8 @@ angular
 
 								kommonitorFilterHelperService.clearFilteredFeatures();
 								kommonitorFilterHelperService.filterAndReplaceDataset();
+								if(document.getElementById('controlNoDataDisplay').checked)
+									$rootScope.$broadcast('applyNoDataDisplay')	
 							};
 
 							$scope.onManualSelectionBySelectedMapFeaturesBtnPressed = function(){
@@ -505,14 +509,6 @@ angular
 								$scope.manualSelectionSpatialFilterDuallistOptions.selectedItems = $scope.manualSelectionSpatialFilterDuallistOptions.items.filter(item => kommonitorFilterHelperService.featureIsCurrentlySelected(item.id));								
 								$scope.manualSelectionSpatialFilterDuallistOptions.items = $scope.manualSelectionSpatialFilterDuallistOptions.items.filter(item => ! kommonitorFilterHelperService.featureIsCurrentlySelected(item.id));								
 							};
-
-							$scope.$on("onAddedFeatureToSelection", function (event, feature) {
-								$scope.$digest();
-							});
-
-							$scope.$on("onRemovedFeatureFromSelection", function (event, featureId) {
-								$scope.$digest();
-							});
 
 							// $rootScope.$on("changeSpatialUnit", function() {
 							// 	if ($scope.showSelectionByFeatureSpatialFilter)

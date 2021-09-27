@@ -92,7 +92,9 @@ module.exports = {
             { from: nodeModulePathConstant + 'code-prettify/loader/run_prettify.js', to: 'code-prettify/' }, 
             { from: nodeModulePathConstant + 'sortablejs/Sortable.min.js', to: 'sortablejs/' },
             { from: nodeModulePathConstant + 'angular-legacy-sortablejs-maintained/angular-legacy-sortable.js', to: 'angular-legacy-sortablejs/' },
-            { from: nodeModulePathConstant + 'ag-grid-community/dist/ag-grid-community.min.js', to: 'ag-grid-community/' },    
+            { from: nodeModulePathConstant + 'ag-grid-community/dist/ag-grid-community.min.js', to: 'ag-grid-community/' },
+			{ from: nodeModulePathConstant + 'ui-select/dist', to: 'ui-select/' },
+            { from: nodeModulePathConstant + 'angularjs-dropdown-multiselect/dist/', to: 'angularjs-dropdown-multiselect/' },	
           
           
 

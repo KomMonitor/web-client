@@ -1,1 +1,1 @@
-angular.module('adminRoleManagement', ['kommonitorDataExchange', 'kommonitorKeycloakHelper', 'kommonitorDataGridHelper']);
+angular.module('adminRoleManagement', ['kommonitorDataExchange', 'kommonitorCacheHelper', 'kommonitorKeycloakHelper', 'kommonitorDataGridHelper']);

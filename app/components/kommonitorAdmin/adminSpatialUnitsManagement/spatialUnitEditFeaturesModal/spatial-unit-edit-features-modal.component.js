@@ -131,7 +131,10 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 
 				kommonitorDataGridHelperService.buildDataGrid_featureTable("spatialUnitFeatureTable", tmpRemainingHeaders, $scope.spatialUnitFeaturesGeoJSON.features);
 
+				$timeout(function(){
+				
 					$scope.loadingData = false;
+				});	
 
 				}, function errorCallback(error) {
 					if(error.data){							
@@ -142,7 +145,10 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 					}
 
 					$("#spatialUnitEditFeaturesErrorAlert").show();
-					$scope.loadingData = false;
+					$timeout(function(){
+				
+						$scope.loadingData = false;
+					});	
 			});
 		};
 
@@ -166,7 +172,10 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 				$scope.successMessagePart = $scope.currentSpatialUnitDataset.spatialUnitLevel;
 
 				$("#spatialUnitEditFeaturesSuccessAlert").show();
-				$scope.loadingData = false;
+				$timeout(function(){
+				
+					$scope.loadingData = false;
+				});	
 
 				}, function errorCallback(error) {
 					if(error.data){							
@@ -177,7 +186,10 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 					}
 
 					$("#spatialUnitEditFeaturesErrorAlert").show();
-					$scope.loadingData = false;
+					$timeout(function(){
+				
+						$scope.loadingData = false;
+					});	
 			});
 		};
 
@@ -358,7 +370,10 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 				}
 
 				$("#spatialUnitEditFeaturesErrorAlert").show();
-				$scope.loadingData = false;
+				$timeout(function(){
+				
+					$scope.loadingData = false;
+				});	
 				return null;
 			}			
 		};
@@ -375,7 +390,8 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 				"periodOfValidity": {
 					"endDate": $scope.periodOfValidity.endDate,
 					"startDate": $scope.periodOfValidity.startDate
-				}
+				},
+				"isPartialUpdate": $scope.isPartialUpdate
 			};
 
 			return putBody;
@@ -431,7 +447,10 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 							$scope.successMessagePart = $scope.currentSpatialUnitDataset.spatialUnitLevel;
 
 							$("#spatialUnitEditFeaturesSuccessAlert").show();
-							$scope.loadingData = false;
+							$timeout(function(){
+				
+								$scope.loadingData = false;
+							});	
 						}
 						else{
 							// errors ocurred

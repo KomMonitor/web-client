@@ -69,6 +69,7 @@ angular.module('indicatorEditTimeseriesMapping').component('indicatorEditTimeser
 				$scope.userInputTimestamp = undefined;
 
 				$scope.digestAfterTimeout(250);
+				$rootScope.$broadcast("timeseriesMappingChanged", { mapping: $scope.timeseriesMapping } );
 			};
 
 
@@ -101,6 +102,7 @@ angular.module('indicatorEditTimeseriesMapping').component('indicatorEditTimeser
 				}				
 	
 				$scope.digestAfterTimeout(250);
+				$rootScope.$broadcast("timeseriesMappingChanged", { mapping: $scope.timeseriesMapping } );
 			};
 
 			$scope.$on('loadTimeseriesMapping', function(event, args) {
@@ -113,9 +115,9 @@ angular.module('indicatorEditTimeseriesMapping').component('indicatorEditTimeser
 
 
 			$scope.loadTimeseriesMapping = function(mapping) {
-				isValid = true;
+				let isValid = true;
 				if(mapping) {
-					for(entry of mapping) {
+					for(const entry of mapping) {
 						if( !(entry.hasOwnProperty("indicatorValueProperty") && 
 							(entry.hasOwnProperty("timestamp") || entry.hasOwnProperty("timestampProperty"))))
 							isValid = false 
@@ -129,6 +131,7 @@ angular.module('indicatorEditTimeseriesMapping').component('indicatorEditTimeser
 						Expected: indicatorValueProperty and either timestamp or timestampProperty."
 
 				$scope.digestAfterTimeout(250);
+				$rootScope.$broadcast("timeseriesMappingChanged", { mapping: $scope.timeseriesMapping } );
 			};
 			
 
@@ -140,16 +143,11 @@ angular.module('indicatorEditTimeseriesMapping').component('indicatorEditTimeser
 			$scope.resetTimeseriesMapping = function() {
 				$scope.timeseriesMapping = [];
 				$scope.useTimeseriesAsProperty = false;
-
 				$scope.userInputIndicatorValueProperty = undefined;
 				$scope.userInputTimestamp = undefined;
 				$scope.userInputTimestampProperty = undefined;
+				$rootScope.$broadcast("timeseriesMappingChanged", { mapping: $scope.timeseriesMapping } );
 			};
-
-			// adds a reference to the timeseriesMapping variable to the calling scope
-			$scope.$on('getTimeseriesMapping', function(event, args) {
-				event.targetScope[args.varname] = $scope.timeseriesMapping;
-			});
 
 
 			$scope.digestAfterTimeout = function(timeout) {
