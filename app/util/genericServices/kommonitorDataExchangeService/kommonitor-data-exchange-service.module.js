@@ -10,7 +10,7 @@ angular.module('kommonitorDataExchange', ['kommonitorMap', 'kommonitorKeycloakHe
  * parameters for each WPS operation represented by different Angular components
  */
 angular
-		.module('kommonitorDataExchange', ['kommonitorCacheHelper'])
+		.module('kommonitorDataExchange', ['kommonitorCacheHelper', 'angularjs-dropdown-multiselect'])
 		.service(
 				'kommonitorDataExchangeService', ['$rootScope', '$timeout', 'kommonitorMapService', 'kommonitorKeycloakHelperService',
         'kommonitorCacheHelperService', 
@@ -68,6 +68,19 @@ angular
           this.availableSpatialUnits_map = new Map();
           this.availableProcessScripts_map = new Map();
           this.availableRoles_map = new Map();
+          
+          // Define translations, settings for dropdown-multiselect 
+          this.multiselectDropdownTranslations = {	checkAll: 'Alle auswählen', uncheckAll: 'Nichts auswählen', dynamicButtonTextSuffix: 'Werte ausgewählt',
+								   	buttonDefaultText: 'Objekteigenschaften auswählen', searchPlaceholder: 'Suchen...'
+								};
+          
+          this.multiselectDropdownSettings = { 
+            enableSearch: true, clearSearchOnClose: true,
+            scrollableHeight: '250px', scrollable: true,
+            buttonClasses: 'form-control btn-block', 
+            template: '{{option}}', smartButtonTextConverter(skip, option) { return option; },
+            styleActive: true
+          };
 
           this.setCurrentKomMonitorRoles = function(){
             var roleMetadataForCurrentKeycloakLoginRoles = this.availableRoles.filter(role => this.currentKeycloakLoginRoles.includes(role.roleName)); 
