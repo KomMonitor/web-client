@@ -156,7 +156,6 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
               break;
               }
           });
-        KmHelper.log(filteredLineFeatures); 
         if (filteredLineFeatures.length === 0) {
           KmHelper.setIndicatorValue(spatialUnitFeat, targetDate, 0);
         } else {
