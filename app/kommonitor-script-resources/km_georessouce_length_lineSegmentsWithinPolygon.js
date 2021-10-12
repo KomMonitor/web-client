@@ -103,58 +103,59 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
       var lineSegmentsLengthSum;
       if (computationFilterProperty !== undefined) {
         var filteredLineFeatures = [];
-        linesWithinFeature.features.forEach(function(line) {
-          switch (computationFilterOperator) {
-            case ("Equal"):
-              if (line.properties[computationFilterProperty] === computationFilterPropertyValue) {
-                filteredLineFeatures.push(line);
-              }
-              break;
-            case ("Greater_than"):
-              if (line.properties[computationFilterProperty] > computationFilterPropertyValue) {
-                filteredLineFeatures.push(line);
-              }
-              break;
-            case ("Greater_than_or_equal"):
-              if (line.properties[computationFilterProperty] >= computationFilterPropertyValue) {
-                filteredLineFeatures.push(line);
-              }
-              break;
-            case ("Less_than"):
-              if (line.properties[computationFilterProperty] < computationFilterPropertyValue) {
-                filteredLineFeatures.push(line);
-              }
-              break;
-            case ("Less_than_or_equal"):
-              if (line.properties[computationFilterProperty] <= computationFilterPropertyValue) {
-                filteredLineFeatures.push(line);
-              }
-              break;
-            case ("Unequal"):
-              if (line.properties[computationFilterProperty] !== computationFilterPropertyValue) {
-                filteredLineFeatures.push(line);
-              }
-              break;
-            case ("Contains"):
-              var computationFilterPropertyValueArray = computationFilterPropertyValue.split(",");
-              for (let i=0; i<computationFilterPropertyValueArray.length; i++) {
-                let trimmedElement = computationFilterPropertyValueArray[i].trim();
-                if (line.properties[computationFilterProperty] === trimmedElement) {
+        linesWithinFeature.features.forEach(function (line) {
+            var computationFilterPropertyValueArray;
+            switch (computationFilterOperator) {
+              case ("Equal"):
+                if (line.properties[computationFilterProperty] === computationFilterPropertyValue) {
                   filteredLineFeatures.push(line);
                 }
-              }
-              break;
-            case ("Range"):
-              var computationFilterPropertyValueArray = computationFilterPropertyValue.split("-").map(el => parseInt(el));
-              if (line.properties[computationFilterProperty] >= computationFilterPropertyValueArray[0] && line.properties[computationFilterProperty] < computationFilterPropertyValueArray[1]) {
-                filteredLineFeatures.push(line);
-              }
-              break;
-            default:
-              KmHelper.log("Indicator was not computed from computation resources because no valid filter could be applied. Indicator value is set to null.");
-              KmHelper.setIndicatorValue(spatialUnitFeat, targetDate, null);
-              break;
-              }
+                break;
+              case ("Greater_than"):
+                if (line.properties[computationFilterProperty] > computationFilterPropertyValue) {
+                  filteredLineFeatures.push(line);
+                }
+                break;
+              case ("Greater_than_or_equal"):
+                if (line.properties[computationFilterProperty] >= computationFilterPropertyValue) {
+                  filteredLineFeatures.push(line);
+                }
+                break;
+              case ("Less_than"):
+                if (line.properties[computationFilterProperty] < computationFilterPropertyValue) {
+                  filteredLineFeatures.push(line);
+                }
+                break;
+              case ("Less_than_or_equal"):
+                if (line.properties[computationFilterProperty] <= computationFilterPropertyValue) {
+                  filteredLineFeatures.push(line);
+                }
+                break;
+              case ("Unequal"):
+                if (line.properties[computationFilterProperty] !== computationFilterPropertyValue) {
+                  filteredLineFeatures.push(line);
+                }
+                break;
+              case ("Contains"):
+                computationFilterPropertyValueArray = computationFilterPropertyValue.split(",");
+                for (let i = 0; i < computationFilterPropertyValueArray.length; i++) {
+                  let trimmedElement = computationFilterPropertyValueArray[i].trim();
+                  if (line.properties[computationFilterProperty] === trimmedElement) {
+                    filteredLineFeatures.push(line);
+                  }
+                }
+                break;
+              case ("Range"):
+                computationFilterPropertyValueArray = computationFilterPropertyValue.split("-").map(el => parseInt(el));
+                if (line.properties[computationFilterProperty] >= computationFilterPropertyValueArray[0] && line.properties[computationFilterProperty] < computationFilterPropertyValueArray[1]) {
+                  filteredLineFeatures.push(line);
+                }
+                break;
+              default:
+                KmHelper.log("Indicator was not computed from computation resources because no valid filter could be applied. Indicator value is set to null.");
+                KmHelper.setIndicatorValue(spatialUnitFeat, targetDate, null);
+                break;
+            }
           });
         if (filteredLineFeatures.length === 0) {
           KmHelper.setIndicatorValue(spatialUnitFeat, targetDate, 0);
