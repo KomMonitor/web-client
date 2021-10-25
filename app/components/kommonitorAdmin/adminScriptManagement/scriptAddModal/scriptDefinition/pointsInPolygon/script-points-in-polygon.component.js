@@ -80,28 +80,14 @@ angular.module('scriptPointsInPolygon').component('scriptPointsInPolygon', {
 			$scope.scriptFormulaHTML = undefined;
 
 			$scope.propertyValueSelection = [];
-			$scope.dropdownSettings = { 
-				enableSearch: true, clearSearchOnClose: true,
-				scrollableHeight: '250px', scrollable: true,
-				buttonClasses: 'form-control btn-block', 
-				template: '{{option}}', smartButtonTextConverter(skip, option) { return option; },
-				styleActive: true
-			};
+			
+			$scope.dropdownTranslations =  kommonitorDataExchangeService.multiselectDropdownTranslations;
+			$scope.dropdownSettings = kommonitorDataExchangeService.multiselectDropdownSettings;
 			$scope.dropdownEvents =  {
-				onItemSelect: function() {
-					$scope.onChangePropertyValue();
-				},
-				onItemDeselect: function() {
-					$scope.onChangePropertyValue();
-				},
 				onSelectionChanged: function() {
 					$scope.onChangePropertyValue();
 				}
 			};
-
-			$scope.dropdownTranslations = {	checkAll: 'Alle auswählen', uncheckAll: 'Nichts auswählen', dynamicButtonTextSuffix: 'Werte ausgewählt',
-								   	buttonDefaultText: 'Objekteigenschaften auswählen', searchPlaceholder: 'Suchen...'
-								};
 
 
 			/*

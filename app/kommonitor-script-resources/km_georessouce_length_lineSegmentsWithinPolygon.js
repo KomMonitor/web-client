@@ -97,56 +97,57 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
     var spatialUnitFeat = targetSpatialUnit_geoJSON.features[featureIndex];
     // initialize indicatorValue
     KmHelper.setIndicatorValue(spatialUnitFeat, targetDate, 0);
+    computationGeoresource = KmHelper.transformMultiLineStringToLineStrings(computationGeoresource);
     var linesWithinFeature = KmHelper.intersectLineFeatureCollectionByPolygonFeature(computationGeoresource, spatialUnitFeat);
     if(linesWithinFeature && linesWithinFeature.features && linesWithinFeature.features.length > 0){
       var lineSegmentsLengthSum;
       if (computationFilterProperty !== undefined) {
         var filteredLineFeatures = [];
-        linesWithinFeature.features.forEach(function(line) {
-          for (var property in line.properties) {
+        linesWithinFeature.features.forEach(function (line) {
+            var computationFilterPropertyValueArray;
             switch (computationFilterOperator) {
               case ("Equal"):
-                if (line.properties[property] === computationFilterPropertyValue) {
+                if (line.properties[computationFilterProperty] === computationFilterPropertyValue) {
                   filteredLineFeatures.push(line);
                 }
                 break;
               case ("Greater_than"):
-                if (line.properties[property] > computationFilterPropertyValue) {
+                if (line.properties[computationFilterProperty] > computationFilterPropertyValue) {
                   filteredLineFeatures.push(line);
                 }
                 break;
               case ("Greater_than_or_equal"):
-                if (line.properties[property] >= computationFilterPropertyValue) {
+                if (line.properties[computationFilterProperty] >= computationFilterPropertyValue) {
                   filteredLineFeatures.push(line);
                 }
                 break;
               case ("Less_than"):
-                if (line.properties[property] < computationFilterPropertyValue) {
+                if (line.properties[computationFilterProperty] < computationFilterPropertyValue) {
                   filteredLineFeatures.push(line);
                 }
                 break;
               case ("Less_than_or_equal"):
-                if (line.properties[property] <= computationFilterPropertyValue) {
+                if (line.properties[computationFilterProperty] <= computationFilterPropertyValue) {
                   filteredLineFeatures.push(line);
                 }
                 break;
               case ("Unequal"):
-                if (line.properties[property] !== computationFilterPropertyValue) {
+                if (line.properties[computationFilterProperty] !== computationFilterPropertyValue) {
                   filteredLineFeatures.push(line);
                 }
                 break;
               case ("Contains"):
-                var computationFilterPropertyValueArray = computationFilterPropertyValue.split(",");
-                for (let i=0; i<computationFilterPropertyValueArray.length; i++) {
+                computationFilterPropertyValueArray = computationFilterPropertyValue.split(",");
+                for (let i = 0; i < computationFilterPropertyValueArray.length; i++) {
                   let trimmedElement = computationFilterPropertyValueArray[i].trim();
-                  if (line.properties[property] === trimmedElement) {
+                  if (line.properties[computationFilterProperty] === trimmedElement) {
                     filteredLineFeatures.push(line);
                   }
                 }
                 break;
               case ("Range"):
-                var computationFilterPropertyValueArray = computationFilterPropertyValue.split("-").map(el => parseInt(el));
-                if (line.properties[property] >= computationFilterPropertyValueArray[0] && line.properties[property] < computationFilterPropertyValueArray[1]) {
+                computationFilterPropertyValueArray = computationFilterPropertyValue.split("-").map(el => parseInt(el));
+                if (line.properties[computationFilterProperty] >= computationFilterPropertyValueArray[0] && line.properties[computationFilterProperty] < computationFilterPropertyValueArray[1]) {
                   filteredLineFeatures.push(line);
                 }
                 break;
@@ -154,11 +155,14 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
                 KmHelper.log("Indicator was not computed from computation resources because no valid filter could be applied. Indicator value is set to null.");
                 KmHelper.setIndicatorValue(spatialUnitFeat, targetDate, null);
                 break;
-                }
             }
           });
-        lineSegmentsLengthSum = KmHelper.summarizeLineSegmentLengths(filteredLineFeatures);
-        KmHelper.setIndicatorValue(spatialUnitFeat, targetDate, lineSegmentsLengthSum);
+        if (filteredLineFeatures.length === 0) {
+          KmHelper.setIndicatorValue(spatialUnitFeat, targetDate, 0);
+        } else {
+          lineSegmentsLengthSum = KmHelper.summarizeLineSegmentLengths(KmHelper.asFeatureCollection(filteredLineFeatures));
+          KmHelper.setIndicatorValue(spatialUnitFeat, targetDate, lineSegmentsLengthSum);
+        } 
       }
       else {
         lineSegmentsLengthSum = KmHelper.summarizeLineSegmentLengths(linesWithinFeature);
@@ -167,7 +171,7 @@ async function computeIndicator(targetDate, targetSpatialUnit_geoJSON, baseIndic
     } 
   
   if(featureIndex % logProgressIndexSeparator === 0){
-        KmHelper.log("PROGRESS: Compared '" + featureIndex + "' of total '" + targetSpatialUnit_geoJSON.features.length + "' spatial units to point features.");
+        KmHelper.log("PROGRESS: Compared '" + featureIndex + "' of total '" + targetSpatialUnit_geoJSON.features.length + "' spatial units to line features.");
     }
   }
 
