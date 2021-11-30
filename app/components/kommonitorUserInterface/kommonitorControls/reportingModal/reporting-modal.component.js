@@ -23,8 +23,6 @@ angular.module('reportingModal').component('reportingModal', {
 		$scope.echartInstances = [];
 		$scope.generatingReport = false;
 
-		var elementPositionAtDragStart = undefined;
-
 		//initialize
 		$('#reporting-modal').on('show.bs.modal', function () {
 
@@ -38,15 +36,9 @@ angular.module('reportingModal').component('reportingModal', {
 				loadIndicators();
 			});
 
-			$(function() {
-				$(".draggable").draggable({
-					revert: "invalid",
-					revertDuration: 0,
-					appendTo: $('#reporting-modal .modal-content'),
-					scroll: false,
-					helper: "clone"
-				});
-			});
+			// make indiactors draggable in the left list
+			$scope.makeIndicatorsDraggable();
+			
 
 			$(".droppable").droppable({
 				drop: function( event, ui ) {
@@ -1323,6 +1315,19 @@ angular.module('reportingModal').component('reportingModal', {
 
 			return kommonitorDataExchangeService.filterIndicators();
 		};
+
+
+		$scope.makeIndicatorsDraggable = function() {
+			$timeout( function() {
+				$(".draggable").draggable({
+					revert: "invalid",
+					revertDuration: 0,
+					appendTo: $('#reporting-modal .modal-content'),
+					scroll: false,
+					helper: "clone"
+				});
+			}, 500);
+		}
 	}
 ]});
 
