@@ -1,10 +1,8 @@
 angular.module('reportingModal').component('reportingModal', {
 	templateUrl : "components/kommonitorUserInterface/kommonitorControls/reportingModal/reporting-modal.template.html",
-	controller : ['kommonitorDataExchangeService', 'kommonitorDiagramHelperService',
-	'kommonitorInfoLegendHelperService', 'kommonitorVisualStyleHelperService',
+	controller : ['kommonitorDataExchangeService', 'kommonitorDiagramHelperService', 'kommonitorVisualStyleHelperService',
 	'$scope', '$rootScope', '__env', '$timeout', 
-	function ReportingModalController(kommonitorDataExchangeService, kommonitorDiagramHelperService, 
-		kommonitorInfoLegendHelperService, kommonitorVisualStyleHelperService,
+	function ReportingModalController(kommonitorDataExchangeService, kommonitorDiagramHelperService, kommonitorVisualStyleHelperService,
 		$scope, $rootScope, __env, $timeout) {
 
 		$scope.availableIndicators = [];
@@ -22,8 +20,6 @@ angular.module('reportingModal').component('reportingModal', {
 		$scope.gridsArray = [];
 		$scope.echartInstances = [];
 		$scope.generatingReport = false;
-
-		var elementPositionAtDragStart = undefined;
 
 		//initialize
 		$('#reporting-modal').on('show.bs.modal', function () {
@@ -56,7 +52,7 @@ angular.module('reportingModal').component('reportingModal', {
 					} else {
 						var indicatorAsString = ui.draggable.first().attr("data-indicator");
 						//parse string to object
-						var droppedIndicator = $.parseJSON(indicatorAsString);
+						var droppedIndicator = JSON.parse(indicatorAsString);
 
 						//open new modal
 						$('#reporting-add-indicator-modal').modal();
@@ -334,7 +330,7 @@ angular.module('reportingModal').component('reportingModal', {
 					});
 					for(var i=0;i<data.length;i++) {
 						//pdf page for first page already exists
-						if(i!==0) {
+						if(i>0) {
 							//for all other pages add a page in landscape or portrait
 							if($scope.pagesArray[i].pFormat === "landscape") {
 								doc.addPage('a4', 'landscape');
@@ -359,16 +355,16 @@ angular.module('reportingModal').component('reportingModal', {
 					//hide loading overlay
 					$timeout(function(){
 						$scope.generatingReport = false;
-					//console.log($scope.generatingReport);
-					//create pdf, prompt user to save it
-					document.body.style.cursor = 'default';	
+						
+						document.body.style.cursor = 'default';	
 					});
 					window.devicePixelRatio = 1; //reset this
 
 					// unhide scrollbars
 					$("body").css("overflow", "auto");
 					$("#reporting-modal").css({"cssText": "display:block;"});
-
+					
+					//create pdf, prompt user to save it
 					doc.save(now + '_KomMonitor-Report.pdf');
 					
 			});
@@ -509,6 +505,7 @@ angular.module('reportingModal').component('reportingModal', {
 				el => el !== addedIndicatorConfig.indicator.indicatorName);
 		});
 
+		// This functionalitiy is disabled for now
 		$rootScope.$on("reportingIndicatorModified", function(event, allAddedIndicatorsConfig, index) {
 			$scope.allAddedIndicatorsConfig = allAddedIndicatorsConfig;
 			var changedIndicatorConfigNew = allAddedIndicatorsConfig[index];
@@ -699,142 +696,12 @@ angular.module('reportingModal').component('reportingModal', {
 			$grid.gridstack({
 				// https://github.com/gridstack/gridstack.js/tree/develop/doc#options
 				acceptWidgets: true,
-				disableResize: false,
-				resizable: {
-					handles: 'e, se, s, sw, w',
-					handleClass: "grid-stack-item"
-				},
+				staticGrid: true,
 				float: true,
 				maxRow: maxRow,
 				column: 12,
 				verticalMargin: 0,
 				cellHeight: 10,
-			});
-
-			$grid.on('gsresizestop', function(event, elem) {
-
-				var id = $(elem).attr('data-gs-id');
-
-				var chartId;
-				var chart;
-
-				if (id.includes("map")) {
-					chartId = id + "_map";
-					chart = echarts.init(document.getElementById(chartId));
-					chart.resize();
-				} else if (id.includes("featureComparison")) {
-					chartId = id + "_barChart";
-					chart = echarts.init(document.getElementById(chartId));
-					chart.resize();
-				} else if (id.includes("history")) {
-					chartId = id + "_histogramChart";
-					chart = echarts.init(document.getElementById(chartId));
-					chart.resize();
-				} else if (id.includes("timeline")) {
-					chartId = id + "_lineChart";
-					chart = echarts.init(document.getElementById(chartId));
-					chart.resize();
-				}
-				
-			});
-
-			$grid.on('dropped', function(event, previousWidget, newWidget) {
-
-				//get tile id
-				var tileId = previousWidget.id;
-
-				//if div contains an echart
-				var echartsDiv = $(newWidget.el[0]).find("div[id^=" + tileId + "]");
-				var splittedId = undefined;
-				//length is only 1 if div with this id was found
-				if(echartsDiv.length == 1) {
-					splittedId = echartsDiv.attr("id").split("_");
-				} else {
-					splittedId = [];
-				}
-			
-				var typeOfChart = undefined;
-				// 4 if div contains an echart
-				// 0 otherwise
-				if(splittedId.length == 4) {
-					typeOfChart = splittedId[3];
-					//concat both parts
-					var chartId = tileId + "_" + typeOfChart;
-					//get the chart with this id
-					var charts = $scope.echartInstances.filter( (el) => { return el.getDom().id === chartId; });
-					//charts.length is zero if the tile did not contain a diagram
-					if (charts.length == 1) {
-						//dispose chart
-						charts[0].dispose();
-						//remove from dom
-						$(echartsDiv).parent().remove();
-						//remove it from echartInstances
-						$scope.echartInstances = $scope.echartInstances.filter( (el) => {
-							return el.getDom().id !== chartId;
-						});
-
-						//the DOM of newWidget is different from widgets added by the user.
-						//so we save the needed attributes, remove it and add a new widget
-						var options = {
-							x: newWidget.x,
-							y: newWidget.y,
-							width: newWidget.width,
-							height: newWidget.height,
-							id: $(newWidget.el[0]).attr("data-gs-id")
-						};
-						var widgetToRemove = $(newWidget._grid.container[0]).find("[data-gs-id='" + tileId + "']")[0];
-						newWidget._grid.removeWidget(widgetToRemove);
-						
-						var item = getEmptyTileHTML();
-						newWidget._grid.addWidget(item, options);
-						//replace tile in config by new one
-						//get config
-						var config = undefined;
-						$($scope.addedIndicators).each( (index, el) => {
-							if(el.indicatorId === tileId.split("_")[0]) {
-								config = $scope.getIndicatorConfigByName(el.indicatorName);
-							}
-						});
-						config.tiles[tileId] = item[0];
-						fillTileContent(tileId);
-					}
-				}
-
-				//remove placeholder after a short timeout
-				setTimeout(function() {
-					var pl = $(document).find(".grid-stack-placeholder");
-					pl.remove();
-				}, 100);
-			});
-
-			$grid.on("dragstart", function(event, ui) {
-				//lock all other elements
-				$($scope.gridsArray).each( (index, element) => {
-					var nodes = element.grid.nodes;
-					for(var i=0;i<nodes.length;i++) {
-						element.locked(nodes[i].el, true);
-					}
-				});
-			});
-
-			$grid.on("resizestart", function(event, ui) {
-				//lock all other elements
-				$($scope.gridsArray).each( (index, element) => {
-					var nodes = element.grid.nodes;
-					for(var i=0;i<nodes.length;i++) {
-						element.locked(nodes[i].el, true);
-					}
-				});
-			});
-
-			$grid.on("change", function(event, items) {
-				//unlock all elements
-				$($scope.gridsArray).each( (index, element) => {
-					var nodes = element.grid.nodes;
-					for(var i=0;i<nodes.length;i++) {
-						element.locked(nodes[i].el, false);
-					}
-				});
 			});
 
 			var grid = $grid.data('gridstack');
