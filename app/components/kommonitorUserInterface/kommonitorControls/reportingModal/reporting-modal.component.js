@@ -17,7 +17,6 @@ angular.module('reportingModal').component('reportingModal', {
 		$scope.modifiedIndicatorConfigSave = {};
 
 		$scope.pagesArray = [];
-		$scope.gridsArray = [];
 		$scope.echartInstances = [];
 		$scope.generatingReport = false;
 
@@ -45,23 +44,19 @@ angular.module('reportingModal').component('reportingModal', {
 			});
 
 			$(".droppable").droppable({
+				// on indicator drop from left column onto page
 				drop: function( event, ui ) {
-					//don't do anything if a grid item was dropped instead of an indicator
-					if (ui.draggable.first().hasClass("grid-stack-item")) {
-						return;
-					} else {
-						var indicatorAsString = ui.draggable.first().attr("data-indicator");
-						//parse string to object
-						var droppedIndicator = JSON.parse(indicatorAsString);
+					var indicatorAsString = ui.draggable.first().attr("data-indicator");
+					//parse string to object
+					var droppedIndicator = JSON.parse(indicatorAsString);
 
-						//open new modal
-						$('#reporting-add-indicator-modal').modal();
-						//jquery $().on does not trigger angularjs digest circle
-						//https://stackoverflow.com/questions/23968384/databinding-not-updating-when-called-from-on
-						$rootScope.$apply(function () { 
-							$rootScope.$broadcast('addIndicatorModalOpened', droppedIndicator, undefined);
-						});
-					}
+					//open new modal
+					$('#reporting-add-indicator-modal').modal();
+					//jquery $().on does not trigger angularjs digest circle
+					//https://stackoverflow.com/questions/23968384/databinding-not-updating-when-called-from-on
+					$rootScope.$apply(function () { 
+						$rootScope.$broadcast('addIndicatorModalOpened', droppedIndicator, undefined);
+					});
 				}
 			});
 		});
@@ -76,6 +71,7 @@ angular.module('reportingModal').component('reportingModal', {
 				return;
 			}
 			
+			// TODO recode without gridstack
 			// remove grid tiles from DOM
 			var indicatorId = indicator.indicatorId;
 			// find all elements where data-gs-id attribute contains the indicator id and remove them
@@ -155,7 +151,7 @@ angular.module('reportingModal').component('reportingModal', {
 			}
 			//get configuration object
 			var config = $scope.getIndicatorConfigByName(indicator.indicatorName);
-			//save configuration object for cormaprison
+			//save configuration object for cormparison
 			$scope.modifiedIndicatorConfigSave = config;
 			//open modal
 			$('#reporting-add-indicator-modal').modal();
@@ -167,25 +163,8 @@ angular.module('reportingModal').component('reportingModal', {
 		 */
 		$scope.saveSettings = function() {
 
-			//get tile information
-			var tilePositions = [];
-			$($scope.gridsArray).each( (index, el) => {
-				var $grid = $(el.grid);
-				var $tiles = $($grid.attr('nodes'));
-				$tiles.each( (index, el) => {
-					var tileInfo = {};
-					tileInfo.tileId = el.id;
-					tileInfo.tilePageNumber = el._grid.container[0].id.split("-")[1];
-					tileInfo.tilePosX = el.x;
-					tileInfo.tilePosY = el.y;
-					tileInfo.tileWidth = el.width;
-					tileInfo.tileHeight = el.height;
-					tileInfo.tileContent = tileInfo.tileId.split("_")[2];
-					tilePositions.push(tileInfo);
-				});
-			});
-
-			var json = {
+			// TODO which variables are needed?
+			let json = {
 				'variables': {
 					'availableIndicators': $scope.availableIndicators,
 					'availableIndicatorsNames': $scope.availableIndicatorsNames,
@@ -193,15 +172,25 @@ angular.module('reportingModal').component('reportingModal', {
 					'addedIndicatorsNames': $scope.addedIndicatorsNames,
 					'addedIndicatorsBoxSelection': $scope.addedIndicatorsBoxSelection,
 					'allAddedIndicatorsConfig': $scope.allAddedIndicatorsConfig,
-					'modifiedIndicatorConfigSave': $scope.modifiedIndicatorConfigSave,
-					// 'gridsArray': $scope.gridsArray,
 					'pagesArray': $scope.pagesArray,
 			 		'generatingReport': $scope.generatingReport
 				},
-				'tilePositions': tilePositions
+				'pageElements': {} // TODO
+				/*
+				page Elements could look like:
+				{
+					pageNr: 1,
+					x: 0,
+					y: 0,
+					width: 100,
+					height: 100,
+					id: ...
+				}
+				*/
 			};
 
-			var jsonString = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(json, (key, value) => {
+			//TODO replace
+			let jsonString = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(json, (key, value) => {
 				// prevent circular references
 				if(key === "tiles") {
 					return undefined;
@@ -209,14 +198,14 @@ angular.module('reportingModal').component('reportingModal', {
 				return value;
 			}));
 
-			// to download json a DOM element is created, clicked and removed
+			// to download json, a DOM element is created, clicked and removed
 			// https://stackoverflow.com/questions/19721439/download-json-object-as-a-file-from-browser
-			var downloadAnchorNode = document.createElement('a');
-				downloadAnchorNode.setAttribute("href", jsonString);
-				downloadAnchorNode.setAttribute("download", getCurrentDateAndTime() + "_KomMonitor_Report.json");
-				document.body.appendChild(downloadAnchorNode); // required for firefox
-				downloadAnchorNode.click();
-				downloadAnchorNode.remove();
+			let downloadAnchorNode = document.createElement('a');
+			downloadAnchorNode.setAttribute("href", jsonString);
+			downloadAnchorNode.setAttribute("download", getCurrentDateAndTime() + "_KomMonitor_Report.json");
+			document.body.appendChild(downloadAnchorNode); // required for firefox
+			downloadAnchorNode.click();
+			downloadAnchorNode.remove();
 		};
 
 
@@ -248,9 +237,10 @@ angular.module('reportingModal').component('reportingModal', {
 		$scope.loadSettings = function(fileContent) {
 
 			//parse to json
-			var json = JSON.parse(fileContent);
+			let json = JSON.parse(fileContent);
 			// reset modal
 			$scope.resetModal();
+
 			//set variables
 			$scope.availableIndicators = json.variables.availableIndicators;
 			$scope.availableIndicatorsNames = json.variables.availableIndicatorsNames;
@@ -259,28 +249,13 @@ angular.module('reportingModal').component('reportingModal', {
 			$scope.addedIndicatorsBoxSelection = json.variables.addedIndicatorsBoxSelection;
 			$scope.allAddedIndicatorsConfig = json.variables.allAddedIndicatorsConfig;
 			$scope.modifiedIndicatorConfigSave = json.variables.modifiedIndicatorConfigSave;
-			// $scope.gridsArray = josn.variables.gridsArray
 			$scope.pagesArray = json.variables.pagesArray;
-			$scope.generatingReport = json.variables.generatingReport;
-			$($scope.allAddedIndicatorsConfig).each( (index, el) => {
-				el.tiles = {};
-			});
+			$scope.generatingReport = false;
+
 			$scope.$digest();
 
+			//TODO
 
-			//iterate pages
-			$($scope.pagesArray).each( (index, el) => {
-				// add grid
-				// this will append the grid as last element in $scope.gridsArray
-				createGrid(el, index+1);
-			});
-			$timeout( function() {
-				$(json.tilePositions).each( (index, tile) => {
-					recreateTile(tile);
-					fillTileContent(tile.tileId);
-				});
-			});
-			
 		};
 
 		$scope.generateReport = function() {
@@ -371,11 +346,11 @@ angular.module('reportingModal').component('reportingModal', {
 		};
 
 		$rootScope.$on("reportingIndicatorAdded", function(event, allAddedIndicatorsConfig) {
-
 			//save the config
 			$scope.allAddedIndicatorsConfig = allAddedIndicatorsConfig;
+			// get config of the last added indicato, which is the one that was just added and that we have to display now.
 			var addedIndicatorConfig = allAddedIndicatorsConfig[allAddedIndicatorsConfig.length-1];
-
+			console.log("addedIndicatorConfig: ", addedIndicatorConfig)
 			// indicator has a property geoJSON, which contains the geoJSON for all areas for the selected spatial unit
 			// these need to be filtered to match selected areas only
 			filterGeoJSONbyAreas(addedIndicatorConfig);
@@ -386,110 +361,46 @@ angular.module('reportingModal').component('reportingModal', {
 			// create pages depending on config
 			// for each timestamp
 			for (var i=0;i<addedIndicatorConfig.selectedTimestamps.length;i++) {
-				
-				// add one page by default
-				var page = $scope.createPage("landscape");
-				// save current pagesArray length +1 as constant
-				// this is done to get rid of the reference to the array length.
-				// by the time when createGrid is executed in the $timeout, the actual array might be longer
-				const pNumber_save = $scope.pagesArray.length+1;
-				//same for timestamp (get timestamp for current i, not for i==addedIndicatorConfig.selectedTimestamps.length)
-				const timestamp = addedIndicatorConfig.selectedTimestamps[i].name;
-				$scope.insertPage(page, pNumber_save);
-				$timeout( function() {
-					// add grid
-					// this will append the grid as last element in $scope.gridsArray
-					createGrid(page, pNumber_save);
-					// create grid tiles depending on config
-					// tile content is filled in later
-					var grid = $scope.gridsArray[$scope.gridsArray.length-1];
-					createGridTiles(grid, addedIndicatorConfig, timestamp, 1);
-					// get all tiles for the current timestamp
-					var properties = Object.getOwnPropertyNames(addedIndicatorConfig.tiles);
-					var tileIds = properties.filter( el => el.includes(timestamp));
+				let timestamp = addedIndicatorConfig.selectedTimestamps[i];
 
-					// for each tile
-					for (var i=0;i<tileIds.length;i++) {
-						//only fill tile if it is not already filled with content
-						if( $("div[data-gs-id=" + tileIds[i] + "] " + ".grid-stack-item-content").children().length == 0) {
-							fillTileContent(tileIds[i]);
-						}
-					}
+				// add one page by default
+				let page = $scope.createPage("landscape");
+				// add as last page
+				let pageNumber = $scope.pagesArray.length+1; 
+				$scope.insertPage(page, pageNumber);
+				let relativePageNumber = 1 // starting with 1 for first page of indicator to add (per timestamp)
+				
+				$timeout( function() {
+					insertPageContent(page, relativePageNumber, addedIndicatorConfig, timestamp);
 				});
 				
 				//if all three diagram types are checked add a second page
-				var history = addedIndicatorConfig.elementCheckboxes.elementHistoryIsChecked;
-				var timeline = addedIndicatorConfig.elementCheckboxes.elementTimelineIsChecked;
-				var featureComparison = addedIndicatorConfig.elementCheckboxes.elementFeatureComparisonIsChecked;
+				let history = addedIndicatorConfig.elementCheckboxes.elementHistoryIsChecked; // TODO history checkboy is hidden right now so if can't be checked
+				let timeline = addedIndicatorConfig.elementCheckboxes.elementTimelineIsChecked;
+				let featureComparison = addedIndicatorConfig.elementCheckboxes.elementFeatureComparisonIsChecked;
 				if(history && timeline && featureComparison) {
 					page = $scope.createPage("landscape");
-					const pNumber_save2 = $scope.pagesArray.length+1;
-					$scope.insertPage(page, pNumber_save2);
+					pageNumber = $scope.pagesArray.length+1; 
+					$scope.insertPage(page, pageNumber);
+					let relativePageNumber = 2;
 
 					$timeout( function() {
-						createGrid(page, pNumber_save2);
-						var grid = $scope.gridsArray[$scope.gridsArray.length-1];
-						createGridTiles(grid, addedIndicatorConfig, timestamp, 2);
-						// get all tiles for the current timestamp
-						var properties = Object.getOwnPropertyNames(addedIndicatorConfig.tiles);
-						var tileIds = properties.filter( el => el.includes(timestamp));
-
-						// for each tile
-						for (var i=0;i<tileIds.length;i++) {
-							//only fill tile if it is not already filled with content
-							if( $("div[data-gs-id=" + tileIds[i] + "] " + ".grid-stack-item-content").children().length == 0) {
-								fillTileContent(tileIds[i]);
-							}
-						}
-					});
-				}
-
-				//if metadata is checked add an additional page
-				//TODO only for one timestamp
-				var metadata = addedIndicatorConfig.elementCheckboxes.elementMetadataIsChecked;
-				if(metadata) {
-					page = $scope.createPage("portrait");
-					const pNumber_save2 = $scope.pagesArray.length+1;
-					$scope.insertPage(page, pNumber_save2);
-
-					$timeout( function() {
-						createGrid(page, pNumber_save2);
-						var grid = $scope.gridsArray[$scope.gridsArray.length-1];
-						createGridTiles(grid, addedIndicatorConfig, timestamp, 3);
-						// get all tiles for the current timestamp
-						var properties = Object.getOwnPropertyNames(addedIndicatorConfig.tiles);
-						var tileIds = properties.filter( el => el.includes(timestamp));
-						// for each tile
-						for (var i=0;i<tileIds.length;i++) {
-							//only fill tile if it is not already filled with content
-							if( $("div[data-gs-id=" + tileIds[i] + "] " + ".grid-stack-item-content").children().length == 0) {
-								fillTileContent(tileIds[i]);
-							}
-						}
+						insertPageContent(page, relativePageNumber, addedIndicatorConfig, timestamp);
 					});
 				}
 
 				//if datatable is checked add an additional page
-				var datatable = addedIndicatorConfig.elementCheckboxes.elementDataTableIsChecked;
+				let datatable = addedIndicatorConfig.elementCheckboxes.elementDataTableIsChecked;
 				if(datatable) {
 					page = $scope.createPage("portrait");
-					const pNumber_save2 = $scope.pagesArray.length+1;
-					$scope.insertPage(page, pNumber_save2);
+					pageNumber = $scope.pagesArray.length+1;
+					$scope.insertPage(page, pageNumber);
+					// TODO datatable could also be the second page,
+					// but relativePageNumber is used as a distinction criteria for now, so we leave it at 3
+					let relativePageNumber = 3; 
 
 					$timeout( function() {
-						createGrid(page, pNumber_save2);
-						var grid = $scope.gridsArray[$scope.gridsArray.length-1];
-						createGridTiles(grid, addedIndicatorConfig, timestamp, 4);
-						// get all tiles for the current timestamp
-						var properties = Object.getOwnPropertyNames(addedIndicatorConfig.tiles);
-						var tileIds = properties.filter( el => el.includes(timestamp));
-						// for each tile
-						for (var i=0;i<tileIds.length;i++) {
-							//only fill tile if it is not already filled with content
-							if( $("div[data-gs-id=" + tileIds[i] + "] " + ".grid-stack-item-content").children().length == 0) {
-								fillTileContent(tileIds[i]);
-							}
-						}
+						insertPageContent(page, relativePageNumber, addedIndicatorConfig, timestamp);
 					});
 				}
 			}
@@ -599,6 +510,7 @@ angular.module('reportingModal').component('reportingModal', {
 
 			var page = {};
 			page.pFormat = format;
+			page.pNumber = -1; // gets updated when page gets inserted
 			return page;
 		};
 
@@ -661,7 +573,6 @@ angular.module('reportingModal').component('reportingModal', {
 			$scope.allAddedIndicatorsConfig = [];
 			$scope.modifiedIndicatorConfigSave = {};
 			$scope.pagesArray = [];
-			$scope.gridsArray = [];
 			$scope.echartInstances = [];
 			$scope.generatingReport = false;
 			$rootScope.$broadcast("reportingResetModal");
@@ -679,449 +590,69 @@ angular.module('reportingModal').component('reportingModal', {
 			});
 		};
 
+	
 		/**
-		 * creates an empty grid for the given page.
-		 * pushes grid to $scope.gridsArray
-		 * @param {int} pageNumber
-		 */
-		function createGrid(page, pageNumber) {
-			var $grid = $("#grid-" + pageNumber.toString());
-			//max row number differs depending on page format
-			var maxRow = undefined;
-			if(page.pFormat === "landscape") {
-				maxRow = 53;
-			} else {
-				maxRow = 76;
-			}
-			$grid.gridstack({
-				// https://github.com/gridstack/gridstack.js/tree/develop/doc#options
-				acceptWidgets: true,
-				staticGrid: true,
-				float: true,
-				maxRow: maxRow,
-				column: 12,
-				verticalMargin: 0,
-				cellHeight: 10,
-			});
-
-			var grid = $grid.data('gridstack');
-			$scope.gridsArray.push(grid);
-		}
-
-		/**
-		 * creates grid tiles depending on the config for the given grid
-		 * each tile gets a unique id (combination of indicator id, timesamp and element).
+		 * Inserts the content to the page.
+		 * For now only one template is supported, so that we always add content to the same positions.
+		 * The positioning and elements depend on the given page number (this works since there is only one template right now)
+		 * each element gets a unique id (combination of indicator id, timesamp and element).
 		 * example ids (replace {indicatorId} and {timestamp}):
 		 * 	{indicatorId}_{timestamp}_map
 		 * 	{indicatorId}_{timestamp}_history
 		 * 	{indicatorId}_{timestamp}_featureComparison
 		 * 	{indicatorId}_{timestamp}_metadata
-		 * 
-		 * @param {obj} grid grid to add tiles for
-		 * @param {obj} config configuration object for indicator to add
-		 * @param {string} timestamp timestamp (used for id)
-		 * @param {int} page number of the newly added page (relative, not absolute).
+		 * @param {obj} page | page object storing all relevant information about page format, position, ...
+		 * @param {int} relativePageNumber | relative page number of the newly added page.
 		 * 						If 4 pages are added per timestamp it is either 1,2,3 or 4
+		 * @param {obj} config | configuration object for indicator to add
+		 * @param {string} timestamp | timestamp
 		 */
-		function createGridTiles(grid, config, timestamp, page) {
+		function insertPageContent(page, relativePageNumber, config, timestamp) {
 			var elements = config.elementCheckboxes;
 
-			if(page == 1) {
+			if(relativePageNumber === 1) {
 				if(elements.elementMapIsChecked) {
-					var id = config.indicator.indicatorId + "_" + timestamp + "_map";
-					var options = {
-						x: 0,
-						y: 0,
-						width: 12,
-						height: 37,
-						id: id
-					};
-				
-					// the template is the same for all tiles.
-					// however, we need separate variables to not just replace the previously added item
-					var item = getEmptyTileHTML();
-					grid.addWidget(item, options);
-					//get the added tile
-					var tile = $(document).find("[data-gs-id='" + id + "']")[0];
-					//save in config
-					config.tiles[id] = tile;
-				}
-	
-				if(elements.elementDescriptionIsChecked) {
-					var id = config.indicator.indicatorId + "_" + timestamp + "_description";
-					var options = {
-						x: 8,
-						y: 0,
-						width: 5,
-						height: 37,
-						id: id
-					};
-					var item = getEmptyTileHTML();
-					grid.addWidget(item, options);
-					var tile = $(document).find("[data-gs-id='" + id + "']")[0];
-					config.tiles[id] = tile;
+					let id = config.indicator.indicatorId + "_" + timestamp.name + "_map";
+					let element = createPageElement(page, 0, 0, 800, 400, id, config);
+					config.pageElements[id] = element;
 				}
 
-				var x = 0;
+				let x = 0; // tracks the x-coordinate to see if diagram was added
 				if(elements.elementFeatureComparisonIsChecked) {
-					var id = config.indicator.indicatorId + "_" + timestamp + "_featureComparison";
-					var options = {
-						x: x,
-						y: 37,
-						width: 6,
-						height: 16,
-						id: id
-					};
-					var item = getEmptyTileHTML();
-					grid.addWidget(item, options);
-					var tile = $(document).find("[data-gs-id='" + id + "']")[0];
-					config.tiles[id] = tile;
-
-					x = x+7;
+					let id = config.indicator.indicatorId + "_" + timestamp.name + "_featureComparison";
+					let element = createPageElement(page, x, 400, 400, 162, id, config);
+					config.pageElements[id] = element;
+					x += 400;
 				}
 
 				if(elements.elementHistoryIsChecked) {
-					var id = config.indicator.indicatorId + "_" + timestamp + "_history";
-					var options = {
-						x: x,
-						y: 37,
-						width: 6,
-						height: 16,
-						id: id
-					};
-					var item = getEmptyTileHTML();
-					grid.addWidget(item, options);
-					var tile = $(document).find("[data-gs-id='" + id + "']")[0];
-					config.tiles[id] = tile;
-
-					x = x+7;
+					let id = config.indicator.indicatorId + "_" + timestamp.name + "_history";
+					let element = createPageElement(page, x, 400, 400, 162, id, config);
+					config.pageElements[id] = element;
+					x += 400;
 				}
 
-				//zero or one diagrams added
-				if(x < 14) {
-					var id = config.indicator.indicatorId + "_" + timestamp + "_timeline"
-					if(elements.elementTimelineIsChecked) {
-						var options = {
-							x: x,
-							y: 37,
-							width: 6,
-							height: 16,
-							id: id
-						};
-						var item = getEmptyTileHTML();
-						grid.addWidget(item, options);
-						var tile = $(document).find("[data-gs-id='" + id + "']")[0];
-						config.tiles[id] = tile;
-					}
+				//zero or one diagrams added, we have space for the timeline diagram on this page
+				if(x < 800) {
+					console.log(x);
+					let id = config.indicator.indicatorId + "_" + timestamp.name + "_timeline";
+					let element = createPageElement(page, x, 400, 400, 162, id, config);
+					config.pageElements[id] = element;
 				}
 			}
 
-			if(page == 2) {
+			if(relativePageNumber === 2) {
 				//all three diagram types are checked
-				var id = config.indicator.indicatorId + "_" + timestamp + "_timeline";
-				var options = {
-					x: 0,
-					y: 0,
-					width: 6,
-					height: 16,
-					id: id
-				};
-				var item = getEmptyTileHTML();
-				grid.addWidget(item, options);
-				var tile = $(document).find("[data-gs-id='" + id + "']")[0];
-				config.tiles[id] = tile;
+				let id = config.indicator.indicatorId + "_" + timestamp.name + "_timeline";
+				let element = createPageElement(page, 0, 0, 400, 162, id, config);
+				config.pageElements[id] = element;
 			}
 
-			if(page==3) {
-				//metadata checked
-				var id = config.indicator.indicatorId + "_" + timestamp + "_metadata";
-				var options = {
-					x: 0,
-					y: 0,
-					width: 12,
-					height: 76,
-					id: id
-				};
-				var item = getEmptyTileHTML();
-				grid.addWidget(item, options);
-				var tile = $(document).find("[data-gs-id='" + id + "']")[0];
-				config.tiles[id] = tile;
-			}
-
-			if(page==4) {
+			if(relativePageNumber === 3) {
 				//datatable checked
-				var id = config.indicator.indicatorId + "_" + timestamp + "_dataTable"
-				var options = {
-					x: 0,
-					y: 0,
-					width: 6,
-					height: 76,
-					id: id
-				};
-				var item = getEmptyTileHTML();
-				grid.addWidget(item, options);
-				var tile = $(document).find("[data-gs-id='" + id + "']")[0];
-				config.tiles[id] = tile;
-			}
-		}
-
-		/**
-		 * creates a html template for an empty tile.
-		 * @returns {obj} parsed html
-		 */
-		function getEmptyTileHTML() {
-			var item = $.parseHTML(
-				"<div class='grid-stack-item'>" +
-					"<div class='grid-stack-item-content'>" +
-						//content goes here later
-					"</div>" +
-				"</div>");
-			return item;
-		}
-
-		/**
-		 * inserts content (map, diagrams, ...) in tiles.
-		 * gets all needed information (indicator, timestamp and content type) from the tile id.
-		 * @param {string} tileId
-		 */
-		function fillTileContent(tileId) {
-			//get config
-			var indicatorId = tileId.split("_")[0];
-			var indicatorName = undefined;
-			$($scope.addedIndicators).each( (index, el) => {
-				if(el.indicatorId == indicatorId) {
-					indicatorName = el.indicatorName;
-				}
-			});
-
-			// set settings classifyUsingWholeTimeseries and useOutlierDetectionOnIndicator to false to have consistent reporting setup
-			// set classifyZeroSeparately to true 
-			var useOutlierDetectionOnIndicator_backup = kommonitorDataExchangeService.useOutlierDetectionOnIndicator;
-			var classifyUsingWholeTimeseries_backup = kommonitorDataExchangeService.classifyUsingWholeTimeseries;
-			var classifyZeroSeparately_backup = kommonitorDataExchangeService.classifyZeroSeparately; 
-
-			kommonitorDataExchangeService.useOutlierDetectionOnIndicator = false;
-			kommonitorDataExchangeService.classifyUsingWholeTimeseries = false;
-			kommonitorDataExchangeService.classifyZeroSeparately = true;
-
-			var config = $scope.getIndicatorConfigByName(indicatorName);
-
-			//get timestamp
-			var timestamp = tileId.split("_")[1];
-
-			var geoJSON = config.indicator.geoJSON;
-			var timestampPref = __env.indicatorDatePrefix + timestamp;
-			var numClasses = config.indicator.defaultClassificationMapping.items.length;
-			var colorCodeStandard = config.indicator.defaultClassificationMapping.colorBrewerSchemeName;
-			var colorCodePositiveValues = __env.defaultColorBrewerPaletteForBalanceIncreasingValues;
-			var colorCodeNegativeValues = __env.defaultColorBrewerPaletteForBalanceDecreasingValues;
-			var classifyMethod = __env.defaultClassifyMethod;
-			//setup brew
-			var defaultBrew = kommonitorVisualStyleHelperService.setupDefaultBrew(geoJSON, timestampPref, numClasses, colorCodeStandard, classifyMethod);
-			var dynamicBrewsArray = kommonitorVisualStyleHelperService.setupDynamicIndicatorBrew(geoJSON, timestampPref, colorCodePositiveValues, colorCodeNegativeValues, classifyMethod);
-			var dynamicIncreaseBrew = dynamicBrewsArray[0];
-			var dynamicDecreaseBrew = dynamicBrewsArray[1];
-
-			//setup diagram resources
-			kommonitorDiagramHelperService.prepareAllDiagramResources_forReportingIndicator(config.indicator, config.selectedSpatialUnit.spatialUnitName, timestamp, defaultBrew, undefined, undefined, dynamicIncreaseBrew, dynamicDecreaseBrew, false, 0, false);
-			
-			// set settings classifyUsingWholeTimeseries and useOutlierDetectionOnIndicator and classifyZeroSeparately back to their prior values			
-			kommonitorDataExchangeService.useOutlierDetectionOnIndicator = useOutlierDetectionOnIndicator_backup;
-			kommonitorDataExchangeService.classifyUsingWholeTimeseries = classifyUsingWholeTimeseries_backup;
-			kommonitorDataExchangeService.classifyZeroSeparately = classifyZeroSeparately_backup;
-
-			//fill the tile with different content
-			//the id shows what type of content is needed
-			var contentType = tileId.split("_")[2]; //get the last part ot the id
-			var $tileContent = $(config.tiles[tileId]).children().first();
-
-			if (contentType === "map") {
-
-				var html = $.parseHTML(
-					"<div class='chart' style='width:100%;height:100%'>" +
-						"<div id='" + tileId + "_map' style='width:100%;height:100%;'>" +
-						"</div>" +
-					"</div>");
-				$tileContent.append(html[0]);
-				var map = echarts.init(document.getElementById(tileId + "_map"));
-				var options = kommonitorDiagramHelperService.getGeoMapChartOptions();
-				options.title.textStyle.fontSize = 16;
-				options.title.show = true;
-				options.grid = undefined;
-				options.visualMap.axisLabel = {
-					"fontSize": 10
-				};
-				options.toolbox.show = false;
-				map.setOption(options);
-				map.resize();
-				$scope.echartInstances.push(map);
-
-			} else if (contentType === "description") {
-				//variables
-				var ind = config.indicator;
-				var meta = ind.metadata;
-
-				var name = ind.indicatorName ? ind.indicatorName : "";
-				var category = ind.isHeadlineIndicator ? ind.isHeadlineIndicator : "";
-				var type = ind.indicatorType ? ind.indicatorType : "";
-				var description = meta.description ? meta.description : "";
-				var unit = ind.unit ? ind.unit : "";
-				var method = ind.processDescription ? ind.processDescription : "";
-				var interpretation = ind.interpretation ? ind.interpretation : "";
-				var datasource = meta.datasource ? meta.datasource : "";
-				var contact = meta.contact ? meta.contact : "";
-				var note = meta.note ? meta.note : "";
-				var updateInterval = meta.updateInterval ? meta.updateInterval : "";
-
-				var html = $.parseHTML(
-					'<table id="reporting-metadata-table" class="table table-condensed">'+
-					'	<tbody>'+
-					'		<tr>'+
-					'			<td><strong>Name</strong></td>'+
-					'			<td>' + name + '</td>'+
-					'		</tr>'+
-					'		<tr>'+
-					'			<td><strong>Kategorie</strong></td>'+
-					'			<td>' + category + '</td>'+
-					'		</tr>'+
-					'		<tr>'+
-					'			<td><strong>Typ</strong></td>'+
-					'			<td>' + type + '</td>'+
-					'		</tr>'+
-					'		<tr>'+
-					'			<td><strong>Beschreibung</strong></td>'+
-					'			<td>' + description + '</td>'+
-					'		</tr>'+
-					'		<tr>'+
-					'			<td><strong>Ma&szlig;einheit</strong></td>'+
-					'			<td>' + unit + '</td>'+
-					'		</tr>'+
-					'		<tr>'+
-					'			<td><strong>Methodik</strong></td>'+
-					'			<td>' + method + '</td>'+
-					'		</tr>'+
-					'		<tr>'+
-					'			<td><strong>Interpretation</strong></td>'+
-					'			<td>' + interpretation + '</td>'+
-					'		</tr>'+
-					'		<tr>'+
-					'			<td><strong>Datengrundlage</strong></td>'+
-					'			<td>' + datasource + '</td>'+
-					'		</tr>'+
-					'		<tr>'+
-					'			<td><strong>Datenquelle</strong></td>'+
-					'			<td>' + datasource + '</td>'+
-					'		</tr>'+
-					'		<tr>'+
-					'			<td><strong>Datenhalter und Kontakt</strong></td>'+
-					'			<td>' + contact + '</td>'+
-					'		</tr>'+
-					'		<tr>'+
-					'			<td><strong>Bemerkung</strong></td>'+
-					'			<td>' + note + '</td>'+
-					'		</tr>'+
-					'		<tr>'+
-					'			<td><strong>Fortf&uuml;hrungsintervall</strong></td>'+
-					'			<td>' + updateInterval + '</td>'+
-					'		</tr>'+
-					'	</tbody>'+
-					'</table>' 
-				);
-				$tileContent.html("");
-				$tileContent.append(html[0]);
-
-			} else if (contentType === "featureComparison") {
-				
-				var html = $.parseHTML(
-					"<div class='chart' style='width:100%;height:100%'>" +
-						"<div id='" + tileId + "_barChart' style='width:100%;height:100%;'>" +
-						"</div>" +
-					"</div>");
-				$tileContent.append(html[0]);
-				var barChart = echarts.init(document.getElementById(tileId + "_barChart"));
-				var options = kommonitorDiagramHelperService.getBarChartOptions();
-				options.xAxis.name = ""; //remove title
-				options.title.textStyle.fontSize = 12;
-				options.title.text = "Ranking";
-				options.yAxis.axisLabel = {
-					"fontSize": 10
-				};
-				options.title.show = true;
-				options.grid.top = 35;
-				options.grid.bottom = 5;
-				options.toolbox.show = false;
-				barChart.setOption(options);
-				barChart.resize();
-				$scope.echartInstances.push(barChart);
-
-			} else if (contentType === "history") {
-
-				var html = $.parseHTML(
-					"<div class='chart' style='width:100%;height:100%'>" +
-						"<div id='" + tileId + "_histogramChart' style='width:100%;height:100%;'>" +
-						"</div>" +
-					"</div>");
-				$tileContent.append(html[0]);
-				var histogramChart = echarts.init(document.getElementById(tileId + "_histogramChart"));
-				var options = kommonitorDiagramHelperService.getHistogramChartOptions();
-				options.xAxis[0].name = ""; //remove title
-				options.title.textStyle.fontSize = 12;
-				options.title.show = true;
-				options.grid.top = 35;
-				options.grid.bottom = 5;
-				options.yAxis.axisLabel = {
-					"fontSize": 10
-				};
-				options.toolbox.show = false;
-				histogramChart.setOption(options);
-				histogramChart.resize();
-				$scope.echartInstances.push(histogramChart);
-				
-			} else if (contentType === "timeline") {
-
-				var html = $.parseHTML(
-					"<div class='chart' style='width:100%;height:100%'>" +
-						"<div id='" + tileId + "_lineChart' style='width:100%;height:100%;'>" +
-						"</div>" +
-					"</div>");
-				$tileContent.append(html[0]);
-				var lineChart = echarts.init(document.getElementById(tileId + "_lineChart"));
-				var options = kommonitorDiagramHelperService.getLineChartOptions();
-				options.xAxis.name = ""; //remove title
-				options.title.textStyle.fontSize = 12;
-				options.title.text = "Zeitreihe - Arithm. Mittel";
-				options.yAxis.axisLabel = {
-					"fontSize": 10
-				};
-				options.xAxis.axisLabel = {
-					"fontSize": 10
-				};
-				options.legend.show = false;
-				options.grid.top = 35;
-				options.grid.bottom = 5;
-				options.title.show = true;
-				options.toolbox.show = false;
-				lineChart.setOption(options);
-				lineChart.resize();
-				$scope.echartInstances.push(lineChart);
-
-			} else if (contentType === "metadata") {
-				var jspdf = kommonitorDataExchangeService.createMetadataPDF_indicator(config.indicator);
-				// TODO create an image to show in the tile
-				var dataUrl = jspdf.output('dataurlstring');
-				
-				var $obj = $('<object>');
-				$obj.attr("data", dataUrl);
-				$obj.css("width", "100%");
-				$obj.css("height", "100%");
-				$obj.attr("type","application/pdf");
-				$tileContent.append($obj);
-
-			} else if (contentType === "dataTable") {
-
-			} else {
-				console.err("contentType was something unexpected: " + contentType);
-				return;
+				let id = config.indicator.indicatorId + "_" + timestamp.name + "_dataTable";
+				let element = createPageElement(page, 0, 0, 400, 800, id, config);
+				config.pageElements[id] = element;
 			}
 		}
 
@@ -1163,33 +694,162 @@ angular.module('reportingModal').component('reportingModal', {
 			return now;
 		}
 
-		function recreateTile(tile) {
-			var grid = $("#grid-" + tile.tilePageNumber.toString()).data('gridstack');
-			var options = {
-				x: tile.tilePosX,
-				y: tile.tilePosY,
-				width: tile.tileWidth,
-				height: tile.tileHeight,
-				id: tile.tileId
-			};
-			var item = getEmptyTileHTML();
-			grid.addWidget(item, options);
+		/**
+		 * Creates an element and adds it to the page.
+		 * Elements can be maps or diagrams.
+		 * 
+		 * @param {obj} page | page object storing all relevant information about page format, position, ...
+		 * @param {int} x | x coordinate of top left corner in pixel
+		 * @param {int} y | y coordinate of top left corner in pixel
+		 * @param {int} width | element with in pixel
+		 * @param {int} height | element height in pixel
+		 * @param {string} id | follows the scheme: {indicatorId}_{timestamp}_{elementType}
+		 * @param {obj} config | reporting-specific configuration for the indicator
+		 */
+		function createPageElement(page, x, y, width, height, id, config) {
+			// preparations
+			// set settings classifyUsingWholeTimeseries and useOutlierDetectionOnIndicator to false to have consistent reporting setup
+			// set classifyZeroSeparately to true
+			// we need to undo these changes afterwards, so we store the current values in a backup first
+			let useOutlierDetectionOnIndicator_backup = kommonitorDataExchangeService.useOutlierDetectionOnIndicator;
+			let classifyUsingWholeTimeseries_backup = kommonitorDataExchangeService.classifyUsingWholeTimeseries;
+			let classifyZeroSeparately_backup = kommonitorDataExchangeService.classifyZeroSeparately; 
+			kommonitorDataExchangeService.useOutlierDetectionOnIndicator = false;
+			kommonitorDataExchangeService.classifyUsingWholeTimeseries = false;
+			kommonitorDataExchangeService.classifyZeroSeparately = true;
 
-			t = $(document).find("[data-gs-id='" + tile.tileId + "']")[0];
-			//get config
-			var config = undefined;
-			$($scope.addedIndicators).each( (index, el) => {
-				if(el.indicatorId === tile.tileId.split("_")[0]) {
-					config = $scope.getIndicatorConfigByName(el.indicatorName);
-				}
-			});
-			config.tiles[tile.tileId] = t;
+			let id_split = id.split("_")
+			let indicatorId = id_split[0];
+			let timestamp = id_split[1];
+			let contentType = id_split[2];
+
+			let indicatorMetadata = config.indicator;
+
+			let geoJSON = indicatorMetadata.geoJSON;
+			let timestampPref = __env.indicatorDatePrefix + timestamp;
+			let numClasses = indicatorMetadata.defaultClassificationMapping.items.length;
+			let colorCodeStandard = indicatorMetadata.defaultClassificationMapping.colorBrewerSchemeName;
+			let colorCodePositiveValues = __env.defaultColorBrewerPaletteForBalanceIncreasingValues;
+			let colorCodeNegativeValues = __env.defaultColorBrewerPaletteForBalanceDecreasingValues;
+			let classifyMethod = __env.defaultClassifyMethod;
+
+			//setup brew
+			let defaultBrew = kommonitorVisualStyleHelperService.setupDefaultBrew(geoJSON, timestampPref, numClasses, colorCodeStandard, classifyMethod);
+			let dynamicBrewsArray = kommonitorVisualStyleHelperService.setupDynamicIndicatorBrew(geoJSON, timestampPref, colorCodePositiveValues, colorCodeNegativeValues, classifyMethod);
+			let dynamicIncreaseBrew = dynamicBrewsArray[0];
+			let dynamicDecreaseBrew = dynamicBrewsArray[1];
+
+			//setup diagram resources
+			kommonitorDiagramHelperService.prepareAllDiagramResources_forReportingIndicator(config.indicator, config.selectedSpatialUnit.spatialUnitName, timestamp, defaultBrew, undefined, undefined, dynamicIncreaseBrew, dynamicDecreaseBrew, false, 0, false);
+			
+			// set settings classifyUsingWholeTimeseries and useOutlierDetectionOnIndicator and classifyZeroSeparately back to their prior values			
+			kommonitorDataExchangeService.useOutlierDetectionOnIndicator = useOutlierDetectionOnIndicator_backup;
+			kommonitorDataExchangeService.classifyUsingWholeTimeseries = classifyUsingWholeTimeseries_backup;
+			kommonitorDataExchangeService.classifyZeroSeparately = classifyZeroSeparately_backup;
+
+			// fill element with different content depending on content type
+			let wrapperDiv = document.createElement("div");
+			wrapperDiv.id = id;
+			wrapperDiv.classList.add("chart");
+			wrapperDiv.style.position = "absolute";
+			wrapperDiv.style.width = width + "px";
+			wrapperDiv.style.height = height + "px";
+
+			if (contentType === "map")
+				createMap( wrapperDiv );
+			else if (contentType === "featureComparison")
+				createFeatureComparisonDiagram( wrapperDiv );
+			else if (contentType === "history")
+				createHistoryDiagram( wrapperDiv );
+			else if (contentType === "timeline")
+				createTimelineDiagram( wrapperDiv );
+			else
+				throw "Unknown contentType provided."
+
+			positionElementOnPage(wrapperDiv, page, x, y);
 		}
 
-		$scope.filterIndicators = function() {
 
-			return kommonitorDataExchangeService.filterIndicators();
-		};
+		function createMap(wrapperDiv) {
+			let map = echarts.init( wrapperDiv );
+			let options = kommonitorDiagramHelperService.getGeoMapChartOptions();
+			options.title.textStyle.fontSize = 16;
+			options.title.show = true;
+			options.grid = undefined;
+			options.visualMap.axisLabel = { "fontSize": 10 };
+			options.toolbox.show = false;
+			map.setOption(options);
+			map.resize();
+			$scope.echartInstances.push(map);
+		}
+
+
+		function createFeatureComparisonDiagram(wrapperDiv) {
+			let barChart = echarts.init( wrapperDiv );
+			let options = kommonitorDiagramHelperService.getBarChartOptions();
+			options.xAxis.name = ""; //remove title
+			options.title.textStyle.fontSize = 12;
+			options.title.text = "Ranking";
+			options.yAxis.axisLabel = { "fontSize": 10 };
+			options.title.show = true;
+			options.grid.top = 35;
+			options.grid.bottom = 5;
+			options.toolbox.show = false;
+			barChart.setOption(options);
+			barChart.resize();
+			$scope.echartInstances.push(barChart);
+		}
+
+
+		function createHistoryDiagram(wrapperDiv) {
+			let histogramChart = echarts.init( wrapperDiv );
+			let options = kommonitorDiagramHelperService.getHistogramChartOptions();
+			options.xAxis[0].name = ""; //remove title
+			options.title.textStyle.fontSize = 12;
+			options.title.show = true;
+			options.grid.top = 35;
+			options.grid.bottom = 5;
+			options.yAxis.axisLabel = { "fontSize": 10 };
+			options.toolbox.show = false;
+			histogramChart.setOption(options);
+			histogramChart.resize();
+			$scope.echartInstances.push(histogramChart);
+		}
+
+
+		function createTimelineDiagram(wrapperDiv) {
+			let lineChart = echarts.init( wrapperDiv );
+			let options = kommonitorDiagramHelperService.getLineChartOptions();
+			options.xAxis.name = ""; //remove title
+			options.title.textStyle.fontSize = 12;
+			options.title.text = "Zeitreihe - Arithm. Mittel";
+			options.yAxis.axisLabel = { "fontSize": 10 };
+			options.xAxis.axisLabel = { "fontSize": 10 };
+			options.legend.show = false;
+			options.grid.top = 35;
+			options.grid.bottom = 5;
+			options.title.show = true;
+			options.toolbox.show = false;
+			lineChart.setOption(options);
+			lineChart.resize();
+			$scope.echartInstances.push(lineChart);
+		}
+
+		/**
+		 * 
+		 * @param {domNode} wrapper | 
+		 * @param {obj} page 
+		 * @param {int} x 
+		 * @param {int} y 
+		 */
+		function positionElementOnPage(wrapper, page, x, y) {
+			wrapper.style.left = x + "px";
+			wrapper.style.top = y + "px";
+
+			let pageNode = document.querySelector("#reporting-page-" + page.pNumber)
+			pageNode.appendChild( wrapper );
+		}
+
 	}
 ]});
 

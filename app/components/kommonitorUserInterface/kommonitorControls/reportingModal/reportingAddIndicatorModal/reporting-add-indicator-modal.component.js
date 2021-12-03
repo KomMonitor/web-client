@@ -488,8 +488,8 @@ angular.module('reportingAddIndicatorModal').component('reportingAddIndicatorMod
 					elementDataTableIsChecked: $scope.elementDataTableIsChecked
 				},
 				// the following properties are needed in the main modal after adding the indicator
-				tiles: {},
-				selectedSpatialUnitId: $scope.selectedSpatialUnitId
+				selectedSpatialUnitId: $scope.selectedSpatialUnitId,
+				pageElements: {}
 			};
 			return conf;
 		}

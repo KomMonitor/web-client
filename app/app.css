@@ -2414,45 +2414,27 @@ input:checked + .switchslider:before {
 
 .reporting-page {
 	background-color:white;
-	border: solid gray 1px;
+	border: none;
 	margin: 0 auto;
 	margin-top: 10px;
 	margin-bottom:10px;
 	padding:15px;
+	position: relative;
 }
 
 .reporting-page-landscape {
+	--page-width: 830px; /* +30px to account for padding, content area is 800px wide */
 	/* aspect ratio 1/sqrt(2) */
-	width: calc(1120px/1.4); /* TODO dynamisch an nutzerbildschirm anpassen, dann über javascript */
-	height: calc(790px/1.4);
+	width: var(--page-width);
+	height: calc( var(--page-width) / 1.4);
+
 }
 
 .reporting-page-portrait {
+	--page-width: calc( 820px / 1.41 );
 	/* aspect ratio 1/sqrt(2) */
-	width: calc(790px/1.4); /* TODO dynamisch an nutzerbildschirm anpassen, dann über javascript */
-	height: calc(1120px/1.4);
-}
-
-.grid-stack-item {
-	background-color:white;
-	border: dashed gray 1px;
-}
-
-.grid-stack-item-content {
-	left:0 !important;
-	right:0 !important;
-}
-
-.grid-stack > .grid-stack-item > .ui-resizable-s {
-	left: 0;
-}
-
-.grid-stack > .grid-stack-item > .ui-resizable-e {
-	right: 0;
-}
-
-.grid-stack > .grid-stack-item > .ui-resizable-w {
-	left: 0;
+	width: var(--page-width);
+	height: calc( var(--page-width) * 1.4);
 }
 
 #reporting-metadata-table {
