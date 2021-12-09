@@ -1,0 +1,78 @@
+<p>overview content goes here</p>
+<button class="btn btn-primary" ng-click='onConfigureNewIndicatorClicked()'>Indikator konfigurieren</button>
+
+<!-- <div class="loading-overlay" ng-show="generatingReport">
+    <span class="glyphicon glyphicon-refresh icon-spin"></span>
+</div>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="row">
+                <h4>Indikatoren</h4>
+                <div class="input-group">
+                    <span class="input-group-addon"><i class="fas fa-filter"></i></span>
+                    <input type="text" class="form-control input-sm" placeholder="Stichwortfilter"
+                        ng-model="indicatorNameFilter" ng-model-options="{debounce: 500, blur: 0}">
+                </div>
+
+                <div id="indicatorSelectionBox"
+                    style="height:410px; border:solid black 1px; overflow:auto; white-space: nowrap;">
+                    <div style="cursor:pointer; margin-left:5px; margin-right:5px" class="draggable"
+                        ng-repeat="indicator in availableIndicators | filter: indicatorNameFilter | orderBy: 'indicatorName'"
+                        data-indicator={{indicator}}>
+                        {{indicator.indicatorName}}
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <h4 style="margin-top:20px">hinzugef&uuml;gte Indikatoren</h4>
+                <div id="addedIndicatorBox"
+                    style="width:100%; height:150px; border:solid black 1px; overflow:auto; white-space: nowrap;">
+                    <div style="cursor:pointer; margin-left:5px; margin-right:5px"
+                        ng-repeat="indicator in addedIndicators | orderBy: 'indicatorName'"
+                        ng-click="toggleAddedIndicatorSelection($event, indicator)">
+                        {{indicator.indicatorName}}
+                    </div>
+                </div>
+            </div>
+            <div class="row" style="margin-top:5px">
+                <button class="btn btn-warning" ng-click="configureIndicator()" ng-disabled="true"><i
+                        class="fas fa-pencil-alt"></i>&nbsp;&nbsp;Bearbeiten</button>
+                <button class="btn btn-danger" ng-click="removeIndicator()"><i
+                        class="fa fa-trash"></i>&nbsp;&nbsp;Entfernen</button>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="row" style="margin:0">
+                <div style="height:649.6px; border:solid black 1px;
+                            background-color: lightgray; overflow:auto;" class="droppable">
+                    <div ng-repeat="page in pagesArray"
+                        class="reporting-page reporting-page-{{page.pFormat}}"
+                        id="reporting-page-{{page.pNumber}}">
+                    </div>
+                </div>
+            </div>
+            <div class="row" style="margin:0;margin-top:5px;">
+                <button type="button" class="btn btn-primary pull-left" style="margin-right:5px"
+                    ng-disabled="true"><i class="fa fa-plus"></i>&nbsp;&nbsp;Seite hinzufügen</button>
+                <button type="button" class="btn btn-primary pull-left" style="margin-right:5px"
+                    ng-disabled="true"><i class="fa fa-minus"></i>&nbsp;&nbsp;Seite entfernen</button>
+                <button type="button" class="btn btn-primary pull-left" style="margin-right:5px"
+                    ng-disabled="true"><i class="fa fa-sync"></i>&nbsp;&nbsp;Seitenreihenfolge
+                    ändern</button>
+                <button type="button" class="btn btn-danger pull-right" ng-click="resetModal()"><i
+                        class="fas fa-exclamation-triangle"></i></i>&nbsp;&nbsp;Ansicht zurücksetzen</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<button type="button" class="btn btn-primary pull-left" ng-click="saveSettings()"><i
+    class="fa fa-save"></i>&nbsp;&nbsp;Einstellungen exportieren</button>
+<label for="reporting-load-settings-button" class="btn btn-primary pull-left">
+<input type="file" id="reporting-load-settings-button"></input>
+<i class="fa fa-file-download"></i>&nbsp;&nbsp;Einstellungen importieren
+</label>
+<button type="button" class="btn btn-success pull-right" ng-click="generateReport()"><i
+    class="fa fa-copy"></i>&nbsp;&nbsp;Report erzeugen</button> -->
