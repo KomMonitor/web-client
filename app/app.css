@@ -2472,12 +2472,26 @@ input:checked + .switchslider:before {
 	position: relative;
 }
 
-#reporting-template-preview-area {
+#reporting-template-preview-area,
+#reporting-overview-preview-area {
 	margin-bottom: 15px;
 	height:650px;
 	border:solid darkgray 1px;
     background-color: lightgray;
 	overflow:auto;
+}
+
+#reporting-overview-bot-btn-row-1 {
+	margin-bottom: 25px;
+}
+
+#reporting-overview-bot-btn-row-2 {
+	margin-top: 10px;
+}
+
+#reporting-overview-bot-btn-row-1 button:not(:last-child),
+#reporting-overview-bot-btn-row-2 button:not(:last-child) {
+	margin-right: 10px;
 }
 
 #reporting-template-categories-wrapper,

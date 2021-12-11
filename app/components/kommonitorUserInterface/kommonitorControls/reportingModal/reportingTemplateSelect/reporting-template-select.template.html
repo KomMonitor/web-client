@@ -9,98 +9,100 @@
             </p>
         </div>
     </div>
-    <div class="row reporting-content-wrapper">
-        <div class="col-sm-3" id="reporting-template-selection-sidebar">
-            <div id="reporting-template-categories-wrapper">
-                <h3>Kategorien</h3>
-                <!-- accordion component not available in Bpptstrap 3, simulated behavior with
-                    https://webdesignerwall.com/wdw-snippet/accordion-with-bootstrap-3-and-without-js
-                -->
-                <div class="panel-group" id="reporting-template-category-accordion">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <h4 class="panel-title">
-                                <a class="reporting-template-category-toggle" data-toggle="collapse"
-                                    data-parent="#reporting-template-category-accordion" href="#collapseOne">
-                                    Einseitige Templates
-                                </a>
-                            </h4>
-                        </div>
-                        <div id="collapseOne" class="panel-collapse collapse in">
-                            <div class="panel-body">
-                                <p>Template 1</p>
-                                <p>Template 2</p>
+    <div class="reporting-content-wrapper">
+        <div class="row">
+            <div class="col-sm-3" id="reporting-template-selection-sidebar">
+                <div id="reporting-template-categories-wrapper">
+                    <h3>Kategorien</h3>
+                    <!-- accordion component not available in Bpptstrap 3, simulated behavior with
+                        https://webdesignerwall.com/wdw-snippet/accordion-with-bootstrap-3-and-without-js
+                    -->
+                    <div class="panel-group" id="reporting-template-category-accordion">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a class="reporting-template-category-toggle" data-toggle="collapse"
+                                        data-parent="#reporting-template-category-accordion" href="#collapseOne">
+                                        Einseitige Templates
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="collapseOne" class="panel-collapse collapse in">
+                                <div class="panel-body">
+                                    <p>Template 1</p>
+                                    <p>Template 2</p>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <h4 class="panel-title">
-                                <a class="reporting-template-category-toggle" data-toggle="collapse"
-                                    data-parent="#reporting-template-category-accordion" href="#collapseTwo">
-                                    Mehrseitige Templates
-                                </a>
-                            </h4>
-                        </div>
-                        <div id="collapseTwo" class="panel-collapse collapse">
-                            <div class="panel-body">
-                                <p>Template 1</p>
-                                <p>Template 2</p>
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a class="reporting-template-category-toggle" data-toggle="collapse"
+                                        data-parent="#reporting-template-category-accordion" href="#collapseTwo">
+                                        Mehrseitige Templates
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="collapseTwo" class="panel-collapse collapse">
+                                <div class="panel-body">
+                                    <p>Template 1</p>
+                                    <p>Template 2</p>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <h4 class="panel-title">
-                                <a class="reporting-template-category-toggle" data-toggle="collapse"
-                                    data-parent="#reporting-template-category-accordion" href="#collapseThree">
-                                    Indikatorenvergleich
-                                </a>
-                            </h4>
-                        </div>
-                        <div id="collapseThree" class="panel-collapse collapse">
-                            <div class="panel-body">
-                                <p>Template 1</p>
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a class="reporting-template-category-toggle" data-toggle="collapse"
+                                        data-parent="#reporting-template-category-accordion" href="#collapseThree">
+                                        Indikatorenvergleich
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="collapseThree" class="panel-collapse collapse">
+                                <div class="panel-body">
+                                    <p>Template 1</p>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <h4 class="panel-title">
-                                <a class="reporting-template-category-toggle" data-toggle="collapse"
-                                    data-parent="#reporting-template-category-accordion" href="#collapseFour">
-                                    Erreichbarkeitsanalyse
-                                </a>
-                            </h4>
-                        </div>
-                        <div id="collapseFour" class="panel-collapse collapse">
-                            <div class="panel-body">
-                                <p>Template 1</p>
-                                <p>Template 2</p>
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a class="reporting-template-category-toggle" data-toggle="collapse"
+                                        data-parent="#reporting-template-category-accordion" href="#collapseFour">
+                                        Erreichbarkeitsanalyse
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="collapseFour" class="panel-collapse collapse">
+                                <div class="panel-body">
+                                    <p>Template 1</p>
+                                    <p>Template 2</p>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            
-            <div id="reporting-template-customization-wrapper">
-                <h3>Personalisierung</h3>
-                <p>Bearbeiter:</p>
-                <p>Kommune:</p>
-                <p>Datum:</p>
-                <p>ggf. weitere Optionen je nach Template</p>
-                <button id="reporting-template-select-config-import-btn" class="btn btn-primary" ng-click=''>
-                    <i class="fa fa-file-download"></i>
-                    Personalisierung Importieren
-                </button>
-            </div>
-        </div>
-        <div class="col-sm-9">
-            <div class="row" style="margin:0">
-                <div id="reporting-template-preview-area">
+                
+                <div id="reporting-template-customization-wrapper">
+                    <h3>Personalisierung</h3>
+                    <p>Bearbeiter:</p>
+                    <p>Kommune:</p>
+                    <p>Datum:</p>
+                    <p>ggf. weitere Optionen je nach Template</p>
+                    <button id="reporting-template-select-config-import-btn" class="btn btn-primary" ng-click=''>
+                        <i class="fa fa-file-download"></i>
+                        Personalisierung Importieren
+                    </button>
                 </div>
             </div>
-            <button class="btn btn-success pull-right" ng-click='onTemplateSelected()'>Template auswählen</button>
+            <div class="col-sm-9">
+                <div class="row" style="margin:0">
+                    <div id="reporting-template-preview-area">
+                    </div>
+                </div>
+                <button class="btn btn-success pull-right" ng-click='onTemplateSelected()'>Template auswählen</button>
+            </div>
         </div>
     </div>
 </div>

@@ -6,6 +6,10 @@ angular.module('reportingOverview').component('reportingOverview', {
 		$scope.onConfigureNewIndicatorClicked = function() {
 			$scope.$emit('configureNewIndicatorClicked')
 		}
+
+		$scope.onBackToTemplateSelectionClicked = function() {
+			$scope.$emit('backToTemplateSelectionClicked')
+		}
 		
 		// $scope.availableIndicators = [];
 		// $scope.availableIndicatorsNames = [];

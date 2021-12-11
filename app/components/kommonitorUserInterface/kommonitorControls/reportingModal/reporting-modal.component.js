@@ -19,6 +19,10 @@ angular.module('reportingModal').component('reportingModal', {
 			console.log("Data from adding new indicator: ", data)
 		});
 
+		$scope.$on('backToTemplateSelectionClicked', function () {
+			$scope.templateSelected = false;
+		});
+
 	}
 ]});
 
