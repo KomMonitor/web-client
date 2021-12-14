@@ -2495,6 +2495,7 @@ input:checked + .switchslider:before {
 }
 
 #reporting-template-categories-wrapper,
+#reporting-overwiew-indicators-wrapper,
 #reporting-template-customization-wrapper {
 	border: solid darkgray 1px;
 	padding: 5px 10px;

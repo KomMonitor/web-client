@@ -1,2 +1,79 @@
-<p>Indicator add content goes here</p>
-<button class="btn btn-primary" ng-click='onAddNewIndicatorClicked()'>Indikator hinzufügen</button>
+<div class="container-fluid">
+    <div class="row row-no-gutters">
+        <div class="col-sm-12 text-center">
+            <h2 class="fs-title">Indikator-Konfiguration</h2>
+        </div>
+    </div>
+    <div class="reporting-content-wrapper">
+        <div class="row">
+            <div class="col-sm-2"></div>
+            <div class="col-sm-8">
+                <div class="row" style="margin:0">
+                    <ul class="nav nav-tabs">
+                        <li role="presentation" class="active">
+                            <a href="#indicators" aria-controls="indicators" role="tab" data-toggle="tab">Indikatoren</a>
+                        </li>
+                        <li role="presentation">
+                            <a href="#area" aria-controls="area" role="tab" data-toggle="tab">Bereich</a>
+                        </li> <!--  class="disabled" -->
+                        <li role="presentation">
+                            <a href="#time" aria-controls="time" role="tab" data-toggle="tab">Zeitpunkt</a>
+                        </li>
+                        <li role="presentation">
+                            <a href="#elements" aria-controls="elements" role="tab" data-toggle="tab">Elemente</a>
+                        </li>
+                    </ul>
+                    
+                    <!-- not affected by tab changes -->
+                    <div id="reporting-overview-preview-area">
+                        <!-- <div ng-repeat="page in pagesArray"
+                            class="reporting-page reporting-page-{{page.pFormat}}"
+                            id="reporting-page-{{page.pNumber}}">
+                        </div> -->
+                    </div>
+
+                    <div class="tab-content">
+                        <div role="tabpanel" class="tab-pane active" id="indicators">
+                            <!-- TODO nach unten auslagern und über js laden? -->
+						    <div class="loading-overlay-reporting ng-hide" ng-show="loadingData">
+								<span class="glyphicon glyphicon-refresh icon-spin"></span>
+							</div>
+							<excalibur-dual-list ng-model='selectedIndicator' options="duallistIndicatorOptions"></excalibur-dual-list>
+                        </div>
+                        <div role="tabpanel" class="tab-pane" id="area">
+                            <h4>Bereiche ausw&auml;hlen</h4>
+                            <!-- TODO nach unten auslagern und über js laden? -->
+						    <div class="loading-overlay-reporting ng-hide" ng-show="loadingData">
+								<span class="glyphicon glyphicon-refresh icon-spin"></span>
+							</div>
+							<excalibur-dual-list ng-model='selectedAreas' options="duallistAreasOptions"></excalibur-dual-list>
+                        </div>
+                        <div role="tabpanel" class="tab-pane" id="time">
+                            <!-- TODO nach unten auslagern und über js laden? -->
+						    <div class="loading-overlay-reporting ng-hide" ng-show="loadingData">
+								<span class="glyphicon glyphicon-refresh icon-spin"></span>
+							</div>
+                            <excalibur-dual-list ng-model='selectedTimestamps' options="duallistTimestampsOptions"></excalibur-dual-list>
+                        </div>
+                        <div role="tabpanel" class="tab-pane" id="elements">
+                            TODO
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-2"></div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div>
+                    <button type="button" class="btn btn-success pull-right" ng-click='onAddNewIndicatorClicked()'>
+                        <i class="fa fa-plus"></i>
+                        Indikator hinzufügen
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
