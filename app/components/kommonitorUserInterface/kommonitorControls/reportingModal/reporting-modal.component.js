@@ -1,10 +1,24 @@
 angular.module('reportingModal').component('reportingModal', {
 	templateUrl : "components/kommonitorUserInterface/kommonitorControls/reportingModal/reporting-modal.template.html",
-	controller : ['$scope', '$rootScope', '__env', '$timeout', 
-	function ReportingModalController($scope, $rootScope, __env) {
+	controller : ['$scope', '__env', '$timeout', 
+	function ReportingModalController($scope, __env, $timeout) {
 
+		$scope.workflowSelected = false;
 		$scope.templateSelected = false;
 		$scope.addingNewIndicator = false;
+		let modalDialog = document.querySelector("#reporting-modal .modal-dialog");
+		$scope.$on('reportingWorkflowSelected', function (event, data) {
+			console.log("data in wrapper: ", data);
+			// make modal wide
+			modalDialog.classList.add("modal-xl");
+
+			$scope.workflowSelected = true; // go to template select
+			// for some reason angularjs won't register the change if a config file was selected
+			$timeout(function() {
+				$scope.$apply()
+			});
+			
+		});
 
 		$scope.$on('reportingTemplateSelected', function (event, data) {
 			$scope.templateSelected = true; // go to overview
@@ -25,6 +39,11 @@ angular.module('reportingModal').component('reportingModal', {
 			$scope.templateSelected = false;
 		});
 
+		$scope.$on('backToWorkflowSelectionClicked', function () {
+			$scope.workflowSelected = false;
+			modalDialog.classList.remove("modal-xl")
+		});
+		
 	}
 ]});
 

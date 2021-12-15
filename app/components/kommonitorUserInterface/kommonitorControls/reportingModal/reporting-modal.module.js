@@ -1,1 +1,1 @@
-angular.module('reportingModal', ['reportingTemplateSelect', 'reportingOverview', 'reportingIndicatorAdd']);
+angular.module('reportingModal', ['reportingWorkflowSelect', 'reportingTemplateSelect', 'reportingOverview', 'reportingIndicatorAdd']);

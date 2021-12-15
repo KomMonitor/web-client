@@ -164,6 +164,8 @@ module.exports = function (grunt) {
             'app/components/kommonitorUserInterface/kommonitorControls/feedbackModal/feedback-modal.component.js',
             'app/components/kommonitorUserInterface/kommonitorControls/reportingModal/reporting-modal.module.js',
             'app/components/kommonitorUserInterface/kommonitorControls/reportingModal/reporting-modal.component.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/reportingModal/reportingWorkflowSelect/reporting-workflow-select.module.js',
+            'app/components/kommonitorUserInterface/kommonitorControls/reportingModal/reportingWorkflowSelect/reporting-workflow-select.component.js',
             'app/components/kommonitorUserInterface/kommonitorControls/reportingModal/reportingTemplateSelect/reporting-template-select.module.js',
             'app/components/kommonitorUserInterface/kommonitorControls/reportingModal/reportingTemplateSelect/reporting-template-select.component.js',
             'app/components/kommonitorUserInterface/kommonitorControls/reportingModal/reportingOverview/reporting-overview.module.js',

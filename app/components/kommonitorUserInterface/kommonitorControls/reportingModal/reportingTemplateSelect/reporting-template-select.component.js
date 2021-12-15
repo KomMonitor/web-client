@@ -6,5 +6,9 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 		$scope.onTemplateSelected = function() {
 			$scope.$emit('reportingTemplateSelected', ['someData'])
 		}
+
+		$scope.onBackToTWorkflowSelectionClicked = function() {
+			$scope.$emit('backToWorkflowSelectionClicked')
+		}
     }
 ]});

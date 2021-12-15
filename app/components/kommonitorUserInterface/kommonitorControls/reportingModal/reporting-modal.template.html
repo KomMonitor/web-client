@@ -1,5 +1,5 @@
 <div class="modal fade" id="reporting-modal" role="dialog" data-backdrop="false">
-	<div class="modal-dialog modal-xl">
+	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">&times;</button>
@@ -7,7 +7,10 @@
 			</div>
 			<div class="modal-body">
 				
-				<div ng-hide="templateSelected">
+				<div ng-hide="workflowSelected">
+					<reporting-workflow-select></reporting-workflow-select>
+				</div>
+				<div ng-show="workflowSelected && !templateSelected">
 					<reporting-template-select></reporting-template-select>
 				</div>
 				<div ng-show="templateSelected && !addingNewIndicator">
