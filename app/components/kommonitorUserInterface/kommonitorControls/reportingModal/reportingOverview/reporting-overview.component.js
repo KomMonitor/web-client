@@ -1,16 +1,61 @@
 angular.module('reportingOverview').component('reportingOverview', {
 	templateUrl : "components/kommonitorUserInterface/kommonitorControls/reportingModal/reportingOverview/reporting-overview.template.html",
-	controller : ['$scope', '$rootScope', '__env', 
-	function ReportingOverviewController($scope, $rootScope, __env) {
+	controller : ['$scope', '__env', 
+	function ReportingOverviewController($scope, __env) {
+
+
+		$scope.config = [
+			// dummy data
+			{
+				indicatorName: "Soziale Lage - Durchschnittsalter der Bevölkerung"
+			},
+			{
+				indicatorName: "Soziale Lage - Zahl der Wahlberechtigten"
+			},
+			{
+				indicatorName: "Attraktivität für junge Familien - Erreichbarkeit von Kindertagesstätten"
+			}
+		]
 
 		$scope.onConfigureNewIndicatorClicked = function() {
 			$scope.$emit('configureNewIndicatorClicked')
 		}
-
+		
 		$scope.onBackToTemplateSelectionClicked = function() {
 			$scope.$emit('backToTemplateSelectionClicked')
 		}
-		
+
+		/**
+		 * get indicator config by name
+		 * @param {string} name: indicator name
+		 * @returns {*} indicator or undefined if no indicator found
+		 */
+		$scope.getIndicatorConfigByName = function(name) {
+			let result = undefined;
+			$($scope.config).each((index, el) => {
+				if(el.indicatorName === name) {
+					result = el;
+					return false;
+				}
+			});
+			if (result === undefined) {
+				console.error("no configuration found for indicator '" + name + "'");
+			}
+			return result;
+		};
+
+		// /**
+		//  * removes an indicator and all corresponding grid tiles
+		//  * adds indicator back to available indicators
+		//  */
+		$scope.removeIndicator = function(indicatorName) {
+
+			let indicator = $scope.getIndicatorConfigByName(indicatorName);
+			$scope.config = $scope.config.filter( function(el) {
+				return el !== indicator
+			});
+		}
+
 		// $scope.availableIndicators = [];
 		// $scope.availableIndicatorsNames = [];
 
@@ -67,87 +112,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 		// 	});
 		// });
 
-		// /**
-		//  * removes an indicator and all corresponding grid tiles
-		//  * adds indicator back to available indicators
-		//  */
-		// $scope.removeIndicator = function() {
-		// 	var indicator = $scope.addedIndicatorsBoxSelection;
-		// 	if($.isEmptyObject(indicator)) {
-		// 		return;
-		// 	}
-			
-		// 	// TODO recode without gridstack
-		// 	// remove grid tiles from DOM
-		// 	var indicatorId = indicator.indicatorId;
-		// 	// find all elements where data-gs-id attribute contains the indicator id and remove them
-		// 	$(document).find("[data-gs-id*='" + indicatorId + "']").remove(); 
-
-		// 	//remove from echartInstances
-		// 	$scope.echartInstances = $scope.echartInstances.filter( el => {
-		// 		if(el.getDom().id.includes(indicatorId)) {
-		// 			el.dispose();
-		// 			return false;
-		// 		} else {
-		// 			return true;
-		// 		}
-		// 	});
-			
-		// 	//remove from addedIndicatorsNames
-		// 	$scope.addedIndicatorsNames = $scope.addedIndicatorsNames.filter( 
-		// 		el => el !== indicator.indicatorName
-		// 	);
-
-		// 	//remove from addedIndicators
-		// 	$scope.addedIndicators = $scope.addedIndicators.filter( 
-		// 		el => el !== indicator
-		// 	);
-
-		// 	//add back to available indicators and availableIndicatorsNames
-		// 	$scope.availableIndicators[$scope.availableIndicators.length] = $scope.addedIndicatorsBoxSelection;
-		// 	$scope.availableIndicatorsNames[$scope.availableIndicatorsNames.length] = indicator.indicatorName;
-
-		// 	//delete config
-		// 	$scope.allAddedIndicatorsConfig = $scope.allAddedIndicatorsConfig.filter( 
-		// 		el => el.indicator.indicatorName !== indicator.indicatorName
-		// 	);
-		// 	$rootScope.$broadcast("reportingIndicatorRemoved", indicatorId);
-			
-		// 	//reset box selection
-		// 	$scope.addedIndicatorsBoxSelection = undefined;
-
-		// 	//remove empty pages
-		// 	var pages = $(document).find("div[id^=reporting-page-]");
-			
-		// 	// iterate pages in reverse because removing a page lowers the page number of
-		// 	// all following pages leading to incorrect results in a normal iteration
-		// 	$(pages.get().reverse()).each( (index, el) => {
-		// 		//get grid
-		// 		var $grid = $(el).find("div[id^=grid-]");
-		// 		//if empty
-		// 		if($grid.children().length == 0) {
-		// 			//remove from pages array
-		// 			var pNumber = $grid.attr("id").split("-")[1];
-		// 			$scope.removePage(pNumber);
-		// 		}
-		// 	});
-			
-		// 	$timeout( function() {
-		// 		//if all pages were removed create a placeholder page
-		// 		pages = $(document).find("div[id^=reporting-page-]");
-		// 		if(pages.length == 0) {
-		// 			$scope.createPlaceholderPage();
-		// 		}
-
-		// 		$(".draggable").draggable({
-		// 			revert: "invalid",
-		// 			revertDuration: 0,
-		// 			appendTo: $('#reporting-modal .modal-content'),
-		// 			scroll: false,
-		// 			helper: "clone"
-		// 		});
-		// 	});
-		// };
+		
 
 		// $scope.configureIndicator = function() {
 
@@ -484,24 +449,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 		// };
 
 
-		// /**
-		//  * get indicator config by name
-		//  * @param {string} name: indicator name
-		//  * @returns {*} indicator or undefined if no indicator found
-		//  */
-		// $scope.getIndicatorConfigByName = function(name) {
-		// 	var result = undefined;
-		// 	$($scope.allAddedIndicatorsConfig).each((index, el) => {
-		// 		if(el.indicator.indicatorName === name) {
-		// 			result = el;
-		// 			return false;
-		// 		}
-		// 	});
-		// 	if (result === undefined) {
-		// 		console.error("no configuration found for indicator '" + name + "'");
-		// 	}
-		// 	return result;
-		// };
+		
 
 		// /**
 		//  * creates a new page
