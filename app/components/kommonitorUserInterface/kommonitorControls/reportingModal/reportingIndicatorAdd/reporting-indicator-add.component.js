@@ -3,8 +3,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 	controller : ['$scope', '$http', '__env', 'kommonitorDataExchangeService',
     function ReportingIndicatorAddController($scope, $http, __env, kommonitorDataExchangeService) {
 
+		$scope.indicatorNameFilter = "";
 		$scope.availableIndicators = [];
-		$scope.selectedIndicator = [];
+		$scope.selectedIndicator = undefined;
 		$scope.selectedAreas = [];
 		$scope.selectedTimestamps = [];
 		$scope.loadingData = false;
@@ -16,14 +17,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		});
 
 		$scope.initializeDualLists = function() {
-			$scope.duallistIndicatorOptions = {
-				label: 'Indikatoren',
-				boxItemsHeight: 'md',
-				items: [],
-				button: {leftText: "Alle auswählen" , rightText: "Alle entfernen"},
-				selectedItems: []
-			};
-
 			$scope.duallistAreasOptions = {
 				label: 'Bereiche',
 				boxItemsHeight: 'md',
@@ -49,9 +42,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 			// build request
 			// query public endpoint for now, this might change once user role administration is added to reporting
-			let url = kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
-						"/indicators"
-			console.log("url: ", url);
+			let url = kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/indicators"
 			
 			// send request
 			await $http({
@@ -60,14 +51,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			}).then(function successCallback(response) {
 					// save to scope
 					$scope.availableIndicators = response.data
-
-					// clear dual list right side (just in case)
-					$scope.duallistIndicatorOptions.selectedItems = [];
-					// update dual list
-					let dataArray = kommonitorDataExchangeService.createDualListInputArray($scope.availableIndicators, "indicatorName");
-					$scope.duallistIndicatorOptions.items = dataArray;
-
 					$scope.loadingData = false;
+
 				}, function errorCallback(error) {
 					$scope.loadingData = false;
 					kommonitorDataExchangeService.displayMapApplicationError(error);
@@ -75,9 +60,16 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			});
 		};
 
+		
+		$scope.onIndicatorSelected = function(indicator) {
+			// set indicator manually.
+			// if we use ng-model it gets converted to string instead of an object
+			$scope.selectedIndicator = indicator;
+		}
 
         $scope.onAddNewIndicatorClicked = function() {
-			$scope.$emit('addNewIndicatorClicked', ['dataAboutNewIndicator'])
+			$scope.$emit('addNewIndicatorClicked', [$scope.selectedIndicator])
 		}
+
     }
 ]})
