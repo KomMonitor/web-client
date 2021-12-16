@@ -13,17 +13,21 @@
                         &nbsp;&nbsp;Indikator konfigurieren
                     </button>
                     <h3>Hinzugefügte Indikatoren</h3>
-                    <div ng-repeat="indicator in config">
-                        <hr class="reporting-hr-divider">
-                        <div class="row row-no-gutters reporting-added-indicators-row">
-                            <div class="col-sm-11">
-                                {{indicator.indicatorName}}
-                            </div>
-                            <div class="col-sm-1 text-right">
-                                <i class="reporting-indicator-delete-symbol align-middle fa fa-trash-alt" ng-click="removeIndicator(indicator.indicatorName)"></i>
+                    <p>Die Reihenfolge kann über Drag-and-Drop verändert werden.</p>
+                    <div class="list-group" ng-sortable="sortableConfig">
+                        <div ng-repeat="indicator in config">
+                            <hr class="reporting-hr-divider">
+                            <div class="row row-no-gutters reporting-added-indicators-row">
+                                <div class="col-sm-11">
+                                    <b>{{indicator.indicatorName}}</b>
+                                </div>
+                                <div class="col-sm-1 text-right">
+                                    <i class="reporting-indicator-delete-symbol align-middle fa fa-trash-alt" ng-click="removeIndicator(indicator.indicatorName)"></i>
+                                </div>
                             </div>
                         </div>
                     </div>
+                    
                 </div>
             </div>
             <div class="col-sm-9">
@@ -36,10 +40,6 @@
                     </div>
                 </div>
                 <div id="reporting-overview-bot-btn-row-1" class="clearfix">
-                    <button class="btn btn-primary " ng-click=''>
-                        <i class="fa fa-sync"></i>
-                        &nbsp;&nbsp;Indikator-Reihenfolge ändern
-                    </button>
                     <button class="btn btn-danger pull-right" ng-click=''>
                         <i class="fas fa-exclamation-triangle"></i>
                         &nbsp;&nbsp;Template zurücksetzen

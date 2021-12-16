@@ -1,1 +1,1 @@
-angular.module('reportingOverview', []);
+angular.module('reportingOverview', ['ng-sortable']);

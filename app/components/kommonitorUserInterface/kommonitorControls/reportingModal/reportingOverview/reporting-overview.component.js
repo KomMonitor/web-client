@@ -17,6 +17,12 @@ angular.module('reportingOverview').component('reportingOverview', {
 			}
 		]
 
+		$scope.sortableConfig = {
+			onEnd: function (e) {
+				// nothing for now, config elements get reordered automatically
+			}
+		};
+
 		$scope.onConfigureNewIndicatorClicked = function() {
 			$scope.$emit('configureNewIndicatorClicked')
 		}
@@ -44,10 +50,10 @@ angular.module('reportingOverview').component('reportingOverview', {
 			return result;
 		};
 
-		// /**
-		//  * removes an indicator and all corresponding grid tiles
-		//  * adds indicator back to available indicators
-		//  */
+		/**
+		 * removes an indicator and all corresponding grid tiles
+		 * adds indicator back to available indicators
+		 */
 		$scope.removeIndicator = function(indicatorName) {
 
 			let indicator = $scope.getIndicatorConfigByName(indicatorName);
