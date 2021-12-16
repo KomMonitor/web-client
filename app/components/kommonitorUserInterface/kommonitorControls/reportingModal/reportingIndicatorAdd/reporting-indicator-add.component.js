@@ -65,6 +65,10 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			// set indicator manually.
 			// if we use ng-model it gets converted to string instead of an object
 			$scope.selectedIndicator = indicator;
+			// enable second tab
+			let tab2 = document.querySelector("#reporting-add-indicator-tab2");
+			tab2.classList.remove("tab-disabled")
+			tab2.firstElementChild.removeAttribute("tabindex")
 		}
 
         $scope.onAddNewIndicatorClicked = function() {

@@ -2531,6 +2531,12 @@ input:checked + .switchslider:before {
 	font-size: 12px;
 }
 
+.tab-disabled {
+	pointer-events: none;
+}
+
+.tab-disabled a {
+	color: #777;
 }
 
 .batch-list-table-wrapper {
