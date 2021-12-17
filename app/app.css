@@ -2539,6 +2539,15 @@ input:checked + .switchslider:before {
 	color: #777;
 }
 
+
+#reporting-spatial-unit-select-wrapper {
+	margin: 10px 0px 10px 0px;
+}
+
+
+
+
+
 .batch-list-table-wrapper {
 	max-height: 75vh !important;
 	overflow-y: auto !important;

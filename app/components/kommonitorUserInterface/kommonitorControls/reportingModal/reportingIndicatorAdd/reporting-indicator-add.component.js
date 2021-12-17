@@ -1,11 +1,14 @@
 angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 	templateUrl : "components/kommonitorUserInterface/kommonitorControls/reportingModal/reportingIndicatorAdd/reporting-indicator-add.template.html",
-	controller : ['$scope', '$http', '__env', 'kommonitorDataExchangeService',
-    function ReportingIndicatorAddController($scope, $http, __env, kommonitorDataExchangeService) {
+	controller : ['$scope', '$http', '$timeout', '__env', 'kommonitorDataExchangeService',
+    function ReportingIndicatorAddController($scope, $http, $timeout, __env, kommonitorDataExchangeService) {
 
 		$scope.indicatorNameFilter = "";
 		$scope.availableIndicators = [];
 		$scope.selectedIndicator = undefined;
+
+		$scope.availableFeatures = {};
+		$scope.selectedSpatialUnit = undefined;
 		$scope.selectedAreas = [];
 		$scope.selectedTimestamps = [];
 		$scope.loadingData = false;
@@ -35,7 +38,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		}
 
 		/**
-		 * Queries the DataManagement API to get all available indicators
+		 * Queries DataManagement API to get all available indicators
 		 */
 		$scope.queryIndicators = async function() {
 			$scope.loadingData = true;
@@ -45,14 +48,14 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			let url = kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/indicators"
 			
 			// send request
-			await $http({
+			$http({
 				url: url,
 				method: "GET"
 			}).then(function successCallback(response) {
 					// save to scope
-					$scope.availableIndicators = response.data
+					$scope.availableIndicators = response.data;
 					$scope.loadingData = false;
-
+					
 				}, function errorCallback(error) {
 					$scope.loadingData = false;
 					kommonitorDataExchangeService.displayMapApplicationError(error);
@@ -60,11 +63,92 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			});
 		};
 
+		/**
+		 * Updates the areas dual list.
+		 * Queries DataManagement API if needed.
+		 */
+		$scope.updateAreas = async function() {
+			let indicator = $scope.selectedIndicator;
+			let spatialUnit = $scope.selectedSpatialUnit
+			let indicatorId = indicator.indicatorId;
+			let spatialUnitId = spatialUnit.spatialUnitId;
+
+			if ($scope.availableFeatures[spatialUnit.spatialUnitName]) {
+				// no need to query api
+				$scope.updateDualList($scope.duallistAreasOptions, $scope.availableFeatures[spatialUnit.spatialUnitName])
+			} else {
+				let data = await $scope.queryFeatures(indicatorId, spatialUnitId)
+
+				// save response to scope to avoid further requests
+				$scope.availableFeatures[spatialUnit.spatialUnitName] = data.features
+
+				$scope.updateDualList($scope.duallistAreasOptions, data.features)
+				$timeout(function() {
+					$scope.$apply();
+				})
+			}
+		}
+
+		/**
+		 * Queries DataManagement API to get features of gi for given indicato
+		 * Result is stored to scope to avoid further requests.
+		 * @param {*} indicator | selected indicator
+		 */
+		 $scope.queryFeatures = async function(indicatorId, spatialUnitId) {
+			// build request
+			let url = kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
+			"/indicators/" + indicatorId + "/" + spatialUnitId;
+			// send request
+			$scope.loadingData = true;
+			return await $http({
+				url: url,
+				method: "GET"
+			}).then(function successCallback(response) {
+				$scope.loadingData = false;
+				return response.data;
+			}, function errorCallback(error) {
+				// called asynchronously if an error occurs
+				// or server returns response with an error status.
+				$scope.loadingData = false;
+				kommonitorDataExchangeService.displayMapApplicationError(error);
+				console.error(response.statusText);
+			});
+		}
+
+		/**
+		 * 
+		 * @param {*} options | scope options obj for duallist to update
+		 * @param {*} data | new data, format like: //TODO make variable as parameter
+		 * [
+		 * 	{
+		 * 		properties: {
+		 * 			NAME: ...
+		 * 		}
+		 *  }, {
+		 *		...
+		 *  }]
+		 */
+		$scope.updateDualList = function(options, data) {
+			// clear dual list right side
+			options.selectedItems = [];
+			// update areas dual list
+			let dualListInput = data.map( el => {
+				return {"name": el.properties.NAME} // we need this as an object for kommonitorDataExchangeService.createDualListInputArray
+			});
+			dualListInput = kommonitorDataExchangeService.createDualListInputArray(dualListInput, "name");
+			options.items = dualListInput;
+		}
+
 		
 		$scope.onIndicatorSelected = function(indicator) {
 			// set indicator manually.
 			// if we use ng-model it gets converted to string instead of an object
 			$scope.selectedIndicator = indicator;
+			// set spatial unit to highest available one
+			if(typeof($scope.selectedSpatialUnit === 'undefined')) {
+				$scope.selectedSpatialUnit = $scope.selectedIndicator.applicableSpatialUnits[0];
+			}
+			
 			// enable second tab
 			let tab2 = document.querySelector("#reporting-add-indicator-tab2");
 			tab2.classList.remove("tab-disabled")
