@@ -17,11 +17,23 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		$scope.$watchCollection('selectedAreas', function() {
 			let tab3 = document.querySelector("#reporting-add-indicator-tab3");
 			// enable tab only if at least one area is selected after change
-			if($scope.selectedAreas.length > 0) {
+			if($scope.selectedAreas.length) {
 				$scope.enableTab(tab3);
 			} else {
 				// if the last area was deselected
 				$scope.disableTab(tab3);
+			}
+		});
+
+		// internal array changes do not work with ng-change
+		$scope.$watchCollection('selectedTimestamps', function() {
+			let tab4 = document.querySelector("#reporting-add-indicator-tab4");
+			// enable tab only if at least one area is selected after change
+			if($scope.selectedTimestamps.length) {
+				$scope.enableTab(tab4);
+			} else {
+				// if the last area was deselected
+				$scope.disableTab(tab4);
 			}
 		});
 
@@ -127,6 +139,26 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		}
 
 		/**
+		 * Updates the timestamp dual list.
+		 */
+		 $scope.updateTimestamps = async function() {
+			let indicator = $scope.selectedIndicator;
+
+			// convert to required format, change this once format is updated
+			let dates = indicator.applicableDates.map( el => {
+				return {
+					"properties": {
+						"NAME": el
+					}
+				}
+			})
+			$scope.updateDualList($scope.duallistTimestampsOptions, dates)
+			$timeout(function() {
+			 	$scope.$apply();
+			})
+		}
+
+		/**
 		 * 
 		 * @param {*} options | scope options obj for duallist to update
 		 * @param {*} data | new data, format like: //TODO make variable as parameter
@@ -159,6 +191,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			if(typeof($scope.selectedSpatialUnit === 'undefined')) {
 				$scope.selectedSpatialUnit = $scope.selectedIndicator.applicableSpatialUnits[0];
 			}
+			
+			$scope.updateTimestamps();
 			
 			let tab2 = document.querySelector("#reporting-add-indicator-tab2");
 			$scope.enableTab(tab2);
