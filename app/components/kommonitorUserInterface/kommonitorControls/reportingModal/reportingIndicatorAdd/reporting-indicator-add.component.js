@@ -13,7 +13,18 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		$scope.selectedTimestamps = [];
 		$scope.loadingData = false;
 		
-		
+		// internal array changes do not work with ng-change
+		$scope.$watchCollection('selectedAreas', function() {
+			let tab3 = document.querySelector("#reporting-add-indicator-tab3");
+			// enable tab only if at least one area is selected after change
+			if($scope.selectedAreas.length > 0) {
+				$scope.enableTab(tab3);
+			} else {
+				// if the last area was deselected
+				$scope.disableTab(tab3);
+			}
+		});
+
 		$scope.$on("configureNewIndicatorShown", function() {
 			$scope.initializeDualLists();
 			$scope.queryIndicators();
@@ -149,15 +160,22 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				$scope.selectedSpatialUnit = $scope.selectedIndicator.applicableSpatialUnits[0];
 			}
 			
-			// enable second tab
 			let tab2 = document.querySelector("#reporting-add-indicator-tab2");
-			tab2.classList.remove("tab-disabled")
-			tab2.firstElementChild.removeAttribute("tabindex")
+			$scope.enableTab(tab2);
 		}
 
         $scope.onAddNewIndicatorClicked = function() {
 			$scope.$emit('addNewIndicatorClicked', [$scope.selectedIndicator])
 		}
 
+		$scope.enableTab = function(tab) {
+			tab.classList.remove("tab-disabled")
+			tab.firstElementChild.removeAttribute("tabindex")
+		}
+
+		$scope.disableTab = function(tab) {
+			tab.classList.add("tab-disabled")
+			tab.firstElementChild.setAttribute("tabindex", "1")
+		}
     }
 ]})
