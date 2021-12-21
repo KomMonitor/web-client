@@ -182,7 +182,49 @@
                             <excalibur-dual-list ng-model='selectedTimestamps' options="duallistTimestampsOptions"></excalibur-dual-list>
                         </div>
                         <div role="tabpanel" class="tab-pane" id="elements">
-                            TODO
+
+                            <h4>Welche Reporting-Elemente sollen angezeigt werden?</h4>
+                            <div>
+                                <label class="switch">
+                                    <input id="reportingMapCheckbox" class="elementCheckbox" type="checkbox"
+                                        ng-model="pageContent.map" ng-init="pageContent.map = true"
+                                        ng-checked="pageContent.map" />
+                                        <span class="switchslider round text-left" style="line-height:25px;"></span>
+                                    </label>
+                                <label for="reportingMapCheckbox">Karte</label>
+                            </div>
+
+                            <div>
+                                <label class="switch">
+                                    <input id="reportingBoxplotCheckbox" class="elementCheckbox" type="checkbox"
+                                        ng-model="pageContent.Boxplot" ng-init="pageContent.boxplot = true"
+                                        ng-checked="pageContent.boxplot" />
+                                    <span class="switchslider round text-left" style="line-height:25px;"></span>
+                                </label>
+                                <label for="reportingBoxplotCheckbox">Boxplot</label>
+                            </div>
+                            
+                            <div>
+                                <label class="switch">
+                                    <input id="reportingDiagram1Checkbox" class="elementCheckbox" type="checkbox"
+                                        ng-model="pageContent.diagram1" ng-init="pageContent.diagram1 = true"
+                                        ng-checked="pageContent.diagram1" />
+                                    <span class="switchslider round text-left" style="line-height:25px;"></span>
+                                </label>
+                                <label for="reportingDiagram1Checkbox">Diagramm 1</label>
+                            </div>
+                            
+
+                            <div>
+                                <label class="switch">
+                                    <input id="reportingDiagram2Checkbox" class="elementCheckbox" type="checkbox"
+                                        ng-model="pageContent.diagram2" ng-init="pageContent.diagram2 = true"
+                                        ng-checked="pageContent.diagram2" />
+                                    <span class="switchslider round text-left" style="line-height:25px;"></span>
+                                </label>
+                                <label for="reportingDiagram2Checkbox">Diagramm 2</label>
+                            </div>
+
                         </div>
                     </div>
                 </div>

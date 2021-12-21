@@ -11,6 +11,14 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		$scope.selectedSpatialUnit = undefined;
 		$scope.selectedAreas = [];
 		$scope.selectedTimestamps = [];
+
+		$scope.pageContent = {
+			map: true,
+			boxplot: true,
+			diagram1: true,
+			diagram2: true
+		}
+		
 		$scope.loadingData = false;
 		
 		// internal array changes do not work with ng-change
