@@ -2420,6 +2420,18 @@ input:checked + .switchslider:before {
 	margin-bottom:10px;
 	padding:15px;
 	position: relative;
+	text-align: center;
+	display: flex;
+	flex-direction:row;
+	flex-wrap:wrap;
+}
+
+.reporting-page div {
+	display: flex;
+	align-content: center;
+	justify-content: center;
+	flex-direction:column;
+	text-align: center;
 }
 
 .reporting-page-landscape {
