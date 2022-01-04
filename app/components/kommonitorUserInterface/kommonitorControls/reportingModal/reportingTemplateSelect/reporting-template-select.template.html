@@ -14,70 +14,28 @@
             <div class="col-sm-3">
                 <div id="reporting-template-categories-wrapper">
                     <h3>Kategorien</h3>
-                    <!-- accordion component not available in Bpptstrap 3, simulated behavior with
+                    <!-- accordion component not available in Bootstrap 3, simulated behavior with
                         https://webdesignerwall.com/wdw-snippet/accordion-with-bootstrap-3-and-without-js
                     -->
                     <div class="panel-group" id="reporting-template-category-accordion">
-                        <div class="panel panel-default">
+                        <div class="panel panel-default" ng-repeat="category in availableTemplateCategories">
                             <div class="panel-heading">
                                 <h4 class="panel-title">
                                     <a class="reporting-template-category-toggle" data-toggle="collapse"
-                                        data-parent="#reporting-template-category-accordion" href="#collapseOne">
-                                        Einseitige Templates
+                                        data-parent="#reporting-template-category-accordion" ng-href="#collapse{{category.id}}">
+                                        {{category.displayName}}
                                     </a>
                                 </h4>
                             </div>
-                            <div id="collapseOne" class="panel-collapse collapse in">
+                            <div ng-attr-id="collapse{{category.id}}" class="panel-collapse collapse">
                                 <div class="panel-body">
-                                    <p>Template 1</p>
-                                    <p>Template 2</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                <h4 class="panel-title">
-                                    <a class="reporting-template-category-toggle" data-toggle="collapse"
-                                        data-parent="#reporting-template-category-accordion" href="#collapseTwo">
-                                        Mehrseitige Templates
-                                    </a>
-                                </h4>
-                            </div>
-                            <div id="collapseTwo" class="panel-collapse collapse">
-                                <div class="panel-body">
-                                    <p>Template 1</p>
-                                    <p>Template 2</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                <h4 class="panel-title">
-                                    <a class="reporting-template-category-toggle" data-toggle="collapse"
-                                        data-parent="#reporting-template-category-accordion" href="#collapseThree">
-                                        Indikatorenvergleich
-                                    </a>
-                                </h4>
-                            </div>
-                            <div id="collapseThree" class="panel-collapse collapse">
-                                <div class="panel-body">
-                                    <p>Template 1</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                <h4 class="panel-title">
-                                    <a class="reporting-template-category-toggle" data-toggle="collapse"
-                                        data-parent="#reporting-template-category-accordion" href="#collapseFour">
-                                        Erreichbarkeitsanalyse
-                                    </a>
-                                </h4>
-                            </div>
-                            <div id="collapseFour" class="panel-collapse collapse">
-                                <div class="panel-body">
-                                    <p>Template 1</p>
-                                    <p>Template 2</p>
+                                    <select size="7" class="form-control" required>
+                                        <option style="white-space: pre !important;"
+                                            ng-repeat="template in availableTemplates | filter: templateFilter(category.id)"
+                                            ng-click="onTemplateElementClicked(template)">
+                                                {{template.displayName}}
+                                        </option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -99,6 +57,7 @@
             <div class="col-sm-9">
                 <div class="row" style="margin:0">
                     <div id="reporting-template-preview-area">
+                        <!-- TODO generate from selected template -->
                         <div class="reporting-page reporting-page-landscape">
                             <div style="position: absolute;
                                             top: 15px;
