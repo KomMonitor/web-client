@@ -29,13 +29,12 @@
                             </div>
                             <div ng-attr-id="collapse{{category.id}}" class="panel-collapse collapse">
                                 <div class="panel-body">
-                                    <select size="7" class="form-control" required>
-                                        <option style="white-space: pre !important;"
-                                            ng-repeat="template in availableTemplates | filter: templateFilter(category.id)"
-                                            ng-click="onTemplateElementClicked(template)">
-                                                {{template.displayName}}
-                                        </option>
-                                    </select>
+                                    <div ng-repeat="template in availableTemplates | filter: templateFilter(category.id)"
+                                        class="selectableTemplate"
+                                        ng-click="onTemplateElementClicked($event, template)"
+                                        ng-attr-id="collapse{{category.id}}-template{{$index}}">
+                                            {{template.displayName}}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -153,7 +152,7 @@
                     &nbsp;&nbsp;Zurück zur Workflow-Auswahl
                 </button>
 
-                <button class="btn btn-success pull-right" ng-click='onTemplateSelected()'>Template auswählen</button>
+                <button class="btn btn-success pull-right" ng-click='onTemplateSelected()' ng-disabled='!selectedTemplate'>Template auswählen</button>
             </div>
         </div>
     </div>

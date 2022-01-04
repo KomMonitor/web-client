@@ -64,9 +64,21 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 				"categoryId": 3,
 			},
 		]
-		
 	
-		$scope.selectedTemplate = {};
+		$scope.selectedTemplate = undefined;
+
+		// on modal opened
+		$('#reporting-modal').on('show.bs.modal', function () {
+			$scope.initialize();
+		});
+
+		$scope.initialize = function() {
+			// open first category
+			let collapsible = document.querySelector("#reporting-template-category-accordion #collapse1")
+			collapsible.classList.add("in");
+			// select first template
+			collapsible.querySelector("#collapse1-template0").click();
+		}
 
 		/**
 		 * filters templates to only show the ones matching the given category.
@@ -79,7 +91,17 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 			}
 		}
 
-		$scope.onTemplateElementClicked = function(template) {
+		$scope.onTemplateElementClicked = function($event, template) {
+			let el = $event.target;
+			el.style.backgroundColor = "#0078D7";
+			el.style.color = "white";
+			document.querySelectorAll(".selectableTemplate").forEach( (element) => {
+				if( el !== element) {
+					element.style.backgroundColor = "white";
+					element.style.color = "black";
+				}
+			});
+			// set scope variable manually each time
 			$scope.selectedTemplate = template;
 			$scope.updatePreview(template);
 		}
