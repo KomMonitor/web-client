@@ -10,6 +10,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		$scope.availableFeatures = {};
 		$scope.selectedSpatialUnit = undefined;
 		$scope.selectedAreas = [];
+		$scope.selectedSpatialUnitsMultiselect = undefined
+
 		$scope.selectedTimestamps = [];
 
 		$scope.pageContent = {
@@ -61,6 +63,14 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 			$scope.duallistTimestampsOptions = {
 				label: 'Zeitpunkte',
+				boxItemsHeight: 'md',
+				items: [],
+				button: {leftText: "Alle auswählen" , rightText: "Alle entfernen"},
+				selectedItems: []
+			};
+
+			$scope.duallistSpatialUnitsOptions = {
+				label: 'Raumebenen',
 				boxItemsHeight: 'md',
 				items: [],
 				button: {leftText: "Alle auswählen" , rightText: "Alle entfernen"},
@@ -149,7 +159,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		/**
 		 * Updates the timestamp dual list.
 		 */
-		 $scope.updateTimestamps = async function() {
+		$scope.updateTimestamps = async function() {
 			let indicator = $scope.selectedIndicator;
 
 			// convert to required format, change this once format is updated
@@ -161,6 +171,23 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				}
 			})
 			$scope.updateDualList($scope.duallistTimestampsOptions, dates)
+			$timeout(function() {
+			 	$scope.$apply();
+			})
+		}
+
+		$scope.updateSpatialUnitsMultiselect = async function() {
+			let indicator = $scope.selectedIndicator;
+			console.log(indicator)
+			// convert to required format, change this once format is updated
+			let spatialUnits = indicator.applicableSpatialUnits.map( el => {
+				return {
+					"properties": {
+						"NAME": el.spatialUnitName
+					}
+				}
+			})
+			$scope.updateDualList($scope.duallistSpatialUnitsOptions, spatialUnits)
 			$timeout(function() {
 			 	$scope.$apply();
 			})
@@ -200,6 +227,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				$scope.selectedSpatialUnit = $scope.selectedIndicator.applicableSpatialUnits[0];
 			}
 			
+			$scope.updateSpatialUnitsMultiselect();
 			$scope.updateTimestamps();
 			
 			let tab2 = document.querySelector("#reporting-add-indicator-tab2");
