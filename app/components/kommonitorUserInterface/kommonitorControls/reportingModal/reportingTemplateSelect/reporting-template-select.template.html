@@ -14,9 +14,7 @@
             <div class="col-sm-3">
                 <div id="reporting-template-categories-wrapper">
                     <h3>Kategorien</h3>
-                    <!-- accordion component not available in Bootstrap 3, simulated behavior with
-                        https://webdesignerwall.com/wdw-snippet/accordion-with-bootstrap-3-and-without-js
-                    -->
+                    <!-- https://webdesignerwall.com/wdw-snippet/accordion-with-bootstrap-3-and-without-js -->
                     <div class="panel-group" id="reporting-template-category-accordion">
                         <div class="panel panel-default" ng-repeat="category in availableTemplateCategories">
                             <div class="panel-heading">
@@ -42,103 +40,117 @@
                 </div>
                 
                 <div id="reporting-template-customization-wrapper">
-                    <h3>Personalisierung</h3>
-                    <p>Bearbeiter:</p>
-                    <p>Kommune:</p>
-                    <p>Datum:</p>
-                    <p>ggf. weitere Optionen je nach Template</p>
-                    <button id="reporting-template-select-config-import-btn" class="btn btn-primary" ng-click=''>
-                        <i class="fa fa-file-download"></i>
-                        Personalisierung Importieren
-                    </button>
+                    <h3>Allgemeine Einstellungen</h3>
+                    <form>
+                        <label>
+                            Bearbeiter:
+                           <input type="text" name="creator" ng-model="generalSettings.creator">
+                        </label>
+
+                        <label>
+                            Kommune:
+                           <input type="text" name="commune" ng-model="generalSettings.commune">
+                        </label>
+
+                        <label>
+                            Datum:
+                            <input id="reporting-general-settings-datefield" type="text" placeholder="YYYY-MM-DD" name="creationDate"
+                                ng-model="generalSettings.creationDate">
+                        </label>
+
+                        <label for="reporting-load-commune-logo-button" class="btn btn-primary">
+                            <input type="file" id="reporting-load-commune-logo-button">
+                            <i class="fa fa-file-download"></i>
+                            &nbsp;&nbsp;Logo der Kommune auswählen
+                        </label>
+                        <br />
+                        <br />
+                        <label for="reporting-general-settings-freetext" ng-if="true">Freitext:</label>
+                        <textarea ng-if="true" id="reporting-general-settings-freetext"
+                            name="general-settings-freetext" rows="4" cols="35"
+                            ng-model="generalSettings.freeText"></textarea>
+                    </form>
                 </div>
             </div>
             <div class="col-sm-9">
                 <div class="row" style="margin:0">
                     <div id="reporting-template-preview-area">
                         <!-- TODO generate from selected template -->
-                        <div class="reporting-page reporting-page-landscape">
-                            <div style="position: absolute;
-                                            top: 15px;
-                                            left: 15px;
-                                            border: dashed gray 1px;
-                                            width: 720px;
-                                            height: 30px;">
-                                Titel des Indikators
+                        <div ng-repeat="page in selectedTemplate.pages" ng-attr-class="reporting-page reporting-page-{{page.orientation}}">
+                            <!-- general elements for each page -->
+                            <div ng-show="page.orientation == 'landscape'"
+                                style="position: absolute;
+                                        top: 15px;
+                                        left: 15px;
+                                        width: 720px;
+                                        height: 30px;
+                                        text-align: left;
+                                        padding-left: 5px;
+                                        border: dashed gray 1px;">
+                                <span>Titel des Indikators<span ng-show="page.area">, {{page.area}}</span></span>
+                                
                             </div>
-                            <div style="position: absolute;
-                                            top: 50px;
-                                            left: 15px;
-                                            border: dashed gray 1px;
-                                            width: 720px;
-                                            height: 30px;">
-                                Raumeinheit & Zeitpunkt
+                            <div ng-show="page.orientation == 'landscape'"
+                                style="position: absolute;
+                                        top: 50px;
+                                        left: 15px;
+                                        width: 720px;
+                                        height: 30px;
+                                        text-align: left;
+                                        padding-left: 5px; 
+                                        border: dashed gray 1px;">
+                                Datenstand
                             </div>
-                            <div style="position: absolute;
-                                            top: 15px;
-                                            left: 740px;
-                                            border: dashed gray 1px;
-                                            width: 75px;
-                                            height: 65px;">
-                                Logo
+                            <div ng-show="page.orientation == 'landscape'"
+                                style="position: absolute;
+                                        top: 15px;
+                                        left: 740px;
+                                        width: 75px;
+                                        height: 65px;
+                                        border: dashed gray 1px;">
+                                <span ng-show="generalSettings.communeLogo == ''">Logo</span>
+                                <img ng-show="generalSettings.communeLogo != ''" ng-attr-src="{{generalSettings.communeLogo}}"></img>
+                            </div>
+                            <div ng-show="page.orientation == 'landscape'"
+                                style="position: absolute;
+                                        top: 535px;
+                                        left: 15px;
+                                        width: 800px;
+                                        border-top: solid rgb(148, 148, 148) 1px;">
+                            </div>
+                            <div ng-show="page.orientation == 'landscape'"
+                                style="position: absolute;
+                                        top: 545px;
+                                        left: 15px;
+                                        width: 720px;
+                                        height: 30px;
+                                        text-align: left;
+                                        padding-left: 5px;
+                                        border: dashed gray 1px;">         
+                                Erstellt am: {{generalSettings.creationDate}} von {{generalSettings.creator}}, {{generalSettings.commune}}
+                            </div>
+                            <div  ng-show="page.orientation == 'landscape'"
+                                style="position: absolute;
+                                        top: 545px;
+                                        left: 740px;
+                                        width: 75px;
+                                        height: 30px;
+                                        text-align: right;
+                                        padding-right: 5px;
+                                        border: dashed gray 1px;">         
+                                Seite {{$index+1}}
                             </div>
 
-                            <div style="position: absolute;
-                                            top: 90px;
-                                            left: 15px;
-                                            border: dashed gray 1px;
-                                            width: 600px;
-                                            height: 305px;
-                                            justify-self:center;">
-                                Karte
-                            </div>
-                            <div style="position: absolute;
-                                            top: 90px;
-                                            left: 620px;
-                                            border: dashed gray 1px;
-                                            width: 195px;
-                                            height: 305px;">
-                                Boxplot
-                            </div>
-                            <div style="position: absolute;
-                                            top: 400px;
-                                            left: 15px;
-                                            border: dashed gray 1px;
-                                            width: 385px;
-                                            height: 130px;">
-                                Diagramm 1
-                            </div>
-                            <div style="position: absolute;
-                                            top: 400px;
-                                            left: 415px;
-                                            border: dashed gray 1px;
-                                            width: 400px;
-                                            height: 130px;">
-                                Diagramm 2
-                            </div>
-                            <div style="position: absolute;
-                                            top: 535px;
-                                            left: 15px;
-                                            border-top: solid rgb(148, 148, 148) 1px;
-                                            width: 800px;">
-                            </div>
-                            <div style="position: absolute;
-                                            top: 545px;
-                                            left: 15px;
-                                            border: dashed gray 1px;
-                                            width: 720px;
-                                            height: 30px;
-                                            text-align: left;
-                                            padding-left: 5px;">         
-                                Erstellt am: [Datum] von [Name des Bearbeiters], [Name der Kommune]
-                            </div>
-                            <div style="position: absolute;
-                                            top: 545px;
-                                            left: 740px;
-                                            border: dashed gray 1px;
-                                            width: 75px;
-                                            height: 30px;">         
-                                [Seitenzahl]
+                            <div ng-repeat="pageElement in page.pageElements"
+                                ng-attr-style="position: absolute;
+                                    top: {{pageElement.dimensions.top}};
+                                    left: {{pageElement.dimensions.left}};
+                                    width: {{pageElement.dimensions.width}};
+                                    height: {{pageElement.dimensions.height}};
+                                    border: dashed gray 1px;">
+                                <span ng-show="pageElement.type == 'textInput'"
+                                        style="align-self: self-start; margin-bottom: auto; text-align: left;">{{generalSettings.freeText}}</span>
+                                <span ng-show="pageElement.type != 'textInput'">{{pageElement.type}}</span>
                             </div>
                         </div>
                     </div>

@@ -1,8 +1,15 @@
 angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 	templateUrl : "components/kommonitorUserInterface/kommonitorControls/reportingModal/reportingTemplateSelect/reporting-template-select.template.html",
-	controller : ['$scope', '$rootScope', '__env', 
-	function ReportingTemplateSelectController($scope, $rootScope, __env) {
+	controller : ['$scope', '$rootScope', '__env', '$timeout',
+	function ReportingTemplateSelectController($scope, $rootScope, __env, $timeout) {
 
+		$scope.generalSettings = {
+			creator: "M. Mustermann",
+			commune: "Testkommune",
+			communeLogo: "",
+			creationDate: "05/01/2022",
+			freeText: "Text123. Sanitize me?"
+		}
 		$scope.availableTemplateCategories = [
 			{
 				"id": 1,
@@ -25,36 +32,129 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 				"categoryId": 1,
 				"pages": [
 					{
+						"orientation": "landscape",
 						"pageElements": [
 							{
 								"type": "map",
 								"dimensions": {
-									"top": "40",
-									"left": "20",
-									"width": "500",
-									"height": "300"
+									"top": "90px",
+									"left": "15px",
+									"width": "800px",
+									"height": "440px"
 								}
 							},
 							{
 								"type": "largestSpatialUnitAvg",
 								"dimensions": {
-									"top": "100",
-									"left": "500",
-									"width": "80",
-									"height": "30"
+									"top": "100px",
+									"left": "700px",
+									"width": "100px",
+									"height": "60px"
 								}
 							}
 						]
 					},
 					{
+						"orientation": "landscape",
 						"pageElements": [
-
+							{
+								"type": "map",
+								"dimensions": {
+									"top": "90px",
+									"left": "15px",
+									"width": "800px",
+									"height": "440px"
+								}
+							},
+							{
+								"type": "largestSpatialUnitAvg",
+								"dimensions": {
+									"top": "100px",
+									"left": "700px",
+									"width": "100px",
+									"height": "60px"
+								}
+							},
+							{
+								"type": "mapLegend",
+								"dimensions": {
+									"top": "400px",
+									"left": "700px",
+									"width": "100px",
+									"height": "120px"
+								}
+							}
+						]
+					},
+					{
+						"orientation": "landscape",
+						"pageElements": [
+							{
+								"type": "barChart",
+								"dimensions": {
+									"top": "90px",
+									"left": "15px",
+									"width": "800px",
+									"height": "440px"
+								}
+							}
+						]
+					},
+					// one page for each selected area
+					{
+						"orientation": "landscape",
+						"area": "spezieller Bereich",
+						"pageElements": [
+							{
+								"type": "map",
+								"dimensions": {
+									"top": "90px",
+									"left": "15px",
+									"width": "400px",
+									"height": "440px"
+								}
+							},
+							{
+								"type": "barChart",
+								"dimensions": {
+									"top": "90px",
+									"left": "425px",
+									"width": "390px",
+									"height": "140px"
+								}
+							},
+							{
+								"type": "textInput",
+								"dimensions": {
+									"top": "390px",
+									"left": "425px",
+									"width": "390px",
+									"height": "140px"
+								},
+								"content": $scope.generalSettings.freeText // TODO update before continuing to next mask since it might not be done automatically
+							}
+						]
+					},
+					// end of area-specific part
+					// datatable might need multiple pages
+					{
+						"orientation": "landscape",
+						"pageElements": [
+							{
+								"type": "datatable",
+								"dimensions": {
+									"top": "90px",
+									"left": "15px",
+									"width": "300px",
+									"height": "440px"
+								}
+							},
 						]
 					},
 				]
 			},
 			{
-				"name": "A4-landscape-timeseies",
+				"name": "A4-landscape-timeseries",
 				"displayName": "DIN A4, Querformat",
 				"categoryId": 2,
 			},
@@ -78,6 +178,9 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 			collapsible.classList.add("in");
 			// select first template
 			collapsible.querySelector("#collapse1-template0").click();
+
+			$scope.datePicker = $('#reporting-general-settings-datefield').datepicker({ dateFormat: 'dd/mm/yy' });
+			document.getElementById("reporting-load-commune-logo-button").addEventListener('change', readSingleFile, false);
 		}
 
 		/**
@@ -102,14 +205,37 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 				}
 			});
 			// set scope variable manually each time
-			$scope.selectedTemplate = template;
-			$scope.updatePreview(template);
+			if($scope.selectedTemplate !== template) {
+				$scope.selectedTemplate = template;
+			}
 		}
 
-		$scope.updatePreview = function(template) {
-			console.log("updating preview"); //TODO
+		/**
+		 * reads a file chosen by the user
+		 * @returns {string} file content
+		 */
+		function readSingleFile(e) {
+			var content = "";
+			var srcElement = e.srcElement;
+			var file = e.target.files[0];
+			if (!file) {
+				return;
+			}
+			var reader = new FileReader();
+			reader.onload = function(e) {
+				content = e.target.result;
+				if(srcElement.id === "reporting-load-commune-logo-button") {
+					console.log(content)
+					$scope.generalSettings.communeLogo = content;
+					$timeout(function() {
+						$scope.$apply();
+					});
+				}
+			 };
+			reader.readAsDataURL(file);
 		}
-        
+
+
 		$scope.onTemplateSelected = function() {
 			console.log("template selected: ", $scope.selectedTemplate)
 			$scope.$emit('reportingTemplateSelected', [$scope.selectedTemplate])
