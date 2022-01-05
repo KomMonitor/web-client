@@ -2457,7 +2457,8 @@ input:checked + .switchslider:before {
 	margin-bottom: 4px;
 }
 
-#reporting-load-settings-button {
+#reporting-load-settings-button,
+#reporting-load-commune-logo-button {
 	display:none;
 }
 
