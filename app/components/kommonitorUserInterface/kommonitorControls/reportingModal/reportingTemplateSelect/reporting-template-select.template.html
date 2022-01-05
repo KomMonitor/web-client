@@ -65,10 +65,13 @@
                         </label>
                         <br />
                         <br />
-                        <label for="reporting-general-settings-freetext" ng-if="true">Freitext:</label>
-                        <textarea ng-if="true" id="reporting-general-settings-freetext"
-                            name="general-settings-freetext" rows="4" cols="35"
-                            ng-model="generalSettings.freeText"></textarea>
+                        <div ng-show="templateSupportsFreeText()">
+                            <label for="reporting-general-settings-freetext">Freitext:</label>
+                            <textarea  id="reporting-general-settings-freetext"
+                                name="general-settings-freetext" rows="4" cols="35"
+                                ng-model="generalSettings.freeText"></textarea>
+                        </div>
+                        
                     </form>
                 </div>
             </div>
@@ -141,6 +144,7 @@
                                 Seite {{$index+1}}
                             </div>
 
+                            <!-- template-specific elements -->
                             <div ng-repeat="pageElement in page.pageElements"
                                 ng-attr-style="position: absolute;
                                     top: {{pageElement.dimensions.top}};

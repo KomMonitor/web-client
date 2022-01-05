@@ -24,7 +24,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 				"displayName": "Erreichbarkeit",
 			}
 		]
-		
+
 		$scope.availableTemplates = [
 			{
 				"name": "A4-landscape-timestamp",
@@ -157,11 +157,27 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 				"name": "A4-landscape-timeseries",
 				"displayName": "DIN A4, Querformat",
 				"categoryId": 2,
+				"pages": [
+					{
+						"orientation": "landscape",
+						"pageElements": [
+							
+						]
+					},
+				]
 			},
 			{
 				"name": "A4-landscape-reachability",
 				"displayName": "DIN A4, Querformat",
 				"categoryId": 3,
+				"pages": [
+					{
+						"orientation": "landscape",
+						"pageElements": [
+							
+						]
+					},
+				]
 			},
 		]
 	
@@ -233,6 +249,20 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 				}
 			 };
 			reader.readAsDataURL(file);
+		}
+
+		$scope.templateSupportsFreeText = function() {
+			if(typeof($scope.selectedTemplate) === "undefined")
+				return false;
+
+			for(let page of $scope.selectedTemplate.pages) {
+				for(let pageElement of page.pageElements) {
+					if (pageElement.type === "textInput") {
+						return true;
+					}
+				}
+			}
+			return false;
 		}
 
 
