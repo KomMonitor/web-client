@@ -2412,6 +2412,10 @@ input:checked + .switchslider:before {
 	margin: 1px;
 }
 
+.reporting-selectable-template {
+	cursor: pointer;
+}
+
 .reporting-page {
 	background-color:white;
 	border: none;

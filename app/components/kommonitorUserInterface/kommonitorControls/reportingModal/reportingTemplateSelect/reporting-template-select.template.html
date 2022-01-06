@@ -28,7 +28,7 @@
                             <div ng-attr-id="collapse{{category.id}}" class="panel-collapse collapse">
                                 <div class="panel-body">
                                     <div ng-repeat="template in availableTemplates | filter: templateFilter(category.id)"
-                                        class="selectableTemplate"
+                                        class="reporting-selectable-template"
                                         ng-click="onTemplateElementClicked($event, template)"
                                         ng-attr-id="collapse{{category.id}}-template{{$index}}">
                                             {{template.displayName}}
@@ -71,16 +71,31 @@
                                 name="general-settings-freetext" rows="4" cols="35"
                                 ng-model="generalSettings.freeText"></textarea>
                         </div>
-                        
+
+                        <label for="reporting-include-cover-page">Deckblatt erzeugen?</label>
+                        <label class="switch">
+                            <input id="reporting-include-cover-page" class="elementCheckbox" type="checkbox"
+                                    ng-model="includeCoverPage" ng-init="includeCoverPage = true" ng-click="elementChbClicked($event)"
+                                    ng-checked="generalSettings.includeCoverPage">
+                            <span class="switchslider round text-left" style="line-height:25px;"></span>
+                        </label>
+
+                        <div ng-show="includeCoverPage">
+                            <label for="reporting-cover-page-title">Titel des Reports:</label>
+                            <input type="text" id="reporting-cover-page-title"
+                                name="reporting-cover-page-title" ng-model="generalSettings.documentTitle">
+                        </div> 
+
                     </form>
                 </div>
             </div>
             <div class="col-sm-9">
                 <div class="row" style="margin:0">
                     <div id="reporting-template-preview-area">
-                        <!-- TODO generate from selected template -->
                         <div ng-repeat="page in selectedTemplate.pages" ng-attr-class="reporting-page reporting-page-{{page.orientation}}">
                             <!-- general elements for each page -->
+                            <!-- TODO minor adjustments are needed depending on template, especially for reachability.
+                                    Use multiple elements and manage them with ng-show -> check selected template -->
                             <div ng-show="page.orientation == 'landscape'"
                                 style="position: absolute;
                                         top: 15px;

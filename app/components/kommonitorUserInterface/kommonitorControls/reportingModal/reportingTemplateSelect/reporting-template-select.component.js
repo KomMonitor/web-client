@@ -8,7 +8,9 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 			commune: "Testkommune",
 			communeLogo: "",
 			creationDate: "05/01/2022",
-			freeText: "Text123. Sanitize me?"
+			freeText: "Text123. Sanitize?",
+			includeCoverPage: true,
+			documentTitle: ""
 		}
 		$scope.availableTemplateCategories = [
 			{
@@ -399,7 +401,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 			let el = $event.target;
 			el.style.backgroundColor = "#0078D7";
 			el.style.color = "white";
-			document.querySelectorAll(".selectableTemplate").forEach( (element) => {
+			document.querySelectorAll(".reporting-selectable-template").forEach( (element) => {
 				if( el !== element) {
 					element.style.backgroundColor = "white";
 					element.style.color = "black";
