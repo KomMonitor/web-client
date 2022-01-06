@@ -90,7 +90,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 						"orientation": "landscape",
 						"pageElements": [
 							{
-								"type": "barChart",
+								"type": "barchart",
 								"dimensions": {
 									"top": "90px",
 									"left": "15px",
@@ -115,7 +115,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 								}
 							},
 							{
-								"type": "barChart",
+								"type": "barchart",
 								"dimensions": {
 									"top": "90px",
 									"left": "425px",
@@ -150,7 +150,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 								}
 							},
 						]
-					},
+					}
 				]
 			},
 			{
@@ -161,9 +161,149 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 					{
 						"orientation": "landscape",
 						"pageElements": [
-							
+							{
+								"type": "map",
+								"dimensions": {
+									"top": "90px",
+									"left": "15px",
+									"width": "800px",
+									"height": "440px"
+								}
+							},
+							{
+								"type": "largestSpatialUnitAvg",
+								"dimensions": {
+									"top": "100px",
+									"left": "700px",
+									"width": "100px",
+									"height": "60px"
+								}
+							}
 						]
 					},
+					{
+						"orientation": "landscape",
+						"pageElements": [
+							{
+								"type": "map",
+								"dimensions": {
+									"top": "90px",
+									"left": "15px",
+									"width": "800px",
+									"height": "440px"
+								}
+							},
+							{
+								"type": "largestSpatialUnitChange",
+								"dimensions": {
+									"top": "100px",
+									"left": "700px",
+									"width": "100px",
+									"height": "60px"
+								}
+							},
+							{
+								"type": "mapLegend",
+								"dimensions": {
+									"top": "400px",
+									"left": "700px",
+									"width": "100px",
+									"height": "120px"
+								}
+							}
+						]
+					},
+					{
+						"orientation": "landscape",
+						"pageElements": [
+							{
+								"type": "linechart",
+								"dimensions": {
+									"top": "90px",
+									"left": "15px",
+									"width": "800px",
+									"height": "440px"
+								}
+							}
+						]
+					},
+					{
+						"orientation": "landscape",
+						"pageElements": [
+							{
+								// with boxplot at each data point
+								"type": "linechart",
+								"dimensions": {
+									"top": "90px",
+									"left": "15px",
+									"width": "800px",
+									"height": "440px"
+								}
+							}
+						]
+					},
+					// one page for each selected area
+					{
+						"orientation": "landscape",
+						"area": "spezieller Bereich",
+						"pageElements": [
+							{
+								"type": "map",
+								"dimensions": {
+									"top": "90px",
+									"left": "15px",
+									"width": "400px",
+									"height": "440px"
+								}
+							},
+							{
+								"type": "linechart",
+								"dimensions": {
+									"top": "90px",
+									"left": "425px",
+									"width": "390px",
+									"height": "140px"
+								}
+							},
+							{
+								// percentage change compared to previous jear
+								"type": "linechart",
+								"dimensions": {
+									"top": "240px",
+									"left": "425px",
+									"width": "390px",
+									"height": "140px"
+								}
+							},
+							{
+								"type": "textInput",
+								"dimensions": {
+									"top": "390px",
+									"left": "425px",
+									"width": "390px",
+									"height": "140px"
+								},
+								"content": $scope.generalSettings.freeText // TODO update before continuing to next mask since it might not be done automatically
+							}
+						]
+					},
+					// end of area-specific part
+					// datatable might need multiple pages
+					{
+						"orientation": "landscape",
+						"pageElements": [
+							{
+								// should include data for different timestamps
+								"type": "datatable",
+								"dimensions": {
+									"top": "90px",
+									"left": "15px",
+									"width": "300px",
+									"height": "440px"
+								}
+							},
+						]
+					}
 				]
 			},
 			{
@@ -174,9 +314,54 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 					{
 						"orientation": "landscape",
 						"pageElements": [
-							
+							{
+								// isochrones, only show main roads if possible
+								"type": "map",
+								"dimensions": {
+									"top": "90px",
+									"left": "15px",
+									"width": "800px",
+									"height": "440px"
+								}
+							},
+							{
+								"type": "mapLegend",
+								"dimensions": {
+									"top": "400px",
+									"left": "700px",
+									"width": "100px",
+									"height": "120px"
+								}
+							}
 						]
 					},
+					// one page for each selected area
+					{
+						"orientation": "landscape",
+						"area": "spezieller Bereich",
+						"pageElements": [
+							{
+								// isochrones,background map in black-white 
+								"type": "map",
+								"dimensions": {
+									"top": "90px",
+									"left": "15px",
+									"width": "800px",
+									"height": "440px"
+								}
+							},
+							{
+								"type": "mapLegend",
+								"dimensions": {
+									"top": "400px",
+									"left": "700px",
+									"width": "100px",
+									"height": "120px"
+								}
+							}
+						]
+					}
+					// end of area-specific part
 				]
 			},
 		]
