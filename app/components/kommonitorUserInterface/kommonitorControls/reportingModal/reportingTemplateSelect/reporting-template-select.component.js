@@ -7,7 +7,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 			creator: "M. Mustermann",
 			commune: "Testkommune",
 			communeLogo: "",
-			creationDate: "05/01/2022",
+			creationDate: "2022-01-01",
 			freeText: "Text123. Sanitize?",
 			includeCoverPage: true,
 			documentTitle: ""
@@ -382,7 +382,11 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 			// select first template
 			collapsible.querySelector("#collapse1-template0").click();
 
-			$scope.datePicker = $('#reporting-general-settings-datefield').datepicker({ dateFormat: 'dd/mm/yy' });
+			$scope.datePicker = $('#reporting-general-settings-datefield').datepicker({
+				autoclose: true,
+            	language: 'de',
+            	format: 'yyyy-mm-dd'
+			});
 			document.getElementById("reporting-load-commune-logo-button").addEventListener('change', readSingleFile, false);
 		}
 
