@@ -234,6 +234,10 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			$scope.enableTab(tab2);
 		}
 
+		$scope.onBackToOverviewClicked = function() {
+			$scope.$emit('backToOverviewClicked')
+		}
+
         $scope.onAddNewIndicatorClicked = function() {
 			$scope.$emit('addNewIndicatorClicked', [$scope.selectedIndicator])
 		}
