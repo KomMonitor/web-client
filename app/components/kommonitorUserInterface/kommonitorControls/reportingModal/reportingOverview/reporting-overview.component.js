@@ -6,9 +6,13 @@ angular.module('reportingOverview').component('reportingOverview', {
 
 		$scope.config = {};
 		$scope.config.template = {};
+		// stores the initial template before indicator data gets added
+		// needed to thow a clean template when opening the indicator add mask.
+		$scope.config.initialTemplate = {} 
 
 		$scope.initialize = function(dataFromTemplateSelection) {
 			$scope.config.template = dataFromTemplateSelection;
+			$scope.config.initialTemplate = JSON.parse(JSON.stringify(dataFromTemplateSelection)); // deep copy this as backup
 			console.log("template in initialize overview: ", $scope.config.template);
 		}
 
@@ -24,7 +28,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 		})
 
 		$scope.onConfigureNewIndicatorClicked = function() {
-			$scope.$emit('configureNewIndicatorClicked')
+			$scope.$emit('configureNewIndicatorClicked', $scope.config.initialTemplate) // send the backed up version of the template
 		}
 		
 		$scope.onBackToTemplateSelectionClicked = function() {

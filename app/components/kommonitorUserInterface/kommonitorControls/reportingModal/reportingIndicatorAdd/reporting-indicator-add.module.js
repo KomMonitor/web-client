@@ -1,1 +1,1 @@
-angular.module('reportingIndicatorAdd', ['excaliburDualList']);
+angular.module('reportingIndicatorAdd', ['excaliburDualList', 'ngSanitize']);

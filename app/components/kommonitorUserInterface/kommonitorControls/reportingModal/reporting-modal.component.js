@@ -25,10 +25,10 @@ angular.module('reportingModal').component('reportingModal', {
 			$scope.$broadcast("reportingInitializeOverview", [data])
 		});
 
-		$scope.$on('configureNewIndicatorClicked', function() {
+		$scope.$on('configureNewIndicatorClicked', function(event, data) {
 			$scope.addingNewIndicator = true; // show add indicator process
 			// tell indicator-add component it is shown
-			$scope.$broadcast("configureNewIndicatorShown") // can't use same event name here
+			$scope.$broadcast("configureNewIndicatorShown", data) // can't use same event name here
 		});
 
 		$scope.$on('addNewIndicatorClicked', function(event, data) {

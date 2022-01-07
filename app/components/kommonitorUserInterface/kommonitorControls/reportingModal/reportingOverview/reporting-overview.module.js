@@ -1,1 +1,1 @@
-angular.module('reportingOverview', ['ng-sortable']);
+angular.module('reportingOverview', ['ng-sortable', 'ngSanitize']);
