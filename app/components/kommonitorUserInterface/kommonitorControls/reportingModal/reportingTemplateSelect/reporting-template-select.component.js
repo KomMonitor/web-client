@@ -1,14 +1,14 @@
 angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 	templateUrl : "components/kommonitorUserInterface/kommonitorControls/reportingModal/reportingTemplateSelect/reporting-template-select.template.html",
-	controller : ['$scope', '$rootScope', '__env', '$timeout',
-	function ReportingTemplateSelectController($scope, $rootScope, __env, $timeout) {
+	controller : ['$scope', '$rootScope', '__env', '$timeout', '$sce', 'kommonitorDataExchangeService',
+	function ReportingTemplateSelectController($scope, $rootScope, __env, $timeout, $sce, kommonitorDataExchangeService) {
 
 		$scope.generalSettings = {
 			creator: "M. Mustermann",
 			commune: "Testkommune",
 			communeLogo: "",
 			creationDate: "2022-01-01",
-			freeText: "Text123. Sanitize?",
+			freeText: "Text123",
 			includeCoverPage: true,
 			documentTitle: ""
 		}
@@ -27,6 +27,12 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 			}
 		]
 
+		$scope.uCanTrust = function(string) {
+			return $sce.trustAsHtml(string);
+		}
+
+		// A basic version of the templates.
+    	// These are not full-fledged templates yet, but they can serve as a starting point and are adjusted according to user choices dynamically.
 		$scope.availableTemplates = [
 			{
 				"name": "A4-landscape-timestamp",
@@ -36,6 +42,14 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 					{
 						"orientation": "landscape",
 						"pageElements": [
+
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("indicatorTitle-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("communeLogo-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("dataTimestamp-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerHorizontalSpacer-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerCreationInfo-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("pageNumber-landscape"),
+
 							{
 								"type": "map",
 								"dimensions": {
@@ -43,7 +57,8 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"left": "15px",
 									"width": "800px",
 									"height": "440px"
-								}
+								},
+								"content": "Karte",
 							},
 							{
 								"type": "largestSpatialUnitAvg",
@@ -52,13 +67,22 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"left": "700px",
 									"width": "100px",
 									"height": "60px"
-								}
+								},
+								"content": "Durchschnitt Gesamtstadt"
 							}
 						]
 					},
 					{
 						"orientation": "landscape",
 						"pageElements": [
+
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("indicatorTitle-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("communeLogo-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("dataTimestamp-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerHorizontalSpacer-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerCreationInfo-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("pageNumber-landscape"),
+
 							{
 								"type": "map",
 								"dimensions": {
@@ -66,7 +90,8 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"left": "15px",
 									"width": "800px",
 									"height": "440px"
-								}
+								},
+								"content": "Karte"
 							},
 							{
 								"type": "largestSpatialUnitAvg",
@@ -75,7 +100,8 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"left": "700px",
 									"width": "100px",
 									"height": "60px"
-								}
+								},
+								"content": "Durchschnitt Gesamtstadt"
 							},
 							{
 								"type": "mapLegend",
@@ -84,13 +110,22 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"left": "700px",
 									"width": "100px",
 									"height": "120px"
-								}
+								},
+								"content": "Legende"
 							}
 						]
 					},
 					{
 						"orientation": "landscape",
 						"pageElements": [
+
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("indicatorTitle-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("communeLogo-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("dataTimestamp-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerHorizontalSpacer-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerCreationInfo-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("pageNumber-landscape"),
+
 							{
 								"type": "barchart",
 								"dimensions": {
@@ -98,7 +133,8 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"left": "15px",
 									"width": "800px",
 									"height": "440px"
-								}
+								},
+								"content": "Säulendiagramm"
 							}
 						]
 					},
@@ -107,6 +143,14 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 						"orientation": "landscape",
 						"area": "spezieller Bereich",
 						"pageElements": [
+
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("indicatorTitle-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("communeLogo-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("dataTimestamp-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerHorizontalSpacer-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerCreationInfo-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("pageNumber-landscape"),
+
 							{
 								"type": "map",
 								"dimensions": {
@@ -114,7 +158,8 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"left": "15px",
 									"width": "400px",
 									"height": "440px"
-								}
+								},
+								"content": "Karte"
 							},
 							{
 								"type": "barchart",
@@ -123,7 +168,8 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"left": "425px",
 									"width": "390px",
 									"height": "140px"
-								}
+								},
+								"content": "Säulendiagramm"
 							},
 							{
 								"type": "textInput",
@@ -133,7 +179,8 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "390px",
 									"height": "140px"
 								},
-								"content": $scope.generalSettings.freeText // TODO update before continuing to next mask since it might not be done automatically
+								"content": "Freitext",
+								"css": "align-self: self-start; margin-bottom: auto; text-align: left;"
 							}
 						]
 					},
@@ -142,6 +189,14 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 					{
 						"orientation": "landscape",
 						"pageElements": [
+
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("indicatorTitle-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("communeLogo-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("dataTimestamp-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerHorizontalSpacer-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerCreationInfo-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("pageNumber-landscape"),
+
 							{
 								"type": "datatable",
 								"dimensions": {
@@ -149,8 +204,9 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"left": "15px",
 									"width": "300px",
 									"height": "440px"
-								}
-							},
+								},
+								"content": "Datentabelle"
+							}
 						]
 					}
 				]
@@ -163,6 +219,14 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 					{
 						"orientation": "landscape",
 						"pageElements": [
+
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("indicatorTitle-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("communeLogo-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("dataTimestamp-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerHorizontalSpacer-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerCreationInfo-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("pageNumber-landscape"),
+
 							{
 								"type": "map",
 								"dimensions": {
@@ -170,7 +234,8 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"left": "15px",
 									"width": "800px",
 									"height": "440px"
-								}
+								},
+								"content": "Karte"
 							},
 							{
 								"type": "largestSpatialUnitAvg",
@@ -179,13 +244,22 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"left": "700px",
 									"width": "100px",
 									"height": "60px"
-								}
+								},
+								"content": "Durchschnitt Gesamtstadt"
 							}
 						]
 					},
 					{
 						"orientation": "landscape",
 						"pageElements": [
+
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("indicatorTitle-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("communeLogo-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("dataTimestamp-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerHorizontalSpacer-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerCreationInfo-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("pageNumber-landscape"),
+
 							{
 								"type": "map",
 								"dimensions": {
@@ -193,7 +267,8 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"left": "15px",
 									"width": "800px",
 									"height": "440px"
-								}
+								},
+								"content": "Karte"
 							},
 							{
 								"type": "largestSpatialUnitChange",
@@ -202,7 +277,8 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"left": "700px",
 									"width": "100px",
 									"height": "60px"
-								}
+								},
+								"content": "Veränderung Gesamtstadt"
 							},
 							{
 								"type": "mapLegend",
@@ -211,13 +287,22 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"left": "700px",
 									"width": "100px",
 									"height": "120px"
-								}
+								},
+								"content": "Legende"
 							}
 						]
 					},
 					{
 						"orientation": "landscape",
 						"pageElements": [
+
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("indicatorTitle-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("communeLogo-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("dataTimestamp-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerHorizontalSpacer-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerCreationInfo-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("pageNumber-landscape"),
+
 							{
 								"type": "linechart",
 								"dimensions": {
@@ -225,13 +310,22 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"left": "15px",
 									"width": "800px",
 									"height": "440px"
-								}
+								},
+								"content": "Liniendiagramm"
 							}
 						]
 					},
 					{
 						"orientation": "landscape",
 						"pageElements": [
+
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("indicatorTitle-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("communeLogo-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("dataTimestamp-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerHorizontalSpacer-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerCreationInfo-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("pageNumber-landscape"),
+
 							{
 								// with boxplot at each data point
 								"type": "linechart",
@@ -240,7 +334,8 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"left": "15px",
 									"width": "800px",
 									"height": "440px"
-								}
+								},
+								"content": "Liniendiagramm mit Boxplots"
 							}
 						]
 					},
@@ -249,6 +344,14 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 						"orientation": "landscape",
 						"area": "spezieller Bereich",
 						"pageElements": [
+
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("indicatorTitle-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("communeLogo-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("dataTimestamp-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerHorizontalSpacer-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerCreationInfo-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("pageNumber-landscape"),
+
 							{
 								"type": "map",
 								"dimensions": {
@@ -256,7 +359,8 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"left": "15px",
 									"width": "400px",
 									"height": "440px"
-								}
+								},
+								"content": "Karte"
 							},
 							{
 								"type": "linechart",
@@ -265,7 +369,8 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"left": "425px",
 									"width": "390px",
 									"height": "140px"
-								}
+								},
+								"content": "Liniendiagramm"
 							},
 							{
 								// percentage change compared to previous jear
@@ -275,7 +380,8 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"left": "425px",
 									"width": "390px",
 									"height": "140px"
-								}
+								},
+								"content": "Liniendiagramm - proz. Veränderung zum Vorjahr"
 							},
 							{
 								"type": "textInput",
@@ -285,7 +391,8 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "390px",
 									"height": "140px"
 								},
-								"content": $scope.generalSettings.freeText // TODO update before continuing to next mask since it might not be done automatically
+								"content": "Freitext",
+								"css": "align-self: self-start; margin-bottom: auto; text-align: left;"
 							}
 						]
 					},
@@ -294,6 +401,14 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 					{
 						"orientation": "landscape",
 						"pageElements": [
+
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("indicatorTitle-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("communeLogo-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("dataTimestamp-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerHorizontalSpacer-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerCreationInfo-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("pageNumber-landscape"),
+
 							{
 								// should include data for different timestamps
 								"type": "datatable",
@@ -302,7 +417,8 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"left": "15px",
 									"width": "300px",
 									"height": "440px"
-								}
+								},
+								"content": "Datentabelle"
 							},
 						]
 					}
@@ -316,6 +432,14 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 					{
 						"orientation": "landscape",
 						"pageElements": [
+
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("indicatorTitle-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("communeLogo-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("dataTimestamp-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerHorizontalSpacer-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerCreationInfo-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("pageNumber-landscape"),
+
 							{
 								// isochrones, only show main roads if possible
 								"type": "map",
@@ -324,7 +448,8 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"left": "15px",
 									"width": "800px",
 									"height": "440px"
-								}
+								},
+								"content": "Karte"
 							},
 							{
 								"type": "mapLegend",
@@ -333,7 +458,8 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"left": "700px",
 									"width": "100px",
 									"height": "120px"
-								}
+								},
+								"content": "Legende"
 							}
 						]
 					},
@@ -342,6 +468,14 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 						"orientation": "landscape",
 						"area": "spezieller Bereich",
 						"pageElements": [
+
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("indicatorTitle-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("communeLogo-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("dataTimestamp-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerHorizontalSpacer-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerCreationInfo-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("pageNumber-landscape"),
+							
 							{
 								// isochrones,background map in black-white 
 								"type": "map",
@@ -350,7 +484,8 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"left": "15px",
 									"width": "800px",
 									"height": "440px"
-								}
+								},
+								"content": "Karte"
 							},
 							{
 								"type": "mapLegend",
@@ -359,13 +494,14 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"left": "700px",
 									"width": "100px",
 									"height": "120px"
-								}
+								},
+								"content": "Legende"
 							}
 						]
 					}
 					// end of area-specific part
 				]
-			},
+			}
 		]
 	
 		$scope.selectedTemplate = undefined;
@@ -376,6 +512,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 		});
 
 		$scope.initialize = function() {
+			console.log($scope.availableTemplates);
 			// open first category
 			let collapsible = document.querySelector("#reporting-template-category-accordion #collapse1")
 			collapsible.classList.add("in");
@@ -388,7 +525,10 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
             	format: 'yyyy-mm-dd'
 			});
 			document.getElementById("reporting-load-commune-logo-button").addEventListener('change', readSingleFile, false);
+
 		}
+
+		
 
 		/**
 		 * filters templates to only show the ones matching the given category.
@@ -459,6 +599,24 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 
 		$scope.onTemplateSelected = function() {
 			console.log("template selected: ", $scope.selectedTemplate)
+			// update selected template with general settings
+			for(let [idx, page] of $scope.selectedTemplate.pages.entries()) {
+				for(let el of page.pageElements) {
+					if(el.type === "footerCreationInfo-landscape") {
+						el.content = "Erstellt am " + $scope.generalSettings.creationDate + " von " + $scope.generalSettings.creator + ", " + $scope.generalSettings.commune
+					}
+					if(el.type === "textInput") {
+						el.content = $scope.generalSettings.freeText;
+					}
+					if(el.type === "communeLogo-landscape") {
+						el.content = $scope.generalSettings.communeLogo
+					}
+					// page number is generated by html expression, but we update if anyway for consistency
+					if(el.type === "pageNumber-landscape") {
+						el.content = "Seite " + (idx+1)
+					}
+				}
+			}
 			$scope.$emit('reportingTemplateSelected', [$scope.selectedTemplate])
 		}
 

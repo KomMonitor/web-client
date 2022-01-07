@@ -15,7 +15,7 @@
                     <h3>Hinzugefügte Indikatoren</h3>
                     <p>Die Reihenfolge kann über Drag-and-Drop verändert werden.</p>
                     <div class="list-group" ng-sortable="sortableConfig">
-                        <div ng-repeat="indicator in config">
+                        <!-- <div ng-repeat="indicator in config">
                             <hr class="reporting-hr-divider">
                             <div class="row row-no-gutters reporting-added-indicators-row">
                                 <div class="col-sm-11">
@@ -25,7 +25,7 @@
                                     <i class="reporting-indicator-delete-symbol align-middle fa fa-trash-alt" ng-click="removeIndicator(indicator.indicatorName)"></i>
                                 </div>
                             </div>
-                        </div>
+                        </div> -->
                     </div>
                     
                 </div>
@@ -33,94 +33,28 @@
             <div class="col-sm-9">
                 <div class="row" style="margin:0">
                     <div id="reporting-overview-preview-area">
-                        <div class="reporting-page reporting-page-landscape">
-                            <div style="position: absolute;
-                                            top: 15px;
-                                            left: 15px;
-                                            border: dashed gray 1px;
-                                            width: 720px;
-                                            height: 30px;">
-                                Titel des Indikators
-                            </div>
-                            <div style="position: absolute;
-                                            top: 50px;
-                                            left: 15px;
-                                            border: dashed gray 1px;
-                                            width: 720px;
-                                            height: 30px;">
-                                Raumeinheit & Zeitpunkt
-                            </div>
-                            <div style="position: absolute;
-                                            top: 15px;
-                                            left: 740px;
-                                            border: dashed gray 1px;
-                                            width: 75px;
-                                            height: 65px;">
-                                Logo
-                            </div>
+                        <div ng-repeat="page in config.template.pages" ng-attr-class="reporting-page reporting-page-{{page.orientation}}">
+                            <div ng-repeat="pageElement in page.pageElements"
+                                ng-attr-style="position: absolute;
+                                    top: {{pageElement.dimensions.top}};
+                                    left: {{pageElement.dimensions.left}};
+                                    width: {{pageElement.dimensions.width}};
+                                    height: {{pageElement.dimensions.height}};
+                                    {{ pageElement.type != 'footerHorizontalSpacer-landscape' ? 'border: dashed gray 1px;' : pageElement.css }}">
+                                
+                                <span ng-show="pageElement.type == 'pageNumber-landscape'"
+                                    ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
+                                    Seite {{$parent.$index+1}}
+                                </span>
+                                <img ng-show="pageElement.type == 'communeLogo-landscape'" ng-attr-src="{{pageElement.content}}">
+                                <span ng-show="pageElement.type != 'pageNumber-landscape' &&
+                                    pageElement.type != 'communeLogo-landscape'"
+                                    ng-attr-style="{{pageElement.css ? pageElement.css : ''}}"
+                                    ng-bind-html="uCanTrust(pageElement.content)">
+                                </span>
 
-                            <div style="position: absolute;
-                                            top: 90px;
-                                            left: 15px;
-                                            border: dashed gray 1px;
-                                            width: 600px;
-                                            height: 305px;
-                                            justify-self:center;">
-                                Karte
-                            </div>
-                            <div style="position: absolute;
-                                            top: 90px;
-                                            left: 620px;
-                                            border: dashed gray 1px;
-                                            width: 195px;
-                                            height: 305px;">
-                                Boxplot
-                            </div>
-                            <div style="position: absolute;
-                                            top: 400px;
-                                            left: 15px;
-                                            border: dashed gray 1px;
-                                            width: 385px;
-                                            height: 130px;">
-                                Diagramm 1
-                            </div>
-                            <div style="position: absolute;
-                                            top: 400px;
-                                            left: 415px;
-                                            border: dashed gray 1px;
-                                            width: 400px;
-                                            height: 130px;">
-                                Diagramm 2
-                            </div>
-                            <div style="position: absolute;
-                                            top: 535px;
-                                            left: 15px;
-                                            border-top: solid rgb(148, 148, 148) 1px;
-                                            width: 800px;">
-                            </div>
-                            <div style="position: absolute;
-                                            top: 545px;
-                                            left: 15px;
-                                            border: dashed gray 1px;
-                                            width: 720px;
-                                            height: 30px;
-                                            text-align: left;
-                                            padding-left: 5px;">         
-                                Erstellt am: [Datum] von [Name des Bearbeiters], [Name der Kommune]
-                            </div>
-                            <div style="position: absolute;
-                                            top: 545px;
-                                            left: 740px;
-                                            border: dashed gray 1px;
-                                            width: 75px;
-                                            height: 30px;">         
-                                [Seitenzahl]
                             </div>
                         </div>
-                        <!-- <div ng-repeat="page in pagesArray"
-                            class="reporting-page reporting-page-{{page.pFormat}}"
-                            id="reporting-page-{{page.pNumber}}">
-                        </div> -->
                     </div>
                 </div>
                 <div id="reporting-overview-bot-btn-row-1" class="clearfix">

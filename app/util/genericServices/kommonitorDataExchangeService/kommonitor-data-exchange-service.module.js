@@ -483,10 +483,6 @@ angular
             }
             this.availableSpatialUnits_map.delete(spatialUnitId);
           };
-          
-          // REPORTING
-
-          this.reportingIndicatorConfig = [];
 
 					// GEORESOURCES
 
@@ -2786,5 +2782,84 @@ angular
       const INDICATOR_DATE_PREFIX = __env.indicatorDatePrefix;
       let propertyName = INDICATOR_DATE_PREFIX + thisService.selectedDate;
       return propertyName;
+    }
+
+    this.reportingDefaultTemplatePageElements = [
+      {
+        "type": "indicatorTitle-landscape",
+        "dimensions": {
+          "top": "15px",
+          "left": "15px",
+          "width": "720px",
+          "height": "30px"
+        },
+        "content": "Titel des Indikators",
+        "css": "text-align: left; padding-left: 5px;"
+      },
+      {
+        "type": "dataTimestamp-landscape",
+        "dimensions": {
+          "top": "50px",
+          "left": "15px",
+          "width": "720px",
+          "height": "30px"
+        },
+        "content": "Datenstand",
+        "css": "text-align: left; padding-left: 5px;"
+      },
+      {
+        "type": "communeLogo-landscape",
+        "dimensions": {
+          "top": "15px",
+          "left": "740px",
+          "width": "75px",
+          "height": "65px"
+        },
+        "content": "Logo"
+      },
+      {
+        "type": "footerHorizontalSpacer-landscape",
+        "dimensions": {
+          "top": "535px",
+          "left": "15px",
+          "width": "800px",
+          "height": "0px"
+        },
+        "css": "border-top: solid rgb(148, 148, 148) 1px;"
+      },
+
+      {
+        "type": "footerCreationInfo-landscape",
+        "dimensions": {
+          "top": "545px",
+          "left": "15px",
+          "width": "720px",
+          "height": "30px"
+        },
+        "content": "Erstellt am [Datum] von [Name d. Bearbeiters], [Name d. Kommune]",
+        "css": "text-align: left; padding-left: 5px;"
+      },
+      {
+        "type": "pageNumber-landscape",
+        "dimensions": {
+          "top": "545px",
+          "left": "740px",
+          "width": "75px",
+          "height": "30px"
+        },
+        "content": "[Seitenzahl]",
+        "css": "text-align: right; padding-right: 5px;"
+      },
+    ]
+
+    this.getDefaultReportingTemplatePageElement = function(type) {
+      let result = this.reportingDefaultTemplatePageElements.filter((el) => {
+        return el.type === type;
+      });
+      if(typeof(result) === "undefined") {
+        throw "No DefaultReportingTemplatePageElement exists for type " + type + "."
+      } else {
+        return result[0];
+      }
     }
 }]);

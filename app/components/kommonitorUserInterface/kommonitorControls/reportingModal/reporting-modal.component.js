@@ -22,6 +22,7 @@ angular.module('reportingModal').component('reportingModal', {
 
 		$scope.$on('reportingTemplateSelected', function (event, data) {
 			$scope.templateSelected = true; // go to overview
+			$scope.$broadcast("reportingInitializeOverview", [data])
 		});
 
 		$scope.$on('configureNewIndicatorClicked', function () {

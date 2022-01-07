@@ -1,27 +1,27 @@
 angular.module('reportingOverview').component('reportingOverview', {
 	templateUrl : "components/kommonitorUserInterface/kommonitorControls/reportingModal/reportingOverview/reporting-overview.template.html",
-	controller : ['$scope', '__env', 
-	function ReportingOverviewController($scope, __env) {
+	controller : ['$scope', '__env', '$sce', '$timeout',
+	function ReportingOverviewController($scope, __env, $sce, $timeout) {
 
 
-		$scope.config = [
-			// dummy data
-			{
-				indicatorName: "Soziale Lage - Durchschnittsalter der Bevölkerung"
-			},
-			{
-				indicatorName: "Soziale Lage - Zahl der Wahlberechtigten"
-			},
-			{
-				indicatorName: "Attraktivität für junge Familien - Erreichbarkeit von Kindertagesstätten"
-			}
-		]
+		$scope.config = {};
+		$scope.config.template = {};
+
+		$scope.initialize = function(dataFromTemplateSelection) {
+			$scope.config.template = dataFromTemplateSelection;
+			console.log("template in initialize overview: ", $scope.config.template);
+		}
 
 		$scope.sortableConfig = {
 			onEnd: function (e) {
 				// nothing for now, config elements get reordered automatically
 			}
 		};
+
+		$scope.$on("reportingInitializeOverview", function(event, data) {
+			// data is a neyted array at this point [ [ { template object } ] ]
+			$scope.initialize(data[0][0]);
+		})
 
 		$scope.onConfigureNewIndicatorClicked = function() {
 			$scope.$emit('configureNewIndicatorClicked')
@@ -60,6 +60,10 @@ angular.module('reportingOverview').component('reportingOverview', {
 			$scope.config = $scope.config.filter( function(el) {
 				return el !== indicator
 			});
+		}
+
+		$scope.uCanTrust = function(string) {
+			return $sce.trustAsHtml(string);
 		}
 
 		// $scope.availableIndicators = [];

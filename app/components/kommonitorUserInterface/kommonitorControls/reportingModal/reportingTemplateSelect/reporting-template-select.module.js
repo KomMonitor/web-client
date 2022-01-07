@@ -1,1 +1,1 @@
-angular.module('reportingTemplateSelect', []);
+angular.module('reportingTemplateSelect', ['ngSanitize']);
