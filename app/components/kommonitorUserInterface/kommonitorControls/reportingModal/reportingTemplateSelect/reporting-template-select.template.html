@@ -101,27 +101,29 @@
                                     height: {{pageElement.dimensions.height}};
                                     {{ pageElement.type != 'footerHorizontalSpacer-landscape' ? 'border: dashed gray 1px;' : pageElement.css }}">
                                 
-                                <span ng-show="pageElement.type == 'footerCreationInfo-landscape'"
-                                    ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
-                                    Erstellt am {{generalSettings.creationDate}} von {{generalSettings.creator}}, {{generalSettings.commune}}
-                                </span>
-                                <span ng-show="pageElement.type == 'pageNumber-landscape'"
-                                    ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
-                                    Seite {{$parent.$index+1}}
-                                </span>
-                                <span ng-show="pageElement.type == 'textInput'"
-                                    ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
-                                    {{generalSettings.freeText}}
-                                </span>
-                                <img ng-show="pageElement.type == 'communeLogo-landscape' && generalSettings.communeLogo" ng-attr-src="{{generalSettings.communeLogo}}">
-                                
-                                <span ng-show="pageElement.type != 'pageNumber-landscape' &&
-                                    pageElement.type != 'footerCreationInfo-landscape' &&
-                                    pageElement.type != 'textInput' &&
-                                    !(pageElement.type == 'communeLogo-landscape' && generalSettings.communeLogo)"
+                                <span ng-show="pageElement.isPlaceholder == true"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}"
                                     ng-bind-html="pageElement.placeholderText">
                                 </span>
+                                <!-- special cases below -->
+                                <span ng-show="pageElement.type == 'footerCreationInfo-landscape' && pageElement.isPlaceholder == false"
+                                    ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
+                                    Erstellt am {{generalSettings.creationDate}} von {{generalSettings.creator}}, {{generalSettings.commune}}
+                                </span>
+
+                                <span ng-show="pageElement.type == 'pageNumber-landscape' && pageElement.isPlaceholder == false"
+                                    ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
+                                    Seite {{$parent.$index+1}}
+                                </span>
+
+                                <span ng-show="pageElement.type == 'textInput' && pageElement.isPlaceholder == false"
+                                    ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
+                                    {{generalSettings.freeText}}
+                                </span>
+
+                                <img ng-show="pageElement.type == 'communeLogo-landscape' && pageElement.isPlaceholder == false"
+                                    ng-attr-src="{{pageElement.src}}">
+                                
                             </div>
                         </div>
                     </div>

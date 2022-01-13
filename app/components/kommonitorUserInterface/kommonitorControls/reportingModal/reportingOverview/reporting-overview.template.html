@@ -42,16 +42,28 @@
                                     height: {{pageElement.dimensions.height}};
                                     {{ pageElement.type != 'footerHorizontalSpacer-landscape' ? 'border: dashed gray 1px;' : pageElement.css }}">
                                 
-                                <span ng-show="pageElement.type == 'pageNumber-landscape'"
-                                    ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
-                                    Seite {{$parent.$index+1}}
-                                </span>
-                                <img ng-show="pageElement.type == 'communeLogo-landscape'" ng-attr-src="{{pageElement.placeholderText}}">
-                                <span ng-show="pageElement.type != 'pageNumber-landscape' &&
-                                    pageElement.type != 'communeLogo-landscape'"
+                                <span ng-show="pageElement.isPlaceholder == true"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}"
                                     ng-bind-html="pageElement.placeholderText">
                                 </span>
+                                <!-- do different things depending on type once the placeholder is replaced (pageElement.isPlaceholder == false) -->
+                                <span ng-show="pageElement.type == 'pageNumber-landscape' && pageElement.isPlaceholder == false"
+                                    ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
+                                    Seite {{$parent.$index+1}}
+                                </span>
+
+                                <span ng-show="pageElement.type == 'footerCreationInfo-landscape' && pageElement.isPlaceholder == false"
+                                    ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
+                                    {{pageElement.text}}
+                                </span>
+
+                                <span ng-show="pageElement.type == 'textInput' && pageElement.isPlaceholder == false"
+                                    ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
+                                    {{pageElement.text}}
+                                </span>
+
+                                <img ng-show="pageElement.type == 'communeLogo-landscape' && pageElement.isPlaceholder == false"
+                                    ng-attr-src="{{pageElement.src}}">
 
                             </div>
                         </div>

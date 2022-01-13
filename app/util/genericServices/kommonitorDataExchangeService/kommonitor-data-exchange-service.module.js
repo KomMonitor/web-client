@@ -2793,6 +2793,7 @@ angular
           "width": "720px",
           "height": "30px"
         },
+        "isPlaceholder": true,
         "placeholderText": "Titel des Indikators",
         "css": "text-align: left; padding-left: 5px;"
       },
@@ -2804,7 +2805,9 @@ angular
           "width": "720px",
           "height": "30px"
         },
+        "isPlaceholder": true,
         "placeholderText": "Datenstand",
+        "text": "",
         "css": "text-align: left; padding-left: 5px;"
       },
       {
@@ -2815,7 +2818,9 @@ angular
           "width": "75px",
           "height": "65px"
         },
-        "placeholderText": "Logo"
+        "isPlaceholder": true,
+        "placeholderText": "Logo",
+        "src": ""
       },
       {
         "type": "footerHorizontalSpacer-landscape",
@@ -2836,6 +2841,7 @@ angular
           "width": "720px",
           "height": "30px"
         },
+        "isPlaceholder": true,
         "placeholderText": "Erstellt am [Datum] von [Name d. Bearbeiters], [Name d. Kommune]",
         "css": "text-align: left; padding-left: 5px;"
       },
@@ -2847,6 +2853,7 @@ angular
           "width": "75px",
           "height": "30px"
         },
+        "isPlaceholder": true,
         "placeholderText": "[Seitenzahl]",
         "css": "text-align: right; padding-right: 5px;"
       },

@@ -54,6 +54,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "800px",
 									"height": "440px"
 								},
+								"isPlaceholder": true,
 								"placeholderText": "Karte",
 							},
 							{
@@ -64,6 +65,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "100px",
 									"height": "60px"
 								},
+								"isPlaceholder": true,
 								"placeholderText": "Durchschnitt Gesamtstadt"
 							}
 						]
@@ -87,6 +89,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "800px",
 									"height": "440px"
 								},
+								"isPlaceholder": true,
 								"placeholderText": "Karte"
 							},
 							{
@@ -97,6 +100,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "100px",
 									"height": "60px"
 								},
+								"isPlaceholder": true,
 								"placeholderText": "Durchschnitt Gesamtstadt"
 							},
 							{
@@ -107,6 +111,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "100px",
 									"height": "120px"
 								},
+								"isPlaceholder": true,
 								"placeholderText": "Legende"
 							}
 						]
@@ -130,6 +135,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "800px",
 									"height": "440px"
 								},
+								"isPlaceholder": true,
 								"placeholderText": "Säulendiagramm"
 							}
 						]
@@ -155,6 +161,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "400px",
 									"height": "440px"
 								},
+								"isPlaceholder": true,
 								"placeholderText": "Karte"
 							},
 							{
@@ -165,6 +172,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "390px",
 									"height": "140px"
 								},
+								"isPlaceholder": true,
 								"placeholderText": "Säulendiagramm"
 							},
 							{
@@ -175,6 +183,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "390px",
 									"height": "140px"
 								},
+								"isPlaceholder": true,
 								"placeholderText": "Freitext",
 								"css": "align-self: self-start; margin-bottom: auto; text-align: left;"
 							}
@@ -201,6 +210,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "300px",
 									"height": "440px"
 								},
+								"isPlaceholder": true,
 								"placeholderText": "Datentabelle"
 							}
 						]
@@ -231,6 +241,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "800px",
 									"height": "440px"
 								},
+								"isPlaceholder": true,
 								"placeholderText": "Karte"
 							},
 							{
@@ -241,6 +252,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "100px",
 									"height": "60px"
 								},
+								"isPlaceholder": true,
 								"placeholderText": "Durchschnitt Gesamtstadt"
 							}
 						]
@@ -264,6 +276,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "800px",
 									"height": "440px"
 								},
+								"isPlaceholder": true,
 								"placeholderText": "Karte"
 							},
 							{
@@ -274,6 +287,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "100px",
 									"height": "60px"
 								},
+								"isPlaceholder": true,
 								"placeholderText": "Veränderung Gesamtstadt"
 							},
 							{
@@ -284,6 +298,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "100px",
 									"height": "120px"
 								},
+								"isPlaceholder": true,
 								"placeholderText": "Legende"
 							}
 						]
@@ -307,6 +322,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "800px",
 									"height": "440px"
 								},
+								"isPlaceholder": true,
 								"placeholderText": "Liniendiagramm"
 							}
 						]
@@ -331,6 +347,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "800px",
 									"height": "440px"
 								},
+								"isPlaceholder": true,
 								"placeholderText": "Liniendiagramm mit Boxplots"
 							}
 						]
@@ -356,6 +373,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "400px",
 									"height": "440px"
 								},
+								"isPlaceholder": true,
 								"placeholderText": "Karte"
 							},
 							{
@@ -366,6 +384,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "390px",
 									"height": "140px"
 								},
+								"isPlaceholder": true,
 								"placeholderText": "Liniendiagramm"
 							},
 							{
@@ -377,6 +396,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "390px",
 									"height": "140px"
 								},
+								"isPlaceholder": true,
 								"placeholderText": "Liniendiagramm - proz. Veränderung zum Vorjahr"
 							},
 							{
@@ -387,6 +407,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "390px",
 									"height": "140px"
 								},
+								"isPlaceholder": true,
 								"placeholderText": "Freitext",
 								"css": "align-self: self-start; margin-bottom: auto; text-align: left;"
 							}
@@ -414,6 +435,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "300px",
 									"height": "440px"
 								},
+								"isPlaceholder": true,
 								"placeholderText": "Datentabelle"
 							},
 						]
@@ -445,6 +467,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "800px",
 									"height": "440px"
 								},
+								"isPlaceholder": true,
 								"placeholderText": "Karte"
 							},
 							{
@@ -455,6 +478,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "100px",
 									"height": "120px"
 								},
+								"isPlaceholder": true,
 								"placeholderText": "Legende"
 							}
 						]
@@ -481,6 +505,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "800px",
 									"height": "440px"
 								},
+								"isPlaceholder": true,
 								"placeholderText": "Karte"
 							},
 							{
@@ -491,6 +516,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "100px",
 									"height": "120px"
 								},
+								"isPlaceholder": true,
 								"placeholderText": "Legende"
 							}
 						]
@@ -521,6 +547,29 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
             	format: 'yyyy-mm-dd'
 			});
 			document.getElementById("reporting-load-commune-logo-button").addEventListener('change', readSingleFile, false);
+
+			// set the property "isPlaceholder" to false for specific page elements since their content should be replaced right away
+			for(let template of $scope.availableTemplates) {
+				$scope.iteratePageElements( template, function(page, pageElement) {
+					pageElement.isPlaceholder = (
+						pageElement.type === "footerCreationInfo-landscape" ||
+						pageElement.type === "pageNumber-landscape" ||
+						pageElement.type === "freetext-landscape"
+						) ? false : true;
+				})
+			}
+			
+			for(let template of $scope.availableTemplates) {
+				for(let page of template.pages) {
+					for(let el of page.pageElements) {
+						el.isPlaceholder = (
+							el.type === "footerCreationInfo-landscape" ||
+							el.type === "pageNumber-landscape" ||
+							el.type === "freetext-landscape"
+							) ? false : true;
+					}
+				}
+			}
 
 		}
 
@@ -569,6 +618,16 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 				content = e.target.result;
 				if(srcElement.id === "reporting-load-commune-logo-button") {
 					$scope.generalSettings.communeLogo = content;
+					// set isPlaceholder to false
+					for(let template of $scope.availableTemplates) {
+						$scope.iteratePageElements( template, function(page, pageElement) {
+							if(pageElement.type === "communeLogo-landscape") {
+								pageElement.isPlaceholder = false;
+								pageElement.src = content;
+							}
+						})
+					}
+
 					$timeout(function() {
 						$scope.$apply();
 					});
@@ -598,14 +657,12 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 			for(let [idx, page] of $scope.selectedTemplate.pages.entries()) {
 				for(let el of page.pageElements) {
 					if(el.type === "footerCreationInfo-landscape") {
-						el.placeholderText = "Erstellt am " + $scope.generalSettings.creationDate + " von " + $scope.generalSettings.creator + ", " + $scope.generalSettings.commune
+						el.text = "Erstellt am " + $scope.generalSettings.creationDate + " von " + $scope.generalSettings.creator + ", " + $scope.generalSettings.commune
 					}
 					if(el.type === "textInput") {
-						el.placeholderText = $scope.generalSettings.freeText;
+						el.text = $scope.generalSettings.freeText;
 					}
-					if(el.type === "communeLogo-landscape") {
-						el.placeholderText = $scope.generalSettings.communeLogo
-					}
+
 					// page number is generated by html expression, but we update if anyway for consistency
 					if(el.type === "pageNumber-landscape") {
 						el.placeholderText = "Seite " + (idx+1)
@@ -618,6 +675,14 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 		$scope.onBackToTWorkflowSelectionClicked = function() {
 			$scope.selectedTemplate = {};
 			$scope.$emit('backToWorkflowSelectionClicked')
+		}
+
+		$scope.iteratePageElements = function(template, functionToExecute) {
+			for(let page of template.pages) {
+				for(let pageElement of page.pageElements) {
+					functionToExecute(page, pageElement);
+				}
+			}
 		}
     }
 ]});
