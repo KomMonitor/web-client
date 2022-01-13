@@ -17,7 +17,7 @@
                             <a href="#area" aria-controls="area" role="tab" data-toggle="tab"  tabindex="-1" ng-click=updateAreas()>Bereich</a>
                         </li>
                         <li id="reporting-add-indicator-tab3" role="presentation" class="tab-disabled">
-                            <a href="#time" aria-controls="time" role="tab" data-toggle="tab" tabindex="-1">Zeitpunkt</a>
+                            <a href="#time" aria-controls="time" role="tab" data-toggle="tab" tabindex="-1" ng-click=onTab3Clicked()>Zeitpunkt</a>
                         </li>
                         <li id="reporting-add-indicator-tab4" role="presentation" class="tab-disabled">
                             <a href="#elements" aria-controls="elements" role="tab" data-toggle="tab" tabindex="-1">Elemente</a>
@@ -116,7 +116,7 @@
 						    <div class="loading-overlay-reporting ng-hide" ng-show="loadingData">
 								<span class="glyphicon glyphicon-refresh icon-spin"></span>
 							</div>
-                            <excalibur-dual-list ng-model='selectedTimestamps' options="duallistTimestampsOptions"></excalibur-dual-list>
+                            <excalibur-dual-list id="reporting-indicator-add-timestamps-dual-list" ng-model='selectedTimestamps' options="duallistTimestampsOptions"></excalibur-dual-list>
                         </div>
                         <div role="tabpanel" class="tab-pane" id="elements">
 

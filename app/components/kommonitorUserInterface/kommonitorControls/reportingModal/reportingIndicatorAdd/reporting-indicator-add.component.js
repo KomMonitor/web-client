@@ -241,27 +241,35 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			dualListInput = kommonitorDataExchangeService.createDualListInputArray(dualListInput, "name");
 			options.items = dualListInput;
 
-			// if there are items to select
-			if(selectedItems && selectedItems.length > 0) {
-				for(let item of selectedItems) {
-					let itemToSelect;
-
-					if(item.hasOwnProperty("properties")) {
-						if(item.properties.hasOwnProperty("NAME")) {
-							let name = item.properties.NAME
-							// remove item to select from left side and add to right side
-							options.items = options.items.filter( el => {
-								if (el.name == name) {
-									itemToSelect = el;
-								}
-								return el.name != name;
-							});
+			// $timeout is needed because we want to click on an element to select it.
+			// therefore we have to wait until the dual list is updated and the dom node exists
+			$timeout( function() {
+				// if there are items to select
+				if(selectedItems && selectedItems.length > 0) {
+					for(let item of selectedItems) {
+						if(item.hasOwnProperty("properties")) {
+							if(item.properties.hasOwnProperty("NAME")) {
+								let name = item.properties.NAME
+								// remove item to select from left side and add to right side
+								// we can't filter programatically here because the changes won't get applied to scope variables
+								// not even with $scope.$apply in a $timeout
+								// instead we click on the elements
+								// get dom element by name
+								let arr = Array.from(document.querySelectorAll("#reporting-indicator-add-timestamps-dual-list a"));
+								let el = arr.find(el => {
+									return el.textContent.includes(name)
+								})
+								el.click();
+							}
 						}
 					}
-					options.selectedItems.push(itemToSelect)
-					
+					// by now we enabled the fourth tab, but we don't want that yet since we are still in the first one
+					// instead the tab is enabled once we click on the third one
+					let tab4 = document.querySelector("#reporting-add-indicator-tab4");
+					$scope.disableTab(tab4);
 				}
-			}
+			})
+			
 		}
 
 		
@@ -289,6 +297,19 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			let tab2 = document.querySelector("#reporting-add-indicator-tab2");
 			$scope.enableTab(tab2);
 		}
+
+		$scope.onTab3Clicked = function() {
+			// check if a timestamp is already selected (one should get selected by default on indicator selection)
+			// if yes enable fourth tab
+			let tab4 = document.querySelector("#reporting-add-indicator-tab4");
+			if($scope.selectedTimestamps && $scope.selectedTimestamps.length) {
+				$scope.enableTab(tab4);
+			} else {
+				$scope.disableTab(tab4);
+			}
+		}
+
+
 
 		$scope.onBackToOverviewClicked = function() {
 			// lock all tabs except the first
