@@ -40,7 +40,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		// internal array changes do not work with ng-change
 		$scope.$watchCollection('selectedTimestamps', function() {
 			let tab4 = document.querySelector("#reporting-add-indicator-tab4");
-			// enable tab only if at least one area is selected after change
+
 			if($scope.selectedTimestamps.length) {
 				$scope.enableTab(tab4);
 			} else {
@@ -52,7 +52,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		$scope.$on("configureNewIndicatorShown", function(event, data) {
 			$scope.template = data;
 			let tabPanes = document.querySelectorAll("#reporting-add-indicator-tab-content > .tab-pane")
-			console.log(tabPanes);
+
 			for(let i=1;i<5;i++) {
 				let tab = document.getElementById("reporting-add-indicator-tab" + i);
 				
@@ -178,7 +178,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		/**
 		 * Updates the timestamp dual list.
 		 */
-		$scope.updateTimestamps = async function() {
+		$scope.updateTimestamps = async function(selectMostRecentDate) {
 			let indicator = $scope.selectedIndicator;
 
 			// convert to required format, change this once format is updated
@@ -188,8 +188,13 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 						"NAME": el
 					}
 				}
-			})
-			$scope.updateDualList($scope.duallistTimestampsOptions, dates)
+			});
+			if(selectMostRecentDate) {
+				$scope.updateDualList($scope.duallistTimestampsOptions, dates, [ dates[dates.length-1] ])
+			} else {
+				$scope.updateDualList($scope.duallistTimestampsOptions, dates)
+			}
+			
 			$timeout(function() {
 			 	$scope.$apply();
 			})
@@ -215,7 +220,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		/**
 		 * 
 		 * @param {*} options | scope options obj for duallist to update
-		 * @param {*} data | new data, format like: //TODO make variable as parameter
+		 * @param {*} data | new data, format like:
+		 * 
 		 * [
 		 * 	{
 		 * 		properties: {
@@ -224,16 +230,38 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		 *  }, {
 		 *		...
 		 *  }]
+		 * @param {*} selectedItems | optional, the items that should be selected after the update
 		 */
-		$scope.updateDualList = function(options, data) {
-			// clear dual list right side
+		$scope.updateDualList = function(options, data, selectedItems) {
 			options.selectedItems = [];
-			// update areas dual list
+
 			let dualListInput = data.map( el => {
 				return {"name": el.properties.NAME} // we need this as an object for kommonitorDataExchangeService.createDualListInputArray
 			});
 			dualListInput = kommonitorDataExchangeService.createDualListInputArray(dualListInput, "name");
 			options.items = dualListInput;
+
+			// if there are items to select
+			if(selectedItems && selectedItems.length > 0) {
+				for(let item of selectedItems) {
+					let itemToSelect;
+
+					if(item.hasOwnProperty("properties")) {
+						if(item.properties.hasOwnProperty("NAME")) {
+							let name = item.properties.NAME
+							// remove item to select from left side and add to right side
+							options.items = options.items.filter( el => {
+								if (el.name == name) {
+									itemToSelect = el;
+								}
+								return el.name != name;
+							});
+						}
+					}
+					options.selectedItems.push(itemToSelect)
+					
+				}
+			}
 		}
 
 		
@@ -256,7 +284,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			}
 			
 			$scope.updateSpatialUnitsMultiselect();
-			$scope.updateTimestamps();
+			$scope.updateTimestamps(true);
 			
 			let tab2 = document.querySelector("#reporting-add-indicator-tab2");
 			$scope.enableTab(tab2);
