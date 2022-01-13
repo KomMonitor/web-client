@@ -51,7 +51,18 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 		$scope.$on("configureNewIndicatorShown", function(event, data) {
 			$scope.template = data;
+			for(let i=1;i<5;i++) {
+				let tab = document.getElementById("reporting-add-indicator-tab" + i);
+				if(i==1) {
+					tab.classList.add("active")
+				} else {
+					tab.classList.remove("active")
+				}
+				
+			}
+
 			$scope.initializeDualLists();
+			
 			$scope.queryIndicators();
 		});
 
@@ -238,6 +249,14 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		}
 
 		$scope.onBackToOverviewClicked = function() {
+			// lock all tabs except the first
+			let tab2 = document.querySelector("#reporting-add-indicator-tab2");
+			let tab3 = document.querySelector("#reporting-add-indicator-tab3");
+			let tab4 = document.querySelector("#reporting-add-indicator-tab4");
+			$scope.disableTab(tab2);
+			$scope.disableTab(tab3);
+			$scope.disableTab(tab4);
+			$scope.selectedIndicator = undefined;
 			$scope.$emit('backToOverviewClicked')
 		}
 
