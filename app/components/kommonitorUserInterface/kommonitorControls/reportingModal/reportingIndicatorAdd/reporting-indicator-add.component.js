@@ -51,12 +51,17 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 		$scope.$on("configureNewIndicatorShown", function(event, data) {
 			$scope.template = data;
+			let tabPanes = document.querySelectorAll("#reporting-add-indicator-tab-content .tab-pane")
+			console.log(tabPanes);
 			for(let i=1;i<5;i++) {
 				let tab = document.getElementById("reporting-add-indicator-tab" + i);
+				
 				if(i==1) {
-					tab.classList.add("active")
+					tab.classList.add("active");
+					tabPanes[i-1].classList.add("active");
 				} else {
-					tab.classList.remove("active")
+					tab.classList.remove("active");
+					tabPanes[i-1].classList.remove("active");
 				}
 				
 			}
