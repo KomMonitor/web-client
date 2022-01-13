@@ -236,6 +236,15 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			// set indicator manually.
 			// if we use ng-model it gets converted to string instead of an object
 			$scope.selectedIndicator = indicator;
+			// update indicator name in preview
+			for(let page of $scope.template.pages) {
+				for(let el of page.pageElements) {
+					console.log(indicator);
+					if(el.type === "indicatorTitle-landscape") {
+						el.content = "<b>" + indicator.indicatorName + " [" + indicator.unit + "]</b>";
+					}
+				}
+			}
 			// set spatial unit to highest available one
 			if(typeof($scope.selectedSpatialUnit === 'undefined')) {
 				$scope.selectedSpatialUnit = $scope.selectedIndicator.applicableSpatialUnits[0];
