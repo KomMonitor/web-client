@@ -46,11 +46,11 @@
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
                                     Seite {{$parent.$index+1}}
                                 </span>
-                                <img ng-show="pageElement.type == 'communeLogo-landscape'" ng-attr-src="{{pageElement.content}}">
+                                <img ng-show="pageElement.type == 'communeLogo-landscape'" ng-attr-src="{{pageElement.placeholderText}}">
                                 <span ng-show="pageElement.type != 'pageNumber-landscape' &&
                                     pageElement.type != 'communeLogo-landscape'"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}"
-                                    ng-bind-html="uCanTrust(pageElement.content)">
+                                    ng-bind-html="pageElement.placeholderText">
                                 </span>
 
                             </div>

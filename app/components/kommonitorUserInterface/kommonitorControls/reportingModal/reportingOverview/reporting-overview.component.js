@@ -1,7 +1,7 @@
 angular.module('reportingOverview').component('reportingOverview', {
 	templateUrl : "components/kommonitorUserInterface/kommonitorControls/reportingModal/reportingOverview/reporting-overview.template.html",
-	controller : ['$scope', '__env', '$sce', '$timeout',
-	function ReportingOverviewController($scope, __env, $sce, $timeout) {
+	controller : ['$scope', '__env', '$timeout',
+	function ReportingOverviewController($scope, __env, $timeout) {
 
 
 		$scope.config = {};
@@ -64,10 +64,6 @@ angular.module('reportingOverview').component('reportingOverview', {
 			$scope.config = $scope.config.filter( function(el) {
 				return el !== indicator
 			});
-		}
-
-		$scope.uCanTrust = function(string) {
-			return $sce.trustAsHtml(string);
 		}
 
 		// $scope.availableIndicators = [];

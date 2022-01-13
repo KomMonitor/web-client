@@ -1,7 +1,7 @@
 angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 	templateUrl : "components/kommonitorUserInterface/kommonitorControls/reportingModal/reportingIndicatorAdd/reporting-indicator-add.template.html",
-	controller : ['$scope', '$http', '$sce', '$timeout', '__env', 'kommonitorDataExchangeService',
-    function ReportingIndicatorAddController($scope, $http, $sce, $timeout, __env, kommonitorDataExchangeService) {
+	controller : ['$scope', '$http', '$timeout', '__env', 'kommonitorDataExchangeService',
+    function ReportingIndicatorAddController($scope, $http, $timeout, __env, kommonitorDataExchangeService) {
 
 		$scope.template = undefined;
 
@@ -51,7 +51,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 		$scope.$on("configureNewIndicatorShown", function(event, data) {
 			$scope.template = data;
-			let tabPanes = document.querySelectorAll("#reporting-add-indicator-tab-content .tab-pane")
+			let tabPanes = document.querySelectorAll("#reporting-add-indicator-tab-content > .tab-pane")
 			console.log(tabPanes);
 			for(let i=1;i<5;i++) {
 				let tab = document.getElementById("reporting-add-indicator-tab" + i);
@@ -286,10 +286,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		$scope.disableTab = function(tab) {
 			tab.classList.add("tab-disabled")
 			tab.firstElementChild.setAttribute("tabindex", "1")
-		}
-
-		$scope.uCanTrust = function(string) {
-			return $sce.trustAsHtml(string);
 		}
     }
 ]})

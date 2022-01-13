@@ -120,7 +120,7 @@
                                     pageElement.type != 'textInput' &&
                                     !(pageElement.type == 'communeLogo-landscape' && generalSettings.communeLogo)"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}"
-                                    ng-bind-html="uCanTrust(pageElement.content)">
+                                    ng-bind-html="pageElement.placeholderText">
                                 </span>
                             </div>
                         </div>

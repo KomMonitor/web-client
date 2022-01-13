@@ -1,7 +1,7 @@
 angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 	templateUrl : "components/kommonitorUserInterface/kommonitorControls/reportingModal/reportingTemplateSelect/reporting-template-select.template.html",
-	controller : ['$scope', '$rootScope', '__env', '$timeout', '$sce', 'kommonitorDataExchangeService',
-	function ReportingTemplateSelectController($scope, $rootScope, __env, $timeout, $sce, kommonitorDataExchangeService) {
+	controller : ['$scope', '$rootScope', '__env', '$timeout', 'kommonitorDataExchangeService',
+	function ReportingTemplateSelectController($scope, $rootScope, __env, $timeout, kommonitorDataExchangeService) {
 
 		$scope.generalSettings = {
 			creator: "M. Mustermann",
@@ -26,10 +26,6 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 				"displayName": "Erreichbarkeit",
 			}
 		]
-
-		$scope.uCanTrust = function(string) {
-			return $sce.trustAsHtml(string);
-		}
 
 		// A basic version of the templates.
     	// These are not full-fledged templates yet, but they can serve as a starting point and are adjusted according to user choices dynamically.
@@ -58,7 +54,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "800px",
 									"height": "440px"
 								},
-								"content": "Karte",
+								"placeholderText": "Karte",
 							},
 							{
 								"type": "largestSpatialUnitAvg",
@@ -68,7 +64,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "100px",
 									"height": "60px"
 								},
-								"content": "Durchschnitt Gesamtstadt"
+								"placeholderText": "Durchschnitt Gesamtstadt"
 							}
 						]
 					},
@@ -91,7 +87,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "800px",
 									"height": "440px"
 								},
-								"content": "Karte"
+								"placeholderText": "Karte"
 							},
 							{
 								"type": "largestSpatialUnitAvg",
@@ -101,7 +97,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "100px",
 									"height": "60px"
 								},
-								"content": "Durchschnitt Gesamtstadt"
+								"placeholderText": "Durchschnitt Gesamtstadt"
 							},
 							{
 								"type": "mapLegend",
@@ -111,7 +107,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "100px",
 									"height": "120px"
 								},
-								"content": "Legende"
+								"placeholderText": "Legende"
 							}
 						]
 					},
@@ -134,7 +130,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "800px",
 									"height": "440px"
 								},
-								"content": "Säulendiagramm"
+								"placeholderText": "Säulendiagramm"
 							}
 						]
 					},
@@ -159,7 +155,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "400px",
 									"height": "440px"
 								},
-								"content": "Karte"
+								"placeholderText": "Karte"
 							},
 							{
 								"type": "barchart",
@@ -169,7 +165,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "390px",
 									"height": "140px"
 								},
-								"content": "Säulendiagramm"
+								"placeholderText": "Säulendiagramm"
 							},
 							{
 								"type": "textInput",
@@ -179,7 +175,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "390px",
 									"height": "140px"
 								},
-								"content": "Freitext",
+								"placeholderText": "Freitext",
 								"css": "align-self: self-start; margin-bottom: auto; text-align: left;"
 							}
 						]
@@ -205,7 +201,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "300px",
 									"height": "440px"
 								},
-								"content": "Datentabelle"
+								"placeholderText": "Datentabelle"
 							}
 						]
 					}
@@ -235,7 +231,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "800px",
 									"height": "440px"
 								},
-								"content": "Karte"
+								"placeholderText": "Karte"
 							},
 							{
 								"type": "largestSpatialUnitAvg",
@@ -245,7 +241,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "100px",
 									"height": "60px"
 								},
-								"content": "Durchschnitt Gesamtstadt"
+								"placeholderText": "Durchschnitt Gesamtstadt"
 							}
 						]
 					},
@@ -268,7 +264,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "800px",
 									"height": "440px"
 								},
-								"content": "Karte"
+								"placeholderText": "Karte"
 							},
 							{
 								"type": "largestSpatialUnitChange",
@@ -278,7 +274,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "100px",
 									"height": "60px"
 								},
-								"content": "Veränderung Gesamtstadt"
+								"placeholderText": "Veränderung Gesamtstadt"
 							},
 							{
 								"type": "mapLegend",
@@ -288,7 +284,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "100px",
 									"height": "120px"
 								},
-								"content": "Legende"
+								"placeholderText": "Legende"
 							}
 						]
 					},
@@ -311,7 +307,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "800px",
 									"height": "440px"
 								},
-								"content": "Liniendiagramm"
+								"placeholderText": "Liniendiagramm"
 							}
 						]
 					},
@@ -335,7 +331,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "800px",
 									"height": "440px"
 								},
-								"content": "Liniendiagramm mit Boxplots"
+								"placeholderText": "Liniendiagramm mit Boxplots"
 							}
 						]
 					},
@@ -360,7 +356,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "400px",
 									"height": "440px"
 								},
-								"content": "Karte"
+								"placeholderText": "Karte"
 							},
 							{
 								"type": "linechart",
@@ -370,7 +366,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "390px",
 									"height": "140px"
 								},
-								"content": "Liniendiagramm"
+								"placeholderText": "Liniendiagramm"
 							},
 							{
 								// percentage change compared to previous jear
@@ -381,7 +377,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "390px",
 									"height": "140px"
 								},
-								"content": "Liniendiagramm - proz. Veränderung zum Vorjahr"
+								"placeholderText": "Liniendiagramm - proz. Veränderung zum Vorjahr"
 							},
 							{
 								"type": "textInput",
@@ -391,7 +387,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "390px",
 									"height": "140px"
 								},
-								"content": "Freitext",
+								"placeholderText": "Freitext",
 								"css": "align-self: self-start; margin-bottom: auto; text-align: left;"
 							}
 						]
@@ -418,7 +414,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "300px",
 									"height": "440px"
 								},
-								"content": "Datentabelle"
+								"placeholderText": "Datentabelle"
 							},
 						]
 					}
@@ -449,7 +445,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "800px",
 									"height": "440px"
 								},
-								"content": "Karte"
+								"placeholderText": "Karte"
 							},
 							{
 								"type": "mapLegend",
@@ -459,7 +455,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "100px",
 									"height": "120px"
 								},
-								"content": "Legende"
+								"placeholderText": "Legende"
 							}
 						]
 					},
@@ -485,7 +481,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "800px",
 									"height": "440px"
 								},
-								"content": "Karte"
+								"placeholderText": "Karte"
 							},
 							{
 								"type": "mapLegend",
@@ -495,7 +491,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"width": "100px",
 									"height": "120px"
 								},
-								"content": "Legende"
+								"placeholderText": "Legende"
 							}
 						]
 					}
@@ -562,9 +558,9 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 		 * @returns {string} file content
 		 */
 		function readSingleFile(e) {
-			var content = "";
-			var srcElement = e.srcElement;
-			var file = e.target.files[0];
+			let content = "";
+			let srcElement = e.srcElement;
+			let file = e.target.files[0];
 			if (!file) {
 				return;
 			}
@@ -572,7 +568,6 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 			reader.onload = function(e) {
 				content = e.target.result;
 				if(srcElement.id === "reporting-load-commune-logo-button") {
-					console.log(content)
 					$scope.generalSettings.communeLogo = content;
 					$timeout(function() {
 						$scope.$apply();
@@ -603,17 +598,17 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 			for(let [idx, page] of $scope.selectedTemplate.pages.entries()) {
 				for(let el of page.pageElements) {
 					if(el.type === "footerCreationInfo-landscape") {
-						el.content = "Erstellt am " + $scope.generalSettings.creationDate + " von " + $scope.generalSettings.creator + ", " + $scope.generalSettings.commune
+						el.placeholderText = "Erstellt am " + $scope.generalSettings.creationDate + " von " + $scope.generalSettings.creator + ", " + $scope.generalSettings.commune
 					}
 					if(el.type === "textInput") {
-						el.content = $scope.generalSettings.freeText;
+						el.placeholderText = $scope.generalSettings.freeText;
 					}
 					if(el.type === "communeLogo-landscape") {
-						el.content = $scope.generalSettings.communeLogo
+						el.placeholderText = $scope.generalSettings.communeLogo
 					}
 					// page number is generated by html expression, but we update if anyway for consistency
 					if(el.type === "pageNumber-landscape") {
-						el.content = "Seite " + (idx+1)
+						el.placeholderText = "Seite " + (idx+1)
 					}
 				}
 			}
