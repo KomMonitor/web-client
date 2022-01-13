@@ -2453,6 +2453,10 @@ input:checked + .switchslider:before {
 	height: calc( var(--page-width) * 1.4);
 }
 
+.reporting-element-configuration-box {
+	border: solid black 1px;
+}
+
 #reporting-metadata-table {
 	font-size:8pt;
 }
