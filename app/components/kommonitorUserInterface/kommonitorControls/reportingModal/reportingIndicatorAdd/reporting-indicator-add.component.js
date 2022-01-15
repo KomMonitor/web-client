@@ -71,10 +71,17 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 						// setup pages before inserting them
 						for(let pToInsert of pagesToInsert) {
 							for(let pageElement of pToInsert.pageElements) {
+
+								if(pageElement.type === "indicatorTitle-landscape") {
+									pageElement.text = $scope.selectedIndicator.indicatorName;
+									pageElement.isPlaceholder = false;
+								}
+
 								if(pageElement.type === "dataTimestamp-landscape") {
 									pageElement.text = timestampToInsert.name;
 									pageElement.isPlaceholder = false;
 								}
+								
 							}
 						}
 
