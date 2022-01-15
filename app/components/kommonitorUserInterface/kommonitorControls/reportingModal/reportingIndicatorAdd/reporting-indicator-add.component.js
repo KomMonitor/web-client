@@ -4,6 +4,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
     function ReportingIndicatorAddController($scope, $http, $timeout, __env, kommonitorDataExchangeService) {
 
 		$scope.template = undefined;
+		$scope.untouchedTemplate = undefined;
 
 		$scope.indicatorNameFilter = "";
 		$scope.availableIndicators = [];
@@ -38,19 +39,79 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		});
 
 		// internal array changes do not work with ng-change
-		$scope.$watchCollection('selectedTimestamps', function() {
+		$scope.$watchCollection('selectedTimestamps', function(newVal, oldVal) {
+			
 			let tab4 = document.querySelector("#reporting-add-indicator-tab4");
 
-			if($scope.selectedTimestamps.length) {
-				$scope.enableTab(tab4);
-			} else {
-				// if the last area was deselected
-				$scope.disableTab(tab4);
+			// get difference between old and new value (the timestamp selected / deselected)
+			let difference = oldVal
+                 .filter(x => !newVal.includes(x))
+                 .concat(newVal.filter(x => !oldVal.includes(x)));
+			
+			// if selected
+			if(newVal.length > oldVal.length) {
+				// if this was the first timestamp
+				if(newVal.length === 1) {
+					$scope.enableTab(tab4);
+
+					// no need to insert pages, we just replace the placeholder timestamp
+					$scope.iteratePageElements( $scope.template, function(page, pageElement) {
+						if(pageElement.type === "dataTimestamp-landscape") {
+							pageElement.text = difference[0].name
+						}
+					})
+				}
+				
+				// determine position to insert pages (ascending timestamps) and insert them
+				for(let timestamp of difference) {
+					console.log("$scope.template", $scope.template);
+					console.log("$scope.untouchedTemplate", $scope.untouchedTemplate);
+					$scope.template.pages.push(...$scope.untouchedTemplate.pages)
+				}
+
 			}
+
+			// if deselected
+			if(newVal.length < oldVal.length) {
+				// if it was the last one
+				if(newVal.length === 0) {
+					$scope.disableTab(tab4);
+					// show placeholder text
+					for(let page of $scope.template.pages) {
+						for(let element of page.pageElements) {
+							if(element.type === "dataTimestamp-landscape") {
+								element.text = element.placeholderText;
+							}
+						}
+					}
+				} else {
+					// remove all pages that belong to removed timestamps
+					for(let timestamp of difference) {
+						$scope.template.pages = $scope.template.pages.filter( page => {
+							let timestampEl = page.pageElements.find( el => {
+								return el.type === "dataTimestamp-landscape"
+							})
+
+							return timestampEl.text != timestamp;
+						});
+					}
+					
+				}
+			}
+
+			console.log($scope.template)
 		});
 
 		$scope.$on("configureNewIndicatorShown", function(event, data) {
+			$scope.initialize(data);
+		});
+
+		$scope.initialize = function(data) {
+			// deep copy template before any changes are made.
+			// this is needed when additional timestamps are inserted.
+			$scope.untouchedTemplate = angular.copy(data)
 			$scope.template = data;
+
 			let tabPanes = document.querySelectorAll("#reporting-add-indicator-tab-content > .tab-pane")
 
 			for(let i=1;i<5;i++) {
@@ -63,13 +124,11 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					tab.classList.remove("active");
 					tabPanes[i-1].classList.remove("active");
 				}
-				
 			}
 
 			$scope.initializeDualLists();
-			
 			$scope.queryIndicators();
-		});
+		}
 
 		$scope.initializeDualLists = function() {
 			$scope.duallistAreasOptions = {
@@ -292,10 +351,13 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			}
 			
 			$scope.updateSpatialUnitsMultiselect();
-			$scope.updateTimestamps(true);
-			
+			let selectMostRecentDate = true
+			$scope.updateTimestamps(selectMostRecentDate);
+
 			let tab2 = document.querySelector("#reporting-add-indicator-tab2");
 			$scope.enableTab(tab2);
+
+			// update preview area
 		}
 
 		$scope.onTab3Clicked = function() {
@@ -335,6 +397,14 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		$scope.disableTab = function(tab) {
 			tab.classList.add("tab-disabled")
 			tab.firstElementChild.setAttribute("tabindex", "1")
+		}
+
+		$scope.iteratePageElements = function(template, functionToExecute) {
+			for(let page of template.pages) {
+				for(let pageElement of page.pageElements) {
+					functionToExecute(page, pageElement);
+				}
+			}
 		}
     }
 ]})
