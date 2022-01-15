@@ -4,6 +4,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
     function ReportingIndicatorAddController($scope, $http, $timeout, __env, kommonitorDataExchangeService) {
 
 		$scope.template = undefined;
+		$scope.untouchedTemplate = undefined;
+		$scope.untouchedTemplateAsString = "";
 
 		$scope.indicatorNameFilter = "";
 		$scope.availableIndicators = [];
@@ -38,19 +40,155 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		});
 
 		// internal array changes do not work with ng-change
-		$scope.$watchCollection('selectedTimestamps', function() {
+		$scope.$watchCollection('selectedTimestamps', function(newVal, oldVal) {
+			
 			let tab4 = document.querySelector("#reporting-add-indicator-tab4");
 
-			if($scope.selectedTimestamps.length) {
+			// get difference between old and new value (the timestamp selected / deselected)
+			let difference = oldVal
+				.filter(x => !newVal.includes(x))
+				.concat(newVal.filter(x => !oldVal.includes(x)));
+			
+			// if selected
+			if(newVal.length > oldVal.length) {
 				$scope.enableTab(tab4);
-			} else {
-				// if the last area was deselected
-				$scope.disableTab(tab4);
+				// if this was the first timestamp
+				if(newVal.length === 1) {
+					// no need to insert pages, we just replace the placeholder timestamp
+					$scope.iteratePageElements( $scope.template, function(page, pageElement) {
+						if(pageElement.type === "dataTimestamp-landscape") {
+							pageElement.text = difference[0].name;
+							pageElement.isPlaceholder = false;
+						}
+					})
+				} 
+				
+				if(newVal.length > 1) {
+					for(let timestampToInsert of difference) {
+
+						// setup pages to insert first
+						let pagesToInsert = JSON.parse($scope.untouchedTemplateAsString).pages;
+						// setup pages before inserting them
+						for(let pToInsert of pagesToInsert) {
+							for(let pageElement of pToInsert.pageElements) {
+								if(pageElement.type === "dataTimestamp-landscape") {
+									pageElement.text = timestampToInsert.name;
+									pageElement.isPlaceholder = false;
+								}
+							}
+						}
+
+						// determine position to insert pages (ascending timestamps) and insert them
+						// iterate pages and check timestamp for each one
+						let pagesInserted = false;
+						for(let i=$scope.template.pages.length-1; i>=0; i--) { //iterate in reverse because we might extend the array while iterating
+							let page = $scope.template.pages[i];
+
+							for(let pElement of page.pageElements) {
+								if(pElement.type === "dataTimestamp-landscape") {
+									// compare timestamps
+									let date1 = timestampToInsert.name;
+									let date2 = pElement.text;
+									let date1Updated = new Date(date1.replace(/-/g,'/'));  
+									let date2Updated = new Date(date2.replace(/-/g,'/'));
+									
+									// if page timestamp is newer than difference timestamp
+									if(date1Updated > date2Updated) {
+										// insert pages before pages with that timestamp
+										// i+1 because we want to insert after the page that has the older timestamp
+										$scope.template.pages.splice(i+1, 0, ...pagesToInsert);
+										pagesInserted = true;
+									}
+								}
+							}
+
+							if(pagesInserted) {
+								break;
+							}
+						}
+						
+						if( !pagesInserted ) { // happens if the timestamp to insert is the oldest one
+							$scope.template.pages.splice(0, 0, ...pagesToInsert); //prepend pages
+						}
+					}
+
+					// in case all timestamps were added at once and none was present before we still have placeholder pages at this point
+					// all other pages got prepended since we compared against an invalid date.
+					// remove those pages
+					for(let i=$scope.template.pages.length-1; i>=0; i--) { //iterate in reverse because we might extend the array while iterating
+						let page = $scope.template.pages[i];
+						for(let pElement of page.pageElements) {
+							if(pElement.type === "dataTimestamp-landscape") {
+								if(pElement.isPlaceholder) {
+									$scope.template.pages.splice(i, 1);
+								}
+							}
+						}
+					}
+				}
+				
+
 			}
+
+			// if deselected
+			if(newVal.length < oldVal.length) {
+				// if it was the last one
+				if(newVal.length === 0) {
+					$scope.disableTab(tab4);
+					// remove all pages except the first timestamp
+					// this is necessary because we might have deselected multiple timestamps at once
+					let firstTimestamp;
+					for(let el of $scope.template.pages[0].pageElements) {
+						if(el.type === "dataTimestamp-landscape") {
+							firstTimestamp = el.text;
+						}
+					}
+					
+					$scope.template.pages = $scope.template.pages.filter( page => {
+						let timestampEl = page.pageElements.find( el => {
+							return el.type === "dataTimestamp-landscape"
+						});
+
+						return timestampEl.text === firstTimestamp;
+					});
+
+					// show placeholder text for remaining pages
+					for(let page of $scope.template.pages) {
+						for(let element of page.pageElements) {
+							if(element.type === "dataTimestamp-landscape") {
+								element.text = element.placeholderText;
+								element.isPlaceholder = true;
+							}
+						}
+					}
+				} else {
+					// remove all pages that belong to removed timestamps
+					for(let timestampToRemove of difference) {
+						$scope.template.pages = $scope.template.pages.filter( page => {
+							let timestampEl = page.pageElements.find( el => {
+								return el.type === "dataTimestamp-landscape"
+							})
+
+							return timestampEl.text != timestampToRemove.name;
+						});
+					}
+					
+				}
+			}
+
 		});
 
 		$scope.$on("configureNewIndicatorShown", function(event, data) {
+			$scope.initialize(data);
+		});
+
+		$scope.initialize = function(data) {
+			// deep copy template before any changes are made.
+			// this is needed when additional timestamps are inserted.
+			$scope.untouchedTemplateAsString = JSON.stringify(data)
+			$scope.untouchedTemplate = JSON.parse($scope.untouchedTemplateAsString)
 			$scope.template = data;
+
 			let tabPanes = document.querySelectorAll("#reporting-add-indicator-tab-content > .tab-pane")
 
 			for(let i=1;i<5;i++) {
@@ -63,13 +201,11 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					tab.classList.remove("active");
 					tabPanes[i-1].classList.remove("active");
 				}
-				
 			}
 
 			$scope.initializeDualLists();
-			
 			$scope.queryIndicators();
-		});
+		}
 
 		$scope.initializeDualLists = function() {
 			$scope.duallistAreasOptions = {
@@ -277,12 +413,17 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			// set indicator manually.
 			// if we use ng-model it gets converted to string instead of an object
 			$scope.selectedIndicator = indicator;
+			// get a new template (in case another indicator was selected previously)
+			let temp = JSON.parse($scope.untouchedTemplateAsString);
+			$scope.template = temp;
+
 			// update indicator name in preview
 			for(let page of $scope.template.pages) {
 				for(let el of page.pageElements) {
 					console.log(indicator);
 					if(el.type === "indicatorTitle-landscape") {
-						el.content = "<b>" + indicator.indicatorName + " [" + indicator.unit + "]</b>";
+						el.text = indicator.indicatorName + " [" + indicator.unit + "]";
+						el.isPlaceholder = false;
 					}
 				}
 			}
@@ -292,10 +433,13 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			}
 			
 			$scope.updateSpatialUnitsMultiselect();
-			$scope.updateTimestamps(true);
-			
+			let selectMostRecentDate = true
+			$scope.updateTimestamps(selectMostRecentDate);
+
 			let tab2 = document.querySelector("#reporting-add-indicator-tab2");
 			$scope.enableTab(tab2);
+
+			// update preview area
 		}
 
 		$scope.onTab3Clicked = function() {
@@ -335,6 +479,14 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		$scope.disableTab = function(tab) {
 			tab.classList.add("tab-disabled")
 			tab.firstElementChild.setAttribute("tabindex", "1")
+		}
+
+		$scope.iteratePageElements = function(template, functionToExecute) {
+			for(let page of template.pages) {
+				for(let pageElement of page.pageElements) {
+					functionToExecute(page, pageElement);
+				}
+			}
 		}
     }
 ]})

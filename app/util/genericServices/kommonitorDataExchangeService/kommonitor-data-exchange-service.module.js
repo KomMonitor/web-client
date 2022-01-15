@@ -2795,7 +2795,8 @@ angular
         },
         "isPlaceholder": true,
         "placeholderText": "Titel des Indikators",
-        "css": "text-align: left; padding-left: 5px;"
+        "text": "",
+        "css": "text-align: left; padding-left: 5px; font-weight: bold;"
       },
       {
         "type": "dataTimestamp-landscape",
