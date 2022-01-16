@@ -166,10 +166,12 @@
                     </div>
 
                     <!-- not affected by tab changes -->
-                    <div id="reporting-overview-preview-area">
-                        <div ng-repeat="page in template.pages track by $index" ng-attr-class="reporting-page reporting-page-{{page.orientation}}">
+                    <div id="reporting-add-indicator-preview-area">
+                        <div ng-repeat="page in template.pages track by $index" ng-attr-class="reporting-page reporting-page-{{page.orientation}}"
+                            ng-attr-id="reporting-page-{{$index}}">
                             <div ng-repeat="pageElement in page.pageElements"
                                 ng-attr-class="type-{{pageElement.type}}"
+                                ng-attr-id="reporting-page-{{$parent.$index}}-{{pageElement.type}}"
                                 ng-attr-style="position: absolute;
                                     top: {{pageElement.dimensions.top}};
                                     left: {{pageElement.dimensions.left}};
@@ -195,6 +197,14 @@
                                 <span ng-show="pageElement.type == 'dataTimestamp-landscape' && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
                                     {{pageElement.text}}
+                                </span>
+
+                                <span ng-show="pageElement.type == 'overallAverage' && pageElement.isPlaceholder == false"
+                                    ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
+                                    <span style="display: block; text-align:left">
+                                        Durchschnitt Gesamtstadt:<br />
+                                        {{pageElement.text}}
+                                    </span>
                                 </span>
 
                                 <span ng-show="pageElement.type == 'footerCreationInfo-landscape' && pageElement.isPlaceholder == false"

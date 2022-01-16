@@ -1,7 +1,7 @@
 angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 	templateUrl : "components/kommonitorUserInterface/kommonitorControls/reportingModal/reportingIndicatorAdd/reporting-indicator-add.template.html",
-	controller : ['$scope', '$http', '$timeout', '__env', 'kommonitorDataExchangeService',
-    function ReportingIndicatorAddController($scope, $http, $timeout, __env, kommonitorDataExchangeService) {
+	controller : ['$scope', '$http', '$timeout', '__env', 'kommonitorDataExchangeService', 'kommonitorDiagramHelperService', 'kommonitorVisualStyleHelperService',
+    function ReportingIndicatorAddController($scope, $http, $timeout, __env, kommonitorDataExchangeService, kommonitorDiagramHelperService, kommonitorVisualStyleHelperService) {
 
 		$scope.template = undefined;
 		$scope.untouchedTemplate = undefined;
@@ -55,12 +55,14 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				// if this was the first timestamp
 				if(newVal.length === 1) {
 					// no need to insert pages, we just replace the placeholder timestamp
-					$scope.iteratePageElements( $scope.template, function(page, pageElement) {
-						if(pageElement.type === "dataTimestamp-landscape") {
-							pageElement.text = difference[0].name;
-							pageElement.isPlaceholder = false;
+					for(let page of $scope.template.pages) {
+						for(let pageElement of page.pageElements) {
+							if(pageElement.type === "dataTimestamp-landscape") {
+								pageElement.text = difference[0].name;
+								pageElement.isPlaceholder = false;
+							}
 						}
-					})
+					}
 				} 
 				
 				if(newVal.length > 1) {
@@ -343,7 +345,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			})
 		}
 
-		$scope.updateSpatialUnitsMultiselect = async function() {
+		$scope.updateSpatialUnitsMultiSelect = async function() {
 			let indicator = $scope.selectedIndicator;
 			console.log(indicator)
 			// convert to required format, change this once format is updated
@@ -416,15 +418,20 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		}
 
 		
-		$scope.onIndicatorSelected = function(indicator) {
+		$scope.onIndicatorSelected = async function(indicator) {
 			// set indicator manually.
 			// if we use ng-model it gets converted to string instead of an object
 			$scope.selectedIndicator = indicator;
+			console.log($scope.selectedIndicator);
 			// get a new template (in case another indicator was selected previously)
 			let temp = JSON.parse($scope.untouchedTemplateAsString);
 			$scope.template = temp;
 
-			// update indicator name in preview
+			let selectMostRecentDate = true
+			$scope.updateTimestamps(selectMostRecentDate);
+			// get timestamp manually because it takes a  moment until $scope.selectedTimestamps is set by the listener
+			let timestamp = $scope.selectedIndicator.applicableDates[ $scope.selectedIndicator.applicableDates.length-1 ]
+			// update indicator name and timestamp in preview
 			for(let page of $scope.template.pages) {
 				for(let el of page.pageElements) {
 					console.log(indicator);
@@ -432,21 +439,91 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 						el.text = indicator.indicatorName + " [" + indicator.unit + "]";
 						el.isPlaceholder = false;
 					}
+
+					if(el.type === "dataTimestamp-landscape") {
+						el.text = timestamp;
+						el.isPlaceholder = false
+					}
 				}
 			}
 			// set spatial unit to highest available one
 			if(typeof($scope.selectedSpatialUnit === 'undefined')) {
 				$scope.selectedSpatialUnit = $scope.selectedIndicator.applicableSpatialUnits[0];
 			}
-			
-			$scope.updateSpatialUnitsMultiselect();
-			let selectMostRecentDate = true
-			$scope.updateTimestamps(selectMostRecentDate);
+
+			await $scope.updateAreas();
+			$scope.updateSpatialUnitsMultiSelect();
 
 			let tab2 = document.querySelector("#reporting-add-indicator-tab2");
 			$scope.enableTab(tab2);
 
 			// update preview area
+			// update page elements
+			// set settings classifyUsingWholeTimeseries and useOutlierDetectionOnIndicator to false to have consistent reporting setup
+			// set classifyZeroSeparately to true
+			// we need to undo these changes afterwards, so we store the current values in a backup first
+			let useOutlierDetectionOnIndicator_backup = kommonitorDataExchangeService.useOutlierDetectionOnIndicator;
+			let classifyUsingWholeTimeseries_backup = kommonitorDataExchangeService.classifyUsingWholeTimeseries;
+			let classifyZeroSeparately_backup = kommonitorDataExchangeService.classifyZeroSeparately; 
+			kommonitorDataExchangeService.useOutlierDetectionOnIndicator = false;
+			kommonitorDataExchangeService.classifyUsingWholeTimeseries = false;
+
+			
+			let timestampPrefix = __env.indicatorDatePrefix + timestamp;
+			let numClasses = $scope.selectedIndicator.defaultClassificationMapping.items.length;
+			let colorCodeStandard = $scope.selectedIndicator.defaultClassificationMapping.colorBrewerSchemeName;
+			let colorCodePositiveValues = __env.defaultColorBrewerPaletteForBalanceIncreasingValues;
+			let colorCodeNegativeValues = __env.defaultColorBrewerPaletteForBalanceDecreasingValues;
+			let classifyMethod = __env.defaultClassifyMethod;
+			// add new prop to indicator metadata, because it is expected that way by kommonitorVisualStyleHelperService
+			$scope.selectedIndicator.geoJSON = { features: $scope.availableFeatures[ $scope.selectedIndicator.applicableSpatialUnits[0].spatialUnitName ] }
+
+			// setup brew
+			let defaultBrew = kommonitorVisualStyleHelperService.setupDefaultBrew($scope.selectedIndicator.geoJSON, timestampPrefix, numClasses, colorCodeStandard, classifyMethod);
+			let dynamicBrewsArray = kommonitorVisualStyleHelperService.setupDynamicIndicatorBrew($scope.selectedIndicator.geoJSON, timestampPrefix, colorCodePositiveValues, colorCodeNegativeValues, classifyMethod);
+			let dynamicIncreaseBrew = dynamicBrewsArray[0];
+			let dynamicDecreaseBrew = dynamicBrewsArray[1];
+
+			//setup diagram resources
+			kommonitorDiagramHelperService.prepareAllDiagramResources_forReportingIndicator($scope.selectedIndicator, $scope.selectedSpatialUnit.spatialUnitName, timestamp, defaultBrew, undefined, undefined, dynamicIncreaseBrew, dynamicDecreaseBrew, false, 0, false);
+			
+			// set settings classifyUsingWholeTimeseries and useOutlierDetectionOnIndicator and classifyZeroSeparately back to their prior values			
+			kommonitorDataExchangeService.useOutlierDetectionOnIndicator = useOutlierDetectionOnIndicator_backup;
+			kommonitorDataExchangeService.classifyUsingWholeTimeseries = classifyUsingWholeTimeseries_backup;
+			kommonitorDataExchangeService.classifyZeroSeparately = classifyZeroSeparately_backup;
+
+			// iterate page elements and setup each one
+			for(let [pageIdx, page] of $scope.template.pages.entries()) {
+				//let pageDom = document.querySelector("#reporting-page-" + pageIdx)
+				//console.log("page: ", pageDom);
+				for(let pageElement of page.pageElements) {
+					let pElementDom = document.querySelector("#reporting-page-" + pageIdx + "-" + pageElement.type)
+					console.log("pElementDom: ", pElementDom);
+					
+					switch(pageElement.type) {
+						case "map":
+							$scope.createPageElement_Map(pElementDom , pageElement);
+							break;
+						case "mapLegend":
+							pageElement.isPlaceholder = false; // hide the placeholder, legend is part of map
+							break;
+						case "overallAverage":
+							$scope.createPageElement_OverallAverage(pElementDom, pageElement, timestamp);
+							break;
+						case "barchart":
+							$scope.createPageElement_BarChartDiagram(pElementDom, pageElement);
+							break;
+						case "linechart":
+							$scope.createPageElement_TimelineDiagram(pElementDom, pageElement);
+							break;
+						case "datatable":
+							//$scope.createPageElement_Datatable( pElementDom, pageElement );
+							break;
+					}
+				}
+			}
+
+			
 		}
 
 		$scope.onTab3Clicked = function() {
@@ -474,7 +551,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			$scope.$emit('backToOverviewClicked')
 		}
 
-        $scope.onAddNewIndicatorClicked = function() {
+		$scope.onAddNewIndicatorClicked = function() {
 			$scope.$emit('addNewIndicatorClicked', [$scope.selectedIndicator])
 		}
 
@@ -488,12 +565,71 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			tab.firstElementChild.setAttribute("tabindex", "1")
 		}
 
-		$scope.iteratePageElements = function(template, functionToExecute) {
-			for(let page of template.pages) {
-				for(let pageElement of page.pageElements) {
-					functionToExecute(page, pageElement);
-				}
-			}
+		$scope.createPageElement_Map = function(wrapper, pageElement) {
+			let map = echarts.init( wrapper );
+			let options = kommonitorDiagramHelperService.getGeoMapChartOptions();
+			options.title.show = false;
+			options.grid = undefined;
+			options.visualMap.axisLabel = { "fontSize": 10 };
+			options.toolbox.show = false;
+			options.visualMap.left = "right"
+			map.setOption(options);
+			map.resize();
+			return map;
 		}
-    }
+
+		$scope.createPageElement_OverallAverage = function(wrapper, pageElement, timestamp) {
+			let overallAvg = $scope.calculateOverallAvg( $scope.selectedIndicator, timestamp );
+			pageElement.text = overallAvg;
+			pageElement.css = "border: solid; 1px; darkgray;"
+			pageElement.isPlaceholder = false;
+		}
+
+		$scope.createPageElement_BarChartDiagram = function(wrapper, pageElement) {
+			let barChart = echarts.init( wrapper );
+			let options = kommonitorDiagramHelperService.getBarChartOptions();
+			options.xAxis.name = ""; //remove title
+			options.title.textStyle.fontSize = 12;
+			options.title.text = "Ranking";
+			options.yAxis.axisLabel = { "fontSize": 10 };
+			options.title.show = true;
+			options.grid.top = 35;
+			options.grid.bottom = 5;
+			options.toolbox.show = false;
+			barChart.setOption(options);
+			barChart.resize();
+			return barChart;
+		}
+
+		$scope.createPageElement_TimelineDiagram = function(wrapper, pageElement) {
+			let lineChart = echarts.init( wrapper );
+			let options = kommonitorDiagramHelperService.getLineChartOptions();
+			options.xAxis.name = ""; //remove title
+			options.title.textStyle.fontSize = 12;
+			options.title.text = "Zeitreihe - Arithm. Mittel";
+			options.yAxis.axisLabel = { "fontSize": 10 };
+			options.xAxis.axisLabel = { "fontSize": 10 };
+			options.legend.show = false;
+			options.grid.top = 35;
+			options.grid.bottom = 5;
+			options.title.show = true;
+			options.toolbox.show = false;
+			lineChart.setOption(options);
+			lineChart.resize();
+			return lineChart;
+		}
+
+		$scope.calculateOverallAvg = function(indicator, timestamp) {
+			// calculate avg from geoJSON property, which should be the currently selected spatial unit
+			let data = indicator.geoJSON.features.map( feature => {
+				return feature.properties["DATE_" + timestamp];
+			})
+			let sum = data.reduce( (prev, current) => prev + current)
+			console.log(sum);
+			let avg = sum / indicator.geoJSON.features.length;
+			avg = Math.round(avg * 100) / 100; // 2 decimal places
+			return avg;
+		}
+
+	}
 ]})

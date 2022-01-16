@@ -58,7 +58,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 								"placeholderText": "Karte",
 							},
 							{
-								"type": "largestSpatialUnitAvg",
+								"type": "overallAverage",
 								"dimensions": {
 									"top": "100px",
 									"left": "700px",
@@ -93,7 +93,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 								"placeholderText": "Karte"
 							},
 							{
-								"type": "largestSpatialUnitAvg",
+								"type": "overallAverage",
 								"dimensions": {
 									"top": "100px",
 									"left": "700px",
@@ -245,7 +245,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 								"placeholderText": "Karte"
 							},
 							{
-								"type": "largestSpatialUnitAvg",
+								"type": "overallAverage",
 								"dimensions": {
 									"top": "100px",
 									"left": "700px",

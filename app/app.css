@@ -2502,6 +2502,14 @@ input:checked + .switchslider:before {
 	overflow:auto;
 }
 
+#reporting-add-indicator-preview-area {
+	margin-top: 15px;
+	height:650px;
+	border:solid darkgray 1px;
+    background-color: lightgray;
+	overflow:auto;
+}
+
 #reporting-overview-bot-btn-row-1 {
 	margin-bottom: 25px;
 }
