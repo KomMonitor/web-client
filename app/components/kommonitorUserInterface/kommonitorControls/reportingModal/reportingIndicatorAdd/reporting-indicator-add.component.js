@@ -11,7 +11,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		$scope.availableIndicators = [];
 		$scope.selectedIndicator = undefined;
 
-		$scope.availableFeatures = {};
+		$scope.availableFeaturesBySpatialUnit = {};
 		$scope.selectedSpatialUnit = undefined;
 		$scope.selectedAreas = [];
 		$scope.selectedSpatialUnitsMultiselect = undefined
@@ -217,7 +217,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		}
 
 		$scope.initializeDualLists = function() {
-			$scope.duallistAreasOptions = {
+			$scope.dualListAreasOptions = {
 				label: 'Bereiche',
 				boxItemsHeight: 'md',
 				items: [],
@@ -225,7 +225,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				selectedItems: []
 			};
 
-			$scope.duallistTimestampsOptions = {
+			$scope.dualListTimestampsOptions = {
 				label: 'Zeitpunkte',
 				boxItemsHeight: 'md',
 				items: [],
@@ -233,7 +233,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				selectedItems: []
 			};
 
-			$scope.duallistSpatialUnitsOptions = {
+			$scope.dualListSpatialUnitsOptions = {
 				label: 'Raumebenen',
 				boxItemsHeight: 'md',
 				items: [],
@@ -269,33 +269,34 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		};
 
 		/**
-		 * Updates the areas dual list.
+		 * Updates the areas dual list data
 		 * Queries DataManagement API if needed.
 		 */
 		$scope.updateAreas = async function() {
 			let indicator = $scope.selectedIndicator;
-			let spatialUnit = $scope.selectedSpatialUnit
+			
+			let spatialUnit = $scope.selectedSpatialUnit ?
+				$scope.selectedSpatialUnit :
+				$scope.selectedIndicator.applicableSpatialUnits[0]
 			let indicatorId = indicator.indicatorId;
 			let spatialUnitId = spatialUnit.spatialUnitId;
 
-			if ($scope.availableFeatures[spatialUnit.spatialUnitName]) {
-				// no need to query api
-				$scope.updateDualList($scope.duallistAreasOptions, $scope.availableFeatures[spatialUnit.spatialUnitName])
-			} else {
+			if (!$scope.availableFeaturesBySpatialUnit[spatialUnit.spatialUnitName]) {
 				let data = await $scope.queryFeatures(indicatorId, spatialUnitId)
-
 				// save response to scope to avoid further requests
-				$scope.availableFeatures[spatialUnit.spatialUnitName] = data.features
-
-				$scope.updateDualList($scope.duallistAreasOptions, data.features)
-				$timeout(function() {
-					$scope.$apply();
-				})
+				$scope.availableFeaturesBySpatialUnit[spatialUnit.spatialUnitName] = data.features
 			}
+
+			let allAreas = $scope.availableFeaturesBySpatialUnit[spatialUnit.spatialUnitName]
+			$scope.updateDualList($scope.dualListAreasOptions, allAreas, undefined) // don't select any areas
+
+			$timeout(function() {
+				$scope.$apply();
+			})
 		}
 
 		/**
-		 * Queries DataManagement API to get features of gi for given indicato
+		 * Queries DataManagement API to get features of gi for given indicator
 		 * Result is stored to scope to avoid further requests.
 		 * @param {*} indicator | selected indicator
 		 */
@@ -320,31 +321,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			});
 		}
 
-		/**
-		 * Updates the timestamp dual list.
-		 */
-		$scope.updateTimestamps = async function(selectMostRecentDate) {
-			let indicator = $scope.selectedIndicator;
-
-			// convert to required format, change this once format is updated
-			let dates = indicator.applicableDates.map( el => {
-				return {
-					"properties": {
-						"NAME": el
-					}
-				}
-			});
-			if(selectMostRecentDate) {
-				$scope.updateDualList($scope.duallistTimestampsOptions, dates, [ dates[dates.length-1] ])
-			} else {
-				$scope.updateDualList($scope.duallistTimestampsOptions, dates)
-			}
-			
-			$timeout(function() {
-			 	$scope.$apply();
-			})
-		}
-
 		$scope.updateSpatialUnitsMultiSelect = async function() {
 			let indicator = $scope.selectedIndicator;
 			console.log(indicator)
@@ -356,7 +332,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					}
 				}
 			})
-			$scope.updateDualList($scope.duallistSpatialUnitsOptions, spatialUnits)
+			$scope.updateDualList($scope.dualListSpatialUnitsOptions, spatialUnits, undefined)
 			$timeout(function() {
 			 	$scope.$apply();
 			})
@@ -364,8 +340,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 		/**
 		 * 
-		 * @param {*} options | scope options obj for duallist to update
-		 * @param {*} data | new data, format like:
+		 * @param {*} options | scope options obj for dualList to update
+		 * @param {*} data | new data (all data, including entries that get selected and removed from left side), format like:
 		 * 
 		 * [
 		 * 	{
@@ -400,21 +376,27 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 								// not even with $scope.$apply in a $timeout
 								// instead we click on the elements
 								// get dom element by name
-								let arr = Array.from(document.querySelectorAll("#reporting-indicator-add-timestamps-dual-list a"));
+								let arr = [];
+								switch(options.label) {
+									case "Zeitpunkte":
+										arr = Array.from(document.querySelectorAll("#reporting-indicator-add-timestamps-dual-list a"));
+										break;
+									case "Bereiche":
+										arr = Array.from(document.querySelectorAll("#reporting-indicator-add-areas-dual-list a"));
+										break;
+									case "Raumebenen":
+										arr = Array.from(document.querySelectorAll("#reporting-indicator-add-spatialUnits-dual-list a"));
+										break;
+								}
 								let el = arr.find(el => {
 									return el.textContent.includes(name)
-								})
+								});
 								el.click();
 							}
 						}
 					}
-					// by now we enabled the fourth tab, but we don't want that yet since we are still in the first one
-					// instead the tab is enabled once we click on the third one
-					let tab4 = document.querySelector("#reporting-add-indicator-tab4");
-					$scope.disableTab(tab4);
 				}
 			})
-			
 		}
 
 		
@@ -427,10 +409,38 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			let temp = JSON.parse($scope.untouchedTemplateAsString);
 			$scope.template = temp;
 
-			let selectMostRecentDate = true
-			$scope.updateTimestamps(selectMostRecentDate);
-			// get timestamp manually because it takes a  moment until $scope.selectedTimestamps is set by the listener
-			let timestamp = $scope.selectedIndicator.applicableDates[ $scope.selectedIndicator.applicableDates.length-1 ]
+			// set spatial unit to highest available one
+			if(typeof($scope.selectedSpatialUnit === 'undefined')) {
+				$scope.selectedSpatialUnit = $scope.selectedIndicator.applicableSpatialUnits[0];
+			}
+
+			// update areas and select all areas
+			await $scope.updateAreas();
+			// select all areas by default
+			let allAreas = $scope.availableFeaturesBySpatialUnit[$scope.selectedSpatialUnit.spatialUnitName];
+			$scope.updateDualList($scope.dualListAreasOptions, allAreas, allAreas);
+			
+			await $scope.updateSpatialUnitsMultiSelect();
+
+			// select most recent timestamp
+			// get manually because it takes a  moment until $scope.selectedTimestamps is set by the listener
+			let dates = $scope.selectedIndicator.applicableDates;
+			let mostRecentTimestampName = dates[ dates.length-1 ]
+			// convert all available timestamps to required format ("feature")
+			let availableTimestamps = dates.map( name => {
+				return { "properties": { "NAME": name } }
+			})
+			let mostRecentTimestamp = availableTimestamps.filter( el => {
+				return el.properties.NAME === mostRecentTimestampName;
+			})
+			
+			$scope.updateDualList($scope.dualListTimestampsOptions, availableTimestamps, mostRecentTimestamp)
+			// by now we enabled the fourth tab, but we don't want that yet since we are still in the first one
+			// instead the tab is enabled once we click on the third one
+			let tab4 = document.querySelector("#reporting-add-indicator-tab4");
+			$scope.disableTab(tab4);
+
+			
 			// update indicator name and timestamp in preview
 			for(let page of $scope.template.pages) {
 				for(let el of page.pageElements) {
@@ -441,18 +451,12 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					}
 
 					if(el.type === "dataTimestamp-landscape") {
-						el.text = timestamp;
+						el.text = mostRecentTimestampName;
 						el.isPlaceholder = false
 					}
 				}
 			}
-			// set spatial unit to highest available one
-			if(typeof($scope.selectedSpatialUnit === 'undefined')) {
-				$scope.selectedSpatialUnit = $scope.selectedIndicator.applicableSpatialUnits[0];
-			}
-
-			await $scope.updateAreas();
-			$scope.updateSpatialUnitsMultiSelect();
+			
 
 			let tab2 = document.querySelector("#reporting-add-indicator-tab2");
 			$scope.enableTab(tab2);
@@ -469,14 +473,14 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			kommonitorDataExchangeService.classifyUsingWholeTimeseries = false;
 
 			
-			let timestampPrefix = __env.indicatorDatePrefix + timestamp;
+			let timestampPrefix = __env.indicatorDatePrefix + mostRecentTimestampName;
 			let numClasses = $scope.selectedIndicator.defaultClassificationMapping.items.length;
 			let colorCodeStandard = $scope.selectedIndicator.defaultClassificationMapping.colorBrewerSchemeName;
 			let colorCodePositiveValues = __env.defaultColorBrewerPaletteForBalanceIncreasingValues;
 			let colorCodeNegativeValues = __env.defaultColorBrewerPaletteForBalanceDecreasingValues;
 			let classifyMethod = __env.defaultClassifyMethod;
 			// add new prop to indicator metadata, because it is expected that way by kommonitorVisualStyleHelperService
-			$scope.selectedIndicator.geoJSON = { features: $scope.availableFeatures[ $scope.selectedIndicator.applicableSpatialUnits[0].spatialUnitName ] }
+			$scope.selectedIndicator.geoJSON = { features: $scope.availableFeaturesBySpatialUnit[ $scope.selectedIndicator.applicableSpatialUnits[0].spatialUnitName ] }
 
 			// setup brew
 			let defaultBrew = kommonitorVisualStyleHelperService.setupDefaultBrew($scope.selectedIndicator.geoJSON, timestampPrefix, numClasses, colorCodeStandard, classifyMethod);
@@ -485,7 +489,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			let dynamicDecreaseBrew = dynamicBrewsArray[1];
 
 			//setup diagram resources
-			kommonitorDiagramHelperService.prepareAllDiagramResources_forReportingIndicator($scope.selectedIndicator, $scope.selectedSpatialUnit.spatialUnitName, timestamp, defaultBrew, undefined, undefined, dynamicIncreaseBrew, dynamicDecreaseBrew, false, 0, false);
+			kommonitorDiagramHelperService.prepareAllDiagramResources_forReportingIndicator($scope.selectedIndicator, $scope.selectedSpatialUnit.spatialUnitName, mostRecentTimestampName, defaultBrew, undefined, undefined, dynamicIncreaseBrew, dynamicDecreaseBrew, false, 0, false);
 			
 			// set settings classifyUsingWholeTimeseries and useOutlierDetectionOnIndicator and classifyZeroSeparately back to their prior values			
 			kommonitorDataExchangeService.useOutlierDetectionOnIndicator = useOutlierDetectionOnIndicator_backup;
@@ -498,17 +502,16 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				//console.log("page: ", pageDom);
 				for(let pageElement of page.pageElements) {
 					let pElementDom = document.querySelector("#reporting-page-" + pageIdx + "-" + pageElement.type)
-					console.log("pElementDom: ", pElementDom);
 					
 					switch(pageElement.type) {
 						case "map":
-							$scope.createPageElement_Map(pElementDom , pageElement);
+							$scope.createPageElement_Map(pElementDom, pageElement);
 							break;
 						case "mapLegend":
 							pageElement.isPlaceholder = false; // hide the placeholder, legend is part of map
 							break;
 						case "overallAverage":
-							$scope.createPageElement_OverallAverage(pElementDom, pageElement, timestamp);
+							$scope.createPageElement_OverallAverage(pElementDom, pageElement, mostRecentTimestampName);
 							break;
 						case "barchart":
 							$scope.createPageElement_BarChartDiagram(pElementDom, pageElement);
@@ -567,12 +570,29 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 		$scope.createPageElement_Map = function(wrapper, pageElement) {
 			let map = echarts.init( wrapper );
-			let options = kommonitorDiagramHelperService.getGeoMapChartOptions();
+			let options = JSON.parse(JSON.stringify( kommonitorDiagramHelperService.getGeoMapChartOptions() ));
+			console.log("echarts map options: ", options);
+			// overwrite standard options based on information form pageElement (config)
+			// this creates different types of maps
 			options.title.show = false;
 			options.grid = undefined;
 			options.visualMap.axisLabel = { "fontSize": 10 };
 			options.toolbox.show = false;
 			options.visualMap.left = "right"
+			if(!options.geo) {
+				options.geo = {};
+			}
+			options.geo.roam = false; //TODO do we want this?
+			if(pageElement.classify) {
+				//TODO
+			}
+			// change style for individual features
+
+			if(! options.regions) {
+				options.regions = [];
+
+			}
+
 			map.setOption(options);
 			map.resize();
 			return map;

@@ -56,6 +56,9 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 								},
 								"isPlaceholder": true,
 								"placeholderText": "Karte",
+								"colorScheme": undefined,
+								"classify": false,
+								
 							},
 							{
 								"type": "overallAverage",
@@ -90,7 +93,9 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"height": "440px"
 								},
 								"isPlaceholder": true,
-								"placeholderText": "Karte"
+								"placeholderText": "Karte",
+								"colorScheme": undefined,
+								"classify": true,
 							},
 							{
 								"type": "overallAverage",
@@ -162,7 +167,9 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"height": "440px"
 								},
 								"isPlaceholder": true,
-								"placeholderText": "Karte"
+								"placeholderText": "Karte",
+								"colorScheme": undefined,
+								"classify": true,
 							},
 							{
 								"type": "barchart",
@@ -242,7 +249,9 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"height": "440px"
 								},
 								"isPlaceholder": true,
-								"placeholderText": "Karte"
+								"placeholderText": "Karte",
+								"colorScheme": undefined,
+								"classify": false,
 							},
 							{
 								"type": "overallAverage",
@@ -277,7 +286,9 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"height": "440px"
 								},
 								"isPlaceholder": true,
-								"placeholderText": "Karte"
+								"placeholderText": "Karte",
+								"colorScheme": undefined,
+								"classify": true,
 							},
 							{
 								"type": "largestSpatialUnitChange",
@@ -374,7 +385,9 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"height": "440px"
 								},
 								"isPlaceholder": true,
-								"placeholderText": "Karte"
+								"placeholderText": "Karte",
+								"colorScheme": undefined,
+								"classify": true,
 							},
 							{
 								"type": "linechart",
@@ -468,7 +481,9 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"height": "440px"
 								},
 								"isPlaceholder": true,
-								"placeholderText": "Karte"
+								"placeholderText": "Karte",
+								"colorScheme": undefined,
+								"classify": false,
 							},
 							{
 								"type": "mapLegend",
@@ -506,7 +521,9 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"height": "440px"
 								},
 								"isPlaceholder": true,
-								"placeholderText": "Karte"
+								"placeholderText": "Karte",
+								"colorScheme": undefined,
+								"classify": false,
 							},
 							{
 								"type": "mapLegend",

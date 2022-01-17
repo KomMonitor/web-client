@@ -14,7 +14,7 @@
                             <a href="#indicators" aria-controls="indicators" role="tab" data-toggle="tab">Indikatoren</a>
                         </li>
                         <li id="reporting-add-indicator-tab2" role="presentation" class="tab-disabled">
-                            <a href="#area" aria-controls="area" role="tab" data-toggle="tab"  tabindex="-1" ng-click=updateAreas()>Bereich</a>
+                            <a href="#area" aria-controls="area" role="tab" data-toggle="tab"  tabindex="-1">Bereich</a>
                         </li>
                         <li id="reporting-add-indicator-tab3" role="presentation" class="tab-disabled">
                             <a href="#time" aria-controls="time" role="tab" data-toggle="tab" tabindex="-1" ng-click=onTab3Clicked()>Zeitpunkt</a>
@@ -72,7 +72,7 @@
                                         </select>
                                     </div>
                                     
-                                    <excalibur-dual-list ng-model='selectedAreas' options="duallistAreasOptions"></excalibur-dual-list>
+                                    <excalibur-dual-list id="reporting-indicator-add-areas-dual-list" ng-model='selectedAreas' options="dualListAreasOptions"></excalibur-dual-list>
                                 </div>
                                 <div role="tabpanel" class="tab-pane" id="area-method-2">
                                     <!-- TODO nach unten auslagern und über js laden? -->
@@ -80,7 +80,7 @@
 								        <span class="glyphicon glyphicon-refresh icon-spin"></span>
 							        </div>
 
-                                    <excalibur-dual-list ng-model='selectedSpatialUnitsMultiselect' options="duallistSpatialUnitsOptions"></excalibur-dual-list>
+                                    <excalibur-dual-list id="reporting-indicator-add-spatialUnits-dual-list" ng-model='selectedSpatialUnitsMultiselect' options="dualListSpatialUnitsOptions"></excalibur-dual-list>
                                 </div>
                             </div>
                             
@@ -90,7 +90,7 @@
 						    <div class="loading-overlay-reporting ng-hide" ng-show="loadingData">
 								<span class="glyphicon glyphicon-refresh icon-spin"></span>
 							</div>
-                            <excalibur-dual-list id="reporting-indicator-add-timestamps-dual-list" ng-model='selectedTimestamps' options="duallistTimestampsOptions"></excalibur-dual-list>
+                            <excalibur-dual-list id="reporting-indicator-add-timestamps-dual-list" ng-model='selectedTimestamps' options="dualListTimestampsOptions"></excalibur-dual-list>
                         </div>
                         <div role="tabpanel" class="tab-pane" id="elements">
 
