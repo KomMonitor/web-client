@@ -67,7 +67,8 @@ angular
           this.availableGeoresources_map = new Map();
           this.availableSpatialUnits_map = new Map();
           this.availableProcessScripts_map = new Map();
-          this.availableRoles_map = new Map();
+
+          this.accessControl_map = new Map();
           
           // Define translations, settings for dropdown-multiselect 
           this.multiselectDropdownTranslations = {	checkAll: 'Alle auswählen', uncheckAll: 'Nichts auswählen', dynamicButtonTextSuffix: 'Werte ausgewählt',
@@ -104,7 +105,7 @@ angular
 
             var isAllowed = false;
             
-            var roleMetadataForCurrentKeycloakLoginRoles = this.availableRoles.filter(role => this.currentKeycloakLoginRoles.includes(role.roleName));
+            var roleMetadataForCurrentKeycloakLoginRoles = this.roles.filter(role => this.currentKeycloakLoginRoles.includes(role.roleName));
             this.setCurrentKomMonitorRoles();                     
             
             var filteredApplicableUnits = this.selectedIndicator.applicableSpatialUnits.filter(function (applicableSpatialUnit) {
@@ -351,7 +352,8 @@ angular
 
           this.fileDatasets = [];
 
-          this.availableRoles = [];
+          this.roles = [];
+          this.organizationalUnits = [];
           this.availableUsers = [];
 					this.availableProcessScripts = [];
           this.isochroneLegend;
@@ -372,8 +374,6 @@ angular
           this.getBaseUrlToKomMonitorDataAPI_spatialResource = function(){
             return this.baseUrlToKomMonitorDataAPI + kommonitorCacheHelperService.spatialResourceGETUrlPath_forAuthentication;
           };
-
-          
 
 					this.setProcessScripts = function(scriptsArray){
 						this.availableProcessScripts = scriptsArray;
@@ -995,27 +995,8 @@ angular
           //   self.adminIsLoggedIn = false;
           // });
 
-          this.setKeycloakRoles = async function(){
-            await Auth.keycloak.loadUserProfile()
-    				.then(function (profile) {
-              if(Auth.keycloak.tokenParsed && Auth.keycloak.tokenParsed.realm_access && Auth.keycloak.tokenParsed.realm_access.roles){
-                self.currentKeycloakLoginRoles = Auth.keycloak.tokenParsed.realm_access.roles;
-              }
-              else{
-                self.currentKeycloakLoginRoles = [];
-              }
-              }).catch(function () {
-                  console.log('Failed to load user profile');
-            });
-          };
-
           this.fetchAllMetadata = async function(){
             console.log("fetching all metadata from management component");
-
-            if (Auth.keycloak.authenticated){
-
-              await this.setKeycloakRoles();
-            } 
 
             //TODO revise metadata fecthing for protected endpoints        
             var scriptsPromise = await this.fetchIndicatorScriptsMetadata();
@@ -1028,9 +1009,19 @@ angular
             var metadataPromises = [spatialUnitsPromise, georesourcesPromise, indicatorsPromise, topicsPromise, scriptsPromise];
 
             if (Auth.keycloak.authenticated){
-
-              var rolesPromise = await this.fetchRolesMetadata();
-              metadataPromises.push(rolesPromise);
+              await Auth.keycloak.loadUserProfile()
+              .then(function (profile) {
+                if(Auth.keycloak.tokenParsed && Auth.keycloak.tokenParsed.realm_access && Auth.keycloak.tokenParsed.realm_access.roles){
+                  self.currentKeycloakLoginRoles = Auth.keycloak.tokenParsed.realm_access.roles;
+                } else {
+                  self.currentKeycloakLoginRoles = [];
+                }
+                })
+              .catch(function () {
+                console.log('Failed to load user profile');
+              });
+              var promise = await this.fetchAccessControlMetadata();
+              metadataPromises.push(promise);
             }
 
             $q.all(metadataPromises).then(function successCallback(successArray) {
@@ -1619,24 +1610,23 @@ angular
 
           };
 
-          this.setRoles = function(rolesArray){
-            self.availableRoles = rolesArray;
-            this.availableRoles_map = new Map();
-            for (const roleMetadata of rolesArray) {
-              this.availableRoles_map.set(roleMetadata.roleId, roleMetadata);
+          this.setAccessControl = function(input){
+            self.accessControl = input;
+            this.accessControl_map = new Map();
+            for (const entry of input) {
+              this.accessControl_map.set(entry.organizationalUnitId, entry);
             }
           };
 
-          this.fetchRolesMetadata = async function(){          
-
-              self.setRoles(await kommonitorCacheHelperService.fetchRolesMetadata(self.currentKeycloakLoginRoles));
+          this.fetchAccessControlMetadata = async function(){
+            self.setAccessControl(await kommonitorCacheHelperService.fetchAccessControlMetadata());
           };
 
           this.replaceSingleRoleMetadata = function(targetRoleMetadata){
-            for (let index = 0; index < this.availableRoles.length; index++) {
-              let roleMetadata = this.availableRoles[index];
+            for (let index = 0; index < this.roles.length; index++) {
+              let roleMetadata = this.roles[index];
               if(roleMetadata.roleId == targetRoleMetadata.roleId){
-                this.availableRoles[index] = targetRoleMetadata;
+                this.roles[index] = targetRoleMetadata;
                 break;
               }
             }
@@ -1651,46 +1641,39 @@ angular
           };
 
           this.deleteSingleRoleMetadata = function(roleId){
-            for (let index = 0; index < this.availableRoles.length; index++) {
-              const roleMetadata = this.availableRoles[index];
+            for (let index = 0; index < this.roles.length; index++) {
+              const roleMetadata = this.roles[index];
               if(roleMetadata.roleId == roleId){
-                this.availableRoles.splice(index, 1);
+                this.roles.splice(index, 1);
                 break;
               }              
             }
             this.availableProcessScripts_map.delete(roleId);
           };
 
-          this.getRoleMetadataById = function(roleId){
-            return this.availableRoles_map.get(roleId);
+          this.getAccessControlById = function(id){
+            return this.accessControl_map.get(id);
           };
 
           this.fetchTopicsMetadata = async function(){
-            self.setTopics(await kommonitorCacheHelperService.fetchTopicsMetadata(self.currentKeycloakLoginRoles));
-
+            self.setTopics(await kommonitorCacheHelperService.fetchTopicsMetadata());
           };
 
           this.fetchSpatialUnitsMetadata = async function(){
-            self.setSpatialUnits(await kommonitorCacheHelperService.fetchSpatialUnitsMetadata(self.currentKeycloakLoginRoles));
+            self.setSpatialUnits(await kommonitorCacheHelperService.fetchSpatialUnitsMetadata());
           };
 
           this.fetchGeoresourcesMetadata = async function(){
-            self.setGeoresources(await kommonitorCacheHelperService.fetchGeoresourceMetadata(self.currentKeycloakLoginRoles));
+            self.setGeoresources(await kommonitorCacheHelperService.fetchGeoresourceMetadata());
           };
-
-          
 
           this.fetchIndicatorsMetadata = async function(){
-            self.setIndicators(await kommonitorCacheHelperService.fetchIndicatorsMetadata(self.currentKeycloakLoginRoles));
+            self.setIndicators(await kommonitorCacheHelperService.fetchIndicatorsMetadata());
           };
-
-          
 
           this.fetchIndicatorScriptsMetadata = async function(){
-            self.setProcessScripts(await kommonitorCacheHelperService.fetchProcessScriptsMetadata(self.currentKeycloakLoginRoles));
+            self.setProcessScripts(await kommonitorCacheHelperService.fetchProcessScriptsMetadata());
           };
-
-          
 
 					this.indicatorValueIsNoData = function(indicatorValue){
 						if(Number.isNaN(indicatorValue) || indicatorValue === null || indicatorValue === undefined){
@@ -1964,7 +1947,7 @@ angular
             if(self.currentKeycloakLoginRoles.includes(kommonitorKeycloakHelperService.adminRoleName)){
               return true;
             }            
-            var roleMetadataForCurrentKeycloakLoginRoles = self.availableRoles.filter(role => self.currentKeycloakLoginRoles.includes(role.roleName));            
+            var roleMetadataForCurrentKeycloakLoginRoles = self.roles.filter(role => self.currentKeycloakLoginRoles.includes(role.roleName));            
             
             var filteredApplicableUnits = indicatorMetadata.applicableSpatialUnits.filter(function (applicableSpatialUnit) {
               return applicableSpatialUnit.allowedRoles.length == 0 || applicableSpatialUnit.allowedRoles.some(allowedRoleId => roleMetadataForCurrentKeycloakLoginRoles.some(roleMetadata => roleMetadata.roleId === allowedRoleId) );                
@@ -2740,7 +2723,7 @@ angular
     };
     
     this.getRoleMetadataForRoleName = function(roleName){
-      for (const roleMetadata of this.availableRoles) {
+      for (const roleMetadata of this.roles) {
         if(roleMetadata.roleName === roleName){
           return roleMetadata;
         }
@@ -2748,7 +2731,7 @@ angular
     };
 
     this.getRoleMetadataForRoleId = function(roleId){
-      for (const roleMetadata of this.availableRoles) {
+      for (const roleMetadata of this.roles) {
         if(roleMetadata.roleId === roleId){
           return roleMetadata;
         }
@@ -2757,7 +2740,7 @@ angular
 
     this.getRoleMetadataForRoleIds = function(roleIdsArray){
       var rolesMetadata = [];
-      for (const roleMetadata of this.availableRoles) {
+      for (const roleMetadata of this.roles) {
         if(roleIdsArray.includes(roleMetadata.roleId)){
           rolesMetadata.push(roleMetadata);
         }

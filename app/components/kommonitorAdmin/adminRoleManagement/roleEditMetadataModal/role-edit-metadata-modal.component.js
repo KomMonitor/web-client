@@ -5,9 +5,10 @@ angular.module('roleEditMetadataModal').component('roleEditMetadataModal', {
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 		this.kommonitorKeycloakHelperServiceInstance = kommonitorKeycloakHelperService;
 
-		$scope.currentRoleDataset;
-		$scope.oldRoleName = undefined;
-		$scope.roleNameInvalid = false;
+		$scope.current = {};
+		$scope.old = {};
+		$scope.old.name = undefined;
+		$scope.nameInvalid = false;
 
 		$scope.keycloakAdminUserName = undefined;
 		$scope.keycloakAdminUserPassword = undefined;
@@ -17,20 +18,21 @@ angular.module('roleEditMetadataModal').component('roleEditMetadataModal', {
 		$scope.successMessagePart = undefined;
 		$scope.errorMessagePart = undefined;
 
-		$scope.$on("onEditRoleMetadata", function (event, roleDataset) {
+		$scope.$on("onEditRoleMetadata", function (event, organizationalUnit) {
 
-			$scope.currentRoleDataset = roleDataset;
-			$scope.oldRoleName = roleDataset.roleName;
+			$scope.current = organizationalUnit;
+			$scope.old.name = organizationalUnit.name;
 
 			$scope.resetRoleEditMetadataForm();
-
 		});
 
+		// Checks for duplicate names
+		// Disallowed to prevent confusion
 		$scope.checkRoleName = function(){
-			$scope.roleNameInvalid = false;
-			kommonitorDataExchangeService.availableRoles.forEach(function(role){
-				if (role.roleName === $scope.currentRoleDataset.roleName && role.roleId != $scope.currentRoleDataset.roleId){
-					$scope.roleNameInvalid = true;
+			$scope.nameInvalid = false;
+			kommonitorDataExchangeService.accessControl.forEach(function(ou){
+				if (ou.name === $scope.current.name && ou.organizationalUnitId != $scope.current.organizationalUnitId){
+					$scope.nameInvalid = true;
 					return;
 				}
 			});
@@ -45,8 +47,8 @@ angular.module('roleEditMetadataModal').component('roleEditMetadataModal', {
 			$scope.keycloakAdminUserName = undefined;
 			$scope.keycloakAdminUserPassword = undefined;
 
-			$("#roleEditMetadataSuccessAlert").hide();
-			$("#roleEditMetadataErrorAlert").hide();
+			$("#editMetadataSuccessAlert").hide();
+			$("#editMetadataErrorAlert").hide();
 
 			setTimeout(() => {
 				$scope.$digest();
@@ -57,36 +59,33 @@ angular.module('roleEditMetadataModal').component('roleEditMetadataModal', {
 
 			var putBody =
 			{
-				"roleName": $scope.currentRoleDataset.roleName
+				"name": $scope.current.name,
+				"description": $scope.current.description,
+				"contact": $scope.current.contact
 			};
 
-			// TODO Create and perform POST Request with loading screen
-
 			$scope.loadingData = true;
-
 			$http({
-				url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/roles/" + $scope.currentRoleDataset.roleId,
+				url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/organizationalUnits/" + $scope.current.organizationalUnitId,
 				method: "PUT",
 				data: putBody
-				// headers: {
-				//    'Content-Type': undefined
-				// }
 			}).then(async function successCallback(response) {
 				// this callback will be called asynchronously
 				// when the response is available
 
-				$scope.successMessagePart = $scope.currentRoleDataset.roleName;
+				$scope.successMessagePart = $scope.current.name;
 				
-				$("#roleEditMetadataSuccessAlert").show();
+				$("#editMetadataSuccessAlert").show();
 				$timeout(function(){
 				
 					$scope.loadingData = false;
 				});	
 
-				try {							
-					await kommonitorKeycloakHelperService.renameExistingRole($scope.oldRoleName, $scope.currentRoleDataset.roleName, $scope.keycloakAdminUserName, $scope.keycloakAdminUserPassword);
-					await kommonitorKeycloakHelperService.fetchAndSetKeycloakRoles($scope.keycloakAdminUserName, $scope.keycloakAdminUserPassword);	
-					$("#keycloakRoleEditSuccessAlert").show();
+				try {
+					console.log("TODO(specki): implement kc sync")							
+					//await kommonitorKeycloakHelperService.renameExistingRole($scope.oldRoleName, $scope.currentRoleDataset.roleName, $scope.keycloakAdminUserName, $scope.keycloakAdminUserPassword);
+					//await kommonitorKeycloakHelperService.fetchAndSetKeycloakRoles($scope.keycloakAdminUserName, $scope.keycloakAdminUserPassword);	
+					$("#keycloakRoleEditErrorAlert").show();
 				} catch (error) {
 					if (error.data) {
 						$scope.keycloakErrorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
@@ -96,13 +95,12 @@ angular.module('roleEditMetadataModal').component('roleEditMetadataModal', {
 					}
 
 					$timeout(function(){
-				
 						$("#keycloakRoleEditErrorAlert").show();
-					$scope.loadingData = false;
+						$scope.loadingData = false;
 					});
 				}
 
-				$rootScope.$broadcast("refreshRoleOverviewTable", "edit", $scope.currentRoleDataset.roleId);
+				$rootScope.$broadcast("refreshRoleOverviewTable", "edit", $scope.current.organizationalUnitId);
 
 			}, function errorCallback(error) {
 				if (error.data) {
@@ -112,18 +110,18 @@ angular.module('roleEditMetadataModal').component('roleEditMetadataModal', {
 					$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
 				}
 
-				$("#roleEditMetadataErrorAlert").show();
+				$("#editMetadataErrorAlert").show();
 				$scope.loadingData = false;
 			});
 		};
 
 
 		$scope.hideSuccessAlert = function () {
-			$("#roleEditMetadataSuccessAlert").hide();
+			$("#editMetadataSuccessAlert").hide();
 		};
 
 		$scope.hideErrorAlert = function () {
-			$("#roleEditMetadataErrorAlert").hide();
+			$("#editMetadataErrorAlert").hide();
 		};
 
 		$scope.hideKeycloakSuccessAlert = function () {

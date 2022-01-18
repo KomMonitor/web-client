@@ -12,7 +12,7 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span></button>
-				<h4 class="modal-title">Metadaten der Rolle <i><b>{{currentRoleDataset.roleName}}</b></i> editieren</h4>
+				<h4 class="modal-title">Metadaten der Organisationseinheit <i><b> {{old.name}} </b></i> editieren</h4>
 			</div>
 			<div class="modal-body">
 
@@ -39,62 +39,34 @@
 									<div class="col-md-5">
 										<label>Id der Rolle</label>
 										<input style="width:100%;" class="form-control" type="text"
-											placeholder="Rollen-Id" ng-model="currentRoleDataset.roleId"
+											placeholder="Id" ng-model="current.organizationalUnitId"
 											disabled></input>
 										<div class="help-block with-errors"></div>
 									</div>
 									<div class="col-md-5">
-										<label>Name der Rolle*</label>
+										<label>Name*</label>
 										<input style="width:100%;" class="form-control" type="text"
-											placeholder="Rollenname" ng-model="currentRoleDataset.roleName"
+											placeholder="Rollenname" ng-model="current.name"
 											ng-change="checkRoleName()" required></input>
 										<div class="help-block with-errors"></div>
 										<div class="help-block">Eindeutiger Name der Rolle. Der identische Rollenname
 											muss auch in Keycloak definiert werden.</div>
-										<div ng-if="roleNameInvalid" style="color: red;">
+										<div ng-if="nameInvalid" style="color: red;">
 											<p>Eingabe ung&uuml;ltig. Es existiert bereits eine andere Rolle mit
 												gleichem Namen.</p>
 										</div>
 									</div>
-								</div>
-
-								<br />
-								<hr>
-
-								<h4>Keycloak Admin Credentials</h4>
-								<p>Bei g&uuml;ltiger Eingabe von User Credentials eines Keycloak Administrators kann
-									KomMonitor die Rolle auch direkt in Keycloak updaten.
-									Bei fehlender Angabe wird nur die Rolle in der KomMonitor Datenbank &uuml;berschrieben. Ein
-									Keycloak-Administrator muss dann in Keycloak die gleichnamige Rolle analog anpassen.</p>
-								<div class="row vertical-align">
 									<div class="col-md-5">
-										<label>Keyloak-Administrator Username</label>
-
-										<div class="input-group">
-											<span class="input-group-addon"><i class="fa fa-user"></i></span>
-											<input style="width:100%;" class="form-control" type="text"
-												placeholder="Keycloak-Admin-Username"
-												ng-model="keycloakAdminUserName"></input>
-										</div>
-
-										<div class="help-block">User Name eines Keycloak Administrators, der im Keycloak
-											Master Realm Admin-Rechte besitzt.</div>
+										<label>Beschreibung*</label>
+										<input style="width:100%;" class="form-control" type="text"
+											placeholder="Abteilung 52" ng-model="current.description" required></input>
 									</div>
 									<div class="col-md-5">
-										<label>Keyloak-Administrator Password</label>
-										<div class="input-group">
-											<span class="input-group-addon"><i class="fa fa-lock"></i></span>
-											<input style="width:100%;" class="form-control" type="password"
-												placeholder="Keycloak-Admin-Password"
-												ng-model="keycloakAdminUserPassword"></input>
-										</div>
-
-										<div class="help-block">Passwort eines Keycloak Administrators, der im Keycloak
-											Master Realm Admin-Rechte besitzt.</div>
+										<label>Kontakt*</label>
+										<input style="width:100%;" class="form-control" type="text"
+											placeholder="sekretariat@kommonitor.de" ng-model="current.contact" required></input>
 									</div>
 								</div>
-
-								<hr>
 								<br />
 
 							</fieldset>
@@ -111,13 +83,13 @@
 				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
 
 				<button type="button" class="btn btn-success"
-					ng-disabled="!currentRoleDataset.roleName || !currentRoleDataset.roleId || roleNameInvalid"
+					ng-disabled="!current.name || !current.description || !current.contact || nameInvalid"
 					ng-click="editRoleMetadata()">Metadaten aktualisieren</button>
 				<button type="button" class="btn btn-danger"
 					ng-click="resetRoleEditMetadataForm()">Zur&uuml;cksetzen</button>
 			</div>
 
-			<div id="roleEditMetadataSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+			<div id="editMetadataSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
 				class="alert alert-success alert-dismissable">
 				<button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
 				<h4><i class="icon fa fa-check"></i>Rolle aktualisiert</h4>
@@ -125,7 +97,7 @@
 				&Uuml;bersichtstabelle eingetragen.
 			</div>
 
-			<div id="roleEditMetadataErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
+			<div id="editMetadataErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
 				class="alert alert-danger alert-dismissable">
 				<button type="button" class="close" ng-click="hideErrorAlert()" aria-hidden="true">&times;</button>
 				<h4><i class="icon fa fa-ban"></i>Aktualisierung gescheitert</h4>

@@ -8,8 +8,9 @@ angular.module('roleAddModal').component('roleAddModal', {
 			this.kommonitorKeycloakHelperServiceInstance = kommonitorKeycloakHelperService;
 
 			$scope.loadingData = false;
-			$scope.roleName = undefined;
-			$scope.roleNameInvalid = false;
+			$scope.newOrganizationalUnit = {};
+
+			$scope.nameInvalid = false;
 			$scope.errorMessagePart = undefined;
 			$scope.keycloakErrorMessagePart = undefined;
 
@@ -17,20 +18,17 @@ angular.module('roleAddModal').component('roleAddModal', {
 			$scope.keycloakAdminUserPassword = undefined;
 
 			$scope.checkRoleName = function(){
-				$scope.roleNameInvalid = false;
-				kommonitorDataExchangeService.availableRoles.forEach(function(role){
-					if (role.roleName === $scope.roleName){
-						$scope.roleNameInvalid = true;
+				$scope.nameInvalid = false;
+				kommonitorDataExchangeService.accessControl.forEach(function(ou){
+					if (ou.name === $scope.newOrganizationalUnit.name){
+						$scope.nameInvalid = true;
 						return;
 					}
 				});
 			};
 
 			$scope.resetRoleAddForm = function () {
-				$scope.roleName = undefined;
-
-				$scope.keycloakAdminUserName = undefined;
-				$scope.keycloakAdminUserPassword = undefined;
+				$scope.newOrganizationalUnit = {};
 
 				$scope.errorMessagePart = undefined;
 				$scope.keycloakErrorMessagePart = undefined;
@@ -48,13 +46,15 @@ angular.module('roleAddModal').component('roleAddModal', {
 				try {
 					var postBody =
 					{
-						"roleName": $scope.roleName
+						"name": $scope.newOrganizationalUnit.name,
+						"description": $scope.newOrganizationalUnit.description,
+						"contact": $scope.newOrganizationalUnit.contact,
 					};
 
 					$scope.loadingData = true;
 
 					$http({
-						url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/roles",
+						url: kommonitorDataExchangeService.baseUrlToKomMonitorDataAPI + "/organizationalUnits",
 						method: "POST",
 						data: postBody
 						// headers: {
@@ -67,9 +67,9 @@ angular.module('roleAddModal').component('roleAddModal', {
 						$("#roleAddSuccessAlert").show();
 
 						try {							
-							let roleResponse = await kommonitorKeycloakHelperService.postNewRole($scope.roleName, $scope.keycloakAdminUserName, $scope.keycloakAdminUserPassword);	
-							roleId = roleResponse.roleId;
-							await kommonitorKeycloakHelperService.fetchAndSetKeycloakRoles($scope.keycloakAdminUserName, $scope.keycloakAdminUserPassword);
+							//let roleResponse = await kommonitorKeycloakHelperService.postNewRole($scope.roleName, $scope.keycloakAdminUserName, $scope.keycloakAdminUserPassword);	
+							//roleId = roleResponse.roleId;
+							//await kommonitorKeycloakHelperService.fetchAndSetKeycloakRoles($scope.keycloakAdminUserName, $scope.keycloakAdminUserPassword);
 							$("#keycloakRoleAddSuccessAlert").show();
 							
 						} catch (error) {

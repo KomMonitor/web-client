@@ -32,7 +32,7 @@
 				<!-- /.box-header -->
 				<div class="box-body">
 
-					<p>KomMonitor nutzt die Open Source Software <b>Keycloak</b> zwecks Nutzer- und Rollenmanagement.
+					<p>KomMonitor nutzt die Open Source Software <b>Keycloak</b> zum Nutzer- und Rollenmanagement.
 					</p>
 					<h4>In der Konfiguration ist der Rollen-basierte Zugriffsschutz jedoch deaktiviert. Es muss zuerst
 						aktiviert und mit einer validen Keycloak-Instanz konfiguriert werden, bevor Rollen verwaltet
@@ -51,8 +51,8 @@
 				<!-- /.box-header -->
 				<div class="box-body">
 
-					<p>KomMonitor nutzt die Open Source Software <b>Keycloak</b> zwecks Nutzer- und Rollenmanagement.
-						Die Verwaltung der Nutzer und Rollen sowie deren Zuordnung kann direkt &uuml;ber die
+					<p>KomMonitor nutzt die Open Source Software <b>Keycloak</b> zum Nutzer- und Rollenmanagement.
+						Die Verwaltung der Nutzer sowie deren Zuordnung zu Rollen muss direkt &uuml;ber die
 						Administrations-Oberfl&auml;che der folgenden Keycloak Instanz erfolgen:</p>
 
 					<h4><a ng-href="{{$ctrl.kommonitorKeycloakHelperServiceInstance.targetUrlToKeycloakInstance}}"
@@ -60,6 +60,17 @@
 							rel="noopener noreferrer">{{$ctrl.kommonitorKeycloakHelperServiceInstance.targetUrlToKeycloakInstance}}</a>
 					</h4>
 
+					<p>
+						
+					</p>
+
+					<p>
+						Es gibt dabei zwei vordefinierte System-Organisationen:
+						kommonitor - Rolle aller angemeldeten Nutzer
+						public - anonyme Rolle
+					</p>
+
+				<!--
 					<p>Da die Absicherung der in der KomMonitor Datenbank gespeicherten Raumeinheiten, Indikatoren und
 						sonstiger Georessourcen durch Kommunikation zwischen Keycloak und KomMonitor sichergestellt
 						wird, m&uuml;ssen die <b><u><i>Rollen unter Verwendung des gleichen Namens</i></u></b> auch
@@ -76,6 +87,7 @@
 					<p><i>Wichtiger Hinweis: Die identische Bennenung einer Rolle innerhalb der KomMonitor Datenbank und
 							in Keycloak ist die Grundvoraussetzung zur Absicherung einzelner KomMonitor Ressourcen.</i>
 					</p>
+				-->
 
 					<br/>
 					<hr>

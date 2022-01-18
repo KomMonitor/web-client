@@ -129,7 +129,8 @@ angular.module('roleDeleteModal').component('roleDeleteModal', {
 					$("#rolesDeleteSuccessAlert").show();
 
 					// fetch mMetada again as roles were deleted
-					await kommonitorDataExchangeService.fetchRolesMetadata();
+					//TODO(specki)
+					// await kommonitorDataExchangeService.fetchRolesMetadata();
 					// refresh role overview table
 					$rootScope.$broadcast("refreshRoleOverviewTable", "delete", $scope.successfullyDeletedDatasets.map(dataset => dataset.roleId));
 

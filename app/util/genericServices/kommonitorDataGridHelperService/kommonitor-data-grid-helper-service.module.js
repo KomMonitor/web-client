@@ -15,7 +15,7 @@ angular
       this.dataGridOptions_georesources_loi;
       this.dataGridOptions_georesources_aoi;
       this.dataGridOptions_spatialUnits;
-      this.dataGridOptions_roles;
+      this.dataGridOptions_accessControl;
 
       function headerHeightGetter() {
         var columnHeaderTexts = [
@@ -48,7 +48,7 @@ angular
             html += 'disabled';
           }
 
-          html += '" type="button" data-toggle="modal" data-target="#modal-edit-indicator-spatial-unit-roles" title="Rollenbasierten Zugriffsschutz editieren"><i class="fas fa-user-lock"></i></button>';
+          html += '" type="button" data-toggle="modal" data-target="#modal-edit-indicator-spatial-unit-accessControl" title="Rollenbasierten Zugriffsschutz editieren"><i class="fas fa-user-lock"></i></button>';
         }
         html += '</div>';
 
@@ -75,10 +75,10 @@ angular
         return html;
       };
 
-      var displayEditButtons_roles = function (params) {
+      var displayEditButtons_accessControl = function (params) {
 
         let html = '<div class="btn-group btn-group-sm">';
-        html += '<button id="btn_role_editMetadata_' + params.data.roleId + '" class="btn btn-warning btn-sm roleEditMetadataBtn" type="button" data-toggle="modal" data-target="#modal-edit-role-metadata" title="Metadaten editieren"><i class="fas fa-pencil-alt"></i></button>';
+        html += '<button id="btn_role_editMetadata_' + params.data.organizationalUnitId + '" class="btn btn-warning btn-sm roleEditMetadataBtn" type="button" data-toggle="modal" data-target="#modal-edit-role-metadata" title="Metadaten editieren"><i class="fas fa-pencil-alt"></i></button>';
         html += '</div>';
 
         return html;
@@ -562,18 +562,18 @@ angular
         return spatialUnitsMetadataArray;
       };
 
-      this.getSelectedRolesMetadata = function(){
-        let rolesMetadataArray = [];
+      this.getSelectedAccessControlMetadata = function(){
+        let accessControlMetadataArray = [];
 
-        if (this.dataGridOptions_roles && this.dataGridOptions_roles.api){
-          let selectedNodes = this.dataGridOptions_roles.api.getSelectedNodes();
+        if (this.dataGridOptions_accessControl && this.dataGridOptions_accessControl.api){
+          let selectedNodes = this.dataGridOptions_accessControl.api.getSelectedNodes();
 
           for (const selectedNode of selectedNodes) {
-            rolesMetadataArray.push(selectedNode.data);
+            accessControlMetadataArray.push(selectedNode.data);
           }
         }
 
-        return rolesMetadataArray;
+        return accessControlMetadataArray;
       };
 
       this.getSelectedScriptsMetadata = function(){
@@ -713,7 +713,7 @@ angular
 
           let indicatorMetadata = kommonitorDataExchangeService.getIndicatorMetadataById(indicatorId);
 
-          $rootScope.$broadcast("onEditIndicatorSpatialUnitRoles", indicatorMetadata);
+          $rootScope.$broadcast("onEditIndicatorSpatialUnitaccessControl", indicatorMetadata);
         });
 
       };
@@ -1206,14 +1206,17 @@ angular
 
       // ROLE OVERVIEW TABLE
 
-      this.buildDataGridColumnConfig_roles = function(){
+      this.buildDataGridColumnConfig_accessControl = function(){
         const columnDefs = [
-          { headerName: 'Editierfunktionen', maxWidth: 300, checkboxSelection: true, headerCheckboxSelection: true, 
-          headerCheckboxSelectionFilteredOnly: true, filter: false, sortable: false, cellRenderer: 'displayEditButtons_roles' },
-          { headerName: 'Id', field: "roleId", minWidth: 400 },
-          { headerName: 'Name', field: "roleName", minWidth: 400 },         
+          { headerName: 'Editierfunktionen', maxWidth: 200, checkboxSelection: true, headerCheckboxSelection: true, 
+          headerCheckboxSelectionFilteredOnly: true, filter: false, sortable: false, cellRenderer: 'displayEditButtons_accessControl' },
+          //{ headerName: 'Id', field: "organizationalUnitId", minWidth: 400 },
+          { headerName: 'Name', field: "name", minWidth: 300 },
+          { headerName: 'Beschreibung', field: "description", minWidth: 400 },
+          { headerName: 'Kontakt', field: "contact", minWidth: 400 },
+          /*
           {
-            headerName: 'In Keycloak registriert', minWidth: 250,
+            headerName: 'In Keycloak registriert', minWidth: 50,
             cellRenderer: function (params) {
               if (params.data.registeredInKeyCloak){
                 return '<i class="fas fa-check"></i>';
@@ -1230,19 +1233,19 @@ angular
               return "false0falsch";
             }
           }
+          */
         ];
 
         return columnDefs;
       };
 
-      this.buildDataGridRowData_roles = function(dataArray){
-        
+      this.buildDataGridRowData_accessControl = function(dataArray){
         return dataArray;
       };
 
-      this.buildDataGridOptions_roles = function(rolesArray){
-          let columnDefs = this.buildDataGridColumnConfig_roles();
-          let rowData = this.buildDataGridRowData_roles(rolesArray);
+      this.buildDataGridOptions_accessControl = function(accessControlArray){
+          let columnDefs = this.buildDataGridColumnConfig_accessControl();
+          let rowData = this.buildDataGridRowData_accessControl(accessControlArray);
   
           let gridOptions = {
             defaultColDef: {
@@ -1275,7 +1278,7 @@ angular
               },
             },
             components: {
-              displayEditButtons_roles: displayEditButtons_roles
+              displayEditButtons_accessControl: displayEditButtons_accessControl
             },
             columnDefs: columnDefs,
             rowData: rowData,
@@ -1287,16 +1290,16 @@ angular
             paginationPageSize: 10,
             suppressColumnVirtualisation: true,          
             onFirstDataRendered: function () {
-              headerHeightSetter(self.dataGridOptions_roles);
+              headerHeightSetter(self.dataGridOptions_accessControl);
             },
             onColumnResized: function () {
-              headerHeightSetter(self.dataGridOptions_roles);
+              headerHeightSetter(self.dataGridOptions_accessControl);
             },        
             onRowDataChanged: function () {
-              self.registerClickHandler_roles(rolesArray);
+              self.registerClickHandler_accessControl(accessControlArray);
             },   
             onViewportChanged: function () {
-              self.registerClickHandler_roles(rolesArray);                   
+              self.registerClickHandler_accessControl(accessControlArray);                   
             },
   
           };
@@ -1304,30 +1307,30 @@ angular
           return gridOptions;        
       };
 
-      this.registerClickHandler_roles = function (roleMetadataArray) {
+      this.registerClickHandler_accessControl = function (roleMetadataArray) {
 
         $(".roleEditMetadataBtn").on("click", function () {
-          let roleId = this.id.split("_")[3];
+          let id = this.id.split("_")[3];
 
-          let roleMetadata = kommonitorDataExchangeService.getRoleMetadataById(roleId);
+          let roleMetadata = kommonitorDataExchangeService.getAccessControlById(id);
 
           $rootScope.$broadcast("onEditRoleMetadata", roleMetadata);
         });
       };  
 
-      this.buildDataGrid_roles = function (rolesArray) {
+      this.buildDataGrid_accessControl = function (accessControlArray) {
         
-        if (this.dataGridOptions_roles && this.dataGridOptions_roles.api) {
+        if (this.dataGridOptions_accessControl && this.dataGridOptions_accessControl.api) {
 
-          this.saveGridStore(this.dataGridOptions_roles);
-          let newRowData = this.buildDataGridRowData_roles(rolesArray);
-          this.dataGridOptions_roles.api.setRowData(newRowData);
-          this.restoreGridStore(this.dataGridOptions_roles);
+          this.saveGridStore(this.dataGridOptions_accessControl);
+          let newRowData = this.buildDataGridRowData_accessControl(accessControlArray);
+          this.dataGridOptions_accessControl.api.setRowData(newRowData);
+          this.restoreGridStore(this.dataGridOptions_accessControl);
         }
         else {
-          this.dataGridOptions_roles = this.buildDataGridOptions_roles(rolesArray);
+          this.dataGridOptions_accessControl = this.buildDataGridOptions_accessControl(accessControlArray);
           let gridDiv = document.querySelector('#roleOverviewTable');
-          new agGrid.Grid(gridDiv, this.dataGridOptions_roles);
+          new agGrid.Grid(gridDiv, this.dataGridOptions_accessControl);
         }
       };
 
