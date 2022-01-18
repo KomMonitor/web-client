@@ -1,7 +1,7 @@
 angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 	templateUrl : "components/kommonitorUserInterface/kommonitorControls/reportingModal/reportingIndicatorAdd/reporting-indicator-add.template.html",
 	controller : ['$scope', '$http', '$timeout', '__env', 'kommonitorDataExchangeService', 'kommonitorDiagramHelperService', 'kommonitorVisualStyleHelperService',
-    function ReportingIndicatorAddController($scope, $http, $timeout, __env, kommonitorDataExchangeService, kommonitorDiagramHelperService, kommonitorVisualStyleHelperService) {
+	function ReportingIndicatorAddController($scope, $http, $timeout, __env, kommonitorDataExchangeService, kommonitorDiagramHelperService, kommonitorVisualStyleHelperService) {
 
 		$scope.template = undefined;
 		$scope.untouchedTemplate = undefined;
@@ -630,8 +630,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					}
 				}
 			}
-
-			
 		}
 
 		$scope.onTab3Clicked = function() {
@@ -684,18 +682,53 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			options.visualMap.axisLabel = { "fontSize": 10 };
 			options.toolbox.show = false;
 			options.visualMap.left = "right"
-			if(!options.geo) {
-				options.geo = {};
-			}
-			options.geo.roam = false; //TODO do we want this?
-			if(pageElement.classify) {
-				//TODO
-			}
-			// change style for individual features
+			let mapOptions = options.series[0];
+			mapOptions.roam = false; // for now. Do we want this?
 
-			if(! options.regions) {
-				options.regions = [];
+			if(pageElement.classify === false) {
+				// disable styling through visual map for all areas
+				mapOptions.data.forEach( el => {
+					el.itemStyle =  el.itemStyle ? el.itemStyle : {};
+					el.emphasis = el.emphasis ? el.emphasis : {};
+					el.emphasis.itemStyle = el.emphasis.itemStyle ? el.emphasis.itemStyle : {};
+					el.label = el.label ? el.label : {};
 
+					el.visualMap = false;
+					// style areas randomly for now (testing)
+					if( Math.random() < 0.5 ) {
+						el.itemStyle.areaColor = "rgb(255, 0, 0, 0.6)";
+						el.emphasis.itemStyle.areaColor = "rgb(255, 0, 0, 0.6)";
+						el.label.formatter = '{b}\n{c}';
+						el.label.show = true;
+					} else {
+						el.itemStyle.areaColor = "rgba(255, 255, 255, 0)" // full transparent
+						el.emphasis.itemStyle.areaColor = "rgba(255, 255, 255, 0)"; // full transparent
+						el.label.show = false;
+					}
+				});
+
+				options.visualMap.show = false;
+			}
+			
+			if(pageElement.classify === true) {
+				mapOptions.data.forEach( el => {
+					el.itemStyle =  el.itemStyle ? el.itemStyle : {};
+					el.emphasis = el.emphasis ? el.emphasis : {};
+					el.emphasis.itemStyle = el.emphasis.itemStyle ? el.emphasis.itemStyle : {};
+					el.label = el.label ? el.label : {};
+
+					// style areas randomly for now (testing)
+					if( Math.random() < 0.5 ) {
+						el.visualMap = true;
+						el.label.formatter = '{b}\n{c}';
+						el.label.show = true;
+					} else {
+						el.visualMap = false;
+						el.itemStyle.areaColor = "rgba(255, 255, 255, 0)" // full transparent
+						el.emphasis.itemStyle.areaColor = "rgba(255, 255, 255, 0)"; // full transparent
+						el.label.show = false;
+					}
+				});
 			}
 
 			map.setOption(options);
