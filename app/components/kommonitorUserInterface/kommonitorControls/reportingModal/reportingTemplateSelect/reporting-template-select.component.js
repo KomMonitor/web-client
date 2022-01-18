@@ -148,7 +148,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 					// one page for each selected area
 					{
 						"orientation": "landscape",
-						"area": "spezieller Bereich",
+						"area": "", // the area shown on this page or an empty string if it is a placeholder page
 						"pageElements": [
 
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("indicatorTitle-landscape"),
@@ -366,7 +366,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 					// one page for each selected area
 					{
 						"orientation": "landscape",
-						"area": "spezieller Bereich",
+						"area": "",
 						"pageElements": [
 
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("indicatorTitle-landscape"),
@@ -501,7 +501,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 					// one page for each selected area
 					{
 						"orientation": "landscape",
-						"area": "spezieller Bereich",
+						"area": "",
 						"pageElements": [
 
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("indicatorTitle-landscape"),

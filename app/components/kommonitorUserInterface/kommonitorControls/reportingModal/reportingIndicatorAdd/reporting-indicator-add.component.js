@@ -17,7 +17,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		$scope.selectedSpatialUnitsMultiselect = undefined
 
 		$scope.selectedTimestamps = [];
-
+		$scope.indexOfFirstAreaSpecificPage = undefined;
 		$scope.pageContent = {
 			map: true,
 			boxplot: true,
@@ -28,15 +28,85 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		$scope.loadingData = false;
 		
 		// internal array changes do not work with ng-change
-		$scope.$watchCollection('selectedAreas', function() {
-			let tab3 = document.querySelector("#reporting-add-indicator-tab3");
-			// enable tab only if at least one area is selected after change
-			if($scope.selectedAreas.length) {
-				$scope.enableTab(tab3);
-			} else {
-				// if the last area was deselected
-				$scope.disableTab(tab3);
+		$scope.$watchCollection('selectedAreas', function(newVal, oldVal) {
+			if( typeof($scope.template) === "undefined") return;
+
+			// to make things easier we remove all area-specific pages and recreate them using newVal
+			// this approach is not optimized for performance and might have to change in the future
+
+			// remove all area-specific pages
+			$scope.template.pages = $scope.template.pages.filter( page => {
+				return !page.hasOwnProperty("area")
+			});
+
+			// now recreate area pages
+			let pagesToInsertPerTimestamp = []
+			for(let area of newVal) {
+				// get page to insert from untouched template
+				let pageToInsert = JSON.parse($scope.untouchedTemplateAsString).pages[ $scope.indexOfFirstAreaSpecificPage ];
+				
+
+				// setup page before inserting
+				pageToInsert.area = area.name;
+				for(let pageElement of pageToInsert.pageElements) {
+					if(pageElement.type === "indicatorTitle-landscape") {
+						pageElement.text = $scope.selectedIndicator.indicatorName + ", " + area.name;
+						pageElement.isPlaceholder = false;
+					}
+
+					// ... more elements
+
+					// timestamp has to be be set later
+				}
+
+				pagesToInsertPerTimestamp.push(pageToInsert);
 			}
+
+			// sort alphabetically by title (contains area)
+			pagesToInsertPerTimestamp.sort( (a, b) => {
+				titleA = a.pageElements.find( el => el.type === "indicatorTitle-landscape" )
+				titleB = b.pageElements.find( el => el.type === "indicatorTitle-landscape" )
+				textA = titleA.text.toLowerCase();
+				textB = titleB.text.toLowerCase();
+				return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+			})
+
+			// insert area-specific pages for each timestamp
+			// right now the area-specific part is missing and we have to figure out where it was.
+			// get pages per timestamp -> insert new ones starting at indexOfFirstAreaSpecificPage -> replace per timestamp in $scope.template.pages
+			if($scope.selectedTimestamps.length) {
+				let idx = 0
+				for(let timestamp of $scope.selectedTimestamps) {
+
+					let pagesForTimestamp = $scope.template.pages.filter( page => {
+						let dateEl = page.pageElements.find( el => {
+							return el.type === "dataTimestamp-landscape"
+						});
+						
+						return dateEl.text === timestamp.name
+					});
+
+					// now that we know the timestamp we can set it before inserting
+					for(let page of pagesToInsertPerTimestamp) {
+						let dateEl = page.pageElements.find( el => {
+							return el.type === "dataTimestamp-landscape"
+						});
+
+						dateEl.text = timestamp.name;
+						dateEl.isPlaceholder = false;
+					}
+
+					let numberOfPagesToReplace = pagesForTimestamp.length;
+					pagesForTimestamp.splice($scope.indexOfFirstAreaSpecificPage, 0, ...pagesToInsertPerTimestamp)
+					$scope.template.pages.splice(idx, numberOfPagesToReplace, ...pagesForTimestamp)
+					idx += pagesForTimestamp.length;
+				}
+			} else {
+				// no timestamp selected, which makes inserting easier
+				$scope.template.pages.splice($scope.indexOfFirstAreaSpecificPage, 0, ...pagesToInsertPerTimestamp)
+			}
+			
+
 		});
 
 		// internal array changes do not work with ng-change
@@ -44,7 +114,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			
 			let tab4 = document.querySelector("#reporting-add-indicator-tab4");
 
-			// get difference between old and new value (the timestamp selected / deselected)
+			// get difference between old and new value (the timestamps selected / deselected)
 			let difference = oldVal
 				.filter(x => !newVal.includes(x))
 				.concat(newVal.filter(x => !oldVal.includes(x)));
@@ -63,13 +133,23 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 							}
 						}
 					}
-				} 
+				}
 				
 				if(newVal.length > 1) {
 					for(let timestampToInsert of difference) {
 
 						// setup pages to insert first
 						let pagesToInsert = JSON.parse($scope.untouchedTemplateAsString).pages;
+						// insert additional page for each selected area, replace the placeholder page
+						let areaSpecificPages = [];
+						// copy placeholder page for each selected area
+						for(let area of $scope.selectedAreas) {
+							let page = JSON.parse($scope.untouchedTemplateAsString).pages[ $scope.indexOfFirstAreaSpecificPage ];
+							areaSpecificPages.push(page);
+						}
+
+						pagesToInsert.splice($scope.indexOfFirstAreaSpecificPage, 1, ...areaSpecificPages)
+
 						// setup pages before inserting them
 						for(let pToInsert of pagesToInsert) {
 							for(let pageElement of pToInsert.pageElements) {
@@ -83,6 +163,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 									pageElement.text = timestampToInsert.name;
 									pageElement.isPlaceholder = false;
 								}
+
+								// TODO more elements
 								
 							}
 						}
@@ -106,6 +188,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 										// insert pages before pages with that timestamp
 										// i+1 because we want to insert after the page that has the older timestamp
 										$scope.template.pages.splice(i+1, 0, ...pagesToInsert);
+
 										pagesInserted = true;
 									}
 								}
@@ -135,8 +218,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 						}
 					}
 				}
-				
-
 			}
 
 			// if deselected
@@ -181,7 +262,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 							return timestampEl.text != timestampToRemove.name;
 						});
 					}
-					
 				}
 			}
 
@@ -197,6 +277,11 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			$scope.untouchedTemplateAsString = JSON.stringify(data)
 			$scope.untouchedTemplate = JSON.parse($scope.untouchedTemplateAsString)
 			$scope.template = data;
+
+			if($scope.template.name === "A4-landscape-timestamp")
+				$scope.indexOfFirstAreaSpecificPage = 3;
+			if($scope.template.name === "A4-landscape-timeseries")
+				$scope.indexOfFirstAreaSpecificPage = 3;
 
 			let tabPanes = document.querySelectorAll("#reporting-add-indicator-tab-content > .tab-pane")
 
@@ -323,7 +408,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 		$scope.updateSpatialUnitsMultiSelect = async function() {
 			let indicator = $scope.selectedIndicator;
-			console.log(indicator)
+
 			// convert to required format, change this once format is updated
 			let spatialUnits = indicator.applicableSpatialUnits.map( el => {
 				return {
@@ -418,10 +503,14 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 		
 		$scope.onIndicatorSelected = async function(indicator) {
+			$scope.selectedIndicator = undefined;
+			$scope.selectedTimestamps = [];
+			$scope.selectedAreas = [];
 			// set indicator manually.
 			// if we use ng-model it gets converted to string instead of an object
 			$scope.selectedIndicator = indicator;
-			console.log($scope.selectedIndicator);
+			
+		
 			// get a new template (in case another indicator was selected previously)
 			let temp = JSON.parse($scope.untouchedTemplateAsString);
 			$scope.template = temp;
@@ -430,14 +519,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			if(typeof($scope.selectedSpatialUnit === 'undefined')) {
 				$scope.selectedSpatialUnit = $scope.selectedIndicator.applicableSpatialUnits[0];
 			}
-
-			// update areas and select all areas
-			await $scope.updateAreas();
-			// select all areas by default
-			let allAreas = $scope.availableFeaturesBySpatialUnit[$scope.selectedSpatialUnit.spatialUnitName];
-			$scope.updateDualList($scope.dualListAreasOptions, allAreas, allAreas);
-			
-			await $scope.updateSpatialUnitsMultiSelect();
 
 			// select most recent timestamp
 			// get manually because it takes a  moment until $scope.selectedTimestamps is set by the listener
@@ -457,11 +538,22 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			let tab4 = document.querySelector("#reporting-add-indicator-tab4");
 			$scope.disableTab(tab4);
 
+			// update areas and select all areas
+			await $scope.updateAreas();
+			// select all areas by default
+			let allAreas = $scope.availableFeaturesBySpatialUnit[$scope.selectedSpatialUnit.spatialUnitName];
+			$scope.updateDualList($scope.dualListAreasOptions, allAreas, allAreas);
+			
+			await $scope.updateSpatialUnitsMultiSelect();
+
+			let tab2 = document.querySelector("#reporting-add-indicator-tab2");
+			$scope.enableTab(tab2);
+			let tab3 = document.querySelector("#reporting-add-indicator-tab3");
+			$scope.enableTab(tab3);
 			
 			// update indicator name and timestamp in preview
 			for(let page of $scope.template.pages) {
 				for(let el of page.pageElements) {
-					console.log(indicator);
 					if(el.type === "indicatorTitle-landscape") {
 						el.text = indicator.indicatorName + " [" + indicator.unit + "]";
 						el.isPlaceholder = false;
@@ -473,11 +565,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					}
 				}
 			}
-			
-
-			let tab2 = document.querySelector("#reporting-add-indicator-tab2");
-			$scope.enableTab(tab2);
-
+	
 			// update preview area
 			// update page elements
 			// set settings classifyUsingWholeTimeseries and useOutlierDetectionOnIndicator to false to have consistent reporting setup
@@ -662,7 +750,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				return feature.properties["DATE_" + timestamp];
 			})
 			let sum = data.reduce( (prev, current) => prev + current)
-			console.log(sum);
 			let avg = sum / indicator.geoJSON.features.length;
 			avg = Math.round(avg * 100) / 100; // 2 decimal places
 			return avg;
