@@ -83,16 +83,16 @@ angular
             styleActive: true
           };
 
-          this.setCurrentKomMonitorRoles = function(){
-            var roleMetadataForCurrentKeycloakLoginRoles = this.availableRoles.filter(role => this.currentKeycloakLoginRoles.includes(role.roleName)); 
-
-            var tmpCurrentKomMonitorRoles = [];
-
-            for (const roleMetadata of roleMetadataForCurrentKeycloakLoginRoles) {              
-              tmpCurrentKomMonitorRoles.push(roleMetadata.roleName);
-            }
-            this.currentKomMonitorLoginRoleNames = tmpCurrentKomMonitorRoles;
-          };
+          // Filter out roles unrelated to kommonitor
+          this.setCurrentKomMonitorLoginRoleNames = function() {
+            var possibleRoles = ["manage-realm"]
+            this.accessControl.forEach(organizationalUnit => {
+              organizationalUnit.roles.forEach(role => {
+                possibleRoles.push(organizationalUnit.name + "-" + role.permissionLevel)
+              });
+            });
+            this.currentKomMonitorLoginRoleNames = this.currentKeycloakLoginRoles.filter(role => possibleRoles.includes(role));
+          }
 
           this.isAllowedSpatialUnitForCurrentIndicator = function(spatialUnitMetadata){
             if(! this.selectedIndicator){
@@ -102,11 +102,6 @@ angular
             if(! spatialUnitMetadata || ! spatialUnitMetadata.spatialUnitLevel){
               return false;
             }
-
-            var isAllowed = false;
-            
-            var roleMetadataForCurrentKeycloakLoginRoles = this.roles.filter(role => this.currentKeycloakLoginRoles.includes(role.roleName));
-            this.setCurrentKomMonitorRoles();                     
             
             var filteredApplicableUnits = this.selectedIndicator.applicableSpatialUnits.filter(function (applicableSpatialUnit) {
               if (applicableSpatialUnit.spatialUnitName ===  spatialUnitMetadata.spatialUnitLevel){
@@ -1013,6 +1008,10 @@ angular
               .then(function (profile) {
                 if(Auth.keycloak.tokenParsed && Auth.keycloak.tokenParsed.realm_access && Auth.keycloak.tokenParsed.realm_access.roles){
                   self.currentKeycloakLoginRoles = Auth.keycloak.tokenParsed.realm_access.roles;
+                  if (Auth.keycloak.tokenParsed.resource_access["realm-management"]) {
+                    self.isRealmAdmin = true;
+                    self.currentKeycloakLoginRoles = self.currentKeycloakLoginRoles.concat(Auth.keycloak.tokenParsed.resource_access["realm-management"].roles)
+                  }
                 } else {
                   self.currentKeycloakLoginRoles = [];
                 }
@@ -1620,35 +1619,36 @@ angular
 
           this.fetchAccessControlMetadata = async function(){
             self.setAccessControl(await kommonitorCacheHelperService.fetchAccessControlMetadata());
+            self.setCurrentKomMonitorLoginRoleNames();
           };
 
-          this.replaceSingleRoleMetadata = function(targetRoleMetadata){
-            for (let index = 0; index < this.roles.length; index++) {
-              let roleMetadata = this.roles[index];
-              if(roleMetadata.roleId == targetRoleMetadata.roleId){
-                this.roles[index] = targetRoleMetadata;
+          this.replaceSingleAccessControlMetadata = function(targetRoleMetadata){
+            for (let index = 0; index < this.accessControl.length; index++) {
+              let oldMetadata = this.accessControl[index];
+              if(oldMetadata.organizationalUnitId == targetRoleMetadata.organizationalUnitId){
+                this.accessControl[index] = targetRoleMetadata;
                 break;
               }
             }
-            this.availableProcessScripts_map.set(targetRoleMetadata.roleId, targetRoleMetadata);
+            this.accessControl_map.set(targetRoleMetadata.organizationalUnitId, targetRoleMetadata);
           };
 
-          this.addSingleRoleMetadata = function(roleMetadata){
-            let tmpArray = [roleMetadata];
+          this.addSingleAccessControlMetadata = function(metadata){
+            let tmpArray = [metadata];
             Array.prototype.push.apply(tmpArray, this.availableRoles);
             this.availableRoles =  tmpArray;
-            this.availableProcessScripts_map.set(roleMetadata.roleId, roleMetadata);
+            this.accessControl_map.set(metadata.organizationalUnitId, metadata);
           };
 
-          this.deleteSingleRoleMetadata = function(roleId){
-            for (let index = 0; index < this.roles.length; index++) {
-              const roleMetadata = this.roles[index];
-              if(roleMetadata.roleId == roleId){
+          this.deleteSingleAccessControlMetadata = function(id){
+            for (let index = 0; index < this.accessControl.length; index++) {
+              const oldMetadata = this.accessControl[index];
+              if(oldMetadata.organizationalUnitId == id){
                 this.roles.splice(index, 1);
                 break;
               }              
             }
-            this.availableProcessScripts_map.delete(roleId);
+            this.accessControl_map.delete(id);
           };
 
           this.getAccessControlById = function(id){

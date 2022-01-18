@@ -107,8 +107,6 @@ angular
         let lastModTimestamp_fromCache_string = localStorage.getItem(timestampKey);
 
         if (lastModTimestamp_fromCache_string) {
-          console.log(timestampKey)
-          console.log(lastModTimestamp_fromCache_string)
           let lastModTimestamp_fromCache = JSON.parse(lastModTimestamp_fromCache_string);
 
           if (lastModTimestamp_fromCache) {

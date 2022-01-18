@@ -17,10 +17,10 @@ angular.module('roleAddModal').component('roleAddModal', {
 			$scope.keycloakAdminUserName = undefined;
 			$scope.keycloakAdminUserPassword = undefined;
 
-			$scope.checkRoleName = function(){
+			$scope.checkRoleName = function () {
 				$scope.nameInvalid = false;
-				kommonitorDataExchangeService.accessControl.forEach(function(ou){
-					if (ou.name === $scope.newOrganizationalUnit.name){
+				kommonitorDataExchangeService.accessControl.forEach(function (ou) {
+					if (ou.name === $scope.newOrganizationalUnit.name) {
 						$scope.nameInvalid = true;
 						return;
 					}
@@ -65,36 +65,44 @@ angular.module('roleAddModal').component('roleAddModal', {
 						// when the response is available
 
 						$("#roleAddSuccessAlert").show();
+						try {
+							// The fetch API does not expose the Location Header for XSS protection
+							// So we refetch all metadata
+							await kommonitorDataExchangeService.fetchAccessControlMetadata();
+							kommonitorDataExchangeService.accessControl.forEach(function (entry) {
+								if (entry.name === $scope.newOrganizationalUnit.name) {
+									$scope.newOrganizationalUnit = entry
+								}
+							});
 
-						try {							
-							//let roleResponse = await kommonitorKeycloakHelperService.postNewRole($scope.roleName, $scope.keycloakAdminUserName, $scope.keycloakAdminUserPassword);	
-							//roleId = roleResponse.roleId;
-							//await kommonitorKeycloakHelperService.fetchAndSetKeycloakRoles($scope.keycloakAdminUserName, $scope.keycloakAdminUserPassword);
+							for (role of $scope.newOrganizationalUnit.roles) {
+								rolename = $scope.newOrganizationalUnit.name + "-" + role.roleId;
+								await kommonitorKeycloakHelperService.postNewRole(rolename);
+							}
+							await kommonitorKeycloakHelperService.fetchAndSetKeycloakRoles();
 							$("#keycloakRoleAddSuccessAlert").show();
-							
 						} catch (error) {
 							if (error.data) {
 								$scope.keycloakErrorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
 							}
 							else {
 								$scope.keycloakErrorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
-							}		
+							}
 
-							$timeout(function(){
-				
+							$timeout(function () {
+
 								$("#keycloakRoleAddErrorAlert").show();
 								$scope.loadingData = false;
 							});
 						}
-						
-						$rootScope.$broadcast("refreshRoleOverviewTable", "add", roleId);
-						$timeout(function(){
-				
+
+						$rootScope.$broadcast("refreshAccessControlTable", "add", $scope.newOrganizationalUnit.organizationalUnitId);
+						$timeout(function () {
 							$scope.loadingData = false;
-						});	
+						});
 
 					}, function errorCallback(error) {
-						
+
 					});
 				} catch (error) {
 					if (error.data) {
@@ -107,8 +115,6 @@ angular.module('roleAddModal').component('roleAddModal', {
 					$("#roleAddErrorAlert").show();
 					$scope.loadingData = false;
 				}
-
-				
 			};
 
 			$scope.hideSuccessAlert = function () {
@@ -123,7 +129,7 @@ angular.module('roleAddModal').component('roleAddModal', {
 				$("#roleAddErrorAlert").hide();
 			};
 
-			$scope.hideKeycloakErrorAlert = function(){
+			$scope.hideKeycloakErrorAlert = function () {
 				$("#keycloakRoleAddErrorAlert").hide();
 			};
 

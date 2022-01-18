@@ -1206,47 +1206,45 @@ angular
 
       // ROLE OVERVIEW TABLE
 
-      this.buildDataGridColumnConfig_accessControl = function(){
-        const columnDefs = [
-          { headerName: 'Editierfunktionen', maxWidth: 200, checkboxSelection: true, headerCheckboxSelection: true, 
-          headerCheckboxSelectionFilteredOnly: true, filter: false, sortable: false, cellRenderer: 'displayEditButtons_accessControl' },
+      this.buildDataGridColumnConfig_accessControl = function(isRealmAdmin){
+        columnDefs = []
+        // Only show edit column if user is Realm Admin
+        if (isRealmAdmin) {
+          columnDefs.push({ headerName: 'Editierfunktionen', maxWidth: 200, checkboxSelection: true, headerCheckboxSelection: true, 
+          headerCheckboxSelectionFilteredOnly: true, filter: false, sortable: false, cellRenderer: 'displayEditButtons_accessControl' })
+        }
+
+        return columnDefs.concat([
           //{ headerName: 'Id', field: "organizationalUnitId", minWidth: 400 },
-          { headerName: 'Name', field: "name", minWidth: 300 },
+          { headerName: 'Organisationseinheit', field: "name", minWidth: 300 },
+          { headerName: 'Rollen', field: "roleString", minWidth: 300 },
           { headerName: 'Beschreibung', field: "description", minWidth: 400 },
           { headerName: 'Kontakt', field: "contact", minWidth: 400 },
-          /*
-          {
-            headerName: 'In Keycloak registriert', minWidth: 50,
-            cellRenderer: function (params) {
-              if (params.data.registeredInKeyCloak){
-                return '<i class="fas fa-check"></i>';
-              }
-              else{
-                return '<i class="fas fa-times"></i>';
-              }
-            },
-            filter: 'agTextColumnFilter', 
-            filterValueGetter: (params) => {
-              if (params.data.registeredInKeyCloak){
-                return "true1wahr";
-              }
-              return "false0falsch";
-            }
-          }
-          */
-        ];
-
-        return columnDefs;
+        ]);
       };
 
       this.buildDataGridRowData_accessControl = function(dataArray){
-        return dataArray;
+        data = JSON.parse(JSON.stringify(dataArray))
+        for (elem of data) {
+          elem.roleString = ""
+          for (role of elem.roles) {
+            elem.roleString += role.permissionLevel + ", "
+          }
+          elem.roleString = elem.roleString.substring(0, elem.roleString.length - 2)
+        }
+        return data;
       };
 
       this.buildDataGridOptions_accessControl = function(accessControlArray){
-          let columnDefs = this.buildDataGridColumnConfig_accessControl();
+          let columnDefs = this.buildDataGridColumnConfig_accessControl(kommonitorDataExchangeService.isRealmAdmin);
           let rowData = this.buildDataGridRowData_accessControl(accessControlArray);
   
+          if (kommonitorDataExchangeService.isRealmAdmin) {
+            components = {displayEditButtons_accessControl: displayEditButtons_accessControl}
+          } else {
+            components = {}
+          }
+
           let gridOptions = {
             defaultColDef: {
               editable: false,
@@ -1277,9 +1275,7 @@ angular
                   '</div>',
               },
             },
-            components: {
-              displayEditButtons_accessControl: displayEditButtons_accessControl
-            },
+            components: components,
             columnDefs: columnDefs,
             rowData: rowData,
             suppressRowClickSelection: true,

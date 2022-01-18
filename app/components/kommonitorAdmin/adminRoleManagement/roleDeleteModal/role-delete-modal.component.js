@@ -132,7 +132,7 @@ angular.module('roleDeleteModal').component('roleDeleteModal', {
 					//TODO(specki)
 					// await kommonitorDataExchangeService.fetchRolesMetadata();
 					// refresh role overview table
-					$rootScope.$broadcast("refreshRoleOverviewTable", "delete", $scope.successfullyDeletedDatasets.map(dataset => dataset.roleId));
+					$rootScope.$broadcast("refreshAccessControlTable", "delete", $scope.successfullyDeletedDatasets.map(dataset => dataset.roleId));
 
 					// refresh all admin dashboard diagrams due to modified metadata
 					$rootScope.$broadcast("refreshAdminDashboardDiagrams");
@@ -149,7 +149,7 @@ angular.module('roleDeleteModal').component('roleDeleteModal', {
 				// 	$("#georesourcesDeleteSuccessAlert").show();
 				// }
 
-				$rootScope.$broadcast("refreshRoleOverviewTable");
+				$rootScope.$broadcast("refreshAccessControlTable");
 				$scope.loadingData = false;
 			});
 

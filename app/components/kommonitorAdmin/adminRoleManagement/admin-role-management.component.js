@@ -29,37 +29,9 @@ angular.module('adminRoleManagement').component('adminRoleManagement', {
 			$scope.loadingData = true;
 			$scope.accessControl = JSON.parse(JSON.stringify(kommonitorDataExchangeService.accessControl));
 			
-			//TODO: reimplement keycloak sync
-			// initialize properties
-			//$scope.availableRoleDatasets.forEach(function (dataset) {
-			//	dataset.registeredInKeyCloak = kommonitorKeycloakHelperService.isRoleInKeycloak(dataset.roleName);
-			//});
-
 			kommonitorDataGridHelperService.buildDataGrid_accessControl($scope.accessControl);
 
 			$scope.loadingData = false;
-		};
-
-		$scope.onClickSynchronizeKeycloakRoles = async function(){			
-			/*
-			try {
-				$timeout(function(){
-					$scope.loadingData = true;
-				});
-				await kommonitorKeycloakHelperService.fetchAndSetKeycloakRoles($scope.keycloakAdminUserName, $scope.keycloakAdminUserPassword);
-
-				$scope.initializeOrRefreshOverviewTable();	
-
-				$timeout(function(){
-					$scope.loadingData = false;
-				}, 500);
-			} catch (error) {
-				$timeout(function(){
-					$scope.loadingData = false;
-				});
-			}
-			*/
-
 		};
 
 		$scope.$on("refreshAccessControlTable", function (event, crudType, targetRoleId) {
@@ -93,9 +65,9 @@ angular.module('adminRoleManagement').component('adminRoleManagement', {
 			}
 		};
 
-		$scope.refreshAccessControlTable = function (crudType, targetRoleId) {
+		$scope.refreshAccessControlTable = function (crudType, targetId) {
 
-			if(! crudType || !targetRoleId){
+			if(! crudType || !targetId){
 				// refetch all metadata from spatial units to update table
 				kommonitorDataExchangeService.fetchAccessControlMetadata().then(function successCallback(response) {
 					$scope.initializeOrRefreshOverviewTable();
@@ -105,11 +77,9 @@ angular.module('adminRoleManagement').component('adminRoleManagement', {
 						$scope.loadingData = false;
 				});
 			}
-			else if(crudType && targetRoleId){
-
-
-				/*if(crudType == "add"){
-					kommonitorCacheHelperService.fetchSingleRoleMetadata(targetRoleId).then(function successCallback(data) {
+			else if(crudType && targetId){
+				if(crudType == "add"){
+					kommonitorCacheHelperService.fetchSingleAccessControlMetadata(targetId).then(function successCallback(data) {
 
 						kommonitorDataExchangeService.addSingleRoleMetadata(data);
 
@@ -123,9 +93,9 @@ angular.module('adminRoleManagement').component('adminRoleManagement', {
 					});
 				}
 				else if(crudType == "edit"){
-					kommonitorCacheHelperService.fetchSingleRoleMetadata(targetRoleId).then(function successCallback(data) {
+					kommonitorCacheHelperService.fetchSingleAccessControlMetadata(targetId).then(function successCallback(data) {
 
-						kommonitorDataExchangeService.replaceSingleRoleMetadata(data);
+						kommonitorDataExchangeService.replaceSingleAccessControlMetadata(data);
 						
 						$scope.initializeOrRefreshOverviewTable();
 	
@@ -138,17 +108,17 @@ angular.module('adminRoleManagement').component('adminRoleManagement', {
 				}				
 				else if(crudType == "delete"){
 					// targetRoleId might be array in this case
-					if(targetRoleId && typeof targetRoleId == "string"){
-						kommonitorDataExchangeService.deleteSingleRoleMetadata(targetRoleId);
+					if(targetId && typeof targetId == "string"){
+						kommonitorDataExchangeService.deleteSingleAccessControlMetadata(targetId);
 						
 						$scope.initializeOrRefreshOverviewTable();
 	
 						$scope.loadingData = false;
 					}
 
-					else if (targetRoleId && Array.isArray(targetRoleId)){
-						for (const id of targetRoleId) {
-							kommonitorDataExchangeService.deleteSingleRoleMetadata(id);
+					else if (targetId && Array.isArray(targetId)){
+						for (const id of targetId) {
+							kommonitorDataExchangeService.deleteSingleAccessControlMetadata(id);
 						}
 						$scope.initializeOrRefreshOverviewTable();
 	
@@ -156,8 +126,6 @@ angular.module('adminRoleManagement').component('adminRoleManagement', {
 					}
 					
 				}
-				*/
-
 			}
 
 		};

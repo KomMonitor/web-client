@@ -1,26 +1,16 @@
 angular.module('kommonitorKeycloakHelper', ['kommonitorDataExchange']);
 
-/**
- * a common serviceInstance that holds all needed properties for a WPS service.
- *
- * This service represents a shared object ´which is used across the different
- * application tabs/components like Setup, Capabilities, Execute etc.
- *
- * This way, one single service instance can be used to easily share values and
- * parameters for each WPS operation represented by different Angular components
- */
 angular
   .module('kommonitorKeycloakHelper', [])
   .service(
-    'kommonitorKeycloakHelperService', ['$rootScope', '$timeout', '$http', '$httpParamSerializerJQLike', '__env',
-    function ($rootScope, $timeout,
-      $http, $httpParamSerializerJQLike, __env) {
+    'kommonitorKeycloakHelperService', ['$rootScope', '$timeout', '$http', '$httpParamSerializerJQLike', 'Auth', '__env',
+    function ($rootScope, $timeout, $http, $httpParamSerializerJQLike, Auth, __env) {
 
       var self = this;
       this.availableKeycloakRoles = [];
       this.targetUrlToKeycloakInstance = "";
       this.realm = "";
-      this.clientId = "";     
+      this.clientId = "";
 
       this.init = async function () {
         try {
@@ -63,46 +53,6 @@ angular
 
         });
       };
-
-      this.requestToken = async function(username, password){
-        var parameters = {
-          "username": username,
-          "password": password,
-          "client_id": "admin-cli",
-          "grant_type": "password"
-        };
-
-        return await $http({
-            url: this.targetUrlToKeycloakInstance + "realms/master/protocol/openid-connect/token",
-            method: 'POST',
-            data: $httpParamSerializerJQLike(parameters), // Make sure to inject the service you choose to the controller
-            headers: {
-              'Content-Type': 'application/x-www-form-urlencoded' // Note the appropriate header
-            }
-          }).then(function successCallback(response) {
-            /*
-            {
-                "access_token": "tokenString",
-                "expires_in": 60,
-                "refresh_expires_in": 1800,
-                "refresh_token": "tokenString",
-                "token_type": "bearer",
-                "not-before-policy": 0,
-                "session_state": "5d9d8418-be24-4641-a47c-3309bb243d8d",
-                "scope": "email profile"
-            }
-          */
-          return response.data;
-  
-          }, function errorCallback(error) {
-            // called asynchronously if an error occurs
-            // or server returns response with an error status.
-            //$scope.error = response.statusText;
-            console.error("Error while requesting auth bearer token from keycloak.");
-            throw error;
-
-        });
-      }; 
 
       this.postNewRole_withToken = async function(bearerToken, roleName){
         var rolesBody = {
@@ -210,11 +160,10 @@ angular
         });
       };
 
-      this.postNewRole = async function(roleName, username, password){
+      this.postNewRole = async function(roleName){
         try {
             // first get auth token to make admin requests
-            var tokenResponse = await this.requestToken(username, password);
-            var bearerToken = tokenResponse["access_token"];
+            var bearerToken = Auth.keycloak.token
 
             // then make admin request
             return await this.postNewRole_withToken(bearerToken, roleName);  
@@ -241,8 +190,7 @@ angular
       this.deleteRole = async function(roleName, username, password){
         try {
             // first get auth token to make admin requests
-            var tokenResponse = await this.requestToken(username, password);
-            var bearerToken = tokenResponse["access_token"];
+            var bearerToken = Auth.keycloak.token
 
             // then make admin request
             return await this.deleteRole_withToken(bearerToken, roleName);  
@@ -252,11 +200,10 @@ angular
         
       };
 
-      this.getAllRoles = async function(username, password){
+      this.getAllRoles = async function(){
         try {
             // first get auth token to make admin requests
-            var tokenResponse = await this.requestToken(username, password);
-            var bearerToken = tokenResponse["access_token"];
+            var bearerToken = Auth.keycloak.token
 
             // then make admin request
             return await this.getAllRoles_withToken(bearerToken);  

@@ -12,7 +12,7 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span></button>
-				<h4 class="modal-title">Metadaten der Organisationseinheit <i><b> {{old.name}} </b></i> editieren</h4>
+				<h4 class="modal-title">Metadaten der Organisationseinheit <i><b> {{$ctrl.old.name}} </b></i> editieren</h4>
 			</div>
 			<div class="modal-body">
 
@@ -25,14 +25,12 @@
 
 							<!-- progressbar -->
 							<ul id="progressbar">
-								<li style="width: 100%;" class="active">Metadaten der Rolle</li>
+								<li style="width: 100%;" class="active">Metadaten der Organisationseinheit</li>
 							</ul>
 
 
 							<fieldset>
-								<h2 class="fs-title">Metadaten der Rolle</h2>
-								<h3 class="fs-subtitle">Angaben &uuml;ber die Rolle</h3>
-
+								<h2 class="fs-title">Metadaten der Organisationseinheit</h2>
 								<p><b><i>* = Pflichtfeld</i></b></p>
 
 								<div class="row vertical-align">
@@ -104,32 +102,6 @@
 				Bei der Aktualisierung der Metadaten der Rolle ist ein Fehler aufgetreten. Fehlermeldung:
 				<br />
 				<pre style="overflow:auto; max-height:500px;" ng-bind-html="errorMessagePart"></pre>
-			</div>
-
-			<div id="keycloakRoleEditSuccessAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
-				class="alert alert-success alert-dismissable">
-				<button type="button" class="close" ng-click="hideKeycloakSuccessAlert()"
-					aria-hidden="true">&times;</button>
-				<h4><i class="icon fa fa-check"></i>Rolle in Keycloak aktualisiert</h4>
-				<p>Die Rolle mit altem Namen {{oldRoleName}} wurde in Keycloak aktualisiert. Der neue Name lautet
-					{{successMessagePart}}.
-				</p>
-			</div>
-
-			<div id="keycloakRoleEditErrorAlert" style="position: absolute; bottom: 0px; width: 100%;" hidden
-				class="alert alert-danger alert-dismissable">
-				<button type="button" class="close" ng-click="hideKeycloakErrorAlert()"
-					aria-hidden="true">&times;</button>
-				<h4><i class="icon fa fa-ban"></i>Aktualisierung in Keycloak gescheitert</h4>
-				Bei der Aktualisierung der Rolle {{oldRoleName}} in Keycloak ist ein Fehler aufgetreten. Fehlermeldung:
-				<br />
-				<pre style="overflow:auto; max-height:500px;" ng-bind-html="keycloakErrorMessagePart"></pre>
-				<br />
-				<br />
-				Die Rolle kann auch direkt in der Keycloak Administrationsseite aktualisiert werden. Besuchen Sie dazu
-				<a ng-href="{{$ctrl.kommonitorKeycloakHelperServiceInstance.targetUrlToKeycloakInstance}}"
-					target="_blank"
-					rel="noopener noreferrer">{{$ctrl.kommonitorKeycloakHelperServiceInstance.targetUrlToKeycloakInstance}}</a>
 			</div>
 
 		</div>

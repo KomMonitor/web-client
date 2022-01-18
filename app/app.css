@@ -204,7 +204,7 @@ MULTI STEP FORM
 }
 
 #userLoginForm_withoutKeycloak h4, span {
-    text-align: center;
+    text-align: left;
 }
 
 :root {

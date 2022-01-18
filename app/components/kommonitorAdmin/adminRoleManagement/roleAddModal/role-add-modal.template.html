@@ -12,7 +12,7 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span></button>
-				<h4 class="modal-title">Neue Rolle registrieren</h4>
+				<h4 class="modal-title">Neue Organisationseinheit registrieren</h4>
 			</div>
 			<div class="modal-body">
 
@@ -23,12 +23,12 @@
 							data-disable="true" style="margin-bottom: 0px;">
 							<!-- progressbar -->
 							<ul id="progressbar">
-								<li style="width: 100%;" class="active">Rolleninformationen</li>
+								<li style="width: 100%;" class="active">Basisinformationen</li>
 							</ul>
 							<!-- fieldsets -->
 							<fieldset>
-								<h2 class="fs-title">Rolleninformationen</h2>
-								<h3 class="fs-subtitle">Angaben &uuml;ber die neue Rolle</h3>
+								<h2 class="fs-title">Basisinformationen</h2>
+								<h3 class="fs-subtitle">Angaben &uuml;ber die neue Organisationseinheit</h3>
 								<p><b><i>* = Pflichtfeld</i></b></p>
 
 								<div class="row vertical-align">
@@ -38,8 +38,8 @@
 											placeholder="Rollenname" ng-model="newOrganizationalUnit.name"
 											ng-change="checkRoleName()" required></input>
 										<div class="help-block with-errors"></div>
-										<div ng-if="roleNameInvalid" style="color: red;">
-											<p>Eingabe ung&uuml;ltig. Es existiert bereits eine andere Rolle mit gleichem Namen.</p>
+										<div ng-if="nameInvalid" style="color: red;">
+											<p>Eingabe ung&uuml;ltig. Es existiert bereits eine andere Organisationseinheit mit gleichem Namen.</p>
 										</div>
 									</div>
 									<div class="col-md-5">
