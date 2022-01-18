@@ -367,31 +367,48 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			$timeout( function() {
 				// if there are items to select
 				if(selectedItems && selectedItems.length > 0) {
-					for(let item of selectedItems) {
-						if(item.hasOwnProperty("properties")) {
-							if(item.properties.hasOwnProperty("NAME")) {
-								let name = item.properties.NAME
-								// remove item to select from left side and add to right side
-								// we can't filter programatically here because the changes won't get applied to scope variables
-								// not even with $scope.$apply in a $timeout
-								// instead we click on the elements
-								// get dom element by name
-								let arr = [];
-								switch(options.label) {
-									case "Zeitpunkte":
-										arr = Array.from(document.querySelectorAll("#reporting-indicator-add-timestamps-dual-list a"));
-										break;
-									case "Bereiche":
-										arr = Array.from(document.querySelectorAll("#reporting-indicator-add-areas-dual-list a"));
-										break;
-									case "Raumebenen":
-										arr = Array.from(document.querySelectorAll("#reporting-indicator-add-spatialUnits-dual-list a"));
-										break;
+					// if all items should be selected we can use the "select all" button for better performance
+					if(data.length === selectedItems.length) {
+						let dualListBtnElement = undefined;
+						switch(options.label) {
+							case "Zeitpunkte":
+								dualListBtnElement = document.querySelector("#reporting-indicator-add-timestamps-dual-list .duallistButton")[0];
+								break;
+							case "Bereiche":
+								dualListBtnElement = document.querySelectorAll("#reporting-indicator-add-areas-dual-list .duallistButton")[0];
+								break;
+							case "Raumebenen":
+								dualListBtnElement = document.querySelectorAll("#reporting-indicator-add-spatialUnits-dual-list .duallistButton")[0];
+								break;
+						}
+						dualListBtnElement.click();
+					} else {
+						for(let item of selectedItems) {
+							if(item.hasOwnProperty("properties")) {
+								if(item.properties.hasOwnProperty("NAME")) {
+									let name = item.properties.NAME
+									// remove item to select from left side and add to right side
+									// we can't filter programmatically here because the changes won't get applied to scope variables
+									// not even with $scope.$apply in a $timeout
+									// instead we click on the elements
+									// get dom element by name
+									let arr = [];
+									switch(options.label) {
+										case "Zeitpunkte":
+											arr = Array.from(document.querySelectorAll("#reporting-indicator-add-timestamps-dual-list a"));
+											break;
+										case "Bereiche":
+											arr = Array.from(document.querySelectorAll("#reporting-indicator-add-areas-dual-list a"));
+											break;
+										case "Raumebenen":
+											arr = Array.from(document.querySelectorAll("#reporting-indicator-add-spatialUnits-dual-list a"));
+											break;
+									}
+									let el = arr.find(el => {
+										return el.textContent.includes(name)
+									});
+									el.click();
 								}
-								let el = arr.find(el => {
-									return el.textContent.includes(name)
-								});
-								el.click();
 							}
 						}
 					}
