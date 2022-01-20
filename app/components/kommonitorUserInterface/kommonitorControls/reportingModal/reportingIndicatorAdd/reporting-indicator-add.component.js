@@ -6,7 +6,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		$scope.template = undefined;
 		$scope.untouchedTemplate = undefined;
 		$scope.untouchedTemplateAsString = "";
-
+		
 		$scope.indicatorNameFilter = "";
 		$scope.availableIndicators = [];
 		$scope.selectedIndicator = undefined;
@@ -26,6 +26,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		}
 		
 		$scope.loadingData = false;
+		$scope.diagramsPrepared = false;
 		
 		// internal array changes do not work with ng-change
 		$scope.$watchCollection('selectedAreas', function(newVal, oldVal) {
@@ -39,34 +40,18 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				return !page.hasOwnProperty("area")
 			});
 
-			// now recreate area pages
 			let pagesToInsertPerTimestamp = []
 			for(let area of newVal) {
 				// get page to insert from untouched template
 				let pageToInsert = angular.fromJson($scope.untouchedTemplateAsString).pages[ $scope.indexOfFirstAreaSpecificPage ];
-
-				// setup page before inserting
 				pageToInsert.area = area.name;
-				for(let pageElement of pageToInsert.pageElements) {
-					if(pageElement.type === "indicatorTitle-landscape") {
-						pageElement.text = $scope.selectedIndicator.indicatorName + ", " + area.name;
-						pageElement.isPlaceholder = false;
-					}
-
-					// ... more elements
-
-					// timestamp has to be be set later
-				}
-
 				pagesToInsertPerTimestamp.push(pageToInsert);
 			}
 
-			// sort alphabetically by title (contains area)
+			// sort alphabetically by area name
 			pagesToInsertPerTimestamp.sort( (a, b) => {
-				titleA = a.pageElements.find( el => el.type === "indicatorTitle-landscape" )
-				titleB = b.pageElements.find( el => el.type === "indicatorTitle-landscape" )
-				textA = titleA.text.toLowerCase();
-				textB = titleB.text.toLowerCase();
+				textA = a.area.toLowerCase();
+				textB = b.area.toLowerCase();
 				return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
 			})
 
@@ -76,7 +61,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			if($scope.selectedTimestamps.length) {
 				let idx = 0
 				for(let timestamp of $scope.selectedTimestamps) {
-
+					// pagesForTimestamp is the template-section for that timestamp
 					let pagesForTimestamp = $scope.template.pages.filter( page => {
 						let dateEl = page.pageElements.find( el => {
 							return el.type === "dataTimestamp-landscape"
@@ -85,18 +70,31 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 						return dateEl.text === timestamp.name
 					});
 
-					// now that we know the timestamp we can set it before inserting
-					for(let page of pagesToInsertPerTimestamp) {
-						let dateEl = page.pageElements.find( el => {
+					// setup pages before inserting
+					for(let pageToInsert of pagesToInsertPerTimestamp) {
+
+						let titleEl = pageToInsert.pageElements.find( el => {
+							return el.type === "indicatorTitle-landscape"
+						});
+						titleEl.text = $scope.selectedIndicator.indicatorName
+						if(pageToInsert.area) {
+							titleEl.text += ", " + pageToInsert.area
+						}
+						titleEl.isPlaceholder = false;
+
+						let dateEl = pageToInsert.pageElements.find( el => {
 							return el.type === "dataTimestamp-landscape"
 						});
-
 						dateEl.text = timestamp.name;
 						dateEl.isPlaceholder = false;
+
+						// diagrams have to be inserted later because the div element does not yet exist
 					}
 
 					let numberOfPagesToReplace = pagesForTimestamp.length;
+					// insert area-specific pages
 					pagesForTimestamp.splice($scope.indexOfFirstAreaSpecificPage, 0, ...pagesToInsertPerTimestamp)
+					// then replace the whole timstamp-section with the new pages
 					$scope.template.pages.splice(idx, numberOfPagesToReplace, ...pagesForTimestamp)
 					idx += pagesForTimestamp.length;
 				}
@@ -105,6 +103,11 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				$scope.template.pages.splice($scope.indexOfFirstAreaSpecificPage, 0, ...pagesToInsertPerTimestamp)
 			}
 			
+			$timeout(function() {
+				if($scope.diagramsPrepared) {
+					$scope.initializeOrUpdateAllDiagrams();
+				}
+			});
 
 		});
 
@@ -144,17 +147,28 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 						// copy placeholder page for each selected area
 						for(let area of $scope.selectedAreas) {
 							let page = angular.fromJson($scope.untouchedTemplateAsString).pages[ $scope.indexOfFirstAreaSpecificPage ];
+							page.area = area.name;
 							areaSpecificPages.push(page);
 						}
+
+						// sort alphabetically by area name
+						areaSpecificPages.sort( (a, b) => {
+							textA = a.area.toLowerCase();
+							textB = b.area.toLowerCase();
+							return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+						})
 
 						pagesToInsert.splice($scope.indexOfFirstAreaSpecificPage, 1, ...areaSpecificPages)
 
 						// setup pages before inserting them
-						for(let pToInsert of pagesToInsert) {
-							for(let pageElement of pToInsert.pageElements) {
+						for(let pageToInsert of pagesToInsert) {
+							for(let pageElement of pageToInsert.pageElements) {
 
 								if(pageElement.type === "indicatorTitle-landscape") {
 									pageElement.text = $scope.selectedIndicator.indicatorName;
+									if(pageToInsert.area) {
+										pageElement.text += ", " + pageToInsert.area
+									}
 									pageElement.isPlaceholder = false;
 								}
 
@@ -163,8 +177,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 									pageElement.isPlaceholder = false;
 								}
 
-								// TODO more elements
-								
+
 							}
 						}
 
@@ -264,6 +277,11 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				}
 			}
 
+			$timeout(function() {
+				if($scope.diagramsPrepared) {
+					$scope.initializeOrUpdateAllDiagrams();
+				}
+			});
 		});
 
 		$scope.$on("configureNewIndicatorShown", function(event, data) {
@@ -505,6 +523,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			$scope.selectedIndicator = undefined;
 			$scope.selectedTimestamps = [];
 			$scope.selectedAreas = [];
+			$scope.diagramsPrepared = false;
 			// set indicator manually.
 			// if we use ng-model it gets converted to string instead of an object
 			$scope.selectedIndicator = indicator;
@@ -529,15 +548,22 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			let mostRecentTimestamp = availableTimestamps.filter( el => {
 				return el.properties.NAME === mostRecentTimestampName;
 			})
+
+			await $scope.updateAreas();
+
+			// prepare diagrams before updating dual lists, so diagrams can be initialized by $watch functions
+			let geoJson = {
+				features: $scope.availableFeaturesBySpatialUnit[ $scope.selectedIndicator.applicableSpatialUnits[0].spatialUnitName ]
+			}
+			$scope.prepareDiagrams($scope.selectedIndicator, $scope.selectedSpatialUnit, mostRecentTimestampName, geoJson);
 			
+
 			$scope.updateDualList($scope.dualListTimestampsOptions, availableTimestamps, mostRecentTimestamp)
 			// by now we enabled the fourth tab, but we don't want that yet since we are still in the first one
 			// instead the tab is enabled once we click on the third one
 			let tab4 = document.querySelector("#reporting-add-indicator-tab4");
 			$scope.disableTab(tab4);
 
-			// update areas and select all areas
-			await $scope.updateAreas();
 			// select all areas by default
 			let allAreas = $scope.availableFeaturesBySpatialUnit[$scope.selectedSpatialUnit.spatialUnitName];
 			$scope.updateDualList($scope.dualListAreasOptions, allAreas, allAreas);
@@ -562,71 +588,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 						el.isPlaceholder = false
 					}
 				}
-			}
-	
-			// update preview area
-			// update page elements
-			// set settings classifyUsingWholeTimeseries and useOutlierDetectionOnIndicator to false to have consistent reporting setup
-			// set classifyZeroSeparately to true
-			// we need to undo these changes afterwards, so we store the current values in a backup first
-			let useOutlierDetectionOnIndicator_backup = kommonitorDataExchangeService.useOutlierDetectionOnIndicator;
-			let classifyUsingWholeTimeseries_backup = kommonitorDataExchangeService.classifyUsingWholeTimeseries;
-			let classifyZeroSeparately_backup = kommonitorDataExchangeService.classifyZeroSeparately; 
-			kommonitorDataExchangeService.useOutlierDetectionOnIndicator = false;
-			kommonitorDataExchangeService.classifyUsingWholeTimeseries = false;
-
-			let timestampPrefix = __env.indicatorDatePrefix + mostRecentTimestampName;
-			let numClasses = $scope.selectedIndicator.defaultClassificationMapping.items.length;
-			let colorCodeStandard = $scope.selectedIndicator.defaultClassificationMapping.colorBrewerSchemeName;
-			let colorCodePositiveValues = __env.defaultColorBrewerPaletteForBalanceIncreasingValues;
-			let colorCodeNegativeValues = __env.defaultColorBrewerPaletteForBalanceDecreasingValues;
-			let classifyMethod = __env.defaultClassifyMethod;
-			// add new prop to indicator metadata, because it is expected that way by kommonitorVisualStyleHelperService
-			$scope.selectedIndicator.geoJSON = { features: $scope.availableFeaturesBySpatialUnit[ $scope.selectedIndicator.applicableSpatialUnits[0].spatialUnitName ] }
-
-			// setup brew
-			let defaultBrew = kommonitorVisualStyleHelperService.setupDefaultBrew($scope.selectedIndicator.geoJSON, timestampPrefix, numClasses, colorCodeStandard, classifyMethod);
-			let dynamicBrewsArray = kommonitorVisualStyleHelperService.setupDynamicIndicatorBrew($scope.selectedIndicator.geoJSON, timestampPrefix, colorCodePositiveValues, colorCodeNegativeValues, classifyMethod);
-			let dynamicIncreaseBrew = dynamicBrewsArray[0];
-			let dynamicDecreaseBrew = dynamicBrewsArray[1];
-
-			//setup diagram resources
-			kommonitorDiagramHelperService.prepareAllDiagramResources_forReportingIndicator($scope.selectedIndicator, $scope.selectedSpatialUnit.spatialUnitName, mostRecentTimestampName, defaultBrew, undefined, undefined, dynamicIncreaseBrew, dynamicDecreaseBrew, false, 0, false);
-			
-			// set settings classifyUsingWholeTimeseries and useOutlierDetectionOnIndicator and classifyZeroSeparately back to their prior values			
-			kommonitorDataExchangeService.useOutlierDetectionOnIndicator = useOutlierDetectionOnIndicator_backup;
-			kommonitorDataExchangeService.classifyUsingWholeTimeseries = classifyUsingWholeTimeseries_backup;
-			kommonitorDataExchangeService.classifyZeroSeparately = classifyZeroSeparately_backup;
-
-			// iterate page elements and setup each one
-			for(let [pageIdx, page] of $scope.template.pages.entries()) {
-				//let pageDom = document.querySelector("#reporting-page-" + pageIdx)
-				//console.log("page: ", pageDom);
-				for(let pageElement of page.pageElements) {
-					let pElementDom = document.querySelector("#reporting-page-" + pageIdx + "-" + pageElement.type)
-					
-					switch(pageElement.type) {
-						case "map":
-							$scope.createPageElement_Map(pElementDom, pageElement);
-							break;
-						case "mapLegend":
-							pageElement.isPlaceholder = false; // hide the placeholder, legend is part of map
-							break;
-						case "overallAverage":
-							$scope.createPageElement_OverallAverage(pElementDom, pageElement, mostRecentTimestampName);
-							break;
-						case "barchart":
-							$scope.createPageElement_BarChartDiagram(pElementDom, pageElement);
-							break;
-						case "linechart":
-							$scope.createPageElement_TimelineDiagram(pElementDom, pageElement);
-							break;
-						case "datatable":
-							//$scope.createPageElement_Datatable( pElementDom, pageElement );
-							break;
-					}
-				}
-			}
+			}	
 		}
 
 		$scope.onTab3Clicked = function() {
@@ -668,19 +630,52 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			tab.firstElementChild.setAttribute("tabindex", "1")
 		}
 
-		$scope.createPageElement_Map = function(wrapper, pageElement) {
+		/**
+		 * Creates and returns an echarts geoMap object.
+		 * @param {*} wrapper | the dom element (most likely a div) where the map should be inserted
+		 * @param {*} pageElement 
+		 * @returns 
+		 */
+		$scope.createPageElement_Map = function(pageDom, wrapper, page, pageElement) {
 			let map = echarts.init( wrapper );
+			// get standard options, create a copy of the options to not change anything in the service
 			let options = JSON.parse(JSON.stringify( kommonitorDiagramHelperService.getGeoMapChartOptions() ));
+			// check if there is a map registered for this combination, if not register one with all features
+			let timestampDom = pageDom.querySelector(".type-dataTimestamp-landscape")
+			let timestamp = timestampDom.innerText;
+			let mapName = $scope.selectedIndicator.indicatorName + "_" + timestamp;
+			if(pageElement.classify) {
+				mapName += "_classified";
+			}
+			if(page.area && page.area.length) {
+				mapName += "_" + page.area
+			}
+			let registeredMap = echarts.getMap(mapName)
+			if(typeof(registeredMap === "undefined")) {
+				// register new map
+				echarts.registerMap(mapName, $scope.selectedIndicator.geoJSON)
+			}
+
 			console.log("echarts map options: ", options);
-			// overwrite standard options based on information form pageElement (config)
-			// this creates different types of maps
+			// default changes for all reporting maps
 			options.title.show = false;
 			options.grid = undefined;
 			options.visualMap.axisLabel = { "fontSize": 10 };
 			options.toolbox.show = false;
-			options.visualMap.left = "right"
+			options.visualMap.left = "right";
 			let mapOptions = options.series[0];
-			mapOptions.roam = false; // for now. Do we want this?
+			mapOptions.roam = false;
+			// during diagram perparation we used the most recent timestamp
+			// now we have to set data according to timestamp for that page
+			mapOptions.data = $scope.getSeriesDataForTimestamp($scope.selectedIndicator.geoJSON.features, timestamp)
+			mapOptions.map = mapName; // update the map with the one registered above
+
+			map.setOption(options);
+			map.resize();
+			return map;
+			
+			// overwrite standard options based on information form pageElement (config)
+			// this creates different types of maps
 
 			if(pageElement.classify === false) {
 				// disable styling through visual map for all areas
@@ -728,9 +723,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				});
 			}
 
-			map.setOption(options);
-			map.resize();
-			return map;
+			
 		}
 
 		$scope.createPageElement_OverallAverage = function(wrapper, pageElement, timestamp) {
@@ -774,6 +767,26 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			return lineChart;
 		}
 
+		/**
+		 * 
+		 * @param {*} echartsInstance 
+		 * @param {string} area 
+		 */
+		$scope.updatePageElement_Map = function(echartsInstance, areaName, allFeatures) {
+			
+			if(areaName && areaName.length) {
+				let options = echartsInstance.getOption();
+				let mapName = options.series[0].map;
+				// filter shown areas if we are in the area-specific part of the template
+				features = allFeatures.filter ( el => {
+					return el.properties.name === areaName
+				});
+	
+				echarts.registerMap(mapName, { features: features } )
+				echartsInstance.setOption(options) // set same options, but this updates the map
+			}
+		}
+
 		$scope.calculateOverallAvg = function(indicator, timestamp) {
 			// calculate avg from geoJSON property, which should be the currently selected spatial unit
 			let data = indicator.geoJSON.features.map( feature => {
@@ -783,6 +796,100 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			let avg = sum / indicator.geoJSON.features.length;
 			avg = Math.round(avg * 100) / 100; // 2 decimal places
 			return avg;
+		}
+
+
+		$scope.prepareDiagrams = function(selectedIndicator, selectedSpatialUnit, mostRecentTimestampName, geoJson) {
+			// set settings useOutlierDetectionOnIndicator and classifyUsingWholeTimeseries to false to have consistent reporting setup
+			// we need to undo these changes afterwards, so we store the current values in a backup first
+			let useOutlierDetectionOnIndicator_backup = kommonitorDataExchangeService.useOutlierDetectionOnIndicator;
+			let classifyUsingWholeTimeseries_backup = kommonitorDataExchangeService.classifyUsingWholeTimeseries;
+			let classifyZeroSeparately_backup = kommonitorDataExchangeService.classifyZeroSeparately; 
+			kommonitorDataExchangeService.useOutlierDetectionOnIndicator = false;
+			kommonitorDataExchangeService.classifyUsingWholeTimeseries = false;
+
+			let timestampPrefix = __env.indicatorDatePrefix + mostRecentTimestampName;
+			let numClasses = selectedIndicator.defaultClassificationMapping.items.length;
+			let colorCodeStandard = selectedIndicator.defaultClassificationMapping.colorBrewerSchemeName;
+			let colorCodePositiveValues = __env.defaultColorBrewerPaletteForBalanceIncreasingValues;
+			let colorCodeNegativeValues = __env.defaultColorBrewerPaletteForBalanceDecreasingValues;
+			let classifyMethod = __env.defaultClassifyMethod;
+
+			// add new prop to indicator metadata, because it is expected that way by kommonitorVisualStyleHelperService
+			selectedIndicator.geoJSON = geoJson;
+			// setup brew
+			let defaultBrew = kommonitorVisualStyleHelperService.setupDefaultBrew(selectedIndicator.geoJSON, timestampPrefix, numClasses, colorCodeStandard, classifyMethod);
+			let dynamicBrewsArray = kommonitorVisualStyleHelperService.setupDynamicIndicatorBrew(selectedIndicator.geoJSON, timestampPrefix, colorCodePositiveValues, colorCodeNegativeValues, classifyMethod);
+			let dynamicIncreaseBrew = dynamicBrewsArray[0];
+			let dynamicDecreaseBrew = dynamicBrewsArray[1];
+
+			// setup diagram resources
+			kommonitorDiagramHelperService.prepareAllDiagramResources_forReportingIndicator(selectedIndicator, selectedSpatialUnit.spatialUnitName, mostRecentTimestampName, defaultBrew, undefined, undefined, dynamicIncreaseBrew, dynamicDecreaseBrew, false, 0, false);
+			// at this point the echarts instance has one map registered (geoMapChart).
+			// that is the "default" map, which can be used to create indidual maps for indicator + date (+ area) combinations later
+
+			// set settings classifyUsingWholeTimeseries and useOutlierDetectionOnIndicator and classifyZeroSeparately back to their prior values			
+			kommonitorDataExchangeService.useOutlierDetectionOnIndicator = useOutlierDetectionOnIndicator_backup;
+			kommonitorDataExchangeService.classifyUsingWholeTimeseries = classifyUsingWholeTimeseries_backup;
+			kommonitorDataExchangeService.classifyZeroSeparately = classifyZeroSeparately_backup;
+
+			$scope.diagramsPrepared = true;
+		}
+
+		$scope.initializeOrUpdateAllDiagrams = function() {
+			if(!$scope.template)
+				return;
+
+			// TODO generalize to match displayed timestamp, get from timestamp page element by dom
+			let mostRecentTimestampName = $scope.selectedTimestamps[ $scope.selectedTimestamps.length-1 ]
+
+			for(let [pageIdx, page] of $scope.template.pages.entries()) {
+				for(let pageElement of page.pageElements) {
+					// limited to one page-element-type per page
+					let pageDom = document.querySelector("#reporting-page-" + pageIdx)
+					let pElementDom = pageDom.querySelector("#reporting-page-" + pageIdx + "-" + pageElement.type)
+					
+					switch(pageElement.type) {
+						case "map":
+							// initialize with all areas
+							let map = $scope.createPageElement_Map(pageDom, pElementDom, page, pageElement);
+							// filter visible areas if needed
+							$scope.updatePageElement_Map(map, page.area, $scope.selectedIndicator.geoJSON.features)
+							break;
+						case "mapLegend":
+							pageElement.isPlaceholder = false; // hide the placeholder, legend is part of map
+							break;
+						case "overallAverage":
+							$scope.createPageElement_OverallAverage(pElementDom, pageElement, mostRecentTimestampName);
+							break;
+						case "barchart":
+							$scope.createPageElement_BarChartDiagram(pElementDom, pageElement);
+							break;
+						case "linechart":
+							$scope.createPageElement_TimelineDiagram(pElementDom, pageElement);
+							break;
+						case "datatable":
+							//$scope.createPageElement_Datatable( pElementDom, pageElement );
+							break;
+					}
+				}
+			}
+		}
+
+		$scope.getSeriesDataForTimestamp = function(geoJsonFeatures, timestamp) {
+			result = [];
+			for(let feature of geoJsonFeatures) {
+				let obj = {};
+				obj.name = feature.properties.name;
+				let value = feature.properties["DATE_" + timestamp]
+				if(typeof value == 'number') {
+					value = Math.floor( value * 100) / 100
+				}
+				obj.value = value;
+				result.push(obj)
+			}
+			
+			return result;
 		}
 
 	}
