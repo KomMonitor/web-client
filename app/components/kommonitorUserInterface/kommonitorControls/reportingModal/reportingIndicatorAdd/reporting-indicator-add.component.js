@@ -43,8 +43,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			let pagesToInsertPerTimestamp = []
 			for(let area of newVal) {
 				// get page to insert from untouched template
-				let pageToInsert = JSON.parse($scope.untouchedTemplateAsString).pages[ $scope.indexOfFirstAreaSpecificPage ];
-				
+				let pageToInsert = angular.fromJson($scope.untouchedTemplateAsString).pages[ $scope.indexOfFirstAreaSpecificPage ];
 
 				// setup page before inserting
 				pageToInsert.area = area.name;
@@ -139,12 +138,12 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					for(let timestampToInsert of difference) {
 
 						// setup pages to insert first
-						let pagesToInsert = JSON.parse($scope.untouchedTemplateAsString).pages;
+						let pagesToInsert = angular.fromJson($scope.untouchedTemplateAsString).pages;
 						// insert additional page for each selected area, replace the placeholder page
 						let areaSpecificPages = [];
 						// copy placeholder page for each selected area
 						for(let area of $scope.selectedAreas) {
-							let page = JSON.parse($scope.untouchedTemplateAsString).pages[ $scope.indexOfFirstAreaSpecificPage ];
+							let page = angular.fromJson($scope.untouchedTemplateAsString).pages[ $scope.indexOfFirstAreaSpecificPage ];
 							areaSpecificPages.push(page);
 						}
 
@@ -274,8 +273,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		$scope.initialize = function(data) {
 			// deep copy template before any changes are made.
 			// this is needed when additional timestamps are inserted.
-			$scope.untouchedTemplateAsString = JSON.stringify(data)
-			$scope.untouchedTemplate = JSON.parse($scope.untouchedTemplateAsString)
+			$scope.untouchedTemplateAsString = angular.toJson(data)
+			$scope.untouchedTemplate = angular.fromJson($scope.untouchedTemplateAsString)
 			$scope.template = data;
 
 			if($scope.template.name === "A4-landscape-timestamp")
@@ -510,9 +509,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			// if we use ng-model it gets converted to string instead of an object
 			$scope.selectedIndicator = indicator;
 			
-		
 			// get a new template (in case another indicator was selected previously)
-			let temp = JSON.parse($scope.untouchedTemplateAsString);
+			let temp = angular.fromJson($scope.untouchedTemplateAsString);
 			$scope.template = temp;
 
 			// set spatial unit to highest available one
@@ -577,7 +575,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			kommonitorDataExchangeService.useOutlierDetectionOnIndicator = false;
 			kommonitorDataExchangeService.classifyUsingWholeTimeseries = false;
 
-			
 			let timestampPrefix = __env.indicatorDatePrefix + mostRecentTimestampName;
 			let numClasses = $scope.selectedIndicator.defaultClassificationMapping.items.length;
 			let colorCodeStandard = $scope.selectedIndicator.defaultClassificationMapping.colorBrewerSchemeName;
