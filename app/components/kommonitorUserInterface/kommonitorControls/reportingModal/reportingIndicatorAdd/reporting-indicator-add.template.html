@@ -68,7 +68,7 @@
                                         Raumebene: 
                                         <select id="reporting-spatial-unit-select" ng-model="selectedSpatialUnit" 
                                             ng-options="spatialUnit as spatialUnit.spatialUnitName for spatialUnit in selectedIndicator.applicableSpatialUnits"
-                                            ng-change="updateAreas()">
+                                            ng-change="onSpatialUnitChanged(selectedSpatialUnit)">
                                         </select>
                                     </div>
                                     

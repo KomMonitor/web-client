@@ -30,8 +30,11 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		
 		// internal array changes do not work with ng-change
 		$scope.$watchCollection('selectedAreas', function(newVal, oldVal) {
-			if( typeof($scope.template) === "undefined") return;
+			$scope.onSelectedAreasChanged(newVal, oldVal)
+		});
 
+		$scope.onSelectedAreasChanged = function(newVal, oldVal) {
+			if( typeof($scope.template) === "undefined") return;
 			// to make things easier we remove all area-specific pages and recreate them using newVal
 			// this approach is not optimized for performance and might have to change in the future
 
@@ -108,8 +111,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					$scope.initializeOrUpdateAllDiagrams();
 				}
 			});
-
-		});
+		}
 
 		// internal array changes do not work with ng-change
 		$scope.$watchCollection('selectedTimestamps', function(newVal, oldVal) {
@@ -370,11 +372,27 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			});
 		};
 
+
+		$scope.onSpatialUnitChanged = async function(selectedSpatialUnit) {
+			await $scope.updateAreasInDualList()
+			// fire $watch('selectedAreas') function manually to remove pages
+			$scope.selectedAreas = [];
+			$scope.onSelectedAreasChanged( $scope.selectedAreas , undefined)
+			// updateAreasInDualList does not trigger diagram updates
+			// we have the wrong geometries set at this point, causing area selection to fail.
+			// echarts requires properties.name to be present, create it from properties.NAME unless it exists
+			let features = $scope.availableFeaturesBySpatialUnit[ selectedSpatialUnit.spatialUnitName ]
+			features = $scope.createLowerCaseNameProperty(features);
+
+			$scope.selectedIndicator.geoJSON = { features: features }
+			$scope.initializeOrUpdateAllDiagrams()
+		}
+
 		/**
 		 * Updates the areas dual list data
 		 * Queries DataManagement API if needed.
 		 */
-		$scope.updateAreas = async function() {
+		$scope.updateAreasInDualList = async function() {
 			let indicator = $scope.selectedIndicator;
 			
 			let spatialUnit = $scope.selectedSpatialUnit ?
@@ -515,7 +533,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 						}
 					}
 				}
-			})
+			});
 		}
 
 		
@@ -549,11 +567,13 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				return el.properties.NAME === mostRecentTimestampName;
 			})
 
-			await $scope.updateAreas();
+			await $scope.updateAreasInDualList();
 
 			// prepare diagrams before updating dual lists, so diagrams can be initialized by $watch functions
+			let features = $scope.availableFeaturesBySpatialUnit[ $scope.selectedIndicator.applicableSpatialUnits[0].spatialUnitName ]
+			features = $scope.createLowerCaseNameProperty(features);
 			let geoJson = {
-				features: $scope.availableFeaturesBySpatialUnit[ $scope.selectedIndicator.applicableSpatialUnits[0].spatialUnitName ]
+				features: features
 			}
 			$scope.prepareDiagrams($scope.selectedIndicator, $scope.selectedSpatialUnit, mostRecentTimestampName, geoJson);
 			
@@ -638,12 +658,13 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		 */
 		$scope.createPageElement_Map = function(pageDom, wrapper, page, pageElement) {
 			let map = echarts.init( wrapper );
+			
 			// get standard options, create a copy of the options to not change anything in the service
 			let options = JSON.parse(JSON.stringify( kommonitorDiagramHelperService.getGeoMapChartOptions() ));
 			// check if there is a map registered for this combination, if not register one with all features
 			let timestampDom = pageDom.querySelector(".type-dataTimestamp-landscape")
 			let timestamp = timestampDom.innerText;
-			let mapName = $scope.selectedIndicator.indicatorName + "_" + timestamp;
+			let mapName = $scope.selectedIndicator.indicatorName + "_" + timestamp + "_" + $scope.selectedSpatialUnit.spatialUnitName;
 			if(pageElement.classify) {
 				mapName += "_classified";
 			}
@@ -651,12 +672,13 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				mapName += "_" + page.area
 			}
 			let registeredMap = echarts.getMap(mapName)
+
 			if(typeof(registeredMap === "undefined")) {
 				// register new map
 				echarts.registerMap(mapName, $scope.selectedIndicator.geoJSON)
 			}
 
-			console.log("echarts map options: ", options);
+
 			// default changes for all reporting maps
 			options.title.show = false;
 			options.grid = undefined;
@@ -665,65 +687,61 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			options.visualMap.left = "right";
 			let mapOptions = options.series[0];
 			mapOptions.roam = false;
-			// during diagram perparation we used the most recent timestamp
+			// during diagram preparation we used the most recent timestamp
 			// now we have to set data according to timestamp for that page
 			mapOptions.data = $scope.getSeriesDataForTimestamp($scope.selectedIndicator.geoJSON.features, timestamp)
 			mapOptions.map = mapName; // update the map with the one registered above
+			mapOptions.name = mapName;
 
-			map.setOption(options);
-			map.resize();
-			return map;
-			
-			// overwrite standard options based on information form pageElement (config)
-			// this creates different types of maps
+			let areaNames = $scope.selectedAreas.map( el => {
+				return el.name;
+			});
 
-			if(pageElement.classify === false) {
-				// disable styling through visual map for all areas
-				mapOptions.data.forEach( el => {
-					el.itemStyle =  el.itemStyle ? el.itemStyle : {};
-					el.emphasis = el.emphasis ? el.emphasis : {};
-					el.emphasis.itemStyle = el.emphasis.itemStyle ? el.emphasis.itemStyle : {};
-					el.label = el.label ? el.label : {};
+			mapOptions.data.forEach( el => {
+				el.itemStyle =  el.itemStyle ? el.itemStyle : {};
+				el.emphasis = el.emphasis ? el.emphasis : {};
+				el.emphasis.itemStyle = el.emphasis.itemStyle ? el.emphasis.itemStyle : {};
+				el.label = el.label ? el.label : {};
 
+				if(pageElement.classify === false) {
 					el.visualMap = false;
-					// style areas randomly for now (testing)
-					if( Math.random() < 0.5 ) {
+					options.visualMap.show = false;
+					if( areaNames.includes(el.name) ) {
+						// show selected areas (don't classify color by value)
 						el.itemStyle.areaColor = "rgb(255, 0, 0, 0.6)";
 						el.emphasis.itemStyle.areaColor = "rgb(255, 0, 0, 0.6)";
 						el.label.formatter = '{b}\n{c}';
 						el.label.show = true;
+						el.selected = true; // This fixes a bug where labels would disappear seemingly at random (probably within echarts).
 					} else {
+						// only show borders for any other areas
 						el.itemStyle.areaColor = "rgba(255, 255, 255, 0)" // full transparent
 						el.emphasis.itemStyle.areaColor = "rgba(255, 255, 255, 0)"; // full transparent
 						el.label.show = false;
+						el.selected = false;
 					}
-				});
+				}
 
-				options.visualMap.show = false;
-			}
-			
-			if(pageElement.classify === true) {
-				mapOptions.data.forEach( el => {
-					el.itemStyle =  el.itemStyle ? el.itemStyle : {};
-					el.emphasis = el.emphasis ? el.emphasis : {};
-					el.emphasis.itemStyle = el.emphasis.itemStyle ? el.emphasis.itemStyle : {};
-					el.label = el.label ? el.label : {};
+				if(pageElement.classify === true) {
 
-					// style areas randomly for now (testing)
-					if( Math.random() < 0.5 ) {
+					if( areaNames.includes(el.name) ) {
 						el.visualMap = true;
 						el.label.formatter = '{b}\n{c}';
 						el.label.show = true;
+						el.selected = true;
 					} else {
 						el.visualMap = false;
 						el.itemStyle.areaColor = "rgba(255, 255, 255, 0)" // full transparent
 						el.emphasis.itemStyle.areaColor = "rgba(255, 255, 255, 0)"; // full transparent
 						el.label.show = false;
+						el.selected = false;
 					}
-				});
-			}
-
+				}
+			})
 			
+			map.setOption(options);
+			map.resize();
+			return map;
 		}
 
 		$scope.createPageElement_OverallAverage = function(wrapper, pageElement, timestamp) {
@@ -773,18 +791,16 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		 * @param {string} area 
 		 */
 		$scope.updatePageElement_Map = function(echartsInstance, areaName, allFeatures) {
-			
-			if(areaName && areaName.length) {
-				let options = echartsInstance.getOption();
-				let mapName = options.series[0].map;
-				// filter shown areas if we are in the area-specific part of the template
-				features = allFeatures.filter ( el => {
-					return el.properties.name === areaName
-				});
-	
-				echarts.registerMap(mapName, { features: features } )
-				echartsInstance.setOption(options) // set same options, but this updates the map
-			}
+			let options = echartsInstance.getOption();
+			let mapName = options.series[0].map;
+			// filter shown areas if we are in the area-specific part of the template
+			features = allFeatures.filter ( el => {
+				return el.properties.name === areaName
+			});
+
+			echarts.registerMap(mapName, { features: features } )
+			echartsInstance.setOption(options) // set same options, but this updates the map
+			echartsInstance.resize();
 		}
 
 		$scope.calculateOverallAvg = function(indicator, timestamp) {
@@ -854,7 +870,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 							// initialize with all areas
 							let map = $scope.createPageElement_Map(pageDom, pElementDom, page, pageElement);
 							// filter visible areas if needed
-							$scope.updatePageElement_Map(map, page.area, $scope.selectedIndicator.geoJSON.features)
+							if(page.area && page.area.length) {
+								$scope.updatePageElement_Map(map, page.area, $scope.selectedIndicator.geoJSON.features)
+							}
 							break;
 						case "mapLegend":
 							pageElement.isPlaceholder = false; // hide the placeholder, legend is part of map
@@ -877,19 +895,34 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		}
 
 		$scope.getSeriesDataForTimestamp = function(geoJsonFeatures, timestamp) {
-			result = [];
+			let result = [];
 			for(let feature of geoJsonFeatures) {
 				let obj = {};
-				obj.name = feature.properties.name;
+				obj.name = feature.properties.NAME;
 				let value = feature.properties["DATE_" + timestamp]
 				if(typeof value == 'number') {
-					value = Math.floor( value * 100) / 100
+					value = Math.floor( value * 100) / 100;
 				}
 				obj.value = value;
 				result.push(obj)
 			}
-			
 			return result;
+		}
+
+		/**
+		 * 
+		 * @param {*} features | features array in geojson
+		 */
+		$scope.createLowerCaseNameProperty = function(features) {
+			for(let feature of features) {
+				if(feature.hasOwnProperty("properties")) {
+					if(!feature.properties.hasOwnProperty("name")) {
+						let featureName = feature.properties.NAME;
+						feature.properties.name = featureName;
+					}
+				}
+			}
+			return features;
 		}
 
 	}
