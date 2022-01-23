@@ -918,6 +918,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 							break;
 						case "mapLegend":
 							pageElement.isPlaceholder = false; // hide the placeholder, legend is part of map
+							pageDom.querySelector(".type-mapLegend").style.display = "none";
 							break;
 						case "overallAverage":
 							$scope.createPageElement_OverallAverage(pElementDom, pageElement, timestamp);
