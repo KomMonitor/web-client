@@ -372,13 +372,15 @@ angular
             indicatorValue = kommonitorDataExchangeService.getIndicatorValue_asNumber(cartographicFeature.properties[self.indicatorPropertyName]);  
           }
 
-          featureNamesArray.push(cartographicFeature.properties[__env.FEATURE_NAME_PROPERTY_NAME]);
+          var featureName = cartographicFeature.properties[__env.FEATURE_NAME_PROPERTY_NAME]
+          featureNamesArray.push(featureName);
           indicatorValueArray.push(indicatorValue);
 
           var color = this.getColorForFeature(cartographicFeature, indicatorMetadataAndGeoJSON, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue);
 
           var seriesItem = {
             value: indicatorValue,
+            name: featureName,
             itemStyle: {
               color: color
               // borderWidth: 1,

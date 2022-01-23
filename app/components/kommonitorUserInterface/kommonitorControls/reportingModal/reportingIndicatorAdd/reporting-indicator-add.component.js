@@ -790,10 +790,13 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			pageElement.isPlaceholder = false;
 		}
 
-		$scope.createPageElement_BarChartDiagram = function(wrapper, pageElement) {
+		$scope.createPageElement_BarChartDiagram = function(pageDom, wrapper, page, pageElement) {
 			let barChart = echarts.init( wrapper );
-			let options = kommonitorDiagramHelperService.getBarChartOptions();
-			options.xAxis.name = ""; //remove title
+			// get standard options, create a copy of the options to not change anything in the service
+			let options = JSON.parse(JSON.stringify( kommonitorDiagramHelperService.getBarChartOptions() ));
+
+			// default changes
+			options.xAxis.name = "";
 			options.title.textStyle.fontSize = 12;
 			options.title.text = "Ranking";
 			options.yAxis.axisLabel = { "fontSize": 10 };
@@ -801,6 +804,63 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			options.grid.top = 35;
 			options.grid.bottom = 5;
 			options.toolbox.show = false;
+			// during diagram preparation we used the most recent timestamp
+			// now we have to set data according to timestamp for that page
+			let timestampDom = pageDom.querySelector(".type-dataTimestamp-landscape")
+			let timestamp = timestampDom.innerText;
+			options.series[0].data = $scope.getSeriesDataForTimestamp($scope.selectedIndicator.geoJSON.features, timestamp, options.series[0].data)
+			
+			// filter series data and xAxis labels
+			if(page.area && page.area.length) {
+				options.series[0].data = options.series[0].data.filter( el => {
+					return el.name === page.area;
+				});
+				let areaNames = options.series[0].data.map( obj => obj.name)
+				options.xAxis.data = areaNames;
+			} else {
+				// only show selected areas in the "overview" diagram
+				let areaNames = $scope.selectedAreas.map( obj => obj.name );
+				options.series[0].data = options.series[0].data.filter( el => {
+					return areaNames.includes(el.name);
+				});
+				areaNames = options.series[0].data.map( obj => obj.name);
+				options.xAxis.data = areaNames;
+			}
+
+			// TODO we sort series data but not the x-axis labels (no problem as long as they are hidden)
+			options.series[0].data.sort(function(a, b) {
+				if(typeof(a.value) == 'number' && typeof(b.value) == 'number') {
+					return a.value - b.value;
+				} else {
+					return -1 // experimental, does this sort NaN to the left?
+				}	
+			});
+
+			// add one more data element for the average
+			// colors are hardcoded and get defined in the service
+			let avgValue = $scope.calculateOverallAvg($scope.selectedIndicator, timestamp);
+			let color = undefined;
+			for(let dataEntry of options.series[0].data) {
+				// avg should be greater than some values and smaller than others
+				// as soon as it is smaller we save the color and stop the iteration.
+				// This method of finding the correct color for avg is a temporary solution.
+				// Ideally we get the color from a visualMap or something.
+				// TODO maybe get kommonitorDiagramHelperService.getGeoMapChartOptions() here ?
+				if(avgValue <= dataEntry.value) {
+					color = dataEntry.itemStyle.color;
+					break;
+				}
+			}
+			let dataObjForAvg = {
+				name: "Durchschnitt der Raumeinheit",
+				value: avgValue,
+				itemStyle: {
+					color: color
+				}
+			}
+			options.series[0].data.push(dataObjForAvg);
+			options.xAxis.data.push( dataObjForAvg.name )
+
 			barChart.setOption(options);
 			barChart.resize();
 			return barChart;
@@ -829,7 +889,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		 * @param {*} echartsInstance 
 		 * @param {string} area 
 		 */
-		$scope.updatePageElement_Map = function(echartsInstance, areaName, allFeatures) {
+		$scope.filterPageElement_Map = function(echartsInstance, areaName, allFeatures) {
 			let options = echartsInstance.getOption();
 			let mapName = options.series[0].map;
 			// filter shown areas if we are in the area-specific part of the template
@@ -913,7 +973,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 							let map = $scope.createPageElement_Map(pageDom, pElementDom, page, pageElement);
 							// filter visible areas if needed
 							if(page.area && page.area.length) {
-								$scope.updatePageElement_Map(map, page.area, $scope.selectedIndicator.geoJSON.features)
+								$scope.filterPageElement_Map(map, page.area, $scope.selectedIndicator.geoJSON.features);
 							}
 							break;
 						case "mapLegend":
@@ -922,9 +982,10 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 							break;
 						case "overallAverage":
 							$scope.createPageElement_OverallAverage(pElementDom, pageElement, timestamp);
+							pageDom.querySelector(".type-overallAverage").style.border = "none"; // hide dotted border from outer dom element
 							break;
 						case "barchart":
-							$scope.createPageElement_BarChartDiagram(pElementDom, pageElement);
+							$scope.createPageElement_BarChartDiagram(pageDom, pElementDom, page, pageElement);
 							break;
 						case "linechart":
 							$scope.createPageElement_TimelineDiagram(pElementDom, pageElement);
@@ -937,19 +998,44 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			}
 		}
 
-		$scope.getSeriesDataForTimestamp = function(geoJsonFeatures, timestamp) {
-			let result = [];
-			for(let feature of geoJsonFeatures) {
-				let obj = {};
-				obj.name = feature.properties.NAME;
-				let value = feature.properties["DATE_" + timestamp]
-				if(typeof value == 'number') {
-					value = Math.round( value * 100) / 100;
+		/**
+		 * 
+		 * @param {*} geoJsonFeatures 
+		 * @param {*} timestamp 
+		 * @param {*} seriesData | Must have a property "name";
+		 * @returns 
+		 */
+		$scope.getSeriesDataForTimestamp = function(geoJsonFeatures, timestamp, seriesData) {
+			// if parameter is present we want to keep it's properties
+			if(seriesData && seriesData.length) {
+				for(let dataEntry of seriesData) {
+					// just replace the value property
+					let feature = geoJsonFeatures.find( feature => {
+						return feature.properties.NAME === dataEntry.name;
+					});
+					dataEntry.value = feature.properties["DATE_" + timestamp]
+					if(typeof dataEntry.value == 'number') {
+						dataEntry.value = Math.round( dataEntry.value * 100) / 100;
+					}
 				}
-				obj.value = value;
-				result.push(obj)
+				return seriesData;
+
+			} else {
+				// seriesData is undefined, meaning we can create a new array
+				let result = [];
+				for(let feature of geoJsonFeatures) {
+					let obj = {};
+					obj.name = feature.properties.NAME;
+					let value = feature.properties["DATE_" + timestamp]
+					if(typeof value == 'number') {
+						value = Math.round( value * 100) / 100;
+					}
+					obj.value = value;
+
+					result.push(obj)
+				}
+				return result;
 			}
-			return result;
 		}
 
 		/**
