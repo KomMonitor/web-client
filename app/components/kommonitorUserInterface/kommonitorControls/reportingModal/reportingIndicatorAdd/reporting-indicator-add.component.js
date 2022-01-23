@@ -383,8 +383,12 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			// echarts requires properties.name to be present, create it from properties.NAME unless it exists
 			let features = $scope.availableFeaturesBySpatialUnit[ selectedSpatialUnit.spatialUnitName ]
 			features = $scope.createLowerCaseNameProperty(features);
-
-			$scope.selectedIndicator.geoJSON = { features: features }
+			let geoJSON = { features: features }
+			// the timestamp we use here doesn't really mater since each diagram gets updated
+			// with the appropriate timestamp in initializeOrUpdateAllDiagrams.
+			let timestamp = $scope.selectedTimestamps[ $scope.selectedTimestamps.length-1 ]
+			let timestampName = timestamp.name;
+			$scope.prepareDiagrams($scope.selectedIndicator, selectedSpatialUnit, timestampName, geoJSON);
 			$scope.initializeOrUpdateAllDiagrams()
 		}
 
@@ -400,11 +404,23 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				$scope.selectedIndicator.applicableSpatialUnits[0]
 			let indicatorId = indicator.indicatorId;
 			let spatialUnitId = spatialUnit.spatialUnitId;
+			
+			// on indicator change
+			if($scope.availableFeaturesBySpatialUnit.indicatorId != indicator.indicatorId) {
+				// clear all cached features
+				$scope.availableFeaturesBySpatialUnit = {};
+				$scope.availableFeaturesBySpatialUnit.indicatorId = indicatorId;
 
-			if (!$scope.availableFeaturesBySpatialUnit[spatialUnit.spatialUnitName]) {
 				let data = await $scope.queryFeatures(indicatorId, spatialUnitId)
 				// save response to scope to avoid further requests
 				$scope.availableFeaturesBySpatialUnit[spatialUnit.spatialUnitName] = data.features
+			} else {
+				// same indicator
+				if (!$scope.availableFeaturesBySpatialUnit[spatialUnit.spatialUnitName]) {
+					let data = await $scope.queryFeatures(indicatorId, spatialUnitId)
+					// save response to scope to avoid further requests
+					$scope.availableFeaturesBySpatialUnit[spatialUnit.spatialUnitName] = data.features
+				}
 			}
 
 			let allAreas = $scope.availableFeaturesBySpatialUnit[spatialUnit.spatialUnitName]
@@ -697,6 +713,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				return el.name;
 			});
 
+
 			mapOptions.data.forEach( el => {
 				el.itemStyle =  el.itemStyle ? el.itemStyle : {};
 				el.emphasis = el.emphasis ? el.emphasis : {};
@@ -723,12 +740,34 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				}
 
 				if(pageElement.classify === true) {
-
+				
 					if( areaNames.includes(el.name) ) {
 						el.visualMap = true;
 						el.label.formatter = '{b}\n{c}';
+						// get color from visual map to overwrite yellow color
+						let color = "#000"; //  black for default
+						let opacity = 1;
+						for(let [idx, piece] of options.visualMap.pieces.entries()) {
+							// for the last index (highest value) value can equal the upper boundary
+							if(idx === (options.visualMap.pieces.length-1)) {
+								if(piece.min <= el.value && el.value <= piece.max) {
+									color = piece.color;
+									opacity = piece.opacity;
+									break;
+								}
+							}
+
+							// for all other pieces check if it is withing the boundaries, (including lower one, excluding upper one)
+							if(piece.min <= el.value && el.value < piece.max) {
+								color = piece.color;
+								opacity = piece.opacity;
+								break;
+							}
+						}
 						el.label.show = true;
 						el.selected = true;
+						el.emphasis.itemStyle.areaColor = color;
+						el.emphasis.itemStyle.opacity = opacity;
 					} else {
 						el.visualMap = false;
 						el.itemStyle.areaColor = "rgba(255, 255, 255, 0)" // full transparent
@@ -815,7 +854,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		}
 
 
-		$scope.prepareDiagrams = function(selectedIndicator, selectedSpatialUnit, mostRecentTimestampName, geoJson) {
+		$scope.prepareDiagrams = function(selectedIndicator, selectedSpatialUnit, timestampName, geoJson) {
 			// set settings useOutlierDetectionOnIndicator and classifyUsingWholeTimeseries to false to have consistent reporting setup
 			// we need to undo these changes afterwards, so we store the current values in a backup first
 			let useOutlierDetectionOnIndicator_backup = kommonitorDataExchangeService.useOutlierDetectionOnIndicator;
@@ -824,7 +863,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			kommonitorDataExchangeService.useOutlierDetectionOnIndicator = false;
 			kommonitorDataExchangeService.classifyUsingWholeTimeseries = false;
 
-			let timestampPrefix = __env.indicatorDatePrefix + mostRecentTimestampName;
+			let timestampPrefix = __env.indicatorDatePrefix + timestampName;
 			let numClasses = selectedIndicator.defaultClassificationMapping.items.length;
 			let colorCodeStandard = selectedIndicator.defaultClassificationMapping.colorBrewerSchemeName;
 			let colorCodePositiveValues = __env.defaultColorBrewerPaletteForBalanceIncreasingValues;
@@ -840,11 +879,11 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			let dynamicDecreaseBrew = dynamicBrewsArray[1];
 
 			// setup diagram resources
-			kommonitorDiagramHelperService.prepareAllDiagramResources_forReportingIndicator(selectedIndicator, selectedSpatialUnit.spatialUnitName, mostRecentTimestampName, defaultBrew, undefined, undefined, dynamicIncreaseBrew, dynamicDecreaseBrew, false, 0, false);
+			kommonitorDiagramHelperService.prepareAllDiagramResources_forReportingIndicator(selectedIndicator, selectedSpatialUnit.spatialUnitName, timestampName, defaultBrew, undefined, undefined, dynamicIncreaseBrew, dynamicDecreaseBrew, false, 0, false);
 			// at this point the echarts instance has one map registered (geoMapChart).
-			// that is the "default" map, which can be used to create indidual maps for indicator + date (+ area) combinations later
+			// that is the "default" map, which can be used to create individual maps for indicator + date + spatialUnit (+ area) combinations later
 
-			// set settings classifyUsingWholeTimeseries and useOutlierDetectionOnIndicator and classifyZeroSeparately back to their prior values			
+			// set settings classifyUsingWholeTimeseries and useOutlierDetectionOnIndicator and classifyZeroSeparately back to their prior values
 			kommonitorDataExchangeService.useOutlierDetectionOnIndicator = useOutlierDetectionOnIndicator_backup;
 			kommonitorDataExchangeService.classifyUsingWholeTimeseries = classifyUsingWholeTimeseries_backup;
 			kommonitorDataExchangeService.classifyZeroSeparately = classifyZeroSeparately_backup;
@@ -856,13 +895,16 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			if(!$scope.template)
 				return;
 
-			// TODO generalize to match displayed timestamp, get from timestamp page element by dom
-			let mostRecentTimestampName = $scope.selectedTimestamps[ $scope.selectedTimestamps.length-1 ]
-
 			for(let [pageIdx, page] of $scope.template.pages.entries()) {
+				
+				let pageDom = document.querySelector("#reporting-page-" + pageIdx)
+				let timestamp = pageDom.querySelector(".type-dataTimestamp-landscape")
+				if(timestamp) {
+					timestamp = timestamp.innerText;
+				}
 				for(let pageElement of page.pageElements) {
 					// limited to one page-element-type per page
-					let pageDom = document.querySelector("#reporting-page-" + pageIdx)
+					
 					let pElementDom = pageDom.querySelector("#reporting-page-" + pageIdx + "-" + pageElement.type)
 					
 					switch(pageElement.type) {
@@ -878,7 +920,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 							pageElement.isPlaceholder = false; // hide the placeholder, legend is part of map
 							break;
 						case "overallAverage":
-							$scope.createPageElement_OverallAverage(pElementDom, pageElement, mostRecentTimestampName);
+							$scope.createPageElement_OverallAverage(pElementDom, pageElement, timestamp);
 							break;
 						case "barchart":
 							$scope.createPageElement_BarChartDiagram(pElementDom, pageElement);
@@ -901,7 +943,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				obj.name = feature.properties.NAME;
 				let value = feature.properties["DATE_" + timestamp]
 				if(typeof value == 'number') {
-					value = Math.floor( value * 100) / 100;
+					value = Math.round( value * 100) / 100;
 				}
 				obj.value = value;
 				result.push(obj)
