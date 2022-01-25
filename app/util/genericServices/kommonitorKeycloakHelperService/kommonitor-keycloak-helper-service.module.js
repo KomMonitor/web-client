@@ -54,10 +54,7 @@ angular
         });
       };
 
-      this.postNewRole_withToken = async function(bearerToken, roleName){
-        var rolesBody = {
-          "name": roleName
-        };
+      this.postNewRole_withToken = async function(bearerToken, rolesBody){
 
         return await $http({
           url: this.targetUrlToKeycloakInstance + "admin/realms/" + this.realm + "/roles",
@@ -79,7 +76,6 @@ angular
             //$scope.error = response.statusText;
             console.error("Error while posting role to keycloak.");
             throw error;
-
         });
       };
 
@@ -154,23 +150,74 @@ angular
             // called asynchronously if an error occurs
             // or server returns response with an error status.
             //$scope.error = response.statusText;
-            console.error("Error while deleting role from keycloak.");
+            console.error("Error while adding role to keycloak.");
             throw error;
 
         });
       };
 
-      this.postNewRole = async function(roleName){
+      this.addCompositeRole_withToken= async function (bearerToken, baseRole, composite) {
+        data = [{
+          "id": composite.id,
+          "name": composite.name
+        }];
+        return await $http({
+          url: this.targetUrlToKeycloakInstance + "admin/realms/" + this.realm + "/roles/" + baseRole.name + "/composites",
+          method: 'POST',
+          data: data,
+          headers: {
+            'Authorization': "Bearer " + bearerToken // Note the appropriate header
+          }
+        }).then(function successCallback(response) {
+            // this callback will be called asynchronously
+            // when the response is available
+            return response.data;
+          }, function errorCallback(error) {
+            // called asynchronously if an error occurs
+            // or server returns response with an error status.
+            //$scope.error = response.statusText;
+            console.error("Error while creating composite role in keycloak.");
+            throw error;
+        });
+      }
+
+      this.postNewRoles = async function(organizationalUnitName){
+
+        roles = ["viewer", "editor", "publisher", "creator"];
+
         try {
-            // first get auth token to make admin requests
+            // get auth token to make admin requests
             var bearerToken = Auth.keycloak.token
 
-            // then make admin request
-            return await this.postNewRole_withToken(bearerToken, roleName);  
+            // post individual roles
+            for (name of roles) {
+              // post individual role
+              var location = await this.postNewRole_withToken(bearerToken, {"name": organizationalUnitName + "-" + name});
+              console.log(location)
+            }
+            const allRoles = await this.getAllRoles_withToken(bearerToken)
+            var roleMap = allRoles.filter(role => role.name.startsWith(organizationalUnitName + "-"))
+                                  .reduce((prev, curr) => (prev[curr.name] = curr, prev), {});
+
+            // Add composites
+            await this.addCompositeRole_withToken(
+              bearerToken, 
+              roleMap[organizationalUnitName + "-editor"], 
+              roleMap[organizationalUnitName + "-viewer"]
+            );
+            await this.addCompositeRole_withToken(
+              bearerToken, 
+              roleMap[organizationalUnitName + "-publisher"], 
+              roleMap[organizationalUnitName + "-editor"]
+            );
+            await this.addCompositeRole_withToken(
+              bearerToken, 
+              roleMap[organizationalUnitName + "-creator"], 
+              roleMap[organizationalUnitName + "-publisher"]
+            );
         } catch (error) {
           throw error;
         }
-        
       };
 
       this.renameExistingRole = async function(oldRoleName, newRoleName, username, password){

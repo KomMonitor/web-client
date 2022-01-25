@@ -81,7 +81,7 @@ angular.module('adminRoleManagement').component('adminRoleManagement', {
 				if(crudType == "add"){
 					kommonitorCacheHelperService.fetchSingleAccessControlMetadata(targetId).then(function successCallback(data) {
 
-						kommonitorDataExchangeService.addSingleRoleMetadata(data);
+						kommonitorDataExchangeService.addSingleAccessControlMetadata(data);
 
 						$scope.initializeOrRefreshOverviewTable();
 	
@@ -96,9 +96,7 @@ angular.module('adminRoleManagement').component('adminRoleManagement', {
 					kommonitorCacheHelperService.fetchSingleAccessControlMetadata(targetId).then(function successCallback(data) {
 
 						kommonitorDataExchangeService.replaceSingleAccessControlMetadata(data);
-						
 						$scope.initializeOrRefreshOverviewTable();
-	
 						$scope.loadingData = false;
 	
 						}, function errorCallback(response) {
@@ -133,7 +131,7 @@ angular.module('adminRoleManagement').component('adminRoleManagement', {
 		$scope.onClickDeleteDatasets = function () {
 			$scope.loadingData = true;
 
-			var markedEntriesForDeletion = kommonitorDataGridHelperService.getSelectedRolesMetadata();	
+			var markedEntriesForDeletion = kommonitorDataGridHelperService.getSelectedAccessControlMetadata();	
 
 			// submit selected spatial units to modal controller
 			$rootScope.$broadcast("onDeleteRoles", markedEntriesForDeletion);

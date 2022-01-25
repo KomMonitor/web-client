@@ -75,10 +75,7 @@ angular.module('roleAddModal').component('roleAddModal', {
 								}
 							});
 
-							for (role of $scope.newOrganizationalUnit.roles) {
-								rolename = $scope.newOrganizationalUnit.name + "-" + role.roleId;
-								await kommonitorKeycloakHelperService.postNewRole(rolename);
-							}
+							await kommonitorKeycloakHelperService.postNewRoles($scope.newOrganizationalUnit.name);
 							await kommonitorKeycloakHelperService.fetchAndSetKeycloakRoles();
 							$("#keycloakRoleAddSuccessAlert").show();
 						} catch (error) {

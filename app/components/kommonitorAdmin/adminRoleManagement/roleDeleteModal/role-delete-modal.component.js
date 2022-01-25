@@ -24,7 +24,6 @@ angular.module('roleDeleteModal').component('roleDeleteModal', {
 		$scope.$on("onDeleteRoles", function (event, datasets) {
 
 			$scope.datasetsToDelete = datasets;
-
 			$scope.resetRolesDeleteForm();
 
 		});
