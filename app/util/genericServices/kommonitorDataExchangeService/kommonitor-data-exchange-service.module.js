@@ -2749,6 +2749,18 @@ angular
       return rolesMetadata;
     };
 
+    this.getAllowedRolesString = function(allowedRoleIds){
+      var allowedRoles = [];
+      for(const organizationalUnit of this.accessControl){
+        for(const role of organizationalUnit.roles){
+          if(allowedRoleIds.includes(role.roleId)){
+            allowedRoles.push(organizationalUnit.name + "-" + role.permissionLevel)
+          }
+        }
+      }
+      return allowedRoles.join(", ");
+    }
+
     $rootScope.$on("onAddedFeatureToSelection", function (event, selectedIndicatorFeatureIds) {
       let propertyName = buildIndicatorPropertyName();
 
