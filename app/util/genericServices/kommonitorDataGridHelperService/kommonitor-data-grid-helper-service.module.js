@@ -204,6 +204,12 @@ angular
               return "" + params.data.metadata.contact;
             }
           },
+          { headerName: 'Rollen', minWidth: 400, cellRenderer: function (params) { return kommonitorDataExchangeService.getAllowedRolesString(params.data.allowedRoles); },
+          filter: 'agTextColumnFilter', 
+          filterValueGetter: (params) => {
+              return "" +  kommonitorDataExchangeService.getAllowedRolesString(params.data.allowedRoles);
+            } 
+          }
         ];
 
         return columnDefs;
@@ -290,9 +296,9 @@ angular
           { headerName: 'Rollen', minWidth: 400, cellRenderer: function (params) { return kommonitorDataExchangeService.getAllowedRolesString(params.data.allowedRoles); },
           filter: 'agTextColumnFilter', 
           filterValueGetter: (params) => {
-            return "" +  kommonitorDataExchangeService.getAllowedRolesString(params.data.allowedRoles);
+              return "" +  kommonitorDataExchangeService.getAllowedRolesString(params.data.allowedRoles);
+            } 
           }
-        }
         ];
 
         return columnDefs;
@@ -365,6 +371,12 @@ angular
               return "" + params.data.metadata.contact;
             }
           },
+          { headerName: 'Rollen', minWidth: 400, cellRenderer: function (params) { return kommonitorDataExchangeService.getAllowedRolesString(params.data.allowedRoles); },
+          filter: 'agTextColumnFilter', 
+          filterValueGetter: (params) => {
+              return "" +  kommonitorDataExchangeService.getAllowedRolesString(params.data.allowedRoles);
+            } 
+          }
         ];
 
         return columnDefs;
@@ -435,6 +447,12 @@ angular
               return "" + params.data.metadata.contact;
             }
           },
+          { headerName: 'Rollen', minWidth: 400, cellRenderer: function (params) { return kommonitorDataExchangeService.getAllowedRolesString(params.data.allowedRoles); },
+          filter: 'agTextColumnFilter', 
+          filterValueGetter: (params) => {
+              return "" +  kommonitorDataExchangeService.getAllowedRolesString(params.data.allowedRoles);
+            } 
+          }
         ];
 
         return columnDefs;
@@ -549,6 +567,12 @@ angular
               return "" + params.data.metadata.contact;
             }
           },
+          { headerName: 'Rollen', minWidth: 400, cellRenderer: function (params) { return kommonitorDataExchangeService.getAllowedRolesString(params.data.allowedRoles); },
+          filter: 'agTextColumnFilter', 
+          filterValueGetter: (params) => {
+              return "" +  kommonitorDataExchangeService.getAllowedRolesString(params.data.allowedRoles);
+            } 
+          }
         ];
 
         return columnDefs;
