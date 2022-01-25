@@ -68,6 +68,7 @@ angular
           this.availableSpatialUnits_map = new Map();
           this.availableProcessScripts_map = new Map();
 
+          this.accessControl = [];
           this.accessControl_map = new Map();
           
           // Define translations, settings for dropdown-multiselect 
@@ -347,8 +348,7 @@ angular
 
           this.fileDatasets = [];
 
-          this.roles = [];
-          this.organizationalUnits = [];
+          this.availableRoles = [];
           this.availableUsers = [];
 					this.availableProcessScripts = [];
           this.isochroneLegend;
@@ -1598,23 +1598,18 @@ angular
                 });
               }, 1000);
             }, 1000);
-            
             // setTimeout(() => {
             //   // $rootScope.$broadcast("initialMetadataLoadingCompleted");
-
-                  
             // }, 1000);
-
-              
-
           };
 
           this.setAccessControl = function(input){
-            self.accessControl = input;
+            this.accessControl = input;
             this.accessControl_map = new Map();
             for (const entry of input) {
               this.accessControl_map.set(entry.organizationalUnitId, entry);
             }
+            this.updateAvailableRoles()
           };
 
           this.fetchAccessControlMetadata = async function(){
@@ -1631,25 +1626,38 @@ angular
               }
             }
             this.accessControl_map.set(targetRoleMetadata.organizationalUnitId, targetRoleMetadata);
+            this.updateAvailableRoles()
           };
 
           this.addSingleAccessControlMetadata = function(metadata){
             let tmpArray = [metadata];
-            Array.prototype.push.apply(tmpArray, this.availableRoles);
-            this.availableRoles =  tmpArray;
+            Array.prototype.push.apply(tmpArray, this.accessControl);
+            this.accessControl = tmpArray;
             this.accessControl_map.set(metadata.organizationalUnitId, metadata);
+            this.updateAvailableRoles()
           };
 
           this.deleteSingleAccessControlMetadata = function(id){
             for (let index = 0; index < this.accessControl.length; index++) {
               const oldMetadata = this.accessControl[index];
               if(oldMetadata.organizationalUnitId == id){
-                this.roles.splice(index, 1);
+                this.accessControl.splice(index, 1);
                 break;
               }              
             }
             this.accessControl_map.delete(id);
+            this.updateAvailableRoles()
           };
+
+          this.updateAvailableRoles = function() {
+            this.availableRoles = []
+            for (elem of this.accessControl) {
+              for (role of elem.roles) {
+                let available = {...role, ...{"organizationalUnit": elem, "roleName": elem.name + "-" + role.permissionLevel}}
+                this.availableRoles.push(available)
+              }
+            }
+          }
 
           this.getAccessControlById = function(id){
             return this.accessControl_map.get(id);
@@ -2683,6 +2691,7 @@ angular
 		 */
 		this.createDualListInputArray = function(array, nameProperty, idProperty) {
 			var result = [];
+      debugger;
 
       if(array && Array.isArray(array)){
         for (var i=0;i<array.length;i++) {
@@ -2723,7 +2732,7 @@ angular
     };
     
     this.getRoleMetadataForRoleName = function(roleName){
-      for (const roleMetadata of this.roles) {
+      for (const roleMetadata of this.availableRoles) {
         if(roleMetadata.roleName === roleName){
           return roleMetadata;
         }
@@ -2731,7 +2740,7 @@ angular
     };
 
     this.getRoleMetadataForRoleId = function(roleId){
-      for (const roleMetadata of this.roles) {
+      for (const roleMetadata of this.availableRoles) {
         if(roleMetadata.roleId === roleId){
           return roleMetadata;
         }
@@ -2740,7 +2749,7 @@ angular
 
     this.getRoleMetadataForRoleIds = function(roleIdsArray){
       var rolesMetadata = [];
-      for (const roleMetadata of this.roles) {
+      for (const roleMetadata of this.availableRoles) {
         if(roleIdsArray.includes(roleMetadata.roleId)){
           rolesMetadata.push(roleMetadata);
         }
