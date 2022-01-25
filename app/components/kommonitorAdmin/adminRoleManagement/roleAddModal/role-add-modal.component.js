@@ -14,9 +14,6 @@ angular.module('roleAddModal').component('roleAddModal', {
 			$scope.errorMessagePart = undefined;
 			$scope.keycloakErrorMessagePart = undefined;
 
-			$scope.keycloakAdminUserName = undefined;
-			$scope.keycloakAdminUserPassword = undefined;
-
 			$scope.checkRoleName = function () {
 				$scope.nameInvalid = false;
 				kommonitorDataExchangeService.accessControl.forEach(function (ou) {

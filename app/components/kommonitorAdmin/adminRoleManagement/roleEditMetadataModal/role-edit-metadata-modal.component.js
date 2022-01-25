@@ -10,9 +10,6 @@ angular.module('roleEditMetadataModal').component('roleEditMetadataModal', {
 		$scope.old.name = undefined;
 		$scope.nameInvalid = false;
 
-		$scope.keycloakAdminUserName = undefined;
-		$scope.keycloakAdminUserPassword = undefined;
-
 		$scope.loadingData = false;
 
 		$scope.successMessagePart = undefined;
@@ -43,9 +40,6 @@ angular.module('roleEditMetadataModal').component('roleEditMetadataModal', {
 
 			$scope.successMessagePart = undefined;
 			$scope.errorMessagePart = undefined;
-
-			$scope.keycloakAdminUserName = undefined;
-			$scope.keycloakAdminUserPassword = undefined;
 
 			$("#editMetadataSuccessAlert").hide();
 			$("#editMetadataErrorAlert").hide();
@@ -82,9 +76,8 @@ angular.module('roleEditMetadataModal').component('roleEditMetadataModal', {
 				});	
 
 				try {
-					console.log("TODO(specki): implement kc sync")							
-					//await kommonitorKeycloakHelperService.renameExistingRole($scope.oldRoleName, $scope.currentRoleDataset.roleName, $scope.keycloakAdminUserName, $scope.keycloakAdminUserPassword);
-					//await kommonitorKeycloakHelperService.fetchAndSetKeycloakRoles($scope.keycloakAdminUserName, $scope.keycloakAdminUserPassword);	
+					await kommonitorKeycloakHelperService.renameExistingRoles($scope.old.name, $scope.current.name);
+					await kommonitorKeycloakHelperService.fetchAndSetKeycloakRoles();	
 					$("#keycloakRoleEditErrorAlert").show();
 				} catch (error) {
 					if (error.data) {

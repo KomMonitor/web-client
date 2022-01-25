@@ -2691,7 +2691,6 @@ angular
 		 */
 		this.createDualListInputArray = function(array, nameProperty, idProperty) {
 			var result = [];
-      debugger;
 
       if(array && Array.isArray(array)){
         for (var i=0;i<array.length;i++) {
