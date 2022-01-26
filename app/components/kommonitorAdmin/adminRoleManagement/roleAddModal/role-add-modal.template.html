@@ -66,7 +66,7 @@
 				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schlie&szlig;en</button>
 
 				<button type="button" class="btn btn-success" type="submit" ng-click="addRole()"
-					ng-disabled="!newOrganizationalUnit.name || !newOrganizationalUnit.description || !newOrganizationalUnit.contact || roleNameInvalid">Rolle registrieren</button>
+					ng-disabled="!newOrganizationalUnit.name || !newOrganizationalUnit.description || !newOrganizationalUnit.contact || nameInvalid">Rolle registrieren</button>
 				<button type="button" class="btn btn-danger" ng-click="resetRoleAddForm()">Zur&uuml;cksetzen</button>
 			</div>
 
@@ -74,7 +74,7 @@
 				class="alert alert-success alert-dismissable">
 				<button type="button" class="close" ng-click="hideSuccessAlert()" aria-hidden="true">&times;</button>
 				<h4><i class="icon fa fa-check"></i>Rolle in KomMonitor Datenbank registriert</h4>
-				<p>Eine neue Rolle mit Namen {{roleName}} wurde in KomMonitor registriert und in die
+				<p>Eine neue Einheit mit Namen {{newOrganizationalUnit.name}} wurde in KomMonitor registriert und in die
 					&Uuml;bersichtstabelle eingetragen.
 				</p>
 			</div>
@@ -83,7 +83,7 @@
 				class="alert alert-danger alert-dismissable">
 				<button type="button" class="close" ng-click="hideErrorAlert()" aria-hidden="true">&times;</button>
 				<h4><i class="icon fa fa-ban"></i>Registrierung in KomMonitor Datenbank gescheitert</h4>
-				Bei der Registrierung der Rolle in der KomMonitor Datenbank ist ein Fehler aufgetreten. Fehlermeldung:
+				Bei der Registrierung der Organisationseinheit in der KomMonitor Datenbank ist ein Fehler aufgetreten. Fehlermeldung:
 				<br />
 				<pre style="overflow:auto; max-height:500px;" ng-bind-html="errorMessagePart"></pre>
 				<br />
@@ -94,7 +94,7 @@
 				class="alert alert-success alert-dismissable">
 				<button type="button" class="close" ng-click="hideKeycloakSuccessAlert()" aria-hidden="true">&times;</button>
 				<h4><i class="icon fa fa-check"></i>Rolle in Keycloak registriert</h4>
-				<p>Eine neue Rolle mit Namen {{roleName}} wurde in Keycloak registriert. Dort k&ouml;nnen nun Nutzer mit der Rolle verkn&uuml;pt werden.
+				<p>Neue Rollen für die Einheit {{newOrganizationalUnit.name}} wurden in Keycloak registriert. Dort k&ouml;nnen nun Nutzer verkn&uuml;pt werden.
 					<a ng-href="{{$ctrl.kommonitorKeycloakHelperServiceInstance.targetUrlToKeycloakInstance}}" target="_blank" rel="noopener noreferrer">{{$ctrl.kommonitorKeycloakHelperServiceInstance.targetUrlToKeycloakInstance}}</a>
 				</p>
 			</div>
@@ -103,7 +103,7 @@
 				class="alert alert-danger alert-dismissable">
 				<button type="button" class="close" ng-click="hideKeycloakErrorAlert()" aria-hidden="true">&times;</button>
 				<h4><i class="icon fa fa-ban"></i>Registrierung in Keycloak gescheitert</h4>
-				Bei der Registrierung der Rolle in Keycloak ist ein Fehler aufgetreten. Fehlermeldung:
+				Bei der Registrierung in Keycloak ist ein Fehler aufgetreten. Fehlermeldung:
 				<br />
 				<pre style="overflow:auto; max-height:500px;" ng-bind-html="keycloakErrorMessagePart"></pre>
 				<br />

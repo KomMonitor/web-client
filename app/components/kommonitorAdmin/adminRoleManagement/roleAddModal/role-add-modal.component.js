@@ -21,6 +21,7 @@ angular.module('roleAddModal').component('roleAddModal', {
 						$scope.nameInvalid = true;
 						return;
 					}
+					else $scope.nameInvalid = false;
 				});
 			};
 
