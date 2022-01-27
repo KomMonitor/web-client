@@ -125,8 +125,12 @@ angular.module('kommonitorUserInterface').component('kommonitorUserInterface', {
     				}).catch(function () {
        					console.log('Failed to load user profile');
 					});
-				if(Auth.keycloak.tokenParsed && Auth.keycloak.tokenParsed.realm_access && Auth.keycloak.tokenParsed.realm_access.roles && Auth.keycloak.tokenParsed.realm_access.roles.includes(__env.keycloakKommonitorAdminRoleName)){
-					$scope.showAdminLogin = true;
+				if(Auth.keycloak.tokenParsed 
+					&& Auth.keycloak.tokenParsed.realm_access 
+					&& Auth.keycloak.tokenParsed.realm_access.roles 
+					&& Auth.keycloak.tokenParsed.realm_access.roles.some(role => role.endsWith("-creator") || role.endsWith("-publisher") || role.endsWith("-editor"))){
+						Auth.keycloak.showAdminView = true
+						$scope.showAdminLogin = true;
 				}
 			}
 		};

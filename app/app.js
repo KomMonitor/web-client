@@ -268,7 +268,7 @@ function initAngularComponents(){
               'auth': function(Auth, $q, $location) { 
                 if(window.__env.enableKeycloakSecurity){
                   if (Auth.keycloak.authenticated) {
-                    if (Auth.keycloak.tokenParsed.realm_access.roles.includes(window.__env.keycloakKommonitorAdminRoleName)) {
+                    if (Auth.keycloak.showAdminView) {
                       return true;
                     } else {
                       return $q.reject('Not Authenticated');
