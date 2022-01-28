@@ -36,10 +36,12 @@ angular
       }
 
       var displayEditButtons_indicators = function (params) {
+        let editMetadataButtonId = 'btn_georesource_editMetadata_' + params.data.indicatorId;
+        let editFeaturesButtonId = 'btn_georesource_editFeatures_' + params.data.indicatorId;
 
         let html = '<div class="btn-group btn-group-sm">';
-        html += '<button id="btn_indicator_editMetadata_' + params.data.indicatorId + '" class="btn btn-warning btn-sm indicatorEditMetadataBtn" type="button" data-toggle="modal" data-target="#modal-edit-indicator-metadata" title="Metadaten editieren"><i class="fas fa-pencil-alt"></i></button>';
-        html += '<button id="btn_indicator_editFeatures_' + params.data.indicatorId + '" class="btn btn-warning btn-sm indicatorEditFeaturesBtn" type="button" data-toggle="modal" data-target="#modal-edit-indicator-features" title="Features fortf&uuml;hren"><i class="fas fa-draw-polygon"></i></button>';
+        html += '<button id="' + editMetadataButtonId + '" class="btn btn-warning btn-sm indicatorEditMetadataBtn" type="button" data-toggle="modal" data-target="#modal-edit-indicator-metadata" title="Metadaten editieren" disabled="true"><i class="fas fa-pencil-alt"></i></button>';
+        html += '<button id="' + editFeaturesButtonId + '" class="btn btn-warning btn-sm indicatorEditFeaturesBtn" type="button" data-toggle="modal" data-target="#modal-edit-indicator-features" title="Features fortf&uuml;hren" disabled="true"><i class="fas fa-draw-polygon"></i></button>';
         if (kommonitorDataExchangeService.enableKeycloakSecurity) {
           let disabled = params.data.applicableSpatialUnits.length == 0;
           html += '<button id="btn_indicator_editRoleBasedAccess_' + params.data.indicatorId + '"class="btn btn-warning btn-sm indicatorEditRoleBasedAccessBtn ';
@@ -56,21 +58,33 @@ angular
       };
 
       var displayEditButtons_georesources = function (params) {
+        let disabled = !params.data.userPermissions.includes("creator")
+        let editMetadataButtonId = 'btn_georesource_editMetadata_' + params.data.georesourceId;
+        let editFeaturesButtonId = 'btn_georesource_editFeatures_' + params.data.georesourceId;
 
         let html = '<div class="btn-group btn-group-sm">';
-        html += '<button id="btn_georesource_editMetadata_' + params.data.georesourceId + '" class="btn btn-warning btn-sm georesourceEditMetadataBtn" type="button" data-toggle="modal" data-target="#modal-edit-georesource-metadata" title="Metadaten editieren"><i class="fas fa-pencil-alt"></i></button>';
-        html += '<button id="btn_georesource_editFeatures_' + params.data.georesourceId + '" class="btn btn-warning btn-sm georesourceEditFeaturesBtn" type="button" data-toggle="modal" data-target="#modal-edit-georesource-features" title="Features fortf&uuml;hren"><i class="fas fa-draw-polygon"></i></button>';
+        html += '<button id="'+ editMetadataButtonId +'" class="btn btn-warning btn-sm georesourceEditMetadataBtn" type="button" data-toggle="modal" data-target="#modal-edit-georesource-metadata" title="Metadaten editieren" disabled><i class="fas fa-pencil-alt" ></i></button>';
+        html += '<button id="'+ editFeaturesButtonId + '" class="btn btn-warning btn-sm georesourceEditFeaturesBtn" type="button" data-toggle="modal" data-target="#modal-edit-georesource-features" title="Features fortf&uuml;hren" disabled><i class="fas fa-draw-polygon"></i></button>';
         html += '</div>';
+
+        if(!disabled){
+          html = html.replaceAll("disabled", "") //enabled
+        }
 
         return html;
       };
 
       var displayEditButtons_spatialUnits = function (params) {
+        let disabled = !params.data.userPermissions.includes("creator")
 
         let html = '<div class="btn-group btn-group-sm">';
-        html += '<button id="btn_spatialUnit_editMetadata_' + params.data.spatialUnitId + '" class="btn btn-warning btn-sm spatialUnitEditMetadataBtn" type="button" data-toggle="modal" data-target="#modal-edit-spatial-unit-metadata" title="Metadaten editieren"><i class="fas fa-pencil-alt"></i></button>';
-        html += '<button id="btn_spatialUnit_editFeatures_' + params.data.spatialUnitId + '" class="btn btn-warning btn-sm spatialUnitEditFeaturesBtn" type="button" data-toggle="modal" data-target="#modal-edit-spatial-unit-features" title="Features fortf&uuml;hren"><i class="fas fa-draw-polygon"></i></button>';
+        html += '<button id="btn_spatialUnit_editMetadata_' + params.data.spatialUnitId + '" class="btn btn-warning btn-sm spatialUnitEditMetadataBtn" type="button" data-toggle="modal" data-target="#modal-edit-spatial-unit-metadata" title="Metadaten editieren"  disabled><i class="fas fa-pencil-alt"></i></button>';
+        html += '<button id="btn_spatialUnit_editFeatures_' + params.data.spatialUnitId + '" class="btn btn-warning btn-sm spatialUnitEditFeaturesBtn" type="button" data-toggle="modal" data-target="#modal-edit-spatial-unit-features" title="Features fortf&uuml;hren"  disabled><i class="fas fa-draw-polygon"></i></button>';
         html += '</div>';
+
+        if(!disabled){
+          html = html.replaceAll("disabled", "") //enabled
+        }
 
         return html;
       };
