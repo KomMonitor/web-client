@@ -169,6 +169,9 @@ angular.module('adminGeoresourcesManagement').component('adminGeoresourcesManage
 			$rootScope.$broadcast("onEditGeoresourceFeatures", georesourceDataset);
 		};
 
+		$scope.checkCreatePermission = function(){
+			return kommonitorDataExchangeService.checkCreatePermission();
+		};
 
 	}
 ]});

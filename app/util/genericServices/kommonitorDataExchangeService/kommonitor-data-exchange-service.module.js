@@ -2769,6 +2769,17 @@ angular
       return allowedRoles.join(", ");
     }
 
+    this.checkCreatePermission = function(){
+      for(const role of this.currentKeycloakLoginRoles){
+        const permissionLevel = role.split("-")[1]; //e.g. kommonitor-creator
+        if(permissionLevel == "publisher" || permissionLevel == "creator"){
+          return true;
+        }
+      }
+      return false;
+    }
+
+
     $rootScope.$on("onAddedFeatureToSelection", function (event, selectedIndicatorFeatureIds) {
       let propertyName = buildIndicatorPropertyName();
 

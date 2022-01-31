@@ -164,6 +164,10 @@ angular.module('adminIndicatorsManagement').component('adminIndicatorsManagement
 
 		};
 
+		$scope.checkCreatePermission = function(){
+			return kommonitorDataExchangeService.checkCreatePermission();
+		};
+
 		// $scope.onClickDeleteDatasets = function(){
 		// 	$scope.loadingData = true;
 
