@@ -36,12 +36,18 @@ angular
       }
 
       var displayEditButtons_indicators = function (params) {
+        let disabledEditButtons = !params.data.userPermissions.includes("creator")
         let editMetadataButtonId = 'btn_georesource_editMetadata_' + params.data.indicatorId;
         let editFeaturesButtonId = 'btn_georesource_editFeatures_' + params.data.indicatorId;
 
         let html = '<div class="btn-group btn-group-sm">';
-        html += '<button id="' + editMetadataButtonId + '" class="btn btn-warning btn-sm indicatorEditMetadataBtn" type="button" data-toggle="modal" data-target="#modal-edit-indicator-metadata" title="Metadaten editieren" disabled="true"><i class="fas fa-pencil-alt"></i></button>';
-        html += '<button id="' + editFeaturesButtonId + '" class="btn btn-warning btn-sm indicatorEditFeaturesBtn" type="button" data-toggle="modal" data-target="#modal-edit-indicator-features" title="Features fortf&uuml;hren" disabled="true"><i class="fas fa-draw-polygon"></i></button>';
+        html += '<button id="' + editMetadataButtonId + '" class="btn btn-warning btn-sm indicatorEditMetadataBtn" type="button" data-toggle="modal" data-target="#modal-edit-indicator-metadata" title="Metadaten editieren" disabled><i class="fas fa-pencil-alt"></i></button>';
+        html += '<button id="' + editFeaturesButtonId + '" class="btn btn-warning btn-sm indicatorEditFeaturesBtn" type="button" data-toggle="modal" data-target="#modal-edit-indicator-features" title="Features fortf&uuml;hren" disabled><i class="fas fa-draw-polygon"></i></button>';
+        
+        if(!disabledEditButtons){
+          html = html.replaceAll("disabled", "") //enabled
+        }
+        
         if (kommonitorDataExchangeService.enableKeycloakSecurity) {
           let disabled = params.data.applicableSpatialUnits.length == 0;
           html += '<button id="btn_indicator_editRoleBasedAccess_' + params.data.indicatorId + '"class="btn btn-warning btn-sm indicatorEditRoleBasedAccessBtn ';
