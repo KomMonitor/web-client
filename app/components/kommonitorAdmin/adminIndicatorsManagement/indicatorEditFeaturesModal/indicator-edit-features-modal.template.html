@@ -63,8 +63,17 @@
 								</div>
 								<div class="col-md-4 col-sm-4 col-xs-12">
 									<div class="form-group">
-										<label >Datenbank-Features bereinigen</label>
-										<button class="btn btn-danger" ng-click="clearAllIndicatorFeatures()"><i class="fas fa-trash"></i>&nbsp;L&ouml;sche Indikator-Features der selektierten Raumebene</button>
+										<label >Datenbank-Features bereinigen (Funktion muss zuerst aktiv eingeschaltet werden)</label>										
+										<label class="switch">
+											<input class="elementCheckbox" type="checkbox"
+												ng-model="enableDeleteFeatures" ng-init="enableDeleteFeatures = false"
+												ng-checked="enableDeleteFeatures">
+											<span class="switchslider round text-left" style="line-height:25px;"></span>
+										</label>
+
+										&nbsp;&nbsp;
+
+										<button class="btn btn-danger" ng-click="clearAllIndicatorFeatures()" ng-disabled="!enableDeleteFeatures"><i class="fas fa-trash"></i>&nbsp;L&ouml;sche Indikator-Features der selektierten Raumebene</button>
 	   
 										<div class="help-block"><p>Das L&ouml;schen aller Features des Indikators f&uuml;r die selektierte Raumebene ist unwiderruflich. Der Datensatz als solches (Metadaten) sowie die Indikatorendaten der sonstigen Raumebenen bleiben dabei bestehen.</p></div>
 										<div class="help-block with-errors"></div>
