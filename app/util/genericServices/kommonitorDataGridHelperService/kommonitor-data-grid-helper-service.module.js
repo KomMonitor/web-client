@@ -722,7 +722,7 @@ angular
                 // setTimeout(function () {
                 //   self.dataGridOptions_indicators.api.resetRowHeights();
                 // }, 1000);
-                self.dataGridOptions_indicators.api.resetRowHeights();
+                // self.dataGridOptions_indicators.api.resetRowHeights();
               });
 
               // setTimeout(function () {
