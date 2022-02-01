@@ -1151,7 +1151,7 @@ angular
           { headerName: 'DB-Record-Id', field: "kommonitorRecordId", pinned: 'left', editable: false, maxWidth: 125 },
           { headerName: 'Feature-Id', field: __env.FEATURE_ID_PROPERTY_NAME, pinned: 'left', editable: false, maxWidth: 125 },
           { headerName: 'Name', field: __env.FEATURE_NAME_PROPERTY_NAME, pinned: 'left', minWidth: 300 }, 
-          { headerName: 'Geometrie', field: "kommonitorGeometry", 
+          { headerName: 'Geometrie', field: "kommonitorGeometry", autoHeight: false, wrapText: false,
             cellRenderer: function (params) {
               let html = JSON.stringify(params.data.kommonitorGeometry);
 
@@ -1165,7 +1165,16 @@ angular
               return JSON.stringify(params.data.kommonitorGeometry);
             },
             valueSetter: params => {
-                params.data.kommonitorGeometry = JSON.parse(params.newValue);
+                try {
+                  params.data.kommonitorGeometry = JSON.parse(params.newValue);
+                } catch (error) {
+                  try {
+                    params.data.kommonitorGeometry = JSON.parse(params.oldValue);
+                  } catch (error) {
+                    params.data.kommonitorGeometry = params.oldValue;
+                  }
+                  
+                }                
                 return true;
             },
             minWidth: 250 
@@ -1233,14 +1242,8 @@ angular
             defaultColDef: {
               editable: true,
               // enables the fill handle
-              enableFillHandle: false,
-              // enables undo / redo
-              undoRedoCellEditing: true,
-              // restricts the number of undo / redo steps to 10
-              undoRedoCellEditingLimit: 10,
+              enableFillHandle: false,              
               cellEditor: 'agLargeTextCellEditor',
-              // enables flashing to help see cell changes
-              enableCellChangeFlash: true,
               onCellValueChanged: function(newValueParams){
                 /* https://www.ag-grid.com/javascript-data-grid/cell-editing/ 
                   interface NewValueParams {
@@ -1300,10 +1303,10 @@ angular
                   delete geoJSON.properties.kommonitorRecordId;
 
                   let url = __env.apiUrl + __env.basePath; 
-                  if(resourceType == "georesource"){
+                  if(resourceType == self.resourceType_georesource){
                     url += "/georesources/";
                   }
-                  else if(resourceType == "spatialUnit"){
+                  else if(resourceType == self.resourceType_spatialUnit){
                     url += "/spatial-units/";
                   }
                   else{
@@ -1330,6 +1333,9 @@ angular
                       // or server returns response with an error status.
                       //$scope.error = response.statusText;
                       console.error("Error while updating database record. Error is:\n" + error);
+
+                      // reset cell value as an error occurred
+                      newValueParams.data[newValueParams.column.colId] = newValueParams.oldValue;
                       throw error;
                   }); 
               },
@@ -1362,6 +1368,12 @@ angular
             },
             columnDefs: columnDefs,
             rowData: rowData,
+            // enables undo / redo
+            undoRedoCellEditing: true,
+            // restricts the number of undo / redo steps to 10
+            undoRedoCellEditingLimit: 10,
+            // enables flashing to help see cell changes
+            enableCellChangeFlash: true,
             suppressRowClickSelection: true,
             // rowSelection: 'multiple',
             enableCellTextSelection: true,
@@ -1383,7 +1395,7 @@ angular
 
       this.buildDataGrid_featureTable = function (domElementId, specificHeadersArray, dataArray, datasetId, resourceType) {
         
-          let dataGridOptions_featureTable = this.buildDataGridOptions_featureTable(specificHeadersArray, dataArray, datasetId);
+          let dataGridOptions_featureTable = this.buildDataGridOptions_featureTable(specificHeadersArray, dataArray, datasetId, resourceType);
           let gridDiv = document.querySelector('#' + domElementId);
           while (gridDiv.firstChild) {
             gridDiv.removeChild(gridDiv.firstChild);

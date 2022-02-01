@@ -967,7 +967,7 @@ pre.CodeMirror-line {
 
 .ag-cell { 
 	font-size: 12px;
-	white-space: normal !important;
+	white-space: normal ;
 	line-height: 20px !important; 
 	word-break: break-word !important; 
 	padding-top: 17px;
