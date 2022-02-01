@@ -10,6 +10,10 @@ angular
       var self = this;
       this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 
+      this.resourceType_georesource = "georesource";
+      this.resourceType_spatialUnit = "spatialUnit";
+      this.resourceType_indicator = "indicator";
+
       this.dataGridOptions_indicators;
       this.dataGridOptions_georesources_poi;
       this.dataGridOptions_georesources_loi;
@@ -83,6 +87,57 @@ angular
 
         return html;
       };
+
+      function getDatePicker() {
+        // function to act as a class
+        function Datepicker() {}
+      
+        // gets called once before the renderer is used
+        Datepicker.prototype.init = function (params) {
+          // create the cell
+          this.eInput = document.createElement('input');
+          this.eInput.value = params.value;
+          this.eInput.classList.add('ag-input');
+          this.eInput.style.height = '100%';
+      
+          // https://jqueryui.com/datepicker/
+          // $(this.eInput).datepicker({
+          //   dateFormat: 'yyyy-mm-dd',
+          // });
+          $(this.eInput).datepicker(kommonitorDataExchangeService.datePickerOptions);
+
+        };
+      
+        // gets called once when grid ready to insert the element
+        Datepicker.prototype.getGui = function () {
+          return this.eInput;
+        };
+      
+        // focus and select can be done after the gui is attached
+        Datepicker.prototype.afterGuiAttached = function () {
+          this.eInput.focus();
+          this.eInput.select();
+        };
+      
+        // returns the new value after editing
+        Datepicker.prototype.getValue = function () {
+          return this.eInput.value;
+        };
+      
+        // any cleanup we need to be done here
+        Datepicker.prototype.destroy = () => {
+          // but this example is simple, no cleanup, we could
+          // even leave this method out as it's optional
+        };
+      
+        // if true, then this editor will appear in a popup
+        Datepicker.prototype.isPopup = () => {
+          // and we could leave this method out also, false is the default
+          return false;
+        };
+      
+        return Datepicker;
+      }
 
       this.buildDataGridColumnConfig_indicators = function (indicatorMetadataArray) {
         const columnDefs = [
@@ -1093,34 +1148,54 @@ angular
 
       this.buildDataGridColumnConfig_featureTable = function(specificHeadersArray){
         const columnDefs = [
-          { headerName: 'Id', field: __env.FEATURE_ID_PROPERTY_NAME, pinned: 'left', maxWidth: 125 },
-          { headerName: 'Name', field: __env.FEATURE_NAME_PROPERTY_NAME, pinned: 'left', minWidth: 300 },  
-          // { headerName: 'Id', field: __env.FEATURE_ID_PROPERTY_NAME,  maxWidth: 125 },
-          // { headerName: 'Name', field: __env.FEATURE_NAME_PROPERTY_NAME,  minWidth: 300 },         
-          {
-            headerName: 'Gültigkeitszeitraum', minWidth: 400,
+          { headerName: 'DB-Record-Id', field: "kommonitorRecordId", pinned: 'left', editable: false, maxWidth: 125 },
+          { headerName: 'Feature-Id', field: __env.FEATURE_ID_PROPERTY_NAME, pinned: 'left', editable: false, maxWidth: 125 },
+          { headerName: 'Name', field: __env.FEATURE_NAME_PROPERTY_NAME, pinned: 'left', minWidth: 300 }, 
+          { headerName: 'Geometrie', field: "kommonitorGeometry", 
             cellRenderer: function (params) {
-              let html = '<p>';
-
-              if (params.data.validEndDate){
-                html += params.data.validStartDate + " &dash; " + params.data.validEndDate;
-              }
-              else{
-                html += params.data.validStartDate + " &dash; heute";
-              }
-
-              html += "</p>";
+              let html = JSON.stringify(params.data.kommonitorGeometry);
 
               return html;
             },
             filter: 'agTextColumnFilter', 
             filterValueGetter: (params) => {
-              if (params.data.validEndDate){
-                return "" + params.data.validStartDate + " " + params.data.validEndDate;
-              }
-              return params.data.validStartDate;
-            }
-          }
+              return JSON.stringify(params.data.kommonitorGeometry);
+            },
+            valueGetter: params => {
+              return JSON.stringify(params.data.kommonitorGeometry);
+            },
+            valueSetter: params => {
+                params.data.kommonitorGeometry = JSON.parse(params.newValue);
+                return true;
+            },
+            minWidth: 250 
+          },  
+          // { headerName: 'Id', field: __env.FEATURE_ID_PROPERTY_NAME,  maxWidth: 125 },
+          // { headerName: 'Name', field: __env.FEATURE_NAME_PROPERTY_NAME,  minWidth: 300 }, 
+          { headerName: 'Lebenszeitbeginn', field: __env.VALID_START_DATE_PROPERTY_NAME, minWidth: 150, cellEditor: getDatePicker() },
+          { headerName: 'Lebenszeitende', field: __env.VALID_END_DATE_PROPERTY_NAME, cellEditor: getDatePicker(), 
+            // cellRenderer: function (params) {
+            //   let html = '<p><i>';
+
+            //   if (params.data.validEndDate){
+            //     html += params.data.validEndDate;
+            //   }
+            //   else{
+            //     html += "uneingeschr&auml;nkt g&uuml;ltig";
+            //   }
+
+            //   html += "</i></p>";
+
+            //   return html;
+            // },
+            // filter: 'agTextColumnFilter', 
+            // filterValueGetter: (params) => {
+            //   if (params.data.validEndDate){
+            //     return "" + params.data.validEndDate;
+            //   }
+            //   return "uneingeschr&auml;nkt g&uuml;ltig";
+            // },
+          minWidth: 150 }
         ];
 
         for (const header of specificHeadersArray) {
@@ -1131,20 +1206,133 @@ angular
       };
 
       this.buildDataGridRowData_featureTable = function(dataArray){
+
+        
         if(dataArray[0] && dataArray[0].properties){
-          return dataArray.map(dataItem => dataItem.properties);
+          return dataArray.map(dataItem => {
+              // add geometry and database record ID to properties to be available within data grid object
+              dataItem.properties.kommonitorGeometry = dataItem.geometry;
+              dataItem.properties.kommonitorRecordId = dataItem.id;
+              return dataItem.properties;
+             }
+          );
         }
         
         return dataArray;
       };
 
-      this.buildDataGridOptions_featureTable = function(specificHeadersArray, dataArray){
+      const isDate = (date) => {
+        return (new Date(date) !== "Invalid Date") && !isNaN(new Date(date));
+      }
+
+      this.buildDataGridOptions_featureTable = function(specificHeadersArray, dataArray, datasetId, resourceType){
           let columnDefs = this.buildDataGridColumnConfig_featureTable(specificHeadersArray);
           let rowData = this.buildDataGridRowData_featureTable(dataArray);
   
           let gridOptions = {
             defaultColDef: {
-              editable: false,
+              editable: true,
+              // enables the fill handle
+              enableFillHandle: false,
+              // enables undo / redo
+              undoRedoCellEditing: true,
+              // restricts the number of undo / redo steps to 10
+              undoRedoCellEditingLimit: 10,
+              cellEditor: 'agLargeTextCellEditor',
+              // enables flashing to help see cell changes
+              enableCellChangeFlash: true,
+              onCellValueChanged: function(newValueParams){
+                /* https://www.ag-grid.com/javascript-data-grid/cell-editing/ 
+                  interface NewValueParams {
+                    // The value before the change 
+                    oldValue: any;
+                    // The value after the change 
+                    newValue: any;
+                    // Row node for the given row 
+                    node: RowNode | null;
+                    // Data associated with the node 
+                    data: any;
+                    // Column for this callback 
+                    column: Column;
+                    // ColDef provided for this column 
+                    colDef: ColDef;
+                    api: GridApi;
+                    columnApi: ColumnApi;
+                    // The context as provided on `gridOptions.context` 
+                    context: any;
+                  }
+                */
+
+                  // make sure that date properties are actually set
+                  if (! newValueParams.data.validStartDate){
+                    newValueParams.data.validStartDate = newValueParams.oldValue;
+                  }
+                  if (!isDate(newValueParams.data.validStartDate)){
+                    newValueParams.data.validStartDate = newValueParams.oldValue;
+                  }
+                  if(newValueParams.data.validEndDate == ""){
+                    newValueParams.data.validEndDate = undefined;
+                  }  
+                  if(newValueParams.data.validEndDate){
+                    if (!isDate(newValueParams.data.validEndDate)){
+                      newValueParams.data.validEndDate = newValueParams.oldValue;
+                    }
+                  }                  
+
+                  // take the modified data from newValueParams.data
+                  // take geometry info from newValueParams.data.geometry and remove that property afterwards   
+                  // take kommonitorRecordId info from newValueParams.data.kommonitorRecordId and remove that property afterwards                  
+                  // then build GeoJSON and send modification request to data Management component
+                  let geoJSON = {
+                    "type": "Feature",
+                    geometry: "",
+                    properties: "",
+                    id: ""
+                  };
+
+                  // clone properties
+                  geoJSON.geometry = JSON.parse(JSON.stringify(newValueParams.data.kommonitorGeometry));
+                  geoJSON.id = JSON.parse(JSON.stringify(newValueParams.data.kommonitorRecordId));
+                  geoJSON.properties = JSON.parse(JSON.stringify(newValueParams.data));
+
+                  // now delete information
+                  delete geoJSON.properties.kommonitorGeometry;
+                  delete geoJSON.properties.kommonitorRecordId;
+
+                  let url = __env.apiUrl + __env.basePath; 
+                  if(resourceType == "georesource"){
+                    url += "/georesources/";
+                  }
+                  else if(resourceType == "spatialUnit"){
+                    url += "/spatial-units/";
+                  }
+                  else{
+                    url += "/indicators/";
+                  }
+                  
+                  url += datasetId + "/singleFeature/" + newValueParams.data[__env.FEATURE_ID_PROPERTY_NAME] + "/singleFeatureRecord/" + newValueParams.data.kommonitorRecordId;
+
+                  $http({
+                    url: url,
+                    method: "PUT",
+                    data: geoJSON,
+                    headers: {
+                      'Content-Type': "application/json"
+                    }
+                  }).then(function successCallback(response) {
+                      // this callback will be called asynchronously
+                      // when the response is available
+
+                      console.log("Successfully updated database record");
+            
+                    }, function errorCallback(error) {
+                      // called asynchronously if an error occurs
+                      // or server returns response with an error status.
+                      //$scope.error = response.statusText;
+                      console.error("Error while updating database record. Error is:\n" + error);
+                      throw error;
+                  }); 
+              },
               sortable: true,
               flex: 1,
               minWidth: 200,
@@ -1193,9 +1381,9 @@ angular
           return gridOptions;        
       };
 
-      this.buildDataGrid_featureTable = function (domElementId, specificHeadersArray, dataArray) {
+      this.buildDataGrid_featureTable = function (domElementId, specificHeadersArray, dataArray, datasetId, resourceType) {
         
-          let dataGridOptions_featureTable = this.buildDataGridOptions_featureTable(specificHeadersArray, dataArray);
+          let dataGridOptions_featureTable = this.buildDataGridOptions_featureTable(specificHeadersArray, dataArray, datasetId);
           let gridDiv = document.querySelector('#' + domElementId);
           while (gridDiv.firstChild) {
             gridDiv.removeChild(gridDiv.firstChild);
