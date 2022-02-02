@@ -129,12 +129,8 @@ angular
 							$rootScope.$broadcast("changeClassifyMethod", "equal_interval");
 						  });
 
-						$scope.onClickDownloadMetadata = async function(){
-							// create PDF from currently selected/displayed indicator!
-							var indicatorMetadata = kommonitorDataExchangeService.selectedIndicator;														
+						$scope.generateIndicatorMetadataPdf = async function(indicatorMetadata, pdfName){																					
 							var jspdf = await kommonitorDataExchangeService.createMetadataPDF_indicator(indicatorMetadata);
-
-							var pdfName = indicatorMetadata.indicatorName + ".pdf";
   
 							jspdf.setProperties({
 							title: 'KomMonitor Indikatorenblatt',
@@ -143,7 +139,37 @@ angular
 							keywords: 'Indikator, Metadatenblatt',
 							creator: 'KomMonitor'
 							});
+							return jspdf;
+						};  
+
+						$scope.generateIndicatorMetadataPdf_asBlob = async function(){
+							// create PDF from currently selected/displayed indicator!
+							var indicatorMetadata = kommonitorDataExchangeService.selectedIndicator;
+							var pdfName = indicatorMetadata.indicatorName + ".pdf";
+							var jspdf = await $scope.generateIndicatorMetadataPdf(indicatorMetadata, pdfName);							
+            				return jspdf.output("blob", {filename: pdfName});
+						};
+
+						$scope.onClickDownloadMetadata = async function(){
+							// create PDF from currently selected/displayed indicator!
+							var indicatorMetadata = kommonitorDataExchangeService.selectedIndicator;
+							var pdfName = indicatorMetadata.indicatorName + ".pdf";
+							var jspdf = await $scope.generateIndicatorMetadataPdf(indicatorMetadata, pdfName);							
             				jspdf.save(pdfName);
+						};
+
+						$scope.generateAndDownloadIndicatorZIP = async function(indicatorData, fileName, fileEnding, jsZipOptions){
+							// generate metadata file and include actual dataset and metadata file in download
+
+							var metadataPdf = await $scope.generateIndicatorMetadataPdf_asBlob();							
+							var zip = new JSZip();
+							zip.file(fileName + fileEnding, indicatorData, jsZipOptions);
+							zip.file(fileName + "_Metadata.pdf", metadataPdf);
+							zip.generateAsync({type:"blob"})
+							.then(function(content) {
+								// see FileSaver.js
+								saveAs(content, fileName + ".zip");
+							});
 						};
 
 						function prepareBalanceGeoJSON(geoJSON, indicatorMetadataAsBalance){
@@ -191,45 +217,18 @@ angular
 							else{
 							  geoJSON_string = JSON.stringify(kommonitorDataExchangeService.selectedIndicator.geoJSON);
 							  fileName += "_" + kommonitorDataExchangeService.selectedDate;
-							}
+							}			
 				  
-							fileName += ".geojson";
-				  
-							var blob = new Blob([geoJSON_string], { type: "application/json" });
-							var data = URL.createObjectURL(blob);
-							//
-							// $scope.indicatorDownloadURL = data;
-							// $scope.indicatorDownloadName = fileName;
-				  
-							// var element = document.createElement('a');
-							// element.setAttribute('href', 'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(geoJSON)));
-							// element.setAttribute('download', fileName);
-							//
-							// element.style.display = 'none';
-							// document.body.appendChild(element);
-							//
-							// element.click();
-							//
-							// document.body.removeChild(element);
-				  
-							var a = document.createElement('a');
-							a.download = fileName;
-							a.href = data;
-							a.textContent = "GeoJSON";
-							a.target = "_blank";
-							a.rel = "noopener noreferrer";
-							a.click();
-				  
-							a.remove();
+							$scope.generateAndDownloadIndicatorZIP(geoJSON_string, fileName, ".geojson", {});
 						  };
 				  
 						  $scope.downloadIndicatorAsShape = function () {
 				  
-							var folderName = kommonitorDataExchangeService.selectedIndicator.indicatorName + "_" + kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel;
+							var fileName = kommonitorDataExchangeService.selectedIndicator.indicatorName + "_" + kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel;
 							var polygonName = kommonitorDataExchangeService.selectedIndicator.indicatorName + "_" + kommonitorDataExchangeService.selectedSpatialUnit.spatialUnitLevel;
 				  
 							var options = {
-							  folder: folderName,
+							  folder: "shape",
 							  types: {
 								point: 'points',
 								polygon: polygonName,
@@ -242,11 +241,11 @@ angular
 							if(kommonitorDataExchangeService.isBalanceChecked){
 							  geoJSON = jQuery.extend(true, {}, kommonitorDataExchangeService.indicatorAndMetadataAsBalance.geoJSON);
 							  geoJSON = prepareBalanceGeoJSON(geoJSON, kommonitorDataExchangeService.indicatorAndMetadataAsBalance);
-							  folderName += "_Bilanz_" + kommonitorDataExchangeService.indicatorAndMetadataAsBalance['fromDate'] + " - " + kommonitorDataExchangeService.indicatorAndMetadataAsBalance['toDate'];
+							  fileName += "_Bilanz_" + kommonitorDataExchangeService.indicatorAndMetadataAsBalance['fromDate'] + " - " + kommonitorDataExchangeService.indicatorAndMetadataAsBalance['toDate'];
 							}
 							else{
 							  geoJSON = jQuery.extend(true, {}, kommonitorDataExchangeService.selectedIndicator.geoJSON);
-							  folderName += "_" + kommonitorDataExchangeService.selectedDate;
+							  fileName += "_" + kommonitorDataExchangeService.selectedDate;
 							}
 				  
 							for (var feature of geoJSON.features) {
@@ -285,7 +284,9 @@ angular
 							  feature.properties = properties;
 							}
 				  
-							shpwrite.download(geoJSON, options);
+							// shpwrite.download(geoJSON, options);
+							var arrayBuffer = shpwrite.zip(geoJSON, options);							
+							$scope.generateAndDownloadIndicatorZIP(arrayBuffer, fileName, "_shape.zip", {base64: true});
 						  };
 
 						  $scope.downloadIndicatorAsCSV = function () {
@@ -381,26 +382,9 @@ angular
 							// Convert Object to JSON
 							var jsonObject = JSON.stringify(items);
 						
-							var csv = convertToCSV(jsonObject);
-						
-							var exportedFilenmae = fileTitle + '.csv' || 'export.csv';
-						
-							var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-							if (navigator.msSaveBlob) { // IE 10+
-								navigator.msSaveBlob(blob, exportedFilenmae);
-							} else {
-								var link = document.createElement("a");
-								if (link.download !== undefined) { // feature detection
-									// Browsers that support HTML5 download attribute
-									var url = URL.createObjectURL(blob);
-									link.setAttribute("href", url);
-									link.setAttribute("download", exportedFilenmae);
-									link.style.visibility = 'hidden';
-									document.body.appendChild(link);
-									link.click();
-									document.body.removeChild(link);
-								}
-							}
+							var csv = convertToCSV(jsonObject);						
+
+							$scope.generateAndDownloadIndicatorZIP(csv, fileTitle, ".csv", {});
 						}
 
 						$scope.onClickShareLinkButton = function(){
