@@ -2366,6 +2366,27 @@ angular
             return jspdf;
           };
 
+          this.generateIndicatorMetadataPdf_asBlob = async function(){
+            // create PDF from currently selected/displayed indicator!
+            var indicatorMetadata = this.selectedIndicator;
+            var pdfName = indicatorMetadata.indicatorName + ".pdf";
+            var jspdf = await this.generateIndicatorMetadataPdf(indicatorMetadata, pdfName);							
+                  return jspdf.output("blob", {filename: pdfName});
+          };
+      
+          this.generateIndicatorMetadataPdf = async function(indicatorMetadata, pdfName){																					
+            var jspdf = await this.createMetadataPDF_indicator(indicatorMetadata);
+      
+            jspdf.setProperties({
+            title: 'KomMonitor Indikatorenblatt',
+            subject: pdfName,
+            author: 'KomMonitor',
+            keywords: 'Indikator, Metadatenblatt',
+            creator: 'KomMonitor'
+            });
+            return jspdf;
+          }; 
+
           /**
            * creates and returns a pdf for the georesource given as parameter
            */
@@ -2787,4 +2808,20 @@ angular
       let propertyName = INDICATOR_DATE_PREFIX + thisService.selectedDate;
       return propertyName;
     }
+
+     
+
+    this.generateAndDownloadIndicatorZIP = async function(indicatorData, fileName, fileEnding, jsZipOptions){
+      // generate metadata file and include actual dataset and metadata file in download
+
+      var metadataPdf = await this.generateIndicatorMetadataPdf_asBlob();							
+      var zip = new JSZip();
+      zip.file(fileName + fileEnding, indicatorData, jsZipOptions);
+      zip.file(fileName + "_Metadata.pdf", metadataPdf);
+      zip.generateAsync({type:"blob"})
+      .then(function(content) {
+        // see FileSaver.js
+        saveAs(content, fileName + ".zip");
+      });
+    };
 }]);

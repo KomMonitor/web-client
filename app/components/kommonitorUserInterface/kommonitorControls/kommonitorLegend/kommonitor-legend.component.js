@@ -129,47 +129,12 @@ angular
 							$rootScope.$broadcast("changeClassifyMethod", "equal_interval");
 						  });
 
-						$scope.generateIndicatorMetadataPdf = async function(indicatorMetadata, pdfName){																					
-							var jspdf = await kommonitorDataExchangeService.createMetadataPDF_indicator(indicatorMetadata);
-  
-							jspdf.setProperties({
-							title: 'KomMonitor Indikatorenblatt',
-							subject: pdfName,
-							author: 'KomMonitor',
-							keywords: 'Indikator, Metadatenblatt',
-							creator: 'KomMonitor'
-							});
-							return jspdf;
-						};  
-
-						$scope.generateIndicatorMetadataPdf_asBlob = async function(){
-							// create PDF from currently selected/displayed indicator!
-							var indicatorMetadata = kommonitorDataExchangeService.selectedIndicator;
-							var pdfName = indicatorMetadata.indicatorName + ".pdf";
-							var jspdf = await $scope.generateIndicatorMetadataPdf(indicatorMetadata, pdfName);							
-            				return jspdf.output("blob", {filename: pdfName});
-						};
-
 						$scope.onClickDownloadMetadata = async function(){
 							// create PDF from currently selected/displayed indicator!
 							var indicatorMetadata = kommonitorDataExchangeService.selectedIndicator;
 							var pdfName = indicatorMetadata.indicatorName + ".pdf";
-							var jspdf = await $scope.generateIndicatorMetadataPdf(indicatorMetadata, pdfName);							
+							var jspdf = await kommonitorDataExchangeService.generateIndicatorMetadataPdf(indicatorMetadata, pdfName);							
             				jspdf.save(pdfName);
-						};
-
-						$scope.generateAndDownloadIndicatorZIP = async function(indicatorData, fileName, fileEnding, jsZipOptions){
-							// generate metadata file and include actual dataset and metadata file in download
-
-							var metadataPdf = await $scope.generateIndicatorMetadataPdf_asBlob();							
-							var zip = new JSZip();
-							zip.file(fileName + fileEnding, indicatorData, jsZipOptions);
-							zip.file(fileName + "_Metadata.pdf", metadataPdf);
-							zip.generateAsync({type:"blob"})
-							.then(function(content) {
-								// see FileSaver.js
-								saveAs(content, fileName + ".zip");
-							});
 						};
 
 						function prepareBalanceGeoJSON(geoJSON, indicatorMetadataAsBalance){
@@ -219,7 +184,7 @@ angular
 							  fileName += "_" + kommonitorDataExchangeService.selectedDate;
 							}			
 				  
-							$scope.generateAndDownloadIndicatorZIP(geoJSON_string, fileName, ".geojson", {});
+							kommonitorDataExchangeService.generateAndDownloadIndicatorZIP(geoJSON_string, fileName, ".geojson", {});
 						  };
 				  
 						  $scope.downloadIndicatorAsShape = function () {
@@ -286,7 +251,7 @@ angular
 				  
 							// shpwrite.download(geoJSON, options);
 							var arrayBuffer = shpwrite.zip(geoJSON, options);							
-							$scope.generateAndDownloadIndicatorZIP(arrayBuffer, fileName, "_shape.zip", {base64: true});
+							kommonitorDataExchangeService.generateAndDownloadIndicatorZIP(arrayBuffer, fileName, "_shape.zip", {base64: true});
 						  };
 
 						  $scope.downloadIndicatorAsCSV = function () {
@@ -384,7 +349,7 @@ angular
 						
 							var csv = convertToCSV(jsonObject);						
 
-							$scope.generateAndDownloadIndicatorZIP(csv, fileTitle, ".csv", {});
+							kommonitorDataExchangeService.generateAndDownloadIndicatorZIP(csv, fileTitle, ".csv", {});
 						}
 
 						$scope.onClickShareLinkButton = function(){
