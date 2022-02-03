@@ -93,6 +93,14 @@ angular.module('spatialUnitEditMetadataModal').component('spatialUnitEditMetadat
 
 		});
 
+		$scope.$on("availableRolesUpdate", function (event) {
+			refreshRoles();
+		});
+
+		function refreshRoles() {
+			$scope.allowedRoleNames = { selectedItems: [] };
+			$scope.duallist = { duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, null, "roleName") };
+		}
 
 		$scope.resetSpatialUnitEditMetadataForm = function(){
 

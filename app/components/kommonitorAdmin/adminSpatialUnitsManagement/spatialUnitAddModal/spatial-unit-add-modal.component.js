@@ -81,13 +81,19 @@ angular.module('spatialUnitAddModal').component('spatialUnitAddModal', {
 		$scope.allowedRoleNames = {selectedItems: []};
 		$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, null, "roleName")};			
 
+		$scope.$on("availableRolesUpdate", function (event) {
+			refreshRoles();
+		});
+
 		// make sure that initial fetching of availableRoles has happened
 		$scope.$on("initialMetadataLoadingCompleted", function (event) {
-			$timeout(function () {
-				$scope.allowedRoleNames = { selectedItems: [] };
-				$scope.duallist = { duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, null, "roleName") };
-			});
+			refreshRoles();
 		});
+		
+		function refreshRoles() {
+			$scope.allowedRoleNames = { selectedItems: [] };
+			$scope.duallist = { duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, null, "roleName") };
+		}
 
 		$scope.nextLowerHierarchySpatialUnit = undefined;
 		$scope.nextUpperHierarchySpatialUnit = undefined;

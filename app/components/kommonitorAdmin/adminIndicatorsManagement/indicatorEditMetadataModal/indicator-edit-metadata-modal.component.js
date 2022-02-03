@@ -237,11 +237,15 @@ angular.module('indicatorEditMetadataModal').component('indicatorEditMetadataMod
 
 		});
 
+		$scope.$on("availableRolesUpdate", function (event) {
+			$scope.allowedRoleNames = { selectedItems: [] };
+			$scope.duallist = { duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, null, "roleName") };
+		});
 
 		$scope.resetIndicatorEditMetadataForm = function(){
 
 			$scope.successMessagePart = undefined;
-				$scope.errorMessagePart = undefined;
+			$scope.errorMessagePart = undefined;
 
 			$scope.datasetName = $scope.currentIndicatorDataset.indicatorName;
 			$scope.datasetNameInvalid = false;

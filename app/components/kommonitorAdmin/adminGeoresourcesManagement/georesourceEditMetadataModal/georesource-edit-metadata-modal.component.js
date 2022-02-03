@@ -129,6 +129,15 @@ angular.module('georesourceEditMetadataModal').component('georesourceEditMetadat
 	    unselectedClass: ''
 		};
 
+		$scope.$on("availableRolesUpdate", function (event) {
+			refreshRoles();
+		});
+
+		function refreshRoles() {
+			$scope.allowedRoleNames = { selectedItems: [] };
+			$scope.duallist = { duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, null, "roleName") };
+		}
+
 		$('#poiSymbolEditPicker').iconpicker($scope.iconPickerOptions);
 
 		$('#poiSymbolEditPicker').on('change', function(e) {
