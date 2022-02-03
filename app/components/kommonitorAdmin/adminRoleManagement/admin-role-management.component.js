@@ -81,8 +81,6 @@ angular.module('adminRoleManagement').component('adminRoleManagement', {
 				if(crudType == "add"){
 					kommonitorCacheHelperService.fetchSingleAccessControlMetadata(targetId).then(function successCallback(data) {
 
-						kommonitorDataExchangeService.addSingleAccessControlMetadata(data);
-
 						$scope.initializeOrRefreshOverviewTable();
 	
 						$scope.loadingData = false;
@@ -94,8 +92,7 @@ angular.module('adminRoleManagement').component('adminRoleManagement', {
 				}
 				else if(crudType == "edit"){
 					kommonitorCacheHelperService.fetchSingleAccessControlMetadata(targetId).then(function successCallback(data) {
-
-						kommonitorDataExchangeService.replaceSingleAccessControlMetadata(data);
+						
 						$scope.initializeOrRefreshOverviewTable();
 						$scope.loadingData = false;
 	
