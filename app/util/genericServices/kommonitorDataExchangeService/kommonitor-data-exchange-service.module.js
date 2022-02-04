@@ -2390,7 +2390,7 @@ angular
           /**
            * creates and returns a pdf for the georesource given as parameter
            */
-           this.createMetadataPDF_georesource = async function(georesource) {
+           this.createMetadataPDF_georesource = async function(georesource, pdfName) {
 
             var jspdf = new jsPDF();
             jspdf.setFontSize(16);
@@ -2573,8 +2573,6 @@ angular
               startY: jspdf.autoTable.previous.finalY + 10
             });
   
-            var pdfName = georesource.datasetName + ".pdf";
-  
             jspdf.setProperties({
               title: 'KomMonitor Geodatenblatt',
               subject: pdfName,
@@ -2582,9 +2580,19 @@ angular
               keywords: 'Geodaten, Metadatenblatt',
               creator: 'KomMonitor'
             });
-
-            jspdf.save(pdfName);
             return jspdf;
+          };
+
+          this.generateGeoresourceMetadataPdf_asBlob = async function(georesourceMetadata){            
+            var pdfName = georesourceMetadata.datasetName + ".pdf";
+            var jspdf = await this.createMetadataPDF_georesource(georesourceMetadata, pdfName);							
+            return jspdf.output("blob", {filename: pdfName});
+          };
+
+          this.downloadMetadataPDF_georesource = async function(georesourceMetadata){            
+            var pdfName = georesourceMetadata.datasetName + ".pdf";
+            var jspdf = await this.createMetadataPDF_georesource(georesourceMetadata, pdfName);							
+            return jspdf.save(pdfName);
           };
 
           // this.getIndicatorStringFromIndicatorType = function (indicator) {
@@ -2817,6 +2825,20 @@ angular
       var metadataPdf = await this.generateIndicatorMetadataPdf_asBlob();							
       var zip = new JSZip();
       zip.file(fileName + fileEnding, indicatorData, jsZipOptions);
+      zip.file(fileName + "_Metadata.pdf", metadataPdf);
+      zip.generateAsync({type:"blob"})
+      .then(function(content) {
+        // see FileSaver.js
+        saveAs(content, fileName + ".zip");
+      });
+    };
+
+    this.generateAndDownloadGeoresourceZIP = async function(georesourceMetadata, georesourceData, fileName, fileEnding, jsZipOptions){
+      // generate metadata file and include actual dataset and metadata file in download
+      
+      var metadataPdf = await this.generateGeoresourceMetadataPdf_asBlob(georesourceMetadata);							
+      var zip = new JSZip();
+      zip.file(fileName + fileEnding, georesourceData, jsZipOptions);
       zip.file(fileName + "_Metadata.pdf", metadataPdf);
       zip.generateAsync({type:"blob"})
       .then(function(content) {
