@@ -441,7 +441,7 @@ angular
 
         setLineChartOptions(indicatorMetadataAndGeoJSON, indicatorTimeSeriesDatesArray, indicatorTimeSeriesAverageArray, indicatorTimeSeriesMaxArray, indicatorTimeSeriesMinArray, spatialUnitName, date);
 
-        setBarChartOptions(indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray, spatialUnitName, date);
+        setBarChartOptions(indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue);
 
         setGeoMapChartOptions(indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue);
       };
@@ -454,7 +454,7 @@ angular
         return 0;
       };
 
-      var setBarChartOptions = function (indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray, spatialUnitName, date) {
+      var setBarChartOptions = function (indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue) {
 
         // specify chart configuration item and data
         var labelOption = {
@@ -478,6 +478,11 @@ angular
         else {
           barChartTitel += date;
         }
+
+        var legendConfig = setupVisualMap(indicatorMetadataAndGeoJSON, featureNamesArray,
+                  indicatorValueBarChartArray, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew,
+                  ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked,
+                  measureOfValue);
 
         var barOption = {
           // grid get rid of whitespace around chart
@@ -592,6 +597,12 @@ angular
               }
             },
             data: indicatorValueBarChartArray
+          }],
+          visualMap: [{
+              left: 'left',
+              type: "piecewise",
+              pieces: legendConfig,
+              precision: 2
           }]
         };
 
@@ -642,7 +653,7 @@ angular
         return containsZeroValues;
       };
 
-      var setupGeoMapLegend = function(indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue){
+      var setupVisualMap = function(indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue){
         /*
         pieces: [
               // Range of a piece can be specified by property min and max,
@@ -844,6 +855,7 @@ angular
 
       };
 
+
       var setGeoMapChartOptions = function (indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue) {
 
         indicatorMetadataAndGeoJSON.geoJSON.features.forEach(feature => {
@@ -856,7 +868,7 @@ angular
 
         // specify chart configuration item and data
 
-        var legendConfig = setupGeoMapLegend(indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue);
+        var legendConfig = setupVisualMap(indicatorMetadataAndGeoJSON, featureNamesArray, indicatorValueBarChartArray, spatialUnitName, date, defaultBrew, gtMeasureOfValueBrew, ltMeasureOfValueBrew, dynamicIncreaseBrew, dynamicDecreaseBrew, isMeasureOfValueChecked, measureOfValue);
 
         // default fontSize of echarts
         var fontSize = 18;

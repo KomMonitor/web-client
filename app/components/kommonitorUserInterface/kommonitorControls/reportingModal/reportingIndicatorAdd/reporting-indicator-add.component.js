@@ -798,12 +798,14 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			// default changes
 			options.xAxis.name = "";
 			options.title.textStyle.fontSize = 12;
-			options.title.text = "Ranking";
+			options.title.text = ""; //TODO
 			options.yAxis.axisLabel = { "fontSize": 10 };
 			options.title.show = true;
 			options.grid.top = 35;
 			options.grid.bottom = 5;
 			options.toolbox.show = false;
+			options.visualMap[0].show = false; // only needed to set the color for avg
+			options.xAxis.axisLabel.show = true;
 			// during diagram preparation we used the most recent timestamp
 			// now we have to set data according to timestamp for that page
 			let timestampDom = pageDom.querySelector(".type-dataTimestamp-landscape")
@@ -827,7 +829,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				options.xAxis.data = areaNames;
 			}
 
-			// TODO we sort series data but not the x-axis labels (no problem as long as they are hidden)
 			options.series[0].data.sort(function(a, b) {
 				if(typeof(a.value) == 'number' && typeof(b.value) == 'number') {
 					return a.value - b.value;
@@ -837,26 +838,12 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			});
 
 			// add one more data element for the average
-			// colors are hardcoded and get defined in the service
 			let avgValue = $scope.calculateOverallAvg($scope.selectedIndicator, timestamp);
-			let color = undefined;
-			for(let dataEntry of options.series[0].data) {
-				// avg should be greater than some values and smaller than others
-				// as soon as it is smaller we save the color and stop the iteration.
-				// This method of finding the correct color for avg is a temporary solution.
-				// Ideally we get the color from a visualMap or something.
-				// TODO maybe get kommonitorDiagramHelperService.getGeoMapChartOptions() here ?
-				if(avgValue <= dataEntry.value) {
-					color = dataEntry.itemStyle.color;
-					break;
-				}
-			}
+			let avgElementName = (page.area && page.area.length) ? "Durchschnitt\nder\nRaumeinheit" : "Durchschnitt der Raumeinheit";
 			let dataObjForAvg = {
-				name: "Durchschnitt der Raumeinheit",
-				value: avgValue,
-				itemStyle: {
-					color: color
-				}
+				name: avgElementName,
+				value: avgValue
+				// color is set by visual map
 			}
 			options.series[0].data.push(dataObjForAvg);
 			options.xAxis.data.push( dataObjForAvg.name )
