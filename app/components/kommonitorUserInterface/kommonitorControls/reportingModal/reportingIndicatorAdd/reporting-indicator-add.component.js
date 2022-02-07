@@ -1264,6 +1264,5 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 			return table;
 		}
-
 	}
 ]})

@@ -2415,6 +2415,17 @@ input:checked + .switchslider:before {
 	cursor: pointer;
 }
 
+.reporting-element-config-box {
+	height: 150px;
+	border: solid lightgray 1px;
+	padding:10px;
+	margin-bottom: 15px;
+}
+
+.reporting-element-config-box > h5 {
+	font-weight: bold;
+}
+
 #reporting-add-indicator-tab-content,
 #area-method-1 {
 	position: relative;
