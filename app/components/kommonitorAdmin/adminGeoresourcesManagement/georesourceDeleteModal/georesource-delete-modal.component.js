@@ -15,11 +15,16 @@ angular.module('georesourceDeleteModal').component('georesourceDeleteModal', {
 		$scope.affectedIndicatorReferences = [];
 
 		$scope.$on("onDeleteGeoresources", function (event, datasets) {
+			$scope.loadingData = true;
 
 			$scope.datasetsToDelete = datasets;
 
 			$scope.resetGeoresourcesDeleteForm();
 
+			$timeout(function(){
+				
+				$scope.loadingData = false;
+			});	
 		});
 
 

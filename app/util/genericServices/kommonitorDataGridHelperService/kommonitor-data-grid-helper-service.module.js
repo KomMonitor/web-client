@@ -64,24 +64,19 @@ angular
       };
 
       var displayEditButtons_georesources = function (params) {
-        let disabled = !params.data.userPermissions.includes("editor")
         let editMetadataButtonId = 'btn_georesource_editMetadata_' + params.data.georesourceId;
         let editFeaturesButtonId = 'btn_georesource_editFeatures_' + params.data.georesourceId;
 
         let html = '<div class="btn-group btn-group-sm">';
-        html += '<button id="'+ editMetadataButtonId +'" class="btn btn-warning btn-sm georesourceEditMetadataBtn" type="button" data-toggle="modal" data-target="#modal-edit-georesource-metadata" title="Metadaten editieren" disabled><i class="fas fa-pencil-alt" ></i></button>';
-        html += '<button id="'+ editFeaturesButtonId + '" class="btn btn-warning btn-sm georesourceEditFeaturesBtn" type="button" data-toggle="modal" data-target="#modal-edit-georesource-features" title="Features fortf&uuml;hren" disabled><i class="fas fa-draw-polygon"></i></button>';
+        html += '<button id="'+ editMetadataButtonId +'" class="btn btn-warning btn-sm georesourceEditMetadataBtn" type="button" data-toggle="modal" data-target="#modal-edit-georesource-metadata" title="Metadaten editieren" '+ (params.data.userPermissions.includes("editor") ? '' : 'disabled') + '><i class="fas fa-pencil-alt" ></i></button>';
+        html += '<button id="'+ editFeaturesButtonId + '" class="btn btn-warning btn-sm georesourceEditFeaturesBtn" type="button" data-toggle="modal" data-target="#modal-edit-georesource-features" title="Features fortf&uuml;hren" '+ (params.data.userPermissions.includes("editor") ? '' : 'disabled') + '><i class="fas fa-draw-polygon"></i></button>';
+        html += '<button id="btn_georesource_deleteGeoresource_' + params.data.georesourceId + '" class="btn btn-danger btn-sm georesourceDeleteBtn" type="button" data-toggle="modal" data-target="#modal-delete-georesources" title="Georessource entfernen"  '+ (params.data.userPermissions.includes("creator") ? '' : 'disabled') + '><i class="fas fa-trash"></i></button>'
         html += '</div>';
-
-        if(!disabled){
-          html = html.replaceAll("disabled", "") //enabled
-        }
 
         return html;
       };
 
       var displayEditButtons_spatialUnits = function (params) {
-        let disabled = !params.data.userPermissions.includes("editor")
 
         let html = '<div class="btn-group btn-group-sm">';
         html += '<button id="btn_spatialUnit_editMetadata_' + params.data.spatialUnitId + '" class="btn btn-warning btn-sm spatialUnitEditMetadataBtn" type="button" data-toggle="modal" data-target="#modal-edit-spatial-unit-metadata" title="Metadaten editieren"  '+ (params.data.userPermissions.includes("editor") ? '' : 'disabled') + '><i class="fas fa-pencil-alt"></i></button>';
@@ -239,14 +234,7 @@ angular
 
       this.buildDataGridColumnConfig_georesources_poi = function (georesourceMetadataArray) {
         const columnDefs = [
-          { headerName: 'Editierfunktionen', pinned: 'left', maxWidth: 150, checkboxSelection: function(params){
-            if(!params.data.userPermissions.includes("editor")){
-              return true;
-            }
-            else{
-              return false;
-            }
-          }, 
+          { headerName: 'Editierfunktionen', pinned: 'left', maxWidth: 150, checkboxSelection: false,
           headerCheckboxSelection: false, 
           headerCheckboxSelectionFilteredOnly: true, 
           filter: false, 
@@ -791,6 +779,14 @@ angular
           let georesourceMetadata = kommonitorDataExchangeService.getGeoresourceMetadataById(georesourceId);
 
           $rootScope.$broadcast("onEditGeoresourceFeatures", georesourceMetadata);
+        });
+
+        $(".georesourceDeleteBtn").on("click", function () {       
+          let spatialUnitId = this.id.split("_")[3]; 
+
+          let spatialUnitMetadata = kommonitorDataExchangeService.getGeoresourceMetadataById(spatialUnitId);
+
+          $rootScope.$broadcast("onDeleteGeoresources", [spatialUnitMetadata]); //handler function takes an array
         });
 
       };
