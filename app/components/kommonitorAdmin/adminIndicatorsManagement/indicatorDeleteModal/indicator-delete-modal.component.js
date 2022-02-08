@@ -422,5 +422,10 @@ angular.module('indicatorDeleteModal').component('indicatorDeleteModal', {
 				$("#indicatorsDeleteErrorAlert").hide();
 			};
 
+			$scope.getIndicatorsWithPermission = function(){
+				indicators =  kommonitorDataExchangeService.availableIndicators.filter(indicator => indicator.userPermissions.includes("creator"));
+				return indicators;
+			};
+
 	}
 ]});
