@@ -101,13 +101,19 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 		$scope.allowedRoleNames = {selectedItems: []};
 		$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, null, "roleName")};			
 
+		$scope.$on("availableRolesUpdate", function (event) {
+			refreshRoles();
+		});
+
 		// make sure that initial fetching of availableRoles has happened
 		$scope.$on("initialMetadataLoadingCompleted", function (event) {
-			$timeout(function () {
-				$scope.allowedRoleNames = { selectedItems: [] };
-				$scope.duallist = { duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, null, "roleName") };
-			});
+			refreshRoles();
 		});
+
+		function refreshRoles() {
+			$scope.allowedRoleNames = { selectedItems: [] };
+			$scope.duallist = { duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, null, "roleName") };
+		}
 
 		$scope.georesourceTopic_mainTopic = undefined;
 		$scope.georesourceTopic_subTopic = undefined;
@@ -233,6 +239,7 @@ angular.module('georesourceAddModal').component('georesourceAddModal', {
 			$scope.metadata.lastUpdate = undefined;
 			$scope.metadata.description = undefined;
 
+			console.log("resetGeoresourceAddForm");
 			$scope.allowedRoleNames = {selectedItems: []};
 			$scope.duallist = {duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, null, "roleName")};				
 

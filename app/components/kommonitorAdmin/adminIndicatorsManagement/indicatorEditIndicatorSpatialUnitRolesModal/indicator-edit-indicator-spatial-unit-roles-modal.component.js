@@ -21,6 +21,10 @@ angular.module('indicatorEditIndicatorSpatialUnitRolesModal').component('indicat
 
 		});
 
+		$scope.$on("availableRolesUpdate", function (event) {
+			$scope.allowedRoleNames = { selectedItems: [] };
+			$scope.duallist = { duallistRoleOptions: kommonitorDataExchangeService.initializeRoleDualListConfig(kommonitorDataExchangeService.availableRoles, null, "roleName") };
+		});
 
 		$scope.resetIndicatorEditIndicatorSpatialUnitRolesForm = function () {
 

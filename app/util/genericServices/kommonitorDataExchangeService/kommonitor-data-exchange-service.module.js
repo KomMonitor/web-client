@@ -1657,6 +1657,8 @@ angular
                 this.availableRoles.push(available)
               }
             }
+            // we need to refresh all modals as roles have changed
+            $rootScope.$broadcast("availableRolesUpdate");
           }
 
           this.getAccessControlById = function(id){
@@ -2708,6 +2710,7 @@ angular
 		};
 
 		this.initializeRoleDualListConfig = function(inputArray, selectedArray, nameProperty) {
+      console.log("initializeRoleDualListConfig");
 			var duallistRoleOptions = {
 				label: 'Rollen',
 				boxItemsHeight: 'md',
