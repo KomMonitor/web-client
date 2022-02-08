@@ -84,13 +84,10 @@ angular
         let disabled = !params.data.userPermissions.includes("editor")
 
         let html = '<div class="btn-group btn-group-sm">';
-        html += '<button id="btn_spatialUnit_editMetadata_' + params.data.spatialUnitId + '" class="btn btn-warning btn-sm spatialUnitEditMetadataBtn" type="button" data-toggle="modal" data-target="#modal-edit-spatial-unit-metadata" title="Metadaten editieren"  disabled><i class="fas fa-pencil-alt"></i></button>';
-        html += '<button id="btn_spatialUnit_editFeatures_' + params.data.spatialUnitId + '" class="btn btn-warning btn-sm spatialUnitEditFeaturesBtn" type="button" data-toggle="modal" data-target="#modal-edit-spatial-unit-features" title="Features fortf&uuml;hren"  disabled><i class="fas fa-draw-polygon"></i></button>';
+        html += '<button id="btn_spatialUnit_editMetadata_' + params.data.spatialUnitId + '" class="btn btn-warning btn-sm spatialUnitEditMetadataBtn" type="button" data-toggle="modal" data-target="#modal-edit-spatial-unit-metadata" title="Metadaten editieren"  '+ (params.data.userPermissions.includes("editor") ? '' : 'disabled') + '><i class="fas fa-pencil-alt"></i></button>';
+        html += '<button id="btn_spatialUnit_editFeatures_' + params.data.spatialUnitId + '" class="btn btn-warning btn-sm spatialUnitEditFeaturesBtn" type="button" data-toggle="modal" data-target="#modal-edit-spatial-unit-features" title="Features fortf&uuml;hren"  '+ (params.data.userPermissions.includes("editor") ? '' : 'disabled') + '><i class="fas fa-draw-polygon"></i></button>';
+        html += '<button id="btn_spatialUnit_deleteSpatialUnit_' + params.data.spatialUnitId + '" class="btn btn-danger btn-sm spatialUnitDeleteBtn" type="button" data-toggle="modal" data-target="#modal-delete-spatial-units" title="Raumeinheit entfernen"  '+ (params.data.userPermissions.includes("creator") ? '' : 'disabled') + '><i class="fas fa-trash"></i></button>'
         html += '</div>';
-
-        if(!disabled){
-          html = html.replaceAll("disabled", "") //enabled
-        }
 
         return html;
       };
@@ -242,8 +239,18 @@ angular
 
       this.buildDataGridColumnConfig_georesources_poi = function (georesourceMetadataArray) {
         const columnDefs = [
-          { headerName: 'Editierfunktionen', pinned: 'left', maxWidth: 150, checkboxSelection: true, headerCheckboxSelection: true, 
-          headerCheckboxSelectionFilteredOnly: true, filter: false, sortable: false, cellRenderer: 'displayEditButtons_georesources' },
+          { headerName: 'Editierfunktionen', pinned: 'left', maxWidth: 150, checkboxSelection: function(params){
+            if(!params.data.userPermissions.includes("editor")){
+              return true;
+            }
+            else{
+              return false;
+            }
+          }, 
+          headerCheckboxSelection: false, 
+          headerCheckboxSelectionFilteredOnly: true, 
+          filter: false, 
+          sortable: false, cellRenderer: 'displayEditButtons_georesources' },
           { headerName: 'Id', field: "georesourceId", pinned: 'left', maxWidth: 125 },
           { headerName: 'Name', field: "datasetName", pinned: 'left', minWidth: 300 },
           { headerName: 'Symbolfarbe', filter: false, sortable: false, maxWidth: 125, cellRenderer: function (params) { return "<div>" + params.data.poiSymbolColor+ "</div><br/><div style='width: 20px; height: 20px; background-color: " + params.data.poiSymbolColor + ";'></div>"; } },
@@ -529,7 +536,7 @@ angular
 
       this.buildDataGridColumnConfig_spatialUnits = function (spatialUnitMetadataArray) {
         const columnDefs = [
-          { headerName: 'Editierfunktionen', pinned: 'left', maxWidth: 150, checkboxSelection: true, headerCheckboxSelection: true, 
+          { headerName: 'Editierfunktionen', pinned: 'left', maxWidth: 150, checkboxSelection: false, headerCheckboxSelection: false, 
           headerCheckboxSelectionFilteredOnly: true, filter: false, sortable: false, cellRenderer: 'displayEditButtons_spatialUnits' },
           { headerName: 'Id', field: "spatialUnitId", pinned: 'left', maxWidth: 125 },
           { headerName: 'Name', field: "spatialUnitLevel", pinned: 'left', minWidth: 300 },
@@ -1075,6 +1082,14 @@ angular
           let spatialUnitMetadata = kommonitorDataExchangeService.getSpatialUnitMetadataById(spatialUnitId);
 
           $rootScope.$broadcast("onEditSpatialUnitFeatures", spatialUnitMetadata);
+        });
+
+        $(".spatialUnitDeleteBtn").on("click", function () {       
+          let spatialUnitId = this.id.split("_")[3]; 
+
+          let spatialUnitMetadata = kommonitorDataExchangeService.getSpatialUnitMetadataById(spatialUnitId);
+
+          $rootScope.$broadcast("onDeleteSpatialUnits", [spatialUnitMetadata]); //handler function takes an array
         });
 
       };

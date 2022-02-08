@@ -12,11 +12,14 @@ angular.module('spatialUnitDeleteModal').component('spatialUnitDeleteModal', {
 		$scope.failedDatasetsAndErrors = [];
 
 		$scope.$on("onDeleteSpatialUnits", function (event, datasets) {
+			$scope.loadingData = true;
 
-			$scope.datasetsToDelete = datasets;
+			$scope.datasetsToDelete = datasets;	
+			$scope.resetSpatialUnitsDeleteForm();	
 
-			$scope.resetSpatialUnitsDeleteForm();
-
+			$timeout(function(){
+				$scope.loadingData = false;
+			});	
 		});
 
 
