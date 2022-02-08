@@ -272,7 +272,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("indicatorTitle-landscape"),
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("communeLogo-landscape"),
-							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("dataTimestamp-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("dataTimeseries-landscape"),
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerHorizontalSpacer-landscape"),
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerCreationInfo-landscape"),
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("pageNumber-landscape"),
@@ -289,9 +289,10 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 								"placeholderText": "Karte",
 								"colorScheme": undefined,
 								"classify": true,
+								"isTimeseries": true
 							},
 							{
-								"type": "largestSpatialUnitChange",
+								"type": "overallChange",
 								"dimensions": {
 									"top": "100px",
 									"left": "700px",
@@ -320,7 +321,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("indicatorTitle-landscape"),
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("communeLogo-landscape"),
-							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("dataTimestamp-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("dataTimeseries-landscape"),
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerHorizontalSpacer-landscape"),
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerCreationInfo-landscape"),
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("pageNumber-landscape"),
@@ -344,7 +345,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("indicatorTitle-landscape"),
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("communeLogo-landscape"),
-							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("dataTimestamp-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("dataTimeseries-landscape"),
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerHorizontalSpacer-landscape"),
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerCreationInfo-landscape"),
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("pageNumber-landscape"),
@@ -371,7 +372,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("indicatorTitle-landscape"),
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("communeLogo-landscape"),
-							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("dataTimestamp-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("dataTimeseries-landscape"),
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerHorizontalSpacer-landscape"),
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerCreationInfo-landscape"),
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("pageNumber-landscape"),
@@ -388,6 +389,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 								"placeholderText": "Karte",
 								"colorScheme": undefined,
 								"classify": true,
+								"isTimeseries": true
 							},
 							{
 								"type": "linechart",
@@ -401,7 +403,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 								"placeholderText": "Liniendiagramm"
 							},
 							{
-								// percentage change compared to previous jear
+								// percentage change compared to previous year
 								"type": "linechart",
 								"dimensions": {
 									"top": "240px",
@@ -434,7 +436,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("indicatorTitle-landscape"),
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("communeLogo-landscape"),
-							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("dataTimestamp-landscape"),
+							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("dataTimeseries-landscape"),
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerHorizontalSpacer-landscape"),
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerCreationInfo-landscape"),
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("pageNumber-landscape"),
@@ -553,15 +555,15 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 		$scope.initialize = function() {
 			console.log($scope.availableTemplates);
 			// open first category
-			let collapsible = document.querySelector("#reporting-template-category-accordion #collapse1")
+			let collapsible = document.querySelector("#reporting-template-category-accordion #collapse2") // TODO revert to first one
 			collapsible.classList.add("in");
 			// select first template
-			collapsible.querySelector("#collapse1-template0").click();
+			collapsible.querySelector("#collapse2-template0").click(); // TODO revert to first one
 
 			$scope.datePicker = $('#reporting-general-settings-datefield').datepicker({
 				autoclose: true,
-            	language: 'de',
-            	format: 'yyyy-mm-dd'
+				language: 'de',
+				format: 'yyyy-mm-dd'
 			});
 			document.getElementById("reporting-load-commune-logo-button").addEventListener('change', readSingleFile, false);
 

@@ -2602,7 +2602,7 @@ angular
               month: 'long',
               day: 'numeric'
             });
-            }            
+            }
           };
   
           this.tsToDate_withOptionalUpdateInterval = function(ts, updateIntervalApiName) {
@@ -2808,6 +2808,19 @@ angular
         },
         "isPlaceholder": true,
         "placeholderText": "Datenstand",
+        "text": "",
+        "css": "text-align: left; padding-left: 5px;"
+      },
+      {
+        "type": "dataTimeseries-landscape",
+        "dimensions": {
+          "top": "50px",
+          "left": "15px",
+          "width": "720px",
+          "height": "30px"
+        },
+        "isPlaceholder": true,
+        "placeholderText": "Zeitreihe von - bis",
         "text": "",
         "css": "text-align: left; padding-left: 5px;"
       },

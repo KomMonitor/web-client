@@ -32,13 +32,13 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		$scope.templatePageIdCounter = 1;
 		
 		// internal array changes do not work with ng-change
-		$scope.$watchCollection('selectedAreas', function(newVal, oldVal) {
-			$scope.onSelectedAreasChanged(newVal, oldVal)
+		$scope.$watchCollection('selectedAreas', function(newVal) {
+			$scope.onSelectedAreasChanged(newVal)
 		});
 
-		$scope.onSelectedAreasChanged = function(newVal, oldVal) {
-			$scope.loadingData = true;
+		$scope.onSelectedAreasChanged = function(newVal) {
 			if( typeof($scope.template) === "undefined") return;
+			$scope.loadingData = true;
 			// to make things easier we remove all area-specific pages and recreate them using newVal
 			// this approach is not optimized for performance and might have to change in the future
 
@@ -47,7 +47,23 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				return !page.hasOwnProperty("area")
 			});
 
-			let pagesToInsertPerTimestamp = []
+			if($scope.template.name !== "A4-landscape-timeseries") {
+				$scope.updateAreasForTimestampTemplates(newVal)
+			} else {
+				$scope.updateAreasForTimeseriesTemplates(newVal)
+			}
+
+			$timeout(function() {
+				if($scope.diagramsPrepared) {
+					$scope.initializeOrUpdateAllDiagrams();
+					$scope.loadingData = false;
+				}
+			});
+		}
+
+
+		$scope.updateAreasForTimestampTemplates = function(newVal) {
+			let pagesToInsertPerTimestamp = [];
 			for(let area of newVal) {
 				// get page to insert from untouched template
 				let pageToInsert = angular.fromJson($scope.untouchedTemplateAsString).pages[ $scope.indexOfFirstAreaSpecificPage ];
@@ -69,8 +85,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			if($scope.selectedTimestamps.length) {
 				let idx = 0
 				for(let timestamp of $scope.selectedTimestamps) {
+
 					// pagesForTimestamp is the template-section for that timestamp
-					
 					let pagesForTimestamp = $scope.template.pages.filter( page => {
 						let dateEl = page.pageElements.find( el => {
 							return el.type === "dataTimestamp-landscape"
@@ -118,22 +134,69 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					$scope.template.pages.splice(idx, numberOfPagesToReplace, ...pagesForTimestamp)
 				}
 			} else {
+				pagesToInsertPerTimestamp = JSON.parse(JSON.stringify(pagesToInsertPerTimestamp));
 				for(let page of pagesToInsertPerTimestamp)
 					page.id = $scope.templatePageIdCounter++;
 				// no timestamp selected, which makes inserting easier
 				$scope.template.pages.splice($scope.indexOfFirstAreaSpecificPage, 0, ...pagesToInsertPerTimestamp)
 			}
-			
-			$timeout(function() {
-				if($scope.diagramsPrepared) {
-					$scope.initializeOrUpdateAllDiagrams();
-					$scope.loadingData = false;
-				}
-			});
 		}
+
+		$scope.updateAreasForTimeseriesTemplates = function(newVal) {
+			let pagesToInsert = [];
+			for(let area of newVal) {
+				// get page to insert from untouched template
+				let pageToInsert = angular.fromJson($scope.untouchedTemplateAsString).pages[ $scope.indexOfFirstAreaSpecificPage ];
+				pageToInsert.area = area.name;
+				pageToInsert.id = $scope.templatePageIdCounter++;
+				pagesToInsert.push(pageToInsert);
+			}
+
+			// sort alphabetically by area name
+			pagesToInsert.sort( (a, b) => {
+				textA = a.area.toLowerCase();
+				textB = b.area.toLowerCase();
+				return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+			});
+
+			// since we are dealing with a timeseries we don't have to care about inserting area-pages multiple times for different timestamps
+			// we do it only once
+
+			// setup pages before inserting
+			for(let pageToInsert of pagesToInsert) {
+
+				let titleEl = pageToInsert.pageElements.find( el => {
+					return el.type === "indicatorTitle-landscape"
+				});
+				titleEl.text = $scope.selectedIndicator.indicatorName
+				if(pageToInsert.area) {
+					titleEl.text += ", " + pageToInsert.area
+				}
+				titleEl.isPlaceholder = false;
+
+				let dateEl = pageToInsert.pageElements.find( el => {
+					return el.type === "dataTimeseries-landscape"
+				});
+				let includeInBetweenValues = false
+				let dsValues = $scope.getFormattedDateSliderValues(includeInBetweenValues);
+				dateEl.text = dsValues.from + " - " + dsValues.to;
+				dateEl.isPlaceholder = false;
+
+				// diagrams have to be inserted later because the div element does not yet exist
+			}
+
+			// insert area-specific pages
+			pagesToInsert= JSON.parse(JSON.stringify(pagesToInsert));
+			for(let page of pagesToInsert)
+				page.id = $scope.templatePageIdCounter++;
+			$scope.template.pages.splice($scope.indexOfFirstAreaSpecificPage, 0, ...pagesToInsert)
+		}
+
+
 
 		// internal array changes do not work with ng-change
 		$scope.$watchCollection('selectedTimestamps', function(newVal, oldVal) {
+			if( typeof($scope.template) === "undefined") return;
 			$scope.loadingData = true;
 			let tab4 = document.querySelector("#reporting-add-indicator-tab4");
 
@@ -326,11 +389,11 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			if($scope.template.name === "A4-landscape-timestamp")
 				$scope.indexOfFirstAreaSpecificPage = 3;
 			if($scope.template.name === "A4-landscape-timeseries")
-				$scope.indexOfFirstAreaSpecificPage = 3;
+				$scope.indexOfFirstAreaSpecificPage = 4;
 
+			// diabale all tabs except the first one (until an indicator is chosen)
 			let tabPanes = document.querySelectorAll("#reporting-add-indicator-tab-content > .tab-pane")
-
-			for(let i=1;i<5;i++) {
+			for(let i=1;i<=4;i++) {
 				let tab = document.getElementById("reporting-add-indicator-tab" + i);
 				
 				if(i==1) {
@@ -595,7 +658,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			// set indicator manually.
 			// if we use ng-model it gets converted to string instead of an object
 			$scope.selectedIndicator = indicator;
-			
+
 			// get a new template (in case another indicator was selected previously)
 			let temp = angular.fromJson($scope.untouchedTemplateAsString);
 			for(let page of temp.pages) {
@@ -603,6 +666,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			}
 			$scope.template = temp;
 
+			
 			// set spatial unit to highest available one
 			if(typeof($scope.selectedSpatialUnit === 'undefined')) {
 				$scope.selectedSpatialUnit = $scope.selectedIndicator.applicableSpatialUnits[0];
@@ -630,8 +694,12 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			}
 			$scope.prepareDiagrams($scope.selectedIndicator, $scope.selectedSpatialUnit, mostRecentTimestampName, geoJson);
 			
-
-			$scope.updateDualList($scope.dualListTimestampsOptions, availableTimestamps, mostRecentTimestamp)
+			if($scope.template.name === "A4-landscape-timeseries") {
+				$scope.dateSlider = $scope.initializeDateRangeSlider(dates);
+			} else {
+				$scope.updateDualList($scope.dualListTimestampsOptions, availableTimestamps, mostRecentTimestamp)
+			}
+			
 			// by now we enabled the fourth tab, but we don't want that yet since we are still in the first one
 			// instead the tab is enabled once we click on the third one
 			let tab4 = document.querySelector("#reporting-add-indicator-tab4");
@@ -658,6 +726,12 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 					if(el.type === "dataTimestamp-landscape") {
 						el.text = mostRecentTimestampName;
+						el.isPlaceholder = false
+					}
+
+					if(el.type === "dataTimeseries-landscape") {
+						let dsValues = $scope.getFormattedDateSliderValues()
+						el.text = dsValues.from + " - " + dsValues.to
 						el.isPlaceholder = false
 					}
 				}
@@ -715,15 +789,37 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			// get standard options, create a copy of the options to not change anything in the service
 			let options = JSON.parse(JSON.stringify( kommonitorDiagramHelperService.getGeoMapChartOptions() ));
 			// check if there is a map registered for this combination, if not register one with all features
-			let timestampDom = pageDom.querySelector(".type-dataTimestamp-landscape")
-			let timestamp = timestampDom.innerText;
-			let mapName = $scope.selectedIndicator.indicatorName + "_" + timestamp + "_" + $scope.selectedSpatialUnit.spatialUnitName;
-			if(pageElement.classify) {
+			
+			let mapName = undefined;
+			let timestamp = undefined;
+			let timeseries = undefined;
+			if($scope.template.name === "A4-landscape-timeseries") {
+				// this template contains pages with timestamp and pages with timeseries
+				timestampDom = pageDom.querySelector(".type-dataTimestamp-landscape")
+				if(!timestampDom) {
+					timeseriesDom = pageDom.querySelector(".type-dataTimeseries-landscape")
+					if(timeseriesDom) {
+						timeseries = timeseriesDom.innerText.replace(" ", "");
+						mapName = $scope.selectedIndicator.indicatorName + "_" + timeseries + "_" + $scope.selectedSpatialUnit.spatialUnitName;
+					}
+				} else {
+					timestamp = timestampDom.innerText;
+					mapName = $scope.selectedIndicator.indicatorName + "_" + timestamp + "_" + $scope.selectedSpatialUnit.spatialUnitName;
+				}
+				
+			} else {
+				let timestampDom = pageDom.querySelector(".type-dataTimestamp-landscape")
+				timestamp = timestampDom.innerText;
+				mapName = $scope.selectedIndicator.indicatorName + "_" + timestamp + "_" + $scope.selectedSpatialUnit.spatialUnitName;
+			}
+			
+			
+			if(pageElement.classify)
 				mapName += "_classified";
-			}
-			if(page.area && page.area.length) {
+			if(pageElement.isTimeseries)
+				mapName += "_timeseries"
+			if(page.area && page.area.length)
 				mapName += "_" + page.area
-			}
 			let registeredMap = echarts.getMap(mapName)
 
 			if(typeof(registeredMap === "undefined")) {
@@ -740,9 +836,17 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			options.visualMap.left = "right";
 			let mapOptions = options.series[0];
 			mapOptions.roam = false;
+
 			// during diagram preparation we used the most recent timestamp
-			// now we have to set data according to timestamp for that page
-			mapOptions.data = $scope.getSeriesDataForTimestamp($scope.selectedIndicator.geoJSON.features, timestamp)
+			// now we have to set data according to timestamp or timeseries for that page
+			if(pageElement.isTimeseries) {
+				let includeInBetweenDates = true;
+				let dates = $scope.getFormattedDateSliderValues(includeInBetweenDates)
+				mapOptions.data = $scope.calculateSeriesDataForTimeseries($scope.selectedIndicator.geoJSON.features, dates)
+			} else {
+				mapOptions.data = $scope.getSeriesDataForTimestamp($scope.selectedIndicator.geoJSON.features, timestamp)
+			}
+			
 			mapOptions.map = mapName; // update the map with the one registered above
 			mapOptions.name = mapName;
 
@@ -762,8 +866,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					options.visualMap.show = false;
 					if( areaNames.includes(el.name) ) {
 						// show selected areas (don't classify color by value)
-						el.itemStyle.areaColor = "rgb(255, 0, 0, 0.6)";
-						el.emphasis.itemStyle.areaColor = "rgb(255, 0, 0, 0.6)";
+						el.itemStyle.areaColor = "rgb(255, 153, 51, 0.6)";
+						el.emphasis.itemStyle.areaColor = "rgb(255, 153, 51, 0.6)";
 						el.label.formatter = '{b}\n{c}';
 						el.label.show = true;
 						el.selected = true; // This fixes a bug where labels would disappear seemingly at random (probably within echarts).
@@ -823,7 +927,14 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		$scope.createPageElement_OverallAverage = function(wrapper, pageElement, timestamp) {
 			let overallAvg = $scope.calculateOverallAvg( $scope.selectedIndicator, timestamp );
 			pageElement.text = overallAvg;
-			pageElement.css = "border: solid; 1px; darkgray;"
+			pageElement.css = "border: solid 1px lightgray; padding: 2px;"
+			pageElement.isPlaceholder = false;
+		}
+
+		$scope.createPageElement_OverallChange = function(wrapper, pageElement, timeseries) {
+			let overallChange = $scope.calculateOverallChange( $scope.selectedIndicator, timeseries );
+			pageElement.text = overallChange;
+			pageElement.css = "border: solid 1px lightgray; padding: 2px;";
 			pageElement.isPlaceholder = false;
 		}
 
@@ -910,25 +1021,19 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 		$scope.createPageElement_Datatable = function(pageDom, wrapper, page, pageElement) {
 			
-			let timestamp = pageDom.querySelector(".type-dataTimestamp-landscape").innerText;
-			
-			/*
-			area	| value  |
-			------------------
-			area1	| value1 |
-			area2	| value2 |
-			...		| ...	 |
-			*/
+			// table looks different depending on template type
+			// for single timestamps it is added at the end of each timestamp-section, so each area is inserted once
+			// for timeseries it is added once at the end of the template and contains an extra column for timestamps.
+			// Each area is inserted for multiple timestamps.
 
-			
 			// our wrapper is 440px high.
 			// 440 - 25 (header) = 415
 			// we set each row to be 25px high, so we can fit 415 / 25 --> 16 rows on one page.
-			let addedRowsCounter = 0;
 			let wrapperHeight = parseInt(wrapper.style.height, 10);
 			let maxRows = Math.floor( (wrapperHeight - 25) / 25);
 			let rowsData = [];
-			// see how many paged need to be added. Rows are added later
+
+			// see how many pages need to be added. Rows are added later
 			for(let feature of $scope.selectedIndicator.geoJSON.features) {
 				// don't add row if feature not selected
 				let isSelected = false;
@@ -939,44 +1044,74 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				}
 				if( !isSelected )
 					continue;
-				// prepare data to insert later
-				let value = feature.properties["DATE_" + timestamp];
-				if(typeof(value) == 'number')
-				 	value = Math.round( value * 100) / 100;
-				rowsData.push( {
-					name: feature.properties.NAME,
-					value: value
-				});
 
-				if(addedRowsCounter > 0 && addedRowsCounter % maxRows == 0) { // addedRowsCounter is 16, 32, ...
+				if($scope.template.name === "A4-landscape-timestamp") {
+					let timestamp = pageDom.querySelector(".type-dataTimestamp-landscape").innerText;
+					// prepare data to insert later
+					let value = feature.properties["DATE_" + timestamp];
+					if(typeof(value) == 'number')
+						value = Math.round( value * 100) / 100;
+					
+					rowsData.push( {
+						name: feature.properties.NAME,
+						value: value
+					});
+				}
+
+				if($scope.template.name === "A4-landscape-timeseries") {
+					let inBetweenValues = true;
+					let timeseries = $scope.getFormattedDateSliderValues(inBetweenValues);
+					for(let timestamp of timeseries.dates) {
+						let value = feature.properties["DATE_" + timestamp];
+						if(typeof(value) == 'number')
+							value = Math.round( value * 100) / 100;
+						rowsData.push( {
+							name: feature.properties.NAME,
+							timestamp: timestamp,
+							value: value
+						});
+					}
+				}
+			}
+
+			// the length of rowsData is the number of rows we have to add
+			for(let i=0;i<rowsData.length;i++) {
+				// each time we hit the page breakpoint we add a new page
+				// at this point we are not actually adding any rows to the table
+				if(i > 0 && i % maxRows == 0) {
 					// add a new page
 					let newPage = angular.fromJson($scope.untouchedTemplateAsString).pages.at(-1);
 					newPage.id = $scope.templatePageIdCounter++;
 					// setup new page
 					for(let pageElement of newPage.pageElements) {
-
+	
 						if(pageElement.type === "indicatorTitle-landscape") {
 							pageElement.text = $scope.selectedIndicator.indicatorName;
 							pageElement.isPlaceholder = false;
 						}
-
+	
 						if(pageElement.type === "dataTimestamp-landscape") {
-							pageElement.text = timestamp;
+							pageElement.text = pageDom.querySelector(".type-dataTimestamp-landscape").innerText;
 							pageElement.isPlaceholder = false;
 						}
-
+	
+						// exists only on timeseries template (instead of dataTimestamp-landscape), so we don't need another if...else here
+						if(pageElement.type === "dataTimeseries-landscape") {
+							pageElement.text = pageDom.querySelector(".type-dataTimeseries-landscape").innerText;
+							pageElement.isPlaceholder = false;
+						}
+	
 						if(pageElement.type === "datatable") {
 							pageElement.isPlaceholder = false;
 						}
 					}
-
+	
 					// insert after current one
 					let currentPageIndex = $scope.template.pages.indexOf(page)
 					$scope.template.pages.splice(currentPageIndex + 1, 0, newPage);
 				}
-
-				addedRowsCounter++;
 			}
+				
 
 			// create table rows once the pages exist
 			$timeout(function(rowsData, page, maxRows) {
@@ -988,7 +1123,14 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				wrapper.style.justifyContent = "flex-start"; // align table at top instead of center
 				let addedRowsCounter = 0;
 
-				let table = $scope.createDatatableSkeleton();
+				let columnNames;
+				if($scope.template.name === "A4-landscape-timeseries") {
+					columnNames  = ["Bereich", "Zeitpunkt", "Wert"]
+				} else {
+					columnNames  = ["Bereich", "Wert"]
+				}
+
+				let table = $scope.createDatatableSkeleton(columnNames);
 				wrapper.appendChild(table);
 				let tbody = table.querySelector("tbody");
 				let pageElement = $scope.template.pages[idx].pageElements.find( el => el.type === "datatable");
@@ -997,26 +1139,35 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				for(let data of rowsData) {
 					let row = document.createElement("tr");
 					row.style.height = "25px";
+	
+					for(let colName of columnNames) {
+						let td = document.createElement("td");
+						if(colName === "Bereich") {
+							td.innerText = data.name;
+							td.classList.add("text-left");
+						}
+
+						if(colName === "Zeitpunkt") {
+							td.innerText = data.timestamp;
+						}
+						
+						if(colName === "Wert") {
+							td.innerText = data.value;
+							td.classList.add("text-right");
+						}
+
+						row.appendChild(td);
+					}
 					
-					let td1 = document.createElement("td");
-					td1.innerText = data.name;
-					td1.classList.add("text-left");
-					row.appendChild(td1);
-	
-					let td2 = document.createElement("td");
-					td2.innerText = data.value;
-					td2.classList.add("text-right");
-					row.appendChild(td2);
-	
 					// see which page we have to add the row to
+					// switch to next page if necessary
 					if(addedRowsCounter > 0 && addedRowsCounter % maxRows == 0) {
-						// switch to next page if necessary
 						idx++
 						wrapper = document.querySelector("#reporting-page-" + idx + "-datatable");
 						wrapper.innerHTML = "";
 						wrapper.style.border = "none"; // hide dotted border from outer dom element
 						wrapper.style.justifyContent = "flex-start"; // align table at top instead of center
-						table = $scope.createDatatableSkeleton();
+						table = $scope.createDatatableSkeleton(columnNames);
 						wrapper.appendChild(table);
 						tbody = table.querySelector("tbody");
 						pageElement = $scope.template.pages[idx].pageElements.find( el => el.type === "datatable");
@@ -1056,6 +1207,14 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			let avg = sum / indicator.geoJSON.features.length;
 			avg = Math.round(avg * 100) / 100; // 2 decimal places
 			return avg;
+		}
+
+		$scope.calculateOverallChange = function(indicator, timeseries) {
+			let data = $scope.calculateSeriesDataForTimeseries(indicator.geoJSON.features, timeseries);
+			let sum = data.map(obj => obj.value).reduce( (prev, current) => prev + current)
+			let avgChange = sum / indicator.geoJSON.features.length;
+			avgChange = Math.round(avgChange * 100) / 100; // 2 decimal places
+			return avgChange;
 		}
 
 
@@ -1125,11 +1284,14 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				}
 				
 
-				let pageDom = document.querySelector("#reporting-page-" + pageIdx)
-				let timestamp = pageDom.querySelector(".type-dataTimestamp-landscape")
-				if(timestamp) {
-					timestamp = timestamp.innerText;
+				let pageDom = document.querySelector("#reporting-page-" + pageIdx);
+
+				let timestamp = undefined;
+				let timestampDom = pageDom.querySelector(".type-dataTimestamp-landscape");
+				if (timestampDom) {
+					timestamp = timestampDom.innerText;
 				}
+
 				for(let pageElement of page.pageElements) {
 					// limited to one page-element-type per page
 					
@@ -1152,6 +1314,16 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 						case "overallAverage":
 							$scope.createPageElement_OverallAverage(pElementDom, pageElement, timestamp);
 							pageDom.querySelector(".type-overallAverage").style.border = "none"; // hide dotted border from outer dom element
+							break;
+						case "overallChange":
+							let inBetweenValues = true;
+							let timeseries = $scope.getFormattedDateSliderValues(inBetweenValues)
+							$scope.createPageElement_OverallChange(pElementDom, pageElement, timeseries);
+							let wrapper = pageDom.querySelector(".type-overallChange")
+							wrapper.style.border = "none"; // hide dotted border from outer dom element
+							wrapper.style.left = "670px";
+							wrapper.style.width = "130px";
+							wrapper.style.height = "100px";
 							break;
 						case "barchart":
 							$scope.createPageElement_BarChartDiagram(pageDom, pElementDom, page, pageElement);
@@ -1221,6 +1393,26 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			}
 		}
 
+
+		$scope.calculateSeriesDataForTimeseries = function(features, timeseries) {
+			let result = [];
+			let mostRecentDate = timeseries.dates[ timeseries.dates.length-1];
+			let oldestDate = timeseries.dates[ 0 ]
+
+			for(let feature of features) {
+				let obj = {};
+				obj.name = feature.properties.name;
+				let value = feature.properties["DATE_" + mostRecentDate] - feature.properties["DATE_" + oldestDate];
+				if(typeof(value) == 'number') {
+					value = Math.round( value * 100) / 100;
+				}
+				obj.value = value;
+
+				result.push(obj);
+			}
+			return result;
+		}
+
 		/**
 		 * 
 		 * @param {*} features | features array in geojson
@@ -1238,7 +1430,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		}
 
 
-		$scope.createDatatableSkeleton = function() {
+		$scope.createDatatableSkeleton = function(colNamesArr) {
 
 			let table = document.createElement("table");
 			table.classList.add("table-striped")
@@ -1250,19 +1442,106 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			table.appendChild(tbody);
 			
 			let headerRow = document.createElement("tr");
-			let col1 = document.createElement("th");
-			let col2 = document.createElement("th");
-			col1.innerText = "Bereich";
-			col2.innerText = "Wert";
-			col1.classList.add("text-center");
-			col2.classList.add("text-center");
-			headerRow.appendChild(col1);
-			headerRow.appendChild(col2);
+			
+			for(let colName of colNamesArr) {
+				let col = document.createElement("th");
+				col.classList.add("text-center");
+				col.innerText = colName;
+				headerRow.appendChild(col);
+			}
 
 			headerRow.style.height = "25px";
 			thead.appendChild(headerRow);
 
 			return table;
+		}
+
+		$scope.createDatesFromIndicatorDates = function(indicatorDates) {
+			let datesAsMs = [];
+			for (let i=0; i < indicatorDates.length; i++){
+				// year-month-day
+				var dateComponents = indicatorDates[i].split("-");
+				datesAsMs.push(kommonitorDataExchangeService.dateToTS(new Date(Number(dateComponents[0]), Number(dateComponents[1]) - 1, Number(dateComponents[2]))));
+			}
+			return datesAsMs;
+		}
+
+		function prettifyDateSliderLabels (dateAsMs) {
+			return kommonitorDataExchangeService.tsToDate_withOptionalUpdateInterval(dateAsMs, $scope.selectedIndicator.metadata.updateInterval);
+		}
+
+		function onChangeDateSliderInterval(data) {
+			console.log(data);
+		}
+
+		$scope.getFormattedDateSliderValues = function(includeInBetweenValues) {
+			if(!$scope.dateSlider)
+				throw "Tried to get dateslider values but dateslider was not defined.";
+			
+			let slider = $scope.dateSlider
+			let from = new Date(slider.result.from_value);
+			let to = new Date(slider.result.to_value);
+
+			let inBetweenDates;
+			if(includeInBetweenValues) {
+				// get all available timestamps that lie in between from and to
+				inBetweenDates = $scope.selectedIndicator.applicableDates.filter( el => {
+					let date = new Date(el);
+					date.setHours(0); // remove time-offset...TODO is there a better way?
+					return from < date && date < to;
+				});
+			}
+			
+			from = from.getFullYear() + "-" + (from.getMonth()+1) + "-" + from.getDate();
+			to = to.getFullYear() + "-" + (to.getMonth()+1) + "-" + to.getDate();
+		
+			let result = {
+				from: from,
+				to: to,
+				dates: includeInBetweenValues ? [from, ...inBetweenDates, to] : [] // all dates in the interval, including "from" and "to"
+			}
+
+			return result;
+		}
+
+
+		$scope.initializeDateRangeSlider = function(availableDates) {
+
+			if($scope.dateSlider){
+				$scope.dateSlider.destroy();
+			}
+
+			let domNode = document.getElementById("reporting-dateSlider");
+
+			while (domNode.hasChildNodes()) {
+				domNode.removeChild(domNode.lastChild);
+			}
+
+			//let mostRecentDate = availableDates[availableDates.length - 1];
+			//let selectedDate = availableDates[availableDates.length - 1];
+
+			let datesAsMs = $scope.createDatesFromIndicatorDates(availableDates);
+
+			// new Date() uses month between 0-11!
+			$("#reporting-dateSlider").ionRangeSlider({
+				skin: "big",
+				type: "double",
+				grid: true,
+				values: datesAsMs,
+				from: 0,
+				to: availableDates.length-1, // index
+				force_edges: true,
+				prettify: prettifyDateSliderLabels,
+				onFinish: onChangeDateSliderInterval
+			});
+
+			let dateSlider = $("#reporting-dateSlider").data("ionRangeSlider");
+			// make sure that the handles are properly set to min and max values
+			dateSlider.update({
+				from: 0,
+				to: availableDates.length-1
+			});
+			return dateSlider;
 		}
 	}
 ]})

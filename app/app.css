@@ -2480,6 +2480,30 @@ input:checked + .switchslider:before {
 	margin-bottom: 4px;
 }
 
+#reporting-dateSliderWrapper {
+	margin-right: auto;
+	margin-left: auto;
+	font: 16px/18px Arial, Helvetica, sans-serif;
+}
+
+#reporting-dateSliderWrapper .irs-grid-text{
+	color: black;
+	font-size: 16px;
+	margin-top: 3px;
+	padding: 0px 5px;
+	background-color: white;
+	border-radius: 3px;
+	line-height: 20px;
+}
+
+#reporting-dateSliderWrapper .irs-min{
+	font-size: 16px;
+}
+
+#reporting-dateSliderWrapper .irs-single{
+	font-size: 16px;
+}
+
 #reporting-load-settings-button,
 #reporting-load-commune-logo-button {
 	display:none;

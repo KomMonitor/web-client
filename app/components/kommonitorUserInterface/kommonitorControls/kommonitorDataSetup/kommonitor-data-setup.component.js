@@ -474,7 +474,7 @@ angular
 									});
 
 									$scope.dateSlider = $("#dateSlider").data("ionRangeSlider");
-									// make sure that tha handles are properly set to man and max values
+									// make sure that the handle is properly set to max value
 									$scope.dateSlider.update({
 											from: $scope.datesAsMs.length -1 // index, not the date
 									});

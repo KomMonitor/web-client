@@ -17,7 +17,8 @@
                             <a href="#area" aria-controls="area" role="tab" data-toggle="tab"  tabindex="-1">Bereich</a>
                         </li>
                         <li id="reporting-add-indicator-tab3" role="presentation" class="tab-disabled">
-                            <a href="#time" aria-controls="time" role="tab" data-toggle="tab" tabindex="-1" ng-click=onTab3Clicked()>Zeitpunkt</a>
+                            <a href="#time" aria-controls="time" role="tab" data-toggle="tab" tabindex="-1" ng-click=onTab3Clicked()
+                                ng-bind-html="template.name == 'A4-landscape-timeseries' ? 'Zeitserie' : 'Zeitpunkt'"></a>
                         </li>
                         <li id="reporting-add-indicator-tab4" role="presentation" class="tab-disabled">
                             <a href="#elements" aria-controls="elements" role="tab" data-toggle="tab" tabindex="-1">Elemente</a>
@@ -86,7 +87,15 @@
 						    <div class="loading-overlay-reporting ng-hide" ng-show="loadingData">
 								<span class="glyphicon glyphicon-refresh icon-spin"></span>
 							</div>
-                            <excalibur-dual-list id="reporting-indicator-add-timestamps-dual-list" ng-model='selectedTimestamps' options="dualListTimestampsOptions"></excalibur-dual-list>
+                            <div ng-hide="template.name == 'A4-landscape-timeseries'">
+                                <excalibur-dual-list id="reporting-indicator-add-timestamps-dual-list" ng-model='selectedTimestamps' options="dualListTimestampsOptions"></excalibur-dual-list>
+                            </div>
+                            <div ng-show="template.name == 'A4-landscape-timeseries'">
+                                <div id="reporting-dateSliderWrapper">
+                                    <input id="reporting-dateSlider" type="text" class="js-range-slider" value=""></input>
+                                </div>
+                            </div>
+                            
                         </div>
                         <div role="tabpanel" class="tab-pane" id="elements">
 
@@ -170,10 +179,23 @@
                                     {{pageElement.text}}
                                 </span>
 
+                                <span ng-show="pageElement.type == 'dataTimeseries-landscape' && pageElement.isPlaceholder == false"
+                                    ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
+                                    {{pageElement.text}}
+                                </span>
+
                                 <span ng-show="pageElement.type == 'overallAverage' && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
                                     <span style="display: block; text-align:left">
                                         Durchschnitt Gesamtstadt:<br />
+                                        {{pageElement.text}}
+                                    </span>
+                                </span>
+
+                                <span ng-show="pageElement.type == 'overallChange' && pageElement.isPlaceholder == false"
+                                    ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
+                                    <span style="display: block; text-align:left">
+                                        Durchschnittliche Veränderung Gesamtstadt:<br />
                                         {{pageElement.text}}
                                     </span>
                                 </span>
