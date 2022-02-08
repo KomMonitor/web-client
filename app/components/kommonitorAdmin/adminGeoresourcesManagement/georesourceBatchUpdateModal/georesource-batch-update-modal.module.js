@@ -13,7 +13,7 @@ angular.module('georesourceBatchUpdateModal').filter('filterGeoresoures', functi
             console.error("Given prarameter 'props' does not have a property named 'georesourceName'.")
             
         angular.forEach(georesources, function(georesource) {
-            if(georesource.datasetName.toLowerCase().includes( searchTermLower ))
+            if(georesource.datasetName.toLowerCase().includes( searchTermLower ) && georesource.userPermissions.includes("editor"))
                 result.push(georesource)
         })
         return result;

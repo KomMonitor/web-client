@@ -12,7 +12,7 @@ angular.module('indicatorBatchUpdateModal').filter('filterIndicators', function(
             console.error("Given prarameter 'props' does not have a property named 'indicatorName'.")
             
         angular.forEach(indicators, function(indicator) {
-            if(indicator.indicatorName.toLowerCase().includes( searchTermLower ))
+            if(indicator.indicatorName.toLowerCase().includes( searchTermLower ) && indicator.userPermissions.includes("editor"))
                 result.push(indicator)
         })
         return result;
