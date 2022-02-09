@@ -94,7 +94,7 @@ module.exports = {
             { from: nodeModulePathConstant + 'ag-grid-community/dist/ag-grid-community.min.js', to: 'ag-grid-community/' },
 			{ from: nodeModulePathConstant + 'ui-select/dist', to: 'ui-select/' },
             { from: nodeModulePathConstant + 'angularjs-dropdown-multiselect/dist/', to: 'angularjs-dropdown-multiselect/' },	
-          
+            { from: nodeModulePathConstant + 'jszip/dist/jszip.min.js', to: 'jszip/' },
           
 
       ]})
