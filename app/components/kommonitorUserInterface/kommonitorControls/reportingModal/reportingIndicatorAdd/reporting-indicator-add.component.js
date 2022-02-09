@@ -1001,12 +1001,14 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			return barChart;
 		}
 
-		$scope.createPageElement_TimelineDiagram = function(wrapper, pageElement) {
+		$scope.createPageElement_TimelineDiagram = function(pageDom, wrapper, page, pageElement) {
 			let lineChart = echarts.init( wrapper );
-			let options = kommonitorDiagramHelperService.getLineChartOptions();
+			let timeline = $scope.getFormattedDateSliderValues(true).dates;
+			// get standard options, create a copy of the options to not change anything in the service
+			let options = JSON.parse(JSON.stringify( kommonitorDiagramHelperService.getLineChartOptions() ));
 			options.xAxis.name = ""; //remove title
 			options.title.textStyle.fontSize = 12;
-			options.title.text = "Zeitreihe - Arithm. Mittel";
+			options.title.text = "Zeitreihe";
 			options.yAxis.axisLabel = { "fontSize": 10 };
 			options.xAxis.axisLabel = { "fontSize": 10 };
 			options.legend.show = false;
@@ -1014,7 +1016,113 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			options.grid.bottom = 5;
 			options.title.show = true;
 			options.toolbox.show = false;
-			lineChart.setOption(options);
+
+			// remove all series data (except for avg if it should be shown)
+			if(pageElement.showAverage) {
+				options.series = options.series.filter( series => {
+					return series.name === "Arithmetisches Mittel"
+				});
+			} else {
+				options.series = [];
+			}
+			
+			
+			if(pageElement.showAreas) {
+				
+				let areaNames = [];
+				// in area specific part only add one line
+				if(page.area && page.area.length) {
+					areaNames.push(page.area);
+				} else {
+					// else add one line for each selected area
+					areaNames = $scope.selectedAreas.map( el => {
+						return el.name;
+					});
+				}
+
+				for(let areaName of areaNames) {
+					let data = [];
+					let filtered = $scope.selectedIndicator.geoJSON.features.filter( feature => {
+						return feature.properties.NAME === areaName;
+					});
+				
+					for(let timestamp of timeline) {
+						let value = filtered[0].properties["DATE_" + timestamp];
+						data.push(value)
+					}
+				
+					let series = {};
+					series.name = areaName;
+					series.type = "line";
+					series.data = data;
+					series.lineStyle = {
+						normal: {
+							width: 2,
+							type: "solid"
+						}
+					}
+					series.itemStyle = {
+						normal: {
+							borderWidth: 3
+						}
+					}
+				
+					options.series.push(series)
+				}
+			}
+
+			if(pageElement.showBoxplots) {
+				// we assume that boxplots are only shown when showAreas is false (might change in the future).
+				// so we have to get the data of all areas first
+				let areaNames = [];
+				areaNames = $scope.selectedAreas.map( el => {
+					return el.name;
+				});
+
+				// create a nested array with each inner array containing all area-values for one timestamp
+				let datasetSource = [];
+				for(let timestamp of timeline) {
+					let valuesForTimestamp = [];
+					// filter features to selected areas
+					let selectedAreasFeatures = $scope.selectedIndicator.geoJSON.features.filter( feature => {
+						return areaNames.includes( feature.properties.NAME );
+					});
+					// get values for each feature
+					for(feature of selectedAreasFeatures) {
+						let value = feature.properties["DATE_" + timestamp]
+						valuesForTimestamp.push(value);
+					}
+
+					datasetSource.push(valuesForTimestamp)
+				}
+				
+
+				options.dataset = [
+					{
+						source: datasetSource
+					},
+					{
+						transform: {
+							type: 'boxplot'
+						}
+					},
+					{
+						fromDatasetIndex: 1,
+						fromTransformResult: 1
+					}
+				]
+
+				// add a new series that references the boxplots
+				options.series.push({
+					name: 'boxplots',
+					type: 'boxplot',
+					datasetIndex: 1 // overlap boxplots and avg. line
+				})
+			}
+			
+			
+			//lineChart.setOption(options); // TODO not working with echarts4 since some properties are missing. Should work with v5.
+			// possible workaround for boxplots is to draw them by hand (e.g. https://github.com/apache/echarts/issues/11820 )
 			lineChart.resize();
 			return lineChart;
 		}
@@ -1330,7 +1438,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 							pageElement.isPlaceholder = false;
 							break;
 						case "linechart":
-							$scope.createPageElement_TimelineDiagram(pElementDom, pageElement);
+							$scope.createPageElement_TimelineDiagram(pageDom, pElementDom, page, pageElement);
 							pageElement.isPlaceholder = false;
 							break;
 						case "datatable":

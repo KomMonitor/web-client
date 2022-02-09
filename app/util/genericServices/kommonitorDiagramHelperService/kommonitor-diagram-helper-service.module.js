@@ -1218,7 +1218,7 @@ angular
         };
 
         // perform checks if there are negative values or only > 0 values
-        // then stacks must be adjusted to be correcty displayed
+        // then stacks must be adjusted to be correctly displayed
         var minStack_minValue = Math.min(...indicatorTimeSeriesMinArray);
         if(minStack_minValue < 0){
           minStack.areaStyle = {

@@ -335,7 +335,10 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"height": "440px"
 								},
 								"isPlaceholder": true,
-								"placeholderText": "Liniendiagramm"
+								"placeholderText": "Liniendiagramm: eine Linie pro ausgewählter Raumeinheit + Durchschnitt Gesamtstadt",
+								"showAverage": true,
+								"showAreas": true,
+								"showBoxplots": false
 							}
 						]
 					},
@@ -360,7 +363,11 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"height": "440px"
 								},
 								"isPlaceholder": true,
-								"placeholderText": "Liniendiagramm mit Boxplots"
+								"placeholderText": "Liniendiagramm: Durchschnitt Gesamtstadt + Boxplot pro Zeitpunkt",
+								"showAverage": true,
+								"showAreas": false,
+								"showBoxplots": true
+
 							}
 						]
 					},
@@ -400,10 +407,13 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"height": "140px"
 								},
 								"isPlaceholder": true,
-								"placeholderText": "Liniendiagramm"
+								"placeholderText": "Liniendiagramm",
+								"showAverage": true,
+								"showAreas": true,
+								"showBoxplots": false
 							},
 							{
-								// percentage change compared to previous year
+								
 								"type": "linechart",
 								"dimensions": {
 									"top": "240px",
@@ -412,7 +422,11 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"height": "140px"
 								},
 								"isPlaceholder": true,
-								"placeholderText": "Liniendiagramm - proz. Veränderung zum Vorjahr"
+								"placeholderText": "Liniendiagramm - proz. Veränderung zum Vorjahr",
+								"showAverage": true,
+								"showAreas": true,
+								"showAverage": true,
+								"showPercentageChangeToPrevTimestamp": true
 							},
 							{
 								"type": "textInput",
