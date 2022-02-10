@@ -836,6 +836,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			options.visualMap.left = "right";
 			let mapOptions = options.series[0];
 			mapOptions.roam = false;
+			mapOptions.selectedMode = false;
 
 			// during diagram preparation we used the most recent timestamp
 			// now we have to set data according to timestamp or timeseries for that page
@@ -854,29 +855,35 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				return el.name;
 			});
 
+			if(pageElement.classify === true) {
+				options.visualMap.show = true;
+			} else {
+				options.visualMap.show = false;
+			}
 
 			mapOptions.data.forEach( el => {
 				el.itemStyle =  el.itemStyle ? el.itemStyle : {};
 				el.emphasis = el.emphasis ? el.emphasis : {};
 				el.emphasis.itemStyle = el.emphasis.itemStyle ? el.emphasis.itemStyle : {};
 				el.label = el.label ? el.label : {};
-
+				el.visualMap = false;
+				
 				if(pageElement.classify === false) {
-					el.visualMap = false;
-					options.visualMap.show = false;
 					if( areaNames.includes(el.name) ) {
 						// show selected areas (don't classify color by value)
 						el.itemStyle.areaColor = "rgb(255, 153, 51, 0.6)";
+						el.itemStyle.color = "rgb(255, 153, 51, 0.6)";
 						el.emphasis.itemStyle.areaColor = "rgb(255, 153, 51, 0.6)";
+						el.emphasis.itemStyle.color = "rgb(255, 153, 51, 0.6)";
 						el.label.formatter = '{b}\n{c}';
 						el.label.show = true;
-						el.selected = true; // This fixes a bug where labels would disappear seemingly at random (probably within echarts).
 					} else {
 						// only show borders for any other areas
-						el.itemStyle.areaColor = "rgba(255, 255, 255, 0)" // full transparent
-						el.emphasis.itemStyle.areaColor = "rgba(255, 255, 255, 0)"; // full transparent
+						el.itemStyle.color = "rgba(255, 255, 255, 1)" // full transparent
+						el.itemStyle.areaColor = "rgba(255, 255, 255, 1)" // full transparent
+						el.emphasis.itemStyle.color = "rgba(255, 255, 255, 1)"; // full transparent
+						el.emphasis.itemStyle.areaColor = "rgba(255, 255, 255, 1)"; // full transparent
 						el.label.show = false;
-						el.selected = false;
 					}
 				}
 
@@ -906,15 +913,19 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 							}
 						}
 						el.label.show = true;
-						el.selected = true;
+						el.itemStyle.color = color;
+						el.itemStyle.areaColor = color;
+						el.itemStyle.opacity = opacity;
+						el.emphasis.itemStyle.color = color;
 						el.emphasis.itemStyle.areaColor = color;
 						el.emphasis.itemStyle.opacity = opacity;
 					} else {
 						el.visualMap = false;
-						el.itemStyle.areaColor = "rgba(255, 255, 255, 0)" // full transparent
-						el.emphasis.itemStyle.areaColor = "rgba(255, 255, 255, 0)"; // full transparent
+						el.itemStyle.color = "rgb(255, 255, 255)";
+						el.itemStyle.areaColor = "rgb(255, 255, 255)";
+						el.emphasis.itemStyle.color = "rgb(255, 255, 255)";
+						el.emphasis.itemStyle.areaColor = "rgb(255, 255, 255)";
 						el.label.show = false;
-						el.selected = false;
 					}
 				}
 			})
@@ -946,7 +957,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			// default changes
 			options.xAxis.name = "";
 			options.title.textStyle.fontSize = 12;
-			options.title.text = ""; //TODO
+			options.title.text = "";
 			options.yAxis.axisLabel = { "fontSize": 10 };
 			options.title.show = true;
 			options.grid.top = 35;
@@ -981,7 +992,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				if(typeof(a.value) == 'number' && typeof(b.value) == 'number') {
 					return a.value - b.value;
 				} else {
-					return -1 // experimental, does this sort NaN to the left?
+					return -1
 				}	
 			});
 
@@ -990,11 +1001,24 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			let avgElementName = (page.area && page.area.length) ? "Durchschnitt\nder\nRaumeinheit" : "Durchschnitt der Raumeinheit";
 			let dataObjForAvg = {
 				name: avgElementName,
-				value: avgValue
-				// color is set by visual map
+				value: avgValue,
+				opacity: 1
 			}
+			// get color for avg from visual map and disable opacity
+			let colorForAvg = "";
+			for(let piece of options.visualMap[0].pieces) {
+				if(piece.min <= dataObjForAvg.value && dataObjForAvg.value < piece.max) {
+					colorForAvg = piece.color;
+				}
+				piece.opacity = 1;
+			}
+
+			dataObjForAvg.color = colorForAvg;
 			options.series[0].data.push(dataObjForAvg);
 			options.xAxis.data.push( dataObjForAvg.name )
+
+			
+			options.series[0].emphasis.itemStyle = {}; // don't show border on hover
 
 			barChart.setOption(options);
 			barChart.resize();
@@ -1096,14 +1120,21 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					datasetSource.push(valuesForTimestamp)
 				}
 				
-
+				let xAxisLabels = options.xAxis.data;
 				options.dataset = [
 					{
 						source: datasetSource
 					},
 					{
 						transform: {
-							type: 'boxplot'
+							type: 'boxplot',
+							config: { 
+								// params is 0, 1, 2, ...
+								// we can use this as an index to get the actual label and return it
+								itemNameFormatter: function (params) {
+									return xAxisLabels[params.value];
+								}
+							}
 						}
 					},
 					{
@@ -1114,15 +1145,14 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 				// add a new series that references the boxplots
 				options.series.push({
-					name: 'boxplots',
+					name: 'boxplot',
 					type: 'boxplot',
 					datasetIndex: 1 // overlap boxplots and avg. line
 				})
 			}
 			
 			
-			//lineChart.setOption(options); // TODO not working with echarts4 since some properties are missing. Should work with v5.
-			// possible workaround for boxplots is to draw them by hand (e.g. https://github.com/apache/echarts/issues/11820 )
+			lineChart.setOption(options);
 			lineChart.resize();
 			return lineChart;
 		}
