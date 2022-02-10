@@ -24,9 +24,20 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			diagram1: true,
 			diagram2: true
 		}
+
+		$scope.echartsOptions = {
+			map: {
+				// "2017-12-31": ...
+				// "2018-12-31": ...
+			},
+			bar: {
+				// "2017-12-31": ...
+				// "2018-12-31": ...
+			},
+			line: {}, // no timestamp needed here
+		}
 		
 		$scope.loadingData = false;
-		$scope.diagramsPrepared = false;
 
 		// used to track template pages instead of using $$hashkey
 		$scope.templatePageIdCounter = 1;
@@ -54,10 +65,10 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			}
 
 			$timeout(function() {
-				if($scope.diagramsPrepared) {
-					$scope.initializeOrUpdateAllDiagrams();
-					$scope.loadingData = false;
-				}
+				// we could filter the geoJson here to only include selected areas
+				// but for now we get all areas and filter them out after
+				$scope.initializeOrUpdateAllDiagrams();
+				$scope.loadingData = false;
 			});
 		}
 
@@ -364,10 +375,11 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			}
 
 			$timeout(function() {
-				if($scope.diagramsPrepared) {
-					$scope.initializeOrUpdateAllDiagrams();
-					$scope.loadingData = false;
+				for(let timestamp of $scope.selectedTimestamps) {
+					$scope.prepareDiagrams($scope.selectedIndicator, $scope.selectedSpatialUnit, timestamp.name, false);
 				}
+				$scope.initializeOrUpdateAllDiagrams();
+				$scope.loadingData = false;
 			});
 		});
 
@@ -474,17 +486,15 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			let features = $scope.availableFeaturesBySpatialUnit[ selectedSpatialUnit.spatialUnitName ]
 			features = $scope.createLowerCaseNameProperty(features);
 			let geoJSON = { features: features }
-			// the timestamp we use here doesn't really mater since each diagram gets updated
-			// with the appropriate timestamp in initializeOrUpdateAllDiagrams.
-			let timestamp = $scope.selectedTimestamps[ $scope.selectedTimestamps.length-1 ]
-			let timestampName = timestamp.name;
-			$scope.prepareDiagrams($scope.selectedIndicator, selectedSpatialUnit, timestampName, geoJSON);
-
+			$scope.selectedIndicator.geoJSON = geoJSON;
+			
 			$timeout(function() {
-				if($scope.diagramsPrepared) {
-					$scope.initializeOrUpdateAllDiagrams()
-					$scope.loadingData = false;
+				// prepare diagrams for all selected timestamps with all features
+				for(let timestamp of $scope.selectedTimestamps) {
+					$scope.prepareDiagrams($scope.selectedIndicator, selectedSpatialUnit, timestamp.name, false);
 				}
+				$scope.initializeOrUpdateAllDiagrams()
+				$scope.loadingData = false;
 			});
 			
 		}
@@ -654,7 +664,13 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			$scope.selectedIndicator = undefined;
 			$scope.selectedTimestamps = [];
 			$scope.selectedAreas = [];
-			$scope.diagramsPrepared = false;
+			$scope.selectedSpatialUnit = undefined;
+			$scope.availableFeaturesBySpatialUnit = {};
+			$scope.echartsOptions = {
+				map: {},
+				bar: {},
+				line: {}
+			}
 			// set indicator manually.
 			// if we use ng-model it gets converted to string instead of an object
 			$scope.selectedIndicator = indicator;
@@ -668,9 +684,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 			
 			// set spatial unit to highest available one
-			if(typeof($scope.selectedSpatialUnit === 'undefined')) {
-				$scope.selectedSpatialUnit = $scope.selectedIndicator.applicableSpatialUnits[0];
-			}
+			$scope.selectedSpatialUnit = $scope.selectedIndicator.applicableSpatialUnits[0];
 
 			// select most recent timestamp
 			// get manually because it takes a  moment until $scope.selectedTimestamps is set by the listener
@@ -686,15 +700,25 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 			await $scope.updateAreasInDualList();
 
-			// prepare diagrams before updating dual lists, so diagrams can be initialized by $watch functions
-			let features = $scope.availableFeaturesBySpatialUnit[ $scope.selectedIndicator.applicableSpatialUnits[0].spatialUnitName ]
+			// get all features of largest spatial unit
+			let features = $scope.availableFeaturesBySpatialUnit[ $scope.selectedSpatialUnit.spatialUnitName ]
 			features = $scope.createLowerCaseNameProperty(features);
 			let geoJson = {
 				features: features
 			}
-			$scope.prepareDiagrams($scope.selectedIndicator, $scope.selectedSpatialUnit, mostRecentTimestampName, geoJson);
+
+			// add new prop to indicator metadata, because it is expected that way by kommonitorVisualStyleHelperService
+			// used in prepareDiagrams
+			$scope.selectedIndicator.geoJSON = geoJson;
 			
+			$scope.prepareDiagrams($scope.selectedIndicator, $scope.selectedSpatialUnit, mostRecentTimestampName, false);
 			if($scope.template.name === "A4-landscape-timeseries") {
+				// also prepare the dynamic version of the indicator for displaying changes
+				const indicatorTypeBackup = $scope.selectedIndicator.indicatorType;
+				$scope.selectedIndicator.indicatorType = "RELATIVE";
+				$scope.prepareDiagrams($scope.selectedIndicator, $scope.selectedSpatialUnit, mostRecentTimestampName, true);
+				$scope.selectedIndicator.indicatorType = indicatorTypeBackup;
+
 				$scope.dateSlider = $scope.initializeDateRangeSlider(dates);
 			} else {
 				$scope.updateDualList($scope.dualListTimestampsOptions, availableTimestamps, mostRecentTimestamp)
@@ -784,29 +808,16 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		 * @returns 
 		 */
 		$scope.createPageElement_Map = function(pageDom, wrapper, page, pageElement) {
-			let map = echarts.init( wrapper );
 			
-			// get standard options, create a copy of the options to not change anything in the service
-			let options = JSON.parse(JSON.stringify( kommonitorDiagramHelperService.getGeoMapChartOptions() ));
 			// check if there is a map registered for this combination, if not register one with all features
-			
 			let mapName = undefined;
 			let timestamp = undefined;
-			let timeseries = undefined;
-			if($scope.template.name === "A4-landscape-timeseries") {
-				// this template contains pages with timestamp and pages with timeseries
-				timestampDom = pageDom.querySelector(".type-dataTimestamp-landscape")
-				if(!timestampDom) {
-					timeseriesDom = pageDom.querySelector(".type-dataTimeseries-landscape")
-					if(timeseriesDom) {
-						timeseries = timeseriesDom.innerText.replace(" ", "");
-						mapName = $scope.selectedIndicator.indicatorName + "_" + timeseries + "_" + $scope.selectedSpatialUnit.spatialUnitName;
-					}
-				} else {
-					timestamp = timestampDom.innerText;
-					mapName = $scope.selectedIndicator.indicatorName + "_" + timestamp + "_" + $scope.selectedSpatialUnit.spatialUnitName;
-				}
-				
+			if(pageElement.isTimeseries) {
+				// use max slider value
+				let timestamp1 = $scope.getFormattedDateSliderValues(false).from;
+				let timestamp2 = $scope.getFormattedDateSliderValues(false).to;
+				mapName = $scope.selectedIndicator.indicatorName + "_" + timestamp1 + "-" + timestamp2 + "_" + $scope.selectedSpatialUnit.spatialUnitName;
+				timestamp = timestamp2;
 			} else {
 				let timestampDom = pageDom.querySelector(".type-dataTimestamp-landscape")
 				timestamp = timestampDom.innerText;
@@ -827,6 +838,12 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				echarts.registerMap(mapName, $scope.selectedIndicator.geoJSON)
 			}
 
+			let map = echarts.init( wrapper );
+			if(pageElement.isTimeseries) {
+				timestamp += "_relative"
+			}
+			let options = JSON.parse(JSON.stringify( $scope.echartsOptions.map[timestamp] ));
+			
 
 			// default changes for all reporting maps
 			options.title.show = false;
@@ -838,14 +855,11 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			mapOptions.roam = false;
 			mapOptions.selectedMode = false;
 
-			// during diagram preparation we used the most recent timestamp
-			// now we have to set data according to timestamp or timeseries for that page
+
 			if(pageElement.isTimeseries) {
 				let includeInBetweenDates = true;
 				let dates = $scope.getFormattedDateSliderValues(includeInBetweenDates)
 				mapOptions.data = $scope.calculateSeriesDataForTimeseries($scope.selectedIndicator.geoJSON.features, dates)
-			} else {
-				mapOptions.data = $scope.getSeriesDataForTimestamp($scope.selectedIndicator.geoJSON.features, timestamp)
 			}
 			
 			mapOptions.map = mapName; // update the map with the one registered above
@@ -950,9 +964,11 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		}
 
 		$scope.createPageElement_BarChartDiagram = function(pageDom, wrapper, page, pageElement) {
+			
+			let timestampDom = pageDom.querySelector(".type-dataTimestamp-landscape")
+			let timestamp = timestampDom.innerText;
 			let barChart = echarts.init( wrapper );
-			// get standard options, create a copy of the options to not change anything in the service
-			let options = JSON.parse(JSON.stringify( kommonitorDiagramHelperService.getBarChartOptions() ));
+			let options = JSON.parse(JSON.stringify( $scope.echartsOptions.bar[timestamp] ));
 
 			// default changes
 			options.xAxis.name = "";
@@ -965,11 +981,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			options.toolbox.show = false;
 			options.visualMap[0].show = false; // only needed to set the color for avg
 			options.xAxis.axisLabel.show = true;
-			// during diagram preparation we used the most recent timestamp
-			// now we have to set data according to timestamp for that page
-			let timestampDom = pageDom.querySelector(".type-dataTimestamp-landscape")
-			let timestamp = timestampDom.innerText;
-			options.series[0].data = $scope.getSeriesDataForTimestamp($scope.selectedIndicator.geoJSON.features, timestamp, options.series[0].data)
 			
 			// filter series data and xAxis labels
 			if(page.area && page.area.length) {
@@ -1004,6 +1015,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				value: avgValue,
 				opacity: 1
 			}
+
 			// get color for avg from visual map and disable opacity
 			let colorForAvg = "";
 			for(let piece of options.visualMap[0].pieces) {
@@ -1029,7 +1041,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			let lineChart = echarts.init( wrapper );
 			let timeline = $scope.getFormattedDateSliderValues(true).dates;
 			// get standard options, create a copy of the options to not change anything in the service
-			let options = JSON.parse(JSON.stringify( kommonitorDiagramHelperService.getLineChartOptions() ));
+			let options = JSON.parse(JSON.stringify( $scope.echartsOptions.line ));
 			options.xAxis.name = ""; //remove title
 			options.title.textStyle.fontSize = 12;
 			options.title.text = "Zeitreihe";
@@ -1356,15 +1368,19 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		}
 
 
-		$scope.prepareDiagrams = function(selectedIndicator, selectedSpatialUnit, timestampName, geoJson) {
+		$scope.prepareDiagrams = function(selectedIndicator, selectedSpatialUnit, timestampName, indicatorIsRelative) {
 			// set settings useOutlierDetectionOnIndicator and classifyUsingWholeTimeseries to false to have consistent reporting setup
 			// we need to undo these changes afterwards, so we store the current values in a backup first
-			let useOutlierDetectionOnIndicator_backup = kommonitorDataExchangeService.useOutlierDetectionOnIndicator;
-			let classifyUsingWholeTimeseries_backup = kommonitorDataExchangeService.classifyUsingWholeTimeseries;
-			let classifyZeroSeparately_backup = kommonitorDataExchangeService.classifyZeroSeparately; 
+			const useOutlierDetectionOnIndicator_backup = kommonitorDataExchangeService.useOutlierDetectionOnIndicator;
+			const classifyUsingWholeTimeseries_backup = kommonitorDataExchangeService.classifyUsingWholeTimeseries;
+			const classifyZeroSeparately_backup = kommonitorDataExchangeService.classifyZeroSeparately; 
 			kommonitorDataExchangeService.useOutlierDetectionOnIndicator = false;
 			kommonitorDataExchangeService.classifyUsingWholeTimeseries = false;
-
+			if(indicatorIsRelative) {
+				kommonitorDataExchangeService.classifyUsingWholeTimeseries = true;
+			}
+			
+			
 			let timestampPrefix = __env.indicatorDatePrefix + timestampName;
 			let numClasses = selectedIndicator.defaultClassificationMapping.items.length;
 			let colorCodeStandard = selectedIndicator.defaultClassificationMapping.colorBrewerSchemeName;
@@ -1372,10 +1388,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			let colorCodeNegativeValues = __env.defaultColorBrewerPaletteForBalanceDecreasingValues;
 			let classifyMethod = __env.defaultClassifyMethod;
 
-			// add new prop to indicator metadata, because it is expected that way by kommonitorVisualStyleHelperService
-			selectedIndicator.geoJSON = geoJson;
 			// setup brew
-			let defaultBrew = kommonitorVisualStyleHelperService.setupDefaultBrew(selectedIndicator.geoJSON, timestampPrefix, numClasses, colorCodeStandard, classifyMethod);
+			let defaultBrew = kommonitorVisualStyleHelperService.setupDefaultBrew(selectedIndicator.geoJSON, timestampPrefix, numClasses, colorCodeStandard, classifyMethod, true, selectedIndicator);
 			let dynamicBrewsArray = kommonitorVisualStyleHelperService.setupDynamicIndicatorBrew(selectedIndicator.geoJSON, timestampPrefix, colorCodePositiveValues, colorCodeNegativeValues, classifyMethod);
 			let dynamicIncreaseBrew = dynamicBrewsArray[0];
 			let dynamicDecreaseBrew = dynamicBrewsArray[1];
@@ -1390,7 +1404,14 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			kommonitorDataExchangeService.classifyUsingWholeTimeseries = classifyUsingWholeTimeseries_backup;
 			kommonitorDataExchangeService.classifyZeroSeparately = classifyZeroSeparately_backup;
 
-			$scope.diagramsPrepared = true;
+			// copy and save echarts options so we can re-use them later
+			if(indicatorIsRelative) {
+				timestampName += "_relative"; // save relative indicator separately
+			}
+			$scope.echartsOptions.map[timestampName] = JSON.parse(JSON.stringify( kommonitorDiagramHelperService.getGeoMapChartOptions() ));
+			$scope.echartsOptions.bar[timestampName] = JSON.parse(JSON.stringify( kommonitorDiagramHelperService.getBarChartOptions() ));
+			// no timestamp name needed here
+			$scope.echartsOptions.line = JSON.parse(JSON.stringify( kommonitorDiagramHelperService.getLineChartOptions() ));
 		}
 
 		$scope.initializeOrUpdateAllDiagrams = function() {
@@ -1431,8 +1452,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				}
 
 				for(let pageElement of page.pageElements) {
-					// limited to one page-element-type per page
-					
+
 					let pElementDom = pageDom.querySelector("#reporting-page-" + pageIdx + "-" + pageElement.type)
 					
 					switch(pageElement.type) {
