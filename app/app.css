@@ -2481,9 +2481,8 @@ input:checked + .switchslider:before {
 }
 
 #reporting-dateSliderWrapper {
-	margin-right: auto;
-	margin-left: auto;
-	font: 16px/18px Arial, Helvetica, sans-serif;
+	margin: 20px auto 20px auto;
+	font: 16px/18px Arial, Helvetica, sans-serif; 
 }
 
 #reporting-dateSliderWrapper .irs-grid-text{
