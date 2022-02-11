@@ -2710,7 +2710,6 @@ angular
 		};
 
 		this.initializeRoleDualListConfig = function(inputArray, selectedArray, nameProperty) {
-      console.log("initializeRoleDualListConfig");
 			var duallistRoleOptions = {
 				label: 'Rollen',
 				boxItemsHeight: 'md',

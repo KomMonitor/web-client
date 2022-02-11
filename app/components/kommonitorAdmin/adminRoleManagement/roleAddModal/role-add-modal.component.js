@@ -15,16 +15,10 @@ angular.module('roleAddModal').component('roleAddModal', {
 			$scope.keycloakErrorMessagePart = undefined;
 
 			$scope.checkRoleName = function () {
-				$scope.nameInvalid = false;
-				kommonitorDataExchangeService.accessControl.forEach(function (ou) {
-					if (ou.name === $scope.newOrganizationalUnit.name) {
-						$scope.nameInvalid = true;
-						return;
-					}
-					else $scope.nameInvalid = false;
-				});
+				$scope.nameInvalid = kommonitorDataExchangeService.accessControl.some(ou => ou.name === $scope.newOrganizationalUnit.name);
 			};
 
+			
 			$scope.resetRoleAddForm = function () {
 				$scope.newOrganizationalUnit = {};
 
@@ -69,7 +63,7 @@ angular.module('roleAddModal').component('roleAddModal', {
 							await kommonitorDataExchangeService.fetchAccessControlMetadata();
 							kommonitorDataExchangeService.accessControl.forEach(function (entry) {
 								if (entry.name === $scope.newOrganizationalUnit.name) {
-									$scope.newOrganizationalUnit = entry
+									$scope.newOrganizationalUnit = JSON.parse(JSON.stringify(entry))
 								}
 							});
 
@@ -92,6 +86,7 @@ angular.module('roleAddModal').component('roleAddModal', {
 						}
 
 						$rootScope.$broadcast("refreshAccessControlTable", "add", $scope.newOrganizationalUnit.organizationalUnitId);
+						$scope.checkRoleName();
 						$timeout(function () {
 							$scope.loadingData = false;
 						});
