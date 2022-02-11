@@ -56,7 +56,7 @@ angular
             html += 'disabled';
           }
 
-          html += '" type="button" data-toggle="modal" data-target="#modal-edit-indicator-spatial-unit-accessControl" title="Rollenbasierten Zugriffsschutz editieren"><i class="fas fa-user-lock"></i></button>';
+          html += '" type="button" data-toggle="modal" data-target="#modal-edit-indicator-spatial-unit-roles" title="Rollenbasierten Zugriffsschutz editieren"><i class="fas fa-user-lock"></i></button>';
         }
         html += '</div>';
 
