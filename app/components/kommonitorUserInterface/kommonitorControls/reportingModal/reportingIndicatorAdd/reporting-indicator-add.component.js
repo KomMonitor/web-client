@@ -378,7 +378,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				for(let timestamp of $scope.selectedTimestamps) {
 					let classifyUsingWholeTimeseries = false;
 					$scope.prepareDiagrams($scope.selectedIndicator, $scope.selectedSpatialUnit, timestamp.name, classifyUsingWholeTimeseries);
+
 				}
+				
 				$scope.initializeOrUpdateAllDiagrams();
 				$scope.loadingData = false;
 			});
@@ -947,7 +949,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			})
 			
 			map.setOption(options);
-			map.resize();
 			return map;
 		}
 
@@ -1050,7 +1051,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			options.series[0].emphasis.itemStyle = {}; // don't show border on hover
 
 			barChart.setOption(options);
-			barChart.resize();
 			return barChart;
 		}
 
@@ -1206,11 +1206,10 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			
 			
 			lineChart.setOption(options);
-			lineChart.resize();
 			return lineChart;
 		}
 
-		$scope.createPageElement_Datatable = function(wrapper, page, pageElement) {
+		$scope.createPageElement_Datatable = function(wrapper, page) {
 			
 			// table looks different depending on template type
 			// for single timestamps it is added at the end of each timestamp-section, so each area is inserted once
@@ -1474,6 +1473,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			// This array might include additional datatable pages, which are not inserted in the dom
 			// Even though we do nothing for these pages, the index gets out of sync with the page ids (which we use to get the dom elements)
 			let pageIdx = -1;
+
 			for(let i=0; i<$scope.template.pages.length; i++) {
 				pageIdx++;
 				let page = $scope.template.pages[i];
@@ -1520,8 +1520,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 							pageDom.querySelector(".type-overallAverage").style.border = "none"; // hide dotted border from outer dom element
 							break;
 						case "overallChange":
-							let inBetweenValues = true;
-							let timeseries = $scope.getFormattedDateSliderValues(inBetweenValues)
 							$scope.createPageElement_OverallChange(page, pageElement);
 							let wrapper = pageDom.querySelector(".type-overallChange")
 							wrapper.style.border = "none"; // hide dotted border from outer dom element
@@ -1812,7 +1810,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				}
 			}
 
-			if(isIndicatorSelected && isAreaSelected && isTimestampSelected) {
+			if(isIndicatorSelected && isAreaSelected && isTimestampSelected && !$scope.loadingData) {
 				return true;
 			} else {
 				return false;
