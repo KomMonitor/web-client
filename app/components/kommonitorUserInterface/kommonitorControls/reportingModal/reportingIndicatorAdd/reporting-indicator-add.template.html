@@ -229,7 +229,7 @@
                         &nbsp;&nbsp;Zurück zur Übersicht
                     </button>
                     
-                    <button type="button" class="btn btn-success pull-right" ng-click='onAddNewIndicatorClicked()'>
+                    <button ng-show="validateConfiguration()" type="button" class="btn btn-success pull-right" ng-click='onAddNewIndicatorClicked()'>
                         <i class="fa fa-plus"></i>
                         Indikator hinzufügen
                     </button>

@@ -1701,5 +1701,49 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			});
 			return dateSlider;
 		}
+
+		$scope.validateConfiguration = function() {
+			// indicator has to be selected
+			// at least one area has to be selected
+			// for timestamps:
+				// at least one timestamp has to be selected
+			// for timeseries
+				// slider position must include at least two timestamps
+			let isIndicatorSelected = false;
+			let isAreaSelected = false;
+			let isTimestampSelected = false;
+
+			if(!$scope.template) {
+				return false;
+			}
+
+			if($scope.selectedIndicator) {
+				isIndicatorSelected = true;
+			}
+			if($scope.selectedAreas.length >= 1) {
+				isAreaSelected = true;
+			}
+
+			if($scope.template.name === "A4-landscape-timestamp" && $scope.selectedTimestamps.length >= 1) {
+				isTimestampSelected = true;
+			}
+
+			if($scope.template.name === "A4-landscape-timeseries") {
+				if(!$scope.dateSlider) {
+					return false;
+				}
+				let timeseries = $scope.getFormattedDateSliderValues(true).dates;
+				if(timeseries.length >= 1) {
+					isTimestampSelected = true; // reuse variable here
+				}
+			}
+
+			if(isIndicatorSelected && isAreaSelected && isTimestampSelected) {
+				return true;
+			} else {
+				return false;
+			}
+
+		}
 	}
 ]})
