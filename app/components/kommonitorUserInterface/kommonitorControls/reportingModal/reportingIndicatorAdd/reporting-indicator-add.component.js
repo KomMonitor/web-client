@@ -1222,6 +1222,21 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			let wrapperHeight = parseInt(wrapper.style.height, 10);
 			let maxRows = Math.floor( (wrapperHeight - 25) / 25);
 			let rowsData = [];
+			let timestamp = undefined;
+			let timeseries = undefined;
+
+			if($scope.template.name === "A4-landscape-timestamp") {
+				// get the timestamp from pageElement, not from dom because dom might not be up to date yet
+				let dateElement = page.pageElements.find( el => {
+					return el.type === "dataTimestamp-landscape";
+				});
+				timestamp = dateElement.text;
+			}
+
+			if($scope.template.name === "A4-landscape-timeseries") {
+				let inBetweenValues = true;
+				timeseries = $scope.getFormattedDateSliderValues(inBetweenValues);
+			}
 
 			// see how many pages need to be added. Rows are added later
 			for(let feature of $scope.selectedIndicator.geoJSON.features) {
@@ -1253,8 +1268,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				}
 
 				if($scope.template.name === "A4-landscape-timeseries") {
-					let inBetweenValues = true;
-					let timeseries = $scope.getFormattedDateSliderValues(inBetweenValues);
 					for(let timestamp of timeseries.dates) {
 						let value = feature.properties["DATE_" + timestamp];
 						if(typeof(value) == 'number')
@@ -1266,6 +1279,14 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 						});
 					}
 				}
+			}
+
+			// append average as last row if needed
+			if($scope.template.name === "A4-landscape-timestamp") {
+				rowsData.push( {
+					name: "Durchschnitt Gesamtstadt",
+					value:  $scope.calculateOverallAvg($scope.selectedIndicator, timestamp), // timestamp is only defined for this template
+				});
 			}
 
 			// the length of rowsData is the number of rows we have to add
@@ -1285,20 +1306,13 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 						}
 	
 						if(pageElement.type === "dataTimestamp-landscape") {
-							let dateElement = page.pageElements.find( el => {
-								return el.type === "dataTimestamp-landscape";
-							});
-							let timestamp = dateElement.text;
 							pageElement.text = timestamp;
 							pageElement.isPlaceholder = false;
 						}
 	
 						// exists only on timeseries template (instead of dataTimestamp-landscape), so we don't need another if...else here
 						if(pageElement.type === "dataTimeseries-landscape") {
-							let dateElement = page.pageElements.find( el => {
-								return el.type === "dataTimeseries-landscape";
-							});
-							pageElement.text = dateElement.text;
+							pageElement.text = timeseries.from + " - " + timeseries.to;
 							pageElement.isPlaceholder = false;
 						}
 	
