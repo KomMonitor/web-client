@@ -675,6 +675,12 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				bar: {},
 				line: {}
 			}
+			let tab2 = document.querySelector("#reporting-add-indicator-tab2");
+			let tab3 = document.querySelector("#reporting-add-indicator-tab3");
+			let tab4 = document.querySelector("#reporting-add-indicator-tab4");
+			$scope.disableTab(tab2);
+			$scope.disableTab(tab3);
+			$scope.disableTab(tab4);
 			// set indicator manually.
 			// if we use ng-model it gets converted to string instead of an object
 			$scope.selectedIndicator = indicator;
@@ -728,11 +734,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			} else {
 				$scope.updateDualList($scope.dualListTimestampsOptions, availableTimestamps, mostRecentTimestamp)
 			}
-			
-			// by now we enabled the fourth tab, but we don't want that yet since we are still in the first one
-			// instead the tab is enabled once we click on the third one
-			let tab4 = document.querySelector("#reporting-add-indicator-tab4");
-			$scope.disableTab(tab4);
 
 			// select all areas by default
 			let allAreas = $scope.availableFeaturesBySpatialUnit[$scope.selectedSpatialUnit.spatialUnitName];
@@ -740,10 +741,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			
 			await $scope.updateSpatialUnitsMultiSelect();
 
-			let tab2 = document.querySelector("#reporting-add-indicator-tab2");
 			$scope.enableTab(tab2);
-			let tab3 = document.querySelector("#reporting-add-indicator-tab3");
 			$scope.enableTab(tab3);
+			$scope.enableTab(tab4);
 			
 			// update indicator name and timestamp in preview
 			for(let page of $scope.template.pages) {
@@ -766,19 +766,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				}
 			}	
 		}
-
-		$scope.onTab3Clicked = function() {
-			// check if a timestamp is already selected (one should get selected by default on indicator selection)
-			// if yes enable fourth tab
-			let tab4 = document.querySelector("#reporting-add-indicator-tab4");
-			if($scope.selectedTimestamps && $scope.selectedTimestamps.length) {
-				$scope.enableTab(tab4);
-			} else {
-				$scope.disableTab(tab4);
-			}
-		}
-
-
 
 		$scope.onBackToOverviewClicked = function() {
 			// lock all tabs except the first
