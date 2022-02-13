@@ -18,13 +18,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 		$scope.selectedTimestamps = [];
 		$scope.indexOfFirstAreaSpecificPage = undefined;
-		$scope.pageContent = {
-			map: true,
-			boxplot: true,
-			diagram1: true,
-			diagram2: true
-		}
-
+		$scope.dateSlider = undefined;
 		$scope.echartsOptions = {
 			map: {
 				// "2017-12-31": ...
@@ -386,27 +380,30 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			});
 		});
 
-		$scope.$on("configureNewIndicatorShown", function(event, data) {
+		$scope.$on("reportingConfigureNewIndicatorShown", function(event, data) {
 			$scope.initialize(data);
 		});
 
 		$scope.initialize = function(data) {
+			$scope.loadingData = true;
+			let [template, indicators] = data;
+			let indicatorNames = indicators.map ( el => el.indicatorName )
 			// deep copy template before any changes are made.
 			// this is needed when additional timestamps are inserted.
-			$scope.untouchedTemplateAsString = angular.toJson(data)
+			$scope.untouchedTemplateAsString = angular.toJson(template)
 			$scope.untouchedTemplate = angular.fromJson($scope.untouchedTemplateAsString);
 			// give each page a unique id to track it by in ng-repeat
-			for(let page of data.pages) {
+			for(let page of template.pages) {
 				page.id = $scope.templatePageIdCounter++;
 			}
-			$scope.template = data;
+			$scope.template = template;
 
 			if($scope.template.name === "A4-landscape-timestamp")
 				$scope.indexOfFirstAreaSpecificPage = 3;
 			if($scope.template.name === "A4-landscape-timeseries")
 				$scope.indexOfFirstAreaSpecificPage = 4;
 
-			// diabale all tabs except the first one (until an indicator is chosen)
+			// disbale all tabs except the first one (until an indicator is chosen)
 			let tabPanes = document.querySelectorAll("#reporting-add-indicator-tab-content > .tab-pane")
 			for(let i=1;i<=4;i++) {
 				let tab = document.getElementById("reporting-add-indicator-tab" + i);
@@ -421,7 +418,10 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			}
 
 			$scope.initializeDualLists();
-			$scope.queryIndicators();
+			$scope.queryIndicators()
+				.then( function () {
+					$scope.removeAlreadyAddedIndicators(indicatorNames)
+				});
 		}
 
 		$scope.initializeDualLists = function() {
@@ -454,21 +454,18 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		 * Queries DataManagement API to get all available indicators
 		 */
 		$scope.queryIndicators = async function() {
-			$scope.loadingData = true;
-
+			
 			// build request
 			// query public endpoint for now, this might change once user role administration is added to reporting
 			let url = kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/indicators"
 			
 			// send request
-			$http({
+			return await $http({
 				url: url,
 				method: "GET"
 			}).then(function successCallback(response) {
 					// save to scope
 					$scope.availableIndicators = response.data;
-					$scope.loadingData = false;
-					
 				}, function errorCallback(error) {
 					$scope.loadingData = false;
 					kommonitorDataExchangeService.displayMapApplicationError(error);
@@ -768,19 +765,79 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		}
 
 		$scope.onBackToOverviewClicked = function() {
-			// lock all tabs except the first
+			$scope.reset();
+			$scope.$emit('reportingBackToOverviewClicked')
+
+		}
+
+		$scope.reset = function() {
+			$scope.template = undefined;
+			$scope.untouchedTemplate = undefined;
+			$scope.untouchedTemplateAsString = "";
+			$scope.indicatorNameFilter = "";
+			$scope.availableIndicators = [];
+			$scope.selectedIndicator = undefined;
+			$scope.availableFeaturesBySpatialUnit = {};
+			$scope.selectedSpatialUnit = undefined;
+			$scope.selectedAreas = [];
+			$scope.selectedSpatialUnitsMultiselect = undefined
+			$scope.selectedTimestamps = [];
+			$scope.indexOfFirstAreaSpecificPage = undefined;
+			$scope.echartsOptions = {
+				map: {},
+				bar: {},
+				line: {},
+			}
+			$scope.loadingData = false;
+			$scope.templatePageIdCounter = 1;
+			$scope.dateSlider = undefined;
+
 			let tab2 = document.querySelector("#reporting-add-indicator-tab2");
 			let tab3 = document.querySelector("#reporting-add-indicator-tab3");
 			let tab4 = document.querySelector("#reporting-add-indicator-tab4");
 			$scope.disableTab(tab2);
 			$scope.disableTab(tab3);
 			$scope.disableTab(tab4);
-			$scope.selectedIndicator = undefined;
-			$scope.$emit('backToOverviewClicked')
 		}
 
 		$scope.onAddNewIndicatorClicked = function() {
-			$scope.$emit('addNewIndicatorClicked', [$scope.selectedIndicator])
+			// for each page: add echarts configuration objects to the template
+			for(let [idx, page] of $scope.template.pages.entries()) {
+				for(let pageElement of page.pageElements) {
+					let domNode = document.querySelector("#reporting-addIndicator-page-" + idx + "-" + pageElement.type);
+
+					if(pageElement.type === "map" || pageElement.type === "barchart" || pageElement.type === "linechart") {
+						let domNode = document.getElementById("reporting-addIndicator-page-" + idx + "-" + pageElement.type);
+						let instance = echarts.getInstanceByDom( domNode );
+						let options = JSON.parse(JSON.stringify( instance.getOption() ));
+						pageElement.echartsOptions = options;
+					}
+
+					if(pageElement.type === "datatable") {
+						// add some properties so we can recreate the table later
+						let columnHeaders = domNode.querySelectorAll("th");
+						let columnNames = [];
+						for(let header of columnHeaders) {
+							columnNames.push(header.innerText);
+						}
+						pageElement.columnNames = columnNames;
+						let tableData = [];
+						let rows = domNode.querySelectorAll("tbody tr");
+						for(let row of rows) {
+							let rowData = [];
+							let fields = row.querySelectorAll("td");
+							for(let field of fields) {
+								rowData.push(field.innerText);
+							}
+							tableData.push(rowData);
+						}
+						pageElement.tableData = tableData; // [ [...], [...], [...] ]
+					}
+				}
+			}
+			
+			$scope.$emit('reportingAddNewIndicatorClicked', [$scope.selectedIndicator, $scope.template])
+			$scope.reset();
 		}
 
 		$scope.enableTab = function(tab) {
@@ -1319,7 +1376,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			$timeout(function(rowsData, page, maxRows) {
 				// get current index of page (might have changed in the meantime)
 				let idx = $scope.template.pages.indexOf(page)
-				let wrapper = document.querySelector("#reporting-page-" + idx + "-datatable");
+				let wrapper = document.querySelector("#reporting-addIndicator-page-" + idx + "-datatable");
 				wrapper.innerHTML = "";
 				wrapper.style.border = "none"; // hide dotted border from outer dom element
 				wrapper.style.justifyContent = "flex-start"; // align table at top instead of center
@@ -1365,7 +1422,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					// switch to next page if necessary
 					if(addedRowsCounter > 0 && addedRowsCounter % maxRows == 0) {
 						idx++
-						wrapper = document.querySelector("#reporting-page-" + idx + "-datatable");
+						wrapper = document.querySelector("#reporting-addIndicator-page-" + idx + "-datatable");
 						wrapper.innerHTML = "";
 						wrapper.style.border = "none"; // hide dotted border from outer dom element
 						wrapper.style.justifyContent = "flex-start"; // align table at top instead of center
@@ -1486,8 +1543,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					let prevPageIncludesDatatable = prevPage.pageElements.map(el => el.type).includes("datatable")
 					if(pageIncludesDatatable && prevPageIncludesDatatable) {
 						// get corresponding pages in the dom and check if they are datatable-pages
-						let prevDomPageEl = document.querySelector("#reporting-page-" + (i-1) + "-datatable")
-						let domPageEl =  document.querySelector("#reporting-page-" + i + "-datatable")
+						let prevDomPageEl = document.querySelector("#reporting-addIndicator-page-" + (i-1) + "-datatable")
+						let domPageEl =  document.querySelector("#reporting-addIndicator-page-" + i + "-datatable")
 						if(!prevDomPageEl || !domPageEl) { // if this page does not exist in the dom
 							pageIdx--; // don't increase index in this iteration so it stays in sync with the pages that exist in the dom
 						}
@@ -1496,11 +1553,11 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				}
 				
 
-				let pageDom = document.querySelector("#reporting-page-" + pageIdx);
+				let pageDom = document.querySelector("#reporting-addIndicator-page-" + pageIdx);
 
 				for(let pageElement of page.pageElements) {
 
-					let pElementDom = pageDom.querySelector("#reporting-page-" + pageIdx + "-" + pageElement.type)
+					let pElementDom = pageDom.querySelector("#reporting-addIndicator-page-" + pageIdx + "-" + pageElement.type)
 					
 					switch(pageElement.type) {
 						case "map":
@@ -1817,6 +1874,14 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				return false;
 			}
 
+		}
+
+		$scope.removeAlreadyAddedIndicators = function(indicatorNames) {
+			$scope.availableIndicators = $scope.availableIndicators.filter( entry => {
+				return !indicatorNames.includes(entry.indicatorName)
+			})
+			$scope.loadingData = false;
+			$scope.$apply();
 		}
 	}
 ]})

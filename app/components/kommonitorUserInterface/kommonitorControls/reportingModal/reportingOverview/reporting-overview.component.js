@@ -3,17 +3,33 @@ angular.module('reportingOverview').component('reportingOverview', {
 	controller : ['$scope', '__env', '$timeout',
 	function ReportingOverviewController($scope, __env, $timeout) {
 
-
-		$scope.config = {};
-		$scope.config.template = {};
-		// stores the initial template before indicator data gets added
-		// needed to thow a clean template when opening the indicator add mask.
-		$scope.config.initialTemplate = {} 
+		/*
+		{
+			indicators: [
+				{...},
+				{...},
+				...
+			],
+			pages: [
+				{
+					indicatorName: ... // e.g for sorting pages
+					pageElements: [...]
+				},
+				{...},
+				...
+			],
+			template: {...} // clean version of the template, without indicator data
+		}
+		*/
+		$scope.config = {
+			indicators: [],
+			pages: [],
+			template: {}
+		};
 
 		$scope.initialize = function(dataFromTemplateSelection) {
-			$scope.config.template = dataFromTemplateSelection;
-			$scope.config.initialTemplate = JSON.parse(JSON.stringify(dataFromTemplateSelection)); // deep copy this as backup
-			console.log("template in initialize overview: ", $scope.config.template);
+			$scope.config.template = JSON.parse(JSON.stringify(dataFromTemplateSelection));
+			$scope.config.pages = $scope.config.template.pages;
 		}
 
 		$scope.sortableConfig = {
@@ -23,48 +39,194 @@ angular.module('reportingOverview').component('reportingOverview', {
 		};
 
 		$scope.$on("reportingInitializeOverview", function(event, data) {
-			// data is a neyted array at this point [ [ { template object } ] ]
+			// data is a nested array at this point [ [ { template object } ] ]
 			$scope.initialize(data[0][0]);
 		})
 
 		$scope.onConfigureNewIndicatorClicked = function() {
-			$scope.$emit('configureNewIndicatorClicked', $scope.config.initialTemplate) // send the backed up version of the template
+			$scope.$emit('reportingConfigureNewIndicatorClicked', [$scope.config.template, $scope.config.indicators])
 		}
 		
 		$scope.onBackToTemplateSelectionClicked = function() {
-			$scope.$emit('backToTemplateSelectionClicked')
+			$scope.$emit('reportingBackToTemplateSelectionClicked')
 		}
 
-		/**
-		 * get indicator config by name
-		 * @param {string} name: indicator name
-		 * @returns {*} indicator or undefined if no indicator found
-		 */
-		$scope.getIndicatorConfigByName = function(name) {
-			let result = undefined;
-			$($scope.config).each((index, el) => {
-				if(el.indicatorName === name) {
-					result = el;
-					return false;
-				}
-			});
-			if (result === undefined) {
-				console.error("no configuration found for indicator '" + name + "'");
+		$scope.$on("reportingIndicatorConfigurationCompleted", function(event, data) {
+			// add indicator to 'added indicators'
+			let [indicator, template] = data;
+			// add indicator name to each page
+			for(let page of template.pages) {
+				page.indicatorName = indicator.indicatorName;
 			}
-			return result;
-		};
-
-		/**
-		 * removes an indicator and all corresponding grid tiles
-		 * adds indicator back to available indicators
-		 */
-		$scope.removeIndicator = function(indicatorName) {
-
-			let indicator = $scope.getIndicatorConfigByName(indicatorName);
-			$scope.config = $scope.config.filter( function(el) {
-				return el !== indicator
+			// remove all pages without property indicatorName (clean template)
+			$scope.config.pages = $scope.config.pages.filter( page => {
+				return page.hasOwnProperty("indicatorName");
 			});
+			// append to array
+			$scope.config.pages.push(...template.pages);
+			$scope.config.indicators.push(indicator);
+			// setup pages after dom exists
+			$scope.setupNewPages(indicator.indicatorName);
+			
+		});
+
+		$scope.removeIndicator = function(indicatorName) {
+			$scope.config.indicators = $scope.config.indicators.filter( el => {
+				return el.indicatorName !== indicatorName;
+			});
+
+			// show empty template if this was the last indicator
+			if($scope.config.indicators.length === 0) {
+				$scope.config.pages = $scope.config.template.pages;
+			}
 		}
+
+		$scope.$watchCollection('config.indicators', function(newVal, oldVal) {
+			console.log("config.indicators changed", newVal);
+			
+			if(newVal.length < oldVal.length) { // removed
+				// find removed indicator
+				let difference = oldVal
+					.filter(x => !newVal.includes(x))
+					.concat(newVal.filter(x => !oldVal.includes(x)));
+
+				let removedIndicator = difference[0];
+				// remove all pages for that indicator
+				$scope.config.pages = $scope.config.pages.filter( page => {
+					return page.indicatorName !== removedIndicator.indicatorName;
+				})
+			}
+			if(newVal.length === oldVal.length) { // order changed
+				// sort pages according to newVal
+				let orderedPages = [];
+				for(let indicator of newVal) {
+					// find all pages for that indicator and move them to the end of the array
+					let pagesForIndicator = $scope.config.pages.filter( page => {
+						return page.indicatorName === indicator.indicatorName;
+					});
+					orderedPages.push(...pagesForIndicator);
+				}
+				$scope.config.pages = orderedPages;
+			}
+		});
+
+
+		$scope.setupNewPages = function(indicatorName) {
+
+			$timeout(function(indicatorName) {
+				for(let [idx, page] of $scope.config.pages.entries()) {
+
+					if(page.indicatorName !== indicatorName) {
+						continue; // only do changes to new pages
+					}
+
+					let pageDom = document.querySelector("#reporting-overview-page-" + idx);
+
+					for(let pageElement of page.pageElements) {
+
+						let pElementDom = pageDom.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type)
+
+						if(pageElement.type === "map" || pageElement.type === "barchart" || pageElement.type === "linechart") {
+							let instance = echarts.init( pElementDom );
+							// recreate boxplots, itemNameFormatter did not get transferred
+							if(pageElement.type === "linechart" && pageElement.showBoxplots) {
+								console.log(pageElement.echartsOptions)
+								let xAxisLabels = pageElement.echartsOptions.xAxis[0].data;
+								pageElement.echartsOptions.dataset[1].transform.config = {
+									itemNameFormatter: function (params) {
+										return xAxisLabels[params.value];
+									}
+								}
+							}
+
+							instance.setOption( pageElement.echartsOptions )
+						}
+
+						if(pageElement.type === "overallAverage") {
+							pageDom.querySelector(".type-overallAverage").style.border = "none";
+						}
+
+						if(pageElement.type === "mapLegend") {
+							pageElement.isPlaceholder = false;
+							pageDom.querySelector(".type-mapLegend").style.display = "none";
+						}
+
+						if(pageElement.type === "overallChange") {
+							let wrapper = pageDom.querySelector(".type-overallChange")
+							wrapper.style.border = "none";
+							wrapper.style.left = "670px";
+							wrapper.style.width = "130px";
+							wrapper.style.height = "100px";
+						}
+
+						if(pageElement.type === "datatable") {
+							$scope.createDatatablePage(pElementDom, pageElement);
+						}
+
+					}
+				}
+			}, 0, false, indicatorName);
+
+
+
+			$scope.createDatatableSkeleton = function(colNamesArr) {
+
+				let table = document.createElement("table");
+				table.classList.add("table-striped")
+				table.classList.add("table-bordered")
+				
+				let thead = document.createElement("thead");
+				let tbody = document.createElement("tbody");
+				table.appendChild(thead);
+				table.appendChild(tbody);
+				
+				let headerRow = document.createElement("tr");
+				
+				for(let colName of colNamesArr) {
+					let col = document.createElement("th");
+					col.classList.add("text-center");
+					col.innerText = colName;
+					headerRow.appendChild(col);
+				}
+	
+				headerRow.style.height = "25px";
+				thead.appendChild(headerRow);
+	
+				return table;
+			}
+
+
+			$scope.createDatatablePage = function(pElementDom, pageElement) {
+				pElementDom.innerHTML = "";
+				pElementDom.style.border = "none"; // hide dotted border from outer dom element
+				pElementDom.style.justifyContent = "flex-start"; // align table at top instead of center
+				// add data
+				let table = $scope.createDatatableSkeleton(pageElement.columnNames);
+				let tbody = table.querySelector("tbody")
+				// tabledata is a nested array with one sub-array per row
+				for(let row of pageElement.tableData) {
+					let tr = document.createElement("tr");
+					tr.style.height = "25px";
+					for(let i=0; i<row.length; i++) {
+						let td = document.createElement("td");
+						td.innerText = row[i];
+						// get corresponding column name for styling
+						let colName = pageElement.columnNames[i];
+						if(colName === "Bereich") {
+							td.classList.add("text-left");
+						}
+						if(colName === "Wert") {
+							td.classList.add("text-right");
+						}
+
+						tr.appendChild(td);
+					}
+					tbody.appendChild(tr);
+				}
+				pElementDom.appendChild(table);
+			}
+		}
+
 
 		// $scope.availableIndicators = [];
 		// $scope.availableIndicatorsNames = [];

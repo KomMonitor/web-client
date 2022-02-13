@@ -8,14 +8,14 @@
         <div class="row">
             <div class="col-sm-3" id="reporting-overview-sidebar">
                 <div id="reporting-overwiew-indicators-wrapper">
-                    <button class="btn btn-success" ng-click='onConfigureNewIndicatorClicked()'>
+                    <button id="reporting-configureIndicatorBtn" class="btn btn-success" ng-click='onConfigureNewIndicatorClicked()'>
                         <i class="fa fa-plus"></i>
                         &nbsp;&nbsp;Indikator konfigurieren
                     </button>
                     <h3>Hinzugefügte Indikatoren</h3>
                     <p>Die Reihenfolge kann über Drag-and-Drop verändert werden.</p>
                     <div class="list-group" ng-sortable="sortableConfig">
-                        <!-- <div ng-repeat="indicator in config">
+                        <div ng-repeat="indicator in config.indicators">
                             <hr class="reporting-hr-divider">
                             <div class="row row-no-gutters reporting-added-indicators-row">
                                 <div class="col-sm-11">
@@ -25,7 +25,7 @@
                                     <i class="reporting-indicator-delete-symbol align-middle fa fa-trash-alt" ng-click="removeIndicator(indicator.indicatorName)"></i>
                                 </div>
                             </div>
-                        </div> -->
+                        </div>
                     </div>
                     
                 </div>
@@ -33,8 +33,11 @@
             <div class="col-sm-9">
                 <div class="row" style="margin:0">
                     <div id="reporting-overview-preview-area">
-                        <div ng-repeat="page in config.template.pages" ng-attr-class="reporting-page reporting-page-{{page.orientation}}">
+                        <div ng-repeat="page in config.pages" ng-attr-class="reporting-page reporting-page-{{page.orientation}}""
+                            ng-attr-id="reporting-overview-page-{{$index}}">
                             <div ng-repeat="pageElement in page.pageElements"
+                                ng-attr-class="type-{{pageElement.type}}"
+                                ng-attr-id="reporting-overview-page-{{$parent.$index}}-{{pageElement.type}}"
                                 ng-attr-style="position: absolute;
                                     top: {{pageElement.dimensions.top}};
                                     left: {{pageElement.dimensions.left}};
@@ -65,6 +68,37 @@
                                 <img ng-show="pageElement.type == 'communeLogo-landscape' && pageElement.isPlaceholder == false"
                                     ng-attr-src="{{pageElement.src}}">
 
+                                <span ng-show="pageElement.type == 'indicatorTitle-landscape' && pageElement.isPlaceholder == false"
+                                    ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
+                                    {{pageElement.text}}
+                                </span>
+
+                                <span ng-show="pageElement.type == 'dataTimestamp-landscape' && pageElement.isPlaceholder == false"
+                                    ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
+                                    {{pageElement.text}}
+                                </span>
+
+                                <span ng-show="pageElement.type == 'dataTimeseries-landscape' && pageElement.isPlaceholder == false"
+                                    ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
+                                    {{pageElement.text}}
+                                </span>
+
+                                <span ng-show="pageElement.type == 'overallAverage' && pageElement.isPlaceholder == false"
+                                    ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
+                                    <span style="display: block; text-align:left">
+                                        Durchschnitt Gesamtstadt:<br />
+                                        {{pageElement.text}}
+                                    </span>
+                                </span>
+
+                                <span ng-show="pageElement.type == 'overallChange' && pageElement.isPlaceholder == false"
+                                    ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
+                                    <span style="display: block; text-align:left">
+                                        Durchschnittliche Veränderung Gesamtstadt:<br />
+                                        {{pageElement.text}}
+                                    </span>
+                                </span>
+                                
                             </div>
                         </div>
                     </div>

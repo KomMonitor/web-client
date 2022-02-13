@@ -8,7 +8,6 @@ angular.module('reportingModal').component('reportingModal', {
 		$scope.addingNewIndicator = false;
 		let modalDialog = document.querySelector("#reporting-modal .modal-dialog");
 		$scope.$on('reportingWorkflowSelected', function(event, data) {
-			console.log("data in wrapper: ", data);
 			// make modal wide
 			modalDialog.classList.add("modal-xl");
 
@@ -25,26 +24,27 @@ angular.module('reportingModal').component('reportingModal', {
 			$scope.$broadcast("reportingInitializeOverview", [data])
 		});
 
-		$scope.$on('configureNewIndicatorClicked', function(event, data) {
+		$scope.$on('reportingConfigureNewIndicatorClicked', function(event, data) {
 			$scope.addingNewIndicator = true; // show add indicator process
 			// tell indicator-add component it is shown
-			$scope.$broadcast("configureNewIndicatorShown", data) // can't use same event name here
+			$scope.$broadcast("reportingConfigureNewIndicatorShown", data)
 		});
 
-		$scope.$on('addNewIndicatorClicked', function(event, data) {
+		$scope.$on('reportingAddNewIndicatorClicked', function(event, data) {
 			$scope.addingNewIndicator = false; // return to overview
 			console.log("Data from adding new indicator: ", data)
+			$scope.$broadcast('reportingIndicatorConfigurationCompleted', data)
 		});
 
-		$scope.$on('backToOverviewClicked', function() {
+		$scope.$on('reportingBackToOverviewClicked', function() {
 			$scope.addingNewIndicator = false; // return to overview, no data added
 		});
 
-		$scope.$on('backToTemplateSelectionClicked', function() {
+		$scope.$on('reportingBackToTemplateSelectionClicked', function() {
 			$scope.templateSelected = false;
 		});
 
-		$scope.$on('backToWorkflowSelectionClicked', function() {
+		$scope.$on('reportingBackToWorkflowSelectionClicked', function() {
 			$scope.workflowSelected = false;
 			modalDialog.classList.remove("modal-xl")
 		});

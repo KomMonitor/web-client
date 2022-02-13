@@ -218,7 +218,9 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"height": "440px"
 								},
 								"isPlaceholder": true,
-								"placeholderText": "Datentabelle"
+								"placeholderText": "Datentabelle",
+								"columnNames": [],
+								"tableData": []
 							}
 						]
 					}
@@ -465,7 +467,9 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"height": "440px"
 								},
 								"isPlaceholder": true,
-								"placeholderText": "Datentabelle"
+								"placeholderText": "Datentabelle",
+								"columnNames": [],
+								"tableData": []
 							},
 						]
 					}
@@ -567,7 +571,6 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 		});
 
 		$scope.initialize = function() {
-			console.log($scope.availableTemplates);
 			// open first category
 			let collapsible = document.querySelector("#reporting-template-category-accordion #collapse2") // TODO revert to first one
 			collapsible.classList.add("in");
@@ -685,7 +688,6 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 
 
 		$scope.onTemplateSelected = function() {
-			console.log("template selected: ", $scope.selectedTemplate)
 			// update selected template with general settings
 			for(let [idx, page] of $scope.selectedTemplate.pages.entries()) {
 				for(let el of page.pageElements) {
@@ -705,9 +707,9 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 			$scope.$emit('reportingTemplateSelected', [$scope.selectedTemplate])
 		}
 
-		$scope.onBackToTWorkflowSelectionClicked = function() {
+		$scope.onBackToWorkflowSelectionClicked = function() {
 			$scope.selectedTemplate = {};
-			$scope.$emit('backToWorkflowSelectionClicked')
+			$scope.$emit('reportingBackToWorkflowSelectionClicked')
 		}
 
 		$scope.iteratePageElements = function(template, functionToExecute) {

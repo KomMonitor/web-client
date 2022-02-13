@@ -148,10 +148,10 @@
                     <!-- not affected by tab changes -->
                     <div id="reporting-add-indicator-preview-area">
                         <div ng-repeat="page in template.pages track by page.id" ng-attr-class="reporting-page reporting-page-{{page.orientation}}"
-                            ng-attr-id="reporting-page-{{$index}}">
+                            ng-attr-id="reporting-addIndicator-page-{{$index}}">
                             <div ng-repeat="pageElement in page.pageElements"
                                 ng-attr-class="type-{{pageElement.type}}"
-                                ng-attr-id="reporting-page-{{$parent.$index}}-{{pageElement.type}}"
+                                ng-attr-id="reporting-addIndicator-page-{{$parent.$index}}-{{pageElement.type}}"
                                 ng-attr-style="position: absolute;
                                     top: {{pageElement.dimensions.top}};
                                     left: {{pageElement.dimensions.left}};
