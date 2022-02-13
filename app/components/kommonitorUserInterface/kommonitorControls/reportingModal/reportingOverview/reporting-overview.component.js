@@ -166,65 +166,64 @@ angular.module('reportingOverview').component('reportingOverview', {
 					}
 				}
 			}, 0, false, indicatorName);
+		}
 
 
+		$scope.createDatatableSkeleton = function(colNamesArr) {
 
-			$scope.createDatatableSkeleton = function(colNamesArr) {
-
-				let table = document.createElement("table");
-				table.classList.add("table-striped")
-				table.classList.add("table-bordered")
-				
-				let thead = document.createElement("thead");
-				let tbody = document.createElement("tbody");
-				table.appendChild(thead);
-				table.appendChild(tbody);
-				
-				let headerRow = document.createElement("tr");
-				
-				for(let colName of colNamesArr) {
-					let col = document.createElement("th");
-					col.classList.add("text-center");
-					col.innerText = colName;
-					headerRow.appendChild(col);
-				}
-	
-				headerRow.style.height = "25px";
-				thead.appendChild(headerRow);
-	
-				return table;
+			let table = document.createElement("table");
+			table.classList.add("table-striped")
+			table.classList.add("table-bordered")
+			
+			let thead = document.createElement("thead");
+			let tbody = document.createElement("tbody");
+			table.appendChild(thead);
+			table.appendChild(tbody);
+			
+			let headerRow = document.createElement("tr");
+			
+			for(let colName of colNamesArr) {
+				let col = document.createElement("th");
+				col.classList.add("text-center");
+				col.innerText = colName;
+				headerRow.appendChild(col);
 			}
+	
+			headerRow.style.height = "25px";
+			thead.appendChild(headerRow);
+	
+			return table;
+		}
 
 
-			$scope.createDatatablePage = function(pElementDom, pageElement) {
-				pElementDom.innerHTML = "";
-				pElementDom.style.border = "none"; // hide dotted border from outer dom element
-				pElementDom.style.justifyContent = "flex-start"; // align table at top instead of center
-				// add data
-				let table = $scope.createDatatableSkeleton(pageElement.columnNames);
-				let tbody = table.querySelector("tbody")
-				// tabledata is a nested array with one sub-array per row
-				for(let row of pageElement.tableData) {
-					let tr = document.createElement("tr");
-					tr.style.height = "25px";
-					for(let i=0; i<row.length; i++) {
-						let td = document.createElement("td");
-						td.innerText = row[i];
-						// get corresponding column name for styling
-						let colName = pageElement.columnNames[i];
-						if(colName === "Bereich") {
-							td.classList.add("text-left");
-						}
-						if(colName === "Wert") {
-							td.classList.add("text-right");
-						}
-
-						tr.appendChild(td);
+		$scope.createDatatablePage = function(pElementDom, pageElement) {
+			pElementDom.innerHTML = "";
+			pElementDom.style.border = "none"; // hide dotted border from outer dom element
+			pElementDom.style.justifyContent = "flex-start"; // align table at top instead of center
+			// add data
+			let table = $scope.createDatatableSkeleton(pageElement.columnNames);
+			let tbody = table.querySelector("tbody")
+			// tabledata is a nested array with one sub-array per row
+			for(let row of pageElement.tableData) {
+				let tr = document.createElement("tr");
+				tr.style.height = "25px";
+				for(let i=0; i<row.length; i++) {
+					let td = document.createElement("td");
+					td.innerText = row[i];
+					// get corresponding column name for styling
+					let colName = pageElement.columnNames[i];
+					if(colName === "Bereich") {
+						td.classList.add("text-left");
 					}
-					tbody.appendChild(tr);
+					if(colName === "Wert") {
+						td.classList.add("text-right");
+					}
+
+					tr.appendChild(td);
 				}
-				pElementDom.appendChild(table);
+				tbody.appendChild(tr);
 			}
+			pElementDom.appendChild(table);
 		}
 
 
