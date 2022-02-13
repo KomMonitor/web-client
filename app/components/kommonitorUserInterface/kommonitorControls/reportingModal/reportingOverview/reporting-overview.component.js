@@ -1,7 +1,7 @@
 angular.module('reportingOverview').component('reportingOverview', {
 	templateUrl : "components/kommonitorUserInterface/kommonitorControls/reportingModal/reportingOverview/reporting-overview.template.html",
-	controller : ['$scope', '__env', '$timeout',
-	function ReportingOverviewController($scope, __env, $timeout) {
+	controller : ['$scope', '__env', '$timeout', '$http', 'kommonitorDataExchangeService',
+	function ReportingOverviewController($scope, __env, $timeout, $http, kommonitorDataExchangeService) {
 
 		/*
 		{
@@ -13,6 +13,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 			pages: [
 				{
 					indicatorName: ... // e.g for sorting pages
+					spatialUnitName: ....
 					pageElements: [...]
 				},
 				{...},
@@ -26,10 +27,18 @@ angular.module('reportingOverview').component('reportingOverview', {
 			pages: [],
 			template: {}
 		};
+		$scope.loadingData = false;
 
-		$scope.initialize = function(dataFromTemplateSelection) {
-			$scope.config.template = JSON.parse(JSON.stringify(dataFromTemplateSelection));
-			$scope.config.pages = $scope.config.template.pages;
+		$scope.initialize = function(data) {
+			let configFileSelected = data[0];
+			data = data[1];
+			if(configFileSelected) {
+				$scope.importConfig(data);
+			} else {
+				$scope.config.template = JSON.parse(JSON.stringify(data));
+				$scope.config.pages = $scope.config.template.pages;
+			}
+			
 		}
 
 		$scope.sortableConfig = {
@@ -40,7 +49,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 
 		$scope.$on("reportingInitializeOverview", function(event, data) {
 			// data is a nested array at this point [ [ { template object } ] ]
-			$scope.initialize(data[0][0]);
+			$scope.initialize(data);
 		})
 
 		$scope.onConfigureNewIndicatorClicked = function() {
@@ -52,11 +61,13 @@ angular.module('reportingOverview').component('reportingOverview', {
 		}
 
 		$scope.$on("reportingIndicatorConfigurationCompleted", function(event, data) {
+			$scope.loadingData = true;
 			// add indicator to 'added indicators'
 			let [indicator, template] = data;
 			// add indicator name to each page
 			for(let page of template.pages) {
 				page.indicatorName = indicator.indicatorName;
+				page.spatialUnitName = template.spatialUnitName;
 			}
 			// remove all pages without property indicatorName (clean template)
 			$scope.config.pages = $scope.config.pages.filter( page => {
@@ -65,8 +76,9 @@ angular.module('reportingOverview').component('reportingOverview', {
 			// append to array
 			$scope.config.pages.push(...template.pages);
 			$scope.config.indicators.push(indicator);
+
 			// setup pages after dom exists
-			$scope.setupNewPages(indicator.indicatorName);
+			$scope.setupNewPages(indicator);
 			
 		});
 
@@ -111,14 +123,29 @@ angular.module('reportingOverview').component('reportingOverview', {
 		});
 
 
-		$scope.setupNewPages = function(indicatorName) {
+		$scope.setupNewPages = function(indicator) {
+			
+			$timeout(async function(indicator) {
+				let indicatorName = indicator.indicatorName;
 
-			$timeout(function(indicatorName) {
 				for(let [idx, page] of $scope.config.pages.entries()) {
 
 					if(page.indicatorName !== indicatorName) {
 						continue; // only do changes to new pages
 					}
+
+					// get spatial unit by name
+					let spatialUnit = indicator.applicableSpatialUnits.filter( el => {
+						return el.spatialUnitName === page.spatialUnitName;
+					});
+					let spatialUnitId = spatialUnit[0].spatialUnitId;
+					let indicatorId = indicator.indicatorId
+					// get features for spatial unit
+					
+					let featureCollection = await $scope.queryFeatures(indicatorId, spatialUnitId)
+					let features = $scope.createLowerCaseNameProperty(featureCollection.features);
+					let geoJSON = { features: features };
+					
 
 					let pageDom = document.querySelector("#reporting-overview-page-" + idx);
 
@@ -128,9 +155,34 @@ angular.module('reportingOverview').component('reportingOverview', {
 
 						if(pageElement.type === "map" || pageElement.type === "barchart" || pageElement.type === "linechart") {
 							let instance = echarts.init( pElementDom );
+
+							if(pageElement.type === "map") {
+								// for maps: register maps
+								// check if there is a map registered for this combination, if not register one with all features
+								let mapName = undefined;
+								// get the timestamp from pageElement, not from dom because dom might not be up to date yet
+								let dateElement = page.pageElements.find( el => {
+									return el.type === (pageElement.isTimeseries ? "dataTimeseries-landscape" : "dataTimestamp-landscape");
+								});
+								mapName = indicatorName + "_" + dateElement.text + "_" + page.spatialUnitName;
+
+								if(pageElement.classify)
+									mapName += "_classified";
+								if(pageElement.isTimeseries)
+									mapName += "_timeseries"
+								if(page.area && page.area.length)
+									mapName += "_" + page.area
+								let registeredMap = echarts.getMap(mapName)
+								
+								if( !registeredMap ) {
+									// register new map
+									echarts.registerMap(mapName, geoJSON)
+								}
+								let a = echarts.getMap(mapName)
+							}
+							
 							// recreate boxplots, itemNameFormatter did not get transferred
 							if(pageElement.type === "linechart" && pageElement.showBoxplots) {
-								console.log(pageElement.echartsOptions)
 								let xAxisLabels = pageElement.echartsOptions.xAxis[0].data;
 								pageElement.echartsOptions.dataset[1].transform.config = {
 									itemNameFormatter: function (params) {
@@ -165,7 +217,11 @@ angular.module('reportingOverview').component('reportingOverview', {
 
 					}
 				}
-			}, 0, false, indicatorName);
+
+				$scope.loadingData = false;
+				$scope.$apply();
+
+			}, 0, false, indicator);
 		}
 
 
@@ -224,6 +280,100 @@ angular.module('reportingOverview').component('reportingOverview', {
 				tbody.appendChild(tr);
 			}
 			pElementDom.appendChild(table);
+		}
+
+
+		$scope.importConfig = function(config) {
+			$scope.loadingData = true;
+			$scope.$apply();
+			// restore indicators from indicator names
+			let indicators = [];
+			for(let name of config.indicators) {
+				indicators.push( getIndicatorByName(name) );
+				
+			}
+			$scope.config.indicators = indicators;
+			$scope.config.template = config.template;
+			$scope.config.pages = config.pages;
+			$scope.$apply();
+			for(let indicator of $scope.config.indicators) {
+				$scope.setupNewPages(indicator);
+			}
+		}
+
+		$scope.exportConfig = function() {
+			let jsonToExport = {};
+			jsonToExport.pages = $scope.config.pages;
+			jsonToExport.template = $scope.config.template;
+			// replace indicators with indicator names to reduce file size
+			jsonToExport.indicators = $scope.config.indicators.map( indicator => indicator.indicatorName);
+			
+			let jsonString = "data:text/json;charset=utf-8," + encodeURIComponent( angular.toJson(jsonToExport) );
+			// to download json, a DOM element is created, clicked and removed
+			let downloadAnchorNode = document.createElement('a');
+			downloadAnchorNode.setAttribute("href", jsonString);
+			downloadAnchorNode.setAttribute("download", getCurrentDateAndTime() + "_KomMonitor-Reporting-Konfiguration.json");
+			document.body.appendChild(downloadAnchorNode); // required for firefox
+			downloadAnchorNode.click();
+			downloadAnchorNode.remove();
+		}
+
+		function getCurrentDateAndTime() {
+			let date = new Date();
+			let year = date.getFullYear().toString();
+			let month = date.getMonth() + 1;
+			let day = date.getDate();
+			let time = date.getHours();
+			let minutes = date.getMinutes();
+			let seconds = date.getSeconds();
+			let now = "".concat(year, "-", month, "-", day, "_", time, "-", minutes, "-", seconds);
+			return now;
+		}
+
+
+		function getIndicatorByName(indicatorName) {
+			let result;
+			for(let indicator of kommonitorDataExchangeService.availableIndicators) {
+				if(indicator.indicatorName === indicatorName) {
+					result = indicator;
+					break;
+				}
+			}
+			if(result) {
+				return result
+			} else {
+				throw "No indicator could be found for name: " + indicatorName;
+			}
+		}
+
+		$scope.queryFeatures = async function(indicatorId, spatialUnitId) {
+			// build request
+			let url = kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() +
+			"/indicators/" + indicatorId + "/" + spatialUnitId;
+			// send request
+			return await $http({
+				url: url,
+				method: "GET"
+			}).then(function successCallback(response) {
+				return response.data;
+			}, function errorCallback(error) {
+				// called asynchronously if an error occurs
+				// or server returns response with an error status.
+				kommonitorDataExchangeService.displayMapApplicationError(error);
+				console.error(response.statusText);
+			});
+		}
+
+		$scope.createLowerCaseNameProperty = function(features) {
+			for(let feature of features) {
+				if(feature.hasOwnProperty("properties")) {
+					if(!feature.properties.hasOwnProperty("name")) {
+						let featureName = feature.properties.NAME;
+						feature.properties.name = featureName;
+					}
+				}
+			}
+			return features;
 		}
 
 

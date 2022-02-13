@@ -12,16 +12,25 @@ angular.module('reportingModal').component('reportingModal', {
 			modalDialog.classList.add("modal-xl");
 
 			$scope.workflowSelected = true; // go to template select
-			// for some reason angularjs won't register the change if a config file was selected
+			// if an existing config should be imported
+			if(data) {
+				// skip template selection, directly go to overview
+				$scope.templateSelected = true;
+				$scope.$broadcast("reportingInitializeOverview", [true, data]) // data: [config]
+			} else {
+				// TODO only for debugging, remove later
+				$scope.$broadcast('reportingInitializeTemplateSelect');
+			}
+
+			// for some reason angular won't register the change if a config file was selected
 			$timeout(function() {
 				$scope.$apply()
 			});
-			
 		});
 
 		$scope.$on('reportingTemplateSelected', function(event, data) {
 			$scope.templateSelected = true; // go to overview
-			$scope.$broadcast("reportingInitializeOverview", [data])
+			$scope.$broadcast("reportingInitializeOverview", [false, data])
 		});
 
 		$scope.$on('reportingConfigureNewIndicatorClicked', function(event, data) {

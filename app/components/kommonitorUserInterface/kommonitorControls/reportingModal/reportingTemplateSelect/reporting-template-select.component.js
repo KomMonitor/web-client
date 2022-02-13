@@ -565,8 +565,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 	
 		$scope.selectedTemplate = undefined;
 
-		// on modal opened
-		$('#reporting-modal').on('show.bs.modal', function () {
+		$scope.$on('reportingInitializeTemplateSelect', function(event, data) {
 			$scope.initialize();
 		});
 
@@ -704,7 +703,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 					}
 				}
 			}
-			$scope.$emit('reportingTemplateSelected', [$scope.selectedTemplate])
+			$scope.$emit('reportingTemplateSelected', $scope.selectedTemplate)
 		}
 
 		$scope.onBackToWorkflowSelectionClicked = function() {

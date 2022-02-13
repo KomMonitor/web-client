@@ -540,7 +540,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		}
 
 		/**
-		 * Queries DataManagement API to get features of gi for given indicator
+		 * Queries DataManagement API to get features of given indicator
 		 * Result is stored to scope to avoid further requests.
 		 * @param {*} indicator | selected indicator
 		 */
@@ -835,7 +835,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					}
 				}
 			}
-			
+			$scope.template.spatialUnitName = $scope.selectedSpatialUnit.spatialUnitName;
 			$scope.$emit('reportingAddNewIndicatorClicked', [$scope.selectedIndicator, $scope.template])
 			$scope.reset();
 		}
@@ -881,7 +881,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				mapName += "_" + page.area
 			let registeredMap = echarts.getMap(mapName)
 
-			if(typeof(registeredMap === "undefined")) {
+			if( !registeredMap ) {
 				// register new map
 				echarts.registerMap(mapName, $scope.selectedIndicator.geoJSON)
 			}

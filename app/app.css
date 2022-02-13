@@ -2533,6 +2533,7 @@ input:checked + .switchslider:before {
 
 #reporting-template-preview-area,
 #reporting-overview-preview-area {
+	position: relative;
 	margin-bottom: 15px;
 	height:650px;
 	border:solid darkgray 1px;

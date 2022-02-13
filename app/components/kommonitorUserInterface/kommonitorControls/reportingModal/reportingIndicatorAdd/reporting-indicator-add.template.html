@@ -29,7 +29,7 @@
 
                     <div id="reporting-add-indicator-tab-content" class="tab-content">
                         <div role="tabpanel" class="tab-pane active" id="indicators">
-						    <div class="loading-overlay-reporting ng-hide" ng-show="loadingData">
+						    <div class="loading-overlay-reporting" ng-show="loadingData">
 								<span class="glyphicon glyphicon-refresh icon-spin"></span>
 							</div>
 
@@ -60,7 +60,7 @@
                             </ul>
                             <div class="tab-content">
                                 <div role="tabpanel" class="tab-pane active" id="area-method-1">
-						            <div class="loading-overlay-reporting ng-hide" ng-show="loadingData">
+						            <div class="loading-overlay-reporting" ng-show="loadingData">
 								        <span class="glyphicon glyphicon-refresh icon-spin"></span>
 							        </div>
                                     <div id="reporting-spatial-unit-select-wrapper">
@@ -74,7 +74,7 @@
                                     <excalibur-dual-list id="reporting-indicator-add-areas-dual-list" ng-model='selectedAreas' options="dualListAreasOptions"></excalibur-dual-list>
                                 </div>
                                 <div role="tabpanel" class="tab-pane" id="area-method-2">
-						            <div class="loading-overlay-reporting ng-hide" ng-show="loadingData">
+						            <div class="loading-overlay-reporting" ng-show="loadingData">
 								        <span class="glyphicon glyphicon-refresh icon-spin"></span>
 							        </div>
 
@@ -84,7 +84,7 @@
                             
                         </div>
                         <div role="tabpanel" class="tab-pane" id="time">
-						    <div class="loading-overlay-reporting ng-hide" ng-show="loadingData">
+						    <div class="loading-overlay-reporting" ng-show="loadingData">
 								<span class="glyphicon glyphicon-refresh icon-spin"></span>
 							</div>
                             <div ng-hide="template.name == 'A4-landscape-timeseries'">

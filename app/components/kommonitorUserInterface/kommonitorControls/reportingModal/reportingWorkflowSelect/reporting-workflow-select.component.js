@@ -2,11 +2,26 @@ angular.module('reportingWorkflowSelect').component('reportingWorkflowSelect', {
 	templateUrl : "components/kommonitorUserInterface/kommonitorControls/reportingModal/reportingWorkflowSelect/reporting-workflow-select.template.html",
 	controller : ['$scope',  function ReportingWorkflowSelectController($scope) {
         
+
+		// on modal opened
+		$('#reporting-modal').on('shown.bs.modal', function () {
+			$scope.initialize();
+		});
+
+		$scope.initialize = function() {
+
+			document.getElementById("reporting-load-settings-button").addEventListener('change', function(e) {
+				$scope.readFile(e)
+			}, false);
+
+		}
+
+
 		$scope.onWorkflowSelected = function(type, config=undefined) {
 			if(type === "new") {
-				$scope.$emit('reportingWorkflowSelected', [])
+				$scope.$emit('reportingWorkflowSelected')
 			} else if(type === "existing") {
-				$scope.$emit('reportingWorkflowSelected', [config])
+				$scope.$emit('reportingWorkflowSelected', config)
 			} else {
 				throw "Workflow type was neither 'new' nor 'existing'"
 			}
@@ -41,8 +56,6 @@ angular.module('reportingWorkflowSelect').component('reportingWorkflowSelect', {
 			reader.readAsText(file);
 		}
 
-		document.getElementById("reporting-load-settings-button").addEventListener('change', function(e) {
-			$scope.readFile(e)
-		}, false);
+		
     }
 ]});
