@@ -24,6 +24,7 @@ angular.module('roleAddModal').component('roleAddModal', {
 
 				$scope.errorMessagePart = undefined;
 				$scope.keycloakErrorMessagePart = undefined;
+				$scope.checkRoleName();
 
 				setTimeout(() => {
 					$scope.$digest();
