@@ -675,6 +675,10 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 			if(typeof($scope.selectedTemplate) === "undefined")
 				return false;
 
+			if(!$scope.selectedTemplate.pages) {
+				return false;
+			}
+
 			for(let page of $scope.selectedTemplate.pages) {
 				for(let pageElement of page.pageElements) {
 					if (pageElement.type === "textInput") {

@@ -57,6 +57,26 @@ angular.module('reportingModal').component('reportingModal', {
 			$scope.workflowSelected = false;
 			modalDialog.classList.remove("modal-xl")
 		});
+
+		$scope.generateReport = function(format) {
+			$('#reporting-report-formats-selection').modal('hide')
+			$scope.$broadcast("reportingGenerateReport", format)
+		}
+
+		// $scope.$on("reportingPageGenerated", function(event, data) {
+		// 	let currentPageNumber = data[0];
+		// 	let totalPageNumber = data[1];
+		// 	if(currentPageNumber === 1) {
+		// 		$('#reporting-report-progress').modal('show');
+		// 	}
+		// 	let node = document.querySelector("#reporting-report-progress-counter");
+		// 	node.innerHTML = "Erzeugte Seiten: " + currentPageNumber + " von " + totalPageNumber;
+
+		// 	if(currentPageNumber === totalPageNumber) {
+		// 		$('#reporting-report-progress').modal('hide');
+		// 	}
+
+		// });
 		
 	}
 ]});

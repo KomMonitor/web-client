@@ -94,7 +94,6 @@ angular.module('reportingOverview').component('reportingOverview', {
 		}
 
 		$scope.$watchCollection('config.indicators', function(newVal, oldVal) {
-			console.log("config.indicators changed", newVal);
 			
 			if(newVal.length < oldVal.length) { // removed
 				// find removed indicator
@@ -376,6 +375,175 @@ angular.module('reportingOverview').component('reportingOverview', {
 			return features;
 		}
 
+		$scope.$on("reportingGenerateReport", function(event, format) {
+			$scope.generateReport(format);
+		});
+
+		$scope.generateReport = function(format) {
+			$scope.loadingData = true;
+			format === "pdf" && $scope.generatePdfReport();
+			format === "word" && $scope.generateWordReport();
+			format === "zip" && $scope.generateZipReport();
+		}
+			
+		$scope.generatePdfReport = function() {
+
+			// create pdf document
+			let doc = new jsPDF({
+				margin: 0,	
+				unit: 'mm',
+				format: 'a4',
+				orientation: "landscape"
+			});
+
+			// general settings
+			let fontName = "times"
+			doc.setDrawColor(148, 148, 148)
+			doc.setFont(fontName, "normal", "normal") // name, normal/italic, fontweight
+			let echartsImgPixelRatio = 2;
+
+			for(let [idx, page] of $scope.config.pages.entries()) {
+				if(idx > 0) {
+					doc.addPage();
+				}
+
+				
+				for(let pageElement of page.pageElements) {
+					// convert dimensions to millimeters here
+					// that way we don't have to use pxToMilli everywhere we use coordinates in the pdf
+					let pageElementDimensions = {}
+					pageElementDimensions.top = pageElement.dimensions.top && pxToMilli(pageElement.dimensions.top);
+					pageElementDimensions.bottom = pageElement.dimensions.bottom && pxToMilli(pageElement.dimensions.bottom);
+					pageElementDimensions.left = pageElement.dimensions.left && pxToMilli(pageElement.dimensions.left);
+					pageElementDimensions.right = pageElement.dimensions.right && pxToMilli(pageElement.dimensions.right);
+					pageElementDimensions.width = pageElement.dimensions.width && pxToMilli(pageElement.dimensions.width);
+					pageElementDimensions.height = pageElement.dimensions.height && pxToMilli(pageElement.dimensions.height);
+					
+					// TODO some cases could be merged, but it's better to do that later when stuff works
+					switch(pageElement.type) {
+						case "indicatorTitle-landscape": {
+							// Css takes the top-left edge of the element by default.
+							// doc.text takes left-bottom, so we ass baseline "top" to achieve the same behavior in jspdf.
+							doc.setFont(fontName, "normal", "bold")
+							doc.text(pageElement.text, pageElementDimensions.left, pageElementDimensions.top, { baseline: "top" });
+							doc.setFont(fontName, "normal", "normal")
+							break;
+						}
+						case "communeLogo-landscape": {
+							// only add logo if one was selected
+							if(pageElement.src && pageElement.src.length) {
+								doc.addImage(pageElement.src, "JPEG", pageElementDimensions.left, pageElementDimensions.top,
+									pageElementDimensions.width, pageElementDimensions.height, "", 'MEDIUM');
+							}
+							break;
+						}
+						case "dataTimestamp-landscape": {
+							doc.text(pageElement.text, pageElementDimensions.left, pageElementDimensions.top, { baseline: "top" })
+							break;
+						}
+						case "dataTimeseries-landscape": {
+							doc.text(pageElement.text, pageElementDimensions.left, pageElementDimensions.top, { baseline: "top" })
+							break;
+						}
+						case "footerHorizontalSpacer-landscape": {
+							let x1, x2, y1, y2;
+							x1 = pageElementDimensions.left;
+							x2 = pageElementDimensions.left + pageElementDimensions.width;
+							y1 = pageElementDimensions.top;
+							y2 = pageElementDimensions.top;
+							doc.line(x1, y1, x2, y2);
+							break;
+						}
+						case "footerCreationInfo-landscape": {
+							doc.text(pageElement.text, pageElementDimensions.left, pageElementDimensions.top, { baseline: "top" })
+							break;
+						}
+						case "pageNumber-landscape": {
+							let text = "Seite " + (idx+1);
+							doc.text(text, pageElementDimensions.left, pageElementDimensions.top, { baseline: "top" })
+							break;
+						}
+						// template-specific elements
+						case "map": {
+							let domNode = document.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type)
+							let instance = echarts.getInstanceByDom(domNode)
+							let base64String = instance.getDataURL( {pixelRatio: echartsImgPixelRatio} )
+							doc.addImage(base64String, "PNG", pageElementDimensions.left, pageElementDimensions.top,
+									pageElementDimensions.width, pageElementDimensions.height, "", 'MEDIUM');
+							break;
+						}
+						// case "mapLegend" can be ignored since it is included in the map if needed
+						case "overallAverage": {
+							// TODO
+							break;
+						}
+						case "overallChange": {
+							// TODO
+							break;
+						}
+						case "barchart": {
+							let domNode = document.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type)
+							let instance = echarts.getInstanceByDom(domNode)
+							let base64String = instance.getDataURL( {pixelRatio: echartsImgPixelRatio} )
+							doc.addImage(base64String, "PNG", pageElementDimensions.left, pageElementDimensions.top,
+									pageElementDimensions.width, pageElementDimensions.height, "", 'MEDIUM');
+							break;
+						}
+						case "linechart": {
+							let domNode = document.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type)
+							let instance = echarts.getInstanceByDom(domNode)
+							let base64String = instance.getDataURL( {pixelRatio: echartsImgPixelRatio} )
+							doc.addImage(base64String, "PNG", pageElementDimensions.left, pageElementDimensions.top,
+									pageElementDimensions.width, pageElementDimensions.height, "", 'MEDIUM');
+							break;
+						}
+						case "textInput": {
+							doc.text(pageElement.text, pageElementDimensions.left, pageElementDimensions.top, { baseline: "top" })
+							break;
+						}
+						case "datatable": {
+							doc.autoTable({
+								html: "#reporting-overview-page-" + idx + "-" + pageElement.type + " table",
+								startY: pageElementDimensions.top,
+								tableWidth: "wrap",
+								margin: {left: pageElementDimensions.left},
+								theme: "grid",
+								//headStyles: {
+								//	fillColor: false, // transparent
+								//	textColor: [0, 0, 0],
+								//}
+							})
+							break;
+						}
+					}
+				}
+			}
+
+			//doc.output("dataurlnewwindow")
+			let now = getCurrentDateAndTime();
+			doc.save(now + "_KomMonitor-Report.pdf");
+			$scope.loadingData = false;
+		}
+
+
+		function pxToMilli(px) {
+			// our preview is 830px wide
+			// px / 830  gives us the percentage from the left edge, which can then be stretched to fit the A4 page
+			// This is the short version of:
+			// px / pxPerMillimeter + pxPerMillimeter * 297 / 830, where pxPerMillimeter = deviceScreenPpi * 2.54 * 10
+			// pxPerMillimeter cancels out there, so it doesn't matter.
+			let result = undefined;
+			if(typeof(px) === "number") {
+				result = px / 830 * 297;
+			} else if(typeof(px) === "string") {
+				px = px.endsWith("px") ? px.substring(0, px.length-2) : px;
+				result = parseInt(px) / 830 * 297; // we assume to only get integer px values for now (since everything should come from the config object)
+			}
+			result = Math.round(result * 100) / 100;
+			return result;
+		}
+
+		
 
 		// $scope.availableIndicators = [];
 		// $scope.availableIndicatorsNames = [];

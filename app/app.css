@@ -2541,6 +2541,15 @@ input:checked + .switchslider:before {
 	overflow:auto;
 }
 
+
+#reporting-report-formats-selection .modal-dialog {
+	position: absolute;
+	top: 35%;
+	left: 50%;
+	transform: translate(-50%, -50%) !important;
+}
+
+
 #reporting-add-indicator-preview-area {
 	margin-top: 15px;
 	height:650px;

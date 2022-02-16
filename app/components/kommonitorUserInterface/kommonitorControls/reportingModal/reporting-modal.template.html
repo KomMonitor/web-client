@@ -29,3 +29,40 @@
 	<!-- /.modal-dialog -->
 </div>
 <!-- /.modal -->
+
+<!-- placed here to not nest modals, which would result in unexpected behavior (e.g. both modals closing when user closes one)-->
+<div class="modal fade" id="reporting-report-formats-selection" role="dialog" data-backdrop="false">
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">&times;</button>
+				<h4 class="modal-title">Report-Formate</h4>
+			</div>
+			<div class="modal-body">
+				<button type="button" class="btn btn-primary" ng-click="generateReport('pdf')">PDF</button>
+				<button type="button" class="btn btn-primary" ng-click="generateReport('word')">Microsoft Word</button>
+				<button type="button" class="btn btn-primary" ng-click="generateReport('zip')">ZIP</button>
+			</div>
+			<div class="modal-footer">
+				
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- <div class="modal fade" id="reporting-report-progress" role="dialog" data-backdrop="false">
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">&times;</button>
+				<h4 class="modal-title"></h4>
+			</div>
+			<div class="modal-body">
+				<span id="reporting-report-progress-counter"></span>
+			</div>
+			<div class="modal-footer">
+				
+			</div>
+		</div>
+	</div>
+</div> -->
