@@ -409,6 +409,8 @@ angular.module('reportingOverview').component('reportingOverview', {
 
 				
 				for(let pageElement of page.pageElements) {
+
+					let domNode = document.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type);
 					// convert dimensions to millimeters here
 					// that way we don't have to use pxToMilli everywhere we use coordinates in the pdf
 					let pageElementDimensions = {}
@@ -465,7 +467,6 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 						// template-specific elements
 						case "map": {
-							let domNode = document.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type)
 							let instance = echarts.getInstanceByDom(domNode)
 							let base64String = instance.getDataURL( {pixelRatio: echartsImgPixelRatio} )
 							doc.addImage(base64String, "PNG", pageElementDimensions.left, pageElementDimensions.top,
@@ -474,15 +475,27 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 						// case "mapLegend" can be ignored since it is included in the map if needed
 						case "overallAverage": {
-							// TODO
+							let x, y, width, height;
+							x = pageElementDimensions.left;
+							y = pageElementDimensions.top;
+							width = pageElementDimensions.width;
+							height = pageElementDimensions.height;
+							doc.rect(x, y, width, height);
+							let text = "Durchschnitt\nGesamtstadt:\n" + pageElement.text.toString()
+							doc.text(text, pageElementDimensions.left + pxToMilli(5), pageElementDimensions.top + pxToMilli(5), { baseline: "top" });
 							break;
 						}
 						case "overallChange": {
-							// TODO
+							let x = pxToMilli(670);
+							let y = pageElementDimensions.top;
+							let width = pxToMilli(130);
+							let height = pxToMilli(80);
+							doc.rect(x, y, width, height);
+							let text = "Durchschnittliche\nVeränderung\nGesamtstadt:\n" + pageElement.text.toString()
+							doc.text(text, x + pxToMilli(5), y + pxToMilli(5), { baseline: "top" });
 							break;
 						}
 						case "barchart": {
-							let domNode = document.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type)
 							let instance = echarts.getInstanceByDom(domNode)
 							let base64String = instance.getDataURL( {pixelRatio: echartsImgPixelRatio} )
 							doc.addImage(base64String, "PNG", pageElementDimensions.left, pageElementDimensions.top,
@@ -490,7 +503,6 @@ angular.module('reportingOverview').component('reportingOverview', {
 							break;
 						}
 						case "linechart": {
-							let domNode = document.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type)
 							let instance = echarts.getInstanceByDom(domNode)
 							let base64String = instance.getDataURL( {pixelRatio: echartsImgPixelRatio} )
 							doc.addImage(base64String, "PNG", pageElementDimensions.left, pageElementDimensions.top,
