@@ -28,6 +28,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 			template: {}
 		};
 		$scope.loadingData = false;
+		$scope.echartsImgPixelRatio = 2;
 
 		$scope.initialize = function(data) {
 			let configFileSelected = data[0];
@@ -383,7 +384,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 			$scope.loadingData = true;
 			format === "pdf" && $scope.generatePdfReport();
 			format === "word" && $scope.generateWordReport();
-			format === "zip" && $scope.generateZipReport();
+			format === "zip" && $scope.generateZipFolder();
 		}
 			
 		$scope.generatePdfReport = function() {
@@ -400,7 +401,6 @@ angular.module('reportingOverview').component('reportingOverview', {
 			let fontName = "times"
 			doc.setDrawColor(148, 148, 148)
 			doc.setFont(fontName, "normal", "normal") // name, normal/italic, fontweight
-			let echartsImgPixelRatio = 2;
 
 			for(let [idx, page] of $scope.config.pages.entries()) {
 				if(idx > 0) {
@@ -468,7 +468,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 						// template-specific elements
 						case "map": {
 							let instance = echarts.getInstanceByDom(domNode)
-							let base64String = instance.getDataURL( {pixelRatio: echartsImgPixelRatio} )
+							let base64String = instance.getDataURL( {pixelRatio: $scope.echartsImgPixelRatio} )
 							doc.addImage(base64String, "PNG", pageElementDimensions.left, pageElementDimensions.top,
 									pageElementDimensions.width, pageElementDimensions.height, "", 'MEDIUM');
 							break;
@@ -497,14 +497,14 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 						case "barchart": {
 							let instance = echarts.getInstanceByDom(domNode)
-							let base64String = instance.getDataURL( {pixelRatio: echartsImgPixelRatio} )
+							let base64String = instance.getDataURL( {pixelRatio: $scope.echartsImgPixelRatio} )
 							doc.addImage(base64String, "PNG", pageElementDimensions.left, pageElementDimensions.top,
 									pageElementDimensions.width, pageElementDimensions.height, "", 'MEDIUM');
 							break;
 						}
 						case "linechart": {
 							let instance = echarts.getInstanceByDom(domNode)
-							let base64String = instance.getDataURL( {pixelRatio: echartsImgPixelRatio} )
+							let base64String = instance.getDataURL( {pixelRatio: $scope.echartsImgPixelRatio} )
 							doc.addImage(base64String, "PNG", pageElementDimensions.left, pageElementDimensions.top,
 									pageElementDimensions.width, pageElementDimensions.height, "", 'MEDIUM');
 							break;
@@ -538,6 +538,34 @@ angular.module('reportingOverview').component('reportingOverview', {
 		}
 
 
+		$scope.generateZipFolder = function() {
+			// creates a zip folder containing all echarts files
+			let filesToDownload = []; // array of blobs
+			let zip = new JSZip();
+			for(let [idx, page] of $scope.config.pages.entries()) {
+				for(let pageElement of page.pageElements) {
+					if(pageElement.type === "map" || pageElement.type === "barchart" || pageElement.type === "linechart") {
+						let domNode = document.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type);
+						let instance = echarts.getInstanceByDom(domNode);
+						let base64String = instance.getDataURL({
+							type: "png",
+							pixelRatio: $scope.echartsImgPixelRatio
+						});
+						let filename = (idx+1) + pageElement.type + ".png"; // TODO proper filenames
+						zip.file(filename, dataURItoBlob(base64String), "");
+					}
+				}
+			}
+
+			let zipFileName = getCurrentDateAndTime() + "_Kommonitor-Report-Grafiken";
+			zip.generateAsync({type:"blob"}).then(function(content) {
+				saveAs(content, zipFileName + ".zip");
+				$scope.loadingData = false;
+				$scope.$apply();
+			});
+		}
+
+
 		function pxToMilli(px) {
 			// our preview is 830px wide
 			// px / 830  gives us the percentage from the left edge, which can then be stretched to fit the A4 page
@@ -553,6 +581,31 @@ angular.module('reportingOverview').component('reportingOverview', {
 			}
 			result = Math.round(result * 100) / 100;
 			return result;
+		}
+
+		// from: https://stackoverflow.com/a/46406124
+		function dataURItoBlob(dataURI) {
+			// convert base64 to raw binary data held in a string
+			// doesn't handle URLEncoded DataURIs - see SO answer #6850276 for code that does this
+			var byteString = atob(dataURI.split(',')[1]);
+		
+			// separate out the mime component
+			var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0]
+		
+			// write the bytes of the string to an ArrayBuffer
+			var ab = new ArrayBuffer(byteString.length);
+		
+			// create a view into the buffer
+			var ia = new Uint8Array(ab);
+		
+			// set the bytes of the buffer to the correct values
+			for (var i = 0; i < byteString.length; i++) {
+				ia[i] = byteString.charCodeAt(i);
+			}
+		
+			// write the ArrayBuffer to a blob, and you're done
+			var blob = new Blob([ab], {type: mimeString});
+			return blob;
 		}
 
 		
