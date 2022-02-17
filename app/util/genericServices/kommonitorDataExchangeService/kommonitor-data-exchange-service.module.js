@@ -1653,7 +1653,7 @@ angular
             this.availableRoles = []
             for (elem of this.accessControl) {
               for (role of elem.roles) {
-                let available = {...role, ...{"organizationalUnit": elem, "roleName": elem.name + "-" + role.permissionLevel}}
+                let available = {...role, ...{"organizationalUnit": elem, "roleName": elem.name + "-" + role.permissionLevel}};
                 this.availableRoles.push(available)
               }
             }

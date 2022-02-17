@@ -9,9 +9,13 @@
   },
   "license": "Apache 2.0",
   "devDependencies": {
+    "@babel/cli": "^7.17.3",
+    "@babel/core": "^7.17.5",
     "@release-it/keep-a-changelog": "^2.2.2",
     "babel-core": "^6.26.0",
     "babel-plugin-angularjs-annotate": "^0.10.0",
+    "babel-plugin-transform-es2015-destructuring": "^6.23.0",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-polyfill": "^6.0.16",
     "babel-preset-env": "^1.6.1",
     "copy-webpack-plugin": "^7.0.0",
@@ -107,6 +111,6 @@
   "jshintConfig": {
     "undef": true,
     "unused": false,
-    "esversion": 8
+    "esversion": 9
   }
 }
