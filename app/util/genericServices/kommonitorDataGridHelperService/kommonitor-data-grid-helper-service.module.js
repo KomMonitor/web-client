@@ -1268,11 +1268,11 @@ angular
       // ROLE OVERVIEW TABLE
 
       this.buildDataGridColumnConfig_accessControl = function(isRealmAdmin){
-        columnDefs = []
+        let columnDefs = [];
         // Only show edit column if user is Realm Admin
         if (isRealmAdmin) {
           columnDefs.push({ headerName: 'Editierfunktionen', maxWidth: 200, checkboxSelection: (row) => {return row.data.name != "public" && row.data.name != "kommonitor"}, headerCheckboxSelection: true, 
-          headerCheckboxSelectionFilteredOnly: true, filter: false, sortable: false, cellRenderer: 'displayEditButtons_accessControl' })
+          headerCheckboxSelectionFilteredOnly: true, filter: false, sortable: false, cellRenderer: 'displayEditButtons_accessControl' });
         }
 
         return columnDefs.concat([
@@ -1285,13 +1285,13 @@ angular
       };
 
       this.buildDataGridRowData_accessControl = function(dataArray){
-        data = JSON.parse(JSON.stringify(dataArray))
-        for (elem of data) {
-          elem.roleString = ""
-          for (role of elem.roles) {
-            elem.roleString += role.permissionLevel + ", "
+        let data = JSON.parse(JSON.stringify(dataArray));
+        for (let elem of data) {
+          elem.roleString = "";
+          for (let role of elem.roles) {
+            elem.roleString += role.permissionLevel + ", ";
           }
-          elem.roleString = elem.roleString.substring(0, elem.roleString.length - 2)
+          elem.roleString = elem.roleString.substring(0, elem.roleString.length - 2);
         }
         return data;
       };
@@ -1300,8 +1300,9 @@ angular
           let columnDefs = this.buildDataGridColumnConfig_accessControl(kommonitorDataExchangeService.isRealmAdmin);
           let rowData = this.buildDataGridRowData_accessControl(accessControlArray);
   
+          let components = {};
           if (kommonitorDataExchangeService.isRealmAdmin) {
-            components = {displayEditButtons_accessControl: displayEditButtons_accessControl}
+            components = {displayEditButtons_accessControl: displayEditButtons_accessControl};
           } else {
             components = {}
           }

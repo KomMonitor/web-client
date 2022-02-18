@@ -104,7 +104,7 @@ angular.module('adminIndicatorsManagement').component('adminIndicatorsManagement
 
 			if(! crudType || !targetIndicatorId){
 				// refetch all metadata from spatial units to update table
-				kommonitorDataExchangeService.fetchIndicatorsMetadata().then(function successCallback(response) {
+				kommonitorDataExchangeService.fetchIndicatorsMetadata(kommonitorDataExchangeService.currentKeycloakLoginRoles).then(function successCallback(response) {
 
 					$scope.initializeOrRefreshOverviewTable();
 					$rootScope.$broadcast("refreshIndicatorOverviewTableCompleted");
@@ -119,7 +119,7 @@ angular.module('adminIndicatorsManagement').component('adminIndicatorsManagement
 			}
 			else if(crudType && targetIndicatorId){
 				if(crudType == "add"){
-					kommonitorCacheHelperService.fetchSingleIndicatorMetadata(targetIndicatorId).then(function successCallback(data) {
+					kommonitorCacheHelperService.fetchSingleIndicatorMetadata(targetIndicatorId, kommonitorDataExchangeService.currentKeycloakLoginRoles).then(function successCallback(data) {
 
 						kommonitorDataExchangeService.addSingleIndicatorMetadata(data);
 
@@ -135,7 +135,7 @@ angular.module('adminIndicatorsManagement').component('adminIndicatorsManagement
 					});
 				}
 				else if(crudType == "edit"){
-					kommonitorCacheHelperService.fetchSingleIndicatorMetadata(targetIndicatorId).then(function successCallback(data) {
+					kommonitorCacheHelperService.fetchSingleIndicatorMetadata(targetIndicatorId, kommonitorDataExchangeService.currentKeycloakLoginRoles).then(function successCallback(data) {
 
 						kommonitorDataExchangeService.replaceSingleIndicatorMetadata(data);
 						

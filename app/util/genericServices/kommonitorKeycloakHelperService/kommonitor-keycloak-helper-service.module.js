@@ -156,7 +156,7 @@ angular
       };
 
       this.addCompositeRole_withToken = async function (bearerToken, baseRole, composite) {
-        data = [{
+        let data = [{
           "id": composite.id,
           "name": composite.name
         }];
@@ -183,14 +183,14 @@ angular
       this.postNewRoles = async function (organizationalUnitName) {
         try {
           // get auth token to make admin requests
-          var bearerToken = Auth.keycloak.token
+          var bearerToken = Auth.keycloak.token;
 
           // post individual roles
-          for (suffix of this.roleSuffixes) {
+          for (let suffix of this.roleSuffixes) {
             // post individual role
             await this.postNewRole_withToken(bearerToken, { "name": organizationalUnitName + "-" + suffix });
           }
-          const allRoles = await this.getAllRoles_withToken(bearerToken)
+          const allRoles = await this.getAllRoles_withToken(bearerToken);
           var roleMap = allRoles.filter(role => role.name.startsWith(organizationalUnitName + "-"))
             .reduce((prev, curr) => (prev[curr.name] = curr, prev), {});
 
@@ -218,9 +218,9 @@ angular
       this.renameExistingRoles = async function (oldOrganizationalUnitName, newOrganizationalUnitName) {
         try {
           // first get auth token to make admin requests
-          var bearerToken = Auth.keycloak.token
+          var bearerToken = Auth.keycloak.token;
 
-          for (suffix of this.roleSuffixes) {
+          for (let suffix of this.roleSuffixes) {
             await this.renameExistingRole_withToken(bearerToken, oldOrganizationalUnitName + "-" + suffix, newOrganizationalUnitName + "-" + suffix);
           }
         } catch (error) {
@@ -232,9 +232,9 @@ angular
       this.deleteRoles = async function (organizationalUnitName) {
         try {
           // first get auth token to make admin requests
-          var bearerToken = Auth.keycloak.token
+          var bearerToken = Auth.keycloak.token;
 
-          for (suffix of this.roleSuffixes) {
+          for (let suffix of this.roleSuffixes) {
             await this.deleteRole_withToken(bearerToken, organizationalUnitName + "-" + suffix);
           }
         } catch (error) {
@@ -245,7 +245,7 @@ angular
       this.getAllRoles = async function () {
         try {
           // first get auth token to make admin requests
-          var bearerToken = Auth.keycloak.token
+          var bearerToken = Auth.keycloak.token;
 
           // then make admin request
           return await this.getAllRoles_withToken(bearerToken);

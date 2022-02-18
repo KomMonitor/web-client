@@ -69,7 +69,7 @@ angular.module('adminRoleManagement').component('adminRoleManagement', {
 
 			if(! crudType || !targetId){
 				// refetch all metadata from spatial units to update table
-				kommonitorDataExchangeService.fetchAccessControlMetadata().then(function successCallback(response) {
+				kommonitorDataExchangeService.fetchAccessControlMetadata(kommonitorDataExchangeService.currentKeycloakLoginRoles).then(function successCallback(response) {
 					$scope.initializeOrRefreshOverviewTable();
 					$scope.loadingData = false;
 
@@ -79,7 +79,7 @@ angular.module('adminRoleManagement').component('adminRoleManagement', {
 			}
 			else if(crudType && targetId){
 				if(crudType == "add"){
-					kommonitorCacheHelperService.fetchSingleAccessControlMetadata(targetId).then(function successCallback(data) {
+					kommonitorCacheHelperService.fetchSingleAccessControlMetadata(targetId, kommonitorDataExchangeService.currentKeycloakLoginRoles).then(function successCallback(data) {
 
 						$scope.initializeOrRefreshOverviewTable();
 	
@@ -91,7 +91,7 @@ angular.module('adminRoleManagement').component('adminRoleManagement', {
 					});
 				}
 				else if(crudType == "edit"){
-					kommonitorCacheHelperService.fetchSingleAccessControlMetadata(targetId).then(function successCallback(data) {
+					kommonitorCacheHelperService.fetchSingleAccessControlMetadata(targetId, kommonitorDataExchangeService.currentKeycloakLoginRoles).then(function successCallback(data) {
 						
 						$scope.initializeOrRefreshOverviewTable();
 						$scope.loadingData = false;

@@ -92,7 +92,7 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 					// this callback will be called asynchronously
 					// when the response is available
 
-					await kommonitorDataExchangeService.fetchTopicsMetadata();
+					await kommonitorDataExchangeService.fetchTopicsMetadata(kommonitorDataExchangeService.currentKeycloakLoginRoles);
 
 					$scope.refreshTopicsOverview();
 
@@ -180,7 +180,7 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 					// this callback will be called asynchronously
 					// when the response is available
 
-					await kommonitorDataExchangeService.fetchTopicsMetadata();
+					await kommonitorDataExchangeService.fetchTopicsMetadata(kommonitorDataExchangeService.currentKeycloakLoginRoles);
 
 					$scope.refreshTopicsOverview();
 
@@ -275,7 +275,7 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 					// this callback will be called asynchronously
 					// when the response is available
 
-					await kommonitorDataExchangeService.fetchTopicsMetadata();
+					await kommonitorDataExchangeService.fetchTopicsMetadata(kommonitorDataExchangeService.currentKeycloakLoginRoles);
 
 					$scope.refreshTopicsOverview();
 
@@ -361,7 +361,7 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 					// this callback will be called asynchronously
 					// when the response is available
 
-					await kommonitorDataExchangeService.fetchTopicsMetadata();
+					await kommonitorDataExchangeService.fetchTopicsMetadata(kommonitorDataExchangeService.currentKeycloakLoginRoles);
 
 					$scope.refreshTopicsOverview();
 
@@ -412,7 +412,7 @@ angular.module('adminTopicsManagement').component('adminTopicsManagement', {
 					// this callback will be called asynchronously
 					// when the response is available
 
-					await kommonitorDataExchangeService.fetchTopicsMetadata();
+					await kommonitorDataExchangeService.fetchTopicsMetadata(kommonitorDataExchangeService.currentKeycloakLoginRoles);
 
 					$scope.refreshTopicsOverview();
 

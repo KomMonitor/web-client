@@ -77,7 +77,7 @@ angular
         });
       };
 
-      this.fetchResource_fromCacheOrServer = async function (localStorageKey, resourceEndpoint, lastModificationResourceName) {
+      this.fetchResource_fromCacheOrServer = async function (localStorageKey, resourceEndpoint, lastModificationResourceName, keycloakRolesArray) {
         // check if the last modification date within local storage is the same as on the server
 
         // if YES, then try to use data from cache
@@ -90,10 +90,11 @@ angular
         let metadataKey = localStorageKey + "_metadata";
 
         //TODO: why do we need this? There is ever only a single rolesArray why do we need to differentiate between different roles?
-        /*
+        
         if(keycloakRolesArray && keycloakRolesArray.length > 0){
-          if(keycloakRolesArray.includes(__env.keycloakKommonitorAdminRoleName)){
-            metadataKey += "_" + __env.keycloakKommonitorAdminRoleName;
+          // admin role is kommonitor-creator
+          if(keycloakRolesArray.includes("kommonitor-creator")){
+            metadataKey += "_kommonitor-creator";
           }
           else{
             metadataKey += "_" + JSON.stringify(keycloakRolesArray);
@@ -102,7 +103,7 @@ angular
         else{
           metadataKey += "_public";
         }
-        */
+        
 
         let lastModTimestamp_fromCache_string = localStorage.getItem(timestampKey);
 
@@ -142,31 +143,31 @@ angular
         });
       };
 
-      this.fetchAccessControlMetadata = async function () {
-        return await this.fetchResource_fromCacheOrServer(localStorageKey_accessControl, accessControlEndpoint, "access-control");
+      this.fetchAccessControlMetadata = async function (keycloakRolesArray) {
+        return await this.fetchResource_fromCacheOrServer(localStorageKey_accessControl, accessControlEndpoint, "access-control", keycloakRolesArray);
       };
 
-      this.fetchTopicsMetadata = async function () {
-        return await this.fetchResource_fromCacheOrServer(localStorageKey_topics, topicsPublicEndpoint, "topics");
+      this.fetchTopicsMetadata = async function (keycloakRolesArray) {
+        return await this.fetchResource_fromCacheOrServer(localStorageKey_topics, topicsPublicEndpoint, "topics", keycloakRolesArray);
       };
 
-      this.fetchSpatialUnitsMetadata = async function () {
-        return await this.fetchResource_fromCacheOrServer(localStorageKey_spatialUnits, spatialUnitsEndpoint, "spatial-units");
+      this.fetchSpatialUnitsMetadata = async function (keycloakRolesArray) {
+        return await this.fetchResource_fromCacheOrServer(localStorageKey_spatialUnits, spatialUnitsEndpoint, "spatial-units", keycloakRolesArray);
       };
 
-      this.fetchIndicatorsMetadata = async function () {
-        return await this.fetchResource_fromCacheOrServer(localStorageKey_indicators, indicatorsEndpoint, "indicators");
+      this.fetchIndicatorsMetadata = async function (keycloakRolesArray) {
+        return await this.fetchResource_fromCacheOrServer(localStorageKey_indicators, indicatorsEndpoint, "indicators", keycloakRolesArray);
       };
 
-      this.fetchGeoresourceMetadata = async function () {
-        return await this.fetchResource_fromCacheOrServer(localStorageKey_georesources, georesourcesEndpoint, "georesources");
+      this.fetchGeoresourceMetadata = async function (keycloakRolesArray) {
+        return await this.fetchResource_fromCacheOrServer(localStorageKey_georesources, georesourcesEndpoint, "georesources", keycloakRolesArray);
       };
 
-      this.fetchProcessScriptsMetadata = async function () {
-        return await this.fetchResource_fromCacheOrServer(localStorageKey_processScripts, scriptsEndpoint, "process-scripts");
+      this.fetchProcessScriptsMetadata = async function (keycloakRolesArray) {
+        return await this.fetchResource_fromCacheOrServer(localStorageKey_processScripts, scriptsEndpoint, "process-scripts", keycloakRolesArray);
       };
 
-      this.fetchSingleAccessControlMetadata = function (targetId) {
+      this.fetchSingleAccessControlMetadata = function (targetId, keycloakRolesArray) {
         return $http({
           url: this.baseUrlToKomMonitorDataAPI + accessControlEndpoint + "/" + targetId,
           method: "GET"
@@ -175,12 +176,12 @@ angular
           // when the response is available
 
           // let cache be checked, but in the background, do not wait for it
-          self.fetchAccessControlMetadata();
+          self.fetchAccessControlMetadata(keycloakRolesArray);
           return response.data;
         });
       };
 
-      this.fetchSingleSpatialUnitMetadata = function (targetSpatialUnitId) {
+      this.fetchSingleSpatialUnitMetadata = function (targetSpatialUnitId, keycloakRolesArray) {
         return $http({
           url: this.baseUrlToKomMonitorDataAPI + spatialUnitsEndpoint + "/" + targetSpatialUnitId,
           method: "GET"
@@ -188,13 +189,13 @@ angular
           // this callback will be called asynchronously
           // when the response is available
 
-          self.fetchSpatialUnitsMetadata();
+          self.fetchSpatialUnitsMetadata(keycloakRolesArray);
           return response.data;
 
         });
       };
 
-      this.fetchSingleGeoresourceMetadata = function (targetGeoresourceId) {
+      this.fetchSingleGeoresourceMetadata = function (targetGeoresourceId, keycloakRolesArray) {
         return $http({
           url: this.baseUrlToKomMonitorDataAPI + georesourcesEndpoint + "/" + targetGeoresourceId,
           method: "GET"
@@ -202,13 +203,13 @@ angular
           // this callback will be called asynchronously
           // when the response is available
 
-          self.fetchGeoresourceMetadata();
+          self.fetchGeoresourceMetadata(keycloakRolesArray);
           return response.data;
 
         });
       };
 
-      this.fetchSingleIndicatorMetadata = function (targetIndicatorId) {
+      this.fetchSingleIndicatorMetadata = function (targetIndicatorId, keycloakRolesArray) {
         return $http({
           url: this.baseUrlToKomMonitorDataAPI + indicatorsEndpoint + "/" + targetIndicatorId,
           method: "GET"
@@ -216,13 +217,13 @@ angular
           // this callback will be called asynchronously
           // when the response is available
 
-          self.fetchIndicatorsMetadata();
+          self.fetchIndicatorsMetadata(keycloakRolesArray);
           return response.data;
 
         });
       };
 
-      this.fetchSingleIndicatorScriptMetadata = function (targetScriptId) {
+      this.fetchSingleIndicatorScriptMetadata = function (targetScriptId, keycloakRolesArray) {
         return $http({
           url: this.baseUrlToKomMonitorDataAPI + scriptsEndpoint + "/" + targetScriptId,
           method: "GET"
@@ -230,7 +231,7 @@ angular
           // this callback will be called asynchronously
           // when the response is available
 
-          self.fetchProcessScriptsMetadata();
+          self.fetchProcessScriptsMetadata(keycloakRolesArray);
           return response.data;
 
         });

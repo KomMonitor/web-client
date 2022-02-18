@@ -61,7 +61,7 @@ angular.module('roleAddModal').component('roleAddModal', {
 						try {
 							// The fetch API does not expose the Location Header for XSS protection
 							// So we refetch all metadata
-							await kommonitorDataExchangeService.fetchAccessControlMetadata();
+							await kommonitorDataExchangeService.fetchAccessControlMetadata(kommonitorDataExchangeService.currentKeycloakLoginRoles);
 							kommonitorDataExchangeService.accessControl.forEach(function (entry) {
 								if (entry.name === $scope.newOrganizationalUnit.name) {
 									$scope.newOrganizationalUnit = JSON.parse(JSON.stringify(entry))

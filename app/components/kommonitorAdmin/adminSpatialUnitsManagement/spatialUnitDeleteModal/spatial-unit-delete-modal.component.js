@@ -59,7 +59,7 @@ angular.module('spatialUnitDeleteModal').component('spatialUnitDeleteModal', {
 							$("#spatialUnitsDeleteSuccessAlert").show();
 
 							// fetch indicatorMetada again as a spatialUnit was deleted
-							await kommonitorDataExchangeService.fetchIndicatorsMetadata();
+							await kommonitorDataExchangeService.fetchIndicatorsMetadata(kommonitorDataExchangeService.currentKeycloakLoginRoles);
 							// refresh spatial unit overview table
 							$rootScope.$broadcast("refreshSpatialUnitOverviewTable", "delete", $scope.successfullyDeletedDatasets.map(dataset => {return dataset.spatialUnitId;}));
 

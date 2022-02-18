@@ -127,7 +127,7 @@ angular.module('roleDeleteModal').component('roleDeleteModal', {
 
 					// fetch mMetada again as roles were deleted
 					
-					await kommonitorDataExchangeService.fetchAccessControlMetadata();
+					await kommonitorDataExchangeService.fetchAccessControlMetadata(kommonitorDataExchangeService.currentKeycloakLoginRoles);
 					// refresh role overview table
 					$rootScope.$broadcast("refreshAccessControlTable", "delete", $scope.successfullyDeletedDatasets.map(dataset => dataset.organizationalUnitId));
 

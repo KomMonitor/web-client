@@ -49,7 +49,7 @@ angular.module('adminGeoresourcesManagement').component('adminGeoresourcesManage
 
 			if(! crudType || !targetGeoresourceId){
 				// refetch all metadata from spatial units to update table
-				kommonitorDataExchangeService.fetchGeoresourcesMetadata().then(function successCallback(response) {
+				kommonitorDataExchangeService.fetchGeoresourcesMetadata(kommonitorDataExchangeService.currentKeycloakLoginRoles).then(function successCallback(response) {
 
 					$scope.initializeOrRefreshOverviewTable();
 					$rootScope.$broadcast("refreshGeoresourceOverviewTableCompleted");
@@ -70,7 +70,7 @@ angular.module('adminGeoresourcesManagement').component('adminGeoresourcesManage
 			}
 			else if(crudType && targetGeoresourceId){
 				if(crudType == "add"){
-					kommonitorCacheHelperService.fetchSingleGeoresourceMetadata(targetGeoresourceId).then(function successCallback(data) {
+					kommonitorCacheHelperService.fetchSingleGeoresourceMetadata(targetGeoresourceId, kommonitorDataExchangeService.currentKeycloakLoginRoles).then(function successCallback(data) {
 
 						kommonitorDataExchangeService.addSingleGeoresourceMetadata(data);
 
@@ -92,7 +92,7 @@ angular.module('adminGeoresourcesManagement').component('adminGeoresourcesManage
 					});
 				}
 				else if(crudType == "edit"){
-					kommonitorCacheHelperService.fetchSingleGeoresourceMetadata(targetGeoresourceId).then(function successCallback(data) {
+					kommonitorCacheHelperService.fetchSingleGeoresourceMetadata(targetGeoresourceId, kommonitorDataExchangeService.currentKeycloakLoginRoles).then(function successCallback(data) {
 
 						kommonitorDataExchangeService.replaceSingleGeoresourceMetadata(data);
 						

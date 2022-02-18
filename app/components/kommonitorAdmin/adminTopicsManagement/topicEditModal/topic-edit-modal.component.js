@@ -39,7 +39,7 @@ angular.module('topicEditModal').component('topicEditModal', {
 					// this callback will be called asynchronously
 					// when the response is available
 
-					await kommonitorDataExchangeService.fetchTopicsMetadata();
+					await kommonitorDataExchangeService.fetchTopicsMetadata(kommonitorDataExchangeService.currentKeycloakLoginRoles);
 
 					$rootScope.$broadcast("refreshTopicsOverview");
 
