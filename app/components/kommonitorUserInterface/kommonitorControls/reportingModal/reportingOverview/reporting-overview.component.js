@@ -292,6 +292,23 @@ angular.module('reportingOverview').component('reportingOverview', {
 				indicators.push( getIndicatorByName(name) );
 				
 			}
+			// restore commune logo for every page, starting at the second
+			let communeLogoSrc = ""; // base64 string
+			for(let [idx, page] of config.pages.entries()) {
+				for(let pageElement of page.pageElements) {
+					if(pageElement.type === "communeLogo-landscape" && idx === 0) {
+						if(pageElement.src && pageElement.src.length) {
+							communeLogoSrc = pageElement.src;
+						} else {
+							break; // no logo was exported
+						}
+					}
+
+					if(pageElement.type === "communeLogo-landscape" && idx > 0) {
+						pageElement.src = communeLogoSrc;
+					}
+				}
+			}
 			$scope.config.indicators = indicators;
 			$scope.config.template = config.template;
 			$scope.config.pages = config.pages;
@@ -307,6 +324,14 @@ angular.module('reportingOverview').component('reportingOverview', {
 			jsonToExport.template = $scope.config.template;
 			// replace indicators with indicator names to reduce file size
 			jsonToExport.indicators = $scope.config.indicators.map( indicator => indicator.indicatorName);
+			// only store commune logo once (in first page)
+			for(let [idx, page] of jsonToExport.pages.entries()) {
+				for(let pageElement of page.pageElements) {
+					if(pageElement.type === "communeLogo-landscape" && idx > 0) {
+						pageElement.src = "";
+					}
+				}
+			}
 			
 			let jsonString = "data:text/json;charset=utf-8," + encodeURIComponent( angular.toJson(jsonToExport) );
 			// to download json, a DOM element is created, clicked and removed
