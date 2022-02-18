@@ -95,29 +95,31 @@ angular
             this.currentKomMonitorLoginRoleNames = this.currentKeycloakLoginRoles.filter(role => possibleRoles.includes(role));
           }
 
-          this.isAllowedSpatialUnitForCurrentIndicator = function(spatialUnitMetadata){
-            if(! this.selectedIndicator){
-              return false;
-            }
+          // this.isAllowedSpatialUnitForCurrentIndicator = function(spatialUnitMetadata){
+          //   if(! this.selectedIndicator){
+          //     return false;
+          //   }
 
-            if(! spatialUnitMetadata || ! spatialUnitMetadata.spatialUnitLevel){
-              return false;
-            }
+          //   console.log(self.availableRoles);
+
+          //   if(! spatialUnitMetadata || ! spatialUnitMetadata.spatialUnitLevel){
+          //     return false;
+          //   }
             
-            var filteredApplicableUnits = this.selectedIndicator.applicableSpatialUnits.filter(function (applicableSpatialUnit) {
-              if (applicableSpatialUnit.spatialUnitName ===  spatialUnitMetadata.spatialUnitLevel){
-                if (applicableSpatialUnit.allowedRoles.length == 0){
-                  return true;
-                }
-                else{
-                  return applicableSpatialUnit.allowedRoles.some(allowedRoleId => roleMetadataForCurrentKeycloakLoginRoles.some(roleMetadata => roleMetadata.roleId === allowedRoleId) );
-                }
-              }              
+          //   var filteredApplicableUnits = this.selectedIndicator.applicableSpatialUnits.filter(function (applicableSpatialUnit) {
+          //     if (applicableSpatialUnit.spatialUnitName ===  spatialUnitMetadata.spatialUnitLevel){
+          //       if (applicableSpatialUnit.allowedRoles.length == 0){
+          //         return true;
+          //       }
+          //       else{
+          //         return applicableSpatialUnit.allowedRoles.some(allowedRoleId => self.roleMetadataForCurrentKeycloakLoginRoles.some(roleMetadata => roleMetadata.roleId === allowedRoleId) );
+          //       }
+          //     }              
               
-            });
+          //   });
 
-            return filteredApplicableUnits.length > 0;
-          };
+          //   return filteredApplicableUnits.length > 0;
+          // };
 
           this.FEATURE_ID_PROPERTY_NAME = __env.FEATURE_ID_PROPERTY_NAME;
           this.FEATURE_NAME_PROPERTY_NAME = __env.FEATURE_NAME_PROPERTY_NAME;
@@ -1959,13 +1961,19 @@ angular
           };
 
           // var roleMappingAllowsDisplay = function(indicatorMetadata){
-          //   if(self.currentKeycloakLoginRoles.includes(kommonitorKeycloakHelperService.adminRoleName)){
+          //   //admin  --> everything allowed       
+          //   if(self.currentKeycloakLoginRoles.includes("kommonitor-creator")){
           //     return true;
-          //   }            
-          //   var roleMetadataForCurrentKeycloakLoginRoles = self.roles.filter(role => self.currentKeycloakLoginRoles.includes(role.roleName));            
+          //   }     
+            
+          //   // public user
+
+            
+          //   // non-admin
+          //   self.roleMetadataForCurrentKeycloakLoginRoles = self.availableRoles.filter(role => self.currentKeycloakLoginRoles.includes(role.roleName));                       
             
           //   var filteredApplicableUnits = indicatorMetadata.applicableSpatialUnits.filter(function (applicableSpatialUnit) {
-          //     return applicableSpatialUnit.allowedRoles.length == 0 || applicableSpatialUnit.allowedRoles.some(allowedRoleId => roleMetadataForCurrentKeycloakLoginRoles.some(roleMetadata => roleMetadata.roleId === allowedRoleId) );                
+          //     return applicableSpatialUnit.allowedRoles.length == 0 || applicableSpatialUnit.allowedRoles.some(allowedRoleId => self.roleMetadataForCurrentKeycloakLoginRoles.some(roleMetadata => roleMetadata.roleId === allowedRoleId) );                
           //   });
 
           //   return filteredApplicableUnits.length > 0;
