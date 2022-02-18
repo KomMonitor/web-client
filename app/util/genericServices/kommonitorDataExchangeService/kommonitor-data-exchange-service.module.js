@@ -95,31 +95,26 @@ angular
             this.currentKomMonitorLoginRoleNames = this.currentKeycloakLoginRoles.filter(role => possibleRoles.includes(role));
           }
 
-          // this.isAllowedSpatialUnitForCurrentIndicator = function(spatialUnitMetadata){
-          //   if(! this.selectedIndicator){
-          //     return false;
-          //   }
+          this.isAllowedSpatialUnitForCurrentIndicator = function(spatialUnitMetadata){
+            if(! this.selectedIndicator){
+              return false;
+            }
 
-          //   console.log(self.availableRoles);
+            if(! spatialUnitMetadata || ! spatialUnitMetadata.spatialUnitLevel){
+              return false;
+            }
 
-          //   if(! spatialUnitMetadata || ! spatialUnitMetadata.spatialUnitLevel){
-          //     return false;
-          //   }
+            var filteredApplicableUnits = this.selectedIndicator.applicableSpatialUnits.filter(function (applicableSpatialUnit) {
+              if (applicableSpatialUnit.spatialUnitId ===  spatialUnitMetadata.spatialUnitId){
+                return true;
+              }
+              else{
+                return false;
+              }
+            });
             
-          //   var filteredApplicableUnits = this.selectedIndicator.applicableSpatialUnits.filter(function (applicableSpatialUnit) {
-          //     if (applicableSpatialUnit.spatialUnitName ===  spatialUnitMetadata.spatialUnitLevel){
-          //       if (applicableSpatialUnit.allowedRoles.length == 0){
-          //         return true;
-          //       }
-          //       else{
-          //         return applicableSpatialUnit.allowedRoles.some(allowedRoleId => self.roleMetadataForCurrentKeycloakLoginRoles.some(roleMetadata => roleMetadata.roleId === allowedRoleId) );
-          //       }
-          //     }              
-              
-          //   });
-
-          //   return filteredApplicableUnits.length > 0;
-          // };
+            return filteredApplicableUnits.length > 0;
+          };
 
           this.FEATURE_ID_PROPERTY_NAME = __env.FEATURE_ID_PROPERTY_NAME;
           this.FEATURE_NAME_PROPERTY_NAME = __env.FEATURE_NAME_PROPERTY_NAME;

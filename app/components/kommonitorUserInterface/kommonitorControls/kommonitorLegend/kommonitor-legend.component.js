@@ -52,8 +52,7 @@ angular
 						
 						$scope.filterSpatialUnits = function(){
 							return function( item ) {
-								// return kommonitorDataExchangeService.isAllowedSpatialUnitForCurrentIndicator(item);
-								return true;
+								return kommonitorDataExchangeService.isAllowedSpatialUnitForCurrentIndicator(item);								
 						  };
 						};
 
