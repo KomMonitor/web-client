@@ -95,6 +95,7 @@ module.exports = {
 			{ from: nodeModulePathConstant + 'ui-select/dist', to: 'ui-select/' },
             { from: nodeModulePathConstant + 'angularjs-dropdown-multiselect/dist/', to: 'angularjs-dropdown-multiselect/' },	
             { from: nodeModulePathConstant + 'jszip/dist/jszip.min.js', to: 'jszip/' },
+            { from: nodeModulePathConstant + 'docx/build/index.js', to: 'docx/' },
           
 
       ]})

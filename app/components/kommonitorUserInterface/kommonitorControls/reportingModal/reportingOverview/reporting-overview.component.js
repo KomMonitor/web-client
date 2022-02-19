@@ -39,7 +39,8 @@ angular.module('reportingOverview').component('reportingOverview', {
 				$scope.config.template = JSON.parse(JSON.stringify(data));
 				$scope.config.pages = $scope.config.template.pages;
 			}
-			
+			let deviceScreenDpi = calculateScreenDpi();
+			$scope.pxPerMilli = deviceScreenDpi / 25.4 // /2.54 --> cm, /10 --> mm
 		}
 
 		$scope.sortableConfig = {
@@ -423,9 +424,9 @@ angular.module('reportingOverview').component('reportingOverview', {
 			});
 
 			// general settings
-			let fontName = "times"
-			doc.setDrawColor(148, 148, 148)
-			doc.setFont(fontName, "normal", "normal") // name, normal/italic, fontweight
+			let fontName = "times";
+			doc.setDrawColor(148, 148, 148);
+			doc.setFont(fontName, "normal", "normal"); // name, normal/italic, fontweight
 
 			for(let [idx, page] of $scope.config.pages.entries()) {
 				if(idx > 0) {
@@ -565,7 +566,6 @@ angular.module('reportingOverview').component('reportingOverview', {
 
 		$scope.generateZipFolder = function() {
 			// creates a zip folder containing all echarts files
-			let filesToDownload = []; // array of blobs
 			let zip = new JSZip();
 			for(let [idx, page] of $scope.config.pages.entries()) {
 				for(let pageElement of page.pageElements) {
@@ -590,22 +590,510 @@ angular.module('reportingOverview').component('reportingOverview', {
 			});
 		}
 
+		let sections = []; // one section per page for now, since this is an easy way to create page breaks
+		
+		$scope.generateWordReport = function() {
+			// see docx documentation for more info about the format:
+			// https://docx.js.org/#/?id=basic-usage
+			
+		
+			for(let [idx, page] of $scope.config.pages.entries()) {
+
+				let paragraphs = [];
+
+				for(let pageElement of page.pageElements) {
+
+					let pageElementDimensionsPx = calculateDimensions(pageElement.dimensions, "px");
+					let pageElementDimensionsMilli = calculateDimensions(pageElement.dimensions, "milli");
+					let pageElementDimensionsTwip = calculateDimensions(pageElement.dimensions, "twip");
+					let pageElementDimensionsEmu = calculateDimensions(pageElement.dimensions, "emu");
+
+					switch(pageElement.type) {
+						case "indicatorTitle-landscape": {
+							let paragraph = new docx.Paragraph({
+								children: [
+									new docx.TextRun({
+										text: pageElement.text,
+										bold: true,
+										size: 32 // 16pt
+									})
+								],
+								frame: {
+									position: {
+										x: pageElementDimensionsTwip.left,
+										y: pageElementDimensionsTwip.top,
+									},
+									width: pageElementDimensionsTwip.width,
+									height: pageElementDimensionsTwip.height,
+									anchor: {
+										horizontal: docx.FrameAnchorType.MARGIN,
+										vertical: docx.FrameAnchorType.MARGIN,
+									},
+									alignment: {
+										x: docx.HorizontalPositionAlign.LEFT,
+										y: docx.VerticalPositionAlign.TOP,
+									}
+								}
+							});
+							
+							paragraphs.push(paragraph);
+							break;
+						}
+						case "communeLogo-landscape": {
+							// only add logo if one was selected
+							if(pageElement.src && pageElement.src.length) {
+								let paragraph = new docx.Paragraph({
+									children: [
+										new docx.ImageRun({
+											data: dataURItoBlob(pageElement.src),
+											transformation: {
+												width: pageElementDimensionsPx.width,
+												height: pageElementDimensionsPx.height
+											},
+											floating: {
+												horizontalPosition: {
+													offset: pageElementDimensionsEmu.left,
+												},
+												verticalPosition: {
+													offset: pageElementDimensionsEmu.top,
+												}
+											},
+										})
+									]
+								});
+								paragraphs.push(paragraph);
+							}
+							break;
+						}
+						case "dataTimestamp-landscape":
+						case "dataTimeseries-landscape": {
+							let paragraph = new docx.Paragraph({
+								children: [
+									new docx.TextRun({
+										text: pageElement.text,
+										size: 32  // 16pt
+									})
+								],
+								frame: {
+									position: {
+										x: pageElementDimensionsTwip.left,
+										y: pageElementDimensionsTwip.top,
+									},
+									width: pageElementDimensionsTwip.width,
+									height: pageElementDimensionsTwip.height,
+									anchor: {
+										horizontal: docx.FrameAnchorType.MARGIN,
+										vertical: docx.FrameAnchorType.MARGIN,
+									},
+									alignment: {
+										x: docx.HorizontalPositionAlign.LEFT,
+										y: docx.VerticalPositionAlign.TOP,
+									}
+								}
+							});
+							
+							paragraphs.push(paragraph);
+							break;
+						}
+						
+						case "footerHorizontalSpacer-landscape":
+							 // empty paragraph with border top
+							let paragraph = new docx.Paragraph({
+								children: [],
+								frame: {
+									position: {
+										x: pageElementDimensionsTwip.left,
+										y: pageElementDimensionsTwip.top,
+									},
+									width: pageElementDimensionsTwip.width,
+									height: pageElementDimensionsTwip.height,
+									anchor: {
+										horizontal: docx.FrameAnchorType.MARGIN,
+										vertical: docx.FrameAnchorType.MARGIN,
+									},
+									alignment: {
+										x: docx.HorizontalPositionAlign.LEFT,
+										y: docx.VerticalPositionAlign.TOP,
+									}
+								},
+								border: {
+									top: {
+										color: "#949494", // gray
+										space: 1,
+										style: docx.BorderStyle.SINGLE,
+										size: 6 
+									}
+								}
+							});
+							paragraphs.push(paragraph);
+							break;
+						case "footerCreationInfo-landscape": {
+							let paragraph = new docx.Paragraph({
+								children: [
+									new docx.TextRun({
+										text: pageElement.text,
+										size: 32  // 16pt
+									})
+								],
+								frame: {
+									position: {
+										x: pageElementDimensionsTwip.left,
+										y: pageElementDimensionsTwip.top,
+									},
+									width: pageElementDimensionsTwip.width,
+									height: pageElementDimensionsTwip.height,
+									anchor: {
+										horizontal: docx.FrameAnchorType.MARGIN,
+										vertical: docx.FrameAnchorType.MARGIN,
+									},
+									alignment: {
+										x: docx.HorizontalPositionAlign.LEFT,
+										y: docx.VerticalPositionAlign.TOP,
+									}
+								}
+							});
+							
+							paragraphs.push(paragraph);
+							break;
+						}
+						case "pageNumber-landscape": {
+							let paragraph = new docx.Paragraph({
+								children: [
+									new docx.TextRun({
+										text: "Seite " + (idx+1),
+										size: 32  // 16pt
+									},
+									new docx.PageBreak())
+								],
+								frame: {
+									position: {
+										x: pageElementDimensionsTwip.left,
+										y: pageElementDimensionsTwip.top,
+									},
+									width: pageElementDimensionsTwip.width,
+									height: pageElementDimensionsTwip.height,
+									anchor: {
+										horizontal: docx.FrameAnchorType.MARGIN,
+										vertical: docx.FrameAnchorType.MARGIN,
+									},
+									alignment: {
+										x: docx.HorizontalPositionAlign.LEFT,
+										y: docx.VerticalPositionAlign.TOP,
+									}
+								}
+							});
+							paragraphs.push(paragraph);
+							break;
+						}
+						case "map":
+						case "barchart":
+						case "linechart": {
+							let domNode = document.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type);
+							let instance = echarts.getInstanceByDom(domNode);
+							let base64String = instance.getDataURL({
+							 		type: "png",
+							 		pixelRatio: $scope.echartsImgPixelRatio
+							});
+							let blob = dataURItoBlob(base64String);
+
+							let paragraph = new docx.Paragraph({
+								children: [
+									new docx.ImageRun({
+										data: blob,
+										transformation: {
+											width: pageElementDimensionsPx.width,
+											height: pageElementDimensionsPx.height
+										},
+										floating: {
+											horizontalPosition: {
+												offset: pageElementDimensionsEmu.left,
+											},
+											verticalPosition: {
+												offset: pageElementDimensionsEmu.top,
+											},
+											behindDocument: true
+										},
+									})
+								]
+							});
+							paragraphs.push(paragraph);
+							break;
+						}
+						case "overallAverage": {
+							let paragraph = new docx.Paragraph({
+								children: [
+									new docx.TextRun({
+										text: "Durchschnitt",
+										size: 28  // 14pt
+									}),
+									new docx.TextRun({
+										text: "Gesamtstadt",
+										size: 28,
+										break: 1,  // 14pt
+									}),
+									new docx.TextRun({
+										text: pageElement.text.toString(),
+										size: 28,
+										break: 1  // 14pt
+									})
+								],
+								frame: {
+									position: {
+										x: pageElementDimensionsTwip.left,
+										y: pageElementDimensionsTwip.top,
+									},
+									width: pageElementDimensionsTwip.width,
+									height: pageElementDimensionsTwip.height,
+									anchor: {
+										horizontal: docx.FrameAnchorType.MARGIN,
+										vertical: docx.FrameAnchorType.MARGIN,
+									},
+									alignment: {
+										x: docx.HorizontalPositionAlign.LEFT,
+										y: docx.VerticalPositionAlign.TOP,
+									}
+								},
+								border: {
+									top: {
+										color: "#949494", // gray
+										space: 1,
+										style: docx.BorderStyle.SINGLE,
+										size: 6 
+									},
+									right: {
+										color: "#949494",
+										space: 1,
+										style: docx.BorderStyle.SINGLE,
+										size: 6 
+									},
+									bottom: {
+										color: "#949494",
+										space: 1,
+										style: docx.BorderStyle.SINGLE,
+										size: 6 
+									},
+									left: {
+										color: "#949494",
+										space: 1,
+										style: docx.BorderStyle.SINGLE,
+										size: 6 
+									},
+								}
+							});
+							
+							paragraphs.push(paragraph);
+							break;
+						}
+						case "overallChange": {
+							let paragraph = new docx.Paragraph({
+								children: [
+									new docx.TextRun({
+										text: "Durchschnittliche",
+										size: 28  // 14pt
+									}),
+									new docx.TextRun({
+										text: "Veränderung",
+										break: 1,
+										size: 28  // 14pt
+									}),
+									new docx.TextRun({
+										text: "Gesamtstadt",
+										break: 1,
+										size: 28  // 14pt
+									}),
+									new docx.TextRun({
+										text: pageElement.text.toString(),
+										break: 1,
+										size: 28  // 14pt
+									
+									})
+								],
+								frame: {
+									position: {
+										x: pageElementDimensionsTwip.left,
+										y: pageElementDimensionsTwip.top,
+									},
+									width: pageElementDimensionsTwip.width,
+									height: pageElementDimensionsTwip.height,
+									anchor: {
+										horizontal: docx.FrameAnchorType.MARGIN,
+										vertical: docx.FrameAnchorType.MARGIN,
+									},
+									alignment: {
+										x: docx.HorizontalPositionAlign.LEFT,
+										y: docx.VerticalPositionAlign.TOP,
+									}
+								},
+								border: {
+									top: {
+										color: "#949494", // gray
+										space: 1,
+										style: docx.BorderStyle.SINGLE,
+										size: 6 
+									},
+									right: {
+										color: "#949494",
+										space: 1,
+										style: docx.BorderStyle.SINGLE,
+										size: 6 
+									},
+									bottom: {
+										color: "#949494",
+										space: 1,
+										style: docx.BorderStyle.SINGLE,
+										size: 6 
+									},
+									left: {
+										color: "#949494",
+										space: 1,
+										style: docx.BorderStyle.SINGLE,
+										size: 6 
+									},
+								}
+							});
+							
+							paragraphs.push(paragraph);
+							break;
+						}
+						case "datatable": {
+								let tableDom = document.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type + " table");
+								let headerFieldsDom = tableDom.querySelectorAll("thead th")
+								let tableRowsDom = tableDom.querySelectorAll("tbody tr");
+								
+								// table to create
+								let table = {
+									columnWidths: [],
+									rows: [],
+									float: {
+										absoluteHorizontalPosition: pageElementDimensionsTwip.left,
+										absoluteVerticalPosition: pageElementDimensionsTwip.top,
+										overlap: docx.OverlapType.NEVER,
+									},
+								};
+								let headerFields = [];
+								let headerFieldNames = [];
+								for(let fieldDom of headerFieldsDom) {
+									let widthInTwip = pxToTwip(fieldDom.offsetWidth);
+									let fieldContent = fieldDom.innerText;
+									headerFieldNames.push(fieldContent)
+									let field = new docx.TableCell({
+										width: {
+											size: widthInTwip,
+											type: docx.WidthType.DXA,
+										},
+										verticalAlign: docx.VerticalAlign.CENTER,
+										children: [new docx.Paragraph({
+											alignment: docx.AlignmentType.CENTER,
+											children: [new docx.TextRun({
+												text: fieldContent,
+												bold: true
+											})]
+										})],
+									})
+									headerFields.push(field);
+									table.columnWidths.push(widthInTwip)
+								}
+
+								let headerRow = new docx.TableRow({
+									children: headerFields,
+								});
+
+								table.rows.push(headerRow);
+								
+								for(let rowDom of tableRowsDom) { // excluding header
+									let fieldsDom = rowDom.querySelectorAll("td");
+									let fields = [];
+									for(let [idx, fieldDom] of fieldsDom.entries()) {
+										let fieldContent = fieldDom.innerText;
+										let paragraph = new docx.Paragraph({
+											text: fieldContent,
+											alignment:
+												headerFieldNames[idx] === "Wert" ?
+												docx.AlignmentType.RIGHT :
+												headerFieldNames[idx] === "Zeitpunkt" ?
+												docx.AlignmentType.CENTER :
+												docx.AlignmentType.LEFT, // "Bereich"
+										});
+										let field = new docx.TableCell({
+											width: {
+												size: table.columnWidths[idx],
+												type: docx.WidthType.DXA,
+											},
+											verticalAlign: docx.VerticalAlign.CENTER,
+											children: [paragraph],
+										})
+										fields.push(field)
+									}
+									let row = new docx.TableRow({
+										children: fields,
+									});
+									table.rows.push(row);
+								}
+
+								paragraphs.push(new docx.Table(table)) // technically this is not a paragraph, but we only add it as a child of section below
+								break;
+						}
+					}
+				}
+
+				let section = {
+					properties: {
+						type: docx.SectionType.NEXT_PAGE,
+						page: {
+							margin: {
+								top: 0,
+								right: 0,
+								bottom: 0,
+								left: 0,
+							},
+							pageNumbers: {
+								start: (idx+1),
+								formatType: docx.NumberFormat.DECIMAL,
+							},
+							size: {
+								orientation: docx.PageOrientation.LANDSCAPE,
+							},
+						},
+					},
+					children: [...paragraphs],
+				}
+
+				sections.push(section)
+			}
+
+			let docxConfig = {
+				sections: [...sections]
+			}
+
+			let doc = new docx.Document(docxConfig);
+		
+			let filename = getCurrentDateAndTime() + "_KomMonitor-Report"
+			// Used to export the file into a .docx file
+			docx.Packer.toBlob(doc).then((blob) => {
+				saveAs(blob, filename + ".docx");
+			});
+			$scope.loadingData = false;
+		}
 
 		function pxToMilli(px) {
 			// our preview is 830px wide
 			// px / 830  gives us the percentage from the left edge, which can then be stretched to fit the A4 page
 			// This is the short version of:
-			// px / pxPerMillimeter + pxPerMillimeter * 297 / 830, where pxPerMillimeter = deviceScreenPpi * 2.54 * 10
+			// px / pxPerMillimeter * pxPerMillimeter * 297 / 830, where pxPerMillimeter = (deviceScreenPpi / 2.54) * 10
 			// pxPerMillimeter cancels out there, so it doesn't matter.
-			let result = undefined;
-			if(typeof(px) === "number") {
-				result = px / 830 * 297;
-			} else if(typeof(px) === "string") {
-				px = px.endsWith("px") ? px.substring(0, px.length-2) : px;
-				result = parseInt(px) / 830 * 297; // we assume to only get integer px values for now (since everything should come from the config object)
-			}
+			let result = parseInt(px, 10) / 830 * 297;
 			result = Math.round(result * 100) / 100;
 			return result;
+		}
+
+		function pxToTwip(px) {
+			let result = parseInt(px, 10) * 15; // 1px = 0.75pt = 15twip
+			return result * $scope.pxPerMilli*297 / 830 // scale from 830px to A4 page
+		}
+
+		function twipToEmus(value) {
+			// see: https://startbigthinksmall.wordpress.com/2010/01/04/points-inches-and-emus-measuring-units-in-office-open-xml/
+			return value * 635;
 		}
 
 		// from: https://stackoverflow.com/a/46406124
@@ -631,6 +1119,59 @@ angular.module('reportingOverview').component('reportingOverview', {
 			// write the ArrayBuffer to a blob, and you're done
 			var blob = new Blob([ab], {type: mimeString});
 			return blob;
+		}
+
+		function calculateDimensions(dimensions, unit) {
+			let result = {};
+			if(unit === "px") {
+				// also scale our 830px preview up to A4 here
+				let scalefactor = $scope.pxPerMilli*297 / 830
+				result.top = dimensions.top && parseInt(dimensions.top, 10) * scalefactor;
+				result.bottom = dimensions.bottom && parseInt(dimensions.bottom, 10) * scalefactor;
+				result.left = dimensions.left && parseInt(dimensions.left, 10) * scalefactor;
+				result.right = dimensions.right && parseInt(dimensions.right, 10) * scalefactor;
+				result.width = dimensions.width && parseInt(dimensions.width, 10) * scalefactor;
+				result.height = dimensions.height && parseInt(dimensions.height, 10) * scalefactor;
+			}
+			if(unit === "milli") {
+				result.top = dimensions.top && pxToMilli(dimensions.top);
+				result.bottom = dimensions.bottom && pxToMilli(dimensions.bottom);
+				result.left = dimensions.left && pxToMilli(dimensions.left);
+				result.right = dimensions.right && pxToMilli(dimensions.right);
+				result.width = dimensions.width && pxToMilli(dimensions.width, 10);;
+				result.height = dimensions.height && pxToMilli(dimensions.height, 10);
+			}
+			if(unit === "twip") {
+				result.top = dimensions.top && docx.convertMillimetersToTwip(pxToMilli(dimensions.top));
+				result.bottom = dimensions.bottom && docx.convertMillimetersToTwip(pxToMilli(dimensions.bottom));
+				result.left = dimensions.left && docx.convertMillimetersToTwip(pxToMilli(dimensions.left));
+				result.right = dimensions.right && docx.convertMillimetersToTwip(pxToMilli(dimensions.right));
+				result.width = dimensions.width && docx.convertMillimetersToTwip(pxToMilli(dimensions.width, 10));
+				result.height = dimensions.height && docx.convertMillimetersToTwip(pxToMilli(dimensions.height, 10));
+			}
+			if(unit === "emu") {
+				result.top = dimensions.top && twipToEmus(docx.convertMillimetersToTwip(pxToMilli(dimensions.top)));
+				result.bottom = dimensions.bottom && twipToEmus(docx.convertMillimetersToTwip(pxToMilli(dimensions.bottom)));
+				result.left = dimensions.left && twipToEmus(docx.convertMillimetersToTwip(pxToMilli(dimensions.left)));
+				result.right = dimensions.right && twipToEmus(docx.convertMillimetersToTwip(pxToMilli(dimensions.right)));
+				result.width = dimensions.width && twipToEmus(docx.convertMillimetersToTwip(pxToMilli(dimensions.width, 10)));
+				result.height = dimensions.height && twipToEmus(docx.convertMillimetersToTwip(pxToMilli(dimensions.height, 10)));
+			}
+			return result;
+		}
+
+
+		function calculateScreenDpi() {
+			// create a hidden div that is one inch high
+			let div = document.createElement("div")
+			div.style.height = "1in";
+			div.style.position = "absolute";
+			div.style.left = "-100%";
+			div.style.top = "-100%";
+			document.getElementsByTagName("body")[0].append(div);
+			const dpi = div.offsetHeight
+			div.style.display = "none";
+			return dpi
 		}
 
 		
