@@ -152,7 +152,20 @@ angular.module('reportingOverview').component('reportingOverview', {
 
 					for(let pageElement of page.pageElements) {
 
-						let pElementDom = pageDom.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type)
+
+						// usually each type is included only once per page, but there is an exception for linecharts in area specific part of timeseries template
+						// for now we more or less hardcode this, but it might have to change in the future
+						let pElementDom;
+						if(pageElement.type === "linechart") {
+							let arr = pageDom.querySelectorAll(".type-linechart");
+							if(pageElement.showPercentageChangeToPrevTimestamp) {
+								pElementDom = arr[1];
+							} else {
+								pElementDom = arr[0];
+							}
+						} else {
+							pElementDom = pageDom.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type)
+						}
 
 						if(pageElement.type === "map" || pageElement.type === "barchart" || pageElement.type === "linechart") {
 							let instance = echarts.init( pElementDom );
@@ -448,10 +461,20 @@ angular.module('reportingOverview').component('reportingOverview', {
 				if(idx > 0) {
 					doc.addPage();
 				}
-
+				let pageDom = document.querySelector("#reporting-overview-page-" + idx);
 				for(let pageElement of page.pageElements) {
 
-					let domNode = document.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type);
+					let pElementDom;
+					if(pageElement.type === "linechart") {
+						let arr = pageDom.querySelectorAll(".type-linechart");
+						if(pageElement.showPercentageChangeToPrevTimestamp) {
+							pElementDom = arr[1];
+						} else {
+							pElementDom = arr[0];
+						}
+					} else {
+						pElementDom = pageDom.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type)
+					}
 					// convert dimensions to millimeters here
 					// that way we don't have to use pxToMilli everywhere we use coordinates in the pdf
 					let pageElementDimensions = {}
@@ -508,7 +531,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 						// template-specific elements
 						case "map": {
-							let instance = echarts.getInstanceByDom(domNode)
+							let instance = echarts.getInstanceByDom(pElementDom)
 							let base64String = instance.getDataURL( {pixelRatio: $scope.echartsImgPixelRatio} )
 							doc.addImage(base64String, "PNG", pageElementDimensions.left, pageElementDimensions.top,
 									pageElementDimensions.width, pageElementDimensions.height, "", 'MEDIUM');
@@ -537,14 +560,14 @@ angular.module('reportingOverview').component('reportingOverview', {
 							break;
 						}
 						case "barchart": {
-							let instance = echarts.getInstanceByDom(domNode)
+							let instance = echarts.getInstanceByDom(pElementDom)
 							let base64String = instance.getDataURL( {pixelRatio: $scope.echartsImgPixelRatio} )
 							doc.addImage(base64String, "PNG", pageElementDimensions.left, pageElementDimensions.top,
 									pageElementDimensions.width, pageElementDimensions.height, "", 'MEDIUM');
 							break;
 						}
 						case "linechart": {
-							let instance = echarts.getInstanceByDom(domNode)
+							let instance = echarts.getInstanceByDom(pElementDom)
 							let base64String = instance.getDataURL( {pixelRatio: $scope.echartsImgPixelRatio} )
 							doc.addImage(base64String, "PNG", pageElementDimensions.left, pageElementDimensions.top,
 									pageElementDimensions.width, pageElementDimensions.height, "", 'MEDIUM');
@@ -586,10 +609,21 @@ angular.module('reportingOverview').component('reportingOverview', {
 			// creates a zip folder containing all echarts files
 			let zip = new JSZip();
 			for(let [idx, page] of $scope.config.pages.entries()) {
+				let pageDom = document.querySelector("#reporting-overview-page-" + idx);
 				for(let pageElement of page.pageElements) {
 					if(pageElement.type === "map" || pageElement.type === "barchart" || pageElement.type === "linechart") {
-						let domNode = document.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type);
-						let instance = echarts.getInstanceByDom(domNode);
+						let pElementDom;
+						if(pageElement.type === "linechart") {
+							let arr = pageDom.querySelectorAll(".type-linechart");
+							if(pageElement.showPercentageChangeToPrevTimestamp) {
+								pElementDom = arr[1];
+							} else {
+								pElementDom = arr[0];
+							}
+						} else {
+							pElementDom = pageDom.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type)
+						}
+						let instance = echarts.getInstanceByDom(pElementDom);
 						let base64String = instance.getDataURL({
 							type: "png",
 							pixelRatio: $scope.echartsImgPixelRatio
@@ -618,7 +652,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 			for(let [idx, page] of $scope.config.pages.entries()) {
 
 				let paragraphs = [];
-
+				let pageDom = document.querySelector("#reporting-overview-page-" + idx);
 				for(let pageElement of page.pageElements) {
 
 					let pageElementDimensionsPx = calculateDimensions(pageElement.dimensions, "px");
@@ -805,8 +839,18 @@ angular.module('reportingOverview').component('reportingOverview', {
 						case "map":
 						case "barchart":
 						case "linechart": {
-							let domNode = document.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type);
-							let instance = echarts.getInstanceByDom(domNode);
+							let pElementDom;
+							if(pageElement.type === "linechart") {
+								let arr = pageDom.querySelectorAll(".type-linechart");
+								if(pageElement.showPercentageChangeToPrevTimestamp) {
+									pElementDom = arr[1];
+								} else {
+									pElementDom = arr[0];
+								}
+							} else {
+								pElementDom = pageDom.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type)
+							}
+							let instance = echarts.getInstanceByDom(pElementDom);
 							let base64String = instance.getDataURL({
 							 		type: "png",
 							 		pixelRatio: $scope.echartsImgPixelRatio

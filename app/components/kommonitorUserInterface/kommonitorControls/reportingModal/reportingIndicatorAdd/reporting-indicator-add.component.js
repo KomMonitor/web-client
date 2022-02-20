@@ -803,26 +803,38 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		$scope.onAddNewIndicatorClicked = function() {
 			// for each page: add echarts configuration objects to the template
 			for(let [idx, page] of $scope.template.pages.entries()) {
+				let pageDom = document.querySelector("#reporting-addIndicator-page-" + idx);
+				
 				for(let pageElement of page.pageElements) {
-					let domNode = document.querySelector("#reporting-addIndicator-page-" + idx + "-" + pageElement.type);
+
+					let pElementDom;
+					if(pageElement.type === "linechart") {
+						let arr = pageDom.querySelectorAll(".type-linechart");
+						if(pageElement.showPercentageChangeToPrevTimestamp) {
+							pElementDom = arr[1];
+						} else {
+							pElementDom = arr[0];
+						}
+					} else {
+						pElementDom = pageDom.querySelector("#reporting-addIndicator-page-" + idx + "-" + pageElement.type)
+					}
 
 					if(pageElement.type === "map" || pageElement.type === "barchart" || pageElement.type === "linechart") {
-						let domNode = document.getElementById("reporting-addIndicator-page-" + idx + "-" + pageElement.type);
-						let instance = echarts.getInstanceByDom( domNode );
+						let instance = echarts.getInstanceByDom( pElementDom );
 						let options = JSON.parse(JSON.stringify( instance.getOption() ));
 						pageElement.echartsOptions = options;
 					}
 
 					if(pageElement.type === "datatable") {
 						// add some properties so we can recreate the table later
-						let columnHeaders = domNode.querySelectorAll("th");
+						let columnHeaders = pageDom.querySelectorAll("th");
 						let columnNames = [];
 						for(let header of columnHeaders) {
 							columnNames.push(header.innerText);
 						}
 						pageElement.columnNames = columnNames;
 						let tableData = [];
-						let rows = domNode.querySelectorAll("tbody tr");
+						let rows = pageDom.querySelectorAll("tbody tr");
 						for(let row of rows) {
 							let rowData = [];
 							let fields = row.querySelectorAll("td");
@@ -1117,7 +1129,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			options.toolbox.show = false;
 
 			// diagram contains avg series by default
-			// if it should be show we adjust it to our timeseries
+			// if it should be shown we adjust it to our timeseries
 			// future dates (compared to max slider value) were already filtered in prepareDiagrams
 			// we have to remove dates older than min slider value here
 			// we also have to filter xAxis labels accordingly
@@ -1190,6 +1202,14 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				
 					options.series.push(series)
 				}
+			}
+
+			if(pageElement.showPercentageChangeToPrevTimestamp) {
+				for(let series of options.series) {
+					series.data = $scope.transformSeriesDataToPercentageChange(series.data)
+				}
+				options.xAxis.data.shift();
+				options.title.text = "Veränderung zum Vorjahr";
 			}
 
 			if(pageElement.showBoxplots) {
@@ -1557,7 +1577,19 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 				for(let pageElement of page.pageElements) {
 
-					let pElementDom = pageDom.querySelector("#reporting-addIndicator-page-" + pageIdx + "-" + pageElement.type)
+					// usually each type is included only once per page, but there is an exception for linecharts in area specific part of timeseries template
+					// for now we more or less hardcode this, but it might have to change in the future
+					let pElementDom;
+					if(pageElement.type === "linechart") {
+						let arr = pageDom.querySelectorAll(".type-linechart");
+						if(pageElement.showPercentageChangeToPrevTimestamp) {
+							pElementDom = arr[1];
+						} else {
+							pElementDom = arr[0];
+						}
+					} else {
+						pElementDom = pageDom.querySelector("#reporting-addIndicator-page-" + pageIdx + "-" + pageElement.type)
+					}
 					
 					switch(pageElement.type) {
 						case "map":
@@ -1882,6 +1914,23 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			})
 			$scope.loadingData = false;
 			$scope.$apply();
+		}
+
+		$scope.transformSeriesDataToPercentageChange = function(dataArr) {
+			// we need at least two timestamps
+			if(dataArr.length <= 1) {
+				throw new Error("Can not calculate percentage change from a single timestamp.")
+			}
+			let result = [];
+			for(let i=1; i<dataArr.length;i++) {
+				let datapoint = dataArr[i];
+				let prevDatapoint = dataArr[i-1];
+				let value = (datapoint - prevDatapoint) / prevDatapoint;
+				value *= 100;
+				value =  Math.round( value * 100) / 100;
+				result.push(value);
+			}
+			return result;
 		}
 	}
 ]})
