@@ -53,7 +53,11 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"height": "440px"
 								},
 								"isPlaceholder": true,
-								"placeholderText": "Karte",
+								"placeholderText": 
+									"Übersichtskarte ohne Klassifizierung.\
+									Selektierte Bereiche farblich markiert.\
+									Beschriftung: Quote/Anzahl pro Bereich.\
+									Keine Hintergrundkarte.",
 								"colorScheme": undefined,
 								"classify": false,
 								
@@ -91,7 +95,10 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"height": "440px"
 								},
 								"isPlaceholder": true,
-								"placeholderText": "Karte",
+								"placeholderText": 
+									"Übersichtskarte klassifiziert.\
+									Beschriftung: Quote/Anzahl pro Bereich.\
+									Keine Hintergrundkarte.",
 								"colorScheme": undefined,
 								"classify": true,
 							},
@@ -139,7 +146,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"height": "440px"
 								},
 								"isPlaceholder": true,
-								"placeholderText": "Säulendiagramm"
+								"placeholderText": "Säulendiagramm. Eine Säule pro selektiertem Bereich + Durchschnitt der Gesamtstadt"
 							}
 						]
 					},
@@ -149,7 +156,21 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 						"area": "", // the area shown on this page or an empty string if it is a placeholder page
 						"pageElements": [
 
-							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("indicatorTitle-landscape"),
+							
+							// different placeholder so we don't use the default here
+							{
+								"type": "indicatorTitle-landscape",
+								"dimensions": {
+								  "top": "15px",
+								  "left": "15px",
+								  "width": "720px",
+								  "height": "30px"
+								},
+								"isPlaceholder": true,
+								"placeholderText": "Titel des Indikators, Bereich",
+								"text": "",
+								"css": "text-align: left; padding-left: 5px; font-weight: bold;"
+							},
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("communeLogo-landscape"),
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("dataTimestamp-landscape"),
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerHorizontalSpacer-landscape"),
@@ -165,7 +186,10 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"height": "440px"
 								},
 								"isPlaceholder": true,
-								"placeholderText": "Karte",
+								"placeholderText": 
+									"Karte.\
+									Detailansicht des Bereichs.\
+									Keine Hintergrundkarte.",
 								"colorScheme": undefined,
 								"classify": true,
 							},
@@ -178,7 +202,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"height": "140px"
 								},
 								"isPlaceholder": true,
-								"placeholderText": "Säulendiagramm"
+								"placeholderText": "Säulendiagramm. Vergleich des Bereichs mit dem Durchschnitt 1. aller selektierten Bereiche und 2. der Gesamtstadt."
 							},
 							{
 								"type": "textInput",
@@ -216,7 +240,9 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"height": "440px"
 								},
 								"isPlaceholder": true,
-								"placeholderText": "Datentabelle",
+								"placeholderText":
+									"Datentabelle (Spalten: Bereich, Wert).\
+									Ggf. über mehrere Seiten.",
 								"columnNames": [],
 								"tableData": []
 							}
@@ -249,7 +275,11 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"height": "440px"
 								},
 								"isPlaceholder": true,
-								"placeholderText": "Karte",
+								"placeholderText": 
+									"Übersichtskarte ohne Klassifizierung.\
+									Selektierte Bereiche farblich markiert.\
+									Beschriftung: Quote/Anzahl pro Bereich (aktuellster Wert).\
+									Keine Hintergrundkarte.",
 								"colorScheme": undefined,
 								"classify": false,
 							},
@@ -262,7 +292,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"height": "60px"
 								},
 								"isPlaceholder": true,
-								"placeholderText": "Durchschnitt Gesamtstadt"
+								"placeholderText": "Durchschnitt Gesamtstadt (aktuellster Wert)"
 							}
 						]
 					},
@@ -286,7 +316,11 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"height": "440px"
 								},
 								"isPlaceholder": true,
-								"placeholderText": "Karte",
+								"placeholderText": 
+									"Übersichtskarte, klassifiziert.\
+									Veränderung ältester Wert --> aktuellster Wert.\
+									Beschriftung: Veränderung in Einheit des Indikators.\
+									Keine Hintergrundkarte.",
 								"colorScheme": undefined,
 								"classify": true,
 								"isTimeseries": true
@@ -335,7 +369,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"height": "440px"
 								},
 								"isPlaceholder": true,
-								"placeholderText": "Liniendiagramm: eine Linie pro ausgewählter Raumeinheit + Durchschnitt Gesamtstadt",
+								"placeholderText": "Zeitreihendiagramm. Eine Linie pro ausgewähltem Bereich + Durchschnitt Gesamtstadt.",
 								"showAverage": true,
 								"showAreas": true,
 								"showBoxplots": false
@@ -363,7 +397,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"height": "440px"
 								},
 								"isPlaceholder": true,
-								"placeholderText": "Liniendiagramm: Durchschnitt Gesamtstadt + Boxplot pro Zeitpunkt",
+								"placeholderText": "Zeitreihendiagramm. Durchschnitt Gesamtstadt + Boxplot pro Zeitpunkt",
 								"showAverage": true,
 								"showAreas": false,
 								"showBoxplots": true
@@ -377,7 +411,20 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 						"area": "",
 						"pageElements": [
 
-							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("indicatorTitle-landscape"),
+							// different placeholder so we don't use the default here
+							{
+								"type": "indicatorTitle-landscape",
+								"dimensions": {
+								  "top": "15px",
+								  "left": "15px",
+								  "width": "720px",
+								  "height": "30px"
+								},
+								"isPlaceholder": true,
+								"placeholderText": "Titel des Indikators, Bereich",
+								"text": "",
+								"css": "text-align: left; padding-left: 5px; font-weight: bold;"
+							},
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("communeLogo-landscape"),
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("dataTimeseries-landscape"),
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerHorizontalSpacer-landscape"),
@@ -393,7 +440,10 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"height": "440px"
 								},
 								"isPlaceholder": true,
-								"placeholderText": "Karte",
+								"placeholderText": 
+									"Karte.\
+									Detailansicht des Bereichs.\
+									Keine Hintergrundkarte.",
 								"colorScheme": undefined,
 								"classify": true,
 								"isTimeseries": true
@@ -407,7 +457,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"height": "140px"
 								},
 								"isPlaceholder": true,
-								"placeholderText": "Liniendiagramm",
+								"placeholderText": "Zeitreihendiagramm. Vergleich des Bereichs mit dem Durchschnitt der Gesamtstadt.",
 								"showAverage": true,
 								"showAreas": true,
 								"showBoxplots": false
@@ -422,7 +472,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"height": "140px"
 								},
 								"isPlaceholder": true,
-								"placeholderText": "Liniendiagramm - proz. Veränderung zum Vorjahr",
+								"placeholderText": "Liniendiagramm. Veränderung zum Vorjahr in Prozent",
 								"showAverage": true,
 								"showAreas": true,
 								"showAverage": true,
@@ -465,7 +515,9 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 									"height": "440px"
 								},
 								"isPlaceholder": true,
-								"placeholderText": "Datentabelle",
+								"placeholderText":
+									"Datentabelle (Spalten: Bereich, Zeitpunkt, Wert).\
+									Ggf. über mehrere Seiten.",
 								"columnNames": [],
 								"tableData": []
 							},
@@ -522,7 +574,21 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 						"area": "",
 						"pageElements": [
 
-							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("indicatorTitle-landscape"),
+							
+							// different placeholder so we don't use the default here
+							{
+								"type": "indicatorTitle-landscape",
+								"dimensions": {
+								  "top": "15px",
+								  "left": "15px",
+								  "width": "720px",
+								  "height": "30px"
+								},
+								"isPlaceholder": true,
+								"placeholderText": "Titel des Indikators, Bereich",
+								"text": "",
+								"css": "text-align: left; padding-left: 5px; font-weight: bold;"
+							},
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("communeLogo-landscape"),
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("dataTimestamp-landscape"),
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("footerHorizontalSpacer-landscape"),
@@ -530,7 +596,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 							kommonitorDataExchangeService.getDefaultReportingTemplatePageElement("pageNumber-landscape"),
 							
 							{
-								// isochrones,background map in black-white 
+								// isochrones, background map in grayscale 
 								"type": "map",
 								"dimensions": {
 									"top": "90px",
