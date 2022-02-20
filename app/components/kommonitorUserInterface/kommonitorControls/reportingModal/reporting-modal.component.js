@@ -41,7 +41,6 @@ angular.module('reportingModal').component('reportingModal', {
 
 		$scope.$on('reportingAddNewIndicatorClicked', function(event, data) {
 			$scope.addingNewIndicator = false; // return to overview
-			console.log("Data from adding new indicator: ", data)
 			$scope.$broadcast('reportingIndicatorConfigurationCompleted', data)
 		});
 
