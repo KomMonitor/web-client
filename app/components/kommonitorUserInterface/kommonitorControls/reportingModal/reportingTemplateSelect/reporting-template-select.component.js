@@ -7,7 +7,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 			creator: "M. Mustermann",
 			commune: "Testkommune",
 			communeLogo: "",
-			creationDate: "2022-01-01",
+			creationDate: getCurrentDate(),
 			freeText: "Text",
 		}
 		$scope.availableTemplateCategories = [
@@ -786,5 +786,13 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 				}
 			}
 		}
-    }
+
+		// Format: YYYY-MM-DD
+		function getCurrentDate() {
+			let now = new Date();
+			const offset = now.getTimezoneOffset()
+			now = new Date(now.getTime() - (offset*60*1000))
+			return now.toISOString().split('T')[0]
+		}
+	}
 ]});
