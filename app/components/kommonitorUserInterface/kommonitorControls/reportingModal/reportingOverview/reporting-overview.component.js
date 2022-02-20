@@ -551,7 +551,10 @@ angular.module('reportingOverview').component('reportingOverview', {
 							break;
 						}
 						case "textInput": {
-							doc.text(pageElement.text, pageElementDimensions.left, pageElementDimensions.top, { baseline: "top" })
+							doc.text(pageElement.text, pageElementDimensions.left, pageElementDimensions.top, {
+								baseline: "top",
+								maxWidth: pageElementDimensions.width
+							})
 							break;
 						}
 						case "datatable": {
@@ -963,6 +966,35 @@ angular.module('reportingOverview').component('reportingOverview', {
 										style: docx.BorderStyle.SINGLE,
 										size: 6 
 									},
+								}
+							});
+							
+							paragraphs.push(paragraph);
+							break;
+						}
+						case "textInput": {
+							let paragraph = new docx.Paragraph({
+								children: [
+									new docx.TextRun({
+										text: pageElement.text,
+										size: 24 // 12pt
+									})
+								],
+								frame: {
+									position: {
+										x: pageElementDimensionsTwip.left,
+										y: pageElementDimensionsTwip.top,
+									},
+									width: pageElementDimensionsTwip.width,
+									height: pageElementDimensionsTwip.height,
+									anchor: {
+										horizontal: docx.FrameAnchorType.MARGIN,
+										vertical: docx.FrameAnchorType.MARGIN,
+									},
+									alignment: {
+										x: docx.HorizontalPositionAlign.LEFT,
+										y: docx.VerticalPositionAlign.TOP,
+									}
 								}
 							});
 							
