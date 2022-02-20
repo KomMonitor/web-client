@@ -8,7 +8,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 			commune: "Testkommune",
 			communeLogo: "",
 			creationDate: "2022-01-01",
-			freeText: "Text123",
+			freeText: "Text",
 		}
 		$scope.availableTemplateCategories = [
 			{
@@ -26,7 +26,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 		]
 
 		// A basic version of the templates.
-    	// These are not full-fledged templates yet, but they can serve as a starting point and are adjusted according to user choices dynamically.
+		// These are not full-fledged templates yet, but they can serve as a starting point and are adjusted according to user choices dynamically.
 		$scope.availableTemplates = [
 			{
 				"name": "A4-landscape-timestamp",
@@ -653,7 +653,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 					pageElement.isPlaceholder = (
 						pageElement.type === "footerCreationInfo-landscape" ||
 						pageElement.type === "pageNumber-landscape" ||
-						pageElement.type === "freetext-landscape"
+						pageElement.type === "textInput"
 						) ? false : true;
 				})
 			}
@@ -664,7 +664,7 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 						el.isPlaceholder = (
 							el.type === "footerCreationInfo-landscape" ||
 							el.type === "pageNumber-landscape" ||
-							el.type === "freetext-landscape"
+							el.type === "textInput"
 							) ? false : true;
 					}
 				}
