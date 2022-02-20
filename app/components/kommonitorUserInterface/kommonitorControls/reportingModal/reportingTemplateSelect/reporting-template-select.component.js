@@ -9,8 +9,6 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 			communeLogo: "",
 			creationDate: "2022-01-01",
 			freeText: "Text123",
-			includeCoverPage: true,
-			documentTitle: ""
 		}
 		$scope.availableTemplateCategories = [
 			{
