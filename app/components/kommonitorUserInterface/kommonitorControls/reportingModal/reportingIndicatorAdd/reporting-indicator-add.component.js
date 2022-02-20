@@ -1764,7 +1764,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 		$scope.getFormattedDateSliderValues = function(includeInBetweenValues) {
 			if(!$scope.dateSlider)
-				throw "Tried to get dateslider values but dateslider was not defined.";
+				throw new Error("Tried to get dateslider values but dateslider was not defined.");
 			
 			let slider = $scope.dateSlider
 			let from = new Date(slider.result.from_value);

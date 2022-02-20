@@ -287,61 +287,71 @@ angular.module('reportingOverview').component('reportingOverview', {
 		$scope.importConfig = function(config) {
 			$scope.loadingData = true;
 			$scope.$apply();
-			// restore indicators from indicator names
-			let indicators = [];
-			for(let name of config.indicators) {
-				indicators.push( getIndicatorByName(name) );
-				
-			}
-			// restore commune logo for every page, starting at the second
-			let communeLogoSrc = ""; // base64 string
-			for(let [idx, page] of config.pages.entries()) {
-				for(let pageElement of page.pageElements) {
-					if(pageElement.type === "communeLogo-landscape" && idx === 0) {
-						if(pageElement.src && pageElement.src.length) {
-							communeLogoSrc = pageElement.src;
-						} else {
-							break; // no logo was exported
+			try {
+				// restore indicators from indicator names
+				let indicators = [];
+				for(let name of config.indicators) {
+					indicators.push( getIndicatorByName(name) );
+
+				}
+				// restore commune logo for every page, starting at the second
+				let communeLogoSrc = ""; // base64 string
+				for(let [idx, page] of config.pages.entries()) {
+					for(let pageElement of page.pageElements) {
+						if(pageElement.type === "communeLogo-landscape" && idx === 0) {
+							if(pageElement.src && pageElement.src.length) {
+								communeLogoSrc = pageElement.src;
+							} else {
+								break; // no logo was exported
+							}
+						}
+
+						if(pageElement.type === "communeLogo-landscape" && idx > 0) {
+							pageElement.src = communeLogoSrc;
 						}
 					}
-
-					if(pageElement.type === "communeLogo-landscape" && idx > 0) {
-						pageElement.src = communeLogoSrc;
-					}
 				}
-			}
-			$scope.config.indicators = indicators;
-			$scope.config.template = config.template;
-			$scope.config.pages = config.pages;
-			$scope.$apply();
-			for(let indicator of $scope.config.indicators) {
-				$scope.setupNewPages(indicator);
+				$scope.config.indicators = indicators;
+				$scope.config.template = config.template;
+				$scope.config.pages = config.pages;
+				$scope.$apply();
+				for(let indicator of $scope.config.indicators) {
+					$scope.setupNewPages(indicator);
+				}
+			} catch (error) {
+				$scope.loadingData = false;
+				kommonitorDataExchangeService.displayMapApplicationError(error.message);
 			}
 		}
 
 		$scope.exportConfig = function() {
-			let jsonToExport = {};
-			jsonToExport.pages = $scope.config.pages;
-			jsonToExport.template = $scope.config.template;
-			// replace indicators with indicator names to reduce file size
-			jsonToExport.indicators = $scope.config.indicators.map( indicator => indicator.indicatorName);
-			// only store commune logo once (in first page)
-			for(let [idx, page] of jsonToExport.pages.entries()) {
-				for(let pageElement of page.pageElements) {
-					if(pageElement.type === "communeLogo-landscape" && idx > 0) {
-						pageElement.src = "";
+			try {
+				let jsonToExport = {};
+				jsonToExport.pages = angular.fromJson(angular.toJson( $scope.config.pages ));
+				jsonToExport.template = angular.fromJson(angular.toJson( $scope.config.template ));
+				// replace indicators with indicator names to reduce file size
+				jsonToExport.indicators = $scope.config.indicators.map( indicator => indicator.indicatorName);
+				// only store commune logo once (in first page)
+				for(let [idx, page] of jsonToExport.pages.entries()) {
+					for(let pageElement of page.pageElements) {
+						if(pageElement.type === "communeLogo-landscape" && idx > 0) {
+							pageElement.src = "";
+						}
 					}
 				}
+
+				let jsonString = "data:text/json;charset=utf-8," + encodeURIComponent( angular.toJson(jsonToExport) );
+				// to download json, a DOM element is created, clicked and removed
+				let downloadAnchorNode = document.createElement('a');
+				downloadAnchorNode.setAttribute("href", jsonString);
+				downloadAnchorNode.setAttribute("download", getCurrentDateAndTime() + "_KomMonitor-Reporting-Konfiguration.json");
+				document.body.appendChild(downloadAnchorNode); // required for firefox
+				downloadAnchorNode.click();
+				downloadAnchorNode.remove();
+			} catch (error) {
+				kommonitorDataExchangeService.displayMapApplicationError(error.message);
 			}
 			
-			let jsonString = "data:text/json;charset=utf-8," + encodeURIComponent( angular.toJson(jsonToExport) );
-			// to download json, a DOM element is created, clicked and removed
-			let downloadAnchorNode = document.createElement('a');
-			downloadAnchorNode.setAttribute("href", jsonString);
-			downloadAnchorNode.setAttribute("download", getCurrentDateAndTime() + "_KomMonitor-Reporting-Konfiguration.json");
-			document.body.appendChild(downloadAnchorNode); // required for firefox
-			downloadAnchorNode.click();
-			downloadAnchorNode.remove();
 		}
 
 		function getCurrentDateAndTime() {
@@ -368,7 +378,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 			if(result) {
 				return result
 			} else {
-				throw "No indicator could be found for name: " + indicatorName;
+				throw new Error("No indicator could be found for name: " + indicatorName)
 			}
 		}
 
@@ -408,9 +418,15 @@ angular.module('reportingOverview').component('reportingOverview', {
 
 		$scope.generateReport = function(format) {
 			$scope.loadingData = true;
-			format === "pdf" && $scope.generatePdfReport();
-			format === "word" && $scope.generateWordReport();
-			format === "zip" && $scope.generateZipFolder();
+
+			try {
+				format === "pdf" && $scope.generatePdfReport();
+				format === "word" && $scope.generateWordReport();
+				format === "zip" && $scope.generateZipFolder();
+			} catch (error) {
+				$scope.loadingData = false;
+				kommonitorDataExchangeService.displayMapApplicationError(error.message);
+			}
 		}
 			
 		$scope.generatePdfReport = function() {
@@ -427,13 +443,12 @@ angular.module('reportingOverview').component('reportingOverview', {
 			let fontName = "times";
 			doc.setDrawColor(148, 148, 148);
 			doc.setFont(fontName, "normal", "normal"); // name, normal/italic, fontweight
-
+			
 			for(let [idx, page] of $scope.config.pages.entries()) {
 				if(idx > 0) {
 					doc.addPage();
 				}
 
-				
 				for(let pageElement of page.pageElements) {
 
 					let domNode = document.querySelector("#reporting-overview-page-" + idx + "-" + pageElement.type);

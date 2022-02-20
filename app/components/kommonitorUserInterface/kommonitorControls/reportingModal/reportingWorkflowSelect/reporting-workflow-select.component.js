@@ -23,7 +23,7 @@ angular.module('reportingWorkflowSelect').component('reportingWorkflowSelect', {
 			} else if(type === "existing") {
 				$scope.$emit('reportingWorkflowSelected', config)
 			} else {
-				throw "Workflow type was neither 'new' nor 'existing'"
+				throw new Error("Workflow type was neither 'new' nor 'existing'")
 			}
 		}
 

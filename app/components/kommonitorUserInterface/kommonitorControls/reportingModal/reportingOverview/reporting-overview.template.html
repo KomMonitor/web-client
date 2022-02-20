@@ -129,7 +129,7 @@
                         &nbsp;&nbsp;Einstellungen exportieren
                     </button>
                     <button type="button" class="btn btn-success pull-right" data-toggle="modal" data-target="#reporting-report-formats-selection"
-                        ng-disabled="loadingData">
+                        ng-disabled="loadingData || config.indicators.length == 0">
                         <i class="fa fa-copy"></i>
                         &nbsp;&nbsp;Report erzeugen
                     </button> 
