@@ -159,7 +159,7 @@ angular
                                     row.mappingObj.propertyMapping.spatialReferenceKeyProperty,
                                     row.mappingObj.propertyMapping.timeseriesMappings,
                                     keepMissingOrNullValueIndicator
-                                )
+                                );
     
                                 console.log("propertyMappingDefinition of row " + i + " with importerService: ", propertyMappingDefinition);
     
@@ -173,8 +173,8 @@ angular
                                     "allowedRoleNames": {
                                         "selectedItems": [] // do not allow to change roles in batch update
                                     }
-                                }
-                                 var putBody_indicators = kommonitorImporterHelperService.buildPutBody_indicators(scopeProperties)
+                                };
+                                 var putBody_indicators = kommonitorImporterHelperService.buildPutBody_indicators(scopeProperties);
                                  //console.log("putBody_indicators of row " + i + ": ", putBody_indicators);
          
                                  // send post request and wait for it to complete
@@ -237,7 +237,7 @@ angular
                             value: responses
                         });
                     } catch (error) {
-                        console.error("An error occurred during the batch update: ", error)
+                        console.error("An error occurred during the batch update: ", error);
                     } finally {
                         startBtn.removeAttribute("disabled");
                         startBtn.innerHTML = "Update starten";
@@ -293,9 +293,11 @@ angular
                     objToExport.dataSource = this.buildDataSourceDefinition(row.selectedDatasourceType, objToExport.dataSource, false)
 
                     if(resourceType === "indicator" ) {
-                        if(typeof(row.selectedTargetSpatialUnit) === undefined)
+                        if(! row.selectedTargetSpatialUnit || ! row.selectedTargetSpatialUnit.spatialUnitLevel)
                             console.error("Ziel-Raumebene* is not defined.")
-                        objToExport.targetSpatialUnitName = row.selectedTargetSpatialUnit.spatialUnitLevel;
+                        else{
+                            objToExport.targetSpatialUnitName = row.selectedTargetSpatialUnit.spatialUnitLevel;
+                        }                            
                     }
                         
 
@@ -553,6 +555,10 @@ angular
                 // selectedConverter = the currently selected converter in the dropdown
                 // oldConverter = the converter property from a mapping object.
                 this.buildConverterDefinition = function (selectedConverter, oldConverter) {
+
+                    if (! selectedConverter){
+                        return oldConverter;
+                    }
                     
                     var converterDefinition = {
                         encoding: selectedConverter.encodings[0],
@@ -624,6 +630,10 @@ angular
                 // selectedDatasourceType = the currently selected datasource in the dropdown
                 // oldDataSource = the datasource property from a mapping object.
                 this.buildDataSourceDefinition = function (selectedDatasourceType, oldDataSource, includeFileName) {
+
+                    if (! selectedDatasourceType){
+                        return oldDataSource;
+                    }
 
                     var dataSourceDefinition = {
                         parameters: [],
