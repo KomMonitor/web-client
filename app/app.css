@@ -965,6 +965,15 @@ pre.CodeMirror-line {
 	height: 45vh !important;
 }
 
+.ag-cell { 
+	font-size: 12px;
+	white-space: normal ;
+	line-height: 20px !important; 
+	word-break: break-word !important; 
+	padding-top: 17px;
+	padding-bottom: 17px;
+}
+
 .admin-table-wrapper{
 	width: 100%;
 	max-width: 100%;

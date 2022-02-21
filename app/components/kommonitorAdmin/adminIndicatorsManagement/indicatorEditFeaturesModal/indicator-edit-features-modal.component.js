@@ -172,7 +172,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 					}
 	
 					$scope.remainingFeatureHeaders = tmpRemainingHeaders;
-					kommonitorDataGridHelperService.buildDataGrid_featureTable("indicatorFeatureTable", tmpRemainingHeaders, $scope.indicatorFeaturesJSON);
+					kommonitorDataGridHelperService.buildDataGrid_featureTable("indicatorFeatureTable", tmpRemainingHeaders, $scope.indicatorFeaturesJSON, $scope.currentIndicatorDataset.indicatorId, kommonitorDataGridHelperService.resourceType_indicator);
 
 	
 						$scope.loadingData = false;

@@ -129,7 +129,7 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 
 				$scope.remainingFeatureHeaders = tmpRemainingHeaders;
 
-				kommonitorDataGridHelperService.buildDataGrid_featureTable("spatialUnitFeatureTable", tmpRemainingHeaders, $scope.spatialUnitFeaturesGeoJSON.features);
+				kommonitorDataGridHelperService.buildDataGrid_featureTable("spatialUnitFeatureTable", tmpRemainingHeaders, $scope.spatialUnitFeaturesGeoJSON.features, $scope.currentSpatialUnitDataset.spatialUnitId, kommonitorDataGridHelperService.resourceType_spatialUnit);
 
 				$timeout(function(){
 				

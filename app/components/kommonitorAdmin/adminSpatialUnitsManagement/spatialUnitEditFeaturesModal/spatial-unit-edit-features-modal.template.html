@@ -61,8 +61,17 @@
 									</div>
 									<div class="col-md-6 col-sm-6 col-xs-12">
 										<div class="form-group">
-											<label>Datenbank-Features bereinigen</label>
-											<button class="btn btn-danger" ng-click="clearAllSpatialUnitFeatures()"><i
+											<label >Datenbank-Features bereinigen (Funktion muss zuerst aktiv eingeschaltet werden)</label>										
+										<label class="switch">
+											<input class="elementCheckbox" type="checkbox"
+												ng-model="enableDeleteFeatures" ng-init="enableDeleteFeatures = false"
+												ng-checked="enableDeleteFeatures">
+											<span class="switchslider round text-left" style="line-height:25px;"></span>
+										</label>
+
+										&nbsp;&nbsp;
+
+											<button class="btn btn-danger" ng-click="clearAllSpatialUnitFeatures()" ng-disabled="!enableDeleteFeatures"><i
 													class="fas fa-trash"></i>&nbsp;Lösche alle Features</button>
 
 											<div class="help-block">
