@@ -46,7 +46,7 @@
 								<div class="row vertical-align">
 									<div class="col-md-6 col-sm-6 col-xs-12">
 										<div class="form-group">
-											<label>Datenbank-Features holen</label>
+											<label>Datenbank-Features abrufen und editieren</label>
 											<button class="btn btn-info"
 												ng-click="refreshSpatialUnitEditFeaturesOverviewTable()"><i
 													class="fas fa-sync-alt"></i>&nbsp;Zeige alle Features</button>
@@ -55,6 +55,7 @@
 												<p>Das Anzeigen aller Features der Raumeinheit kann je nach Anzahl und
 													Komplexität der Objekte einige
 													Zeit in Anspruch nehmen</p>
+												<p>Editieren einzelner Zellwerte via Doppelklick. Best&auml;tigen der Editierung durch Enter oder Klicken in eine andere Zelle</p>
 											</div>
 											<div class="help-block with-errors"></div>
 										</div>
@@ -81,6 +82,17 @@
 											</div>
 											<div class="help-block with-errors"></div>
 										</div>
+									</div>
+								</div>
+
+								<div>
+									<div ng-show="$ctrl.kommonitorDataGridHelperServiceInstance.featureTable_spatialUnit_lastUpdate_timestamp_success != ''" style="background-color: #9DC89F;">
+										<b>Letztes erfolgreiches Update eines Einzeleintrags</b>
+											  {{$ctrl.kommonitorDataGridHelperServiceInstance.featureTable_spatialUnit_lastUpdate_timestamp_success}}
+									</div>
+									<div ng-show="$ctrl.kommonitorDataGridHelperServiceInstance.featureTable_spatialUnit_lastUpdate_timestamp_failure != ''" style="background-color: #E79595;">
+										<b>Letztes gescheitertes Update eines Einzeleintrags</b>
+												{{$ctrl.kommonitorDataGridHelperServiceInstance.featureTable_spatialUnit_lastUpdate_timestamp_failure}}
 									</div>
 								</div>
 

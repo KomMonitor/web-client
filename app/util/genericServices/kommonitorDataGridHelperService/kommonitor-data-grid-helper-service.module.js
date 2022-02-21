@@ -14,6 +14,11 @@ angular
       this.resourceType_spatialUnit = "spatialUnit";
       this.resourceType_indicator = "indicator";
 
+      this.featureTable_spatialUnit_lastUpdate_timestamp_success = "";
+      this.featureTable_spatialUnit_lastUpdate_timestamp_failure = "";
+      this.featureTable_georesource_lastUpdate_timestamp_success = "";
+      this.featureTable_georesource_lastUpdate_timestamp_failure = "";
+
       this.dataGridOptions_indicators;
       this.dataGridOptions_georesources_poi;
       this.dataGridOptions_georesources_loi;
@@ -1207,10 +1212,10 @@ angular
 
       // FEATURE TABLES
 
-      this.buildDataGridColumnConfig_featureTable = function(specificHeadersArray){
+      this.buildDataGridColumnConfig_featureTable_spatialResource = function(specificHeadersArray){
         const columnDefs = [
-          { headerName: 'DB-Record-Id', field: "kommonitorRecordId", pinned: 'left', editable: false, maxWidth: 125 },
-          { headerName: 'Feature-Id', field: __env.FEATURE_ID_PROPERTY_NAME, pinned: 'left', editable: false, maxWidth: 125 },
+          { headerName: 'DB-Record-Id', field: "kommonitorRecordId", pinned: 'left', editable: false, cellClass: "grid-non-editable", maxWidth: 125 },
+          { headerName: 'Feature-Id', field: __env.FEATURE_ID_PROPERTY_NAME, pinned: 'left', editable: false, cellClass: "grid-non-editable", maxWidth: 125 },
           { headerName: 'Name', field: __env.FEATURE_NAME_PROPERTY_NAME, pinned: 'left', minWidth: 300 }, 
           { headerName: 'Geometrie', field: "kommonitorGeometry", autoHeight: false, wrapText: false,
             cellRenderer: function (params) {
@@ -1275,7 +1280,7 @@ angular
         return columnDefs;
       };
 
-      this.buildDataGridRowData_featureTable = function(dataArray){
+      this.buildDataGridRowData_featureTable_spatialResource = function(dataArray){
 
         
         if(dataArray[0] && dataArray[0].properties){
@@ -1295,9 +1300,9 @@ angular
         return (new Date(date) !== "Invalid Date") && !isNaN(new Date(date));
       }
 
-      this.buildDataGridOptions_featureTable = function(specificHeadersArray, dataArray, datasetId, resourceType){
-          let columnDefs = this.buildDataGridColumnConfig_featureTable(specificHeadersArray);
-          let rowData = this.buildDataGridRowData_featureTable(dataArray);
+      this.buildDataGridOptions_featureTable_spatialResource = function(specificHeadersArray, dataArray, datasetId, resourceType){
+          let columnDefs = this.buildDataGridColumnConfig_featureTable_spatialResource(specificHeadersArray);
+          let rowData = this.buildDataGridRowData_featureTable_spatialResource(dataArray);
   
           let gridOptions = {
             defaultColDef: {
@@ -1367,14 +1372,14 @@ angular
                   if(resourceType == self.resourceType_georesource){
                     url += "/georesources/";
                   }
-                  else if(resourceType == self.resourceType_spatialUnit){
+                  else {
                     url += "/spatial-units/";
-                  }
-                  else{
-                    url += "/indicators/";
                   }
                   
                   url += datasetId + "/singleFeature/" + newValueParams.data[__env.FEATURE_ID_PROPERTY_NAME] + "/singleFeatureRecord/" + newValueParams.data.kommonitorRecordId;
+
+                  var timstamp = new Date();
+                  var timestamp_string = timstamp.getHours() + ":" + timstamp.getMinutes() + ":" + timstamp.getSeconds();  
 
                   $http({
                     url: url,
@@ -1388,6 +1393,23 @@ angular
                       // when the response is available
 
                       console.log("Successfully updated database record");
+
+                      // on success mark grid cell with green background and set update information
+                      newValueParams.colDef.cellStyle = (p) =>
+                          p.rowIndex.toString() === newValueParams.node.id ? {'background-color': '#9DC89F'} : "";
+
+                          newValueParams.api.refreshCells({
+                          force: true,
+                          columns: [newValueParams.column.getId()],
+                          rowNodes: [newValueParams.node]
+                      });
+                                      
+                      if(resourceType == self.resourceType_georesource){
+                        self.featureTable_georesource_lastUpdate_timestamp_success = timestamp_string;
+                      }
+                      else {
+                        self.featureTable_spatialUnit_lastUpdate_timestamp_success = timestamp_string;
+                      }                    
             
                     }, function errorCallback(error) {
                       // called asynchronously if an error occurs
@@ -1397,6 +1419,22 @@ angular
 
                       // reset cell value as an error occurred
                       newValueParams.data[newValueParams.column.colId] = newValueParams.oldValue;
+
+                      // on failure mark grid cell with red background and set update failure information
+                      newValueParams.colDef.cellStyle = (p) =>
+                          p.rowIndex.toString() === newValueParams.node.id ? {'background-color': '#E79595'} : "";
+
+                          newValueParams.api.refreshCells({
+                          force: true,
+                          columns: [newValueParams.column.getId()],
+                          rowNodes: [newValueParams.node]
+                      });
+                      if(resourceType == self.resourceType_georesource){
+                        self.featureTable_georesource_lastUpdate_timestamp_failure = timestamp_string;
+                      }
+                      else {
+                        self.featureTable_spatialUnit_lastUpdate_timestamp_failure = timestamp_string;
+                      }   
                       throw error;
                   }); 
               },
@@ -1455,8 +1493,16 @@ angular
       };
 
       this.buildDataGrid_featureTable = function (domElementId, specificHeadersArray, dataArray, datasetId, resourceType) {
+
+        let dataGridOptions_featureTable;
+
+        if(resourceType == self.resourceType_spatialUnit || resourceType == self.resourceType_georesource){
+          dataGridOptions_featureTable = this.buildDataGridOptions_featureTable_spatialResource(specificHeadersArray, dataArray, datasetId, resourceType);
+        }
+        else{
+          dataGridOptions_featureTable = this.buildDataGridOptions_featureTable_spatialResource(specificHeadersArray, dataArray, datasetId, resourceType);
+        }
         
-          let dataGridOptions_featureTable = this.buildDataGridOptions_featureTable(specificHeadersArray, dataArray, datasetId, resourceType);
           let gridDiv = document.querySelector('#' + domElementId);
           while (gridDiv.firstChild) {
             gridDiv.removeChild(gridDiv.firstChild);

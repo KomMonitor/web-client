@@ -974,6 +974,10 @@ pre.CodeMirror-line {
 	padding-bottom: 17px;
 }
 
+.grid-non-editable { 
+	background-color: #D7D7D7;
+}
+
 .admin-table-wrapper{
 	width: 100%;
 	max-width: 100%;

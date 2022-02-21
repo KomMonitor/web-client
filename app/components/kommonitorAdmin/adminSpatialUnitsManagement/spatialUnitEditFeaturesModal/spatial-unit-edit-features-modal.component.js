@@ -6,6 +6,7 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 		this.kommonitorImporterHelperServiceInstance = kommonitorImporterHelperService;
+		this.kommonitorDataGridHelperServiceInstance = kommonitorDataGridHelperService;
 
 		/*	POST BODY
 				{

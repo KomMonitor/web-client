@@ -6,6 +6,7 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 		this.kommonitorImporterHelperServiceInstance = kommonitorImporterHelperService;
+		this.kommonitorDataGridHelperServiceInstance = kommonitorDataGridHelperService;
 
 		/*	PUT BODY
 		{
