@@ -81,7 +81,7 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 
 				$scope.resetGeoresourceEditFeaturesForm();
 
-				kommonitorDataGridHelperService.buildDataGrid_featureTable("georesourceFeatureTable", [], []);
+				kommonitorDataGridHelperService.buildDataGrid_featureTable_spatialResource("georesourceFeatureTable", [], []);
 
 			}
 
@@ -114,7 +114,7 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 				// as we require the information about the dataset ID within each feature to enable feature record updates from within the datatable
 				// we must include the dataset ID within each feature 
 
-				kommonitorDataGridHelperService.buildDataGrid_featureTable("georesourceFeatureTable", tmpRemainingHeaders, $scope.georesourceFeaturesGeoJSON.features, $scope.currentGeoresourceDataset.georesourceId, kommonitorDataGridHelperService.resourceType_georesource, $scope.enableDeleteFeatures);
+				kommonitorDataGridHelperService.buildDataGrid_featureTable_spatialResource("georesourceFeatureTable", tmpRemainingHeaders, $scope.georesourceFeaturesGeoJSON.features, $scope.currentGeoresourceDataset.georesourceId, kommonitorDataGridHelperService.resourceType_georesource, $scope.enableDeleteFeatures);
 
 
 					$scope.loadingData = false;

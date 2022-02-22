@@ -18,6 +18,8 @@ angular
       this.featureTable_spatialUnit_lastUpdate_timestamp_failure = "";
       this.featureTable_georesource_lastUpdate_timestamp_success = "";
       this.featureTable_georesource_lastUpdate_timestamp_failure = "";
+      this.featureTable_indicator_lastUpdate_timestamp_success = "";
+      this.featureTable_indicator_lastUpdate_timestamp_failure = "";
 
       this.dataGridOptions_indicators;
       this.dataGridOptions_georesources_poi;
@@ -1266,6 +1268,10 @@ angular
 
       // FEATURE TABLES
 
+      const isDate = (date) => {
+        return (new Date(date) !== "Invalid Date") && !isNaN(new Date(date));
+      }
+
       this.buildDataGridColumnConfig_featureTable_spatialResource = function(specificHeadersArray, datasetId, resourceType, deleteButtonEnabled){
         const columnDefs = [
           { headerName: 'DB-Record-Id', field: "kommonitorRecordId", pinned: 'left', editable: false, cellClass: "grid-non-editable", maxWidth: 125,
@@ -1290,6 +1296,8 @@ angular
               else {
                 html += '<button id="btn__georesource__deleteFeatureEntry__' + datasetId + '__' + params.data[__env.FEATURE_ID_PROPERTY_NAME] + '__' + params.data.kommonitorRecordId + '" class="btn btn-danger btn-sm georesourceDeleteFeatureRecordBtn" type="button" title="Datenobjekt unwiderruflich entfernen"  ' + (deleteButtonEnabled ? '' : 'disabled') + '><i class="fas fa-trash"></i></button>';
               }
+
+              html += "<br/>";
 
               html += params.data.kommonitorRecordId;
 
@@ -1376,10 +1384,6 @@ angular
         
         return dataArray;
       };
-
-      const isDate = (date) => {
-        return (new Date(date) !== "Invalid Date") && !isNaN(new Date(date));
-      }
 
       this.buildDataGridOptions_featureTable_spatialResource = function(specificHeadersArray, dataArray, datasetId, resourceType, deleteButtonEnabled){
           let columnDefs = this.buildDataGridColumnConfig_featureTable_spatialResource(specificHeadersArray, datasetId, resourceType, deleteButtonEnabled);
@@ -1632,37 +1636,268 @@ angular
         
       }; 
 
-      this.buildDataGrid_featureTable = function (domElementId, specificHeadersArray, dataArray, datasetId, resourceType, deleteButtonEnabled) {
+      this.buildDataGrid_featureTable_spatialResource = function (domElementId, specificHeadersArray, dataArray, datasetId, resourceType, deleteButtonEnabled) {
 
         let dataGridOptions_featureTable;
 
-        if(resourceType == self.resourceType_spatialUnit || resourceType == self.resourceType_georesource){
-          dataGridOptions_featureTable = this.buildDataGridOptions_featureTable_spatialResource(specificHeadersArray, dataArray, datasetId, resourceType, deleteButtonEnabled);
-        }
-        else{
-          dataGridOptions_featureTable = this.buildDataGridOptions_featureTable_spatialResource(specificHeadersArray, dataArray, datasetId, resourceType);
-        }
+        dataGridOptions_featureTable = this.buildDataGridOptions_featureTable_spatialResource(specificHeadersArray, dataArray, datasetId, resourceType, deleteButtonEnabled);
         
           let gridDiv = document.querySelector('#' + domElementId);
           while (gridDiv.firstChild) {
             gridDiv.removeChild(gridDiv.firstChild);
           }
           new agGrid.Grid(gridDiv, dataGridOptions_featureTable);
+      };
 
+      // INDICATORS FEATURE TABLE
+      this.buildDataGridColumnConfig_featureTable_indicatorResource = function(specificHeadersArray, datasetId, resourceType, deleteButtonEnabled, spatialUnitId){
+        const columnDefs = [
+          { headerName: 'DB-Record-Id', field: "fid", pinned: 'left', editable: false, cellClass: "grid-non-editable", maxWidth: 125,
+            cellRenderer: function (params) {
+              let html = "";
 
+              // only show delete button, if user has the permission to delete the dataset
+              // if only editor rights, then user may edit cells, but shall not remove data entries
+              // if(params.data.userPermissions.includes("creator")){
+                // html += '<button id="btn__indicator__deleteFeatureEntry__' + datasetId + '__'  + spatialUnitId + '__' + params.data[__env.FEATURE_ID_PROPERTY_NAME] + '__' + params.data.fid + '" class="btn btn-danger btn-sm indicatorDeleteFeatureRecordBtn" type="button" title="Datenobjekt unwiderruflich entfernen"  ' + (deleteButtonEnabled ? '' : 'disabled') + '><i class="fas fa-trash"></i></button>';              
 
-          // if (this.dataGridOptions_featureTable && this.dataGridOptions_featureTable.api) {
+                
+              // }
 
-          //   this.saveGridStore(this.dataGridOptions_featureTable);
-          //   let newRowData = this.buildDataGridRowData_featureTable_spatialResource(dataArray);
-          //   this.dataGridOptions_featureTable.api.setRowData(newRowData);
-          //   this.restoreGridStore(this.dataGridOptions_featureTable);
-          // }
-          // else {
-          //   this.dataGridOptions_featureTable = this.buildDataGridOptions_featureTable_spatialResource(specificHeadersArray, dataArray, datasetId, resourceType, deleteButtonEnabled);
-          //   let gridDiv = document.querySelector('#' + domElementId);
-          //   new agGrid.Grid(gridDiv, this.dataGridOptions_featureTable);
-          // }
+              html += '<button id="btn__indicator__deleteFeatureEntry__' + datasetId + '__'  + spatialUnitId + '__' + params.data[__env.FEATURE_ID_PROPERTY_NAME] + '__' + params.data.fid + '" class="btn btn-danger btn-sm indicatorDeleteFeatureRecordBtn" type="button" title="Datenobjekt unwiderruflich entfernen"  ' + (deleteButtonEnabled ? '' : 'disabled') + '><i class="fas fa-trash"></i></button>';              
+
+              html += "&nbsp;&nbsp;";
+              html += params.data.fid;
+
+              return html;
+            } 
+          },
+          { headerName: 'Feature-Id', field: __env.FEATURE_ID_PROPERTY_NAME, pinned: 'left', editable: false, cellClass: "grid-non-editable", maxWidth: 125 },
+          { headerName: 'Name', field: __env.FEATURE_NAME_PROPERTY_NAME, pinned: 'left', minWidth: 300, editable: false, cellClass: "grid-non-editable", },   
+          // { headerName: 'Id', field: __env.FEATURE_ID_PROPERTY_NAME,  maxWidth: 125 },
+          // { headerName: 'Name', field: __env.FEATURE_NAME_PROPERTY_NAME,  minWidth: 300 }, 
+          { headerName: 'Lebenszeitbeginn', field: __env.VALID_START_DATE_PROPERTY_NAME, minWidth: 150, editable: false, cellClass: "grid-non-editable" },
+          { headerName: 'Lebenszeitende', field: __env.VALID_END_DATE_PROPERTY_NAME, editable: false, cellClass: "grid-non-editable",
+          minWidth: 150 }
+        ];
+
+        for (const header of specificHeadersArray) {
+          columnDefs.push({ headerName: "" + header, field: "" + header, minWidth: 200 });
+        }
+
+        return columnDefs;
+      };
+
+      this.buildDataGridRowData_featureTable_indicatorResource = function(dataArray){
+
+        return dataArray.map(dataItem => {
+          // remove arisonFrom property as this is currently never used
+          delete dataItem.arisenFrom;
+          return dataItem;
+         }
+        );
+      };
+
+      this.buildDataGridOptions_featureTable_indicatorResource = function(specificHeadersArray, dataArray, datasetId, resourceType, deleteButtonEnabled, spatialUnitId){
+          let columnDefs = this.buildDataGridColumnConfig_featureTable_indicatorResource(specificHeadersArray, datasetId, resourceType, deleteButtonEnabled, spatialUnitId);
+          let rowData = this.buildDataGridRowData_featureTable_indicatorResource(dataArray);
+  
+          let gridOptions = {
+            defaultColDef: {
+              editable: true,
+              // enables the fill handle
+              enableFillHandle: false,              
+              cellEditor: 'agLargeTextCellEditor',
+              onCellValueChanged: function(newValueParams){
+                /* https://www.ag-grid.com/javascript-data-grid/cell-editing/ 
+                  interface NewValueParams {
+                    // The value before the change 
+                    oldValue: any;
+                    // The value after the change 
+                    newValue: any;
+                    // Row node for the given row 
+                    node: RowNode | null;
+                    // Data associated with the node 
+                    data: any;
+                    // Column for this callback 
+                    column: Column;
+                    // ColDef provided for this column 
+                    colDef: ColDef;
+                    api: GridApi;
+                    columnApi: ColumnApi;
+                    // The context as provided on `gridOptions.context` 
+                    context: any;
+                  }
+                */                 
+
+                  // take the modified data from newValueParams.data                 
+                  // then build JSON and send modification request to data Management component
+                  let json = JSON.parse(JSON.stringify(newValueParams.data));
+
+                  // now delete information - only ID and fid shall remain for indicator record update
+                  delete json[__env.VALID_START_DATE_PROPERTY_NAME];
+                  delete json[__env.VALID_END_DATE_PROPERTY_NAME];
+                  delete json[__env.FEATURE_NAME_PROPERTY_NAME];                  
+
+                  let url = __env.apiUrl + __env.basePath + "/indicators/"; 
+                  
+                  url += datasetId + "/" + spatialUnitId + "/singleFeature/" + newValueParams.data[__env.FEATURE_ID_PROPERTY_NAME] + "/singleFeatureRecord/" + newValueParams.data.fid;
+
+                  var timstamp = new Date();
+                  var timestamp_string = timstamp.getHours() + ":" + timstamp.getMinutes() + ":" + timstamp.getSeconds();  
+
+                  $http({
+                    url: url,
+                    method: "PUT",
+                    data: json,
+                    headers: {
+                      'Content-Type': "application/json"
+                    }
+                  }).then(function successCallback(response) {
+                      // this callback will be called asynchronously
+                      // when the response is available
+
+                      console.log("Successfully updated database record");
+
+                      // on success mark grid cell with green background and set update information
+                      newValueParams.colDef.cellStyle = (p) =>
+                          p.rowIndex.toString() === newValueParams.node.id ? {'background-color': '#9DC89F'} : "";
+
+                          newValueParams.api.refreshCells({
+                          force: true,
+                          columns: [newValueParams.column.getId()],
+                          rowNodes: [newValueParams.node]
+                      });
+                                      
+                      self.featureTable_indicator_lastUpdate_timestamp_success = timestamp_string;                   
+            
+                    }, function errorCallback(error) {
+                      // called asynchronously if an error occurs
+                      // or server returns response with an error status.
+                      //$scope.error = response.statusText;
+                      console.error("Error while updating database record. Error is:\n" + error);
+
+                      // reset cell value as an error occurred
+                      newValueParams.data[newValueParams.column.colId] = newValueParams.oldValue;
+
+                      // on failure mark grid cell with red background and set update failure information
+                      newValueParams.colDef.cellStyle = (p) =>
+                          p.rowIndex.toString() === newValueParams.node.id ? {'background-color': '#E79595'} : "";
+
+                          newValueParams.api.refreshCells({
+                          force: true,
+                          columns: [newValueParams.column.getId()],
+                          rowNodes: [newValueParams.node]
+                      });
+                      self.featureTable_indicator_lastUpdate_timestamp_failure = timestamp_string;
+                      throw error;
+                  }); 
+              },
+              sortable: true,
+              flex: 1,
+              minWidth: 200,
+              filter: true,
+              floatingFilter: true,
+              // filterParams: {
+              //   newRowsAction: 'keep'
+              // },
+              resizable: true,
+              wrapText: true,
+              autoHeight: true,
+              cellStyle: { 'font-size': '12px;', 'white-space': 'normal !important', "line-height": "20px !important", "word-break": "break-word !important", "padding-top": "17px", "padding-bottom": "17px" },
+              headerComponentParams: {
+                template:
+                  '<div class="ag-cell-label-container" role="presentation">' +
+                  '  <span ref="eMenu" class="ag-header-icon ag-header-cell-menu-button"></span>' +
+                  '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
+                  '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
+                  '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
+                  '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
+                  '    <span ref="eSortNone" class="ag-header-icon ag-sort-none-icon"></span>' +
+                  '    <span ref="eText" class="ag-header-cell-text" role="columnheader" style="white-space: normal;"></span>' +
+                  '    <span ref="eFilter" class="ag-header-icon ag-filter-icon"></span>' +
+                  '  </div>' +
+                  '</div>',
+              },
+            },
+            columnDefs: columnDefs,
+            rowData: rowData,
+            // enables undo / redo
+            undoRedoCellEditing: true,
+            // restricts the number of undo / redo steps to 10
+            undoRedoCellEditingLimit: 10,
+            // enables flashing to help see cell changes
+            enableCellChangeFlash: true,
+            suppressRowClickSelection: true,
+            // rowSelection: 'multiple',
+            enableCellTextSelection: true,
+            ensureDomOrder: true,
+            pagination: true,
+            paginationPageSize: 10,
+            suppressColumnVirtualisation: true,          
+            onViewportChanged: function () {
+              self.registerClickHandler_featureTable_indicatorResource(resourceType);                   
+            },
+  
+          };
+  
+          return gridOptions;        
+      };
+
+      this.registerClickHandler_featureTable_indicatorResource = function (resourceType) {        
+
+        let className = ".indicatorDeleteFeatureRecordBtn";
+        let url = __env.apiUrl + __env.basePath + "/indicators/";
+
+          $(className).on("click", function (event) {
+
+            // ensure that only the target button gets clicked
+            event.stopPropagation();
+            event.stopImmediatePropagation();
+            $rootScope.$broadcast("showLoadingIcon_" + resourceType);
+
+            // id example is "btn__indicator__deleteFeatureEntry__' + datasetId + '__'  + spatialUnitId + '__' + params.data[__env.FEATURE_ID_PROPERTY_NAME] + '__' + params.data.kommonitorRecordId + '" class="btn btn-danger btn-sm indicatorDeleteFeatureRecordBtn"
+            let idArray = this.id.split("__");
+
+            let datasetId = idArray[3];
+            let spatialUnitId = idArray[4];
+            let featureId = idArray[5];
+            let recordId = idArray[6];
+                  
+                  url += datasetId + "/" + spatialUnitId + "/singleFeature/" + featureId + "/singleFeatureRecord/" + recordId;  
+
+                  $http({
+                    url: url,
+                    method: "DELETE"
+                  }).then(function successCallback(response) {
+                      // this callback will be called asynchronously
+                      // when the response is available
+
+                      console.log("Successfully deleted database record"); 
+                      
+                      $rootScope.$broadcast("onDeleteFeatureEntry_" + resourceType);
+            
+                    }, function errorCallback(error) {
+                      // called asynchronously if an error occurs
+                      // or server returns response with an error status.
+                      //$scope.error = response.statusText;
+                      console.error("Error while deleting database record. Error is:\n" + error); 
+                      $rootScope.$broadcast("hideLoadingIcon_" + resourceType);
+                      throw error;
+                  });
+          });
+        
+      };
+
+      this.buildDataGrid_featureTable_indicatorResource = function (domElementId, specificHeadersArray, dataArray, datasetId, resourceType, deleteButtonEnabled, spatialUnitId) {
+
+        let dataGridOptions_featureTable = this.buildDataGridOptions_featureTable_indicatorResource(specificHeadersArray, dataArray, datasetId, resourceType, deleteButtonEnabled, spatialUnitId);
+        
+          let gridDiv = document.querySelector('#' + domElementId);
+          while (gridDiv.firstChild) {
+            gridDiv.removeChild(gridDiv.firstChild);
+          }
+          new agGrid.Grid(gridDiv, dataGridOptions_featureTable);
       };
 
 

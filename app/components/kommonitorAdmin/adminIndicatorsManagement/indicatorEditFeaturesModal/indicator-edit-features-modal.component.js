@@ -6,6 +6,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 
 			this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 			this.kommonitorImporterHelperServiceInstance = kommonitorImporterHelperService;
+			this.kommonitorDataGridHelperServiceInstance = kommonitorDataGridHelperService;
 	
 			/*	PUT BODY
 				{
@@ -126,7 +127,7 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 	
 					$scope.resetIndicatorEditFeaturesForm();
 
-					kommonitorDataGridHelperService.buildDataGrid_featureTable("indicatorFeatureTable", [], []);
+					kommonitorDataGridHelperService.buildDataGrid_featureTable_indicatorResource("indicatorFeatureTable", [], []);
 				}
 	
 			});
@@ -166,13 +167,13 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 					var tmpRemainingHeaders = [];
 	
 					for (var property in $scope.indicatorFeaturesJSON[0]){
-						if (property != __env.FEATURE_ID_PROPERTY_NAME && property != __env.FEATURE_NAME_PROPERTY_NAME && property != __env.VALID_START_DATE_PROPERTY_NAME && property != __env.VALID_END_DATE_PROPERTY_NAME){
+						if (property != __env.FEATURE_ID_PROPERTY_NAME && property != __env.FEATURE_NAME_PROPERTY_NAME && property != __env.VALID_START_DATE_PROPERTY_NAME && property != __env.VALID_END_DATE_PROPERTY_NAME && property != "fid" && property != "arisenFrom"){
 							tmpRemainingHeaders.push(property);
 						}
 					}
 	
 					$scope.remainingFeatureHeaders = tmpRemainingHeaders;
-					kommonitorDataGridHelperService.buildDataGrid_featureTable("indicatorFeatureTable", tmpRemainingHeaders, $scope.indicatorFeaturesJSON, $scope.currentIndicatorDataset.indicatorId, kommonitorDataGridHelperService.resourceType_indicator);
+					kommonitorDataGridHelperService.buildDataGrid_featureTable_indicatorResource("indicatorFeatureTable", tmpRemainingHeaders, $scope.indicatorFeaturesJSON, $scope.currentIndicatorDataset.indicatorId, kommonitorDataGridHelperService.resourceType_indicator, $scope.enableDeleteFeatures, $scope.overviewTableTargetSpatialUnitMetadata.spatialUnitId);
 
 	
 						$scope.loadingData = false;
@@ -653,6 +654,34 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 				$scope.hideMappingConfigErrorAlert = function(){
 					$("#indicatorEditFeaturesMappingConfigImportErrorAlert").hide();
 				};
+
+				$rootScope.$on("showLoadingIcon_" + kommonitorDataGridHelperService.resourceType_indicator, function(event){
+					$timeout(function(){
+					
+						$scope.loadingData = true;
+					});	
+				});
+	
+				$rootScope.$on("hideLoadingIcon_" + kommonitorDataGridHelperService.resourceType_indicator, function(event){
+					$timeout(function(){
+					
+						$scope.loadingData = false;
+					});	
+				});
+	
+				$rootScope.$on("onDeleteFeatureEntry_" + kommonitorDataGridHelperService.resourceType_indicator, function(event){
+					$rootScope.$broadcast("refreshIndicatorOverviewTable", "edit", $scope.currentIndicatorDataset.indicatorId);
+					$scope.refreshIndicatorEditFeaturesOverviewTable();
+				});
+	
+				$scope.onChangeEnableDeleteFeatures = function(){
+					if($scope.enableDeleteFeatures){
+						$(".indicatorDeleteFeatureRecordBtn").attr("disabled", false);
+					}
+					else{
+						$(".indicatorDeleteFeatureRecordBtn").attr("disabled", true);
+					}
+				}
 	
 				/*
 				MULTI STEP FORM STUFF

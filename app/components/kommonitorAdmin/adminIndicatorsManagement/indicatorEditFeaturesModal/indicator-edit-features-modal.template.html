@@ -57,7 +57,9 @@
 										<label >Datenbank-Features holen</label>
 										<button class="btn btn-info" ng-click="refreshIndicatorEditFeaturesOverviewTable()"><i class="fas fa-sync-alt"></i>&nbsp;Zeige alle Features</button>
 	   
-										<div class="help-block"><p>Das Anzeigen aller Features des Indikators kann je nach Anzahl und Komplexit&auml;t der Objekte einige Zeit in Anspruch nehmen</p></div>
+										<div class="help-block"><p>Das Anzeigen aller Features des Indikators kann je nach Anzahl und Komplexit&auml;t der Objekte einige Zeit in Anspruch nehmen</p>
+											<p>Editieren einzelner Zellwerte via Doppelklick. Best&auml;tigen der Editierung durch Enter oder Klicken in eine andere Zelle</p>
+										</div>
 										<div class="help-block with-errors"></div>
 									</div>
 								</div>
@@ -67,7 +69,7 @@
 										<label class="switch">
 											<input class="elementCheckbox" type="checkbox"
 												ng-model="enableDeleteFeatures" ng-init="enableDeleteFeatures = false"
-												ng-checked="enableDeleteFeatures">
+												ng-checked="enableDeleteFeatures" ng-change="onChangeEnableDeleteFeatures()">
 											<span class="switchslider round text-left" style="line-height:25px;"></span>
 										</label>
 
@@ -79,6 +81,17 @@
 										<div class="help-block with-errors"></div>
 									</div>
 								</div>
+					</div>
+
+					<div>
+						<div ng-show="$ctrl.kommonitorDataGridHelperServiceInstance.featureTable_indicator_lastUpdate_timestamp_success != ''" style="background-color: #9DC89F;">
+							<b>Letztes erfolgreiches Update eines Einzeleintrags</b>
+								  {{$ctrl.kommonitorDataGridHelperServiceInstance.featureTable_indicator_lastUpdate_timestamp_success}}
+						</div>
+						<div ng-show="$ctrl.kommonitorDataGridHelperServiceInstance.featureTable_indicator_lastUpdate_timestamp_failure != ''" style="background-color: #E79595;">
+							<b>Letztes gescheitertes Update eines Einzeleintrags</b>
+									{{$ctrl.kommonitorDataGridHelperServiceInstance.featureTable_indicator_lastUpdate_timestamp_failure}}
+						</div>
 					</div>
 	   
 					<div class="admin-table-wrapper featureTableWrapper" >

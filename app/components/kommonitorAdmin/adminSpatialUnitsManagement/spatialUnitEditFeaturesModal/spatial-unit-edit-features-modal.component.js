@@ -97,7 +97,7 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 
 				$scope.resetSpatialUnitEditFeaturesForm();
 
-				kommonitorDataGridHelperService.buildDataGrid_featureTable("spatialUnitFeatureTable", [], []);
+				kommonitorDataGridHelperService.buildDataGrid_featureTable_spatialResource("spatialUnitFeatureTable", [], []);
 			}
 
 		});
@@ -130,7 +130,7 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 
 				$scope.remainingFeatureHeaders = tmpRemainingHeaders;
 
-				kommonitorDataGridHelperService.buildDataGrid_featureTable("spatialUnitFeatureTable", tmpRemainingHeaders, $scope.spatialUnitFeaturesGeoJSON.features, $scope.currentSpatialUnitDataset.spatialUnitId, kommonitorDataGridHelperService.resourceType_spatialUnit, $scope.enableDeleteFeatures);
+				kommonitorDataGridHelperService.buildDataGrid_featureTable_spatialResource("spatialUnitFeatureTable", tmpRemainingHeaders, $scope.spatialUnitFeaturesGeoJSON.features, $scope.currentSpatialUnitDataset.spatialUnitId, kommonitorDataGridHelperService.resourceType_spatialUnit, $scope.enableDeleteFeatures);
 
 				$timeout(function(){
 				
