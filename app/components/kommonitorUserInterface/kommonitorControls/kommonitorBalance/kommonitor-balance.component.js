@@ -300,7 +300,7 @@ angular
 							});
 
 							$scope.rangeSliderForBalance = $("#rangeSliderForBalance").data("ionRangeSlider");
-							// make sure that tha handles are properly set to man and max values
+							// make sure that the handles are properly set to min and max values
 							$scope.rangeSliderForBalance.update({
 									from: 0, // index, not the date
 									to: $scope.datesAsMs.length -1, // index, not the date

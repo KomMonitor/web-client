@@ -1,0 +1,218 @@
+<div class="container-fluid">
+    <div class="row row-no-gutters">
+        <div class="col-sm-12 text-center">
+            <h2 class="fs-title">Indikator-Konfiguration</h2>
+        </div>
+    </div>
+    <div class="reporting-content-wrapper">
+        <div class="row">
+            <div class="col-sm-2"></div>
+            <div class="col-sm-8">
+                <div class="row" style="margin:0">
+                    <ul class="nav nav-tabs">
+                        <li id="reporting-add-indicator-tab1" role="presentation" class="active">
+                            <a href="#indicators" aria-controls="indicators" role="tab" data-toggle="tab">Indikatoren</a>
+                        </li>
+                        <li id="reporting-add-indicator-tab2" role="presentation" class="tab-disabled">
+                            <a href="#area" aria-controls="area" role="tab" data-toggle="tab"  tabindex="-1">Bereich</a>
+                        </li>
+                        <li id="reporting-add-indicator-tab3" role="presentation" class="tab-disabled">
+                            <a href="#time" aria-controls="time" role="tab" data-toggle="tab" tabindex="-1"
+                                ng-bind-html="template.name == 'A4-landscape-timeseries' ? 'Zeitserie' : 'Zeitpunkt'"></a>
+                        </li>
+                        <li id="reporting-add-indicator-tab4" role="presentation" class="tab-disabled">
+                            <a href="#elements" aria-controls="elements" role="tab" data-toggle="tab" tabindex="-1">Elemente</a>
+                        </li>
+                    </ul>
+                    
+                    
+
+                    <div id="reporting-add-indicator-tab-content" class="tab-content">
+                        <div role="tabpanel" class="tab-pane active" id="indicators">
+						    <div class="loading-overlay-reporting" ng-show="loadingData">
+								<span class="glyphicon glyphicon-refresh icon-spin"></span>
+							</div>
+
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-filter"></i></span>
+                                <input type="text" class="form-control input-sm" placeholder="Stichwortfilter"
+                                    ng-model="indicatorNameFilter" ng-model-options="{ debounce: 500, blur: 0 }">
+                            </div>
+                            <div id="reporting-indicator-select-box">
+                                <select size="30" class="form-control" required>
+									<option disabled selected value> -- Indikator w&auml;hlen -- </option>
+									<option style="white-space: pre !important;" ng-repeat="indicator in availableIndicators | filter: indicatorNameFilter | orderBy: 'indicatorName'"
+                                        ng-click="onIndicatorSelected(indicator)">{{indicator.indicatorName}} [{{indicator.unit}}]</option>
+								</select>
+                            </div>
+							
+                        </div>
+                        <div role="tabpanel" class="tab-pane" id="area">
+                            <div class="loading-overlay-reporting" ng-show="loadingData">
+                                <span class="glyphicon glyphicon-refresh icon-spin"></span>
+                            </div>
+                            <div id="reporting-spatial-unit-select-wrapper">
+                                Raumebene: 
+                                <select id="reporting-spatial-unit-select" ng-model="selectedSpatialUnit" 
+                                    ng-options="spatialUnit as spatialUnit.spatialUnitName for spatialUnit in selectedIndicator.applicableSpatialUnits"
+                                    ng-change="onSpatialUnitChanged(selectedSpatialUnit)">
+                                </select>
+                            </div>
+                            <excalibur-dual-list id="reporting-indicator-add-areas-dual-list" ng-model='selectedAreas' options="dualListAreasOptions"></excalibur-dual-list>
+                        </div>
+                        <div role="tabpanel" class="tab-pane" id="time">
+						    <div class="loading-overlay-reporting" ng-show="loadingData">
+								<span class="glyphicon glyphicon-refresh icon-spin"></span>
+							</div>
+                            <div ng-hide="template.name == 'A4-landscape-timeseries'">
+                                <excalibur-dual-list id="reporting-indicator-add-timestamps-dual-list" ng-model='selectedTimestamps' options="dualListTimestampsOptions"></excalibur-dual-list>
+                            </div>
+                            <div ng-show="template.name == 'A4-landscape-timeseries'">
+                                <div id="reporting-dateSliderWrapper">
+                                    <input id="reporting-dateSlider" type="text" class="js-range-slider" value=""></input>
+                                </div>
+                            </div>
+                            
+                        </div>
+                        <div role="tabpanel" class="tab-pane" id="elements">
+
+                            <h4>Element-Konfiguration</h4>
+                            <div id="reporting-element-configuration" class="container-fluid">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="reporting-element-config-box">
+                                            <h5>Karte</h5>
+                                            <p>TODO</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="reporting-element-config-box">
+                                            <h5>Balkendiagramm</h5>
+                                            <p>TODO</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="reporting-element-config-box">
+                                            <h5>...</h5>
+                                            <p>TODO</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="reporting-element-config-box">
+                                            <h5>...</h5>
+                                            <p>TODO</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="reporting-element-config-box">
+                                            <h5>...</h5>
+                                            <p>TODO</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="reporting-element-config-box">
+                                            <h5>...</h5>
+                                            <p>TODO</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- not affected by tab changes -->
+                    <div id="reporting-add-indicator-preview-area">
+                        <div ng-repeat="page in template.pages track by page.id" ng-attr-class="reporting-page reporting-page-{{page.orientation}}"
+                            ng-attr-id="reporting-addIndicator-page-{{$index}}">
+                            <div ng-repeat="pageElement in page.pageElements"
+                                ng-attr-class="type-{{pageElement.type}}"
+                                ng-attr-id="reporting-addIndicator-page-{{$parent.$index}}-{{pageElement.type}}"
+                                ng-attr-style="position: absolute;
+                                    top: {{pageElement.dimensions.top}};
+                                    left: {{pageElement.dimensions.left}};
+                                    width: {{pageElement.dimensions.width}};
+                                    height: {{pageElement.dimensions.height}};
+                                    {{ pageElement.type != 'footerHorizontalSpacer-landscape' ? 'border: dashed gray 1px;' : pageElement.css }}">
+
+                                <span ng-show="pageElement.isPlaceholder == true"
+                                    ng-attr-style="{{pageElement.css ? pageElement.css : ''}}"
+                                    ng-bind-html="pageElement.placeholderText">
+                                </span>
+                                <!-- do different things depending on type once the placeholder is replaced (pageElement.isPlaceholder == false) -->
+                                <span ng-show="pageElement.type == 'pageNumber-landscape' && pageElement.isPlaceholder == false"
+                                    ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
+                                    Seite {{$parent.$index+1}}
+                                </span>
+
+                                <span ng-show="pageElement.type == 'indicatorTitle-landscape' && pageElement.isPlaceholder == false"
+                                    ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
+                                    {{pageElement.text}}
+                                </span>
+
+                                <span ng-show="pageElement.type == 'dataTimestamp-landscape' && pageElement.isPlaceholder == false"
+                                    ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
+                                    {{pageElement.text}}
+                                </span>
+
+                                <span ng-show="pageElement.type == 'dataTimeseries-landscape' && pageElement.isPlaceholder == false"
+                                    ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
+                                    {{pageElement.text}}
+                                </span>
+
+                                <span ng-show="pageElement.type == 'overallAverage' && pageElement.isPlaceholder == false"
+                                    ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
+                                    <span style="display: block; text-align:left">
+                                        Durchschnitt Gesamtstadt:<br />
+                                        {{pageElement.text}}
+                                    </span>
+                                </span>
+
+                                <span ng-show="pageElement.type == 'overallChange' && pageElement.isPlaceholder == false"
+                                    ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
+                                    <span style="display: block; text-align:left">
+                                        Durchschnittliche Veränderung Gesamtstadt:<br />
+                                        {{pageElement.text}}
+                                    </span>
+                                </span>
+
+                                <span ng-show="pageElement.type == 'footerCreationInfo-landscape' && pageElement.isPlaceholder == false"
+                                    ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
+                                    {{pageElement.text}}
+                                </span>
+
+                                <span ng-show="pageElement.type == 'textInput' && pageElement.isPlaceholder == false"
+                                    ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
+                                    {{pageElement.text}}
+                                </span>
+                                
+                                <img ng-show="pageElement.type == 'communeLogo-landscape' && pageElement.isPlaceholder == false"
+                                    ng-attr-src="{{pageElement.src}}">
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-2"></div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div>
+                    <button class="btn btn-warning" ng-click='onBackToOverviewClicked()'>
+                        <i class="fa fa-arrow-left"></i>
+                        &nbsp;&nbsp;Zurück zur Übersicht
+                    </button>
+                    
+                    <button ng-show="validateConfiguration()" type="button" class="btn btn-success pull-right" ng-click='onAddNewIndicatorClicked()'>
+                        <i class="fa fa-plus"></i>
+                        Indikator hinzufügen
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

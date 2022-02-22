@@ -475,10 +475,6 @@ angular
             }
             this.availableSpatialUnits_map.delete(spatialUnitId);
           };
-          
-          // REPORTING
-
-          this.reportingIndicatorConfig = [];
 
 					// GEORESOURCES
 
@@ -2636,7 +2632,7 @@ angular
               month: 'long',
               day: 'numeric'
             });
-            }            
+            }
           };
   
           this.tsToDate_withOptionalUpdateInterval = function(ts, updateIntervalApiName) {
@@ -2841,6 +2837,105 @@ angular
       return propertyName;
     }
 
+    this.reportingDefaultTemplatePageElements = [
+      {
+        "type": "indicatorTitle-landscape",
+        "dimensions": {
+          "top": "15px",
+          "left": "15px",
+          "width": "720px",
+          "height": "30px"
+        },
+        "isPlaceholder": true,
+        "placeholderText": "Titel des Indikators [Einheit]",
+        "text": "",
+        "css": "text-align: left; padding-left: 5px; font-weight: bold;"
+      },
+      {
+        "type": "dataTimestamp-landscape",
+        "dimensions": {
+          "top": "50px",
+          "left": "15px",
+          "width": "720px",
+          "height": "30px"
+        },
+        "isPlaceholder": true,
+        "placeholderText": "Datenstand",
+        "text": "",
+        "css": "text-align: left; padding-left: 5px;"
+      },
+      {
+        "type": "dataTimeseries-landscape",
+        "dimensions": {
+          "top": "50px",
+          "left": "15px",
+          "width": "720px",
+          "height": "30px"
+        },
+        "isPlaceholder": true,
+        "placeholderText": "Zeitreihe von - bis",
+        "text": "",
+        "css": "text-align: left; padding-left: 5px;"
+      },
+      {
+        "type": "communeLogo-landscape",
+        "dimensions": {
+          "top": "15px",
+          "left": "740px",
+          "width": "75px",
+          "height": "65px"
+        },
+        "isPlaceholder": true,
+        "placeholderText": "Logo",
+        "src": ""
+      },
+      {
+        "type": "footerHorizontalSpacer-landscape",
+        "dimensions": {
+          "top": "535px",
+          "left": "15px",
+          "width": "800px",
+          "height": "0px"
+        },
+        "css": "border-top: solid rgb(148, 148, 148) 1px;"
+      },
+
+      {
+        "type": "footerCreationInfo-landscape",
+        "dimensions": {
+          "top": "545px",
+          "left": "15px",
+          "width": "720px",
+          "height": "30px"
+        },
+        "isPlaceholder": true,
+        "placeholderText": "Erstellt am [Datum] von [Name d. Bearbeiters], [Name d. Kommune]",
+        "css": "text-align: left; padding-left: 5px;"
+      },
+      {
+        "type": "pageNumber-landscape",
+        "dimensions": {
+          "top": "545px",
+          "left": "740px",
+          "width": "75px",
+          "height": "30px"
+        },
+        "isPlaceholder": true,
+        "placeholderText": "[Seitenzahl]",
+        "css": "text-align: right; padding-right: 5px;"
+      },
+    ]
+
+    this.getDefaultReportingTemplatePageElement = function(type) {
+      let result = this.reportingDefaultTemplatePageElements.filter((el) => {
+        return el.type === type;
+      });
+      if(typeof(result) === "undefined") {
+        throw "No DefaultReportingTemplatePageElement exists for type " + type + "."
+      } else {
+        return result[0];
+      }
+    }
      
 
     this.generateAndDownloadIndicatorZIP = async function(indicatorData, fileName, fileEnding, jsZipOptions){

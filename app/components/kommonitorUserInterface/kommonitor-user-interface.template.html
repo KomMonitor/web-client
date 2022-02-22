@@ -58,7 +58,9 @@
 			<a ng-click="startGuidedTour()" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;  cursor:pointer;" title="Guided Tour&nbsp;&nbsp;"><span class="glyphicon glyphicon-play"></span></a>
 			
 			<div id="reportingButton" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.elementVisibility.reportingButton">
-				<a data-toggle="modal" data-target="#reporting-modal" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%;  cursor:pointer;" title="Report erstellen&nbsp;&nbsp;"><span class="glyphicon glyphicon-print"></span></a>
+				<a data-toggle="modal" data-target="#reporting-modal" style="font-size:1.2em; float: right; margin-right: 1%; margin-top: 0.5%; cursor:pointer;" title="Report erstellen&nbsp;&nbsp;">
+					<i class="fas fa-file-alt"></i>
+				</a>
 			</div>			
 			<div id="switchAdvancedMode" ng-if="$ctrl.kommonitorElementVisibilityHelperServiceInstance.showAdvancedModeSwitch" 
 			style="float: right; margin-right: 1%; margin-top: 0.5%; cursor: pointer">
@@ -87,9 +89,6 @@
 
 	<!-- Modal -->
 	<reporting-modal></reporting-modal>
-
-	<!-- Modal -->
-	<reporting-add-indicator-modal></reporting-add-indicator-modal>
 	
 	<!-- Modal -->
 	<wms-modal></wms-modal>

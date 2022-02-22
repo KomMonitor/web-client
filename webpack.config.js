@@ -77,7 +77,6 @@ module.exports = {
             { from: './customizedExternalLibs/bootstrap-iconpicker', to: 'bootstrap-iconpicker/' },
             { from: './customizedExternalLibs/Excalibur-Dual-List/dist', to: 'excalibur-duallist/' },
             { from: './customizedExternalLibs/Excalibur-Dual-List/excalibur-duallist.html', to: 'excalibur-duallist/excalibur-duallist.html' },
-            { from: nodeModulePathConstant + 'gridstack/dist', to: 'gridstack/' },
             { from: nodeModulePathConstant + 'html2canvas/dist', to: 'html2canvas/' },
             { from: nodeModulePathConstant + 'html2pdf.js/dist', to: 'html2pdf/' },
             { from: nodeModulePathConstant + 'jquery.easing/jquery.easing.min.js', to: 'jquery.easing/' },
@@ -96,6 +95,7 @@ module.exports = {
 			{ from: nodeModulePathConstant + 'ui-select/dist', to: 'ui-select/' },
             { from: nodeModulePathConstant + 'angularjs-dropdown-multiselect/dist/', to: 'angularjs-dropdown-multiselect/' },	
             { from: nodeModulePathConstant + 'jszip/dist/jszip.min.js', to: 'jszip/' },
+            { from: nodeModulePathConstant + 'docx/build/index.js', to: 'docx/' },
           
 
       ]})
