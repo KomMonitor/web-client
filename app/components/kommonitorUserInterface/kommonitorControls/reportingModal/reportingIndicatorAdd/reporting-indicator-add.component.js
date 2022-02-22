@@ -4,7 +4,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 	function ReportingIndicatorAddController($scope, $http, $timeout, $interval, __env, kommonitorDataExchangeService, kommonitorDiagramHelperService, kommonitorVisualStyleHelperService) {
 
 		$scope.template = undefined;
-		$scope.untouchedTemplate = undefined;
 		$scope.untouchedTemplateAsString = "";
 		
 		$scope.indicatorNameFilter = "";
@@ -341,32 +340,11 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				// if it was the last one
 				if(newVal.length === 0) {
 					$scope.disableTab(tab4);
-					// remove all pages except the first timestamp
-					// this is necessary because we might have deselected multiple timestamps at once
-					let firstTimestamp;
-					for(let el of $scope.template.pages[0].pageElements) {
-						if(el.type === "dataTimestamp-landscape") {
-							firstTimestamp = el.text;
-						}
+					let cleanTemplate = angular.fromJson($scope.untouchedTemplateAsString);
+					for(let page of cleanTemplate.pages) {
+						page.id = $scope.templatePageIdCounter++;
 					}
-					
-					$scope.template.pages = $scope.template.pages.filter( page => {
-						let timestampEl = page.pageElements.find( el => {
-							return el.type === "dataTimestamp-landscape"
-						});
-
-						return timestampEl.text === firstTimestamp;
-					});
-
-					// show placeholder text for remaining pages
-					for(let page of $scope.template.pages) {
-						for(let element of page.pageElements) {
-							if(element.type === "dataTimestamp-landscape") {
-								element.text = element.placeholderText;
-								element.isPlaceholder = true;
-							}
-						}
-					}
+					$scope.template = cleanTemplate;
 				} else {
 					// remove all pages that belong to removed timestamps
 					for(let timestampToRemove of difference) {
@@ -414,7 +392,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			// deep copy template before any changes are made.
 			// this is needed when additional timestamps are inserted.
 			$scope.untouchedTemplateAsString = angular.toJson(template)
-			$scope.untouchedTemplate = angular.fromJson($scope.untouchedTemplateAsString);
 			// give each page a unique id to track it by in ng-repeat
 			for(let page of template.pages) {
 				page.id = $scope.templatePageIdCounter++;
@@ -700,11 +677,11 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			$scope.selectedIndicator = indicator;
 
 			// get a new template (in case another indicator was selected previously)
-			let temp = angular.fromJson($scope.untouchedTemplateAsString);
-			for(let page of temp.pages) {
+			let cleanTemplate = angular.fromJson($scope.untouchedTemplateAsString);
+			for(let page of cleanTemplate.pages) {
 				page.id = $scope.templatePageIdCounter++;
 			}
-			$scope.template = temp;
+			$scope.template = cleanTemplate;
 
 			
 			// set spatial unit to highest available one
@@ -793,7 +770,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 		$scope.reset = function() {
 			$scope.template = undefined;
-			$scope.untouchedTemplate = undefined;
 			$scope.untouchedTemplateAsString = "";
 			$scope.indicatorNameFilter = "";
 			$scope.availableIndicators = [];
@@ -894,6 +870,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			// check if there is a map registered for this combination, if not register one with all features
 			let mapName = undefined;
 			let timestamp = undefined;
+			
 			// get the timestamp from pageElement, not from dom because dom might not be up to date yet
 			let dateElement = page.pageElements.find( el => {
 				return el.type === (pageElement.isTimeseries ? "dataTimeseries-landscape" : "dataTimestamp-landscape"); // pageElement references the map here
@@ -1575,6 +1552,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		$scope.initializeOrUpdateAllDiagrams = function() {
 			if(!$scope.template)
 				return;
+			if($scope.selectedTimestamps.length === 0) {
+				return;
+			}
 			if(!$scope.diagramsPrepared) {
 				throw new Error("Diagrams can't be initialized since they were not prepared previously.")
 			}
@@ -1632,6 +1612,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 								$scope.filterPageElement_Map(map, page.area, $scope.selectedIndicator.geoJSON.features);
 							}
 							pageElement.isPlaceholder = false;
+
 							break;
 						case "mapLegend":
 							pageElement.isPlaceholder = false; // hide the placeholder, legend is part of map
