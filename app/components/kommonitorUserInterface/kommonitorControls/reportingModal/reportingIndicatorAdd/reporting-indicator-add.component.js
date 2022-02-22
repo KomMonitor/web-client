@@ -565,23 +565,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			});
 		}
 
-		$scope.updateSpatialUnitsMultiSelect = async function() {
-			let indicator = $scope.selectedIndicator;
-
-			// convert to required format, change this once format is updated
-			let spatialUnits = indicator.applicableSpatialUnits.map( el => {
-				return {
-					"properties": {
-						"NAME": el.spatialUnitName
-					}
-				}
-			})
-			$scope.updateDualList($scope.dualListSpatialUnitsOptions, spatialUnits, undefined)
-			$timeout(function() {
-			 	$scope.$apply();
-			})
-		}
-
 		/**
 		 * 
 		 * @param {*} options | scope options obj for dualList to update
@@ -735,8 +718,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			// select all areas by default
 			let allAreas = $scope.availableFeaturesBySpatialUnit[$scope.selectedSpatialUnit.spatialUnitName];
 			$scope.updateDualList($scope.dualListAreasOptions, allAreas, allAreas);
-			
-			await $scope.updateSpatialUnitsMultiSelect();
 
 			$scope.enableTab(tab2);
 			$scope.enableTab(tab3);

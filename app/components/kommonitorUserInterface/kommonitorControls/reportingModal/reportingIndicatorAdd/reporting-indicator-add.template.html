@@ -49,39 +49,17 @@
                         </div>
                         <div role="tabpanel" class="tab-pane" id="area">
                             <h4>Bereiche ausw&auml;hlen</h4>
-                            
-                            <ul class="nav nav-tabs">
-                                <li id="reporting-add-indicator-area-tab1" role="presentation" class="active">
-                                    <a href="#area-method-1" aria-controls="indicators" role="tab" data-toggle="tab">Innerhalb einer Raumeinheit</a>
-                                </li>
-                                <li id="reporting-add-indicator-area-tab2" role="presentation">
-                                    <a href="#area-method-2" aria-controls="area" role="tab" data-toggle="tab">Aus mehreren Raumeinheiten</a>
-                                </li>
-                            </ul>
-                            <div class="tab-content">
-                                <div role="tabpanel" class="tab-pane active" id="area-method-1">
-						            <div class="loading-overlay-reporting" ng-show="loadingData">
-								        <span class="glyphicon glyphicon-refresh icon-spin"></span>
-							        </div>
-                                    <div id="reporting-spatial-unit-select-wrapper">
-                                        Raumebene: 
-                                        <select id="reporting-spatial-unit-select" ng-model="selectedSpatialUnit" 
-                                            ng-options="spatialUnit as spatialUnit.spatialUnitName for spatialUnit in selectedIndicator.applicableSpatialUnits"
-                                            ng-change="onSpatialUnitChanged(selectedSpatialUnit)">
-                                        </select>
-                                    </div>
-                                    
-                                    <excalibur-dual-list id="reporting-indicator-add-areas-dual-list" ng-model='selectedAreas' options="dualListAreasOptions"></excalibur-dual-list>
-                                </div>
-                                <div role="tabpanel" class="tab-pane" id="area-method-2">
-						            <div class="loading-overlay-reporting" ng-show="loadingData">
-								        <span class="glyphicon glyphicon-refresh icon-spin"></span>
-							        </div>
 
-                                    <excalibur-dual-list id="reporting-indicator-add-spatialUnits-dual-list" ng-model='selectedSpatialUnitsMultiselect' options="dualListSpatialUnitsOptions"></excalibur-dual-list>
-                                </div>
+                            <div id="reporting-spatial-unit-select-wrapper">
+                                Raumebene: 
+                                <select id="reporting-spatial-unit-select" ng-model="selectedSpatialUnit" 
+                                    ng-options="spatialUnit as spatialUnit.spatialUnitName for spatialUnit in selectedIndicator.applicableSpatialUnits"
+                                    ng-change="onSpatialUnitChanged(selectedSpatialUnit)">
+                                </select>
                             </div>
-                            
+
+                            <excalibur-dual-list id="reporting-indicator-add-areas-dual-list" ng-model='selectedAreas' options="dualListAreasOptions"></excalibur-dual-list>
+
                         </div>
                         <div role="tabpanel" class="tab-pane" id="time">
 						    <div class="loading-overlay-reporting" ng-show="loadingData">
