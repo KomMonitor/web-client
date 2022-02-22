@@ -1291,7 +1291,7 @@ angular
                 html += '<button id="btn__georesource__deleteFeatureEntry__' + datasetId + '__' + params.data[__env.FEATURE_ID_PROPERTY_NAME] + '__' + params.data.kommonitorRecordId + '" class="btn btn-danger btn-sm georesourceDeleteFeatureRecordBtn" type="button" title="Datenobjekt unwiderruflich entfernen"  ' + (deleteButtonEnabled ? '' : 'disabled') + '><i class="fas fa-trash"></i></button>';
               }
 
-              html += "&nbsp;&nbsp;" + params.data.kommonitorRecordId;
+              html += params.data.kommonitorRecordId;
 
               return html;
             } 
@@ -1648,6 +1648,21 @@ angular
             gridDiv.removeChild(gridDiv.firstChild);
           }
           new agGrid.Grid(gridDiv, dataGridOptions_featureTable);
+
+
+
+          // if (this.dataGridOptions_featureTable && this.dataGridOptions_featureTable.api) {
+
+          //   this.saveGridStore(this.dataGridOptions_featureTable);
+          //   let newRowData = this.buildDataGridRowData_featureTable_spatialResource(dataArray);
+          //   this.dataGridOptions_featureTable.api.setRowData(newRowData);
+          //   this.restoreGridStore(this.dataGridOptions_featureTable);
+          // }
+          // else {
+          //   this.dataGridOptions_featureTable = this.buildDataGridOptions_featureTable_spatialResource(specificHeadersArray, dataArray, datasetId, resourceType, deleteButtonEnabled);
+          //   let gridDiv = document.querySelector('#' + domElementId);
+          //   new agGrid.Grid(gridDiv, this.dataGridOptions_featureTable);
+          // }
       };
 
 
