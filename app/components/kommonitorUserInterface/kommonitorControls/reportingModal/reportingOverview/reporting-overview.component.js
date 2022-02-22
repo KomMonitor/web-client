@@ -628,7 +628,13 @@ angular.module('reportingOverview').component('reportingOverview', {
 							type: "png",
 							pixelRatio: $scope.echartsImgPixelRatio
 						});
-						let filename = (idx+1) + pageElement.type + ".png"; // TODO proper filenames
+						let filename = "Seite_" + (idx+1) + "_" + pageElement.type + ".png";
+						if(pageElement.type === "linechart" && pageElement.showPercentageChangeToPrevTimestamp) {
+							// two elements with same type on one page
+							// use a different filename for one of them so we don't overwrite the other image
+							filename = filename.replace(".png", "-proz.Veraenderung.png"); 
+						}
+							
 						zip.file(filename, dataURItoBlob(base64String), "");
 					}
 				}
