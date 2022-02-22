@@ -663,6 +663,15 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 				$scope.refreshGeoresourceEditFeaturesOverviewTable();
 			});
 
+			$scope.onChangeEnableDeleteFeatures = function(){
+				if($scope.enableDeleteFeatures){
+					$(".georesourceDeleteFeatureRecordBtn").attr("disabled", false);
+				}
+				else{
+					$(".georesourceDeleteFeatureRecordBtn").attr("disabled", true);
+				}
+			}
+
 			/*
 			MULTI STEP FORM STUFF
 			*/
