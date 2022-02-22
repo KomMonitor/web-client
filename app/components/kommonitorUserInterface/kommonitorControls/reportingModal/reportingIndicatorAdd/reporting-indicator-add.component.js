@@ -1551,7 +1551,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		$scope.initializeOrUpdateAllDiagrams = function() {
 			if(!$scope.template)
 				return;
-			if($scope.selectedTimestamps.length === 0) {
+			if($scope.template.name === "A4-landscape-timestamp" && $scope.selectedTimestamps.length === 0) {
 				return;
 			}
 			if(!$scope.diagramsPrepared) {
