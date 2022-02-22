@@ -1107,7 +1107,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			
 			options.series[0].emphasis.itemStyle = {}; // don't show border on hover
 
-			barChart.setOption(options);
+			barChart.setOption(options, {
+				replaceMerge: ['series'] // take the new series data, don't update part of the old one
+			});
 			return barChart;
 		}
 
@@ -1271,7 +1273,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			}
 			
 			
-			lineChart.setOption(options);
+			lineChart.setOption(options, {
+				replaceMerge: ['series'] // take the new series data, don't update part of the old one
+			});
 			return lineChart;
 		}
 
@@ -1464,15 +1468,12 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			}, 0, true, rowsData, page, maxRows);
 		}
 
-		/**
-		 * 
-		 * @param {*} echartsInstance 
-		 * @param {string} area 
-		 */
-		$scope.filterPageElement_Map = function(echartsInstance, areaName, allFeatures) {
+
+		$scope.filterMapByAreaName = function(echartsInstance, areaName, allFeatures) {
 			let options = echartsInstance.getOption();
 			let mapName = options.series[0].map;
 			// filter shown areas if we are in the area-specific part of the template
+			// removing areas form the series doesn't work. We have to filter the geojson of the registered map
 			features = allFeatures.filter ( el => {
 				return el.properties.name === areaName
 			});
@@ -1608,7 +1609,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 							let map = $scope.createPageElement_Map(pElementDom, page, pageElement);
 							// filter visible areas if needed
 							if(page.area && page.area.length) {
-								$scope.filterPageElement_Map(map, page.area, $scope.selectedIndicator.geoJSON.features);
+								$scope.filterMapByAreaName(map, page.area, $scope.selectedIndicator.geoJSON.features);
 							}
 							pageElement.isPlaceholder = false;
 
