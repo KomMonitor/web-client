@@ -124,7 +124,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 						let titleEl = pageToInsert.pageElements.find( el => {
 							return el.type === "indicatorTitle-landscape"
 						});
-						titleEl.text = $scope.selectedIndicator.indicatorName
+						titleEl.text = $scope.selectedIndicator.indicatorName + " [" + $scope.selectedIndicator.unit + "]";
 						if(pageToInsert.area) {
 							titleEl.text += ", " + pageToInsert.area
 						}
@@ -186,7 +186,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				let titleEl = pageToInsert.pageElements.find( el => {
 					return el.type === "indicatorTitle-landscape"
 				});
-				titleEl.text = $scope.selectedIndicator.indicatorName
+				titleEl.text = $scope.selectedIndicator.indicatorName + " [" + $scope.selectedIndicator.unit + "]";
 				if(pageToInsert.area) {
 					titleEl.text += ", " + pageToInsert.area
 				}
@@ -271,7 +271,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 							for(let pageElement of pageToInsert.pageElements) {
 
 								if(pageElement.type === "indicatorTitle-landscape") {
-									pageElement.text = $scope.selectedIndicator.indicatorName;
+									pageElement.text = $scope.selectedIndicator.indicatorName + " [" + $scope.selectedIndicator.unit + "]";
 									if(pageToInsert.area) {
 										pageElement.text += ", " + pageToInsert.area
 									}
@@ -727,6 +727,31 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			$scope.isIndicatorChange = true; 
 			await $scope.updateAreasInDualList();
 
+			if($scope.template.name === "A4-landscape-timeseries") {
+				$scope.dateSlider = $scope.initializeDateRangeSlider(dates);
+			}
+			// update indicator name and timestamp in preview
+			for(let page of $scope.template.pages) {
+				for(let el of page.pageElements) {
+					if(el.type === "indicatorTitle-landscape") {
+						el.text = indicator.indicatorName + " [" + indicator.unit + "]";
+						el.isPlaceholder = false;
+						// no area-specific pages in template since diagrams are not prepared yet
+						// and area/timestamp/ timeseries changes are done after that
+					}
+
+					if(el.type === "dataTimestamp-landscape") {
+						el.text = mostRecentTimestampName;
+						el.isPlaceholder = false
+					}
+
+					if(el.type === "dataTimeseries-landscape") {
+						let dsValues = $scope.getFormattedDateSliderValues()
+						el.text = dsValues.from + " - " + dsValues.to
+						el.isPlaceholder = false
+					}
+				}
+			}
 
 			// get all features of largest spatial unit
 			let features = $scope.availableFeaturesBySpatialUnit[ $scope.selectedSpatialUnit.spatialUnitName ]
@@ -747,8 +772,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				classifyUsingWholeTimeseries = true;
 				$scope.prepareDiagrams($scope.selectedIndicator, $scope.selectedSpatialUnit, mostRecentTimestampName, classifyUsingWholeTimeseries);
 				$scope.selectedIndicator.indicatorType = indicatorTypeBackup;
-
-				$scope.dateSlider = $scope.initializeDateRangeSlider(dates);
 			} else {
 				$scope.updateDualList($scope.dualListTimestampsOptions, availableTimestamps, mostRecentTimestamp)
 			}
@@ -760,27 +783,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			$scope.enableTab(tab2);
 			$scope.enableTab(tab3);
 			$scope.enableTab(tab4);
-			
-			// update indicator name and timestamp in preview
-			for(let page of $scope.template.pages) {
-				for(let el of page.pageElements) {
-					if(el.type === "indicatorTitle-landscape") {
-						el.text = indicator.indicatorName + " [" + indicator.unit + "]";
-						el.isPlaceholder = false;
-					}
-
-					if(el.type === "dataTimestamp-landscape") {
-						el.text = mostRecentTimestampName;
-						el.isPlaceholder = false
-					}
-
-					if(el.type === "dataTimeseries-landscape") {
-						let dsValues = $scope.getFormattedDateSliderValues()
-						el.text = dsValues.from + " - " + dsValues.to
-						el.isPlaceholder = false
-					}
-				}
-			}	
 		}
 
 		$scope.onBackToOverviewClicked = function() {
@@ -1074,6 +1076,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			options.toolbox.show = false;
 			options.visualMap[0].show = false; // only needed to set the color for avg
 			options.xAxis.axisLabel.show = true;
+			options.yAxis.name = ""; // included in header of each page
+			options.xAxis.name = ""; // always timestamps
+			
 			
 			// filter series data and xAxis labels
 			if(page.area && page.area.length) {
@@ -1136,7 +1141,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			let timeline = $scope.getFormattedDateSliderValues(true).dates;
 			// get standard options, create a copy of the options to not change anything in the service
 			let options = JSON.parse(JSON.stringify( $scope.echartsOptions.line ));
-			options.xAxis.name = ""; //remove title
 			options.title.textStyle.fontSize = 12;
 			options.title.text = "Zeitreihe";
 			options.yAxis.axisLabel = { "fontSize": 10 };
@@ -1146,6 +1150,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			options.grid.bottom = 5;
 			options.title.show = true;
 			options.toolbox.show = false;
+			options.yAxis.name = ""; // included in header of each page
+			options.xAxis.name = ""; // always timestamps
 
 			// diagram contains avg series by default
 			// if it should be shown we adjust it to our timeseries
@@ -1387,7 +1393,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					for(let pageElement of newPage.pageElements) {
 	
 						if(pageElement.type === "indicatorTitle-landscape") {
-							pageElement.text = $scope.selectedIndicator.indicatorName;
+							pageElement.text = $scope.selectedIndicator.indicatorName + " [" + $scope.selectedIndicator.unit + "]"
 							pageElement.isPlaceholder = false;
 						}
 	

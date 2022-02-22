@@ -2823,7 +2823,7 @@ angular
           "height": "30px"
         },
         "isPlaceholder": true,
-        "placeholderText": "Titel des Indikators",
+        "placeholderText": "Titel des Indikators [Einheit]",
         "text": "",
         "css": "text-align: left; padding-left: 5px; font-weight: bold;"
       },
