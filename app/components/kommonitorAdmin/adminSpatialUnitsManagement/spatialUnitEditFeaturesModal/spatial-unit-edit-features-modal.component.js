@@ -130,7 +130,7 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 
 				$scope.remainingFeatureHeaders = tmpRemainingHeaders;
 
-				kommonitorDataGridHelperService.buildDataGrid_featureTable("spatialUnitFeatureTable", tmpRemainingHeaders, $scope.spatialUnitFeaturesGeoJSON.features, $scope.currentSpatialUnitDataset.spatialUnitId, kommonitorDataGridHelperService.resourceType_spatialUnit);
+				kommonitorDataGridHelperService.buildDataGrid_featureTable("spatialUnitFeatureTable", tmpRemainingHeaders, $scope.spatialUnitFeaturesGeoJSON.features, $scope.currentSpatialUnitDataset.spatialUnitId, kommonitorDataGridHelperService.resourceType_spatialUnit, $scope.enableDeleteFeatures);
 
 				$timeout(function(){
 				
@@ -167,7 +167,7 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 				$scope.spatialUnitFeaturesGeoJSON = undefined;
 				$scope.remainingFeatureHeaders = undefined;
 
-				$rootScope.$broadcast("refreshSpatialUnitOverviewTable", "edit", $scope.currentSpatialUnitDataset);
+				$rootScope.$broadcast("refreshSpatialUnitOverviewTable", "edit", $scope.currentSpatialUnitDataset.spatialUnitId);
 				// $scope.refreshGeoresourceEditFeaturesOverviewTable();
 
 				$scope.successMessagePart = $scope.currentSpatialUnitDataset.spatialUnitLevel;
@@ -442,7 +442,7 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 							$scope.successMessagePart = $scope.putBody_spatialUnits.spatialUnitLevel;
 							$scope.importedFeatures = kommonitorImporterHelperService.getImportedFeaturesFromImporterResponse(updateSpatialUnitResponse);
 
-							$rootScope.$broadcast("refreshSpatialUnitOverviewTable", "edit", $scope.currentSpatialUnitDataset);
+							$rootScope.$broadcast("refreshSpatialUnitOverviewTable", "edit", $scope.currentSpatialUnitDataset.spatialUnitId);
 							// $scope.refreshSpatialUnitEditFeaturesOverviewTable();
 
 							$scope.successMessagePart = $scope.currentSpatialUnitDataset.spatialUnitLevel;
@@ -680,6 +680,34 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 			$scope.hideMappingConfigErrorAlert = function(){
 				$("#spatialUnitEditFeaturesMappingConfigImportErrorAlert").hide();
 			};
+
+			$scope.onChangeEnableDeleteFeatures = function(){
+				if($scope.enableDeleteFeatures){
+					$(".spatialUnitDeleteFeatureRecordBtn").attr("disabled", false);
+				}
+				else{
+					$(".spatialUnitDeleteFeatureRecordBtn").attr("disabled", true);
+				}
+			}
+
+            $rootScope.$on("showLoadingIcon_" + kommonitorDataGridHelperService.resourceType_spatialUnit, function(event){
+				$timeout(function(){
+				
+					$scope.loadingData = true;
+				});	
+			});
+
+			$rootScope.$on("hideLoadingIcon_" + kommonitorDataGridHelperService.resourceType_spatialUnit, function(event){
+				$timeout(function(){
+				
+					$scope.loadingData = false;
+				});	
+			});
+
+			$rootScope.$on("onDeleteFeatureEntry_" + kommonitorDataGridHelperService.resourceType_spatialUnit, function(event){
+				$rootScope.$broadcast("refreshSpatialUnitOverviewTable", "edit", $scope.currentSpatialUnitDataset.spatialUnitId);
+				$scope.refreshSpatialUnitEditFeaturesOverviewTable();
+			});
 
 			/*
 			MULTI STEP FORM STUFF

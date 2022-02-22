@@ -114,7 +114,7 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 				// as we require the information about the dataset ID within each feature to enable feature record updates from within the datatable
 				// we must include the dataset ID within each feature 
 
-				kommonitorDataGridHelperService.buildDataGrid_featureTable("georesourceFeatureTable", tmpRemainingHeaders, $scope.georesourceFeaturesGeoJSON.features, $scope.currentGeoresourceDataset.georesourceId, kommonitorDataGridHelperService.resourceType_georesource);
+				kommonitorDataGridHelperService.buildDataGrid_featureTable("georesourceFeatureTable", tmpRemainingHeaders, $scope.georesourceFeaturesGeoJSON.features, $scope.currentGeoresourceDataset.georesourceId, kommonitorDataGridHelperService.resourceType_georesource, $scope.enableDeleteFeatures);
 
 
 					$scope.loadingData = false;
@@ -643,6 +643,25 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 			$scope.hideMappingConfigErrorAlert = function(){
 				$("#georesourceEditFeaturesMappingConfigImportErrorAlert").hide();
 			};
+
+			$rootScope.$on("showLoadingIcon_" + kommonitorDataGridHelperService.resourceType_georesource, function(event){
+				$timeout(function(){
+				
+					$scope.loadingData = true;
+				});	
+			});
+
+			$rootScope.$on("hideLoadingIcon_" + kommonitorDataGridHelperService.resourceType_georesource, function(event){
+				$timeout(function(){
+				
+					$scope.loadingData = false;
+				});	
+			});
+
+			$rootScope.$on("onDeleteFeatureEntry_" + kommonitorDataGridHelperService.resourceType_georesource, function(event){
+				$rootScope.$broadcast("refreshGeoresourceOverviewTable", "edit", $scope.currentGeoresourceDataset.georesourceId);
+				$scope.refreshGeoresourceEditFeaturesOverviewTable();
+			});
 
 			/*
 			MULTI STEP FORM STUFF

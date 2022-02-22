@@ -797,7 +797,13 @@ angular
         //     $rootScope.$broadcast("onEditIndicatorMetadata", indicatorMetadata);
         //   });
         // }
-        $(".indicatorEditMetadataBtn").on("click", function () {
+        $(".indicatorEditMetadataBtn").on("click", function (event) {
+          // ensure that only the target button gets clicked
+          // manually open modal
+          event.stopPropagation();
+          let modalId = document.getElementById(this.id).getAttribute("data-target");
+          $(modalId).modal('show');
+          
           let indicatorId = this.id.split("_")[3];
 
           let indicatorMetadata = kommonitorDataExchangeService.getIndicatorMetadataById(indicatorId);
@@ -805,7 +811,13 @@ angular
           $rootScope.$broadcast("onEditIndicatorMetadata", indicatorMetadata);
         });
 
-        $(".indicatorEditFeaturesBtn").on("click", function () {
+        $(".indicatorEditFeaturesBtn").on("click", function (event) {
+          // ensure that only the target button gets clicked
+          // manually open modal
+          event.stopPropagation();
+          let modalId = document.getElementById(this.id).getAttribute("data-target");
+          $(modalId).modal('show');
+          
           let indicatorId = this.id.split("_")[3];
 
           let indicatorMetadata = kommonitorDataExchangeService.getIndicatorMetadataById(indicatorId);
@@ -813,7 +825,13 @@ angular
           $rootScope.$broadcast("onEditIndicatorFeatures", indicatorMetadata);
         });
 
-        $(".indicatorEditRoleBasedAccessBtn").on("click", function () {
+        $(".indicatorEditRoleBasedAccessBtn").on("click", function (event) {
+          // ensure that only the target button gets clicked
+          // manually open modal
+          event.stopPropagation();
+          let modalId = document.getElementById(this.id).getAttribute("data-target");
+          $(modalId).modal('show');
+          
           let indicatorId = this.id.split("_")[3];
 
           let indicatorMetadata = kommonitorDataExchangeService.getIndicatorMetadataById(indicatorId);
@@ -825,7 +843,13 @@ angular
 
       this.registerClickHandler_georesources = function (georesourceMetadataArray) {
 
-        $(".georesourceEditMetadataBtn").on("click", function () {
+        $(".georesourceEditMetadataBtn").on("click", function (event) {
+          // ensure that only the target button gets clicked
+          // manually open modal
+          event.stopPropagation();
+          let modalId = document.getElementById(this.id).getAttribute("data-target");
+          $(modalId).modal('show');
+          
           let georesourceId = this.id.split("_")[3];
 
           let georesourceMetadata = kommonitorDataExchangeService.getGeoresourceMetadataById(georesourceId);
@@ -833,7 +857,13 @@ angular
           $rootScope.$broadcast("onEditGeoresourceMetadata", georesourceMetadata);
         });
 
-        $(".georesourceEditFeaturesBtn").on("click", function () {
+        $(".georesourceEditFeaturesBtn").on("click", function (event) {
+          // ensure that only the target button gets clicked
+          // manually open modal
+          event.stopPropagation();
+          let modalId = document.getElementById(this.id).getAttribute("data-target");
+          $(modalId).modal('show');
+          
           let georesourceId = this.id.split("_")[3];
 
           let georesourceMetadata = kommonitorDataExchangeService.getGeoresourceMetadataById(georesourceId);
@@ -841,7 +871,13 @@ angular
           $rootScope.$broadcast("onEditGeoresourceFeatures", georesourceMetadata);
         });
 
-        $(".georesourceDeleteBtn").on("click", function () {       
+        $(".georesourceDeleteBtn").on("click", function (event) {
+          // ensure that only the target button gets clicked
+          // manually open modal
+          event.stopPropagation();
+          let modalId = document.getElementById(this.id).getAttribute("data-target");
+          $(modalId).modal('show');
+                 
           let spatialUnitId = this.id.split("_")[3]; 
 
           let spatialUnitMetadata = kommonitorDataExchangeService.getGeoresourceMetadataById(spatialUnitId);
@@ -1124,7 +1160,13 @@ angular
 
       this.registerClickHandler_spatialUnits = function (spatialUnitMetadataArray) {
 
-        $(".spatialUnitEditMetadataBtn").on("click", function () {
+        $(".spatialUnitEditMetadataBtn").on("click", function (event) {
+          // ensure that only the target button gets clicked
+          // manually open modal
+          event.stopPropagation();
+          let modalId = document.getElementById(this.id).getAttribute("data-target");
+          $(modalId).modal('show');
+          
           let spatialUnitId = this.id.split("_")[3];
 
           let spatialUnitMetadata = kommonitorDataExchangeService.getSpatialUnitMetadataById(spatialUnitId);
@@ -1132,7 +1174,13 @@ angular
           $rootScope.$broadcast("onEditSpatialUnitMetadata", spatialUnitMetadata);
         });
 
-        $(".spatialUnitEditFeaturesBtn").on("click", function () {
+        $(".spatialUnitEditFeaturesBtn").on("click", function (event) {
+          // ensure that only the target button gets clicked
+          // manually open modal
+          event.stopPropagation();
+          let modalId = document.getElementById(this.id).getAttribute("data-target");
+          $(modalId).modal('show');
+          
           let spatialUnitId = this.id.split("_")[3];
 
           let spatialUnitMetadata = kommonitorDataExchangeService.getSpatialUnitMetadataById(spatialUnitId);
@@ -1140,7 +1188,13 @@ angular
           $rootScope.$broadcast("onEditSpatialUnitFeatures", spatialUnitMetadata);
         });
 
-        $(".spatialUnitDeleteBtn").on("click", function () {       
+        $(".spatialUnitDeleteBtn").on("click", function (event) { 
+          // ensure that only the target button gets clicked
+          // manually open modal
+          event.stopPropagation();
+          let modalId = document.getElementById(this.id).getAttribute("data-target");
+          $(modalId).modal('show');
+                
           let spatialUnitId = this.id.split("_")[3]; 
 
           let spatialUnitMetadata = kommonitorDataExchangeService.getSpatialUnitMetadataById(spatialUnitId);
@@ -1212,9 +1266,36 @@ angular
 
       // FEATURE TABLES
 
-      this.buildDataGridColumnConfig_featureTable_spatialResource = function(specificHeadersArray){
+      this.buildDataGridColumnConfig_featureTable_spatialResource = function(specificHeadersArray, datasetId, resourceType, deleteButtonEnabled){
         const columnDefs = [
-          { headerName: 'DB-Record-Id', field: "kommonitorRecordId", pinned: 'left', editable: false, cellClass: "grid-non-editable", maxWidth: 125 },
+          { headerName: 'DB-Record-Id', field: "kommonitorRecordId", pinned: 'left', editable: false, cellClass: "grid-non-editable", maxWidth: 125,
+            cellRenderer: function (params) {
+              let html = "";
+
+              // only show delete button, if user has the permission to delete the dataset
+              // if only editor rights, then user may edit cells, but shall not remove data entries
+              // if(params.data.userPermissions.includes("creator")){
+                // if (resourceType == self.resourceType_spatialUnit){
+                //   html += '<button id="btn__spatialUnit__deleteFeatureEntry__' + datasetId + '__' + params.data[__env.FEATURE_ID_PROPERTY_NAME] + '__' + params.data.kommonitorRecordId + '" class="btn btn-danger btn-sm spatialUnitDeleteFeatureRecordBtn" type="button" title="Datenobjekt unwiderruflich entfernen"  ' + (deleteButtonEnabled ? '' : 'disabled') + '><i class="fas fa-trash"></i></button>';
+                // }
+                // else {
+                //   html += '<button id="btn__georesource__deleteFeatureEntry__' + datasetId + '__' + params.data[__env.FEATURE_ID_PROPERTY_NAME] + '__' + params.data.kommonitorRecordId + '" class="btn btn-danger btn-sm georesourceDeleteFeatureRecordBtn" type="button" title="Datenobjekt unwiderruflich entfernen"  ' + (deleteButtonEnabled ? '' : 'disabled') + '><i class="fas fa-trash"></i></button>';
+                // }
+                
+              // }
+
+              if (resourceType == self.resourceType_spatialUnit){
+                html += '<button id="btn__spatialUnit__deleteFeatureEntry__' + datasetId + '__' + params.data[__env.FEATURE_ID_PROPERTY_NAME] + '__' + params.data.kommonitorRecordId + '" class="btn btn-danger btn-sm spatialUnitDeleteFeatureRecordBtn" type="button" title="Datenobjekt unwiderruflich entfernen"  ' + (deleteButtonEnabled ? '' : 'disabled') + '><i class="fas fa-trash"></i></button>';
+              }
+              else {
+                html += '<button id="btn__georesource__deleteFeatureEntry__' + datasetId + '__' + params.data[__env.FEATURE_ID_PROPERTY_NAME] + '__' + params.data.kommonitorRecordId + '" class="btn btn-danger btn-sm georesourceDeleteFeatureRecordBtn" type="button" title="Datenobjekt unwiderruflich entfernen"  ' + (deleteButtonEnabled ? '' : 'disabled') + '><i class="fas fa-trash"></i></button>';
+              }
+
+              html += "&nbsp;&nbsp;" + params.data.kommonitorRecordId;
+
+              return html;
+            } 
+          },
           { headerName: 'Feature-Id', field: __env.FEATURE_ID_PROPERTY_NAME, pinned: 'left', editable: false, cellClass: "grid-non-editable", maxWidth: 125 },
           { headerName: 'Name', field: __env.FEATURE_NAME_PROPERTY_NAME, pinned: 'left', minWidth: 300 }, 
           { headerName: 'Geometrie', field: "kommonitorGeometry", autoHeight: false, wrapText: false,
@@ -1300,8 +1381,8 @@ angular
         return (new Date(date) !== "Invalid Date") && !isNaN(new Date(date));
       }
 
-      this.buildDataGridOptions_featureTable_spatialResource = function(specificHeadersArray, dataArray, datasetId, resourceType){
-          let columnDefs = this.buildDataGridColumnConfig_featureTable_spatialResource(specificHeadersArray);
+      this.buildDataGridOptions_featureTable_spatialResource = function(specificHeadersArray, dataArray, datasetId, resourceType, deleteButtonEnabled){
+          let columnDefs = this.buildDataGridColumnConfig_featureTable_spatialResource(specificHeadersArray, datasetId, resourceType, deleteButtonEnabled);
           let rowData = this.buildDataGridRowData_featureTable_spatialResource(dataArray);
   
           let gridOptions = {
@@ -1486,18 +1567,77 @@ angular
             // onColumnResized: function () {
             //   headerHeightSetter(this);
             // }
+            // onRowDataChanged: function () {
+            //   self.registerClickHandler_featureTable_spatialResource(resourceType);
+            // },   
+            onViewportChanged: function () {
+              self.registerClickHandler_featureTable_spatialResource(resourceType);                   
+            },
   
           };
   
           return gridOptions;        
       };
 
-      this.buildDataGrid_featureTable = function (domElementId, specificHeadersArray, dataArray, datasetId, resourceType) {
+      this.registerClickHandler_featureTable_spatialResource = function (resourceType) {        
+
+        let className = "";
+        let url = __env.apiUrl + __env.basePath;
+
+        if (resourceType == this.resourceType_georesource){
+          className = ".georesourceDeleteFeatureRecordBtn";
+          url += "/georesources/";
+        }
+        else{
+          className = ".spatialUnitDeleteFeatureRecordBtn";
+          url += "/spatial-units/";
+        }
+
+          $(className).on("click", function (event) {
+
+            // ensure that only the target button gets clicked
+            event.stopPropagation();
+            event.stopImmediatePropagation();
+            $rootScope.$broadcast("showLoadingIcon_" + resourceType);
+
+            // id example is id="btn__spatialUnit__deleteFeatureEntry__' + datasetId + '__' + params.data[__env.FEATURE_ID_PROPERTY_NAME] + '__' + params.data.kommonitorRecordId + '"
+            let idArray = this.id.split("__");
+
+            let datasetId = idArray[3];
+            let featureId = idArray[4];
+            let recordId = idArray[5];
+                  
+                  url += datasetId + "/singleFeature/" + featureId + "/singleFeatureRecord/" + recordId;  
+
+                  $http({
+                    url: url,
+                    method: "DELETE"
+                  }).then(function successCallback(response) {
+                      // this callback will be called asynchronously
+                      // when the response is available
+
+                      console.log("Successfully deleted database record"); 
+                      
+                      $rootScope.$broadcast("onDeleteFeatureEntry_" + resourceType);
+            
+                    }, function errorCallback(error) {
+                      // called asynchronously if an error occurs
+                      // or server returns response with an error status.
+                      //$scope.error = response.statusText;
+                      console.error("Error while deleting database record. Error is:\n" + error); 
+                      $rootScope.$broadcast("hideLoadingIcon_" + resourceType);
+                      throw error;
+                  });
+          });
+        
+      }; 
+
+      this.buildDataGrid_featureTable = function (domElementId, specificHeadersArray, dataArray, datasetId, resourceType, deleteButtonEnabled) {
 
         let dataGridOptions_featureTable;
 
         if(resourceType == self.resourceType_spatialUnit || resourceType == self.resourceType_georesource){
-          dataGridOptions_featureTable = this.buildDataGridOptions_featureTable_spatialResource(specificHeadersArray, dataArray, datasetId, resourceType);
+          dataGridOptions_featureTable = this.buildDataGridOptions_featureTable_spatialResource(specificHeadersArray, dataArray, datasetId, resourceType, deleteButtonEnabled);
         }
         else{
           dataGridOptions_featureTable = this.buildDataGridOptions_featureTable_spatialResource(specificHeadersArray, dataArray, datasetId, resourceType);
@@ -1613,7 +1753,13 @@ angular
 
       this.registerClickHandler_accessControl = function (roleMetadataArray) {
 
-        $(".roleEditMetadataBtn").on("click", function () {
+        $(".roleEditMetadataBtn").on("click", function (event) {
+          // ensure that only the target button gets clicked
+          // manually open modal
+          event.stopPropagation();
+          let modalId = document.getElementById(this.id).getAttribute("data-target");
+          $(modalId).modal('show');
+          
           let id = this.id.split("_")[3];
 
           let roleMetadata = kommonitorDataExchangeService.getAccessControlById(id);
