@@ -1,12 +1,13 @@
 angular.module('georesourceEditFeaturesModal').component('georesourceEditFeaturesModal', {
 	templateUrl : "components/kommonitorAdmin/adminGeoresourcesManagement/georesourceEditFeaturesModal/georesource-edit-features-modal.template.html",
-	controller : ['kommonitorDataExchangeService', 'kommonitorDataGridHelperService', 'kommonitorImporterHelperService', '$scope', '$rootScope', '$http', '__env', '$timeout',
-		function GeoresourcesEditFeaturesModalController(kommonitorDataExchangeService, kommonitorDataGridHelperService, 
+	controller : ['kommonitorDataExchangeService', 'kommonitorDataGridHelperService', 'kommonitorSingleFeatureMapHelperService', 'kommonitorImporterHelperService', '$scope', '$rootScope', '$http', '__env', '$timeout',
+		function GeoresourcesEditFeaturesModalController(kommonitorDataExchangeService, kommonitorDataGridHelperService, kommonitorSingleFeatureMapHelperService,
 			kommonitorImporterHelperService, $scope, $rootScope, $http, __env, $timeout) {
 
 		this.kommonitorDataExchangeServiceInstance = kommonitorDataExchangeService;
 		this.kommonitorImporterHelperServiceInstance = kommonitorImporterHelperService;
 		this.kommonitorDataGridHelperServiceInstance = kommonitorDataGridHelperService;
+		this.kommonitorSingleFeatureMapHelperServiceInstance = kommonitorSingleFeatureMapHelperService;
 
 		/*	PUT BODY
 		{
@@ -21,6 +22,8 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 		//Date picker
     $('#georesourceEditFeaturesDatepickerStart').datepicker(kommonitorDataExchangeService.datePickerOptions);
 		$('#georesourceEditFeaturesDatepickerEnd').datepicker(kommonitorDataExchangeService.datePickerOptions);
+		$('#georesourceSingleFeatureDatepickerEnd').datepicker(kommonitorDataExchangeService.datePickerOptions);
+		$('#georesourceSingleFeatureDatepickerStart').datepicker(kommonitorDataExchangeService.datePickerOptions);
 
 		$scope.georesourceFeaturesGeoJSON;
 		$scope.currentGeoresourceDataset;
@@ -31,7 +34,18 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 
 		$scope.loadingData = false;
 
+		// variables for single feature import
+		$scope.featureIdValue = undefined;
+		$scope.featureNameValue = undefined;
+		$scope.featureGeometryValue = undefined;
+		$scope.featureStartDateValue = undefined;
+		$scope.featureEndDateValue = undefined;
+		// [{property: name, value: value}]
+		$scope.featureSchemaProperties = []; 
+
 		$scope.isPartialUpdate = false;
+
+		// variables for multiple feature import
 
 		$scope.periodOfValidity = {};
 		$scope.periodOfValidity.startDate = undefined;
@@ -83,8 +97,52 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 
 				kommonitorDataGridHelperService.buildDataGrid_featureTable_spatialResource("georesourceFeatureTable", [], []);
 
+				// init geomap for single feature import, handling geocoding and feature geometry
+				let domId = "singleFeatureGeoMap";
+				let resourceType = kommonitorSingleFeatureMapHelperService.resourceType_point;
+				if($scope.currentGeoresourceDataset.isLOI){
+					resourceType = kommonitorSingleFeatureMapHelperService.resourceType_line;
+				}
+				else if($scope.currentGeoresourceDataset.isAOI){
+					resourceType = kommonitorSingleFeatureMapHelperService.resourceType_polygon;
+				}
+				kommonitorSingleFeatureMapHelperService.initSingleFeatureGeoMap(domId, resourceType);
+
+				// init featureSchema for single feature import
+				$scope.initFeatureSchema();
 			}
 
+		});
+
+		$scope.initFeatureSchema = function(){
+			$scope.featureSchemaProperties = [];
+
+			$http({
+				url: kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/georesources/" + $scope.currentGeoresourceDataset.georesourceId + "/schema",
+				method: "GET",
+				// headers: {
+				//    'Content-Type': undefined
+				// }
+			}).then(function successCallback(response) {
+
+				let schemaObject = response.data;
+
+				for (var property in schemaObject){
+					if (property != __env.FEATURE_ID_PROPERTY_NAME && property != __env.FEATURE_NAME_PROPERTY_NAME && property != __env.VALID_START_DATE_PROPERTY_NAME && property != __env.VALID_END_DATE_PROPERTY_NAME){
+						$scope.featureSchemaProperties.push(
+							{property: property,
+							value: undefined}
+						);
+					}
+				}
+
+				}, function errorCallback(error) {
+					
+			});
+		};
+
+		$scope.$on("onUpdateSingleFeatureGeometry", function(event, geoJSON){
+			$scope.featureGeometryValue = geoJSON;
 		});
 
 		$scope.refreshGeoresourceEditFeaturesOverviewTable = function(){
@@ -168,6 +226,17 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 		};
 
 		$scope.resetGeoresourceEditFeaturesForm = function(){
+
+			// variables for single feature import
+			$scope.featureIdValue = undefined;
+			$scope.featureNameValue = undefined;
+			$scope.featureGeometryValue = undefined;
+			$scope.featureStartDateValue = undefined;
+			$scope.featureEndDateValue = undefined;
+			// [{property: name, value: value}]
+			$scope.featureSchemaProperties = []; 
+
+			//variables for multiple feature import
 
 			$scope.georesourceFeaturesGeoJSON = undefined;
 			$scope.remainingFeatureHeaders = undefined;
@@ -686,6 +755,9 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 			$(".next_editFeaturesGeoresource").click(function(){
 				if($scope.animating) return false;
 				$scope.animating = true;
+
+				// modify state of single feature geo map
+				kommonitorSingleFeatureMapHelperService.invalidateMap();
 				
 				$scope.current_fs = $(this).parent();
 				$scope.next_fs = $(this).parent().next();
@@ -724,6 +796,9 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 			$(".previous_editFeaturesGeoresource").click(function(){
 				if($scope.animating) return false;
 				$scope.animating = true;
+
+				// modify state of single feature geo map
+				kommonitorSingleFeatureMapHelperService.invalidateMap();
 				
 				$scope.current_fs = $(this).parent();
 				$scope.previous_fs = $(this).parent().prev();

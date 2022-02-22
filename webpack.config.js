@@ -57,7 +57,7 @@ module.exports = {
             { from: nodeModulePathConstant + 'angular-sanitize/angular-sanitize.min.js', to: 'angular-sanitize' },
             { from: nodeModulePathConstant + 'bootstrap-validator/dist/validator.min.js', to: 'bootstrap-validator' },
             { from: nodeModulePathConstant + 'leaflet-geosearch/dist/bundle.min.js', to: 'leaflet-geosearch/leaflet-geosearch.min.js' },
-            { from: nodeModulePathConstant + 'leaflet-geosearch/dist/style.css', to: 'leaflet-geosearch/leaflet-geosearch.css' },
+            { from: nodeModulePathConstant + 'leaflet-geosearch/dist/geosearch.css', to: 'leaflet-geosearch/leaflet-geosearch.css' },
             { from: nodeModulePathConstant + 'leaflet-geosearch/assets/css/leaflet.css', to: 'leaflet-geosearch/leaflet-geosearch-leaflet.css' },
             { from: nodeModulePathConstant + 'leaflet-search/dist/', to: 'leaflet-search/dist' },
             { from: nodeModulePathConstant + 'leaflet-search/images/', to: 'leaflet-search/images' },
