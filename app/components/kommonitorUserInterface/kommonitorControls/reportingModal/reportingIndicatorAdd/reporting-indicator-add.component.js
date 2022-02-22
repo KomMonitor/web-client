@@ -1,7 +1,7 @@
 angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 	templateUrl : "components/kommonitorUserInterface/kommonitorControls/reportingModal/reportingIndicatorAdd/reporting-indicator-add.template.html",
-	controller : ['$scope', '$http', '$timeout', '__env', 'kommonitorDataExchangeService', 'kommonitorDiagramHelperService', 'kommonitorVisualStyleHelperService',
-	function ReportingIndicatorAddController($scope, $http, $timeout, __env, kommonitorDataExchangeService, kommonitorDiagramHelperService, kommonitorVisualStyleHelperService) {
+	controller : ['$scope', '$http', '$timeout', '$interval', '__env', 'kommonitorDataExchangeService', 'kommonitorDiagramHelperService', 'kommonitorVisualStyleHelperService',
+	function ReportingIndicatorAddController($scope, $http, $timeout, $interval, __env, kommonitorDataExchangeService, kommonitorDiagramHelperService, kommonitorVisualStyleHelperService) {
 
 		$scope.template = undefined;
 		$scope.untouchedTemplate = undefined;
@@ -32,6 +32,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		}
 		
 		$scope.loadingData = false;
+		$scope.diagramsPrepared = false;
 
 		// used to track template pages instead of using $$hashkey
 		$scope.templatePageIdCounter = 1;
@@ -58,12 +59,25 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				$scope.updateAreasForTimeseriesTemplates(newVal)
 			}
 
-			$timeout(function() {
-				// we could filter the geoJson here to only include selected areas
-				// but for now we get all areas and filter them out after
-				$scope.initializeOrUpdateAllDiagrams();
-				$scope.loadingData = false;
-			});
+
+			function updateDiagrams() {
+				if($scope.diagramsPrepared) {
+					$interval.cancel(updateDiagramsInterval); // code below still executes once
+				} else {
+					return;
+				}
+	
+				// diagrams are prepared, but dom has to be updated first, too
+				$timeout(function() {
+					// we could filter the geoJson here to only include selected areas
+					// but for now we get all areas and filter them out after
+					$scope.initializeOrUpdateAllDiagrams();
+					$scope.loadingData = false;
+				});
+				
+			}
+	
+			let updateDiagramsInterval = $interval(updateDiagrams, 0, 100)
 		}
 
 
@@ -368,16 +382,26 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				}
 			}
 
-			$timeout(function() {
-				for(let timestamp of $scope.selectedTimestamps) {
-					let classifyUsingWholeTimeseries = false;
-					$scope.prepareDiagrams($scope.selectedIndicator, $scope.selectedSpatialUnit, timestamp.name, classifyUsingWholeTimeseries);
-
+			function updateDiagrams() {
+				if($scope.diagramsPrepared) {
+					$interval.cancel(updateDiagramsInterval); // code below still executes once
+				} else {
+					return;
 				}
+
+				$timeout(function() {
+					for(let timestamp of $scope.selectedTimestamps) {
+						let classifyUsingWholeTimeseries = false;
+						$scope.prepareDiagrams($scope.selectedIndicator, $scope.selectedSpatialUnit, timestamp.name, classifyUsingWholeTimeseries);
+	
+					}
+					$scope.initializeOrUpdateAllDiagrams();
+					$scope.loadingData = false;
+				});
 				
-				$scope.initializeOrUpdateAllDiagrams();
-				$scope.loadingData = false;
-			});
+			}
+
+			let updateDiagramsInterval = $interval(updateDiagrams, 0, 100)
 		});
 
 		$scope.$on("reportingConfigureNewIndicatorShown", function(event, data) {
@@ -488,16 +512,26 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			let geoJSON = { features: features }
 			$scope.selectedIndicator.geoJSON = geoJSON;
 			
-			$timeout(function() {
-				// prepare diagrams for all selected timestamps with all features
-				for(let timestamp of $scope.selectedTimestamps) {
-					let classifyUsingWholeTimeseries = false;
-					$scope.prepareDiagrams($scope.selectedIndicator, selectedSpatialUnit, timestamp.name, classifyUsingWholeTimeseries);
+			function updateDiagrams() {
+				if($scope.diagramsPrepared) {
+					$interval.cancel(updateDiagramsInterval); // code below still executes once
+				} else {
+					return;
 				}
-				$scope.initializeOrUpdateAllDiagrams();
-				$scope.loadingData = false;
-			});
-			
+	
+				$timeout(function() {
+					// prepare diagrams for all selected timestamps with all features
+					for(let timestamp of $scope.selectedTimestamps) {
+						let classifyUsingWholeTimeseries = false;
+						$scope.prepareDiagrams($scope.selectedIndicator, selectedSpatialUnit, timestamp.name, classifyUsingWholeTimeseries);
+					}
+					$scope.initializeOrUpdateAllDiagrams();
+					$scope.loadingData = false;
+				});
+				
+			}
+	
+			let updateDiagramsInterval = $interval(updateDiagrams, 0, 100)
 		}
 
 		/**
@@ -655,6 +689,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				bar: {},
 				line: {}
 			}
+			$scope.diagramsPrepared = false;
 			let tab2 = document.querySelector("#reporting-add-indicator-tab2");
 			let tab3 = document.querySelector("#reporting-add-indicator-tab3");
 			let tab4 = document.querySelector("#reporting-add-indicator-tab4");
@@ -687,8 +722,12 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			let mostRecentTimestamp = availableTimestamps.filter( el => {
 				return el.properties.NAME === mostRecentTimestampName;
 			})
-
+			
+			// can be used in the area change listener to check if we are updating an indicator
+			// we don't want to update diagrams in that case since this is done on timestamp/timeseries change later
+			$scope.isIndicatorChange = true; 
 			await $scope.updateAreasInDualList();
+
 
 			// get all features of largest spatial unit
 			let features = $scope.availableFeaturesBySpatialUnit[ $scope.selectedSpatialUnit.spatialUnitName ]
@@ -1522,11 +1561,15 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			$scope.echartsOptions.bar[timestampName] = JSON.parse(JSON.stringify( kommonitorDiagramHelperService.getBarChartOptions() ));
 			// no timestamp needed here
 			$scope.echartsOptions.line = JSON.parse(JSON.stringify( kommonitorDiagramHelperService.getLineChartOptions() ));
+			$scope.diagramsPrepared = true;
 		}
 
 		$scope.initializeOrUpdateAllDiagrams = function() {
 			if(!$scope.template)
 				return;
+			if(!$scope.diagramsPrepared) {
+				throw new Error("Diagrams can't be initialized since they were not prepared previously.")
+			}
 
 			// We need a separate counter for page index because we iterate over the pages array.
 			// This array might include additional datatable pages, which are not inserted in the dom
@@ -1768,11 +1811,21 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				}
 			}
 
-			$timeout(() => {
-				$scope.initializeOrUpdateAllDiagrams();
-				$scope.loadingData = false;
-			});
-			
+			function updateDiagrams() {
+				if($scope.diagramsPrepared) {
+					$interval.cancel(updateDiagramsInterval); // code below still executes once
+				} else {
+					return;
+				}
+				// diagrams are prepared, but dom has to be updated first, too
+				$timeout(function() {
+					$scope.initializeOrUpdateAllDiagrams();
+					$scope.loadingData = false;
+				})
+				
+			}
+	
+			let updateDiagramsInterval = $interval(updateDiagrams, 0, 100)
 		}
 
 		$scope.getFormattedDateSliderValues = function(includeInBetweenValues) {
