@@ -1479,7 +1479,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 			echarts.registerMap(mapName, { features: features } )
 			echartsInstance.setOption(options) // set same options, but this updates the map
-			echartsInstance.resize();
 		}
 
 		$scope.calculateOverallAvg = function(indicator, timestamp) {

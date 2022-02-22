@@ -192,7 +192,11 @@ angular.module('reportingOverview').component('reportingOverview', {
 									// register new map
 									echarts.registerMap(mapName, geoJSON)
 								}
-								let a = echarts.getMap(mapName)
+								
+								if(page.area && page.area.length) {
+									// at this point we have not yet set echarts options, so we provide them as an extra parameter
+									$scope.filterMapByArea(instance, pageElement.echartsOptions, page.area, geoJSON.features)
+								}
 							}
 							
 							// recreate boxplots, itemNameFormatter did not get transferred
@@ -236,6 +240,18 @@ angular.module('reportingOverview').component('reportingOverview', {
 				$scope.$apply();
 
 			}, 0, false, indicator);
+		}
+
+		
+		$scope.filterMapByArea = function(echartsInstance, echartsInstanceOptions, areaName, allFeatures) {
+			let mapName = echartsInstanceOptions.series[0].map;
+			// filter shown areas if we are in the area-specific part of the template
+			features = allFeatures.filter ( el => {
+				return el.properties.name === areaName
+			});
+
+			echarts.registerMap(mapName, { features: features } )
+			echartsInstance.setOption(echartsInstanceOptions) // set same options, but this updates the map
 		}
 
 
