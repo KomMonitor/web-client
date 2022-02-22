@@ -28,6 +28,23 @@ angular
       this.dataGridOptions_spatialUnits;
       this.dataGridOptions_accessControl;
 
+      function getCurrentTimestampString(){
+        let date = new Date();
+        let hours = date.getHours();
+        if(hours < 10){
+          hours = "0" + hours;
+        }
+        let minutes = date.getMinutes();
+        if(minutes < 10){
+          minutes = "0" + minutes;
+        }
+        let seconds = date.getSeconds();
+        if(seconds < 10){
+          seconds = "0" + seconds;
+        }
+        return "" + hours + ":" + minutes + ":" + seconds;
+      }
+
       function headerHeightGetter() {
         var columnHeaderTexts = [
           ...document.querySelectorAll('.ag-header-cell-text'),
@@ -1305,7 +1322,7 @@ angular
             } 
           },
           { headerName: 'Feature-Id', field: __env.FEATURE_ID_PROPERTY_NAME, pinned: 'left', editable: false, cellClass: "grid-non-editable", maxWidth: 125 },
-          { headerName: 'Name', field: __env.FEATURE_NAME_PROPERTY_NAME, pinned: 'left', minWidth: 300 }, 
+          { headerName: 'Name', field: __env.FEATURE_NAME_PROPERTY_NAME, pinned: 'left', minWidth: 150 }, 
           { headerName: 'Geometrie', field: "kommonitorGeometry", autoHeight: false, wrapText: false,
             cellRenderer: function (params) {
               let html = JSON.stringify(params.data.kommonitorGeometry);
@@ -1332,7 +1349,7 @@ angular
                 }                
                 return true;
             },
-            minWidth: 250 
+            minWidth: 200 
           },  
           // { headerName: 'Id', field: __env.FEATURE_ID_PROPERTY_NAME,  maxWidth: 125 },
           // { headerName: 'Name', field: __env.FEATURE_NAME_PROPERTY_NAME,  minWidth: 300 }, 
@@ -1363,7 +1380,7 @@ angular
         ];
 
         for (const header of specificHeadersArray) {
-          columnDefs.push({ headerName: "" + header, field: "" + header, minWidth: 200 });
+          columnDefs.push({ headerName: "" + header, field: "" + header, minWidth: 125 });
         }
 
         return columnDefs;
@@ -1463,9 +1480,6 @@ angular
                   
                   url += datasetId + "/singleFeature/" + newValueParams.data[__env.FEATURE_ID_PROPERTY_NAME] + "/singleFeatureRecord/" + newValueParams.data.kommonitorRecordId;
 
-                  var timstamp = new Date();
-                  var timestamp_string = timstamp.getHours() + ":" + timstamp.getMinutes() + ":" + timstamp.getSeconds();  
-
                   $http({
                     url: url,
                     method: "PUT",
@@ -1490,10 +1504,10 @@ angular
                       });
                                       
                       if(resourceType == self.resourceType_georesource){
-                        self.featureTable_georesource_lastUpdate_timestamp_success = timestamp_string;
+                        self.featureTable_georesource_lastUpdate_timestamp_success = getCurrentTimestampString();
                       }
                       else {
-                        self.featureTable_spatialUnit_lastUpdate_timestamp_success = timestamp_string;
+                        self.featureTable_spatialUnit_lastUpdate_timestamp_success = getCurrentTimestampString();
                       }                    
             
                     }, function errorCallback(error) {
@@ -1621,6 +1635,13 @@ angular
                       // when the response is available
 
                       console.log("Successfully deleted database record"); 
+
+                      if(resourceType == self.resourceType_georesource){
+                        self.featureTable_georesource_lastUpdate_timestamp_success = getCurrentTimestampString();
+                      }
+                      else {
+                        self.featureTable_spatialUnit_lastUpdate_timestamp_success = getCurrentTimestampString();
+                      }       
                       
                       $rootScope.$broadcast("onDeleteFeatureEntry_" + resourceType);
             
@@ -1630,6 +1651,12 @@ angular
                       //$scope.error = response.statusText;
                       console.error("Error while deleting database record. Error is:\n" + error); 
                       $rootScope.$broadcast("hideLoadingIcon_" + resourceType);
+                      if(resourceType == self.resourceType_georesource){
+                        self.featureTable_georesource_lastUpdate_timestamp_failure = getCurrentTimestampString();
+                      }
+                      else {
+                        self.featureTable_spatialUnit_lastUpdate_timestamp_failure = getCurrentTimestampString();
+                      }       
                       throw error;
                   });
           });
@@ -1673,16 +1700,16 @@ angular
             } 
           },
           { headerName: 'Feature-Id', field: __env.FEATURE_ID_PROPERTY_NAME, pinned: 'left', editable: false, cellClass: "grid-non-editable", maxWidth: 125 },
-          { headerName: 'Name', field: __env.FEATURE_NAME_PROPERTY_NAME, pinned: 'left', minWidth: 300, editable: false, cellClass: "grid-non-editable", },   
+          { headerName: 'Name', field: __env.FEATURE_NAME_PROPERTY_NAME, pinned: 'left', minWidth: 200, editable: false, cellClass: "grid-non-editable", },   
           // { headerName: 'Id', field: __env.FEATURE_ID_PROPERTY_NAME,  maxWidth: 125 },
           // { headerName: 'Name', field: __env.FEATURE_NAME_PROPERTY_NAME,  minWidth: 300 }, 
-          { headerName: 'Lebenszeitbeginn', field: __env.VALID_START_DATE_PROPERTY_NAME, minWidth: 150, editable: false, cellClass: "grid-non-editable" },
+          { headerName: 'Lebenszeitbeginn', field: __env.VALID_START_DATE_PROPERTY_NAME, minWidth: 125, editable: false, cellClass: "grid-non-editable" },
           { headerName: 'Lebenszeitende', field: __env.VALID_END_DATE_PROPERTY_NAME, editable: false, cellClass: "grid-non-editable",
-          minWidth: 150 }
+          minWidth: 125 }
         ];
 
         for (const header of specificHeadersArray) {
-          columnDefs.push({ headerName: "" + header, field: "" + header, minWidth: 200 });
+          columnDefs.push({ headerName: "" + header, field: "" + header, minWidth: 125 });
         }
 
         return columnDefs;
@@ -1743,9 +1770,6 @@ angular
                   
                   url += datasetId + "/" + spatialUnitId + "/singleFeature/" + newValueParams.data[__env.FEATURE_ID_PROPERTY_NAME] + "/singleFeatureRecord/" + newValueParams.data.fid;
 
-                  var timstamp = new Date();
-                  var timestamp_string = timstamp.getHours() + ":" + timstamp.getMinutes() + ":" + timstamp.getSeconds();  
-
                   $http({
                     url: url,
                     method: "PUT",
@@ -1769,7 +1793,7 @@ angular
                           rowNodes: [newValueParams.node]
                       });
                                       
-                      self.featureTable_indicator_lastUpdate_timestamp_success = timestamp_string;                   
+                      self.featureTable_indicator_lastUpdate_timestamp_success = getCurrentTimestampString();                   
             
                     }, function errorCallback(error) {
                       // called asynchronously if an error occurs
@@ -1876,6 +1900,7 @@ angular
                       console.log("Successfully deleted database record"); 
                       
                       $rootScope.$broadcast("onDeleteFeatureEntry_" + resourceType);
+                      self.featureTable_indicator_lastUpdate_timestamp_success = getCurrentTimestampString(); 
             
                     }, function errorCallback(error) {
                       // called asynchronously if an error occurs
@@ -1883,6 +1908,7 @@ angular
                       //$scope.error = response.statusText;
                       console.error("Error while deleting database record. Error is:\n" + error); 
                       $rootScope.$broadcast("hideLoadingIcon_" + resourceType);
+                      self.featureTable_indicator_lastUpdate_timestamp_failure = getCurrentTimestampString(); 
                       throw error;
                   });
           });
