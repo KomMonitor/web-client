@@ -74,7 +74,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					$scope.initializeOrUpdateAllDiagrams();
 					$scope.loadingData = false;
 				});
-				
 			}
 	
 			let updateDiagramsInterval = $interval(updateDiagrams, 0, 100)
@@ -1364,6 +1363,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					}
 				}
 			}
+
+			// sort by area name
+			rowsData.sort((a, b) => a.name.localeCompare(b.name))
 
 			// append average as last row if needed
 			if($scope.template.name === "A4-landscape-timestamp") {
