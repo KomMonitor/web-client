@@ -132,6 +132,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 						let dateEl = pageToInsert.pageElements.find( el => {
 							return el.type === "dataTimestamp-landscape"
 						});
+
 						dateEl.text = timestamp.name;
 						dateEl.isPlaceholder = false;
 
@@ -476,7 +477,77 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 		$scope.onSpatialUnitChanged = async function(selectedSpatialUnit) {
 			$scope.loadingData = true;
+			$("#reporting-spatialUnitChangeWarning").hide();
+			$scope.timeseriesAdjustedOnSpatialUnitChange = false;
 			await $scope.updateAreasInDualList()
+
+			// There might be different valid timestamps for the new spatial unit.
+			let validTimestamps = getValidTimestampsForSpatialUnit( selectedSpatialUnit.spatialUnitName );
+			
+			// Check if the currently selected timestamps are also available for the new spatial unit.
+			// If one is not, deselect is and show an info to user
+			let selectedTimestamps_old = [...$scope.selectedTimestamps];
+			$scope.selectedTimestamps = $scope.selectedTimestamps.filter( el => {
+				return validTimestamps.includes(el.name);
+			});
+			// if any timestamp was deselected show a warning alert
+			if(selectedTimestamps_old.length > $scope.selectedTimestamps.length) {
+				$("#reporting-spatialUnitChangeWarning").show();
+			}
+
+			if($scope.template.name === "A4-landscape-timeseries") {
+				// Similar procedure as with timestamps
+				let oldTimeseries = $scope.getFormattedDateSliderValues(true);
+				
+				let from = new Date($scope.dateSlider.result.from_value);
+				let to = new Date($scope.dateSlider.result.to_value);
+				let filteredTimeseries = validTimestamps.filter( el => {
+					let date = new Date(el);
+					date.setHours(0); // remove time-offset...TODO is there a better way?
+					return from <= date && date <= to;
+				});
+
+				let isEqualTimeseries = (oldTimeseries.dates.length == filteredTimeseries.length) && oldTimeseries.dates.every(function(element, index) {
+					return element === filteredTimeseries[index];
+				});
+				
+				if( !isEqualTimeseries) {
+					// timeseries changed
+					$("#reporting-spatialUnitChangeWarning").show();
+					// try to set slider to previously selected timestamps
+					if(validTimestamps.includes(oldTimeseries.from) && validTimestamps.includes(oldTimeseries.to)) {
+						$scope.dateSlider = $scope.initializeDateRangeSlider( validTimestamps, filteredTimeseries[0], filteredTimeseries.at(-1));	
+					} else {
+						$scope.dateSlider = $scope.initializeDateRangeSlider( validTimestamps );	
+						$scope.timeseriesAdjustedOnSpatialUnitChange = true; // show additional text in warning alert
+					}
+				} else {
+					// the selected part of the timeseries has the same dates so we don't have to show a warning
+					// but the timeseries could still include older or newer dates
+					$scope.dateSlider = $scope.initializeDateRangeSlider( validTimestamps, filteredTimeseries[0], filteredTimeseries.at(-1));
+				}
+			}
+			
+			// prepare arrays for updateDualList
+			validTimestamps = validTimestamps.map( el => {
+				return {
+					properties: {
+						NAME: el
+					}
+				}
+			});
+			let timestampsToSelect = $scope.selectedTimestamps.map( el => {
+				return {
+					properties: {
+						NAME: el.name
+					}
+				}
+			});
+			
+			$scope.updateDualList($scope.dualListTimestampsOptions, validTimestamps, timestampsToSelect);
+
+			
+			
 			// fire $watch('selectedAreas') function manually to remove pages
 			$scope.selectedAreas = [];
 			$scope.onSelectedAreasChanged( $scope.selectedAreas , undefined)
@@ -488,26 +559,16 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			let geoJSON = { features: features }
 			$scope.selectedIndicator.geoJSON = geoJSON;
 			
-			function updateDiagrams() {
-				if($scope.diagramsPrepared) {
-					$interval.cancel(updateDiagramsInterval); // code below still executes once
-				} else {
-					return;
+			// no need to check if diagrams are prepared here since we have to prepare them again anyway
+			$timeout(function() {
+				// prepare diagrams for all selected timestamps with all features
+				for(let timestamp of $scope.selectedTimestamps) {
+					let classifyUsingWholeTimeseries = false;
+					$scope.prepareDiagrams($scope.selectedIndicator, selectedSpatialUnit, timestamp.name, classifyUsingWholeTimeseries);
 				}
-	
-				$timeout(function() {
-					// prepare diagrams for all selected timestamps with all features
-					for(let timestamp of $scope.selectedTimestamps) {
-						let classifyUsingWholeTimeseries = false;
-						$scope.prepareDiagrams($scope.selectedIndicator, selectedSpatialUnit, timestamp.name, classifyUsingWholeTimeseries);
-					}
-					$scope.initializeOrUpdateAllDiagrams();
-					$scope.loadingData = false;
-				});
-				
-			}
-	
-			let updateDiagramsInterval = $interval(updateDiagrams, 0, 100)
+				$scope.initializeOrUpdateAllDiagrams();
+				$scope.loadingData = false;
+			});
 		}
 
 		/**
@@ -653,6 +714,37 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			});
 		}
 
+		// availableFeaturesBySpatialUnit has to be populated before this method is called
+		function getValidTimestampsForSpatialUnit(spatialUnitName) {
+			// check if the most recent timestamp is valid for the selected spatial unit
+			// if not try the second (third, fourth, ...) most recent
+			// we assume that there is at least one valid timestamp for the spatial unit
+			
+			let validTimestamps = []; // result
+
+			let features = $scope.availableFeaturesBySpatialUnit[ spatialUnitName ];
+			if(!features)
+				throw new Error("Tried to get valid timestamps but no features were cached.")
+
+			// Iterate all features and add all properties that start with "DATE_" to 'validTimestamps'
+			// Not sure if all features always have all timestamps, even if values are missing for some
+			// If  that's the case this iteration could be reduced to the first feature
+			for(let feature of features) {
+				let props = Object.keys(feature.properties)
+				props = props.filter( prop => {
+					return prop.startsWith("DATE_");
+				})
+
+				for(let prop of props) {
+					let timestamp = prop.replace("DATE_", "")
+					if( !validTimestamps.includes(timestamp) ) {
+						validTimestamps.push(timestamp)
+					}
+				}
+			}
+			return validTimestamps;
+		}
+
 		
 		$scope.onIndicatorSelected = async function(indicator) {
 			$scope.selectedIndicator = undefined;
@@ -687,25 +779,30 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			// set spatial unit to highest available one
 			$scope.selectedSpatialUnit = $scope.selectedIndicator.applicableSpatialUnits[0];
 
-			// select most recent timestamp
-			// get manually because it takes a  moment until $scope.selectedTimestamps is set by the listener
+			// can be used in the area change listener to check if we are updating an indicator
+			// we don't want to update diagrams in that case since this is done on timestamp/timeseries change later
+			$scope.isIndicatorChange = true; 
+			await $scope.updateAreasInDualList(); // this populates $scope.availableFeaturesBySpatialUnit
+
+			// select most recent timestamp that is valid for the largest spatial unit
 			let dates = $scope.selectedIndicator.applicableDates;
-			let mostRecentTimestampName = dates[ dates.length - 1 ]
-			// convert all available timestamps to required format ("feature")
-			let availableTimestamps = dates.map( name => {
-				return { "properties": { "NAME": name } }
+			let timestampsForSelectedSpatialUnit = getValidTimestampsForSpatialUnit( $scope.selectedSpatialUnit.spatialUnitName);
+			timestampsForSelectedSpatialUnit.sort();
+			
+			let availableTimestamps = dates
+				.filter( name => { // filter dates to only show the ones valid for selected spatial unit 
+					return timestampsForSelectedSpatialUnit.includes( name )
+				}).map( name => { // then convert all timestamps to required format ("feature")
+					return { "properties": { "NAME": name } }
 			})
+
+			let mostRecentTimestampName = timestampsForSelectedSpatialUnit.at(-1);
 			let mostRecentTimestamp = availableTimestamps.filter( el => {
 				return el.properties.NAME === mostRecentTimestampName;
 			})
 			
-			// can be used in the area change listener to check if we are updating an indicator
-			// we don't want to update diagrams in that case since this is done on timestamp/timeseries change later
-			$scope.isIndicatorChange = true; 
-			await $scope.updateAreasInDualList();
-
 			if($scope.template.name === "A4-landscape-timeseries") {
-				$scope.dateSlider = $scope.initializeDateRangeSlider(dates);
+				$scope.dateSlider = $scope.initializeDateRangeSlider( timestampsForSelectedSpatialUnit );
 			}
 			// update indicator name and timestamp in preview
 			for(let page of $scope.template.pages) {
@@ -714,7 +811,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 						el.text = indicator.indicatorName + " [" + indicator.unit + "]";
 						el.isPlaceholder = false;
 						// no area-specific pages in template since diagrams are not prepared yet
-						// and area/timestamp/ timeseries changes are done after that
+						// and area/timestamp/timeseries changes are done after that
 					}
 
 					if(el.type === "dataTimestamp-landscape") {
@@ -1487,16 +1584,35 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			let data = indicator.geoJSON.features.map( feature => {
 				return feature.properties["DATE_" + timestamp];
 			})
-			let sum = data.reduce( (prev, current) => prev + current)
-			let avg = sum / indicator.geoJSON.features.length;
+			let noDataCounter = 0
+			let sum = 0;
+			for(let i=0; i<data.length; i++) {
+				if(typeof(data[i]) === "number" && !isNaN(data[i])) {
+					sum += data[i];
+				} else {
+					noDataCounter++;
+				}
+			}
+			
+			let avg = sum / indicator.geoJSON.features.length - noDataCounter;
 			avg = Math.round(avg * 100) / 100; // 2 decimal places
 			return avg;
 		}
 
 		$scope.calculateOverallChange = function(indicator, timeseries) {
 			let data = $scope.calculateSeriesDataForTimeseries(indicator.geoJSON.features, timeseries);
-			let sum = data.map(obj => obj.value).reduce( (prev, current) => prev + current)
-			let avgChange = sum / indicator.geoJSON.features.length;
+			data = data.map(obj => obj.value)
+			let noDataCounter = 0
+			let sum = 0;
+			for(let i=0; i<data.length; i++) {
+				if(typeof(data[i]) === "number" && !isNaN(data[i])) {
+					sum += data[i];
+				} else {
+					noDataCounter++;
+				}
+			}
+			
+			let avgChange = sum / indicator.geoJSON.features.length - noDataCounter;
 			avgChange = Math.round(avgChange * 100) / 100; // 2 decimal places
 			return avgChange;
 		}
@@ -1827,17 +1943,31 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 			let inBetweenDates;
 			if(includeInBetweenValues) {
-				// get all available timestamps that lie in between from and to
-				inBetweenDates = $scope.selectedIndicator.applicableDates.filter( el => {
+				// get all valid timestamps for this spatial unit that lie in between from and to
+				let validTimestamps = getValidTimestampsForSpatialUnit( $scope.selectedSpatialUnit.spatialUnitName );
+				inBetweenDates = validTimestamps.filter( el => {
 					let date = new Date(el);
 					date.setHours(0); // remove time-offset...TODO is there a better way?
 					return from < date && date < to;
 				});
 			}
+			// append zeros to month and year if needed
+			let month = (from.getMonth()+1) // months start with 0
+			let day = from.getDate();
+			from = from.getFullYear() + "-";
+			if( month < 10) from += "0";
+			from += month + "-";
+			if( day < 10) from += "0";
+			from += day;
+
+			month = (to.getMonth()+1) // months start with 0
+			day = to.getDate();
+			to = to.getFullYear() + "-";
+			if( month < 10) to += "0";
+			to += month + "-";
+			if( day < 10) to += "0";
+			to += day;
 			
-			from = from.getFullYear() + "-" + (from.getMonth()+1) + "-" + from.getDate();
-			to = to.getFullYear() + "-" + (to.getMonth()+1) + "-" + to.getDate();
-		
 			let result = {
 				from: from,
 				to: to,
@@ -1848,7 +1978,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		}
 
 
-		$scope.initializeDateRangeSlider = function(availableDates) {
+		$scope.initializeDateRangeSlider = function(availableDates, min, max) {
 
 			if($scope.dateSlider){
 				$scope.dateSlider.destroy();
@@ -1879,10 +2009,17 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			});
 
 			let dateSlider = $("#reporting-dateSlider").data("ionRangeSlider");
-			// make sure that the handles are properly set to min and max values
+			// make sure that the handles are properly set
+			minIdx = 0;
+			maxIdx = availableDates.length-1;
+			if(typeof(min) !== "undefined")
+				minIdx = availableDates.indexOf(min)
+			if(typeof(max) !== "undefined")
+				maxIdx = availableDates.indexOf(max);
+
 			dateSlider.update({
-				from: 0,
-				to: availableDates.length-1
+				from: minIdx,
+				to: maxIdx
 			});
 			return dateSlider;
 		}
@@ -1915,6 +2052,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 			if($scope.template.name === "A4-landscape-timeseries") {
 				if(!$scope.dateSlider) {
+					return false;
+				}
+				if( !$scope.availableFeaturesBySpatialUnit[ $scope.selectedSpatialUnit.spatialUnitName]) {
 					return false;
 				}
 				let timeseries = $scope.getFormattedDateSliderValues(true).dates;
