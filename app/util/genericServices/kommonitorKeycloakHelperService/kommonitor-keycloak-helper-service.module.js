@@ -9,6 +9,7 @@ angular
       var self = this;
       this.availableKeycloakRoles = [];
       this.targetUrlToKeycloakInstance = "";
+      this.targetRealmUrlToKeycloakInstance = "";
       this.realm = "";
       this.clientId = "";
 
@@ -30,9 +31,13 @@ angular
       };
 
       this.configureKeycloakParameters = function (keycloakConfig) {
+        // // https://<keycloak.url>/auth/
         self.targetUrlToKeycloakInstance = keycloakConfig['auth-server-url'];
         self.realm = keycloakConfig['realm'];
         self.clientId = keycloakConfig['resource'];
+
+        // https://<keycloak.url>/auth/admin/<realm-name>/console
+        self.targetRealmUrlToKeycloakInstance = self.targetUrlToKeycloakInstance + "admin/" + self.realm + "/console";
       };
 
       this.fetchRoles = async function () {
