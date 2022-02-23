@@ -91,8 +91,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 			// sort alphabetically by area name
 			pagesToInsertPerTimestamp.sort( (a, b) => {
-				textA = a.area.toLowerCase();
-				textB = b.area.toLowerCase();
+				let textA = a.area.toLowerCase();
+				let textB = b.area.toLowerCase();
 				return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
 			})
 
@@ -171,8 +171,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 			// sort alphabetically by area name
 			pagesToInsert.sort( (a, b) => {
-				textA = a.area.toLowerCase();
-				textB = b.area.toLowerCase();
+				let textA = a.area.toLowerCase();
+				let textB = b.area.toLowerCase();
 				return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
 			});
 
@@ -258,8 +258,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 						// sort alphabetically by area name
 						areaSpecificPages.sort( (a, b) => {
-							textA = a.area.toLowerCase();
-							textB = b.area.toLowerCase();
+							let textA = a.area.toLowerCase();
+							let textB = b.area.toLowerCase();
 							return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
 						})
 
@@ -650,7 +650,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 						}
 					}
 				}
-			});
+			}, 500);
 		}
 
 		
@@ -865,8 +865,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		 * @param {*} pageElement 
 		 * @returns 
 		 */
-		$scope.createPageElement_Map = function(wrapper, page, pageElement) {
-			
+		$scope.createPageElement_Map = function(wrapper, page, pageElement) {			
 			// check if there is a map registered for this combination, if not register one with all features
 			let mapName = undefined;
 			let timestamp = undefined;
@@ -900,6 +899,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			if(pageElement.isTimeseries) {
 				timestamp += "_relative"
 			}
+			console.log($scope.echartsOptions);
+			console.log($scope.echartsOptions.map);
 			let options = JSON.parse(JSON.stringify( $scope.echartsOptions.map[timestamp] ));
 			
 
@@ -1233,7 +1234,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 						return areaNames.includes( feature.properties.NAME );
 					});
 					// get values for each feature
-					for(feature of selectedAreasFeatures) {
+					for(let feature of selectedAreasFeatures) {
 						let value = feature.properties["DATE_" + timestamp]
 						valuesForTimestamp.push(value);
 					}
@@ -1474,7 +1475,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			let mapName = options.series[0].map;
 			// filter shown areas if we are in the area-specific part of the template
 			// removing areas form the series doesn't work. We have to filter the geojson of the registered map
-			features = allFeatures.filter ( el => {
+			let features = allFeatures.filter ( el => {
 				return el.properties.name === areaName
 			});
 

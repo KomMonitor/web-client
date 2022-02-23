@@ -246,7 +246,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 		$scope.filterMapByArea = function(echartsInstance, echartsInstanceOptions, areaName, allFeatures) {
 			let mapName = echartsInstanceOptions.series[0].map;
 			// filter shown areas if we are in the area-specific part of the template
-			features = allFeatures.filter ( el => {
+			let features = allFeatures.filter ( el => {
 				return el.properties.name === areaName
 			});
 

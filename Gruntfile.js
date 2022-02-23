@@ -207,7 +207,20 @@ module.exports = function (grunt) {
 
         babel: {
           options: {
-            sourceMap: true
+            sourceMap: true,
+            presets: [
+                [
+                    "env",
+                    {
+                        "targets": {
+                            "browsers": [
+                                "last 2 versions"
+                            ]
+                        },
+                        "forceAllTransforms": true // this line turns "let" into "var", etc
+                    }
+                ]
+            ]
           },
           dist: {
             files: {
