@@ -670,7 +670,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 						let dualListBtnElement = undefined;
 						switch(options.label) {
 							case "Zeitpunkte":
-								dualListBtnElement = document.querySelector("#reporting-indicator-add-timestamps-dual-list .duallistButton")[0];
+								dualListBtnElement = document.querySelectorAll("#reporting-indicator-add-timestamps-dual-list .duallistButton")[0];
 								break;
 							case "Bereiche":
 								dualListBtnElement = document.querySelectorAll("#reporting-indicator-add-areas-dual-list .duallistButton")[0];
