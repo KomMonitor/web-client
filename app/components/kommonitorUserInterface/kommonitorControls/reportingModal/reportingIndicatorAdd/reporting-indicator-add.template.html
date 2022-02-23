@@ -51,6 +51,17 @@
                             <div class="loading-overlay-reporting" ng-show="loadingData">
                                 <span class="glyphicon glyphicon-refresh icon-spin"></span>
                             </div>
+                            <div id="reporting-spatialUnitChangeWarning" class="alert alert-warning collapse">
+                                <span ng-show="template.name == 'A4-landscape-timestamp'">
+                                    Mindestens ein ausgewählter Zeitpunkt war für die neue Raumebene nicht verfügbar und wurde entfernt.
+                                </span>
+                                <span ng-show="template.name == 'A4-landscape-timeseries'">
+                                    Nach dem Wechsel der Raumeinheit enthält die Zeitserie andere Zeitpunkte. 
+                                </span>
+                                <span ng-show="template.name == 'A4-landscape-timeseries' && timeseriesAdjustedOnSpatialUnitChange">
+                                    Sie wurde auf den größtmöglichen Zeitraum gesetzt weil die ursprüngliche Einstellung nicht übernommen werden konnte.
+                                </span>
+                            </div>
                             <div id="reporting-spatial-unit-select-wrapper">
                                 Raumebene: 
                                 <select id="reporting-spatial-unit-select" ng-model="selectedSpatialUnit" 

@@ -469,7 +469,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 			});
 
 			// general settings
-			let fontName = "times";
+			let fontName = "Helvetica";
 			doc.setDrawColor(148, 148, 148);
 			doc.setFont(fontName, "normal", "normal"); // name, normal/italic, fontweight
 			
@@ -506,7 +506,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 						case "indicatorTitle-landscape": {
 							// Css takes the top-left edge of the element by default.
 							// doc.text takes left-bottom, so we ass baseline "top" to achieve the same behavior in jspdf.
-							doc.setFont(fontName, "normal", "bold")
+							doc.setFont(fontName, "Bold")
 							doc.text(pageElement.text, pageElementDimensions.left, pageElementDimensions.top, { baseline: "top" });
 							doc.setFont(fontName, "normal", "normal")
 							break;
