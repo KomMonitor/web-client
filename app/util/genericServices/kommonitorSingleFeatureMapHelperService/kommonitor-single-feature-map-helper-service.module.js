@@ -73,10 +73,9 @@ angular
               //   addressdetails: 1 // include additional address detail parts                
               // },
               params: {
-                lon: __env.initialLongitude,
-                lat: __env.initialLatitude
+                viewbox: "" + (Number(__env.initialLongitude) - 0.001) + "," + (Number(__env.initialLatitude) - 0.001) + "," + (Number(__env.initialLongitude) + 0.001) + "," + (Number(__env.initialLatitude) + 0.001)
               },
-              searchUrl: 'https://geocoder.fbg-hsbo.de/nominatim',
+              searchUrl: 'https://geocoder.fbg-hsbo.de/nominatim/',
               reverseUrl: 'https://geocoder.fbg-hsbo.de/nominatim/reverse'
             }
           );
