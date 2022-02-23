@@ -3,8 +3,8 @@ angular.module('kommonitorSingleFeatureMapHelper', ['kommonitorDataExchange']);
 angular
   .module('kommonitorSingleFeatureMapHelper', [])
   .service(
-    'kommonitorSingleFeatureMapHelperService', ['$rootScope', '__env',
-    function ($rootScope, __env) {
+    'kommonitorSingleFeatureMapHelperService', ['$rootScope', '__env', '$timeout',
+    function ($rootScope, __env, $timeout) {
 
       var self = this;
 
@@ -24,7 +24,10 @@ angular
       
       this.invalidateMap = function(){
         if (this.map){
-          this.map.invalidateSize(true);
+          // just wait a bit in order to ensure that map element is visible to make invalidateSize actually work
+          $timeout(function(){            
+            self.map.invalidateSize(true);
+          }, 500);
         }
       };
 
@@ -37,7 +40,16 @@ angular
 
         // register events that broadcast new geometry to other components
 
-        var baseLayerDefinitionsMap = new Map();
+          if(this.map){
+            this.map.off();
+            this.map.remove();
+
+            // var domNode = document.getElementById(domId);
+
+						// 	while (domNode.hasChildNodes()) {
+						// 		domNode.removeChild(domNode.lastChild);
+						// 	}
+          }
 
           this.map = L.map(domId, {
             center: [__env.initialLatitude, __env.initialLongitude],
@@ -55,6 +67,7 @@ angular
 
           this.initDrawControl(resourceType);
 
+          this.invalidateMap();
       };
 
       this.initGeosearchControl = function(){
@@ -88,7 +101,7 @@ angular
             style: 'button',
             autoComplete: true,
             autoCompleteDelay: 250,
-            showMarker: true,                                   // optional: true|false  - default true
+            showMarker: false,                                   // optional: true|false  - default true
             showPopup: false,                                   // optional: true|false  - default false
             marker: {                                           // optional: L.Marker    - default L.Icon.Default
               icon: new L.Icon.Default(),
@@ -104,27 +117,25 @@ angular
           });
 
           this.map.addControl(this.geosearchControl);
-          this.map.on('geosearch/showlocation', function(event){
-            console.log(event);
-            let geoJSON = {
-              type: "Feature",
-              geometry: {
-                type: "Point",
-                coordinates: [event.x, event.y]
-              },
-              properties: {
+          // this.map.on('geosearch/showlocation', function(event){
+          //   console.log(event);
+          //   let geoJSON = {
+          //     type: "Feature",
+          //     geometry: {
+          //       type: "Point",
+          //       coordinates: [event.x, event.y]
+          //     },
+          //     properties: {
 
-              }
-            };
-            $rootScope.$broadcast("onUpdateSingleFeatureGeometry", geoJSON);
-          });
+          //     }
+          //   };
+          //   $rootScope.$broadcast("onUpdateSingleFeatureGeometry", geoJSON);
+          // });
       };
 
       this.initDrawControl = function(resourceType){
         // FeatureGroup is to store editable layers
-        if (!this.featureLayer) {
-          this.featureLayer = new L.FeatureGroup();
-        }
+        this.featureLayer = new L.FeatureGroup();
 
         L.drawLocal = {
           edit: {
