@@ -2011,8 +2011,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 			let dateSlider = $("#reporting-dateSlider").data("ionRangeSlider");
 			// make sure that the handles are properly set
-			minIdx = 0;
-			maxIdx = availableDates.length-1;
+			let minIdx = 0;
+			let maxIdx = availableDates.length-1;
 			if(typeof(min) !== "undefined")
 				minIdx = availableDates.indexOf(min)
 			if(typeof(max) !== "undefined")
