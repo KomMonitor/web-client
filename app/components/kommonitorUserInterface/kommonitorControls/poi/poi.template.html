@@ -194,7 +194,8 @@
 													style="color: black;"
 													ng-attr-title="{{::subsubsubTopic.topicDescription}}"
 													ng-click="isCollapsed_subsubsubTopic = !isCollapsed_subsubsubTopic"
-													ng-init="isCollapsed_subsubsubTopic=true">{{::subsubsubTopic.topicName}}
+													ng-init="isCollapsed_subsubsubTopic=true"><i
+													class="glyphicon glyphicon-chevron-right"></i>{{::subsubsubTopic.topicName}}
 													({{subsubsubTopic.totalCount}})</a>
 												&nbsp;&nbsp; <input type="checkbox" ng-model="subsubsubTopic.isSelected"
 													value="subsubsubTopic.isSelected"
