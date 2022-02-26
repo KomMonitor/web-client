@@ -1046,6 +1046,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 						el.emphasis.itemStyle.color = "rgb(255, 153, 51, 0.6)";
 						el.label.formatter = '{b}\n{c}';
 						el.label.show = true;
+						el.label.textShadowColor = '#ffffff';
+						el.label.textShadowBlur = 2;
 					} else {
 						// only show borders for any other areas
 						el.itemStyle.color = "rgba(255, 255, 255, 1)";
@@ -1088,6 +1090,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 						el.emphasis.itemStyle.color = color;
 						el.emphasis.itemStyle.areaColor = color;
 						el.emphasis.itemStyle.opacity = opacity;
+						el.label.textShadowColor = '#ffffff';
+						el.label.textShadowBlur = 2;
 					} else {
 						el.visualMap = false;
 						el.itemStyle.color = "rgb(255, 255, 255)";
@@ -1098,6 +1102,24 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					}
 				}
 			})
+
+
+			// label positioning
+			options.labelLayout = function(feature) {
+				return {
+				  moveOverlap: 'shiftY',
+				  x: feature.rect.x + feature.rect.width / 2,
+				  draggable: true
+				}
+			}
+			
+			options.labelLine = {
+				show: true,
+				showAbove: false,
+				lineStyle: {
+				  color: '#555'
+				}
+			}
 			
 			map.setOption(options);
 			return map;
