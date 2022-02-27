@@ -145,7 +145,8 @@
                                     left: {{pageElement.dimensions.left}};
                                     width: {{pageElement.dimensions.width}};
                                     height: {{pageElement.dimensions.height}};
-                                    {{ pageElement.type != 'footerHorizontalSpacer-landscape' ? 'border: dashed gray 1px;' : pageElement.css }}">
+                                    {{ pageElement.type != 'footerHorizontalSpacer-landscape' ? 'border: dashed gray 1px;' : pageElement.css }}
+                                    z-index: {{ pageElement.type == 'map' ? 20 : 1 }}"> <!-- show echarts map above leaflet container, leaflet container gets created dynamically -->
 
                                 <span ng-show="pageElement.isPlaceholder == true"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}"
@@ -170,6 +171,11 @@
                                 <span ng-show="pageElement.type == 'dataTimeseries-landscape' && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
                                     {{pageElement.text}}
+                                </span>
+
+                                <span ng-show="pageElement.type == 'dataTimestamp+typeOfMovement-landscape' && pageElement.isPlaceholder == false"
+                                    ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
+                                {{pageElement.text}}
                                 </span>
 
                                 <span ng-show="pageElement.type == 'overallAverage' && pageElement.isPlaceholder == false"
@@ -216,7 +222,7 @@
                                 
                                 <img ng-show="pageElement.type == 'communeLogo-landscape' && pageElement.isPlaceholder == false"
                                     ng-attr-src="{{pageElement.src}}">
-
+                                
                             </div>
                         </div>
                     </div>

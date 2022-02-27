@@ -53,11 +53,12 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				return !page.hasOwnProperty("area")
 			});
 
-			if($scope.template.name !== "A4-landscape-timeseries") {
+			if($scope.template.name === "A4-landscape-timestamp")
 				$scope.updateAreasForTimestampTemplates(newVal)
-			} else {
+			if($scope.template.name === "A4-landscape-timeseries")
 				$scope.updateAreasForTimeseriesTemplates(newVal)
-			}
+			if($scope.template.name === "A4-landscape-reachability")
+				$scope.updateAreasForReachabilityTemplates(newVal)
 
 
 			function updateDiagrams() {
@@ -209,6 +210,65 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			for(let page of pagesToInsert)
 				page.id = $scope.templatePageIdCounter++;
 			$scope.template.pages.splice($scope.indexOfFirstAreaSpecificPage, 0, ...pagesToInsert)
+		}
+
+		$scope.updateAreasForReachabilityTemplates = function(newVal) {
+			// we only have one timestamp here (the most recent one)
+			let pagesToInsert = [];
+			for(let area of newVal) {
+				// get page to insert from untouched template
+				let pageToInsert = angular.fromJson($scope.untouchedTemplateAsString).pages[ $scope.indexOfFirstAreaSpecificPage ];
+				pageToInsert.area = area.name;
+				pageToInsert.id = $scope.templatePageIdCounter++;
+				pagesToInsert.push(pageToInsert);
+			}
+
+			// sort alphabetically by area name
+			pagesToInsert.sort( (a, b) => {
+				textA = a.area.toLowerCase();
+				textB = b.area.toLowerCase();
+				return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+			});
+
+			// we select the most recent timestamp programmatically and don't allow user to change it, so this should be 1 here
+			if($scope.selectedTimestamps.length === 1) {
+
+				// setup pages before inserting
+				for(let pageToInsert of pagesToInsert) {
+
+					let titleEl = pageToInsert.pageElements.find( el => {
+						return el.type === "indicatorTitle-landscape"
+					});
+					titleEl.text = $scope.selectedIndicator.indicatorName + " [" + $scope.selectedIndicator.unit + "]";
+					if(pageToInsert.area) {
+						titleEl.text += ", " + pageToInsert.area
+					}
+					titleEl.isPlaceholder = false;
+
+					let dateEl = pageToInsert.pageElements.find( el => {
+						return el.type === "dataTimestamp+typeOfMovement-landscape"
+					});
+					dateEl.text = $scope.selectedTimestamps[0].name + ", Fortbewegungsmittel (TODO)";
+					dateEl.isPlaceholder = false;
+
+					// diagrams have to be inserted later because the div element does not yet exist
+				}
+
+				// create a deep copy so we can assign new ids
+				pagesToInsert = JSON.parse(JSON.stringify(pagesToInsert));
+				let numberOfPagesToReplace = $scope.template.pages.length-2 // basically everything until the end of the template (-2 because we start at second page)
+				// insert area-specific pages
+				for(let page of pagesToInsert)
+					page.id = $scope.templatePageIdCounter++;
+
+				$scope.template.pages.splice($scope.indexOfFirstAreaSpecificPage, numberOfPagesToReplace, ...pagesToInsert)
+			} else {
+				pagesToInsert = JSON.parse(JSON.stringify(pagesToInsert));
+				for(let page of pagesToInsert)
+					page.id = $scope.templatePageIdCounter++;
+				// no timestamp selected, insert as placeholder
+				$scope.template.pages.splice($scope.indexOfFirstAreaSpecificPage, 0, ...pagesToInsertPerTimestamp)
+			}
 		}
 
 
@@ -404,6 +464,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				$scope.indexOfFirstAreaSpecificPage = 3;
 			if($scope.template.name === "A4-landscape-timeseries")
 				$scope.indexOfFirstAreaSpecificPage = 4;
+			if($scope.template.name === "A4-landscape-reachability")
+				$scope.indexOfFirstAreaSpecificPage = 1;
 
 			// disbale all tabs except the first one (until an indicator is chosen)
 			let tabPanes = document.querySelectorAll("#reporting-add-indicator-tab-content > .tab-pane")
@@ -483,6 +545,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			await $scope.updateAreasInDualList()
 
 			// There might be different valid timestamps for the new spatial unit.
+
 			let validTimestamps = getValidTimestampsForSpatialUnit( selectedSpatialUnit.spatialUnitName );
 			
 			// Check if the currently selected timestamps are also available for the new spatial unit.
@@ -724,9 +787,10 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			let validTimestamps = []; // result
 
 			let features = $scope.availableFeaturesBySpatialUnit[ spatialUnitName ];
-			if(!features)
-				throw new Error("Tried to get valid timestamps but no features were cached.")
-
+			if(!features) {
+				let error = new Error("Tried to get valid timestamps but no features were cached.")
+				kommonitorDataExchangeService.displayMapApplicationError(error.message)
+			}
 			// Iterate all features and add all properties that start with "DATE_" to 'validTimestamps'
 			// Not sure if all features always have all timestamps, even if values are missing for some
 			// If  that's the case this iteration could be reduced to the first feature
@@ -824,6 +888,11 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					if(el.type === "dataTimeseries-landscape") {
 						let dsValues = $scope.getFormattedDateSliderValues()
 						el.text = dsValues.from + " - " + dsValues.to
+						el.isPlaceholder = false
+					}
+
+					if(el.type === "dataTimestamp+typeOfMovement-landscape") {
+						el.text = mostRecentTimestampName + ", Fortbewegungsmittel (TODO)";
 						el.isPlaceholder = false
 					}
 				}
@@ -972,16 +1041,29 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			let timestamp = undefined;
 			
 			// get the timestamp from pageElement, not from dom because dom might not be up to date yet
-			let dateElement = page.pageElements.find( el => {
-				return el.type === (pageElement.isTimeseries ? "dataTimeseries-landscape" : "dataTimestamp-landscape"); // pageElement references the map here
-			});
-			mapName = $scope.selectedIndicator.indicatorName + "_" + dateElement.text + "_" + $scope.selectedSpatialUnit.spatialUnitName;
-			
-			if(pageElement.isTimeseries) {
-				timestamp = dateElement.text.split(" - ")[1];
+			let dateElement;
+			// for reachability template dateElement is still undefined
+			if($scope.template.name === "A4-landscape-reachability") {
+				dateElement = page.pageElements.find( el => {
+					return el.type === "dataTimestamp+typeOfMovement-landscape";
+				});
+				timestamp = dateElement.text.split(",")[0];
 			} else {
-				timestamp = dateElement.text;
+				// the other two templates
+				dateElement = page.pageElements.find( el => {
+					// pageElement references the map here
+					// do the comparison like this because we have maps with dataTimestamp and dataTimeseries in the timeseries template
+					return el.type === (pageElement.isTimeseries ? "dataTimeseries-landscape" : "dataTimestamp-landscape");
+				});
+
+				if(pageElement.isTimeseries) {
+					timestamp = dateElement.text.split(" - ")[1]; // get the recent timestamp
+				} else {
+					timestamp = dateElement.text;
+				}
 			}
+
+			mapName = $scope.selectedIndicator.indicatorName + "_" + dateElement.text + "_" + $scope.selectedSpatialUnit.spatialUnitName;
 			
 			if(pageElement.classify)
 				mapName += "_classified";
@@ -1002,7 +1084,6 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			}
 			let options = JSON.parse(JSON.stringify( $scope.echartsOptions.map[timestamp] ));
 			
-
 			// default changes for all reporting maps
 			options.title.show = false;
 			options.grid = undefined;
@@ -1012,7 +1093,10 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			let series = options.series[0];
 			series.roam = false;
 			series.selectedMode = false;
-
+			
+			if($scope.template.name === "A4-landscape-reachability") {
+				options.backgroundColor = "rgba(255,255,255,0)" // transparent, because we draw it over the leaflet map
+			}
 
 			if(pageElement.isTimeseries) {
 				let includeInBetweenDates = true;
@@ -1043,14 +1127,27 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				if(pageElement.classify === false) {
 					if( areaNames.includes(el.name) ) {
 						// show selected areas (don't classify color by value)
-						el.itemStyle.areaColor = "rgb(255, 153, 51, 0.6)";
-						el.itemStyle.color = "rgb(255, 153, 51, 0.6)";
-						el.emphasis.itemStyle.areaColor = "rgb(255, 153, 51, 0.6)";
-						el.emphasis.itemStyle.color = "rgb(255, 153, 51, 0.6)";
 						el.label.formatter = '{b}\n{c}';
 						el.label.show = true;
 						el.label.textShadowColor = '#ffffff';
 						el.label.textShadowBlur = 2;
+						// only show borders for reachability template
+						if($scope.template.name === "A4-landscape-reachability") {
+							el.itemStyle.areaColor = "rgb(255, 255, 255, 0)"; // 0 = transparent
+							el.itemStyle.borderColor = "rgb(255, 153, 51)"
+							el.itemStyle.borderWidth = 5;
+							el.itemStyle.color = "rgb(255, 255, 255, 0)";
+							el.emphasis.itemStyle.areaColor = "rgb(255, 255, 255, 0)";
+							el.emphasis.itemStyle.borderColor = "rgb(255, 153, 51)"
+							el.emphasis.itemStyle.borderWidth = 5;
+							el.emphasis.itemStyle.color = "rgb(255, 255, 255, 0)";
+						} else {
+							el.itemStyle.areaColor = "rgb(255, 153, 51, 0.6)";
+							el.itemStyle.color = "rgb(255, 153, 51, 0.6)";
+							el.emphasis.itemStyle.areaColor = "rgb(255, 153, 51, 0.6)";
+							el.emphasis.itemStyle.color = "rgb(255, 153, 51, 0.6)";
+						}
+						
 					} else {
 						// only show borders for any other areas
 						el.itemStyle.color = "rgba(255, 255, 255, 1)";
@@ -1185,6 +1282,86 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			}
 		
 			map.setOption(options);
+
+			// for reachability initialize the leaflet map beneath the transparent-background echarts map
+			if($scope.template.name === "A4-landscape-reachability") {
+				
+				$timeout(function(page, pageElement, echartsMap) {
+					let pageIdx = $scope.template.pages.indexOf(page);
+					let pageDom = document.getElementById("reporting-addIndicator-page-" + pageIdx);
+					let oldMapNode = document.querySelector("#reporting-reachability-leaflet-map-container-" + pageIdx);
+					if(oldMapNode) {
+						oldMapNode.remove();
+					}
+					let div = document.createElement("div");
+					div.id ="reporting-reachability-leaflet-map-container-" + pageIdx;
+					div.style.position = "absolute";
+					div.style.left = pageElement.dimensions.left;
+					div.style.top = pageElement.dimensions.top;
+					div.style.width = pageElement.dimensions.width;
+					div.style.height = pageElement.dimensions.height;
+					div.style.zIndex = 10;
+					pageDom.appendChild(div);
+
+					let leafletMap = L.map("reporting-reachability-leaflet-map-container-" + pageIdx, {
+						zoomControl: false,
+						// prevents leaflet form snapping to closest pre-defined zoom level.
+						// In other words, it allows us to set exact map extend by a (echarts) bounding box
+						zoomSnap: 0 
+					});
+					let echartsOptions = echartsMap.getOption();
+					// echarts uses [lon, lat], leaflet uses [lat, lon]
+					let boundingCoords = echartsOptions.series[0].boundingCoords;
+					let westLon = boundingCoords[0][0];
+					let southLat = boundingCoords[1][1];
+					let eastLon = boundingCoords[1][0];
+					let northLat = boundingCoords[0][1];
+
+					if(page.area && page.area.length) {
+						for(feature of $scope.selectedIndicator.geoJSON.features) {
+							if(feature.properties.NAME === page.area) {
+								// set bounding box to this feature
+								featureBbox = feature.properties.bbox;
+								westLon = featureBbox[0];
+								southLat = featureBbox[1];
+								eastLon = featureBbox[2];
+								northLat = featureBbox[3];
+								break;
+							}
+						}
+					}
+
+					// Add 2% space on all sides
+					let divisor = 50;
+					let bboxHeight = northLat - southLat;
+					let bboxWidth = eastLon - westLon;
+					northLat += bboxHeight/divisor;
+					southLat -= bboxHeight/divisor;
+					eastLon += bboxWidth/divisor;
+					westLon -= bboxWidth/divisor;
+
+					leafletMap.fitBounds( [[southLat, westLon], [northLat, eastLon]] );
+					let bounds = leafletMap.getBounds()
+					// now update the echarts map
+					boundingCoords = [ [bounds.getWest(), bounds.getNorth()], [bounds.getEast(), bounds.getSouth()]]
+					echartsOptions.series[0].top = 0;
+					echartsOptions.series[0].bottom = 0;
+					echartsOptions.series[0].aspectScale = 0.625
+					echartsOptions.series[0].boundingCoords = boundingCoords
+					echartsMap.setOption(echartsOptions, {
+						replaceMerge: ['series']
+					});
+					
+					let osmLayer = new L.TileLayer.Grayscale("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+						attribution: "Map data © <a href='http://openstreetmap.org'>OpenStreetMap</a> contributors",
+					});
+					osmLayer.addTo(leafletMap);
+
+					// temp geojson
+					let geoJsonLayer = L.geoJSON( $scope.selectedIndicator.geoJSON.features )
+					geoJsonLayer.addTo(leafletMap)
+				}, 0, true, page, pageElement, map)
+			}
 			return map;
 		}
 
@@ -1411,11 +1588,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 			if(pageElement.showPercentageChangeToPrevTimestamp) {
 				for(let series of options.series) {
-					try {
-						series.data = $scope.transformSeriesDataToPercentageChange(series.data)
-					} catch(error) {
-						kommonitorDataExchangeService.displayMapApplicationError(error.message);
-					}
+					series.data = $scope.transformSeriesDataToPercentageChange(series.data)
+						
 					
 				}
 				options.xAxis.data.shift();
@@ -2230,7 +2404,8 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		$scope.transformSeriesDataToPercentageChange = function(dataArr) {
 			// we need at least two timestamps
 			if(dataArr.length <= 1) {
-				throw new Error("Can not calculate percentage change from a single timestamp.")
+				let error = new Error("Can not calculate percentage change from a single timestamp.")
+				kommonitorDataExchangeService.displayMapApplicationError(error.message);
 			}
 			let result = [];
 			for(let i=1; i<dataArr.length;i++) {

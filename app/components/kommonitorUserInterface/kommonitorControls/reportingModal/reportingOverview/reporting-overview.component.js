@@ -172,6 +172,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 
 						if(pageElement.type === "map" || pageElement.type === "barchart" || pageElement.type === "linechart") {
 							let instance = echarts.init( pElementDom );
+							
 
 							if(pageElement.type === "map") {
 								// for maps: register maps
@@ -235,6 +236,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 									}	
 								}
 							}
+
 							instance.setOption( pageElement.echartsOptions )
 						}
 
@@ -272,7 +274,6 @@ angular.module('reportingOverview').component('reportingOverview', {
 						}
 					}
 				}
-
 				$scope.loadingData = false;
 				$scope.$apply();
 

@@ -2854,6 +2854,19 @@ angular
         "css": "text-align: left; padding-left: 5px;"
       },
       {
+        "type": "dataTimestamp+typeOfMovement-landscape",
+        "dimensions": {
+          "top": "50px",
+          "left": "15px",
+          "width": "720px",
+          "height": "30px"
+        },
+        "isPlaceholder": true,
+        "placeholderText": "Aktueller Datenstand, Fortbewegungsmittel",
+        "text": "",
+        "css": "text-align: left; padding-left: 5px;"
+      },
+      {
         "type": "communeLogo-landscape",
         "dimensions": {
           "top": "15px",

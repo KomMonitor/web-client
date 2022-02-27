@@ -87,6 +87,11 @@
                                     {{pageElement.text}}
                                 </span>
 
+                                <span ng-show="pageElement.type == 'dataTimestamp+typeOfMovement-landscape' && pageElement.isPlaceholder == false"
+                                    ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
+                                    {{pageElement.text}}
+                                </span>
+
                                 <span ng-show="pageElement.type == 'overallAverage' && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
                                     <span style="display: block; text-align:left">

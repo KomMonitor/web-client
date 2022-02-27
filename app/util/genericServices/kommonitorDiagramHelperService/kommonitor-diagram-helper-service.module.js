@@ -897,6 +897,19 @@ angular
           });
         }
 
+        // needed for reporting
+        for(let feature of indicatorMetadataAndGeoJSON.geoJSON.features) {
+          bbox = turf.bbox(feature); // calculate bbox for each feature
+          feature.properties.bbox = bbox;
+        }
+        var bbox = calculateOverallBoundingBoxFromGeoJSON(indicatorMetadataAndGeoJSON.geoJSON.features)
+        //var centerCoords = calculateCenterCoordsFromBbox( bbox );
+        // change format of bbox to match the format needed for echarts
+        bbox = [
+          [bbox[0], bbox[3]], // north-west lon lat
+          [bbox[2], bbox[1]] // south-east lon lat
+        ]
+
         var geoMapOption = {
           // grid get rid of whitespace around chart
           // grid: {
@@ -980,6 +993,7 @@ angular
             name: indicatorMetadataAndGeoJSON.indicatorName,
             type: 'map',
             roam: true,
+            boundingCoords: bbox,
             map: uniqueMapRef,
             emphasis: {
                 label: {
@@ -1830,5 +1844,33 @@ angular
 
           return timeseriesOptions;
       };
+
+
+
+      var calculateOverallBoundingBoxFromGeoJSON = function(features) {
+        let result = [];
+        for(var i=0; i<features.length; i++) {
+           // check if we have to modify our overall bbox (result)
+           if(result.length === 0) { // for first feature
+            result.push(...features[i].properties.bbox);
+            continue;
+          } else {
+            // all other features
+            let bbox = features[i].properties.bbox;
+            result[0] = (bbox[0] < result[0]) ? bbox[0] : result[0];
+            result[1] = (bbox[1] < result[1]) ? bbox[1] : result[1];
+            result[2] = (bbox[2] > result[2]) ? bbox[2] : result[2];
+            result[3] = (bbox[3] > result[3]) ? bbox[3] : result[3];
+          }
+        }
+        return result;
+      };
+
+      // var calculateCenterCoordsFromBbox = function(bbox) {
+      //   // bbox format: [lower left lon, lower left lat, upper right lon, upper right lat]
+      //   var centerLon = bbox[0] + ((bbox[2] - bbox[0]) / 2);
+      //   var centerLat = bbox[1] + ((bbox[3] - bbox[1]) / 2);
+      //   return [centerLon, centerLat]
+      // }
 
     }]);
