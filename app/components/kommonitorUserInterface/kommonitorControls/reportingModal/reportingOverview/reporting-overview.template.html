@@ -95,6 +95,14 @@
                                     </span>
                                 </span>
 
+                                <span ng-show="pageElement.type == 'selectionAverage' && pageElement.isPlaceholder == false"
+                                    ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
+                                    <span style="display: block; text-align:left">
+                                        Durchschnitt Selektion:<br />
+                                        {{pageElement.text}}
+                                    </span>
+                                </span>
+
                                 <span ng-show="pageElement.type == 'overallChange' && pageElement.isPlaceholder == false"
                                     ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
                                     <span style="display: block; text-align:left">
@@ -102,7 +110,15 @@
                                         {{pageElement.text}}
                                     </span>
                                 </span>
-                                
+
+                                <span ng-show="pageElement.type == 'selectionChange' && pageElement.isPlaceholder == false"
+                                    ng-attr-style="{{pageElement.css ? pageElement.css : ''}}">
+                                    <span style="display: block; text-align:left">
+                                        Durchschnittliche Veränderung Selektion:<br />
+                                        {{pageElement.text}}
+                                    </span>
+                                </span>
+
                             </div>
                         </div>
                     </div>

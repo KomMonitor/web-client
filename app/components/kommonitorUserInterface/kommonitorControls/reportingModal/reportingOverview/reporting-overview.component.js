@@ -216,6 +216,10 @@ angular.module('reportingOverview').component('reportingOverview', {
 							pageDom.querySelector(".type-overallAverage").style.border = "none";
 						}
 
+						if(pageElement.type === "selectionAverage") {
+							pageDom.querySelector(".type-selectionAverage").style.border = "none";
+						}
+
 						if(pageElement.type === "mapLegend") {
 							pageElement.isPlaceholder = false;
 							pageDom.querySelector(".type-mapLegend").style.display = "none";
@@ -229,10 +233,17 @@ angular.module('reportingOverview').component('reportingOverview', {
 							wrapper.style.height = "100px";
 						}
 
+						if(pageElement.type === "selectionChange") {
+							let wrapper = pageDom.querySelector(".type-selectionChange")
+							wrapper.style.border = "none";
+							wrapper.style.left = "670px";
+							wrapper.style.width = "130px";
+							wrapper.style.height = "100px";
+						}
+
 						if(pageElement.type === "datatable") {
 							$scope.createDatatablePage(pElementDom, pageElement);
 						}
-
 					}
 				}
 
@@ -554,24 +565,28 @@ angular.module('reportingOverview').component('reportingOverview', {
 							break;
 						}
 						// case "mapLegend" can be ignored since it is included in the map if needed
-						case "overallAverage": {
+						case "overallAverage":
+						case "selectionAverage": {
 							let x, y, width, height;
 							x = pageElementDimensions.left;
 							y = pageElementDimensions.top;
 							width = pageElementDimensions.width;
 							height = pageElementDimensions.height;
 							doc.rect(x, y, width, height);
-							let text = "Durchschnitt\nGesamtstadt:\n" + pageElement.text.toString()
+							let avgType = pageElement.type === "overallAverage" ? "Gesamtstadt" : "Selektion"
+							let text = "Durchschnitt\n" + avgType + ":\n" + pageElement.text.toString()
 							doc.text(text, pageElementDimensions.left + pxToMilli(5), pageElementDimensions.top + pxToMilli(5), { baseline: "top" });
 							break;
 						}
-						case "overallChange": {
+						case "overallChange":
+						case "selectionChange": {
 							let x = pxToMilli(670);
 							let y = pageElementDimensions.top;
 							let width = pxToMilli(130);
 							let height = pxToMilli(80);
 							doc.rect(x, y, width, height);
-							let text = "Durchschnittliche\nVeränderung\nGesamtstadt:\n" + pageElement.text.toString()
+							let changeType = pageElement.type === "overallChange" ? "Gesamtstadt" : "Selektion"
+							let text = "Durchschnittliche\nVeränderung\n" + changeType + ":\n" + pageElement.text.toString()
 							doc.text(text, x + pxToMilli(5), y + pxToMilli(5), { baseline: "top" });
 							break;
 						}
@@ -902,7 +917,8 @@ angular.module('reportingOverview').component('reportingOverview', {
 							paragraphs.push(paragraph);
 							break;
 						}
-						case "overallAverage": {
+						case "overallAverage":
+						case "selectionAverage": {
 							let paragraph = new docx.Paragraph({
 								children: [
 									new docx.TextRun({
@@ -910,7 +926,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 										size: 28  // 14pt
 									}),
 									new docx.TextRun({
-										text: "Gesamtstadt",
+										text: pageElement.type === "overallAverage" ? "Gesamtstadt" : "Selektion",
 										size: 28,
 										break: 1,  // 14pt
 									}),
@@ -967,7 +983,8 @@ angular.module('reportingOverview').component('reportingOverview', {
 							paragraphs.push(paragraph);
 							break;
 						}
-						case "overallChange": {
+						case "overallChange":
+						case "selectionChange": {
 							let paragraph = new docx.Paragraph({
 								children: [
 									new docx.TextRun({
@@ -980,7 +997,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 										size: 28  // 14pt
 									}),
 									new docx.TextRun({
-										text: "Gesamtstadt",
+										text: pageElement.type === "overallChange" ? "Gesamtstadt" : "Selektion",
 										break: 1,
 										size: 28  // 14pt
 									}),

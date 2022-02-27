@@ -1187,7 +1187,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			return map;
 		}
 
-		$scope.createPageElement_OverallAverage = function(page, pageElement) {
+		$scope.createPageElement_Average = function(page, pageElement, calcForSelection) {
 			// get the timestamp from pageElement, not from dom because dom might not be up to date yet
 			// no timeseries possible for this type of element
 			let dateElement = page.pageElements.find( el => {
@@ -1195,18 +1195,19 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			});
 			let timestamp = dateElement.text;
 
-			let overallAvg = $scope.calculateOverallAvg( $scope.selectedIndicator, timestamp );
-			pageElement.text = overallAvg;
+			let avg = $scope.calculateAvg( $scope.selectedIndicator, timestamp, calcForSelection );
+			pageElement.text = avg;
 			pageElement.css = "border: solid 1px lightgray; padding: 2px;"
 			pageElement.isPlaceholder = false;
 		}
 
-		$scope.createPageElement_OverallChange = function(page, pageElement) {
+
+		$scope.createPageElement_Change = function(page, pageElement, calcForSelection) {
 			// get the timeseries from slider, not from dom because dom might not be up to date yet
 			let timeseries = $scope.getFormattedDateSliderValues(true);
 	
-			let overallChange = $scope.calculateOverallChange( $scope.selectedIndicator, timeseries );
-			pageElement.text = overallChange;
+			let change = $scope.calculateChange( $scope.selectedIndicator, timeseries, calcForSelection );
+			pageElement.text = change;
 			pageElement.css = "border: solid 1px lightgray; padding: 2px;";
 			pageElement.isPlaceholder = false;
 		}
@@ -1263,28 +1264,46 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				}	
 			});
 
-			// add one more data element for the average
-			let avgValue = $scope.calculateOverallAvg($scope.selectedIndicator, timestamp);
-			let avgElementName = (page.area && page.area.length) ? "Durchschnitt\nder\nRaumeinheit" : "Durchschnitt der Raumeinheit";
-			let dataObjForAvg = {
-				name: avgElementName,
-				value: avgValue,
+			// add data element for the overall average
+			let overallAvgValue = $scope.calculateAvg($scope.selectedIndicator, timestamp, false);
+			let overallAvgElementName = (page.area && page.area.length) ? "Durchschnitt\nder\nRaumeinheit" : "Durchschnitt der Raumeinheit";
+			let dataObjOverallAvg = {
+				name: overallAvgElementName,
+				value: overallAvgValue,
 				opacity: 1
 			}
-
 			// get color for avg from visual map and disable opacity
-			let colorForAvg = "";
+			let colorOverallAvg = "";
 			for(let piece of options.visualMap[0].pieces) {
-				if(piece.min <= dataObjForAvg.value && dataObjForAvg.value < piece.max) {
-					colorForAvg = piece.color;
+				if(piece.min <= dataObjOverallAvg.value && dataObjOverallAvg.value < piece.max) {
+					colorOverallAvg = piece.color;
 				}
 				piece.opacity = 1;
 			}
+			dataObjOverallAvg.color = colorOverallAvg;
+			options.series[0].data.push(dataObjOverallAvg);
+			options.xAxis.data.push( dataObjOverallAvg.name );
 
-			dataObjForAvg.color = colorForAvg;
-			options.series[0].data.push(dataObjForAvg);
-			options.xAxis.data.push( dataObjForAvg.name )
-
+			// same for selection average
+			// add more data elements for the overall and selection average
+			let selectionAvgValue = $scope.calculateAvg($scope.selectedIndicator, timestamp, true);
+			let selectionAvgElementName = (page.area && page.area.length) ? "Durchschnitt\nder\nSelektion" : "Durchschnitt der Selektion";
+			let dataObjSelectionAvg = {
+				name: selectionAvgElementName,
+				value: selectionAvgValue,
+				opacity: 1
+			}
+			// get color for avg from visual map and disable opacity
+			let colorSelectionAvg = "";
+			for(let piece of options.visualMap[0].pieces) {
+				if(piece.min <= dataObjSelectionAvg.value && dataObjSelectionAvg.value < piece.max) {
+					colorSelectionAvg = piece.color;
+				}
+				piece.opacity = 1;
+			}
+			dataObjSelectionAvg.color = colorSelectionAvg;
+			options.series[0].data.push(dataObjSelectionAvg);
+			options.xAxis.data.push( dataObjSelectionAvg.name )
 			
 			options.series[0].emphasis.itemStyle = {}; // don't show border on hover
 
@@ -1537,10 +1556,15 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 			// append average as last row if needed
 			if($scope.template.name === "A4-landscape-timestamp") {
-				rowsData.push( {
-					name: "Durchschnitt Gesamtstadt",
-					value:  $scope.calculateOverallAvg($scope.selectedIndicator, timestamp), // timestamp is only defined for this template
+				rowsData.push({
+					name: "Durchschnitt Selektion",
+					value:  $scope.calculateAvg($scope.selectedIndicator, timestamp, true)
 				});
+				rowsData.push({
+					name: "Durchschnitt Gesamtstadt",
+					value:  $scope.calculateAvg($scope.selectedIndicator, timestamp, false)
+				});
+				
 			}
 
 			// the length of rowsData is the number of rows we have to add
@@ -1663,11 +1687,19 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			echartsInstance.setOption(options) // set same options, but this updates the map
 		}
 
-		$scope.calculateOverallAvg = function(indicator, timestamp) {
+		$scope.calculateAvg = function(indicator, timestamp, calcForSelection) {
 			// calculate avg from geoJSON property, which should be the currently selected spatial unit
-			let data = indicator.geoJSON.features.map( feature => {
+			let features = indicator.geoJSON.features;
+			if(calcForSelection) {
+				features = features.filter( el => {
+					return $scope.selectedAreas.map(area=>area.name).includes( el.properties.NAME )
+				});
+			}
+
+			let data = features.map( feature => {
 				return feature.properties["DATE_" + timestamp];
 			})
+
 			let noDataCounter = 0
 			let sum = 0;
 			for(let i=0; i<data.length; i++) {
@@ -1678,13 +1710,18 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				}
 			}
 			
-			let avg = sum / indicator.geoJSON.features.length - noDataCounter;
+			let avg = sum / data.length - noDataCounter;
 			avg = Math.round(avg * 100) / 100; // 2 decimal places
 			return avg;
 		}
 
-		$scope.calculateOverallChange = function(indicator, timeseries) {
+		$scope.calculateChange = function(indicator, timeseries, calcForSelection) {
 			let data = $scope.calculateSeriesDataForTimeseries(indicator.geoJSON.features, timeseries);
+			if(calcForSelection) {
+				data = data.filter( el => {
+					return $scope.selectedAreas.map(area=>area.name).includes( el.name )
+				});
+			}
 			data = data.map(obj => obj.value)
 			let noDataCounter = 0
 			let sum = 0;
@@ -1696,7 +1733,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				}
 			}
 			
-			let avgChange = sum / indicator.geoJSON.features.length - noDataCounter;
+			let avgChange = sum / data.length - noDataCounter;
 			avgChange = Math.round(avgChange * 100) / 100; // 2 decimal places
 			return avgChange;
 		}
@@ -1804,7 +1841,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					}
 					
 					switch(pageElement.type) {
-						case "map":
+						case "map": {
 							// initialize with all areas
 							let map = $scope.createPageElement_Map(pElementDom, page, pageElement);
 							// filter visible areas if needed
@@ -1812,33 +1849,53 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 								$scope.filterMapByAreaName(map, page.area, $scope.selectedIndicator.geoJSON.features);
 							}
 							pageElement.isPlaceholder = false;
-
 							break;
-						case "mapLegend":
+						}
+						case "mapLegend": {
 							pageElement.isPlaceholder = false; // hide the placeholder, legend is part of map
 							pageDom.querySelector(".type-mapLegend").style.display = "none";
 							break;
-						case "overallAverage":
-							$scope.createPageElement_OverallAverage(page, pageElement);
-							pageDom.querySelector(".type-overallAverage").style.border = "none"; // hide dotted border from outer dom element
+						}
+							
+						case "overallAverage": {
+							$scope.createPageElement_Average(page, pageElement, false);
+							pageDom.querySelector(".type-overallAverage").style.border = "none";
 							break;
-						case "overallChange":
-							$scope.createPageElement_OverallChange(page, pageElement);
+						}
+						case "selectionAverage": {
+							$scope.createPageElement_Average(page, pageElement, true);
+							pageDom.querySelector(".type-selectionAverage").style.border = "none";
+							break;
+						}
+						case "overallChange": {
+							$scope.createPageElement_Change(page, pageElement, false);
 							let wrapper = pageDom.querySelector(".type-overallChange")
-							wrapper.style.border = "none"; // hide dotted border from outer dom element
+							wrapper.style.border = "none";
 							wrapper.style.left = "670px";
 							wrapper.style.width = "130px";
 							wrapper.style.height = "100px";
 							break;
-						case "barchart":
+						}
+						case "selectionChange": {
+							$scope.createPageElement_Change(page, pageElement, true);
+							let wrapper = pageDom.querySelector(".type-selectionChange")
+							wrapper.style.border = "none";
+							wrapper.style.left = "670px";
+							wrapper.style.width = "130px";
+							wrapper.style.height = "100px";
+							break;
+						}
+						case "barchart": {
 							$scope.createPageElement_BarChartDiagram(pElementDom, page);
 							pageElement.isPlaceholder = false;
 							break;
-						case "linechart":
+						}
+						case "linechart": {
 							$scope.createPageElement_TimelineDiagram(pElementDom, page, pageElement);
 							pageElement.isPlaceholder = false;
 							break;
-						case "datatable":
+						}
+						case "datatable": {
 							// remove all following datatable pages first so we don't add too many.
 							// this might happen because we initialize page elements from $watch(selectedAreas) and $watch(selectedTimestamps) on indicator selection
 							let nextPage = i<$scope.template.pages.length-1 ? $scope.template.pages[i+1] : undefined;
@@ -1853,6 +1910,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 							}
 							$scope.createPageElement_Datatable(pElementDom, page, pageElement );
 							break;
+						}
 					}
 				}
 			}

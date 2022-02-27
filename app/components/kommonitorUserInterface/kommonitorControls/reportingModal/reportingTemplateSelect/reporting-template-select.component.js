@@ -72,6 +72,17 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 								},
 								"isPlaceholder": true,
 								"placeholderText": "Durchschnitt Gesamtstadt"
+							},
+							{
+								"type": "selectionAverage",
+								"dimensions": {
+									"top": "180px",
+									"left": "700px",
+									"width": "100px",
+									"height": "60px"
+								},
+								"isPlaceholder": true,
+								"placeholderText": "Durchschnitt Selektion"
 							}
 						]
 					},
@@ -112,6 +123,17 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 								},
 								"isPlaceholder": true,
 								"placeholderText": "Durchschnitt Gesamtstadt"
+							},
+							{
+								"type": "selectionAverage",
+								"dimensions": {
+									"top": "180px",
+									"left": "700px",
+									"width": "100px",
+									"height": "60px"
+								},
+								"isPlaceholder": true,
+								"placeholderText": "Durchschnitt Selektion"
 							},
 							{
 								"type": "mapLegend",
@@ -293,6 +315,17 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 								},
 								"isPlaceholder": true,
 								"placeholderText": "Durchschnitt Gesamtstadt (aktuellster Wert)"
+							},
+							{
+								"type": "selectionAverage",
+								"dimensions": {
+									"top": "180px",
+									"left": "700px",
+									"width": "100px",
+									"height": "60px"
+								},
+								"isPlaceholder": true,
+								"placeholderText": "Durchschnitt Selektion (aktuellster Wert)"
 							}
 						]
 					},
@@ -335,6 +368,17 @@ angular.module('reportingTemplateSelect').component('reportingTemplateSelect', {
 								},
 								"isPlaceholder": true,
 								"placeholderText": "Veränderung Gesamtstadt"
+							},
+							{
+								"type": "selectionChange",
+								"dimensions": {
+									"top": "180px",
+									"left": "700px",
+									"width": "100px",
+									"height": "60px"
+								},
+								"isPlaceholder": true,
+								"placeholderText": "Veränderung Selektion"
 							},
 							{
 								"type": "mapLegend",
