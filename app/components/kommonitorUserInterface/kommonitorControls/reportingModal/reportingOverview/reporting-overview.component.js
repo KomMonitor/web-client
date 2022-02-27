@@ -127,33 +127,35 @@ angular.module('reportingOverview').component('reportingOverview', {
 
 		$scope.setupNewPages = function(indicator) {
 			
+			
 			$timeout(async function(indicator) {
-				let indicatorName = indicator.indicatorName;
 
+				let indicatorName = indicator.indicatorName;
+				let indicatorId = indicator.indicatorId;
+				let spatialUnit, spatialUnitId, featureCollection, features, geoJSON;
+				let isFirstPageToAdd = true;
 				for(let [idx, page] of $scope.config.pages.entries()) {
 
 					if(page.indicatorName !== indicatorName) {
 						continue; // only do changes to new pages
+					} else {
+						// Indicator and spatial unit are the same for all added pages
+						// We only need to query features on the first page that we add
+						if(isFirstPageToAdd) {
+							isFirstPageToAdd = false;
+							spatialUnit = indicator.applicableSpatialUnits.filter( el => {
+								return el.spatialUnitName === page.spatialUnitName;
+							});
+							spatialUnitId = spatialUnit[0].spatialUnitId;
+							featureCollection = await $scope.queryFeatures(indicatorId, spatialUnitId);
+							features = $scope.createLowerCaseNameProperty(featureCollection.features);
+							geoJSON = { features: features };
+							
+						}
 					}
 
-					// get spatial unit by name
-					let spatialUnit = indicator.applicableSpatialUnits.filter( el => {
-						return el.spatialUnitName === page.spatialUnitName;
-					});
-					let spatialUnitId = spatialUnit[0].spatialUnitId;
-					let indicatorId = indicator.indicatorId
-					// get features for spatial unit
-					
-					let featureCollection = await $scope.queryFeatures(indicatorId, spatialUnitId)
-					let features = $scope.createLowerCaseNameProperty(featureCollection.features);
-					let geoJSON = { features: features };
-					
-
 					let pageDom = document.querySelector("#reporting-overview-page-" + idx);
-
 					for(let pageElement of page.pageElements) {
-
-
 						// usually each type is included only once per page, but there is an exception for linecharts in area specific part of timeseries template
 						// for now we more or less hardcode this, but it might have to change in the future
 						let pElementDom;
