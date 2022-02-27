@@ -944,6 +944,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				}
 			}
 			$scope.template.spatialUnitName = $scope.selectedSpatialUnit.spatialUnitName;
+			$scope.template.absoluteLabelPositions = $scope.absoluteLabelPositions;
 			$scope.$emit('reportingAddNewIndicatorClicked', [$scope.selectedIndicator, $scope.template])
 			$scope.reset();
 		}

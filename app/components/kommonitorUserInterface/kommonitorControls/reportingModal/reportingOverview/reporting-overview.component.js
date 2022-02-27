@@ -78,6 +78,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 			// append to array
 			$scope.config.pages.push(...template.pages);
 			$scope.config.indicators.push(indicator);
+			$scope.config.absoluteLabelPositions = template.absoluteLabelPositions;
 
 			// setup pages after dom exists
 			$scope.setupNewPages(indicator);
@@ -209,6 +210,29 @@ angular.module('reportingOverview').component('reportingOverview', {
 								}
 							}
 
+							// recreate label positions
+							if(!page.area) {
+								pageElement.echartsOptions.labelLayout = function(feature) {
+									// Set fixed position for labels that were previously dragged by user
+									// For all other labels try to avoid overlaps
+									let names = $scope.config.absoluteLabelPositions.map(el=>el.name)
+									let text = feature.text.split("\n")[0] // area name is the first line
+									if(names.includes(text)) {
+										let idx = names.indexOf(text)
+										return {
+											x: $scope.config.absoluteLabelPositions[idx].x,
+											y: $scope.config.absoluteLabelPositions[idx].y,
+											draggable: false // Don't allow label dragging in overview, we could have different spatial units here
+										}
+									} else {
+										return {
+											moveOverlap: 'shiftY',
+											x: feature.rect.x + feature.rect.width / 2,
+											draggable: false
+										}
+									}	
+								}
+							}
 							instance.setOption( pageElement.echartsOptions )
 						}
 
@@ -354,6 +378,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 				$scope.config.indicators = indicators;
 				$scope.config.template = config.template;
 				$scope.config.pages = config.pages;
+				$scope.config.absoluteLabelPositions = config.absoluteLabelPositions;
 				$scope.$apply();
 				for(let indicator of $scope.config.indicators) {
 					$scope.setupNewPages(indicator);
@@ -369,6 +394,7 @@ angular.module('reportingOverview').component('reportingOverview', {
 				let jsonToExport = {};
 				jsonToExport.pages = angular.fromJson(angular.toJson( $scope.config.pages ));
 				jsonToExport.template = angular.fromJson(angular.toJson( $scope.config.template ));
+				jsonToExport.absoluteLabelPositions = $scope.config.absoluteLabelPositions;
 				// replace indicators with indicator names to reduce file size
 				jsonToExport.indicators = $scope.config.indicators.map( indicator => indicator.indicatorName);
 				// only store commune logo once (in first page)
