@@ -18,6 +18,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		$scope.selectedTimestamps = [];
 		$scope.indexOfFirstAreaSpecificPage = undefined;
 		$scope.dateSlider = undefined;
+		$scope.absoluteLabelPositions = [];
 		$scope.echartsOptions = {
 			map: {
 				// "2017-12-31": ...
@@ -752,6 +753,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			$scope.selectedAreas = [];
 			$scope.selectedSpatialUnit = undefined;
 			$scope.availableFeaturesBySpatialUnit = {};
+			$scope.absoluteLabelPositions = [];
 			$scope.echartsOptions = {
 				map: {},
 				bar: {},
@@ -1006,19 +1008,19 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			options.visualMap.axisLabel = { "fontSize": 10 };
 			options.toolbox.show = false;
 			options.visualMap.left = "right";
-			let mapOptions = options.series[0];
-			mapOptions.roam = false;
-			mapOptions.selectedMode = false;
+			let series = options.series[0];
+			series.roam = false;
+			series.selectedMode = false;
 
 
 			if(pageElement.isTimeseries) {
 				let includeInBetweenDates = true;
 				let timeseries = $scope.getFormattedDateSliderValues(includeInBetweenDates)
-				mapOptions.data = $scope.calculateSeriesDataForTimeseries($scope.selectedIndicator.geoJSON.features, timeseries)
+				series.data = $scope.calculateSeriesDataForTimeseries($scope.selectedIndicator.geoJSON.features, timeseries)
 			}
 			
-			mapOptions.map = mapName; // update the map with the one registered above
-			mapOptions.name = mapName;
+			series.map = mapName; // update the map with the one registered above
+			series.name = mapName;
 
 			let areaNames = $scope.selectedAreas.map( el => {
 				return el.name;
@@ -1030,7 +1032,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 				options.visualMap.show = false;
 			}
 
-			mapOptions.data.forEach( el => {
+			series.data.forEach( el => {
 				el.itemStyle =  el.itemStyle ? el.itemStyle : {};
 				el.emphasis = el.emphasis ? el.emphasis : {};
 				el.emphasis.itemStyle = el.emphasis.itemStyle ? el.emphasis.itemStyle : {};
@@ -1105,22 +1107,82 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 
 			// label positioning
-			options.labelLayout = function(feature) {
-				return {
-				  moveOverlap: 'shiftY',
-				  x: feature.rect.x + feature.rect.width / 2,
-				  draggable: true
+			if(!page.area) {
+				options.labelLayout = function(feature) {
+					// Set fixed position for labels that were previously dragged by user
+					// For all other labels try to avoid overlaps
+					let names = $scope.absoluteLabelPositions.map(el=>el.name)
+					let text = feature.text.split("\n")[0] // area name is the first line
+					if(names.includes(text)) {
+						let idx = names.indexOf(text)
+						return {
+							x: $scope.absoluteLabelPositions[idx].x,
+							y: $scope.absoluteLabelPositions[idx].y,
+							draggable: true
+						}
+					} else {
+						return {
+							moveOverlap: 'shiftY',
+							x: feature.rect.x + feature.rect.width / 2,
+							draggable: true
+						}
+					}	
 				}
-			}
-			
-			options.labelLine = {
-				show: true,
-				showAbove: false,
-				lineStyle: {
-				  color: '#555'
+
+				options.labelLine = {
+					show: true,
+					showAbove: false,
+					lineStyle: {
+						color: '#555'
+					}
 				}
+
+				map.getZr().on('mousedown', function(event) {
+					// on label drag
+					if(event.target) {
+						let target = event.target;
+						if(target.parent && target.parent.type === "text") {
+							// get the feature which this label belongs to
+							// feature name is the first child ("first line")
+							$scope.draggingLabelForFeature = target.parent._children[0].style.text;
+						}
+					}
+				});
+
+				map.getZr().on('mouseup', function(event) {
+					if(event.target) {
+						let target = event.target;
+						if(target.parent && target.parent.type === "text") {
+							// for all other maps that are not area-specific, do the exact same label drag
+							let newX = target.parent.x;
+							let newY = target.parent.y;
+							let names = $scope.absoluteLabelPositions.map(el=>el.name)
+							if(names.includes($scope.draggingLabelForFeature)) {
+								let idx = names.indexOf($scope.draggingLabelForFeature);
+								$scope.absoluteLabelPositions[idx].x = newX;
+								$scope.absoluteLabelPositions[idx].y = newY;
+							} else {
+								$scope.absoluteLabelPositions.push({
+									name: $scope.draggingLabelForFeature,
+									x: newX,
+									y: newY
+								})
+							}
+
+							for(let [idx, page] of $scope.template.pages.entries()) {
+								for(let pageElement of page.pageElements) {
+									if(pageElement.type === "map" && !page.area) {
+										let domNode = document.getElementById("reporting-addIndicator-page-" + idx + "-map");
+										let map = echarts.getInstanceByDom(domNode);
+										map.setOption(map.getOption()); // this calls the labelLayout function defined above
+									}
+								}
+							}
+						}
+					}
+				});
 			}
-			
+		
 			map.setOption(options);
 			return map;
 		}
