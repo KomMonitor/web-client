@@ -1410,7 +1410,12 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 
 			if(pageElement.showPercentageChangeToPrevTimestamp) {
 				for(let series of options.series) {
-					series.data = $scope.transformSeriesDataToPercentageChange(series.data)
+					try {
+						series.data = $scope.transformSeriesDataToPercentageChange(series.data)
+					} catch(error) {
+						kommonitorDataExchangeService.displayMapApplicationError(error.message);
+					}
+					
 				}
 				options.xAxis.data.shift();
 				options.title.text = "Veränderung zum Vorjahr";
