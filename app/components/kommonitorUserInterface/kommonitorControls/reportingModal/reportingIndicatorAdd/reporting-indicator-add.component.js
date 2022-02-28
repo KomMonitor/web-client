@@ -1149,11 +1149,12 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 						}
 						
 					} else {
-						// only show borders for any other areas
-						el.itemStyle.color = "rgba(255, 255, 255, 1)";
-						el.itemStyle.areaColor = "rgba(255, 255, 255, 1)";
-						el.emphasis.itemStyle.color = "rgba(255, 255, 255, 1)";
-						el.emphasis.itemStyle.areaColor = "rgba(255, 255, 255, 1)";
+						// Only show borders for any other areas
+						// Transparent area fill in case there is a background map
+						el.itemStyle.color = "rgba(255, 255, 255, 0)";
+						el.itemStyle.areaColor = "rgba(255, 255, 255, 0)";
+						el.emphasis.itemStyle.color = "rgba(255, 255, 255, 0)";
+						el.emphasis.itemStyle.areaColor = "rgba(255, 255, 255, 0)";
 						el.label.show = false;
 					}
 				}
