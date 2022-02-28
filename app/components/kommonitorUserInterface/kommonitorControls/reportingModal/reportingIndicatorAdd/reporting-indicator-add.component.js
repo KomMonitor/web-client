@@ -1873,13 +1873,19 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 			let options = echartsInstance.getOption();
 			let mapName = options.series[0].map;
 			// filter shown areas if we are in the area-specific part of the template
-			// removing areas form the series doesn't work. We have to filter the geojson of the registered map
-			features = allFeatures.filter ( el => {
+			// removing areas form the series doesn't work. We have to filter the geojson of the registered map.
+			let features = allFeatures.filter ( el => {
 				return el.properties.name === areaName
 			});
 
 			echarts.registerMap(mapName, { features: features } )
-			echartsInstance.setOption(options) // set same options, but this updates the map
+			// echart map bounds are defined by a bounding boy, which has to be updated as well.
+			let bbox = features[0].properties.bbox; // [east, south, west, north]
+			let newBounds = [[bbox[2], bbox[3]], [bbox[0], bbox[1]]] // [[west, north], [east, south]]
+			options.series[0].boundingCoords = newBounds;
+			echartsInstance.setOption(options, {
+				replaceMerge: ['series']
+			});
 		}
 
 		$scope.calculateAvg = function(indicator, timestamp, calcForSelection) {
