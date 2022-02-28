@@ -19,6 +19,7 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 		$scope.indexOfFirstAreaSpecificPage = undefined;
 		$scope.dateSlider = undefined;
 		$scope.absoluteLabelPositions = [];
+		$scope.updatingLeafletMaps = false;
 		$scope.echartsOptions = {
 			map: {
 				// "2017-12-31": ...
@@ -73,7 +74,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					// we could filter the geoJson here to only include selected areas
 					// but for now we get all areas and filter them out after
 					$scope.initializeOrUpdateAllDiagrams();
-					$scope.loadingData = false;
+					if(!$scope.updatingLeafletMaps) {
+						$scope.loadingData = false;
+					}
 				});
 			}
 	
@@ -435,7 +438,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 	
 					}
 					$scope.initializeOrUpdateAllDiagrams();
-					$scope.loadingData = false;
+					if(!$scope.updatingLeafletMaps) {
+						$scope.loadingData = false;
+					}
 				});
 				
 			}
@@ -631,7 +636,9 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					$scope.prepareDiagrams($scope.selectedIndicator, selectedSpatialUnit, timestamp.name, classifyUsingWholeTimeseries);
 				}
 				$scope.initializeOrUpdateAllDiagrams();
-				$scope.loadingData = false;
+				if(!$scope.updatingLeafletMaps) {
+					$scope.loadingData = false;
+				}
 			});
 		}
 
@@ -1361,8 +1368,15 @@ angular.module('reportingIndicatorAdd').component('reportingIndicatorAdd', {
 					// temp geojson
 					let geoJsonLayer = L.geoJSON( $scope.selectedIndicator.geoJSON.features )
 					geoJsonLayer.addTo(leafletMap)
+
+					if(pageIdx === $scope.template.pages.length-1) {
+						$scope.updatingLeafletMaps = false;
+						$scope.loadingData = false;
+					}
 				}, 0, true, page, pageElement, map)
 			}
+
+
 			return map;
 		}
 
