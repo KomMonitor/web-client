@@ -17,7 +17,7 @@ angular
       this.layerControl;
       // layer holding the editable feature
       this.featureLayer;
-      this.drawPointControl;
+      this.drawControl;
       this.geosearchControl;
 
       // backgroundLayer
@@ -201,6 +201,31 @@ angular
           // });
       };
 
+      this.initDrawControlOptions = function(resourceType, enableDrawToolbar){
+        let options = {
+          edit: {
+            featureGroup: this.featureLayer
+          },
+          position: 'bottomright'
+        };
+
+        if(enableDrawToolbar){
+          options.draw = {
+            polyline: resourceType == this.resourceType_line ? true : false,
+            polygon: resourceType == this.resourceType_polygon ? true : false,
+            rectangle: false,
+            circle: false,
+            circlemarker: false,
+            marker: resourceType == this.resourceType_point ? true : false
+          };
+        }
+        else{
+          options.draw = false;
+        }        
+
+        return options;
+      };
+
       this.initDrawControl = function(resourceType){
         // FeatureGroup is to store editable layers
         this.featureLayer = new L.FeatureGroup();
@@ -314,43 +339,40 @@ angular
         };
 
         this.map.addLayer(this.featureLayer);
-        this.drawPointControl = new L.Control.Draw({
-          edit: {
-            featureGroup: this.featureLayer
-          },
-          draw: {
-            polyline: resourceType == this.resourceType_line ? true : false,
-            polygon: resourceType == this.resourceType_polygon ? true : false,
-            rectangle: false,
-            circle: false,
-            circlemarker: resourceType == false
-          },
-          position: 'bottomright'
+        this.drawControlOptions = this.initDrawControlOptions(resourceType, true);
+        this.drawControl = new L.Control.Draw(this.drawControlOptions);
 
-        });
-
-        this.map.addControl(this.drawPointControl);
+        this.map.addControl(this.drawControl);
 
         this.map.on(L.Draw.Event.CREATED, function (event) {
           var layer = event.layer;
 
           self.featureLayer.addLayer(layer);
+          
+          // disable draw tools
+          self.map.removeControl(self.drawControl);
+          self.drawControl = new L.Control.Draw(self.initDrawControlOptions(resourceType, false));
+          self.map.addControl(self.drawControl);          
 
-          console.log(event);
           $rootScope.$broadcast("onUpdateSingleFeatureGeometry", self.featureLayer.toGeoJSON());
         });
 
         this.map.on(L.Draw.Event.EDITED, function (event) {
 
-          console.log(event);
           $rootScope.$broadcast("onUpdateSingleFeatureGeometry", self.featureLayer.toGeoJSON());
         });
 
         this.map.on(L.Draw.Event.DELETED, function (event) {
 
-          console.log(event);
+          // reinit featureGroupLayer
+          self.featureLayer = new L.FeatureGroup();
 
-          $rootScope.$broadcast("onUpdateSingleFeatureGeometry", self.featureLayer.toGeoJSON());
+          // enable draw tools
+          self.map.removeControl(self.drawControl);
+          self.drawControl = new L.Control.Draw(self.initDrawControlOptions(resourceType, true));
+          self.map.addControl(self.drawControl);    
+
+          $rootScope.$broadcast("onUpdateSingleFeatureGeometry", undefined);
         });
       };
 
