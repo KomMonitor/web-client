@@ -268,6 +268,12 @@ function initAngularComponents(){
               'auth': function(Auth, $q, $location) { 
                 if(window.__env.enableKeycloakSecurity){
                   if (Auth.keycloak.authenticated) {
+                    if(Auth.keycloak.tokenParsed 
+                      && Auth.keycloak.tokenParsed.realm_access 
+                      && Auth.keycloak.tokenParsed.realm_access.roles 
+                      && Auth.keycloak.tokenParsed.realm_access.roles.some(role => role.endsWith("-creator") || role.endsWith("-publisher") || role.endsWith("-editor"))){
+                        Auth.keycloak.showAdminView = true;
+                    }
                     if (Auth.keycloak.showAdminView) {
                       return true;
                     } else {
