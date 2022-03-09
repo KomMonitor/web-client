@@ -14,6 +14,7 @@ angular
 
       //leaflet map instance
       this.map;
+      this.layerControl;
       // layer holding the editable feature
       this.featureLayer;
       this.drawPointControl;
@@ -115,7 +116,9 @@ angular
             layers: [this.backgroundLayer]
           });
 
-          L.control.scale().addTo(this.map);          
+          L.control.scale().addTo(this.map); 
+          
+          // this.initLayerControl();
 
           if(resourceType == this.resourceType_point){
             this.initGeosearchControl();
@@ -124,6 +127,15 @@ angular
           this.initDrawControl(resourceType);
 
           this.invalidateMap();
+      };
+
+      this.initLayerControl = function(){
+        let baseLayers = {
+          "OpenStreetMap Graustufen": this.backgroundLayer
+        };
+        let overlays = {};
+
+        this.layerControl = L.control.layers(baseLayers, overlays, {position: "topleft"}).addTo(this.map);
       };
 
       this.initGeosearchControl = function(){
@@ -340,6 +352,50 @@ angular
 
           $rootScope.$broadcast("onUpdateSingleFeatureGeometry", self.featureLayer.toGeoJSON());
         });
+      };
+
+      /**
+      * binds the popup of a clicked output
+      * to layer.feature.properties.popupContent
+      */
+      this.onEachFeatureGeoresource = function(feature, layer) {
+       layer.on({
+         click: function () {
+
+           var popupContent = '<div class="georesourceInfoPopupContent featurePropertyPopupContent"><table class="table table-condensed">';
+           for (var p in feature.properties) {
+               popupContent += '<tr><td>' + p + '</td><td>'+ feature.properties[p] + '</td></tr>';
+           }
+           popupContent += '</table></div>';
+
+           layer.bindPopup(popupContent);
+         }
+       });
+     };
+
+      this.addDataLayertoSingleFeatureGeoMap = function(geoJSON){
+        if(this.map){
+          this.dataLayer = L.geoJSON(geoJSON, {
+            pointToLayer: function(geoJsonPoint, latlng) {
+              return L.circleMarker(latlng, {
+                radius: 6
+              });
+          },
+            style: function (feature) {
+              return {
+                color: "red",
+                weight: 1,
+                opacity: 1
+              };
+            },
+            onEachFeature: self.onEachFeatureGeoresource
+          });
+
+          // this.layerControl.addOverlay(this.dataLayer, "weitere Objekte des Datensatzes");
+          this.dataLayer.addTo(this.map);
+          // this.map.fitBounds(this.dataLayer.getBounds());
+          this.invalidateMap();
+        }
       };
 
 

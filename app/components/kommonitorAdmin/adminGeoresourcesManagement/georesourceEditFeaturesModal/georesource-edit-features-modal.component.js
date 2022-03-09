@@ -96,9 +96,15 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 				$scope.resetGeoresourceEditFeaturesForm();
 
 				kommonitorDataGridHelperService.buildDataGrid_featureTable_spatialResource("georesourceFeatureTable", [], []);
+				
+				$scope.initSingleFeatureAddMenu();				
+			}
 
-				// init geomap for single feature import, handling geocoding and feature geometry
-				let domId = "singleFeatureGeoMap";
+		});
+
+		$scope.initSingleFeatureAddMenu = function(){
+			// init geomap for single feature import, handling geocoding and feature geometry
+			let domId = "singleFeatureGeoMap";
 				let resourceType = kommonitorSingleFeatureMapHelperService.resourceType_point;
 				if($scope.currentGeoresourceDataset.isLOI){
 					resourceType = kommonitorSingleFeatureMapHelperService.resourceType_line;
@@ -106,13 +112,35 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 				else if($scope.currentGeoresourceDataset.isAOI){
 					resourceType = kommonitorSingleFeatureMapHelperService.resourceType_polygon;
 				}
-				kommonitorSingleFeatureMapHelperService.initSingleFeatureGeoMap(domId, resourceType);
+				kommonitorSingleFeatureMapHelperService.initSingleFeatureGeoMap(domId, resourceType);			
 
-				// init featureSchema for single feature import
-				$scope.initFeatureSchema();
-			}
+			// init featureSchema for single feature import
+			$scope.initFeatureSchema();
 
-		});
+			// add data layer to singleFeatureMap
+			$http({
+				url: kommonitorDataExchangeService.getBaseUrlToKomMonitorDataAPI_spatialResource() + "/georesources/" + $scope.currentGeoresourceDataset.georesourceId + "/allFeatures",
+				method: "GET",
+				// headers: {
+				//    'Content-Type': undefined
+				// }
+			}).then(function successCallback(response) {
+
+				$scope.georesourceFeaturesGeoJSON = response.data;
+				kommonitorSingleFeatureMapHelperService.addDataLayertoSingleFeatureGeoMap($scope.georesourceFeaturesGeoJSON);
+				
+
+				}, function errorCallback(error) {
+					if(error.data){							
+						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+					}
+					else{
+						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
+					}
+
+					$("#georesourceEditFeaturesErrorAlert").show();
+			});
+		}
 
 		$scope.initFeatureSchema = function(){
 			$scope.featureSchemaProperties = [];
