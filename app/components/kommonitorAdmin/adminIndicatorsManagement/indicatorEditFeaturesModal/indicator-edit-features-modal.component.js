@@ -227,6 +227,10 @@ angular.module('indicatorEditFeaturesModal').component('indicatorEditFeaturesMod
 			};
 	
 			$scope.resetIndicatorEditFeaturesForm = function(){
+
+				// reset edit banners
+				kommonitorDataGridHelperService.featureTable_indicator_lastUpdate_timestamp_success = undefined;
+				kommonitorDataGridHelperService.featureTable_indicator_lastUpdate_timestamp_failure = undefined;
 	
 				$scope.indicatorFeaturesJSON = undefined;
 				$scope.remainingFeatureHeaders = undefined;

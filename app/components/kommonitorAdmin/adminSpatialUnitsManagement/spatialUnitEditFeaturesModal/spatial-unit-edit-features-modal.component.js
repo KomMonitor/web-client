@@ -196,6 +196,10 @@ angular.module('spatialUnitEditFeaturesModal').component('spatialUnitEditFeature
 
 		$scope.resetSpatialUnitEditFeaturesForm = function(){
 
+			// reset edit banners
+			kommonitorDataGridHelperService.featureTable_spatialUnit_lastUpdate_timestamp_success = undefined;
+			kommonitorDataGridHelperService.featureTable_spatialUnit_lastUpdate_timestamp_failure = undefined;
+
 			$scope.spatialUnitFeaturesGeoJSON = undefined;
 			$scope.remainingFeatureHeaders = undefined;
 

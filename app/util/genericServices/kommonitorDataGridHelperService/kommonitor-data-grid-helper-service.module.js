@@ -14,12 +14,12 @@ angular
       this.resourceType_spatialUnit = "spatialUnit";
       this.resourceType_indicator = "indicator";
 
-      this.featureTable_spatialUnit_lastUpdate_timestamp_success = "";
-      this.featureTable_spatialUnit_lastUpdate_timestamp_failure = "";
-      this.featureTable_georesource_lastUpdate_timestamp_success = "";
-      this.featureTable_georesource_lastUpdate_timestamp_failure = "";
-      this.featureTable_indicator_lastUpdate_timestamp_success = "";
-      this.featureTable_indicator_lastUpdate_timestamp_failure = "";
+      this.featureTable_spatialUnit_lastUpdate_timestamp_success = undefined;
+      this.featureTable_spatialUnit_lastUpdate_timestamp_failure = undefined;
+      this.featureTable_georesource_lastUpdate_timestamp_success = undefined;
+      this.featureTable_georesource_lastUpdate_timestamp_failure = undefined;
+      this.featureTable_indicator_lastUpdate_timestamp_success = undefined;
+      this.featureTable_indicator_lastUpdate_timestamp_failure = undefined;
 
       this.dataGridOptions_indicators;
       this.dataGridOptions_georesources_poi;

@@ -317,6 +317,10 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 
 		$scope.resetGeoresourceEditFeaturesForm = function(){
 
+			// reset edit banners
+			kommonitorDataGridHelperService.featureTable_georesource_lastUpdate_timestamp_success = undefined;
+			kommonitorDataGridHelperService.featureTable_georesource_lastUpdate_timestamp_failure = undefined;
+
 			// variables for single feature import
 			$scope.featureIdValue = undefined;
 			$scope.featureNameValue = undefined;
