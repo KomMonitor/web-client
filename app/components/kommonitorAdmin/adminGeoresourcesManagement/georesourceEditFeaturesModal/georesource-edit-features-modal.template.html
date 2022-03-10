@@ -149,7 +149,9 @@
 													</tr>
 													<tr ng-repeat="featureSchemaEntry in featureSchemaProperties">
 														<td>
-															<b>{{featureSchemaEntry.property}}</b>
+															<b>{{featureSchemaEntry.property}}</b>															
+															<br>
+															<i>Beispiel: {{featureSchemaEntry.exampleValue}}</i>
 														</td>
 														<td>
 															<input type="text" class="form-control" ng-model="featureSchemaEntry.value" placeholder="optionaler Wert f&uuml;r Attribut '{{featureSchemaEntry.property}}'" required></input>

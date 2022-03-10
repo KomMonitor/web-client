@@ -133,6 +133,7 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 				
 				//once the dataset features are fetched we may make a proposal for the ID of a new Feature
 				$scope.featureIdValue = $scope.generateIdProposalFromExistingFeatures();
+				$scope.addExampleValuesToSchemaProperties();
 
 				}, function errorCallback(error) {
 					if(error.data){							
@@ -222,6 +223,15 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 				}, function errorCallback(error) {
 					
 			});
+		};
+
+		$scope.addExampleValuesToSchemaProperties = function(){
+			if ($scope.georesourceFeaturesGeoJSON && $scope.featureSchemaProperties && $scope.georesourceFeaturesGeoJSON.features && $scope.georesourceFeaturesGeoJSON.features[0]){
+				let exampleFeature = $scope.georesourceFeaturesGeoJSON.features[0];
+				for (const element of $scope.featureSchemaProperties) {
+					element.exampleValue = exampleFeature.properties[element.property];
+				}				
+			}
 		};
 
 		$scope.addSingleGeoresourceFeature = async function(){
