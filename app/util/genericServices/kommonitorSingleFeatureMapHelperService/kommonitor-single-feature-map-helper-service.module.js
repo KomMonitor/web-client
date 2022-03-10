@@ -85,6 +85,15 @@ angular
         }
       };
 
+      this.zoomToDataLayer = function(){
+        if (this.map && this.dataLayer){
+          // just wait a bit in order to ensure that map element is visible to make invalidateSize actually work
+          $timeout(function(){            
+            self.map.fitBounds(self.dataLayer.getBounds());
+          }, 750);
+        }
+      };
+
       this.initSingleFeatureGeoMap = function(domId, resourceType){
         // init leaflet map
 
