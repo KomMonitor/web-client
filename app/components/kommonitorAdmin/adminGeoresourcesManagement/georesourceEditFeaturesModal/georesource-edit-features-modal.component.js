@@ -282,6 +282,8 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 
 						// as the update was successfull we must prevent the user from importing the same object again
 						$scope.featureIdIsValid = false;
+						// add the new feature to current dataset!
+						$scope.georesourceFeaturesGeoJSON.features.push($scope.featureGeometryValue.features[0]);
 
 						$("#georesourceEditFeaturesSuccessAlert").show();
 						$scope.loadingData = false;
@@ -579,17 +581,16 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 			$scope.propertyMappingDefinition = kommonitorImporterHelperService.propertyMappingDefinition_singleFeatureImport;
 
 			// make geoJSON FeatureCollection and fill feature properties from single feature menu
-			let geoJSON = JSON.parse(JSON.stringify($scope.featureGeometryValue));
-			geoJSON.features[0].properties[__env.FEATURE_ID_PROPERTY_NAME] = $scope.featureIdValue;
-			geoJSON.features[0].properties[__env.FEATURE_NAME_PROPERTY_NAME] = $scope.featureNameValue;
-			geoJSON.features[0].properties[__env.VALID_START_DATE_PROPERTY_NAME] = $scope.featureStartDateValue;
-			geoJSON.features[0].properties[__env.VALID_END_DATE_PROPERTY_NAME] = $scope.featureEndDateValue;
+			$scope.featureGeometryValue.features[0].properties[__env.FEATURE_ID_PROPERTY_NAME] = $scope.featureIdValue;
+			$scope.featureGeometryValue.features[0].properties[__env.FEATURE_NAME_PROPERTY_NAME] = $scope.featureNameValue;
+			$scope.featureGeometryValue.features[0].properties[__env.VALID_START_DATE_PROPERTY_NAME] = $scope.featureStartDateValue;
+			$scope.featureGeometryValue.features[0].properties[__env.VALID_END_DATE_PROPERTY_NAME] = $scope.featureEndDateValue;
 
 			for (const element of $scope.featureSchemaProperties) {
-				geoJSON.features[0].properties[element.property] = element.value;
+				$scope.featureGeometryValue.features[0].properties[element.property] = element.value;
 			}
 
-			$scope.datasourceTypeDefinition.parameters[0].value = JSON.stringify(geoJSON);
+			$scope.datasourceTypeDefinition.parameters[0].value = JSON.stringify($scope.featureGeometryValue);
 
 			var scopeProperties = {
 				"periodOfValidity": {
