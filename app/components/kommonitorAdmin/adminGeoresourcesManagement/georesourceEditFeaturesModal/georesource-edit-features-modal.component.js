@@ -413,12 +413,17 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 
 			// variables for single feature import
 			$scope.featureIdValue = undefined;
+			$scope.featureIdExampleString = undefined;
+			$scope.featureIdIsValid = false;
 			$scope.featureNameValue = undefined;
 			$scope.featureGeometryValue = undefined;
 			$scope.featureStartDateValue = undefined;
 			$scope.featureEndDateValue = undefined;
 			// [{property: name, value: value}]
 			$scope.featureSchemaProperties = []; 
+
+			// reinit single feature add menu
+			$scope.initSingleFeatureAddMenu();	
 
 			//variables for multiple feature import
 
