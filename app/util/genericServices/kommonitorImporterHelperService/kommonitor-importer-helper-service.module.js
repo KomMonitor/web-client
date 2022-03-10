@@ -127,6 +127,36 @@ angular
           "targetSpatialUnitName": "string"
         }; 
 
+      this.converterDefinition_singleFeatureImport = {
+        "encoding": "UTF-8",
+        "mimeType": "application/geo+json",
+        "name": "org.n52.kommonitor.importer.converter.geojson",
+        "parameters": [
+          {
+            "name": "CRS",
+            "value": "EPSG:4326"
+          }
+        ]
+      }; 
+      
+      this.datasourceDefinition_singleFeatureImport = {
+        "parameters": [
+          {
+            "name": "payload",
+            "value": "geojsonValue"
+          }
+        ],
+        "type": "INLINE"
+      };
+      
+      this.propertyMappingDefinition_singleFeatureImport = {
+        "identifierProperty": "ID",
+        "nameProperty": "NAME",
+        "keepAttributes": true,
+        "keepMissingOrNullValueAttributes": true,
+        "attributes": []
+      };
+
       this.fetchResourcesFromImporter = async function(){
         console.log("Trying to fetch converters and datasourceTypes from importer service");
         this.availableConverters = await this.fetchConverters();

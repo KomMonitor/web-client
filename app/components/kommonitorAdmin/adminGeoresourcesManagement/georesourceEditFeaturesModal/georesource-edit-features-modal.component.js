@@ -37,6 +37,7 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 		// variables for single feature import
 		$scope.featureIdValue = undefined;
 		$scope.featureIdExampleString = undefined;
+		$scope.featureIdIsValid = false;
 		$scope.featureNameValue = undefined;
 		$scope.featureGeometryValue = undefined;
 		$scope.featureStartDateValue = undefined;
@@ -188,12 +189,19 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 		};
 
 		$scope.validateSingleFeatureId = function(){
+			$scope.featureIdIsValid = false;
 			if($scope.georesourceFeaturesGeoJSON && $scope.featureIdValue){
 				let filteredFeatures = $scope.georesourceFeaturesGeoJSON.features.filter(feature => feature.properties[__env.FEATURE_ID_PROPERTY_NAME] == $scope.featureIdValue);
 
-				return filteredFeatures.length == 0;
-			}
-			return false;
+				if(filteredFeatures.length == 0){
+					$scope.featureIdIsValid = true;					
+				}
+				else{
+					$scope.featureIdIsValid = false;					
+				}
+				return $scope.featureIdIsValid;
+			}			
+			return $scope.featureIdIsValid;
 		};
 
 		$scope.initFeatureSchema = async function(){
@@ -248,84 +256,73 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 					now collect data and build request for importer
 				*/
 
-				/*
-					if any required importer data is missing --> cancel request and highlight required errors 
-				*/
 				var allDataSpecified = await $scope.buildImporterObjects_singleFeatureImport();
 
-				if (!allDataSpecified) {
+				// TODO Create and perform POST Request with loading screen
 
-					$("#georesourceEditFeaturesForm").validator("update");
-					$("#georesourceEditFeaturesForm").validator("validate");
-					return;
-				}
-				else {
+				var updateGeoresourceResponse_dryRun = undefined;
+				try {
+					updateGeoresourceResponse_dryRun = await kommonitorImporterHelperService.updateGeoresource($scope.converterDefinition, $scope.datasourceTypeDefinition, $scope.propertyMappingDefinition, $scope.currentGeoresourceDataset.georesourceId, $scope.putBody_georesources, true);
 
-
-					// TODO verify input
-
-					// TODO Create and perform POST Request with loading screen
-
-					var updateGeoresourceResponse_dryRun = undefined;
-					try {
-						updateGeoresourceResponse_dryRun = await kommonitorImporterHelperService.updateGeoresource($scope.converterDefinition, $scope.datasourceTypeDefinition, $scope.propertyMappingDefinition, $scope.currentGeoresourceDataset.georesourceId, $scope.putBody_georesources, true);
-
-						// this callback will be called asynchronously
-						// when the response is available
+					// this callback will be called asynchronously
+					// when the response is available
 
 
 
 
-						if(! kommonitorImporterHelperService.importerResponseContainsErrors(updateGeoresourceResponse_dryRun)){
-							// all good, really execute the request to import data against data management API
-							var updateGeoresourceResponse = await kommonitorImporterHelperService.updateGeoresource($scope.converterDefinition, $scope.datasourceTypeDefinition, $scope.propertyMappingDefinition, $scope.currentGeoresourceDataset.georesourceId, $scope.putBody_georesources, false);						
+					if(! kommonitorImporterHelperService.importerResponseContainsErrors(updateGeoresourceResponse_dryRun)){
+						// all good, really execute the request to import data against data management API
+						var updateGeoresourceResponse = await kommonitorImporterHelperService.updateGeoresource($scope.converterDefinition, $scope.datasourceTypeDefinition, $scope.propertyMappingDefinition, $scope.currentGeoresourceDataset.georesourceId, $scope.putBody_georesources, false);						
 
-							$rootScope.$broadcast("refreshGeoresourceOverviewTable", "edit", $scope.currentGeoresourceDataset.georesourceId);
-							// $scope.refreshGeoresourceEditFeaturesOverviewTable();
+						$rootScope.$broadcast("refreshGeoresourceOverviewTable", "edit", $scope.currentGeoresourceDataset.georesourceId);
+						// $scope.refreshGeoresourceEditFeaturesOverviewTable();
 
-							$scope.successMessagePart = $scope.currentGeoresourceDataset.datasetName;
-							$scope.importedFeatures = kommonitorImporterHelperService.getImportedFeaturesFromImporterResponse(updateGeoresourceResponse);
+						$scope.successMessagePart = $scope.currentGeoresourceDataset.datasetName;
+						$scope.importedFeatures = kommonitorImporterHelperService.getImportedFeaturesFromImporterResponse(updateGeoresourceResponse);
 
-							$("#georesourceEditFeaturesSuccessAlert").show();
-							$scope.loadingData = false;
-						}
-						else{
-							// errors ocurred
-							// show them 
-							$scope.errorMessagePart = "Einige der zu importierenden Features des Datensatzes weisen kritische Fehler auf";
-							$scope.importerErrors = kommonitorImporterHelperService.getErrorsFromImporterResponse(updateGeoresourceResponse_dryRun);
+						// as the update was successfull we must prevent the user from importing the same object again
+						$scope.featureIdIsValid = false;
 
-							$("#georesourceEditFeaturesErrorAlert").show();
-							$scope.loadingData = false;
+						$("#georesourceEditFeaturesSuccessAlert").show();
+						$scope.loadingData = false;
+					}
+					else{
+						// errors ocurred
+						// show them 
+						$scope.errorMessagePart = "Das zu importierende Feature des Datensatzes weist kritische Fehler auf";
+						$scope.importerErrors = kommonitorImporterHelperService.getErrorsFromImporterResponse(updateGeoresourceResponse_dryRun);
 
-							setTimeout(() => {
-								$scope.$digest();
-							}, 250);
-
-						}
-					} catch (error) {
-						if(error.data){							
-							$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
-						}
-						else{
-							$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
-						}
-						if(updateGeoresourceResponse_dryRun){
-							$scope.importerErrors = kommonitorImporterHelperService.getErrorsFromImporterResponse(updateGeoresourceResponse_dryRun);
-						}
-						
 						$("#georesourceEditFeaturesErrorAlert").show();
 						$scope.loadingData = false;
 
 						setTimeout(() => {
 							$scope.$digest();
 						}, 250);
+
 					}
+				} catch (error) {
+					if(error.data){							
+						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error.data);
+					}
+					else{
+						$scope.errorMessagePart = kommonitorDataExchangeService.syntaxHighlightJSON(error);
+					}
+					if(updateGeoresourceResponse_dryRun){
+						$scope.importerErrors = kommonitorImporterHelperService.getErrorsFromImporterResponse(updateGeoresourceResponse_dryRun);
+					}
+					
+					$("#georesourceEditFeaturesErrorAlert").show();
+					$scope.loadingData = false;
+
+					setTimeout(() => {
+						$scope.$digest();
+					}, 250);
 				}
 		};
 
 		$scope.$on("onUpdateSingleFeatureGeometry", function(event, geoJSON){
 			$scope.featureGeometryValue = geoJSON;
+			$scope.$digest();
 		});
 
 		$scope.refreshGeoresourceEditFeaturesOverviewTable = function(){
@@ -569,6 +566,40 @@ angular.module('georesourceEditFeaturesModal').component('georesourceEditFeature
 			setTimeout(() => {
 				$scope.$digest();
 			}, 250);
+		};
+
+		$scope.buildImporterObjects_singleFeatureImport = async function(){
+			$scope.converterDefinition = kommonitorImporterHelperService.converterDefinition_singleFeatureImport;
+			$scope.datasourceTypeDefinition = kommonitorImporterHelperService.datasourceDefinition_singleFeatureImport;
+			$scope.propertyMappingDefinition = kommonitorImporterHelperService.propertyMappingDefinition_singleFeatureImport;
+
+			// make geoJSON FeatureCollection and fill feature properties from single feature menu
+			let geoJSON = JSON.parse(JSON.stringify($scope.featureGeometryValue));
+			geoJSON.features[0].properties[__env.FEATURE_ID_PROPERTY_NAME] = $scope.featureIdValue;
+			geoJSON.features[0].properties[__env.FEATURE_NAME_PROPERTY_NAME] = $scope.featureNameValue;
+			geoJSON.features[0].properties[__env.VALID_START_DATE_PROPERTY_NAME] = $scope.featureStartDateValue;
+			geoJSON.features[0].properties[__env.VALID_END_DATE_PROPERTY_NAME] = $scope.featureEndDateValue;
+
+			for (const element of $scope.featureSchemaProperties) {
+				geoJSON.features[0].properties[element.property] = element.value;
+			}
+
+			$scope.datasourceTypeDefinition.parameters[0].value = JSON.stringify(geoJSON);
+
+			var scopeProperties = {
+				"periodOfValidity": {
+					"endDate": $scope.featureEndDateValue,
+					"startDate": $scope.featureStartDateValue
+				},
+				"isPartialUpdate": true
+			};
+			$scope.putBody_georesources = kommonitorImporterHelperService.buildPutBody_georesources(scopeProperties);			
+
+			if(!$scope.converterDefinition || !$scope.datasourceTypeDefinition || !$scope.propertyMappingDefinition || !$scope.putBody_georesources){
+				return false;
+			}
+
+			return true;
 		};
 
 		$scope.buildImporterObjects = async function(){
